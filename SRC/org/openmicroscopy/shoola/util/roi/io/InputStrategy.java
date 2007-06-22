@@ -83,6 +83,8 @@ import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeOpacityPar
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeWidthParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGTransformParser;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.ShowMeasurementParser;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.ShowTextParser;
 
 /** 
  * 
@@ -126,6 +128,10 @@ public class InputStrategy
 	static
 	{
 		attributeParserMap=new HashMap<String, SVGAttributeParser>();
+		attributeParserMap.put(IOConstants.ATTRIBUTE_SHOWTEXT,
+			new ShowTextParser());
+		attributeParserMap.put(IOConstants.ATTRIBUTE_SHOWMEASUREMENT,
+			new ShowMeasurementParser());
 		attributeParserMap.put(IOConstants.SVG_FILL_ATTRIBUTE,
 			new SVGFillParser());
 		attributeParserMap.put(IOConstants.SVG_FILL_OPACITY_ATTRIBUTE,
@@ -545,18 +551,58 @@ public class InputStrategy
 	}	
 	
 	public BezierAnnotationFigure createBezierFigure(IXMLElement bezierElement,
-			boolean closed)
+			boolean closed) throws ParsingException
 	{
 		BezierAnnotationFigure fig=new BezierAnnotationFigure(closed);
+		Point2D.Double[] points=null;
+		Point2D.Double[] points1=null;
+		Point2D.Double[] points2=null;
+		Integer []mask=null;
 		if (bezierElement.hasAttribute(IOConstants.POINTS_ATTRIBUTE))
 		{
 			String pointsValues=
 					bezierElement.getAttribute(IOConstants.POINTS_ATTRIBUTE,
 						IOConstants.VALUE_NULL);
-			Point2D.Double[] points=toPoints(pointsValues);
-			for (int i=0; i<points.length; i++)
-				fig.addNode(new Node(points[i].x, points[i].y));
+			points=toPoints(pointsValues);
 		}
+		if (bezierElement.hasAttribute(IOConstants.POINTS_CONTROL1_ATTRIBUTE))
+		{
+			String pointsValues=
+					bezierElement.getAttribute(IOConstants.POINTS_CONTROL1_ATTRIBUTE,
+						IOConstants.VALUE_NULL);
+			points1=toPoints(pointsValues);
+		}
+		if (bezierElement.hasAttribute(IOConstants.POINTS_CONTROL2_ATTRIBUTE))
+		{
+			String pointsValues=
+					bezierElement.getAttribute(IOConstants.POINTS_CONTROL2_ATTRIBUTE,
+						IOConstants.VALUE_NULL);
+			points2=toPoints(pointsValues);
+		}
+		if (bezierElement.hasAttribute(IOConstants.POINTS_MASK_ATTRIBUTE))
+		{
+			String pointsValues=
+					bezierElement.getAttribute(IOConstants.POINTS_MASK_ATTRIBUTE,
+						IOConstants.VALUE_NULL);
+			mask=toIntArray(pointsValues);
+		}
+			
+		if(points==null || points1==null || points2==null || mask == null
+				|| (points.length!=points1.length) || (points.length!=points2.length)
+				|| (points.length!=mask.length))
+		{
+			throw new ParsingException("Error parsing points attributes in ROI : " + 
+					currentROI + " ROIShape Coord t : " + 
+					currentCoord.getTimePoint() + " z : " +
+					currentCoord.getZSection());
+		}
+		
+		for (int i=0; i<points.length; i++)
+		{
+			Node newNode = new Node(mask[i], points[i], points1[i], points2[i]);
+			fig.addNode(newNode);
+		}
+		
 		addAttributes(fig, bezierElement);
 		return fig;
 	}
@@ -783,6 +829,21 @@ public class InputStrategy
 		return points;
 	}
 	
+	/**
+	 * Returns a value as a Point2D.Double array.
+	 * as specified in http://www.w3.org/TR/SVGMobile12/shapes.html#PointsBNF
+	 * 
+	 * @return See above.
+	 */
+	private Integer[] toIntArray(String str)
+	{
+		StringTokenizer tt=new StringTokenizer(str, " ,");
+		Integer[] points=new Integer[tt.countTokens()];
+		for (int i=0; i<points.length; i++)
+			points[i]=
+					new Integer(tt.nextToken());
+		return points;
+	}
 	
 	private void addAttributes(ROIFigure figure, IXMLElement figureElement)
 	{
@@ -867,14 +928,12 @@ public class InputStrategy
 		}
 		
 	}
-	
-	
+		
 	InputStrategy()
 	{
 
 	}
-	
-	
+		
 	ArrayList<ROI> readROI(InputStream in, ROIComponent component)
 			throws ParsingException, ROICreationException,
 			NoSuchROIException

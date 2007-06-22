@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.view.BoundsConstrainer 
+ * org.openmicroscopy.shoola.util.roi.io.attributeparser.ShowTextParser 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,23 +20,16 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.view;
-
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-
-import org.jhotdraw.draw.Constrainer;
-import org.jhotdraw.draw.DrawingView;
+package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 
 //Java imports
 
 //Third-party libraries
+import net.n3.nanoxml.IXMLElement;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
 /** 
  * 
@@ -51,60 +44,19 @@ import org.jhotdraw.draw.DrawingView;
  * </small>
  * @since OME3.0
  */
-public class BoundsConstrainer 
-	implements Constrainer 
+public class ShowTextParser
+	implements SVGAttributeParser
 {
-    private double width, height;
-    /**
-    * Creates a new instance.
-    * @param width The width of a grid cell.
-	* @param height The height of a grid cell.
-	*/
-	public BoundsConstrainer(double width, double height) 
-	{
-		if (width <= 0 || height <= 0) throw new IllegalArgumentException("Width or height is <= 0");
-	    this.width = width;
-	    this.height = height;
-	}
-	    
-	public double getWidth()
-	{
-		return width;
-	}
-	  
-	public double getHeight() {
-		return height;
-	}
-	
-	public Point2D.Double constrainPoint(Point2D.Double p) {
-		// FIXME - This works only for integer widths!
 
-		double x, y;
-		x = p.getX();
-		y = p.getY();
-		if(x>width)
-			x = width;
-		if(y>height)
-			y = height;
-		if(x<0)
-			x = 0;
-		if(y<0)
-			y = 0;
-		p.setLocation(x, y);
-		return p;
-	}
-	public String toString() {
-		return super.toString()+"["+width+","+height+"]";
-	}
-	
-	public boolean isVisible() {
-		return (width > 1 && height > 1);
-	}
-	
-	public void draw(Graphics2D g, DrawingView view) 
-	{
+		/* (non-Javadoc)
+		 * @see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
+		 */
+		public void parse(ROIFigure figure,IXMLElement element, String value) 
+		{
+			Boolean booleanValue = new Boolean(value);
+			DrawingAttributes.SHOWTEXT.set(figure, booleanValue);
+		}
 		
-	}
 }
 
 

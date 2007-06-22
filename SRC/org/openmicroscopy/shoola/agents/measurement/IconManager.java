@@ -148,7 +148,7 @@ public class IconManager
         relPaths[RIGHT_ARROW] = "nuvola_1rightarrow22.png";
         relPaths[DOUBLE_LEFT_ARROW] = "nuvola_2leftarrow22.png";
         relPaths[DOUBLE_RIGHT_ARROW] = "nuvola_2rightarrow22.png";
-        relPaths[WIZARD] = "nuvola_wizard32.png";
+        relPaths[WIZARD] = "nuvola_wizard48.png";
         relPaths[WIZARD16] = "nuvola_wizard16.png";
         relPaths[SAVE16] = "nuvola_filesaveas16.png";
         relPaths[REFRESH16] = "nuvola_reload16.png";

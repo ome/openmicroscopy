@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.util.HashMap;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -37,6 +39,8 @@ import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 
 //Third-party libraries
+import org.jhotdraw.draw.AttributeKey;
+import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.BezierTool;
 import org.jhotdraw.draw.ConnectionTool;
 import org.jhotdraw.draw.CreationTool;
@@ -46,6 +50,7 @@ import org.jhotdraw.util.ResourceBundleUtil;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
@@ -53,6 +58,7 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -71,6 +77,27 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class ToolBar 
 	extends JPanel
 {
+
+	private final static HashMap<AttributeKey, Object>	defaultAttributes;
+	static
+	{
+		defaultAttributes=new HashMap<AttributeKey, Object>();
+		defaultAttributes.put(AttributeKeys.FILL_COLOR,
+			IOConstants.DEFAULT_FILL_COLOUR);
+		defaultAttributes.put(AttributeKeys.STROKE_COLOR,
+			IOConstants.DEFAULT_STROKE_COLOUR);
+		defaultAttributes.put(AttributeKeys.TEXT_COLOR,
+			IOConstants.DEFAULT_TEXT_COLOUR);
+		defaultAttributes.put(AttributeKeys.FONT_SIZE, new Double(10));
+		defaultAttributes.put(AttributeKeys.FONT_BOLD, false);
+		defaultAttributes.put(AttributeKeys.STROKE_WIDTH, new Double(1.0));
+		defaultAttributes.put(AttributeKeys.TEXT, "Text");
+		defaultAttributes.put(DrawingAttributes.MEASUREMENTTEXT_COLOUR,
+			IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
+		defaultAttributes.put(DrawingAttributes.SHOWMEASUREMENT, new Boolean(
+			false));
+		defaultAttributes.put(DrawingAttributes.SHOWTEXT, new Boolean(false));
+	}
 	
 	/** The default string added to the type of Figure to create. */
 	private static final String			CREATE_KEY = "create";
@@ -118,8 +145,9 @@ class ToolBar
 				new CreationTool(new LineAnnotationFigure()), 
 					CREATE_KEY+ROIFigure.LINE_TYPE, labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
-	    		new ConnectionTool(new LineConnectionAnnotationFigure()), 
-	    		CREATE_KEY+ROIFigure.LINE_CONNECTION_TYPE, labels);
+	    		new ConnectionTool(new LineConnectionAnnotationFigure(), 
+	    			defaultAttributes), 
+	    			CREATE_KEY+ROIFigure.LINE_CONNECTION_TYPE, labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
 				  new BezierTool(new BezierAnnotationFigure()), 
 				  CREATE_KEY+ROIFigure.SCRIBBLE_TYPE, labels);

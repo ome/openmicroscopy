@@ -53,8 +53,8 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 public class ROIAssistantTable
 	extends JTable
 {	
-	private final static int 	COLUMNWIDTH = 24;
-	private final static int 	LEADERCOLUMN_WIDTH = 80;
+	public final static int 	COLUMNWIDTH = 32;
+	public final static int 	LEADERCOLUMN_WIDTH = 80;
 	private final static Color 	GRIDCOLOUR = new Color(180, 213, 255);
 	
 	ROIAssistantTable(ROIAssistantModel model)

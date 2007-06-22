@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Point;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -36,6 +37,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -106,9 +108,12 @@ public class ROIAssistant
 	/** Listener for the selection of cells in the table. */
 	private 	ListSelectionListener	listener;
 	
+	/** The scroll pane of the Table. */
+	private 	JScrollPane				scrollPane;
+	
 	/** Model for the measyrement tool. */
 	private 	MeasurementViewerUI		view;
-	
+	private 	Coord3D					currentPlane;
 	private 	ROIShape 				initialShape;
 	/**
 	 * Constructor for the ROIAssistant Dialog.
@@ -121,10 +126,33 @@ public class ROIAssistant
 	{
 		this.view = view;
 		initialShape = null;
+		this.currentPlane = currentPlane;
 		this.setAlwaysOnTop(true);
 		this.setModal(true);
 		createTable(numRow, numCol,currentPlane, selectedROI);
 		buildUI();
+
+		JViewport viewPort = scrollPane.getViewport();
+		Point point = mapCoordToCell(currentPlane);
+		System.err.println(point.x + " " + point.y);
+		int x = (int)Math.max((point.getX()-6*ROIAssistantTable.COLUMNWIDTH), 0);
+		int y = (int)Math.max((point.getY()-6*ROIAssistantTable.COLUMNWIDTH),0);
+		viewPort.setViewPosition(new Point(x, y));
+	}
+	
+	public void setVisible(boolean isVisible)
+	{
+		super.setVisible(isVisible);
+	}
+	
+	
+	private Point mapCoordToCell(Coord3D coord)
+	{
+		int x = coord.getTimePoint()*ROIAssistantTable.COLUMNWIDTH+
+		ROIAssistantTable.LEADERCOLUMN_WIDTH; 
+		int y = coord.getZSection()*ROIAssistantTable.COLUMNWIDTH;
+		Point pt = new Point(x, y);
+		return pt;
 	}
 	
 	/** Create the UI for the Assistant. */
@@ -194,10 +222,14 @@ public class ROIAssistant
 					return;
 				int[] col = table.getSelectedColumns();
 				int[] row = table.getSelectedRows();
+				for(int i = 0 ; i < row.length ; i++)
+					row[i] = (table.getRowCount()-row[i])-1;
+				
 				int mincol = col[0];
 				int maxcol = col[0];
 				int minrow = row[0];
 				int maxrow = row[0];
+								
 				for( int i = 0 ; i < col.length; i++)
 				{
 					mincol = Math.min(mincol, col[i]);
@@ -348,15 +380,14 @@ public class ROIAssistant
 		JPanel infoPanel = createInfoPanel();
 		JPanel shapePanel = createShapePanel();
 
-		JScrollPane scroll = new JScrollPane(table);
-		scroll.setVerticalScrollBar(scroll.createVerticalScrollBar());
-		scroll.setHorizontalScrollBar(scroll.createHorizontalScrollBar());
-		
+		scrollPane = new JScrollPane(table);
+		scrollPane.setVerticalScrollBar(scrollPane.createVerticalScrollBar());
+		scrollPane.setHorizontalScrollBar(scrollPane.createHorizontalScrollBar());
 		
 		JPanel scrollPanel = new JPanel();
 		scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.X_AXIS));
 		scrollPanel.add(Box.createHorizontalStrut(10));
-		scrollPanel.add(scroll);
+		scrollPanel.add(scrollPane);
 		scrollPanel.add(Box.createHorizontalStrut(10));
 		scrollPanel.add(createActionPanel());
 		scrollPanel.add(Box.createHorizontalStrut(10));

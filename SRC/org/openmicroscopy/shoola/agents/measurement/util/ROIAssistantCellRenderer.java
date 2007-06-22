@@ -81,6 +81,7 @@ public 	class ROIAssistantCellRenderer
 		JComponent thisComponent;
 		
 		JLabel label = new JLabel();
+		label.setHorizontalAlignment(SwingConstants.CENTER);
 		label.setOpaque(true);
 		label.setBackground(Color.white);
 		if(column == 0)

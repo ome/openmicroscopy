@@ -69,6 +69,24 @@ class ResultsWizard
 	/** Action command ID to add a field to the result table. */
 	private static final int ADD = 0;
 	
+	/** Action command ID to remove a field from the result table. */
+	private static final int REMOVE = 1;
+	
+	/** Action command ID to add all fields to the result table. */
+	private static final int ADD_ALL = 2;
+	
+	/** Action command ID to remove all fields from the result table. */
+	private static final int REMOVE_ALL = 3;
+	
+	/** Action command ID to Accept the current field selection. */
+	private static final int ACCEPT = 4;
+
+	/** Action command ID to cancel the wizard. */
+	private static final int CANCEL = 5;
+	
+	/** Action command ID to reset the current field selection. */
+	private static final int RESET = 6;
+	
 	/** Collection of fields. */
 	private List<AnnotationField>	currentFields;
 
@@ -162,55 +180,21 @@ class ResultsWizard
 	private void addActionListeners()
 	{
 		addFieldButton.setActionCommand(""+ADD);
-		addAllFieldsButton.addActionListener(
-				new ActionListener()
-				{
-					public void actionPerformed(ActionEvent arg0) 
-					{
-						addAllFields();
-					}
-				});
-		removeFieldButton.addActionListener(
-				new ActionListener()
-				{
-					public void actionPerformed(ActionEvent arg0) 
-					{
-						removeField();
-					}
-				});
-		removeAllFieldsButton.addActionListener(
-				new ActionListener()
-				{
-					public void actionPerformed(ActionEvent arg0) 
-					{
-						removeAllFields();
-					}
-				});
-		resetButton.addActionListener(
-				new ActionListener()
-				{
-					public void actionPerformed(ActionEvent arg0) 
-					{
-						resetButtonClicked();
-					}
-				});
-		cancelButton.addActionListener(
-				new ActionListener()
-				{
-					public void actionPerformed(ActionEvent arg0) 
-					{
-						cancelButtonClicked();
-					}
-				});
-		acceptButton.addActionListener(
-				new ActionListener()
-				{
-					public void actionPerformed(ActionEvent arg0) 
-					{
-						acceptButtonClicked();
-					}
-				});
+		addFieldButton.addActionListener(this);
+		addAllFieldsButton.setActionCommand(""+ADD_ALL);
+		addAllFieldsButton.addActionListener(this);
+		removeFieldButton.setActionCommand(""+REMOVE);
+		removeFieldButton.addActionListener(this);
+		removeAllFieldsButton.setActionCommand(""+REMOVE_ALL);
+		removeAllFieldsButton.addActionListener(this);
+		acceptButton.setActionCommand(""+ACCEPT);
+		acceptButton.addActionListener(this);
+		cancelButton.setActionCommand(""+CANCEL);
+		cancelButton.addActionListener(this);
+		resetButton.setActionCommand(""+RESET);
+		resetButton.addActionListener(this);
 	}
+	
 	
 	/**
 	 * This method is involked when the user clicks the addFieldButton.
@@ -532,7 +516,24 @@ class ResultsWizard
 				case ADD:
 					addField();
 					break;
-				
+				case ADD_ALL:
+					addAllFields();
+					break;
+				case REMOVE:
+					removeField();
+					break;
+				case REMOVE_ALL:
+					removeAllFields();
+					break;
+				case ACCEPT:
+					acceptButtonClicked();
+					break;
+				case CANCEL:
+					cancelButtonClicked();
+					break;
+				case RESET:
+					resetButtonClicked();
+					break;
 				default:
 					break;
 			}

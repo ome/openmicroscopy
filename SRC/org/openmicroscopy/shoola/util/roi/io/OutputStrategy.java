@@ -71,6 +71,7 @@ import net.n3.nanoxml.XMLWriter;
 // Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
@@ -521,14 +522,35 @@ public class OutputStrategy
 		svgElement.addChild(bezierElement);
 		
 		LinkedList<Point2D.Double> points=new LinkedList<Point2D.Double>();
+		LinkedList<Point2D.Double> points1=new LinkedList<Point2D.Double>();
+		LinkedList<Point2D.Double> points2=new LinkedList<Point2D.Double>();
+		LinkedList<Integer> maskList=new LinkedList<Integer>();
+		
 		BezierPath bezier=fig.getBezierPath();
 		for (BezierPath.Node node : bezier)
 		{
 			points.add(new Point2D.Double(node.x[0], node.y[0]));
+			points1.add(new Point2D.Double(node.x[1], node.y[1]));
+			points2.add(new Point2D.Double(node.x[2], node.y[2]));
+			maskList.add(new Integer(node.getMask()));
 		}
+		
 		String pointsValues=
-				toPoints(points.toArray(new Point2D.Double[points.size()]));
+			toPoints(points.toArray(new Point2D.Double[points.size()]));
+		String points1Values=
+			toPoints(points1.toArray(new Point2D.Double[points1.size()]));
+		String points2Values=
+			toPoints(points2.toArray(new Point2D.Double[points2.size()]));
+		String maskValues = "";
+		for( int i = 0 ; i < maskList.size()-1; i++)
+			maskValues = maskValues + maskList.get(i)+",";
+		maskValues = maskValues+maskList.get(maskList.size()-1)+"";
+
 		bezierElement.setAttribute(IOConstants.POINTS_ATTRIBUTE, pointsValues);
+		bezierElement.setAttribute(IOConstants.POINTS_CONTROL1_ATTRIBUTE, points1Values);
+		bezierElement.setAttribute(IOConstants.POINTS_CONTROL2_ATTRIBUTE, points2Values);
+		bezierElement.setAttribute(IOConstants.POINTS_MASK_ATTRIBUTE, maskValues);
+
 		writeShapeAttributes(bezierElement, fig.getAttributes());
 		writeTransformAttribute(bezierElement, fig.getAttributes());
 	}
@@ -541,14 +563,36 @@ public class OutputStrategy
 		svgElement.addChild(bezierElement);
 		
 		LinkedList<Point2D.Double> points=new LinkedList<Point2D.Double>();
+		LinkedList<Point2D.Double> points1=new LinkedList<Point2D.Double>();
+		LinkedList<Point2D.Double> points2=new LinkedList<Point2D.Double>();
+		LinkedList<Integer> maskList=new LinkedList<Integer>();
+		
 		BezierPath bezier=fig.getBezierPath();
 		for (BezierPath.Node node : bezier)
 		{
 			points.add(new Point2D.Double(node.x[0], node.y[0]));
+			points1.add(new Point2D.Double(node.x[1], node.y[1]));
+			points2.add(new Point2D.Double(node.x[2], node.y[2]));
+			maskList.add(new Integer(node.getMask()));
 		}
+		
 		String pointsValues=
-				toPoints(points.toArray(new Point2D.Double[points.size()]));
+			toPoints(points.toArray(new Point2D.Double[points.size()]));
+		String points1Values=
+			toPoints(points1.toArray(new Point2D.Double[points1.size()]));
+		String points2Values=
+			toPoints(points2.toArray(new Point2D.Double[points2.size()]));
+		String maskValues = "";
+		for( int i = 0 ; i < maskList.size()-1; i++)
+			maskValues = maskValues + maskList.get(i)+",";
+		maskValues = maskValues+maskList.get(maskList.size()-1)+"";
+
 		bezierElement.setAttribute(IOConstants.POINTS_ATTRIBUTE, pointsValues);
+		bezierElement.setAttribute(IOConstants.POINTS_CONTROL1_ATTRIBUTE, points1Values);
+		bezierElement.setAttribute(IOConstants.POINTS_CONTROL2_ATTRIBUTE, points2Values);
+		bezierElement.setAttribute(IOConstants.POINTS_MASK_ATTRIBUTE, maskValues);
+
+	
 		writeShapeAttributes(bezierElement, fig.getAttributes());
 		writeTransformAttribute(bezierElement, fig.getAttributes());
 	}
@@ -894,6 +938,11 @@ public class OutputStrategy
 		// Animatable: yes
 		// Computed value: Specified value, except inherit
 		writeAttribute(elem, "stroke-width", STROKE_WIDTH.get(f), 1d);
+		
+		writeAttribute(elem, DrawingAttributes.SHOWMEASUREMENT.getKey(), 
+			DrawingAttributes.SHOWMEASUREMENT.get(f).toString(), "false");
+		writeAttribute(elem, DrawingAttributes.SHOWTEXT.getKey(), 
+			DrawingAttributes.SHOWTEXT.get(f).toString(), "false");
 	}
 	
 	

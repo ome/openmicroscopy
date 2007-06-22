@@ -72,7 +72,10 @@ public class IOConstants
 	public final static String DATATYPE_ATTRIBUTE = "type";
 	public final static String SIZE_ATTRIBUTE = "size"; 
 	public final static String VALUE_ATTRIBUTE = "value";
+	public final static String POINTS_MASK_ATTRIBUTE = "mask";
 	public final static String POINTS_ATTRIBUTE = "points";
+	public final static String POINTS_CONTROL1_ATTRIBUTE = "points-c1";
+	public final static String POINTS_CONTROL2_ATTRIBUTE = "points-c2";
 	public final static String VALUE_NULL = "";
 	
 	public final static String CONNECTION_TO_ATTRIBUTE = "to";
@@ -109,6 +112,9 @@ public class IOConstants
 	public final static String ATTRIBUTE_DATATYPE_COLOUR = "Color";
 	public final static String ATTRIBUTE_DATATYPE_COORD3D = "Coord3D";
 	public final static String ATTRIBUTE_DATATYPE_ARRAYLIST = "ArrayList";
+	
+	public final static String ATTRIBUTE_SHOWTEXT = "ShowBasicTextAnnotation";
+	public final static String ATTRIBUTE_SHOWMEASUREMENT = "ShowMeasurement";
 	
 	public final static String SVG_FILL_ATTRIBUTE = "fill";
 	public final static String SVG_FILL_OPACITY_ATTRIBUTE = "fill-opacity";

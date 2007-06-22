@@ -34,6 +34,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
 import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
+import org.openmicroscopy.shoola.util.ui.PaintPot;
 
 //Third-party libraries
 
@@ -83,11 +84,8 @@ public class ROITableCellRenderer
     		label.setText(value+"");
     		thisComponent = label;
     	} else if (value instanceof Color) {
-    		JLabel label = new JLabel();
-    		label.setOpaque(true);
-    		label.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-    		label.setBackground((Color) value);
-    		thisComponent = label;
+    		PaintPot paintPot = new PaintPot((Color)value);
+    		thisComponent = paintPot;
     	}
     	else if( value instanceof Boolean)
     	{

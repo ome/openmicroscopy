@@ -134,7 +134,8 @@ public class ROIAssistantModel
 	{
 		try
 		{
-			ROIShape shape = currentROI.getShape(new Coord3D(timePoint-1, zSection));
+			int translateZ = (getRowCount()-zSection);
+			ROIShape shape = currentROI.getShape(new Coord3D(timePoint-1, translateZ-1));
 			if(shape == null)
 			{
 				return null;
@@ -152,13 +153,14 @@ public class ROIAssistantModel
 	 */
 	public Object getValueAt(int zSection, int timePoint)
 	{
+		int translateZ = (getRowCount()-zSection);
 		if(timePoint == 0)
 		{
-			return (zSection+1)+"";
+			return translateZ+"";
 		}
 		try
 		{
-			ROIShape shape = currentROI.getShape(new Coord3D(timePoint-1, zSection));
+			ROIShape shape = currentROI.getShape(new Coord3D(timePoint-1, translateZ-1));
 			if(shape == null)
 			{
 				return null;

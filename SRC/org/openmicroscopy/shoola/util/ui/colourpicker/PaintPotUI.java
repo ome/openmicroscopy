@@ -30,9 +30,13 @@ import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
+import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+
+import org.openmicroscopy.shoola.util.ui.PaintPot;
 
 //Third-party libraries
 
@@ -53,130 +57,27 @@ import javax.swing.event.ChangeListener;
  * @since OME2.2
  */
 class PaintPotUI
-	extends JPanel
-	implements ChangeListener
+	extends PaintPot
+	implements PropertyChangeListener
 {
+	public static final String COLOURCHANGEEVENT = "ColourChangeEvent"; 
 	
 	/** Reference to the control. */
-	private RGBControl				control;
-    
-	/** Matrix stack used to save affinetransform. */
-	private MatrixStack				stack;
-    
-	/** Width  of paint pot. */
-	private int 					w;
-    
-	/** Height of paint pot. */
-	private int 					h;
-    
-	/** Border of paintpot. */
-	private Rectangle2D				strokeRect;
-    
-	/** Area covered by paintpot. */
-	private Rectangle2D				whiteRect;
-    
-	/** Represents the colour picked without Alpha. */
-	private Polygon					topPoly;
-    
-	/** Bottom represents the colour picked with alpha channel added. */
-	private Polygon					bottomPoly;
-    
-	/** X coordinates of the polygons to represent the colour pots. */
-	private int[]					topXPoints; 
-    
-	/** X coordinates of the polygons to represent the colour pots.  */
-	private int[]					bottomXPoints; 
-    
-	/** Y coordinates of the polygons to represent the colour pots.  */
-	private int[]					topYPoints; 
-    
-	/** Y coordinates of the polygons to represent the colour pots. */
-	private int[]					bottomYPoints; 
+	private JComponent				control;
 	
-    /**
-     * Creates the UI elements of the paint pot, the two colour parts of the 
-     * white rect, the top half representing the colour without the alpha 
-     * component and the bottom half with the alpha.
-     */
-    private void createUI()
-    {
-        w = this.getWidth();
-        h = this.getHeight();
-        topXPoints = new int[3];
-        topYPoints = new int[3];
-        bottomXPoints = new int[3];
-        bottomYPoints = new int[3];
-        strokeRect = new Rectangle2D.Double(0, 0, w-1, h-1);
-        whiteRect = new Rectangle2D.Double(1, 1, w-2, h-2);
-        
-        topXPoints[0] = (int) whiteRect.getX();
-        topXPoints[1] = (int) (whiteRect.getX()+whiteRect.getWidth());
-        topXPoints[2] = (int) (whiteRect.getX());
-        topYPoints[0] = (int) whiteRect.getY();
-        topYPoints[1] = (int) (whiteRect.getY());
-        topYPoints[2] = (int) (whiteRect.getY()+whiteRect.getHeight());
-        topPoly = new Polygon(topXPoints, topYPoints,3);
-        bottomXPoints[0] = (int) strokeRect.getX();
-        bottomXPoints[1] = (int) (strokeRect.getX()+strokeRect.getWidth());
-        bottomXPoints[2] = (int) (strokeRect.getX()+strokeRect.getWidth());
-        bottomYPoints[0] = (int) (strokeRect.getY()+strokeRect.getHeight());
-        bottomYPoints[1] = (int) (strokeRect.getY());
-        bottomYPoints[2] = (int) (strokeRect.getY()+strokeRect.getHeight());
-        bottomPoly = new Polygon(bottomXPoints, bottomYPoints,3);   
-    }
-    
-    /**
-     * Renders is called from {@link #paintComponent(Graphics)} to render all 
-     * the graphic elements of the component. 
-     * 
-     * @param og The graphic context.
-     */
-    private void render(Graphics og)
-    {
-        Graphics2D g = (Graphics2D)og;
-        createUI();
-        stack.push(g);
-        Color c = new Color(control.getRed(), control.getGreen(), 
-                            control.getBlue());
-        g.setColor(c);
-          g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                  RenderingHints.VALUE_ANTIALIAS_ON);
-        g.fill(topPoly);
-        g.setColor(control.getColour());
-        g.fill(bottomPoly);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                  RenderingHints.VALUE_ANTIALIAS_OFF);          
-        g.setColor(Color.black);
-        g.draw(strokeRect);
-        
-        stack.pop(g);
-    }
-    
 	/**
 	 * Creates the UI and attach the component to the control.
 	 * 
 	 * @param c Reference to the control. Mustn't be <code>null</code>.
 	 */
-	PaintPotUI(RGBControl c)
+	PaintPotUI(Color col, JComponent c)
 	{
+		super(col);
         if (c == null) throw new NullPointerException("No control.");
 		control = c;
-		stack = new MatrixStack();
-		createUI();
-		control.addListener(this);
+		control.addPropertyChangeListener(this);
 	}
-
-	/** 
-	 * Calls and invalidate and repaint after colour changes in
-	 * colour model.
-	 * @see ChangeListener#stateChanged(ChangeEvent)
-	 */
-	public void stateChanged(ChangeEvent event) 
-	{
-		invalidate();
-		repaint();
-	}
-    
+	  
     /**
      * Overridden to render the paint pot. 
      * @see javax.swing.JComponent#paintComponent(Graphics)
@@ -186,5 +87,18 @@ class PaintPotUI
         super.paintComponent(g);
         render(g);
     }
+
+	/* (non-Javadoc)
+	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent event)
+	{
+		if(event.getPropertyName()==COLOURCHANGEEVENT)
+		{
+			colour = (Color)event.getNewValue();
+			invalidate();
+			repaint();
+		}
+	}
     
 }

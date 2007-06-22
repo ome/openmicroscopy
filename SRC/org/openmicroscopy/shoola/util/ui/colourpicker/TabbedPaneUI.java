@@ -257,7 +257,7 @@ class TabbedPaneUI
     private void createPanels()
     {
         colourWheelPane = new HSVColourWheelUI(control);
-        paintPotPane = new PaintPotUI(control);
+        paintPotPane = new PaintPotUI(control.getColour(), control);
         RGBSliderPane = new RGBSliderUI(control);
         swatchPane = new ColourSwatchUI(control);
     }
