@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.agents.util.archived.view.DownloaderFactory;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -1205,7 +1206,11 @@ class ImViewerComponent
     	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
     	if (e instanceof RenderingServiceException) {
     		RenderingServiceException rse = (RenderingServiceException) e;
-    		logger.error(this, rse.getExtendedMessage());
+    		LogMessage logMsg = new LogMessage();
+    		logMsg.print("Rendering Exception:");
+    		logMsg.println(rse.getExtendedMessage());
+    		logMsg.print(rse);
+    		logger.error(this, logMsg);
     		if (newPlane) {
     			MessageBox msg = new MessageBox(view, "Invalid Plane", 
     	    			"The selected plane contains invalid value. " +
@@ -1214,14 +1219,14 @@ class ImViewerComponent
     				discard();
     			else setImage(null);
     		} else {
-    			un.notifyError(ImViewerAgent.ERROR, rse.getExtendedMessage(), 
+    			un.notifyError(ImViewerAgent.ERROR, logMsg.toString(), 
 						e.getCause());
     		}
     		newPlane = false;
     	} else if (e instanceof DSOutOfServiceException) {
     		MessageBox msg = new MessageBox(view, "Rendering timeout", 
     			"The rendering engine has timed out. " +
-    			"Do you want to reload it?");
+    			"Do you want to restart it?");
     		if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
     			logger.debug(this, "Reload rendering Engine.");
     			model.reloadRenderingControl();

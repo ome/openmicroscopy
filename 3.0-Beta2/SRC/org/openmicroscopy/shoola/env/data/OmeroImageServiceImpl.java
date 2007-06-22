@@ -38,6 +38,7 @@ import ome.model.core.PixelsDimensions;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -187,6 +188,7 @@ class OmeroImageServiceImpl
      * @see OmeroImageService#reloadRenderingService(long)
      */
 	public void reloadRenderingService(long pixelsID)
+		throws RenderingServiceException
 	{
 		RenderingControl proxy = 
             RenderingServicesFactory.getRenderingControl(context, 
@@ -198,8 +200,11 @@ class OmeroImageServiceImpl
 								re);
 		} catch (Exception e) {
 			Logger logger = context.getLogger();
-			logger.error(this, "Cannot reload rendering engine for : "+
-					pixelsID+"" +e.getMessage());
+			LogMessage logMsg = new LogMessage();
+			logMsg.print("Cannot reload rendering engine for : "+pixelsID);
+			logMsg.println(e);
+			logger.error(this,  logMsg);
+			throw new RenderingServiceException(logMsg.toString(), e);
 		}
 	}
 	

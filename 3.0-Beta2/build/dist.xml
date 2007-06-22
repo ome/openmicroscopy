@@ -52,9 +52,9 @@
    *           Mac OS X bundle.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <property name="dist.dir" location="${build.dir}/dist"/>
-  <property name="dist.jar.file" value="omeroinsight.jar"/>
-  <property name="dist.bundle.name" value="omeroinsight"/> 
-  <property name="dist.bundle.version" value="3-M3_Beta_17-01-07"/>
+  <property name="dist.jar.file" value="omero.insight.jar"/>
+  <property name="dist.bundle.name" value="omero.insight"/> 
+  <property name="dist.bundle.version" value="3-Beta2"/>
   <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
     <include name="*.sh"/>
     <include name="*.bat"/> 
@@ -154,7 +154,7 @@
           depends="jar"
           description="Build and package the app for OS X distribution.">
     <jarbundler dir="${dist.dir}"
-                name="OMEROinsight"
+                name="OMERO.insight"
                 mainclass="${app.mainclass}"
                 version="${dist.bundle.version}"
                 infostring="OMERO.insight Java Client, ${dist.bundle.version}"
@@ -162,7 +162,7 @@
                 screenmenu="true" 
                 icon="${dist.osx.icon}"
                 stubfile="${dist.osx.stub}" 
-               	jvmversion="1.4+"
+               	jvmversion="1.5+"
                 vmoptions="-Xms256M -Xmx512M">
       <jarfileset refid="app.libs"/>
       <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
@@ -171,10 +171,10 @@
            "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-OSX.zip">
       <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
       <fileset dir="${dist.dir}" 
-               includes="OMEROinsight.app/**"
+               includes="OMERO.insight.app/**"
                excludes="**/${dist.osx.stub.name}"/>
       <zipfileset file="${dist.osx.stub}" 
-                  fullpath="OMEROinsight.app/Contents/MacOS/${dist.osx.stub.name}"
+                  fullpath="OMERO.insight.app/Contents/MacOS/${dist.osx.stub.name}"
                   filemode="555"/> 
       <fileset file="${dist.osx.installfile}"/>
       <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 

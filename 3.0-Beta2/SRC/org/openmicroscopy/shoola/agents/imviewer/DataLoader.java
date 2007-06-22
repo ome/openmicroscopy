@@ -111,11 +111,12 @@ public abstract class DataLoader
      */
     public void handleException(Throwable exc) 
     {
-        String s = "Data Retrieval Failure: ";
+    	String s = "Data Retrieval Failure: ";
         registry.getLogger().error(this, s+exc);
         registry.getUserNotifier().notifyError("Data Retrieval Failure", 
                                                s, exc);
         viewer.discard();
+        
         //TODO: Change this.  What to do in the case of failure is up to
         //the viewer.  So we need to refactor this b/c the decision is
         //made in the wrong place!

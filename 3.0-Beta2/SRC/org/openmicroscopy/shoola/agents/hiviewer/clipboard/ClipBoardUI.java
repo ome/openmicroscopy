@@ -125,7 +125,7 @@ class ClipBoardUI
         
         Dimension d;
         
-        if (ClipBoard.HORIZONTAL_SPLIT) d = new Dimension(dim.width, h+5);
+        if (ClipBoard.HORIZONTAL_SPLIT) d = new Dimension(dim.width, h+10);
         else d = new Dimension(5, dim.height);
         setPreferredSize(d);
         
@@ -137,7 +137,6 @@ class ClipBoardUI
     {
     	super(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
     	setAlignmentX(LEFT_ALIGNMENT);
-    	
     }
     
     /**

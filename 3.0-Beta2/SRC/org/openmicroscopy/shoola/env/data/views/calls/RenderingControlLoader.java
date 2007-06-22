@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -73,12 +74,17 @@ public class RenderingControlLoader
         return new BatchCall("Loading rendering control: ") {
             public void doCall() throws Exception
             {
-                OmeroImageService rds = context.getImageService();
-                if (reload) {
-                	result = Boolean.TRUE;
-                	rds.reloadRenderingService(pixelsID);
-                }
-                else result = rds.loadRenderingControl(pixelsID);
+            	try {
+            		OmeroImageService rds = context.getImageService();
+                    if (reload) {
+                    	result = Boolean.TRUE;
+                    	rds.reloadRenderingService(pixelsID);
+                    } else result = rds.loadRenderingControl(pixelsID);
+				} catch (Exception e) {
+					throw new DSOutOfServiceException("Cannot start the " +
+							"rendering engine for pixelsID "+pixelsID, e);
+				}
+            	
             }
         };
     } 
