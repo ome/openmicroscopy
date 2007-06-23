@@ -226,7 +226,7 @@
 		</junit>	
 	</target>
 		
-	<target name="package" depends="test">
+	<target name="package" depends="test" unless="skip.compile">
 		<pathconvert property="mf.classpath"
 			refid="omero.classpath" 
 			pathsep=" " dirsep="/">
@@ -249,7 +249,7 @@
 		</jar>
 	</target>
 
-	<target name="install" depends="package">
+	<target name="install" depends="package" unless="skip.compile">
 		<property name="dest.file" value="${omero.repo.local}/${artifact.path}"/>
 		<dirname property="dest.dir" file="${dest.file}"/>
 		<mkdir dir="${dest.dir}"/>
@@ -272,7 +272,7 @@
 		</suite>
 	</target>
 
-	<target name="dist" depends="integration">
+	<target name="dist" depends="integration" unless="skip.compile">
 		<!-- empty by default -->
 	</target>
 
@@ -312,7 +312,7 @@
 		<eclipse.refreshLocal resource="missing" depth="infinite"/>		
 	</target>
 
-  <target name="standalone">
+  <target name="standalone" unless="skip.compile">
     <copy todir="${target.dir}/standalone">
       <fileset dir="${omero.repo.local}">
         <patternset refid="generated.compile.patternset"/>
