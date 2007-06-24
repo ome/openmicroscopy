@@ -30,7 +30,7 @@
     <property name="IRepositoryInfo" ref="internal:ome.api.IRepositoryInfo"/>
   </bean>
   
-  <bean id="managed:ome.api.ThumbnailStore" parent="managedStatefulService">
+  <bean id="managed:ome.api.ThumbnailStore" parent="managedStatefulService" singleton="false">
     <property name="proxyInterfaces" value="ome.api.ThumbnailStore"/>
     <property name="target" ref="internal:ome.api.ThumbnailStore"/>    
   </bean>

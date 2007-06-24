@@ -27,7 +27,7 @@
     <property name="IRepositoryInfo" ref="internal:ome.api.IRepositoryInfo"/>
   </bean>
 
-  <bean id="managed:ome.api.RawFileStore" parent="managedStatefulService">
+  <bean id="managed:ome.api.RawFileStore" parent="managedStatefulService" singleton="false">
     <property name="proxyInterfaces" value="ome.api.RawFileStore"/>
     <property name="target" ref="internal:ome.api.RawFileStore"/>
   </bean>

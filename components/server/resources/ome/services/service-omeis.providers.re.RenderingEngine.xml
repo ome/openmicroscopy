@@ -27,7 +27,7 @@
     <property name="pixelsData"     ref="/OMERO/Pixels"/>
   </bean>
 
-  <bean id="managed:omeis.providers.re.RenderingEngine" parent="managedStatefulService">
+  <bean id="managed:omeis.providers.re.RenderingEngine" parent="managedStatefulService" singleton="false">
     <property name="proxyInterfaces" value="omeis.providers.re.RenderingEngine"/>
     <property name="target" ref="internal:omeis.providers.re.RenderingEngine"/>
   </bean>

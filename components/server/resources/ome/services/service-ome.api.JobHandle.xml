@@ -27,7 +27,7 @@
     <property name="processManager" ref="processManager"/>
   </bean>
 
-  <bean id="managed:ome.api.JobHandle" parent="managedStatefulService">
+  <bean id="managed:ome.api.JobHandle" parent="managedStatefulService" singleton="false">
     <property name="proxyInterfaces" value="ome.api.JobHandle"/>
     <property name="target" ref="internal:ome.api.JobHandle"/>
   </bean>
