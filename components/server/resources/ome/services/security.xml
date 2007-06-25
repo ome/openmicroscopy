@@ -31,13 +31,10 @@
 <beans>
 
   <bean id="securitySystem" class="ome.security.basic.BasicSecuritySystem">
-    <constructor-arg ref="internal:ome.api.local.LocalQuery"/>
-    <constructor-arg ref="internal:ome.api.local.LocalUpdate"/>
-    <constructor-arg ref="sessionManager"/>
-    <constructor-arg ref="roles"/>
+    <constructor-arg>
+      <bean class="ome.tools.spring.InternalServiceFactory"/>
+  	</constructor-arg>
   </bean>
-  
-  <bean id="roles" class="ome.system.Roles"/>
 
   <!-- Scope: private -->
 
