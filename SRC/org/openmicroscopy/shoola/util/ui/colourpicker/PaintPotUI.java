@@ -26,21 +26,16 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 //Java imports
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Polygon;
-import java.awt.RenderingHints;
-import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 
-import org.openmicroscopy.shoola.util.ui.PaintPot;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.PaintPot;
+
 
 /** 
  * Paintpot is the colour strip along the top of the colourpicker ui which 
@@ -60,7 +55,9 @@ class PaintPotUI
 	extends PaintPot
 	implements PropertyChangeListener
 {
-	public static final String COLOURCHANGEEVENT = "ColourChangeEvent"; 
+	
+	/** Property indicating that the color has changed. */
+	static final String COLOUR_CHANGED_PROPERTY = "colourChanged"; 
 	
 	/** Reference to the control. */
 	private JComponent				control;
@@ -68,6 +65,7 @@ class PaintPotUI
 	/**
 	 * Creates the UI and attach the component to the control.
 	 * 
+	 * @param col The color to paint. Mustn't be <code>null</code>.
 	 * @param c Reference to the control. Mustn't be <code>null</code>.
 	 */
 	PaintPotUI(Color col, JComponent c)
@@ -75,7 +73,7 @@ class PaintPotUI
 		super(col);
         if (c == null) throw new NullPointerException("No control.");
 		control = c;
-		control.addPropertyChangeListener(this);
+		control.addPropertyChangeListener(COLOUR_CHANGED_PROPERTY, this);
 	}
 	  
     /**
@@ -88,17 +86,15 @@ class PaintPotUI
         render(g);
     }
 
-	/* (non-Javadoc)
-	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+	/**
+	 * Reacts to color change events. Repaints the componet
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
 	public void propertyChange(PropertyChangeEvent event)
 	{
-		if(event.getPropertyName()==COLOURCHANGEEVENT)
-		{
-			colour = (Color)event.getNewValue();
-			invalidate();
-			repaint();
-		}
+		colour = (Color) event.getNewValue();
+		invalidate();
+		repaint();
 	}
     
 }

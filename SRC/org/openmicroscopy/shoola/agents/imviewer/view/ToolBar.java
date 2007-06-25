@@ -120,6 +120,17 @@ class ToolBar
         button =  new JButton(controller.getAction(ImViewerControl.LENS));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);  
+        bar.add(new JSeparator(JSeparator.VERTICAL));
+        button =  new JButton(controller.getAction(ImViewerControl.ZOOM_IN));
+        UIUtilities.unifiedButtonLookAndFeel(button);
+        bar.add(button);    
+        button =  new JButton(controller.getAction(ImViewerControl.ZOOM_OUT));
+        UIUtilities.unifiedButtonLookAndFeel(button);
+        bar.add(button);  
+        button =  new JButton(controller.getAction(ImViewerControl.ZOOM_FIT));
+        UIUtilities.unifiedButtonLookAndFeel(button);
+        bar.add(button);  
+        bar.add(new JSeparator(JSeparator.VERTICAL));
         button = new JButton(
         		controller.getAction(ImViewerControl.MEASUREMENT_TOOL));
         UIUtilities.unifiedButtonLookAndFeel(button);

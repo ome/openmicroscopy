@@ -451,13 +451,10 @@ class ImViewerModel
      * 
      * @param factor The factor to set.
      */
-    void setZoomFactor(double factor) 
-    {
-    	browser.setZoomFactor(factor); 
-    }
+    void setZoomFactor(double factor) { browser.setZoomFactor(factor); }
 
     /**
-     * Gets the zoom factor.
+     * Returns the zoom factor.
      * 
      * @return The factor to set.
      */

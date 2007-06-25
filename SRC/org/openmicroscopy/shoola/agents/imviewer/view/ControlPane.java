@@ -106,9 +106,6 @@ class ControlPane
     /** The box displaying the supported rating level. */
     private JComboBox       		ratingBox;
     
-    /** The box displaying the supported zooming level. */
-    private JComboBox       		zoomingBox;
-    
     /** Slider to select the z-section. */
     private OneKnobSlider			zSlider;
     
@@ -233,21 +230,6 @@ class ControlPane
     /** Initializes the components composing the display. */
     private void initComponents()
     {
-        ViewerAction[] zoomingActions = new ViewerAction[12];
-        zoomingActions[0] = controller.getAction(ImViewerControl.ZOOM_25);
-        zoomingActions[1] = controller.getAction(ImViewerControl.ZOOM_50);
-        zoomingActions[2] = controller.getAction(ImViewerControl.ZOOM_75);
-        zoomingActions[3] = controller.getAction(ImViewerControl.ZOOM_100);
-        zoomingActions[4] = controller.getAction(ImViewerControl.ZOOM_125);
-        zoomingActions[5] = controller.getAction(ImViewerControl.ZOOM_150);
-        zoomingActions[6] = controller.getAction(ImViewerControl.ZOOM_175);
-        zoomingActions[7] = controller.getAction(ImViewerControl.ZOOM_200);
-        zoomingActions[8] = controller.getAction(ImViewerControl.ZOOM_225);
-        zoomingActions[9] = controller.getAction(ImViewerControl.ZOOM_250);
-        zoomingActions[10] = controller.getAction(ImViewerControl.ZOOM_275);
-        zoomingActions[11] = controller.getAction(ImViewerControl.ZOOM_300);
-        zoomingBox =  new JComboBox(zoomingActions);
-        zoomingBox.setEnabled(false);
         ViewerAction[] ratingActions = new ViewerAction[5];
         ratingActions[0] = controller.getAction(ImViewerControl.RATING_ONE);
         ratingActions[1] = controller.getAction(ImViewerControl.RATING_TWO);
@@ -338,9 +320,9 @@ class ControlPane
      */
     private void initializeValues()
     {
-        zoomingBox.addActionListener(this);
-        zoomingBox.setSelectedItem(
-                controller.getAction(ImViewerControl.ZOOM_100));
+        //zoomingBox.addActionListener(this);
+       // zoomingBox.setSelectedItem(
+        //        controller.getAction(ImViewerControl.ZOOM_100));
         switch (model.getRatingLevel()) {
             case ImViewerModel.RATING_ONE:
                 ratingBox.setSelectedIndex(0);
@@ -611,19 +593,6 @@ class ControlPane
     }
     
     /**
-     * Updates UI components when a zooming factor is selected.
-     * 
-     * @param action    The selected action embedding the zooming factor
-     *                  information.
-     */
-    void setZoomFactor(ViewerAction action)
-    {
-        zoomingBox.removeActionListener(this);
-        zoomingBox.setSelectedItem(action);
-        zoomingBox.addActionListener(this);
-    }
-    
-    /**
      * Updates UI components when a rating factor is selected.
      * 
      * @param action    The selected action embedding the rating factor
@@ -730,7 +699,6 @@ class ControlPane
     {
         if (model.isPlayingMovie()) enableSliders(!b);
         else enableSliders(b);
-        zoomingBox.setEnabled(b);
         ratingBox.setEnabled(b);
         Iterator i = channelButtons.iterator();
         while (i.hasNext())

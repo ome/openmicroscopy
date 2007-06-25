@@ -30,7 +30,6 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.List;
-import java.util.Map;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -202,17 +201,18 @@ public interface ImViewer
     /**
      * Sets the zoom factor.
      * 
-     * @param factor The value ot set.
+     * @param factor 	The value ot set.
+     * @param zoomIndex The index of the factor.
      */
-    public void setZoomFactor(double factor);
+    public void setZoomFactor(double factor, int zoomIndex);
     
     /**
-     * If the user has set the zoomFactor to ZOOM_FIT_TO_WINDOW, then return 
-     * <code>true</code>.
+     * Returns <code>true</code> if the zoom factor is set so that
+     * the image fit to the window size, <code>false</code> otherwise.
      *  
      * @return see above.
      */
-    public boolean zoomFitToWindow();
+    public boolean isZoomFitToWindow();
     
     /**
      * Sets the image rate.
@@ -222,13 +222,11 @@ public interface ImViewer
     public void setRateImage(int level);
     
     /**
-     * Sets the color model. The key of the map is one out of the following
-     * constants {@link #GREY_SCALE_MODEL}, {@link #RGB_MODEL} or 
-     * {@link #HSB_MODEL} and the value is the action firing the event.
+     * Sets the color model. 
      * 
-     * @param m The value to set.
+     * @param m The index corresponding to the color model.
      */
-    public void setColorModel(Map m);
+    public void setColorModel(int m);
 
     /**
      * Sets the selected XY-plane. A new plane is then rendered.
@@ -654,5 +652,12 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	public boolean hasLens();
+	
+	/**
+	 * Returns the zoom factor.
+	 * 
+	 * @return See above.
+	 */
+	public double getZoomFactor();
     
 }

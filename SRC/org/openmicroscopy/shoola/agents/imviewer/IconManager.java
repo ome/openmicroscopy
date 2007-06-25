@@ -170,14 +170,23 @@ public class IconManager
     /** The <code>Text</code> icon. */
     public static int           TEXT = 36;
     
-    /** The <code>ROI tool</code> icon. */
+    /** The <code>Measurement tool</code> icon. */
     public static int           MEASUREMENT_TOOL = 37;
+    
+    /** The <code>Zoom in</code> icon. */
+    public static int           ZOOM_IN = 38;
+    
+    /** The <code>Zoom out</code> icon. */
+    public static int           ZOOM_OUT = 39;
+    
+    /** The <code>Zoom fit</code> icon. */
+    public static int           ZOOM_FIT = 40;
    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 37;
+    private static int          MAX_ID = 40;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -222,6 +231,9 @@ public class IconManager
         relPaths[CHANNEL_SPLIT] = "gridView16.png";
         relPaths[TEXT] = "nuvola_font_truetype16.png";
         relPaths[MEASUREMENT_TOOL] = "nuvola_designer16.png";
+        relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
+        relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
+        relPaths[ZOOM_FIT] = "nuvola_viewmagfit16.png";
     }
     
     /** The sole instance. */

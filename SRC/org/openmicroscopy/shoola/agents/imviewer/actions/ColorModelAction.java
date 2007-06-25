@@ -28,9 +28,6 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.swing.Action;
 import javax.swing.Icon;
 
@@ -178,15 +175,20 @@ public class ColorModelAction
         name = names[modelIndex];
     }
     
+    /**
+     * Returns the index of the color model.
+     * 
+     * @return See above.
+     */
+    public int getIndex() { return modelIndex; }
+    
     /** 
      * Sets the selected color model.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
-        Map<Integer, ViewerAction> m = new HashMap<Integer, ViewerAction>(1);
-        m.put(new Integer(modelIndex), this);
-        model.setColorModel(m);
+        model.setColorModel(modelIndex);
     }
     
 }

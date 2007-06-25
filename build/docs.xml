@@ -14,6 +14,7 @@
   <checkdef prop="build.dir" /> 
   <checkdef prop="base.src.dir" />
   <checkdef prop="base.docgen.index.file" />
+  <checkdef prop="base.docgen.insight_index.file" />
   <checkdef prop="base.userdocs.index.file" /> 
   <checkdef prop="base.docgen.javadoc.cssfile" />
   <checkdef prop="base.docgen.xdocs.dir" /> 
@@ -69,6 +70,7 @@
     <mkdir dir="${docs.dir}" /> 
     <copy todir="${docs.dir}" file="${base.docgen.index.file}" />
     <copy todir="${docs.userdocs.dir}" file="${base.userdocs.index.file}" />
+  	<copy todir="${docs.dir}" file="${base.docgen.insight_index.file}" />
   </target> 
  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -101,7 +103,7 @@
              verbose="yes">
       <classpath refid="app.run.classpath" />
       <bottom>
-        <![CDATA[<p><i>Copyright &#169; 2006 Open Microscopy Environment.  
+        <![CDATA[<p><i>Copyright &#169; 2006, 2007 Open Microscopy Environment.  
         All Rights reserved.</i></p>]]>
       </bottom>
     </javadoc>

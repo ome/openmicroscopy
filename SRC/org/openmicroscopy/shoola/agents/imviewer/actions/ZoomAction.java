@@ -54,18 +54,13 @@ public class ZoomAction
 {
     
     /** The maximun value of the zoom factor. */
-    public static final double  MAX_ZOOM_FACTOR = 3.0;
+    public static final double  MAX_ZOOM_FACTOR = 12*ZoomCmd.INCREMENT;
     
     /** The minimun value of the zoom factor. */
-    public static final double  MIN_ZOOM_FACTOR = 0.25;
+    public static final double  MIN_ZOOM_FACTOR = ZoomCmd.INCREMENT;
     
     /** The default zooming factor. */
     public static final double  DEFAULT_ZOOM_FACTOR = 1.0;
-    
-    /**
-     * Bounds property indicating that a new zooming factor is selected.
-     */
-    public static final String  ZOOM_PROPERTY = "zoom";
     
     /** Identifies the <code>0.25</code> zooming factor. */
     public static final int     ZOOM_25 = 0;
@@ -103,9 +98,12 @@ public class ZoomAction
     /** Identifies the <code>3.00</code> zooming factor. */
     public static final int     ZOOM_300 = 11;
     
-    /** Identifies the <code>3.00</code> zooming factor. */
+    /** Indicates to zoom the image to fit to window size. */
     public static final int     ZOOM_FIT_TO_WINDOW = 12;
      
+    /** The default zooming index. */
+    public static final int  	DEFAULT_ZOOM_INDEX = ZOOM_100;
+    
     /** The number of supported ids. */
     private static final int    MAX = 12;
     
@@ -120,34 +118,34 @@ public class ZoomAction
     
     /** Defines the static fields. */
     static {
-        names = new String[MAX+1];
-        names[ZOOM_25] = "25%";
-        names[ZOOM_50] = "50%";
-        names[ZOOM_75] = "75%";
-        names[ZOOM_100] = "100%";
-        names[ZOOM_125] = "125%";
-        names[ZOOM_150] = "150%";
-        names[ZOOM_175] = "175%";
-        names[ZOOM_200] = "200%";
-        names[ZOOM_225] = "225%";
-        names[ZOOM_250] = "250%";
-        names[ZOOM_275] = "275%";
-        names[ZOOM_300] = "300%";
-        names[ZOOM_FIT_TO_WINDOW] = "Fit to Window";
         factors = new double[MAX+1];
-        factors[ZOOM_25] = 0.25;
-        factors[ZOOM_50] = 0.5;
-        factors[ZOOM_75] = 0.75;
-        factors[ZOOM_100] = 1;
-        factors[ZOOM_125] = 1.25;
-        factors[ZOOM_150] = 1.5;
-        factors[ZOOM_175] = 1.75;
-        factors[ZOOM_200] = 2;
-        factors[ZOOM_225] = 2.25;
-        factors[ZOOM_250] = 2.5;
-        factors[ZOOM_275] = 2.75;
-        factors[ZOOM_300] = 3;
+        factors[ZOOM_25] = ZoomCmd.INCREMENT;
+        factors[ZOOM_50] = factors[ZOOM_25]+ZoomCmd.INCREMENT;
+        factors[ZOOM_75] = factors[ZOOM_50]+ZoomCmd.INCREMENT;
+        factors[ZOOM_100] = factors[ZOOM_75]+ZoomCmd.INCREMENT;
+        factors[ZOOM_125] = factors[ZOOM_100]+ZoomCmd.INCREMENT;
+        factors[ZOOM_150] = factors[ZOOM_125]+ZoomCmd.INCREMENT;
+        factors[ZOOM_175] = factors[ZOOM_150]+ZoomCmd.INCREMENT;
+        factors[ZOOM_200] = factors[ZOOM_175]+ZoomCmd.INCREMENT;
+        factors[ZOOM_225] = factors[ZOOM_200]+ZoomCmd.INCREMENT;
+        factors[ZOOM_250] = factors[ZOOM_225]+ZoomCmd.INCREMENT;
+        factors[ZOOM_275] = factors[ZOOM_250]+ZoomCmd.INCREMENT;
+        factors[ZOOM_300] = factors[ZOOM_275]+ZoomCmd.INCREMENT;
         factors[ZOOM_FIT_TO_WINDOW] = -1;
+        names = new String[MAX+1];
+        names[ZOOM_25] = (int) (factors[ZOOM_25]*100)+"%";
+        names[ZOOM_50] = (int) (factors[ZOOM_50]*100)+"%";
+        names[ZOOM_75] = (int) (factors[ZOOM_75]*100)+"%";
+        names[ZOOM_100] = (int) (factors[ZOOM_100]*100)+"%";;
+        names[ZOOM_125] = (int) (factors[ZOOM_125]*100)+"%";
+        names[ZOOM_150] = (int) (factors[ZOOM_150]*100)+"%";
+        names[ZOOM_175] = (int) (factors[ZOOM_175]*100)+"%";
+        names[ZOOM_200] = (int) (factors[ZOOM_200]*100)+"%";
+        names[ZOOM_225] = (int) (factors[ZOOM_225]*100)+"%";
+        names[ZOOM_250] = (int) (factors[ZOOM_250]*100)+"%";
+        names[ZOOM_275] = (int) (factors[ZOOM_275]*100)+"%";
+        names[ZOOM_300] = (int) (factors[ZOOM_300]*100)+"%";
+        names[ZOOM_FIT_TO_WINDOW] = "Fit to Window";
     }
     
     /** 
@@ -184,6 +182,20 @@ public class ZoomAction
     }
     
     /**
+     * Returns the index corresponding to the passed factor.
+     * 
+     * @param f The factor used to retrieve the index.
+     * @return See above.
+     */
+    static int getIndex(double f)
+    {
+    	for (int i = 0; i < factors.length; i++) {
+			if (factors[i] == f) return i;
+		}
+    	return ZOOM_FIT_TO_WINDOW;
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param model         Reference to the model. Mustn't be
@@ -202,14 +214,20 @@ public class ZoomAction
         name = names[zoomingIndex];
     }
     
+    /**
+     * Returns the zoom index associated to this action.
+     * 
+     * @return See above.
+     */
+    public int getIndex() { return zoomingIndex; }
+    
     /** 
      * Sets the zooming factor.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
-        firePropertyChange(ZOOM_PROPERTY, null, this);
-        model.setZoomFactor(factors[zoomingIndex]);
+        model.setZoomFactor(factors[zoomingIndex], zoomingIndex);
     }
     
 }

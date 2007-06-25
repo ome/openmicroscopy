@@ -3,27 +3,44 @@
   <title>Configuration</title>
 </head>
 <body>
-<p>Before you use the Web Admin tool for OMERO, you need to configure few files.
+<p>
+The list below presents the files that can be configured.
+<ul>
+<li>The file <b>web.xml</b> is the main web-application configuration file.
+You can set the following parameters
+  <ol type="a">
+   <li> <b><i>defaultServerHost</i></b>: the value sets in the 
+    <b><i>Hostname</i></b> field of the login page 
+    (see <a href="section_4_1.html">Section 4.1</a>). The default value is
+    <b>hostname</b>.
+    </li>
+    <li> <b><i>defaultServerPort</i></b>: the value sets in the 
+       <b><i>Port</i></b> field of the login page 
+      (see <a href="section_4_1.html">Section 4.1</a>). The default value is
+     <b>1099</b>.
+    </li>
+    <li> <b><i>topTenValue </i></b>: the number of users using most of the drive
+     space  (see <a href="section_4_14.html">Section 4.14</a>).
+     The default value is <b>10</b>.
+    </li>
+   </ol>
+</li>
+<li>log4j.properties Log4j is used to collect logs statement. You can 
+edit log4j.properties to specify the location of the log file.</li>
 
+<li>faces-config.xml. 
+Set the parameter <b><i>ome.admin.bundle.messages </i></b> 
+to specify the language
+used, (default language: en, supported: pl).</li>
+<li>message.properties. Defines the internationalization context. </li>
+</ul>
 </p>
-<p>
-The file <b>web.xml</b> is the main web-application configuration file.
-</p>
-<p>
-log4j.properties
-</p>
-<p>
-message.properties
-</p>
-<p>
-faces-config.xml
-</p>
-</body>
 
 <p>
-When all parameters are configured, to start the tool, use your favorite 
+To start the tool, use your favorite 
 web browser and enter the following link:
 
 <a href="http://hostname:port/IAdmin/">http://hostname:port/IAdmin/</a>
 </p>
+</body>
 </html>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xdoc>
 <xdoc-info>
-
   <title>OMERO.webadmin User Guide</title>
   <author name="Aleksandra Takowska" email="comments@openmicroscopy.org.uk" />
   <version number="3.0-Beta"/>
@@ -12,6 +11,21 @@
  <section href="intro.html" name="Introduction"/>
  <section href="section_2.html" name="Glossary"/>
  <section href="section_3.html" name="Configuration"/>
- <section href="section_4.html" name="Administration"/>
+ <section href="section_4.html" name="Frequently Asked question">
+    <section href="section_4_1.html" name="How to log in?"/>
+    <section href="section_4_2.html" name="How to manage users?"/>
+    <section href="section_4_3.html" name="How to add a new user?"/>
+    <section href="section_4_4.html" name="How to delete a user?"/>
+    <section href="section_4_5.html" name="How to edit an existing user?"/>
+    <section href="section_4_6.html" name="How to desactivate an account?"/>
+    <section href="section_4_7.html" name="How to modify the list of groups the user belongs to?"/>
+    <section href="section_4_8.html" name="How to delete group(s) a user is a member of?"/>
+    <section href="section_4_9.html" name="How to manage groups?"/>
+    <section href="section_4_10.html" name="How to add new group?"/>
+    <section href="section_4_11.html" name="How to delete a group?"/>
+    <section href="section_4_12.html" name="How to edit a group?"/>
+    <section href="section_4_13.html" name="How to manage users within a group?"/>
+    <section href="section_4_14.html" name="How to manage drive space?"/>
+ </section>
   </toc>
 </xdoc>

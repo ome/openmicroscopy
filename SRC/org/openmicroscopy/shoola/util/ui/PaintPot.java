@@ -22,26 +22,22 @@
  */
 package org.openmicroscopy.shoola.util.ui;
 
+
+//Java imports
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
-import javax.swing.JComponent;
 import javax.swing.JPanel;
-
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Component displaying a color and its alpha variation.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,34 +55,34 @@ public class PaintPot
 	
 	/** Colour of the paint pot. */
 	protected Color					colour;
-   	 
-	/** Width  of paint pot. */
+
+	/** Width  of the paint pot. */
 	protected int 					w;
-    
-	/** Height of paint pot. */
+
+	/** Height of the paint pot. */
 	protected int 					h;
-    
-	/** Border of paintpot. */
-	protected Rectangle2D				strokeRect;
-    
-	/** Area covered by paintpot. */
-	protected Rectangle2D				whiteRect;
-    
+
+	/** Border of the paint pot. */
+	protected Rectangle2D			strokeRect;
+
+	/** Area covered by the paint pot. */
+	protected Rectangle2D			whiteRect;
+
 	/** Represents the colour picked without Alpha. */
-	protected Polygon					topPoly;
-    
+	protected Polygon				topPoly;
+
 	/** Bottom represents the colour picked with alpha channel added. */
-	protected Polygon					bottomPoly;
-    
+	protected Polygon				bottomPoly;
+
 	/** X coordinates of the polygons to represent the colour pots. */
 	protected int[]					topXPoints; 
-    
+
 	/** X coordinates of the polygons to represent the colour pots.  */
 	protected int[]					bottomXPoints; 
-    
+
 	/** Y coordinates of the polygons to represent the colour pots.  */
 	protected int[]					topYPoints; 
-    
+
 	/** Y coordinates of the polygons to represent the colour pots. */
 	protected int[]					bottomYPoints; 
 	
@@ -106,20 +102,24 @@ public class PaintPot
         strokeRect = new Rectangle2D.Double(0, 0, w-1, h-1);
         whiteRect = new Rectangle2D.Double(1, 1, w-2, h-2);
         
-        topXPoints[0] = (int) whiteRect.getX();
-        topXPoints[1] = (int) (whiteRect.getX()+whiteRect.getWidth());
-        topXPoints[2] = (int) (whiteRect.getX());
-        topYPoints[0] = (int) whiteRect.getY();
-        topYPoints[1] = (int) (whiteRect.getY());
-        topYPoints[2] = (int) (whiteRect.getY()+whiteRect.getHeight());
+        double x = whiteRect.getX();
+        double y = whiteRect.getY();
+        topXPoints[0] = (int) x;
+        topXPoints[1] = (int) (x+whiteRect.getWidth());
+        topXPoints[2] = (int) x;
+        topYPoints[0] = (int) y;
+        topYPoints[1] = (int) y;
+        topYPoints[2] = (int) (y+whiteRect.getHeight());
         topPoly = new Polygon(topXPoints, topYPoints,3);
-        bottomXPoints[0] = (int) strokeRect.getX();
-        bottomXPoints[1] = (int) (strokeRect.getX()+strokeRect.getWidth());
-        bottomXPoints[2] = (int) (strokeRect.getX()+strokeRect.getWidth());
-        bottomYPoints[0] = (int) (strokeRect.getY()+strokeRect.getHeight());
-        bottomYPoints[1] = (int) (strokeRect.getY());
-        bottomYPoints[2] = (int) (strokeRect.getY()+strokeRect.getHeight());
-        bottomPoly = new Polygon(bottomXPoints, bottomYPoints,3);   
+        x = strokeRect.getX();
+        y = strokeRect.getY();
+        bottomXPoints[0] = (int) x;
+        bottomXPoints[1] = (int) (x+strokeRect.getWidth());
+        bottomXPoints[2] = (int) (x+strokeRect.getWidth());
+        bottomYPoints[0] = (int) (y+strokeRect.getHeight());
+        bottomYPoints[1] = (int) y;
+        bottomYPoints[2] = (int) (y+strokeRect.getHeight());
+        bottomPoly = new Polygon(bottomXPoints, bottomYPoints, 3);   
     }
     
     /**
@@ -132,7 +132,7 @@ public class PaintPot
     {
         Graphics2D g = (Graphics2D)og;
         createUI();
-       Color c = new Color(colour.getRed(), colour.getGreen(), 
+        Color c = new Color(colour.getRed(), colour.getGreen(), 
         					colour.getBlue());
         g.setColor(c);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
@@ -148,21 +148,27 @@ public class PaintPot
     }
     
 	/**
-	 * Creates the UI and attach the component to the control.
+	 * Creates a new instance.
 	 * 
-	 * @param c Reference to the control. Mustn't be <code>null</code>.
+	 * @param c The color to display. Mustn't be <code>null</code>.
 	 */
-	public PaintPot(Color col)
+	public PaintPot(Color c)
 	{
-     	colour = col;
+		if (c == null) 
+			throw new IllegalArgumentException("No color specified.");
+     	colour = c;
 		createUI();
 	}
 	
-	/** Set the colour of the component. 
+	/** 
+	 * Sets the colour of the component. 
+	 * 
 	 * @param col the colour of the component.
 	 */
 	public void setColour(Color col)
 	{
+		if (col == null) 
+			throw new IllegalArgumentException("No color specified.");
 		colour = col;
 	}
 	
@@ -175,7 +181,6 @@ public class PaintPot
         super.paintComponent(g);
         render(g);
     }
-
     
 }
 

@@ -33,7 +33,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -46,15 +45,16 @@ import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImageDetailsDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.util.archived.view.Downloader;
 import org.openmicroscopy.shoola.agents.util.archived.view.DownloaderFactory;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -248,7 +248,7 @@ class ImViewerComponent
      * Implemented as specified by the {@link ImViewer} interface.
      * @see ImViewer#setZoomFactor(double)
      */
-    public void setZoomFactor(double factor)
+    public void setZoomFactor(double factor, int zoomIndex)
     {
     	if (factor != -1 && (factor > ZoomAction.MAX_ZOOM_FACTOR ||
                     factor < ZoomAction.MIN_ZOOM_FACTOR))
@@ -257,6 +257,7 @@ class ImViewerComponent
     				ZoomAction.MAX_ZOOM_FACTOR);
     	model.setZoomFitToWindow(factor == -1);
     	model.setZoomFactor(factor);
+    	view.setZoomFactor(zoomIndex);
     	if (view.isLensVisible() && 
     		model.getTabbedIndex() == ImViewer.VIEW_INDEX) {
     		view.setImageZoomFactor((float) model.getZoomFactor());
@@ -267,9 +268,9 @@ class ImViewerComponent
 
     /**
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#zoomFitToWindow()
+     * @see ImViewer#isZoomFitToWindow()
      */
-    public boolean zoomFitToWindow() { return model.getZoomFitToWindow(); }
+    public boolean isZoomFitToWindow() { return model.getZoomFitToWindow(); }
     
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
@@ -282,9 +283,9 @@ class ImViewerComponent
 
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#setColorModel(Map)
+     * @see ImViewer#setColorModel(int)
      */
-    public void setColorModel(Map map)
+    public void setColorModel(int key)
     {
         switch (model.getState()) {
             case NEW:
@@ -294,17 +295,11 @@ class ImViewerComponent
                 "This method can't be invoked in the DISCARDED, NEW or" +
                 "LOADING_RENDERING_CONTROL state.");
         }
-        if (map == null || map.size() != 1) return;
-        Iterator i = map.keySet().iterator();
-        Integer key = null;
-        ViewerAction value = null;
-        while (i.hasNext()) {
-            key = (Integer) i.next();
-            value = (ViewerAction) map.get(key);
-        }
+        
         try {
+        	Iterator i;
         	 List channels = model.getActiveChannels();
-             switch (key.intValue()) {
+             switch (key) {
      	        case ColorModelAction.GREY_SCALE_MODEL:
      	        	historyActiveChannels = model.getActiveChannels();
      	        	model.setColorModel(GREY_SCALE_MODEL);
@@ -356,7 +351,7 @@ class ImViewerComponent
              //need
              firePropertyChange(COLOR_MODEL_CHANGE_PROPERTY, new Integer(1), 
                                                              new Integer(-1));
-             view.setColorModel(value);
+             view.setColorModel(key);
              renderXYPlane();
 		} catch (Exception ex) {
 			reload(ex);
@@ -461,14 +456,26 @@ class ImViewerComponent
 	    //Handle Exception
 	    try {
 	    	model.setChannelColor(index, c);
+	    	view.setChannelColor(index, c);
+	    	if (!model.isChannelActive(index))
+	    		setChannelActive(index, true);
+	    	if (GREY_SCALE_MODEL.equals(model.getColorModel()))
+	    	     setColorModel(ColorModelAction.RGB_MODEL);
+	    	else renderXYPlane();
 		} catch (Exception e) {
-			// TODO: handle exception
+			Registry reg = ImViewerAgent.getRegistry();
+			LogMessage msg = new LogMessage();
+			msg.println("Cannot set the color of channel "+index);
+			msg.print(e);
+			reg.getLogger().error(this, msg);
+			reg.getUserNotifier().notifyError("Set channel color", 
+					"Cannot set the color of channel "+index, e);
 		}
 	    
-	    view.setChannelColor(index, c);
+		//view.setChannelColor(index, c);
 	    firePropertyChange(CHANNEL_COLOR_CHANGE_PROPERTY, new Integer(index-1),
 	            new Integer(index));
-	    if (model.isChannelActive(index)) renderXYPlane();
+	    //if (model.isChannelActive(index)) renderXYPlane();
     }
 
     /** 
@@ -1205,7 +1212,11 @@ class ImViewerComponent
     	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
     	if (e instanceof RenderingServiceException) {
     		RenderingServiceException rse = (RenderingServiceException) e;
-    		logger.error(this, rse.getExtendedMessage());
+    		LogMessage logMsg = new LogMessage();
+    		logMsg.print("Rendering Exception:");
+    		logMsg.println(rse.getExtendedMessage());
+    		logMsg.print(rse);
+    		logger.error(this, logMsg);
     		if (newPlane) {
     			MessageBox msg = new MessageBox(view, "Invalid Plane", 
     	    			"The selected plane contains invalid value. " +
@@ -1214,14 +1225,14 @@ class ImViewerComponent
     				discard();
     			else setImage(null);
     		} else {
-    			un.notifyError(ImViewerAgent.ERROR, rse.getExtendedMessage(), 
+    			un.notifyError(ImViewerAgent.ERROR, logMsg.toString(), 
 						e.getCause());
     		}
     		newPlane = false;
     	} else if (e instanceof DSOutOfServiceException) {
     		MessageBox msg = new MessageBox(view, "Rendering timeout", 
     			"The rendering engine has timed out. " +
-    			"Do you want to reload it?");
+    			"Do you want to restart it?");
     		if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
     			logger.debug(this, "Reload rendering Engine.");
     			model.reloadRenderingControl();
@@ -1462,6 +1473,19 @@ class ImViewerComponent
 					"in the DISCARDED state.");
 		if (model.getState() != READY) return false;
 		return view.hasLensImage(); 
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getZoomFactor()
+     */
+	public double getZoomFactor()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException("This method cannot be invoked " +
+					"in the DISCARDED state.");
+		if (model.getState() != READY) return -1;
+		return model.getZoomFactor();
 	}
 	
 }

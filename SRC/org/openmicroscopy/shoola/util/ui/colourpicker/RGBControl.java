@@ -24,9 +24,7 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 
 //Java imports
 import java.awt.Color;
-import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
-
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
 
@@ -281,7 +279,8 @@ class RGBControl
 			e = (ChangeListener) listeners.get(i);
 			e.stateChanged(new ColourChangedEvent(this));
 		}
-		this.firePropertyChange(PaintPotUI.COLOURCHANGEEVENT, null, model.getColour());
+		firePropertyChange(PaintPotUI.COLOUR_CHANGED_PROPERTY, null, 
+							model.getColour());
 	}
     
 }

@@ -52,11 +52,6 @@ public class RateImageAction
     extends ViewerAction
 {
     
-    /**
-     * Bounds property indicating that a new level is selected.
-     */
-    public static final String  RATE_IMAGE_PROPERTY = "rateImage";
-    
     /** Identifies the <code>first</code> rating level. */
     public static final int     RATE_ONE = 0;
     
@@ -143,7 +138,6 @@ public class RateImageAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        firePropertyChange(RATE_IMAGE_PROPERTY, null, this);
         model.setRateImage(ratingIndex);
     }
 

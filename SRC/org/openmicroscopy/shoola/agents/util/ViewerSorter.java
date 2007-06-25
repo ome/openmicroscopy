@@ -156,6 +156,22 @@ public class ViewerSorter
     }
     
     /**
+     * Compares two {@link long}s.
+     * 
+     * @param d1 The first object to compare.
+     * @param d2 The second object to compare.
+     * @return See below.
+     */
+    private int compareLongs(long d1, long d2)
+    {
+         int v = 0;
+         if (d1 < d2) v = -1;
+         else if (d1 > d2)   v = 1;
+         return v;
+    }
+    
+    /**
+     *
      * Compares two {@link Timestamp}s.
      * 
      * @param t1 The first object to compare.
@@ -180,7 +196,12 @@ public class ViewerSorter
      */
     private int compareDataObjects(DataObject o1, DataObject o2)
     {
-        if (!byDate) return compareStrings(getNameFor(o1), getNameFor(o2));
+        if (!byDate) {
+        	int r = compareStrings(getNameFor(o1), getNameFor(o2));
+        	if (r == 0) //equals so checks id.
+        		return compareLongs(o1.getId(), o2.getId());
+        	return r;
+        }
         return compareTimestamps(getTimeFor(o1), getTimeFor(o2));
     }
 

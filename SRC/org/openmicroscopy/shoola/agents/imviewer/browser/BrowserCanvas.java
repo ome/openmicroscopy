@@ -31,6 +31,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
+import javax.swing.JViewport;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -94,8 +96,9 @@ class BrowserCanvas
         // the image which ever is viewable. 
         Rectangle imgRect = new Rectangle(0, 0, img.getWidth(), 
         									img.getHeight());
-        Rectangle viewRect = view.getViewport().getBounds();
-        Point p = view.getViewport().getViewPosition();
+        JViewport viewPort = view.getViewport();
+        Rectangle viewRect = viewPort.getBounds();
+        Point p = viewPort.getViewPosition();
         int x = (int) p.getX();
         int y = (int) p.getY();
         int width = Math.min(x+viewRect.width, img.getWidth());

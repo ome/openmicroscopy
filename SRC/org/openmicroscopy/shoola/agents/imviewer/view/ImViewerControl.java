@@ -70,6 +70,9 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomFitAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomInAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomOutAction;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
@@ -245,6 +248,15 @@ class ImViewerControl
     /** Identifies the <code>Image details</code> action in the menu. */
     static final Integer     IMAGE_DETAILS = new Integer(41);
     
+    /** Identifies the <code>Zooming in</code> action. */
+    static final Integer     ZOOM_IN = new Integer(42);
+    
+    /** Identifies the <code>Zooming out</code> action. */
+    static final Integer     ZOOM_OUT = new Integer(43);
+    
+    /** Identifies the <code>Zooming fit</code> action. */
+    static final Integer     ZOOM_FIT = new Integer(44);
+    
     /** 
      * Reference to the {@link ImViewer} component, which, in this context,
      * is regarded as the Model.
@@ -269,67 +281,37 @@ class ImViewerControl
         actionsMap.put(RENDERER, new RendererAction(model));
         actionsMap.put(MOVIE, new MovieAction(model));
         actionsMap.put(SAVE, new SaveAction(model));
-        ViewerAction action = new ZoomAction(model, ZoomAction.ZOOM_25);
-        action.addPropertyChangeListener(this);
-        actionsMap.put(ZOOM_25, action);
-        action = new ZoomAction(model, ZoomAction.ZOOM_50);
-        action.addPropertyChangeListener(this);
-        actionsMap.put(ZOOM_50, action);
-        action = new ZoomAction(model, ZoomAction.ZOOM_75);
-        action.addPropertyChangeListener(this);
-        actionsMap.put(ZOOM_75, action);
-        action = new ZoomAction(model, ZoomAction.ZOOM_100);
-        action.addPropertyChangeListener(this);
-        actionsMap.put(ZOOM_100, action);
-        action = new ZoomAction(model, ZoomAction.ZOOM_125);
-        action.addPropertyChangeListener(this);
-        actionsMap.put(ZOOM_125, action);
-        action = new ZoomAction(model, ZoomAction.ZOOM_150);
-        action.addPropertyChangeListener(this);
-        actionsMap.put(ZOOM_150, action);
-        action = new ZoomAction(model, ZoomAction.ZOOM_175);
-        action.addPropertyChangeListener(this);
-        actionsMap.put(ZOOM_175, action);
-        action = new ZoomAction(model, ZoomAction.ZOOM_200);
-        action.addPropertyChangeListener(this);
-        actionsMap.put(ZOOM_200, action);
-        action = new ZoomAction(model, ZoomAction.ZOOM_225);
-        action.addPropertyChangeListener(this);
-        actionsMap.put(ZOOM_225, action);
-        action = new ZoomAction(model, ZoomAction.ZOOM_250);
-        action.addPropertyChangeListener(this);
-        actionsMap.put(ZOOM_250, action);
-        action = new ZoomAction(model, ZoomAction.ZOOM_275);
-        action.addPropertyChangeListener(this);
-        actionsMap.put(ZOOM_275, action);
-        action = new ZoomAction(model, ZoomAction.ZOOM_300);
-        action.addPropertyChangeListener(this);
-        actionsMap.put(ZOOM_300, action);
-        action = new ZoomAction(model, ZoomAction.ZOOM_FIT_TO_WINDOW);
-        action.addPropertyChangeListener(this);
-        actionsMap.put(ZOOM_FIT_TO_WINDOW, action);
+        actionsMap.put(ZOOM_25, new ZoomAction(model, ZoomAction.ZOOM_25));
+        actionsMap.put(ZOOM_50, new ZoomAction(model, ZoomAction.ZOOM_50));
+        actionsMap.put(ZOOM_75, new ZoomAction(model, ZoomAction.ZOOM_75));
+        actionsMap.put(ZOOM_100, new ZoomAction(model, ZoomAction.ZOOM_100));
+        actionsMap.put(ZOOM_125, new ZoomAction(model, ZoomAction.ZOOM_125));
+        actionsMap.put(ZOOM_150, new ZoomAction(model, ZoomAction.ZOOM_150));
+        actionsMap.put(ZOOM_175, new ZoomAction(model, ZoomAction.ZOOM_175));
+        actionsMap.put(ZOOM_200, new ZoomAction(model, ZoomAction.ZOOM_200));
+        actionsMap.put(ZOOM_225, new ZoomAction(model, ZoomAction.ZOOM_225));
+        actionsMap.put(ZOOM_250, new ZoomAction(model, ZoomAction.ZOOM_250));
+        actionsMap.put(ZOOM_275, new ZoomAction(model, ZoomAction.ZOOM_275));
+        actionsMap.put(ZOOM_300, new ZoomAction(model, ZoomAction.ZOOM_300));
+        actionsMap.put(ZOOM_FIT_TO_WINDOW, 
+        			new ZoomAction(model, ZoomAction.ZOOM_FIT_TO_WINDOW));
         actionsMap.put(LENS, new LensAction(model));
-        action = new ColorModelAction(model, ColorModelAction.GREY_SCALE_MODEL);
-        actionsMap.put(GREY_SCALE_MODEL, action);
-        action = new ColorModelAction(model, ColorModelAction.RGB_MODEL);
-        actionsMap.put(RGB_MODEL, action);
-        action = new ColorModelAction(model, ColorModelAction.HSB_MODEL);
-        actionsMap.put(HSB_MODEL, action);
-        action = new RateImageAction(model, RateImageAction.RATE_ONE);
-        action.addPropertyChangeListener(this);
-        actionsMap.put(RATING_ONE, action);
-        action = new RateImageAction(model, RateImageAction.RATE_TWO);
-        action.addPropertyChangeListener(this);
-        actionsMap.put(RATING_TWO, action);
-        action = new RateImageAction(model, RateImageAction.RATE_THREE);
-        action.addPropertyChangeListener(this);
-        actionsMap.put(RATING_THREE, action);
-        action = new RateImageAction(model, RateImageAction.RATE_FOUR);
-        action.addPropertyChangeListener(this);
-        actionsMap.put(RATING_FOUR, action);
-        action = new RateImageAction(model, RateImageAction.RATE_FIVE);
-        action.addPropertyChangeListener(this);
-        actionsMap.put(RATING_FIVE, action);
+        actionsMap.put(GREY_SCALE_MODEL, 
+        		new ColorModelAction(model, ColorModelAction.GREY_SCALE_MODEL));
+        actionsMap.put(RGB_MODEL, 
+        		new ColorModelAction(model, ColorModelAction.RGB_MODEL));
+        actionsMap.put(HSB_MODEL, 
+        		new ColorModelAction(model, ColorModelAction.HSB_MODEL));
+        actionsMap.put(RATING_ONE, 
+        		new RateImageAction(model, RateImageAction.RATE_ONE));
+        actionsMap.put(RATING_TWO, 
+        		new RateImageAction(model, RateImageAction.RATE_TWO));
+        actionsMap.put(RATING_THREE, 
+        		new RateImageAction(model, RateImageAction.RATE_THREE));
+        actionsMap.put(RATING_FOUR, 
+        		new RateImageAction(model, RateImageAction.RATE_FOUR));
+        actionsMap.put(RATING_FIVE, 
+        		new RateImageAction(model, RateImageAction.RATE_FIVE));
         actionsMap.put(CHANNEL_MOVIE, new ChannelMovieAction(model));
         actionsMap.put(UNIT_BAR, new UnitBarAction(model));
         actionsMap.put(UNIT_BAR_ONE, new UnitBarSizeAction(model, 
@@ -354,6 +336,9 @@ class ImViewerControl
         actionsMap.put(TEXT_VISIBLE, new TextVisibleAction(model));
         actionsMap.put(MEASUREMENT_TOOL, new ROIToolAction(model));
         actionsMap.put(IMAGE_DETAILS, new InfoAction(model));
+        actionsMap.put(ZOOM_IN, new ZoomInAction(model));
+        actionsMap.put(ZOOM_OUT, new ZoomOutAction(model));
+        actionsMap.put(ZOOM_FIT, new ZoomFitAction(model));
     }
     
     /** 
@@ -594,10 +579,8 @@ class ImViewerControl
                 model.setChannelSelection(index.intValue(), 
                                     ((Boolean) map.get(index)).booleanValue());
             }
-        } else if (ZoomAction.ZOOM_PROPERTY.equals(propName)) {
-            view.setZoomFactor((ViewerAction) pce.getNewValue());
-        } else if (RateImageAction.RATE_IMAGE_PROPERTY.equals(propName)) {
-            view.setRatingFactor((ViewerAction) pce.getNewValue());
+        //} else if (RateImageAction.RATE_IMAGE_PROPERTY.equals(propName)) {
+          //  view.setRatingFactor((ViewerAction) pce.getNewValue());
         } else if (LoadingWindow.CLOSED_PROPERTY.equals(propName)) {
             model.discard();
         } else if (Renderer.RENDER_PLANE_PROPERTY.equals(propName)) {
@@ -650,7 +633,8 @@ class ImViewerControl
 	 */
 	public void componentResized(ComponentEvent e) 
 	{ 
-		if (model.zoomFitToWindow()) model.setZoomFactor(-1); 
+		if (model.isZoomFitToWindow()) 
+			model.setZoomFactor(-1, ZoomAction.ZOOM_FIT_TO_WINDOW); 
 		view.maximizeWindow();
 	}
 

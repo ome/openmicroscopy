@@ -89,8 +89,8 @@ public class UserManagerDialog
 	private static final String		TITLE = "Switch user";
 	
 	/** The window's description. */
-	private static final String		TEXT = "Select a user and " +
-											"view his/her data.";
+	private static final String		TEXT = "Select a user.";// and " +
+											//"view his/her data.";
 	
 	/** The description of the {@link #cancel} button. */
 	private static final String		CANCEL_DESCRIPTION = "Close the window.";
@@ -294,9 +294,9 @@ public class UserManagerDialog
 	 */
 	private JPanel buildContent()
 	{
-		double[][] tl = {{TableLayout.PREFERRED, 300}, //columns
+		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
  				{TableLayout.PREFERRED, 5,
-			 	TableLayout.PREFERRED, 150}}; //rows
+			 	TableLayout.PREFERRED, TableLayout.FILL}}; //rows
 		JPanel content = new JPanel();
 		content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         content.setLayout(new TableLayout(tl));

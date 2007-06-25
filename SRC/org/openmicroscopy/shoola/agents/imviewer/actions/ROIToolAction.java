@@ -33,7 +33,6 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.agents.imviewer.util.saver.ImgSaver;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -55,10 +54,10 @@ public class ROIToolAction
 {
 
 	/** The name of the action. */
-    private static final String NAME = "ROI";
+    private static final String NAME = "Measurement";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Bring up the ROI tool.";
+    private static final String DESCRIPTION = "Bring up the Measurement tool.";
 
     /**
      * Creates a new instance.
@@ -71,11 +70,12 @@ public class ROIToolAction
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager icons = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.MEASUREMENT_TOOL));
+        putValue(Action.SMALL_ICON, 
+        		icons.getIcon(IconManager.MEASUREMENT_TOOL));
     }
     
     /** 
-     * Brings up on screen the measurement tool.
+     * Brings up the measurement tool.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)

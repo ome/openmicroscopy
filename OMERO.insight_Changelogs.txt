@@ -1,23 +1,71 @@
  OMERO.insight Project
- --------------------
+ ---------------------
   
   The OMERO.insight Project is a sub-project of the Open Microscopy Environment
   Project (OME, http://www.openmicroscopy.org/) that focuses on delivering a
   client for the visualization and manipulation of both image data and metadata
   maintained at an OMERO server site. OMERO.insight is completely written in 
   Java.
+
+--------------------------------------------------------------------------------
+ Last update: 22/06/2007 (revision 4938)
+ Version: Beta 2
+ 
+ - General: Fixed last remaining bugs before release.
+ 
+ -------------------------------------------------------------------------------
+ Last update: 05/06/2007 (revision 4903)
+ Version: Beta 2
+ 
+ - HiViewer: Fixed layout problem
+ - Rendering: Turn on caching
+ - General: Fixed last remaining bugs before releasing.
+ -------------------------------------------------------------------------------
+ Last update: 29/05/2007 (revision ??)
+ Version: Beta 2
+ 
+ - Annotator: Fixed scroll Bar position
+ - Viewer: Add new features to support various saving options.
+ - General: Fixed last remaining bugs before releasing.
+ 
+--------------------------------------------------------------------------------
+ Last update: 08/05/2007 (revision ??)
+ Version: Beta 2
+ 
+ Changes:
+ - General: UI cleaning.
+ - Viewer: Add Magnified lens on image in Annotate Panel
+ - Viewer: Add option to save split channel in Grey scale mode.
+ - Annotator: Review implementation of the Annotator to allow multiple 
+ 			  annotations, delete multiple annotations.
+ - HiViewer: Relayout the node with images when resizing.
+ - HiViewer: Allow multi selection in TreeView.  
   
 --------------------------------------------------------------------------------
- Last update: 24/04/2007 (revision 4773)
+ Last update: 01/05/2007 (revision 4798)
+ Version: Beta 2
+ 
+ Changes:
+ - General: UI cleaning.
+ - Viewer: Add Magnified lens on image in Annotate Panel
+ - Viewer: Add option to save split channel in Grey scale mode.
+ - Annotator: Review implementation of the Annotator to allow multiple 
+ 			  annotations, delete multiple annotations.
+ - HiViewer: Relayout the node with images when resizing.
+ - HiViewer: Allow multi selection in TreeView.
+ 
+--------------------------------------------------------------------------------
+ Last update: 24/04/2007 (revision 4782)
  Version: Beta 2
  
  Changes:
  - General: UI cleaning.
  - Viewer: Smart selection of the split option.
  - Viewer: Allow to save the magnified lens image and the lens+split channels.
+ - Viewer: Select the z-section and timepoint by mousing over the image.
  
 --------------------------------------------------------------------------------
- Last update: 16/04/2007 (revision 4773)
+ Last update: 16/04/2007 (revision 4780)
  Version: Beta 2
  
  Changes:
@@ -25,7 +73,7 @@
  - Viewer: Added new tabbed pane. Grid view.
  
 --------------------------------------------------------------------------------
- Last update: 26/03/2007 (revision 4773)
+ Last update: 26/03/2007 (revision 4779)
  Version: Beta 2
  
  Changes:

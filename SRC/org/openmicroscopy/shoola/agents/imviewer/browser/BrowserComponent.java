@@ -207,8 +207,9 @@ class BrowserComponent
 	                    "between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
 	                    ZoomAction.MAX_ZOOM_FACTOR);
     	} else {
-    		int width = model.getRenderedImage().getWidth();
-    		int height = model.getRenderedImage().getHeight();
+    		BufferedImage img = model.getRenderedImage();
+    		int width = img.getWidth();
+    		int height = img.getHeight();
     		Dimension viewport = view.getCurrentViewport();
     		double zoomFactorX = 0;
     		if (width > 0) zoomFactorX = viewport.getWidth()/width;

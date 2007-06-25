@@ -43,6 +43,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
@@ -60,8 +61,10 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
@@ -398,33 +401,6 @@ class ImViewerUI
     }
     
     /**
-     * Helper method to create the color model submenu.
-     * 
-     * @return The color model submenu.
-     */
-    private JMenu createColorModelMenu()
-    {
-        JMenu menu = new JMenu("Models");
-        colorModelGroup = new ButtonGroup();
-        ViewerAction action = controller.getAction(
-                        ImViewerControl.GREY_SCALE_MODEL);
-        JCheckBoxMenuItem item = new JCheckBoxMenuItem();
-        String cm = model.getColorModel();
-        item.setSelected(cm.equals(ImViewer.GREY_SCALE_MODEL));
-        item.setAction(action);
-        colorModelGroup.add(item);
-        menu.add(item);
-        action = controller.getAction(ImViewerControl.RGB_MODEL);
-        item = new JCheckBoxMenuItem();
-        item.setAction(action);
-        item.setSelected(cm.equals(ImViewer.RGB_MODEL) || 
-                        cm.equals(ImViewer.HSB_MODEL));
-        colorModelGroup.add(item);
-        menu.add(item);
-        return menu;
-    }
-    
-    /**
      * Helper methods to create the Zoom menu. 
      * 
      * @return The zoom submenu;
@@ -487,6 +463,7 @@ class ImViewerUI
         item = new JCheckBoxMenuItem(action);
         menu.add(item);
         zoomingGroup.add(item);
+        setZoomFactor(ZoomAction.DEFAULT_ZOOM_INDEX);
         return menu;
     }
     
@@ -636,20 +613,20 @@ class ImViewerUI
     /**
      * Updates UI components when a zooming factor is selected.
      * 
-     * @param action    The selected action embedding the zooming factor
-     *                  information.
+     * @param zoomIndex The index of the selected zoomFactor.
      */
-    void setZoomFactor(ViewerAction action)
+    void setZoomFactor(int zoomIndex)
     {
-        controlPane.setZoomFactor(action);
         JCheckBoxMenuItem b;
         Enumeration e;
+        Action a;
         for (e = zoomingGroup.getElements(); e.hasMoreElements();) {
             b = (JCheckBoxMenuItem) e.nextElement();
-            if ((b.getAction()).equals(action)) {
-                b.removeActionListener(action);
-                b.setSelected(true);
-                b.setAction(action);
+            a = b.getAction();
+            if (a instanceof ZoomAction) {
+            	b.removeActionListener(a);
+            	b.setSelected(((ZoomAction) a).getIndex() == zoomIndex);
+            	b.setAction(a);
             }
         }
     }
@@ -678,20 +655,21 @@ class ImViewerUI
     /**
      * Updates UI components when a new color model is selected.
      * 
-     * @param action    The selected action embedding the color model
-     *                  information.
+     * @param key The index of the color model.
      */
-    void setColorModel(ViewerAction action)
+    void setColorModel(int key)
     {
         controlPane.setColorModel();
         AbstractButton b;
+        Action a;
         Enumeration e;
         for (e = colorModelGroup.getElements(); e.hasMoreElements();) {
             b = (AbstractButton) e.nextElement();
-            if ((b.getAction()).equals(action)) {
-                b.removeActionListener(action);
-                b.setSelected(true);
-                b.setAction(action);
+            a = b.getAction();
+            if (a instanceof ColorModelAction) {
+            	b.removeActionListener(a);
+            	b.setSelected(((ColorModelAction) a).getIndex() == key);
+            	b.setAction(a);
             }
         }
     }
@@ -873,27 +851,6 @@ class ImViewerUI
 	    		f = (float) model.getBrowser().getRatio();
 	    		break;
     	}
-    	
-    	
-    	/*
-    	switch (model.getTabbedIndex()) {
-	    	case ImViewer.VIEW_INDEX:
-	    		showLens(b, model.getMaxX(), model.getMaxY(), 
-	    				ImViewer.VIEW_INDEX, (float) model.getZoomFactor(), 
-	    				model.getOriginalImage());
-	    		break;
-	    	case ImViewer.GRID_INDEX:
-	    		showLens(b, model.getMaxX(), model.getMaxY(), 
-	    				ImViewer.GRID_INDEX, 1.0f, model.getGridImage());
-	    		break;
-	    	case ImViewer.ANNOTATOR_INDEX:
-	    		int maxX = (int) (model.getMaxX()*Browser.RATIO);
-	    		int maxY = (int) (model.getMaxY()*Browser.RATIO);
-	    		showLens(b, maxX, maxY, ImViewer.ANNOTATOR_INDEX, 1.0f,
-	    				model.getAnnotateImage());
-	    		break;
-    	}
-    	*/
     	int width = lens.getLensUI().getWidth();
 		int height = lens.getLensUI().getHeight();
 		Point p = lens.getLensLocation();

@@ -220,7 +220,7 @@ class BrowserModel
         unitBarColor = ImagePaintingFactory.UNIT_BAR_COLOR;
         backgroundColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
         gridImages = new ArrayList<BufferedImage>();
-        
+        zoomFactor = ZoomAction.DEFAULT_ZOOM_FACTOR;
     }
     
     /**
