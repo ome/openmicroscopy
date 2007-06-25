@@ -947,7 +947,7 @@ public class BasicSecuritySystem implements SecuritySystem {
     // ~ CurrentDetails delegation (ensures proper settings of Tokens)
     // =========================================================================
 
-    public void loadEventContext(boolean isReadyOnly) {
+    public void loadEventContext(boolean isReadOnly) {
 
         // needed services
         LocalAdmin localAdmin = (LocalAdmin) sf.getAdminService();
@@ -957,7 +957,7 @@ public class BasicSecuritySystem implements SecuritySystem {
         final Principal p = clearAndCheckPrincipal();
 
         // start refilling current details
-        cd.setReadOnly(isReadyOnly);
+        cd.setReadOnly(isReadOnly);
 
         // Experimenter
 
@@ -996,15 +996,28 @@ public class BasicSecuritySystem implements SecuritySystem {
         type.getGraphHolder().setToken(token, token);
         cd.newEvent(type, token);
 
-        Event event = getCurrentEvent();
-        event.getGraphHolder().setToken(token, token);
-
-        // If this event is not read only, then lets save this event to prevent
-        // flushing issues later.
-        if (!isReadyOnly) {
-            setCurrentEvent(iUpdate.saveAndReturnObject(event));
+        if (!isReadOnly) {   
+            saveEventIfWriteMethod();
         }
+        
+    }
 
+    /** During {@link #loadEventContext(boolean) loading} and 
+     * {@link #setEventContext(EventContext) setting} of the {@link EventContext}
+     * it is necessary to save the {@link Event} to prevent "null or transient
+     * value exceptions" later. This is done also done for {@link Event events}
+     * of stateful services, in which the {@link EventContext#isReadOnly()} flag
+     * changes from true to false.
+     * 
+     * @see EventHandler
+     * @see #loadEventContext(boolean)
+     * @see #setEventContext(EventContext)
+     */
+    private void saveEventIfWriteMethod() {
+            IUpdate iUpdate = sf.getUpdateService();
+            Event event = getCurrentEvent();
+            event.getGraphHolder().setToken(token, token);
+            setCurrentEvent(iUpdate.saveAndReturnObject(event));
     }
 
     /**
@@ -1026,6 +1039,9 @@ public class BasicSecuritySystem implements SecuritySystem {
         if (p.getName().equals(u_name) && p.getGroup().equals(g_name)
                 && p.getEventType().equals(t_name)) {
             cd.setCurrentEventContext(bec);
+            if (!bec.isReadOnly) {
+                saveEventIfWriteMethod();
+            }
         }
 
         else {
@@ -1118,7 +1134,8 @@ public class BasicSecuritySystem implements SecuritySystem {
 
         if (Event.class.isAssignableFrom(klass)
                 || EventLog.class.isAssignableFrom(klass)) {
-            log.debug("Not logging creation of logging type:" + klass);
+            // Cannot log because these are the log classes.
+            log.info("Noticing:" + action + "," + klass + "," + id);
         }
 
         else {

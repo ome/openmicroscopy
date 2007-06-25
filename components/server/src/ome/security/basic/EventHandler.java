@@ -87,7 +87,7 @@ public class EventHandler implements MethodInterceptor {
 
     /**
      * invocation interceptor for prepairing this {@link Thread} for execution
-     * and subsequently reseting it.
+     * and subsequently reseting it. 
      * 
      * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
      */
@@ -107,12 +107,14 @@ public class EventHandler implements MethodInterceptor {
                 }
 
                 else {
-                    secSys.loadEventContext(false);
+                    secSys.loadEventContext(readOnly);
                     objCtxMap.put(arg0.getThis(), secSys.getEventContext());
                     prevCtx = secSys.getEventContext();
                     objSeen.put(arg0.getThis(), arg0.getThis());
                 }
             }
+            // Need to update the read-ability
+            ((BasicEventContext)prevCtx).isReadOnly = readOnly;
             secSys.setEventContext(prevCtx);
         }
 
