@@ -268,7 +268,7 @@ module omero {
 
     interface ThumbnailStore extends ServiceInterface
       {
-	void setPixelsId(long pixelsId) throws ServerError;
+	boolean setPixelsId(long pixelsId) throws ServerError;
 	void setRenderingDefId(long renderingDefId) throws ServerError;
 	Ice::ByteSeq getThumbnail(int sizeX, int sizeY) throws ServerError;
 	Ice::ByteSeq getThumbnailByLongsetSide(int size) throws ServerError;
