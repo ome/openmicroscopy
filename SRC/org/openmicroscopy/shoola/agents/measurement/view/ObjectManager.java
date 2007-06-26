@@ -122,6 +122,7 @@ class ObjectManager
 		        if (lsm.isSelectionEmpty()) {
 		        } else {
 		        	int index = lsm.getMinSelectionIndex();
+		        	if (index < 0) return;
 		        	ROIFigureTableModel m = 
 	        			(ROIFigureTableModel) objectsTable.getModel();
 	        		ROIFigure figure = (ROIFigure) m.getFigureAt(index);
@@ -230,6 +231,7 @@ class ObjectManager
 	 */
 	void setSelectedFigures(Collection l, boolean clear)
 	{
+		System.err.println("clear: "+clear);
 		Iterator i = l.iterator();
 		ROI roi;
 		ROIFigure figure;
@@ -248,7 +250,7 @@ class ObjectManager
 			objectsTable.repaint();
 		} catch (Exception e) {
 			MeasurementAgent.getRegistry().getLogger().info(this, 
-					"Figures selection "+e);;
+					"Figure selection "+e);;
 		}
 		lsm.addListSelectionListener(listener);
 	}
@@ -350,6 +352,7 @@ class ObjectManager
 		 */
 		private Object mapFigureToValue(int row, int col)
 		{
+			if (row < 0) return null;
 			ROIFigure fig = data.get(row);
 			switch (col) {
 				case 0: return fig.getROI().getID();

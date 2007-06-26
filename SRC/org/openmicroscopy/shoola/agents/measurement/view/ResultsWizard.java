@@ -25,13 +25,11 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
@@ -48,7 +46,6 @@ import javax.swing.JScrollPane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.util.AnnotationField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 

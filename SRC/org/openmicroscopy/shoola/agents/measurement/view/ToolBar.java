@@ -39,6 +39,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
@@ -52,6 +53,7 @@ import org.jhotdraw.util.ResourceBundleUtil;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.util.MeasurementToolBarButtonFactory;
 import org.openmicroscopy.shoola.agents.measurement.util.PointCreationTool;
 import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
@@ -130,18 +132,18 @@ class ToolBar
 		toolBar.setFloatable(false);
 		toolBar.putClientProperty("toolButtonGroup", group);
 		DrawingEditor editor = model.getDrawingEditor();
-		ToolBarButtonFactory.addSelectionToolTo(toolBar, editor);
+		MeasurementToolBarButtonFactory.addSelectionToolTo(toolBar, editor);
 		toolBar.add(new JSeparator());
 		toolBar.add(Box.createRigidArea(HGLUE));
-		ToolBarButtonFactory.addToolTo(toolBar, editor, 
+		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
 				new CreationTool(new RectAnnotationFigure()), 
 				CREATE_KEY+ROIFigure.RECTANGLE_TYPE, 
 				labels);
-		ToolBarButtonFactory.addToolTo(toolBar, editor, 
+		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
 				new CreationTool(new EllipseAnnotationFigure()), 
 				CREATE_KEY+ROIFigure.ELLIPSE_TYPE, 
 				labels);
-		ToolBarButtonFactory.addToolTo(toolBar, editor, 
+		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
 				new PointCreationTool(new PointAnnotationFigure()), 
 				CREATE_KEY+ROIFigure.ELLIPSE_TYPE, 
 				labels);
@@ -151,20 +153,20 @@ class ToolBar
 			JToggleButton button = (JToggleButton)component;
 			button.setIcon(IconManager.getInstance().getIcon(IconManager.POINTICON));
 		}
-		ToolBarButtonFactory.addToolTo(toolBar, editor, 
+		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
 				new CreationTool(new LineAnnotationFigure()), 
 					CREATE_KEY+ROIFigure.LINE_TYPE, labels);
-		ToolBarButtonFactory.addToolTo(toolBar, editor, 
+		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
 	    		new ConnectionTool(new LineConnectionAnnotationFigure(), 
 	    			defaultAttributes), 
 	    			CREATE_KEY+ROIFigure.LINE_CONNECTION_TYPE, labels);
-		ToolBarButtonFactory.addToolTo(toolBar, editor, 
+		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
 				  new BezierTool(new BezierAnnotationFigure()), 
 				  CREATE_KEY+ROIFigure.SCRIBBLE_TYPE, labels);
-	    ToolBarButtonFactory.addToolTo(toolBar, editor, 
+		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
 	    		  new BezierTool(new BezierAnnotationFigure(true)), 
 	    		  CREATE_KEY+ROIFigure.POLYGON_TYPE, labels);
-		ToolBarButtonFactory.addToolTo(toolBar, editor, 
+		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
 				new CreationTool(new MeasureTextFigure()), 
 				CREATE_KEY+ROIFigure.TEXT_TYPE, labels);
 		
@@ -193,7 +195,7 @@ class ToolBar
         	MeasurementViewerControl.ROI_ASSISTANT));
         UIUtilities.unifiedButtonLookAndFeel(button);
     	bar.add(button);
-        bar.add(new JSeparator());
+    	bar.add(new JSeparator());
 		return bar;
 	}
 	

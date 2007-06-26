@@ -83,6 +83,9 @@ class MeasurementViewerUI
 	/** The default size of the window. */
 	private static final Dimension		DEFAULT_SIZE = new Dimension(400, 300);
 	
+	/** The title for the measurement tool main window. */
+	private static final String			WINDOW_TITLE = "Measurement Tool ";
+	
 	/** Reference to the Model. */
 	private MeasurementViewerModel 		model;
 
@@ -183,7 +186,7 @@ class MeasurementViewerUI
      */
 	MeasurementViewerUI(String title)
     {
-        super(title);
+        super(WINDOW_TITLE+title);
         loadingWindow = new LoadingWindow(this);
     }
     
@@ -259,12 +262,13 @@ class MeasurementViewerUI
     							coord3D.getTimePoint());
     		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
     		bus.post(request);
+    		updateDrawingArea();
     		//return;
     	}
-
+    	
     	ROIDrawingView dv = model.getDrawingView();
     	dv.clearSelection();
-		dv.addToSelection(figure);
+    	dv.addToSelection(figure);
 		Collection figures = dv.getSelectedFigures();
 		if (figures == null) return;
 		Iterator i = figures.iterator();
@@ -281,10 +285,8 @@ class MeasurementViewerUI
 			handleROIException(e);
 		}
 		dv.grabFocus();
-		
 		roiInspector.setSelectedFigures(roiList);
 		roiManager.setSelectedFigures(roiList, false);
-		updateDrawingArea();
     }
     
     /**

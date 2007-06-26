@@ -32,7 +32,6 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -70,9 +69,7 @@ public class RefreshResultsTableAction
 		name = NAME;
 		putValue(Action.NAME, NAME);
 		putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
-		IconManager icons = IconManager.getInstance();
-		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.REFRESH16));
+			UIUtilities.formatToolTipText(DESCRIPTION));
 	}
 	
 	/** 

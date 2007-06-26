@@ -22,22 +22,21 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.actions;
 
-import java.awt.event.ActionEvent;
 
-import javax.swing.Action;
 
-import org.openmicroscopy.shoola.agents.measurement.IconManager;
-import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Java imports
+import java.awt.event.ActionEvent;
+import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Brings up the results wizard.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -71,8 +70,6 @@ public class ResultsWizardAction
 		putValue(Action.NAME, NAME);
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
-		IconManager icons = IconManager.getInstance();
-		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.WIZARD16));
 	}
 	
 	/** 

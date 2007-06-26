@@ -150,6 +150,7 @@ class MeasurementResults
 		        if (lsm.isSelectionEmpty()) {
 		        } else {
 		        	int index = lsm.getMinSelectionIndex();
+		        	if (index < 0) return;
 		        	MeasurementTableModel m = 
 	        			(MeasurementTableModel) results.getModel();
 	        		long ROIID = (Long) m.getValueAt(index, 2);
@@ -170,11 +171,11 @@ class MeasurementResults
 		setLayout(new BorderLayout());
 		add(new JScrollPane(results), BorderLayout.CENTER);
 		JPanel panel = new JPanel();
-		panel.setLayout(new FlowLayout());
+		//panel.setLayout(new FlowLayout());
 		panel.add(resultsWizardButton);
 		panel.add(refreshButton);
 		panel.add(saveButton);
-		this.add(panel, BorderLayout.SOUTH);
+		add(panel, BorderLayout.SOUTH);
 	}
 
 	/**

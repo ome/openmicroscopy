@@ -120,7 +120,7 @@ class MeasurementViewerControl
 
     /**
      * Creates a new instance.
-     * The {@link #initialize(ROIViewerComponent, MeasurementViewerUI) initialize} 
+     * The {@link #initialize(MeasurementViewer, MeasurementViewerUI) initialize} 
      * method should be called straigh 
      * after to link this Controller to the other MVC components.
      */
@@ -129,8 +129,8 @@ class MeasurementViewerControl
     /**
      * Links this Controller to its Model and its View.
      * 
-     * @param model  Reference to the {@link ImViewer} component, which, in 
-     *               this context, is regarded as the Model.
+     * @param model  Reference to the {@link MeasurementViewer} component, 
+     * 				 which, in this context, is regarded as the Model.
      *               Mustn't be <code>null</code>.
      * @param view   Reference to the View.  Mustn't be <code>null</code>.
      */

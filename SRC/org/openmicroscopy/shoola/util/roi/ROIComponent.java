@@ -116,6 +116,9 @@ public class ROIComponent
 	/** The number of microns per pixel in the Y-Axis. */
 	private double						micronsPixelZ;
 
+	/** Measurements should be done in microns. */
+	private	boolean						inMicrons;
+	
 	/** 
 	 * Creates a new instance. Initializes an collection to keep 
 	 * track of the existing ROI.
@@ -126,8 +129,19 @@ public class ROIComponent
 		micronsPixelX = 0;
 		micronsPixelY = 0;
 		micronsPixelZ = 0;
+		inMicrons = true;
 	}
 
+	public boolean measureInMicrons()
+	{
+		return inMicrons;
+	}
+	
+	public void setMeasureInMicrons(boolean inMicrons)
+	{
+		this.inMicrons = inMicrons;
+	}
+	
 	/**
 	 * Set the number of microns per pixel in the x-axis. 
 	 * @param x see above.
