@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -123,20 +125,16 @@ class ObjectInspector
 		fieldTable.setCellSelectionEnabled(true);
 		fieldTable.setColumnSelectionAllowed(true);
 		
-		fieldTable.addMouseListener(new java.awt.event.MouseAdapter() 
+		fieldTable.addMouseListener(new MouseAdapter() 
 		{
-			public void mouseClicked(java.awt.event.MouseEvent e) {
+			public void mouseClicked(MouseEvent e) {
 				
 				if (e.getClickCount() == 1) {
 					int col = fieldTable.getSelectedColumn();
 					int row = fieldTable.getSelectedRow();
 					Object value = fieldTable.getValueAt(row, col);
-					if (value instanceof Boolean)
-						toggleValue();
-					else
-						return;
-				}
-				if (e.getClickCount() > 1) {
+					if (value instanceof Boolean) toggleValue();
+				} else if (e.getClickCount() > 1) {
 					e.consume();
 					int col = fieldTable.getSelectedColumn();
 					int row = fieldTable.getSelectedRow();
@@ -398,8 +396,7 @@ class ObjectInspector
 		 */
 		public void setValueAt(Object value, int row, int col) 
 	    {
-			if(col == 0)
-				return;
+			if (col == 0) return;
 			AttributeKey key = keys.get(row);
 	    	if (figure.getAttribute(key) instanceof Double)
 	    		figure.setAttribute(keys.get(row), new Double((String) value));
@@ -412,13 +409,12 @@ class ObjectInspector
 	    }
 		
 		/**
-		 * Depending on the selected cell, allow the user to edit.
+		 * Depending on the selected cell, allows the user to edit.
 		 * @see AbstractTableModel#isCellEditable(int, int)
 		 */
 		public boolean isCellEditable(int row, int col)
 	    { 
-			if(col == 0)
-				return false;
+			if (col == 0) return false;
 	    	if (values.get(row) instanceof String)
 	    		if (values.get(row).equals(NA)) return false;
 	    	return fieldList.get(row).isEditable();

@@ -485,6 +485,7 @@ class MeasurementResults
 	void showResultsWizard()
 	{
 		ResultsWizard resultsWizard = new ResultsWizard(fields, allFields);
+		resultsWizard.pack();
 		UIUtilities.setLocationRelativeToAndShow(this, resultsWizard);
 		columnNames.clear();
 		columnNames = new ArrayList<String>();

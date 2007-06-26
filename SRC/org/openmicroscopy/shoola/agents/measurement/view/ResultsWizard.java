@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -123,60 +124,37 @@ class ResultsWizard
 	/** The button to cancel current selection. */
 	private JButton 				cancelButton;
 	
-	/**
-	 * The constructor of the Results wizard. 
-	 * 
-	 * @param cFields the initial list of fields. 
-	 */
-	ResultsWizard(List<AnnotationField> cFields, List<AnnotationField> aFields)
-	{
-		this.setModal(true);
-		currentFields = cFields;
-		allFields = aFields;
-		setSize(500, 440);
-		createOriginalSelection();
-		createUI();
-	}
-	
-	/**
-	 * Reset the current selection to the original selection set when wizard 
-	 * called.
-	 */
-	private void resetSelection()
-	{
-		currentFields.clear();
-		for(AnnotationField field : originalSelection)
-			currentFields.add(field);
-	}
-	
-	/**
-	 * Create a copy of the original selection set so it can be reset by user.
-	 *
-	 */
-	private void createOriginalSelection()
-	{
-		originalSelection = new ArrayList<AnnotationField>();
-		for(AnnotationField field : currentFields)
-			originalSelection.add(field);
-	}
-		
-	/**
-	 * Build the UI. 
-	 *
-	 */
-	private void createUI()
+	/** Initializes the components composing the display. */
+	private void initComponents()
 	{
 		currentFieldsListbox = new JList();
 		remainingFieldsListbox = new JList();
 		createButtons();
 		addActionListeners();
-		buildUI();
 	}
 	
 	/**
-	 * Add action listeners to the buttons. 
-	 *
+	 * Resets the current selection to the original selection set when wizard 
+	 * called.
 	 */
+	private void resetSelection()
+	{
+		currentFields.clear();
+		for (AnnotationField field : originalSelection)
+			currentFields.add(field);
+	}
+
+	/**
+	 * Creates a copy of the original selection set so it can be reset by user. 
+	 */
+	private void createOriginalSelection()
+	{
+		originalSelection = new ArrayList<AnnotationField>();
+		for (AnnotationField field : currentFields)
+			originalSelection.add(field);
+	}
+	
+	/** Adds action listeners to the buttons. */
 	private void addActionListeners()
 	{
 		addFieldButton.setActionCommand(""+ADD);
@@ -194,26 +172,25 @@ class ResultsWizard
 		resetButton.setActionCommand(""+RESET);
 		resetButton.addActionListener(this);
 	}
-	
-	
+
 	/**
 	 * This method is involked when the user clicks the addFieldButton.
 	 * It adds a field to the list and then sorts the list to maintain order. 
-	 *
 	 */
 	private void addField()
 	{
-		if(remainingFieldsListbox.getSelectedIndex()==-1)
+		if (remainingFieldsListbox.getSelectedIndex() == -1)
 			return;
 		int [] indexes = remainingFieldsListbox.getSelectedIndices();
-		DefaultListModel model = (DefaultListModel)remainingFieldsListbox.getModel();
-		
-		for( int i = 0 ; i < indexes.length ; i++)
+		DefaultListModel model = 
+				(DefaultListModel) remainingFieldsListbox.getModel();
+		String annotationName;
+		for (int i = 0 ; i < indexes.length ; i++)
 		{
-			String annotationName = (String) model.getElementAt(indexes[i]);
+			annotationName = (String) model.getElementAt(indexes[i]);
 			for(AnnotationField field : allFields)
 			{
-				if(field.getName().equals(annotationName))
+				if (field.getName().equals(annotationName))
 				{
 					currentFields.add(field);
 					break;
@@ -228,16 +205,17 @@ class ResultsWizard
 	/**
 	 * Sorts the selection list of the user so that the order is preseved between
 	 * pairs of attributes (CentreX, and CentreY).
-	 *
 	 */
 	private void sortCurrentFields()
 	{
-		ArrayList<AnnotationField> sortedList = new ArrayList<AnnotationField>();
-		for(AnnotationField allFieldsField : allFields)
+		ArrayList<AnnotationField> 
+			sortedList = new ArrayList<AnnotationField>();
+		for (AnnotationField allFieldsField : allFields)
 		{
-			for(AnnotationField currentFieldsField : currentFields)
+			for (AnnotationField currentFieldsField : currentFields)
 			{
-				if(currentFieldsField.getName().equals(allFieldsField.getName()))
+				if (currentFieldsField.getName().equals(
+						allFieldsField.getName()))
 					sortedList.add(currentFieldsField);
 			}
 		}
@@ -245,37 +223,30 @@ class ResultsWizard
 		currentFields.addAll(sortedList);	
 	}
 	
-	/**
-	 * Add all fields to the list. 
-	 *
-	 */
+	/** Adds all the fields to the list. */
 	private void addAllFields()
 	{
 		currentFields.clear();
-		for(AnnotationField field: allFields)
+		for (AnnotationField field: allFields)
 			currentFields.add(field);
 		populateCurrentFieldsPanel();
 		populateRemainingFieldsPanel();
 	}
 	
-	/**
-	 * Remove a single field from the list. 
-	 *
-	 */
+	/** Removes a single field from the list. */
 	private void removeField()
 	{
-		if(currentFieldsListbox.getSelectedIndex()==-1)
-			return;
+		if (currentFieldsListbox.getSelectedIndex() == -1) return;
 		DefaultListModel model = (DefaultListModel)
 									currentFieldsListbox.getModel();
 		int [] indexes = currentFieldsListbox.getSelectedIndices();
-		
-		for( int i = 0 ; i < indexes.length ; i++)
+		String annotationName;
+		for (int i = 0 ; i < indexes.length ; i++)
 		{
-			String annotationName = (String) model.getElementAt(indexes[i]);
-			for(AnnotationField field : currentFields)
+			annotationName = (String) model.getElementAt(indexes[i]);
+			for (AnnotationField field : currentFields)
 			{
-				if(field.getName().equals(annotationName))
+				if (field.getName().equals(annotationName))
 				{
 					currentFields.remove(field);
 					break;
@@ -288,10 +259,7 @@ class ResultsWizard
 		populateRemainingFieldsPanel();
 	}
 	
-	/**
-	 * Remove all fields from the list. 
-	 *
-	 */
+	/** Removes all fields from the list. */
 	private void removeAllFields()
 	{
 		currentFields.clear();
@@ -300,29 +268,23 @@ class ResultsWizard
 	}
 	
 	/** 
-	 * The user has clicked the cancel button, reset selection to the original
-	 * selection and close window. 
-	 *
+	 * The user has clicked the cancel button, resets selection to the original
+	 * selection and closes the window. 
 	 */
 	private void cancelButtonClicked()
 	{
 		this.resetSelection();
-		this.dispose();
+		acceptButtonClicked();
 	}
 	
-	/**
-	 * The user has accepted the new selection, close window.
-	 *
-	 */
+	/** The user has accepted the new selection, close window. */
 	private void acceptButtonClicked()
 	{
+		setVisible(false);
 		this.dispose();
 	}
 	
-	/**
-	 * Reset the selection to the original selection.
-	 *
-	 */
+	/** Resets the selection to the original selection. */
 	private void resetButtonClicked()
 	{
 		this.resetSelection();
@@ -330,10 +292,7 @@ class ResultsWizard
 		populateRemainingFieldsPanel();
 	}
 	
-	/**
-	 * Create all the buttons in the UI.
-	 *
-	 */
+	/** Creates all the buttons in the UI. */
 	private void createButtons()
 	{
 		addFieldButton = new JButton(IconManager.getInstance().
@@ -347,61 +306,44 @@ class ResultsWizard
 		acceptButton = new JButton("Accept");
 		cancelButton = new JButton("Cancel");
 		resetButton = new JButton("Reset");
+		getRootPane().setDefaultButton(acceptButton);
 	}
 	
-	/**
-	 * Build the ui, the info panel list boxes and control pane at the botton.
-	 *
-	 */
+	/** Builds and lays out the UI. */
 	private void buildUI()
 	{
 		JPanel container = new JPanel();
 		container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
 		JPanel leftPanel = createRemainingFieldsPanel();
-		UIUtilities.setDefaultSize(leftPanel, new Dimension(200,300));
+		//UIUtilities.setDefaultSize(leftPanel, new Dimension(200,300));
 		JPanel buttonPanel = createButtonPanel();
-		UIUtilities.setDefaultSize(buttonPanel, new Dimension(60,300));
+		//UIUtilities.setDefaultSize(buttonPanel, new Dimension(60, 300));
 		JPanel rightPanel = createCurrentFieldsPanel();
-		UIUtilities.setDefaultSize(rightPanel, new Dimension(200,300));
+		//UIUtilities.setDefaultSize(rightPanel, new Dimension(200, 300));
 		container.add(Box.createHorizontalStrut(10));
 		container.add(leftPanel);
 		container.add(Box.createHorizontalStrut(20));
 		container.add(buttonPanel);
+		container.add(Box.createHorizontalStrut(20));
 		container.add(rightPanel);
 		container.add(Box.createHorizontalStrut(10));
-		JPanel topPanel = createInfoPanel();
-		JPanel bottomPanel = createControlPanel();
-		UIUtilities.setDefaultSize(topPanel, new Dimension(500, 70));
-		UIUtilities.setDefaultSize(bottomPanel, new Dimension(500, 70));
-		UIUtilities.setDefaultSize(container, new Dimension(500, 300));
-		JPanel mainPanel = new JPanel();
-		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-		mainPanel.add(topPanel);
-		mainPanel.add(container);
-		mainPanel.add(bottomPanel);
-		this.getContentPane().setLayout(new BorderLayout());
-		this.getContentPane().add(mainPanel);
+		
+		IconManager icons = IconManager.getInstance();
+		TitlePanel tp = new TitlePanel("Results Wizard", 
+				"Select the measurements you wish to record.",	
+				icons.getIcon(IconManager.WIZARD));
+		Container c = getContentPane();
+		c.setLayout(new BorderLayout());
+		c.add(tp, BorderLayout.NORTH);
+		c.add(container, BorderLayout.CENTER);
+		c.add(createControlPanel(), BorderLayout.SOUTH);
 	}
 	
 	/**
-	 * The info panel at the top the the dialog, showing a little text about the
-	 * wizard. 
-	 * @return the info panel.
-	 */
-	private JPanel createInfoPanel()
-	{
-		JPanel infoPanel = new TitlePanel("Results Wizard", 
-			"<html><body>This is wizard to select the measurements you wish " +
-			"to record in the measurement tool</body></html>",	
-		IconManager.getInstance().getIcon(IconManager.WIZARD));
-		return infoPanel;
-	}
-	
-	/**
-	 * The control panel has the buttons for the accepting, cancelling and 
-	 * resetting of selections.
+	 * Creates the control panel which has the buttons for the accepting, 
+	 * cancelling and resetting of selections.
 	 * 
-	 * @return control panel.
+	 * @return See above.
 	 */
 	private JPanel createControlPanel()
 	{
@@ -414,9 +356,10 @@ class ResultsWizard
 	}
 	
 	/**
-	 * Create the remaining fields panel, which shows the fields which have
+	 * Creates the remaining fields panel, which shows the fields which have
 	 * not been selected.
-	 * @return remainingFieldsPanel. 
+	 * 
+	 * @return See above.
 	 */
 	private JPanel createRemainingFieldsPanel()
 	{
@@ -430,9 +373,10 @@ class ResultsWizard
 	}
 	
 	/**
-	 * Create the central button panel hosting the add and remove selection 
+	 * Creates the central button panel hosting the add and remove selection 
 	 * buttons.
-	 * @return buttons panel.
+	 * 
+	 * @return See above.
 	 */
 	private JPanel createButtonPanel()
 	{
@@ -451,62 +395,74 @@ class ResultsWizard
 	}
 	
 	/**
-	 * Create the current fields panel, which shows the fields which have
+	 * Creates the current fields panel, which shows the fields which have
 	 * been selected.
-	 * @return currentFieldsPanel. 
+	 * 
+	 * @return See above.
 	 */
 	private JPanel createCurrentFieldsPanel()
 	{
 		JPanel fieldsPanel = new JPanel();
 		fieldsPanel.setLayout(new BorderLayout());
 		JScrollPane pane = new JScrollPane(currentFieldsListbox);
-		fieldsPanel.add(new JLabel("Using Measurements:"), BorderLayout.NORTH);
+		fieldsPanel.add(new JLabel("Selected Measurements:"), 
+									BorderLayout.NORTH);
 		fieldsPanel.add(pane, BorderLayout.CENTER);
 		populateCurrentFieldsPanel();
 		return fieldsPanel;
 	}
 	
-	/**
-	 * Update the currentFields list box.
-	 *
-	 */
+	/** Updates the currentFields list box. */
 	private void populateCurrentFieldsPanel()
 	{
 	    DefaultListModel listModel = new DefaultListModel();
-
-		for(AnnotationField annotation : currentFields)
+		for (AnnotationField annotation : currentFields)
 			listModel.addElement(annotation.getName());
 		currentFieldsListbox.setModel(listModel);
 	}
 
-	/**
-	 * Update the remaining fields list box.
-	 *
-	 */
+	/** Updates the remaining fields list box. */
 	private void populateRemainingFieldsPanel()
 	{
 	    DefaultListModel listModel = new DefaultListModel();
 
-		for(AnnotationField allFieldAnnotation : allFields)
+	    boolean found;
+		for (AnnotationField allFieldAnnotation : allFields)
 		{
-			boolean found = false;
-			for(AnnotationField currentFieldAnnotation : currentFields)
-				if(currentFieldAnnotation.getKey().
+			found = false;
+			for (AnnotationField currentFieldAnnotation : currentFields)
+				if (currentFieldAnnotation.getKey().
 						equals(allFieldAnnotation.getKey()))
 					found = true;
-			if(!found)
+			if (!found)
 				listModel.addElement(allFieldAnnotation.getName());
 		}
 		remainingFieldsListbox.setModel(listModel);
 	}
+	
+	/**
+	 * Creates a new instance. 
+	 * 
+	 * @param cFields The initial list of fields.
+	 * @param aFields The initial list of fields.
+	 */
+	ResultsWizard(List<AnnotationField> cFields, List<AnnotationField> aFields)
+	{
+		setModal(true);
+		currentFields = cFields;
+		allFields = aFields;
+		//setSize(500, 440);
+		createOriginalSelection();
+		initComponents();
+		buildUI();
+	}
 
 	/**
-	 * 
+	 * Reacts to event fired by the various controls.
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent evt)
 	{
-
 		int id = -1;
 		try
 		{
@@ -542,8 +498,6 @@ class ResultsWizard
 		{
 			// TODO: handle exception
 		}
-		
-		
 	}
 	
 }

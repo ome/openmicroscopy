@@ -139,14 +139,22 @@ class ObjectManager
 				int col = objectsTable.getSelectedColumn();
 				int row = objectsTable.getSelectedRow();
 				Object value = objectsTable.getValueAt(row, col);
-				if (value instanceof Boolean)
-					toggleValue();
-				else
-					return;
-		
+				if (value instanceof Boolean) toggleValue();
 			}
 		});
 		objectsTable.getSelectionModel().addListSelectionListener(listener);
+	}
+	
+
+	/** Toggles the value of the boolean under the current selection. */
+	private void toggleValue()
+	{
+		int col = objectsTable.getSelectedColumn();
+		int row = objectsTable.getSelectedRow();
+		TableModel tm = objectsTable.getModel();
+		Boolean value = (Boolean) tm.getValueAt(row, col);
+		boolean newValue = !(value.booleanValue());
+		tm.setValueAt(new Boolean(newValue), row, col);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -216,9 +224,11 @@ class ObjectManager
 	/**
 	 * Selects the collection of figures.
 	 * 
-	 * @param l The collection of objects to select.
+	 * @param l 	The collection of objects to select.
+	 * @param clear	Pass <code>true</code> to clear the selection
+	 * 				<code>false</code> otherwise.
 	 */
-	void setSelectedFigures(Collection l)
+	void setSelectedFigures(Collection l, boolean clear)
 	{
 		Iterator i = l.iterator();
 		ROI roi;
@@ -226,7 +236,7 @@ class ObjectManager
 		ROIFigureTableModel tm = (ROIFigureTableModel) objectsTable.getModel();
 		int row;
 		ListSelectionModel lsm = objectsTable.getSelectionModel();
-		lsm.clearSelection();
+		if (clear) lsm.clearSelection();
 		lsm.removeListSelectionListener(listener);
 		try {
 			while (i.hasNext()) {
@@ -257,11 +267,11 @@ class ObjectManager
 		objectsTable.repaint();
 	}
 	
-	/** Rapaints the table. */
+	/** Repaints the table. */
 	void update() { objectsTable.repaint(); }
 	
-	/** Rebuild the table, and repaint. */
-	public void rebuildTable()
+	/** Rebuilds the table,and repaints. */
+	void rebuildTable()
 	{
 		ROIFigureTableModel tm = (ROIFigureTableModel) objectsTable.getModel();
 		tm.clear();
@@ -278,17 +288,6 @@ class ObjectManager
 			while (shapeIterator.hasNext())
 				tm.addFigure(shapeIterator.next().getFigure());		
 		}
-	}
-	
-	/** Toggles the value of the boolean under the current selection. */
-	private void toggleValue()
-	{
-		int col = objectsTable.getSelectedColumn();
-		int row = objectsTable.getSelectedRow();
-		TableModel tm = objectsTable.getModel();
-		Boolean value = (Boolean) tm.getValueAt(row, col);
-		boolean newValue = !(value.booleanValue());
-		tm.setValueAt(new Boolean(newValue), row, col);
 	}
 	
 	/** Basic inner class use to set the cell renderer. */
@@ -325,9 +324,6 @@ class ObjectManager
 		extends AbstractTableModel
 	{
 	
-		/** Empty text. */
-		private static final String 	EMPTY = "";
-		
 		/** The collection of column's names. */
 		private List<String>			columnNames;
 		
@@ -354,7 +350,6 @@ class ObjectManager
 		 */
 		private Object mapFigureToValue(int row, int col)
 		{
-			if (row < 0) return null;
 			ROIFigure fig = data.get(row);
 			switch (col) {
 				case 0: return fig.getROI().getID();
@@ -481,8 +476,8 @@ class ObjectManager
 		 */
 		public void setValueAt(Object value, int row, int col) 
 	    {
-	    		mapValueToFigure(value, row, col);
-	            fireTableCellUpdated(row, col);
+	    	mapValueToFigure(value, row, col);
+	        fireTableCellUpdated(row, col);
 	    }
 		
 		/**
@@ -517,9 +512,8 @@ class ObjectManager
 		 * <code>4</code>.
 		 * @see AbstractTableModel#isCellEditable(int, int)
 		 */
-		public boolean isCellEditable(int row, int col)  { 
-			return (col == 4); 
-		}
+		public boolean isCellEditable(int row, int col)  { return (col == 4); }
+		
 	}
 
 }

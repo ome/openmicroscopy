@@ -283,7 +283,7 @@ class MeasurementViewerUI
 		dv.grabFocus();
 		
 		roiInspector.setSelectedFigures(roiList);
-		roiManager.setSelectedFigures(roiList);
+		roiManager.setSelectedFigures(roiList, false);
 		updateDrawingArea();
     }
     
@@ -310,7 +310,7 @@ class MeasurementViewerUI
 			handleROIException(e);
 		}
 		roiInspector.setSelectedFigures(roiList);
-		roiManager.setSelectedFigures(roiList);
+		roiManager.setSelectedFigures(roiList, true);
 	}
     
     /**
