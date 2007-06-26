@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 
 //Java imports
+import java.awt.Button;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.util.HashMap;
@@ -34,8 +36,10 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 //Third-party libraries
@@ -49,6 +53,8 @@ import org.jhotdraw.draw.action.ToolBarButtonFactory;
 import org.jhotdraw.util.ResourceBundleUtil;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.util.PointCreationTool;
 import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
@@ -138,9 +144,15 @@ class ToolBar
 				CREATE_KEY+ROIFigure.ELLIPSE_TYPE, 
 				labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
-				new CreationTool(new PointAnnotationFigure()), 
+				new PointCreationTool(new PointAnnotationFigure()), 
 				CREATE_KEY+ROIFigure.ELLIPSE_TYPE, 
 				labels);
+		Component component = toolBar.getComponent(toolBar.getComponentCount()-1);
+		if(component instanceof JToggleButton)
+		{
+			JToggleButton button = (JToggleButton)component;
+			button.setIcon(IconManager.getInstance().getIcon(IconManager.POINTICON));
+		}
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
 				new CreationTool(new LineAnnotationFigure()), 
 					CREATE_KEY+ROIFigure.LINE_TYPE, labels);
@@ -157,6 +169,7 @@ class ToolBar
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
 				new CreationTool(new MeasureTextFigure()), 
 				CREATE_KEY+ROIFigure.TEXT_TYPE, labels);
+		
 	}
 	
 	/**

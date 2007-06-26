@@ -100,36 +100,38 @@ public class IconManager
 	/** The <code>Status Info</code> icon. */
 	public static final int		STATUS_INFO = 14;
 	
-	/** The <code>Rectangle</code> icon. */
+	/** The <code>Square</code> icon. */
 	public static final int		SQUARE = 15;
 	
-	/** The <code>Rectangle</code> icon. */
+	/** The <code>Ellipse</code> icon. */
 	public static final int	 	ELLIPSE = 16;
 	
-	/** The <code>Point</code> icon. */
+	/** The <code>Polyline</code> icon. */
 	public static final int		POLYLINE = 17;
 
-	/** The <code>Point</code> icon. */
+	/** The <code>Polygon</code> icon. */
 	public static final int		POLYGON = 18;
 
 	/** The <code>Point</code> icon. */
 	public static final int		POINT = 19;
 
-	/** The <code>Point</code> icon. */
+	/** The <code>Line</code> icon. */
 	public static final int		LINE = 20;
 
-	/** The <code>Point</code> icon. */
+	/** The <code>Lineconnection</code> icon. */
 	public static final int		LINECONNECTION = 21;
 
-	/** The <code>Point</code> icon. */
+	/** The <code>Text</code> icon. */
 	public static final int		TEXT = 22;
-
+	
+	/** The <code>PointIcon</code> icon. */
+	public static final int		POINTICON = 23;
 
 	/** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 22;
+    private static final int    MAX_ID = 23;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -162,6 +164,7 @@ public class IconManager
         relPaths[POLYGON] = "polygon.png";
         relPaths[POINT] = "point.png";
         relPaths[TEXT] = "text.png";
+        relPaths[POINTICON] = "point22.png";
     }
     
     /** 

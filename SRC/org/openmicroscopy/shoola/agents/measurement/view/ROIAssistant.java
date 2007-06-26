@@ -134,7 +134,6 @@ public class ROIAssistant
 
 		JViewport viewPort = scrollPane.getViewport();
 		Point point = mapCoordToCell(currentPlane);
-		System.err.println(point.x + " " + point.y);
 		int x = (int)Math.max((point.getX()-6*ROIAssistantTable.COLUMNWIDTH), 0);
 		int y = (int)Math.max((point.getY()-6*ROIAssistantTable.COLUMNWIDTH),0);
 		viewPort.setViewPosition(new Point(x, y));

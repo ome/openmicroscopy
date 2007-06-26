@@ -77,8 +77,8 @@ public class PointAnnotationFigure
 	extends MeasurePointFigure
 	implements TextHolderFigure
 {
-	private final static double 				POINTSIZE 	= 6;  
-	private final static double 				FIGURESIZE 	= 16;  
+	public final static double 					POINTSIZE 	= 6;  
+	public final static double 					FIGURESIZE 	= 18;  
 	private boolean 							editable;
 	private boolean 							displayText = true;
 
