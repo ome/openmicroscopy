@@ -68,6 +68,9 @@ public class ViewAction
     /** Description of the action when the selected node is an image. */
     private static final String DESCRIPTION_IMAGE = "View the selected image";
     
+    /** Convenience reference to the icon manager. */
+    private static IconManager	icons;
+    
     /**
      * Sets the action enabled depending on the browser's type and 
      * the currenlty selected node. Sets the name of the action depending on 
@@ -78,11 +81,13 @@ public class ViewAction
     {
         if (selectedDisplay == null) {
             setEnabled(false);
+            putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER)); 
             return;
         }
         if (selectedDisplay.getParentDisplay() == null) { //root
             name = BROWSE;
             setEnabled(false);
+            putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER)); 
             /*
             setEnabled(model.getSelectedBrowser().getBrowserType() == 
                 Browser.IMAGES_EXPLORER);
@@ -97,6 +102,8 @@ public class ViewAction
                 if (browser.getSelectedDisplays().length > 1) {
                     setEnabled(true);
                     name = BROWSE;
+                    putValue(Action.SMALL_ICON, 
+                    			icons.getIcon(IconManager.BROWSER)); 
                     return;
                 }
             }
@@ -105,8 +112,11 @@ public class ViewAction
             	description = DESCRIPTION_IMAGE;
             	putValue(Action.SHORT_DESCRIPTION, 
                         UIUtilities.formatToolTipText(description));
+            	putValue(Action.SMALL_ICON, icons.getIcon(IconManager.VIEWER)); 
+            } else {
+            	name = BROWSE;
+            	putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER));
             }
-            else name = BROWSE;
             if (selectedDisplay instanceof TreeImageSet) {
             	setEnabled(
             			((TreeImageSet) selectedDisplay).getNumberItems() > 0);
@@ -124,10 +134,10 @@ public class ViewAction
     {
         super(model);
         name = BROWSE;
+        icons = IconManager.getInstance();
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.VIEWER)); 
+        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER)); 
     }
     
     /**

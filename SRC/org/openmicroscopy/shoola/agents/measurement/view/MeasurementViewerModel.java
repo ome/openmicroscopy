@@ -379,7 +379,7 @@ public class MeasurementViewerModel
 		this.magnification = magnification;
 		if( state != MeasurementViewer.NEW)
 			drawingView.setScaleFactor(magnification, new 
-						Dimension((int)getSizeX(), (int)getSizeY()));
+						Dimension(getSizeX(), getSizeY()));
 		else
 			drawingView.setScaleFactor(magnification);
 			

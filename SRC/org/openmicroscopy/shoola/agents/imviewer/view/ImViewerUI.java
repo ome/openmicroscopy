@@ -679,22 +679,14 @@ class ImViewerUI
      * 
      * @param z The selected z-section.
      */
-    void setZSection(int z)
-    {
-        toolBar.setZSection(z);
-        controlPane.setZSection(z);
-    }
+    void setZSection(int z) { controlPane.setZSection(z); }
 
     /**
      * Updates UI components when a new timepoint is selected.
      * 
      * @param t The selected timepoint.
      */
-    void setTimepoint(int t)
-    {
-        toolBar.setTimepoint(t);
-        controlPane.setTimepoint(t);
-    }
+    void setTimepoint(int t) { controlPane.setTimepoint(t); }
 
     /**
      * Returns the {@link #loadingWindow}.
@@ -709,11 +701,7 @@ class ImViewerUI
      * @param b Pass <code>true</code> to enable the UI components, 
      *          <code>false</code> otherwise.
      */
-    void onStateChange(boolean b)
-    {
-        toolBar.onStateChange(b);
-        controlPane.onStateChange(b);
-    }
+    void onStateChange(boolean b) { controlPane.onStateChange(b); }
 
     /**
      * Updates status bar.
@@ -1007,10 +995,24 @@ class ImViewerUI
      * @param b Pass <code>true</code> to enable the sliders,
      * 			<code>false</code> otherwise.
      */
-    void enableSliders(boolean b)
+    void enableSliders(boolean b) { controlPane.enableSliders(b); }
+    
+    /**
+     * Returns <code>true</code> if the rendering settings are 
+     * saved before closing the viewer, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean saveSettingsOnClose() { return toolBar.saveSettingsOnClose(); }
+    
+    /**
+     * Sets the specified channel to active.
+     * 
+     * @param index The channel's index.
+     */
+    void setChannelActive(int index)
     {
-		controlPane.enableSliders(b);
-		
+    	controlPane.setChannelActive(index);
 	}
     
     /** 

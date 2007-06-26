@@ -32,11 +32,10 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
-import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Deletes the annotation.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,11 +61,7 @@ public class DeleteAction
      * Sets it enabled depending on the selected type.
      * @see AnnotatorEditorAction#onStateChange()
      */
-	protected void onStateChange()
-	{
-		//setEnabled(model.hasAnnotation());
-		setEnabled(false);
-	}
+	protected void onStateChange() { setEnabled(false); }
 	
 	/**
 	 * Creates a new instance.

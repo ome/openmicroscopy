@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.util.annotator.actions.SaveAction 
+ * org.openmicroscopy.shoola.agents.events.measurement.SelectPlane 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,22 +20,19 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.util.annotator.actions;
+package org.openmicroscopy.shoola.agents.events.measurement;
 
 
 
 //Java imports
-import java.awt.event.ActionEvent;
-import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
- * Saves the annotation.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,45 +44,55 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public class SaveAction 	
-	extends AnnotatorEditorAction
+public class SelectPlane 
+	extends RequestEvent
 {
-
-	/** The name of the action. */
-	private static final String NAME = "Save";
 	
-	/** The description of the action. */
-	private static final String DESCRIPTION = "Saves the annotation.";
-	
+	/** The ID of the pixels set. */
+    private long        pixelsID;
+    
+	/** The currently selected z-section. */
+    private int			defaultZ;
+    
+    /** The currently selected timepoint. */
+    private int			defaultT;
+    
     /**
-     * Sets it enabled depending on the selected type.
-     * @see AnnotatorEditorAction#onStateChange()
+     * Creates a new instance.
+     * 
+     * @param pixelsID  	The pixels set ID.
+     * @param defaultZ		The currently selected z-section.
+     * @param defaultT		The currently selected timepoint.
      */
-	protected void onStateChange()
-	{
-		//setEnabled(model.hasDataToSave());
-		setEnabled(false);
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param model Reference to the model. Mustn't be <code>null</code>.
-	 */
-	public SaveAction(AnnotatorEditor model)
-	{
-		super(model);
-		putValue(Action.NAME, NAME);
-		//IconManager icons = IconManager.getInstance();
-		//putValue(Action.SMALL_ICON, icons.getIcon(IconManager.SAVE));
-	    putValue(Action.SHORT_DESCRIPTION, 
-	                UIUtilities.formatToolTipText(DESCRIPTION));
-	}
-	
-	/**
-	 * Saves the annotations.
-	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-	 */
-	public void actionPerformed(ActionEvent e) { model.save(); }
-	
+    public SelectPlane(long pixelsID, int defaultZ, int defaultT)
+    {
+        if (pixelsID < 0) 
+            throw new IllegalArgumentException("Pixels set ID not valid.");
+      
+        this.pixelsID = pixelsID;
+        this.defaultT = defaultT;
+        this.defaultZ = defaultZ;
+    }
+    
+    /**
+     * Returns the pixels set ID.
+     * 
+     * @return See above. 
+     */
+    public long getPixelsID() { return pixelsID; }
+    
+    /**
+     * Returns the currently selected z-section.
+     * 
+     * @return See above.
+     */
+    public int getDefaultZ() { return defaultZ; }
+    
+    /**
+     * Returns the currently selected timepoint.
+     * 
+     * @return See above.
+     */
+    public int getDefaultT() { return defaultT; }
+    
 }

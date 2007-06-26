@@ -30,7 +30,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
-
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -40,11 +39,10 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 
 
 //Third-party libraries
-import static org.jhotdraw.draw.AttributeKeys.TEXT;
-
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.Figure;
 
@@ -55,7 +53,6 @@ import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 
@@ -254,8 +251,7 @@ class ObjectManager
 	void removeFigure(ROIFigure figure)
 	{
 		if (figure == null) return;
-		ROIFigureTableModel m = 
-			(ROIFigureTableModel) objectsTable.getModel();
+		ROIFigureTableModel m = (ROIFigureTableModel) objectsTable.getModel();
 		m.removeFigure(figure);
 		objectsTable.setModel(m);
 		objectsTable.repaint();
@@ -271,12 +267,15 @@ class ObjectManager
 		tm.clear();
 		TreeMap<Long, ROI> roiList = model.getROI();
 		Iterator<ROI> iterator = roiList.values().iterator();
+		ROI roi;
+		TreeMap<Coord3D, ROIShape> shapeList;
+		Iterator<ROIShape> shapeIterator;
 		while(iterator.hasNext())
 		{
-			ROI roi = iterator.next();
-			TreeMap<Coord3D, ROIShape> shapeList = roi.getShapes();
-			Iterator<ROIShape> shapeIterator = shapeList.values().iterator();
-			while(shapeIterator.hasNext())
+			roi = iterator.next();
+			shapeList = roi.getShapes();
+			shapeIterator = shapeList.values().iterator();
+			while (shapeIterator.hasNext())
 				tm.addFigure(shapeIterator.next().getFigure());		
 		}
 	}
@@ -286,9 +285,10 @@ class ObjectManager
 	{
 		int col = objectsTable.getSelectedColumn();
 		int row = objectsTable.getSelectedRow();
-		Boolean value = (Boolean)objectsTable.getModel().getValueAt(row, col);
+		TableModel tm = objectsTable.getModel();
+		Boolean value = (Boolean) tm.getValueAt(row, col);
 		boolean newValue = !(value.booleanValue());
-		objectsTable.getModel().setValueAt(new Boolean(newValue), row, col);
+		tm.setValueAt(new Boolean(newValue), row, col);
 	}
 	
 	/** Basic inner class use to set the cell renderer. */
@@ -354,13 +354,14 @@ class ObjectManager
 		 */
 		private Object mapFigureToValue(int row, int col)
 		{
+			if (row < 0) return null;
 			ROIFigure fig = data.get(row);
 			switch (col) {
 				case 0: return fig.getROI().getID();
 				case 1: return fig.getROIShape().getCoord3D().getZSection()+1;
 				case 2: return fig.getROIShape().getCoord3D().getTimePoint()+1;
 				case 3: return fig.getType();
-	        	case 4: return TEXT.get(fig);
+	        	case 4: return AttributeKeys.TEXT.get(fig);
 	        	case 5: return fig.isVisible();
 	        	default:
 					return null;
@@ -378,7 +379,7 @@ class ObjectManager
 		private void mapValueToFigure(Object value, int row, int col)
 		{
 			Figure fig = data.get(row);
-	    	switch(col) {
+	    	switch (col) {
 	    		case 1:
 		    	case 0:
 		    		break;
@@ -512,17 +513,13 @@ class ObjectManager
 		public int getRowCount() { return data.size(); }
 		
 		/**
-		 * Returns <code>false</code> so that user cannot edit a cell.
+		 * Returns <code>true</code> if the selected column equals 
+		 * <code>4</code>.
 		 * @see AbstractTableModel#isCellEditable(int, int)
 		 */
-		public boolean isCellEditable(int row, int col) 
-		{ 
-			if(col==4)
-				return true;
-			return false; 
+		public boolean isCellEditable(int row, int col)  { 
+			return (col == 4); 
 		}
-}
-
-	
+	}
 
 }

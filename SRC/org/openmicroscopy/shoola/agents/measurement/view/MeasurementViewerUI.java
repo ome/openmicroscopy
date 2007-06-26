@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeMap;
+
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -44,9 +46,11 @@ import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
@@ -55,6 +59,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -104,7 +109,6 @@ class MeasurementViewerUI
  
     /** The status bar. */
     private StatusBar					statusBar;
-    
     
     /** 
      * Creates the menu bar.
@@ -246,8 +250,18 @@ class MeasurementViewerUI
     void selectFigure(ROIFigure figure)
     {
     	if (figure == null) return;
-    	if(!figure.getROIShape().getCoord3D().equals(model.getCurrentView())) 
-    		return;
+    	Coord3D coord3D = figure.getROIShape().getCoord3D();
+    	if (coord3D == null) return;
+    	if (!coord3D.equals(model.getCurrentView())) {
+    		model.setPlane(coord3D.getZSection(), coord3D.getTimePoint());
+    		SelectPlane request = 
+    			new SelectPlane(model.getPixelsID(), coord3D.getZSection(), 
+    							coord3D.getTimePoint());
+    		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
+    		bus.post(request);
+    		//return;
+    	}
+
     	ROIDrawingView dv = model.getDrawingView();
     	dv.clearSelection();
 		dv.addToSelection(figure);
@@ -267,8 +281,10 @@ class MeasurementViewerUI
 			handleROIException(e);
 		}
 		dv.grabFocus();
+		
 		roiInspector.setSelectedFigures(roiList);
 		roiManager.setSelectedFigures(roiList);
+		updateDrawingArea();
     }
     
     /**
@@ -411,6 +427,33 @@ class MeasurementViewerUI
     	}
     }
     
+    /** Updates the drawing area. */
+	void updateDrawingArea()
+	{
+		Drawing drawing = model.getDrawing();
+		drawing.removeDrawingListener(controller);
+		drawing.clear();
+		
+		ShapeList list = null;
+		try {
+			list = model.getShapeList();
+		} catch (Exception e) {
+			handleROIException(e);
+		}
+		if (list != null) {
+			TreeMap map = list.getList();
+			Iterator i = map.values().iterator();
+			ROIShape shape;
+			while (i.hasNext()) {
+				shape = (ROIShape) i.next();
+				if (shape != null) drawing.add(shape.getFigure());
+			}
+		}
+		
+		model.getDrawingView().setDrawing(drawing);
+		drawing.addDrawingListener(controller);
+	}
+	
     /** 
      * Overridden to the set the location of the {@link MeasurementViewer}.
      * @see TopWindow#setOnScreen() 

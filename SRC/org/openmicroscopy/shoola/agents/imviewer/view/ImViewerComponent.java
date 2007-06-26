@@ -209,9 +209,12 @@ class ImViewerComponent
     {
         if (model.getState() != DISCARDED) {
         	try {
-				model.saveRndSettings();
+        		if (view.saveSettingsOnClose()) model.saveRndSettings();
 			} catch (Exception e) {
-				//Ignore.
+				LogMessage msg = new LogMessage();
+				msg.println("Cannot save rendering settings. ");
+				msg.print(e);
+				ImViewerAgent.getRegistry().getLogger().error(this, msg);
 			}
         	//First make sure that we save the annotation.
         	//Save rendering settings.
@@ -453,12 +456,14 @@ class ImViewerComponent
 	            "This method can't be invoked in the DISCARDED, NEW or" +
 	            "LOADING_RENDERING_CONTROL state.");
     	}
-	    //Handle Exception
 	    try {
 	    	model.setChannelColor(index, c);
 	    	view.setChannelColor(index, c);
-	    	if (!model.isChannelActive(index))
+	    	if (!model.isChannelActive(index)) {
 	    		setChannelActive(index, true);
+	    		view.setChannelActive(index);
+	    	}
+	    		
 	    	if (GREY_SCALE_MODEL.equals(model.getColorModel()))
 	    	     setColorModel(ColorModelAction.RGB_MODEL);
 	    	else renderXYPlane();

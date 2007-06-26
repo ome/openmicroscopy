@@ -58,6 +58,12 @@ public abstract class HttpChannel
 	/** The type identifying that one channel is created per request. */
     public static final int CONNECTION_PER_REQUEST = 1;
     
+    /** Default property key for proxy host. */
+    static final String		PROXY_HOST = "http.proxyHost";
+    
+    /** Default property key for proxy port. */
+    static final String		PROXY_PORT = "http.proxyPort";
+    
     /** 
      * Returns the channel corresponding to the passed type.
      * 

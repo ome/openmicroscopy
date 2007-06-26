@@ -389,7 +389,8 @@ class AnnotatorEditorView
 				listAnnotations.add(pane);
 			}
 		}
-    	setComponentsEnabled(ownerID == model.getUserDetails().getId());
+		setComponentsEnabled(false);
+    	//setComponentsEnabled(ownerID == model.getUserDetails().getId());
     }
     
     /**
@@ -411,12 +412,24 @@ class AnnotatorEditorView
 			//if (j == i && c != annotationArea) 
 			if (j == i) {
 				clearButton.setEnabled(c == annotationArea);
-				c.setBackground(AnnotatorUtil.HIGHLIGHT);
+				c.setBackground(UIUtilities.HIGHLIGHT);
 			}
 		}
     	c = (MultilineLabel) l.get(j);
     	scrollToNode(c);
-    	deleteButton.setEnabled(index != -1 && (ownerID == userID));
+    	if (ownerID == userID) {
+    		if (index == -1) {
+    			clearButton.setEnabled(true);
+    			saveButton.setEnabled(true);
+    			deleteButton.setEnabled(false);
+    		} else {
+    			clearButton.setEnabled(false);
+    			saveButton.setEnabled(false);
+    			deleteButton.setEnabled(true);
+    		}
+    	} else {
+    		setComponentsEnabled(false);
+    	}
     }
     
     /**
@@ -472,8 +485,8 @@ class AnnotatorEditorView
         	area.setBorder(new TitledLineBorder(node.toString()));
         	area.setText(data.getText());
         	if (index%2 == row) area.setOriginalBackground(
-        			AnnotatorUtil.BACKGROUND);
-            else area.setOriginalBackground(AnnotatorUtil.BACKGROUND_ONE);
+        			UIUtilities.BACKGROUND);
+            else area.setOriginalBackground(UIUtilities.BACKGROUND_ONE);
         	l.add(area);
         	index++;
 		}
@@ -519,7 +532,7 @@ class AnnotatorEditorView
     {
         saveButton.setEnabled(b);
         clearButton.setEnabled(b);
-        deleteButton.setEnabled(!b);
+        deleteButton.setEnabled(b);
         //annotationArea.setEditable(b);
         //if (b) {
         //    annotationArea.requestFocus();
@@ -569,21 +582,16 @@ class AnnotatorEditorView
         TreePath path = new TreePath(currentUser.getPath());
         treeDisplay.setSelectionPath(path);
         treeDisplay.expandPath(path);
-        setComponentsEnabled(true);
+        //setComponentsEnabled(true);
         String text = AnnotatorUtil.COMMENT_TITLE+number+AnnotatorUtil.COMMENT;
         if (number > 1) text += "s";
         commentLabel.setText(text);
     }
    
-    /**
-     * Reacts to a new selection in the browser.
-     * 
-     * @param b Passed <code>true</code> to enable the controls,
-     *          <code>true</code> otherwise.
-     */
-    void onSelectedDisplay(boolean b)
+    /** Reacts to a new selection in the browser. */
+    void onSelectedDisplay()
     {
-        setComponentsEnabled(b);
+        setComponentsEnabled(false);
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
     	DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot();
     	root.removeAllChildren();

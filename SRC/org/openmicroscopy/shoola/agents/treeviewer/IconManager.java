@@ -239,11 +239,14 @@ public class IconManager
     /** The <code>roll over</code> icon. */
     public static int           ROLL_OVER = 61;
     
+    /** The <code>browser</code> icon. */
+    public static int           BROWSER = 62;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 61;
+    private static int          MAX_ID = 62;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -313,6 +316,7 @@ public class IconManager
         relPaths[SERVER] = "nuvola_server16.png";
         relPaths[HISTORY] = "eclipse_history_list16.png";
         relPaths[ROLL_OVER] = "nuvola_mouse16.png";
+        relPaths[BROWSER] = "viewer16.png";
     }
     
     /** The sole instance. */

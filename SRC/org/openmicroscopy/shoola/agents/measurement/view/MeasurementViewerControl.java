@@ -192,7 +192,7 @@ class MeasurementViewerControl
 	}
     
     /**
-     * 
+     * Reacts to property change
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
 	public void propertyChange(PropertyChangeEvent evt)

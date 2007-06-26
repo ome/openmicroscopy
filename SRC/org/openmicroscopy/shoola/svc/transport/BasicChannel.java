@@ -99,6 +99,13 @@ class BasicChannel
     {
         HostConfiguration cfg = new HostConfiguration();
         cfg.setHost(serverURL);
+        String proxyHost = System.getProperty(HttpChannel.PROXY_HOST);
+        String proxyPort = System.getProperty(HttpChannel.PROXY_PORT);
+        if (proxyHost != null && proxyPort != null) {
+        	int port = Integer.parseInt(proxyPort);
+        	cfg.setProxy(proxyHost, port);
+        }
+      
         HttpClient channel = new HttpClient();
         channel.setHostConfiguration(cfg);
         channel.setConnectionTimeout(connTimeout);

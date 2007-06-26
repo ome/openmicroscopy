@@ -110,10 +110,19 @@ class GraphicsPane
     /** Preview option for render settings */
     private JCheckBox			preview;
 
+    /** Flag indicating to paint a line when moving the sliders' knobs. */
+    private boolean paintLine;
+    
+    /** The equation the horizontal line. */
+    private int		horizontalLine = -1;
+    
+    /** The equation of the vertical line. */
+    private int		verticalLine = -1;
+    
     /** Initializes the components. */
     private void initComponents()
     {
-        uiDelegate = new GraphicsPaneUI(model);
+        uiDelegate = new GraphicsPaneUI(this, model);
         codomainSlider = new TwoKnobsSlider(RendererModel.CD_START, 
                                         RendererModel.CD_END, 
                                         model.getCodomainStart(),
@@ -123,6 +132,7 @@ class GraphicsPane
         codomainSlider.setPaintTicks(false);
         codomainSlider.setOrientation(TwoKnobsSlider.VERTICAL);
         codomainSlider.addPropertyChangeListener(this);
+        
         int s = (int) model.getWindowStart();
         int e = (int) model.getWindowEnd();
         domainSlider = new TwoKnobsSlider((int) model.getGlobalMin(), 
@@ -406,6 +416,31 @@ class GraphicsPane
     }
     
     /**
+     * Returns <code>true</code> if a vertical or horizontal has 
+     * to be painted, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isPaintLine() { return paintLine; }
+    
+    /**
+     * Returns the equation of the horizontal line or <code>-1</code>
+     * if no horizontal line defined.
+     * 
+     * @return See above.
+     */
+    int getHorizontalLine() { return horizontalLine; }
+    
+    /**
+     * Returns the equation of the vertical line or <code>-1</code>
+     * if no vertical line defined.
+     * 
+     * @return See above.
+     */
+    int getVerticalLine() { return verticalLine; }
+   
+    
+    /**
      * Reacts to property changes fired by the {@link TwoKnobsSlider}s.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
@@ -414,7 +449,10 @@ class GraphicsPane
 		String name = evt.getPropertyName();
 		Object source = evt.getSource();
 		if (!preview.isSelected()) {
-			if (name.equals(TwoKnobsSlider.KNOB_RELEASED_PROPERTY)) {
+			if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
+				paintLine = false;
+				horizontalLine = -1;
+				verticalLine = -1;
 				if (source.equals(domainSlider)) {
 					controller.setInputInterval(domainSlider.getStartValue(),
 							domainSlider.getEndValue(), true);
@@ -426,9 +464,35 @@ class GraphicsPane
 					onCurveChange();
 				}
 			}
+			if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)) {
+				paintLine = true;
+				if (source.equals(domainSlider)) {
+					verticalLine = domainSlider.getStartValue();
+					horizontalLine = -1;
+					onCurveChange();
+				} else if (source.equals(codomainSlider)) {
+					horizontalLine = codomainSlider.getEndValue();
+					verticalLine = -1;
+					onCurveChange();
+				}
+			} else if (TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)) {
+				paintLine = true;
+				if (source.equals(domainSlider)) {
+					verticalLine = domainSlider.getEndValue();
+					horizontalLine = -1;
+					onCurveChange();
+				} else if (source.equals(codomainSlider)) {
+					horizontalLine = codomainSlider.getStartValue();
+					verticalLine = -1;
+					onCurveChange();
+				}
+			}
 		} else {
-			if (name.equals(TwoKnobsSlider.LEFT_MOVED_PROPERTY)
-					|| name.equals(TwoKnobsSlider.RIGHT_MOVED_PROPERTY)) {
+			paintLine = false;
+			horizontalLine = -1;
+			verticalLine = -1;
+			if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)
+					|| TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)) {
 				if (source.equals(domainSlider)) {
 					controller.setInputInterval(domainSlider.getStartValue(),
 							domainSlider.getEndValue(), true);
@@ -490,5 +554,7 @@ class GraphicsPane
      * @see FocusListener#focusGained(FocusEvent)
      */ 
     public void focusGained(FocusEvent e) {}
+
+	
     
 }

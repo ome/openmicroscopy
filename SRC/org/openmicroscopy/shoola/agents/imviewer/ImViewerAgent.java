@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.imviewer;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
+import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -112,6 +113,21 @@ public class ImViewerAgent
     	}
     }
     
+    /**
+     * Handles the {@link SelectPlane} event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleSelectPlane(SelectPlane evt)
+    {
+    	if (evt == null) return;
+    	
+    	long pixelsID = evt.getPixelsID();
+    	ImViewer view = ImViewerFactory.getImageViewer(pixelsID);
+    	if (view != null) 
+    		view.setSelectedXYPlane(evt.getDefaultZ(), evt.getDefaultT());
+    }
+    
     /** Creates a new instance. */
     public ImViewerAgent() {}
     
@@ -137,6 +153,7 @@ public class ImViewerAgent
         EventBus bus = registry.getEventBus();
         bus.register(this, ViewImage.class);
         bus.register(this, MeasurementToolLoaded.class);
+        bus.register(this, SelectPlane.class);
     }
 
     /**
@@ -155,6 +172,8 @@ public class ImViewerAgent
         if (e instanceof ViewImage) handleViewImage((ViewImage) e);
         else if (e instanceof MeasurementToolLoaded)
         	handleMeasurementToolLoaded((MeasurementToolLoaded) e);
+        else if (e instanceof SelectPlane)
+        	handleSelectPlane((SelectPlane) e);
     }
 
 }

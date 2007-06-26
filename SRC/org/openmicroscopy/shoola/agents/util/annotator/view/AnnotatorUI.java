@@ -388,7 +388,7 @@ class AnnotatorUI
 			c = (MultilineLabel) l.get(i);
 			c.setBackground(c.getOriginalBackground());
 			if (j == i && c != annotationArea) 
-				c.setBackground(AnnotatorUtil.HIGHLIGHT);
+				c.setBackground(UIUtilities.HIGHLIGHT);
 		}
     	c = (MultilineLabel) l.get(j);
     	scrollToNode(c);
@@ -507,8 +507,8 @@ class AnnotatorUI
         	area.setBorder(new TitledLineBorder(node.toString()));
         	area.setText(data.getText());
         	if (index%2 == row) area.setOriginalBackground(
-        			AnnotatorUtil.BACKGROUND);
-            else area.setOriginalBackground(AnnotatorUtil.BACKGROUND_ONE);
+        			UIUtilities.BACKGROUND);
+            else area.setOriginalBackground(UIUtilities.BACKGROUND_ONE);
         	l.add(area);
         	index++;
 		}

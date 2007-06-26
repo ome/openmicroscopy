@@ -152,10 +152,10 @@ class MeasurementResults
 		        	int index = lsm.getMinSelectionIndex();
 		        	MeasurementTableModel m = 
 	        			(MeasurementTableModel) results.getModel();
-	        		long ROIID = (Long)m.getValueAt(index, 2);
-	        		int T = (Integer)m.getValueAt(index, 0)-1;
-	        		int Z = (Integer)m.getValueAt(index, 1)-1;
-	        		view.selectFigure(ROIID, T, Z);
+	        		long ROIID = (Long) m.getValueAt(index, 2);
+	        		int t = (Integer) m.getValueAt(index, 0)-1;
+	        		int z = (Integer) m.getValueAt(index, 1)-1;
+	        		view.selectFigure(ROIID, t, z);
 		        }
 			}
 		
@@ -184,35 +184,39 @@ class MeasurementResults
 	private void createAllFields()
 	{
 		allFields = new ArrayList<AnnotationField>();
-		allFields.add(new AnnotationField(AnnotationKeys.BASIC_TEXT,"Description", 
-				false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.BASIC_TEXT,
+							"Description", false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.CENTREX,"Centre X", 
-				false)); 
+							false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.CENTREY,"Centre Y", 
-				false)); 
+						false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.AREA,"Area", false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.PERIMETER,"Perimeter", 
-				false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.LENGTH, "Length", false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.WIDTH, "Width", false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.HEIGHT, "Height", false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.ANGLE, "Angle", false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYX, "Points X Coord", false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYY, "Points Y Coord", false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.STARTPOINTX, "Start Point X Coord", 
-			false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.STARTPOINTY, "Start Point Y Coord", 
-			false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.ENDPOINTX,"End Point X Coord", 
-			false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.ENDPOINTY,"End Point Y Coord", 
-			false)); 
+						false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.LENGTH, "Length", 
+						false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.WIDTH, "Width", 
+						false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.HEIGHT, "Height", 
+						false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.ANGLE, "Angle", 
+						false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYX, 
+						"Points X Coord", false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYY, 
+						"Points Y Coord", false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.STARTPOINTX, 
+						"Start Point X Coord", false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.STARTPOINTY, 
+						"Start Point Y Coord", false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.ENDPOINTX,
+						"End Point X Coord", false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.ENDPOINTY,
+						"End Point Y Coord", false)); 
 	}
 	
-	
 	/**
-	 * Create the default fields to show results of in the measurement tool.
-	 *
+	 * Creates the default fields to show results of in the measurement tool.
 	 */
 	private void createDefaultFields()
 	{
@@ -399,10 +403,10 @@ class MeasurementResults
 				for (int k = 0; k < fields.size(); k++) {
 					key = fields.get(k).getKey();
 					Object value = key.get(shape);
-					if(value instanceof ArrayList)
+					if (value instanceof ArrayList)
 					{
-						ArrayList valueArray = (ArrayList)value;
-						ArrayList arrayList=new ArrayList(valueArray);
+						ArrayList valueArray = (ArrayList) value;
+						ArrayList arrayList = new ArrayList(valueArray);
 						row.addElement(arrayList);
 					}
 					else
@@ -451,12 +455,12 @@ class MeasurementResults
 		int results = chooser.showSaveDialog(this.getParent());
 		if(results != JFileChooser.APPROVE_OPTION) return false;
 		File file = chooser.getSelectedFile();
-		if(!file.getAbsolutePath().endsWith(CSVFilter.CSV))
+		if (!file.getAbsolutePath().endsWith(CSVFilter.CSV))
 		{
 			String fileName = file.getAbsolutePath()+"."+CSVFilter.CSV;
 			file = new File(fileName);
 		}
-		if(file.exists()) 
+		if (file.exists()) 
 		{
 			int response = JOptionPane.showConfirmDialog (null,
 						"Overwrite existing file?","Confirm Overwrite",

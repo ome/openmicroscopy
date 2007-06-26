@@ -87,6 +87,15 @@ public class UIUtilities
     /** String to representing the nanometer symbol. */
     public static final String              NANOMETER = " \u00B5m";
     
+	/** Background color of the hightlighted node. */
+	public static final Color				HIGHLIGHT = new Color(204, 255, 
+															204);
+	/** Background color of the even rows. */
+	public static final Color				BACKGROUND = Color.WHITE;
+	
+	/** Background color of the add rows. */
+	public static final Color				BACKGROUND_ONE = new Color(236, 243,
+																		254);
     /** 
      * The string displayed before an item name if the name has been
      * truncated.

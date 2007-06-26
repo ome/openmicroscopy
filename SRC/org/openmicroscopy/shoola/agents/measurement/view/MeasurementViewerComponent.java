@@ -107,32 +107,7 @@ class MeasurementViewerComponent
 		bus.post(response);
     }
     
-    /** Updates the drawing area. */
-	private void updateDrawingArea()
-	{
-		Drawing drawing = model.getDrawing();
-		drawing.removeDrawingListener(controller);
-		drawing.clear();
-		
-		ShapeList list = null;
-		try {
-			list = model.getShapeList();
-		} catch (Exception e) {
-			view.handleROIException(e);
-		}
-		if (list != null) {
-			TreeMap map = list.getList();
-			Iterator i = map.values().iterator();
-			ROIShape shape;
-			while (i.hasNext()) {
-				shape = (ROIShape) i.next();
-				if (shape != null) drawing.add(shape.getFigure());
-			}
-		}
-		
-		model.getDrawingView().setDrawing(drawing);
-		drawing.addDrawingListener(controller);
-	}
+    
 	
 	/**
      * Creates a new instance.
@@ -262,11 +237,12 @@ class MeasurementViewerComponent
 		}
 
 		view.rebuildManagerTable();
-		updateDrawingArea();
+		view.updateDrawingArea();
 		fireStateChange();
 		//Now we are ready to go. We can post an event to add component to
 		//Viewer
-		if(!model.getToolSent())
+		//TODO: Review that code
+		if (!model.getToolSent())
 		{
 			model.setToolSent(true);
 			postEvent(MeasurementToolLoaded.ADD);
@@ -366,7 +342,7 @@ class MeasurementViewerComponent
 		if (results != JFileChooser.APPROVE_OPTION) return;
 		model.fireROILoading(chooser.getSelectedFile().getAbsolutePath());
 		fireStateChange();
-		updateDrawingArea();
+		view.updateDrawingArea();
 	}
 
 	/** 

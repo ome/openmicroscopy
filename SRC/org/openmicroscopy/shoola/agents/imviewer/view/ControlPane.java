@@ -753,6 +753,22 @@ class ControlPane
 	}
     
     /**
+     * Sets the specified channel to active.
+     * 
+     * @param index The channel's index.
+     */
+    void setChannelActive(int index)
+    {
+    	Iterator i = channelButtons.iterator();
+        ChannelButton button;
+        while (i.hasNext()) {
+            button = (ChannelButton) i.next();
+            if (index == button.getChannelIndex()) 
+                button.setSelected(true);
+        }
+	}
+    
+    /**
      * Reacts to the selection of an item in the {@link #zoomingBox} or
      * {@link #ratingBox}.
      * @see ActionListener#actionPerformed(ActionEvent)
@@ -804,5 +820,7 @@ class ControlPane
         else if (source == tSliderAnnotator && tSliderAnnotator.isEnabled())
             mouseWheelMovedT(e);
     }
+
+	
     
 }

@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Dimension;
 import java.sql.Timestamp;
 import java.util.Collections;
@@ -63,15 +62,6 @@ import pojos.AnnotationData;
  */
 class AnnotatorUtil
 {
-
-	/** Background color of the hightlighted node. */
-	static final Color		HIGHLIGHT = new Color(204, 255, 204);
-	
-	/** Background color of the even rows. */
-	static final Color		BACKGROUND = Color.WHITE;
-	
-	/** Background color of the add rows. */
-	static final Color		BACKGROUND_ONE = new Color(236, 243, 254);
 
     /**
      * A reduced size for the invisible components used to separate widgets
@@ -151,7 +141,7 @@ class AnnotatorUtil
     			new TitledLineBorder(title), 
     			BorderFactory.createBevelBorder(BevelBorder.LOWERED));
     	area.setBorder(border);
-    	area.setOriginalBackground(BACKGROUND);
+    	area.setOriginalBackground(UIUtilities.BACKGROUND);
     	area.setOpaque(true);
     	area.setEditable(true);
     	area.setPreferredSize(AREA_SIZE);

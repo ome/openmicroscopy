@@ -133,7 +133,7 @@ class AnnotatorEditorComponent
 		switch (model.getState()) {
 	        case NEW:
 	        case READY:
-	        	view.onSelectedDisplay(true);
+	        	view.onSelectedDisplay();
 	        	model.fireAnnotationsRetrieval();
 	        	fireStateChange();
 	            break;
@@ -291,7 +291,7 @@ class AnnotatorEditorComponent
 				model.cancel();
 		}
 		model.setDataObject(object);
-		view.onSelectedDisplay(false);
+		view.onSelectedDisplay();
 		//if (object == null)
 		//	view.onSelectedDisplay(false);
 		//else

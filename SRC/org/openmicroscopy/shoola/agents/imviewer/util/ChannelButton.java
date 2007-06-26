@@ -80,15 +80,6 @@ public class ChannelButton
     /** The pop up menu associated to this component. */
     private ChannelButtonPopupMenu  popupMenu;
     
-    /** 
-     * The number of milliseconds we'll wait till we know we've got a single
-     * click event. 
-     */
-    //private static final int DOUBLE_CLICK_THRESHOLD = 200; // ms
-   
-    /** Timer scheduling the double click task. */
-    //private Timer timer;  
-    
     /** Fires an event to select the channel. */
     private final void setChannelSelected()
     {
@@ -107,14 +98,9 @@ public class ChannelButton
     private void onClick(MouseEvent e)
     {
     	boolean mask = (e.isControlDown() || e.isMetaDown());
-    	if (e.getButton() == MouseEvent.BUTTON1 && !(mask) ) {
-    		//if (e.getClickCount() == 1) timer.start();
-    		//else if (e.getClickCount() == 2) {
-    		//	timer.stop();
-    		//	doubleClick();
-    		//}
+    	if (e.getButton() == MouseEvent.BUTTON1 && !(mask) ) 
     		singleClick();
-    	} else if ((e.getButton() == MouseEvent.BUTTON2 || mask)) 
+    	else if ((e.getButton() == MouseEvent.BUTTON2 || mask)) 
         	onReleased(e);
     }
    
@@ -208,10 +194,6 @@ public class ChannelButton
      * Handles click performed on the channel button.
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void actionPerformed(ActionEvent e)
-    {
-		singleClick();
-		//timer.stop();
-	}
+	public void actionPerformed(ActionEvent e) { singleClick(); }
     
 }

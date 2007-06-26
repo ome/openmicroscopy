@@ -54,6 +54,9 @@ class GraphicsPaneUI
     extends JPanel 
 {
     
+	/** Color used to draw a line to indicate the selected value. */
+	private final static Color		LINECOLOUR = Color.BLACK;
+	
     /** The color used to grey out the non selected area. */
     private final static Color       GREYCOLOUR = new Color(196, 196, 196, 128);
     
@@ -75,19 +78,25 @@ class GraphicsPaneUI
 	/** A reference to the model. */
     private RendererModel   model;
 
+    /** A reference to the model. */
+    private GraphicsPane   	view;
+    
 	/** 
      * Creates a new instance. 
      * 
+     * @param view 	Reference to the view.
      * @param model Reference to the model. Mustn't be <code>null</code>.
-     * */
-	GraphicsPaneUI(RendererModel model)
+     */
+	GraphicsPaneUI(GraphicsPane view, RendererModel model)
     {
+		if (view == null) throw new IllegalArgumentException("No view.");
         if (model == null) throw new IllegalArgumentException("No model.");
 		this.model = model;
+		this.view = view;
 		IconManager icons = IconManager.getInstance();
 		histogramImage = icons.getImageIcon(IconManager.TEMPORARY_HISTOGRAM);
 	}
-
+	
 	/**
 	 * Overridden to paint the histogram image.
 	 * @see JPanel#paintComponent(Graphics)
@@ -98,6 +107,7 @@ class GraphicsPaneUI
 		Graphics2D g = (Graphics2D) og;
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
+		
         double width = getWidth();
         double height = getHeight();
         g.setColor(FILLCOLOUR);
@@ -174,6 +184,21 @@ class GraphicsPaneUI
 					currentY = b-a*Math.log(x);
 				g.drawLine((int) oldX, (int) oldY, (int) currentX,
 						(int) currentY);
+		}
+		if (view.isPaintLine()) {
+			int vertical = view.getVerticalLine();
+			g.setColor(LINECOLOUR);
+			double v;
+			if (vertical >= 0) {
+				v = ((vertical-domainGlobalMin)/
+						(domainGlobalMax-domainGlobalMin))*width;
+				g.drawLine((int) v, 0, (int) v, (int) height);
+			}
+			int horizontal = view.getHorizontalLine();
+			if (horizontal >= 0) {
+				v = ((255-horizontal)/255.0f)*height;
+				g.drawLine(0, (int) v, (int) width, (int) v);
+			} 
 		}
 	}
 	

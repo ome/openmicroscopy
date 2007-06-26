@@ -99,14 +99,13 @@ public class ServerEditor
     										"or 134.20.12.33)";
     
     /** Separator used when storing various servers. */
-    private static final String  	SERVER_NAME_SEPARATOR = ",";
+    private static final String	SERVER_NAME_SEPARATOR = ",";
     
     /** The property name for the host to connect to <i>OMERO</i>. */
-    private static final String  	OMERO_SERVER = "omeroServer";
+    private static final String	OMERO_SERVER = "omeroServer";
     
 	/** Font for progress bar label. */
-	private static final Font		FONT = new Font("SansSerif", 
-													Font.ITALIC, 10);
+	private static final Font	FONT = new Font("SansSerif", Font.ITALIC, 10);
 	
 	/** Button to remove server from the list. */
 	private JButton			removeButton;
