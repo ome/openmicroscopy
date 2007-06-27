@@ -56,7 +56,7 @@ public class AddUserTask extends AdminTask {
      * {@link AddUserTask}.
      */
     public enum Keys {
-        omename, firstname, lastname, middlename, institution, email, group
+        omename, firstname, lastname, middlename, institution, email, group, password
     }
 
     /** Delegates to super */
@@ -83,6 +83,10 @@ public class AddUserTask extends AdminTask {
         e.setInstitution(enumValue(institution));
         e.setEmail(enumValue(email));
         long uid = admin.createUser(e, groupName);
+        String pass = enumValue(password);
+        if (pass != null) {
+            admin.changeUserPassword(e.getOmeName(), pass);
+        }
         getLogger().info(
                 String.format("Added user %s with id %d", e.getOmeName(), uid));
     }
