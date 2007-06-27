@@ -81,7 +81,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
  * </small>
  * @since OME3.0
  */
-public class MeasurementViewerModel 
+class MeasurementViewerModel 
 {
 	
 	/** The id of the image this {@link MeasurementViewer} is for. */
@@ -146,7 +146,7 @@ public class MeasurementViewerModel
 	 * @param name		The image's name.
 	 * @param bounds	The bounds of the component requesting the component.
 	 */
-	public MeasurementViewerModel(long imageID, long pixelsID, String name, 
+	MeasurementViewerModel(long imageID, long pixelsID, String name, 
 						Rectangle bounds)
 	{
 		this.imageID = imageID;
@@ -206,10 +206,7 @@ public class MeasurementViewerModel
 	 * @param z	The selected z-section.
 	 * @param t	The selected timepoint.
 	 */
-	void setPlane(int z, int t)
-	{
-		currentPlane = new Coord3D(t, z);
-	}
+	void setPlane(int z, int t) { currentPlane = new Coord3D(t, z); }
 	
 	/**
      * Compares another model to this one to tell if they would result in
@@ -377,12 +374,10 @@ public class MeasurementViewerModel
 	void setMagnification(double magnification)
 	{ 
 		this.magnification = magnification;
-		if( state != MeasurementViewer.NEW)
+		if (state != MeasurementViewer.NEW)
 			drawingView.setScaleFactor(magnification, new 
 						Dimension(getSizeX(), getSizeY()));
-		else
-			drawingView.setScaleFactor(magnification);
-			
+		else drawingView.setScaleFactor(magnification);
 	}
 
 	/** 
@@ -395,9 +390,7 @@ public class MeasurementViewerModel
 	void setROI(InputStream input)
 		throws Exception
 	{
-		if (input != null) {
-			roiComponent.loadROI(input);
-		}
+		if (input != null) roiComponent.loadROI(input);
 		state = MeasurementViewer.READY;
 	}
 
@@ -450,7 +443,6 @@ public class MeasurementViewerModel
 	 */
 	int getNumTimePoints() { return pixels.getSizeT(); }
 	
-	
 	/**
 	 * Returns the number of pixels along the X-axis.
 	 * 
@@ -482,9 +474,10 @@ public class MeasurementViewerModel
 		Collection<Figure> selectedFigs = drawingView.getSelectedFigures();
 		ArrayList<ROI> roiList = new ArrayList<ROI>();
 		Iterator<Figure> figIterator = selectedFigs.iterator();
-		while(figIterator.hasNext())
+		ROIFigure fig;
+		while (figIterator.hasNext())
 		{
-			ROIFigure fig = (ROIFigure)figIterator.next();
+			fig = (ROIFigure) figIterator.next();
 			roiList.add(fig.getROI());
 		}
 		return roiList;
@@ -516,7 +509,8 @@ public class MeasurementViewerModel
 	}
 
 	/**
-	 * Gets the ROIComponent to create a <code>ROI</code> from the passed figure.
+	 * Returns the ROIComponent to create a <code>ROI</code> from 
+	 * the passed figure.
 	 * 
 	 * @param figure The figure to create the <code>ROI</code> from.
 	 * @return Returns the created <code>ROI</code>.
@@ -574,7 +568,8 @@ public class MeasurementViewerModel
 	}
 	
 	/**
-	 * Propagate the selected shape in the roi model. 
+	 * Propagates the selected shape in the roi model. 
+	 * 
 	 * @param shape ROIShape to propagate.
 	 * @param timePoint timepoint to propagate to.
 	 * @param zSection z section to propagate to.
@@ -589,7 +584,7 @@ public class MeasurementViewerModel
 	}
 	
 	/**
-	 * Delete the selected shape from current coord to timepoint and zSection.
+	 * Deletes the selected shape from current coord to timepoint and z-section.
 	 * 
 	 * @param shape initial shape to delete.
 	 * @param timePoint time point to delete to.
@@ -598,11 +593,10 @@ public class MeasurementViewerModel
 	 * @throws NoSuchROIException
 	 */
 	void deleteShape(ROIShape shape, int timePoint, int zSection) 
-	throws 	ROICreationException, NoSuchROIException
+		throws 	ROICreationException, NoSuchROIException
 	{
 		roiComponent.deleteShape(shape.getID(), shape.getCoord3D(), 
 			new Coord3D(timePoint, zSection));
 	}
 
-	
 }	

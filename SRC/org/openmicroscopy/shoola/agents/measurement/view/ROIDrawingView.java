@@ -62,11 +62,6 @@ class ROIDrawingView
 	 */
 	private static final Point2D.Double	ORIGIN = new Point2D.Double(0, 0);
 	
-	ROIDrawingView()
-	{
-		super();
-	}
-	
 	/**
 	 * Set the size of the component. This method takes in the original size
 	 * of the image and the scale factor and sets the size of the component 
