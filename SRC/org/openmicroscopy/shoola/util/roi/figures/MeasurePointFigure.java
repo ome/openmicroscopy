@@ -34,21 +34,18 @@ import java.text.NumberFormat;
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.EllipseFigure;
-import org.openmicroscopy.shoola.util.roi.model.ROI;
-import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 
 //Application-internal dependencies
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.SHOWMEASUREMENT;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREX;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREY;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.INMICRONS;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELX;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
-
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
+
+import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 
 /** 
  * 
@@ -74,7 +71,8 @@ public class MeasurePointFigure
 	private	Rectangle2D bounds;
 	private ROI			roi;
 	private ROIShape 	shape;
-
+	private MeasurementUnits units;
+	
 	    
     public MeasurePointFigure(double x, double y, double width, double height) 
     {
@@ -86,26 +84,26 @@ public class MeasurePointFigure
 
     public double getMeasurementX() 
     {
-    	if(INMICRONS.get(shape))
-    		return getX()*MICRONSPIXELX.get(shape);
+    	if(units.showInMicrons())
+    		return getX()*units.getMicronsPixelX();
     	else
         	return getX();
     }
     
     public Point2D getMeasurementCentre()
     {
-    	if(INMICRONS.get(shape))
+    	if(units.showInMicrons())
     		return new Point2D.Double(getCentre().getX()*
-    				MICRONSPIXELX.get(shape),getCentre().getY()*
-    				MICRONSPIXELY.get(shape));
+    			units.getMicronsPixelX(),getCentre().getY()*
+    			units.getMicronsPixelY());
     	else
     		return getCentre();
     }
     
     public double getMeasurementY() 
     {
-    	if(INMICRONS.get(shape))
-    		return getY()*MICRONSPIXELY.get(shape);
+    	if(units.showInMicrons())
+    		return getY()*units.getMicronsPixelY();
     	else
         	return getY();
     }
@@ -113,16 +111,16 @@ public class MeasurePointFigure
     public double getMeasurementWidth() 
     {
     	
-    	if(INMICRONS.get(shape))
-    		return getWidth()*MICRONSPIXELX.get(shape);
+    	if(units.showInMicrons())
+    		return getWidth()*units.getMicronsPixelX();
     	else
     		return getWidth();
     }
     
     public double getMeasurementHeight() 
     {
-    	if(INMICRONS.get(shape))
-    		return getHeight()*MICRONSPIXELY.get(shape);
+    	if(units.showInMicrons())
+    		return getHeight()*units.getMicronsPixelY();
     	else
     		return getHeight();
     }
@@ -205,7 +203,7 @@ public class MeasurePointFigure
 	{
 		if(shape==null)
 			return str;
-		if(INMICRONS.get(shape))
+		if(units.showInMicrons())
 			return str+OutputUnit.MICRONS+OutputUnit.SQUARED;
 		else
 			return str+OutputUnit.PIXELS+OutputUnit.SQUARED;
@@ -258,5 +256,13 @@ public class MeasurePointFigure
 	 */
 	public String getType() { return ROIFigure.POINT_TYPE; }
 	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setMeasurementUnits(MeasurementUnits)
+	 */
+	public void setMeasurementUnits(MeasurementUnits units)
+	{
+		this.units = units;
+	}
 }
 

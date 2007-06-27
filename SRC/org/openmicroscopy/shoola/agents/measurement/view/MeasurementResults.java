@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -47,6 +49,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
 //Third-party libraries
 
@@ -79,6 +82,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class MeasurementResults 
 	extends JPanel
 {
+	/** The default size of the column in a table. */
+	private static final int				COLUMNWIDTH = 64;
 
 	/** The name of the panel. */
 	private static final String				NAME = "Results";
@@ -388,6 +393,7 @@ class MeasurementResults
 		MeasurementObject row;
 		AnnotationKey key;
 		MeasurementTableModel tm = new MeasurementTableModel(columnNames);
+		
 		while (i.hasNext()) {
 			roi = (ROI) map.get(i.next());
 			shapes = roi.getShapes();
@@ -417,8 +423,34 @@ class MeasurementResults
 			}
 		}
 		results.setModel(tm);
+		resizeTableColumns();
 	}
 
+	/** 
+	 * Resize the columns so that they fit the column names better, the 
+	 * column will be a minimum size of COLUMNWIDTH or the length of the 
+	 * text whichever is greater.
+	 *
+	 */
+	private void resizeTableColumns()
+	{	
+		int columnWidth = 0;
+		Font font = getFont();
+		FontMetrics metrics = getFontMetrics( font );
+		MeasurementTableModel tm = (MeasurementTableModel)results.getModel();
+		for(int i = 0 ; i < results.getColumnCount(); i++)
+		{
+			TableColumn col = results.getColumnModel().getColumn(i);
+			int w  =  metrics.stringWidth(tm.getColumnName(i));
+			columnWidth = Math.max(w, COLUMNWIDTH);
+			col.setMinWidth(columnWidth);
+			col.setMaxWidth(columnWidth);
+			col.setPreferredWidth(columnWidth);
+			col.setResizable(false);
+		}
+	}
+	
+	
 	/**
 	 * Returns the name of the component.
 	 * 

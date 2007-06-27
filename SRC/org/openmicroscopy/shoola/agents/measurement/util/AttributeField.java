@@ -26,6 +26,9 @@ package org.openmicroscopy.shoola.agents.measurement.util;
 //Java imports
 
 //Third-party libraries
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.jhotdraw.draw.AttributeKey;
 
 //Application-internal dependencies
@@ -55,6 +58,9 @@ public class AttributeField
 	/** Flag indicating if the field is editable or not. */
 	private boolean 		editable;
 	
+	/** Value range of objects */
+	private ArrayList		valueRange;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -68,6 +74,32 @@ public class AttributeField
 		this.key = key;
 		this.name = name;
 		this.editable = editable;
+		valueRange = new ArrayList();
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param key	The key hosted by this class.
+	 * @param name	The name of the field.
+	 * @param editable	Pass <code>true</code> to edit the field, 
+	 * 					<code>false</code> otherwise.
+	 * @param valueRange The range of values this attribute can take.
+	 */
+	public AttributeField(AttributeKey key, String name, boolean editable,
+			ArrayList valueRange)
+	{
+		this.key = key;
+		this.name = name;
+		this.editable = editable;
+		this.valueRange = new ArrayList(valueRange);
+	}
+	
+	
+	/** Gets the value range the object can take */
+	public Collection getValueRange()
+	{
+		return valueRange;
 	}
 	
 	/**

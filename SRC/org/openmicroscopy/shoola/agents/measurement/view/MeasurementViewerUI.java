@@ -36,9 +36,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 
 //Third-party libraries
@@ -121,7 +124,8 @@ class MeasurementViewerUI
     private JMenuBar createMenuBar()
     {
     	JMenuBar menuBar = new JMenuBar(); 
-        menuBar.add(createControlsMenu());
+    	menuBar.add(createControlsMenu());
+    	menuBar.add(createOptionsMenu());
         return menuBar;
     }
     
@@ -143,8 +147,53 @@ class MeasurementViewerUI
         item = new JMenuItem(a);
         item.setText(a.getName());
         menu.add(item);
+        a = controller.getAction(MeasurementViewerControl.ROI_ASSISTANT);
+        item = new JMenuItem(a);
+        item.setText(a.getName());
+        menu.add(item);
         return menu;
     }
+    
+    /**
+     * Helper method to create the Options menu.
+     * 
+     * @return The options submenu.
+     */
+    private JMenu createOptionsMenu()
+    {
+        JMenu menu = new JMenu("Options");
+        ButtonGroup creationOptions = new ButtonGroup();
+        ButtonGroup displayUnits = new ButtonGroup();
+    	
+        menu.setMnemonic(KeyEvent.VK_O);
+        MeasurementViewerAction a = 
+        	controller.getAction(MeasurementViewerControl.SHOWMEASUREMENTINMICRONS);
+        JCheckBoxMenuItem inMicronsMenu = new JCheckBoxMenuItem(a);
+        inMicronsMenu.setText(a.getName());
+        menu.add(inMicronsMenu);
+        a = controller.getAction(MeasurementViewerControl.SHOWMEASUREMENTINPIXELS);
+        JCheckBoxMenuItem inPixelsMenu = new JCheckBoxMenuItem(a);
+        inPixelsMenu.setText(a.getName());
+        menu.add(inPixelsMenu);
+        inPixelsMenu.setSelected(true);
+        displayUnits.add(inMicronsMenu);
+        displayUnits.add(inPixelsMenu);
+        menu.add(new JSeparator());
+        a = 
+        	controller.getAction(MeasurementViewerControl.CREATECONTINUOUS);
+        JCheckBoxMenuItem continuousMenu = new JCheckBoxMenuItem(a);
+        continuousMenu.setText(a.getName());
+        menu.add(continuousMenu);
+        a = controller.getAction(MeasurementViewerControl.CREATESINGLE);
+        JCheckBoxMenuItem singleMenu = new JCheckBoxMenuItem(a);
+        singleMenu.setText(a.getName());
+        menu.add(singleMenu);
+        singleMenu.setSelected(true);
+        creationOptions.add(continuousMenu);
+        creationOptions.add(singleMenu);
+        return menu;
+    }
+    
     
 	/** Initializes the components composing the display. */
 	private void initComponents()
@@ -530,5 +579,15 @@ class MeasurementViewerUI
 	{
 		model.deleteShape(shape, timePoint, zSection);
 		rebuildManagerTable();
+	}
+	
+	/**
+	 * Creates a single figure and moves the tool in the menu back to the 
+	 * selection tool, if param true. 
+	 * @param option see above.
+	 */
+	public void createSingleFigure(boolean option)
+	{
+		toolBar.createSingleFigure(option);
 	}
 }

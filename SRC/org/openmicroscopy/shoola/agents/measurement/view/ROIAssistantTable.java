@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
@@ -53,21 +55,48 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 public class ROIAssistantTable
 	extends JTable
 {	
-	public final static int 	COLUMNWIDTH = 32;
-	public final static int 	LEADERCOLUMN_WIDTH = 80;
+	private final static int 	COLUMNWIDTH = 32;
+	private final static int 	LEADERCOLUMN_WIDTH = 80;
 	private final static Color 	GRIDCOLOUR = new Color(180, 213, 255);
+	
+	private int columnWidth;
+	private int leaderColumnWidth;
+	
+	public int getColumnWidth()
+	{
+		return columnWidth;
+	}
+	
+	public int getLeaderColumnWidth()
+	{
+		return leaderColumnWidth;
+	}
 	
 	ROIAssistantTable(ROIAssistantModel model)
 	{
 		this.setModel(model);
 		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		int columnWidth = 0;
+		Font font = getFont();
+		FontMetrics metrics = getFontMetrics( font );
 		for(int i = 0 ; i < getColumnCount(); i++)
 		{
 			
 			TableColumn col = getColumnModel().getColumn(i);
-			int width = COLUMNWIDTH;
+			int w  =  metrics.stringWidth( model.getColumnName(i));
+			columnWidth = Math.max(w, COLUMNWIDTH);
+		}
+		
+		int w  =  metrics.stringWidth( model.getColumnName(0));
+
+		leaderColumnWidth = Math.max(w, LEADERCOLUMN_WIDTH);
+		for(int i = 0 ; i < getColumnCount(); i++)
+		{
+			
+			TableColumn col = getColumnModel().getColumn(i);
+			int width = columnWidth;
 			if(i==0)
-				width = LEADERCOLUMN_WIDTH;
+				width = leaderColumnWidth;
 			col.setMinWidth(width);
 			col.setMaxWidth(width);
 			col.setPreferredWidth(width);
@@ -75,7 +104,7 @@ public class ROIAssistantTable
 		}
 		setColumnSelectionAllowed(true);
 		setRowSelectionAllowed(true);
-		setRowHeight(COLUMNWIDTH);
+		setRowHeight(columnWidth);
 		setGridColor(GRIDCOLOUR);
 		getTableHeader().setReorderingAllowed(false);
 		setShowGrid(true);

@@ -45,13 +45,10 @@ import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREX;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREY;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.AREA;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.INMICRONS;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELX;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
 
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
+import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
 
@@ -78,7 +75,8 @@ public class MeasureRectangleFigure
 	protected	Rectangle2D 		bounds;
 	protected 	ROI					roi;
 	protected 	ROIShape 			shape;
-
+	private MeasurementUnits units;
+	
 	   
     /** Creates a new instance. */
     public MeasureRectangleFigure() 
@@ -97,16 +95,16 @@ public class MeasureRectangleFigure
     
     public double getMeasurementX() 
     {
-    	if(INMICRONS.get(shape))
-    		return getX()*MICRONSPIXELX.get(shape);
+    	if(units.showInMicrons())
+    		return getX()*units.getMicronsPixelX();
     	else
         	return getX();
     }
     
     public double getMeasurementY() 
     {
-    	if(INMICRONS.get(shape))
-    		return getY()*MICRONSPIXELY.get(shape);
+    	if(units.showInMicrons())
+    		return getY()*units.getMicronsPixelY();
     	else
         	return getY();
     }
@@ -114,16 +112,16 @@ public class MeasureRectangleFigure
     public double getMeasurementWidth() 
     {
     	
-    	if(INMICRONS.get(shape))
-    		return getWidth()*MICRONSPIXELX.get(shape);
+    	if(units.showInMicrons())
+    		return getWidth()*units.getMicronsPixelX();
     	else
     		return getWidth();
     }
     
     public double getMeasurementHeight() 
     {
-    	if(INMICRONS.get(shape))
-    		return getHeight()*MICRONSPIXELY.get(shape);
+    	if(units.showInMicrons())
+    		return getHeight()*units.getMicronsPixelY();
     	else
     		return getHeight();
     }
@@ -212,7 +210,7 @@ public class MeasureRectangleFigure
 	{
 		if(shape==null)
 			return str;
-		if(INMICRONS.get(shape))
+		if(units.showInMicrons())
 			return str+OutputUnit.MICRONS+OutputUnit.SQUARED;
 		else
 			return str+OutputUnit.PIXELS+OutputUnit.SQUARED;
@@ -231,10 +229,10 @@ public class MeasureRectangleFigure
 
 	public Point2D getCentre()
 	{
-     	if (INMICRONS.get(shape))
+     	if (units.showInMicrons())
     		return new Point2D.Double(
-    				rectangle.getCenterX()*MICRONSPIXELX.get(shape), 
-    				rectangle.getCenterY()*MICRONSPIXELY.get(shape));
+    				rectangle.getCenterX()*units.getMicronsPixelX(), 
+    				rectangle.getCenterY()*units.getMicronsPixelY());
     	return new Point2D.Double(rectangle.getCenterX(), 
     							rectangle.getCenterY());
 	}
@@ -283,7 +281,15 @@ public class MeasureRectangleFigure
 	 * @see ROIFigure#getType()
 	 */
 	public String getType() { return ROIFigure.RECTANGLE_TYPE; }
-			
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setMeasurementUnits(MeasurementUnits)
+	 */
+	public void setMeasurementUnits(MeasurementUnits units)
+	{
+		this.units = units;
+	}
 }
 
 

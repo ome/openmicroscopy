@@ -599,4 +599,14 @@ class MeasurementViewerModel
 			new Coord3D(timePoint, zSection));
 	}
 
+	/** 
+	 * Show the measurements in the ROIFigures in microns. 
+	 * 
+	 * @param inMicrons show the measurement in microns if true.
+	 *
+	 */
+	void showMeasurementsInMicrons(boolean inMicrons)
+	{
+		roiComponent.showMeasurementsInMicrons(inMicrons);
+	}
 }	

@@ -53,7 +53,10 @@ import org.jhotdraw.util.ResourceBundleUtil;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.util.MeasurementBezierTool;
+import org.openmicroscopy.shoola.agents.measurement.util.MeasurementConnectionTool;
 import org.openmicroscopy.shoola.agents.measurement.util.MeasurementToolBarButtonFactory;
+import org.openmicroscopy.shoola.agents.measurement.util.ObjectCreationTool;
 import org.openmicroscopy.shoola.agents.measurement.util.PointCreationTool;
 import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
@@ -123,9 +126,28 @@ class ToolBar
     /** Reference to the Model. */
     private MeasurementViewerModel		model;
     
+    private ObjectCreationTool 			ellipseTool;
+    private ObjectCreationTool 			rectTool;
+    private ObjectCreationTool 			lineTool;
+    private ObjectCreationTool 			textTool;
+    private PointCreationTool 			pointTool;
+    private MeasurementBezierTool 		polygonTool;
+    private MeasurementBezierTool 		polylineTool;
+    private MeasurementConnectionTool	connectionTool;
+    
     /** Initializes the component composing the display. */
 	private void initComponents()
 	{
+		ellipseTool = new ObjectCreationTool(new EllipseAnnotationFigure());
+		rectTool = new ObjectCreationTool(new RectAnnotationFigure());
+		textTool = new ObjectCreationTool(new MeasureTextFigure());
+		lineTool = new ObjectCreationTool(new LineAnnotationFigure());
+		connectionTool = new MeasurementConnectionTool(new LineConnectionAnnotationFigure(), 
+			defaultAttributes);
+		pointTool = new PointCreationTool(new PointAnnotationFigure());
+	    polygonTool = new MeasurementBezierTool(new BezierAnnotationFigure(true));
+	    polylineTool = new MeasurementBezierTool(new BezierAnnotationFigure(true));
+	    
 		ButtonGroup group = new ButtonGroup();
 		ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle(BASE_NAME);
 		toolBar = new JToolBar();
@@ -136,15 +158,15 @@ class ToolBar
 		toolBar.add(new JSeparator());
 		toolBar.add(Box.createRigidArea(HGLUE));
 		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
-				new CreationTool(new RectAnnotationFigure()), 
+				rectTool, 
 				CREATE_KEY+ROIFigure.RECTANGLE_TYPE, 
 				labels);
 		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
-				new CreationTool(new EllipseAnnotationFigure()), 
+				ellipseTool, 
 				CREATE_KEY+ROIFigure.ELLIPSE_TYPE, 
 				labels);
 		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
-				new PointCreationTool(new PointAnnotationFigure()), 
+				pointTool, 
 				CREATE_KEY+ROIFigure.ELLIPSE_TYPE, 
 				labels);
 		Component component = toolBar.getComponent(toolBar.getComponentCount()-1);
@@ -154,20 +176,19 @@ class ToolBar
 			button.setIcon(IconManager.getInstance().getIcon(IconManager.POINTICON));
 		}
 		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
-				new CreationTool(new LineAnnotationFigure()), 
+				lineTool, 
 					CREATE_KEY+ROIFigure.LINE_TYPE, labels);
 		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
-	    		new ConnectionTool(new LineConnectionAnnotationFigure(), 
-	    			defaultAttributes), 
+	    		connectionTool, 
 	    			CREATE_KEY+ROIFigure.LINE_CONNECTION_TYPE, labels);
 		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
-				  new BezierTool(new BezierAnnotationFigure()), 
+				  polylineTool, 
 				  CREATE_KEY+ROIFigure.SCRIBBLE_TYPE, labels);
 		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
-	    		  new BezierTool(new BezierAnnotationFigure(true)), 
+	    		  polygonTool, 
 	    		  CREATE_KEY+ROIFigure.POLYGON_TYPE, labels);
 		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
-				new CreationTool(new MeasureTextFigure()), 
+				textTool, 
 				CREATE_KEY+ROIFigure.TEXT_TYPE, labels);
 		
 	}
@@ -205,6 +226,7 @@ class ToolBar
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		p.add(buildControlsBar());
+		p.add(Box.createHorizontalStrut(5));
 		p.add(toolBar);
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 	    add(p);
@@ -228,6 +250,24 @@ class ToolBar
 		this.model = model;
 		initComponents();
 		buildGUI();
+		createSingleFigure(true);
 	}
 	
+	/**
+	 * Creates a single figure and moves the tool in the menu back to the 
+	 * selection tool, if param true. 
+	 * @param option see above.
+	 */
+	public void createSingleFigure(boolean option)
+	{
+			
+		ellipseTool.setResetToSelect(option);
+		rectTool.setResetToSelect(option);
+		textTool.setResetToSelect(option); 
+		lineTool.setResetToSelect(option); 
+		// TODO : connectionTool.setResetToSelect(option); 
+		pointTool.setResetToSelect(option);
+	    polygonTool.setResetToSelect(option);
+	    polylineTool.setResetToSelect(option); 
+	}
 }

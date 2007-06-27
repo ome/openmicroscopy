@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -39,6 +41,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 
@@ -50,6 +53,7 @@ import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
+import org.openmicroscopy.shoola.agents.measurement.view.MeasurementResults.MeasurementTableModel;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -71,7 +75,9 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 class ObjectManager 
 	extends JPanel
 {
-
+	/** The minimum width of the columns. */
+	private static int					COLUMNWIDTH = 32; 
+	
 	/** Collection of column names. */
 	private static List<String>			columnNames;
 	
@@ -112,6 +118,8 @@ class ObjectManager
 		objectsTable.setRowSelectionAllowed(true);
 		objectsTable.getTableHeader().setReorderingAllowed(false);
 		//		Add selection listener
+		
+	//	resizeTableColumns();
 		listener = new ListSelectionListener() {
 		
 			public void valueChanged(ListSelectionEvent e) {
@@ -146,6 +154,29 @@ class ObjectManager
 		objectsTable.getSelectionModel().addListSelectionListener(listener);
 	}
 	
+	/** 
+	 * Resize the columns so that they fit the column names better, the 
+	 * column will be a minimum size of COLUMNWIDTH or the length of the 
+	 * text whichever is greater.
+	 *
+	 */
+	private void resizeTableColumns()
+	{	
+		int columnWidth = 0;
+		Font font = getFont();
+		FontMetrics metrics = getFontMetrics( font );
+		ROIFigureTableModel tm = (ROIFigureTableModel)objectsTable.getModel();
+		for(int i = 0 ; i < objectsTable.getColumnCount(); i++)
+		{
+			TableColumn col = objectsTable.getColumnModel().getColumn(i);
+			int w  =  metrics.stringWidth(tm.getColumnName(i));
+			columnWidth = Math.max(w, COLUMNWIDTH);
+			col.setMinWidth(columnWidth);
+			col.setMaxWidth(columnWidth);
+			col.setPreferredWidth(columnWidth);
+			col.setResizable(false);
+		}
+	}
 
 	/** Toggles the value of the boolean under the current selection. */
 	private void toggleValue()

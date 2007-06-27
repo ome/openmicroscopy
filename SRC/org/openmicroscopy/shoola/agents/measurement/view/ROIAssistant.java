@@ -134,8 +134,8 @@ public class ROIAssistant
 
 		JViewport viewPort = scrollPane.getViewport();
 		Point point = mapCoordToCell(currentPlane);
-		int x = (int)Math.max((point.getX()-6*ROIAssistantTable.COLUMNWIDTH), 0);
-		int y = (int)Math.max((point.getY()-6*ROIAssistantTable.COLUMNWIDTH),0);
+		int x = (int)Math.max((point.getX()-6*table.getColumnWidth()), 0);
+		int y = (int)Math.max((point.getY()-6*table.getColumnWidth()),0);
 		viewPort.setViewPosition(new Point(x, y));
 	}
 	
@@ -147,9 +147,9 @@ public class ROIAssistant
 	
 	private Point mapCoordToCell(Coord3D coord)
 	{
-		int x = coord.getTimePoint()*ROIAssistantTable.COLUMNWIDTH+
-		ROIAssistantTable.LEADERCOLUMN_WIDTH; 
-		int y = coord.getZSection()*ROIAssistantTable.COLUMNWIDTH;
+		int x = coord.getTimePoint()*table.getColumnWidth()+
+		table.getLeaderColumnWidth(); 
+		int y = coord.getZSection()*table.getColumnWidth();
 		Point pt = new Point(x, y);
 		return pt;
 	}

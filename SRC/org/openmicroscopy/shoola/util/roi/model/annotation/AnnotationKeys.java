@@ -82,14 +82,6 @@ public class AnnotationKeys {
 		new AnnotationKey<Double>("measurementWidth", 0.0);
 	public static final AnnotationKey<Double> HEIGHT = 
 		new AnnotationKey<Double>("measurementHeight", 0.0);
-	public static final AnnotationKey<Boolean> INMICRONS = 
-		new AnnotationKey<Boolean>("measurementInMicrons", false);
-	public static final AnnotationKey<Double> MICRONSPIXELX = 
-		new AnnotationKey<Double>("measurementMicronsPixelX", 0.0);
-	public static final AnnotationKey<Double> MICRONSPIXELY = 
-		new AnnotationKey<Double>("measurementMicronsPixelY", 0.0);
-	public static final AnnotationKey<Double> MICRONSPIXELZ = 
-		new AnnotationKey<Double>("measurementMicronsPixelZ", 0.0);
 //	public static final AnnotationKey<Long> ROIID = 
 //		new AnnotationKey<Long>("regionOfInterestID", null);
 //	public static final AnnotationKey<String> FIGURETYPE = 
@@ -123,11 +115,7 @@ public class AnnotationKeys {
         		ENDPOINTY, 
         		WIDTH,
         		HEIGHT, 
-        		INMICRONS, 
-        		MICRONSPIXELX, 
-        		MICRONSPIXELY,
-        		MICRONSPIXELZ
-        	
+        		
         //		ROIID, 
         //		FIGURETYPE
         		

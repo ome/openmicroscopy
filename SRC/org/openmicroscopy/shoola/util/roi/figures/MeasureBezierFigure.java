@@ -41,10 +41,7 @@ import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.MEASU
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.SHOWMEASUREMENT;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ENDPOINTX;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ENDPOINTY;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.INMICRONS;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.AREA;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELX;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.PERIMETER;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.LENGTH;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREX;
@@ -57,6 +54,7 @@ import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
+import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 
 /** 
  * 
@@ -83,6 +81,8 @@ public class MeasureBezierFigure
 	private	Rectangle2D bounds;
 	private ROI			roi;
 	private ROIShape 	shape;
+	
+	private MeasurementUnits units;
 	
 	public MeasureBezierFigure()
 	{
@@ -193,7 +193,7 @@ public class MeasureBezierFigure
 		if(shape==null)
 			return str;
 		
-		if(INMICRONS.get(shape))
+		if(units.showInMicrons())
 			return str+OutputUnit.MICRONS;
 		else
 			return str+OutputUnit.PIXELS;
@@ -203,7 +203,7 @@ public class MeasureBezierFigure
 	{
 		if(shape==null)
 			return str;
-		if(INMICRONS.get(shape))
+		if(units.showInMicrons())
 			return str+OutputUnit.MICRONS+OutputUnit.SQUARED;
 		else
 			return str+OutputUnit.PIXELS+OutputUnit.SQUARED;
@@ -219,10 +219,10 @@ public class MeasureBezierFigure
 	{
 		Point2D.Double pt = getPoint(i); 
 			//new Point2D.Double(path.get(i).x[0],path.get(i).y[0]);
-		if(INMICRONS.get(shape))
+		if(units.showInMicrons())
 		{
-			return new Point2D.Double(	pt.getX()*MICRONSPIXELX.get(shape), 
-										pt.getY()*MICRONSPIXELY.get(shape));
+			return new Point2D.Double(	pt.getX()*units.getMicronsPixelX(), 
+										pt.getY()*units.getMicronsPixelY());
 		}
 		else
 			return pt;
@@ -242,10 +242,10 @@ public class MeasureBezierFigure
 	
 	public Point2D getCentre()
 	{
-		if(INMICRONS.get(shape))
+		if(units.showInMicrons())
 		{
 			Point2D.Double pt1 =  path.getCenter();
-			pt1.setLocation(pt1.getX()*MICRONSPIXELX.get(shape), pt1.getY()*MICRONSPIXELY.get(shape));
+			pt1.setLocation(pt1.getX()*units.getMicronsPixelX(), pt1.getY()*units.getMicronsPixelY());
 			return pt1;
 		}
 		else
@@ -337,6 +337,11 @@ public class MeasureBezierFigure
 		}
 	}
 
+	public void measureBasicRemoveNode(int index)
+	{
+		this.basicRemoveNode(index);
+	}
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
@@ -347,6 +352,14 @@ public class MeasureBezierFigure
 		return ROIFigure.SCRIBBLE_TYPE;
 	}
 
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setMeasurementUnits(MeasurementUnits)
+	 */
+	public void setMeasurementUnits(MeasurementUnits units)
+	{
+		this.units = units;
+	}
 }
 
 

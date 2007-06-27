@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationshipList;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 
 /** 
  * The ROI Component is the main interface to the object which control the 
@@ -106,18 +107,11 @@ public class ROIComponent
 
 	/** The object used to load and save ROIs. */
 	private XMLFileIOStrategy			ioStrategy;
+		
+	/** Show the measurement units. */
+	private MeasurementUnits			units;
 	
-	/** The number of microns per pixel in the X-Axis. */
-	private double						micronsPixelX;
-
-	/** The number of microns per pixel in the Y-Axis. */
-	private double						micronsPixelY;
-
-	/** The number of microns per pixel in the Y-Axis. */
-	private double						micronsPixelZ;
-
-	/** Measurements should be done in microns. */
-	private	boolean						inMicrons;
+	/** 
 	
 	/** 
 	 * Creates a new instance. Initializes an collection to keep 
@@ -126,20 +120,7 @@ public class ROIComponent
 	public ROIComponent()
 	{
 		roiCollection = new ROICollection();
-		micronsPixelX = 0;
-		micronsPixelY = 0;
-		micronsPixelZ = 0;
-		inMicrons = true;
-	}
-
-	public boolean measureInMicrons()
-	{
-		return inMicrons;
-	}
-	
-	public void setMeasureInMicrons(boolean inMicrons)
-	{
-		this.inMicrons = inMicrons;
+		units = new MeasurementUnits(0, 0, 0 , false);
 	}
 	
 	/**
@@ -149,7 +130,7 @@ public class ROIComponent
 	 */
 	public void setMicronsPixelX(double x)
 	{
-		micronsPixelX = x;
+		units.setMicronsPixelX(x);
 	}
 
 	/**
@@ -159,7 +140,7 @@ public class ROIComponent
 	 */
 	public double getMicronsPixelX()
 	{
-		return micronsPixelX;
+		return units.getMicronsPixelX();
 	}
 	
 	/**
@@ -169,7 +150,7 @@ public class ROIComponent
 	 */
 	public void setMicronsPixelY(double y)
 	{
-		micronsPixelY = y;
+		units.setMicronsPixelY(y);
 	}
 	
 	/**
@@ -179,7 +160,7 @@ public class ROIComponent
 	 */
 	public double getMicronsPixelY()
 	{
-		return micronsPixelY;
+		return units.getMicronsPixelY();
 	}
 	
 	/**
@@ -189,7 +170,7 @@ public class ROIComponent
 	 */
 	public void setMicronsPixelZ(double z)
 	{
-		micronsPixelZ = z;
+		units.setMicronsPixelZ(z);
 	}
 	
 	/**
@@ -199,7 +180,7 @@ public class ROIComponent
 	 */
 	public double getMicronsPixelZ()
 	{
-		return micronsPixelZ;
+		return units.getMicronsPixelZ();
 	}
 
 	/**
@@ -222,7 +203,8 @@ public class ROIComponent
     		AttributeKeys.FILL_COLOR.set(fig, FILL_COLOR);
     		AttributeKeys.STROKE_COLOR.set(fig, STROKE_COLOR);
     	}
-	 }
+    	fig.setMeasurementUnits(units);
+    }
     
     /**
      * Helper method to set the annotations of the newly created shape.
@@ -236,9 +218,6 @@ public class ROIComponent
 	//	if (type != null) AnnotationKeys.FIGURETYPE.set(shape, type);
 		
 		ROIShape s = fig.getROIShape();
-		AnnotationKeys.INMICRONS.set(s, false);
-		AnnotationKeys.MICRONSPIXELX.set(s,  getMicronsPixelX());
-		AnnotationKeys.MICRONSPIXELY.set(s,  getMicronsPixelY());
 	}
     
 	/**
@@ -618,7 +597,24 @@ public class ROIComponent
 		 return roiCollection.getROIShapeRelationshipList(roiID);
 	 }
 
+	 /** 
+	  * Show the measurements in the ROIFigures in microns, if param true. 
+	  * @param inMicrons see above.
+	  */
+	 public void showMeasurementsInMicrons(boolean inMicrons)
+	 {
+		units.setShowInMicrons(inMicrons);
+	 }
 
+	 /**
+	  * Get the measurement units of this component.
+	  * @return see above.
+	  */
+	 public MeasurementUnits getMeasurementUnits()
+	 {
+		 return units;
+	 }
+	 
 	 /* (non-Javadoc)
 	  * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	  */

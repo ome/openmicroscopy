@@ -58,8 +58,10 @@ import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
  * @since OME3.0
  */
 public 	class PointCreationTool 
-		extends AbstractTool 
+		extends AbstractTool
+		implements MeasureCreationTool
 {
+	private boolean						resetToSelect = false;
 	private Map<AttributeKey, Object>	prototypeAttributes;
 	
 	private String						name;
@@ -271,14 +273,24 @@ public 	class PointCreationTool
 	{
 		return createdFigure;
 	}
-	
-	/**
-	 * This method allows subclasses to do perform additonal user interactions
-	 * after the new figure has been created. The implementation of this class
-	 * just invokes fireToolDone.
+
+    protected void creationFinished(Figure createdFigure) 
+    {
+        if(resetToSelect)
+        	fireToolDone();
+    }
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.agents.measurement.util.MeasureCreationTool#isResetToSelect()
 	 */
-	protected void creationFinished(Figure createdFigure)
+	public boolean isResetToSelect()
 	{
-		fireToolDone();
+		return resetToSelect;
+	}
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.agents.measurement.util.MeasureCreationTool#setResetToSelect(boolean)
+	 */
+	public void setResetToSelect(boolean create)
+	{
+		resetToSelect = create;
 	}
 }

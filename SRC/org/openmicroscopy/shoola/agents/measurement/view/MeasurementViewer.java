@@ -183,5 +183,14 @@ public interface MeasurementViewer
 
 	/** Brings up on screen the ROI Assistant. */
 	public void showROIAssistant();
+	
+	/** Show the measurements in the figures in Microns. 
+	 * @param show in microns if true. 
+	 */
+	public void showMeasurementsInMicrons(boolean show);
 
+	/** Create single figures and move back to selection tool. 
+	 * @param option Create single figures if true.
+	 */
+	public void createSingleFigure(boolean option);
 }

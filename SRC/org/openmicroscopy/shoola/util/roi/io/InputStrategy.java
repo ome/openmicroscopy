@@ -329,6 +329,7 @@ public class InputStrategy
 		for (IXMLElement roiShape : roiShapeList)
 		{
 			shape=createROIShape(roiShape, newROI);
+			shape.getFigure().setMeasurementUnits(component.getMeasurementUnits());
 			component.addShape(newROI.getID(), shape.getCoord3D(), shape);
 			try
 			{

@@ -35,25 +35,23 @@ import java.util.ArrayList;
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.LineConnectionFigure;
-import org.openmicroscopy.shoola.util.roi.model.ROI;
-import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-
 //Application-internal dependencies
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.SHOWMEASUREMENT;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ENDPOINTX;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ENDPOINTY;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.INMICRONS;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ANGLE;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.LENGTH;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELX;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.POINTARRAYX;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.POINTARRAYY;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.STARTPOINTX;
 
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
+
+import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 
 /** 
  * 
@@ -80,7 +78,8 @@ public class MeasureLineConnectionFigure
 	private ArrayList<Double>				pointArrayY;
 	private ROI								roi;
 	private ROIShape 						shape;
-
+	private MeasurementUnits units;
+	
 	public MeasureLineConnectionFigure()
 	{
 		super();
@@ -174,7 +173,7 @@ public class MeasureLineConnectionFigure
 	{
 		if(shape==null)
 			return str;
-		if(INMICRONS.get(shape))
+		if(units.showInMicrons())
 			return str+OutputUnit.MICRONS;
 		else
 			return str+OutputUnit.PIXELS;
@@ -234,11 +233,11 @@ public class MeasureLineConnectionFigure
 	private Point2D.Double getPt(int i)
 	{
 		if(shape != null)
-			if(INMICRONS.get(shape))
+			if(units.showInMicrons())
 			{
 				Point2D.Double pt = getPoint(i);
-				return new Point2D.Double(pt.getX()*MICRONSPIXELX.get(shape), 
-					pt.getY()*MICRONSPIXELY.get(shape));
+				return new Point2D.Double(pt.getX()*units.getMicronsPixelX(), 
+					pt.getY()*units.getMicronsPixelY());
 			}
 			else
 				return getPoint(i);
@@ -368,7 +367,15 @@ public class MeasureLineConnectionFigure
 	 * @see ROIFigure#getType()
 	 */
 	public String getType() { return ROIFigure.LINE_CONNECTION_TYPE; }
-		
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setMeasurementUnits(MeasurementUnits)
+	 */
+	public void setMeasurementUnits(MeasurementUnits units)
+	{
+		this.units = units;
+	}
 }
 
 

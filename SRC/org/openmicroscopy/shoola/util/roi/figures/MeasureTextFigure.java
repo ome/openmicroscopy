@@ -35,6 +35,7 @@ import org.jhotdraw.draw.TextFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
+import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
 /** 
@@ -60,6 +61,8 @@ public class MeasureTextFigure
 	private ROI					roi;
 	private ROIShape 			shape;
 
+	private MeasurementUnits 	units;
+	
     /** Creates a new instance. Default value <code>(0, 0) </code>.*/
     public MeasureTextFigure() 
     {
@@ -118,7 +121,11 @@ public class MeasureTextFigure
 	 * @see ROIFigure#calculateMeasurements()
 	 */
 	public void calculateMeasurements() {}
-	
+
+	public void setMeasurementUnits(MeasurementUnits units)
+	{
+		this.units = units;
+	}
 }
 
 

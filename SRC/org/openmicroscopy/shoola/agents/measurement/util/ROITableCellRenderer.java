@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.Component;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -75,15 +76,16 @@ public class ROITableCellRenderer
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
 		Component thisComponent = new JLabel();
-		if ((value instanceof Integer) || (value instanceof Long) ||
-				(value instanceof Double) || (value instanceof String) ||
-				(value instanceof FigureType))
+		if ( (value instanceof Double) || (value instanceof String) ||
+			 (value instanceof FigureType) || value instanceof Integer || 
+			 value instanceof Long)
 		{
 			JLabel label = new JLabel();
 			label.setOpaque(true);
     		label.setText(value+"");
     		thisComponent = label;
-    	} else if (value instanceof Color) {
+    	} 
+		else if (value instanceof Color) {
     		PaintPot paintPot = new PaintPot((Color)value);
     		thisComponent = paintPot;
     	}
@@ -100,4 +102,17 @@ public class ROITableCellRenderer
 		return thisComponent;
 	}
 
+	private JComboBox createFontComboBox()
+	{
+		JComboBox comboBox = new JComboBox();
+		comboBox.addItem(new Integer(6));
+		comboBox.addItem(new Integer(8));
+		comboBox.addItem(new Integer(10));
+		comboBox.addItem(new Integer(12));
+		comboBox.addItem(new Integer(14));
+		return comboBox;
+	}
+	
 }
+
+

@@ -31,6 +31,7 @@ import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
+import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 
 
 /** 
@@ -73,6 +74,14 @@ public interface ROIFigure
 	
 	/** Identifies the <code>Scribble</code> type. */
 	public static final String SCRIBBLE_TYPE = "Scribble";
+	
+	/** 
+	 * Set the measurement units of the ROIFigure. 
+	 * @param units the class holding the values of the 
+	 * microns per pixel and whether the figure should display the measurements
+	 * in microns or pixels
+	 */
+	public void setMeasurementUnits(MeasurementUnits units);
 	
 	/**
 	 * Sets the passed ROI.

@@ -429,5 +429,25 @@ class MeasurementViewerComponent
 	{
 		view.showROIAssistant();
 	}
-    
+	
+	/** 
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#showMeasurementInMicrons(boolean)
+	 * 
+	 */
+	public void showMeasurementsInMicrons(boolean inMicrons)
+	{
+		model.showMeasurementsInMicrons(inMicrons);
+		view.updateDrawingArea();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#createSingleFigure(boolean)
+	 * 
+	 */
+	public void createSingleFigure(boolean option)
+	{
+		view.createSingleFigure(option);
+	}
 }

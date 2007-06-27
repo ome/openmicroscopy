@@ -46,6 +46,7 @@ import org.jhotdraw.draw.FigureEvent;
 import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.draw.FigureSelectionEvent;
 import org.jhotdraw.draw.FigureSelectionListener;
+import org.openmicroscopy.shoola.agents.measurement.actions.FigureCreationAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.LoadROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.RefreshResultsTableAction;
@@ -53,6 +54,7 @@ import org.openmicroscopy.shoola.agents.measurement.actions.ResultsWizardAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
+import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -94,6 +96,18 @@ class MeasurementViewerControl
 
     /** Identifies the <code>ROI Assistant</code> action in the menu. */
     static final Integer     ROI_ASSISTANT = new Integer(5);
+
+    /** Identifies the <code>showMeasurementinMicrons</code> action in the menu. */
+    static final Integer     SHOWMEASUREMENTINMICRONS = new Integer(6);
+    
+    /** Identifies the <code>showMeasurementinPixels</code> action in the menu. */
+    static final Integer     SHOWMEASUREMENTINPIXELS = new Integer(7);
+
+    /** Identifies the <code>createContinuous</code> action in the menu. */
+    static final Integer     CREATECONTINUOUS = new Integer(8);
+    
+    /** Identifies the <code>createSingle</code> action in the menu. */
+    static final Integer     CREATESINGLE = new Integer(9);
     
     /** 
      * Reference to the {@link MeasurementViewer} component, which, 
@@ -116,6 +130,11 @@ class MeasurementViewerControl
     	actionsMap.put(REFRESH_RESULTS, new RefreshResultsTableAction(model));
     	actionsMap.put(RESULTS_WIZARD, new ResultsWizardAction(model));
     	actionsMap.put(ROI_ASSISTANT, new ShowROIAssistant(model));
+    	actionsMap.put(SHOWMEASUREMENTINMICRONS, new UnitsAction(model, true));
+    	actionsMap.put(SHOWMEASUREMENTINPIXELS, new UnitsAction(model, false));
+    	actionsMap.put(CREATECONTINUOUS, new FigureCreationAction(model, false));
+    	actionsMap.put(CREATESINGLE, new FigureCreationAction(model, true));
+    	
     }
 
     /**
