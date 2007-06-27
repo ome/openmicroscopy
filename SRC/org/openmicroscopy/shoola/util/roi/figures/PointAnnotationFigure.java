@@ -78,7 +78,7 @@ public class PointAnnotationFigure
 	implements TextHolderFigure
 {
 	public final static double 					POINTSIZE 	= 6;  
-	public final static double 					FIGURESIZE 	= 18;  
+	public final static double 					FIGURESIZE 	= 22;  
 	private boolean 							editable;
 	private boolean 							displayText = true;
 

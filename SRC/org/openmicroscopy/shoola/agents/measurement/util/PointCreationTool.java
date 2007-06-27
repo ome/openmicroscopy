@@ -185,16 +185,17 @@ public 	class PointCreationTool
 		getDrawing().fireUndoableEditHappened(creationEdit);
 		createdFigure=createFigure();
 		
-		Point2D.Double p=constrainPoint(viewToDrawing(anchor));
-		anchor.x=(int)(evt.getX()-PointAnnotationFigure.FIGURESIZE/2);
-		anchor.y=(int)(evt.getY()-PointAnnotationFigure.FIGURESIZE/2);
-		Point2D.Double p1 = new Point2D.Double(anchor.x, anchor.y);
-		Point2D.Double p2 = new Point2D.Double(anchor.x+
-			(PointAnnotationFigure.FIGURESIZE), anchor.y+
-			(PointAnnotationFigure.FIGURESIZE));
+
+		Point2D.Double p=constrainPoint(viewToDrawing(new 
+			Point(	(int)(evt.getX()-PointAnnotationFigure.FIGURESIZE/2), 
+					(int)(evt.getY()-PointAnnotationFigure.FIGURESIZE/2))));
+		Point2D.Double p2=constrainPoint(viewToDrawing(new 
+			Point(	(int)(evt.getX()+PointAnnotationFigure.FIGURESIZE/2), 
+					(int)(evt.getY()+PointAnnotationFigure.FIGURESIZE/2))));
 		createdFigure.willChange();
-		createdFigure.basicSetBounds(p1, p2);
+		createdFigure.basicSetBounds((p), p2);
 		createdFigure.changed();
+		
 		getDrawing().add(createdFigure);
 	}
 	
@@ -210,7 +211,7 @@ public 	class PointCreationTool
 				Point(	(int)(evt.getX()+PointAnnotationFigure.FIGURESIZE/2), 
 						(int)(evt.getY()+PointAnnotationFigure.FIGURESIZE/2)));
 			createdFigure.willChange();
-			createdFigure.basicSetBounds(constrainPoint(p), p2);
+			createdFigure.basicSetBounds((p), p2);
 			createdFigure.changed();
 		}
 	}
@@ -226,7 +227,26 @@ public 	class PointCreationTool
 			}
 			else
 			{
-			/*	if (Math.abs(anchor.x-evt.getX())<minimalSizeTreshold.width
+				Point2D p = createdFigure.getStartPoint();
+				Point2D p1 = createdFigure.getEndPoint();
+				double width = Math.abs(p.getX()-p1.getX());
+				double height = Math.abs(p.getY()-p1.getY());
+				if(width<PointAnnotationFigure.FIGURESIZE)
+				{
+					Point2D	centre = new Point2D.Double(
+						createdFigure.getBounds().getCenterX(),
+						createdFigure.getBounds().getCenterY());
+					Point2D.Double newP1 = new Point2D.Double(
+						centre.getX()-PointAnnotationFigure.FIGURESIZE/2,
+						centre.getY()-PointAnnotationFigure.FIGURESIZE/2);
+					Point2D.Double newP2 = new Point2D.Double(
+						centre.getX()+PointAnnotationFigure.FIGURESIZE/2,
+						centre.getY()+PointAnnotationFigure.FIGURESIZE/2);
+					createdFigure.willChange();
+					createdFigure.basicSetBounds((newP1), newP2);
+					createdFigure.changed();
+				}
+				/*	if (Math.abs(anchor.x-evt.getX())<minimalSizeTreshold.width
 						&&Math.abs(anchor.y-evt.getY())<minimalSizeTreshold.height)
 				{
 					createdFigure.basicSetBounds(constrainPoint(new Point(

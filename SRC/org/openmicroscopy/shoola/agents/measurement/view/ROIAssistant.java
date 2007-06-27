@@ -27,10 +27,13 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -69,7 +72,11 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class ROIAssistant
 	extends JDialog
+	implements ActionListener
 {	
+	/** Action command ID to accept the current roi assistant results.*/
+	private static final int CLOSE = 0;
+
 	/** 
 	 * The table showing the ROI and allowing the user to propagate the selected
 	 * ROI through time and Z-section. 
@@ -110,6 +117,9 @@ public class ROIAssistant
 	
 	/** The scroll pane of the Table. */
 	private 	JScrollPane				scrollPane;
+	
+	/** button closes windows. */
+	private 	JButton					closeButton;
 	
 	/** Model for the measyrement tool. */
 	private 	MeasurementViewerUI		view;
@@ -287,9 +297,12 @@ public class ROIAssistant
 		addButton.setSelected(true);
 		group.add(addButton);
 		group.add(removeButton);
-		actionPanel.setLayout(new BoxLayout(actionPanel, BoxLayout.Y_AXIS));
-		actionPanel.add(addButton);
-		actionPanel.add(removeButton);
+		actionPanel.setLayout(new BorderLayout());
+		JPanel subPanel = new JPanel();
+		subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.Y_AXIS));
+		subPanel.add(addButton);
+		subPanel.add(removeButton);
+		actionPanel.add(subPanel, BorderLayout.NORTH);
 		return actionPanel;
 	}
 	
@@ -371,6 +384,14 @@ public class ROIAssistant
 		return panel;
 	}
 	
+	/** create the accept button to close on click. */
+	private void createAcceptButton()
+	{
+		closeButton = new JButton("Close");
+		closeButton.setActionCommand(""+CLOSE);
+		closeButton.addActionListener(this);
+	}
+	
 	/** Layout the UI, adding panels to the form. */
 	private void layoutUI()
 	{
@@ -378,7 +399,8 @@ public class ROIAssistant
 		JPanel panel = new JPanel();
 		JPanel infoPanel = createInfoPanel();
 		JPanel shapePanel = createShapePanel();
-
+		createAcceptButton();
+		
 		scrollPane = new JScrollPane(table);
 		scrollPane.setVerticalScrollBar(scrollPane.createVerticalScrollBar());
 		scrollPane.setHorizontalScrollBar(scrollPane.createHorizontalScrollBar());
@@ -399,10 +421,42 @@ public class ROIAssistant
 		panel.add(Box.createVerticalStrut(10));
 		panel.add(shapePanel);
 		panel.add(Box.createVerticalStrut(10));
+		panel.add(closeButton);
+		panel.add(Box.createVerticalStrut(10));
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(panel, BorderLayout.CENTER);
 	}
-
+	/**
+	 * Close the ROIAssistant window.
+	 *
+	 */
+	private void closeAssistant()
+	{
+		this.dispose();
+	}
+	
+	/**
+	 * Reacts to event fired by the various controls.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent evt)
+	{
+		int id = -1;
+		try
+		{
+			id = Integer.parseInt(evt.getActionCommand());
+			switch (id)
+			{
+				case CLOSE:
+					closeAssistant();
+					break;
+			}
+		}
+		catch (Exception e)
+		{
+			// TODO: handle exception
+		}
+	}
 
 }
 
