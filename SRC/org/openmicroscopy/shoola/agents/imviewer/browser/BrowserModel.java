@@ -81,15 +81,6 @@ class BrowserModel
 	
 	/** The blank mask. */
 	private static final int	BLANK_MASK = 0x00000000;
-
-	/** The text above the red band image. */
-	private static final String	RED = "Red";
-	
-	/** The text above the green band image. */
-	private static final String	GREEN = "Green";
-	
-	/** The text above the blue band image. */
-	private static final String	BLUE = "Blue";
 	
 	/** The text above the combined image. */
 	private static final String	COMBINED = "Combined";
@@ -198,7 +189,7 @@ class BrowserModel
         											blueMask);
         return new BufferedImage(colorModel, raster, false, null);
     }
-   
+    
     /** 
      * Creates a new instance.
      * 
@@ -257,10 +248,39 @@ class BrowserModel
     /** Sets the images composing the grid. */
     void setGridImages()
     {
-    	if (getRGBSplit()) return;
     	if (gridImages.size() != 0) return;
     	gridImages.clear();
-    	List images = parent.getGridImages();
+    	//
+    	List l = parent.getActiveChannels();
+    	int maxC = parent.getMaxC();
+    	List<BufferedImage> images = new ArrayList<BufferedImage>(maxC);
+    	if (l.size() <= 3 && 
+    		!parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
+    		int w = annotateImage.getWidth();
+        	int h = annotateImage.getHeight();
+        	DataBuffer buf = annotateImage.getRaster().getDataBuffer();
+    		for (int i = 0; i < maxC; i++) {
+				if (parent.isChannelActive(i)) {
+					if (parent.isChannelRed(i)) {
+						gridImages.add(createBandImage(buf, w, h, RED_MASK, 
+								BLANK_MASK, BLANK_MASK));
+					} else if (parent.isChannelGreen(i)) {
+						gridImages.add(createBandImage(buf, w, h, BLANK_MASK, 
+								GREEN_MASK, BLANK_MASK));
+					} else if (parent.isChannelBlue(i)) {
+						gridImages.add(createBandImage(buf, w, h, BLANK_MASK, 
+								BLANK_MASK, BLUE_MASK));
+					} else {
+						gridImages.add(parent.getImageForGrid(i));
+					}
+				} else {
+					gridImages.add(null);
+				}
+			}
+    		
+    		return;
+    	}
+    	images = parent.getGridImages();
     	if (images != null) {
     		Iterator i = images.iterator();
         	while (i.hasNext()) {
@@ -547,8 +567,7 @@ class BrowserModel
     	int w = (int) (getMaxX()*ratio);
     	int h = (int) (getMaxY()*ratio);
     	int n = parent.getMaxC()+1; //add one for combined image.
-    	if (getRGBSplit()) n = 4;
-    	if (n <=3) n = 4;
+    	if (n <= 3) n = 4;
     	int index = 0;
     	if (n%2 != 0) index = 1;
     	int col = (int) Math.floor(Math.sqrt(n))+index; 
@@ -575,6 +594,7 @@ class BrowserModel
     	else splitImages.clear();
     	boolean grey = parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
     	BufferedImage combined;
+    	/*
     	if (getRGBSplit()) {	
         	BufferedImage r = null, g = null, b = null;
         	if (!grey) { //shouldn't happen
@@ -612,6 +632,20 @@ class BrowserModel
 			}
     	}
     	splitImages.add(new SplitImage(combined, COMBINED));
+    	*/
+    	String n;
+    	combined = annotateImage;
+    	int length = gridImages.size();
+    	if (grey) {
+    		length = length-1;
+    		combined = gridImages.get(length);
+    	}
+    	for (int j = 0; j < length; j++) {
+    		n = PREFIX+
+				parent.getChannelMetadata(j).getEmissionWavelength();
+    		splitImages.add(new SplitImage(gridImages.get(j), n));
+		}
+    	splitImages.add(new SplitImage(combined, COMBINED));
     	return splitImages;
     }
     
@@ -621,15 +655,6 @@ class BrowserModel
      * @return See above.
      */
     int getSelectedIndex() { return parent.getSelectedIndex(); }
-
-    /**
-     * Returns <code>true</code> if the displayed image is
-	 * split into its red, green and blue components. Returns <code>false</code>
-	 * if the selected channels are displayed independently.
-	 * 
-     * @return See above.
-     */
-	boolean getRGBSplit() { return parent.getRGBSplit(); }
 	
 	/**
 	 * Returns <code>true</code> if the textual information is painted on 
@@ -645,5 +670,12 @@ class BrowserModel
 	 * @return See above.
 	 */
 	double getRatio() { return ratio; }
+
+	/** 
+	 * Returns the number of the channels.
+	 * 
+	 * @return See above.
+	 */
+	int getMaxC() { return parent.getMaxC(); }
 
 }

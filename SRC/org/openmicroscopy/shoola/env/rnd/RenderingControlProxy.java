@@ -914,5 +914,38 @@ class RenderingControlProxy
 		}
 		return false;
 	}
-
+	
+	/** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#isChannelRed(int)
+     */
+	public boolean isChannelRed(int index)
+	{
+		if (index < 0 || index > getPixelsDimensionsC()) return false;
+		int[] rgba = rndDef.getChannel(index).getRGBA();
+		return (rgba[0] == 255 && rgba[1] == 0 && rgba[2] == 0);
+	}
+	
+	/** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#isChannelBlue(int)
+     */
+	public boolean isChannelBlue(int index)
+	{
+		if (index < 0 || index > getPixelsDimensionsC()) return false;
+		int[] rgba = rndDef.getChannel(index).getRGBA();
+		return (rgba[0] == 0 && rgba[1] == 0 && rgba[2] == 255);
+	}
+	
+	/** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#isChannelGreen(int)
+     */
+	public boolean isChannelGreen(int index)
+	{
+		if (index < 0 || index > getPixelsDimensionsC()) return false;
+		int[] rgba = rndDef.getChannel(index).getRGBA();
+		return (rgba[0] == 0 && rgba[1] == 255 && rgba[2] == 0);
+	}
+	
 }

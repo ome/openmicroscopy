@@ -26,8 +26,6 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 
@@ -35,7 +33,6 @@ import javax.swing.event.ChangeEvent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -56,7 +53,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class MovieAction
     extends ViewerAction
-    implements PropertyChangeListener
 {
 
     /** The name of the action. */
@@ -64,19 +60,6 @@ public class MovieAction
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Bring up the movie player.";
-
-    /** The movie player. */
-    private MoviePlayerDialog   moviePlayer;
-    
-    /** Discards the movie player. */
-    private void discard()
-    {
-        if (moviePlayer == null) return;
-        moviePlayer.setVisible(false);
-        moviePlayer.dispose();
-        moviePlayer = null;
-        model.playMovie(false);
-    }
     
     /**
      * Disposes and closes the movie player when the {@link ImViewer} is
@@ -86,9 +69,6 @@ public class MovieAction
     protected void onStateChange(ChangeEvent e)
     {
     	switch (model.getState()) {
-			case ImViewer.DISCARDED:
-				discard();
-				break;
 			case ImViewer.CHANNEL_MOVIE:
 				setEnabled(false);
 				break;
@@ -112,7 +92,6 @@ public class MovieAction
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager icons = IconManager.getInstance();
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.MOVIE));
-        model.addPropertyChangeListener(ImViewer.ICONIFIED_PROPERTY, this);
     }
     
     /** 
@@ -121,29 +100,7 @@ public class MovieAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        if (moviePlayer == null) {
-        	moviePlayer = new MoviePlayerDialog(model.getUI(), model);
-        	moviePlayer.addPropertyChangeListener(
-        			MoviePlayerDialog.CLOSE_PROPERTY, this);
-        }
-        model.playMovie(true);
-        UIUtilities.setLocationRelativeToAndShow(model.getUI(), moviePlayer);  
+    	if (!model.isMoviePlaying()) model.playMovie(true, true);
     }
 
-    /**
-     * Reacts to {@link ImViewer#ICONIFIED_PROPERTY}.
-     * 
-     * @param evt The event to handle.
-     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-     */
-    public void propertyChange(PropertyChangeEvent evt)
-    {
-    	String name = evt.getPropertyName();
-    	if (ImViewer.ICONIFIED_PROPERTY.equals(name)) {
-    		if (((Boolean) evt.getNewValue()).booleanValue()) discard();
-    	} else if (MoviePlayerDialog.CLOSE_PROPERTY.equals(name)) {
-    		model.playMovie(false);
-    	}
-    }
-    
 }

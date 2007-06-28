@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.actions.RGBSplitAction 
+ * org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
 
 //Third-party libraries
 
@@ -36,7 +37,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Action to determine the split method.
+ * Plays a movei without the movie displaying the player movie.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,36 +49,63 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public class RGBSplitAction 
+public class PlayMovieAction
 	extends ViewerAction
 {
 
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Split the image into " +
-			"red, green and blue components or by channels." ;
-	
-	/**
+    private static final String DESCRIPTION = "Play movie.";
+    
+	/** Helper reference to the icon manager. */
+    private IconManager icons;
+    
+    /** 
+     * Overriden to make sure that the movie player is not enabled when 
+     * there is only one channel.
+     * @see ViewerAction#onStateChange(ChangeEvent)
+     */
+    protected void onStateChange(ChangeEvent e)
+    {
+    	switch (model.getState()) {
+			case ImViewer.DISCARDED:
+				break;
+			case ImViewer.CHANNEL_MOVIE:
+				setEnabled(false);
+				break;
+			case ImViewer.RENDERING_CONTROL_LOADED:
+			case ImViewer.READY:
+				setEnabled(model.getMaxT() != 0);
+				break;
+		}
+    }
+    
+    /**
      * Creates a new instance.
      * 
-     * @param model	Reference to the model. Mustn't be <code>null</code>.
+     * @param model Reference to the model. Mustn't be <code>null</code>.
      */
-	public RGBSplitAction(ImViewer model)
-	{
-		super(model);
-		IconManager icons = IconManager.getInstance();
-		putValue(Action.SHORT_DESCRIPTION, 
-				UIUtilities.formatToolTipText(DESCRIPTION));
-		putValue(Action.SMALL_ICON, 
-				icons.getIcon(IconManager.CHANNEL_SPLIT));
-	}
+	public PlayMovieAction(ImViewer model)
+    {
+        super(model);
+        icons = IconManager.getInstance();
+        putValue(Action.SHORT_DESCRIPTION, 
+                UIUtilities.formatToolTipText(DESCRIPTION));
+        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PLAY));
+    }
 	
-	 /** 
-     * Sets the selected method of split.
+	/** 
+     * Plays movie.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
-       model.setRGBSplit(!model.getRGBSplit());
+       if (model.isMoviePlaying()) {
+    	   putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PLAY));
+    	   model.playMovie(false, false);
+       } else {
+    	   putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PAUSE));
+    	   model.playMovie(true, false);
+       } 
     }
-    
+	
 }

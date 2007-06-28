@@ -132,37 +132,37 @@ class ImViewerUI
     }
     
     /** Reference to the Control. */
-    private ImViewerControl controller;
+    private ImViewerControl 	controller;
     
     /** Reference to the Model. */
-    private ImViewerModel   model;
+    private ImViewerModel   	model;
  
     /** The status bar. */
-    private StatusBar       statusBar;
+    private StatusBar       	statusBar;
     
 	/** Lens component which will control all behaviour of the lens. */
-	private LensComponent	lens;
+	private LensComponent		lens;
 	
     /** The tool bar. */
-    private ToolBar         toolBar;
+    private ToolBar         	toolBar;
     
     /** The control pane. */
-    private ControlPane     controlPane;
+    private ControlPane     	controlPane;
     
     /** Group hosting the items of the <code>Rate</code> menu. */
-    private ButtonGroup     ratingGroup;
+    private ButtonGroup     	ratingGroup;
     
     /** Group hosting the items of the <code>Zoom</code> menu. */
-    private ButtonGroup     zoomingGroup;
+    private ButtonGroup     	zoomingGroup;
     
     /** Group hosting the items of the <code>Color Model</code> menu. */
-    private ButtonGroup     colorModelGroup;
+    private ButtonGroup     	colorModelGroup;
     
     /** The loading window. */
-    private LoadingWindow   loadingWindow;
+    private LoadingWindow   	loadingWindow;
 
     /** Tabbed pane hosting the various panel. */
-    private JTabbedPane		tabs;
+    private JTabbedPane			tabs;
     
     /** 
      * Creates the menu bar.

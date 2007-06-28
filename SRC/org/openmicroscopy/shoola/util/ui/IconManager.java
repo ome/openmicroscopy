@@ -190,12 +190,12 @@ public class IconManager
     
     /** ID of the <code>Dataset</code> icon. */
     public static final int DATASET = 45;
-    
+ 
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 45;
+    private static int      MAX_ID = 49;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -208,17 +208,17 @@ public class IconManager
         relPaths[UNDO] = "nuvola_undo22.png";
         relPaths[THUMB] = "sliderthumb.png";
         relPaths[THUMB_DISABLED] = "sliderthumb_disabled.png";
-        relPaths[UP_ARROW] = "nuvola_player_play12_up.png";
-        relPaths[DOWN_ARROW] = "nuvola_player_play12_down.png";
-        relPaths[LEFT_ARROW] = "nuvola_player_play12_left.png"; 
-        relPaths[RIGHT_ARROW] = "nuvola_player_play12_right.png";
-        relPaths[UP_ARROW_DISABLED] = "nuvola_player_play12_up_disabled.png";
+        relPaths[UP_ARROW] = "nuvola_player_play10_up.png";
+        relPaths[DOWN_ARROW] = "nuvola_player_play10_down.png";
+        relPaths[LEFT_ARROW] = "nuvola_player_play10_left.png"; 
+        relPaths[RIGHT_ARROW] = "nuvola_player_play10_right.png";
+        relPaths[UP_ARROW_DISABLED] = "nuvola_player_play10_up_disabled.png";
         relPaths[DOWN_ARROW_DISABLED] = 
-        							"nuvola_player_play12_down_disabled.png";
+        							"nuvola_player_play10_down_disabled.png";
         relPaths[LEFT_ARROW_DISABLED] = 
-        							"nuvola_player_play12_left_disabled.png"; 
+        							"nuvola_player_play10_left_disabled.png"; 
         relPaths[RIGHT_ARROW_DISABLED] = 
-        							"nuvola_player_play12_right_disabled.png";
+        							"nuvola_player_play10_right_disabled.png";
         relPaths[QUESTION_ICON] = "nuvola_filetypes48.png";
     	relPaths[ANNOTATION_48] = "nuvola_kwrite48.png";
     	relPaths[INFO] = "nuvola_messagebox_info16.png";

@@ -67,7 +67,7 @@ public class ChannelMovieAction
     //private static final String NAME = "Channel Movie";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Play movie across channels";
+    private static final String DESCRIPTION = "Play movie across channels.";
     
     /** Helper reference to the icon manager. */
     private IconManager icons;

@@ -133,14 +133,17 @@ class ControlPane
     /** Button to select the color model. */
     private JButton         		colorModelButton;
     
+    /** Button to select the color model. */
+    private JButton         		colorModelButtonGrid;
+    
     /** Button to bring up the color picker. */
     private JButton         		colorPickerButton;
     
-    /** Button to split the displayed image into RGB components. */
-    private JToggleButton			rgbSplitButton;
-    
     /** Button to paint some textual information on top of the grid image. */
     private JToggleButton			textVisibleButton;
+    
+    /** Button to play movie. */
+    private JButton					playMovie;
     
     /** Helper reference. */
     private IconManager     		icons;
@@ -252,8 +255,6 @@ class ControlPane
         tSliderAnnotator = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
         tSliderAnnotator.setEnabled(false);
         
-        
-        
         //zSlider.addChangeListener(this);
         //tSlider.addChangeListener(this);
         channelMovieButton = new JButton(
@@ -261,31 +262,22 @@ class ControlPane
         UIUtilities.unifiedButtonLookAndFeel(channelMovieButton);
         colorModelButton = new JButton();
         UIUtilities.unifiedButtonLookAndFeel(colorModelButton);
-        colorModelButton.addActionListener(new ActionListener() {
+        colorModelButton.addActionListener(controller);
+        colorModelButtonGrid = new JButton();
+        UIUtilities.unifiedButtonLookAndFeel(colorModelButtonGrid);
+        colorModelButtonGrid.addActionListener(controller);
         
-            public void actionPerformed(ActionEvent e)
-            {
-                String m = model.getColorModel();
-                ViewerAction a = null;
-                if (m.equals(ImViewer.RGB_MODEL) || 
-                   m.equals(ImViewer.HSB_MODEL)) {
-                     a = controller.getAction(ImViewerControl.GREY_SCALE_MODEL);
-                } else if (m.equals(ImViewer.GREY_SCALE_MODEL)) {
-                     a = controller.getAction(ImViewerControl.RGB_MODEL);
-                }    
-                a.actionPerformed(e);
-            }
-        
-        });
         ViewerAction a = controller.getAction(ImViewerControl.COLOR_PICKER);
         colorPickerButton = new JButton(a);
         colorPickerButton.addMouseListener((ColorPickerAction) a);
         UIUtilities.unifiedButtonLookAndFeel(colorPickerButton);
-        rgbSplitButton = new JToggleButton();
         textVisibleButton = new JToggleButton();
         textVisibleButton.setSelected(model.isTextVisible());
         textVisibleButton.setAction(
         		controller.getAction(ImViewerControl.TEXT_VISIBLE));
+        playMovie = new JButton(
+        			controller.getAction(ImViewerControl.PLAY_MOVIE));
+        UIUtilities.unifiedButtonLookAndFeel(playMovie);
     }
     
     /**
@@ -339,27 +331,29 @@ class ControlPane
             case ImViewerModel.RATING_FIVE:
                 ratingBox.setSelectedIndex(4);
         }
+        int maxZ = model.getMaxZ();
+        int maxT = model.getMaxT();
         ratingBox.addActionListener(this);
-        initSlider(zSlider, model.getMaxZ(), model.getDefaultZ(), 
+        initSlider(zSlider, maxZ, model.getDefaultZ(), 
         			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
-        initSlider(zSliderGrid, model.getMaxZ(), model.getDefaultZ(), 
+        initSlider(zSliderGrid, maxZ, model.getDefaultZ(), 
     			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
-        initSlider(zSliderAnnotator, model.getMaxZ(), model.getDefaultZ(), 
+        initSlider(zSliderAnnotator, maxZ, model.getDefaultZ(), 
     			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
-        initSlider(tSlider, model.getMaxT(), model.getDefaultT(), 
+        initSlider(tSlider, maxT, model.getDefaultT(), 
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
-        initSlider(tSliderGrid, model.getMaxT(), model.getDefaultT(), 
+        initSlider(tSliderGrid, maxT, model.getDefaultT(), 
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
-        initSlider(tSliderAnnotator, model.getMaxT(), model.getDefaultT(), 
+        initSlider(tSliderAnnotator, maxT, model.getDefaultT(), 
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
-        
+        playMovie.setVisible(maxT != 0);
         
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
         colorModelButton.setToolTipText(
         				getColorModelDescription(model.getColorModel()));
-        rgbSplitButton.setSelected(!model.getRGBSplit());
-        rgbSplitButton.setAction(
-        		controller.getAction(ImViewerControl.CHANNEL_SPLIT));
+        colorModelButtonGrid.setIcon(getColorModelIcon(model.getColorModel()));
+        colorModelButtonGrid.setToolTipText(
+        				getColorModelDescription(model.getColorModel()));
     }
     
     /**
@@ -386,7 +380,6 @@ class ControlPane
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(createSliderPane(zSlider));
-        //p.add(createSliderPane(tSlider));
         return p;
     }
 
@@ -420,10 +413,9 @@ class ControlPane
         bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
+        bar.add(colorModelButtonGrid);
+        bar.add(Box.createRigidArea(VBOX));
         bar.add(textVisibleButton);
-        bar.add(Box.createRigidArea(VBOX));
-        bar.add(rgbSplitButton);
-        bar.add(Box.createRigidArea(VBOX));
         return bar;
     }
     
@@ -620,6 +612,9 @@ class ControlPane
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
         colorModelButton.setToolTipText(getColorModelDescription(
 				model.getColorModel()));
+        colorModelButtonGrid.setIcon(getColorModelIcon(model.getColorModel()));
+        colorModelButtonGrid.setToolTipText(getColorModelDescription(
+				model.getColorModel()));
     }
     
     /** 
@@ -722,7 +717,12 @@ class ControlPane
 				return createSliderPane(tSliderGrid);
 			case ImViewer.VIEW_INDEX:
 			default:
-				return createSliderPane(tSlider);
+				JPanel pane = new JPanel();
+	        	pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
+	        	pane.add(playMovie);
+	        	pane.add(tSlider);
+	        	return pane;
+				//return createSliderPane(tSlider);
 		}
     }
     
@@ -821,6 +821,4 @@ class ControlPane
             mouseWheelMovedT(e);
     }
 
-	
-    
 }

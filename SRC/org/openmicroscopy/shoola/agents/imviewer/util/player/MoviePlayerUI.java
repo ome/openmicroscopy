@@ -257,7 +257,7 @@ class MoviePlayerUI
     }
     
     /** 
-     * Builds panel with frames pers second controls.
+     * Builds panel with frames per second controls.
      * 
      * @return See above.
      */
@@ -438,11 +438,18 @@ class MoviePlayerUI
         acrossZ.setEnabled(maxZ != 0);
         acrossT.setEnabled(maxT != 0);
         acrossZT.setEnabled(!((maxZ == 0) || (maxT == 0)));
-        int index = model.getMovieIndex();
 
-        if (index == MoviePlayer.ACROSS_Z) acrossZ.setSelected(true);
-        else if (index == MoviePlayer.ACROSS_T) acrossT.setSelected(true);
-        else if (index == MoviePlayer.ACROSS_ZT) acrossZT.setSelected(true);
+        switch (model.getMovieIndex()) {
+			case MoviePlayerDialog.ACROSS_Z:
+				acrossZ.setSelected(true);
+				break;
+			case MoviePlayerDialog.ACROSS_T:
+				acrossT.setSelected(true);
+				break;
+			case MoviePlayerDialog.ACROSS_ZT:
+				acrossZT.setSelected(true);
+				break;
+		}
     }
     
     /**
@@ -481,7 +488,7 @@ class MoviePlayerUI
      */
     void setStartT(int v)
     {
-        startT.setText(""+v);
+    	startT.setText(""+v);
         tSlider.setStartValue(v);
     }
     
@@ -532,6 +539,45 @@ class MoviePlayerUI
     {
         fps.setValue(new Integer(v)); 
         editor.setText(""+v);
+    }
+    
+    /** 
+     * Sets the movie index.
+     * 
+     * @param index The index of the movie.
+     */
+    void setMovieIndex(int index)
+    {
+    	switch (index) {
+			case MoviePlayerDialog.ACROSS_Z:
+				acrossZ.setSelected(true);
+				break;
+			case MoviePlayerDialog.ACROSS_T:
+				acrossT.setSelected(true);
+				break;
+			case MoviePlayerDialog.ACROSS_ZT:
+				acrossZT.setSelected(true);
+				break;
+		}
+    }
+    
+    /** Initiates a click on the {@link #pause} button 
+     * if the passed index is {@link MoviePlayerDialog#DO_CLICK_PAUSE}
+     * on the {@link #play} button 
+     * if the passed index is {@link MoviePlayerDialog#DO_CLICK_PLAY}. 
+     * 
+     * @param index The index identifying the button.
+     */
+    void doClick(int index)
+    {
+    	switch (index) {
+			case MoviePlayerDialog.DO_CLICK_PAUSE:
+				pause.doClick();
+				break;
+			case MoviePlayerDialog.DO_CLICK_PLAY:
+				play.doClick();
+				break;
+		}
     }
     
 }

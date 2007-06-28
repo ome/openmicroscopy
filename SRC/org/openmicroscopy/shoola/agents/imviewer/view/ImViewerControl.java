@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
@@ -60,7 +62,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.InfoAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.LensAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.MovieAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.RGBSplitAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RateImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction;
@@ -78,6 +80,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.InfoDialog;
+import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
@@ -101,7 +104,8 @@ import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
  * @since OME2.2
  */
 class ImViewerControl
-    implements ChangeListener, ComponentListener, PropertyChangeListener
+    implements ActionListener, ChangeListener, ComponentListener, 
+    			PropertyChangeListener
 {
 
 	/** Identifies the <code>Close</code> action in the menu. */
@@ -235,27 +239,27 @@ class ImViewerControl
     
     /** Identifies the <code>download archived files</code> action. */
     static final Integer     DOWNLOAD = new Integer(37);
-    
-    /** Identifies the <code>channel split</code> action in the menu. */
-    static final Integer     CHANNEL_SPLIT = new Integer(38);
-    
+
     /** Identifies the <code>text visible</code> action in the menu. */
-    static final Integer     TEXT_VISIBLE = new Integer(39);
+    static final Integer     TEXT_VISIBLE = new Integer(38);
     
     /** Identifies the <code>Measurement tool</code> action in the menu. */
-    static final Integer     MEASUREMENT_TOOL = new Integer(40);
+    static final Integer     MEASUREMENT_TOOL = new Integer(39);
     
     /** Identifies the <code>Image details</code> action in the menu. */
-    static final Integer     IMAGE_DETAILS = new Integer(41);
+    static final Integer     IMAGE_DETAILS = new Integer(40);
     
     /** Identifies the <code>Zooming in</code> action. */
-    static final Integer     ZOOM_IN = new Integer(42);
+    static final Integer     ZOOM_IN = new Integer(41);
     
     /** Identifies the <code>Zooming out</code> action. */
-    static final Integer     ZOOM_OUT = new Integer(43);
+    static final Integer     ZOOM_OUT = new Integer(42);
     
     /** Identifies the <code>Zooming fit</code> action. */
-    static final Integer     ZOOM_FIT = new Integer(44);
+    static final Integer     ZOOM_FIT = new Integer(43);
+    
+    /** Identifies the <code>Zooming fit</code> action. */
+    static final Integer     PLAY_MOVIE = new Integer(44);
     
     /** 
      * Reference to the {@link ImViewer} component, which, in this context,
@@ -274,6 +278,9 @@ class ImViewerControl
     
     /** Index of the channel invoking the color picker. */
     private int         				colorPickerIndex;
+    
+    /** Reference to the movie player. */
+    private MoviePlayerDialog			moviePlayer;
     
     /** Helper method to create all the UI actions. */
     private void createActions()
@@ -332,13 +339,13 @@ class ImViewerControl
                 UnitBarSizeAction.CUSTOMIZED));
         actionsMap.put(COLOR_PICKER, new ColorPickerAction(model));
         actionsMap.put(DOWNLOAD, new ArchivedAction(model));
-        actionsMap.put(CHANNEL_SPLIT, new RGBSplitAction(model));
         actionsMap.put(TEXT_VISIBLE, new TextVisibleAction(model));
         actionsMap.put(MEASUREMENT_TOOL, new ROIToolAction(model));
         actionsMap.put(IMAGE_DETAILS, new InfoAction(model));
         actionsMap.put(ZOOM_IN, new ZoomInAction(model));
         actionsMap.put(ZOOM_OUT, new ZoomOutAction(model));
         actionsMap.put(ZOOM_FIT, new ZoomFitAction(model));
+        actionsMap.put(PLAY_MOVIE, new PlayMovieAction(model));
     }
     
     /** 
@@ -507,6 +514,39 @@ class ImViewerControl
         UIUtilities.setLocationRelativeToAndShow(view, dialog);
     }
     
+    /** 
+     * Initializes the movie player if required.
+     * or recycles it.
+     * 
+     * @return See above.
+     */
+    MoviePlayerDialog getMoviePlayer()
+    {
+    	if (moviePlayer != null) return moviePlayer;
+    	moviePlayer = new MoviePlayerDialog(view, model);
+    	moviePlayer.addPropertyChangeListener(
+    			MoviePlayerDialog.CLOSE_PROPERTY, this);
+    	return moviePlayer;
+    }
+    
+    /**
+     * Reacts to change fired by buttons used to select the color
+     * models.
+     * @see ActionListener#actionPerformed(ActionEvent)
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+    	String m = model.getColorModel();
+        ViewerAction a = null;
+        if (m.equals(ImViewer.RGB_MODEL) || 
+           m.equals(ImViewer.HSB_MODEL)) {
+             a = getAction(ImViewerControl.GREY_SCALE_MODEL);
+        } else if (m.equals(ImViewer.GREY_SCALE_MODEL)) {
+             a = getAction(ImViewerControl.RGB_MODEL);
+        }    
+        a.actionPerformed(e);
+	}
+    
     /**
      * Reacts to state changes in the {@link ImViewer}.
      * @see ChangeListener#stateChanged(ChangeEvent)
@@ -619,9 +659,13 @@ class ImViewerControl
         } else if (InfoDialog.UPDATE_PROPERTY.equals(propName)) {
             //TODO: implement method
         } else if (ImViewer.ICONIFIED_PROPERTY.equals(propName)) {
+        	if (moviePlayer != null)
+        		model.playMovie(false, false);
         	view.onIconified();
         } else if (LensComponent.LENS_LOCATION_PROPERTY.equals(propName)) {
         	view.scrollToNode((Rectangle) pce.getNewValue());
+        } else if (MoviePlayerDialog.CLOSE_PROPERTY.equals(propName)) {
+        	model.playMovie(false, false);
         }
     }
 
@@ -658,5 +702,7 @@ class ImViewerControl
      * @see ComponentListener#componentMoved(ComponentEvent)
      */
     public void componentMoved(ComponentEvent e) {}
+
+	
     
 }

@@ -36,7 +36,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JSlider;
 import javax.swing.plaf.basic.BasicSliderUI;
-import javax.swing.plaf.basic.BasicSliderUI.TrackListener;
 
 //Third-party libraries
 
@@ -61,20 +60,8 @@ public class OneKnobSliderUI
 	extends BasicSliderUI
 {
 	
-	/** Width of the slider's thumb. */
-	private static final int 	THUMB_WIDTH = 16;
-	
-	/** Height of the slider's thumb. */
-	private static final int 	THUMB_HEIGHT = 16;
-	
-	/** Height of the arrow. */
-	private static final int	ARROW_HEIGHT = 12;
-	
-	/** Width of the arrow. */
-	private static final int 	ARROW_WIDTH = 12;
-	
 	/** Spacing between the arrow and the end of the slider track. */
-	private static final int 	ARROW_SPACE = 3;
+	private static final int 	ARROW_SPACE = 2;
 	
 	/** Spacing between the arrow and the end label. */
 	private static final int 	TEXT_SPACE = 2;
@@ -152,16 +139,33 @@ public class OneKnobSliderUI
     /** This variable is set to <code>true</code> if user dragging thumb. */
 	protected boolean 			isDragging;
 
+	/** The height of the arrow. */
+	private int					arrowHeight;
+	
+	/** The width of the arrow. */
+	private int					arrowWidth;
+	
+	/** The width of the thumb. */
+	private int					thumbWidth;
+	
+	/** The height of the thumb. */
+	private int					thumbHeight;
+	
 	/** Load the thumb and arrow images. */
 	private void loadThumbArrowImage()
 	{
 		IconManager icons = IconManager.getInstance();
     	
 		ImageIcon img = icons.getImageIcon(IconManager.THUMB);
+		thumbWidth = img.getIconWidth();
+		thumbHeight = img.getIconHeight();
 		thumbImage = img.getImage();
 		img = icons.getImageIcon(IconManager.THUMB_DISABLED);
 		disabledThumbImage = img.getImage();
+		
 		img = icons.getImageIcon(IconManager.UP_ARROW_DISABLED);
+		arrowWidth = img.getIconWidth();
+		arrowHeight = img.getIconHeight();
 		upArrowDisabledImage = img.getImage();
 		img = icons.getImageIcon(IconManager.DOWN_ARROW_DISABLED);
 		downArrowDisabledImage = img.getImage();
@@ -186,21 +190,20 @@ public class OneKnobSliderUI
 	private void calculateArrowRect()
 	{
 		if (slider.getOrientation() == JSlider.HORIZONTAL) {
-			int offsetY = trackRect.height/2-ARROW_HEIGHT/2-1;
-			minArrowRect = new Rectangle(trackRect.x-(ARROW_WIDTH+THUMB_WIDTH/2+
-					ARROW_SPACE),trackRect.y+offsetY, ARROW_WIDTH, 
-					ARROW_HEIGHT);
+			int offsetY = trackRect.height/2-arrowHeight/2-1;
+			minArrowRect = new Rectangle(trackRect.x-(arrowWidth+thumbWidth/2+
+					ARROW_SPACE),trackRect.y+offsetY, arrowWidth, arrowHeight);
 			maxArrowRect = new Rectangle(trackRect.x+trackRect.width+
-					ARROW_SPACE+THUMB_WIDTH/2, trackRect.y+offsetY, ARROW_WIDTH, 
-					ARROW_HEIGHT);
+					ARROW_SPACE+thumbWidth/2, trackRect.y+offsetY, arrowWidth, 
+					arrowHeight);
 		} else {
-			int offsetX = trackRect.width/2-ARROW_WIDTH/2;
+			int offsetX = trackRect.width/2-arrowWidth/2;
 			maxArrowRect = new Rectangle(trackRect.x+offsetX, trackRect.y-
-					(ARROW_HEIGHT+THUMB_HEIGHT/2+ARROW_SPACE), ARROW_WIDTH, 
-					ARROW_HEIGHT);
+					(arrowHeight+thumbHeight/2+ARROW_SPACE), arrowWidth, 
+					arrowHeight);
 			minArrowRect = new Rectangle(trackRect.x+offsetX, trackRect.y+
-					trackRect.height+ARROW_SPACE+THUMB_HEIGHT/2, ARROW_WIDTH, 
-					ARROW_HEIGHT);
+					trackRect.height+ARROW_SPACE+thumbHeight/2, arrowWidth, 
+					arrowHeight);
 		}
 	}
 
@@ -363,9 +366,9 @@ public class OneKnobSliderUI
 		super.calculateTrackBuffer();
 		if (showArrows)
 			if (slider.getOrientation() == JSlider.HORIZONTAL)
-				trackBuffer += ARROW_WIDTH+ARROW_SPACE;
+				trackBuffer += arrowWidth+ARROW_SPACE;
 			else
-				trackBuffer += ARROW_HEIGHT+ARROW_SPACE; 
+				trackBuffer += arrowHeight+ARROW_SPACE; 
 		if	(showEndLabel)
 			if (slider.getOrientation() == JSlider.HORIZONTAL)
 				trackBuffer += labelWidth+TEXT_SPACE;
@@ -379,7 +382,7 @@ public class OneKnobSliderUI
      */
     protected Dimension getThumbSize() 
     {
-        return new Dimension(THUMB_WIDTH, THUMB_HEIGHT);
+        return new Dimension(thumbWidth, thumbHeight);
     }
     
 	/**
@@ -388,7 +391,7 @@ public class OneKnobSliderUI
 	 */
 	public void calculateThumbSize()
 	{
-		this.thumbRect = new Rectangle(0, 0, THUMB_WIDTH, THUMB_HEIGHT);
+		this.thumbRect = new Rectangle(0, 0, thumbWidth, thumbHeight);
 	}
 
 	/**

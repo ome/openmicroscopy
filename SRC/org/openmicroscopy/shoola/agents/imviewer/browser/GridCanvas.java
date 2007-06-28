@@ -75,8 +75,8 @@ class GridCanvas
 		g2D.setColor(model.getBackgroundColor());
     	Dimension d = getSize();
         g2D.fillRect(0, 0, d.width, d.height);
-    	int n = images.size();
-    	if (n <=3) n = 4;
+    	int n = model.getMaxC()+1;
+    	if (n <= 3) n = 4;
     	if (n > 4 && n%2 != 0) {
     		combined = (SplitImage) images.get(images.size()-1);
     		images.remove(images.size()-1);
@@ -164,20 +164,26 @@ class GridCanvas
 		BufferedImage original = model.getAnnotateImage();
     	int w = original.getWidth();
     	int h = original.getHeight();
+    	Dimension d = getSize();
+		gridImage = new BufferedImage(d.width, d.height, 
+										BufferedImage.TYPE_INT_RGB);
+		Graphics2D g2D = (Graphics2D) gridImage.getGraphics();
+		ImagePaintingFactory.setGraphicRenderingSettings(g2D);
+		paintImage(g2D, w, h, model.isUnitBar());
+		return gridImage;
+    	/*
 		if (model.getRGBSplit()) 
 	    	gridImage = new BufferedImage(2*w+BrowserModel.GAP, 
 	    					2*h+BrowserModel.GAP, BufferedImage.TYPE_INT_RGB);
 	    		
 		else {
-			Dimension d = getSize();
-			gridImage = new BufferedImage(d.width, d.height, 
-											BufferedImage.TYPE_INT_RGB);
+			
 		
 		}
-		Graphics2D g2D = (Graphics2D) gridImage.getGraphics();
-		ImagePaintingFactory.setGraphicRenderingSettings(g2D);
-		paintImage(g2D, w, h, model.isUnitBar());
-		return gridImage;
+		
+		
+		*/
+    	
 	}
 
 	/**
@@ -195,7 +201,7 @@ class GridCanvas
     	if (images == null) return null; 
     	SplitImage combined = null;
     	int n = images.size();
-    	if (n <=3) n = 4;
+    	if (n <= 3) n = 4;
     	if (n > 4 && n%2 != 0) {
     		combined = (SplitImage) images.get(images.size()-1);
     		images.remove(images.size()-1);

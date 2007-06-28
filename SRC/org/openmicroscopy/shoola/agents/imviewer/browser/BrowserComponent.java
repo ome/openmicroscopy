@@ -381,7 +381,7 @@ class BrowserComponent
 				annotator.activateEditor();
 				break;
 			case ImViewer.GRID_INDEX:
-				if (model.hasNoGridImages() && !model.getRGBSplit()) {
+				if (model.hasNoGridImages()) {
 					model.setGridImages();
 				}
 				gridView.paintImage();

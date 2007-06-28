@@ -152,12 +152,6 @@ class ImViewerModel
     private int					tabbedIndex;
     
     /** 
-     * Flag inidcating to split the displayed image into its red, green and
-     * blue components or to split into the selected channels.
-     */
-    private boolean				rgbSplit;
-    
-    /** 
      * Flag indicating to paint or not some textual information on top
      * of the grid image.
      */
@@ -201,7 +195,6 @@ class ImViewerModel
         sizeX = sizeY = -1;
         zoomFitToWindow = false; 
         tabbedIndex = ImViewer.VIEW_INDEX;
-        rgbSplit = true;
         textVisible = true;
     }
     
@@ -742,24 +735,6 @@ class ImViewerModel
      */
     void setTabbedIndex(int index) { tabbedIndex = index; }
 
-    /**
-     * Returns <code>true</code> if the displayed image is
-	 * split into its red, green and blue components. Returns <code>false</code>
-	 * if the selected channels are displayed independently.
-	 * 
-     * @return See above.
-     */
-	boolean getRGBSplit() { return rgbSplit; }
-
-	/**
-	 * Sets to <code>true</code> to split the displayed image into its red, 
-	 * green and blue components. Sets to <code>false</code>
-	 * to display the selected channels independently.
-	 * 
-	 * @param rgbSplit The value to set.
-	 */
-	void setRGBSplit(boolean rgbSplit) { this.rgbSplit = rgbSplit; }
-
 	/**
 	 * Returns a 3-dimensional array of boolean value, one per color band.
 	 * The first (resp. second, third) element is set to <code>true</code> 
@@ -835,5 +810,41 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	boolean isPlayingMovie() { return playingMovie; }
+
+	/**
+     * Returns <code>true</code> if the channel is mapped
+     * to <code>RED</code>, <code>false</code> otherwise.
+     * 
+     * @param index The index of the channel.
+     * @return See above.
+     */
+	boolean isChannelRed(int index)
+	{
+		return rndControl.isChannelRed(index);
+	}
+	
+	/**
+     * Returns <code>true</code> if the channel is mapped
+     * to <code>GREEN</code>, <code>false</code> otherwise.
+     * 
+     * @param index The index of the channel.
+     * @return See above.
+     */
+	boolean isChannelGreen(int index)
+	{
+		return rndControl.isChannelGreen(index);
+	}
+	
+	/**
+     * Returns <code>true</code> if the channel is mapped
+     * to <code>BLUE</code>, <code>false</code> otherwise.
+     * 
+     * @param index The index of the channel.
+     * @return See above.
+     */
+	boolean isChannelBlue(int index)
+	{
+		return rndControl.isChannelBlue(index);
+	}
 	
 }

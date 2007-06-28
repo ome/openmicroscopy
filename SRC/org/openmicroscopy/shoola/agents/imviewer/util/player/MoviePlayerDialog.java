@@ -60,6 +60,21 @@ public class MoviePlayerDialog
 	/** Bound property indicating that the dialog is closed. */
 	public static final String CLOSE_PROPERTY = "close";
 	
+	/** Indicates to play movie across z-sections only. */
+	public static final int    ACROSS_Z = 300;
+    
+    /** Indicates to play movie across timepoints only. */
+	public static final int 	ACROSS_T = 301;
+    
+    /** Indicates to play movie across z-sections and timepoint.s */
+	public static final int		ACROSS_ZT = 302;
+    
+	/** Indicates to perform a click to play the movie. */
+	public static final int		DO_CLICK_PLAY = 0;
+	
+	/** Indicates to perform a click to stop playing the movie. */
+	public static final int		DO_CLICK_PAUSE = 1;
+	
     /** Reference to the component controlling the timer. */
     private MoviePlayer     player;
     
@@ -128,20 +143,62 @@ public class MoviePlayerDialog
         int z = -1;
         int t = -1;
         switch (player.getMovieIndex()) {
-            case MoviePlayer.ACROSS_T:
+            case ACROSS_T:
                 z = model.getDefaultZ();
                 t = player.getFrameNumberT();
                 break;
-            case MoviePlayer.ACROSS_Z:
+            case ACROSS_Z:
                 t = model.getDefaultT();
                 z = player.getFrameNumberZ();
                 break;
-            case MoviePlayer.ACROSS_ZT:
+            case ACROSS_ZT:
                 z = player.getFrameNumberZ();
                 t = player.getFrameNumberT();
         }
         if (z == -1 || t == -1) return;
         model.setSelectedXYPlane(z, t);
     }
+    
+    /**
+     * Sets the index of the movie player.
+     * 
+     * @param index The index to set.
+     */
+    public void setMovieIndex(int index)
+    {
+    	if (uiDelegate != null) uiDelegate.setMovieIndex(index);
+    	player.setMovieIndex(index);
+    }
 
+    /** 
+     * Sets the starting timepoint.
+     * 
+     * @param t The value to set.
+     */
+    public void setStartT(int t)
+    {
+    	int endT = player.getEndT();
+    	if (t > endT) return;
+    	player.setStartT(t);
+    	if (uiDelegate != null) uiDelegate.setStartT(t);
+    }
+    
+    /**
+     * Performs a click on the button corresponding to the passed index.
+     * 
+     * @param index One out of the following constants: {@link #DO_CLICK_PLAY}
+     * 				or {@link #DO_CLICK_PAUSE}.
+     */
+    public void doClick(int index)
+    {
+    	switch (index) {
+			case DO_CLICK_PAUSE:
+			case DO_CLICK_PLAY:
+				break;
+			default:
+				throw new IllegalArgumentException("Index not supported.");
+		}
+    	if (uiDelegate != null) uiDelegate.doClick(index);
+    }
+    
 }

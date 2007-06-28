@@ -326,13 +326,13 @@ class MoviePlayerControl
                     movieEndActionHandler(view.startZ, view.endZ, TYPE_Z); 
                     break;
                 case ACROSS_T_CMD:
-                    model.setMovieIndex(MoviePlayer.ACROSS_T);
+                    model.setMovieIndex(MoviePlayerDialog.ACROSS_T);
                     break;
                 case ACROSS_Z_CMD:
-                    model.setMovieIndex(MoviePlayer.ACROSS_Z);
+                    model.setMovieIndex(MoviePlayerDialog.ACROSS_Z);
                     break;
                 case ACROSS_ZT_CMD:
-                    model.setMovieIndex(MoviePlayer.ACROSS_ZT);
+                    model.setMovieIndex(MoviePlayerDialog.ACROSS_ZT);
                     break;
                 case PLAY_CMD:
                     model.setPlayerState(Player.START); break;

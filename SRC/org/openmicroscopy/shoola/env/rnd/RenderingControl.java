@@ -478,7 +478,7 @@ public interface RenderingControl
     
     /**
      * Returns <code>true</code> if one of the active channel is mapped
-     * to <code>RED</code>.
+     * to <code>RED</code>,  <code>false</code> otherwise.
      * 
      * @return See above
      */
@@ -486,7 +486,7 @@ public interface RenderingControl
     
     /**
      * Returns <code>true</code> if one of the active channel is mapped
-     * to <code>GREEN</code>.
+     * to <code>GREEN</code>, <code>false</code> otherwise.
      * 
      * @return See above
      */
@@ -494,10 +494,37 @@ public interface RenderingControl
     
     /**
      * Returns <code>true</code> if one of the active channel is mapped
-     * to <code>BLUE</code>.
+     * to <code>BLUE</code>,  <code>false</code> otherwise.
      * 
      * @return See above
      */
     public boolean hasActiveChannelBlue();
+    
+    /**
+     * Returns <code>true</code> if the channel is mapped
+     * to <code>RED</code>, <code>false</code> otherwise.
+     * 
+     * @param index The index of the channel.
+     * @return See above.
+     */
+    public boolean isChannelRed(int index);
+    
+    /**
+     * Returns <code>true</code> if the channel is mapped
+     * to <code>GREEN</code>, <code>false</code> otherwise.
+     * 
+     * @param index The index of the channel.
+     * @return See above.
+     */
+    public boolean isChannelGreen(int index);
+    
+    /**
+     * Returns <code>true</code> if the channel is mapped
+     * to <code>BLUE</code>, <code>false</code> otherwise.
+     * 
+     * @param index The index of the channel.
+     * @return See above.
+     */
+    public boolean isChannelBlue(int index);
 
 }

@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImageDetailsDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
+import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.util.archived.view.Downloader;
 import org.openmicroscopy.shoola.agents.util.archived.view.DownloaderFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -110,7 +112,7 @@ class ImViewerComponent
         
     /** Flag indicating that a new z-section or timepoint is selected. */
     private boolean				newPlane;
-    
+   
     /** 
      * Returns the description displayed in the status bar.
      * 
@@ -306,7 +308,6 @@ class ImViewerComponent
      	        case ColorModelAction.GREY_SCALE_MODEL:
      	        	historyActiveChannels = model.getActiveChannels();
      	        	model.setColorModel(GREY_SCALE_MODEL);
-     	        	model.setRGBSplit(false);
      	        	if (channels != null && channels.size() > 1) {
      	        		i = channels.iterator();
      	        		int index;
@@ -324,7 +325,6 @@ class ImViewerComponent
      	        case ColorModelAction.RGB_MODEL:
      	        case ColorModelAction.HSB_MODEL:
      	        	model.setColorModel(HSB_MODEL);
-     	        	model.setRGBSplit(true);
      	        	int index;
      	        	if (historyActiveChannels != null && 
      	        			historyActiveChannels.size() != 0) {
@@ -532,11 +532,13 @@ class ImViewerComponent
             throw new IllegalStateException(
             "This method can't be invoked in the LOADING_RENDERING_CONTROL.");
         model.setRenderingControl(result);
+        /*
         if (model.getMaxC() >= 4) model.setRGBSplit(false);
         else {
         	boolean[] rgb = model.hasRGB();
         	model.setRGBSplit(rgb[0] && rgb[1] && rgb[2]);
         }
+        */
         fireStateChange();
         //Register the renderer
         model.getRenderer().addPropertyChangeListener(controller);
@@ -843,6 +845,7 @@ class ImViewerComponent
 	            "This method can't be invoked in the DISCARDED, NEW or" +
 	            "LOADING_RENDERING_CONTROL state.");
     	}
+    	view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	    //if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
 	    int index;
 	    List active = model.getActiveChannels();
@@ -898,8 +901,47 @@ class ImViewerComponent
 		} catch (Exception ex) {
 			reload(ex);
 		}
+		 view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	    return images;
     }
+    
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getImageForGrid(int)
+     */
+    public BufferedImage getImageForGrid(int index)
+    {
+    	switch (model.getState()) {
+	    	case NEW:
+	    	case LOADING_RENDERING_CONTROL:
+	    	case DISCARDED:
+	    		throw new IllegalStateException(
+	    				"This method can't be invoked in the DISCARDED, " +
+	    				"NEW or LOADING_RENDERING_CONTROL state.");
+    	}
+    	if (!model.isChannelActive(index)) return null;
+    	if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
+    	BufferedImage image = null;
+
+    	try {
+    		
+    		for (int k = 0; k < model.getMaxC(); k++) {
+				model.setChannelActive(k, k == index);
+			}
+    		image = model.getSplitComponentImage();
+    		List active = model.getActiveChannels();
+    		Iterator i = active.iterator();
+            while (i.hasNext()) { //reset values.
+                index = ((Integer) i.next()).intValue();
+                model.setChannelActive(index, true);
+            }
+	    	
+
+    	} catch (Exception ex) {
+    		reload(ex);
+    	}
+    	return image;
+	}
     
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
@@ -1298,47 +1340,42 @@ class ImViewerComponent
      * Implemented as specified by the {@link ImViewer} interface.
      * @see ImViewer#getSelectedIndex()
      */
-	public int getSelectedIndex()
-	{
-		return model.getTabbedIndex();
-	}
+	public int getSelectedIndex() { return model.getTabbedIndex(); }
 
 	/** 
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#playMovie(boolean)
+     * @see ImViewer#playMovie(boolean, boolean)
      */
-	public void playMovie(boolean b)
+	public void playMovie(boolean b, boolean visible)
 	{
+		MoviePlayerDialog d = controller.getMoviePlayer();
+		boolean doClick = false;
+		boolean wasVisible = false;
+		if (visible) { // we have to play the movie
+			b = true;
+			UIUtilities.setLocationRelativeToAndShow(view, d);
+		} else {
+			if (d.isVisible()) {
+				b = false;
+				wasVisible = true;
+				d.setVisible(false);
+			} else {
+				doClick = true;
+				d.setMovieIndex(MoviePlayerDialog.ACROSS_T);
+				d.setStartT(model.getDefaultT());
+			}
+		}
+		
 		model.setPlayingMovie(b);
 		view.enableSliders(!b);
 		controller.getAction(ImViewerControl.CHANNEL_MOVIE).setEnabled(!b);
-	}
-
-	/** 
-     * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#getRGBSplit()
-     */
-	public boolean getRGBSplit() { return model.getRGBSplit(); }
-
-	/** 
-     * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#setRGBSplit(boolean)
-     */
-	public void setRGBSplit(boolean b)
-	{
-		if (b == model.getRGBSplit()) return;
-		model.setRGBSplit(b);
-		model.getBrowser().viewSplitImages();
-	}
-
-	/** 
-     * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#hasRGB()
-     */
-	public boolean[] hasRGB()
-	{
-		//TODO:Check state
-		return model.hasRGB();
+		if (doClick) {
+			if (b) d.doClick(MoviePlayerDialog.DO_CLICK_PLAY);
+			else d.doClick(MoviePlayerDialog.DO_CLICK_PAUSE);
+		}
+		controller.getAction(ImViewerControl.PLAY_MOVIE).setEnabled(doClick);
+		if (wasVisible)
+			controller.getAction(ImViewerControl.PLAY_MOVIE).setEnabled(true);
 	}
 
 	/** 
@@ -1492,5 +1529,50 @@ class ImViewerComponent
 		if (model.getState() != READY) return -1;
 		return model.getZoomFactor();
 	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#isMoviePlaying()
+     */
+	public boolean isMoviePlaying() { return model.isPlayingMovie(); }
 	
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#isChannelRed(int)
+     */
+    public boolean isChannelRed(int index)
+    {
+    	//TODO: check state
+    	return model.isChannelRed(index);
+    }
+    
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#isChannelGreen(int)
+     */
+    public boolean isChannelGreen(int index)
+    {
+//    	TODO: check state
+    	return model.isChannelGreen(index);
+    }
+    
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#isChannelBlue(int)
+     */
+    public boolean isChannelBlue(int index)
+    {
+//    	TODO: check state
+    	return model.isChannelBlue(index);
+    }
+    
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#isChannelActive(int)
+     */
+    public boolean isChannelActive(int index)
+    {
+    	return model.isChannelActive(index);
+    }
+    
 }

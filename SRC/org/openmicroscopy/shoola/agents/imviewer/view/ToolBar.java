@@ -69,7 +69,6 @@ class ToolBar
     private static final String		SAVE_ON_CLOSE_DESCRIPTION = 
     				"Save the rendering settings before closing the viewer.";
     
-    
     /** Reference to the control. */
     private ImViewerControl controller;
     

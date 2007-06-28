@@ -73,15 +73,6 @@ class MoviePlayer
     /** Indicates to play the movie in loop starting from the end point. */
     protected static final int      LOOP_BACKWARD = 204;
     
-    /** Indicates to play movie across z-sections only. */
-    static final int                ACROSS_Z = 300;
-    
-    /** Indicates to play movie across timepoints only. */
-    static final int                ACROSS_T = 301;
-    
-    /** Indicates to play movie across z-sections and timepoint.s */
-    static final int                ACROSS_ZT = 302;
-    
     /** The start z-section. */
     private int                 startZ;
     
@@ -135,8 +126,8 @@ class MoviePlayer
         endZ = getMaxZ();
         if (timerDelay > getMaximumTimer()) timerDelay = getMaximumTimer();
         setTimerDelay(timerDelay);
-        if (getMaxZ() != 0) index = ACROSS_Z;
-        else if (getMaxT() != 0) index = ACROSS_T;
+        if (getMaxZ() != 0) index = MoviePlayerDialog.ACROSS_Z;
+        else if (getMaxT() != 0) index = MoviePlayerDialog.ACROSS_T;
     }
     
     /** Resets the frame number depending on the movie type. */
@@ -538,21 +529,21 @@ class MoviePlayer
     public void actionPerformed(ActionEvent e)
     {
         switch (index) {
-            case ACROSS_Z:
+            case MoviePlayerDialog.ACROSS_Z:
                 if (frameNumberZ <= getMaxZ() && frameNumberZ >= startZ
                         && frameNumberZ <= endZ && state == Player.START) {
                     parent.renderImage();
                     playMovieAcrossZ();
                 } 
                 break;
-            case ACROSS_T:
+            case MoviePlayerDialog.ACROSS_T:
                 if (frameNumberT <= getMaxT() && frameNumberT >= startT
                         && frameNumberT <= endT && state == Player.START) {
                     parent.renderImage();
                     playMovieAcrossT();
                 }
                 break;
-            case ACROSS_ZT:
+            case MoviePlayerDialog.ACROSS_ZT:
                 parent.renderImage();
                 playMovieAcrossZT();
                 break;

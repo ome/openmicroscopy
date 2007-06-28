@@ -548,30 +548,19 @@ public interface ImViewer
 	public int getSelectedIndex();
 
 	/**
+	 * Plays or stops playing the movie. The movie player may not be visible
+	 * depending on the specified parameter.
 	 * Indicates that the movie player is visible if the passed value is
 	 * <code>true</code>, is hidden if the passed value is <code>false</code>.
 	 * 
-	 * @param b Pass <code>true</code> if the movie player is visible.
+	 * @param b 		Pass <code>true</code> if to play the movie, 
+	 * 					<code>false</code> to stop.
+	 * @param visible 	Pass <code>true</code> to display the movie player,
+	 * 					<code>false</code> to hide it. If the movie player
+	 * 					was visible, the movie stops regardless of the 
+	 * 					first specified parameter.
 	 */
-	public void playMovie(boolean b);
-
-	/**
-	 * Returns <code>true</code> if the displayed image is
-	 * split into its red, green and blue components. Returns <code>false</code>
-	 * if the selected channels are displayed independently.
-	 * 
-	 * @return See above.
-	 */
-	public boolean getRGBSplit();
-
-	/**
-	 * Sets to <code>true</code> to split the displayed image into its red, 
-	 * green and blue components. Sets to <code>false</code>
-	 * to display the selected channels independently.
-	 * 
-	 * @param b The value to set.
-	 */
-	public void setRGBSplit(boolean b);
+	public void playMovie(boolean b, boolean visible);
 
 	/**
 	 * Returns the collection of images used to build the grid.
@@ -579,16 +568,6 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	public List getGridImages();
-	
-	/**
-	 * Returns a 3-dimensional array of boolean value, one per color band.
-	 * The first (resp. second, third) element is set to <code>true</code> 
-	 * if an active channel is mapped to <code>RED</code> (resp. 
-	 * <code>GREEN</code>, <code>BLUE</code>), to <code>false</code> otherwise.
-	 * 
-	 * @return See above
-	 */
-	public boolean[] hasRGB();
 
 	/**
 	 * Returns the grid image.
@@ -659,5 +638,59 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	public double getZoomFactor();
+
+	/**
+	 * Returns <code>true</code> if the playing a movie, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isMoviePlaying();
     
+	/**
+     * Returns <code>true</code> if the channel is mapped
+     * to <code>RED</code>, <code>false</code> otherwise.
+     * 
+     * @param index The index of the channel.
+     * @return See above.
+     */
+    public boolean isChannelRed(int index);
+    
+    /**
+     * Returns <code>true</code> if the channel is mapped
+     * to <code>GREEN</code>, <code>false</code> otherwise.
+     * 
+     * @param index The index of the channel.
+     * @return See above.
+     */
+    public boolean isChannelGreen(int index);
+    
+    /**
+     * Returns <code>true</code> if the channel is mapped
+     * to <code>BLUE</code>, <code>false</code> otherwise.
+     * 
+     * @param index The index of the channel.
+     * @return See above.
+     */
+    public boolean isChannelBlue(int index);
+    
+    /**
+     * Returns <code>true</code> if the specifed channel is active,
+     * <code>false</code> otherwise.
+     * 
+     * @param index The index of the channel.
+     * @return See above.
+     */
+    public boolean isChannelActive(int index);
+
+    /**
+     * Returns the image displaying only the passed channel
+     * for the grid view when the channel is not 
+     * mapped to <code>RED</code>, <code>GREEN</code> or <code>BLUE</code>.
+     * 
+     * @param index The index of the channel.
+     * @return See above.
+     */
+	public BufferedImage getImageForGrid(int index);
+	
 }
