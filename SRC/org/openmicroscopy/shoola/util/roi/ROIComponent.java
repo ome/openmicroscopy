@@ -50,7 +50,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationship;
 import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationshipList;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 

@@ -63,11 +63,20 @@ public class NoSuchROIException
 	 */
 	public NoSuchROIException(String message) { super(message); }
 
+	
+	/**
+	 * Constructs a new exception with the specified detail message.
+	 * 
+	 * @param e	the parent exception wrapped by the NoSuchROIException.
+	 */
 	public NoSuchROIException(Exception e)
 	{
 		super(e);
 	}
 	
+	/**
+	 * Constructs a new exception with the specified detail message.
+	 */
 	public NoSuchROIException()
 	{
 		super();

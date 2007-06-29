@@ -39,16 +39,11 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.SwingConstants;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.BezierTool;
-import org.jhotdraw.draw.ConnectionTool;
-import org.jhotdraw.draw.CreationTool;
 import org.jhotdraw.draw.DrawingEditor;
-import org.jhotdraw.draw.action.ToolBarButtonFactory;
 import org.jhotdraw.util.ResourceBundleUtil;
 
 //Application-internal dependencies
@@ -87,6 +82,7 @@ class ToolBar
 	extends JPanel
 {
 
+	/** The defaults attributes of the line connection figure. */
 	private final static HashMap<AttributeKey, Object>	defaultAttributes;
 	static
 	{
@@ -126,13 +122,28 @@ class ToolBar
     /** Reference to the Model. */
     private MeasurementViewerModel		model;
     
+    /** The ellipse creation tool. */
     private ObjectCreationTool 			ellipseTool;
+
+    /** The rectangle creation tool. */
     private ObjectCreationTool 			rectTool;
+    
+    /** The line creation tool. */
     private ObjectCreationTool 			lineTool;
+    
+    /** The text creation tool. */
     private ObjectCreationTool 			textTool;
+
+    /** The point creation tool. */
     private PointCreationTool 			pointTool;
+    
+    /** The polygon creation tool. */
     private MeasurementBezierTool 		polygonTool;
+    
+    /** The polyline creation tool. */
     private MeasurementBezierTool 		polylineTool;
+    
+    /** The connetion creation tool. */
     private MeasurementConnectionTool	connectionTool;
     
     /** Initializes the component composing the display. */

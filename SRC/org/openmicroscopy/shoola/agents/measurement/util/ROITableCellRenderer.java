@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.measurement.util;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
-import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -34,12 +33,11 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
-import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
-import org.openmicroscopy.shoola.util.ui.PaintPot;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
+import org.openmicroscopy.shoola.util.ui.PaintPot;
 
 /** 
  * Basic cell renderer displaying color in a cell.
@@ -102,6 +100,10 @@ public class ROITableCellRenderer
 		return thisComponent;
 	}
 
+	/**
+	 * Create the combo box to represent the fonts size.
+	 * @return see above.
+	 */
 	private JComboBox createFontComboBox()
 	{
 		JComboBox comboBox = new JComboBox();

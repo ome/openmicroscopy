@@ -182,7 +182,7 @@ class MeasurementViewerModel
 	 * add the drawing view of the measurement component. if this value is 
 	 * true it indicates the the MeasurementToolLoaded.ADD has been posted to 
 	 * the viewer. 
-	 * 
+	 * @return see above.
 	 */
 	boolean getToolSent()
 	{

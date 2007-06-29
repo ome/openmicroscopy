@@ -70,7 +70,14 @@ public class ROIAssistantModel
 	
 	private ArrayList<String> 			columnNames;
 	
-	
+	/**
+	 * Model of the ROIAssistant to store the current locations of the ROIs
+	 * on the images, and their type.
+	 * @param numRow The number of z sections in the image. 
+	 * @param numCol The numer of time points in the image. 
+	 * @param currentPlane the current plane of the image.
+	 * @param roi The ROI which will be propagated.
+	 */
 	ROIAssistantModel(int numCol, int numRow, Coord3D currentPlane, ROI roi)
 	{
 		this.setColumnCount(numCol+1);
@@ -85,6 +92,11 @@ public class ROIAssistantModel
 		populateShapeMap();
 	}
 
+	/**
+	 * Populate the shape Map of the model with all the ROIShapes of the 
+	 * current ROI. 
+	 *
+	 */
 	private void populateShapeMap()
 	{
 		shapeMap.clear();
@@ -130,6 +142,13 @@ public class ROIAssistantModel
 		
 	}
 	
+	/**
+	 * Get the shape at zSection, timePoint which refers to the column and
+	 * row in the model.
+	 * @param zSection the row of the table.
+	 * @param timePoint the col of the model.
+	 * @return see above.
+	 */
 	public ROIShape getShapeAt(int zSection, int timePoint)
 	{
 		try
@@ -173,11 +192,19 @@ public class ROIAssistantModel
 		}
 	}
 	
+	/**
+	 * Set the number of columns in the table to col.
+	 * @param col see above.
+	 */
 	public void setColumnCount(int col)
 	{
 		numColumns = col;
 	}
 	
+	/**
+	 * Set the number of rows in the table to col.
+	 * @param row see above.
+	 */
 	public void setRowCount(int row)
 	{
 		numRows = row;

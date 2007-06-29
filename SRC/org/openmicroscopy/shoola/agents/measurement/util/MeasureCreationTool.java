@@ -43,7 +43,18 @@ package org.openmicroscopy.shoola.agents.measurement.util;
  */
 public interface MeasureCreationTool
 {	
+	/** 
+	 * Set the param to true if you only want to create on figure and then 
+	 * reset the tool to the selection tool. 
+	 * @param create see above.
+	 */
 	public void setResetToSelect(boolean create);
+	
+	/**
+	 * If the return param is true then after a figure is created the tool will
+	 * reset the toolbar to the selectionTool.
+	 * @return see above.
+	 */
 	public boolean isResetToSelect();
 }
 

@@ -96,7 +96,10 @@ public class AttributeField
 	}
 	
 	
-	/** Gets the value range the object can take */
+	/** 
+	 * Gets the value range the object can take.
+	 * @return value range.
+	 */
 	public Collection getValueRange()
 	{
 		return valueRange;

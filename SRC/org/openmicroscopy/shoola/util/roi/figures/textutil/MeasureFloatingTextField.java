@@ -52,9 +52,16 @@ import org.jhotdraw.draw.TextHolderFigure;
  */
 public class MeasureFloatingTextField 
 {
+	/** The textfield to show the text and be written to. */
     private JTextField   editWidget;
+    
+    /** The parent drawing view of the object. */
     private DrawingView   view;
     
+    /**
+     * Create the floating textfield.
+     *
+     */
     public MeasureFloatingTextField() 
     {
         editWidget = new JTextField(20);
@@ -64,11 +71,13 @@ public class MeasureFloatingTextField
     
     /**
      * Creates the overlay for the given Component.
+     * @param view the view to create the overlay on.
      */
     public void createOverlay(DrawingView view) {
         createOverlay(view, null);
     }
     
+    /** Give the textfield focus. */
     public void requestFocus() {
         editWidget.requestFocus();
     }
@@ -76,6 +85,8 @@ public class MeasureFloatingTextField
     /**
      * Creates the overlay for the given Container using a
      * specific font.
+     * @param view The drawing view to create the overlay on.
+     * @param figure The figure from which the text belongs.
      */
     public void createOverlay(DrawingView view, TextHolderFigure figure) {
         view.getComponent().add(editWidget, 0);
@@ -88,12 +99,17 @@ public class MeasureFloatingTextField
         this.view = view;
     }
     
+    /** Get the insets of the object. 
+     * 
+     * @return see above.
+     */
     public Insets getInsets() {
         return editWidget.getInsets();
     }
     
     /**
      * Adds an action listener
+     * @param listener see above.
      */
     public void addActionListener(ActionListener listener) {
         editWidget.addActionListener(listener);
@@ -101,6 +117,7 @@ public class MeasureFloatingTextField
     
     /**
      * Remove an action listener
+     * @param listener see above. 
      */
     public void removeActionListener(ActionListener listener) {
         editWidget.removeActionListener(listener);
@@ -108,6 +125,8 @@ public class MeasureFloatingTextField
     
     /**
      * Positions the overlay.
+     * @param r the rectagle of the bounds.
+     * @param text the text of the object.
      */
     public void setBounds(Rectangle r, String text) {
         editWidget.setText(text);
@@ -119,6 +138,7 @@ public class MeasureFloatingTextField
     
     /**
      * Gets the text contents of the overlay.
+     * @return see above.
      */
     public String getText() {
         return editWidget.getText();
@@ -126,6 +146,8 @@ public class MeasureFloatingTextField
     
     /**
      * Gets the preferred size of the overlay.
+     * @param cols the number of columns in the widget.
+     * @return see above.
      */
     public Dimension getPreferredSize(int cols) {
         editWidget.setColumns(cols);

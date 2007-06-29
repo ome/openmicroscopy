@@ -60,6 +60,7 @@ public class MeasurementBezierTool
 	extends AbstractTool
 	implements MeasureCreationTool
 {	
+	/** Reset the tool to the selection tool after figure creation. */
 	private boolean resetToSelect = false;
 	 private Boolean finishWhenMouseReleased;
 	  protected Map<AttributeKey, Object> attributes;

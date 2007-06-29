@@ -59,7 +59,10 @@ public 	class ROIAssistantCellRenderer
 		implements TableCellRenderer
 {
 
+	/** The colour of the selected cell. */
 	private final static Color SELECTED_COLOUR = new Color(255, 206, 206);
+	
+	/** The colour of the focused cell. */
 	private final static Color FOCUS_COLOUR = new Color(255, 135, 135);
 	
 	/**
@@ -147,7 +150,6 @@ public 	class ROIAssistantCellRenderer
 		{
 			label.setBackground(FOCUS_COLOUR);
 		}
-		//RendererUtils.setRowColor(label, table.getSelectedRow(), row);
 		thisComponent = label;
 		return thisComponent;
 	}

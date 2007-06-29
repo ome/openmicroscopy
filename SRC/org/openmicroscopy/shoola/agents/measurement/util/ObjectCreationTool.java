@@ -51,7 +51,9 @@ public class ObjectCreationTool
 	extends CreationTool
 	implements MeasureCreationTool
 {	
+	/** Reset the tool to the selection tool after figure creation. */
 	private boolean resetToSelect = false;
+	
 	 /** Creates a new instance. */
     public ObjectCreationTool(String prototypeClassName) {
         super(prototypeClassName, null, null);

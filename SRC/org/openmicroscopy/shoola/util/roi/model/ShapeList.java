@@ -49,9 +49,16 @@ import org.openmicroscopy.shoola.util.roi.model.util.LongComparator;
  */
 public class ShapeList 
 {
+	/** The Treemap that stores all the ROIShapes fgor the current plane. */
 	private TreeMap<Long, ROIShape> roiList;
+	
+	/** The current plane of the Shapelist. */
 	private Coord3D 				coord;
 	
+	/**
+	 * Create the Shapelist for plane coord. 
+	 * @param coord see above.
+	 */
 	public ShapeList(Coord3D coord)
 	{
 		roiList = new TreeMap<Long, ROIShape>(new LongComparator());

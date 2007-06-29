@@ -53,7 +53,6 @@ import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
-import org.openmicroscopy.shoola.agents.measurement.view.MeasurementResults.MeasurementTableModel;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -154,29 +153,6 @@ class ObjectManager
 		objectsTable.getSelectionModel().addListSelectionListener(listener);
 	}
 	
-	/** 
-	 * Resize the columns so that they fit the column names better, the 
-	 * column will be a minimum size of COLUMNWIDTH or the length of the 
-	 * text whichever is greater.
-	 *
-	 */
-	private void resizeTableColumns()
-	{	
-		int columnWidth = 0;
-		Font font = getFont();
-		FontMetrics metrics = getFontMetrics( font );
-		ROIFigureTableModel tm = (ROIFigureTableModel)objectsTable.getModel();
-		for(int i = 0 ; i < objectsTable.getColumnCount(); i++)
-		{
-			TableColumn col = objectsTable.getColumnModel().getColumn(i);
-			int w  =  metrics.stringWidth(tm.getColumnName(i));
-			columnWidth = Math.max(w, COLUMNWIDTH);
-			col.setMinWidth(columnWidth);
-			col.setMaxWidth(columnWidth);
-			col.setPreferredWidth(columnWidth);
-			col.setResizable(false);
-		}
-	}
 
 	/** Toggles the value of the boolean under the current selection. */
 	private void toggleValue()

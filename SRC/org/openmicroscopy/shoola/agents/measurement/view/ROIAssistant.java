@@ -41,9 +41,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 //Third-party libraries
 
@@ -67,7 +64,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @param <MeasurementViewerModel>
  * @since OME3.0
  */
 public class ROIAssistant
@@ -111,10 +107,7 @@ public class ROIAssistant
 	
 	/** Checkbox which is selected if the user has selected to remove an ROI. */
 	private 	JCheckBox				removeButton;
-	
-	/** Listener for the selection of cells in the table. */
-	private 	ListSelectionListener	listener;
-	
+		
 	/** The scroll pane of the Table. */
 	private 	JScrollPane				scrollPane;
 	
@@ -123,20 +116,23 @@ public class ROIAssistant
 	
 	/** Model for the measyrement tool. */
 	private 	MeasurementViewerUI		view;
-	private 	Coord3D					currentPlane;
+		
+	/** The initial shape selected when lauching the ROIAssistant. */
 	private 	ROIShape 				initialShape;
+	
 	/**
 	 * Constructor for the ROIAssistant Dialog.
 	 * @param numRow The number of z sections in the image. 
 	 * @param numCol The numer of time points in the image. 
+	 * @param currentPlane the current plane of the image.
 	 * @param selectedROI The ROI which will be propagated.
+	 * @param view a reference to the view. 
 	 */
 	public ROIAssistant(int numRow, int numCol, Coord3D currentPlane, 
 						ROI selectedROI, MeasurementViewerUI view)
 	{
 		this.view = view;
 		initialShape = null;
-		this.currentPlane = currentPlane;
 		this.setAlwaysOnTop(true);
 		this.setModal(true);
 		createTable(numRow, numCol,currentPlane, selectedROI);
@@ -149,12 +145,21 @@ public class ROIAssistant
 		viewPort.setViewPosition(new Point(x, y));
 	}
 	
+	/**
+	 * Show the ROIAssitant if the param is true.
+	 * @param isVisible see above.
+	 */
 	public void setVisible(boolean isVisible)
 	{
 		super.setVisible(isVisible);
 	}
 	
-	
+	/**
+	 * Maps the coordinate to a cell in the table.
+	 * 
+	 * @param coord see above.
+	 * @return see above.
+	 */
 	private Point mapCoordToCell(Coord3D coord)
 	{
 		int x = coord.getTimePoint()*table.getColumnWidth()+
@@ -175,31 +180,14 @@ public class ROIAssistant
 	 *  
 	 * @param numRow The number of z sections in the image. 
 	 * @param numCol The numer of time points in the image. 
+	 * @param currentPlane the current plane of the image.
 	 * @param selectedROI The ROI which will be propagated.
 	 */
 	private void createTable(int numRow, int numCol, Coord3D currentPlane, ROI selectedROI)
 	{
 		model = new ROIAssistantModel(numRow, numCol, currentPlane, selectedROI);
 		table = new ROIAssistantTable(model);
-		listener = new ListSelectionListener() {
-			
-			public void valueChanged(ListSelectionEvent e) {
-				if (e.getValueIsAdjusting()) return;
-
-		        ListSelectionModel lsm =
-		            (ListSelectionModel) e.getSource();
-		        if (lsm.isSelectionEmpty()) {
-		        } else {
-		        	int index = lsm.getMinSelectionIndex();
-		        	ROIAssistantModel m = 
-	        			(ROIAssistantModel) table.getModel();
-		        	//TODO: something
-	        	}
-			}
-		
-		};
-		
-
+	
 		table.addMouseListener(new java.awt.event.MouseAdapter() 
 		{
 			public void mousePressed(java.awt.event.MouseEvent e) 
@@ -212,11 +200,16 @@ public class ROIAssistant
 					ROIShape shape = (ROIShape)value;
 					initialShape = shape;
 					shapeType.setText(shape.getFigure().getType());
-					description.setText((String)shape.getAnnotation(AnnotationKeys.BASIC_TEXT));
+					description.setText(
+						(String)shape.getAnnotation(AnnotationKeys.BASIC_TEXT));
 					xCoord.setText(shape.getFigure().getStartPoint().getX()+"");
 					yCoord.setText(shape.getFigure().getStartPoint().getY()+"");
-					width.setText(Math.abs(shape.getFigure().getEndPoint().getX()-shape.getFigure().getStartPoint().getX())+"");
-					height.setText(Math.abs(shape.getFigure().getEndPoint().getY()-shape.getFigure().getStartPoint().getY())+"");
+					width.setText(Math.abs(
+								shape.getFigure().getEndPoint().getX()-
+								shape.getFigure().getStartPoint().getX())+"");
+					height.setText(Math.abs(
+								shape.getFigure().getEndPoint().getY()-
+								shape.getFigure().getStartPoint().getY())+"");
 				}
 				else if(value == null)
 				{

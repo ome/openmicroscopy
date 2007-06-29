@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.measurement.util;
 
 //Java imports
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
@@ -61,23 +60,18 @@ public 	class PointCreationTool
 		extends AbstractTool
 		implements MeasureCreationTool
 {
+	/**
+	 * ResetToSelect will change the tool to the selection tool after 
+	 * figure creation. 
+	 */
 	private boolean						resetToSelect = false;
+	
+	/** The prototype attributes of the created figure. */
 	private Map<AttributeKey, Object>	prototypeAttributes;
 	
+	/** The name of tool. */
 	private String						name;
 	
-	private Dimension					minimalSizeTreshold	=	new Dimension(
-										(int)PointAnnotationFigure.FIGURESIZE, 
-										(int)PointAnnotationFigure.FIGURESIZE);
-	
-	/**
-	 * We set the figure to the minimal size, if it is smaller than the minimal
-	 * size treshold.
-	 */
-	private Dimension					minimalSize			=new Dimension(
-										(int)PointAnnotationFigure.FIGURESIZE, 
-										(int)PointAnnotationFigure.FIGURESIZE);
-
 	/**
 	 * The prototype for new figures.
 	 */
@@ -88,6 +82,7 @@ public 	class PointCreationTool
 	 */
 	protected Figure					createdFigure;
 	
+	/** The creationEidt tool. */
 	protected CompositeEdit				creationEdit;
 	
 	/** Creates a new instance. */

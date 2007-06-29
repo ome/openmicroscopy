@@ -62,11 +62,19 @@ public class ROICreationException
 	 */
 	public ROICreationException(String message) { super(message); }
 
+	/**
+	 * Constructs a new exception with the specified detail message.
+	 * 
+	 * @param e	The exception wrapped by the ROICreationException.
+	 */
 	public ROICreationException(Exception e)
 	{
 		super(e);
 	}
 	
+	/**
+	 * Constructs a new exception with the specified detail message.
+	 */
 	public ROICreationException()
 	{
 		super();

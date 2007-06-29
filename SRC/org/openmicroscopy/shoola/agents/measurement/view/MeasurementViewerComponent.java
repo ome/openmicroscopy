@@ -432,7 +432,7 @@ class MeasurementViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link MeasurementViewer} interface.
-	 * @see MeasurementViewer#showMeasurementInMicrons(boolean)
+	 * @see MeasurementViewer#showMeasurementsInMicrons(boolean)
 	 * 
 	 */
 	public void showMeasurementsInMicrons(boolean inMicrons)
