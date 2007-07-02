@@ -353,7 +353,7 @@ public class InputStrategy
 		int z=
 				new Integer(shapeElement.getAttribute(IOConstants.Z_ATTRIBUTE,
 					"0"));
-		Coord3D coord=new Coord3D(t, z);
+		Coord3D coord=new Coord3D(z, t);
 		setCurrentCoord(coord);
 		
 		IXMLElement figureElement=
@@ -491,7 +491,7 @@ public class InputStrategy
 			if (zValue.equals(IOConstants.VALUE_NULL)
 					||tValue.equals(IOConstants.VALUE_NULL)) return new Coord3D(
 				0, 0);
-			return new Coord3D(new Integer(tValue), new Integer(zValue));
+			return new Coord3D(new Integer(zValue),new Integer(tValue));
 		}
 		else if (dataType.equals(IOConstants.ATTRIBUTE_DATATYPE_ARRAYLIST))
 		{

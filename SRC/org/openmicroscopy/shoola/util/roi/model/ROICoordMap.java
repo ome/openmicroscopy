@@ -69,7 +69,7 @@ public class ROICoordMap
 	//	for(int c = start.c; c < end.c ; c++)
 		for(int t = start.getTimePoint(); t < end.getTimePoint() ; t++)
 			for(int z = start.getZSection(); z < end.getZSection() ; z++)
-				if(!coordMap.containsKey(new Coord3D( t, z)))
+				if(!coordMap.containsKey(new Coord3D(z, t)))
 						return false;
 		return true;
 	}
@@ -145,7 +145,7 @@ public class ROICoordMap
 			for(int z = start.getZSection(); z < end.getZSection() ; z++)
 			{
 					ShapeList shapeList;
-					Coord3D coord = new Coord3D(t, z);
+					Coord3D coord = new Coord3D(z, t);
 					if(!coordMap.containsKey(coord))
 					{
 						shapeList = new ShapeList(coord);

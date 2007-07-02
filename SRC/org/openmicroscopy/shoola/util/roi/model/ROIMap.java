@@ -133,7 +133,7 @@ public class ROIMap
 			for(int t = mint; t < maxt ; t++)
 				for(int z = minz; z < maxz ; z++)
 				{
-					Coord3D newCoord = new Coord3D(t, z);
+					Coord3D newCoord = new Coord3D(z, t);
 					if(selectedShape.equals(newCoord))
 						continue;
 					if(roi.containsKey(newCoord))
@@ -159,7 +159,7 @@ public class ROIMap
 		for(int t = mint; t < maxt ; t++)
 			for(int z = minz; z < maxz ; z++)
 			{
-				Coord3D newCoord = new Coord3D(t, z);
+				Coord3D newCoord = new Coord3D(z, t);
 				if(roi.containsKey(newCoord))
 					this.deleteShape(id, newCoord);
 			}

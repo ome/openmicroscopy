@@ -287,7 +287,7 @@ class MeasurementViewerUI
     {
     	try {
     		ROI roi = model.getROI(ROIid);
-    		ROIFigure fig = roi.getFigure(new Coord3D(t, z));
+    		ROIFigure fig = roi.getFigure(new Coord3D(z, t));
     		selectFigure(fig);
 		} catch (Exception e) {
 			handleROIException(e);

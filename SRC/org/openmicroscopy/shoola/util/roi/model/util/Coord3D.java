@@ -55,7 +55,7 @@ public class Coord3D
 		
 	}
 	
-	public Coord3D(int time, int zsec)
+	public Coord3D(int zsec, int time)
 	{
 	//	c = ch;
 		t = time;

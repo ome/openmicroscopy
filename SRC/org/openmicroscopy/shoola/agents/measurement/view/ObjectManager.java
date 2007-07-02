@@ -238,7 +238,6 @@ class ObjectManager
 	 */
 	void setSelectedFigures(Collection l, boolean clear)
 	{
-		System.err.println("clear: "+clear);
 		Iterator i = l.iterator();
 		ROI roi;
 		ROIFigure figure;

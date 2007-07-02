@@ -206,7 +206,7 @@ class MeasurementViewerModel
 	 * @param z	The selected z-section.
 	 * @param t	The selected timepoint.
 	 */
-	void setPlane(int z, int t) { currentPlane = new Coord3D(t, z); }
+	void setPlane(int z, int t) { currentPlane = new Coord3D(z, t); }
 	
 	/**
      * Compares another model to this one to tell if they would result in
@@ -580,7 +580,7 @@ class MeasurementViewerModel
 		throws 	ROICreationException, NoSuchROIException
 	{
 		roiComponent.propagateShape(shape.getID(), shape.getCoord3D(), 
-		shape.getCoord3D(), new Coord3D(timePoint, zSection));
+		shape.getCoord3D(), new Coord3D(zSection, timePoint));
 	}
 	
 	/**
@@ -596,7 +596,7 @@ class MeasurementViewerModel
 		throws 	ROICreationException, NoSuchROIException
 	{
 		roiComponent.deleteShape(shape.getID(), shape.getCoord3D(), 
-			new Coord3D(timePoint, zSection));
+			new Coord3D(zSection, timePoint));
 	}
 
 	/** 
