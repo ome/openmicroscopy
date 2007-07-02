@@ -166,21 +166,29 @@ public class MoviePlayerDialog
      */
     public void setMovieIndex(int index)
     {
-    	if (uiDelegate != null) uiDelegate.setMovieIndex(index);
+    	if (uiDelegate != null) {
+    		uiDelegate.setMovieIndex(index);
+    		uiDelegate.setDefaultMovieType();
+    	}
     	player.setMovieIndex(index);
     }
 
     /** 
-     * Sets the starting timepoint.
+     * Sets the start and end timepoint.
      * 
-     * @param t The value to set.
+     * @param start The starting point.
+     * @param end	The end point.
      */
-    public void setStartT(int t)
+    public void setTimeRange(int start, int end)
     {
-    	int endT = player.getEndT();
-    	if (t > endT) return;
-    	player.setStartT(t);
-    	if (uiDelegate != null) uiDelegate.setStartT(t);
+    	if (start < player.getMinT() || start >= end || end > player.getMaxT())
+    		return;
+    	player.setEndT(end);
+    	player.setStartT(start);
+    	if (uiDelegate != null) {
+    		uiDelegate.setEndT(end);
+    		uiDelegate.setStartT(start);
+    	}
     }
     
     /**

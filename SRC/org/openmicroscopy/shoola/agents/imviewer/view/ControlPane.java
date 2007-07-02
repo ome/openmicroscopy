@@ -126,7 +126,7 @@ class ControlPane
     
     /** One  {@link ChannelButton} per channel. */
     private HashSet<ChannelButton>	channelButtons;
-    
+
     /** Button to play movie across channel. */
     private JButton         		channelMovieButton;
     
@@ -255,8 +255,6 @@ class ControlPane
         tSliderAnnotator = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
         tSliderAnnotator.setEnabled(false);
         
-        //zSlider.addChangeListener(this);
-        //tSlider.addChangeListener(this);
         channelMovieButton = new JButton(
                 controller.getAction(ImViewerControl.CHANNEL_MOVIE));
         UIUtilities.unifiedButtonLookAndFeel(channelMovieButton);
@@ -312,9 +310,6 @@ class ControlPane
      */
     private void initializeValues()
     {
-        //zoomingBox.addActionListener(this);
-       // zoomingBox.setSelectedItem(
-        //        controller.getAction(ImViewerControl.ZOOM_100));
         switch (model.getRatingLevel()) {
             case ImViewerModel.RATING_ONE:
                 ratingBox.setSelectedIndex(0);

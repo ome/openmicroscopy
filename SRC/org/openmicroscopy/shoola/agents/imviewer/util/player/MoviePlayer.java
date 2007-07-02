@@ -126,8 +126,8 @@ class MoviePlayer
         endZ = getMaxZ();
         if (timerDelay > getMaximumTimer()) timerDelay = getMaximumTimer();
         setTimerDelay(timerDelay);
-        if (getMaxZ() != 0) index = MoviePlayerDialog.ACROSS_Z;
-        else if (getMaxT() != 0) index = MoviePlayerDialog.ACROSS_T;
+        if (getMaxT() != 0) index = MoviePlayerDialog.ACROSS_T;
+        else if (getMaxZ() != 0) index = MoviePlayerDialog.ACROSS_Z;
     }
     
     /** Resets the frame number depending on the movie type. */

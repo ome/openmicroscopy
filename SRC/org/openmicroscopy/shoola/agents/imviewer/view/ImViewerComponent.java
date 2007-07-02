@@ -1362,7 +1362,7 @@ class ImViewerComponent
 			} else {
 				doClick = true;
 				d.setMovieIndex(MoviePlayerDialog.ACROSS_T);
-				d.setStartT(model.getDefaultT());
+				d.setTimeRange(model.getDefaultT(), model.getMaxT());
 			}
 		}
 		

@@ -470,6 +470,12 @@ class MoviePlayerUI
         throw new IllegalArgumentException("UI index not supported.");
     }
     
+    /** Sets the moive type to {@link #FORWARD_CMD}. */
+    void setDefaultMovieType()
+    {
+    	movieTypes.setSelectedIndex(FORWARD_CMD);
+    }
+    
     /**
      * Sets the start z-section.
      * 
