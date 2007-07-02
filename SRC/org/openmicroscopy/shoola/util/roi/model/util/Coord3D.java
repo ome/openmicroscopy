@@ -47,8 +47,8 @@ public class Coord3D
 	implements Comparator
 {
 	//public int c;
-	public int t;
-	public int z;
+	private int t;
+	private int z;
 	
 	public Coord3D()
 	{

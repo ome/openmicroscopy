@@ -122,10 +122,10 @@ public class ROIMap
 		if(!roiIDMap.containsKey(id))
 			throw new NoSuchROIException("No ROI with id : "+ id);
 		ROI roi = roiIDMap.getROI(id);
-		int mint = Math.min(start.t, end.t);
-		int maxt = Math.max(start.t, end.t);
-		int minz = Math.min(start.z, end.z);
-		int maxz = Math.max(start.z, end.z);
+		int mint = Math.min(start.getTimePoint(), end.getTimePoint());
+		int maxt = Math.max(start.getTimePoint(), end.getTimePoint());
+		int minz = Math.min(start.getZSection(), end.getZSection());
+		int maxz = Math.max(start.getZSection(), end.getZSection());
 		maxt = maxt+1;
 		maxz = maxz+1;
 		ROIShape shape = roi.getShape(selectedShape);
@@ -149,10 +149,10 @@ public class ROIMap
 		if(!roiIDMap.containsKey(id))
 			throw new NoSuchROIException("No ROI with id : "+ id);
 		ROI roi = roiIDMap.getROI(id);
-		int mint = Math.min(start.t, end.t);
-		int maxt = Math.max(start.t, end.t);
-		int minz = Math.min(start.z, end.z);
-		int maxz = Math.max(start.z, end.z);
+		int mint = Math.min(start.getTimePoint(), end.getTimePoint());
+		int maxt = Math.max(start.getTimePoint(), end.getTimePoint());
+		int minz = Math.min(start.getZSection(), end.getZSection());
+		int maxz = Math.max(start.getZSection(), end.getZSection());
 		maxt = maxt+1;
 		maxz = maxz+1;
 		//for(int c = start.c; c < end.c ; c++)
