@@ -22,22 +22,22 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.actions;
 
+
+
+
+
+//Java imports
 import java.awt.event.ActionEvent;
-
 import javax.swing.Action;
+//Third-party libraries
 
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
- * 
+ * Sets the unit either in microns or in pixels.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,10 +60,12 @@ public class UnitsAction
 	private static final String NAME_MICRONS = "Show Units in Microns.";
 	
 	/** The description of the action for microns. */
-	private static final String DESCRIPTION_MICRONS = "Show the measurement units in Microns.";
+	private static final String DESCRIPTION_MICRONS = "Show the measurement " +
+											"units in Microns.";
 
 	/** The description of the action for pixels. */
-	private static final String DESCRIPTION_PIXELS = "Show the measurement units in Pixels.";
+	private static final String DESCRIPTION_PIXELS = "Show the measurement " +
+												"units in Pixels.";
 
 	/** Display measurement in microns. */
 	private boolean				inMicrons; 
@@ -71,13 +73,15 @@ public class UnitsAction
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param model The model. Mustn't be <code>null</code>.
+	 * @param model 	The model. Mustn't be <code>null</code>.
+	 * @param inMicrons Passed <code>true</code> to set the unit in microns,
+	 * 					<code>false</code> otherwise.
 	 */
 	public UnitsAction(MeasurementViewer model, boolean inMicrons)
 	{
 		super(model);
 		this.inMicrons = inMicrons;
-		if(inMicrons)
+		if (inMicrons)
 		{
 			name = NAME_MICRONS;
 			putValue(Action.NAME, NAME_MICRONS);
@@ -96,7 +100,7 @@ public class UnitsAction
 	}
 	
 	/** 
-     * Brings up the results wizard.
+     * Sets the units.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e) 

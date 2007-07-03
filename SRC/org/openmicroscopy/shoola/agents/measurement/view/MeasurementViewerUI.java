@@ -35,7 +35,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
-
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
@@ -55,7 +54,6 @@ import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAct
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
@@ -83,6 +81,19 @@ class MeasurementViewerUI
 	extends TopWindow
 {
 
+	/** The message displayed when a ROI cannot be retrieved. */
+	static final String					RETRIEVE_MSG = "Cannot retrieve the " +
+															"ROI";
+	
+	/** The message displayed when a ROI cannot be created. */
+	static final String					CREATE_MSG = "Cannot create the ROI";
+	
+	/** The message displayed when a ROI cannot be deleted. */
+	static final String					DELETE_MSG = "Cannot delete the ROI";
+	
+	/** The default message. */
+	static final String					DEFAULT_MSG = "";
+	
 	/** The default size of the window. */
 	private static final Dimension		DEFAULT_SIZE = new Dimension(400, 300);
 	
@@ -166,12 +177,13 @@ class MeasurementViewerUI
         ButtonGroup displayUnits = new ButtonGroup();
     	
         menu.setMnemonic(KeyEvent.VK_O);
-        MeasurementViewerAction a = 
-        	controller.getAction(MeasurementViewerControl.SHOWMEASUREMENTINMICRONS);
+        MeasurementViewerAction a = controller.getAction(
+        			MeasurementViewerControl.SHOWMEASUREMENTINMICRONS);
         JCheckBoxMenuItem inMicronsMenu = new JCheckBoxMenuItem(a);
         inMicronsMenu.setText(a.getName());
         menu.add(inMicronsMenu);
-        a = controller.getAction(MeasurementViewerControl.SHOWMEASUREMENTINPIXELS);
+        a = controller.getAction(
+        		MeasurementViewerControl.SHOWMEASUREMENTINPIXELS);
         JCheckBoxMenuItem inPixelsMenu = new JCheckBoxMenuItem(a);
         inPixelsMenu.setText(a.getName());
         menu.add(inPixelsMenu);
@@ -290,7 +302,7 @@ class MeasurementViewerUI
     		ROIFigure fig = roi.getFigure(new Coord3D(z, t));
     		selectFigure(fig);
 		} catch (Exception e) {
-			handleROIException(e);
+			handleROIException(e, RETRIEVE_MSG);
 		}	
     }
     
@@ -331,7 +343,7 @@ class MeasurementViewerUI
 				if (roi != null) roiList.add(roi);
 			}
 		} catch (Exception e) {
-			handleROIException(e);
+			handleROIException(e, RETRIEVE_MSG);
 		}
 		dv.grabFocus();
 		roiInspector.setSelectedFigures(roiList);
@@ -358,7 +370,7 @@ class MeasurementViewerUI
 				if (roi != null) roiList.add(roi);
 			}
 		} catch (Exception e) {
-			handleROIException(e);
+			handleROIException(e, RETRIEVE_MSG);
 		}
 		roiInspector.setSelectedFigures(roiList);
 		roiManager.setSelectedFigures(roiList, true);
@@ -376,7 +388,7 @@ class MeasurementViewerUI
     		model.removeROIShape(figure.getROI().getID());
         	roiManager.removeFigure(figure);
 		} catch (Exception e) {
-			handleROIException(e);
+			handleROIException(e, DELETE_MSG);
 		}
     }
     
@@ -392,7 +404,7 @@ class MeasurementViewerUI
     	try {
     		roi = model.createROI(figure);
 		} catch (Exception e) {
-			handleROIException(e);
+			handleROIException(e, CREATE_MSG);
 		}
     	if (roi == null) return;
     	List<ROI> roiList = new ArrayList<ROI>();
@@ -450,19 +462,14 @@ class MeasurementViewerUI
 	 * selection.
 	 */
 	void showResultsWizard() { roiResults.showResultsWizard(); }
-	
-	/**
-	 * Shows the ROIAssistant and updates the ROI based on the users 
-	 * selection.
-	 */
-	void showROIAssistant() { displayROIAssistant(); }    
     
     /**
      * Handles the exception thrown by the <code>ROIComponent</code>.
      * 
-     * @param e The exception to handle.
+     * @param e 	The exception to handle.
+     * @param text 	The message displayed in the status bar.
      */
-    void handleROIException(Exception e)
+    void handleROIException(Exception e, String text)
     {
     	Registry reg = MeasurementAgent.getRegistry();
     	if (e instanceof ROICreationException || 
@@ -470,7 +477,7 @@ class MeasurementViewerUI
     	{
     		reg.getLogger().error(this, 
     						"Problem while handling ROI "+e.getMessage());
-    		statusBar.setStatus(e.getMessage());
+    		statusBar.setStatus(text);
     	} else {
     		String s = "An unexpected error occured while handling ROI ";
     		reg.getLogger().error(this, s+e.getMessage());
@@ -489,7 +496,7 @@ class MeasurementViewerUI
 		try {
 			list = model.getShapeList();
 		} catch (Exception e) {
-			handleROIException(e);
+			handleROIException(e, RETRIEVE_MSG);
 		}
 		if (list != null) {
 			TreeMap map = list.getList();
@@ -500,10 +507,63 @@ class MeasurementViewerUI
 				if (shape != null) drawing.add(shape.getFigure());
 			}
 		}
-		
+		setStatus(DEFAULT_MSG);
 		model.getDrawingView().setDrawing(drawing);
 		drawing.addDrawingListener(controller);
 	}
+	
+	/**
+	 * Propagates the selected shape in the roi model. 
+	 * 
+	 * @param shape 	The ROIShape to propagate.
+	 * @param timePoint The timepoint to propagate to.
+	 * @param zSection 	The z-section to propagate to.
+	 */
+	void propagateShape(ROIShape shape, int timePoint, int zSection) 
+	{
+		try {
+			model.propagateShape(shape, timePoint, zSection);
+		} catch (Exception e) {
+			handleROIException(e, RETRIEVE_MSG);
+		}
+		setStatus(DEFAULT_MSG);
+		rebuildManagerTable();
+	}
+	
+	/**
+	 * Deletes the selected shape from current coord to timepoint and z-section.
+	 *  
+	 * @param shape 	The initial shape to delete.
+	 * @param timePoint The timepoint to delete to.
+	 * @param zSection 	The z-section to delete to.
+	 */
+	void deleteShape(ROIShape shape, int timePoint, int zSection) 
+	{
+		try {
+			model.deleteShape(shape, timePoint, zSection);
+		} catch (Exception e) {
+			handleROIException(e, RETRIEVE_MSG);
+		}
+		setStatus(DEFAULT_MSG);
+		rebuildManagerTable();
+	}
+	
+	/**
+	 * Creates a single figure and moves the tool in the menu back to the 
+	 * selection tool, if param true. 
+	 * @param option see above.
+	 */
+	void createSingleFigure(boolean option)
+	{
+		toolBar.createSingleFigure(option);
+	}
+	
+	/**
+	 * Sets a message in the status bar.
+	 * 
+	 * @param text The text to display.
+	 */
+	void setStatus(String text) { statusBar.setStatus(text); }
 	
     /** 
      * Overridden to the set the location of the {@link MeasurementViewer}.
@@ -519,75 +579,5 @@ class MeasurementViewerUI
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
-
     
-    /**
-	 * Shows the ROIAssistant and updates the ROI based on the users 
-	 * selection.
-	 */
-	private void displayROIAssistant()
-    {
-		Collection<ROI> roiList = model.getSelectedROI();
-		Registry reg = MeasurementAgent.getRegistry();
-		UserNotifier un = reg.getUserNotifier();
-		if(roiList.size()==0)
-		{
-				un.notifyInfo("ROI Assistant", "Select a Figure to modify " +
-												"using the ROI Assistant.");
-				return;
-		}
-		if(roiList.size()>1)
-		{
-				un.notifyInfo("ROI Assistant", "The ROI Assistant can" +
-												"only be used on one ROI" +
-												"at a time.");
-				return;
-		}
-		ROI currentROI = roiList.iterator().next();
-    	ROIAssistant assistant = new ROIAssistant(model.getNumTimePoints(), 
-    		model.getNumZSections(), model.getCurrentView(), currentROI, this);
-    	UIUtilities.setLocationRelativeToAndShow(this, assistant);
-    }
-	
-	/**
-	 * Propagate the selected shape in the roi model. 
-	 * @param shape ROIShape to propagate.
-	 * @param timePoint timepoint to propagate to.
-	 * @param zSection z section to propagate to.
-	 * @throws ROICreationException
-	 * @throws NoSuchROIException
-	 */
-	void propagateShape(ROIShape shape, int timePoint, int zSection) 
-	throws 	ROICreationException, 
-			NoSuchROIException
-	{
-		model.propagateShape(shape, timePoint, zSection);
-		rebuildManagerTable();
-	}
-	
-	/**
-	 * Delete the selected shape from current coord to timepoint and zSection.
-	 * @param shape initial shape to delete.
-	 * @param timePoint time point to delete to.
-	 * @param zSection zsection to delete to.
-	 * @throws ROICreationException
-	 * @throws NoSuchROIException
-	 */
-	void deleteShape(ROIShape shape, int timePoint, int zSection) 
-	throws 	ROICreationException, 
-	NoSuchROIException
-	{
-		model.deleteShape(shape, timePoint, zSection);
-		rebuildManagerTable();
-	}
-	
-	/**
-	 * Creates a single figure and moves the tool in the menu back to the 
-	 * selection tool, if param true. 
-	 * @param option see above.
-	 */
-	public void createSingleFigure(boolean option)
-	{
-		toolBar.createSingleFigure(option);
-	}
 }

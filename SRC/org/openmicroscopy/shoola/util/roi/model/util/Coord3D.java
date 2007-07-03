@@ -52,7 +52,7 @@ public class Coord3D
 	
 	public Coord3D()
 	{
-		
+		this(0, 0);
 	}
 	
 	public Coord3D(int zsec, int time)

@@ -231,6 +231,11 @@ class MeasurementViewerControl
 	{
 		int state = model.getState();
 		switch (state) {
+			case MeasurementViewer.ANALYSE_SHAPE:
+				//TODO: modify notification mechanism
+				LoadingWindow win = view.getLoadingWindow();
+				if (!win.isVisible()) UIUtilities.centerAndShow(win);
+				break;
 			case MeasurementViewer.LOADING_DATA:
 				LoadingWindow w = view.getLoadingWindow();
 				if (!w.isVisible()) UIUtilities.centerAndShow(w);

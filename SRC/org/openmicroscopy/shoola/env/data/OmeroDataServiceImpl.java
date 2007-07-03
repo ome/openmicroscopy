@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.Mapper;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import pojos.AnnotationData;
@@ -740,7 +741,7 @@ class OmeroDataServiceImpl
         	metadata = new ArrayList<ChannelMetadata>(l.size());
         int index = 0;
         while (i.hasNext()) {
-            metadata.add(new ChannelMetadata(index, (Channel) i.next()));
+            metadata.add(Mapper.mapChannel(index, (Channel) i.next()));
             index++;
         }
         return metadata;

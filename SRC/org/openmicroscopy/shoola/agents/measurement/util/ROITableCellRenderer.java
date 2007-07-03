@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.measurement.util;
 import java.awt.Color;
 import java.awt.Component;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -100,21 +99,6 @@ public class ROITableCellRenderer
 		return thisComponent;
 	}
 
-	/**
-	 * Create the combo box to represent the fonts size.
-	 * @return see above.
-	 */
-	private JComboBox createFontComboBox()
-	{
-		JComboBox comboBox = new JComboBox();
-		comboBox.addItem(new Integer(6));
-		comboBox.addItem(new Integer(8));
-		comboBox.addItem(new Integer(10));
-		comboBox.addItem(new Integer(12));
-		comboBox.addItem(new Integer(14));
-		return comboBox;
-	}
-	
 }
 
 

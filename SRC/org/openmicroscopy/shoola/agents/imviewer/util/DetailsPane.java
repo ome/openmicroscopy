@@ -55,9 +55,6 @@ class DetailsPane
 	extends JPanel
 {
 	
-	/** String to represent the micron symbol. */
-    private static final String MICRONS = "(in \u00B5)";
-    
     /** Identifies the <code>SizeX</code> field. */
     private static final String SIZE_X = "Size X";
     
@@ -65,13 +62,16 @@ class DetailsPane
     private static final String SIZE_Y = "Size Y";
     
     /** Identifies the <code>PixelSizeX</code> field. */
-    private static final String PIXEL_SIZE_X = "Pixel size X "+MICRONS;
+    private static final String PIXEL_SIZE_X = "Pixel size X "+
+    											UIUtilities.MICRONS;
     
     /** Identifies the <code>PixelSizeY</code> field. */
-    private static final String PIXEL_SIZE_Y = "Pixel size Y "+MICRONS;
+    private static final String PIXEL_SIZE_Y = "Pixel size Y "+
+    											UIUtilities.MICRONS;
     
     /** Identifies the <code>PixelSizeZ</code> field. */
-    private static final String PIXEL_SIZE_Z = "Pixel size Z "+MICRONS;
+    private static final String PIXEL_SIZE_Z = "Pixel size Z "+
+    											UIUtilities.MICRONS;
     
     /**
      * Creates a non-editable text field.

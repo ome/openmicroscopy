@@ -98,6 +98,7 @@ class StatusBar
     private void initComponents()
     {
         icons = IconManager.getInstance();
+        progressLabel = new JLabel(icons.getIcon(IconManager.PROGRESS));
         progressBar = new JProgressBar();
         progressBar.setIndeterminate(true);
         status = new JLabel();
@@ -128,17 +129,14 @@ class StatusBar
         p.add(status);
         add(UIUtilities.buildComponentPanel(p));
         JPanel progressPanel = new JPanel();
-        progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.X_AXIS));
-        progressLabel = new JLabel(icons.getIcon(IconManager.PROGRESS));
+        progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.X_AXIS));  
         progressPanel.add(progressBar);
         progressPanel.add(Box.createRigidArea(H_SPACER_SIZE));
         progressPanel.add(progressLabel);
         progressPanel.add(Box.createRigidArea(H_SPACER_SIZE));
         add(UIUtilities.buildComponentPanelRight(progressPanel));
-        
         progressBar.setPreferredSize(PROGRESSBAR_SIZE);
         progressBar.setSize(PROGRESSBAR_SIZE);
-        
     }
     
     /**

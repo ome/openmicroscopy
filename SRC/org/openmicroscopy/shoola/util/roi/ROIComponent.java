@@ -110,78 +110,6 @@ public class ROIComponent
 	/** Show the measurement units. */
 	private MeasurementUnits			units;
 	
-	/** 
-	
-	/** 
-	 * Creates a new instance. Initializes an collection to keep 
-	 * track of the existing ROI.
-	 */
-	public ROIComponent()
-	{
-		roiCollection = new ROICollection();
-		units = new MeasurementUnits(0, 0, 0 , false);
-	}
-	
-	/**
-	 * Set the number of microns per pixel in the x-axis. 
-	 * @param x see above.
-	 * 
-	 */
-	public void setMicronsPixelX(double x)
-	{
-		units.setMicronsPixelX(x);
-	}
-
-	/**
-	 * Get the number of microns per pixel in the x-axis. 
-	 * @return microns see above.
-	 * 
-	 */
-	public double getMicronsPixelX()
-	{
-		return units.getMicronsPixelX();
-	}
-	
-	/**
-	 * Set the number of microns per pixel in the y-axis. 
-	 * @param y see above.
-	 * 
-	 */
-	public void setMicronsPixelY(double y)
-	{
-		units.setMicronsPixelY(y);
-	}
-	
-	/**
-	 * Get the number of microns per pixel in the y-axis. 
-	 * @return microns see above.
-	 * 
-	 */
-	public double getMicronsPixelY()
-	{
-		return units.getMicronsPixelY();
-	}
-	
-	/**
-	 * Set the number of microns per pixel in the z-axis. 
-	 * @param z see above.
-	 * 
-	 */
-	public void setMicronsPixelZ(double z)
-	{
-		units.setMicronsPixelZ(z);
-	}
-	
-	/**
-	 * Get the number of microns per pixel in the z-axis. 
-	 * @return microns see above.
-	 * 
-	 */
-	public double getMicronsPixelZ()
-	{
-		return units.getMicronsPixelZ();
-	}
-
 	/**
      * Helper method to set the attributes of the newly created figure.
      * 
@@ -219,21 +147,31 @@ public class ROIComponent
 		ROIShape s = fig.getROIShape();
 	}
     
+	/** 
+	 * Creates a new instance. Initializes an collection to keep 
+	 * track of the existing ROI.
+	 */
+	public ROIComponent()
+	{
+		roiCollection = new ROICollection();
+		units = new MeasurementUnits(0, 0, 0 , false);
+	}
+
 	/**
-    * Removes the specified figure from the display.
-    * 
-    * @param figure The figure to remove.
-	 * @throws NoSuchROIException 
-    */
-    void removeROI(ROIFigure figure) throws NoSuchROIException
-    {
-    	if (figure == null) return;
-    	long id = figure.getROI().getID();
-    	Coord3D coord = figure.getROIShape().getCoord3D();
-    	deleteShape(id, coord);	
-    }
-    
-    /**
+	 * Removes the specified figure from the display.
+	 * 
+	 * @param figure The figure to remove.
+	 * @throws NoSuchROIException If the ROI does not exist. 
+	 */
+	void removeROI(ROIFigure figure) throws NoSuchROIException
+	{
+		if (figure == null) return;
+		long id = figure.getROI().getID();
+		Coord3D coord = figure.getROIShape().getCoord3D();
+		deleteShape(id, coord);	
+	}
+
+	/**
 	 * Creates a <code>ROI</code> from the passed figure.
 	 * 
 	 * @param figure The figure to create the <code>ROI</code> from.
@@ -243,8 +181,7 @@ public class ROIComponent
 	 * @throws NoSuchROIException If the ROI does not exist.
 	 */
 	ROI createROI(ROIFigure figure, Coord3D currentPlane)
-		throws ROICreationException,  
-			NoSuchROIException
+		throws ROICreationException, NoSuchROIException
 	{
 		ROI roi = createROI();
 		ROIShape newShape = new ROIShape(roi, currentPlane, figure, 
@@ -253,6 +190,66 @@ public class ROIComponent
 		return roi;
 	}
 	
+	/**
+	 * Sets the number of microns per pixel in the x-axis. 
+	 * 
+	 * @param x see above.
+	 */
+	public void setMicronsPixelX(double x)
+	{
+		units.setMicronsPixelX(x);
+	}
+
+	/**
+	 * Returns the number of microns per pixel in the x-axis. 
+	 * 
+	 * @return microns see above.
+	 */
+	public double getMicronsPixelX()
+	{
+		return units.getMicronsPixelX();
+	}
+	
+	/**
+	 * Sets the number of microns per pixel in the y-axis. 
+	 * 
+	 * @param y see above.
+	 */
+	public void setMicronsPixelY(double y)
+	{
+		units.setMicronsPixelY(y);
+	}
+	
+	/**
+	 * Get the number of microns per pixel in the y-axis. 
+	 * @return microns see above.
+	 * 
+	 */
+	public double getMicronsPixelY()
+	{
+		return units.getMicronsPixelY();
+	}
+	
+	/**
+	 * Set the number of microns per pixel in the z-axis. 
+	 * @param z see above.
+	 * 
+	 */
+	public void setMicronsPixelZ(double z)
+	{
+		units.setMicronsPixelZ(z);
+	}
+	
+	/**
+	 * Get the number of microns per pixel in the z-axis. 
+	 * @return microns see above.
+	 * 
+	 */
+	public double getMicronsPixelZ()
+	{
+		return units.getMicronsPixelZ();
+	}
+
     /**
      * Adds the specified figure to the display.
      * 
@@ -262,9 +259,8 @@ public class ROIComponent
      * @throws NoSuchROIException 
      * @throws ROICreationException 
      */
-    public ROI addROI(ROIFigure figure, Coord3D currentPlane) throws 
-    													ROICreationException, 
-    													NoSuchROIException
+    public ROI addROI(ROIFigure figure, Coord3D currentPlane)
+    	throws ROICreationException, NoSuchROIException
     {
     	if (figure == null) throw new NullPointerException("Figure param null.");
     	setFigureAttributes(figure);

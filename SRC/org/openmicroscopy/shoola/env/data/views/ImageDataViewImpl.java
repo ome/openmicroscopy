@@ -26,11 +26,15 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.core.Pixels;
+import ome.model.enums.PixelsType;
 import omeis.providers.re.data.PlaneDef;
+import org.openmicroscopy.shoola.env.data.views.calls.Analyser;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
 import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
@@ -70,7 +74,8 @@ class ImageDataViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#loadRenderingControl(long, boolean, AgentEventListener)
+     * @see ImageDataView#loadRenderingControl(long, boolean, 
+     * 											sAgentEventListener)
      */
     public CallHandle loadRenderingControl(long pixelsID, boolean reload,
                                         AgentEventListener observer)
@@ -122,6 +127,18 @@ class ImageDataViewImpl
 	{
 		BatchCallTree cmd = new PixelsDataLoader(pixelsID, 
 									PixelsDataLoader.SET);
+		return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#analyseShapes(Pixels, List, List, 
+     * 									AgentEventListener)
+     */
+	public CallHandle analyseShapes(Pixels pixels, List channels, List shapes, 
+									AgentEventListener observer)
+	{
+		BatchCallTree cmd = new Analyser(pixels, channels, shapes);
 		return cmd.exec(observer);
 	}
 

@@ -87,6 +87,9 @@ public class UIUtilities
     /** String to representing the nanometer symbol. */
     public static final String              NANOMETER = " \u00B5m";
     
+    /** String to represent the micron symbol. */
+    public static final String 				MICRONS = "(in \u00B5)";
+    
 	/** Background color of the hightlighted node. */
 	public static final Color				HIGHLIGHT = new Color(204, 255, 
 															204);

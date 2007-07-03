@@ -83,7 +83,36 @@ public class ResultsCellRenderer
 	{
 		return UIUtilities.twoDecimalPlaces(value);
 	}
-			
+		
+	/**
+	 * Creates and returns a {@link JList} from the passed object.
+	 * 
+	 * @param value The object to handle.
+	 * @return See above.
+	 */
+	private JList createList(Object value)
+	{
+		ArrayList elementList = (ArrayList)value;
+		JList list = new JList();
+		DefaultListModel model = new DefaultListModel();
+		String v;
+		for(Object element : elementList)
+		{
+			if(element instanceof Float)
+			{
+				v = twoDecimalPlaces((Float) element);
+				model.addElement(new String(v));
+			}
+			else if(element instanceof Double)
+			{
+				v = twoDecimalPlaces((Double) element);
+				model.addElement(new String(v));
+			}
+		}
+		list.setModel(model);
+		return list;
+	}
+	
 	/**
 	 * Creates a new instance. Sets the opacity of the label to 
 	 * <code>true</code>.
@@ -133,32 +162,5 @@ public class ResultsCellRenderer
 		}
 		return thisComponent;
 	}
-	
-	/**
-	 * Creates and returns a {@link JList} from the passed object.
-	 * 
-	 * @param value The object to handle.
-	 * @return See above.
-	 */
-	private JList createList(Object value)
-	{
-		ArrayList elementList = (ArrayList)value;
-		JList list = new JList();
-		DefaultListModel model = new DefaultListModel();
-		for(Object element : elementList)
-		{
-			if(element instanceof Float)
-			{
-				String v = twoDecimalPlaces((Float)element);
-				model.addElement(new String(v));
-			}
-			else if(element instanceof Double)
-			{
-				String v = twoDecimalPlaces((Double)element);
-				model.addElement(new String(v));
-			}
-		}
-		list.setModel(model);
-		return list;
-	}
+
 }

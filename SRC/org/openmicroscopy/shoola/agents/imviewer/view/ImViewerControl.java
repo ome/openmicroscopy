@@ -576,8 +576,8 @@ class ImViewerControl
                 historyState = state;
                 break;
             case ImViewer.LOADING_IMAGE:
-                //if (historyState == ImViewer.LOADING_METADATA)
-                 if (historyState == ImViewer.LOADING_RENDERING_CONTROL)
+                if (historyState == ImViewer.LOADING_METADATA)
+                 //if (historyState == ImViewer.LOADING_RENDERING_CONTROL)
                     view.getLoadingWindow().setVisible(false);
                 view.onStateChange(false);
                 historyState = state;

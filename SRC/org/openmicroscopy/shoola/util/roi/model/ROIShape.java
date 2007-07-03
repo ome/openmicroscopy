@@ -101,6 +101,20 @@ public class ROIShape
 		return coord;
 	}
 	
+	/**
+	 * Returns the z-section.
+	 * 
+	 * @return See above.
+	 */
+	public int getZ() { return coord.getZSection(); }
+	
+	/**
+	 * Returns the timepoint.
+	 * 
+	 * @return See above.
+	 */
+	public int getT() { return coord.getTimePoint(); }
+	
 	public Rectangle2D getBoundingBox()
 	{
 		return boundingBox;

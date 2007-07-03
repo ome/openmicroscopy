@@ -25,19 +25,17 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.FontMetrics;
-
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import org.openmicroscopy.shoola.agents.measurement.util.ROIAssistantCellRenderer;
-import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.util.ROIAssistantCellRenderer;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 
  * 
@@ -52,9 +50,10 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
  * </small>
  * @since OME3.0
  */
-public class ROIAssistantTable
+class ROIAssistantTable
 	extends JTable
-{	
+{
+	
 	/** The default, minimum width of the column in the table. */
 	private final static int 	COLUMNWIDTH = 32;
 	
@@ -70,51 +69,34 @@ public class ROIAssistantTable
 	/** final width of the leader column. */
 	private int leaderColumnWidth;
 	
-	/** 
-	 * Gets the width of the column, used in the ROIAssistant.
-	 * @return see above. 
-	 */
-	public int getColumnWidth()
-	{
-		return columnWidth;
-	}
-	
-	/** 
-	 * Gets the width of the leader column, used in the ROIAssistant.
-	 * @return see above. 
-	 */
-	public int getLeaderColumnWidth()
-	{
-		return leaderColumnWidth;
-	}
-	
 	/**
-	 * Create the RIOAssistant table from the model. 
-	 * @param model see above. 
+	 * Creates a new instance.
+	 * 
+	 * @param model Reference to the model. 
 	 */
 	ROIAssistantTable(ROIAssistantModel model)
 	{
 		this.setModel(model);
 		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		int columnWidth = 0;
-		Font font = getFont();
-		FontMetrics metrics = getFontMetrics( font );
+		FontMetrics metrics = getFontMetrics(getFont());
+		int w;
 		for(int i = 0 ; i < getColumnCount(); i++)
 		{
-			int w  =  metrics.stringWidth( model.getColumnName(i));
+			w =  metrics.stringWidth(model.getColumnName(i));
 			columnWidth = Math.max(w, COLUMNWIDTH);
 		}
 		
-		int w  =  metrics.stringWidth( model.getColumnName(0));
+		w  =  metrics.stringWidth(model.getColumnName(0));
 
 		leaderColumnWidth = Math.max(w, LEADERCOLUMN_WIDTH);
-		for(int i = 0 ; i < getColumnCount(); i++)
+		TableColumn col;
+		int width;
+		for (int i = 0 ; i < getColumnCount(); i++)
 		{
-			
-			TableColumn col = getColumnModel().getColumn(i);
-			int width = columnWidth;
-			if(i==0)
-				width = leaderColumnWidth;
+			col = getColumnModel().getColumn(i);
+			width = columnWidth;
+			if (i == 0) width = leaderColumnWidth;
 			col.setMinWidth(width);
 			col.setMaxWidth(width);
 			col.setPreferredWidth(width);
@@ -128,6 +110,32 @@ public class ROIAssistantTable
 		setShowGrid(true);
 	}
 	
+	/** 
+	 * Returns the width of the column, used in the ROIAssistant.
+	 * 
+	 * @return See above. 
+	 */
+	int getColumnWidth() { return columnWidth; }
+	
+	/** 
+	 * Returns the width of the leader column, used in the ROIAssistant.
+	 * 
+	 * @return See above. 
+	 */
+	int getLeaderColumnWidth() { return leaderColumnWidth; }
+	
+	/** 
+	 * Returns the shape at the specified column and row.
+	 *  
+	 * @param row The selected row.
+	 * @param col The selected column.
+	 * @return See above.
+	 */
+	ROIShape getShapeAt(int row, int col)
+	{
+		return ((ROIAssistantModel) getModel()).getShapeAt(row, col); 
+	}
+	
 	/**
 	 * Overridden to return a customized cell renderer.
 	 * @see JTable#getCellRenderer(int, int)
@@ -136,17 +144,6 @@ public class ROIAssistantTable
 	{
         return new ROIAssistantCellRenderer();
     }
-	
-	/** 
-	 * Return the shape at row, col. 
-	 * @param row see above.
-	 * @param col see above.
-	 * @return see above.
-	 */
-	public ROIShape getShapeAt(int row, int col)
-	{
-		return ((ROIAssistantModel)getModel()).getShapeAt(row, col); 
-	}
 
 }
 

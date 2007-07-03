@@ -30,11 +30,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 
 //Third-party libraries
-import static org.jhotdraw.draw.AttributeKeys.TEXT;
+import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.DefaultDrawing;
 import org.jhotdraw.draw.DefaultDrawingEditor;
@@ -43,15 +45,19 @@ import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
-
+import org.openmicroscopy.shoola.agents.measurement.Analyser;
+import org.openmicroscopy.shoola.agents.measurement.ChannelMetadataLoader;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsDimensionsLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsLoader;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.file.IOUtil;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
@@ -61,6 +67,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import pojos.ExperimenterData;
 
 /** 
  * The Model component in the <code>MeasurementViewer</code> MVC triad.
@@ -106,7 +113,7 @@ class MeasurementViewerModel
 	private	DrawingEditor			drawingEditor;
 	
 	/** Component hosting the drawing. */
-	private ROIDrawingView				drawingView;
+	private ROIDrawingView			drawingView;
 	
 	/** The component managing the ROI. */
 	private ROIComponent			roiComponent;
@@ -126,6 +133,12 @@ class MeasurementViewerModel
     /** The name of the file name where the ROIs are saved. */
     private String					roiFileName;
     
+    /** Collection of pairs (channel's index, channel's color). */
+    private Map						activeChannels;
+    
+    /** Metadata for the pixels set. */
+    private ChannelMetadata[]		metadata;
+    
     /** 
      * Will either be a data loader or
      * <code>null</code> depending on the current state. 
@@ -137,6 +150,17 @@ class MeasurementViewerModel
     
     /** Boolean to indicating that the tool has been posted to the viewer.*/
     private boolean 				toolSent;
+    
+    /**
+     * Returns the current user's details.
+     * 
+     * @return See above.
+     */
+    private ExperimenterData getUserDetails()
+    { 
+    	return (ExperimenterData) MeasurementAgent.getRegistry().lookup(
+    			LookupNames.CURRENT_USER_DETAILS);
+    }
     
 	/**
 	 * Creates a new instance.
@@ -456,7 +480,7 @@ class MeasurementViewerModel
 	 * @return See above.
 	 */
 	int getSizeY() { return pixels.getSizeY().intValue(); }
-
+	
 	/**
 	 * Returns the {@link ROIDrawingView}.
 	 * 
@@ -544,9 +568,10 @@ class MeasurementViewerModel
 	 */
 	void figureAttributeChanged(AttributeKey attribute, ROIFigure figure)
 	{
-		if (attribute.getKey().equals(TEXT.getKey())) {
+		if (attribute.getKey().equals(AttributeKeys.TEXT.getKey())) {
 			ROIShape shape = figure.getROIShape();
-			AnnotationKeys.BASIC_TEXT.set(shape, TEXT.get(figure));
+			AnnotationKeys.BASIC_TEXT.set(shape, 
+									AttributeKeys.TEXT.get(figure));
 		}
 	}
 	
@@ -570,9 +595,9 @@ class MeasurementViewerModel
 	/**
 	 * Propagates the selected shape in the roi model. 
 	 * 
-	 * @param shape ROIShape to propagate.
-	 * @param timePoint timepoint to propagate to.
-	 * @param zSection z section to propagate to.
+	 * @param shape 	The ROIShape to propagate.
+	 * @param timePoint The timepoint to propagate to.
+	 * @param zSection 	The z-section to propagate to.
 	 * @throws ROICreationException
 	 * @throws NoSuchROIException
 	 */
@@ -586,9 +611,9 @@ class MeasurementViewerModel
 	/**
 	 * Deletes the selected shape from current coord to timepoint and z-section.
 	 * 
-	 * @param shape initial shape to delete.
-	 * @param timePoint time point to delete to.
-	 * @param zSection zsection to delete to.
+	 * @param shape 	The ROIShape to propagate.
+	 * @param timePoint The timepoint to propagate to.
+	 * @param zSection 	The z-section to propagate to.
 	 * @throws ROICreationException
 	 * @throws NoSuchROIException
 	 */
@@ -609,4 +634,81 @@ class MeasurementViewerModel
 	{
 		roiComponent.showMeasurementsInMicrons(inMicrons);
 	}
+	
+	/**
+	 * Sets the active channels.
+	 * 
+	 * @param activeChannels The value to set.
+	 */
+	void setActiveChannels(Map activeChannels)
+	{
+		this.activeChannels = activeChannels;
+	}
+	
+	/**
+	 * Fires an asynchronous call to analyse the passed shape.
+	 *  
+	 * @param shape The shape to analyse. Mustn't be <code>null</code>.
+	 */
+	void fireAnalyzeShape(ROIShape shape)
+	{
+		List l = new ArrayList(1);
+		l.add(shape);
+		state = MeasurementViewer.ANALYSE_SHAPE;
+		List channels = new ArrayList(activeChannels.size());
+		channels.addAll(activeChannels.keySet());
+		
+		currentLoader = new Analyser(component, pixels, channels, l);
+		currentLoader.load();
+	}
+	
+	/** Fires an asynchronous call to retrieve the channel metadata. */
+	void fireChannelMetadataLoading()
+	{
+		state = MeasurementViewer.LOADING_DATA;
+		currentLoader = new ChannelMetadataLoader(component, pixelsID);
+		currentLoader.load();
+	}
+	
+	/**
+	 * Sets the channel metadata.
+	 * 
+	 * @param m The value to set.
+	 */
+	void setChannelMetadata(List m)
+	{
+		metadata = new ChannelMetadata[m.size()];
+        Iterator i = m.iterator();
+        ChannelMetadata cm;
+        while (i.hasNext()) {
+        	cm = (ChannelMetadata) i.next();
+            metadata[cm.getIndex()] = cm;
+        }
+	}
+	
+	/**
+	 * Returns the channel metadata.
+	 * 
+	 * @return See above.
+	 */
+	ChannelMetadata[] getMetadata() { return metadata; }
+	
+	/**
+	 * Returns the metadata corresponding to the specified index or 
+	 * <code>null</code> if the index is not valid.
+	 * 
+	 * @param index The channel index.
+	 * @return See above.
+	 */
+	ChannelMetadata getMetadata(int index) 
+	{
+		if (index < 0 || index >= metadata.length) return null;
+		return metadata[index];
+	}
+	
+	void setStats()
+	{
+		state = MeasurementViewer.READY;
+	}
+	
 }	

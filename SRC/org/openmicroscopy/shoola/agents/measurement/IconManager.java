@@ -127,11 +127,14 @@ public class IconManager
 	/** The <code>PointIcon</code> icon. */
 	public static final int		POINTICON = 23;
 
+	 /** The <code>Progress</code> icon. */
+    public static int           PROGRESS = 24;
+    
 	/** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 23;
+    private static final int    MAX_ID = 24;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -165,6 +168,7 @@ public class IconManager
         relPaths[POINT] = "point.png";
         relPaths[TEXT] = "text.png";
         relPaths[POINTICON] = "point22.png";
+        relPaths[PROGRESS] = "eclipse_progress_none16.png";
     }
     
     /** 

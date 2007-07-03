@@ -26,10 +26,11 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
-
+import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.core.Pixels;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
@@ -55,11 +56,11 @@ public interface ImageDataView
     /**
      * Retrieves the metadata.
      * 
-     * @param imageID	The id of the image.
+     * @param pixelsID	The id of the pixels set.
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadChannelMetadata(long imageID,
+    public CallHandle loadChannelMetadata(long pixelsID,
                                     AgentEventListener observer);
     
     /**
@@ -116,5 +117,19 @@ public interface ImageDataView
      */
     public CallHandle loadPixels(long pixelsID, 
     					AgentEventListener observer);
+    
+    /**
+     * Retrieves the dimensions in microns of the pixels set.
+     * 
+     * @param pixels	The pixels set to analyse.
+     * @param channels	Collection of active channels. 
+     * 					Mustn't be <code>null</code>.
+     * @param shapes	Collection of shapes to analyse. 
+     * 					Mustn't be <code>null</code>.
+     * @param observer	Callback handler.
+     * @return See above.
+     */
+    public CallHandle analyseShapes(Pixels pixels, List channels, List shapes, 
+    								AgentEventListener observer);
     
 }

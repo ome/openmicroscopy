@@ -466,7 +466,7 @@ class RendererModel
      */
     double getGlobalMax()
     {
-        return rndControl.getChannelData(selectedChannelIndex).getGlobalMax();
+    	return rndControl.getChannelData(selectedChannelIndex).getGlobalMax();
     }
     
     /**

@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeMap;
-
 import javax.swing.table.AbstractTableModel;
 
 
@@ -51,9 +50,10 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
  * </small>
  * @since OME3.0
  */
-public class ROIAssistantModel
+class ROIAssistantModel
 	extends AbstractTableModel
 {	
+	
 	/** The roi this table model is based on. */
 	private ROI							currentROI;
 	
@@ -68,15 +68,37 @@ public class ROIAssistantModel
 	
 	private TreeMap<Coord3D, String> 	shapeMap;
 	
+	/** The name of the columns. */
 	private ArrayList<String> 			columnNames;
+	
+	/**
+	 * Populates the shape Map of the model with all the ROIShapes of the 
+	 * current ROI. 
+	 */
+	private void populateShapeMap()
+	{
+		shapeMap.clear();
+		TreeMap<Coord3D, ROIShape> list = currentROI.getShapes();
+		Iterator<ROIShape> shapeIterator = list.values().iterator();
+		ROIShape shape;
+		Coord3D coord;
+		while (shapeIterator.hasNext())
+		{
+			shape = shapeIterator.next();
+			coord = shape.getCoord3D();
+			numRows = Math.max(numRows, coord.getZSection());
+			shapeMap.put(coord, shape.getFigure().getType());
+		}
+	}
 	
 	/**
 	 * Model of the ROIAssistant to store the current locations of the ROIs
 	 * on the images, and their type.
-	 * @param numRow The number of z sections in the image. 
-	 * @param numCol The numer of time points in the image. 
-	 * @param currentPlane the current plane of the image.
-	 * @param roi The ROI which will be propagated.
+	 * 
+	 * @param numRow 		The number of z sections in the image. 
+	 * @param numCol 		The numer of time points in the image. 
+	 * @param currentPlane 	The current plane of the image.
+	 * @param roi			The ROI which will be propagated.
 	 */
 	ROIAssistantModel(int numCol, int numRow, Coord3D currentPlane, ROI roi)
 	{
@@ -87,38 +109,40 @@ public class ROIAssistantModel
 		currentROI = roi;
 		columnNames.add("Z Section\\Time");
 		shapeMap = new TreeMap<Coord3D, String>(new Coord3D());
-		for(int i = 0 ; i < numCol ; i++)
+		for (int i = 0 ; i < numCol ; i++)
 			columnNames.add((i+1)+"");
 		populateShapeMap();
 	}
 
 	/**
-	 * Populate the shape Map of the model with all the ROIShapes of the 
-	 * current ROI. 
-	 *
+	 * Returns the shape at z-section, timePoint which refers to the column and
+	 * row in the model.
+	 * 
+	 * @param zSection	The row of the table.
+	 * @param timePoint The col of the model.
+	 * @return see above.
 	 */
-	private void populateShapeMap()
+	ROIShape getShapeAt(int zSection, int timePoint)
 	{
-		shapeMap.clear();
-		TreeMap<Coord3D, ROIShape> list = currentROI.getShapes();
-		Iterator<ROIShape> shapeIterator = list.values().iterator();
-		while(shapeIterator.hasNext())
+		try
 		{
-			ROIShape shape = shapeIterator.next();
-			Coord3D coord = shape.getCoord3D();
-			numRows = Math.max(numRows, coord.getZSection());
-			String type = shape.getFigure().getType();
-			shapeMap.put(coord, type);
+			int translateZ = (getRowCount()-zSection);
+			return currentROI.getShape(
+						new Coord3D(translateZ-1, timePoint-1));
+			
+		}
+		catch (NoSuchROIException e)
+		{
+//			TODO; register in logger
+			return null;
 		}
 	}
 	
-	/* (non-Javadoc)
+	/**
+	 * Overridden to return the number of columns.
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
-	public int getColumnCount()
-	{
-		return numColumns;
-	}
+	public int getColumnCount() { return numColumns; }
 
 	/**
 	 * Overridden to return the name of the specified column.
@@ -126,16 +150,15 @@ public class ROIAssistantModel
 	 */
 	public String getColumnName(int col) { return columnNames.get(col); }
 
-	/* (non-Javadoc)
+	/**
+	 * Overridden to return the number of rows.
 	 * @see javax.swing.table.TableModel#getRowCount()
 	 */
-	public int getRowCount()
-	{
-		return numRows;
-	}
+	public int getRowCount() { return numRows; }
 
 	/** 
-	 * Set the value of the model to the object.
+	 * Overridden to set the value of the model to the object.
+	 * @see javax.swing.table.TableModel#setValueAt(Object, int, int)
 	 */
 	public void setValueAt(Object value, int col, int row)
 	{
@@ -143,72 +166,40 @@ public class ROIAssistantModel
 	}
 	
 	/**
-	 * Get the shape at zSection, timePoint which refers to the column and
-	 * row in the model.
-	 * @param zSection the row of the table.
-	 * @param timePoint the col of the model.
-	 * @return see above.
-	 */
-	public ROIShape getShapeAt(int zSection, int timePoint)
-	{
-		try
-		{
-			int translateZ = (getRowCount()-zSection);
-			ROIShape shape = currentROI.getShape(new Coord3D(translateZ-1, timePoint-1));
-			if(shape == null)
-			{
-				return null;
-			}
-			return shape;
-		}
-		catch (NoSuchROIException e)
-		{
-			return null;
-		}
-	}
-	
-	/* (non-Javadoc)
+	 *  Overridden to return the value of the model to the object.
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int zSection, int timePoint)
 	{
 		int translateZ = (getRowCount()-zSection);
-		if(timePoint == 0)
-		{
-			return translateZ+"";
-		}
+		if (timePoint == 0) return translateZ+"";
 		try
 		{
-			ROIShape shape = currentROI.getShape(new Coord3D(translateZ-1, timePoint-1));
-			if(shape == null)
-			{
-				return null;
-			}
+			ROIShape shape = currentROI.getShape(new Coord3D(translateZ-1, 
+											timePoint-1));
+			if (shape == null) return null;
 			return shape.getFigure().getType();
 		}
 		catch (NoSuchROIException e)
 		{
+			//TODO; register in logger
 			return null;
 		}
 	}
 	
 	/**
-	 * Set the number of columns in the table to col.
-	 * @param col see above.
+	 * Sets the number of columns in the table to col.
+	 * 
+	 * @param col The value to set.
 	 */
-	public void setColumnCount(int col)
-	{
-		numColumns = col;
-	}
+	public void setColumnCount(int col) { numColumns = col; }
 	
 	/**
-	 * Set the number of rows in the table to col.
-	 * @param row see above.
+	 * Sets the number of rows in the table to col.
+	 * 
+	 * @param row The value to set.
 	 */
-	public void setRowCount(int row)
-	{
-		numRows = row;
-	}
+	public void setRowCount(int row) { numRows = row; }
 	
 }
 

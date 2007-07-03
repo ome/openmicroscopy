@@ -29,14 +29,15 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import omeis.providers.re.data.PlaneDef;
-import org.openmicroscopy.shoola.agents.imviewer.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
@@ -157,7 +158,7 @@ class ImViewerModel
      */
     private boolean				textVisible;
     
-    /**Flag indicating that the a movie is played. */
+    /** Flag indicating that a movie is played. */
     private boolean				playingMovie;
     
     /** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
@@ -322,10 +323,7 @@ class ImViewerModel
      * 
      * @return See above.
      */
-    ChannelMetadata[] getChannelData()
-    {
-        return rndControl.getChannelData();
-    }
+    ChannelMetadata[] getChannelData() { return rndControl.getChannelData(); }
     
     /**
      * Returns the <code>ChannelData</code> object corresponding to the
@@ -335,8 +333,8 @@ class ImViewerModel
      * @return See above.
      */
     ChannelMetadata getChannelData(int index)
-    {
-        return rndControl.getChannelData(index);
+    { 
+    	return rndControl.getChannelData(index);
     }
     
     /**
@@ -355,17 +353,6 @@ class ImViewerModel
      * @return See above.
      */
     boolean isChannelActive(int w) { return rndControl.isActive(w); }
-    
-    /**
-     * Fires an asynchronous retrieval of metadata associated to the logical 
-     * channels composing the pixels set.
-     */
-    void fireChannelMetadataLoading()
-    {
-        currentLoader = new ChannelMetadataLoader(component, imageID);
-        currentLoader.load();
-        //state = ImViewer.LOADING_METADATA;
-    }
 
     /** Fires an asynchronous retrieval of the rendering control. */
     void fireRenderingControlLoading()
@@ -635,7 +622,7 @@ class ImViewerModel
      */
     double getGlobalMinimum(int index)
     {
-        return rndControl.getChannelData(index).getGlobalMin();
+        return getChannelData(index).getGlobalMin();
     }
     
     /** 
@@ -646,7 +633,7 @@ class ImViewerModel
      */
     double getGlobalMaximum(int index)
     {
-        return rndControl.getChannelData(index).getGlobalMax();
+        return getChannelData(index).getGlobalMax();
     }
 
     /**
@@ -845,6 +832,24 @@ class ImViewerModel
 	boolean isChannelBlue(int index)
 	{
 		return rndControl.isChannelBlue(index);
+	}
+
+	/**
+	 * Returns a collection of pairs 
+	 * (active channel's index, active channel's color).
+	 * 
+	 * @return See above.
+	 */
+	Map getActiveChannelsMap() {
+		List l = getActiveChannels();
+		Map m = new HashMap(l.size());
+		Iterator i = l.iterator();
+		Integer index;
+		while (i.hasNext()) {
+			index = (Integer) i.next();
+			m.put(index, getChannelColor(index.intValue()));
+		}
+		return m;
 	}
 	
 }

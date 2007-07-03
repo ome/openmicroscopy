@@ -30,6 +30,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
 //Java imports
 
@@ -55,16 +56,28 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class StatusBar
 	extends JPanel
 {
-	
-	/** Dimension of the horizontal space between UI components. */
-	private static final		Dimension HBOX = new Dimension(5, 5);
-	
+
+    /** 
+     * The size of the invisible components used to separate buttons
+     * horizontally.
+     */
+    private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
+    
+    /** Dimension of the progress bar. */
+    private static final Dimension PROGRESSBAR_SIZE = new Dimension(30, 8);
+    
 	/** Displays the status message. */
 	private JLabel              status;
 	
 	/** Button to display plane info. */
 	private JButton				statusButton;
 	
+	/** The bar notifying the user for the data retrieval progress. */
+    private JProgressBar        progressBar;
+    
+    /** The label displaying the progress icon. */
+    private JLabel              progressLabel;
+    
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -74,16 +87,33 @@ class StatusBar
 	    statusButton.setBorder(null);
 	    UIUtilities.unifiedButtonLookAndFeel(statusButton);
 	    status = new JLabel();
+	    progressBar = new JProgressBar();
+        progressBar.setIndeterminate(true);
+        progressLabel = new JLabel(icons.getIcon(IconManager.PROGRESS));
 	}
 	
 	/** Build and lay out the UI. */
 	private void buildUI()
 	{
-	    setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-	    setBorder(BorderFactory.createEtchedBorder());
-	    add(statusButton);
-	    add(Box.createRigidArea(HBOX));
-	    add(status);
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        setBorder(BorderFactory.createEtchedBorder());
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(statusButton);
+        p.add(Box.createRigidArea(H_SPACER_SIZE));
+        p.add(status);
+        add(UIUtilities.buildComponentPanel(p));
+        JPanel progressPanel = new JPanel();
+        progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.X_AXIS));
+        
+        progressPanel.add(progressBar);
+        progressPanel.add(Box.createRigidArea(H_SPACER_SIZE));
+        progressPanel.add(progressLabel);
+        progressPanel.add(Box.createRigidArea(H_SPACER_SIZE));
+        //add(UIUtilities.buildComponentPanelRight(progressPanel));
+        
+        progressBar.setPreferredSize(PROGRESSBAR_SIZE);
+        progressBar.setSize(PROGRESSBAR_SIZE);
 	}
 	
 	/** Creates a new instance. */

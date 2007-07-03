@@ -22,22 +22,23 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.actions;
 
-import java.awt.event.ActionEvent;
 
-import javax.swing.Action;
 
-import org.openmicroscopy.shoola.agents.measurement.IconManager;
-import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 
 //Java imports
+import java.awt.event.ActionEvent;
+import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Creates a group of figures or a figure.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -50,7 +51,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME3.0
  */
 public class FigureCreationAction
-extends MeasurementViewerAction
+	extends MeasurementViewerAction
 {
 
 	/** Show the pixels in Pixels. */
@@ -60,7 +61,8 @@ extends MeasurementViewerAction
 	private static final String NAME_SINGLE = "Create a single figure.";
 	
 	/** The description of the action for microns. */
-	private static final String DESCRIPTION_CONTINUOUS = "Create lots of figures.";
+	private static final String DESCRIPTION_CONTINUOUS = "Create lots of " +
+														"figures.";
 
 	/** The description of the action for pixels. */
 	private static final String DESCRIPTION_SINGLE = "Create a single figure.";
@@ -71,13 +73,15 @@ extends MeasurementViewerAction
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param model The model. Mustn't be <code>null</code>.
+	 * @param model 		The model. Mustn't be <code>null</code>.
+	 * @param createSingle 	Passed <code>true</code> to create one figure,
+	 * 						<code>false</code> otherwise.
 	 */
 	public FigureCreationAction(MeasurementViewer model, boolean createSingle)
 	{
 		super(model);
 		this.createSingle = createSingle;
-		if(!createSingle)
+		if (!createSingle)
 		{
 			name = NAME_CONTINUOUS;
 			putValue(Action.NAME, NAME_CONTINUOUS);
@@ -96,7 +100,7 @@ extends MeasurementViewerAction
 	}
 	
 	/** 
-     * Brings up the results wizard.
+     * Creates a figure or a group of figure depending on the passed value.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e) 

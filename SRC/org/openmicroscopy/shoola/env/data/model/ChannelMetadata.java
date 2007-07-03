@@ -31,10 +31,9 @@ package org.openmicroscopy.shoola.env.data.model;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.Channel;
 
 /** 
- * 
+ * Data Object holding information about the channel.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -50,23 +49,78 @@ public class ChannelMetadata
 {
 
     /** The OME index of the channel. */
-    private final int               index;
+    private final int	index;
     
-    /** The original channel object. */
-    private final Channel           channel;
+    /** The emission wavelength of the channel. */
+    private int			emissionWavelength;			
+    
+    /** The excitation wavelength of the channel. */
+    private int			excitationWavelength;
+    
+    /** The pinhole size. */
+    private int			pinHoleSize;
+    
+    /** The ND filter. */
+    private float		ndFilter;
+    
+    /** The global minimum of the channel i.e. the minimum of all minima. */
+    private double		globalMin;
+    
+    /** The global maximum of the channel i.e. the minimum of all minima. */
+    private double		globalMax;
+    
+    /** 
+     * Sets the emission wavelength.
+     * 
+     * @param emissionWavelength The value to set.
+     */
+    void setEmissionWavelength(int emissionWavelength)
+    {
+    	this.emissionWavelength = emissionWavelength;
+    }
+    
+    /** 
+     * Sets the excitation wavelength.
+     * 
+     * @param excitationWavelength The value to set.
+     */
+    void setExcitationWavelength(int excitationWavelength)
+    {
+    	this.excitationWavelength = excitationWavelength;
+    }
+    
+    /** 
+     * Sets the pin hole size.
+     * 
+     * @param pinHoleSize The value to set.
+     */
+    void setPinHoleSize(int pinHoleSize) { this.pinHoleSize = pinHoleSize; }
+    
+    /** 
+     * Sets the filter.
+     * 
+     * @param ndFilter The value to set.
+     */
+    void setNDFilter(float ndFilter) { this.ndFilter = ndFilter; }
     
     /**
      * Creates a new instance.
      * 
      * @param index     The index of the channel.
-     * @param channel
+     * @param globalMin	The minimum of all minima.
+     * @param globalMax	The maximum of all maxima.
      */
-    public ChannelMetadata(final int index, final Channel channel)
+    public ChannelMetadata(final int index, double globalMin, double globalMax)
     {
-        if (channel == null) 
-            throw new IllegalArgumentException("Channel cannot be null.");
+        if (index < 0)
+        	throw new IllegalArgumentException("Channel index cannot < 0.");
+        if (globalMin > globalMax)
+        	throw new IllegalArgumentException("Min cannot less than Max");
         this.index = index;
-        this.channel = channel;
+        this.globalMin = globalMin;
+        this.globalMax = globalMax;
+        emissionWavelength = index;
+        excitationWavelength = -1;
     }
     
     /**
@@ -74,12 +128,7 @@ public class ChannelMetadata
      * 
      * @return See above
      */
-    public int getEmissionWavelength()
-    {
-        Integer wave = channel.getLogicalChannel().getEmissionWave();
-        if (wave == null) return index;
-        return wave.intValue();
-    }
+    public int getEmissionWavelength() { return emissionWavelength; }
     
     /**
      * Returns the excitation wavelength of the channel.
@@ -87,10 +136,9 @@ public class ChannelMetadata
      * @return See above
      */
     public int getExcitationWavelength()
-    {
-        Integer wave = channel.getLogicalChannel().getExcitationWave();
-        if (wave == null) return getEmissionWavelength();
-        return wave.intValue();
+    { 
+    	if (excitationWavelength < 0) return getEmissionWavelength();
+    	return excitationWavelength; 
     }
     
     /**
@@ -98,43 +146,33 @@ public class ChannelMetadata
      * 
      * @return See above
      */
-    public int getPinholeSize()
-    {
-        Integer v = channel.getLogicalChannel().getPinHoleSize();
-        if (v == null) return 0;
-        return v.intValue();
-    }
+    public int getPinholeSize() { return pinHoleSize; }
     
     /**
      * Returns the excitation wavelength of the channel.
      * 
      * @return See above
      */
-    public float getNDFilter()
-    {
-        Float v = channel.getLogicalChannel().getNdFilter();
-        if (v == null) return 0;
-        return v.floatValue();
-    }
+    public float getNDFilter() { return ndFilter; }
     
     /** 
      * Returns the global minimum of the channel i.e. the minimum of all minima.
      * 
      * @return See above.
      */
-    public double getGlobalMin()
-    {
-        return channel.getStatsInfo().getGlobalMin().doubleValue();
-    }
+    public double getGlobalMin() { return globalMin; }
     
     /** 
      * Returns the global maximum of the channel i.e. the maximum of all maxima.
      * 
      * @return See above.
      */
-    public double getGlobalMax()
-    {
-        return channel.getStatsInfo().getGlobalMax().doubleValue();
-    }
+    public double getGlobalMax() { return globalMax; }
     
+    /**
+     * Returns the channel's index.
+     * 
+     * @return See above.
+     */
+    public int getIndex() { return index; }
 }

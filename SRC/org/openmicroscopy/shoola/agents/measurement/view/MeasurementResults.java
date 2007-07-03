@@ -81,6 +81,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class MeasurementResults 
 	extends JPanel
 {
+	
 	/** The default size of the column in a table. */
 	private static final int				COLUMNWIDTH = 64;
 

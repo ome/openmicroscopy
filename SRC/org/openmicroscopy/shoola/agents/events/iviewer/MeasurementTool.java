@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.events.iviewer;
 
 //Java imports
 import java.awt.Rectangle;
+import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -63,26 +65,31 @@ public class MeasurementTool
     /** The currently selected timepoint. */
     private int			defaultT;
     
+    /** Collection of pairs (channel's index, channel's color). */
+    private Map			activeChannels;
+    
     /** The image's magnification factor. */
     private double		magnification;
     
     /** The bounds of the component posting the event. */
     private Rectangle   requesterBounds;
-    
+
     /**
      * Creates a new instance.
      * 
-     * @param imageID   	The image ID.
-     * @param pixelsID  	The pixels set ID.
-     * @param name      	The name of the image.
-     * @param defaultZ		The currently selected z-section.
-     * @param defaultT		The currently selected timepoint.
-     * @param magnification The magnification factor.
-     * @param bounds    	The bounds of the component posting the event.
+     * @param imageID   		The image ID.
+     * @param pixelsID  		The pixels set ID.
+     * @param name      		The name of the image.
+     * @param defaultZ			The currently selected z-section.
+     * @param defaultT			The currently selected timepoint.
+     * @param activeChannels	Collection of pairs 
+     * 							(channel's index, channel's color).
+     * @param magnification 	The magnification factor.
+     * @param bounds    		The bounds of the component posting the event.
      */
     public MeasurementTool(long imageID, long pixelsID, String name, 
-    						int defaultZ, int defaultT, double magnification,
-    						Rectangle bounds)
+    						int defaultZ, int defaultT, Map activeChannels,
+    						double magnification, Rectangle bounds)
     {
         if (pixelsID < 0) 
             throw new IllegalArgumentException("Pixels set ID not valid.");
@@ -93,6 +100,7 @@ public class MeasurementTool
         this.name = name;
         this.defaultT = defaultT;
         this.defaultZ = defaultZ;
+        this.activeChannels = activeChannels;
         this.magnification = magnification;
         requesterBounds = bounds;
     }
@@ -146,5 +154,12 @@ public class MeasurementTool
      * @return See above.
      */
     public double getMagnification() { return magnification; }
+    
+    /**
+     * Returns the collection of pairs (channel's index, channel's color).
+     * 
+     * @return See above.
+     */
+    public Map getActiveChannels() { return activeChannels; }
     
 }

@@ -66,10 +66,11 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public class ROIAssistant
+class ROIAssistant
 	extends JDialog
 	implements ActionListener
 {	
+	
 	/** Action command ID to accept the current roi assistant results.*/
 	private static final int CLOSE = 0;
 
@@ -121,40 +122,6 @@ public class ROIAssistant
 	private 	ROIShape 				initialShape;
 	
 	/**
-	 * Constructor for the ROIAssistant Dialog.
-	 * @param numRow The number of z sections in the image. 
-	 * @param numCol The numer of time points in the image. 
-	 * @param currentPlane the current plane of the image.
-	 * @param selectedROI The ROI which will be propagated.
-	 * @param view a reference to the view. 
-	 */
-	public ROIAssistant(int numRow, int numCol, Coord3D currentPlane, 
-						ROI selectedROI, MeasurementViewerUI view)
-	{
-		this.view = view;
-		initialShape = null;
-		this.setAlwaysOnTop(true);
-		this.setModal(true);
-		createTable(numRow, numCol,currentPlane, selectedROI);
-		buildUI();
-
-		JViewport viewPort = scrollPane.getViewport();
-		Point point = mapCoordToCell(currentPlane);
-		int x = (int)Math.max((point.getX()-6*table.getColumnWidth()), 0);
-		int y = (int)Math.max((point.getY()-6*table.getColumnWidth()),0);
-		viewPort.setViewPosition(new Point(x, y));
-	}
-	
-	/**
-	 * Show the ROIAssitant if the param is true.
-	 * @param isVisible see above.
-	 */
-	public void setVisible(boolean isVisible)
-	{
-		super.setVisible(isVisible);
-	}
-	
-	/**
 	 * Maps the coordinate to a cell in the table.
 	 * 
 	 * @param coord see above.
@@ -162,17 +129,46 @@ public class ROIAssistant
 	 */
 	private Point mapCoordToCell(Coord3D coord)
 	{
-		int x = coord.getTimePoint()*table.getColumnWidth()+
-		table.getLeaderColumnWidth(); 
-		int y = coord.getZSection()*table.getColumnWidth();
-		Point pt = new Point(x, y);
-		return pt;
+		int w = table.getColumnWidth();
+		int x = coord.getTimePoint()*w+table.getLeaderColumnWidth(); 
+		int y = coord.getZSection()*w;
+		return new Point(x, y);
 	}
 	
 	/** Create the UI for the Assistant. */
 	private void buildUI()
 	{
-		layoutUI();
+		this.setSize(550,530);
+		JPanel panel = new JPanel();
+		JPanel infoPanel = createInfoPanel();
+		JPanel shapePanel = createShapePanel();
+		createAcceptButton();
+		
+		scrollPane = new JScrollPane(table);
+		scrollPane.setVerticalScrollBar(scrollPane.createVerticalScrollBar());
+		scrollPane.setHorizontalScrollBar(
+				scrollPane.createHorizontalScrollBar());
+		
+		JPanel scrollPanel = new JPanel();
+		scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.X_AXIS));
+		scrollPanel.add(Box.createHorizontalStrut(10));
+		scrollPanel.add(scrollPane);
+		scrollPanel.add(Box.createHorizontalStrut(10));
+		scrollPanel.add(createActionPanel());
+		scrollPanel.add(Box.createHorizontalStrut(10));
+		
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		
+		panel.add(infoPanel);
+		panel.add(Box.createVerticalStrut(10));
+		panel.add(scrollPanel);
+		panel.add(Box.createVerticalStrut(10));
+		panel.add(shapePanel);
+		panel.add(Box.createVerticalStrut(10));
+		panel.add(closeButton);
+		panel.add(Box.createVerticalStrut(10));
+		this.getContentPane().setLayout(new BorderLayout());
+		this.getContentPane().add(panel, BorderLayout.CENTER);
 	}
 	
 	/**
@@ -183,11 +179,13 @@ public class ROIAssistant
 	 * @param currentPlane the current plane of the image.
 	 * @param selectedROI The ROI which will be propagated.
 	 */
-	private void createTable(int numRow, int numCol, Coord3D currentPlane, ROI selectedROI)
+	private void createTable(int numRow, int numCol, Coord3D currentPlane, 
+							ROI selectedROI)
 	{
-		model = new ROIAssistantModel(numRow, numCol, currentPlane, selectedROI);
+		model = new ROIAssistantModel(numRow, numCol, currentPlane, 
+									selectedROI);
 		table = new ROIAssistantTable(model);
-	
+
 		table.addMouseListener(new java.awt.event.MouseAdapter() 
 		{
 			public void mousePressed(java.awt.event.MouseEvent e) 
@@ -201,43 +199,43 @@ public class ROIAssistant
 					initialShape = shape;
 					shapeType.setText(shape.getFigure().getType());
 					description.setText(
-						(String)shape.getAnnotation(AnnotationKeys.BASIC_TEXT));
+							(String) shape.getAnnotation(
+									AnnotationKeys.BASIC_TEXT));
 					xCoord.setText(shape.getFigure().getStartPoint().getX()+"");
 					yCoord.setText(shape.getFigure().getStartPoint().getY()+"");
 					width.setText(Math.abs(
-								shape.getFigure().getEndPoint().getX()-
-								shape.getFigure().getStartPoint().getX())+"");
+							shape.getFigure().getEndPoint().getX()-
+							shape.getFigure().getStartPoint().getX())+"");
 					height.setText(Math.abs(
-								shape.getFigure().getEndPoint().getY()-
-								shape.getFigure().getStartPoint().getY())+"");
+							shape.getFigure().getEndPoint().getY()-
+							shape.getFigure().getStartPoint().getY())+"");
 				}
 				else if(value == null)
 				{
-					
+
 				}
-					
+
 			}
-			
+
 			public void mouseReleased(java.awt.event.MouseEvent e) 
 			{
-				if(initialShape==null)
-					return;
+				if (initialShape == null) return;
 				int[] col = table.getSelectedColumns();
 				int[] row = table.getSelectedRows();
-				for(int i = 0 ; i < row.length ; i++)
+				for (int i = 0 ; i < row.length ; i++)
 					row[i] = (table.getRowCount()-row[i])-1;
-				
+
 				int mincol = col[0];
 				int maxcol = col[0];
 				int minrow = row[0];
 				int maxrow = row[0];
-								
-				for( int i = 0 ; i < col.length; i++)
+
+				for (int i = 0 ; i < col.length; i++)
 				{
 					mincol = Math.min(mincol, col[i]);
 					maxcol = Math.max(maxcol, col[i]);
 				}
-				for( int i = 0 ; i < row.length; i++)
+				for (int i = 0 ; i < row.length; i++)
 				{
 					minrow = Math.min(minrow, row[i]);
 					maxrow = Math.max(maxrow, row[i]);
@@ -246,40 +244,25 @@ public class ROIAssistant
 				mincol = mincol-1;
 				int boundrow;
 				int boundcol;
-				if(maxcol!=initialShape.getCoord3D().getTimePoint())
-					boundcol = maxcol;
-				else
-					boundcol = mincol;
-				if(maxrow!=initialShape.getCoord3D().getZSection())
-					boundrow = maxrow;
-				else
-					boundrow = minrow;
-				try
-				{
-					if(initialShape != null)
-					{
-						if(addButton.isSelected())
-							view.propagateShape(initialShape, boundcol, boundrow);
-						if(removeButton.isSelected())
-							view.deleteShape(initialShape, boundcol, boundrow);
-						initialShape=null;
-						table.repaint();
-					}
-				}
-				catch(Exception exception)
-				{
-					exception.printStackTrace();
-				}
-					
+				if (maxcol != initialShape.getT()) boundcol = maxcol;
+				else boundcol = mincol;
+				if (maxrow != initialShape.getZ()) boundrow = maxrow;
+				else boundrow = minrow;
+				if (addButton.isSelected())
+					view.propagateShape(initialShape, boundcol, boundrow);
+				if (removeButton.isSelected())
+					view.deleteShape(initialShape, boundcol, boundrow);
+				initialShape=null;
+				table.repaint();
 			}
 		});
 	}
 	
 	/**
-	 * The action panel is the panel which holds the buttons to choose the 
-	 * action to perform on the ROI. 
+	 * Creates the action panel is the panel which holds the buttons to choose 
+	 * the action to perform on the ROI. 
 	 * 
-	 * @return the action panel.
+	 * @return See above.
 	 */
 	private JPanel createActionPanel()
 	{
@@ -300,22 +283,26 @@ public class ROIAssistant
 	}
 	
 	/**
-	 * The info panel at the top the the dialog, showing a little text about the
-	 * ROI Assistant. 
-	 * @return the info panel.
+	 * Creates the info panel at the top the the dialog, 
+	 * showing a little text about the ROI Assistant. 
+	 * 
+	 * @return See above.
 	 */
 	private JPanel createInfoPanel()
 	{
-		JPanel infoPanel = new TitlePanel("ROI Assistant", "<html><body>This is " +
-				"the ROI Assistant. It allows you to create an ROI which extends<p> " +
+		JPanel infoPanel = new TitlePanel("ROI Assistant", 
+				"<html><body>This is " +
+				"the ROI Assistant. It allows you to create an ROI " +
+				"which extends<p> " +
 				"through time and z-sections.</body></html>", 
 				IconManager.getInstance().getIcon(IconManager.WIZARD));
 		return infoPanel;
 	}
 	
 	/** 
-	 * Create the shape panel which shows the parameters of the initial shape. 
-	 * @return the shapePanel. 
+	 * Creates the shape panel which shows the parameters of the initial shape. 
+	 * 
+	 * @return See above. 
 	 */
 	private JPanel createShapePanel()
 	{
@@ -361,12 +348,13 @@ public class ROIAssistant
 	}
 	
 	/** 
-	 * Create a panel with label and textfield.
-	 * @param l label
-	 * @param t textfield
+	 * Creates a panel with label and textfield.
+	 * 
+	 * @param l label		The label to layout.
+	 * @param t textfield	The field to layout.
 	 * @return see above.
 	 */
-	JPanel createLabelText(JLabel l, JTextField t)
+	private JPanel createLabelText(JLabel l, JTextField t)
 	{
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
@@ -377,57 +365,48 @@ public class ROIAssistant
 		return panel;
 	}
 	
-	/** create the accept button to close on click. */
+	/** Creates the accept button to close on click. */
 	private void createAcceptButton()
 	{
 		closeButton = new JButton("Close");
 		closeButton.setActionCommand(""+CLOSE);
 		closeButton.addActionListener(this);
 	}
-	
-	/** Layout the UI, adding panels to the form. */
-	private void layoutUI()
-	{
-		this.setSize(550,530);
-		JPanel panel = new JPanel();
-		JPanel infoPanel = createInfoPanel();
-		JPanel shapePanel = createShapePanel();
-		createAcceptButton();
-		
-		scrollPane = new JScrollPane(table);
-		scrollPane.setVerticalScrollBar(scrollPane.createVerticalScrollBar());
-		scrollPane.setHorizontalScrollBar(scrollPane.createHorizontalScrollBar());
-		
-		JPanel scrollPanel = new JPanel();
-		scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.X_AXIS));
-		scrollPanel.add(Box.createHorizontalStrut(10));
-		scrollPanel.add(scrollPane);
-		scrollPanel.add(Box.createHorizontalStrut(10));
-		scrollPanel.add(createActionPanel());
-		scrollPanel.add(Box.createHorizontalStrut(10));
-		
-		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		
-		panel.add(infoPanel);
-		panel.add(Box.createVerticalStrut(10));
-		panel.add(scrollPanel);
-		panel.add(Box.createVerticalStrut(10));
-		panel.add(shapePanel);
-		panel.add(Box.createVerticalStrut(10));
-		panel.add(closeButton);
-		panel.add(Box.createVerticalStrut(10));
-		this.getContentPane().setLayout(new BorderLayout());
-		this.getContentPane().add(panel, BorderLayout.CENTER);
-	}
-	/**
-	 * Close the ROIAssistant window.
-	 *
-	 */
+
+	/** Closes the ROIAssistant window. */
 	private void closeAssistant()
 	{
+		setVisible(false);
 		this.dispose();
 	}
 	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param numRow		The number of z-sections in the image. 
+	 * @param numCol 		The numer of time points in the image. 
+	 * @param currentPlane 	The current plane of the image.
+	 * @param selectedROI 	The ROI which will be propagated.
+	 * @param view a reference to the view. 
+	 */
+	ROIAssistant(int numRow, int numCol, Coord3D currentPlane, 
+						ROI selectedROI, MeasurementViewerUI view)
+	{
+		super(view);
+		this.view = view;
+		initialShape = null;
+		//this.setAlwaysOnTop(true);
+		this.setModal(true);
+		createTable(numRow, numCol,currentPlane, selectedROI);
+		buildUI();
+
+		JViewport viewPort = scrollPane.getViewport();
+		Point point = mapCoordToCell(currentPlane);
+		int x = (int) Math.max((point.getX()-6*table.getColumnWidth()), 0);
+		int y = (int) Math.max((point.getY()-6*table.getColumnWidth()), 0);
+		viewPort.setViewPosition(new Point(x, y));
+	}
+
 	/**
 	 * Reacts to event fired by the various controls.
 	 * @see ActionListener#actionPerformed(ActionEvent)

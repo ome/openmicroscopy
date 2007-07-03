@@ -41,6 +41,7 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
@@ -153,6 +154,21 @@ class ImViewerComponent
     }
     
     /**
+     * Posts an {@link ChannelSelection} event to indicate that the 
+     * a new channel is selected or deselected; or that a channel is mapped
+     * to a new color.
+     * 
+     * @param index One of the constants defined by {@link ChannelSelection}.
+     */
+    private void postActiveChannelSelection(int index)
+    {
+    	EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+    	ChannelSelection event = new ChannelSelection(model.getPixelsID(), 
+    			model.getActiveChannelsMap(), index);
+    	bus.post(event);
+    }
+    
+    /**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straigh 
      * after to complete the MVC set up.
@@ -191,7 +207,7 @@ class ImViewerComponent
         int state = model.getState();
         switch (state) {
             case NEW:
-                model.fireRenderingControlLoading();
+            	model.fireRenderingControlLoading();
                 fireStateChange();
                 break;
             case DISCARDED:
@@ -441,7 +457,7 @@ class ImViewerComponent
 			reload(ex);
 		} 
     }
-
+    
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
      * @see ImViewer#setChannelColor(int, Color)
@@ -480,6 +496,7 @@ class ImViewerComponent
 		//view.setChannelColor(index, c);
 	    firePropertyChange(CHANNEL_COLOR_CHANGE_PROPERTY, new Integer(index-1),
 	            new Integer(index));
+	    postActiveChannelSelection(ChannelSelection.COLOR_SELECTION);
 	    //if (model.isChannelActive(index)) renderXYPlane();
     }
 
@@ -517,6 +534,7 @@ class ImViewerComponent
             
             view.setChannelsSelection();
             renderXYPlane();
+            postActiveChannelSelection(ChannelSelection.CHANNEL_SELECTION);
 		} catch (Exception ex) {
 			reload(ex);
 		}
@@ -532,13 +550,7 @@ class ImViewerComponent
             throw new IllegalStateException(
             "This method can't be invoked in the LOADING_RENDERING_CONTROL.");
         model.setRenderingControl(result);
-        /*
-        if (model.getMaxC() >= 4) model.setRGBSplit(false);
-        else {
-        	boolean[] rgb = model.hasRGB();
-        	model.setRGBSplit(rgb[0] && rgb[1] && rgb[2]);
-        }
-        */
+
         fireStateChange();
         //Register the renderer
         model.getRenderer().addPropertyChangeListener(controller);
@@ -1462,7 +1474,8 @@ class ImViewerComponent
 		MeasurementTool request = new MeasurementTool(model.getImageID(), 
 						model.getPixelsID(), model.getImageName(), 
 						model.getDefaultZ(), model.getDefaultT(),
-						model.getZoomFactor(), view.getBounds());
+						model.getActiveChannelsMap(), model.getZoomFactor(), 
+						view.getBounds());
 		bus.post(request);
 	}
 
@@ -1574,5 +1587,5 @@ class ImViewerComponent
     {
     	return model.isChannelActive(index);
     }
-    
+
 }

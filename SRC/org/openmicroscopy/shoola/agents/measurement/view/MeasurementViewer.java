@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.JFrame;
 
@@ -36,6 +38,7 @@ import ome.model.core.PixelsDimensions;
 
 import org.jhotdraw.draw.AttributeKey;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 /** 
@@ -66,11 +69,17 @@ public interface MeasurementViewer
     /** Flag to denote the <i>Loading ROI</i> state. */
     public static final int     LOADING_ROI = 3;
     
+    /** Flag to denote the <i>Analyse shape</i> state. */
+    public static final int     ANALYSE_SHAPE = 4;
+    
+    /** Flag to denote the <i>Analyse roi</i> state. */
+    public static final int     ANALYSE_ROI = 5;
+    
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int     READY = 4;
+    public static final int     READY = 6;
     
     /** Flag to denote the <i>Discarded</i> state. */
-    public static final int     DISCARDED = 5;
+    public static final int     DISCARDED = 7;
  
     /**
      * Starts the data loading process when the current state is {@link #NEW} 
@@ -184,13 +193,56 @@ public interface MeasurementViewer
 	/** Brings up on screen the ROI Assistant. */
 	public void showROIAssistant();
 	
-	/** Show the measurements in the figures in Microns. 
-	 * @param show in microns if true. 
+	/** 
+	 * Shows the measurements in the figures in Microns. 
+	 * 
+	 * @param show 	Sets the units to <code>microns</code> if <code>true</code>,
+	 * 				to <code>pixels</code> otherwise.§
 	 */
 	public void showMeasurementsInMicrons(boolean show);
 
-	/** Create single figures and move back to selection tool. 
+	/** 
+	 * Creates single figures and move back to selection tool. 
+	 * 
 	 * @param option Create single figures if true.
 	 */
 	public void createSingleFigure(boolean option);
+	
+	/**
+	 * Sets the collection of pairs
+	 * (active channel's index, active channel's color).
+	 * 
+	 * @param activeChannels The value to set.
+	 */
+	public void setActiveChannels(Map activeChannels);
+
+	/**
+	 * Sets the collection of pairs
+	 * (active channel's index, active channel's color).
+	 * 
+	 * @param channels The value to set.
+	 */
+	public void setActiveChannelsColor(Map channels);
+	
+	/**
+	 * Sets the stats computed on a collection of shapes.
+	 * 
+	 * @param result
+	 */
+	public void setStatsShapes(Map result);
+	
+	/**
+	 * Analyses the specifed shape.
+	 * 
+	 * @param shape The shape to analyse. Mustn't be <code>null</code>.
+	 */
+	public void analyseShape(ROIShape shape);
+
+	/**
+	 * Sets the metadata.
+	 * 
+	 * @param list The value to set.
+	 */
+	public void setChannelMetadata(List list);
+	
 }

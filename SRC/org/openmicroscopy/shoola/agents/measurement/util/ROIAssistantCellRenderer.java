@@ -26,9 +26,6 @@ package org.openmicroscopy.shoola.agents.measurement.util;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
-
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -42,7 +39,7 @@ import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
 /** 
- * 
+ * Table renderer for the Assistant.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,9 +51,9 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
  * </small>
  * @since OME3.0
  */
-public 	class ROIAssistantCellRenderer
-		extends JComponent
-		implements TableCellRenderer
+public class ROIAssistantCellRenderer
+	extends JComponent
+	implements TableCellRenderer
 {
 
 	/** The colour of the selected cell. */
@@ -87,69 +84,55 @@ public 	class ROIAssistantCellRenderer
 		label.setHorizontalAlignment(SwingConstants.CENTER);
 		label.setOpaque(true);
 		label.setBackground(Color.white);
-		if(column == 0)
+		IconManager icons = IconManager.getInstance(); 
+		if (column == 0 && value instanceof String)
 		{
-			if(value instanceof String)
-				label.setText((String)value);
+			label.setText((String) value);
 			return label;
 		}
-		if(value instanceof String)
+		if (value instanceof String)
 		{
-			if(value.equals(ROIFigure.ELLIPSE_TYPE))
+			if (value.equals(ROIFigure.ELLIPSE_TYPE))
 			{
-				ImageIcon i = IconManager.getInstance().getImageIcon(IconManager.ELLIPSE);
-				label.setIcon(i);
+				label.setIcon(icons.getImageIcon(IconManager.ELLIPSE));
 			}
 			else if(value.equals(ROIFigure.RECTANGLE_TYPE))
 			{
-				ImageIcon i = IconManager.getInstance().getImageIcon(IconManager.SQUARE);
-				label.setIcon(i);
+				label.setIcon(icons.getImageIcon(IconManager.SQUARE));
 			}
 			else if(value.equals(ROIFigure.SCRIBBLE_TYPE))
 			{
-				ImageIcon i = IconManager.getInstance().getImageIcon(IconManager.POLYLINE);
-				label.setIcon(i);
+				label.setIcon(icons.getImageIcon(IconManager.POLYLINE));
 			}
-			else if(value.equals(ROIFigure.POLYGON_TYPE))
+			else if (value.equals(ROIFigure.POLYGON_TYPE))
 			{
-				ImageIcon i = IconManager.getInstance().getImageIcon(IconManager.POLYGON);
-				label.setIcon(i);
+				label.setIcon(icons.getImageIcon(IconManager.POLYGON));
 			}
 			else if(value.equals(ROIFigure.LINE_TYPE))
 			{
-				ImageIcon i = IconManager.getInstance().getImageIcon(IconManager.LINE);
-				label.setIcon(i);
+				label.setIcon(icons.getImageIcon(IconManager.LINE));
 			}
 			else if(value.equals(ROIFigure.LINE_CONNECTION_TYPE))
 			{
-				ImageIcon i = IconManager.getInstance().getImageIcon(IconManager.LINECONNECTION);
-				label.setIcon(i);
+				label.setIcon(icons.getImageIcon(IconManager.LINECONNECTION));
 			}
 			else if(value.equals(ROIFigure.POINT_TYPE))
 			{
-				ImageIcon i = IconManager.getInstance().getImageIcon(IconManager.POINT);
-				label.setIcon(i);
+				label.setIcon(icons.getImageIcon(IconManager.POINT));
 			}
 			else if(value.equals(ROIFigure.TEXT_TYPE))
 			{
-				ImageIcon i = IconManager.getInstance().getImageIcon(IconManager.TEXT);
-				label.setIcon(i);
+				label.setIcon(icons.getImageIcon(IconManager.TEXT));
 			}
 			else 
 			{
-				label.setText((String)value);
+				label.setText((String) value);
 				label.setHorizontalTextPosition(SwingConstants.CENTER);
 			}
 		}
 		
-		if(isSelected)
-		{
-			label.setBackground(SELECTED_COLOUR);
-		}
-		if(hasFocus)
-		{
-			label.setBackground(FOCUS_COLOUR);
-		}
+		if (isSelected) label.setBackground(SELECTED_COLOUR);
+		if (hasFocus) label.setBackground(FOCUS_COLOUR);
 		thisComponent = label;
 		return thisComponent;
 	}

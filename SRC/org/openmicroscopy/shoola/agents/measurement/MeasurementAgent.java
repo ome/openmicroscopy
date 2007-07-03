@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.measurement;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
@@ -70,7 +71,7 @@ public class MeasurementAgent
     	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
     			evt.getPixelsID(), evt.getImageID(), evt.getName(),
     			evt.getRequesterBounds(), evt.getDefaultZ(), evt.getDefaultT(),
-    			evt.getMagnification());
+    			evt.getMagnification(), evt.getActiveChannels());
     	if (viewer != null) {
     		MeasurementViewerFactory.addRequest(evt);
     		viewer.activate();
@@ -116,6 +117,28 @@ public class MeasurementAgent
     }
     
     /**
+     * Reacts to the passed event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleChannelSelectionEvent(ChannelSelection evt)
+    {
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+    									evt.getPixelsID());
+    	if (viewer != null) {
+    		switch (evt.getIndex()) {
+				case ChannelSelection.CHANNEL_SELECTION:
+					viewer.setActiveChannels(evt.getChannels());
+					break;
+				case ChannelSelection.COLOR_SELECTION:
+					viewer.setActiveChannelsColor(evt.getChannels());
+					break;
+			}
+    		
+    	}
+    }
+    
+    /**
      * Helper method. 
      * 
      * @return A reference to the {@link Registry}.
@@ -145,6 +168,7 @@ public class MeasurementAgent
 		bus.register(this, MeasurementTool.class);
 		bus.register(this, MeasurePlane.class);
 		bus.register(this, ViewerState.class);
+		bus.register(this, ChannelSelection.class);
 	}
 
 	/**
@@ -165,6 +189,8 @@ public class MeasurementAgent
 			handleMeasurePlaneEvent((MeasurePlane) e);
 		else if (e instanceof ViewerState)
 			handleViewerStateEvent((ViewerState) e);
+		else if (e instanceof ChannelSelection)
+			handleChannelSelectionEvent((ChannelSelection) e);
 	}
 	
 }

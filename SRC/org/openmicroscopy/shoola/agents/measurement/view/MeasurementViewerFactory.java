@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.Rectangle;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -68,24 +70,27 @@ public class MeasurementViewerFactory
      * Returns a viewer to display the image corresponding to the specified id.
      * Recycles or creates a viewer.
      * 
-     * @param pixelsID  	The id of the pixels set.
-     * @param imageID   	The id of the image.
-     * @param name      	The name of the image.
-     * @param bounds    	The bounds of the component invoking the 
-     *                  	{@link MeasurementViewer}.
-     * @param z				The selected z-section.
-     * @param t				The selected timepoint.
-     * @param magnification	The image's magnification factor.
+     * @param pixelsID  		The id of the pixels set.
+     * @param imageID   		The id of the image.
+     * @param name      		The name of the image.
+     * @param bounds    		The bounds of the component invoking the 
+     *                  		{@link MeasurementViewer}.
+     * @param z					The selected z-section.
+     * @param t					The selected timepoint.
+     * @param magnification		The image's magnification factor.
+     * @param activeChannels	Collection of active channels.
      * @return See above.
      */
 	public static MeasurementViewer getViewer(long pixelsID, long imageID, 
 										String name, Rectangle bounds, 
-										int z, int t, double magnification)
+										int z, int t, double magnification,
+										Map activeChannels)
 	{
 		MeasurementViewerModel model = new MeasurementViewerModel(imageID, 
 											pixelsID, name, bounds);
 		model.setPlane(z, t);
 		model.setMagnification(magnification);
+		model.setActiveChannels(activeChannels);
 		return singleton.createROIViewer(model);
 	}
 	

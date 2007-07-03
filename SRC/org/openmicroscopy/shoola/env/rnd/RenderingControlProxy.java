@@ -372,10 +372,10 @@ class RenderingControlProxy
         
         metadata = new ChannelMetadata[m.size()];
         Iterator i = m.iterator();
-        int k = 0;
+        ChannelMetadata cm;
         while (i.hasNext()) {
-            metadata[k] = (ChannelMetadata) i.next();
-            k++;  
+        	cm = (ChannelMetadata) i.next();
+            metadata[cm.getIndex()] = cm;
         }
     }
 

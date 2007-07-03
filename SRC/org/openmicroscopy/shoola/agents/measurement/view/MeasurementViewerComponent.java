@@ -27,7 +27,10 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.JFileChooser;
@@ -51,6 +54,7 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 
@@ -270,8 +274,9 @@ class MeasurementViewerComponent
 			try {
 				list = model.getShapeList();
 			} catch (Exception e) {
-				view.handleROIException(e);
+				view.handleROIException(e, MeasurementViewerUI.RETRIEVE_MSG);
 			}
+			view.setStatus(MeasurementViewerUI.DEFAULT_MSG);
 			if (list != null) {
 				TreeMap map = list.getList();
 				Iterator i = map.values().iterator();
@@ -281,7 +286,6 @@ class MeasurementViewerComponent
 					if (shape != null) drawing.add(shape.getFigure());
 				}
 			}
-			
 			model.getDrawingView().setDrawing(drawing);
 			drawing.addDrawingListener(controller);
 			if (f != magnification) model.setMagnification(magnification);
@@ -296,7 +300,7 @@ class MeasurementViewerComponent
 	{
 		if (model.getState() != LOADING_DATA) return;
 		model.setPixels(pixels);
-		model.firePixelsDimensionsLoading();
+		model.fireChannelMetadataLoading();
 		fireStateChange();
 	}
 
@@ -427,7 +431,36 @@ class MeasurementViewerComponent
 	 */
 	public void showROIAssistant()
 	{
-		view.showROIAssistant();
+		//TODO: check state
+		Collection<ROI> roiList = model.getSelectedROI();
+		Registry reg = MeasurementAgent.getRegistry();
+		UserNotifier un = reg.getUserNotifier();
+		if (roiList.size() == 0)
+		{
+			un.notifyInfo("ROI Assistant", "Select a Figure to modify " +
+			"using the ROI Assistant.");
+			return;
+		}
+		if (roiList.size() > 1)
+		{
+			un.notifyInfo("ROI Assistant", "The ROI Assistant can" +
+					"only be used on one ROI" +
+			"at a time.");
+			return;
+		}
+		ROI currentROI = roiList.iterator().next();
+		System.err.println(currentROI.getID());
+		try {
+			analyseShape(currentROI.getShape(model.getCurrentView()));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		/*
+    	ROIAssistant assistant = new ROIAssistant(model.getNumTimePoints(), 
+    		model.getNumZSections(), model.getCurrentView(), currentROI, view);
+    	UIUtilities.setLocationRelativeToAndShow(view, assistant);
+    	*/
 	}
 	
 	/** 
@@ -450,4 +483,71 @@ class MeasurementViewerComponent
 	{
 		view.createSingleFigure(option);
 	}
+	
+	/** 
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#setActiveChannels(Map)
+	 */
+	public void setActiveChannels(Map activeChannels)
+	{
+		//TODO: check state.
+		model.setActiveChannels(activeChannels);
+		//TODO: update histo if panel selected.
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#setActiveChannelsColor(Map)
+	 */
+	public void setActiveChannelsColor(Map channels)
+	{
+		//TODO: Check state
+		model.setActiveChannels(channels);
+		//TODO: repaint graphics
+	}
+
+	
+	/** 
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#setStatsShapes(Map)
+	 */
+	public void setStatsShapes(Map result)
+	{
+		int state = model.getState();
+		if (state != ANALYSE_SHAPE)
+			throw new IllegalStateException("This method can only be invoked " +
+					"in the ANALYSE_SHAPE state: "+state);
+		//TODO: update view.
+		
+		model.setStats();
+		fireStateChange();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#analyseShape(ROIShape)
+	 */
+	public void analyseShape(ROIShape shape)
+	{
+		//		TODO: check state.
+		if (shape == null)
+			throw new IllegalArgumentException("No shape specified.");
+		model.fireAnalyzeShape(shape);
+		fireStateChange();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#setChannelMetadata(List)
+	 */
+	public void setChannelMetadata(List list)
+	{
+		if (model.getState() != LOADING_DATA) return;
+		model.setChannelMetadata(list);
+		model.firePixelsDimensionsLoading();
+		fireStateChange();
+	}
+
+
+
 }
