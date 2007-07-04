@@ -63,9 +63,9 @@
   <bean id="ServantCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
     <property name="cacheManager" ref="CacheManager"/>
     <property name="overflowToDisk" value="false"/>
-    <property name="maxElementsInMemory" value="100"/>
-    <property name="timeToLive" value="3600"/>
-    <property name="timeToIdle" value="900"/>
+    <property name="maxElementsInMemory" value="${omero.blitz.cache.maxElements}"/>
+    <property name="timeToIdle" value="${omero.blitz.cache.timeToIdle}"/>
+    <property name="timeToLive" value="0"/>
     <!-- property name="cacheEntryFactory">
       <bean class="ome.services.blitz.lookup.ContextCacheEntryFactory"/>
     </property-->
