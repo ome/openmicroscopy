@@ -25,6 +25,10 @@
 
 -->
 
+        <tstamp>
+	  <format property="now" pattern="yyyyMMddHHmmss"/>
+	</tstamp>
+
 	<!-- Where to find things. It is assume that to have imported this 
 	file any build script will have had to define the import.dir variable-->
 	<import file="${import.dir}/directories.xml"/>
@@ -76,6 +80,20 @@
 		<condition property="checks.skip">
 			<equals arg1="${multi.checks.skip}" arg2="true"/>
 		</condition>
+	</target>
+
+	<target name="quick">
+		<property name="config.skip" value="true"/>
+		<property name="test.skip" value="true"/>
+		<property name="generate.skip" value="true"/>
+	</target>
+
+	<target name="nochecks">
+		<property name="checks.skip" value="true"/>
+	</target>
+
+	<target name="fail-on-error">
+		<property name="test.with.fail" value="true"/>
 	</target>
 
 	<target name="load-groovy">

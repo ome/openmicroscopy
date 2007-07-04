@@ -30,9 +30,11 @@
 		</echo>
 	</target>
 
-	<target name="prepare">
+	<target name="prepare" depends="deps-retrieve">
+<!--
 		<available file="${deps.lib.dir}" property="deps.lib.dir.needed"/>
 		<antcall target="deps-retrieve" inheritrefs="true"/>
+-->
 		<makeDirectories/>
 		<copyResource file="${root.dir}/etc/local.properties"/>
 		<copyResource file="${root.dir}/etc/omero.properties"/>
@@ -234,7 +236,7 @@
 			pathsep=" " dirsep="/">
 			<flattenmapper/>
 		</pathconvert>
-		<jar destfile="${target.dir}/${artifact.final.name}">
+		<jar destfile="${target.dir}/${ivy.module}.jar">
 			<manifest>
 				<attribute name="Class-Path" value="${mf.classpath} services.jar extensions.jar"/>
 				<attribute name="Main-Class" value="${main.class}"/>
@@ -251,17 +253,7 @@
 		</jar>
 	</target>
 
-	<target name="install" depends="package" unless="skip.compile">
-		<property name="dest.file" value="${omero.repo.local}/${artifact.path}"/>
-		<dirname property="dest.dir" file="${dest.file}"/>
-		<mkdir dir="${dest.dir}"/>
-		<copy 
-			file="${target.dir}/${artifact.final.name}"
-			todir="${dest.dir}"
-			overwrite="true"
-			verbose="true"
-		/>
-	</target>
+	<target name="install" depends="package,deps-publish-local" unless="skip.compile"/>
 
 	<target name="integration" depends="install" unless="test.skip">
 		<!-- may be overriden by fail-on-error -->
@@ -283,20 +275,6 @@
 	</target>
 
 	<!-- NON-LIFECYCLE HELPER TARGETS -->
-
-	<target name="quick">
-		<property name="config.skip" value="true"/>
-		<property name="test.skip" value="true"/>
-		<property name="generate.skip" value="true"/>
-	</target>
-
-	<target name="nochecks">
-		<property name="checks.skip" value="true"/>
-	</target>
-
-	<target name="fail-on-error">
-		<property name="test.with.fail" value="true"/>
-	</target>
 
 	<target name="strict-test" depends="fail-on-error,clean-tests,test"/>
 

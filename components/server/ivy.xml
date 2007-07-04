@@ -53,6 +53,7 @@
     <dependency org="jmock" name="jmock" rev="1.0.1" conf="build->default"/>
     <dependency org="lucene" name="lucene" rev="1.4.3" conf="build->default"/>
     <dependency org="net/sf/ehcache" name="ehcache" rev="1.2" conf="build->default"/>
+    <dependency org="omero" name="bio-formats" rev="2007.06.22" conf="build->default"/>
     <dependency org="omero" name="jbossall-client" rev="4.0.4.GA" conf="build->default"/>
     <dependency org="omero" name="jbosssx" rev="4.0.4.GA" conf="build->default"/>
     <dependency org="omero" name="jboss-annotations-ejb3" rev="4.0.4.GA" conf="build->default"/>

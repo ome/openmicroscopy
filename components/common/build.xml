@@ -105,14 +105,6 @@
     <!-- = = = = = = = = = = = = = = = = =
           misc          
          = = = = = = = = = = = = = = = = = -->
-	
-<!-- TODO move to antlib -->
-	<target name="check-db" depends="lifecycle.prepare">
-		<sql_run>
-			<transaction> select 'database exists.' </transaction>
-		</sql_run>
-	</target>
-
 
     <target name="schemaupdate" depends="prepare,load-hibernate">
         <taskdef name="schemaupdate"

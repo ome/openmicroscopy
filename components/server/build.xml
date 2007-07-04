@@ -14,6 +14,25 @@
     <import file="${import.dir}/lifecycle.xml"/>
     <import file="${import.dir}/hibernate.xml"/>
 
+    <target name="prepare" depends="lifecycle.prepare">
+      <presetdef name="sql_run">
+	<sql
+           driver="${hibernate.connection.driver_class}"
+           url="${hibernate.connection.url}"
+           userid="${hibernate.connection.username}"
+           password="${hibernate.connection.password}" 
+	   print="false" 
+	   classpathref="omero.classpath">
+	</sql>
+      </presetdef>
+    </target>
+
+    <target name="check-db" depends="prepare">
+      <sql_run>
+	<transaction> select 'database exists.' </transaction>
+      </sql_run>
+    </target>
+
     <target name="reload-db" depends="prepare">
         <java classname="ome.security.PasswordUtil" outputproperty="ROOTPASS" classpathref="omero.classpath">
             <arg value="${omero.rootpass}"/>

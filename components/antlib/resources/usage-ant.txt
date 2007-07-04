@@ -5,33 +5,26 @@
 |
 + Top-level build targts
 |
-| 	model    	creates DSL task and generates model
 | 	build        	runs model and builds all artifacts
 | 	fullbuild       runs build in a strict, clean enviroment
 | 	deploy   	copies necessary artifacts to server
+|       fulldeploy      All of the above
 | 	javadoc         generates javadoc under dist/doc/api
-|					
-+ Setup	- targets to prepare the Omero build system	
+|       dist
+|       clean
+|       withtools
+|       cleantools
+|	
+|  Use:
+|      ant build dist withtools # To produce everything.
+|    				
++ Management - targets to check and interact with the Omero server
 |
 | 	check-system    test for required libraries and variables
 | 	reload-db      	creates DB tables/data for model
-| 
-+ Build Lifecycle - targets dealing with artifacts
-|					
-| 	generate         perform code-generation where necessary
-| 	compile          compile/copy resources	
-| 	test             run unit tests		
-| 	package          produce build artifact	
-| 	install          move artifact to repository
-| 	integration      run integration tests	
-| 	dist       	 prepare a distribution
-| 	clean      	 delete all generated artifacts
-|
-+ Administation - targets which work against a running server
-| 
 |       addgroup         Adds a group as root (omero.rootpass must be set)
 |       adduser          Adds a user as root (omero.rootpass must be set)
-|  					
+| 
 + Testing - how to run unit and integration tests
 |
 |   Use:					
@@ -40,4 +33,5 @@
 |  	ant nochecks <target>   # No database or jboss checks	
 |  	ant strict-test         # Re-compile tests.
 |  	ant fail-on-error test  # Stop build if fails. 
+|       ant integration         # Runs integration tests. Server must be running.
 |_

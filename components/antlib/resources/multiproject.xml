@@ -28,9 +28,10 @@
 	<macrodef name="iterate">
 		<attribute name="inheritAll" default="false"/>
 		<attribute name="inheritRefs" default="false"/>
+		<attribute name="buildpathref" default="deps.build.path"/>
 		<attribute name="target"/>
 		<sequential>
-		<subant verbose="true" buildpathref="deps.build.path" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}" failonerror="true" target="@{target}">
+		<subant verbose="true" buildpathref="@{buildpathref}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}" failonerror="true" target="@{target}">
 			<property name="multi.test.with.fail" value="${test.with.fail}"/>
 			<property name="multi.test.skip" value="${test.skip}"/>
 			<property name="multi.generate.skip" value="${generate.skip}"/>
@@ -42,8 +43,9 @@
 	<target name="multiproject" depends="deps-buildlist"/>
 
 	<target name="multi" depends="multiproject"
-		description="Convenience target. Iterates over all components calling the $${defaultTarget} method (default=${defaultTarget}">
-		<iterate target="${defaultTarget}"/>
+		description="Convenience target. Iterates over all components calling the $${target} method (default=${defaultTarget}">
+		<property name="target" value="install"/>
+		<iterate target="${target}"/>
 	</target>
 
 	<target name="prepare" depends="multiproject"

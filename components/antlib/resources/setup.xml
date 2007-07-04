@@ -233,9 +233,7 @@ javac.debuglevel=${javac.debuglevel}
 	</target>
 	
 	<target name="check-database"  unless="checks.skip">
-                <antRun component="common">
-                        <target name="check-db"/>
-                </antRun>
+                <iterate buildpathref="server.buildpath" target="check-db"/>
 	</target>
 
 </project>

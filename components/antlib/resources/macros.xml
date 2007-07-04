@@ -34,22 +34,6 @@
 		</sequential>
 	</macrodef>
 
-	<macrodef name="sql_run">
-		<attribute name="print" default="false"/>
-		<element name="commands" implicit="yes"/>
-		<sequential>
-                <sql
-                        driver="${hibernate.connection.driver_class}"
-                        url="${hibernate.connection.url}"
-                        userid="${hibernate.connection.username}"
-                        password="${hibernate.connection.password}" 
-			print="@{print}" 
-			classpathref="omero.classpath">
-			<commands/>
-		</sql>
-		</sequential>
-	</macrodef>
-
     <!-- = = = = = = = = = = = = = = = = =
           checks if a build step is needed    
          = = = = = = = = = = = = = = = = = -->

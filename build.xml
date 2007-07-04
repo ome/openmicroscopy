@@ -43,6 +43,18 @@
 			<filelist dir="${import.dir}" files="usage-ant.txt"/>
 		</concat>
 	</target>
+	<target name="all-help"
+		description="Print all help targets">
+		<echo>
+		  help                  -- Simple build help
+		  help-deps             -- Help on dependency management
+		  help-life             -- Help on lifecycle targets (compile, test, ...)
+		  help-setup            -- Help on setup targets
+		  help-server           -- Help on server management
+		  help-release          -- Help on release process
+		</echo>
+	</target>
+	
 
 <!-- 	===============================================
 		BUILD
@@ -50,64 +62,58 @@
 	<target name="fullbuild" depends="check-system,clean,build,reload-db"
 		description="Extensive build which checks and cleans the build environment, builds, and setups the database"/>
 
-	<target name="build" depends="dsl,model,install"
+	<target name="build" depends="install"
 		description="A simple build that will install all artifacts to ${omero.repo.local}"/>
 
-	<target name="build-client" depends="check-system,model">
-		<antRun component="common"><target name="install"/></antRun>
-		<antRun component="client"><target name="install"/></antRun>
+	<target name="deploy" depends="check-system">
+		<iterate builpathref="app.buildpath" target="deploy"/>
 	</target>
 
-	<target name="build-server" depends="check-system,model">
-		<antRun component="common"><target name="install"/></antRun>
-		<antRun component="romio"><target name="install"/></antRun>
-		<antRun component="rendering"><target name="install"/></antRun>
-		<antRun component="server"><target name="install"/></antRun>
+	<target name="fulldeploy" depends="fullbuild,deploy"/>
+
+	<target name="clean" depends="multiproject"
+		description="Lifecycle target: calls 'clean' on all components">
+		<delete dir="${dist.dir}"/>
+		<iterate target="clean"/>
 	</target>
 
-	<target name="deploy" depends="check-system,build-server">
-		<antRun component="app">
-			<target name="package"/>
-			<target name="deploy-ear-jboss"/>
-		</antRun>
+	<target name="withtools"
+		description="Calls build and dist on the tools component, copying over dist/">
+		<iterate buildpathref="tools.buildpath" target="build"/>
+		<iterate buildpathref="tools.buildpath" target="dist"/>
 	</target>
 
-	<target name="fulldeploy" depends="check-system,build-server,deploy"/>
-
-
-
-	<!-- Special Components -->
-	<property name="defaultTarget" value="install"/>
-
-	<target name="dsl" depends="check-system" unless="generate.skip">
-		<antRun component="dsl">
-			<target name="${defaultTarget}"/>
-		</antRun>
+	<target name="cleantools"
+		description="Calls cleans on the tools component and removes tools/target">
+		<iterate buildpathref="tools.buildpath" target="tools"/>
 	</target>
 
-	<target name="model" depends="check-system,dsl" unless="generate.skip">
-		<antRun component="common">
-			<target name="clean"/>
-			<target name="install"/>
-		</antRun>
+	<target name="zip">
+		<zip destfile="${product.name}-${product.version}.zip">
+			<zipfileset dir="${dist.dir}" prefix="${product.name}-${product.version}"/>
+		</zip>
 	</target>
+
+	<target name="tar">
+		<tar destfile="${product.name}-${product.version}.tar.bz2" compress="bzip2">
+			<zipfileset dir="${dist.dir}" prefix="${product.name}-${product.version}"/>
+		</tar>
+	</target>
+
+<!-- 	===============================================
+		Mgmt Targets
+	==================================================  -->
 
 	<target name="reload-db">
-		<antRun component="server">
-			<target name="reload-db"/>
-		</antRun>
+		<iterate buildpathref="server.buildpath" target="reload-dn"/>
 	</target>
 
 	<target name="addgroup">
-		<antRun component="client">
-			<target name="addgroup"/>
-		</antRun>
+		<iterate buildpathref="client.buildpath" target="addgroup"/>
 	</target>
 
 	<target name="adduser">
-		<antRun component="client">
-			<target name="adduser"/>
-		</antRun>
+		<iterate buildpathref="client.buildpath" target="adduser"/>
 	</target>
 
 	<target name="dist">
@@ -179,39 +185,6 @@
 			<flattenmapper/>
 		</copy>
 
-	</target>
-
-	<target name="zip">
-		<zip destfile="${product.name}-${product.version}.zip">
-			<zipfileset dir="${dist.dir}" prefix="${product.name}-${product.version}"/>
-		</zip>
-	</target>
-
-	<target name="tar">
-		<tar destfile="${product.name}-${product.version}.tar.bz2" compress="bzip2">
-			<zipfileset dir="${dist.dir}" prefix="${product.name}-${product.version}"/>
-		</tar>
-	</target>
-
-	<target name="clean" depends="multiproject"
-		description="Lifecycle target: calls 'clean' on all components">
-		<delete dir="${dist.dir}"/>
-		<iterate target="clean"/>
-	</target>
-
-	<target name="withtools"
-		description="Calls build and dist on the tools component, copying over dist/">
-		<antRun component="tools">
-			<target name="build"/>
-			<target name="dist"/>
-		</antRun>
-	</target>
-
-	<target name="cleantools"
-		description="Calls cleans on the tools component and removes tools/target">
-		<antRun component="tools">
-			<target name="clean"/>
-		</antRun>
 	</target>
 
 </project>
