@@ -7,11 +7,11 @@
     <description>Open Microscopy Environment - RemoteObjects Server</description>
 
     <module>
-      <ejb>server-3.0-TRUNK.jar</ejb>
+      <ejb>server-TEST.jar</ejb>
     </module>
 
     <module>
-      <ejb>blitz-3.0-TRUNK.jar</ejb>
+      <ejb>blitz-TEST.jar</ejb>
     </module>
 
     <!-- The services.jar is automatically produced by the apps/

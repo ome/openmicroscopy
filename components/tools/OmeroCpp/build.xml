@@ -2,7 +2,8 @@
 <project name="OmeroCpp" default="install" basedir=".">
 
     <dirname property="up-two"        file="${basedir}"/>
-    <dirname property="up-one"        file="${up-two}"/>
+    <dirname property="up-one"        file="${up-one}"/>
+    <property name="import.dir"       file="${up-one}/antlib/resources"/>
     <property name="copy.dir"         value="target/temp"/>
 
     <import file="../make.xml"/>

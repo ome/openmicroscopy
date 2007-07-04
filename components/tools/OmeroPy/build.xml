@@ -21,6 +21,7 @@
 
     <dirname property="up-two"        file="${basedir}"/>
     <dirname property="up-one"        file="${up-two}"/>
+    <property name="import.dir"       value="${up-two}/antlib/resources"/>
     <property name="copy.dir"         value="target"/>
 
     <import file="../python.xml"/>
