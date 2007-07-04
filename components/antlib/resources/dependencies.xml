@@ -48,8 +48,9 @@
 
   <target name="deps-buildlist" 
     depends="deps-configure">
+    <property name="deps.buildlist.dir" value="${omero.home}/components"/>
     <ivy:buildlist reference="deps.build.path">
-      <fileset dir="${basedir}/components" includes="*/build.xml" excludes="**/bioformats-omero/**,**/policy/**,**/tools/**"/>
+      <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/bioformats-omero/**,**/policy/**,**/tools/**"/>
     </ivy:buildlist>
   </target>
 
@@ -59,6 +60,16 @@
     unless="deps.lib.dir.needed">
     <mkdir dir="${deps.lib.dir}"/>
     <ivy:retrieve pattern="${deps.lib.dir}/[artifact].[ext]"/>
+  </target>
+
+  <target name="deps-info"
+    description="--&gt; parses ivy.xml file">
+    <ivy:info file="${basedir}/ivy.xml"/>
+  </target>
+
+  <target name="deps-resolve"
+    description="--&gt; transitively resolves all dependencies">
+    <ivy:resolve file="${basedir}/ivy.xml" type="jar"/>
   </target>
 
   <target name="deps-report" 
@@ -116,9 +127,8 @@
 
   <target name="deps-publish" 
     description="--&gt; publish this project in the ivy repository">
-    <fail>ONCE DID A FULL BUILD with call to new-version before jar.</fail>
     <property name="revision" value="${version}"/>
-    <ivy:publish artifactspattern="${build.dir}/[artifact].[ext]" resolver="shared" pubrevision="${revision}" status="release"/>
+    <ivy:publish artifactspattern="${target.dir}/[artifact].[ext]" resolver="omero-resolver" pubrevision="${revision}" status="release"/>
     <echo message="project ${ant.project.name} released with version ${revision}"/>
   </target>
 
@@ -132,10 +142,18 @@
   </target>
 
   <target name="deps-publish-local" 
-      depends="deps-local-version, package" 
+      depends="deps-local-version" 
       description="--&gt; publish this project in the local ivy repository">
-    <delete file="${build.dir}/ivy.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
-    <ivy:publish artifactspattern="${build.dir}/[artifact].[ext]" resolver="local" pubrevision="${revision}" pubdate="${now}" status="integration"/>
+    <delete file="${target.dir}/ivy.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
+    <ivy:publish artifactspattern="${target.dir}/[artifact].[ext]" resolver="omero-resolver" pubrevision="${revision}" pubdate="${now}" status="integration"/>
+    <echo message="project ${ant.project.name} published locally with version ${revision}"/>
+  </target>
+
+  <target name="deps-publish-omero" 
+      depends="deps-configure" 
+      description="--&gt; publish this project in the omero ivy repository">
+    <delete file="${target.dir}/ivy.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
+    <ivy:publish artifactspattern="${target.dir}/[artifact].[ext]" resolver="omero-resolver" pubrevision="${revision}" pubdate="${now}" status="integration"/>
     <echo message="project ${ant.project.name} published locally with version ${revision}"/>
   </target>
 

@@ -1,0 +1,19 @@
+<ivy-module version="1.0">
+  <info
+      organisation="omero-tools"
+      module="WebAdmin"
+      status="integration"/>
+  <configurations>
+    <conf name="core"/>
+    <conf name="build" extends="core"/>
+    <conf name="test"  extends="core"/>
+  </configurations>
+  <publications>
+    <artifact name="WebAdmin" type="war" conf="core" />
+  </publications>
+  <dependencies>
+    <!-- Internal -->
+    <dependency org="omero" name="common" rev="latest.integration" />
+    <dependency org="omero" name="client" rev="latest.integration" />
+  </dependencies>
+</ivy-module>

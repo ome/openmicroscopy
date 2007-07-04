@@ -31,9 +31,6 @@
    <target name="package" depends="generate"
            description="Packages the EAR by assembling all modules and deployment descriptors">
       
-      <!-- Jars; provided jars removed. -->
-      <mkdir dir="${target.dir}/libs"/>
-      <jars-copy type="compile" todir="${target.dir}/libs"/>
       <delete>
         <fileset dir="${target.dir}/libs" includes="commons-logging*"/>
         <fileset dir="${target.dir}/libs" includes="jboss*"/>

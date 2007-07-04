@@ -1,26 +1,18 @@
 <ivyconf>
-	<properties file="${ivy.conf.dir}/ivyconf.properties"/>
-	<conf defaultCache="${ivy.conf.dir}/ivy-cache" defaultResolver="libraries"/>
-<ivyconf>
-  <conf defaultResolver="omero-resolver" />
+  <properties file="${ivy.conf.dir}/ivyconf.properties"/>
+  <conf defaultCache="${ivy.conf.dir}/ivy-cache" defaultResolver="omero-resolver"/>
   <resolvers>
     <chain name="omero-resolver">
       <filesystem name="libraries">
         <artifact pattern="${ivy.conf.dir}/../lib/repository/[organization]/[module]/[revision]/[artifact]-[revision].[type]" />
+        <ivy pattern="${ivy.conf.dir}/../lib/repository/[organization]/[module]/[revision]/ivy.xml"/>
       </filesystem>
     </chain>
   </resolvers>
-</ivyconf>
-<!--
-	<resolvers>
-		<filesystem name="projects">
-			<artifact pattern="${repository.dir}/[artifact]-[revision].[ext]" />
-			<ivy pattern="${repository.dir}/[module]-[revision].xml" />
-		</filesystem>
-		<ivyrep name="libraries" />
-	</resolvers>
-	<modules>
-		<module organisation="jayasoft" name=".*" resolver="projects"/>
-	</modules>
--->
+  <ibiblio name="ibiblio-maven2" m2compatible="true" />
+  <chain name="local-copy">
+    <filesystem name="local-copy">
+      <artifact pattern="${basedir}/target/libs/[organization]/[module]/[revision]/[artifact]-[revision].[type]" />
+    </filesystem>
+  </chain>
 </ivyconf>
