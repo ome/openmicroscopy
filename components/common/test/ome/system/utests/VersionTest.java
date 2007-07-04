@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 
 import junit.framework.TestCase;
 
-@Test
+@Test(groups="broken")
 public class VersionTest extends TestCase {
 
     public void testGetSvnKeyword() throws Exception {
