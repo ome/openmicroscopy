@@ -20,7 +20,7 @@ public class DeltaVisionZWTUnitTest extends TestCase
 	private DeltaVision getDeltaVisionPixelBuffer()
 	{
     	OriginalFile file = new DeltaVisionOriginalFile();
-    	DeltaVision dv = new DeltaVision(file);
+    	DeltaVision dv = new DeltaVision(file.getPath(), file);
     	dv.setSequence(DeltaVisionHeader.ZWT_SEQUENCE);
     	return dv;
 	}

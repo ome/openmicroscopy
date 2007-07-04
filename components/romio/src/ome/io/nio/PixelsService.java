@@ -15,7 +15,9 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
+import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 
@@ -27,6 +29,9 @@ public class PixelsService extends AbstractFileSystemService {
 
 	/* The logger for this class. */
 	private transient static Log log = LogFactory.getLog(PixelsService.class);
+	
+	/** The DeltaVision file format enumeration value */
+	public static final String DV_FORMAT = "DV";
 
 	/**
 	 * Constructor
@@ -71,9 +76,57 @@ public class PixelsService extends AbstractFileSystemService {
 	 * @return PixelBuffer
 	 */
 	public PixelBuffer getPixelBuffer(Pixels pixels) {
-		String path = getPixelsPath(pixels.getId());
-		createSubpath(path);
-		return new RomioPixelBuffer(path, pixels);
+		List<OriginalFile> files = pixels.linkedOriginalFileList();
+		if (files == null)
+			throw new ApiUsageException(
+					"Expecting linked OriginalFiles to be loaded.");
+		if (files.size() > 0 && files.get(0).getFormat() == null)
+			throw new ApiUsageException(
+					"Expecting linked OriginalFile.Format to be loaded.");
+		
+		if (log.isInfoEnabled())
+		{
+			long id = pixels.getId();
+			for (OriginalFile file : files)
+			{
+				long fileId = file.getId();
+				String type = file.getFormat().getValue();
+				log.info("Pixels: " + id + " File: " + fileId + " " + type);
+			}
+		}
+		
+		String pixelsPath = getPixelsPath(pixels.getId());
+		OriginalFile originalFile = getDeltaVisionOriginalFile(files);
+		String originalFilePath = null;
+		if (originalFile != null)
+			originalFilePath = getFilesPath(originalFile.getId());
+		createSubpath(pixelsPath);
+		
+		if (!(new File(pixelsPath).exists()) && originalFile != null
+		    && new File(originalFilePath).exists())
+		{
+			log.info("Non-existant pixel buffer file, using original file.");
+			return new DeltaVision(originalFilePath, originalFile);
+		}
+		log.info("Pixel buffer file exists returning ROMIO pixel buffer.");
+		return new RomioPixelBuffer(pixelsPath, pixels);
+	}
+	
+	/**
+	 * Finds the first <code>OriginalFile</code> in a list that is of Type
+	 * DeltaVision.
+	 * @param files the list of <code>OriginalFile</code> objects to search.
+	 * @return the first original file object that matches the above criteria or
+	 * <code>null</code>.
+	 */
+	private OriginalFile getDeltaVisionOriginalFile(List<OriginalFile> files)
+	{
+		for (OriginalFile file : files)
+		{
+			if (file.getFormat().getValue().equals(DV_FORMAT))
+				return file;
+		}
+		return null;
 	}
 
 	/**

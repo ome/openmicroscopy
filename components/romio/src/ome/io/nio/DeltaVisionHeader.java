@@ -42,6 +42,33 @@ public class DeltaVisionHeader {
 	
 	/** The sequence to allow a caller to modify it for testing purposes. */
 	private Integer sequence;
+	
+	/** Whether or not the file is of native endianness. */
+	private Boolean isNative;
+	
+	/** Pixels are of type 1 byte, unsigned integer. */
+	public static final int PIXEL_TYPE_BYTE = 0;
+	
+	/** Pixels are of type 2 byte, unsigned integer. */
+	public static final int PIXEL_TYPE_SIGNED_SHORT = 1;
+	
+	/** Pixels are of type 4 byte, floating-point. */
+	public static final int PIXEL_TYPE_FLOAT = 2;
+	
+	/**
+	 * Pixels are of type 4 byte, complex, composed of two 2 byte signed 
+	 * integers.
+	 */
+	public static final int PIXEL_TYPE_2BYTE_COMPLEX = 3;
+	
+	/** 
+	 * Pixels are of type 8 byte, complex, composed of two 4 byte 
+	 * floating-point numbers. 
+	 */
+	public static final int PIXEL_TYPE_4BYTE_COMPLEX = 4;
+	
+	/** Pixels are of type 2 byte, signed integer. */
+	public static final int PIXEL_TYPE_UNSIGNED_SHORT = 6;
 
 	private static final int SIZE_X_OFFSET = 0;
 
@@ -63,17 +90,13 @@ public class DeltaVisionHeader {
 
 	public static final int BYTE_WIDTH = 1;
 
-	private static final short LITTLE_ENDIAN = -16224;
+	private static final short NATIVE_DVID = -16224;
 
-	private static final short BIG_ENDIAN = -24384;
+	private static final short BYTE_SWAPPED_DVID = -24384;
 
 	private static final int IMAGE_HEADER_SIZE = 1024;
 
 	private static final int DVID_OFFSET = 96;
-
-	private int bytesPerPixel;
-
-	private String imageType;
 
 	/**
 	 * Constructor
@@ -114,7 +137,7 @@ public class DeltaVisionHeader {
 	 * @return int
 	 */
 	public int getImageCount() {
-		return data.getShort(IMAGE_COUNT_OFFSET);
+		return data.getInt(IMAGE_COUNT_OFFSET);
 	}
 
 	/**
@@ -201,85 +224,53 @@ public class DeltaVisionHeader {
 	}
 
 	/**
-	 * Returns the number of bytes per picture element (pixel)
-	 * @return
+	 * Returns the number of bytes per pixel.
+	 * @return See above.
 	 */
-	public int getBytesPerPixel() {
-		switch (getPixelType()) {
-		case 0:
-			bytesPerPixel = 1;
-			break;
-		case 1:
-			bytesPerPixel = 2;
-			break;
-		case 2:
-			bytesPerPixel = 4;
-			break;
-		case 3:
-			bytesPerPixel = 4;
-			break;
-		case 4:
-			bytesPerPixel = 8;
-			break;
-		case 6:
-			bytesPerPixel = 2;
-			break;
+	public int getBytesPerPixel()
+	{
+		int pixelType = getPixelType(); 
+		switch (pixelType) {
+		case PIXEL_TYPE_BYTE:
+			return 1;
+		case PIXEL_TYPE_UNSIGNED_SHORT:
+		case PIXEL_TYPE_SIGNED_SHORT:
+			return 2;
+		case PIXEL_TYPE_FLOAT:
+		case PIXEL_TYPE_2BYTE_COMPLEX:
+			return 4;
+		case PIXEL_TYPE_4BYTE_COMPLEX:
+			return 8;
 		default:
-			bytesPerPixel = 1;
+			throw new RuntimeException("Unknown pixel type: " + pixelType);
 		}
-
-		return bytesPerPixel;
 	}
 
 	/**
-	 * Returns the representative String for the numeric image type
-	 * @return
+	 * Returns true if the DeltaVision file is of native endianness.
+	 * @return See above.
+	 * @throws RuntimeException if there is an error with the DeltaVision file's
+	 * DVID.
 	 */
-	public String getImageType() {
+	public boolean isNative()
+	{
+		if (isNative == null)
+		{
+			short dvid = data.getShort(DVID_OFFSET);
 
-		switch (getImageTypeCode()) {
-		case 0:
-			imageType = "normal";
-			break;
-		case 1:
-			imageType = "Tilt-series";
-			break;
-		case 2:
-			imageType = "Stereo tilt-series";
-			break;
-		case 3:
-			imageType = "Averaged images";
-			break;
-		case 4:
-			imageType = "Averaged stereo pairs";
-			break;
-		default:
-			imageType = "unknown";
+			if (dvid == NATIVE_DVID)
+			{
+				isNative = true;
+			}
+			else if (dvid == BYTE_SWAPPED_DVID)
+			{
+				isNative = false;
+			}
+			else
+			{
+				throw new RuntimeException("Unexpected DVID: " + dvid);
+			}
 		}
-
-		return imageType;
-	}
-
-	/**
-	 * Returns true if the DeltaVision file type is little endian byte order
-	 * @return
-	 * @throws RuntimeException
-	 */
-	private boolean isNative() {
-
-		boolean result = false;
-
-		short dvid = data.getShort(DVID_OFFSET);
-
-		if (dvid == LITTLE_ENDIAN) {
-			result = true;
-		} else if (dvid == BIG_ENDIAN) {
-			result = false;
-		} else {
-			throw new RuntimeException(
-					"FATAL: result is neither LITTLE_ENDIAN or BIG_ENDIAN");
-		}
-
-		return result;
+		return isNative;
 	}
 }

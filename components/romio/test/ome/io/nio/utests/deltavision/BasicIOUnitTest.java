@@ -14,7 +14,7 @@ public class BasicIOUnitTest extends TestCase
 	public DeltaVision getDeltaVisionPixelBuffer()
 	{
     	OriginalFile file = new DeltaVisionOriginalFile();
-    	DeltaVision dv = new DeltaVision(file);
+    	DeltaVision dv = new DeltaVision(file.getPath(), file);
     	return dv;
 	}
 	

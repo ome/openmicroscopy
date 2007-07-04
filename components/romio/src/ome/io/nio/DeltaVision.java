@@ -1,12 +1,15 @@
 package ome.io.nio;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
+import java.nio.ShortBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.security.MessageDigest;
@@ -46,18 +49,23 @@ public class DeltaVision implements PixelBuffer {
 	protected MappedByteBuffer buf;
 
 	private OriginalFile originalFile;
+	
+	private String originalFilePath;
 
 	public DeltaVisionHeader header;
 
 	/**
-	 * Constructor requires OriginalFile object
-	 * 
-	 * @param originalFile
+	 * Constructor.
+	 * @param originalFilePath the path to the original file in the ROMIO
+	 * repository.
+	 * @param originalFile the original file object that corresponds to the 
+	 * <code>originalFilePath</code>.
 	 */
-	public DeltaVision(OriginalFile originalFile)
+	public DeltaVision(String originalFilePath, OriginalFile originalFile)
 	{
 		try {
 			this.originalFile = originalFile;
+			this.originalFilePath = originalFilePath;
 			initFile();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -150,8 +158,7 @@ public class DeltaVision implements PixelBuffer {
 			throws IOException {
 		FileChannel fileChannel = getFileChannel();
 		MappedByteBuffer buf = fileChannel.map(MapMode.READ_ONLY, offset, size);
-		buf.order(ByteOrder.BIG_ENDIAN);
-		return buf;
+		return swapIfRequired(buf);
 	}
 
 	/* (non-Javadoc)
@@ -228,10 +235,7 @@ public class DeltaVision implements PixelBuffer {
 	 */
 	public MappedByteBuffer getStack(Integer c, Integer t) throws IOException,
 			DimensionsOutOfBoundsException {
-		Long offset = getStackOffset(c, t);
-		Integer size = getStackSize();
-
-		return getRegion(size, offset);
+		throw new UnsupportedOperationException("This method is not supported");
 	}
 
 	/* (non-Javadoc)
@@ -262,10 +266,7 @@ public class DeltaVision implements PixelBuffer {
 	 */
 	public MappedByteBuffer getTimepoint(Integer t) throws IOException,
 			DimensionsOutOfBoundsException {
-		Long offset = getTimepointOffset(t);
-		Integer size = getTimepointSize();
-
-		return getRegion(size, offset);
+		throw new UnsupportedOperationException("This method is not supported");
 	}
 
 	/* (non-Javadoc)
@@ -433,7 +434,7 @@ public class DeltaVision implements PixelBuffer {
 	 * @see ome.io.nio.PixelBuffer#getPath()
 	 */
 	public String getPath() {
-		return originalFile.getPath();
+		return originalFilePath;
 	}
 
 	/**
@@ -520,13 +521,10 @@ public class DeltaVision implements PixelBuffer {
 	 * 
 	 * @throws IOException if there is an error reading from the file.
 	 */
-	private void initFile() throws IOException, RuntimeException {
-		File file = new File(originalFile.getPath());
-		RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
-		
-		channel = randomAccessFile.getChannel();
+	private void initFile() throws IOException
+	{
+		channel = getFileChannel();
 		buf = channel.map(FileChannel.MapMode.READ_ONLY, 0, 1024);
-		
 		if (header == null) {
 			header = new DeltaVisionHeader(buf, true);
 		}
@@ -537,8 +535,79 @@ public class DeltaVision implements PixelBuffer {
 	 * 
 	 * @return opened file channel.
 	 */
-	private FileChannel getFileChannel() {
+	private FileChannel getFileChannel() throws FileNotFoundException
+	{
+		if (channel == null)
+		{
+			RandomAccessFile f = new RandomAccessFile(originalFilePath, "r");
+			channel = f.getChannel();
+		}
 		return channel;
 	}
 
+    /**
+     * Examines a byte array to see if it needs to be byte swapped. If byte
+     * swapping is deemed necessary a new swap buffer is created and returned.
+     * @param buffer The byte buffer to check and modify if required.
+     * @return <i>buffer</i> directly if swapping is required, otherwise a newly
+     * allocated buffer with byte swapped pixel values.
+     * @throws IOException if there is an error read from the file.
+     * @throws FormatException if there is an error during metadata parsing.
+     */
+	private MappedByteBuffer swapIfRequired(MappedByteBuffer buffer)
+		throws IOException
+	{
+		int pixelType = header.getPixelType();
+		int bytesPerPixel = header.getBytesPerPixel();
+		
+		// We've got nothing to do if the samples are only 8-bits wide, if they
+		// are floating point or complex.
+		switch (pixelType)
+		{
+			case DeltaVisionHeader.PIXEL_TYPE_FLOAT:
+			case DeltaVisionHeader.PIXEL_TYPE_2BYTE_COMPLEX:
+			case DeltaVisionHeader.PIXEL_TYPE_4BYTE_COMPLEX:
+				return buffer;
+		}
+		if (bytesPerPixel == 1)
+			return buffer;
+		
+		if (!header.isNative())  // Is little endian.
+		{
+			if (bytesPerPixel == 2)  // Short.
+			{
+				MappedByteBuffer swapBuffer = (MappedByteBuffer)
+					MappedByteBuffer.allocateDirect(buffer.capacity());
+				ShortBuffer buf = buffer.asShortBuffer();
+				ShortBuffer swapBuf = swapBuffer.asShortBuffer();
+				for (int i = 0; i < (buffer.capacity() / 2); i++) {
+					swapBuf.put(i, swap(buf.get(i)));
+				}
+				return swapBuffer;
+			} else if (bytesPerPixel == 4) {  // Integer or unsigned integer.
+				MappedByteBuffer swapBuffer = (MappedByteBuffer)
+					MappedByteBuffer.allocateDirect(buffer.capacity());
+				IntBuffer buf = buffer.asIntBuffer();
+				IntBuffer swapBuf = swapBuffer.asIntBuffer();
+				for (int i = 0; i < (buffer.capacity() / 4); i++) {
+					swapBuf.put(i, swap(buf.get(i)));
+				}
+				return swapBuffer;
+			} else {
+				throw new RuntimeException(
+					"Unsupported sample bit width: '" + bytesPerPixel + "'");
+			}
+		}
+		return buffer;
+	}
+	
+	/** Byte swaps one short value. */
+	public static short swap(short x) {
+		return (short) ((x << 8) | ((x >> 8) & 0xFF));
+	}
+
+	/** Byte swaps one integer value. */
+	public static int swap(int x) {
+		return (int) ((swap((short) x) << 16) | (swap((short) (x >> 16)) & 0xFFFF));
+	}
 }
