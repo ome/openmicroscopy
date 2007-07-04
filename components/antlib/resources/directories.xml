@@ -42,7 +42,7 @@
 	<property name="render.comp"    value="${components.dir}/rendering"/>
 	<property name="app.comp"       value="${components.dir}/app"/>
 	<property name="client.comp"    value="${components.dir}/client"/>
-	<property name="import.comp"    value="${components.dir}/bioformats-omero"/>
+	<property name="import.comp"    value="${components.dir}/importer"/>
 	<property name="blitz.comp"     value="${components.dir}/blitz"/>
 	<property name="tools.comp"     value="${components.dir}/tools"/>
 

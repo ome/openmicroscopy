@@ -30,7 +30,7 @@
 		</echo>
 	</target>
 
-	<target name="prepare" depends="deps-retrieve">
+	<target name="prepare" depends="deps-retrieve,variables-define">
 <!--
 		<available file="${deps.lib.dir}" property="deps.lib.dir.needed"/>
 		<antcall target="deps-retrieve" inheritrefs="true"/>
