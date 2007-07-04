@@ -45,48 +45,23 @@ public class DeltaVision implements PixelBuffer {
 
 	protected MappedByteBuffer buf;
 
-	protected int initExtHdrOffset = 1024;
-
-	protected final String currentOrder = "XYCZT";
-
 	private OriginalFile originalFile;
 
-	public static final int NULL_PLANE_SIZE = 64;
-
-	public boolean little = false;
-	
 	public DeltaVisionHeader header;
-
-	public static final byte[] nullPlane = new byte[] { -128, 127, -128, 127,
-			-128, 127, -128, 127, -128, 127, // 10
-			-128, 127, -128, 127, -128, 127, -128, 127, -128, 127, // 20
-			-128, 127, -128, 127, -128, 127, -128, 127, -128, 127, // 30
-			-128, 127, -128, 127, -128, 127, -128, 127, -128, 127, // 40
-			-128, 127, -128, 127, -128, 127, -128, 127, -128, 127, // 50
-			-128, 127, -128, 127, -128, 127, -128, 127, -128, 127, // 60
-			-128, 127, -128, 127 };
 
 	/**
 	 * Constructor requires OriginalFile object
 	 * 
 	 * @param originalFile
 	 */
-	public DeltaVision(OriginalFile originalFile, boolean little) {
-
-		this.little = little;
-
+	public DeltaVision(OriginalFile originalFile)
+	{
 		try {
 			this.originalFile = originalFile;
 			initFile();
-		} catch (IOException ioex) {
-			throw new RuntimeException(
-					"Original file not available, Critical Error!");
-		} catch (RuntimeException rtex) {
-			throw new RuntimeException(
-					"The binary file is not a valid DeltaVision file!");
-
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
-
 	}
 
 	/* (non-Javadoc)
@@ -124,6 +99,15 @@ public class DeltaVision implements PixelBuffer {
 			channel = null;
 		}
 	}
+	
+	/**
+	 * Returns the offset of the first plane in the file.
+	 * @return See above.
+	 */
+	public long getFirstPlaneOffset()
+	{
+		return header.getExtendedHeaderSize() + 1024;
+	}
 
 	/* (non-Javadoc)
 	 * @see ome.io.nio.PixelBuffer#getPlane(java.lang.Integer, java.lang.Integer, java.lang.Integer)
@@ -133,18 +117,7 @@ public class DeltaVision implements PixelBuffer {
 		Long offset = getPlaneOffset(z, c, t);
 		Integer size = getPlaneSize();
 		
-		MappedByteBuffer region = getRegion(size, offset);
-
-		byte[] myNullPlane = nullPlane;
-
-		for (int i = 0; i < NULL_PLANE_SIZE; i++) {
-			if (region.get(i) != myNullPlane[i]) {
-				return region;
-			}
-		}
-
-		return null; // All of the nullPlane bytes match, non-filled plane
-
+		return getRegion(size, offset);
 	}
 
 	/* (non-Javadoc)
@@ -152,16 +125,12 @@ public class DeltaVision implements PixelBuffer {
 	 */
 	public Long getPlaneOffset(Integer z, Integer c, Integer t)
 			throws DimensionsOutOfBoundsException {
-
 		checkBounds(null, z, c, t);
 
-		Integer timepointSize = getTimepointSize();
-		Integer stackSize = getStackSize();
-		Integer planeSize = getPlaneSize();
-
-		return (long) timepointSize * t + (long) stackSize * c
-				+ (long) planeSize * z;
-
+		long firstPlaneOffset = getFirstPlaneOffset();
+		int planeNumber = getPlaneNumber(z, c, t);
+		long off = firstPlaneOffset + planeNumber * getPlaneSize(); 
+		return off;
 	}
 
 	/* (non-Javadoc)
@@ -183,7 +152,6 @@ public class DeltaVision implements PixelBuffer {
 		MappedByteBuffer buf = fileChannel.map(MapMode.READ_ONLY, offset, size);
 		buf.order(ByteOrder.BIG_ENDIAN);
 		return buf;
-
 	}
 
 	/* (non-Javadoc)
@@ -191,7 +159,6 @@ public class DeltaVision implements PixelBuffer {
 	 */
 	public MappedByteBuffer getRow(Integer y, Integer z, Integer c, Integer t)
 			throws IOException, DimensionsOutOfBoundsException {
-		// TODO - affected by stack and timepoint
 		Long offset = getRowOffset(y, z, c, t);
 		Integer size = getRowSize();
 
@@ -203,23 +170,17 @@ public class DeltaVision implements PixelBuffer {
 	 */
 	public Long getRowOffset(Integer y, Integer z, Integer c, Integer t)
 			throws DimensionsOutOfBoundsException {
-		// TODO - affected by stack and timepoint
 		checkBounds(y, z, c, t);
-
+		Long planeOffset = getPlaneOffset(z, c, t);
 		Integer rowSize = getRowSize();
-		Integer timepointSize = getTimepointSize();
-		Integer stackSize = getStackSize();
-		Integer planeSize = getPlaneSize();
 
-		return (long) rowSize * y + (long) timepointSize * t + (long) stackSize
-				* c + (long) planeSize * z;
+		return planeOffset + rowSize * y;
 	}
 
 	/* (non-Javadoc)
 	 * @see ome.io.nio.PixelBuffer#getRowSize()
 	 */
 	public Integer getRowSize() {
-		// row is X-wide
 		if (rowSize == null) {
 			rowSize = getSizeX() * getByteWidth();
 		}
@@ -267,7 +228,6 @@ public class DeltaVision implements PixelBuffer {
 	 */
 	public MappedByteBuffer getStack(Integer c, Integer t) throws IOException,
 			DimensionsOutOfBoundsException {
-		// TODO - affected by ZCT ordering
 		Long offset = getStackOffset(c, t);
 		Integer size = getStackSize();
 
@@ -279,24 +239,21 @@ public class DeltaVision implements PixelBuffer {
 	 */
 	public Long getStackOffset(Integer c, Integer t)
 			throws DimensionsOutOfBoundsException {
-		// TODO - affected by ZCT ordering
 		checkBounds(null, null, c, t);
 
 		Integer timepointSize = getTimepointSize();
 		Integer stackSize = getStackSize();
 
-		return (long) timepointSize * t + (long) stackSize * c;
+		return (long) timepointSize * t + stackSize * c;
 	}
 
 	/* (non-Javadoc)
 	 * @see ome.io.nio.PixelBuffer#getStackSize()
 	 */
 	public Integer getStackSize() {
-		// stack is X-Y (plane) by Z (focalpoints)
 		if (stackSize == null) {
 			stackSize = getPlaneSize() * getSizeZ();
 		}
-
 		return stackSize;
 	}
 
@@ -305,7 +262,6 @@ public class DeltaVision implements PixelBuffer {
 	 */
 	public MappedByteBuffer getTimepoint(Integer t) throws IOException,
 			DimensionsOutOfBoundsException {
-		// TODO - affected by ZCT ordering
 		Long offset = getTimepointOffset(t);
 		Integer size = getTimepointSize();
 
@@ -317,9 +273,7 @@ public class DeltaVision implements PixelBuffer {
 	 */
 	public Long getTimepointOffset(Integer t)
 			throws DimensionsOutOfBoundsException {
-		// TODO - affected by ZCT ordering
 		checkBounds(null, null, null, t);
-
 		Integer timepointSize = getTimepointSize();
 
 		return (long) timepointSize * t;
@@ -332,7 +286,6 @@ public class DeltaVision implements PixelBuffer {
 		if (timepointSize == null) {
 			timepointSize = getStackSize() * getSizeC();
 		}
-
 		return timepointSize;
 	}
 
@@ -381,12 +334,21 @@ public class DeltaVision implements PixelBuffer {
 		return 0;
 	}
 
+	/**
+	 * Returns an object representing the header of this DeltaVision file.
+	 * @return See above.
+	 */
 	public DeltaVisionHeader getHeader() {
 		return header;
 	}
-
-	public void setHeader(DeltaVisionHeader header) {
-		this.header = header;
+	
+	/**
+	 * Sets the sequence of the file. <b>Should be used for testing ONLY.</b>
+	 * @param sequence
+	 */
+	public void setSequence(int sequence)
+	{
+		header.setSequence(sequence);
 	}
 	
 	// ---------- set or write methods ----------
@@ -474,12 +436,80 @@ public class DeltaVision implements PixelBuffer {
 		return originalFile.getPath();
 	}
 
-	// ---------- private methods ----------------------
+	/**
+	 * Returns the plane number (starting from <code>zero</code>) in the file.
+	 * @param z the Z-section offset.
+	 * @param c the channel.
+	 * @param t the timepoint.
+	 * @return See above.
+	 */
+	private int getPlaneNumber(int z, int c, int t)
+	{
+		int sequence = header.getSequence();
+		switch (sequence)
+		{
+			case DeltaVisionHeader.ZTW_SEQUENCE:
+				return getPlaneNumberZTW(z, c, t);
+			case DeltaVisionHeader.WZT_SEQUENCE:
+				return getPlaneNumberWZT(z, c, t);
+			case DeltaVisionHeader.ZWT_SEQUENCE:
+				return getPlaneNumberZWT(z, c, t);
+			default:
+				throw new RuntimeException("Unknown sequence: " + sequence);
+		}
+	}
+	
+	/**
+	 * Returns the plane number (starting from <code>zero</code>) for a file
+	 * with a "ZTW" plan sequence.
+	 * @param z the Z-section offset.
+	 * @param c the channel.
+	 * @param t the timepoint.
+	 * @return See above.
+	 */
+	private int getPlaneNumberZTW(int z, int c, int t)
+	{
+		int a = t * getSizeZ();
+		int b = c * getSizeZ() * getSizeT();
+		return z + a + b;
+	}
 
 	/**
-	 * utility method returns byte width, 1, 2, 4, etc
+	 * Returns the plane number (starting from <code>zero</code>) for a file
+	 * with a "WZT" plan sequence.
+	 * @param z the Z-section offset.
+	 * @param c the channel.
+	 * @param t the timepoint.
+	 * @return See above.
 	 */
-	private int getByteWidth() {
+	private int getPlaneNumberWZT(int z, int c, int t)
+	{
+		int a = z * getSizeC();
+		int b = getSizeC() * getSizeZ() * t;
+		return c + a + b;
+	}
+	
+	/**
+	 * Returns the plane number (starting from <code>zero</code>) for a file
+	 * with a "ZWT" plan sequence.
+	 * @param z the Z-section offset.
+	 * @param c the channel.
+	 * @param t the timepoint.
+	 * @return See above.
+	 */
+	private int getPlaneNumberZWT(int z, int c, int t)
+	{
+		int a = c * getSizeZ();
+		int b = getSizeZ() * getSizeC() * t;
+		return z + a + b;
+	}
+	
+	/**
+	 * Returns the file's byte width.
+	 * @return See above.
+	 */
+	private int getByteWidth()
+	{
 		return header.getBytesPerPixel();
 	}
 	
@@ -488,17 +518,15 @@ public class DeltaVision implements PixelBuffer {
 	 * Pixels object once held. Key data is obtained from a random access data
 	 * structure after the DeltaVision file header is read into memory.
 	 * 
-	 * @throws IOException
+	 * @throws IOException if there is an error reading from the file.
 	 */
 	private void initFile() throws IOException, RuntimeException {
-
 		File file = new File(originalFile.getPath());
-		RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
+		RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
 		
 		channel = randomAccessFile.getChannel();
-		
 		buf = channel.map(FileChannel.MapMode.READ_ONLY, 0, 1024);
-
+		
 		if (header == null) {
 			header = new DeltaVisionHeader(buf, true);
 		}
@@ -507,7 +535,7 @@ public class DeltaVision implements PixelBuffer {
 	/**
 	 * Private access only to read-write file
 	 * 
-	 * @return
+	 * @return opened file channel.
 	 */
 	private FileChannel getFileChannel() {
 		return channel;

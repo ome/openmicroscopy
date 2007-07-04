@@ -19,6 +19,29 @@ import java.nio.MappedByteBuffer;
 public class DeltaVisionHeader {
 
 	private MappedByteBuffer data;
+	
+	/**
+	 * A common sequence of processed images. Sometimes referred
+ 	 * to as "interleaved".
+ 	 */
+	public static final int ZTW_SEQUENCE = 0;
+	
+	/**
+	 * The most common sequence of images aquired from a microscope. Sometimes 
+	 * referred to as "non-interleaved" since the wavelengths are interleaved 
+	 * with the Z sections.
+	 */
+	public static final int WZT_SEQUENCE = 1;
+	
+	/**
+	 * A new image sequence, as of DeltaVision version 2.10. Although not 
+	 * widely used, ZWT will find uses with certain processing algorithms 
+	 * and data collection schemes.
+	 */
+	public static final int ZWT_SEQUENCE = 2;
+	
+	/** The sequence to allow a caller to modify it for testing purposes. */
+	private Integer sequence;
 
 	private static final int SIZE_X_OFFSET = 0;
 
@@ -59,7 +82,8 @@ public class DeltaVisionHeader {
 	 * @param endian
 	 */
 	public DeltaVisionHeader(MappedByteBuffer data, boolean endian) {
-
+		this.data = data;
+		
 		// make sure this is a header
 		if (data.capacity() != IMAGE_HEADER_SIZE) {
 			throw new IllegalArgumentException("Buffer size " + data.capacity()
@@ -68,9 +92,9 @@ public class DeltaVisionHeader {
 
 		// endianness
 		if (isNative()) {
-			data.order(ByteOrder.LITTLE_ENDIAN);
-		} else {
 			data.order(ByteOrder.BIG_ENDIAN);
+		} else {
+			data.order(ByteOrder.LITTLE_ENDIAN);
 		}
 
 		// set our data
@@ -126,11 +150,22 @@ public class DeltaVisionHeader {
 	}
 
 	/**
+	 * Sets the sequence of the file. <b>Should be used for testing ONLY.</b>
+	 * @param sequence
+	 */
+	public void setSequence(int sequence)
+	{
+		this.sequence = sequence;
+	}
+	
+	/**
 	 * Returns a numeric value that represents the Z,C, and T ordering
 	 * @return
 	 */
 	public int getSequence() {
-		return data.getInt(IMAGE_SEQUENCE_OFFSET);
+		if (sequence == null)
+			sequence = data.getInt(IMAGE_SEQUENCE_OFFSET);
+		return sequence;
 	}
 
 	/**
@@ -162,7 +197,7 @@ public class DeltaVisionHeader {
 	 * @return
 	 */
 	public int getSizeZ() {
-		return getImageCount() / getSizeC() * getSizeT();
+		return getImageCount() / (getSizeC() * getSizeT());
 	}
 
 	/**
