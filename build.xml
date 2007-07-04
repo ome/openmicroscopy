@@ -35,6 +35,7 @@
 	<import file="${import.dir}/setup.xml"/>
 	<import file="${import.dir}/dependencies.xml"/>
 	<import file="${import.dir}/multiproject.xml"/>
+	<property file="components/app/product.properties"/>
 
 	<target name="help" depends="usage"/>
 	<target name="usage"
@@ -66,7 +67,7 @@
 		description="A simple build that will install all artifacts to ${omero.repo.local}"/>
 
 	<target name="deploy" depends="check-system">
-		<iterate builpathref="app.buildpath" target="deploy"/>
+		<iterate buildpathref="app.buildpath" target="deploy"/>
 	</target>
 
 	<target name="fulldeploy" depends="fullbuild,deploy"/>
@@ -105,7 +106,7 @@
 	==================================================  -->
 
 	<target name="reload-db">
-		<iterate buildpathref="server.buildpath" target="reload-dn"/>
+		<iterate buildpathref="server.buildpath" target="reload-db"/>
 	</target>
 
 	<target name="addgroup">
