@@ -18,7 +18,7 @@ public class BasicIOUnitTest extends TestCase
     	return dv;
 	}
 	
-    @Test
+    @Test(groups={"manual"})
     public void testFirstPlaneOffset() throws Exception
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
@@ -26,7 +26,7 @@ public class BasicIOUnitTest extends TestCase
     	assertEquals(205824, offset);
     }
     
-    @Test
+    @Test(groups={"manual"})
     public void testFirstPlaneSize() throws Exception
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
@@ -34,7 +34,7 @@ public class BasicIOUnitTest extends TestCase
     	assertEquals(131072, buf.capacity());
     }
     
-    @Test
+    @Test(groups={"manual"})
     public void testFirstPlaneMd5() throws Exception
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();

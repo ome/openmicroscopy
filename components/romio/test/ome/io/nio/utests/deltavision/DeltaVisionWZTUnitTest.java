@@ -25,7 +25,7 @@ public class DeltaVisionWZTUnitTest extends TestCase
     	return dv;
 	}
     
-    @Test
+	@Test(groups={"manual"})
     public void testFirstPlaneSecondTimepointFirstChannelMd5() throws Exception
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
@@ -34,7 +34,7 @@ public class DeltaVisionWZTUnitTest extends TestCase
     	assertEquals("9618bf50881340fbc925abb3b458de2a", md);
     }
 
-    @Test
+	@Test(groups={"manual"})
     public void testFirstPlaneSecondChannelMd5() throws Exception
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
@@ -43,7 +43,7 @@ public class DeltaVisionWZTUnitTest extends TestCase
     	assertEquals("73ab6431bca5f102882f956162d30d3b", md);
     }
     
-    @Test
+	@Test(groups={"manual"})
     public void testSecondPlaneFirstChannelMd5() throws Exception
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
@@ -52,7 +52,7 @@ public class DeltaVisionWZTUnitTest extends TestCase
     	assertEquals("5c4501a98e5eb984c46841948e1ace6e", md);
     }
     
-    @Test
+	@Test(groups={"manual"})
     public void testLastPlaneMd5() throws Exception
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();

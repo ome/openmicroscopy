@@ -5,6 +5,7 @@
   <test name="romio.unit.active">
     <groups>
       <run>
+        <exclude name="manual"/>
         <exclude name="broken"/>
         <exclude name="ignore"/>
         <exclude name="integration"/>
