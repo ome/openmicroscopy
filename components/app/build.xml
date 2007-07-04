@@ -36,6 +36,8 @@
         <fileset dir="${target.dir}/libs" includes="jboss*"/>
         <fileset dir="${target.dir}/libs" includes="log4j*"/>
         <fileset dir="${target.dir}/libs" includes="geronimo*"/>
+        <fileset dir="${target.dir}/libs" includes="xerces*"/>
+        <fileset dir="${target.dir}/libs" includes="xml-*"/>
       </delete>
 
       <useServices dir="${target.dir}/libs"/>
