@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="dependencies" xmlns:ivy="antlib:fr.jayasoft.ivy.ant">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+# 
+# Copyright 2007 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+# 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+  <description>
+
+
+    Use namespace "deps-" for all targets, "deps." for all variables.
+  </description>
+
+  <!-- For these definitions to work properly, directories.xml must be imported-->
+  <property name="deps.lib.dir" value="${target.dir}/libs"/>
+  <property name="ivy.local.default.root" value="${omero.home}/lib/repository"/>
+  <property name="ivy.local.default.ivy.pattern" value="[organization]/[module]/[revision]/ivy.xml"/>
+  <property name="ivy.local.default.artifact.pattern" value="[organization]|[module]/[revision]/[artifact]-[revision].[ext]"/>
+
+  <path id="tools.classpath">
+    <fileset dir="${omero.home}/lib/tools" includes="*.jar"/>
+  </path>
+  <taskdef resource="fr/jayasoft/ivy/ant/antlib.xml"
+       uri="antlib:fr.jayasoft.ivy.ant" classpathref="tools.classpath"/>
+
+  <path id="omero.classpath">
+    <fileset dir="${deps.lib.dir}" />
+  </path>
+
+  <path id="omero.test.classpath">
+    <path refid="omero.classpath" />
+    <path location="${classes.dir}" />
+  </path>
+
+  <target name="deps-configure">
+    <ivy:configure file="${etc.dir}/ivyconf.xml" />
+  </target>
+
+  <target name="deps-buildlist" 
+    depends="deps-configure">
+    <ivy:buildlist reference="deps.build.path">
+      <fileset dir="${basedir}/components" includes="*/build.xml" excludes="**/bioformats-omero/**,**/policy/**,**/tools/**"/>
+    </ivy:buildlist>
+  </target>
+
+  <target name="deps-retrieve" 
+    depends="deps-configure"
+    description="--&gt; retrieve dependencies with ivy"
+    unless="deps.lib.dir.needed">
+    <mkdir dir="${deps.lib.dir}"/>
+    <ivy:retrieve pattern="${deps.lib.dir}/[artifact].[ext]"/>
+  </target>
+
+  <target name="deps-report" 
+    depends="deps-retrieve" 
+    description="--&gt; generates a report of dependencies">
+    <ivy:report todir="${target.dir}"/>
+  </target>
+
+  <!-- EXAMPLE
+  ================================= 
+  <target name="compile" 
+    depends="deps-retrieve" 
+    description="compile the project">
+    <mkdir dir="${classes.dir}"/>
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="lib.path.id" debug="true"/>
+  </target>
+
+  <target name="run" depends="version, compile" description="compile and run the project">
+    <java classpathref="run.path.id" classname="${main.class.name}"/>
+  </target>
+
+  <target name="jar" depends="version, compile" description="make a jar file for this project">
+    <jar destfile="${jar.file}">
+      <fileset dir="${classes.dir}"/>
+    </jar>
+  </target>
+
+  <target name="clean" depends="clean-build, clean-lib" description="clean the project and reset version number">
+    <delete file="${basedir}/version.properties"/>
+  </target>
+
+  ================================= -->
+
+  <target name="deps-new-version">
+    <propertyfile file="${target.dir}/version.properties">
+      <entry key="version" type="int" operation="+" default="0"/>
+    </propertyfile>
+  </target>
+
+  <target name="deps-check-version">
+    <available file="${target.dir}/version.properties" property="deps.version.exists"/>
+  </target>
+
+  <target name="deps-init-version" 
+    depends="deps-check-version" 
+    unless="deps.version.exists">
+    <echo message="version=1" file="${target.dir}/version.properties"/>
+  </target>
+
+  <target name="deps-version" 
+    depends="deps-init-version">
+    <copy file="${target.dir}/version.properties" tofile="${classes.dir}/${ant.project.name}.properties" overwrite="true"/>
+    <property file="${classes.dir}/${ant.project.name}.properties"/>
+  </target>
+
+  <target name="deps-publish" 
+    description="--&gt; publish this project in the ivy repository">
+    <fail>ONCE DID A FULL BUILD with call to new-version before jar.</fail>
+    <property name="revision" value="${version}"/>
+    <ivy:publish artifactspattern="${build.dir}/[artifact].[ext]" resolver="shared" pubrevision="${revision}" status="release"/>
+    <echo message="project ${ant.project.name} released with version ${revision}"/>
+  </target>
+
+  <target name="deps-local-version">
+    <tstamp>
+      <format property="now" pattern="yyyyMMddHHmmss"/>
+    </tstamp>
+    <property name="revision" value="local-${now}"/>
+    <echo message="version=${revision}" file="${classes.dir}/${ant.project.name}.properties" append="false"/>
+    <property file="${classes.dir}/${ant.project.name}.properties"/>
+  </target>
+
+  <target name="deps-publish-local" 
+      depends="deps-local-version, package" 
+      description="--&gt; publish this project in the local ivy repository">
+    <delete file="${build.dir}/ivy.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
+    <ivy:publish artifactspattern="${build.dir}/[artifact].[ext]" resolver="local" pubrevision="${revision}" pubdate="${now}" status="integration"/>
+    <echo message="project ${ant.project.name} published locally with version ${revision}"/>
+  </target>
+
+  <target name="deps-clean-local" 
+      depends="deps-configure" 
+      description="cleans the local repository for the current module">
+    <delete dir="${ivy.local.default.root}/${ant.project.name}"/>
+  </target>
+
+  <target name="deps-clean-lib" 
+      description="--&gt; clean the project libraries directory (dependencies)">
+    <delete includeemptydirs="true" dir="${deps.lib.dir}"/>
+  </target>
+
+</project>

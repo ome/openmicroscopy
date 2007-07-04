@@ -6,11 +6,20 @@
 
 <project name="app" default="help" basedir=".">
 
-	<property name="artifact.packaging"  value="ear"/>
-	<property file="product.properties"/>
+    <property name="artifact.name" value="app"/>
+    <property name="artifact.group" value="omero"/>
+    <property name="artifact.version" value="3.0-TRUNK"/>
+    <property name="artifact.packaging" value="ear"/>
+    <property name="artifact.path" value="omero/app/3.0-TRUNK/${artifact.final.name}"/>
+    <property file="product.properties"/>
 
-	<property name="classpath.file" value="classpath.xml"/>
-	<import file="${classpath.file}"/>
+    <property name="import.dir" value="${basedir}/../antlib/resources"/>
+    <import file="${import.dir}/global.xml"/>
+    <import file="${import.dir}/dependencies.xml"/>
+    <import file="${import.dir}/lifecycle.xml"/>
+    <import file="${import.dir}/hibernate.xml"/>
+    <import file="${import.dir}/server.xml"/>
+    <import file="${import.dir}/setup.xml"/>
 
    <!--
    =======================================================================
@@ -89,3 +98,4 @@
    </target>
 
 </project>
+

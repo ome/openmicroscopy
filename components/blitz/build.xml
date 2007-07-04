@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="blitz" default="install" basedir=".">
 
-    <property name="classpath.file" value="classpath.xml"/>
+    <property name="artifact.name" value="common"/>
+    <property name="artifact.group" value="omero"/>
+    <property name="artifact.version" value="3.0-TRUNK"/>
+    <property name="artifact.packaging" value="jar"/><!-- Default; override in component/build.xml -->
+    <property name="artifact.final.name" value="common-3.0-TRUNK.${artifact.packaging}"/>
+    <property name="artifact.path" value="omero/common/3.0-TRUNK/${artifact.final.name}"/>
+
+    <property name="import.dir" value="${basedir}/../antlib/resources"/>
+    <import file="${import.dir}/global.xml"/>
+    <import file="${import.dir}/dependencies.xml"/>
+    <import file="${import.dir}/lifecycle.xml"/>
+    <import file="${import.dir}/hibernate.xml"/>
+
+    <!-- Class that will be called via "java -jar" on this artifact -->
     <property name="main.class" value="ome.services.blitz.Main"/>
-    <import file="${classpath.file}"/>
 
     <!-- Local properties -->
     <property name="uses.ice" value="true"/>
@@ -163,3 +175,4 @@
 	</target>
 
 </project>
+

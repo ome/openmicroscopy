@@ -30,7 +30,9 @@
 		</echo>
 	</target>
 
-	<target name="prepare" depends="init,classpath-define">
+	<target name="prepare">
+		<available file="${deps.lib.dir}" property="deps.lib.dir.needed"/>
+		<antcall target="deps-retrieve" inheritrefs="true"/>
 		<makeDirectories/>
 		<copyResource file="${root.dir}/etc/local.properties"/>
 		<copyResource file="${root.dir}/etc/omero.properties"/>
@@ -181,7 +183,7 @@
 		<javac 
 			fork="yes"
 			destdir="${testclasses.dir}"
-			classpathref="omero.classpath" >
+			classpathref="omero.test.classpath" >
 			<src path="${test.dir}"/>
 		</javac>
 		<suite>
@@ -314,12 +316,8 @@
 
   <target name="standalone" unless="skip.compile">
     <copy todir="${target.dir}/standalone">
-      <fileset dir="${omero.repo.local}">
-        <patternset refid="generated.compile.patternset"/>
-        <patternset refid="generated.test.patternset"/>
-        <include name="${artifact.path}"/>
-      </fileset>
-      <flattenmapper/>
+      <fileset dir="${deps.lib.dir}" includes="**/*.jar"/>
+      <fileset dir="${target.dir}" includes="*.jar"/>
     </copy>
     <jar update="true" destfile="${target.dir}/standalone/${artifact.final.name}">
       <fileset dir="${resrc.dir}">
@@ -332,5 +330,21 @@
       </fileset>
     </jar>
   </target>
-  
+
+    <!-- MACROS -->
+
+    <macrodef name="copyResource">
+        <attribute name="file"/>
+        <sequential>
+            <basename property="props.file.prop" file="@{file}"/>
+            <available file="@{file}" property="${props.file.prop}.exists"/>
+            <fail unless="${props.file.prop}.exists">
+                @{file} ${msg.macro.missing_properties}
+            </fail>
+           <copy file="@{file}" todir="${resrc.dest}" failonerror="true" />
+       <copy file="@{file}" todir="${classes.dir}" failonerror="true" />
+        </sequential>
+    </macrodef>
+
 </project>
+

@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="services" default="install" basedir=".">
 
-    <property name="classpath.file" value="classpath.xml"/>
-    <import file="${classpath.file}"/>
+    <property name="artifact.name" value="server"/>
+    <property name="artifact.group" value="omero"/>
+    <property name="artifact.version" value="3.0-TRUNK"/>
+    <property name="artifact.packaging" value="jar"/><!-- Default; override in component/build.xml -->
+    <property name="artifact.final.name" value="server-3.0-TRUNK.${artifact.packaging}"/>
+    <property name="artifact.path" value="omero/server/3.0-TRUNK/${artifact.final.name}"/>
+
+    <property name="import.dir" value="${basedir}/../antlib/resources"/>
+    <import file="${import.dir}/global.xml"/>
+    <import file="${import.dir}/dependencies.xml"/>
+    <import file="${import.dir}/lifecycle.xml"/>
+    <import file="${import.dir}/hibernate.xml"/>
 
     <target name="reload-db" depends="prepare">
         <java classname="ome.security.PasswordUtil" outputproperty="ROOTPASS" classpathref="omero.classpath">

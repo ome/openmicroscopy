@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="hibernate" default="help" basedir=".">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+# 
+# Copyright 2007 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+# 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+     <target name="load-hibernate">
+        <available property="hibernate-exists" classname="org.hibernate.Hibernate" classpathref="omero.classpath" />
+        <available property="hibernate.ext-exists" classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="omero.classpath" />
+        <fail unless="hibernate-exists" message="${msg.macro.missing_fail} Hibernate"/>
+        <fail unless="hibernate.ext-exists" message="${msg.macro.missing_fail} Hibernate Tools"/>
+        <taskdef classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="omero.classpath" name="hibernatetool"/>
+    </target>
+
+</project>

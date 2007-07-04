@@ -25,8 +25,8 @@
 
 -->
 
-	<!-- Where to find things -->
-	<dirname property="import.dir"  file="${ant.file.global}"/>
+	<!-- Where to find things. It is assume that to have imported this 
+	file any build script will have had to define the import.dir variable-->
 	<import file="${import.dir}/directories.xml"/>
 
 	<!-- Define properties :
@@ -47,10 +47,6 @@
 	<!-- Imports -->
 	<import file="${import.dir}/patterns.xml"/>
 	<import file="${import.dir}/macros.xml"/>
-	<import file="${import.dir}/lifecycle.xml"/>
-	<import file="${import.dir}/setup.xml"/>
-	<import file="${import.dir}/server.xml"/>
-	<import file="${import.dir}/release.xml"/>
 	
 	<!-- Message bundles, so all properties are defined -->
 	<property file="${import.dir}/messages.properties" />
@@ -65,26 +61,6 @@
 		<echo>
 			This build file is intended for import only.
 		</echo>
-	</target>
-
-
-    <!-- = = = = = = = = = = = = = = = = =
-          init
-         = = = = = = = = = = = = = = = = = -->
-
-	<target name="init" depends="compatibility,variables-define"/>
-
-	<target name="compatibility">
-		<condition property="old.files"><or>
-			<available file="${omero.home}/omero.properties"/>
-			<available file="${omero.home}/hibernate.properties"/>
-			<available file="${omero.home}/log4j.properties"/>
-			<available file="${omero.home}/jndi.properties"/>
-		</or></condition>
-		<fail if="old.files">
-${msg.global.old.files}
-		</fail>
-
 	</target>
 
 	<target name="variables-define">
@@ -102,75 +78,6 @@ ${msg.global.old.files}
 		</condition>
 	</target>
 
-    <!-- = = = = = = = = = = = = = = = = =
-          classpath
-         = = = = = = = = = = = = = = = = = -->
-	<target name="classpath-check">
-		<condition property="maven.classpath.defined">
-			<and>
-				<isreference refid="maven.compile.classpath"/>
-				<isreference refid="maven.test.classpath"/>
-			</and>
-		</condition>
-		<condition property="generated.classpath.defined">
-			<and>
-				<isreference refid="generated.compile.classpath"/>
-				<isreference refid="generated.test.classpath"/>
-			</and>
-		</condition>
-		<fail>
-			<condition>
-			<not><or>
-				<isset property="maven.classpath.defined"/>
-				<isset property="generated.classpath.defined"/>
-			</or></not>
-			</condition>
-			${msg.global.no.classpath}
-		</fail>
-	</target>
-
-	<target name="classpath-ant" unless="maven.classpath.defined">
-		<path id="omero.compile.classpath">
-			<path refid="generated.compile.classpath"/>
-		</path>
-		<path id="omero.test.classpath">
-			<path refid="generated.test.classpath"/>
-		</path>
-	</target>
-
-	<target name="classpath-maven" if="maven.classpath.defined">
-		<path id="omero.compile.classpath">
-			<path refid="maven.compile.classpath"/>
-		</path>
-		<path id="omero.test.classpath">
-			<path refid="maven.test.classpath"/>
-		</path>
-	</target>
-
-	<target name="classpath-define" depends="classpath-check,classpath-maven,classpath-ant">
-		<path id="omero.classpath">
-			<pathelement location="${classes.dir}/" />
-			<pathelement location="${resrc.dir}/" />
-			<pathelement location="${resrc.dest}/"/>
-			<path refid="omero.compile.classpath"/>
-			<path refid="omero.test.classpath"/>
-		</path>
-		<pathconvert property="omero.path" refid="omero.classpath"/>
-		<pathconvert property="compile.path" refid="omero.compile.classpath"/>
-		<pathconvert property="test.path" refid="omero.test.classpath"/>
-	</target>
-
-    <!-- = = = = = = = = = = = = = = = = =
-          common tasks
-         = = = = = = = = = = = = = = = = = -->
-	<target name="load-hibernate">
-		<available property="hibernate-exists" classname="org.hibernate.Hibernate" classpathref="omero.classpath" />
-		<available property="hibernate.ext-exists" classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="omero.classpath" />
-		<fail unless="hibernate-exists" message="${msg.macro.missing_fail} Hibernate"/>
-		<fail unless="hibernate.ext-exists" message="${msg.macro.missing_fail} Hibernate Tools"/>
-		<taskdef classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="omero.classpath" name="hibernatetool"/>
-	</target>
-	
 	<target name="load-groovy">
 		<available property="groovy-exists" classname="org.codehaus.groovy.ant.Groovy" classpathref="omero.classpath" />
 		<fail unless="groovy-exists" message="Groovy ${msg.macro.missing_fail}"/>

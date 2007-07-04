@@ -2,7 +2,8 @@
 <project name="tools" default="help" basedir=".">
 
    <dirname property="up-one" file="${basedir}"/>
-   <import file="${up-one}/antlib/resources/global.xml"/>
+   <property name="import.dir" value="${up-one}/antlib/resources"/>
+   <import file="${import.dir}/global.xml"/>
    
 	<target name="help" description="This help message">
 		<echo>
