@@ -230,7 +230,7 @@
 		</junit>	
 	</target>
 		
-	<target name="package" depends="test" unless="skip.compile">
+	<target name="package" depends="test">
 		<pathconvert property="mf.classpath"
 			refid="omero.classpath" 
 			pathsep=" " dirsep="/">
@@ -253,7 +253,7 @@
 		</jar>
 	</target>
 
-	<target name="install" depends="package,deps-publish-local" unless="skip.compile"/>
+	<target name="install" depends="package,deps-publish-local"/>
 
 	<target name="integration" depends="install" unless="test.skip">
 		<!-- may be overriden by fail-on-error -->
@@ -266,7 +266,7 @@
 		</suite>
 	</target>
 
-	<target name="dist" depends="integration" unless="skip.compile">
+	<target name="dist" depends="integration">
 		<!-- empty by default -->
 	</target>
 
@@ -292,7 +292,7 @@
 		<eclipse.refreshLocal resource="missing" depth="infinite"/>		
 	</target>
 
-  <target name="standalone" unless="skip.compile">
+  <target name="standalone">
     <copy todir="${target.dir}/standalone">
       <fileset dir="${deps.lib.dir}" includes="**/*.jar"/>
       <fileset dir="${target.dir}" includes="*.jar"/>
