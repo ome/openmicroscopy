@@ -29,7 +29,7 @@ package org.openmicroscopy.shoola.util.roi.model.util;
 //Application-internal dependencies
 
 /** 
- * 
+ * Helper class hosting units parameters.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -43,95 +43,93 @@ package org.openmicroscopy.shoola.util.roi.model.util;
  */
 public class MeasurementUnits
 {	
-	/** The number of microns per pixel in the X-Axis. */
+	
+	/** The number of microns per pixel along the x-axis. */
 	private double micronsPixelX;
 
-	/** The number of microns per pixel in the Y-Axis. */
+	/** The number of microns per pixel along the y-axis. */
 	private double micronsPixelY;
 	
-	/** The number of microns per pixel in the Z-Axis. */
+	/** The number of microns per pixel along the z-axis. */
 	private double micronsPixelZ;
 	
 	/** Display measurements in Microns. */
 	private boolean inMicrons;
 	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param x		The number of microns per pixel along the x-axis.
+	 * @param y		The number of microns per pixel along the y-axis.
+	 * @param z		The number of microns per pixel along the z-axis.
+	 * @param inM	Passed <code>true</code> if the unit is in microns,
+	 * 				<code>false</code> otherwise.
+	 */
 	public MeasurementUnits(double x, double y, double z, boolean inM)
 	{
 		micronsPixelX = x;
 		micronsPixelY = y;
 		micronsPixelZ = z;
-		inM = inMicrons;
+		inMicrons = inM;
 	}
 	
 	/**
-	 * Get the microns in a pixel in the X-Axis.
-	 * @return see above.
-	 */
-	public double getMicronsPixelX()
-	{
-		return micronsPixelX;
-	}
-	
-	/**
-	 * Get the microns in a pixel in the Y-Axis.
-	 * @return see above.
-	 */
-	public double getMicronsPixelY()
-	{
-		return micronsPixelY;
-	}
-	
-	/**
-	 * Get the microns in a pixel in the Z-Axis.
-	 * @return see above.
-	 */
-	public double getMicronsPixelZ()
-	{
-		return micronsPixelZ;
-	}
-	
-	/**
-	 * Show the measurements in microns.
-	 * @return see above.
+	 * Returns the number of the microns in a pixel in the x-axis.
 	 * 
+	 * @return See above.
 	 */
-	public boolean showInMicrons()
-	{
-		return inMicrons;
-	}
+	public double getMicronsPixelX() { return micronsPixelX; }
+	
+	/**
+	 * Returns the number of the microns in a pixel in the y-axis.
+	 * 
+	 * @return See above.
+	 */
+	public double getMicronsPixelY() { return micronsPixelY; }
+	
+	/**
+	 * Returns the number of the microns in a pixel in the z-axis.
+	 * 
+	 * @return See above.
+	 */
+	public double getMicronsPixelZ() { return micronsPixelZ; }
+	
+	/**
+	 * Shows the measurements in microns.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isInMicrons() { return inMicrons; }
 
-	/**
-	 * Set the microns in a pixel in the X-Axis.
-	 */
-	public void setMicronsPixelX(double x)
-	{
-		micronsPixelX = x;
-	}
-	
-	/**
-	 * Set the microns in a pixel in the Y-Axis.
-	 */
-	public void setMicronsPixelY(double y)
-	{
-		micronsPixelY = y;
-	}
-	
-	/**
-	 * Set the microns in a pixel in the Z-Axis.
-	 */
-	public void setMicronsPixelZ(double z)
-	{
-		micronsPixelZ = z;
-	}
-	
-	/**
-	 * Set the showing of the measurements in microns.
+	/** 
+	 * Sets the microns in a pixel in the x-axis.
 	 * 
+	 * @param x The value to set.
 	 */
-	public void setShowInMicrons(boolean show)
-	{
-		inMicrons = show;
-	}
+	public void setMicronsPixelX(double x) { micronsPixelX = x; }
+	
+	/** 
+	 * Sets the microns in a pixel in the y-axis.
+	 * 
+	 * @param y The value to set.
+	 */
+	public void setMicronsPixelY(double y) { micronsPixelY = y; }
+	
+	/** 
+	 * Sets the microns in a pixel in the z-axis.
+	 * 
+	 * @param z The value to set.
+	 */
+	public void setMicronsPixelZ(double z) { micronsPixelZ = z; }
+	
+	/**
+	 * Sets the measurements in microns if the passed value is 
+	 * <code>true</code>, in pixels otherwise.
+	 * 
+	 * @param show The value to set.
+	 */
+	public void setInMicrons(boolean show) { inMicrons = show; }
+	
 }
 
 

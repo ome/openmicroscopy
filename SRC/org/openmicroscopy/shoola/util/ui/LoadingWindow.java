@@ -66,12 +66,12 @@ public class LoadingWindow
     /** Bounds property indicating that the window is closed. */
     public static final String		CLOSED_PROPERTY = "closed";
     
+    /** The message displayed. */
+    public static final String 	LOADING_TXT = "Loaded: ";
+    
     /** The title of the window. */
     private static final String 	TITLE = "Loading window";
-    
-    /** The message displayed. */
-    private static final String 	LOADING_TXT = "Loaded: ";
-    
+
     /** The default size of the window. */
     private static final Dimension	DEFAULT_SIZE = new Dimension(400, 60);
     
@@ -145,7 +145,7 @@ public class LoadingWindow
      * 
      * @param s The message to display.
      */
-    public void setStatus(String s) { status.setText(LOADING_TXT+s); }
+    public void setStatus(String s) { status.setText(s); }
     
     /**
      * Sets the value of the progress bar.

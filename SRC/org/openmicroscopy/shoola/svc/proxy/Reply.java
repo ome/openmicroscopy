@@ -81,12 +81,12 @@ public abstract class Reply
     
     /**
      * Unmarshals
+     * 
      * @param response	The response to handle.
      * @param context	The communication link.
      * @throws TransportException If an error occured while transferring data.
      */
     public abstract void unmarshal(HttpMethod response, HttpChannel context)
         throws TransportException;
-    
     
 }

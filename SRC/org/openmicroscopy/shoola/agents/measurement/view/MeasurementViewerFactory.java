@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.Rectangle;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
@@ -140,7 +139,7 @@ public class MeasurementViewerFactory
 	}
 	
 	/** All the tracked components. */
-    private Set<MeasurementViewer>     	viewers;
+    private Set<MeasurementViewer>	viewers;
     
     /** All the tracked requests. */
     private Set<MeasurementTool>	requests;

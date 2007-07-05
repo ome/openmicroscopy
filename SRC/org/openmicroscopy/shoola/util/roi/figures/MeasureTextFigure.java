@@ -27,11 +27,14 @@ package org.openmicroscopy.shoola.util.roi.figures;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Map;
 
 //Third-party libraries
+import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.TextFigure;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
@@ -116,16 +119,28 @@ public class MeasureTextFigure
 	public String getType() { return ROIFigure.TEXT_TYPE; }
 	
 	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setMeasurementUnits(MeasurementUnits)
+	 */
+	public void setMeasurementUnits(MeasurementUnits units)
+	{
+		this.units = units;
+	}
+	
+	/**
 	 * Required by the {@link ROIFigure} interface but no-op implementation 
 	 * in our case.
 	 * @see ROIFigure#calculateMeasurements()
 	 */
 	public void calculateMeasurements() {}
 
-	public void setMeasurementUnits(MeasurementUnits units)
-	{
-		this.units = units;
-	}
+	/**
+	 * Required by the {@link ROIFigure} interface but no-op implementation 
+	 * in our case.
+	 * @see ROIFigure#getPoints()
+	 */
+	public PlanePoint2D[] getPoints() {  return null; }
+	
 }
 
 

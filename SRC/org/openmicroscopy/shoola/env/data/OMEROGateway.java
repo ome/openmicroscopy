@@ -46,6 +46,7 @@ import javax.ejb.EJBException;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import ome.api.IAdmin;
+import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IUpdate;
@@ -942,9 +943,16 @@ class OMEROGateway
     {
         try {
             IQuery service = getIQueryService();
-            Pixels pixs = service.get(Pixels.class, pixelsID);
+            Pixels pixs = (Pixels) service.findByQuery(
+                    "select p from Pixels as p " +
+                    "left outer join fetch p.pixelsType as pt " +
+                    "left outer join fetch p.pixelsDimensions " +
+                    "where p.id = :id",
+                    new Parameters().addId(new Long(pixelsID)));
+           
             return pixs;
         } catch (Throwable t) {
+        	t.printStackTrace();
             handleException(t, "Cannot retrieve the pixels set of "+
                                 "the pixels set.");
         }
@@ -1341,6 +1349,7 @@ class OMEROGateway
 		RawPixelsStore service = getPixelsStore();
 		try {
 			service.setPixelsId(pixelsID);
+			
 			return service.getPlane(z, c, t);
 		} catch (Throwable e) {
 			handleException(e, "Cannot retrieve the plane " +

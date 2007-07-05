@@ -52,7 +52,6 @@ import org.openmicroscopy.shoola.agents.measurement.Analyser;
 import org.openmicroscopy.shoola.agents.measurement.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
-import org.openmicroscopy.shoola.agents.measurement.PixelsDimensionsLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsLoader;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
@@ -149,7 +148,7 @@ class MeasurementViewerModel
     private MeasurementViewer		component;
     
     /** Boolean to indicating that the tool has been posted to the viewer.*/
-    private boolean 				toolSent;
+    //private boolean 				toolSent;
     
     /**
      * Returns the current user's details.
@@ -185,7 +184,7 @@ class MeasurementViewerModel
 		drawingView.setDrawing(drawing);
 		drawingEditor.add(drawingView);
 		roiFileName = imageID+".xml";
-		toolSent = false;
+		//toolSent = false;
 	}
 	
 	/**
@@ -196,11 +195,12 @@ class MeasurementViewerModel
 	 * 
 	 * @param state see above.
 	 */
+	/*
 	void setToolSent(boolean state)
 	{
 		toolSent = state;
 	}
-	
+	*/
 	/**
 	 * This checks that we've not posted a message to the viewer already to 
 	 * add the drawing view of the measurement component. if this value is 
@@ -208,10 +208,12 @@ class MeasurementViewerModel
 	 * the viewer. 
 	 * @return see above.
 	 */
+	/*
 	boolean getToolSent()
 	{
 		return toolSent;
 	}
+	*/
 	
 	 /**
      * Called by the <code>ROIViewer</code> after creation to allow this
@@ -318,14 +320,6 @@ class MeasurementViewerModel
     	state = MeasurementViewer.READY;
     }
 
-    /** Fires an asynchronous retrieval of dimensions of the pixels set. */
-	void firePixelsDimensionsLoading()
-	{
-		state = MeasurementViewer.LOADING_DATA;
-		currentLoader = new PixelsDimensionsLoader(component, pixelsID);
-		currentLoader.load();
-	}
-    
 	/** Fires an asynchronous retrieval of the pixels set. */
 	void firePixelsLoading()
 	{
@@ -345,28 +339,6 @@ class MeasurementViewerModel
 		state = MeasurementViewer.LOADING_ROI;
 		if (fileName == null) fileName = roiFileName;
 		component.setROI(IOUtil.readFile(fileName));
-	}
-	
-	/**
-	 * Sets the dimensions of the pixels set.
-	 * 
-	 * @param dims The value to set.
-	 */
-	void setPixelsDimensions(PixelsDimensions dims) 
-	{ 
-		pixelsDims = dims; 
-		setMicronsPixelSize();
-	}
-
-	/**
-	 * Sets the microns per pixel in the ROIComponent after the image 
-	 * has loaded. 
-	 */
-	void setMicronsPixelSize()
-	{
-		roiComponent.setMicronsPixelX(getPixelSizeX());
-		roiComponent.setMicronsPixelY(getPixelSizeY());
-		roiComponent.setMicronsPixelZ(getPixelSizeZ());
 	}
 	
 	/**
@@ -580,7 +552,14 @@ class MeasurementViewerModel
 	 * 
 	 * @param pixels The value to set.
 	 */
-	void setPixels(Pixels pixels) { this.pixels = pixels; }
+	void setPixels(Pixels pixels)
+	{ 
+		this.pixels = pixels;
+		pixelsDims = pixels.getPixelsDimensions(); 
+		roiComponent.setMicronsPixelX(getPixelSizeX());
+		roiComponent.setMicronsPixelY(getPixelSizeY());
+		roiComponent.setMicronsPixelZ(getPixelSizeZ());
+	}
 	
 	/**
 	 * Saves the current ROISet in the roi component to file.

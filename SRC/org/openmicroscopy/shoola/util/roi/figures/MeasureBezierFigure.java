@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.roi.figures;
 //Java imports
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
@@ -37,20 +38,11 @@ import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.BezierFigure;
 
 //Application-internal dependencies
-import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
-import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.SHOWMEASUREMENT;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ENDPOINTX;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ENDPOINTY;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.AREA;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.PERIMETER;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.LENGTH;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREX;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREY;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.POINTARRAYX;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.POINTARRAYY;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.STARTPOINTX;
 
+import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
+import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
@@ -105,7 +97,7 @@ public class MeasureBezierFigure
 	public void draw(Graphics2D g)
 	{
 		super.draw(g);
-		if(SHOWMEASUREMENT.get(this))
+		if(DrawingAttributes.SHOWMEASUREMENT.get(this))
 		{
 			if(CLOSED.get(this))
 			{
@@ -118,7 +110,7 @@ public class MeasureBezierFigure
 				bounds = new Rectangle2D.Double(this.getBounds().getCenterX()-bounds.getWidth()/2,
 					this.getBounds().getCenterY()+bounds.getHeight()/2,
 					bounds.getWidth(), bounds.getHeight());
-				g.setColor(MEASUREMENTTEXT_COLOUR.get(this));
+				g.setColor(DrawingAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(polygonArea, (int)bounds.getX(), (int)bounds.getY()); 
 			}
 			else
@@ -143,7 +135,7 @@ public class MeasureBezierFigure
 					bounds = new Rectangle2D.Double(x-bounds.getWidth()/2,
 							y+bounds.getHeight()/2,
 							bounds.getWidth(), bounds.getHeight());
-					g.setColor(MEASUREMENTTEXT_COLOUR.get(this));
+					g.setColor(DrawingAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 					g.drawString(polygonLength, (int)path.getCenter().getX(), (int)path.getCenter().getY());
 				}
 			}
@@ -190,23 +182,18 @@ public class MeasureBezierFigure
 	
 	public String addLineUnits(String str)
 	{
-		if(shape==null)
-			return str;
+		if (shape == null) return str;
 		
-		if(units.showInMicrons())
-			return str+OutputUnit.MICRONS;
-		else
-			return str+OutputUnit.PIXELS;
+		if (units.isInMicrons()) return str+OutputUnit.MICRONS;
+		return str+OutputUnit.PIXELS;
 	}
 	
 	public String addAreaUnits(String str)
 	{
-		if(shape==null)
-			return str;
-		if(units.showInMicrons())
+		if (shape == null) return str;
+		if (units.isInMicrons())
 			return str+OutputUnit.MICRONS+OutputUnit.SQUARED;
-		else
-			return str+OutputUnit.PIXELS+OutputUnit.SQUARED;
+		return str+OutputUnit.PIXELS+OutputUnit.SQUARED;
 	}
 	
 	/**
@@ -219,22 +206,20 @@ public class MeasureBezierFigure
 	{
 		Point2D.Double pt = getPoint(i); 
 			//new Point2D.Double(path.get(i).x[0],path.get(i).y[0]);
-		if(units.showInMicrons())
-		{
+		if (units.isInMicrons())
 			return new Point2D.Double(	pt.getX()*units.getMicronsPixelX(), 
 										pt.getY()*units.getMicronsPixelY());
-		}
-		else
-			return pt;
+		return pt;
 	}
 	
 	public double getLength()
 	{
 		double length = 0;
-		for(int i = 0 ; i < getPointCount()-1 ; i++)
+		Point2D p0, p1;
+		for (int i = 0 ; i < getPointCount()-1 ; i++)
 		{
-			Point2D p0 = getPt(i);
-			Point2D p1 = getPt(i+1);
+			p0 = getPt(i);
+			p1 = getPt(i+1);
 			length += p0.distance(p1);
 		}
 		return length;
@@ -242,29 +227,25 @@ public class MeasureBezierFigure
 	
 	public Point2D getCentre()
 	{
-		if(units.showInMicrons())
+		if (units.isInMicrons())
 		{
 			Point2D.Double pt1 =  path.getCenter();
 			pt1.setLocation(pt1.getX()*units.getMicronsPixelX(), pt1.getY()*units.getMicronsPixelY());
 			return pt1;
 		}
-		else
-			return path.getCenter();
+		return path.getCenter();
 	}
 	
 	public double getArea()
 	{
 		double area = 0;
 		Point2D centre = getCentre();
-	
-		for(int i = 0 ; i < path.size() ; i++)
+		Point2D p0, p1;
+		for (int i = 0 ; i < path.size() ; i++)
 		{
-			Point2D p0 = getPt(i);
-			Point2D p1;
-			if(i==path.size()-1)
-				p1 = getPt(0);
-			else
-				p1 = getPt(i+1);
+			p0 = getPt(i);
+			if (i == path.size()-1) p1 = getPt(0);
+			else p1 = getPt(i+1);
 		
 			p0.setLocation(p0.getX()-centre.getX(), p0.getY()-centre.getY());
 			p1.setLocation(p1.getX()-centre.getX(), p1.getY()-centre.getY());
@@ -273,6 +254,11 @@ public class MeasureBezierFigure
 		return Math.abs(area/2);
 	}
 
+	public void measureBasicRemoveNode(int index)
+	{
+		this.basicRemoveNode(index);
+	}
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getROI()
@@ -314,32 +300,27 @@ public class MeasureBezierFigure
 			pointArrayX.add(pt.getX());
 			pointArrayY.add(pt.getY());
 		}
-		POINTARRAYX.set(shape, pointArrayX);
-		POINTARRAYY.set(shape, pointArrayY);
+		AnnotationKeys.POINTARRAYX.set(shape, pointArrayX);
+		AnnotationKeys.POINTARRAYY.set(shape, pointArrayY);
 		if (CLOSED.get(this))
 		{
-			AREA.set(shape,getArea());
-			PERIMETER.set(shape, getLength());
-			CENTREX.set(shape, getCentre().getX());
-			CENTREY.set(shape, getCentre().getY());
+			AnnotationKeys.AREA.set(shape,getArea());
+			AnnotationKeys.PERIMETER.set(shape, getLength());
+			AnnotationKeys.CENTREX.set(shape, getCentre().getX());
+			AnnotationKeys.CENTREY.set(shape, getCentre().getY());
 		}
 		else
 		{
 			lengthArray.add(getLength());
 			
-			LENGTH.set(shape, lengthArray);
-			CENTREX.set(shape, getCentre().getX());
-			CENTREY.set(shape, getCentre().getY());
-			STARTPOINTX.set(shape, getPt(0).getX());
-			STARTPOINTX.set(shape, getPt(0).getY());
-			ENDPOINTX.set(shape, getPt(path.size()-1).getX());
-			ENDPOINTY.set(shape, getPt(path.size()-1).getY());
+			AnnotationKeys.LENGTH.set(shape, lengthArray);
+			AnnotationKeys.CENTREX.set(shape, getCentre().getX());
+			AnnotationKeys.CENTREY.set(shape, getCentre().getY());
+			AnnotationKeys.STARTPOINTX.set(shape, getPt(0).getX());
+			AnnotationKeys.STARTPOINTX.set(shape, getPt(0).getY());
+			AnnotationKeys.ENDPOINTX.set(shape, getPt(path.size()-1).getX());
+			AnnotationKeys.ENDPOINTY.set(shape, getPt(path.size()-1).getY());
 		}
-	}
-
-	public void measureBasicRemoveNode(int index)
-	{
-		this.basicRemoveNode(index);
 	}
 	
 	/**
@@ -360,6 +341,23 @@ public class MeasureBezierFigure
 	{
 		this.units = units;
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getPoints()
+	 */
+	public PlanePoint2D[] getPoints()
+	{
+		Rectangle r = path.getBounds();
+		ArrayList vector = new ArrayList(r.height*r.width);
+		int xEnd = r.x+r.width, yEnd = r.y+r.height;
+		int x, y;
+		for (y = r.y; y < yEnd; ++y) 
+			for (x = r.x; x < xEnd; ++x) 
+				if (path.contains(x, y)) vector.add(new PlanePoint2D(x, y));
+		return (PlanePoint2D[]) vector.toArray(new PlanePoint2D[vector.size()]);
+	}
+	
 }
 
 

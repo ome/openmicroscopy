@@ -40,7 +40,7 @@ import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
-import org.openmicroscopy.shoola.env.rnd.RenderingServicesFactory;
+import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 
 
 /** 
@@ -105,7 +105,7 @@ class OmeroImageServiceImpl
     /** Shuts down all active rendering engines. */
     void shutDown()
     {
-        RenderingServicesFactory.shutDownRenderingControls(context);
+        PixelsServicesFactory.shutDownRenderingControls(context);
     }
 
     /** 
@@ -116,13 +116,13 @@ class OmeroImageServiceImpl
             throws DSOutOfServiceException, DSAccessException
     {
         RenderingControl proxy = 
-                RenderingServicesFactory.getRenderingControl(context, 
+                PixelsServicesFactory.getRenderingControl(context, 
                                                 new Long(pixelsID));
         if (proxy == null) {
             RenderingEngine re = gateway.createRenderingEngine(pixelsID);
             PixelsDimensions pixDims = gateway.getPixelsDimensions(pixelsID);
             List l = context.getDataService().getChannelsMetadata(pixelsID);
-            proxy = RenderingServicesFactory.createRenderingControl(context, re,
+            proxy = PixelsServicesFactory.createRenderingControl(context, re,
                                                     pixDims, l);
         }
         return proxy;
@@ -136,7 +136,7 @@ class OmeroImageServiceImpl
             throws RenderingServiceException
     {
         try {
-            return RenderingServicesFactory.render(context, new Long(pixelsID), 
+            return PixelsServicesFactory.render(context, new Long(pixelsID), 
                                                     pDef);
         } catch (Exception e) {
             throw new RenderingServiceException("RenderImage", e);
@@ -159,7 +159,7 @@ class OmeroImageServiceImpl
      */
     public void shutDown(long pixelsID)
     {
-        RenderingServicesFactory.shutDownRenderingControl(context, pixelsID);
+        PixelsServicesFactory.shutDownRenderingControl(context, pixelsID);
     }
     
     /** 
@@ -188,12 +188,12 @@ class OmeroImageServiceImpl
 		throws RenderingServiceException
 	{
 		RenderingControl proxy = 
-            RenderingServicesFactory.getRenderingControl(context, 
+            PixelsServicesFactory.getRenderingControl(context, 
                                             new Long(pixelsID));
 		if (proxy == null) return;
 		try {
 			RenderingEngine re = gateway.createRenderingEngine(pixelsID);
-			RenderingServicesFactory.resetRenderingControl(context, pixelsID, 
+			PixelsServicesFactory.resetRenderingControl(context, pixelsID, 
 								re);
 		} catch (Exception e) {
 			throw new RenderingServiceException("Cannot restart the " +

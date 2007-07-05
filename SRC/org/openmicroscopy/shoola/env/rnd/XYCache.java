@@ -107,6 +107,7 @@ public class XYCache
      * cached images.
      */
     private int                 cache_size;
+    
     /** 
      * Maximum number of entries allowed in the cache.
      * This is the greatest integer <code>M</code> such that 
@@ -248,7 +249,6 @@ public class XYCache
         //Once we're here we have enough room for the new element.
         cache.put(key, img);
     }
-    
    
     /**
      * Extracts the image (if any) associated to <code>pd</code>.

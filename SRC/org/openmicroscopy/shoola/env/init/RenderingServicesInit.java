@@ -30,7 +30,7 @@ package org.openmicroscopy.shoola.env.init;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.RenderingServicesFactory;
+import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 
 /** 
  * 
@@ -74,7 +74,7 @@ public class RenderingServicesInit
             throws StartupException
     {
         try {
-            RenderingServicesFactory.getInstance(container);
+            PixelsServicesFactory.getInstance(container);
         } catch (Exception e) {
             throw new StartupException("Can't start.", e);
         }

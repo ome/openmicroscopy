@@ -27,16 +27,13 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.JFrame;
 
 //Third-party libraries
+import org.jhotdraw.draw.AttributeKey;
 
 //Application-internal dependencies
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
-
-import org.jhotdraw.draw.AttributeKey;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -113,13 +110,6 @@ public interface MeasurementViewer
 
     /** Cancels any ongoing data loading. */
 	public void cancel();
-	
-	/**
-	 * Sets the dimensions of the pixels set.
-	 * 
-	 * @param dims The value to set.
-	 */
-	public void setPixelsDimensions(PixelsDimensions dims);
 
 	/**
 	 * Invokes when a new plane is selected or the image has been magnified.
@@ -200,13 +190,6 @@ public interface MeasurementViewer
 	 * 				to <code>pixels</code> otherwise.§
 	 */
 	public void showMeasurementsInMicrons(boolean show);
-
-	/** 
-	 * Creates single figures and move back to selection tool. 
-	 * 
-	 * @param option Create single figures if true.
-	 */
-	public void createSingleFigure(boolean option);
 	
 	/**
 	 * Sets the collection of pairs

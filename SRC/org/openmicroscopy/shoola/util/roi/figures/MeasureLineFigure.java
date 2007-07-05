@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.roi.figures;
 //Java imports
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
@@ -47,6 +48,8 @@ import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.STARTPOINTY;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ENDPOINTX;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ENDPOINTY;
+
+import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
 
@@ -88,7 +91,7 @@ public class MeasureLineFigure
 	 */
 	private Point2D.Double getPt(int i)
 	{
-		if (units.showInMicrons())
+		if (units.isInMicrons())
 		{
 			Point2D.Double pt = getPoint(i);
 			return new Point2D.Double(pt.getX()*units.getMicronsPixelX(), 
@@ -189,7 +192,7 @@ public class MeasureLineFigure
 	{
 		if(shape==null)
 			return str;
-		if(units.showInMicrons())
+		if(units.isInMicrons())
 			return str+OutputUnit.MICRONS;
 		else
 			return str+OutputUnit.PIXELS;
@@ -376,6 +379,23 @@ public class MeasureLineFigure
 	{
 		this.units = units;
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getPoints()
+	 */
+	public PlanePoint2D[] getPoints()
+	{
+		int size = getPointCount();
+		ArrayList vector = new ArrayList(size);
+		Point2D.Double pt;
+		for (int i = 0 ; i < size; i++) {
+			pt = getPt(i);
+			vector.add(new PlanePoint2D(pt.getX(), pt.getY()));
+		}
+		return (PlanePoint2D[]) vector.toArray(new PlanePoint2D[vector.size()]);
+	}
+	
 }
 
 

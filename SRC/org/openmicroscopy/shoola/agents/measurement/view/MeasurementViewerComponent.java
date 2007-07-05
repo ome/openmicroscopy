@@ -32,7 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
@@ -43,11 +42,11 @@ import org.jhotdraw.draw.Drawing;
 
 //Application-internal dependencies
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStats;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -152,7 +151,7 @@ class MeasurementViewerComponent
 		int state = model.getState();
         switch (state) {
             case NEW:
-                model.firePixelsLoading();
+            	model.fireChannelMetadataLoading();
                 fireStateChange();
                 break;
             case DISCARDED:
@@ -198,25 +197,6 @@ class MeasurementViewerComponent
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#setPixelsDimensions(PixelsDimensions)
-     */
-	public void setPixelsDimensions(PixelsDimensions dims)
-	{
-		if (model.getState() == LOADING_DATA) {
-			model.setPixelsDimensions(dims);
-			//Sets the dimension of the drawing canvas;
-			double f = model.getMagnification();
-			Dimension d = new Dimension((int) (model.getSizeX()*f), 
-								(int) (model.getSizeY()*f));
-			UIUtilities.setDefaultSize(model.getDrawingView(), d);
-			model.getDrawingView().setSize(d);
-			model.fireROILoading(null);
-			fireStateChange();
-		}
-	}
-
-	/** 
-     * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#setROI(InputStream)
      */
 	public void setROI(InputStream input)
@@ -225,7 +205,6 @@ class MeasurementViewerComponent
 		try {
 			model.setROI(input);
 		} catch (Exception e) {
-			
 			//TODO register and notify user. close Input
 			Registry reg = MeasurementAgent.getRegistry();
 			if (e instanceof ParsingException) {
@@ -245,12 +224,15 @@ class MeasurementViewerComponent
 		fireStateChange();
 		//Now we are ready to go. We can post an event to add component to
 		//Viewer
+		postEvent(MeasurementToolLoaded.ADD);
 		//TODO: Review that code
+		/*
 		if (!model.getToolSent())
 		{
 			model.setToolSent(true);
 			postEvent(MeasurementToolLoaded.ADD);
 		}
+		*/
 	}
 	
 	/** 
@@ -300,7 +282,13 @@ class MeasurementViewerComponent
 	{
 		if (model.getState() != LOADING_DATA) return;
 		model.setPixels(pixels);
-		model.fireChannelMetadataLoading();
+		//Sets the dimension of the drawing canvas;
+		double f = model.getMagnification();
+		Dimension d = new Dimension((int) (model.getSizeX()*f), 
+							(int) (model.getSizeY()*f));
+		UIUtilities.setDefaultSize(model.getDrawingView(), d);
+		model.getDrawingView().setSize(d);
+		model.fireROILoading(null);
 		fireStateChange();
 	}
 
@@ -449,7 +437,8 @@ class MeasurementViewerComponent
 			return;
 		}
 		ROI currentROI = roiList.iterator().next();
-		System.err.println(currentROI.getID());
+		
+		//tmp
 		try {
 			analyseShape(currentROI.getShape(model.getCurrentView()));
 		} catch (Exception e) {
@@ -476,16 +465,6 @@ class MeasurementViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MeasurementViewer} interface.
-	 * @see MeasurementViewer#createSingleFigure(boolean)
-	 * 
-	 */
-	public void createSingleFigure(boolean option)
-	{
-		view.createSingleFigure(option);
-	}
-	
-	/** 
-	 * Implemented as specified by the {@link MeasurementViewer} interface.
 	 * @see MeasurementViewer#setActiveChannels(Map)
 	 */
 	public void setActiveChannels(Map activeChannels)
@@ -506,7 +485,6 @@ class MeasurementViewerComponent
 		//TODO: repaint graphics
 	}
 
-	
 	/** 
 	 * Implemented as specified by the {@link MeasurementViewer} interface.
 	 * @see MeasurementViewer#setStatsShapes(Map)
@@ -518,7 +496,22 @@ class MeasurementViewerComponent
 			throw new IllegalStateException("This method can only be invoked " +
 					"in the ANALYSE_SHAPE state: "+state);
 		//TODO: update view.
-		
+		Iterator i = result.keySet().iterator();
+		ROIShape shape;
+		Map stats;
+		ROIShapeStats shapeStats;
+		Iterator j;
+		Integer channel;
+		while (i.hasNext()) {
+			shape = (ROIShape) i.next();
+			stats = (Map) result.get(shape);
+			j = stats.keySet().iterator();
+			while (j.hasNext()) {
+				channel = (Integer) j.next();
+				shapeStats = (ROIShapeStats) stats.get(channel);
+				System.err.println(channel+" "+shapeStats.getMin()+" "+shapeStats.getMax());
+			}
+		}
 		model.setStats();
 		fireStateChange();
 	}
@@ -544,10 +537,8 @@ class MeasurementViewerComponent
 	{
 		if (model.getState() != LOADING_DATA) return;
 		model.setChannelMetadata(list);
-		model.firePixelsDimensionsLoading();
+		model.firePixelsLoading();
 		fireStateChange();
 	}
-
-
 
 }

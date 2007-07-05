@@ -29,7 +29,7 @@ package org.openmicroscopy.shoola.util.roi.exception;
 //Application-internal dependencies
 
 /** 
- * 
+ * Reports an error occured while creating a ROI.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -72,9 +72,7 @@ public class ROICreationException
 		super(e);
 	}
 	
-	/**
-	 * Constructs a new exception with the specified detail message.
-	 */
+	/** Constructs a default exception. */
 	public ROICreationException()
 	{
 		super();

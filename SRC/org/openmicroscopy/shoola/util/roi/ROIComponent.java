@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.util.roi;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
-import java.beans.PropertyChangeEvent;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.TreeMap;
@@ -195,60 +194,43 @@ public class ROIComponent
 	 * 
 	 * @param x see above.
 	 */
-	public void setMicronsPixelX(double x)
-	{
-		units.setMicronsPixelX(x);
-	}
+	public void setMicronsPixelX(double x) { units.setMicronsPixelX(x); }
 
 	/**
 	 * Returns the number of microns per pixel in the x-axis. 
 	 * 
 	 * @return microns see above.
 	 */
-	public double getMicronsPixelX()
-	{
-		return units.getMicronsPixelX();
-	}
+	public double getMicronsPixelX() { return units.getMicronsPixelX(); }
 	
 	/**
 	 * Sets the number of microns per pixel in the y-axis. 
 	 * 
-	 * @param y see above.
+	 * @param y The value to set.
 	 */
-	public void setMicronsPixelY(double y)
-	{
-		units.setMicronsPixelY(y);
-	}
+	public void setMicronsPixelY(double y) { units.setMicronsPixelY(y); }
 	
 	/**
-	 * Get the number of microns per pixel in the y-axis. 
-	 * @return microns see above.
-	 * 
+	 * Returns the number of microns per pixel in the y-axis.
+	 *  
+	 * @return See above.
 	 */
-	public double getMicronsPixelY()
-	{
-		return units.getMicronsPixelY();
-	}
+	public double getMicronsPixelY() { return units.getMicronsPixelY(); }
 	
 	/**
-	 * Set the number of microns per pixel in the z-axis. 
-	 * @param z see above.
+	 * Sets the number of microns per pixel in the z-axis. 
+	 * 
+	 * @param z The value to set.
 	 * 
 	 */
-	public void setMicronsPixelZ(double z)
-	{
-		units.setMicronsPixelZ(z);
-	}
+	public void setMicronsPixelZ(double z) { units.setMicronsPixelZ(z); }
 	
 	/**
-	 * Get the number of microns per pixel in the z-axis. 
-	 * @return microns see above.
+	 * Returns the number of microns per pixel in the z-axis. 
 	 * 
+	 * @return See above.
 	 */
-	public double getMicronsPixelZ()
-	{
-		return units.getMicronsPixelZ();
-	}
+	public double getMicronsPixelZ() { return units.getMicronsPixelZ(); }
 
     /**
      * Adds the specified figure to the display.
@@ -318,10 +300,10 @@ public class ROIComponent
 	}
 
 	/**
-	 * Generate the next ID for a new ROI. This method will possibly be replaced 
-	 * with a call to the database for the generation of an ROI id.
+	 * Generates the next ID for a new ROI. This method will possibly be 
+	 * replaced with a call to the database for the generation of an ROI id.
 	 * 
-	 * @return see above.
+	 * @return See above.
 	 */
 	public long getNextID()
 	{
@@ -329,13 +311,14 @@ public class ROIComponent
 	}
 
 	/**
-	 * Create a ROI with an ROI id == id. This method is called from the IO
+	 * Creates a ROI with an ROI id == id. This method is called from the IO
 	 * strategy to create a pre-existing ROI from file.
 	 * 
 	 * Note : if a ROI is created with the same ID the new ROI will replace the
 	 * old one.
-	 * @param id - ROI id. 
-	 * @return see above.
+	 * 
+	 * @param id The ROI id. 
+	 * @return See above.
 	 * @throws ROICreationException			If an error occured while creating 
 	 * 									   	an ROI, basic assumption is this is 
 	 * 									   	linked to memory issues.
@@ -348,10 +331,11 @@ public class ROIComponent
 
 	/**
 	 * Create a new ROI, assign it an ROI from the getNextID call.
-	 * @return new ROI. 
-	 * @throws ROICreationException			If an error occured while creating 
-	 * 									   	an ROI, basic assumption is this is 
-	 * 									   	linked to memory issues.
+	 * 
+	 * @return See above. 
+	 * @throws ROICreationException	If an error occured while creating 
+	 * 								an ROI, basic assumption is this is 
+	 * 								linked to memory issues.
 	 */
 	public ROI createROI()
 		throws 	ROICreationException
@@ -360,7 +344,7 @@ public class ROIComponent
 	}
 
 	/**
-	 * Get the roiMap which is the TreeMap containing the ROI, ROI.id pairs. 
+	 * Returns the roiMap which is the TreeMap containing the ROI, ROI.id pairs. 
 	 * It is an ordered Tree. 
 	 * 
 	 * @return See above.
@@ -371,11 +355,12 @@ public class ROIComponent
 	}
 
 	/**
-	 * Get the ROI with the id == id. This is obtained by a searh of the ROIMap. 
+	 * Returns the ROI with the id == id. 
+	 * This is obtained by a searh of the ROIMap. 
+	 * 
 	 * @param id the ROI.id that is being requested.
-	 * @return the ROI with id 
-	 * @throws NoSuchROIException if a ROI.id is used which does not exist this
-	 * 								exception is thrown.
+	 * @return See above.
+	 * @throws NoSuchROIException Thrown if a ROI.id does not exist.
 	 */
 	public ROI getROI(long id) 
 		throws NoSuchROIException
@@ -384,14 +369,14 @@ public class ROIComponent
 	}
 
 	/**
-	 * Get the RIOShape which is part of the ROI id, and exists on the plane
+	 * Returns the RIOShape which is part of the ROI id, and exists on the plane
 	 * coord. This method looks up the ROIIDMap (TreeMap) for the ROI with id 
 	 * and then looks up that ROIs TreeMap for the ROIShape on the plane coord.
-	 * @param id - id of the ROI the ROIShape is a member of.
-	 * @param coord - the plane where the ROIShape sits.
+	 * 
+	 * @param id 	The id of the ROI the ROIShape is a member of.
+	 * @param coord The plane where the ROIShape sits.
 	 * @return See Above.
-	 * @throws NoSuchROIException	if a ROI.id is used which does not exist this
-	 * 								exception is thrown.
+	 * @throws NoSuchROIException	Thrown if a ROI.id does not exist.
 	 */
 	public ROIShape getShape(long id, Coord3D coord) 
 	throws 	NoSuchROIException
@@ -400,40 +385,40 @@ public class ROIComponent
 	}
 
 	/** 
-	 * Return the list of ROIShapes which reside on the plane coord. ShapeList is
-	 * an object which contains a TreeMap of the ROIShapes and ROIId of those shapes.
+	 * Returns the list of ROIShapes which reside on the plane coord. 
+	 * The ShapeList is an object which contains a TreeMap of the 
+	 * ROIShapes and ROIId of those shapes.
 	 * 
 	 * 
-	 * @param coord
-	 * @return see above. 
-	 * @throws NoSuchROIException if no shapes are on plance Coord then 
-	 * 								throw NoSuchShapeException.
+	 * @param coord The selected plane.
+	 * @return See above. 
+	 * @throws NoSuchROIException Thrown if no shapes are on plane Coord.
 	 */
-	public ShapeList getShapeList(Coord3D coord) throws
-	NoSuchROIException
+	public ShapeList getShapeList(Coord3D coord) 
+		throws NoSuchROIException
 	{
 		return roiCollection.getShapeList(coord);
 	}
 
 	/** 
-	 * Delete the ROI and all it's ROIShapes from the system.
+	 * Deletes the ROI and all its ROIShapes from the system.
 	 * 
-	 * @param id ROI to delete. 
-	 * @throws NoSuchROIException	This exception is thrown in the ROI to be
-	 * 								deleted does not exist.
+	 * @param id The ROI to delete. 
+	 * @throws NoSuchROIException	Thrown if the ROI to be deleted does not 
+	 * 								exist.
 	 */
-	public void deleteROI(long id) throws NoSuchROIException
+	public void deleteROI(long id) 
+		throws NoSuchROIException
 	{
 		roiCollection.deleteROI(id);
 	}
 
 	/** 
-	 * Delete the ROIShape from the ROI with id. 
+	 * Deletes the ROIShape from the ROI with id. 
 	 * 
-	 * @param id ROI id inwhich the ROIShape is a member.
-	 * @param coord	the plane on which the ROIShape resides. 
-	 * @throws NoSuchROIException	This exception is thrown in the ROI 
-	 * 								does not exist.
+	 * @param id 	The ROI id inwhich the ROIShape is a member.
+	 * @param coord	The plane on which the ROIShape resides. 
+	 * @throws NoSuchROIException	Thrown if the ROI does not exist.
 	 */ 
 	public void deleteShape(long id, Coord3D coord) 	
 	throws 	NoSuchROIException
@@ -442,7 +427,7 @@ public class ROIComponent
 	}
 
 	/**
-	 * Add a ROIShape to the ROI.id at coord. The ROIShape should be created 
+	 * Adds a ROIShape to the ROI.id at coord. The ROIShape should be created 
 	 * before hand.
 	 * 
 	 * Note : if a shape already exist with ROI.id and Coord.coord it will
@@ -450,18 +435,15 @@ public class ROIComponent
 	 * Note : if the shape is inserted in multiple places the system will behave
 	 * oddly. 
 	 * 
-	 * @param id ROI id
-	 * @param coord plane
-	 * @param shape shape to add
-	 * @throws ROICreationException	- Exception will be thrown if the 
-	 * 										  ROIShape cannot be created.
-	 * @throws NoSuchROIException			- Exception will be thrown id the ROI
-	 * 										  the ROIShape should be added to 	
-	 * 										  does not exist. 
+	 * @param id 	The ROI id.
+	 * @param coord The selected plane.
+	 * @param shape The shape to add.
+	 * @throws ROICreationException	Thrown if the ROIShape cannot be created.
+	 * @throws NoSuchROIException	Thrown if the ROI, the ROIShape should be 
+	 * 								added to, does not exist. 
 	 */
 	public 	void addShape(long id, Coord3D coord, ROIShape shape) 
-												throws 	ROICreationException, 
-														NoSuchROIException
+		throws 	ROICreationException, NoSuchROIException
 	{
 		roiCollection.addShape(id, coord, shape);
 	}	
@@ -473,47 +455,44 @@ public class ROIComponent
 	 *
 	 * Note : iteration for planes occurs through z then t.
 	 *
-	 * @param id ROI id.
-	 * @param selectedShape plane where shape is to be duplicated from.
-	 * @param start plane to propagate from
-	 * @param end 	plane to propagate to 
-	 * @throws NoSuchROIException			- Exception if ROI with id does not
-	 * 											exist.
-	 * @throws ROICreationException			- if the ROI cannot be created.
+	 * @param id 			The ROI id.
+	 * @param selectedShape The plane where shape is to be duplicated from.
+	 * @param start 		The plane to propagate from.
+	 * @param end 			The plane to propagate to.
+	 * @throws NoSuchROIException	Thrown if ROI with id does not exist.
+	 * @throws ROICreationException	Thrown if the ROI cannot be created.
 	 */
 	public void propagateShape(long id, Coord3D selectedShape, Coord3D start, 
 			Coord3D end) 
-												throws  ROICreationException, 
-														NoSuchROIException
-	
+		throws  ROICreationException, NoSuchROIException
 	{
 		roiCollection.propagateShape(id, selectedShape, start, end);
 	}
 
 	/**
-	 * Delete the ROIShape belonging to ROI.id from plane start to plane end.
+	 * Deletes the ROIShape belonging to ROI.id from plane start to plane end.
 	 * This method requires that the object belongs on all planes from start 
 	 * to end, if it does not then it will throw an NoSuchShapeException.
 	 * 
 	 * Note : iteration for planes occurs through z then t.
 	 * 
-	 * @param id ROI id.
-	 * @param start start plane
-	 * @param end end plane
-	 * @throws NoSuchROIException - returned if no such ROI exists.
+	 * @param id 	The ROI id.
+	 * @param start The start plane.
+	 * @param end 	The end plane.
+	 * @throws NoSuchROIException Thrown if no such ROI exists.
 	 */
 	public void deleteShape(long id, Coord3D start, Coord3D end) 
-	throws 	NoSuchROIException
+		throws 	NoSuchROIException
 	{
 		roiCollection.deleteShape(id, start, end);
 	}
 
 	/**
 	 * Add an ROIRelationship to the system, the ROIRelationship will be parsed
-	 * to see what has to be setup to create relationships. This is a relationship
-	 * between ROIs. 
+	 * to see what has to be setup to create relationships. 
+	 * This is a relationship between ROIs. 
 	 * 
-	 * @param relationship
+	 * @param relationship The relation to add.
 	 */
 	public void addROIRelationship(ROIRelationship relationship)
 	{
@@ -521,11 +500,11 @@ public class ROIComponent
 	}
 
 	/**
-	 * Add an ROIShapeRelationship to the system, the ROIShapeRelationship will 
+	 * Adds an ROIShapeRelationship to the system, the ROIShapeRelationship will 
 	 * be parsed to see what has to be setup to create relationships. This is a 
 	 * relationship between ROIShapes. 
 	 * 
-	 * @param relationship
+	 * @param relationship The relation to add.
 	 */
 	public void addROIShapeRelationship(ROIShapeRelationship relationship)
 	{
@@ -533,18 +512,19 @@ public class ROIComponent
 	}
 
 	/**
-	 * Remove the ROIRelationship with id from the system.
-	 * @param relationship the id of the relationship being removed.
+	 * Removes the ROIRelationship with id from the system.
+	 * 
+	 * @param relationship The id of the relationship being removed.
 	 */
 	public void removeROIRelationship(long relationship)
 	{
 		roiCollection.removeROIRelationship(relationship);
 	}
 
-
 	/**
-	 * Remove the ROIShapeRelationship with id from the system.
-	 * @param relationship the id of the relationship being removed.
+	 * Removes the ROIShapeRelationship with id from the system.
+	 * 
+	 * @param relationship The id of the relationship being removed.
 	 */
 	public void removeROIShapeRelationship(long relationship)
 	{
@@ -552,20 +532,23 @@ public class ROIComponent
 	}
 
 	/**
-	 * Return true if the ROIRelationship exists in the system.
+	 * Return <code>true</code> if the ROIRelationship exists in the system,
+	 * <code>false</code> otherwise.
 	 * 
-	 * @param relationship the id of the relationship.
-	 * @return see above.
-	 */public boolean containsROIRelationship(long relationship)
+	 * @param relationship The id of the relationship.
+	 * @return See above.
+	 */
+	 public boolean containsROIRelationship(long relationship)
 	 {
 		 return roiCollection.containsROIRelationship(relationship);
 	 }
 
 	 /**
-	  * Return true if the ROIShapeRelationship exists in the system.
+	  * Returns <code>true</code> if the ROIShapeRelationship exists 
+	  * in the system, <code>false</code> otherwise.
 	  * 
-	  * @param relationship the id of the relationship.
-	  * @return see above.
+	  * @param relationship The id of the relationship.
+	  * @return See above.
 	  */
 	 public boolean containsROIShapeRelationship(long relationship)
 	 {
@@ -573,7 +556,8 @@ public class ROIComponent
 	 }
 
 	 /**
-	  * Return the ROIRelationships which relate to ROI with id.
+	  * Returns the ROIRelationships which relate to ROI with id.
+	  * 
 	  * @param roiID id to find relationships which belong to it.
 	  * @return see above.
 	  */
@@ -583,9 +567,10 @@ public class ROIComponent
 	 }
 
 	 /**
-	  * Return the ROIShapeRelationships which relate to ROIShape with ROI id.
+	  * Returns the ROIShapeRelationships which relate to ROIShape with ROI id.
+	  * 
 	  * @param roiID id to find relationships which belong to it.
-	  * @return see above.
+	  * @return See above.
 	  */
 	 public ROIShapeRelationshipList getROIShapeRelationshipList(long roiID)
 	 {
@@ -593,30 +578,22 @@ public class ROIComponent
 	 }
 
 	 /** 
-	  * Show the measurements in the ROIFigures in microns, if param true. 
-	  * @param inMicrons see above.
+	  * Shows the measurements in the ROIFigures in microns, if the passed value
+	  * is <code>true</code>, in pixels otherwise.
+	  * 
+	  * @param inMicrons The value to set.
 	  */
 	 public void showMeasurementsInMicrons(boolean inMicrons)
 	 {
-		units.setShowInMicrons(inMicrons);
+		units.setInMicrons(inMicrons);
 	 }
 
 	 /**
-	  * Get the measurement units of this component.
-	  * @return see above.
+	  * Returns the measurement units of this component.
+	  * 
+	  * @return See above.
 	  */
-	 public MeasurementUnits getMeasurementUnits()
-	 {
-		 return units;
-	 }
-	 
-	 /* (non-Javadoc)
-	  * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-	  */
-	 public void propertyChange(PropertyChangeEvent evt) {
-		 // TODO Auto-generated method stub
-
-	 }
+	 public MeasurementUnits getMeasurementUnits() { return units; }
 
 }
 

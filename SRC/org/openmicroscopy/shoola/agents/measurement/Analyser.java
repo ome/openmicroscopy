@@ -30,13 +30,13 @@ import java.util.Map;
 
 //Application-internal dependencies
 import ome.model.core.Pixels;
-import ome.model.enums.PixelsType;
-
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * 
+ * Analyses the collection of ROI shapes.
+ * This class calls the <code>analyseShapes</code> method in the
+ * <code>ImageDataView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -69,9 +69,6 @@ public class Analyser
 	
 	/** Collection of shapes to analyse.. */
 	private List		shapes;
-	
-	/** The type of the pixels set. */
-	private PixelsType	type;
 	
 	/** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;

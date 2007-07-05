@@ -31,7 +31,7 @@ import java.util.Comparator;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 
- * 
+ * Defines a plane. Rename??
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,76 +47,81 @@ public class Coord3D
 	implements Comparator
 {
 	//public int c;
+	
+	/** The timepoint. */
 	private int t;
+	
+	/** The z-section. */
 	private int z;
 	
+	/** Creates a default point. */
 	public Coord3D()
 	{
 		this(0, 0);
 	}
 	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param zsec	The z-section.
+	 * @param time	The timepoint..
+	 */
 	public Coord3D(int zsec, int time)
 	{
-	//	c = ch;
+		if (zsec < 0 || time < 0)
+			throw new IllegalArgumentException("Coordinates not valid.");
 		t = time;
 		z = zsec;
 	}
 	
+	/**
+	 * Returns the timepoint.
+	 * 
+	 * @return See above.
+	 */
+	public int getTimePoint() { return t; }
 	
-	//public int getChannel()
-	//{
-	//	return c;
-	//}
+	/**
+	 * Returns the z-section.
+	 * 
+	 * @return See above.
+	 */
+	public int getZSection() { return z; }
 	
-	public int getTimePoint()
-	{
-		return t;
-	}
-	
-	public int getZSection()
-	{
-		return z;
-	}
-	
+	/**
+	 * Overridden to control if the passed object equals the current one.
+	 * @see java.lang.Object#equals(Object)
+	 */
 	public boolean equals(Object obj)
 	{
-		if(!(obj instanceof Coord3D))
-			return false;
-		Coord3D comp = (Coord3D)obj;
-//		return (comp.c == this.c && comp.t == this.t && comp.z == this.z );
-		return (comp.t == this.t && comp.z == this.z );
+		if (!(obj instanceof Coord3D)) return false;
+		Coord3D comp = (Coord3D) obj;
+		return (comp.t == this.t && comp.z == this.z);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+	/**
+	 * Overridden to compare the passed objects.
+	 * @see Comparator#compare(Object, Object)
 	 */
 	public int compare(Object o1, Object o2) 
 	{
-		Coord3D a = (Coord3D)o1;
-		Coord3D b = (Coord3D)o2;
-	//	if(a.c < b.c)
-	//		return -1;
-	//	else if(a.c > b.c)
-	//		return 1;
-		if(a.t < b.t)
+		if (!(o1 instanceof Coord3D) || !(o2 instanceof Coord3D))
 			return -1;
-		else if(a.t > b.t)
-			return 1;
-		else if(a.z<b.z)
-			return -1;
-		else if(a.z>b.z)
-			return 1;
-		else 
-			return 0;
+		Coord3D a = (Coord3D) o1;
+		Coord3D b = (Coord3D) o2;
+		if (a.t < b.t) return -1;
+		else if (a.t > b.t) return 1;
+		else if (a.z < b.z) return -1;
+		else if (a.z > b.z) return 1;
+		else return 0;
 	}
 	
-	public Coord3D clone()
-	{
-//		return new Coord3D(this.c, this.t, this.z);
-		return new Coord3D(this.t, this.z);
-	}
-	
-	
+	/**
+	 * Clones the object.
+	 * @see java.lang.Object#clone()
+	 */
+	public Coord3D clone() { return new Coord3D(this.t, this.z); }
+
 }
 
 

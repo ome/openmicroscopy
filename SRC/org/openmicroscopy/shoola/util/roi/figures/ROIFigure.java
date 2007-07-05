@@ -28,14 +28,15 @@ package org.openmicroscopy.shoola.util.roi.figures;
 import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 
 
 /** 
- * 
+ * Interface that all areas of the Euclidean space <b>R</b><sup>2</sup> must
+ * implement.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -76,10 +77,11 @@ public interface ROIFigure
 	public static final String SCRIBBLE_TYPE = "Scribble";
 	
 	/** 
-	 * Set the measurement units of the ROIFigure. 
-	 * @param units the class holding the values of the 
-	 * microns per pixel and whether the figure should display the measurements
-	 * in microns or pixels
+	 * Sets the measurement units of the ROIFigure. 
+	 * 
+	 * @param units The class holding the values of the 
+	 * 				microns per pixel and whether the figure should display 
+	 * 				the measurements in microns or pixels.
 	 */
 	public void setMeasurementUnits(MeasurementUnits units);
 	
@@ -124,6 +126,13 @@ public interface ROIFigure
 	 */
 	public String getType();
 	
+	/** 
+     * Returns an array of {@link PlanePoint2D} contained in the ROIFigure. 
+     * 
+     * @return See above.
+     */
+    public PlanePoint2D[] getPoints();
+    
 }
 
 

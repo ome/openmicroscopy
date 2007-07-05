@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -123,6 +124,10 @@ class BrowserUI
      */
     void addComponentToLayer(JComponent c)
     {
+    	Component[] components = layeredPane.getComponents();
+    	for (int i = 0; i < components.length; i++) {
+			if (components[i] == c) return;
+		}
     	layeredPane.add(c, new Integer(1));
     }
     

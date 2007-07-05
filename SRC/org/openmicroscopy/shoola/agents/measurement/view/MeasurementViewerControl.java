@@ -31,7 +31,6 @@ import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -46,7 +45,6 @@ import org.jhotdraw.draw.FigureEvent;
 import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.draw.FigureSelectionEvent;
 import org.jhotdraw.draw.FigureSelectionListener;
-import org.openmicroscopy.shoola.agents.measurement.actions.FigureCreationAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.LoadROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.RefreshResultsTableAction;
@@ -97,17 +95,17 @@ class MeasurementViewerControl
     /** Identifies the <code>ROI Assistant</code> action in the menu. */
     static final Integer     ROI_ASSISTANT = new Integer(5);
 
-    /** Identifies the <code>showMeasurementinMicrons</code> action in the menu. */
-    static final Integer     SHOWMEASUREMENTINMICRONS = new Integer(6);
+    /** 
+     * Identifies the <code>showMeasurementinMicrons</code> action in 
+     * the menu.
+     */
+    static final Integer     IN_MICRONS = new Integer(6);
     
-    /** Identifies the <code>showMeasurementinPixels</code> action in the menu. */
-    static final Integer     SHOWMEASUREMENTINPIXELS = new Integer(7);
-
-    /** Identifies the <code>createContinuous</code> action in the menu. */
-    static final Integer     CREATECONTINUOUS = new Integer(8);
-    
-    /** Identifies the <code>createSingle</code> action in the menu. */
-    static final Integer     CREATESINGLE = new Integer(9);
+    /** 
+     * Identifies the <code>showMeasurementinMicrons</code> action in 
+     * the menu.
+     */
+    static final Integer     IN_PIXELS = new Integer(7);
     
     /** 
      * Reference to the {@link MeasurementViewer} component, which, 
@@ -130,11 +128,8 @@ class MeasurementViewerControl
     	actionsMap.put(REFRESH_RESULTS, new RefreshResultsTableAction(model));
     	actionsMap.put(RESULTS_WIZARD, new ResultsWizardAction(model));
     	actionsMap.put(ROI_ASSISTANT, new ShowROIAssistant(model));
-    	actionsMap.put(SHOWMEASUREMENTINMICRONS, new UnitsAction(model, true));
-    	actionsMap.put(SHOWMEASUREMENTINPIXELS, new UnitsAction(model, false));
-    	actionsMap.put(CREATECONTINUOUS, new FigureCreationAction(model, false));
-    	actionsMap.put(CREATESINGLE, new FigureCreationAction(model, true));
-    	
+    	actionsMap.put(IN_MICRONS, new UnitsAction(model, true));
+    	actionsMap.put(IN_PIXELS, new UnitsAction(model, false));
     }
 
     /**
@@ -234,6 +229,7 @@ class MeasurementViewerControl
 			case MeasurementViewer.ANALYSE_SHAPE:
 				//TODO: modify notification mechanism
 				LoadingWindow win = view.getLoadingWindow();
+				win.setStatus("Analysing");
 				if (!win.isVisible()) UIUtilities.centerAndShow(win);
 				break;
 			case MeasurementViewer.LOADING_DATA:

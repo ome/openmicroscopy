@@ -110,7 +110,7 @@ public class ReadOnlyByteArray
 	 * Reads the element at the <code>index</code> position within this
 	 * slice.
 	 * 
- 	 * @param index	The index.  Must be in the <code>[0, {@link #length})
+ 	 * @param index	The index. Must be in the <code>[0, {@link #length})
      *              </code> interval.
 	 * @return	The element at the <code>index</code> position in this slice.
 	 */

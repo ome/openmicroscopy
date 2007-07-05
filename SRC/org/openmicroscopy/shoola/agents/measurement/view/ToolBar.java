@@ -153,11 +153,14 @@ class ToolBar
 		rectTool = new ObjectCreationTool(new RectAnnotationFigure());
 		textTool = new ObjectCreationTool(new MeasureTextFigure());
 		lineTool = new ObjectCreationTool(new LineAnnotationFigure());
-		connectionTool = new MeasurementConnectionTool(new LineConnectionAnnotationFigure(), 
-			defaultAttributes);
+		connectionTool = new MeasurementConnectionTool(
+						new LineConnectionAnnotationFigure(), 
+							defaultAttributes);
 		pointTool = new PointCreationTool(new PointAnnotationFigure());
-	    polygonTool = new MeasurementBezierTool(new BezierAnnotationFigure(true));
-	    polylineTool = new MeasurementBezierTool(new BezierAnnotationFigure(true));
+	    polygonTool = new MeasurementBezierTool(
+	    		new BezierAnnotationFigure(true));
+	    polylineTool = new MeasurementBezierTool(
+	    		new BezierAnnotationFigure(true));
 	    
 		ButtonGroup group = new ButtonGroup();
 		ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle(BASE_NAME);
@@ -180,11 +183,13 @@ class ToolBar
 				pointTool, 
 				CREATE_KEY+ROIFigure.ELLIPSE_TYPE, 
 				labels);
-		Component component = toolBar.getComponent(toolBar.getComponentCount()-1);
-		if(component instanceof JToggleButton)
+		Component component = toolBar.getComponent(
+							toolBar.getComponentCount()-1);
+		if (component instanceof JToggleButton)
 		{
 			JToggleButton button = (JToggleButton)component;
-			button.setIcon(IconManager.getInstance().getIcon(IconManager.POINTICON));
+			IconManager icons = IconManager.getInstance();
+			button.setIcon(icons.getIcon(IconManager.POINTICON));
 		}
 		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
 				lineTool, 
@@ -201,7 +206,7 @@ class ToolBar
 		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
 				textTool, 
 				CREATE_KEY+ROIFigure.TEXT_TYPE, labels);
-		
+		createSingleFigure(false);
 	}
 	
 	/**
@@ -242,6 +247,23 @@ class ToolBar
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 	    add(p);
 	}
+
+	/**
+	 * Creates a single figure and moves the tool in the menu back to the 
+	 * selection tool, if param true. 
+	 * @param option see above.
+	 */
+	private void createSingleFigure(boolean option)
+	{
+		ellipseTool.setResetToSelect(option);
+		rectTool.setResetToSelect(option);
+		textTool.setResetToSelect(option); 
+		lineTool.setResetToSelect(option); 
+		// TODO : connectionTool.setResetToSelect(option); 
+		pointTool.setResetToSelect(option);
+	    polygonTool.setResetToSelect(option);
+	    polylineTool.setResetToSelect(option); 
+	}
 	
 	/**
 	 * Creates a new instance.
@@ -261,24 +283,6 @@ class ToolBar
 		this.model = model;
 		initComponents();
 		buildGUI();
-		createSingleFigure(true);
 	}
-	
-	/**
-	 * Creates a single figure and moves the tool in the menu back to the 
-	 * selection tool, if param true. 
-	 * @param option see above.
-	 */
-	public void createSingleFigure(boolean option)
-	{
-			
-		ellipseTool.setResetToSelect(option);
-		rectTool.setResetToSelect(option);
-		textTool.setResetToSelect(option); 
-		lineTool.setResetToSelect(option); 
-		// TODO : connectionTool.setResetToSelect(option); 
-		pointTool.setResetToSelect(option);
-	    polygonTool.setResetToSelect(option);
-	    polylineTool.setResetToSelect(option); 
-	}
+
 }

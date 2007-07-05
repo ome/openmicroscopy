@@ -36,13 +36,11 @@ import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.EllipseFigure;
 
 //Application-internal dependencies
-import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
-import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.SHOWMEASUREMENT;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREX;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREY;
+import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
+import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
-
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
@@ -84,73 +82,51 @@ public class MeasurePointFigure
 
     public double getMeasurementX() 
     {
-    	if(units.showInMicrons())
-    		return getX()*units.getMicronsPixelX();
-    	else
-        	return getX();
+    	if (units.isInMicrons()) return getX()*units.getMicronsPixelX();
+    	return getX();
     }
     
     public Point2D getMeasurementCentre()
     {
-    	if(units.showInMicrons())
+    	if (units.isInMicrons())
     		return new Point2D.Double(getCentre().getX()*
     			units.getMicronsPixelX(),getCentre().getY()*
     			units.getMicronsPixelY());
-    	else
-    		return getCentre();
+    	return getCentre();
     }
     
     public double getMeasurementY() 
     {
-    	if(units.showInMicrons())
-    		return getY()*units.getMicronsPixelY();
-    	else
-        	return getY();
+    	if (units.isInMicrons()) return getY()*units.getMicronsPixelY();
+    	return getY();
     }
     
     public double getMeasurementWidth() 
     {
     	
-    	if(units.showInMicrons())
-    		return getWidth()*units.getMicronsPixelX();
-    	else
-    		return getWidth();
+    	if (units.isInMicrons()) return getWidth()*units.getMicronsPixelX();
+    	return getWidth();
     }
     
     public double getMeasurementHeight() 
     {
-    	if(units.showInMicrons())
-    		return getHeight()*units.getMicronsPixelY();
-    	else
-    		return getHeight();
+    	if (units.isInMicrons()) return getHeight()*units.getMicronsPixelY();
+    	return getHeight();
     }
     
-    public double getX() 
-    {
-      	return ellipse.getX();
-    }
+    public double getX() { return ellipse.getX(); }
     
-    public double getY() 
-    {
-       	return ellipse.getY();
-    }
+    public double getY() { return ellipse.getY(); }
     
-    public double getWidth() 
-    {
-    	return ellipse.getWidth();
-    	
-    }
+    public double getWidth() { return ellipse.getWidth(); }
     
-    public double getHeight() 
-    {
-    	return ellipse.getHeight();
-    }
+    public double getHeight() { return ellipse.getHeight(); }
     
     
 	public void draw(Graphics2D g)
 	{
 		super.draw(g);
-		if(SHOWMEASUREMENT.get(this))
+		if(DrawingAttributes.SHOWMEASUREMENT.get(this))
 		{
 			NumberFormat formatter = new DecimalFormat("###.#");
 			String pointCentre = 
@@ -163,7 +139,7 @@ public class MeasurePointFigure
 			bounds = new Rectangle2D.Double(this.getBounds().getCenterX()-bounds.getWidth()/2,
 					this.getBounds().getCenterY()+bounds.getHeight()/2,
 					bounds.getWidth(), bounds.getHeight());
-			g.setColor(MEASUREMENTTEXT_COLOUR.get(this));
+			g.setColor(DrawingAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 			g.drawString(pointCentre, (int)bounds.getX(), (int)bounds.getY()); 
 		}
 	}
@@ -201,18 +177,16 @@ public class MeasurePointFigure
 	
 	public String addUnits(String str)
 	{
-		if(shape==null)
-			return str;
-		if(units.showInMicrons())
+		if (shape==null) return str;
+		if (units.isInMicrons())
 			return str+OutputUnit.MICRONS+OutputUnit.SQUARED;
-		else
-			return str+OutputUnit.PIXELS+OutputUnit.SQUARED;
+		return str+OutputUnit.PIXELS+OutputUnit.SQUARED;
 	}
 
 	public Point2D getCentre()
 	{
-		return new Point2D.Double(	Math.round(ellipse.getCenterX()), 
-									Math.round(ellipse.getCenterY()));
+		return new Point2D.Double(Math.round(ellipse.getCenterX()), 
+								Math.round(ellipse.getCenterY()));
 	}
 	
 	/**
@@ -246,8 +220,8 @@ public class MeasurePointFigure
 	public void calculateMeasurements()
 	{
 		if (shape == null) return;
-		CENTREX.set(shape, getMeasurementCentre().getX());
-		CENTREY.set(shape, getMeasurementCentre().getY());
+		AnnotationKeys.CENTREX.set(shape, getMeasurementCentre().getX());
+		AnnotationKeys.CENTREY.set(shape, getMeasurementCentre().getY());
 	}
 	
 	/**
@@ -264,5 +238,17 @@ public class MeasurePointFigure
 	{
 		this.units = units;
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getPoints()
+	 */
+	public PlanePoint2D[] getPoints()
+	{
+		PlanePoint2D[] points = new PlanePoint2D[1];
+		points[0] = new PlanePoint2D(getX(), getY());
+		return points;
+	}
+	
 }
 

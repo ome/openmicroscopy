@@ -22,20 +22,21 @@
  */
 package org.openmicroscopy.shoola.agents.measurement;
 
-import java.util.List;
-import java.util.Map;
 
-import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * 
+ * Retrieve metadata related to the pixels set.
+ * This class calls the <code>loadChannelMetadata</code> method in the
+ * <code>ImageDataView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

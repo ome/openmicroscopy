@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException 
+ * org.openmicroscopy.shoola.env.rnd.data.Plane2D 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,7 +20,9 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.roi.exception;
+package org.openmicroscopy.shoola.env.rnd.data;
+
+import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 //Java imports
 
@@ -29,7 +31,7 @@ package org.openmicroscopy.shoola.util.roi.exception;
 //Application-internal dependencies
 
 /** 
- * Reports an error occured while retrieving a ROI.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -41,43 +43,62 @@ package org.openmicroscopy.shoola.util.roi.exception;
  * </small>
  * @since OME3.0
  */
-public class NoSuchROIException
-	extends Exception
+public class Plane2D
 {
 	
-	/**
-	 * Constructs a new exception with the specified detail message and cause.
+	/** The number of bytes per pixel. */
+	private int 				bytesPerPixel;
+	
+	/** The number of timepoint along the x-axis. */
+	private int					sizeX;
+	
+	/** The original array. */
+	private ReadOnlyByteArray	data;
+	
+	/** Strategy used to transform original data. */
+	private BytesConverter	strategy;
+	
+	/** 
+	 * Determines the offset value.
 	 * 
-	 * @param message	Short explanation of the problem.
-	 * @param cause		The exception that caused this one to be risen.
+	 * @param x	The x-coordinate.
+	 * @param y	The y-coordinate.
+	 * @return See above.
 	 */
-	public NoSuchROIException(String message, Throwable cause) 
+	private int calculateOffset(int x, int y)
 	{
-		super(message, cause);
+		return bytesPerPixel*(sizeX*y+x);
 	}
 	
 	/**
-	 * Constructs a new exception with the specified detail message.
+	 * Creates a new intance.
 	 * 
-	 * @param message	Short explanation of the problem.
+	 * @param data			The array of byte.
+	 * @param sizeX			The number of pixels along the x-axis.
+	 * @param bytesPerPixel	The number of bytes per pixel.
+	 * @param strategy		Strategy to transform pixel.
 	 */
-	public NoSuchROIException(String message) { super(message); }
-
-	
-	/**
-	 * Constructs a new exception with the specified detail message.
-	 * 
-	 * @param e	the parent exception wrapped by the NoSuchROIException.
-	 */
-	public NoSuchROIException(Exception e)
+	public Plane2D(ReadOnlyByteArray data, int sizeX, int bytesPerPixel,
+						BytesConverter strategy)
 	{
-		super(e);
+		this.bytesPerPixel = bytesPerPixel;
+		this.data = data;
+		this.strategy = strategy;
+		this.sizeX = sizeX;
 	}
 	
-	/** Constructs a default exception. */
-	public NoSuchROIException()
+	/**
+	 * Returns the pixels value at the point specified by the x-coordinate
+	 * and y-coordinate.
+	 * 
+	 * @param x	The x-coordinate.
+	 * @param y	The y-coordinate.
+	 * @return See above.
+	 */
+	public double getPixelValue(int x, int y)
 	{
-		super();
+		int offset = calculateOffset(x, y);
+		return strategy.pack(data, offset, bytesPerPixel);
 	}
 	
 }

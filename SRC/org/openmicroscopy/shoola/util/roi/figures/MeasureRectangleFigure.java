@@ -26,10 +26,12 @@ package org.openmicroscopy.shoola.util.roi.figures;
 //Java imports
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 
 
 //Third-party libraries
@@ -37,15 +39,9 @@ import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.RectangleFigure;
 
 //Application-internal dependencies
-import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
-import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.SHOWMEASUREMENT;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.WIDTH;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.HEIGHT;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.PERIMETER;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREX;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREY;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.AREA;
-
+import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
+import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
@@ -90,40 +86,30 @@ public class MeasureRectangleFigure
 		super(x, y, width, height);
         shape = null;
 		roi = null;
-		
     }
     
     public double getMeasurementX() 
     {
-    	if(units.showInMicrons())
-    		return getX()*units.getMicronsPixelX();
-    	else
-        	return getX();
+    	if (units.isInMicrons()) return getX()*units.getMicronsPixelX();
+    	return getX();
     }
     
     public double getMeasurementY() 
     {
-    	if(units.showInMicrons())
-    		return getY()*units.getMicronsPixelY();
-    	else
-        	return getY();
+    	if (units.isInMicrons()) return getY()*units.getMicronsPixelY();
+    	return getY();
     }
     
     public double getMeasurementWidth() 
     {
-    	
-    	if(units.showInMicrons())
-    		return getWidth()*units.getMicronsPixelX();
-    	else
-    		return getWidth();
+    	if (units.isInMicrons()) return getWidth()*units.getMicronsPixelX();
+    	return getWidth();
     }
     
     public double getMeasurementHeight() 
     {
-    	if(units.showInMicrons())
-    		return getHeight()*units.getMicronsPixelY();
-    	else
-    		return getHeight();
+    	if (units.isInMicrons()) return getHeight()*units.getMicronsPixelY();
+    	return getHeight();
     }
     
     public double getX() 
@@ -131,27 +117,17 @@ public class MeasureRectangleFigure
       	return rectangle.x;
     }
     
-    public double getY() 
-    {
-       	return rectangle.y;
-    }
+    public double getY() { return rectangle.y; }
     
-    public double getWidth() 
-    {
-    	return rectangle.getWidth();
-    }
+    public double getWidth() { return rectangle.getWidth(); }
     
-    public double getHeight() 
-    {
-    	return rectangle.getHeight();
-    }
+    public double getHeight() { return rectangle.getHeight(); }
     
-
 	public void draw(Graphics2D g)
 	{
 		super.draw(g);
 		
-		if (SHOWMEASUREMENT.get(this))
+		if (DrawingAttributes.SHOWMEASUREMENT.get(this))
 		{
 			NumberFormat formatter = new DecimalFormat("###.#");
 			String rectangleArea = formatter.format(getArea());
@@ -163,7 +139,7 @@ public class MeasureRectangleFigure
 						getBounds().getCenterX()-bounds.getWidth()/2,
 						getBounds().getCenterY()+bounds.getHeight()/2,
 					bounds.getWidth(), bounds.getHeight());
-			g.setColor(MEASUREMENTTEXT_COLOUR.get(this));
+			g.setColor(DrawingAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 			g.drawString(rectangleArea, (int) bounds.getX(), (int) 
 						bounds.getY()); 
 					
@@ -208,12 +184,10 @@ public class MeasureRectangleFigure
 
 	public String addUnits(String str)
 	{
-		if(shape==null)
-			return str;
-		if(units.showInMicrons())
+		if (shape == null) return str;
+		if (units.isInMicrons()) 
 			return str+OutputUnit.MICRONS+OutputUnit.SQUARED;
-		else
-			return str+OutputUnit.PIXELS+OutputUnit.SQUARED;
+		return str+OutputUnit.PIXELS+OutputUnit.SQUARED;
 	}
 
 
@@ -229,7 +203,7 @@ public class MeasureRectangleFigure
 
 	public Point2D getCentre()
 	{
-     	if (units.showInMicrons())
+     	if (units.isInMicrons())
     		return new Point2D.Double(
     				rectangle.getCenterX()*units.getMicronsPixelX(), 
     				rectangle.getCenterY()*units.getMicronsPixelY());
@@ -268,12 +242,12 @@ public class MeasureRectangleFigure
 	public void calculateMeasurements()
 	{
 		if (shape == null) return;
-		AREA.set(shape, getArea());
-		WIDTH.set(shape, getMeasurementWidth());		
-		HEIGHT.set(shape, getMeasurementHeight());		
-		PERIMETER.set(shape, getPerimeter());		
-		CENTREX.set(shape, getCentre().getX());
-		CENTREY.set(shape, getCentre().getY());
+		AnnotationKeys.AREA.set(shape, getArea());
+		AnnotationKeys.WIDTH.set(shape, getMeasurementWidth());		
+		AnnotationKeys.HEIGHT.set(shape, getMeasurementHeight());		
+		AnnotationKeys.PERIMETER.set(shape, getPerimeter());		
+		AnnotationKeys.CENTREX.set(shape, getCentre().getX());
+		AnnotationKeys.CENTREY.set(shape, getCentre().getY());
 	}
 
 	/**
@@ -290,6 +264,23 @@ public class MeasureRectangleFigure
 	{
 		this.units = units;
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getPoints()
+	 */
+	public PlanePoint2D[] getPoints()
+	{
+		Rectangle r = rectangle.getBounds();
+		ArrayList vector = new ArrayList(r.height*r.width);
+		int xEnd = r.x+r.width, yEnd = r.y+r.height;
+		int x, y;
+		for (y = r.y; y < yEnd; ++y) 
+			for (x = r.x; x < xEnd; ++x) 
+				if (rectangle.contains(x, y)) vector.add(new PlanePoint2D(x, y));
+		return (PlanePoint2D[]) vector.toArray(new PlanePoint2D[vector.size()]);
+	}
+	
 }
 
 

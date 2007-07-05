@@ -202,7 +202,7 @@ class RenderingControlProxy
                                                   cacheSize/xyImgSize, 
                                                   getPixelsDimensionsZ(), 
                                                   getPixelsDimensionsT());
-                    xyCache = new XYCache(cacheSize, xyImgSize, nh);
+                   // xyCache = new XYCache(cacheSize, xyImgSize, nh);
                 }
             }
         }

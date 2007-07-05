@@ -173,36 +173,26 @@ class MeasurementViewerUI
     private JMenu createOptionsMenu()
     {
         JMenu menu = new JMenu("Options");
-        ButtonGroup creationOptions = new ButtonGroup();
         ButtonGroup displayUnits = new ButtonGroup();
     	
         menu.setMnemonic(KeyEvent.VK_O);
+        
+        JMenu subMenu = new JMenu("Units");
         MeasurementViewerAction a = controller.getAction(
-        			MeasurementViewerControl.SHOWMEASUREMENTINMICRONS);
+    			MeasurementViewerControl.IN_MICRONS);
         JCheckBoxMenuItem inMicronsMenu = new JCheckBoxMenuItem(a);
         inMicronsMenu.setText(a.getName());
-        menu.add(inMicronsMenu);
-        a = controller.getAction(
-        		MeasurementViewerControl.SHOWMEASUREMENTINPIXELS);
+        displayUnits.add(inMicronsMenu);
+        subMenu.add(inMicronsMenu);
+        
+        a = controller.getAction(MeasurementViewerControl.IN_PIXELS);
         JCheckBoxMenuItem inPixelsMenu = new JCheckBoxMenuItem(a);
         inPixelsMenu.setText(a.getName());
-        menu.add(inPixelsMenu);
-        inPixelsMenu.setSelected(true);
-        displayUnits.add(inMicronsMenu);
         displayUnits.add(inPixelsMenu);
-        menu.add(new JSeparator());
-        a = 
-        	controller.getAction(MeasurementViewerControl.CREATECONTINUOUS);
-        JCheckBoxMenuItem continuousMenu = new JCheckBoxMenuItem(a);
-        continuousMenu.setText(a.getName());
-        menu.add(continuousMenu);
-        a = controller.getAction(MeasurementViewerControl.CREATESINGLE);
-        JCheckBoxMenuItem singleMenu = new JCheckBoxMenuItem(a);
-        singleMenu.setText(a.getName());
-        menu.add(singleMenu);
-        singleMenu.setSelected(true);
-        creationOptions.add(continuousMenu);
-        creationOptions.add(singleMenu);
+        subMenu.add(inPixelsMenu);
+        inPixelsMenu.setSelected(true); //TODO: retrieve info
+        
+        menu.add(subMenu);
         return menu;
     }
     
@@ -547,17 +537,7 @@ class MeasurementViewerUI
 		setStatus(DEFAULT_MSG);
 		rebuildManagerTable();
 	}
-	
-	/**
-	 * Creates a single figure and moves the tool in the menu back to the 
-	 * selection tool, if param true. 
-	 * @param option see above.
-	 */
-	void createSingleFigure(boolean option)
-	{
-		toolBar.createSingleFigure(option);
-	}
-	
+
 	/**
 	 * Sets a message in the status bar.
 	 * 

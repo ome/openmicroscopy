@@ -33,6 +33,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
@@ -40,6 +41,7 @@ import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 
 
 /** 
@@ -59,14 +61,14 @@ import org.openmicroscopy.shoola.env.config.Registry;
  * </small>
  * @since OME2.2
  */
-public class RenderingServicesFactory
+public class PixelsServicesFactory
 {
 
     /** The default size in MB of the general cache. */
-    private static final int                DEFAULT_CACHE_SIZE = 40;
+    //private static final int                DEFAULT_CACHE_SIZE = 40;
     
     /** The sole instance. */
-    private static RenderingServicesFactory singleton;
+    private static PixelsServicesFactory 	singleton;
     
     /** Reference to the container registry. */
     private static Registry                 registry;
@@ -84,13 +86,13 @@ public class RenderingServicesFactory
      * @throws NullPointerException If the reference to the {@link Container}
      *                              is <code>null</code>.
      */
-    public static RenderingServicesFactory getInstance(Container c)
+    public static PixelsServicesFactory getInstance(Container c)
     {
         if (c == null)
             throw new NullPointerException();  //An agent called this method?
         if (singleton == null)  {
             registry = c.getRegistry();
-            singleton = new RenderingServicesFactory();
+            singleton = new PixelsServicesFactory();
         }
         return singleton;
     }
@@ -194,6 +196,23 @@ public class RenderingServicesFactory
     }
     
     /**
+     * Creates a new data sink for the specified set of pixels.
+     * 
+     * @param pixels The pixels set the data sink is for.
+     * @return See above.
+     */
+    public static DataSink createDataSink(Pixels pixels)
+    {
+    	if (pixels == null)
+    		throw new IllegalArgumentException("Pixels cannot be null.");
+    	if (singleton.pixelsSource != null && 
+    			singleton.pixelsSource.isSame(pixels.getId().longValue()))
+    		return singleton.pixelsSource;
+    	singleton.pixelsSource = DataSink.makeNew(pixels, registry, cacheSize);
+    	return singleton.pixelsSource;
+    }
+    
+    /**
      * Renders the specified {@link PlaneDef 2D-plane}.
      * 
      * @param context   Reference to the registry. To ensure that agents cannot
@@ -219,13 +238,17 @@ public class RenderingServicesFactory
     /** Keep track of all the rendering service already initialized. */
     private HashMap                 rndSvcProxies;
     
+    /** Access to the raw data. */
+    private DataSink				pixelsSource;
+    
     /** Creates the sole instance. */
-    private RenderingServicesFactory()
+    private PixelsServicesFactory()
     {
-        cacheSize = DEFAULT_CACHE_SIZE;
         rndSvcProxies = new HashMap();
         Integer size = (Integer) registry.lookup(LookupNames.RE_CACHE_SZ);
-        if (size != null) cacheSize = size.intValue();
+        if (size == null) cacheSize = 1;
+        else cacheSize = size.intValue();
+        if (cacheSize <= 0) cacheSize = 1;
     }
  
     /**

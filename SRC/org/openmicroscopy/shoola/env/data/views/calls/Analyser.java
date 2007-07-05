@@ -25,18 +25,18 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import ome.model.core.Pixels;
-import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
+import org.openmicroscopy.shoola.env.rnd.data.DataSink;
+import org.openmicroscopy.shoola.env.rnd.roi.ROIAnalyser;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 
@@ -74,34 +74,22 @@ public class Analyser
      * @param shapes	Collection of shapes to analyse. 
      * @return The {@link BatchCall}.
      */
-    private BatchCall analyseShapes(final List shapes)
+    private BatchCall analyseShapes(final ROIShape[] shapes)
     {
-        return new BatchCall("Loading experimenter groups") {
+        return new BatchCall("Analysing shapes") {
             public void doCall() throws Exception
             {
-            	OmeroImageService os = context.getImageService();
-                Iterator i = shapes.iterator();
-                ROIShape shape;
-                Iterator j;
-                Integer c;
-                Map planes;
-                Map shapeData =  new HashMap(shapes.size());
-                while (i.hasNext()) {
-					shape = (ROIShape) i.next();
-					if (shape != null) {
-						planes = new HashMap(channels.size());
-						j = channels.iterator();
-						while (j.hasNext()) {
-							c = (Integer) j.next();
-							planes.put(c, 
-									os.getPlane(pixels.getId().longValue(), 
-											shape.getZ(), 
-										shape.getT(), c.intValue()));
-						}
-						shapeData.put(shape, planes);
-					}
+            	DataSink sink = PixelsServicesFactory.createDataSink(pixels);
+            	//ROI analyser
+            	ROIAnalyser analyser = new ROIAnalyser(sink, 
+            					pixels.getSizeZ().intValue(), 
+            					pixels.getSizeT().intValue(),
+            					pixels.getSizeC().intValue());
+            	try {
+            		result = analyser.analyze(shapes, channels);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-            	result = shapeData;
             }
         };
     }
@@ -139,7 +127,14 @@ public class Analyser
 			throw new IllegalArgumentException("No shapes specified.");
 		this.pixels = pixels;
     	this.channels = channels;
-		loadCall = analyseShapes(shapes);
+    	Iterator i = shapes.iterator();
+    	ROIShape[] data = new ROIShape[shapes.size()];
+    	int index = 0;
+    	while (i.hasNext()) {
+			data[index] = (ROIShape) i.next();
+			index++;
+		}
+		loadCall = analyseShapes(data);
     }
     
 }

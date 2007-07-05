@@ -29,10 +29,10 @@ package org.openmicroscopy.shoola.agents.measurement.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -54,10 +54,10 @@ public class UnitsAction
 {
 
 	/** Show the pixels in Pixels. */
-	private static final String NAME_PIXELS = "Show Units in Pixels.";
+	private static final String NAME_PIXELS = "in Pixels";
 	
 	/** Show the pixels in Microns. */
-	private static final String NAME_MICRONS = "Show Units in Microns.";
+	private static final String NAME_MICRONS = "in Microns";
 	
 	/** The description of the action for microns. */
 	private static final String DESCRIPTION_MICRONS = "Show the measurement " +
@@ -95,8 +95,6 @@ public class UnitsAction
 			putValue(Action.SHORT_DESCRIPTION, 
 				UIUtilities.formatToolTipText(DESCRIPTION_PIXELS));
 		}
-		IconManager icons = IconManager.getInstance();
-		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.STATUS_INFO));
 	}
 	
 	/** 
