@@ -35,7 +35,6 @@
 	<import file="${import.dir}/setup.xml"/>
 	<import file="${import.dir}/dependencies.xml"/>
 	<import file="${import.dir}/multiproject.xml"/>
-	<property file="components/app/product.properties"/>
 
 	<target name="help" depends="usage"/>
 	<target name="usage"
@@ -133,9 +132,6 @@
 				<exclude name="local.properties"/>
 			</fileset>
 		</copy>
-		<concat destfile="${dist.dir}/etc/omero.properties" append="true">
- 			<filelist dir="${app.comp}" files="product.properties"/>
- 		</concat>
 
 		<!-- 
 			Copies ...

@@ -6,8 +6,6 @@
 
 <project name="app" default="help" basedir=".">
 
-    <property file="product.properties"/>
-
     <property name="import.dir" value="${basedir}/../antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/dependencies.xml"/>

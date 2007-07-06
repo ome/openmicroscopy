@@ -25,7 +25,7 @@
 		SETUP
 	==================================================  -->
 	<target name="setup" 
-		depends="configure,check-system"
+		depends="configure"
 		description="Prepares code base for compilation"/>
 		
 	<target name="warning">

@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 @Test
 public class ResetLicensesTest extends TestCase {
 
-    @Test
+    @Test(groups = "integration")
     public void testUseBlitzDecision() {
         Run.main(new String[] { "blitz=true",
                 "task=ome.services.licenses.test.ResetLicensesTest$TaskTest" });

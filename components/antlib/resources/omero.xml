@@ -22,10 +22,13 @@
 -->
 
 	<!-- This overrides the classpath.file properties of all the components. -->
-        <property name="ant.resources"       value="${basedir}/components/antlib/resources/"/>
-	<property name="classpath.file"      value="${ant.resources}/dist-classpath.xml"/>
+	<property name="import.dir"       value="${basedir}/components/antlib/resources/"/>
+	<property name="classpath.file"   value="${import.dir}/dist-classpath.xml"/>
 	<import file="${classpath.file}"/> <!-- imports global.xml -->
-	<import file="${ant.resources}/multiproject.xml"/>
+	<import file="${import.dir}/dependencies.xml"/>
+	<import file="${import.dir}/multiproject.xml"/>
+	<import file="${import.dir}/setup.xml"/>
+	<property file="${basedir}/etc/omero.properties"/>
 
 	<target name="classpath-define">
 		<path id="omero.classpath">
@@ -41,6 +44,8 @@
 	</target>
 
 	<target name="update">
+		<fail>etc/local.properties does not exist. Try calling "setup"<condition>
+		<not><available file="${basedir}/etc/local.properties"/></not></condition></fail>
 
                 <!-- copied from app/build.xml refactor -->
       <tempfile property="temp.dir" prefix="omero"/>
@@ -54,7 +59,7 @@
       </replace>
 
 		<jar update="true"
-		  destfile="${artifact.final.name}">
+		  destfile="${product.final.name}">
 			<fileset dir="${basedir}/etc">
 				<include name="local.properties"/>
 				<include name="local.properties.example"/>
@@ -88,7 +93,14 @@
 	<target name="earfiles">
 		<fileset dir="${omero.home}" includes="*.ear" id="ear.files"/>
 	</target>
-	<target name="deploy" depends="deploy-ear-jboss"/>
+
+	<target name="deploy" depends="update">
+		<property name="jboss.deploy.dir" value="${env.JBOSS_HOME}/server/default/deploy"/>
+		<property name="jboss.deploy.dir" value="${env.JBOSS_HOME}/server/default/deploy"/>
+		<copy todir="${jboss.deploy.dir}">
+			<fileset dir="${basedir}" includes="*.ear,*.war"/>
+		</copy>
+	</target>
 
 	<target name="check" depends="classpath-define,load-groovy">
 
