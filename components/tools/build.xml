@@ -35,7 +35,7 @@
 	<target name="clean"
 		depends="deps-buildlist"
 		description="Calls 'tools-clean' on all components.">
-	  	<iterate target="clean"/>
+	  	<iterate target="tools-clean"/>
 		<delete dir="${tools.dest}"/>
 	</target>
 

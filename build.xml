@@ -87,7 +87,7 @@
 
 	<target name="cleantools"
 		description="Calls cleans on the tools component and removes tools/target">
-		<iterate buildpathref="tools.buildpath" target="tools"/>
+		<iterate buildpathref="tools.buildpath" target="clean"/>
 	</target>
 
 	<target name="zip">
