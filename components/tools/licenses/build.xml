@@ -23,11 +23,12 @@
 	
 	<property name="main.class" value="ome.services.licenses.tasks.Run"/>
 	<property name="uses.ice" value="true"/>
-	<property name="classpath.file" value="classpath.xml"/>
 	<dirname property="up-two" file="${basedir}"/>
 	<dirname property="up-one" file="${up-two}"/>
 	<property name="import.dir"       value="${up-one}/antlib/resources"/>
-	<import file="${classpath.file}"/>
+	<import file="${import.dir}/global.xml"/>
+	<import file="${import.dir}/dependencies.xml"/>
+	<import file="${import.dir}/lifecycle.xml"/>
 
     <import file="../make.xml"/>
     <import file="../python.xml"/>
