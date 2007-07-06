@@ -40,10 +40,10 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 
 //Third-party libraries
+import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
 
@@ -118,8 +118,11 @@ class MeasurementViewerUI
 	/** The ROI manager. */
 	private ObjectManager				roiManager;
 	
-	/** The Results componetn. */
+	/** The Results component. */
 	private MeasurementResults			roiResults;
+	
+	/** The graphing component. */
+	private GraphPane					graphPane;
 	
     /** Tabbed pane hosting the various panel. */
     private JTabbedPane					tabs;
@@ -205,6 +208,7 @@ class MeasurementViewerUI
 		roiInspector = new ObjectInspector(controller, model);
 		roiManager = new ObjectManager(this, model);
 		roiResults = new MeasurementResults(controller, model, this);
+		graphPane = new GraphPane(controller, model);
 		tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
         tabs.setAlignmentX(LEFT_ALIGNMENT);
 	}
@@ -218,12 +222,22 @@ class MeasurementViewerUI
 		tabs.addTab(roiManager.getComponentName(), 
 					roiManager.getComponentIcon(), roiManager);
 		tabs.addTab(roiResults.getComponentName(), 
-					roiResults.getComponentIcon(), roiResults);
+			roiResults.getComponentIcon(), roiResults);
+		tabs.addTab(graphPane.getComponentName(), 
+			graphPane.getComponentIcon(), graphPane);
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout(0, 0));
 		container.add(toolBar, BorderLayout.NORTH);
 		container.add(tabs, BorderLayout.CENTER);
 		container.add(statusBar, BorderLayout.SOUTH);
+	}
+	
+	public boolean inGraphPane()
+	{
+		if(tabs.getTitleAt(tabs.getSelectedIndex()).
+				equals(graphPane.getComponentName()))
+			return true;
+		return false;
 	}
 	
 	/**
@@ -545,6 +559,12 @@ class MeasurementViewerUI
 	 */
 	void setStatus(String text) { statusBar.setStatus(text); }
 	
+	/** Builds the graphs and displays them in the results pane. */
+	void displayAnalysisResults()
+	{
+		graphPane.displayAnalysisResults();
+	}
+	
     /** 
      * Overridden to the set the location of the {@link MeasurementViewer}.
      * @see TopWindow#setOnScreen() 
@@ -559,5 +579,5 @@ class MeasurementViewerUI
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
-    
+  
 }

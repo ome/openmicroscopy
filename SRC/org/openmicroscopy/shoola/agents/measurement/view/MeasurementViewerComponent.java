@@ -24,9 +24,11 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -51,6 +53,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
+import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -83,7 +86,16 @@ class MeasurementViewerComponent
 	extends AbstractComponent
 	implements MeasurementViewer
 {
-
+	private final static ArrayList<Color>			colourList;
+	static
+	{
+		colourList = new ArrayList<Color>();
+		colourList.add(Color.blue);
+		colourList.add(Color.green);
+		colourList.add(Color.red);
+		colourList.add(Color.red);
+		
+	};
 	/** The Model sub-component. */
     private MeasurementViewerModel 		model;
 	
@@ -495,13 +507,25 @@ class MeasurementViewerComponent
 		if (state != ANALYSE_SHAPE)
 			throw new IllegalStateException("This method can only be invoked " +
 					"in the ANALYSE_SHAPE state: "+state);
+		if (result == null || result.size() == 0) {
+			//TODO: Notify user
+			return;
+		}
 		//TODO: update view.
+		/*
 		Iterator i = result.keySet().iterator();
 		ROIShape shape;
 		Map stats;
 		ROIShapeStats shapeStats;
 		Iterator j;
 		Integer channel;
+		ArrayList<String> channelName = new ArrayList<String>();
+		ArrayList<Color>  channelColours = new ArrayList<Color>();
+		ArrayList<double[]> channelData = new ArrayList<double[]>();
+		ArrayList<Double>   channelMin = new ArrayList<Double>();
+		ArrayList<Double>   channelMax = new ArrayList<Double>();
+		ArrayList<Double>   channelMean = new ArrayList<Double>();
+		ArrayList<Double>   channelStdDev = new ArrayList<Double>();
 		while (i.hasNext()) {
 			shape = (ROIShape) i.next();
 			stats = (Map) result.get(shape);
@@ -510,9 +534,32 @@ class MeasurementViewerComponent
 				channel = (Integer) j.next();
 				shapeStats = (ROIShapeStats) stats.get(channel);
 				System.err.println(channel+" "+shapeStats.getMin()+" "+shapeStats.getMax());
+				channelMin.add(channel, shapeStats.getMin());
+				channelMax.add(channel, shapeStats.getMax());
+				channelMean.add(channel, shapeStats.getMean());
+				channelStdDev.add(channel, shapeStats.getStandardDeviation());
+				channelName.add(model.getMetadata(channel).getEmissionWavelength()+"");
+				channelColours.add(colourList.get(channel));
+				Map<PlanePoint2D,Double> pixels = shapeStats.getPixelsValue();
+				
+				Iterator<Double> pixelIterator = pixels.values().iterator();
+				double[] pixelData = new double[pixels.size()];
+				int cnt = 0;
+				while (pixelIterator.hasNext())
+					pixelData[cnt++] = pixelIterator.next();
+				channelData.add(pixelData);
 			}
+			
 		}
-		model.setStats();
+		*/
+		model.setAnalysisResults(result);
+		view.displayAnalysisResults();
+		/*
+		view.drawHistogram("Histogram", channelName, channelData, 
+			channelColours, 101);
+		view.setStats(channelName, channelMin, channelMax, channelMean,
+			channelStdDev);
+			*/
 		fireStateChange();
 	}
 	

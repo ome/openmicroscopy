@@ -135,6 +135,9 @@ class MeasurementViewerModel
     /** Collection of pairs (channel's index, channel's color). */
     private Map						activeChannels;
     
+    /** Collection of pairs (ROIShape, Map of ROIShapeStats). */
+    private Map						analysisResults;
+    
     /** Metadata for the pixels set. */
     private ChannelMetadata[]		metadata;
     
@@ -685,9 +688,32 @@ class MeasurementViewerModel
 		return metadata[index];
 	}
 	
-	void setStats()
+	/**
+	 * Sets the results of an analysis.
+	 * 
+	 * @param analysisResults The value to set.
+	 */
+	void setAnalysisResults(Map analysisResults)
 	{
+		this.analysisResults = analysisResults;
 		state = MeasurementViewer.READY;
+	}
+	
+	/**
+	 * Returns the collection of stats or <code>null</code>
+	 * if no analysis run on the selected ROI shapes.
+	 * 
+	 * @return See above.
+	 */
+	Map getAnalysisResults() { return analysisResults; }
+	
+	/**
+	 * Get the active channels for the data.
+	 * @return active channels.
+	 */
+	public Map getActiveChannels()
+	{
+		return activeChannels;
 	}
 	
 }	

@@ -305,9 +305,21 @@ class MeasurementViewerControl
 	public void figureChanged(FigureEvent e)
 	{
 		Figure f = e.getFigure();
-		if (f instanceof ROIFigure) {
-			((ROIFigure) f).calculateMeasurements();
+		if (f instanceof ROIFigure) 
+		{
+			ROIFigure roiFigure = (ROIFigure)f;
+			
+			roiFigure.calculateMeasurements();
+			if(view.inGraphPane())
+			{
+				if(roiFigure.getROIShape() != null)
+				{
+					model.analyseShape(roiFigure.getROIShape());
+					view.displayAnalysisResults();
+				}
 			}
+		}
+		
 	}
 
 	/**

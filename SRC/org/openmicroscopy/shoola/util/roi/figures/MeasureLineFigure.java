@@ -27,12 +27,15 @@ package org.openmicroscopy.shoola.util.roi.figures;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
@@ -374,17 +377,43 @@ public class MeasureLineFigure
 	 */
 	public PlanePoint2D[] getPoints()
 	{
+		
 		Rectangle r = path.getBounds();
-		ArrayList vector = new ArrayList();
-		int yEnd = r.y+r.height;
-		int x, y;
-		int index = 0;
-		for (y = r.y; y < yEnd; ++y) {
-			x = r.x+index;
-			if (r.contains(x, y)) vector.add(new PlanePoint2D(x, y));
-			index++;
+		ArrayList<PlanePoint2D> vector = new ArrayList<PlanePoint2D>();
+		for(int i = 0 ; i < getNodeCount()-1; i++)
+		{
+			Point2D pt1 = getPoint(i);
+			Point2D pt2 = getPoint(i+1);
+			Line2D line = new Line2D.Double(pt1, pt2);
+			iterateLine(line, vector);
 		}
-		return (PlanePoint2D[]) vector.toArray(new PlanePoint2D[vector.size()]);
+		return (PlanePoint2D[])vector.toArray(new PlanePoint2D[vector.size()]);
+	}
+	
+	private void iterateLine(Line2D line, ArrayList<PlanePoint2D> vector)
+	{
+		Point2D start = line.getP1();
+		Point2D end = line.getP2();
+		Point2D m = new Point2D.Double(end.getX()-start.getX(), end.getY()-start.getY());
+		double lengthM = (Math.sqrt(m.getX()*m.getX()+m.getY()*m.getY()));
+		Point2D mNorm = new Point2D.Double(m.getX()/lengthM,m.getY()/lengthM);
+		LinkedHashMap<Point2D, Boolean> map = new LinkedHashMap<Point2D, Boolean>();
+		for(double i = 0 ; i < lengthM ; i+=0.1)
+		{
+			Point2D pt = new Point2D.Double(start.getX()+i*mNorm.getX(),
+				start.getY()+i*mNorm.getY());
+			Point2D quantisedPoint = new Point2D.Double(Math.floor(pt.getX()), 
+				Math.floor(pt.getY()));
+			if(!map.containsKey(quantisedPoint))
+				map.put(quantisedPoint, new Boolean(true));
+		}
+		Iterator<Point2D> i = map.keySet().iterator();
+		while(i.hasNext())
+		{
+			Point2D p  = i.next();
+			vector.add(new PlanePoint2D(p.getX(), p.getY()));
+		}
+		
 	}
 	
 }
