@@ -5,13 +5,5 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="resources"/>
-	<classpathentry kind="var" path="M2_REPO/org/springframework/spring/2.0/spring-2.0.jar"/>
-	<classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
-	<classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
-	<classpathentry kind="var" path="M2_REPO/omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
-	<classpathentry kind="var" path="M2_REPO/omero/client/3.0-TRUNK/client-3.0-TRUNK.jar"/>
-	<classpathentry kind="var" path="M2_REPO/omero/omejava/loci-tools-2007-Feb-26/omejava-loci-tools-2007-Feb-26.jar"/>
-	<classpathentry kind="var" path="M2_REPO/testng/testng/5.2-jdk15/testng-5.2-jdk15.jar"/>
-	<classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
