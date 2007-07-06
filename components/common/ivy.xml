@@ -13,7 +13,7 @@
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency name="dsl" rev="latest.integration" />
+    <dependency name="dsl" rev="${omero.version}" changing="true" />
     <!-- Public -->
     <dependency org="ant" name="ant" rev="1.6.5" conf="build->default"/>
     <dependency org="antlr" name="antlr" rev="2.7.6" conf="build->default"/>

@@ -13,7 +13,7 @@
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency org="omero" name="common" rev="latest.integration" />
-    <dependency org="omero" name="client" rev="latest.integration" />
+    <dependency org="omero" name="common" rev="${omero.version}" changing="true" />
+    <dependency org="omero" name="client" rev="${omero.version}" changing="true" />
   </dependencies>
 </ivy-module>

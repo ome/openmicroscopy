@@ -13,10 +13,10 @@
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency name="common" rev="latest.integration" />
-    <dependency name="importer" rev="latest.integration" />
-    <dependency name="romio" rev="latest.integration" />
-    <dependency name="rendering" rev="latest.integration" />
+    <dependency name="common" rev="${omero.version}" changing="true" />
+    <dependency name="importer" rev="${omero.version}" changing="true" />
+    <dependency name="romio" rev="${omero.version}" changing="true" />
+    <dependency name="rendering" rev="${omero.version}" changing="true" />
     <!-- Public -->
     <dependency org="ant" name="ant" rev="1.6.5" conf="build->default"/>
     <dependency org="commons-collections" name="commons-collections" rev="3.1" conf="build->default"/>

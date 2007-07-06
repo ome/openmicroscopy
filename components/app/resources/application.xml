@@ -7,11 +7,11 @@
     <description>Open Microscopy Environment - RemoteObjects Server</description>
 
     <module>
-      <ejb>server-TEST.jar</ejb>
+      <ejb>server.jar</ejb>
     </module>
 
     <module>
-      <ejb>blitz-TEST.jar</ejb>
+      <ejb>blitz.jar</ejb>
     </module>
 
     <!-- The services.jar is automatically produced by the apps/

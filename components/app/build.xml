@@ -84,9 +84,9 @@
     <property name="jboss.server.config" value="default"/>
     <property name="jboss.deploy.dir" value="${jboss.home}/server/${jboss.server.config}/deploy"/>
 
-   <target name="deploy">
+   <target name="deploy" depends="deps-info">
     <copy tofile="${jboss.deploy.dir}/${artifact.final.name}">
-        <fileset dir="target" includes="app.ear"/>
+        <fileset dir="target" includes="${ivy.module}.ear"/>
     </copy>
    </target>
 
@@ -98,10 +98,8 @@
    </target>
 
    <target name="dist" depends="package" description="Copies final .EAR artifact to dist">
-       <copy todir="${dist.dir}">
-           <fileset dir="${target.dir}">
-               <include name="${ivy.module}.ear"/>
-           </fileset>
+       <copy tofile="${dist.dir}/${artifact.final.name}">
+           <fileset dir="${target.dir}" includes="${ivy.module}.ear"/>
        </copy>
    </target>
 

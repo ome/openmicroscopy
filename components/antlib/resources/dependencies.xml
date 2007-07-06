@@ -80,7 +80,7 @@
 	  description="Copy dependencies into the component-local deps.lib.dir."
 	  unless="deps.lib.dir.needed">
     <mkdir dir="${deps.lib.dir}"/>
-    <ivy:retrieve pattern="${deps.lib.dir}/[artifact]-[revision].[ext]"/>
+    <ivy:retrieve pattern="${deps.lib.dir}/[artifact].[ext]"/>
   </target>
 
   <target name="deps-info"
@@ -104,7 +104,7 @@
       depends="deps-resolve" 
       description="Publish this project in the local ivy repository.">
     <delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
-    <ivy:publish artifactspattern="${target.dir}/[module].[ext]" resolver="omero-resolver" pubrevision="TEST" pubdate="${now}" status="integration"/>
+    <ivy:publish artifactspattern="${target.dir}/[module].[ext]" resolver="omero-resolver" pubrevision="${omero.version}" pubdate="${now}" status="integration"/>
   </target>
 
   <target name="deps-publish-omero" 
