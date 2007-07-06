@@ -32,29 +32,20 @@ import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.LineFigure;
 
 //Application-internal dependencies
-import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
-import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.SHOWMEASUREMENT;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.LENGTH;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.POINTARRAYX;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.POINTARRAYY;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ANGLE;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.STARTPOINTX;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.STARTPOINTY;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ENDPOINTX;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ENDPOINTY;
-
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
+import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
-
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 
 /** 
@@ -119,7 +110,7 @@ public class MeasureLineFigure
 		boundsArray.clear();
 		lengthArray.clear();
 		angleArray.clear();
-		if(SHOWMEASUREMENT.get(this))
+		if(DrawingAttributes.SHOWMEASUREMENT.get(this))
 		{
 			if(getPointCount()==2)
 			{
@@ -134,8 +125,10 @@ public class MeasureLineFigure
 				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle, g);
 				Point2D.Double lengthPoint = getLengthPosition(0, 1);
-				Rectangle2D bounds = new Rectangle2D.Double(lengthPoint.x, lengthPoint.y+rect.getHeight()*2, rect.getWidth(), rect.getHeight());
-				g.setColor(MEASUREMENTTEXT_COLOUR.get(this));
+				Rectangle2D bounds = new Rectangle2D.Double(lengthPoint.x,
+						lengthPoint.y+rect.getHeight()*2, rect.getWidth(),
+						rect.getHeight());
+				g.setColor(DrawingAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineAngle, (int)bounds.getX(), (int)bounds.getY());
 				boundsArray.add(bounds);
 			}
@@ -149,8 +142,9 @@ public class MeasureLineFigure
 				double sz = ((Double)this.getAttribute(AttributeKeys.FONT_SIZE));
 				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle, g);
-				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x, getPoint(x).y, rect.getWidth(), rect.getHeight());
-				g.setColor(MEASUREMENTTEXT_COLOUR.get(this));
+				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x,
+						getPoint(x).y, rect.getWidth(), rect.getHeight());
+				g.setColor(DrawingAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineAngle, (int)bounds.getX(), (int)bounds.getY());
 				boundsArray.add(bounds);
 			}
@@ -165,8 +159,10 @@ public class MeasureLineFigure
 				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 				Point2D.Double lengthPoint = getLengthPosition(x-1, x);
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineLength, g);
-				Rectangle2D bounds = new Rectangle2D.Double(lengthPoint.x-15, lengthPoint.y-15,rect.getWidth()+30, rect.getHeight()+30);
-				g.setColor(MEASUREMENTTEXT_COLOUR.get(this));
+				Rectangle2D bounds = new Rectangle2D.Double(lengthPoint.x-15, 
+						lengthPoint.y-15,rect.getWidth()+30, 
+						rect.getHeight()+30);
+				g.setColor(DrawingAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineLength, (int)lengthPoint.x, (int)lengthPoint.y);
 				boundsArray.add(bounds);
 			}
@@ -309,60 +305,52 @@ public class MeasureLineFigure
 	 */
 	public void setROIShape(ROIShape shape)  { this.shape = shape; }
 
-	
-	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
 	 */
 	public void calculateMeasurements() 
 	{
-		if(shape==null)
-			return;
+		if (shape == null) return;
 			
 		pointArrayX.clear();
 		pointArrayY.clear();
 		lengthArray.clear();
 		angleArray.clear();
-		
-		for( int i = 0 ; i < getPointCount(); i++)
+		Point2D.Double pt;
+		for (int i = 0 ; i < getPointCount(); i++)
 		{
-			Point2D.Double pt = getPt(i);
+			pt = getPt(i);
 			pointArrayX.add(pt.getX());
 			pointArrayY.add(pt.getY());
 		}
 		
-		if(getPointCount()==2)
+		if (getPointCount() == 2)
 		{
 			double angle = getAngle(0, 1);
-			if(angle>90)
-				angle = Math.abs(angle-180);
+			if (angle > 90) angle = Math.abs(angle-180);
 			angleArray.add(angle);
-			ANGLE.set(shape, angleArray);
+			AnnotationKeys.ANGLE.set(shape, angleArray);
 			lengthArray.add(getLength(0, 1));
-			LENGTH.set(shape, lengthArray);
+			AnnotationKeys.LENGTH.set(shape, lengthArray);
 		}
 		else
 		{
-			for( int x = 1 ; x < this.getPointCount()-1; x++)
-			{
-				double angle = getAngle(x-1, x, x+1);
-				angleArray.add(angle);
-			}
-			for( int x = 1 ; x < this.getPointCount(); x++)
-			{
-				double length = getLength(x-1, x);
-				lengthArray.add(length);
-			}
-			ANGLE.set(shape, angleArray);
-			LENGTH.set(shape, lengthArray);
+			for (int x = 1 ; x < this.getPointCount()-1; x++)
+				angleArray.add(getAngle(x-1, x, x+1));
+
+			for (int x = 1 ; x < this.getPointCount(); x++)
+				lengthArray.add(getLength(x-1, x));
+
+			AnnotationKeys.ANGLE.set(shape, angleArray);
+			AnnotationKeys.LENGTH.set(shape, lengthArray);
 		}
-		STARTPOINTX.set(shape, getPt(0).getX());
-		STARTPOINTY.set(shape, getPt(0).getY());
-		ENDPOINTX.set(shape, getPt(getPointCount()-1).getX());
-		ENDPOINTY.set(shape, getPt(getPointCount()-1).getY());
-		POINTARRAYX.set(shape, pointArrayX);
-		POINTARRAYY.set(shape, pointArrayY);
+		AnnotationKeys.STARTPOINTX.set(shape, getPt(0).getX());
+		AnnotationKeys.STARTPOINTY.set(shape, getPt(0).getY());
+		AnnotationKeys.ENDPOINTX.set(shape, getPt(getPointCount()-1).getX());
+		AnnotationKeys.ENDPOINTY.set(shape, getPt(getPointCount()-1).getY());
+		AnnotationKeys.POINTARRAYX.set(shape, pointArrayX);
+		AnnotationKeys.POINTARRAYY.set(shape, pointArrayY);
 	}
 		
 	/**
@@ -386,12 +374,15 @@ public class MeasureLineFigure
 	 */
 	public PlanePoint2D[] getPoints()
 	{
-		int size = getPointCount();
-		ArrayList vector = new ArrayList(size);
-		Point2D.Double pt;
-		for (int i = 0 ; i < size; i++) {
-			pt = getPt(i);
-			vector.add(new PlanePoint2D(pt.getX(), pt.getY()));
+		Rectangle r = path.getBounds();
+		ArrayList vector = new ArrayList();
+		int yEnd = r.y+r.height;
+		int x, y;
+		int index = 0;
+		for (y = r.y; y < yEnd; ++y) {
+			x = r.x+index;
+			if (r.contains(x, y)) vector.add(new PlanePoint2D(x, y));
+			index++;
 		}
 		return (PlanePoint2D[]) vector.toArray(new PlanePoint2D[vector.size()]);
 	}

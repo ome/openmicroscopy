@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.roi.figures;
 //Java imports
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
@@ -376,12 +377,15 @@ public class MeasureLineConnectionFigure
 	 */
 	public PlanePoint2D[] getPoints()
 	{
-		int size = getPointCount();
-		ArrayList vector = new ArrayList(size);
-		Point2D.Double pt;
-		for (int i = 0 ; i < size; i++) {
-			pt = getPt(i);
-			vector.add(new PlanePoint2D(pt.getX(), pt.getY()));
+		Rectangle r = path.getBounds();
+		ArrayList vector = new ArrayList();
+		int yEnd = r.y+r.height;
+		int x, y;
+		int index = 0;
+		for (y = r.y; y < yEnd; ++y) {
+			x = r.x+index;
+			if (r.contains(x, y)) vector.add(new PlanePoint2D(x, y));
+			index++;
 		}
 		return (PlanePoint2D[]) vector.toArray(new PlanePoint2D[vector.size()]);
 	}

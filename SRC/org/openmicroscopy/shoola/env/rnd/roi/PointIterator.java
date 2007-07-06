@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.env.rnd.roi;
 //Java imports
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -42,7 +41,16 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 
- * 
+ * Iterates over the pixels contained in an <code>ROIShape</code> or an 
+ * <code>ROI</code>.
+ * The iteration advances in  point by point through each
+ * {@link ROIFigure} contained in the {@link ROIShape} &#151; the image data is 
+ * obviously assumed to be in XYZWT order. Each instance of this class is
+ * bound to a given pixels set; however the same instance can be used to iterate
+ * multiple {@link ROIShape}s over said pixels set.  
+ * {@link PointIteratorObserver}s
+ * are attached to an instance of this class before an iteration starts so to 
+ * get notified of every iterated pixels value.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

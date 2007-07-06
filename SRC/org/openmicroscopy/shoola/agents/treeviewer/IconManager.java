@@ -316,7 +316,7 @@ public class IconManager
         relPaths[SERVER] = "nuvola_server16.png";
         relPaths[HISTORY] = "eclipse_history_list16.png";
         relPaths[ROLL_OVER] = "nuvola_mouse16.png";
-        relPaths[BROWSER] = "viewer16.png";
+        relPaths[BROWSER] = "zoom16.png";
     }
     
     /** The sole instance. */

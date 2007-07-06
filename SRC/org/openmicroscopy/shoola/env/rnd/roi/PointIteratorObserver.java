@@ -32,7 +32,7 @@ import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 
 /** 
  * Monitors a {@link PointIterator} as it proceeds in a point by point
- * iteration of a ROI.
+ * iteration of an <code>ROI</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

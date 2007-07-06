@@ -34,11 +34,11 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
-import org.openmicroscopy.shoola.util.image.roi.ROI5D;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 
- * 
+ * Does some basic statistic analysis on a collection of {@link ROIShape} 
+ * which all refer to the same pixels set.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,20 +54,48 @@ public class ROIAnalyser
 {
 
 	 /** 
-     * Iterates an {@link ROI5D} over our pixels set.
+     * Iterates an {@link ROIShape} over our pixels set.
      * Observers compute the stats as the iteration moves forward. 
      */
 	private PointIterator 		runner;
 	
 	/** The number of z-sections. */
-	private int			sizeZ;   
+	private int					sizeZ;   
 	
 	/** The number of timepoints. */
-	private int			sizeT;   
+	private int					sizeT;   
 	
 	/** The number of channels. */
-	private int			sizeC;   
+	private int					sizeC;   
     
+	/**
+	 * Controls if the specified coordinates are valid.
+	 * 
+	 * @param z The z coordinate. Must be in the range <code>[0, sizeZ)</code>.
+	 * @param t The t coordinate. Must be in the range <code>[0, sizeT)</code>.
+	 */
+	private void checkPlane(int z, int t)
+	{
+		if (z < 0 || sizeZ <= z) 
+            throw new IllegalArgumentException(
+                    "z out of range [0, "+sizeZ+"): "+z+".");
+		if (t < 0 || sizeT <= t) 
+            throw new IllegalArgumentException(
+                    "t out of range [0, "+sizeT+"): "+t+".");
+	}
+	
+	/**
+	 * Controls if the specified channel is valid. 
+	 * 
+	 * @param w The w coordinate. Must be in the range <code>[0, sizeW)</code>.
+	 */
+	private void checkChannel(int w)
+	{
+		 if (w < 0 || sizeC <= w) 
+	            throw new IllegalArgumentException(
+	                    "w out of range [0, "+sizeC+"): "+w+".");
+	}
+	
     /**
      * Creates a new instance to analyze the pixels set accessible through
      * <code>source</code>.
@@ -82,7 +110,9 @@ public class ROIAnalyser
 	{
 		//Constructor will check source and dims.
         runner = new PointIterator(source, sizeZ, sizeT, sizeC);
-        //this.dims = dims;
+        this.sizeZ = sizeZ;
+        this.sizeT = sizeT;
+        this.sizeC = sizeC;
 	}
 	
 	/**
@@ -112,18 +142,22 @@ public class ROIAnalyser
         Iterator j;
         int n = channels.size();
         Integer w;
+        ROIShape shape;
         for (int i = 0; i < shapes.length; ++i) {
+        	shape = shapes[i];
+        	checkPlane(shape.getZ(), shape.getT());
         	stats = new HashMap<Integer, ROIShapeStats>(n);
         	j = channels.iterator();
         	while (j.hasNext()) {
 				w = (Integer) j.next();
+				checkChannel(w.intValue());
 				computer =  new ROIShapeStats();
 				runner.register(computer);
-				runner.iterate(shapes[i], w.intValue());
+				runner.iterate(shape, w.intValue());
 				runner.remove(computer);
 				stats.put(w, computer);
 			}
-            r.put(shapes[i], stats);
+            r.put(shape, stats);
         }
         return r;
     }

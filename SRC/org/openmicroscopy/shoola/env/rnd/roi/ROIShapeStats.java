@@ -35,7 +35,10 @@ import java.util.Map;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 
 /** 
- * 
+ * Stores the results of some basic statistic analysis run on a given 
+ * 2D-selection within an XY-plane.
+ * Some of the fields are also used as accumulators during the computation.
+ *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -83,14 +86,14 @@ public class ROIShapeStats
     private Map<PlanePoint2D, Double>	pixelsValue;
     
     /**
-     * Returns the minimum value within the 2D selection.
+     * Returns the minimum value within the 2D-selection.
      * 
      * @return  See above.
      */
     public double getMin() { return min; }
     
     /**
-     * Returns the maximum value within the 2D selection.
+     * Returns the maximum value within the 2D-selection.
      * 
      * @return  See above.
      */
@@ -134,7 +137,7 @@ public class ROIShapeStats
     
     /** 
      * Calculates the mean and standard deviation for the current 
-     * {@link ROIPlaneStats}.
+     * {@link ROIShapeStats}.
      * @see PointIteratorObserver#onEndPlane(int, int, int, int)
      */
 	public void onEndPlane(int z, int c, int t, int pointsCount)
@@ -152,7 +155,7 @@ public class ROIShapeStats
 
 	/**
      * Updates the min, max, and sum values of the current
-     * {@link ROIPlaneStats}.
+     * {@link ROIShapeStats}.
      * @see PointIteratorObserver#update(double, int, int, int, PlanePoint2D)
      */
 	public void update(double pixelValue, int z, int w, int t, PlanePoint2D loc)
