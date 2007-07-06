@@ -6,5 +6,31 @@
 	<classpathentry excluding="**/.svn" kind="src" path="target/generated/src"/>
 	<classpathentry excluding="**/.svn" kind="src" path="target/generated/resources"/>
 	<classpathentry excluding="**/.svn" kind="src" output="target/test-classes" path="test"/>
+	<classpathentry kind="lib" path="target/libs/ant.jar"/>
+	<classpathentry kind="lib" path="target/libs/antlr.jar"/>
+	<classpathentry kind="lib" path="target/libs/asm.jar"/>
+	<classpathentry kind="lib" path="target/libs/asm-attrs.jar"/>
+	<classpathentry kind="lib" path="target/libs/cglib.jar"/>
+	<classpathentry kind="lib" path="target/libs/commons-collections.jar"/>
+	<classpathentry kind="lib" path="target/libs/commons-logging.jar"/>
+	<classpathentry kind="lib" path="target/libs/dom4j.jar"/>
+	<classpathentry kind="lib" path="target/libs/dsl.jar"/>
+	<classpathentry kind="lib" path="target/libs/ehcache.jar"/>
+	<classpathentry kind="lib" path="target/libs/geronimo-spec-jta.jar"/>
+	<classpathentry kind="lib" path="target/libs/groovy.jar"/>
+	<classpathentry kind="lib" path="target/libs/hibernate.jar"/>
+	<classpathentry kind="lib" path="target/libs/hibernate-tools.jar"/>
+	<classpathentry kind="lib" path="target/libs/jboss-ejb3x.jar"/>
+	<classpathentry kind="lib" path="target/libs/jmock.jar"/>
+	<classpathentry kind="lib" path="target/libs/jtidy.jar"/>
+	<classpathentry kind="lib" path="target/libs/junit.jar"/>
+	<classpathentry kind="lib" path="target/libs/log4j.jar"/>
+	<classpathentry kind="lib" path="target/libs/postgresql.jar"/>
+	<classpathentry kind="lib" path="target/libs/qdox.jar"/>
+	<classpathentry kind="lib" path="target/libs/spring.jar"/>
+	<classpathentry kind="lib" path="target/libs/spring-mock.jar"/>
+	<classpathentry kind="lib" path="target/libs/testng.jar"/>
+	<classpathentry kind="lib" path="target/libs/velocity.jar"/>
+	<classpathentry kind="lib" path="target/libs/velocity-tools-generic.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -13,45 +13,8 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Written by:  Josh Moore <josh.moore@gmx.de>
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-  DOCUMENTATION:
-  ==============================================================================
-  Helper script for making a release of this code base.
-  
-
-  Functionally equivalent to:
-
-  run() {
-	find -name $1
-	find -name $1 -exec perl -i -pe 's/3.0-TRUNK/3.0-RC1/g' {} \;
-  } 
-  run pom.xml 
-  run classpath.xml
-  run .classpath
-  run application.xml
-  run *.example
 
 -->
-
-  <target name="update-version">
-    <property name="currentVersion" value="3.0-TRUNK"/>
-    <property name="updatedVersion" value="3.0-RC1"/>
-
-    <replace dir="${basedir}" token="${currentVersion}" value="${updatedVersion}">
-      <include name="**/.classpath"/>
-      <include name="**/.project"/>
-      <include name="**/classpath.xml"/>
-      <include name="**/pom.xml"/>
-      <include name="**/application.xml"/>
-      <include name="etc/*.properties"/>
-      <include name="etc/*.properties.*"/>
-      <include name="components/antlib/**/server.xml"/>
-      <include name="components/antlib/**/release.xml"/>
-      <include name="components/app/product.properties"/>
-      <include name="components/common/src/ome/system/Version.java"/>
-   </replace>
-
-  </target>
 
 	<!-- 	===============================================
 		Javadoc
