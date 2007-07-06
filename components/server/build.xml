@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="services" default="install" basedir=".">
 
-    <property name="artifact.name" value="server"/>
-    <property name="artifact.group" value="omero"/>
-    <property name="artifact.version" value="3.0-TRUNK"/>
-    <property name="artifact.packaging" value="jar"/><!-- Default; override in component/build.xml -->
-    <property name="artifact.final.name" value="server-3.0-TRUNK.${artifact.packaging}"/>
-    <property name="artifact.path" value="omero/server/3.0-TRUNK/${artifact.final.name}"/>
-
     <property name="import.dir" value="${basedir}/../antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/dependencies.xml"/>
@@ -41,6 +34,7 @@
         <copy file="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__data.sql" tofile="${target.dir}/data.sql"  overwrite="true"/>
         <replace file="${target.dir}/data.sql" token="@ROOTPASS@" value="${ROOTPASS}"/>
         <replace file="${target.dir}/data.sql" token="@DBPATCH@" value="${omero.dbpatch}"/>
+        <replace file="${target.dir}/data.sql" token="@DBVERSION@" value="${omero.dbversion}"/>
         <sql_run>
             <transaction src="${target.dir}/ddl.sql"/>
             <transaction src="${target.dir}/data.sql"/>

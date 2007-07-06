@@ -6,11 +6,6 @@
 
 <project name="app" default="help" basedir=".">
 
-    <property name="artifact.name" value="app"/>
-    <property name="artifact.group" value="omero"/>
-    <property name="artifact.version" value="3.0-TRUNK"/>
-    <property name="artifact.packaging" value="ear"/>
-    <property name="artifact.path" value="omero/app/3.0-TRUNK/${artifact.final.name}"/>
     <property file="product.properties"/>
 
     <property name="import.dir" value="${basedir}/../antlib/resources"/>
@@ -65,7 +60,7 @@
          <fileset dir="${target.dir}" includes="omero-ds.xml"/>
          <manifest>
             <attribute name="Product-Name"      value="${product.name}"/>
-            <attribute name="Product-Version"   value="${product.version}"/>
+            <attribute name="Product-Version"   value="${omero.version}"/>
             <attribute name="Build-Date"        value="${build.time}"/>
             <attribute name="Build-JDK-Vendor"  value="${java.vendor}"/>
             <attribute name="Build-JDK-Version" value="${java.version}"/>
@@ -85,7 +80,7 @@
     <property name="jboss.deploy.dir" value="${jboss.home}/server/${jboss.server.config}/deploy"/>
 
    <target name="deploy" depends="deps-info">
-    <copy tofile="${jboss.deploy.dir}/${artifact.final.name}">
+    <copy tofile="${jboss.deploy.dir}/${product.final.name}">
         <fileset dir="target" includes="${ivy.module}.ear"/>
     </copy>
    </target>
@@ -98,7 +93,7 @@
    </target>
 
    <target name="dist" depends="package" description="Copies final .EAR artifact to dist">
-       <copy tofile="${dist.dir}/${artifact.final.name}">
+       <copy tofile="${dist.dir}/${product.final.name}">
            <fileset dir="${target.dir}" includes="${ivy.module}.ear"/>
        </copy>
    </target>

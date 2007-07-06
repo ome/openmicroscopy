@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="dsl" default="install" basedir=".">
 
-    <property name="artifact.name" value="dsl"/>
-    <property name="artifact.group" value="omero"/>
-    <property name="artifact.version" value="3.0-TRUNK"/>
-    <property name="artifact.packaging" value="jar"/><!-- Default; override in component/build.xml -->
-    <property name="artifact.final.name" value="dsl-3.0-TRUNK.${artifact.packaging}"/>
-    <property name="artifact.path" value="omero/dsl/3.0-TRUNK/${artifact.final.name}"/>
-
     <property name="import.dir" value="${basedir}/../antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/dependencies.xml"/>

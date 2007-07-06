@@ -2,13 +2,6 @@
 <!-- TODO add properties goal to update pref.properties -->
 <project name="common" default="install" basedir=".">
 
-    <property name="artifact.name" value="common"/>
-    <property name="artifact.group" value="omero"/>
-    <property name="artifact.version" value="3.0-TRUNK"/>
-    <property name="artifact.packaging" value="jar"/><!-- Default; override in component/build.xml -->
-    <property name="artifact.final.name" value="common-3.0-TRUNK.${artifact.packaging}"/>
-    <property name="artifact.path" value="omero/common/3.0-TRUNK/${artifact.final.name}"/>
-
     <property name="import.dir" value="${basedir}/../antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/dependencies.xml"/>

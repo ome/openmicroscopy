@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="client" default="install" basedir=".">
 
-    <property name="artifact.name" value="client"/>
-    <property name="artifact.group" value="client"/>
-    <property name="artifact.version" value="3.0-TRUNK"/>
-    <property name="artifact.packaging" value="jar"/><!-- Default; override in component/build.xml -->
-    <property name="artifact.final.name" value="client-3.0-TRUNK.${artifact.packaging}"/>
-    <property name="artifact.path" value="omero/client/3.0-TRUNK/${artifact.final.name}"/>
-
     <property name="import.dir" value="${basedir}/../antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/dependencies.xml"/>
@@ -19,7 +12,7 @@
 	
 	<target name="package" depends="lifecycle.package">
 		<jar update="true"
-		  destfile="${target.dir}/${artifact.final.name}">
+		  destfile="${target.dir}/${ivy.module}.jar">
 			<fileset dir="${classes.dir}">
 				<include name="omero.properties"/>
 				<include name="hibernate.properties"/>
