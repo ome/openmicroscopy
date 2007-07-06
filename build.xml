@@ -74,9 +74,9 @@
 
 	<target name="clean" depends="multiproject"
 		description="Lifecycle target: calls 'clean' on all components">
+		<iterate target="clean"/>
 		<delete dir="${dist.dir}"/>
 		<delete dir="${etc.dir}/ivy-cache"/>
-		<iterate target="clean"/>
 	</target>
 
 	<target name="withtools"
