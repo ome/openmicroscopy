@@ -21,10 +21,6 @@
     searching in OMERO_HOME/lib/overrides as described in overrides/README.txt -->
 
     <chain name="omero-resolver" returnFirst="true">
-      <filesystem name="overrides">
-        <artifact pattern="${ivy.conf.dir}/../lib/overrides/[artifact].[type]" />
-        <ivy pattern="${ivy.conf.dir}/../lib/overrides/[artifact].ivy"/>
-      </filesystem>
       <filesystem name="repository">
         <artifact pattern="${ivy.conf.dir}/../lib/repository/[organization]/[module]/[revision]/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.conf.dir}/../lib/repository/[organization]/[module]/[revision]/ivy.xml"/>
