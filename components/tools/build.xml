@@ -20,7 +20,8 @@
 	<target name="build"
 		description="Calls 'tools-build' on all components to fill target"
 		depends="deps-buildlist">
-	  	<iterate target="tools-build"/>
+		<mkdir dir="${basedir}/target/service-classes"/>
+		<iterate target="tools-build"/>
 	</target>
 
 	<target name="dist" description="Copies target onto an existing dist">
