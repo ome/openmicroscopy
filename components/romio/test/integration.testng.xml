@@ -6,6 +6,7 @@
     <groups>
       <run>
         <exclude name="broken"/>
+        <exclude name="manual"/>
         <exclude name="ignore"/>
       </run>        
     </groups>
