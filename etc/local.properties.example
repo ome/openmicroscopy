@@ -21,6 +21,12 @@ javac.debug=on
 javac.debuglevel=lines,vars,source
 javac.maxmem=100m
 javadoc.maxmem=100m
+
+# Determines which Ivy resolver to use for
+# finding the loci libraries. Look in 
+# etc/ivyconf.xml for more information.
+loci.resolver=omero-resolver
+
 ############################################
 # libraries
 ############################################

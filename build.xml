@@ -59,7 +59,7 @@
 
 <!-- 	===============================================
 		BUILD
-	==================================================  -->
+==================================================  -->
 	<target name="fullbuild" depends="check-system,clean,build,reload-db"
 		description="Extensive build which checks and cleans the build environment, builds, and setups the database"/>
 
@@ -76,7 +76,7 @@
 		description="Lifecycle target: calls 'clean' on all components">
 		<iterate target="clean"/>
 		<delete dir="${dist.dir}"/>
-		<delete dir="${etc.dir}/ivy-cache"/>
+		<delete dir="${lib.dir}/cache"/>
 	</target>
 
 	<target name="withtools"
