@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path=""/>
+        <classpathentry kind="var" path="JRE_LIB" sourcepath="JRE_SRC"/>
+        <classpathentry excluding="**/.svn" kind="src" path="src"/>
+        <classpathentry excluding="**/.svn" kind="src" path="resources"/>
+        <classpathentry excluding="**/.svn" kind="src" path="target/generated/src"/>
+        <classpathentry excluding="**/.svn" kind="src" path="target/generated/resources"/>
+        <classpathentry excluding="**/.svn" kind="src" output="target/test-classes" path="test"/>
 	<classpathentry kind="lib" path="target/libs/acegi-security.jar"/>
 	<classpathentry kind="lib" path="target/libs/activemq-core.jar"/>
 	<classpathentry kind="lib" path="target/libs/ant.jar"/>
@@ -55,5 +60,4 @@
 	<classpathentry kind="lib" path="target/libs/velocity-tools-generic.jar"/>
 	<classpathentry kind="lib" path="target/libs/xerces.jar"/>
 	<classpathentry kind="lib" path="target/libs/xml-apis.jar"/>
-	<classpathentry kind="output" path="bin"/>
 </classpath>
