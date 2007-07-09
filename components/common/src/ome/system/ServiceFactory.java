@@ -16,6 +16,7 @@ import java.util.Properties;
 import ome.api.IAdmin;
 import ome.api.IAnalysis;
 import ome.api.IConfig;
+import ome.api.ILdap;
 import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
@@ -168,7 +169,7 @@ public class ServiceFactory {
 
     // ~ Stateless services
     // =========================================================================
-
+    
     public IAdmin getAdminService() {
         return getServiceByClass(IAdmin.class);
     }
@@ -179,6 +180,10 @@ public class ServiceFactory {
 
     public IConfig getConfigService() {
         return getServiceByClass(IConfig.class);
+    }
+    
+    public ILdap getLdapService() {
+        return getServiceByClass(ILdap.class);
     }
 
     public IPixels getPixelsService() {

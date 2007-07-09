@@ -22,7 +22,15 @@
             <module-option name = "hashEncoding">base64</module-option>
             <module-option name = "principalsQuery">
 
-select p.hash as PASSWD 
+select p.hash as PASSWD, p.dn as DN 
+   from experimenter e, password p 
+   where e.omename=? 
+   and e.id = p.experimenter_id
+
+            </module-option>
+            <module-option name = "dnQuery">
+
+select p.dn as DN 
    from experimenter e, password p 
    where e.omename=? 
    and e.id = p.experimenter_id

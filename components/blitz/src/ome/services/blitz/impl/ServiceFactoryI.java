@@ -144,7 +144,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
     // ~ Synchronized state
     // =========================================================================
 
-    String adminKey = "IAdmin", configKey = "IConfig", pixelsKey = "IPixels",
+    String adminKey = "IAdmin", configKey = "IConfig", ldapKey = "ILdap", pixelsKey = "IPixels",
             pojosKey = "Pojos", queryKey = "IQuery", typesKey = "ITypes",
             updateKey = "IUpdate", repoKey = "IRepositoryInfo";
 
@@ -224,6 +224,22 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
         }
     }
 
+    public ILdapPrx getLdapService(Ice.Current current) {
+        synchronized (ldapKey) {
+            Ice.Identity id = getIdentity(current, ldapKey);
+            String key = Ice.Util.identityToString(id);
+
+            Ice.ObjectPrx prx = servantProxy(id, current);
+            if (prx == null) {
+                _ILdapOperations ops = createServantDelegate(
+                        _ILdapOperations.class, ILdap.class, key);
+                _ILdapTie servant = new _ILdapTie(ops);
+                prx = registerServant(servant, current, id);
+            }
+            return ILdapPrxHelper.uncheckedCast(prx);
+        }
+    }
+    
     public IPixelsPrx getPixelsService(Ice.Current current) {
         synchronized (pixelsKey) {
             Ice.Identity id = getIdentity(current, pixelsKey);

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	# 
+	# $Id: service-ome.api.ILdap.xml 1167 2007-06-04 10:39:34Z aleksandrat $
+	# 
+	# Copyright 2007 University of Dundee. All rights reserved.
+	# Use is subject to license terms supplied in LICENSE.txt
+	#
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	# Written by:  Aleksandra Tarkowska <aleksandrat@lifesci.dundee.ac.uk>
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<beans>
+
+	<alias name="internal:ome.api.ILdap" alias="internal:ome.api.LocalLdap"/>
+
+	<bean parent="level2" name="internal:ome.api.ILdap"
+		class="ome.logic.LdapImpl">
+		<description>
+			Privileged bean which has several "private" references
+			injected. This is not an example of what should be done.
+		</description>
+		<property name="ldapTemplate" ref="ldapTemplate" />
+		<property name="jdbcTemplate" ref="simpleJdbcTemplate" />
+	</bean>
+
+	<bean name="managed:ome.api.ILdap" parent="managedService">
+		<property name="proxyInterfaces">
+			<list>
+				<value>ome.api.ILdap</value>
+				<value>ome.api.local.LocalLdap</value>
+			</list>
+		</property>
+		<property name="target" ref="internal:ome.api.ILdap" />
+	</bean>
+
+	<bean id="ldapTemplate" class="net.sf.ldaptemplate.LdapTemplate">
+		<constructor-arg ref="contextSource" />
+	</bean>
+
+	<bean id="contextSource"
+		class="net.sf.ldaptemplate.support.LdapContextSource">
+		<property name="urls" value="ldap://lsd-test.lifesci.dundee.ac.uk:389" />
+		<property name="userName" value="cn=Directory Manager" />
+		<property name="password" value="ImfibDyGhib2" />
+		<property name="base" value="ou=lifesci,o=dundee" />
+		<property name="dirObjectFactory"
+			value="net.sf.ldaptemplate.support.DefaultDirObjectFactory" />
+	</bean>
+
+</beans>

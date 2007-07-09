@@ -44,6 +44,7 @@
 	<classpathentry kind="lib" path="target/libs/jtidy.jar"/>
 	<classpathentry kind="lib" path="target/libs/junit.jar"/>
 	<classpathentry kind="lib" path="target/libs/log4j.jar"/>
+	<classpathentry kind="lib" path="target/libs/ldaptemplate.jar"/>
 	<classpathentry kind="lib" path="target/libs/lucene.jar"/>
 	<classpathentry kind="lib" path="target/libs/omejava.jar"/>
 	<classpathentry kind="lib" path="target/libs/postgresql.jar"/>

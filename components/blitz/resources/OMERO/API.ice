@@ -121,6 +121,19 @@ module omero {
 	idempotent omero::RTime getDatabaseTime() throws ServerError;
 	idempotent omero::RTime getServerTime() throws ServerError;
       };
+      
+     interface ILdap extends ServiceInterface
+      {
+	idempotent ExperimenterList searchAll() throws ServerError;
+	idempotent DistinguishedNameList searchDnInGroups(String attr, String value) throws ServerError;
+	idempotent ExperimenterList searchByAttribute(String attribute, String value) throws ServerError;
+	idempotent Experimenter searchByDN(DistinguishedName userdn) throws ServerError;
+	idempotent DistinguishedName findDN(String username) throws ServerError;
+    idempotent void setDN(Long experimenterID, DistinguishedName dn) throws ServerError;
+	idempotent ExperimenterGroupList searchGroups() throws ServerError;
+	idempotent Attributes searchAttributes() throws ServerError;
+	idempotent boolean checkAttributes(DistinguishedName dn, List<String []> attrs) throws ServerError;
+      };
 
 
     interface IPixels extends ServiceInterface

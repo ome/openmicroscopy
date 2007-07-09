@@ -28,6 +28,7 @@
     <dependency org="jmock" name="jmock" rev="1.0.1" conf="build->default"/>
     <dependency org="junit" name="junit" rev="3.8.1" conf="build->default"/>
     <dependency org="log4j" name="log4j" rev="1.2.8" conf="build->default"/>
+    <dependency org="ldap" name="ldaptemplate" rev="1.0.2" conf="build->default"/>
     <dependency org="net/sf/ehcache" name="ehcache" rev="1.2" conf="build->default"/>
     <dependency org="omero" name="jboss-ejb3x" rev="4.0.4.GA" conf="build->default"/> 
     <dependency org="omero" name="postgresql" rev="8.1-405.jdbc3" conf="build->default"/> 

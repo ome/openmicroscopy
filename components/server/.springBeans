@@ -19,6 +19,7 @@
 		<config>resources/ome/services/hibernate.xml</config>
 		<config>resources/ome/services/config-local.xml</config>
 		<config>resources/ome/services/service-ome.api.IAdmin.xml</config>
+		<config>resources/ome/services/service-ome.api.ILdap.xml</config>
 	</configs>
 	<configSets>
 		<configSet>
@@ -31,6 +32,7 @@
 				<config>resources/ome/services/security.xml</config>
 				<config>resources/ome/services/services.xml</config>
 				<config>resources/ome/services/service-ome.api.IAdmin.xml</config>
+				<config>resources/ome/services/service-ome.api.ILdap.xml</config>
 				<config>resources/ome/services/service-ome.api.IAnalysis.xml</config>
 				<config>resources/ome/services/service-ome.api.IPixels.xml</config>
 				<config>resources/ome/services/service-ome.api.IPojos.xml</config>

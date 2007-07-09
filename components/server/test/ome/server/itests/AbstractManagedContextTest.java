@@ -10,6 +10,8 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
+import net.sf.ldaptemplate.LdapTemplate;
+
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -19,9 +21,11 @@ import org.testng.annotations.Test;
 
 import ome.api.IAnalysis;
 import ome.api.IConfig;
+import ome.api.ILdap;
 import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.local.LocalAdmin;
+import ome.api.local.LocalLdap;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.model.meta.Experimenter;
@@ -59,6 +63,8 @@ public class AbstractManagedContextTest extends
 
     protected LocalAdmin iAdmin;
 
+    protected ILdap iLdap;
+    
     protected IConfig iConfig;
 
     protected IAnalysis iAnalysis;
@@ -70,6 +76,8 @@ public class AbstractManagedContextTest extends
     protected OMEData data;
 
     protected JdbcTemplate jdbcTemplate;
+    
+    protected LdapTemplate ldapTemplate;
 
     protected HibernateTemplate hibernateTemplate;
 
@@ -86,6 +94,7 @@ public class AbstractManagedContextTest extends
         iQuery = (LocalQuery) factory.getQueryService();
         iUpdate = (LocalUpdate) factory.getUpdateService();
         iAdmin = (LocalAdmin) factory.getAdminService();
+        iLdap = factory.getLdapService();
         iAnalysis = factory.getAnalysisService();
         iConfig = factory.getConfigService();
         iPojos = factory.getPojosService();
@@ -95,6 +104,9 @@ public class AbstractManagedContextTest extends
                 .getBean("dataSource");
         jdbcTemplate = (JdbcTemplate) applicationContext
                 .getBean("jdbcTemplate");
+        
+        ldapTemplate = (LdapTemplate) applicationContext
+        .getBean("ldapTemplate");
 
         data = new OMEData();
         data.setDataSource(dataSource);

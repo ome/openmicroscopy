@@ -109,6 +109,11 @@
     <property name="jndiName" value="omero/remote/ome.api.IConfig"/>
     <property name="proxyInterface" value="ome.api.IConfig"/>
   </bean>
+  
+  <bean id="managed:ome.api.ILdap" parent="statelessJndi">
+    <property name="jndiName" value="omero/remote/ome.api.ILdap"/>
+    <property name="proxyInterface" value="ome.api.ILdap"/>
+  </bean>    
 
   <bean id="managed:ome.api.IPixels" parent="statelessJndi">
     <property name="jndiName" value="omero/remote/ome.api.IPixels"/>

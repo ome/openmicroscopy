@@ -28,6 +28,7 @@ module omero {
     const string ANALYSISSERVICE  = "ome.api.IAnalysis";
     const string CONFIGSERVICE    = "ome.api.IConfig";
     const string DELETESERVICE    = "ome.api.IDelete";
+    const string ADMINSERVICE     = "ome.api.ILdap";
     const string PIXELSSERVICE    = "ome.api.IPixels";
     const string POJOSSERVICE     = "ome.api.IPojos";
     const string QUERYSERVICE     = "ome.api.IQuery";
