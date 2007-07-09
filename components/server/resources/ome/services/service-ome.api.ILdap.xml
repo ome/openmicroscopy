@@ -47,10 +47,10 @@
 
 	<bean id="contextSource"
 		class="net.sf.ldaptemplate.support.LdapContextSource">
-		<property name="urls" value="ldap://lsd-test.lifesci.dundee.ac.uk:389" />
-		<property name="userName" value="cn=Directory Manager" />
-		<property name="password" value="ImfibDyGhib2" />
-		<property name="base" value="ou=lifesci,o=dundee" />
+		<property name="urls" value="${omero.ldap.urls}" />
+		<property name="userName" value="${omero.ldap.username}" />
+		<property name="password" value="${omero.ldap.password}" />
+		<property name="base" value="${omero.ldap.base}" />
 		<property name="dirObjectFactory"
 			value="net.sf.ldaptemplate.support.DefaultDirObjectFactory" />
 	</bean>
