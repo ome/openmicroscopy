@@ -118,4 +118,29 @@ public class LdapTest extends AbstractManagedContextTest {
 		loginRoot();
 
 	}
+
+	@Test
+	public void testValidatePassword() throws Exception {
+		loginRoot();
+		System.out.println(iLdap.validatePassword("cn=atarkowska,ou=edir,ou=people,ou=lifesci,o=dundee", "123"));
+		
+	}
+
+	@Test
+	public void testCreateUserFromLdap() throws Exception {
+		loginRoot();
+		System.out.println(iLdap.createUserFromLdap("atarkowska", "123"));
+		
+	}
+
+	
+	@Test
+	public void testGetReq() throws Exception {
+		loginRoot();
+		iLdap.getSetting();
+		iLdap.getReqAttributes();
+		iLdap.getReqGroups();
+		iLdap.getReqValues();
+	}
+	
 }

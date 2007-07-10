@@ -63,7 +63,7 @@ public class AbstractManagedContextTest extends
 
     protected LocalAdmin iAdmin;
 
-    protected ILdap iLdap;
+    protected LocalLdap iLdap;
     
     protected IConfig iConfig;
 
@@ -94,7 +94,7 @@ public class AbstractManagedContextTest extends
         iQuery = (LocalQuery) factory.getQueryService();
         iUpdate = (LocalUpdate) factory.getUpdateService();
         iAdmin = (LocalAdmin) factory.getAdminService();
-        iLdap = factory.getLdapService();
+        iLdap = (LocalLdap) factory.getLdapService();
         iAnalysis = factory.getAnalysisService();
         iConfig = factory.getConfigService();
         iPojos = factory.getPojosService();

@@ -10,8 +10,10 @@ package ome.logic;
 // Java imports
 // import java.util.LinkedList;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
@@ -24,22 +26,26 @@ import javax.interceptor.Interceptors;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.naming.AuthenticationException;
+import javax.naming.Context;
 import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.ldap.InitialLdapContext;
 
 import net.sf.ldaptemplate.AttributesMapper;
 import net.sf.ldaptemplate.ContextMapper;
 import net.sf.ldaptemplate.LdapTemplate;
 import net.sf.ldaptemplate.support.DirContextAdapter;
 import net.sf.ldaptemplate.support.DistinguishedName;
+import net.sf.ldaptemplate.support.LdapContextSource;
 import net.sf.ldaptemplate.support.filter.AndFilter;
 import net.sf.ldaptemplate.support.filter.EqualsFilter;
-
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.api.IAdmin;
 import ome.api.ILdap;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalLdap;
@@ -51,6 +57,7 @@ import ome.model.meta.ExperimenterGroup;
 import ome.security.LdapUtil;
 import ome.security.SecuritySystem;
 import ome.services.util.OmeroAroundInvoke;
+import ome.system.OmeroContext;
 
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
@@ -67,7 +74,7 @@ import org.springframework.transaction.annotation.Transactional;
  * service has access to several resources that should not be generally used
  * while developing services. Misuse could circumvent security or auditing.
  * 
- * @author Josh Moore, josh.moore at gmx.de
+ * @author Aleksandra Tarkowska, A.Tarkowska@dundee.ac.uk
  * @version $Revision: 1552 $, $Date: 2007-05-23 09:43:33 +0100 (Wed, 23 May
  *          2007) $
  * @see SecuritySystem
@@ -91,6 +98,16 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
 	protected transient SimpleJdbcTemplate jdbc;
 
+	protected transient String groups;
+
+	protected transient String attributes;
+
+	protected transient String values;
+
+	protected transient String config;
+	
+	protected transient IAdmin adminService;
+
 	/** injector for usage by the container. Not for general use */
 	public final void setLdapTemplate(LdapTemplate ldapTemplate) {
 		getBeanHelper().throwIfAlreadySet(this.ldapTemplate, ldapTemplate);
@@ -103,10 +120,35 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 		jdbc = jdbcTemplate;
 	}
 
-	public final LdapTemplate getLdapTemplate() {
-		return this.ldapTemplate;
+	/** injector for usage by the container. Not for general use */
+	public final void setGroups(String groups) {
+		getBeanHelper().throwIfAlreadySet(this.groups, groups);
+		this.groups = groups;
 	}
 
+	/** injector for usage by the container. Not for general use */
+	public final void setAttributes(String attributes) {
+		getBeanHelper().throwIfAlreadySet(this.attributes, attributes);
+		this.attributes = attributes;
+	}
+
+	/** injector for usage by the container. Not for general use */
+	public final void setValues(String values) {
+		getBeanHelper().throwIfAlreadySet(this.values, values);
+		this.values = values;
+	}
+
+	/** injector for usage by the container. Not for general use */
+	public final void setConfig(String config) {
+		getBeanHelper().throwIfAlreadySet(this.config, config);
+		this.config = config;
+	}
+	
+	/** injector for usage by the container. Not for general use */
+	public void setAdminService(IAdmin adminService) {
+		getBeanHelper().throwIfAlreadySet(this.adminService, adminService);
+		this.adminService = adminService;
+	}
 
 	// ~ System-only interface methods
 	// =========================================================================
@@ -167,7 +209,6 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 	public List<String> searchDnInGroups(String attr, String value) {
 		if (attr != null && !attr.equals("") && value != null
 				&& !value.equals("")) {
-			System.out.println("searchInGroups "+attr+", "+value);
 			AndFilter filter = new AndFilter();
 			filter.and(new EqualsFilter("objectClass", "groupOfNames"));
 			filter.and(new EqualsFilter(attr, value));
@@ -195,17 +236,57 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 		return null;
 	}
 
-	// ~ LOCAL PUBLIC METHODS
-	// =========================================================================
-
-	// ~ System-only interface methods
-	// =========================================================================
-
 	@RolesAllowed("system")
 	public void setDN(Long experimenterID, DistinguishedName dn) {
 		LdapUtil.setDNById(jdbc, experimenterID, dn.toString());
 		synchronizeLoginCache();
 	}
+
+	// Getters and Setters for requiroments
+	// =========================================================================
+
+	@RolesAllowed("system")
+	public boolean getSetting() {
+		if (this.config.equals("true"))
+			return true;
+		return false;
+	}
+
+	@RolesAllowed("system")
+	public List<String> getReqGroups() {
+		return Arrays.asList(this.groups.split(","));
+	}
+
+	@RolesAllowed("system")
+	public String[] getReqAttributes() {
+		return this.attributes.split(",");
+	}
+
+	@RolesAllowed("system")
+	public String[] getReqValues() {
+		return this.values.split(",");
+	}
+
+	@RolesAllowed("system")
+	public void setReqAttributes(String[] arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@RolesAllowed("system")
+	public void setReqGroups(List<String> arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@RolesAllowed("system")
+	public void setReqValues(String[] arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	// ~ LOCAL PUBLIC METHODS
+	// =========================================================================
 
 	@RolesAllowed("system")
 	public void synchronizeLoginCache() {
@@ -230,6 +311,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 		}
 	}
 
+	// ~ AttributesMappers
 	// =========================================================================
 
 	public class UidAttributMapper implements AttributesMapper {
@@ -323,9 +405,178 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 		return ILdap.class;
 	}
 
-	
-	public void abc(List<Experimenter> list) {
-		System.out.println("list "+list.size());
+	/**
+	 * Gets base from the OmeroContext -> Bean: contextSource
+	 * 
+	 * @return String
+	 */
+	public String getBase() {
+		String base = null;
+		LdapContextSource ctx = (LdapContextSource) OmeroContext
+				.getManagedServerContext().getBean("contextSource");
+		try {
+			base = ctx.getReadOnlyContext().getNameInNamespace();
+		} catch (NamingException e) {
+			throw new ApiUsageException(
+					"Cannot get BASE from ContextSource. Naming exception! "
+							+ e.toString());
+		}
+		return base;
+
+	}
+
+	// ~ LocalLdap - Authentication
+	// =========================================================================
+
+	/**
+	 * Creates the initial context with no connection request controls
+	 * 
+	 * @return {@link javax.naming.ldap.LdapContext}
+	 */
+	protected boolean isAuthContext(String username, String password) {
+		// Set up environment for creating initial context
+		LdapContextSource ctx = (LdapContextSource) OmeroContext
+				.getManagedServerContext().getBean("contextSource");
+		Hashtable<String, String> env = new Hashtable<String, String>(5, 0.75f);
+		try {
+			env = (Hashtable<String, String>) ctx.getReadOnlyContext()
+					.getEnvironment();
+
+			if (username != "" && username != null) {
+				env.put(Context.SECURITY_PRINCIPAL, username);
+				if (password != null)
+					env.put(Context.SECURITY_CREDENTIALS, password);
+			}
+			new InitialLdapContext(env, null);
+			return true;
+		} catch (AuthenticationException authEx) {
+			throw new ApiUsageException("Authentication falilure! "
+					+ authEx.toString());
+		} catch (NamingException e) {
+			throw new ApiUsageException("Naming exception! " + e.toString());
+		}
+	}
+
+	/**
+	 * Valids password for base. Base is user's DN. When context was created
+	 * successful specyfied requrements are valid.
+	 * 
+	 * @return boolean
+	 */
+	public boolean validatePassword(String base, String password) {
+		if (isAuthContext(base, password)) {
+			// Check requiroments
+			return validateRequiroments(base);
+		}
+		return false;
+	}
+
+	/**
+	 * Gets user from LDAP for checking him by requirements and setting his
+	 * details on DB
+	 * 
+	 * @return {@link ome.system.ServiceFactory}
+	 */
+	public boolean createUserFromLdap(String username, String password) {
+		// Find user by DN
+		DistinguishedName dn = new DistinguishedName();
+		try {
+			dn = findDN(username);
+			if (dn == null)
+				return false;
+		} catch (Exception e) {
+			return false;
+		}
+
+		String sufix = getBase();
+
+		// DistinguishedName converted toString includes spaces
+		if (!validateRequiroments(dn.toString().replace(" ", "") + "," + sufix))
+			return false;
+
+		// Valid user's password
+		boolean access = validatePassword(dn.toString() + "," + sufix, password);
+		if (access) {
+			// If validation is successful search his details by DN
+			Experimenter exp = searchByDN(dn);
+			
+			// Create new user in DB
+			// Inject IAdmin
+
+			long id = adminService.createExperimenter(exp, adminService.lookupGroup("default"), adminService
+					.lookupGroup("user"));
+
+			// Set user's DN in PASSWORD table (add sufix on the beginning)
+			try {
+				dn.addAll(0, new DistinguishedName(sufix));
+			} catch (InvalidNameException e) {
+				throw new ApiUsageException("Cannot set DN for experimenter "
+						+ exp.getOmeName() + ". InvalidNameException! "
+						+ e.toString());
+			}
+			setDN(id, dn);
+		}
+		return access;
+
+	}
+
+	/**
+	 * Valids specyfied requirements for base (groups, attributes)
+	 * 
+	 * @return boolean
+	 */
+	public boolean validateRequiroments(String base) {
+		boolean result = false;
+
+		// list of groups
+		List<String> groups = getReqGroups();
+		// List of attributes
+		String[] attrs = getReqAttributes();
+		// List of attributes
+		String[] vals = getReqValues();
+
+		// if groups
+		if (groups.size() > 0) {
+			List usergroups = searchDnInGroups("member", base);
+			result = isInGroups(groups, usergroups);
+		}
+		// if attributes
+		if (result) {
+			// cut DN
+			DistinguishedName dn = new DistinguishedName(base);
+			DistinguishedName baseDn = new DistinguishedName(getBase());
+			for (int i = 0; i < baseDn.size(); i++) {
+				dn.removeFirst();
+			}
+
+			if (attrs.length > 0) {
+				List<Experimenter> l = searchByAttributes(dn, attrs, vals);
+				if (l.size() <= 0)
+					result = false;
+				else
+					result = true;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Checks that user's group list contains require groups. If one of user's
+	 * groups is on require groups' list will return true.
+	 * 
+	 * @return boolean
+	 */
+	public boolean isInGroups(List groups, List usergroups) {
+		// user is not in groups
+		if (usergroups.size() <= 0)
+			return false;
+		boolean flag = false;
+		// checks containing
+		for (int i = 0; i < usergroups.size(); i++) {
+			if (groups.contains(usergroups.get(i)))
+				flag = true;
+		}
+		return flag;
 	}
 
 }

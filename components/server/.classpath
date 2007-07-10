@@ -20,6 +20,7 @@
 	<classpathentry kind="lib" path="target/libs/commons-collections.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-dbcp.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-io.jar"/>
+	<classpathentry kind="lib" path="target/libs/commons-lang.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-logging.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-pool.jar"/>
 	<classpathentry kind="lib" path="target/libs/dbunit.jar"/>

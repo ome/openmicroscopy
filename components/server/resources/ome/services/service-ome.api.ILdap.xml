@@ -27,8 +27,13 @@
 			Privileged bean which has several "private" references
 			injected. This is not an example of what should be done.
 		</description>
+		<property name="adminService" ref="internal:ome.api.IAdmin"/>
 		<property name="ldapTemplate" ref="ldapTemplate" />
 		<property name="jdbcTemplate" ref="simpleJdbcTemplate" />
+		<property name="config" value="${omero.ldap.config}" />
+		<property name="groups" value="${omero.ldap.groups}" />
+		<property name="attributes" value="${omero.ldap.attributes}" />
+		<property name="values" value="${omero.ldap.values}" />
 	</bean>
 
 	<bean name="managed:ome.api.ILdap" parent="managedService">

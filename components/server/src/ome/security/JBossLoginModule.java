@@ -23,7 +23,12 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.sql.DataSource;
 
-//Third-party libraries
+import ome.api.local.LocalLdap;
+import ome.system.OmeroContext;
+import ome.system.Principal;
+import ome.system.Roles;
+import ome.system.ServiceFactory;
+
 import org.jboss.security.auth.spi.DatabaseServerLoginModule;
 
 // Application-internal dependencies
@@ -47,6 +52,8 @@ public class JBossLoginModule extends DatabaseServerLoginModule {
 
 	protected String dnQuery = "select Dn from Principals where PrincipalID=?";
 
+	protected LocalLdap il = null;
+	
 	/** overrides password creation for testing purposes */
 	@Override
 	protected String createPasswordHash(String arg0, String arg1, String arg2)
@@ -64,27 +71,23 @@ public class JBossLoginModule extends DatabaseServerLoginModule {
 	protected boolean validatePassword(String inputPassword,
 			String expectedPassword) {
 
-		//validate password by LDAP if DN exists.
-		try {
-			String base = getUsersDn();
-			if (base != null) {
-				if (LdapUtil.validatePassword(base, super
-						.getUsernameAndPassword()[1]))
-					return true;
-				else
-					return false;
+		//validate password by LDAP if jboss-login.xml require ldapAuth=true.
+		if (il!=null) {
+			try {
+				String base = getUsersDn();
+				if (base != null) {
+					if (il.validatePassword(base, super
+							.getUsernameAndPassword()[1]))
+						return true;
+					else
+						return false;
+				}
+			} catch (LoginException e) {
+				log.error("Authentication failure! Login exception.");
+				return false;
 			}
-		} catch (LoginException e) {
-			log.error("Authentication failure! Login exception.");
-			return false;
-		} catch (AuthenticationException ae) {
-			log.error("Login or Password Incorrect/Password Required.");
-			return false;
-		} catch (NamingException e) {
-			log.error("Naming exception. Check existing configuration files.");
-			return false;
 		}
-
+	
 		if (null != expectedPassword && expectedPassword.trim().length() <= 0) {
 			return true;
 		}
@@ -105,6 +108,7 @@ public class JBossLoginModule extends DatabaseServerLoginModule {
 	 */
 	@Override
 	protected String getUsersPassword() throws LoginException {
+		
 		String username = getUsername();
 		String password = null;
 		String dn = null;
@@ -121,27 +125,34 @@ public class JBossLoginModule extends DatabaseServerLoginModule {
 			ps.setString(1, username);
 			rs = ps.executeQuery();
 			if (rs.next() == false) {
-				// If user is not in DB import his details from LDAP (without
-				// password) and set his DN
-				boolean login = LdapUtil.getUserFromLdap(username,
-						getUsernameAndPassword()[1]);
-				if (login) {
-					password = createPasswordHash(username,
-							getUsernameAndPassword()[1], "digestCallback");
+				if (il!=null) {
+					// If user is not in DB import his details from LDAP (without
+					// password) and set his DN
+					boolean login = il.createUserFromLdap(username,
+							getUsernameAndPassword()[1]);
+					if (login) {
+						password = createPasswordHash(username,
+								getUsernameAndPassword()[1], "digestCallback");
+					} else
+						throw new FailedLoginException(
+								"LDAP Error: No matching username found in Principals.");
 				} else
 					throw new FailedLoginException(
-							"LDAP Error: No matching username found in Principals");
+							"No matching username found in Principals.");
 			} else {
 				dn = rs.getString(2);
 				if (dn != null) {
-					if (LdapUtil.validatePassword(dn,
-							getUsernameAndPassword()[1]))
-						password = createPasswordHash(username,
-								getUsernameAndPassword()[1], "digestCallback");
-					else
+					if (il!=null) {
+						if (il.validatePassword(dn,
+								getUsernameAndPassword()[1]))
+							password = createPasswordHash(username,
+									getUsernameAndPassword()[1], "digestCallback");
+						else
+							throw new FailedLoginException(
+									"LDAP Error: No matching username found in Principals.");
+					} else
 						throw new FailedLoginException(
-								"LDAP Error: No matching username found in Principals");
-
+								"LDAP authentication set to false.");
 				} else {
 					password = rs.getString(1);
 					password = convertRawPassword(password);
@@ -187,9 +198,16 @@ public class JBossLoginModule extends DatabaseServerLoginModule {
 		dsJndiName = (String) options.get("dsJndiName");
 		if (dsJndiName == null)
 			dsJndiName = "java:/DefaultDS";
+		
 		Object tmp = options.get("dnQuery");
 		if (tmp != null)
 			dnQuery = tmp.toString();
+		
+		ServiceFactory factory = createServiceFactory();
+		il = (LocalLdap) factory.getLdapService();
+		if(!il.getSetting())
+			il = null;
+		
 		log.trace("dnQuery=" + rolesQuery);
 	}
 
@@ -217,7 +235,6 @@ public class JBossLoginModule extends DatabaseServerLoginModule {
 			if (rs.next() == false)
 				throw new FailedLoginException(
 						"No matching username found in Principals");
-
 			dn = rs.getString(1);
 		} catch (NamingException ex) {
 			throw new LoginException(ex.toString(true));
@@ -247,4 +264,26 @@ public class JBossLoginModule extends DatabaseServerLoginModule {
 		return dn;
 	}
 
+	// ~ Non user creation of ServiceFactory - root access
+	// =========================================================================
+
+	/**
+	 * Creates ServiceFactory for using
+	 * 
+	 * @return {@link ome.system.ServiceFactory}
+	 */
+	protected ServiceFactory createServiceFactory() {
+		// Create context for root
+		OmeroContext applicationContext = (OmeroContext) OmeroContext
+				.getManagedServerContext();
+		ServiceFactory factory = new ServiceFactory(
+				(OmeroContext) applicationContext);
+		SecuritySystem securitySystem = (SecuritySystem) applicationContext
+				.getBean("securitySystem");
+		Roles roles = securitySystem.getSecurityRoles();
+		securitySystem.login(new Principal(roles.getRootName(), roles
+				.getSystemGroupName(), "Test"));
+		return factory;
+	}
+	
 }

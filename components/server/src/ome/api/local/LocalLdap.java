@@ -6,6 +6,8 @@
 
 package ome.api.local;
 
+import java.util.List;
+
 // Java imports
 
 // Third-party libraries
@@ -24,6 +26,42 @@ package ome.api.local;
  */
 public interface LocalLdap extends ome.api.ILdap {
 
+	/**
+	 * Gets base from the LdapContextSource
+	 * 
+	 * @return String
+	 */
+	String getBase();
 	
+	/**
+	 * Gets user from LDAP for checking him by requirements and setting his
+	 * details on DB
+	 * 
+	 * @return {@link ome.system.ServiceFactory}
+	 */
+	boolean createUserFromLdap(String username, String password);
+	
+	/**
+	 * Valids specyfied requirements for base (groups, attributes)
+	 * 
+	 * @return boolean
+	 */
+	boolean validateRequiroments(String base);
+	
+	/**
+	 * Valids password for base. Base is user's DN. When context was created
+	 * successful specyfied requrements are valid.
+	 * 
+	 * @return boolean
+	 */
+	boolean validatePassword(String base, String password);
+	
+	/**
+	 * Checks that user's group list contains require groups. If one of user's
+	 * groups is on require groups' list will return true.
+	 * 
+	 * @return boolean
+	 */
+	boolean isInGroups(List groups, List usergroups);
 	
 }

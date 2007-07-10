@@ -41,7 +41,6 @@ public interface ILdap extends ServiceInterface {
 	// ~ Getting users from Ldap
 	// =========================================================================
 
-	void abc(@NotNull List<Experimenter> list);
 	/**
 	 * Searchs all {@link ome.model.meta.Experimenter} list on LDAP for
 	 * attribute objectClass = person.
@@ -161,4 +160,55 @@ public interface ILdap extends ServiceInterface {
 	 */
 	Attributes searchAttributes();
 
+	//  ~ Getters and Setters Ldap rewuiroments from properties file
+	// =========================================================================
+
+	/**
+	 * Gets specyfied requirements from properties.
+	 * 
+	 * @return List<String>
+	 */
+	List<String> getReqGroups();
+	
+	/**
+	 * Gets specyfied attributes from properties.
+	 * 
+	 * @return String []
+	 */
+	String[] getReqAttributes();
+	
+	/**
+	 * Gets specified values for attributes from properties.
+	 * 
+	 * @return String []
+	 */
+	String[] getReqValues();
+	
+	/**
+	 * Sets specyfied requirements from properties.
+	 * 
+	 * @return List<String>
+	 */
+	void setReqGroups(List<String> groups);
+	
+	/**
+	 * Sets specyfied attributes from properties.
+	 * 
+	 * @return String []
+	 */
+	void setReqAttributes(String [] attrs);
+	
+	/**
+	 * Sets specified values for attributes from properties.
+	 * 
+	 * @return String []
+	 */
+	void setReqValues(String [] vals);
+	
+	/**
+	 * Gets config value from properties.
+	 * 
+	 * @return boolean
+	 */
+	boolean getSetting();
 }
