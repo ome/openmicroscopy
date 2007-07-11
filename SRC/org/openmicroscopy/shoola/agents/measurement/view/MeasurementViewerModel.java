@@ -389,10 +389,15 @@ class MeasurementViewerModel
 	void setROI(InputStream input)
 		throws Exception
 	{
-		if (input != null) roiComponent.loadROI(input);
+		if (input != null) 
+			{
+			List<ROI> roiList = roiComponent.loadROI(input);
+			component.attachListeners(roiList);
+			}
 		state = MeasurementViewer.READY;
 	}
 
+	
 	/**
 	 * Returns the ROI.
 	 * 
@@ -714,6 +719,15 @@ class MeasurementViewerModel
 	public Map getActiveChannels()
 	{
 		return activeChannels;
+	}
+
+	/**
+	 * Get the figures selected in the current view.
+	 * @return the selected figures.
+	 */
+	public Collection<Figure> getSelectedFigures()
+	{
+		return drawingView.getSelectedFigures();
 	}
 	
 }	

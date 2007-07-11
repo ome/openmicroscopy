@@ -58,7 +58,6 @@ public class AnalysisStatsWrapper
 		MEAN,
 		STDDEV,
 		PIXELDATA,
-		PIXELXYDATA
 	};
 
 	
@@ -78,12 +77,9 @@ public class AnalysisStatsWrapper
 														Double>(numChannels);
 		Map<Integer, double[]>	channelData = new HashMap<Integer, 
 		double[]>(numChannels);
-		Map<Integer, double[][]>	channelXYData = new HashMap<Integer, 
-							double[][]>(numChannels);
 		Iterator<Double> 	pixelIterator;
 		Map<PlanePoint2D,Double> pixels;
 		double[] pixelData;
-		double[][] pixelXYData;
 		int cnt;
 		int channel;
 		Iterator channelIterator = shapeStats.keySet().iterator();
@@ -99,20 +95,15 @@ public class AnalysisStatsWrapper
 			
 			pixelIterator = pixels.values().iterator();
 			pixelData = new double[pixels.size()];
-			pixelXYData = new double[2][pixels.size()];
 			cnt = 0;
-			System.err.println("Clear");
 			while (pixelIterator.hasNext())
 			{
 				double dataPt = pixelIterator.next();
 				pixelData[cnt] = dataPt;
-				pixelXYData[0][cnt] = cnt;
-				pixelXYData[1][cnt] = dataPt;
-				System.err.println(dataPt);
 				cnt++;
 			}
+			
 			channelData.put(channel, pixelData);
-			channelXYData.put(channel, pixelXYData);
 		}
 		Map<StatsType, Map> 
 			statsMap = new HashMap<StatsType, Map>(StatsType.values().length);
@@ -121,7 +112,6 @@ public class AnalysisStatsWrapper
 		statsMap.put(StatsType.MEAN, channelMean);
 		statsMap.put(StatsType.STDDEV, channelStdDev);
 		statsMap.put(StatsType.PIXELDATA, channelData);
-		statsMap.put(StatsType.PIXELXYDATA, channelXYData);
 		return statsMap;
 	}
 	

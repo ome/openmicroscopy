@@ -387,6 +387,7 @@ public class MeasureLineFigure
 			Line2D line = new Line2D.Double(pt1, pt2);
 			iterateLine(line, vector);
 		}
+		
 		return (PlanePoint2D[])vector.toArray(new PlanePoint2D[vector.size()]);
 	}
 	

@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.TreeMap;
 
 //Third-party libraries
@@ -278,6 +279,7 @@ public class ROIComponent
 	 * 
 	 * @param input The stream with the previously saved ROIs or 
 	 * 				<code>null</code> if no ROIs previously saved.
+	 * @return list of newly loaded ROI.
 	 * @throws ParsingException				Thrown when an error occured
 	 * 										while parsing the stream.
 	 * @throws NoSuchROIException		 	Tried to access a ROI which does not
@@ -289,14 +291,14 @@ public class ROIComponent
 	 * @throws ROICreationException		 	Thrown while trying to create an 
 	 * 										ROI.
 	 */
-	public void loadROI(InputStream input) 
+	public List<ROI> loadROI(InputStream input) 
 		throws NoSuchROIException, ParsingException, ROICreationException
 				
 	{
 		if (input == null)
 			throw new NullPointerException("No input stream specified.");
 		if (ioStrategy == null) ioStrategy = new XMLFileIOStrategy();
-		ioStrategy.read(input, this);
+		return ioStrategy.read(input, this);
 	}
 
 	/**

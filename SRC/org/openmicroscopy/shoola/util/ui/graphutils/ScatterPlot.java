@@ -113,8 +113,9 @@ public class ScatterPlot
 	 * @param newColours The colours for each series. 
 	 * @param newShapes  The shapes for each series.. 
 	 */
-	public ScatterPlot(String title, List<String> newLegends, List<double[][]> newData,
-		List<Color> newColours, List<Shape> newShapes)
+	public ScatterPlot(String title, List<String> newLegends, 
+			List<double[][]> newData, List<Color> newColours, 
+			List<Shape> newShapes)
 	{
 		if(newLegends.size()!=newData.size() && 
 				newLegends.size()!=newColours.size() && 
@@ -123,7 +124,8 @@ public class ScatterPlot
 					"length");
 		init();
 		for(int i = 0 ; i < newLegends.size(); i++)
-			addSeries(newLegends.get(i), newData.get(i), newColours.get(i), newShapes.get(i));
+			addSeries(newLegends.get(i), newData.get(i), newColours.get(i), 
+															newShapes.get(i));
 		setDefaultAxis();
 	}
 	
@@ -134,8 +136,8 @@ public class ScatterPlot
 	 * @param newData The data for each series. 
 	 * @param newColours The colours for each series. 
 	 */
-	public ScatterPlot(String title, List<String> newLegends, List<double[][]> newData,
-		List<Color> newColours)
+	public ScatterPlot(String title, List<String> newLegends, 
+							List<double[][]> newData, List<Color> newColours)
 	{
 		if(newLegends.size()!=newData.size() && 
 				newLegends.size()!=newColours.size())
@@ -150,15 +152,15 @@ public class ScatterPlot
 	/** Set the default names for the x and y axis in the plot. */
 	public void setDefaultAxis()
 	{
-		setXAxis("X");
-		setYAxis("Y");
+		setXAxisName("X");
+		setYAxisName("Y");
 	}
 	
 	/** 
 	 * Set the name of the x axis to axisName. 
 	 * @param axisName see above. 
 	 */
-	public void setXAxis(String axisName)
+	public void setXAxisName(String axisName)
 	{
 		if(axisName==null)
 			throw new IllegalArgumentException("Null parameter for Axis name."); 
@@ -166,16 +168,36 @@ public class ScatterPlot
 	}
 
 	/** 
+	 * Set the range of the x axis to axisName. 
+	 * @param axisMinRange see above. 
+	 * @param axisMaxRange see above. 
+	 */
+	public void setXAxisRange(double axisMinRange, double axisMaxRange)
+	{
+		domainAxis.setRange(axisMinRange, axisMaxRange);
+	}
+
+	/** 
 	 * Set the name of the y axis to axisName. 
 	 * @param axisName see above. 
 	 */
-	public void setYAxis(String axisName)
+	public void setYAxisName(String axisName)
 	{
 		if(axisName==null)
 			throw new IllegalArgumentException("Null parameter for Axis name."); 
 		rangeAxis = new NumberAxis(axisName);
 	}
 	
+	/** 
+	 * Set the range of the y axis to axisName. 
+	 * @param axisMinRange see above. 
+	 * @param axisMaxRange see above. 
+	 */
+	public void setYAxisRange(double axisMinRange, double axisMaxRange)
+	{
+		rangeAxis.setRange(axisMinRange, axisMaxRange);
+	}
+
 	/**
 	 * Add a new Series to the plot. 
 	 * @param legend The name of the new sereis. 

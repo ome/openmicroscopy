@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JFrame;
@@ -35,6 +36,7 @@ import org.jhotdraw.draw.AttributeKey;
 //Application-internal dependencies
 import ome.model.core.Pixels;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
@@ -227,5 +229,17 @@ public interface MeasurementViewer
 	 * @param list The value to set.
 	 */
 	public void setChannelMetadata(List list);
+
+
+	/** 
+	 * Gets the selected figures in the view.
+	 * @return the selected figures in the dataview.
+	 */
+	public Collection getSelectedFigures();
+	
+	/** Attach listeners to the newly loaded ROI.
+	 * @param roiList list of the newly loaded ROI.
+	 */
+	public void attachListeners(List<ROI> roiList);
 	
 }

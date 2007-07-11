@@ -41,6 +41,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
@@ -123,6 +125,9 @@ class MeasurementViewerUI
 	
 	/** The graphing component. */
 	private GraphPane					graphPane;
+	
+	/** The graphing component. */
+	private IntensityView				intensityView;
 	
     /** Tabbed pane hosting the various panel. */
     private JTabbedPane					tabs;
@@ -209,8 +214,28 @@ class MeasurementViewerUI
 		roiManager = new ObjectManager(this, model);
 		roiResults = new MeasurementResults(controller, model, this);
 		graphPane = new GraphPane(controller, model);
+		intensityView = new IntensityView(controller, model);
 		tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
+		addTabbedPaneListener();
         tabs.setAlignmentX(LEFT_ALIGNMENT);
+	}
+	
+	private void addTabbedPaneListener()
+	{
+		tabs.addChangeListener(new ChangeListener()
+		{
+			// This method is called whenever the selected tab changes
+			public void stateChanged(ChangeEvent evt)
+			{
+				JTabbedPane pane=(JTabbedPane) evt.getSource();
+				// Get current tab
+				int sel=pane.getSelectedIndex();
+				if(inDataView())
+				{
+					controller.analyseSelectedFigures();
+				}
+			}
+		});
 	}
 	
 	/** Builds and lays out the GUI. */
@@ -225,6 +250,8 @@ class MeasurementViewerUI
 			roiResults.getComponentIcon(), roiResults);
 		tabs.addTab(graphPane.getComponentName(), 
 			graphPane.getComponentIcon(), graphPane);
+		tabs.addTab(intensityView.getComponentName(), 
+			intensityView.getComponentIcon(), intensityView);
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout(0, 0));
 		container.add(toolBar, BorderLayout.NORTH);
@@ -232,10 +259,37 @@ class MeasurementViewerUI
 		container.add(statusBar, BorderLayout.SOUTH);
 	}
 	
-	public boolean inGraphPane()
+	/**
+	 * Return true if in the graph or intensity view.
+	 * @return see above.
+	 */
+	public boolean inDataView()
+	{
+		if(inIntensityView() || inGraphView())
+			return true;
+		return false;
+	}
+	
+	/**
+	 * Return true if in the graph view. 
+	 * @return see above.
+	 */
+	public boolean inGraphView()
 	{
 		if(tabs.getTitleAt(tabs.getSelectedIndex()).
 				equals(graphPane.getComponentName()))
+			return true;
+		return false;
+	}
+	
+	/**
+	 * Return true if in the intensity view. 
+	 * @return see above.
+	 */
+	public boolean inIntensityView()
+	{
+		if(tabs.getTitleAt(tabs.getSelectedIndex()).
+				equals(intensityView.getComponentName()))
 			return true;
 		return false;
 	}
@@ -562,7 +616,10 @@ class MeasurementViewerUI
 	/** Builds the graphs and displays them in the results pane. */
 	void displayAnalysisResults()
 	{
-		graphPane.displayAnalysisResults();
+		if(inGraphView())
+			graphPane.displayAnalysisResults();
+		if(inIntensityView())
+			intensityView.displayAnalysisResults();
 	}
 	
     /** 

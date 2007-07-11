@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 
@@ -75,9 +76,9 @@ public class XMLFileIOStrategy
 	 * @throws NoSuchROIException
 	 * @throws ParsingException
 	 * @throws ROICreationException
-	 * @throws ROIShapeCreationException
+	 * @returns list of the newly loaded ROI.
 	 */
-	public void read(InputStream input, ROIComponent component)
+	public List<ROI> read(InputStream input, ROIComponent component)
 		throws NoSuchROIException, ParsingException, ROICreationException, 
 				ROICreationException	   
 	{
@@ -93,6 +94,7 @@ public class XMLFileIOStrategy
 		{
 			throw new ParsingException("Unable to close input file.");
 		}
+		return roiList;
 	}
 	
 	/**

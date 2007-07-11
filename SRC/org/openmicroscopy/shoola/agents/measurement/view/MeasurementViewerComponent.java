@@ -86,16 +86,6 @@ class MeasurementViewerComponent
 	extends AbstractComponent
 	implements MeasurementViewer
 {
-	private final static ArrayList<Color>			colourList;
-	static
-	{
-		colourList = new ArrayList<Color>();
-		colourList.add(Color.blue);
-		colourList.add(Color.green);
-		colourList.add(Color.red);
-		colourList.add(Color.red);
-		
-	};
 	/** The Model sub-component. */
     private MeasurementViewerModel 		model;
 	
@@ -449,19 +439,11 @@ class MeasurementViewerComponent
 			return;
 		}
 		ROI currentROI = roiList.iterator().next();
-		
-		//tmp
-		try {
-			analyseShape(currentROI.getShape(model.getCurrentView()));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		/*
+			
     	ROIAssistant assistant = new ROIAssistant(model.getNumTimePoints(), 
     		model.getNumZSections(), model.getCurrentView(), currentROI, view);
     	UIUtilities.setLocationRelativeToAndShow(view, assistant);
-    	*/
+    	
 	}
 	
 	/** 
@@ -511,56 +493,11 @@ class MeasurementViewerComponent
 			//TODO: Notify user
 			return;
 		}
-		//TODO: update view.
-		/*
-		Iterator i = result.keySet().iterator();
-		ROIShape shape;
-		Map stats;
-		ROIShapeStats shapeStats;
-		Iterator j;
-		Integer channel;
-		ArrayList<String> channelName = new ArrayList<String>();
-		ArrayList<Color>  channelColours = new ArrayList<Color>();
-		ArrayList<double[]> channelData = new ArrayList<double[]>();
-		ArrayList<Double>   channelMin = new ArrayList<Double>();
-		ArrayList<Double>   channelMax = new ArrayList<Double>();
-		ArrayList<Double>   channelMean = new ArrayList<Double>();
-		ArrayList<Double>   channelStdDev = new ArrayList<Double>();
-		while (i.hasNext()) {
-			shape = (ROIShape) i.next();
-			stats = (Map) result.get(shape);
-			j = stats.keySet().iterator();
-			while (j.hasNext()) {
-				channel = (Integer) j.next();
-				shapeStats = (ROIShapeStats) stats.get(channel);
-				System.err.println(channel+" "+shapeStats.getMin()+" "+shapeStats.getMax());
-				channelMin.add(channel, shapeStats.getMin());
-				channelMax.add(channel, shapeStats.getMax());
-				channelMean.add(channel, shapeStats.getMean());
-				channelStdDev.add(channel, shapeStats.getStandardDeviation());
-				channelName.add(model.getMetadata(channel).getEmissionWavelength()+"");
-				channelColours.add(colourList.get(channel));
-				Map<PlanePoint2D,Double> pixels = shapeStats.getPixelsValue();
-				
-				Iterator<Double> pixelIterator = pixels.values().iterator();
-				double[] pixelData = new double[pixels.size()];
-				int cnt = 0;
-				while (pixelIterator.hasNext())
-					pixelData[cnt++] = pixelIterator.next();
-				channelData.add(pixelData);
-			}
-			
-		}
-		*/
+		
 		model.setAnalysisResults(result);
 		view.displayAnalysisResults();
-		/*
-		view.drawHistogram("Histogram", channelName, channelData, 
-			channelColours, 101);
-		view.setStats(channelName, channelMin, channelMax, channelMean,
-			channelStdDev);
-			*/
 		fireStateChange();
+			
 	}
 	
 	/** 
@@ -572,6 +509,8 @@ class MeasurementViewerComponent
 		//		TODO: check state.
 		if (shape == null)
 			throw new IllegalArgumentException("No shape specified.");
+		if (model.getState() == ANALYSE_SHAPE)
+			return;
 		model.fireAnalyzeShape(shape);
 		fireStateChange();
 	}
@@ -588,4 +527,32 @@ class MeasurementViewerComponent
 		fireStateChange();
 	}
 
+	/** 
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#getSelectedFigures(List)
+	 */
+	public Collection getSelectedFigures()
+	{
+		return model.getSelectedFigures();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#attachListeners(List)
+	 */
+	public void attachListeners(List<ROI> roiList)
+	{
+		for(int i = 0; i < roiList.size(); i++)
+		{
+			ROI roi = roiList.get(i);
+			Iterator<ROIShape> shapeIterator = roi.getShapes().values().iterator();
+			while(shapeIterator.hasNext())
+			{
+				ROIShape shape = shapeIterator.next();
+				shape.getFigure().addFigureListener(controller);
+			}
+		}
+	}
+	
+	
 }

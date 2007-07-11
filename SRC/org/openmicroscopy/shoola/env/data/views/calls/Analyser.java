@@ -76,8 +76,8 @@ public class Analyser
      */
     private BatchCall analyseShapes(final ROIShape[] shapes)
     {
-        return new BatchCall("Analysing shapes") {
-            public void doCall() throws Exception
+    	return new BatchCall("Analysing shapes") {
+    		            public void doCall() throws Exception
             {
             	DataSink sink = PixelsServicesFactory.createDataSink(pixels);
             	//ROI analyser

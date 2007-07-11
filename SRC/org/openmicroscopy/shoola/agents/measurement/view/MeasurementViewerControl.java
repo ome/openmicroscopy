@@ -73,8 +73,7 @@ import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
  */
 class MeasurementViewerControl 
 	implements ChangeListener, DrawingListener, FigureListener, 
-	FigureSelectionListener,
-	PropertyChangeListener
+	FigureSelectionListener, PropertyChangeListener
 {
 
 	/** Identifies the <code>SAVE</code> action in the menu. */
@@ -227,18 +226,18 @@ class MeasurementViewerControl
 		int state = model.getState();
 		switch (state) {
 			case MeasurementViewer.ANALYSE_SHAPE:
-				//TODO: modify notification mechanism
-				LoadingWindow win = view.getLoadingWindow();
-				win.setStatus("Analysing");
-				if (!win.isVisible()) UIUtilities.centerAndShow(win);
+				view.setStatus("Analysing Shape.");
 				break;
 			case MeasurementViewer.LOADING_DATA:
 				LoadingWindow w = view.getLoadingWindow();
 				if (!w.isVisible()) UIUtilities.centerAndShow(w);
+				view.setStatus("Loading.");
 				break;
 			case MeasurementViewer.READY:
 				view.getLoadingWindow().setVisible(false);
-				view.setOnScreen();
+				view.setStatus("Ready.");
+				if(!view.isVisible())
+					view.setOnScreen();
 				break;
 			case MeasurementViewer.DISCARDED:
                 LoadingWindow window = view.getLoadingWindow();
@@ -262,6 +261,13 @@ class MeasurementViewerControl
 		ROIFigure roiFigure = (ROIFigure) f;
 		roiFigure.addFigureListener(this);
 		view.addROI(roiFigure);
+		if(view.inDataView())
+		{
+			if(roiFigure.getROIShape() != null)
+			{
+				model.analyseShape(roiFigure.getROIShape());
+			}
+		}
 	}
 	
 	/**
@@ -283,6 +289,14 @@ class MeasurementViewerControl
 	{
 		Collection figures = evt.getView().getSelectedFigures();
 		if (figures == null) return;
+		if(view.inDataView() && figures.size() == 1)
+		{
+			ROIFigure figure = (ROIFigure)figures.iterator().next();
+			if(figure.getROIShape() != null)
+			{
+				model.analyseShape(figure.getROIShape());
+			}
+		}
 		view.setSelectedFigures(figures);
 	}
 
@@ -298,8 +312,9 @@ class MeasurementViewerControl
 	}
 
 	/**
-	 * Required by the {@link DrawingListener} I/F but no-op implementation
-	 * in our case.
+	 * Required by the {@link DrawingListener}, used to update the measurements
+	 * of a component and the different dataviews. 
+	 * 
 	 * @see FigureListener#figureChanged(FigureEvent)
 	 */
 	public void figureChanged(FigureEvent e)
@@ -308,18 +323,15 @@ class MeasurementViewerControl
 		if (f instanceof ROIFigure) 
 		{
 			ROIFigure roiFigure = (ROIFigure)f;
-			
 			roiFigure.calculateMeasurements();
-			if(view.inGraphPane())
+			if(view.inDataView())
 			{
 				if(roiFigure.getROIShape() != null)
 				{
 					model.analyseShape(roiFigure.getROIShape());
-					view.displayAnalysisResults();
 				}
 			}
 		}
-		
 	}
 
 	/**
@@ -357,4 +369,16 @@ class MeasurementViewerControl
 	 */
 	public void figureRequestRemove(FigureEvent e) {}
 
+	public void analyseSelectedFigures()
+	{
+		Collection<Figure> figures = model.getSelectedFigures();
+		if(figures.size() == 1)
+		{
+			ROIFigure figure = (ROIFigure)figures.iterator().next();
+			if(figure.getROIShape() != null)
+			{
+				model.analyseShape(figure.getROIShape());
+			}
+		}		
+	}
 }

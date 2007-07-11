@@ -130,14 +130,17 @@ public class IconManager
 	 /** The <code>Progress</code> icon. */
     public static int           PROGRESS = 24;
 
-    /** The <code>Progress</code> icon. */
+    /** The <code>GraphPane</code> icon. */
     public static int           GRAPHPANE = 25;
+    
+    /** The <code>Itensity View</code> icon. */
+    public static int          INTENSITYVIEW = 26;
     
 	/** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 25;
+    private static final int    MAX_ID = 26;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -173,6 +176,7 @@ public class IconManager
         relPaths[POINTICON] = "point22.png";
         relPaths[PROGRESS] = "eclipse_progress_none16.png";
         relPaths[GRAPHPANE] = "nuvola_kmplot16.png";
+        relPaths[INTENSITYVIEW] = "nuvola_kig16.png";
     }
     
     /** 

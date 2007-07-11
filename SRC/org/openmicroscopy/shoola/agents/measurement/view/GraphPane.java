@@ -35,7 +35,6 @@ import java.util.Map;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -78,8 +77,6 @@ class GraphPane
 	
 	/** Reference to the model. */
 	private MeasurementViewerModel		model;
-	
-
 
 	/** The map of <ROIShape, ROIStats> .*/
 	private Map							ROIStats;
@@ -88,9 +85,7 @@ class GraphPane
 	private void initComponents()
 	{
 		
-		
 	}
-	
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
@@ -165,8 +160,6 @@ class GraphPane
 			channelColour.clear();
 			Map<Integer, double[]> data = 
 				shapeStats.get(StatsType.PIXELDATA);
-			Map<Integer, double[][]> dataXY = 
-				shapeStats.get(StatsType.PIXELXYDATA);
 			Iterator<Integer> channelIterator = data.keySet().iterator();
 			while(channelIterator.hasNext())
 			{
@@ -174,7 +167,19 @@ class GraphPane
 				channelName.add(model.getMetadata(channel).getEmissionWavelength()+"");
 				channelColour.add((Color)model.getActiveChannels().get(channel));
 				channelData.add(data.get(channel));
-				channelXYData.add(dataXY.get(channel));
+				if(shape.getFigure() instanceof LineAnnotationFigure)
+				{
+					double dataY[] = data.get(channel);
+					double dataXY[][]=new double[2][dataY.length];
+					if(dataY.length == 0)
+						return;
+					for(int i = 0 ; i < dataY.length ; i++)
+					{
+						dataXY[0][i] = i;
+						dataXY[1][i] = dataY[i];
+					}
+					channelXYData.add(dataXY);
+				}
 			}
 			if(shape.getFigure() instanceof LineAnnotationFigure )
 			{
@@ -183,6 +188,8 @@ class GraphPane
 			histogramChart = drawHistogram("Histogram", channelName, channelData,
 					channelColour, 1001);
 		}
+		
+		
 		this.removeAll();
 		if(histogramChart == null && lineProfileChart==null)
 			return;
@@ -197,7 +204,6 @@ class GraphPane
 			this.add(lineProfileChart);
 			this.add(histogramChart);
 		}
-		
 	}
 	
 	
@@ -221,17 +227,7 @@ class GraphPane
 		panel.add(text);
 		return panel;
 	}
-	
-	/** A enumeration of the possible graphs available in the graphPane. */
-	public enum GraphType
-	{
-		LINEPLOT,
-		SCATTERPLOT,
-		PIECHART,
-		BARPLOT,
-		HISTOGRAM
-	};
-	
+		
 	/**
 	 * Draw the current data as a scatter plot in the graph.
 	 * @param title the graph title.

@@ -26,7 +26,7 @@ package org.openmicroscopy.shoola.env.rnd.roi;
 
 
 //Java imports
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 //Third-party libraries
@@ -165,7 +165,7 @@ public class ROIShapeStats
         sum += pixelValue;
         sumOfSquares += pixelValue*pixelValue;
         pixelsValue.put(loc, new Double(pixelValue));
-	}
+    }
     
 	/**
      * Creates a new map to store the pixel values. 
@@ -173,7 +173,7 @@ public class ROIShapeStats
      */
 	public void onStartPlane(int z, int w, int t, int pointsCount)
 	{
-		pixelsValue = new HashMap<PlanePoint2D, Double>(pointsCount);
+		pixelsValue = new LinkedHashMap<PlanePoint2D, Double>(pointsCount);
 	}
 	
 	/**

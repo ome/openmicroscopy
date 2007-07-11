@@ -183,8 +183,8 @@ class PointIterator
         double value;
         for (int i = 0; i < points.length; ++i) {
             value = data.getPixelValue((int) points[i].x1, (int) points[i].x2);
-            notifyValue(value, z, w, t, points[i]);
-        }    
+             notifyValue(value, z, w, t, points[i]);
+        }
     }
     
     /**
@@ -261,7 +261,7 @@ class PointIterator
     		selection2D = shape.getFigure();
     		points = selection2D.getPoints();
     		notifyPlaneStart(z, w, t, points.length);
-			iterateArea(points, z, w, t);
+    		iterateArea(points, z, w, t);
 			notifyPlaneEnd(z, w, t, points.length);
         } finally {  
             //Give the observers a chance to clean up even when 
