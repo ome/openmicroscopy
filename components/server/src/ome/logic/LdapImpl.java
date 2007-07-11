@@ -254,16 +254,19 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
 	@RolesAllowed("system")
 	public List<String> getReqGroups() {
+		if(this.groups.equals("")) return Collections.EMPTY_LIST;
 		return Arrays.asList(this.groups.split(","));
 	}
 
 	@RolesAllowed("system")
 	public String[] getReqAttributes() {
+		if(this.attributes.equals("")) return new String[] {};
 		return this.attributes.split(",");
 	}
 
 	@RolesAllowed("system")
 	public String[] getReqValues() {
+		if(this.values.equals("")) return new String[] {};
 		return this.values.split(",");
 	}
 
@@ -539,17 +542,19 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 		if (groups.size() > 0) {
 			List usergroups = searchDnInGroups("member", base);
 			result = isInGroups(groups, usergroups);
-		}
+		} else result = true;
+		
 		// if attributes
 		if (result) {
-			// cut DN
-			DistinguishedName dn = new DistinguishedName(base);
-			DistinguishedName baseDn = new DistinguishedName(getBase());
-			for (int i = 0; i < baseDn.size(); i++) {
-				dn.removeFirst();
-			}
-
+			
 			if (attrs.length > 0) {
+				// cut DN
+				DistinguishedName dn = new DistinguishedName(base);
+				DistinguishedName baseDn = new DistinguishedName(getBase());
+				for (int i = 0; i < baseDn.size(); i++) {
+					dn.removeFirst();
+				}
+
 				List<Experimenter> l = searchByAttributes(dn, attrs, vals);
 				if (l.size() <= 0)
 					result = false;
