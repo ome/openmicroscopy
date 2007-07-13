@@ -178,7 +178,7 @@ public class BarPlot
 		CategoryPlot plot = new CategoryPlot(dataset, categoryAxis, rangeAxis, 
 			                    renderer);
 		
-		freeChart = new JFreeChart(plot);
+		freeChart = new JFreeChart(title, plot);
 		charts = new ChartPanel(freeChart);
 		graphPanel = new JPanel();
 		graphPanel.setLayout(new BorderLayout());

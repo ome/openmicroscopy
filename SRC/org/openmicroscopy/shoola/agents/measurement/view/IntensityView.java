@@ -40,11 +40,14 @@ import java.util.TreeMap;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -59,8 +62,17 @@ import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStats;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
+import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.agents.measurement.util.ColourListRenderer;
 
 /** 
  * 
@@ -133,6 +145,24 @@ class IntensityView
 	/** stdDev. intensity label. */
 	private JLabel						stdDevLabel;
 	
+	/** XCoord label. */
+	private JLabel						XCoordLabel;
+	
+	/** YCoord label. */
+	private JLabel						YCoordLabel;
+	
+	/** Width label. */
+	private JLabel						widthLabel;
+	
+	/** Height label. */
+	private JLabel						heightLabel;
+
+	/** XCentre label. */
+	private JLabel						XCentreLabel;
+	
+	/** YCentre label. */
+	private JLabel						YCentreLabel;
+	
 	/** Min intensity textfield. */
 	private JTextField					minValue;
 	
@@ -144,6 +174,25 @@ class IntensityView
 	
 	/** stdDev. intensity textfield. */
 	private JTextField					stdDevValue;
+	
+	/** XCoord textfield. */
+	private JTextField					XCoordValue;
+	
+	/** YCoord textfield. */
+	private JTextField					YCoordValue;
+	
+	/** Width textfield. */
+	private JTextField					widthValue;
+	
+	/** Height textfield. */
+	private JTextField					heightValue;
+
+	/** CentreX textfield. */
+	private JTextField					XCentreValue;
+	
+	/** CentreY textfield. */
+	private JTextField					YCentreValue;
+
 	
 	/** Select to choose the channel to show values for . */
 	private JComboBox 					channelSelection;
@@ -190,10 +239,22 @@ class IntensityView
 		maxLabel = new JLabel("Max");
 		meanLabel = new JLabel("Mean");
 		stdDevLabel = new JLabel("Std Dev.");
+		XCoordLabel = new JLabel("X Coord");
+		YCoordLabel = new JLabel("Y Coord");
+		widthLabel = new JLabel("Width");
+		heightLabel = new JLabel("Height");
+		XCentreLabel = new JLabel("X Centre");
+		YCentreLabel = new JLabel("Y Centre");
 		minValue = new JTextField();
 		maxValue = new JTextField();
 		meanValue = new JTextField();
 		stdDevValue = new JTextField();
+		XCoordValue = new JTextField();
+		YCoordValue = new JTextField();
+		widthValue = new JTextField();
+		heightValue = new JTextField();
+		XCentreValue = new JTextField();
+		YCentreValue = new JTextField();
 		channelSelection = new JComboBox();
 		channelSelection.addActionListener(this);
 		channelSelection.setActionCommand(CHANNELSELECTION);
@@ -242,6 +303,7 @@ class IntensityView
 		JPanel panel = new JPanel();
 		JPanel fields;
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		UIUtilities.setDefaultSize(channelSelection, new Dimension(150, 32));
 		panel.add(channelSelection);
 		panel.add(Box.createVerticalStrut(5));
 		fields = createLabelText(minLabel, minValue);
@@ -254,6 +316,24 @@ class IntensityView
 		panel.add(fields);
 		panel.add(Box.createVerticalStrut(5));
 		fields = createLabelText(stdDevLabel, stdDevValue);
+		panel.add(fields);
+		panel.add(Box.createVerticalStrut(5));
+		fields = createLabelText(XCoordLabel, XCoordValue);
+		panel.add(fields);
+		panel.add(Box.createVerticalStrut(5));
+		fields = createLabelText(YCoordLabel, YCoordValue);
+		panel.add(fields);
+		panel.add(Box.createVerticalStrut(5));
+		fields = createLabelText(widthLabel, widthValue);
+		panel.add(fields);
+		panel.add(Box.createVerticalStrut(5));
+		fields = createLabelText(heightLabel, heightValue);
+		panel.add(fields);
+		panel.add(Box.createVerticalStrut(5));
+		fields = createLabelText(XCentreLabel, XCentreValue);
+		panel.add(fields);
+		panel.add(Box.createVerticalStrut(5));
+		fields = createLabelText(YCentreLabel, YCentreValue);
 		panel.add(fields);
 		panel.add(saveButton);
 		Dimension minSize = new Dimension(5, 200);
@@ -349,7 +429,9 @@ class IntensityView
 			}
 		}
 		createComboBox();
-		int selectedChannel = nameMap.get(channelSelection.getSelectedItem());
+		Object[] nameColour = (Object[])channelSelection.getSelectedItem();
+		String string = (String)nameColour[1];
+		int selectedChannel = nameMap.get(string);
 		populateData(selectedChannel);
 	}
 	
@@ -381,11 +463,20 @@ class IntensityView
 	 */
 	private void createComboBox()
 	{
-		Iterator<Integer> nameIterator = channelName.keySet().iterator();
-		while(nameIterator.hasNext())
+		Object[][] channelCols = new Object[channelName.size()][2]; 
+		Iterator<Integer> iterator = channelName.keySet().iterator();
+		int i = 0;
+		while(iterator.hasNext())
 		{
-			channelSelection.addItem(channelName.get(nameIterator.next()));
+			int channel = iterator.next();
+			channelCols[i] = new Object[]{ channelColour.get(channel), 
+											channelName.get(channel)};
+			i++;
 		}
+	
+		channelSelection.setModel(new DefaultComboBoxModel(channelCols));	
+		ColourListRenderer renderer =  new ColourListRenderer();
+		channelSelection.setRenderer(renderer);
 		channelSelection.setSelectedIndex(0);
 	}
 	
@@ -455,8 +546,118 @@ class IntensityView
 		maxValue.setText(FormatString(channelMax.get(channel)));
 		meanValue.setText(FormatString(channelMean.get(channel)));
 		stdDevValue.setText(FormatString(channelStdDev.get(channel)));
+		ROIFigure fig = shape.getFigure();
+		if(areaFigure(fig))
+		{
+			setValuesForAreaFigure(fig);
+		}
+		else if(lineFigure(fig))
+		{
+			setValuesForLineFigure(fig);
+		}
+		else if (pointFigure(fig))
+		{
+			setValuesForPointFigure(fig);
+		}
+	}
+
+	/**
+	 * Set the values of the labels and textfield for area figures. 
+	 * @param fig The figure.
+	 */
+	private void setValuesForAreaFigure(ROIFigure fig)
+	{
+		XCoordValue.setText(fig.getBounds().getX()+"");
+		YCoordValue.setText(fig.getBounds().getY()+"");
+		widthLabel.setText("Width");
+		heightLabel.setText("Height");
+		widthValue.setText(AnnotationKeys.WIDTH.get(shape)+"");
+		heightValue.setText(AnnotationKeys.HEIGHT.get(shape)+"");
+		XCentreValue.setText(AnnotationKeys.CENTREX.get(shape)+"");
+		YCentreValue.setText(AnnotationKeys.CENTREY.get(shape)+"");
+	}
+
+	/**
+	 * Set the values of the labels and textfield for line figures. 
+	 * @param fig The figure.
+	 */
+	private void setValuesForLineFigure(ROIFigure fig)
+	{
+		XCoordValue.setText(AnnotationKeys.STARTPOINTX.get(shape)+"");
+		YCoordValue.setText(AnnotationKeys.STARTPOINTY.get(shape)+"");
+		widthLabel.setText("End X");
+		heightLabel.setText("End Y");
+		widthValue.setText(AnnotationKeys.ENDPOINTX.get(shape)+"");
+		heightValue.setText(AnnotationKeys.ENDPOINTY.get(shape)+"");
+		XCentreValue.setText(AnnotationKeys.CENTREX.get(shape)+"");
+		YCentreValue.setText(AnnotationKeys.CENTREY.get(shape)+"");
 	}
 	
+	/**
+	 * Set the values of the labels and textfield for point figures. 
+	 * @param fig The figure.
+	 */
+	private void setValuesForPointFigure(ROIFigure fig)
+	{
+		XCoordValue.setText(AnnotationKeys.CENTREX.get(shape)+"");
+		YCoordValue.setText(AnnotationKeys.CENTREY.get(shape)+"");
+		widthLabel.setText("Width");
+		heightLabel.setText("Height");
+		widthValue.setText("1");
+		heightValue.setText("1");
+		XCentreValue.setText(AnnotationKeys.CENTREX.get(shape)+"");
+		YCentreValue.setText(AnnotationKeys.CENTREY.get(shape)+"");
+	}
+	
+	/**
+	 * Is the param an area figure. 
+	 * @param fig The param. 
+	 * @return See above.
+	 */
+	private boolean areaFigure(ROIFigure fig)
+	{
+		if(fig instanceof EllipseAnnotationFigure ||
+			fig instanceof RectAnnotationFigure)
+			return true;
+		if(	fig instanceof BezierAnnotationFigure)
+		{
+			BezierAnnotationFigure bFig = (BezierAnnotationFigure)fig;
+			if(bFig.isClosed())
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Is the param an line figure. 
+	 * @param fig The param. 
+	 * @return See above.
+	 */
+	private boolean lineFigure(ROIFigure fig)
+	{
+		if(fig instanceof LineAnnotationFigure ||
+			fig instanceof LineConnectionAnnotationFigure)
+			return true;
+		if(	fig instanceof BezierAnnotationFigure)
+		{
+			BezierAnnotationFigure bFig = (BezierAnnotationFigure)fig;
+			if(!bFig.isClosed())
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Is the param an point figure. 
+	 * @param fig The param. 
+	 * @return See above.
+	 */
+	private boolean pointFigure(ROIFigure fig)
+	{
+		if(fig instanceof PointAnnotationFigure)
+			return true;
+		return false;
+	}
 	
 	/**
 	 * Create jpanel with Jlabel and JTextField.
@@ -518,11 +719,6 @@ class IntensityView
 			return;
 		List<Integer> userChannelSelection = channelsSelectionForm.
 															getUserSelection();
-		System.err.println("userChannelSelection.size() : " + userChannelSelection.size());
-		for(int i = 0 ; i < userChannelSelection.size() ; i++)
-		{
-			System.err.println("channel :  " + userChannelSelection.get(i));
-		}
 		BufferedWriter out;
 		try
 		{
@@ -563,6 +759,7 @@ class IntensityView
 	{
 		populateData(channel);
 		Double value;
+		addFields(out, channel);
 		for(int y = 0 ; y < tableModel.getRowCount() ; y++)
 		{
 			for(int x = 0 ; x < tableModel.getColumnCount()-1; x++)
@@ -578,19 +775,8 @@ class IntensityView
 			if(value == null)
 				value = new Double(0);
 			out.write(String.format("%.2f", value)); 
-					
-			if(y == 0)
-				writeMinStat(out, channel);
-			if(y == 1)
-				writeMaxStat(out, channel);
-			if(y == 2)
-				writeMeanStat(out, channel);
-			if(y == 3)
-				writeStdDevStat(out, channel);
 			out.newLine();
 		}
-		if(table.getRowCount()<4)
-			addRemainingFields(out, channel);
 	}
 	
 	/**
@@ -616,8 +802,7 @@ class IntensityView
 	private void writeMaxStat(BufferedWriter out, int channel)
 															throws IOException
 	{
-		for(int i = 0 ; i < tableModel.getColumnCount(); i++)
-			out.write(",Maximum Intensity, ");
+		out.write("Maximum Intensity, ");
 		out.write(channelMax.get(channel)+"");
 	}
 	
@@ -630,8 +815,7 @@ class IntensityView
 	private void writeMeanStat(BufferedWriter out, int channel)
 															throws IOException
 	{
-		for(int i = 0 ; i < tableModel.getColumnCount(); i++)
-			out.write(",Mean Intensity, ");
+		out.write("Mean Intensity, ");
 		out.write(channelMean.get(channel)+"");
 	}
 	
@@ -644,34 +828,118 @@ class IntensityView
 	private void writeStdDevStat(BufferedWriter out, int channel)
 															throws IOException
 	{
-		for(int i = 0 ; i < tableModel.getColumnCount(); i++)
-			out.write(",StdDev , ");
+		out.write("StdDev , ");
 		out.write(channelStdDev.get(channel)+"");
+	}
+	/**
+	 * Write the XCoord stat to file.
+	 * @param out The output stream.
+	 * @param channel The channel.
+	 * @throws IOException Any io error. 
+	 */
+	private void writeXCoordStat(BufferedWriter out, int channel)
+															throws IOException
+	{
+		out.write(XCoordLabel.getText()+",");
+		out.write(XCoordValue.getText());
+	}
+
+	/**
+	 * Write the YCoord stat to file.
+	 * @param out The output stream.
+	 * @param channel The channel.
+	 * @throws IOException Any io error. 
+	 */
+	private void writeYCoordStat(BufferedWriter out, int channel)
+															throws IOException
+	{
+		out.write(YCoordLabel.getText()+",");
+		out.write(YCoordValue.getText());
+	}
+
+	/**
+	 * Write the width stat to file.
+	 * @param out The output stream.
+	 * @param channel The channel.
+	 * @throws IOException Any io error. 
+	 */
+	private void writeWidthStat(BufferedWriter out, int channel)
+	throws IOException
+	{
+		out.write(widthLabel.getText()+",");
+		out.write(widthValue.getText());
+	}
+	
+	/**
+	 * Write the height stat to file.
+	 * @param out The output stream.
+	 * @param channel The channel.
+	 * @throws IOException Any io error. 
+	 */
+	private void writeHeightStat(BufferedWriter out, int channel)
+															throws IOException
+	{
+		out.write(heightLabel.getText()+",");
+		out.write(heightValue.getText());
+	}
+	
+	/**
+	 * Write the XCentre stat to file.
+	 * @param out The output stream.
+	 * @param channel The channel.
+	 * @throws IOException Any io error. 
+	 */
+	private void writeXCentreStat(BufferedWriter out, int channel)
+															throws IOException
+	{
+		out.write(XCentreLabel.getText()+",");
+		out.write(XCentreValue.getText());
+	}
+	
+	/**
+	 * Write the YCentre stat to file.
+	 * @param out The output stream.
+	 * @param channel The channel.
+	 * @throws IOException Any io error. 
+	 */
+	private void writeYCentreStat(BufferedWriter out, int channel)
+															throws IOException
+	{
+		out.write(YCentreLabel.getText()+",");
+		out.write(YCentreValue.getText());
 	}
 	
 	/**
 	 * Add the any remaining fields (min, max, mean, stdDev) to the file being
-	 * saved. This will occur if the number of rows is less than the number
-	 * of stats fields. 
+	 * saved. 
+	 * 
 	 * @param out The output stream
 	 * @param channel The channel
 	 * @throws IOException Any io error.
 	 */
-	private void addRemainingFields(BufferedWriter out, int channel) 
+	private void addFields(BufferedWriter out, int channel) 
 															throws IOException
 	{
-		for(int y = tableModel.getRowCount(); y < 4; y++)
-		{
-			if(y == 0)
-				writeMinStat(out, channel);
-			if(y == 1)
-				writeMaxStat(out, channel);
-			if(y == 2)
-				writeMeanStat(out, channel);
-			if(y == 3)
-				writeStdDevStat(out, channel);
-			out.newLine();
-		}
+		writeMinStat(out, channel);
+		out.newLine();
+		writeMaxStat(out, channel);
+		out.newLine();
+		writeMeanStat(out, channel);
+		out.newLine();
+		writeStdDevStat(out, channel);
+		out.newLine();
+		writeXCoordStat(out, channel);
+		out.newLine();
+		writeYCoordStat(out, channel);
+		out.newLine();
+		writeWidthStat(out, channel);
+		out.newLine();
+		writeHeightStat(out, channel);
+		out.newLine();
+		writeXCentreStat(out, channel);
+		out.newLine();
+		writeYCentreStat(out, channel);
+		out.newLine();
 	}
 	
 	/** 
@@ -685,7 +953,11 @@ class IntensityView
 		if(e.getActionCommand().equals(CHANNELSELECTION))
 		{
 			JComboBox cb = (JComboBox)e.getSource();
-			int channel = nameMap.get(cb.getSelectedItem());
+			Object[] nameColour = (Object[])cb.getSelectedItem();
+			String string = (String)nameColour[1];
+			if(!nameMap.containsKey(string))
+				return;
+			int channel = nameMap.get(string);
 			if(channel!=-1)
 			{
 				populateData(channel);
@@ -699,6 +971,3 @@ class IntensityView
 		 }
 	 }
 }
-
-
-

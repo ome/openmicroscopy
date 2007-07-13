@@ -45,6 +45,7 @@ import org.jhotdraw.draw.FigureEvent;
 import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.draw.FigureSelectionEvent;
 import org.jhotdraw.draw.FigureSelectionListener;
+import org.openmicroscopy.shoola.agents.measurement.actions.CreateFigureAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.LoadROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.RefreshResultsTableAction;
@@ -107,6 +108,18 @@ class MeasurementViewerControl
     static final Integer     IN_PIXELS = new Integer(7);
     
     /** 
+     * Identifies the <code>createSingleFigures</code> action in 
+     * the menu.
+     */
+    static final Integer     CREATESINGLEFIGURE = new Integer(8);
+    
+    /** 
+     * Identifies the <code>showMeasurementinMicrons</code> action in 
+     * the menu.
+     */
+    static final Integer     CREATEMULTIPLEFIGURE = new Integer(9);
+    
+    /** 
      * Reference to the {@link MeasurementViewer} component, which, 
      * in this context, is regarded as the Model.
      */
@@ -129,6 +142,8 @@ class MeasurementViewerControl
     	actionsMap.put(ROI_ASSISTANT, new ShowROIAssistant(model));
     	actionsMap.put(IN_MICRONS, new UnitsAction(model, true));
     	actionsMap.put(IN_PIXELS, new UnitsAction(model, false));
+    	actionsMap.put(CREATESINGLEFIGURE, new CreateFigureAction(model, true));
+    	actionsMap.put(CREATEMULTIPLEFIGURE, new CreateFigureAction(model, false));
     }
 
     /**

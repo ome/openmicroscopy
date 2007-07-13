@@ -253,7 +253,7 @@ class ToolBar
 	 * selection tool, if param true. 
 	 * @param option see above.
 	 */
-	private void createSingleFigure(boolean option)
+	public void createSingleFigure(boolean option)
 	{
 		ellipseTool.setResetToSelect(option);
 		rectTool.setResetToSelect(option);

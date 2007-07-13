@@ -242,4 +242,10 @@ public interface MeasurementViewer
 	 */
 	public void attachListeners(List<ROI> roiList);
 	
+	/**
+	 * Create single figures or multiple figures. 
+	 * @param createSingleFig Create a single figure and go back to selection 
+	 * tool.
+	 */
+	public void createSingleFigure(boolean createSingleFig);
 }

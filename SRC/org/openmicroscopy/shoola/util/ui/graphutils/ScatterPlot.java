@@ -255,7 +255,7 @@ public class ScatterPlot
 		renderer = new PointRenderer(colours, shapes);
 		XYPlot plot = new XYPlot(dataset, domainAxis,
             rangeAxis, renderer);
-		freeChart = new JFreeChart(plot);
+		freeChart = new JFreeChart(title, plot);
 		charts = new ChartPanel(freeChart);
 		graphPanel = new JPanel();
 		graphPanel.setLayout(new BorderLayout());

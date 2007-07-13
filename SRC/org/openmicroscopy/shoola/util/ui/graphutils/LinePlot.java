@@ -169,7 +169,7 @@ public class LinePlot
 		renderer = new LineRenderer(colours);
 		XYPlot plot = new XYPlot(dataset, domainAxis,
             rangeAxis, renderer);
-		freeChart = new JFreeChart(plot);
+		freeChart = new JFreeChart(title, plot);
 		charts = new ChartPanel(freeChart);
 		graphPanel = new JPanel();
 		graphPanel.setLayout(new BorderLayout());

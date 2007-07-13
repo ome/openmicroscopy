@@ -176,7 +176,8 @@ public class HistogramPlot
 		renderer = new HistogramBarRenderer(colours);
 		XYPlot plot = new XYPlot(dataset, domainAxis,
             rangeAxis, renderer);
-		freeChart = new JFreeChart(plot);
+		freeChart = new JFreeChart(title, plot);
+		freeChart.setTitle(title);
 		charts = new ChartPanel(freeChart);
 		graphPanel = new JPanel();
 		graphPanel.setLayout(new BorderLayout());

@@ -465,7 +465,8 @@ class MeasurementViewerComponent
 	{
 		//TODO: check state.
 		model.setActiveChannels(activeChannels);
-		//TODO: update histo if panel selected.
+		if(view.inDataView())
+			view.displayAnalysisResults();
 	}
 
 	/** 
@@ -476,7 +477,8 @@ class MeasurementViewerComponent
 	{
 		//TODO: Check state
 		model.setActiveChannels(channels);
-		//TODO: repaint graphics
+		if(view.inDataView())
+			view.displayAnalysisResults();
 	}
 
 	/** 
@@ -552,6 +554,16 @@ class MeasurementViewerComponent
 				shape.getFigure().addFigureListener(controller);
 			}
 		}
+	}
+	
+
+	/** 
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#createSingleFigure(List)
+	 */
+	public void createSingleFigure(boolean createSingleFig)
+	{
+		view.createSingleFigure(createSingleFig);
 	}
 	
 	

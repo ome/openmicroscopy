@@ -201,6 +201,26 @@ class MeasurementViewerUI
         inPixelsMenu.setSelected(true); //TODO: retrieve info
         
         menu.add(subMenu);
+        
+        ButtonGroup createFigureGroup = new ButtonGroup();
+    	JMenu creationMenu = new JMenu("Figure Creation");
+        a = controller.getAction(
+    			MeasurementViewerControl.CREATESINGLEFIGURE);
+        JCheckBoxMenuItem createSingleFigure = new JCheckBoxMenuItem(a);
+        createSingleFigure.setText(a.getName());
+        createFigureGroup.add(createSingleFigure);
+        creationMenu.add(createSingleFigure);
+        
+        a = controller.getAction(
+        		MeasurementViewerControl.CREATEMULTIPLEFIGURE);
+        JCheckBoxMenuItem createMultipleFigure = new JCheckBoxMenuItem(a);
+        createMultipleFigure.setText(a.getName());
+        createFigureGroup.add(createMultipleFigure);
+        creationMenu.add(createMultipleFigure);
+        createMultipleFigure.setSelected(true); //TODO: retrieve info
+        
+        menu.add(creationMenu);
+        
         return menu;
     }
     
@@ -636,5 +656,14 @@ class MeasurementViewerUI
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
-  
+ 
+    /**
+     * Create a single figure and return to the selection tool.
+     * @param createSingleFig See above.
+     */
+    public void createSingleFigure(boolean createSingleFig)
+    {
+    	toolBar.createSingleFigure(createSingleFig);
+    }
+    
 }
