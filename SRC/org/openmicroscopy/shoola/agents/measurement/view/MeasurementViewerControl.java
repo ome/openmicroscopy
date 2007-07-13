@@ -369,6 +369,7 @@ class MeasurementViewerControl
 	 */
 	public void figureRequestRemove(FigureEvent e) {}
 
+	/** Analyse the selected figures. */
 	public void analyseSelectedFigures()
 	{
 		Collection<Figure> figures = model.getSelectedFigures();

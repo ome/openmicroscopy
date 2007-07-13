@@ -88,17 +88,31 @@ public class IntensityModel
 	 * Overridden to set the value of the model to the object.
 	 * @see javax.swing.table.TableModel#setValueAt(Object, int, int)
 	 */
-	public void setValueAt(Object value, int col, int row)
+	public void setValueAt(Object value, int row, int col)
 	{
 		
 	}
 	
 	/**
+	 * Overridden to return the name of the specified column.
+	 * @see AbstractTableModel#getColumnName(int)
+	 */
+	public String getColumnName(int col) { return col+""; }
+
+	/**
+	 * Overridden to return the name of the specified column.
+	 * @see AbstractTableModel#getRowName(int)
+	 */
+	public String getRowName(int row) { return row+""; }
+
+	/**
 	 *  Overridden to return the value of the model to the object.
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
-	public Object getValueAt(int col, int row)
+	public Object getValueAt(int row, int col)
 	{
+		if(col>=numColumns || row>=numRows)
+			return null;
 		return data[col][row];
 	}
 	

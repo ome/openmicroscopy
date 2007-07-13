@@ -639,6 +639,8 @@ class MeasurementViewerModel
 	 */
 	void fireAnalyzeShape(ROIShape shape)
 	{
+		if(getState() == MeasurementViewer.ANALYSE_SHAPE)
+			return;
 		List l = new ArrayList(1);
 		l.add(shape);
 		state = MeasurementViewer.ANALYSE_SHAPE;

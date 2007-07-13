@@ -30,7 +30,6 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 
 import javax.swing.JTable;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
@@ -56,7 +55,7 @@ public class IntensityTable
 {
 	
 	/** The default, minimum width of the column in the table. */
-	private final static int 	COLUMNWIDTH = 32;
+	private final static int 	COLUMNWIDTH = 24;
 	
 	/** The colour of the grid in the table. */
 	private final static Color 	GRIDCOLOUR = new Color(180, 213, 255);
@@ -83,7 +82,6 @@ public class IntensityTable
 		}
 		
 		w  =  metrics.stringWidth(model.getColumnName(0));
-
 		TableColumn col;
 		int width;
 		for (int i = 0 ; i < getColumnCount(); i++)
@@ -97,7 +95,6 @@ public class IntensityTable
 		}
 		setColumnSelectionAllowed(true);
 		setRowSelectionAllowed(true);
-		setRowHeight(columnWidth);
 		setGridColor(GRIDCOLOUR);
 		getTableHeader().setReorderingAllowed(false);
 		setShowGrid(true);

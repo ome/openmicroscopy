@@ -24,45 +24,43 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
+import javax.swing.filechooser.FileFilter;
+
 //Third-party libraries
 
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
-import org.openmicroscopy.shoola.agents.measurement.util.AnalysisStatsWrapper;
-import org.openmicroscopy.shoola.agents.measurement.util.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStats;
+import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
-import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
-import org.openmicroscopy.shoola.util.ui.graphutils.LinePlot;
-import org.openmicroscopy.shoola.util.ui.graphutils.ScatterPlot;
 
 /** 
  * 
@@ -81,21 +79,44 @@ class IntensityView
 	extends JPanel 
 	implements ActionListener
 {
+	/** The state of the Intensity View. */
+	enum State 
+	{
+		ANALYSING,
+		READY
+	}
+	
+	/** 
+	 * Intensity view state, if Analysiing we should not all the user to 
+	 * change combobox or save. 
+	 */
+	private State						state = State.READY;
 	
 	/** The name of the panel. */
 	private static final String			NAME = "Intensity View";
+
+	/** The save button action command. */
+	private static final String			SAVEACTION = "SAVEACTION";
 	
-		/** Reference to the control. */
+	/** The name of the panel. */
+	private static final String			CHANNELSELECTION = "CHANNELSELECTION";
+	
+	/** Reference to the control. */
 	private MeasurementViewerControl	controller;
 	
 	/** Reference to the model. */
 	private MeasurementViewerModel		model;
 
+	/** SelectChannelsForm the form to select the channels to output to the 
+	 * file. 
+	 */
+	private	ChannelSelectionForm		channelsSelectionForm;
+	
 	/** The map of <ROIShape, ROIStats> .*/
 	private Map							ROIStats;
 	
 	/** Table Model. */
-	private IntensityModel			tableModel;
+	private IntensityModel				tableModel;
 	
 	/** Table view. */
 	private IntensityTable 				table;
@@ -127,28 +148,35 @@ class IntensityView
 	/** Select to choose the channel to show values for . */
 	private JComboBox 					channelSelection;
 	
+	/** The save button. */
+	private JButton 					saveButton; 
+	
 	/** list of the channel names. */
-	private List<String> channelName = new ArrayList<String>();
+	private Map<Integer, String> channelName = new TreeMap<Integer, String>();
 	
 	/** List of the channel colours. */
-	private 	List<Color> channelColour = new ArrayList<Color>();
+	private Map<Integer, Color> channelColour = new TreeMap<Integer, Color>();
 	
 	/** Map of the channel mins, for each selected channel. */
-	private Map<Integer, Double> channelMin = new HashMap<Integer, Double>();
+	private Map<Integer, Double> channelMin = new TreeMap<Integer, Double>();
 	
 	/** Map of the channel Max, for each selected channel. */
-	private Map<Integer, Double> channelMax = new HashMap<Integer, Double>();
+	private Map<Integer, Double> channelMax = new TreeMap<Integer, Double>();
 	
 	/** Map of the channel Mean, for each selected channel. */
-	private Map<Integer, Double> channelMean = new HashMap<Integer, Double>();
+	private Map<Integer, Double> channelMean = new TreeMap<Integer, Double>();
 	
 	/** Map of the channel std. dev., for each selected channel. */
-	private Map<Integer, Double> channelStdDev = new HashMap<Integer, Double>();
+	private Map<Integer, Double> channelStdDev = new TreeMap<Integer, Double>();
 	
 	/** Map of the channel Intensities, for each selected channel. */
 	private Map<Integer, Map<PlanePoint2D, Double>> planePixels = 
-						new HashMap<Integer, Map<PlanePoint2D, Double>>();
+						new TreeMap<Integer, Map<PlanePoint2D, Double>>();
 
+	/** Map of the channel name to channel number .*/
+	Map<String, Integer> nameMap = new HashMap<String, Integer>();
+	
+	
 	/** Current ROIShape. */
 	private 	ROIShape shape;
 	
@@ -168,6 +196,12 @@ class IntensityView
 		stdDevValue = new JTextField();
 		channelSelection = new JComboBox();
 		channelSelection.addActionListener(this);
+		channelSelection.setActionCommand(CHANNELSELECTION);
+		saveButton = new JButton("Save Results");
+		saveButton.addActionListener(this);
+		saveButton.setActionCommand(SAVEACTION);
+		state = State.READY;
+		
 	}
 	
 	/** Builds and lays out the UI. */
@@ -182,6 +216,11 @@ class IntensityView
 		add(fPanel);
 	}
 	
+	/**
+	 * Create the table panel which holds all the intensities for the selected
+	 * channel in the table.
+	 * @return See Above.
+	 */
 	private JPanel tablePanel()
 	{
 		JPanel panel = new JPanel();
@@ -194,6 +233,10 @@ class IntensityView
 		return panel;
 	}
 	
+	/**
+	 * Create the field panel which holds all stats fields, min, mean..
+	 * @return The fields panel. 
+	 */
 	private JPanel fieldPanel()
 	{
 		JPanel panel = new JPanel();
@@ -212,11 +255,12 @@ class IntensityView
 		panel.add(Box.createVerticalStrut(5));
 		fields = createLabelText(stdDevLabel, stdDevValue);
 		panel.add(fields);
-		Dimension minSize = new Dimension(5, 1000);
-		Dimension prefSize = new Dimension(5, 1000);
+		panel.add(saveButton);
+		Dimension minSize = new Dimension(5, 200);
+		Dimension prefSize = new Dimension(5, 200);
 		Dimension maxSize = new Dimension(100,Short.MAX_VALUE);
 		panel.add(new Box.Filler(minSize, prefSize, maxSize));
-		return panel;
+			return panel;
 	}
 	
 	/**
@@ -263,18 +307,22 @@ class IntensityView
 	 */
 	public void displayAnalysisResults()
 	{
+		if(state==State.ANALYSING)
+			return;
+		state = state.ANALYSING;
 		this.ROIStats = model.getAnalysisResults();
 		if(ROIStats==null)
 			return;
 		Iterator shapeIterator  = ROIStats.keySet().iterator();
-		channelName = new ArrayList<String>();
-		channelColour = new ArrayList<Color>();
-		channelMin = new HashMap<Integer, Double>();
-		channelMax = new HashMap<Integer, Double>();
-		channelMean = new HashMap<Integer, Double>();
-		channelStdDev = new HashMap<Integer, Double>();
+		channelName =  new TreeMap<Integer, String>();
+		nameMap = new HashMap<String, Integer>();
+		channelColour =  new TreeMap<Integer, Color>();
+		channelMin = new TreeMap<Integer, Double>();
+		channelMax = new TreeMap<Integer, Double>();
+		channelMean = new TreeMap<Integer, Double>();
+		channelStdDev = new TreeMap<Integer, Double>();
 		planePixels = 
-							new HashMap<Integer, Map<PlanePoint2D, Double>>();
+							new TreeMap<Integer, Map<PlanePoint2D, Double>>();
 		int channel;
 		ROIShapeStats stats;
 		while(shapeIterator.hasNext())
@@ -287,21 +335,28 @@ class IntensityView
 			while (channelIterator.hasNext())
 			{
 				channel = (Integer) channelIterator.next();
-				channelName.add(model.getMetadata(channel).getEmissionWavelength()+"");
-				channelColour.add((Color)model.getActiveChannels().get(channel));
 				stats = (ROIShapeStats) shapeStats.get(channel);
 				channelMin.put(channel, stats.getMin());
 				channelMax.put(channel, stats.getMax());
 				channelMean.put(channel, stats.getMean());
 				channelStdDev.put(channel, stats.getStandardDeviation());
 				planePixels.put(channel, stats.getPixelsValue());
+				channelName.put(channel,
+					model.getMetadata(channel).getEmissionWavelength()+"");
+				nameMap.put(channelName.get(channel), channel);
+				channelColour.put(channel, 
+					(Color)model.getActiveChannels().get(channel));
 			}
 		}
-		populateData();
 		createComboBox();
-		
+		int selectedChannel = nameMap.get(channelSelection.getSelectedItem());
+		populateData(selectedChannel);
 	}
 	
+	/**
+	 * Clear all the variables to start a new analysis.
+	 *
+	 */
 	private void clearAllVariables()
 	{
 		channelName.clear();
@@ -311,36 +366,45 @@ class IntensityView
 		channelMean.clear();
 		channelStdDev.clear();
 		planePixels.clear();
+		nameMap.clear();
 	}
 	
+	/** Clear the combo box. */
 	private void clearAllValues()
 	{
 		channelSelection.removeAllItems();
 	}
 	
-	
+	/**
+	 * Create the combobox holding the channel list.
+	 *
+	 */
 	private void createComboBox()
 	{
-		for(int i = 0; i < channelName.size(); i++)
+		Iterator<Integer> nameIterator = channelName.keySet().iterator();
+		while(nameIterator.hasNext())
 		{
-			channelSelection.addItem(channelName.get(i));
+			channelSelection.addItem(channelName.get(nameIterator.next()));
 		}
+		channelSelection.setSelectedIndex(0);
 	}
 	
-	private void populateData()
+	/** Populate the table and fields with the data. */
+	private void populateData(int channel)
 	{
-		populateTable();
-		populateFields();
+		populateTable(channel);
+		populateFields(channel);
+		state=State.READY;
 	}
 
-	private void populateTable()
+	/** Populate the table with the data. */
+	private void populateTable(int channel)
 	{
-		int channel = channelSelection.getSelectedIndex();
-		if(channel == -1)
-			return;
 		Map<PlanePoint2D, Double> pixels = 
 							planePixels.get(channel);
 	
+		if(pixels==null)
+			return;
 		Iterator<PlanePoint2D> pixelIterator = pixels.keySet().iterator();
 		double minX, maxX, minY, maxY;
 		if(!pixelIterator.hasNext())
@@ -358,9 +422,10 @@ class IntensityView
 			minY = Math.min(minY, point.getY());
 			maxY = Math.max(maxY, point.getY());
 		}
-		Double[][] data = new Double[(int)(maxX-minX)+1]
-			                            [(int)(maxY-minY)+1];
-		System.err.println("Data.size():"+((maxX-minX)+1)+ ", "+((maxY-minY)+1));
+		int sizeX, sizeY;
+		sizeX = (int)(maxX-minX)+1;
+		sizeY = (int)((maxY-minY)+1);
+		Double[][] data = new Double[sizeX][sizeY];
 		pixelIterator = pixels.keySet().iterator();
 		int x, y;
 		while(pixelIterator.hasNext())
@@ -368,18 +433,24 @@ class IntensityView
 			point = pixelIterator.next();
 			x = (int)(point.getX()-minX);
 			y = (int)(point.getY()-minY);
-			System.err.println("X : " + x + " , Y : " + y);
-			data[x][y]=pixels.get(point);
+			if(x>=sizeX || y>=sizeY)
+				continue;
+			Double value;
+			if(pixels.containsKey(point))
+				value = pixels.get(point);
+			else
+				value = new Double(0);
+			data[x][y] = value;
 		}
 		tableModel = new IntensityModel(data);
 		table.setModel(tableModel);
 	}
 	
-	private void populateFields()
+	/** Populate the fields with the data.
+	 * @param channel The channel for the stats.
+	 */
+	private void populateFields(int channel)
 	{
-		int channel = channelSelection.getSelectedIndex();
-		if(channel == -1)
-			return;
 		minValue.setText(FormatString(channelMin.get(channel)));
 		maxValue.setText(FormatString(channelMax.get(channel)));
 		meanValue.setText(FormatString(channelMean.get(channel)));
@@ -388,31 +459,10 @@ class IntensityView
 	
 	
 	/**
-	 * Create jpanel with the label assigned the value str and
-	 * the textbox the value value.
-	 * @param str see above.
-	 * @param value see above.
-	 * @return the jpanel with the label and textfield.
-	 */
-	private JPanel createLabelText(String str, String value)
-	{
-		JLabel label = new JLabel(str);
-		JTextField text = new JTextField(value);
-		UIUtilities.setDefaultSize(label, new Dimension(80, 26));
-		UIUtilities.setDefaultSize(text, new Dimension(80, 26));
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-		panel.add(label);
-		panel.add(Box.createHorizontalStrut(10));
-		panel.add(text);
-		return panel;
-	}
-		
-	/**
 	 * Create jpanel with Jlabel and JTextField.
-	 * @param label see above.
-	 * @param text see above.
-	 * @return the jpanel with the label and textfield.
+	 * @param label See above.
+	 * @param text See above.
+	 * @return The jpanel with the label and textfield.
 	 */
 	private JPanel createLabelText(JLabel label, JTextField text)
 	{
@@ -426,21 +476,227 @@ class IntensityView
 		return panel;
 	}
 	
+	/** Format the string to be 2 decimal places. 
+	 * @param value the vale to be formatted. 
+	 * @return formatted string.
+	 */
 	private String FormatString(double value)
 	{
 		return String.format("%.2f",value);
 	}
 	
+	/** Save the results to a csv File. */
+	private void saveResults() 
+	{
+		JFileChooser chooser = new JFileChooser();
+		FileFilter filter = new CSVFilter();
+		chooser.addChoosableFileFilter(filter);
+		chooser.setFileFilter(filter);
+
+		File f = UIUtilities.getDefaultFolder();
+	    if(f != null) chooser.setCurrentDirectory(f);
+		int results = chooser.showSaveDialog(this.getParent());
+		if(results != JFileChooser.APPROVE_OPTION) return;
+		File file = chooser.getSelectedFile();
+		if (!file.getAbsolutePath().endsWith(CSVFilter.CSV))
+		{
+			String fileName = file.getAbsolutePath()+"."+CSVFilter.CSV;
+			file = new File(fileName);
+		}
+		if (file.exists()) 
+		{
+			int response = JOptionPane.showConfirmDialog (null,
+						"Overwrite existing file?","Confirm Overwrite",
+						JOptionPane.OK_CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE);
+	        if (response == JOptionPane.CANCEL_OPTION) return;
+	    }
+		channelsSelectionForm = new ChannelSelectionForm(channelName);
+		UIUtilities.setLocationRelativeToAndShow(this, channelsSelectionForm);
+		if(channelsSelectionForm.getState()!= 
+											ChannelSelectionForm.State.ACCEPTED)
+			return;
+		List<Integer> userChannelSelection = channelsSelectionForm.
+															getUserSelection();
+		System.err.println("userChannelSelection.size() : " + userChannelSelection.size());
+		for(int i = 0 ; i < userChannelSelection.size() ; i++)
+		{
+			System.err.println("channel :  " + userChannelSelection.get(i));
+		}
+		BufferedWriter out;
+		try
+		{
+			out=new BufferedWriter(new FileWriter(file));
+			for( int i = 0 ; i < userChannelSelection.size() ; i++)
+			{
+				writeTitle(out, "Channel Number : " + channelName.get(i));
+				writeData(out, i);
+			}
+			out.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	/** 
+	 * Write the title for the current channel. 
+	 * @param out The output stream.
+	 * @param string The title.
+	 * @throws IOException 
+	 */
+	private void writeTitle(BufferedWriter out, String string) throws IOException
+	{
+		out.write(string);
+		out.newLine();
+	}
+	
+	
+	/** 
+	 * Write the channel intensities and stats to the files.
+	 * @param out The output stream.
+	 * @param channel The channel to output.
+	 * @throws IOException Any IO Error.
+	 */
+	private void writeData(BufferedWriter out, int channel) throws IOException
+	{
+		populateData(channel);
+		Double value;
+		for(int y = 0 ; y < tableModel.getRowCount() ; y++)
+		{
+			for(int x = 0 ; x < tableModel.getColumnCount()-1; x++)
+			{
+				value = (Double) tableModel.getValueAt(y, x); 
+				if(value == null)
+					value = new Double(0);
+				out.write(String.format("%.2f",value));	
+				out.write(",");
+			}
+			value = (Double) tableModel.getValueAt(y, 
+												tableModel.getColumnCount()-1); 
+			if(value == null)
+				value = new Double(0);
+			out.write(String.format("%.2f", value)); 
+					
+			if(y == 0)
+				writeMinStat(out, channel);
+			if(y == 1)
+				writeMaxStat(out, channel);
+			if(y == 2)
+				writeMeanStat(out, channel);
+			if(y == 3)
+				writeStdDevStat(out, channel);
+			out.newLine();
+		}
+		if(table.getRowCount()<4)
+			addRemainingFields(out, channel);
+	}
+	
+	/**
+	 * Write the min stat to file.
+	 * @param out The output stream.
+	 * @param channel The channel.
+	 * @throws IOException Any io error. 
+	 */
+	private void writeMinStat(BufferedWriter out, int channel)
+															throws IOException
+	{
+		for(int i = 0 ; i < tableModel.getColumnCount(); i++)
+			out.write(",Maximum Intensity, ");
+		out.write(channelMin.get(channel)+"");
+	}
+	
+	/**
+	 * Write the max stat to file.
+	 * @param out The output stream.
+	 * @param channel Tthe channel.
+	 * @throws IOException Any io error. 
+	 */
+	private void writeMaxStat(BufferedWriter out, int channel)
+															throws IOException
+	{
+		for(int i = 0 ; i < tableModel.getColumnCount(); i++)
+			out.write(",Maximum Intensity, ");
+		out.write(channelMax.get(channel)+"");
+	}
+	
+	/**
+	 * Write the mean stat to file.
+	 * @param out The output stream.
+	 * @param channel The channel.
+	 * @throws IOException Any io error. 
+	 */
+	private void writeMeanStat(BufferedWriter out, int channel)
+															throws IOException
+	{
+		for(int i = 0 ; i < tableModel.getColumnCount(); i++)
+			out.write(",Mean Intensity, ");
+		out.write(channelMean.get(channel)+"");
+	}
+	
+	/**
+	 * Write the stdDev stat to file.
+	 * @param out The output stream.
+	 * @param channel The channel.
+	 * @throws IOException Any io error. 
+	 */
+	private void writeStdDevStat(BufferedWriter out, int channel)
+															throws IOException
+	{
+		for(int i = 0 ; i < tableModel.getColumnCount(); i++)
+			out.write(",StdDev , ");
+		out.write(channelStdDev.get(channel)+"");
+	}
+	
+	/**
+	 * Add the any remaining fields (min, max, mean, stdDev) to the file being
+	 * saved. This will occur if the number of rows is less than the number
+	 * of stats fields. 
+	 * @param out The output stream
+	 * @param channel The channel
+	 * @throws IOException Any io error.
+	 */
+	private void addRemainingFields(BufferedWriter out, int channel) 
+															throws IOException
+	{
+		for(int y = tableModel.getRowCount(); y < 4; y++)
+		{
+			if(y == 0)
+				writeMinStat(out, channel);
+			if(y == 1)
+				writeMaxStat(out, channel);
+			if(y == 2)
+				writeMeanStat(out, channel);
+			if(y == 3)
+				writeStdDevStat(out, channel);
+			out.newLine();
+		}
+	}
+	
+	/** 
+	 * 	Action called when the combo box changed. 
+	 *  @param e The event.
+	 **/
 	 public void actionPerformed(ActionEvent e) 
 	 {
-		 JComboBox cb = (JComboBox)e.getSource();
-	     int channel = cb.getSelectedIndex();
-	     if(channel!=-1)
-	     {
-	    	populateData();
-	    	populateFields();
-    		repaint();
-	     }
+		if(state==State.ANALYSING)
+			return;
+		if(e.getActionCommand().equals(CHANNELSELECTION))
+		{
+			JComboBox cb = (JComboBox)e.getSource();
+			int channel = nameMap.get(cb.getSelectedItem());
+			if(channel!=-1)
+			{
+				populateData(channel);
+				populateFields(channel);
+				repaint();
+			}
+		 }
+		 if(e.getActionCommand().equals(SAVEACTION))
+		 {
+			 saveResults();
+		 }
 	 }
 }
 
