@@ -167,6 +167,8 @@ class GraphPane
 				channel = channelIterator.next();
 				channelName.add(model.getMetadata(channel).getEmissionWavelength()+"");
 				channelColour.add((Color)model.getActiveChannels().get(channel));
+				if(data.get(channel).length==0)
+					return;
 				channelData.add(data.get(channel));
 				
 				if(lineProfileFigure(shape))

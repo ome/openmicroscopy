@@ -67,7 +67,6 @@ public class AnalysisStatsWrapper
 		if(shapeStats==null || shapeStats.size()==0)
 			return null;
 		ROIShapeStats 		stats;
-		int numChannels = shapeStats.size();
 		Map<Integer, Double>   channelMin = new TreeMap<Integer, Double>();
 		Map<Integer, Double>   channelMax = new TreeMap<Integer, Double>();
 		Map<Integer, Double>   channelMean = new TreeMap<Integer, Double>();

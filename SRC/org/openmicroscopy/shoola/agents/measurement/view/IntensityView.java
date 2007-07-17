@@ -420,6 +420,8 @@ class IntensityView
 				channelMax.put(channel, stats.getMax());
 				channelMean.put(channel, stats.getMean());
 				channelStdDev.put(channel, stats.getStandardDeviation());
+				if(stats.getPixelsValue().size()==0)
+					return;
 				planePixels.put(channel, stats.getPixelsValue());
 				channelName.put(channel,
 					model.getMetadata(channel).getEmissionWavelength()+"");
