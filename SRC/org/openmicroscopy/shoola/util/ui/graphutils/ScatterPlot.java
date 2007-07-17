@@ -149,6 +149,7 @@ public class ScatterPlot
 		setDefaultAxis();
 	}
 	
+
 	/** Set the default names for the x and y axis in the plot. */
 	public void setDefaultAxis()
 	{
@@ -156,6 +157,17 @@ public class ScatterPlot
 		setYAxisName("Y");
 	}
 	
+	/** 
+	 * Set the range of the x axis to axisName. 
+	 * @param axisMinRange see above. 
+	 * @param axisMaxRange see above. 
+	 */
+	public void setXAxisRange(double axisMinRange, double axisMaxRange)
+	{
+		domainAxis.setAutoRange(false);
+		domainAxis.setRange(axisMinRange, axisMaxRange);
+	}
+
 	/** 
 	 * Set the name of the x axis to axisName. 
 	 * @param axisName see above. 
@@ -166,15 +178,17 @@ public class ScatterPlot
 			throw new IllegalArgumentException("Null parameter for Axis name."); 
 		domainAxis = new NumberAxis(axisName);
 	}
-
+	
+	
 	/** 
-	 * Set the range of the x axis to axisName. 
+	 * Set the range of the y axis to axisName. 
 	 * @param axisMinRange see above. 
 	 * @param axisMaxRange see above. 
 	 */
-	public void setXAxisRange(double axisMinRange, double axisMaxRange)
+	public void setYAxisRange(double axisMinRange, double axisMaxRange)
 	{
-		domainAxis.setRange(axisMinRange, axisMaxRange);
+			rangeAxis.setAutoRange(false);
+			rangeAxis.setRange(axisMinRange, axisMaxRange);
 	}
 
 	/** 
@@ -188,16 +202,6 @@ public class ScatterPlot
 		rangeAxis = new NumberAxis(axisName);
 	}
 	
-	/** 
-	 * Set the range of the y axis to axisName. 
-	 * @param axisMinRange see above. 
-	 * @param axisMaxRange see above. 
-	 */
-	public void setYAxisRange(double axisMinRange, double axisMaxRange)
-	{
-		rangeAxis.setRange(axisMinRange, axisMaxRange);
-	}
-
 	/**
 	 * Add a new Series to the plot. 
 	 * @param legend The name of the new sereis. 

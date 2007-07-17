@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -45,6 +46,7 @@ import javax.swing.JTextField;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.util.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.AnalysisStatsWrapper.StatsType;
+import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -72,7 +74,7 @@ class GraphPane
 	/** The name of the panel. */
 	private static final String			NAME = "Graph Pane";
 	
-		/** Reference to the control. */
+	/** Reference to the control. */
 	private MeasurementViewerControl	controller;
 	
 	/** Reference to the model. */
@@ -80,7 +82,7 @@ class GraphPane
 
 	/** The map of <ROIShape, ROIStats> .*/
 	private Map							ROIStats;
-	
+
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
@@ -143,7 +145,6 @@ class GraphPane
 		Map<StatsType, Map> shapeStats; 
 		Iterator shapeIterator  = ROIStats.keySet().iterator();
 		ROIShape shape;
-		JPanel chartPanel;
 		List<String> channelName = new ArrayList<String>();
 		List<Color> channelColour = new ArrayList<Color>();
 		List<double[]> channelData = new ArrayList<double[]>();
@@ -167,7 +168,8 @@ class GraphPane
 				channelName.add(model.getMetadata(channel).getEmissionWavelength()+"");
 				channelColour.add((Color)model.getActiveChannels().get(channel));
 				channelData.add(data.get(channel));
-				if(shape.getFigure() instanceof LineAnnotationFigure)
+				
+				if(lineProfileFigure(shape))
 				{
 					double dataY[] = data.get(channel);
 					double dataXY[][]=new double[2][dataY.length];
@@ -181,10 +183,9 @@ class GraphPane
 					channelXYData.add(dataXY);
 				}
 			}
-			if(shape.getFigure() instanceof LineAnnotationFigure )
-			{
+		
+			if(lineProfileFigure(shape))
 				lineProfileChart = drawLineplot("Line Profile", channelName, channelXYData, channelColour);
-			}
 			histogramChart = drawHistogram("Histogram", channelName, channelData,
 					channelColour, 1001);
 		}
@@ -206,6 +207,23 @@ class GraphPane
 		}
 	}
 	
+	/**
+	 * Is the figure contained in the ROIShape a line or bezier path?
+	 * @param shape The ROIShape containing figure.
+	 * @return See above.
+	 */
+	private boolean lineProfileFigure(ROIShape shape)
+	{
+		if(shape.getFigure() instanceof LineAnnotationFigure)
+			return true;
+		if(shape.getFigure() instanceof BezierAnnotationFigure )
+		{
+			BezierAnnotationFigure fig = (BezierAnnotationFigure)shape.getFigure();
+			if(!fig.isClosed())
+				return true;
+		}
+		return false;
+	}
 	
 	/**
 	 * Create jpanel with the label assigned the value str and
@@ -254,7 +272,7 @@ class GraphPane
 			List<double[][]> data, List<Color> channelColours)
 	{
 		LinePlot plot = new LinePlot(title, channelNames, data, 
-			channelColours);
+			channelColours, channelMinValue(), channelMaxValue());
 		return plot.getChart();
 	}
 	
@@ -270,10 +288,43 @@ class GraphPane
 			List<double[]> data, List<Color> channelColours, int bins)
 	{
 		HistogramPlot plot = new HistogramPlot(title, channelNames, data, 
-			channelColours, bins);
+			channelColours, bins, channelMinValue(), channelMaxValue());
 		return plot.getChart();
 	}
 	
+	/**
+	 * Finds the minimum value from the channelMin map
+	 * @return see above.
+	 */
+	private double channelMinValue()
+	{
+		Map channels = model.getActiveChannels();
+		Iterator<Integer> iterator = channels.keySet().iterator();
+		double value = 0;
+		while(iterator.hasNext())
+		{
+			int channel = iterator.next();
+			value = Math.min(value, model.getMetadata(channel).getGlobalMin());
+		}
+		return value;
+	}
+	
+	/**
+	 * Finds the maximum value from the channelMin map
+	 * @return see above.
+	 */
+	private double channelMaxValue()
+	{
+		Map channels = model.getActiveChannels();
+		Iterator<Integer> iterator = channels.keySet().iterator();
+		double value = 0;
+		while(iterator.hasNext())
+		{
+			int channel = iterator.next();
+			value = Math.max(value, model.getMetadata(channel).getGlobalMax());
+		}
+		return value;
+	}
 }
 
 

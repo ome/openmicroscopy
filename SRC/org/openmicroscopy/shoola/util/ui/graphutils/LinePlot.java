@@ -36,6 +36,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
 //Application-internal dependencies
@@ -83,7 +84,7 @@ public class LinePlot
 	DefaultXYDataset		dataset;
 	
 	/** The renderer to renderer the line of the plot. */
-	LineRenderer 			renderer;
+	StandardXYItemRenderer 			renderer;
 	
 	/** The x, y data of the plot. */
 	ArrayList<double[][]>   data;
@@ -114,29 +115,74 @@ public class LinePlot
 		setDefaultAxis();
 	}
 	
+	/**
+	 * Constructor for the lineplot. 
+	 * @param title graph title. 
+	 * @param newLegends The legends of each series. 
+	 * @param newData The data for each series. 
+	 * @param newColours The colours for each series. 
+	 * @param minValue the min value of the axis.
+	 * @param maxValue the max value of the axis.
+	 */
+	public LinePlot(String title, List<String> newLegends, List<double[][]> newData,
+		List<Color> newColours, double minValue, double maxValue)
+	{
+		if(newLegends.size()!=newData.size() && 
+				newLegends.size()!=newColours.size())
+			throw new IllegalArgumentException("Mismatch between argument " +
+					"length");
+		init();
+		for(int i = 0 ; i < newLegends.size(); i++)
+			addSeries(newLegends.get(i), newData.get(i), newColours.get(i));
+		setDefaultAxis();
+		rangeAxis.setRange(minValue, maxValue);
+	}
 	/** Set the default names for the x and y axis in the plot. */
 	public void setDefaultAxis()
 	{
-		setXAxis("X");
-		setYAxis("Y");
+		setXAxisName("X");
+		setYAxisName("Y");
 	}
 	
+	/** 
+	 * Set the range of the x axis to axisName. 
+	 * @param axisMinRange see above. 
+	 * @param axisMaxRange see above. 
+	 */
+	public void setXAxisRange(double axisMinRange, double axisMaxRange)
+	{
+		domainAxis.setRange(axisMinRange, axisMaxRange);
+		domainAxis.setAutoRange(false);
+	}
+
 	/** 
 	 * Set the name of the x axis to axisName. 
 	 * @param axisName see above. 
 	 */
-	public void setXAxis(String axisName)
+	public void setXAxisName(String axisName)
 	{
 		if(axisName==null)
 			throw new IllegalArgumentException("Null parameter for Axis name."); 
 		domainAxis = new NumberAxis(axisName);
+	}
+	
+	
+	/** 
+	 * Set the range of the y axis to axisName. 
+	 * @param axisMinRange see above. 
+	 * @param axisMaxRange see above. 
+	 */
+	public void setYAxisRange(double axisMinRange, double axisMaxRange)
+	{
+		rangeAxis.setRange(axisMinRange, axisMaxRange);
+		rangeAxis.setAutoRange(false);
 	}
 
 	/** 
 	 * Set the name of the y axis to axisName. 
 	 * @param axisName see above. 
 	 */
-	public void setYAxis(String axisName)
+	public void setYAxisName(String axisName)
 	{
 		if(axisName==null)
 			throw new IllegalArgumentException("Null parameter for Axis name."); 
@@ -166,10 +212,14 @@ public class LinePlot
 	 */
 	public JPanel getChart()
 	{
-		renderer = new LineRenderer(colours);
+		renderer = new StandardXYItemRenderer();
+		for(int i = 0 ; i < colours.size(); i++)
+			renderer.setSeriesPaint(i, colours.get(i));
 		XYPlot plot = new XYPlot(dataset, domainAxis,
             rangeAxis, renderer);
+		
 		freeChart = new JFreeChart(title, plot);
+		
 		charts = new ChartPanel(freeChart);
 		graphPanel = new JPanel();
 		graphPanel.setLayout(new BorderLayout());

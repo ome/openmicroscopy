@@ -391,7 +391,7 @@ class IntensityView
 			return;
 		state = state.ANALYSING;
 		this.ROIStats = model.getAnalysisResults();
-		if(ROIStats==null)
+		if(ROIStats==null || ROIStats.size() == 0)
 			return;
 		Iterator shapeIterator  = ROIStats.keySet().iterator();
 		channelName =  new TreeMap<Integer, String>();
@@ -428,6 +428,7 @@ class IntensityView
 					(Color)model.getActiveChannels().get(channel));
 			}
 		}
+		
 		createComboBox();
 		Object[] nameColour = (Object[])channelSelection.getSelectedItem();
 		String string = (String)nameColour[1];
@@ -463,6 +464,7 @@ class IntensityView
 	 */
 	private void createComboBox()
 	{
+		
 		Object[][] channelCols = new Object[channelName.size()][2]; 
 		Iterator<Integer> iterator = channelName.keySet().iterator();
 		int i = 0;

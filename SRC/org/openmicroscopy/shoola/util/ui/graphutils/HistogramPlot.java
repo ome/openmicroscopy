@@ -118,29 +118,77 @@ public class HistogramPlot
 		setDefaultAxis();
 	}
 	
+	/**
+	 * Constructor for the histogram. 
+	 * @param title graph title. 
+	 * @param newLegends The legends of each series. 
+	 * @param newData The data for each series. 
+	 * @param newColours The colours for each series. 
+	 * @param bins The number of bins in the histogram. 
+	 * @param minValue the min value of the axis.
+	 * @param maxValue the max value of the axis.
+	 */
+	public HistogramPlot(String title, List<String> newLegends,
+			List<double[]> newData,	List<Color> newColours, int bins, double minValue,
+			double maxValue)
+	{
+		if(newLegends.size()!=newData.size() && 
+				newLegends.size()!=newColours.size() || (newLegends.size()==0)
+				|| bins < 1)
+			throw new IllegalArgumentException("Mismatch between argument " +
+					"length");
+		init();
+		for(int i = 0 ; i < newLegends.size(); i++)
+			addSeries(newLegends.get(i), newData.get(i), newColours.get(i), bins);
+		setDefaultAxis();
+		domainAxis.setRange(minValue, maxValue);
+	}
 	/** Set the default names for the x and y axis in the plot. */
 	public void setDefaultAxis()
 	{
-		setXAxis("X");
-		setYAxis("Y");
+		setXAxisName("X");
+		setYAxisName("Y");
 	}
 	
+	/** 
+	 * Set the range of the x axis to axisName. 
+	 * @param axisMinRange see above. 
+	 * @param axisMaxRange see above. 
+	 */
+	public void setXAxisRange(double axisMinRange, double axisMaxRange)
+	{
+		domainAxis.setRange(axisMinRange, axisMaxRange);
+		domainAxis.setAutoRange(false);
+	}
+
 	/** 
 	 * Set the name of the x axis to axisName. 
 	 * @param axisName see above. 
 	 */
-	public void setXAxis(String axisName)
+	public void setXAxisName(String axisName)
 	{
 		if(axisName==null)
 			throw new IllegalArgumentException("Null parameter for Axis name."); 
 		domainAxis = new NumberAxis(axisName);
+	}
+	
+	
+	/** 
+	 * Set the range of the y axis to axisName. 
+	 * @param axisMinRange see above. 
+	 * @param axisMaxRange see above. 
+	 */
+	public void setYAxisRange(double axisMinRange, double axisMaxRange)
+	{
+		rangeAxis.setRange(axisMinRange, axisMaxRange);
+		rangeAxis.setAutoRange(false);
 	}
 
 	/** 
 	 * Set the name of the y axis to axisName. 
 	 * @param axisName see above. 
 	 */
-	public void setYAxis(String axisName)
+	public void setYAxisName(String axisName)
 	{
 		if(axisName==null)
 			throw new IllegalArgumentException("Null parameter for Axis name."); 
@@ -174,6 +222,8 @@ public class HistogramPlot
 	public JPanel getChart()
 	{
 		renderer = new HistogramBarRenderer(colours);
+		for(int i = 0 ; i < colours.size(); i++)
+			renderer.setSeriesPaint(i, colours.get(i));
 		XYPlot plot = new XYPlot(dataset, domainAxis,
             rangeAxis, renderer);
 		freeChart = new JFreeChart(title, plot);

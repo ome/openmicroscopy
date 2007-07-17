@@ -466,7 +466,13 @@ class MeasurementViewerComponent
 		//TODO: check state.
 		model.setActiveChannels(activeChannels);
 		if(view.inDataView())
-			view.displayAnalysisResults();
+		{
+			Collection<ROIFigure> collection = getSelectedFigures();
+			if(collection.size()!=1)
+				return;
+			ROIFigure figure = collection.iterator().next();
+			analyseShape(figure.getROIShape());
+		}
 	}
 
 	/** 
@@ -478,7 +484,13 @@ class MeasurementViewerComponent
 		//TODO: Check state
 		model.setActiveChannels(channels);
 		if(view.inDataView())
-			view.displayAnalysisResults();
+		{
+			Collection<ROIFigure> collection = getSelectedFigures();
+			if(collection.size()!=1)
+				return;
+			ROIFigure figure = collection.iterator().next();
+			analyseShape(figure.getROIShape());
+		}
 	}
 
 	/** 
@@ -512,6 +524,8 @@ class MeasurementViewerComponent
 		if (shape == null)
 			throw new IllegalArgumentException("No shape specified.");
 		if (model.getState() == ANALYSE_SHAPE)
+			return;
+		if(model.getActiveChannels().size()==0)
 			return;
 		model.fireAnalyzeShape(shape);
 		fireStateChange();

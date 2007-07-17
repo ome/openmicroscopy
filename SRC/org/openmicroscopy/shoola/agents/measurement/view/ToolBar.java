@@ -160,7 +160,7 @@ class ToolBar
 	    polygonTool = new MeasurementBezierTool(
 	    		new BezierAnnotationFigure(true));
 	    polylineTool = new MeasurementBezierTool(
-	    		new BezierAnnotationFigure(true));
+	    		new BezierAnnotationFigure(false));
 	    
 		ButtonGroup group = new ButtonGroup();
 		ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle(BASE_NAME);

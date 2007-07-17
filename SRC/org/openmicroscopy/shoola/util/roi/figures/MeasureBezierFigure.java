@@ -27,11 +27,14 @@ package org.openmicroscopy.shoola.util.roi.figures;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
@@ -348,14 +351,71 @@ public class MeasureBezierFigure
 	 */
 	public PlanePoint2D[] getPoints()
 	{
+		if(isClosed())
+			return getAreaPoints();
+		else
+			return getLinePoints();
+	}
+	
+	private PlanePoint2D[] getAreaPoints()
+	{
 		Rectangle r = path.getBounds();
-		ArrayList vector = new ArrayList(r.height*r.width);
-		int xEnd = r.x+r.width, yEnd = r.y+r.height;
-		int x, y;
-		for (y = r.y; y < yEnd; ++y) 
-			for (x = r.x; x < xEnd; ++x) 
-				if (path.contains(x, y)) vector.add(new PlanePoint2D(x, y));
-		return (PlanePoint2D[]) vector.toArray(new PlanePoint2D[vector.size()]);
+		double iX = Math.floor(r.getX());
+		double iY = Math.floor(r.getY());
+		ArrayList<PlanePoint2D> vector = new ArrayList<PlanePoint2D>();
+		path.toPolygonArray();
+		Point2D point = new Point2D.Double(0,0);
+		for(int x = 0 ; x < Math.ceil(r.getWidth()); x++)
+		{
+			for( int y = 0 ; y < Math.ceil(r.getHeight()) ; y++)
+			{
+				point.setLocation(iX+x, iY+y);
+				if(path.contains(point))
+					vector.add(new PlanePoint2D(point.getX(), point.getY()));
+			}
+		}
+		return (PlanePoint2D[])vector.toArray(new PlanePoint2D[vector.size()]);
+
+	}
+	
+	private PlanePoint2D[] getLinePoints()
+	{
+		Rectangle r = path.getBounds();
+		ArrayList<PlanePoint2D> vector = new ArrayList<PlanePoint2D>();
+		for(int i = 0 ; i < getNodeCount()-1; i++)
+		{
+			Point2D pt1 = getPoint(i);
+			Point2D pt2 = getPoint(i+1);
+			Line2D line = new Line2D.Double(pt1, pt2);
+			iterateLine(line, vector);
+		}
+		return (PlanePoint2D[])vector.toArray(new PlanePoint2D[vector.size()]);
+	}
+		
+	private void iterateLine(Line2D line, ArrayList<PlanePoint2D> vector)
+	{
+		Point2D start = line.getP1();
+		Point2D end = line.getP2();
+		Point2D m = new Point2D.Double(end.getX()-start.getX(), end.getY()-start.getY());
+		double lengthM = (Math.sqrt(m.getX()*m.getX()+m.getY()*m.getY()));
+		Point2D mNorm = new Point2D.Double(m.getX()/lengthM,m.getY()/lengthM);
+		LinkedHashMap<Point2D, Boolean> map = new LinkedHashMap<Point2D, Boolean>();
+		for(double i = 0 ; i < lengthM ; i+=0.1)
+		{
+			Point2D pt = new Point2D.Double(start.getX()+i*mNorm.getX(),
+				start.getY()+i*mNorm.getY());
+			Point2D quantisedPoint = new Point2D.Double(Math.floor(pt.getX()), 
+				Math.floor(pt.getY()));
+			if(!map.containsKey(quantisedPoint))
+				map.put(quantisedPoint, new Boolean(true));
+		}
+		Iterator<Point2D> i = map.keySet().iterator();
+		while(i.hasNext())
+		{
+			Point2D p  = i.next();
+			vector.add(new PlanePoint2D(p.getX(), p.getY()));
+		}
+		
 	}
 	
 }

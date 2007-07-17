@@ -277,7 +277,10 @@ public class RectAnnotationFigure
 		return FONT_SIZE.get(this).floatValue();
 	}
 
-	// EDITING
+	/**
+	 * Test to see if the text is editable.
+	 * @return is the text editable.
+	 */
 	public boolean isEditable() 
 	{
 		return editable;

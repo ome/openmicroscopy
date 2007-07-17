@@ -123,15 +123,15 @@ public class BarPlot
 	/** Set the default names for the x and y axis in the plot. */
 	public void setDefaultAxis()
 	{
-		setXAxis("X");
-		setYAxis("Y");
+		setXAxisName("X");
+		setYAxisName("Y");
 	}
 	
 	/** 
 	 * Set the name of the x axis to axisName. 
 	 * @param axisName see above. 
 	 */
-	public void setXAxis(String axisName)
+	public void setXAxisName(String axisName)
 	{
 		if(axisName==null)
 			throw new IllegalArgumentException("Null parameter for Axis name."); 
@@ -142,13 +142,24 @@ public class BarPlot
 	 * Set the name of the y axis to axisName. 
 	 * @param axisName see above. 
 	 */
-	public void setYAxis(String axisName)
+	public void setYAxisName(String axisName)
 	{
 		if(axisName==null)
 			throw new IllegalArgumentException("Null parameter for Axis name."); 
 		rangeAxis = new NumberAxis(axisName);
 	}
 	
+	/** 
+	 * Set the range of the y axis to axisName. 
+	 * @param axisMinRange see above. 
+	 * @param axisMaxRange see above. 
+	 */
+	public void setYAxisRange(double axisMinRange, double axisMaxRange)
+	{
+		rangeAxis.setRange(axisMinRange, axisMaxRange);
+		rangeAxis.setAutoRange(false);
+	}
+
 	/**
 	 * Add a new Series to the bar plot. 
 	 * @param legend The name of the new sereis. 

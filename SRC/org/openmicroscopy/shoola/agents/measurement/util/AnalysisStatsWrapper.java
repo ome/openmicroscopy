@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 //Third-party libraries
 
@@ -67,16 +68,11 @@ public class AnalysisStatsWrapper
 			return null;
 		ROIShapeStats 		stats;
 		int numChannels = shapeStats.size();
-		Map<Integer, Double>   channelMin = new HashMap<Integer, 
-														Double>(numChannels);
-		Map<Integer, Double>   channelMax = new HashMap<Integer, 
-														Double>(numChannels);
-		Map<Integer, Double>   channelMean = new HashMap<Integer, 
-														Double>(numChannels);
-		Map<Integer, Double>   channelStdDev = new HashMap<Integer, 
-														Double>(numChannels);
-		Map<Integer, double[]>	channelData = new HashMap<Integer, 
-		double[]>(numChannels);
+		Map<Integer, Double>   channelMin = new TreeMap<Integer, Double>();
+		Map<Integer, Double>   channelMax = new TreeMap<Integer, Double>();
+		Map<Integer, Double>   channelMean = new TreeMap<Integer, Double>();
+		Map<Integer, Double>   channelStdDev = new TreeMap<Integer, Double>();
+		Map<Integer, double[]>	channelData = new TreeMap<Integer, double[]>();
 		Iterator<Double> 	pixelIterator;
 		Map<PlanePoint2D,Double> pixels;
 		double[] pixelData;
