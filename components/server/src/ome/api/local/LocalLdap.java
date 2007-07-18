@@ -8,6 +8,8 @@ package ome.api.local;
 
 import java.util.List;
 
+import ome.annotations.Hidden;
+
 // Java imports
 
 // Third-party libraries
@@ -39,7 +41,7 @@ public interface LocalLdap extends ome.api.ILdap {
 	 * 
 	 * @return {@link ome.system.ServiceFactory}
 	 */
-	boolean createUserFromLdap(String username, String password);
+	boolean createUserFromLdap(String username, @Hidden String password);
 	
 	/**
 	 * Valids specyfied requirements for base (groups, attributes)
@@ -54,7 +56,7 @@ public interface LocalLdap extends ome.api.ILdap {
 	 * 
 	 * @return boolean
 	 */
-	boolean validatePassword(String base, String password);
+	boolean validatePassword(String base, @Hidden String password);
 	
 	/**
 	 * Checks that user's group list contains require groups. If one of user's
