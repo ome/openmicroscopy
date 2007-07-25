@@ -192,6 +192,8 @@ class ROIAssistant
 			{
 				int col = table.getSelectedColumn();
 				int row = table.getSelectedRow();
+				if(col==0)
+					return;
 				Object value = table.getShapeAt(row, col);
 				if(value instanceof ROIShape)
 				{
@@ -404,6 +406,7 @@ class ROIAssistant
 		Point point = mapCoordToCell(currentPlane);
 		int x = (int) Math.max((point.getX()-6*table.getColumnWidth()), 0);
 		int y = (int) Math.max((point.getY()-6*table.getColumnWidth()), 0);
+		
 		viewPort.setViewPosition(new Point(x, y));
 	}
 

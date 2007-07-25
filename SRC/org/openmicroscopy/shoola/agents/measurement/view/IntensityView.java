@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
@@ -408,6 +409,8 @@ class IntensityView
 		while(shapeIterator.hasNext())
 		{
 			shape = (ROIShape) shapeIterator.next();
+			if(shape.getFigure() instanceof MeasureTextFigure)
+				return;
 			Map shapeStats = (Map) ROIStats.get(shape);
 			Iterator channelIterator = shapeStats.keySet().iterator();
 			clearAllVariables();
@@ -420,8 +423,6 @@ class IntensityView
 				channelMax.put(channel, stats.getMax());
 				channelMean.put(channel, stats.getMean());
 				channelStdDev.put(channel, stats.getStandardDeviation());
-				if(stats.getPixelsValue().size()==0)
-					return;
 				planePixels.put(channel, stats.getPixelsValue());
 				channelName.put(channel,
 					model.getMetadata(channel).getEmissionWavelength()+"");
@@ -577,8 +578,8 @@ class IntensityView
 		heightLabel.setText("Height");
 		widthValue.setText(AnnotationKeys.WIDTH.get(shape)+"");
 		heightValue.setText(AnnotationKeys.HEIGHT.get(shape)+"");
-		XCentreValue.setText(AnnotationKeys.CENTREX.get(shape)+"");
-		YCentreValue.setText(AnnotationKeys.CENTREY.get(shape)+"");
+		XCentreValue.setText(FormatString(AnnotationKeys.CENTREX.get(shape)));
+		YCentreValue.setText(FormatString(AnnotationKeys.CENTREY.get(shape)));
 	}
 
 	/**
@@ -593,8 +594,8 @@ class IntensityView
 		heightLabel.setText("End Y");
 		widthValue.setText(AnnotationKeys.ENDPOINTX.get(shape)+"");
 		heightValue.setText(AnnotationKeys.ENDPOINTY.get(shape)+"");
-		XCentreValue.setText(AnnotationKeys.CENTREX.get(shape)+"");
-		YCentreValue.setText(AnnotationKeys.CENTREY.get(shape)+"");
+		XCentreValue.setText(FormatString(AnnotationKeys.CENTREX.get(shape)));
+		YCentreValue.setText(FormatString(AnnotationKeys.CENTREY.get(shape)));
 	}
 	
 	/**
@@ -609,8 +610,8 @@ class IntensityView
 		heightLabel.setText("Height");
 		widthValue.setText("1");
 		heightValue.setText("1");
-		XCentreValue.setText(AnnotationKeys.CENTREX.get(shape)+"");
-		YCentreValue.setText(AnnotationKeys.CENTREY.get(shape)+"");
+		XCentreValue.setText(FormatString(AnnotationKeys.CENTREX.get(shape)));
+		YCentreValue.setText(FormatString(AnnotationKeys.CENTREY.get(shape)));
 	}
 	
 	/**
@@ -792,8 +793,7 @@ class IntensityView
 	private void writeMinStat(BufferedWriter out, int channel)
 															throws IOException
 	{
-		for(int i = 0 ; i < tableModel.getColumnCount(); i++)
-			out.write(",Maximum Intensity, ");
+		out.write("Minimum Intensity, ");
 		out.write(channelMin.get(channel)+"");
 	}
 	

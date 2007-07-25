@@ -421,10 +421,16 @@ class MeasurementViewerComponent
 	 */
 	public void showROIAssistant()
 	{
-		//TODO: check state
-		Collection<ROI> roiList = model.getSelectedROI();
 		Registry reg = MeasurementAgent.getRegistry();
 		UserNotifier un = reg.getUserNotifier();
+		if(view.inDataView())
+		{
+			un.notifyInfo("ROI Assistant", "ROI Assistant cannot be used" +
+					" in graph pane or intensity view");
+			return;
+		}
+		
+		Collection<ROI> roiList = model.getSelectedROI();
 		if (roiList.size() == 0)
 		{
 			un.notifyInfo("ROI Assistant", "Select a Figure to modify " +

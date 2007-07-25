@@ -128,6 +128,7 @@ public class Analyser
 		this.pixels = pixels;
     	this.channels = channels;
     	Iterator i = shapes.iterator();
+    	System.err.println("Analyser.shapes.size() " + shapes.size());
     	ROIShape[] data = new ROIShape[shapes.size()];
     	int index = 0;
     	while (i.hasNext()) {

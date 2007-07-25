@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -48,6 +47,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
@@ -155,6 +155,9 @@ class GraphPane
 		while(shapeIterator.hasNext())
 		{
 			shape = (ROIShape) shapeIterator.next();
+			if(shape.getFigure() instanceof MeasureTextFigure)
+				return;
+		
 			shapeStats = AnalysisStatsWrapper.convertStats(
 											(Map) ROIStats.get(shape));
 			channelName.clear();
