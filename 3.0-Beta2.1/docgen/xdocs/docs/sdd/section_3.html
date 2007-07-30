@@ -1,0 +1,33 @@
+<html>
+<head>
+<title>Events</title>
+</head>
+<body>
+<p>
+We devise two common categories of events:
+</p>
+<p>
+<ul>
+<li>Events that serve as a notification of state change.</li>
+<li>Events that represent invocation requests and completion of asynchronous operations.
+</li>
+ </ul>
+ In the first category fall those events that an agent posts on 
+ the event bus to notify other agents of a change in its internal state. 
+ Events in the second category are meant to support asynchronous 
+ communication between agents and  components.
+ The <code>AgentEvent</code> class, which represents the generic event type, 
+ is sub-classed in order to create a hierarchy that represents the above 
+ categories. Thus, on one hand we have an abstract <code>StateChangeEvent</code>
+  class from which agents derive concrete classes to represent state 
+  change notifications. On the other hand, the <code>RequestEvent</code> 
+  and <code>ResponseEvent</code> abstract classes are sub-classed by 
+  the container in order to define, respectively, how to request the 
+  asynchronous execution of a rendering operation and how to represent 
+  its completion. We use the Asynchronous Completion Token pattern 
+  <a href="pos_a2">[POSA2]</a>
+  to dispatch processing actions in response to the completion of 
+  asynchronous operations.
+ </p>
+</body>
+</html>

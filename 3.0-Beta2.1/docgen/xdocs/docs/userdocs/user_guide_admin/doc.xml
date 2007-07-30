@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xdoc>
+<xdoc-info>
+
+  <title>OMERO.admin User Guide</title>
+  <author name="Donald MacDonald" email="comments@openmicroscopy.org.uk" />
+  <version number="3.0-Beta"/>
+  <last-modified date="2007-02-16"/>
+</xdoc-info>
+
+ <toc name="Table of Contents" href="index.htm">
+ <section href="intro.html" name="Introduction"/>
+ <section href="section_2.html" name="Installing OMERO.admin"/>
+ <section href="section_3.html" name="Using OMERO.admin">
+ <section href="section_3_1.html" name="Administering user accounts">
+   <section href="section_3_1_1.html" name="Creating new User"/>
+   <section href="section_3_1_2.html" name="Deleting User"/>
+   <section href="section_3_1_3.html" name="Resetting Users password"/>
+   <section href="section_3_1_4.html" name="Setting User as System User"/>
+   <section href="section_3_1_5.html" name="Adding User to User Group"/>
+   <section href="section_3_1_6.html" name="Removing User from User Group"/>
+   <section href="section_3_1_7.html" name="Setting User Group as the Default Group for User"/>
+ </section>
+ <section href="section_3_2.html" name="Administering User Groups">
+  <section href="section_3_2_1.html" name="Creating User Group"/>
+   <section href="section_3_2_2.html" name="Adding User to Group"/>
+   <section href="section_3_2_3.html" name="Removing User from Group"/>
+ </section>
+ </section>
+   <section href="section_4.html" name="Feedback reporting">
+	  <section href="section_4_1.html" name="Help Information"/>
+	  <section href="section_4_2.html" name="Feedback Facility"/>
+    </section>	
+  </toc>
+</xdoc>

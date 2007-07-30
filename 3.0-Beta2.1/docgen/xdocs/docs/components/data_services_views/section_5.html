@@ -1,0 +1,60 @@
+<html>
+<head>
+<title>Execution Infrastructure</title>
+</head>
+<body>
+<p>This section details the structure and dynamics of the execution infrastructure. 
+  This is a set of classes that collaborate to:</p>
+<ul>
+  <li>Factor out the implementation logic common to all calls within the views.</li>
+  <li>Configure and execute commands.</li>
+  <li>Monitor execution and relay execution events to the invoker.</li>
+</ul>
+<p>&#160;</p>
+<p>All this is described in the following diagrams. We start with a structural diagram 
+  to present the key classes, their relationships and roles.</p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="center"><img src="images/structure.gif" width="620" height="570" /></td>
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="center"><a name="fig_5-1"><b>Fig 5-1</b></a>: Structure.</td>
+  </tr>
+  <tr> 
+    <td height="40"><hr width="80%" align="center"/></td></tr>
+</table> 
+<p>The next diagram analyzes a concrete call to a view to exemplify the pattern followed 
+  by all asynchronous calls in the various views. The call is mapped onto a command, 
+  the command is transferred to a processor for asynchronous execution, a handle to 
+  the call is returned to the invoker.</p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="center"><img src="images/invocation.gif" width="700" height="532" /></td>
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="center"><a name="fig_5-2"><b>Fig 5-2</b></a>: Invocation.</td>
+  </tr>
+  <tr> 
+    <td height="40"><hr width="80%" align="center"/></td></tr>
+</table>
+<p>As the computation proceeds asynchronously, the processor sends execution events. 
+  This last diagram shows how they're captured and relayed to the listener specified 
+  by the invoker.</p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="center"><img src="images/exec_events.gif" width="690" height="570" /></td>
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="center"><a name="fig_5-3"><b>Fig 5-3</b></a>: Execution events.</td>
+  </tr>
+  <tr> 
+    <td height="40"><hr width="80%" align="center"/></td></tr>
+</table>
+</body>
+</html>
