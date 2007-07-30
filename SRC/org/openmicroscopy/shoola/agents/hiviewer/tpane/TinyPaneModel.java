@@ -213,6 +213,7 @@ class TinyPaneModel
      */
     private void setParentSizeForMultiView(Container parent)
     {
+    	if (parent == null) return;
         if (parent instanceof TinyPane) {
             parent.setSize(parent.getPreferredSize());
             parent.validate();

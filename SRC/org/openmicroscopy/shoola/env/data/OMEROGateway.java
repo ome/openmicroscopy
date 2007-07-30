@@ -46,7 +46,6 @@ import javax.ejb.EJBException;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import ome.api.IAdmin;
-import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IUpdate;
@@ -546,6 +545,8 @@ class OMEROGateway
     {
         try {
             IPojos service = getIPojosService();
+            Set s = new HashSet();
+            Iterator j = s.iterator();
             return PojoMapper.asDataObjects(service.loadContainerHierarchy(
                     convertPojos(rootNodeType), rootNodeIDs, options));
         } catch (Throwable t) {
@@ -678,6 +679,7 @@ class OMEROGateway
         } catch (Throwable t) {
             handleException(t, "Cannot find CGC paths.");
         }
+        new Long(1);
         return new HashSet();
     }
     

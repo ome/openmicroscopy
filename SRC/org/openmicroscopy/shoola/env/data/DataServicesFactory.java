@@ -94,7 +94,7 @@ public class DataServicesFactory
 	/**
 	 * Attempts to create a new instance.
      * 
-	 * @param c		container.
+	 * @param c	Reference to the container.
 	 * @throws DSOutOfServiceException If the connection can't be established
 	 * 									or the credentials are invalid.	
 	 */

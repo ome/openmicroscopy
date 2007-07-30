@@ -36,7 +36,6 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BandedSampleModel;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
-import java.awt.image.ColorConvertOp;
 import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.ConvolveOp;
@@ -167,13 +166,17 @@ public class Factory
     public static BufferedImage magnifyImage(BufferedImage img, double level, 
                                          int w)
     {
+    	if (img == null) return null;
+    	
         AffineTransform a = new AffineTransform();
         a.scale(level, level);
         BufferedImageOp biop = new AffineTransformOp(a,
                                         AffineTransformOp.TYPE_BILINEAR); 
-        BufferedImage rescaleBuff = new BufferedImage(
-                (int) (img.getWidth()*level)+w, (int) (img.getHeight()*level)+w,
-                BufferedImage.TYPE_INT_RGB);
+        int width = (int) (img.getWidth()*level)+w;
+        int height = (int) (img.getHeight()*level)+w;
+        if (width <= 0 || height <= 0) return null;
+        BufferedImage rescaleBuff = new BufferedImage(width, height,
+                						BufferedImage.TYPE_INT_RGB);
         BufferedImage bimg = new BufferedImage(img.getWidth(), img.getHeight(), 
                 BufferedImage.TYPE_INT_RGB);
         RescaleOp rop = new RescaleOp(1, 0.0f, null);
@@ -206,13 +209,15 @@ public class Factory
         int type = img.getType();
         if (type == BufferedImage.TYPE_CUSTOM)
         	type = BufferedImage.TYPE_INT_RGB;
-        BufferedImage rescaleBuff = new BufferedImage((int) (width*f), 
-                        (int) (height*f), type); //img.getType()
+        int scaleWidth = (int) (width*f);
+        int scaleHeight = (int) (height*f);
+        if (scaleWidth <= 0 || scaleHeight <= 0) return null;
+        BufferedImage rescaleBuff = new BufferedImage(scaleWidth, 
+        							scaleHeight, type); //img.getType()
         biop.filter(img, rescaleBuff);
         return rescaleBuff;
     }
-    
-    
+
     /** 
      * Applies a sharpen filter or a low_pass filter. 
      * 

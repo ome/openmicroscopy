@@ -73,7 +73,6 @@ public class LoginServiceImpl
     /** Allows to easily access the service's configuration. */
     protected LoginConfig   config;
     
-    
     /**
      * Suspends execution for as many milliseconds as specified by the
      * service's configuration.
@@ -86,7 +85,7 @@ public class LoginServiceImpl
     }
     
     /**
-     * Attempts to to log onto <i>OMEDS</i> using the current user's 
+     * Attempts to log onto <i>OMERO</i> using the current user's 
      * credentials.
      * Failure or success is reported to the Log Service.
      * 
@@ -120,7 +119,7 @@ public class LoginServiceImpl
             LogMessage msg = new LogMessage();
             msg.println("Failed to log onto OMERO.");
             msg.println("Reason: "+dsose.getMessage());
-            msg.println("OMERO Address: "+uc.getHostName());
+            msg.println("OMERO address: "+uc.getHostName());
             if (uc != null) msg.println(uc);
             Logger logger = container.getRegistry().getLogger();
             logger.error(this, msg);

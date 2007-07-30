@@ -40,7 +40,7 @@ import org.openmicroscopy.shoola.env.rnd.roi.ROIAnalyser;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 
- * 
+ * Retrieves the raw pixels data and creates an analyser.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -88,6 +88,7 @@ public class Analyser
             	try {
             		result = analyser.analyze(shapes, channels);
 				} catch (Exception e) {
+					//TODO handle exception
 					e.printStackTrace();
 				}
             }
@@ -128,7 +129,6 @@ public class Analyser
 		this.pixels = pixels;
     	this.channels = channels;
     	Iterator i = shapes.iterator();
-    	System.err.println("Analyser.shapes.size() " + shapes.size());
     	ROIShape[] data = new ROIShape[shapes.size()];
     	int index = 0;
     	while (i.hasNext()) {

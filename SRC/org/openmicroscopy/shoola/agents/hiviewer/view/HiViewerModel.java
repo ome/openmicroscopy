@@ -258,7 +258,7 @@ abstract class HiViewerModel
 	    		break;
 	    	case LayoutFactory.SQUARY_LAYOUT:
 	    	default:
-	    		HashSet set = new HashSet();
+	    		Set set = new HashSet();
 	    		Set oldNodes = browser.getRootNodes();
 	    		if (oldNodes != null) {
 	    			Iterator i = oldNodes.iterator();
@@ -694,7 +694,5 @@ abstract class HiViewerModel
      * @return A new Model created after this one.
      */
     protected abstract HiViewerModel reinstantiate();
-
-	
 
 }

@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.rnd.data;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -57,10 +58,10 @@ public class PixelsCache
 {
 
 	/** The size, in bytes, of the image cache. */
-	private final int 				cacheSize;
+	private int 					cacheSize;
 	
 	 /** The size, in bytes, of 2D-plane. */
-	private final int				planeSize;
+	private int						planeSize;
 	
 	/** 
 	 * Maximum number of entries allowed in the cache.
@@ -68,7 +69,7 @@ public class PixelsCache
 	 * <nobr><code>
 	 * M*{@link #planeSize} &lt;= {@link #cacheSize}</code></nobr>.
 	 */
-	private final int				maxEntries;
+	private int						maxEntries;
 	
 	/**
      * Maps {@link Integer}s onto {@link Plane2D}s.
@@ -106,7 +107,7 @@ public class PixelsCache
      * @param cacheSize The size, in bytes, of the cache. Must be positive.
      * @param planeSize The size, in bytes, of an image. Must be positive.
      */
-	PixelsCache(int cacheSize, int planeSize)
+	public PixelsCache(int cacheSize, int planeSize)
 	{
 		if (cacheSize <= 0)
             throw new IllegalArgumentException(
@@ -182,4 +183,19 @@ public class PixelsCache
         cache = new LinkedHashMap<Integer, Plane2D>(oldSize);
     }
  
+    /**
+     * Resets the size of the cache.
+     * 
+     * @param size
+     */
+    public void resetCacheSize(int size)
+    {
+        if (size < 0)
+            throw new IllegalArgumentException(
+                    "Cache size must be positive: "+size+".");
+        cacheSize = size;
+        maxEntries = cacheSize/planeSize;
+        cache = new LinkedHashMap<Integer, Plane2D>(maxEntries);
+    }
+    
 }

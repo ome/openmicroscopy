@@ -183,7 +183,7 @@ class ImgSaverUI
     {
     	switch (model.getSavingType()) {
     		case ImgSaver.PARTIAL:
-    			savingTypes = new JComboBox(selections);
+    			savingTypes = new JComboBox(partialSelections);
 			break;
 	    	case ImgSaver.FULL:
 			default:

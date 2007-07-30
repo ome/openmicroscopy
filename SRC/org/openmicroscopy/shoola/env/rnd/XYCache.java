@@ -47,19 +47,19 @@ import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
 /** 
  * Caches XY images, within a given pixels set, that have been rendered.
  * <p>The number of entries in the cache at any given time is  
- * <code>MAX_ENTRIES</code> at most, being <code>MAX_ENTRIES</code> the greatest
+ * <code>max_entries</code> at most, being <code>max_entries</code> the greatest
  * integer such that <nobr>
- * <code>MAX_ENTRIES</code>*<code>IMAGE_SIZE</code> &lt;= 
- * <code>CACHE_SIZE</code>
+ * <code>max_entries</code>*<code>image_size</code> &lt;= 
+ * <code>cache_size</code>
  * </nobr>.</p>
- * <p>If <code>MAX_ENTRIES</code> is reached and an entry has to be added, we 
+ * <p>If <code>max_entries</code> is reached and an entry has to be added, we 
  * discard a previous entry to make room for the new one.  The removal policy
  * is based on the current navigation direction maintained by the 
  * {@link NavigationHistory} and is as follows.  Let <code>C</code> be the set
  * of all entries in the cache and be <code>n</code> its cardinality.  It's a
  * trivial observation that we can identify an element of <code>C</code> with
- * a point in the <i>zOt</i> cartesian plane.  Now if a point <code>p</code> is
- * to be added to <code>C</code> and <code>n=MAX_ENTRIES</code>, we consider
+ * a point in the <i>zOt</i> cartesian plane. Now if a point <code>p</code> is
+ * to be added to <code>C</code> and <code>n=max_entries</code>, we consider
  * the set <code>C'</code> of all elements of <code>C</code> ordered such that
  * the first element is the farthest away from <code>p</code> and the last 
  * element is the closest to <code>p</code>.  That is:</p>
@@ -79,7 +79,7 @@ import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
  *  <li>Look for the first element of <code>C'</code> that falls on the 
  *  negative half of <code>D</code> &#151; this half contains the points 
  *  "behind" the current move with respect to the orientation of the
- *  movement.  If such an element exists, then remove it.  Otherwise go on
+ *  movement. If such an element exists, then remove it.  Otherwise go on
  *  to the next step.</li>
  *  <li>Remove <code>c<sub>1</sub></code>.</li>
  * </ol>
@@ -98,7 +98,7 @@ public class XYCache
 {
 
     /** The size, in bytes, of a rendered XY image. */
-    private final int           image_size;
+    private final int           			image_size;
     
     /** 
      * The size, in bytes, of the image cache.
@@ -106,7 +106,7 @@ public class XYCache
      * requests to cache an image will result in the removal of some already
      * cached images.
      */
-    private int                 cache_size;
+    private int                 			cache_size;
     
     /** 
      * Maximum number of entries allowed in the cache.
@@ -114,7 +114,7 @@ public class XYCache
      * <nobr><code>
      * M*{@link #image_size} &lt;= {@link #cache_size}</code></nobr>.
      */
-    private int                 max_entries;
+    private int                 			max_entries;
     
     /**
      * Maps {@link PlanePoint}s onto {@link BufferedImage}s.
@@ -122,14 +122,13 @@ public class XYCache
      * a point in the <i>zOt</i> cartesian plane, hence with an instance of
      * {@link PlanePoint}. 
      */
-    private Map                 cache;
+    private Map<PlanePoint, BufferedImage>	cache;
     
     /**
      * Refers to the {@link NavigationHistory} serving the pixels set this 
      * cache was associated to.
      */
-    private NavigationHistory   navigHistory;
-    
+    private NavigationHistory   			navigHistory;
     
     /**
      * Makes enough room in {@link #cache} for a new entry to be added.
@@ -144,8 +143,7 @@ public class XYCache
     private void ensureCapacity(final PlanePoint p)
     {
         //First off, build the C' sequence.
-        PlanePoint[] orderedCache = (PlanePoint[]) 
-                                    cache.keySet().toArray(new PlanePoint[0]);
+        PlanePoint[] orderedCache = cache.keySet().toArray(new PlanePoint[0]);
         Arrays.sort(orderedCache, new Comparator() {
             public int compare(Object o1, Object o2) {
                 PlanePoint c1 = (PlanePoint) o1, c2 = (PlanePoint) o2;
@@ -217,7 +215,7 @@ public class XYCache
         cache_size = cacheSize;
         image_size = imageSize;
         max_entries = cache_size/image_size;
-        cache = new HashMap(max_entries);
+        cache = new HashMap<PlanePoint, BufferedImage>(max_entries);
         navigHistory = nh;
     }
     
@@ -266,7 +264,7 @@ public class XYCache
             throw new IllegalArgumentException(
                     "Can only accept XY planes: "+pd.getSlice()+".");
         PlanePoint key = new PlanePoint(pd.getZ(), pd.getT());
-        return (BufferedImage) cache.get(key);
+        return cache.get(key);
     }
     
     /**
@@ -289,7 +287,7 @@ public class XYCache
     void clear()
     {
         int oldSize = cache.size();
-        cache = new HashMap(oldSize);
+        cache = new HashMap<PlanePoint, BufferedImage>(oldSize);
     }
     
     /**
@@ -304,7 +302,7 @@ public class XYCache
                     "Cache size must be positive: "+size+".");
         cache_size = size;
         max_entries = cache_size/image_size;
-        cache = new HashMap(max_entries);
+        cache = new HashMap<PlanePoint, BufferedImage>(max_entries);
     }
     
 /* 

@@ -184,9 +184,13 @@ class HiViewerComponent
             fireStateChange();
         } else {
         	Browser browser = model.getBrowser();
-        	boolean isClipBoardDisplay = model.getClipBoard().isDisplay();
         	if (browser == null)
-        		 throw new NullPointerException("The browser cannot be NULL.");
+        		throw new NullPointerException("The browser cannot be NULL.");
+        	boolean isClipBoardDisplay = false;
+        	ClipBoard clipBoard = model.getClipBoard();
+        	if (clipBoard != null) 
+        		isClipBoardDisplay = clipBoard.isDisplay();
+        	
         	view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         	model.refreshBrowser(roots, flat);
         	model.createClipBoard();

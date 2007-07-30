@@ -98,25 +98,11 @@ class RenderingControlProxy
     /** The cache containing XY images. */
     private XYCache                 xyCache;
     
-    /** The size of the cache. No caching if <= 0.*/
-    private int                     sizeCache;
-    
     /** The channel metadata. */
     private ChannelMetadata[]       metadata;
     
     /** Local copy of the rendering used to speed-up the UI painting. */
     private RndProxyDef             rndDef;
-    
-    /**
-     * Returns the size of the cache.
-     * 
-     * @return See above.
-     */
-    private int getCacheSize()
-    {
-        if (sizeCache <= 0) sizeCache = 0;
-        return sizeCache*1024*1024;
-    }
     
     /**
      * Helper method to handle exceptions thrown by the connection library.
@@ -197,12 +183,9 @@ class RenderingControlProxy
                 //rendered and until an XY plane is not requested it's pointless
                 //to have a cache.
                 if (xyImgSize != 0) {
-                    int cacheSize = getCacheSize();
-                    NavigationHistory nh = new NavigationHistory(
-                                                  cacheSize/xyImgSize, 
-                                                  getPixelsDimensionsZ(), 
-                                                  getPixelsDimensionsT());
-                   // xyCache = new XYCache(cacheSize, xyImgSize, nh);
+                   xyCache = CachingService.createXYCache(pixs.getId(), 
+                		   				xyImgSize, getPixelsDimensionsZ(), 
+                		   				getPixelsDimensionsT());
                 }
             }
         }
@@ -349,12 +332,10 @@ class RenderingControlProxy
      *                  Mustn't be <code>null</code>.
      * @param pixDims   The dimensions in microns of the pixels set.
      *                  Mustn't be <code>null</code>.
-     * @param m         The channel metadata.                
-     * @param sizeCache The size of the cache.
+     * @param m         The channel metadata. 
      * @param pixelsID	The pixels ID, this proxy is for.
      */
-    RenderingControlProxy(RenderingEngine re, PixelsDimensions pixDims,
-                          List m, int sizeCache)
+    RenderingControlProxy(RenderingEngine re, PixelsDimensions pixDims, List m)
     {
         if (re == null)
             throw new NullPointerException("No rendering engine.");
@@ -362,7 +343,6 @@ class RenderingControlProxy
             throw new NullPointerException("No pixels dimensions.");
         servant = re;
         this.pixDims = pixDims;
-        this.sizeCache = sizeCache;
         pixs = servant.getPixels();
         families = servant.getAvailableFamilies(); 
         models = servant.getAvailableModels();
@@ -401,7 +381,7 @@ class RenderingControlProxy
             throw new IllegalArgumentException("Plane def cannot be null.");
         //See if the requested image is in cache.
         
-        BufferedImage img = null;//getFromCache(pDef);
+        BufferedImage img = getFromCache(pDef);
         if (img != null) return img;
         int[] buf = servant.renderAsPackedInt(pDef);
         int sizeX1, sizeX2;

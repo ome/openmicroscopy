@@ -306,9 +306,9 @@ public interface ImViewer
     /**
      * Sets the {@link RenderingControl}.
      * 
-     * @param result The {@link RenderingControl} to set.
+     * @param rndControl The {@link RenderingControl} to set.
      */
-    public void setRenderingControl(RenderingControl result);
+    public void setRenderingControl(RenderingControl rndControl);
     
     /** Renders the current XY-plane. */
     public void renderXYPlane();
@@ -507,8 +507,9 @@ public interface ImViewer
     /**
      * Invokes only when the rendering engine was reloaded after time out.
      *
+     * @param rndControl The {@link RenderingControl} to set.
      */
-    public void setReloaded();
+    public void setReloaded(RenderingControl rndControl);
 
     /**
      * Notifies the user than an error occured while trying to modify the 

@@ -104,7 +104,7 @@ public class RenderingControlLoader
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
         if (!reload) viewer.setRenderingControl((RenderingControl) result);
-        else viewer.setReloaded();
+        else viewer.setReloaded((RenderingControl) result);
     }
     
 }

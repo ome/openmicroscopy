@@ -247,6 +247,8 @@ class ImViewerModel
     void discard()
     {
         state = ImViewer.DISCARDED;
+        //Shut down the service
+        ImViewerAgent.getRegistry().getImageService().shutDown(pixelsID);
         if (currentLoader != null) {
             currentLoader.cancel();
             currentLoader = null;
@@ -255,8 +257,7 @@ class ImViewerModel
         if (player == null) return;
         player.setPlayerState(Player.STOP);
         player = null;
-        //Shut down the service
-        ImViewerAgent.getRegistry().getImageService().shutDown(pixelsID);
+       
     }
 
     /**
@@ -840,9 +841,10 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	Map getActiveChannelsMap() {
+	Map getActiveChannelsMap()
+	{
 		List l = getActiveChannels();
-		Map m = new HashMap(l.size());
+		Map<Integer, Color> m = new HashMap<Integer, Color>(l.size());
 		Iterator i = l.iterator();
 		Integer index;
 		while (i.hasNext()) {

@@ -37,9 +37,7 @@ import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
-
 import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 
@@ -72,9 +70,6 @@ public class PixelsServicesFactory
     
     /** Reference to the container registry. */
     private static Registry                 registry;
-    
-    /** The per image cache size. */
-    private static int                      cacheSize;
     
     /**
      * Creates a new instance. This can't be called outside of container b/c 
@@ -208,7 +203,7 @@ public class PixelsServicesFactory
     	if (singleton.pixelsSource != null && 
     			singleton.pixelsSource.isSame(pixels.getId().longValue()))
     		return singleton.pixelsSource;
-    	singleton.pixelsSource = DataSink.makeNew(pixels, registry, cacheSize);
+    	singleton.pixelsSource = DataSink.makeNew(pixels, registry);
     	return singleton.pixelsSource;
     }
     
@@ -245,10 +240,6 @@ public class PixelsServicesFactory
     private PixelsServicesFactory()
     {
         rndSvcProxies = new HashMap();
-        Integer size = (Integer) registry.lookup(LookupNames.RE_CACHE_SZ);
-        if (size == null) cacheSize = 1;
-        else cacheSize = size.intValue();
-        if (cacheSize <= 0) cacheSize = 1;
     }
  
     /**
@@ -267,9 +258,7 @@ public class PixelsServicesFactory
         RenderingControl rnd = getRenderingControl(registry, id);
         if (rnd != null) return rnd;
         int l = singleton.rndSvcProxies.size();
-        int size = cacheSize;
-        if (l != 0) size = cacheSize/l;
-        rnd = new RenderingControlProxy(re, pixDims, metadata, size);
+        rnd = new RenderingControlProxy(re, pixDims, metadata);
         //reset the size of the caches.
         Iterator i = singleton.rndSvcProxies.keySet().iterator();
         RenderingControlProxy proxy;

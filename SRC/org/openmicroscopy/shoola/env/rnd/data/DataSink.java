@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.rnd.data;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.rnd.CachingService;
 import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 import ome.model.core.Pixels;
@@ -87,15 +88,13 @@ public class DataSink
 	 * @param size		The size of the cache.
 	 * @return See above.
 	 */
-	public static DataSink makeNew(Pixels source, Registry context, int size)
+	public static DataSink makeNew(Pixels source, Registry context)
 	{
 		 if (source == null)
 			 throw new NullPointerException("No pixels.");
 	     if (context == null) 
 	    	 throw new NullPointerException("No registry.");
-	     if (size <= 0) size = 1;
-	     else size = size*1024*1024;
-	     PixelsCache cache = new PixelsCache(size, 
+	     PixelsCache cache = CachingService.createPixelsCache(source.getId(), 
 	    		 			source.getSizeX()*source.getSizeY());
 	     return new DataSink(source, context, cache);
 	}

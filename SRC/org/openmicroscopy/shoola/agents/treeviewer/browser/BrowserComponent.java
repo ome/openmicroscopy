@@ -190,9 +190,13 @@ class BrowserComponent
 	        case LOADING_LEAVES:
 	        	model.cancel();
 	        case DISCARDED:
+	        	//ignore
+	        	return;
+	        	/*
 	            throw new IllegalStateException(
-	                    "This method cannot be invoked in the LOADING_DATA, "+
-	                    " LOADING_LEAVES or DISCARDED state.");
+	                    "This method cannot be invoked in the " +
+	                    "DISCARDED state.");
+	                    */
     	}
 	    TreeImageDisplay root = view.getTreeRoot();
 	    if (!root.isChildrenLoaded()) return;
@@ -203,7 +207,6 @@ class BrowserComponent
 	    if (model.getBrowserType() == IMAGES_EXPLORER) {
 	        root.removeAllChildrenDisplay();
 	        model.setSelectedDisplay(null); //root
-	        
 	        Set nodes = model.getFilteredNodes();
 	        if (nodes != null) loadFilteredImageData(nodes);
 	        else loadFilteredImagesForHierarchy();

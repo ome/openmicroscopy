@@ -1250,14 +1250,15 @@ class ImViewerComponent
 
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#setReloaded()
+     * @see ImViewer#setReloaded(RenderingControl)
      */
-	public void setReloaded()
+	public void setReloaded(RenderingControl rndControl)
 	{
 		if (model.getState() != LOADING_RENDERING_CONTROL)
     		throw new IllegalStateException("The method can only be invoked " +
     				"in the LOADING_RENDERING_CONTROL state.");
 		//model.setState(READY);
+		model.setRenderingControl(rndControl);
 		renderXYPlane();
 	}
 

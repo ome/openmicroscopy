@@ -192,6 +192,7 @@ class OmeroImageServiceImpl
                                             new Long(pixelsID));
 		if (proxy == null) return;
 		try {
+			PixelsServicesFactory.shutDownRenderingControl(context, pixelsID);
 			RenderingEngine re = gateway.createRenderingEngine(pixelsID);
 			PixelsServicesFactory.resetRenderingControl(context, pixelsID, 
 								re);
