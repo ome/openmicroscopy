@@ -140,25 +140,37 @@ public class CachingService
     		sizeCache = (maxSize/m)*1024*1024;
     		//reset all the image caches.
     		Iterator i = singleton.imageCache.keySet().iterator();
-    		while (i.hasNext()) 
-				((XYCache) i.next()).resetCacheSize(sizeCache);
+    		XYCache cache;
+    		while (i.hasNext()) {
+    			cache = singleton.imageCache.get(i.next());
+    			cache.resetCacheSize(sizeCache);
+    		}
     		return sizeCache;
     	} else if (m == 0 && n > 0) {
-    		sizeCache = (maxSize/m)*1024*1024;
+    		sizeCache = (maxSize/n)*1024*1024;
     		//reset all the image caches.
     		Iterator i = singleton.pixelsCache.keySet().iterator();
-    		while (i.hasNext()) 
-				((PixelsCache) i.next()).resetCacheSize(sizeCache);
+    		PixelsCache cache;
+    		while (i.hasNext()) {
+    			cache = singleton.pixelsCache.get(i.next());
+    			cache.resetCacheSize(sizeCache);
+    		}
     		return sizeCache;
     	}
     	sizeCache = (maxSize/(m+n))*1024*1024;
 		//reset all the image caches.
 		Iterator i = singleton.pixelsCache.keySet().iterator();
-		while (i.hasNext()) 
-			((PixelsCache) i.next()).resetCacheSize(sizeCache);
+		PixelsCache cache;
+		while (i.hasNext()) {
+			cache = singleton.pixelsCache.get(i.next());
+			cache.resetCacheSize(sizeCache);
+		}
 		i = singleton.imageCache.keySet().iterator();
-		while (i.hasNext()) 
-			((XYCache) i.next()).resetCacheSize(sizeCache);
+		XYCache xyCache;
+		while (i.hasNext()) {
+			xyCache = singleton.imageCache.get(i.next());
+			xyCache.resetCacheSize(sizeCache);
+		}
 		return sizeCache;
     }
     

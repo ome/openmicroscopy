@@ -688,7 +688,11 @@ class IntensityView
 	 */
 	private String FormatString(double value)
 	{
-		return String.format("%.2f",value);
+		try {
+			return String.format("%.2f",value);
+		} catch (Exception e) {
+			return "";
+		}
 	}
 	
 	/** Save the results to a csv File. */

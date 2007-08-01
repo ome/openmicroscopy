@@ -28,7 +28,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -61,66 +60,77 @@ public class BarPlot
 	private final static String DEFAULTSERIES = "default";
 
 	/** The graph containing the plot. */
-	JFreeChart  			freeChart;
+	private JFreeChart  			freeChart;
 		
 	/** The X-Axis label. Also can,but not currenly used set the range. */
-	CategoryAxis  			categoryAxis;
+	private CategoryAxis  			categoryAxis;
 	
 	/** The Y-Axis label. Also can,but not currenly used set the range. */
-	NumberAxis 				rangeAxis;
+	private NumberAxis 				rangeAxis;
 		
 	/** Container for the charts. */
-	ChartPanel				charts;
+	private ChartPanel				charts;
 
 	/** Panel returned to user contained graph. */
-	JPanel					graphPanel;
+	private JPanel					graphPanel;
 	
 	/** Title of the graph. */
-	String					title;
+	private String					title;
 	
 	/** Legends of each series. */
-	ArrayList<String> 		legends;
+	private List<String> 			legends;
 	
 	/** Colours for each series. */
-	ArrayList<Color>		colours;
+	private List<Color>				colours;
 
 	/** Data for each series. */ 
-	ArrayList<Double>	  	data;
+	private List<Double>	  		data;
 	
 	/** The BarPlot dataset. */
-	DefaultCategoryDataset	dataset;
+	private DefaultCategoryDataset	dataset;
 	
 	/** Renderer for the points in the histogram. */
-	CustomBarRenderer 		renderer;
-	
+	private CustomBarRenderer 		renderer;
 		
-	/** Constructor for the histogram. */
+	/** Initialises all the arrays and datasets. */
+	private void init()
+	{
+		legends = new ArrayList<String>();
+		data = new ArrayList<Double>();
+		colours = new ArrayList<Color>();
+		dataset = new DefaultCategoryDataset();
+	}
+	
+	/** Creates a new instance. */
 	public BarPlot()
 	{
 		init();
 	}
 	
 	/**
-	 * Constructor for the histogram. 
-	 * @param title graph title. 
-	 * @param newLegends The legends of each series. 
-	 * @param newData The data for each series. 
-	 * @param newColours The colours for each series. 
+	 * Creates a new instance.
+	 * 
+	 * @param title 		The title of the graph.
+	 * @param newLegends 	The legends of each series. 
+	 * @param newData 		The data for each series. 
+	 * @param newColours 	The colours for each series. 
 	 */
-	public BarPlot(String title, List<String> newLegends,
-			List<Double> newData,	List<Color> newColours)
+	public BarPlot(String title, List<String> newLegends, List<Double> newData,
+				List<Color> newColours)
 	{
-		if(newLegends.size()!=newData.size() && 
-				newLegends.size()!=newColours.size() || (newLegends.size()==0))
+		if (newLegends == null || newData == null ||
+			newColours == null || newLegends.size() != newData.size() && 
+			newLegends.size() != newColours.size() || newLegends.size() == 0)
 			throw new IllegalArgumentException("Mismatch between argument " +
 					"length");
+		this.title = title;
 		init();
-		for(int i = 0 ; i < newLegends.size(); i++)
+		for (int i = 0 ; i < newLegends.size(); i++)
 			addValue(newLegends.get(i), newData.get(i), newColours.get(i));
 		setDefaultAxis();
 	}
 	
-	/** Set the default names for the x and y axis in the plot. */
+	/** Sets the default names for the x and y axis in the plot. */
 	public void setDefaultAxis()
 	{
 		setXAxisName("X");
@@ -128,31 +138,34 @@ public class BarPlot
 	}
 	
 	/** 
-	 * Set the name of the x axis to axisName. 
-	 * @param axisName see above. 
+	 * Sets the name of the x axis to axisName. 
+	 * 
+	 * @param axisName The name to set. 
 	 */
 	public void setXAxisName(String axisName)
 	{
-		if(axisName==null)
+		if (axisName==null)
 			throw new IllegalArgumentException("Null parameter for Axis name."); 
 		categoryAxis = new CategoryAxis(axisName);
 	}
 
 	/** 
-	 * Set the name of the y axis to axisName. 
-	 * @param axisName see above. 
+	 * Sets the name of the y axis to axisName. 
+	 * 
+	 * @param axisName The name to set. 
 	 */
 	public void setYAxisName(String axisName)
 	{
-		if(axisName==null)
+		if (axisName == null)
 			throw new IllegalArgumentException("Null parameter for Axis name."); 
 		rangeAxis = new NumberAxis(axisName);
 	}
 	
 	/** 
-	 * Set the range of the y axis to axisName. 
-	 * @param axisMinRange see above. 
-	 * @param axisMaxRange see above. 
+	 * Sets the range of the y axis to axisName. 
+	 * 
+	 * @param axisMinRange The min value to set. 
+	 * @param axisMaxRange The max value to set. 
 	 */
 	public void setYAxisRange(double axisMinRange, double axisMaxRange)
 	{
@@ -161,17 +174,19 @@ public class BarPlot
 	}
 
 	/**
-	 * Add a new Series to the bar plot. 
+	 * Adds a new Series to the bar plot.
+	 *  
 	 * @param legend The name of the new sereis. 
 	 * @param newData The data. 
 	 * @param color The colour of the series. 
 	 * @return The total number of series in the plot, this also gives the id
-	 * of the just added series. 
+	 * 			of the just added series. 
 	 */
 	public int addValue(String legend, double newData, Color color)
 	{
-		if(legend == null || color == null)
-			throw new IllegalArgumentException("Illegal argument in addSeries.");
+		if (legend == null || color == null)
+			throw new IllegalArgumentException("Illegal argument in " +
+					"addSeries.");
 		legends.add(legend);
 		data.add(newData);
 		colours.add(color);
@@ -180,8 +195,9 @@ public class BarPlot
 	}
 
 	/**
-	 * Build the graph and return a jpanel containing it.
-	 * @return see above.
+	 * Builds the graph and return a jpanel containing it.
+	 * 
+	 * @return See above.
 	 */
 	public JPanel getChart()
 	{
@@ -195,15 +211,6 @@ public class BarPlot
 		graphPanel.setLayout(new BorderLayout());
 		graphPanel.add(charts, BorderLayout.CENTER);
 		return graphPanel;
-	}
-	
-	/** Initialise all the arrays and datasets. */
-	private void init()
-	{
-		legends = new ArrayList<String>();
-		data = new ArrayList<Double>();
-		colours = new ArrayList<Color>();
-		dataset = new DefaultCategoryDataset();
 	}
 	
 }

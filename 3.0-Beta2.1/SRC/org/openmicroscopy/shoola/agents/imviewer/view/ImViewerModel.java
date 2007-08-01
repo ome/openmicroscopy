@@ -411,13 +411,17 @@ class ImViewerModel
     /**
      * Sets the rendering control.
      * 
-     * @param rndControl The object to set. 
+     * @param rndControl	The object to set.
      */
     void setRenderingControl(RenderingControl rndControl)
     {
         this.rndControl = rndControl;
-        renderer = RendererFactory.createRenderer(component, rndControl);
-        state = ImViewer.RENDERING_CONTROL_LOADED;
+        if (renderer == null) {
+        	renderer = RendererFactory.createRenderer(component, rndControl);
+            state = ImViewer.RENDERING_CONTROL_LOADED;
+        } else {
+        	renderer.setRenderingControl(rndControl);
+        }
     } 
 
     /**

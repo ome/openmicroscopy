@@ -31,6 +31,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import ome.model.display.CodomainMapContext;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 /** 
@@ -249,5 +250,11 @@ public interface Renderer
      */
     public JFrame getUI();
 
+    /**
+     * Sets the specified rendering control.
+     * 
+     * @param rndControl The value to set.
+     */
+	public void setRenderingControl(RenderingControl rndControl);
 
 }
