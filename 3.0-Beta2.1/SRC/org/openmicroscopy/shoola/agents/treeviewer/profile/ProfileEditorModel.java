@@ -101,13 +101,11 @@ class ProfileEditorModel
 	 */
 	boolean isEditable()
 	{
-		return false;
-		/*
+		//return false;
 		ExperimenterData exp = 
 			(ExperimenterData) TreeViewerAgent.getRegistry().lookup(
 		        LookupNames.CURRENT_USER_DETAILS);
 		return (exp.getId() == experimenter.getId());
-		*/
 	}
 	
 	/**
