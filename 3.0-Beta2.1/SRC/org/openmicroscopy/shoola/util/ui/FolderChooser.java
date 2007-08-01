@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.util.ui;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JTextField;
 
 
 //Third-party libraries
@@ -59,7 +60,15 @@ class FolderChooser
 	private void initialize()
 	{
 		JLabel label = (JLabel) UIUtilities.findComponent(this, JLabel.class);
-		if (label != null) label.setText("Selected folder:");
+		
+		if (label != null) {
+			label.setText("Selected Folder:");
+		}
+		JTextField field = (JTextField) UIUtilities.findComponent(this, 
+													JTextField.class);
+		if (field != null) {
+			field.setEditable(false);
+		}
 		setAcceptAllFileFilterUsed(false);
 		setDialogType(CUSTOM_DIALOG);
         setFileSelectionMode(DIRECTORIES_ONLY);

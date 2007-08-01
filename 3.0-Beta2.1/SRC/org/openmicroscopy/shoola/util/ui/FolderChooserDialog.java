@@ -60,7 +60,7 @@ public class FolderChooserDialog
 {
 
 	/** The window's title. */
-	static final String 	TITLE = "Download archived files";
+	static final String 			TITLE = "Download archived files";
 	
 	/** 
 	 * Bound property indicating the directory where to save the original files.
@@ -117,6 +117,21 @@ public class FolderChooserDialog
         setModal(true);
         //setAlwaysOnTop(true);
     }
+	
+	/**
+	 * Creates a new instance.
+     * 
+     * @param owner The owner of this dialog.
+	 */
+	public FolderChooserDialog(JFrame owner)
+	{
+		super(owner);
+		setProperties();
+		initComponents();
+		buildGUI();
+		pack();
+	}
+
     
     /** Closes and disposes. */
 	void close()
@@ -139,19 +154,4 @@ public class FolderChooserDialog
 			UIUtilities.setDefaultFolder(path);
         close();	
 	}
-	
-	/**
-	 * Creates a new instance.
-     * 
-     * @param owner The owner of this dialog.
-	 */
-	public FolderChooserDialog(JFrame owner)
-	{
-		super(owner);
-		setProperties();
-		initComponents();
-		buildGUI();
-		pack();
-	}
-
 }

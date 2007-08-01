@@ -71,9 +71,20 @@ public class TinyLoadingWin
      */
     public TinyLoadingWin(JFrame owner)
     {
-        super(owner, "Loading...", true);
+    	this(owner, "Loading...");
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param owner The owner of this frame.
+     * @param title	The title of the frame.
+     */
+    public TinyLoadingWin(JFrame owner, String title)
+    {
+        super(owner, title, true);
         setModal(true);
-        setAlwaysOnTop(true);
+        //setAlwaysOnTop(true);
         buildGUI();
     }
 

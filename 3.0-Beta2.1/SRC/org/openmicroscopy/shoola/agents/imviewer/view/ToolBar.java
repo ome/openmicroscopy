@@ -123,7 +123,7 @@ class ToolBar
         bar.add(button);
         button = new JButton(controller.getAction(ImViewerControl.DOWNLOAD));
         UIUtilities.unifiedButtonLookAndFeel(button);
-        //bar.add(button);  
+        bar.add(button);  
         bar.add(new JSeparator(JSeparator.VERTICAL));
         bar.add(saveOnClose);
     }

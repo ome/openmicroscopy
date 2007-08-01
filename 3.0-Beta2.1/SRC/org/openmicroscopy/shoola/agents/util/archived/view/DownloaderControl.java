@@ -39,7 +39,7 @@ import org.openmicroscopy.shoola.util.ui.FolderChooserDialog;
 import org.openmicroscopy.shoola.util.ui.TinyLoadingWin;
 
 /** 
- * 
+ * The Downloader's Controller.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,7 +59,7 @@ class DownloaderControl
      * Reference to the {@link Downloader} component, which, in this context,
      * is regarded as the Model.
      */
-	private Downloader 	model;
+	private Downloader 		model;
 	
 	/** Loading window. */
 	private TinyLoadingWin	loadinWindow;
@@ -91,7 +91,8 @@ class DownloaderControl
     	   throw new NullPointerException("No view.");
        view.addPropertyChangeListener(FolderChooserDialog.LOCATION_PROPERTY, 
 				this);
-       loadinWindow = new TinyLoadingWin(DownloaderFactory.getOwner());
+       loadinWindow = new TinyLoadingWin(DownloaderFactory.getOwner(), 
+    		   				"Downloading...");
        model.addChangeListener(this);
     }
     
