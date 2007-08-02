@@ -34,7 +34,7 @@ import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 //Application-internal dependencies
 
 /** 
- * 
+ * Customized line renderer.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,8 +47,9 @@ import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
  * @since OME3.0
  */
 class LineRenderer
-extends StandardXYItemRenderer
+	extends StandardXYItemRenderer
 {
+	
 	/** The colors. */
 	private List<Color> colours;
 	
@@ -59,13 +60,17 @@ extends StandardXYItemRenderer
 	 */
 	public LineRenderer(List<Color> colours) 
 	{
+		if (colours == null)
+			throw new IllegalArgumentException("List of colours cannot " +
+					"be null.");
 		setBaseShapesVisible(false);
 		setPlotLines(true);
 		this.colours = colours;
 	}
 	
 	/**
-	 * Returns the paint for an item.  Overrides the default behaviour inherited from
+	 * Returns the paint for an item. 
+	 * Overrides the default behaviour inherited from
 	 * AbstractSeriesRenderer.
 	 *
 	 * @param row  the series.
@@ -75,7 +80,7 @@ extends StandardXYItemRenderer
 	 */
 	public Paint getItemPaint(final int row, final int column) 
 	{
-		return colours.get(row % this.colours.size());
+		return colours.get(row % colours.size());
 	}
+	
 }
-

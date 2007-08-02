@@ -56,184 +56,39 @@ import org.jfree.data.statistics.HistogramDataset;
  */
 public class HistogramPlot
 {	
+	
 	/** The graph containing the plot. */
-	JFreeChart  			freeChart;
+	private JFreeChart  			freeChart;
 		
 	/** The X-Axis label. Also can,but not currenly used set the range. */
-	NumberAxis  			domainAxis;
+	private NumberAxis  			domainAxis;
 	
 	/** The Y-Axis label. Also can,but not currenly used set the range. */
-	NumberAxis 				rangeAxis;
+	private NumberAxis 				rangeAxis;
 		
 	/** Container for the charts. */
-	ChartPanel				charts;
+	private ChartPanel				charts;
 
 	/** Panel returned to user containe graph. */
-	JPanel					graphPanel;
+	private JPanel					graphPanel;
 	
 	/** Title of the graph. */
-	String					title;
+	private String					title;
 	
 	/** Legends of each series. */
-	ArrayList<String> 		legends;
+	private List<String> 			legends;
 	
 	/** Colours for each series. */
-	ArrayList<Color>		colours;
+	private List<Color>				colours;
 
 	/** Data for each series. */ 
-	ArrayList<double[]>  	data;
+	private List<double[]>  		data;
 	
 	/** The histogram dataset. */
-	HistogramDataset		dataset;
+	private HistogramDataset		dataset;
 	
 	/** Renderer for the points in the histogram. */
-	HistogramBarRenderer 			renderer;
-	
-		
-	/** Constructor for the histogram. */
-	public HistogramPlot()
-	{
-		init();
-	}
-	
-	/**
-	 * Constructor for the histogram. 
-	 * @param title graph title. 
-	 * @param newLegends The legends of each series. 
-	 * @param newData The data for each series. 
-	 * @param newColours The colours for each series. 
-	 * @param bins The number of bins in the histogram. 
-	 */
-	public HistogramPlot(String title, List<String> newLegends,
-			List<double[]> newData,	List<Color> newColours, int bins)
-	{
-		if(newLegends.size()!=newData.size() && 
-				newLegends.size()!=newColours.size() || (newLegends.size()==0)
-				|| bins < 1)
-			throw new IllegalArgumentException("Mismatch between argument " +
-					"length");
-		init();
-		for(int i = 0 ; i < newLegends.size(); i++)
-			addSeries(newLegends.get(i), newData.get(i), newColours.get(i), bins);
-		setDefaultAxis();
-	}
-	
-	/**
-	 * Constructor for the histogram. 
-	 * @param title graph title. 
-	 * @param newLegends The legends of each series. 
-	 * @param newData The data for each series. 
-	 * @param newColours The colours for each series. 
-	 * @param bins The number of bins in the histogram. 
-	 * @param minValue the min value of the axis.
-	 * @param maxValue the max value of the axis.
-	 */
-	public HistogramPlot(String title, List<String> newLegends,
-			List<double[]> newData,	List<Color> newColours, int bins, double minValue,
-			double maxValue)
-	{
-		if(newLegends.size()!=newData.size() && 
-				newLegends.size()!=newColours.size() || (newLegends.size()==0)
-				|| bins < 1)
-			throw new IllegalArgumentException("Mismatch between argument " +
-					"length");
-		init();
-		for(int i = 0 ; i < newLegends.size(); i++)
-			addSeries(newLegends.get(i), newData.get(i), newColours.get(i), bins);
-		setDefaultAxis();
-		domainAxis.setRange(minValue, maxValue);
-	}
-	/** Set the default names for the x and y axis in the plot. */
-	public void setDefaultAxis()
-	{
-		setXAxisName("X");
-		setYAxisName("Y");
-	}
-	
-	/** 
-	 * Set the range of the x axis to axisName. 
-	 * @param axisMinRange see above. 
-	 * @param axisMaxRange see above. 
-	 */
-	public void setXAxisRange(double axisMinRange, double axisMaxRange)
-	{
-		domainAxis.setRange(axisMinRange, axisMaxRange);
-		domainAxis.setAutoRange(false);
-	}
-
-	/** 
-	 * Set the name of the x axis to axisName. 
-	 * @param axisName see above. 
-	 */
-	public void setXAxisName(String axisName)
-	{
-		if(axisName==null)
-			throw new IllegalArgumentException("Null parameter for Axis name."); 
-		domainAxis = new NumberAxis(axisName);
-	}
-	
-	
-	/** 
-	 * Set the range of the y axis to axisName. 
-	 * @param axisMinRange see above. 
-	 * @param axisMaxRange see above. 
-	 */
-	public void setYAxisRange(double axisMinRange, double axisMaxRange)
-	{
-		rangeAxis.setRange(axisMinRange, axisMaxRange);
-		rangeAxis.setAutoRange(false);
-	}
-
-	/** 
-	 * Set the name of the y axis to axisName. 
-	 * @param axisName see above. 
-	 */
-	public void setYAxisName(String axisName)
-	{
-		if(axisName==null)
-			throw new IllegalArgumentException("Null parameter for Axis name."); 
-		rangeAxis = new NumberAxis(axisName);
-	}
-	
-	/**
-	 * Add a new Series to the histogram. 
-	 * @param legend The name of the new sereis. 
-	 * @param newData The data. 
-	 * @param color The colour of the series. 
-	 * @param bins The number of bins associated with the series. 
-	 * @return The total number of series in the plot, this also gives the id
-	 * of the just added series. 
-	 */
-	public int addSeries(String legend, double[] newData,Color color, int bins)
-	{
-		if(legend == null || newData == null || color == null || bins < 1)
-			throw new IllegalArgumentException("Illegal argument in addSeries.");
-		legends.add(legend);
-		data.add(newData);
-		colours.add(color);
-		dataset.addSeries(legend, newData, bins);
-		return dataset.getSeriesCount();
-	}
-
-	/**
-	 * Build the graph and return a jpanel containing it.
-	 * @return see above.
-	 */
-	public JPanel getChart()
-	{
-		renderer = new HistogramBarRenderer(colours);
-		for(int i = 0 ; i < colours.size(); i++)
-			renderer.setSeriesPaint(i, colours.get(i));
-		XYPlot plot = new XYPlot(dataset, domainAxis,
-            rangeAxis, renderer);
-		freeChart = new JFreeChart(title, plot);
-		freeChart.setTitle(title);
-		charts = new ChartPanel(freeChart);
-		graphPanel = new JPanel();
-		graphPanel.setLayout(new BorderLayout());
-		graphPanel.add(charts, BorderLayout.CENTER);
-		return graphPanel;
-	}
+	private HistogramBarRenderer	renderer;
 	
 	/** Initialise all the arrays and datasets. */
 	private void init()
@@ -244,7 +99,165 @@ public class HistogramPlot
 		dataset = new HistogramDataset();
 	}
 	
+	/** Creates a new instance. */
+	public HistogramPlot()
+	{
+		init();
+	}
 	
+	/**
+	 * Creates a new instance.
+	 *  
+	 * @param title 		The title of the graph.
+	 * @param newLegends 	The legends of each series. 
+	 * @param newData 		The data for each series. 
+	 * @param newColours 	The colours for each series. 
+	 * @param bins 			The number of bins in the histogram. 
+	 */
+	public HistogramPlot(String title, List<String> newLegends, 
+						List<double[]> newData, List<Color> newColours, 
+						int bins)
+	{
+		if (newLegends == null || newData == null || newColours == null || 
+			newLegends.size() != newData.size() && 
+			newLegends.size() != newColours.size() || newLegends.size() == 0
+			|| bins < 1)
+			throw new IllegalArgumentException("Mismatch between argument " +
+					"length");
+		this.title = title;
+		init();
+		for (int i = 0 ; i < newLegends.size(); i++)
+			addSeries(newLegends.get(i), newData.get(i), newColours.get(i), 
+						bins);
+		setDefaultAxis();
+	}
+	
+	/**
+	 * Creates a new instance.
+	 *  
+	 * @param title 		The title of the graph.
+	 * @param newLegends 	The legends of each series. 
+	 * @param newData 		The data for each series. 
+	 * @param newColours 	The colours for each series. 
+	 * @param bins 			The number of bins in the histogram. 
+	 * @param minValue 		The min value of the axis.
+	 * @param maxValue 		The max value of the axis.
+	 */
+	public HistogramPlot(String title, List<String> newLegends, 
+			List<double[]> newData, List<Color> newColours, int bins, 
+			double minValue, double maxValue)
+	{
+		if (newLegends == null || newData == null || newColours == null || 
+			newLegends.size() != newData.size() && 
+			newLegends.size() != newColours.size() || 
+			newLegends.size() == 0 || bins < 1)
+			throw new IllegalArgumentException("Mismatch between argument " +
+						"length");
+		this.title = title;
+		init();
+		for (int i = 0 ; i < newLegends.size(); i++)
+			addSeries(newLegends.get(i), newData.get(i), newColours.get(i), 
+						bins);
+		setDefaultAxis();
+		domainAxis.setRange(minValue, maxValue);
+	}
+	
+	/** Sets the default names for the x and y axis in the plot. */
+	public void setDefaultAxis()
+	{
+		setXAxisName("X");
+		setYAxisName("Y");
+	}
+	
+	/** 
+	 * Sets the range of the x axis to axisName. 
+	 * 
+	 * @param axisMinRange The min value to set. 
+	 * @param axisMaxRange The max value to set. 
+	 */
+	public void setXAxisRange(double axisMinRange, double axisMaxRange)
+	{
+		domainAxis.setRange(axisMinRange, axisMaxRange);
+		domainAxis.setAutoRange(false);
+	}
+
+	/** 
+	 * Sets the name of the x axis to axisName. 
+	 * 
+	 * @param axisName The name to set.
+	 */
+	public void setXAxisName(String axisName)
+	{
+		if (axisName == null)
+			throw new IllegalArgumentException("Null parameter for Axis name."); 
+		domainAxis = new NumberAxis(axisName);
+	}
+	
+	/** 
+	 * Sets the range of the y axis to axisName. 
+	 * 
+	 * @param axisMinRange The min value to set. 
+	 * @param axisMaxRange The max value to set. 
+	 */
+	public void setYAxisRange(double axisMinRange, double axisMaxRange)
+	{
+		rangeAxis.setRange(axisMinRange, axisMaxRange);
+		rangeAxis.setAutoRange(false);
+	}
+
+	/** 
+	 * Sets the name of the y axis to axisName. 
+	 * 
+	 * @param axisName The name to set.
+	 */
+	public void setYAxisName(String axisName)
+	{
+		if (axisName==null)
+			throw new IllegalArgumentException("Null parameter for Axis name."); 
+		rangeAxis = new NumberAxis(axisName);
+	}
+	
+	/**
+	 * Adds a new Series to the histogram. 
+	 * 
+	 * @param legend The name of the new series. 
+	 * @param newData The data. 
+	 * @param color The colour of the series. 
+	 * @param bins The number of bins associated with the series. 
+	 * @return The total number of series in the plot, this also gives the id
+	 * of the just added series. 
+	 */
+	public int addSeries(String legend, double[] newData,Color color, int bins)
+	{
+		if (legend == null || newData == null || color == null || bins < 1)
+			throw new IllegalArgumentException("Illegal argument in " +
+											"addSeries.");
+		legends.add(legend);
+		data.add(newData);
+		colours.add(color);
+		dataset.addSeries(legend, newData, bins);
+		return dataset.getSeriesCount();
+	}
+
+	/**
+	 * Builds the graph and returns the UI component hosting it.
+	 * 
+	 * @return See above.
+	 */
+	public JPanel getChart()
+	{
+		renderer = new HistogramBarRenderer(colours);
+		for (int i = 0 ; i < colours.size(); i++)
+			renderer.setSeriesPaint(i, colours.get(i));
+		XYPlot plot = new XYPlot(dataset, domainAxis, rangeAxis, renderer);
+		freeChart = new JFreeChart(title, plot);
+		freeChart.setTitle(title);
+		charts = new ChartPanel(freeChart);
+		graphPanel = new JPanel();
+		graphPanel.setLayout(new BorderLayout());
+		graphPanel.add(charts, BorderLayout.CENTER);
+		return graphPanel;
+	}
 	
 }
 

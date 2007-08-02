@@ -34,8 +34,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.PasswordEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.ProfileEditorLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.login.UserCredentials;
-
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -101,13 +99,10 @@ class ProfileEditorModel
 	 */
 	boolean isEditable()
 	{
-		return false;
-		/*
 		ExperimenterData exp = 
 			(ExperimenterData) TreeViewerAgent.getRegistry().lookup(
 		        LookupNames.CURRENT_USER_DETAILS);
 		return (exp.getId() == experimenter.getId());
-		*/
 	}
 	
 	/**

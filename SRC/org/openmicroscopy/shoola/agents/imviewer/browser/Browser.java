@@ -59,6 +59,9 @@ public interface Browser
     extends ObservableComponent
 {
     
+	/** The minimum size of an original image. */
+	public static final int	MINIMUM_SIZE = 96;
+
     /**
      * Returns the widget that displays the image.
      *  

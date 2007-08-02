@@ -97,7 +97,7 @@ public class TreeViewerTranslator
                 time = ((ImageData) node.getUserObject()).getInserted();
             } catch (Exception e) {}
             if (time == null) title = DATE_NOT_AVAILABLE;//time = getDefaultTimestamp();
-            else title = formatTime(time); 
+            else title = UIUtilities.formatTime(time); 
             toolTip = UIUtilities.formatToolTipText(title);
             node.setToolTip(toolTip); 
         }
@@ -781,28 +781,6 @@ public class TreeViewerTranslator
     	}
     	return false;
     	*/
-    }
-    
-    /**
-     * Creates a default timestamp.
-     * 
-     * @return See above.
-     */
-    public static Timestamp getDefaultTimestamp()
-    {
-        return new Timestamp(new Date().getTime());
-    }
-    
-    /**
-     * Formats as a <code>String</code> the specified time.
-     * 
-     * @param time The timestamp to format.
-     * @return Returns the stringified version of the passed timestamp.
-     */
-    public static String formatTime(Timestamp time) 
-    {
-    	if (time == null) return "";
-    	return DateFormat.getDateInstance().format(time);  
     }
     
 }

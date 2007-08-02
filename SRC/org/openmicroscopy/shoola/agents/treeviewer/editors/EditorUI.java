@@ -321,8 +321,6 @@ class EditorUI
      */
     JPanel buildBasicToolBar(JButton button)
     {
-    	//TMP:
-    	button = null;
     	JPanel bar = new JPanel();
         bar.setBorder(null);
         if (button != null) {

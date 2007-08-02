@@ -694,4 +694,10 @@ public interface ImViewer
      */
 	public BufferedImage getImageForGrid(int index);
 	
+	/**
+	 * Creates a new history item and adds it to the collection.
+	 * If the history is displayed, updates the view.
+	 */
+	public void createHistoryItem();
+	
 }

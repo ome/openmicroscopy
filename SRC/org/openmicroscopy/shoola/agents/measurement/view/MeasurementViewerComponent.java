@@ -24,11 +24,9 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -48,12 +46,10 @@ import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStats;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
-import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -471,11 +467,10 @@ class MeasurementViewerComponent
 	{
 		//TODO: check state.
 		model.setActiveChannels(activeChannels);
-		if(view.inDataView())
+		if (view.inDataView())
 		{
 			Collection<ROIFigure> collection = getSelectedFigures();
-			if(collection.size()!=1)
-				return;
+			if (collection.size() != 1) return;
 			ROIFigure figure = collection.iterator().next();
 			analyseShape(figure.getROIShape());
 		}
@@ -489,10 +484,10 @@ class MeasurementViewerComponent
 	{
 		//TODO: Check state
 		model.setActiveChannels(channels);
-		if(view.inDataView())
+		if (view.inDataView())
 		{
 			Collection<ROIFigure> collection = getSelectedFigures();
-			if(collection.size()!=1)
+			if (collection.size()!=1)
 				return;
 			ROIFigure figure = collection.iterator().next();
 			analyseShape(figure.getROIShape());
@@ -513,11 +508,9 @@ class MeasurementViewerComponent
 			//TODO: Notify user
 			return;
 		}
-		
 		model.setAnalysisResults(result);
 		view.displayAnalysisResults();
 		fireStateChange();
-			
 	}
 	
 	/** 
@@ -526,7 +519,7 @@ class MeasurementViewerComponent
 	 */
 	public void analyseShape(ROIShape shape)
 	{
-		//		TODO: check state.
+		//TODO: check state.
 		if (shape == null)
 			throw new IllegalArgumentException("No shape specified.");
 		if (model.getState() == ANALYSE_SHAPE)
@@ -551,7 +544,7 @@ class MeasurementViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MeasurementViewer} interface.
-	 * @see MeasurementViewer#getSelectedFigures(List)
+	 * @see MeasurementViewer#getSelectedFigures()
 	 */
 	public Collection getSelectedFigures()
 	{
@@ -564,19 +557,21 @@ class MeasurementViewerComponent
 	 */
 	public void attachListeners(List<ROI> roiList)
 	{
-		for(int i = 0; i < roiList.size(); i++)
+		ROI roi;
+		Iterator<ROIShape> shapeIterator;
+		ROIShape shape;
+		for (int i = 0; i < roiList.size(); i++)
 		{
-			ROI roi = roiList.get(i);
-			Iterator<ROIShape> shapeIterator = roi.getShapes().values().iterator();
-			while(shapeIterator.hasNext())
+			roi = roiList.get(i);
+			shapeIterator = roi.getShapes().values().iterator();
+			while (shapeIterator.hasNext())
 			{
-				ROIShape shape = shapeIterator.next();
+				shape = shapeIterator.next();
 				shape.getFigure().addFigureListener(controller);
 			}
 		}
 	}
 	
-
 	/** 
 	 * Implemented as specified by the {@link MeasurementViewer} interface.
 	 * @see MeasurementViewer#createSingleFigure(List)
@@ -585,6 +580,5 @@ class MeasurementViewerComponent
 	{
 		view.createSingleFigure(createSingleFig);
 	}
-	
 	
 }

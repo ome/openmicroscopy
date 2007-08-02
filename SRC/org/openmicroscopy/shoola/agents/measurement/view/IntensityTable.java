@@ -106,7 +106,6 @@ public class IntensityTable
 	 * @return See above. 
 	 */
 	int getColumnWidth() { return columnWidth; }
-	
 
 }
 

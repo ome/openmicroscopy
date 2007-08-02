@@ -37,17 +37,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -76,7 +73,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.agents.measurement.util.ColourListRenderer;
 
 /** 
- * 
+ * Displays stats computed on the pixels intensity value of a given ROI shape.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -688,7 +685,11 @@ class IntensityView
 	 */
 	private String FormatString(double value)
 	{
-		return String.format("%.2f",value);
+		try {
+			return String.format("%.2f",value);
+		} catch (Exception e) {
+			return "";
+		}
 	}
 	
 	/** Save the results to a csv File. */
@@ -974,4 +975,5 @@ class IntensityView
 			 saveResults();
 		 }
 	 }
+	 
 }

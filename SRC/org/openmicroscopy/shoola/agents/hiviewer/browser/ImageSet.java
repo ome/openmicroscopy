@@ -28,11 +28,12 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane;
 import pojos.DatasetData;
 
 /** 

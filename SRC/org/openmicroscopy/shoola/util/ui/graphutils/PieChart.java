@@ -59,63 +59,74 @@ public class PieChart
 {	
 
 	/** The graph containing the plot. */
-	JFreeChart  			freeChart;
+	private JFreeChart  			freeChart;
 		
 	/** The X-Axis label. Also can,but not currenly used set the range. */
-	NumberAxis  			domainAxis;
+	private NumberAxis  			domainAxis;
 	
 	/** The Y-Axis label. Also can,but not currenly used set the range. */
-	NumberAxis 				rangeAxis;
+	private NumberAxis 				rangeAxis;
 		
 	/** Container for the charts. */
-	ChartPanel				charts;
+	private ChartPanel				charts;
 
 	/** Panel returned to user containe graph. */
-	JPanel					graphPanel;
+	private JPanel					graphPanel;
 	
 	/** Title of the graph. */
-	String					title;
+	private String					title;
 	
 	/** Legends of each series. */
-	ArrayList<String> 		legends;
+	private List<String> 			legends;
 	
 	/** Colours for each series. */
-	ArrayList<Color>		colours;
+	private List<Color>				colours;
 
 	/** Data for each series. */ 
-	ArrayList<Double>  	data;
+	private List<Double>  			data;
 	
 	/** The piechart dataset. */
-	DefaultPieDataset		dataset;
-		
-		
-	/** Piechart constructor.*/
+	private DefaultPieDataset		dataset;
+	
+	/** Intialise all arraylists. */
+	private void init()
+	{
+		legends = new ArrayList<String>();
+		data = new ArrayList<Double>();
+		colours = new ArrayList<Color>();
+		dataset = new DefaultPieDataset();
+	}
+	
+	/** Creates a new instance.*/
 	public PieChart()
 	{
 		init();
 	}
 	
 	/**
-	 * Constructor for the piechart. 
-	 * @param title graph title. 
-	 * @param newLegends The legends of each value. 
-	 * @param newData The data for each value. 
-	 * @param newColours The colours for each value. 
+	 * Creates a new instance. 
+	 * 
+	 * @param title 		The title of the graph.
+	 * @param newLegends 	The legends of each value. 
+	 * @param newData 		The data for each value. 
+	 * @param newColours 	The colours for each value. 
 	 */
-	public PieChart(String title, List<String> newLegends,
-			List<Double> newData,	List<Color> newColours)
+	public PieChart(String title, List<String> newLegends, List<Double> newData,
+					List<Color> newColours)
 	{
-		if(newLegends.size()!=newData.size() && 
-				newLegends.size()!=newColours.size())
+		if (newLegends == null || newData == null || newColours == null ||
+			newLegends.size() != newData.size() && 
+			newLegends.size()!=newColours.size())
 			throw new IllegalArgumentException("Mismatch between argument " +
 					"length");
+		this.title = title;
 		init();
-		for(int i = 0 ; i < newLegends.size(); i++)
+		for (int i = 0 ; i < newLegends.size(); i++)
 			addValue(newLegends.get(i), newData.get(i), newColours.get(i));
 		setDefaultAxis();
 	}
 	
-	/** Set the default names for the x and y axis in the plot. */
+	/** Sets the default names for the x and y axis in the plot. */
 	public void setDefaultAxis()
 	{
 		setXAxis("X");
@@ -123,33 +134,36 @@ public class PieChart
 	}
 	
 	/** 
-	 * Set the name of the x axis to axisName. 
-	 * @param axisName see above. 
+	 * Sets the name of the x axis to axisName. 
+	 * 
+	 * @param axisName The value to set.
 	 */
 	public void setXAxis(String axisName)
 	{
-		if(axisName==null)
+		if (axisName==null)
 			throw new IllegalArgumentException("Null parameter for Axis name."); 
 		domainAxis = new NumberAxis(axisName);
 	}
 
 	/** 
-	 * Set the name of the y axis to axisName. 
-	 * @param axisName see above. 
+	 * Set the name of the y axis to axisName.
+	 *  
+	 * @param axisName The value to set. 
 	 */
 	public void setYAxis(String axisName)
 	{
-		if(axisName==null)
+		if (axisName==null)
 			throw new IllegalArgumentException("Null parameter for Axis name."); 
 		rangeAxis = new NumberAxis(axisName);
 	}
 	
 	/**
-	 * Add a new values to the piechars. 
+	 * Adds a new values to the piechars. 
+	 * 
 	 * @param legend The name of the new values. 
 	 * @param newData The data. 
 	 * @param color The colour of the values. 
-	  * @return The total number of values in the plot, this also gives the id
+	 * @return The total number of values in the plot, this also gives the id
 	 * of the just added value. 
 	 */
 	public int addValue(String legend, double newData,Color color)
@@ -162,18 +176,14 @@ public class PieChart
 	}
 
 	/**
-	 * Build the graph and return a jpanel containing it.
-	 * @return see above.
+	 * Builds the graph and returns the UI component hosting it.
+	 * 
+	 * @return See above.
 	 */
 	public JPanel getChart()
 	{
-		freeChart = ChartFactory.createPieChart3D(
-	            title,  
-	            dataset,               
-	            false,                   
-	            true,
-	            false
-	        );
+		freeChart = ChartFactory.createPieChart3D(title, dataset, false, true,
+	            								false);
 		PiePlot3D plot = (PiePlot3D) freeChart.getPlot();
 		plot.setDirection(Rotation.CLOCKWISE);
 	    plot.setForegroundAlpha(0.55f);
@@ -182,15 +192,6 @@ public class PieChart
 		graphPanel.setLayout(new BorderLayout());
 		graphPanel.add(charts, BorderLayout.CENTER);
 		return graphPanel;
-	}
-	
-	/** Intialise all arraylists. */
-	private void init()
-	{
-		legends = new ArrayList<String>();
-		data = new ArrayList<Double>();
-		colours = new ArrayList<Color>();
-		dataset = new DefaultPieDataset();
 	}
 	
 }

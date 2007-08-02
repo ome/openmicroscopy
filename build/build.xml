@@ -77,6 +77,7 @@
   <property name="base.test.lib.dir" location="${base.lib.dir}/test"/>
   <property name="base.licensefile" location="legal/gpl.txt"/>
   <property name="base.docgen.index.file"   location="docgen/index.html"/> 
+  <property name="base.docgen.insight_index.file"   location="docgen/insight_index.html"/> 
   <property name="base.userdocs.index.file" 
 	    location="docgen/xdocs/docs/userdocs/index.html"/>
   <property name="base.docgen.javadoc.cssfile" 

@@ -41,6 +41,7 @@ import ome.model.core.Channel;
 import ome.model.meta.Experimenter;
 import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
@@ -1023,13 +1024,11 @@ class OmeroDataServiceImpl
             throw new DSAccessException("No object to update.");
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);
-        Experimenter oldObject = exp.asExperimenter();
-        //gateway.updateExperimenter(oldObject);
+        gateway.updateExperimenter(exp.asExperimenter());
         //oldObject.setOmeName(uc.getUserName());
         //DEfault group issue.
         //TODO invoke server when method is updated server side.
         //PojoMapper.asDataObject(updated);
-        /*
         ExperimenterData data = gateway.getUserDetails(uc.getUserName());
         context.bind(LookupNames.CURRENT_USER_DETAILS, exp);
 //      Bind user details to all agents' registry.
@@ -1041,9 +1040,7 @@ class OmeroDataServiceImpl
 			agentInfo.getRegistry().bind(
 			        LookupNames.CURRENT_USER_DETAILS, exp);
 		}
-		*/
-        return null;
-		//return data;
+		return data;
 	}
 	
     /**

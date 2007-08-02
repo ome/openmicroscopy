@@ -554,5 +554,15 @@ class RendererModel
      * @return See above.
      */
     int getMaxC() { return rndControl.getPixelsDimensionsC(); }
+
+    /**
+     * Sets the specified value.
+     * 
+     * @param rndControl	The value to set.
+     */
+	void setRenderingControl(RenderingControl rndControl)
+	{
+		this.rndControl = rndControl;
+	}
     
 }

@@ -62,7 +62,7 @@ public class IntensityModel
 	 * Model of the IntensityTable to the intensity values in the current ROI
 	 * selection.
 	 * 
-	 * @param data 		The data in the table.
+	 * @param data	The data in the table.
 	 */
 	IntensityModel(Double[][] data)
 	{
@@ -70,7 +70,6 @@ public class IntensityModel
 		this.setColumnCount(data.length);
 		this.setRowCount(data[0].length);
 	}
-
 		
 	/**
 	 * Overridden to return the number of columns.
@@ -103,18 +102,12 @@ public class IntensityModel
 	}
 
 	/**
-	 * Overridden to return the name of the specified column.
-	 * @see AbstractTableModel#getRowName(int)
-	 */
-	public String getRowName(int row) { return row+""; }
-
-	/**
-	 *  Overridden to return the value of the model to the object.
+	 * Overridden to return the value of the model to the object.
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int row, int col)
 	{
-		if(col>=numColumns || row>=numRows)
+		if (col >= numColumns || row >= numRows)
 			return null;
 		return data[col][row];
 	}

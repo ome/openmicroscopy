@@ -35,7 +35,7 @@ import org.jfree.chart.renderer.category.BarRenderer;
 //Application-internal dependencies
 
 /** 
- * 
+ * Customized bar renderer.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -50,6 +50,7 @@ import org.jfree.chart.renderer.category.BarRenderer;
 public class CustomBarRenderer
 	extends BarRenderer
 {	
+	
 	/** The colors. */
 	private List<Color> colours;
 	
@@ -60,22 +61,24 @@ public class CustomBarRenderer
 	 */
 	public CustomBarRenderer(List<Color> colours) 
 	{
+		if (colours == null)
+			throw new IllegalArgumentException("List of colours cannot " +
+					"be null.");
 		this.colours = colours;
 	}
 	
 	/**
-	 * Returns the paint for an item.  Overrides the default behaviour inherited
+	 * Returns the paint for an item. Overrides the default behaviour inherited
 	 * from AbstractSeriesRenderer.
 	 *
-	 * @param series  the series.
-	 * @param column  the category.
-	 *
+	 * @param series  The series.
+	 * @param column  The category.
 	 * @return The item color.
 	 */
 	public Paint getItemPaint(int series, int column) 
 	{
 		return colours.get(series);
 	}
+	
 }
-
 

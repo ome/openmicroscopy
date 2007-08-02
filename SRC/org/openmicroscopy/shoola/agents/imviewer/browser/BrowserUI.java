@@ -251,7 +251,6 @@ class BrowserUI
 	}
 
 	/**
-	 * 
 	 * Overridden to center the image.
 	 * @see JComponent#setBounds(Rectangle)
 	 */

@@ -34,6 +34,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import ome.model.display.CodomainMapContext;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /** 
@@ -132,6 +133,7 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
+        	 model.getParentModel().createHistoryItem();
         	 model.updateCodomainMap(ctx);
              firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
             		 Boolean.TRUE);
@@ -149,6 +151,7 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
+        	model.getParentModel().createHistoryItem();
         	model.setInputInterval(s, e);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
             					Boolean.TRUE);
@@ -168,6 +171,7 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
+        	 model.getParentModel().createHistoryItem();
         	 model.setCodomainInterval(s, e);
              firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
             		 			Boolean.TRUE);
@@ -185,6 +189,7 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
+        	model.getParentModel().createHistoryItem();
         	model.setBitResolution(v);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
            		 			Boolean.TRUE);
@@ -257,6 +262,7 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
+        	model.getParentModel().createHistoryItem();
         	model.setFamily(family);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
            		 			Boolean.TRUE);
@@ -274,6 +280,7 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
+        	model.getParentModel().createHistoryItem();
         	model.setCurveCoefficient(k);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
            		 			Boolean.TRUE);
@@ -291,6 +298,7 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
+        	model.getParentModel().createHistoryItem();
         	model.setNoiseReduction(b);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
            		 			Boolean.TRUE);
@@ -329,6 +337,7 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
+        	model.getParentModel().createHistoryItem();
         	model.removeCodomainMap(mapType);
             view.removeCodomainMap(mapType);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
@@ -348,6 +357,7 @@ class RendererComponent
             return;
         if (model.getCodomainMap(mapType) != null) return; //already
         try {
+        	model.getParentModel().createHistoryItem();
         	model.addCodomainMap(mapType);
         	view.addCodomainMap(mapType);
         	firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
@@ -388,6 +398,7 @@ class RendererComponent
     public void resetDefaultRndSettings()
     {
     	try {
+    		model.getParentModel().createHistoryItem();
     		model.resetDefaultRndSettings();
             view.resetDefaultRndSettings();
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
@@ -418,5 +429,26 @@ class RendererComponent
 			model.getParentModel().reload(ex);
 		}
     }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#setRenderingControl(RenderingControl)
+     */
+	public void setRenderingControl(RenderingControl rndControl)
+	{
+		if (rndControl == null)
+			throw new IllegalArgumentException("No rendering " +
+					"control specified.");		
+		model.setRenderingControl(rndControl);
+	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#setRenderingControl(RenderingControl)
+     */
+	public void resetRndSettings()
+	{
+		view.resetDefaultRndSettings();
+	}
     
 }

@@ -34,14 +34,15 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplayVisitor;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ImageData;
 
 /** 
- * 
+ * Command to sort items in tree.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -115,9 +116,9 @@ public class SortCmd
                             t2 = null;
                         }
                         if (t1 == null)
-                            t1 = TreeViewerTranslator.getDefaultTimestamp();
+                            t1 = UIUtilities.getDefaultTimestamp();
                         if (t2 == null)
-                            t2 = TreeViewerTranslator.getDefaultTimestamp();
+                            t2 = UIUtilities.getDefaultTimestamp();
                         int r = t1.compareTo(t2);
                         int v = 0;
                         if (r < 0) v = -1;

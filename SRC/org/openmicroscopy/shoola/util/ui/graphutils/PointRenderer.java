@@ -38,7 +38,7 @@ import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 
 
 /** 
- * 
+ * Customized point renderer.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -51,18 +51,63 @@ import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
  * @since OME3.0
  */
 class PointRenderer
-extends StandardXYItemRenderer
+	extends StandardXYItemRenderer
 {
+	
 	/** Set the size of the shapes to be rendered. */
 	public final static int	SHAPESIZE = 4;
 	
 	/** The colors. */
 	private List<Color> colours;
+	
 	/** The shapes for each series. */
 	private List<Shape> itemShapes;
+
+	/** 
+	 * Creates an ellipse.
+	 * 
+	 * @return See above.
+	 */
+	private Ellipse2D.Double ellipse()
+	{
+		return new Ellipse2D.Double(-SHAPESIZE/2, -SHAPESIZE/2, 
+													SHAPESIZE, SHAPESIZE);
+	}
 	
 	/**
-	 * Set the shapes for a series. 
+	 * Creates a rectangle 
+	 * 
+	 * @return See above.
+	 */
+	private Rectangle2D.Double rectangle()
+	{
+		return new Rectangle2D.Double(-SHAPESIZE/2, -SHAPESIZE/2, 
+													  SHAPESIZE, SHAPESIZE);
+	}
+	
+	/**
+	 * Creates a new renderer.
+	 *
+	 * @param colours  the colors.
+	 * @param shapes the shapes to render.
+	 */
+	public PointRenderer(List<Color> colours, List<Shape> shapes) 
+	{
+		if (colours == null)
+			throw new IllegalArgumentException("List of colours cannot " +
+					"be null.");
+		if (shapes == null)
+			throw new IllegalArgumentException("List of shapes cannot " +
+					"be null.");
+		setBaseShapesVisible(true);
+		setPlotLines(false);
+		this.colours = colours;
+		this.itemShapes = shapes;
+	}
+	
+	/**
+	 * Sets the shapes for a series. 
+	 * 
 	 * @param series the series to apply the shape to.
 	 * @param shape The shape. 
 	 */
@@ -72,7 +117,8 @@ extends StandardXYItemRenderer
 	}
 	
 	/**
-	 * Set the shapes for a series. 
+	 * Sets the shapes for a series. 
+	 * 
 	 * @param series the series to apply the shape to.
 	 * @param shapeType The shape. 
 	 */
@@ -90,21 +136,8 @@ extends StandardXYItemRenderer
 	}
 	
 	/**
-	 * Creates a new renderer.
-	 *
-	 * @param colours  the colors.
-	 * @param shapes the shapes to render.
-	 */
-	public PointRenderer(List<Color> colours, List<Shape> shapes) 
-	{
-		setBaseShapesVisible(true);
-		setPlotLines(false);
-		this.colours = colours;
-		this.itemShapes = shapes;
-	}
-	
-	/**
-	 * Get the shape for the current item to be rendered.
+	 * Returns the shape for the current item to be rendered.
+	 * 
 	 * @param series current series being rendered.
 	 * @param item 	item being rendered.
 	 * @return shape to render.
@@ -115,40 +148,17 @@ extends StandardXYItemRenderer
 	}
 	
 	/**
-	 * Returns the paint for an item.  Overrides the default behaviour inherited from
-	 * AbstractSeriesRenderer.
+	 * Returns the paint for an item. 
+	 * Overrides the default behaviour inherited from AbstractSeriesRenderer.
 	 *
 	 * @param row  the series.
 	 * @param column  the category.
-	 *
 	 * @return The item color.
 	 */
 	public Paint getItemPaint(final int row, final int column) 
 	{
-		return colours.get(row % this.colours.size());
+		return colours.get(row % colours.size());
 	}
-	
-	/** 
-	 * Create an ellipse.
-	 * @return ellipse.
-	 */
-	private Ellipse2D.Double ellipse()
-	{
-		return new Ellipse2D.Double(-SHAPESIZE/2, -SHAPESIZE/2, 
-													SHAPESIZE, SHAPESIZE);
-	}
-	
-	/**
-	 * Create a rectangle 
-	 * 
-	 * @return a rectangle.
-	 */
-	private Rectangle2D.Double rectangle()
-	{
-		return new Rectangle2D.Double(-SHAPESIZE/2, -SHAPESIZE/2, 
-													  SHAPESIZE, SHAPESIZE);
-	}
-	
 	
 }
 

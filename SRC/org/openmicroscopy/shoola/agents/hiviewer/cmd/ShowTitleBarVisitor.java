@@ -30,8 +30,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
-import org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 
 /** 
  * Visits the browser's display to show or hide the title bar of all

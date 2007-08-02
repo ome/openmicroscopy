@@ -38,6 +38,9 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractButton;
@@ -635,5 +638,39 @@ public class UIUtilities
     	if (c == null) return false;
     	return (c.getRed()+c.getGreen()+c.getBlue())/3 < 128;
     }
+
+    /**
+     * Creates a default timestamp.
+     * 
+     * @return See above.
+     */
+    public static Timestamp getDefaultTimestamp()
+    {
+        return new Timestamp(new Date().getTime());
+    }
     
+    /**
+     * Formats as a <code>String</code> the specified time.
+     * 
+     * @param time The timestamp to format.
+     * @return Returns the stringified version of the passed timestamp.
+     */
+    public static String formatTime(Timestamp time) 
+    {
+    	if (time == null) return "";
+    	return DateFormat.getDateInstance().format(time);  
+    }
+    
+    /**
+     * Formats as a <code>String</code> the specified time.
+     * 
+     * @param time The timestamp to format.
+     * @return Returns the stringified version of the passed timestamp.
+     */
+    public static String formatDateTime(Timestamp time) 
+    {
+    	if (time == null) return "";
+    	return DateFormat.getDateTimeInstance().format(time);  
+    }
+
 }

@@ -56,6 +56,7 @@ import org.jfree.data.xy.DefaultXYDataset;
  */
 public class ScatterPlot
 {	
+	
 	/**
 	 * Default size for a shape to be created if no shape params supplied in
 	 * constructor. 
@@ -63,94 +64,119 @@ public class ScatterPlot
 	private  final static int SHAPESIZE = 3; 
 
 	/** The graph containing the plot. */
-	JFreeChart  			freeChart;
+	private JFreeChart  			freeChart;
 		
 	/** The X-Axis label. Also can,but not currenly used set the range. */
-	NumberAxis  			domainAxis;
+	private NumberAxis  			domainAxis;
 	
 	/** The Y-Axis label. Also can,but not currenly used set the range. */
-	NumberAxis 				rangeAxis;
+	private NumberAxis 				rangeAxis;
 		
 	/** Container for the charts. */
-	ChartPanel				charts;
+	private ChartPanel				charts;
 
 	/** Panel returned to user containe graph. */
-	JPanel					graphPanel;
+	private JPanel					graphPanel;
 	
 	/** Title of the graph. */
-	String					title;
+	private String					title;
 	
 	/** Legends of each series. */
-	ArrayList<String> 		legends;
+	private List<String> 			legends;
 	
 	/** Colours for each series. */
-	ArrayList<Color>		colours;
+	private List<Color>				colours;
 
 	/** The dataset for the line plot. */
-	DefaultXYDataset		dataset;
+	private DefaultXYDataset		dataset;
 	
 	/** The renderer to renderer the line of the plot. */
-	PointRenderer 			renderer;
+	private PointRenderer 			renderer;
 	
 	/** The x, y data of the plot. */
-	ArrayList<double[][]>   data;
+	private List<double[][]>   		data;
 	
 	/** The shapes associated with each datapoint in the plot. */
-	ArrayList<Shape> 		shapes;
+	private List<Shape> 			shapes;
 	
-	/**
-	 * Constructor for the scatterplot. */
+	/** Initialise arraylists. */
+	private void init()
+	{
+		legends = new ArrayList<String>();
+		data = new ArrayList<double[][]>();
+		colours = new ArrayList<Color>();
+		shapes = new ArrayList<Shape>();
+		dataset = new DefaultXYDataset();
+	}
+
+	/** 
+	 * Creates the default shape if no shape param was passed in constuctor. 
+	 * 
+	 * @return See above.
+	 */
+	private Ellipse2D createDefaultShape()
+	{
+		return new Ellipse2D.Double(-SHAPESIZE, -SHAPESIZE, 
+									SHAPESIZE, SHAPESIZE);
+	}
+	
+	/** Creates a new instance. */
 	public ScatterPlot()
 	{
 		init();
 	}
 	
 	/**
-	 * Constructor for the scatterplot. 
-	 * @param title graph title. 
-	 * @param newLegends The legends of each series. 
-	 * @param newData The data for each series. 
-	 * @param newColours The colours for each series. 
-	 * @param newShapes  The shapes for each series.. 
+	 * Creates a new instance.
+	 *  
+	 * @param title 		The title of the graph.
+	 * @param newLegends 	The legends of each series. 
+	 * @param newData 		The data for each series. 
+	 * @param newColours 	The colours for each series. 
+	 * @param newShapes  	The shapes for each series.. 
 	 */
-	public ScatterPlot(String title, List<String> newLegends, 
-			List<double[][]> newData, List<Color> newColours, 
-			List<Shape> newShapes)
+	public ScatterPlot(String title, List<String> newLegends,
+				List<double[][]> newData, List<Color> newColours, 
+				List<Shape> newShapes)
 	{
-		if(newLegends.size()!=newData.size() && 
-				newLegends.size()!=newColours.size() && 
-				newLegends.size()!=newShapes.size())
+		if (newLegends == null || newData == null || newColours == null||
+			newShapes == null || newLegends.size() != newData.size() && 
+				newLegends.size() != newColours.size() && 
+				newLegends.size() != newShapes.size())
 			throw new IllegalArgumentException("Mismatch between argument " +
 					"length");
+		this.title = title;
 		init();
-		for(int i = 0 ; i < newLegends.size(); i++)
+		for (int i = 0 ; i < newLegends.size(); i++)
 			addSeries(newLegends.get(i), newData.get(i), newColours.get(i), 
 															newShapes.get(i));
 		setDefaultAxis();
 	}
 	
 	/**
-	 * Constructor for the scatterplot. 
-	 * @param title graph title. 
-	 * @param newLegends The legends of each series. 
-	 * @param newData The data for each series. 
-	 * @param newColours The colours for each series. 
+	 * Creates a new instance. 
+	 * 
+	 * @param title 		The title of the graph.
+	 * @param newLegends 	The legends of each series. 
+	 * @param newData 		The data for each series. 
+	 * @param newColours 	The colours for each series. 
 	 */
 	public ScatterPlot(String title, List<String> newLegends, 
-							List<double[][]> newData, List<Color> newColours)
+					List<double[][]> newData, List<Color> newColours)
 	{
-		if(newLegends.size()!=newData.size() && 
-				newLegends.size()!=newColours.size())
+		if(newLegends == null || newData == null || newColours == null||
+			newLegends.size()!=newData.size() && 
+			newLegends.size()!=newColours.size())
 			throw new IllegalArgumentException("Mismatch between argument " +
 					"length");
+		this.title = title;
 		init();
-		for(int i = 0 ; i < newLegends.size(); i++)
+		for (int i = 0 ; i < newLegends.size(); i++)
 			addSeries(newLegends.get(i), newData.get(i), newColours.get(i));
 		setDefaultAxis();
 	}
-	
 
-	/** Set the default names for the x and y axis in the plot. */
+	/** Sets the default names for the x and y axis in the plot. */
 	public void setDefaultAxis()
 	{
 		setXAxisName("X");
@@ -158,9 +184,10 @@ public class ScatterPlot
 	}
 	
 	/** 
-	 * Set the range of the x axis to axisName. 
-	 * @param axisMinRange see above. 
-	 * @param axisMaxRange see above. 
+	 * Sets the range of the x axis to axisName. 
+	 * 
+	 * @param axisMinRange The min value to set. 
+	 * @param axisMaxRange The max value to set. 
 	 */
 	public void setXAxisRange(double axisMinRange, double axisMaxRange)
 	{
@@ -169,42 +196,45 @@ public class ScatterPlot
 	}
 
 	/** 
-	 * Set the name of the x axis to axisName. 
-	 * @param axisName see above. 
+	 * Sets the name of the x axis to axisName. 
+	 * 
+	 * @param axisName The value to set.
 	 */
 	public void setXAxisName(String axisName)
 	{
-		if(axisName==null)
+		if (axisName==null)
 			throw new IllegalArgumentException("Null parameter for Axis name."); 
 		domainAxis = new NumberAxis(axisName);
 	}
-	
-	
+
 	/** 
-	 * Set the range of the y axis to axisName. 
-	 * @param axisMinRange see above. 
-	 * @param axisMaxRange see above. 
+	 * Sets the range of the y axis to axisName. 
+	 * 
+	 * @param axisMinRange The min value to set. 
+	 * @param axisMaxRange The max value to set.
 	 */
 	public void setYAxisRange(double axisMinRange, double axisMaxRange)
 	{
-			rangeAxis.setAutoRange(false);
-			rangeAxis.setRange(axisMinRange, axisMaxRange);
+		rangeAxis.setAutoRange(false);
+		rangeAxis.setRange(axisMinRange, axisMaxRange);
 	}
 
 	/** 
-	 * Set the name of the y axis to axisName. 
-	 * @param axisName see above. 
+	 * Sets the name of the y axis to axisName. 
+	 * 
+	 * @param axisName The value to set. 
 	 */
 	public void setYAxisName(String axisName)
 	{
-		if(axisName==null)
+		if (axisName==null)
 			throw new IllegalArgumentException("Null parameter for Axis name."); 
 		rangeAxis = new NumberAxis(axisName);
 	}
 	
 	/**
-	 * Add a new Series to the plot. 
-	 * @param legend The name of the new sereis. 
+	 * Adds a new Series to the plot.
+	 *  
+	 * @param legend The name of the new series. 
 	 * @param newData The data. 
 	 * @param color The colour of the series. 
 	 * @param shape The shape of the series. 
@@ -223,8 +253,9 @@ public class ScatterPlot
 	}
 
 	/**
-	 * Add a new Series to the plot. 
-	 * @param legend The name of the new sereis. 
+	 * Adds a new Series to the plot. 
+	 * 
+	 * @param legend The name of the new series. 
 	 * @param newData The data. 
 	 * @param color The colour of the series. 
 	 * @return The total number of series in the plot, this also gives the id
@@ -239,26 +270,16 @@ public class ScatterPlot
 		dataset.addSeries(legend, newData);
 		return dataset.getSeriesCount();
 	}
-
-	/** 
-	 * Create the default shape if no shape param was supplied in constuctor. 
-	 * @return ellipse shape. 
-	 */
-	private Ellipse2D createDefaultShape()
-	{
-		return new Ellipse2D.Double(-SHAPESIZE, -SHAPESIZE,
-			SHAPESIZE, SHAPESIZE);
-	}
 	
 	/**
-	 * Build the graph and return a jpanel containing it.
-	 * @return see above.
+	 * Builds the graph and returns the UI component hosting it.
+	 * 
+	 * @return See above.
 	 */
 	public JPanel getChart()
 	{
 		renderer = new PointRenderer(colours, shapes);
-		XYPlot plot = new XYPlot(dataset, domainAxis,
-            rangeAxis, renderer);
+		XYPlot plot = new XYPlot(dataset, domainAxis, rangeAxis, renderer);
 		freeChart = new JFreeChart(title, plot);
 		charts = new ChartPanel(freeChart);
 		graphPanel = new JPanel();
@@ -266,19 +287,6 @@ public class ScatterPlot
 		graphPanel.add(charts, BorderLayout.CENTER);
 		return graphPanel;
 	}
-	
-	/** Initialise arraylists. */
-	private void init()
-	{
-		legends = new ArrayList<String>();
-		data = new ArrayList<double[][]>();
-		colours = new ArrayList<Color>();
-		shapes = new ArrayList<Shape>();
-		dataset = new DefaultXYDataset();
-	}
-	
-	
-	
 	
 }
 

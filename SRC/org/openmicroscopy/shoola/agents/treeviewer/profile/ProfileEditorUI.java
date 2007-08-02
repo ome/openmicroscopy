@@ -256,6 +256,4 @@ class ProfileEditorUI
      */
     public void setSize(Dimension d) { setSize(d.width, d.height); }
 
-
-
 }

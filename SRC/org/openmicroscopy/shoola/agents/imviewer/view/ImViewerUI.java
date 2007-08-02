@@ -53,6 +53,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
 import layout.TableLayout;
@@ -67,6 +68,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
+import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -97,6 +99,17 @@ class ImViewerUI
     extends TopWindow
 {
 
+	/** 
+	 * Text display in the {@link #historyItem} when the local history
+	 * is hidden.
+	 */
+	private static final String SHOW_HISTORY = "Show Local History...";
+	
+	/** 
+	 * Text display in the {@link #historyItem} when the local history is shown.
+	 */
+	private static final String HIDE_HISTORY = "Hide Local History...";
+	
 	/** Identifies the <code>Indigo</code> color. */
 	private static final Color INDIGO = new Color(75, 0, 130);
 	
@@ -163,6 +176,53 @@ class ImViewerUI
 
     /** Tabbed pane hosting the various panel. */
     private JTabbedPane			tabs;
+    
+    /** The component displaying the history. */
+    private HistoryUI			historyUI;
+    
+    /**
+     * Split pane used to display the image in the top section and the
+     * history component in the bottom one.
+     */
+    private JSplitPane			historySplit;
+    
+    /**
+     * Split pane used to display the renderer component on the left hand
+     * side of the pane.
+     */
+    private JSplitPane			rendererSplit;
+    
+    /** 
+     * Flag set to <code>true</code> if the history is shown, to 
+     * <code>false</code> is hidden.
+     */
+    private boolean				showHistory;
+   
+    /**
+     * Initializes and returns a split pane, either verical or horizontal 
+     * depending on the passed parameter.
+     * 
+     * @param orientation The orientation of the split pane.
+     * @return See above.
+     */
+    private JSplitPane initSplitPane(int orientation)
+    {
+    	int type;
+    	switch (orientation) {
+			case JSplitPane.HORIZONTAL_SPLIT:
+			case JSplitPane.VERTICAL_SPLIT:
+				type = orientation;
+				break;
+	
+			default:
+				type = JSplitPane.HORIZONTAL_SPLIT;
+				break;
+		}
+    	JSplitPane pane = new JSplitPane(type);
+    	pane.setOneTouchExpandable(true);
+    	pane.setContinuousLayout(true);
+    	return pane;
+    }
     
     /** 
      * Creates the menu bar.
@@ -331,6 +391,20 @@ class ImViewerUI
         menu.add(createScaleBarColorSubMenu());
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(createBackgroundColorSubMenu());
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        JMenuItem historyItem = new JMenuItem();
+        if (showHistory) historyItem.setText(HIDE_HISTORY);
+        else historyItem.setText(SHOW_HISTORY);
+        historyItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				boolean b = !showHistory;
+				JMenuItem item = (JMenuItem) e.getSource();
+				if (b) item.setText(HIDE_HISTORY);
+				else item.setText(SHOW_HISTORY);
+				displayHistory(b);
+			}
+		});
+        menu.add(historyItem);
         return menu;
     }
     
@@ -564,6 +638,36 @@ class ImViewerUI
         tabs.setEnabledAt(ImViewer.GRID_INDEX, model.getMaxC() != 1);
     }
 
+    /** 
+     * Shows the history if the passed value is <code>true</code>, hides it
+     * otherwise.
+     * 
+     * @param b Pass <code>true</code> to show the history, <code>false</code>
+     * 			to hide it.
+     */
+    private void displayHistory(boolean b)
+    {
+    	showHistory = b;
+    	Container container = getContentPane();
+    	if (b) {
+    		if (historyUI == null) {
+    			historyUI = new HistoryUI(model);
+    			historySplit = initSplitPane(JSplitPane.VERTICAL_SPLIT);
+    		}
+    		historyUI.doGridLayout();
+    		historySplit.setTopComponent(tabs);
+    		historySplit.setBottomComponent(historyUI);
+    		container.remove(tabs);
+            container.add(historySplit, BorderLayout.CENTER);
+    	} else {
+    		if (historySplit == null) return;
+    		container.remove(historySplit);
+    		container.add(tabs, BorderLayout.CENTER);
+    	}
+    	validate();
+    	repaint();
+    }
+    
     /**
      * Creates a new instance.
      * The {@link #initialize(ImViewerControl, ImViewerModel) initialize} 
@@ -1014,6 +1118,17 @@ class ImViewerUI
     {
     	controlPane.setChannelActive(index);
 	}
+    
+    /** 
+     * Adds a new item to the history. 
+     * 
+     * @param node The node to add.
+     */
+    void addHistoryItem(HistoryItem node)
+    {
+    	if (!showHistory || historyUI == null) return;
+    	historyUI.addHistoryItem(node);
+    }
     
     /** 
      * Overridden to the set the location of the {@link ImViewer}.

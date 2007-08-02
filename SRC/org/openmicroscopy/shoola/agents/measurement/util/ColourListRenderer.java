@@ -89,10 +89,10 @@ public class ColourListRenderer
             boolean hasFocus) 
 	{
 		Object [] array = (Object[]) value;
-		Color newCol = new Color(((Color) array[0]).getRed(),
-				((Color) array[0]).getGreen(), ((Color) array[0]).getBlue());
+		Color c = (Color) array[0];
+		if (c != null) 
+			icon.setColour(new Color(c.getRed(), c.getGreen(), c.getBlue()));
 		
-		icon.setColour(newCol);
 		setIcon(icon);
 		this.setVerticalAlignment(SwingConstants.CENTER);
 		this.setIconTextGap(40);

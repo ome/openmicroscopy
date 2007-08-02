@@ -34,7 +34,7 @@ import org.jfree.chart.renderer.xy.XYBarRenderer;
 //Application-internal dependencies
 
 /** 
- * 
+ * Customized histogram renderer.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,8 +47,9 @@ import org.jfree.chart.renderer.xy.XYBarRenderer;
  * @since OME3.0
  */
 class HistogramBarRenderer
-extends XYBarRenderer
+	extends XYBarRenderer
 {
+	
 	/** The colors. */
 	private List<Color> colours;
 	
@@ -59,22 +60,25 @@ extends XYBarRenderer
 	 */
 	public HistogramBarRenderer(List<Color> colours) 
 	{
+		if (colours == null)
+			throw new IllegalArgumentException("List of colours cannot " +
+					"be null.");
 		this.colours = colours;
 	}
 	
 	/**
-	 * Returns the paint for an item.  Overrides the default behaviour inherited
+	 * Returns the paint for an item. Overrides the default behaviour inherited
 	 * from AbstractSeriesRenderer.
 	 *
-	 * @param series  the series.
-	 * @param column  the category.
-	 *
+	 * @param series  The series.
+	 * @param column  The category.
 	 * @return The item color.
 	 */
 	public Paint getItemPaint(int series, int column) 
 	{
 		return colours.get(series);
 	}
+	
 }
 
 

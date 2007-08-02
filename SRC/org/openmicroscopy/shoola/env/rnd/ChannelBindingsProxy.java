@@ -182,4 +182,19 @@ class ChannelBindingsProxy
         noiseReduction = nr;
     }
     
+    /**
+     * Creates and returns a copy of the element.
+     * 
+     * @return See above.
+     */
+    ChannelBindingsProxy copy()
+    {
+    	ChannelBindingsProxy copy = new ChannelBindingsProxy();
+    	copy.setActive(active);
+    	copy.setInterval(inputStart, inputEnd);
+    	copy.setQuantization(family, curveCoefficient, noiseReduction);
+    	copy.setRGBA(rgba);
+    	return copy;
+    }
+    
 }

@@ -703,6 +703,4 @@ class ImViewerControl
      */
     public void componentMoved(ComponentEvent e) {}
 
-	
-    
 }

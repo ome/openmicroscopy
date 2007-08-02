@@ -526,5 +526,23 @@ public interface RenderingControl
      * @return See above.
      */
     public boolean isChannelBlue(int index);
+    
+    /**
+     * Returns a copy of the current rendering settings.
+     * 
+     * @return See above.
+     */
+    public RndProxyDef getRndSettingsCopy();
+    
+    /**
+     * Resets partially the rendering settings.
+     * 
+     * @param settings The settings to set.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+     */
+    public void resetRndSettings(RndProxyDef settings)
+    	throws RenderingServiceException, DSOutOfServiceException;
 
 }

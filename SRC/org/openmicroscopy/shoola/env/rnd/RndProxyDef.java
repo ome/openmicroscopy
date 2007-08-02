@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 //Third-party libraries
@@ -35,7 +36,7 @@ import java.util.Map;
 //Application-internal dependencies
 
 /** 
- * Stores the rendering settings to speed-tup the process.
+ * Stores the rendering settings to speed-up the process.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,40 +48,40 @@ import java.util.Map;
  * </small>
  * @since OME2.2
  */
-class RndProxyDef
+public class RndProxyDef
 {
 
     /** The default z-section. Cached value to speed up the process. */
-    private int     defaultZ;
+    private int     							defaultZ;
     
     /** The default timepoint. Cached value to speed up the process. */
-    private int     defaultT;
+    private int     							defaultT;
     
     /** The bit resolution. Cached value to speed up the process. */
-    private int     bitResolution;
+    private int     							bitResolution;
     
     /** 
      * The lower bound of the codomain interval.
      * Cached value to speed up the process. 
      */
-    private int     cdStart;
+    private int     							cdStart;
     
     /** 
      * The upper bound of the codomain interval.
      * Cached value to speed up the process. 
      */
-    private int     cdEnd;
+    private int     							cdEnd;
     
     /** The color model. Cached value to speed up the process. */
-    private String  colorModel;
+    private String  							colorModel;
     
     /** The codomain the channel bindings. */
-    private Map     channels;
+    private Map<Integer, ChannelBindingsProxy>	channels;
     
     /** Creates a new instance. */
     RndProxyDef()
     {
-        channels = new HashMap();
+        channels = new HashMap<Integer, ChannelBindingsProxy>();
     }
     
     /**
@@ -102,7 +103,7 @@ class RndProxyDef
      */
     ChannelBindingsProxy getChannel(int index)
     {
-         return (ChannelBindingsProxy) channels.get(new Integer(index));
+         return channels.get(new Integer(index));
     }
     
     /**
@@ -189,5 +190,27 @@ class RndProxyDef
      * @return See above. 
      */
     int getDefaultZ() { return defaultZ; }
+    
+    /**
+     * Creates and returns a copy of the element.
+     * 
+     * @return See above.
+     */
+    RndProxyDef copy()
+    {
+    	RndProxyDef copy = new RndProxyDef();
+    	copy.setDefaultZ(this.getDefaultZ());
+    	copy.setDefaultT(this.getDefaultT());
+    	copy.setBitResolution(this.getBitResolution());
+    	copy.setColorModel(this.getColorModel());
+    	copy.setCodomain(this.getCdStart(), this.getCdEnd());
+    	Iterator i = channels.keySet().iterator();
+    	int index;
+    	while (i.hasNext()) {
+    		index = (Integer) i.next();
+    		copy.setChannel(index, this.getChannel(index).copy());
+		}
+    	return copy;
+    }
     
 }

@@ -110,8 +110,8 @@
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Run the app in its own JVM. 
    * The location of the home directory is passed to the app via the command
-   * line.  The JVM minumum memory size is set to 256M and the maximum to
-   * 512M.  Note that JVM memory size is specified via -X options, which make
+   * line. The JVM minimum memory size is set to 256M and the maximum to
+   * 512M. Note that JVM memory size is specified via -X options, which make
    * it (in theory) non-portable.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="run"

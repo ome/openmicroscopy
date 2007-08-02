@@ -36,6 +36,8 @@ import java.util.Map;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -230,8 +232,7 @@ class EditorUtil
         	details.put(ACQUISITION_DATE, 
         				TreeViewerTranslator.DATE_NOT_AVAILABLE);
         else 
-        	details.put(ACQUISITION_DATE, 
-        				TreeViewerTranslator.formatTime(date));
+        	details.put(ACQUISITION_DATE, UIUtilities.formatTime(date));
         return details;
     }
     

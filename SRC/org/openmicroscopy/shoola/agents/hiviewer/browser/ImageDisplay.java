@@ -35,8 +35,9 @@ import java.util.regex.Pattern;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
+
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;

@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.RendererFactory;
+import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.ChannelPlayer;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.Player;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -52,6 +53,7 @@ import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 /** 
@@ -78,19 +80,19 @@ class ImViewerModel
 {
 
 	/** Indicates the displayed image has one star. */
-    static final int     RATING_ONE = 3;
+    static final int     		RATING_ONE = 3;
     
     /** Indicates the displayed image has two star. */
-    static final int     RATING_TWO = 4;
+    static final int     		RATING_TWO = 4;
     
     /** Indicates the displayed image has three star. */
-    static final int     RATING_THREE = 5;
+    static final int     		RATING_THREE = 5;
     
     /** Indicates the displayed image has four star. */
-    static final int     RATING_FOUR = 6;
+    static final int     		RATING_FOUR = 6;
     
     /** Indicates the displayed image has five star. */
-    static final int     RATING_FIVE = 7;
+    static final int     		RATING_FIVE = 7;
     
     /** The maximum width of the thumbnail. */
     private static final int    THUMB_MAX_WIDTH = 48; 
@@ -160,6 +162,15 @@ class ImViewerModel
     
     /** Flag indicating that a movie is played. */
     private boolean				playingMovie;
+    
+    /** Collection of history item. */
+    private List				historyItems;
+    
+    /** 
+     * Flag indicating that a previous item replaced an existing one. 
+     * In that case, a new element is not added to the history list.
+     */
+    private boolean				historyItemReplacement;
     
     /** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
     private void computeSizes()
@@ -411,13 +422,17 @@ class ImViewerModel
     /**
      * Sets the rendering control.
      * 
-     * @param rndControl The object to set. 
+     * @param rndControl 	The object to set.
      */
     void setRenderingControl(RenderingControl rndControl)
     {
         this.rndControl = rndControl;
-        renderer = RendererFactory.createRenderer(component, rndControl);
-        state = ImViewer.RENDERING_CONTROL_LOADED;
+        if (renderer == null) {
+        	renderer = RendererFactory.createRenderer(component, rndControl);
+            state = ImViewer.RENDERING_CONTROL_LOADED;
+        } else {
+        	renderer.setRenderingControl(rndControl);
+        }
     } 
 
     /**
@@ -852,6 +867,79 @@ class ImViewerModel
 			m.put(index, getChannelColor(index.intValue()));
 		}
 		return m;
+	}
+	
+	/** 
+	 * Creates a new history item and adds it to the list of elements.
+	 * Returns the newly created item.
+	 * 
+	 *  @return See above.
+	 */
+	HistoryItem addHistoryItem()
+	{
+		//Make a smaller image
+		BufferedImage img = browser.getRenderedImage();
+		double ratio = 1;
+		int w = img.getWidth();
+		int h = img.getHeight();
+		if (w < Browser.MINIMUM_SIZE || h < Browser.MINIMUM_SIZE) ratio = 1;
+		else {
+			if (w >= h) ratio = (double) Browser.MINIMUM_SIZE/w;
+			else ratio = (double) Browser.MINIMUM_SIZE/h;
+		}
+		BufferedImage thumb = Factory.magnifyImage(ratio, img);
+		HistoryItem i = new HistoryItem(rndControl.getRndSettingsCopy(), thumb);
+		if (historyItems == null) historyItems = new ArrayList();
+		historyItems.add(i);
+		return i;
+	}
+	
+	/** Clears the history. */
+	void clearHistory()
+	{
+		if (historyItems != null) historyItems = new ArrayList();
+		historyItemReplacement = false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if an history item has been added to the 
+	 * list when the user is swapping between rendering settings, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isHistoryItemReplacement() { return historyItemReplacement; }
+	
+	/**
+	 * Sets the value of the {@link #historyItemReplacement} flag.
+	 * 
+	 * @param b The value to set.
+	 */
+	void setHistoryItemReplacement(boolean b)
+	{
+		historyItemReplacement = b;
+	}
+	
+	/**
+	 * Returns the collection of history items.
+	 * 
+	 * @return See above.
+	 */
+	List getHistory() { return historyItems; }
+
+	/**
+	 * Partially resets the rendering settings.
+	 * 
+	 * @param settings The value to set.
+	 * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	void resetSettings(RndProxyDef settings) 
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		rndControl.resetRndSettings(settings);
+		renderer.resetRndSettings();
 	}
 	
 }

@@ -927,5 +927,29 @@ class RenderingControlProxy
 		int[] rgba = rndDef.getChannel(index).getRGBA();
 		return (rgba[0] == 0 && rgba[1] == 255 && rgba[2] == 0);
 	}
+
+	/** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getRndSettingsCopy()
+     */
+	public RndProxyDef getRndSettingsCopy() { return rndDef.copy(); }
+
+	/** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#resetRndSettings(RndProxyDef)
+     */
+	public void resetRndSettings(RndProxyDef rndDef)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
+		setQuantumStrategy(rndDef.getBitResolution());
+		ChannelBindingsProxy channel;
+		for (int i = 0; i < getPixelsDimensionsC(); i++) {
+			channel = rndDef.getChannel(i);
+			setChannelWindow(i, channel.getInputStart(), channel.getInputEnd());
+			setQuantizationMap(i, channel.getFamily(), 
+					channel.getCurveCoefficient(), channel.isNoiseReduction());
+		}
+	}
 	
 }

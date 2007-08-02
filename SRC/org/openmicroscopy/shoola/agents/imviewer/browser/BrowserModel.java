@@ -89,7 +89,7 @@ class BrowserModel
 	private static final String PREFIX ="w=";
 	
 	/** Gap between the images. */
-	static final int 	GAP = 2;
+	static final int 			GAP = 2;
 	
 	/** The title of the browser. */
 	private static final String TITLE = "View";
@@ -99,9 +99,6 @@ class BrowserModel
 	
 	/** The title of the grid view. */
 	private static final String TITLE_GRIDVIEW = "Split";
-	
-	/** The minimum size of an original image. */
-	private static final int	MINIMUM_SIZE = 96;
 	
 	/** 
 	 * Factor use to determine the size of the annotate image
@@ -233,7 +230,7 @@ class BrowserModel
         //Create the annotate image.
         if (renderedImage != null) {
         	if (init) {
-        		if (image.getWidth() < MINIMUM_SIZE) {
+        		if (image.getWidth() < Browser.MINIMUM_SIZE) {
         			ratio = 1;
         			unitBar = false;
         		}

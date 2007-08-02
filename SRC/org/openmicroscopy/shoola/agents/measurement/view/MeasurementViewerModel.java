@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.InputStream;
@@ -715,19 +716,30 @@ class MeasurementViewerModel
 	Map getAnalysisResults() { return analysisResults; }
 	
 	/**
-	 * Get the active channels for the data.
-	 * @return active channels.
+	 * Returns the active channels for the data.
+	 * 
+	 * @return See above.
 	 */
-	public Map getActiveChannels()
-	{
-		return activeChannels;
-	}
+	Map getActiveChannels() { return activeChannels; }
 
 	/**
-	 * Get the figures selected in the current view.
-	 * @return the selected figures.
+	 * Returns the color associated to the specified channel or 
+	 * <code>null</code> if the channel is not active.
+	 * 
+	 * @param index The index of the channel.
+	 * @return See above.
 	 */
-	public Collection<Figure> getSelectedFigures()
+	Color getActiveChannelColor(int index) 
+	{
+		return (Color) activeChannels.get(index);
+	}
+	
+	/**
+	 * Returns the figures selected in the current view.
+	 * 
+	 * @return See above.
+	 */
+	Collection<Figure> getSelectedFigures()
 	{
 		return drawingView.getSelectedFigures();
 	}

@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.AnalysisStatsWrapper.St
 import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
@@ -83,6 +84,85 @@ class GraphPane
 	/** The map of <ROIShape, ROIStats> .*/
 	private Map							ROIStats;
 
+	/**
+	 * Returns <code>true</code> if the figure contained in the ROIShape
+	 * is a line or bezier path, <code>false</code> otherwise.
+	 * 
+	 * @param shape The ROIShape containing figure.
+	 * @return See above.
+	 */
+	private boolean lineProfileFigure(ROIShape shape)
+	{
+		ROIFigure f = shape.getFigure();
+		if (f instanceof LineAnnotationFigure) return true;
+		if (f instanceof BezierAnnotationFigure )
+		{
+			BezierAnnotationFigure fig = (BezierAnnotationFigure) f;
+			if (!fig.isClosed()) return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Finds the minimum value from the channelMin map.
+	 * 
+	 * @return See above.
+	 */
+	private double channelMinValue()
+	{
+		Map channels = model.getActiveChannels();
+		Iterator<Integer> i = channels.keySet().iterator();
+		double value = 0;
+		int channel;
+		while (i.hasNext())
+		{
+			channel = i.next();
+			value = Math.min(value, model.getMetadata(channel).getGlobalMin());
+		}
+		return value;
+	}
+	
+	/**
+	 * Finds the maximum value from the channelMin map.
+	 * 
+	 * @return See above.
+	 */
+	private double channelMaxValue()
+	{
+		Map channels = model.getActiveChannels();
+		Iterator<Integer> i = channels.keySet().iterator();
+		double value = 0;
+		int channel;
+		while (i.hasNext())
+		{
+			channel = i.next();
+			value = Math.max(value, model.getMetadata(channel).getGlobalMax());
+		}
+		return value;
+	}
+	
+	/**
+	 * Creates a UI component with the label assigned the value str and
+	 * the textbox the value value.
+	 * 
+	 * @param str 	The value assigned to the label.
+	 * @param value The value assigned to the textbox.
+	 * @return See above
+	 */
+	private JPanel createLabelText(String str, String value)
+	{
+		JLabel label = new JLabel(str);
+		JTextField text = new JTextField(value);
+		UIUtilities.setDefaultSize(label, new Dimension(80, 26));
+		UIUtilities.setDefaultSize(text, new Dimension(80, 26));
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+		panel.add(label);
+		panel.add(Box.createHorizontalStrut(10));
+		panel.add(text);
+		return panel;
+	}
+	
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
@@ -133,15 +213,15 @@ class GraphPane
 	}
 
 	/**
-	 * Get the analysis results from the model and convert to the 
+	 * Returns the analysis results from the model and converts to the 
 	 * necessary array. data types using the ROIStats wrapper then
-	 * create the approriate graph and plot.  
+	 * creates the approriate graph and plot.  
 	 */
-	public void displayAnalysisResults()
+	void displayAnalysisResults()
 	{
 		this.ROIStats = model.getAnalysisResults();
-		if(ROIStats==null)
-			return;
+		if (ROIStats == null) return;
+		
 		Map<StatsType, Map> shapeStats; 
 		Iterator shapeIterator  = ROIStats.keySet().iterator();
 		ROIShape shape;
@@ -152,35 +232,43 @@ class GraphPane
 		int channel;
 		JPanel histogramChart = null;
 		JPanel lineProfileChart = null;
+		Map<Integer, double[]> data;
+		Iterator<Integer> channelIterator;
+		Map activeChannels = model.getActiveChannels();
 		while(shapeIterator.hasNext())
 		{
 			shape = (ROIShape) shapeIterator.next();
-			if(shape.getFigure() instanceof MeasureTextFigure)
+			if (shape.getFigure() instanceof MeasureTextFigure)
 				return;
 		
 			shapeStats = AnalysisStatsWrapper.convertStats(
 											(Map) ROIStats.get(shape));
 			channelName.clear();
 			channelColour.clear();
-			Map<Integer, double[]> data = 
-				shapeStats.get(StatsType.PIXELDATA);
-			Iterator<Integer> channelIterator = data.keySet().iterator();
-			while(channelIterator.hasNext())
+			data = shapeStats.get(StatsType.PIXELDATA);
+			//channelIterator = data.keySet().iterator();
+			channelIterator = activeChannels.keySet().iterator();
+			double[] dataY;
+			double[][] dataXY;
+			Color c;
+			while (channelIterator.hasNext())
 			{
 				channel = channelIterator.next();
-				channelName.add(model.getMetadata(channel).getEmissionWavelength()+"");
-				channelColour.add((Color)model.getActiveChannels().get(channel));
-				if(data.get(channel).length==0)
+				channelName.add(
+						model.getMetadata(channel).getEmissionWavelength()+"");
+				c = model.getActiveChannelColor(channel);
+				//if (c == null) return;
+				channelColour.add(c);
+				if (data.get(channel).length == 0)
 					return;
 				channelData.add(data.get(channel));
 				
-				if(lineProfileFigure(shape))
+				if (lineProfileFigure(shape))
 				{
-					double dataY[] = data.get(channel);
-					double dataXY[][]=new double[2][dataY.length];
-					if(dataY.length == 0)
-						return;
-					for(int i = 0 ; i < dataY.length ; i++)
+					dataY = data.get(channel);
+					dataXY = new double[2][dataY.length];
+					if (dataY.length == 0) return;
+					for (int i = 0 ; i < dataY.length ; i++)
 					{
 						dataXY[0][i] = i;
 						dataXY[1][i] = dataY[i];
@@ -188,75 +276,39 @@ class GraphPane
 					channelXYData.add(dataXY);
 				}
 			}
-		
-			if(lineProfileFigure(shape))
-				lineProfileChart = drawLineplot("Line Profile", channelName, channelXYData, channelColour);
-			histogramChart = drawHistogram("Histogram", channelName, channelData,
-					channelColour, 1001);
+			
+			if (lineProfileFigure(shape))
+				lineProfileChart = drawLineplot("Line Profile", 
+						channelName, channelXYData, channelColour);
+			histogramChart = drawHistogram("Histogram", channelName, 
+							channelData, channelColour, 1001);
 		}
 		
 		
 		this.removeAll();
-		if(histogramChart == null && lineProfileChart==null)
+		if (histogramChart == null && lineProfileChart == null)
 			return;
-		if(lineProfileChart==null && histogramChart !=null)
+		if (lineProfileChart == null && histogramChart !=null)
 		{
-			this.setLayout(new BorderLayout());
-			this.add(histogramChart, BorderLayout.CENTER);
+			setLayout(new BorderLayout());
+			add(histogramChart, BorderLayout.CENTER);
 		}
-		if(lineProfileChart!=null && histogramChart !=null)
+		if (lineProfileChart != null && histogramChart !=null)
 		{
-			this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-			this.add(lineProfileChart);
-			this.add(histogramChart);
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			add(lineProfileChart);
+			add(histogramChart);
 		}
 	}
-	
+
 	/**
-	 * Is the figure contained in the ROIShape a line or bezier path?
-	 * @param shape The ROIShape containing figure.
+	 * Draws the current data as a scatter plot in the graph.
+	 * 
+	 * @param title 			The graph title.
+	 * @param data 				The data to render.
+	 * @param channelNames 		The channel names.
+	 * @param channelColours	The channel colours.
 	 * @return See above.
-	 */
-	private boolean lineProfileFigure(ROIShape shape)
-	{
-		if(shape.getFigure() instanceof LineAnnotationFigure)
-			return true;
-		if(shape.getFigure() instanceof BezierAnnotationFigure )
-		{
-			BezierAnnotationFigure fig = (BezierAnnotationFigure)shape.getFigure();
-			if(!fig.isClosed())
-				return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * Create jpanel with the label assigned the value str and
-	 * the textbox the value value.
-	 * @param str see above.
-	 * @param value see above.
-	 * @return the jpanel with the label and textfield.
-	 */
-	private JPanel createLabelText(String str, String value)
-	{
-		JLabel label = new JLabel(str);
-		JTextField text = new JTextField(value);
-		UIUtilities.setDefaultSize(label, new Dimension(80, 26));
-		UIUtilities.setDefaultSize(text, new Dimension(80, 26));
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-		panel.add(label);
-		panel.add(Box.createHorizontalStrut(10));
-		panel.add(text);
-		return panel;
-	}
-		
-	/**
-	 * Draw the current data as a scatter plot in the graph.
-	 * @param title the graph title.
-	 * @param data the data to render.
-	 * @param channelNames the channel names.
-	 * @param channelColours the channel colours.
 	 */
 	JPanel drawScatterplot(String title, List<String>	channelNames, 
 			List<double[][]> data, List<Color> channelColours)
@@ -267,11 +319,13 @@ class GraphPane
 	}
 	
 	/**
-	 * Draw the current data as a line plot in the graph.
-	 * @param title the graph title.
-	 * @param data the data to render.
-	 * @param channelNames the channel names.
-	 * @param channelColours the channel colours.
+	 * Draws the current data as a line plot in the graph.
+	 * 
+	 * @param title 			The graph title.
+	 * @param data 				The data to render.
+	 * @param channelNames 		The channel names.
+	 * @param channelColours	The channel colours.
+	 * @return See above.
 	 */
 	JPanel drawLineplot(String title,  List<String> channelNames, 
 			List<double[][]> data, List<Color> channelColours)
@@ -282,12 +336,14 @@ class GraphPane
 	}
 	
 	/**
-	 * Draw the current data as a histogram in the graph.
-	 * @param title the graph title.
-	 * @param data the data to render.
-	 * @param channelNames the channel names.
-	 * @param channelColours the channel colours.
-	 * @param bins the number of bins in the histogram.
+	 * Draws the current data as a histogram in the graph.
+	 * 
+	 * @param title 			The graph title.
+	 * @param data 				The data to render.
+	 * @param channelNames 		The channel names.
+	 * @param channelColours	The channel colours.
+	 * @param bins 				The number of bins in the histogram.
+	 * @return See above.
 	 */
 	JPanel drawHistogram(String title,  List<String> channelNames, 
 			List<double[]> data, List<Color> channelColours, int bins)
@@ -297,39 +353,6 @@ class GraphPane
 		return plot.getChart();
 	}
 	
-	/**
-	 * Finds the minimum value from the channelMin map
-	 * @return see above.
-	 */
-	private double channelMinValue()
-	{
-		Map channels = model.getActiveChannels();
-		Iterator<Integer> iterator = channels.keySet().iterator();
-		double value = 0;
-		while(iterator.hasNext())
-		{
-			int channel = iterator.next();
-			value = Math.min(value, model.getMetadata(channel).getGlobalMin());
-		}
-		return value;
-	}
-	
-	/**
-	 * Finds the maximum value from the channelMin map
-	 * @return see above.
-	 */
-	private double channelMaxValue()
-	{
-		Map channels = model.getActiveChannels();
-		Iterator<Integer> iterator = channels.keySet().iterator();
-		double value = 0;
-		while(iterator.hasNext())
-		{
-			int channel = iterator.next();
-			value = Math.max(value, model.getMetadata(channel).getGlobalMax());
-		}
-		return value;
-	}
 }
 
 

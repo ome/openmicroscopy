@@ -45,7 +45,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
 
@@ -636,12 +635,20 @@ class MeasurementViewerUI
 	/** Builds the graphs and displays them in the results pane. */
 	void displayAnalysisResults()
 	{
-		if(inGraphView())
-			graphPane.displayAnalysisResults();
-		if(inIntensityView())
-			intensityView.displayAnalysisResults();
+		if (inGraphView()) graphPane.displayAnalysisResults();
+		if (inIntensityView()) intensityView.displayAnalysisResults();
 	}
 	
+	/**
+     * Creates a single figure and returns to the selection tool.
+     * 
+     * @param createSingleFig See above.
+     */
+    void createSingleFigure(boolean createSingleFig)
+    {
+    	toolBar.createSingleFigure(createSingleFig);
+    }
+    
     /** 
      * Overridden to the set the location of the {@link MeasurementViewer}.
      * @see TopWindow#setOnScreen() 
@@ -655,15 +662,6 @@ class MeasurementViewerUI
             pack();
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
-    }
- 
-    /**
-     * Create a single figure and return to the selection tool.
-     * @param createSingleFig See above.
-     */
-    public void createSingleFigure(boolean createSingleFig)
-    {
-    	toolBar.createSingleFigure(createSingleFig);
     }
     
 }

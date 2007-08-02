@@ -79,7 +79,7 @@ class SplashScreenManager
 	static final String				TITLE = "Open Microscopy Environment";
 	
     /** The client's version. */
-    private static final String     VERSION = "3.0_Beta2.1";
+    private static final String     VERSION = "3.0_Beta3";
     
 	/** The component's UI. */
 	private ScreenLogin			view;

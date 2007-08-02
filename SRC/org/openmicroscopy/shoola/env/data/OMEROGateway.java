@@ -1323,9 +1323,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		IAdmin service = getIAdmin();
-		//entry.createRawPixelsStore().getPlane(arg0, arg1, arg2)
 		try {
-			service.updateExperimenter(exp);
+			service.updateSelf(exp);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the user. ");
 		}

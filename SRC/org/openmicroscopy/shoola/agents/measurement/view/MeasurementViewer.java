@@ -229,23 +229,27 @@ public interface MeasurementViewer
 	 * @param list The value to set.
 	 */
 	public void setChannelMetadata(List list);
-
-
+	
 	/** 
-	 * Gets the selected figures in the view.
+	 * Returns the selected figures in the view.
+	 * 
 	 * @return the selected figures in the dataview.
 	 */
 	public Collection getSelectedFigures();
 	
-	/** Attach listeners to the newly loaded ROI.
+	/** 
+	 * Attaches listeners to the newly loaded ROI.
+	 * 
 	 * @param roiList list of the newly loaded ROI.
 	 */
 	public void attachListeners(List<ROI> roiList);
 	
 	/**
-	 * Create single figures or multiple figures. 
+	 * Creates single figures or multiple figures. 
+	 * 
 	 * @param createSingleFig Create a single figure and go back to selection 
-	 * tool.
+	 * 						tool.
 	 */
 	public void createSingleFigure(boolean createSingleFig);
+	
 }

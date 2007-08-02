@@ -30,6 +30,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -48,6 +50,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
+import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImageDetailsDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
@@ -61,6 +64,7 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -114,6 +118,8 @@ class ImViewerComponent
     /** Flag indicating that a new z-section or timepoint is selected. */
     private boolean				newPlane;
    
+    private MouseAdapter		nodeListener;
+    
     /** 
      * Returns the description displayed in the status bar.
      * 
@@ -166,6 +172,24 @@ class ImViewerComponent
     	ChannelSelection event = new ChannelSelection(model.getPixelsID(), 
     			model.getActiveChannelsMap(), index);
     	bus.post(event);
+    }
+    
+    /**
+     * Finds the first {@link HistoryItem} in <code>x</code>'s containement
+     * hierarchy.
+     * 
+     * @param x A component.
+     * @return The parent {@link HistoryItem} or <code>null</code> if none
+     *         was found.
+     */
+    private HistoryItem findParentDisplay(Object x)
+    {
+        while (true) {
+            if (x instanceof HistoryItem) return (HistoryItem) x;
+            if (x instanceof JComponent) x = ((JComponent) x).getParent();
+            else break;
+        }
+        return null;
     }
     
     /**
@@ -1588,5 +1612,45 @@ class ImViewerComponent
     {
     	return model.isChannelActive(index);
     }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#createHistoryItem()
+     */
+	public void createHistoryItem()
+	{
+		HistoryItem node = model.addHistoryItem();
+		//add Listener to node.
+		model.setHistoryItemReplacement(false);
+		if (nodeListener == null) {
+			nodeListener = new MouseAdapter() {
+				
+				public void mousePressed(MouseEvent evt) {
+					HistoryItem item = findParentDisplay(evt.getSource());
+					try {
+						if (!model.isHistoryItemReplacement()) {
+							HistoryItem node = model.addHistoryItem();
+							view.addHistoryItem(node);
+							node.addMouseListenerToComponents(nodeListener);
+							model.setHistoryItemReplacement(true);
+						}
+						List nodes = model.getHistory();
+						Iterator i = nodes.iterator();
+						while (i.hasNext()) {
+							((HistoryItem) i.next()).setHighlight(null);
+						}
+						model.resetSettings(item.getRndSettings());
+						item.setHighlight(Color.BLUE);
+						renderXYPlane();
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+					
+				}
+			};
+		}
+		node.addMouseListenerToComponents(nodeListener);
+		view.addHistoryItem(node);
+	}
 
 }
