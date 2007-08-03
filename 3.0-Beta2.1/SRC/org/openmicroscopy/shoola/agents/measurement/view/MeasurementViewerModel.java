@@ -744,4 +744,16 @@ class MeasurementViewerModel
 		return drawingView.getSelectedFigures();
 	}
 	
+	/**
+	 * Returns <code>true</code> if the channel is active, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param index The index of the channel.
+	 * @return See above.
+	 */
+	boolean isChannelActive(int index)
+	{
+		return (activeChannels.get(index) != null);
+	}
+	
 }	

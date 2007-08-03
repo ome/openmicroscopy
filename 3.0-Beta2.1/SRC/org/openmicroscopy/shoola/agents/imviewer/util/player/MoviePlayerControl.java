@@ -335,9 +335,11 @@ class MoviePlayerControl
                     model.setMovieIndex(MoviePlayerDialog.ACROSS_ZT);
                     break;
                 case PLAY_CMD:
-                    model.setPlayerState(Player.START); break;
+                    model.setPlayerState(Player.START); 
+                    break;
                 case PAUSE_CMD:
-                    model.setPlayerState(Player.PAUSE); break;    
+                    model.setPlayerState(Player.PAUSE); 
+                    break;    
                 case STOP_CMD:
                     model.setPlayerState(Player.STOP); 
                     break;

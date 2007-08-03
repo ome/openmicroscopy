@@ -1383,8 +1383,15 @@ class ImViewerComponent
 		view.enableSliders(!b);
 		controller.getAction(ImViewerControl.CHANNEL_MOVIE).setEnabled(!b);
 		if (doClick) {
+			d.addPropertyChangeListener(
+					MoviePlayerDialog.STATE_CHANGED_PROPERTY,
+					controller);
 			if (b) d.doClick(MoviePlayerDialog.DO_CLICK_PLAY);
 			else d.doClick(MoviePlayerDialog.DO_CLICK_PAUSE);
+		} else {
+			d.removePropertyChangeListener(
+					MoviePlayerDialog.STATE_CHANGED_PROPERTY,
+					controller);
 		}
 		controller.getAction(ImViewerControl.PLAY_MOVIE).setEnabled(doClick);
 		if (wasVisible)

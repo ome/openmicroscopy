@@ -666,6 +666,12 @@ class ImViewerControl
         	view.scrollToNode((Rectangle) pce.getNewValue());
         } else if (MoviePlayerDialog.CLOSE_PROPERTY.equals(propName)) {
         	model.playMovie(false, false);
+        } else if (MoviePlayerDialog.STATE_CHANGED_PROPERTY.equals(propName)) {
+        	boolean b = ((Boolean) pce.getNewValue()).booleanValue();
+        	if (!b && !getMoviePlayer().isVisible()) {
+        		((PlayMovieAction) getAction(PLAY_MOVIE)).setActionIcon(true);
+        		model.playMovie(false, false);
+        	}
         }
     }
 

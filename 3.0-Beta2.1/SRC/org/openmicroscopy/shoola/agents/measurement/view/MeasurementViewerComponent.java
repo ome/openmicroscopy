@@ -82,6 +82,7 @@ class MeasurementViewerComponent
 	extends AbstractComponent
 	implements MeasurementViewer
 {
+	
 	/** The Model sub-component. */
     private MeasurementViewerModel 		model;
 	
@@ -184,7 +185,9 @@ class MeasurementViewerComponent
      */
 	public void cancel()
 	{
-
+		model.cancel();
+		view.setStatus("");
+		fireStateChange();
 	}
 	
 	/** 
@@ -465,10 +468,16 @@ class MeasurementViewerComponent
 	 */
 	public void setActiveChannels(Map activeChannels)
 	{
-		//TODO: check state.
+		int state = model.getState();
+		switch (model.getState()) {
+			case DISCARDED:
+			case LOADING_DATA:
+				throw new IllegalStateException("This method cannot be " +
+						"invoked in the DISCARDED, LOADING_DATA " +
+						"state: "+state);
+		}
 		model.setActiveChannels(activeChannels);
-		if (view.inDataView())
-		{
+		if (view.inDataView()){
 			Collection<ROIFigure> collection = getSelectedFigures();
 			if (collection.size() != 1) return;
 			ROIFigure figure = collection.iterator().next();
@@ -482,13 +491,18 @@ class MeasurementViewerComponent
 	 */
 	public void setActiveChannelsColor(Map channels)
 	{
-		//TODO: Check state
+		int state = model.getState();
+		switch (model.getState()) {
+			case DISCARDED:
+			case LOADING_DATA:
+				throw new IllegalStateException("This method cannot be " +
+						"invoked in the DISCARDED, LOADING_DATA " +
+						"state: "+state);
+		}
 		model.setActiveChannels(channels);
-		if (view.inDataView())
-		{
+		if (view.inDataView()) {
 			Collection<ROIFigure> collection = getSelectedFigures();
-			if (collection.size()!=1)
-				return;
+			if (collection.size() != 1) return;
 			ROIFigure figure = collection.iterator().next();
 			analyseShape(figure.getROIShape());
 		}
@@ -501,11 +515,17 @@ class MeasurementViewerComponent
 	public void setStatsShapes(Map result)
 	{
 		int state = model.getState();
-		if (state != ANALYSE_SHAPE)
-			throw new IllegalStateException("This method can only be invoked " +
+		if (state != ANALYSE_SHAPE) {
+			MeasurementAgent.getRegistry().getLogger().debug(this, 
+					"This method can only be invoked " +
 					"in the ANALYSE_SHAPE state: "+state);
+			return;
+		}
+			//throw new IllegalStateException("This method can only be invoked " +
+			//		"in the ANALYSE_SHAPE state: "+state);
 		if (result == null || result.size() == 0) {
-			//TODO: Notify user
+			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Sets stats results", "No result to display.");
 			return;
 		}
 		model.setAnalysisResults(result);
@@ -519,13 +539,22 @@ class MeasurementViewerComponent
 	 */
 	public void analyseShape(ROIShape shape)
 	{
-		//TODO: check state.
 		if (shape == null)
 			throw new IllegalArgumentException("No shape specified.");
-		if (model.getState() == ANALYSE_SHAPE)
-			return;
-		if(model.getActiveChannels().size()==0)
-			return;
+		int state = model.getState();
+		switch (model.getState()) {
+			case DISCARDED:
+			case LOADING_DATA:
+			case LOADING_ROI:
+				throw new IllegalStateException("This method cannot be " +
+						"invoked in the DISCARDED, LOADING_DATA or " +
+						"LOADING_ROI state: "+state);
+				
+			case ANALYSE_SHAPE:
+				cancel();
+				break;
+		}
+		if (model.getActiveChannels().size() == 0) return;
 		model.fireAnalyzeShape(shape);
 		fireStateChange();
 	}
