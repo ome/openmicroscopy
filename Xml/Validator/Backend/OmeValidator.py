@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-OMETiffValidator.py
+OmeValidator.py
 
 Created by Andrew Patterson on 2007-07-24.
 
@@ -18,8 +18,11 @@ Created by Andrew Patterson on 2007-07-24.
 
 # Standard Imports
 import logging
+from xml.dom.minidom import getDOMImplementation
 from StringIO import StringIO
 from xml import sax
+import os
+from stat import *
 
 # Try to load Image for XML Schema Vlaidation Support
 haveTiffSupport = True
@@ -137,6 +140,9 @@ class XmlReport(object):
 		self.errorList = list()
 		self.warningList = list()
 		self.unresolvedList = list()
+		
+		# build the blank dom
+		self.theDom = None
 	
 	def __str__(self):
 		'''
@@ -173,26 +179,21 @@ class XmlReport(object):
 			out = out +  "theNamespace : %s\n" % self.theNamespace
 		return out
 	
-	def parse(self, inXml):
+	def parse(self, inFile):
 		"""
 		Parse - Main work function - Validates the XML, sets the flags and
 		populates the error and warning logs
 		"""
-		# check there is some xml data
-		if len(inXml) == 0:
-			self.errorList.append(ParseMessage(None, None, None, "NoData", None, "No Xml data found"))
-			return
-		
-		## mark xlm as having been parsed
+		# mark xlm as having been parsed
 		self.hasParsedXml = True
 		
 		# look at file for Ids, Refs, and namespaces
-		self.scanForIdsAndNamespace(inXml)
+		self.scanForIdsAndNamespace(inFile)
 		
 		# check the xml is valid aginst it's schema
-		self.validateAgainstSchema(inXml)
+		self.validateAgainstSchema()
 	
-	def validateAgainstSchema(self, inXml):
+	def validateAgainstSchema(self):
 		if not haveXsdSupport:
 			self.errorList.append(ParseMessage(None, None, None, "XSD", None, " LXML support not available - no validation"))
 			return
@@ -200,7 +201,7 @@ class XmlReport(object):
 		# loading the OME schema to validate against
 		schema = self.loadChoosenSchema()
 		# create an IO string for the xml string provided
-		stringXml = StringIO(inXml)
+		stringXml = StringIO(self.theDom.toxml())
 		# building the document tree from the input xml
 		try:
 			document = etree.parse(stringXml)
@@ -241,26 +242,19 @@ class XmlReport(object):
 		
 		return schema
 	
-	def scanForIdsAndNamespace(self, inXml):
+	def scanForIdsAndNamespace(self, inFile):
 		'''
 		Look through the Xml stream for the namespace and store all the ID tags
 		This version looks at all the elements
 		'''
-#		from xml.sax.handler import feature_namespaces
-#		# Create a parser
-#		parser = make_parser()
-#		
-#		# Enable namespace processing
-#		parser.setFeature(feature_namespaces, 1)
-		
+
 		# locate the handler class to the parser
 		handlerContent = ElementAggregator()
 		handlerError = ParseErrorHandler()
 		# parse the string - this applies the handler to each part of
 		# the xml in turn
 		try:
-			self.myParseString(inXml, handlerContent, handlerError, True)
-			#sax.parseString(inXml, handlerContent, handlerError)
+			sax.parse(inFile, handlerContent, handlerError)
 		except 	sax.SAXParseException:
 			self.errorList.append(ParseMessage(None, None, None, "XmlError",None, "Parsing of XML failed"))
 		self.errorList.extend(handlerError.errorList)
@@ -273,22 +267,8 @@ class XmlReport(object):
 		
 		# store the namespace
 		self.theNamespace = handlerContent.theNamespace
-		
-		print handlerContent.shortFormXml
-	
-	def myParseString(self, inXml, inHandlerContent, inHandlerError, inUseNamespace):
-		parser = sax.make_parser()
-		
-		if inUseNamespace:
-			#inHandlerContent.feature_namespace_prefixes = True
-			parser.setFeature(sax.handler.feature_namespaces, True)
-		
-		parser.setContentHandler(inHandlerContent)
-		parser.setErrorHandler(inHandlerError)
-		
-		inpsrc = sax.xmlreader.InputSource()
-		inpsrc.setByteStream(StringIO(inXml))
-		parser.parse(inpsrc)
+		# store the dom
+		self.theDom = handlerContent.dom
 	
 	def scanForFirstOmeNamespace(self, inXml):
 		'''
@@ -322,19 +302,19 @@ class XmlReport(object):
 		
 		# Open the file
 		try:
-			# TODO - stop this loading entire file into memory
 			theFile = open(inFilename, 'r')
-			theXml = theFile.read()
+            # check the file contains some data
+			length = os.stat(inFilename)[ST_SIZE]
+			if length == 0:
+				theFileReport.errorList.append(ParseMessage(inFilename, None, None, "IOFile","", "XML file was of zero length"))
 		except IOError:
 			theFileReport.errorList.append(ParseMessage(inFilename, None, None, "IOFile","", "XML file could not be read"))
 			return theFileReport
 		
-		# Look for OME xml element
-		
-		# Check for the OME namespace is loaded
-		
-		theFileReport.parse(theXml)
+		# parse the file into the report and validate it
+		theFileReport.parse(theFile)
 		theFileReport.isOmeTiff = False
+		# the report has now been populated 
 		return theFileReport
 	validateFile = classmethod(validateFile)
 	
@@ -343,23 +323,30 @@ class XmlReport(object):
 		Opens a Tiff file and extracts the OME-XML part of the file
 		"""
 		theTiffReport = klass()
+		# check there is tiff file support
 		if not haveTiffSupport:
 			theTiffReport.isOmeTiff = False
 			theTiffReport.errorList.append(ParseMessage(inFilename, None, None, "NoLibrary","", "No Tiff library found - file could not be read"))
 		else:
+            # load the tiff image
 			try:
 				image = Image.open(inFilename)
 			except IOError:
 				theTiffReport.isOmeTiff = False
 				theTiffReport.errorList.append(ParseMessage(inFilename, None, None, "InvalidFile","", "Not recognised as Tiff format - file could not be read"))
 			else:
+                # check for the XML containing tag within the tiff
 				if 270 not in image.tag.keys():
 					theTiffReport.isOmeTiff = False
 					theTiffReport.errorList.append(ParseMessage(inFilename, None, None, "InvalidTiff","", "Tiff file did not containg an ImageDescription Tag - no XML found"))
 				else:
-					xml = image.tag[270]
+				    # read the xml from the tiff
+					theXml = image.tag[270]
 					theTiffReport.isOmeTiff = True
-					theTiffReport.parse(xml)
+					# create a file object to represent the xml string
+					theFileString = StringIO(theXml)
+					# parse the new string/file object into the report and validate it 
+					theTiffReport.parse(theFileString)
 		return theTiffReport
 	validateTiff = classmethod(validateTiff)
 	
@@ -390,6 +377,8 @@ class ParseErrorHandler(sax.ErrorHandler):
 
 # Used to process all Elements by sax parser
 class ElementAggregator(sax.ContentHandler):
+	inBinData = False
+	
 	def startDocument(self):
 		'''
 		Initialise this object at the start of the document
@@ -400,72 +389,68 @@ class ElementAggregator(sax.ContentHandler):
 		self.inBinDataContent = False
 		self.shortFormXml = ""
 		self.skipCount = 0
+		
+		# Setup the DOM chunk
+		impl = getDOMImplementation()
+		self.dom = impl.createDocument(None, None, None)
+		self.stack = list()
 	
-	def startElementNS(self, name, qname, attribs):
+	def startElement(self, name, attribs):
 		'''
 		Examine each element in turn and harvest any useful information
 		'''
-		(theElementNamespace, theElementName) = name
-		
 		# pull the namespace out of the OME element
-		if theElementName == "OME":
-			if theElementNamespace == None:
+		if name == "OME":
+			try:
+				self.theNamespace = attribs.getValue("xmlns")
+			except KeyError:
 				self.theNamespace = ""
-				return
-			self.theNamespace = theElementNamespace
 			
 		# save the ID in any elements encountered
-		if theElementName[-3:] == "Ref":
+		if name[-3:] == "Ref":
 			try:
 				# If a Ref element then save in the refrences
-				self.references.append(attribs.getValue((None,"ID")))
+				self.references.append(attribs.getValue("ID"))
 			except KeyError:
 				pass
 		else:
 			try:
 				# If any other element thee save in the ids
-				self.ids.append(attribs.getValue((None,"ID")))
+				self.ids.append(attribs.getValue("ID"))
 			except KeyError:
 				pass
-
-		# mark start of a BinData element - assumes valid schema
-		if theElementName == "BinData":
-			self.inBinDataContent = True
-			self.skipCount = 0
+				
+		if name[-7:] == "BinData":
+			self.inBinData = True
+		self.domify(name, attribs)
 			
-		self.shortFormXml = self.shortFormXml + "<%s xmlns=\"%s\"" % (theElementName, theElementNamespace)
-		
-		for ((theAttribNamespace, theAttribName), value) in attribs.items():
-			self.shortFormXml = self.shortFormXml + ' ' + theAttribName + '="' + attribs.getValue((theAttribNamespace,theAttribName)) + '"'
-		self.shortFormXml = self.shortFormXml + '>'
-		for ((attr_ns, lname), value) in attribs.items():
-			if attr_ns is not None:
-				attr_qname = attribs.getQNameByName((attr_ns, lname))
-			else:
-				attr_qname = lname
-		return
-
-	def endElementNS(self, name, qname):
-		'''
-		Record information as element closes
-		'''
-		(theElementNamespace, theElementName) = name
-		# mark end of a BinData element - assumes valid schema
-		if theElementName == "BinData":
-			self.inBinDataContent = False
-			self.shortFormXml = self.shortFormXml + "Skipped:"
-			self.shortFormXml = self.shortFormXml + str(self.skipCount)
-		self.shortFormXml = self.shortFormXml + '</' + theElementName + '>'
-	
-	def characters(self, ch):
-		'''
-		Copy each character in turn or count if skipped
-		'''
-		if self.inBinDataContent:
-			self.skipCount = self.skipCount + len(ch)
+	def endElement(self, name):
+		newElement = self.stack.pop()
+		length = len(self.stack)
+		if length == 0:
+			self.dom.appendChild(newElement)
 		else:
-			self.shortFormXml = self.shortFormXml + ch
-	
+			self.stack[-1].appendChild(newElement)
+		self.clear()	
+
+	def domify(self, name, attribs):
+		newElement = self.dom.createElement(name)
+		for (attr, value) in attribs.items():
+			newAttribute = self.dom.createAttribute(attr)
+			newAttribute.value = value
+			newElement.setAttributeNode(newAttribute)
+		self.stack.append(newElement)
+		
+	def characters(self, content):
+		if not self.inBinData:
+			# Strip trailing and/or leading whitespace, "\n", "\r", etc.
+			content = content.strip().strip('\n\r')
+			if len(content) > 0 and len(self.stack) > 0:
+				textNode = self.dom.createTextNode(content)
+				self.stack[-1].appendChild(textNode)
+		
+	def clear(self):
+		self.inBinData = False
 
 # Used to process the Elements until a namespace is found by sax parser
 class NamespaceSearcher(sax.ContentHandler):
