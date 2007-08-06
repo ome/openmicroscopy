@@ -443,9 +443,14 @@ public class OMEROMetadataStore implements MetadataStore
      *      float, int, int, java.lang.String, java.lang.String,
      *      java.lang.Integer)
      */
-    public void setLogicalChannel(int channelIdx, String name, Float ndFilter,
-            Integer emWave, Integer exWave, String photometricInterpretation,
-            String mode, Integer i)
+    public void setLogicalChannel(int channelIdx, String name, Integer samplesPerPixel,
+    	    Integer filter, Integer lightSource, Float lightAttenuation,
+    	    Integer lightWavelength, Integer otf, Integer detector, 
+    	    Float detectorOffset, Float detectorGain, String illuminationType, 
+    	    Integer pinholeSize, String photometricInterpretation, String mode, 
+    	    String contrastMethod, Integer auxLightSource, Float auxLightAttenuation, 
+    	    String auxTechnique, Integer auxLightWavelength, Integer emWave, 
+    	    Integer exWave, String fluor, Float ndFilter, Integer series)
     {
         log
                 .debug(String
