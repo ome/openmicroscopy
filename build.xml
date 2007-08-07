@@ -117,7 +117,7 @@
 		<iterate buildpathref="client.buildpath" target="adduser"/>
 	</target>
 
-	<target name="dist">
+	<target name="dist" depends="multiproject">
 		<mkdir dir="${dist.dir}"/>
 		<iterate target="dist"/>
 
@@ -185,4 +185,8 @@
 
 	</target>
 
+	<target name="get-libs">
+		<property name="deps.build.dir" value="${omero.home}"/>
+		<antcall target="deps-retrieve" inheritAll="true" inheritRefs="true"/>
+	</target>
 </project>
