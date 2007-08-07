@@ -125,14 +125,14 @@ module omero {
      interface ILdap extends ServiceInterface
       {
 	idempotent ExperimenterList searchAll() throws ServerError;
-	idempotent DistinguishedNameList searchDnInGroups(String attr, String value) throws ServerError;
-	idempotent ExperimenterList searchByAttribute(String attribute, String value) throws ServerError;
-	idempotent Experimenter searchByDN(DistinguishedName userdn) throws ServerError;
-	idempotent DistinguishedName findDN(String username) throws ServerError;
-    idempotent void setDN(Long experimenterID, DistinguishedName dn) throws ServerError;
+	idempotent StringSet searchDnInGroups(string attr, string value) throws ServerError;
+	idempotent ExperimenterList searchByAttribute(string attribute, string value) throws ServerError;
+	idempotent omero::model::Experimenter searchByDN(string userdn) throws ServerError;
+	idempotent string findDN(string username) throws ServerError;
+	idempotent void setDN(long experimenterID, string dn) throws ServerError;
 	idempotent ExperimenterGroupList searchGroups() throws ServerError;
-	idempotent Attributes searchAttributes() throws ServerError;
-	idempotent boolean checkAttributes(DistinguishedName dn, List<String []> attrs) throws ServerError;
+	idempotent StringSet searchAttributes() throws ServerError;
+	idempotent bool checkAttributes(string dn, StringSet attrs) throws ServerError;
       };
 
 
@@ -178,8 +178,8 @@ module omero {
 	idempotent IObjectList           findAll(string klass, omero::sys::Filter filter) throws ServerError;          
 	idempotent omero::model::IObject findByExample(omero::model::IObject example) throws ServerError;
 	idempotent IObjectList           findAllByExample(omero::model::IObject example, omero::sys::Filter filter) throws ServerError;    
-	idempotent omero::model::IObject findByString(string klass, string field, string value) throws ServerError;
-	idempotent IObjectList           findAllByString(string klass, string field, string value, bool caseSensitive, omero::sys::Filter filter) throws ServerError;
+	idempotent omero::model::IObject findBystring(string klass, string field, string value) throws ServerError;
+	idempotent IObjectList           findAllBystring(string klass, string field, string value, bool caseSensitive, omero::sys::Filter filter) throws ServerError;
 	idempotent omero::model::IObject findByQuery(string query, omero::sys::Parameters params) throws ServerError;
 	idempotent IObjectList           findAllByQuery(string query, omero::sys::Parameters params) throws ServerError;
 	idempotent omero::model::IObject refresh(omero::model::IObject iObject) throws ServerError;
