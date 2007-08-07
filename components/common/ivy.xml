@@ -20,10 +20,10 @@
     <dependency org="asm" name="asm" rev="1.5.3" conf="build->default"/>
     <dependency org="cglib" name="cglib" rev="2.1_3" conf="build->default"/>
     <dependency org="dom4j" name="dom4j" rev="1.6.1" conf="build->default"/>
-    <dependency org="geronimo-spec" name="geronimo-spec-j2ee" rev="1.4-rc4" conf="build->default"/>
     <dependency org="geronimo-spec" name="geronimo-spec-jta" rev="1.0.1B-rc4" conf="build->default"/>
     <dependency org="ldap" name="ldaptemplate" rev="1.0.2" conf="build->default"/>
     <dependency org="net/sf/ehcache" name="ehcache" rev="1.2" conf="build->default"/>
+    <dependency org="omero" name="jboss-j2ee" rev="${versions.jboss}" conf="build->default"/>
     <dependency org="omero" name="jboss-ejb3x" rev="${versions.jboss}" conf="build->default"/> 
     <dependency org="org/hibernate" name="hibernate-tools" rev="3.1.0.beta4" conf="build->default"/> 
     <dependency org="org/hibernate" name="hibernate" rev="${versions.hibernate}" conf="build->default"/> 

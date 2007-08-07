@@ -66,15 +66,15 @@ public class TicketsUpTo500Test extends TestCase {
         assertNull(test);
     }
 
-    @Test(groups = "ticket:168")
+    @Test(groups = {"ticket:168","ticket:767"} )
     public void test_planeInfoSetPixelsSavePlaneInfo() throws Exception {
         Pixels pixels = ObjectFactory.createPixelGraph(null);
         pixels.clearPlaneInfo();
         PlaneInfo planeInfo = createPlaneInfo();
         planeInfo.setPixels(pixels);
         planeInfo = iUpdate.saveAndReturnObject(planeInfo);
-        Pixels test = (Pixels) iQuery.findByQuery("select p from Pixels p "
-                + "where p.planeInfo.id = :id", new Parameters()
+        Pixels test = (Pixels) iQuery.findByQuery("select pi.pixels from PlaneInfo pi " 
+                + "where pi.id = :id", new Parameters()
                 .addId(planeInfo.getId()));
         assertNotNull(test);
     }

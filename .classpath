@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="components/server/src"/>
-	<classpathentry kind="src" path="components/blitz/target/generated/resources"/>
-	<classpathentry kind="src" path="components/blitz/test"/>
-	<classpathentry kind="src" path="components/blitz/src"/>
-	<classpathentry kind="src" path="components/blitz/target/generated/src"/>
-	<classpathentry kind="src" path="components/server/test"/>
-	<classpathentry kind="src" path="components/common/src"/>
-	<classpathentry kind="src" path="components/common/test"/>
-	<classpathentry kind="src" path="components/common/resources"/>
-	<classpathentry kind="src" path="components/common/target/generated/resources"/>
-	<classpathentry kind="src" path="components/common/target/generated/src"/>
-	<classpathentry kind="src" path="components/server/resources"/>
+	<classpathentry kind="src" output="target/eclipse-server" path="components/server/src"/>
+	<classpathentry kind="src" path="components/client/resources"/>
+	<classpathentry kind="src" output="target/eclipse-server" path="components/server/test"/>
+	<classpathentry kind="src" output="target/eclipse-server" path="components/server/resources"/>
+	<classpathentry kind="src" output="target/eclipse-client" path="components/client/test"/>
+	<classpathentry kind="src" output="target/eclipse-client" path="components/client/src"/>
+	<classpathentry kind="src" output="target/eclipse-blitzgenresrc" path="components/blitz/target/generated/resources"/>
+	<classpathentry kind="src" output="target/eclipse-blitztest" path="components/blitz/test"/>
+	<classpathentry kind="src" output="target/eclipse-blitzsrc" path="components/blitz/src"/>
+	<classpathentry kind="src" output="target/eclipse-blitzgensrc" path="components/blitz/target/generated/src"/>
+	<classpathentry kind="src" output="target/eclipse-common" path="components/common/src"/>
+	<classpathentry kind="src" output="target/eclipse-common" path="components/common/test"/>
+	<classpathentry kind="src" output="target/eclipse-common" path="components/common/resources"/>
+	<classpathentry kind="src" output="target/eclipse-common" path="components/common/target/generated/resources"/>
+	<classpathentry kind="src" output="target/eclipse-common" path="components/common/target/generated/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="target/libs/acegi-security.jar"/>
 	<classpathentry kind="lib" path="target/libs/activemq-core.jar"/>
@@ -35,7 +38,6 @@
 	<classpathentry kind="lib" path="target/libs/drools-all-jdk5.jar"/>
 	<classpathentry kind="lib" path="target/libs/dsl.jar"/>
 	<classpathentry kind="lib" path="target/libs/ehcache.jar"/>
-	<classpathentry kind="lib" path="target/libs/geronimo-spec-j2ee.jar"/>
 	<classpathentry kind="lib" path="target/libs/geronimo-spec-jta.jar"/>
 	<classpathentry kind="lib" path="target/libs/groovy.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate.jar"/>
@@ -75,5 +77,6 @@
 	<classpathentry kind="lib" path="target/libs/mule.jar"/>
 	<classpathentry kind="lib" path="target/libs/smack.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-beanutils.jar"/>
+	<classpathentry kind="lib" path="target/libs/jboss-j2ee.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
 </classpath>
