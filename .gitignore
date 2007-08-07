@@ -1,5 +1,5 @@
+.DS_Store
 /etc/local.properties
-/target
 /dist
 /components/*/target
 /lib/cache
@@ -14,3 +14,13 @@
 !/lib/repository/omero/jbosssx
 !/lib/repository/omero/omejava
 !/lib/repository/omero/postgresql
+target
+*.lo
+*.o
+*.Plo
+*.pyc
+*.orig
+*.rej
+*~
+*generated*
+test-output
