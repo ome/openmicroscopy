@@ -21,3 +21,6 @@ libtool
 ltmain.sh
 missing
 stamp-h1
+*.egg
+*.pyc
+build
