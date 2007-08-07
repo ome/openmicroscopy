@@ -14,7 +14,7 @@
   <dependencies>
     <!-- Internal -->
     <dependency name="common" rev="${omero.version}" changing="true" />
-    <dependency org="omero" name="bio-formats" rev="2007.06.22" conf="build->default"/>
-    <dependency org="omero" name="omejava" rev="loci-tools-2007-Feb-26" conf="build->default"/>
+    <dependency org="OME" name="bio-formats" rev="${versions.bio-formats}" conf="build->default"/>
+    <dependency org="OME" name="ome-java" rev="${versions.ome-java}" conf="build->default"/>
   </dependencies>
 </ivy-module>
