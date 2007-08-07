@@ -32,8 +32,8 @@ public class SimpleLifecycle {
     @PostConstruct
     public void postConstruct(InvocationContext ctx) {
         try {
-            if (ctx.getBean() instanceof SelfConfigurableService) {
-                SelfConfigurableService bean = (SelfConfigurableService) ctx.getBean();
+            if (ctx.getTarget() instanceof SelfConfigurableService) {
+                SelfConfigurableService bean = (SelfConfigurableService) ctx.getTarget();
                 bean.selfConfigure();
             }
             ctx.proceed();

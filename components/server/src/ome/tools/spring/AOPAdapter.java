@@ -90,7 +90,7 @@ public class AOPAdapter extends ReflectiveMethodInvocation {
     }
 
     protected static Object target(InvocationContext context) {
-        return context.getBean();
+        return context.getTarget();
     }
 
     protected static Method method(InvocationContext context) {

@@ -300,7 +300,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
         private static final String BEANS_REFS_XML_NAME = "classpath*:beanRefContext.xml";
 
         public Locator() {
-            super();
+            super(null);
         }
 
         /**

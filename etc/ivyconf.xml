@@ -25,6 +25,10 @@
         <artifact pattern="${ivy.conf.dir}/../lib/repository/[organization]/[module]/[revision]/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.conf.dir}/../lib/repository/[organization]/[module]/[revision]/ivy.xml"/>
       </filesystem>
+      <filesystem name="flatrepository">
+        <artifact pattern="${ivy.conf.dir}/../lib/repository/[module]-[revision].[type]" />
+        <ivy pattern="${ivy.conf.dir}/../lib/repository/[module]-[revision].ivy"/>
+      </filesystem>
     </chain>
 
     <!-- Example maven2 configuration. Unused. -->

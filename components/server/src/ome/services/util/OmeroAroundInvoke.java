@@ -124,7 +124,7 @@ public class OmeroAroundInvoke implements SelfConfigurableService, ApplicationCo
 
     private Object call(InvocationContext context) throws Throwable {
 
-        Object bean = context.getBean();
+        Object bean = context.getTarget();
         if (bean instanceof SelfConfigurableService) {
             SelfConfigurableService service = (SelfConfigurableService) bean;
             String factoryName = "&managed:" + service.getServiceInterface().getName();
