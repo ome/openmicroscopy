@@ -47,7 +47,7 @@
 
     <target name="tools-build" depends="tools-init,make-build" description="Uses autogen.sh and make to build artifacts"/>
 
-    <target name="tools-dist" depends="make-install" description="Copies files into tools/target">
+    <target name="tools-dist" depends="tools-build,make-install" description="Copies files into tools/target">
         <copy file="${copy.dir}/OMERO/ModelI.h" todir="../target/include/OMERO"/>
         <!-- Here we have to copy ModelI.h out of ${copy.dir} and into include, since
         ${copy.dir} is already in the dist. Later we may want to test copying them all
