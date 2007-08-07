@@ -30,6 +30,7 @@
 	<import file="${import.dir}/dependencies.xml"/>
 	<import file="${import.dir}/lifecycle.xml"/>
 
+    <import file="../common.xml"/>
     <import file="../make.xml"/>
     <import file="../python.xml"/>
 
@@ -64,7 +65,13 @@
 		<delete file="${src.dest}/ome/services/licenses/LicenseWiring.java"/>
 	</target>
 
-    <target name="tools-build" depends="package,make-build,python-build" description="Creates all artifacts for tools/target">
+    <target name="tools-init">
+        <get-source todir="${target.dir}">
+            <fileset dir="." excludes="*"/>
+        </get-source>
+    </target>
+
+    <target name="tools-build" depends="tools-init,package,make-build,python-build" description="Creates all artifacts for tools/target">
         <mkdir dir="${basedir}/src/slice_generated"/>
         <slice_py todir="${basedir}/target" include="../../blitz/resources" prefix="OMERO_">
             <fileset dir="${basedir}/resources/OMERO" includes="*.ice"/>
@@ -76,7 +83,7 @@
     directory so that they can be bundled together for the final products.
     This is necessary since otherwise the jar listed here would have to
     be manually added to app/resources/application.xml -->
-    <target name="tools-dist" depends="python-install" description="Copied artifacts to tools/target">
+    <target name="tools-dist" depends="python-install" description="Copied artifacts to tools/target" unless="skip.compile">
         <mkdir dir="${tools.classes}"/>
         <unjar src="${target.dir}/${ivy.module}.jar" dest="${tools.classes}"/>
         <copy todir="../target/client">

@@ -7,7 +7,7 @@ AUTOMAKE_OPTIONS = foreign subdir-objects
 
 DIST_DIR ?= ../../../../dist
 TOOLS_DIR ?= ../../target
-SLICE_INCLUDES ?= -I@SLICE_DIR@ -I$(DIST_DIR)/include -I$(TOOLS_DIR)/include
+SLICE_INCLUDES ?= -I@SLICE_DIR@ -I$(DIST_DIR)/include -I$(TOOLS_DIR)/include -I../target
 OUTPUT_DIR ?= slice_generated
 
 INCLUDES = -I$(OUTPUT_DIR) -I$(DIST_DIR)/include -I$(TOOLS_DIR)/include

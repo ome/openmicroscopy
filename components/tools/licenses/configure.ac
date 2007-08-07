@@ -21,11 +21,22 @@ AC_ARG_WITH(ice,
                 [location of the Ice PREFIX. (ex. /opt/Ice-3.2.0)]),
             [CPPFLAGS="-I$withval/include $CPPFLAGS"
               LDFLAGS="-L$withval/lib -L$withval/lib64 $LDFLAGS"
-	     AC_SUBST(SLICE_DIR,"$withval/slice")
+              if test -e $withval/slice; then
+	          AC_SUBST(SLICE_DIR,"$withval/slice")
+                  AC_MSG_NOTICE(using Ice slice directory... $withval/slice)
+              elif test -e $withval/share/ice/slice; then # MacPorts
+	          AC_SUBST(SLICE_DIR,"$withval/share/ice/slice")
+                  AC_MSG_NOTICE(using Ice slice directory... $withval/share/ice/slice)
+              else
+                  AC_MSG_ERROR("Cannot find slice directory:$withval/slice or $withval/share/ice/slice")
+              fi
              AC_MSG_NOTICE(using Ice include directory... $withval/include)
-             AC_MSG_NOTICE(using Ice slice directory... $withval/slice)
              AC_MSG_NOTICE(using Ice library directory... $withval/lib)],
-	     AC_SUBST(SLICE_DIR,"/usr/share/Ice/slice"))
+	    [if test -e /usr/share/Ice/slice; then
+                AC_SUBST(SLICE_DIR,"/usr/share/Ice/slice") 
+             else
+                AC_MSG_ERROR("Cannot find slice directory: /usr/share/Ice/slice")
+             fi])
 
 dnl Automake time
 AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
@@ -50,6 +61,22 @@ case "$host_os" in
 			AC_MSG_RESULT([found, adding /sw to search paths])
 			CPPFLAGS="$CPPFLAGS -I/sw/include"
 			LDFLAGS="$LDFLAGS -L/sw/lib"
+		else
+			AC_MSG_RESULT([not found])
+		fi
+		AC_MSG_CHECKING([for macports])
+		if test -d "/opt/local"; then
+			AC_MSG_RESULT([found, adding /opt/local to search paths])
+			CPPFLAGS="$CPPFLAGS -I/opt/local/include"
+			LDFLAGS="$LDFLAGS -L/opt/local/lib"
+		else
+			AC_MSG_RESULT([not found])
+		fi
+		AC_MSG_CHECKING([for macports "ice"])
+		if test -d "/opt/local/include/ice"; then
+			AC_MSG_RESULT([found, adding /opt/local/*/ice to search paths])
+			CPPFLAGS="$CPPFLAGS -I/opt/local/include/ice"
+			LDFLAGS="$LDFLAGS -L/opt/local/lib/ice"
 		else
 			AC_MSG_RESULT([not found])
 		fi
