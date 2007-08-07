@@ -235,3 +235,20 @@ BOOST_AUTO_TEST_CASE( LinkingAndUnlinking )
   BOOST_CHECK( i->sizeOfDatasetLinks() == 0 );
 
 }
+
+BOOST_AUTO_TEST_CASE( UnloadedEntityTermination ) {
+
+  Fixture f;
+
+  ProjectDatasetLinkIPtr pDL = new ProjectDatasetLinkI();
+  ProjectIPtr p = new ProjectI();
+  DatasetIPtr d = new DatasetI();
+  //pDL->link(p,d);
+  d->unload();
+  omero::model::IObjectPtr             theChild =
+  omero::model::IObjectPtr::dynamicCast(pDL->getChild());
+  cout << "theChild is: " << theChild << "... pDS" << endl;
+  omero::model::DatasetIPtr            pDS =
+  omero::model::DatasetIPtr::dynamicCast(theChild);
+
+}

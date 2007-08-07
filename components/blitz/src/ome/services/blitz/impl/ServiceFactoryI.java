@@ -467,13 +467,26 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
     /**
      * Checks for a service with the given {@link Ice.Identity} in the
      * {@link #cache} and if present, constructs a valid {@link Ice.ObjectPrx}
-     * for that {@link Ice.Identity}. Otherwise, returns null;
+     * for that {@link Ice.Identity}. Otherwise, returns null. 
+     * 
+     * If the {@link #cache} does not contain the proxy, it will also check
+     * in the current {@link Ice.ObjectAdapter adapter}, and remove it
+     * if present. Otherwise, a {@link Ice.AlreadyRegisteredException} would
+     * be thrown.
      */
     protected Ice.ObjectPrx servantProxy(Ice.Identity id, Ice.Current current) {
         Element elt = cache.get(Ice.Util.identityToString(id));
         boolean exists = (elt != null);
-        if (!exists)
-            return null;
+        if (!exists) {
+        	// This will not find a servant via ServantLocators
+        	if (null != current.adapter.find(id)) {
+        		System.out.println("A REMOVING SERVANT");
+        		System.out.println("B REMOVING SERVANT");
+        		System.out.println("C REMOVING SERVANT");
+        		current.adapter.remove(id);		
+        	}
+        	return null;
+        }
 
         return current.adapter.createProxy(id);
     }
