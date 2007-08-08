@@ -27,8 +27,6 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -47,7 +45,9 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
@@ -231,10 +231,10 @@ class DomainPane
 	{
 		if (isAdvancedSettingsShowing) {
 			advancedOptionsButton.setText(SHOW_ADVANCED_OPTIONS);
-			this.remove(advancedPanel);
+			remove(advancedPanel);
 		} else {
 			advancedOptionsButton.setText(HIDE_ADVANCED_OPTIONS);
-			this.add(advancedPanel);
+			add(advancedPanel);
 		}
 		controller.resizeRenderUI();
 		isAdvancedSettingsShowing = !isAdvancedSettingsShowing;
@@ -280,8 +280,8 @@ class DomainPane
     {
     	JPanel p = new JPanel();
     	p.setLayout(new BorderLayout());
-    	p.add(channelButtonPanel,BorderLayout.WEST);
-    	p.add(graphicsPane,BorderLayout.CENTER);
+    	p.add(channelButtonPanel, BorderLayout.WEST);
+    	p.add(graphicsPane, BorderLayout.CENTER);
     	return p;
     }
     
@@ -308,6 +308,20 @@ class DomainPane
     private JPanel buildControlsPane()
     {
         JPanel p = new JPanel();
+        double size[][] =
+        {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED},  // Columns
+         {TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED}}; // Rows
+        p.setLayout(new TableLayout(size));
+        JLabel label = new JLabel("Map");
+        p.add(label, "0, 0");
+        p.add(UIUtilities.buildComponentPanel(familyBox), "2, 0");
+        label = new JLabel("Gamma");
+        p.add(label, "0, 1");
+        p.add(buildSliderPane(gammaSlider, gammaLabel), "2, 1");
+        label = new JLabel("Bit Depth");
+        p.add(label, "0, 2");
+        p.add(buildSliderPane(bitDepthSlider, bitDepthLabel), "2, 2");
+        /*
         GridBagConstraints c = new GridBagConstraints();
         p.setLayout(new GridBagLayout());
         c.weightx = 0.5;
@@ -333,6 +347,8 @@ class DomainPane
         p.add(label, c);
         c.gridx = 1;
         p.add(buildSliderPane(bitDepthSlider, bitDepthLabel), c);
+        */
+        
         return p;
     }
     
@@ -345,37 +361,58 @@ class DomainPane
     private JPanel buildPane()
     {
         JPanel p = new JPanel();
+        double size[][] =
+        {{TableLayout.PREFERRED},  // Columns
+         {TableLayout.PREFERRED, TableLayout.PREFERRED}}; // Rows
+        p.setLayout(new TableLayout(size));
+        p.add(noiseReduction, "0, 0");
+        p.add(histogramButton, "0, 1");
+        /*
         p.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
-        c.gridy = 0;
-        p.add(noiseReduction,c);
+        p.add(noiseReduction, c);
         c.gridy = 1;
-        p.add(histogramButton,c);
+        p.add(histogramButton, c);
+        */
         return UIUtilities.buildComponentPanel(p);
     }
     
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
+    	double size[][] =
+        {{TableLayout.PREFERRED},  // Columns
+         {TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
+        	TableLayout.PREFERRED}}; // Rows
+    	setLayout(new TableLayout(size));
+    	add(buildChannelGraphicsPanel(), "0, 0");
+    	add(new JSeparator(), "0, 1");
+    	add(buildControlsPane(), "0, 2");
+    	add(new JSeparator(), "0, 3");
+    	add(buildPane(), "0, 4");
+    	/*
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(buildChannelGraphicsPanel());
         JPanel p = new JPanel();
         p.setLayout(new BorderLayout());
-        p.add(advancedOptionsButton,BorderLayout.EAST);
-        this.add(p);
+        p.add(advancedOptionsButton, BorderLayout.EAST);
+        //add(UIUtilities.buildComponentPanelRight(advancedOptionsButton));
         advancedPanel = new JPanel();
         advancedPanel.setLayout(new BoxLayout(advancedPanel, 
-        		BoxLayout.Y_AXIS));
+        								BoxLayout.Y_AXIS));
         advancedPanel.add(new JSeparator());
         advancedPanel.add(buildControlsPane());
         advancedPanel.add(new JSeparator());
         p = new JPanel();
-        p.setLayout(new BoxLayout(p,BoxLayout.X_AXIS));
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(buildPane());
-        p.add(Box.createHorizontalStrut(200));
+        //p.add(Box.createHorizontalStrut(200));
         advancedPanel.add(p);
-        if (isAdvancedSettingsShowing) add(advancedPanel);
+        add(advancedPanel);
+        //if (isAdvancedSettingsShowing) add(advancedPanel);
+         *
+         */
     }
     
     /**

@@ -81,10 +81,12 @@ public class ResetSettingsAction
      */
     public void actionPerformed(ActionEvent e)
     {
+    	/*
     	MessageBox msg = new MessageBox(model.getUI(), "Undo Render Settings", 
     			"Undo all render settings?");
     	if (msg.showMsgBox() == MessageBox.YES_OPTION)
     		model.resetDefaultRndSettings();
+    		*/
     }
     
 }

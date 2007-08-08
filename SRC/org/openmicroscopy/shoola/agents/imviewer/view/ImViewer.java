@@ -700,4 +700,7 @@ public interface ImViewer
 	 */
 	public void createHistoryItem();
 	
+	/** Copies the rendering settings. */
+	public void copyRenderingSettings();
+	
 }

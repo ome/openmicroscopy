@@ -25,7 +25,8 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
-import javax.swing.JFrame;
+import javax.swing.JComponent;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -248,7 +249,7 @@ public interface Renderer
      * 
      * @return See above.
      */
-    public JFrame getUI();
+    public JComponent getUI();
 
     /**
      * Sets the specified rendering control.

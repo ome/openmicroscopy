@@ -26,14 +26,11 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.Action;
-import javax.swing.WindowConstants;
 
 //Third-party libraries
 
@@ -139,6 +136,7 @@ class RendererControl
     private void attachListeners()
     {
         model.addPropertyChangeListener(this);
+        /*
         view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         view.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e)
@@ -147,6 +145,7 @@ class RendererControl
                 view.setVisible(false);
             }
         });
+        */
     }
     
     /** 
@@ -263,6 +262,7 @@ class RendererControl
             int v = ((Integer) evt.getNewValue()).intValue();
             model.setSelectedChannel(v, true);
         } else if (name.equals(ImViewer.ICONIFIED_PROPERTY)) {
+        	/*
             if (((Boolean) evt.getNewValue()).booleanValue()) {
             	if (view.isVisible()) {
             		visibility = true;
@@ -275,6 +275,7 @@ class RendererControl
             	//	view.deIconify();
             }
         	//if (view.isVisible()) view.setVisible(false);
+        	 * */
         } else if (name.equals(Renderer.INPUT_INTERVAL_PROPERTY)) {
             view.setInputInterval();
         } else if (name.equals(ImViewer.CHANNEL_COLOR_CHANGE_PROPERTY)) {
@@ -290,6 +291,6 @@ class RendererControl
     /**
      * Resizes the RenderUI after the advanced options button has been selected.
      */
-    void resizeRenderUI() { view.pack(); }
+    void resizeRenderUI() { }//view.pack(); }
     
 }

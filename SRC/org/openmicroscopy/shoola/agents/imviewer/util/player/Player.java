@@ -54,7 +54,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 public abstract class Player
     implements ActionListener, ChangeListener
 {
-
+	
     /** Indicates the <i>Start</i> state of the timer. */
     public static final int     START = 0;
     

@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,7 +35,6 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 
 //Third-party libraries
@@ -46,7 +46,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 
 /** 
- * 
+ * UI component hosting the canvas displaying the history and 
+ * various controls.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,10 +64,10 @@ class HistoryUI
 {
 
 	/** Reference to the Model. */
-	private ImViewerModel model;
+	private ImViewerModel 	model;
 	
-	/** The component hosting the canvas. */
-	private JScrollPane 	pane;
+	/** Reference to the View. */
+	private ImViewerUI		view;
 	
 	/** Slider used to control the magnification of the image. */
 	private OneKnobSlider	zoomSlider;
@@ -92,7 +93,7 @@ class HistoryUI
 	{
 		canvas = new HistoryCanvas(model);
 		zoomSlider = new OneKnobSlider();
-		pane = new JScrollPane(canvas);
+		//pane = new JScrollPane(canvas);
 		IconManager icons = IconManager.getInstance();
 		clearButton = new JButton(icons.getIcon(IconManager.CLEAR));
 		clearButton.addActionListener(new ActionListener() {
@@ -110,33 +111,41 @@ class HistoryUI
 	private JPanel buildControls()
 	{
 		JPanel p = new JPanel();
+		p.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		p.setBorder(null);
 		p.add(clearButton);
 		//p.add(UIUtilities.buildComponentPanelRight(zoomSlider));
-		return UIUtilities.buildComponentPanel(p);
+		return p;//UIUtilities.buildComponentPanel(p);
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout(0, 0));
+		setBorder(null);
 		add(buildControls(), BorderLayout.NORTH);
-		add(pane, BorderLayout.CENTER);
+		add(canvas, BorderLayout.CENTER);
 	}
 	
 	/**
      * Creates a new instance.
      *
+     * @param view Reference to the Model. Mustn't be <code>null</code>.
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-	HistoryUI(ImViewerModel model)
+	HistoryUI(ImViewerUI view, ImViewerModel model)
 	{
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
+		if (view == null)
+			throw new IllegalArgumentException("No view.");
 		this.model = model;
+		this.view = view;
 		initComponents();
 		buildGUI();
 	}
 	
+	/** Lays out the node. */
 	void doGridLayout()
 	{
 		JComponent desktop = canvas.getInternalDesktop();
@@ -148,7 +157,9 @@ class HistoryUI
 			desktop.add((HistoryItem) i.next());
 
 		Rectangle r = getBounds();
-		canvas.doGridLayout(r.width);
+		int w = r.width;
+		if (w == 0) w = view.geRestoreSize().width;
+		canvas.doGridLayout(w);
 		Rectangle bounds = canvas.getContentsBounds();
         Dimension d = new Dimension(r.width, bounds.height);//bounds.getSize();
         desktop.setSize(d);

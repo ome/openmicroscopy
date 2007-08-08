@@ -52,7 +52,7 @@ class MoviePlayer
     extends Player
 {
 
-	 /** Minimal value of the spinner. */
+	/** Minimal value of the spinner. */
     public static final int         FPS_MIN = 1;
     
     /** Initial value of the spinner. */
@@ -519,8 +519,8 @@ class MoviePlayer
                 parent.setMoviePlay(false);
                 timer.stop();
         }  
+        
     }
-    
     
     /**
      * Plays movie depending on the movie index.

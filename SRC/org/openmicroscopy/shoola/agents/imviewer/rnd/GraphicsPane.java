@@ -26,9 +26,6 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -111,13 +108,13 @@ class GraphicsPane
     private JCheckBox			preview;
 
     /** Flag indicating to paint a line when moving the sliders' knobs. */
-    private boolean paintLine;
+    private boolean 			paintLine;
     
     /** The equation the horizontal line. */
-    private int		horizontalLine = -1;
+    private int					horizontalLine = -1;
     
     /** The equation of the vertical line. */
-    private int		verticalLine = -1;
+    private int					verticalLine = -1;
     
     /** Initializes the components. */
     private void initComponents()
@@ -144,9 +141,10 @@ class GraphicsPane
         double min = model.getGlobalMin();
         double max = model.getGlobalMax();
         startField = new JTextField();
-        startField.setColumns((""+min).length());
+        int length = (""+max).length()-2; 
+        startField.setColumns(length);
         endField = new JTextField();
-        endField.setColumns((""+max).length());
+        endField.setColumns(length);
         startField.setText(""+s);
         endField.setText(""+e);
         startField.addActionListener(this);
@@ -183,13 +181,13 @@ class GraphicsPane
     	 double size[][] =
          {{width, knobWidth/2, TableLayout.FILL, knobWidth/2},  // Columns
           {knobHeight/2, TableLayout.FILL, knobHeight/2, knobHeight+2, 
-        	 TableLayout.PREFERRED}}; // Rows
+        	 TableLayout.PREFERRED, 5}}; // Rows
     	 p.setLayout(new TableLayout(size));
     	 p.add(codomainSlider, "0, 0, 0, 2");
     	 p.add(uiDelegate, "2, 1");
     	 p.add(domainSlider, "1, 3, 3, 3");
     	 p.add(preview, "0, 4, 3, 4");
-         return p;
+         return p;//UIUtilities.buildComponentPanel(p);
     }
     
     /**
@@ -200,6 +198,15 @@ class GraphicsPane
     private JPanel buildFieldsControls()
     {
         JPanel p = new JPanel();
+        double size[][] =
+        {{TableLayout.PREFERRED, 10, TableLayout.PREFERRED},  // Columns
+         {TableLayout.PREFERRED, 5}}; // Rows
+   	 	p.setLayout(new TableLayout(size));
+   	 	JPanel panel = buildFieldsPanel("Min", minLabel, "Start", startField);
+   	 	p.add(panel, "0, 0");
+   	 	panel = buildFieldsPanel("Max", maxLabel, "End", endField);
+   	 	p.add(panel, "2, 0");
+        /*
         GridBagConstraints c = new GridBagConstraints();
         p.setLayout(new GridBagLayout());
         c.insets = new Insets(5, 20, 5, 30);
@@ -208,7 +215,8 @@ class GraphicsPane
         c.anchor = GridBagConstraints.EAST;
         c.gridx = 1;
         p.add(buildFieldsPanel("Max", maxLabel, "End", endField), c);
-        return p;
+        */
+        return p;//UIUtilities.buildComponentPanel(p);
     }
     
     /**
@@ -224,6 +232,19 @@ class GraphicsPane
                                 JTextField f)
     {
         JPanel p = new JPanel();
+        double size[][] =
+        {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED},  // Columns
+         {TableLayout.PREFERRED, 5, TableLayout.PREFERRED}}; // Rows
+   	 	p.setLayout(new TableLayout(size));
+   	 	JLabel label =  new JLabel();
+   	 	label.setText(txt1);
+   	 	p.add(label, "0, 0");
+   	 	p.add(l, "2, 0");
+   	 	label =  new JLabel();
+   	 	label.setText(txt2);
+   	 	p.add(label, "0, 2");
+   	 	p.add(f, "2, 2");
+        /*
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(0, 10, 5, 10);
         c.weightx = 60;
@@ -248,6 +269,7 @@ class GraphicsPane
         
         p.add(f, c);
         p.validate();
+        */
         return p;
     }
     
@@ -555,6 +577,4 @@ class GraphicsPane
      */ 
     public void focusGained(FocusEvent e) {}
 
-	
-    
 }

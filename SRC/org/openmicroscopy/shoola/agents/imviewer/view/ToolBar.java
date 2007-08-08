@@ -26,15 +26,19 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.FlowLayout;
+
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -69,17 +73,20 @@ class ToolBar
     private static final String		SAVE_ON_CLOSE_DESCRIPTION = 
     				"Save the rendering settings before closing the viewer.";
     
-    /** Reference to the control. */
+    /** Reference to the Control. */
     private ImViewerControl controller;
     
-    /** Reference to the model. */
-    private ImViewerModel   model;
+    /** Reference to the View. */
+    private ImViewerUI		view;
     
     /** The tool bar hosting the controls. */
     private JToolBar        bar;
     
     /** Save rendering settings when closing the viewer. */
     private JCheckBox		saveOnClose;
+    
+    /** Button used to show or hide the renderer. */
+    private JToggleButton	rndButton;
     
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
@@ -88,11 +95,13 @@ class ToolBar
         bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
-        JButton button = new JButton( 
-                            controller.getAction(ImViewerControl.RENDERER));
-        UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);
-        button =  new JButton(controller.getAction(ImViewerControl.MOVIE));
+        rndButton = new JToggleButton();
+        rndButton.setSelected(view.isRendererShown());
+        rndButton.setAction(controller.getAction(ImViewerControl.RENDERER));
+        //UIUtilities.unifiedButtonLookAndFeel(button);
+        bar.add(rndButton);
+        JButton button =  new JButton(
+        			controller.getAction(ImViewerControl.MOVIE));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);    
         button =  new JButton(controller.getAction(ImViewerControl.LENS));
@@ -147,17 +156,16 @@ class ToolBar
     /**
      * Creates a new instance. 
      * 
-     * @param controller    Reference to the control. 
-     *                      Mustn't be <code>null</code>.
-     * @param model         Reference to the model.
-     *                      Mustn't be <code>null</code>.
+     * @param view			Reference to the view. Mustn't be <code>null</code>.
+     * @param controller	Reference to the controller. 
+     * 						Mustn't be <code>null</code>.
      */
-    ToolBar(ImViewerControl controller, ImViewerModel model)
+    ToolBar(ImViewerUI view, ImViewerControl controller)
     {
-        if (controller == null) throw new NullPointerException("No control.");
-        if (model == null) throw new NullPointerException("No model.");
-        this.controller = controller;    
-        this.model = model;
+        if (view == null) throw new NullPointerException("No View.");
+        if (controller == null) throw new NullPointerException("No Control.");
+        this.view = view;
+        this.controller = controller;
         initComponents();
     }
     
@@ -165,10 +173,7 @@ class ToolBar
      * This method should be called straight after the metadata and the
      * rendering settings are loaded.
      */
-    void buildComponent()
-    {
-        buildGUI();
-    }
+    void buildComponent() { buildGUI(); }
     
     /**
      * Returns <code>true</code> if the rendering settings are 
@@ -177,5 +182,8 @@ class ToolBar
      * @return See above.
      */
     boolean saveSettingsOnClose() { return saveOnClose.isSelected(); }
+    
+    /** Selects or deselects the {@link #rndButton}. */
+    void displayRenderer() { rndButton.setSelected(view.isRendererShown()); }
     
 }

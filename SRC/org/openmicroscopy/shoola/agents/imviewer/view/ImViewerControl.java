@@ -31,6 +31,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -104,8 +107,8 @@ import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
  * @since OME2.2
  */
 class ImViewerControl
-    implements ActionListener, ChangeListener, ComponentListener, 
-    			PropertyChangeListener
+    implements ActionListener, ChangeListener, ComponentListener,
+    		PropertyChangeListener
 {
 
 	/** Identifies the <code>Close</code> action in the menu. */
@@ -420,7 +423,6 @@ class ImViewerControl
         });
         view.getLoadingWindow().addPropertyChangeListener(
                 LoadingWindow.CLOSED_PROPERTY, this);
-        
     }
 
     /** 
@@ -526,6 +528,7 @@ class ImViewerControl
     	moviePlayer = new MoviePlayerDialog(view, model);
     	moviePlayer.addPropertyChangeListener(
     			MoviePlayerDialog.CLOSE_PROPERTY, this);
+    	
     	return moviePlayer;
     }
     
@@ -666,7 +669,13 @@ class ImViewerControl
         	view.scrollToNode((Rectangle) pce.getNewValue());
         } else if (MoviePlayerDialog.CLOSE_PROPERTY.equals(propName)) {
         	model.playMovie(false, false);
-        }
+        } else if (MoviePlayerDialog.STATE_CHANGED_PROPERTY.equals(propName)) {
+        	boolean b = ((Boolean) pce.getNewValue()).booleanValue();
+        	if (!b && !getMoviePlayer().isVisible()) {
+        		((PlayMovieAction) getAction(PLAY_MOVIE)).setActionIcon(true);
+        		model.playMovie(false, false);
+        	}
+        } 
     }
 
 	/**

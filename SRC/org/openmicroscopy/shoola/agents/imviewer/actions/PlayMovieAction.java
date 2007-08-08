@@ -93,6 +93,20 @@ public class PlayMovieAction
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PLAY));
     }
 	
+	/**
+	 * Sets the icon of the action.
+	 * 
+	 * @param b Pass <code>true</code> to set the <code>Play</code> icon,
+	 * 			<code>false</code> to set the <code>Pause</code> icon
+	 */
+	public void setActionIcon(boolean b)
+	{
+		if (b)
+			putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PLAY));
+		else 
+			putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PAUSE));
+	}
+	
 	/** 
      * Plays movie.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
@@ -100,10 +114,10 @@ public class PlayMovieAction
     public void actionPerformed(ActionEvent e)
     {
        if (model.isMoviePlaying()) {
-    	   putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PLAY));
+    	   setActionIcon(true);
     	   model.playMovie(false, false);
        } else {
-    	   putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PAUSE));
+    	   setActionIcon(false);
     	   model.playMovie(true, false);
        } 
     }

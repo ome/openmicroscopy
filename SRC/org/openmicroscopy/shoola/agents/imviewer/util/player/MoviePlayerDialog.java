@@ -60,6 +60,12 @@ public class MoviePlayerDialog
 	/** Bound property indicating that the dialog is closed. */
 	public static final String CLOSE_PROPERTY = "close";
 	
+	/** 
+	 * Bounds property indicating that the state of the player 
+	 * has changed.
+	 */
+	public static final String	STATE_CHANGED_PROPERTY = "stateChanged";
+	
 	/** Indicates to play movie across z-sections only. */
 	public static final int    ACROSS_Z = 300;
     
@@ -131,6 +137,11 @@ public class MoviePlayerDialog
      */
     void setMoviePlay(boolean b)
     { 
+    	if (b) 
+    		firePropertyChange(STATE_CHANGED_PROPERTY, 
+    						Boolean.FALSE, Boolean.TRUE);
+    	else firePropertyChange(STATE_CHANGED_PROPERTY, 
+				Boolean.TRUE, Boolean.FALSE);
         if (uiDelegate != null) uiDelegate.setMoviePlay(b); 
     }
     
@@ -158,6 +169,13 @@ public class MoviePlayerDialog
         if (z == -1 || t == -1) return;
         model.setSelectedXYPlane(z, t);
     }
+    
+    /** Notifies that the state has changed. */
+    void notifyPlayerStateChange()
+    {
+		
+		
+	}
     
     /**
      * Sets the index of the movie player.

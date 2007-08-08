@@ -190,4 +190,22 @@
   License: Lesser General Public License (LGPL)
   License File: lgpl.txt
   
+  Project: The JHotDraw project. A two-dimensional graphics framework for 
+  structured drawing editors
+  Web Site: sourceforge.net/projects/jhotdraw
+  Artifacts: The jhotdraw file under LIB/
+  License: Lesser General Public License (LGPL)
+  License File: lgpl.txt
   
+  Project: The JFreeChart project. Used to display professional quality charts.
+  Web Site: www.jfree.org/jfreechart/
+  Artifacts: The jfreechar-* file under LIB/
+  License: Lesser General Public License (LGPL)
+  License File: lgpl.txt
+  
+  Project: The JCommon library.  We don't use this software directly,
+  but required by the JFreeChart library.
+  Web Site: www.jfree.org/jcommon/index.php
+  Artifacts: The jcommon-* file under LIB/
+  License: Lesser General Public License (LGPL)
+  License File: lgpl.txt

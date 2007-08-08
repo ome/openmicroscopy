@@ -26,10 +26,8 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import javax.swing.JButton;
@@ -37,13 +35,14 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 /** 
@@ -63,7 +62,7 @@ import org.openmicroscopy.shoola.env.ui.TopWindow;
  * @since OME2.2
  */
 class RendererUI
-    extends TopWindow
+    extends JPanel//TopWindow
 {
     
     /** Identifies the {@link DomainPane}. */
@@ -80,6 +79,24 @@ class RendererUI
     
     /** The map hosting the controls pane. */
     private HashMap<Integer, ControlPane>	controlPanes;
+    
+    /** Button to copy the rendering settings. */
+    private JButton							copyButton;
+    
+    /** Initializes the components. */
+    private void initComponents()
+    {
+    	copyButton = new JButton("Copy");
+    	copyButton.setToolTipText(
+    		UIUtilities.formatToolTipText("Copies the rendering settings."));
+    	copyButton.addActionListener(new ActionListener() {
+		
+			public void actionPerformed(ActionEvent e) {
+				model.getParentModel().copyRenderingSettings();
+			}
+		
+		});
+    }
     
     /**
      * Creates the menu bar.
@@ -129,8 +146,9 @@ class RendererUI
      * 
      * @return See above.
      */
-    private JPanel createButtonPanel()
+    private JPanel createButtonsPanel()
     {
+    	/*
     	JButton acceptButton, revertButton;
     	JPanel p = new JPanel();
     	GridBagConstraints gbc = new GridBagConstraints();
@@ -149,11 +167,19 @@ class RendererUI
         gbc.insets = new Insets(0, 0, 0, 14);
         p.add(revertButton, gbc);
         return p;
+        */
+    	JPanel bar = new JPanel();
+    	bar.setBorder(null);
+    	bar.add(copyButton);
+    	JPanel p = UIUtilities.buildComponentPanelRight(bar);
+        p.setOpaque(true);
+        return p;
     }
     
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
+    	/*
         Container c = getContentPane();
         JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP,
                                 JTabbedPane.WRAP_TAB_LAYOUT);
@@ -167,6 +193,21 @@ class RendererUI
         c.setLayout(new BorderLayout());
         c.add(tabs,BorderLayout.NORTH);
         c.add(createButtonPanel(),BorderLayout.SOUTH);
+        */
+    	JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP,
+                JTabbedPane.WRAP_TAB_LAYOUT);
+		tabs.setAlignmentX(LEFT_ALIGNMENT);
+		ControlPane pane = controlPanes.get(DOMAIN);
+		tabs.insertTab(pane.getPaneName(), pane.getPaneIcon(), 
+				new JScrollPane(pane), pane.getPaneDescription(), 
+				pane.getPaneIndex());
+		pane = controlPanes.get(CODOMAIN);
+		tabs.insertTab(pane.getPaneName(), pane.getPaneIcon(), 
+					new JScrollPane(pane), pane.getPaneDescription(), 
+					pane.getPaneIndex());
+		setLayout(new BorderLayout());
+    	add(tabs, BorderLayout.CENTER);
+    	add(createButtonsPanel(), BorderLayout.SOUTH);
     }
 
     /**
@@ -178,7 +219,7 @@ class RendererUI
      */
     RendererUI(String title)
     {
-        super("Display Settings:  "+title);
+        //super("Display Settings:  "+title);
         controlPanes = new HashMap<Integer, ControlPane>(2);
     }
     
@@ -196,11 +237,11 @@ class RendererUI
         if (model == null) throw new NullPointerException("No model.");
         this.controller = controller;
         this.model = model;
-        setJMenuBar(createMenuBar());
-      // DM  toolBar = new ToolBar(controller);
+        initComponents();
+        //setJMenuBar(createMenuBar());
         createControlPanes();
         buildGUI();
-        pack();
+        //pack();
     }
 
     /**

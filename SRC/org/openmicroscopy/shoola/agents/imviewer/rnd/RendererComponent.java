@@ -26,8 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 //Java imports
 import java.util.List;
-
-import javax.swing.JFrame;
+import javax.swing.JComponent;
 
 //Third-party libraries
 
@@ -120,8 +119,8 @@ class RendererComponent
     public void discard()
     {
         model.discard();
-        view.setVisible(false);
-        view.dispose();
+        //view.setVisible(false);
+        //view.dispose();
     }
     
     /** 
@@ -412,7 +411,7 @@ class RendererComponent
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getUI()
      */
-    public JFrame getUI()
+    public JComponent getUI()
     {
         return view;
     }

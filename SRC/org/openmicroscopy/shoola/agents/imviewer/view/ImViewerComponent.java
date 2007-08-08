@@ -64,7 +64,6 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
-import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -719,8 +718,9 @@ class ImViewerComponent
                 "This method can't be invoked in the DISCARDED, NEW or" +
                 "LOADING_RENDERING_CONTROL state.");
         }
-        JFrame f = model.getRenderer().getUI();
-        UIUtilities.setLocationRelativeToAndShow(view, f);
+        view.displayRenderer();
+        //JFrame f = model.getRenderer().getUI();
+        //UIUtilities.setLocationRelativeToAndShow(view, f);
     }
 
     /** 
@@ -1407,8 +1407,15 @@ class ImViewerComponent
 		view.enableSliders(!b);
 		controller.getAction(ImViewerControl.CHANNEL_MOVIE).setEnabled(!b);
 		if (doClick) {
+			d.addPropertyChangeListener(
+					MoviePlayerDialog.STATE_CHANGED_PROPERTY,
+					controller);
 			if (b) d.doClick(MoviePlayerDialog.DO_CLICK_PLAY);
 			else d.doClick(MoviePlayerDialog.DO_CLICK_PAUSE);
+		} else {
+			d.removePropertyChangeListener(
+					MoviePlayerDialog.STATE_CHANGED_PROPERTY,
+					controller);
 		}
 		controller.getAction(ImViewerControl.PLAY_MOVIE).setEnabled(doClick);
 		if (wasVisible)
@@ -1653,4 +1660,14 @@ class ImViewerComponent
 		view.addHistoryItem(node);
 	}
 
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#copyRenderingSettings()
+     */
+	public void copyRenderingSettings()
+	{
+		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+		un.notifyInfo("Copy settings", "Sorry not yet implemented");
+	}
+	
 }

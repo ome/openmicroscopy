@@ -246,34 +246,35 @@ class GraphPane
 			channelName.clear();
 			channelColour.clear();
 			data = shapeStats.get(StatsType.PIXELDATA);
-			//channelIterator = data.keySet().iterator();
-			channelIterator = activeChannels.keySet().iterator();
+			channelIterator = data.keySet().iterator();
 			double[] dataY;
 			double[][] dataXY;
 			Color c;
 			while (channelIterator.hasNext())
 			{
 				channel = channelIterator.next();
-				channelName.add(
+				if (model.isChannelActive(channel)) {
+					channelName.add(
 						model.getMetadata(channel).getEmissionWavelength()+"");
-				c = model.getActiveChannelColor(channel);
-				//if (c == null) return;
-				channelColour.add(c);
-				if (data.get(channel).length == 0)
-					return;
-				channelData.add(data.get(channel));
-				
-				if (lineProfileFigure(shape))
-				{
-					dataY = data.get(channel);
-					dataXY = new double[2][dataY.length];
-					if (dataY.length == 0) return;
-					for (int i = 0 ; i < dataY.length ; i++)
+					c = model.getActiveChannelColor(channel);
+					//if (c == null) return;
+					channelColour.add(c);
+					if (data.get(channel).length == 0)
+						return;
+					channelData.add(data.get(channel));
+					
+					if (lineProfileFigure(shape))
 					{
-						dataXY[0][i] = i;
-						dataXY[1][i] = dataY[i];
+						dataY = data.get(channel);
+						dataXY = new double[2][dataY.length];
+						if (dataY.length == 0) return;
+						for (int i = 0 ; i < dataY.length ; i++)
+						{
+							dataXY[0][i] = i;
+							dataXY[1][i] = dataY[i];
+						}
+						channelXYData.add(dataXY);
 					}
-					channelXYData.add(dataXY);
 				}
 			}
 			

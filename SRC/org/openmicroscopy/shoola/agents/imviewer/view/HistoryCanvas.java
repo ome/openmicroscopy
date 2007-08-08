@@ -82,7 +82,7 @@ class HistoryCanvas
         Dimension maxDim = ((HistoryItem) nodes.get(0)).getPreferredSize();
         int m = width/maxDim.width;
         int n = nodes.size();
-        n = n/m+1;
+        if (m != 0) n = n/m+1;
         for (int i = 0; i < n; ++i) {
     		for (int j = 0; j < m; ++j) {
                 if (!node.hasNext()) //Done, less than n^2 children.

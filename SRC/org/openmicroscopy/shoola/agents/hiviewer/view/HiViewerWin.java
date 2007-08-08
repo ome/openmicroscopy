@@ -133,7 +133,7 @@ class HiViewerWin
      * Sets the divider's location of the {@link #mainPane} if a move
      * happened.
      */
-    private void lastMove()
+    private void setLastMove()
     {
     	if (lastMove != -1)  {
         	mainPane.setDividerLocation(lastMove);
@@ -159,7 +159,7 @@ class HiViewerWin
         mainPane.setOneTouchExpandable(true);
         mainPane.setContinuousLayout(true);
         mainPane.setResizeWeight(1); //before we remove items.
-        lastMove();
+        setLastMove();
         return mainPane;
     }
     
@@ -438,7 +438,7 @@ class HiViewerWin
         if (cb == null) return;
         if (b) {
             mainPane.setRightComponent(cb);
-            lastMove();
+            setLastMove();
         } else {
             lastMove = mainPane.getDividerLocation();
             mainPane.remove(cb);   
