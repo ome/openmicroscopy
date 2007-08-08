@@ -231,7 +231,7 @@ public class ImportDialog extends JDialog implements ActionListener
                 "Cancel", "1, 5, f, c", debug);
         cancelBtn.addActionListener(this);
 
-        importBtn = gui.addButton(mainPanel, "Import", 'Q',
+        importBtn = gui.addButton(mainPanel, "Add to Q", 'Q',
                 "Import", "3, 5, f, c", debug);
         importBtn.addActionListener(this);
 

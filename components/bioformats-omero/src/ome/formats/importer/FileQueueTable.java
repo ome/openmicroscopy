@@ -40,8 +40,6 @@ import javax.swing.table.TableColumnModel;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.ETable;
 import ome.model.containers.Dataset;
-import ome.api.IRepositoryInfo;
-
 
 public class FileQueueTable 
     extends JPanel 
@@ -77,7 +75,7 @@ public class FileQueueTable
         // Size of the add/remove/refresh buttons (which are square).
         int buttonSize = 40;
         // Add graphic for the refresh button
-        String refreshIcon = "gfx/recycled.png";
+        //String refreshIcon = "gfx/recycled.png";
         // Add graphic for add button
         String addIcon = "gfx/add.png";
         // Remove graphics for remove button
@@ -96,13 +94,13 @@ public class FileQueueTable
             buttonPanel.setBorder(BorderFactory.createLineBorder(Color.red, 1));
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.PAGE_AXIS));
         
-        refreshBtn = addButton("¤", refreshIcon, null);
-        refreshBtn.setMaximumSize(new Dimension(buttonSize, buttonSize));
-        refreshBtn.setPreferredSize(new Dimension(buttonSize, buttonSize));
-        refreshBtn.setMinimumSize(new Dimension(buttonSize, buttonSize));
-        refreshBtn.setSize(new Dimension(buttonSize, buttonSize));
-        refreshBtn.setActionCommand(Actions.REFRESH);
-        refreshBtn.addActionListener(this);
+//        refreshBtn = addButton("¤", refreshIcon, null);
+//        refreshBtn.setMaximumSize(new Dimension(buttonSize, buttonSize));
+//        refreshBtn.setPreferredSize(new Dimension(buttonSize, buttonSize));
+//        refreshBtn.setMinimumSize(new Dimension(buttonSize, buttonSize));
+//        refreshBtn.setSize(new Dimension(buttonSize, buttonSize));
+//        refreshBtn.setActionCommand(Actions.REFRESH);
+//        refreshBtn.addActionListener(this);
         
         addBtn = addButton(">>", addIcon, null);
         addBtn.setMaximumSize(new Dimension(buttonSize, buttonSize));
@@ -120,8 +118,8 @@ public class FileQueueTable
         removeBtn.setActionCommand(Actions.REMOVE);
         removeBtn.addActionListener(this);
         
-        buttonPanel.add(Box.createRigidArea(new Dimension(0,30)));
-        buttonPanel.add(refreshBtn);
+        buttonPanel.add(Box.createRigidArea(new Dimension(0,60)));
+        //buttonPanel.add(refreshBtn);
         buttonPanel.add(Box.createVerticalGlue());
         buttonPanel.add(addBtn);
         buttonPanel.add(Box.createRigidArea(new Dimension(0,5)));
@@ -323,8 +321,8 @@ public class FileQueueTable
             firePropertyChange(Actions.ADD, false, true);
         if (src == removeBtn)
             firePropertyChange(Actions.REMOVE, false, true);
-        if (src == refreshBtn)
-            firePropertyChange(Actions.REFRESH, false, true);
+//        if (src == refreshBtn)
+//            firePropertyChange(Actions.REFRESH, false, true);
         if (src == clearDoneBtn)
             firePropertyChange(Actions.CLEARDONE, false, true);
         if (src == clearDoneBtn)

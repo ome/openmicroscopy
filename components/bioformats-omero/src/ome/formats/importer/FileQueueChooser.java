@@ -7,8 +7,13 @@
 
 package ome.formats.importer;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -17,19 +22,33 @@ import java.util.Stack;
 import java.util.Vector;
 import java.util.prefs.Preferences;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
+import ome.formats.importer.util.Actions;
+
+import layout.TableLayout;
 import loci.formats.gui.ComboFileFilter;
+import loci.formats.gui.FormatFileFilter;
+import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 
 
 public class FileQueueChooser 
-    extends JFileChooser 
+    extends JFileChooser implements ActionListener 
 {
+    boolean DEBUG = false;
+    
     private static final long serialVersionUID = 1L;
 
     private Preferences    userPrefs = 
@@ -46,8 +65,115 @@ public class FileQueueChooser
     
     ImageReader reader = new ImageReader();
     
+    JButton refreshBtn;
     
     FileQueueChooser() {
+        
+        try {
+            JPanel fp = null;
+            JToolBar tb = null;
+            
+            String refreshIcon = "gfx/recycled12.png";
+            refreshBtn = addButton("Refresh ", refreshIcon, null);
+            refreshBtn.setActionCommand(Actions.REFRESH);
+            refreshBtn.addActionListener(this);
+            JPanel panel = new JPanel();
+
+            // Set up the main panel for tPane, quit, and send buttons
+            double mainTable[][] =
+            {{10, TableLayout.FILL,TableLayout.PREFERRED, TableLayout.FILL,10}, // columns
+                    {TableLayout.PREFERRED}}; // rows
+
+            TableLayout tl = new TableLayout(mainTable);
+            panel.setLayout(tl);
+            
+            // Here's a nice little pieces of test code to find all components
+            if (DEBUG)
+            {
+                try {
+                    Component[] components = this.getComponents();
+                    Component component = null;
+                    System.err.println("Components: " + components.length);
+                    for (int i = 0; i < components.length; i++)
+                    {
+                        component = components[i];
+                        System.err.println("Component " + i + " = " + component.getClass());
+                    }
+                } catch (Exception e) {}
+            }
+            
+            if (laf.contains("AquaLookAndFeel"))
+            {
+                //Do Aqua implimentation
+                fp = (JPanel) this.getComponent(1);
+                fp.setLayout(new BoxLayout(fp, BoxLayout.X_AXIS));
+                fp.add(refreshBtn);
+            }
+            else if (laf.contains("QuaquaLookAndFeel"))
+            {
+                //do Quaqua implimentation
+                fp = (JPanel) this.getComponent(1);
+                panel.add(refreshBtn, "1,0,c,c");
+                panel.add(fp.getComponent(0), "2,0,c,c");
+                fp.add(panel, BorderLayout.NORTH);
+            }
+            else if (laf.contains("Windows"))
+            {                
+                try {
+                	//Do windows implimentation
+                	tb = (JToolBar) this.getComponent(1);
+                    refreshBtn.setToolTipText("Refresh");
+                    refreshBtn.setText(null);
+                	tb.add(refreshBtn,8);
+                } catch (Exception e) {}
+            }
+            else if (laf.contains("MetalLookAndFeel"))
+            {
+                //Do Metal implimentation
+                JPanel prefp = (JPanel) this.getComponent(0);
+                fp = (JPanel) prefp.getComponent(0);
+                refreshBtn.setToolTipText("Refresh");
+                refreshBtn.setText(null);
+                Dimension size = new Dimension(24,24);
+                refreshBtn.setMaximumSize(size);
+                refreshBtn.setPreferredSize(size);
+                refreshBtn.setMinimumSize(size);
+                refreshBtn.setSize(size);
+                fp.add(Box.createRigidArea(new Dimension(5,0)));
+                fp.add(refreshBtn);
+            }
+            else if (laf.contains("GTKLookAndFeel"))
+            {
+                //do GTK implimentation
+                fp = (JPanel) this.getComponent(0);
+                refreshBtn.setIcon(null);
+                fp.add(refreshBtn);
+            }
+            else if (laf.contains("MotifLookAndFeel"))
+            {
+                //do Motif implimentation
+                fp = (JPanel) this.getComponent(0);
+                fp.add(refreshBtn);
+            }
+            
+            if (fp != null && DEBUG == true)
+            {
+            fp.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(Color.red),
+                    fp.getBorder()));
+            System.err.println(fp.getLayout());
+            }
+
+            if (tb != null && DEBUG == true)
+            {
+            tb.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(Color.red),
+                    tb.getBorder()));
+            System.err.println(tb.getLayout());
+            }
+        } 
+        catch (ArrayIndexOutOfBoundsException e) {}
+        
         
         if (savedDirectory.equals("") || !(new File(savedDirectory).exists()))
         {
@@ -63,11 +189,30 @@ public class FileQueueChooser
         this.setDragEnabled(true);
         //this.setAccessory(new FindAccessory(this));
         
-        int readerFFSize = loci.formats.gui.GUITools.buildFileFilters(reader).length;
+        IFormatReader[] readers = ((ImageReader) reader).getReaders();
+        Vector v = new Vector();
+        for (int i=0; i<readers.length; i++) {
+            // NB: By default, some readers might need to open a file to
+            // determine if it is the proper type, when the extension alone
+            // isn't enough to distinguish.
+            //
+            // We want to disable that behavior for ImageReader,
+            // because otherwise the combination filter is too slow.
+            //
+            // Also, most of the formats that do this are TIFF-based, and the
+            // TIFF reader will already green-light anything with .tif
+            // extension, making more thorough checks redundant.
+            //if (readers[i].isMetadataComplete())
+                v.add(new FormatFileFilter(readers[i], false));
+        }
+        
+        FileFilter ff[] = ComboFileFilter.sortFilters(v);
+        
+        int readerFFSize = ff.length;
         /** Gets a JFileChooser that recognizes accepted file types. */
         
         setAcceptAllFileFilterUsed(false);
-        FileFilter[] ff = new FileFilter[readerFFSize + 6];
+        ff = new FileFilter[readerFFSize + 6];
         System.arraycopy(ComboFileFilter.sortFilters(
                 loci.formats.gui.GUITools.buildFileFilters(reader)), 0, ff, 0, readerFFSize);
         ff[readerFFSize] = new DashFileFilter();
@@ -77,11 +222,14 @@ public class FileQueueChooser
         ff[readerFFSize + 4] = new D3DOldFileFilter();
         ff[readerFFSize + 5] = new D3DNPrjFileFilter();
 
-        //ff = ComboFileFilter.sortFilters(ff);
+        // set up the full filter for all supported types
+        FileFilter[] comboFF = new FileFilter[readerFFSize];
+        System.arraycopy(ComboFileFilter.sortFilters(
+                loci.formats.gui.GUITools.buildFileFilters(reader)), 0, comboFF, 0, readerFFSize);
         FileFilter combo = null;
-        if (ff.length > 1)
+        if (comboFF.length > 1)
         {
-            combo = new ComboFileFilter(ff, "All supported file types");
+            combo = new ComboFileFilter(comboFF, "All supported file types");
             addChoosableFileFilter(combo);
         }
         for (int i = 0; i < ff.length; i++)
@@ -245,14 +393,45 @@ public class FileQueueChooser
             return "Deltavision Files - Projected (*_prj.dv)";
         }  
     }
-  
+
+    static JButton addButton(String name, String image, String tooltip)
+    {
+        JButton button = null;
+
+        if (image == null) 
+        {
+            button = new JButton(name);
+        } else {
+            java.net.URL imgURL = Main.class.getResource(image);
+            if (imgURL != null)
+            {
+                button = new JButton(name, new ImageIcon(imgURL));
+            } else {
+                button = new JButton(name);
+                System.err.println("Couldn't find icon: " + image);
+            }
+        }
+        return button;
+    }
+
+    public void actionPerformed(ActionEvent e)
+    {
+        Object src = e.getSource();
+        if (src == refreshBtn)
+            //firePropertyChange(Actions.REFRESH, false, true);
+            this.setVisible(false);
+            this.rescanCurrentDirectory();
+            this.setVisible(true);
+    }
+
+    
     // ----- Main class used for testing ------    
     
     public static void main(String[] args)
     {
        
         String laf = UIManager.getSystemLookAndFeelClassName() ;
-        laf = "ch.randelshofer.quaqua.QuaquaLookAndFeel";
+        //laf = "ch.randelshofer.quaqua.QuaquaLookAndFeel";
         //laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
         //laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
         //laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";

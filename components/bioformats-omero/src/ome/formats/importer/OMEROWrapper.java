@@ -62,9 +62,16 @@ public class OMEROWrapper extends MinMaxCalculator
 		// is RGB.
 		ByteBuffer plane;
 		if (separator.getReader().isRGB() || isLeicaReader())
-			plane = ByteBuffer.wrap(openBytes(planeNumber));
+        {
+            //System.err.println("RGB, not using cached buffer.");
+            byte[] bytePlane = openBytes(planeNumber);
+			plane = ByteBuffer.wrap(bytePlane);
+        }
 		else
+        {
+            //System.err.println("Not RGB, using cached buffer.");
 			plane = ByteBuffer.wrap(openBytes(planeNumber, buf));
+        }
 
 		return new Plane2D(plane, getPixelType(), isLittleEndian(),
 				           getSizeX(), getSizeY());

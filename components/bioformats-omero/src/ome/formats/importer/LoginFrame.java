@@ -30,7 +30,6 @@ import java.beans.PropertyChangeListener;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -162,7 +161,7 @@ public class LoginFrame extends JFrame
                 "Login", "1, 1, f, c", debug);
         loginBtn.addActionListener(this);
         
-        quitBtn = gui.addButton(mainPanel, "Cancel", 'Q',
+        quitBtn = gui.addButton(mainPanel, "Quit", 'Q',
                 "Quit the Application", "3, 1, f, c", debug);
         quitBtn.addActionListener(this);
 
@@ -348,10 +347,7 @@ public class LoginFrame extends JFrame
         }
         if(e.getSource() == quitBtn)
         {
-            cancelled = true;
-            firePropertyChange(Actions.LOGIN_CANCELLED, false, true);
-            this.dispose();
-            if (f != null) f.dispose();
+            System.exit(0);
         }
 
         if(e.getSource() == configBtn)

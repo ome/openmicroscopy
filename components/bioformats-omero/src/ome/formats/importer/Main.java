@@ -54,7 +54,7 @@ public class Main extends JFrame implements ActionListener, WindowListener
 {
     private static final long   serialVersionUID = 1228000122345370913L;
 
-    public static String        versionText = "Beta 2.0";
+    public static String        versionText = "Beta 2.1";
     
     /** The data of the last release date. */
     public static String        releaseDate      
@@ -140,20 +140,20 @@ public class Main extends JFrame implements ActionListener, WindowListener
         setJMenuBar(menubar);
         fileMenu = new JMenu("File");
         menubar.add(fileMenu);
-        login = new JMenuItem("Login...");
+        login = new JMenuItem("Login to the server...");
         login.setActionCommand("login");
         login.addActionListener(this);        
         fileMenu.add(login);
-        JMenuItem fileExit = new JMenuItem("Exit");
-        fileExit.setActionCommand("exit");
-        fileExit.addActionListener(this);
-        fileMenu.add(fileExit);
+        JMenuItem fileQuit = new JMenuItem("Quit");
+        fileQuit.setActionCommand("quit");
+        fileQuit.addActionListener(this);
+        fileMenu.add(fileQuit);
         helpMenu = new JMenu("Help");
         menubar.add(helpMenu);
-        JMenuItem helpComment = new JMenuItem("Send Comment...");
+        JMenuItem helpComment = new JMenuItem("Send a Comment...");
         helpComment.setActionCommand("comment");
         helpComment.addActionListener(this);
-        JMenuItem helpAbout = new JMenuItem("About...");
+        JMenuItem helpAbout = new JMenuItem("About the Importer...");
         helpAbout.setActionCommand("about");
         helpAbout.addActionListener(this);
         helpMenu.add(helpComment);
@@ -343,7 +343,7 @@ public class Main extends JFrame implements ActionListener, WindowListener
                 //loginHandler.tryLogin(this);
                 //store = loginHandler.getMetadataStore();
             }
-        } else if ("exit".equals(cmd)) {
+        } else if ("quit".equals(cmd)) {
             if (quitConfirmed(this) == true)
             {
                 System.exit(0);
@@ -385,8 +385,8 @@ public class Main extends JFrame implements ActionListener, WindowListener
      */
     public void setImportEnabled(boolean toggle)
     {
-        if (toggle == true) login.setText("Logout...");
-        else login.setText("Login...");
+        if (toggle == true) login.setText("Logout of the server...");
+        else login.setText("Login to the server...");
     }
 
     /**
@@ -431,7 +431,7 @@ public class Main extends JFrame implements ActionListener, WindowListener
 
     private boolean quitConfirmed(JFrame frame) {
         String s1 = "Quit";
-        String s2 = "Cancel";
+        String s2 = "Don't Quit";
         Object[] options = {s1, s2};
         int n = JOptionPane.showOptionDialog(frame,
                 "Do you really want to quit?\n" +

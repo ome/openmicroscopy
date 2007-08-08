@@ -28,7 +28,7 @@ public class Main
     private ChannelSeparator separator;
     private MinMaxCalculator    reader;
     
-    private OMEROMetadataStore store;
+    //private OMEROMetadataStore store;
     private Pixels pixels;
     
     private int                sizeC;
@@ -48,17 +48,17 @@ public class Main
             separator = new ChannelSeparator(iReader);
             reader = new MinMaxCalculator(separator);   
 
-            store = new OMEROMetadataStore("root", "omero", "localhost", "1099");
+            //store = new OMEROMetadataStore("root", "omero", "localhost", "1099");
 
             reader.close();
-            reader.setMetadataStore(store);
+            //reader.setMetadataStore(store);
             reader.setId(filename);
             System.err.println("Series count: " + reader.getSeriesCount() + "\n");
             
-            pixels = (Pixels) store.getRoot();
+            //pixels = (Pixels) store.getRoot();
             
-            calculateCTXYZ();
-            setOffsetInfo();
+            //calculateCTXYZ();
+            //setOffsetInfo();
             
             int i = 1;
             try {
@@ -119,82 +119,82 @@ public class Main
             throw new Exception();
         }        
     }
-    
-    /**
-     * calculates and returns the number of planes in this image. Also sets the
-     * offset info.
-     * 
-     * @param fileName filename for use in {@link #setOffsetInfo(String)}
-     * @return the number of planes in this image (z * c * t)
-     */
-    public void calculateCTXYZ()
-    {
-        this.sizeZ = pixels.getSizeZ().intValue();
-        this.sizeC = pixels.getSizeC().intValue();
-        this.sizeT = pixels.getSizeT().intValue();
-        this.sizeX = pixels.getSizeX().intValue();
-        this.sizeY = pixels.getSizeY().intValue();
-    }
-    
-    private void setOffsetInfo()
-    {
-        int order = 0;
-        order = getSequenceNumber(reader.getDimensionOrder());
-        setOffsetInfo(order, sizeZ, sizeC, sizeT);
-    }
+//    
+//    /**
+//     * calculates and returns the number of planes in this image. Also sets the
+//     * offset info.
+//     * 
+//     * @param fileName filename for use in {@link #setOffsetInfo(String)}
+//     * @return the number of planes in this image (z * c * t)
+//     */
+//    public void calculateCTXYZ()
+//    {
+//        this.sizeZ = pixels.getSizeZ().intValue();
+//        this.sizeC = pixels.getSizeC().intValue();
+//        this.sizeT = pixels.getSizeT().intValue();
+//        this.sizeX = pixels.getSizeX().intValue();
+//        this.sizeY = pixels.getSizeY().intValue();
+//    }
+//    
+//    private void setOffsetInfo()
+//    {
+//        int order = 0;
+//        order = getSequenceNumber(reader.getDimensionOrder());
+//        setOffsetInfo(order, sizeZ, sizeC, sizeT);
+//    }
 
-
-    private int getSequenceNumber(String dimOrder)
-    {
-        if (dimOrder.equals("XYZTC")) return 0;
-        if (dimOrder.equals("XYCZT")) return 1;
-        if (dimOrder.equals("XYZCT")) return 2;
-        if (dimOrder.equals("XYTCZ")) return 3;
-        throw new RuntimeException(dimOrder + " not represented in " +
-                "getSequenceNumber");
-    }
-    
-    /**
-     * This method calculates the size of a w, t, z section depending on which
-     * sequence is being used (either ZTW, WZT, or ZWT)
-     * 
-     * @param imgSequence
-     * @param numZSections
-     * @param numWaves
-     * @param numTimes
-     */
-    private void setOffsetInfo(int imgSequence, int numZSections, int numWaves,
-            int numTimes)
-    {
-        int smallOffset = 1;
-        switch (imgSequence)
-        {
-            // ZTW sequence
-            case 0:
-                zSize = smallOffset;
-                tSize = zSize * numZSections;
-                wSize = tSize * numTimes;
-                break;
-            // WZT sequence
-            case 1:
-                wSize = smallOffset;
-                zSize = wSize * numWaves;
-                tSize = zSize * numZSections;
-                break;
-            // ZWT sequence
-            case 2:
-                zSize = smallOffset;
-                wSize = zSize * numZSections;
-                tSize = wSize * numWaves;
-                break;
-            // TWZ sequence
-            case 3:
-                tSize = smallOffset;
-                wSize = tSize * numTimes;
-                zSize = wSize * numWaves;
-                break;
-        }
-    }
+//
+//    private int getSequenceNumber(String dimOrder)
+//    {
+//        if (dimOrder.equals("XYZTC")) return 0;
+//        if (dimOrder.equals("XYCZT")) return 1;
+//        if (dimOrder.equals("XYZCT")) return 2;
+//        if (dimOrder.equals("XYTCZ")) return 3;
+//        throw new RuntimeException(dimOrder + " not represented in " +
+//                "getSequenceNumber");
+//    }
+//    
+//    /**
+//     * This method calculates the size of a w, t, z section depending on which
+//     * sequence is being used (either ZTW, WZT, or ZWT)
+//     * 
+//     * @param imgSequence
+//     * @param numZSections
+//     * @param numWaves
+//     * @param numTimes
+//     */
+//    private void setOffsetInfo(int imgSequence, int numZSections, int numWaves,
+//            int numTimes)
+//    {
+//        int smallOffset = 1;
+//        switch (imgSequence)
+//        {
+//            // ZTW sequence
+//            case 0:
+//                zSize = smallOffset;
+//                tSize = zSize * numZSections;
+//                wSize = tSize * numTimes;
+//                break;
+//            // WZT sequence
+//            case 1:
+//                wSize = smallOffset;
+//                zSize = wSize * numWaves;
+//                tSize = zSize * numZSections;
+//                break;
+//            // ZWT sequence
+//            case 2:
+//                zSize = smallOffset;
+//                wSize = zSize * numZSections;
+//                tSize = wSize * numWaves;
+//                break;
+//            // TWZ sequence
+//            case 3:
+//                tSize = smallOffset;
+//                wSize = tSize * numTimes;
+//                zSize = wSize * numWaves;
+//                break;
+//        }
+//    }
     
     
     /**
@@ -217,8 +217,8 @@ public class Main
         else
             plane = ByteBuffer.wrap(reader.openBytes(no, buf));
 
-        return new Plane2D(plane, reader.getPixelType(id), reader.isLittleEndian(id),
-                           reader.getSizeX(id), reader.getSizeY(id));
+        return new Plane2D(plane, reader.getPixelType(), reader.isLittleEndian(),
+                           reader.getSizeX(), reader.getSizeY());
     }
     
     /**
@@ -268,7 +268,7 @@ public class Main
     private byte[] swapIfRequired(ByteBuffer buffer, String fileName)
       throws FormatException, IOException
     {
-      int pixelType = reader.getPixelType(fileName);
+      int pixelType = reader.getPixelType();
       int bytesPerPixel = getBytesPerPixel(pixelType);
 
       // We've got nothing to do if the samples are only 8-bits wide or if they
@@ -278,7 +278,7 @@ public class Main
           return buffer.array();
 
       //System.err.println(fileName + " is Little Endian: " + isLittleEndian(fileName));
-      if (reader.isLittleEndian(fileName)) {
+      if (reader.isLittleEndian()) {
         if (bytesPerPixel == 2) { // short
           ShortBuffer buf = buffer.asShortBuffer();
           for (int i = 0; i < (buffer.capacity() / 2); i++) {
