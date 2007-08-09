@@ -230,7 +230,7 @@ class BrowserModel
         //Create the annotate image.
         if (renderedImage != null) {
         	if (init) {
-        		if (image.getWidth() < Browser.MINIMUM_SIZE) {
+        		if (image.getWidth() < ImViewer.MINIMUM_SIZE) {
         			ratio = 1;
         			unitBar = false;
         		}

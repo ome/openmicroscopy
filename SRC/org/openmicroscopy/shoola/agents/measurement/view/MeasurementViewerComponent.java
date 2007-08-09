@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -208,15 +209,18 @@ class MeasurementViewerComponent
 		} catch (Exception e) {
 			//TODO register and notify user. close Input
 			Registry reg = MeasurementAgent.getRegistry();
+			Logger log = reg.getLogger();
 			if (e instanceof ParsingException) {
-				reg.getLogger().error(this, "Cannot parse the ROI for " 
-						+model.getImageID());
-				
+				log.error(this, "Cannot parse the ROI for "+model.getImageID());
 			} else {
 				
 			}
+			try {
+				if (input != null) input.close();
+			} catch (Exception io) {
+				log.warn(this, "Cannot close the stream "+io.getMessage());
+			}
 			
-				//TODO: notify 
 			return;
 		}
 
@@ -391,7 +395,7 @@ class MeasurementViewerComponent
 					"Cannot save the results "+e.getMessage());
 			un.notifyInfo("Save ROI results", "Cannot save the ROI results");
 		}
-		if(saved)
+		if (saved)
 			un.notifyInfo("Save ROI results", "The ROI results have been " +
 											"successfully saved.");
 	}
@@ -422,7 +426,7 @@ class MeasurementViewerComponent
 	{
 		Registry reg = MeasurementAgent.getRegistry();
 		UserNotifier un = reg.getUserNotifier();
-		if(view.inDataView())
+		if (view.inDataView())
 		{
 			un.notifyInfo("ROI Assistant", "ROI Assistant cannot be used" +
 					" in graph pane or intensity view");
@@ -448,13 +452,11 @@ class MeasurementViewerComponent
     	ROIAssistant assistant = new ROIAssistant(model.getNumTimePoints(), 
     		model.getNumZSections(), model.getCurrentView(), currentROI, view);
     	UIUtilities.setLocationRelativeToAndShow(view, assistant);
-    	
 	}
 	
 	/** 
 	 * Implemented as specified by the {@link MeasurementViewer} interface.
 	 * @see MeasurementViewer#showMeasurementsInMicrons(boolean)
-	 * 
 	 */
 	public void showMeasurementsInMicrons(boolean inMicrons)
 	{

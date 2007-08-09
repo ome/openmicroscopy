@@ -29,6 +29,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -58,19 +59,23 @@ public class IOUtil
 	 * 
 	 * @param fileName The name of the file to read.
 	 * @return See above.
+	 * @throws IOException If we cannot read the file or create a stream.
 	 */
 	public static InputStream readFile(String fileName)
+		throws IOException
 	{
 		if (fileName == null)
 			throw new IllegalArgumentException("No file name specified.");
 		File f = new File(fileName);
-		BufferedInputStream in = null;
+		FileInputStream input = null;
 		try {
-			in = new BufferedInputStream(new FileInputStream(f));
+			input = new FileInputStream(f);
+			return new BufferedInputStream(input);
 		} catch (Exception e) {
-			e.printStackTrace();
+			if (input != null) input.close();
+			throw new IOException("Cannot read the file "+fileName+". " +
+					"Error: "+e.getMessage());
 		}
-		return in;
 	}
 	
 	/**
@@ -79,19 +84,23 @@ public class IOUtil
 	 * 
 	 * @param fileName The name of the file to write.
 	 * @return See above.
+	 * @throws IOException If we cannot write the file or create a stream.
 	 */
 	public static OutputStream writeFile(String fileName)
+		throws IOException
 	{
 		if (fileName == null)
 			throw new IllegalArgumentException("No file name specified.");
 		File f = new File(fileName);
-		BufferedOutputStream out;
+		FileOutputStream out = null;
 		try {
-			out = new BufferedOutputStream(new FileOutputStream(f));
+			out = new FileOutputStream(f);
+			return new BufferedOutputStream(out);
 		} catch (Exception e) {
-			return null;
+			if (out != null) out.close();
+			throw new IOException("Cannot write the file "+fileName+". " +
+					"Error: "+e.getMessage());
 		}
-		return out;
 	}
 	
 }

@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -56,6 +57,8 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsLoader;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
@@ -151,9 +154,6 @@ class MeasurementViewerModel
     /** Reference to the component that embeds this model. */
     private MeasurementViewer		component;
     
-    /** Boolean to indicating that the tool has been posted to the viewer.*/
-    //private boolean 				toolSent;
-    
     /**
      * Returns the current user's details.
      * 
@@ -188,36 +188,7 @@ class MeasurementViewerModel
 		drawingView.setDrawing(drawing);
 		drawingEditor.add(drawingView);
 		roiFileName = imageID+".xml";
-		//toolSent = false;
 	}
-	
-	/**
-	 * This checks that we've not posted a message to the viewer already to 
-	 * add the drawing view of the measurement component. Setting this value to 
-	 * true indicates the the MeasurementToolLoaded.ADD has been posted to the 
-	 * viewer. 
-	 * 
-	 * @param state see above.
-	 */
-	/*
-	void setToolSent(boolean state)
-	{
-		toolSent = state;
-	}
-	*/
-	/**
-	 * This checks that we've not posted a message to the viewer already to 
-	 * add the drawing view of the measurement component. if this value is 
-	 * true it indicates the the MeasurementToolLoaded.ADD has been posted to 
-	 * the viewer. 
-	 * @return see above.
-	 */
-	/*
-	boolean getToolSent()
-	{
-		return toolSent;
-	}
-	*/
 	
 	 /**
      * Called by the <code>ROIViewer</code> after creation to allow this
@@ -342,7 +313,20 @@ class MeasurementViewerModel
 	{
 		state = MeasurementViewer.LOADING_ROI;
 		if (fileName == null) fileName = roiFileName;
-		component.setROI(IOUtil.readFile(fileName));
+		InputStream stream = null;
+		try {
+			stream = IOUtil.readFile(fileName);
+		} catch (Exception e) {
+			Logger log = MeasurementAgent.getRegistry().getLogger();
+			log.warn(this, "Cannot load the ROI "+e.getMessage());
+		}
+		component.setROI(stream);
+		try {
+			if (stream != null) stream.close();
+		} catch (Exception e) {
+			Logger log = MeasurementAgent.getRegistry().getLogger();
+			log.warn(this, "Cannot close the stream "+e.getMessage());
+		}
 	}
 	
 	/**
@@ -384,17 +368,18 @@ class MeasurementViewerModel
 	 * Sets the ROI for the pixels set.
 	 *  
 	 * @param input 		The value to set.
-	 * @throws Exception	Forward exception thrown by the 
-	 * 						{@link ROIComponent}.
+	 * @throws ROICreationException If the ROI cannot be created.
+	 * @throws NoSuchROIException 	If the ROI does not exist.
+	 * @throws ParsingException		Thrown when an error occured
+	 * 								while parsing the stream.
 	 */
 	void setROI(InputStream input)
-		throws Exception
+		throws ROICreationException, NoSuchROIException, ParsingException
 	{
-		if (input != null) 
-			{
+		if (input != null) {
 			List<ROI> roiList = roiComponent.loadROI(input);
 			component.attachListeners(roiList);
-			}
+		}
 		state = MeasurementViewer.READY;
 	}
 
@@ -577,7 +562,20 @@ class MeasurementViewerModel
 	void saveROI()
 		throws ParsingException
 	{
-		roiComponent.saveROI(IOUtil.writeFile(roiFileName));
+		OutputStream stream = null;
+		try {
+			stream = IOUtil.writeFile(roiFileName);
+		} catch (Exception e) {
+			Logger log = MeasurementAgent.getRegistry().getLogger();
+			log.warn(this, "Cannot save the ROI "+e.getMessage());
+		}
+		roiComponent.saveROI(stream);
+		try {
+			if (stream != null) stream.close();
+		} catch (Exception e) {
+			Logger log = MeasurementAgent.getRegistry().getLogger();
+			log.warn(this, "Cannot close the stream "+e.getMessage());
+		}
 	}
 	
 	/**
@@ -586,14 +584,14 @@ class MeasurementViewerModel
 	 * @param shape 	The ROIShape to propagate.
 	 * @param timePoint The timepoint to propagate to.
 	 * @param zSection 	The z-section to propagate to.
-	 * @throws ROICreationException
-	 * @throws NoSuchROIException
+	 * @throws NoSuchROIException	Thrown if ROI with id does not exist.
+	 * @throws ROICreationException	Thrown if the ROI cannot be created.
 	 */
 	void propagateShape(ROIShape shape, int timePoint, int zSection) 
-		throws 	ROICreationException, NoSuchROIException
+		throws ROICreationException, NoSuchROIException
 	{
 		roiComponent.propagateShape(shape.getID(), shape.getCoord3D(), 
-		shape.getCoord3D(), new Coord3D(zSection, timePoint));
+					shape.getCoord3D(), new Coord3D(zSection, timePoint));
 	}
 	
 	/**
@@ -602,11 +600,10 @@ class MeasurementViewerModel
 	 * @param shape 	The ROIShape to propagate.
 	 * @param timePoint The timepoint to propagate to.
 	 * @param zSection 	The z-section to propagate to.
-	 * @throws ROICreationException
-	 * @throws NoSuchROIException
+	 * @throws NoSuchROIException Thrown if no such ROI exists.
 	 */
 	void deleteShape(ROIShape shape, int timePoint, int zSection) 
-		throws 	ROICreationException, NoSuchROIException
+		throws NoSuchROIException
 	{
 		roiComponent.deleteShape(shape.getID(), shape.getCoord3D(), 
 			new Coord3D(zSection, timePoint));

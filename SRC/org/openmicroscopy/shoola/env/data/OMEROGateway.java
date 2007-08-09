@@ -1254,7 +1254,7 @@ class OMEROGateway
     	OriginalFile of;
     	
     	int size;	
-    	FileOutputStream stream;
+    	FileOutputStream stream = null;
     	int offset = 0;
     	File f;
     	List<String> notDownloaded = new ArrayList<String>();
@@ -1274,14 +1274,15 @@ class OMEROGateway
 						}	
 					} finally {
 						stream.write(store.read(offset, size-offset)); 
+						stream.close();
 					}
 				} catch (Exception e) {
-					stream.close();
-					f.delete();
+					if (stream != null) stream.close();
+					if (f != null) f.delete();
 					notDownloaded.add(of.getName());
 				}
 			} catch (IOException e) {
-				f.delete();
+				if (f != null) f.delete();
 				notDownloaded.add(of.getName());
 				throw new DSAccessException("Cannot create the file", e);
 			}

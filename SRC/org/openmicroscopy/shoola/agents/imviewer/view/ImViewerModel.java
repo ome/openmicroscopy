@@ -882,10 +882,10 @@ class ImViewerModel
 		double ratio = 1;
 		int w = img.getWidth();
 		int h = img.getHeight();
-		if (w < Browser.MINIMUM_SIZE || h < Browser.MINIMUM_SIZE) ratio = 1;
+		if (w < ImViewer.MINIMUM_SIZE || h < ImViewer.MINIMUM_SIZE) ratio = 1;
 		else {
-			if (w >= h) ratio = (double) Browser.MINIMUM_SIZE/w;
-			else ratio = (double) Browser.MINIMUM_SIZE/h;
+			if (w >= h) ratio = (double) ImViewer.MINIMUM_SIZE/w;
+			else ratio = (double) ImViewer.MINIMUM_SIZE/h;
 		}
 		BufferedImage thumb = Factory.magnifyImage(ratio, img);
 		HistoryItem i = new HistoryItem(rndControl.getRndSettingsCopy(), thumb);

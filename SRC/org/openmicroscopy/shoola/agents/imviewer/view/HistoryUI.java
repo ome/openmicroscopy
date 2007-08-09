@@ -42,7 +42,6 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 
 /** 
@@ -63,6 +62,9 @@ class HistoryUI
 	extends JPanel
 {
 
+	/** The Description of the {@link #clearButton}. */
+	private static final String CLEAR_DESCRIPTION = "Clears the history.";
+	
 	/** Reference to the Model. */
 	private ImViewerModel 	model;
 	
@@ -77,6 +79,9 @@ class HistoryUI
 	
 	/** Canvas displaying the history. */
 	private HistoryCanvas	canvas;
+	
+	/** UI component hosting the controls.*/
+	private JPanel			toolBar;
 	
 	/** Clear the history. */
 	private void clearHistory()
@@ -96,11 +101,13 @@ class HistoryUI
 		//pane = new JScrollPane(canvas);
 		IconManager icons = IconManager.getInstance();
 		clearButton = new JButton(icons.getIcon(IconManager.CLEAR));
+		clearButton.setToolTipText(CLEAR_DESCRIPTION);
 		clearButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				clearHistory();
 			}
 		});
+		toolBar = buildControls();
 	}
 	
 	/**
@@ -123,7 +130,7 @@ class HistoryUI
 	{
 		setLayout(new BorderLayout(0, 0));
 		setBorder(null);
-		add(buildControls(), BorderLayout.NORTH);
+		add(toolBar, BorderLayout.NORTH);
 		add(canvas, BorderLayout.CENTER);
 	}
 	
@@ -181,6 +188,20 @@ class HistoryUI
         Dimension d = new Dimension(r.width, bounds.height);//bounds.getSize();
         desktop.setSize(d);
         desktop.setPreferredSize(d);
+	}
+	
+	/** 
+	 * Returns the ideal size of the component.
+	 * 
+	 * @return See above.
+	 */
+	Dimension getIdealSize()
+	{
+		Dimension d = getSize();
+		int height = toolBar.getPreferredSize().height;
+		height += canvas.getTitleBar().getPreferredSize().height;
+		height += 3*ImViewer.MINIMUM_SIZE/2;
+		return new Dimension(d.width, height);
 	}
 	
 	/**

@@ -66,6 +66,9 @@ public interface ImViewer
     extends ObservableComponent
 {
 
+	/** The minimum size of an original image. */
+	public static final int	MINIMUM_SIZE = 96;
+	
     /** Flag to denote the <i>New</i> state. */
     public static final int     NEW = 1;
     
