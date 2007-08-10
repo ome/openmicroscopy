@@ -484,7 +484,7 @@ class BrowserComponent
                         " LOADING_LEAVES or DISCARDED state.");
                         */
         }
-        firePropertyChange(POPUP_MENU_PROPERTY, null, view.getSelectedTree());
+        firePropertyChange(POPUP_MENU_PROPERTY, null, view.getTreeDisplay());
     }
 
     /**

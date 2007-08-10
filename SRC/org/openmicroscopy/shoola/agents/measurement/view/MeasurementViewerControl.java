@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.agents.measurement.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
@@ -219,6 +220,17 @@ class MeasurementViewerControl
 		UIUtilities.setLocationRelativeTo(view, colourPicker);
 	}
     
+    /** Analyse the selected figures. */
+	void analyseSelectedFigures()
+	{
+		Collection<Figure> figures = model.getSelectedFigures();
+		if (figures.size() == 1) {
+			ROIFigure figure = (ROIFigure) figures.iterator().next();
+			ROIShape shape = figure.getROIShape();
+			if (shape != null) model.analyseShape(shape);
+		}		
+	}
+	
     /**
      * Reacts to property change
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -265,7 +277,7 @@ class MeasurementViewerControl
 	}
 
 	/**
-	 * 
+	 * Adds a new figure.
 	 * @see DrawingListener#figureAdded(DrawingEvent)
 	 */
 	public void figureAdded(DrawingEvent e)
@@ -276,13 +288,10 @@ class MeasurementViewerControl
 		ROIFigure roiFigure = (ROIFigure) f;
 		roiFigure.addFigureListener(this);
 		view.addROI(roiFigure);
-		if(view.inDataView())
-		{
-			if(roiFigure.getROIShape() != null)
-			{
-				model.analyseShape(roiFigure.getROIShape());
-			}
-		}
+		if (!view.inDataView()) return;
+		ROIShape shape = roiFigure.getROIShape();
+		if (shape != null)
+			model.analyseShape(roiFigure.getROIShape());
 	}
 	
 	/**
@@ -304,32 +313,33 @@ class MeasurementViewerControl
 	{
 		Collection figures = evt.getView().getSelectedFigures();
 		if (figures == null) return;
-		if(view.inDataView() && figures.size() == 1)
-		{
-			ROIFigure figure = (ROIFigure)figures.iterator().next();
-			if(figure.getROIShape() != null)
-			{
-				model.analyseShape(figure.getROIShape());
-			}
+		if (view.inDataView() && figures.size() == 1) {
+			ROIFigure figure = (ROIFigure) figures.iterator().next();
+			ROIShape shape = figure.getROIShape();
+			if (shape != null) model.analyseShape(shape);
 		}
 		view.setSelectedFigures(figures);
 	}
 
 	/**
-	 * Required by the {@link DrawingListener} This allows the viewer to manage
-	 * the link between figure attributes and ROIShape, ROI objects. 
+	 * Required by the {@link DrawingListener} I/F. 
+	 * This allows the viewer to manage the link between figure attributes and 
+	 * ROIShape, ROI objects. 
 	 * @see FigureListener#figureAttributeChanged(FigureEvent)
 	 */
 	public void figureAttributeChanged(FigureEvent e)
 	{
-		view.onAttributeChanged(e.getFigure());
-		model.figureAttributeChanged(e.getAttribute(), (ROIFigure)e.getFigure());
+		Figure f = e.getFigure();
+		if (f instanceof ROIFigure) {
+			ROIFigure fig = (ROIFigure) f;
+			view.onAttributeChanged(fig);
+			model.figureAttributeChanged(e.getAttribute(), fig);
+		}
 	}
 
 	/**
-	 * Required by the {@link DrawingListener}, used to update the measurements
-	 * of a component and the different dataviews. 
-	 * 
+	 * Required by the {@link DrawingListener} I/F used to update 
+	 * the measurements of a component and the different dataviews. 
 	 * @see FigureListener#figureChanged(FigureEvent)
 	 */
 	public void figureChanged(FigureEvent e)
@@ -337,14 +347,12 @@ class MeasurementViewerControl
 		Figure f = e.getFigure();
 		if (f instanceof ROIFigure) 
 		{
-			ROIFigure roiFigure = (ROIFigure)f;
+			ROIFigure roiFigure = (ROIFigure) f;
 			roiFigure.calculateMeasurements();
-			if(view.inDataView())
+			if (view.inDataView())
 			{
-				if(roiFigure.getROIShape() != null)
-				{
-					model.analyseShape(roiFigure.getROIShape());
-				}
+				ROIShape shape = roiFigure.getROIShape();
+				if (shape != null) model.analyseShape(shape);
 			}
 		}
 	}
@@ -384,17 +392,4 @@ class MeasurementViewerControl
 	 */
 	public void figureRequestRemove(FigureEvent e) {}
 
-	/** Analyse the selected figures. */
-	public void analyseSelectedFigures()
-	{
-		Collection<Figure> figures = model.getSelectedFigures();
-		if(figures.size() == 1)
-		{
-			ROIFigure figure = (ROIFigure)figures.iterator().next();
-			if(figure.getROIShape() != null)
-			{
-				model.analyseShape(figure.getROIShape());
-			}
-		}		
-	}
 }

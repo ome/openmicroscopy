@@ -215,7 +215,7 @@ class BrowserControl
     void onClick()
     {
         Object pathComponent;
-        JTree tree = view.getSelectedTree();
+        JTree tree = view.getTreeDisplay();
         TreePath[] paths = tree.getSelectionPaths();
         if (paths == null) return;
         int n = paths.length;

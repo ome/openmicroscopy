@@ -239,6 +239,7 @@ class MeasurementViewerUI
         tabs.setAlignmentX(LEFT_ALIGNMENT);
 	}
 	
+	/** Adds a listener to the tabbed pane. */
 	private void addTabbedPaneListener()
 	{
 		tabs.addChangeListener(new ChangeListener()
@@ -248,8 +249,8 @@ class MeasurementViewerUI
 			{
 				JTabbedPane pane=(JTabbedPane) evt.getSource();
 				// Get current tab
-				int sel=pane.getSelectedIndex();
-				if(inDataView())
+				int sel = pane.getSelectedIndex();
+				if (inDataView())
 				{
 					controller.analyseSelectedFigures();
 				}
@@ -279,45 +280,10 @@ class MeasurementViewerUI
 	}
 	
 	/**
-	 * Return true if in the graph or intensity view.
-	 * @return see above.
-	 */
-	public boolean inDataView()
-	{
-		if(inIntensityView() || inGraphView())
-			return true;
-		return false;
-	}
-	
-	/**
-	 * Return true if in the graph view. 
-	 * @return see above.
-	 */
-	public boolean inGraphView()
-	{
-		if(tabs.getTitleAt(tabs.getSelectedIndex()).
-				equals(graphPane.getComponentName()))
-			return true;
-		return false;
-	}
-	
-	/**
-	 * Return true if in the intensity view. 
-	 * @return see above.
-	 */
-	public boolean inIntensityView()
-	{
-		if(tabs.getTitleAt(tabs.getSelectedIndex()).
-				equals(intensityView.getComponentName()))
-			return true;
-		return false;
-	}
-	
-	/**
      * Creates a new instance.
      * The 
-     * {@link #initialize(MeasurementViewerControl, 
-     * MeasurementViewerModel) initialize} method should be called straight 
+     * {@link #initialize(MeasurementViewerControl, MeasurementViewerModel) initialize}
+     * method should be called straight 
      * after to link this View to the Controller.
      * 
      * @param title The window title.
@@ -328,14 +294,14 @@ class MeasurementViewerUI
         loadingWindow = new LoadingWindow(this);
     }
     
-	 /**
-     * Links this View to its Controller and Model.
-     * 
-     * @param controller    Reference to the Control.
-     *                      Mustn't be <code>null</code>.
-     * @param model         Reference to the Model.
-     *                      Mustn't be <code>null</code>.
-     */
+	/**
+	 * Links this View to its Controller and Model.
+	 * 
+	 * @param controller    Reference to the Control.
+	 *                      Mustn't be <code>null</code>.
+	 * @param model         Reference to the Model.
+	 *                      Mustn't be <code>null</code>.
+	 */
     void initialize(MeasurementViewerControl controller, 
     			MeasurementViewerModel model)
     {
@@ -348,6 +314,41 @@ class MeasurementViewerUI
         buildGUI();
     }
     
+    /**
+	 * Returns <code>true</code> if in the graph or intensity view,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean inDataView()
+	{
+		return (inIntensityView() || inGraphView());
+	}
+	
+	/**
+	 * Returns <code>true</code> if in the graph view,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean inGraphView()
+	{
+		return (tabs.getTitleAt(tabs.getSelectedIndex()).
+				equals(graphPane.getComponentName()));
+	}
+	
+	/**
+	 * Returns <code>true</code> if in the intensity view,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean inIntensityView()
+	{
+		return (tabs.getTitleAt(tabs.getSelectedIndex()).
+				equals(intensityView.getComponentName()));
+	}
+	
     /**
      * Returns the {@link #loadingWindow}.
      * 
