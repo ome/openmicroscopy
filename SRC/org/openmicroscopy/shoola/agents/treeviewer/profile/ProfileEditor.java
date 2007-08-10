@@ -64,8 +64,11 @@ public interface ProfileEditor
     /** Flag to denote the <i>Save Edition</i> state. */
     public static final int         SAVE_EDITION = 3;
     
+    /** Flag to denote the <i>Laoading</i> state. */
+    public static final int         LOADING = 4;
+    
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int         READY = 4;
+    public static final int         READY = 5;
     
     /** 
      * Closes the {@link ProfileEditor}. 
@@ -75,6 +78,9 @@ public interface ProfileEditor
      */
     void close();
     
+    /** Retrieves the used and free disk space. */
+	void getDiskSpace();
+	
     /**
      * Queries the current state.
      * 
@@ -138,4 +144,13 @@ public interface ProfileEditor
 	 * @param data The updated experimenter..
 	 */
 	public void experimenterChanged(ExperimenterData data);
+	
+	/**
+	 * Sets the free and used disk space on the file system.
+	 * 
+	 * @param free 	The free space on the file system.
+	 * @param used	The used space on the file system.
+	 */
+	public void setDiskSpace(long free, long used);
+
 }

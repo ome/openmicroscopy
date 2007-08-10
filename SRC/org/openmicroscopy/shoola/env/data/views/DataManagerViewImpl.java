@@ -292,7 +292,7 @@ class DataManagerViewImpl
      */
 	public CallHandle loadAvailableGroups(AgentEventListener observer)
 	{
-		 BatchCallTree cmd = new AdminLoader();
+		 BatchCallTree cmd = new AdminLoader(AdminLoader.GROUP);
 	     return cmd.exec(observer);
 	}
 
@@ -313,9 +313,20 @@ class DataManagerViewImpl
      * 										AgentEventListener)
      */
 	public CallHandle updateExperimenter(ExperimenterData exp, 
-							AgentEventListener observer) {
+							AgentEventListener observer)
+	{
 		BatchCallTree cmd = new AdminLoader(exp);
 	    return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#getDiskSpace(AgentEventListener)
+     */
+	public CallHandle getDiskSpace(AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AdminLoader(AdminLoader.SPACE);
+	     return cmd.exec(observer);
 	}
     
 }

@@ -28,6 +28,9 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -51,6 +54,12 @@ public class AdminLoader
 	extends BatchCallTree
 {
 
+	/** Identifies to load the available groups. */
+	public static final int GROUP = 0;
+	
+	/** Identifies to load the available and used space. */
+	public static final int SPACE = 1;
+	
     /** The result of the call. */
     private Object		result;
     
@@ -62,13 +71,33 @@ public class AdminLoader
      * 
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall()
+    private BatchCall availableGroupsCall()
     {
         return new BatchCall("Loading experimenter groups") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
                 result = os.getAvailableGroups();
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to retrieve the available and used
+     * disk space.
+     * 
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall availableSpaceCall()
+    {
+        return new BatchCall("Loading available and used disk space") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                List l = new ArrayList();
+                l.add(os.getSpace(OmeroDataService.FREE));
+                l.add(os.getSpace(OmeroDataService.USED));
+                result = l;
             }
         };
     }
@@ -122,10 +151,19 @@ public class AdminLoader
      */
     protected Object getResult() { return result; }
     
-    /** Creates a new instance. */
-    public AdminLoader()
+    /** Creates a new instance. 
+     * 
+     * @param index One of the constants defined by this class.
+     */
+    public AdminLoader(int index)
     {
-    	loadCall = makeBatchCall();
+    	switch (index) {
+			case GROUP:
+				loadCall = availableGroupsCall();
+				break;
+			case SPACE:
+				loadCall = availableSpaceCall();
+		}
     }
 
     /**

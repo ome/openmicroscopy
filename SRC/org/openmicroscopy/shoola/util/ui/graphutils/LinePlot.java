@@ -57,20 +57,11 @@ import org.jfree.data.xy.DefaultXYDataset;
 public class LinePlot
 {	
 	
-	/** The graph containing the plot. */
-	private JFreeChart  			freeChart;
-		
 	/** The X-Axis label. Also can,but not currenly used set the range. */
 	private NumberAxis  			domainAxis;
 	
 	/** The Y-Axis label. Also can,but not currenly used set the range. */
 	private NumberAxis 				rangeAxis;
-		
-	/** Container for the charts. */
-	private ChartPanel				charts;
-
-	/** Panel returned to user containe graph. */
-	private JPanel					graphPanel;
 	
 	/** Title of the graph. */
 	private String					title;
@@ -239,9 +230,9 @@ public class LinePlot
 		for (int i = 0 ; i < colours.size(); i++)
 			renderer.setSeriesPaint(i, colours.get(i));
 		XYPlot plot = new XYPlot(dataset, domainAxis, rangeAxis, renderer);
-		freeChart = new JFreeChart(title, plot);
-		charts = new ChartPanel(freeChart);
-		graphPanel = new JPanel();
+		JFreeChart freeChart = new JFreeChart(title, plot);
+		ChartPanel charts = new ChartPanel(freeChart);
+		JPanel graphPanel = new JPanel();
 		graphPanel.setLayout(new BorderLayout());
 		graphPanel.add(charts, BorderLayout.CENTER);
 		return graphPanel;

@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.profile;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.PasswordEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.ProfileEditorLoader;
@@ -169,7 +170,6 @@ class ProfileEditorModel
 		currentLoader = new PasswordEditor(component, oldPassword, password);
 		currentLoader.load();
 		state = ProfileEditor.SAVE_EDITION;
-		
 	}
 
 	/**
@@ -183,7 +183,7 @@ class ProfileEditorModel
 		currentLoader.load();
 		state = ProfileEditor.SAVE_EDITION;
 	}
-	
+
 	/**
 	 * Sets the state.
 	 * 
@@ -212,4 +212,12 @@ class ProfileEditorModel
 		return TreeViewerAgent.getRegistry().getDataService().getServerName();
 	}
 
+	/** Fires an asynchronous call to retrieve the used and free space. */
+	void fireSpaceRetrieval()
+	{
+		state = ProfileEditor.LOADING;
+		currentLoader = new DiskSpaceLoader(component);
+		currentLoader.load();
+	}
+	
 }

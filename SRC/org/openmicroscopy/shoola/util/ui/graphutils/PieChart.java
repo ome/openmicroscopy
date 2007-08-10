@@ -57,21 +57,12 @@ import org.jfree.util.Rotation;
  */
 public class PieChart
 {	
-
-	/** The graph containing the plot. */
-	private JFreeChart  			freeChart;
 		
 	/** The X-Axis label. Also can,but not currenly used set the range. */
 	private NumberAxis  			domainAxis;
 	
 	/** The Y-Axis label. Also can,but not currenly used set the range. */
 	private NumberAxis 				rangeAxis;
-		
-	/** Container for the charts. */
-	private ChartPanel				charts;
-
-	/** Panel returned to user containe graph. */
-	private JPanel					graphPanel;
 	
 	/** Title of the graph. */
 	private String					title;
@@ -182,13 +173,13 @@ public class PieChart
 	 */
 	public JPanel getChart()
 	{
-		freeChart = ChartFactory.createPieChart3D(title, dataset, false, true,
-	            								false);
+		JFreeChart freeChart = ChartFactory.createPieChart3D(title, dataset, 
+										false, true, false);
 		PiePlot3D plot = (PiePlot3D) freeChart.getPlot();
 		plot.setDirection(Rotation.CLOCKWISE);
 	    plot.setForegroundAlpha(0.55f);
-		charts = new ChartPanel(freeChart);
-		graphPanel = new JPanel();
+	    ChartPanel charts = new ChartPanel(freeChart);
+		JPanel graphPanel = new JPanel();
 		graphPanel.setLayout(new BorderLayout());
 		graphPanel.add(charts, BorderLayout.CENTER);
 		return graphPanel;

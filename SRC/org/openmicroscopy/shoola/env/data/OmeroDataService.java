@@ -53,6 +53,12 @@ import pojos.ImageData;
 public interface OmeroDataService
 {
     
+	/** Identifies the used space on the file system. */
+	public static final int USED = 100;
+	
+	/** Identifies the free space on the file system. */
+	public static final int FREE = 101;
+	
     /** Identifies the <code>Declassification</code> algorithm. */
     public static final int DECLASSIFICATION = 0;
     
@@ -630,5 +636,23 @@ public interface OmeroDataService
 	 * @return See above.
 	 */
 	public String getServerName();
+	
+	/**
+	 * Returns the free or available space (in Kilobytes) if the passed
+	 * parameter is <code>FREE</code>, returns the used space (in Kilobytes) 
+	 * if the passed parameter is <code>USED</code> on the file system
+	 * including nested subdirectories. Returns <code>-1</code> 
+	 * otherwise.
+	 * 
+	 * @param index One of the following constants: {@link #USED} or 
+	 * 				{@link #FREE}.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+	 */
+	public long getSpace(int index)
+		throws DSOutOfServiceException, DSAccessException;
 	
 }

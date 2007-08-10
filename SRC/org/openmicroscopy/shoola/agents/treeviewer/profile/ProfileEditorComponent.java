@@ -198,5 +198,32 @@ class ProfileEditorComponent
 		model.setExperimenter(exp);
 		fireStateChange();
 	}
+
+	/**
+     * Implemented as specified by the {@link ProfileEditor} interface.
+     * @see ProfileEditor#setDiskSpace(long, long)
+     */
+	public void setDiskSpace(long free, long used)
+	{
+		if (model.getState() != LOADING) return;
+		model.setState(READY);
+		view.setDiskSpace(free, used);
+		fireStateChange();
+	}
+
+	/**
+     * Implemented as specified by the {@link ProfileEditor} interface.
+     * @see ProfileEditor#setDiskSpace(long, long)
+     */
+	public void getDiskSpace()
+	{
+		switch (model.getState()) {
+			case DISCARDED:
+			case SAVE_EDITION:
+				return;
+		}
+		model.fireSpaceRetrieval();
+		fireStateChange();
+	}
 	
 }

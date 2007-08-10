@@ -1053,5 +1053,21 @@ class OmeroDataServiceImpl
 		context.lookup(LookupNames.USER_CREDENTIALS);
 		return uc.getHostName();
 	}
+
+	 /**
+     * Implemented as specified by {@link OmeroDataService}.
+     * @see OmeroDataService#getSpace(int)
+     */
+	public long getSpace(int index)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		switch (index) {
+			case OmeroDataService.USED:
+				return gateway.getUsedSpace();
+			case OmeroDataService.FREE:
+				return gateway.getFreeSpace();
+		}
+		return -1;
+	}
 	
 }

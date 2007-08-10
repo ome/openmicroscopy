@@ -361,4 +361,14 @@ public class NullOmeroPojoService
 		return null;
 	}
 
+	/**
+     * No-op implementation
+     * @see OmeroDataService#getSpace(int)
+     */
+	public long getSpace(int index) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return 0;
+	}
+
 }

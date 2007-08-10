@@ -67,16 +67,19 @@ class ProfileEditorUI
 	/** The title of the dialog displayed if a problem occurs. */
 	static final String				DIALOG_TITLE = "Change Password";
 	
+	/** Title of the component hosting the disk space. */
+	private static final String				DISK_TITLE = "Disk Space";
+	
 	/** Title of the UI. */
 	private static final String		TITLE = "Profile Editor";
 	
 	/** Text of the UI. */
 	private static final String		NOTE = "Edit My Profile";
 	
-	/** Title of the paned hosting the user details. */
+	/** Title of the component hosting the user details. */
 	private static final String		USER_TITLE = "My Profile";
 	
-	/** Title of the paned hosting the details of the servers used by user. */
+	/** Title of the component hosting the servers' details used by user. */
 	private static final String		SERVER_TITLE = "My Servers";
 	
     /** 
@@ -115,6 +118,9 @@ class ProfileEditorUI
     /** Component hosting the server details. */
     private ServerEditor			serverProfile;
     
+    /** Component displaying the used and free space on file system. */
+    private DiskSpace				diskSpace;
+    
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
@@ -135,6 +141,7 @@ class ProfileEditorUI
         userProfile = new UserProfile(model, controller);
         serverProfile = new ServerEditor(model.getHostName());
         serverProfile.initFocus();
+        diskSpace = new DiskSpace();
         IconManager im = IconManager.getInstance();
 		titlePanel = new TitlePanel(TITLE, NOTE, 
 									im.getIcon(IconManager.OWNER_48));
@@ -145,14 +152,19 @@ class ProfileEditorUI
         tabs.addTab(USER_TITLE, im.getIcon(IconManager.OWNER), userProfile);
         tabs.addTab(SERVER_TITLE, im.getIcon(IconManager.SERVER), 
         			serverProfile);
+        tabs.addTab(DISK_TITLE, im.getIcon(IconManager.DISK_SPACE), diskSpace);
         tabs.addChangeListener(new ChangeListener() {
 		
 			public void stateChanged(ChangeEvent e) {
-				int index = tabs.getSelectedIndex();
-				if (index == 1) {
-					serverProfile.setVisible(true);
-					serverProfile.initFocus();
-					//serverProfile.requestFocus();
+				
+				switch (tabs.getSelectedIndex()) {
+					case 1:
+						serverProfile.setVisible(true);
+						serverProfile.initFocus();
+						break;
+					case 2:
+						controller.getDiskSpace();
+						diskSpace.buildGUI();
 				}
 			}
 		
@@ -234,6 +246,17 @@ class ProfileEditorUI
         	titleLayer.remove(component);
             titleLayer.repaint();
         }
+	}
+	
+	/**
+	 * Sets the free and used disk space on the file system.
+	 * 
+	 * @param free 	The free space on the file system.
+	 * @param used	The used space on the file system.
+	 */
+	void setDiskSpace(long free, long used)
+	{
+		diskSpace.buildGraph(used, free);
 	}
 	
     /**

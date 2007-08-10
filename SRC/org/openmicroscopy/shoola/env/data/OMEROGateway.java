@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import ome.api.IAdmin;
 import ome.api.IPojos;
 import ome.api.IQuery;
+import ome.api.IRepositoryInfo;
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
@@ -292,33 +293,38 @@ class OMEROGateway
         else throw new IllegalArgumentException("NodeType not supported");
     }
     
+    public IRepositoryInfo getRepositoryService()
+    {
+    	return entry.getRepositoryInfoService();
+    }
+    
     /**
      * Returns the {@link IPojos} service.
      * 
      * @return See above.
      */
-    private IPojos getIPojosService() { return entry.getPojosService(); }
+    private IPojos getPojosService() { return entry.getPojosService(); }
     
     /**
      * Returns the {@link IQuery} service.
      *  
      * @return See above.
      */
-    private IQuery getIQueryService() { return entry.getQueryService(); }
+    private IQuery getQueryService() { return entry.getQueryService(); }
     
     /**
      * Returns the {@link IUpdate} service.
      *  
      * @return See above.
      */
-    private IUpdate getIUpdateService() { return entry.getUpdateService(); }
+    private IUpdate getUpdateService() { return entry.getUpdateService(); }
     
     /**
      * Returns the {@link IAdmin} service.
      * 
      * @return See above.
      */
-    private IAdmin getIAdmin() { return entry.getAdminService(); }
+    private IAdmin getAdmin() { return entry.getAdminService(); }
     
     /**
      * Returns the {@link ThumbnailStore} service.
@@ -464,7 +470,7 @@ class OMEROGateway
         throws DSOutOfServiceException
     {
         try {
-            IPojos service = getIPojosService();
+            IPojos service = getPojosService();
             Set<String> set = new HashSet<String>(1);
             set.add(name);
             Map m = PojoMapper.asDataObjects(service.getUserDetails(set, 
@@ -544,7 +550,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            IPojos service = getIPojosService();
+            IPojos service = getPojosService();
             Set s = new HashSet();
             Iterator j = s.iterator();
             return PojoMapper.asDataObjects(service.loadContainerHierarchy(
@@ -581,7 +587,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            IPojos service = getIPojosService();
+            IPojos service = getPojosService();
             return PojoMapper.asDataObjects(service.findContainerHierarchies(
                             convertPojos(rootNodeType), leavesIDs, options));
         } catch (Throwable t) {
@@ -624,7 +630,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            IPojos service = getIPojosService();
+            IPojos service = getPojosService();
             return PojoMapper.asDataObjects(
                     service.findAnnotations(convertPojos(nodeType), nodeIDs, 
                             annotatorIDs, options));
@@ -672,7 +678,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            IPojos service = getIPojosService();
+            IPojos service = getPojosService();
             return PojoMapper.asDataObjects(service.findCGCPaths(imgIDs, 
                                     mapAlgorithmToString(algorithm),
                                     options));
@@ -703,7 +709,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            IPojos service = getIPojosService();
+            IPojos service = getPojosService();
             return PojoMapper.asDataObjects(
                    service.getImages(convertPojos(nodeType), nodeIDs, options));
         } catch (Throwable t) {
@@ -728,7 +734,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            IPojos service = getIPojosService();
+            IPojos service = getPojosService();
             return PojoMapper.asDataObjects(service.getUserImages(options));
         } catch (Throwable t) {
             handleException(t, "Cannot find user images.");
@@ -758,7 +764,7 @@ class OMEROGateway
     	throws DSOutOfServiceException, DSAccessException
 	{
         try {
-            IPojos service = getIPojosService();
+            IPojos service = getPojosService();
             String p = convertProperty(rootNodeType, property);
             if (p == null) return null;
             return PojoMapper.asDataObjects(service.getCollectionCount(
@@ -785,7 +791,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            IPojos service = getIPojosService();
+            IPojos service = getPojosService();
             return service.createDataObject(object, options);
         } catch (Throwable t) {
             handleException(t, "Cannot update the object.");
@@ -808,7 +814,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            IPojos service = getIPojosService();
+            IPojos service = getPojosService();
             IObject[] results = service.createDataObjects(objects, options);
             return results;
         } catch (Throwable t) {
@@ -830,7 +836,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            IUpdate service = getIUpdateService();
+            IUpdate service = getUpdateService();
             service.deleteObject(object);
         } catch (Throwable t) {
             handleException(t, "Cannot delete the object.");
@@ -851,7 +857,7 @@ class OMEROGateway
     {
         try {
             //IPojos service = getIPojosService();
-            IUpdate service = getIUpdateService();
+            IUpdate service = getUpdateService();
             for (int i = 0; i < objects.length; i++) {
                 service.deleteObject(objects[i]);
             }
@@ -875,7 +881,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            IPojos service = getIPojosService();
+            IPojos service = getPojosService();
             return service.updateDataObject(object, options);
         } catch (Throwable t) {
             handleException(t, "Cannot update the object.");
@@ -899,7 +905,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            IPojos service = getIPojosService();
+            IPojos service = getPojosService();
             return service.updateDataObjects(objects, options);
         } catch (Throwable t) {
             handleException(t, "Cannot update the object.");
@@ -920,7 +926,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            IQuery service = getIQueryService();
+            IQuery service = getQueryService();
             Pixels pixs = service.get(Pixels.class, pixelsID);
             return (PixelsDimensions) service.get(PixelsDimensions.class,
                     pixs.getPixelsDimensions().getId().longValue());
@@ -944,7 +950,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            IQuery service = getIQueryService();
+            IQuery service = getQueryService();
             Pixels pixs = (Pixels) service.findByQuery(
                     "select p from Pixels as p " +
                     "left outer join fetch p.pixelsType as pt " +
@@ -973,7 +979,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            IQuery service = getIQueryService();
+            IQuery service = getQueryService();
             Pixels pixs = (Pixels) service.findByQuery(
                     "select p from Pixels as p " +
                     "left outer join fetch p.pixelsType as pt " +
@@ -1096,7 +1102,7 @@ class OMEROGateway
             if (table == null) return null;
             String sql = "select link from "+table+" as link where " +
                     "link.parent.id = :parentID and link.child.id = :childID";
-            IQuery service = getIQueryService();
+            IQuery service = getQueryService();
             Parameters param = new Parameters();
             param.addLong("parentID", parent.getId());
             param.addLong("childID", child.getId());
@@ -1128,7 +1134,7 @@ class OMEROGateway
             String sql = "select link from "+table+" as link where " +
                     "link.parent.id = :parentID and link.child.id in " +
                     "(:childIDs)";
-            IQuery service = getIQueryService();
+            IQuery service = getQueryService();
             Parameters param = new Parameters();
             param.addLong("parentID", parent.getId());
             param.addList("childIDs", children);
@@ -1153,7 +1159,7 @@ class OMEROGateway
     	throws DSOutOfServiceException, DSAccessException
     {
     	 try {
-             IQuery service = getIQueryService();
+             IQuery service = getQueryService();
              return service.find(o.getClass(), o.getId().longValue());
          } catch (Throwable t) {
              handleException(t, "Cannot retrieve the requested object with "+
@@ -1176,7 +1182,7 @@ class OMEROGateway
     	throws DSOutOfServiceException, DSAccessException
     {
     	 try {
-             IQuery service = getIQueryService();
+             IQuery service = getQueryService();
              return service.find(klass, id);
          } catch (Throwable t) {
              handleException(t, "Cannot retrieve the requested object with "+
@@ -1196,7 +1202,7 @@ class OMEROGateway
     	throws DSOutOfServiceException, DSAccessException
     {
     	try {
-			IAdmin service = getIAdmin();
+			IAdmin service = getAdmin();
 			List<ExperimenterGroup> groups = service.lookupGroups();
 			Iterator i = groups.iterator();
 			ExperimenterGroup group;
@@ -1235,7 +1241,7 @@ class OMEROGateway
     	throws DSOutOfServiceException, DSAccessException
     {
     	
-    	IQuery service = getIQueryService();
+    	IQuery service = getQueryService();
     	List files = null;
     	try {
     		files = service.findAllByQuery(
@@ -1303,7 +1309,7 @@ class OMEROGateway
 	void changePassword(String userName, String password)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IAdmin service = getIAdmin();
+		IAdmin service = getAdmin();
 		try {
 			service.changePassword(password);
 			resetFactory(userName, password);
@@ -1323,7 +1329,7 @@ class OMEROGateway
 	void updateExperimenter(Experimenter exp) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IAdmin service = getIAdmin();
+		IAdmin service = getAdmin();
 		try {
 			service.updateSelf(exp);
 		} catch (Throwable t) {
@@ -1351,13 +1357,56 @@ class OMEROGateway
 		RawPixelsStore service = getPixelsStore();
 		try {
 			service.setPixelsId(pixelsID);
-			
 			return service.getPlane(z, c, t);
 		} catch (Throwable e) {
 			handleException(e, "Cannot retrieve the plane " +
 					"(z="+z+", t="+t+", c="+c+") for pixelsID: "+pixelsID);
 		}
 		return null;
+	}
+	
+	/**
+	 * Returns the free or available space (in Kilobytes) on the file system
+	 * including nested subdirectories.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+	 */
+	long getFreeSpace()
+		throws DSOutOfServiceException, DSAccessException
+	{
+		IRepositoryInfo service = getRepositoryService();
+		try {
+			return service.getFreeSpaceInKilobytes();
+		} catch (Throwable e) {
+			handleException(e, "Cannot retrieve the free space");
+		}
+		return -1;
+	}
+	
+	/**
+	 * Returns the used space (in Kilobytes) on the file system
+	 * including nested subdirectories.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+	 */
+	long getUsedSpace()
+		throws DSOutOfServiceException, DSAccessException
+	{
+		IRepositoryInfo service = getRepositoryService();
+		try {
+			return service.getUsedSpaceInKilobytes();
+		} catch (Throwable e) {
+			handleException(e, "Cannot retrieve the free space");
+		}
+		return -1;
 	}
 	
 }

@@ -34,7 +34,6 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -384,5 +383,13 @@ public interface DataManagerView
 	 */
 	public CallHandle updateExperimenter(ExperimenterData exp, 
 										AgentEventListener observer);
+	
+	/**
+	 * Loads the used and free disk space.
+	 * 
+	 * @param observer	Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle getDiskSpace(AgentEventListener observer);
 	
 }

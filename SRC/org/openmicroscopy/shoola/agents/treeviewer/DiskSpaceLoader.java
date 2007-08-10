@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.PasswordEditor 
+ * org.openmicroscopy.shoola.agents.treeviewer.DiskSpaceLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -23,8 +23,8 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 
-
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
@@ -33,8 +33,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * Modifies the password of the logged-in user.
- * This class calls the <code>changePassword</code> in the
+ * Retrieves the available and used disk space.
+ * This class calls the <code>getDiskSpace</code> in the
  * <code>DataManagerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -47,47 +47,31 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * </small>
  * @since OME3.0
  */
-public class PasswordEditor 
+public class DiskSpaceLoader
 	extends ProfileEditorLoader
 {
 
-    /** Handle to the async call so that we can cancel it. */
+	/** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
-    
-    /** The password used to log in. */
-    private String		oldPassword;
-    
-    /** The new password. */
-    private String		newPassword;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer		The viewer this data loader is for.
-     *                  	Mustn't be <code>null</code>.
-     * @param oldPassword	The logged in password. 
-     * 						Mustn't be <code>null</code>.
-     * @param newPassword	The new password. Mustn't be <code>null</code>.
+     * @param viewer	The viewer this data loader is for.
+     *                  Mustn't be <code>null</code>.
      */
-	public PasswordEditor(ProfileEditor viewer, String oldPassword, 
-			String newPassword)
+	public DiskSpaceLoader(ProfileEditor viewer)
 	{
 		super(viewer);
-		if (oldPassword == null)
-			throw new IllegalArgumentException("Password not valid.");
-		if (newPassword == null)
-			throw new IllegalArgumentException("Password not valid.");
-		this.oldPassword = oldPassword;
-		this.newPassword = newPassword;
 	}
-
-    /**
-     * Modifies the password.
+	
+	/**
+     * Loads the used and free space.
      * @see ProfileEditorLoader#load()
      */
 	public void load()
 	{
-		handle = dmView.changePassword(oldPassword, newPassword, this);
+		handle = dmView.getDiskSpace(this);
 	}
 	
     /**
@@ -103,7 +87,10 @@ public class PasswordEditor
     public void handleResult(Object result)
     {
         if (viewer.getState() == ProfileEditor.DISCARDED) return;  //Async cancel.
-        viewer.passwordChanged((Boolean) result);
+        List l = (List) result;
+        if (l.size() != 2) return;
+        viewer.setDiskSpace(((Long) l.get(0)).longValue(), 
+        					((Long) l.get(1)).longValue());
     }
     
 }

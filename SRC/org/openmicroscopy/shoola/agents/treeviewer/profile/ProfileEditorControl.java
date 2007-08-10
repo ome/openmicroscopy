@@ -118,6 +118,12 @@ class ProfileEditorControl
 	void close() { model.close(); }
 	
 	/**
+	 * Forwards call to {@link ProfileEditor} to retrieve the used 
+	 * and free disk space.
+	 */
+	void getDiskSpace() { model.getDiskSpace(); }
+	
+	/**
 	 * Reacts to state changes in the {@link ProfileEditor}.
      * @see ChangeListener#stateChanged(ChangeEvent)
 	 */
@@ -146,6 +152,5 @@ class ProfileEditorControl
 			view.showMessage(true, (JComponent) evt.getNewValue());
 		}
 	}
-
 	
 }

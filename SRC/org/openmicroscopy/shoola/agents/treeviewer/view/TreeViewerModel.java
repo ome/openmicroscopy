@@ -53,6 +53,8 @@ import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorFactory;
 import org.openmicroscopy.shoola.agents.util.classifier.view.ClassifierFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
+
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -740,7 +742,7 @@ class TreeViewerModel
     	currentLoader = new AdminLoader(component);
     	currentLoader.load();
     }
-
+    
     /**
      * Sets the available user groups.
      * 
