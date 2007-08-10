@@ -50,12 +50,6 @@ abstract class RenderingStrategy {
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(RenderingStrategy.class);
     
-    /** An integer buffer to render data into. */
-    private RGBIntBuffer cachedIntBuffer;
-    
-    /** An RGB buffer to render data into. */
-    private RGBBuffer cachedRgbBuffer;
-    
     /** The rendering context. */
     protected Renderer renderer;
     
@@ -74,8 +68,8 @@ abstract class RenderingStrategy {
     protected int sizeX2;
     
     /**
-     * Returns a cached RGB buffer for usage. Note that the buffer is zeroed
-     * out upon each call. Should only be called within the context of a
+     * Returns an RGB buffer for usage. Note that the buffer is reallocated
+     * upon each call. Should only be called within the context of a
      * "render" operation as it requires a {@link renderer}.
      * @return See above.
      */
@@ -83,16 +77,14 @@ abstract class RenderingStrategy {
 	{
     	RenderingStats stats = renderer.getStats();
     	stats.startMalloc();
-		if (cachedRgbBuffer == null)
-			cachedRgbBuffer = new RGBBuffer(sizeX1, sizeX2);
-		cachedRgbBuffer.zero();
+    	RGBBuffer buf = new RGBBuffer(sizeX1, sizeX2);
 		stats.endMalloc();
-		return cachedRgbBuffer;
+		return buf;
 	}
 
     /**
-     * Returns a cached RGB integer buffer for usage. Note that the buffer is
-     * zeroed out upon each call. Should only be called within the context of
+     * Returns an RGB integer buffer for usage. Note that the buffer is
+     * reallocated upon each call. Should only be called within the context of
      * a "render" operation as it requires a {@link renderer}.
      * @return See above.
      */
@@ -100,11 +92,9 @@ abstract class RenderingStrategy {
     {
     	RenderingStats stats = renderer.getStats();
     	stats.startMalloc();
-    	if (cachedIntBuffer == null)
-    		cachedIntBuffer = new RGBIntBuffer(sizeX1, sizeX2);
-    	cachedIntBuffer.zero();
+    	RGBIntBuffer buf =  new RGBIntBuffer(sizeX1, sizeX2);
     	stats.endMalloc();
-    	return cachedIntBuffer;
+    	return buf;
     }
 
     /**
