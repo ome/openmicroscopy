@@ -8,30 +8,7 @@
 package ome.security;
 
 // Java imports
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-
-import javax.naming.AuthenticationException;
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
-
-// Third-party libraries
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
-import net.sf.ldaptemplate.support.DistinguishedName;
-
-// Application-internal dependencies
-import ome.api.IAdmin;
-import ome.api.ILdap;
-import ome.api.local.LocalAdmin;
-import ome.api.local.LocalLdap;
-import ome.model.meta.Experimenter;
-import ome.system.OmeroContext;
-import ome.system.Principal;
-import ome.system.Roles;
-import ome.system.ServiceFactory;
 
 /**
  * Static methods for dealing with LDAP (DN) and the

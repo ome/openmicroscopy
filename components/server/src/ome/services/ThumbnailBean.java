@@ -19,7 +19,6 @@ import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.List;
 
@@ -34,30 +33,17 @@ import javax.ejb.Remove;
 import javax.ejb.Stateful;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
 import javax.interceptor.Interceptors;
-// Third-party libraries
-import org.springframework.transaction.annotation.Transactional;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.security.SecurityDomain;
-
+import ome.api.ICompress;
 import ome.api.IRepositoryInfo;
 import ome.api.IScale;
-import ome.api.ThumbnailStore;
 import ome.api.ServiceInterface;
+import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
 import ome.io.nio.ThumbnailService;
 import ome.logic.AbstractLevel2Service;
-import ome.logic.SimpleLifecycle;
 import ome.model.core.Pixels;
 import ome.model.display.Thumbnail;
 import ome.parameters.Parameters;
@@ -66,6 +52,14 @@ import ome.system.EventContext;
 import ome.system.SimpleEventContext;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jboss.annotation.ejb.LocalBinding;
+import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.security.SecurityDomain;
+import org.springframework.transaction.annotation.Transactional;
+
 import sun.awt.image.IntegerInterleavedRaster;
 
 /**
@@ -109,6 +103,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
 
     /** the disk space checking service */
     private transient IRepositoryInfo iRepositoryInfo;
+    
+    /** the disk space checking service */
+    private transient ICompress iCompress;
 
     /** is file service checking for disk overflow */
     private transient boolean diskSpaceChecking;
@@ -274,6 +271,18 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         getBeanHelper().throwIfAlreadySet(this.iRepositoryInfo, iRepositoryInfo);
         this.iRepositoryInfo = iRepositoryInfo;
     }
+    
+    /**
+     * Scale service Bean injector.
+     * 
+     * @param iCompress
+     *            an <code>ICompress</code>.
+     */
+    public void setICompress(ICompress iCompress) {
+        getBeanHelper().throwIfAlreadySet(this.iCompress, iCompress);
+        this.iCompress = iCompress;
+    }
+    
     /**
      * Creates a buffered image from a rendering engine RGB buffer without data
      * copying.
@@ -319,39 +328,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     }
 
     /**
-     * Compresses a buffered image thumbnail to an output stream.
-     * 
-     * @param image
-     *            the thumbnail's buffered image.
-     * @param outputStream
-     *            the stream to write to.
-     * @throws IOException
-     *             if there is a problem when writing to <i>stream<i>.
-     */
-    private void compressThumbnailToStream(BufferedImage image,
-            OutputStream outputStream) throws IOException {
-        // Get a JPEG image writer
-        ImageWriter jpegWriter =
-        	ImageIO.getImageWritersByFormatName("jpeg").next();
-
-        // Setup the compression value from (0.05, 0.75 and 0.95)
-        ImageWriteParam iwp = jpegWriter.getDefaultWriteParam();
-        iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-        iwp.setCompressionQuality(DEFAULT_COMPRESSION_QUALITY);
-
-        // Write the JPEG to our ByteArray stream
-    	ImageOutputStream imageOutputStream = null;
-        try {
-        	imageOutputStream = ImageIO.createImageOutputStream(outputStream);
-        	jpegWriter.setOutput(imageOutputStream);
-        	jpegWriter.write(null, new IIOImage(image, null, null), iwp);
-        } finally {
-        	if (imageOutputStream != null)
-        		imageOutputStream.close();
-        }
-    }
-
-    /**
      * Compresses a buffered image thumbnail to disk.
      * 
      * @param thumb
@@ -369,7 +345,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         }
 
         FileOutputStream stream = ioService.getThumbnailOutputStream(thumb);
-        compressThumbnailToStream(image, stream);
+        iCompress.compressThumbnailToStream(image, stream);
         stream.close();
     }
 
@@ -631,7 +607,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         BufferedImage image = createScaledImage(sizeX, sizeY);
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try {
-            compressThumbnailToStream(image, byteStream);
+            iCompress.compressThumbnailToStream(image, byteStream);
             byte[] thumbnail = byteStream.toByteArray();
             return thumbnail;
         } catch (IOException e) {

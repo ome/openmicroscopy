@@ -178,7 +178,6 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
 	@RolesAllowed("system")
 	public Experimenter searchByDN(DistinguishedName dn) {
-		Experimenter exp = new Experimenter();
 		return (Experimenter) ldapTemplate
 				.lookup(dn, new PersonContextMapper());
 	}
@@ -445,7 +444,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 			env = (Hashtable<String, String>) ctx.getReadOnlyContext()
 					.getEnvironment();
 
-			if (username != "" && username != null) {
+			if (!username.equals("") && username != null) {
 				env.put(Context.SECURITY_PRINCIPAL, username);
 				if (password != null)
 					env.put(Context.SECURITY_CREDENTIALS, password);

@@ -31,7 +31,7 @@ public class LdapTest extends AbstractManagedContextTest {
 		loginRoot();
 
 		List<String> l = iLdap.searchDnInGroups("member",
-				"cn=jburel, ou=edir, ou=people, ou=lifesci, o=dundee");
+				"cn=jsmith, ou=example, ou=domain, o=com");
 		for (String s : l) {
 			System.out.println(s);
 		}
@@ -43,7 +43,7 @@ public class LdapTest extends AbstractManagedContextTest {
 		loginRoot();
 
 		List<Experimenter> exps = iLdap.searchByAttribute(
-				DistinguishedName.EMPTY_PATH, "sn", "Tarkowska");
+				DistinguishedName.EMPTY_PATH, "sn", "Smith");
 		for (Experimenter e : exps) {
 			System.out.println(e.getOmeName());
 		}
@@ -59,7 +59,7 @@ public class LdapTest extends AbstractManagedContextTest {
 		attrs[1] = "gidNumber";
 		String[] vals = new String[2];
 		vals[0] = "person";
-		vals[1] = "1614";
+		vals[1] = "1111";
 
 		List<Experimenter> exps = iLdap.searchByAttributes(
 				DistinguishedName.EMPTY_PATH, attrs, vals);
@@ -69,7 +69,7 @@ public class LdapTest extends AbstractManagedContextTest {
 		}
 
 		DistinguishedName dn = new DistinguishedName(
-				"cn=atarkowska,ou=edir,ou=people");
+				"cn=jsmith,ou=example");
 		List<Experimenter> exps1 = iLdap.searchByAttributes(dn, attrs, vals);
 		System.out.println("size " + exps1.size());
 		for (Experimenter e : exps1) {
@@ -83,7 +83,7 @@ public class LdapTest extends AbstractManagedContextTest {
 		loginRoot();
 
 		DistinguishedName dn = new DistinguishedName(
-				"cn=atarkowska,ou=edir,ou=people");
+				"cn=atarkowska,ou=example");
 		Experimenter exp = iLdap.searchByDN(dn);
 		System.out.println("Experimenter: " + exp.getFirstName() + " "
 				+ exp.getLastName() + ", " + exp.getOmeName() + " "
@@ -95,13 +95,13 @@ public class LdapTest extends AbstractManagedContextTest {
 	public void testFindDN() throws Exception {
 		loginRoot();
 
-		DistinguishedName dn = iLdap.findDN("akrasowski");
+		DistinguishedName dn = iLdap.findDN("jsmith");
 		System.out.println("DN: " + dn.toString());
 
 		// should be created 2 the same cns on the subtree.
 		// should catch an exception
 		try {
-			iLdap.findDN("atarkowska");
+			iLdap.findDN("jsmith");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -122,14 +122,14 @@ public class LdapTest extends AbstractManagedContextTest {
 	@Test
 	public void testValidatePassword() throws Exception {
 		loginRoot();
-		System.out.println(iLdap.validatePassword("cn=atarkowska,ou=edir,ou=people,ou=lifesci,o=dundee", "123"));
+		System.out.println(iLdap.validatePassword("cn=jsmith,ou=example,ou=domain,o=com", "passwod"));
 		
 	}
 
 	@Test
 	public void testCreateUserFromLdap() throws Exception {
 		loginRoot();
-		System.out.println(iLdap.createUserFromLdap("atarkowska", "123"));
+		System.out.println(iLdap.createUserFromLdap("jsmith", "passwd"));
 		
 	}
 

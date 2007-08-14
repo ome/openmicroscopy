@@ -59,6 +59,7 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
     @Test(groups = { "ticket:410", "tickets:218", "broken" })
     public void testThumbnailsDirect() throws Exception {
 
+    	
         RenderingDef def = (RenderingDef) qs
                 .findAllByQuery(
                         "from RenderingDef where pixels.sizeX > 8 and pixels.sizeY > 8"
