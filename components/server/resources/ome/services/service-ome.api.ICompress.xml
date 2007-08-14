@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	# 
+	# $Id: service-ome.api.ICompress.xml 1167 2006-12-15 10:39:34Z jmoore $
+	# 
+	# Copyright 2006 University of Dundee. All rights reserved.
+	# Use is subject to license terms supplied in LICENSE.txt
+	#
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	# Written by:  Chris Allan <callan@blackcat.ca>
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<beans>
+
+	<bean singleton="false" parent="level2"
+		id="internal:ome.api.ICompress" class="ome.services.CompressBean">
+		<constructor-arg>
+			<value>true</value>
+		</constructor-arg>
+		<property name="ioService" ref="/OMERO/Thumbs" />
+		<property name="IRepositoryInfo"
+			ref="internal:ome.api.IRepositoryInfo" />
+	</bean>
+
+	<bean id="managed:ome.api.ICompress" parent="managedService">
+		<property name="proxyInterfaces" value="ome.api.ICompress" />
+		<property name="target" ref="internal:ome.api.ICompress" />
+	</bean>
+
+</beans>
+
