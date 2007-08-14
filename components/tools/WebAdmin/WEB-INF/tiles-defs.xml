@@ -24,11 +24,29 @@
 	</definition>
 
 	<definition name=".space" extends=".mainLayout">
-		<put name="title" value="Space" />
+		<put name="title" value="Drive Space" />
 		<put name="content" type="page"
 			value="/WEB-INF/pages/space.jsp" />
 	</definition>
+	
+	<definition name=".uploadFile" extends=".mainLayout">
+		<put name="title" value="Upload File" />
+		<put name="content" type="page"
+			value="/WEB-INF/pages/uploadFile.jsp" />
+	</definition>
+	
+	<definition name=".imports" extends=".mainLayout">
+		<put name="title" value="Imports" />
+		<put name="content" type="page"
+			value="/WEB-INF/pages/imports.jsp" />
+	</definition>
 
+	<definition name=".importForm" extends=".mainLayout">
+		<put name="title" value="Import Form" />
+		<put name="content" type="page"
+			value="/WEB-INF/pages/importForm.jsp" />
+	</definition>
+	
 	<definition name=".editInGroup" extends=".mainLayout">
 		<put name="title" value="Add to Group" />
 		<put name="content" type="page"

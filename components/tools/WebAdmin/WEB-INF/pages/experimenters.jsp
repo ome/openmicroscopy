@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
 <f:loadBundle basename="ome.admin.bundle.messages" var="msg" />
 
@@ -26,23 +26,25 @@
 
 				<h:column>
 					<f:facet name="header">
-						<h:outputText value=" #{msg.experimentersActions} " />
+						<h:outputText value="#{msg.experimentersActions}" />
 					</f:facet>
 					<h:commandLink action="#{IAEManagerBean.delExperimenter}"
 						onclick="if (!confirm('#{msg.experimentersConfirmation}')) return false"
 						title="#{msg.experimentersDelete}">
 						<h:graphicImage url="/images/del.png"
-							alt="#{msg.experimentersDelete}" />
+							alt="#{msg.experimentersDelete}" styleClass="action" />
 					</h:commandLink>
 					<h:commandLink action="#{IAEManagerBean.editExperimenter}"
 						title="#{msg.experimentersEdit}">
 						<h:graphicImage url="/images/edit.png"
-							alt="#{msg.experimentersEdit}" />
+							alt="#{msg.experimentersEdit}" styleClass="action" />
 					</h:commandLink>
 				</h:column>
 
 				<h:column>
+				
 					<f:facet name="header">
+					
 						<h:panelGroup>
 
 							<h:commandLink action="sortItems"
@@ -70,6 +72,7 @@
 					<h:outputText value="#{experimenter.lastName}, " />
 					<h:outputText value=" #{experimenter.firstName}" />
 					<h:outputText value=" #{experimenter.middleName}" />
+					
 				</h:column>
 
 				<h:column>

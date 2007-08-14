@@ -50,7 +50,7 @@ public class IAdminGroupController implements java.io.Serializable {
 	/**
 	 * log4j logger
 	 */
-	static Logger logger = Logger.getLogger(ConnectionDB.class.getName());
+	static Logger logger = Logger.getLogger(IAdminGroupController.class.getName());
 
 	/**
 	 * {@link ome.model.meta.ExperimenterGroup}

@@ -287,16 +287,17 @@ public class LoginBean implements java.io.Serializable{
 			logger.info("Authentication succesfule");
 			return jsfnav;
 		} catch (EJBAccessException e) {
-			logger.info("Authentication not succesfule - invalid log in params");
+			logger.info("Authentication not succesfule - invalid log in params:"+e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Invalid Login Params");
+			FacesMessage message = new FacesMessage("Invalid Login Params: "+e.getMessage());
 			context.addMessage("loginForm", message);
 			this.mode = false;
 			return "false";
 		} catch (Exception e) {
-			logger.info("Authentication not succesfule - connection failure");
+			logger.info("Authentication not succesfule - connection failure: "+e.getMessage());
+			e.printStackTrace();
 			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Connection failure");
+			FacesMessage message = new FacesMessage("Connection failure: "+e.getMessage());
 			context.addMessage("loginForm", message);
 			this.mode = false;
 			return "false";

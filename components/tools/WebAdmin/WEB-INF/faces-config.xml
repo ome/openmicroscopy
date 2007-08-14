@@ -15,6 +15,25 @@
 		</component-class>
 	</component>
 
+	<render-kit>
+		<render-kit-id>HTML_BASIC</render-kit-id>
+		<renderer>
+			<component-family>javax.faces.Command</component-family>
+			<renderer-type>javax.faces.Button</renderer-type>
+			<renderer-class>
+				org.apache.myfaces.renderkit.html.jsf.ExtendedHtmlButtonRenderer
+			</renderer-class>
+		</renderer>
+
+		<renderer>
+			<component-family>javax.faces.Command</component-family>
+			<renderer-type>javax.faces.Link</renderer-type>
+			<renderer-class>
+				org.apache.myfaces.renderkit.html.jsf.ExtendedHtmlLinkRenderer
+			</renderer-class>
+		</renderer>
+	</render-kit>
+
 	<lifecycle>
 		<phase-listener>
 			net.sf.jsfcomp.chartcreator.ChartListener
@@ -36,6 +55,36 @@
 			<supported-locale>pl</supported-locale>
 		</locale-config>
 	</application>
+
+	<!-- uploadFile.jsp navigation -->
+	<navigation-rule>
+		<from-view-id>/uploadFile.jsp</from-view-id>
+		<navigation-case>
+			<from-action>#{UploadBean.uploadFile}</from-action>
+			<from-outcome>success</from-outcome>
+			<to-view-id>/imports.jsp</to-view-id>
+		</navigation-case>
+	</navigation-rule>
+
+	<!-- imports.jsp navigation -->
+	<navigation-rule>
+		<from-view-id>/imports.jsp</from-view-id>
+		<navigation-case>
+			<from-action>#{TreeBean.selectedNode}</from-action>
+			<from-outcome>success</from-outcome>
+			<to-view-id>/importForm.jsp</to-view-id>
+		</navigation-case>
+	</navigation-rule>
+
+	<!-- importForm.jsp navigation -->
+	<navigation-rule>
+		<from-view-id>/importForm.jsp</from-view-id>
+		<navigation-case>
+			<from-action>#{TreeBean.saveItems}</from-action>
+			<from-outcome>success</from-outcome>
+			<to-view-id>/imports.jsp</to-view-id>
+		</navigation-case>
+	</navigation-rule>
 
 	<!-- groupForm.jsp navigation -->
 	<navigation-rule>
@@ -76,7 +125,7 @@
 			<to-view-id>/editInGroup.jsp</to-view-id>
 		</navigation-case>
 	</navigation-rule>
-	
+
 	<!-- editInGroup.jsp navigation -->
 	<navigation-rule>
 		<from-view-id>/editInGroup.jsp</from-view-id>
@@ -90,8 +139,8 @@
 			<from-outcome>false</from-outcome>
 			<to-view-id>/editInGroup.jsp</to-view-id>
 		</navigation-case>
-	</navigation-rule>		
-	
+	</navigation-rule>
+
 	<!-- experimenterForm.jsp navigation -->
 	<navigation-rule>
 		<from-view-id>/experimenterForm.jsp</from-view-id>
@@ -169,7 +218,9 @@
 			<to-view-id>/myAccount.jsp</to-view-id>
 		</navigation-case>
 		<navigation-case>
-			<from-action>#{IAMAManagerBean.changeMyPassword}</from-action>
+			<from-action>
+				#{IAMAManagerBean.changeMyPassword}
+			</from-action>
 			<from-outcome>success</from-outcome>
 			<to-view-id>/myPassword.jsp</to-view-id>
 		</navigation-case>
@@ -184,7 +235,7 @@
 			<to-view-id>/experimenters.jsp</to-view-id>
 		</navigation-case>
 	</navigation-rule>
-	
+
 	<!-- myPassword.jsp navigation -->
 	<navigation-rule>
 		<from-view-id>/myPassword.jsp</from-view-id>
@@ -203,7 +254,7 @@
 			<to-view-id>/myPassword.jsp</to-view-id>
 		</navigation-case>
 	</navigation-rule>
-	
+
 	<!-- IAGManagerBean -->
 	<managed-bean>
 		<description>
@@ -257,6 +308,24 @@
 			ome.admin.controller.IRepositoryInfoPieChartController
 		</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
+
+	<!-- UploadBean -->
+	<managed-bean>
+		<managed-bean-name>UploadBean</managed-bean-name>
+		<managed-bean-class>
+			ome.admin.controller.UploadController
+		</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
+
+	<!-- ImportConntroller -->
+	<managed-bean>
+		<managed-bean-name>TreeBean</managed-bean-name>
+		<managed-bean-class>
+			ome.admin.controller.ImportController
+		</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
 	</managed-bean>
 
 </faces-config>

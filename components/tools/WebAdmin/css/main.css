@@ -88,9 +88,12 @@ body {
 
 img {
 	border: 0px;
+	padding: 0px;
+	vertical-align: middle;
+}
+img.action {
 	padding-left: 3px;
 	padding-right: 3px;
-	vertical-align: middle;
 }
 
 a:link,a:visited {
@@ -176,9 +179,11 @@ h2 {
 
 table {
 	font-size: 12px;
-	text-align: center;
-	padding: 2px;
-	
+	text-align: center;	
+}
+
+p {
+	margin-left: 5px;
 }
 
 table.list {
@@ -187,42 +192,33 @@ table.list {
 
 td {
 	text-align: left;
-	padding: 2px;
-	padding-left: 20px;
+	padding: 0px;
 }
 td.link {
 	text-align: left;
-	padding-left: 20px;
-    border-bottom-width: 1px;
-	border-bottom-style: dashed;
-	border-bottom-color: #bbbbbb;
+	padding: 2px 2px 2px 20px;
+    border-bottom: 1px dashed #bbbbbb;
 }
 td.desc {
 	text-align: left;
-	padding-left: 20px;
-	border-bottom-width: 1px;
-	border-bottom-style: dashed;
-	border-bottom-color: #bbbbbb;
+	padding: 2px 2px 2px 20px;
+	border-bottom: 1px dashed #bbbbbb;
 }
 
 td.action {
 	text-align: center;
-	padding: 0px;
-	border-bottom-width: 1px;
-	border-bottom-style: dashed;
-	border-bottom-color: #bbbbbb;
+	border-bottom: 1px dashed #bbbbbb;
 }
 
 td.form {
 	text-align: left;
 	font-size: 12px;
-	padding-right: 30px;
+	padding:  2px 20px 2px 30px;
 }
 td.input {
 	text-align: left;
+	padding: 2px 2px 2px 20px;
 }
-
-
 
 th {
 	font-weight: bold;
@@ -234,3 +230,13 @@ th {
 	color: red;
 	text-decoration: overline;
 }
+
+.document
+{
+    text-decoration: none
+}
+.documentSelected
+{
+    font-weight: bold
+}
+

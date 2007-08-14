@@ -88,7 +88,7 @@ public class ConnectionDB {
 			queryService = lb.getQueryServices();
 			repService = lb.getRepServices();
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error("ConnectionDB exception: " + e.getMessage());
 
 		}
 	}
@@ -291,6 +291,10 @@ public class ConnectionDB {
 		logger.info("lookupGroupsAdd by user ID: " + userid + "'");
 		List<ExperimenterGroup> exgs = Collections.EMPTY_LIST;
 		exgs = filterAdd(adminService.lookupGroups());
+		for (ExperimenterGroup exg : exgs) {
+			logger.info("Group details [id: '" + exg.getId() + "', name: '"
+					+ exg.getName() + "'");
+		}
 		return exgs;
 	}
 
@@ -304,6 +308,10 @@ public class ConnectionDB {
 		logger.info("lookupGroups by user ID: " + userid + "'");
 		List<ExperimenterGroup> exgs = Collections.EMPTY_LIST;
 		exgs = filter(adminService.lookupGroups());
+		for (ExperimenterGroup exg : exgs) {
+			logger.info("Group details [id: '" + exg.getId() + "', name: '"
+					+ exg.getName() + "'");
+		}
 		return exgs;
 	}
 
@@ -316,6 +324,14 @@ public class ConnectionDB {
 		logger.info("lookupExperimenters by user ID: " + userid + "'");
 		List<Experimenter> exps = Collections.EMPTY_LIST;
 		exps = adminService.lookupExperimenters();
+		for (Experimenter exp : exps) {
+			logger.info("Experimenter details [id: '" + exp.getId()
+					+ "', Ome name: '" + exp.getOmeName() + "', email: '"
+					+ exp.getEmail() + "', First name: '" + exp.getFirstName()
+					+ "', Middle name: '" + exp.getMiddleName()
+					+ "', Last name: '" + exp.getLastName()
+					+ "', Institution: '" + exp.getInstitution() + "]");
+		}
 		return exps;
 	}
 
@@ -329,8 +345,13 @@ public class ConnectionDB {
 	public Experimenter lookupExperimenter(String omename) {
 		logger.info("lookupExperimenter by String '" + omename
 				+ "' by user ID: " + userid + "'");
-		Experimenter exp = new Experimenter();
-		exp = adminService.lookupExperimenter(omename);
+		Experimenter exp = adminService.lookupExperimenter(omename);
+		logger.info("Experimenter details [id: '" + exp.getId()
+				+ "', Ome name: '" + exp.getOmeName() + "', email: '"
+				+ exp.getEmail() + "', First name: '" + exp.getFirstName()
+				+ "', Middle name: '" + exp.getMiddleName() + "', Last name: '"
+				+ exp.getLastName() + "', Institution: '"
+				+ exp.getInstitution() + "]");
 		return exp;
 	}
 
@@ -344,8 +365,9 @@ public class ConnectionDB {
 	 */
 	public ExperimenterGroup getGroup(Long id) {
 		logger.info("getGroup by ID '" + id + "' by user ID: " + userid + "'");
-		ExperimenterGroup exg = new ExperimenterGroup();
-		exg = adminService.getGroup(id);
+		ExperimenterGroup exg = adminService.getGroup(id);
+		logger.info("Group details [id: '" + exg.getId() + "', name: '"
+				+ exg.getName() + "'");
 		return exg;
 	}
 
@@ -360,8 +382,10 @@ public class ConnectionDB {
 	public ExperimenterGroup getGroup(String name) {
 		logger.info("getGroup by String '" + name + "' by user ID: " + userid
 				+ "'");
-		ExperimenterGroup exg = new ExperimenterGroup();
-		exg = queryService.findByString(ExperimenterGroup.class, "name", name);
+		ExperimenterGroup exg = queryService.findByString(
+				ExperimenterGroup.class, "name", name);
+		logger.info("Group details [id: '" + exg.getId() + "', name: '"
+				+ exg.getName() + "'");
 		return exg;
 	}
 
@@ -423,7 +447,6 @@ public class ConnectionDB {
 
 	}
 
-
 	/**
 	 * Updates {@link ome.model.meta.Experimenter} only for himself
 	 * 
@@ -442,7 +465,7 @@ public class ConnectionDB {
 		adminService.updateSelf(experimenter);
 
 	}
-	
+
 	/**
 	 * Gets {@link ome.model.meta.Experimenter} details by
 	 * {@link ome.model.meta.Experimenter#getId()}
@@ -453,7 +476,14 @@ public class ConnectionDB {
 	 */
 	public Experimenter getExperimenter(Long id) {
 		logger.info("getExperimenter by user ID: '" + userid + "'");
-		return adminService.getExperimenter(id);
+		Experimenter exp = adminService.getExperimenter(id);
+		logger.info("Experimenter details [id: '" + exp.getId()
+				+ "', Ome name: '" + exp.getOmeName() + "', email: '"
+				+ exp.getEmail() + "', First name: '" + exp.getFirstName()
+				+ "', Middle name: '" + exp.getMiddleName() + "', Last name: '"
+				+ exp.getLastName() + "', Institution: '"
+				+ exp.getInstitution() + "]");
+		return exp;
 	}
 
 	/**
@@ -601,6 +631,10 @@ public class ConnectionDB {
 				+ "' by user ID: '" + userid + "'");
 		ExperimenterGroup[] exgs = filter(adminService
 				.containedGroups(experimenterId));
+		for (int i = 0; i < exgs.length; i++) {
+			logger.info("Group details [id: '" + exgs[i].getId() + "', name: '"
+					+ exgs[i].getName() + "'");
+		}
 		return exgs;
 	}
 
@@ -616,6 +650,14 @@ public class ConnectionDB {
 		logger.info("containedExperimenters by ID: '" + groupId
 				+ "' by user ID: '" + userid + "'");
 		Experimenter[] exps = adminService.containedExperimenters(groupId);
+		for (int i = 0; i < exps.length; i++) {
+			logger.info("Experimenter details [Ome name: '"
+					+ exps[i].getOmeName() + "', email: '" + exps[i].getEmail()
+					+ "', First name: '" + exps[i].getFirstName()
+					+ "', Middle name: '" + exps[i].getMiddleName()
+					+ "', Last name: '" + exps[i].getLastName()
+					+ "', Institution: '" + exps[i].getInstitution() + "]");
+		}
 		return exps;
 	}
 
@@ -633,10 +675,10 @@ public class ConnectionDB {
 				+ "' by user ID: '" + userid + "'");
 		ExperimenterGroup[] exg = adminService.containedGroups(experimenterId);
 		List<ExperimenterGroup> groups = Arrays.asList(exg);
-		for (int i = 0; i < groups.size(); i++) {
-			logger.info("ContainedGroup " + i + " details[id: '"
-					+ groups.get(i).getId() + "', name: '"
-					+ groups.get(i).getName() + "']");
+		for (ExperimenterGroup group : groups) {
+			logger.info("Group details[id: '"
+					+ group.getId() + "', name: '"
+					+ group.getName() + "']");
 		}
 		return groups;
 
@@ -656,6 +698,10 @@ public class ConnectionDB {
 				+ "' by user ID: '" + userid + "'");
 		ExperimenterGroup[] exgs = filterMy(adminService
 				.containedGroups(experimenterId));
+		for (int i = 0; i < exgs.length; i++) {
+			logger.info("Group details [id: '" + exgs[i].getId()
+					+ "', name: '" + exgs[i].getName() + "'");
+		}
 		return exgs;
 	}
 
@@ -773,8 +819,8 @@ public class ConnectionDB {
 	private ExperimenterGroup[] filter(ExperimenterGroup[] groups) {
 		List<ExperimenterGroup> filteredGroups = new ArrayList<ExperimenterGroup>();
 		for (int i = 0; i < groups.length; i++) {
-			if (//!groups[i].getName().equals("default") &&
-					!groups[i].getName().equals("user")
+			if (// !groups[i].getName().equals("default") &&
+			!groups[i].getName().equals("user")
 			// && !groups[i].getName().equals("system")
 			) {
 				filteredGroups.add(groups[i]);

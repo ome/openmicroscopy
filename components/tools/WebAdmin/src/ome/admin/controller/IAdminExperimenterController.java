@@ -11,6 +11,8 @@ package ome.admin.controller;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+//Third-party libraries
 import javax.faces.model.DataModel;
 import javax.faces.model.ListDataModel;
 import javax.faces.component.UIInput;
@@ -19,15 +21,11 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.faces.event.ActionEvent;
-
 import org.apache.log4j.Logger;
-
-// Third-party libraries
 
 // Application-internal dependencies
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.admin.data.ConnectionDB;
 import ome.admin.logic.IAdminExperimenterManagerDelegate;
 
 /**
@@ -51,7 +49,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	/**
 	 * log4j logger
 	 */
-	static Logger logger = Logger.getLogger(ConnectionDB.class.getName());
+	static Logger logger = Logger.getLogger(IAdminExperimenterController.class.getName());
 
 	/**
 	 * {@link ome.model.meta.Experimenter}.
@@ -275,7 +273,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	 * Gets {@link ome.model.meta.ExperimenterGroup#getId()} for choosing
 	 * {@link ome.model.meta.Experimenter}
 	 * 
-	 * @return Long not-null.
+	 * @return String not-null.
 	 */
 	public String getDefaultGroup() {
 		try {
@@ -500,7 +498,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
 
 	/**
 	 * Gets
-	 * {@link ome.admin.controller.IAdminExperimenterController#experimenter}
+	 * {@link ome.model.meta.Experimenter}
 	 * 
 	 * @return {@link ome.admin.controller.IAdminExperimenterController#experimenter}
 	 */
@@ -590,8 +588,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
 		try {
 			this.editMode = true;
 			this.experimenter = (Experimenter) experimenterModel.getRowData();
-			this.experimenter = (Experimenter) iadmin
-					.getExperimenterById(this.experimenter.getId());
+			//this.experimenter = (Experimenter) iadmin.getExperimenterById(this.experimenter.getId());
 			return "success";
 		} catch (Exception e) {
 			logger.error("editExperimenter: " + e.getMessage());
@@ -613,8 +610,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	public String delExperimenter() {
 		try {
 			this.experimenter = (Experimenter) experimenterModel.getRowData();
-			this.experimenter = (Experimenter) iadmin
-					.getExperimenterById(this.experimenter.getId());
+			//this.experimenter = (Experimenter) iadmin.getExperimenterById(this.experimenter.getId());
 			iadmin.deleteExperimenter(this.experimenter.getId());
 			this.experimenterModel.setWrappedData(iadmin.sortItems(sortItem,
 					sort));
@@ -703,6 +699,28 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	 *            {@link java.lang.Object}
 	 */
 	public void validateOmeName(FacesContext context, UIComponent toValidate,
+			Object value) {
+		String omeName = (String) value;
+		if (iadmin.checkExperimenter(omeName)
+				&& !omeName.equals(this.experimenter.getOmeName())) {
+			((UIInput) toValidate).setValid(false);
+			FacesMessage message = new FacesMessage("Username already exist");
+			context.addMessage(toValidate.getClientId(context), message);
+		}
+	}
+	
+	/**
+	 * Provides validaton for {@link ome.model.meta.Experimenter#getOmeName()}.
+	 * Cannot exist the same omeNames.
+	 * 
+	 * @param context
+	 *            {@link javax.faces.context.FacesContext}
+	 * @param toValidate
+	 *            {@link javax.faces.component.UIComponent}
+	 * @param value
+	 *            {@link java.lang.Object}
+	 */
+	public void validateUserType(FacesContext context, UIComponent toValidate,
 			Object value) {
 		String omeName = (String) value;
 		if (iadmin.checkExperimenter(omeName)

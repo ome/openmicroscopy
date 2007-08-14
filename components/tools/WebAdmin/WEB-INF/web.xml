@@ -3,6 +3,22 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee">
 
+	<!-- This will cause JBoss to ignore the built-in JSF implementation 
+		as long as you use the default classloader settings. Look on 
+		http://wiki.jboss.org/wiki/Wiki.jsp?page=JBoss5AndMyFaces -->
+	<context-param>
+		<param-name>
+			org.jboss.jbossfaces.WAR_BUNDLES_JSF_IMPL
+		</param-name>
+		<param-value>true</param-value>
+	</context-param>
+
+	<listener>
+		<listener-class>
+			org.apache.myfaces.webapp.StartupServletContextListener
+		</listener-class>
+	</listener>
+
 	<context-param>
 		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
 		<param-value>client</param-value>
@@ -70,7 +86,7 @@
 	<!-- Login form params -->
 	<context-param>
 		<param-name>defaultServerHost</param-name>
-		<param-value>warlock.openmicroscopy.org.uk</param-value>
+		<param-value>localhost</param-value>
 	</context-param>
 	<context-param>
 		<param-name>defaultServerPort</param-name>
@@ -83,21 +99,30 @@
 		<param-value>5</param-value>
 	</context-param>
 
-	<!-- Faces Servlet Mapping -->
+	<!-- StoreRepositoryPath params -->
+	<context-param>
+		<param-name>usersListsDir</param-name>
+		<param-value>/Users/Ola/J2EP/tmp/UsersLists</param-value>
+	</context-param>
+
+	<!-- Extensions Filter -->
 	<filter>
 		<filter-name>extensionsFilter</filter-name>
+		<!-- <filter-class>org.apache.myfaces.component.html.util.ExtensionsFilter</filter-class> -->
 		<filter-class>
 			org.apache.myfaces.webapp.filter.ExtensionsFilter
 		</filter-class>
 		<init-param>
+			<param-name>uploadMaxFileSize</param-name>
+			<param-value>100m</param-value>
 			<description>
 				Set the size limit for uploaded files. Format: 10 - 10
 				bytes 10k - 10 KB 10m - 10 MB 1g - 1 GB
 			</description>
-			<param-name>uploadMaxFileSize</param-name>
-			<param-value>100m</param-value>
 		</init-param>
 		<init-param>
+			<param-name>uploadThresholdSize</param-name>
+			<param-value>0</param-value>
 			<description>
 				Set the threshold size - files below this limit are
 				stored in memory, files above this limit are stored on
@@ -105,10 +130,23 @@
 
 				Format: 10 - 10 bytes 10k - 10 KB 10m - 10 MB 1g - 1 GB
 			</description>
-			<param-name>uploadThresholdSize</param-name>
-			<param-value>100k</param-value>
+		</init-param>
+		<init-param>
+			<param-name>uploadRepositoryPath</param-name>
+			<param-value>/Users/Ola/J2EP/tmp</param-value>
+			<description>
+				Set the path where the intermediary files will be
+				stored.
+			</description>
 		</init-param>
 	</filter>
+
+	<!-- Faces Servlet Mapping -->
+	<filter-mapping>
+		<filter-name>extensionsFilter</filter-name>
+		<url-pattern>/faces/myFacesExtensionResource/*</url-pattern>
+	</filter-mapping>
+
 	<filter-mapping>
 		<filter-name>extensionsFilter</filter-name>
 		<url-pattern>*.jsf</url-pattern>
@@ -144,13 +182,13 @@
 
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-	
+
 	<!-- Logout Servlet -->
 	<servlet>
 		<servlet-name>Logout</servlet-name>
 		<servlet-class>ome.admin.controller.Logout</servlet-class>
 	</servlet>
-	
+
 	<!-- Tails Servlet -->
 	<servlet>
 		<servlet-name>tiles</servlet-name>
@@ -181,7 +219,7 @@
 		<servlet-name>SourceCodeServlet</servlet-name>
 		<url-pattern>*.source</url-pattern>
 	</servlet-mapping>
-	
+
 	<!-- Logout Mapping -->
 	<servlet-mapping>
 		<servlet-name>Logout</servlet-name>

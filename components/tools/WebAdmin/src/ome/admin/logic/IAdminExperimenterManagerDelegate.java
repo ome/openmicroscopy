@@ -90,12 +90,13 @@ public class IAdminExperimenterManagerDelegate implements java.io.Serializable {
 	/**
 	 * {@link ome.admin.data.ConnectionDB}
 	 */
-	private ConnectionDB db = new ConnectionDB();
+	private ConnectionDB db;
 
 	/**
 	 * Creates a new instance of IAdminExperimenterManagerDelegate.
 	 */
 	public IAdminExperimenterManagerDelegate() {
+		db = new ConnectionDB();
 		getExperimenters();
 	}
 
@@ -276,6 +277,10 @@ public class IAdminExperimenterManagerDelegate implements java.io.Serializable {
 		
 		db.createExperimenter(experimenter, defaultGroup, others.toArray(new ExperimenterGroup[others.size()]));
 		// if(adminRole) db.setDefaultGroup(experimenter,db.getGroup("system"));
+	}
+	
+	public void createExperimenters(List<Experimenter> experimenters) {
+		
 	}
 
 	/**

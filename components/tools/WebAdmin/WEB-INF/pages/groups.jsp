@@ -33,13 +33,13 @@
 					<h:commandLink action="#{IAGManagerBean.editInGroup}"
 						title="#{msg.groupsEditIn}">
 						<h:graphicImage url="/images/editing.png"
-							alt="#{msg.groupsEditIn}" />
+							alt="#{msg.groupsEditIn}" styleClass="action" />
 					</h:commandLink>
 
 					<h:commandLink action="#{IAGManagerBean.editGroup}"
 						title="#{msg.groupsEditGroup}">
 						<h:graphicImage url="/images/edit.png"
-							alt="#{msg.groupsEditGroup}" />
+							alt="#{msg.groupsEditGroup}" styleClass="action" />
 					</h:commandLink>
 
 				</h:column>

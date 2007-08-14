@@ -46,7 +46,7 @@ public class IAdminMyAccountController implements java.io.Serializable {
 	/**
 	 * log4j logger
 	 */
-	static Logger logger = Logger.getLogger(ConnectionDB.class.getName());
+	static Logger logger = Logger.getLogger(IAdminMyAccountController.class.getName());
 	
     /**
      * {@link ome.model.meta.Experimenter}

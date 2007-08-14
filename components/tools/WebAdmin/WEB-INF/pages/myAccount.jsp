@@ -18,7 +18,7 @@
 				for="experimenterForm" />
 			<br />
 
-			<h:panelGrid columns="3" columnClasses="form">
+			<h:panelGrid columns="3" columnClasses="form, input">
 
 				<h:outputText value="#{msg.myaccountOmeName}" />
 
@@ -86,7 +86,7 @@
 					for="defaultGroup" />
 
 			</h:panelGrid>
-
+			<br/>
 			<h:commandButton id="submitUpdate"
 				action="#{IAMAManagerBean.updateExperimenter}"
 				value="#{msg.myaccountSave}" />
