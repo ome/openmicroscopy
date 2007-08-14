@@ -20,6 +20,14 @@
 	</listener>
 
 	<context-param>
+		<param-name>
+			net.sf.jsfcomp.chartcreator.USE_CHARTLET
+		</param-name>
+		<param-value>true</param-value>
+	</context-param>
+
+
+	<context-param>
 		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
 		<param-value>client</param-value>
 	</context-param>
@@ -189,6 +197,15 @@
 		<servlet-class>ome.admin.controller.Logout</servlet-class>
 	</servlet>
 
+	<!-- Chartlet Servlet -->
+	<servlet>
+		<servlet-name>Chartlet</servlet-name>
+		<servlet-class>
+			net.sf.jsfcomp.chartcreator.Chartlet
+		</servlet-class>
+	</servlet>
+
+
 	<!-- Tails Servlet -->
 	<servlet>
 		<servlet-name>tiles</servlet-name>
@@ -226,6 +243,12 @@
 		<url-pattern>/logout</url-pattern>
 	</servlet-mapping>
 
+	<!-- Chartlet Mapping -->
+	<servlet-mapping>
+		<servlet-name>Chartlet</servlet-name>
+		<url-pattern>*.chart</url-pattern>
+	</servlet-mapping>
+	
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 		<welcome-file>index.html</welcome-file>

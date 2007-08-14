@@ -6,15 +6,6 @@
 -->
 <faces-config xmlns="http://java.sun.com/JSF/Configuration">
 
-	<component>
-		<component-type>
-			net.sf.jsfcomp.chartcreator.UIChart
-		</component-type>
-		<component-class>
-			net.sf.jsfcomp.chartcreator.UIChart
-		</component-class>
-	</component>
-
 	<render-kit>
 		<render-kit-id>HTML_BASIC</render-kit-id>
 		<renderer>
@@ -33,12 +24,6 @@
 			</renderer-class>
 		</renderer>
 	</render-kit>
-
-	<lifecycle>
-		<phase-listener>
-			net.sf.jsfcomp.chartcreator.ChartListener
-		</phase-listener>
-	</lifecycle>
 
 	<converter>
 		<converter-id>SubstringConverter</converter-id>

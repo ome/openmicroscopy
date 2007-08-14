@@ -201,7 +201,7 @@ public class ConnectionDB {
 				rest += (Long) sortedArray[--i];
 			logger.info("rest of space is: '" + rest + "'");
 
-			map.put("Rest of used space", rest);
+			if(rest > 0L) map.put("Rest of used space", rest);
 			return map;
 
 		} catch (Exception e) {
