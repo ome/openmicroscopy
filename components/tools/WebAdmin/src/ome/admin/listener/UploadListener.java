@@ -24,7 +24,7 @@ import ome.admin.validator.FileValidator;
 import org.apache.log4j.Logger;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
-public class ImportListener implements ValueChangeListener {
+public class UploadListener implements ValueChangeListener {
 	
 	/**
 	 * log4j logger
