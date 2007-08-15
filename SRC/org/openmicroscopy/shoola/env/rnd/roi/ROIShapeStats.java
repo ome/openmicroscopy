@@ -59,10 +59,10 @@ public class ROIShapeStats
     //clients b/c these fields are read-only after the computation is done.
     
     /** The minimum value within the 2D-selection. */
-    double  							min;
+    double  							min = Double.MAX_VALUE;
     
     /** The maximum value within the 2D-selection. */
-    double  							max;
+    double  							max = Double.MIN_VALUE;
     
     /** The sum of all values within the 2D-selection. */
     double  							sum;  
@@ -160,8 +160,8 @@ public class ROIShapeStats
      */
 	public void update(double pixelValue, int z, int w, int t, PlanePoint2D loc)
 	{
-		if (pixelValue < min) min = pixelValue;
-        if (max < pixelValue) max = pixelValue;
+		min = Math.min(pixelValue,min);
+		max = Math.max(pixelValue,max);
         sum += pixelValue;
         sumOfSquares += pixelValue*pixelValue;
         pixelsValue.put(loc, new Double(pixelValue));

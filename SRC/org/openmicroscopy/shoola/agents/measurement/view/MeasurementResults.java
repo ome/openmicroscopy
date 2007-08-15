@@ -109,6 +109,9 @@ class MeasurementResults
 	/** The table displaying the results. */
 	private ResultsTable					results;
 	
+	/** The scroll pane for the results. */
+	private JScrollPane						scrollPane;
+	
 	/** Reference to the control. */
 	private MeasurementViewerControl		controller;
 	
@@ -174,7 +177,11 @@ class MeasurementResults
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout());
-		add(new JScrollPane(results), BorderLayout.CENTER);
+		scrollPane = new JScrollPane(results);
+		add(scrollPane, BorderLayout.CENTER);
+		scrollPane.setVerticalScrollBar(scrollPane.createVerticalScrollBar());
+		scrollPane.setHorizontalScrollBar(
+				scrollPane.createHorizontalScrollBar());
 		JPanel panel = new JPanel();
 		//panel.setLayout(new FlowLayout());
 		panel.add(resultsWizardButton);
@@ -541,6 +548,22 @@ class MeasurementResults
 		ResultsTable()
 		{
 			super();
+			setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			int columnWidth = 0;
+			FontMetrics metrics = getFontMetrics(getFont());
+			int w;
+			for(int i = 0 ; i < getColumnCount(); i++)
+			{
+				w =  metrics.stringWidth(columnNames.get(i));
+				columnWidth = Math.max(w, COLUMNWIDTH);
+				TableColumn col;
+				col = getColumnModel().getColumn(i);
+				col.setMinWidth(columnWidth);
+				col.setMaxWidth(columnWidth);
+				col.setPreferredWidth(columnWidth);
+				col.setResizable(true);
+			}
+		
 		}
 		
 		/**
