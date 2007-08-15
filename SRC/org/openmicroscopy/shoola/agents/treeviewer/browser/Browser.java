@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 
 //Java imports
-import java.awt.Component;
 import java.awt.Point;
 import java.util.List;
 import java.util.Map;
@@ -39,10 +38,10 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
-import pojos.ImageData;
 
 /** 
  * Defines the interface provided by the browser component.
@@ -155,16 +154,7 @@ public interface Browser
     /** 
      * The browser's title corresponding to {@link #IMAGES_EXPLORER} type.
      */
-    public static final String     IMAGES_TITLE = "Images";
-    
-    
-    /**
-     * Sets the filter type.
-     * 
-     * @param type The value to set.
-     */
-    void setFilterType(int type);
-    
+    public static final String     IMAGES_TITLE = "Images"; 
     
     /**
      * Sets the selected {@link TreeImageDisplay node}.
@@ -206,25 +196,17 @@ public interface Browser
     public JComponent getUI();
     
     /**
-     * Callback used by a data loader to set the nodes of the retrieved 
-     * hierarchy.
-     * 
-     * @param nodes The root nodes.
-     * @throws IllegalStateException If the current state is not 
-     *                               {@link #LOADING_DATA}.
-     */
-    public void setNodes(Set nodes);
-    
-    /**
      * Callback used by a data loader to set the leaves contained in the 
      * currently selected node.
      * 
      * @param leaves    The collection of leaves.
      * @param parent    The parent of the leaves.
+     * @param expNode	The experimenter the data belonged to.
      * @throws IllegalStateException If the current state is not 
      *                               {@link #LOADING_LEAVES}.
      */
-    public void setLeaves(Set leaves, TreeImageSet parent);
+    public void setLeaves(Set leaves, TreeImageSet parent, 
+    					TreeImageSet expNode);
     
     /** 
      * Returns the type of this browser.
@@ -311,52 +293,8 @@ public interface Browser
      */
     public void sortTreeNodes(int sortType);
     
-    /**
-     * Loads the hierachy e.g. <code>Project/Dataset</code>,
-     * <code>CategoryGroup/Category</code>.
-     */
-    public void loadData();
-    
-    /**
-     * Loads the images contained in the selected container.
-     * The user has to first select the container i.e. datasets or categories
-     * then the images are retrieved. 
-     */
-    public void loadFilteredImagesForHierarchy();
-    
-    /**
-     * Loads the children of the nodes specified by the collection 
-     * of <code>CategoryData</code> or <code>DatasetData</code>.
-     * 
-     * @param nodeIDs The collection of <code>DataObject</code>.
-     */
-    public void loadFilteredImageData(Set nodeIDs);
-
-    /**
-     * Retrieves the images contained in a <code>Dataset</code> or 
-     * <code>Category</code>.
-     */
-    public void loadLeaves();
-    
     /** Brings up on screen the popup menu. */
     public void showPopupMenu();   
-    
-    /**
-     * Sets the nodes retrieved using a filtering data loading.
-     * 
-     * @param nodes The collection of nodes to set.
-     * @param type	The type of filter used.
-     */
-    public void setFilterNodes(Set nodes, int type);
-    
-    /** 
-     * Brings up the <code>Filter menu</code> at the specified location 
-     * and for the specified component.
-     * 
-     * @param c The invoking component. 
-     * @param p The location.
-     */
-    public void showFilterMenu(Component c, Point p);
     
     /** 
      * Reloads children of the currently selected node and rebuilds
@@ -364,16 +302,6 @@ public interface Browser
      * if not, all the chidren are removed and there is no data loading.
      */
     public void refreshTree();
-    
-    /** 
-     * Adds the specified nodes to the currently selected
-     * {@link TreeImageDisplay}.
-     * 
-     * @param nodes 	Collection to set.
-     * @param parent 	The parent hosting the nodes if <code>null</code> the 
-     * 					nodes will be added to the root node.
-     */
-    public void setContainerNodes(Set nodes, TreeImageDisplay parent);
     
     /**
      * The id of the root level.
@@ -435,20 +363,6 @@ public interface Browser
      * @param op        The type of operation.
      */
     public void refreshEdition(DataObject object, int op);
-    
-    /**
-     *  
-     * Refreshes the nodes hosting the specified <code>DataObject</code>.
-     *
-     * @param images        The image classified or declassified. Mustn't 
-     *                      be <code>null</code>.
-     * @param categories    The categories the image was added to or 
-     *                      removed from. Mustn't be <code>null</code>.
-     * @param op            The type of operation i.e. classification or 
-     *                      declassification.
-     */
-    public void refreshClassification(ImageData[] images, Set categories,
-                                        int op);
 
     /**
      * Returns the images objects. This method should be invoked
@@ -462,7 +376,7 @@ public interface Browser
      * Sets the nodes as the selected nodes. Should only be 
      * <code>image</code> nodes.
      * 
-     * @param nodes             The nodes to set.
+     * @param nodes The nodes to set.
      */
     public void setSelectedDisplays(TreeImageDisplay[] nodes);
     
@@ -474,13 +388,6 @@ public interface Browser
      *          <code>false</code> otherwise.
      */
     public void onComponentStateChange(boolean b);
-    
-    /**
-     * Displays the main tree or go into a node.
-     * 
-     * @param v
-     */
-    public void navigate(boolean v);
 
     /**
      * Returns <code>true</code> if the browser is displayed on screen,
@@ -505,33 +412,9 @@ public interface Browser
      * @param expandedTopNodes  The expanded top nodes IDs.
      */
     public void setRefreshedHierarchy(Map set, Map expandedTopNodes);
-    
-    /**
-     * Returns <code>true</code> if the main tree is currently displayed
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    public boolean isMainTree();
 
     /** Shows the truncated name of the images or the full path. */
 	public void displaysImagesName();
-
-	/** 
-	 * Replaces the root node object.
-	 * 
-	 * @param experimenter The object to set.
-	 */
-	public void setRootNode(ExperimenterData experimenter);
-	
-	/**
-	 * Sets the filtered nodes to <code>null</code> when a new user is
-	 * selected.
-	 */
-	public void cleanFilteredNodes();
-	
-	/** Refreshes the tree when a new user is selected. */
-	public void switchUser();
 	
 	/**
 	 * Returns a collection of <code>DataObject</code> hosted by the
@@ -540,5 +423,45 @@ public interface Browser
 	 * @return See above.
 	 */ 
 	public List getSelectedDataObjects();
+
+	/**
+	 * Loads the data for the experimenter hosted by the specified node.
+	 * 
+	 * @param expNode 	The node hosting the experimenter. 
+	 * 					Mustn't be <code>null</code>.
+	 * @param node		The parent of the data. Pass <code>null</code>
+	 * 					to retrieve all data.
+	 */
+	public void loadExperimenterData(TreeImageDisplay expNode, 
+										TreeImageDisplay node);
+
+	/**
+	 * Adds the data to the passed experimenter node.
+	 * 
+	 * @param expNode	The experimenter node. Mustn't be <code>null</code>.
+	 * @param nodes		The nodes to add.
+	 */
+	public void setExperimenterData(TreeImageDisplay expNode, Set nodes);
+
+	/** 
+	 * Adds the passed experimenter to the display.
+	 * 
+	 * @param experimenter 	The experimenter to add. 
+	 * 						Mustn't be <code>null</code>.
+	 */
+	public void addExperimenter(ExperimenterData experimenter);
+
+	/**
+	 * Removes the experimenter's data from the display.
+	 * 
+	 * @param exp The experimenter to remove. Mustn't be <code>null</code>.
+	 */
+	public void removeExperimenter(ExperimenterData exp);
+
+	
+	public void refreshExperimenterData();
+	
+	public void setRefreshExperimenterData(
+					Map<Long, RefreshExperimenterDef> def);
 	
 }

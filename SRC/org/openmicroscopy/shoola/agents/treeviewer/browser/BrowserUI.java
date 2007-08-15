@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -40,6 +39,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -62,7 +62,6 @@ import javax.swing.tree.TreeSelectionModel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterMenuAction;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
@@ -86,9 +85,9 @@ class BrowserUI
     extends JPanel
 {
     
-	 /** The text of the dummy default node. */
+	/** The text of the dummy default node. */
     private static final String     LOADING_MSG = "Loading...";
-    
+	
     /** 
      * The text of the node added to a {@link TreeImageSet} node
      * containing no element.
@@ -149,13 +148,7 @@ class BrowserUI
         menuBar.setBorder(null);
         menuBar.setRollover(true);
         menuBar.setFloatable(false);
-        JButton button = new JButton(
-                controller.getAction(BrowserControl.BACKWARD_NAV));
-        button.setBorderPainted(false);
-        //menuBar.add(button);
-        button = new JButton(controller.getAction(BrowserControl.FORWARD_NAV));
-        //menuBar.add(button);
-        //menuBar.add(new JSeparator(SwingConstants.VERTICAL));
+       
         ButtonGroup group = new ButtonGroup();
         JToggleButton b = new JToggleButton();
         group.add(b);
@@ -174,15 +167,9 @@ class BrowserUI
         				controller.getAction(BrowserControl.PARTIAL_NAME));
         partialButton.setBorderPainted(true);
         menuBar.add(partialButton);
-        
-        button = new JButton(controller.getAction(BrowserControl.FILTER_MENU));
-        button.addMouseListener((FilterMenuAction) 
-                            controller.getAction(BrowserControl.FILTER_MENU));
-        button.setBorderPainted(false);
-        if (model.getBrowserType() == Browser.IMAGES_EXPLORER)
-        	menuBar.add(button);
         menuBar.add(new JSeparator(JSeparator.VERTICAL));
-        button = new JButton(controller.getAction(BrowserControl.COLLAPSE));
+        JButton button = new JButton(
+        			controller.getAction(BrowserControl.COLLAPSE));
         button.setBorderPainted(false);
         menuBar.add(button);
     }
@@ -247,6 +234,59 @@ class BrowserUI
     								TreeViewer.PROPERTIES_EDITOR);
     }
     
+    /**
+     * Creates an experimenter node hosting the passed experimenter.
+     * 
+     * @param exp	The experimenter to add.
+     * @return See above.
+     */
+    private TreeImageSet createExperimenterNode(ExperimenterData exp)
+    {
+    	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+    	TreeImageSet node = new TreeImageSet(exp);
+    	if (model.getBrowserType() == Browser.IMAGES_EXPLORER) {
+    		createTimeElements(node);
+    	} else buildEmptyNode(node);
+    	TreeImageDisplay root = getTreeRoot();
+    	root.addChildDisplay(node);
+    	tm.insertNodeInto(node, root, root.getChildCount());
+    	return node;
+    }
+    
+    /**
+     * Creates the smart folders added to the passed node.
+     * 
+     * @param parent	The parent of the smart folder.
+     */
+    private void createTimeElements(TreeImageSet parent)
+    {
+    	createTimeNode(TreeImageTimeSet.WEEK, parent);
+		createTimeNode(TreeImageTimeSet.TWO_WEEK, parent);
+    	createTimeNode(TreeImageTimeSet.YEAR, parent);
+    	createTimeNode(TreeImageTimeSet.YEAR_BEFORE, parent);
+    	createTimeNode(TreeImageTimeSet.OTHER, parent);
+    	parent.setChildrenLoaded(true);
+    }
+    
+    /**
+     * Creates and returns a {@link TreeImageTimeSet}.
+     * 
+     * @param index 	One of the following constants: 
+     * 					{@link TreeImageTimeSet#YEAR} or 
+     * 					{@link TreeImageTimeSet#WEEK}
+     * @param parent	The parent of the new node.
+     * @return See above.
+     */
+    private TreeImageTimeSet createTimeNode(int index, TreeImageSet parent)
+    {
+    	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+    	TreeImageTimeSet date = new TreeImageTimeSet(index);
+    	buildEmptyNode(date);
+    	parent.addChildDisplay(date);
+    	tm.insertNodeInto(date, parent, parent.getChildCount());
+    	return date;
+    }
+    
     /** 
      * Helper method to create the trees hosting the display. 
      * 
@@ -256,6 +296,7 @@ class BrowserUI
     {
         treeDisplay = new JTree();
         treeDisplay.setVisible(true);
+        treeDisplay.setRootVisible(false);
         ToolTipManager.sharedInstance().registerComponent(treeDisplay);
         treeDisplay.setCellRenderer(new TreeCellRenderer());
         treeDisplay.setShowsRootHandles(true);
@@ -264,13 +305,18 @@ class BrowserUI
                 TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         
         TreeImageSet root = new TreeImageSet("");
+        /*
         if (exp != null) root.setUserObject(exp);
         DefaultTreeModel treeModel = (DefaultTreeModel) treeDisplay.getModel();
         treeModel.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), root, 
                                 root.getChildCount());
         treeDisplay.setModel(new DefaultTreeModel(root));
         treeDisplay.collapsePath(new TreePath(root.getPath()));
-        //treeDisplay.setRootVisible(false);
+        */
+        //NEW
+        treeDisplay.setModel(new DefaultTreeModel(root));
+        TreeImageSet node = createExperimenterNode(exp);
+        treeDisplay.collapsePath(new TreePath(node.getPath()));
         //Add Listeners
         //treeDisplay.requestFocus();
         treeDisplay.addMouseListener(new MouseAdapter() {
@@ -316,6 +362,7 @@ class BrowserUI
 				}
 			}
 		});
+        
     }
 
     /**
@@ -463,73 +510,6 @@ class BrowserUI
     }
     
     /**
-     * Displays the specified nodes in the tree.
-     * 
-     * @param nodes     The collection of nodes to add.
-     */
-    void setViews(Set nodes)
-    {
-        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
-        root.removeAllChildren();
-        root.setChildrenLoaded(Boolean.TRUE);
-        root.setExpanded(true);
-        dtm.reload();
-        if (nodes.size() != 0) {
-            Iterator i = nodes.iterator();
-            while (i.hasNext())
-                root.addChildDisplay((TreeImageDisplay) i.next()) ;
-            buildTreeNode(root, sorter.sort(nodes), 
-                        (DefaultTreeModel) treeDisplay.getModel());
-        } else buildEmptyNode(root);
-        Iterator j = nodesToReset.iterator();
-        while (j.hasNext()) {
-			setExpandedParent((TreeImageDisplay) j.next(), true);
-		}
-    }
-    
-    /**
-     * Adds the specified nodes to the specified parent display. 
-     * 
-     * @param nodes     The collection of nodes to add.
-     * @param parent    The parent node.
-     */
-    void setViews(Set nodes, TreeImageDisplay parent)
-    {
-        parent.removeAllChildren();
-        parent.setChildrenLoaded(Boolean.TRUE);
-        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-        if (nodes.size() != 0) {
-            Iterator i = nodes.iterator();
-            while (i.hasNext())
-                parent.addChildDisplay((TreeImageDisplay) i.next()) ;
-            buildTreeNode(parent, sorter.sort(nodes), dtm);
-        } else buildEmptyNode(parent);
-        dtm.reload(parent);
-    }
-    
-    /**
-     * Adds the specifies nodes to the currently selected
-     * {@link TreeImageDisplay}.
-     * 
-     * @param nodes     The collection of nodes to add.
-     * @param parent    The parent of the nodes.
-     */
-    void setLeavesViews(Set nodes, TreeImageSet parent)
-    {
-        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-        parent.removeAllChildren();
-        parent.setChildrenLoaded(Boolean.TRUE);
-        if (nodes.size() != 0) {
-            Iterator i = nodes.iterator();
-            while (i.hasNext())
-                parent.addChildDisplay((TreeImageDisplay) i.next()) ;
-            buildTreeNode(parent, sorter.sort(nodes), dtm);
-        } else buildEmptyNode(parent);
-        dtm.reload(parent);
-    }
-    
-    /**
      * Returns the tree hosting the display.
      * 
      * @return See above.
@@ -568,22 +548,6 @@ class BrowserUI
     }
     
     /**
-     * Creates or recycles the {@link FilterMenu} and brings it on screen.
-     * 
-     * @param c The component invoking the menu.
-     * @param p The location of the click.
-     */
-    void showFilterMenu(Component c, Point p)
-    {
-        //if (filterMenu == null) {
-    	FilterMenu   filterMenu = new FilterMenu(model);
-    	filterMenu.addPropertyChangeListener(
-    			FilterMenu.FILTER_SELECTED_PROPERTY, controller);
-        //}
-        filterMenu.show(c, p.x, p.y);
-    }
-    
-    /**
      * Selects the specified node.
      * 
      * @param node The node to select.
@@ -598,18 +562,6 @@ class BrowserUI
         renderer.getTreeCellRendererComponent(treeDisplay, node, 
                 					treeDisplay.isPathSelected(path),
                 					false, true, 0, false);
-    }
-    
-    /** Removes all the nodes from the tree, excepted the root node. */
-    void clearTree()
-    {
-        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
-        root.removeAllChildren();
-        root.removeAllChildrenDisplay();
-        buildEmptyNode(root);
-        dtm.reload();
-        collapsePath(root);
     }
     
     /**
@@ -729,10 +681,10 @@ class BrowserUI
             }
         }
         //should be leaves. Need to review that code.
-        if (toLoad) {
-            if (parentDisplay.getParentDisplay() == null) //root
-                controller.loadData();
-            else controller.loadLeaves();
+        if (toLoad) { //TO BE MODIFIED
+            //if (parentDisplay.getParentDisplay() == null) //root
+            //    controller.loadData();
+            //else controller.loadLeaves();
         }
     }
     
@@ -787,15 +739,13 @@ class BrowserUI
     {
         treeDisplay.expandPath(new TreePath(getTreeRoot().getPath()));
     }
-
-    /** Displays the main tree or navigates into the selected node. */
-    void navigate()
+    
+    /** Loads the children of the currently logged in experimenter. */
+    void loadExperimenterData()
     {
-        if (model.isMainTree()) {
-            scrollPane.getViewport().removeAll();
-            scrollPane.getViewport().add(treeDisplay);
-            repaint();
-        } 
+    	TreeImageDisplay root = getTreeRoot();
+    	TreeImageDisplay child = (TreeImageDisplay) root.getFirstChild();
+        treeDisplay.expandPath(new TreePath(child.getPath()));
     }
 
     /** 
@@ -853,17 +803,140 @@ class BrowserUI
 
         treeDisplay.addTreeSelectionListener(selectionListener);
     }
-    
+
     /**
-     * Sets the user object of the root node.
+     * Adds the experimenter's data to the passed node.
      * 
-     * @param experimenter The user object to set.
+     * @param nodes		The data to add.
+     * @param expNode	The selected experimenter node.
      */
-    void setRootNode(ExperimenterData experimenter)
+	void setExperimenterData(Set nodes, TreeImageDisplay expNode)
+	{
+		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+		expNode.removeAllChildren();
+		expNode.removeAllChildrenDisplay();
+		expNode.setChildrenLoaded(Boolean.TRUE);
+		expNode.setExpanded(true);
+        dtm.reload();
+        if (nodes.size() != 0) {
+            Iterator i = nodes.iterator();
+            while (i.hasNext())
+            	expNode.addChildDisplay((TreeImageDisplay) i.next()) ;
+            buildTreeNode(expNode, sorter.sort(nodes), 
+                        (DefaultTreeModel) treeDisplay.getModel());
+        } else buildEmptyNode(expNode);
+        Iterator j = nodesToReset.iterator();
+        while (j.hasNext()) {
+			setExpandedParent((TreeImageDisplay) j.next(), true);
+		}
+	}
+
+	/**
+	 * Refreshes the folder hosting the time.
+	 * 
+	 * @param expNode	The experimenter node to refresh.
+	 * @param r			The data to display.
+	 */
+	void refreshTimeFolder(TreeImageDisplay expNode, Map<Integer, Set> r)
+	{
+		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+		expNode.setChildrenLoaded(Boolean.TRUE);
+		expNode.setExpanded(true);
+		if (r == null || r.size() == 0) return;
+		Iterator i = r.keySet().iterator();
+		int index;
+		int n = expNode.getChildCount();
+		TreeImageTimeSet node;
+		Set elements;
+		Iterator k;
+		dtm.reload();
+		while (i.hasNext()) {
+			index = (Integer) i.next();
+			for (int j = 0; j < n; j++) {
+				node = (TreeImageTimeSet) expNode.getChildAt(j);
+				if (node.getIndex() == index) {
+					node.removeAllChildren();
+					node.removeAllChildrenDisplay();
+					elements = r.get(index);
+					k = elements.iterator();
+					while (k.hasNext()) 
+						node.addChildDisplay((TreeImageDisplay) k.next());
+					
+					buildTreeNode(node, sorter.sort(r.get(index)), 
+	                        (DefaultTreeModel) treeDisplay.getModel());
+					node.setExpanded(true);
+					expandNode(node);
+				}
+			}
+		}
+		setExpandedParent(expNode, true);
+	}
+	
+	/**
+     * Adds the specifies nodes to the currently selected
+     * {@link TreeImageDisplay}.
+     * 
+     * @param nodes     The collection of nodes to add.
+     * @param parent    The parent of the nodes.
+     */
+    void setLeavesViews(Set nodes, TreeImageSet parent)
     {
-    	if (experimenter == null)
-    		getTreeRoot().setUserObject("");
-    	else getTreeRoot().setUserObject(experimenter);
+        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+        parent.removeAllChildren();
+        parent.setChildrenLoaded(Boolean.TRUE);
+        if (nodes.size() != 0) {
+            Iterator i = nodes.iterator();
+            while (i.hasNext())
+                parent.addChildDisplay((TreeImageDisplay) i.next()) ;
+            buildTreeNode(parent, sorter.sort(nodes), dtm);
+        } else buildEmptyNode(parent);
+        dtm.reload(parent);
     }
+    
+	/**
+	 * Adds a new experimenter to the tree.
+	 * 
+	 * @param experimenter The experimenter to add.
+	 */
+	void addExperimenter(ExperimenterData experimenter)
+	{
+		createExperimenterNode(experimenter);
+		//treeDisplay.expandPath(new TreePath(node.getPath()));
+		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+		dtm.reload();
+	}
+
+	/**
+	 * Removes the specified experimenter from the tree.
+	 * 
+	 * @param exp The experimenter data to remove.
+	 */
+	void removeExperimenter(ExperimenterData exp)
+	{
+		TreeImageDisplay root = getTreeRoot();
+		List<TreeImageDisplay> nodesToKeep = new ArrayList<TreeImageDisplay>();
+		TreeImageDisplay element, node = null;
+		Object ho;
+		ExperimenterData expElement;
+		for (int i = 0; i < root.getChildCount(); i++) {
+			element = (TreeImageDisplay) root.getChildAt(i);
+			ho = element.getUserObject();
+			if (ho instanceof ExperimenterData) {
+				expElement = (ExperimenterData) ho;
+				if (expElement.getId() == exp.getId())
+					node = element;
+				else nodesToKeep.add(element);
+			}
+		}
+		if (node != null) root.removeChildDisplay(node);
+		Iterator i = nodesToKeep.iterator();
+		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+		root.removeAllChildren();
+		while (i.hasNext()) {
+			tm.insertNodeInto((TreeImageSet) i.next(), root, 
+							root.getChildCount());
+		}
+		tm.reload();
+	}
     
 }

@@ -718,23 +718,6 @@ class TreeViewerModel
      */
     DataHandler getDataHandler() { return dataHandler; }
 
-    /**
-     * Sets the value of the currently selected experimenter.
-     * 
-     * @param experimenter The value to set.
-     */
-    void setExperimenter(ExperimenterData experimenter)
-    {
-    	this.experimenter = experimenter;
-    	Set<Integer> keys = browsers.keySet();
-    	Iterator i = keys.iterator();
-    	Browser browser;
-    	while (i.hasNext()) {
-    		browser = browsers.get(i.next());
-    		browser.setRootNode(experimenter);
-    	}
-    }
-
     /** Fires an asynchronous call to retrieve the user groups. */
     void fireUserGroupsRetrieval()
     {

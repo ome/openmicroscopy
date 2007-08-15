@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
@@ -95,7 +96,8 @@ public class ViewAction
             return;
         }
         Object ho = selectedDisplay.getUserObject();
-        if (ho == null || !(ho instanceof DataObject)) setEnabled(false);
+        if (ho == null || !(ho instanceof DataObject) ||
+        	ho instanceof ExperimenterData) setEnabled(false);
         else {
             Browser browser = model.getSelectedBrowser();
             if (browser != null) {

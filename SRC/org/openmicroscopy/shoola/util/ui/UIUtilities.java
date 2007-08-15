@@ -648,7 +648,7 @@ public class UIUtilities
     {
         return new Timestamp(new Date().getTime());
     }
-    
+   
     /**
      * Formats as a <code>String</code> the specified time.
      * 
@@ -672,5 +672,5 @@ public class UIUtilities
     	if (time == null) return "";
     	return DateFormat.getDateTimeInstance().format(time);  
     }
-
+	
 }

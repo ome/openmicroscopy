@@ -25,12 +25,9 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 
 //Java imports
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import javax.swing.Action;
 import javax.swing.JTree;
 import javax.swing.event.ChangeEvent;
@@ -43,13 +40,9 @@ import javax.swing.tree.TreePath;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CloseAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CollapseAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterMenuAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.NavigationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ShowNameAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortByDateAction;
-import org.openmicroscopy.shoola.agents.treeviewer.util.FilterWindow;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.CategoryData;
 import pojos.DatasetData;
@@ -67,33 +60,24 @@ import pojos.ExperimenterData;
  * @since OME2.2
  */
 class BrowserControl
-    implements ChangeListener, PropertyChangeListener
+    implements ChangeListener
 {
 
     /** Identifies the <code>Collapse</code> action. */
-    static final Integer     COLLAPSE = new Integer(0);
-    
-    /** Identifies the <code>Close</code> action. */
-    static final Integer     CLOSE = new Integer(1);
-    
-    /** Identifies the <code>Sort</code> action. */
-    static final Integer     SORT = new Integer(2);
-    
-    /** Identifies the <code>Sort by Date</code> action. */
-    static final Integer     SORT_DATE = new Integer(3);
-    
-    /** Identifies the <code>Filter Menu</code> action. */
-    static final Integer     FILTER_MENU = new Integer(4);
+	static final Integer    COLLAPSE = new Integer(0);
 
-    /** Identifies the <code>Backward Nav</code> action. */
-    static final Integer     BACKWARD_NAV = new Integer(6);
+	/** Identifies the <code>Close</code> action. */
+	static final Integer    CLOSE = new Integer(1);
 
-    /** Identifies the <code>Forward Nav</code> action.*/
-    static final Integer    FORWARD_NAV = new Integer(7);
+	/** Identifies the <code>Sort</code> action. */
+	static final Integer    SORT = new Integer(2);
+
+	/** Identifies the <code>Sort by Date</code> action. */
+	static final Integer    SORT_DATE = new Integer(3);
     
     /** Identifies the <code>Partial Name</code> action.*/
-    static final Integer    PARTIAL_NAME = new Integer(8);
-    
+    static final Integer    PARTIAL_NAME = new Integer(4);
+   
     /** 
      * Reference to the {@link Browser} component, which, in this context,
      * is regarded as the Model.
@@ -113,26 +97,7 @@ class BrowserControl
         actionsMap.put(CLOSE, new CloseAction(model));
         actionsMap.put(SORT, new SortAction(model));
         actionsMap.put(SORT_DATE, new SortByDateAction(model));
-        actionsMap.put(FILTER_MENU, new FilterMenuAction(model));
-        actionsMap.put(FORWARD_NAV, new NavigationAction(model, true));
-        actionsMap.put(BACKWARD_NAV, new NavigationAction(model, false));
         actionsMap.put(PARTIAL_NAME, new ShowNameAction(model));
-    }
-    
-    /**
-     * Loads the children of nodes contained in the specified in collection.
-     * 
-     * @param nodes The collection of nodes.
-     */
-    private void filterNodes(Set nodes)
-    {
-        if (nodes == null || nodes.size() == 0) return;
-        if (model.getBrowserType() != Browser.IMAGES_EXPLORER) return;
-        //We should be in the ready state.
-        TreeImageDisplay root = view.getTreeRoot();
-        root.removeAllChildrenDisplay() ;
-        view.loadAction(root);
-        model.loadFilteredImageData(nodes);
     }
     
     /**
@@ -162,10 +127,27 @@ class BrowserControl
     {
         if (view == null) throw new NullPointerException("No view.");
         this.view = view;
-        model.addPropertyChangeListener(this);
         model.addChangeListener(this);
     }
-
+    
+    /**
+     * Returns the node hosting the experimenter passing a child node.
+     * 
+     * @param node The child node.
+     * @return See above.
+     */
+    TreeImageDisplay getDataOwner(TreeImageDisplay node)
+    {
+    	if (node == null) return null;
+    	TreeImageDisplay parent = node.getParentDisplay();
+    	if (parent == null) return null;
+    	Object ho = parent.getUserObject();
+    	if (ho instanceof ExperimenterData) 
+    		return parent;
+    	return getDataOwner(parent);
+    }
+    
+    
     /**
      * Reacts to tree expansion events.
      * 
@@ -183,19 +165,24 @@ class BrowserControl
         if ((state == Browser.LOADING_DATA) ||
              (state == Browser.LOADING_LEAVES) || 
              (state == Browser.COUNTING_ITEMS)) return;
+        
         Object ho = display.getUserObject();
         model.setSelectedDisplay(display); 
+        if (display.isChildrenLoaded()) return;
+        view.loadAction(display);
+        if (display instanceof TreeImageTimeSet) {
+        	TreeImageTimeSet node = (TreeImageTimeSet) display;
+        	model.loadExperimenterData(getDataOwner(display), node);
+        	return;
+        }
         //if (!expanded) return;
         if ((ho instanceof DatasetData) || (ho instanceof CategoryData)) {
-            if (!display.isChildrenLoaded()) {
-                view.loadAction(display);
-                model.loadLeaves();
-            }
-            //if (display.getChildrenDisplay().size() == 0) {
-            //    view.loadAction(display);
-            //    model.loadLeaves();
-            //}    
+        	model.loadExperimenterData(getDataOwner(display), display);
+        } else if (ho instanceof ExperimenterData) {
+        	
+        	model.loadExperimenterData(display, null);
         } else {
+        	/*
             TreeImageDisplay root = view.getTreeRoot();
             if (root.equals(display) && root.getChildrenDisplay().size() == 0) {
                 if (model.getBrowserType() == Browser.IMAGES_EXPLORER) 
@@ -205,6 +192,7 @@ class BrowserControl
                     model.loadData();
                 }
             }
+            */
         }
     }
     
@@ -272,12 +260,6 @@ class BrowserControl
      * @return The specified action.
      */
     Action getAction(Integer id) { return actionsMap.get(id); }
-    
-    /** Forwards event to the {@link Browser} to load the leaves. */
-    void loadLeaves() { model.loadLeaves(); }
-    
-    /** Forwards event to the {@link Browser} to load the hiearchy data. */
-    void loadData() { model.loadData(); }
 	
     /**
      * Detects when the {@link Browser} is ready and then registers for
@@ -287,26 +269,6 @@ class BrowserControl
     public void stateChanged(ChangeEvent e)
     {
         view.onStateChanged(model.getState() == Browser.READY);
-    }
-
-    /**
-     * Reacts to {@link Browser} property changes.
-     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-     */
-    public void propertyChange(PropertyChangeEvent pce)
-    {
-        String name = pce.getPropertyName();
-        if (name.equals(TreeViewer.FILTER_NODES_PROPERTY)) {
-            Map map = (Map) pce.getNewValue();
-            if (map.get(model) != null) 
-                filterNodes((Set) map.get(model));
-        } else if (name.equals(FilterMenu.FILTER_SELECTED_PROPERTY))
-            model.setFilterType(((Integer) pce.getNewValue()).intValue());  
-        else if (name.equals(FilterWindow.CLOSE_PROPERTY)) {
-            view.onStateChanged(true);
-            view.collapsePath(view.getTreeRoot());
-            //model.collapse(model.getLastSelectedDisplay());
-        }
     }
 
 }

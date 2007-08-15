@@ -26,8 +26,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 //Third-party libraries
@@ -38,10 +36,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
-import pojos.DataObject;
 import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
 import pojos.ProjectData;
 
 /** 
@@ -70,18 +65,6 @@ public class DMLoader
     private BatchCall   loadCall;
     
     /**
-     * Checks if the specified level is supported.
-     * 
-     * @param level The level to control.
-     */
-    private void checkRootLevel(Class level)
-    {
-        if (level.equals(ExperimenterData.class) ||
-                level.equals(GroupData.class)) return;
-	    throw new IllegalArgumentException("Root level not supported");
-    }
-    
-    /**
      * Creates a {@link BatchCall} to retrieve a Container tree, either
      * Project, Dataset, CategoryGroup or Category.
      * 
@@ -89,40 +72,25 @@ public class DMLoader
      * @param rootNodeIDs   A set of the IDs of top-most containers.
      * @param withLeaves    Passes <code>true</code> to retrieve the leaves
      *                      nodes, <code>false</code> otherwise.
-     * @param rootLevel		The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID	The Id of the root.
+     * @param userID		The Id of the user.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final Class rootNodeType,
                                     final Set rootNodeIDs,
                                     final boolean withLeaves,
-                                    final Class rootLevel, 
-                                    final long rootLevelID)
+                                    final long userID)
     {
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                results = os.loadContainerHierarchy(rootNodeType, rootNodeIDs, 
-                        		withLeaves, rootLevel, rootLevelID);
-                //TODO: Review that code to reduce calls to DB.
-                /*
-                if (rootNodeIDs == null) {
-                	Class klass = null;
-                	if (rootNodeType.equals(ProjectData.class))
-                		klass = DatasetData.class;
-                	else if (rootNodeType.equals(CategoryGroupData.class))
-                		klass = CategoryData.class;
-                	if (klass != null) {
-                		Set orphans = os.getOrphanContainers(klass, false, 
-                				rootLevel, rootLevelID);
-                		if (orphans != null && orphans.size() > 0)
-                    	results.addAll(orphans);
-                	}
-                }
-                */
+                try {
+                	results = os.loadContainerHierarchy(rootNodeType, rootNodeIDs, 
+                    		withLeaves, userID);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+                
             }
         };
     }
@@ -152,34 +120,21 @@ public class DMLoader
      *                      container specified by the rootNodeType.
      * @param withLeaves    Passes <code>true</code> to retrieve the images.
      *                      <code>false</code> otherwise.
-     * @param rootLevel		The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID	The Id of the root. 
+     * @param userID		The Id of the user. 
      */
     public DMLoader(Class rootNodeType, Set<Long> rootNodeIDs, 
-    				boolean withLeaves,
-                    Class rootLevel, long rootLevelID)
+    				boolean withLeaves, long userID)
     {
         if (rootNodeType == null) 
             throw new IllegalArgumentException("No root node type.");
-        checkRootLevel(rootLevel);
-        if (rootLevelID < 0) 
+        if (userID < 0) 
             throw new IllegalArgumentException("No root ID not valid.");
-        /*
-        try {
-            if (rootNodeIDs != null) rootNodeIDs.toArray(new Long[] {});
-        } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException("rootNodeIDs only contains " +
-                                                "Long.");
-        }  
-        */
         if (rootNodeType.equals(ProjectData.class) ||
                 rootNodeType.equals(DatasetData.class) ||
                 rootNodeType.equals(CategoryGroupData.class) ||
                 rootNodeType.equals(CategoryData.class))
                 loadCall = makeBatchCall(rootNodeType, rootNodeIDs, withLeaves,
-                        				rootLevel, rootLevelID);
+                        				userID);
         else 
             throw new IllegalArgumentException("Unsupported type: "+
                                                 rootNodeType);

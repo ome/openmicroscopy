@@ -60,7 +60,7 @@ class DiskSpace
 {
 
 	/** The title of the chart. */
-	private static final String TITLE = "Disk Space";
+	private static final String TITLE = "Server Disk Space";
 
 	/**
 	 * Converts the passed value into a string in Mb and returns a string 

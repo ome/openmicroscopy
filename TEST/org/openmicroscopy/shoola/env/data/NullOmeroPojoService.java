@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,10 +61,9 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroDataService#findCGCPaths(Set, int, Class, long)
+     * @see OmeroDataService#findCGCPaths(Set, int, long)
      */
-    public Set findCGCPaths(Set imgIDs, int algorithm, Class rootLevel,
-                            long levelID) 
+    public Set findCGCPaths(Set imgIDs, int algorithm, long levelID) 
     	throws DSOutOfServiceException, DSAccessException 
     {
         return null;
@@ -82,11 +82,10 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroDataService#loadContainerHierarchy(Class, Set, boolean, Class,
-     *                                              long)
+     * @see OmeroDataService#loadContainerHierarchy(Class, Set, boolean, long)
      */
     public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs,
-            boolean withLeaves, Class rootLevel, long rootLevelID)
+            boolean withLeaves, long rootLevelID)
             throws DSOutOfServiceException, DSAccessException
     {
         return null;
@@ -94,10 +93,10 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroDataService#findContainerHierarchy(Class, Set, Class, long)
+     * @see OmeroDataService#findContainerHierarchy(Class, Set, long)
      */
     public Set findContainerHierarchy(Class rootNodeType, Set leavesIDs,
-                Class rootLevel, long rootLevelID)
+                						long rootLevelID)
             throws DSOutOfServiceException, DSAccessException
     {
         return null;
@@ -116,10 +115,9 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroDataService#getImages(Class, Set, Class, long)
+     * @see OmeroDataService#getImages(Class, Set, long)
      */
-    public Set getImages(Class nodeType, Set nodeIDs, Class rootLevel,
-                        long rootLevelID)
+    public Set getImages(Class nodeType, Set nodeIDs, long rootLevelID)
             throws DSOutOfServiceException, DSAccessException
     {
         return null;
@@ -180,10 +178,9 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroDataService#loadExistingObjects(Class, Set, Class, long)
+     * @see OmeroDataService#loadExistingObjects(Class, Set, long)
      */
-    public Set loadExistingObjects(Class nodeType, Set nodeIDs, Class rootLevel,
-                long rootID)
+    public Set loadExistingObjects(Class nodeType, Set nodeIDs, long rootID)
             throws DSOutOfServiceException, DSAccessException
     {
         return null;
@@ -255,10 +252,9 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroDataService#getOrphanContainers(Class, boolean, Class, long)
+     * @see OmeroDataService#getOrphanContainers(Class, boolean, long)
      */
-	public Set getOrphanContainers(Class nodeType, boolean b, Class rootLevel, 
-			long rootLevelID) 
+	public Set getOrphanContainers(Class nodeType, boolean b, long rootLevelID) 
 	throws DSOutOfServiceException, DSAccessException 
 	{
 		return null;
@@ -369,6 +365,37 @@ public class NullOmeroPojoService
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return 0;
+	}
+
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#getImagesAfter(Timestamp, long)
+	 */
+	public Set getImagesAfter(Timestamp time, long rootID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#getImagesBefore(Timestamp, long)
+	 */
+	public Set getImagesBefore(Timestamp time, long rootID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#getImagesDuring(Timestamp, Timestamp, long)
+	 */
+	public Set getImagesDuring(Timestamp lowerTime, Timestamp time, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

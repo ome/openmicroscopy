@@ -30,10 +30,10 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
-import pojos.ExperimenterData;
 
 /** 
  * Parent of all classes that load data asynchronously for a {@link Browser}.
@@ -68,10 +68,23 @@ public abstract class DataBrowserLoader
     protected final DataManagerView dmView;
     
     /**
-     * Converts the UI rootLevel into its corresponding class.
+     * Returns the constrain indicating to retrieve the values after
+     * or before the time of reference.
+     * 
+     * @param index The index to control.
      * @return See above.
      */
-    protected Class convertRootLevel() { return ExperimenterData.class; }
+    protected int getTimeConstrain(int index)
+    {
+    	switch (index) {
+			case TreeImageTimeSet.OTHER:
+				return DataManagerView.BEFORE;
+			case TreeImageTimeSet.YEAR_BEFORE:
+				return DataManagerView.PERIOD;
+			default:
+				return DataManagerView.AFTER;
+    	}
+    }
     
     /**
      * Creates a new instance.

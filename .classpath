@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="SRC"/>
+	<classpathentry kind="src" path="TEST"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="LIB/TableLayout.jar"/>
+	<classpathentry kind="lib" path="LIB/spring-2.0.jar"/>
+	<classpathentry kind="lib" path="LIB/log4j-1.2.8.jar"/>
+	<classpathentry kind="lib" path="LIB/jhotdraw.jar"/>
+	<classpathentry kind="lib" path="LIB/jfreechart-1.0.5.jar"/>
+	<classpathentry kind="lib" path="LIB/jcommon-1.0.9.jar"/>
+	<classpathentry kind="lib" path="LIB/jboss-ejb3x-4.0.4.GA.jar"/>
+	<classpathentry kind="lib" path="LIB/jboss-ejb3-4.0.4.GA.jar"/>
+	<classpathentry kind="lib" path="LIB/jboss-aspect-library-jdk50-4.0.4.GA.jar"/>
+	<classpathentry kind="lib" path="LIB/jboss-aop-jdk50-client-4.0.4.GA.jar"/>
+	<classpathentry kind="lib" path="LIB/jboss-annotations-ejb3-4.0.4.GA.jar"/>
+	<classpathentry kind="lib" path="LIB/jbossall-client-4.0.4.GA.jar"/>
+	<classpathentry kind="lib" path="LIB/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="lib" path="LIB/commons-httpclient-3.0.1.jar"/>
+	<classpathentry kind="lib" path="LIB/common-3.0-Beta2.jar"/>
+	<classpathentry kind="lib" path="LIB/client-3.0-Beta2.jar"/>
+	<classpathentry kind="lib" path="LIB/_jboss_remoting.jar"/>
+	<classpathentry kind="lib" path="LIB/test/junit3.8.1.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

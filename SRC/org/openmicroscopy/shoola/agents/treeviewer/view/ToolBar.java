@@ -36,7 +36,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 //Third-party libraries

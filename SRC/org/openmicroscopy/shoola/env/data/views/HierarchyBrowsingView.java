@@ -91,17 +91,13 @@ public interface HierarchyBrowsingView
      * @param rootNodeType  The type of the root node. Can only be one out of:
      *                      <code>ProjectData, DatasetData, 
      *                      CategoryGroupData, CategoryData</code>.
-     * @param nodesID        The id of the root nodes.
-     * @param rootLevel     The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID   The Id of the root.
+     * @param nodesID       The id of the root nodes.
+     * @param userID   		The Id of the user.  
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadHierarchy(Class rootNodeType, Set nodesID, 
-                                    Class rootLevel, long rootLevelID,
-                                    AgentEventListener observer);
+    public CallHandle loadHierarchy(Class rootNodeType, Set nodesID,
+    								long userID, AgentEventListener observer);
     
     /**
      * Finds the data trees in the Project/Dataset/Image (P/D/I) hierarchy that 
@@ -141,15 +137,12 @@ public interface HierarchyBrowsingView
      * returned tree rooted by <code>p1</code>.</p>
      * 
      * @param ids           Contains ids, one for each leaf Image node.
-     * @param rootLevel     The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID   The Id of the root.
+     * @param userID   		The Id of the user.  
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle findPDIHierarchies(Set ids, Class rootLevel,
-                                long rootLevelID, AgentEventListener observer);
+    public CallHandle findPDIHierarchies(Set ids, long userID, 
+    									AgentEventListener observer);
     
     /**
      * Finds the data trees in the Category Group/Category/Image (CG/C/I) 
@@ -163,15 +156,12 @@ public interface HierarchyBrowsingView
      * CategoryData</code> object.)
      * 
      * @param ids           Contains ids, one for each leaf image node.
-     * @param rootLevel     The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID   The Id of the root.
+     * @param userID   		The Id of the user.  
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle findCGCIHierarchies(Set ids,  Class rootLevel,
-                                 long rootLevelID, AgentEventListener observer);
+    public CallHandle findCGCIHierarchies(Set ids, long userID, 
+    									AgentEventListener observer);
     
     /**
      * Loads a thumbnail for each specified <code>ImageData</code> object.
@@ -228,15 +218,12 @@ public interface HierarchyBrowsingView
      * 
      * @param imageIDs      The id of the images.
      * @param algorithm     One of the constants defined by this class.
-     * @param rootLevel     The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID   The Id of the root.                 
+     * @param userID   		The Id of the user.                 
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadClassificationPaths(Set imageIDs, int algorithm,
-            Class rootLevel, long rootLevelID, AgentEventListener observer);
+    							long userID, AgentEventListener observer);
     
     /**
      * Adds the images to the specified categories.
@@ -275,8 +262,8 @@ public interface HierarchyBrowsingView
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadImages(Set imagesID, Class rootLevel,
-                                long rootLevelID, AgentEventListener observer);
+    public CallHandle loadImages(Set imagesID, long userID, 
+    							AgentEventListener observer);
     
     /**
      * Updates the specified <code>DataObject</code>.

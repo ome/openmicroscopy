@@ -34,8 +34,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
-import pojos.ExperimenterData;
-
 /** 
  * Loads the data trees in the Category Group/Category/Image hierarchy that 
  * contain the specified images.
@@ -92,8 +90,8 @@ public class CGCILoader
      */
     public void load()
     {
-        handle = hiBrwView.findCGCIHierarchies(images, ExperimenterData.class, 
-        									viewer.getRootID(), this);
+        handle = hiBrwView.findCGCIHierarchies(images, viewer.getRootID(), 
+        										this);
     }
     
     /** 

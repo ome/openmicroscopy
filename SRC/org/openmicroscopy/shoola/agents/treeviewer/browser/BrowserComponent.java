@@ -24,20 +24,18 @@
 package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 //Java imports
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
 
@@ -45,20 +43,16 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
-import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.ClassificationVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.LeavesVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.RefreshVisitor;
-import org.openmicroscopy.shoola.agents.treeviewer.util.FilterWindow;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
-import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
@@ -93,19 +87,7 @@ class BrowserComponent
     
     /** The node to select after saving data. */
     private TreeImageDisplay	toSelectAfterSave;
-    
-    /**
-     * Returns the frame hosting the {@link BrowserUI view}.
-     * 
-     * @param c The parent container.
-     * @return See above.
-     */
-    private JFrame getViewParent(Container c)
-    {
-        if (c instanceof JFrame) return (JFrame) c;
-        return getViewParent(c.getParent());
-    }
-
+  
     /**
      * Helper method to remove the collection of the specified nodes.
      * 
@@ -207,21 +189,21 @@ class BrowserComponent
 	    if (model.getBrowserType() == IMAGES_EXPLORER) {
 	        root.removeAllChildrenDisplay();
 	        model.setSelectedDisplay(null); //root
-	        Set nodes = model.getFilteredNodes();
-	        if (nodes != null) loadFilteredImageData(nodes);
-	        else loadFilteredImagesForHierarchy();
+	        //Set nodes = model.getFilteredNodes();
+	        //if (nodes != null) loadFilteredImageData(nodes);
+	       // else loadFilteredImagesForHierarchy();
 	    } else {
 	    	if (visit) {
 	    		RefreshVisitor visitor = new RefreshVisitor(this);
 		        accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 		        root.removeAllChildrenDisplay();
 		        model.setSelectedDisplay(null); //root
-		        model.loadRefreshedData(visitor.getFoundNodes(), 
-		                visitor.getExpandedTopNodes());
+		        //model.loadRefreshedData(visitor.getFoundNodes(), 
+		        //        visitor.getExpandedTopNodes());
 	    	} else {
 	    		root.removeAllChildrenDisplay();
-		        model.setSelectedDisplay(null); //root
-		        model.loadRefreshedData(null, null);
+		       // model.setSelectedDisplay(null); //root
+		        //model.loadRefreshedData(null, null);
 	    	}
 	    }
     }
@@ -275,7 +257,8 @@ class BrowserComponent
         int state = model.getState();
         switch (state) {
             case NEW:
-                view.loadRoot();
+                //view.loadRoot();
+            	view.loadExperimenterData();
                 break;
             case DISCARDED:
                 throw new IllegalStateException(
@@ -311,32 +294,6 @@ class BrowserComponent
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setNodes(Set)
-     */
-    public void setNodes(Set nodes)
-    {
-        if (model.getState() != LOADING_DATA)
-            throw new IllegalStateException(
-                    "This method can only be invoked in the LOADING_DATA "+
-                    "state.");
-        if (nodes == null) throw new NullPointerException("No nodes.");
-        long userID = model.getUserID();
-        long groupID = model.getUserGroupID();
-        Set visNodes = TreeViewerTranslator.transformHierarchy(nodes, userID,
-                                                            groupID);
-        
-        view.setViews(visNodes);
-        if (!view.isPartialName()) {
-        	PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
-    		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
-        }
-        model.setState(READY);
-        model.getParentModel().setStatus(false, "", true);
-        fireStateChange();
-    }
-    
-    /**
-     * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getBrowserType()
      */
     public int getBrowserType() { return model.getBrowserType(); }
@@ -356,26 +313,7 @@ class BrowserComponent
             fireStateChange();
         }
     }
-    
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#loadData()
-     */
-    public void loadData()
-    {
-        int state = model.getState();
-        if ((state == DISCARDED) || (state == LOADING_LEAVES))
-            throw new IllegalStateException(
-                    "This method cannot be invoked in the DISCARDED or" +
-                    "LOADING_LEAVES state.");
-        if (model.getBrowserType() == Browser.IMAGES_EXPLORER)
-            throw new IllegalArgumentException("Method should only be invoked" +
-                    " by the Hiearchy and Category Explorer.");
-        model.fireDataLoading();
-        model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
-        fireStateChange();
-    }
-
+   
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#loadFilteredImagesForHierarchy()
@@ -393,40 +331,28 @@ class BrowserComponent
                     " by the Images Explorer.");
         //if (model.getFilterType() == NO_IMAGES_FILTER) 
         view.loadAction(view.getTreeRoot());
-        model.fireFilterDataLoading();
-        model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
-        fireStateChange();
-    }
-    
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#loadData()
-     */
-    public void loadLeaves()
-    {
-        int state = model.getState();
-        if ((state == DISCARDED) || (state == LOADING_LEAVES))
-            throw new IllegalStateException(
-                    "This method cannot be invoked in the DISCARDED or " +
-                    "LOADING_LEAVES state.");
-        model.fireLeavesLoading();
+        //model.fireFilterDataLoading();
         model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
         fireStateChange();
     }
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setLeaves(Set, TreeImageSet)
+     * @see Browser#setLeaves(Set, TreeImageSet, TreeImageSet)
      */
-    public void setLeaves(Set leaves, TreeImageSet parent)
+    public void setLeaves(Set leaves, TreeImageSet parent, TreeImageSet expNode)
     {
         if (model.getState() != LOADING_LEAVES)
             throw new IllegalStateException(
                     "This method can only be invoked in the LOADING_LEAVES "+
                     "state.");
         if (leaves == null) throw new NullPointerException("No leaves.");
-        long userID = model.getUserID();
-        long groupID = model.getUserGroupID();
+        Object ho = expNode.getUserObject();
+        if (!(ho instanceof ExperimenterData))
+        	throw new IllegalArgumentException("Experimenter not valid");
+        ExperimenterData exp = (ExperimenterData) ho;
+        long userID = exp.getId();
+        long groupID = exp.getDefaultGroup().getId();
         Set visLeaves = TreeViewerTranslator.transformHierarchy(leaves, userID, 
                                                                 groupID);
 
@@ -598,110 +524,6 @@ class BrowserComponent
         view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         view.sortNodes(sortType);
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-    }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setFilterNodes(Set, int)
-     */
-    public void setFilterNodes(Set nodes, int type)
-    {
-        if (model.getState() != LOADING_DATA)
-            throw new IllegalStateException(
-                    "This method can only be invoked in the LOADING_DATA"+
-                    "state.");
-        if (nodes == null) throw new NullPointerException("No nodes.");
-        int index = -1;
-        if (type == Browser.IN_DATASET_FILTER) index = FilterWindow.DATASET;
-        else if (type == Browser.IN_CATEGORY_FILTER) 
-            index = FilterWindow.CATEGORY;
-        if (index == -1) throw new IllegalStateException("Index not valid.");
-        model.setState(READY);
-        model.getParentModel().setStatus(false, "", true);
-        fireStateChange();
-        JFrame frame = getViewParent(view.getParent());
-        long userID = model.getRootID();
-        long groupID = model.getUserGroupID();
-        Set n = TreeViewerTranslator.transformDataObjectsCheckNode(nodes, 
-                                            userID, groupID);
-        FilterWindow window = new FilterWindow(this, frame, index, n);
-        window.addPropertyChangeListener(TreeViewer.FILTER_NODES_PROPERTY, 
-                                        controller);
-        window.addPropertyChangeListener(FilterWindow.CLOSE_PROPERTY, 
-                                        controller);
-        UIUtilities.centerAndShow(window);
-    }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#showFilterMenu(Component, Point)
-     */
-    public void showFilterMenu(Component c, Point p)
-    {
-        view.showFilterMenu(c, p);
-    }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#loadFilteredImageData(Set)
-     */
-    public void loadFilteredImageData(Set nodes)
-    {
-        int state = model.getState();
-        if ((state == DISCARDED) || (state == LOADING_LEAVES))
-            throw new IllegalStateException(
-                    "This method cannot be invoked in the DISCARDED or" +
-                    "LOADING_LEAVES state.");
-        if (model.getBrowserType() != IMAGES_EXPLORER)
-            throw new IllegalArgumentException("BrowserType not valid.");
-        if (model.getFilterType() == NO_IMAGES_FILTER)
-            throw new IllegalArgumentException("The method cannot be " +
-                    "invoked for the NO_IMAGES_FILTER filter type.");
-        if (nodes == null || nodes.size() == 0) 
-            throw new IllegalArgumentException("No nodes.");
-        model.fireFilteredImageDataLoading(nodes);
-        model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
-        fireStateChange();
-    }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#refreshTree()
-     */
-    public void refreshTree() { refreshTree(true); }
-    
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#switchUser()
-     */
-    public void switchUser() { refreshTree(false); }
-    
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setContainerNodes(Set, TreeImageDisplay)
-     */
-    public void setContainerNodes(Set nodes, TreeImageDisplay parent)
-    {
-        int state = model.getState();
-        if (state != LOADING_DATA)
-            throw new IllegalStateException(
-                    "This method can only be invoked in the LOADING_DATA "+
-                    "state.");
-        if (nodes == null) throw new NullPointerException("No nodes.");
-        TreeImageDisplay parentDisplay = model.getLastSelectedDisplay();
-        long userID = model.getUserID();
-        long groupID = model.getUserGroupID();
-        if (parent == null) { //root
-            view.setViews(TreeViewerTranslator.transformHierarchy(nodes, userID,
-                                                            groupID));
-        }  else view.setViews(TreeViewerTranslator.transformContainers(nodes, 
-                                        userID, groupID), 
-                            parentDisplay);
-        if (parentDisplay != null)
-            parentDisplay.setChildrenLoaded(Boolean.TRUE);
-        model.fireContainerCountLoading();
-        model.getParentModel().setStatus(false, "", true);
-        fireStateChange();
     }
     
     /**
@@ -903,81 +725,7 @@ class BrowserComponent
         }     
         setSelectedNode();
     }
-    
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#refreshClassification(ImageData[], Set, int)
-     */
-    public void refreshClassification(ImageData[] images, Set categories, int m)
-    {
-        switch (model.getState()) {
-            case NEW:
-            case READY:   
-                break;
-            default:
-                new IllegalStateException("This method can only be invoked " +
-                        "in the NEW or READY state.");
-        }
-        if (categories == null)
-            throw new IllegalArgumentException("Categories shouln't be null.");
-        if (images == null)
-            throw new IllegalArgumentException("No image.");
-        if (images.length == 0)
-            throw new IllegalArgumentException("No image.");
-        if (m != Classifier.CLASSIFY_MODE && 
-            m != Classifier.DECLASSIFY_MODE)
-            throw new IllegalArgumentException("Classification mode not " +
-                    "supported.");
-        ImageData img;
-        ClassificationVisitor visitor;
-        List nodes;
-        //long userID = model.getUserID();
-        //long groupID = model.getRootGroupID();
-        
-        int editorType = model.getBrowserType();
-        if (editorType == CATEGORY_EXPLORER) {
-            refreshTree();
-            return;
-        }
-        for (int i = 0; i < images.length; i++) {
-            img = images[i];
-            visitor = new ClassificationVisitor(this, img, categories);
-            accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
-            nodes = visitor.getFoundNodes();
-           view.updateNodes(nodes, img);
-        }
-    }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setFilterType(int)
-     */
-    public void setFilterType(int type)
-    {
-        switch (model.getState()) {
-            case LOADING_DATA:
-            case LOADING_LEAVES:
-            case DISCARDED:
-                throw new IllegalStateException(
-                        "This method cannot be invoked in the LOADING_DATA, "+
-                        " LOADING_LEAVES or DISCARDED state.");
-        }
-        if (model.getBrowserType() != IMAGES_EXPLORER)
-            throw new IllegalArgumentException("This method can only be " +
-                    "invoked by the Images Explorer.");
-        switch (type) {
-            case NO_IMAGES_FILTER:
-            case IN_DATASET_FILTER:
-            case IN_CATEGORY_FILTER:
-                break;
-            default:
-                throw new IllegalArgumentException("Filter not supported.");
-        }
-        //if (model.getFilterType() == type) return;
-        model.setFilterType(type);
-        refreshTree();
-    }
-
+  
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getLeaves()
@@ -1036,32 +784,6 @@ class BrowserComponent
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#navigate(boolean)
-     */
-    public void navigate(boolean v)
-    {
-        TreeImageDisplay display = getLastSelectedDisplay();
-        if (display == null) return;
-        if (display.containsImages()) {
-            controller.getAction(BrowserControl.FORWARD_NAV).setEnabled(!v);
-        } else {
-            controller.getAction(BrowserControl.FORWARD_NAV).setEnabled(v);
-        }
-        controller.getAction(BrowserControl.BACKWARD_NAV).setEnabled(!v);
-        long id = -1;
-        if (model.getGoIntoNode() != null)
-            id = model.getGoIntoNode().getUserObjectId();
-        if (v) {
-            model.setMainTree(v, null);
-            view.navigate();
-        } else if (!v && !(display.getUserObjectId() == id)) {
-            model.setMainTree(v, display);
-            view.navigate();
-        } 
-    }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
      * @see Browser#onComponentStateChange(boolean)
      */
     public void onComponentStateChange(boolean b)
@@ -1098,24 +820,15 @@ class BrowserComponent
                 "in the LOADING_DATA state.");
         long userID = model.getUserID();
         long groupID = model.getUserGroupID();
-        view.setViews(TreeViewerTranslator.refreshHierarchy(nodes,
-                    expandedTopNodes, userID, groupID)); 
+        //view.setViews(TreeViewerTranslator.refreshHierarchy(nodes,
+        //            expandedTopNodes, userID, groupID)); 
         model.fireContainerCountLoading();
         model.getParentModel().setStatus(false, "", true);
         PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
         fireStateChange(); 
     }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#isMainTree()
-     */
-    public boolean isMainTree()
-    {
-        return model.isMainTree();
-    }
-
+    
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#displaysImagesName()
@@ -1130,29 +843,209 @@ class BrowserComponent
 		 view.repaint();
 	}
 
-    /**
+	/**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setRootNode(ExperimenterData)
+     * @see Browser#loadExperimenterData(TreeImageDisplay, TreeImageDisplay)
      */
-	public void setRootNode(ExperimenterData experimenter)
+	public void loadExperimenterData(TreeImageDisplay exp, TreeImageDisplay n)
 	{
-		 if (model.getState() == DISCARDED)
-			 throw new IllegalStateException("This method cannot be invoked "+
-	                "in the DISCARDED state.");
-		 view.setRootNode(experimenter);
+		if (exp == null || !(exp.getUserObject() instanceof ExperimenterData))
+			throw new IllegalArgumentException("Node not valid.");
+		switch (model.getState()) {
+			case DISCARDED:
+			case LOADING_LEAVES:
+				throw new IllegalStateException(
+	                    "This method cannot be invoked in the DISCARDED or" +
+	                    "LOADING_LEAVES state.");
+		}   
+        if (n == null)
+        	model.fireExperimenterDataLoading((TreeImageSet) exp);
+        else model.fireLeavesLoading(exp, n);
+        model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
+        fireStateChange();
 	}
+
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setExperimenterData(TreeImageDisplay, Set)
+     */
+	public void setExperimenterData(TreeImageDisplay expNode, Set nodes)
+	{
+		int state = model.getState();
+        if (state != LOADING_DATA)
+            throw new IllegalStateException(
+                    "This method can only be invoked in the LOADING_DATA "+
+                    "state.");
+        if (nodes == null) throw new NullPointerException("No nodes.");
+        Object uo = expNode.getUserObject();
+        if (expNode == null || !(uo instanceof ExperimenterData))
+        	throw new IllegalArgumentException("Experimenter node not valid.");
+        ExperimenterData exp = (ExperimenterData) uo;
+        //depending on the type of browser, present data 
+        Set convertedNodes = TreeViewerTranslator.transformHierarchy(nodes, 
+					exp.getId(), exp.getDefaultGroup().getId());
+        view.setExperimenterData(convertedNodes, expNode);
+        model.fireContainerCountLoading();
+        model.getParentModel().setStatus(false, "", true);
+        fireStateChange();
+	}
+	
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#addExperimenter(ExperimenterData)
+     */
+	public void addExperimenter(ExperimenterData experimenter)
+	{
+		//TODO check state
+		if (experimenter == null)
+			throw new IllegalArgumentException("Experimenter cannot be null.");
+		view.addExperimenter(experimenter);
+	}
+
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#removeExperimenter(ExperimenterData)
+     */
+	public void removeExperimenter(ExperimenterData exp)
+	{
+		if (exp == null)
+			throw new IllegalArgumentException("Experimenter cannot be null.");
+		view.removeExperimenter(exp);
+	}
+
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#refreshExperimenterData()
+     */
+	public void refreshExperimenterData()
+	{
+		switch (model.getState()) {
+	        case LOADING_DATA:
+	        case LOADING_LEAVES:
+	        	model.cancel();
+	        case DISCARDED:
+	        	//ignore
+        	return;
+		}
+		TreeImageDisplay display = model.getLastSelectedDisplay();
+		if (display == null) return;
+		Object ho = display.getUserObject();
+		if (!(ho instanceof ExperimenterData)) return;
+		//
+		RefreshVisitor v = new RefreshVisitor(this);
+		display.accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+		RefreshExperimenterDef def = new RefreshExperimenterDef(
+								(TreeImageSet) display, 
+								v.getFoundNodes(), v.getExpandedTopNodes());
+		Map<Long, RefreshExperimenterDef> 
+			m = new HashMap<Long, RefreshExperimenterDef>(1);
+		m.put(display.getUserObjectId(), def);
+		model.loadRefreshExperimenterData(m);
+		fireStateChange();
+	}
+	
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#refreshTree()
+     */
+    public void refreshTree()
+    { 
+    	switch (model.getState()) {
+	        case LOADING_DATA:
+	        case LOADING_LEAVES:
+	        	model.cancel();
+	        case DISCARDED:
+	        	//ignore
+	        	return;
+    	}
+	    TreeImageDisplay root = view.getTreeRoot();
+	    TreeImageSet expNode;
+	    RefreshExperimenterDef def;
+	    RefreshVisitor v = new RefreshVisitor(this);
+	    int n = root.getChildCount();
+	    Map<Long, RefreshExperimenterDef> 
+	    	m = new HashMap<Long, RefreshExperimenterDef>(n);
+	    for (int i = 0; i < n; i++) {
+	    	expNode = (TreeImageSet) root.getChildAt(i);
+	    	expNode.accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+	    	def = new RefreshExperimenterDef(expNode, v.getFoundNodes(), 
+	    									v.getExpandedTopNodes());
+	    	m.put(expNode.getUserObjectId(), def);
+		}
+	    model.loadRefreshExperimenterData(m);
+		fireStateChange();
+	    /*
+	    if (!root.isChildrenLoaded()) return;
+	    if (!model.isSelected()) {
+	        //view.clearTree();
+	        //return;
+	    }
+	    if (model.getBrowserType() == IMAGES_EXPLORER) {
+	        root.removeAllChildrenDisplay();
+	        model.setSelectedDisplay(null); //root
+	        //Set nodes = model.getFilteredNodes();
+	        //if (nodes != null) loadFilteredImageData(nodes);
+	       // else loadFilteredImagesForHierarchy();
+	    } else {
+	    	//if (visit) {
+	    		RefreshVisitor visitor = new RefreshVisitor(this);
+		        accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+		        root.removeAllChildrenDisplay();
+		        model.setSelectedDisplay(null); //root
+		        model.loadRefreshedData(visitor.getFoundNodes(), 
+		                visitor.getExpandedTopNodes());
+	    	//} else {
+	    	//	root.removeAllChildrenDisplay();
+		    //    model.setSelectedDisplay(null); //root
+		     //   model.loadRefreshedData(null, null);
+	    	//}
+	    }
+	    */
+    }
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#cleanFilteredNodes()
+     * @see Browser#setRefreshExperimenterData(Map)
      */
-	public void cleanFilteredNodes()
+	public void setRefreshExperimenterData(
+					Map<Long, RefreshExperimenterDef> nodes)
 	{
-		 if (model.getState() == DISCARDED)
-			 throw new IllegalStateException("This method cannot be invoked "+
-	                "in the DISCARDED state.");
-		if (model.getBrowserType() == IMAGES_EXPLORER)
-			model.setFilterType(model.getFilterType());
+		if (model.getState() != LOADING_DATA)
+			throw new IllegalStateException("This method cannot be invoked "+
+			"in the LOADING_DATA state.");
+		if (nodes == null || nodes.size() == 0)
+			throw new IllegalArgumentException("Experimenter cannot be null.");
+		Iterator i = nodes.keySet().iterator();
+		RefreshExperimenterDef node;
+		TreeImageSet expNode;
+		ExperimenterData exp;
+		Set convertedNodes;
+		long userId;
+		int browserType = model.getBrowserType();
+		Map<Integer, Set> results;
+		while (i.hasNext()) {
+			userId = (Long) i.next();
+			node = nodes.get(userId);
+			expNode = node.getExperimenterNode();
+			exp = (ExperimenterData) expNode.getUserObject();
+			if (browserType == IMAGES_EXPLORER) {
+				results = TreeViewerTranslator.refreshImageHierarchy(
+							node.getResults(), exp.getId(), 
+							exp.getDefaultGroup().getId());
+				view.refreshTimeFolder(expNode, results);
+			} else {
+				convertedNodes = TreeViewerTranslator.refreshHierarchy(
+						node.getResults(),
+						node.getExpandedTopNodes(), exp.getId(), 
+						exp.getDefaultGroup().getId());
+				view.setExperimenterData(convertedNodes, expNode);
+			}
+		}
+		model.fireContainerCountLoading();
+		model.getParentModel().setStatus(false, "", true);
+		PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
+		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
+		fireStateChange(); 
 	}
     
 }

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -92,18 +93,14 @@ public interface OmeroDataService
      *                      nodes e.g. all user's projects.
      * @param withLeaves   	Passed <code>true</code> to retrieve the images,
      *                      <code>false</code> otherwise.
-     * @param rootLevel		The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID	The Id of the root.
+     * @param userID		The Id of the selected user.
      * @return  A set of hierarchy trees.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMERO service. 
      */
     public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs,
-                                    boolean withLeaves, Class rootLevel, 
-                                    long rootLevelID)
+                                    boolean withLeaves, long userID)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
@@ -160,17 +157,14 @@ public interface OmeroDataService
      *                      Mustn't be <code>null</code>.
      * @param leavesIDs     Set of ids of the Images that sit at the bottom of
      *                      the trees. Mustn't be <code>null</code>.
-     * @param rootLevel		The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID	The Id of the root.
+     * @param userID		The Id of the user.
      * @return A <code>Set</code> with all root nodes that were found.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMERO service. 
      */
     public Set findContainerHierarchy(Class rootNodeType, Set leavesIDs,
-            						Class rootLevel, long rootLevelID)
+            						long userID)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
@@ -230,38 +224,30 @@ public interface OmeroDataService
      *                      following constants: {@link #DECLASSIFICATION},
      *                      {@link #CLASSIFICATION_ME},
      *                      {@link #CLASSIFICATION_NME}.
-     * @param rootLevel     The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID   The Id of the roo                  
+     * @param userID   		The Id of the user.                  
      * @return A <code>Set</code> of hierarchy trees with all root nodes 
      * that were found.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMERO service. 
      */
-    public Set findCGCPaths(Set imgIDs, int algorithm, Class rootLevel, 
-                            long rootLevelID)
+    public Set findCGCPaths(Set imgIDs, int algorithm, long userID)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
      * Retrieves the images contained in containers specified by the 
      * node type.
      * 
-     * @param nodeType  	The type of container. Can either be Project, 
-     * 						Dataset, CategoryGroup, Category or Image.
-     * @param nodeIDs   	Set of node ids..
-     * @param rootLevel		The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID	The Id of the root.
+     * @param nodeType	The type of container. Can either be Project, 
+     * 					Dataset, CategoryGroup, Category or Image.
+     * @param nodeIDs   Set of node ids..
+     * @param userID	The Id of the root.
      * @return A <code>Set</code> of retrieved images.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMERO service. 
      */
-    public Set getImages(Class nodeType, Set nodeIDs, Class rootLevel, 
-            			long rootLevelID)
+    public Set getImages(Class nodeType, Set nodeIDs, long userID)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
@@ -447,16 +433,13 @@ public interface OmeroDataService
      *                  Mustn't be <code>null</code>.
      * @param nodeIDs   A set of the IDs of top-most containers. 
      *                  Mustn't be <code>null</code>.
-     * @param rootLevel The level of the hierarchy either <code>GroupData</code>
-     *                  or <code>ExperimenterData</code>.
-     * @param rootID    The Id of the root.
+     * @param userID    The Id of the user.
      * @return  A set of existing nodes.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMERO service. 
      */
-    public Set loadExistingObjects(Class nodeType, Set nodeIDs, Class rootLevel, 
-                                long rootID)
+    public Set loadExistingObjects(Class nodeType, Set nodeIDs, long userID)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
@@ -542,22 +525,18 @@ public interface OmeroDataService
     /**
      * Retrieves the oprhans datasets or categories.
      * 
-     * @param nodeType		The type of the rootNodes. It can either be
-     *                      <code>Dataset</code> or <code>Image</code>.
-     *                      Mustn't be <code>null</code>. 
-     * @param b				Pass <code>true</code> to retrieve the images,
-     * 						<code>false</code> otherwise.
-     * @param rootLevel		The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID	The Id of the root.
+     * @param nodeType	The type of the rootNodes. It can either be
+     *                  <code>Dataset</code> or <code>Image</code>.
+     *                  Mustn't be <code>null</code>. 
+     * @param b			Pass <code>true</code> to retrieve the images,
+     * 					<code>false</code> otherwise.
+     * @param userID	The Id of the root.
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMERO service. 
      */
-	public Set getOrphanContainers(Class nodeType, boolean b, Class rootLevel, 
-									long rootLevelID)
+	public Set getOrphanContainers(Class nodeType, boolean b, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
@@ -653,6 +632,49 @@ public interface OmeroDataService
      *                                  retrieve data from OMEDS service.
 	 */
 	public long getSpace(int index)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Retrieves the images before a given date.
+	 * 
+	 * @param time		The timestamp identifying the date.
+     * @param userID	The Id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+	 */
+	public Set getImagesBefore(Timestamp time, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Retrieves the images after a given date.
+	 * 
+	 * @param time		The timestamp identifying the date.
+     * @param userID	The Id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+	 */
+	public Set getImagesAfter(Timestamp time, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Retrieves the images after a given date.
+	 * 
+	 * @param lowerTime	The timestamp identifying the start of the period.
+	 * @param time		The timestamp identifying the end of the period.
+     * @param userID	The Id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+	 */
+	public Set getImagesDuring(Timestamp lowerTime, Timestamp time, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

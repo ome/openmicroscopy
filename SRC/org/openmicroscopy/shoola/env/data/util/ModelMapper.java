@@ -441,9 +441,10 @@ public class ModelMapper
     }
     
     /**
+     * Links the annotated object and its annotation.
      * 
-     * @param annotated
-     * @param annotation
+     * @param annotated		The annotated object.
+     * @param annotation	The annotation.
      */
     public static void setAnnotatedObject(IObject annotated, 
             IObject annotation)  

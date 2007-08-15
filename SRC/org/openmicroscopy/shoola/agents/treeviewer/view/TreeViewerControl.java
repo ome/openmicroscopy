@@ -67,7 +67,9 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.FinderAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PropertiesAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshExperimenterData;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshTreeAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveExperimenterNode;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
@@ -195,20 +197,20 @@ class TreeViewerControl
      */
     static final Integer    SWITCH_USER = new Integer(23);
     
-    /** 
-     * Identifies the <code>Annotate children action</code>.
-     */
+    /** Identifies the <code>Annotate children action</code>. */
     static final Integer    ANNOTATE_CHILDREN = new Integer(24);
     
-    /** 
-     * Identifies the <code>Classify children action</code>.
-     */
+    /** Identifies the <code>Classify children action</code>. */
     static final Integer    CLASSIFY_CHILDREN = new Integer(25);
     
-    /** 
-     * Identifies the <code>Roll over action</code>.
-     */
+    /** Identifies the <code>Roll over action</code>. */
     static final Integer    ROLL_OVER = new Integer(26);
+    
+    /** Identifies the <code>Remove from display action</code>. */
+    static final Integer    REMOVE_FROM_DISPLAY = new Integer(27);
+    
+    /** Identifies the <code>Refresh experimenter action</code>. */
+    static final Integer    REFRESH_EXPERIMENTER = new Integer(29);
     
     /** 
      * Reference to the {@link TreeViewer} component, which, in this context,
@@ -260,6 +262,9 @@ class TreeViewerControl
         actionsMap.put(ANNOTATE_CHILDREN, new AnnotateChildrenAction(model));
         actionsMap.put(CLASSIFY_CHILDREN, new ClassifyChildrenAction(model));
         actionsMap.put(ROLL_OVER, new RollOverAction(model));
+        actionsMap.put(REMOVE_FROM_DISPLAY, new RemoveExperimenterNode(model));
+        actionsMap.put(REFRESH_EXPERIMENTER, 
+        			new RefreshExperimenterData(model));
     }
     
     /** 
@@ -533,8 +538,8 @@ class TreeViewerControl
             Browser browser;
             while (i.hasNext()) {
             	browser = (Browser) i.next();
-            	browser.cleanFilteredNodes();
-            	browser.switchUser();
+            	//browser.cleanFilteredNodes();
+            	//browser.switchUser();
             }
         } else if (name.equals(
                 AddExistingObjectsDialog.EXISTING_ADD_PROPERTY)) {

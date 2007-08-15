@@ -37,19 +37,18 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * Command to refresh a data trees.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -66,119 +65,138 @@ public class DMRefreshLoader
 {
 
     /** The results of the call. */
-    private Object      results;
+    private Map      	results;
     
     /** Loads the specified tree. */
     private BatchCall   loadCall;
     
     /**
-     * Checks if the specified level is supported.
-     * 
-     * @param level The level to control.
-     */
-    private void checkRootLevel(Class level)
-    {
-        if (level.equals(ExperimenterData.class) ||
-                level.equals(GroupData.class)) return;
-        throw new IllegalArgumentException("Root level not supported");
-    }
-    
-    /**
      * Creates a {@link BatchCall} to retrieve a Container tree, either
      * Project or CategoryGroup.
      * 
-     * @param rootNodeType          The type of the root node. Can only be one 
-     *                              out of:
-     *                              {@link ProjectData} or
-     *                              {@link CategoryGroupData}.
-     * @param containerWithImages   A set of container whose leaves are images
-     *                              i.e. <code>Dataset</code> or 
-     *                              <code>Category</code>.
-     * @param rootLevel             The level of the hierarchy either 
-     *                              <code>GroupData</code> or 
-     *                              <code>ExperimenterData</code>.
-     * @param rootLevelID           The Id of the root. 
+     * @param rootNodeType 	The type of the root node. Can either:
+     *                      {@link ProjectData} or {@link CategoryGroupData}.
+     * @param nodes   		The nodes to handle.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final Class rootNodeType,
-                                    final List containerWithImages,
-                                    final Class rootLevel, 
-                                    final long rootLevelID)
+    private BatchCall makeBatchCall(final Class rootNodeType, 
+                                    final Map<Long, List> nodes)
     {
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                Set set = os.loadContainerHierarchy(rootNodeType, null, 
-                        false, rootLevel, rootLevelID);
-                //Retrieve the orphans objects.
-               // Class nodeType = null;
-            	//if (rootNodeType.equals(ProjectData.class))
-            	//	nodeType = DatasetData.class;
-            	//else if (rootNodeType.equals(CategoryGroupData.class))
-            	//	nodeType = CategoryData.class;
-            	//if (nodeType != null) {
-            		//Set orphans = os.getOrphanContainers(nodeType, false, 
-            		//		rootLevel, rootLevelID);
-            		//if (orphans != null && orphans.size() > 0)
-            		//	set.addAll(orphans);
-            	//}
-            	//
-                Set<Long> ids;
-                Iterator i = containerWithImages.iterator();
-                ids = new HashSet<Long>(containerWithImages.size());
-                while (i.hasNext()) {
-                    ids.add(new Long(((DataObject) i.next()).getId()));
-                }
-                Iterator j = set.iterator(), c;
-                Set children = null;
-                Long id;
-                Class klass = null;
-                Set newChildren;
-                Map topNodes = new HashMap(set.size());
-                DataObject child, parent;
-                Set cIds, r;
-                Iterator k;
-                while (j.hasNext()) {
-                    newChildren = new HashSet();
-                    parent = (DataObject) j.next();
-                    if (parent instanceof ProjectData) {
-                        children = ((ProjectData) parent).getDatasets();
-                        klass = DatasetData.class;
-                    } else if (parent instanceof CategoryGroupData) {
-                        klass = CategoryData.class;
-                        children = ((CategoryGroupData) parent).getCategories();
-                    } else if (parent instanceof DatasetData) {
-                    	children = new HashSet(1);
-                    	children.add(parent);
-                    	klass = DatasetData.class;
-                    } else if (parent instanceof CategoryData) {
-                    	children = new HashSet(1);
-                    	children.add(parent);
-                    	klass = CategoryData.class;
-                    }
-                    topNodes.put(parent, newChildren);
-                    c = children.iterator();
-                    while (c.hasNext()) {
-                        child = (DataObject) c.next();
-                        id = new Long(child.getId());
-                        if (ids.contains(id)) {
-                            cIds = new HashSet(1);
-                            cIds.add(id);
-                            r = os.loadContainerHierarchy(klass, cIds, 
-                                    true, rootLevel, rootLevelID);
-                            k = r.iterator();
-                            while (k.hasNext()) {
-                                newChildren.add(k.next());
+                Iterator users = nodes.keySet().iterator();
+                long userID;
+                List containers;
+                results = new HashMap<Long, Object>(nodes.size());
+                Object result;
+                while (users.hasNext()) {
+                	userID = (Long) users.next();
+                	containers = nodes.get(userID);
+                	if (containers == null || containers.size() == 0) {
+                		result = os.loadContainerHierarchy(rootNodeType, null, 
+                        		false, userID);
+                	} else {
+                		Set set = os.loadContainerHierarchy(rootNodeType, null, 
+                                false, userID);
+                        Set<Long> ids;
+                        Iterator i = containers.iterator();
+                        ids = new HashSet<Long>(containers.size());
+                        while (i.hasNext()) {
+                            ids.add(new Long(((DataObject) i.next()).getId()));
+                        }
+                        Iterator j = set.iterator(), c;
+                        Set children = null;
+                        Long id;
+                        Class klass = null;
+                        Set newChildren;
+                        Map topNodes = new HashMap(set.size());
+                        DataObject child, parent;
+                        Set cIds, r;
+                        Iterator k;
+                        while (j.hasNext()) {
+                            newChildren = new HashSet();
+                            parent = (DataObject) j.next();
+                            if (parent instanceof ProjectData) {
+                                children = ((ProjectData) parent).getDatasets();
+                                klass = DatasetData.class;
+                            } else if (parent instanceof CategoryGroupData) {
+                                klass = CategoryData.class;
+                                children = 
+                                	((CategoryGroupData) parent).getCategories();
+                            } else if (parent instanceof DatasetData) {
+                            	children = new HashSet(1);
+                            	children.add(parent);
+                            	klass = DatasetData.class;
+                            } else if (parent instanceof CategoryData) {
+                            	children = new HashSet(1);
+                            	children.add(parent);
+                            	klass = CategoryData.class;
                             }
-                        } else newChildren.add(child);
-                    }
-                }
-                results = topNodes;
+                            topNodes.put(parent, newChildren);
+                            c = children.iterator();
+                            while (c.hasNext()) {
+                                child = (DataObject) c.next();
+                                id = new Long(child.getId());
+                                if (ids.contains(id)) {
+                                    cIds = new HashSet(1);
+                                    cIds.add(id);
+                                    r = os.loadContainerHierarchy(klass, cIds, 
+                                            true, userID);
+                                    k = r.iterator();
+                                    while (k.hasNext()) {
+                                        newChildren.add(k.next());
+                                    }
+                                } else newChildren.add(child);
+                            }
+                        }
+                        result = topNodes;
+                	}
+                	results.put(userID, result);
+				}
             }
         };
     }
     
+    /**
+     * Creates a {@link BatchCall} to retrieve the images
+     * 
+     * @param nodes   		
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeImagesBatchCall(final Map<Long, List> nodes)
+    {
+        return new BatchCall("Loading iamges: ") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                Iterator users = nodes.keySet().iterator();
+                long userID;
+                List containers;
+                Iterator j ;
+                TimeRefObject ref;
+                while (users.hasNext()) {
+                	userID = (Long) users.next();
+                	containers = nodes.get(userID);
+                	j = containers.iterator();
+                	while (j.hasNext()) {
+                		ref = (TimeRefObject) j.next();
+						switch (ref.getConstrain()) {
+							case ImagesLoader.BEFORE:
+								ref.setResults(os.getImagesBefore(ref.getTime(), 
+											userID));
+							case ImagesLoader.AFTER:
+								ref.setResults(os.getImagesAfter(ref.getTime(), 
+												userID));
+								break;
+						}
+					}
+                }
+                results = nodes;
+            }
+        };
+    }
     /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
@@ -196,35 +214,23 @@ public class DMRefreshLoader
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
      * 
-     * @param rootNodeType          The type of the root node. Can only be one 
-     *                              out of:
-     *                              {@link ProjectData} or
-     *                              {@link CategoryGroupData}.
-     * @param containerWithImages   A set of container whose leaves are images
-     *                              i.e. <code>Dataset</code> or 
-     *                              <code>Category</code>.
-     * @param rootLevel             The level of the hierarchy either 
-     *                              <code>GroupData</code> or 
-     *                              <code>ExperimenterData</code>.
-     * @param rootLevelID           The Id of the root. 
+     * @param rootNodeType	The type of the root node. Can either:
+     *                      {@link ProjectData} or
+     *                      {@link CategoryGroupData}.
+     * @param nodes           The Id of the root. 
      */
-    public DMRefreshLoader(Class rootNodeType, List containerWithImages,
-                            Class rootLevel, long rootLevelID)
+    public DMRefreshLoader(Class rootNodeType, Map<Long, List> nodes)
     {
         if (rootNodeType == null) 
             throw new IllegalArgumentException("No root node type.");
-        checkRootLevel(rootLevel);
-        if (rootLevelID < 0) 
-            throw new IllegalArgumentException("No root ID not valid.");
-        if (containerWithImages == null || containerWithImages.size() == 0)
+        
+        if (nodes == null || nodes.size() == 0)
             throw new IllegalArgumentException("No container with images.");
-        if (rootNodeType.equals(ProjectData.class) ||
-                rootNodeType.equals(CategoryGroupData.class))
-                loadCall = makeBatchCall(rootNodeType, containerWithImages, 
-                                        rootLevel, rootLevelID);
-        else 
-            throw new IllegalArgumentException("Unsupported type: "+
-                                                rootNodeType);
+        if (ImageData.class.equals(rootNodeType)) 
+        	loadCall = makeImagesBatchCall(nodes);
+        else if (ProjectData.class.equals(rootNodeType) || 
+        		CategoryGroupData.class.equals(rootNodeType))
+        	loadCall = makeBatchCall(rootNodeType,  nodes);
     }
     
 }

@@ -30,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -67,6 +68,7 @@ import ome.model.core.PixelsDimensions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
+import ome.parameters.QueryParameter;
 import ome.system.Login;
 import ome.system.Server;
 import ome.system.ServiceFactory;
@@ -107,7 +109,8 @@ class OMEROGateway
 	 */
 	private static final int		MAX_RETRIEVAL = 100;
 	
-	/** The number of thumbnails already retrieved. Resets to <code>0</code>
+	/**
+	 * The number of thumbnails already retrieved. Resets to <code>0</code>
 	 * when the value equals {@link #MAX_RETRIEVAL}.
 	 */
 	private int						thumbRetrieval;
@@ -189,6 +192,7 @@ class OMEROGateway
      */
     private String printErrorText(Exception e) 
     {
+    	if (e == null) return "";
     	StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
@@ -551,8 +555,6 @@ class OMEROGateway
     {
         try {
             IPojos service = getPojosService();
-            Set s = new HashSet();
-            Iterator j = s.iterator();
             return PojoMapper.asDataObjects(service.loadContainerHierarchy(
                     convertPojos(rootNodeType), rootNodeIDs, options));
         } catch (Throwable t) {
@@ -928,7 +930,7 @@ class OMEROGateway
         try {
             IQuery service = getQueryService();
             Pixels pixs = service.get(Pixels.class, pixelsID);
-            return (PixelsDimensions) service.get(PixelsDimensions.class,
+            return service.get(PixelsDimensions.class,
                     pixs.getPixelsDimensions().getId().longValue());
         } catch (Throwable t) {
             handleException(t, "Cannot retrieve the dimension of "+
@@ -1407,6 +1409,81 @@ class OMEROGateway
 			handleException(e, "Cannot retrieve the free space");
 		}
 		return -1;
+	}
+	
+	/**
+	 * Returns a collection of images imported before the specified time
+	 * by the specified user.
+	 * 
+	 * @param time		The reference time.
+	 * @param userID	The user's id.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+	 */
+	List getImagesBefore(Timestamp time, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		String sql = "from Image as i where i.details.owner.id = :userID and " +
+    					"i.details.creationEvent.time < :time";
+		IQuery service = getQueryService();
+		Parameters param = new Parameters();
+		param.addLong("userID", userID);
+		param.add(new QueryParameter("time", Timestamp.class, time));
+		return service.findAllByQuery(sql, param);
+	}
+	
+	/**
+	 * Returns a collection of images imported after the specified time
+	 * by the specified user.
+	 * 
+	 * @param time		The reference time.
+	 * @param userID	The user's id.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+	 */
+	List getImagesAfter(Timestamp time, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		String sql = "from Image as i where i.details.owner.id = :userID and " +
+        			"i.details.creationEvent.time > :time";
+		IQuery service = getQueryService();
+		Parameters param = new Parameters();
+		param.addLong("userID", userID);
+		param.add(new QueryParameter("time", Timestamp.class, time));
+		return service.findAllByQuery(sql, param);
+	}
+	
+	/**
+	 * Returns a collection of images imported after the specified time
+	 * by the specified user.
+	 * 
+	 * @param lowerTime	The reference time.
+	 * @param time		The reference time.
+	 * @param userID	The user's id.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+	 */
+	List getImagesDuring(Timestamp lowerTime, Timestamp time, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		String sql = "from Image as i where i.details.owner.id = :userID and " +
+        			"i.details.creationEvent.time < :time and "+
+        			"i.details.creationEvent.time > :lowerTime";
+		IQuery service = getQueryService();
+		Parameters param = new Parameters();
+		param.addLong("userID", userID);
+		param.add(new QueryParameter("time", Timestamp.class, time));
+		param.add(new QueryParameter("lowerTime", Timestamp.class, lowerTime));
+		return service.findAllByQuery(sql, param);
 	}
 	
 }

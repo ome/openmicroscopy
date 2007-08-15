@@ -207,16 +207,13 @@ public interface DataHandlerView
      * Loads all Category Group/Category paths.
      * 
      * @param imageIDs      The id of the images.
-     * @param rootLevel     The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID   The Id of the root.   
+     * @param userID   		The Id of the user.   
      * @param algorithm     One of the constants defined by this class.              
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadClassificationPaths(Set imageIDs, Class rootLevel, 
-    			long rootLevelID, int algorithm, AgentEventListener observer);
+    public CallHandle loadClassificationPaths(Set imageIDs, long userID, 
+    						int algorithm, AgentEventListener observer);
     
     /**
      * Adds the images to the specified categories.

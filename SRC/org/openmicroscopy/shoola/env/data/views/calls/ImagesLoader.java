@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.sql.Timestamp;
 import java.util.Set;
 
 //Third-party libraries
@@ -37,8 +38,6 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
 import pojos.ImageData;
 
 
@@ -58,24 +57,38 @@ public class ImagesLoader
     extends BatchCallTree
 {
 
+	/** Indicates to retrieve data before a specified date. */
+	public static final int BEFORE = 0;
+	
+	/** Indicates to retrieve data after a specified date. */
+	public static final int AFTER = 1;
+	
+	/** Indicates to retrieve data after a specified date. */
+	public static final int PERIOD = 2;
+	
     /** The results of the call. */
     private Set         results;
     
     /** Loads the specified tree. */
     private BatchCall   loadCall;
-    
+
     /**
-     * Checks if the specified level is supported.
+     * Checks if the specified constrain is supported.
      * 
-     * @param level The level to control.
+     * @param c The constrain to control.
      */
-    private void checkRootLevel(Class level)
+    private void checkConstrain(int c)
     {
-        if (level.equals(ExperimenterData.class) ||
-                level.equals(GroupData.class)) return;
-        throw new IllegalArgumentException("Root level not supported");
+        switch (c) {
+			case BEFORE:
+			case AFTER:
+			case PERIOD:
+				return;
+			default:
+				 throw new IllegalArgumentException("Constrain not supported");
+		}       
     }
-  
+    
     /**
      * Creates a {@link BatchCall} to retrieve the user images.
      * 
@@ -99,23 +112,51 @@ public class ImagesLoader
      * 
      * @param nodeType  	The type of the node.
      * @param nodeIDs   	A set of the IDs of top-most containers.
-     * @param rootLevel		The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID	The Id of the root.
+     * @param userID		The Id of the user.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeImagesInContainerBatchCall(final Class nodeType,
                                         			final Set nodeIDs,
-                                        			final Class rootLevel,
-                                        			final long rootLevelID)
+                                        			final long userID)
     {
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                results = os.getImages(nodeType, nodeIDs, rootLevel, 
-                                        rootLevelID);
+                results = os.getImages(nodeType, nodeIDs, userID);
+            }
+        };
+    }
+    
+    /**
+     * Creates a a {@link BatchCall} to retrieve images before or after
+     * a given date depending on the passed parameter.
+     * 
+     * @param constrain	One of constants defined by this class.
+     * @param lowerTime The timestamp identifying the lower bound.
+     * @param time		The timestamp identifying the date.
+     * @param userID	The Id of the user.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeBatchCall(final int constrain, 
+    			final Timestamp lowerTime, final Timestamp time,
+                final long userID)
+    {
+        return new BatchCall("Loading images: ") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                switch (constrain) {
+					case BEFORE:
+						results = os.getImagesBefore(time, userID);
+						break;
+					case AFTER:
+						results = os.getImagesAfter(time, userID);
+						break;
+					case PERIOD:
+						results = os.getImagesDuring(lowerTime, time, userID);
+						break;
+				}
             }
         };
     }
@@ -146,37 +187,45 @@ public class ImagesLoader
 
     /**
      * Creates a new instance. If bad arguments are passed, we throw a runtime
-	 * exception so to fail early and in the caller's thread.
+	 * exception so to fail early and in the call.
      * 
-     * @param nodeType		The type of the root node. Can only be one out of:
-     * 						{@link DatasetData} or {@link CategoryGroupData}.
-     * @param nodeIDs		A set of the IDs of top-most containers.
-     * @param rootLevel		The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID	The Id of the root.
+     * @param nodeType	The type of the root node. Can only be one out of:
+     * 					{@link DatasetData} or {@link CategoryGroupData}.
+     * @param nodeIDs	A set of the IDs of top-most containers.
+     * @param userID	The Id of the user.
      */
-    public ImagesLoader(Class nodeType, Set nodeIDs, Class rootLevel,
-            			long rootLevelID)
+    public ImagesLoader(Class nodeType, Set nodeIDs, long userID)
     {
         if (nodeType == null) 
             throw new IllegalArgumentException("No node type.");
         if (nodeIDs == null || nodeIDs.size() == 0)
             throw new IllegalArgumentException("Collection of node ID" +
                                                 " not valid.");
-        try {
-            nodeIDs.toArray(new Long[] {});
-        } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException("nodeIDs only contains Long.");
-        }  
-        checkRootLevel(rootLevel);
+        
         if (nodeType.equals(DatasetData.class) || 
             nodeType.equals(CategoryData.class) ||
             nodeType.equals(ImageData.class))
             loadCall = makeImagesInContainerBatchCall(nodeType, nodeIDs, 
-                    								rootLevel, rootLevelID);
+                    									userID);
         else throw new IllegalArgumentException("Unsupported type: "+
                 nodeType);
+    }
+    
+    /**
+     * Creates a new instance. If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the call.
+	 * 
+     * @param constrain	One of constants defined by this class.
+     * @param lowerTime The timestamp identifying the start of a period.
+     * @param time		The timestamp identifying the date.
+     * @param userID	The Id of the user.
+     */
+    public ImagesLoader(int constrain, Timestamp lowerTime, Timestamp time, 
+    					long userID)
+    {
+    	
+    	checkConstrain(constrain);
+    	loadCall = makeBatchCall(constrain, lowerTime, time, userID);
     }
     
 }

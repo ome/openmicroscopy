@@ -27,8 +27,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Java imports
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +40,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
 import pojos.CategoryData;
@@ -80,6 +80,24 @@ public class TreeViewerTranslator
 	
 	/** Text of the dummy TreeImageSet containing the orphaned categories.*/
 	public static final String ORPHANED_CATEGORIES = "Orphaned Categories";
+	
+	/** 
+	 * Text of the dummy TreeImageSet containing the images 
+	 * imported less than a week ago.
+	 */
+	public static final String MONTH_OLD = "Month";
+	
+	/** 
+	 * Text of the dummy TreeImageSet containing the images 
+	 * imported less than a week ago.
+	 */
+	public static final String YEAR_OLD = "Year";
+	
+	/** 
+	 * Text of the dummy TreeImageSet containing the images 
+	 * imported less than a week ago.
+	 */
+	public static final String OLDER = "Older";
 	
     /**
      * Formats the toolTip of the specified {@link TreeImageDisplay} node.
@@ -782,5 +800,56 @@ public class TreeViewerTranslator
     	return false;
     	*/
     }
+
+    /**
+     * Transforms a set of {@link DataObject}s into their corresponding 
+     * visualization objects. The elements of the set can either be
+     * {@link DatasetData}, {@link CategoryData} or {@link ImageData}.
+     * 
+     * @param paths     Collection of {@link DataObject}s to transform.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data. 
+     * @return A set of visualization objects.
+     */
     
+    /**
+     * Transforms a set of {@link ImageData} objects into their corresponding 
+     * visualization objects.
+     *  
+     * @param nodes		The nodes to transform.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data. 
+     * @return A set of visualization objects.
+     */
+    public static Map<Integer, Set> refreshImageHierarchy(Map nodes, 
+    								long userID, long groupID)
+    {
+    	if (nodes == null)
+            throw new IllegalArgumentException("No objects.");
+    	Map<Integer, Set> r = new HashMap<Integer, Set>(nodes.size());
+        
+        Iterator i = nodes.keySet().iterator();
+        TreeImageTimeSet node;
+        Set images;
+        Iterator j;
+        ImageData ho;
+        Set<TreeImageDisplay> converted;
+        while (i.hasNext()) {
+            node = (TreeImageTimeSet) i.next();
+            images = (Set) nodes.get(node);
+            converted = new HashSet<TreeImageDisplay>(images.size());
+            j = images.iterator();
+            while (j.hasNext()) {
+            	ho = (ImageData) j.next();
+            	if (isReadable(ho, userID, groupID))
+            		converted.add(transformImage(ho));
+			}
+            r.put(node.getIndex(), converted);
+        }
+        return r;
+	}
+        
 }
+    

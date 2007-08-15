@@ -35,8 +35,6 @@ import org.openmicroscopy.shoola.agents.util.classifier.view.Classifier;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 
-import pojos.ExperimenterData;
-
 /** 
  * Loads the classification paths for declassifying or classifying the images
  * depending on the specified mode.
@@ -118,13 +116,11 @@ public class ClassificationsLoader
 		switch (mode) {
 			case Classifier.CLASSIFY_MODE:
 			case Classifier.BULK_CLASSIFY_MODE:
-				handle = dhView.loadClassificationPaths(images, 
-						ExperimenterData.class, rootID, 
+				handle = dhView.loadClassificationPaths(images, rootID, 
 						DataHandlerView.CLASSIFICATION_NME, this);
 				break;
 			case Classifier.DECLASSIFY_MODE:	
-				handle = dhView.loadClassificationPaths(images, 
-						ExperimenterData.class, rootID, 
+				handle = dhView.loadClassificationPaths(images, rootID, 
 						DataHandlerView.DECLASSIFICATION, this);
 		}
 	}

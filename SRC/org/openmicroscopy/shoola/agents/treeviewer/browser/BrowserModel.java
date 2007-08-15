@@ -37,12 +37,11 @@ import javax.swing.JTree;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.ContainerCounterLoader;
-import org.openmicroscopy.shoola.agents.treeviewer.ContainerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
-import org.openmicroscopy.shoola.agents.treeviewer.HierarchyLoader;
-import org.openmicroscopy.shoola.agents.treeviewer.ImagesInContainerLoader;
-import org.openmicroscopy.shoola.agents.treeviewer.ImagesLoader;
-import org.openmicroscopy.shoola.agents.treeviewer.RefreshDataLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterDataLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImageLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDataLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import pojos.CategoryData;
@@ -88,9 +87,6 @@ class BrowserModel
      */
     private DataBrowserLoader	currentLoader;
     
-    /** The type of filter. */
-    private int                 filterType;
-    
     /** List of founds nodes. */
     private List				foundNodes;
     
@@ -106,23 +102,11 @@ class BrowserModel
     /** Indicates if the browser is currently selected. */
     private boolean				selected;
     
-    /** Indicates if it's the main which is visible. */
-    private boolean             mainTree;
-    
     /** Indicates if the browser is visible or not. */
     private boolean             displayed;
     
-    /** The node we go into. */
-    private TreeImageDisplay    goIntoNode;
-    
     /** Reference to the parent. */
     private TreeViewer          parent;
-    
-    /** 
-     * Collection of <code>CategoryData</code> or <code>DatasetData</code>
-     * objects.
-     */
-    private Set					filteredNodes;
     
     /** Reference to the component that embeds this model. */
     protected Browser           component; 
@@ -159,12 +143,9 @@ class BrowserModel
         checkBrowserType(browserType);
         this.browserType = browserType;
         clickPoint = null;
-        filterType = Browser.IN_DATASET_FILTER;
         foundNodeIndex = -1;
         selectedNodes = new HashSet();
-        mainTree = true;
         displayed = true;
-        
     }
 
     /**
@@ -278,64 +259,13 @@ class BrowserModel
     int getBrowserType() { return browserType; }
     
     /**
-     * Starts the asynchronous retrieval of the hierarchy objects needed
-     * by this model and sets the state to {@link Browser#LOADING_DATA}. 
-     */
-    void fireDataLoading()
-    {
-        if (browserType == Browser.PROJECT_EXPLORER) 
-            currentLoader = new HierarchyLoader(component, 
-                                    HierarchyLoader.PROJECT);
-        else if (browserType == Browser.CATEGORY_EXPLORER)
-            currentLoader = new HierarchyLoader(component,
-                                HierarchyLoader.CATEGORY_GROUP);
-        else throw new IllegalArgumentException("BrowserType not valid.");
-        currentLoader.load();
-        state = Browser.LOADING_DATA;
-    }
-    
-    /**
-     * Returns the collection containing the objects containing the images
-     * to display. This method should only invoked when the 
-     * the browser's type equals to {@link Browser#IMAGES_EXPLORER}.
-     * 
-     * @return See above.
-     */
-    Set getFilteredNodes() { return filteredNodes; }
-    
-    /**
-     * Starts the asynchronous retrieval of the hierarchy objects needed
-     * by this model and sets the state to {@link Browser#LOADING_DATA}. 
-     * 
-     * @param nodes The Collection of <code>DataObject</code> nodes.
-     */
-    void fireFilteredImageDataLoading(Set nodes)
-    {
-    	filteredNodes = nodes;
-        Set<Long> ids = new HashSet<Long>(nodes.size());
-        Iterator i = nodes.iterator();
-        Class klass = null;
-        if (filterType == Browser.IN_DATASET_FILTER) {
-            while (i.hasNext())
-                ids.add(new Long(((DatasetData) i.next()).getId()));
-            klass = DatasetData.class;
-        } else if (filterType == Browser.IN_CATEGORY_FILTER) {
-            while (i.hasNext())
-                ids.add(new Long(((CategoryData) i.next()).getId()));
-            klass =  CategoryData.class;
-        }
-        state = Browser.LOADING_DATA;
-        currentLoader = new ImagesInContainerLoader(component, klass, ids);
-        currentLoader.load();
-    }
-    
-    /**
      * Starts the asynchronous retrieval of the leaves contained in the 
      * currently selected <code>TreeImageDisplay</code> objects needed
      * by this model and sets the state to {@link Browser#LOADING_LEAVES}. 
      */
     void fireLeavesLoading()
     {
+    	/*
     	TreeImageDisplay n = getLastSelectedDisplay();
         if (n instanceof TreeImageNode) return;
         
@@ -347,71 +277,37 @@ class BrowserModel
         state = Browser.LOADING_LEAVES;
         currentLoader = new HierarchyLoader(component, type, (TreeImageSet) n);
         currentLoader.load();
-        
-    	/*
-        TreeImageDisplay node = getLastSelectedDisplay();
-        if (node instanceof TreeImageNode) return;
-        Object ho = node.getUserObject();
-        long id = 0;
-        Class nodeType = null;
-        if (ho instanceof DatasetData) {
-            nodeType = DatasetData.class;
-            id = ((DatasetData) ho).getId();
-        } else if (ho instanceof CategoryData) {
-            nodeType = CategoryData.class;
-            id = ((CategoryData) ho).getId();
-        } else 
-            throw new IllegalArgumentException("Not valid selected display");
-        state = Browser.LOADING_LEAVES;
-        currentLoader = new ImagesInContainerLoader(component, nodeType, id,
-                                                    (TreeImageSet) node);
-        currentLoader.load();
         */
     }
 
     /**
-     * Starts the asynchronous retrieval of the hierarchy objects needed
-     * by this model and sets the state to {@link Browser#LOADING_DATA}
-     * depending on the value of the {@link #filterType}. 
+     * Starts the asynchronous retrieval of the leaves contained in the 
+     * currently selected <code>TreeImageDisplay</code> objects needed
+     * by this model and sets the state to {@link Browser#LOADING_LEAVES}.
+     * 
+	 * @param expNode 	The node hosting the experimenter.
+	 * @param node		The parent of the data. Pass <code>null</code>
+	 * 					to retrieve all data.	
      */
-    void fireFilterDataLoading()
+    void fireLeavesLoading(TreeImageDisplay expNode, TreeImageDisplay node)
     {
-        if (filterType == Browser.IN_DATASET_FILTER)
-            currentLoader = new HierarchyLoader(component,
-                                    HierarchyLoader.DATASET, false, true);
-        else if (filterType == Browser.IN_CATEGORY_FILTER)
-            currentLoader = new HierarchyLoader(component,
-                                    HierarchyLoader.CATEGORY, false, true);
-        else currentLoader = new ImagesLoader(component, parent.getRootID());
+    	state = Browser.LOADING_LEAVES;
+    	if (node instanceof TreeImageTimeSet) {
+    		currentLoader = new ExperimenterImageLoader(component, 
+					(TreeImageSet) expNode, (TreeImageTimeSet) node);
+    	} else {
+    		Object ho = node.getUserObject();
+            int type = -1;
+            if (ho instanceof DatasetData) 
+            	type = ExperimenterDataLoader.DATASET;
+            else if (ho instanceof CategoryData) 
+            	type = ExperimenterDataLoader.CATEGORY;
+            currentLoader = new ExperimenterDataLoader(component, type, 
+            					(TreeImageSet) expNode, (TreeImageSet) node);
+    	}
         currentLoader.load();
-        state = Browser.LOADING_DATA;
     }
-    
-    /**
-     * Starts the asynchronous retrieval of the data 
-     * and sets the state to {@link Browser#LOADING_DATA}.
-     */
-    void fireContainerLoading()
-    {
-        TreeImageDisplay selectedDisplay = getLastSelectedDisplay();
-        if (selectedDisplay == null) return;
-        Object ho = selectedDisplay.getUserObject();
-        long id = -1;
-        Class nodeType = null;
-        if (ho instanceof ProjectData) {
-            id = ((ProjectData) ho).getId();
-            nodeType = ProjectData.class;
-        } else if (ho instanceof CategoryGroupData) {
-            id = ((CategoryGroupData) ho).getId();
-            nodeType = CategoryGroupData.class;
-        }
-        if (nodeType != null) {
-            currentLoader = new ContainerLoader(component, nodeType, id);
-            currentLoader.load();
-            state = Browser.LOADING_DATA;
-        }
-    }
-    
+
     /**
      * Starts the asynchronous retrieval of the number of items contained 
      * in the <code>TreeImageSet</code> containing images e.g. a 
@@ -450,38 +346,6 @@ class BrowserModel
             currentLoader = null;
         }
         state = Browser.READY;
-    }
-    
-    /**
-     * Sets the filter used.
-     * 
-     * @param type The type of filter.
-     */
-    void setFilterType(int type)
-    { 
-    	filteredNodes = null;
-    	filterType = type; 
-    }
-    
-    /**
-     * Returns the type of filter currently used.
-     * 
-     * @return See above.
-     */
-    int getFilterType() { return filterType; }
-    
-    /**
-     * Starts the asynchronous retrieval of the data 
-     * according to the <code>UserObject</code> type.
-     */
-    void refreshSelectedDisplay()
-    {
-        TreeImageDisplay selectedDisplay = getLastSelectedDisplay();
-        if (selectedDisplay == null) return;
-        Object ho = selectedDisplay.getUserObject();
-        if ((ho instanceof DatasetData) || (ho instanceof CategoryData))
-            fireLeavesLoading();
-        else fireContainerLoading();
     }
 
     /**
@@ -577,34 +441,6 @@ class BrowserModel
     }
     
     /**
-     * Flag to indicate if the main is displayed on screen.
-     * 
-     * @return See above.
-     */
-    boolean isMainTree() { return mainTree; }
-    
-    /**
-     * Indicates which tree is currently displayed in the browser.
-     * 
-     * @param b             Pass <code>true</code> for the main tree, 
-     *                      <code>false</code> otherwise.
-     * @param goIntoNode    The node we go into. Pass <code>null</code>
-     *                      if we show the main tree.
-     */
-    void setMainTree(boolean b, TreeImageDisplay goIntoNode)
-    { 
-        this.goIntoNode = goIntoNode;
-        mainTree = b; 
-    }
-    
-    /**
-     * Returns the node we are currently exploring.
-     * 
-     * @return See above.
-     */
-    TreeImageDisplay getGoIntoNode() { return goIntoNode; }
-    
-    /**
      * Returns the parent of the component.
      * 
      * @return See above.
@@ -627,25 +463,6 @@ class BrowserModel
      */
     void setDisplayed(boolean displayed) { this.displayed = displayed; }
 
-    /** 
-     * Loads the data to refresh the tree.
-     * 
-     * @param nodes             The Collection of expanded nodes.
-     * @param expandedTopNodes  The expanded top nodes IDs.
-     */
-    void loadRefreshedData(List nodes, Map expandedTopNodes)
-    {
-        Class klass = null;
-        if (browserType == Browser.PROJECT_EXPLORER) klass = ProjectData.class;
-        else if (browserType == Browser.CATEGORY_EXPLORER) 
-            klass = CategoryGroupData.class;
-        if (klass == null) return;
-        state = Browser.LOADING_DATA;
-        currentLoader = new RefreshDataLoader(component, klass, nodes, 
-                                            expandedTopNodes);
-        currentLoader.load();   
-    }
-
     /**
      * Returns the first name and the last name of the currently 
      * selected experimenter as a String.
@@ -653,5 +470,56 @@ class BrowserModel
      * @return See above.
      */
 	String getExperimenterNames() { return parent.getExperimenterNames(); }
+
+	 /**
+     * Starts the asynchronous retrieval of the hierarchy objects needed
+     * by this model and sets the state to {@link Browser#LOADING_DATA}
+     * depending on the value of the {@link #filterType}. 
+     * 
+     * @param expNode 	The node hosting the experimenter.
+     */
+	void fireExperimenterDataLoading(TreeImageSet expNode)
+	{
+		int index = -1;
+		switch (browserType) {
+			case Browser.PROJECT_EXPLORER:
+				index = ExperimenterDataLoader.PROJECT;
+				break;
+			case Browser.CATEGORY_EXPLORER:
+				index = ExperimenterDataLoader.CATEGORY;
+				break;
+			case Browser.IMAGES_EXPLORER:
+				index = ExperimenterDataLoader.IMAGE;
+				break;
+		}
+		currentLoader = new ExperimenterDataLoader(component, index, expNode);
+        currentLoader.load();
+        state = Browser.LOADING_DATA;
+	}
+	
+	/** 
+     * Reloads the experimenter data.
+     * 
+     * @param nodes
+     */
+    void loadRefreshExperimenterData(Map<Long, RefreshExperimenterDef> nodes)
+    {
+        Class klass = null;
+        switch (browserType) {
+			case Browser.PROJECT_EXPLORER:
+				klass = ProjectData.class;
+				break;
+			case Browser.CATEGORY_EXPLORER:
+				klass = CategoryGroupData.class;
+				break;
+			case Browser.IMAGES_EXPLORER:
+				klass =  ImageData.class;
+				break;
+		}
+        state = Browser.LOADING_DATA;
+        currentLoader = new RefreshExperimenterDataLoader(component, klass,
+        												nodes);
+        currentLoader.load();   
+    }
 	
 }

@@ -24,6 +24,7 @@
 package org.openmicroscopy.shoola.env.data.views;
 
 //Java imports
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,17 +70,16 @@ class DataManagerViewImpl
     /**
      * Implemented as specified by the view interface.
      * @see DataManagerView#loadContainerHierarchy(Class, Set, boolean, 
-     * 						Class, long, AgentEventListener)
+     * 						AgentEventListener)
      */
     public CallHandle loadContainerHierarchy(Class rootNodeType,
                                             Set<Long> rootNodeIDs,
                                             boolean withLeaves,
-                                            Class rootLevel,
-                                            long rootLevelID,
+                                            long userID,
                                             AgentEventListener observer)
     {
         BatchCallTree cmd = new DMLoader(rootNodeType, rootNodeIDs, withLeaves,
-                						rootLevel, rootLevelID);
+        									userID);
         return cmd.exec(observer);
     }
 
@@ -95,14 +95,13 @@ class DataManagerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#getImages(Class, Set, Class, long,
+     * @see DataManagerView#getImages(Class, Set, long,
      *                              AgentEventListener)
      */
-    public CallHandle getImages(Class nodeType, Set nodeIDs, Class rootLevel,
-            					long rootLevelID, AgentEventListener observer)
+    public CallHandle getImages(Class nodeType, Set nodeIDs, long userID, 
+    							AgentEventListener observer)
     {
-        BatchCallTree cmd = new ImagesLoader(nodeType, nodeIDs, rootLevel, 
-                							rootLevelID);
+        BatchCallTree cmd = new ImagesLoader(nodeType, nodeIDs, userID);
         return cmd.exec(observer);
     }
 
@@ -180,14 +179,14 @@ class DataManagerViewImpl
     
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#loadClassificationPaths(Set, int, Class, long,
+     * @see DataManagerView#loadClassificationPaths(Set, int, long,
      *                                              AgentEventListener)
      */
     public CallHandle loadClassificationPaths(Set imageIDs, int algorithm,
-                Class rootLevel, long rootLevelID, AgentEventListener observer)
+    		long userID, AgentEventListener observer)
     {
         BatchCallTree cmd = new ClassificationLoader(imageIDs, algorithm, 
-                                        rootLevel, rootLevelID);
+        											userID);
         return cmd.exec(observer);
     }
 
@@ -215,14 +214,14 @@ class DataManagerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#loadExistingObjects(Class, Set, Class, long, 
+     * @see DataManagerView#loadExistingObjects(Class, Set, long, 
      *                                          AgentEventListener)
      */
     public CallHandle loadExistingObjects(Class nodeType, Set nodeIDs, 
-            Class rootLevel, long rootLevelID, AgentEventListener observer)
+    		long userID, AgentEventListener observer)
     {
         BatchCallTree cmd = new ExistingObjectsLoader(nodeType, nodeIDs, 
-                                rootLevel, rootLevelID);
+        												userID);
         return cmd.exec(observer);
     }
 
@@ -247,20 +246,6 @@ class DataManagerViewImpl
                                         AgentEventListener observer)
     {
         BatchCallTree cmd = new ExistingObjectsSaver(toPaste, null);
-        return cmd.exec(observer);
-    }
-    
-    /**
-     * Implemented as specified by the view interface.
-     * @see DataManagerView#refreshHierarchy(Class, List, Class, long, 
-     *                                      AgentEventListener)
-     */
-    public CallHandle refreshHierarchy(Class rootNodeType, 
-            List containerWithImages, Class rootLevel, long rootLevelID, 
-            AgentEventListener observer)
-    {
-        BatchCallTree cmd = new DMRefreshLoader(rootNodeType, 
-                    containerWithImages, rootLevel, rootLevelID);
         return cmd.exec(observer);
     }
 
@@ -326,7 +311,31 @@ class DataManagerViewImpl
 	public CallHandle getDiskSpace(AgentEventListener observer)
 	{
 		BatchCallTree cmd = new AdminLoader(AdminLoader.SPACE);
-	     return cmd.exec(observer);
+	    return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#loadImages(int, Timestamp, Timestamp, 
+     * 									long, AgentEventListener)
+     */
+	public CallHandle loadImages(int constrain, Timestamp lowerTime, 
+				Timestamp time, long userID, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ImagesLoader(constrain, lowerTime, 
+											time, userID);
+	    return cmd.exec(observer);
+	}
+
+	 /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#refreshHierarchy(Class, Map, AgentEventListener)
+     */
+	public CallHandle refreshHierarchy(Class rootNodeType,
+								Map<Long, List> m, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new DMRefreshLoader(rootNodeType, m);
+		return cmd.exec(observer);
 	}
     
 }

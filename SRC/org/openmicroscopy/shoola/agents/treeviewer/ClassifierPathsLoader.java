@@ -33,7 +33,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
-import pojos.ExperimenterData;
+
 
 /** 
  * Loads the CategoryGroup/Category paths containing the specified image
@@ -121,13 +121,11 @@ public class ClassifierPathsLoader
         switch (mode) {
             case Classifier.DECLASSIFY_MODE:
                 handle = dmView.loadClassificationPaths(imageIDs,
-                        DataManagerView.DECLASSIFICATION, 
-                        ExperimenterData.class, rootID, this);
+                        DataManagerView.DECLASSIFICATION, rootID, this);
                 break;
             case Classifier.CLASSIFY_MODE:
                handle = dmView.loadClassificationPaths(imageIDs,
-                        DataManagerView.CLASSIFICATION_NME, 
-                        ExperimenterData.class, rootID, this);
+                        DataManagerView.CLASSIFICATION_NME, rootID, this);
         } 
     }
 

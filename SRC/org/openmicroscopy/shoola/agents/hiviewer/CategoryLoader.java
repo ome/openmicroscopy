@@ -34,7 +34,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.CategoryData;
-import pojos.ExperimenterData;
 
 /** 
  * Loads a Category/Image hierarchy rooted by given Categories.
@@ -91,7 +90,7 @@ public class CategoryLoader
     public void load()
     {
         handle = hiBrwView.loadHierarchy(CategoryData.class, categoriesID,
-        		ExperimenterData.class, viewer.getRootID(), this);
+        								viewer.getRootID(), this);
     }
     
     /** 

@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.HierarchyLoader
+ * org.openmicroscopy.shoola.agents.treeviewer.ExperimenterDataLoader
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,8 +20,8 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.treeviewer;
+
 
 //Java imports
 import java.util.HashSet;
@@ -38,8 +38,8 @@ import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ProjectData;
-
 
 /** 
  * Loads a Project/Dataset/(Image) hierarchy rooted by a given Project
@@ -56,18 +56,20 @@ import pojos.ProjectData;
  * <code>DataManagerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @version 2.2
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since OME3.0
  */
-public class HierarchyLoader
-    extends DataBrowserLoader
+public class ExperimenterDataLoader
+	extends DataBrowserLoader
 {
 
-    /** Indicates that the root node is of type <code>Project</code>. */
+	/** Indicates that the root node is of type <code>Project</code>. */
     public static final int PROJECT = 0;
     
     /** Indicates that the root node is of type <code>CategoryGroup</code>. */
@@ -79,6 +81,9 @@ public class HierarchyLoader
     /** Indicates that the root node is of type <code>Category</code>. */
     public static final int CATEGORY = 3;
     
+    /** Indicates that the root node is of type <code>Category</code>. */
+    public static final int IMAGE = 4;
+    
     /** 
      * Flag to indicate if the images are also retrieved.
      * Value set to <code>true</code> to retrieve the images,
@@ -86,26 +91,19 @@ public class HierarchyLoader
      */
     private boolean     		images;
     
-    /**
-     * Flag to indicate that the output is for the filter component.
-     * Value set to <code>true</code> to indicate that the output is displayed 
-     * in a filtering widget, <code>false</code> otherwise.
-     */
-    private boolean     		filter;
-    
-    /** The type of container. */
-    private int         		containerType;
-    
     /** The type of the root node. */
     private Class       		rootNodeType;
     
     /** The parent the nodes to retrieve are for. */
     private TreeImageSet		parent;
     
-    /** Handle to the async call so that we can cancel it. */
-    private CallHandle  handle;
+    /** The node hosting the experimenter the data are for. */
+    private TreeImageSet		expNode;
     
-    /**EditorLoader
+    /** Handle to the async call so that we can cancel it. */
+    private CallHandle  		handle;
+    
+    /**
      * Returns the class corresponding to the specified type.
      * Returns <code>null</code> if the type is not supported,
      * otherwise the corresponding class.
@@ -119,42 +117,23 @@ public class HierarchyLoader
             case PROJECT: return ProjectData.class;
             case CATEGORY_GROUP: return CategoryGroupData.class;
             case CATEGORY: return CategoryData.class;
-            case DATASET: return DatasetData.class;    
+            case DATASET: return DatasetData.class;     
         }
         return null;
     }
-    
-    /**
-     * Returns the {@link Browser}'s filterType corresponding to the 
-     * {@link #containerType}.
-     * 
-     * @return See above.
-     */
-    private int convertType()
-    {
-        switch (containerType) {
-            case DATASET: return Browser.IN_DATASET_FILTER;
-            case CATEGORY: return Browser.IN_CATEGORY_FILTER;
-            default:
-                throw new IllegalArgumentException("The only type supported " +
-                        "by this methods are DATASET and CATEGORY.");
-                
-        }
-    }
-    
+   
     /**
      * Creates a new instance. 
      * 
      * @param viewer        The viewer this data loader is for.
      *                      Mustn't be <code>null</code>.
-     * @param containerType One of the type defined by this class.
-     * @param parent		The parent the nodes are for.
+     * @param containerType	One of the type defined by this class.
+     * @param expNode		The node hosting the experimenter the data are for.
      */
-    public HierarchyLoader(Browser viewer, int containerType,
-    					TreeImageSet parent)
+    public ExperimenterDataLoader(Browser viewer, int containerType, 
+    							TreeImageSet expNode)
     {
-        this(viewer, containerType, true, false);
-        this.parent = parent;
+        this(viewer, containerType, expNode, null);
     } 
     
     /**
@@ -162,36 +141,25 @@ public class HierarchyLoader
      * 
      * @param viewer        The viewer this data loader is for.
      *                      Mustn't be <code>null</code>.
-     * @param containerType One of the type defined by this class.
+     * @param containerType	One of the type defined by this class.
+     * @param expNode		The node hosting the experimenter the data are for.
+     * 						Mustn't be <code>null</code>.
+     * @param parent		The parent the nodes are for.
      */
-    public HierarchyLoader(Browser viewer, int containerType)
+    public ExperimenterDataLoader(Browser viewer, int containerType, 
+    							TreeImageSet expNode, TreeImageSet parent)
     {
-        this(viewer, containerType, false, false);
-    }
-    
-    /**
-     * Creates a new instance. 
-     * 
-     * @param viewer        The viewer this data loader is for.
-     *                      Mustn't be <code>null</code>.
-     * @param containerType One of the type defined by this class.
-     * @param images        Passes <code>true</code> to retrieve the images,
-     *                      <code>false</code> otherwise.
-     * @param filter        Passes <code>true</code> to indicate that the 
-     *                      output is displayed in a filtering widget,
-     *                      <code>false</code> otherwise.
-     */
-    public HierarchyLoader(Browser viewer, int containerType, boolean images,
-                            boolean filter)
-    {
-        super(viewer);
+    	super(viewer);
+        if (expNode == null ||
+        		!(expNode.getUserObject() instanceof ExperimenterData))
+        	throw new IllegalArgumentException("Experimenter node not valid.");
+        this.parent = parent;
+        this.expNode = expNode;
         rootNodeType = getClassType(containerType);
         if (rootNodeType == null)
             throw new IllegalArgumentException("Type not supported");
-        this.containerType = containerType;
-        this.images = images;
-        this.filter = filter;
-    }
+        if (parent != null)  images = true;
+    } 
     
     /**
      * Retrieves the data.
@@ -199,14 +167,15 @@ public class HierarchyLoader
      */
     public void load()
     {
+    	ExperimenterData exp = (ExperimenterData) expNode.getUserObject();
     	if (parent == null) {
-    		handle = dmView.loadContainerHierarchy(rootNodeType, null, images,
-        			convertRootLevel(), viewer.getRootID(), this);
+    		handle = dmView.loadContainerHierarchy(rootNodeType, null, 
+    												images, exp.getId(), this);	
     	} else {
     		Set<Long> ids = new HashSet<Long>(1);
     		ids.add(new Long(parent.getUserObjectId()));
     		handle = dmView.loadContainerHierarchy(rootNodeType, ids, images,
-        			convertRootLevel(), viewer.getRootID(), this);
+    												exp.getId(), this);
     	}
     }
 
@@ -223,31 +192,28 @@ public class HierarchyLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        if (filter) viewer.setFilterNodes((Set) result, convertType());
+        if (parent == null) 
+        	viewer.setExperimenterData(expNode, (Set) result);
         else {
-        	if (parent == null) viewer.setContainerNodes((Set) result, parent);
-        	else {
-        		Set nodes = (Set) result;
-        		Iterator i = nodes.iterator();
-        		DataObject object;
-        		Class klass = parent.getUserObject().getClass();
-        		long id = parent.getUserObjectId();
-        		while (i.hasNext()) {
-        			object = (DataObject) i.next();
-					if (object.getClass().equals(klass)
-							&& object.getId() == id) {
-						if (object instanceof DatasetData) {
-							viewer.setLeaves(((DatasetData) object).getImages(), 
-									parent);
-						} else if (object instanceof CategoryData) {
-							viewer.setLeaves(((CategoryData) object).getImages(), 
-									parent);
-						}
+        	Set nodes = (Set) result;
+    		Iterator i = nodes.iterator();
+    		DataObject object;
+    		Class klass = parent.getUserObject().getClass();
+    		long id = parent.getUserObjectId();
+    		while (i.hasNext()) {
+    			object = (DataObject) i.next();
+				if (object.getClass().equals(klass)
+						&& object.getId() == id) {
+					if (object instanceof DatasetData) {
+						viewer.setLeaves(((DatasetData) object).getImages(), 
+								parent, expNode);
+					} else if (object instanceof CategoryData) {
+						viewer.setLeaves(((CategoryData) object).getImages(), 
+								parent, expNode);
 					}
 				}
-        	}
+			}
         }
-        	
     }
     
 }

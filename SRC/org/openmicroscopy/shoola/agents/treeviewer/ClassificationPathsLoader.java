@@ -33,7 +33,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.ExperimenterData;
 
 /** 
  * Loads the CategoryGroup/Category paths containing the specified image. 
@@ -89,7 +88,7 @@ public class ClassificationPathsLoader
     {
         handle = dmView.loadClassificationPaths(imageIDs,
                                     OmeroDataService.DECLASSIFICATION, 
-                                    ExperimenterData.class, rootID, this);
+                                    rootID, this);
     }
 
     /** 

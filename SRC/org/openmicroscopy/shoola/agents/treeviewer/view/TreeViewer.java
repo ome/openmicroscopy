@@ -396,7 +396,7 @@ public interface TreeViewer
      * Returns <code>true</code> if the specified object is readable,
      * <code>false</code> otherwise.
      * 
-     * @param ho    The data object to check.
+     * @param hierarchyObject    The data object to check.
      * @return See above.
      */
     public boolean isReadable(DataObject hierarchyObject);
@@ -421,9 +421,6 @@ public interface TreeViewer
      * @param set The nodes to add.
      */
     public void addExistingObjects(Set set);
-
-    /** Navigates into the selected node or displays the main tree. */
-    public void navigate();
     
     /**
      * Brings up the menu on top of the specified component at 
@@ -608,5 +605,8 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	public boolean isForCurrentUser();
+
+	/** Removes the experimenter from the display. */
+	public void removeExperimenterData();
 	
 }

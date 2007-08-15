@@ -68,15 +68,13 @@ class HierarchyBrowsingViewImpl
     
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadHierarchy(Class, Set, Class, long, 
+     * @see HierarchyBrowsingView#loadHierarchy(Class, Set, long, 
      *                                      AgentEventListener)
      */
     public CallHandle loadHierarchy(Class rootNodeType, Set nodesID, 
-                                    Class rootLevel, long rootID,
-                                    AgentEventListener observer)
+                                    long userID, AgentEventListener observer)
     {
-        BatchCallTree cmd = new HierarchyLoader(rootNodeType, nodesID, 
-        										rootLevel, rootID);
+        BatchCallTree cmd = new HierarchyLoader(rootNodeType, nodesID, userID);
         return cmd.exec(observer);
     }
     
@@ -96,40 +94,39 @@ class HierarchyBrowsingViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#findPDIHierarchies(Set, Class, int, 
+     * @see HierarchyBrowsingView#findPDIHierarchies(Set, long, 
      *                                              AgentEventListener)
      */
-    public CallHandle findPDIHierarchies(Set ids, Class rootLevel, long rootID,
+    public CallHandle findPDIHierarchies(Set ids, long userID,
                                         AgentEventListener observer)
     {
-        BatchCallTree cmd = new HierarchyFinder(ProjectData.class, ids, 
-                                                rootLevel, rootID);
+        BatchCallTree cmd = new HierarchyFinder(ProjectData.class, ids, userID);
         return cmd.exec(observer);
     }
 
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#findCGCIHierarchies(Set, Class, long,
+     * @see HierarchyBrowsingView#findCGCIHierarchies(Set, long,
      *                                              AgentEventListener)
      */
-    public CallHandle findCGCIHierarchies(Set ids, Class rootLevel, long rootID, 
+    public CallHandle findCGCIHierarchies(Set ids, long userID, 
                                         AgentEventListener observer)
     {
         BatchCallTree cmd = new HierarchyFinder(CategoryGroupData.class, ids, 
-                                                rootLevel, rootID);
+        										userID);
         return cmd.exec(observer);
     }
 
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadClassificationPaths(Set, int, Class, long,
+     * @see HierarchyBrowsingView#loadClassificationPaths(Set, int, long,
      *                                  AgentEventListener)
      */
     public CallHandle loadClassificationPaths(Set imageIDs, int algorithm, 
-            Class rootLevel, long rootLevelID, AgentEventListener observer)
+    		long userID, AgentEventListener observer)
     {
         BatchCallTree cmd = new ClassificationLoader(imageIDs, algorithm, 
-                                    rootLevel, rootLevelID);
+        											userID);
         return cmd.exec(observer);
     }
     
@@ -157,14 +154,12 @@ class HierarchyBrowsingViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadImages(Set, Class, long,
-     *                                      AgentEventListener)
+     * @see HierarchyBrowsingView#loadImages(Set, long, AgentEventListener)
      */
-    public CallHandle loadImages(Set imageIDs, Class rootLevel, 
-                                long rootLevelID, AgentEventListener observer)
+    public CallHandle loadImages(Set imageIDs, long userID, 
+    							AgentEventListener observer)
     {
-        BatchCallTree cmd = new ImagesLoader(ImageData.class, imageIDs, 
-                                        rootLevel, rootLevelID);
+        BatchCallTree cmd = new ImagesLoader(ImageData.class, imageIDs, userID);
         return cmd.exec(observer);
     }
 

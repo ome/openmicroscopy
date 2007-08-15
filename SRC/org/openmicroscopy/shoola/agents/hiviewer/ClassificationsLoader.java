@@ -36,8 +36,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 
-import pojos.ExperimenterData;
-
 /** 
  * Loads, asynchronously, the CategoryGroup/Categgory nodes
  * containing the the specified image.
@@ -91,8 +89,7 @@ public class ClassificationsLoader
         Set<Long> ids = new HashSet<Long>(1);
         ids.add(new Long(imageID));
         handle = hiBrwView.loadClassificationPaths(ids,
-                        HierarchyBrowsingView.DECLASSIFICATION, 
-                        ExperimenterData.class, rootID, this);
+                        HierarchyBrowsingView.DECLASSIFICATION, rootID, this);
     }
 
     /** 

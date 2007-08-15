@@ -34,7 +34,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DatasetData;
-import pojos.ExperimenterData;
+
 
 /** 
  * Loads asynchronously a Dataset/Image hierarchy rooted by a given Dataset.
@@ -91,7 +91,7 @@ public class DatasetLoader
     public void load()
     {
         handle = hiBrwView.loadHierarchy(DatasetData.class, datasetsID, 
-        				ExperimenterData.class, viewer.getRootID(), this);
+        				viewer.getRootID(), this);
     }
     
     /** Cancels the data loading. */

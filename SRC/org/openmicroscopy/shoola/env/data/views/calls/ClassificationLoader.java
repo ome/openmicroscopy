@@ -116,14 +116,11 @@ public class ClassificationLoader
      *                      {@link #DECLASSIFICATION},
      *                      {@link #CLASSIFICATION_ME},
      *                      {@link #CLASSIFICATION_NME}.
-     * @param rootLevel     The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID   The Id of the root.                  
+     * @param userID   		The Id of the user.                  
      * @return The {@link BatchCall}.
      */
     private BatchCall loadCGCPaths(final Set imageIDs, final int algorithm, 
-            final Class rootLevel, final long rootLevelID)
+            final long userID)
     {
         return new BatchCall("Loading CGC paths. ") {
             public void doCall() throws Exception
@@ -131,11 +128,9 @@ public class ClassificationLoader
                 OmeroDataService os = context.getDataService();
                 if (algorithm == CLASSIFICATION_NME)
                     rootNodes = os.loadContainerHierarchy(
-                            CategoryGroupData.class, null, false,
-                            rootLevel, rootLevelID);
+                            CategoryGroupData.class, null, false, userID);
                 else 
-                    rootNodes = os.findCGCPaths(imageIDs, algorithm, rootLevel, 
-                                            rootLevelID);
+                    rootNodes = os.findCGCPaths(imageIDs, algorithm, userID);
             }
         };
     }
@@ -164,13 +159,9 @@ public class ClassificationLoader
      *                      {@link #DECLASSIFICATION},
      *                      {@link #CLASSIFICATION_ME},
      *                      {@link #CLASSIFICATION_NME}.
-     * @param rootLevel     The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID   The Id of the root.                    
+     * @param userID   		The Id of the user.                    
      */
-    public ClassificationLoader(long imageID, int algorithm, Class rootLevel, 
-                                long rootLevelID)
+    public ClassificationLoader(long imageID, int algorithm, long userID)
     {
         if (imageID < 0) 
             throw new IllegalArgumentException("image ID not valid ");
@@ -178,7 +169,7 @@ public class ClassificationLoader
             throw new IllegalArgumentException("Algorithm not supported.");
         Set<Long> set = new HashSet<Long>(1);
         set.add(new Long(imageID));
-        loadCall  = loadCGCPaths(set, algorithm, rootLevel, rootLevelID);
+        loadCall  = loadCGCPaths(set, algorithm, userID);
     }
     
     /**
@@ -192,13 +183,9 @@ public class ClassificationLoader
      *                      {@link #DECLASSIFICATION},
      *                      {@link #CLASSIFICATION_ME},
      *                      {@link #CLASSIFICATION_NME}.
-     * @param rootLevel     The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID   The Id of the root.                
+     * @param userID   		The Id of the user.                
      */
-    public ClassificationLoader(Set imageIDs, int algorithm, Class rootLevel, 
-                                long rootLevelID)
+    public ClassificationLoader(Set imageIDs, int algorithm, long userID)
     {
         if ((imageIDs == null || imageIDs.size() == 0) && 
         		algorithm == DECLASSIFICATION)
@@ -206,7 +193,7 @@ public class ClassificationLoader
                     "cannot be null or of size 0.");
         if (!checkAlgorithmIndex(algorithm))
             throw new IllegalArgumentException("Algorithm not supported.");
-        loadCall  = loadCGCPaths(imageIDs, algorithm, rootLevel, rootLevelID);
+        loadCall  = loadCGCPaths(imageIDs, algorithm, userID);
     }
     
 }

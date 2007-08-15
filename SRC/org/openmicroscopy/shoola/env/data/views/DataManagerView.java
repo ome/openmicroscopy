@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +34,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -55,7 +57,16 @@ import pojos.ImageData;
 public interface DataManagerView
     extends DataServicesView
 {
-    
+ 
+	/** Indicates to retrieve data before a specified date. */
+	public static final int BEFORE = ImagesLoader.BEFORE;
+	
+	/** Indicates to retrieve data after a specified date. */
+	public static final int AFTER = ImagesLoader.AFTER;
+	
+	/** Indicates to retrieve data during a period of time. */
+	public static final int PERIOD = ImagesLoader.PERIOD;
+	
 	/** Identifies the <code>Declassification</code> algorithm. */
     public static final int DECLASSIFICATION = 
     						ClassificationLoader.DECLASSIFICATION;
@@ -75,27 +86,6 @@ public interface DataManagerView
     						ClassificationLoader.CLASSIFICATION_NME;
     
     /**
-     * Reloads the hierarchy currently displayed.
-     * 
-     * @param rootNodeType          The type of the root node. Can only be one 
-     *                              out of:
-     *                              <code>ProjectData, CategoryGroupData</code>.
-     * @param expandedNodes   The nodes in the hierarchy whose children
-     *                              have been loaded. Can only be one out of:
-     *                              <code>DatasetData, CategoryData</code>.
-     * @param rootLevel             The level of the hierarchy either 
-     *                              <code>GroupData</code> or 
-     *                              <code>ExperimenterData</code>.
-     * @param rootLevelID           The Id of the root.
-     * @param observer              Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle refreshHierarchy(Class rootNodeType,
-                                        List expandedNodes,
-                                        Class rootLevel, long rootLevelID,
-                                        AgentEventListener observer);
-    
-    /**
      * Retrieves the hierarchies specified by the 
      * parameters.
      * 
@@ -107,17 +97,14 @@ public interface DataManagerView
      *                      container specified by the rootNodeType.
      * @param withLeaves    Passes <code>true</code> to retrieve the images.
      *                      <code>false</code> otherwise.   
-     * @param rootLevel		The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID	The Id of the root.
+     * @param userID		The Id of the user.
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadContainerHierarchy(Class rootNodeType,
                                             Set<Long> rootNodeIDs, 
                                             boolean withLeaves,
-            								Class rootLevel, long rootLevelID,
+            								long userID,
                                             AgentEventListener observer);
     
     /**
@@ -135,15 +122,12 @@ public interface DataManagerView
      * @param nodeType 		The type of the node. Can only be one out of:
      *                      <code>DatasetData, CategoryData</code>.       
      * @param nodeIDs 		The id of the node.
-     * @param rootLevel		The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID	The Id of the root.
+     * @param userID		The Id of the user.
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle getImages(Class nodeType, Set nodeIDs, Class rootLevel, 
-            					long rootLevelID, AgentEventListener observer);
+    public CallHandle getImages(Class nodeType, Set nodeIDs, long userID, 
+    							AgentEventListener observer);
     
     /**
      * Creates a new <code>DataObject</code> whose parent is specified by the
@@ -230,7 +214,7 @@ public interface DataManagerView
      * whose id is <code>imageID</code>, and then all the Category Group nodes
      * that contain those Categories.  If <code>false</code>, then it does the
      * opposite: it loads all the Categories the given Image doesn't belong in,
-     * and then all the Cat                  egory Groups that contain those Categories.
+     * and then all the Category Groups that contain those Categories.
      * This method returns all the matching Category Groups (as <code>
      * CategoryGroupData</code> objects) in a <code>Set</code>, which is the
      * result object of the <code>DSCallOutcomeEvent</code>.
@@ -254,16 +238,12 @@ public interface DataManagerView
      * 
      * @param imageIDs      The id of the images.
      * @param algorithm     One of the constants defined by this class.
-     * @param rootLevel     The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID   The Id of the root.
+     * @param userID		The Id of the user.
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadClassificationPaths(Set imageIDs, int algorithm, 
-                            Class rootLevel, long rootLevelID, 
-                            AgentEventListener observer);
+    						long userID, AgentEventListener observer);
     
     /**
      * Adds the images to the specified categories.
@@ -295,16 +275,12 @@ public interface DataManagerView
      *                      <code>CategoryData</code> or 
      *                      <code>CategoryGroupData</code>.      
      * @param nodeIDs       The id of the nodes.
-     * @param rootLevel     The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID   The Id of the root.
+     * @param userID		The Id of the user.
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadExistingObjects(Class nodeType, Set nodeIDs, 
-                                    Class rootLevel, long rootLevelID,
-                                        AgentEventListener observer);
+    							long userID, AgentEventListener observer);
 
     /**
      * Adds the specified items to the parent.
@@ -391,5 +367,30 @@ public interface DataManagerView
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle getDiskSpace(AgentEventListener observer);
+	
+	/**
+	 * 
+	 * @param constrain
+	 * @param lowerTime
+	 * @param time
+	 * @param userID
+	 * @param observer
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadImages(int constrain, Timestamp lowerTime, 
+								Timestamp time, long userID, 
+								AgentEventListener observer);
+	
+	/**
+     * Reloads the hierarchy currently displayed.
+     * 
+     * @param rootNodeType	The type of the root node. Can either be 
+     *                      <code>ProjectData, CategoryGroupData</code>.
+     * @param m           			
+     * @param observer              Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle refreshHierarchy(Class rootNodeType,
+    							Map<Long, List> m, AgentEventListener observer);
 	
 }

@@ -428,7 +428,7 @@ public abstract class TreeImageDisplay
         else if (obj instanceof String) return (String) obj;
         return "";
     }
-
+    
     /**
      * Returns the name of the node and the number of items
      * in the specified containers.
@@ -438,10 +438,14 @@ public abstract class TreeImageDisplay
     public String getNodeText()
     {
         String name = getNodeName();
-        if (getUserObject() instanceof ImageData) {
+        Object uo = getUserObject();
+        if (uo instanceof ImageData) {
         	if (partialName) return getPartialName(name);
         	return name;
-        }
+        } else if (uo instanceof ExperimenterData)
+        	return getNodeName();
+        else if (uo instanceof String && numberItems < 0) 
+        	return name;
         if (numberItems < 0) return (name+SPACE+"[...]");
         return (name+SPACE+"["+numberItems+"]");
     }

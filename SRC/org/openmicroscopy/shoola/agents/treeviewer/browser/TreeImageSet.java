@@ -114,7 +114,8 @@ public class TreeImageSet
                     throw new IllegalArgumentException(
                         "This node can only contain TreeImageNodes.");
             } else  { //Children are ImageSets.
-                if (!childClass.equals(TreeImageSet.class))
+                if (!(childClass.equals(TreeImageSet.class) ||
+                	childClass.equals(TreeImageTimeSet.class)))
                     throw new IllegalArgumentException(
                         "This node can only contain TreeImageSets.");
             }

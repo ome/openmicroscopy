@@ -34,8 +34,6 @@ import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.CategoryGroupData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
 import pojos.ProjectData;
 
 /** 
@@ -78,38 +76,22 @@ public class HierarchyFinder
     private BatchCall   findCall;
     
     /**
-     * Checks if the specified level is supported.
-     * 
-     * @param level The level to control.
-     */
-    private void checkRootLevel(Class level)
-    {
-        if (level.equals(ExperimenterData.class) ||
-                level.equals(GroupData.class)) return;
-        throw new IllegalArgumentException("Root level not supported");
-    }
-    
-    /**
      * Creates a {@link BatchCall} to search the P/D/I, CG/C/I hierarchy.
      * 
      * @param hierarchyRootNodeType The type of the root node.
      * @param ids				    Collections of image ids.
-     * @param rootLevel             The level of the hierarchy either 
-     *                              <code>GroupData</code> or 
-     *                              <code>ExperimenterData</code>.
-     * @param rootLevelID           The Id of the root.
+     * @param userID           		The Id of the user.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final Class hierarchyRootNodeType, 
-            						final Set ids, final Class rootLevel,
-                                    final long rootLevelID)
+            						final Set ids, final long userID)
     {
         return new BatchCall("Searching Container hierarchy") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
                 rootNodes = os.findContainerHierarchy(hierarchyRootNodeType,
-                               ids, rootLevel, rootLevelID);
+                               ids, userID);
             }
         };
     }
@@ -136,29 +118,18 @@ public class HierarchyFinder
      *                      to search.  Can be one out of: 
      *                      {@link ProjectData} or {@link CategoryGroupData}.
      * @param ids           Contains ids, one for each leaf image node.
-     * @param rootLevel     The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID   The Id of the root.
+     * @param userID   The Id of the root.
      */
-    public HierarchyFinder(Class hierarchyRootNodeType, Set ids, 
-                            Class rootLevel, long rootLevelID)
+    public HierarchyFinder(Class hierarchyRootNodeType, Set ids, long userID)
     {
         if (ids == null) throw new IllegalArgumentException("No images.");
         if (hierarchyRootNodeType == null) 
             throw new NullPointerException("No root node type.");
-        try {
-            ids.toArray(new Long[] {});
-        } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException("ids only contain Long.");
-        } 
-        checkRootLevel(rootLevel);
-        if (rootLevelID < 0) 
+        if (userID < 0) 
             throw new IllegalArgumentException("Root level ID not valid.");
         if (hierarchyRootNodeType.equals(ProjectData.class) ||
             hierarchyRootNodeType.equals(CategoryGroupData.class))
-            findCall = makeBatchCall(hierarchyRootNodeType, ids, rootLevel,
-                                        rootLevelID);
+            findCall = makeBatchCall(hierarchyRootNodeType, ids, userID);
         else
             throw new IllegalArgumentException("Unsupported type: "+
                                                 hierarchyRootNodeType+".");

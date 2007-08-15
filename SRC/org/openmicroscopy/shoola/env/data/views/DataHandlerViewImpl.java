@@ -173,14 +173,14 @@ public class DataHandlerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataHandlerView#loadClassificationPaths(Set, Class, long, int,
+     * @see DataHandlerView#loadClassificationPaths(Set, long, int,
      * 												AgentEventListener)
      */
-	public CallHandle loadClassificationPaths(Set imageIDs, Class rootLevel, 
-			long rootLevelID, int algorithm, AgentEventListener observer)
+	public CallHandle loadClassificationPaths(Set imageIDs, 
+			long userID, int algorithm, AgentEventListener observer)
 	{
 		 BatchCallTree cmd = new ClassificationLoader(imageIDs, algorithm, 
-				 					rootLevel, rootLevelID);
+				 								userID);
 		 return cmd.exec(observer);
 	}
 

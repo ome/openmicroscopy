@@ -724,6 +724,7 @@ class TreeViewerComponent
             throw new IllegalStateException(
                     "This method cannot be invoked in the DISCARDED state.");
     	if (experimenter == null) return;
+    	/*
     	TreeViewer viewer = TreeViewerFactory.getTreeViewer(experimenter, 
     														userGroupID, 
     														view.getBounds());
@@ -733,8 +734,14 @@ class TreeViewerComponent
         	if (viewer.isRecycled()) viewer.moveToFront();
         	else viewer.activate();
         }
-        
-       
+        */
+    	Map browsers = model.getBrowsers();
+    	Iterator i = browsers.keySet().iterator();
+    	Browser browser;
+    	while (i.hasNext()) {
+    		browser = (Browser) browsers.get(i.next());
+    		browser.addExperimenter(experimenter);
+		}
     	//Creates a new 
     	/*
     	removeEditor();
@@ -815,19 +822,6 @@ class TreeViewerComponent
         if (set == null || set.size() == 0) model.setState(READY);
         else model.fireAddExistingObjects(set);
         fireStateChange();
-    }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see TreeViewer#navigate()
-     */
-    public void navigate()
-    {
-        if (model.getState() == DISCARDED)
-            throw new IllegalStateException(
-            "This method cannot be invoked in the DISCARDED state.");
-        Browser b = model.getSelectedBrowser();
-        if (b != null) b.navigate(false);
     }
 
     /**
@@ -1195,6 +1189,28 @@ class TreeViewerComponent
         long id = model.getUserDetails().getId();
         long groupId = model.getUserDetails().getDefaultGroup().getId();
         return TreeViewerTranslator.isReadable(ho, id, groupId);
+	}
+
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#removeExperimenterData()
+     */
+	public void removeExperimenterData()
+	{
+		//TODO: Check state
+		
+    	Browser browser = model.getSelectedBrowser();
+    	TreeImageDisplay expNode = browser.getLastSelectedDisplay();
+    	Object uo = expNode.getUserObject();
+    	if (uo == null || !(uo instanceof ExperimenterData)) return;
+    	ExperimenterData exp = (ExperimenterData) uo;
+    	Map browsers = model.getBrowsers();
+    	Iterator i = browsers.keySet().iterator();
+    	while (i.hasNext()) {
+    		browser = (Browser) browsers.get(i.next());
+    		browser.removeExperimenter(exp);
+		}
+		
 	}
     
 }

@@ -91,19 +91,28 @@ class PopupMenu
     private JMenuItem           deleteElement;
     
     /** Button to classify the selected elements. */
-    private JMenuItem          classifyElement;
+    private JMenuItem          	classifyElement;
     
     /** Button to classify the selected elements. */
-    private JMenuItem          declassifyElement;
+    private JMenuItem          	declassifyElement;
     
     /** Button to classify the images contained in the selected element. */
-    private JMenuItem          classifyChildrenElement;
+    private JMenuItem          	classifyChildrenElement;
     
     /** Button to annotate the images contained in the selected element. */
-    private JMenuItem          annotateChildrenElement;
+    private JMenuItem          	annotateChildrenElement;
+    
+    /** Button to remove experimenter node from the display. */
+    private JMenuItem			removeExperimenterElement;
+    
+    /** Button to refresh the experimenter data */
+    private JMenuItem			refreshExperimenterElement;
     
     /** Reference to the Control. */
     private TreeViewerControl   controller;
+    
+    /** Font label. */
+    private Font				fontLabel;
     
     /**
      * Sets the defaults of the specified menu item.
@@ -113,11 +122,9 @@ class PopupMenu
      */
     private void initMenuItem(JMenuItem item, String name)
     {
-        item.setText(name);
+        if (name != null) item.setText(name);
         item.setBorder(null);
-        item.setFont((Font) 
-                TreeViewerAgent.getRegistry().lookup(
-                        "/resources/fonts/Labels"));
+        item.setFont(fontLabel);
     }
     
     /** Helper method to create the menu items with the given actions. */
@@ -162,6 +169,14 @@ class PopupMenu
         a = controller.getAction(TreeViewerControl.CLASSIFY_CHILDREN);
         classifyChildrenElement = new JMenuItem(a);
         initMenuItem(classifyChildrenElement, a.getActionName());
+        a = controller.getAction(TreeViewerControl.REMOVE_FROM_DISPLAY);
+        removeExperimenterElement = new JMenuItem(a);
+        initMenuItem(removeExperimenterElement, "Remove from display");
+        removeExperimenterElement = new JMenuItem(a);
+        initMenuItem(removeExperimenterElement, "Remove from display");
+        a = controller.getAction(TreeViewerControl.REFRESH_EXPERIMENTER);
+        refreshExperimenterElement = new JMenuItem(a);
+        initMenuItem(refreshExperimenterElement, null);
     }
     
     /**
@@ -198,6 +213,9 @@ class PopupMenu
         add(annotateChildrenElement);
         add(new JSeparator(JSeparator.HORIZONTAL));
         add(properties);
+        add(new JSeparator(JSeparator.HORIZONTAL));
+        add(refreshExperimenterElement);
+        add(removeExperimenterElement);
     }
     
     /** 
@@ -210,6 +228,8 @@ class PopupMenu
         if (controller == null) 
             throw new IllegalArgumentException("No control.");
         this.controller = controller;
+        fontLabel = (Font) TreeViewerAgent.getRegistry().lookup(
+                					"/resources/fonts/Labels");
         createMenuItems();
         buildGUI() ;
     }

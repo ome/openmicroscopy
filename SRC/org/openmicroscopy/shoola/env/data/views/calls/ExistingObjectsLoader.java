@@ -67,22 +67,17 @@ public class ExistingObjectsLoader
      * 
      * @param nodeType  The type of the root node.
      * @param nodeIDs   Collection of container's id. 
-     * @param rootLevel The level of the hierarchy either 
-     *                  <code>GroupData</code> or 
-     *                  <code>ExperimenterData</code>.
-     * @param rootID    The id of the root.
+     * @param userID    The id of the user.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final Class nodeType, 
-                                    final Set nodeIDs, final Class rootLevel,
-                                    final long rootID)
+    private BatchCall makeBatchCall(final Class nodeType, final Set nodeIDs, 
+    								final long userID)
     {
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                nodes = os.loadExistingObjects(nodeType, nodeIDs, rootLevel, 
-                                                rootID);
+                nodes = os.loadExistingObjects(nodeType, nodeIDs, userID);
             }
         };
     }
@@ -106,19 +101,14 @@ public class ExistingObjectsLoader
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
      * 
-     * @param nodeType      The type of the root node. One out of the
-     *                      following list: <code>ProjectData</code>, 
-     *                      <code>DatasetData</code>, 
-     *                      <code>CategoryData</code> or
-     *                      <code>CategoryGroupData</code>.
-     * @param nodeIDs       The set of node ids.
-     * @param rootLevel     The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID   The id of the root's level.
+     * @param nodeType	The type of the root node. One out of the
+     *                  following list: <code>ProjectData</code>, 
+     *                  <code>DatasetData</code>, <code>CategoryData</code> or
+     *                  <code>CategoryGroupData</code>.
+     * @param nodeIDs 	The set of node ids.
+     * @param userID   	The id of the root's level.
      */
-    public ExistingObjectsLoader(Class nodeType, Set nodeIDs, 
-            Class rootLevel, long rootLevelID)
+    public ExistingObjectsLoader(Class nodeType, Set nodeIDs, long userID)
     {
         if (!(nodeType.equals(ProjectData.class) || 
             nodeType.equals(DatasetData.class) || 
@@ -127,13 +117,7 @@ public class ExistingObjectsLoader
             throw new IllegalArgumentException("DataObject not supported.");
         if (nodeIDs == null && nodeIDs.size() == 0)
             throw new IllegalArgumentException("No root node ids.");
-        try {
-            nodeIDs.toArray(new Long[] {});
-        } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException("nodeIDs only contain " +
-                                                "Long.");
-        }  
-        loadCall = makeBatchCall(nodeType, nodeIDs, rootLevel, rootLevelID);
+        loadCall = makeBatchCall(nodeType, nodeIDs, userID);
     }  
     
 }
