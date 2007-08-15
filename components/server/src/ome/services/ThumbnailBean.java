@@ -50,6 +50,7 @@ import ome.parameters.Parameters;
 import ome.services.util.OmeroAroundInvoke;
 import ome.system.EventContext;
 import ome.system.SimpleEventContext;
+import ome.util.ImageUtil;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
 
@@ -101,11 +102,11 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     /** The ROMIO thumbnail service. */
     private transient ThumbnailService ioService;
 
-    /** the disk space checking service */
+    /** The disk space checking service. */
     private transient IRepositoryInfo iRepositoryInfo;
     
-    /** the disk space checking service */
-    private transient ICompress iCompress;
+    /** The JPEG compression service. */
+    private transient ICompress compressionService;
 
     /** is file service checking for disk overflow */
     private transient boolean diskSpaceChecking;
@@ -273,60 +274,17 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     }
     
     /**
-     * Scale service Bean injector.
+     * Compression service Bean injector.
      * 
-     * @param iCompress
+     * @param compressionService
      *            an <code>ICompress</code>.
      */
-    public void setICompress(ICompress iCompress) {
-        getBeanHelper().throwIfAlreadySet(this.iCompress, iCompress);
-        this.iCompress = iCompress;
+    public void setCompressionService(ICompress compressionService) {
+        getBeanHelper().throwIfAlreadySet(this.compressionService,
+                                          compressionService);
+        this.compressionService = compressionService;
     }
     
-    /**
-     * Creates a buffered image from a rendering engine RGB buffer without data
-     * copying.
-     * 
-     * @param buf
-     *            the rendering engine packed integer buffer.
-     * @param sizeX
-     *            the X-width of the image rendered.
-     * @param sizeY
-     *            the Y-width of the image rendered.
-     * @return a buffered image wrapping <i>buf</i> with the X-Y dimensions
-     *         provided.
-     */
-    private BufferedImage createBufferedImage(int[] buf, int sizeX, int sizeY) {
-        // First wrap the packed integer array with a Java2D buffer
-        DataBuffer j2DBuf = new DataBufferInt(buf, sizeX * sizeY, 0);
-
-        // Create a sample model which supplies the bit masks for each colour
-        // component.
-        SinglePixelPackedSampleModel sampleModel = new SinglePixelPackedSampleModel(
-                DataBuffer.TYPE_INT, sizeX, sizeY, sizeX, new int[] {
-                        0x00ff0000, // Red
-                        0x0000ff00, // Green
-                        0x000000ff, // Blue
-                // 0xff000000 // Alpha
-                });
-
-        // Now create a compatible raster which wraps the Java2D buffer and is
-        // told how to get to the pixel data by the sample model.
-        WritableRaster raster = new IntegerInterleavedRaster(sampleModel,
-                j2DBuf, new Point(0, 0));
-
-        // Finally create a screen accessible colour model and wrap the raster
-        // in a buffered image.
-        ColorModel colorModel = new DirectColorModel(24, 0x00ff0000, // Red
-                0x0000ff00, // Green
-                0x000000ff // Blue
-        // 0xff000000 // Alpha
-        );
-        BufferedImage image = new BufferedImage(colorModel, raster, false, null);
-
-        return image;
-    }
-
     /**
      * Compresses a buffered image thumbnail to disk.
      * 
@@ -345,7 +303,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         }
 
         FileOutputStream stream = ioService.getThumbnailOutputStream(thumb);
-        iCompress.compressThumbnailToStream(image, stream);
+        compressionService.compressToStream(image, stream);
         stream.close();
     }
 
@@ -445,7 +403,8 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         PlaneDef pd = new PlaneDef(PlaneDef.XY, re.getDefaultT());
         pd.setZ(re.getDefaultZ());
         int[] buf = re.renderAsPackedInt(pd);
-        BufferedImage image = createBufferedImage(buf, origSizeX, origSizeY);
+        BufferedImage image = 
+        	ImageUtil.createBufferedImage(buf, origSizeX, origSizeY);
 
         // Finally, scale our image using scaling factors (percentage).
         log.info("Setting xScale factor: " + sizeX + "/" + origSizeX);
@@ -607,7 +566,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         BufferedImage image = createScaledImage(sizeX, sizeY);
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try {
-            iCompress.compressThumbnailToStream(image, byteStream);
+            compressionService.compressToStream(image, byteStream);
             byte[] thumbnail = byteStream.toByteArray();
             return thumbnail;
         } catch (IOException e) {

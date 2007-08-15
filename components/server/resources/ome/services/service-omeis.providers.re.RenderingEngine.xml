@@ -25,6 +25,7 @@
 	<!-- following copied from parent="binary" -->
     <property name="pixelsMetadata" ref="internal:ome.api.IPixels"/>
     <property name="pixelsData"     ref="/OMERO/Pixels"/>
+    <property name="compressionService" ref="internal:ome.api.ICompress"/>
   </bean>
 
   <bean id="managed:omeis.providers.re.RenderingEngine" parent="managedStatefulService" singleton="false">

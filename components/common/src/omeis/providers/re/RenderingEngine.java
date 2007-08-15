@@ -95,6 +95,21 @@ public interface RenderingEngine extends SelfConfigurableService,
      * @see render()
      */
     public int[] renderAsPackedInt(PlaneDef pd) throws ValidationException;
+    
+    /**
+     * Renders the data selected by <code>pd</code> according to the current
+     * rendering settings and compresses the resulting RGBA composite image.
+     * 
+     * @param pd
+     *            Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
+     *            or <i>Z</i> axes.
+     * @return A compressed RGBA JPEG for display.
+     * @throws ValidationException
+     *             If <code>pd</code> is <code>null</code>.
+     * @see render()
+     * @see renderAsPackedInt()
+     */
+    public byte[] renderCompressed(PlaneDef pd) throws ValidationException;
 
     /**
      * Loads the <code>Pixels</code> set this Rendering Engine is for.
@@ -398,5 +413,24 @@ public interface RenderingEngine extends SelfConfigurableService,
      * Rendering engine.
      */
     public void resetDefaults();
+    
+	/**
+	 * Sets the current compression level for the service. (The default is 85%)
+	 * 
+	 * @param percentage A percentage compression level from 1.00 (100%) to 
+	 * 0.01 (1%).
+	 * @throws ValidationException if the <code>percentage</code> is out of
+	 * range.
+	 * @see ICompress#setCompressionLevel()
+	 */
+	public void setCompressionLevel(float percentage);
+	
+	/**
+	 * Returns the current compression level for the service.
+	 * 
+	 * @returns See above.
+	 * @see ICompress#getCompressionLevel()
+	 */
+	public float getCompressionLevel();
 
 }

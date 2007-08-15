@@ -8,6 +8,8 @@
 package ome.services;
 
 // Java imports
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -43,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 // Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.api.ICompress;
 import ome.api.IPixels;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
@@ -64,6 +67,7 @@ import ome.model.enums.RenderingModel;
 import ome.services.util.OmeroAroundInvoke;
 import ome.system.EventContext;
 import ome.system.SimpleEventContext;
+import ome.util.ImageUtil;
 import ome.util.ShallowCopy;
 
 import omeis.providers.re.RGBBuffer;
@@ -151,12 +155,26 @@ public class RenderingBean extends AbstractLevel2Service implements
 
     /** Reference to the service used to retrieve the pixels metadata. */
     private transient IPixels pixMetaSrv;
+    
+    /** Reference to the service used to compress pixel data. */
+    private transient ICompress compressionSrv;
 
     /**
      * read-write lock to prevent READ-calls during WRITE operations. Unneeded
      * for remote invocations (EJB synchronizes).
      */
     private transient ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+    
+    /**
+     * Compression service Bean injector.
+     * 
+     * @param compressionService
+     *            an <code>ICompress</code>.
+     */
+    public void setCompressionService(ICompress compressionSrv) {
+        getBeanHelper().throwIfAlreadySet(this.compressionSrv, compressionSrv);
+        this.compressionSrv = compressionSrv;
+    }
 
     /** set injector. For use during configuration. Can only be called once. */
     public void setPixelsMetadata(IPixels metaService) {
@@ -396,6 +414,44 @@ public class RenderingBean extends AbstractLevel2Service implements
             rwl.readLock().unlock();
         }
     }
+    
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see RenderingEngine#renderCompressed()
+     */
+    @RolesAllowed("user")
+    public byte[] renderCompressed(PlaneDef pd)
+    	throws ResourceError, ValidationException
+    {
+    	int[] buf = renderAsPackedInt(pd);
+    	int sizeX = pixelsObj.getSizeX();
+    	int sizeY = pixelsObj.getSizeY();
+    	BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX, sizeY);
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        try
+        {
+            compressionSrv.compressToStream(image, byteStream);
+            return byteStream.toByteArray();
+        }
+        catch (IOException e)
+        {
+            log.error("Could not compress rendered image.", e);
+            throw new ResourceError(e.getMessage());
+        }
+        finally
+        {
+        	try
+        	{
+        		byteStream.close();
+        	}
+        	catch (IOException e)
+        	{
+                log.error("Could not close byte stream.", e);
+        		throw new ResourceError(e.getMessage());
+        	}
+        }
+    }
 
     // ~ Settings
     // =========================================================================
@@ -452,6 +508,26 @@ public class RenderingBean extends AbstractLevel2Service implements
         }
         iUpdate.flush();
     }
+    
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see RenderingEngine#setCompressionLevel()
+     */
+	public void setCompressionLevel(float percentage)
+	{
+		compressionSrv.setCompressionLevel(percentage);
+	}
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see RenderingEngine#getCompressionLevel()
+     */
+	public float getCompressionLevel()
+	{
+		return compressionSrv.getCompressionLevel();
+	}
 
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.

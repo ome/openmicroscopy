@@ -15,7 +15,6 @@ import java.util.Properties;
 // Application-internal dependencies
 import ome.api.IAdmin;
 import ome.api.IAnalysis;
-import ome.api.ICompress;
 import ome.api.IConfig;
 import ome.api.ILdap;
 import ome.api.IPixels;
@@ -177,10 +176,6 @@ public class ServiceFactory {
 
     public IAnalysis getAnalysisService() {
         return getServiceByClass(IAnalysis.class);
-    }
-
-    public ICompress getCompresService() {
-        return getServiceByClass(ICompress.class);
     }
     
     public IConfig getConfigService() {

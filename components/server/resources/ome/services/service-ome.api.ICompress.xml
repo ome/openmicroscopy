@@ -18,21 +18,6 @@
 -->
 
 <beans>
-
-	<bean singleton="false" parent="level2"
-		id="internal:ome.api.ICompress" class="ome.services.CompressBean">
-		<constructor-arg>
-			<value>true</value>
-		</constructor-arg>
-		<property name="ioService" ref="/OMERO/Thumbs" />
-		<property name="IRepositoryInfo"
-			ref="internal:ome.api.IRepositoryInfo" />
-	</bean>
-
-	<bean id="managed:ome.api.ICompress" parent="managedService">
-		<property name="proxyInterfaces" value="ome.api.ICompress" />
-		<property name="target" ref="internal:ome.api.ICompress" />
-	</bean>
-
+	<bean id="internal:ome.api.ICompress" class="ome.logic.CompressImpl"/>
 </beans>
 
