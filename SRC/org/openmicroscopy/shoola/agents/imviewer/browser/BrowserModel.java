@@ -242,6 +242,45 @@ class BrowserModel
         gridImages.clear();
     }
     
+    /**
+     * Returns <code>true</code> if the channel is mapped to <code>Red</code>,
+     * <code>Green</code> or <code>Blue</code>, <code>false</code> otherwise.
+     * 
+     * @param index The index of the channel.
+     * @return See above.
+     */
+    private boolean isChannelRGB(int index)
+    {
+    	if (parent.isChannelRed(index)) return true;
+		if (parent.isChannelGreen(index)) return true; 
+		return parent.isChannelGreen(index);
+    }
+    
+    /**
+     * Returns <code>true</code> if the active channels are mapped
+     * to <code>Red</code>, <code>Green</code> or <code>Blue</code>,
+     * <code>false</code> otherwise or if the number of active channels is 0
+     * or greater than 3.
+     * 
+     * @return See above.
+     */
+    private boolean isImageRGB()
+    {
+    	List l = parent.getActiveChannels();
+    	if (l == null) return false;
+    	int n = l.size();
+    	if (n == 0 || n > 3) return false;
+    	List<Boolean> rgb = new ArrayList<Boolean>();
+    	int index;
+    	Iterator i;
+    	i = l.iterator();
+		while (i.hasNext()) {
+			index = (Integer) i.next();
+			if (isChannelRGB(index)) rgb.add(true);
+		}
+		return (n == rgb.size());
+    }
+    
     /** Sets the images composing the grid. */
     void setGridImages()
     {
@@ -251,6 +290,54 @@ class BrowserModel
     	List l = parent.getActiveChannels();
     	int maxC = parent.getMaxC();
     	List<BufferedImage> images = new ArrayList<BufferedImage>(maxC);
+    	int n = l.size();
+    	if (!parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
+    		switch (n) {
+	    		case 0:
+	    			for (int i = 0; i < maxC; i++) 
+	    				gridImages.add(null);
+	    			break;
+	    		case 1:
+	    		case 2:
+	    		case 3:
+	    			if (isImageRGB()) {
+	    				int w = annotateImage.getWidth();
+	    	        	int h = annotateImage.getHeight();
+	    	        	DataBuffer buf = 
+	    	        		annotateImage.getRaster().getDataBuffer();
+	    	    		for (int i = 0; i < maxC; i++) {
+	    					if (parent.isChannelActive(i)) {
+	    						if (parent.isChannelRed(i)) { 
+	    							gridImages.add(createBandImage(buf, w, h, 
+	    								RED_MASK, BLANK_MASK, BLANK_MASK));
+	    						} else if (parent.isChannelGreen(i)) {
+	    							gridImages.add(createBandImage(buf, w, h, 
+	    								BLANK_MASK, GREEN_MASK, BLANK_MASK));
+	    						} else if (parent.isChannelBlue(i)) {
+	    							gridImages.add(createBandImage(buf, w, h, 
+	    								BLANK_MASK, BLANK_MASK, BLUE_MASK));
+	    						}
+	    					} else {
+	    						gridImages.add(null);
+	    					}
+	    				}
+	    			}
+	    		default:
+	    			images = parent.getGridImages();
+	    	    	if (images != null) {
+	    	    		Iterator i = images.iterator();
+	    	        	while (i.hasNext()) {
+	    	        		gridImages.add(Factory.magnifyImage(ratio, 
+	    	        								(BufferedImage) i.next()));
+	    	    		}
+	    	    	}
+    		}
+    	} else {
+    		for (int i = 0; i < maxC; i++) 
+				gridImages.add(null);
+    	}
+    	
+    	/*
     	if (l.size() <= 3 && 
     		!parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
     		int w = annotateImage.getWidth();
@@ -274,7 +361,6 @@ class BrowserModel
 					gridImages.add(null);
 				}
 			}
-    		
     		return;
     	}
     	images = parent.getGridImages();
@@ -285,6 +371,7 @@ class BrowserModel
         									(BufferedImage) i.next()));
     		}
     	}
+    	*/
     }
     
     /**

@@ -57,7 +57,7 @@ class BrowserControl
     private Browser    	model;
     
     /** The View controlled by this Controller.*/
-    private BrowserUI       view;
+    private BrowserUI	view;
     
     /**
      * Creates a new instance.

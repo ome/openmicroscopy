@@ -460,6 +460,35 @@ class BrowserUI
     }
 
     /**
+     * Sorts the children of the passed node.
+     * 
+     * @param node The node to handle.
+     */
+    private void sortNode(TreeImageTimeSet node)
+    {
+    	DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+    	Set children = node.getChildrenDisplay();
+    	Iterator j;
+    	if (node.containsImages()) {
+    		node.removeAllChildren();
+        	dtm.reload(node);
+        	if (children.size() != 0) {
+        		buildTreeNode(node, sorter.sort(children), dtm);
+        	} else buildEmptyNode(node);
+        	j = nodesToReset.iterator();
+        	while (j.hasNext()) {
+        		setExpandedParent((TreeImageDisplay) j.next(), true);
+        	}
+    	} else {
+    		if (children.size() != 0) {
+    			j = children.iterator();
+    			while (j.hasNext())
+					sortNode((TreeImageTimeSet) j.next());
+        	} else buildEmptyNode(node);
+    	}
+    }
+    
+    /**
      * Creates a new instance.
      * The {@link #initialize(BrowserControl, BrowserModel) initialize} method
      * should be called straight after to link this View to the Controller.
@@ -719,18 +748,40 @@ class BrowserUI
      */
     void sortNodes(int type)
     {
-        sorter.setByDate(type == Browser.SORT_NODES_BY_DATE);
+    	boolean b = type == Browser.SORT_NODES_BY_DATE;
+        sorter.setByDate(b);
+        sorter.setAscending(!b);
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
-        Set children = root.getChildrenDisplay();
-        root.removeAllChildren();
-        dtm.reload(root);
-        if (children.size() != 0) {
-            buildTreeNode(root, sorter.sort(children), dtm);
-        } else buildEmptyNode(root);
-        Iterator j = nodesToReset.iterator();
-        while (j.hasNext()) {
-			setExpandedParent((TreeImageDisplay) j.next(), true);
+    	int n = root.getChildCount();
+    	TreeImageDisplay node;
+    	Set children;
+    	Iterator j;
+        switch (model.getBrowserType()) {
+			case Browser.IMAGES_EXPLORER:
+				for (int i = 0; i < n; i++) {
+					node = (TreeImageDisplay) root.getChildAt(i);
+					children = node.getChildrenDisplay();
+					j = children.iterator();
+					while (j.hasNext()) 
+						sortNode((TreeImageTimeSet) j.next());
+				}	       
+				break;
+			default:
+	        	
+	        	for (int i = 0; i < n; i++) {
+					node = (TreeImageDisplay) root.getChildAt(i);
+					children = node.getChildrenDisplay();
+					node.removeAllChildren();
+		        	dtm.reload(node);
+		        	if (children.size() != 0) {
+		        		buildTreeNode(node, sorter.sort(children), dtm);
+		        	} else buildEmptyNode(node);
+		        	j = nodesToReset.iterator();
+		        	while (j.hasNext()) {
+		        		setExpandedParent((TreeImageDisplay) j.next(), true);
+		        	}
+				}	        	
 		}
     }
     

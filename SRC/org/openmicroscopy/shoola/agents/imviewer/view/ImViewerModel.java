@@ -630,28 +630,6 @@ class ImViewerModel
      */
     Renderer getRenderer() { return renderer; }
 
-    /** 
-     * Returns the global minimum of the channel i.e. the minimum of all minima.
-     * 
-     * @param index The index of the channel.
-     * @return See above.
-     */
-    double getGlobalMinimum(int index)
-    {
-        return getChannelData(index).getGlobalMin();
-    }
-    
-    /** 
-     * Returns the global maximum of the channel i.e. the maximum of all maxima.
-     * 
-     * @param index The index of the channel.
-     * @return See above.
-     */
-    double getGlobalMaximum(int index)
-    {
-        return getChannelData(index).getGlobalMax();
-    }
-
     /**
      * Returns the displayed image.
      * 

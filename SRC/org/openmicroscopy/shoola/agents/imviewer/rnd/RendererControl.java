@@ -111,11 +111,6 @@ class RendererControl
     /** Maps actions ids onto actual <code>Action</code> object. */
     private Map<Integer, RndAction>	actionsMap;
     
-    /**
-     * Flag indicating if the node was visible or not.
-     */
-    private boolean		visibility;
-    
     /** Helper method to create all the UI actions. */
     private void createActions()
     {
