@@ -400,11 +400,20 @@ class ElementAggregator(sax.ContentHandler):
 		Examine each element in turn and harvest any useful information
 		'''
 		# pull the namespace out of the OME element
-		if name[-3] == "OME":
-			try:
-				self.theNamespace = attribs.getValue("xmlns")
-			except KeyError:
-				self.theNamespace = ""
+		if name[-3:] == "OME":
+			if name[-4:] == ":OME":
+				# a prefex is being used
+				self.thePrefix = name[:-4]
+				print "Prefix : %s" % self.thePrefix
+				try:
+					self.theNamespace = attribs.getValue("xmlns" + ':' + self.thePrefix)
+				except KeyError:
+					self.theNamespace = ""
+			else:
+				try:
+					self.theNamespace = attribs.getValue("xmlns")
+				except KeyError:
+					self.theNamespace = ""
 			
 		# save the ID in any elements encountered
 		if name[-3:] == "Ref":
@@ -499,17 +508,28 @@ class NamespaceSearcher(sax.ContentHandler):
 		'''
 		self.theNamespace = None
 	
-	def startElement(self, name, attrs):
+	def startElement(self, name, attribs):
 		'''
 		Examine each element in turn and check of the main OME element
 		'''
-		if name == "OME":
-			try:
-				# pull the namespace out of the OME element
-				self.theNamespace = attrs["xmlns"]
-			except KeyError:
-				# assume default namespace
-				self.theNamespace = ""
+		# pull the namespace out of the OME element
+		if name[-3:] == "OME":
+			if name[-4:] == ":OME":
+				# a prefex is being used
+				self.thePrefix = name[:-4]
+				print "Prefix : %s" % self.thePrefix
+				try:
+					# pull the namespace for prefix out of the OME element
+					self.theNamespace = attribs.getValue("xmlns" + ':' + self.thePrefix)
+				except KeyError:
+					# assume default namespace
+					self.theNamespace = ""
+			else:
+				try:
+					# pull the namespace out of the OME element
+					self.theNamespace = attribs.getValue("xmlns")
+				except KeyError:
+					self.theNamespace = ""
 			#finally:
 				# the OME node has been found (even if it does not have a
 				# namespace) so stop parsing the file
