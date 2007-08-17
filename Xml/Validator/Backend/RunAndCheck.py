@@ -14,7 +14,7 @@ import pychecker.checker
 import OmeValidator
 
 def main():
-	for aFilename in ["samples/sdub.ome", "samples/tiny.ome", "samples/broke.ome"]:
+	for aFilename in ["samples/completesamplenopre.xml","samples/completesample.xml","samples/sdub.ome","samples/sdub-fix.ome", "samples/tiny.ome", "samples/broke.ome"]:
 		print "============ XML file %s ============ " % aFilename
 		print OmeValidator.XmlReport.validateFile(aFilename)
 		

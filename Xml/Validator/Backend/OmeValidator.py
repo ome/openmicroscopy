@@ -400,7 +400,7 @@ class ElementAggregator(sax.ContentHandler):
 		Examine each element in turn and harvest any useful information
 		'''
 		# pull the namespace out of the OME element
-		if name == "OME":
+		if name[-3] == "OME":
 			try:
 				self.theNamespace = attribs.getValue("xmlns")
 			except KeyError:
@@ -414,12 +414,51 @@ class ElementAggregator(sax.ContentHandler):
 			except KeyError:
 				pass
 		else:
-			try:
-				# If any other element thee save in the ids
-				self.ids.append(attribs.getValue("ID"))
-			except KeyError:
-				pass
-				
+			if name[-6:] == "Leader":
+				try:
+					# in Leader - ID is actually a Reference
+					self.references.append(attribs.getValue("ID"))
+				except KeyError:
+					pass
+			else:	
+				if name[-7:] == "Contact":
+					try:
+						# in Contact - ID is actually a Reference
+						self.references.append(attribs.getValue("ID"))
+					except KeyError:
+						pass
+				else:
+					if name[-5:] == "Image":
+						try:
+							# in Image - ID is an ID and DefaultPixels is a Reference
+							self.references.append(attribs.getValue("DefaultPixels"))
+						except KeyError:
+							pass
+					if name[-16:] == "ChannelComponent":
+						try:
+							# in ChannelComponent - Pixels is a Reference
+							self.references.append(attribs.getValue("Pixels"))
+						except KeyError:
+							pass
+					if name[-14:] == "LogicalChannel":
+						try:
+							# in LogicalChannel ID is an ID 
+							# and SecondaryEmissionFilter is a Reference
+							self.references.append(attribs.getValue("SecondaryEmissionFilter"))
+						except KeyError:
+							pass
+						try:
+							# and SecondaryExcitationFilter is a Reference
+							self.references.append(attribs.getValue("SecondaryExcitationFilter"))
+						except KeyError:
+							pass
+							
+					try:
+						# If any other element then save in the ids
+						self.ids.append(attribs.getValue("ID"))
+					except KeyError:
+						pass
+		
 		if name[-7:] == "BinData":
 			self.inBinData = True
 		self.domify(name, attribs)
