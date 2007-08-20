@@ -9,8 +9,8 @@
 #ifndef CLASS_PERMISSIONS
 #define CLASS_PERMISSIONS
 
-#include <OMERO/fwd.ice>
-#include <OMERO/IObject.ice>
+#include <omero/fwd.ice>
+#include <omero/IObject.ice>
 
 module omero { 
   module model { 

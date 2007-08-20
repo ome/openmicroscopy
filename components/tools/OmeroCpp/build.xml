@@ -20,23 +20,23 @@
             For ease of use, we concatenate all of our header files
             into a single header file.
         -->
-        <concat destfile="${copy.dir}/OMERO/ModelI.h">
+        <concat destfile="${copy.dir}/omero/ModelI.h">
             <header>
 
 /* All *I.h files concatenated by blitz/build.xml */
 #ifndef OMERO_MODELI_H
 #define OMERO_MODELI_H
-#include &lt;OMERO/fwd.h&gt;
-#include &lt;OMERO/Model.h&gt;
-#include &lt;OMERO/IObject.h&gt;
-#include &lt;OMERO/ClientErrors.h&gt;
+#include &lt;omero/fwd.h&gt;
+#include &lt;omero/Model.h&gt;
+#include &lt;omero/IObject.h&gt;
+#include &lt;omero/ClientErrors.h&gt;
 #include &lt;Ice/Ice.h&gt;
 #include &lt;string&gt;
 #include &lt;vector&gt;
 #include &lt;algorithm&gt;
 
             </header>
-            <fileset dir="${copy.dir}" includes="**/OMERO/Model/*I.h"/>
+            <fileset dir="${copy.dir}" includes="**/omero/model/*I.h"/>
             <footer>
 
 #endif // OMERO_MODELI_H
@@ -48,7 +48,7 @@
     <target name="tools-build" depends="tools-init,make-build" description="Uses autogen.sh and make to build artifacts"/>
 
     <target name="tools-dist" depends="tools-build,make-install" description="Copies files into tools/target">
-        <copy file="${copy.dir}/OMERO/ModelI.h" todir="../target/include/OMERO"/>
+        <copy file="${copy.dir}/omero/ModelI.h" todir="../target/include/omero"/>
         <!-- Here we have to copy ModelI.h out of ${copy.dir} and into include, since
         ${copy.dir} is already in the dist. Later we may want to test copying them all
         back, but that depends on how get-source works -->
@@ -56,7 +56,8 @@
 
    <target name="tools-clean" depends="make-clean">
         <delete dir="${copy.dir}"/>
-        <delete dir="${basedir}/target"/>
+	<delete dir="${basedir}/target"/>
+        <delete dir="${basedir}/src/slice_generated"/>
     </target>
 
 </project>

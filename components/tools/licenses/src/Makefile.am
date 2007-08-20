@@ -18,10 +18,10 @@ all: slice libOMERO_licenses.la
 #.PHONY: clean check run slice
 
 slice:
-	mkdir -p $(OUTPUT_DIR)/OMERO && \
-	slice2cpp $(SLICE_INCLUDES) --include-dir=OMERO --output-dir=$(OUTPUT_DIR)/OMERO/ ../resources/OMERO/LicensesAPI.ice
+	mkdir -p $(OUTPUT_DIR)/omero && \
+	slice2cpp $(SLICE_INCLUDES) --include-dir=omero --output-dir=$(OUTPUT_DIR)/omero/ ../resources/omero/LicensesAPI.ice
 
 lib_LTLIBRARIES              = libOMERO_licenses.la
-libOMERO_licenses_la_SOURCES = slice_generated/OMERO/LicensesAPI.cpp
+libOMERO_licenses_la_SOURCES = slice_generated/omero/LicensesAPI.cpp
 libOMERO_licenses_la_LDFLAGS = -L$(TOOLS_DIR)/lib
 

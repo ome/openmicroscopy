@@ -9,7 +9,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <vector>
 #include <stdexcept>
-#include <OMERO/client.h>
+#include <omero/client.h>
 
 using namespace omero::model;
 using namespace std;

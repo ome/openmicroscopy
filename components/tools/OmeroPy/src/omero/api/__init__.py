@@ -1,1 +1,1 @@
-import OMERO_API_ice
+import omero_API_ice

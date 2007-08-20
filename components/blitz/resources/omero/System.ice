@@ -9,13 +9,13 @@
 #ifndef OMERO_SYSTEM_ICE
 #define OMERO_SYSTEM_ICE
 
-#include <OMERO/fwd.ice>
-#include <OMERO/RTypes.ice>
+#include <omero/fwd.ice>
+#include <omero/RTypes.ice>
 
 /*
  * The omero::system module combines the ome.system and ome.parameters
  * packages from OMERO.server, and represent API arguments which are
- * neither model objects (OMERO/Model/*.ice) nor RTypes (RTypes.ice).
+ * neither model objects (omero/model/*.ice) nor RTypes (RTypes.ice).
  */
 module omero { 
   module sys {     

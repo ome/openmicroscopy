@@ -38,11 +38,11 @@
 <!--    <setup_py>
             <arg value="icegen"/>
         </setup_py> -->
-        <slice_py todir="${copy.dir}" prefix="OMERO_">
-            <fileset dir="${copy.dir}/OMERO" includes="*.ice"/>
+        <slice_py todir="${copy.dir}" prefix="omero_">
+            <fileset dir="${copy.dir}/omero" includes="*.ice"/>
         </slice_py>
-        <slice_py todir="${copy.dir}" prefix="OMERO_Model_">
-            <fileset dir="${copy.dir}/OMERO/Model/" includes="*.ice"/>
+        <slice_py todir="${copy.dir}" prefix="omero_model_">
+            <fileset dir="${copy.dir}/omero/model/" includes="*.ice"/>
         </slice_py>
     </target>
 

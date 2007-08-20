@@ -7,7 +7,7 @@
  */
 
 
-#include <OMERO/Model/DetailsI.h>
+#include <omero/model/DetailsI.h>
 
 namespace omero { namespace model {
 

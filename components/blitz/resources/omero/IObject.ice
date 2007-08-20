@@ -9,8 +9,8 @@
 #ifndef omero_model_IObject
 #define omero_model_IObject
 
-#include <OMERO/fwd.ice>
-#include <OMERO/RTypes.ice>
+#include <omero/fwd.ice>
+#include <omero/RTypes.ice>
 
 module omero { 
   module model {     

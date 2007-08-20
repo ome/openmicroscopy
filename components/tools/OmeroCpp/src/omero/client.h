@@ -9,20 +9,20 @@
 #ifndef OMERO_CLIENT_H
 #define OMERO_CLIENT_H
 
-#include <OMERO/API.h>
-#include <OMERO/ClientErrors.h>
-#include <OMERO/Constants.h>
-#include <OMERO/CTypes.h>
-#include <OMERO/ModelI.h>
-#include <OMERO/ObjectFactoryRegistrar.h>
-#include <OMERO/ServerErrors.h>
-#include <OMERO/System.h>
+#include <omero/API.h>
+#include <omero/ClientErrors.h>
+#include <omero/Constants.h>
+#include <omero/CTypes.h>
+#include <omero/ModelI.h>
+#include <omero/ObjectFactoryRegistrar.h>
+#include <omero/ServerErrors.h>
+#include <omero/System.h>
 #include <Ice/Ice.h>
 #include <Glacier2/Glacier2.h>
 #include <string>
 #include <iosfwd>
 
-namespace OMERO {
+namespace omero {
 
   /*
    * The OMERO::client class is the main entry point for consumers of

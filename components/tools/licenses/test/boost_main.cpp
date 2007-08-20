@@ -11,7 +11,7 @@
 #define BOOST_AUTO_TEST_MAIN
 
 #include <boost/test/auto_unit_test.hpp>
-#include <OMERO/client.h>
+#include <omero/client.h>
 
 using namespace omero::model;
 using namespace std;

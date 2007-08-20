@@ -9,12 +9,12 @@
 #ifndef OMERO_MODEL_DETAILSI_H
 #define OMERO_MODEL_DETAILSI_H
 
-#include <OMERO/Model/Details.h>
-#include <OMERO/Model/ExperimenterI.h>
-#include <OMERO/Model/ExperimenterGroupI.h>
-#include <OMERO/Model/EventI.h>
-#include <OMERO/Model/ExternalInfoI.h>
-#include <OMERO/Model/PermissionsI.h>
+#include <omero/model/Details.h>
+#include <omero/model/ExperimenterI.h>
+#include <omero/model/ExperimenterGroupI.h>
+#include <omero/model/EventI.h>
+#include <omero/model/ExternalInfoI.h>
+#include <omero/model/PermissionsI.h>
 #include <Ice/Config.h>
 #include <iostream>
 #include <string>

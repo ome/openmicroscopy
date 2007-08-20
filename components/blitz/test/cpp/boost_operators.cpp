@@ -6,7 +6,7 @@
  *
  */
 
-#include <OMERO/Model/ImageI.h>
+#include <omero/model/ImageI.h>
 #include <boost_fixture.h>
 
 using omero::model::ImageI;

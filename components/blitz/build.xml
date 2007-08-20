@@ -90,10 +90,10 @@
 	<target name="icegen" depends="icegen-init,load-hibernate" unless="icegen.not.required">
 		<hibernate mappings="${common.comp}/${generated.rel}/resources">
 			<hbmtemplate template="templates/combined.vm"     filepattern="resources/{class-name}I.combined" />
-			<hbmtemplate template="templates/ice_includes.vm" filepattern="resources/OMERO/fwd.ice" />
+			<hbmtemplate template="templates/ice_includes.vm" filepattern="resources/omero/fwd.ice" />
 			<hbmtemplate template="templates/java_ice_map.vm" filepattern="src/omero/util/IceMap.java" />
 			<hbmtemplate template="templates/java_obj_reg.vm" filepattern="src/omero/util/ObjectFactoryRegistrar.java" />
-			<hbmtemplate template="templates/cpp_obj_reg.vm"  filepattern="src/OMERO/ObjectFactoryRegistrar.cpp" />
+			<hbmtemplate template="templates/cpp_obj_reg.vm"  filepattern="src/omero/ObjectFactoryRegistrar.cpp" />
 			<hbmtemplate template="templates/factorymap.vm"  filepattern="resources/omero/util/FactoryMap.combined" />
 		</hibernate>
 		
@@ -105,10 +105,10 @@
 		-->
 		<split-combined prefix="hdr">
 			<!-- resources/*I.combined => ../../src/cpp/generated/*I.h -->
-			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/resources/OMERO/Model/\1I.h"/>
+			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/resources/omero/model/\1I.h"/>
 		</split-combined>
 		<split-combined prefix="cpp">
-			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/src/OMERO/Model/\1I.cpp"/>
+			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/src/omero/model/\1I.cpp"/>
 		</split-combined>
 		<split-combined prefix="jav">
 			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/src/omero/model/\1I.java"/>
@@ -117,7 +117,7 @@
 			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/src/omero_model_\1I.py"/>
 		</split-combined>
 		<split-combined prefix="ice">
-			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/resources/OMERO/Model/\1.ice"/>
+			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/resources/omero/model/\1.ice"/>
 		</split-combined>
 		<!--
 		    This does the same fore the factorymap.vm template.

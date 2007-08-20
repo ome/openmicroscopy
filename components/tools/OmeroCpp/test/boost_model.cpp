@@ -9,7 +9,6 @@
 #include <boost_fixture.h>
 
 using namespace omero::model;
-using namespace OMERO;
 using namespace omero;
 using namespace std;
 
@@ -196,7 +195,7 @@ BOOST_AUTO_TEST_CASE( LinkViaMap )
   user->setOmeName(new omero::CString("UUID"));
   
   // possibly setOmeName() and setOmeName(string) ??
-  // and then don't need OMERO/types.h
+  // and then don't need omero/types.h
   
   ExperimenterGroupIPtr group = new ExperimenterGroupI();
   // TODOuser->linkExperimenterGroup(group);

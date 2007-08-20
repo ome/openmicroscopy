@@ -57,21 +57,21 @@ DECLARATION BLOCK:
 [$hdr] #ifndef ${POJOI}_H
 [$hdr] #define ${POJOI}_H
 
-[$ice] \\\#include <OMERO/fwd.ice>
-[$ice] \\\#include <OMERO/IObject.ice>
-[$ice] \\\#include <OMERO/RTypes.ice>
+[$ice] \\\#include <omero/fwd.ice>
+[$ice] \\\#include <omero/IObject.ice>
+[$ice] \\\#include <omero/RTypes.ice>
 #if( $pojo.isSubclass() )
 #set( $parent = $pojo.extendsDeclaration.replaceFirst("extends.*ome.model..+?[.]","") )
-[$ice] \\\#include <OMERO/Model/${parent}.ice>
+[$ice] \\\#include <omero/model/${parent}.ice>
 #set( $include = '\#include' )
-#set( $importModify = '.replaceAll("^","[ice]").replaceAll(".*java.*","").replaceAll("import.*[.](.*?);","$include <OMERO/Model/$1.ice>") ' )
+#set( $importModify = '.replaceAll("^","[ice]").replaceAll(".*java.*","").replaceAll("import.*[.](.*?);","$include <omero/model/$1.ice>") ' )
 $secondpassclassimports$importModify
 #end 
-[$hdr] \\\#include <OMERO/ClientErrors.h>
-[$hdr] \\\#include <OMERO/IObject.h>
-[$hdr] \\\#include <OMERO/Model/DetailsI.h>
-[$hdr] \\\#include <OMERO/Model/${Pojo}.h>
-[$hdr] \\\#include <OMERO/ModelI.h>
+[$hdr] \\\#include <omero/ClientErrors.h>
+[$hdr] \\\#include <omero/IObject.h>
+[$hdr] \\\#include <omero/model/DetailsI.h>
+[$hdr] \\\#include <omero/model/${Pojo}.h>
+[$hdr] \\\#include <omero/ModelI.h>
 
 [$ice] module omero {
 [$ice]   module model {
@@ -84,7 +84,7 @@ $secondpassclassimports$importModify
 
 Note how the whitespace for the python definitions is important.
 [$pyc] import Ice
-[$pyc] import OMERO_Model_${Pojo}_ice
+[$pyc] import omero_model_${Pojo}_ice
 [$pyc] _omero = Ice.openModule("omero")
 [$pyc] _omero_model = Ice.openModule("omero.model")
 [$pyc] __name__ = "omero.model"
@@ -95,7 +95,7 @@ Note how the whitespace for the python definitions is important.
 [$hdr]   namespace model {
 [$hdr]     class ${PojoI} : virtual public ${Pojo} { 
 
-[$cpp] \\\#include <OMERO/Model/${Pojo}I.h>
+[$cpp] \\\#include <omero/model/${Pojo}I.h>
 [$cpp] namespace omero { 
 [$cpp]   namespace model {
 

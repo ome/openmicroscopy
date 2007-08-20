@@ -9,8 +9,8 @@
 #include <boost_fixture.h>
 #include <iterator>
 #include <algorithm>
-#include <OMERO/API.h>
-#include <OMERO/System.h>
+#include <omero/API.h>
+#include <omero/System.h>
 
 BOOST_AUTO_TEST_CASE( VectorArgs )
 {

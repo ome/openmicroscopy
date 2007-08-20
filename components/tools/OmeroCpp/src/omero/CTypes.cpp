@@ -6,7 +6,7 @@
  *
  */
 
-#include <OMERO/CTypes.h>
+#include <omero/CTypes.h>
 
 namespace omero {
 

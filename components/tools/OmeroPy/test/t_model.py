@@ -142,7 +142,7 @@ class TestModel(unittest.TestCase):
         user.setOmeName(omero.RString("UUID"))
         
         # possibly setOmeName() and setOmeName(string) ??
-        # and then don't need OMERO/types.h
+        # and then don't need omero/types.h
         
         group = ExperimenterGroupI()
         # TODOuser.linkExperimenterGroup(group)

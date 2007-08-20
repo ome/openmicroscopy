@@ -15,17 +15,17 @@ Java classes) which compose blitz.
 OMERO
 =====
 
-The OMERO/ ice files are the central definitions of the blitz
+The omero/ ice files are the central definitions of the blitz
 implementation. They provide an Ice facade over the existing
 OMERO.server architecture. Because of the increased overhead of
 creating implementations in multiple languages, the mappings are
 simplified and work mostly as simple data transfer objects. For more
 on the individual classes, see the slice definition files.
 
-OMERO/Model *.ice
+omero/model *.ice
 =================
 
-The slice definitions under OMERO/Model were themselves code-generated
+The slice definitions under omero/model were themselves code-generated
 and are largely undocumented. Instead, this README helps one to
 understand just what those files mean.
 

@@ -10,7 +10,7 @@
 #define OMERO_BOOST_FIXTURE_H
 
 // domain
-#include <OMERO/client.h>
+#include <omero/client.h>
 // boost
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/test/unit_test_log.hpp>

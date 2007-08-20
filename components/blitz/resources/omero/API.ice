@@ -9,10 +9,10 @@
 #ifndef omero_API
 #define omero_API
 
-#include <OMERO/fwd.ice>
-#include <OMERO/ROMIO.ice>
-#include <OMERO/RTypes.ice>
-#include <OMERO/System.ice>
+#include <omero/fwd.ice>
+#include <omero/ROMIO.ice>
+#include <omero/RTypes.ice>
+#include <omero/System.ice>
 #include <Glacier2/Session.ice>
 #include <Ice/BuiltinSequences.ice>
 
@@ -178,8 +178,8 @@ module omero {
 	idempotent IObjectList           findAll(string klass, omero::sys::Filter filter) throws ServerError;          
 	idempotent omero::model::IObject findByExample(omero::model::IObject example) throws ServerError;
 	idempotent IObjectList           findAllByExample(omero::model::IObject example, omero::sys::Filter filter) throws ServerError;    
-	idempotent omero::model::IObject findBystring(string klass, string field, string value) throws ServerError;
-	idempotent IObjectList           findAllBystring(string klass, string field, string value, bool caseSensitive, omero::sys::Filter filter) throws ServerError;
+	idempotent omero::model::IObject findByString(string klass, string field, string value) throws ServerError;
+	idempotent IObjectList           findAllByString(string klass, string field, string value, bool caseSensitive, omero::sys::Filter filter) throws ServerError;
 	idempotent omero::model::IObject findByQuery(string query, omero::sys::Parameters params) throws ServerError;
 	idempotent IObjectList           findAllByQuery(string query, omero::sys::Parameters params) throws ServerError;
 	idempotent omero::model::IObject refresh(omero::model::IObject iObject) throws ServerError;

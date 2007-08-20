@@ -9,7 +9,7 @@
 #ifndef PERMISSIONSI_H
 #define PERMISSIONSI_H
 
-#include <OMERO/Model/Permissions.h>
+#include <omero/model/Permissions.h>
 #include <IceUtil/Handle.h>
 #include <Ice/Config.h>
 #include <iostream>

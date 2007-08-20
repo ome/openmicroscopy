@@ -9,7 +9,7 @@
 #ifndef OMERO_CTYPES_H
 #define OMERO_CTYPES_H
 
-#include <OMERO/RTypes.h>
+#include <omero/RTypes.h>
 #include <string>
 #include <iosfwd>
 
@@ -20,7 +20,7 @@
  * so earlier code will still compile. These typedefs should be considered DEPRECATED.
  *
  * Please use the omero::RTypes directly.
- * See OMERO/RTypes.ice for more information.
+ * See omero/RTypes.ice for more information.
  */
 namespace omero {
 

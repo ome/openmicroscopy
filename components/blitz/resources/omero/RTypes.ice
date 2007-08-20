@@ -9,7 +9,7 @@
 #ifndef OMERO_RTYPES_ICE
 #define OMERO_RTYPES_ICE
 
-#include <OMERO/fwd.ice>
+#include <omero/fwd.ice>
 
 /*
  * Simple type definitions used for remoting purposes.
@@ -93,7 +93,7 @@ module omero {
    * Extends RString and simply provides runtime
    * information to the server that this string
    * is intended as a class parameter. Used especially
-   * by omero::system::ParamMap (OMERO/System.ice) 
+   * by omero::system::ParamMap (omero/System.ice) 
    *
    * Usage:
    *   omero::RClass c = ...; // from service

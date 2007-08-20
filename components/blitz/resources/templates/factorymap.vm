@@ -26,7 +26,7 @@ Copyright notice added to all files:
 [jav] import java.util.concurrent.Callable;
 [cpp] \\\#include <string>
 [cpp] \\\#include <map>
-[cpp] namespace OMERO {
+[cpp] namespace omero {
 
 [jav] public abstract class FactoryMap {
 [jav]
@@ -69,5 +69,5 @@ Copyright notice added to all files:
 [cpp]     }
 
 [jav] }
-[cpp] } // End OMERO
+[cpp] } // End omero
 #stop

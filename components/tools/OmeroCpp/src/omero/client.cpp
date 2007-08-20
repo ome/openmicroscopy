@@ -6,11 +6,11 @@
  *
  */
 
-#include <OMERO/client.h>
+#include <omero/client.h>
 
 using namespace std;
 
-namespace OMERO {
+namespace omero {
   
   client::client(int& argc, char* argv[],
 		 const Ice::InitializationData& id) {

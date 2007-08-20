@@ -9,12 +9,12 @@
 #ifndef OMERO_OBJECTFACTORYREGISTRAR_H
 #define OMERO_OBJECTFACTORYREGISTRAR_H
 
-#include <OMERO/ModelI.h>
+#include <omero/ModelI.h>
 #include <string>
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
 
-namespace OMERO { 
+namespace omero { 
 
   /*
    * Responsible for creating model instances based
