@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
  * Note: Using the {@link Router} wrapper class can cause processes to
  * be orphaned on the OS.
  */
-public class SlowSessionTimeTest extends MockObjectTestCase {
+public class ServiceTimeoutTest extends MockObjectTestCase {
 
 	BlitzServerFixture fixture;
 
