@@ -7,13 +7,7 @@ package ome.icy.fixtures;
 
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jmock.Mock;
-import org.jmock.MockObjectTestCase;
-
 import ome.api.local.LocalAdmin;
-import ome.icy.model.itests.manual.SlowSessionTimeTest;
 import ome.security.MethodSecurity;
 import ome.security.SecuritySystem;
 import ome.services.blitz.Main;
@@ -25,9 +19,18 @@ import ome.tools.spring.StubBeanPostProcessor;
 import omeis.providers.re.RenderingEngine;
 import omero.api.ServiceFactoryPrx;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jmock.Mock;
+import org.jmock.MockObjectTestCase;
+
+/**
+ * Note: Using the {@link Router} wrapper class can cause processes to
+ * be orphaned on the OS.
+ */
 public class BlitzServerFixture extends MockObjectTestCase {
 
-	private static final Log log = LogFactory.getLog(SlowSessionTimeTest.class);
+	private static final Log log = LogFactory.getLog(BlitzServerFixture.class);
 
 	private static final Map<String, Object> STUBS = StubBeanPostProcessor.stubs;
 
