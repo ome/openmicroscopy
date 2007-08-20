@@ -159,9 +159,10 @@ class Shutdown extends RouterControl {
     @Override
     public void run() {
         log.info("Running shutdown hook.");
-        OmeroContext.getInstance(contextName).close();
-        Main.IN_USE.remove(contextName);
-        stopRouter();
+        Main main = Main.IN_USE.get(contextName);
+        if (main != null) {
+        	main.shutdown();
+        }
         log.info("Shutdown hook finished.");
     }
 };
@@ -282,6 +283,18 @@ public class Main implements Runnable {
     	return ! startup.stop;
     }
     
+    /**
+     * Used after {@link #waitForQuit()} or {@link Shutdown} finishes.
+     */
+    public void shutdown() {
+    	IN_USE.remove(name);
+    	startup.stop = true;
+    	log.debug("Calling close context on "+name);
+        OmeroContext.getInstance(name).close();
+        log.debug("Calling stop router.");
+        shutdown.stopRouter();
+    }
+    
     protected void waitForQuit() {
         System.out.println("");
         System.out.println("**********************************************");
@@ -292,15 +305,15 @@ public class Main implements Runnable {
         System.out.println("");
         Scanner s = new Scanner(System.in);
         while (!startup.stop) {
-            String line = s.nextLine().toLowerCase();
-            if (line.startsWith("q")) {
-                s.close();
-                System.exit(0);
-            }
             try {
                 Thread.sleep(200L);
             } catch (InterruptedException e) {
                 // Continue with loop.
+            }
+            String line = s.nextLine().toLowerCase();
+            if (line.startsWith("q")) {
+                s.close();
+                shutdown();
             }
         }
     }
