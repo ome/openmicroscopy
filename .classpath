@@ -6,10 +6,11 @@
 	<classpathentry kind="src" output="target/eclipse-server" path="components/server/resources"/>
 	<classpathentry kind="src" output="target/eclipse-client" path="components/client/test"/>
 	<classpathentry kind="src" output="target/eclipse-client" path="components/client/src"/>
-	<classpathentry kind="src" output="target/eclipse-blitzgenresrc" path="components/blitz/target/generated/resources"/>
-	<classpathentry kind="src" output="target/eclipse-blitztest" path="components/blitz/test"/>
-	<classpathentry kind="src" output="target/eclipse-blitzsrc" path="components/blitz/src"/>
-	<classpathentry kind="src" output="target/eclipse-blitzgensrc" path="components/blitz/target/generated/src"/>
+	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/target/generated/resources"/>
+	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/test"/>
+	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/resources"/>
+	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/src"/>
+	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/target/generated/src"/>
 	<classpathentry kind="src" output="target/eclipse-common" path="components/common/src"/>
 	<classpathentry kind="src" output="target/eclipse-common" path="components/common/test"/>
 	<classpathentry kind="src" output="target/eclipse-common" path="components/common/resources"/>
