@@ -60,15 +60,12 @@
     <constructor-arg ref="ServantCache"/>
   </bean>
 
-  <bean id="ServantCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+  <bean id="ServantCache" class="ome.services.blitz.util.CacheWithListenersFactoryBean">
     <property name="cacheManager" ref="CacheManager"/>
     <property name="overflowToDisk" value="false"/>
     <property name="maxElementsInMemory" value="${omero.blitz.cache.maxElements}"/>
     <property name="timeToIdle" value="${omero.blitz.cache.timeToIdle}"/>
     <property name="timeToLive" value="0"/>
-    <!-- property name="cacheEntryFactory">
-      <bean class="ome.services.blitz.lookup.ContextCacheEntryFactory"/>
-    </property-->
   </bean>
 
   <bean id="CacheManager" class="ome.services.blitz.util.ShutdownSafeEhcacheManagerFactoryBean"/>

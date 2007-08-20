@@ -325,20 +325,20 @@ module omero {
     interface ServiceFactory extends Glacier2::Session
       {
 	// Central OMERO.blitz stateless services.
-	IAdmin*    getAdminService();
-	IConfig*   getConfigService();
-	IPixels*   getPixelsService();
-	IPojos*    getPojosService();
-	IQuery*    getQueryService();
-	ITypes*    getTypesService();
-	IUpdate*   getUpdateService();
+	IAdmin*    getAdminService() throws ServerError;
+	IConfig*   getConfigService() throws ServerError;
+	IPixels*   getPixelsService() throws ServerError;
+	IPojos*    getPojosService() throws ServerError;
+	IQuery*    getQueryService() throws ServerError;
+	ITypes*    getTypesService() throws ServerError;
+	IUpdate*   getUpdateService() throws ServerError;
 
 	// Central OMERO.blitz stateful services.
-	RawFileStore* createRawFileStore();
-	RawPixelsStore* createRawPixelsStore();
-	RenderingEngine* createRenderingEngine();
-	ThumbnailStore* createThumbnailStore();
-	IRepositoryInfo* getRepositoryInfoService();
+	RawFileStore* createRawFileStore() throws ServerError;
+	RawPixelsStore* createRawPixelsStore() throws ServerError;
+	RenderingEngine* createRenderingEngine() throws ServerError;
+	ThumbnailStore* createThumbnailStore() throws ServerError;
+	IRepositoryInfo* getRepositoryInfoService() throws ServerError;
 
 	/*
 	 * Allows looking up any service by name. See Constants.ice
@@ -348,6 +348,8 @@ module omero {
 	 */
 	   
 	ServiceInterface* getByName(string name) throws ServerError;
+	
+	StatefulServiceInterface* createByName(string name) throws ServerError;
 	
 	/*
 	 * Example for what a server callback would look like.
@@ -360,19 +362,28 @@ module omero {
 	 */
 	void close();
 
+	// Session management
+	
 	/*
-	 * Requests that the given serivces be marked as alive. It is
+	 * Returns a list of string ids for currently active services. This will
+	 * _not_ keep services alive, and in fact checks for all expired services
+	 * and removes them.
+	 */
+	StringSet activeServices();
+
+	/*
+	 * Requests that the given services be marked as alive. It is
 	 * possible that one of the services has already timed out, in which
-	 * case the returned long value will be non-null.
+	 * case the returned long value will be non-zero.
 	 * 
-	 * Specifically, the bit representing the 0-based index will be non-null:
+	 * Specifically, the bit representing the 0-based index will be 1:
 	 * 
 	 *        if (retval & 1<<idx == 1<<idx) { // not alive }
 	 * 
 	 * Except for fatal server or session errors, this method should never
 	 * throw an exception.
 	 */
-	long keepAlive(ServiceList proxies);
+	long keepAllAlive(ServiceList proxies);
 
 	/*
 	 * Returns true if the given service is alive.
@@ -380,7 +391,7 @@ module omero {
 	 * Except for fatal server or session errors, this method should never
 	 * throw an exception. 
 	 */
-	bool isAlive(ServiceInterface* proxy);
+	bool keepAlive(ServiceInterface* proxy);
 
       };
 

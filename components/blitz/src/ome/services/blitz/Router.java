@@ -41,6 +41,10 @@ public class Router {
 		setTimeout(600);
 	}
 
+	public void allowAdministration() {
+		map.put("Glacier2.Admin.Endpoints",  "tcp -p 9997 -h 127.0.0.1");
+	}
+	
 	public void setClientEndpoints(String host, int port) {
 		map.put("Glacier2.Client.Endpoints", "tcp -p " + port + " -h " + host);
 	}
@@ -63,27 +67,10 @@ public class Router {
 		map.put("Glacier2.SessionTimeout", "" + timeout);
 	}
 
-	public void tryStart(int n) {
-
-		if (n == 0) {
-			throw new RuntimeException("No tries left.");
-		}
-
-		start();
-		if (!running()) {
-			try {
-				Thread.sleep(1000L);
-			} catch (InterruptedException e) {
-				// ok.
-			}
-			log.info(n + " more tries.");
-			tryStart(--n);
-		}
-	}
-
-	public void start() {
+	public int start() {
 		List<String> list = new ArrayList<String>();
 		list.add(getBashPath());
+		list.add("--daemon");
 		for (String string : map.keySet()) {
 			list.add("--" + string + "=" + map.get(string));
 		}
@@ -92,33 +79,28 @@ public class Router {
 				.toArray(new String[list.size()]));
 		try {
 			p = pb.start();
+			p.waitFor();
+			return p.exitValue();
 		} catch (Exception e) {
 			log.info("Failed to start", e);
+			return Integer.MIN_VALUE;
 		}
-	}
-
-	public boolean running() {
-		if (p == null)
-			return false;
-		try {
-			p.exitValue();
-		} catch (IllegalThreadStateException e) {
-			return true;
-		}
-		return false;
 	}
 
 	/**
-	 * Returns true if the {@link Process} was active, and therefore
-	 * an attempt was made to call {@link Process#destroy()}.
-	 * @return
+	 * Uses the administrative interface for the Glacier2 router to
+	 * call {@link Glacier2.AdminPrx#shutdown()}.
 	 */
-	public boolean stop() {
-		boolean active = running();
-		if (active) {
-			p.destroy();
-		}
-		return active;
+	public boolean shutdown(Ice.Communicator ic) {
+    	Ice.ObjectPrx prx = ic.stringToProxy(map.get("Glacier2.InstanceName")+"/admin:tcp -p 9997 -h 127.0.0.1");
+    	Glacier2.AdminPrx rtr = Glacier2.AdminPrxHelper.checkedCast(prx);
+    	try {
+    		rtr.shutdown();
+    	} catch (Exception e) {
+    		log.error("Error while calling router.shutdown.",e);
+    		return false;
+    	}
+    	return true;
 	}
 
 	String getBashPath() {

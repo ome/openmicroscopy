@@ -6,7 +6,9 @@
  */
 package ome.tools.spring;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.ehcache.constructs.blocking.BlockingCache;
 
@@ -21,24 +23,11 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  */
 public class StubBeanPostProcessor implements BeanPostProcessor {
 
-	List<String> names;
-	BlockingCache cache;
-	
-	public void setNames(List<String> names) {
-		this.names = names;
-	}
-	
-	public BlockingCache getCache() {
-		return cache;
-	}
-	
-	public void setCache(BlockingCache cache) {
-		this.cache = cache;
-	}
+	public final static Map<String, Object> stubs = new HashMap<String, Object>();
 
 	public Object postProcessBeforeInitialization(Object bean, String beanName) {
-		if (names.contains(beanName))
-				return cache.get(beanName);
+		if (stubs.containsKey(beanName))
+				return stubs.get(beanName);
 		return bean;
 	}
 

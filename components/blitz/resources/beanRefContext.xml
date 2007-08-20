@@ -59,6 +59,7 @@
         <value>classpath:omero/constants.xml</value>
         <value>classpath:omero/test.xml</value>
         <value>classpath:ome/services/config-local.xml</value>
+        <value>classpath:ome/services/blitz-servantDefinitions.xml</value>
       </list>
     </constructor-arg>
     <constructor-arg index="1" value="true"/>

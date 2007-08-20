@@ -8,38 +8,14 @@
 package ome.services.blitz.impl;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import ome.api.IAdmin;
-import ome.api.IConfig;
-import ome.api.ILdap;
-import ome.api.IPixels;
-import ome.api.IPojos;
-import ome.api.IQuery;
-import ome.api.ITypes;
-import ome.api.IUpdate;
-import ome.api.RawFileStore;
-import ome.api.RawPixelsStore;
 import ome.api.ServiceInterface;
-import ome.api.ThumbnailStore;
-
-import omero.api.StatefulServiceInterface;
-
-import ome.api.IRepositoryInfo;
-import omero.api.IRepositoryInfoPrx;
-import omero.api.IRepositoryInfoPrxHelper;
-import omero.api._IRepositoryInfoOperations;
-import omero.api._IRepositoryInfoTie;
-
 import ome.conditions.InternalException;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
@@ -50,9 +26,8 @@ import ome.services.blitz.util.ServantDefinition;
 import ome.services.blitz.util.ServantHelper;
 import ome.services.blitz.util.UnregisterServantMessage;
 import ome.system.OmeroContext;
-import ome.system.Principal;
 import ome.system.ServiceFactory;
-import omeis.providers.re.RenderingEngine;
+import omero.ApiUsageException;
 import omero.ServerError;
 import omero.api.IAdminPrx;
 import omero.api.IAdminPrxHelper;
@@ -66,6 +41,8 @@ import omero.api.IPojosPrx;
 import omero.api.IPojosPrxHelper;
 import omero.api.IQueryPrx;
 import omero.api.IQueryPrxHelper;
+import omero.api.IRepositoryInfoPrx;
+import omero.api.IRepositoryInfoPrxHelper;
 import omero.api.ITypesPrx;
 import omero.api.ITypesPrxHelper;
 import omero.api.IUpdatePrx;
@@ -77,33 +54,25 @@ import omero.api.RenderingEnginePrxHelper;
 import omero.api.ServiceInterfacePrx;
 import omero.api.ServiceInterfacePrxHelper;
 import omero.api.SimpleCallbackPrx;
+import omero.api.StatefulServiceInterface;
+import omero.api.StatefulServiceInterfacePrx;
+import omero.api.StatefulServiceInterfacePrxHelper;
 import omero.api.ThumbnailStorePrx;
 import omero.api.ThumbnailStorePrxHelper;
-import omero.api._IAdminOperations;
-import omero.api._IAdminTie;
-import omero.api._IConfigOperations;
-import omero.api._IConfigTie;
-import omero.api._ILdapOperations;
-import omero.api._ILdapTie;
-import omero.api._IPixelsOperations;
-import omero.api._IPixelsTie;
-import omero.api._IPojosOperations;
-import omero.api._IPojosTie;
-import omero.api._IQueryOperations;
-import omero.api._IQueryTie;
-import omero.api._ITypesOperations;
-import omero.api._ITypesTie;
-import omero.api._IUpdateOperations;
-import omero.api._IUpdateTie;
-import omero.api._RawFileStoreOperations;
-import omero.api._RawFileStoreTie;
-import omero.api._RawPixelsStoreOperations;
-import omero.api._RawPixelsStoreTie;
-import omero.api._RenderingEngineOperations;
-import omero.api._RenderingEngineTie;
 import omero.api._ServiceFactoryDisp;
-import omero.api._ThumbnailStoreOperations;
-import omero.api._ThumbnailStoreTie;
+import omero.constants.ADMINSERVICE;
+import omero.constants.CONFIGSERVICE;
+import omero.constants.LDAPSERVICE;
+import omero.constants.PIXELSSERVICE;
+import omero.constants.POJOSSERVICE;
+import omero.constants.QUERYSERVICE;
+import omero.constants.RAWFILESTORE;
+import omero.constants.RAWPIXELSSTORE;
+import omero.constants.RENDERINGENGINE;
+import omero.constants.REPOSITORYINFO;
+import omero.constants.THUMBNAILSTORE;
+import omero.constants.TYPESSERVICE;
+import omero.constants.UPDATESERVICE;
 
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -113,14 +82,12 @@ import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 import Ice.Current;
-import Ice.ObjectPrx;
 
 /**
  * Responsible for maintaining all servants for a single session.
@@ -149,21 +116,12 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
 
     AopContextInitializer initializer;
 
-    // ~ Synchronized state
-    // =========================================================================
-
-    String adminKey = "IAdmin", configKey = "IConfig", ldapKey = "ILdap", pixelsKey = "IPixels",
-            pojosKey = "Pojos", queryKey = "IQuery", typesKey = "ITypes",
-            updateKey = "IUpdate", repoKey = "IRepositoryInfo";
-
-    Set<Ice.Identity> ids = Collections
-            .synchronizedSet(new HashSet<Ice.Identity>());
-
     // ~ Initialization and context methods
     // =========================================================================
 
     public ServiceFactoryI(Ehcache ehcache) {
         this.cache = ehcache;
+        this.helper = new ServantHelper();
     }
 
     /**
@@ -182,7 +140,6 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
     public void setApplicationContext(ApplicationContext applicationContext)
             throws BeansException {
         context = (OmeroContext) applicationContext;
-        helper = new ServantHelper(context, cache);
     }
 
     /**
@@ -200,226 +157,132 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
     // ~ Stateless
     // =========================================================================
 
-    public IAdminPrx getAdminService(Ice.Current current) {
-        synchronized (adminKey) {
-    		Ice.Identity id = getIdentity(current, adminKey);
-    		String key = Ice.Util.identityToString(id);
-
-    		Ice.ObjectPrx prx = servantProxy(id, current);
-    		if (prx == null) {
-            	_IAdminOperations ops = createServantDelegate(
-    		            _IAdminOperations.class, IAdmin.class, key);
-    		    _IAdminTie servant = new _IAdminTie(ops);
-    			prx = registerServant(servant, current, id);
-    		}
-    		return IAdminPrxHelper.uncheckedCast(prx);
-        }
+    public IAdminPrx getAdminService(Ice.Current current) throws ServerError {
+    	return IAdminPrxHelper.uncheckedCast(
+    			getByName(ADMINSERVICE.value, current));
     }
 
-    public IConfigPrx getConfigService(Ice.Current current) {
-        synchronized (configKey) {
-            Ice.Identity id = getIdentity(current, configKey);
-            String key = Ice.Util.identityToString(id);
-
-            Ice.ObjectPrx prx = servantProxy(id, current);
-            if (prx == null) {
-                _IConfigOperations ops = createServantDelegate(
-                        _IConfigOperations.class, IConfig.class, key);
-                _IConfigTie servant = new _IConfigTie(ops);
-                prx = registerServant(servant, current, id);
-            }
-            return IConfigPrxHelper.uncheckedCast(prx);
-        }
+    public IConfigPrx getConfigService(Ice.Current current) throws ServerError {
+    	return IConfigPrxHelper.uncheckedCast(
+    			getByName(CONFIGSERVICE.value, current));
     }
 
-    public ILdapPrx getLdapService(Ice.Current current) {
-        synchronized (ldapKey) {
-            Ice.Identity id = getIdentity(current, ldapKey);
-            String key = Ice.Util.identityToString(id);
-
-            Ice.ObjectPrx prx = servantProxy(id, current);
-            if (prx == null) {
-                _ILdapOperations ops = createServantDelegate(
-                        _ILdapOperations.class, ILdap.class, key);
-                _ILdapTie servant = new _ILdapTie(ops);
-                prx = registerServant(servant, current, id);
-            }
-            return ILdapPrxHelper.uncheckedCast(prx);
-        }
+    public ILdapPrx getLdapService(Ice.Current current) throws ServerError {
+    	return ILdapPrxHelper.uncheckedCast(
+    			getByName(LDAPSERVICE.value, current));
     }
     
-    public IPixelsPrx getPixelsService(Ice.Current current) {
-        synchronized (pixelsKey) {
-            Ice.Identity id = getIdentity(current, pixelsKey);
-            String key = Ice.Util.identityToString(id);
-
-            Ice.ObjectPrx prx = servantProxy(id, current);
-            if (prx == null) {
-                _IPixelsOperations ops = createServantDelegate(
-                        _IPixelsOperations.class, IPixels.class, key);
-                _IPixelsTie servant = new _IPixelsTie(ops);
-                prx = registerServant(servant, current, id);
-            }
-            return IPixelsPrxHelper.uncheckedCast(prx);
-        }
+    public IPixelsPrx getPixelsService(Ice.Current current) throws ServerError {
+    	return IPixelsPrxHelper.uncheckedCast(
+    			getByName(PIXELSSERVICE.value, current));
     }
 
-    public IPojosPrx getPojosService(Ice.Current current) {
-        synchronized (pojosKey) {
-            Ice.Identity id = getIdentity(current, pojosKey);
-            String key = Ice.Util.identityToString(id);
-
-            Ice.ObjectPrx prx = servantProxy(id, current);
-            if (prx == null) {
-                _IPojosOperations ops = createServantDelegate(
-                        _IPojosOperations.class, IPojos.class, key);
-                _IPojosTie servant = new _IPojosTie(ops);
-                prx = registerServant(servant, current, id);
-            }
-            return IPojosPrxHelper.uncheckedCast(prx);
-
-        }
+    public IPojosPrx getPojosService(Ice.Current current) throws ServerError {
+    	return IPojosPrxHelper.uncheckedCast(
+    			getByName(POJOSSERVICE.value, current));
     }
 
-    public IQueryPrx getQueryService(Ice.Current current) {
-        synchronized (queryKey) {
-            Ice.Identity id = getIdentity(current, queryKey);
-            String key = Ice.Util.identityToString(id);
-
-            Ice.ObjectPrx prx = servantProxy(id, current);
-            if (prx == null) {
-                _IQueryOperations ops = createServantDelegate(
-                        _IQueryOperations.class, IQuery.class, key);
-                _IQueryTie servant = new _IQueryTie(ops);
-                prx = registerServant(servant, current, id);
-            }
-            return IQueryPrxHelper.uncheckedCast(prx);
-
-        }
+    public IQueryPrx getQueryService(Ice.Current current) throws ServerError {
+            return IQueryPrxHelper.uncheckedCast(
+            		getByName(QUERYSERVICE.value, current));
     }
 
-    public ITypesPrx getTypesService(Ice.Current current) {
-        synchronized (typesKey) {
-            Ice.Identity id = getIdentity(current, typesKey);
-            String key = Ice.Util.identityToString(id);
-
-            Ice.ObjectPrx prx = servantProxy(id, current);
-            if (prx == null) {
-                _ITypesOperations ops = createServantDelegate(
-                        _ITypesOperations.class, ITypes.class, key);
-                _ITypesTie servant = new _ITypesTie(ops);
-                prx = registerServant(servant, current, id);
-            }
-            return ITypesPrxHelper.uncheckedCast(prx);
-
-        }
+    public ITypesPrx getTypesService(Ice.Current current) throws ServerError {
+    	return ITypesPrxHelper.uncheckedCast(
+    			getByName(TYPESSERVICE.value, current));
     }
 
-    public IUpdatePrx getUpdateService(Ice.Current current) {
-        synchronized (updateKey) {
-            Ice.Identity id = getIdentity(current, updateKey);
-            String key = Ice.Util.identityToString(id);
-
-            Ice.ObjectPrx prx = servantProxy(id, current);
-            if (prx == null) {
-                _IUpdateOperations ops = createServantDelegate(
-                        _IUpdateOperations.class, IUpdate.class, key);
-                _IUpdateTie servant = new _IUpdateTie(ops);
-                prx = registerServant(servant, current, id);
-            }
-            return IUpdatePrxHelper.uncheckedCast(prx);
-        }
+    public IUpdatePrx getUpdateService(Ice.Current current) throws ServerError {
+    	return IUpdatePrxHelper.uncheckedCast(
+    			getByName(UPDATESERVICE.value, current));
     }
 
-    public IRepositoryInfoPrx getRepositoryInfoService(Ice.Current current) {
-        synchronized (repoKey) {
-            Ice.Identity id = getIdentity(current, repoKey);
-            String key = Ice.Util.identityToString(id);
-
-            Ice.ObjectPrx prx = servantProxy(id, current);
-            if (prx == null) {
-                _IRepositoryInfoOperations ops = createServantDelegate(
-                        _IRepositoryInfoOperations.class, IRepositoryInfo.class, key);
-                _IRepositoryInfoTie servant = new _IRepositoryInfoTie(ops);
-                prx = registerServant(servant, current, id);
-            }
-            return IRepositoryInfoPrxHelper.uncheckedCast(prx);
-        }
+    public IRepositoryInfoPrx getRepositoryInfoService(Ice.Current current) throws ServerError {
+    	return IRepositoryInfoPrxHelper.uncheckedCast(
+    			getByName(REPOSITORYINFO.value, current));
     }
 
     // ~ Stateful
     // =========================================================================
 
-    // For symmetry
-    String re = "RenderingEngine", fs = "RawFileStore", ps = "RawPixelStore",
-            tb = "ThumbnailStore";
-
-    public RenderingEnginePrx createRenderingEngine(Ice.Current current) {
-        Ice.Identity id = getIdentity(current, Ice.Util.generateUUID()+re);
-        String key = Ice.Util.identityToString(id);
-        _RenderingEngineOperations ops = createServantDelegate(
-                _RenderingEngineOperations.class, RenderingEngine.class, key);
-        _RenderingEngineTie servant = new _RenderingEngineTie(ops);
-        Ice.ObjectPrx prx = registerServant(servant, current, id);
-        return RenderingEnginePrxHelper.uncheckedCast(prx);
+    public RenderingEnginePrx createRenderingEngine(Ice.Current current) throws ServerError {
+        return RenderingEnginePrxHelper.uncheckedCast(
+        		createByName(RENDERINGENGINE.value, current));
     }
 
-    public omero.api.RawFileStorePrx createRawFileStore(Ice.Current current) {
-        Ice.Identity id = getIdentity(current, Ice.Util.generateUUID()+fs);
-        String key = Ice.Util.identityToString(id);
-        _RawFileStoreOperations ops = createServantDelegate(
-                _RawFileStoreOperations.class, RawFileStore.class, key);
-        _RawFileStoreTie servant = new _RawFileStoreTie(ops);
-        Ice.ObjectPrx prx = registerServant(servant, current, id);
-        return omero.api.RawFileStorePrxHelper.uncheckedCast(prx);
+    public omero.api.RawFileStorePrx createRawFileStore(Ice.Current current) throws ServerError {
+        return omero.api.RawFileStorePrxHelper.uncheckedCast(
+        		createByName(RAWFILESTORE.value, current));
     }
 
-    public RawPixelsStorePrx createRawPixelsStore(Ice.Current current) {
-        Ice.Identity id = getIdentity(current, Ice.Util.generateUUID()+ps);
-        String key = Ice.Util.identityToString(id);
-        _RawPixelsStoreOperations ops = createServantDelegate(
-                _RawPixelsStoreOperations.class, RawPixelsStore.class, key);
-        _RawPixelsStoreTie servant = new _RawPixelsStoreTie(ops);
-        Ice.ObjectPrx prx = registerServant(servant, current, id);
-        return RawPixelsStorePrxHelper.uncheckedCast(prx);
+    public RawPixelsStorePrx createRawPixelsStore(Ice.Current current) throws ServerError {
+        return RawPixelsStorePrxHelper.uncheckedCast(
+        		createByName(RAWPIXELSSTORE.value, current));
     }
 
-    public ThumbnailStorePrx createThumbnailStore(Ice.Current current) {
-        Ice.Identity id = getIdentity(current, Ice.Util.generateUUID()+tb);
-        String key = Ice.Util.identityToString(id);
-        _ThumbnailStoreOperations ops = createServantDelegate(
-                _ThumbnailStoreOperations.class, ThumbnailStore.class, key);
-        _ThumbnailStoreTie servant = new _ThumbnailStoreTie(ops);
-        Ice.ObjectPrx prx = registerServant(servant, current, id);
-        return ThumbnailStorePrxHelper.uncheckedCast(prx);
+    public ThumbnailStorePrx createThumbnailStore(Ice.Current current) throws ServerError {
+        return ThumbnailStorePrxHelper.uncheckedCast(
+        		createByName(THUMBNAILSTORE.value, current));
     }
 
     // ~ Other interface methods
     // =========================================================================
 
     public ServiceInterfacePrx getByName(String name, Current current) throws ServerError {
-        Ice.Identity id = getIdentity(current, name);
-        String key = Ice.Util.identityToString(id);
 
-        Ice.ObjectPrx prx = servantProxy(id, current);
-        if (prx == null) {
-            ServantDefinition sd = (ServantDefinition) context.getBean(name);
-            Object servant;
-            try {
-                Object ops = createServantDelegate(sd.getOperationsClass(), sd
-                        .getServiceClass(), key);
-                Constructor ctor = sd.getTieClass().getConstructor(
-                        sd.getOperationsClass());
-                servant = ctor.newInstance(ops);
-                prx = registerServant(sd.getOperationsClass().cast(servant), current, id);
-            } catch (Exception e) {
-                // FIXME
-                omero.InternalException ie = new omero.InternalException();
-                ie.message = e.getMessage();
-                throw ie;
-            }
+        // The mutex can never be null since this is a self-populating cache.
+    	Ice.Identity id = getIdentity(current, name);
+    	
+    	// We're going to lock on the principal (which belongs to 
+    	// only one session, to make sure that two threads don't try
+    	// to get the same service at the same time. The given mutex
+    	// will then be used by all threads looking for this particular
+    	// service so as to not lock the whole session.
+    	Element elt;
+    	synchronized (principal) {
+    		elt = cache.get(id);
+    		if (elt == null) {
+    			elt = new Element(id, new Object()); // simple mutex
+    			cache.put(elt); // starts expiry
+    		}
+    	}
+
+    	Object mutex = elt.getObjectValue();
+        synchronized (mutex) {
+        	Ice.Object servant = current.adapter.find(id);
+        	if (null == servant) {        
+
+                servant = createServantDelegate(name);
+                
+                // Here we disallow stateful services
+                if (StatefulServiceInterface.class.isAssignableFrom(servant.getClass())) {
+                	ApiUsageException aue = new ApiUsageException();
+                	aue.message = name+" is a stateful service. Please use createByName() instead.";
+                	throw aue;
+                }
+                
+                registerServant(current, id, servant);
+
+        	}
         }
+        
+        Ice.ObjectPrx prx = current.adapter.createProxy(id);
         return ServiceInterfacePrxHelper.uncheckedCast(prx);
+    }
+    
+    public StatefulServiceInterfacePrx createByName(String name, Current current) throws ServerError {
+    	Ice.Identity id = getIdentity(current, Ice.Util.generateUUID() + name);
+    	cache.put(new Element(id, new Object())); // This start the expiry timestamp
+    	
+    	if (null != current.adapter.find(id)) {
+    		omero.InternalException ie = new omero.InternalException();
+    		ie.message = name + " already registered for this adapter.";
+    	}
+    	
+    	Ice.Object servant = createServantDelegate(name);
+    	registerServant(current, id, servant);
+		Ice.ObjectPrx prx = current.adapter.createProxy(id);
+		return StatefulServiceInterfacePrxHelper.uncheckedCast(prx);
     }
 
     public void setCallback(SimpleCallbackPrx callback, Ice.Current current) {
@@ -430,15 +293,35 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
         if (log.isInfoEnabled()) {
             log.info(String.format("Closing %s session", this));
         }
-        Ice.Identity[] copy = (Ice.Identity[]) ids.toArray(new Ice.Identity[ids.size()]);
-        for (Ice.Identity id : copy) {
-        	unregisterServant(id, current);
+        
+        List<String> ids = activeServices(current);
+        
+        // Here we call the "close()" method on all methods which require that logic
+        // allowing the IceMethodInvoker to raise the UnregisterServantEvent, other-
+        // wise there is a recursive call back to close.
+        for (String idString : ids) {
+        	Ice.Identity id = Ice.Util.stringToIdentity(idString);
+        	Ice.Object obj = current.adapter.find(id);
+        	try {
+        		if (obj instanceof StatefulServiceInterface) {
+        			Method m = obj.getClass().getMethod("close",Ice.Current.class);
+        			Ice.Current __curr = new Ice.Current();
+        			__curr.id = id;
+        			__curr.adapter = current.adapter;
+        			__curr.operation = "close";
+        			m.invoke(obj,__curr);
+        		} else {
+        			unregisterServant(id,current);
+        		}
+        	} catch (Exception e){
+        		log.error("Failure to close: "+idString + "=" +obj,e);
+        	}
         }
     }
 
     public void destroy(Ice.Current current) {
         if (log.isInfoEnabled()) {
-            log.info(String.format("Destroying %s session", this));
+            log.info(String.format("Destroying %s session", current.id.name));
         }
         close(current);
         DestroySessionMessage msg = new DestroySessionMessage(this,current.id.name,principal);
@@ -451,27 +334,37 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
         }
     }
     
-    public long keepAlive(ServiceInterfacePrx[] proxies, Current __current) {
+    public List<String> activeServices(Current __current) {
+    	List list = cache.getKeysWithExpiryCheck();
+    	List<String> rv = new ArrayList<String>();
+    	for (Object object : list) {
+			if (object instanceof Ice.Identity) {
+				Ice.Identity id = (Ice.Identity) object;
+				rv.add(Ice.Util.identityToString(id));
+			} else {
+				throw new RuntimeException(object + " found in cache. Not an Ice.Identity");
+			}
+		}
+    	return rv;
+    }
+    
+    public long keepAllAlive(ServiceInterfacePrx[] proxies, Current __current) {
     	if (proxies == null || proxies.length == 0) return -1; // All set to 1
     	
     	long retVal = 0;
     	for (int i = 0; i < proxies.length; i++) {
     		ServiceInterfacePrx prx = proxies[i];
-    		if (!isAlive(prx,__current)) {
+    		if (!keepAlive(prx,__current)) {
     			retVal |= 1<<i;
     		}
 		}
     	return retVal;
     }
     
-    public boolean isAlive(ServiceInterfacePrx proxy, Current __current) {
+    public boolean keepAlive(ServiceInterfacePrx proxy, Current __current) {
 		if (proxy == null) return false;
     	Ice.Identity id = proxy.ice_getIdentity();
-		String key = Ice.Util.identityToString(id);
-		if (null == cache.get(key)) {
-			return false;
-		}
-		return true;
+		return null != cache.get(id);
     }
     
     // ~ Helpers
@@ -489,110 +382,105 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
         id.name = key;
         return id;
     }
-
+    
     /**
-     * Checks for a service with the given {@link Ice.Identity} in the
-     * {@link #cache} and if present, constructs a valid {@link Ice.ObjectPrx}
-     * for that {@link Ice.Identity}. Otherwise, returns null. 
-     * 
-     * If the {@link #cache} does not contain the proxy, it will also check
-     * in the current {@link Ice.ObjectAdapter adapter}, and remove it
-     * if present. Otherwise, a {@link Ice.AlreadyRegisteredException} would
-     * be thrown.
-     */
-    protected Ice.ObjectPrx servantProxy(Ice.Identity id, Ice.Current current) {
-        Element elt = cache.get(Ice.Util.identityToString(id));
-        boolean exists = (elt != null);
-        if (!exists) {
-        	// This will not find a servant via ServantLocators
-        	if (null != current.adapter.find(id)) {
-        		current.adapter.remove(id);		
-        	}
-        	return null;
-        }
-
-        return current.adapter.createProxy(id);
-    }
-
-    /**
-     * Registers the given servant with the current {@link Ice.ObjectAdapter}
-     * and stores the {@link Ice.Identity} for later use by {@link #close()}.
-     */
-    protected Ice.ObjectPrx registerServant(Ice.Object servant,
-            Ice.Current current, Ice.Identity id) {
-
-        if (log.isInfoEnabled()) {
-            log.info("Registering servant:" + servantString(id, servant));
-        }
-
-        ids.add(id);
-        current.adapter.add(servant, id);
-        return current.adapter.createProxy(id);
-
-    }
-
-    /**
-     * Reverts all the additions made by {@link #registerServant(ServantInterface, Ice.Current, Ice.Identity)}
-     */
-    protected void unregisterServant(Ice.Identity id, Ice.Current current) {
-
-    	Ice.Object obj = current.adapter.remove(id);
-    	try {
-    		if (obj instanceof StatefulServiceInterface) {
-    			Method m = obj.getClass().getMethod("close");
-    			m.invoke(obj);
-    		}
-    	} catch (Exception e){
-    		log.error("Failure to close "+obj,e);
-    	}
-    	cache.remove(id);
-        ids.remove(id);
-
-        if (log.isInfoEnabled()) {
-            log.info("Unregistered servant:" + servantString(id, obj));
-        }
-    }
-
-    /**
-     * Creates a proxy for the given classes, and injects the {@link #helper} 
-     * instance for this session so that all services are linked to a single session.
-     */
-    protected <T, O extends ServiceInterface> T createServantDelegate(
-            Class<T> ice, Class<O> ome, String key) {
-        createService(key, ome);
-        ProxyFactory factory = new ProxyFactory();
-        factory.setInterfaces(new Class[]{ice});
-        factory.addAdvice(new Interceptor(ome,key,helper));
-        return ice.cast(factory.getProxy());
-    }
-
-    /**
-     * Creates an ome.api.* service (mostly managed by Spring), wraps it with
+	 * Creates a proxy according to the {@link ServantDefinition} for the given
+	 * name. Injects the {@link #helper} instance for this session so that all
+	 * services are linked to a single session.
+	 * 
+	 * Creates an ome.api.* service (mostly managed by Spring), wraps it with
      * the {@link HardWiredInterceptor interceptors} which are in effect,
      * and stores the instance away in the cache.
      *
      * Note: Since {@link HardWiredInterceptor} implements {@link MethodInterceptor},
      * all the {@link Advice} instances will be wrapped in {@link Advisor}
      * instances and will be returned by {@link Advised#getAdvisors()}.
-     */
-    protected <T extends ServiceInterface> void createService(String key,
-            Class<T> c) {
-        Object srv = context.getBean("managed:" + c.getName());
-        ProxyFactory factory = new ProxyFactory();
-        factory.setInterfaces(new Class[]{c});
+	 */
+    protected <O extends ServiceInterface> Ice.Object createServantDelegate(String name) 
+		throws ApiUsageException {
+    	
+    	ServantDefinition sd;
+		try {
+			sd = (ServantDefinition) context.getBean(name);
+		} catch (Exception e) {
+			ApiUsageException aue = new ApiUsageException();
+			aue.message = name
+					+ " is an unknown service. Please check Constants.ice or the documentation for valid strings.";
+			throw aue;
+		}
+
+        Object srv = null;
+    	try {
+        	srv	= context.getBean("managed:" + sd.getServiceClass().getName());
+    	} catch (Exception e) {
+    		ApiUsageException aue = new ApiUsageException();
+    		aue.message = "No managed service of given type found:" 
+    			+ sd.getServiceClass().getName();
+    		throw aue;
+    	}
+        
+        ProxyFactory managedService = new ProxyFactory();
+        managedService.setInterfaces(new Class[]{sd.getServiceClass()});
 
         List<HardWiredInterceptor> reversed =
             new ArrayList<HardWiredInterceptor>(cptors);
         Collections.reverse(reversed);
         for (HardWiredInterceptor hwi : reversed) {
-            factory.addAdvice(0, hwi);
+            managedService.addAdvice(0, hwi);
         }
-        factory.addAdvice(0, initializer);
-        factory.setTarget(srv);
-        cache.put(new Element(key, factory.getProxy()));
-
+        managedService.addAdvice(0, initializer);
+        managedService.setTarget(srv);
+        ServiceInterface srvIface = (ServiceInterface) managedService.getProxy();
+        
+        ProxyFactory factory = new ProxyFactory();
+        factory.setInterfaces(new Class[]{sd.getOperationsClass()});
+        factory.addAdvice(new Interceptor(sd.getServiceClass(), srvIface,helper, context));
+        Object ops = factory.getProxy();
+        
+        Ice.Object servant = null;
+        try {
+			Constructor<Ice.Object> ctor = sd.getTieClass().getConstructor(
+			        sd.getOperationsClass());
+			servant = ctor.newInstance(ops);
+		} catch (Exception e) {
+			omero.InternalException ie = new omero.InternalException();
+			ie.message = "Failed while trying to create servant.";
+			ie.serverExceptionClass = e.getClass().getName();
+		}
+		return servant;
     }
+    
+	protected void registerServant(Current current, Ice.Identity id,
+			Ice.Object servant) throws omero.InternalException {
+		try {
+			current.adapter.add(servant, id);
+			if (log.isInfoEnabled()) {
+				log.info("Created servant:" + servantString(id, servant));
+			}
+		} catch (Exception e) {
+		    // FIXME
+		    omero.InternalException ie = new omero.InternalException();
+		    ie.message = e.getMessage();
+		    throw ie;
+		}
+	}
 
+    /**
+     * Reverts all the additions made by {@link #registerServant(ServantInterface, Ice.Current, Ice.Identity)}
+     */
+    protected void unregisterServant(Ice.Identity id, Ice.Current current) {
+
+    	// Here we assume that if the "close()" call is required, that it has
+    	// already been made, either by a user or by the SF.close() method in
+    	// which case unregisterServant() is being closed via onApplicationEvent().
+    	// Otherwise, it is being called directly by SF.close().
+    	Ice.Object obj = current.adapter.remove(id);
+    	cache.remove(id);
+		if (log.isInfoEnabled()) {
+   			log.info("Unregistered servant:" + servantString(id, obj));
+   		}
+    }
+    
     private String servantString(Ice.Identity id, Object obj) {
         StringBuilder sb = new StringBuilder(Ice.Util.identityToString(id));
         sb.append("(");
@@ -601,16 +489,4 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
         return sb.toString();
     }
 
-    /**
-     * For Testing.
-     */
-    public List<String> getIds() {
-        List<String> stringIds = new ArrayList<String>();
-        synchronized (ids) {
-            for (Ice.Identity id : ids) {
-                stringIds.add(Ice.Util.identityToString(id));
-            }
-        }
-        return stringIds;
-    }
 }

@@ -199,10 +199,10 @@ public class IceMethodInvoker {
 						log.error("Exception on service.destroy()",ex);
 					}
         		}
+				UnregisterServantMessage usm = new UnregisterServantMessage(
+						this,Ice.Util.identityToString(current.id),current);
+				ctx.publishMessage(usm);
         	}
-        	UnregisterServantMessage usm = new UnregisterServantMessage(
-        			this,Ice.Util.identityToString(current.id),current);
-        	ctx.publishMessage(usm);
             retVal = info.method.invoke(obj, objs);
         } catch (Throwable t) {
             return handleException(t);

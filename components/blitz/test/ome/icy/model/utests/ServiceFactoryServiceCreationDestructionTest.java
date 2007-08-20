@@ -7,10 +7,12 @@
 package ome.icy.model.utests;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.SessionPrincipal;
 import ome.services.blitz.impl.ServiceFactoryI;
@@ -43,8 +45,17 @@ public class ServiceFactoryServiceCreationDestructionTest extends MockObjectTest
     ServiceFactoryI sf;
     
     // FIXME OmeroContext should be an interface!
-    OmeroContext context = new OmeroContext("classpath:ome/icy/model/utests/ServiceFactoryTest.xml");
+//    OmeroContext context = new OmeroContext(new String[]{
+//    		"classpath:ome/icy/model/utests/ServiceFactoryTest.xml",
+//    		"classpath:ome/services/blitz-servantDefinitions.xml"});
+//    
+    OmeroContext context = OmeroContext.getInstance("OMERO.blitz.test");
     
+    Ice.Identity adminServiceId = new Ice.Identity("omero.api.IAdmin","someuuid");
+    Element adminElt = new Element(adminServiceId,new Object());
+    Ice.Identity reServiceId = new Ice.Identity("omere.api.RenderingEngine","someuuid");
+    Element reElt = new Element(reServiceId,new Object());
+
     @AfterMethod
     protected void tearDown() throws Exception {
         sf = null;
@@ -82,24 +93,29 @@ public class ServiceFactoryServiceCreationDestructionTest extends MockObjectTest
     public void testDoStatelessAddsServantToServantListCacheAndAdapter() throws Exception {
         IAdminPrxHelper admin = new IAdminPrxHelper();
         admin.setup(new Ref());
-    	mockCache.expects(once()).method("get").will(returnValue(null));
-        mockCache.expects(once()).method("put");
+        
+        callsActiveServices(Collections.singletonList(adminServiceId));
+    	mockCache.expects(once()).method("get").will(returnValue(adminElt));
+    	mockCache.expects(once()).method("put");
         mockAdapter.expects(once()).method("add").will(returnValue(null));
         mockAdapter.expects(once()).method("find").will(returnValue(null));
         mockAdapter.expects(once()).method("createProxy").will(returnValue(admin));
         sf.getAdminService(curr);
-        List<String> ids = sf.getIds();
+        List<String> ids = sf.activeServices(null);
         assertTrue(ids.toString(), ids.size()==1);
         assertTrue(ids.toString(),ids.get(0).endsWith("Admin"));
     }
     
     @Test
     public void testDoStatefulAddsServantToServantListCacheAndAdapter() throws Exception {
-        mockCache.expects(once()).method("put");
+        
+    	callsActiveServices(Collections.singletonList(reServiceId));
+    	mockCache.expects(once()).method("put");
         mockAdapter.expects(once()).method("add").will(returnValue(null));
         mockAdapter.expects(once()).method("createProxy").will(returnValue(null));
+        mockAdapter.expects(once()).method("find").will(returnValue(null));
         sf.createRenderingEngine(curr);
-        List<String> ids = sf.getIds();
+        List<String> ids = sf.activeServices(null);
         assertTrue(ids.toString(), ids.size()==1);
         assertTrue(ids.toString(),ids.get(0).endsWith("RenderingEngine"));
     }
@@ -110,8 +126,10 @@ public class ServiceFactoryServiceCreationDestructionTest extends MockObjectTest
     	testDoStatefulAddsServantToServantListCacheAndAdapter();
     	Mock closeMock = mock(omero.api.RenderingEngine.class);
 		omero.api.RenderingEngine close = (omero.api.RenderingEngine) closeMock.proxy(); 
+		mockAdapter.expects(once()).method("find").will(returnValue(close));
    		mockAdapter.expects(once()).method("remove").will(returnValue(close));
    		mockCache.expects(once()).method("remove").will(returnValue(true));
+   		callsActiveServices(Collections.singletonList(reServiceId));
     	Ice.Current curr = new Ice.Current();
     	curr.adapter = adapter;
    		sf.close(curr);
@@ -124,11 +142,16 @@ public class ServiceFactoryServiceCreationDestructionTest extends MockObjectTest
     	omero.api.RenderingEngine close = (omero.api.RenderingEngine) closeMock.proxy(); 
     	mockAdapter.expects(once()).method("remove").will(returnValue(close));
     	mockCache.expects(once()).method("remove").will(returnValue(true));
-    	String id = sf.getIds().get(0).toString();
+    	callsActiveServices(Collections.singletonList(reServiceId));
+    	String id = sf.activeServices(null).get(0).toString();
     	Ice.Current curr = new Ice.Current();
     	curr.adapter = adapter;
     	sf.onApplicationEvent(new UnregisterServantMessage(this,id,curr));
     }
+    
+	private void callsActiveServices(List<Ice.Identity> idList) {
+		mockCache.expects(once()).method("getKeysWithExpiryCheck").will(returnValue(idList));
+	}
     
 }
 

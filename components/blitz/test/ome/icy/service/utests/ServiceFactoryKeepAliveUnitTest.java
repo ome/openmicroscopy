@@ -38,15 +38,15 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
 
     @Test
     void testKeepAliveReturnsAllOnesOnNull() {
-    	assertTrue(-1==sf.keepAlive(null,null));
-    	assertTrue(-1==sf.keepAlive(new ServiceInterfacePrx[]{}));
+    	assertTrue(-1==sf.keepAllAlive(null,null));
+    	assertTrue(-1==sf.keepAllAlive(new ServiceInterfacePrx[]{}));
     }
     
     @Test
     void testKeepAliveReturnsNonNullIfMissing() {
     	cacheMock.expects(once()).method("get").will(returnValue(null));
     	proxyMock.expects(once()).method("ice_getIdentity").will(returnValue(id));
-    	long rv = sf.keepAlive(new ServiceInterfacePrx[]{prx});
+    	long rv = sf.keepAllAlive(new ServiceInterfacePrx[]{prx});
     	assertTrue((rv & 1<<0) == 1<<0);
     }
     
@@ -54,14 +54,14 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
     void testIsAliveReturnsFalseIfMissing() {
     	cacheMock.expects(once()).method("get").will(returnValue(null));
     	proxyMock.expects(once()).method("ice_getIdentity").will(returnValue(id));
-    	assertFalse(sf.isAlive(prx));
+    	assertFalse(sf.keepAlive(prx));
     }
     
     @Test
     void testKeepAliveReturnsZeroIfPresent() {
     	cacheMock.expects(once()).method("get").will(returnValue(elt));
     	proxyMock.expects(once()).method("ice_getIdentity").will(returnValue(id));
-    	long rv = sf.keepAlive(new ServiceInterfacePrx[]{prx});
+    	long rv = sf.keepAllAlive(new ServiceInterfacePrx[]{prx});
     	assertTrue(rv == 0);
     }
     
@@ -69,7 +69,7 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
     void testIsAliveReturnsTrueIfPresent() {
     	cacheMock.expects(once()).method("get").will(returnValue(elt));
     	proxyMock.expects(once()).method("ice_getIdentity").will(returnValue(id));
-    	assertTrue(sf.isAlive(prx));
+    	assertTrue(sf.keepAlive(prx));
     }
     
 }

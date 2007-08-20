@@ -62,10 +62,10 @@ class RouterControl extends Thread {
         }
     }
     
-    protected void stopRouter() {
+    protected void stopRouter(Ice.Communicator ic) {
         synchronized(r_mutex) {
         	if (router != null) {
-        		boolean active = router.stop();
+        		boolean active = router.shutdown(ic);
         		if (active) { 
         			log.info("Glacier2router stopped.");
         		} else {
@@ -289,10 +289,13 @@ public class Main implements Runnable {
     public void shutdown() {
     	IN_USE.remove(name);
     	startup.stop = true;
-    	log.debug("Calling close context on "+name);
-        OmeroContext.getInstance(name).close();
-        log.debug("Calling stop router.");
-        shutdown.stopRouter();
+    	OmeroContext ctx = OmeroContext.getInstance(name);
+    	Ice.Communicator ic = (Ice.Communicator) ctx.getBean("Ice.Communicator");
+    	log.info("Calling stop router.");
+    	shutdown.stopRouter(ic);
+    	log.info("Calling close context on "+name);
+        ctx.close();
+        log.info("Finished shutdown.");
     }
     
     protected void waitForQuit() {

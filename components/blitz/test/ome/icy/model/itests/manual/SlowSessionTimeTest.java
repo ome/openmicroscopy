@@ -6,81 +6,93 @@
  */
 package ome.icy.model.itests.manual;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
-import junit.framework.TestCase;
-import ome.services.blitz.Main;
-import ome.services.blitz.Router;
-import ome.services.blitz.client.IceServiceFactory;
+import ome.icy.fixtures.BlitzServerFixture;
 import omero.api.RenderingEnginePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
 
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.jmock.MockObjectTestCase;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 @Test( groups = {"integration","manual"})
-public class SlowSessionTimeTest extends TestCase {
+/**
+ * Note: Using the {@link Router} wrapper class can cause processes to
+ * be orphaned on the OS.
+ */
+public class SlowSessionTimeTest extends MockObjectTestCase {
 
-	Thread t;
-	Main m;
-	Router r;
-    IceServiceFactory ice;
+	BlitzServerFixture fixture;
 
-    @BeforeTest
-    public void startServer() throws Exception {
-    	m = new Main("OMERO.blitz.test");
-    	t = new Thread(m);
-    	r = new Router();
-    	r.setTimeout(3); // one second
-    	m.setRouter(r);
-    	t.start();
-    	assertTrue("Startup must succeed", m.waitForStartup() );
+	@BeforeMethod
+	public void setUp() throws Exception {
+		fixture = new BlitzServerFixture();
+	}
+	
+	@AfterMethod
+	public void tearDown() throws Exception {
+		fixture.tearDown();
+	}
+	
+    @Test
+    public void testkeepAllAliveKeepsSessionAlive() throws Exception {
+    	fixture.setServiceTimeout(3);
+    	fixture.setSessionTimeout(3);        
+    	fixture.startServer();
+    	ServiceFactoryPrx session = fixture.createSession();
+
+        RenderingEnginePrx prx = session.createRenderingEngine();
+        assertNotNull( prx );
+        session.ice_ping();
+        assertTrue( session.keepAlive(prx) );
+        Thread.sleep(900L);
+        assertTrue( session.keepAlive(prx) );
+        Thread.sleep(900L);
+        assertTrue( session.keepAlive(prx) );
+        Thread.sleep(900L);
+        assertTrue( session.keepAlive(prx) );
+        Thread.sleep(900L);
+        assertTrue( session.keepAlive(prx) );
+
+    }
+    
+    @Test
+    public void testkeepAllAliveAndkeepAliveWorkAfterPause() throws Exception {
+    	fixture.setServiceTimeout(2);
+    	fixture.setSessionTimeout(200); // this is not what we're testing
+
+    	fixture.msMock.expects(once()).method("isActive").will(returnValue(true));
+    	fixture.msMock.expects(once()).method("checkMethod");
+    	fixture.secSysMock.expects(once()).method("login");
+    	fixture.secSysMock.expects(once()).method("logout");
+    	fixture.reMock.expects(once()).method("close");
     	
-    }
-    
-    @AfterTest
-    public void stopServer() throws Exception {
-    	m.stop();
-    }
+    	fixture.startServer();
 
-    @Test
-    public void testKeepAliveKeepsSessionAlive() throws Exception {
-        ice = new IceServiceFactory(null, null, null);
-        ice.createSession();
-        ServiceFactoryPrx session = ice.getProxy();
-        RenderingEnginePrx prx = ice.createRenderingEngine(null);
-        assertNotNull( prx );
-        assertTrue( session.isAlive(prx));
-        Thread.sleep(1000L);
-        assertTrue( session.isAlive(prx));
-        Thread.sleep(1000L);
-        assertTrue( session.isAlive(prx));
-        Thread.sleep(1000L);
-        assertTrue( session.isAlive(prx));
-        Thread.sleep(1000L);
-        assertTrue( session.isAlive(prx));
-        ice.destroy();
+    	ServiceFactoryPrx session = fixture.createSession();
+    	
+        RenderingEnginePrx prx1 = session.createRenderingEngine();
+        RenderingEnginePrx prx2 = session.createRenderingEngine();
+        assertNotNull( prx1 );
+        assertNotNull( prx2 );
+        assertTrue( session.keepAlive(prx1));
+        assertTrue( 0==session.keepAllAlive(new ServiceInterfacePrx[]{prx1}));
+        Thread.sleep(1500L);
+        assertTrue( session.keepAlive(prx1));
+        assertTrue( 0==session.keepAllAlive(new ServiceInterfacePrx[]{prx1}));
+        Thread.sleep(1500L);
+        assertTrue( session.keepAlive(prx1));
+        assertTrue( 0==session.keepAllAlive(new ServiceInterfacePrx[]{prx1}));
+        Thread.sleep(1500L);
+        assertTrue( session.keepAlive(prx1));
+        assertTrue( 0==session.keepAllAlive(new ServiceInterfacePrx[]{prx1}));
+        Thread.sleep(1500L);
+        assertFalse( session.keepAlive(prx2));
+        assertFalse( 0==session.keepAllAlive(new ServiceInterfacePrx[]{prx2}));
         
     }
     
-    @Test
-    public void testKeepAliveAndIsAliveWorkAfterPause() throws Exception {
-        ice = new IceServiceFactory(null, null, null);
-        ice.createSession();
-        ServiceFactoryPrx session = ice.getProxy();
-        RenderingEnginePrx prx = ice.createRenderingEngine(null);
-        assertNotNull( prx );
-        assertTrue( session.isAlive(prx));
-        assertTrue( 0==session.keepAlive(new ServiceInterfacePrx[]{prx}));
-        Thread.sleep(3000L);
-        assertFalse( session.isAlive(prx));
-        assertFalse( 0==session.keepAlive(new ServiceInterfacePrx[]{prx}));
-        ice.destroy();
-        
-    }
+
     
 }

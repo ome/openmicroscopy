@@ -24,21 +24,21 @@ module omero {
      * Server-side names used for each of the services
      * defined in API.ice
      */
-    const string ADMINSERVICE     = "ome.api.IAdmin";
-    const string ANALYSISSERVICE  = "ome.api.IAnalysis";
-    const string CONFIGSERVICE    = "ome.api.IConfig";
-    const string DELETESERVICE    = "ome.api.IDelete";
-    const string LDAPSERVICE      = "ome.api.ILdap";
-    const string PIXELSSERVICE    = "ome.api.IPixels";
-    const string POJOSSERVICE     = "ome.api.IPojos";
-    const string QUERYSERVICE     = "ome.api.IQuery";
-    const string TYPESSERVICE     = "ome.api.ITypes";
-    const string UPDATESERVICE    = "ome.api.IUpdate";
-    const string RAWFILESTORE     = "ome.api.RawFileStore";
-    const string RAWPIXELSSTORE   = "ome.api.RawPixelsStore";
-    const string RENDERINGENGINE  = "omeis.providers.re.RenderingEngine";
-    const string THUMBNAILSTORE   = "ome.api.ThumbnailStore";
-    const string REPOSITORYINFO   = "ome.api.IRepositoryInfo";
+    const string ADMINSERVICE     = "omero.api.IAdmin";
+    const string ANALYSISSERVICE  = "omero.api.IAnalysis";
+    const string CONFIGSERVICE    = "omero.api.IConfig";
+    const string DELETESERVICE    = "omero.api.IDelete";
+    const string LDAPSERVICE      = "omero.api.ILdap";
+    const string PIXELSSERVICE    = "omero.api.IPixels";
+    const string POJOSSERVICE     = "omero.api.IPojos";
+    const string QUERYSERVICE     = "omero.api.IQuery";
+    const string TYPESSERVICE     = "omero.api.ITypes";
+    const string UPDATESERVICE    = "omero.api.IUpdate";
+    const string RAWFILESTORE     = "omero.api.RawFileStore";
+    const string RAWPIXELSSTORE   = "omero.api.RawPixelsStore";
+    const string RENDERINGENGINE  = "omero.api.RenderingEngine";
+    const string THUMBNAILSTORE   = "omero.api.ThumbnailStore";
+    const string REPOSITORYINFO   = "omero.api.IRepositoryInfo";
 
     // User context for logging in
     const string USERNAME = "OMERO.user";

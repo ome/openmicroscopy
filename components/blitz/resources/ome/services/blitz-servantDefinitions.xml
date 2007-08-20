@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2007 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<beans>
+
+  <bean id="omero.api.IAdmin" class="ome.services.blitz.util.ServantDefinition">
+    <property name="operationsClass" value="omero.api._IAdminOperations"/>
+    <property name="serviceClass" value="ome.api.IAdmin"/>
+    <property name="tieClass" value="omero.api._IAdminTie"/>
+  </bean>
+
+  <bean id="omero.api.IConfig" class="ome.services.blitz.util.ServantDefinition">
+    <property name="operationsClass" value="omero.api._IConfigOperations"/>
+    <property name="serviceClass" value="ome.api.IConfig"/>
+    <property name="tieClass" value="omero.api._IConfigTie"/>
+  </bean>
+
+  <bean id="omero.api.IPixels" class="ome.services.blitz.util.ServantDefinition">
+    <property name="operationsClass" value="omero.api._IPixelsOperations"/>
+    <property name="serviceClass" value="ome.api.IPixels"/>
+    <property name="tieClass" value="omero.api._IPixelsTie"/>
+  </bean>
+  
+  <bean id="omero.api.IPojos" class="ome.services.blitz.util.ServantDefinition">
+    <property name="operationsClass" value="omero.api._IPojosOperations"/>
+    <property name="serviceClass" value="ome.api.IPojos"/>
+    <property name="tieClass" value="omero.api._IPojosTie"/>
+  </bean>
+  
+  <bean id="omero.api.IQuery" class="ome.services.blitz.util.ServantDefinition">
+    <property name="operationsClass" value="omero.api._IQueryOperations"/>
+    <property name="serviceClass" value="ome.api.IQuery"/>
+    <property name="tieClass" value="omero.api._IQueryTie"/>
+  </bean>
+
+  <bean id="omero.api.IUpdate" class="ome.services.blitz.util.ServantDefinition">
+    <property name="operationsClass" value="omero.api._IUpdateOperations"/>
+    <property name="serviceClass" value="ome.api.IUpdate"/>
+    <property name="tieClass" value="omero.api._IUpdateTie"/>
+  </bean>
+
+  <bean id="omero.api.RawFileStore" class="ome.services.blitz.util.ServantDefinition">
+    <property name="operationsClass" value="omero.api._RawFileStoreOperations"/>
+    <property name="serviceClass" value="ome.api.RawFileStore"/>
+    <property name="tieClass" value="omero.api._RawFileStoreTie"/>
+  </bean>
+  
+  <bean id="omero.api.RawPixelsStore" class="ome.services.blitz.util.ServantDefinition">
+    <property name="operationsClass" value="omero.api._RawPixelsStoreOperations"/>
+    <property name="serviceClass" value="ome.api.RawPixelsStore"/>
+    <property name="tieClass" value="omero.api._RawPixelsStoreTie"/>
+  </bean>
+  
+  <bean id="omero.api.RenderingEngine" class="ome.services.blitz.util.ServantDefinition">
+    <property name="operationsClass" value="omero.api._RenderingEngineOperations"/>
+    <property name="serviceClass" value="omeis.providers.re.RenderingEngine"/>
+    <property name="tieClass" value="omero.api._RenderingEngineTie"/>
+  </bean>
+
+  <bean id="omero.api.ThumbnailStore" class="ome.services.blitz.util.ServantDefinition">
+    <property name="operationsClass" value="omero.api._ThumbnailStoreOperations"/>
+    <property name="serviceClass" value="ome.api.ThumbnailStore"/>
+    <property name="tieClass" value="omero.api._ThumbnailStoreTie"/>
+  </bean>
+  
+</beans>

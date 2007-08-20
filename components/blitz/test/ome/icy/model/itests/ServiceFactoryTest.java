@@ -57,9 +57,13 @@ public class ServiceFactoryTest extends IceTest {
         ServiceFactoryPrx session = ice.getProxy();
         RenderingEnginePrx prx = ice.createRenderingEngine(null);
         assertNotNull( prx );
-        assertTrue( session.isAlive(prx));
-        assertTrue( 0==session.keepAlive(new ServiceInterfacePrx[]{prx}));
+        assertTrue( session.keepAlive(prx));
+        assertTrue( 0==session.keepAllAlive(new ServiceInterfacePrx[]{prx}));
         ice.destroy();
     }
     
+    @Test
+    public void testGetByNameFailsOnStatefulService() throws Exception {
+    	fail("NYI");
+    }
 }

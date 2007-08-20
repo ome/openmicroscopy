@@ -95,7 +95,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
         Glacier2.SessionPrx prx = Glacier2.SessionPrxHelper.uncheckedCast(_prx);
 
         if (log.isDebugEnabled()) {
-            log.debug(String.format("Created session %s for user %s", session,
+            log.debug(String.format("Created session %s for user %s", id.name,
                     userId));
         }
 

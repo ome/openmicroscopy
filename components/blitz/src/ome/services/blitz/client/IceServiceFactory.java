@@ -195,7 +195,7 @@ public class IceServiceFactory {
      * @return
      * @see omero.api.ServiceFactoryPrx#createRawFileStore(java.util.Map)
      */
-    public omero.api.RawFileStorePrx createRawFileStore(Map __ctx) {
+    public omero.api.RawFileStorePrx createRawFileStore(Map __ctx) throws ServerError {
         return sf.createRawFileStore(__ctx);
     }
 
@@ -204,7 +204,7 @@ public class IceServiceFactory {
      * @return
      * @see omero.api.ServiceFactoryPrx#createRawPixelsStore(java.util.Map)
      */
-    public RawPixelsStorePrx createRawPixelsStore(Map __ctx) {
+    public RawPixelsStorePrx createRawPixelsStore(Map __ctx) throws ServerError {
         return sf.createRawPixelsStore(__ctx);
     }
 
@@ -213,7 +213,7 @@ public class IceServiceFactory {
      * @return
      * @see omero.api.ServiceFactoryPrx#createRenderingEngine(java.util.Map)
      */
-    public RenderingEnginePrx createRenderingEngine(Map __ctx) {
+    public RenderingEnginePrx createRenderingEngine(Map __ctx) throws ServerError {
         return sf.createRenderingEngine(__ctx);
     }
 
@@ -222,7 +222,7 @@ public class IceServiceFactory {
      * @return
      * @see omero.api.ServiceFactoryPrx#createThumbnailStore(java.util.Map)
      */
-    public ThumbnailStorePrx createThumbnailStore(Map __ctx) {
+    public ThumbnailStorePrx createThumbnailStore(Map __ctx) throws ServerError {
         return sf.createThumbnailStore(__ctx);
     }
 
@@ -231,7 +231,7 @@ public class IceServiceFactory {
      * @return
      * @see omero.api.ServiceFactoryPrx#getRepositoryInfoService(java.util.Map)
      */
-    public IRepositoryInfoPrx getRepositoryInfoService(Map __ctx) {
+    public IRepositoryInfoPrx getRepositoryInfoService(Map __ctx) throws ServerError {
         return sf.getRepositoryInfoService(__ctx);
     }
 
@@ -240,7 +240,7 @@ public class IceServiceFactory {
      * @return
      * @see omero.api.ServiceFactoryPrx#getAdminService(java.util.Map)
      */
-    public IAdminPrx getAdminService(Map __ctx) {
+    public IAdminPrx getAdminService(Map __ctx) throws ServerError {
         return sf.getAdminService(__ctx);
     }
 
@@ -249,7 +249,7 @@ public class IceServiceFactory {
      * @return
      * @see omero.api.ServiceFactoryPrx#getConfigService(java.util.Map)
      */
-    public IConfigPrx getConfigService(Map __ctx) {
+    public IConfigPrx getConfigService(Map __ctx) throws ServerError {
         return sf.getConfigService(__ctx);
     }
 
@@ -258,7 +258,7 @@ public class IceServiceFactory {
      * @return
      * @see omero.api.ServiceFactoryPrx#getPixelsService(java.util.Map)
      */
-    public IPixelsPrx getPixelsService(Map __ctx) {
+    public IPixelsPrx getPixelsService(Map __ctx) throws ServerError {
         return sf.getPixelsService(__ctx);
     }
 
@@ -267,7 +267,7 @@ public class IceServiceFactory {
      * @return
      * @see omero.api.ServiceFactoryPrx#getPojosService(java.util.Map)
      */
-    public IPojosPrx getPojosService(Map __ctx) {
+    public IPojosPrx getPojosService(Map __ctx) throws ServerError {
         return sf.getPojosService(__ctx);
     }
 
@@ -276,7 +276,7 @@ public class IceServiceFactory {
      * @return
      * @see omero.api.ServiceFactoryPrx#getQueryService(java.util.Map)
      */
-    public IQueryPrx getQueryService(Map __ctx) {
+    public IQueryPrx getQueryService(Map __ctx) throws ServerError {
         return sf.getQueryService(__ctx);
     }
 
@@ -285,7 +285,7 @@ public class IceServiceFactory {
      * @return
      * @see omero.api.ServiceFactoryPrx#getTypesService(java.util.Map)
      */
-    public ITypesPrx getTypesService(Map __ctx) {
+    public ITypesPrx getTypesService(Map __ctx) throws ServerError {
         return sf.getTypesService(__ctx);
     }
 
@@ -294,7 +294,7 @@ public class IceServiceFactory {
      * @return
      * @see omero.api.ServiceFactoryPrx#getUpdateService(java.util.Map)
      */
-    public IUpdatePrx getUpdateService(Map __ctx) {
+    public IUpdatePrx getUpdateService(Map __ctx) throws ServerError {
         return sf.getUpdateService(__ctx);
     }
 
@@ -303,7 +303,7 @@ public class IceServiceFactory {
      * @param __ctx
      * @see omero.api.ServiceFactoryPrx#setCallback(omero.api.SimpleCallbackPrx, java.util.Map)
      */
-    public void setCallback(SimpleCallbackPrx callback, Map __ctx) {
+    public void setCallback(SimpleCallbackPrx callback, Map __ctx) throws ServerError {
         sf.setCallback(callback, __ctx);
     }
 

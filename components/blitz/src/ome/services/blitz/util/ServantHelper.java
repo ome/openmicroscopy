@@ -1,54 +1,19 @@
 package ome.services.blitz.util;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-
-import ome.api.ServiceInterface;
 import ome.system.OmeroContext;
-import ome.util.Filterable;
 import omero.InternalException;
-import omero.RType;
 import omero.ServerError;
-import omero.model.IObject;
 import omero.util.IceMapper;
 
 /**
  * Provides helper methods so that servant implementations need not extend a
- * particular {@link Class}.
+ * particular {@link Class}. 
  * 
- * @author josh
- * 
+ * @author Josh Moore, josh at glencoesoftware.com
+ * @since 3.0-Beta2
  */
 public class ServantHelper {
-
-    OmeroContext ctx;
-
-    Ehcache cache;
-
-    public ServantHelper(OmeroContext context, Ehcache cache) {
-        this.ctx = context;
-        this.cache = cache;
-    }
-    
-    public OmeroContext getContext() {
-    	return ctx;
-    }
-
-    public ServiceInterface getService(String key, Ice.Current current)
-            throws ServerError {
-        Element elt = cache.get(key);
-        if (elt == null) {
-            ctx.publishEvent(new UnregisterServantMessage(this, key, current));
-            ServerError se = new ServerError(); // FIXME
-            se.message = "This service has been removed. All further calls to this proxy will fail.";
-            throw se;
-        }
-        return (ServiceInterface) elt.getObjectValue();
-    }
 
     /**
      * If a method has a void return type, then it is necessary to directly call
