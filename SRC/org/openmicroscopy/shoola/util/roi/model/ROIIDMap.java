@@ -54,64 +54,84 @@ public class ROIIDMap
 	private TreeMap<Long, ROI> 	roiMap;
 	
 	
+	/** 
+	 * ROI ID Map, this class is the ADT to map between ROI id and ROI. The
+	 * ROIIDMap is a tree map, so all the ROI's will be ordered in the map
+	 * by ID for iteration.
+	 */
 	public ROIIDMap()
 	{
 		roiMap = new TreeMap<Long, ROI>(new LongComparator());
 	}
-	
+
+	/**
+	 * Returns true if the map contains ROI ID id.
+	 * @param id see above.
+	 * @return see above.
+	 */
 	public boolean containsKey(long id)
 	{
 		return roiMap.containsKey(id);
 	}
 	
+	/**
+	 * Add ROI roi with ID id to the map. If an ROI exists with ID id, it will 
+	 * be overwritten by this new ROI.
+	 * @param id The ROI ID of the roi.
+	 * @param roi The ROI being added to the map. 
+	 */
 	public void add(long id, ROI roi)
 	{
 		roiMap.put(id, roi);
 	}
 	
+	/** 
+	 * Return the roi map.
+	 * @return see above.
+	 */
 	public TreeMap<Long, ROI> getROIMap()
 	{
 		return roiMap;
 	}
 	
+	/** 
+	 * 
+	 * @param id
+	 * @return
+	 * @throws NoSuchROIException
+	 */
 	public ROI getROI(long id) throws NoSuchROIException
 	{
-		try 
-		{
-			return roiMap.get((Long)id);
-		}
-		catch(Exception e)
-		{
-			throw new NoSuchROIException("No ROI with ID : " + id, e);
-		}
+		if(!roiMap.containsKey((Long)id))
+			throw new NoSuchROIException("No ROI with ID : " + id);
+		return roiMap.get((Long)id);
 	}
 	
 	public ROIShape getShape(long id, Coord3D coord) throws NoSuchROIException
 	{
+		if(!roiMap.containsKey((Long)id))
+			throw new NoSuchROIException("No ROIShape with ROI ID : " + id);
 		ROI roi;
-		try 
-		{
-			roi = roiMap.get(id);
-		}
-		catch(Exception e)
-		{
+		roi = roiMap.get(id);
+		if(roi==null)
+			throw new NoSuchROIException("No ROIShape with ROI ID : " + id);
+		if(!roi.containsKey(coord))
 			throw new NoSuchROIException("No ROIShape with ROI ID : " + id + 
-				" and Coord : " + coord, e);
-		}
-		return roi.getShape(coord);
+				" and Coord : " + coord);
+		
+		ROIShape shape = roi.getShape(coord);
+		if(shape==null)
+			throw new NoSuchROIException("No ROIShape with ROI ID : " + id + 
+				" and Coord : " + coord);
+		return shape;
 	}
 	
 	public void deleteROI(long id) throws NoSuchROIException
 	{
-		try 
-		{
-			roiMap.remove(id);
-		}
-		catch(Exception e)
-		{
+		if(!roiMap.containsKey((Long)id))
 			throw new NoSuchROIException("Cannot delete ROI with id : " 
-				+ id , e);
-		}
+				+ id);
+		roiMap.remove(id);
 	}
 	
 
@@ -120,15 +140,13 @@ public class ROIIDMap
 													   NoSuchROIException	
 	{
 		ROI roi;
-		try
-		{
-			roi = roiMap.get(id);
-		}
-		catch(Exception e)
-		{
+		if(!roiMap.containsKey((Long)id))
+			throw new NoSuchROIException("No ROIShape with ROI ID : " + id);
+	
+		roi = roiMap.get(id);
+		if(roi == null)
 			throw new NoSuchROIException("No ROIShape with ROI ID : " + id + 
-				" and Coord : " + coord, e);
-		}
+				" and Coord : " + coord);
 		roi.addShape(shape);
 	}		
 

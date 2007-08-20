@@ -29,6 +29,7 @@ import java.awt.Color;
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
+import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 
 //Application-internal dependencies
 
@@ -51,7 +52,7 @@ public class DrawingAttributes
 	public static final AttributeKey<Boolean> SHOWMEASUREMENT = 
 		new AttributeKey<Boolean>("ShowMeasurement", false);
 	public static final AttributeKey<Color> MEASUREMENTTEXT_COLOUR = 
-		new AttributeKey<Color>("MeasurementTextColour", Color.black);
+		new AttributeKey<Color>("MeasurementTextColour", IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
 	public static final AttributeKey<Boolean> SHOWTEXT = 
 		new AttributeKey<Boolean>("ShowBasicTextAnnotation", false);
 	

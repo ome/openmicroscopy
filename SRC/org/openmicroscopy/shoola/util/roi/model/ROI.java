@@ -130,18 +130,17 @@ public class ROI
 	
 	public ROIShape getShape(Coord3D coord) throws NoSuchROIException
 	{
-		try 
-		{
-			return roiShapes.get(coord);
-		}
-		catch(Exception e)
-		{
-			throw new NoSuchROIException(e);
-		}
+		if(!roiShapes.containsKey(coord))
+			throw new NoSuchROIException("ROI " + id + " does not contain " +
+					"ROIShape on Coord " + coord.toString());
+		return roiShapes.get(coord);
 	}
 	
 	public ROIFigure getFigure(Coord3D coord) throws NoSuchROIException
 	{
+		if(!roiShapes.containsKey(coord))
+			throw new NoSuchROIException("ROI " + id + " does not contain " +
+					"ROIShape on Coord " + coord.toString());
 		return getShape(coord).getFigure();
 	}
 	
@@ -155,14 +154,10 @@ public class ROI
 	
 	public void deleteShape(Coord3D coord) throws NoSuchROIException
 	{
-		try
-		{
+		if(!roiShapes.containsKey(coord))
+			throw new NoSuchROIException("ROI " + id + " does not contain " +
+					"ROIShape on Coord " + coord.toString());
 			roiShapes.remove(coord);
-		}
-		catch(Exception e)
-		{
-			throw new NoSuchROIException(e);
-		}
 	}
 	    
     public void setAnnotation(AnnotationKey key, Object newValue) {

@@ -155,10 +155,18 @@ public class IOConstants
 	public final static String SVG_ROTATE_ATTRIBUTE = "rotate";
 	public final static String SVG_TRANSFORM_ATTRIBUTE = "transform";
 
-	public final static Color DEFAULT_TEXT_COLOUR = Color.ORANGE;
-	public final static Color DEFAULT_FILL_COLOUR = new Color(255, 255, 255, 0);
-	public final static Color DEFAULT_STROKE_COLOUR = new Color(255, 255, 255, 255);
-	public final static Color DEFAULT_MEASUREMENT_TEXT_COLOUR = Color.YELLOW;
+	public final static Color DEFAULT_TEXT_COLOUR = new Color(196, 196, 196, 196);
+	public final static Color DEFAULT_FILL_COLOUR = new Color(0, 0, 0, 64);
+	public final static Color DEFAULT_STROKE_COLOUR = new Color(196, 196, 196, 196);
+	public final static Color DEFAULT_FILL_COLOUR_ALPHA = new Color(0, 0, 0, 32);
+	public final static Color DEFAULT_STROKE_COLOUR_ALPHA = new Color(196, 196, 196, 196);
+	public final static Color DEFAULT_MEASUREMENT_TEXT_COLOUR =  
+												new Color(255, 255, 255, 220);
+	public final static double DEFAULT_FONT_SIZE = 12.0f;
+	public final static double DEFAULT_STROKE_WIDTH =  1.0f;
+//	public final static Color DEFAULT_FILL_COLOUR = new Color(255, 255, 255, 0);
+//	public final static Color DEFAULT_STROKE_COLOUR = new Color(255, 255, 255, 255);
+//	public final static Color DEFAULT_MEASUREMENT_TEXT_COLOUR = Color.YELLOW;
 }
 
 

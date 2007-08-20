@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 import org.openmicroscopy.shoola.util.roi.io.XMLFileIOStrategy;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROICollection;
@@ -75,32 +76,41 @@ public class ROIComponent
 {
 		
 	/** The default color of the text. */
-	private static final Color			TEXT_COLOR = Color.ORANGE;
+	private static final Color			TEXT_COLOR = 
+										IOConstants.DEFAULT_TEXT_COLOUR;
+
 	
 	/** The default color of the measurement text. */
 	private static final Color			MEASUREMENT_COLOR = 
-											new Color(255, 204, 102, 255);
+										IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR;
 	
 	/** The default color used to fill area. */
 	private static final Color			FILL_COLOR = 
-											new Color(220, 220, 220, 32);
+										IOConstants.DEFAULT_FILL_COLOUR;
 
 	/** The default color used to fill area alpha'ed <sp>. */
 	private static final Color			FILL_COLOR_ALPHA = 
-											new Color(220, 220, 220, 0);
+										IOConstants.DEFAULT_FILL_COLOUR_ALPHA;
 	
 	/** The default color of the text. */
-	private static final double			FONT_SIZE = 10.0;
+	private static final double			FONT_SIZE = 
+										IOConstants.DEFAULT_FONT_SIZE;
+
 	
 	/** The default width of the stroke. */
-	private static final double			STROKE_WIDTH = 1.0;
+	private static final double			STROKE_WIDTH = 
+										IOConstants.DEFAULT_STROKE_WIDTH;
+
 	
 	/** The default color of the stroke. */
-	private static final Color			STROKE_COLOR = Color.WHITE;
+	private static final Color			STROKE_COLOR = 
+										IOConstants.DEFAULT_STROKE_COLOUR;
+
 	
 	/** The default color of the stroke alpha'ed <sp> to transparent. */
 	private static final Color			STROKE_COLOR_ALPHA = 
-											new Color(255, 255, 255, 128);
+										IOConstants.DEFAULT_STROKE_COLOUR_ALPHA;
+
 	/** The main object for storing and manipulating ROIs. */
 	private ROICollection				roiCollection;
 

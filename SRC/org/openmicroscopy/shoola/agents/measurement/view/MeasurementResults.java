@@ -54,9 +54,11 @@ import javax.swing.table.TableColumn;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.AnnotationField;
 import org.openmicroscopy.shoola.agents.measurement.util.MeasurementObject;
 import org.openmicroscopy.shoola.agents.measurement.util.ResultsCellRenderer;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -161,10 +163,25 @@ class MeasurementResults
 		        	if (index < 0) return;
 		        	MeasurementTableModel m = 
 	        			(MeasurementTableModel) results.getModel();
-	        		long ROIID = (Long) m.getValueAt(index, 2);
-	        		int t = (Integer) m.getValueAt(index, 0)-1;
-	        		int z = (Integer) m.getValueAt(index, 1)-1;
-	        		view.selectFigure(ROIID, t, z);
+		        	long ROIID;
+		        	int t, z;
+		        	try
+	        		{
+		        		ROIID = (Long) m.getValueAt(index, 2);
+		        		t = (Integer) m.getValueAt(index, 0)-1;
+		        		z = (Integer) m.getValueAt(index, 1)-1;
+	        			ROI roi = model.getROI(ROIID);
+	        			if(roi==null)
+	        				return;
+	        			view.selectFigure(ROIID, t, z);
+	        		}
+	        		catch(Exception exception)
+	        		{
+	        			Registry reg = MeasurementAgent.getRegistry();
+	        	    	reg.getUserNotifier().notifyWarning("ROI does not exist",
+	        	    	"ROI does not exist. Results may be out of date," +
+	        	    	" try refreshing results.");
+	        		}
 		        }
 			}
 		
