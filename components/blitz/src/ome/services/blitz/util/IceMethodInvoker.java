@@ -12,7 +12,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +25,7 @@ import ome.model.IObject;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.system.EventContext;
+import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.util.Filterable;
 import omeis.providers.re.RGBBuffer;
@@ -77,6 +77,8 @@ public class IceMethodInvoker {
 
     private final Map<String, Info> map = new HashMap<String, Info>();
 
+    private OmeroContext ctx;
+    
     /**
      * Create an {@link IceMethodInvoker} instance using the {@link Class} of
      * the passed argument to call
@@ -84,9 +86,11 @@ public class IceMethodInvoker {
      *
      * @param srv
      *            A Non-null {@link ServiceInterface} instance.
+     * @param context
+     *            The active {@link OmeroContext} instance.	 
      */
-    public IceMethodInvoker(ServiceInterface srv) {
-        this(srv.getClass());
+    public IceMethodInvoker(ServiceInterface srv, OmeroContext context) {
+        this(srv.getClass(), context);
     }
 
     /**
@@ -98,7 +102,7 @@ public class IceMethodInvoker {
      * @param c
      *            A non-null {@link ServiceInterface} {@link Class}
      */
-    public <S extends ServiceInterface> IceMethodInvoker(Class<S> c) {
+    public <S extends ServiceInterface> IceMethodInvoker(Class<S> c, OmeroContext context) {
         Method[] ms = c.getMethods();
         for (Method m : ms) {
             Info i = new Info();
@@ -107,6 +111,7 @@ public class IceMethodInvoker {
             i.retType = m.getReturnType();
             map.put(m.getName(), i);
         }
+        this.ctx = context;
     }
 
     /**
@@ -169,6 +174,35 @@ public class IceMethodInvoker {
         Class retType = info.retType;
         Object retVal;
         try {
+        	
+        	// To replicate the lifecycle logic of the application server,
+        	// it's necessary to catch all calls to "close()" (which is also
+        	// done within the Hibernate SessionHandler), and ALSO call the 
+        	// "destroy()" method if present. TODO This could be much better 
+        	// placed, but this location is sufficient, since no call will
+        	// be made on the delegation targets without going through this
+        	// method.
+        	//
+        	// Unfortunately, however, the destroy method is not on the
+        	// interface and so must be checked directly.
+        	if ("close".equals(info.method.getName())) {
+        		Method destroy = null; 
+        		try {
+					destroy = obj.getClass().getMethod("destroy");
+				} catch (Exception e) {
+					// No problems. Can't call method then.
+				}
+				if (destroy != null) {
+					try {
+						destroy.invoke(obj);
+					} catch (Exception ex) {
+						log.error("Exception on service.destroy()",ex);
+					}
+        		}
+        	}
+        	UnregisterServantMessage usm = new UnregisterServantMessage(
+        			this,Ice.Util.identityToString(current.id),current);
+        	ctx.publishMessage(usm);
             retVal = info.method.invoke(obj, objs);
         } catch (Throwable t) {
             return handleException(t);

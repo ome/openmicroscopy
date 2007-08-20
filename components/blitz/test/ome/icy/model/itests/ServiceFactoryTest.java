@@ -12,8 +12,8 @@ import omero.api.IConfigPrxHelper;
 import omero.api.IUpdatePrx;
 import omero.api.IUpdatePrxHelper;
 import omero.api.RenderingEnginePrx;
-import omero.constants.CONFIGSERVICE;
-import omero.constants.UPDATESERVICE;
+import omero.api.ServiceFactoryPrx;
+import omero.api.ServiceInterfacePrx;
 
 import org.testng.annotations.Test;
 
@@ -49,4 +49,30 @@ public class ServiceFactoryTest extends IceTest {
         assertNotNull( prx );
         ice.destroy();
     }
+    
+    @Test
+    public void testKeepAliveAndIsAliveWorkOnNewProxy() throws Exception {
+        ice = new IceServiceFactory(null, null, null);
+        ice.createSession();
+        ServiceFactoryPrx session = ice.getProxy();
+        RenderingEnginePrx prx = ice.createRenderingEngine(null);
+        assertNotNull( prx );
+        assertTrue( session.isAlive(prx));
+        assertTrue( 0==session.keepAlive(new ServiceInterfacePrx[]{prx}));
+        ice.destroy();
+    }
+
+    @Test
+    public void testKeepAliveAndIsAliveWorkAfterPause() throws Exception {
+        ice = new IceServiceFactory(null, null, null);
+        ice.createSession();
+        ServiceFactoryPrx session = ice.getProxy();
+        RenderingEnginePrx prx = ice.createRenderingEngine(null);
+        assertNotNull( prx );
+        assertTrue( session.isAlive(prx));
+        assertTrue( 0==session.keepAlive(new ServiceInterfacePrx[]{prx}));
+        ice.destroy();
+        fail("add timeout");
+    }
+    
 }

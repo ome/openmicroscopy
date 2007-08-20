@@ -33,6 +33,10 @@ public class ServantHelper {
         this.ctx = context;
         this.cache = cache;
     }
+    
+    public OmeroContext getContext() {
+    	return ctx;
+    }
 
     public ServiceInterface getService(String key, Ice.Current current)
             throws ServerError {

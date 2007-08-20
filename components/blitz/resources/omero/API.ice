@@ -61,12 +61,24 @@ module omero {
 
     ["java:type:java.util.ArrayList<String>:java.util.List<String>"] 
       sequence<string> StringSet;
-
+      
     /*
      * Service marker similar to ome.api.ServiceInterface
      */
     interface ServiceInterface
       {
+      };
+
+	sequence<ServiceInterface*> ServiceList;
+
+    /*
+     * Service marker for stateful services which permits the closing
+     * of a particular service before the destruction of the session.
+     */
+    interface StatefulServiceInterface extends ServiceInterface
+      {
+        void close();
+        idempotent omero::sys::EventContext getCurrentEventContext() throws ServerError;
       };
 
     interface IAdmin extends ServiceInterface
@@ -209,14 +221,14 @@ module omero {
 	void sanityCheckRepository() throws ServerError;
       };
 	
-    interface RawFileStore extends ServiceInterface
+    interface RawFileStore extends StatefulServiceInterface
       {
 	void setFileId(long fileId) throws ServerError;
 	idempotent Ice::ByteSeq read(long position, int length) throws ServerError;
 	idempotent void write(Ice::ByteSeq buf, long position, int length) throws ServerError;
       };
 
-    interface RawPixelsStore extends ServiceInterface
+    interface RawPixelsStore extends StatefulServiceInterface
       {
 	void setPixelsId(long pixelsId) throws ServerError;
 	idempotent int getPlaneSize() throws ServerError;
@@ -241,7 +253,7 @@ module omero {
 	idempotent Ice::ByteSeq calculateMessageDigest() throws ServerError;
       };
 
-    interface RenderingEngine extends ServiceInterface
+    interface RenderingEngine extends StatefulServiceInterface
       {
 	omero::romio::RGBBuffer render(omero::romio::PlaneDef def) throws ServerError;
 	Ice::IntSeq renderAsPackedInt(omero::romio::PlaneDef def) throws ServerError;
@@ -279,7 +291,7 @@ module omero {
 	void resetDefaults() throws ServerError;      
       };
 
-    interface ThumbnailStore extends ServiceInterface
+    interface ThumbnailStore extends StatefulServiceInterface
       {
 	bool setPixelsId(long pixelsId) throws ServerError;
 	void setRenderingDefId(long renderingDefId) throws ServerError;
@@ -347,6 +359,29 @@ module omero {
 	 * Closes the service factory and all related services.
 	 */
 	void close();
+
+	/*
+	 * Requests that the given serivces be marked as alive. It is
+	 * possible that one of the services has already timed out, in which
+	 * case the returned long value will be non-null.
+	 * 
+	 * Specifically, the bit representing the 0-based index will be non-null:
+	 * 
+	 *        if (retval & 1<<idx == 1<<idx) { // not alive }
+	 * 
+	 * Except for fatal server or session errors, this method should never
+	 * throw an exception.
+	 */
+	long keepAlive(ServiceList proxies);
+
+	/*
+	 * Returns true if the given service is alive.
+	 * 
+	 * Except for fatal server or session errors, this method should never
+	 * throw an exception. 
+	 */
+	bool isAlive(ServiceInterface* proxy);
+
       };
 
   };

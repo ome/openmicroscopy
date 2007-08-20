@@ -37,7 +37,7 @@ public class Interceptor implements MethodInterceptor {
         this.iface = interfaceClass;
         this.key = serviceKey;
         this.servantHelper = helper;
-        this.invoker = new IceMethodInvoker(getInterfaceClass());
+        this.invoker = new IceMethodInvoker(getInterfaceClass(),helper.getContext());
     }
 
     public Class getInterfaceClass() {

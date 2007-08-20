@@ -73,7 +73,7 @@
 		<delete dir="${temp.dir}"/>
 
 		<jar update="true" 
-		  destfile="blitz/blitz-${omero.version}.jar">
+		  destfile="blitz/blitz.jar">
 			<fileset dir="${basedir}/etc">
 				<include name="local.properties"/>
 				<include name="local.properties.example"/>

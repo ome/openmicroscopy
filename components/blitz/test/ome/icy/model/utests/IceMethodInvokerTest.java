@@ -30,6 +30,7 @@ import ome.parameters.QueryParameter;
 import ome.services.blitz.util.IceMethodInvoker;
 import ome.services.blitz.util.ServantHelper;
 import ome.system.EventContext;
+import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.util.builders.PojoOptions;
 import omeis.providers.re.RGBBuffer;
@@ -74,9 +75,12 @@ public class IceMethodInvokerTest extends MockObjectTestCase {
 
     IceMapper mapper = null;
 
+    OmeroContext ctx;
+    
     @BeforeMethod
     public void setUp() throws Exception {
         curr = new Ice.Current();
+        ctx = new OmeroContext("classpath:ome/testing/empty.xml");
     }
 
     protected Object invoke(Object...args) throws omero.ServerError {
@@ -89,24 +93,25 @@ public class IceMethodInvokerTest extends MockObjectTestCase {
         mock = mock(this.c);
         srv = (ServiceInterface) mock.proxy();
         curr.operation = op;
-        invoker = new IceMethodInvoker(this.c);
+        curr.id = Ice.Util.stringToIdentity("test");        
+        invoker = new IceMethodInvoker(this.c,ctx);
         mapper = new IceMapper();
     }
 
     @Test(expectedExceptions = NullPointerException.class)
     public void testObjectCtorCanThrowNPE() throws Exception {
-        new IceMethodInvoker((ServiceInterface) null);
+        new IceMethodInvoker((ServiceInterface) null, ctx);
     }
 
     @Test(expectedExceptions = NullPointerException.class)
     public void testClassCtorCanThrowNPE() throws Exception {
-        new IceMethodInvoker((Class<ServiceInterface>) null);
+        new IceMethodInvoker((Class<ServiceInterface>) null, null);
     }
 
     @Test
     public void testClassCtorStoresTheMethodsAndOtherInfo() throws Exception {
         c = IAdmin.class;
-        IceMethodInvoker imi = new IceMethodInvoker(c);
+        IceMethodInvoker imi = new IceMethodInvoker(c, null);
         assertNotNull(imi.getMethod("changePassword"));
     }
 
@@ -114,7 +119,7 @@ public class IceMethodInvokerTest extends MockObjectTestCase {
     public void testInvokeChecksNumberOfArguments() throws Exception {
         c = IAdmin.class;
         curr.operation = "changePassword";
-        IceMethodInvoker imi = new IceMethodInvoker(c);
+        IceMethodInvoker imi = new IceMethodInvoker(c, null);
         imi.invoke(null, curr, new IceMapper());
     }
 
@@ -138,7 +143,7 @@ public class IceMethodInvokerTest extends MockObjectTestCase {
         IAdmin prx = (IAdmin) mockA.proxy();
 
         curr.operation = "XXXXXXXXXXXXXXXXXXXXXXXX";
-        IceMethodInvoker imi = new IceMethodInvoker(c);
+        IceMethodInvoker imi = new IceMethodInvoker(c, null);
         imi.invoke(prx, curr, new IceMapper());
 
     }
@@ -152,7 +157,7 @@ public class IceMethodInvokerTest extends MockObjectTestCase {
         IAdmin prx = (IAdmin) mockA.proxy();
 
         curr.operation = "changePassword";
-        IceMethodInvoker imi = new IceMethodInvoker(c);
+        IceMethodInvoker imi = new IceMethodInvoker(c, null);
         imi.invoke(prx, curr, new IceMapper(), "foo");
 
     }
@@ -169,7 +174,7 @@ public class IceMethodInvokerTest extends MockObjectTestCase {
         IAdmin prx = (IAdmin) mockA.proxy();
 
         curr.operation = "createUser";
-        IceMethodInvoker imi = new IceMethodInvoker(c);
+        IceMethodInvoker imi = new IceMethodInvoker(c, null);
         imi.invoke(prx, curr, new IceMapper(), exp, "default");
 
     }

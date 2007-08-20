@@ -9,6 +9,7 @@ package ome.services.blitz.impl;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,6 +31,8 @@ import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
 import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
+
+import omero.api.StatefulServiceInterface;
 
 import ome.api.IRepositoryInfo;
 import omero.api.IRepositoryInfoPrx;
@@ -190,7 +193,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
             UnregisterServantMessage msg = (UnregisterServantMessage) event;
             String key = msg.getServiceKey();
             Ice.Current curr = msg.getCurrent();
-            unregisterServant(key, curr);
+            unregisterServant(Ice.Util.stringToIdentity(key), curr);
         }
     }
 
@@ -199,17 +202,17 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
 
     public IAdminPrx getAdminService(Ice.Current current) {
         synchronized (adminKey) {
-            Ice.Identity id = getIdentity(current, adminKey);
-            String key = Ice.Util.identityToString(id);
+    		Ice.Identity id = getIdentity(current, adminKey);
+    		String key = Ice.Util.identityToString(id);
 
-            Ice.ObjectPrx prx = servantProxy(id, current);
-            if (prx == null) {
-                _IAdminOperations ops = createServantDelegate(
-                        _IAdminOperations.class, IAdmin.class, key);
-                _IAdminTie servant = new _IAdminTie(ops);
-                prx = registerServant(servant, current, id);
-            }
-            return IAdminPrxHelper.uncheckedCast(prx);
+    		Ice.ObjectPrx prx = servantProxy(id, current);
+    		if (prx == null) {
+            	_IAdminOperations ops = createServantDelegate(
+    		            _IAdminOperations.class, IAdmin.class, key);
+    		    _IAdminTie servant = new _IAdminTie(ops);
+    			prx = registerServant(servant, current, id);
+    		}
+    		return IAdminPrxHelper.uncheckedCast(prx);
         }
     }
 
@@ -429,7 +432,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
         }
         Ice.Identity[] copy = (Ice.Identity[]) ids.toArray(new Ice.Identity[ids.size()]);
         for (Ice.Identity id : copy) {
-            unregisterServant(id, current);
+        	unregisterServant(id, current);
         }
     }
 
@@ -447,7 +450,30 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
             ie.setStackTrace(t.getStackTrace());
         }
     }
-
+    
+    public long keepAlive(ServiceInterfacePrx[] proxies, Current __current) {
+    	if (proxies == null || proxies.length == 0) return -1; // All set to 1
+    	
+    	long retVal = 0;
+    	for (int i = 0; i < proxies.length; i++) {
+    		ServiceInterfacePrx prx = proxies[i];
+    		if (!isAlive(prx,__current)) {
+    			retVal |= 1<<i;
+    		}
+		}
+    	return retVal;
+    }
+    
+    public boolean isAlive(ServiceInterfacePrx proxy, Current __current) {
+		if (proxy == null) return false;
+    	Ice.Identity id = proxy.ice_getIdentity();
+		String key = Ice.Util.identityToString(id);
+		if (null == cache.get(key)) {
+			return false;
+		}
+		return true;
+    }
+    
     // ~ Helpers
     // =========================================================================
 
@@ -480,9 +506,6 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
         if (!exists) {
         	// This will not find a servant via ServantLocators
         	if (null != current.adapter.find(id)) {
-        		System.out.println("A REMOVING SERVANT");
-        		System.out.println("B REMOVING SERVANT");
-        		System.out.println("C REMOVING SERVANT");
         		current.adapter.remove(id);		
         	}
         	return null;
@@ -509,21 +532,20 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
     }
 
     /**
-     * Since all servants are registered under their {@link Ice.Identity} this
-     * converts the given {@link String} and passes it to
-     * {@link #unregisterServant(Ice.Identity, Ice.Current)}
-     */
-    protected void unregisterServant(String key, Ice.Current current) {
-        Ice.Identity id = Ice.Util.stringToIdentity(key);
-        unregisterServant(id, current);
-    }
-
-    /**
      * Reverts all the additions made by {@link #registerServant(ServantInterface, Ice.Current, Ice.Identity)}
      */
     protected void unregisterServant(Ice.Identity id, Ice.Current current) {
 
-        Ice.Object obj = current.adapter.remove(id);
+    	Ice.Object obj = current.adapter.remove(id);
+    	try {
+    		if (obj instanceof StatefulServiceInterface) {
+    			Method m = obj.getClass().getMethod("close");
+    			m.invoke(obj);
+    		}
+    	} catch (Exception e){
+    		log.error("Failure to close "+obj,e);
+    	}
+    	cache.remove(id);
         ids.remove(id);
 
         if (log.isInfoEnabled()) {
@@ -531,6 +553,10 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
         }
     }
 
+    /**
+     * Creates a proxy for the given classes, and injects the {@link #helper} 
+     * instance for this session so that all services are linked to a single session.
+     */
     protected <T, O extends ServiceInterface> T createServantDelegate(
             Class<T> ice, Class<O> ome, String key) {
         createService(key, ome);
