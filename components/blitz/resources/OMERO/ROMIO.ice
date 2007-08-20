@@ -17,17 +17,6 @@ module omero
 
 module romio
 {
-    interface RawFileStore
-    {
-        // On I/O error throws ResourceError.
-        idempotent Ice::ByteSeq read(long id, long position, int length)
-            throws ServerError;
-            
-        // On I/O error throws ResourceError.
-        idempotent void write(long id, Ice::ByteSeq buf, long position, int length)
-            throws ServerError;
-    };
-
     sequence<Ice::ByteSeq> RGBBands;
 
     const int RedBand = 0;
