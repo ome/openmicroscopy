@@ -27,7 +27,7 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.support.StaticApplicationContext;
 import org.testng.annotations.*;
 
-@Test(groups = { "integration", "aop", "ejb" })
+@Test(groups = { "unit", "aop", "ejb" })
 public class AOPAdapterTest extends MockObjectTestCase {
 
     // This overrides the ejb/resources/ejb.properties settings
@@ -88,7 +88,7 @@ public class AOPAdapterTest extends MockObjectTestCase {
         context.refresh();
 
         // setup mock expectations
-        mockInvocation.expects(atLeastOnce()).method("getBean").will(
+        mockInvocation.expects(atLeastOnce()).method("getTarget").will(
                 returnValue(null));
         Method method = Bean.class.getMethod("call");
         mockInvocation.expects(atLeastOnce()).method("getMethod").will(
