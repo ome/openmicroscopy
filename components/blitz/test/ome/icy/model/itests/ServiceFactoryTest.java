@@ -61,18 +61,5 @@ public class ServiceFactoryTest extends IceTest {
         assertTrue( 0==session.keepAlive(new ServiceInterfacePrx[]{prx}));
         ice.destroy();
     }
-
-    @Test
-    public void testKeepAliveAndIsAliveWorkAfterPause() throws Exception {
-        ice = new IceServiceFactory(null, null, null);
-        ice.createSession();
-        ServiceFactoryPrx session = ice.getProxy();
-        RenderingEnginePrx prx = ice.createRenderingEngine(null);
-        assertNotNull( prx );
-        assertTrue( session.isAlive(prx));
-        assertTrue( 0==session.keepAlive(new ServiceInterfacePrx[]{prx}));
-        ice.destroy();
-        fail("add timeout");
-    }
     
 }

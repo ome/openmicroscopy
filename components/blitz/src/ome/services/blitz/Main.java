@@ -13,13 +13,43 @@ import org.apache.commons.logging.LogFactory;
 
 import ome.system.OmeroContext;
 
+class RouterControl extends Thread {
+	
+	/**
+	 * Necessary constructor for subclasses.
+	 */
+	RouterControl(ThreadGroup group, String name) {
+		super(group, name);
+	}
+
+	/** 
+     * {@link Router} instance which can be added via {@link Main#setRouter(Router)}
+     * to have the {@link Router} lifecycle managed.
+     */
+    protected Router router = null;
+    
+    /** 
+     * Mutex used for all access to the {@link #router}.
+     */
+    final protected Object r_mutex = new Object();
+    
+    /**
+     * Used by {@link Main} to set the {@link Router} on this instance.
+     */
+    public void setRouter(Router router) {
+    	synchronized(r_mutex) {
+    		this.router = router;
+    	}
+    }	
+}
+
 /**
  * Startup {@link Thread} for OMERO.blitz.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  */
-class Startup extends Thread {
+class Startup extends RouterControl {
 
     final private Log log;
 
@@ -30,14 +60,20 @@ class Startup extends Thread {
      */
     final private Shutdown shutdown;
 
-    /**
-     * A flag that gets set if startup throws an exception. This should only
-     * happen if the {@link OmeroContext} is somehow improperly configured. This
-     * includes database connections, local files, and the classpath. If true,
-     * OMERO.blitz will shutdown.
+    /** 
+     * A flag that gets set after startup has successfully succeeded. If
+     * this value is true and stop is not true, then the server is ready. 
      */
+    volatile boolean started = false;
+    
+    /**
+	 * A flag that gets set on a request to shutdown or if startup throws an
+	 * exception. This should only happen if the {@link OmeroContext} is somehow
+	 * improperly configured. This includes database connections, local files,
+	 * and the classpath. If true, OMERO.blitz will shutdown.
+	 */
     volatile boolean stop = false;
-
+    
     Startup(ThreadGroup group, String name, Log log, Shutdown shutdown) {
         super(group, name);
         this.shutdown = shutdown;
@@ -49,10 +85,19 @@ class Startup extends Thread {
         log.info("Creating OMERO.blitz. Please wait...");
         try {
             OmeroContext ctx = OmeroContext.getInstance("OMERO.blitz");
+            // If a router has been registered, we start it now. A failure
+            // to start the router counts as a failed startup.
+            synchronized (r_mutex) {
+            	if (router != null) {
+            		router.start();
+            		log.info("Glacier2router started.");
+            	}
+            }
             // Now that we've successfully gotten the context
             // add a shutdown hook.
             Runtime.getRuntime().addShutdownHook(shutdown);
             log.info("OMERO.blitz now accepting connections.");
+            started = true;
         } catch (Exception e) {
             log.error("Error during startup. Stopping.", e);
             stop = true;
@@ -70,10 +115,10 @@ class Startup extends Thread {
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  */
-class Shutdown extends Thread {
+class Shutdown extends RouterControl {
 
     final private Log log;
-
+    
     Shutdown(ThreadGroup group, String name, Log log) {
         super(group, name);
         this.log = log;
@@ -83,6 +128,16 @@ class Shutdown extends Thread {
     public void run() {
         log.info("Running shutdown hook.");
         OmeroContext.getInstance("OMERO.blitz").close();
+        synchronized(r_mutex) {
+        	if (router != null) {
+        		boolean active = router.stop();
+        		if (active) { 
+        			log.info("Glacier2router stopped.");
+        		} else {
+        			log.info("Glacier2router was not running. Can't stop.");
+        		}
+        	}
+        }
         log.info("Shutdown hook finished.");
     }
 };
@@ -93,18 +148,18 @@ class Shutdown extends Thread {
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta1
  */
-public class Main {
+public class Main implements Runnable {
 
     private final static Log log = LogFactory.getLog("OMERO.blitz");
 
-    private final static ThreadGroup root = new ThreadGroup("OMERO.blitz") {
+    private final ThreadGroup root = new ThreadGroup("OMERO.blitz") {
         // could do exception handling.
     };
 
-    private final static Shutdown shutdown = new Shutdown(root,
+    private final Shutdown shutdown = new Shutdown(root,
             "OMERO.destroy", log);
 
-    private final static Startup startup = new Startup(root, "OMERO.startup",
+    private final Startup startup = new Startup(root, "OMERO.startup",
             log, shutdown);
 
     /**
@@ -112,7 +167,19 @@ public class Main {
      * @param args
      */
     public static void main(final String[] args) {
-
+    	new Main();
+    }
+    
+    /**
+     * Before calling {@link #run()} it is possible to set a {@link Router} 
+     * instance which will also be managed by OMERO.blitz.
+     */
+    public void setRouter(Router router) {
+    	startup.setRouter(router);
+    	shutdown.setRouter(router);
+    }
+    
+    public void run() {
         startup.start();
         // From omeis.env.Env (A.Falconi)
         // Now the main thread exits and the bootstrap procedure is run within
@@ -123,7 +190,25 @@ public class Main {
         waitForQuit();
     }
 
-    protected static void waitForQuit() {
+    /**
+     * Setups the {@link Startup#stop} to true, so that the server threads
+     * will exit.
+     */
+    public void stop() {
+    	startup.stop = true;
+    }
+    
+    public void waitForStartup() {
+    	while (!startup.started && !startup.stop) { 
+    		try {
+				Thread.sleep(500L);
+			} catch (InterruptedException e) {
+				// ok
+			}
+    	}
+    }
+    
+    protected void waitForQuit() {
         System.out.println("");
         System.out.println("**********************************************");
         System.out.println(" OMERO.blitz console:");
