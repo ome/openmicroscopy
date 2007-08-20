@@ -32,13 +32,13 @@ public class SlowSessionTimeTest extends TestCase {
 
     @BeforeTest
     public void startServer() throws Exception {
-    	m = new Main();
+    	m = new Main("OMERO.blitz.test");
     	t = new Thread(m);
     	r = new Router();
     	r.setTimeout(3); // one second
     	m.setRouter(r);
     	t.start();
-    	m.waitForStartup();
+    	assertTrue("Startup must succeed", m.waitForStartup() );
     	
     }
     

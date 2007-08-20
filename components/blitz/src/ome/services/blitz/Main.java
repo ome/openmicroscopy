@@ -6,20 +6,31 @@
 
 package ome.services.blitz;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
+
+import ome.system.OmeroContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ome.system.OmeroContext;
-
+/** 
+ * Simple base case which allows {@link Startup} and {@link Shutdown}
+ * to control a {@link Router} instance *if present*.
+ *
+ */
 class RouterControl extends Thread {
+	
+    final protected Log log;
 	
 	/**
 	 * Necessary constructor for subclasses.
 	 */
-	RouterControl(ThreadGroup group, String name) {
+	RouterControl(ThreadGroup group, String name, Log log) {
 		super(group, name);
+		this.log = log;
 	}
 
 	/** 
@@ -41,6 +52,28 @@ class RouterControl extends Thread {
     		this.router = router;
     	}
     }	
+    
+    protected void startRouter() {
+        synchronized (r_mutex) {
+        	if (router != null) {
+        		router.start();
+        		log.info("Glacier2router started.");
+        	}
+        }
+    }
+    
+    protected void stopRouter() {
+        synchronized(r_mutex) {
+        	if (router != null) {
+        		boolean active = router.stop();
+        		if (active) { 
+        			log.info("Glacier2router stopped.");
+        		} else {
+        			log.info("Glacier2router was not running. Can't stop.");
+        		}
+        	}
+        }
+    }
 }
 
 /**
@@ -51,8 +84,12 @@ class RouterControl extends Thread {
  */
 class Startup extends RouterControl {
 
-    final private Log log;
-
+	/** 
+	 * Name for this {@link Thread} which matches the name of
+	 * the {@link OmeroContext} chosen by {@link Main}
+	 */
+	final private String name;
+	
     /**
      * A {@link Thread}-implementation which gets registered via
      * {@link Runtime#addShutdownHook(Thread)} if and only if the
@@ -75,28 +112,23 @@ class Startup extends RouterControl {
     volatile boolean stop = false;
     
     Startup(ThreadGroup group, String name, Log log, Shutdown shutdown) {
-        super(group, name);
+        super(group, name, log);
+        this.name = name;
         this.shutdown = shutdown;
-        this.log = log;
     }
 
     @Override
     public void run() {
-        log.info("Creating OMERO.blitz. Please wait...");
+        log.info("Creating "+this.name+". Please wait...");
         try {
-            OmeroContext ctx = OmeroContext.getInstance("OMERO.blitz");
+            OmeroContext ctx = OmeroContext.getInstance(name);
             // If a router has been registered, we start it now. A failure
             // to start the router counts as a failed startup.
-            synchronized (r_mutex) {
-            	if (router != null) {
-            		router.start();
-            		log.info("Glacier2router started.");
-            	}
-            }
+            startRouter();
             // Now that we've successfully gotten the context
             // add a shutdown hook.
             Runtime.getRuntime().addShutdownHook(shutdown);
-            log.info("OMERO.blitz now accepting connections.");
+            log.info(name + " now accepting connections.");
             started = true;
         } catch (Exception e) {
             log.error("Error during startup. Stopping.", e);
@@ -117,27 +149,19 @@ class Startup extends RouterControl {
  */
 class Shutdown extends RouterControl {
 
-    final private Log log;
+    final String contextName;
     
-    Shutdown(ThreadGroup group, String name, Log log) {
-        super(group, name);
-        this.log = log;
+    Shutdown(ThreadGroup group, String threadName, String contextName, Log log) {
+        super(group, threadName, log);
+        this.contextName = contextName;
     }
 
     @Override
     public void run() {
         log.info("Running shutdown hook.");
-        OmeroContext.getInstance("OMERO.blitz").close();
-        synchronized(r_mutex) {
-        	if (router != null) {
-        		boolean active = router.stop();
-        		if (active) { 
-        			log.info("Glacier2router stopped.");
-        		} else {
-        			log.info("Glacier2router was not running. Can't stop.");
-        		}
-        	}
-        }
+        OmeroContext.getInstance(contextName).close();
+        Main.IN_USE.remove(contextName);
+        stopRouter();
         log.info("Shutdown hook finished.");
     }
 };
@@ -150,25 +174,65 @@ class Shutdown extends RouterControl {
  */
 public class Main implements Runnable {
 
-    private final static Log log = LogFactory.getLog("OMERO.blitz");
+	/**
+	 * This keeps tracks of which servers have already been started
+	 * to prevent multiple allocation. The {@link Shutdown} hook will
+	 * be used to remove the entry from the map. It is still possible 
+	 * for someone to access the given {@link OmeroContext}, but at 
+	 * least the {@link Main} wrapper will provide feedback.
+	 */
+	final static Map<String, Main> IN_USE = 
+		Collections.synchronizedMap(new HashMap<String, Main>());
+	
+	private final static String DEFAULT_NAME = "OMERO.blitz";
+	
+	private final String name;
+	
+    private final Log log;
 
-    private final ThreadGroup root = new ThreadGroup("OMERO.blitz") {
-        // could do exception handling.
-    };
+    private final ThreadGroup root;
 
-    private final Shutdown shutdown = new Shutdown(root,
-            "OMERO.destroy", log);
-
-    private final Startup startup = new Startup(root, "OMERO.startup",
-            log, shutdown);
+    private final Shutdown shutdown;
+    
+    private final Startup startup;
 
     /**
-     *
-     * @param args
+     * Entry point to the server. The first argument on the command line
+     * will be used as the name for the {@link OmeroContext} via
+     * {@link Main#Main(String)}. 
      */
     public static void main(final String[] args) {
-    	new Main();
+    	if (args != null && args.length > 0) {
+    		new Main(args[0]);
+    	} else {
+    		new Main();
+    	}
     }
+    
+    /**
+     * Empty constructor which passes {@link #DEFAULT_NAME} to {@link Main#Main(String)} 
+     */
+    public Main() {
+    	this(DEFAULT_NAME);
+    }
+    
+    /**
+     * Main constructor which uses the given name as the {@link OmeroContext} lookup
+     * for this server. It only makes sense to start one server with a given name
+     */
+    public Main(String name) {
+    	this.name = name;
+    	this.log = LogFactory.getLog(this.name);
+    	this.root = new ThreadGroup(this.name) {
+            // could do exception handling.
+        };
+        this.shutdown = new Shutdown(root,
+                "OMERO.destroy", this.name, log);
+        this.startup = new Startup(root, this.name,
+                log, shutdown);
+        IN_USE.put(this.name, this);
+    }
+    
     
     /**
      * Before calling {@link #run()} it is possible to set a {@link Router} 
@@ -198,7 +262,16 @@ public class Main implements Runnable {
     	startup.stop = true;
     }
     
-    public void waitForStartup() {
+    /**
+     * Blocks the current {@link Thread} until either the 
+     * {@link #startup} {@link Thread} has finished 
+     * {@link Startup#started startup} or
+     * as been {@link Startup#stop stopped} due to an exception.
+     * 
+     * The method returns whether false if {@link Startup#stop shutdown}
+     * has been requested.
+     */
+    public boolean waitForStartup() {
     	while (!startup.started && !startup.stop) { 
     		try {
 				Thread.sleep(500L);
@@ -206,12 +279,13 @@ public class Main implements Runnable {
 				// ok
 			}
     	}
+    	return ! startup.stop;
     }
     
     protected void waitForQuit() {
         System.out.println("");
         System.out.println("**********************************************");
-        System.out.println(" OMERO.blitz console:");
+        System.out.println(" " + name + " console:");
         System.out.println(" Waiting for user input; log output may follow.");
         System.out.println(" Enter q[uit] to stop server or use Ctrl-C");
         System.out.println("**********************************************");

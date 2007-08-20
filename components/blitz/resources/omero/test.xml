@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2007 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!-- Stub configuration for OMERO.blitz.test -->
+
+<beans>
+
+ <bean id="stubsPostProcessor" class="ome.tools.spring.StubBeanPostProcessor">
+   <property name="names">
+     <list>
+       <value>internal:ome.api.IAdmin</value>
+       <value>securitySystem</value>
+     </list>
+   </property>
+   <property name="cache" ref="stubs"/>
+ </bean>
+
+  <bean id="stubs" class="net.sf.ehcache.constructs.blocking.BlockingCache">
+    <constructor-arg ref="stubsCache"/>
+  </bean>
+
+  <bean id="stubsCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+    <property name="cacheManager" ref="CacheManager"/>
+    <property name="overflowToDisk" value="false"/>
+    <property name="maxElementsInMemory" value="0"/>
+    <property name="timeToIdle" value="0"/>
+    <property name="timeToLive" value="0"/>
+  </bean>
+  
+  <bean id="internal:ome.api.IAdmin" factory-bean="adminMock" factory-method="proxy"/>
+  <bean id="securitySystem" factory-bean="securityMock" factory-method="proxy"/>
+
+  <!-- Here it is necessary to specify the HardWiredInterceptors instances
+  even if they are *not* specified in Spring -->
+  <bean id="securityWiring" class="ome.security.basic.BasicSecurityWiring">
+    <property name="securitySystem" ref="securitySystem"/> 
+  </bean>
+
+  <bean id="adminMock" class="org.jmock.Mock">
+    <constructor-arg value="ome.api.local.LocalAdmin" type="java.lang.Class"/>
+  </bean>
+  
+  <bean id="securityMock" class="org.jmock.Mock">
+    <constructor-arg value="ome.security.SecuritySystem" type="java.lang.Class"/>
+  </bean>
+
+</beans>
