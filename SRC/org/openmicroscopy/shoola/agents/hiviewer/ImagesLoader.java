@@ -86,7 +86,7 @@ public class ImagesLoader
      */
     public void load()
     {
-        handle = hiBrwView.loadImages(imagesID, viewer.getRootID(), this);
+        handle = hiBrwView.loadImages(imagesID, viewer.getExperimenterID(), this);
     }
     
     /** 

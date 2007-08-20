@@ -169,12 +169,10 @@ abstract class HiViewerModel
      * Sets the root level and its id.
      * 
      * @param experimenter	The currently selected experimenter.
-     * @param userGroupID 	The id to the group selected for the current user.
      */
-    void setRootLevel(ExperimenterData experimenter, long userGroupID)
+    void setRootLevel(ExperimenterData experimenter)
     {
         this.experimenter = experimenter;
-        this.userGroupID = userGroupID;
     }
     
     /**
@@ -183,13 +181,6 @@ abstract class HiViewerModel
      * @return See above.
      */
     long getRootID() { return experimenter.getId(); }
-    
-    /**
-     * Returns the id to the group selected for the current user.
-     * 
-     * @return See above.
-     */
-    long getUserGroupID() { return userGroupID; }
     
     /**
      * Returns the current user's details.
@@ -623,7 +614,8 @@ abstract class HiViewerModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isMouseOver() { 
+	boolean isMouseOver()
+	{ 
 		if (browser == null) return false;
 		return browser.isMouseOver();  
     }

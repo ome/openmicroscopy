@@ -110,14 +110,12 @@ public class HiViewerFactory
      * 
      * @param ids       	The images' ids.
      * @param exp 			The selected experimenter.
-     * @param userGroupID 	The ID of the selected group for the current user.
      * @return A {@link HiViewer} component for the collection of images.
      */
-    public static HiViewer getImagesViewer(Set ids, ExperimenterData exp,
-                                            long userGroupID)
+    public static HiViewer getImagesViewer(Set ids, ExperimenterData exp)
     {
         HiViewerModel model = new ImagesModel(ids);
-        model.setRootLevel(exp, userGroupID);
+        model.setRootLevel(exp);
         return singleton.getViewer(model);
     }
     
@@ -126,14 +124,13 @@ public class HiViewerFactory
      * 
      * @param ids       	The datasets' ids.
      * @param exp 			The selected experimenter.
-     * @param userGroupID 	The ID of the selected group for the current user.
      * @return A {@link HiViewer} component for the collection of images.
      */
     public static HiViewer getDatasetsViewer(Set<Long> ids, ExperimenterData 
-    										exp, long userGroupID)
+    										exp)
     {
         HiViewerModel model = new DatasetModel(ids);
-        model.setRootLevel(exp, userGroupID);
+        model.setRootLevel(exp);
         return singleton.getViewer(model);
     }
     
@@ -142,14 +139,13 @@ public class HiViewerFactory
      * 
      * @param ids       	The categories' ids.
      * @param exp 			The selected experimenter.
-     * @param userGroupID 	The ID of the selected group for the current user.
      * @return A {@link HiViewer} component for the collection of images.
      */
     public static HiViewer getCategoriesViewer(Set<Long> ids, ExperimenterData 
-												exp, long userGroupID)
+												exp)
     {
         HiViewerModel model = new CategoryModel(ids);
-        model.setRootLevel(exp, userGroupID);
+        model.setRootLevel(exp);
         return singleton.getViewer(model);
     }
     
@@ -158,14 +154,13 @@ public class HiViewerFactory
      * 
      * @param ids       	The projects' ids.
      * @param exp 			The selected experimenter.
-     * @param userGroupID 	The ID of the selected group for the current user.
      * @return A {@link HiViewer} component for the collection of images.
      */
     public static HiViewer getProjectsViewer(Set<Long> ids, ExperimenterData 
-												exp, long userGroupID)
+												exp)
     {
         HiViewerModel model = new ProjectModel(ids);
-        model.setRootLevel(exp, userGroupID);
+        model.setRootLevel(exp);
         return singleton.getViewer(model);
     }
     
@@ -174,14 +169,13 @@ public class HiViewerFactory
      * 
      * @param ids       	The projects' ids.
      * @param exp 			The selected experimenter.
-     * @param userGroupID 	The ID of the selected group for the current user.
      * @return A {@link HiViewer} component for the collection of images.
      */
     public static HiViewer getCategoryGroupsViewer(Set<Long> ids, 
-    									ExperimenterData exp, long userGroupID)
+    									ExperimenterData exp)
     {
         HiViewerModel model = new CategoryGroupModel(ids);
-        model.setRootLevel(exp, userGroupID);
+        model.setRootLevel(exp);
         return singleton.getViewer(model);
     }
     
@@ -191,14 +185,13 @@ public class HiViewerFactory
      * 
      * @param projectID 	The id of the Project root node.
      * @param exp 			The selected experimenter.
-     * @param userGroupID 	The ID of the selected group for the current user.
      * @return A {@link HiViewer} component for the specified Project.
      */
     public static HiViewer getProjectViewer(long projectID, ExperimenterData 
-											exp, long userGroupID)
+											exp)
     {
         HiViewerModel model = new ProjectModel(projectID);
-        model.setRootLevel(exp, userGroupID);
+        model.setRootLevel(exp);
         return singleton.getViewer(model);
     }
     
@@ -208,14 +201,13 @@ public class HiViewerFactory
      * 
      * @param datasetID 	The id of the Dataset root node.
      * @param exp 			The selected experimenter.
-     * @param userGroupID 	The ID of the selected group for the current user.
      * @return A {@link HiViewer} component for the specified Dataset.
      */
     public static HiViewer getDatasetViewer(long datasetID, ExperimenterData 
-											exp, long userGroupID)
+											exp)
     {
         HiViewerModel model = new DatasetModel(datasetID);
-        model.setRootLevel(exp, userGroupID);
+        model.setRootLevel(exp);
         return singleton.getViewer(model);
     }
     
@@ -229,10 +221,10 @@ public class HiViewerFactory
      * @return A {@link HiViewer} component for the specified Category Group.
      */
     public static HiViewer getCategoryGroupViewer(long cgID, ExperimenterData 
-												exp, long userGroupID)
+												exp)
     {
         HiViewerModel model = new CategoryGroupModel(cgID);
-        model.setRootLevel(exp, userGroupID);
+        model.setRootLevel(exp);
         return singleton.getViewer(model);
     }
     
@@ -242,14 +234,13 @@ public class HiViewerFactory
      * 
      * @param categoryID    The id of the Category root node.
      * @param exp 			The selected experimenter.
-     * @param userGroupID 	The ID of the selected group for the current user.
      * @return A {@link HiViewer} component for the specified Category.
      */
     public static HiViewer getCategoryViewer(long categoryID, ExperimenterData 
-											exp, long userGroupID)
+											exp)
     {
         HiViewerModel model = new CategoryModel(categoryID);
-        model.setRootLevel(exp, userGroupID);
+        model.setRootLevel(exp);
         return singleton.getViewer(model);
     }
     
@@ -259,16 +250,15 @@ public class HiViewerFactory
      * 
      * @param images        The <code>ImageData</code> objects for the images
      *                      that are at the bottom of the tree.
-     * @param exp 			The selected experimenter.     
-     * @param userGroupID 	The ID of the selected group for the current user.
+     * @param exp 			The selected experimenter.
      * @return A {@link HiViewer} component for the specified images.
      */
     public static HiViewer getPDIViewer(Set<ImageData> images, ExperimenterData 
-											exp, long userGroupID)
+											exp)
     {
         HiViewerModel model = new HierarchyModel(images, 
                 								HiViewer.PDI_HIERARCHY);
-        model.setRootLevel(exp, userGroupID);
+        model.setRootLevel(exp);
         return singleton.getViewer(model);
     }
     
@@ -279,16 +269,15 @@ public class HiViewerFactory
      * 
      * @param images        The <code>ImageData</code> objects for the images
      *                      that are at the bottom of the tree.
-     * @param exp 			The selected experimenter.  
-     * @param userGroupID 	The ID of the selected group for the current user.        
+     * @param exp 			The selected experimenter.     
      * @return A {@link HiViewer} component for the specified images.
      */
     public static HiViewer getCGCIViewer(Set<ImageData> images, ExperimenterData 
-										exp, long userGroupID)
+										exp)
     {
         HiViewerModel model = new HierarchyModel(images,
                                             HiViewer.CGCI_HIERARCHY);
-        model.setRootLevel(exp, userGroupID);
+        model.setRootLevel(exp);
         return singleton.getViewer(model);
     }
     

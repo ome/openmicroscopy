@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 //Third-party libraries
 
@@ -148,6 +149,17 @@ public class NullRenderingService
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#pasteRenderingSettings(long, Class, List)
+     */
+	public boolean pasteRenderingSettings(long pixelsID, Class rootNodeType,
+											List nodes) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		return false;
 	}
 
 }

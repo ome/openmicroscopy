@@ -533,6 +533,7 @@ class TreeViewerControl
             model.onSelectedDisplay();
             view.updateMenuItems();
         } else if (name.equals(TreeViewer.HIERARCHY_ROOT_PROPERTY)) {
+        	/*
             Map browsers = model.getBrowsers();
             Iterator i = browsers.values().iterator();
             Browser browser;
@@ -541,6 +542,7 @@ class TreeViewerControl
             	//browser.cleanFilteredNodes();
             	//browser.switchUser();
             }
+            */
         } else if (name.equals(
                 AddExistingObjectsDialog.EXISTING_ADD_PROPERTY)) {
             model.addExistingObjects((Set) pce.getNewValue());

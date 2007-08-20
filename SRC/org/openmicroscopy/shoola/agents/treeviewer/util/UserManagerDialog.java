@@ -230,9 +230,8 @@ public class UserManagerDialog
 	 * @param map		Map whose keys are the experimenter group and
 	 * 					the values the collection of users in the
 	 * 					corresponding experimenter groups.
-	 * @param userID 	The id of the currently selected user.
 	 */
-	private void initComponents(Map map, long userID)
+	private void initComponents(Map map)
 	{
 		sorter = new ViewerSorter();
 		orderedMap = new HashMap<GroupData, Object[]>();
@@ -249,7 +248,7 @@ public class UserManagerDialog
 		//mySelf.setIcon(im.getIcon(IconManager.OWNER));
 		mySelf.setToolTipText(
 				UIUtilities.formatToolTipText(MYSELF_DESCRIPTION));
-		mySelf.setEnabled(userID != loggedUser.getId());
+		mySelf.setEnabled(false);
 		
 		GroupData defaultGroup = loggedUser.getDefaultGroup();
 		long groupID = defaultGroup.getId();
@@ -323,8 +322,8 @@ public class UserManagerDialog
 	{
 		JPanel bar = new JPanel();
 		bar.setBorder(null);
-		bar.add(mySelf);
-		bar.add(Box.createRigidArea(H_SPACER_SIZE));
+		//bar.add(mySelf);
+		//bar.add(Box.createRigidArea(H_SPACER_SIZE));
 		bar.add(cancel);
 		bar.add(Box.createRigidArea(H_SPACER_SIZE));
 		bar.add(apply);
@@ -352,15 +351,14 @@ public class UserManagerDialog
 	 * @param groups		Map whose keys are the experimenter group and
 	 * 						the values the collection of users in the
 	 * 						corresponding experimenter groups.
-	 * @param userID		The id of the currently selected user.
 	 */
 	public UserManagerDialog(JFrame parent, ExperimenterData loggedUser, 
-							Map groups, long userID)
+							Map groups)
 	{
 		super(parent);
 		setProperties();
 		this.loggedUser = loggedUser;
-		initComponents(groups, userID);
+		initComponents(groups);
 		attachListeners();
 		buildGUI();
 	}

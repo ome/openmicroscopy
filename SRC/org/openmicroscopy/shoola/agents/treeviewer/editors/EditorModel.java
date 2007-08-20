@@ -439,7 +439,7 @@ class EditorModel
         Set<Long> ids = new HashSet<Long>(1);
         ids.add(new Long(imageID));
         currentLoader = new ClassificationPathsLoader(component, ids,
-                								parentModel.getRootID());
+                						parentModel.getUserDetails().getId());
         currentLoader.load();
     }
 

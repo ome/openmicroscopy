@@ -232,7 +232,7 @@ class ClipBoardModel
     void fireClassificationsLoading(ImageData ho)
     {
         currentLoader = new ClassificationsLoader(component, ho.getId(), 
-                							parentModel.getRootID());  
+                							parentModel.getExperimenterID());  
         currentLoader.load();
         state = ClipBoard.LOADING_CLASSIFICATIONS;
     }
@@ -259,7 +259,7 @@ class ClipBoardModel
      * 
      * @return See above.
      */
-    long getGroupID() { return parentModel.getRootID(); }
+    long getGroupID() { return parentModel.getExperimenterID(); }
 
     /**
      * Starts the asynchronous retrieval of the channel metadata.

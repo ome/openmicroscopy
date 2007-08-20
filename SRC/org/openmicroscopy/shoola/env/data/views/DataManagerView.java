@@ -369,12 +369,17 @@ public interface DataManagerView
 	public CallHandle getDiskSpace(AgentEventListener observer);
 	
 	/**
+	 * Loads the images imported during the passed period.
 	 * 
-	 * @param constrain
-	 * @param lowerTime
-	 * @param time
-	 * @param userID
-	 * @param observer
+	 * @param constrain		One of the following constants: {@link #BEFORE},
+	 * 						{@link #AFTER} or {@link #PERIOD}
+	 * @param lowerTime		The lower bound of the period interval. 
+	 * 						Pass <code>null</code> if the constrain is either
+	 * 						{@link #BEFORE} or {@link #AFTER}
+	 * @param time			The upper bound of the interval. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param userID		The id of the user the images belonged to.
+	 * @param observer		Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadImages(int constrain, Timestamp lowerTime, 
@@ -385,12 +390,32 @@ public interface DataManagerView
      * Reloads the hierarchy currently displayed.
      * 
      * @param rootNodeType	The type of the root node. Can either be 
-     *                      <code>ProjectData, CategoryGroupData</code>.
+     *                      <code>ProjectData</code> or 
+     *                      <code>CategoryGroupData</code>
      * @param m           			
-     * @param observer              Callback handler.
+     * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle refreshHierarchy(Class rootNodeType,
     							Map<Long, List> m, AgentEventListener observer);
+    
+    /**
+     * Applies the rendering settings associated to the passed pixels set 
+     * to the images contained in the specified datasets or categories
+     * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
+     * Applies the settings to the passed images if the type is 
+     * <code>ImageData</code>.
+     * 
+     * @param pixelsID		The id of the pixels set of reference.
+     * @param rootNodeType	The type of nodes. Can either be 
+     * 						<code>ImageData</code>, <code>DatasetData</code> or 
+     * 						<code>CategoryData</code>.
+     * @param nodes			The nodes to apply settings to. 
+     * 						Mustn't be <code>null</code>.
+     * @param observer		Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle pasteRndSettings(long pixelsID, Class rootNodeType,
+			List nodes, AgentEventListener observer);
 	
 }

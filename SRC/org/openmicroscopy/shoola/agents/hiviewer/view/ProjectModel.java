@@ -131,7 +131,7 @@ class ProjectModel
     protected HiViewerModel reinstantiate()
     {
         HiViewerModel model = new ProjectModel(projectsID);
-        model.setRootLevel(getExperimenter(), getUserGroupID());
+        model.setRootLevel(getExperimenter());
         return model;
     }
 

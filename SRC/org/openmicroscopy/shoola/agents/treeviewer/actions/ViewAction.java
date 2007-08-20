@@ -35,6 +35,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -89,13 +90,16 @@ public class ViewAction
             name = BROWSE;
             setEnabled(false);
             putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER)); 
-            /*
-            setEnabled(model.getSelectedBrowser().getBrowserType() == 
-                Browser.IMAGES_EXPLORER);
-                */
             return;
         }
         Object ho = selectedDisplay.getUserObject();
+        if (selectedDisplay instanceof TreeImageTimeSet) {
+        	setEnabled(selectedDisplay.containsImages());
+        	name = BROWSE;
+            putValue(Action.SMALL_ICON, 
+            			icons.getIcon(IconManager.BROWSER)); 
+            return;
+        }
         if (ho == null || !(ho instanceof DataObject) ||
         	ho instanceof ExperimenterData) setEnabled(false);
         else {

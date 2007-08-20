@@ -1,0 +1,132 @@
+/*
+ * org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver 
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *
+ *
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+package org.openmicroscopy.shoola.env.data.views.calls;
+
+
+//Java imports
+import java.util.List;
+import java.util.Set;
+
+//Third-party libraries
+
+//Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.views.BatchCall;
+import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import pojos.CategoryData;
+import pojos.DatasetData;
+import pojos.ImageData;
+
+/** 
+ * Command to paste the rendering settings.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since OME3.0
+ */
+public class RenderingSettingsSaver 
+	extends BatchCallTree
+{
+
+	 /** Result of the call. */
+    private Object    	result;
+    
+    /** Loads the specified tree. */
+    private BatchCall	loadCall;
+    
+    /** 
+	 * Controls if the passed type is supported.
+	 * 
+	 * @param type The type to check;
+	 */
+	private void checkRootType(Class type)
+	{
+		if (ImageData.class.equals(type) || DatasetData.class.equals(type) ||
+				CategoryData.class.equals(type))
+			return;
+		throw new IllegalArgumentException("Type not supported.");
+	}
+	
+	/**
+	 * Creates a {@link BatchCall} to paste the rendering settings.
+	 * 
+	 * @param pixelsID		The id of the pixels set of reference.
+     * @param rootType		The type of nodes. Can either be 
+     * 						<code>ImageData</code>, <code>DatasetData</code> or 
+     * 						<code>CategoryData</code>.
+     * @param nodes			The nodes to apply settings to. 
+	 * @return The {@link BatchCall}.
+	 */
+	private BatchCall makeBatchCall(final long pixelsID, final Class rootType,
+									final List nodes)
+    {
+    	return new BatchCall("Paste the rendering settings: ") {
+            public void doCall() throws Exception
+            {
+            	OmeroImageService rds = context.getImageService();
+            	result = rds.pasteRenderingSettings(pixelsID, rootType, nodes);
+            }
+        };
+    } 
+	
+    /**
+     * Adds the {@link #loadCall} to the computation tree.
+     * 
+     * @see BatchCallTree#buildTree()
+     */
+    protected void buildTree() { add(loadCall); }
+
+    /**
+     * Returns the {@link RenderingControl}.
+     * 
+     * @see BatchCallTree#getResult()
+     */
+    protected Object getResult() { return result; }
+
+    /**
+     * 
+     * @param pixelsID		The id of the pixels set of reference.
+     * @param rootNodeType	The type of nodes. Can either be 
+     * 						<code>ImageData</code>, <code>DatasetData</code> or 
+     * 						<code>CategoryData</code>.
+     * @param nodes			The nodes to apply settings to. 
+     * 						Mustn't be <code>null</code>.
+     */
+    public RenderingSettingsSaver(long pixelsID, Class rootNodeType, List nodes)
+    {
+    	checkRootType(rootNodeType);
+    	if (nodes == null || nodes.size() == 0)
+			throw new IllegalArgumentException("No nodes specified.");
+		if (pixelsID < 0)
+			throw new IllegalArgumentException("Pixels ID not valid.");
+		loadCall = makeBatchCall(pixelsID, rootNodeType, nodes);
+    }
+    
+}

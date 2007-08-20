@@ -52,22 +52,64 @@ public class TreeImageTimeSet
 {
 
 	/** Identifies a node hosting the images imported in the last 7 days. */
-	public static final int	WEEK = 0;
+	public static final int	WEEK = 100;
 	
 	/** Identifies a node hosting the images imported in the last 2 weeks. */
-	public static final int	TWO_WEEK = 1;
+	public static final int	TWO_WEEK = 101;
+
+	/** Identifies a node hosting the images imported before current year. */
+	public static final int	OTHER = 102;
 	
 	/** Identifies a node hosting the images imported in the current year. */
-	public static final int	YEAR = 2;
+	public static final int	YEAR = 103;
 	
 	/** 
 	 * Identifies a node hosting the images imported during the year 
 	 * before the current year. 
 	 */
-	public static final int	YEAR_BEFORE = 3;
+	public static final int	YEAR_BEFORE = 104;
 	
-	/** Identifies a node hosting the images imported before current year. */
-	public static final int	OTHER = 4;
+	/** 
+	 * Identifies a node hosting the images imported during the year 
+	 * before the current year. 
+	 */
+	public static final int	MONTH = 105;
+	
+	/** Identifies the month of january. */
+	static final int JANUARY = Calendar.JANUARY;
+	
+	/** Identifies the month of february. */
+	static final int FEBRUARY = Calendar.FEBRUARY;
+	
+	/** Identifies the month of march. */
+	static final int MARCH = Calendar.MARCH;
+	
+	/** Identifies the month of april. */
+	static final int APRIL = Calendar.APRIL;
+	
+	/** Identifies the month of may. */
+	static final int MAY = Calendar.MAY;
+	
+	/** Identifies the month of june. */
+	static final int JUNE = Calendar.JUNE;
+	
+	/** Identifies the month of july. */
+	static final int JULY = Calendar.JULY;
+	
+	/** Identifies the month of august. */
+	static final int AUGUST = Calendar.AUGUST;
+	
+	/** Identifies the month of september. */
+	static final int SEPTEMBER = Calendar.SEPTEMBER;
+	
+	/** Identifies the month of october. */
+	static final int OCTOBER = Calendar.OCTOBER;
+	
+	/** Identifies the month of november. */
+	static final int NOVEMBER = Calendar.NOVEMBER;
+	
+	/** Identifies the month of december. */
+	static final int DECEMBER = Calendar.DECEMBER;
 	
     /** 
 	 * Text of the dummy TreeImageSet containing the images 
@@ -108,6 +150,10 @@ public class TreeImageTimeSet
 	private static final String		YEAR_BEFORE_TOOLTIP = "Contains the " +
 									"data imported during the period ";
 	
+	/** Node tooltip if the index is a month. */
+	private static final String		MONTH_TOOLTIP = "Contains the " +
+									"data imported in selected month.";
+	
 	/** A day in milliseconds. */
 	private static final long		DAY = 86400000;
 	
@@ -123,6 +169,74 @@ public class TreeImageTimeSet
 	
 	/** Value only set if the index is {@link #YEAR_BEFORE}. */
 	private Timestamp	lowerTime;
+	
+	/** 
+	 * Returns the month corresponding to the passed index.
+	 * 
+	 * @param month One of the values identifying the months.
+	 * @return See above.
+	 */
+	private String getMonth(int month) 
+	{
+		switch (month) {
+			case JANUARY: return "January";
+			case FEBRUARY: return "February";
+			case MARCH: return "March";
+			case APRIL: return "April";
+			case MAY: return "May";
+			case JUNE: return "June";
+			case JULY: return "July";
+			case AUGUST: return "August";
+			case SEPTEMBER: return "September";
+			case OCTOBER: return "October";
+			case NOVEMBER: return "November";
+			case DECEMBER: return "December";
+			default:
+				throw new IllegalArgumentException("Month not valid.");
+		}
+	}
+	
+	/** 
+	 * Returns the last day of the month.
+	 * 
+	 * @param month The selected month.
+	 * @param year	The selected year.
+	 * @return See above
+	 */
+	private int getLastDayOfMonth(int month, int year)
+	{
+		switch (month) {
+			case JANUARY: return 31;
+			case FEBRUARY: 
+				if (year % 4 == 0) return 29;
+				if (year % 100 == 0) return 28;
+				if (year % 400 == 0) return 29;
+			case MARCH: return 31;
+			case APRIL: return 30;
+			case MAY: return 31;
+			case JUNE: return 30;
+			case JULY: return 31;
+			case AUGUST: return 31;
+			case SEPTEMBER: return 30;
+			case OCTOBER: return 31;
+			case NOVEMBER: return 30;
+			case DECEMBER: return 31;
+			default:
+				
+			throw new IllegalArgumentException("Month not valid.");
+		}
+	}
+	
+	/**
+	 * Returns the current month.
+	 * 
+	 * @return See above.
+	 */
+	static int getCurrentMonth() 
+	{ 
+		GregorianCalendar gc = new GregorianCalendar();
+		return gc.get(Calendar.MONTH);
+	}
 	
 	/**
 	 * Creates a new instance.
@@ -180,6 +294,51 @@ public class TreeImageTimeSet
 		}
 	}
 
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param index 		One of the constants defined by this class.
+	 * @param monthIndex 	The index of the month.
+	 */
+	public TreeImageTimeSet(int index, int monthIndex)
+	{
+		super("");
+		this.index = MONTH;
+		GregorianCalendar gc = new GregorianCalendar();
+		int year;
+		int month;
+		int lastDay;
+		switch (index) {
+			case YEAR:
+				setToolTip(MONTH_TOOLTIP);
+				year = gc.get(Calendar.YEAR);
+				month = gc.get(Calendar.MONTH);
+				setUserObject(""+getMonth(monthIndex));
+				if (monthIndex == month) { // i.e. current month
+					lastDay = gc.get(Calendar.DAY_OF_MONTH);
+				} else {
+					lastDay = getLastDayOfMonth(monthIndex, year);
+				}
+				gc = new GregorianCalendar(year, monthIndex, lastDay, 23, 59, 0);
+				time = new Timestamp(gc.getTime().getTime());
+				gc = new GregorianCalendar(year, monthIndex, 1, 0, 0, 0);
+				lowerTime = new Timestamp(gc.getTime().getTime());
+				break;
+			case YEAR_BEFORE:
+				setToolTip(MONTH_TOOLTIP);
+				year = gc.get(Calendar.YEAR)-1;
+				setUserObject(""+getMonth(monthIndex));
+				gc = new GregorianCalendar(year, monthIndex, 
+								getLastDayOfMonth(monthIndex, year), 23, 59, 0);
+				time = new Timestamp(gc.getTime().getTime());
+				gc = new GregorianCalendar(year, monthIndex, 1, 0, 0, 0);
+				lowerTime = new Timestamp(gc.getTime().getTime());
+				break;
+			default: 
+				throw new IllegalArgumentException("Node index not valid.");
+		}
+	}
+	
 	/**
 	 * Returns the index of the node.
 	 * 

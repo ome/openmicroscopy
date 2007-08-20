@@ -130,6 +130,9 @@ class ImgSaverUI
     /** Description of the type of images we can save. */
     private static final String[]       partialSelections;
     
+    /** Description of the type of images we can save. */
+    private static final String[]       basicSelections;
+    
     /** Reference to the {@link ImgSaver}. */
     private ImgSaver                    model;
     
@@ -176,15 +179,20 @@ class ImgSaverUI
         partialSelections[IMAGE_AND_COMPONENTS] = "image and split channels";
         partialSelections[IMAGE_AND_COMPONENTS_GREY] = 
         					"image and split channels in grey";
+        basicSelections = new String[1];
+        basicSelections[IMAGE] = "image";
     }
     
     /** Initializes the component composing the display. */
     private void initComponents()
     {
     	switch (model.getSavingType()) {
+    		case ImgSaver.BASIC:
+				savingTypes = new JComboBox(basicSelections);
+				break;
     		case ImgSaver.PARTIAL:
     			savingTypes = new JComboBox(partialSelections);
-			break;
+    			break;
 	    	case ImgSaver.FULL:
 			default:
 				savingTypes = new JComboBox(selections);

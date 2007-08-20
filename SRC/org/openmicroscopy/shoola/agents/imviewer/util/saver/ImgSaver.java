@@ -80,6 +80,9 @@ public class ImgSaver
 	/** Indicates to display save options without lens saving options. */
 	public static final int PARTIAL = 1;
 	
+	/** Indicates to display save options without lens saving options. */
+	public static final int BASIC = 2;
+	
     /** The window's title. */
     static final String 	TITLE = "Save Image";
     

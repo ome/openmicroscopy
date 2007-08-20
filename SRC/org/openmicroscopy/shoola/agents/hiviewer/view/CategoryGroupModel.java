@@ -135,7 +135,7 @@ class CategoryGroupModel
     protected HiViewerModel reinstantiate()
     {
         HiViewerModel model = new CategoryGroupModel(ids);
-        model.setRootLevel(getExperimenter(), getUserGroupID());
+        model.setRootLevel(getExperimenter());
         return model;
     }
 

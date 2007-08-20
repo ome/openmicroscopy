@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -117,6 +118,7 @@ class ImViewerComponent
     /** Flag indicating that a new z-section or timepoint is selected. */
     private boolean				newPlane;
    
+    /** Listener attached to the rendering node. */
     private MouseAdapter		nodeListener;
     
     /** 
@@ -220,6 +222,23 @@ class ImViewerComponent
      * @return See above.
      */
     ImViewerModel getModel() { return model; }
+    
+    /**
+     * Sets the ids used to copy rendering settings.
+     * 
+     * @param pixelsID		The id of the pixels set of reference.
+     * @param rndSettings 	The rendering settings to copy. 
+     * 						Mustn't be <code>null</code>.
+     */
+    void setRndSettings(long pixelsID, RndProxyDef rndSettings)
+    {
+    	if (model.getPixelsID() == pixelsID) return;
+    	if (rndSettings  == null)
+    		throw new IllegalArgumentException("No rendering settings to " +
+    											"copy.");
+    	model.setRndSettings(pixelsID, rndSettings);
+    	firePropertyChange(RND_SETTINGS_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+    }
     
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
@@ -339,7 +358,6 @@ class ImViewerComponent
                 "This method can't be invoked in the DISCARDED, NEW or" +
                 "LOADING_RENDERING_CONTROL state.");
         }
-        
         try {
         	Iterator i;
         	 List channels = model.getActiveChannels();
@@ -1646,7 +1664,7 @@ class ImViewerComponent
 						while (i.hasNext()) {
 							((HistoryItem) i.next()).setHighlight(null);
 						}
-						model.resetSettings(item.getRndSettings());
+						model.resetMappingSettings(item.getRndSettings());
 						item.setHighlight(Color.BLUE);
 						renderXYPlane();
 					} catch (Exception e) {
@@ -1666,8 +1684,55 @@ class ImViewerComponent
      */
 	public void copyRenderingSettings()
 	{
-		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-		un.notifyInfo("Copy settings", "Sorry not yet implemented");
+		switch (model.getState()) {
+	        case NEW:
+	        case DISCARDED:
+	            //throw new IllegalStateException(
+	            //"This method can't be invoked in the DISCARDED, NEW state.");
+	        	return;
+		}
+		model.copyRenderingSettings();
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#pasteRenderingSettings()
+     */
+	public void pasteRenderingSettings()
+	{
+		switch (model.getState()) {
+	        case NEW:
+	        case DISCARDED:
+	            //throw new IllegalStateException(
+	            //"This method can't be invoked in the DISCARDED, NEW state.");
+	        	return;
+		}
+		if (!model.hasRndToPaste()) {
+			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Paste rendering settings", "No rendering settings" +
+					" to paste.");
+			return;
+		}
+		
+		try {
+			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			model.resetSettings();
+			view.resetDefaults();
+			renderXYPlane();
+			view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		} catch (Exception e) {
+			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+			
+			Logger logger = ImViewerAgent.getRegistry().getLogger();
+			LogMessage logMsg = new LogMessage();
+    		logMsg.print("Rendering Exception:");
+    		logMsg.println(e.getMessage());
+    		logMsg.print(e);
+    		logger.error(this, logMsg);
+    		un.notifyError("Paste Rendering settings", "An error occured " +
+					"while pasting the rendering settings.", e);
+			view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		}
 	}
 	
 }

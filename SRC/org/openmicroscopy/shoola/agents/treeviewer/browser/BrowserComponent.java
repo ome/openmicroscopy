@@ -46,7 +46,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.LeavesVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.RefreshVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -157,55 +156,6 @@ class BrowserComponent
     	if (toSelectAfterSave == null) return;
     	setSelectedDisplay(toSelectAfterSave);
     	toSelectAfterSave = null;
-    }
-    
-    /**
-     * Refreshes the tree view.
-     * 
-     * @param visit	Pass <code>true</code> to visit the existing tree, 
-     * 				<code>false</code> otherwise.
-     */
-    private void refreshTree(boolean visit)
-    {
-    	switch (model.getState()) {
-	        case LOADING_DATA:
-	        case LOADING_LEAVES:
-	        	model.cancel();
-	        case DISCARDED:
-	        	//ignore
-	        	return;
-	        	/*
-	            throw new IllegalStateException(
-	                    "This method cannot be invoked in the " +
-	                    "DISCARDED state.");
-	                    */
-    	}
-	    TreeImageDisplay root = view.getTreeRoot();
-	    if (!root.isChildrenLoaded()) return;
-	    if (!model.isSelected()) {
-	        //view.clearTree();
-	        //return;
-	    }
-	    if (model.getBrowserType() == IMAGES_EXPLORER) {
-	        root.removeAllChildrenDisplay();
-	        model.setSelectedDisplay(null); //root
-	        //Set nodes = model.getFilteredNodes();
-	        //if (nodes != null) loadFilteredImageData(nodes);
-	       // else loadFilteredImagesForHierarchy();
-	    } else {
-	    	if (visit) {
-	    		RefreshVisitor visitor = new RefreshVisitor(this);
-		        accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
-		        root.removeAllChildrenDisplay();
-		        model.setSelectedDisplay(null); //root
-		        //model.loadRefreshedData(visitor.getFoundNodes(), 
-		        //        visitor.getExpandedTopNodes());
-	    	} else {
-	    		root.removeAllChildrenDisplay();
-		       // model.setSelectedDisplay(null); //root
-		        //model.loadRefreshedData(null, null);
-	    	}
-	    }
     }
     
     /**
@@ -385,7 +335,7 @@ class BrowserComponent
         //if (oldDisplay != null && oldDisplay.equals(display)) return; 
         if (display != null) {
         	Object ho = display.getUserObject();
-        	if ((ho instanceof String) || (ho instanceof ExperimenterData))
+        	if (ho instanceof ExperimenterData)
         		display = null;
         }
         model.setSelectedDisplay(display);
@@ -724,20 +674,6 @@ class BrowserComponent
                             groupID), parentDisplay);
         }     
         setSelectedNode();
-    }
-  
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getLeaves()
-     */
-    public Set getLeaves()
-    {
-        if (model.getBrowserType() != IMAGES_EXPLORER) 
-            throw new IllegalArgumentException("This method sould only " +
-                    "be invoked for the Images Explorer.");
-        LeavesVisitor visitor = new LeavesVisitor(this);
-        accept(visitor);
-        return visitor.getNodeIDs();
     }
 
     /**

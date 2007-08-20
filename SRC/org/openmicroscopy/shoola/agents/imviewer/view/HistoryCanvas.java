@@ -25,8 +25,11 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.JScrollPane;
 
 //Third-party libraries
 
@@ -78,11 +81,12 @@ class HistoryCanvas
 		if (nodes == null || nodes.size() == 0) return;
 		Iterator node = nodes.iterator();
 	
-		HistoryItem child;
+		HistoryItem child = null;
         Dimension maxDim = ((HistoryItem) nodes.get(0)).getPreferredSize();
         int m = width/maxDim.width;
         int n = nodes.size();
         if (m != 0) n = n/m+1;
+        /*
         for (int i = 0; i < n; ++i) {
     		for (int j = 0; j < m; ++j) {
                 if (!node.hasNext()) //Done, less than n^2 children.
@@ -93,6 +97,30 @@ class HistoryCanvas
                 child.validate();
             }
 		} 
+		*/
+        Iterator i = nodes.iterator();
+        int j = 0;
+        int finalWidth = 0;
+        while (i.hasNext()) {
+			child = (HistoryItem) i.next();
+			child.setBounds(j*maxDim.width, 0, maxDim.width, maxDim.height);
+			child.validate();
+			j++;
+			finalWidth += maxDim.width;
+		}
+        
+        if (finalWidth > width) {
+        	Rectangle bounds = child.getBounds();
+        	
+        	Rectangle pBounds = getBounds();
+        	JScrollPane dskDecorator = getDeskDecorator();
+        	Rectangle viewRect = dskDecorator.getViewport().getViewRect();
+        	if (!viewRect.contains(bounds)) {
+        		dskDecorator.getHorizontalScrollBar().setValue(bounds.x);
+        	}
+        	setBounds(pBounds.x, pBounds.y, finalWidth, pBounds.height);
+        }
+
 	}
 	
 }

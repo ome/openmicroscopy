@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.agents.imviewer;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
@@ -121,11 +122,22 @@ public class ImViewerAgent
     private void handleSelectPlane(SelectPlane evt)
     {
     	if (evt == null) return;
-    	
     	long pixelsID = evt.getPixelsID();
     	ImViewer view = ImViewerFactory.getImageViewer(pixelsID);
     	if (view != null) 
     		view.setSelectedXYPlane(evt.getDefaultZ(), evt.getDefaultT());
+    }
+    
+    /**
+     * Handles the {@link CopyRndSettings} event.
+     * 
+     * @param evt The event to handle.
+     */
+    public void handleCopyRndSettings(CopyRndSettings evt)
+    {
+    	if (evt == null) return;
+    	ImViewerFactory.copyRndSettings(evt.getPixelsID(), 
+    								evt.getRndSettings());
     }
     
     /** Creates a new instance. */
@@ -154,6 +166,7 @@ public class ImViewerAgent
         bus.register(this, ViewImage.class);
         bus.register(this, MeasurementToolLoaded.class);
         bus.register(this, SelectPlane.class);
+        bus.register(this, CopyRndSettings.class);
     }
 
     /**
@@ -174,6 +187,8 @@ public class ImViewerAgent
         	handleMeasurementToolLoaded((MeasurementToolLoaded) e);
         else if (e instanceof SelectPlane)
         	handleSelectPlane((SelectPlane) e);
+        else if (e instanceof CopyRndSettings)
+        	handleCopyRndSettings((CopyRndSettings) e);
     }
 
 }

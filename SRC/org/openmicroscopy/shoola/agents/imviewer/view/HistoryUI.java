@@ -220,7 +220,7 @@ class HistoryUI
 	public void setBounds(int x, int y, int width, int height)
 	{
 		super.setBounds(x, y, width, height);
-		canvas.doGridLayout(width); 
+		//canvas.doGridLayout(width); 
 	}
 	
 }

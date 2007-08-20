@@ -368,13 +368,6 @@ public interface TreeViewer
     public void moveToFront();
     
     /**
-     * Returns the id of the user who is root of the tree.
-     * 
-     * @return See above.
-     */
-    public long getRootID();
-    
-    /**
      * Sets the root of the retrieved hierarchies. 
      * 
      * @param rootID    	The Id of the root.
@@ -597,16 +590,19 @@ public interface TreeViewer
 	 * @param rollOver The value to set.
 	 */
 	public void setRollOver(boolean rollOver);
-	
-	/**
-	 * Returns <code>true</code> if this {@link TreeViewer} is
-	 * for the user currently logged in, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isForCurrentUser();
 
 	/** Removes the experimenter from the display. */
 	public void removeExperimenterData();
+	
+	/**
+	 * Returns <code>true</code> if we can paste some rendering settings,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasRndSettings();
+
+	/** Pastes the stored rendering settings across the selected images. */
+	public void pasteRndSettings();
 	
 }

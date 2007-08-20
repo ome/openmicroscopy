@@ -253,7 +253,7 @@ class BrowserModel
     {
     	if (parent.isChannelRed(index)) return true;
 		if (parent.isChannelGreen(index)) return true; 
-		return parent.isChannelGreen(index);
+		return parent.isChannelBlue(index);
     }
     
     /**
@@ -322,6 +322,7 @@ class BrowserModel
 	    					}
 	    				}
 	    			}
+	    			break;
 	    		default:
 	    			images = parent.getGridImages();
 	    	    	if (images != null) {

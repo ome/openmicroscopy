@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.DataObject;
@@ -327,14 +328,27 @@ class DataManagerViewImpl
 	    return cmd.exec(observer);
 	}
 
-	 /**
-     * Implemented as specified by the view interface.
-     * @see DataManagerView#refreshHierarchy(Class, Map, AgentEventListener)
-     */
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#refreshHierarchy(Class, Map, AgentEventListener)
+	 */
 	public CallHandle refreshHierarchy(Class rootNodeType,
 								Map<Long, List> m, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new DMRefreshLoader(rootNodeType, m);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#pasteRndSettings(long, Class, List, 
+	 * 										AgentEventListener)
+	 */
+	public CallHandle pasteRndSettings(long pixelsID, Class rootNodeType, 
+								List nodes, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new RenderingSettingsSaver(pixelsID, 
+										rootNodeType, nodes);
 		return cmd.exec(observer);
 	}
     

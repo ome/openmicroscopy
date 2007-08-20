@@ -40,6 +40,7 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 
 /** 
@@ -137,6 +138,23 @@ public class ImViewerFactory
             if (comp.getModel().getPixelsID() == pixelsID)  return comp;
         }
         return null;
+    }
+    
+    /**
+     * Copies the rendering settings.
+     * 
+     * @param pixelsID		The id of the pixels set of reference.
+     * @param rndSettings	The rendering settings to copy.
+     */
+    public static void copyRndSettings(long pixelsID, RndProxyDef rndSettings)
+    {
+    	Iterator v = singleton.viewers.iterator();
+        ImViewerComponent comp;
+        while (v.hasNext()) {
+            comp = (ImViewerComponent) v.next();
+            if (comp.getModel().getPixelsID() != pixelsID) 
+            	comp.setRndSettings(pixelsID, rndSettings);
+        }
     }
     
     /** All the tracked components. */

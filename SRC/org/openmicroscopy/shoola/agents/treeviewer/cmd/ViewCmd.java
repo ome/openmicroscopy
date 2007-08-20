@@ -39,10 +39,10 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -71,6 +71,19 @@ public class ViewCmd
     
     /** The <code>DataObject</code> to browse or view depending on the type. */
     private DataObject  hierarchyObject;
+    
+    /**
+     * Returns the images contained in the passed node.
+     * 
+     * @param node The node to handle.
+     * @return See above.
+     */
+    private Set getImageNodes(TreeImageDisplay node) 
+    {
+    	 LeavesVisitor visitor = new LeavesVisitor(model.getSelectedBrowser());
+         node.accept(visitor);
+         return visitor.getNodeIDs();
+    }
     
     /**
      * Creates a new instance.
@@ -113,7 +126,41 @@ public class ViewCmd
         if (hierarchyObject != null) ho = hierarchyObject;
         else {
             TreeImageDisplay[] nodes = browser.getSelectedDisplays();
-            if (nodes.length > 1) {
+            int length = nodes.length;
+            if (browser.getBrowserType() == Browser.IMAGES_EXPLORER) {
+            	if (length == 1) {
+            		TreeImageDisplay display = browser.getLastSelectedDisplay();
+                    if (display == null) return;
+                    if (display instanceof TreeImageTimeSet) {
+                       bus.post(new Browse(getImageNodes(display), 
+                    			Browse.IMAGES, exp, bounds));   
+                        return;
+                    } 
+                    ho = display.getUserObject(); 
+                    
+            	} else { //more than one node.
+            		TreeImageDisplay n = nodes[0];
+            		if (n instanceof TreeImageTimeSet) {
+            			Set ids = new HashSet();
+            			for (int i = 0; i < nodes.length; i++) {
+							ids.add(getImageNodes(nodes[i]));
+						}
+               		 bus.post(new Browse(ids, Browse.IMAGES, exp, bounds));   
+                        return;
+            		} else if (n.getUserObject() instanceof ImageData) {
+                        Set<Long> ids = new HashSet<Long>(nodes.length);
+                        ImageData data;
+                        for (int i = 0; i < nodes.length; i++) {
+                            data = (ImageData) nodes[i].getUserObject();
+                            ids.add(new Long(data.getId()));
+                        }
+                        bus.post(new Browse(ids, Browse.IMAGES, exp, bounds));   
+                        return;
+                    }
+            	}
+            	
+            }
+            if (length > 1) {
                 TreeImageDisplay n = nodes[0];
                 if (n.getUserObject() instanceof ImageData) {
                     Set<Long> ids = new HashSet<Long>(nodes.length);
@@ -122,8 +169,7 @@ public class ViewCmd
                         data = (ImageData) nodes[i].getUserObject();
                         ids.add(new Long(data.getId()));
                     }
-                    bus.post(new Browse(ids, Browse.IMAGES, exp, 
-                    			model.getUserGroupID(), bounds));   
+                    bus.post(new Browse(ids, Browse.IMAGES, exp, bounds));   
                     return;
                 } else if (n.getUserObject() instanceof DatasetData) {
                     Set<Long> ids = new HashSet<Long>(nodes.length);
@@ -132,8 +178,7 @@ public class ViewCmd
                         data = (DatasetData) nodes[i].getUserObject();
                         ids.add(new Long(data.getId()));
                     }
-                    bus.post(new Browse(ids, Browse.DATASETS, exp, 
-                            model.getUserGroupID(), bounds));   
+                    bus.post(new Browse(ids, Browse.DATASETS, exp, bounds));   
                     return;
                 } else if (n.getUserObject() instanceof CategoryData) {
                     Set<Long> ids = new HashSet<Long>(nodes.length);
@@ -142,8 +187,7 @@ public class ViewCmd
                         data = (CategoryData) nodes[i].getUserObject();
                         ids.add(new Long(data.getId()));
                     }
-                    bus.post(new Browse(ids, Browse.CATEGORIES, exp, 
-                            model.getUserGroupID(), bounds));   
+                    bus.post(new Browse(ids, Browse.CATEGORIES, exp, bounds));   
                     return;
                 } else if (n.getUserObject() instanceof ProjectData) {
                     Set<Long> ids = new HashSet<Long>(nodes.length);
@@ -152,8 +196,7 @@ public class ViewCmd
                         data = (ProjectData) nodes[i].getUserObject();
                         ids.add(new Long(data.getId()));
                     }
-                    bus.post(new Browse(ids, Browse.PROJECTS, exp, 
-                             model.getUserGroupID(), bounds));   
+                    bus.post(new Browse(ids, Browse.PROJECTS, exp, bounds));   
                     return;
                 } else if (n.getUserObject() instanceof CategoryGroupData) {
                     Set<Long> ids = new HashSet<Long>(nodes.length);
@@ -163,18 +206,12 @@ public class ViewCmd
                         ids.add(new Long(data.getId()));
                     }
                     bus.post(new Browse(ids, Browse.CATEGORY_GROUPS, exp, 
-                            model.getUserGroupID(), bounds));   
+                    					bounds));   
                     return;
                 }
-            } else {
-                TreeImageDisplay display = browser.getLastSelectedDisplay();
+            } else { // only one node
+            	TreeImageDisplay display = browser.getLastSelectedDisplay();
                 if (display == null) return;
-                if (display.getParentDisplay() == null &&
-                    browser.getBrowserType() == Browser.IMAGES_EXPLORER) {
-                    bus.post(new Browse(browser.getLeaves(), Browse.IMAGES, 
-                            exp, model.getUserGroupID(), bounds));   
-                    return;
-                }
                 ho = display.getUserObject(); 
             }
         }
@@ -195,17 +232,16 @@ public class ViewCmd
             				bounds));
         } else if (ho instanceof DatasetData)
             bus.post(new Browse(((DatasetData) ho).getId(), Browse.DATASET, 
-                     exp, model.getUserGroupID(), bounds)); 
+                     exp, bounds)); 
         else if (ho instanceof ProjectData)
             bus.post(new Browse(((ProjectData) ho).getId(), Browse.PROJECT,
-                    exp, model.getUserGroupID(), bounds)); 
+                    exp, bounds)); 
         else if (ho instanceof CategoryData)
             bus.post(new Browse(((CategoryData) ho).getId(), Browse.CATEGORY, 
-                    exp, model.getUserGroupID(), bounds)); 
+                    exp, bounds)); 
         else if (ho instanceof CategoryGroupData)
             bus.post(new Browse(((CategoryGroupData) ho).getId(),
-                          Browse.CATEGORY_GROUP, exp, model.getUserGroupID(), 
-                          bounds)); 
+                          Browse.CATEGORY_GROUP, exp, bounds)); 
     }
     
 }

@@ -92,9 +92,6 @@ public class Browse
      */
     private int         		eventIndex;
     
-    /** The ID of the selected group for the current user. */
-    private long				userGroupID;
-    
     /** The bounds of the component posting the event. */
     private Rectangle   		requesterBounds;
     
@@ -147,13 +144,10 @@ public class Browse
      *                          defined by this class.
      * @param experimenter		The currently selected experimenter. 
      * 							Mustn't be <code>null</code>.
-     * @param userGroupID		The ID of the selected group for the current 
-     * 							user.		
      * @param bounds            The bounds of the component posting the event.
      */
     public Browse(long hierarchyObjectID, int index, 
-    			ExperimenterData experimenter, long userGroupID, 
-    			Rectangle bounds)
+    			ExperimenterData experimenter, Rectangle bounds)
     {
         checkEventIndex(index);
         if (experimenter == null) 
@@ -161,7 +155,6 @@ public class Browse
         this.hierarchyObjectID = hierarchyObjectID;
         eventIndex = index;
         this.experimenter = experimenter;
-        this.userGroupID = userGroupID;
         requesterBounds = bounds;
     }
 
@@ -174,19 +167,16 @@ public class Browse
      *                  	defined by this class.
      * @param experimenter	The currently selected experimenter. 
      * 						Mustn't be <code>null</code>.
-     * @param userGroupID	The ID of the selected group for the current 
-     * 						user.                 
      * @param bounds    	The bounds of the component posting the event.                 
      */
     public Browse(Set<Long> ids, int index, ExperimenterData experimenter, 
-    			long userGroupID, Rectangle bounds)
+    			Rectangle bounds)
     {
     	checkMultiNodesIndex(index); 
     	 if (experimenter == null) 
          	throw new IllegalArgumentException("No experimenter.");
         eventIndex = index;
         this.experimenter = experimenter;
-        this.userGroupID = userGroupID;
         objectsIDs = ids;
         requesterBounds = bounds;
     }
@@ -211,13 +201,6 @@ public class Browse
      * @return See above.
      */
     public ExperimenterData getExperimenter() { return experimenter; }
-    
-    /**
-     * Returns the ID of the selected group for the current user.
-     * 
-     * @return See above.
-     */
-    public long getUserGroupID() { return userGroupID; }
     
     /**
      * Returns the list of the objects to browse.

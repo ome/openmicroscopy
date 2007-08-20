@@ -179,20 +179,7 @@ class BrowserControl
         if ((ho instanceof DatasetData) || (ho instanceof CategoryData)) {
         	model.loadExperimenterData(getDataOwner(display), display);
         } else if (ho instanceof ExperimenterData) {
-        	
         	model.loadExperimenterData(display, null);
-        } else {
-        	/*
-            TreeImageDisplay root = view.getTreeRoot();
-            if (root.equals(display) && root.getChildrenDisplay().size() == 0) {
-                if (model.getBrowserType() == Browser.IMAGES_EXPLORER) 
-                    model.loadFilteredImagesForHierarchy();
-                else {
-                    view.loadAction(root);
-                    model.loadData();
-                }
-            }
-            */
         }
     }
     

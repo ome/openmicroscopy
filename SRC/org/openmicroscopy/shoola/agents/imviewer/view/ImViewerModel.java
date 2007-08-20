@@ -38,6 +38,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import omeis.providers.re.data.PlaneDef;
+import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
@@ -51,6 +52,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.player.Player;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -171,6 +173,12 @@ class ImViewerModel
      * In that case, a new element is not added to the history list.
      */
     private boolean				historyItemReplacement;
+
+    /** The id of the pixels set to copy. */
+    private long				refPixelsID;
+    
+    /** The rendering settings to copy. */
+    private RndProxyDef			rndSettings;
     
     /** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
     private void computeSizes()
@@ -208,6 +216,7 @@ class ImViewerModel
         zoomFitToWindow = false; 
         tabbedIndex = ImViewer.VIEW_INDEX;
         textVisible = true;
+        refPixelsID = -1;
     }
     
     /**
@@ -913,11 +922,59 @@ class ImViewerModel
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	void resetSettings(RndProxyDef settings) 
+	void resetMappingSettings(RndProxyDef settings) 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		rndControl.resetRndSettings(settings);
+		rndControl.resetMappingSettings(settings);
 		renderer.resetRndSettings();
 	}
+	
+	/**
+	 * Resets the rendering settings.
+	 * 
+	 * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	void resetSettings() 
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		rndControl.resetSettings(rndSettings);
+		renderer.resetRndSettings();
+	}
+	
+	/**
+	 * Sets the ids used to copy rendering settings.
+	 * 
+	 * @param refPixelsID	The id of the pixels set to copy.
+	 * @param rndSettings 	The rendering settings to copy. 
+     * 						Mustn't be <code>null</code>.
+	 */
+	void setRndSettings(long refPixelsID, RndProxyDef rndSettings)
+	{ 
+		this.refPixelsID = refPixelsID;
+		this.rndSettings = rndSettings;
+	}
+	
+	/**
+	 * Returns <code>true</code> if we have rendering settings to paste,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasRndToPaste() 
+	{ 
+		return (refPixelsID != pixelsID && rndSettings != null); 
+	}
+
+	/** Posts a {@link CopyRndSettings} event. */
+	void copyRenderingSettings()
+	{
+		CopyRndSettings evt = new CopyRndSettings(pixelsID, 
+								rndControl.getRndSettingsCopy());
+		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+		bus.post(evt);
+	}
+	
 	
 }

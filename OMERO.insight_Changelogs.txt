@@ -6,7 +6,13 @@
   client for the visualization and manipulation of both image data and metadata
   maintained at an OMERO server site. OMERO.insight is completely written in 
   Java.
-
+--------------------------------------------------------------------------------
+ Last update: 01/08/2007 (revision 4971)
+ Version: Beta 2.1
+ 
+ - Measurement Tool: Introduction of the measurement tool
+ - Viewer, TreeViewer: Turn on option to download the archived images 
+ 
 --------------------------------------------------------------------------------
  Last update: 22/06/2007 (revision 4938)
  Version: Beta 2

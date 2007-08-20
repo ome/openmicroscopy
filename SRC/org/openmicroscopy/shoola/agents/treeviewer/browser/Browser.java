@@ -365,14 +365,6 @@ public interface Browser
     public void refreshEdition(DataObject object, int op);
 
     /**
-     * Returns the images objects. This method should be invoked
-     * when the brower's type is {@link #IMAGES_EXPLORER}
-     * 
-     * @return See above.
-     */
-    public Set getLeaves();
-
-    /**
      * Sets the nodes as the selected nodes. Should only be 
      * <code>image</code> nodes.
      * 
@@ -458,9 +450,14 @@ public interface Browser
 	 */
 	public void removeExperimenter(ExperimenterData exp);
 
-	
+	/** Refreshes the experimenter node. */
 	public void refreshExperimenterData();
 	
+	/**
+	 * Sets the data for the selected experimenter. 
+	 * 
+	 * @param def The data to set. Mustn't be <code>null</code>.
+	 */
 	public void setRefreshExperimenterData(
 					Map<Long, RefreshExperimenterDef> def);
 	

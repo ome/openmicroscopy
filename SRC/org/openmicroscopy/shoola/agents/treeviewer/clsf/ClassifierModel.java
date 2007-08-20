@@ -184,7 +184,7 @@ class ClassifierModel
         for (int i = 0; i < images.length; i++)
             ids.add(new Long(images[i].getId()));
         currentLoader = new ClassifierPathsLoader(component, ids, mode, 
-                    						parentModel.getRootID());
+                    					parentModel.getUserDetails().getId());
         currentLoader.load();
     }
     

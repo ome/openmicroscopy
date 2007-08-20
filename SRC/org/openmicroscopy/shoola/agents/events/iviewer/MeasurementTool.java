@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.events.iviewer;
 
 //Java imports
 import java.awt.Rectangle;
-import java.util.List;
 import java.util.Map;
 
 //Third-party libraries

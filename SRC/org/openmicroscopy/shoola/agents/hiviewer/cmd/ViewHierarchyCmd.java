@@ -124,11 +124,11 @@ public class ViewHierarchyCmd
         switch (index) {
             case IN_CGCI:
                 viewer = HiViewerFactory.getCGCIViewer(images,
-                			model.getExperimenter(), model.getUserGroupID()); 
+                			model.getExperimenter()); 
             break;
             case IN_PDI:
                 viewer = HiViewerFactory.getPDIViewer(images, 
-                			model.getExperimenter(), model.getUserGroupID());
+                			model.getExperimenter());
         }
         if (viewer != null) viewer.activate(model.getUI().getBounds());
     }

@@ -97,8 +97,8 @@ public class ExistingObjectsLoader
     {
         Set<Long> nodes = new HashSet<Long>(1);
         nodes.add(new Long(ho.getId()));
-        handle = dmView.loadExistingObjects(ho.getClass(), nodes, 
-                viewer.getRootID(), this);
+        //handle = dmView.loadExistingObjects(ho.getClass(), nodes, 
+        //        viewer.getRootID(), this);
         
     }
 

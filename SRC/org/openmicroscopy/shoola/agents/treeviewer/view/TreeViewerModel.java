@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataObjectUpdater;
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsSaver;
+import org.openmicroscopy.shoola.agents.treeviewer.RndSettingsSaver;
 import org.openmicroscopy.shoola.agents.treeviewer.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -53,8 +54,6 @@ import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorFactory;
 import org.openmicroscopy.shoola.agents.util.classifier.view.ClassifierFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.OmeroDataService;
-
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -141,6 +140,9 @@ class TreeViewerModel
     
     /** Flag indicating to retrieve the node data when rolling over. */
     private boolean					rollOver;
+    
+    /** The id of the pixels set to copy. */
+    private long					refPixelsID;
     
     /** Reference to the component that embeds this model. */
     protected TreeViewer            component;
@@ -235,6 +237,7 @@ class TreeViewerModel
         editorType = TreeViewer.PROPERTIES_EDITOR;
         browsers = new HashMap<Integer, Browser>();
         recycled = false;
+        refPixelsID = -1;
     }
     
     /**
@@ -315,13 +318,6 @@ class TreeViewerModel
      * @return See above.
      */
     long getUserGroupID() { return userGroupID; }
-    
-    /** 
-     * Returns the root ID.
-     * 
-     * @return See above.
-     */
-    long getRootID() { return rootID; }
     
     /**
      * Sets the currently selected {@link Browser}.
@@ -785,5 +781,37 @@ class TreeViewerModel
 	 * 					<code>false</code> to turn off.
 	 */
 	void setRollOver(boolean rollOver) { this.rollOver = rollOver; }
+	
+	/**
+	 * Sets the parameters used to copy and paste rendering settings across
+	 * a collection of pixels set.
+	 * 
+	 * @param refPixelsID	The id of the pixels set of reference.
+	 */
+	void setRndSettings(long refPixelsID)
+	{
+		this.refPixelsID = refPixelsID;
+	}
+
+	/**
+	 * Returns <code>true</code> if we can paste some rendering settings,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasRndSettingsToPaste() { return refPixelsID != -1; }
+	
+	/**
+	 * 
+	 * @param nodes	The nodes to handle.
+	 */
+	void firePasteRenderingSettings(List nodes)
+	{
+		//The selected nodes are of the same type.
+		DataObject object = (DataObject) nodes.get(0);
+		currentLoader = new RndSettingsSaver(component, object.getClass(), 
+											nodes, refPixelsID);
+		currentLoader.load();
+	}
 
 }

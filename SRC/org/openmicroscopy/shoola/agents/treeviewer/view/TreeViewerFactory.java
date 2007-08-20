@@ -119,6 +119,16 @@ public class TreeViewerFactory
     	return singleton.getTreeViewer(model, null);
     }
     
+    public static void copyRndSettings(long userID, long pixelsID)
+    {
+    	Iterator v = singleton.viewers.iterator();
+    	TreeViewerComponent comp;
+        while (v.hasNext()) {
+            comp = (TreeViewerComponent) v.next();
+            comp.setRndSettings(pixelsID);
+        }
+    }
+    
     /**
      * Returns the {@link TreeViewer}.
      * 
@@ -157,7 +167,7 @@ public class TreeViewerFactory
     }
     
     /** The tracked component. */
-    private TreeViewer  	viewer;
+    //private TreeViewer  	viewer;
     
     /** The tracked components. */
     private Set<TreeViewer>	viewers;
@@ -180,7 +190,7 @@ public class TreeViewerFactory
     /** Creates a new instance. */
     private TreeViewerFactory()
     {
-        viewer = null;
+        //viewer = null;
         viewers = new HashSet<TreeViewer>();
         isAttached = false;
         windowMenu = new JMenu("DataManagers");

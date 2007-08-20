@@ -78,11 +78,19 @@ public class RndProxyDef
     /** The codomain the channel bindings. */
     private Map<Integer, ChannelBindingsProxy>	channels;
     
+    
     /** Creates a new instance. */
     RndProxyDef()
     {
         channels = new HashMap<Integer, ChannelBindingsProxy>();
     }
+    
+    /**
+     * Returns the number of channels.
+     * 
+     * @return See above.
+     */
+    int getNumberofChannels() { return channels.size(); }
     
     /**
      * Sets the bindings corresponding to the specified channel.

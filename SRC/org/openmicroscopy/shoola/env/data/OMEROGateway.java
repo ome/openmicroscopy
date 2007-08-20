@@ -1426,13 +1426,19 @@ class OMEROGateway
 	List getImagesBefore(Timestamp time, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		String sql = "from Image as i where i.details.owner.id = :userID and " +
-    					"i.details.creationEvent.time < :time";
-		IQuery service = getQueryService();
-		Parameters param = new Parameters();
-		param.addLong("userID", userID);
-		param.add(new QueryParameter("time", Timestamp.class, time));
-		return service.findAllByQuery(sql, param);
+		try {
+			String sql = "from Image as i where i.details.owner.id = :userID " +
+					"and i.details.creationEvent.time < :time";
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			param.addLong("userID", userID);
+			param.add(new QueryParameter("time", Timestamp.class, time));
+			return service.findAllByQuery(sql, param);
+		} catch (Throwable e) {
+			handleException(e, "Cannot retrieve the images before " +
+									"the passed time.");
+		}
+		return null;
 	}
 	
 	/**
@@ -1450,13 +1456,19 @@ class OMEROGateway
 	List getImagesAfter(Timestamp time, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		String sql = "from Image as i where i.details.owner.id = :userID and " +
-        			"i.details.creationEvent.time > :time";
-		IQuery service = getQueryService();
-		Parameters param = new Parameters();
-		param.addLong("userID", userID);
-		param.add(new QueryParameter("time", Timestamp.class, time));
-		return service.findAllByQuery(sql, param);
+		try {
+			String sql = "from Image as i where i.details.owner.id = :userID " +
+					"and i.details.creationEvent.time > :time";
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			param.addLong("userID", userID);
+			param.add(new QueryParameter("time", Timestamp.class, time));
+			return service.findAllByQuery(sql, param);
+		} catch (Throwable e) {
+			handleException(e, "Cannot retrieve the images after " +
+			"the passed time.");
+		}
+		return null;
 	}
 	
 	/**
@@ -1475,15 +1487,66 @@ class OMEROGateway
 	List getImagesDuring(Timestamp lowerTime, Timestamp time, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		String sql = "from Image as i where i.details.owner.id = :userID and " +
-        			"i.details.creationEvent.time < :time and "+
-        			"i.details.creationEvent.time > :lowerTime";
-		IQuery service = getQueryService();
-		Parameters param = new Parameters();
-		param.addLong("userID", userID);
-		param.add(new QueryParameter("time", Timestamp.class, time));
-		param.add(new QueryParameter("lowerTime", Timestamp.class, lowerTime));
-		return service.findAllByQuery(sql, param);
+		try {
+			String sql = "from Image as i where i.details.owner.id = :userID " +
+					"and i.details.creationEvent.time < :time and "+
+					"i.details.creationEvent.time > :lowerTime";
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			param.addLong("userID", userID);
+			param.add(new QueryParameter("time", Timestamp.class, time));
+			param.add(new QueryParameter("lowerTime", Timestamp.class, 
+						lowerTime));
+			return service.findAllByQuery(sql, param);
+		} catch (Throwable e) {
+			handleException(e, "Cannot retrieve the images imported during " +
+								"the selected period.");
+		}
+		return null;
+	}
+
+	/**
+     * Applies the rendering settings associated to the passed pixels set 
+     * to the images contained in the specified datasets or categories
+     * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
+     * Applies the settings to the passed images if the type is 
+     * <code>ImageData</code>.
+     * 
+     * @param userID		The id of the user currently logged in.
+     * @param pixelsID		The id of the pixels set of reference.
+     * @param rootNodeType	The type of nodes. Can either be 
+     * 						<code>ImageData</code>, <code>DatasetData</code> or 
+     * 						<code>CategoryData</code>.
+     * @param nodes			The nodes to apply settings to. 
+     * @param observer		Callback handler.
+     * @return <true> if the call was successful, <code>false</code> otherwise.
+     * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+     */
+	boolean pasteRenderingSettings(long userID, long pixelsID, 
+								Class rootNodeType, Set nodes) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			String sql = "from RenderingDef as rdef where " +
+						"rdef.pixels.id = :pixelsID and " +
+						"rdef.details.owner.id = :userID";
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			param.addLong("pixelsID", pixelsID);
+			param.addLong("userID", userID);
+			IObject r = service.findByQuery(sql, param);
+			long rndID = -1;
+			if (r != null) rndID = r.getId();
+			if (rndID == -1) return false;
+			//Code to paste
+		} catch (Exception e) {
+			handleException(e, "Cannot paste the rendering settings.");
+		}
+		
+		return true;
 	}
 	
 }

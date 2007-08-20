@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshExperimenterData 
+ * org.openmicroscopy.shoola.agents.treeviewer.actions.PasteRndSettings 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
@@ -32,14 +31,16 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ExperimenterData;
+import pojos.CategoryData;
+import pojos.DatasetData;
+import pojos.ImageData;
 
 /** 
- * Reloads the experimenter data.
+ * Action to paste the rendering settings previously copied from
+ * another image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -51,21 +52,22 @@ import pojos.ExperimenterData;
  * </small>
  * @since OME3.0
  */
-public class RefreshExperimenterData
+public class PasteRndSettings 
 	extends TreeViewerAction
 {
 
-	/** Name of the action. */
-    private static final String NAME = "Refresh Experimenter";
+    /** The name of the action. */
+    private static final String NAME = "Paste Settings";
     
-    /** Description of the action. */
-    private static final String DESCRIPTION = "Reload the experimenter data.";
+    /** The description of the action. */
+    private static final String DESCRIPTION = "Paste the rendering settings.";
     
     /**
-     * Sets the action enabled depending on the browser's type and 
-     * the currenlty selected node. Sets the name of the action depending on 
-     * the <code>DataObject</code> hosted by the currenlty selected node.
-     * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
+     * Callback to notify of a change in the currently selected display
+     * in the currently selected 
+     * {@link org.openmicroscopy.shoola.agents.treeviewer.browser.Browser}.
+     * 
+     * @param selectedDisplay The newly selected display node.
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
@@ -73,39 +75,35 @@ public class RefreshExperimenterData
             setEnabled(false);
             return;
         }
-        Browser b = model.getSelectedBrowser();
-        
-        if (b != null && b.getSelectedDisplays().length > 1) {
-        	setEnabled(false);
-        	return;
-        }
         Object ho = selectedDisplay.getUserObject();
-        setEnabled(ho instanceof ExperimenterData);
+        if (!(ho instanceof ImageData || ho instanceof DatasetData ||
+        	ho instanceof CategoryData)) 
+        	setEnabled(false);
+        else setEnabled(model.hasRndSettings());
     }
     
 	/**
-	 * Creates a new instance.
-	 * 
-	 * @param model Reference to the Model. Mustn't be <code>null</code>.
-	 */
-	public RefreshExperimenterData(TreeViewer model)
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
+	public PasteRndSettings(TreeViewer model)
 	{
 		super(model);
-		putValue(Action.NAME, NAME);
+		name = NAME;
 		putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.REFRESH)); 
+	                UIUtilities.formatToolTipText(DESCRIPTION));
+	    IconManager im = IconManager.getInstance();
+	    putValue(Action.SMALL_ICON, im.getIcon(IconManager.PASTE));
 	}
 	
-	/**
-     * Reloads the experimenter's data.
-     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-     */
+	/** 
+	 * Pastes the rendering settings across the collection of images.
+	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	 */
     public void actionPerformed(ActionEvent e)
     {
-        Browser b = model.getSelectedBrowser();
-        if (b != null) b.refreshExperimenterData();
+       model.pasteRndSettings();
     }
-	
+    
 }

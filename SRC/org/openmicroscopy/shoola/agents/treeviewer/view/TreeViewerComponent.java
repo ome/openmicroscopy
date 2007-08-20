@@ -111,6 +111,9 @@ class TreeViewerComponent
      */
     private  EditorSaverDialog	saverDialog;
     
+    /** The dialog presenting the list of available users. */
+    private UserManagerDialog	switchUserDialog;
+    
 	/** 
 	 * Displays the user groups.
 	 * 
@@ -120,12 +123,14 @@ class TreeViewerComponent
 	 */
 	private void displayUserGroups(Map map)
 	{
-		JFrame f = (JFrame) TreeViewerAgent.getRegistry().getTaskBar();
-		UserManagerDialog d = new UserManagerDialog(f, 
-				model.getUserDetails(), map, model.getRootID());
-		d.addPropertyChangeListener(controller);
-		d.pack();
-		UIUtilities.centerAndShow(d);
+		if (switchUserDialog == null) {
+			JFrame f = (JFrame) TreeViewerAgent.getRegistry().getTaskBar();
+			switchUserDialog = new UserManagerDialog(f, model.getUserDetails(), 
+													map);
+			switchUserDialog.addPropertyChangeListener(controller);
+			switchUserDialog.pack();
+		}
+		UIUtilities.centerAndShow(switchUserDialog);
 	}
 	
     /**
@@ -158,6 +163,17 @@ class TreeViewerComponent
         view.initialize(controller, model, bounds);
     }
     
+    /**
+     * Sets the ids used to copy rendering settings.
+     * 
+     * @param pixelsID	The id of the pixels set of reference.
+     */
+	void setRndSettings(long pixelsID)
+	{
+		if (model.getState() == DISCARDED) return;
+		model.setRndSettings(pixelsID);
+	}
+	
     /**
      * Returns the Model sub-component.
      * 
@@ -465,17 +481,6 @@ class TreeViewerComponent
         DataHandler dh = model.classifyImageObjects(view, images, mode);
         dh.addPropertyChangeListener(controller);
         dh.activate();
-        
-        /*
-        model.cancel(); // cancel annotation loader or thumbnail loader
-        removeEditor();
-        model.setEditorType(CLASSIFIER_EDITOR);
-        Classifier classifier = ClassifierFactory.getClassifier(this, mode, 
-                                                    images);
-        classifier.addPropertyChangeListener(controller);
-        classifier.activate();
-        view.addComponent(classifier.getUI());
-        */
     }
 
     /**
@@ -663,16 +668,7 @@ class TreeViewerComponent
             //browser.refreshClassification(images, categories, mode);
         }
         getSelectedBrowser().setSelectedDisplay(d);
-        /*
-        if (d != null) {
-            getSelectedBrowser().setSelectedDisplay(d);
-            Object uo = d.getUserObject();
-            if (uo != null && uo instanceof DataObject) {
-                showProperties((DataObject) uo, PROPERTIES_EDITOR);
-            }    
-        }
-        */
-        
+
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
@@ -685,7 +681,6 @@ class TreeViewerComponent
         if (model.getState() == DISCARDED)
             throw new IllegalStateException(
                     "This method cannot be invoked in the DISCARDED state.");
-        //view.setFocusable(false);
         view.toBack();
     }
 
@@ -699,18 +694,6 @@ class TreeViewerComponent
             throw new IllegalStateException(
                     "This method cannot be invoked in the DISCARDED state.");
         view.toFront();
-    }
-
-    /**
-     * Implemented as specified by the {@link HiViewer} interface.
-     * @see TreeViewer#getRootID()
-     */
-    public long getRootID()
-    {
-        if (model.getState() == DISCARDED)
-            throw new IllegalStateException(
-                    "This method cannot be invoked in the DISCARDED state.");
-        return model.getRootID();
     }
     
     /**
@@ -768,7 +751,7 @@ class TreeViewerComponent
             "This method cannot be invoked in the DISCARDED state.");
         //Check if current user can write in object
         long id = model.getUserDetails().getId();
-        long groupId = model.getUserDetails().getDefaultGroup().getId();
+        long groupId = model.getUserGroupID();
         return TreeViewerTranslator.isWritable(ho, id, groupId);
     }
 
@@ -1165,19 +1148,6 @@ class TreeViewerComponent
 
 	/**
      * Implemented as specified by the {@link Browser} interface.
-     * @see TreeViewer#isForCurrentUser()
-     */
-	public boolean isForCurrentUser()
-	{
-		if (model.getState() == DISCARDED)
-            throw new IllegalStateException(
-            	"This method cannot be invoked in the DISCARDED state.");
-		long userID = model.getUserDetails().getId();
-		return (userID == model.getRootID());
-	}
-
-	/**
-     * Implemented as specified by the {@link Browser} interface.
      * @see TreeViewer#isReadable(DataObject)
      */
 	public boolean isReadable(DataObject ho)
@@ -1187,7 +1157,7 @@ class TreeViewerComponent
             "This method cannot be invoked in the DISCARDED state.");
         //Check if current user can write in object
         long id = model.getUserDetails().getId();
-        long groupId = model.getUserDetails().getDefaultGroup().getId();
+        long groupId = model.getUserGroupID();
         return TreeViewerTranslator.isReadable(ho, id, groupId);
 	}
 
@@ -1210,7 +1180,41 @@ class TreeViewerComponent
     		browser = (Browser) browsers.get(i.next());
     		browser.removeExperimenter(exp);
 		}
-		
 	}
-    
+
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#hasRndSettings()
+     */
+	public boolean hasRndSettings()
+	{
+		// TODO check state
+		return model.hasRndSettingsToPaste();
+	}
+
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#pasteRndSettings()
+     */
+	public void pasteRndSettings()
+	{
+		//TODO Check state.
+		if (!hasRndSettings()) {
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Paste settings", "No rendering settings to" +
+					"paste. Please first copy settings.");
+			return;
+		}
+		Browser b = model.getSelectedBrowser();
+		if (b == null) return;
+		List nodes = b.getSelectedDataObjects();
+		if (nodes == null || nodes.size() == 0){
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Paste settings", "Please select the nodes" +
+					"you wish to apply the settings to.");
+			return;
+		}
+		model.firePasteRenderingSettings(nodes);
+	}
+	
 }

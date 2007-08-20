@@ -125,6 +125,9 @@ public interface ImViewer
     public static final String  COLOR_MODEL_CHANGE_PROPERTY = 
     												"colorModelChanged";
     
+    /** Bound Property name indicating rendering settings are set. */
+    public static final String  RND_SETTINGS_PROPERTY = "rndSettings";
+    
     /** Identifies the <code>Color Picket</code> menu. */
     public static final int 	COLOR_PICKER_MENU = 0;
     
@@ -705,5 +708,8 @@ public interface ImViewer
 	
 	/** Copies the rendering settings. */
 	public void copyRenderingSettings();
+	
+	/** Pastes the rendering settings. */
+	public void pasteRenderingSettings();
 	
 }

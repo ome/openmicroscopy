@@ -260,11 +260,16 @@ class BrowserUI
      */
     private void createTimeElements(TreeImageSet parent)
     {
-    	createTimeNode(TreeImageTimeSet.WEEK, parent);
-		createTimeNode(TreeImageTimeSet.TWO_WEEK, parent);
-    	createTimeNode(TreeImageTimeSet.YEAR, parent);
-    	createTimeNode(TreeImageTimeSet.YEAR_BEFORE, parent);
-    	createTimeNode(TreeImageTimeSet.OTHER, parent);
+    	createTimeNode(TreeImageTimeSet.WEEK, parent, true);
+		createTimeNode(TreeImageTimeSet.TWO_WEEK, parent, true);
+		TreeImageSet n = createTimeNode(TreeImageTimeSet.YEAR, parent, false);
+    	int month = TreeImageTimeSet.getCurrentMonth()+1;
+    	for (int i = 0; i < month; i++) 
+    		createTimeNode(TreeImageTimeSet.YEAR, i, n);
+    	n = createTimeNode(TreeImageTimeSet.YEAR_BEFORE, parent, false);
+    	for (int i = 0; i < 12; i++) 
+    		createTimeNode(TreeImageTimeSet.YEAR_BEFORE, i, n);
+    	createTimeNode(TreeImageTimeSet.OTHER, parent, true);
     	parent.setChildrenLoaded(true);
     }
     
@@ -275,15 +280,40 @@ class BrowserUI
      * 					{@link TreeImageTimeSet#YEAR} or 
      * 					{@link TreeImageTimeSet#WEEK}
      * @param parent	The parent of the new node.
+     * @param empty		Pass <code>true</code> to add an empty node,
+     * 					<code>false</code> otherwise.
      * @return See above.
      */
-    private TreeImageTimeSet createTimeNode(int index, TreeImageSet parent)
+    private TreeImageTimeSet createTimeNode(int index, TreeImageSet parent, 
+    										boolean empty)
     {
     	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
     	TreeImageTimeSet date = new TreeImageTimeSet(index);
+    	if (empty) buildEmptyNode(date);
+    	parent.addChildDisplay(date);
+    	tm.insertNodeInto(date, parent, parent.getChildCount());
+    	return date;
+    }
+    
+    /**
+     * Creates and returns a {@link TreeImageTimeSet}.
+     * 
+     * @param index 	One of the following constants: 
+     * 					{@link TreeImageTimeSet#YEAR} or 
+     * 					{@link TreeImageTimeSet#YEAR_BEFORE}.
+     * @param month		The index of the month.
+     * @param parent	The parent of the new node.
+     * @return See above.
+     */
+    private TreeImageTimeSet createTimeNode(int index, int month, 
+    										TreeImageSet parent)
+    {
+    	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+    	TreeImageTimeSet date = new TreeImageTimeSet(index, month);
     	buildEmptyNode(date);
     	parent.addChildDisplay(date);
     	tm.insertNodeInto(date, parent, parent.getChildCount());
+    	parent.setChildrenLoaded(true);
     	return date;
     }
     

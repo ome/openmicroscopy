@@ -83,34 +83,32 @@ public class HiViewerAgent
         switch (evt.getEventIndex()) {
 			case Browse.IMAGES:
 	            viewer = HiViewerFactory.getImagesViewer(evt.getObjectIDs(), 
-	                evt.getExperimenter(), evt.getUserGroupID());
+	                evt.getExperimenter());
 	            if (viewer != null) viewer.activate(evt.getRequesterBounds());
 				break;
 			case Browse.DATASETS:
 				viewer = HiViewerFactory.getDatasetsViewer(evt.getObjectIDs(), 
-						evt.getExperimenter(), evt.getUserGroupID());
+						evt.getExperimenter());
 		        if (viewer != null) viewer.activate(evt.getRequesterBounds());
 				break;
 			case Browse.CATEGORIES:
 				viewer = HiViewerFactory.getCategoriesViewer(evt.getObjectIDs(), 
-						evt.getExperimenter(), evt.getUserGroupID());
+						evt.getExperimenter());
 		        if (viewer != null) viewer.activate(evt.getRequesterBounds());
 				break;
 			case Browse.PROJECTS:
 				viewer = HiViewerFactory.getProjectsViewer(evt.getObjectIDs(), 
-						evt.getExperimenter(), evt.getUserGroupID());
+						evt.getExperimenter());
 		        if (viewer != null) viewer.activate(evt.getRequesterBounds());
 				break;
 			case Browse.CATEGORY_GROUPS:
 				viewer = HiViewerFactory.getCategoryGroupsViewer(
-									evt.getObjectIDs(),evt.getExperimenter(),
-									evt.getUserGroupID());
+									evt.getObjectIDs(),evt.getExperimenter());
 		        if (viewer != null) viewer.activate(evt.getRequesterBounds());
 				break;
 			default:
 				browse(evt.getEventIndex(), evt.getHierarchyObjectID(),
-						evt.getExperimenter(), evt.getUserGroupID(),
-						evt.getRequesterBounds());
+						evt.getExperimenter(), evt.getRequesterBounds());
 				break;
 		}
     }
@@ -166,27 +164,24 @@ public class HiViewerAgent
      * 						class event.
      * @param id    		The ID of the dataObject to browse.
      * @param exp			The selected experimenter.
-     * @param userGroupID 	The ID of the selected group for the current user.  
      * @param bounds        The bounds of the component invoking this method.
      */
     public static void browse(int eventIndex, long id, ExperimenterData exp,
-                              long userGroupID, Rectangle bounds)
+                              Rectangle bounds)
     {
         HiViewer viewer = null;
         switch (eventIndex) {
             case Browse.PROJECT:
-                viewer = HiViewerFactory.getProjectViewer(id, exp, userGroupID);
+                viewer = HiViewerFactory.getProjectViewer(id, exp);
                 break;
             case Browse.DATASET:
-                viewer = HiViewerFactory.getDatasetViewer(id, exp, userGroupID);
+                viewer = HiViewerFactory.getDatasetViewer(id, exp);
                 break;
             case Browse.CATEGORY_GROUP:
-                viewer = HiViewerFactory.getCategoryGroupViewer(id, exp, 
-                										userGroupID);
+                viewer = HiViewerFactory.getCategoryGroupViewer(id, exp);
                 break;
             case Browse.CATEGORY:
-                viewer = HiViewerFactory.getCategoryViewer(id, exp, 
-                											userGroupID);  
+                viewer = HiViewerFactory.getCategoryViewer(id, exp);  
         }
         if (viewer != null) viewer.activate(bounds);
     }

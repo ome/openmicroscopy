@@ -83,6 +83,9 @@ class RendererUI
     /** Button to copy the rendering settings. */
     private JButton							copyButton;
     
+    /** Button to paste the rendering settings. */
+    private JButton							pasteButton;
+    
     /** Initializes the components. */
     private void initComponents()
     {
@@ -93,6 +96,17 @@ class RendererUI
 		
 			public void actionPerformed(ActionEvent e) {
 				model.getParentModel().copyRenderingSettings();
+			}
+		
+		});
+    	pasteButton = new JButton("Paste");
+    	pasteButton.setEnabled(false);
+    	pasteButton.setToolTipText(
+    		UIUtilities.formatToolTipText("Pastes the rendering settings."));
+    	pasteButton.addActionListener(new ActionListener() {
+		
+			public void actionPerformed(ActionEvent e) {
+				model.getParentModel().pasteRenderingSettings();
 			}
 		
 		});
@@ -170,6 +184,7 @@ class RendererUI
         */
     	JPanel bar = new JPanel();
     	bar.setBorder(null);
+    	bar.add(pasteButton);
     	bar.add(copyButton);
     	JPanel p = UIUtilities.buildComponentPanelRight(bar);
         p.setOpaque(true);
@@ -328,5 +343,7 @@ class RendererUI
         DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
         pane.onCurveChange();
     }
+    
+    void enablePasteButton(boolean b) { pasteButton.setEnabled(b); }
     
 }

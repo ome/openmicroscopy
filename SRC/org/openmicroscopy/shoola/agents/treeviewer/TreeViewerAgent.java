@@ -31,11 +31,15 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.event.AgentEvent;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import pojos.ExperimenterData;
 
 /** 
@@ -51,7 +55,7 @@ import pojos.ExperimenterData;
  * @since OME2.2
  */
 public class TreeViewerAgent
-    implements Agent
+    implements Agent, AgentEventListener
 {
 
 	/** Reference to the registry. */
@@ -63,6 +67,19 @@ public class TreeViewerAgent
      * @return A reference to the {@link Registry}.
      */
     public static Registry getRegistry() { return registry; }
+    
+    /**
+     * Handles the {@link CopyRndSettings} event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleCopyRndSettings(CopyRndSettings evt)
+    {
+    	ExperimenterData exp = (ExperimenterData) registry.lookup(
+				LookupNames.CURRENT_USER_DETAILS);
+    	long userID = exp.getDefaultGroup().getId();
+    	TreeViewerFactory.copyRndSettings(userID, evt.getPixelsID());
+    }
     
     /**
      * Implemented as specified by {@link Agent}.
@@ -90,6 +107,8 @@ public class TreeViewerAgent
     public void setContext(Registry ctx)
     {
         registry = ctx;
+        EventBus bus = registry.getEventBus();
+        bus.register(this, CopyRndSettings.class);
     }
 
     /**
@@ -97,5 +116,16 @@ public class TreeViewerAgent
      * @see Agent#canTerminate()
      */
     public boolean canTerminate() { return true; }
+
+    /**
+     * Responds to an event fired trigger on the bus.
+     * Listens to ViewImage event.
+     * @see AgentEventListener#eventFired(AgentEvent)
+     */
+	public void eventFired(AgentEvent e)
+	{
+		if (e instanceof CopyRndSettings)
+			handleCopyRndSettings((CopyRndSettings) e);
+	}
 
 }

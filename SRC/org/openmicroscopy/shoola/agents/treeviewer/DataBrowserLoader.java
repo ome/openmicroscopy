@@ -79,7 +79,7 @@ public abstract class DataBrowserLoader
     	switch (index) {
 			case TreeImageTimeSet.OTHER:
 				return DataManagerView.BEFORE;
-			case TreeImageTimeSet.YEAR_BEFORE:
+			case TreeImageTimeSet.MONTH:
 				return DataManagerView.PERIOD;
 			default:
 				return DataManagerView.AFTER;

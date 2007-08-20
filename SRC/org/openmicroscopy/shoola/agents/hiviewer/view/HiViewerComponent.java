@@ -410,9 +410,9 @@ class HiViewerComponent
 
     /**
      * Implemented as specified by the {@link HiViewer} interface.
-     * @see HiViewer#getRootID()
+     * @see HiViewer#getExperimenterID()
      */
-    public long getRootID()
+    public long getExperimenterID()
     {
         if (model.getState() == DISCARDED)
             throw new IllegalStateException(
@@ -469,7 +469,7 @@ class HiViewerComponent
             throw new IllegalStateException(
             "This method cannot be invoked in the DISCARDED state.");
         return HiTranslator.isReadable(ho, getUserDetails().getId(), 
-                                            getRootID());
+                                            getExperimenterID());
     }
     
     /**
@@ -482,7 +482,7 @@ class HiViewerComponent
             throw new IllegalStateException(
             "This method cannot be invoked in the DISCARDED state.");
         return HiTranslator.isWritable(ho, getUserDetails().getId(), 
-                                        getRootID());
+                                        getExperimenterID());
     }
 
     /**
@@ -751,18 +751,6 @@ class HiViewerComponent
 		ContainerSaver saver = new ContainerSaver(view, thumbs);
         saver.pack();
         UIUtilities.centerAndShow(saver);
-	}
-
-    /**
-     * Implemented as specified by the {@link HiViewer} interface.
-     * @see HiViewer#getUserGroupID()
-     */
-	public long getUserGroupID()
-	{
-		if (model.getState() == DISCARDED)
-            throw new IllegalStateException("This method cannot be invoked " +
-                    "in the DISCARDED state.");
-		return model.getUserGroupID();
 	}
 
     /**

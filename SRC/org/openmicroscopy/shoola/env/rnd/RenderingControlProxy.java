@@ -277,6 +277,28 @@ class RenderingControlProxy
 		}
     }
     
+    /** 
+     * Sets the color.
+     * 
+     * @param w 	The index of the channel.
+     * @param rgba	The color to set.
+     * @throws RenderingServiceException	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+     * @see RenderingControl#setRGBA(int, Color)
+     */
+    private void setRGBA(int w, int[] rgba)
+    	throws RenderingServiceException, DSOutOfServiceException
+    {
+    	try {
+    		servant.setRGBA(w, rgba[0], rgba[1], rgba[2], rgba[3]);
+    		rndDef.getChannel(w).setRGBA(rgba[0], rgba[1], rgba[2], rgba[3]);
+    		invalidateCache();
+		} catch (Exception e) {
+			handleException(e, ERROR+"color for: "+w+".");
+		}
+    }
+    
     /**
      * Resets the rendering engine.
      * 
@@ -328,7 +350,7 @@ class RenderingControlProxy
     /**
      * Creates a new instance.
      * 
-     * @param re   The service to render a pixels set.
+     * @param re   		The service to render a pixels set.
      *                  Mustn't be <code>null</code>.
      * @param pixDims   The dimensions in microns of the pixels set.
      *                  Mustn't be <code>null</code>.
@@ -936,19 +958,54 @@ class RenderingControlProxy
 
 	/** 
      * Implemented as specified by {@link RenderingControl}. 
-     * @see RenderingControl#resetRndSettings(RndProxyDef)
+     * @see RenderingControl#resetMappingSettings(RndProxyDef)
      */
-	public void resetRndSettings(RndProxyDef rndDef)
+	public void resetMappingSettings(RndProxyDef rndDef)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
+		if (rndDef == null)
+			throw new IllegalArgumentException("No rendering settings to " +
+					"set");
+		if (rndDef.getNumberofChannels() != getPixelsDimensionsC())
+			throw new IllegalArgumentException("Rendering settings not " +
+					"compatible.");
 		setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
 		setQuantumStrategy(rndDef.getBitResolution());
-		ChannelBindingsProxy channel;
+		ChannelBindingsProxy c;
 		for (int i = 0; i < getPixelsDimensionsC(); i++) {
-			channel = rndDef.getChannel(i);
-			setChannelWindow(i, channel.getInputStart(), channel.getInputEnd());
-			setQuantizationMap(i, channel.getFamily(), 
-					channel.getCurveCoefficient(), channel.isNoiseReduction());
+			c = rndDef.getChannel(i);
+			if (c != null) {
+				setChannelWindow(i, c.getInputStart(), c.getInputEnd());
+				setQuantizationMap(i, c.getFamily(), c.getCurveCoefficient(), 
+									c.isNoiseReduction());
+			}		
+		}
+	}
+	
+	/** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#resetSettings(RndProxyDef)
+     */
+	public void resetSettings(RndProxyDef rndDef)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (rndDef == null)
+			throw new IllegalArgumentException("No rendering settings to " +
+					"set");
+		if (rndDef.getNumberofChannels() != getPixelsDimensionsC())
+			throw new IllegalArgumentException("Rendering settings not " +
+					"compatible.");
+		setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
+		setQuantumStrategy(rndDef.getBitResolution());
+		ChannelBindingsProxy c;
+		for (int i = 0; i < getPixelsDimensionsC(); i++) {
+			c = rndDef.getChannel(i);
+			if (c != null) {
+				setRGBA(i, c.getRGBA());
+				setChannelWindow(i, c.getInputStart(), c.getInputEnd());
+				setQuantizationMap(i, c.getFamily(), c.getCurveCoefficient(), 
+									c.isNoiseReduction());
+			}		
 		}
 	}
 	

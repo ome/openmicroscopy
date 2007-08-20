@@ -32,7 +32,6 @@ import java.util.List;
 
 //Application-internal dependencies
 import ome.model.core.Pixels;
-import ome.model.enums.PixelsType;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.data.views.calls.Analyser;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;

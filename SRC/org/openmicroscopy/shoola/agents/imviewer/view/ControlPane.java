@@ -658,9 +658,12 @@ class ControlPane
             button.setColor(model.getChannelColor(index)); 
             button.setGrayedOut(gs);
         }
-        colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
-        colorModelButton.setToolTipText(getColorModelDescription(
-        							model.getColorModel()));
+        Icon icon = getColorModelIcon(model.getColorModel());
+        String tip = getColorModelDescription(model.getColorModel());
+        colorModelButton.setIcon(icon);
+        colorModelButton.setToolTipText(tip);
+        colorModelButtonGrid.setIcon(icon);
+        colorModelButtonGrid.setToolTipText(tip);
         setZSection(model.getDefaultZ());
         setTimepoint(model.getDefaultT());
     }

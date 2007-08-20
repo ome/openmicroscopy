@@ -27,7 +27,11 @@ package org.openmicroscopy.shoola.env.data;
 //Java import
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
 import javax.imageio.ImageIO;
 
 //Third-party libraries
@@ -37,10 +41,14 @@ import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
+
+import pojos.DataObject;
+import pojos.ExperimenterData;
 
 
 /** 
@@ -249,6 +257,28 @@ class OmeroImageServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return gateway.getPlane(pixelsID, z, t, c);
+	}
+
+	/** 
+     * Implemented as specified by {@link OmeroImageService}. 
+     * @see OmeroImageService#pasteRenderingSettings(long, Class, List)
+     */
+	public boolean pasteRenderingSettings(long pixelsID, Class rootNodeType, 
+			List nodes) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		if (nodes == null || nodes.size() == 0)
+			throw new IllegalArgumentException("No nodes specified.");
+		Iterator i = nodes.iterator();
+		Set n = new HashSet(nodes.size());
+		while (i.hasNext()) 
+			n.add(((DataObject) i.next()).asIObject());
+		
+		ExperimenterData exp = (ExperimenterData) context.lookup(
+								LookupNames.CURRENT_USER_DETAILS);
+		gateway.pasteRenderingSettings(exp.getId(), pixelsID, rootNodeType, n);
+		return true;
+		//return 
 	}
 	
 }

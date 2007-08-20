@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -179,5 +181,28 @@ public interface OmeroImageService
 	 */
     public byte[] getPlane(long pixelsID, int z, int t, int c)
 		throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Applies the rendering settings associated to the passed pixels set 
+     * to the images contained in the specified datasets or categories
+     * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
+     * Applies the settings to the passed images if the type is 
+     * <code>ImageData</code>.
+     * 
+     * @param pixelsID		The id of the pixels set of reference.
+     * @param rootNodeType	The type of nodes. Can either be 
+     * 						<code>ImageData</code>, <code>DatasetData</code> or 
+     * 						<code>CategoryData</code>.
+     * @param nodes			The nodes to apply settings to. 
+     * 						Mustn't be <code>null</code>.
+     * @return <code>true</code> if the call was successful.
+     * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+     */
+    public boolean pasteRenderingSettings(long pixelsID, Class rootNodeType,
+										List nodes)
+    	throws DSOutOfServiceException, DSAccessException;
     
 }

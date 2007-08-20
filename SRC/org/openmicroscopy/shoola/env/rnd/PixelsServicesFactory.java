@@ -247,7 +247,7 @@ public class PixelsServicesFactory
      * 
      * @param re        The rendering control.
      * @param pixDims   The dimensions of the pixels array.
-     * @param metadata  The channel metadata.
+     * @param rdefID	The id of the rendering settings.
      * @return See above.
      */
     private RenderingControl makeNew(RenderingEngine re,

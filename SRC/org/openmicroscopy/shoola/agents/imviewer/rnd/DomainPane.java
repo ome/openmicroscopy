@@ -518,7 +518,6 @@ class DomainPane
             btn.setGrayedOut(gs);
         }  
         resetGamma(model.getCurveCoefficient());
-        
     }
     
     /**
