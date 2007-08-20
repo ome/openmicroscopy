@@ -309,6 +309,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
         			__curr.id = id;
         			__curr.adapter = current.adapter;
         			__curr.operation = "close";
+        			__curr.mode = current.mode; // FIXME due to bug
+        			// http://www.zeroc.com/forums/bug-reports/3348-ice-current-hashcode-can-throw-npe-null-enum.html
         			m.invoke(obj,__curr);
         		} else {
         			unregisterServant(id,current);

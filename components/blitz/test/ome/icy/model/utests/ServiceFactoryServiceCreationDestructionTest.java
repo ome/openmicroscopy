@@ -32,6 +32,7 @@ import Ice.ConnectionI;
 import Ice.EndpointSelectionType;
 import Ice.InitializationData;
 import Ice.LocatorPrx;
+import Ice.OperationMode;
 import Ice.RouterPrx;
 import IceInternal.EndpointI;
 import IceInternal.Reference;
@@ -132,6 +133,7 @@ public class ServiceFactoryServiceCreationDestructionTest extends MockObjectTest
    		callsActiveServices(Collections.singletonList(reServiceId));
     	Ice.Current curr = new Ice.Current();
     	curr.adapter = adapter;
+    	curr.mode = OperationMode.Idempotent; // FIXME Due to Ice bug
    		sf.close(curr);
     }
     
