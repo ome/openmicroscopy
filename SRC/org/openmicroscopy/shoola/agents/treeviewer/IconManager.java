@@ -245,11 +245,14 @@ public class IconManager
     /** The <code>disk space</code> icon. */
     public static int           DISK_SPACE = 63;
     
+    /** The <code>disk space</code> icon. */
+    public static int           DATE = 64;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 63;
+    private static int          MAX_ID = 64;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -321,6 +324,7 @@ public class IconManager
         relPaths[ROLL_OVER] = "nuvola_mouse16.png";
         relPaths[BROWSER] = "zoom16.png";
         relPaths[DISK_SPACE] = "nuvola_kcmpartitions16.png";
+        relPaths[DATE] = "nuvola_date16.png";
     }
     
     /** The sole instance. */

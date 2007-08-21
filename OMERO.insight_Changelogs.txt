@@ -6,6 +6,21 @@
   client for the visualization and manipulation of both image data and metadata
   maintained at an OMERO server site. OMERO.insight is completely written in 
   Java.
+  
+ ---------------------------------------------------------------------------------
+ Last update: 21/08/2007 (revision ??)
+ Version: Towards Beta 3
+ Attempt to reduce the number of windows.
+ 
+ - MeasurementTool: Fixed bugs. Better Error handling. 
+ 					Changed default UI of Figures. 
+ - TreeViewer: After selecting a new user, display the users data in the same 
+ 				window.
+ - TreeViewer: Images Explorer TabbedPane, use smart folders to filter images.
+ - Viewer: Merge Viewer window and Renderer Window
+ - Viewer: Introduce the concept of local rendering history. Allow users 
+ 			to undo settings step by step
+ - Viewer: Indrocude notion of "Copy and Paste" rendering settings
 --------------------------------------------------------------------------------
  Last update: 01/08/2007 (revision 4971)
  Version: Beta 2.1

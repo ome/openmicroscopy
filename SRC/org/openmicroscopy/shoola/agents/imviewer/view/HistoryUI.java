@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,7 +43,6 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
-import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 
 /** 
  * UI component hosting the canvas displaying the history and 
@@ -71,9 +71,6 @@ class HistoryUI
 	/** Reference to the View. */
 	private ImViewerUI		view;
 	
-	/** Slider used to control the magnification of the image. */
-	private OneKnobSlider	zoomSlider;
-	
 	/** Button to clear the history. */
 	private JButton			clearButton;
 	
@@ -89,23 +86,26 @@ class HistoryUI
 		model.clearHistory();
 		JComponent desktop = canvas.getInternalDesktop();
 		desktop.removeAll();
-		validate();
-		repaint();
+		Rectangle r = getBounds();
+		Rectangle bounds = canvas.getContentsBounds();
+		Insets insets = canvas.getInsets();
+		int w = r.width-insets.left-insets.right-4;
+		if (w < 0) return;
+        Dimension d = new Dimension(w, bounds.height);//bounds.getSize();
+        desktop.setSize(d);
+        desktop.setPreferredSize(d);
 	}
 	
 	/** Initializes the components. */
 	private void initComponents()
 	{
 		canvas = new HistoryCanvas(model);
-		zoomSlider = new OneKnobSlider();
 		//pane = new JScrollPane(canvas);
 		IconManager icons = IconManager.getInstance();
 		clearButton = new JButton(icons.getIcon(IconManager.CLEAR));
 		clearButton.setToolTipText(CLEAR_DESCRIPTION);
 		clearButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				clearHistory();
-			}
+			public void actionPerformed(ActionEvent e) { clearHistory(); }
 		});
 		toolBar = buildControls();
 	}
@@ -121,8 +121,7 @@ class HistoryUI
 		p.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBorder(null);
 		p.add(clearButton);
-		//p.add(UIUtilities.buildComponentPanelRight(zoomSlider));
-		return p;//UIUtilities.buildComponentPanel(p);
+		return p;
 	}
 	
 	/** Builds and lays out the UI. */
@@ -167,10 +166,10 @@ class HistoryUI
 		int w = r.width;
 		if (w == 0) w = view.geRestoreSize().width;
 		canvas.doGridLayout(w);
-		Rectangle bounds = canvas.getContentsBounds();
-        Dimension d = new Dimension(r.width, bounds.height);//bounds.getSize();
-        desktop.setSize(d);
-        desktop.setPreferredSize(d);
+		//Rectangle bounds = canvas.getContentsBounds();
+        //Dimension d = new Dimension(r.width, bounds.height);//bounds.getSize();
+        //desktop.setSize(d);
+        //desktop.setPreferredSize(d);
 	}
 	
 	/**
@@ -184,10 +183,10 @@ class HistoryUI
 		desktop.add(node);
 		Rectangle r = getBounds();
 		canvas.doGridLayout(r.width);
-		Rectangle bounds = canvas.getContentsBounds();
-        Dimension d = new Dimension(r.width, bounds.height);//bounds.getSize();
-        desktop.setSize(d);
-        desktop.setPreferredSize(d);
+		//Rectangle bounds = canvas.getContentsBounds();
+       // Dimension d = new Dimension(r.width, bounds.height);
+       // desktop.setSize(d);
+        //desktop.setPreferredSize(d);
 	}
 	
 	/** 
@@ -203,24 +202,5 @@ class HistoryUI
 		height += 3*ImViewer.MINIMUM_SIZE/2;
 		return new Dimension(d.width, height);
 	}
-	
-	/**
-	 * Overridden to reorganise the display of the nodes.
-	 * @see JComponent#setBounds(Rectangle)
-	 */
-	public void setBounds(Rectangle r)
-	{
-		setBounds(r.x, r.y, r.width, r.height);
-	}
-	
-	/**
-	 * Overridden to reorganise the display of the nodes.
-	 * @see JComponent#setBounds(int, int, int, int)
-	 */
-	public void setBounds(int x, int y, int width, int height)
-	{
-		super.setBounds(x, y, width, height);
-		//canvas.doGridLayout(width); 
-	}
-	
+
 }

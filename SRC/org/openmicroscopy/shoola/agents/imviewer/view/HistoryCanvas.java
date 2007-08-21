@@ -79,8 +79,7 @@ class HistoryCanvas
 	{
 		List nodes = model.getHistory();
 		if (nodes == null || nodes.size() == 0) return;
-		Iterator node = nodes.iterator();
-	
+		
 		HistoryItem child = null;
         Dimension maxDim = ((HistoryItem) nodes.get(0)).getPreferredSize();
         int m = width/maxDim.width;
@@ -100,25 +99,24 @@ class HistoryCanvas
 		*/
         Iterator i = nodes.iterator();
         int j = 0;
-        int finalWidth = 0;
         while (i.hasNext()) {
 			child = (HistoryItem) i.next();
 			child.setBounds(j*maxDim.width, 0, maxDim.width, maxDim.height);
 			child.validate();
 			j++;
-			finalWidth += maxDim.width;
 		}
-        
+        int finalWidth = nodes.size()*maxDim.width;
         if (finalWidth > width) {
-        	Rectangle bounds = child.getBounds();
+        	//Rectangle bounds = child.getBounds();
         	
         	Rectangle pBounds = getBounds();
         	JScrollPane dskDecorator = getDeskDecorator();
-        	Rectangle viewRect = dskDecorator.getViewport().getViewRect();
-        	if (!viewRect.contains(bounds)) {
-        		dskDecorator.getHorizontalScrollBar().setValue(bounds.x);
-        	}
-        	setBounds(pBounds.x, pBounds.y, finalWidth, pBounds.height);
+        	Dimension d = new Dimension(finalWidth, pBounds.height);
+        	getInternalDesktop().setSize(d);
+        	getInternalDesktop().setPreferredSize(d);
+        	getInternalDesktop().validate();
+        	//if (!viewRect.contains(bounds)) {
+        	dskDecorator.getHorizontalScrollBar().setValue(finalWidth);
         }
 
 	}

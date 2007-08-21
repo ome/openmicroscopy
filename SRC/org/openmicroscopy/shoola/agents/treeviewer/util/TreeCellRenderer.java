@@ -39,6 +39,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.CategoryData;
@@ -170,7 +171,10 @@ public class TreeCellRenderer
         if (numberChildrenVisible) setText(node.getNodeText());
         else setText(node.getNodeName());
         setToolTipText(node.getToolTip());
-        setIcon(node.getUserObject());
+        //if (node instanceof TreeImageTimeSet)
+        //	setIcon(icons.getIcon(IconManager.DATE));
+        //else 
+        	setIcon(node.getUserObject());
         Color c = node.getHighLight();
         if (c == null) c = tree.getForeground();
         setForeground(c);

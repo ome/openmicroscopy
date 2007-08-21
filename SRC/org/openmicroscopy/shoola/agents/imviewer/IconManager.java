@@ -237,7 +237,7 @@ public class IconManager
         relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
         relPaths[ZOOM_FIT] = "nuvola_viewmagfit16.png";
-        relPaths[CLEAR] = "nuvola_viewmagfit16.png";
+        relPaths[CLEAR] = "eclipse_clear_co16.png";
     }
     
     /** The sole instance. */
