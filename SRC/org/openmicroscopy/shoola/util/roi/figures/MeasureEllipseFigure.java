@@ -38,7 +38,6 @@ import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.EllipseFigure;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -46,6 +45,8 @@ import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
+import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
+import org.openmicroscopy.shoola.util.ui.drawingtools.figures.EllipseTextFigure;
 
 /** 
  * 
@@ -61,31 +62,42 @@ import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
  * @since OME3.0
  */
 public class MeasureEllipseFigure
-	extends EllipseFigure
+	extends EllipseTextFigure
 	implements ROIFigure
 {
 	 /**
      * This is used to perform faster drawing and hit testing.
      */
     	
-	private	Rectangle2D bounds;
-	private ROI			roi;
-	private ROIShape 	shape;
-	private MeasurementUnits units;
-	
-	   
+	private	Rectangle2D 				bounds;
+	private ROI							roi;
+	private ROIShape 					shape;
+	private MeasurementUnits 			units;
+		   
     /** Creates a new instance. */
     public MeasureEllipseFigure() 
     {
-        this(0, 0, 0, 0);
+        this("Text", 0, 0, 0, 0);
+    }
+    
+    public MeasureEllipseFigure(String text, double x, double y, double width, 
+    															double height) 
+    {
+    	super("Text", x, y, width, height);
+    	setAttributeEnabled(AttributeKeys.TEXT_COLOR, true);
+	    shape = null;
+		roi = null;
+    }
+        
+    /** Creates a new instance. */
+    public MeasureEllipseFigure(String text) 
+    {
+        this(text, 0, 0, 0, 0);
     }
     
     public MeasureEllipseFigure(double x, double y, double width, double height) 
     {
-    	super(x, y, width, height);
-    	setAttributeEnabled(AttributeKeys.TEXT_COLOR, true);
-	    shape = null;
-		roi = null;
+    	this("Text", x, y, width, height);
     }
 
     public double getMeasurementX() 

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.util.MeasureCreationTool 
+ * org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvas 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,7 +20,12 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.util;
+package org.openmicroscopy.shoola.util.ui.drawingtools;
+
+import org.jhotdraw.draw.DefaultDrawing;
+import org.jhotdraw.draw.DefaultDrawingEditor;
+import org.jhotdraw.draw.DrawingEditor;
+import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 
 //Java imports
 
@@ -41,21 +46,41 @@ package org.openmicroscopy.shoola.agents.measurement.util;
  * </small>
  * @since OME3.0
  */
-public interface MeasureCreationTool
+public class DrawingCanvas
 {	
-	/** 
-	 * Set the param to true if you only want to create on figure and then 
-	 * reset the tool to the selection tool. 
-	 * @param create see above.
-	 */
-	public void setResetToSelect(boolean create);
+	/** Component managaging the drawing. */
+    private	DefaultDrawing			drawing;
+
+    /** Component managaging the drawing. */
+	private	DrawingEditor			drawingEditor;
 	
-	/**
-	 * If the return param is true then after a figure is created the tool will
-	 * reset the toolbar to the selectionTool.
-	 * @return see above.
-	 */
-	public boolean isResetToSelect();
+	/** Component hosting the drawing. */
+	private DrawingCanvasView		drawingView;
+	
+	public DrawingCanvas()
+	{
+		drawingEditor = new DefaultDrawingEditor();
+		drawing = new DefaultDrawing();
+		drawingView = new DrawingCanvasView();
+		drawingView.setDrawing(drawing);
+		drawingEditor.add(drawingView);
+	}
+	
+	public DefaultDrawing getDrawing()
+	{
+		return drawing;
+	}
+	
+	public DrawingEditor getEditor()
+	{
+		return drawingEditor;
+	}
+	
+	public DrawingCanvasView getDrawingView()
+	{
+		return drawingView;
+	}
+	
 }
 
 

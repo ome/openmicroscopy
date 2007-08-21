@@ -28,8 +28,8 @@ package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 import net.n3.nanoxml.IXMLElement;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 
 /** 
  * 

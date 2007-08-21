@@ -69,6 +69,9 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingCanvas;
+import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
+
 import pojos.ExperimenterData;
 
 /** 
@@ -115,7 +118,12 @@ class MeasurementViewerModel
 	private	DrawingEditor			drawingEditor;
 	
 	/** Component hosting the drawing. */
-	private ROIDrawingView			drawingView;
+	private DrawingCanvasView		drawingView;
+	
+	/** The drawing canvas component to create drawing, view and editor and link 
+	 * them.
+	 */
+	private DrawingCanvas 			drawingCanvas;
 	
 	/** The component managing the ROI. */
 	private ROIComponent			roiComponent;
@@ -180,12 +188,11 @@ class MeasurementViewerModel
 		this.name = name;
 		requesterBounds = bounds;
 		state = MeasurementViewer.NEW;
-		drawingEditor = new DefaultDrawingEditor();
-		drawing = new DefaultDrawing();
-		drawingView = new ROIDrawingView();
+		drawingCanvas = new DrawingCanvas();
+		drawingEditor = drawingCanvas.getEditor();
+		drawing = drawingCanvas.getDrawing();
+		drawingView = drawingCanvas.getDrawingView();
 		roiComponent = new ROIComponent();
-		drawingView.setDrawing(drawing);
-		drawingEditor.add(drawingView);
 		roiFileName = imageID+".xml";
 	}
 	
@@ -447,11 +454,11 @@ class MeasurementViewerModel
 	int getSizeY() { return pixels.getSizeY().intValue(); }
 	
 	/**
-	 * Returns the {@link ROIDrawingView}.
+	 * Returns the {@link DrawingCanvasView}.
 	 * 
 	 * @return See above.
 	 */
-	ROIDrawingView getDrawingView() { return drawingView; }
+	DrawingCanvasView getDrawingView() { return drawingView; }
 	
 	/** 
 	 * Get the ROI of the currently selected figure in the drawingview. 

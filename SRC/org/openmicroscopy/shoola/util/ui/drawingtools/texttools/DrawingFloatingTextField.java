@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.roi.figures.textutil;
+package org.openmicroscopy.shoola.util.ui.drawingtools.texttools;
 
 //Java imports
 import java.awt.Dimension;
@@ -50,7 +50,7 @@ import org.jhotdraw.draw.TextHolderFigure;
  * </small>
  * @since OME3.0
  */
-public class MeasureFloatingTextField 
+public class DrawingFloatingTextField 
 {
 	/** The textfield to show the text and be written to. */
     private JTextField   editWidget;
@@ -62,7 +62,7 @@ public class MeasureFloatingTextField
      * Create the floating textfield.
      *
      */
-    public MeasureFloatingTextField() 
+    public DrawingFloatingTextField() 
     {
         editWidget = new JTextField(20);
         editWidget.setOpaque(false);

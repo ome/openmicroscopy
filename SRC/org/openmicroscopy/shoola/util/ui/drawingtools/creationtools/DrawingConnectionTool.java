@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure 
+ * org.openmicroscopy.shoola.agents.measurement.util.MeasurementConnectionTool 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,13 +20,17 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.roi.figures;
+package org.openmicroscopy.shoola.util.ui.drawingtools.creationtools;
 
 
 
 //Java imports
+import java.util.Map;
 
 //Third-party libraries
+import org.jhotdraw.draw.AttributeKey;
+import org.jhotdraw.draw.ConnectionFigure;
+import org.jhotdraw.draw.ConnectionTool;
 
 //Application-internal dependencies
 
@@ -43,27 +47,22 @@ package org.openmicroscopy.shoola.util.roi.figures;
  * </small>
  * @since OME3.0
  */
-public class PointAnnotationFigure 
-	extends MeasurePointFigure
-{
-
-	public PointAnnotationFigure() 
-	{
-		this("Text", 0, 0, FIGURESIZE, FIGURESIZE);
-	}
-
-	public PointAnnotationFigure(double x, double y, double w, double h)
-	{
-		this("Text", x, y, FIGURESIZE, FIGURESIZE);
-	}
-
-	public PointAnnotationFigure(String text) 
-	{
-		this(text, 0, 0, FIGURESIZE, FIGURESIZE);
-	}
-
-	public PointAnnotationFigure(String text, double x, double y, double w, double h) 
-	{
-		super(text, x, y, FIGURESIZE, FIGURESIZE);
-	}
+public class DrawingConnectionTool
+	extends ConnectionTool
+{	
+	 /** Creates a new instance. */
+    public DrawingConnectionTool(ConnectionFigure prototype) {
+       super(prototype);
+    }
+    public DrawingConnectionTool(ConnectionFigure prototype, Map attributes) {
+      super(prototype, attributes);
+    }
+    public DrawingConnectionTool(String prototypeClassName) {
+        this(prototypeClassName, null);
+    }
+    public DrawingConnectionTool(String prototypeClassName, Map<AttributeKey, Object> attributes) {
+        super(prototypeClassName, attributes);
+    }
 }
+
+

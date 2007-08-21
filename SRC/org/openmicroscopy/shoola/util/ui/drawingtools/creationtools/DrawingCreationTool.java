@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes 
+ * org.openmicroscopy.shoola.agents.measurement.util.MeasureCreationTool 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,16 +20,11 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.roi.figures;
-
+package org.openmicroscopy.shoola.util.ui.drawingtools.creationtools;
 
 //Java imports
-import java.awt.Color;
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKey;
-import org.jhotdraw.draw.AttributeKeys;
-import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 
 //Application-internal dependencies
 
@@ -46,37 +41,21 @@ import org.openmicroscopy.shoola.util.roi.io.IOConstants;
  * </small>
  * @since OME3.0
  */
-public class DrawingAttributes  
-	extends AttributeKeys 
-{
-	public static final AttributeKey<Boolean> SHOWMEASUREMENT = 
-		new AttributeKey<Boolean>("ShowMeasurement", false);
-	public static final AttributeKey<Color> MEASUREMENTTEXT_COLOUR = 
-		new AttributeKey<Color>("MeasurementTextColour", IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
-	public static final AttributeKey<Boolean> SHOWTEXT = 
-		new AttributeKey<Boolean>("ShowBasicTextAnnotation", false);
+public interface DrawingCreationTool
+{	
+	/** 
+	 * Set the param to true if you only want to create on figure and then 
+	 * reset the tool to the selection tool. 
+	 * @param create see above.
+	 */
+	public void setResetToSelect(boolean create);
 	
-	private DrawingAttributes()
-	{
-	    // no code req'd
-	}
-
-	public static DrawingAttributes get()
-	{	
-		if (ref == null)
-			 // it's ok, we can call this constructor
-			ref = new DrawingAttributes();		
-		return ref;
-	}
-
-	public Object clone()
-		throws CloneNotSupportedException
-	{
-		throw new CloneNotSupportedException(); 
-		 // that'll teach 'em
-	}
-
-	private static DrawingAttributes ref;
+	/**
+	 * If the return param is true then after a figure is created the tool will
+	 * reset the toolbar to the selectionTool.
+	 * @return see above.
+	 */
+	public boolean isResetToSelect();
 }
 
 

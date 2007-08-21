@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.roi.figures.textutil;
+package org.openmicroscopy.shoola.util.ui.drawingtools.texttools;
 
 
 
@@ -54,22 +54,22 @@ import org.jhotdraw.draw.TextHolderFigure;
  * </small>
  * @since OME3.0
  */
-public 	class MeasureTextTool 
+public 	class DrawingTextTool 
 		extends CreationTool 
 		implements ActionListener 
 {
 
-	private MeasureFloatingTextField   	textField;
+	private DrawingFloatingTextField   	textField;
     private TextHolderFigure  			typingTarget;
     
     /** Creates a new instance. */
-    public MeasureTextTool(TextHolderFigure prototype) 
+    public DrawingTextTool(TextHolderFigure prototype) 
     {
         super(prototype);      
     }
     
     /** Creates a new instance. */
-    public MeasureTextTool(TextHolderFigure prototype, Map attributes) 
+    public DrawingTextTool(TextHolderFigure prototype, Map attributes) 
     {
         super(prototype, attributes);
     }
@@ -115,7 +115,7 @@ public 	class MeasureTextTool
     
     protected void beginEdit(TextHolderFigure textHolder) {
         if (textField == null) {
-            textField = new MeasureFloatingTextField();
+            textField = new DrawingFloatingTextField();
             textField.addActionListener(this);
         }
         

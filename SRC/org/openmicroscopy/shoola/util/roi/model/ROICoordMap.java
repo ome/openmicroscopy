@@ -52,18 +52,31 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
  */
 public class ROICoordMap 
 {
+	/** The Map of the coord3D-->Shapelist. */
 	private TreeMap<Coord3D, ShapeList> coordMap;
 	
+	/** The constructor of the ROICoordMap. */
 	public ROICoordMap()
 	{
 		coordMap = new TreeMap<Coord3D, ShapeList>(new Coord3D());
 	}
 	
+	/**
+	 * Return true if the map contains the key coord.
+	 * @param coord See above.
+	 * @return See above.
+	 */
 	public boolean containsKey(Coord3D coord)
 	{
 		return coordMap.containsKey(coord);
 	}
 	
+	/**
+	 * Return true if the map contains an Shapelist from start to end.
+	 * @param start see above.
+	 * @param end see above.
+	 * @return see above.
+	 */
 	public boolean containsKey(Coord3D start, Coord3D end)
 	{
 	//	for(int c = start.c; c < end.c ; c++)

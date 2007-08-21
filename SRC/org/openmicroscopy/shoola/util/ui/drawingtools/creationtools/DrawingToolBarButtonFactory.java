@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.util;
+package org.openmicroscopy.shoola.util.ui.drawingtools.creationtools;
 
 //Java imports
 
@@ -126,7 +126,7 @@ import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
  * </small>
  * @since OME3.0
  */
-public class MeasurementToolBarButtonFactory
+public class DrawingToolBarButtonFactory
 {
 	public final static Map<String,Color> DEFAULT_COLORS;
     static {
@@ -209,7 +209,7 @@ public class MeasurementToolBarButtonFactory
     }
     
     /** Prevent instance creation. */
-    private MeasurementToolBarButtonFactory() {
+    private DrawingToolBarButtonFactory() {
     }
     
     public static Collection<Action> createDrawingActions(DrawingEditor editor) {

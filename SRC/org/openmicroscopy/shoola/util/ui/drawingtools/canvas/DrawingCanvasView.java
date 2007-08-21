@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.view;
+package org.openmicroscopy.shoola.util.ui.drawingtools.canvas;
 
 
 //Java imports
@@ -49,7 +49,7 @@ import org.jhotdraw.draw.DefaultDrawingView;
  * </small>
  * @since OME3.0
  */
-class ROIDrawingView
+public class DrawingCanvasView
 	extends DefaultDrawingView
 {
 

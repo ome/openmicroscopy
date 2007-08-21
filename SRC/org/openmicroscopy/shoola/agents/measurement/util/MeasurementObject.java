@@ -49,7 +49,7 @@ public class MeasurementObject
 {
 
 	/** Store the passed objects. */
-	private List<Object>	elements;
+	protected List<Object>	elements;
 	
 	/** Creates a new instance. */
 	public MeasurementObject()

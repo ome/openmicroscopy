@@ -38,18 +38,17 @@ import java.util.LinkedHashMap;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.BezierFigure;
 
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
-import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
+import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
+import org.openmicroscopy.shoola.util.ui.drawingtools.figures.BezierTextFigure;
 
 /** 
  * 
@@ -65,7 +64,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
  * @since OME3.0
  */
 public class MeasureBezierFigure 
-	extends BezierFigure
+	extends BezierTextFigure
 	implements ROIFigure
 {
 
@@ -78,10 +77,10 @@ public class MeasureBezierFigure
 	private ROIShape 	shape;
 	
 	private MeasurementUnits units;
-	
+		
 	public MeasureBezierFigure()
 	{
-		super();
+		super("Text");
 		shape = null;
 		roi = null;
 		pointArrayX = new ArrayList<Double>();
@@ -91,7 +90,23 @@ public class MeasureBezierFigure
 	
 	public MeasureBezierFigure(boolean closed)
 	{
-		super(closed);
+		super("Text", closed);
+		pointArrayX = new ArrayList<Double>();
+		pointArrayY = new ArrayList<Double>();
+		lengthArray = new ArrayList<Double>();
+	}
+	
+	public MeasureBezierFigure(String text)
+	{
+		super(text, true);
+		pointArrayX = new ArrayList<Double>();
+		pointArrayY = new ArrayList<Double>();
+		lengthArray = new ArrayList<Double>();
+	}
+	
+	public MeasureBezierFigure(String text, boolean closed)
+	{
+		super(text, closed);
 		pointArrayX = new ArrayList<Double>();
 		pointArrayY = new ArrayList<Double>();
 		lengthArray = new ArrayList<Double>();

@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.util;
+package org.openmicroscopy.shoola.util.ui.drawingtools.creationtools;
 
 //Java imports
 import java.awt.Cursor;
@@ -34,6 +34,7 @@ import java.util.Map;
 import org.jhotdraw.draw.AbstractTool;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.CompositeFigure;
+import org.jhotdraw.draw.CreationTool;
 import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.Figure;
 import org.jhotdraw.undo.CompositeEdit;
@@ -56,9 +57,9 @@ import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
  * </small>
  * @since OME3.0
  */
-public 	class PointCreationTool 
-		extends AbstractTool
-		implements MeasureCreationTool
+public 	class DrawingPointCreationTool 
+		extends CreationTool
+		implements DrawingCreationTool
 {
 	/**
 	 * ResetToSelect will change the tool to the selection tool after 
@@ -69,111 +70,49 @@ public 	class PointCreationTool
 	/** The prototype attributes of the created figure. */
 	private Map<AttributeKey, Object>	prototypeAttributes;
 	
-	/** The name of tool. */
-	private String						name;
-	
-	/**
-	 * The prototype for new figures.
-	 */
-	private Figure						prototype;
-	
-	/**
-	 * The created figure.
-	 */
-	protected Figure					createdFigure;
-	
 	/** The creationEidt tool. */
 	protected CompositeEdit				creationEdit;
 	
 	/** Creates a new instance. */
-	public PointCreationTool(String prototypeClassName)
+	public DrawingPointCreationTool(String prototypeClassName)
 	{
-		this(prototypeClassName, null, null);
+		super(prototypeClassName, null, null);
 	}
 	
-	public PointCreationTool(String prototypeClassName,
+	public DrawingPointCreationTool(String prototypeClassName,
 			Map<AttributeKey, Object> attributes)
 	{
-		this(prototypeClassName, attributes, null);
+		super(prototypeClassName, attributes, null);
 	}
 	
-	public PointCreationTool(String prototypeClassName,
+	public DrawingPointCreationTool(String prototypeClassName,
 			Map<AttributeKey, Object> attributes, String name)
 	{
-		try
-		{
-			this.prototype=
-					(Figure) Class.forName(prototypeClassName).newInstance();
-		}
-		catch (Exception e)
-		{
-			InternalError error=
-					new InternalError("Unable to create Figure from "
-							+prototypeClassName);
-			error.initCause(e);
-			throw error;
-		}
-		this.prototypeAttributes=attributes;
-		this.name=name;
+		super(prototypeClassName, attributes, name);
 	}
 	
-	public PointCreationTool(Figure prototype)
+	public DrawingPointCreationTool(Figure prototype)
 	{
-		this(prototype, null, null);
+		super(prototype, null, null);
 	}
 	
 	/** Creates a new instance. */
-	public PointCreationTool(Figure prototype,
+	public DrawingPointCreationTool(Figure prototype,
 			Map<AttributeKey, Object> attributes)
 	{
-		this(prototype, attributes, null);
+		super(prototype, attributes, null);
 	}
 	
 	/** Creates a new instance. */
-	public PointCreationTool(Figure prototype,
+	public DrawingPointCreationTool(Figure prototype,
 			Map<AttributeKey, Object> attributes, String name)
 	{
-		this.prototype=prototype;
-		this.prototypeAttributes=attributes;
-		this.name=name;
+		super(prototype, attributes, name);
 	}
 	
-	
-	public Figure getPrototype()
-	{
-		return prototype;
-	}
-	
-	
-	public void activate(DrawingEditor editor)
-	{
-		super.activate(editor);
-		// getView().clearSelection();
-		// getView().setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-	}
-	
-	
-	public void deactivate(DrawingEditor editor)
-	{
-		super.deactivate(editor);
-		if (getView()!=null)
-		{
-			getView().setCursor(Cursor.getDefaultCursor());
-		}
-		if (createdFigure!=null)
-		{
-			if (createdFigure instanceof CompositeFigure)
-			{
-				((CompositeFigure) createdFigure).layout();
-			}
-			createdFigure=null;
-		}
-	}
-	
-	
+		
 	public void mousePressed(MouseEvent evt)
 	{
-		super.mousePressed(evt);
 		getView().clearSelection();
 		// FIXME - Localize this label
 		creationEdit=new CompositeEdit("Figur erstellen");
@@ -241,16 +180,6 @@ public 	class PointCreationTool
 					createdFigure.basicSetBounds((newP1), newP2);
 					createdFigure.changed();
 				}
-				/*	if (Math.abs(anchor.x-evt.getX())<minimalSizeTreshold.width
-						&&Math.abs(anchor.y-evt.getY())<minimalSizeTreshold.height)
-				{
-					createdFigure.basicSetBounds(constrainPoint(new Point(
-						anchor.x, anchor.y)), constrainPoint(new Point(anchor.x
-							+(int) Math.max(bounds.width, minimalSize.width),
-						anchor.y
-								+(int) Math.max(bounds.height,
-									minimalSize.height))));
-				}*/
 				getView().addToSelection(createdFigure);
 			}
 			if (createdFigure instanceof CompositeFigure)
@@ -262,38 +191,13 @@ public 	class PointCreationTool
 			createdFigure=null;
 		}
 	}
-	
-	
-	protected Figure createFigure()
-	{
-		Figure f=(Figure) prototype.clone();
-		getEditor().applyDefaultAttributesTo(f);
-		if (prototypeAttributes!=null)
-		{
-			for (Map.Entry<AttributeKey, Object> entry : prototypeAttributes
-				.entrySet())
-			{
-				f.setAttribute(entry.getKey(), entry.getValue());
-			}
-		}
-		return f;
-	}
-	
-	protected Figure getCreatedFigure()
-	{
-		return createdFigure;
-	}
-	
-	protected Figure getAddedFigure()
-	{
-		return createdFigure;
-	}
-
+		
     protected void creationFinished(Figure createdFigure) 
     {
         if(resetToSelect)
         	fireToolDone();
     }
+    
 	/* (non-Javadoc)
 	 * @see org.openmicroscopy.shoola.agents.measurement.util.MeasureCreationTool#isResetToSelect()
 	 */

@@ -20,27 +20,22 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.util;
+package org.openmicroscopy.shoola.util.ui.drawingtools.creationtools;
 
 
 //Java imports
-
-//Third-party libraries
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Map;
 
-import org.jhotdraw.draw.AbstractTool;
+//Third-party libraries
+
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.CompositeFigure;
 import org.jhotdraw.draw.CreationTool;
-import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.Figure;
-import org.jhotdraw.undo.CompositeEdit;
 
 //Application-internal dependencies
 
@@ -57,116 +52,44 @@ import org.jhotdraw.undo.CompositeEdit;
  * </small>
  * @since OME3.0
  */
-public class ObjectCreationTool
-	extends AbstractTool 
-	implements MeasureCreationTool
+public class DrawingObjectCreationTool
+	extends CreationTool 
+	implements DrawingCreationTool
 {	
 	/** Reset the tool to the selection tool after figure creation. */
 	private boolean resetToSelect = false;
 	
-	private Map<AttributeKey, Object> prototypeAttributes;
-    private String name;
     private Dimension minimalSizeTreshold = new Dimension(10,10);
     /**
      * We set the figure to the minimal size, if it is smaller than the minimal 
      * size treshold.
      */
     private Dimension minimalSize = new Dimension(10,10);
-    /**
-     * The prototype for new figures.
-     */
-    private Figure prototype;
-    /**
-     * The created figure.
-     */
-    protected Figure createdFigure;
-    
-    protected CompositeEdit creationEdit;
-    
+  
     /** Creates a new instance. */
-    public ObjectCreationTool(String prototypeClassName) {
-        this(prototypeClassName, null, null);
+    public DrawingObjectCreationTool(String prototypeClassName) {
+        super(prototypeClassName, null, null);
     }
-    public ObjectCreationTool(String prototypeClassName, Map<AttributeKey, Object> attributes) {
-        this(prototypeClassName, attributes, null);
+    public DrawingObjectCreationTool(String prototypeClassName, Map<AttributeKey, Object> attributes) {
+    	super(prototypeClassName, attributes, null);
     }
     
-    public ObjectCreationTool(String prototypeClassName, Map<AttributeKey, Object> attributes, String name) {
-        try {
-        this.prototype = (Figure) Class.forName(prototypeClassName).newInstance();
-        } catch (Exception e) {
-            InternalError error = new InternalError("Unable to create Figure from "+prototypeClassName);
-            error.initCause(e);
-            throw error;
-        }
-        this.prototypeAttributes = attributes;
-        this.name = name;
+    public DrawingObjectCreationTool(String prototypeClassName, Map<AttributeKey, Object> attributes, String name) {
+    	super(prototypeClassName, attributes, name);
     }
-    public ObjectCreationTool(Figure prototype) {
-        this(prototype, null, null);
+    
+    public DrawingObjectCreationTool(Figure prototype) {
+        super(prototype, null, null);
     }
     /** Creates a new instance. */
-    public ObjectCreationTool(Figure prototype, Map<AttributeKey, Object> attributes) {
-        this(prototype, attributes, null);
+    public DrawingObjectCreationTool(Figure prototype, Map<AttributeKey, Object> attributes) {
+        super(prototype, attributes, null);
     }
     /** Creates a new instance. */
-    public ObjectCreationTool(Figure prototype, Map<AttributeKey, Object> attributes, String name) {
-        this.prototype = prototype;
-        this.prototypeAttributes = attributes;
-        this.name = name;
+    public DrawingObjectCreationTool(Figure prototype, Map<AttributeKey, Object> attributes, String name) {
+    	super(prototype, attributes, name);
     }
-    
-    public Figure getPrototype() {
-        return prototype;
-    }
-    
-    public void activate(DrawingEditor editor) {
-        super.activate(editor);
-        //getView().clearSelection();
-        //getView().setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-    }
-    
-    public void deactivate(DrawingEditor editor) {
-        super.deactivate(editor);
-        if (getView() != null) {
-        getView().setCursor(Cursor.getDefaultCursor());
-        }
-        if (createdFigure != null) {
-            if (createdFigure instanceof CompositeFigure) {
-                ((CompositeFigure) createdFigure).layout();
-            }
-            createdFigure = null;
-        }
-    }
-    
-    
-    public void mousePressed(MouseEvent evt) {
-        super.mousePressed(evt);
-        getView().clearSelection();
-        // FIXME - Localize this label
-        creationEdit = new CompositeEdit("Figur erstellen");
-        getDrawing().fireUndoableEditHappened(creationEdit);
-        createdFigure = createFigure();
-        Point2D.Double p = constrainPoint(viewToDrawing(anchor));
-        anchor.x = evt.getX();
-        anchor.y = evt.getY();
-        createdFigure.willChange();
-        createdFigure.basicSetBounds(p, p);
-        createdFigure.changed();
-        getDrawing().add(createdFigure);
-    }
-    
-    public void mouseDragged(MouseEvent evt) {
-        if (createdFigure != null) {
-            Point2D.Double p = constrainPoint(new Point(evt.getX(), evt.getY()));
-            createdFigure.willChange();
-            createdFigure.basicSetBounds(
-                    constrainPoint(new Point(anchor.x, anchor.y)),
-                    p
-                    );
-            createdFigure.changed();
-        }
-    }
+        
     public void mouseReleased(MouseEvent evt) {
         if (createdFigure != null) {
             Rectangle2D.Double bounds = createdFigure.getBounds();
@@ -193,26 +116,7 @@ public class ObjectCreationTool
             createdFigure = null;
         }
     }
-
-    protected Figure createFigure() {
-        Figure f = (Figure) prototype.clone();
-        getEditor().applyDefaultAttributesTo(f);
-        if (prototypeAttributes != null) {
-            for (Map.Entry<AttributeKey, Object> entry : prototypeAttributes.entrySet()) {
-                f.setAttribute(entry.getKey(), entry.getValue());
-            }
-        }
-        return f;
-    }
     
-    protected Figure getCreatedFigure() {
-        return createdFigure;
-    }
-    protected Figure getAddedFigure() {
-        return createdFigure;
-    }
-    
-
     /**
      * This method allows subclasses to do perform additonal user interactions
      * after the new figure has been created.

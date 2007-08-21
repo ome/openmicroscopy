@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.util.MeasurementConnectionTool 
+ * org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,17 +20,16 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.util;
+package org.openmicroscopy.shoola.util.ui.drawingtools.attributes;
 
-import java.util.Map;
-
-import org.jhotdraw.draw.AttributeKey;
-import org.jhotdraw.draw.ConnectionFigure;
-import org.jhotdraw.draw.ConnectionTool;
 
 //Java imports
+import java.awt.Color;
 
 //Third-party libraries
+import org.jhotdraw.draw.AttributeKey;
+import org.jhotdraw.draw.AttributeKeys;
+import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 
 //Application-internal dependencies
 
@@ -47,22 +46,37 @@ import org.jhotdraw.draw.ConnectionTool;
  * </small>
  * @since OME3.0
  */
-public class MeasurementConnectionTool
-	extends ConnectionTool
-{	
-	 /** Creates a new instance. */
-    public MeasurementConnectionTool(ConnectionFigure prototype) {
-       super(prototype);
-    }
-    public MeasurementConnectionTool(ConnectionFigure prototype, Map attributes) {
-      super(prototype, attributes);
-    }
-    public MeasurementConnectionTool(String prototypeClassName) {
-        this(prototypeClassName, null);
-    }
-    public MeasurementConnectionTool(String prototypeClassName, Map<AttributeKey, Object> attributes) {
-        super(prototypeClassName, attributes);
-    }
+public class DrawingAttributes  
+	extends AttributeKeys 
+{
+	public static final AttributeKey<Boolean> SHOWMEASUREMENT = 
+		new AttributeKey<Boolean>("ShowMeasurement", false);
+	public static final AttributeKey<Color> MEASUREMENTTEXT_COLOUR = 
+		new AttributeKey<Color>("MeasurementTextColour", IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
+	public static final AttributeKey<Boolean> SHOWTEXT = 
+		new AttributeKey<Boolean>("ShowBasicTextAnnotation", false);
+	
+	private DrawingAttributes()
+	{
+	    // no code req'd
+	}
+
+	public static DrawingAttributes get()
+	{	
+		if (ref == null)
+			 // it's ok, we can call this constructor
+			ref = new DrawingAttributes();		
+		return ref;
+	}
+
+	public Object clone()
+		throws CloneNotSupportedException
+	{
+		throw new CloneNotSupportedException(); 
+		 // that'll teach 'em
+	}
+
+	private static DrawingAttributes ref;
 }
 
 

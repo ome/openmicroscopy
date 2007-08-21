@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 
 /** 
  * The {@link MeasurementViewer} view.
@@ -405,7 +406,7 @@ class MeasurementViewerUI
     		//return;
     	}
     	
-    	ROIDrawingView dv = model.getDrawingView();
+    	DrawingCanvasView dv = model.getDrawingView();
     	dv.clearSelection();
     	dv.addToSelection(figure);
 		Collection figures = dv.getSelectedFigures();
@@ -515,7 +516,7 @@ class MeasurementViewerUI
      * 
      * @return See above.
      */
-    ROIDrawingView getDrawingView() { return model.getDrawingView(); }
+    DrawingCanvasView getDrawingView() { return model.getDrawingView(); }
     
     /** Rebuilds the ROI table. */
     void rebuildManagerTable() { roiManager.rebuildTable(); }

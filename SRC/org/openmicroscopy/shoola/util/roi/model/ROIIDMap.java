@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.LongComparator;
  */
 public class ROIIDMap 
 {
+	/** The TreeMap with the ROI--ROI.id mapping. */
 	private TreeMap<Long, ROI> 	roiMap;
 	
 	
@@ -59,6 +60,7 @@ public class ROIIDMap
 	 * ROIIDMap is a tree map, so all the ROI's will be ordered in the map
 	 * by ID for iteration.
 	 */
+	@SuppressWarnings("unchecked")
 	public ROIIDMap()
 	{
 		roiMap = new TreeMap<Long, ROI>(new LongComparator());
@@ -95,9 +97,9 @@ public class ROIIDMap
 	}
 	
 	/** 
-	 * 
-	 * @param id
-	 * @return
+	 * Get the ROI with id. 
+	 * @param id see above.
+	 * @return see above.
 	 * @throws NoSuchROIException
 	 */
 	public ROI getROI(long id) throws NoSuchROIException
@@ -107,6 +109,13 @@ public class ROIIDMap
 		return roiMap.get((Long)id);
 	}
 	
+	/**
+	 * Return the ROIShape within ROI with id on plane coord
+	 * @param id the id of the ROI you wish returned.
+	 * @param coord the plane on which the ROIShape resides.
+	 * @return see above.
+	 * @throws NoSuchROIException
+	 */
 	public ROIShape getShape(long id, Coord3D coord) throws NoSuchROIException
 	{
 		if(!roiMap.containsKey((Long)id))
@@ -126,6 +135,11 @@ public class ROIIDMap
 		return shape;
 	}
 	
+	/**
+	 * Delete the ROI and all associated ROIShapes on the ROI.
+	 * @param id The id of the ROI to delete.
+	 * @throws NoSuchROIException
+	 */
 	public void deleteROI(long id) throws NoSuchROIException
 	{
 		if(!roiMap.containsKey((Long)id))
@@ -134,7 +148,15 @@ public class ROIIDMap
 		roiMap.remove(id);
 	}
 	
-
+	/**
+	 * Add ROIShape to ROI id on plane coord. If an ROIShape already exists on
+	 * the plane coord, replace it.
+	 * @param id The id of the ROI containing the ROI Shape.
+	 * @param coord The coord of the plane.
+	 * @param shape The shape to add.
+	 * @throws ROICreationException
+	 * @throws NoSuchROIException
+	 */
 	public 	void addShape(long id, Coord3D coord, ROIShape shape) 
 												throws ROICreationException,
 													   NoSuchROIException	
@@ -150,6 +172,12 @@ public class ROIIDMap
 		roi.addShape(shape);
 	}		
 
+	/**
+	 * Delete the ROIShape of ROI id on plane coord.
+	 * @param id The id of the ROI containing the ROIShape to delete.
+	 * @param coord The plane of the ROIShape to delete.
+	 * @throws NoSuchROIException
+	 */
 	public void deleteShape(long id, Coord3D coord) 
 													throws 	NoSuchROIException 
 															

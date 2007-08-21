@@ -48,13 +48,7 @@ import org.jhotdraw.util.ResourceBundleUtil;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
-import org.openmicroscopy.shoola.agents.measurement.util.MeasurementBezierTool;
-import org.openmicroscopy.shoola.agents.measurement.util.MeasurementConnectionTool;
-import org.openmicroscopy.shoola.agents.measurement.util.MeasurementToolBarButtonFactory;
-import org.openmicroscopy.shoola.agents.measurement.util.ObjectCreationTool;
-import org.openmicroscopy.shoola.agents.measurement.util.PointCreationTool;
 import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
@@ -64,6 +58,12 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
+import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingBezierTool;
+import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingConnectionTool;
+import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingObjectCreationTool;
+import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingPointCreationTool;
+import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingToolBarButtonFactory;
 
 /** 
  * UI component acting as toolbar. Used to create Region of Interest.
@@ -123,43 +123,43 @@ class ToolBar
     private MeasurementViewerModel		model;
     
     /** The ellipse creation tool. */
-    private ObjectCreationTool 			ellipseTool;
+    private DrawingObjectCreationTool 			ellipseTool;
 
     /** The rectangle creation tool. */
-    private ObjectCreationTool 			rectTool;
+    private DrawingObjectCreationTool 			rectTool;
     
     /** The line creation tool. */
-    private ObjectCreationTool 			lineTool;
+    private DrawingObjectCreationTool 			lineTool;
     
     /** The text creation tool. */
-    private ObjectCreationTool 			textTool;
+    private DrawingObjectCreationTool 			textTool;
 
     /** The point creation tool. */
-    private PointCreationTool 			pointTool;
+    private DrawingPointCreationTool 			pointTool;
     
     /** The polygon creation tool. */
-    private MeasurementBezierTool 		polygonTool;
+    private DrawingBezierTool 		polygonTool;
     
     /** The polyline creation tool. */
-    private MeasurementBezierTool 		polylineTool;
+    private DrawingBezierTool 		polylineTool;
     
     /** The connetion creation tool. */
-    private MeasurementConnectionTool	connectionTool;
+    private DrawingConnectionTool	connectionTool;
     
     /** Initializes the component composing the display. */
 	private void initComponents()
 	{
-		ellipseTool = new ObjectCreationTool(new EllipseAnnotationFigure());
-		rectTool = new ObjectCreationTool(new RectAnnotationFigure());
-		textTool = new ObjectCreationTool(new MeasureTextFigure());
-		lineTool = new ObjectCreationTool(new LineAnnotationFigure());
-		connectionTool = new MeasurementConnectionTool(
+		ellipseTool = new DrawingObjectCreationTool(new EllipseAnnotationFigure());
+		rectTool = new DrawingObjectCreationTool(new RectAnnotationFigure());
+		textTool = new DrawingObjectCreationTool(new MeasureTextFigure());
+		lineTool = new DrawingObjectCreationTool(new LineAnnotationFigure());
+		connectionTool = new DrawingConnectionTool(
 						new LineConnectionAnnotationFigure(), 
 							defaultAttributes);
-		pointTool = new PointCreationTool(new PointAnnotationFigure());
-	    polygonTool = new MeasurementBezierTool(
+		pointTool = new DrawingPointCreationTool(new PointAnnotationFigure());
+	    polygonTool = new DrawingBezierTool(
 	    		new BezierAnnotationFigure(true));
-	    polylineTool = new MeasurementBezierTool(
+	    polylineTool = new DrawingBezierTool(
 	    		new BezierAnnotationFigure(false));
 	    
 		ButtonGroup group = new ButtonGroup();
@@ -168,18 +168,18 @@ class ToolBar
 		toolBar.setFloatable(false);
 		toolBar.putClientProperty("toolButtonGroup", group);
 		DrawingEditor editor = model.getDrawingEditor();
-		MeasurementToolBarButtonFactory.addSelectionToolTo(toolBar, editor);
+		DrawingToolBarButtonFactory.addSelectionToolTo(toolBar, editor);
 		toolBar.add(new JSeparator());
 		toolBar.add(Box.createRigidArea(HGLUE));
-		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, 
 				rectTool, 
 				CREATE_KEY+ROIFigure.RECTANGLE_TYPE, 
 				labels);
-		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, 
 				ellipseTool, 
 				CREATE_KEY+ROIFigure.ELLIPSE_TYPE, 
 				labels);
-		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, 
 				pointTool, 
 				CREATE_KEY+ROIFigure.ELLIPSE_TYPE, 
 				labels);
@@ -191,19 +191,19 @@ class ToolBar
 			IconManager icons = IconManager.getInstance();
 			button.setIcon(icons.getIcon(IconManager.POINTICON));
 		}
-		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, 
 				lineTool, 
 					CREATE_KEY+ROIFigure.LINE_TYPE, labels);
-		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, 
 	    		connectionTool, 
 	    			CREATE_KEY+ROIFigure.LINE_CONNECTION_TYPE, labels);
-		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, 
 				  polylineTool, 
 				  CREATE_KEY+ROIFigure.SCRIBBLE_TYPE, labels);
-		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, 
 	    		  polygonTool, 
 	    		  CREATE_KEY+ROIFigure.POLYGON_TYPE, labels);
-		MeasurementToolBarButtonFactory.addToolTo(toolBar, editor, 
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, 
 				textTool, 
 				CREATE_KEY+ROIFigure.TEXT_TYPE, labels);
 		createSingleFigure(false);
