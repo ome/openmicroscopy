@@ -68,11 +68,8 @@ import static org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingA
  */
 public class LineTextFigure extends LineFigure implements TextHolderFigure
 {
+	/** is the textfield editable. */
 	private boolean					editable	=true;
-	
-	private boolean					displayText	=true;
-	
-	
 	
 	// cache of the TextFigure's layout
 	transient private TextLayout	textLayout;
@@ -90,7 +87,7 @@ public class LineTextFigure extends LineFigure implements TextHolderFigure
 	public LineTextFigure(String text)
 	{
 		super();
-		setText(text);
+		setAttribute(TEXT, text);
 		textLayout=null;
 		textBounds=null;
 	}
@@ -127,8 +124,8 @@ public class LineTextFigure extends LineFigure implements TextHolderFigure
 	
 	protected void drawText(java.awt.Graphics2D g)
 	{
-		if (SHOWTEXT.get(this)) if (displayText) if (getText()!=null
-				||isEditable())
+		if (SHOWTEXT.get(this)) 
+				if (getText()!=null	||isEditable())
 		{
 			TextLayout layout=getTextLayout();
 			setTextBounds(g);
@@ -219,7 +216,6 @@ public class LineTextFigure extends LineFigure implements TextHolderFigure
 		}
 		if (showText)
 		{
-			displayText=false;
 			invalidate();
 			return new DrawingTextTool(this);
 		}
@@ -269,7 +265,7 @@ public class LineTextFigure extends LineFigure implements TextHolderFigure
 	 */
 	public void setText(String newText)
 	{
-		displayText=true;
+		setAttribute(SHOWTEXT, true);
 		setAttribute(TEXT, newText);
 	}
 	

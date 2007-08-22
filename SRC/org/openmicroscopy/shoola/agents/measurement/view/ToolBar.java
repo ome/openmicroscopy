@@ -48,6 +48,7 @@ import org.jhotdraw.util.ResourceBundleUtil;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
@@ -97,9 +98,9 @@ class ToolBar
 		defaultAttributes.put(AttributeKeys.FONT_BOLD, false);
 		defaultAttributes.put(AttributeKeys.STROKE_WIDTH, new Double(1.0));
 		defaultAttributes.put(AttributeKeys.TEXT, "Text");
-		defaultAttributes.put(DrawingAttributes.MEASUREMENTTEXT_COLOUR,
+		defaultAttributes.put(MeasurementAttributes.MEASUREMENTTEXT_COLOUR,
 			IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
-		defaultAttributes.put(DrawingAttributes.SHOWMEASUREMENT, new Boolean(
+		defaultAttributes.put(MeasurementAttributes.SHOWMEASUREMENT, new Boolean(
 			false));
 		defaultAttributes.put(DrawingAttributes.SHOWTEXT, new Boolean(false));
 	}

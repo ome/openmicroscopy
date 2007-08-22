@@ -69,6 +69,7 @@ import net.n3.nanoxml.XMLElement;
 import net.n3.nanoxml.XMLWriter;
 
 // Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
@@ -939,8 +940,8 @@ public class OutputStrategy
 		// Computed value: Specified value, except inherit
 		writeAttribute(elem, "stroke-width", STROKE_WIDTH.get(f), 1d);
 		
-		writeAttribute(elem, DrawingAttributes.SHOWMEASUREMENT.getKey(), 
-			DrawingAttributes.SHOWMEASUREMENT.get(f).toString(), "false");
+		writeAttribute(elem, MeasurementAttributes.SHOWMEASUREMENT.getKey(), 
+			MeasurementAttributes.SHOWMEASUREMENT.get(f).toString(), "false");
 		writeAttribute(elem, DrawingAttributes.SHOWTEXT.getKey(), 
 			DrawingAttributes.SHOWTEXT.get(f).toString(), "false");
 	}

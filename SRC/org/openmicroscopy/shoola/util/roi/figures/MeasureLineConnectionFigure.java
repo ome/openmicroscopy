@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import org.jhotdraw.draw.AttributeKeys;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -98,7 +99,7 @@ public class MeasureLineConnectionFigure
 		boundsArray.clear();
 		lengthArray.clear();
 		angleArray.clear();
-		if(DrawingAttributes.SHOWMEASUREMENT.get(this))
+		if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
 		{
 			if(getPointCount()==2)
 			{
@@ -117,7 +118,7 @@ public class MeasureLineConnectionFigure
 					Rectangle2D.Double(lengthPoint.x,
 							lengthPoint.y+rect.getHeight()*2, rect.getWidth(), 
 							rect.getHeight());
-				g.setColor(DrawingAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineAngle, (int)bounds.getX(), (int)bounds.getY());
 				boundsArray.add(bounds);
 			}
@@ -132,7 +133,7 @@ public class MeasureLineConnectionFigure
 				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle, g);
 				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x, getPoint(x).y, rect.getWidth(), rect.getHeight());
-				g.setColor(DrawingAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineAngle, (int)bounds.getX(), (int)bounds.getY());
 				boundsArray.add(bounds);
 			}
@@ -148,7 +149,7 @@ public class MeasureLineConnectionFigure
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineLength, g);
 				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x-15, getPoint(x).y-15,rect.getWidth()+30, rect.getHeight()+30);
 				Point2D.Double lengthPoint = getLengthPosition(x-1, x);
-				g.setColor(DrawingAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineLength, (int)lengthPoint.x, (int)lengthPoint.y);
 				boundsArray.add(bounds);
 			}

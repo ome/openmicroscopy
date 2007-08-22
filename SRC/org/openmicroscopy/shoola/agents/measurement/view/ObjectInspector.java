@@ -49,6 +49,7 @@ import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.AttributeField;
+import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -101,7 +102,7 @@ class ObjectInspector
 		l.add(new AttributeField(AttributeKeys.TEXT, "Text", true));
 		l.add(new AttributeField(DrawingAttributes.SHOWTEXT, "Show Text", 
 				false));
-		l.add(new AttributeField(DrawingAttributes.SHOWMEASUREMENT, 
+		l.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT, 
 					"Show Measurements", 
 				false)); 
 		l.add(new AttributeField(AttributeKeys.STROKE_WIDTH, "Line Width", 
@@ -114,7 +115,7 @@ class ObjectInspector
 				false));
 		l.add(new AttributeField(AttributeKeys.STROKE_COLOR, "Line Colour", 
 				false));
-		l.add(new AttributeField(DrawingAttributes.MEASUREMENTTEXT_COLOUR, 
+		l.add(new AttributeField(MeasurementAttributes.MEASUREMENTTEXT_COLOUR, 
 				"Measurement Text Colour", false));
 		
 		//create the table

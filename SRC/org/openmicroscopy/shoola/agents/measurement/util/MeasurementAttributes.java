@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvas 
+ * org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,16 +20,16 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.drawingtools;
+package org.openmicroscopy.shoola.agents.measurement.util;
 
-import org.jhotdraw.draw.DefaultDrawing;
-import org.jhotdraw.draw.DefaultDrawingEditor;
-import org.jhotdraw.draw.DrawingEditor;
-import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 
 //Java imports
+import java.awt.Color;
 
 //Third-party libraries
+import org.jhotdraw.draw.AttributeKey;
+import org.jhotdraw.draw.AttributeKeys;
+import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 
 //Application-internal dependencies
 
@@ -46,41 +46,35 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
  * </small>
  * @since OME3.0
  */
-public class DrawingCanvas
-{	
-	/** Component managaging the drawing. */
-    private	DefaultDrawing			drawing;
+public class MeasurementAttributes  
+	extends AttributeKeys 
+{
+	public static final AttributeKey<Boolean> SHOWMEASUREMENT = 
+		new AttributeKey<Boolean>("ShowMeasurement", false);
+	public static final AttributeKey<Color> MEASUREMENTTEXT_COLOUR = 
+		new AttributeKey<Color>("MeasurementTextColour", IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
+	
+	private MeasurementAttributes()
+	{
+	    // no code req'd
+	}
 
-    /** Component managaging the drawing. */
-	private	DrawingEditor			drawingEditor;
-	
-	/** Component hosting the drawing. */
-	private DrawingCanvasView		drawingView;
-	
-	public DrawingCanvas()
-	{
-		drawingEditor = new DefaultDrawingEditor();
-		drawing = new DefaultDrawing();
-		drawingView = new DrawingCanvasView();
-		drawingView.setDrawing(drawing);
-		drawingEditor.add(drawingView);
+	public static MeasurementAttributes get()
+	{	
+		if (ref == null)
+			 // it's ok, we can call this constructor
+			ref = new MeasurementAttributes();		
+		return ref;
 	}
-	
-	public DefaultDrawing getDrawing()
+
+	public Object clone()
+		throws CloneNotSupportedException
 	{
-		return drawing;
+		throw new CloneNotSupportedException(); 
+		 // that'll teach 'em
 	}
-	
-	public DrawingEditor getEditor()
-	{
-		return drawingEditor;
-	}
-	
-	public DrawingCanvasView getDrawingView()
-	{
-		return drawingView;
-	}
-	
+
+	private static MeasurementAttributes ref;
 }
 
 

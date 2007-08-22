@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 import net.n3.nanoxml.IXMLElement;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 
@@ -54,7 +55,7 @@ public class ShowMeasurementParser
 	public void parse(ROIFigure figure,IXMLElement element, String value) 
 	{
 		Boolean booleanValue = new Boolean(value);
-		DrawingAttributes.SHOWMEASUREMENT.set(figure, booleanValue);
+		MeasurementAttributes.SHOWMEASUREMENT.set(figure, booleanValue);
 	}
 	
 }

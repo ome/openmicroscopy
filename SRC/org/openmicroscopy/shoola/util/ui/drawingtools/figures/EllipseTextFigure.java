@@ -73,7 +73,6 @@ public 	class EllipseTextFigure
 		implements TextHolderFigure
 {
 	private boolean 							editable;
-	private boolean 							displayText = true;
 
 	// cache of the TextFigure's layout
 	transient private  	TextLayout 				textLayout;
@@ -98,7 +97,7 @@ public 	class EllipseTextFigure
 	{
 		super(x, y, w, h);
     	setAttributeEnabled(AttributeKeys.TEXT_COLOR, true);
-		setText(text);
+  		setAttribute(TEXT, text);
 		textLayout = null;
 		textBounds = null;
 		editable = true;
@@ -114,7 +113,6 @@ public 	class EllipseTextFigure
 	protected void drawText(java.awt.Graphics2D g) 
 	{
 		if(SHOWTEXT.get(this))
-			if(displayText)
 				if (getText()!=null || isEditable()) 
 				{	
 					TextLayout layout = getTextLayout();
@@ -185,7 +183,6 @@ public 	class EllipseTextFigure
 	{
 		if(isEditable() && contains(p)) 
 		{
-			displayText = false;
 			invalidate();
 			return new DrawingTextTool(this); 
 		}
@@ -228,7 +225,7 @@ public 	class EllipseTextFigure
 	 */
 	public void setText(String newText) 
 	{
-		displayText = true;
+		setAttribute(SHOWTEXT, true);
 		setAttribute(TEXT, newText);
 	}
 

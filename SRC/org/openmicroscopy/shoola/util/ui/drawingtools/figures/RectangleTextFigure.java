@@ -37,7 +37,6 @@ import java.util.HashMap;
 // Third-party libraries
 
 import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.EllipseFigure;
 import org.jhotdraw.draw.RectangleFigure;
 import org.jhotdraw.draw.TextHolderFigure;
 import org.jhotdraw.draw.Tool;
@@ -50,10 +49,10 @@ import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
 import static org.jhotdraw.draw.AttributeKeys.FONT_UNDERLINED;
 import static org.jhotdraw.draw.AttributeKeys.TEXT;
 import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
-import static org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes.SHOWTEXT;
 
 // Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.drawingtools.texttools.DrawingTextTool;
+import static org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes.SHOWTEXT;
 
 /**
  * 
@@ -71,7 +70,6 @@ public 	class RectangleTextFigure
 		implements TextHolderFigure
 {
 	private boolean					editable	=true;
-	private boolean					displayText	=true;
 	
 	// cache of the TextFigure's layout
 	transient private TextLayout	textLayout;
@@ -98,7 +96,7 @@ public 	class RectangleTextFigure
 	{
 		super(x, y, w, h);
 		setAttributeEnabled(AttributeKeys.TEXT_COLOR, true);
-		setText(text);
+		setAttribute(TEXT, text);
 		textLayout = null;
 		textBounds = null;
 		editable = true;
@@ -115,7 +113,6 @@ public 	class RectangleTextFigure
 	protected void drawText(java.awt.Graphics2D g)
 	{
 		if (SHOWTEXT.get(this)) 
-			if (displayText) 
 				if (getText()!=null || isEditable())
 		{
 			TextLayout layout=getTextLayout();
@@ -195,7 +192,6 @@ public 	class RectangleTextFigure
 	{
 		if(isEditable() && contains(p)) 
 		{
-			displayText = false;
 			invalidate();
 			return new DrawingTextTool(this); 
 		}
@@ -243,8 +239,8 @@ public 	class RectangleTextFigure
 	 */
 	public void setText(String newText)
 	{
-		displayText=true;
 		setAttribute(TEXT, newText);
+		setAttribute(SHOWTEXT, true);
 	}
 	
 	public int getTextColumns()

@@ -45,6 +45,7 @@ import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.geom.BezierPath.Node;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -116,9 +117,9 @@ public class InputStrategy
 		defaultAttributes.put(AttributeKeys.FONT_BOLD, false);
 		defaultAttributes.put(AttributeKeys.STROKE_WIDTH, new Double(1.0));
 		defaultAttributes.put(AttributeKeys.TEXT, "Text");
-		defaultAttributes.put(DrawingAttributes.MEASUREMENTTEXT_COLOUR,
+		defaultAttributes.put(MeasurementAttributes.MEASUREMENTTEXT_COLOUR,
 			IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
-		defaultAttributes.put(DrawingAttributes.SHOWMEASUREMENT, new Boolean(
+		defaultAttributes.put(MeasurementAttributes.SHOWMEASUREMENT, new Boolean(
 			false));
 		defaultAttributes.put(DrawingAttributes.SHOWTEXT, new Boolean(false));
 	}

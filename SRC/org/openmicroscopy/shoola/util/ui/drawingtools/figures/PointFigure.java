@@ -44,7 +44,10 @@ import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
 //Application-internal dependencies
 
 /** 
- * 
+ * Create a new figure type, the pointFigure is an extension of the ellipse
+ * that has cross hairs on the centre. The pointFigure has also got a 
+ * Creation tool {@see DrawingPointCreationTool}. This is because the point 
+ * tool should not be allowed to be sized. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,24 +61,36 @@ import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
  */
 public class PointFigure extends EllipseFigure
 {
+	/** The radius of the ellipse. */
 	public final static double	POINTSIZE	=6;
 	
+	/** Total size of the figure. including crosshairs. */
 	public final static double	FIGURESIZE	=22;
 	
 	
-	
+	/** Create the point figure, of figure size);
 	public PointFigure()
 	{
 		this(0, 0, FIGURESIZE, FIGURESIZE);
 	}
 	
 	
+	/** The PointFigure may only be FigureSize.
+	 * @param x the x coord.
+	 * @param y the y coord.
+	 * @param w the width is defaulted to FIGURESIZE.
+	 * @param h the height is defaulted to FIGURESIZE.
+	 */ 
 	public PointFigure(double x, double y, double w, double h)
 	{
 		super(x, y, FIGURESIZE, FIGURESIZE);
 	}
 	
 	
+	/**
+	 * Draw the stroke of the figure. 
+	 * @param g the graphics context. 
+	 */
 	protected void drawStroke(java.awt.Graphics2D g)
 	{
 		//super.drawStroke(g);
@@ -87,7 +102,10 @@ public class PointFigure extends EllipseFigure
 		drawCrossHairs(g);
 	}
 	
-	
+	/**
+	 * Draw the crosshairs of the ellipse on the graphics context. 
+	 * @param g graphics context.
+	 */
 	private void drawCrossHairs(java.awt.Graphics2D g)
 	{
 		Ellipse2D.Double newEllipse=
@@ -115,7 +133,10 @@ public class PointFigure extends EllipseFigure
 		g.draw(bvline);
 	}
 	
-	
+	/**
+	 * Draw the fill of the figure. 
+	 * @param g the graphics context. 
+	 */
 	protected void drawFill(java.awt.Graphics2D g)
 	{
 		Ellipse2D.Double newEllipse=
@@ -127,6 +148,10 @@ public class PointFigure extends EllipseFigure
 	}
 	
 	
+	/**
+	 * Draw the text of the figure. 
+	 * @param g the graphics context. 
+	 */
 	protected void drawText(java.awt.Graphics2D g)
 	{
 

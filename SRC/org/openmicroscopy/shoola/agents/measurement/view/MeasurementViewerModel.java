@@ -69,7 +69,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
-import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingCanvas;
+import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 
 import pojos.ExperimenterData;
@@ -123,7 +123,7 @@ class MeasurementViewerModel
 	/** The drawing canvas component to create drawing, view and editor and link 
 	 * them.
 	 */
-	private DrawingCanvas 			drawingCanvas;
+	private DrawingComponent 			drawingCanvas;
 	
 	/** The component managing the ROI. */
 	private ROIComponent			roiComponent;
@@ -188,7 +188,7 @@ class MeasurementViewerModel
 		this.name = name;
 		requesterBounds = bounds;
 		state = MeasurementViewer.NEW;
-		drawingCanvas = new DrawingCanvas();
+		drawingCanvas = new DrawingComponent();
 		drawingEditor = drawingCanvas.getEditor();
 		drawing = drawingCanvas.getDrawing();
 		drawingView = drawingCanvas.getDrawingView();

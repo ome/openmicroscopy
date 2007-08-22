@@ -41,6 +41,7 @@ import org.jhotdraw.draw.AttributeKeys;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
@@ -115,7 +116,7 @@ public class MeasureBezierFigure
 	public void draw(Graphics2D g)
 	{
 		super.draw(g);
-		if(DrawingAttributes.SHOWMEASUREMENT.get(this))
+		if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
 		{
 			if(CLOSED.get(this))
 			{
@@ -128,7 +129,7 @@ public class MeasureBezierFigure
 				bounds = new Rectangle2D.Double(this.getBounds().getCenterX()-bounds.getWidth()/2,
 					this.getBounds().getCenterY()+bounds.getHeight()/2,
 					bounds.getWidth(), bounds.getHeight());
-				g.setColor(DrawingAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(polygonArea, (int)bounds.getX(), (int)bounds.getY()); 
 			}
 			else
@@ -153,7 +154,7 @@ public class MeasureBezierFigure
 					bounds = new Rectangle2D.Double(x-bounds.getWidth()/2,
 							y+bounds.getHeight()/2,
 							bounds.getWidth(), bounds.getHeight());
-					g.setColor(DrawingAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+					g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 					g.drawString(polygonLength, (int)path.getCenter().getX(), (int)path.getCenter().getY());
 				}
 			}

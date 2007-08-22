@@ -49,10 +49,6 @@ import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 public class DrawingAttributes  
 	extends AttributeKeys 
 {
-	public static final AttributeKey<Boolean> SHOWMEASUREMENT = 
-		new AttributeKey<Boolean>("ShowMeasurement", false);
-	public static final AttributeKey<Color> MEASUREMENTTEXT_COLOUR = 
-		new AttributeKey<Color>("MeasurementTextColour", IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
 	public static final AttributeKey<Boolean> SHOWTEXT = 
 		new AttributeKey<Boolean>("ShowBasicTextAnnotation", false);
 	

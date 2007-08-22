@@ -42,6 +42,7 @@ import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.LineFigure;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
@@ -119,7 +120,7 @@ public class MeasureLineFigure
 		boundsArray.clear();
 		lengthArray.clear();
 		angleArray.clear();
-		if(DrawingAttributes.SHOWMEASUREMENT.get(this))
+		if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
 		{
 			if(getPointCount()==2)
 			{
@@ -137,7 +138,7 @@ public class MeasureLineFigure
 				Rectangle2D bounds = new Rectangle2D.Double(lengthPoint.x,
 						lengthPoint.y+rect.getHeight()*2, rect.getWidth(),
 						rect.getHeight());
-				g.setColor(DrawingAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineAngle, (int)bounds.getX(), (int)bounds.getY());
 				boundsArray.add(bounds);
 			}
@@ -153,7 +154,7 @@ public class MeasureLineFigure
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle, g);
 				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x,
 						getPoint(x).y, rect.getWidth(), rect.getHeight());
-				g.setColor(DrawingAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineAngle, (int)bounds.getX(), (int)bounds.getY());
 				boundsArray.add(bounds);
 			}
@@ -171,7 +172,7 @@ public class MeasureLineFigure
 				Rectangle2D bounds = new Rectangle2D.Double(lengthPoint.x-15, 
 						lengthPoint.y-15,rect.getWidth()+30, 
 						rect.getHeight()+30);
-				g.setColor(DrawingAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineLength, (int)lengthPoint.x, (int)lengthPoint.y);
 				boundsArray.add(bounds);
 			}

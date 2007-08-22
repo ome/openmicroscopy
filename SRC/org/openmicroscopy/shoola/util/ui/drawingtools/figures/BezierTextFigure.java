@@ -74,8 +74,7 @@ public class BezierTextFigure
 {	
 	
 	private boolean 		editable = true;
-	private boolean			displayText = true;
-
+	
 	// cache of the TextFigure's layout
 	transient private  		TextLayout textLayout;
 	
@@ -94,7 +93,7 @@ public class BezierTextFigure
 	public BezierTextFigure(String text)
 	{
 		super();
-		setText(text);
+		setAttribute(TEXT, text);
 		textLayout = null;
 		textBounds = null;
 	}
@@ -103,7 +102,7 @@ public class BezierTextFigure
 	public BezierTextFigure(String text, boolean closed) 
 	{
 		super(closed);
-		setText(text);
+		setAttribute(TEXT, text);
 		textLayout = null;
 		textBounds = null;
 	}
@@ -129,7 +128,6 @@ public class BezierTextFigure
 	protected void drawText(java.awt.Graphics2D g) 
 	{
 		if(SHOWTEXT.get(this))
-			if(displayText)
 				if (getText()!=null || isEditable()) 
 				{	
 					TextLayout layout = getTextLayout();
@@ -219,7 +217,6 @@ public class BezierTextFigure
 		}
 		if(showText) 
 		{
-			displayText = false;
 			invalidate();
 			return new DrawingTextTool(this); 
 		}
@@ -263,7 +260,7 @@ public class BezierTextFigure
 	 */
 	public void setText(String newText) 
 	{
-		displayText = true;
+		setAttribute(SHOWTEXT, true);
 		setAttribute(TEXT, newText);
 	}
 

@@ -72,9 +72,6 @@ public class LineConnectionTextFigure
 {
 	private boolean					editable	=true;
 	
-	private boolean					displayText	=true;
-	
-	
 	private Color					oldColor;
 	
 	private boolean					fillChanged	=false;
@@ -97,7 +94,7 @@ public class LineConnectionTextFigure
 	public LineConnectionTextFigure(String text)
 	{
 		super();
-		setText(text);
+		setAttribute(TEXT, text);
 		textLayout=null;
 		textBounds=null;
 		oldColor=null;
@@ -128,8 +125,8 @@ public class LineConnectionTextFigure
 	
 	protected void drawText(java.awt.Graphics2D g)
 	{
-		if (SHOWTEXT.get(this)) if (displayText) if (getText()!=null
-				||isEditable())
+		if (SHOWTEXT.get(this)) 
+				if (getText()!=null	|| isEditable())
 		{
 			TextLayout layout=getTextLayout();
 			setTextBounds(g);
@@ -226,7 +223,6 @@ public class LineConnectionTextFigure
 		}
 		if (showText)
 		{
-			displayText=false;
 			invalidate();
 			return new DrawingTextTool(this);
 		}
@@ -276,7 +272,7 @@ public class LineConnectionTextFigure
 	 */
 	public void setText(String newText)
 	{
-		displayText=true;
+		setAttribute(SHOWTEXT, true);
 		setAttribute(TEXT, newText);
 	}
 	

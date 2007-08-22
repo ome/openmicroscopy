@@ -41,7 +41,6 @@ import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
 import static org.jhotdraw.draw.AttributeKeys.FONT_UNDERLINED;
 import static org.jhotdraw.draw.AttributeKeys.TEXT;
 import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
-import static org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes.SHOWTEXT;
 
 import org.jhotdraw.draw.Tool;
 import org.jhotdraw.draw.AttributeKeys;
@@ -49,6 +48,8 @@ import org.jhotdraw.draw.TextHolderFigure;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.drawingtools.texttools.DrawingTextTool;
+
+import static org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes.SHOWTEXT;
 
 /** 
  * 
@@ -68,7 +69,6 @@ public class PointTextFigure
 	implements TextHolderFigure
 {	
 	private boolean 							editable;
-	private boolean 							displayText = true;
 
 	// cache of the TextFigure's layout
 	transient private  	TextLayout 				textLayout;
@@ -92,7 +92,7 @@ public class PointTextFigure
 	public PointTextFigure(String text, double x, double y, double w, double h) 
 	{
 		super(x, y, FIGURESIZE, FIGURESIZE);
-		setText(text);
+		setAttribute(TEXT, text);
 		textLayout = null;
 		textBounds = null;
 		editable = true;
@@ -101,7 +101,6 @@ public class PointTextFigure
 	protected void drawText(java.awt.Graphics2D g) 
 	{
 		if(SHOWTEXT.get(this))
-			if(displayText)
 				if (getText()!=null || isEditable()) 
 				{	
 					TextLayout layout = getTextLayout();
@@ -172,7 +171,6 @@ public class PointTextFigure
 	{
 		if(isEditable() && contains(p)) 
 		{
-			displayText = false;
 			invalidate();
 			return new DrawingTextTool(this); 
 		}
@@ -215,7 +213,7 @@ public class PointTextFigure
 	 */
 	public void setText(String newText) 
 	{
-		displayText = true;
+		setAttribute(SHOWTEXT, true);
 		setAttribute(TEXT, newText);
 	}
 
