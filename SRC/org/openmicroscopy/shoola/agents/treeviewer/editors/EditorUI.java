@@ -100,6 +100,9 @@ class EditorUI
     /** The maximum number of UI indexes for the tabbed panes. */
     static final int				MAX_INDEX = 3;
     
+    /** The maximum length of the name. */
+    private static final int		MAX_NAME = 255;
+    
     /** 
      * The size of the invisible components used to separate buttons
      * horizontally.
@@ -667,10 +670,10 @@ class EditorUI
             handleNameAreaRemove(0);
             return;
         }
-        if (s.length() > 255) {
+        if (s.length() > MAX_NAME) {
         	UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
         	un.notifyInfo("Editor", "The name is too long. Cannot be more " +
-        			"than 255 characters long.");
+        			"than "+MAX_NAME+" characters long.");
         	doBasic.resetName();
         	return;
         }

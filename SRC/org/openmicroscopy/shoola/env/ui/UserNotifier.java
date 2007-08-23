@@ -130,7 +130,7 @@ public interface UserNotifier
     /** 
      * Submits a message to the development team. 
      * 
-     * @param emailAddress The e-mail address of the current user.
+     * @param emailAddress 		The e-mail address of the current user.
      */
     public void submitMessage(String emailAddress);
 

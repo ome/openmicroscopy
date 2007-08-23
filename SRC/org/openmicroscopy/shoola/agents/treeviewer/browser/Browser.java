@@ -460,5 +460,27 @@ public interface Browser
 	 */
 	public void setRefreshExperimenterData(
 					Map<Long, RefreshExperimenterDef> def);
+
+	/** Refreshes the data used by the currently logged in user. */
+	public void refreshLoggedExperimenterData();
+	
+	/**
+	 * Counts the images imported by the current user during certain periods 
+	 * of time.
+	 * 
+	 * @param expNode 	The node hosting the experimenter. 
+	 * 					Mustn't be <code>null</code>.
+	 */
+	void countExperimenterImages(TreeImageDisplay expNode);
+
+	/** 
+	 * Sets the result of the count.
+	 * 
+	 * @param expNode 	The node hosting the experimenter. 
+	 * 					Mustn't be <code>null</code>.
+	 * @param index		The index of the node.
+	 * @param value		The value to set.
+	 */
+	void setExperimenterCount(TreeImageSet expNode, int index, int value);
 	
 }

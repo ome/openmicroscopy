@@ -568,6 +568,7 @@ class TreeViewerComponent
         view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         Browser browser = model.getSelectedBrowser();
         browser.refreshEdition(data, operation);
+        //browser.refreshLoggedExperimenterData();
         if (operation == UPDATE_OBJECT) {
             Map browsers = model.getBrowsers();
             Iterator i = browsers.keySet().iterator();

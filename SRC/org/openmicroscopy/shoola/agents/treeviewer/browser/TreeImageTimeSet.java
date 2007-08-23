@@ -211,6 +211,7 @@ public class TreeImageTimeSet
 				if (year % 4 == 0) return 29;
 				if (year % 100 == 0) return 28;
 				if (year % 400 == 0) return 29;
+				return 28;
 			case MARCH: return 31;
 			case APRIL: return 30;
 			case MAY: return 31;
@@ -276,7 +277,7 @@ public class TreeImageTimeSet
 			case YEAR_BEFORE:
 				setToolTip(YEAR_BEFORE_TOOLTIP);
 				year = gc.get(Calendar.YEAR);
-				setUserObject((year-1)+"-"+year);
+				setUserObject(""+(year-1));
 				gc = new GregorianCalendar(year, 0, 1, 0, 0, 0);
 			    time = new Timestamp(gc.getTime().getTime());
 			    gc = new GregorianCalendar(year-1, 0, 1, 0, 0, 0);

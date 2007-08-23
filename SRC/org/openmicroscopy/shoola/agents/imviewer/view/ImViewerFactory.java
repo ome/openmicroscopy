@@ -148,14 +148,17 @@ public class ImViewerFactory
      */
     public static void copyRndSettings(long pixelsID, RndProxyDef rndSettings)
     {
+    	singleton.rndSettings = rndSettings;
     	Iterator v = singleton.viewers.iterator();
         ImViewerComponent comp;
         while (v.hasNext()) {
             comp = (ImViewerComponent) v.next();
             if (comp.getModel().getPixelsID() != pixelsID) 
-            	comp.setRndSettings(pixelsID, rndSettings);
+            	comp.setRndSettings();
         }
     }
+    
+    static RndProxyDef getRenderingSettings() { return singleton.rndSettings; }
     
     /** All the tracked components. */
     private Set<ImViewer>     	viewers;
@@ -168,6 +171,9 @@ public class ImViewerFactory
      * <code>TaskBar</code>.
      */
     private boolean 			isAttached;
+    
+    /** The rendering def to copy. */
+    private RndProxyDef			rndSettings;
     
     /** Creates a new instance. */
     private ImViewerFactory()

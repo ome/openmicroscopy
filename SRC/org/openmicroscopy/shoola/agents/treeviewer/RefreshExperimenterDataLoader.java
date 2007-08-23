@@ -98,7 +98,8 @@ public class RefreshExperimenterDataLoader
     	RefreshExperimenterDef node = expNodes.get(expId);
     	Map<DataObject, Set> map;
     	Map expandedNodes = node.getExpandedTopNodes();
-        if (expandedNodes == null || expandedNodes.size() == 0) {
+        if (expandedNodes == null || expandedNodes.size() == 0 
+        	|| result instanceof Set) {
         	Set set = (Set) result;
             Iterator j = set.iterator();
             map = new HashMap<DataObject, Set>();
@@ -192,7 +193,8 @@ public class RefreshExperimenterDataLoader
         		times = new ArrayList<TimeRefObject>(nodes.size());
         		while (j.hasNext()) {
         			node = (TreeImageTimeSet) j.next();
-					ref = new TimeRefObject(userID, node.getTime(), 
+					ref = new TimeRefObject(userID, node.getLowerTime(),
+							node.getTime(), 
 							getTimeConstrain(node.getIndex()));
 					times.add(ref);
 				}
@@ -206,7 +208,6 @@ public class RefreshExperimenterDataLoader
     		}
     	}
     	handle = dmView.refreshHierarchy(rootNodeType, m, this);
-    	
     }
 
     /**

@@ -389,13 +389,43 @@ public class NullOmeroPojoService
 
 	/**
 	 * No-op implementation
-	 * @see OmeroDataService#getImagesDuring(Timestamp, Timestamp, long)
+	 * @see OmeroDataService#getImagesPeriod(Timestamp, Timestamp, long)
 	 */
-	public Set getImagesDuring(Timestamp lowerTime, Timestamp time, long userID)
+	public Set getImagesPeriod(Timestamp lowerTime, Timestamp time, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		// TODO Auto-generated method stub
 		return null;
+	}
+
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#getImagesAfterCount(Timestamp, long)
+	 */
+	public int getImagesAfterCount(Timestamp time, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return 0;
+	}
+
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#getImagesBeforeCount(Timestamp, long)
+	 */
+	public int getImagesBeforeCount(Timestamp time, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return 0;
+	}
+
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#getImagesPeriodCount(Timestamp, Timestamp, long)
+	 */
+	public int getImagesPeriodCount(Timestamp lowerTime, Timestamp time, 
+									long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return 0;
 	}
 
 }

@@ -46,10 +46,11 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.openmicroscopy.shoola.util.ui.IconManager;
+
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 
 /** 
  * The switch view mode button in the {@link TitleBar}.

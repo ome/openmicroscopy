@@ -146,8 +146,7 @@ class BrowserControl
     		return parent;
     	return getDataOwner(parent);
     }
-    
-    
+
     /**
      * Reacts to tree expansion events.
      * 
@@ -168,6 +167,12 @@ class BrowserControl
         
         Object ho = display.getUserObject();
         model.setSelectedDisplay(display); 
+        if (model.getBrowserType() == Browser.IMAGES_EXPLORER &&
+        	!display.isChildrenLoaded()) {
+        	
+        	model.countExperimenterImages(display);
+        	return;
+        }
         if (display.isChildrenLoaded()) return;
         view.loadAction(display);
         if (display instanceof TreeImageTimeSet) {

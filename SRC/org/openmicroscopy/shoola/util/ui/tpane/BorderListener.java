@@ -216,6 +216,7 @@ class BorderListener
             } else {
                 /* the mouse press happened inside the frame, not in the 
                  * border */
+            	
                 discardRelease = true;
                 return;
             }

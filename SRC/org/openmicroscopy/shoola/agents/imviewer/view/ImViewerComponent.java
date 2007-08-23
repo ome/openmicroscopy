@@ -64,7 +64,6 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
-import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -230,13 +229,8 @@ class ImViewerComponent
      * @param rndSettings 	The rendering settings to copy. 
      * 						Mustn't be <code>null</code>.
      */
-    void setRndSettings(long pixelsID, RndProxyDef rndSettings)
+    void setRndSettings()
     {
-    	if (model.getPixelsID() == pixelsID) return;
-    	if (rndSettings  == null)
-    		throw new IllegalArgumentException("No rendering settings to " +
-    											"copy.");
-    	model.setRndSettings(pixelsID, rndSettings);
     	firePropertyChange(RND_SETTINGS_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
     
@@ -1644,7 +1638,8 @@ class ImViewerComponent
      */
 	public void createHistoryItem()
 	{
-		HistoryItem node = model.addHistoryItem();
+		HistoryItem node = model.createHistoryItem();
+		node.addPropertyChangeListener(controller);
 		//add Listener to node.
 		model.setHistoryItemReplacement(false);
 		if (nodeListener == null) {
@@ -1654,9 +1649,11 @@ class ImViewerComponent
 					HistoryItem item = findParentDisplay(evt.getSource());
 					try {
 						if (!model.isHistoryItemReplacement()) {
-							HistoryItem node = model.addHistoryItem();
+							HistoryItem node = model.createHistoryItem();
+							node.addPropertyChangeListener(controller);
 							view.addHistoryItem(node);
 							node.addMouseListenerToComponents(nodeListener);
+							
 							model.setHistoryItemReplacement(true);
 						}
 						List nodes = model.getHistory();
@@ -1733,6 +1730,20 @@ class ImViewerComponent
 					"while pasting the rendering settings.", e);
 			view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#hasSettingsToPaste()
+     */
+	public boolean hasSettingsToPaste()
+	{
+		switch (model.getState()) {
+        	case DISCARDED:
+            throw new IllegalStateException(
+            "This method can't be invoked in the DISCARDED state.");
+		}
+		return model.hasRndToPaste();
 	}
 	
 }

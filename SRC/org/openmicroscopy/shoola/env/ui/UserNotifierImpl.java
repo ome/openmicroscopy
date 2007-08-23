@@ -117,9 +117,10 @@ public class UserNotifierImpl
     /**
      * Brings up a messenger dialog.
      * 
-     * @param title     The dialog title.
-     * @param summary   The dialog message.
-     * @param detail	The detailed error message.
+     * @param title     		The dialog title.
+     * @param summary   		The dialog message.
+     * @param detail			The detailed error message.
+     * @param softwareVersion 	The version of the software.
      */
     private void showErrorDialog(String title, String summary, String detail)
     {
@@ -128,6 +129,7 @@ public class UserNotifierImpl
     	else e = new Exception(detail);
     	if (title == null || title.length() == 0) title = DEFAULT_ERROR_TITLE;
     	MessengerDialog d = new MessengerDialog(SHARED_FRAME, title, "", e); 
+    	d.setVersion(SplashScreenManager.VERSION);
     	d.addPropertyChangeListener(manager);
     	d.setModal(true);
     	UIUtilities.centerAndShow(d);
@@ -250,6 +252,7 @@ public class UserNotifierImpl
 		MessengerDialog d = new MessengerDialog(SHARED_FRAME, 
 												DEFAULT_COMMENT_TITLE, 
 												email);   
+		d.setVersion(SplashScreenManager.VERSION);
     	d.addPropertyChangeListener(manager);
     	d.setModal(true);
     	UIUtilities.centerAndShow(d);

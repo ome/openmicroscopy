@@ -32,6 +32,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.calls.AdminLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
@@ -42,6 +43,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.DMRefreshLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.ExperimenterImagesCounter;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
@@ -349,6 +351,19 @@ class DataManagerViewImpl
 	{
 		BatchCallTree cmd = new RenderingSettingsSaver(pixelsID, 
 										rootNodeType, nodes);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#countExperimenterImages(long, Map, 
+	 * 												AgentEventListener)
+	 */
+	public CallHandle countExperimenterImages(long userID, 
+								Map<Integer, TimeRefObject> m,
+								AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ExperimenterImagesCounter(userID, m);
 		return cmd.exec(observer);
 	}
     

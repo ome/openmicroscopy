@@ -71,6 +71,22 @@ public class ContainersManager
     /** The tree hosting the display. */
     private JTree	tree;
     
+    public ContainersManager(Set indexes) 
+    {
+    	if (indexes == null)
+            throw new IllegalArgumentException("No container nodes.");
+    	Iterator i = indexes.iterator();
+    	providers = new HashMap();
+    	processedIDs = new HashSet();
+    	Integer index;
+    	while (i.hasNext()) {
+			index = (Integer) i.next();
+			System.err.println(index);
+			providers.put(index, index);
+		}
+    	totalIDs = indexes.size();
+    }
+    
     /**
      * Creates a new instance.
      * 
@@ -138,6 +154,12 @@ public class ContainersManager
             }    
             processedIDs.add(id);
         } 
+    }
+    
+    public void setItem(int index)
+    {
+    	Integer i = (Integer) providers.get(index);
+    	processedIDs.add(i);
     }
     
     /**

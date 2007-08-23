@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.ui.tpane.SizeButton
+ * org.openmicroscopy.shoola.util.ui.tpane.CloseButton 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.util.ui.tpane;
 
 
@@ -40,31 +39,26 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 
 //Application-internal dependencies
 
-
 /** 
- * The size button in the {@link TitleBar}.
- * This is a small MVC component that is aggregated into the bigger MVC set
- * of the {@link TinyPane}. The MVC parts of this button are all collapsed
- * in this class.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @version 2.2
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision: 4694 $ $Date: 2006-12-15 17:02:59 +0000 (Fri, 15 Dec 2006) $)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since OME3.0
  */
-public class SizeButton
-    extends JButton
+public class CloseButton    
+	extends JButton
     implements TinyObserver, PropertyChangeListener, ActionListener
 {
  
-    /** Tooltip text when the button represents the collapse action. */
-    static final String COLLAPSE_TOOLTIP = "Collapse";
-    
-    /** Tooltip text when the button represents the expand action. */
-    static final String EXPAND_TOOLTIP = "Expand";
+    /** Tooltip text when the button represents the close action. */
+    static final String CLOSE_TOOLTIP = "Collapse";
     
     /** The Model this button is working with. */
     private TinyPane   model;
@@ -75,7 +69,7 @@ public class SizeButton
      * @param model The Model this button will be working with.
      *              Mustn't be <code>null</code>.
      */
-    SizeButton(TinyPane model) 
+    CloseButton(TinyPane model) 
     {
         if (model == null) throw new NullPointerException("No model.");
         setBorder(BorderFactory.createEmptyBorder());  //No border around icon.
@@ -93,7 +87,7 @@ public class SizeButton
     public void attach() 
     { 
         addActionListener(this);
-        model.addPropertyChangeListener(TinyPane.COLLAPSED_PROPERTY, this);
+        model.addPropertyChangeListener(TinyPane.CLOSED_PROPERTY, this);
         propertyChange(null);  //Synch button w/ current state.
     }
     
@@ -103,7 +97,7 @@ public class SizeButton
      */
     public void detach() 
     { 
-        model.removePropertyChangeListener(TinyPane.COLLAPSED_PROPERTY, this); 
+        model.removePropertyChangeListener(TinyPane.CLOSED_PROPERTY, this); 
     }
     
     /**
@@ -113,15 +107,11 @@ public class SizeButton
     public void propertyChange(PropertyChangeEvent pce)
     {
         //NOTE: We can only receive COLLAPSED_PROPERTY changes, see attach().
-        IconManager icons = IconManager.getInstance();
-        if (model.isCollapsed()) {
-            setIcon(icons.getIcon(IconManager.PLUS));
-            setRolloverIcon(icons.getIcon(IconManager.PLUS_OVER));
-            setToolTipText(EXPAND_TOOLTIP);
-        } else {
-            setIcon(icons.getIcon(IconManager.MINUS));
-            setRolloverIcon(icons.getIcon(IconManager.MINUS_OVER));   
-            setToolTipText(COLLAPSE_TOOLTIP);
+        if (!model.isClosed()) {
+        	IconManager icons = IconManager.getInstance();
+            setIcon(icons.getIcon(IconManager.CROSS));
+            setRolloverIcon(icons.getIcon(IconManager.CROSS_OVER));
+            setToolTipText(CLOSE_TOOLTIP);
         }
     }
     
@@ -132,8 +122,8 @@ public class SizeButton
      */
     public void actionPerformed(ActionEvent ae)
     {
-        boolean b = !model.isCollapsed();
-        model.setCollapsed(b);
+        boolean b = !model.isClosed();
+        model.setClosed(b);
     }
     
     /** 

@@ -177,6 +177,9 @@ public class MessengerDialog
 	/** Button to copy the message on the clipBoard. */
 	private JButton			copyButton;
 	
+	/** The version of the software. */
+	private String			version;
+	
 	/**
 	 * Formats the specified button.
 	 * 
@@ -234,7 +237,7 @@ public class MessengerDialog
 		String error = null;
 		if (debugArea != null)  error = debugArea.getText().trim();
 		MessengerDetails details = new MessengerDetails(email, comment);
-		details.setExtra("Add extra info");
+		details.setExtra(version);
 		details.setError(error); 
 		firePropertyChange(SEND_PROPERTY, null, details);
 	}
@@ -548,6 +551,13 @@ public class MessengerDialog
 		this.exception = exception;
 		initialize(title);
 	}	
+	
+	/** 
+	 * Sets the version of the software.
+	 * 
+	 * @param version The value to set.
+	 */
+	public void setVersion(String version) { this.version = version; }
 	
 	/**
 	 * Returns the type associated to this widget. 

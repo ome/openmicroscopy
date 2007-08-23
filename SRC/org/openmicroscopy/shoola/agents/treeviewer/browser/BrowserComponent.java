@@ -646,19 +646,23 @@ class BrowserComponent
         Object o = object;
         List nodes = null;
         TreeImageDisplay parentDisplay = null;
+        TreeImageDisplay loggedUser = view.getLoggedExperimenterNode();
         if (op == TreeViewer.CREATE_OBJECT) {
             TreeImageDisplay node = getLastSelectedDisplay();
             if ((object instanceof ProjectData) ||
                 (object instanceof CategoryGroupData)) {
                 nodes = new ArrayList(1);
-                nodes.add(view.getTreeRoot());
-                parentDisplay = view.getTreeRoot();
+                nodes.add(loggedUser);
+                parentDisplay = loggedUser;
+                //nodes.add(view.getTreeRoot());
+                //parentDisplay = view.getTreeRoot();
             } else 
                 o = node.getUserObject();
         }
         if (nodes == null) {
             EditVisitor visitor = new EditVisitor(this, o);
-            accept(visitor, TreeImageDisplayVisitor.ALL_NODES);
+            //accept(visitor, TreeImageDisplayVisitor.ALL_NODES);
+            loggedUser.accept(visitor, TreeImageDisplayVisitor.ALL_NODES);
             nodes = visitor.getFoundNodes();
         }
         
@@ -666,6 +670,7 @@ class BrowserComponent
         else if (op == TreeViewer.REMOVE_OBJECT) removeNodes(nodes);
         else if (op == TreeViewer.CREATE_OBJECT) {
             long userID = model.getUserID();
+            //long model.get
             long groupID = model.getUserGroupID();
             if (parentDisplay == null)
                 parentDisplay = getLastSelectedDisplay();
@@ -791,9 +796,10 @@ class BrowserComponent
 			case DISCARDED:
 			case LOADING_LEAVES:
 				throw new IllegalStateException(
-	                    "This method cannot be invoked in the DISCARDED or" +
+	                    "This method cannot be invoked in the DISCARDED or " +
 	                    "LOADING_LEAVES state.");
 		}   
+		
         if (n == null)
         	model.fireExperimenterDataLoading((TreeImageSet) exp);
         else model.fireLeavesLoading(exp, n);
@@ -876,6 +882,37 @@ class BrowserComponent
 		Map<Long, RefreshExperimenterDef> 
 			m = new HashMap<Long, RefreshExperimenterDef>(1);
 		m.put(display.getUserObjectId(), def);
+		model.loadRefreshExperimenterData(m);
+		fireStateChange();
+	}
+	
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#refreshLoggedExperimenterData()
+     */
+	public void refreshLoggedExperimenterData()
+	{
+		switch (model.getState()) {
+	        case LOADING_DATA:
+	        case LOADING_LEAVES:
+	        	model.cancel();
+	        case DISCARDED:
+	        	//ignore
+	    	return;
+		}
+		TreeImageDisplay node = view.getLoggedExperimenterNode();
+		if (node == null) return;
+		Object ho = node.getUserObject();
+		if (!(ho instanceof ExperimenterData)) return;
+		//
+		RefreshVisitor v = new RefreshVisitor(this);
+		node.accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+		RefreshExperimenterDef def = new RefreshExperimenterDef(
+								(TreeImageSet) node, 
+								v.getFoundNodes(), v.getExpandedTopNodes());
+		Map<Long, RefreshExperimenterDef> 
+			m = new HashMap<Long, RefreshExperimenterDef>(1);
+		m.put(node.getUserObjectId(), def);
 		model.loadRefreshExperimenterData(m);
 		fireStateChange();
 	}
@@ -982,6 +1019,61 @@ class BrowserComponent
 		PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
 		fireStateChange(); 
+	}
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#countExperimenterImages(TreeImageDisplay)
+     */
+	public void countExperimenterImages(TreeImageDisplay expNode)
+	{
+		if (expNode == null || 
+			!(expNode.getUserObject() instanceof ExperimenterData))
+			throw new IllegalArgumentException("Node not valid.");
+		switch (model.getState()) {
+			case DISCARDED:
+			case LOADING_LEAVES:
+				throw new IllegalStateException(
+	                    "This method cannot be invoked in the DISCARDED or" +
+	                    "LOADING_LEAVES state.");
+		}   
+		if (model.getBrowserType() != IMAGES_EXPLORER) return;
+        model.fireCountExperimenterImages((TreeImageSet) expNode);
+        model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
+        fireStateChange();
+	}
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setExperimenterCount(TreeImageSet, int, int)
+     */
+	public void setExperimenterCount(TreeImageSet expNode, int index, int value)
+	{
+		if (expNode == null || 
+				!(expNode.getUserObject() instanceof ExperimenterData))
+				throw new IllegalArgumentException("Node not valid.");
+		if (model.getBrowserType() != IMAGES_EXPLORER) return;
+		int state = model.getState();
+		switch (state) {
+			case COUNTING_ITEMS:
+				model.setExperimenterCount(expNode, index);
+				if (index != -1 && value != -1) {
+					view.setCountValues(expNode, index, value);
+				}
+				if (model.getState() == READY) fireStateChange();
+	        case READY:
+	        	model.setExperimenterCount(expNode, index);
+	        	if (index != -1 && value != -1) {
+					view.setCountValues(expNode, index, value);
+				}
+	            view.getTreeDisplay().repaint();
+	            break;
+	        default:
+	            throw new IllegalStateException(
+	                    "This method can only be invoked in the " +
+	                    "COUNTING_ITEMS or READY state.");
+		}
+	    model.getParentModel().setStatus(false, "", true);
 	}
     
 }

@@ -266,11 +266,13 @@ class BrowserUI
     	int month = TreeImageTimeSet.getCurrentMonth()+1;
     	for (int i = 0; i < month; i++) 
     		createTimeNode(TreeImageTimeSet.YEAR, i, n);
+    	n.setNumberItems(-1);
     	n = createTimeNode(TreeImageTimeSet.YEAR_BEFORE, parent, false);
     	for (int i = 0; i < 12; i++) 
     		createTimeNode(TreeImageTimeSet.YEAR_BEFORE, i, n);
+    	n.setNumberItems(-1);
     	createTimeNode(TreeImageTimeSet.OTHER, parent, true);
-    	parent.setChildrenLoaded(true);
+    	//parent.setChildrenLoaded(true);
     }
     
     /**
@@ -912,6 +914,22 @@ class BrowserUI
 		}
 	}
 
+	void setCountValues(TreeImageDisplay expNode, int index, int value)
+	{
+		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+		expNode.setChildrenLoaded(Boolean.TRUE);
+		expNode.setExpanded(true);
+		int n = expNode.getChildCount();
+		TreeImageTimeSet node;
+		for (int j = 0; j < n; j++) {
+			node = (TreeImageTimeSet) expNode.getChildAt(j);
+			if (node.getIndex() == index) {
+				node.setNumberItems(value);
+				 dtm.reload(node);
+			}
+		}
+	}
+	
 	/**
 	 * Refreshes the folder hosting the time.
 	 * 
@@ -1018,6 +1036,17 @@ class BrowserUI
 							root.getChildCount());
 		}
 		tm.reload();
+	}
+
+	/**
+	 * Returns the node hosting the logged in user.
+	 * 
+	 * @return See above.
+	 */
+	TreeImageDisplay getLoggedExperimenterNode()
+	{
+		TreeImageDisplay root = getTreeRoot();
+		return (TreeImageDisplay) root.getChildAt(0);
 	}
     
 }

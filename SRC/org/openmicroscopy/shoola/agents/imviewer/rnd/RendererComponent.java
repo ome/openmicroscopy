@@ -150,7 +150,7 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
-        	model.getParentModel().createHistoryItem();
+        	if (released) model.getParentModel().createHistoryItem();
         	model.setInputInterval(s, e);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
             					Boolean.TRUE);
@@ -170,7 +170,7 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
-        	 model.getParentModel().createHistoryItem();
+        	if (released) model.getParentModel().createHistoryItem();
         	 model.setCodomainInterval(s, e);
              firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
             		 			Boolean.TRUE);

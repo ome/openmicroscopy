@@ -263,6 +263,9 @@ class TinyPaneUI
         return borderListener.getDesktopManager();
     }
     
+    /** Adds a close button to the title bar. */
+    void allowClose() { titleBar.allowClose(); }
+    
     /**
      * Monitors frame's state changes and updates the UI accordingly.
      * 
@@ -380,5 +383,5 @@ class TinyPaneUI
      * @see MouseMotionListener#mouseMoved(MouseEvent)
      */
     public void mouseMoved(MouseEvent me) { borderListener.mouseMoved(me); }
-    
+
 }

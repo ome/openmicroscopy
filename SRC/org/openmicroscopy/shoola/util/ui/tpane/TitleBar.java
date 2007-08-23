@@ -78,7 +78,6 @@ class TitleBar
     
     /** The minimum width, in pixels, the title bar can be shrunk to. */
     static final int    MIN_WIDTH = 48;
-    
 
     /** 
      * Is in charge of painting the background.
@@ -98,6 +97,12 @@ class TitleBar
      * It may be <code>null</code>, depending on the title bar type. 
      */
     private SizeButton      sizeButton;
+    
+    /** 
+     * The button the user presses to close the frame.
+     * It may be <code>null</code>, depending on the title bar type. 
+     */
+    private CloseButton      closeButton;
     
     /**
      * The button that lets users switch between multi and single-view mode.
@@ -132,6 +137,7 @@ class TitleBar
         if (sizeButton != null) sizeButton.attach();
         if (viewModeButton != null) viewModeButton.attach();
         if (title != null) title.attach();
+        if (closeButton != null) closeButton.attach();
     }
     
     /**
@@ -140,7 +146,8 @@ class TitleBar
      */
     private void detachAll()
     {
-        TinyObserver[] comp = new TinyObserver[] {sizeButton, title};
+        TinyObserver[] comp = new TinyObserver[] 
+                                              {sizeButton, closeButton, title};
         for (int i = 0; i < comp.length; ++i)
             if (comp[i] != null) {
                 comp[i].detach();
@@ -183,6 +190,7 @@ class TitleBar
                 break;
             case TinyPane.SMALL_BAR:
                 fixedHeight = 12;
+                if (closeButton != null) add(closeButton);
                 while (i.hasNext()) 
                 	add((JComponent) i.next());
                     
@@ -191,6 +199,7 @@ class TitleBar
                 break;
             case TinyPane.SMALL_TITLE_BAR:
                 fixedHeight = 12;
+                if (closeButton != null) add(closeButton);
                 while (i.hasNext()) 
                 	add((JComponent) i.next());
                     
@@ -201,6 +210,7 @@ class TitleBar
                 fixedHeight = 18;
                 icon = new TinyPaneIcon(model);
                 add(icon);
+                if (closeButton != null) add(closeButton);
                 viewModeButton = new ViewModeButton(model);
                 add(viewModeButton);
                 sizeButton = new SizeButton(model);
@@ -260,6 +270,9 @@ class TitleBar
         if (icon == null) return new Rectangle(0, 0, 0, 0);
         return icon.getBounds();
     }
+    
+    /** Adds a {@link #closeButton}. */
+    void allowClose() { closeButton =  new CloseButton(model); }
     
     /** 
      * Overridden to do custom painting required for this component. 

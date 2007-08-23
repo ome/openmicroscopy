@@ -166,7 +166,7 @@ class ImViewerModel
     private boolean				playingMovie;
     
     /** Collection of history item. */
-    private List				historyItems;
+    private List<HistoryItem>	historyItems;
     
     /** 
      * Flag indicating that a previous item replaced an existing one. 
@@ -175,10 +175,7 @@ class ImViewerModel
     private boolean				historyItemReplacement;
 
     /** The id of the pixels set to copy. */
-    private long				refPixelsID;
-    
-    /** The rendering settings to copy. */
-    private RndProxyDef			rndSettings;
+    //private long				refPixelsID;
     
     /** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
     private void computeSizes()
@@ -216,7 +213,6 @@ class ImViewerModel
         zoomFitToWindow = false; 
         tabbedIndex = ImViewer.VIEW_INDEX;
         textVisible = true;
-        refPixelsID = -1;
     }
     
     /**
@@ -862,7 +858,7 @@ class ImViewerModel
 	 * 
 	 *  @return See above.
 	 */
-	HistoryItem addHistoryItem()
+	HistoryItem createHistoryItem()
 	{
 		//Make a smaller image
 		BufferedImage img = browser.getRenderedImage();
@@ -876,15 +872,25 @@ class ImViewerModel
 		}
 		BufferedImage thumb = Factory.magnifyImage(ratio, img);
 		HistoryItem i = new HistoryItem(rndControl.getRndSettingsCopy(), thumb);
-		if (historyItems == null) historyItems = new ArrayList();
+		if (historyItems == null) historyItems = new ArrayList<HistoryItem>();
 		historyItems.add(i);
 		return i;
+	}
+	
+	/**
+	 * Removes the item from the list.
+	 * 
+	 * @param node The node to remove.
+	 */
+	void removeHistoryItem(HistoryItem node)
+	{
+		if (historyItems != null) historyItems.remove(node);
 	}
 	
 	/** Clears the history. */
 	void clearHistory()
 	{
-		if (historyItems != null) historyItems = new ArrayList();
+		if (historyItems != null) historyItems = new ArrayList<HistoryItem>();
 		historyItemReplacement = false;
 	}
 	
@@ -939,21 +945,8 @@ class ImViewerModel
 	void resetSettings() 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		rndControl.resetSettings(rndSettings);
+		rndControl.resetSettings(ImViewerFactory.getRenderingSettings());
 		renderer.resetRndSettings();
-	}
-	
-	/**
-	 * Sets the ids used to copy rendering settings.
-	 * 
-	 * @param refPixelsID	The id of the pixels set to copy.
-	 * @param rndSettings 	The rendering settings to copy. 
-     * 						Mustn't be <code>null</code>.
-	 */
-	void setRndSettings(long refPixelsID, RndProxyDef rndSettings)
-	{ 
-		this.refPixelsID = refPixelsID;
-		this.rndSettings = rndSettings;
 	}
 	
 	/**
@@ -964,7 +957,7 @@ class ImViewerModel
 	 */
 	boolean hasRndToPaste() 
 	{ 
-		return (refPixelsID != pixelsID && rndSettings != null); 
+		return (ImViewerFactory.getRenderingSettings() != null); 
 	}
 
 	/** Posts a {@link CopyRndSettings} event. */

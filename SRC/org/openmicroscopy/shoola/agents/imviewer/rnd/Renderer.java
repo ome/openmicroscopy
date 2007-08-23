@@ -114,8 +114,8 @@ public interface Renderer
      * 
      * @param s         The lower bound of the interval.
      * @param e         The upper bound of the interval.
-     * @param released  If <code>true</code>, we fire a property change event
-     *                  to render a new plane.
+     * @param released  Pass <code>true</code> to add an history item,
+     * 					<code>false</code> otherwise.
      */
     void setInputInterval(double s, double e, boolean released);
     
@@ -124,8 +124,8 @@ public interface Renderer
      * 
      * @param s         The lower bound of the interval.
      * @param e         The upper bound of the interval.
-     * @param released  If <code>true</code>, we fire a property change event
-     *                  to render a new plane.
+     * @param released  Pass <code>true</code> to add an history item,
+     * 					<code>false</code> otherwise.
      */
     void setCodomainInterval(int s, int e, boolean released);
     

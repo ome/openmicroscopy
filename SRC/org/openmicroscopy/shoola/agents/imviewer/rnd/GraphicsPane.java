@@ -460,8 +460,7 @@ class GraphicsPane
      * @return See above.
      */
     int getVerticalLine() { return verticalLine; }
-   
-    
+     
     /**
      * Reacts to property changes fired by the {@link TwoKnobsSlider}s.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -515,6 +514,18 @@ class GraphicsPane
 			verticalLine = -1;
 			if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)
 					|| TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)) {
+				if (source.equals(domainSlider)) {
+					controller.setInputInterval(domainSlider.getStartValue(),
+							domainSlider.getEndValue(), false);
+					onCurveChange();
+				} else if (source.equals(codomainSlider)) {
+					int s = codomainSlider.getStartValue();
+					int e = codomainSlider.getEndValue();
+					controller.setCodomainInterval(s, e, false);
+					onCurveChange();
+				}
+			}
+			if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
 				if (source.equals(domainSlider)) {
 					controller.setInputInterval(domainSlider.getStartValue(),
 							domainSlider.getEndValue(), true);

@@ -81,6 +81,9 @@ class TinyPaneModel
     /** Tells if the frame is expanded or collapsed. */
     private boolean         collapsed;
     
+    /** Tells if the frame is expanded or collapsed. */
+    private boolean         closed;
+    
     /** The size of the frame before the last collapse request. */
     private Dimension       restoreSize;
     
@@ -586,5 +589,19 @@ class TinyPaneModel
      * @param decoration The collection to set.
      */
     void setDecoration(List decoration) { this.decoration = decoration; }
+
+	/**
+     * Returns the closed state.
+     * 
+     * @return See above.
+     */
+    boolean isClosed() { return closed; }
+    
+    /**
+     * Sets the closed state. 
+     * 
+     * @param closed The state to set.
+     */
+    void setClosed(boolean closed) { this.closed = closed; }
     
 }

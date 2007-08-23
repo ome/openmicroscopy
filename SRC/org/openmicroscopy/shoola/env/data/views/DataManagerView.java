@@ -33,6 +33,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -418,4 +419,17 @@ public interface DataManagerView
     public CallHandle pasteRndSettings(long pixelsID, Class rootNodeType,
 			List nodes, AgentEventListener observer);
 	
+    /**
+     * Retrieves the images imported by the specified user during various
+     * periods of time. The passed map is a map whose keys are indexes
+     * identifying a period of time and the values are time objects.
+     * 
+     * @param userID	The user id.
+     * @param m			The data to handle. Mustn't be <code>null</code>.
+     * @param observer 	Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle countExperimenterImages(long userID, 
+    		Map<Integer, TimeRefObject> m, AgentEventListener observer);
+    
 }

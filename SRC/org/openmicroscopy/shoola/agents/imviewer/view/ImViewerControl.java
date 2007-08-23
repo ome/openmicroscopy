@@ -78,6 +78,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomOutAction;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
+import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.InfoDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
@@ -87,6 +88,7 @@ import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
+import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 
 /** 
  * The ImViewer's Controller.
@@ -672,7 +674,11 @@ class ImViewerControl
         		((PlayMovieAction) getAction(PLAY_MOVIE)).setActionIcon(true);
         		model.playMovie(false, false);
         	}
-        } 
+        } else if (TinyPane.CLOSED_PROPERTY.equals(propName)) {
+        	Object node = pce.getNewValue();
+        	if (node instanceof HistoryItem)
+        		view.removeHistoryItem((HistoryItem) node);
+        }
     }
 
 	/**

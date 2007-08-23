@@ -80,7 +80,7 @@ public class HistoryItem
 		this.settings = settings;
 		this.thumbnail = thumbnail;
 		time = UIUtilities.getDefaultTimestamp();
-		noDecoration();
+		//noDecoration();
 		String title = getTimeAsString();
 		setToolTipText(title);
 		String[] elements = title.split(" ");
@@ -93,6 +93,7 @@ public class HistoryItem
 			}
 		}
 		setTitle(f);
+		allowClose();
 		setTitleBarType(SMALL_TITLE_BAR);
 		setListenToBorder(false);
 		canvas = new HistoryItemCanvas(this);

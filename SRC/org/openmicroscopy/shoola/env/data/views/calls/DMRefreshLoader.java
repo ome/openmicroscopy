@@ -189,6 +189,10 @@ public class DMRefreshLoader
 							case ImagesLoader.AFTER:
 								ref.setResults(os.getImagesAfter(ref.getTime(), 
 												userID));
+							case ImagesLoader.PERIOD:
+								ref.setResults(os.getImagesPeriod(
+										ref.getLowerTime(), ref.getTime(), 
+										userID));
 								break;
 						}
 					}

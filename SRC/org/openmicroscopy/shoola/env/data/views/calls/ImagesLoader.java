@@ -154,7 +154,7 @@ public class ImagesLoader
 						results = os.getImagesAfter(time, userID);
 						break;
 					case PERIOD:
-						results = os.getImagesDuring(lowerTime, time, userID);
+						results = os.getImagesPeriod(lowerTime, time, userID);
 						break;
 				}
             }

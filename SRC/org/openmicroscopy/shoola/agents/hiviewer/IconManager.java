@@ -137,149 +137,134 @@ public class IconManager
     /** ID of the <code>Image</code> icon. */
     public static final int     IMAGE = 26;
     
-    /** ID of the single-view icon in the browser's internal frame. */
-    public static final int     SINGLE_VIEW_MODE = 27;
-    
-    /** ID of the single-view over icon in the browser's internal frame. */
-    public static final int     SINGLE_VIEW_MODE_OVER = 28;
-
-    /** ID of the multi-view icon in the browser's internal frame. */
-    public static final int     MULTI_VIEW_MODE = 29;
-    
-    /** ID of the views list icon in the browser's internal frame. */
-    public static final int     VIEWS_LIST = 30;
-    
-    /** ID of the views list over icon in the browser's internal frame. */
-    public static final int     VIEWS_LIST_OVER = 31;
-    
     /** ID of the big <code>Category</code> icon. */
-    public static final int     CATEGORY_BIG = 32;
+    public static final int     CATEGORY_BIG = 27;
     
     /** ID of the <code>Refresh</code> icon. */
-    public static final int     REFRESH = 33;
+    public static final int     REFRESH = 28;
     
     /** ID of the big <code>Save As</code> icon. */
-    public static final int     SAVE_AS_BIG = 34;
+    public static final int     SAVE_AS_BIG = 29;
     
     /** ID of the <code>Question</code> icon. */
-    public static final int     QUESTION = 35;
+    public static final int     QUESTION = 30;
     
     /** ID of the <code>Image medium</code> icon. */
-    public static final int     IMAGE_MEDIUM = 36;
+    public static final int     IMAGE_MEDIUM = 31;
     
     /** ID of the <code>Collapse</code> icon. */
-    public static final int     COLLAPSE = 37;
+    public static final int     COLLAPSE = 32;
     
     /** ID of the <code>Close View</code> icon. */
-    public static final int     CLOSE_VIEW = 38;
+    public static final int     CLOSE_VIEW = 32;
     
     /** ID of the <code>Transparent</code> icon. */
-    public static final int     TRANSPARENT = 39;
+    public static final int     TRANSPARENT = 34;
     
     /** ID of the <code>Find</code> icon. */
-    public static final int     FIND = 40;
+    public static final int     FIND = 35;
     
     /** ID of the <code>Annotated Dataset</code> icon. */
-    public static final int     ANNOTATED_DATASET = 41;
+    public static final int     ANNOTATED_DATASET = 36;
     
     /** ID of the <code>Annotated Image</code> icon. */
-    public static final int     ANNOTATED_IMAGE = 42;
+    public static final int     ANNOTATED_IMAGE = 37;
     
     /** ID of the <code>Find</code> icon. */
-    public static final int     CLASSIFIED_IMAGE = 43;
+    public static final int     CLASSIFIED_IMAGE = 38;
     
     /** ID of the <code>Find</code> icon. */
-    public static final int     ANNOTATED_CLASSIFIED_IMAGE = 44;
+    public static final int     ANNOTATED_CLASSIFIED_IMAGE = 39;
     
     /** ID of the small <code>Annotated</code> icon. */
-    public static final int     ANNOTATED_SMALL = 45;
+    public static final int     ANNOTATED_SMALL = 40;
     
     /** ID of the small <code>Annotated</code> icon. */
-    public static final int     ANNOTATED_SMALL_OVER = 46;
+    public static final int     ANNOTATED_SMALL_OVER = 41;
     
     /** ID of the small <code>Classified</code> icon. */
-    public static final int     CLASSIFIED_SMALL = 47;
+    public static final int     CLASSIFIED_SMALL = 42;
     
     /** ID of the small <code>Annotated</code> icon. */
-    public static final int     CLASSIFIED_SMALL_OVER = 48;
+    public static final int     CLASSIFIED_SMALL_OVER = 43;
     
     /** The <code>Filter Menu</code> icon. */
-    public static int           FILTER_MENU = 49;
+    public static int           FILTER_MENU = 44;
     
     /** The <code>Warning</code> icon. */
-    public static int           WARNING = 50;
+    public static int           WARNING = 45;
     
     /** The <code>Highlight</code> icon. */
-    public static int           HIGHLIGHT = 51;
+    public static int           HIGHLIGHT = 46;
     
     /** The <code>Info</code> icon. */
-    public static int           INFO = 52;
+    public static int           INFO = 47;
     
     /** The <code>Pin</code> icon. */
-    public static int           PIN = 53;
+    public static int           PIN = 48;
     
     /** The <code>DELETE</code> icon. */
-    public static int           DELETE = 54;
+    public static int           DELETE = 49;
     
     /** The <code>Tree View</code> icon. */
-    public static int           TREE_VIEW = 55;
+    public static int           TREE_VIEW = 50;
     
     /** The <code>ClipBoard View</code> icon. */
-    public static int           CLIPBOARD_VIEW = 56;
+    public static int           CLIPBOARD_VIEW = 51;
     
     /** The <code>Sort by Name</code> icon. */
-    public static int           SORT_BY_NAME = 57;
+    public static int           SORT_BY_NAME = 52;
     
     /** The <code>Sort by Name</code> icon. */
-    public static int           SORT_BY_DATE = 58;
+    public static int           SORT_BY_DATE = 53;
 
     /** The <code>Lens</code> icon. */
-    public static int           LENS = 59;
+    public static int           LENS = 54;
     
     /** The <code>File Manager 48</code> icon. */
-    public static int           VIEWER_48 = 60;
+    public static int           VIEWER_48 = 55;
     
     /** The <code>Pin small</code> icon. */
-    public static int           PIN_SMALL = 61;
+    public static int           PIN_SMALL = 56;
     
     /** The <code>Pin small over</code> icon. */
-    public static int           PIN_SMALL_OVER = 62;
+    public static int           PIN_SMALL_OVER = 57;
     
     /** The <code>Decategorise</code> icon. */
-    public static int           DECATEGORISE = 63;
+    public static int           DECATEGORISE = 58;
     
     /** The <code>Find Next</code> icon. */
-    public static int           FIND_NEXT = 64;
+    public static int           FIND_NEXT = 59;
     
     /** The <code>Find Previous</code> icon. */
-    public static int           FIND_PREVIOUS = 65;
+    public static int           FIND_PREVIOUS = 60;
     
     /** The <code>Partial name</code> icon. */
-    public static int           PARTIAL_NAME = 66;
+    public static int           PARTIAL_NAME = 61;
     
     /** The <code>Flat Layout</code> icon. */
-    public static int           FLAT_LAYOUT = 67;
+    public static int           FLAT_LAYOUT = 62;
     
     /** The <code>Hierarchy Layout</code> icon. */
-    public static int           HIERARCHICAL_LAYOUT = 68;
+    public static int           HIERARCHICAL_LAYOUT = 63;
 
     /** The <code>History</code> icon. */
-    public static int           HISTORY = 69;
+    public static int           HISTORY = 64;
 
     /** The <code>Backward nav</code> icon. */
-    public static int           BACKWARD_NAV = 70;
+    public static int           BACKWARD_NAV = 65;
     
     /** The <code>Redo</code> icon. */
-    public static int           REDO = 71;
+    public static int           REDO = 66;
     
     /** The <code>Mouse over</code> icon. */
-    public static int           MOUSE_OVER = 72;
+    public static int           MOUSE_OVER = 67;
 
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 72;
+    private static int          MAX_ID = 68;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -312,11 +297,6 @@ public class IconManager
         relPaths[CATEGORY_GROUP] = "category_group16.png";
         relPaths[CATEGORY] = "category16.png";
         relPaths[IMAGE] = "nuvola_image16.png";
-        relPaths[SINGLE_VIEW_MODE] = "sinlge_view_mode.png";
-        relPaths[SINGLE_VIEW_MODE_OVER] = "sinlge_view_mode_over.png";
-        relPaths[MULTI_VIEW_MODE] = "nuvola_view_multicolumn16.png";
-        relPaths[VIEWS_LIST] = "frame_list.png";
-        relPaths[VIEWS_LIST_OVER] = "frame_list_over.png";
         relPaths[CATEGORY_BIG] = "category48.png";
         relPaths[REFRESH] = "nuvola_reload16.png";
         relPaths[SAVE_AS_BIG] = "nuvola_filesaveas48.png";

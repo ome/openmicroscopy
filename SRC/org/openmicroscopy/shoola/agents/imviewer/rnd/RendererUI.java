@@ -100,7 +100,7 @@ class RendererUI
 		
 		});
     	pasteButton = new JButton("Paste");
-    	pasteButton.setEnabled(false);
+    	pasteButton.setEnabled(model.getParentModel().hasSettingsToPaste());
     	pasteButton.setToolTipText(
     		UIUtilities.formatToolTipText("Pastes the rendering settings."));
     	pasteButton.addActionListener(new ActionListener() {
@@ -331,7 +331,6 @@ class RendererUI
 	{
 	     DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
 	     pane.setColorModelChanged();
-	 
 	}
 
     /** 
@@ -344,6 +343,12 @@ class RendererUI
         pane.onCurveChange();
     }
     
+    /**
+     * Sets the {@link #pasteButton} enable.
+     * 
+     * @param b Pass <code>true</code> to enable the button, <code>false</code>
+     * 			otherwise.
+     */
     void enablePasteButton(boolean b) { pasteButton.setEnabled(b); }
-    
+
 }

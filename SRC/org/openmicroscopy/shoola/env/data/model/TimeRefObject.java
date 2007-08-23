@@ -57,6 +57,9 @@ public class TimeRefObject
 	/** Time of reference. */
 	private Timestamp 	time;
 	
+	/** Time of reference. */
+	private Timestamp 	lowerTime;
+	
 	/** The result of the call. */
 	private Set			results;
 	
@@ -64,19 +67,29 @@ public class TimeRefObject
 	 * Creates a new instance.
 	 * 
 	 * @param userID	The user's id.
+	 * @param lowerTime	The time of reference. Mustn't be <code>null</code>.
 	 * @param time		The time of reference. Mustn't be <code>null</code>.
 	 * @param constrain	Value indicating to retrieve the value before or
 	 * 					after the time of reference 
 	 */
-	public TimeRefObject(long userID, Timestamp time, int constrain)
+	public TimeRefObject(long userID, Timestamp lowerTime, Timestamp time, 
+						int constrain)
 	{
 		if (time == null)
 			throw new IllegalArgumentException("Time not valid.");
 		this.userID = userID;
 		this.time = time;
+		this.lowerTime = lowerTime;
 		this.constrain = constrain;
 	}
 
+	/**
+	 * Returns the time of reference.
+	 * 
+	 * @return See above.
+	 */
+	public Timestamp getLowerTime() { return lowerTime; }
+	
 	/**
 	 * Returns the time of reference.
 	 * 

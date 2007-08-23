@@ -1052,9 +1052,9 @@ class OmeroDataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getImagesDuring(Timestamp, Timestamp, Class, long)
+	 * @see OmeroDataService#getImagesPeriod(Timestamp, Timestamp, long)
 	 */
-	public Set getImagesDuring(Timestamp lowerTime, Timestamp time, long userID)
+	public Set getImagesPeriod(Timestamp lowerTime, Timestamp time, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (time == null || lowerTime == null)
@@ -1066,7 +1066,52 @@ class OmeroDataServiceImpl
 		while (i.hasNext()) {
 			ids.add(((IObject) i.next()).getId()) ;
 		}
-		return getImages(ImageData.class, ids, userID);
+		Set s = getImages(ImageData.class, ids, userID);
+		return s;
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#getImagesPeriodCount(Timestamp, Timestamp, long)
+	 */
+	public int getImagesPeriodCount(Timestamp lowerTime, Timestamp time, 
+									long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (time == null || lowerTime == null)
+			throw new NullPointerException("Time not specified.");
+		List imgs = gateway.getImagesDuring(lowerTime, time, userID);
+		if (imgs == null) return -1;
+		return imgs.size();
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#getImagesAfterCount(Timestamp, Timestamp, long)
+	 */
+	public int getImagesAfterCount(Timestamp time, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		
+		if (time == null)
+			throw new NullPointerException("Time not specified.");
+		List imgs = gateway.getImagesAfter(time, userID);
+		if (imgs == null) return -1;
+		return imgs.size();
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#getImagesBeforeCount(Timestamp, Timestamp, long)
+	 */
+	public int getImagesBeforeCount(Timestamp time, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (time == null)
+			throw new NullPointerException("Time not specified.");
+		List imgs = gateway.getImagesBefore(time, userID);
+		if (imgs == null) return -1;
+		return imgs.size();
 	}
 	
 }

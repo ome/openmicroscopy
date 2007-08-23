@@ -615,7 +615,7 @@ class DomainPane
         gammaSlider.setEnabled(b);
         graphicsPane.onCurveChange(); 
     }
-    
+	
     /**
      * Depending on the source of the event. Sets the gamma value or
      * the bit resolution.

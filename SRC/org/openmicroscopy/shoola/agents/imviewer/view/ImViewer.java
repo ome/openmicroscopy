@@ -711,5 +711,13 @@ public interface ImViewer
 	
 	/** Pastes the rendering settings. */
 	public void pasteRenderingSettings();
+
+	/**
+	 * Returns <code>true</code> if there is some rendering settings to save,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasSettingsToPaste();
 	
 }

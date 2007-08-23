@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.ContainerCounterLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImageLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImagesCounter;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
@@ -521,5 +522,32 @@ class BrowserModel
         												nodes);
         currentLoader.load();   
     }
+
+	void fireCountExperimenterImages(TreeImageSet expNode)
+	{
+		Set<TreeImageTimeSet> n = expNode.getChildrenDisplay();
+		Iterator i = n.iterator();
+		Set indexes = new HashSet(n.size());
+		TreeImageTimeSet node;
+		while (i.hasNext()) {
+			node = (TreeImageTimeSet) i.next();
+			indexes.add(node.getIndex());
+		}
+		if (containersManager == null)
+            containersManager = new ContainersManager(indexes);
+		state = Browser.COUNTING_ITEMS;
+        currentLoader = new ExperimenterImagesCounter(component, expNode, n);
+        currentLoader.load();  
+	}
+	
+	void setExperimenterCount(TreeImageSet expNode, int index) 
+	{
+		if (containersManager == null) return;
+		containersManager.setItem(index);
+		if (containersManager.isDone()) {
+			state = Browser.READY;
+			containersManager = null;
+		}
+	}
 	
 }

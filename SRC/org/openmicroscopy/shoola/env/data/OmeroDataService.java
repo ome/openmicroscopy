@@ -674,7 +674,51 @@ public interface OmeroDataService
      * @throws DSAccessException        If an error occured while trying to 
      *                                  retrieve data from OMEDS service.
 	 */
-	public Set getImagesDuring(Timestamp lowerTime, Timestamp time, long userID)
+	public Set getImagesPeriod(Timestamp lowerTime, Timestamp time, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Retrieves the number of images imported during a given period of time.
+	 * 
+	 * @param lowerTime	The timestamp identifying the start of the period.
+	 * @param time		The timestamp identifying the end of the period.
+     * @param userID	The Id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+	 */
+	public int getImagesPeriodCount(Timestamp lowerTime, Timestamp time, 
+									long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Retrieves the number of images imported after a given date.
+	 * 
+	 * @param time		The timestamp identifying the date.
+     * @param userID	The Id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+	 */
+	public int getImagesAfterCount(Timestamp time, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Retrieves the number of images imported before a given date.
+	 * 
+	 * @param time		The timestamp identifying the date.
+     * @param userID	The Id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+	 */
+	public int getImagesBeforeCount(Timestamp time, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

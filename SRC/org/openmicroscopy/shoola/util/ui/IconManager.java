@@ -191,11 +191,26 @@ public class IconManager
     /** ID of the <code>Dataset</code> icon. */
     public static final int DATASET = 45;
  
+    /** ID of the single-view icon in the browser's internal frame. */
+    public static final int	SINGLE_VIEW_MODE = 46;
+    
+    /** ID of the single-view over icon in the browser's internal frame. */
+    public static final int	SINGLE_VIEW_MODE_OVER = 47;
+
+    /** ID of the multi-view icon in the browser's internal frame. */
+    public static final int	MULTI_VIEW_MODE = 48;
+    
+    /** ID of the views list icon in the browser's internal frame. */
+    public static final int	VIEWS_LIST = 49;
+    
+    /** ID of the views list over icon in the browser's internal frame. */
+    public static final int	VIEWS_LIST_OVER = 50;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 49;
+    private static int      MAX_ID = 51;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -249,6 +264,11 @@ public class IconManager
         relPaths[CALENDAR] = "nuvola_date16.png";
         relPaths[DATASET] = "nuvola_folder_image16.png";
         relPaths[IMAGE] = "nuvola_image16.png";
+        relPaths[SINGLE_VIEW_MODE] = "sinlge_view_mode.png";
+        relPaths[SINGLE_VIEW_MODE_OVER] = "sinlge_view_mode_over.png";
+        relPaths[MULTI_VIEW_MODE] = "nuvola_view_multicolumn16.png";
+        relPaths[VIEWS_LIST] = "frame_list.png";
+        relPaths[VIEWS_LIST_OVER] = "frame_list_over.png";
     }
     
     /** 

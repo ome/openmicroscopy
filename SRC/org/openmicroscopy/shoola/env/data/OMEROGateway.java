@@ -163,6 +163,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
     	Throwable cause = t.getCause();
+    	t.printStackTrace();
     	if (cause instanceof SecurityException) {
     		String s = "Cannot access data for security reasons \n"; 
     		throw new DSAccessException(s+message+"\n\n"+

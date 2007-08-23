@@ -1332,6 +1332,19 @@ class ImViewerUI
     	historyUI.addHistoryItem(node);
     }
     
+	/**
+	 * Removes the item from the list.
+	 * 
+	 * @param node The node to remove.
+	 */
+    void removeHistoryItem(HistoryItem node)
+    {
+    	if (node ==  null) return;
+    	model.removeHistoryItem(node);
+    	if (historyUI == null) return;
+    	historyUI.doGridLayout();
+    }
+    
     /** Shows or hides the renderer. */
     void displayRenderer()
     {

@@ -115,6 +115,8 @@ public class TinyPane
      */
     public final static int		SMALL_TITLE_BAR = 5;
     
+    /** Bound property name indicating if the frame is collapsed. */
+    public final static String  CLOSED_PROPERTY = "closedPane";
     
     /** Bound property name indicating if the frame is collapsed. */
     public final static String  COLLAPSED_PROPERTY = "collapsed";
@@ -296,6 +298,31 @@ public class TinyPane
 		firePropertyChange(END_MOVING_PROPERTY, null, this);
 	}
 	
+	/** 
+     * Tells if this frame is closed.
+     * 
+     * @return <code>true</code> if closed, <code>false</code> otherwise. 
+     */
+	boolean isClosed() { return model.isClosed(); }
+    
+	/**
+     * Closes this frame depending on the passed value.
+     * This is a bound property; property change listeners are notified
+     * of any change to this property. 
+     * 
+     * @param b Pass <code>true</code> to close.
+     */
+	void setClosed(boolean b) 
+	{
+		boolean closed = model.isClosed();
+		if (b == closed) return;  //We're already in the requested state.
+
+		//Fire the state change.
+		model.setClosed(b);
+		setVisible(!b);
+		firePropertyChange(CLOSED_PROPERTY, null, this);
+	}
+		
     /** Resizes and repaints the component. */
     public void pack()
     {
@@ -322,7 +349,7 @@ public class TinyPane
         model.setTitle(title);
         firePropertyChange(TITLE_PROPERTY, oldValue, title);
     }
-    
+
     /**
      * Collapses or expands this frame depending on the passed value.
      * This is a bound property; property change listeners are notified
@@ -627,6 +654,9 @@ public class TinyPane
   
     /** Indicates no to add buttons to the <code>TitleBar</code>. */
     public void noDecoration() { setDecoration(new ArrayList()); }
+    
+    /** Adds a close button to the frame. */
+    public void allowClose() {  uiDelegate.allowClose(); }
     
     /**
      * Overridden to return the title of the frame.
