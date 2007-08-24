@@ -1,7 +1,7 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.util.MeasurementConnectionTool 
+ * org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingConnectionTool 
  *
-  *------------------------------------------------------------------------------
+ *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
@@ -28,14 +28,13 @@ package org.openmicroscopy.shoola.util.ui.drawingtools.creationtools;
 import java.util.Map;
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.ConnectionFigure;
 import org.jhotdraw.draw.ConnectionTool;
 
 //Application-internal dependencies
 
 /** 
- * 
+ * A drawing line.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -50,19 +49,18 @@ import org.jhotdraw.draw.ConnectionTool;
 public class DrawingConnectionTool
 	extends ConnectionTool
 {	
-	 /** Creates a new instance. */
-    public DrawingConnectionTool(ConnectionFigure prototype) {
-       super(prototype);
-    }
-    public DrawingConnectionTool(ConnectionFigure prototype, Map attributes) {
+
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param prototype		The prototype.
+	 * @param attributes	The attributes to set.
+	 */
+    public DrawingConnectionTool(ConnectionFigure prototype, Map attributes)
+    {
       super(prototype, attributes);
     }
-    public DrawingConnectionTool(String prototypeClassName) {
-        this(prototypeClassName, null);
-    }
-    public DrawingConnectionTool(String prototypeClassName, Map<AttributeKey, Object> attributes) {
-        super(prototypeClassName, attributes);
-    }
+    
 }
 
 

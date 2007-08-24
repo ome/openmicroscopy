@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.figures.BezierTextFigure 
+ * org.openmicroscopy.shoola.util.roi.drawingtools.figures.BezierTextFigure 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -26,24 +26,13 @@ package org.openmicroscopy.shoola.util.ui.drawingtools.figures;
 //Java imports
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.font.FontRenderContext;
-import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.HashMap;
 
 //Third-party libraries
-
-import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
-import static org.jhotdraw.draw.AttributeKeys.FONT_FACE;
-import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
-import static org.jhotdraw.draw.AttributeKeys.FONT_UNDERLINED;
-import static org.jhotdraw.draw.AttributeKeys.TEXT;
-import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
-
-
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.BezierFigure;
 import org.jhotdraw.draw.TextHolderFigure;
@@ -51,12 +40,11 @@ import org.jhotdraw.draw.Tool;
 import org.jhotdraw.geom.Insets2D;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.texttools.DrawingTextTool;
 
-import static org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes.SHOWTEXT;
-
 /** 
- * 
+ * A bezier figure with text.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -69,258 +57,252 @@ import static org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingA
  * @since OME3.0
  */
 public class BezierTextFigure
-		extends BezierFigure
-		implements TextHolderFigure
+	extends BezierFigure
+	implements TextHolderFigure
 {	
 	
-	private boolean 		editable = true;
-	
-	// cache of the TextFigure's layout
-	transient private  		TextLayout textLayout;
-	
-	private					Rectangle2D.Double textBounds;
+	/** Flag indicating if the figure is editable or not. */
+	private boolean 							editable;
 
-	public BezierTextFigure()
+	/** Cache of the TextFigure's layout. */
+	transient private  	TextLayout 				textLayout;
+	
+	/** The bounds of the text. */
+	private				Rectangle2D.Double 		textBounds;
+
+	/**
+	 * Returns the layout used to lay out the text.
+	 * 
+	 * @return See above.
+	 */
+	private TextLayout getTextLayout()
 	{
-		this("Text");
+		if (textLayout == null) 
+			textLayout = FigureUtil.createLayout(getText(), 
+								getFontRenderContext(), getFont(), 
+								AttributeKeys.FONT_UNDERLINED.get(this));
+		return textLayout;
 	}
 	
-	public BezierTextFigure(boolean closed) 
-	{
-		this("Text", closed);
-	}
-
+	/**
+	 * Creates a default figure whose path is not closed.
+	 * 
+	 * @param text The text to display.
+	 */
 	public BezierTextFigure(String text)
 	{
-		super();
-		setAttribute(TEXT, text);
-		textLayout = null;
-		textBounds = null;
+		this(text, false);
 	}
 	
-
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param text 	The text to display.
+	 * @param closed	Passed <code>true</code> to close the path, 
+	 * 					<code>false</code> otherwise.
+	 */
 	public BezierTextFigure(String text, boolean closed) 
 	{
 		super(closed);
-		setAttribute(TEXT, text);
+		setAttribute(AttributeKeys.TEXT, text);
 		textLayout = null;
 		textBounds = null;
 	}
-		
-	//	 	SHAPE AND BOUNDS
-	public Rectangle2D.Double getBounds() 
+
+	/** 
+	 * Returns the bounds of the text.
+	 * 
+	 * @return See above.
+	 */
+	protected Rectangle2D.Double getTextBounds() 
 	{
-		return super.getBounds();
+		if (textBounds == null) return new Rectangle2D.Double(0, 0, 0, 0);
+		else return textBounds;
 	}
 
-	protected void drawStroke(java.awt.Graphics2D g) 
-	{
-
-		super.drawStroke(g);
-	}
-
-	protected void drawFill(java.awt.Graphics2D g) 
+	/**
+	 * Sets the editable flag.
+	 * 
+	 * @param b Passed <code>true</code> to be editable, <code>false</code>
+	 * 			otherwise.
+	 */
+	public void setEditable(boolean b) { this.editable = b; }
+	
+	/**
+	 * Overridden to draw the text.
+	 * @see BezierFigure#drawFill(Graphics2D)
+	 */
+	protected void drawFill(Graphics2D g) 
 	{
 		super.drawFill(g);
 		drawText(g);
 	}
 
-	protected void drawText(java.awt.Graphics2D g) 
+	/**
+	 * Overridden to draw the text.
+	 * @see BezierFigure#drawText(Graphics2D)
+	 */
+	protected void drawText(Graphics2D g) 
 	{
-		if(SHOWTEXT.get(this))
-				if (getText()!=null || isEditable()) 
-				{	
-					TextLayout layout = getTextLayout();
-					setTextBounds(g);
-					layout.draw(g, (float) textBounds.x, (float)textBounds.y);
-				}
+		if (!(DrawingAttributes.SHOWTEXT.get(this))) return;
+		String text = getText();
+		if (text != null || isEditable()) 
+		{	
+			text = text.trim();
+			TextLayout layout = getTextLayout();
+			Rectangle2D.Double r = getBounds();
+			FontMetrics fm = 
+					g.getFontMetrics(AttributeKeys.FONT_FACE.get(this));
+			double textWith = fm.stringWidth(text);
+			double textHeight = fm.getAscent();
+			double x = r.x+r.width/2-textWith/2;
+			double y = r.y+textHeight/2;
+			textBounds = new Rectangle2D.Double(x, y, textWith, textHeight);
+			layout.draw(g, (float) textBounds.x, (float) textBounds.y);
+		}	
 	}
 
-	protected void setTextBounds(Graphics2D g) 
-	{
-		textBounds = new Rectangle2D.Double(getTextX(g), getTextY(g),
-				getTextWidth(g), getTextHeight(g));
-	}
-
-	protected double getTextX(Graphics2D g) 
-	{
-		return (super.getBounds().getX()+(super.getBounds().getWidth()/2) - (getTextWidth(g)/2));
-	}
-
-	protected double getTextY(Graphics2D g) 
-	{
-		return (super.getBounds().getCenterY()) + getTextHeight(g)/2;
-	}
-
-	protected double getTextWidth(Graphics2D g) 
-	{
-		return g.getFontMetrics(FONT_FACE.get(this)).stringWidth(getText().trim());
-	}
-
-	protected double getTextHeight(Graphics2D g) 
-	{
-		return g.getFontMetrics(FONT_FACE.get(this)).getAscent();
-	}
-
-	protected Rectangle2D.Double getTextBounds() 
-	{
-		if (textBounds == null)
-			return new Rectangle2D.Double(0, 0, 0, 0);
-		else
-			return textBounds;
-	}
-
-//	EVENT HANDLING
+	/** 
+	 * Overridden to set the layout to <code>null</code>. 
+	 * @see BezierFigure#invalidate()
+	 */
 	public void invalidate() 
 	{
 		super.invalidate();
 		textLayout = null;
 	}
 
+	/** 
+	 * Overridden to set the layout to <code>null</code>. 
+	 * @see BezierFigure#validate()
+	 */
 	protected void validate() 
 	{
 		super.validate();
 		textLayout = null;
 	}
-
+	
+	/**
+	 * Overridden to return the bounds of the text area.
+	 * @see BezierFigure#getDrawingArea()
+	 */
 	public Rectangle2D.Double getDrawingArea() 
 	{
 		Rectangle2D.Double r = super.getDrawingArea();
 		r.add(getTextBounds());
 		return r;
 	}
-	
-	/**
-	 * Checks if a Point2D.Double is inside the figure.
-	 */
-	public boolean contains(Point2D.Double p) 
-	{
-		return super.contains(p);
-	}
 
 	/**
-	 * Returns a specialized tool for the given coordinate.
-	 * <p>Returns null, if no specialized tool is available.
+	 * Overridden to set the correct tool.
+	 * @see BezierFigure#getTool(Double)
 	 */
 	public Tool getTool(Point2D.Double p) 
 	{
 		boolean showText = false;
-		if(isEditable() && getBounds().contains(p))
-			showText = true;
-		if(super.path != null)
+		if (isEditable() && getBounds().contains(p)) showText = true;
+		if (super.path != null && showText)
 		{
-			if(showText)
-				if(!isClosed() && super.path.outlineContains(p, 10.0))
-					showText = false;
-				if(isClosed() && super.path.outlineContains(p, 3.0))
-					showText = false;
+			if (!isClosed() && super.path.outlineContains(p, 10.0))
+				showText = false;
+			if (isClosed() && super.path.outlineContains(p, 3.0))
+				showText = false;
 		}
-		if(showText) 
+		if (showText) 
 		{
 			invalidate();
 			return new DrawingTextTool(this); 
 		}
 		return null;
 	}
-
-	private TextLayout getTextLayout() 
-	{
-		if (textLayout == null) 
-		{
-			String text = getText();
-			if (text == null || text.length() == 0) 
-			{
-				text = " ";
-			}
-
-			FontRenderContext frc = getFontRenderContext();
-			HashMap<TextAttribute, Object> textAttributes = new HashMap<TextAttribute, Object>();
-			textAttributes.put(TextAttribute.FONT, getFont());
-			if (FONT_UNDERLINED.get(this)) 
-			{
-				textAttributes.put(TextAttribute.UNDERLINE,
-						TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
-			}
-			textLayout = new TextLayout(text, textAttributes, frc);
-		}
-		return textLayout;
-	}
-
-//	ATTRIBUTES
+	
 	/**
-	 * Gets the text shown by the text figure.
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#getText()
 	 */
-	public String getText() 
-	{
-		return (String) getAttribute(TEXT);
+	public String getText()
+	{ 
+		return (String) getAttribute(AttributeKeys.TEXT);
 	}
 
 	/**
-	 * Sets the text shown by the text figure.
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#setText(String)
 	 */
 	public void setText(String newText) 
 	{
-		setAttribute(SHOWTEXT, true);
-		setAttribute(TEXT, newText);
-	}
-
-	public int getTextColumns() 
-	{
-		return (getText() == null) ? 4 : Math.max(getText().length(), 4);
+		setAttribute(DrawingAttributes.SHOWTEXT, true);
+		setAttribute(AttributeKeys.TEXT, newText);
 	}
 
 	/**
-	 * Gets the number of characters used to expand tabs.
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#getTextColumns()
 	 */
-	public int getTabSize() 
+	public int getTextColumns() 
 	{
-		return 8;
+		String t = getText();
+		int n = FigureUtil.TEXT_COLUMNS;
+		return (t == null) ? n : Math.max(t.length(), n);
 	}
+	
+	/**
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#getTabSize()
+	 */
+	public int getTabSize() { return FigureUtil.TAB_SIZE; }
 
-	public TextHolderFigure getLabelFor() 
-	{
-		return this;
+	/**
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#getLabelFor()
+	 */
+	public TextHolderFigure getLabelFor() { return this; }
+
+	/**
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#getInsets()
+	 */
+	public Insets2D.Double getInsets() { return new Insets2D.Double(); }
+
+	/**
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#getFont()
+	 */
+	public Font getFont() { return AttributeKeys.getFont(this); }
+
+	/**
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#getTextColor()
+	 */
+	public Color getTextColor() { return AttributeKeys.TEXT_COLOR.get(this); }
+	/**
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#getFillColor()
+	 */
+	public Color getFillColor() { return AttributeKeys.FILL_COLOR.get(this); }
+
+	/**
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#getFontSize()
+	 */
+	public float getFontSize()
+	{ 
+		return AttributeKeys.FONT_SIZE.get(this).floatValue(); 
 	}
-
-	public Insets2D.Double getInsets() 
-	{
-		return new Insets2D.Double();
-	}
-
-	public Font getFont() 
-	{
-		return AttributeKeys.getFont(this);
-	}
-
-	public Color getTextColor() 
-	{
-		return TEXT_COLOR.get(this);
-	}
-
-	public Color getFillColor() 
-	{
-		return FILL_COLOR.get(this);
-	}
-
+	
+	/**
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#isEditable()
+	 */
+	public boolean isEditable() { return editable; }
+	
+	/**
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#setFontSize(float)
+	 */
 	public void setFontSize(float size) 
 	{
-		FONT_SIZE.set(this, new Double(size));
-	}
-
-	public float getFontSize() 
-	{
-		return FONT_SIZE.get(this).floatValue();
-	}
-
-//	EDITING
-	public boolean isEditable() 
-	{
-		return editable;
-	}
-
-	public void setEditable(boolean b) 
-	{
-		this.editable = b;
+		AttributeKeys.FONT_SIZE.set(this, new Double(size));
 	}
 	
 }

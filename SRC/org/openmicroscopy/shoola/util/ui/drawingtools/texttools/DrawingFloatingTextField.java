@@ -1,7 +1,7 @@
 /*
- * org.openmicroscopy.shoola.util.roi.figures.textutil.MeasureFloatingTextField 
+ * org.openmicroscopy.shoola.util.ui.drawingtools.texttools.DrawingFloatingTextField 
  *
-  *------------------------------------------------------------------------------
+ *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
@@ -28,7 +28,6 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionListener;
-
 import javax.swing.JTextField;
 
 //Third-party libraries
@@ -38,7 +37,7 @@ import org.jhotdraw.draw.TextHolderFigure;
 //Application-internal dependencies
 
 /** 
- * 
+ * Embeds a text field to display text.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,6 +51,10 @@ import org.jhotdraw.draw.TextHolderFigure;
  */
 public class DrawingFloatingTextField 
 {
+	
+	/** The default number of column for the text field. */
+	private static final int DEFAULT_COLUMN = 20;
+	
 	/** The textfield to show the text and be written to. */
     private JTextField   editWidget;
     
@@ -64,71 +67,85 @@ public class DrawingFloatingTextField
      */
     public DrawingFloatingTextField() 
     {
-        editWidget = new JTextField(20);
+        editWidget = new JTextField(DEFAULT_COLUMN);
         editWidget.setOpaque(false);
         editWidget.setHorizontalAlignment(JTextField.CENTER);
     }
     
     /**
      * Creates the overlay for the given Component.
+     * 
      * @param view the view to create the overlay on.
      */
-    public void createOverlay(DrawingView view) {
+    public void createOverlay(DrawingView view)
+    {
         createOverlay(view, null);
     }
-    
-    /** Give the textfield focus. */
-    public void requestFocus() {
-        editWidget.requestFocus();
-    }
-    
+
     /**
      * Creates the overlay for the given Container using a
      * specific font.
+     * 
      * @param view The drawing view to create the overlay on.
      * @param figure The figure from which the text belongs.
      */
-    public void createOverlay(DrawingView view, TextHolderFigure figure) {
+    public void createOverlay(DrawingView view, TextHolderFigure figure)
+    {
+    	if (view == null)
+    		throw new IllegalArgumentException("Drawing View cannot be null.");
+    	 this.view = view;
         view.getComponent().add(editWidget, 0);
+        if (figure == null) return;
         Font f = figure.getFont();
         // FIXME - Should scale with fractional value!
-        f = f.deriveFont(f.getStyle(), (float) (figure.getFontSize() * view.getScaleFactor()));
+        f = f.deriveFont(f.getStyle(), 
+        		(float) (figure.getFontSize()*view.getScaleFactor()));
         editWidget.setFont(f);
         editWidget.setForeground(figure.getTextColor());
         editWidget.setBackground(figure.getFillColor());
-        this.view = view;
+       
     }
     
-    /** Get the insets of the object. 
+    /** Gives the textfield focus. */
+    public void requestFocus() { editWidget.requestFocus(); }
+    
+    /** 
+     * Returns the insets of the object. 
      * 
-     * @return see above.
+     * @return See above.
      */
-    public Insets getInsets() {
-        return editWidget.getInsets();
-    }
+    public Insets getInsets() { return editWidget.getInsets(); }
     
     /**
      * Adds an action listener
-     * @param listener see above.
+     * 
+     * @param listener The listener to add.
      */
-    public void addActionListener(ActionListener listener) {
+    public void addActionListener(ActionListener listener)
+    {
+    	if (listener == null) return;
         editWidget.addActionListener(listener);
     }
     
     /**
-     * Remove an action listener
-     * @param listener see above. 
+     * Removes an action listener.
+     * @param listener The listener to remove.
      */
-    public void removeActionListener(ActionListener listener) {
+    public void removeActionListener(ActionListener listener)
+    {
+    	if (listener == null) return;
         editWidget.removeActionListener(listener);
     }
     
     /**
      * Positions the overlay.
-     * @param r the rectagle of the bounds.
-     * @param text the text of the object.
+     * 
+     * @param r 	The rectangle of the bounds.
+     * @param text 	The text of the object.
      */
-    public void setBounds(Rectangle r, String text) {
+    public void setBounds(Rectangle r, String text)
+    {
+    	if (r == null) return;
         editWidget.setText(text);
         editWidget.setBounds(r.x, r.y, r.width, r.height);
         editWidget.setVisible(true);
@@ -137,34 +154,32 @@ public class DrawingFloatingTextField
     }
     
     /**
-     * Gets the text contents of the overlay.
-     * @return see above.
+     * Returns the text contents of the overlay.
+     * 
+     * @return See above.
      */
-    public String getText() {
-        return editWidget.getText();
-    }
+    public String getText() { return editWidget.getText(); }
     
     /**
-     * Gets the preferred size of the overlay.
+     * Returns the preferred size of the overlay.
+     * 
      * @param cols the number of columns in the widget.
-     * @return see above.
+     * @return See above.
      */
-    public Dimension getPreferredSize(int cols) {
+    public Dimension getPreferredSize(int cols)
+    {
         editWidget.setColumns(cols);
         return editWidget.getPreferredSize();
     }
     
-    /**
-     * Removes the overlay.
-     */
-    public void endOverlay() {
+    /** Removes the overlay. */
+    public void endOverlay()
+    {
         view.getComponent().requestFocus();
-        if (editWidget != null) {
-            editWidget.setVisible(false);
-            view.getComponent().remove(editWidget);
-            
-            Rectangle bounds = editWidget.getBounds();
-            view.getComponent().repaint(bounds.x, bounds.y, bounds.width, bounds.height);
-        }
+        if (editWidget == null);
+        editWidget.setVisible(false);
+        view.getComponent().remove(editWidget);
+        Rectangle r = editWidget.getBounds();
+        view.getComponent().repaint(r.x, r.y, r.width, r.height);
     }
 }

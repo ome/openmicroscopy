@@ -40,14 +40,11 @@ import java.util.TreeMap;
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.AttributeKey;
-import org.jhotdraw.draw.DefaultDrawing;
-import org.jhotdraw.draw.DefaultDrawingEditor;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
-
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import org.openmicroscopy.shoola.agents.measurement.Analyser;
@@ -71,7 +68,6 @@ import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
-
 import pojos.ExperimenterData;
 
 /** 
@@ -110,20 +106,11 @@ class MeasurementViewerModel
     
     /** Holds one of the state flags defined by {@link MeasurementViewer}. */
     private int 					state;
-    
-    /** Component managaging the drawing. */
-    private	DefaultDrawing			drawing;
-
-    /** Component managaging the drawing. */
-	private	DrawingEditor			drawingEditor;
 	
-	/** Component hosting the drawing. */
-	private DrawingCanvasView		drawingView;
-	
-	/** The drawing canvas component to create drawing, view and editor and link 
-	 * them.
+	/** 
+	 * The drawing component to create drawing, view and editor and link them.
 	 */
-	private DrawingComponent 			drawingCanvas;
+	private DrawingComponent 		drawingComponent;
 	
 	/** The component managing the ROI. */
 	private ROIComponent			roiComponent;
@@ -188,10 +175,7 @@ class MeasurementViewerModel
 		this.name = name;
 		requesterBounds = bounds;
 		state = MeasurementViewer.NEW;
-		drawingCanvas = new DrawingComponent();
-		drawingEditor = drawingCanvas.getEditor();
-		drawing = drawingCanvas.getDrawing();
-		drawingView = drawingCanvas.getDrawingView();
+		drawingComponent = new DrawingComponent();
 		roiComponent = new ROIComponent();
 		roiFileName = imageID+".xml";
 	}
@@ -272,14 +256,14 @@ class MeasurementViewerModel
      * 
      * @return See above.
      */
-    DrawingEditor getDrawingEditor() { return drawingEditor; }
+    DrawingEditor getDrawingEditor() { return drawingComponent.getEditor(); }
     
     /**
      * Returns the drawing.
      * 
      * @return See above.
      */
-    Drawing getDrawing() { return drawing; }
+    Drawing getDrawing() { return drawingComponent.getDrawing(); }
 
     /**
      * Sets the object in the {@link MeasurementViewer#DISCARDED} state.
@@ -365,9 +349,10 @@ class MeasurementViewerModel
 	{ 
 		this.magnification = magnification;
 		if (state != MeasurementViewer.NEW)
-			drawingView.setScaleFactor(magnification, new 
+			getDrawingView().setScaleFactor(magnification, new 
 						Dimension(getSizeX(), getSizeY()));
-		else drawingView.setScaleFactor(magnification);
+		else 
+			getDrawingView().setScaleFactor(magnification);
 	}
 
 	/** 
@@ -458,7 +443,10 @@ class MeasurementViewerModel
 	 * 
 	 * @return See above.
 	 */
-	DrawingCanvasView getDrawingView() { return drawingView; }
+	DrawingCanvasView getDrawingView()
+	{ 
+		return drawingComponent.getDrawingView();
+	}
 	
 	/** 
 	 * Get the ROI of the currently selected figure in the drawingview. 
@@ -467,7 +455,7 @@ class MeasurementViewerModel
 	 */
 	Collection<ROI> getSelectedROI()
 	{
-		Collection<Figure> selectedFigs = drawingView.getSelectedFigures();
+		Collection<Figure> selectedFigs = getDrawingView().getSelectedFigures();
 		ArrayList<ROI> roiList = new ArrayList<ROI>();
 		Iterator<Figure> figIterator = selectedFigs.iterator();
 		ROIFigure fig;
@@ -744,7 +732,7 @@ class MeasurementViewerModel
 	 */
 	Collection<Figure> getSelectedFigures()
 	{
-		return drawingView.getSelectedFigures();
+		return getDrawingView().getSelectedFigures();
 	}
 	
 	/**

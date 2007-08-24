@@ -1,7 +1,7 @@
 /*
- * org.openmicroscopy.shoola.util.roi.figures.textutil.MeasureTextTool 
+ * org.openmicroscopy.shoola.util.ui.drawingtools.texttools.DrawingTextTool 
  *
-  *------------------------------------------------------------------------------
+ *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
@@ -26,12 +26,11 @@ package org.openmicroscopy.shoola.util.ui.drawingtools.texttools;
 
 //Java imports
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.util.Map;
+import java.awt.geom.Point2D;
 
 //Third-party libraries
 import org.jhotdraw.draw.CreationTool;
@@ -42,7 +41,7 @@ import org.jhotdraw.draw.TextHolderFigure;
 //Application-internal dependencies
 
 /** 
- * 
+ * A tool to create Text figure.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,66 +53,24 @@ import org.jhotdraw.draw.TextHolderFigure;
  * </small>
  * @since OME3.0
  */
-public 	class DrawingTextTool 
-		extends CreationTool 
-		implements ActionListener 
+public class DrawingTextTool 
+	extends CreationTool 
+	implements ActionListener 
 {
 
+	/** The floating text field. */
 	private DrawingFloatingTextField   	textField;
+	
+	/** The figure of reference. */
     private TextHolderFigure  			typingTarget;
     
-    /** Creates a new instance. */
-    public DrawingTextTool(TextHolderFigure prototype) 
-    {
-        super(prototype);      
-    }
-    
-    /** Creates a new instance. */
-    public DrawingTextTool(TextHolderFigure prototype, Map attributes) 
-    {
-        super(prototype, attributes);
-    }
-    
-    public void deactivate(DrawingEditor editor) 
-    {
-        endEdit();
-        super.deactivate(editor);
-    }
-    
-    /**
-     * If the pressed figure is a TextHolderFigure it can be edited otherwise
-     * a new text figure is created.
+    /** 
+     * Begins the edition.
+     * 
+     * @param textHolder The figure to handle.
      */
-    public void mousePressed(MouseEvent e) {
-        TextHolderFigure textHolder = null;
-        Figure pressedFigure = getDrawing().findFigureInside(getView().viewToDrawing(new Point(e.getX(), e.getY())));
-        if (pressedFigure instanceof TextHolderFigure) {
-            textHolder = ((TextHolderFigure) pressedFigure).getLabelFor();
-            if (!textHolder.isEditable())
-                textHolder = null;
-        }
-        if (textHolder != null) {
-            beginEdit(textHolder);
-            return;
-        }
-        if (typingTarget != null) {
-            endEdit();
-            fireToolDone();
-        } else {
-            super.mousePressed(e);
-            // update view so the created figure is drawn before the floating text
-            // figure is overlaid. (Note, fDamage should be null in StandardDrawingView
-            // when the overlay figure is drawn because a JTextField cannot be scrolled)
-            //view().checkDamage();
-            textHolder = (TextHolderFigure)getCreatedFigure();
-            beginEdit(textHolder);
-        }
-    }
-    
-    public void mouseDragged(java.awt.event.MouseEvent e) {
-    }
-    
-    protected void beginEdit(TextHolderFigure textHolder) {
+    private void beginEdit(TextHolderFigure textHolder)
+    {
         if (textField == null) {
             textField = new DrawingFloatingTextField();
             textField.addActionListener(this);
@@ -128,14 +85,21 @@ public 	class DrawingTextTool
         typingTarget = textHolder;
     }
     
-    
-    protected Rectangle getFieldBounds(TextHolderFigure figure) {
+    /**
+     * Returns the bounds of the figure.
+     * 
+     * @param figure The figure to handle.
+     * @return See above.
+     */
+    private Rectangle getFieldBounds(TextHolderFigure figure)
+    {
         Rectangle textBox = getView().drawingToView(figure.getBounds());
     
-        int h = (int)Math.min(24, textBox.getHeight());
-        int y = (int)textBox.getY()+(int)(textBox.getHeight()/2)-h/2;
+        int h = (int) Math.min(24, textBox.getHeight());
+        int y = (int) textBox.getY()+(int)(textBox.getHeight()/2)-h/2;
         
-        Rectangle box = new Rectangle((int)textBox.getX(), y, (int)textBox.getWidth(), h);
+        Rectangle box = new Rectangle((int) textBox.getX(), y, 
+        							(int) textBox.getWidth(), h);
         Insets insets = textField.getInsets();
         return new Rectangle(
                 box.x - insets.left, 
@@ -145,49 +109,93 @@ public 	class DrawingTextTool
                 );
     }
     
-    public void mouseReleased(MouseEvent evt) {
-        /*
-        if (createdFigure != null) {
-            Rectangle bounds = createdFigure.getBounds();
-            if (bounds.width == 0 && bounds.height == 0) {
-                getDrawing().remove(createdFigure);
-            } else {
-                getView().addToSelection(createdFigure);
+    /** Stops the edition. */
+    private void endEdit()
+    {
+    	if (typingTarget == null) return;
+    	 //typingTarget.willChange();
+        if (textField.getText().length() > 0) {
+            typingTarget.setText(textField.getText());
+            if (createdFigure != null) {
+                getDrawing().fireUndoableEditHappened(creationEdit);
+                createdFigure = null;
             }
-            createdFigure = null;
-            getDrawing().fireUndoableEditHappened(creationEdit);
-            fireToolDone();
-        }*/
-    }
-    
-    protected void endEdit() {
-        if (typingTarget != null) {
-            //typingTarget.willChange();
-            if (textField.getText().length() > 0) {
-                typingTarget.setText(textField.getText());
-                if (createdFigure != null) {
-                    getDrawing().fireUndoableEditHappened(creationEdit);
-                    createdFigure = null;
-                }
-            } else {
-                if (createdFigure != null) {
-                    getDrawing().remove((Figure)getAddedFigure());
-                } else {
-                    typingTarget.setText("");
-                }
-            }
-            // nothing to undo
-            //	            setUndoActivity(null);
-            //typingTarget.changed();
-            typingTarget = null;
-            
-            textField.endOverlay();
+        } else {
+            if (createdFigure != null) getDrawing().remove(getAddedFigure());
+            else typingTarget.setText("");
         }
-        //	        view().checkDamage();
+        // nothing to undo
+        //	            setUndoActivity(null);
+        //typingTarget.changed();
+        typingTarget = null;
+        
+        textField.endOverlay();
     }
     
-    public void actionPerformed(ActionEvent event) {
+    /** 
+     * Creates a new instance. 
+     * 
+     * @param prototype The figure.
+     */
+    public DrawingTextTool(TextHolderFigure prototype) 
+    {
+        super(prototype);      
+    }
+
+    /**
+     * Overridden to check if we can edit the figure.
+     * If the pressed figure is a TextHolderFigure it can be edited otherwise
+     * a new text figure is created.
+     * @see CreationTool#mousePressed(MouseEvent)
+     */
+    public void mousePressed(MouseEvent e)
+    {
+        TextHolderFigure textHolder = null;
+        Point2D.Double  p = getView().viewToDrawing(e.getPoint());
+        Figure pressedFigure = getDrawing().findFigureInside(p);
+        if (pressedFigure instanceof TextHolderFigure) {
+            textHolder = ((TextHolderFigure) pressedFigure).getLabelFor();
+            if (!textHolder.isEditable())
+                textHolder = null;
+        }
+        if (textHolder != null) {
+            beginEdit(textHolder);
+            return;
+        }
+        if (typingTarget != null) {
+            endEdit();
+            fireToolDone();
+        } else {
+            super.mousePressed(e);
+            // update view so the created figure is drawn before the 
+            // floating text figure is overlaid. (Note, Damage should be null in 
+            //StandardDrawingView when the overlay figure is drawn because a 
+            //JTextField cannot be scrolled)
+            //view().checkDamage();
+            textHolder = (TextHolderFigure) getCreatedFigure();
+            beginEdit(textHolder);
+        }
+    }
+    
+    
+    /** 
+     * Overridden to end the edition.
+     * @see CreationTool#deactivate(DrawingEditor)
+     */
+    public void deactivate(DrawingEditor editor) 
+    {
+        endEdit();
+        super.deactivate(editor);
+    }
+    
+    /**
+     * Ends the edition.
+     * @see ActionListener#actionPerformed(ActionEvent)
+     */
+    public void actionPerformed(ActionEvent event)
+    {
         endEdit();
         fireToolDone();
     }
+
 }

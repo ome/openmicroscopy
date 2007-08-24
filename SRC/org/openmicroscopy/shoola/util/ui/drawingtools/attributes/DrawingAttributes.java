@@ -1,7 +1,7 @@
 /*
- * org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes 
+ * org.openmicroscopy.shoola.util.ui.drawingtools.DrawingAttributes 
  *
-  *------------------------------------------------------------------------------
+ *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
@@ -24,17 +24,16 @@ package org.openmicroscopy.shoola.util.ui.drawingtools.attributes;
 
 
 //Java imports
-import java.awt.Color;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
-import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Defines AttributeKeys used by the Figures in this package as well as some
+ * helper methods.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,22 +48,26 @@ import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 public class DrawingAttributes  
 	extends AttributeKeys 
 {
+
+	/** Attribute to display or hide the text. */
 	public static final AttributeKey<Boolean> SHOWTEXT = 
 		new AttributeKey<Boolean>("ShowBasicTextAnnotation", false);
 	
-	private DrawingAttributes()
-	{
-	    // no code req'd
-	}
-
+	/**
+	 * Returns the sole instance.
+	 * @return See above.
+	 */
 	public static DrawingAttributes get()
 	{	
-		if (ref == null)
-			 // it's ok, we can call this constructor
-			ref = new DrawingAttributes();		
+		 // it's ok, we can call this constructor
+		if (ref == null) ref = new DrawingAttributes();		
 		return ref;
 	}
 
+	/**
+	 * Overridden to throw an exception b/c we don't support clone.
+	 * @see AttributeKeys#clone()
+	 */
 	public Object clone()
 		throws CloneNotSupportedException
 	{
@@ -72,7 +75,9 @@ public class DrawingAttributes
 		 // that'll teach 'em
 	}
 
+	/** The sole instance. */
 	private static DrawingAttributes ref;
+	
 }
 
 

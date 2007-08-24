@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 
 //Java imports
-import java.awt.Color;
-import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -35,13 +33,10 @@ import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 import java.util.Set;
 import javax.swing.JComponent;
-import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.jhotdraw.draw.DefaultDrawingView;
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
 import pojos.DatasetData;

@@ -49,21 +49,21 @@ public class PointAnnotationFigure
 
 	public PointAnnotationFigure() 
 	{
-		this("Text", 0, 0, FIGURESIZE, FIGURESIZE);
+		this("Text", 0, 0, FIGURE_SIZE, FIGURE_SIZE);
 	}
 
 	public PointAnnotationFigure(double x, double y, double w, double h)
 	{
-		this("Text", x, y, FIGURESIZE, FIGURESIZE);
+		this("Text", x, y, FIGURE_SIZE, FIGURE_SIZE);
 	}
 
 	public PointAnnotationFigure(String text) 
 	{
-		this(text, 0, 0, FIGURESIZE, FIGURESIZE);
+		this(text, 0, 0, FIGURE_SIZE, FIGURE_SIZE);
 	}
 
 	public PointAnnotationFigure(String text, double x, double y, double w, double h) 
 	{
-		super(text, x, y, FIGURESIZE, FIGURESIZE);
+		super(text, x, y, FIGURE_SIZE, FIGURE_SIZE);
 	}
 }

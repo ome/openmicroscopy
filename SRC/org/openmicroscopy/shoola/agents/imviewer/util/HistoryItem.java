@@ -81,8 +81,9 @@ public class HistoryItem
 		this.thumbnail = thumbnail;
 		time = UIUtilities.getDefaultTimestamp();
 		//noDecoration();
-		String title = getTimeAsString();
+		String title = UIUtilities.formatShortDateTime(time);;
 		setToolTipText(title);
+		/*
 		String[] elements = title.split(" ");
 		String f = "";
 		int l = elements.length;
@@ -93,6 +94,8 @@ public class HistoryItem
 			}
 		}
 		setTitle(f);
+		*/
+		setTitle(title);
 		allowClose();
 		setTitleBarType(SMALL_TITLE_BAR);
 		setListenToBorder(false);
@@ -118,16 +121,6 @@ public class HistoryItem
 	 * @return See above.
 	 */
 	public BufferedImage getThumbnail() { return thumbnail; }
-	
-	/**
-	 * Returns the time as a string.
-	 * 
-	 * @return See above.
-	 */
-	public String getTimeAsString()
-	{
-		return UIUtilities.formatDateTime(time);
-	}
 	
 	/**
      * Adds a {@link MouseListener} to the components composing the 

@@ -1,7 +1,7 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.util.PointCreationTool 
+ * org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingPointCreationTool 
  *
-  *------------------------------------------------------------------------------
+ *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
@@ -23,29 +23,21 @@
 package org.openmicroscopy.shoola.util.ui.drawingtools.creationtools;
 
 //Java imports
-import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.Map;
 
 //Third-party libraries
-import org.jhotdraw.draw.AbstractTool;
-import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.CompositeFigure;
 import org.jhotdraw.draw.CreationTool;
-import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.Figure;
-import org.jhotdraw.undo.CompositeEdit;
-import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
 
 //Application-internal dependencies
-
-
+import org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointFigure;
 
 /** 
- * 
+ * A tool to create Drawing point figure.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,159 +49,135 @@ import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
  * </small>
  * @since OME3.0
  */
-public 	class DrawingPointCreationTool 
-		extends CreationTool
-		implements DrawingCreationTool
+public class DrawingPointCreationTool 
+	extends CreationTool
+	implements DrawingCreationTool
 {
+	
 	/**
 	 * ResetToSelect will change the tool to the selection tool after 
 	 * figure creation. 
 	 */
-	private boolean						resetToSelect = false;
-	
-	/** The prototype attributes of the created figure. */
-	private Map<AttributeKey, Object>	prototypeAttributes;
-	
-	/** The creationEidt tool. */
-	protected CompositeEdit				creationEdit;
-	
-	/** Creates a new instance. */
-	public DrawingPointCreationTool(String prototypeClassName)
+	private boolean	resetToSelect;
+
+	/**
+	 * Sets the bounds of the figure.
+	 * 
+	 * @param x	The x-coordinate of the mouse.
+	 * @param y	The y-coordinate of the mouse.
+	 */
+	private void setBasicBounds(int x, int y)
 	{
-		super(prototypeClassName, null, null);
+		double size = PointFigure.FIGURE_SIZE/2;
+		Point2D.Double p = constrainPoint(viewToDrawing(new 
+			Point((int) (x-size), (int) (y-size))));
+		Point2D.Double p2 = constrainPoint(viewToDrawing(new 
+			Point((int) (x+size), (int) (y+size))));
+		createdFigure.willChange();
+		createdFigure.basicSetBounds(p, p2);
+		createdFigure.changed();
 	}
-	
-	public DrawingPointCreationTool(String prototypeClassName,
-			Map<AttributeKey, Object> attributes)
-	{
-		super(prototypeClassName, attributes, null);
-	}
-	
-	public DrawingPointCreationTool(String prototypeClassName,
-			Map<AttributeKey, Object> attributes, String name)
-	{
-		super(prototypeClassName, attributes, name);
-	}
-	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param prototype The prototype.
+	 */
 	public DrawingPointCreationTool(Figure prototype)
 	{
 		super(prototype, null, null);
 	}
-	
-	/** Creates a new instance. */
-	public DrawingPointCreationTool(Figure prototype,
-			Map<AttributeKey, Object> attributes)
-	{
-		super(prototype, attributes, null);
-	}
-	
-	/** Creates a new instance. */
-	public DrawingPointCreationTool(Figure prototype,
-			Map<AttributeKey, Object> attributes, String name)
-	{
-		super(prototype, attributes, name);
-	}
-	
 		
+	/**
+	 * Overridden to set modify the basic bounds.
+	 * @see CreationTool#mousePressed(MouseEvent)
+	 */
 	public void mousePressed(MouseEvent evt)
-	{
+	{	
+		super.mousePressed(evt);
+		/*
 		getView().clearSelection();
-		// FIXME - Localize this label
-		creationEdit=new CompositeEdit("Figur erstellen");
+		creationEdit = new CompositeEdit("Figur erstellen");
 		getDrawing().fireUndoableEditHappened(creationEdit);
-		createdFigure=createFigure();
+		createdFigure = createFigure();
+		*/
+		setBasicBounds(evt.getX(), evt.getY());
 		
-
-		Point2D.Double p=constrainPoint(viewToDrawing(new 
-			Point(	(int)(evt.getX()-PointAnnotationFigure.FIGURESIZE/2), 
-					(int)(evt.getY()-PointAnnotationFigure.FIGURESIZE/2))));
-		Point2D.Double p2=constrainPoint(viewToDrawing(new 
-			Point(	(int)(evt.getX()+PointAnnotationFigure.FIGURESIZE/2), 
-					(int)(evt.getY()+PointAnnotationFigure.FIGURESIZE/2))));
-		createdFigure.willChange();
-		createdFigure.basicSetBounds((p), p2);
-		createdFigure.changed();
-		
-		getDrawing().add(createdFigure);
+		//getDrawing().add(createdFigure);
 	}
 	
-	
+	/**
+	 * Overridden to set modify the basic bounds.
+	 * @see CreationTool#mouseDragged(MouseEvent)
+	 */
 	public void mouseDragged(MouseEvent evt)
 	{
-		if (createdFigure!=null)
-		{
-			Point2D.Double p=constrainPoint(new 
-				Point(	(int)(evt.getX()-PointAnnotationFigure.FIGURESIZE/2), 
-						(int)(evt.getY()-PointAnnotationFigure.FIGURESIZE/2)));
-			Point2D.Double p2=constrainPoint(new 
-				Point(	(int)(evt.getX()+PointAnnotationFigure.FIGURESIZE/2), 
-						(int)(evt.getY()+PointAnnotationFigure.FIGURESIZE/2)));
-			createdFigure.willChange();
-			createdFigure.basicSetBounds((p), p2);
-			createdFigure.changed();
-		}
+		if (createdFigure == null) return;
+		setBasicBounds(evt.getX(), evt.getY());
 	}
 	
+	/**
+	 * Overridden to set modify the basic bounds.
+	 * @see CreationTool#mouseReleased(MouseEvent)
+	 */
 	public void mouseReleased(MouseEvent evt)
 	{
-		if (createdFigure!=null)
+		if (createdFigure == null) return;
+		Rectangle2D.Double bounds = createdFigure.getBounds();
+		if (bounds.width == 0 && bounds.height == 0)
+			getDrawing().remove(createdFigure);
+		else
 		{
-			Rectangle2D.Double bounds=createdFigure.getBounds();
-			if (bounds.width==0&&bounds.height==0)
+			Point2D p = createdFigure.getStartPoint();
+			Point2D p1 = createdFigure.getEndPoint();
+			double width = Math.abs(p.getX()-p1.getX());
+			if (width < PointFigure.FIGURE_SIZE)
 			{
-				getDrawing().remove(createdFigure);
+				double size = PointFigure.FIGURE_SIZE/2;
+				Point2D	centre = new Point2D.Double(
+					createdFigure.getBounds().getCenterX(),
+					createdFigure.getBounds().getCenterY());
+				Point2D.Double newP1 = new Point2D.Double(
+					centre.getX()-size, centre.getY()-size);
+				Point2D.Double newP2 = new Point2D.Double(
+					centre.getX()+size, centre.getY()+size);
+				createdFigure.willChange();
+				createdFigure.basicSetBounds(newP1, newP2);
+				createdFigure.changed();
 			}
-			else
-			{
-				Point2D p = createdFigure.getStartPoint();
-				Point2D p1 = createdFigure.getEndPoint();
-				double width = Math.abs(p.getX()-p1.getX());
-				double height = Math.abs(p.getY()-p1.getY());
-				if(width<PointAnnotationFigure.FIGURESIZE)
-				{
-					Point2D	centre = new Point2D.Double(
-						createdFigure.getBounds().getCenterX(),
-						createdFigure.getBounds().getCenterY());
-					Point2D.Double newP1 = new Point2D.Double(
-						centre.getX()-PointAnnotationFigure.FIGURESIZE/2,
-						centre.getY()-PointAnnotationFigure.FIGURESIZE/2);
-					Point2D.Double newP2 = new Point2D.Double(
-						centre.getX()+PointAnnotationFigure.FIGURESIZE/2,
-						centre.getY()+PointAnnotationFigure.FIGURESIZE/2);
-					createdFigure.willChange();
-					createdFigure.basicSetBounds((newP1), newP2);
-					createdFigure.changed();
-				}
-				getView().addToSelection(createdFigure);
-			}
-			if (createdFigure instanceof CompositeFigure)
-			{
-				((CompositeFigure) createdFigure).layout();
-			}
-			getDrawing().fireUndoableEditHappened(creationEdit);
-			creationFinished(createdFigure);
-			createdFigure=null;
+			getView().addToSelection(createdFigure);
 		}
+		if (createdFigure instanceof CompositeFigure)
+		{
+			((CompositeFigure) createdFigure).layout();
+		}
+		getDrawing().fireUndoableEditHappened(creationEdit);
+		creationFinished(createdFigure);
+		createdFigure = null;
 	}
 		
+	/**
+	 * Overridden to fire an event only if the {@link #resetToSelect} flag
+	 * is <code>true</code>.
+	 * @see CreationTool#creationFinished(Figure)
+	 */
     protected void creationFinished(Figure createdFigure) 
     {
-        if(resetToSelect)
-        	fireToolDone();
+        if (resetToSelect) fireToolDone();
     }
     
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.agents.measurement.util.MeasureCreationTool#isResetToSelect()
+    /**
+	 * Implemented as specified by the {@link DrawingCreationTool} I/F.
+	 * @see DrawingCreationTool#isResetToSelect()
 	 */
-	public boolean isResetToSelect()
-	{
-		return resetToSelect;
-	}
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.agents.measurement.util.MeasureCreationTool#setResetToSelect(boolean)
+	public boolean isResetToSelect() { return resetToSelect; }
+	
+	/**
+	 * Implemented as specified by the {@link DrawingCreationTool} I/F.
+	 * @see DrawingCreationTool#setResetToSelect(boolean)
 	 */
 	public void setResetToSelect(boolean create)
 	{
 		resetToSelect = create;
 	}
+	
 }

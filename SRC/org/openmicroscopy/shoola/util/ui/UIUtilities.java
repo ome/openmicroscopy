@@ -673,4 +673,17 @@ public class UIUtilities
     	return DateFormat.getDateTimeInstance().format(time);  
     }
 	
+    /**
+     * Formats as a <code>String</code> the specified time.
+     * 
+     * @param time The timestamp to format.
+     * @return Returns the stringified version of the passed timestamp.
+     */
+    public static String formatShortDateTime(Timestamp time) 
+    {
+    	if (time == null) return "";
+    	return DateFormat.getDateTimeInstance(
+    			DateFormat.SHORT, DateFormat.SHORT).format(time);  
+    }
+    
 }

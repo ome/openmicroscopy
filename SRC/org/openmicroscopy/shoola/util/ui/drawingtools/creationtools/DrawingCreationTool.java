@@ -1,7 +1,7 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.util.MeasureCreationTool 
+ * org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingCreationTool 
  *
-  *------------------------------------------------------------------------------
+ *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
@@ -29,7 +29,7 @@ package org.openmicroscopy.shoola.util.ui.drawingtools.creationtools;
 //Application-internal dependencies
 
 /** 
- * 
+ * Basic interface used to reset the selection tool after creating the tool.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -44,18 +44,21 @@ package org.openmicroscopy.shoola.util.ui.drawingtools.creationtools;
 public interface DrawingCreationTool
 {	
 	/** 
-	 * Set the param to true if you only want to create on figure and then 
-	 * reset the tool to the selection tool. 
-	 * @param create see above.
+	 * Sets the param to <code>true</code> if you only want to create on 
+	 * figure and then resets the tool to the selection tool. 
+	 * 
+	 * @param create See above.
 	 */
 	public void setResetToSelect(boolean create);
 	
 	/**
-	 * If the return param is true then after a figure is created the tool will
-	 * reset the toolbar to the selectionTool.
-	 * @return see above.
+	 * If the return parameter is <code>true</code> then after a figure is 
+	 * created the tool will reset the toolbar to the selectionTool.
+	 * 
+	 * @return See above.
 	 */
 	public boolean isResetToSelect();
+	
 }
 
 

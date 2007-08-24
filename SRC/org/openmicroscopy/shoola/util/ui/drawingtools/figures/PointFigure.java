@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.figures.PointFigure 
+ * org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointFigure 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -24,29 +24,28 @@ package org.openmicroscopy.shoola.util.ui.drawingtools.figures;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
-import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 //Third-party libraries
-
+import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.EllipseFigure;
 import org.jhotdraw.draw.Handle;
 import org.jhotdraw.draw.MoveHandle;
 import org.jhotdraw.draw.RelativeLocator;
 import org.jhotdraw.geom.Insets2D;
 
-import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
 
 //Application-internal dependencies
 
 /** 
- * Create a new figure type, the pointFigure is an extension of the ellipse
+ * Creates a new figure type, the pointFigure is an extension of the ellipse
  * that has cross hairs on the centre. The pointFigure has also got a 
- * Creation tool {@see DrawingPointCreationTool}. This is because the point 
+ * Creation tool. This is because the point 
  * tool should not be allowed to be sized. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -59,72 +58,42 @@ import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
  * </small>
  * @since OME3.0
  */
-public class PointFigure extends EllipseFigure
+public class PointFigure 
+	extends EllipseFigure
 {
+	
 	/** The radius of the ellipse. */
-	public final static double	POINTSIZE	=6;
+	public final static double	POINT_SIZE = 6;
 	
 	/** Total size of the figure. including crosshairs. */
-	public final static double	FIGURESIZE	=22;
-	
-	
-	/** Create the point figure, of figure size);
-	public PointFigure()
-	{
-		this(0, 0, FIGURESIZE, FIGURESIZE);
-	}
-	
-	
-	/** The PointFigure may only be FigureSize.
-	 * @param x the x coord.
-	 * @param y the y coord.
-	 * @param w the width is defaulted to FIGURESIZE.
-	 * @param h the height is defaulted to FIGURESIZE.
-	 */ 
-	public PointFigure(double x, double y, double w, double h)
-	{
-		super(x, y, FIGURESIZE, FIGURESIZE);
-	}
-	
-	
+	public final static double	FIGURE_SIZE = 22;
+
 	/**
-	 * Draw the stroke of the figure. 
-	 * @param g the graphics context. 
+	 * Draws the crosshairs of the ellipse on the graphics context.
+
+	 * @param g The graphics context.
 	 */
-	protected void drawStroke(java.awt.Graphics2D g)
+	private void drawCrossHairs(Graphics2D g)
 	{
-		//super.drawStroke(g);
-		Ellipse2D.Double newEllipse=
-				new Ellipse2D.Double(ellipse.getCenterX()-POINTSIZE, ellipse
-					.getCenterY()
-						-POINTSIZE, POINTSIZE*2, POINTSIZE*2);
-		g.draw(newEllipse);
-		drawCrossHairs(g);
-	}
-	
-	/**
-	 * Draw the crosshairs of the ellipse on the graphics context. 
-	 * @param g graphics context.
-	 */
-	private void drawCrossHairs(java.awt.Graphics2D g)
-	{
-		Ellipse2D.Double newEllipse=
-				new Ellipse2D.Double(ellipse.getCenterX()-POINTSIZE, ellipse
-					.getCenterY()
-						-POINTSIZE, POINTSIZE*2, POINTSIZE*2);
-		double cx=Math.floor(newEllipse.getCenterX());
-		double cy=Math.floor(newEllipse.getCenterY());
-		double x=Math.floor(newEllipse.getX());
-		double y=Math.floor(newEllipse.getY());
-		double width=POINTSIZE;
-		double height=POINTSIZE;
-		double loffset=3;
+		Ellipse2D.Double newEllipse =
+				new Ellipse2D.Double(ellipse.getCenterX()-POINT_SIZE, 
+									ellipse.getCenterY()-POINT_SIZE, 
+									POINT_SIZE*2, POINT_SIZE*2);
+		double cx = Math.floor(newEllipse.getCenterX());
+		double cy = Math.floor(newEllipse.getCenterY());
+		double x = Math.floor(newEllipse.getX());
+		double y = Math.floor(newEllipse.getY());
+		double width = POINT_SIZE;
+		double height = POINT_SIZE;
+		double loffset = 3;
 		
-		Line2D.Double lhline=new Line2D.Double(x-loffset*2, cy, cx-loffset, cy);
-		Line2D.Double rhline=
+		Line2D.Double lhline = new Line2D.Double(x-loffset*2, cy, 
+													cx-loffset, cy);
+		Line2D.Double rhline =
 				new Line2D.Double(cx+loffset, cy, cx+width+loffset*2, cy);
-		Line2D.Double tvline=new Line2D.Double(cx, y-loffset*2, cx, cy-loffset);
-		Line2D.Double bvline=
+		Line2D.Double tvline = new Line2D.Double(cx, y-loffset*2, 
+												cx, cy-loffset);
+		Line2D.Double bvline =
 				new Line2D.Double(cx, cy+loffset, cx, cy+height+loffset*2);
 		
 		g.draw(lhline);
@@ -133,35 +102,70 @@ public class PointFigure extends EllipseFigure
 		g.draw(bvline);
 	}
 	
-	/**
-	 * Draw the fill of the figure. 
-	 * @param g the graphics context. 
-	 */
-	protected void drawFill(java.awt.Graphics2D g)
+	/** 
+	 * Creates a new instance.
+	 * 
+	 * @param x The x coordinate.
+	 * @param y The y coordinate.
+	 */ 
+	public PointFigure(double x, double y)
 	{
-		Ellipse2D.Double newEllipse=
-				new Ellipse2D.Double(ellipse.getCenterX()-POINTSIZE, ellipse
-					.getCenterY()
-						-POINTSIZE, POINTSIZE*2, POINTSIZE*2);
+		super(x, y, FIGURE_SIZE, FIGURE_SIZE);
+	}
+	
+	/**
+	 * Returns the insets.
+	 * 
+	 * @return See above.
+	 */
+	public Insets2D.Double getInsets() { return new Insets2D.Double(); }
+	
+	/**
+	 * Returns the color used to fill.
+	 * 
+	 * @return See above.
+	 */
+	public Color getFillColor()
+	{
+		return AttributeKeys.FILL_COLOR.get(this);
+	}
+	
+	/**
+	 * Overridden to draw the stroke of the figure.
+	 * @see EllipseFigure#drawStroke(Graphics2D)
+	 */
+	protected void drawStroke(Graphics2D g)
+	{
+		Ellipse2D.Double newEllipse =
+				new Ellipse2D.Double(ellipse.getCenterX()-POINT_SIZE, 
+						ellipse.getCenterY()-POINT_SIZE, 
+						POINT_SIZE*2, POINT_SIZE*2);
+		g.draw(newEllipse);
+		drawCrossHairs(g);
+	}
+	
+	/**
+	 * Overridden to draw the fill with a new ellipse.
+	 * @see EllipseFigure#drawFill(Graphics2D)
+	 */
+	protected void drawFill(Graphics2D g)
+	{
+		Ellipse2D.Double newEllipse =
+				new Ellipse2D.Double(ellipse.getCenterX()-POINT_SIZE, 
+									ellipse.getCenterY()-POINT_SIZE, 
+									POINT_SIZE*2, POINT_SIZE*2);
 		g.fill(newEllipse);
 		drawText(g);
 	}
 	
-	
 	/**
-	 * Draw the text of the figure. 
-	 * @param g the graphics context. 
+	 * Overridden to create the appropriated handles.
+	 * @see EllipseFigure#createHandles(int)
 	 */
-	protected void drawText(java.awt.Graphics2D g)
-	{
-
-	}
-	
-	
 	public Collection<Handle> createHandles(int detailLevel)
 	{
-		List<Handle> handles=new LinkedList<Handle>();
-		if (detailLevel==0)
+		List<Handle> handles = new LinkedList<Handle>();
+		if (detailLevel == 0)
 		{
 			handles.add(new MoveHandle(this, RelativeLocator.northWest()));
 			handles.add(new MoveHandle(this, RelativeLocator.northEast()));
@@ -169,39 +173,6 @@ public class PointFigure extends EllipseFigure
 			handles.add(new MoveHandle(this, RelativeLocator.southEast()));
 		}
 		return handles;
-	}
-	
-	
-	
-	// EVENT HANDLING
-	public void invalidate()
-	{
-		super.invalidate();
-	}
-	
-	
-	protected void validate()
-	{
-		super.validate();
-	}
-	
-	
-	public Rectangle2D.Double getDrawingArea()
-	{
-		Rectangle2D.Double r=super.getDrawingArea();
-		return r;
-	}
-	
-	
-	public Insets2D.Double getInsets()
-	{
-		return new Insets2D.Double();
-	}
-	
-	
-	public Color getFillColor()
-	{
-		return FILL_COLOR.get(this);
 	}
 	
 }

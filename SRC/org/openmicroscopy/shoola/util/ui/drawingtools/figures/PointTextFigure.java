@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.figures.PointTextFigure 
+ * org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointTextFigure 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -26,33 +26,25 @@ package org.openmicroscopy.shoola.util.ui.drawingtools.figures;
 //Java imports
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.font.FontRenderContext;
-import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.HashMap;
 
 //Third-party libraries
-
-import static org.jhotdraw.draw.AttributeKeys.FONT_FACE;
-import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
-import static org.jhotdraw.draw.AttributeKeys.FONT_UNDERLINED;
-import static org.jhotdraw.draw.AttributeKeys.TEXT;
-import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
-
 import org.jhotdraw.draw.Tool;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.TextHolderFigure;
+import org.jhotdraw.geom.Insets2D;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.texttools.DrawingTextTool;
 
-import static org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes.SHOWTEXT;
 
 /** 
- * 
+ * A point figure with text.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -68,95 +60,117 @@ public class PointTextFigure
 	extends PointFigure
 	implements TextHolderFigure
 {	
-	private boolean 							editable;
-
-	// cache of the TextFigure's layout
-	transient private  	TextLayout 				textLayout;
-	private				Rectangle2D.Double 		textBounds;
 	
-	public PointTextFigure() 
-	{
-		this("Text", 0, 0, FIGURESIZE, FIGURESIZE);
-	}
+	/** Flag indicating if the figure is editable or not. */
+	private boolean 				editable;
 
-	public PointTextFigure(double x, double y, double w, double h)
+	/** Cache of the TextFigure's layout. */
+	transient private  	TextLayout	textLayout;
+	
+	/** The bounds of the text. */
+	private Rectangle2D.Double		textBounds;
+	
+	/**
+	 * Returns the layout used to lay out the text.
+	 * 
+	 * @return See above.
+	 */
+	private TextLayout getTextLayout()
 	{
-		this("Text", x, y, FIGURESIZE, FIGURESIZE);
+		if (textLayout == null) 
+			textLayout = FigureUtil.createLayout(getText(), 
+								getFontRenderContext(), getFont(), 
+								AttributeKeys.FONT_UNDERLINED.get(this));
+		return textLayout;
 	}
-
-	public PointTextFigure(String text) 
-	{
-		this(text, 0, 0, FIGURESIZE, FIGURESIZE);
-	}
-
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param text	The text to display.
+	 * @param x		The x-coordinate.
+	 * @param y		The x-coordinate. 
+	 * @param w		The width.
+	 * @param h		The height.
+	 */
 	public PointTextFigure(String text, double x, double y, double w, double h) 
 	{
-		super(x, y, FIGURESIZE, FIGURESIZE);
-		setAttribute(TEXT, text);
+		super(x, y);
+		setAttribute(AttributeKeys.TEXT, text);
 		textLayout = null;
 		textBounds = null;
 		editable = true;
 	}
 	 
-	protected void drawText(java.awt.Graphics2D g) 
-	{
-		if(SHOWTEXT.get(this))
-				if (getText()!=null || isEditable()) 
-				{	
-					TextLayout layout = getTextLayout();
-					setTextBounds(g);
-					layout.draw(g, (float) textBounds.x, (float)textBounds.y);
-				}
-	}
-
-	protected void setTextBounds(Graphics2D g) 
-	{
-		textBounds = new Rectangle2D.Double(getTextX(g), getTextY(g),
-				getTextWidth(g), getTextHeight(g));
-	}
-
-	protected double getTextX(Graphics2D g) 
-	{
-		return (getBounds().getX()+(getBounds().getWidth()/2) - (getTextWidth(g)/2));
-	}
-
-	protected double getTextY(Graphics2D g) 
-	{
-		return (getBounds().getY()+getBounds().getHeight()/2) + getTextHeight(g)/2;
-	}
-
-	protected double getTextWidth(Graphics2D g) 
-	{
-		return g.getFontMetrics(FONT_FACE.get(this)).stringWidth(getText().trim());
-	}
-
-	protected double getTextHeight(Graphics2D g) 
-	{
-		return g.getFontMetrics(FONT_FACE.get(this)).getAscent();
-	}
-
+	/** 
+	 * Returns the bounds of the text.
+	 * 
+	 * @return See above.
+	 */
 	protected Rectangle2D.Double getTextBounds() 
 	{
-		if (textBounds == null)
-			return new Rectangle2D.Double(0, 0, 0, 0);
-		else
-			return textBounds;
+		if (textBounds == null) return new Rectangle2D.Double(0, 0, 0, 0);
+		else return textBounds;
+	}
+	
+	/**
+	 * Sets the editable flag.
+	 * 
+	 * @param b Passed <code>true</code> to be editable, <code>false</code>
+	 * 			otherwise.
+	 */
+	public void setEditable(boolean b) { this.editable = b; }
+	
+	/**
+	 * Overridden to draw the text.
+	 * @see PointFigure#drawText(Graphics2D)
+	 */
+	protected void drawText(Graphics2D g) 
+	{
+		if (DrawingAttributes.SHOWTEXT.get(this)) {
+			String text = getText();
+			if (text != null || isEditable()) 
+			{	
+				text = text.trim();
+				TextLayout layout = getTextLayout();
+				Rectangle2D.Double r = getBounds();
+				FontMetrics fm = 
+						g.getFontMetrics(AttributeKeys.FONT_FACE.get(this));
+				double textWith = fm.stringWidth(text);
+				double textHeight = fm.getAscent();
+				double x = r.x+r.width/2-textWith/2;
+				double y = r.y+r.height/2+textHeight/2;
+				textBounds = new Rectangle2D.Double(x, y, textWith, textHeight);
+				layout.draw(g, (float) textBounds.x, (float) textBounds.y);
+			}
+		}	
 	}
 
-	// EVENT HANDLING
+	/** 
+	 * Overridden to set the layout to <code>null</code>.
+	 * @see PointFigure#invalidate()
+	 */
 	public void invalidate() 
 	{
 		super.invalidate();
 		textLayout = null;
 	}
 
-	protected void validate() 
+	/** 
+	 * Overridden to set the layout to <code>null</code>.
+	 * @see PointFigure#validate()
+	 */
+	public void validate() 
 	{
 		super.validate();
 		textLayout = null;
 	}
-
-	public Rectangle2D.Double getDrawingArea() 
+	
+	/**
+	 * Overridden to return the bounds of the text area.
+	 * @see PointFigure#getDrawingArea()
+	 */
+	public Rectangle2D.Double getDrawingArea()
 	{
 		Rectangle2D.Double r = super.getDrawingArea();
 		r.add(getTextBounds());
@@ -164,108 +178,104 @@ public class PointTextFigure
 	}
     
 	/**
-	 * Returns a specialized tool for the given coordinate.
-	 * <p>Returns null, if no specialized tool is available.
+	 * Overridden to set the correct tool.
+	 * @see PointFigure#getTool(Double)
 	 */
 	public Tool getTool(Point2D.Double p) 
 	{
-		if(isEditable() && contains(p)) 
-		{
+		if (isEditable() && contains(p)) {
 			invalidate();
 			return new DrawingTextTool(this); 
 		}
 		return null;
 	}
 
-	private TextLayout getTextLayout() 
-	{
-		if (textLayout == null) {
-			String text = getText();
-			if (text == null || text.length() == 0) 
-			{
-				text = " ";
-			}
-
-			FontRenderContext frc = getFontRenderContext();
-			HashMap<TextAttribute, Object> textAttributes = new HashMap<TextAttribute, Object>();
-			textAttributes.put(TextAttribute.FONT, getFont());
-			if (FONT_UNDERLINED.get(this)) 
-			{
-				textAttributes.put(TextAttribute.UNDERLINE,
-						TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
-			}
-			textLayout = new TextLayout(text, textAttributes, frc);
-		}
-		return textLayout;
-	}
-
-	// ATTRIBUTES
 	/**
-	 * Gets the text shown by the text figure.
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#getText()
 	 */
-	public String getText() 
-	{
-		return (String) getAttribute(TEXT);
+	public String getText()
+	{ 
+		return (String) getAttribute(AttributeKeys.TEXT); 
 	}
-
+	
 	/**
-	 * Sets the text shown by the text figure.
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#setText(String)
 	 */
 	public void setText(String newText) 
 	{
-		setAttribute(SHOWTEXT, true);
-		setAttribute(TEXT, newText);
-	}
-
-	public int getTextColumns() 
-	{
-		return (getText() == null) ? 4 : Math.max(getText().length(), 4);
-	}
-
-	/**
-	 * Gets the number of characters used to expand tabs.
-	 */
-	public int getTabSize() 
-	{
-		return 8;
-	}
-
-	public TextHolderFigure getLabelFor() 
-	{
-		return this;
-	}
-
-	public Font getFont() 
-	{
-		return AttributeKeys.getFont(this);
-	}
-
-	public Color getTextColor() 
-	{
-		return TEXT_COLOR.get(this);
-	}
-
-	public void setFontSize(float size) 
-	{
-		//    FONT_SIZE.set(this, new Double(size));
-	}
-
-	public float getFontSize() 
-	{
-		return FONT_SIZE.get(this).floatValue();
-	}
-
-	// EDITING
-	public boolean isEditable() 
-	{
-		return editable;
-	}
-
-	public void setEditable(boolean b) 
-	{
-		this.editable = b;
+		setAttribute(DrawingAttributes.SHOWTEXT, true);
+		setAttribute(AttributeKeys.TEXT, newText);
 	}
 	
+	/**
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#getTextColumns()
+	 */
+	public int getTextColumns() 
+	{
+		String t = getText();
+		int n = FigureUtil.TEXT_COLUMNS;
+		return (t == null) ? n : Math.max(t.length(), n);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#getTabSize()
+	 */
+	public int getTabSize() { return FigureUtil.TAB_SIZE; }
+	/**
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#getLabelFor()
+	 */
+	public TextHolderFigure getLabelFor() { return this; }
+	
+	/**
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#getInsets()
+	 */
+	public Insets2D.Double getInsets() { return new Insets2D.Double(); }
+
+	/**
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#getFont()
+	 */
+	public Font getFont() { return AttributeKeys.getFont(this); }
+	
+	/**
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#getTextColor()
+	 */
+	public Color getTextColor() { return AttributeKeys.TEXT_COLOR.get(this); }
+	
+	/**
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#getFillColor()
+	 */
+	public Color getFillColor() { return AttributeKeys.FILL_COLOR.get(this); }
+	
+	/**
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#getFontSize()
+	 */
+	public float getFontSize()
+	{
+		return AttributeKeys.FONT_SIZE.get(this).floatValue();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TextHolderFigure} I/F.
+	 * @see TextHolderFigure#isEditable()
+	 */
+	public boolean isEditable() { return editable; }
+
+	/**
+	 * Required by the {@link TextHolderFigure} I/F but no-op implementation
+	 * in our case.
+	 * @see TextHolderFigure#setFontSize(float)
+	 */
+	public void setFontSize(float size)  {}
 
 }
 

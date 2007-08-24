@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.view.DrawingView 
+ * org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -54,7 +54,7 @@ public class DrawingCanvasView
 {
 
 	/** The default background. */
-	private static final Color	BACKGROUND = new Color(0xf0f0f0);
+	private static final Color			BACKGROUND = new Color(0xf0f0f0);
 	
 	/** 
 	 * Default point used to override the {@link #drawBackground(Graphics2D)}
@@ -63,7 +63,7 @@ public class DrawingCanvasView
 	private static final Point2D.Double	ORIGIN = new Point2D.Double(0, 0);
 	
 	/**
-	 * Set the size of the component. This method takes in the original size
+	 * Sets the size of the component. This method takes in the original size
 	 * of the image and the scale factor and sets the size of the component 
 	 * then calls {@link DefaultDrawingView#setScaleFactor(double)}.
 	 * 
@@ -72,8 +72,9 @@ public class DrawingCanvasView
 	 */
 	public void setScaleFactor(double f, Dimension originalSize)
 	{
-		setSize((int) (originalSize.getWidth()*f), 
-				(int) (originalSize.getHeight()*f));
+		if (originalSize != null)
+			setSize((int) (originalSize.getWidth()*f), 
+					(int) (originalSize.getHeight()*f));
 		super.setScaleFactor(f);
 	}
 	

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvas 
+ * org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingComponent
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -24,18 +24,18 @@ package org.openmicroscopy.shoola.util.ui.drawingtools;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.util.ArrayList;
 
+//Third-party libraries
 import org.jhotdraw.draw.DefaultDrawing;
 import org.jhotdraw.draw.DefaultDrawingEditor;
+import org.jhotdraw.draw.DefaultDrawingView;
 import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.DrawingEvent;
 import org.jhotdraw.draw.DrawingListener;
-import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.draw.FigureSelectionListener;
-
-//Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
@@ -55,8 +55,9 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
  * @since OME3.0
  */
 public class DrawingComponent
-		implements DrawingListener
+	implements DrawingListener
 {	
+	
 	/** Component managaging the drawing. */
     private	DefaultDrawing				drawing;
 
@@ -73,7 +74,7 @@ public class DrawingComponent
 	 * This variable is true if the drawingCanvas will attach all the figure
 	 * listeners in the figureListeners arraylist to newly created figures. 
 	 */
-	private boolean 				createListeners;
+	private boolean 					createListeners;
 	
 	/** 
 	 * Constructor for the drawing canvas. This creates and links the 
@@ -90,16 +91,15 @@ public class DrawingComponent
 	}
 	
 	/**
-	 * Return true if the arraylist of figureListeners will be added to
-	 * all newly created figures. 
+	 * Returns <code>true</code>if the list of figureListeners will be added to
+	 * all newly created figures, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
 	 */
-	public boolean willCreateFigureListeners()
-	{
-		return createListeners;
-	}
+	public boolean willCreateFigureListeners() { return createListeners; }
 	
 	/** 
-	 * Set up the listener structure so that all figure listeners in the 
+	 * Sets up the listener structure so that all figure listeners in the 
 	 * figure listner arraylist will be added to the createdfigures.
 	 */ 
 	public void createFigureListeners()
@@ -109,90 +109,86 @@ public class DrawingComponent
 	}
 	
 	/**
-	 * Get the DefaultDrawing this is the model for the drawing. 
-	 * @return see above.
+	 * Returns the DefaultDrawing this is the model for the drawing. 
+	 * 
+	 * @return See above.
 	 */
-	public DefaultDrawing getDrawing()
-	{
-		return drawing;
-	}
+	public DefaultDrawing getDrawing() { return drawing; }
 
 	/**
-	 * Get the drawing editor, this stores the undo information for the 
+	 * Returns the drawing editor, this stores the undo information for the 
 	 * drawing.
-	 * @return see above.
+	 * 
+	 * @return See above.
 	 */
-	public DrawingEditor getEditor()
-	{
-		return drawingEditor;
-	}
+	public DrawingEditor getEditor() { return drawingEditor; }
 	
 	/**
-	 * Get the Drawing view.
-	 * @return see above.
+	 * Returns the Drawing view.
+	 * 
+	 * @return See above.
 	 */
-	public DrawingCanvasView getDrawingView()
-	{
-		return drawingView;
-	}
+	public DrawingCanvasView getDrawingView() { return drawingView; }
 	
 	/** 
-	 * Add Drawing Listener
-	 * @param listener the drawing listener.  
+	 * Adds the passed Drawing Listener.
+	 * 
+	 * @param listener The drawing listener to add.
 	 **/
 	public void addDrawingListener(DrawingListener listener)
 	{
+		if (listener == null) return;
 		drawing.addDrawingListener(listener);
 	}
 	
 	/** 
-	 * Add Figure selection listener.
-	 * @param listener the figure selection listener. 
+	 * Adds the passed Figure selection listener.
+	 * 
+	 * @param listener The figure selection listener to add. 
 	 */
 	public void addFigureSelectionListener(FigureSelectionListener listener)
 	{
+		if (listener == null) return;
 		drawingView.addFigureSelectionListener(listener);
 	}
 	
 	/**
-	 *  Add Figure listener.
-	 *  @param listener this is the listener which will be added to a list 
-	 *  that is then added to any figure which is created.  
-	 **/
+	 * Adds Figure listener.
+	 * 
+	 * @param listener	This is the listener which will be added to a list 
+	 * 					that is then added to any figure which is created.  
+	 */
 	public void addFigureListener(FigureListener listener)
 	{
+		if (listener == null) return;
 		figureListeners.add(listener);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jhotdraw.draw.DrawingListener#areaInvalidated(org.jhotdraw.draw.DrawingEvent)
-	 */
-	public void areaInvalidated(DrawingEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see org.jhotdraw.draw.DrawingListener#figureAdded(org.jhotdraw.draw.DrawingEvent)
+	/**
+	 * Notifies all figure listeners.
+	 * @see DrawingListener#figureAdded(DrawingEvent)
 	 */
 	public void figureAdded(DrawingEvent e)
 	{
-		for(int i = 0 ; i < figureListeners.size(); i++)
+		if (e == null) return;
+		for (int i = 0 ; i < figureListeners.size(); i++)
 			e.getFigure().addFigureListener(figureListeners.get(i));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jhotdraw.draw.DrawingListener#figureRemoved(org.jhotdraw.draw.DrawingEvent)
+	/**
+	 * Required by the {@link DrawingListener} I/F but no-op implementation
+	 * in our case.
+	 * @see DrawingListener#figureRemoved(DrawingEvent)
 	 */
-	public void figureRemoved(DrawingEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+	public void figureRemoved(DrawingEvent e) {}
 	
-	
-	
+	/**
+	 * Required by the {@link DrawingListener} I/F but no-op implementation
+	 * in our case.
+	 * @see DrawingListener#areaInvalidated(DrawingEvent)
+	 */
+	public void areaInvalidated(DrawingEvent e) {}
+
 }
 
 
