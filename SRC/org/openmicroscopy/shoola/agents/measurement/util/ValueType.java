@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.figures.MeasureBezierTextFigure 
+ * org.openmicroscopy.shoola.agents.measurement.util.ValueType 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,8 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.roi.figures;
-
+package org.openmicroscopy.shoola.agents.measurement.util;
 
 //Java imports
 
@@ -42,35 +41,11 @@ package org.openmicroscopy.shoola.util.roi.figures;
  * </small>
  * @since OME3.0
  */
-public class BezierAnnotationFigure
-		extends MeasureBezierFigure
-{
-	public BezierAnnotationFigure()
-	{
-		this("Text");
-	}
-	
-	public BezierAnnotationFigure(boolean closed) 
-	{
-		this("Text", closed);
-	}
-
-	public BezierAnnotationFigure(String text)
-	{
-		super(text);
-	}
-	
-
-	public BezierAnnotationFigure(String text, boolean closed) 
-	{
-		super(text, closed);
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#calculateMeasurements()
-	 */
-	public void calculateMeasurements()
-	{
-		super.calculateMeasurements();
-	}
+public enum ValueType
+{	
+	RANGE,
+	ENUM,
+	DEFAULT
 }
+
+

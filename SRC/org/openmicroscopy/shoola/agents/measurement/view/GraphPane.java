@@ -45,8 +45,8 @@ import javax.swing.JTextField;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.util.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.AnalysisStatsWrapper.StatsType;
-import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -94,10 +94,10 @@ class GraphPane
 	private boolean lineProfileFigure(ROIShape shape)
 	{
 		ROIFigure f = shape.getFigure();
-		if (f instanceof LineAnnotationFigure) return true;
-		if (f instanceof BezierAnnotationFigure )
+		if (f instanceof MeasureLineFigure) return true;
+		if (f instanceof MeasureBezierFigure )
 		{
-			BezierAnnotationFigure fig = (BezierAnnotationFigure) f;
+			MeasureBezierFigure fig = (MeasureBezierFigure) f;
 			if (!fig.isClosed()) return true;
 		}
 		return false;

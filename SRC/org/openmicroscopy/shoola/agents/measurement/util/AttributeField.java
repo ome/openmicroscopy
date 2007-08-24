@@ -24,11 +24,9 @@ package org.openmicroscopy.shoola.agents.measurement.util;
 
 
 //Java imports
+import java.util.ArrayList;
 
 //Third-party libraries
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.jhotdraw.draw.AttributeKey;
 
 //Application-internal dependencies
@@ -61,6 +59,28 @@ public class AttributeField
 	/** Value range of objects */
 	private ArrayList		valueRange;
 	
+	/** The type of value stored in the value range. */
+	private ValueType		valueType;
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param key	The key hosted by this class.
+	 * @param name	The name of the field.
+	 * @param editable	Pass <code>true</code> to edit the field, 
+	 * 					<code>false</code> otherwise.
+	 * @param range The range of values this attribute can take.
+	 * @param type 		 the Type of value avail;abel to object, enum, or range
+	 */
+	public AttributeField(AttributeKey key, String name, boolean editable, ArrayList range, ValueType type)
+	{
+		this.key = key;
+		this.name = name;
+		this.editable = editable;
+		valueRange = range;
+		valueType = type;
+	}
+		
 	/**
 	 * Creates a new instance.
 	 * 
@@ -74,25 +94,8 @@ public class AttributeField
 		this.key = key;
 		this.name = name;
 		this.editable = editable;
-		valueRange = new ArrayList();
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param key	The key hosted by this class.
-	 * @param name	The name of the field.
-	 * @param editable	Pass <code>true</code> to edit the field, 
-	 * 					<code>false</code> otherwise.
-	 * @param valueRange The range of values this attribute can take.
-	 */
-	public AttributeField(AttributeKey key, String name, boolean editable,
-			ArrayList valueRange)
-	{
-		this.key = key;
-		this.name = name;
-		this.editable = editable;
-		this.valueRange = new ArrayList(valueRange);
+		valueType = ValueType.DEFAULT;
+		valueRange = null;
 	}
 	
 	
@@ -100,9 +103,18 @@ public class AttributeField
 	 * Gets the value range the object can take.
 	 * @return value range.
 	 */
-	public Collection getValueRange()
+	public ArrayList getValueRange()
 	{
 		return valueRange;
+	}
+	
+	/** 
+	 * Gets the value type the object can take.
+	 * @return value type.
+	 */
+	public ValueType getValueType()
+	{
+		return valueType;
 	}
 	
 	/**

@@ -49,8 +49,11 @@ import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.AttributeField;
+import org.openmicroscopy.shoola.agents.measurement.util.FigureTable;
+import org.openmicroscopy.shoola.agents.measurement.util.FigureTableModel;
 import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
+import org.openmicroscopy.shoola.agents.measurement.util.ValueType;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
@@ -81,7 +84,7 @@ class ObjectInspector
 	private static final String			NAME = "Inspector";
 	
 	/** The table hosting the various fields. */
-	private JTable 						fieldTable;
+	private FigureTable					fieldTable;
 
 	/** Reference to the control. */
 	private MeasurementViewerControl	controller;
@@ -105,10 +108,11 @@ class ObjectInspector
 		l.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT, 
 					"Show Measurements", 
 				false)); 
+
 		l.add(new AttributeField(AttributeKeys.STROKE_WIDTH, "Line Width", 
-				true));
+				true, strokeRange(), ValueType.ENUM));
 		l.add(new AttributeField(AttributeKeys.FONT_SIZE, "Font Size", 
-				true));
+				true, fontRange(), ValueType.ENUM));
 		l.add(new AttributeField(AttributeKeys.TEXT_COLOR, "Font Colour", 
 				false));
 		l.add(new AttributeField(AttributeKeys.FILL_COLOR, "Fill Colour", 
@@ -135,6 +139,7 @@ class ObjectInspector
 					int row = fieldTable.getSelectedRow();
 					Object value = fieldTable.getValueAt(row, col);
 					if (value instanceof Boolean) toggleValue();
+					
 				} else if (e.getClickCount() > 1) {
 					e.consume();
 					int col = fieldTable.getSelectedColumn();
@@ -148,6 +153,35 @@ class ObjectInspector
 			}
 		});
 
+	}
+	
+	/**
+	 * Set the range of values the stroke attribute may take. 
+	 * @return see above.
+	 */
+	ArrayList<Double> strokeRange()
+	{
+		ArrayList<Double> sRange = new ArrayList<Double>();
+		sRange.add(new Double(1));
+		sRange.add(new Double(2));
+		sRange.add(new Double(3));
+		sRange.add(new Double(4));
+		return sRange;
+	}
+	
+	/**
+	 * Set the range of values the font attribute may take. 
+	 * @return see above.
+	 */
+	ArrayList<Double> fontRange()
+	{
+		ArrayList<Double> fRange = new ArrayList<Double>();
+		fRange.add(new Double(8));
+		fRange.add(new Double(9));
+		fRange.add(new Double(10));
+		fRange.add(new Double(12));
+		fRange.add(new Double(14));
+		return fRange;
 	}
 	
 	/** Toggles the value of the boolean under the current selection. */
@@ -254,172 +288,6 @@ class ObjectInspector
 													"Figures selection"+e);;
 		}
 		
-	}
-	
-	/** Basic inner class use to set the cell renderer. */
-	class FigureTable
-		extends JTable
-	{
-		
-		/**
-		 * Creates a new instance.
-		 * 
-		 * @param model The model used by this table.
-		 */
-		FigureTable(FigureTableModel model)
-		{
-			super(model);
-		}
-		
-		/**
-		 * Overridden to return a customized cell renderer.
-		 * @see JTable#getCellRenderer(int, int)
-		 */
-		public TableCellRenderer getCellRenderer(int row, int column) 
-		{
-	        return new ROITableCellRenderer();
-	    }
-
-	}
-	
-	/** Inner class used to display the {@link Figure}. */
-	class FigureTableModel
-		extends AbstractTableModel
-	{
-	
-		/** Identifies the <code>N/A</code> string. */
-		private static final String		NA = "N/A";
-		
-		/** The figure this model is for. */
-		private Figure					figure;
-		
-		/** The collection of column's names. */
-		private List<String>			columnNames;	
-		
-		/** Collection of supported keys. */
-		private List<AttributeKey>		keys;
-		
-		/** Collection of values handled by this model. */
-		private List					values;
-		
-		/** Collection of fields. */
-		private List<AttributeField>	fieldList;
-		
-		/**
-		 * Creates a new instance.
-		 * 
-		 * @param fieldList 	The collection of fields.
-		 * 						Mustn't be <code>null</code>.
-		 * @param columnNames	The collection of column's names.
-		 * 						Mustn't be <code>null</code>.
-		 */
-		public FigureTableModel(List<AttributeField> fieldList,
-								List<String> columnNames)
-		{
-			if (fieldList == null)
-				throw new IllegalArgumentException("No fields specified.");
-			if (columnNames == null)
-				throw new IllegalArgumentException("No column's names " +
-												"specified.");
-			this.fieldList = fieldList;
-			this.columnNames = columnNames;
-			keys = new ArrayList<AttributeKey>();
-			values = new ArrayList<Object>();
-		}
-	
-		/**
-		 * Sets the figure handled by this model.
-		 * 
-		 * @param figure The figure data.
-		 */
-		public void setData(Figure figure)
-		{
-			if (figure == null)
-				throw new IllegalArgumentException("No figure.");
-			this.figure = figure;
-			keys.clear();
-			values.clear();
-			boolean found;
-			Iterator i;
-			AttributeKey key;
-			for (AttributeField fieldName : fieldList) {
-				found = false;
-				i = figure.getAttributes().keySet().iterator();
-				while (i.hasNext()) {
-					key = (AttributeKey) i.next();
-					if (key.equals(fieldName.getKey())) {
-						keys.add(key);
-						values.add(figure.getAttribute(key));
-						found = true;
-						break;
-					}
-				}
-				if (!found) {
-					keys.add(fieldName.getKey());
-					values.add(NA);
-				}
-			}
-			fireTableDataChanged();
-		}
-		
-		/**
-		 * Overridden to return the name of the specified column.
-		 * @see AbstractTableModel#getColumnName(int)
-		 */
-		public String getColumnName(int col) { return columnNames.get(col); }
-	
-		/**
-		 * Returns the number of columns.
-		 * @see AbstractTableModel#getColumnCount()
-		 */
-		public int getColumnCount() { return columnNames.size();  }
-	
-		/**
-		 * Returns the number of rows.
-		 * @see AbstractTableModel#getRowCount()
-		 */
-		public int getRowCount() { return keys.size(); }
-	
-		/**
-		 * Returns the value of the specified cell.
-		 * @see AbstractTableModel#getValueAt(int, int)
-		 */
-		public Object getValueAt(int rowIndex, int columnIndex)
-		{
-			if (columnIndex == 0)
-	    		return fieldList.get(rowIndex).getName();
-	    	return values.get(rowIndex);
-		}
-	
-		/**
-		 * Sets the value depending on the <code>Attribute Key</code>.
-		 * @see AbstractTableModel#setValueAt(Object, int, int)
-		 */
-		public void setValueAt(Object value, int row, int col) 
-	    {
-			if (col == 0) return;
-			AttributeKey key = keys.get(row);
-	    	if (figure.getAttribute(key) instanceof Double)
-	    		figure.setAttribute(keys.get(row), new Double((String) value));
-	        else if(figure.getAttribute(key) instanceof Boolean)
-	        	figure.setAttribute(keys.get(row), value);
-	        else
-	        	figure.setAttribute(keys.get(row), value);
-	    	values.set(row, value);
-	    	fireTableCellUpdated(row, col);
-	    }
-		
-		/**
-		 * Depending on the selected cell, allows the user to edit.
-		 * @see AbstractTableModel#isCellEditable(int, int)
-		 */
-		public boolean isCellEditable(int row, int col)
-	    { 
-			if (col == 0) return false;
-	    	if (values.get(row) instanceof String)
-	    		if (values.get(row).equals(NA)) return false;
-	    	return fieldList.get(row).isEditable();
-	    }
 	}
 	
 }

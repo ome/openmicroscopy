@@ -29,7 +29,7 @@ import java.util.Map;
 import org.jhotdraw.draw.BezierTool;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 
 /** 
  * A Bezier figure with text.
@@ -55,9 +55,9 @@ public class DrawingBezierTool
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param prototype The prototype. Mustn't be <code>null</code>.
+	 * @param prototype 	The prototype. Mustn't be <code>null</code>.
 	 */
-	public DrawingBezierTool(BezierAnnotationFigure prototype)
+	public DrawingBezierTool(MeasureBezierFigure prototype)
 	{
 		this(prototype, null);
 	}
@@ -68,7 +68,7 @@ public class DrawingBezierTool
 	 * @param prototype 	The prototype. Mustn't be <code>null</code>.
 	 * @param attributes	The attributes for the new figures.
 	 */
-	public DrawingBezierTool(BezierAnnotationFigure prototype, Map attributes)
+	public DrawingBezierTool(MeasureBezierFigure prototype, Map attributes)
 	{
 		super(prototype, attributes);
 	}
@@ -76,7 +76,7 @@ public class DrawingBezierTool
 	/** 
 	 * Overridden to only fired event if the {@link #resetToSelect} is
 	 * <code>true</code>.
-	 * @see AbtractTool#fireToolDone()
+	 * @see BezierTool#fireToolDone()
 	 */
 	protected void fireToolDone()
 	{ 

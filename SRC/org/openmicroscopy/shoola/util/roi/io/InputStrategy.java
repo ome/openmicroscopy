@@ -57,14 +57,14 @@ import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 
-import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
-import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
 
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGAttributeParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFillParser;
@@ -552,10 +552,10 @@ public class InputStrategy
 		return figure;
 	}	
 	
-	public BezierAnnotationFigure createBezierFigure(IXMLElement bezierElement,
+	public MeasureBezierFigure createBezierFigure(IXMLElement bezierElement,
 			boolean closed) throws ParsingException
 	{
-		BezierAnnotationFigure fig=new BezierAnnotationFigure(closed);
+		MeasureBezierFigure fig=new MeasureBezierFigure(closed);
 		Point2D.Double[] points=null;
 		Point2D.Double[] points1=null;
 		Point2D.Double[] points2=null;
@@ -625,7 +625,7 @@ public class InputStrategy
 		return textFigure;
 	}
 		
-	private EllipseAnnotationFigure createEllipseFigure(
+	private MeasureEllipseFigure createEllipseFigure(
 			IXMLElement ellipseElement)
 	{
 		String cxValue=
@@ -650,14 +650,14 @@ public class InputStrategy
 		double width=rx*2d;
 		double height=ry*2d;
 		
-		EllipseAnnotationFigure ellipseFigure=
-				new EllipseAnnotationFigure(x, y, width, height);
+		MeasureEllipseFigure ellipseFigure=
+				new MeasureEllipseFigure(x, y, width, height);
 		addAttributes(ellipseFigure, ellipseElement);
 		return ellipseFigure;
 	}
 	
 	
-	private PointAnnotationFigure createPointFigure(IXMLElement pointElement)
+	private MeasurePointFigure createPointFigure(IXMLElement pointElement)
 	{
 		String cxValue=
 				pointElement.getAttribute(IOConstants.CX_ATTRIBUTE,
@@ -681,14 +681,14 @@ public class InputStrategy
 		double width=rx*2;
 		double height=ry*2;
 		
-		PointAnnotationFigure pointFigure=
-				new PointAnnotationFigure(x, y, width, height);
+		MeasurePointFigure pointFigure=
+				new MeasurePointFigure(x, y, width, height);
 		addAttributes(pointFigure, pointElement);
 		return pointFigure;
 	}
 	
 	
-	private RectAnnotationFigure createRectangleFigure(IXMLElement rectElement)
+	private MeasureRectangleFigure createRectangleFigure(IXMLElement rectElement)
 	{
 		String xValue=
 				rectElement.getAttribute(IOConstants.X_ATTRIBUTE,
@@ -703,8 +703,8 @@ public class InputStrategy
 				rectElement.getAttribute(IOConstants.HEIGHT_ATTRIBUTE,
 					IOConstants.VALUE_NULL);
 		
-		RectAnnotationFigure rectFigure=
-				new RectAnnotationFigure(new Double(xValue),
+		MeasureRectangleFigure rectFigure=
+				new MeasureRectangleFigure(new Double(xValue),
 					new Double(yValue), new Double(widthValue), new Double(
 						heightValue));
 		addAttributes(rectFigure, rectElement);
@@ -721,11 +721,11 @@ public class InputStrategy
 	}
 	
 	
-	private LineConnectionAnnotationFigure createLineConnectionFigure(
+	private MeasureLineConnectionFigure createLineConnectionFigure(
 			IXMLElement lineElement) throws ParsingException
 	{
-		LineConnectionAnnotationFigure lineFigure=
-				new LineConnectionAnnotationFigure();
+		MeasureLineConnectionFigure lineFigure=
+				new MeasureLineConnectionFigure();
 		long toROIid=
 				new Long(lineElement
 					.getAttribute(IOConstants.CONNECTION_TO_ATTRIBUTE,
@@ -775,9 +775,9 @@ public class InputStrategy
 	}
 	
 	
-	private LineAnnotationFigure createBasicLineFigure(IXMLElement lineElement)
+	private MeasureLineFigure createBasicLineFigure(IXMLElement lineElement)
 	{
-		LineAnnotationFigure lineFigure=new LineAnnotationFigure();
+		MeasureLineFigure lineFigure=new MeasureLineFigure();
 		if (lineElement.hasAttribute(IOConstants.POINTS_ATTRIBUTE))
 		{
 			lineFigure.removeAllNodes();

@@ -59,14 +59,14 @@ import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStats;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
-import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
-import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -618,12 +618,12 @@ class IntensityView
 	 */
 	private boolean areaFigure(ROIFigure fig)
 	{
-		if(fig instanceof EllipseAnnotationFigure ||
-			fig instanceof RectAnnotationFigure)
+		if(fig instanceof MeasureEllipseFigure ||
+			fig instanceof MeasureRectangleFigure)
 			return true;
-		if(	fig instanceof BezierAnnotationFigure)
+		if(	fig instanceof MeasureBezierFigure)
 		{
-			BezierAnnotationFigure bFig = (BezierAnnotationFigure)fig;
+			MeasureBezierFigure bFig = (MeasureBezierFigure)fig;
 			if(bFig.isClosed())
 				return true;
 		}
@@ -637,12 +637,12 @@ class IntensityView
 	 */
 	private boolean lineFigure(ROIFigure fig)
 	{
-		if(fig instanceof LineAnnotationFigure ||
-			fig instanceof LineConnectionAnnotationFigure)
+		if(fig instanceof MeasureLineFigure ||
+			fig instanceof MeasureLineConnectionFigure)
 			return true;
-		if(	fig instanceof BezierAnnotationFigure)
+		if(	fig instanceof MeasureBezierFigure)
 		{
-			BezierAnnotationFigure bFig = (BezierAnnotationFigure)fig;
+			MeasureBezierFigure bFig = (MeasureBezierFigure)fig;
 			if(!bFig.isClosed())
 				return true;
 		}
@@ -656,7 +656,7 @@ class IntensityView
 	 */
 	private boolean pointFigure(ROIFigure fig)
 	{
-		if(fig instanceof PointAnnotationFigure)
+		if(fig instanceof MeasurePointFigure)
 			return true;
 		return false;
 	}

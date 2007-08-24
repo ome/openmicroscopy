@@ -49,14 +49,14 @@ import org.jhotdraw.util.ResourceBundleUtil;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
-import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
-import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
@@ -150,18 +150,18 @@ class ToolBar
     /** Initializes the component composing the display. */
 	private void initComponents()
 	{
-		ellipseTool = new DrawingObjectCreationTool(new EllipseAnnotationFigure());
-		rectTool = new DrawingObjectCreationTool(new RectAnnotationFigure());
+		ellipseTool = new DrawingObjectCreationTool(new MeasureEllipseFigure());
+		rectTool = new DrawingObjectCreationTool(new MeasureRectangleFigure());
 		textTool = new DrawingObjectCreationTool(new MeasureTextFigure());
-		lineTool = new DrawingObjectCreationTool(new LineAnnotationFigure());
+		lineTool = new DrawingObjectCreationTool(new MeasureLineFigure());
 		connectionTool = new DrawingConnectionTool(
-						new LineConnectionAnnotationFigure(), 
+						new MeasureLineConnectionFigure(), 
 							defaultAttributes);
-		pointTool = new DrawingPointCreationTool(new PointAnnotationFigure());
+		pointTool = new DrawingPointCreationTool(new MeasurePointFigure());
 	    polygonTool = new DrawingBezierTool(
-	    		new BezierAnnotationFigure(true));
+	    		new MeasureBezierFigure(true));
 	    polylineTool = new DrawingBezierTool(
-	    		new BezierAnnotationFigure(false));
+	    		new MeasureBezierFigure(false));
 	    
 		ButtonGroup group = new ButtonGroup();
 		ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle(BASE_NAME);

@@ -39,7 +39,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
-import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 import org.openmicroscopy.shoola.util.roi.io.XMLFileIOStrategy;
@@ -134,7 +134,7 @@ public class ROIComponent
 		MeasurementAttributes.SHOWMEASUREMENT.set(fig, false);
 		MeasurementAttributes.MEASUREMENTTEXT_COLOUR.set(fig, MEASUREMENT_COLOR);
 		DrawingAttributes.SHOWTEXT.set(fig, false);
-    	if (fig instanceof PointAnnotationFigure) {
+    	if (fig instanceof MeasurePointFigure) {
     		AttributeKeys.FILL_COLOR.set(fig, FILL_COLOR_ALPHA);
     		AttributeKeys.STROKE_COLOR.set(fig, STROKE_COLOR_ALPHA);
     	} else {

@@ -86,7 +86,16 @@ public class MeasurePointFigure
     	this("Text", x, y, width, height);
     }
 
-    public double getMeasurementX() 
+    /**
+	 * 
+	 */
+	public MeasurePointFigure()
+	{
+		super("Text", 0, 0, 0, 0);
+	}
+
+
+	public double getMeasurementX() 
     {
     	if (units.isInMicrons()) return getX()*units.getMicronsPixelX();
     	return getX();

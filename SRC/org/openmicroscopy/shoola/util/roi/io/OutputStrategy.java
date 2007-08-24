@@ -71,14 +71,14 @@ import net.n3.nanoxml.XMLWriter;
 // Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
-import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
-import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -371,48 +371,48 @@ public class OutputStrategy
 			throws ParsingException
 	{
 		
-		if (figure instanceof RectAnnotationFigure)
+		if (figure instanceof MeasureRectangleFigure)
 		{
 			writeSVGHeader(shapeElement);
-			writeRectAnnotationFigure(shapeElement,
-				(RectAnnotationFigure) figure);
-			writeTextFigure(shapeElement, (RectAnnotationFigure) figure);
+			writeMeasureRectangleFigure(shapeElement,
+				(MeasureRectangleFigure) figure);
+			writeTextFigure(shapeElement, (MeasureRectangleFigure) figure);
 		}
-		else if (figure instanceof EllipseAnnotationFigure)
+		else if (figure instanceof MeasureEllipseFigure)
 		{
 			writeSVGHeader(shapeElement);
-			writeEllipseAnnotationFigure(shapeElement,
-				(EllipseAnnotationFigure) figure);
-			writeTextFigure(shapeElement, (EllipseAnnotationFigure) figure);
+			writeMeasureEllipseFigure(shapeElement,
+				(MeasureEllipseFigure) figure);
+			writeTextFigure(shapeElement, (MeasureEllipseFigure) figure);
 		}
-		else if (figure instanceof PointAnnotationFigure)
+		else if (figure instanceof MeasurePointFigure)
 		{
 			writeSVGHeader(shapeElement);
-			writePointAnnotationFigure(shapeElement,
-				(PointAnnotationFigure) figure);
-			writeTextFigure(shapeElement, (PointAnnotationFigure) figure);
+			writeMeasurePointFigure(shapeElement,
+				(MeasurePointFigure) figure);
+			writeTextFigure(shapeElement, (MeasurePointFigure) figure);
 		}
-		else if (figure instanceof LineConnectionAnnotationFigure)
+		else if (figure instanceof MeasureLineConnectionFigure)
 		{
 			writeSVGHeader(shapeElement);
 			writeLineConnectionFigure(shapeElement,
-				(LineConnectionAnnotationFigure) figure);
+				(MeasureLineConnectionFigure) figure);
 			writeTextFigure(shapeElement,
-				(LineConnectionAnnotationFigure) figure);
+				(MeasureLineConnectionFigure) figure);
 		}
-		else if (figure instanceof BezierAnnotationFigure)
+		else if (figure instanceof MeasureBezierFigure)
 		{
 			writeSVGHeader(shapeElement);
-			writeBezierAnnotationFigure(shapeElement,
-				(BezierAnnotationFigure) figure);
-			writeTextFigure(shapeElement, (BezierAnnotationFigure) figure);
+			writeMeasureBezierFigure(shapeElement,
+				(MeasureBezierFigure) figure);
+			writeTextFigure(shapeElement, (MeasureBezierFigure) figure);
 		}
-		else if (figure instanceof LineAnnotationFigure)
+		else if (figure instanceof MeasureLineFigure)
 		{
 			writeSVGHeader(shapeElement);
-			writeLineAnnotationFigure(shapeElement,
-				(LineAnnotationFigure) figure);
-			writeTextFigure(shapeElement, (LineAnnotationFigure) figure);
+			writeMeasureLineFigure(shapeElement,
+				(MeasureLineFigure) figure);
+			writeTextFigure(shapeElement, (MeasureLineFigure) figure);
 		}
 		else if (figure instanceof MeasureTextFigure)
 		{
@@ -462,7 +462,7 @@ public class OutputStrategy
 	
 	
 	private void writeLineConnectionFigure(XMLElement shapeElement,
-			LineConnectionAnnotationFigure fig) throws ParsingException
+			MeasureLineConnectionFigure fig) throws ParsingException
 	{
 		IXMLElement svgElement=
 				shapeElement.getFirstChildNamed(IOConstants.SVG_TAG);
@@ -506,8 +506,8 @@ public class OutputStrategy
 	}
 	
 	
-	private void writeBezierAnnotationFigure(XMLElement shapeElement,
-			BezierAnnotationFigure fig) throws ParsingException
+	private void writeMeasureBezierFigure(XMLElement shapeElement,
+			MeasureBezierFigure fig) throws ParsingException
 	{
 		IXMLElement svgElement=
 				shapeElement.getFirstChildNamed(IOConstants.SVG_TAG);
@@ -517,7 +517,7 @@ public class OutputStrategy
 	
 	
 	private void writePolygonFigure(IXMLElement svgElement,
-			BezierAnnotationFigure fig) throws ParsingException
+			MeasureBezierFigure fig) throws ParsingException
 	{
 		XMLElement bezierElement=new XMLElement(IOConstants.POLYGON_TAG);
 		svgElement.addChild(bezierElement);
@@ -558,7 +558,7 @@ public class OutputStrategy
 	
 	
 	private void writePolylineFigure(IXMLElement svgElement,
-			BezierAnnotationFigure fig) throws ParsingException
+			MeasureBezierFigure fig) throws ParsingException
 	{
 		XMLElement bezierElement=new XMLElement(IOConstants.POLYLINE_TAG);
 		svgElement.addChild(bezierElement);
@@ -599,8 +599,8 @@ public class OutputStrategy
 	}
 	
 	
-	private void writeLineAnnotationFigure(XMLElement shapeElement,
-			LineAnnotationFigure fig) throws ParsingException
+	private void writeMeasureLineFigure(XMLElement shapeElement,
+			MeasureLineFigure fig) throws ParsingException
 	{
 		IXMLElement svgElement=
 				shapeElement.getFirstChildNamed(IOConstants.SVG_TAG);
@@ -636,8 +636,8 @@ public class OutputStrategy
 	}
 	
 	
-	private void writeEllipseAnnotationFigure(XMLElement shapeElement,
-			EllipseAnnotationFigure fig) throws ParsingException
+	private void writeMeasureEllipseFigure(XMLElement shapeElement,
+			MeasureEllipseFigure fig) throws ParsingException
 	{
 		IXMLElement svgElement=
 				shapeElement.getFirstChildNamed(IOConstants.SVG_TAG);
@@ -657,8 +657,8 @@ public class OutputStrategy
 	}
 	
 	
-	private void writePointAnnotationFigure(XMLElement shapeElement,
-			PointAnnotationFigure fig) throws ParsingException
+	private void writeMeasurePointFigure(XMLElement shapeElement,
+			MeasurePointFigure fig) throws ParsingException
 	{
 		IXMLElement svgElement=
 				shapeElement.getFirstChildNamed(IOConstants.SVG_TAG);
@@ -679,8 +679,8 @@ public class OutputStrategy
 	}
 	
 	
-	private void writeRectAnnotationFigure(XMLElement shapeElement,
-			RectAnnotationFigure fig) throws ParsingException
+	private void writeMeasureRectangleFigure(XMLElement shapeElement,
+			MeasureRectangleFigure fig) throws ParsingException
 	{
 		IXMLElement svgElement=
 				shapeElement.getFirstChildNamed(IOConstants.SVG_TAG);
