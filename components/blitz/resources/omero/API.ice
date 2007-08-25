@@ -257,6 +257,7 @@ module omero {
       {
 	omero::romio::RGBBuffer render(omero::romio::PlaneDef def) throws ServerError;
 	Ice::IntSeq renderAsPackedInt(omero::romio::PlaneDef def) throws ServerError;
+	Ice::ByteSeq renderCompressed(omero::romio::PlaneDef def) throws ServerError;
 	void lookupPixels(long pixelsId) throws ServerError;
 	bool lookupRenderingDef(long pixelsId) throws ServerError;
 	void load() throws ServerError;
@@ -289,6 +290,8 @@ module omero {
 	void removeCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
 	void saveCurrentSettings() throws ServerError;
 	void resetDefaults() throws ServerError;      
+	void setCompressionLevel(float percentage) throws ServerError;
+	float getCompressionLevel() throws ServerError;
       };
 
     interface ThumbnailStore extends StatefulServiceInterface
