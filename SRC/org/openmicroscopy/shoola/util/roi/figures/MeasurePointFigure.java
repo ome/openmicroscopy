@@ -39,10 +39,10 @@ import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointTextFigure;
 
@@ -67,9 +67,14 @@ public class MeasurePointFigure
      * This is used to perform faster drawing and hit testing.
      */
 	private	Rectangle2D bounds;
-	private ROI			roi;
-	private ROIShape 	shape;
-	private MeasurementUnits units;
+	/** The ROI containing the ROIFigure which in turn contains this Figure. */
+	protected 	ROI					roi;
+
+	/** The ROIFigure contains this Figure. */
+	protected 	ROIShape 			shape;
+	
+	/** The Measurement units, and values of the image. */
+	private MeasurementUnits 		units;
 	
 	public MeasurePointFigure(String text, double x, double y, double width, 
 																double height) 
@@ -91,7 +96,7 @@ public class MeasurePointFigure
 	 */
 	public MeasurePointFigure()
 	{
-		super("Text", 0, 0, 0, 0);
+		this("Text", 0, 0, 0, 0);
 	}
 
 
@@ -194,8 +199,8 @@ public class MeasurePointFigure
 	{
 		if (shape==null) return str;
 		if (units.isInMicrons())
-			return str+OutputUnit.MICRONS+OutputUnit.SQUARED;
-		return str+OutputUnit.PIXELS+OutputUnit.SQUARED;
+			return str+UIUtilities.MICRONS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
+		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 	}
 
 	public Point2D getCentre()

@@ -35,18 +35,16 @@ import java.util.ArrayList;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.EllipseFigure;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
-import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.EllipseTextFigure;
 
 /** 
@@ -69,11 +67,16 @@ public class MeasureEllipseFigure
 	 /**
      * This is used to perform faster drawing and hit testing.
      */
-    	
 	private	Rectangle2D 				bounds;
-	private ROI							roi;
-	private ROIShape 					shape;
-	private MeasurementUnits 			units;
+	
+	/** The ROI containing the ROIFigure which in turn contains this Figure. */
+	protected 	ROI					roi;
+
+	/** The ROIFigure contains this Figure. */
+	protected 	ROIShape 			shape;
+	
+	/** The Measurement units, and values of the image. */
+	private MeasurementUnits 		units;
 		   
     /** Creates a new instance. */
     public MeasureEllipseFigure() 
@@ -81,6 +84,14 @@ public class MeasureEllipseFigure
         this("Text", 0, 0, 0, 0);
     }
     
+    /** 
+     * Creates a new instance.
+     * @param text text of the ellipse. 
+     * @param x    coord of the figure. 
+     * @param y    coord of the figure. 
+     * @param width of the figure. 
+     * @param height of the figure. 
+     * */
     public MeasureEllipseFigure(String text, double x, double y, double width, 
     															double height) 
     {
@@ -90,41 +101,76 @@ public class MeasureEllipseFigure
 		roi = null;
     }
         
-    /** Creates a new instance. */
+    /** 
+     * Creates a new instance. 
+     * @param text string shown in the ellipse.
+     **/
     public MeasureEllipseFigure(String text) 
     {
         this(text, 0, 0, 0, 0);
     }
     
-    public MeasureEllipseFigure(double x, double y, double width, double height) 
+    /** 
+     * Creates a new instance.
+      * @param x    coord of the figure. 
+     * @param y    coord of the figure. 
+     * @param width of the figure. 
+     * @param height of the figure. 
+     * */
+     public MeasureEllipseFigure(double x, double y, double width, double height) 
     {
     	this("Text", x, y, width, height);
     }
 
+    /** 
+     * Get the X Coord of the figure, convert to microns if isInMicrons set. 
+     * 
+     * @return see above.
+     */
     public double getMeasurementX() 
     {
     	if (units.isInMicrons()) return getX()*units.getMicronsPixelX();
         return getX();
     }
     
+    /** 
+     * Get the Y Coord of the figure, convert to microns if isInMicrons set. 
+     * 
+     * @return see above.
+     */
     public double getMeasurementY() 
     {
     	if (units.isInMicrons()) return getY()*units.getMicronsPixelY();
     	return getY();
     }
     
+    /** 
+     * Get the width of the figure, convert to microns if isInMicrons set. 
+     * 
+     * @return see above.
+     */
     public double getMeasurementWidth() 
     {
     	if (units.isInMicrons()) return getWidth()*units.getMicronsPixelX();
     	return getWidth();
     }
     
+    /** 
+     * Get the height of the figure, convert to microns if isInMicrons set. 
+     * 
+     * @return see above.
+     */
     public double getMeasurementHeight() 
     {
     	if (units.isInMicrons()) return getHeight()*units.getMicronsPixelY();
     	return getHeight();
     }
     
+    /** 
+     * Get the centre of the figure, convert to microns if isInMicrons set. 
+     * 
+     * @return see above.
+     */
     public Point2D getMeasurementCentre()
     {
     	if (units.isInMicrons())
@@ -134,14 +180,34 @@ public class MeasureEllipseFigure
     	return getCentre();
     }
     
+    /** 
+     * Get the x coord of the figure. 
+     * @return see above.
+     */
     public double getX() { return ellipse.getX(); }
     
+    /** 
+     * Get the y coord of the figure. 
+     * @return see above.
+     */
     public double getY() { return ellipse.getY(); }
     
+    /** 
+     * Get the width coord of the figure. 
+     * @return see above.
+     */
     public double getWidth() { return ellipse.getWidth(); }
     
+    /** 
+     * Get the height coord of the figure. 
+     * @return see above.
+     */
     public double getHeight() { return ellipse.getHeight(); }
     
+    /**
+     * Draw the figure on the graphics context.
+     * @param g the graphics context.
+     */
 	public void draw(Graphics2D g)
 	{
 		super.draw(g);
@@ -161,6 +227,10 @@ public class MeasureEllipseFigure
 		}
 	}
 
+	/**
+	 * Calculates the bounds of the rendered figure, including the text rendered. 
+	 * @return see above.
+	 */
 	public Rectangle2D.Double getDrawingArea()
 	{
 		Rectangle2D.Double newBounds = super.getDrawingArea();
@@ -192,20 +262,33 @@ public class MeasureEllipseFigure
 		return newBounds;
 	}
 	
+	/**
+	 * Add units to the string 
+	 * @param str see above.
+	 * @return returns the string with the units added. 
+	 */
 	public String addUnits(String str)
 	{
 		if (shape == null) return str;
 		if (units.isInMicrons())
-			return str+OutputUnit.MICRONS+OutputUnit.SQUARED;
-		return str+OutputUnit.PIXELS+OutputUnit.SQUARED;
+			return str+UIUtilities.MICRONS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
+		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 	}
 
+	/**
+	 * Calculate the area of the figure. 
+	 * @return see above.
+	 */
 	public double getArea()
 	{
 		
 		return (getMeasurementHeight()/2)*(getMeasurementWidth()/2)*Math.PI;
 	}
 	
+	/**
+	 * Calculate the perimeter of the figure. 
+	 * @return see above.
+	 */
 	public double getPerimeter()
 	{
 		if( getMeasurementWidth() == getMeasurementHeight())
@@ -216,7 +299,11 @@ public class MeasureEllipseFigure
 		// approximation of c for ellipse. 
 		return Math.PI*(3*a+3*b-Math.sqrt((a+3*b)*(b+3*a)));
 	}
-
+	
+	/** 
+	 * Calculate the centre of the figure. 
+	 * @return see above.
+	 */
 	public Point2D getCentre()
 	{
 		return new Point2D.Double(Math.round(ellipse.getCenterX()), 

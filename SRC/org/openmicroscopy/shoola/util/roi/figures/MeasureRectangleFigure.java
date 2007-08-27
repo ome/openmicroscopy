@@ -33,10 +33,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 
-
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.RectangleFigure;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
@@ -46,8 +44,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
-import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.RectangleTextFigure;
 
 /**
@@ -71,8 +68,14 @@ public class MeasureRectangleFigure
      * This is used to perform faster drawing and hit testing.
      */
 	protected	Rectangle2D 		bounds;
+	
+	/** The ROI containing the ROIFigure which in turn contains this Figure. */
 	protected 	ROI					roi;
+
+	/** The ROIFigure contains this Figure. */
 	protected 	ROIShape 			shape;
+	
+	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
 	
 	   
@@ -201,8 +204,8 @@ public class MeasureRectangleFigure
 	{
 		if (shape == null) return str;
 		if (units.isInMicrons()) 
-			return str+OutputUnit.MICRONS+OutputUnit.SQUARED;
-		return str+OutputUnit.PIXELS+OutputUnit.SQUARED;
+			return str+UIUtilities.MICRONS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
+		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 	}
 
 

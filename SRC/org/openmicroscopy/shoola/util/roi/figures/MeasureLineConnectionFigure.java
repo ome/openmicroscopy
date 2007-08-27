@@ -41,10 +41,10 @@ import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.LineConnectionTextFigure;
 
@@ -71,13 +71,18 @@ public class MeasureLineConnectionFigure
 
 	private ArrayList<Double>				pointArrayX;
 	private ArrayList<Double>				pointArrayY;
-	private ROI								roi;
-	private ROIShape 						shape;
-	private MeasurementUnits units;
+	/** The ROI containing the ROIFigure which in turn contains this Figure. */
+	protected 	ROI					roi;
+
+	/** The ROIFigure contains this Figure. */
+	protected 	ROIShape 			shape;
+	
+	/** The Measurement units, and values of the image. */
+	private MeasurementUnits 		units;
 	
 	public MeasureLineConnectionFigure()
 	{
-		super("Text");
+		this("Text");
 	}
 	
 	public MeasureLineConnectionFigure(String text)
@@ -169,7 +174,7 @@ public class MeasureLineConnectionFigure
 	
 	public String addDegrees(String str)
 	{
-		return str + OutputUnit.DEGREES;
+		return str + UIUtilities.DEGREES_SYMBOL;
 	}
 	
 	public String addUnits(String str)
@@ -177,9 +182,9 @@ public class MeasureLineConnectionFigure
 		if(shape==null)
 			return str;
 		if(units.isInMicrons())
-			return str+OutputUnit.MICRONS;
+			return str+UIUtilities.MICRONS_SYMBOL;
 		else
-			return str+OutputUnit.PIXELS;
+			return str+UIUtilities.PIXELS_SYMBOL;
 	}
 				
 	public Rectangle2D.Double getDrawingArea()

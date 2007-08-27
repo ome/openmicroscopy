@@ -86,7 +86,19 @@ import javax.swing.text.StyledDocument;
  */
 public class UIUtilities
 {
+	/** Unicode for the degrees symbol. */
+	public final static String 	DEGREES_SYMBOL = "\u00B0";
+	
+	
+	/** Unicode for the microns symbol. */
+	public final static String  MICRONS_SYMBOL = "\u00B5m";
 
+	/** Unicode for the squared symbol. */
+	public final static String  SQUARED_SYMBOL =  "\u00B2";
+	
+	/** Pixels string. */
+	public final static String  PIXELS_SYMBOL = "px";
+	
     /** String to representing the nanometer symbol. */
     public static final String              NANOMETER = " \u00B5m";
     

@@ -43,11 +43,11 @@ import org.jhotdraw.draw.AttributeKeys;
 
 import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
-import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.BezierTextFigure;
 
@@ -74,10 +74,14 @@ public class MeasureBezierFigure
 	private ArrayList<Double>			lengthArray;
 	
 	private	Rectangle2D bounds;
-	private ROI			roi;
-	private ROIShape 	shape;
+	/** The ROI containing the ROIFigure which in turn contains this Figure. */
+	protected 	ROI					roi;
+
+	/** The ROIFigure contains this Figure. */
+	protected 	ROIShape 			shape;
 	
-	private MeasurementUnits units;
+	/** The Measurement units, and values of the image. */
+	private MeasurementUnits 		units;
 		
 	public MeasureBezierFigure()
 	{
@@ -196,23 +200,23 @@ public class MeasureBezierFigure
 	
 	public String addDegrees(String str)
 	{
-		return str + OutputUnit.DEGREES;
+		return str + UIUtilities.DEGREES_SYMBOL;
 	}
 	
 	public String addLineUnits(String str)
 	{
 		if (shape == null) return str;
 		
-		if (units.isInMicrons()) return str+OutputUnit.MICRONS;
-		return str+OutputUnit.PIXELS;
+		if (units.isInMicrons()) return str+UIUtilities.MICRONS_SYMBOL;
+		return str+UIUtilities.PIXELS_SYMBOL;
 	}
 	
 	public String addAreaUnits(String str)
 	{
 		if (shape == null) return str;
 		if (units.isInMicrons())
-			return str+OutputUnit.MICRONS+OutputUnit.SQUARED;
-		return str+OutputUnit.PIXELS+OutputUnit.SQUARED;
+			return str+UIUtilities.MICRONS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
+		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 	}
 	
 	/**
