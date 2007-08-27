@@ -109,6 +109,11 @@ public class ROICollection
 		return lastID;
 	}
 	
+	/**
+	 * Create an ROI with id. Add the ROI to the ROIMap.
+	 * @param id see above.
+	 * @return see above.
+	 */
 	public ROI createROI(long id)
 	{
 		ROI newROI = new ROI(id);
@@ -117,6 +122,10 @@ public class ROICollection
 		return newROI;
 	}
 	
+	/**
+	 * Create a new ROI, assign it an id and add it to the ROIMap.
+	 * @return newly created ROI.
+	 */
 	public ROI createROI()
 	{
 		ROI newROI = new ROI(getNextID());
@@ -124,16 +133,33 @@ public class ROICollection
 		return newROI;
 	}
 	
+	/**
+	 * Get the Map containing the ROI. 
+	 * @return return the ROIMap.
+	 */
 	public TreeMap<Long, ROI> getROIMap()
 	{
 		return roiMap.getROIMap();
 	}
 	
+	/**
+	 * Return the ROI with id.
+	 * @param id see above.
+	 * @return see above.
+	 * @throws NoSuchROIException Throw exception if ROI does not exist.
+	 */
 	public ROI getROI(long id) throws NoSuchROIException
 	{
 		return roiMap.getROI(id);
 	}
 
+	/**
+	 * Get the ROIShape with ROI id and on plane coord.
+	 * @param id id of the ROI.
+	 * @param coord plane where ROIShape resides.
+	 * @return see above.
+	 * @throws NoSuchROIException Throw exception if ROIShape does not exist.
+	 */
 	public ROIShape getShape(long id, Coord3D coord) 
 												throws 	NoSuchROIException
 														
@@ -141,17 +167,36 @@ public class ROICollection
 		return roiMap.getShape(id, coord);
 	}
 
+	/**
+	 * Get the ROIShapeList for ROIShapes on plane coord
+	 * @param coord plane where ROIShapes resides.
+	 * @return see above.
+	 * @throws NoSuchROIException Throw exception if no shapes on plane.
+	 */
 	public ShapeList getShapeList(Coord3D coord) throws
 														NoSuchROIException
 	{
 		return roiMap.getShapeList(coord);
 	}
 
+	/**
+	 * Delete the ROI with id.
+	 * @param id see above.
+	 * @throws NoSuchROIException Throw exception if ROI does not exist.
+	 */
 	public void deleteROI(long id) throws NoSuchROIException
 	{
 		roiMap.deleteROI(id);
 	}
 
+	/**
+	 * Deletye the ROIShape with ROI.Id id and on plane coord. If the ROI 
+	 * will not contain any ROIShapes after this shape is deleted, delete ROI.
+	 * @param id id of the ROI.
+	 * @param coord coord of the ROIShape.
+	 * @throws NoSuchROIException Throw exception if the ROI or ROIShape 
+	 * does not exist.
+	 */
 	public void deleteShape(long id, Coord3D coord) 	
 												throws 	NoSuchROIException
 														
@@ -159,6 +204,15 @@ public class ROICollection
 		roiMap.deleteShape(id, coord);
 	}
 
+	
+	/**
+	 * Add the ROIShape shape to the ROI on plane coord. 
+	 * @param id id of the ROI.
+	 * @param coord coord of the plane.
+	 * @param shape the ROIShape.
+	 * @throws ROICreationException Thrown if shape already exists in ROI.
+	 * @throws NoSuchROIException Thrown if ROI does not exist.
+	 */
 	public 	void addShape(long id, Coord3D coord, ROIShape shape) 
 												throws ROICreationException, 
 													   NoSuchROIException
@@ -166,6 +220,17 @@ public class ROICollection
 		roiMap.addShape(id, coord, shape);
 	}	
 
+	/**
+	 * Propagate the ROIShape on plane 'selectedShape' through the planes 
+	 * [start, end] 
+	 * @param id ROI id where the selected shape belongs.
+	 * @param selectedShape The coord of the ROIShape.
+	 * @param start the start of the plane to propagate from.
+	 * @param end the end plane to propagate to.
+	 * @throws ROICreationException Thrown if an ROIShape already exists in ROI
+	 * between [start,end].
+	 * @throws NoSuchROIException Thrown if ROI does not exist.
+	 */
 	public void propagateShape(long id, Coord3D selectedShape, Coord3D start, 
 				   Coord3D end) 
 												throws ROICreationException, 
@@ -175,6 +240,15 @@ public class ROICollection
 		roiMap.propagateShape(id, selectedShape, start, end);
 	}
 
+	
+	/**
+	 * Delete the ROIShape from the ROI from [start, end], if there are missing
+	 * ROIShapes between [start, end] the component will to the next plane. 
+	 * @param id ROI id where the selected shape belongs.
+	 * @param start the start of the plane to delete from.
+	 * @param end the end plane to delete to.
+	 * @throws NoSuchROIException Thrown if ROI does not exist.
+	 */
 	public void deleteShape(long id, Coord3D start, Coord3D end) 
 												throws 	NoSuchROIException
 														
@@ -182,41 +256,79 @@ public class ROICollection
 		roiMap.deleteShape(id, start, end);
 	}
 
+	/**
+	 * Create a relationship in the ROI relationship map.
+	 * @param relationship the relationship to add to the map.
+	 */
 	public void addROIRelationship(ROIRelationship relationship)
 	{
 		roiRelationshipMap.add(relationship);
 	}
 	
+	/**
+	 * Create a relationship in the ROIShape relationship map.
+	 * @param relationship the relationship to add to the map.
+	 */
 	public void addROIShapeRelationship(ROIShapeRelationship relationship)
 	{
 		shapeRelationshipMap.add(relationship);
 	}
 	
+	/**
+	 * Remove relationship from the ROIRelationshipMap.
+	 * @param relationship the id of the relationship.
+	 */
 	public void removeROIRelationship(long relationship)
 	{
 		roiRelationshipMap.remove(relationship);
 	}
 	
+	/**
+	 * Remove relationship from the ROIShapeRelationshipMap.
+	 * @param relationship the id of the relationship.
+	 */
 	public void removeROIShapeRelationship(long relationship)
 	{
 		shapeRelationshipMap.remove(relationship);
 	}
 	
+	/**
+	 * Return true if relationship exists in the ROI relationshipmap.
+	 * @param relationship the id of the relationship.
+	 * @return see above.
+	 */
 	public boolean containsROIRelationship(long relationship)
 	{
 		return roiRelationshipMap.contains(relationship);
 	}
 	
+	/**
+	 * Return true if relationship exists in the ROIShape relationshipmap.
+	 * @param relationship the id of the relationship.
+	 * @return see above.
+	 */
 	public boolean containsROIShapeRelationship(long relationship)
 	{
 		return shapeRelationshipMap.contains(relationship);
 	}
 	
+	/** 
+	 * Get the ROIRelationshipList, the list of all relationships 
+	 * associated with the ROI.
+	 * @param roiID the id of the ROI.
+	 * @return see above.
+	 */
 	public ROIRelationshipList getROIRelationshipList(long roiID)
 	{
 		return roiRelationshipMap.getRelationshipList(roiID);
 	}
 	
+	/** 
+	 * Get the ROIShapeRelationshipList, the list of all relationships 
+	 * associated with the ROIShapes of ROI.
+	 * @param roiID the id of the ROI.
+	 * @return see above.
+	 */
 	public ROIShapeRelationshipList getROIShapeRelationshipList(long roiID)
 	{
 		return shapeRelationshipMap.getRelationshipList(roiID);

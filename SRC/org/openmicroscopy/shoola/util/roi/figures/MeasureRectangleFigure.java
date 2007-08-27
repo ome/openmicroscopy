@@ -37,9 +37,9 @@ import java.util.ArrayList;
 import org.jhotdraw.draw.AttributeKeys;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
@@ -77,7 +77,6 @@ public class MeasureRectangleFigure
 	
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
-	
 	   
     /** Creates a new instance. */
     public MeasureRectangleFigure() 
@@ -85,19 +84,36 @@ public class MeasureRectangleFigure
         this("Text", 0, 0, 0, 0);
     }
 
-
-    /** Creates a new instance. */
+    /** 
+     * Creates a new instance.
+     * @param text text of the ellipse. 
+     * */
     public MeasureRectangleFigure(String text) 
     {
         this(text, 0, 0, 0, 0);
     }
     
+    /** 
+     * Creates a new instance.
+     * @param x    coord of the figure. 
+     * @param y    coord of the figure. 
+     * @param width of the figure. 
+     * @param height of the figure. 
+     * */
     public MeasureRectangleFigure(double x, double y, double width, 
 			double height) 
     {
     	this("Text", x, y, width, height);
     }
     
+    /** 
+     * Creates a new instance.
+     * @param text text of the ellipse. 
+     * @param x    coord of the figure. 
+     * @param y    coord of the figure. 
+     * @param width of the figure. 
+     * @param height of the figure. 
+     * */
     public MeasureRectangleFigure(String text, double x, double y, double width, 
     							double height) 
     {
@@ -106,41 +122,79 @@ public class MeasureRectangleFigure
 		roi = null;
     }
     
+    /** 
+     * Get the X Coord of the figure, convert to microns if isInMicrons set. 
+     * 
+     * @return see above.
+     */
     public double getMeasurementX() 
     {
     	if (units.isInMicrons()) return getX()*units.getMicronsPixelX();
     	return getX();
     }
     
+    /** 
+     * Get the Y Coord of the figure, convert to microns if isInMicrons set. 
+     * 
+     * @return see above.
+     */
     public double getMeasurementY() 
     {
     	if (units.isInMicrons()) return getY()*units.getMicronsPixelY();
     	return getY();
     }
     
+    
+    /** 
+     * Get the width of the figure, convert to microns if isInMicrons set. 
+     * 
+     * @return see above.
+     */
     public double getMeasurementWidth() 
     {
     	if (units.isInMicrons()) return getWidth()*units.getMicronsPixelX();
     	return getWidth();
     }
     
+    /** 
+     * Get the height of the figure, convert to microns if isInMicrons set. 
+     * 
+     * @return see above.
+     */
     public double getMeasurementHeight() 
     {
     	if (units.isInMicrons()) return getHeight()*units.getMicronsPixelY();
     	return getHeight();
     }
     
-    public double getX() 
-    {
-      	return rectangle.x;
-    }
+    /** 
+     * Get the x coord of the figure. 
+     * @return see above.
+     */
+    public double getX() { return rectangle.getX(); }
     
-    public double getY() { return rectangle.y; }
+    /** 
+     * Get the y coord of the figure. 
+     * @return see above.
+     */
+    public double getY() { return rectangle.getY(); }
     
+    /** 
+     * Get the width coord of the figure. 
+     * @return see above.
+     */
     public double getWidth() { return rectangle.getWidth(); }
     
+    /** 
+     * Get the height coord of the figure. 
+     * @return see above.
+     */
     public double getHeight() { return rectangle.getHeight(); }
     
+    /**
+     * Draw the figure on the graphics context.
+     * @param g the graphics context.
+     */
 	public void draw(Graphics2D g)
 	{
 		super.draw(g);
@@ -164,6 +218,10 @@ public class MeasureRectangleFigure
 		}
 	}
 				
+	/**
+	 * Calculates the bounds of the rendered figure, including the text rendered. 
+	 * @return see above.
+	 */
 	public Rectangle2D.Double getDrawingArea()
 	{
 		Rectangle2D.Double newBounds = super.getDrawingArea();
@@ -200,6 +258,11 @@ public class MeasureRectangleFigure
 	}
 	 
 
+	/**
+	 * Add units to the string 
+	 * @param str see above.
+	 * @return returns the string with the units added. 
+	 */
 	public String addUnits(String str)
 	{
 		if (shape == null) return str;
@@ -209,16 +272,28 @@ public class MeasureRectangleFigure
 	}
 
 
+	/**
+	 * Calculate the area of the figure. 
+	 * @return see above.
+	 */
 	public double getArea()
 	{
 		return getMeasurementWidth()*getMeasurementHeight();
 	}
 	
+	/**
+	 * Calculate the perimeter of the figure. 
+	 * @return see above.
+	 */
 	public double getPerimeter()
 	{
 		return getMeasurementWidth()*2+getMeasurementHeight()*2;
 	}
 
+	/** 
+	 * Calculate the centre of the figure. 
+	 * @return see above.
+	 */
 	public Point2D getCentre()
 	{
      	if (units.isInMicrons())

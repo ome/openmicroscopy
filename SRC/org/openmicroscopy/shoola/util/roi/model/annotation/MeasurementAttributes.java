@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes 
+ * org.openmicroscopy.shoola.util.roi.model.MeasurementAttributes 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.util;
+package org.openmicroscopy.shoola.util.roi.model.annotation;
 
 
 //Java imports
@@ -52,7 +52,8 @@ public class MeasurementAttributes
 	public static final AttributeKey<Boolean> SHOWMEASUREMENT = 
 		new AttributeKey<Boolean>("ShowMeasurement", false);
 	public static final AttributeKey<Color> MEASUREMENTTEXT_COLOUR = 
-		new AttributeKey<Color>("MeasurementTextColour", IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
+		new AttributeKey<Color>("MeasurementTextColour", 
+				IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
 	
 	private MeasurementAttributes()
 	{
@@ -71,7 +72,6 @@ public class MeasurementAttributes
 		throws CloneNotSupportedException
 	{
 		throw new CloneNotSupportedException(); 
-		 // that'll teach 'em
 	}
 
 	private static MeasurementAttributes ref;

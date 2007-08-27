@@ -69,7 +69,6 @@ import net.n3.nanoxml.XMLElement;
 import net.n3.nanoxml.XMLWriter;
 
 // Application-internal dependencies
-import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
@@ -83,6 +82,7 @@ import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 

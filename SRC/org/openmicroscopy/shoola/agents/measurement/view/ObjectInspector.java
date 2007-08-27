@@ -51,11 +51,11 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.AttributeField;
 import org.openmicroscopy.shoola.agents.measurement.util.FigureTable;
 import org.openmicroscopy.shoola.agents.measurement.util.FigureTableModel;
-import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
 import org.openmicroscopy.shoola.agents.measurement.util.ValueType;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 
 

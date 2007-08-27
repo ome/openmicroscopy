@@ -45,12 +45,12 @@ import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.geom.BezierPath.Node;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;

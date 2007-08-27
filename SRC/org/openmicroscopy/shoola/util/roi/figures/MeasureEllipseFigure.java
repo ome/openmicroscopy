@@ -37,8 +37,8 @@ import java.util.ArrayList;
 import org.jhotdraw.draw.AttributeKeys;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;

@@ -37,15 +37,14 @@ import java.util.ArrayList;
 import org.jhotdraw.draw.AttributeKeys;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.LineConnectionTextFigure;
 
 /** 
@@ -65,12 +64,20 @@ public class MeasureLineConnectionFigure
 	extends LineConnectionTextFigure
 	implements ROIFigure
 {
+	/** The bounds of the bezier figure. */
 	private ArrayList<Rectangle2D> 			boundsArray = new ArrayList<Rectangle2D>();
+	
+	/** The list of lengths of sections on the line. */
 	private ArrayList<Double> 				lengthArray;
+	/** The list of angles of sections on the line. */
 	private ArrayList<Double> 				angleArray;
 
+	/** The list of X coords of the nodes on the line. */
 	private ArrayList<Double>				pointArrayX;
+	
+	/** The list of Y coords of the nodes on the line. */
 	private ArrayList<Double>				pointArrayY;
+	
 	/** The ROI containing the ROIFigure which in turn contains this Figure. */
 	protected 	ROI					roi;
 
@@ -80,11 +87,19 @@ public class MeasureLineConnectionFigure
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
 	
+	/**
+	 * Create instance of line connection figure. 
+	 *
+	 */
 	public MeasureLineConnectionFigure()
 	{
 		this("Text");
 	}
 	
+	/**
+	 * Create instane of line connection figure. 
+	 * @param text text to assign to the figure. 
+	 */
 	public MeasureLineConnectionFigure(String text)
 	{
 		super(text);
@@ -98,6 +113,10 @@ public class MeasureLineConnectionFigure
 	}
 
 
+	 /**
+     * Draw the figure on the graphics context.
+     * @param g the graphics context.
+     */
 	public void draw(Graphics2D g)
 	{
 		super.draw(g);
@@ -161,32 +180,53 @@ public class MeasureLineConnectionFigure
 		}
 	}
 	
+	/**
+	 * Get the length array. These are the lengths of each segment of the line. 
+	 * @return see above.
+	 */
 	public ArrayList<Double> getLengthArray()
 	{
 		return lengthArray;
 	}
 	
+	/**
+	 * Get the angle array. These are the angles between each segment of the line. 
+	 * @return see above.
+	 */
 	public ArrayList<Double> getAngleArray()
 	{
 		return angleArray;
 	}
 	
-	
+	/**
+	 * Add degrees to the measurements. 
+	 * @param str the measurement.
+	 * @return see above.
+	 */
 	public String addDegrees(String str)
 	{
 		return str + UIUtilities.DEGREES_SYMBOL;
 	}
 	
+	/**
+	 * Add length unit, (pixels, microns) to the measurements. 
+	 * @param str the measurement.
+	 * @return see above.
+	 */
 	public String addUnits(String str)
 	{
-		if(shape==null)
+		if (shape == null) 
 			return str;
-		if(units.isInMicrons())
-			return str+UIUtilities.MICRONS_SYMBOL;
-		else
-			return str+UIUtilities.PIXELS_SYMBOL;
+		
+		if (units.isInMicrons()) return str+UIUtilities.MICRONS_SYMBOL;
+		return str+UIUtilities.PIXELS_SYMBOL;
 	}
+	
 				
+	/**
+	 * Calculates the bounds of the rendered figure, including the text rendered. 
+	 * @return see above.
+	 */
 	public Rectangle2D.Double getDrawingArea()
 	{
 		Rectangle2D.Double newBounds = super.getDrawingArea();
@@ -220,6 +260,12 @@ public class MeasureLineConnectionFigure
 		return newBounds;
 	}
 
+	/**
+	 * Return the middle of the line segment from i, j, used to display text.
+	 * @param i see above.
+	 * @param j see above.
+	 * @return see above.
+	 */
 	public Point2D.Double getLengthPosition(int i, int j)
 	{
 		Point2D.Double p0 = getPoint(i);
@@ -252,6 +298,12 @@ public class MeasureLineConnectionFigure
 		return getPoint(i);
 	}
 	
+	/**
+	 * Return the length of the line segment from i, j
+	 * @param i see above.
+	 * @param j see above.
+	 * @return see above.
+	 */
 	public double getLength(int i , int j)
 	{
 			Point2D.Double pt1 = getPt(i);
@@ -259,6 +311,13 @@ public class MeasureLineConnectionFigure
 			return pt1.distance(pt2);
 	}
 	
+	/**
+	 * Return the angle between the line segment from i, j and j,k
+	 * @param i see above.
+	 * @param j see above.
+	 * @param k see above.
+	 * @return see above.
+	 */
 	public double getAngle(int i, int j, int k)
 	{
 		Point2D p0 = getPoint(i);
@@ -269,6 +328,12 @@ public class MeasureLineConnectionFigure
 		return Math.toDegrees(Math.acos(dotProd(v0, v1)));
 	}
 	
+	/**
+	 * Return the angle between the line segment from i, j from the x-axis.
+	 * @param i see above.
+	 * @param j see above.
+	 * @return see above.
+	 */
 	public double getAngle(int i, int j)
 	{
 		Point2D p0 = getPoint(i);
@@ -278,6 +343,12 @@ public class MeasureLineConnectionFigure
 		return Math.toDegrees(Math.acos(dotProd(v0, v1)));
 	}
 	
+	/**
+	 * Calculate the dot product of p0, p1.
+	 * @param p0 see above.
+	 * @param p1 see above.
+	 * @return see above.
+	 */
 	public double dotProd(Point2D p0, Point2D p1)
 	{
 		double adotb = p0.getX()*p1.getX()+p0.getY()*p1.getY();

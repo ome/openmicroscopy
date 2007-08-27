@@ -48,7 +48,6 @@ import org.jhotdraw.util.ResourceBundleUtil;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
-import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
@@ -58,6 +57,7 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.io.IOConstants;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingBezierTool;

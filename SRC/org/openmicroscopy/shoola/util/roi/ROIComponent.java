@@ -35,7 +35,6 @@ import java.util.TreeMap;
 
 //Application-internal dependencies
 import org.jhotdraw.draw.AttributeKeys;
-import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
@@ -51,6 +50,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationship;
 import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationshipList;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;

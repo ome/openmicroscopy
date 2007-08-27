@@ -35,9 +35,9 @@ import java.text.NumberFormat;
 import org.jhotdraw.draw.AttributeKeys;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -76,6 +76,14 @@ public class MeasurePointFigure
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
 	
+	  /** 
+     * Creates a new instance.
+     * @param text text of the ellipse. 
+     * @param x    coord of the figure. 
+     * @param y    coord of the figure. 
+     * @param width of the figure. 
+     * @param height of the figure. 
+     * */
 	public MeasurePointFigure(String text, double x, double y, double width, 
 																double height) 
     {
@@ -85,28 +93,43 @@ public class MeasurePointFigure
 		roi = null;
     }
 
-	    
+	  /** 
+     * Creates a new instance.
+     * @param x    coord of the figure. 
+     * @param y    coord of the figure. 
+     * @param width of the figure. 
+     * @param height of the figure. 
+     * */  
     public MeasurePointFigure(double x, double y, double width, double height) 
     {
     	this("Text", x, y, width, height);
     }
 
     /**
-	 * 
+	 * Create an instance of the Point Figure.
 	 */
 	public MeasurePointFigure()
 	{
 		this("Text", 0, 0, 0, 0);
 	}
 
-
+	/** 
+     * Get the X Coord of the figure, convert to microns if isInMicrons set. 
+     * 
+     * @return see above.
+     */
 	public double getMeasurementX() 
     {
     	if (units.isInMicrons()) return getX()*units.getMicronsPixelX();
     	return getX();
     }
     
-    public Point2D getMeasurementCentre()
+	 /** 
+     * Get the centre of the figure, convert to microns if isInMicrons set. 
+     * 
+     * @return see above.
+     */
+	public Point2D getMeasurementCentre()
     {
     	if (units.isInMicrons())
     		return new Point2D.Double(getCentre().getX()*
@@ -115,12 +138,22 @@ public class MeasurePointFigure
     	return getCentre();
     }
     
+    /** 
+     * Get the Y Coord of the figure, convert to microns if isInMicrons set. 
+     * 
+     * @return see above.
+     */
     public double getMeasurementY() 
     {
     	if (units.isInMicrons()) return getY()*units.getMicronsPixelY();
     	return getY();
     }
     
+    /** 
+     * Get the width of the figure, convert to microns if isInMicrons set. 
+     * 
+     * @return see above.
+     */
     public double getMeasurementWidth() 
     {
     	
@@ -128,21 +161,46 @@ public class MeasurePointFigure
     	return getWidth();
     }
     
+    /** 
+     * Get the height of the figure, convert to microns if isInMicrons set. 
+     * 
+     * @return see above.
+     */
     public double getMeasurementHeight() 
     {
     	if (units.isInMicrons()) return getHeight()*units.getMicronsPixelY();
     	return getHeight();
     }
     
+    /** 
+     * Get the x coord of the figure. 
+     * @return see above.
+     */
     public double getX() { return ellipse.getX(); }
     
+    /** 
+     * Get the y coord of the figure. 
+     * @return see above.
+     */
     public double getY() { return ellipse.getY(); }
     
+    /** 
+     * Get the width coord of the figure. 
+     * @return see above.
+     */
     public double getWidth() { return ellipse.getWidth(); }
     
+    /** 
+     * Get the height coord of the figure. 
+     * @return see above.
+     */
     public double getHeight() { return ellipse.getHeight(); }
+   
     
-    
+    /**
+     * Draw the figure on the graphics context.
+     * @param g the graphics context.
+     */
 	public void draw(Graphics2D g)
 	{
 		super.draw(g);
@@ -164,6 +222,10 @@ public class MeasurePointFigure
 		}
 	}
 
+	/**
+	 * Calculates the bounds of the rendered figure, including the text rendered. 
+	 * @return see above.
+	 */
 	public Rectangle2D.Double getDrawingArea()
 	{
 		Rectangle2D.Double newBounds = super.getDrawingArea();
@@ -195,6 +257,11 @@ public class MeasurePointFigure
 		return newBounds;
 	}
 	
+	/**
+	 * Add units to the string 
+	 * @param str see above.
+	 * @return returns the string with the units added. 
+	 */
 	public String addUnits(String str)
 	{
 		if (shape==null) return str;
@@ -203,6 +270,10 @@ public class MeasurePointFigure
 		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
 	}
 
+	/** 
+	 * Calculate the centre of the figure. 
+	 * @return see above.
+	 */
 	public Point2D getCentre()
 	{
 		return new Point2D.Double(Math.round(ellipse.getCenterX()), 

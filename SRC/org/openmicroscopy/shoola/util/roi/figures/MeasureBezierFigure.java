@@ -41,14 +41,13 @@ import org.jhotdraw.draw.AttributeKeys;
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.measurement.util.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.BezierTextFigure;
 
 /** 
@@ -69,11 +68,18 @@ public class MeasureBezierFigure
 	implements ROIFigure
 {
 
+	/** The list of X coords of the nodes on the line. */
 	private ArrayList<Double>			pointArrayX;
+
+	/** The list of Y coords of the nodes on the line. */
 	private ArrayList<Double>			pointArrayY;
+	
+	/** The list of lengths of sections on the line. */
 	private ArrayList<Double>			lengthArray;
 	
+	/** The bounds of the bezier figure. */
 	private	Rectangle2D bounds;
+	
 	/** The ROI containing the ROIFigure which in turn contains this Figure. */
 	protected 	ROI					roi;
 
@@ -83,6 +89,7 @@ public class MeasureBezierFigure
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
 		
+	/** Create an instance of the bezier figure. */
 	public MeasureBezierFigure()
 	{
 		super("Text");
@@ -93,6 +100,10 @@ public class MeasureBezierFigure
 		lengthArray = new ArrayList<Double>();
 	}
 	
+	/**
+	 * Creates an instance of the bezier figure.
+	 * @param closed if true the figure is a polygon, else a polyline.
+	 */
 	public MeasureBezierFigure(boolean closed)
 	{
 		super("Text", closed);
@@ -101,6 +112,10 @@ public class MeasureBezierFigure
 		lengthArray = new ArrayList<Double>();
 	}
 	
+	/**
+	 * Creates an instance of the bezier figure (closed).
+	 * @param text the string displayed in the figure. 
+	 */
 	public MeasureBezierFigure(String text)
 	{
 		super(text, true);
@@ -109,6 +124,11 @@ public class MeasureBezierFigure
 		lengthArray = new ArrayList<Double>();
 	}
 	
+	/**
+	 * Creates an instance of the bezier figure.
+	 * @param text the string displayed in the figure. 
+	 * @param closed if true the figure is a polygon, else a polyline.
+	 */
 	public MeasureBezierFigure(String text, boolean closed)
 	{
 		super(text, closed);
@@ -117,6 +137,11 @@ public class MeasureBezierFigure
 		lengthArray = new ArrayList<Double>();
 	}
 	
+	  
+    /**
+     * Draw the figure on the graphics context.
+     * @param g the graphics context.
+     */
 	public void draw(Graphics2D g)
 	{
 		super.draw(g);
@@ -166,6 +191,10 @@ public class MeasureBezierFigure
 	}
 
 	
+	/**
+	 * Calculates the bounds of the rendered figure, including the text rendered. 
+	 * @return see above.
+	 */
 	public Rectangle2D.Double getDrawingArea()
 	{
 		Rectangle2D.Double newBounds = super.getDrawingArea();
@@ -197,12 +226,21 @@ public class MeasureBezierFigure
 		return newBounds;
 	}
 	
-	
+	/**
+	 * Add degrees to the measurements. 
+	 * @param str the measurement.
+	 * @return see above.
+	 */
 	public String addDegrees(String str)
 	{
 		return str + UIUtilities.DEGREES_SYMBOL;
 	}
 	
+	/**
+	 * Add length unit, (pixels, microns) to the measurements. 
+	 * @param str the measurement.
+	 * @return see above.
+	 */
 	public String addLineUnits(String str)
 	{
 		if (shape == null) return str;
@@ -211,6 +249,11 @@ public class MeasureBezierFigure
 		return str+UIUtilities.PIXELS_SYMBOL;
 	}
 	
+	/**
+	 * Add area ^2 to the measurements. 
+	 * @param str the measurement.
+	 * @return see above.
+	 */
 	public String addAreaUnits(String str)
 	{
 		if (shape == null) return str;
@@ -235,6 +278,10 @@ public class MeasureBezierFigure
 		return pt;
 	}
 	
+	/**
+	 * Calculate the length of the line.
+	 * @return see above.
+	 */
 	public double getLength()
 	{
 		double length = 0;
@@ -248,6 +295,10 @@ public class MeasureBezierFigure
 		return length;
 	}
 	
+	/**
+	 * Calculate the centre of the object (in pixels, or microns). 
+	 * @return see above.
+	 */
 	public Point2D getCentre()
 	{
 		if (units.isInMicrons())
@@ -259,6 +310,10 @@ public class MeasureBezierFigure
 		return path.getCenter();
 	}
 	
+	/**
+	 * Get the Area of the object, in Pixels or microns.
+	 * @return see above.
+	 */
 	public double getArea()
 	{
 		double area = 0;
@@ -277,6 +332,10 @@ public class MeasureBezierFigure
 		return Math.abs(area/2);
 	}
 
+	/** 
+	 * Remove a node from the bezier figure.
+	 * @param index node to remove.
+	 */
 	public void measureBasicRemoveNode(int index)
 	{
 		this.basicRemoveNode(index);
@@ -377,6 +436,10 @@ public class MeasureBezierFigure
 			return getLinePoints();
 	}
 	
+	/**
+	 * Get the points(pixels) in the polygon return this as an array.
+	 * @return see above.
+	 */
 	private PlanePoint2D[] getAreaPoints()
 	{
 		Rectangle r = path.getBounds();
@@ -398,9 +461,12 @@ public class MeasureBezierFigure
 
 	}
 	
+	/**
+	 * Get the points(pixels) on the polyline return this as an array.
+	 * @return see above.
+	 */
 	private PlanePoint2D[] getLinePoints()
 	{
-		Rectangle r = path.getBounds();
 		ArrayList<PlanePoint2D> vector = new ArrayList<PlanePoint2D>();
 		for(int i = 0 ; i < getNodeCount()-1; i++)
 		{
@@ -412,6 +478,11 @@ public class MeasureBezierFigure
 		return (PlanePoint2D[])vector.toArray(new PlanePoint2D[vector.size()]);
 	}
 		
+	/**
+	 * Iterate the line to get the points under it.
+	 * @param line the line to iterate.
+	 * @param vector the vector to add the point to.
+	 */
 	private void iterateLine(Line2D line, ArrayList<PlanePoint2D> vector)
 	{
 		Point2D start = line.getP1();

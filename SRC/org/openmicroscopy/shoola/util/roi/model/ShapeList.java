@@ -65,21 +65,40 @@ public class ShapeList
 		this.coord = coord;
 	}
 	
+	/**
+	 * Get the shape list.
+	 * @return see above.
+	 */
 	public TreeMap<Long, ROIShape> getList()
 	{
 		return roiList;
 	}
 	
+	/**
+	 * Get the coord of the plane the shapelist is associated with.
+ 	 * @return see above.
+	 */
 	public Coord3D getCoord3D()
 	{
 		return coord;
 	}
 	
+	/**
+	 * Add the ROIShape belonging to ROI to the shapelist.
+	 * @param id the roi id.
+	 * @param shape the shape to add.
+	 */
 	public void add(long id, ROIShape shape)
 	{
 		roiList.put(id, shape);
 	}
 	
+	/**
+	 * Get the ROIShape in ROI with id from the ShapeList.
+	 * @param id see above.
+	 * @return see above.
+	 * @throws NoSuchROIException Thrown if the ROIShape does not exist.
+	 */
 	public ROIShape getShape(long id) throws NoSuchROIException
 	{
 		if(roiList.containsKey(id))
@@ -88,11 +107,21 @@ public class ShapeList
 			throw new NoSuchROIException("No such ROIShape : " + id);
 	}
 	
+	/**
+	 * Return true if the ShapeList contains the ROIShape in ROI id.
+	 * @param id see above.
+	 * @return see above.
+	 */
 	public boolean containsKey(long id)
 	{
 		return roiList.containsKey(id);
 	}
 	
+	/**
+	 * Delete the ROIShape in ROI from shapeList.
+	 * @param id The id of the ROI.
+	 * @throws NoSuchROIException thrown if the Shape does not exist.
+	 */
 	public void deleteShape(long id) throws NoSuchROIException
 	{
 		if(roiList.containsKey(id))

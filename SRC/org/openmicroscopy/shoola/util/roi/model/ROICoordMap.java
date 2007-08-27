@@ -87,6 +87,12 @@ public class ROICoordMap
 		return true;
 	}
 	
+	/**
+	 * Get the ROIShapeList for the plane coord.
+	 * @param coord the plane the list is on.
+	 * @return see above.
+	 * @throws NoSuchROIException Thrown if no ROIShapes on coord.
+	 */
 	public  ShapeList getShapeList(Coord3D coord) throws NoSuchROIException
 	{
 		if(!containsKey(coord))
@@ -94,6 +100,15 @@ public class ROICoordMap
 		return coordMap.get(coord);
 	}
 	
+	/**
+	 * Get the shapeLists for planes [start, end], this list is sorted by 
+	 * Coord3D. 
+	 * @param start The start plane.
+	 * @param end The end plane.
+	 * @return see above.
+	 * @throws NoSuchROIException Thrown if the map does not contain planes in
+	 * all [start, end].
+	 */
 	public  SortedMap<Coord3D,ShapeList> getShapeList(Coord3D start, Coord3D end) 
 													throws NoSuchROIException
 	{
@@ -102,6 +117,11 @@ public class ROICoordMap
 		return coordMap.subMap(start, end);
 	}
 	
+	/**
+	 * Delete the ROI with id from coordMap and all ROIShapes.
+	 * @param roi id of the ROI.
+	 * @throws NoSuchROIException Thrown if the ROI does not exist.
+	 */
 	public void deleteROI(ROI roi) throws NoSuchROIException
 	{
 		TreeMap<Coord3D, ROIShape> roiMap = roi.getShapes();
@@ -114,6 +134,12 @@ public class ROICoordMap
 		}
 	}
 	
+	/**
+	 * Delete the ROIShape on coord in ROI with id from coordMap.
+	 * @param id id of the ROI.
+	 * @param coord the plane.
+	 * @throws NoSuchROIException Thrown if the ROI or ROIShape does not exist.
+	 */
 	public void deleteShape(long id, Coord3D coord) throws NoSuchROIException
 	{
 		ShapeList shapeList = coordMap.get(coord);
@@ -122,6 +148,11 @@ public class ROICoordMap
 			coordMap.remove(coord);
 	}
 	
+	/**
+	 * Add the ROI to the CoordMap, if the ROIShapeList for a coord does not 
+	 * exist then create it before adding the ROIShapes in the ROI to the list.
+	 * @param roi the roi to be added.
+	 */
 	public void add(ROI roi)
 	{
 		TreeMap<Coord3D, ROIShape> roiMap = roi.getShapes();
@@ -136,6 +167,13 @@ public class ROICoordMap
 		}
 	}
 	
+	/**
+	 * Add the ROIShape to the CoordMap, if the ROIShapeList for a coord does not 
+	 * exist then create it before adding the ROIShape to the list.
+	 * @param id the roi to be added.
+	 * @param coord the coord of the ROIShape.
+	 * @param shape the ROIShape to add.
+	 */
 	public void addShape(long id, Coord3D coord, ROIShape shape)
 	{
 		if(!coordMap.containsKey(coord))
@@ -144,6 +182,10 @@ public class ROICoordMap
 		shapeList.add(id, shape);
 	}
 	
+	/**
+	 * Create the ROIShape list for the plane coord.
+	 * @param coord the plane.
+	 */
 	private void createShapeList(Coord3D coord)
 	{
 		ShapeList shapeList;
@@ -151,6 +193,11 @@ public class ROICoordMap
 		coordMap.put(coord, shapeList);
 	}
 	
+	/**
+	 * Create a shape list for all planes [start, end].
+	 * @param start see above.
+	 * @param end see above.
+	 */
 	private void createShapeList(Coord3D start, Coord3D end)
 	{
 	//	for( int c = start.c ; c < end.c ; c++) 
