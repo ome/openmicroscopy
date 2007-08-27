@@ -92,6 +92,7 @@ public class BezierTextFigure
 	public BezierTextFigure(String text)
 	{
 		this(text, false);
+		editable = true;
 	}
 	
 	/**
@@ -107,6 +108,7 @@ public class BezierTextFigure
 		setAttribute(AttributeKeys.TEXT, text);
 		textLayout = null;
 		textBounds = null;
+		editable = true;
 	}
 
 	/** 
@@ -153,11 +155,11 @@ public class BezierTextFigure
 			Rectangle2D.Double r = getBounds();
 			FontMetrics fm = 
 					g.getFontMetrics(AttributeKeys.FONT_FACE.get(this));
-			double textWith = fm.stringWidth(text);
+			double textWidth = fm.stringWidth(text);
 			double textHeight = fm.getAscent();
-			double x = r.x+r.width/2-textWith/2;
-			double y = r.y+textHeight/2;
-			textBounds = new Rectangle2D.Double(x, y, textWith, textHeight);
+			double x = r.x+r.width/2-textWidth/2;
+			double y = r.y+textHeight/2+r.height/2;
+			textBounds = new Rectangle2D.Double(x, y, textWidth, textHeight);
 			layout.draw(g, (float) textBounds.x, (float) textBounds.y);
 		}	
 	}
