@@ -30,7 +30,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.util.HashMap;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -44,7 +43,6 @@ import javax.swing.JToolBar;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.DrawingEditor;
-import org.jhotdraw.util.ResourceBundleUtil;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
@@ -85,31 +83,29 @@ class ToolBar
 
 	/** The defaults attributes of the line connection figure. */
 	private final static HashMap<AttributeKey, Object>	defaultAttributes;
+	
 	static
 	{
 		defaultAttributes=new HashMap<AttributeKey, Object>();
 		defaultAttributes.put(AttributeKeys.FILL_COLOR,
-			IOConstants.DEFAULT_FILL_COLOUR);
+						IOConstants.DEFAULT_FILL_COLOUR);
 		defaultAttributes.put(AttributeKeys.STROKE_COLOR,
-			IOConstants.DEFAULT_STROKE_COLOUR);
+						IOConstants.DEFAULT_STROKE_COLOUR);
 		defaultAttributes.put(AttributeKeys.TEXT_COLOR,
-			IOConstants.DEFAULT_TEXT_COLOUR);
+						IOConstants.DEFAULT_TEXT_COLOUR);
 		defaultAttributes.put(AttributeKeys.FONT_SIZE, new Double(10));
 		defaultAttributes.put(AttributeKeys.FONT_BOLD, false);
 		defaultAttributes.put(AttributeKeys.STROKE_WIDTH, new Double(1.0));
 		defaultAttributes.put(AttributeKeys.TEXT, "Text");
 		defaultAttributes.put(MeasurementAttributes.MEASUREMENTTEXT_COLOUR,
 			IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
-		defaultAttributes.put(MeasurementAttributes.SHOWMEASUREMENT, new Boolean(
-			false));
-		defaultAttributes.put(DrawingAttributes.SHOWTEXT, new Boolean(false));
+		defaultAttributes.put(MeasurementAttributes.SHOWMEASUREMENT, 
+							Boolean.FALSE);
+		defaultAttributes.put(DrawingAttributes.SHOWTEXT, Boolean.FALSE);
 	}
 	
 	/** The default string added to the type of Figure to create. */
 	private static final String			CREATE_KEY = "create";
-	
-	/** The base name used for Labels. */
-	private static final String			BASE_NAME = "org.jhotdraw.draw.Labels";
 	
 	/** Size of the horizontal box. */
     private static final Dimension 		HGLUE = new Dimension(5, 5);
@@ -124,28 +120,28 @@ class ToolBar
     private MeasurementViewerModel		model;
     
     /** The ellipse creation tool. */
-    private DrawingObjectCreationTool 			ellipseTool;
+    private DrawingObjectCreationTool	ellipseTool;
 
     /** The rectangle creation tool. */
-    private DrawingObjectCreationTool 			rectTool;
+    private DrawingObjectCreationTool	rectTool;
     
     /** The line creation tool. */
-    private DrawingObjectCreationTool 			lineTool;
+    private DrawingObjectCreationTool	lineTool;
     
     /** The text creation tool. */
-    private DrawingObjectCreationTool 			textTool;
+    private DrawingObjectCreationTool	textTool;
 
     /** The point creation tool. */
-    private DrawingPointCreationTool 			pointTool;
+    private DrawingPointCreationTool	pointTool;
     
     /** The polygon creation tool. */
-    private DrawingBezierTool 		polygonTool;
+    private DrawingBezierTool 			polygonTool;
     
     /** The polyline creation tool. */
-    private DrawingBezierTool 		polylineTool;
+    private DrawingBezierTool 			polylineTool;
     
     /** The connetion creation tool. */
-    private DrawingConnectionTool	connectionTool;
+    private DrawingConnectionTool		connectionTool;
     
     /** Initializes the component composing the display. */
 	private void initComponents()
@@ -155,16 +151,12 @@ class ToolBar
 		textTool = new DrawingObjectCreationTool(new MeasureTextFigure());
 		lineTool = new DrawingObjectCreationTool(new MeasureLineFigure());
 		connectionTool = new DrawingConnectionTool(
-						new MeasureLineConnectionFigure(), 
-							defaultAttributes);
+						new MeasureLineConnectionFigure(), defaultAttributes);
 		pointTool = new DrawingPointCreationTool(new MeasurePointFigure());
-	    polygonTool = new DrawingBezierTool(
-	    		new MeasureBezierFigure(true));
-	    polylineTool = new DrawingBezierTool(
-	    		new MeasureBezierFigure(false));
+	    polygonTool = new DrawingBezierTool(new MeasureBezierFigure(true));
+	    polylineTool = new DrawingBezierTool(new MeasureBezierFigure(false));
 	    
 		ButtonGroup group = new ButtonGroup();
-		ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle(BASE_NAME);
 		toolBar = new JToolBar();
 		toolBar.setFloatable(false);
 		toolBar.putClientProperty("toolButtonGroup", group);
@@ -172,41 +164,30 @@ class ToolBar
 		DrawingToolBarButtonFactory.addSelectionToolTo(toolBar, editor);
 		toolBar.add(new JSeparator());
 		toolBar.add(Box.createRigidArea(HGLUE));
-		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, 
-				rectTool, 
-				CREATE_KEY+ROIFigure.RECTANGLE_TYPE, 
-				labels);
-		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, 
-				ellipseTool, 
-				CREATE_KEY+ROIFigure.ELLIPSE_TYPE, 
-				labels);
-		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, 
-				pointTool, 
-				CREATE_KEY+ROIFigure.ELLIPSE_TYPE, 
-				labels);
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, rectTool, 
+				CREATE_KEY+ROIFigure.RECTANGLE_TYPE);
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, ellipseTool, 
+				CREATE_KEY+ROIFigure.ELLIPSE_TYPE);
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, pointTool, 
+				CREATE_KEY+ROIFigure.ELLIPSE_TYPE);
 		Component component = toolBar.getComponent(
 							toolBar.getComponentCount()-1);
 		if (component instanceof JToggleButton)
 		{
-			JToggleButton button = (JToggleButton)component;
+			JToggleButton button = (JToggleButton) component;
 			IconManager icons = IconManager.getInstance();
 			button.setIcon(icons.getIcon(IconManager.POINTICON));
 		}
-		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, 
-				lineTool, 
-					CREATE_KEY+ROIFigure.LINE_TYPE, labels);
-		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, 
-	    		connectionTool, 
-	    			CREATE_KEY+ROIFigure.LINE_CONNECTION_TYPE, labels);
-		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, 
-				  polylineTool, 
-				  CREATE_KEY+ROIFigure.SCRIBBLE_TYPE, labels);
-		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, 
-	    		  polygonTool, 
-	    		  CREATE_KEY+ROIFigure.POLYGON_TYPE, labels);
-		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, 
-				textTool, 
-				CREATE_KEY+ROIFigure.TEXT_TYPE, labels);
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, lineTool, 
+					CREATE_KEY+ROIFigure.LINE_TYPE);
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, connectionTool, 
+	    			CREATE_KEY+ROIFigure.LINE_CONNECTION_TYPE);
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polylineTool, 
+				  CREATE_KEY+ROIFigure.SCRIBBLE_TYPE);
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polygonTool, 
+	    		  CREATE_KEY+ROIFigure.POLYGON_TYPE);
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, textTool, 
+				CREATE_KEY+ROIFigure.TEXT_TYPE);
 		createSingleFigure(false);
 	}
 	
@@ -248,23 +229,6 @@ class ToolBar
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 	    add(p);
 	}
-
-	/**
-	 * Creates a single figure and moves the tool in the menu back to the 
-	 * selection tool, if param true. 
-	 * @param option see above.
-	 */
-	public void createSingleFigure(boolean option)
-	{
-		ellipseTool.setResetToSelect(option);
-		rectTool.setResetToSelect(option);
-		textTool.setResetToSelect(option); 
-		lineTool.setResetToSelect(option); 
-		// TODO : connectionTool.setResetToSelect(option); 
-		pointTool.setResetToSelect(option);
-	    polygonTool.setResetToSelect(option);
-	    polylineTool.setResetToSelect(option); 
-	}
 	
 	/**
 	 * Creates a new instance.
@@ -286,4 +250,22 @@ class ToolBar
 		buildGUI();
 	}
 
+	/**
+	 * Creates a single figure and moves the tool in the menu back to the 
+	 * selection tool, if the passed parameter is <code>true</code>. 
+	 * 
+	 * @param option see above.
+	 */
+	void createSingleFigure(boolean option)
+	{
+		ellipseTool.setResetToSelect(option);
+		rectTool.setResetToSelect(option);
+		textTool.setResetToSelect(option); 
+		lineTool.setResetToSelect(option); 
+		// TODO : connectionTool.setResetToSelect(option); 
+		pointTool.setResetToSelect(option);
+	    polygonTool.setResetToSelect(option);
+	    polylineTool.setResetToSelect(option); 
+	}
+	
 }

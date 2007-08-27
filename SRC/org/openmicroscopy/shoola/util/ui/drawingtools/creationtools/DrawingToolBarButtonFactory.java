@@ -57,6 +57,9 @@ import org.jhotdraw.util.ResourceBundleUtil;
 public class DrawingToolBarButtonFactory
 {
     
+	/** Labels base name. */
+	private static final String BASE_NAME = "org.jhotdraw.draw.Labels";
+	
     /**
      * Creates the collection of drawing actions.
      * 
@@ -107,11 +110,11 @@ public class DrawingToolBarButtonFactory
      * @param editor	The drawing editor.
      * @param tool		The tool to add.
      * @param labelKey	The label linked to the key.
-     * @param labels	Labels to set.
      */
     public static void addToolTo(JToolBar tb, DrawingEditor editor,
-            Tool tool, String labelKey,
-            ResourceBundleUtil labels) {
+            Tool tool, String labelKey)
+    {
+    	ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle(BASE_NAME);
     	ToolBarButtonFactory.addToolTo(tb, editor, tool, labelKey, labels);
     }
     

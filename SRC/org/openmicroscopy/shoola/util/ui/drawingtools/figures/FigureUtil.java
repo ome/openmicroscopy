@@ -48,15 +48,38 @@ import java.util.HashMap;
  * </small>
  * @since OME3.0
  */
-class FigureUtil
+public class FigureUtil
 {
 
+	/** Identifies the <code>Rectangle</code> type. */
+	public static final String RECTANGLE_TYPE = "Rectangle";
+	
+	/** Identifies the <code>Ellipse</code> type. */
+	public static final String ELLIPSE_TYPE = "Ellipse";
+	
+	/** Identifies the <code>Point</code> type. */
+	public static final String POINT_TYPE = "Point";
+	
+	/** Identifies the <code>Line</code> type. */
+	public static final String LINE_TYPE = "Line";
+	
+	/** Identifies the <code>LineConnection</code> type. */
+	public static final String LINE_CONNECTION_TYPE = "LineConnection";
+	
+	/** Identifies the <code>Polygon</code> type. */
+	public static final String POLYGON_TYPE = "Polygon";
+	
+	/** Identifies the <code>Text</code> type. */
+	public static final String TEXT_TYPE = "Text";
+	
+	/** Identifies the <code>Scribble</code> type. */
+	public static final String SCRIBBLE_TYPE = "Scribble";
 	
 	/** The default number of columns for text. */
-	static final int TEXT_COLUMNS = 4;
+	static final int 			TEXT_COLUMNS = 4;
 	
 	/** The default tab size. */
-	static final int TAB_SIZE = 8;
+	static final int 			TAB_SIZE = 8;
 
 	/**
 	 * Creates a layout for the text.

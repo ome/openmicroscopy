@@ -84,6 +84,22 @@ public class RectangleTextFigure
 		return textLayout;
 	}
 	
+	/** Creates a new instance. */
+	public RectangleTextFigure()
+	{
+		this("", 0, 0, 0, 0);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param text The text to display.
+	 */
+	public RectangleTextFigure(String text)
+	{
+		this(text, 0, 0, 0, 0);
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
