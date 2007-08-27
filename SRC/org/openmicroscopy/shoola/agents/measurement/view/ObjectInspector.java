@@ -35,13 +35,9 @@ import java.util.List;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableCellRenderer;
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.Figure;
 
@@ -51,7 +47,6 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.AttributeField;
 import org.openmicroscopy.shoola.agents.measurement.util.FigureTable;
 import org.openmicroscopy.shoola.agents.measurement.util.FigureTableModel;
-import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
 import org.openmicroscopy.shoola.agents.measurement.util.ValueType;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -162,6 +157,8 @@ class ObjectInspector
 	ArrayList<Double> strokeRange()
 	{
 		ArrayList<Double> sRange = new ArrayList<Double>();
+		sRange.add(new Double(0.5));
+		sRange.add(new Double(0.75));
 		sRange.add(new Double(1));
 		sRange.add(new Double(2));
 		sRange.add(new Double(3));
@@ -176,6 +173,7 @@ class ObjectInspector
 	ArrayList<Double> fontRange()
 	{
 		ArrayList<Double> fRange = new ArrayList<Double>();
+		fRange.add(new Double(4));
 		fRange.add(new Double(8));
 		fRange.add(new Double(9));
 		fRange.add(new Double(10));

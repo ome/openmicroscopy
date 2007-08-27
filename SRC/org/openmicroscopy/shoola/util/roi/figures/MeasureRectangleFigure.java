@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.RectangleTextFigure;
 
 /**
@@ -347,7 +348,7 @@ public class MeasureRectangleFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
 	 */
-	public String getType() { return ROIFigure.RECTANGLE_TYPE; }
+	public String getType() { return FigureUtil.RECTANGLE_TYPE; }
 
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.

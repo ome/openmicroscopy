@@ -37,6 +37,7 @@ import javax.swing.table.TableCellRenderer;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 /** 
  * Table renderer for the Assistant.
@@ -92,35 +93,35 @@ public class ROIAssistantCellRenderer
 		}
 		if (value instanceof String)
 		{
-			if (value.equals(ROIFigure.ELLIPSE_TYPE))
+			if (value.equals(FigureUtil.ELLIPSE_TYPE))
 			{
 				label.setIcon(icons.getImageIcon(IconManager.ELLIPSE));
 			}
-			else if(value.equals(ROIFigure.RECTANGLE_TYPE))
+			else if(value.equals(FigureUtil.RECTANGLE_TYPE))
 			{
 				label.setIcon(icons.getImageIcon(IconManager.SQUARE));
 			}
-			else if(value.equals(ROIFigure.SCRIBBLE_TYPE))
+			else if(value.equals(FigureUtil.SCRIBBLE_TYPE))
 			{
 				label.setIcon(icons.getImageIcon(IconManager.POLYLINE));
 			}
-			else if (value.equals(ROIFigure.POLYGON_TYPE))
+			else if (value.equals(FigureUtil.POLYGON_TYPE))
 			{
 				label.setIcon(icons.getImageIcon(IconManager.POLYGON));
 			}
-			else if(value.equals(ROIFigure.LINE_TYPE))
+			else if(value.equals(FigureUtil.LINE_TYPE))
 			{
 				label.setIcon(icons.getImageIcon(IconManager.LINE));
 			}
-			else if(value.equals(ROIFigure.LINE_CONNECTION_TYPE))
+			else if(value.equals(FigureUtil.LINE_CONNECTION_TYPE))
 			{
 				label.setIcon(icons.getImageIcon(IconManager.LINECONNECTION));
 			}
-			else if(value.equals(ROIFigure.POINT_TYPE))
+			else if(value.equals(FigureUtil.POINT_TYPE))
 			{
 				label.setIcon(icons.getImageIcon(IconManager.POINT));
 			}
-			else if(value.equals(ROIFigure.TEXT_TYPE))
+			else if(value.equals(FigureUtil.TEXT_TYPE))
 			{
 				label.setIcon(icons.getImageIcon(IconManager.TEXT));
 			}

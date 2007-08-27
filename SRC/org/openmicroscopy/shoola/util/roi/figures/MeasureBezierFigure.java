@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.BezierTextFigure;
+import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 /** 
  * 
@@ -411,8 +412,8 @@ public class MeasureBezierFigure
 	 */
 	public String getType()
 	{
-		if (CLOSED.get(this)) return ROIFigure.POLYGON_TYPE;
-		return ROIFigure.SCRIBBLE_TYPE;
+		if (CLOSED.get(this)) return FigureUtil.POLYGON_TYPE;
+		return FigureUtil.SCRIBBLE_TYPE;
 	}
 
 	/**
@@ -458,7 +459,6 @@ public class MeasureBezierFigure
 			}
 		}
 		return (PlanePoint2D[])vector.toArray(new PlanePoint2D[vector.size()]);
-
 	}
 	
 	/**

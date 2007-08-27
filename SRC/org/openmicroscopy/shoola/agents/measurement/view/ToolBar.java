@@ -53,7 +53,6 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
-import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -63,6 +62,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingConne
 import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingObjectCreationTool;
 import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingPointCreationTool;
 import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingToolBarButtonFactory;
+import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 /** 
  * UI component acting as toolbar. Used to create Region of Interest.
@@ -165,11 +165,11 @@ class ToolBar
 		toolBar.add(new JSeparator());
 		toolBar.add(Box.createRigidArea(HGLUE));
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, rectTool, 
-				CREATE_KEY+ROIFigure.RECTANGLE_TYPE);
+				CREATE_KEY+FigureUtil.RECTANGLE_TYPE);
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, ellipseTool, 
-				CREATE_KEY+ROIFigure.ELLIPSE_TYPE);
+				CREATE_KEY+FigureUtil.ELLIPSE_TYPE);
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, pointTool, 
-				CREATE_KEY+ROIFigure.ELLIPSE_TYPE);
+				CREATE_KEY+FigureUtil.ELLIPSE_TYPE);
 		Component component = toolBar.getComponent(
 							toolBar.getComponentCount()-1);
 		if (component instanceof JToggleButton)
@@ -179,15 +179,15 @@ class ToolBar
 			button.setIcon(icons.getIcon(IconManager.POINTICON));
 		}
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, lineTool, 
-					CREATE_KEY+ROIFigure.LINE_TYPE);
+					CREATE_KEY+FigureUtil.LINE_TYPE);
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, connectionTool, 
-	    			CREATE_KEY+ROIFigure.LINE_CONNECTION_TYPE);
+	    			CREATE_KEY+FigureUtil.LINE_CONNECTION_TYPE);
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polylineTool, 
-				  CREATE_KEY+ROIFigure.SCRIBBLE_TYPE);
+				  CREATE_KEY+FigureUtil.SCRIBBLE_TYPE);
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polygonTool, 
-	    		  CREATE_KEY+ROIFigure.POLYGON_TYPE);
+	    		  CREATE_KEY+FigureUtil.POLYGON_TYPE);
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, textTool, 
-				CREATE_KEY+ROIFigure.TEXT_TYPE);
+				CREATE_KEY+FigureUtil.TEXT_TYPE);
 		createSingleFigure(false);
 	}
 	

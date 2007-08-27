@@ -163,11 +163,11 @@ public class RectangleTextFigure
 			TextLayout layout = getTextLayout();
 			FontMetrics fm = 
 					g.getFontMetrics(AttributeKeys.FONT_FACE.get(this));
-			double textWith = fm.stringWidth(text);
+			double textWidth = fm.stringWidth(text);
 			double textHeight = fm.getAscent();
-			double x = rectangle.x+rectangle.width/2-textWith/2;
-			double y = rectangle.y+textHeight/2;
-			textBounds = new Rectangle2D.Double(x, y, textWith, textHeight);
+			double x = rectangle.x+rectangle.width/2-textWidth/2;
+			double y = rectangle.y+textHeight/2+rectangle.height/2;
+			textBounds = new Rectangle2D.Double(x, y, textWidth, textHeight);
 			layout.draw(g, (float) textBounds.x, (float) textBounds.y);
 		}	
 	}

@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 /** 
  * 
@@ -116,7 +117,7 @@ public class MeasureTextFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
 	 */
-	public String getType() { return ROIFigure.TEXT_TYPE; }
+	public String getType() { return FigureUtil.TEXT_TYPE; }
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
