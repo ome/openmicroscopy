@@ -416,6 +416,7 @@ public class TreeViewerTranslator
                 else if (ho instanceof DatasetData) {
                 	if (orphan == null) {
                 		orphan = new TreeImageSet(ORPHANED_DATASETS);
+                		orphan.setChildrenLoaded(Boolean.TRUE);
                 		results.add(orphan);
                 	}
                 	child = transformDataset((DatasetData) ho, userID, groupID);
@@ -423,6 +424,7 @@ public class TreeViewerTranslator
                 } else if (ho instanceof CategoryData) {
                 	if (orphan == null) {
                 		orphan = new TreeImageSet(ORPHANED_CATEGORIES);
+                		orphan.setChildrenLoaded(Boolean.TRUE);
                 		results.add(orphan);
                 	}
                 	child = transformCategory((CategoryData) ho, userID, 

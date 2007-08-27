@@ -45,6 +45,7 @@ import java.awt.image.BufferedImage;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
@@ -64,6 +65,7 @@ import javax.swing.JTabbedPane;
 import layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
@@ -74,7 +76,9 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.SplitPanel;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
@@ -237,6 +241,9 @@ class ImViewerUI
     
     /** The height of the icons in the tabbed pane plus 2 pixels. */
     private int						tabbedIconHeight;
+    
+    /** The menu displaying the categories the image is categorised into. */
+    private CategoriesPopupMenu		categoriesMenu;
     
     /**
      * Initializes and returns a split pane, either verical or horizontal 
@@ -1232,27 +1239,39 @@ class ImViewerUI
      * Creates the color picker menu and brings it on screen.
      * 
      * @param menuID    The id of the menu. One out of the following constants:
-     *                  {@link ImViewer#COLOR_PICKER_MENU}.
+     *                  {@link ImViewer#COLOR_PICKER_MENU},
+     *                  {@link ImViewer#CATEGORY_MENU}.
      * @param source	The component that requested the popup menu.
      * @param location	The point at which to display the menu, relative to the
      *                  <code>component</code>'s coordinates.
      */
 	void showMenu(int menuID, Component source, Point location)
 	{
-		if (menuID != ImViewer.COLOR_PICKER_MENU) return;
-		ChannelMetadata[] data = model.getChannelData();
-		ChannelMetadata d;
-		JPopupMenu menu = new JPopupMenu();
-		ChannelColorMenuItem item;
-		for (int j = 0; j < data.length; j++) {
-        	d = data[j];
-        	item = new ChannelColorMenuItem(
-        							"Wavelength "+d.getEmissionWavelength(), 
-        							model.getChannelColor(j), j);
-        	menu.add(item);
-            item.addPropertyChangeListener(controller);
-        }
-		menu.show(source, location.x, location.y);
+		switch (menuID) {
+			case ImViewer.COLOR_PICKER_MENU:
+				ChannelMetadata[] data = model.getChannelData();
+				ChannelMetadata d;
+				JPopupMenu menu = new JPopupMenu();
+				ChannelColorMenuItem item;
+				for (int j = 0; j < data.length; j++) {
+		        	d = data[j];
+		        	item = new ChannelColorMenuItem(
+		        						"Wavelength "+d.getEmissionWavelength(), 
+		        						model.getChannelColor(j), j);
+		        	menu.add(item);
+		            item.addPropertyChangeListener(controller);
+		        }
+				menu.show(source, location.x, location.y);
+				break;
+	
+			case ImViewer.CATEGORY_MENU:
+				if (categoriesMenu == null)
+					categoriesMenu = new CategoriesPopupMenu(this, 
+												model.getCategories());
+				categoriesMenu.show(source, location.x, location.y);
+				break;
+		}
+		
 	}
 
 	/**
@@ -1385,6 +1404,25 @@ class ImViewerUI
      * @return See above.
      */
     Dimension geRestoreSize() { return restoreSize; }
+
+    /**
+     * Browses the specified category.
+     * 
+     * @param categoryID The id of the category.
+     */
+    void browse(long categoryID)
+    {
+    	EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+    	bus.post(new Browse(categoryID, Browse.CATEGORY, 
+    			model.getUserDetails(), getBounds()));  
+    }
+    
+    /** Shows the categories. */
+    void showCategories()
+    {
+    	List l = model.getCategories();
+		if (l != null && l.size() != 0) toolBar.showCategory();
+	}
     
     /** 
      * Overridden to the set the location of the {@link ImViewer}.
@@ -1410,6 +1448,8 @@ class ImViewerUI
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
+
+	
 
 	
 

@@ -208,8 +208,8 @@ public interface OmeroDataService
      * </p>
      * <p> 
      * We also want to retrieve the all Category Group/Category paths that
-     * don’t end with the specified leaves, note that in that case because of 
-     * the mutually exclusive constraint the categories which don’t contain a
+     * don't end with the specified leaves, note that in that case because of 
+     * the mutually exclusive constraint the categories which don't contain a
      * specified leaf but which is itself contained in a group which already
      * has a category ending with the specified leaf is excluded.
      * </p>

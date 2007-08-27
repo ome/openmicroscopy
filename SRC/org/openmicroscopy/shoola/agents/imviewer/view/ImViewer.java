@@ -30,6 +30,8 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -130,6 +132,9 @@ public interface ImViewer
     
     /** Identifies the <code>Color Picket</code> menu. */
     public static final int 	COLOR_PICKER_MENU = 0;
+    
+    /** Identifies the <code>Color Picket</code> menu. */
+    public static final int 	CATEGORY_MENU = 1;
     
     /** Identifies the index of the image viewer panel. */
     public static final int		VIEW_INDEX = 0;
@@ -719,5 +724,13 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	public boolean hasSettingsToPaste();
+
+	/**
+	 * Sets the categories the image is categorised into.
+	 * 
+	 * @param categories	The categories in which the image is classified
+	 * 						owned by the user currently logged in.
+	 */
+	public void setClassification(List categories);
 	
 }

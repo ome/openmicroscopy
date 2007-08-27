@@ -186,6 +186,7 @@ class BrowserControl
         } else if (ho instanceof ExperimenterData) {
         	model.loadExperimenterData(display, null);
         }
+        
     }
     
     /** Brings up the popup menu. */

@@ -33,12 +33,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
+import org.openmicroscopy.shoola.agents.imviewer.CategoryLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
@@ -49,6 +51,7 @@ import org.openmicroscopy.shoola.agents.imviewer.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.ChannelPlayer;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.Player;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
@@ -57,6 +60,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import pojos.ExperimenterData;
 
 /** 
  * The Model component in the <code>ImViewer</code> MVC triad.
@@ -174,8 +178,8 @@ class ImViewerModel
      */
     private boolean				historyItemReplacement;
 
-    /** The id of the pixels set to copy. */
-    //private long				refPixelsID;
+    /** Collection of categories the image belongs to. */
+    private List				categories;
     
     /** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
     private void computeSizes()
@@ -225,6 +229,17 @@ class ImViewerModel
     { 
         this.component = component;
         browser = BrowserFactory.createBrowser(component, imageID);
+    }
+    
+    /**
+     * Returns the current user's details.
+     * 
+     * @return See above.
+     */
+    ExperimenterData getUserDetails()
+    { 
+    	return (ExperimenterData) ImViewerAgent.getRegistry().lookup(
+    			LookupNames.CURRENT_USER_DETAILS);
     }
     
     /**
@@ -969,5 +984,34 @@ class ImViewerModel
 		bus.post(evt);
 	}
 	
+	/** 
+	 * Starts an asynchronous call to retrieve the category the 
+	 * image is categorised into.
+	 */
+	void fireCategoriesLoading()
+	{
+		state = ImViewer.LOADING_METADATA;
+		currentLoader = new CategoryLoader(component, imageID, 
+										getUserDetails().getId());
+		currentLoader.load();
+	}
+
+	/**
+	 * Sets the categories the images is categorised into.
+	 * 
+	 * @param categories The collection to set.
+	 */
+	void setCategories(List categories)
+	{
+		this.categories = categories;
+		state = ImViewer.READY;
+	}
+
+	/**
+	 * Returns the categories the image is categorised into.
+	 * 
+	 * @return See above.
+	 */
+	List getCategories() { return categories; }
 	
 }

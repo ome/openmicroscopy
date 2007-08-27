@@ -25,9 +25,13 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.FlowLayout;
-
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.Action;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
@@ -38,6 +42,7 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -87,6 +92,9 @@ class ToolBar
     
     /** Button used to show or hide the renderer. */
     private JToggleButton	rndButton;
+    
+    /** Button displaying the category. */
+    private JButton			categoryButton;
     
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
@@ -143,14 +151,22 @@ class ToolBar
     	saveOnClose = new JCheckBox(SAVE_ON_CLOSE);
         saveOnClose.setToolTipText(SAVE_ON_CLOSE_DESCRIPTION);
         saveOnClose.setSelected(true);
+        IconManager icons = IconManager.getInstance();
+        categoryButton = new JButton(icons.getIcon(IconManager.CATEGORY));
+        UIUtilities.unifiedButtonLookAndFeel(categoryButton);
+        categoryButton.setVisible(false);
         createControlsBar();
     }
 
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
-        setLayout(new FlowLayout(FlowLayout.LEFT));
-        add(bar);
+    	setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+    	JPanel p = new JPanel();
+        p.setLayout(new FlowLayout(FlowLayout.LEFT));
+        p.add(bar);
+        add(p);
+        add(UIUtilities.buildComponentPanelRight(categoryButton));
     }
     
     /**
@@ -185,5 +201,22 @@ class ToolBar
     
     /** Selects or deselects the {@link #rndButton}. */
     void displayRenderer() { rndButton.setSelected(view.isRendererShown()); }
+    
+    /** Shows the {@link #categoryButton} and attaches listener. */
+    void showCategory()
+    {
+    	categoryButton.setVisible(true);
+    	categoryButton.addMouseListener(new MouseAdapter() {
+		
+    		public void mousePressed(MouseEvent me)
+    		{ 
+    			Object source = me.getSource();
+    			if (source instanceof Component) 
+    				view.showMenu(ImViewer.CATEGORY_MENU, (Component) source, 
+    								me.getPoint());
+    		}
+		
+		});
+    }
     
 }

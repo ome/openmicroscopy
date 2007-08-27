@@ -36,6 +36,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -54,6 +56,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImageDetailsDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.archived.view.Downloader;
 import org.openmicroscopy.shoola.agents.util.archived.view.DownloaderFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -119,6 +122,12 @@ class ImViewerComponent
    
     /** Listener attached to the rendering node. */
     private MouseAdapter		nodeListener;
+    
+    /** 
+     * A {@link ViewerSorter sorter} to order nodes in ascending 
+     * alphabetical order.
+     */
+    private ViewerSorter    	sorter;
     
     /** 
      * Returns the description displayed in the status bar.
@@ -243,6 +252,7 @@ class ImViewerComponent
         int state = model.getState();
         switch (state) {
             case NEW:
+            	//model.fireCategoriesLoading();
             	model.fireRenderingControlLoading();
                 fireStateChange();
                 break;
@@ -596,6 +606,8 @@ class ImViewerComponent
         view.setOnScreen();
         view.setStatus(RENDERING_MSG);
         renderXYPlane();
+        model.fireCategoriesLoading();
+        fireStateChange();
         //model.fireChannelMetadataLoading();
         //fireStateChange();
     }
@@ -1744,6 +1756,28 @@ class ImViewerComponent
             "This method can't be invoked in the DISCARDED state.");
 		}
 		return model.hasRndToPaste();
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#setClassification(List)
+     */
+	public void setClassification(List categories)
+	{
+		switch (model.getState()) {
+	    	case DISCARDED:
+	        throw new IllegalStateException(
+	        "This method can't be invoked in the DISCARDED state.");
+		}
+		if (sorter == null) sorter = new ViewerSorter();
+		List l;
+		if (categories == null || categories.size() == 0)
+			l = new ArrayList();
+		else l = sorter.sort(categories);
+		model.setCategories(l);
+		view.showCategories();
+		//model.fireRenderingControlLoading();
+		fireStateChange();
 	}
 	
 }

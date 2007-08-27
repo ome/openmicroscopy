@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.imviewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 
 /** 
@@ -63,6 +64,9 @@ public abstract class DataLoader
     /** Convenience reference for subclasses. */
     protected final ImageDataView        ivView;
     
+    /** Convenience reference for subclasses. */
+    protected final DataHandlerView		dhView;
+    
     /**
      * Creates a new instance.
      * 
@@ -76,6 +80,8 @@ public abstract class DataLoader
         registry = ImViewerAgent.getRegistry();
         ivView = (ImageDataView) 
                     registry.getDataServicesView(ImageDataView.class);
+        dhView = (DataHandlerView) 
+					registry.getDataServicesView(DataHandlerView.class);
     }
     
     /**

@@ -1549,5 +1549,5 @@ class OMEROGateway
 		
 		return true;
 	}
-	
+
 }

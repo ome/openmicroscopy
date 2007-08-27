@@ -184,12 +184,15 @@ public class IconManager
     
     /** The <code>Clear</code> icon. */
     public static int           CLEAR = 41;
+    
+    /** The <code>Category</code> icon. */
+    public static int           CATEGORY = 42;
    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 41;
+    private static int          MAX_ID = 42;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -238,6 +241,7 @@ public class IconManager
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
         relPaths[ZOOM_FIT] = "nuvola_viewmagfit16.png";
         relPaths[CLEAR] = "nuvola_history_clear16.png";
+        relPaths[CATEGORY] = "category16.png";
     }
     
     /** The sole instance. */
