@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 
 //Java imports
-import java.awt.Color;
 import java.util.HashMap;
 
 //Third-party libraries
@@ -49,6 +48,9 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 public class SVGFontSizeParser 
 	implements SVGAttributeParser
 {
+	/**
+	 * The absolute font size is a string mapping to a font size. 
+	 */
 	 private final static HashMap<String,Double> absoluteFontSizeMap;
 	    static 
 	    {
@@ -63,9 +65,12 @@ public class SVGFontSizeParser
 	    }	
 	    
 
-	/* (non-Javadoc)
-	 * 	@see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
-	 */
+	/**
+	* Overridden from the {@link SVGAttributeParser#parse(ROIFigure, 
+	* IXMLElement, String)}
+	* This Method will parse the absolute font size from an element to set the
+	* font size of a text object in the figure.
+	*/
 	public void parse(ROIFigure figure,IXMLElement element, String value) 
 	{
 		if (absoluteFontSizeMap.containsKey(value)) 

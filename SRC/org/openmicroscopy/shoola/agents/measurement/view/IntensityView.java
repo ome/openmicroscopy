@@ -399,8 +399,7 @@ class IntensityView
 		channelMax = new TreeMap<Integer, Double>();
 		channelMean = new TreeMap<Integer, Double>();
 		channelStdDev = new TreeMap<Integer, Double>();
-		planePixels = 
-							new TreeMap<Integer, Map<PlanePoint2D, Double>>();
+		planePixels = new TreeMap<Integer, Map<PlanePoint2D, Double>>();
 		int channel;
 		ROIShapeStats stats;
 		while(shapeIterator.hasNext())
@@ -731,8 +730,15 @@ class IntensityView
 			out=new BufferedWriter(new FileWriter(file));
 			for( int i = 0 ; i < userChannelSelection.size() ; i++)
 			{
-				writeTitle(out, "Channel Number : " + channelName.get(i));
-				writeData(out, i);
+				writeTitle(out, "Channel Number : " + 
+					channelName.get(userChannelSelection.get(i)));
+				if(!nameMap.containsKey(
+					channelName.get(userChannelSelection.get(i))))
+					continue;
+				int channel = nameMap.get(
+					channelName.get(userChannelSelection.get(i)));
+		
+				writeData(out, channel);
 			}
 			out.close();
 		}

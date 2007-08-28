@@ -48,11 +48,19 @@ public class SVGFontWeightParser
 	implements SVGAttributeParser
 {
 
+	/** The default font weight. */
 	private final static String FONT_NORMAL_VALUE = "normal";
+	
+	/** The bold font weight. As the only two weights are 'normal', 'bold'
+	 * then this is not needed, will add when more weights are required.*/
+	@SuppressWarnings("unused")
 	private final static String FONT_BOLD_VALUE = "bold";
 	
-	/* (non-Javadoc)
-	 * 	@see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
+	/**
+	 * Overridden from the {@link SVGAttributeParser#parse(ROIFigure, 
+	 * IXMLElement, String)}
+	 * This Method will parse the font weight attribute of the element and
+	 * set the font of the figure to that value.
 	 */
 	public void parse(ROIFigure figure,IXMLElement element, String value) 
 	{

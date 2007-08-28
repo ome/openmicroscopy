@@ -136,7 +136,7 @@ public class EllipseTextFigure
 	
 	/**
 	 * Overridden to set the correct tool.
-	 * @see EllipseFigure#getTool(Double)
+	 * @see EllipseFigure#getTool(Point2D.Double)
 	 */
 	public Tool getTool(Point2D.Double p) 
 	{

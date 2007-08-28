@@ -30,7 +30,6 @@ import net.n3.nanoxml.IXMLElement;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
-import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 
 /** 
  * 
@@ -48,9 +47,10 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttribut
 public class ShowMeasurementParser
 	implements SVGAttributeParser
 {
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
+	/**
+	 * Overridden from the {@link SVGAttributeParser#parse(ROIFigure, 
+	 * IXMLElement, String)}
+	 * This Method will parse the Measurement Attribute of the figure.
 	 */
 	public void parse(ROIFigure figure,IXMLElement element, String value) 
 	{

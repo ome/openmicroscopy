@@ -22,22 +22,16 @@
  */
 package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 
-import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
-import static org.jhotdraw.draw.AttributeKeys.WINDING_RULE;
-
-import java.awt.Color;
+//Java imports
 import java.util.HashMap;
 
-import net.n3.nanoxml.IXMLElement;
-
-import org.jhotdraw.draw.AttributeKeys.WindingRule;
-import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-
-//Java imports
-
 //Third-party libraries
+import net.n3.nanoxml.IXMLElement;
+import org.jhotdraw.draw.AttributeKeys.WindingRule;
+import static org.jhotdraw.draw.AttributeKeys.WINDING_RULE;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
 /** 
  * 
@@ -55,6 +49,10 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 public 	class SVGFillRuleParser 
 		implements SVGAttributeParser
 {
+	/**
+	 * The fill rule to use for the object, left or right winding will determine
+	 * which is the inside and outside of the object.
+	 */
 	private final static HashMap<String,WindingRule> fillRuleMap;
 	static 
 	{
@@ -63,9 +61,11 @@ public 	class SVGFillRuleParser
 	     fillRuleMap.put("evenodd", WindingRule.EVEN_ODD);
 	}
 	
-	/* (non-Javadoc)
-	* @see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
-	*/
+	/**
+	 * Overridden from the {@link SVGAttributeParser#parse(ROIFigure, 
+	 * IXMLElement, String)}
+	 * This Method will parse the fill rule attribute of the element.
+	 */
 	public void parse(ROIFigure figure,IXMLElement element, String value) 
 	{
 		String fillRule = value;

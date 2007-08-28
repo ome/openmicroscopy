@@ -49,17 +49,26 @@ import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 public class MeasurementAttributes  
 	extends AttributeKeys 
 {
+	/**
+	 * Should the figure show the measurement text.
+	 */
 	public static final AttributeKey<Boolean> SHOWMEASUREMENT = 
 		new AttributeKey<Boolean>("ShowMeasurement", false);
+	
+	/**
+	 * The colour of the measurement text.
+	 */
 	public static final AttributeKey<Color> MEASUREMENTTEXT_COLOUR = 
 		new AttributeKey<Color>("MeasurementTextColour", 
 				IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
 	
+	/** create instance. */
 	private MeasurementAttributes()
 	{
 	    // no code req'd
 	}
 
+	/** Get a copy of the instance. */
 	public static MeasurementAttributes get()
 	{	
 		if (ref == null)
@@ -68,12 +77,14 @@ public class MeasurementAttributes
 		return ref;
 	}
 
+	/** You cannot so don't try. */
 	public Object clone()
 		throws CloneNotSupportedException
 	{
 		throw new CloneNotSupportedException(); 
 	}
 
+	/** Private ref. */
 	private static MeasurementAttributes ref;
 }
 

@@ -50,36 +50,82 @@ import java.util.Set;
  * @since OME3.0
  */
 public class AnnotationKeys {
-	public static final AnnotationKey<String> BASIC_TEXT = 
+	
+	/** This is the text of the figure object. */
+	public static final AnnotationKey<String> BASIC_TEXT =
 		new AnnotationKey<String>("basicTextAnnotation", "");
+	
+	/** The area of the figure. */
 	public static final AnnotationKey<Double> AREA = 
 		new AnnotationKey<Double>("measurementArea", 0.0);
+	
+	/** The perimeter of the figure. */
 	public static final AnnotationKey<Double> PERIMETER = 
 		new AnnotationKey<Double>("measurementPerimeter", 0.0);
+	
+	/** The volume of the figure. */
 	public static final AnnotationKey<Double> VOLUME = 
 		new AnnotationKey<Double>("measurementVolume", 0.0);
+	
+	/** A list of angles in the figure, used for bezier, line and 
+	 * line connection figures which can have a number of elbows. 
+	 */
 	public  static final AnnotationKey<ArrayList<Double>> ANGLE = 
 		new AnnotationKey<ArrayList<Double>>("measurementAngle", null);
+	
+	/** A list of lenghts in the figure, used for bezier, line and 
+	 * line connection figures which can have a number of elbows. 
+	 */
 	public static final AnnotationKey<ArrayList<Double>> LENGTH = 
 		new AnnotationKey<ArrayList<Double>>("measurementLength", null);
+	
+	/** A list of X coords in the figure, used for bezier, line and 
+	 * line connection figures which can have a number of elbows, this is 
+	 * the x coord of the eablow and start and end point. 
+	 */
 	public static final AnnotationKey<ArrayList<Double>> POINTARRAYX= 
 		new AnnotationKey<ArrayList<Double>>("measurementPointsX", null);
+	
+	/** A list of Y coords in the figure, used for bezier, line and 
+	 * line connection figures which can have a number of elbows, this is 
+	 * the y coord of the eablow and start and end point. 
+	 */
 	public static final AnnotationKey<ArrayList<Double>> POINTARRAYY= 
 		new AnnotationKey<ArrayList<Double>>("measurementPointsY", null);
+	
+	/** The X coord of the centre of the object. */
 	public static final AnnotationKey<Double> CENTREX= 
 		new AnnotationKey<Double>("measurementCentreX", 0.0);
+
+	/** The Y coord of the centre of the object. */
 	public static final AnnotationKey<Double> CENTREY= 
 		new AnnotationKey<Double>("measurementCentreY", 0.0);
+
+	/** The X coord of the start of the object, this is used for line,
+	 * lineconnection and bezier figures. */
 	public static final AnnotationKey<Double> STARTPOINTX= 
 		new AnnotationKey<Double>("measurementStartPointX", 0.0);
+
+	/** The X coord of the start of the object, this is used for line,
+	 * lineconnection and bezier figures. */
 	public static final AnnotationKey<Double> STARTPOINTY= 
 		new AnnotationKey<Double>("measurementStartPointY", 0.0);
+	
+	/** The X coord of the end of the object, this is used for line,
+	 * lineconnection and bezier figures. */
 	public static final AnnotationKey<Double> ENDPOINTX= 
 		new AnnotationKey<Double>("measurementEndPointX", 0.0);
+	
+	/** The Y coord of the end of the object, this is used for line,
+	 * lineconnection and bezier figures. */
 	public static final AnnotationKey<Double> ENDPOINTY= 
 		new AnnotationKey<Double>("measurementEndPointY", 0.0);
+	
+	/** The width of the figure. */
 	public static final AnnotationKey<Double> WIDTH = 
 		new AnnotationKey<Double>("measurementWidth", 0.0);
+	
+	/** The height of the figure.*/
 	public static final AnnotationKey<Double> HEIGHT = 
 		new AnnotationKey<Double>("measurementHeight", 0.0);
 //	public static final AnnotationKey<Long> ROIID = 
@@ -92,6 +138,8 @@ public class AnnotationKeys {
      * A set with all attributes defined by this class.
      */
     public final static Set<AnnotationKey> 			supportedAnnotations;
+    
+    /** The map of the supported annotations. */
     public final static Map<String, AnnotationKey> 	supportedAnnotationMap;
     
     static 

@@ -45,6 +45,13 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
  */
 public interface SVGAttributeParser 
 {
+	/**
+	 * This is the base interface method which will be overridden to parse 
+	 * different attributes of the ROIShape Figure.
+	 * @param figure the figure which will have it's attributes set.
+	 * @param element the element the data is being parsed from.
+	 * @param value the value of the element.
+	 */
 	public void parse(ROIFigure figure,IXMLElement element, String value);
 }
 

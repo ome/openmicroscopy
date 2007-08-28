@@ -103,7 +103,11 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttribut
 public class InputStrategy
 {
 	
-	private final static HashMap<AttributeKey, Object>			defaultAttributes;
+	/**
+	 * The hashmap of the default values of each object along with the keys 
+	 * used.
+	 */
+	private final static HashMap<AttributeKey, Object>		defaultAttributes;
 	static
 	{
 		defaultAttributes=new HashMap<AttributeKey, Object>();
@@ -124,8 +128,10 @@ public class InputStrategy
 		defaultAttributes.put(DrawingAttributes.SHOWTEXT, new Boolean(false));
 	}
 	
-	
-	private final static HashMap<String, SVGAttributeParser>	attributeParserMap;
+	/**
+	 * Map used to map attribute with the object to parse that attribute.
+	 */
+	private final static HashMap<String, SVGAttributeParser> attributeParserMap;
 	static
 	{
 		attributeParserMap=new HashMap<String, SVGAttributeParser>();
@@ -217,8 +223,11 @@ public class InputStrategy
 			new SVGTransformParser());
 	}
 	
-	
-	private final static HashMap<String, Boolean>				basicSVGAttribute;
+	/**
+	 * The map to determine if an attribute is an annotation or basic SVG 
+	 * attribute.
+	 */
+	private final static HashMap<String, Boolean>		basicSVGAttribute;
 	static
 	{
 		basicSVGAttribute=new HashMap<String, Boolean>();
@@ -247,17 +256,7 @@ public class InputStrategy
 		basicSVGAttribute.put(IOConstants.GREEN_ATTRIBUTE, true);
 		basicSVGAttribute.put(IOConstants.ALPHA_ATTRIBUTE, true);
 	}
-		
-	/**
-	 * Maps to all XML elements that are identified by an xml:id.
-	 */
-	private HashMap<String, IXMLElement>					identifiedElements;
-	
-	/**
-	 * Maps to all drawing objects from the XML elements they were created from.
-	 */
-	private HashMap<IXMLElement, Object>					elementObjects;
-		
+			
 	/**
 	 * Holds the document that is currently being read.
 	 */
@@ -283,26 +282,52 @@ public class InputStrategy
 	 */
 	private ROIComponent									component;
 	
+	/**
+	 * Set the current coordinate being parsed to the coord.
+	 * @param coord see above.
+	 */
 	private void setCurrentCoord(Coord3D coord)
 	{
 		currentCoord=coord;
 	}
 		
+	/** 
+	 * Get the current plane being parsed in the file. 
+	 * @return see above.
+	 */
 	private Coord3D getCurrentCoord()
 	{
 		return currentCoord;
 	}
 		
+	/**
+	 * Set the current ROI id being worked on to id.
+	 * @param ROIid see above.
+	 */
 	private void setCurrentROI(long ROIid)
 	{
 		currentROI=ROIid;
 	}
 		
+	/**
+	 * Get the current id of the ROI being worked on.
+	 * @return see above.
+	 */
 	private long getCurrentROI()
 	{
 		return currentROI;
 	}
 		
+	/**
+	 * Create an ROI from the XML element add to component
+	 * @param roiElement the XML element being parsed to create ROI.
+	 * @param component the ROI component to add the created ROI to.
+	 * @return the new ROI.
+	 * @throws NoSuchROIException thrown if there is a bad ref to another ROI
+	 * in the XML.
+	 * @throws ParsingException thrown if there is badly formed xml
+	 * @throws ROICreationException thrown if the ROI connot be created.
+	 */
 	private ROI createROI(IXMLElement roiElement, ROIComponent component)
 			throws NoSuchROIException, ParsingException, ROICreationException
 	{
@@ -315,7 +340,6 @@ public class InputStrategy
 		newROI=component.createROI(id);
 		ArrayList<IXMLElement> roiShapeList=
 				roiElement.getChildrenNamed(IOConstants.ROISHAPE_TAG);
-		int cnt=0;
 		ArrayList<IXMLElement> annotationElementList=
 				roiElement.getChildrenNamed(IOConstants.ANNOTATION_TAG);
 		ArrayList<IXMLElement> annotationList;
@@ -325,7 +349,6 @@ public class InputStrategy
 			for (IXMLElement annotation : annotationList)
 				addAnnotation(annotation, newROI);
 		}
-		cnt=0;
 		ROIShape shape, returnedShape;
 		for (IXMLElement roiShape : roiShapeList)
 		{
@@ -345,6 +368,13 @@ public class InputStrategy
 		return newROI;
 	}
 		
+	/**
+	 * Create an ROIShape from the XML element add to ROI
+	 * @param shapeElement the XML element being parsed to create ROIShape.
+	 * @param newROI the ROI to add the created ROIShape to.
+	 * @return the new ROI.
+	 * @throws ParsingException thrown if there is badly formed xml
+	 */
 	private ROIShape createROIShape(IXMLElement shapeElement, ROI newROI)
 			throws ParsingException
 	{
@@ -373,11 +403,21 @@ public class InputStrategy
 		return shape;
 	}
 		
+	/** 
+	 * Return true if the name is an annotation.
+	 * @param name see above.
+	 * @return see above.
+	 */
 	private boolean isAnnotation(String name)
 	{
 		return (AnnotationKeys.supportedAnnotations.contains(name));
 	}
 		
+	/**
+	 * Add the annotaiton to the shape from the xml element.
+	 * @param annotationElement the element.
+	 * @param shape the ROI shape.
+	 */
 	private void addAnnotation(IXMLElement annotationElement, ROIShape shape)
 	{
 		String key=annotationElement.getName();
@@ -385,6 +425,13 @@ public class InputStrategy
 		shape.setAnnotation(v, createAnnotationData(annotationElement));
 	}
 		
+	/**
+	 * Parse the dataType attribute in the annotationElement and create an
+	 * object of that type, populate it with values from the data in the 
+	 * annoation element.
+	 * @param annotationElement see above.
+	 * @return see above.
+	 */
 	public Object createAnnotationData(IXMLElement annotationElement)
 	{
 		String dataType=
@@ -505,7 +552,12 @@ public class InputStrategy
 		}
 		return null;
 	}
-		
+	
+	/**
+	 * Parse the annotationElement, create an attrbute key and add it to the roi.
+	 * @param annotationElement 
+	 * @param roi see above.
+	 */	
 	private void addAnnotation(IXMLElement annotationElement, ROI roi)
 	{
 		String key=annotationElement.getName();
@@ -513,6 +565,13 @@ public class InputStrategy
 		roi.setAnnotation(annotation, createAnnotationData(annotationElement));
 	}
 		
+	/**
+	 * Create an roiFigure of the correct type from the svgElement and 
+	 * add any attributes as required.
+	 * @param svgElement see above.
+	 * @return the new ROIFigure.
+	 * @throws ParsingException thrown if the svg is badly formed.
+	 */
 	private ROIFigure createFigure(IXMLElement svgElement)
 			throws ParsingException
 	{
@@ -529,7 +588,14 @@ public class InputStrategy
 		addMissingAttributes(figure);
 		return figure;
 	}
-		
+	
+	/**
+	 * Create the Parent figure, as the parser will allow multiple Figure 
+	 * elements to be aggregated together. 
+	 * @param figureElement see above.
+	 * @return the ROIFogure.
+	 * @throws ParsingException thrown if bad svg.
+	 */
 	private ROIFigure createParentFigure(IXMLElement figureElement)
 			throws ParsingException
 	{
@@ -552,6 +618,14 @@ public class InputStrategy
 		return figure;
 	}	
 	
+	/**
+	 * Created from the create Parent figure method, this will create a 
+	 * bezier figure.
+	 * @param bezierElement the bezier element.
+	 * @param closed should this be a piolygon.
+	 * @return the figure.
+	 * @throws ParsingException thrown if the svg is badly formed.
+	 */
 	public MeasureBezierFigure createBezierFigure(IXMLElement bezierElement,
 			boolean closed) throws ParsingException
 	{
@@ -610,6 +684,12 @@ public class InputStrategy
 	}
 	
 	
+	/**
+	 * Created from the create Parent figure method, this will create a 
+	 * text figure.
+	 * @param textElement the text element.
+	 * @return the figure.
+	 */
 	private MeasureTextFigure createTextFigure(IXMLElement textElement)
 	{
 		String xValue=
@@ -625,6 +705,12 @@ public class InputStrategy
 		return textFigure;
 	}
 		
+	/**
+	 * Created from the create Parent figure method, this will create an 
+	 * Ellipse figure.
+	 * @param ellipseElement the text element.
+	 * @return the figure.
+	 */
 	private MeasureEllipseFigure createEllipseFigure(
 			IXMLElement ellipseElement)
 	{
@@ -657,6 +743,12 @@ public class InputStrategy
 	}
 	
 	
+	/**
+	 * Created from the create Parent figure method, this will create an 
+	 * Point figure.
+	 * @param pointElement the text element.
+	 * @return the figure.
+	 */
 	private MeasurePointFigure createPointFigure(IXMLElement pointElement)
 	{
 		String cxValue=
@@ -688,6 +780,12 @@ public class InputStrategy
 	}
 	
 	
+	/**
+	 * Created from the create Parent figure method, this will create an 
+	 * Rectangle figure.
+	 * @param rectElement the text element.
+	 * @return the figure.
+	 */
 	private MeasureRectangleFigure createRectangleFigure(IXMLElement rectElement)
 	{
 		String xValue=
@@ -711,7 +809,14 @@ public class InputStrategy
 		return rectFigure;
 	}
 	
-	
+	/**
+	 * Created from the create Parent figure method, this will create an 
+	 * Line figure either a line figure or conneciton figure depending on
+	 * the attributes.
+	 * @param lineElement the text element.
+	 * @return the figure.
+	 * @throws ParsingException thrown if the svg is badly formed.
+	 */
 	private ROIFigure createLineFigure(IXMLElement lineElement)
 			throws ParsingException
 	{
@@ -721,6 +826,13 @@ public class InputStrategy
 	}
 	
 	
+	/**
+	 * Created from the create Parent figure method, this will create  
+	 * a line connection figure.
+	 * @param lineElement the text element.
+	 * @return the figure.
+	 * @throws ParsingException thrown if the svg is badly formed.
+	 */
 	private MeasureLineConnectionFigure createLineConnectionFigure(
 			IXMLElement lineElement) throws ParsingException
 	{
@@ -775,6 +887,12 @@ public class InputStrategy
 	}
 	
 	
+	/**
+	 * Created from the create Parent figure method, this will create  
+	 * a line figure.
+	 * @param lineElement the text element.
+	 * @return the figure.
+	 */
 	private MeasureLineFigure createBasicLineFigure(IXMLElement lineElement)
 	{
 		MeasureLineFigure lineFigure=new MeasureLineFigure();
@@ -817,7 +935,7 @@ public class InputStrategy
 	/**
 	 * Returns a value as a Point2D.Double array.
 	 * as specified in http://www.w3.org/TR/SVGMobile12/shapes.html#PointsBNF
-	 * 
+	 * @param str see above.
 	 * @return See above.
 	 */
 	private Point2D.Double[] toPoints(String str)
@@ -834,7 +952,7 @@ public class InputStrategy
 	/**
 	 * Returns a value as a Point2D.Double array.
 	 * as specified in http://www.w3.org/TR/SVGMobile12/shapes.html#PointsBNF
-	 * 
+	 * @param str see above.
 	 * @return See above.
 	 */
 	private Integer[] toIntArray(String str)
@@ -847,6 +965,11 @@ public class InputStrategy
 		return points;
 	}
 	
+	/**
+	 * Add the attributes to the figure from the xmlElement.
+	 * @param figure see above.
+	 * @param figureElement see above.
+	 */
 	private void addAttributes(ROIFigure figure, IXMLElement figureElement)
 	{
 		Properties attributes=figureElement.getAttributes();
@@ -885,6 +1008,13 @@ public class InputStrategy
 		return attributeParserMap.containsKey(attribute);
 	}
 		
+	/**
+	 * Parse the attribute in figureElement annd get the 
+	 * @param figure see above.
+	 * @param figureElement see above.
+	 * @param attribute see above.
+	 * @param value see above.
+	 */
 	private void parseAttribute(ROIFigure figure, IXMLElement figureElement,
 			String attribute, String value)
 	{
@@ -892,7 +1022,13 @@ public class InputStrategy
 		parser.parse(figure, figureElement, value);
 	}
 	
-	
+	/**
+	 * Add an attribute to the figure from the figureElement.
+	 * @param figure see above.
+	 * @param figureElement see above.
+	 * @param attribute see above.
+	 * @param value see above.
+	 */
 	private void addAttribute(ROIFigure figure, IXMLElement figureElement,
 			String attribute, String value)
 	{
@@ -901,7 +1037,11 @@ public class InputStrategy
 			attribute, value);
 	}
 	
-	
+	/**
+	 * Add a text figure to a composite figure. ** NOT USED JUST NOW. ** 
+	 * @param figure
+	 * @param textElement
+	 */
 	private void addTextElementToFigure(ROIFigure figure,
 			IXMLElement textElement)
 	{
@@ -910,13 +1050,21 @@ public class InputStrategy
 		addAttributes(figure, textElement);
 	}
 	
-	
+	/**
+	 * Set the text of the figure from the text.
+	 * @param fig see above.
+	 * @param text see above.
+	 */
 	private void setText(ROIFigure fig, String text)
 	{
 		AttributeKeys.TEXT.set(fig, text);
 	}
 	
-	
+	/**
+	 * Add any missing basic attributes from the default attributes map, 
+	 * to the figure.
+	 * @param figure see above.
+	 */
 	private void addMissingAttributes(ROIFigure figure)
 	{
 		Map<AttributeKey, Object> attributes=figure.getAttributes();
@@ -931,11 +1079,22 @@ public class InputStrategy
 		
 	}
 		
+	/** Create instance. */
 	InputStrategy()
 	{
 
 	}
 		
+	/**
+	 * Read the input stream and creat ROI from it, add to ROIComponent.
+	 * @param in input stream.
+	 * @param component ROIComponent.
+	 * @return see above.
+	 * @throws ParsingException if any malformed xml encountered. 
+	 * @throws ROICreationException if roi cannot be created.
+	 * @throws NoSuchROIException if there is an error creating line connection 
+	 * figure.
+	 */
 	ArrayList<ROI> readROI(InputStream in, ROIComponent component)
 			throws ParsingException, ROICreationException,
 			NoSuchROIException

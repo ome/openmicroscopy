@@ -184,7 +184,7 @@ public class LineConnectionTextFigure
 	
 	/**
 	 * Overridden to set the correct tool.
-	 * @see LineConnectionFigure#getTool(Double)
+	 * @see LineConnectionFigure#getTool(Point2D.Double)
 	 */
 	public Tool getTool(Point2D.Double p)
 	{

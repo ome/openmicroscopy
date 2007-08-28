@@ -48,10 +48,12 @@ public class ShowTextParser
 	implements SVGAttributeParser
 {
 
-		/* (non-Javadoc)
-		 * @see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
-		 */
-		public void parse(ROIFigure figure,IXMLElement element, String value) 
+	/**
+	 * Overridden from the {@link SVGAttributeParser#parse(ROIFigure, 
+	 * IXMLElement, String)}
+	 * This Method will parse the ShowText Attribute of the figure.
+	 */
+	public void parse(ROIFigure figure,IXMLElement element, String value) 
 		{
 			Boolean booleanValue = new Boolean(value);
 			DrawingAttributes.SHOWTEXT.set(figure, booleanValue);

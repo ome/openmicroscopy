@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 
 //Java imports
-import java.awt.Color;
 import java.awt.Font;
 
 //Third-party libraries
@@ -33,7 +32,6 @@ import static org.jhotdraw.draw.AttributeKeys.FONT_FACE;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
 
 /** 
  * 
@@ -52,8 +50,11 @@ public class SVGFontFamilyParser
 	implements SVGAttributeParser
 {
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
+	/**
+	 * Overridden from the {@link SVGAttributeParser#parse(ROIFigure, 
+	 * IXMLElement, String)}
+	 * This Method will parse the font family used to display text read from 
+	 * the element.
 	 */
 	public void parse(ROIFigure figure,IXMLElement element,String value) 
 	{

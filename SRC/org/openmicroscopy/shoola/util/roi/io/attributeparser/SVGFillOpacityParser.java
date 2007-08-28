@@ -50,8 +50,10 @@ public class SVGFillOpacityParser
 	implements SVGAttributeParser
 {
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
+	/**
+	 * Overridden from the {@link SVGAttributeParser#parse(ROIFigure, 
+	 * IXMLElement, String)}
+	 * This Method will parse the fill opacity attribute og the element.
 	 */
 	public void parse(ROIFigure figure,IXMLElement element, String value) 
 	{

@@ -207,7 +207,7 @@ public class RectangleTextFigure
 	
 	/**
 	 * Overridden to set the correct tool.
-	 * @see RectangleFigure#getTool(Double)
+	 * @see RectangleFigure#getTool(Point2D.Double)
 	 */
 	public Tool getTool(Point2D.Double p)
 	{

@@ -48,11 +48,18 @@ public class SVGFontStyleAttribute
 	implements SVGAttributeParser
 {
 
+	/** Text string for normal text. */
 	private final static String FONT_NORMAL_VALUE = "normal";
+	
+	/** Text string for italic text. */
+	@SuppressWarnings("unused")
 	private final static String FONT_ITALIC_VALUE = "italic";
 	
-	/* (non-Javadoc)
-	 * 	@see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
+	/**
+	 * Overridden from the {@link SVGAttributeParser#parse(ROIFigure, 
+	 * IXMLElement, String)}
+	 * This Method will parse the font text style for the element 
+	 * and set the font style of the figure to that value.
 	 */
 	public void parse(ROIFigure figure,IXMLElement element, String value) 
 	{

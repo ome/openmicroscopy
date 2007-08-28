@@ -34,7 +34,6 @@ import net.n3.nanoxml.IXMLElement;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.io.IOConstants;
-import org.openmicroscopy.shoola.util.roi.io.InputStrategy;
 import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
 
 /** 
@@ -54,18 +53,25 @@ public class SVGFillParser
 	implements SVGAttributeParser
 {
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
+	/**
+	 * Overridden from the {@link SVGAttributeParser#parse(ROIFigure, 
+	 * IXMLElement, String)}
+	 * This Method will parse the fill colour attribute of the element.
 	 */
 	public void parse(ROIFigure figure, IXMLElement element,String value) 
 	{
 		int alpha = 255;
 		if(element.hasAttribute(IOConstants.SVG_FILL_OPACITY_ATTRIBUTE))
-			alpha = (int) Math.floor(new Double(element.getAttribute(IOConstants.SVG_FILL_OPACITY_ATTRIBUTE, IOConstants.VALUE_NULL))*255);
+			alpha = (int) Math.floor(new Double(
+			element.getAttribute(IOConstants.SVG_FILL_OPACITY_ATTRIBUTE, 
+				IOConstants.VALUE_NULL))*255);
 		SVGColour svgColour = new SVGColour();
 		Color svgColourValue = svgColour.toColor(value);
-		Color fillValue = new Color(svgColourValue.getRed(), svgColourValue.getGreen(), svgColourValue.getBlue(), alpha);
-		if(!(figure instanceof MeasureTextFigure) && !element.getName().equals("text"))
+		Color fillValue = new Color(svgColourValue.getRed(), 
+									svgColourValue.getGreen(), 
+									svgColourValue.getBlue(), alpha);
+		if(!(figure instanceof MeasureTextFigure) && 
+									!element.getName().equals("text"))
 			FILL_COLOR.set(figure, fillValue);
 		else
 			TEXT_COLOR.set(figure, fillValue);

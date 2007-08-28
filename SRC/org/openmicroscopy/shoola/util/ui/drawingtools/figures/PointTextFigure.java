@@ -179,7 +179,7 @@ public class PointTextFigure
     
 	/**
 	 * Overridden to set the correct tool.
-	 * @see PointFigure#getTool(Double)
+	 * @see PointFigure#getTool(Point2D.Double)
 	 */
 	public Tool getTool(Point2D.Double p) 
 	{

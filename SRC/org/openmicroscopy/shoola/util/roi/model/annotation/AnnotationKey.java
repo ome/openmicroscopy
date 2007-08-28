@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.util.roi.model.annotation;
 
 //Java imports
-import java.lang.reflect.TypeVariable;
 import java.util.Map;
 
 
@@ -48,6 +47,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
  */
 public class AnnotationKey<T>
 {
+	/** the key of the annotation */
 		private String key;
 	    private T defaultValue;
 	    private boolean isNullValueAllowed;

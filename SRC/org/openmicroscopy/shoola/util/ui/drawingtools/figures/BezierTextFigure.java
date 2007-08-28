@@ -197,7 +197,7 @@ public class BezierTextFigure
 
 	/**
 	 * Overridden to set the correct tool.
-	 * @see BezierFigure#getTool(Double)
+	 * @see BezierFigure#getTool(Point2D.Double)
 	 */
 	public Tool getTool(Point2D.Double p) 
 	{
