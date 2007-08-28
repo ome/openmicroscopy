@@ -11,9 +11,6 @@ package ome.api;
 import java.util.List;
 import javax.naming.directory.Attributes;
 
-// Third-party libraries
-import net.sf.ldaptemplate.support.DistinguishedName;
-
 // Application-internal dependencies
 import ome.annotations.NotNull;
 import ome.model.meta.Experimenter;
@@ -50,7 +47,7 @@ public interface ILdap extends ServiceInterface {
 	List<Experimenter> searchAll();
 
 	/**
-	 * Searchs {@link net.sf.ldaptemplate.support.DistinguishedName} in groups
+	 * Searchs Distinguished Name - {@link java.lang.String} in groups
 	 * 
 	 * @param attr -
 	 *            String name of memeber attribute. Never null or empty.
@@ -68,7 +65,7 @@ public interface ILdap extends ServiceInterface {
 	 * attribute
 	 * 
 	 * @param dn -
-	 *            {@link net.sf.ldaptemplate.support.DistinguishedName} base for
+	 *            Distinguished Name - {@link java.lang.String} base for
 	 *            search. Never null, should be
 	 *            {@link net.sf.ldaptemplate.support.DistinguishedName#EMPTY_PATH}.
 	 * @param attr -
@@ -78,7 +75,7 @@ public interface ILdap extends ServiceInterface {
 	 * @return List of Experimenters.
 	 */
 	List<Experimenter> searchByAttribute(@NotNull
-	DistinguishedName dn, @NotNull
+	String dn, @NotNull
 	String attribute, @NotNull
 	String value);
 
@@ -98,24 +95,24 @@ public interface ILdap extends ServiceInterface {
 	 * @return List of Experimenters.
 	 */
 	List<Experimenter> searchByAttributes(@NotNull
-	DistinguishedName dn, @NotNull
+	String dn, @NotNull
 	String[] attributes, @NotNull
 	String[] values);
 
 	/**
 	 * Searchs one {@link ome.model.meta.Experimenter} in LDAP for specyfied
-	 * {@link net.sf.ldaptemplate.support.DistinguishedName}
+	 * Distinguished Name - {@link java.lang.String}
 	 * 
 	 * @param userdn
-	 *            unique {@link net.sf.ldaptemplate.support.DistinguishedName}
+	 *            unique Distinguished Name - {@link java.lang.String}
 	 *            of user, Never null or empty.
 	 * @return an Experimenter.
 	 */
 	Experimenter searchByDN(@NotNull
-	DistinguishedName userdn);
+	String userdn);
 
 	/**
-	 * Searchs unique {@link net.sf.ldaptemplate.support.DistinguishedName} in
+	 * Searchs unique Distinguished Name - {@link java.lang.String} in
 	 * LDAP for Common Name equals username. Common Name should be unique under
 	 * the specified base. If list of cn's contains more then one DN will return
 	 * exception.
@@ -126,7 +123,7 @@ public interface ILdap extends ServiceInterface {
 	 * @throws ome.conditions.ApiUsageException
 	 *             if more then one 'cn' under the specified base.
 	 */
-	DistinguishedName findDN(@NotNull
+	String findDN(@NotNull
 	String username);
 
 	/**
@@ -141,7 +138,7 @@ public interface ILdap extends ServiceInterface {
 	 */
 	void setDN(@NotNull
 	Long experimenterID, @NotNull
-	DistinguishedName dn);
+	String dn);
 
 	// ~ Getting Ldap paramiters for searching
 	// =========================================================================

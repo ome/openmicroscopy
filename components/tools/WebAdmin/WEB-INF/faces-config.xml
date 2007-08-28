@@ -6,6 +6,17 @@
 -->
 <faces-config xmlns="http://java.sun.com/JSF/Configuration">
 
+
+	<!-- Bundle messages -->
+	<application>
+		<message-bundle>ome.admin.bundle.messages</message-bundle>
+		<locale-config>
+			<default-locale>en</default-locale>
+			<supported-locale>pl</supported-locale>
+		</locale-config>
+	</application>
+	
+	
 	<render-kit>
 		<render-kit-id>HTML_BASIC</render-kit-id>
 		<renderer>
@@ -31,15 +42,6 @@
 			ome.admin.converter.SubstringConverter
 		</converter-class>
 	</converter>
-
-	<!-- Bundle messages -->
-	<application>
-		<message-bundle>ome.admin.bundle.messages</message-bundle>
-		<locale-config>
-			<default-locale>en</default-locale>
-			<supported-locale>pl</supported-locale>
-		</locale-config>
-	</application>
 
 	<!-- uploadFile.jsp navigation -->
 	<navigation-rule>

@@ -16,7 +16,7 @@
 			<h:message styleClass="errorText" id="groupError" for="group" />
 			<br />
 
-			<s:selectManyPicklist size="17" 
+			<s:selectManyPicklist size="20" styleClass="manypick" 
 				value="#{IAGManagerBean.selectedExperimenters}">
 				<f:selectItems value="#{IAGManagerBean.experimenters}" />
 			</s:selectManyPicklist>

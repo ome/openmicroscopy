@@ -10,8 +10,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import ome.admin.model.MyExperimenter;
+import ome.admin.model.User;
 import ome.conditions.ApiUsageException;
+import ome.model.meta.Experimenter;
 
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -78,9 +79,8 @@ public class HSSFWorkbookReader {
 		getSheet().removeRow(header);
 	}
 
-	public MyExperimenter setDetails(String[] header, String[] value) {
-		MyExperimenter exp = new MyExperimenter();
-
+	public User setDetails(String[] header, String[] value) {
+		Experimenter exp = new Experimenter();
 		for (int j = 0; j < header.length; j++) {
 			if (header[j].equalsIgnoreCase("omename"))
 				exp.setOmeName(value[j]);
@@ -97,23 +97,25 @@ public class HSSFWorkbookReader {
 			else
 				throw new ApiUsageException("HSSF Wrong header set.");
 		}
-
+		
+		User mexp = new User();
+		mexp.setExperimenter(exp);
 		// check existing experimenter
 		if (db.checkExperimenter(exp.getOmeName())) {
-			logger.info("HSSF setDetails: Experimenter " + exp.getOmeName()
+			logger.info("HSSF setDetails: Experimenter " + mexp.getExperimenter().getOmeName()
 					+ " exist.");
-			exp.setSelectBooleanCheckboxValue(false);
+			mexp.setSelectBooleanCheckboxValue(false);
 		} else if (db.checkEmail(exp.getEmail())) {
-			logger.info("HSSF setDetails: Email " + exp.getEmail() + " exist.");
-			exp.setSelectBooleanCheckboxValue(false);
+			logger.info("HSSF setDetails: Email " + mexp.getExperimenter().getEmail() + " exist.");
+			mexp.setSelectBooleanCheckboxValue(false);
 		} else
-			exp.setSelectBooleanCheckboxValue(true);
+			mexp.setSelectBooleanCheckboxValue(true);
 
-		logger.info("HSSF setDetails: Experimenter [" + exp.getOmeName() + ", "
-				+ exp.getFirstName() + ", " + exp.getMiddleName() + ", "
-				+ exp.getLastName() + ", " + exp.getEmail() + ", "
-				+ exp.getInstitution() + "]");
-		return exp;
+		logger.info("HSSF setDetails: Experimenter [" + mexp.getExperimenter().getOmeName() + ", "
+				+ mexp.getExperimenter().getFirstName() + ", " + mexp.getExperimenter().getMiddleName() + ", "
+				+ mexp.getExperimenter().getLastName() + ", " + mexp.getExperimenter().getEmail() + ", "
+				+ mexp.getExperimenter().getInstitution() + "]");
+		return mexp;
 	}
 
 	public String getCellValue(HSSFCell cell) {
@@ -147,14 +149,14 @@ public class HSSFWorkbookReader {
 		return str;
 	}
 
-	public List<MyExperimenter> importingExperimenters() throws IOException {
+	public List<User> importingExperimenters() throws IOException {
 		String[] header = getHeader();
 		removeHeader();
 
 		// Iterate over each row in the sheet
 		Iterator rows = getSheet().rowIterator();
 
-		List<MyExperimenter> expList = new ArrayList<MyExperimenter>();
+		List<User> expList = new ArrayList<User>();
 
 		while (rows.hasNext()) {
 			HSSFRow row = (HSSFRow) rows.next();

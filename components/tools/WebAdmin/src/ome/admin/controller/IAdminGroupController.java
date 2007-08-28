@@ -20,12 +20,14 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
 import org.apache.log4j.Logger;
+import org.apache.myfaces.custom.datascroller.ScrollerActionEvent;
 
 // Third-party libraries
 
 // Application-internal dependencies
 import ome.admin.data.ConnectionDB;
 import ome.admin.logic.IAdminGroupManagerDelegate;
+import ome.admin.model.User;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 
@@ -50,7 +52,8 @@ public class IAdminGroupController implements java.io.Serializable {
 	/**
 	 * log4j logger
 	 */
-	static Logger logger = Logger.getLogger(IAdminGroupController.class.getName());
+	static Logger logger = Logger.getLogger(IAdminGroupController.class
+			.getName());
 
 	/**
 	 * {@link ome.model.meta.ExperimenterGroup}
@@ -88,6 +91,11 @@ public class IAdminGroupController implements java.io.Serializable {
 	private boolean editMode = false;
 
 	/**
+	 * boolean value for providing Add/Edit form in one JSP.
+	 */
+	private boolean scrollerMode = true;
+
+	/**
 	 * {@link java.lang.String} default value "name"
 	 */
 	private String sortItem = "name";
@@ -101,7 +109,8 @@ public class IAdminGroupController implements java.io.Serializable {
 	 * Creates a new instance of IAdminGroupController
 	 */
 	public IAdminGroupController() {
-		this.groupModel.setWrappedData(iadmin.sortItems(sortItem, sort));
+		this.groupModel.setWrappedData(iadmin.getAndSortItems(sortItem, sort));
+		this.scrollerMode = iadmin.setScroller();
 	}
 
 	/**
@@ -140,6 +149,7 @@ public class IAdminGroupController implements java.io.Serializable {
 	 * @return {@link javax.faces.model.DataModel}
 	 */
 	public DataModel getGroups() {
+		this.scrollerMode = iadmin.setScroller();
 		return this.groupModel;
 	}
 
@@ -160,6 +170,14 @@ public class IAdminGroupController implements java.io.Serializable {
 	 */
 	public boolean isEditMode() {
 		return editMode;
+	}
+
+	public boolean isScrollerMode() {
+		return this.scrollerMode;
+	}
+
+	public void setScrollerMode(boolean scrollerMode) {
+		this.scrollerMode = scrollerMode;
 	}
 
 	/**
@@ -183,7 +201,8 @@ public class IAdminGroupController implements java.io.Serializable {
 	public String addGroup() {
 		try {
 			iadmin.addGroup(this.group);
-			this.groupModel.setWrappedData(iadmin.sortItems(sortItem, sort));
+			this.groupModel.setWrappedData(iadmin.getAndSortItems(sortItem,
+					sort));
 			return "success";
 		} catch (Exception e) {
 			logger.error("addGroup: " + e.getMessage());
@@ -205,9 +224,9 @@ public class IAdminGroupController implements java.io.Serializable {
 	public String editGroup() {
 		FacesContext context = FacesContext.getCurrentInstance();
 		try {
-			this.group = (ExperimenterGroup) groupModel.getRowData();
-			this.group = (ExperimenterGroup) iadmin.getGroupById(this.group
-					.getId());
+			this.group = (ExperimenterGroup) iadmin
+					.getGroupById(((ExperimenterGroup) groupModel.getRowData())
+							.getId());
 			if (!checkGroup(this.group.getName())) {
 				this.editMode = true;
 				return "success";
@@ -246,14 +265,14 @@ public class IAdminGroupController implements java.io.Serializable {
 	public String delGroup() {
 		FacesContext context = FacesContext.getCurrentInstance();
 		try {
-			this.group = (ExperimenterGroup) groupModel.getRowData();
+			// this.group = (ExperimenterGroup) groupModel.getRowData();
 			this.group = (ExperimenterGroup) iadmin.getGroupById(this.group
 					.getId());
 			if (!checkGroup(this.group.getName())) {
 				this.editMode = true;
 				iadmin.deleteGroup(this.group.getId());
-				this.groupModel
-						.setWrappedData(iadmin.sortItems(sortItem, sort));
+				this.groupModel.setWrappedData(iadmin.getAndSortItems(sortItem,
+						sort));
 				return "success";
 			}
 			FacesMessage message = new FacesMessage(
@@ -281,7 +300,8 @@ public class IAdminGroupController implements java.io.Serializable {
 		try {
 			this.editMode = false;
 			iadmin.updateGroup(this.group);
-			this.groupModel.setWrappedData(iadmin.sortItems(sortItem, sort));
+			this.groupModel.setWrappedData(iadmin.getAndSortItems(sortItem,
+					sort));
 			return "success";
 		} catch (Exception e) {
 			logger.error("updateGroup: " + e.getMessage());
@@ -379,10 +399,9 @@ public class IAdminGroupController implements java.io.Serializable {
 	public String editInGroup() {
 		try {
 			this.editMode = false;
-			this.group = (ExperimenterGroup) groupModel.getRowData();
-			this.group = (ExperimenterGroup) iadmin.getGroupById(this.group
-					.getId());
-
+			this.group = (ExperimenterGroup) iadmin
+					.getGroupById(((ExperimenterGroup) groupModel.getRowData())
+							.getId());
 			return "success";
 		} catch (Exception e) {
 			logger.error("editInGroup: " + e.getMessage());
@@ -447,6 +466,13 @@ public class IAdminGroupController implements java.io.Serializable {
 		this.groupModel.setWrappedData(iadmin.sortItems(sortItem, sort));
 		this.editMode = false;
 		return this.sort;
+	}
+
+	public void scrollerAction(ActionEvent event) {
+		ScrollerActionEvent scrollerEvent = (ScrollerActionEvent) event;
+		FacesContext.getCurrentInstance().getExternalContext().log(
+				"scrollerAction: facet: " + scrollerEvent.getScrollerfacet()
+						+ ", pageindex: " + scrollerEvent.getPageIndex());
 	}
 
 }

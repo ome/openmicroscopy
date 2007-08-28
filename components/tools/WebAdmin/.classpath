@@ -9,7 +9,6 @@
 	<classpathentry kind="lib" path="WEB-INF/lib/tomahawk-sandbox-1.1.5.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/myfaces-impl-1.1.5.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/myfaces-api-1.1.5.jar"/>
-	<classpathentry kind="lib" path="WEB-INF/lib/ldaptemplate-1.0.2.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/jboss-ejb3x-4.2.1.GA.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/jboss-ejb3-4.2.1.GA.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/jboss-aspect-library-jdk50-4.2.1.GA.jar"/>

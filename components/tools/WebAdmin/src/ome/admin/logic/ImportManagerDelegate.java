@@ -20,9 +20,11 @@ import org.apache.commons.beanutils.BeanUtils;
 
 // Application-internal dependencies
 import ome.admin.data.CSVWorkbookReader;
+import ome.admin.data.ConnectionDB;
 import ome.admin.data.HSSFWorkbookReader;
-import ome.admin.model.MyExperimenter;
+import ome.admin.model.User;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 
 public class ImportManagerDelegate implements java.io.Serializable {
 
@@ -44,8 +46,10 @@ public class ImportManagerDelegate implements java.io.Serializable {
 	/**
 	 * {@link java.util.List}<{@link ome.model.meta.Experimenter}>.
 	 */
-	private List<MyExperimenter> experimenters = Collections.EMPTY_LIST;
+	private List<User> experimenters = Collections.EMPTY_LIST;
 
+	private ConnectionDB db;
+	
 	/**
 	 * {@link java.util.Comparator}
 	 */
@@ -85,6 +89,13 @@ public class ImportManagerDelegate implements java.io.Serializable {
 	};
 
 	/**
+	 * Creates a new instance of IAdminExperimenterManagerDelegate.
+	 */
+	public ImportManagerDelegate() {
+		db = new ConnectionDB();
+	}
+	
+	/**
 	 * Gets type of file. Last three signs.
 	 * 
 	 * @return {@link java.lang.String} last three signs.
@@ -94,15 +105,15 @@ public class ImportManagerDelegate implements java.io.Serializable {
 	}
 
 	/**
-	 * Gets {@link java.util.List} of {@link ome.admin.model.MyExperimenter}
+	 * Gets {@link java.util.List} of {@link ome.admin.model.User}
 	 * from the specified file. There is possible to import users from XLS, CSV
 	 * and XML. Not supported format throws IOException
 	 * 
-	 * @return {@link java.util.List}<{@link ome.admin.model.MyExperimenter}>.
+	 * @return {@link java.util.List}<{@link ome.admin.model.User}>.
 	 * @throws FileNotFoundException,
 	 *             IOException
 	 */
-	public List<MyExperimenter> lookupImportingExperimenters()
+	public List<User> lookupImportingExperimenters()
 			throws FileNotFoundException, IOException {
 
 		if (getType().equals("xls")) {
@@ -144,12 +155,12 @@ public class ImportManagerDelegate implements java.io.Serializable {
 	 *            {@link java.lang.String}
 	 * @param sort
 	 *            {@link java.lang.String}
-	 * @return {@link java.util.List}<{@link ome.admin.model.MyExperimenter}>
+	 * @return {@link java.util.List}<{@link ome.admin.model.User}>
 	 * @throws IOException
 	 * @throws FileNotFoundException
 	 * @throws Exception
 	 */
-	public List<MyExperimenter> sortItems(String sortItem, String sort)
+	public List<User> sortItems(String sortItem, String sort)
 			throws FileNotFoundException, IOException {
 		this.experimenters = lookupImportingExperimenters();
 		sortByProperty = sortItem;
@@ -157,11 +168,12 @@ public class ImportManagerDelegate implements java.io.Serializable {
 			sort(propertyAscendingComparator);
 		else if (sort.equals("dsc"))
 			sort(propertyDescendingComparator);
+		
 		return experimenters;
 	}
 
 	/**
-	 * Sort {@link ome.admin.model.MyExperimenter} by
+	 * Sort {@link ome.admin.model.User} by
 	 * {@link java.util.Comparator}
 	 * 
 	 * @param comparator
@@ -175,36 +187,27 @@ public class ImportManagerDelegate implements java.io.Serializable {
 	 * Creates {@link ome.model.meta.Experimenter} in database
 	 * 
 	 * @param list
-	 *            {@link java.util.List}<{@link ome.admin.model.MyExperimenter}>
+	 *            {@link java.util.List}<{@link ome.admin.model.User}>
 	 */
-	public void createExperimenters(List<MyExperimenter> list) {
+	public void createExperimenters(List<User> list) {
+		
 		for (int i = 0; i < list.size(); i++) {
-			MyExperimenter mexp = list.get(i);
-			if (!mexp.isSelectBooleanCheckboxValue()) {
+			User user = list.get(i);
+			if (!user.isSelectBooleanCheckboxValue()) {
 				list.remove(i);
 				i--;
 			}
 		}
-		toExperimenterList(list);
 		
-	}
+		for (User user : this.experimenters) {
+			Experimenter experimenter = user.getExperimenter();
+			ExperimenterGroup defaultGroup = db.getGroup("default");
+			ExperimenterGroup groups = db.getGroup("user");
+			db.createExperimenter(experimenter, defaultGroup, groups);
 
-	/**
-	 * Converts {@link java.util.List}<{@link ome.admin.model.MyExperimenter}>
-	 * to {@link java.util.List}<{@link ome.model.meta.Experimenter}>
-	 * 
-	 * @param list
-	 *            {@link java.util.List}<{@link ome.admin.model.MyExperimenter}>
-	 * @return {@link java.util.List}<{@link ome.model.meta.Experimenter}>
-	 */
-	private List<Experimenter> toExperimenterList(List<MyExperimenter> list) {
-		List<Experimenter> exps = new ArrayList<Experimenter>();
-		for (Experimenter exp : this.experimenters) {
-			exps.add(exp);
-			System.out.println(exp.getFirstName() + "," + exp.getLastName()
-					+ "," + exp.getOmeName() + "," + exp.getEmail());
 		}
-		return exps;
+
 	}
+	
 
 }

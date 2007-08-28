@@ -161,15 +161,20 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 	}
 
 	@RolesAllowed("system")
-	public List<Experimenter> searchByAttribute(DistinguishedName dn,
+	public List<Experimenter> searchByAttribute(String dns,
 			String attr, String value) {
+		DistinguishedName dn;
+		if (dns == null)
+			dn = DistinguishedName.EMPTY_PATH;
+		else 
+			dn = new DistinguishedName(dns);
+		
 		if (attr != null && !attr.equals("") && value != null
 				&& !value.equals("")) {
 			AndFilter filter = new AndFilter();
 			filter.and(new EqualsFilter("objectClass", "person"));
 			filter.and(new EqualsFilter(attr, value));
-			if (dn == null)
-				dn = DistinguishedName.EMPTY_PATH;
+			
 			return ldapTemplate.search(dn, filter.encode(),
 					new PersonAttributesMapper());
 		} else
@@ -177,13 +182,14 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 	}
 
 	@RolesAllowed("system")
-	public Experimenter searchByDN(DistinguishedName dn) {
+	public Experimenter searchByDN(String dns) {
+		DistinguishedName dn =  new DistinguishedName(dns);
 		return (Experimenter) ldapTemplate
 				.lookup(dn, new PersonContextMapper());
 	}
 
 	@RolesAllowed("system")
-	public DistinguishedName findDN(String username) {
+	public String findDN(String username) {
 		DistinguishedName dn = new DistinguishedName();
 		AndFilter filter = new AndFilter();
 		filter.and(new EqualsFilter("objectClass", "person"));
@@ -195,7 +201,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 		} else
 			throw new ApiUsageException(
 					"Cannot find DistinguishedName. More then one 'cn' under the specified base");
-		return dn;
+		return dn.toString();
 	}
 
 	@RolesAllowed("system")
@@ -218,14 +224,14 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 	}
 
 	@RolesAllowed("system")
-	public List<Experimenter> searchByAttributes(DistinguishedName dn,
+	public List<Experimenter> searchByAttributes(String dn,
 			String[] attributes, String[] values) {
 		if (attributes.length != values.length)
 			return Collections.EMPTY_LIST;
 		AndFilter filter = new AndFilter();
 		for (int i = 0; i < attributes.length; i++)
 			filter.and(new EqualsFilter(attributes[i], values[i]));
-		return ldapTemplate.search(dn, filter.encode(),
+		return ldapTemplate.search(new DistinguishedName(dn), filter.encode(),
 				new PersonAttributesMapper());
 	}
 
@@ -236,8 +242,8 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 	}
 
 	@RolesAllowed("system")
-	public void setDN(Long experimenterID, DistinguishedName dn) {
-		LdapUtil.setDNById(jdbc, experimenterID, dn.toString());
+	public void setDN(Long experimenterID, String dn) {
+		LdapUtil.setDNById(jdbc, experimenterID, dn);
 		synchronizeLoginCache();
 	}
 
@@ -444,7 +450,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 			env = (Hashtable<String, String>) ctx.getReadOnlyContext()
 					.getEnvironment();
 
-			if (!username.equals("") && username != null) {
+			if (username != null && !username.equals("")) {
 				env.put(Context.SECURITY_PRINCIPAL, username);
 				if (password != null)
 					env.put(Context.SECURITY_CREDENTIALS, password);
@@ -481,9 +487,9 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 	 */
 	public boolean createUserFromLdap(String username, String password) {
 		// Find user by DN
-		DistinguishedName dn = new DistinguishedName();
+		DistinguishedName dn;
 		try {
-			dn = findDN(username);
+			dn = new DistinguishedName(findDN(username));
 			if (dn == null)
 				return false;
 		} catch (Exception e) {
@@ -500,7 +506,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 		boolean access = validatePassword(dn.toString() + "," + sufix, password);
 		if (access) {
 			// If validation is successful search his details by DN
-			Experimenter exp = searchByDN(dn);
+			Experimenter exp = searchByDN(dn.toString());
 			
 			// Create new user in DB
 			// Inject IAdmin
@@ -516,7 +522,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 						+ exp.getOmeName() + ". InvalidNameException! "
 						+ e.toString());
 			}
-			setDN(id, dn);
+			setDN(id, dn.toString());
 		}
 		return access;
 
@@ -554,7 +560,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 					dn.removeFirst();
 				}
 
-				List<Experimenter> l = searchByAttributes(dn, attrs, vals);
+				List<Experimenter> l = searchByAttributes(dn.toString(), attrs, vals);
 				if (l.size() <= 0)
 					result = false;
 				else

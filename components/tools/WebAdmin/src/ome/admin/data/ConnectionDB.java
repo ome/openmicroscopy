@@ -201,7 +201,8 @@ public class ConnectionDB {
 				rest += (Long) sortedArray[--i];
 			logger.info("rest of space is: '" + rest + "'");
 
-			if(rest > 0L) map.put("Rest of used space", rest);
+			if (rest > 0L)
+				map.put("Rest of used space", rest);
 			return map;
 
 		} catch (Exception e) {
@@ -662,13 +663,13 @@ public class ConnectionDB {
 	}
 
 	/**
-	 * Gets {@link ome.model.meta.ExperimenterGroup} [] for all of the
-	 * {@link ome.model.meta.Experimenter#getId()} without "system", default"
-	 * and "user" groups.
+	 * Gets {@link java.util.List} of {@link ome.model.meta.ExperimenterGroup}
+	 * for all of the {@link ome.model.meta.Experimenter#getId()} without
+	 * "system", default" and "user" groups.
 	 * 
 	 * @param experimenterId
 	 *            {@link ome.model.meta.Experimenter#getId()}
-	 * @return {@link ome.model.meta.ExperimenterGroup} []
+	 * @return List of {@link ome.model.meta.ExperimenterGroup}
 	 */
 	public List<ExperimenterGroup> containedGroupsList(Long experimenterId) {
 		logger.info("containedGroupsList by ID: '" + experimenterId
@@ -676,10 +677,34 @@ public class ConnectionDB {
 		ExperimenterGroup[] exg = adminService.containedGroups(experimenterId);
 		List<ExperimenterGroup> groups = Arrays.asList(exg);
 		for (ExperimenterGroup group : groups) {
-			logger.info("Group details[id: '"
-					+ group.getId() + "', name: '"
+			logger.info("Group details[id: '" + group.getId() + "', name: '"
 					+ group.getName() + "']");
 		}
+		return groups;
+
+	}
+
+	/**
+	 * Gets {@link java.util.List} of
+	 * {@link ome.model.meta.Experimenter#getId()} as String for all of the
+	 * {@link ome.model.meta.Experimenter#getId()} without "system", default"
+	 * and "user" groups.
+	 * 
+	 * @param experimenterId
+	 *            {@link ome.model.meta.Experimenter#getId()}
+	 * @return List of String
+	 */
+	public List<String> containedGroupsListString(Long experimenterId) {
+		logger.info("containedGroupsListString by ID: '" + experimenterId
+				+ "' by user ID: '" + userid + "'");
+		ExperimenterGroup[] exgs = adminService.containedGroups(experimenterId);
+		List<String> groups = new ArrayList<String>();
+		for (ExperimenterGroup exg : exgs) {
+			groups.add(exg.getId().toString());
+		}
+		for (String group : groups)
+			logger.info("Group details[id: '" + group + "]");
+
 		return groups;
 
 	}
@@ -691,7 +716,7 @@ public class ConnectionDB {
 	 * 
 	 * @param experimenterId
 	 *            {@link ome.model.meta.Experimenter#getId()}
-	 * @return {@link ome.model.meta.Experimenter} []
+	 * @return {@link ome.model.meta.ExperimenterGroup} []
 	 */
 	public ExperimenterGroup[] containedMyGroups(Long experimenterId) {
 		logger.info("containedMyGroups by ID: '" + experimenterId
@@ -699,8 +724,8 @@ public class ConnectionDB {
 		ExperimenterGroup[] exgs = filterMy(adminService
 				.containedGroups(experimenterId));
 		for (int i = 0; i < exgs.length; i++) {
-			logger.info("Group details [id: '" + exgs[i].getId()
-					+ "', name: '" + exgs[i].getName() + "'");
+			logger.info("Group details [id: '" + exgs[i].getId() + "', name: '"
+					+ exgs[i].getName() + "'");
 		}
 		return exgs;
 	}

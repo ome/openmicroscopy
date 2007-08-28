@@ -29,7 +29,7 @@ import org.apache.myfaces.custom.tree2.TreeNodeBase;
 //Application-internal dependencies
 import ome.admin.logic.ImportManagerDelegate;
 import ome.admin.logic.UpdateManagerDelegate;
-import ome.admin.model.MyExperimenter;
+import ome.admin.model.User;
 import ome.conditions.ApiUsageException;
 
 /**
@@ -94,17 +94,12 @@ public class ImportController implements java.io.Serializable {
 	 * {@link javax.faces.model.ListDataModel} The data collection wrapped by
 	 * this {@link javax.faces.model.DataModel}.
 	 */
-	private DataModel experimenterModel = new ListDataModel();
+	private DataModel userModel = new ListDataModel();
 
 	/**
 	 * {@link ome.admin.logic.ImportManagerDelegate}.
 	 */
 	private ImportManagerDelegate imp = new ImportManagerDelegate();
-
-	/**
-	 * {@link ome.model.meta.Experimenter}.
-	 */
-	private MyExperimenter experimenter = new MyExperimenter();
 
 	/**
 	 * Gets data for generating tree structure
@@ -146,7 +141,7 @@ public class ImportController implements java.io.Serializable {
 	/**
 	 * Sets {@link ome.admin.controller.ImportController#tree}
 	 * 
-	 * @param exp
+	 * @param tree
 	 *            {@link org.apache.myfaces.custom.tree2.HtmlTree}
 	 */
 	public void setTree(HtmlTree tree) {
@@ -175,8 +170,8 @@ public class ImportController implements java.io.Serializable {
 	/**
 	 * Sets {@link ome.admin.controller.ImportController#nodePath}
 	 * 
-	 * @param exp
-	 *            {@link java.lang.String}
+	 * @param nodePath
+	 *            
 	 */
 	public void setNodePath(String nodePath) {
 		this.nodePath = nodePath;
@@ -241,14 +236,14 @@ public class ImportController implements java.io.Serializable {
 	/**
 	 * Selets node when action is called and wraps data from selected file
 	 * 
-	 * @returns {@link java.lang.String} "success" or "false"
+	 * @return String "success" or "false"
 	 */
 	public String selectedNode() {
 		try {
 			this.selectedNode = this.tree.getNode();
 			this.fileName = selectedNode.getIdentifier();
 			this.imp.setFilePath(fileName);
-			this.experimenterModel.setWrappedData(imp.sortItems("firstname",
+			this.userModel.setWrappedData(imp.sortItems("firstname",
 					"asc"));
 			return "success";
 		} catch (ApiUsageException e) {
@@ -286,12 +281,15 @@ public class ImportController implements java.io.Serializable {
 	 * @return {@link java.lang.String} "success" or "false"
 	 */
 	public String saveItems() {
+		FacesContext context = FacesContext.getCurrentInstance();
 		try {
 			imp
-					.createExperimenters((List<MyExperimenter>) this.experimenterModel
+					.createExperimenters((List<User>) this.userModel
 							.getWrappedData());
+			
+			FacesMessage message = new FacesMessage("Imported succesful. Go to Scientist.");
+			context.addMessage("clientTree", message);
 		} catch (Exception e) {
-			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Exception: "
 					+ e.getMessage());
 			context.addMessage("clientTree", message);
@@ -302,40 +300,19 @@ public class ImportController implements java.io.Serializable {
 	}
 
 	/**
-	 * Sets
-	 * {@link ome.admin.controller.ImportController#experimenter}
-	 * 
-	 * @param exp
-	 *            {@link ome.admin.model.MyExperimenter}
-	 */
-	public void setExperimenter(MyExperimenter exp) {
-		this.experimenter = exp;
-	}
-
-	/**
-	 * Gets
-	 * {@link ome.admin.controller.ImportController#experimenter}
-	 * 
-	 * @return {@link ome.admin.model.MyExperimenter}
-	 */
-	public MyExperimenter getExperimenter() {
-		return this.experimenter;
-	}
-
-	/**
 	 * Gets default wrapped {@link java.util.List} of
-	 * {@link ome.admin.model.MyExperimenter}
+	 * {@link ome.admin.model.User}
 	 * 
 	 * @return {@link java.util.List}
 	 */
 	public DataModel getExperimenters() {
-		return this.experimenterModel;
+		return this.userModel;
 	}
 
 	/**
-	 * Gets  {@link ome.admin.controller.
+	 * Gets file name.
 	 * 
-	 * @return
+	 * @return String
 	 */
 	public String getFileName() {
 		return fileName;
@@ -369,7 +346,7 @@ public class ImportController implements java.io.Serializable {
 		try {
 			this.sortItem = getAttribute(event, "sortItem");
 			this.sort = getAttribute(event, "sort");
-			this.experimenterModel
+			this.userModel
 					.setWrappedData(imp.sortItems(sortItem, sort));
 		} catch (FileNotFoundException e) {
 			FacesContext context = FacesContext.getCurrentInstance();

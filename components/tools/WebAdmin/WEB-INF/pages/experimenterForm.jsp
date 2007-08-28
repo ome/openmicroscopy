@@ -14,8 +14,8 @@
 			<h2><h:outputText value="#{msg.experimentersEdit}"
 				rendered="#{IAEManagerBean.editMode}" /></h2>
 
-			<h:inputHidden id="experimenterid"
-				value="#{IAEManagerBean.experimenter.id}" />
+			<h:inputHidden id="userid"
+				value="#{IAEManagerBean.user.experimenter.id}" />
 
 			<h:message styleClass="errorText" id="experimenterFormError"
 				for="experimenterForm" />
@@ -26,7 +26,7 @@
 				<h:outputText value="#{msg.experimentersOmeName}" />
 
 				<h:inputText id="omeName" maxlength="255"
-					value="#{IAEManagerBean.experimenter.omeName}" required="true"
+					value="#{IAEManagerBean.user.experimenter.omeName}" required="true"
 					validator="#{IAEManagerBean.validateOmeName}">
 					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
@@ -36,7 +36,7 @@
 				<h:outputText value="#{msg.experimentersFirstName}" />
 
 				<h:inputText id="firstName" maxlength="255"
-					value="#{IAEManagerBean.experimenter.firstName}" required="true">
+					value="#{IAEManagerBean.user.experimenter.firstName}" required="true">
 					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
@@ -46,7 +46,7 @@
 				<h:outputText value="#{msg.experimentersMiddleName}" />
 
 				<h:inputText id="middleName" maxlength="255"
-					value="#{IAEManagerBean.experimenter.middleName}">
+					value="#{IAEManagerBean.user.experimenter.middleName}">
 					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
@@ -56,7 +56,7 @@
 				<h:outputText value="#{msg.experimentersLastName}" />
 
 				<h:inputText id="lastName" maxlength="255"
-					value="#{IAEManagerBean.experimenter.lastName}" required="true">
+					value="#{IAEManagerBean.user.experimenter.lastName}" required="true">
 					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
@@ -65,7 +65,7 @@
 				<h:outputText value="#{msg.experimentersEmail}" />
 
 				<h:inputText id="email" maxlength="255"
-					value="#{IAEManagerBean.experimenter.email}"
+					value="#{IAEManagerBean.user.experimenter.email}"
 					validator="#{IAEManagerBean.validateEmail}">
 					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
@@ -75,7 +75,7 @@
 				<h:outputText value="#{msg.experimentersInstitution}" />
 
 				<h:inputText id="institution" maxlength="255"
-					value="#{IAEManagerBean.experimenter.institution}">
+					value="#{IAEManagerBean.user.experimenter.institution}">
 					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
@@ -85,7 +85,7 @@
 				<h:outputText value="#{msg.experimentersAdminRole}" />
 
 				<h:selectBooleanCheckbox title="adminRole"
-					value="#{IAEManagerBean.adminRole}">
+					value="#{IAEManagerBean.user.adminRole}">
 				</h:selectBooleanCheckbox>
 
 				<h:outputText value=" " />
@@ -93,7 +93,7 @@
 				<h:outputText value="#{msg.experimentersUserRole}" />
 
 				<h:selectBooleanCheckbox title="userRole"
-					value="#{IAEManagerBean.userRole}">
+					value="#{IAEManagerBean.user.userRole}">
 				</h:selectBooleanCheckbox>
 
 				<h:outputText value=" " />
@@ -101,7 +101,7 @@
 				<h:outputText value="#{msg.experimentersDefaultGroup}" />
 
 				<h:selectOneMenu id="defaultGroup" 
-					value="#{IAEManagerBean.defaultGroup}" required="true">
+					value="#{IAEManagerBean.user.defaultGroup}" required="true">
 					<f:selectItems value="#{IAEManagerBean.defaultGroups}" />
 				</h:selectOneMenu>
 
@@ -111,7 +111,7 @@
 				<h:outputText value="#{msg.experimentersOtherGroups}" />
 
 				<h:selectManyListbox id="otherGroup" size="5"
-					value="#{IAEManagerBean.selectedGroup}">
+					value="#{IAEManagerBean.user.selectedGroups}">
 					<f:selectItems value="#{IAEManagerBean.otherGroups}" />
 				</h:selectManyListbox>
 

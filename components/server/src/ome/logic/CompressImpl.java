@@ -11,8 +11,10 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
 import ome.api.ICompress;
+import ome.api.local.LocalCompress;
+import ome.api.local.LocalLdap;
 
-public class CompressImpl implements ICompress {
+public class CompressImpl implements LocalCompress {
 
 	/** The default compression quality in fractional percent. */
     private float quality = 0.85F;

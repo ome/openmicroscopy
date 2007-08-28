@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.faces.context.FacesContext;
+
 // Third-party libraries
 import org.apache.commons.beanutils.BeanUtils;
 
@@ -45,6 +47,10 @@ public class IAdminGroupManagerDelegate implements java.io.Serializable {
 	 * {@link java.lang.String} set by "name";
 	 */
 	private String sortByProperty = "name";
+
+	private final static int scrollerSize = Integer.parseInt(FacesContext
+			.getCurrentInstance().getExternalContext().getInitParameter(
+					"scrollerSize"));
 
 	/**
 	 * {@link java.util.Comparator}
@@ -94,6 +100,14 @@ public class IAdminGroupManagerDelegate implements java.io.Serializable {
 	 */
 	public IAdminGroupManagerDelegate() {
 		getGroups();
+	}
+
+	public boolean setScroller() {
+
+		if (this.groups.size() > scrollerSize)
+			return true;
+		else
+			return false;
 	}
 
 	/**
@@ -226,6 +240,25 @@ public class IAdminGroupManagerDelegate implements java.io.Serializable {
 	 * @return {@link java.util.List}<{@link ome.model.meta.ExperimenterGroup}>.
 	 */
 	public List<ExperimenterGroup> sortItems(String sortItem, String sort) {
+		// this.groups = getGroups();
+		sortByProperty = sortItem;
+		if (sort.equals("asc"))
+			sort(propertyAscendingComparator);
+		else if (sort.equals("dsc"))
+			sort(propertyDescendingComparator);
+		return groups;
+	}
+
+	/**
+	 * {@link java.util.List}<{@link ome.model.meta.ExperimenterGroup}>.
+	 * 
+	 * @param sortItem
+	 *            {@link java.lang.String}.
+	 * @param sort
+	 *            {@link java.lang.String}.
+	 * @return {@link java.util.List}<{@link ome.model.meta.ExperimenterGroup}>.
+	 */
+	public List<ExperimenterGroup> getAndSortItems(String sortItem, String sort) {
 		this.groups = getGroups();
 		sortByProperty = sortItem;
 		if (sort.equals("asc"))

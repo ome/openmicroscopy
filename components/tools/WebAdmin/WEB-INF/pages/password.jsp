@@ -17,8 +17,8 @@
 				for="changePassword" />
 			<br />
 
-			<h:inputHidden id="experimenterid"
-				value="#{IAEManagerBean.experimenter.id}" />
+			<h:inputHidden id="userid"
+				value="#{IAEManagerBean.user.experimenter.id}" />
 
 			<h:panelGrid columns="3" columnClasses="form">
 

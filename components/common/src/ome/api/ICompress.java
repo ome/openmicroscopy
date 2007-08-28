@@ -21,33 +21,5 @@ import java.io.OutputStream;
  */
 public interface ICompress extends ServiceInterface {
 
-    /**
-     * Compresses a buffered image to an output stream.
-     * 
-     * @param image
-     *            the thumbnail's buffered image.
-     * @param outputStream
-     *            the stream to write to.
-     * @throws IOException
-     *             if there is a problem when writing to <i>stream<i>.
-     */
-	void compressToStream(BufferedImage image, OutputStream outputStream)
-		throws IOException;
 
-	/**
-	 * Sets the current compression level for the service. (The default is 85%)
-	 * 
-	 * @param percentage A percentage compression level from 1.00 (100%) to 
-	 * 0.01 (1%).
-	 * @throws ValidationException if the <code>percentage</code> is out of
-	 * range.
-	 */
-	void setCompressionLevel(float percentage);
-	
-	/**
-	 * Returns the current compression level for the service.
-	 * 
-	 * @returns See above.
-	 */
-	float getCompressionLevel();
 }

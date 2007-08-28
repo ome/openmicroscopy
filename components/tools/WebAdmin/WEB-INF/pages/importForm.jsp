@@ -18,7 +18,7 @@
 				for="experimenters" />
 
 			<div id="main"><h:dataTable id="items"
-				value="#{TreeBean.experimenters}" var="experimenter"
+				value="#{TreeBean.experimenters}" var="user"
 				styleClass="list" columnClasses="desc,desc,desc,desc,action">
 				<h:column>
 					<f:facet name="header">
@@ -26,7 +26,7 @@
 							<h:outputText value=" #{msg.experimentersOmeName} " />
 						</h:panelGroup>
 					</f:facet>
-					<h:outputText value="#{experimenter.omeName}" />
+					<h:outputText value="#{user.experimenter.omeName}" />
 				</h:column>
 				<h:column>
 					<f:facet name="header">
@@ -34,9 +34,9 @@
 							<h:outputText value=" #{msg.experimentersName} " />
 						</h:panelGroup>
 					</f:facet>
-					<h:outputText value="#{experimenter.lastName}, " />
-					<h:outputText value=" #{experimenter.firstName}" />
-					<h:outputText value=" #{experimenter.middleName}" />
+					<h:outputText value="#{user.experimenter.lastName}, " />
+					<h:outputText value=" #{user.experimenter.firstName}" />
+					<h:outputText value=" #{user.experimenter.middleName}" />
 				</h:column>
 				<h:column>
 					<f:facet name="header">
@@ -44,7 +44,7 @@
 							<h:outputText value=" #{msg.experimentersEmail} " />
 						</h:panelGroup>
 					</f:facet>
-					<h:outputText value="#{experimenter.email}" />
+					<h:outputText value="#{user.experimenter.email}" />
 				</h:column>
 				<h:column>
 					<f:facet name="header">
@@ -52,7 +52,7 @@
 							<h:outputText value=" #{msg.experimentersInstitution} " />
 						</h:panelGroup>
 					</f:facet>
-					<h:outputText value="#{experimenter.institution}"
+					<h:outputText value="#{user.experimenter.institution}"
 						converter="SubstringConverter" />
 				</h:column>
 				<h:column>
@@ -62,8 +62,8 @@
 						</h:panelGroup>
 					</f:facet>
 					<h:selectBooleanCheckbox
-						value="#{experimenter.selectBooleanCheckboxValue}"
-						rendered="#{experimenter.selectBooleanCheckboxValue}" />
+						value="#{user.selectBooleanCheckboxValue}"
+						rendered="#{user.selectBooleanCheckboxValue}" />
 				</h:column>
 			</h:dataTable> <br />
 			<h:commandButton action="#{TreeBean.saveItems}"

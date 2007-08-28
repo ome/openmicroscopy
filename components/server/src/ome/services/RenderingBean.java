@@ -48,6 +48,7 @@ import ome.annotations.RevisionNumber;
 import ome.api.ICompress;
 import ome.api.IPixels;
 import ome.api.ServiceInterface;
+import ome.api.local.LocalCompress;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
@@ -157,7 +158,7 @@ public class RenderingBean extends AbstractLevel2Service implements
     private transient IPixels pixMetaSrv;
     
     /** Reference to the service used to compress pixel data. */
-    private transient ICompress compressionSrv;
+    private transient LocalCompress compressionSrv;
 
     /**
      * read-write lock to prevent READ-calls during WRITE operations. Unneeded
@@ -171,7 +172,7 @@ public class RenderingBean extends AbstractLevel2Service implements
      * @param compressionService
      *            an <code>ICompress</code>.
      */
-    public void setCompressionService(ICompress compressionSrv) {
+    public void setCompressionService(LocalCompress compressionSrv) {
         getBeanHelper().throwIfAlreadySet(this.compressionSrv, compressionSrv);
         this.compressionSrv = compressionSrv;
     }

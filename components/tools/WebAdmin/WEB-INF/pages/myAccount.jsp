@@ -11,8 +11,8 @@
 
 			<h2><h:outputText value="#{msg.myaccountEdit}" /></h2>
 
-			<h:inputHidden id="experimenterid"
-				value="#{IAMAManagerBean.experimenter.id}" />
+			<h:inputHidden id="userid" 
+				value="#{IAMAManagerBean.user.experimenter.id}" />
 
 			<h:message styleClass="errorText" id="experimenterFormError"
 				for="experimenterForm" />
@@ -22,14 +22,14 @@
 
 				<h:outputText value="#{msg.myaccountOmeName}" />
 
-				<h:outputText value="#{IAMAManagerBean.experimenter.omeName}" />
+				<h:outputText value="#{IAMAManagerBean.user.experimenter.omeName}" />
 
 				<h:outputText value=" " />
 
 				<h:outputText value="#{msg.myaccountFirstName}" />
 
 				<h:inputText id="firstName" maxlength="255"
-					value="#{IAMAManagerBean.experimenter.firstName}" required="true">
+					value="#{IAMAManagerBean.user.experimenter.firstName}" required="true">
 					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
@@ -39,7 +39,7 @@
 				<h:outputText value="#{msg.myaccountMiddleName}" />
 
 				<h:inputText id="middleName" maxlength="255"
-					value="#{IAMAManagerBean.experimenter.middleName}">
+					value="#{IAMAManagerBean.user.experimenter.middleName}">
 					<f:validateLength maximum="255" />
 				</h:inputText>
 
@@ -49,7 +49,7 @@
 				<h:outputText value="#{msg.myaccountLastName}" />
 
 				<h:inputText id="lastName" maxlength="255"
-					value="#{IAMAManagerBean.experimenter.lastName}" required="true">
+					value="#{IAMAManagerBean.user.experimenter.lastName}" required="true">
 					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
@@ -58,7 +58,7 @@
 				<h:outputText value="#{msg.myaccountEmail}" />
 
 				<h:inputText id="email" maxlength="255"
-					value="#{IAMAManagerBean.experimenter.email}"
+					value="#{IAMAManagerBean.user.experimenter.email}"
 					validator="#{IAMAManagerBean.validateEmail}">
 					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
@@ -68,7 +68,7 @@
 				<h:outputText value="#{msg.myaccountInstitution}" />
 
 				<h:inputText id="institution" maxlength="255"
-					value="#{IAMAManagerBean.experimenter.institution}">
+					value="#{IAMAManagerBean.user.experimenter.institution}">
 					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
@@ -78,7 +78,7 @@
 				<h:outputText value="#{msg.myaccountDefaultGroup}" />
 
 				<h:selectOneMenu id="defaultGroup"
-					value="#{IAMAManagerBean.defaultGroup}" required="true">
+					value="#{IAMAManagerBean.user.defaultGroup}" required="true">
 					<f:selectItems value="#{IAMAManagerBean.myGroups}" />
 				</h:selectOneMenu>
 

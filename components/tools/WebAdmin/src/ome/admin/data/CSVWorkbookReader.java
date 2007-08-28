@@ -7,8 +7,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import ome.admin.model.MyExperimenter;
+import ome.admin.model.User;
 import ome.conditions.ApiUsageException;
+import ome.model.meta.Experimenter;
 
 import org.apache.log4j.Logger;
 
@@ -41,8 +42,8 @@ public class CSVWorkbookReader {
 		return header;
 	}
 
-	public MyExperimenter setDetails(String[] header, String[] value) {
-		MyExperimenter exp = new MyExperimenter();
+	public User setDetails(String[] header, String[] value) {
+		Experimenter exp = new Experimenter();
 		for (int j = 0; j < header.length; j++) {
 			if (header[j].equalsIgnoreCase("omename"))
 				exp.setOmeName(value[j]);
@@ -60,27 +61,29 @@ public class CSVWorkbookReader {
 				throw new ApiUsageException("CSV Wrong header set.");
 		}
 
+		User mexp = new User();
+		mexp.setExperimenter(exp);
 		// check existing experimenter
 		if (db.checkExperimenter(exp.getOmeName())) {
-			logger.info("CSV setDetails: Experimenter " + exp.getOmeName()
+			logger.info("CSV setDetails: Experimenter " + mexp.getExperimenter().getOmeName()
 					+ " exist.");
-			exp.setSelectBooleanCheckboxValue(false);
+			mexp.setSelectBooleanCheckboxValue(false);
 		} else if (db.checkEmail(exp.getEmail())) {
-			logger.info("CSV setDetails: Email " + exp.getEmail() + " exist.");
-			exp.setSelectBooleanCheckboxValue(false);
+			logger.info("CSV setDetails: Email " + mexp.getExperimenter().getEmail() + " exist.");
+			mexp.setSelectBooleanCheckboxValue(false);
 		} else
-			exp.setSelectBooleanCheckboxValue(true);
+			mexp.setSelectBooleanCheckboxValue(true);
 
-		logger.info("CSV setDetails: Experimenter [" + exp.getOmeName() + ", "
-				+ exp.getFirstName() + ", " + exp.getMiddleName() + ", "
-				+ exp.getLastName() + ", " + exp.getEmail() + ", "
-				+ exp.getInstitution() + "]");
-		return exp;
+		logger.info("CSV setDetails: Experimenter [" + mexp.getExperimenter().getOmeName() + ", "
+				+ mexp.getExperimenter().getFirstName() + ", " + mexp.getExperimenter().getMiddleName() + ", "
+				+ mexp.getExperimenter().getLastName() + ", " + mexp.getExperimenter().getEmail() + ", "
+				+ mexp.getExperimenter().getInstitution() + "]");
+		return mexp;
 	}
 
-	public List<MyExperimenter> importingExperimenters() throws IOException {
+	public List<User> importingExperimenters() throws IOException {
 
-		List<MyExperimenter> exps = new ArrayList<MyExperimenter>();
+		List<User> exps = new ArrayList<User>();
 		String[] header = getHeader();
 		String[] nextLine;
 		while ((nextLine = reader.readNext()) != null)

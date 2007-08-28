@@ -40,6 +40,7 @@ import ome.api.IRepositoryInfo;
 import ome.api.IScale;
 import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
+import ome.api.local.LocalCompress;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
 import ome.io.nio.ThumbnailService;
@@ -106,7 +107,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     private transient IRepositoryInfo iRepositoryInfo;
     
     /** The JPEG compression service. */
-    private transient ICompress compressionService;
+    private transient LocalCompress compressionService;
 
     /** is file service checking for disk overflow */
     private transient boolean diskSpaceChecking;
@@ -279,7 +280,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      * @param compressionService
      *            an <code>ICompress</code>.
      */
-    public void setCompressionService(ICompress compressionService) {
+    public void setCompressionService(LocalCompress compressionService) {
         getBeanHelper().throwIfAlreadySet(this.compressionService,
                                           compressionService);
         this.compressionService = compressionService;

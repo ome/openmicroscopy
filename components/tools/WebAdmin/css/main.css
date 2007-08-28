@@ -1,5 +1,4 @@
 body {
-
 	margin: 5px;
 	padding: 5px;
 	background-color: #555555;
@@ -8,14 +7,13 @@ body {
 }
 
 #login {
-    margin-top: 12%;
-    margin-left: auto;
-    margin-right: auto;
+	margin-top: 12%;
+	margin-left: auto;
+	margin-right: auto;
 	background-color: #F6F6F6;
 	border: 1px solid black;
 	width: 500px;
 }
-
 
 #login table {
 	margin-left: auto;
@@ -30,11 +28,11 @@ body {
 	color: #BBBBBB;
 	font-size: 24pt;
 	margin: 5px;
-    text-align: left;
-} 
+	text-align: left;
+}
 
 #login img {
-        float: right;
+	float: right;
 }
 
 #bottom {
@@ -42,12 +40,12 @@ body {
 	color: #000000;
 	font-size: 10px;
 	text-align: center;
-    margin: auto;
+	margin: auto;
 	width: 500px
 }
 
 #wrapper {
-	margin: 5px 20% 5px 20%;
+	margin: 5px 15% 5px 15%;
 	border: 1px solid black;
 	padding: 5px 5px 5px 5px;
 	background-color: #ffffff;
@@ -64,15 +62,15 @@ body {
 	padding-left: 25px;
 }
 
-#chart{
+#chart {
 	width: 550px;
 	margin: auto;
 }
-		
+
 #button {
 	margin-top: 10px;
-    width: 100%;
-    text-align: center;
+	width: 100%;
+	text-align: center;
 }
 
 #footer {
@@ -91,6 +89,7 @@ img {
 	padding: 0px;
 	vertical-align: middle;
 }
+
 img.action {
 	padding-left: 3px;
 	padding-right: 3px;
@@ -106,10 +105,17 @@ a:hover {
 	text-decoration: none;
 }
 
+select {
+    width: 175px;
+}
+
+select.manypick {
+	width: 250px;
+}
+
 /* center */
 #main {
-	height: 480px;
-	max-height: 480px;
+	min-height: 420px;
 	overflow: scroll;
 	overflow: auto;
 }
@@ -117,12 +123,11 @@ a:hover {
 #center {
 	padding-left: 10px;
 	padding-right: 10px;
-	height: 600px;
-    margin: 0px;
+	min-height: 500px;
+	margin: 0px;
 	overflow: scroll;
 	overflow: auto;
 }
-
 
 /* NAVIGATION FORMATTING BEGIN */
 #navigation {
@@ -158,13 +163,13 @@ a:hover {
 	text-decoration: none;
 }
 
-#hello h1{
-    text-align: right;
+#hello h1 {
+	text-align: right;
 }
 
 h1 {
 	color: #333333;
-	font-size: 12px;
+	font-size: 14px;
 	text-align: left;
 	margin-bottom: 10px;
 	margin-left: 10px;
@@ -177,44 +182,61 @@ h2 {
 	margin-left: 5px;
 }
 
-table {
-	font-size: 12px;
-	text-align: center;	
-}
-
 p {
 	margin-left: 5px;
 }
 
-table.list {
-	width: 99%
+#list {
+	min-height: 370px;
+}
+
+table {
+	text-align: center;
+}
+
+.scroller {
+	margin: 0px auto 0px auto;
+}
+
+.list {
+	width: 99%;
 }
 
 td {
 	text-align: left;
 	padding: 0px;
 }
+
 td.link {
 	text-align: left;
 	padding: 2px 2px 2px 20px;
-    border-bottom: 1px dashed #bbbbbb;
+	border-bottom: 1px dashed #bbbbbb;
 }
+
 td.desc {
 	text-align: left;
 	padding: 2px 2px 2px 20px;
 	border-bottom: 1px dashed #bbbbbb;
 }
 
+td.roles {
+	text-align: right;
+	width: 70px;
+	padding: 2px 20px 2px 2px;
+	border-bottom: 1px dashed #bbbbbb;
+}
+
 td.action {
 	text-align: center;
+	width: 100px;
 	border-bottom: 1px dashed #bbbbbb;
 }
 
 td.form {
 	text-align: left;
-	font-size: 12px;
-	padding:  2px 20px 2px 30px;
+	padding: 2px 20px 2px 30px;
 }
+
 td.input {
 	text-align: left;
 	padding: 2px 2px 2px 20px;
@@ -231,12 +253,10 @@ th {
 	text-decoration: overline;
 }
 
-.document
-{
-    text-decoration: none
-}
-.documentSelected
-{
-    font-weight: bold
+.document {
+	text-decoration: none
 }
 
+.documentSelected {
+	font-weight: bold
+}

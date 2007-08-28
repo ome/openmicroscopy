@@ -22,11 +22,12 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.faces.event.ActionEvent;
 import org.apache.log4j.Logger;
+import org.apache.myfaces.custom.datascroller.ScrollerActionEvent;
 
 // Application-internal dependencies
-import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.admin.logic.IAdminExperimenterManagerDelegate;
+import ome.admin.model.User;
 
 /**
  * It's the Java bean with attributes and setter/getter and actions methods. The
@@ -54,13 +55,13 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	/**
 	 * {@link ome.model.meta.Experimenter}.
 	 */
-	private Experimenter experimenter = new Experimenter();
+	private User user = new User();
 
 	/**
 	 * {@link javax.faces.model.ListDataModel} The data collection wrapped by
 	 * this {@link javax.faces.model.DataModel}.
 	 */
-	private DataModel experimenterModel = new ListDataModel();
+	private DataModel userModel = new ListDataModel();
 
 	/**
 	 * {@link ome.admin.logic.IAdminExperimenterManagerDelegate}.
@@ -73,6 +74,11 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	private boolean editMode = false;
 
 	/**
+	 * boolean value for providing Add/Edit form in one JSP.
+	 */
+	private boolean scrollerMode = true;
+	
+	/**
 	 * Sort item default value "lastName".
 	 */
 	private String sortItem = "lastName";
@@ -81,27 +87,6 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	 * Sort attribute default value is "asc".
 	 */
 	private String sort = "asc";
-
-	/**
-	 * {@link java.lang.String}.
-	 */
-	private String defaultGroup = "-1";
-
-	/**
-	 * {@link java.util.List}<{@link java.lang.String}> List of containedGroups for chosen
-	 * {@link ome.model.meta.Experimenter#getId()}
-	 */
-	private List<String> selectedGroup = Collections.EMPTY_LIST;
-
-	/**
-	 * boolean Provides Admin role in database, which gives admin permission.
-	 */
-	private boolean adminRole = false;
-
-	/**
-	 * boolean Provides User role in database, which gives login permission.
-	 */
-	private boolean userRole = false;
 
 	/**
 	 * String not-null. Might must pass validation in the security sub-system.
@@ -113,99 +98,13 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	 * Confirmation of password.
 	 */
 	private String password2;
-
+	
 	/**
 	 * Creates a new instance of IAdminExperimenterController.
 	 */
 	public IAdminExperimenterController() {
-		this.experimenterModel.setWrappedData(iadmin.sortItems(sortItem, sort));
-	}
-
-	/**
-	 * Gets attribute from {@link javax.faces.component.UIComponent}.
-	 * 
-	 * @param event
-	 *            {@link javax.faces.event.ActionEvent} object from the
-	 *            specified source component and action command.
-	 * @param name
-	 *            name of attribute as {@link java.lang.String}.
-	 * @return {@link java.lang.String}
-	 */
-	private static String getAttribute(ActionEvent event, String name) {
-		return (String) event.getComponent().getAttributes().get(name);
-	}
-
-	/**
-	 * Sorts items on the data collection of
-	 * {@link ome.model.meta.ExperimenterGroup} wrapped by this
-	 * {@link javax.faces.model.DataModel}.
-	 * 
-	 * @param event
-	 *            {@link javax.faces.event.ActionEvent} object from the
-	 *            specified source component and action command.
-	 * @return {@link ome.admin.controller.IAdminExperimenterController#sort}
-	 */
-	public String sortItems(ActionEvent event) {
-		this.sortItem = getAttribute(event, "sortItem");
-		this.sort = getAttribute(event, "sort");
-		this.experimenterModel.setWrappedData(iadmin.sortItems(sortItem, sort));
-		this.editMode = false;
-		return this.sort;
-	}
-
-	/**
-	 * Provides action for navigation rule "changePassword" what is described in
-	 * the faces-config.xml file. Changes the password for
-	 * {@link ome.model.meta.Experimenter}.
-	 * 
-	 * @return String "success" or "false".
-	 */
-	public String changePassword() {
-		try {
-			this.experimenter = (Experimenter) this.iadmin
-					.getExperimenterById(this.experimenter.getId());
-			this.editMode = true;
-			return "success";
-		} catch (Exception e) {
-			logger.error("changePassword: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.experimenter.getId() + ", '"
-					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
-			context.addMessage("changePassword", message);
-			return "false";
-		}
-	}
-
-	/**
-	 * Provides action for navigation rule "updatePassword" what is described in
-	 * the faces-config.xml file. Updates the password for
-	 * {@link ome.model.meta.Experimenter}.
-	 * 
-	 * @return String "success" or "false".
-	 */
-	public String updatePassword() {
-		try {
-			if (!password2.equals(this.password)) {
-				FacesContext context = FacesContext.getCurrentInstance();
-				FacesMessage message = new FacesMessage(
-						"Confirmation has to be the same as password.");
-				context.addMessage("changePassword", message);
-				return "false";
-			} else {
-				iadmin.changePassword(this.experimenter.getOmeName(),
-						this.password);
-				return "success";
-			}
-		} catch (Exception e) {
-			logger.error("updatePassword: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.experimenter.getId() + ", '"
-					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
-			context.addMessage("changePassword", message);
-			return "false";
-		}
+		this.userModel.setWrappedData(iadmin.getAndSortItems(sortItem, sort));
+		this.scrollerMode = iadmin.setScroller();
 	}
 
 	/**
@@ -259,41 +158,277 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	}
 
 	/**
-	 * Sets
-	 * {@link ome.admin.controller.IAdminExperimenterController#defaultGroup}
+	 * Gets size the data collection wrapped by this
+	 * {@link javax.faces.model.DataModel}
 	 * 
-	 * @param id
-	 *            Long not-null.
+	 * @return int
 	 */
-	public void setDefaultGroup(String id) {
-		this.defaultGroup = id;
+	public int getSize() {
+		return this.userModel.getRowCount();
+	}
+	
+	public boolean isScrollerMode() {
+		return this.scrollerMode;
+	}
+
+	public void setScrollerMode(boolean scrollerMode) {
+		this.scrollerMode = scrollerMode;
 	}
 
 	/**
-	 * Gets {@link ome.model.meta.ExperimenterGroup#getId()} for choosing
+	 * Sets
+	 * {@link ome.admin.controller.IAdminExperimenterController#user}
+	 * 
+	 * @param u
+	 *            {@link ome.admin.model.User}
+	 */
+	public void setUser(User u) {
+		this.user = u;
+	}
+
+	/**
+	 * Gets
+	 * {@link ome.admin.model.User}
+	 * 
+	 * @return {@link ome.admin.controller.IAdminExperimenterController#user}
+	 */
+	public User getUser() {
+		return this.user;
+	}
+
+	/**
+	 * Gets default wrapped {@link java.util.List} of
 	 * {@link ome.model.meta.Experimenter}
 	 * 
-	 * @return String not-null.
+	 * @return {@link java.util.List}
 	 */
-	public String getDefaultGroup() {
+	public DataModel getUsers() {
+		return this.userModel;
+	}
+
+	/**
+	 * Sets {@link ome.admin.controller.IAdminExperimenterController#editMode}
+	 * 
+	 * @param em
+	 *            boolean
+	 */
+	public void setEditMode(boolean em) {
+		this.editMode = em;
+	}
+
+	/**
+	 * Checks {@link ome.admin.controller.IAdminExperimenterController#editMode}
+	 * 
+	 * @return boolean
+	 */
+	public boolean isEditMode() {
+		return editMode;
+	}
+
+	/**
+	 * Gets attribute from {@link javax.faces.component.UIComponent}.
+	 * 
+	 * @param event
+	 *            {@link javax.faces.event.ActionEvent} object from the
+	 *            specified source component and action command.
+	 * @param name
+	 *            name of attribute as {@link java.lang.String}.
+	 * @return {@link java.lang.String}
+	 */
+	private static String getAttribute(ActionEvent event, String name) {
+		return (String) event.getComponent().getAttributes().get(name);
+	}
+
+	/**
+	 * Sorts items on the data collection of
+	 * {@link ome.model.meta.ExperimenterGroup} wrapped by this
+	 * {@link javax.faces.model.DataModel}.
+	 * 
+	 * @param event
+	 *            {@link javax.faces.event.ActionEvent} object from the
+	 *            specified source component and action command.
+	 * @return {@link ome.admin.controller.IAdminExperimenterController#sort}
+	 */
+	public String sortItems(ActionEvent event) {
+		this.sortItem = getAttribute(event, "sortItem");
+		this.sort = getAttribute(event, "sort");
+		this.userModel.setWrappedData(iadmin.sortItems(sortItem, sort));
+		this.editMode = false;
+		return this.sort;
+	}
+
+    public void scrollerAction(ActionEvent event)
+    {
+        ScrollerActionEvent scrollerEvent = (ScrollerActionEvent) event;
+        FacesContext.getCurrentInstance().getExternalContext().log(
+                        "scrollerAction: facet: "
+                                        + scrollerEvent.getScrollerfacet()
+                                        + ", pageindex: "
+                                        + scrollerEvent.getPageIndex());
+    }
+    
+	/**
+	 * Provides action for navigation rule "changePassword" what is described in
+	 * the faces-config.xml file. Changes the password for
+	 * {@link ome.model.meta.Experimenter}.
+	 * 
+	 * @return String "success" or "false".
+	 */
+	public String changePassword() {
 		try {
-			if (this.editMode) {
-				ExperimenterGroup exg = iadmin
-						.getDefaultGroup(this.experimenter.getId());
-				this.defaultGroup = exg.getId().toString();
-			} else {
-				ExperimenterGroup exg = iadmin.getGroupById("default");
-				this.defaultGroup = exg.getId().toString();
-			}
+			this.user = (User) this.iadmin
+					.getExperimenterById(this.user.getExperimenter().getId());
+			this.editMode = true;
+			return "success";
 		} catch (Exception e) {
-			logger.error("getDefaultGroup: " + e.getMessage());
+			logger.error("changePassword: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.experimenter.getId() + ", '"
-					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
-			context.addMessage("experimenterForm", message);
+					+ this.user.getExperimenter().getId() + ", '"
+					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
+			context.addMessage("changePassword", message);
+			return "false";
 		}
-		return this.defaultGroup;
+	}
+
+	/**
+	 * Provides action for navigation rule "updatePassword" what is described in
+	 * the faces-config.xml file. Updates the password for
+	 * {@link ome.model.meta.Experimenter}.
+	 * 
+	 * @return String "success" or "false".
+	 */
+	public String updatePassword() {
+		try {
+			if (!password2.equals(this.password)) {
+				FacesContext context = FacesContext.getCurrentInstance();
+				FacesMessage message = new FacesMessage(
+						"Confirmation has to be the same as password.");
+				context.addMessage("changePassword", message);
+				return "false";
+			} else {
+				iadmin.changePassword(this.user.getExperimenter().getOmeName(),
+						this.password);
+				return "success";
+			}
+		} catch (Exception e) {
+			logger.error("updatePassword: " + e.getMessage());
+			FacesContext context = FacesContext.getCurrentInstance();
+			FacesMessage message = new FacesMessage("Experimenter: [id: "
+					+ this.user.getExperimenter().getId() + ", '"
+					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
+			context.addMessage("changePassword", message);
+			return "false";
+		}
+	}
+	
+	/**
+	 * Provides action for navigation rule "addNewExperimenter" what is
+	 * described in the faces-config.xml file.
+	 * 
+	 * @return {@link java.lang.String} "success" or "false"
+	 */
+	public String addNewExperimenter() {
+		this.editMode = false;
+		this.user = new User();
+		return "success";
+	}
+
+	/**
+	 * Provides action for navigation rule "addExperimenter" what is described
+	 * in the faces-config.xml file.
+	 * 
+	 * @return {@link java.lang.String} "success" or "false"
+	 */
+	public String addExperimenter() {
+		try {
+			if (this.user.getSelectedGroups() == null)
+				this.user.setSelectedGroups(Collections.EMPTY_LIST);
+
+			iadmin.createExperimenter(this.user);
+			this.userModel.setWrappedData(iadmin.getAndSortItems(sortItem,
+					sort));
+			return "success";
+		} catch (Exception e) {
+			logger.error("createExperimenter: " + e.getMessage());
+			FacesContext context = FacesContext.getCurrentInstance();
+			FacesMessage message = new FacesMessage("Experimenter: [id: "
+					+ this.user.getExperimenter().getId() + ", '"
+					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
+			context.addMessage("experimenters", message);
+			return "false";
+		}
+	}
+
+	/**
+	 * Provides action for navigation rule "editExperimenter" what is described
+	 * in the faces-config.xml file.
+	 * 
+	 * @return {@link java.lang.String} "success" or "false"
+	 */
+	public String editExperimenter() {
+		try {
+			this.editMode = true;
+			this.user = (User) iadmin.getExperimenterById(((User) userModel.getRowData()).getExperimenter().getId());
+			return "success";
+		} catch (Exception e) {
+			logger.error("editExperimenter: " + e.getMessage());
+			FacesContext context = FacesContext.getCurrentInstance();
+			FacesMessage message = new FacesMessage("Experimenter: [id: "
+					+ this.user.getExperimenter().getId() + ", '"
+					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
+			context.addMessage("experimenters", message);
+			return "false";
+		}
+	}
+
+	/**
+	 * Provides action for navigation rule "deleteExperimenter" what is
+	 * described in the faces-config.xml file.
+	 * 
+	 * @return {@link java.lang.String} "success" or "false"
+	 */
+	public String delExperimenter() {
+		try {
+			this.user = (User) userModel.getRowData();
+			iadmin.deleteExperimenter(this.user.getExperimenter().getId());
+			this.userModel.setWrappedData(iadmin.getAndSortItems(sortItem,
+					sort));
+			return "success";
+		} catch (Exception e) {
+			logger.error("deleteExperimenter: " + e.getMessage());
+			FacesContext context = FacesContext.getCurrentInstance();
+			FacesMessage message = new FacesMessage("Experimenter: [id: "
+					+ this.user.getExperimenter().getId() + ", '"
+					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
+			context.addMessage("experimenters", message);
+			return "false";
+		}
+
+	}
+
+	/**
+	 * Provides action for navigation rule "updateExperimenter" what is
+	 * described in the faces-config.xml file.
+	 * 
+	 * @return {@link java.lang.String} "success" or "false"
+	 */
+	public String updateExperimenter() {
+		try {
+			iadmin.updateExperimenter(this.user);
+			this.userModel.setWrappedData(iadmin.getAndSortItems(sortItem,
+					sort));
+			return "success";
+		} catch (Exception e) {
+			logger.error("updateExperimenter: " + e.getMessage());
+			FacesContext context = FacesContext.getCurrentInstance();
+			FacesMessage message = new FacesMessage("Experimenter: [id: "
+					+ this.user.getExperimenter().getId() + ", '"
+					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
+			context.addMessage("experimenterForm", message);
+			return "false";
+		}
+
 	}
 
 	/**
@@ -310,32 +445,11 @@ public class IAdminExperimenterController implements java.io.Serializable {
 			logger.error("getDefaultGroups: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.experimenter.getId() + ", '"
-					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
+					+ this.user.getExperimenter().getId() + ", '"
+					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
 			context.addMessage("experimenterForm", message);
 		}
-		return wrapAsGUIList(groups);
-	}
-
-	/**
-	 * Wraps original {@link java.util.List} as GUI List
-	 * {@link javax.faces.model.SelectItem}
-	 * 
-	 * @param originalList
-	 *            {@link java.util.List} never-null.
-	 * @return {@link java.util.ArrayList}<{@link javax.faces.model.SelectItem}>
-	 */
-	private static synchronized List<SelectItem> wrapAsGUIList(
-			List<ExperimenterGroup> originalList) {
-		ArrayList<SelectItem> items = new ArrayList<SelectItem>(originalList
-				.size());
-		for (int i = 0, n = originalList.size(); i < n; i++) {
-			ExperimenterGroup bean = originalList.get(i);
-			SelectItem item = new SelectItem(bean.getId().toString(), bean
-					.getName());
-			items.add(item);
-		}
-		return items;
+		return Utils.wrapAsGUIList(groups);
 	}
 
 	/**
@@ -366,292 +480,13 @@ public class IAdminExperimenterController implements java.io.Serializable {
 			logger.error("getOtherGroups: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.experimenter.getId() + ", '"
-					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
+					+ this.user.getExperimenter().getId() + ", '"
+					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
 			context.addMessage("experimenterForm", message);
 		}
-		return wrapAsGUIList(groups);
+		return Utils.wrapAsGUIList(groups);
 	}
-
-	/**
-	 * Sets
-	 * {@link ome.admin.controller.IAdminExperimenterController#selectedGroup}
-	 * 
-	 * @param groups
-	 *            {@link java.util.List}<{@link java.lang.String}>
-	 */
-	public void setSelectedGroup(List<String> groups) {
-		if (groups != null)
-			this.selectedGroup = groups;
-		else
-			this.selectedGroup = Collections.EMPTY_LIST;
-	}
-
-	/**
-	 * Gets {@link java.util.ArrayList}<{@link java.lang.String}>
-	 * 
-	 * @return {@link ome.admin.controller.IAdminExperimenterController#selectedGroup}
-	 */
-	public List<String> getSelectedGroup() {
-		try {
-			if (this.editMode) {
-				ExperimenterGroup[] exg = iadmin
-						.containedGroups(this.experimenter.getId());
-				this.selectedGroup = new ArrayList<String>();
-
-				for (int i = 0; i < exg.length; i++) {
-					ExperimenterGroup bean = (ExperimenterGroup) exg[i];
-					this.selectedGroup.add(bean.getId().toString());
-				}
-			}
-		} catch (Exception e) {
-			logger.error("getSelectedGroups: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.experimenter.getId() + ", '"
-					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
-			context.addMessage("experimenterForm", message);
-		}
-		return this.selectedGroup;
-	}
-
-	/**
-	 * Gets {@link ome.admin.controller.IAdminExperimenterController#adminRole}
-	 * 
-	 * @return boolean
-	 */
-	public boolean isAdminRole() {
-		try {
-			if (this.editMode)
-				this.adminRole = iadmin.isAdmin(this.experimenter.getId());
-		} catch (Exception e) {
-			logger.error("isAdminRole: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.experimenter.getId() + ", '"
-					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
-			context.addMessage("experimenterForm", message);
-		}
-		return this.adminRole;
-	}
-
-	/**
-	 * Sets {@link ome.admin.controller.IAdminExperimenterController#adminRole}
-	 * 
-	 * @param adminRole
-	 *            boolean
-	 */
-	public void setAdminRole(boolean adminRole) {
-		this.adminRole = adminRole;
-	}
-
-	/**
-	 * Gets {@link ome.admin.controller.IAdminExperimenterController#userRole}
-	 * 
-	 * @return boolean
-	 */
-	public boolean isUserRole() {
-		try {
-			if (this.editMode)
-				this.userRole = iadmin.isUser(this.experimenter.getId());
-		} catch (Exception e) {
-			logger.error("isUserRole: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.experimenter.getId() + ", '"
-					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
-			context.addMessage("experimenterForm", message);
-		}
-		return this.userRole;
-	}
-
-	/**
-	 * Sets {@link ome.admin.controller.IAdminExperimenterController#userRole}
-	 * 
-	 * @param userRole
-	 *            boolean
-	 */
-	public void setUserRole(boolean userRole) {
-		this.userRole = userRole;
-	}
-
-	/**
-	 * Gets size the data collection wrapped by this
-	 * {@link javax.faces.model.DataModel}
-	 * 
-	 * @return int
-	 */
-	public int getSize() {
-		return experimenterModel.getRowCount();
-	}
-
-	/**
-	 * Sets
-	 * {@link ome.admin.controller.IAdminExperimenterController#experimenter}
-	 * 
-	 * @param exp
-	 *            {@link ome.model.meta.Experimenter}
-	 */
-	public void setExperimenter(Experimenter exp) {
-		this.experimenter = exp;
-	}
-
-	/**
-	 * Gets
-	 * {@link ome.model.meta.Experimenter}
-	 * 
-	 * @return {@link ome.admin.controller.IAdminExperimenterController#experimenter}
-	 */
-	public Experimenter getExperimenter() {
-		return this.experimenter;
-	}
-
-	/**
-	 * Gets default wrapped {@link java.util.List} of
-	 * {@link ome.model.meta.ExperimenterGroup}
-	 * 
-	 * @return {@link java.util.List}
-	 */
-	public DataModel getExperimenters() {
-		return this.experimenterModel;
-	}
-
-	/**
-	 * Sets {@link ome.admin.controller.IAdminExperimenterController#editMode}
-	 * 
-	 * @param em
-	 *            boolean
-	 */
-	public void setEditMode(boolean em) {
-		this.editMode = em;
-	}
-
-	/**
-	 * Checks {@link ome.admin.controller.IAdminExperimenterController#editMode}
-	 * 
-	 * @return boolean
-	 */
-	public boolean isEditMode() {
-		return editMode;
-	}
-
-	/**
-	 * Provides action for navigation rule "addNewExperimenter" what is
-	 * described in the faces-config.xml file.
-	 * 
-	 * @return {@link java.lang.String} "success" or "false"
-	 */
-	public String addNewExperimenter() {
-		this.editMode = false;
-		this.experimenter = new Experimenter();
-		this.defaultGroup = "0";
-		this.selectedGroup = Collections.EMPTY_LIST;
-		this.adminRole = false;
-		this.userRole = true;
-		return "success";
-	}
-
-	/**
-	 * Provides action for navigation rule "addExperimenter" what is described
-	 * in the faces-config.xml file.
-	 * 
-	 * @return {@link java.lang.String} "success" or "false"
-	 */
-	public String addExperimenter() {
-		try {
-			if (this.selectedGroup == null)
-				this.selectedGroup = Collections.EMPTY_LIST;
-
-			iadmin.createExperimenter(this.experimenter, this.defaultGroup,
-					this.selectedGroup, this.userRole, this.adminRole);
-			this.experimenterModel.setWrappedData(iadmin.sortItems(sortItem,
-					sort));
-			return "success";
-		} catch (Exception e) {
-			logger.error("createExperimenter: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.experimenter.getId() + ", '"
-					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
-			context.addMessage("experimenters", message);
-			return "false";
-		}
-	}
-
-	/**
-	 * Provides action for navigation rule "editExperimenter" what is described
-	 * in the faces-config.xml file.
-	 * 
-	 * @return {@link java.lang.String} "success" or "false"
-	 */
-	public String editExperimenter() {
-		try {
-			this.editMode = true;
-			this.experimenter = (Experimenter) experimenterModel.getRowData();
-			//this.experimenter = (Experimenter) iadmin.getExperimenterById(this.experimenter.getId());
-			return "success";
-		} catch (Exception e) {
-			logger.error("editExperimenter: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.experimenter.getId() + ", '"
-					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
-			context.addMessage("experimenters", message);
-			return "false";
-		}
-	}
-
-	/**
-	 * Provides action for navigation rule "deleteExperimenter" what is
-	 * described in the faces-config.xml file.
-	 * 
-	 * @return {@link java.lang.String} "success" or "false"
-	 */
-	public String delExperimenter() {
-		try {
-			this.experimenter = (Experimenter) experimenterModel.getRowData();
-			//this.experimenter = (Experimenter) iadmin.getExperimenterById(this.experimenter.getId());
-			iadmin.deleteExperimenter(this.experimenter.getId());
-			this.experimenterModel.setWrappedData(iadmin.sortItems(sortItem,
-					sort));
-			return "success";
-		} catch (Exception e) {
-			logger.error("deleteExperimenter: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.experimenter.getId() + ", '"
-					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
-			context.addMessage("experimenters", message);
-			return "false";
-		}
-
-	}
-
-	/**
-	 * Provides action for navigation rule "updateExperimenter" what is
-	 * described in the faces-config.xml file.
-	 * 
-	 * @return {@link java.lang.String} "success" or "false"
-	 */
-	public String updateExperimenter() {
-		try {
-			iadmin.updateExperimenter(this.experimenter, this.defaultGroup,
-					this.selectedGroup, this.userRole, this.adminRole);
-			this.experimenterModel.setWrappedData(iadmin.sortItems(sortItem,
-					sort));
-			return "success";
-		} catch (Exception e) {
-			logger.error("updateExperimenter: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.experimenter.getId() + ", '"
-					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
-			context.addMessage("experimenterForm", message);
-			return "false";
-		}
-
-	}
-
+	
 	/**
 	 * Provides validaton for email
 	 * 
@@ -673,7 +508,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
 				context.addMessage(toValidate.getClientId(context), message);
 			}
 			if (iadmin.checkEmail(email)
-					&& !email.equals(this.experimenter.getEmail())) {
+					&& !email.equals(this.user.getExperimenter().getEmail())) {
 				((UIInput) toValidate).setValid(false);
 				FacesMessage message = new FacesMessage("Email exist");
 				context.addMessage(toValidate.getClientId(context), message);
@@ -681,8 +516,8 @@ public class IAdminExperimenterController implements java.io.Serializable {
 		} catch (Exception e) {
 			logger.error("validateEmail: " + e.getMessage());
 			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.experimenter.getId() + ", '"
-					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
+					+ this.user.getExperimenter().getId() + ", '"
+					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
 			context.addMessage("experimenterForm", message);
 		}
 	}
@@ -702,7 +537,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
 			Object value) {
 		String omeName = (String) value;
 		if (iadmin.checkExperimenter(omeName)
-				&& !omeName.equals(this.experimenter.getOmeName())) {
+				&& !omeName.equals(this.user.getExperimenter().getOmeName())) {
 			((UIInput) toValidate).setValid(false);
 			FacesMessage message = new FacesMessage("Username already exist");
 			context.addMessage(toValidate.getClientId(context), message);
@@ -724,7 +559,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
 			Object value) {
 		String omeName = (String) value;
 		if (iadmin.checkExperimenter(omeName)
-				&& !omeName.equals(this.experimenter.getOmeName())) {
+				&& !omeName.equals(this.user.getExperimenter().getOmeName())) {
 			((UIInput) toValidate).setValid(false);
 			FacesMessage message = new FacesMessage("Username already exist");
 			context.addMessage(toValidate.getClientId(context), message);
