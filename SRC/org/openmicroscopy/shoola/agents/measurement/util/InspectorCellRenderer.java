@@ -26,11 +26,13 @@ import java.awt.Color;
 import java.awt.Component;
 import java.util.ArrayList;
 
+import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.table.TableCellRenderer;
 
 import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
@@ -80,16 +82,25 @@ public 	class InspectorCellRenderer
 		FigureTable figureTable = (FigureTable)table;
 		Component thisComponent=new JLabel();
 		AttributeField field = figureTable.getFieldAt(row);
-		if(field.getValueType()== ValueType.DEFAULT || column == 0)
+		if(column == 0)
+		{
+			JLabel label=new JLabel();
+			label.setOpaque(true);
+			label.setText(value+"");
+			thisComponent=label;
+		}
+		else
+		if(field.getValueType()== ValueType.DEFAULT)
 		{
 			if ((value instanceof Double)||(value instanceof String)
 				||(value instanceof FigureType)||value instanceof Integer
 				||value instanceof Long)
 			{
-			JLabel label=new JLabel();
-			label.setOpaque(true);
-			label.setText(value+"");
-			thisComponent=label;
+			JTextField text=new JTextField();
+			text.setOpaque(false);
+			text.setBorder(BorderFactory.createEmptyBorder());
+			text.setText(value+"");
+			thisComponent=text;
 			}
 			else if (value instanceof Color)
 			{

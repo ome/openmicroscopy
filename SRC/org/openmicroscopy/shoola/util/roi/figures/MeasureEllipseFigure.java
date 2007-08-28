@@ -314,7 +314,6 @@ public class MeasureEllipseFigure
 	}
 	
 	
-	
 	/**
 	 * Calculate the area of the figure. 
 	 * @return see above.
@@ -324,8 +323,6 @@ public class MeasureEllipseFigure
 		
 		return (getMeasurementHeight()/2)*(getMeasurementWidth()/2)*Math.PI;
 	}
-	
-	
 	
 	/**
 	 * Calculate the perimeter of the figure. 

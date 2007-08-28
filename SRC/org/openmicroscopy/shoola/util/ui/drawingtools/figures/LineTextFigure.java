@@ -22,9 +22,6 @@
  */
 package org.openmicroscopy.shoola.util.ui.drawingtools.figures;
 
-
-
-
 // Java imports
 import java.awt.Color;
 import java.awt.Font;
@@ -130,7 +127,7 @@ public class LineTextFigure
 
 	/**
 	 * Overridden to control if the passed point is within the bounds.
-	 * @see LineFigure#contains(Double)
+	 * @see LineFigure#contains(Point2D.Double)
 	 */
 	public boolean contains(Point2D.Double p)
 	{
@@ -194,7 +191,7 @@ public class LineTextFigure
 	
 	/**
 	 * Overridden to set the correct tool.
-	 * @see LineFigure#getTool(Double)
+	 * @see LineFigure#getTool(Point2D.Double)
 	 */
 	public Tool getTool(Point2D.Double p)
 	{
