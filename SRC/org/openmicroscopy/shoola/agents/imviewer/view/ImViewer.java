@@ -39,9 +39,12 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.util.CategorySaverDef;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
+import pojos.CategoryData;
 
 /** 
  * Defines the interface provided by the viewer component. 
@@ -97,6 +100,9 @@ public interface ImViewer
     
     /** Flag to denote the <i>Rendering control loaded</i> state. */
     public static final int     RENDERING_CONTROL_LOADED = 9;
+    
+    /** Flag to denote the <i>Classification</i> state. */
+    public static final int     CLASSIFICATION = 10;
     
     /** Bound property name indicating that a new z-section is selected. */
     public final static String  Z_SELECTED_PROPERTY = "zSelected";
@@ -627,14 +633,14 @@ public interface ImViewer
 	 * 
 	 * @param view The component to add.
 	 */
-	public void addView(JComponent view);
+	public void addToView(JComponent view);
 
 	/**
 	 * Removes the passed component from the viewer.
 	 * 
 	 * @param view The component to remove.
 	 */
-	public void removeView(JComponent view);
+	public void removeFromView(JComponent view);
 
 	/**
 	 * Returns <code>true</code> if the user used the lens for this,
@@ -728,9 +734,30 @@ public interface ImViewer
 	/**
 	 * Sets the categories the image is categorised into.
 	 * 
-	 * @param categories	The categories in which the image is classified
-	 * 						owned by the user currently logged in.
+	 * @param categories			The categories in which the image is 
+	 * 								classified owned by the user currently
+	 * 								logged in.
+	 * @param availableCategories 	The categories in which the image can be
+	 * 								categorised.
 	 */
-	public void setClassification(List categories);
+	public void setClassification(List categories, List availableCategories);
+
+	/** 
+     * Declassifies the image from the specified category.
+     * 
+     * @param categoryID The category to handle.
+     */
+	public void declassify(long categoryID);
+
+	/**
+	 * Creates categories and adds the image to the categories
+	 * and/or classifies the image.
+	 * 
+	 * @param data	The object to handle.
+	 */
+	public void createAndClassify(CategorySaverDef data);
+	
+	/** Invoked when the image classification is finished. */
+	public void setImageClassified();
 	
 }

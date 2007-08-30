@@ -172,8 +172,6 @@ class PopupMenu
         a = controller.getAction(TreeViewerControl.REMOVE_FROM_DISPLAY);
         removeExperimenterElement = new JMenuItem(a);
         initMenuItem(removeExperimenterElement, "Remove from display");
-        removeExperimenterElement = new JMenuItem(a);
-        initMenuItem(removeExperimenterElement, "Remove from display");
         a = controller.getAction(TreeViewerControl.REFRESH_EXPERIMENTER);
         refreshExperimenterElement = new JMenuItem(a);
         initMenuItem(refreshExperimenterElement, null);

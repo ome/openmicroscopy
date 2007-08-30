@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 //Java imports
 import java.util.List;
+
 //Third-party libraries
 
 //Application-internal dependencies

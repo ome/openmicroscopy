@@ -38,7 +38,7 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.ILink;
 import ome.model.IObject;
-import ome.model.containers.CategoryImageLink;
+import ome.model.containers.Category;
 import ome.model.core.Channel;
 import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -1113,6 +1113,21 @@ class OmeroDataServiceImpl
 		List imgs = gateway.getImagesBefore(time, userID);
 		if (imgs == null) return -1;
 		return imgs.size();
+	}
+
+	public Set findCategoryPaths(long imageID, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		List links = gateway.findLinks(Category.class, imageID, userID);
+		if (links == null) return new HashSet();
+		Iterator i = links.iterator();
+		Set<Long> ids = new HashSet<Long>(links.size());
+		long id;
+		while (i.hasNext()) {
+			id = ((ILink) i.next()).getParent().getId();
+			ids.add(id);
+		}
+		return loadContainerHierarchy(CategoryData.class, ids, false, userID);
 	}
 	
 }

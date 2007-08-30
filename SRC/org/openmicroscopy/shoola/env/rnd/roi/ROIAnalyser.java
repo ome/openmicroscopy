@@ -105,11 +105,14 @@ public class ROIAnalyser
      * @param sizeZ     The number of z-sections.
      * @param sizeT     The number of timepoints.
      * @param sizeC     The number of channels.
+     * @param sizeX     The number of pixels along the x-axis.
+     * @param sizeY     The number of pixels along the y-axis.
      */
-	public ROIAnalyser(DataSink source, int sizeZ, int sizeT, int sizeC)
+	public ROIAnalyser(DataSink source, int sizeZ, int sizeT, int sizeC, int
+						sizeX, int sizeY)
 	{
 		//Constructor will check source and dims.
-        runner = new PointIterator(source, sizeZ, sizeT, sizeC);
+        runner = new PointIterator(source, sizeZ, sizeT, sizeC, sizeX, sizeY);
         this.sizeZ = sizeZ;
         this.sizeT = sizeT;
         this.sizeC = sizeC;

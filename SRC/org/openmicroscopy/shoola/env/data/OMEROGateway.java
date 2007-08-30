@@ -1150,6 +1150,37 @@ class OMEROGateway
     }
     
     /**
+     * Finds the links if any between the specified parent and children.
+     * 
+     * @param parent    The parent.
+     * @param children  Collection of children as children ids.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMERO service. 
+     */
+    List findLinks(Class parentClass, long childID, long userID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        try {
+            String table = getTableForLink(parentClass);
+            if (table == null) return null;
+            String sql = "select link from "+table+" as link where " +
+                    "link.child.id = :childID and " +
+                    "link.details.owner.id = :userID";
+            IQuery service = getQueryService();
+            Parameters param = new Parameters();
+            param.addLong("childID", childID);
+            param.addLong("userID", userID);
+            return service.findAllByQuery(sql, param);
+        } catch (Throwable t) {
+            handleException(t, "Cannot retrieve the requested link for "+
+            					"child ID: "+childID);
+        }
+        return null;
+    }
+    
+    /**
      * Retrieves an updated version of the specified object.
      * 
      * @param o	The object to retrieve.

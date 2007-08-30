@@ -31,6 +31,7 @@ import java.awt.FontMetrics;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -59,15 +60,21 @@ public class HistoryDialog
     /** Bound property indicating that an item is selected in the list. */
     public static final String SELECTION_PROPERTY ="selection";
     
+    /** The maximum height of the menu. */
+    private static final int	MAX_HEIGHT = 100;
+    
     /** The list hosting the data. */
-    private JList       history;
+    private JList       			history;
     
     /** The width of the component. */
-    private int         width;
+    private int         			width;
     
     /** The data to display. */
-    private Object[]    data;
+    private Object[]    			data;
 
+    /** Listener added to the selection model. */
+    private ListSelectionListener	listener;
+    
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
@@ -76,23 +83,23 @@ public class HistoryDialog
         list.add(history);
         FontMetrics fm = getFontMetrics(history.getFont());
         int  height = fm.getHeight()*data.length+4;
+        if (height > MAX_HEIGHT) height = MAX_HEIGHT;
         Dimension d = new Dimension(width, height);
-        list.setSize(d);
-        list.setPreferredSize(d);
-        add(list);
+        setPopupSize(d);
+        add(new JScrollPane(list));
     }
     
     /** Initializes the components. */
     private void initComponents()
     {
         history = new JList(data);
-        history.getSelectionModel().addListSelectionListener(
-                new ListSelectionListener() {
+        listener = new ListSelectionListener() {
         
             public void valueChanged(ListSelectionEvent e)
             {
                 ListSelectionModel model = (ListSelectionModel) e.getSource();
-                if (!model.isSelectionEmpty() && e.getValueIsAdjusting()) {
+                //System.err.println(e.getValueIsAdjusting());
+                if (!model.isSelectionEmpty()) {// && e.getValueIsAdjusting()) {
                     int minIndex = model.getMinSelectionIndex(),
                     maxIndex = model.getMaxSelectionIndex();
                     for (int i = minIndex; i <= maxIndex; i++)
@@ -102,7 +109,8 @@ public class HistoryDialog
                     }
                 }
             }
-        });
+        };
+        history.getSelectionModel().addListSelectionListener(listener);
     }
     
     /**
@@ -117,6 +125,85 @@ public class HistoryDialog
         this.width = width;
         initComponents();
         buildGUI();
+    }
+    
+    /**
+     * Returns the selected object or <code>null</code>
+     * and hides the menu.
+     * 
+     * @return See above.
+     */
+    public Object getSelectedTextValue()
+    {
+    	ListSelectionModel model = history.getSelectionModel();
+    	if (model.isSelectionEmpty()) return null;
+    	int minIndex = model.getMinSelectionIndex(),
+        maxIndex = model.getMaxSelectionIndex();
+        for (int i = minIndex; i <= maxIndex; i++)
+            if (model.isSelectedIndex(i)) {
+                //firePropertyChange(SELECTION_PROPERTY, null, data[i]);
+            	setVisible(false);
+            	return data[i];
+                
+            }
+        return null;
+    }
+    
+    /**
+     * Selects an item in the list if one of the elements starts with
+     * the passed string. Returns <code>true</code> if an item is selected,
+     * <code>false</code> otherwise.
+     * 
+     * @param v The value to handle.
+     * @return See above.
+     */
+    public boolean setSelectedTextValue(String v)
+    {
+    	if (v == null) return false;
+    	String value;
+    	Object r = null;
+    	for (int i = 0; i < data.length; i++) {
+			value = data[i].toString();
+			if (value.startsWith(v)) {
+				r = data[i];
+				break;
+			}
+		}
+    	if (r != null) {
+    		history.getSelectionModel().removeListSelectionListener(listener);
+    		history.setSelectedValue(r, true);
+    		history.getSelectionModel().addListSelectionListener(listener);
+    		return true;
+    	}
+    	return false;
+    }
+    
+    /**
+     * Sets the selected value. 
+     * 
+     * @param increase 	Pass <code>true</code> to increase the index,
+     * 					<code>false</code> to decrease the index.
+     */
+    public void setSelectedIndex(boolean increase)
+    {
+    	ListSelectionModel model = history.getSelectionModel();
+    	if (model.isSelectionEmpty()) return;
+    	int index = history.getSelectedIndex();
+    	Object r = null;
+    	int l = data.length-1;
+    	if (increase) {
+    		if (index < l) index +=1;
+    		else index = 0;
+    	} else {
+    		if (index > 0) index -=1;
+    		else index = l;
+    	}
+    	r = data[index];
+    	if (r != null) {
+    		history.getSelectionModel().removeListSelectionListener(listener);
+    		history.setSelectedValue(r, true);
+    		history.getSelectionModel().addListSelectionListener(listener);
+    	} 
     }
     
 }

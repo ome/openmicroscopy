@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
+import pojos.CategoryData;
 import pojos.DataObject;
 
 /** 
@@ -239,5 +240,44 @@ public class DataHandlerViewImpl
 		BatchCallTree cmd = new AnnotationSaver(set, annotation, true);
 		return cmd.exec(observer);
 	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see DataHandlerView#loadAllClassifications(long, long, 
+     * 											AgentEventListener)
+     */
+	public CallHandle loadAllClassifications(long imageID, long userID, 
+						AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ClassificationLoader(imageID, userID);
+		return cmd.exec(observer);
+	}
     
+	/**
+     * Implemented as specified by the view interface.
+     * @see DataHandlerView#createAndClassify(long, Set, 
+     * 										AgentEventListener)
+     */
+	public CallHandle createAndClassify(long imageID, 
+										Set<CategoryData> categories, 
+										AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ClassificationSaver(imageID, categories, null);
+		return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see DataHandlerView#createAndClassify(long, Set, Set,
+     * 										AgentEventListener)
+     */
+	public CallHandle createAndClassify(long imageID, 
+			Set<CategoryData> categories, Set<CategoryData> categoriesToUpdate, 
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ClassificationSaver(imageID, categories, 
+												categoriesToUpdate);
+		return cmd.exec(observer);
+	}
+
 }

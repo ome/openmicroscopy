@@ -346,21 +346,6 @@ class DOBasic
             add(p, BorderLayout.NORTH);
         } else add(buildContentPanel(), BorderLayout.NORTH);
         add(view.buildBasicToolBar(download), BorderLayout.SOUTH);
-        
-        
-        /*
-        if (download != null) {
-        	JPanel p = new JPanel();
-            p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-            p.add(buildContentPanel());
-            p.add(UIUtilities.buildComponentPanel(download));
-            add(p, BorderLayout.NORTH);
-        } else add(buildContentPanel(), BorderLayout.NORTH);
-
-        if (model.isAnnotatable() && 
-        		model.getEditorType() == Editor.PROPERTIES_EDITOR) 
-            add(tabbedPane, BorderLayout.CENTER);
-            */
     }
 
     /**

@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
+import org.openmicroscopy.shoola.agents.imviewer.util.CategorySaverDef;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImageDetailsDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
@@ -72,6 +73,8 @@ import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
+import pojos.CategoryData;
 
 /** 
  * Implements the {@link ImViewer} interface to provide the functionality
@@ -1284,16 +1287,19 @@ class ImViewerComponent
 		if (model.getState() == DISCARDED)
     		throw new IllegalStateException("The method cannot be invoked in " +
     		"the DISCARDED state.");
+		if (source == null) throw new IllegalArgumentException("No component.");
+        if (location == null) throw new IllegalArgumentException("No point.");
 		switch (menuID) {
 	        case COLOR_PICKER_MENU:
+	        	 if (model.getMaxC() == 1) controller.showColorPicker(0);
+	             else view.showMenu(menuID, source, location);
 	            break;
+	        case CATEGORY_MENU:
+	        	view.showMenu(menuID, source, location);
+	        	break;
 	        default:
 	            throw new IllegalArgumentException("Menu not supported.");
 		}
-		if (source == null) throw new IllegalArgumentException("No component.");
-        if (location == null) throw new IllegalArgumentException("No point.");
-        if (model.getMaxC() == 1) controller.showColorPicker(0);
-        else view.showMenu(menuID, source, location);
 	}
 
     /** 
@@ -1550,9 +1556,9 @@ class ImViewerComponent
 
 	/** 
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#addView(JComponent)
+     * @see ImViewer#addToView(JComponent)
      */
-	public void addView(JComponent comp)
+	public void addToView(JComponent comp)
 	{
 		if (model.getState() != READY) return;
 		if (comp == null) return;
@@ -1563,9 +1569,9 @@ class ImViewerComponent
 
 	/** 
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#removeView(JComponent)
+     * @see ImViewer#removeFromView(JComponent)
      */
-	public void removeView(JComponent comp)
+	public void removeFromView(JComponent comp)
 	{
 		if (model.getState() != READY) return;
 		if (comp == null) return;
@@ -1760,9 +1766,9 @@ class ImViewerComponent
 
 	/** 
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#setClassification(List)
+     * @see ImViewer#setClassification(List, List)
      */
-	public void setClassification(List categories)
+	public void setClassification(List categories, List availableCategories)
 	{
 		switch (model.getState()) {
 	    	case DISCARDED:
@@ -1770,13 +1776,68 @@ class ImViewerComponent
 	        "This method can't be invoked in the DISCARDED state.");
 		}
 		if (sorter == null) sorter = new ViewerSorter();
-		List l;
+		List l, available;
 		if (categories == null || categories.size() == 0)
 			l = new ArrayList();
 		else l = sorter.sort(categories);
-		model.setCategories(l);
+		if (availableCategories == null || availableCategories.size() == 0)
+			available = new ArrayList();
+		else available = sorter.sort(availableCategories);
+		model.setCategories(l, available);
 		view.showCategories();
 		//model.fireRenderingControlLoading();
+		fireStateChange();
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#declassify(long)
+     */
+	public void declassify(long categoryID)
+	{
+		switch (model.getState()) {
+	    	case DISCARDED:
+	        throw new IllegalStateException(
+	        "This method can't be invoked in the DISCARDED state.");
+		}
+		model.declassify(categoryID);
+		fireStateChange();
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#createAndClassify(CategorySaverDef)
+     */
+	public void createAndClassify(CategorySaverDef data)
+	{
+		switch (model.getState()) {
+	    	case DISCARDED:
+	        throw new IllegalStateException(
+	        "This method can't be invoked in the DISCARDED state.");
+		}
+		if (data == null) 
+			throw new IllegalArgumentException("No category specified.");
+		Set<CategoryData> toCreate = data.getCategoriesToCreate();
+		Set<CategoryData> toUpdate = data.getCategoriesToUpdate();
+		if (toCreate.size() == 0 && toUpdate.size() > 0)
+			model.classify(toUpdate);
+		else if (toCreate.size() > 0 && toUpdate.size() == 0)
+			model.createAndClassify(toCreate);
+		else if (toCreate.size() > 0 && toUpdate.size() > 0)
+			model.createAndClassify(toCreate, toUpdate);
+		fireStateChange();
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#setImageClassified()
+     */
+	public void setImageClassified()
+	{
+		if (model.getState() != CLASSIFICATION)
+			throw new IllegalStateException(
+	        "This method can't be invoked in the CLASSIFICATION state.");
+		model.fireCategoriesLoading();
 		fireStateChange();
 	}
 	

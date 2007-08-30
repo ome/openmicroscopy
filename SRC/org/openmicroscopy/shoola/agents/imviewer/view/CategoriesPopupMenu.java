@@ -22,31 +22,35 @@
  */
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
+
+//Java imports
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 import javax.swing.border.BevelBorder;
-
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-
-import pojos.CategoryData;
-
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
+import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.imviewer.util.CategoryItem;
+import org.openmicroscopy.shoola.env.event.EventBus;
+
+import pojos.CategoryData;
 
 /** 
- * 
+ * Menu displaying the category this image belongs to.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,68 +64,125 @@ import pojos.CategoryData;
  */
 class CategoriesPopupMenu
 	extends JPopupMenu
-	implements ActionListener
+	implements ActionListener, PropertyChangeListener
 {
 
+	/** Text indicating to create a new category. */
+	private static final String CREATION = "Add category";
+	
+	/** Action command identifying the creation of a new category. */
+	private static final int	CREATION_ID = 1;
+	
 	/** Reference to the View. */
-	private ImViewerUI view;
+	private ImViewerUI 		view;
+	
+	/** Reference to the Model. */
+	private ImViewerModel	model; 
 	
 	/**
-	 * Creates a menu item and sets the defaults.
+	 * Formats the passed item.
 	 * 
-	 * @param data The category object hosted by the menu item.
-	 * @return See above.
+	 * @param item The item to format.
 	 */
-    private JMenuItem initMenuItem(CategoryData data)
-    {
-    	JMenuItem item = new JMenuItem(data.getName());
-        item.setBorder(null);
+	private void formatItem(JMenuItem item)
+	{
+		item.setBorder(null);
         item.setFont((Font) ImViewerAgent.getRegistry().lookup(
                         "/resources/fonts/Labels"));
-        item.setToolTipText(data.getDescription());
-		item.setActionCommand(""+data.getId());
-        item.addActionListener(this);
-        return item;
+	}
+    
+    /** Initializes the components composing the display. */
+    private void initComponents()
+    {
+    	IconManager icons = IconManager.getInstance();
+    	Icon icon = icons.getIcon(IconManager.CANCEL);
+    	setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+    	JMenuItem item;
+    	List categories = model.getCategories();
+    	CategoryData data;
+    	if (categories != null && categories.size() > 0) {
+    		Iterator i = categories.iterator();
+        	while (i.hasNext()) {
+        		data = (CategoryData) i.next();
+        		item = new CategoryItem(data);
+        		formatItem(item);
+        		item.addPropertyChangeListener(this);
+        		item.setIcon(icon);
+        		add(item);
+    		}
+        	add(new JSeparator());
+    	}
+    	item = new JMenuItem(CREATION);
+    	item.setActionCommand(""+CREATION_ID);
+    	item.addActionListener(this);
+    	formatItem(item);
+    	add(item);
     }
     
-    /** 
-     * Initializes the components composing the display. 
+    /**
+     * Browses the specified category.
      * 
-     * @param categories The categories to display.
+     * @param categoryID 	The id of the category.
+     * @param userID		The id of the user.
      */
-    private void initComponents(List categories)
+    private void browse(long categoryID, long userID)
     {
-    	setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-    	Iterator i = categories.iterator();
-    	CategoryData data;
-    	while (i.hasNext()) {
-    		data = (CategoryData) i.next();
-    		add(initMenuItem(data));
-		}
+    	EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+    	bus.post(new Browse(categoryID, Browse.CATEGORY, 
+    			model.getUserDetails(), view.getBounds()));  
     }
     
     /**
      * Creates a new instance.
      * 
-     * @param view
-     * @param categories
+     * @param view	Reference to the View. Mustn't be <code>null</code>.
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-	CategoriesPopupMenu(ImViewerUI view, List categories)
+	CategoriesPopupMenu(ImViewerUI view, ImViewerModel model)
 	{
 		if (view == null)
 			throw new IllegalArgumentException("No view.");
+		if (model == null)
+			throw new IllegalArgumentException("No model.");
 		this.view = view;
-		initComponents(categories);
+		this.model = model;
+		initComponents();
 	}
 
 	/**
-	 * Browses the category when the item is selected.
+	 * Browses the category when the item is selected or 
+	 * creates a new category.
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
-		long id = Long.parseLong(e.getActionCommand());
-		view.browse(id);
+		int id = -1;
+		try {
+			id = Integer.parseInt(e.getActionCommand());
+		} catch (Exception ex) {}
+		
+		switch (id) {
+			case CREATION_ID:
+				view.createCategory();
+				return;
+		}
+	}
+
+	/**
+	 * Removes the image from the category or
+	 * browses the category.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (CategoryItem.REMOVE_PROPERTY.equals(name)) {
+			CategoryItem item = (CategoryItem) evt.getNewValue();
+			view.declassify(item.getObjectID());
+		} else if (CategoryItem.BROWSE_PROPERTY.equals(name)) {
+			CategoryItem item = (CategoryItem) evt.getNewValue();
+			browse(item.getObjectID(), item.getOwnerID());
+		}
 	}
 	
 }

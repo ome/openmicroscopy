@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.ui.drawingtools.creationtools;
 import java.util.Collection;
 import java.util.LinkedList;
 import javax.swing.Action;
+import javax.swing.ButtonGroup;
 import javax.swing.JToolBar;
 
 //Third-party libraries
@@ -116,6 +117,19 @@ public class DrawingToolBarButtonFactory
     {
     	ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle(BASE_NAME);
     	ToolBarButtonFactory.addToolTo(tb, editor, tool, labelKey, labels);
+    }
+    
+    /**
+     * Creates a basic tool bar.
+     * 
+     * @return See above.
+     */
+    public static JToolBar createDefaultBar()
+    {
+    	JToolBar toolBar = new JToolBar();
+		toolBar.setFloatable(false);
+		toolBar.putClientProperty("toolButtonGroup", new ButtonGroup());
+		return toolBar;
     }
     
 }

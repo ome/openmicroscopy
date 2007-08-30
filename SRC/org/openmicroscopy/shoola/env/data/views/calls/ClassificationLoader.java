@@ -25,7 +25,10 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -34,6 +37,8 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+
+import pojos.CategoryData;
 import pojos.CategoryGroupData;
 
 /** 
@@ -82,7 +87,7 @@ public class ClassificationLoader
                             	OmeroDataService.CLASSIFICATION_NME;
     
     /** The root nodes of the found trees. */
-    private Set         rootNodes;
+    private Object		rootNodes;
     
     /** Searches the CG/C/I hierarchy. */
     private BatchCall   loadCall;
@@ -136,6 +141,58 @@ public class ClassificationLoader
     }
     
     /**
+     * Creates a {@link BatchCall} to load all Category Group/Category paths
+     * that don't end with the specified Image.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
+     * 
+     * @param imageID	The id of the image.
+     * @param userID	The Id of the user.                  
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadAllClassification(final long imageID, 
+    										final long userID)
+    {
+        return new BatchCall("Loading CGC paths. ") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                Set<Long> images = new HashSet<Long>(1);
+                images.add(imageID);
+                Set nodes = os.findCategoryPaths(imageID, userID);
+                Iterator i = nodes.iterator();
+                List<Long> ids = new ArrayList<Long>();
+                List<CategoryData> r = new ArrayList<CategoryData>();
+                CategoryData category;
+                while (i.hasNext()) {
+                	category = (CategoryData) i.next();
+         			if (!ids.contains(category.getId())) {
+         				r.add(category);
+         				ids.add(category.getId());
+         			}
+	         	}
+
+	         	List<List> results = new ArrayList<List>(2);
+	         	results.add(r);
+	         	//r.s
+	         	nodes = os.loadContainerHierarchy(
+                        CategoryData.class, null, false, userID);
+	         	i = nodes.iterator();
+	         	r = new ArrayList<CategoryData>();
+	         	while (i.hasNext()) {
+	         		category = (CategoryData) i.next();
+	         		if (!ids.contains(category.getId())) {
+         				r.add(category);
+         			}
+				}
+	         	results.add(r);
+	         	rootNodes = results;
+            }
+        };
+    }
+    
+    
+    /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
@@ -147,6 +204,22 @@ public class ClassificationLoader
      */
     protected Object getResult() { return rootNodes; }
 
+    /**
+     * Creates a new instance to find the Category Group/Category paths that 
+     * end or don't end with the specified Image.
+     * If bad arguments are passed, we throw a runtime exception so to fail
+     * early and in the caller's thread.
+     * 
+     * @param imageID       The id of the Image.
+     * @param userID   		The Id of the user.                    
+     */
+    public ClassificationLoader(long imageID, long userID)
+    {
+        if (imageID < 0) 
+            throw new IllegalArgumentException("image ID not valid ");
+        loadCall = loadAllClassification(imageID, userID);
+    }
+    
     /**
      * Creates a new instance to find the Category Group/Category paths that 
      * end or don't end with the specified Image.

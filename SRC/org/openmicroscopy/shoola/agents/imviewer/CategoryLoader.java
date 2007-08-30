@@ -24,25 +24,17 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 
 //Java imports
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
-
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 
 /** 
  * Retrieves the categories the image is categorised into.
- * This class calls <code>loadClassificationPaths</code> method in the
+ * This class calls <code>loadAllClassifications</code> method in the
  * <code>DataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -89,10 +81,7 @@ public class CategoryLoader
      */
     public void load()
     {
-    	Set<Long> images =  new HashSet<Long>(1);
-    	images.add(imageID);
-    	handle = dhView.loadClassificationPaths(images, expID, 
-    			DataHandlerView.DECLASSIFICATION, this);
+    	handle = dhView.loadAllClassifications(imageID, expID, this);
     }
 
     /**
@@ -108,30 +97,10 @@ public class CategoryLoader
     public void handleResult(Object result)
     {
        if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-       Set set = (Set) result;
-       if (set == null || set.size() == 0)
-    	   viewer.setClassification(null);
-       else {
-    	   Iterator i = set.iterator();
-    	   CategoryGroupData group;
-    	   List<Long> ids = new ArrayList<Long>();
-    	   Set categories;
-    	   Iterator j;
-    	   CategoryData category;
-    	   List<CategoryData> r = new ArrayList<CategoryData>();
-    	   while (i.hasNext()) {
-    		   group = (CategoryGroupData) i.next();
-    		   categories = group.getCategories();
-    		   j = categories.iterator();
-    		   while (j.hasNext()) {
-    			   category = (CategoryData) j.next();
-    			   System.err.println(category.getOwner().getId());
-    			   if (!ids.contains(category.getId()))
-    				   r.add(category);
-    		   }
-    	   }
-    	   viewer.setClassification(r);
-       }
+       List set = (List) result;
+       if (set == null || set.size() != 2)
+    	   viewer.setClassification(null, null);
+       else viewer.setClassification((List) set.get(0), (List) set.get(1));
     }
     
 }

@@ -35,6 +35,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
+import pojos.CategoryData;
 import pojos.DataObject;
 
 /** 
@@ -270,5 +271,26 @@ public interface DataHandlerView
 	 */
 	public CallHandle annotateChildren(Set folders, 
 					AnnotationData annotation, AgentEventListener observer);
+	
+	/**
+	 * Loads all classifications for a given image i.e. 
+	 * first the categories containing the image, then the categories
+	 * the image can be added to.
+	 * 
+	 * @param imageID	The id of the image to handle.
+	 * @param userID	The user's id.
+	 * @param observer	Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadAllClassifications(long imageID, long userID, 
+							AgentEventListener observer);
 	 
+	public CallHandle createAndClassify(long imageID, 
+									Set<CategoryData> categories,
+									AgentEventListener observer);
+	
+	public CallHandle createAndClassify(long imageID, 
+			Set<CategoryData> categories, Set<CategoryData> categoriesToUpdate,
+			AgentEventListener observer);
+	
 }

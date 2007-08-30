@@ -25,12 +25,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
 //Java imports
-import java.awt.Component;
 import java.awt.FlowLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import javax.swing.Action;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -42,8 +37,7 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ClassifyAction;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -151,10 +145,12 @@ class ToolBar
     	saveOnClose = new JCheckBox(SAVE_ON_CLOSE);
         saveOnClose.setToolTipText(SAVE_ON_CLOSE_DESCRIPTION);
         saveOnClose.setSelected(true);
-        IconManager icons = IconManager.getInstance();
-        categoryButton = new JButton(icons.getIcon(IconManager.CATEGORY));
+        ClassifyAction a = 
+			(ClassifyAction) controller.getAction(ImViewerControl.CATEGORY);
+        categoryButton = new JButton(a);
         UIUtilities.unifiedButtonLookAndFeel(categoryButton);
         categoryButton.setVisible(false);
+        categoryButton.addMouseListener(a);
         createControlsBar();
     }
 
@@ -206,17 +202,6 @@ class ToolBar
     void showCategory()
     {
     	categoryButton.setVisible(true);
-    	categoryButton.addMouseListener(new MouseAdapter() {
-		
-    		public void mousePressed(MouseEvent me)
-    		{ 
-    			Object source = me.getSource();
-    			if (source instanceof Component) 
-    				view.showMenu(ImViewer.CATEGORY_MENU, (Component) source, 
-    								me.getPoint());
-    		}
-		
-		});
     }
     
 }

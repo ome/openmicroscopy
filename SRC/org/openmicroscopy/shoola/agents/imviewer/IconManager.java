@@ -187,12 +187,18 @@ public class IconManager
     
     /** The <code>Category</code> icon. */
     public static int           CATEGORY = 42;
-   
+    
+    /** The <code>Create big</code> icon. */
+    public static int           CREATE_BIG = 43;
+    
+    /** The <code>Filter menu</code> icon. */
+    public static int           FILTER_MENU = 44;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 42;
+    private static int          MAX_ID = 44;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -242,6 +248,8 @@ public class IconManager
         relPaths[ZOOM_FIT] = "nuvola_viewmagfit16.png";
         relPaths[CLEAR] = "nuvola_history_clear16.png";
         relPaths[CATEGORY] = "category16.png";
+        relPaths[CREATE_BIG] = "nuvola_filenew48.png"; 
+        relPaths[FILTER_MENU] = "eclipse_view_menu16.png"; 
     }
     
     /** The sole instance. */

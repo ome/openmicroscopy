@@ -22,13 +22,13 @@
  */
 package org.openmicroscopy.shoola.env.rnd.roi;
 
-import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 
 /** 
  * Monitors a {@link PointIterator} as it proceeds in a point by point

@@ -106,10 +106,10 @@ public class ImViewerAgent
     	if (view != null) {
     		switch (evt.getIndex()) {
 				case MeasurementToolLoaded.ADD:
-					view.addView(evt.getView());
+					view.addToView(evt.getView());
 					break;
 				case MeasurementToolLoaded.REMOVE:
-					view.removeView(evt.getView());
+					view.removeFromView(evt.getView());
 			}
     	}
     }

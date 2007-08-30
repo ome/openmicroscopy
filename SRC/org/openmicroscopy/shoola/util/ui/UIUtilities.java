@@ -454,13 +454,14 @@ public class UIUtilities
      * 
      * @param area The text area.
      */
-    public static void setTextAreaDefault(JTextComponent area)
+    public static void setTextAreaDefault(JComponent area)
     {
         area.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         area.setForeground(STEELBLUE);
         area.setBackground(Color.WHITE);
         area.setOpaque(true);
-        area.setEditable(true);
+        if (area instanceof JTextComponent) 
+        	((JTextComponent) area).setEditable(true);
     }
     
     /**

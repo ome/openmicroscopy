@@ -74,6 +74,12 @@ class PointIterator
 	/** The number of timepoints. */
 	private int			sizeT;   
 	
+	/** The number of pixels along the x-axis. */
+	private int 		sizeX;
+	
+	/** The number of pixels along the y-axis. */
+	private int 		sizeY;
+	
 	/** The number of channels. */
 	private int			sizeC;   
     
@@ -169,13 +175,13 @@ class PointIterator
      * Iterates over the pixel values within the specified 2D selection.
      * 
      * @param points	The coords of all points within the 2D selection.
-     * @param pd  		Identifies the plane on which the selection lies.
      * @param z  		The z coordinate (stack frame) of the plane.
      * @param w  		The w coordinate (channel) of the plane.
      * @param t  		The t coordinate (timepoint) of the plane.
      * @throws DataSourceException If an error occurs while retrieving the
      *                              plane data from the pixels source.
      */
+    /*
     private void iterateArea(PlanePoint2D[] points, int z, int w, int t) 
     	throws DataSourceException
     {
@@ -183,8 +189,24 @@ class PointIterator
         double value;
         for (int i = 0; i < points.length; ++i) {
             value = data.getPixelValue((int) points[i].x1, (int) points[i].x2);
-             notifyValue(value, z, w, t, points[i]);
+            notifyValue(value, z, w, t, points[i]);
         }
+    }
+    */
+    
+    /**
+     * Returns <code>true</code> if the passed coordinates are valid,
+     * <code>false</code> otherwise.
+     * 
+     * @param x The x-coordinate of the point.	
+     * @param y The y-coordinate of the point.	
+     * @return See above.
+     */
+    private boolean isValidPoint(int x, int y)
+    {
+    	if (x < 0 || x >= sizeX) return false;
+    	if (y < 0 || y >= sizeY) return false;
+    	return true;
     }
     
     /**
@@ -196,14 +218,19 @@ class PointIterator
      * @param sizeZ     The number of z-sections.
      * @param sizeT     The number of timepoints.
      * @param sizeC     The number of channels.
+     * @param sizeX     The number of pixels along the x-axis.
+     * @param sizeY     The number of pixels along the y-axis.
      */
-	PointIterator(DataSink source, int sizeZ, int sizeT, int sizeC)
+	PointIterator(DataSink source, int sizeZ, int sizeT, int sizeC, int sizeX, 
+					int sizeY)
 	{
 		if (source == null) throw new NullPointerException("No source.");
 		this.source = source;
 		this.sizeZ = sizeZ;
 		this.sizeC = sizeC;
 		this.sizeT = sizeT;
+		this.sizeX = sizeX;
+		this.sizeY = sizeY;
 		observers = new HashSet<PointIteratorObserver>();
 	}
 	
@@ -258,11 +285,29 @@ class PointIterator
         try {  //Iterate in ZWT order and notify observers.
         	int z = shape.getZ();
     		int t = shape.getT();
-    		selection2D = shape.getFigure();
-    		points = selection2D.getPoints();
-    		notifyPlaneStart(z, w, t, points.length);
-    		iterateArea(points, z, w, t);
-			notifyPlaneEnd(z, w, t, points.length);
+    		if (z >= 0 && z < sizeZ && t >= 0 && t < sizeT) {
+    			selection2D = shape.getFigure();
+        		points = selection2D.getPoints();
+        		notifyPlaneStart(z, w, t, points.length);
+        		Plane2D data = source.getPlane(z, t, w);
+                double value;
+                int length = 0;
+                int x1, x2;
+                
+                for (int i = 0; i < points.length; ++i) {
+                	x1 = (int) points[i].x1;
+                	x2 = (int) points[i].x2;
+                	if (isValidPoint(x1, x2)) {
+                		value = data.getPixelValue(x1, x2);
+                    	notifyValue(value, z, w, t, points[i]);
+                    	length++;
+                	}
+                }
+                notifyPlaneEnd(z, w, t, length);
+    		}
+    		
+    		//iterateArea(points, z, w, t);
+			//notifyPlaneEnd(z, w, t, points.length);
         } finally {  
             //Give the observers a chance to clean up even when 
             //something goes wrong. 

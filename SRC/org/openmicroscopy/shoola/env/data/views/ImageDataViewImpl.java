@@ -74,7 +74,7 @@ class ImageDataViewImpl
     /**
      * Implemented as specified by the view interface.
      * @see ImageDataView#loadRenderingControl(long, boolean, 
-     * 											sAgentEventListener)
+     * 											AgentEventListener)
      */
     public CallHandle loadRenderingControl(long pixelsID, boolean reload,
                                         AgentEventListener observer)

@@ -7,9 +7,18 @@
   maintained at an OMERO server site. OMERO.insight is completely written in 
   Java.
   
- ---------------------------------------------------------------------------------
- Last update: 21/08/2007 (revision ??)
- Version: Towards Beta 3
+--------------------------------------------------------------------------------
+ Last update: 30/08/2007 (revision ??)
+ Version: Beta 2.2
+ 
+  - Measurement Tool: Bugs fixing.
+  - Viewer: Added option create/add image to categories. To declassify the 
+  			image and to browse the category (cf. ticket #359).
+  - ROIAnalyser: Added controls to be sure that the shape is contained in
+  				the bounds of a given plane.
+--------------------------------------------------------------------------------
+ Last update: 21/08/2007 (revision 4984)
+ Version: Beta 2.2
  Attempt to reduce the number of windows.
  
  - MeasurementTool: Fixed bugs. Better Error handling. 
@@ -20,7 +29,8 @@
  - Viewer: Merge Viewer window and Renderer Window
  - Viewer: Introduce the concept of local rendering history. Allow users 
  			to undo settings step by step
- - Viewer: Indrocude notion of "Copy and Paste" rendering settings
+ - Viewer: Introduce the notion of "Copy and Paste" rendering settings
+ 
 --------------------------------------------------------------------------------
  Last update: 01/08/2007 (revision 4971)
  Version: Beta 2.1
@@ -41,6 +51,7 @@
  - HiViewer: Fixed layout problem
  - Rendering: Turn on caching
  - General: Fixed last remaining bugs before releasing.
+ 
  -------------------------------------------------------------------------------
  Last update: 29/05/2007 (revision ??)
  Version: Beta 2

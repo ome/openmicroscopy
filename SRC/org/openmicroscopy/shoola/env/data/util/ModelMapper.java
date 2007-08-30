@@ -347,13 +347,13 @@ public class ModelMapper
             model.linkProject(new Project(new Long(parent.getId()), false));
             return model;
         } else if (child instanceof CategoryData) {
-            if (!(parent instanceof CategoryGroupData)) 
-                throw new IllegalArgumentException("Parent not valid.");
             CategoryData data = (CategoryData) child;
             Category model = new Category();
             model.setName(data.getName());
             model.setDescription(data.getDescription());
-            model.linkCategoryGroup(new CategoryGroup(new Long(parent.getId()), 
+            if (parent instanceof CategoryGroupData)
+            	model.linkCategoryGroup(new CategoryGroup(
+            								new Long(parent.getId()), 
                                                     false));
             return model;
         } else if (child instanceof ImageData) {

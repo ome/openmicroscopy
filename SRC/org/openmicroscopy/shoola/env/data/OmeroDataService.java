@@ -721,4 +721,18 @@ public interface OmeroDataService
 	public int getImagesBeforeCount(Timestamp time, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
+	/** 
+	 * Finds the categories containing the image.
+	 * 
+	 * @param imageID	The id of the image.
+	 * @param userID	The Id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+	 */
+	public Set findCategoryPaths(long imageID, long userID)
+    	throws DSOutOfServiceException, DSAccessException; 
+	
 }

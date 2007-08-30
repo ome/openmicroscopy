@@ -28,8 +28,10 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
+import java.util.Map;
 
 //Third-party libraries
+import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.CompositeFigure;
 import org.jhotdraw.draw.CreationTool;
 import org.jhotdraw.draw.Figure;
@@ -73,7 +75,7 @@ public class DrawingObjectCreationTool
     {
         super(prototype, null, null);
     }
- 
+    
     /**
      * This method allows subclasses to do perform additonal user interactions
      * after the new figure has been created.

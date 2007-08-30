@@ -45,7 +45,6 @@ import java.awt.image.BufferedImage;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
@@ -65,20 +64,18 @@ import javax.swing.JTabbedPane;
 import layout.TableLayout;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.imviewer.util.CategoryEditor;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.SplitPanel;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
@@ -1265,9 +1262,8 @@ class ImViewerUI
 				break;
 	
 			case ImViewer.CATEGORY_MENU:
-				if (categoriesMenu == null)
-					categoriesMenu = new CategoriesPopupMenu(this, 
-												model.getCategories());
+				//if (categoriesMenu == null)
+				categoriesMenu = new CategoriesPopupMenu(this, model);
 				categoriesMenu.show(source, location.x, location.y);
 				break;
 		}
@@ -1404,24 +1400,33 @@ class ImViewerUI
      * @return See above.
      */
     Dimension geRestoreSize() { return restoreSize; }
-
-    /**
-     * Browses the specified category.
+    
+    /** 
+     * Declassifies the image from the specified category.
      * 
-     * @param categoryID The id of the category.
+     * @param categoryID The category to handle.
      */
-    void browse(long categoryID)
+    void declassify(long categoryID)
     {
-    	EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-    	bus.post(new Browse(categoryID, Browse.CATEGORY, 
-    			model.getUserDetails(), getBounds()));  
+    	controller.declassify(categoryID);
+    }
+    
+    /** Creates a new category and adds the image to the category. */
+    void createCategory()
+    {
+    	CategoryEditor editor = new CategoryEditor(this, 
+    								model.getAvailableCategories(), 
+    								model.getCategories());
+    	editor.addPropertyChangeListener(controller);
+    	UIUtilities.centerAndShow(editor);
     }
     
     /** Shows the categories. */
     void showCategories()
     {
-    	List l = model.getCategories();
-		if (l != null && l.size() != 0) toolBar.showCategory();
+    	//List l = model.getCategories();
+		//if (l != null && l.size() != 0) 
+		toolBar.showCategory();
 	}
     
     /** 
@@ -1448,9 +1453,5 @@ class ImViewerUI
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
-
-	
-
-	
 
 }

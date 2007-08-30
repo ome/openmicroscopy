@@ -32,7 +32,6 @@ import java.awt.FlowLayout;
 import java.util.HashMap;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -156,10 +155,7 @@ class ToolBar
 	    polygonTool = new DrawingBezierTool(new MeasureBezierFigure(true));
 	    polylineTool = new DrawingBezierTool(new MeasureBezierFigure(false));
 	    
-		ButtonGroup group = new ButtonGroup();
-		toolBar = new JToolBar();
-		toolBar.setFloatable(false);
-		toolBar.putClientProperty("toolButtonGroup", group);
+		toolBar = DrawingToolBarButtonFactory.createDefaultBar();
 		DrawingEditor editor = model.getDrawingEditor();
 		DrawingToolBarButtonFactory.addSelectionToolTo(toolBar, editor);
 		toolBar.add(new JSeparator());

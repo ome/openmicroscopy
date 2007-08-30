@@ -428,4 +428,14 @@ public class NullOmeroPojoService
 		return 0;
 	}
 
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#findCategoryPaths(long, long)
+	 */
+	public Set findCategoryPaths(long imageID, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
 }

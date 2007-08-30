@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 //Third-party libraries
@@ -124,6 +126,77 @@ public class ClassificationSaver
     }
     
     /**
+     * Creates a {@link BatchCall} to create categories and to add
+     * the image to the newly created categories .
+     * 
+     * @param image        	The images to classify.
+     * @param categories    The categories to create.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall createAndClassify(final long imageID, 
+    										final Set<CategoryData> categories)
+    {
+        return new BatchCall("Classifying images.") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                Iterator i = categories.iterator();
+                CategoryData cat;
+                Set<CategoryData> newOnes = 
+                	new HashSet<CategoryData>(categories.size());
+                while (i.hasNext()) {
+					cat = (CategoryData) 
+						os.createDataObject((CategoryData) i.next(), null);
+					newOnes.add(cat);
+				}
+                Set<ImageData> images = new HashSet<ImageData>(1);
+                ImageData img = new ImageData();
+				img.setId(imageID);
+				images.add(img);
+				result = os.classify(images, newOnes); 
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to create categories and to add
+     * the images to the newly created categories. The image is then 
+     * added to the collection of category to update.
+     * 
+     * @param imageID       The image to classify.
+     * @param categories    The categories to create.
+     * @param toUpdate    	The categories to update.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall createAndUpdate(final long imageID, 
+    								final Set<CategoryData> categories,
+    								final Set<CategoryData> toUpdate)
+    {
+        return new BatchCall("Classifying images.") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                Iterator i = categories.iterator();
+                CategoryData cat;
+                Set<CategoryData> newOnes = 
+                	new HashSet<CategoryData>(categories.size());
+                while (i.hasNext()) {
+					cat = (CategoryData) 
+						os.createDataObject((CategoryData) i.next(), null);
+					newOnes.add(cat);
+				}
+                toUpdate.addAll(newOnes);
+                //result = os.declassify(images, categories);
+                Set<ImageData> images = new HashSet<ImageData>(1);
+                ImageData img = new ImageData();
+				img.setId(imageID);
+				images.add(img);
+				result = os.classify(images, toUpdate); 
+            }
+        };
+    }
+    
+    /**
      * Adds the {@link #saveCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
@@ -166,7 +239,7 @@ public class ClassificationSaver
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
      * 
-     * @param containers        The images to handle.
+     * @param containers    The images to handle.
      * @param categories    The categories to add the image to or remove the
      *                      image from.
      * @param classify      Passed <code>true</code> to classify, 
@@ -182,6 +255,26 @@ public class ClassificationSaver
             throw new NullPointerException("No category to add to or remove " +
                     "from.");
         saveCall = classifyChildren(containers, categories);
+    }
+    
+    /**
+     * Creates new categories and the image to the newly created categories.
+     * If the collection of categories to update is not <code>null</code>,
+     * the image is added to the categories contained in the collection.
+     * 
+     * @param imageID	The image to classify.
+     * @param toCreate	Collection of categories to create.
+     * @param toUpdate	Collection of categories to update.
+     */
+    public ClassificationSaver(long imageID, Set<CategoryData> toCreate, 
+    						Set<CategoryData> toUpdate)
+    {
+    	if (toCreate == null)
+            throw new NullPointerException("No category to create.");
+    	if (toUpdate == null)
+    		saveCall = createAndClassify(imageID, toCreate);
+    	else 
+    		saveCall = createAndUpdate(imageID, toCreate, toUpdate);
     }
     
 }

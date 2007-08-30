@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ArchivedAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelMovieAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ClassifyAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.InfoAction;
@@ -76,6 +77,8 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomFitAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomInAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomOutAction;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.imviewer.util.CategoryEditor;
+import org.openmicroscopy.shoola.agents.imviewer.util.CategorySaverDef;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
@@ -89,6 +92,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
+
 
 /** 
  * The ImViewer's Controller.
@@ -263,6 +267,9 @@ class ImViewerControl
     /** Identifies the <code>Zooming fit</code> action. */
     static final Integer     PLAY_MOVIE = new Integer(44);
     
+    /** Identifies the <code>Category</code> action. */
+    static final Integer     CATEGORY = new Integer(45);
+    
     /** 
      * Reference to the {@link ImViewer} component, which, in this context,
      * is regarded as the Model.
@@ -348,6 +355,7 @@ class ImViewerControl
         actionsMap.put(ZOOM_OUT, new ZoomOutAction(model));
         actionsMap.put(ZOOM_FIT, new ZoomFitAction(model));
         actionsMap.put(PLAY_MOVIE, new PlayMovieAction(model));
+        actionsMap.put(CATEGORY, new ClassifyAction(model));
     }
     
     /** 
@@ -531,6 +539,13 @@ class ImViewerControl
     	return moviePlayer;
     }
     
+    /** 
+     * Declassifies the image from the specified category.
+     * 
+     * @param categoryID The category to handle.
+     */
+    void declassify(long categoryID) { model.declassify(categoryID); }
+    
     /**
      * Reacts to change fired by buttons used to select the color
      * models.
@@ -678,6 +693,9 @@ class ImViewerControl
         	Object node = pce.getNewValue();
         	if (node instanceof HistoryItem)
         		view.removeHistoryItem((HistoryItem) node);
+        } else if (CategoryEditor.CREATE_CATEGORY_PROPERTY.equals(propName)) {
+        	CategorySaverDef def = (CategorySaverDef) pce.getNewValue();
+        	model.createAndClassify(def);
         }
     }
 

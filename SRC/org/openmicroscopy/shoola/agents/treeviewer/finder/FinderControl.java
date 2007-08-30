@@ -122,7 +122,7 @@ class FinderControl
      * @param id One of the flags defined by this class.
      * @return The specified action.
      */
-    Action getAction(Integer id) { return (Action) actionsMap.get(id); }
+    Action getAction(Integer id) { return actionsMap.get(id); }
 
     /**
      * Reacts to the {@link Finder#RETRIEVED_PROPERTY} and

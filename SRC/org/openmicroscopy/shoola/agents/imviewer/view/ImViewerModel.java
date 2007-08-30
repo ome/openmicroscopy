@@ -30,6 +30,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ import java.util.Set;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.imviewer.CategoryLoader;
+import org.openmicroscopy.shoola.agents.imviewer.CategorySaver;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
@@ -60,6 +62,8 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+
+import pojos.CategoryData;
 import pojos.ExperimenterData;
 
 /** 
@@ -180,6 +184,9 @@ class ImViewerModel
 
     /** Collection of categories the image belongs to. */
     private List				categories;
+    
+    /** Collection of available categories.*/
+    private List				availableCategories;
     
     /** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
     private void computeSizes()
@@ -999,11 +1006,14 @@ class ImViewerModel
 	/**
 	 * Sets the categories the images is categorised into.
 	 * 
-	 * @param categories The collection to set.
+	 * @param categories 	The collection to set.
+	 * @param available		The colllection of categories the image can be
+	 * 						categorised into.
 	 */
-	void setCategories(List categories)
+	void setCategories(List categories, List available)
 	{
 		this.categories = categories;
+		availableCategories = available;
 		state = ImViewer.READY;
 	}
 
@@ -1013,5 +1023,71 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	List getCategories() { return categories; }
+	
+	/**
+	 * Returns the categories the image can be categorised into.
+	 * 
+	 * @return See above.
+	 */
+	List getAvailableCategories() { return availableCategories; }
+
+	/**
+	 * Classifies the image into the specified category.
+	 * 
+	 * @param categoryID	The id of the category.
+	 */
+	void declassify(long categoryID)
+	{
+		state = ImViewer.CLASSIFICATION;
+		CategoryData data = new CategoryData();
+		data.setId(categoryID);
+		Set<CategoryData> categories = new HashSet<CategoryData>(1);
+		categories.add(data);
+		currentLoader = new CategorySaver(component, imageID, categories, 
+												CategorySaver.DECLASSIFY);
+		currentLoader.load();
+	}
+
+	/**
+	 * Classifies the image into the specified categories.
+	 * 
+	 * @param categories	The categories to add the image to.
+	 */
+	void classify(Set<CategoryData> categories)
+	{
+		state = ImViewer.CLASSIFICATION;
+		currentLoader = new CategorySaver(component, imageID, categories, 
+												CategorySaver.CLASSIFY);
+		currentLoader.load();
+	}
+	
+	/**
+	 * Creates new categories and adds the image to the categories.
+	 * 
+	 * @param categories	The categories to create.
+	 */
+	void createAndClassify(Set<CategoryData> categories)
+	{
+		state = ImViewer.CLASSIFICATION;
+		currentLoader = new CategorySaver(component, imageID, categories, 
+										CategorySaver.CREATE);
+		currentLoader.load();
+	}
+	
+	/**
+	 * Creates new categories and adds the image to the categories,
+	 * then adds the image to the existing categories.
+	 * 
+	 * @param toCreate	The categories to create.
+	 * @param toUpdate	The categories to update.
+	 */
+	void createAndClassify(Set<CategoryData> toCreate, 
+						Set<CategoryData> toUpdate)
+	{
+		state = ImViewer.CLASSIFICATION;
+		currentLoader = new CategorySaver(component, imageID, toCreate, 
+											toUpdate);
+		currentLoader.load();
+	}
 	
 }

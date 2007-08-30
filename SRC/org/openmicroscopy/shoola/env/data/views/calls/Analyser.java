@@ -84,10 +84,13 @@ public class Analyser
             	ROIAnalyser analyser = new ROIAnalyser(sink, 
             					pixels.getSizeZ().intValue(), 
             					pixels.getSizeT().intValue(),
-            					pixels.getSizeC().intValue());
+            					pixels.getSizeC().intValue(),
+            					pixels.getSizeX().intValue(),
+            					pixels.getSizeY().intValue());
             	try {
             		result = analyser.analyze(shapes, channels);
 				} catch (Exception e) {
+					
 					//TODO handle exception
 					e.printStackTrace();
 				}
