@@ -8,7 +8,7 @@
   Java.
   
 --------------------------------------------------------------------------------
- Last update: 30/08/2007 (revision ??)
+ Last update: 31/08/2007 (revision 5004)
  Version: Beta 2.2
  
   - Measurement Tool: Bugs fixing.
@@ -16,10 +16,11 @@
   			image and to browse the category (cf. ticket #359).
   - ROIAnalyser: Added controls to be sure that the shape is contained in
   				the bounds of a given plane.
+  - Gateway: Added new methods to retrieve categories.
 --------------------------------------------------------------------------------
  Last update: 21/08/2007 (revision 4984)
  Version: Beta 2.2
- Attempt to reduce the number of windows.
+ In this build, try to reduce the number of windows.
  
  - MeasurementTool: Fixed bugs. Better Error handling. 
  					Changed default UI of Figures. 

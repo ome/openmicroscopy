@@ -168,8 +168,7 @@ class BrowserControl
         Object ho = display.getUserObject();
         model.setSelectedDisplay(display); 
         if (model.getBrowserType() == Browser.IMAGES_EXPLORER &&
-        	!display.isChildrenLoaded()) {
-        	
+        	!display.isChildrenLoaded() && ho instanceof ExperimenterData) {
         	model.countExperimenterImages(display);
         	return;
         }

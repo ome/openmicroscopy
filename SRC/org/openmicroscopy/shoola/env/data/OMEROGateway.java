@@ -1152,8 +1152,8 @@ class OMEROGateway
     /**
      * Finds the links if any between the specified parent and children.
      * 
-     * @param parent    The parent.
-     * @param children  Collection of children as children ids.
+     * @param parentClass    The parent.
+     * @param children  	Collection of children as children ids.
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 

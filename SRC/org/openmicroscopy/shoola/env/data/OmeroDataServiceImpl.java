@@ -1115,11 +1115,15 @@ class OmeroDataServiceImpl
 		return imgs.size();
 	}
 
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#findCategoryPaths(long, long)
+	 */
 	public Set findCategoryPaths(long imageID, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List links = gateway.findLinks(Category.class, imageID, userID);
-		if (links == null) return new HashSet();
+		if (links == null || links.size() == 0) return new HashSet();
 		Iterator i = links.iterator();
 		Set<Long> ids = new HashSet<Long>(links.size());
 		long id;

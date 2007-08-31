@@ -104,13 +104,13 @@ public class CategoryEditor
 	private static final String		TEXT = "Add image to categories.";
 	
 	/** Action command indicating to cancel the operation. */
-	private static final int 		CANCEL = 100;
+	private static final int 		CANCEL = 0;
 	
 	/** Action command indicating to save the data. */
-	private static final int 		FINISH = 101;
+	private static final int 		FINISH = 1;
 	
 	/** Action command indicating to save the data. */
-	private static final int 		POPUP = 102;
+	private static final int 		POPUP = 2;
 	
 	/** 
      * The size of the invisible components used to separate buttons
@@ -258,7 +258,7 @@ public class CategoryEditor
         		if (nameArea != null) nameArea.requestFocus();
         	} 
         });
-        getRootPane().setDefaultButton(finishButton);
+        //getRootPane().setDefaultButton(finishButton);
 	}
 	
 	/** 

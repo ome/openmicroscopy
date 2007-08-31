@@ -41,7 +41,7 @@ import javax.swing.event.ListSelectionListener;
 //Application-internal dependencies
 
 /** 
- * Basic popu-menu displaying the previously searched pattern.
+ * Basic popu-menu displaying collection of objects.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -98,8 +98,7 @@ public class HistoryDialog
             public void valueChanged(ListSelectionEvent e)
             {
                 ListSelectionModel model = (ListSelectionModel) e.getSource();
-                //System.err.println(e.getValueIsAdjusting());
-                if (!model.isSelectionEmpty()) {// && e.getValueIsAdjusting()) {
+                if (!model.isSelectionEmpty() && e.getValueIsAdjusting()) {
                     int minIndex = model.getMinSelectionIndex(),
                     maxIndex = model.getMaxSelectionIndex();
                     for (int i = minIndex; i <= maxIndex; i++)
@@ -141,7 +140,6 @@ public class HistoryDialog
         maxIndex = model.getMaxSelectionIndex();
         for (int i = minIndex; i <= maxIndex; i++)
             if (model.isSelectedIndex(i)) {
-                //firePropertyChange(SELECTION_PROPERTY, null, data[i]);
             	setVisible(false);
             	return data[i];
                 

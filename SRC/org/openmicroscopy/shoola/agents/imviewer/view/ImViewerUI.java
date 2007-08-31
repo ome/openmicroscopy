@@ -242,6 +242,13 @@ class ImViewerUI
     /** The menu displaying the categories the image is categorised into. */
     private CategoriesPopupMenu		categoriesMenu;
     
+    /** 
+     * The component hosting the various components displayed at the 
+     * bottom of the display.
+     */
+    private JTabbedPane				bottomPane;
+    
+    
     /**
      * Initializes and returns a split pane, either verical or horizontal 
      * depending on the passed parameter.
