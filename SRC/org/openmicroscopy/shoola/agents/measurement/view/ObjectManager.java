@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -41,7 +39,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 
@@ -52,10 +49,13 @@ import org.jhotdraw.draw.Figure;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+import org.openmicroscopy.shoola.agents.measurement.util.AnnotationDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
+import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 
@@ -73,10 +73,32 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
  */
 class ObjectManager 
 	extends JPanel
+	implements TabPaneInterface
 {
+	/** Index to identify tab */
+	public final static int		INDEX = MeasurementViewerUI.MANAGER_INDEX;
+
 	/** The minimum width of the columns. */
 	private static int					COLUMNWIDTH = 32; 
 	
+	/** ROI ID Column no for the wizard. */
+	private static final int				ROIID_COLUMN = 0;
+
+	/** Time point Column no for the wizard. */
+	private static final int				TIME_COLUMN = 1;
+	
+	/** Z-Section Column no for the wizard. */
+	private static final int				Z_COLUMN = 2;
+
+	/** Type Column no for the wizard. */
+	private static final int				SHAPE_COLUMN = 3;
+
+	/** Annotation Column no for the wizard. */
+	private static final int				ANNOTATION_COLUMN = 4;
+
+	/** Visible Column no for the wizard. */
+	private static final int				VISIBLE_COLUMN = 5;
+
 	/** Collection of column names. */
 	private static List<String>			columnNames;
 	
@@ -99,14 +121,20 @@ class ObjectManager
 	private ListSelectionListener		listener;
 	
 	static {
-		columnNames = new ArrayList<String>(2);
-		columnNames.add("ID");
-		columnNames.add("Z Section");
-		columnNames.add("Time Point");
-		columnNames.add("Shape");
-		columnNames.add("Text");
+		columnNames = new ArrayList<String>(6);
+		columnNames.add(AnnotationDescription.ROIID_STRING);
+		columnNames.add(AnnotationDescription.TIME_STRING);
+		columnNames.add(AnnotationDescription.ZSECTION_STRING);
+		columnNames.add(AnnotationDescription.SHAPE_STRING);
+		columnNames.add(AnnotationDescription.annotationDescription.get(
+			AnnotationKeys.BASIC_TEXT));
 		columnNames.add("Visible");
 	}
+
+	/**
+	 * overridden version of {@line TabPaneInterface#getIndex()}
+	 */
+	public int getIndex() {return INDEX; }
 	
 	/** Initializes the components composing the display. */
 	private void initComponents()
@@ -256,7 +284,7 @@ class ObjectManager
 			objectsTable.repaint();
 		} catch (Exception e) {
 			MeasurementAgent.getRegistry().getLogger().info(this, 
-					"Figure selection "+e);;
+					"Figure selection "+e);
 		}
 		lsm.addListSelectionListener(listener);
 	}
@@ -361,12 +389,12 @@ class ObjectManager
 			if (row < 0) return null;
 			ROIFigure fig = data.get(row);
 			switch (col) {
-				case 0: return fig.getROI().getID();
-				case 1: return fig.getROIShape().getCoord3D().getZSection()+1;
-				case 2: return fig.getROIShape().getCoord3D().getTimePoint()+1;
-				case 3: return fig.getType();
-	        	case 4: return AttributeKeys.TEXT.get(fig);
-	        	case 5: return fig.isVisible();
+				case ROIID_COLUMN: return fig.getROI().getID();
+				case Z_COLUMN: return fig.getROIShape().getCoord3D().getZSection()+1;
+				case TIME_COLUMN: return fig.getROIShape().getCoord3D().getTimePoint()+1;
+				case SHAPE_COLUMN: return fig.getType();
+	        	case ANNOTATION_COLUMN: return AttributeKeys.TEXT.get(fig);
+	        	case VISIBLE_COLUMN: return fig.isVisible();
 	        	default:
 					return null;
 			}
@@ -387,10 +415,10 @@ class ObjectManager
 	    		case 1:
 		    	case 0:
 		    		break;
-		    	case 4:
+		    	case ANNOTATION_COLUMN:
 		    		AttributeKeys.TEXT.set(fig, (String) value);
 		    		break;
-		    	case 5:
+		    	case VISIBLE_COLUMN:
 		    		fig.setVisible((Boolean) value);
 		    		break;
 	    	}

@@ -44,6 +44,7 @@ import javax.swing.JTextField;
 
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.util.AnalysisStatsWrapper;
+import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
@@ -69,8 +70,12 @@ import org.openmicroscopy.shoola.util.ui.graphutils.ScatterPlot;
  * @since OME3.0
  */
 class GraphPane
-	extends JPanel
+	extends JPanel 
+	implements TabPaneInterface
 {
+	
+	/** Index to identify tab */
+	public final static int		INDEX = MeasurementViewerUI.GRAPH_INDEX;
 	
 	/** The name of the panel. */
 	private static final String			NAME = "Graph Pane";
@@ -84,6 +89,11 @@ class GraphPane
 	/** The map of <ROIShape, ROIStats> .*/
 	private Map							ROIStats;
 
+	/**
+	 * overridded version of {@line TabPaneInterface#getIndex()}
+	 */
+	public int getIndex() {return INDEX; }
+	
 	/**
 	 * Returns <code>true</code> if the figure contained in the ROIShape
 	 * is a line or bezier path, <code>false</code> otherwise.

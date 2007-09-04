@@ -55,9 +55,11 @@ import javax.swing.table.TableColumn;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+import org.openmicroscopy.shoola.agents.measurement.util.AnnotationDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.AnnotationField;
 import org.openmicroscopy.shoola.agents.measurement.util.MeasurementObject;
 import org.openmicroscopy.shoola.agents.measurement.util.ResultsCellRenderer;
+import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -82,11 +84,23 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class MeasurementResults 
 	extends JPanel
+	implements TabPaneInterface
 {
-	
+	/** Index to identify tab */
+	public final static int		INDEX = MeasurementViewerUI.RESULTS_INDEX;
+
 	/** The default size of the column in a table. */
 	private static final int				COLUMNWIDTH = 64;
 
+	/** ROI ID Column no for the wizard. */
+	private static final int				ROIID_COLUMN = 0;
+
+	/** Time point Column no for the wizard. */
+	private static final int				TIME_COLUMN = 1;
+	
+	/** Z-Section Column no for the wizard. */
+	private static final int				Z_COLUMN = 2;
+	
 	/** The name of the panel. */
 	private static final String				NAME = "Results";
 	
@@ -129,6 +143,11 @@ class MeasurementResults
 	 */
 	private ListSelectionListener			listener;
 
+	/**
+	 * overridden version of {@line TabPaneInterface#getIndex()}
+	 */
+	public int getIndex() {return INDEX; }
+	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
@@ -167,9 +186,9 @@ class MeasurementResults
 		        	int t, z;
 		        	try
 	        		{
-		        		ROIID = (Long) m.getValueAt(index, 2);
-		        		t = (Integer) m.getValueAt(index, 0)-1;
-		        		z = (Integer) m.getValueAt(index, 1)-1;
+		        		ROIID = (Long) m.getValueAt(index, ROIID_COLUMN);
+		        		t = (Integer) m.getValueAt(index, TIME_COLUMN)-1;
+		        		z = (Integer) m.getValueAt(index, Z_COLUMN)-1;
 	        			ROI roi = model.getROI(ROIID);
 	        			if(roi==null)
 	        				return;
@@ -215,34 +234,51 @@ class MeasurementResults
 	{
 		allFields = new ArrayList<AnnotationField>();
 		allFields.add(new AnnotationField(AnnotationKeys.BASIC_TEXT,
-							"Description", false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.CENTREX,"Centre X", 
-							false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.CENTREY,"Centre Y", 
+						AnnotationDescription.annotationDescription.get(
+							AnnotationKeys.BASIC_TEXT), false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.CENTREX,
+			AnnotationDescription.annotationDescription.get(
+							AnnotationKeys.CENTREX), false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.CENTREY,
+			AnnotationDescription.annotationDescription.get(
+							AnnotationKeys.CENTREY), false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.AREA,
+			AnnotationDescription.annotationDescription.get(AnnotationKeys.AREA)
+				, false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.PERIMETER,
+			AnnotationDescription.annotationDescription.get( AnnotationKeys.PERIMETER),
 						false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.AREA,"Area", false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.PERIMETER,"Perimeter", 
+		allFields.add(new AnnotationField(AnnotationKeys.LENGTH, 
+			AnnotationDescription.annotationDescription.get(AnnotationKeys.LENGTH),
 						false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.LENGTH, "Length", 
+		allFields.add(new AnnotationField(AnnotationKeys.WIDTH, 
+			AnnotationDescription.annotationDescription.get(AnnotationKeys.WIDTH),
 						false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.WIDTH, "Width", 
+		allFields.add(new AnnotationField(AnnotationKeys.HEIGHT, 
+			AnnotationDescription.annotationDescription.get(AnnotationKeys.HEIGHT),
 						false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.HEIGHT, "Height", 
-						false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.ANGLE, "Angle", 
+		allFields.add(new AnnotationField(AnnotationKeys.ANGLE, 
+			AnnotationDescription.annotationDescription.get(AnnotationKeys.ANGLE),
 						false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYX, 
-						"Points X Coord", false)); 
+			AnnotationDescription.annotationDescription.get(AnnotationKeys.POINTARRAYX),
+				 false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYY, 
-						"Points Y Coord", false)); 
+						
+			AnnotationDescription.annotationDescription.get(AnnotationKeys.POINTARRAYY),
+				 false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.STARTPOINTX, 
-						"Start Point X Coord", false)); 
+			AnnotationDescription.annotationDescription.get(AnnotationKeys.STARTPOINTX),
+				 false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.STARTPOINTY, 
-						"Start Point Y Coord", false)); 
+			AnnotationDescription.annotationDescription.get(AnnotationKeys.STARTPOINTY),
+				false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.ENDPOINTX,
-						"End Point X Coord", false)); 
+			AnnotationDescription.annotationDescription.get(AnnotationKeys.ENDPOINTX),
+				false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.ENDPOINTY,
-						"End Point Y Coord", false)); 
+			AnnotationDescription.annotationDescription.get(AnnotationKeys.ENDPOINTY),
+				false)); 
 	}
 	
 	/**
@@ -250,23 +286,36 @@ class MeasurementResults
 	 */
 	private void createDefaultFields()
 	{
-		fields = new ArrayList<AnnotationField>();
-		fields.add(new AnnotationField(AnnotationKeys.BASIC_TEXT,"Description", 
-										false)); 
-		fields.add(new AnnotationField(AnnotationKeys.CENTREX,"Centre X", 
-										false)); 
-		fields.add(new AnnotationField(AnnotationKeys.CENTREY,"Centre Y", 
-										false)); 
-		fields.add(new AnnotationField(AnnotationKeys.AREA,"Area", false)); 
-		fields.add(new AnnotationField(AnnotationKeys.PERIMETER,"Perimeter", 
-										false)); 
-		fields.add(new AnnotationField(AnnotationKeys.LENGTH, "Length", false)); 
-		fields.add(new AnnotationField(AnnotationKeys.ANGLE, "Angle", false)); 
+		fields = new ArrayList<AnnotationField>();	
+		fields.add(new AnnotationField(AnnotationKeys.BASIC_TEXT,
+			AnnotationDescription.annotationDescription.get(
+				AnnotationKeys.BASIC_TEXT), false)); 
+		fields.add(new AnnotationField(AnnotationKeys.CENTREX,
+			AnnotationDescription.annotationDescription.get(
+				AnnotationKeys.CENTREX), false)); 
+		fields.add(new AnnotationField(AnnotationKeys.CENTREY,
+			AnnotationDescription.annotationDescription.get(
+				AnnotationKeys.CENTREY), false)); 
+		fields.add(new AnnotationField(AnnotationKeys.AREA,
+			AnnotationDescription.annotationDescription.get(AnnotationKeys.AREA)
+	, false)); 
+		fields.add(new AnnotationField(AnnotationKeys.LENGTH, 
+			AnnotationDescription.annotationDescription.get(AnnotationKeys.LENGTH),
+			false)); 
+		fields.add(new AnnotationField(AnnotationKeys.WIDTH, 
+			AnnotationDescription.annotationDescription.get(AnnotationKeys.WIDTH),
+			false)); 
+		fields.add(new AnnotationField(AnnotationKeys.HEIGHT, 
+			AnnotationDescription.annotationDescription.get(AnnotationKeys.HEIGHT),
+			false)); 
+		fields.add(new AnnotationField(AnnotationKeys.ANGLE, 
+			AnnotationDescription.annotationDescription.get(AnnotationKeys.ANGLE),
+			false)); 
 		columnNames = new ArrayList<String>();
-		columnNames.add("Time Point");
-		columnNames.add("Z Section");
-		columnNames.add("ROI ID");
-		columnNames.add("Figure Type");
+		columnNames.add(AnnotationDescription.ROIID_STRING);
+		columnNames.add(AnnotationDescription.TIME_STRING);
+		columnNames.add(AnnotationDescription.ZSECTION_STRING);
+		columnNames.add(AnnotationDescription.SHAPE_STRING);
 		for (int i = 0 ; i < fields.size(); i++)
 			columnNames.add(fields.get(i).getName());
 	}
@@ -427,9 +476,9 @@ class MeasurementResults
 				figure = shape.getFigure();
 				figure.calculateMeasurements();
 				row = new MeasurementObject();
+				row.addElement(shape.getROI().getID());
 				row.addElement(shape.getCoord3D().getTimePoint()+1);
 				row.addElement(shape.getCoord3D().getZSection()+1);
-				row.addElement(shape.getROI().getID());
 				row.addElement(shape.getFigure().getType());
 				for (int k = 0; k < fields.size(); k++) {
 					key = fields.get(k).getKey();
@@ -546,10 +595,10 @@ class MeasurementResults
 		UIUtilities.setLocationRelativeToAndShow(this, resultsWizard);
 		columnNames.clear();
 		columnNames = new ArrayList<String>();
-		columnNames.add("Time Point");
-		columnNames.add("Z Section");
-		columnNames.add("ROI ID");
-		columnNames.add("Figure Type");
+		columnNames.add(AnnotationDescription.ROIID_STRING);
+		columnNames.add(AnnotationDescription.TIME_STRING);
+		columnNames.add(AnnotationDescription.ZSECTION_STRING);
+		columnNames.add(AnnotationDescription.SHAPE_STRING);
 		for (int i = 0 ; i < fields.size(); i++)
 			columnNames.add(fields.get(i).getName());
 		populate();

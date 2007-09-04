@@ -46,7 +46,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
  */
 public class AnnotationField
 {
-
+	
 	/** The key hosted by this class. */
 	private AnnotationKey 	key;
 	

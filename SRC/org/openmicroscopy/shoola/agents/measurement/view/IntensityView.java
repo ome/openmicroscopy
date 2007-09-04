@@ -71,6 +71,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.agents.measurement.util.ColourListRenderer;
+import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 
 /** 
  * Displays stats computed on the pixels intensity value of a given ROI shape.
@@ -87,12 +88,22 @@ import org.openmicroscopy.shoola.agents.measurement.util.ColourListRenderer;
  */
 class IntensityView
 	extends JPanel 
-	implements ActionListener
+	implements ActionListener, TabPaneInterface
 {
+	/** Index to identify tab */
+	public final static int		INDEX = MeasurementViewerUI.INTENSITY_INDEX;
+	
 	/** The state of the Intensity View. */
 	enum State 
 	{
+		/**
+		 * Analysing data.
+		 */
 		ANALYSING,
+		
+		/** 
+		 * Ready to analyse.
+		 */
 		READY
 	}
 	
@@ -226,6 +237,11 @@ class IntensityView
 	
 	/** Current ROIShape. */
 	private 	ROIShape shape;
+	
+	/**
+	 * overridden version of {@line TabPaneInterface#getIndex()}
+	 */
+	public int getIndex() {return INDEX; }
 	
 	/** Initializes the component composing the display. */
 	private void initComponents()

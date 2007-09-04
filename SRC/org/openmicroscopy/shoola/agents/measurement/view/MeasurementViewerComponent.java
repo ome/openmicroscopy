@@ -230,14 +230,6 @@ class MeasurementViewerComponent
 		//Now we are ready to go. We can post an event to add component to
 		//Viewer
 		postEvent(MeasurementToolLoaded.ADD);
-		//TODO: Review that code
-		/*
-		if (!model.getToolSent())
-		{
-			model.setToolSent(true);
-			postEvent(MeasurementToolLoaded.ADD);
-		}
-		*/
 	}
 	
 	/** 

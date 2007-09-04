@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.measurement.util;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -61,7 +62,8 @@ public 	class InspectorCellRenderer
 		extends 	JComponent 
 		implements 	TableCellRenderer
 {
-	
+	/** The size of the font in this cell. */
+	private static final float 	FONTSIZE = 10;
 	
 	/**
 	 * Creates a new instance. Sets the opacity of the label to
@@ -87,6 +89,7 @@ public 	class InspectorCellRenderer
 			JLabel label=new JLabel();
 			label.setOpaque(true);
 			label.setText(value+"");
+			label.setFont(label.getFont().deriveFont(FONTSIZE));
 			thisComponent=label;
 		}
 		else
@@ -100,6 +103,7 @@ public 	class InspectorCellRenderer
 			text.setOpaque(false);
 			text.setBorder(BorderFactory.createEmptyBorder());
 			text.setText(value+"");
+			text.setFont(text.getFont().deriveFont(FONTSIZE));
 			thisComponent=text;
 			}
 			else if (value instanceof Color)
@@ -130,7 +134,7 @@ public 	class InspectorCellRenderer
 				if(value.equals(valueRange.get(i)))
 					index = i;
 			}
-			
+			comboBox.setFont(comboBox.getFont().deriveFont(FONTSIZE));
 			comboBox.setSelectedIndex(index);
 			thisComponent = comboBox;
 		}

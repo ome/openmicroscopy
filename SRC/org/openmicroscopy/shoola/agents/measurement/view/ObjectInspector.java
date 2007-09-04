@@ -71,6 +71,8 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttribut
 class ObjectInspector 
 	extends JPanel
 {
+	/** Index to identify tab */
+	public final static int		INDEX = MeasurementViewerUI.INSPECTOR_INDEX;
 
 	/** Collection of column names. */
 	private static List<String>			columnNames;
@@ -92,6 +94,11 @@ class ObjectInspector
 		columnNames.add("Field");
 		columnNames.add("Value");
 	}
+
+	/**
+	 * overridden version of {@line TabPaneInterface#getIndex()}
+	 */
+	public int getIndex() {return INDEX; }
 	
 	/** Initializes the component composing the display. */
 	private void initComponents()
@@ -115,12 +122,12 @@ class ObjectInspector
 		l.add(new AttributeField(AttributeKeys.STROKE_COLOR, "Line Colour", 
 				false));
 		l.add(new AttributeField(MeasurementAttributes.MEASUREMENTTEXT_COLOUR, 
-				"Measurement Text Colour", false));
+				"Measurement Colour", false));
 		
 		//create the table
 		fieldTable = new FigureTable(new FigureTableModel(l, columnNames));
 		fieldTable.getTableHeader().setReorderingAllowed(false);
-		fieldTable.setRowHeight(25);
+		fieldTable.setRowHeight(26);
 		fieldTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		fieldTable.setCellSelectionEnabled(true);
 		fieldTable.setColumnSelectionAllowed(true);
