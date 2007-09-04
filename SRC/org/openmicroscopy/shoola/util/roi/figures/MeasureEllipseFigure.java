@@ -442,13 +442,14 @@ public class MeasureEllipseFigure
 	 */
 	public PlanePoint2D[] getPoints()
 	{
-		Rectangle r=ellipse.getBounds();
+		Rectangle r = ellipse.getBounds();
 		ArrayList vector=new ArrayList(r.height*r.width);
 		int xEnd=r.x+r.width, yEnd=r.y+r.height;
 		int x, y;
 		for (y=r.y; y<yEnd; ++y)
 			for (x=r.x; x<xEnd; ++x)
-				if (ellipse.contains(x, y)) vector.add(new PlanePoint2D(x, y));
+				if (ellipse.contains(x, y)) 
+					vector.add(new PlanePoint2D(x, y));
 		return (PlanePoint2D[]) vector.toArray(new PlanePoint2D[vector.size()]);
 	}
 	

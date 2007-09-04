@@ -24,13 +24,11 @@ package org.openmicroscopy.shoola.util.ui.drawingtools;
 
 
 //Java imports
-import java.awt.Dimension;
 import java.util.ArrayList;
 
 //Third-party libraries
 import org.jhotdraw.draw.DefaultDrawing;
 import org.jhotdraw.draw.DefaultDrawingEditor;
-import org.jhotdraw.draw.DefaultDrawingView;
 import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.DrawingEvent;
 import org.jhotdraw.draw.DrawingListener;

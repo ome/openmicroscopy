@@ -68,6 +68,7 @@ public class MeasureLineFigure
 	extends LineTextFigure
 	implements ROIFigure
 {
+	
 	/** The bounds of the bezier figure. */
 	private ArrayList<Rectangle2D> 		boundsArray;
 	
