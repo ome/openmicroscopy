@@ -85,8 +85,9 @@ public interface OmeroDataService
      * i.e. the requested node as root and all of its descendants.
      * 
      * @param rootNodeType  The top-most type which will be searched for 
-     *                      Can be <code>Project</code> or
-     *                      <code>CategoryGroup</code>. 
+     *                      Can be <code>Project</code>,
+     *                      <code>CategoryGroup</code>, <code>Category</code>
+     *                      <code>Dataset</code>. 
      *                      Mustn't be <code>null</code>.
      * @param rootNodeIDs   A set of the IDs of top-most containers. 
      *                      Passed <code>null</code> to retrieve all top-most
@@ -101,6 +102,23 @@ public interface OmeroDataService
      */
     public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs,
                                     boolean withLeaves, long userID)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Retrieves hierarchy trees rooted by a given node.
+     * i.e. the requested node as root and all of its descendants.
+     * 
+     * @param rootNodeType  The top-most type which will be searched for 
+     *                      Can be <code>Project</code> or
+     *                      <code>CategoryGroup</code>. 
+     *                      Mustn't be <code>null</code>.
+     * @param userID		The Id of the selected user.
+     * @return  A set of hierarchy trees.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMERO service. 
+     */
+    public Set loadTopContainerHierarchy(Class rootNodeType, long userID)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
@@ -690,6 +708,22 @@ public interface OmeroDataService
      *                                  retrieve data from OMEDS service.
 	 */
 	public int getImagesPeriodCount(Timestamp lowerTime, Timestamp time, 
+									long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Retrieves the number of images imported during a given period of time.
+	 * 
+	 * @param lowerTime	The timestamp identifying the start of the period.
+	 * @param time		The timestamp identifying the end of the period.
+     * @param userID	The Id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+	 */
+	public List getImagesAllPeriodCount(Timestamp lowerTime, Timestamp time, 
 									long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	

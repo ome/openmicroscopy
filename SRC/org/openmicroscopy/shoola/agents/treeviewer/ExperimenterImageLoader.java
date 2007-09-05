@@ -94,7 +94,7 @@ public class ExperimenterImageLoader
     public void load()
     {
     	ExperimenterData exp = (ExperimenterData) expNode.getUserObject();
-    	int c  = getTimeConstrain(timeNode.getIndex());
+    	int c  = getTimeConstrain(timeNode.getType());
     	handle = dmView.loadImages(c, timeNode.getLowerTime(),
     					timeNode.getTime(), exp.getId(), this);	
     }

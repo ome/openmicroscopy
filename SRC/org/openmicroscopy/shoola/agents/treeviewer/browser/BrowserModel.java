@@ -487,7 +487,7 @@ class BrowserModel
 				index = ExperimenterDataLoader.PROJECT;
 				break;
 			case Browser.CATEGORY_EXPLORER:
-				index = ExperimenterDataLoader.CATEGORY;
+				index = ExperimenterDataLoader.CATEGORY_GROUP;
 				break;
 			case Browser.IMAGES_EXPLORER:
 				index = ExperimenterDataLoader.IMAGE;
@@ -523,6 +523,12 @@ class BrowserModel
         currentLoader.load();   
     }
 
+    /**
+     * Fires an asynchronous call to retrieve the number of images
+     * imported by the experimenter.
+     * 
+     * @param expNode The node hosting the experimenter.
+     */
 	void fireCountExperimenterImages(TreeImageSet expNode)
 	{
 		Set<TreeImageTimeSet> n = expNode.getChildrenDisplay();
@@ -531,7 +537,7 @@ class BrowserModel
 		TreeImageTimeSet node;
 		while (i.hasNext()) {
 			node = (TreeImageTimeSet) i.next();
-			indexes.add(node.getIndex());
+			indexes.add(node.getType());
 		}
 		if (containersManager == null)
             containersManager = new ContainersManager(indexes);
@@ -540,6 +546,12 @@ class BrowserModel
         currentLoader.load();  
 	}
 	
+	/**
+	 * Indicates that the node with specified index is done.
+	 * 
+	 * @param expNode	The node hosting the experimenter.
+	 * @param index		The index of the node.
+	 */
 	void setExperimenterCount(TreeImageSet expNode, int index) 
 	{
 		if (containersManager == null) return;

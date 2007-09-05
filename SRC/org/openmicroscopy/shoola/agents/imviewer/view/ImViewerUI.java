@@ -1271,10 +1271,9 @@ class ImViewerUI
 			case ImViewer.CATEGORY_MENU:
 				//if (categoriesMenu == null)
 				categoriesMenu = new CategoriesPopupMenu(this, model);
-				categoriesMenu.show(source, location.x, location.y);
+				categoriesMenu.showMenu(source, location.x, location.y);
 				break;
 		}
-		
 	}
 
 	/**
@@ -1423,18 +1422,11 @@ class ImViewerUI
     {
     	CategoryEditor editor = new CategoryEditor(this, 
     								model.getAvailableCategories(), 
-    								model.getCategories());
+    								model.getCategories(),
+    								model.getPopulatedCategoryGroups());
     	editor.addPropertyChangeListener(controller);
     	UIUtilities.centerAndShow(editor);
     }
-    
-    /** Shows the categories. */
-    void showCategories()
-    {
-    	//List l = model.getCategories();
-		//if (l != null && l.size() != 0) 
-		toolBar.showCategory();
-	}
     
     /** 
      * Overridden to the set the location of the {@link ImViewer}.

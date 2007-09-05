@@ -1766,9 +1766,10 @@ class ImViewerComponent
 
 	/** 
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#setClassification(List, List)
+     * @see ImViewer#setClassification(List, List, List)
      */
-	public void setClassification(List categories, List availableCategories)
+	public void setClassification(List categories, List availableCategories,
+								List categoryGroups)
 	{
 		switch (model.getState()) {
 	    	case DISCARDED:
@@ -1776,15 +1777,17 @@ class ImViewerComponent
 	        "This method can't be invoked in the DISCARDED state.");
 		}
 		if (sorter == null) sorter = new ViewerSorter();
-		List l, available;
+		List l, available, groups;
 		if (categories == null || categories.size() == 0)
 			l = new ArrayList();
 		else l = sorter.sort(categories);
 		if (availableCategories == null || availableCategories.size() == 0)
 			available = new ArrayList();
 		else available = sorter.sort(availableCategories);
-		model.setCategories(l, available);
-		view.showCategories();
+		if (categoryGroups == null || categoryGroups.size() == 0)
+			groups = new ArrayList();
+		else groups = sorter.sort(categoryGroups);
+		model.setCategories(l, available, groups);
 		//model.fireRenderingControlLoading();
 		fireStateChange();
 	}

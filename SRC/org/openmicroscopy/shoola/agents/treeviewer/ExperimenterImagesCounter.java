@@ -39,6 +39,9 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.data.views.DataManagerView;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ExperimenterData;
 
 /** 
@@ -110,11 +113,23 @@ public class ExperimenterImagesCounter
 		long userID = expNode.getUserObjectId();
 		Map<Integer, TimeRefObject> m;
 		m = new HashMap<Integer, TimeRefObject>(nodes.size());
+		int index;
 		while (i.hasNext()) {
 			node = (TreeImageTimeSet) i.next();
-			ref = new TimeRefObject(userID, node.getLowerTime(),
-					node.getTime(), getTimeConstrain(node.getIndex()));
-			m.put(node.getIndex(), ref);
+			index = node.getType();
+			if (index == TreeImageTimeSet.YEAR) {
+				ref = new TimeRefObject(userID, node.getTime(),
+						UIUtilities.getDefaultTimestamp(), 
+						DataManagerView.PERIOD);
+			} else if (index == TreeImageTimeSet.YEAR_BEFORE) {
+				ref = new TimeRefObject(userID, node.getLowerTime(),
+						node.getTime(), DataManagerView.PERIOD);
+			} else {
+				ref = new TimeRefObject(userID, node.getLowerTime(),
+						node.getTime(), getTimeConstrain(node.getType()));
+			}
+			
+			m.put(node.getType(), ref);
 		}
 		handle = dmView.countExperimenterImages(userID, m, this);
 	}
@@ -132,8 +147,7 @@ public class ExperimenterImagesCounter
         Integer index;
         while (i.hasNext()) {
         	index = (Integer) i.next();
-        	viewer.setExperimenterCount(expNode, index, 
-        			(Integer) map.get(index));
+        	viewer.setExperimenterCount(expNode, index, map.get(index));
 		}
     }
     

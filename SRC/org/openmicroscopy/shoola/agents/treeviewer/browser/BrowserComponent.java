@@ -759,8 +759,8 @@ class BrowserComponent
         if (model.getState() != LOADING_DATA)
             throw new IllegalStateException("This method cannot be invoked "+
                 "in the LOADING_DATA state.");
-        long userID = model.getUserID();
-        long groupID = model.getUserGroupID();
+        //long userID = model.getUserID();
+        //long groupID = model.getUserGroupID();
         //view.setViews(TreeViewerTranslator.refreshHierarchy(nodes,
         //            expandedTopNodes, userID, groupID)); 
         model.fireContainerCountLoading();
@@ -1047,7 +1047,7 @@ class BrowserComponent
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setExperimenterCount(TreeImageSet, int, int)
      */
-	public void setExperimenterCount(TreeImageSet expNode, int index, int value)
+	public void setExperimenterCount(TreeImageSet expNode, int index, Object v)
 	{
 		if (expNode == null || 
 				!(expNode.getUserObject() instanceof ExperimenterData))
@@ -1057,14 +1057,14 @@ class BrowserComponent
 		switch (state) {
 			case COUNTING_ITEMS:
 				model.setExperimenterCount(expNode, index);
-				if (index != -1 && value != -1) {
-					view.setCountValues(expNode, index, value);
+				if (index != -1 && v != null) {
+					view.setCountValues(expNode, index, v);
 				}
 				if (model.getState() == READY) fireStateChange();
 	        case READY:
 	        	model.setExperimenterCount(expNode, index);
-	        	if (index != -1 && value != -1) {
-					view.setCountValues(expNode, index, value);
+	        	if (index != -1 && v != null) {
+					view.setCountValues(expNode, index, v);
 				}
 	            view.getTreeDisplay().repaint();
 	            break;

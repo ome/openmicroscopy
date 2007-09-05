@@ -167,7 +167,7 @@ public class DMRefreshLoader
      */
     private BatchCall makeImagesBatchCall(final Map<Long, List> nodes)
     {
-        return new BatchCall("Loading iamges: ") {
+        return new BatchCall("Loading images: ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
@@ -186,9 +186,11 @@ public class DMRefreshLoader
 							case ImagesLoader.BEFORE:
 								ref.setResults(os.getImagesBefore(ref.getTime(), 
 											userID));
+								break;
 							case ImagesLoader.AFTER:
 								ref.setResults(os.getImagesAfter(ref.getTime(), 
 												userID));
+								break;
 							case ImagesLoader.PERIOD:
 								ref.setResults(os.getImagesPeriod(
 										ref.getLowerTime(), ref.getTime(), 

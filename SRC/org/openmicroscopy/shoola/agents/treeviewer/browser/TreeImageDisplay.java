@@ -32,6 +32,7 @@ import java.awt.Font;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -327,6 +328,19 @@ public abstract class TreeImageDisplay
         i = toRemove.iterator();
         while (i.hasNext())
             removeChildDisplay((TreeImageDisplay) i.next());
+    }
+    
+    /**
+     * Removes the children contained in the passed collection.
+     * 
+     * @param children The collection to handle.
+     */
+    public void removeChildrenDisplay(List children)
+    {
+    	if (children == null) return;
+    	Iterator i = children.iterator();
+    	while (i.hasNext()) 
+    		removeChildDisplay((TreeImageDisplay) i.next());
     }
     
     /**

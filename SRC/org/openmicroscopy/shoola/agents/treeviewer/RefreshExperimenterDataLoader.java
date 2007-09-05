@@ -195,7 +195,7 @@ public class RefreshExperimenterDataLoader
         			node = (TreeImageTimeSet) j.next();
 					ref = new TimeRefObject(userID, node.getLowerTime(),
 							node.getTime(), 
-							getTimeConstrain(node.getIndex()));
+							getTimeConstrain(node.getType()));
 					times.add(ref);
 				}
     			m.put(userID, times);

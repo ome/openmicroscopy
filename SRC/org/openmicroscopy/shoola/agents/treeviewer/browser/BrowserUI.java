@@ -521,6 +521,31 @@ class BrowserUI
     }
     
     /**
+     * Refreshes the passed time node.
+     * 
+     * @param node		The node to refresh.
+     * @param elements	The elements to add.
+     */
+    private void refreshTimeNode(TreeImageSet node, Set elements)
+	{
+		node.removeAllChildren();
+		node.removeAllChildrenDisplay();
+		Iterator k = elements.iterator();
+		TreeImageDisplay child;
+		while (k.hasNext()) {
+			child = (TreeImageDisplay) k.next();
+			System.err.println("Child: "+child);
+			node.addChildDisplay(child);
+		}
+			
+		
+		buildTreeNode(node, sorter.sort(elements), 
+                (DefaultTreeModel) treeDisplay.getModel());
+		node.setExpanded(true);
+		expandNode(node);
+	}
+    
+    /**
      * Creates a new instance.
      * The {@link #initialize(BrowserControl, BrowserModel) initialize} method
      * should be called straight after to link this View to the Controller.
@@ -914,22 +939,60 @@ class BrowserUI
 		}
 	}
 
-	void setCountValues(TreeImageDisplay expNode, int index, int value)
+	/**
+	 * Sets the number of items imported during a period of time.
+	 * 
+	 * @param expNode 	The node hosting the experimenter.
+	 * @param index		The index of the time node.
+	 * @param value		The value to set.
+	 */
+	void setCountValues(TreeImageDisplay expNode, int index, Object value)
 	{
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
 		expNode.setChildrenLoaded(Boolean.TRUE);
 		expNode.setExpanded(true);
 		int n = expNode.getChildCount();
 		TreeImageTimeSet node;
+		List l;
+		Iterator i, k;
+		TreeImageTimeSet child;
+		//Test
+		List<TreeImageTimeSet> toRemove = new ArrayList<TreeImageTimeSet>();
+		List<TreeImageTimeSet> toKeep = new ArrayList<TreeImageTimeSet>();
+		int number;
 		for (int j = 0; j < n; j++) {
 			node = (TreeImageTimeSet) expNode.getChildAt(j);
-			if (node.getIndex() == index) {
-				node.setNumberItems(value);
-				 dtm.reload(node);
+			if (node.getType() == index) {
+				if (value instanceof Integer)
+					node.setNumberItems((Integer) value);
+				else if (value instanceof List) {
+					l = (List) value;
+					node.setNumberItems(l.size());
+					i = node.getChildrenDisplay().iterator();
+					while (i.hasNext()) {
+						child = (TreeImageTimeSet) i.next();
+						number = child.countTime(l);
+						if (number > 0) {
+							child.setNumberItems(number);
+							toKeep.add(child);
+						} else {
+							toRemove.add(child);
+						}
+					}
+					//test
+					node.removeAllChildren();
+					node.removeChildrenDisplay(toRemove);
+					k = toKeep.iterator();
+					while (k.hasNext()) {
+						dtm.insertNodeInto((TreeImageTimeSet) k.next(), node, 
+												node.getChildCount());
+					}
+				}
+				dtm.reload(node);
 			}
 		}
 	}
-	
+		
 	/**
 	 * Refreshes the folder hosting the time.
 	 * 
@@ -945,26 +1008,28 @@ class BrowserUI
 		Iterator i = r.keySet().iterator();
 		int index;
 		int n = expNode.getChildCount();
-		TreeImageTimeSet node;
-		Set elements;
-		Iterator k;
+		TreeImageTimeSet node, child;
 		dtm.reload();
+		int nodeType;
 		while (i.hasNext()) {
 			index = (Integer) i.next();
 			for (int j = 0; j < n; j++) {
 				node = (TreeImageTimeSet) expNode.getChildAt(j);
-				if (node.getIndex() == index) {
-					node.removeAllChildren();
-					node.removeAllChildrenDisplay();
-					elements = r.get(index);
-					k = elements.iterator();
-					while (k.hasNext()) 
-						node.addChildDisplay((TreeImageDisplay) k.next());
-					
-					buildTreeNode(node, sorter.sort(r.get(index)), 
-	                        (DefaultTreeModel) treeDisplay.getModel());
-					node.setExpanded(true);
-					expandNode(node);
+				nodeType = node.getType();
+				switch (nodeType) {
+					case TreeImageTimeSet.YEAR:
+					case TreeImageTimeSet.YEAR_BEFORE:
+						Set children = node.getChildrenDisplay();
+						Iterator s = children.iterator();
+						while (s.hasNext()) {
+							child = (TreeImageTimeSet) s.next();
+							if (child.getIndex() == index) 
+								refreshTimeNode(child, r.get(index));
+						}
+					default:
+						if (node.getIndex() == index) 
+							refreshTimeNode(node, r.get(index));
+						break;
 				}
 			}
 		}

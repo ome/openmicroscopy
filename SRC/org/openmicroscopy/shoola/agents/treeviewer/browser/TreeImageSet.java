@@ -87,7 +87,6 @@ public class TreeImageSet
         childrenLoaded = null;
     }
 
-
     /**
      * Adds a node to the visualization tree as a child of this node.
      * Note that an <code>TreeImageSet</code> may contain either

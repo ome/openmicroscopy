@@ -438,4 +438,25 @@ public class NullOmeroPojoService
 		return null;
 	}
 
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#getImagesAllPeriodCount(Timestamp, Timestamp, long)
+	 */
+	public List getImagesAllPeriodCount(Timestamp lowerTime, Timestamp time, 
+			long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#loadTopContainerHierarchy(Class, long)
+	 */
+	public Set loadTopContainerHierarchy(Class rootNodeType, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
 }

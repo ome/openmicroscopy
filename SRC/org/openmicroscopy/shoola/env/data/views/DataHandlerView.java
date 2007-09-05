@@ -285,10 +285,28 @@ public interface DataHandlerView
 	public CallHandle loadAllClassifications(long imageID, long userID, 
 							AgentEventListener observer);
 	 
+	/**
+	 * Creates new categories and classifies the specified image.
+	 * 
+	 * @param imageID		The id of the image to classify.
+	 * @param categories	The categories to create.
+	 * @param observer		Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
 	public CallHandle createAndClassify(long imageID, 
 									Set<CategoryData> categories,
 									AgentEventListener observer);
 	
+	/**
+	 * Creates new categories and classifies the specified image into
+	 * the newly created categories and the updated ones.
+	 * 
+	 * @param imageID				The id of the image to classify.
+	 * @param categories			The categories to create.			
+	 * @param categoriesToUpdate	The categories to update.
+	 * @param observer				Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
 	public CallHandle createAndClassify(long imageID, 
 			Set<CategoryData> categories, Set<CategoryData> categoriesToUpdate,
 			AgentEventListener observer);

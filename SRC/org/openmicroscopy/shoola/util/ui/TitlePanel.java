@@ -122,7 +122,7 @@ public class TitlePanel
                       JComponent graphx)
     {
         this.title = new JLabel(title);
-        this.subTitle = new JLabel(subTitle);
+        this.subTitle = new MultilineLabel(subTitle);
         this.text = new MultilineLabel(text);
         this.graphx = (graphx == null ? new JLabel() : graphx);
         hLine = new JSeparator();

@@ -739,8 +739,10 @@ public interface ImViewer
 	 * 								logged in.
 	 * @param availableCategories 	The categories in which the image can be
 	 * 								categorised.
+	 * @param categoryGroups		The category groups owned by the user.
 	 */
-	public void setClassification(List categories, List availableCategories);
+	public void setClassification(List categories, List availableCategories,
+								List categoryGroups);
 
 	/** 
      * Declassifies the image from the specified category.

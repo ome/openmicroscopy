@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Java imports
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 //Third-party libraries
@@ -58,7 +59,7 @@ public class ExperimenterImagesCounter
 	private long 						userID;
 	
 	/** The lastly retrieved count along side the index. */
-	private Map<Integer, Integer>		result;
+	private Map<Integer, Object>		result;
 	
 	/** The nodes to handle. */
 	private Map<Integer, TimeRefObject> nodes;
@@ -76,20 +77,23 @@ public class ExperimenterImagesCounter
 	{
 		try {
 			int number = -1;
+			result = new HashMap<Integer, Object>(1);
 			switch (ref.getConstrain()) {
 				case ImagesLoader.BEFORE:
 					number = os.getImagesBeforeCount(ref.getTime(), userID);
+					result.put(index, number);
 					break;
 				case ImagesLoader.AFTER:
 					number = os.getImagesAfterCount(ref.getTime(), userID);
+					result.put(index, number);
 					break;
 				case ImagesLoader.PERIOD:
-					number = os.getImagesPeriodCount(ref.getLowerTime(), 
+					List l = os.getImagesAllPeriodCount(ref.getLowerTime(), 
 							ref.getTime(), userID);
+					result.put(index, l);
 					break;
 			}
-			result = new HashMap<Integer, Integer>(1);
-			result.put(index, number);
+			
 		} catch (Exception e) {
 			context.getLogger().error(this, 
         			"Cannot count the number of items imported during the" +

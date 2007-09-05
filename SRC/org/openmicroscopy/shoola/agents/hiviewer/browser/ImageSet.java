@@ -25,9 +25,28 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 
 //Java imports
+import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
+
+import org.jhotdraw.draw.DrawingEditor;
+import org.jhotdraw.draw.DrawingEvent;
+import org.jhotdraw.draw.DrawingListener;
+import org.jhotdraw.draw.Figure;
+import org.jhotdraw.util.ResourceBundleUtil;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
+import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingObjectCreationTool;
+import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingToolBarButtonFactory;
+import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
+import org.openmicroscopy.shoola.util.ui.drawingtools.figures.RectangleTextFigure;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 
 
@@ -57,9 +76,12 @@ import pojos.DatasetData;
  */
 public class ImageSet
     extends ImageDisplay
-    implements PropertyChangeListener
+    implements PropertyChangeListener, DrawingListener
 {
 
+	/** Drawing component added to the desktop. */
+	private DrawingComponent	drawingComponent;
+	
     /**
      * Tells if the children of this node are {@link ImageNode}s.
      * This field will be <code>null</code> until the first call to
@@ -67,7 +89,7 @@ public class ImageSet
      * we can't tell if this node is meant to contain {@link ImageNode}s
      * or other <code>ImageSet</code>s. 
      */
-    protected Boolean     containsImages;
+    protected Boolean     		containsImages;
     
     /**
      * Implemented as specified by superclass.
@@ -108,6 +130,28 @@ public class ImageSet
             addPropertyChangeListener(TinyPane.FRAME_ICON_PRESSED_PROPERTY, 
                     this);
         }
+        /*
+        drawingComponent = new DrawingComponent();
+        drawingComponent.getDrawing().addDrawingListener(this);
+        //drawingComponent.getDrawingView().addFigureSelectionListener(this);
+        getInternalDesktop().add(drawingComponent.getDrawingView());
+		drawingComponent.getDrawingView().setSize(300, 300);
+        RectangleTextFigure fig = new RectangleTextFigure();
+        //fig.setFillColor(new Color(0, 0, 0, 32));
+        
+        DrawingObjectCreationTool rectTool = new DrawingObjectCreationTool(fig);
+        
+        JToolBar toolBar = DrawingToolBarButtonFactory.createDefaultBar();
+        DrawingEditor editor = drawingComponent.getEditor();
+		DrawingToolBarButtonFactory.addSelectionToolTo(toolBar, editor);
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, rectTool, 
+				"create"+FigureUtil.RECTANGLE_TYPE);
+		rectTool.setResetToSelect(true);
+		
+		
+		
+		((JToggleButton) toolBar.getComponent(1)).doClick();
+		*/
     }
     
     /**
@@ -166,5 +210,22 @@ public class ImageSet
     {
         if (isAnnotated()) fireAnnotation();
     }
+
+	public void areaInvalidated(DrawingEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void figureAdded(DrawingEvent e) {
+		// TODO Auto-generated method stub
+		System.err.println("HERE");
+		RectangleTextFigure f = (RectangleTextFigure) e.getFigure();
+		//f.setFillColor(new Color(0, 0, 0, 32));
+	}
+
+	public void figureRemoved(DrawingEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
     
 }

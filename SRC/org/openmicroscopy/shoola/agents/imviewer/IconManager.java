@@ -194,11 +194,20 @@ public class IconManager
     /** The <code>Filter menu</code> icon. */
     public static int           FILTER_MENU = 44;
     
+    /** The <code>Category group</code> icon. */
+    public static int           CATEGORY_GROUP = 45;
+    
+    /** The <code>Browse</code> icon. */
+    public static int           BROWSE = 46;
+    
+    /** The <code>Transparent</code> icon. */
+    public static int           TRANSPARENT = 47;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 44;
+    private static int          MAX_ID = 47;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -250,6 +259,9 @@ public class IconManager
         relPaths[CATEGORY] = "category16.png";
         relPaths[CREATE_BIG] = "nuvola_filenew48.png"; 
         relPaths[FILTER_MENU] = "eclipse_view_menu16.png"; 
+        relPaths[CATEGORY_GROUP] = "category_group16.png"; 
+        relPaths[BROWSE] = "zoom16.png";
+        relPaths[TRANSPARENT] = "eclipse_transparent16.png";
     }
     
     /** The sole instance. */

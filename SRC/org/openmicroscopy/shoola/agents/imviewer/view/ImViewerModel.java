@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 import pojos.CategoryData;
+import pojos.CategoryGroupData;
 import pojos.ExperimenterData;
 
 /** 
@@ -187,6 +188,9 @@ class ImViewerModel
     
     /** Collection of available categories.*/
     private List				availableCategories;
+    
+    /** Collection of category Group. */
+    private List				categoryGroups;
     
     /** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
     private void computeSizes()
@@ -1006,14 +1010,16 @@ class ImViewerModel
 	/**
 	 * Sets the categories the images is categorised into.
 	 * 
-	 * @param categories 	The collection to set.
-	 * @param available		The colllection of categories the image can be
-	 * 						categorised into.
+	 * @param categories 	 The collection to set.
+	 * @param available		 The colllection of categories the image can be
+	 * 						 categorised into.
+	 * @param categoryGroups The category groups.
 	 */
-	void setCategories(List categories, List available)
+	void setCategories(List categories, List available, List categoryGroups)
 	{
 		this.categories = categories;
 		availableCategories = available;
+		this.categoryGroups = categoryGroups;
 		state = ImViewer.READY;
 	}
 
@@ -1031,6 +1037,35 @@ class ImViewerModel
 	 */
 	List getAvailableCategories() { return availableCategories; }
 
+	/**
+	 * Returns the category groups available.
+	 * 
+	 * @return See above.
+	 */
+	List getCategoryGroups() { return categoryGroups; }
+	
+	/**
+	 * Returns the category groups containing categories.
+	 * 
+	 * @return See above.
+	 */
+	List getPopulatedCategoryGroups()
+	{
+		List groups = new ArrayList();
+		if (categoryGroups == null || categoryGroups.size() == 0)
+			return groups;
+		Iterator i = categoryGroups.iterator();
+		CategoryGroupData data;
+		Set categories;
+		while (i.hasNext()) {
+			data = (CategoryGroupData) i.next();
+			categories = data.getCategories();
+			if (categories != null && categories.size() > 0)
+				groups.add(data);
+		}
+		return groups;
+	}
+	
 	/**
 	 * Classifies the image into the specified category.
 	 * 

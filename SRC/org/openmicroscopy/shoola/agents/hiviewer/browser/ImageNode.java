@@ -130,7 +130,7 @@ public class ImageNode
         if (t == null) throw new NullPointerException("No thumbnail.");
         thumbnail = t;
         canvas = new ThumbnailCanvas(this);
-        getInternalDesktop().add(canvas);
+        getInternalDesktop().add(canvas, new Integer(0));
         setCanvasSize(t.getWidth(), t.getHeight());
     }
     

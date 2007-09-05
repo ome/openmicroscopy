@@ -540,6 +540,7 @@ public class TreeViewerTranslator
                 } else if (ho instanceof DatasetData) {
                 	if (orphan == null) {
                 		orphan = new TreeImageSet(ORPHANED_DATASETS);
+                		orphan.setChildrenLoaded(true);
                 		results.add(orphan); 
                 	}
                 	if (expandedTopNodes != null)
@@ -560,6 +561,7 @@ public class TreeViewerTranslator
                 } else if (ho instanceof CategoryData) {
                 	if (orphan == null) {
                 		orphan = new TreeImageSet(ORPHANED_CATEGORIES);
+                		orphan.setChildrenLoaded(true);
                 		results.add(orphan); 
                 	}
                 	if (expandedTopNodes != null)

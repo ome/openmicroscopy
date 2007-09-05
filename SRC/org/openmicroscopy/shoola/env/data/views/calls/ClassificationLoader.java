@@ -172,7 +172,7 @@ public class ClassificationLoader
          			}
 	         	}
 
-	         	List<List> results = new ArrayList<List>(2);
+	         	List<List> results = new ArrayList<List>(3);
 	         	results.add(r);
 	         	//r.s
 	         	nodes = os.loadContainerHierarchy(
@@ -186,6 +186,15 @@ public class ClassificationLoader
          			}
 				}
 	         	results.add(r);
+	         	
+	         	nodes = os.loadTopContainerHierarchy(
+                        CategoryGroupData.class, userID);
+	         	i = nodes.iterator();
+	         	List rg = new ArrayList();
+	         	while (i.hasNext()) {
+	         		rg.add(i.next());
+				}
+	         	results.add(rg);
 	         	rootNodes = results;
             }
         };

@@ -40,6 +40,8 @@ import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.core.Channel;
+import ome.model.core.Image;
+import ome.model.meta.Event;
 import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
@@ -212,6 +214,22 @@ class OmeroDataServiceImpl
         return parents;                            
     }
 
+    /** 
+     * Implemented as specified by {@link OmeroDataService}. 
+     * @see OmeroDataService#loadTopContainerHierarchy(Class, long)
+     */
+    public Set loadTopContainerHierarchy(Class rootNodeType, long userID)
+        throws DSOutOfServiceException, DSAccessException 
+    {
+        PojoOptions po = new PojoOptions();
+        po.allCounts();
+        po.exp(new Long(userID));
+        po.noLeaves();
+        po.countsFor(new Long(userID));
+        return gateway.loadContainerHierarchy(rootNodeType, null,
+                									po.map());                         
+    }
+    
     /** 
      * Implemented as specified by {@link OmeroDataService}. 
      * @see OmeroDataService#findContainerHierarchy(Class, Set, long)
@@ -1088,6 +1106,30 @@ class OmeroDataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#getImagesAllPeriodCount(Timestamp, Timestamp, long)
+	 */
+	public List getImagesAllPeriodCount(Timestamp lowerTime, 
+			Timestamp time, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (time == null || lowerTime == null)
+			throw new NullPointerException("Time not specified.");
+		List imgs = gateway.getImagesFilledDuring(lowerTime, time, userID);
+		if (imgs == null || imgs.size() == 0) return new ArrayList(0);
+		Iterator i = imgs.iterator();
+		Image object;
+		List<Timestamp> times = new ArrayList<Timestamp>(imgs.size());
+		Event evt;
+		while (i.hasNext()) {
+			object = (Image) i.next();
+			evt = object.getDetails().getCreationEvent();
+			times.add(evt.getTime());
+		}
+		return times;
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#getImagesAfterCount(Timestamp, Timestamp, long)
 	 */
 	public int getImagesAfterCount(Timestamp time, long userID)
@@ -1133,5 +1175,7 @@ class OmeroDataServiceImpl
 		}
 		return loadContainerHierarchy(CategoryData.class, ids, false, userID);
 	}
+
+	
 	
 }

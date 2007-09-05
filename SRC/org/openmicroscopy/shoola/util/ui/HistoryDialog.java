@@ -28,15 +28,21 @@ package org.openmicroscopy.shoola.util.ui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 
@@ -66,26 +72,58 @@ public class HistoryDialog
     /** The list hosting the data. */
     private JList       			history;
     
+    /** The list hosting the second collection of data. */
+    private JList					secondaryHistory;
+    
     /** The width of the component. */
     private int         			width;
     
     /** The data to display. */
     private Object[]    			data;
 
+    /** The original array of items to display. */
+    private Object[]				originalData;
+    
+    /** The data to display. */
+    private Object[]    			secondaryData;
+
+    /** The original array of items to display. */
+    private Object[]				secondaryOriginalData;
+    
+    /** Helper reference to the font metrics of a {@link JList}. */
+    private FontMetrics 			metrics;
+    
     /** Listener added to the selection model. */
-    private ListSelectionListener	listener;
+    //private ListSelectionListener	listener;
+    
+    private void determinePopupSize()
+    {
+    	int  height = metrics.getHeight()*data.length+10;
+        if (secondaryHistory != null) 
+        	height += metrics.getHeight()*secondaryData.length+10;
+        if (height > MAX_HEIGHT) height = MAX_HEIGHT;
+        setPopupSize(new Dimension(width, height));
+    }
     
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
         JPanel list = new JPanel();
-        list.setLayout(new BorderLayout());
-        list.add(history);
-        FontMetrics fm = getFontMetrics(history.getFont());
-        int  height = fm.getHeight()*data.length+4;
-        if (height > MAX_HEIGHT) height = MAX_HEIGHT;
-        Dimension d = new Dimension(width, height);
-        setPopupSize(d);
+        list.setOpaque(!list.isOpaque());
+        if (secondaryHistory == null) {
+        	list.setLayout(new BorderLayout());
+            list.add(history);
+        } else {
+        	double[][] tl = {{TableLayout.FILL}, //columns
+     				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
+        			TableLayout.PREFERRED} }; //rows
+        	list.setLayout(new TableLayout(tl));
+        	list.add(history, "0, 0");
+        	list.add(new JSeparator(), "0, 1");
+        	list.add(secondaryHistory, "0, 2");
+        }
+        metrics = getFontMetrics(history.getFont());
+        determinePopupSize();
         add(new JScrollPane(list));
     }
     
@@ -93,11 +131,13 @@ public class HistoryDialog
     private void initComponents()
     {
         history = new JList(data);
+        /*
         listener = new ListSelectionListener() {
         
             public void valueChanged(ListSelectionEvent e)
             {
                 ListSelectionModel model = (ListSelectionModel) e.getSource();
+                System.err.println(e);
                 if (!model.isSelectionEmpty() && e.getValueIsAdjusting()) {
                     int minIndex = model.getMinSelectionIndex(),
                     maxIndex = model.getMaxSelectionIndex();
@@ -109,7 +149,42 @@ public class HistoryDialog
                 }
             }
         };
+        
         history.getSelectionModel().addListSelectionListener(listener);
+        */
+        history.addMouseListener(new MouseAdapter() {
+		
+			/**
+			 * Fires a property with the selected object.
+			 * @see MouseAdapter#mousePressed(MouseEvent)
+			 */
+			public void mousePressed(MouseEvent e) {
+				ListSelectionModel model = history.getSelectionModel();
+		    	if (model.isSelectionEmpty()) return;
+		    	int index = history.getSelectedIndex();
+		    	firePropertyChange(SELECTION_PROPERTY, null, data[index]);
+                setVisible(false);
+			}
+		
+		});
+        if (secondaryData == null || secondaryData.length == 0) return;
+        secondaryHistory = new JList(secondaryData);
+        secondaryHistory.addMouseListener(new MouseAdapter() {
+		
+        	/**
+			 * Fires a property with the selected object.
+			 * @see MouseAdapter#mousePressed(MouseEvent)
+			 */
+			public void mousePressed(MouseEvent e) {
+				ListSelectionModel model = secondaryHistory.getSelectionModel();
+		    	if (model.isSelectionEmpty()) return;
+		    	int index = secondaryHistory.getSelectedIndex();
+		    	firePropertyChange(SELECTION_PROPERTY, null, 
+		    						secondaryData[index]);
+                setVisible(false);
+			}
+		
+		});
     }
     
     /**
@@ -120,6 +195,7 @@ public class HistoryDialog
      */
     public HistoryDialog(Object[] data, int width)
     {
+    	this.originalData = data;
         this.data = data;
         this.width = width;
         initComponents();
@@ -127,23 +203,93 @@ public class HistoryDialog
     }
     
     /**
+     * Creates a new instance.
+     * 
+     * @param data  		The data to display.
+     * @param secondaryData	The second array of data to display.
+     * @param width 		The width of the component.
+     */
+    public HistoryDialog(Object[] data, Object[] secondaryData, int width)
+    {
+    	this.originalData = data;
+        this.data = data;
+        this.width = width;
+        this.secondaryData = secondaryData;
+        secondaryOriginalData = secondaryData;
+        initComponents();
+        buildGUI();
+    }
+    
+    /**
+     * Sets the renderer for the various list.
+     * 
+     * @param rnd The value to set.
+     */
+    public void setListCellRenderer(DefaultListCellRenderer rnd)
+    {
+    	if (rnd != null) history.setCellRenderer(rnd);
+    }
+    
+    /**
+     * Sets the renderer for the various list.
+     * 
+     * @param rndMain 	The value to set.
+     * @param rnd 		The value to set.
+     */
+    public void setListCellRenderer(DefaultListCellRenderer rndMain,
+    								DefaultListCellRenderer rnd)
+    {
+    	if (rndMain != null) history.setCellRenderer(rndMain);
+    	if (rnd != null && secondaryHistory != null) 
+    		secondaryHistory.setCellRenderer(rnd);
+    }
+    
+    /**
      * Returns the selected object or <code>null</code>
      * and hides the menu.
+     * 
      * 
      * @return See above.
      */
     public Object getSelectedTextValue()
     {
     	ListSelectionModel model = history.getSelectionModel();
-    	if (model.isSelectionEmpty()) return null;
-    	int minIndex = model.getMinSelectionIndex(),
-        maxIndex = model.getMaxSelectionIndex();
-        for (int i = minIndex; i <= maxIndex; i++)
-            if (model.isSelectedIndex(i)) {
-            	setVisible(false);
-            	return data[i];
-                
-            }
+    	int minIndex, maxIndex;
+    	if (!model.isSelectionEmpty()) {
+    		int index = history.getSelectedIndex();
+    		setVisible(false);
+        	return data[index];
+        	/*
+    		minIndex = model.getMinSelectionIndex();
+            maxIndex = model.getMaxSelectionIndex();
+            for (int i = minIndex; i <= maxIndex; i++) {
+            	if (model.isSelectedIndex(i)) {
+                	setVisible(false);
+                	return data[i];
+                    
+                }
+            }*/
+    	}
+        // Now we try the secondary list
+        if (secondaryHistory != null) {
+        	 model = secondaryHistory.getSelectionModel();
+        	 if (!model.isSelectionEmpty()) {
+        		 int index = secondaryHistory.getSelectedIndex();
+        		 setVisible(false);
+        		 return secondaryData[index];
+        		 /*
+        		 minIndex = model.getMinSelectionIndex();
+        		 maxIndex = model.getMaxSelectionIndex();
+        		 for (int i = minIndex; i <= maxIndex; i++) {
+        			 if (model.isSelectedIndex(i)) {
+        				 setVisible(false);
+        				 return secondaryData[i];
+
+        			 }
+        		 }
+        		 */
+         	}
+        }
         return null;
     }
     
@@ -159,19 +305,92 @@ public class HistoryDialog
     {
     	if (v == null) return false;
     	String value;
-    	Object r = null;
-    	for (int i = 0; i < data.length; i++) {
-			value = data[i].toString();
+    	List<Object> l = new ArrayList<Object>();
+    	for (int i = 0; i < originalData.length; i++) {
+			value = originalData[i].toString();
 			if (value.startsWith(v)) {
-				r = data[i];
-				break;
+				l.add(originalData[i]);
 			}
 		}
-    	if (r != null) {
-    		history.getSelectionModel().removeListSelectionListener(listener);
-    		history.setSelectedValue(r, true);
-    		history.getSelectionModel().addListSelectionListener(listener);
-    		return true;
+    	if (secondaryHistory != null) {
+    		List<Object> sl = new ArrayList<Object>();
+        	for (int i = 0; i < secondaryOriginalData.length; i++) {
+    			value = secondaryOriginalData[i].toString();
+    			if (value.startsWith(v)) {
+    				sl.add(secondaryOriginalData[i]);
+    			}
+    		}
+        	int n = sl.size();
+        	int m = l.size();
+    		if (n == 0 && m == 0) {
+    			resetListData();
+    			return false;
+    		}
+    		else if (n == 0 && m > 0) {
+    			data = new Object[m];
+            	Iterator j = l.iterator();
+            	int index = 0;
+            	while (j.hasNext()) {
+        			data[index] = j.next();
+        			index++;
+        		}
+            	history.setListData(data);
+            	history.setSelectedValue(data[0], true);
+            	secondaryData = new Object[n];
+            	secondaryHistory.setListData(secondaryData);
+            	determinePopupSize();
+            	return true;
+    		} else if (n > 0 && m == 0) {
+    			secondaryData = new Object[n];
+            	Iterator j = sl.iterator();
+            	int index = 0;
+            	while (j.hasNext()) {
+            		secondaryData[index] = j.next();
+        			index++;
+        		}
+            	secondaryHistory.setListData(secondaryData);
+            	secondaryHistory.setSelectedValue(secondaryData[0], true);
+            	data = new Object[m];
+            	history.setListData(data);
+            	determinePopupSize();
+            	return true;
+    		} else if (n > 0 && m > 0) {
+    			data = new Object[m];
+            	Iterator j = l.iterator();
+            	int index = 0;
+            	while (j.hasNext()) {
+        			data[index] = j.next();
+        			index++;
+        		}
+            	history.setListData(data);
+            	history.setSelectedValue(data[0], true);
+            	secondaryData = new Object[n];
+            	j = sl.iterator();
+            	index = 0;
+            	while (j.hasNext()) {
+            		secondaryData[index] = j.next();
+        			index++;
+        		}
+            	secondaryHistory.setListData(secondaryData);
+            	determinePopupSize();
+            	return true;
+    		}
+    	} else {
+    		if (l.size() == 0) {
+    			resetListData();
+    			return false;
+    		}
+    		data = new Object[l.size()];
+        	Iterator j = l.iterator();
+        	int index = 0;
+        	while (j.hasNext()) {
+    			data[index] = j.next();
+    			index++;
+    		}
+        	history.setListData(data);
+        	history.setSelectedValue(data[0], true);
+        	determinePopupSize();
+        	return true;
     	}
     	return false;
     }
@@ -185,23 +404,126 @@ public class HistoryDialog
     public void setSelectedIndex(boolean increase)
     {
     	ListSelectionModel model = history.getSelectionModel();
-    	if (model.isSelectionEmpty()) return;
-    	int index = history.getSelectedIndex();
-    	Object r = null;
-    	int l = data.length-1;
-    	if (increase) {
-    		if (index < l) index +=1;
-    		else index = 0;
+    	int m = data.length;
+    	if (secondaryHistory == null) {
+    		if (!model.isSelectionEmpty() && m > 0) {
+        		int index = history.getSelectedIndex();
+            	Object r = null;
+            	int l = m-1;
+            	if (increase) {
+            		if (index < l) index += 1;
+            		else index = 0;
+            	} else {
+            		if (index > 0) index -= 1;
+            		else index = l;
+            	}
+            	r = data[index];
+            	if (r != null) history.setSelectedValue(r, true);
+        	}
     	} else {
-    		if (index > 0) index -=1;
-    		else index = l;
+    		int n = secondaryData.length;
+    		if (n == 0 && m == 0) return;
+    		if (n == 0 && m > 0) {
+    			if (!model.isSelectionEmpty()) {
+            		int index = history.getSelectedIndex();
+                	Object r = null;
+                	int l = m-1;
+                	if (increase) {
+                		if (index < l) index += 1;
+                		else index = 0;
+                	} else {
+                		if (index > 0) index -= 1;
+                		else index = l;
+                	}
+                	r = data[index];
+                	if (r != null) history.setSelectedValue(r, true);
+            	}
+    		} else if (n > 0 && m == 0) {
+    			model = secondaryHistory.getSelectionModel();
+    			if (!model.isSelectionEmpty()) {
+            		int index = secondaryHistory.getSelectedIndex();
+                	Object r = null;
+                	int l = n-1;
+                	if (increase) {
+                		if (index < l) index += 1;
+                		else index = 0;
+                	} else {
+                		if (index > 0) index -= 1;
+                		else index = l;
+                	}
+                	r = secondaryData[index];
+                	if (r != null) secondaryHistory.setSelectedValue(r, true);
+            	}
+    		} else if (n > 0 && m > 0) {
+    			ListSelectionModel msh = secondaryHistory.getSelectionModel();
+    			int index;
+    			if (!model.isSelectionEmpty()) {
+            		index = history.getSelectedIndex();
+                	int l = m-1;
+                	if (increase) {
+                		if (index < l) {
+                			index += 1;
+                			history.setSelectedValue(data[index], true);
+                		} else { //end 
+                			model.clearSelection();
+                			index = 0;
+                			secondaryHistory.setSelectedValue(
+                					secondaryData[0], true);
+                		}
+                	} else {
+                		if (index > 0) {
+                			index -= 1;
+                			history.setSelectedValue(data[index], true);
+                		} else {
+                			model.clearSelection();
+                			index = n-1;
+                			secondaryHistory.setSelectedValue(
+                					secondaryData[index], true);
+                		}
+                	}
+            	} else {
+            		if (msh.isSelectionEmpty()) 
+            			return;
+            		int l = n-1;
+            		index = secondaryHistory.getSelectedIndex();
+                	if (increase) {
+                		if (index < l) {
+                			index += 1;
+                			secondaryHistory.setSelectedValue(
+                					secondaryData[index], true);
+                		} else { //end 
+                			index = 0;
+                			msh.clearSelection();
+                			history.setSelectedValue(data[0], true);
+                		}
+                	} else {
+                		if (index > 0) {
+                			index -= 1;
+                			secondaryHistory.setSelectedValue(
+                					secondaryData[index], true);
+                		} else {
+                			index = m-1;
+                			secondaryHistory.clearSelection();
+                			history.setSelectedValue(data[index], true);
+                			
+                		}
+                	}
+            	}
+    		}
     	}
-    	r = data[index];
-    	if (r != null) {
-    		history.getSelectionModel().removeListSelectionListener(listener);
-    		history.setSelectedValue(r, true);
-    		history.getSelectionModel().addListSelectionListener(listener);
-    	} 
     }
+
+    /** Resets the original list of data. */
+	public void resetListData()
+	{
+		data = originalData;
+		history.setListData(originalData);
+    	history.setSelectedValue(originalData[0], true);
+    	if (secondaryHistory != null) {
+    		secondaryData = secondaryOriginalData;
+    		secondaryHistory.setListData(secondaryOriginalData);
+    	}
+    	determinePopupSize();
+	}
     
 }

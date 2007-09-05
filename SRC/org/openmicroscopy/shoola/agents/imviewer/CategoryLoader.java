@@ -98,9 +98,10 @@ public class CategoryLoader
     {
        if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
        List set = (List) result;
-       if (set == null || set.size() != 2)
-    	   viewer.setClassification(null, null);
-       else viewer.setClassification((List) set.get(0), (List) set.get(1));
+       if (set == null || set.size() != 3)
+    	   viewer.setClassification(null, null, null);
+       else viewer.setClassification((List) set.get(0), (List) set.get(1), 
+    		   						(List) set.get(2));
     }
     
 }

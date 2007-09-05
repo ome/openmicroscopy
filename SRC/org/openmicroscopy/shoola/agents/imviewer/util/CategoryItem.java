@@ -24,17 +24,14 @@ package org.openmicroscopy.shoola.agents.imviewer.util;
 
 
 //Java imports
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import javax.swing.Icon;
 import javax.swing.JMenuItem;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import pojos.CategoryData;
+import pojos.CategoryGroupData;
+import pojos.DataObject;
 
 /** 
  * Utility class hosting a category.
@@ -53,84 +50,94 @@ public class CategoryItem
 	extends JMenuItem
 {
 
-	/** Bounds property indicating to remove the image from the category. */
-	public static final String REMOVE_PROPERTY = "remove";
+	/** Indicates that the data object is a category. */
+	public static final int		CATEGORY = 0;
 	
-	/** Bounds property indicating to browse the category. */
-	public static final String BROWSE_PROPERTY = "browse";
+	/** Indicates that the data object is a category. */
+	public static final int		CATEGORY_GROUP = 1;
 	
 	/** The category hosted by the component. */
-	private CategoryData data;
-	
-	/**
-	 * Handles the mouse pressed event.
-	 * 
-	 * @param p The location of the mouse pressed.
-	 */
-	private void handleMousePressed(Point p)
-	{
-		Icon icon = getIcon();
-		int h = icon.getIconHeight();
-		int w = icon.getIconWidth();
-		Rectangle bounds = getBounds();
-		Rectangle r = new Rectangle(bounds.x+w, 0, w, h);
-		Rectangle rText = new Rectangle(r.x+r.width, r.y, 
-							bounds.width-r.x-r.width, h);
-		if (r.contains(p)) {
-			firePropertyChange(REMOVE_PROPERTY, null, this);
-		} else if (rText.contains(p)) {
-			firePropertyChange(BROWSE_PROPERTY, null, this);
-		}
-	}
+	private DataObject data;
 	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param data	The category hosting by this node.
 	 */
-	public CategoryItem(CategoryData data)
+	public CategoryItem(DataObject data)
 	{
 		if (data == null)
 			throw new IllegalArgumentException("No category specified.");
+		
 		this.data = data;
-		setText(data.getName());
-		setToolTipText(data.getDescription());
-	}
-
-	/**
-	 * Overridden to browse or declassify depending on the location
-	 * of the mouse pressed.
-	 * @see JMenuItem#setIcon(Icon)
-	 */
-	public void setIcon(Icon icon)
-	{
-		super.setIcon(icon);
-		addMouseListener(new MouseAdapter() {
-		
-			/** 
-			 * Browses or declassifies.
-			 * @see MouseAdapter#mousePressed(MouseEvent)
-			 */
-			public void mousePressed(MouseEvent e) {
-				handleMousePressed(e.getPoint());
-			}
-		
-		});
+		setText(getObjectName());
+		setToolTipText(getObjectDescription());
 	}
 	
 	/**
-	 * Returns the description of the category.
+	 * Returns the object hosted by this component.
 	 * 
 	 * @return See above.
 	 */
-	public String getObjectDescription() { return data.getDescription(); }
+	public DataObject getDataObject() { return data; }
 	
 	/**
-	 * Returns the name of the category.
+	 * Sets the description of the data object.
+	 * 
+	 * @param des The value to set.
+	 */
+	public void setObjectDescription(String des)
+	{ 
+		if (data instanceof CategoryData) {
+			((CategoryData) data).setDescription(des);  
+		} else if (data instanceof CategoryGroupData) {
+			((CategoryGroupData) data).setDescription(des);  
+		}
+	}
+	
+	/**
+	 * Sets the name of the data object.
+	 * 
+	 * @param name The value to set.
+	 */
+	public void setObjectName(String name)
+	{ 
+		if (data instanceof CategoryData) {
+			((CategoryData) data).setName(name);  
+		} else if (data instanceof CategoryGroupData) {
+			((CategoryGroupData) data).setName(name);  
+		}
+	}
+	
+	/**
+	 * Returns the description of the data object.
 	 * 
 	 * @return See above.
 	 */
-	public String getObjectName() { return data.getName(); }
+	public String getObjectDescription()
+	{ 
+		if (data instanceof CategoryData) {
+			return ((CategoryData) data).getDescription(); 
+		} else if (data instanceof CategoryGroupData) {
+			return ((CategoryGroupData) data).getDescription(); 
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the name of the data object.
+	 * 
+	 * @return See above.
+	 */
+	public String getObjectName()
+	{ 
+		if (data instanceof CategoryData) {
+			return ((CategoryData) data).getName(); 
+		} else if (data instanceof CategoryGroupData) {
+			return ((CategoryGroupData) data).getName(); 
+		}
+		return null;
+	}
 	
 	/**
 	 * Returns the id of the category owner.
@@ -150,6 +157,6 @@ public class CategoryItem
 	 * Overridden to return the name of the data object.
 	 * @see Object#toString()
 	 */
-	public String toString() { return data.getName(); }
+	public String toString() { return getObjectName(); }
 
 }

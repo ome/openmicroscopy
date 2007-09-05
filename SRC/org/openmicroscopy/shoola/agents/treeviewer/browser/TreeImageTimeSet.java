@@ -29,6 +29,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 
@@ -158,7 +160,7 @@ public class TreeImageTimeSet
 	private static final long		DAY = 86400000;
 	
 	/** The node's index. One of the constants defined by this class. */
-	private int 		index;
+	private int 		type;
 	
 	/** 
 	 * Time corresponding to 01/01 of the current year if the index is 
@@ -169,6 +171,9 @@ public class TreeImageTimeSet
 	
 	/** Value only set if the index is {@link #YEAR_BEFORE}. */
 	private Timestamp	lowerTime;
+	
+	/** The index. */
+	private int			index;
 	
 	/** 
 	 * Returns the month corresponding to the passed index.
@@ -229,6 +234,20 @@ public class TreeImageTimeSet
 	}
 	
 	/**
+	 * Returns <code>true</code> if the passed time is contained in the time
+	 * interval defined by {@link #lowerTime} and {@link #time},
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param t	The value to handle.
+	 * @return See above.
+	 */
+	private boolean containTime(Timestamp t)
+	{
+		if (t == null || lowerTime == null) return false;
+		return (t.after(lowerTime) && t.before(time));
+	}
+	
+	/**
 	 * Returns the current month.
 	 * 
 	 * @return See above.
@@ -242,15 +261,16 @@ public class TreeImageTimeSet
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param index One of the constants defined by this class.
+	 * @param type One of the constants defined by this class.
 	 */
-	public TreeImageTimeSet(int index)
+	public TreeImageTimeSet(int type)
 	{
 		super("");
-		this.index = index;
+		this.type = type;
+		index = type;
 		GregorianCalendar gc = new GregorianCalendar();
 		int year;
-		switch (index) {
+		switch (type) {
 			case WEEK:
 				setUserObject(WEEK_OLD);
 				setToolTip(WEEK_TOOLTIP);
@@ -298,18 +318,19 @@ public class TreeImageTimeSet
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param index 		One of the constants defined by this class.
+	 * @param type 			One of the constants defined by this class.
 	 * @param monthIndex 	The index of the month.
 	 */
-	public TreeImageTimeSet(int index, int monthIndex)
+	public TreeImageTimeSet(int type, int monthIndex)
 	{
 		super("");
-		this.index = MONTH;
+		this.type = MONTH;
+		index = type+12*(monthIndex+1);
 		GregorianCalendar gc = new GregorianCalendar();
 		int year;
 		int month;
 		int lastDay;
-		switch (index) {
+		switch (type) {
 			case YEAR:
 				setToolTip(MONTH_TOOLTIP);
 				year = gc.get(Calendar.YEAR);
@@ -339,6 +360,26 @@ public class TreeImageTimeSet
 				throw new IllegalArgumentException("Node index not valid.");
 		}
 	}
+
+	/**
+	 * Returns the number of items from the passed list contained in the
+	 * time interval defined by this class.
+	 * 
+	 * @param times The collection to handle.
+	 * @return See above.
+	 */
+	int countTime(List times)
+	{
+		if (times == null) return -1;
+		Iterator i = times.iterator();
+		Timestamp t;
+		int number = 0;
+		while (i.hasNext()) {
+			t = (Timestamp) i.next();
+			if (containTime(t)) number++;
+		}
+		return number;
+	}
 	
 	/**
 	 * Returns the index of the node.
@@ -346,6 +387,13 @@ public class TreeImageTimeSet
 	 * @return See above.
 	 */
 	public int getIndex() { return index; }
+	
+	/**
+	 * Returns the type of the node.
+	 * 
+	 * @return See above.
+	 */
+	public int getType() { return type; }
 	
 	/**
 	 * Returns the time of reference.

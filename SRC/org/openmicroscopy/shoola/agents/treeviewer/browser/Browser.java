@@ -481,6 +481,6 @@ public interface Browser
 	 * @param index		The index of the node.
 	 * @param value		The value to set.
 	 */
-	void setExperimenterCount(TreeImageSet expNode, int index, int value);
+	void setExperimenterCount(TreeImageSet expNode, int index, Object value);
 	
 }

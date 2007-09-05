@@ -148,8 +148,8 @@ class ToolBar
         ClassifyAction a = 
 			(ClassifyAction) controller.getAction(ImViewerControl.CATEGORY);
         categoryButton = new JButton(a);
-        UIUtilities.unifiedButtonLookAndFeel(categoryButton);
-        categoryButton.setVisible(false);
+        //UIUtilities.unifiedButtonLookAndFeel(categoryButton);
+        //categoryButton.setVisible(true);
         categoryButton.addMouseListener(a);
         createControlsBar();
     }
@@ -197,11 +197,5 @@ class ToolBar
     
     /** Selects or deselects the {@link #rndButton}. */
     void displayRenderer() { rndButton.setSelected(view.isRendererShown()); }
-    
-    /** Shows the {@link #categoryButton} and attaches listener. */
-    void showCategory()
-    {
-    	categoryButton.setVisible(true);
-    }
     
 }

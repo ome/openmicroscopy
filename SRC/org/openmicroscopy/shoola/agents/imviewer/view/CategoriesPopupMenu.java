@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,12 +32,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.JSeparator;
-import javax.swing.border.BevelBorder;
 
 //Third-party libraries
 
@@ -44,9 +43,7 @@ import javax.swing.border.BevelBorder;
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-import org.openmicroscopy.shoola.agents.imviewer.util.CategoryItem;
 import org.openmicroscopy.shoola.env.event.EventBus;
-
 import pojos.CategoryData;
 
 /** 
@@ -70,6 +67,12 @@ class CategoriesPopupMenu
 	/** Text indicating to create a new category. */
 	private static final String CREATION = "Add category";
 	
+	/** Text indicating to browse a given category. */
+	private static final String BROWSE = "Browse category";
+	
+	/** Text indicating to remove from a given category. */
+	private static final String REMOVE = "Remove category";
+	
 	/** Action command identifying the creation of a new category. */
 	private static final int	CREATION_ID = 1;
 	
@@ -84,7 +87,7 @@ class CategoriesPopupMenu
 	 * 
 	 * @param item The item to format.
 	 */
-	private void formatItem(JMenuItem item)
+	private void formatItem(JComponent item)
 	{
 		item.setBorder(null);
         item.setFont((Font) ImViewerAgent.getRegistry().lookup(
@@ -94,6 +97,7 @@ class CategoriesPopupMenu
     /** Initializes the components composing the display. */
     private void initComponents()
     {
+    	/*
     	IconManager icons = IconManager.getInstance();
     	Icon icon = icons.getIcon(IconManager.CANCEL);
     	setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
@@ -117,21 +121,57 @@ class CategoriesPopupMenu
     	item.addActionListener(this);
     	formatItem(item);
     	add(item);
+    	
+    	*/
+    	
+    	List categories = model.getCategories();
+    	CategoryData data;
+    	JMenuItem item;
+    	IconManager icons = IconManager.getInstance();
+    	if (categories != null && categories.size() > 0) {
+    		
+    		JMenu menu = new JMenu(BROWSE);
+    		menu.setIcon(icons.getIcon(IconManager.BROWSE));
+    		//CategoryMenuItem menuItem;
+    		Iterator i = categories.iterator();
+        	while (i.hasNext()) {
+        		data = (CategoryData) i.next();
+        		item = new BasicCategoryMenuItem(this, 
+        				BasicCategoryMenuItem.BROWSE, data);
+        		formatItem(item);
+        		menu.add(item);
+        		//menuItem = new CategoryMenuItem(data);
+        		//formatItem(menuItem);
+        		//menuItem.addPropertyChangeListener(this);
+        		//add(menuItem);
+    		}
+        	add(menu);
+        	menu = new JMenu(REMOVE);
+    		menu.setIcon(icons.getIcon(IconManager.CANCEL));
+    		i = categories.iterator();
+        	while (i.hasNext()) {
+        		data = (CategoryData) i.next();
+        		item = new BasicCategoryMenuItem(this, 
+        				BasicCategoryMenuItem.REMOVE, data);
+        		formatItem(item);
+        		item.addPropertyChangeListener(this);
+        		menu.add(item);
+        		//menuItem = new CategoryMenuItem(data);
+        		//formatItem(menuItem);
+        		//menuItem.addPropertyChangeListener(this);
+        		//add(menuItem);
+    		}
+        	add(menu);
+        	//add(new JSeparator());
+    	}
+    	item = new JMenuItem(CREATION);
+    	item.setIcon(icons.getIcon(IconManager.TRANSPARENT));
+    	item.setActionCommand(""+CREATION_ID);
+    	item.addActionListener(this);
+    	formatItem(item);
+    	add(item);
     }
-    
-    /**
-     * Browses the specified category.
-     * 
-     * @param categoryID 	The id of the category.
-     * @param userID		The id of the user.
-     */
-    private void browse(long categoryID, long userID)
-    {
-    	EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-    	bus.post(new Browse(categoryID, Browse.CATEGORY, 
-    			model.getUserDetails(), view.getBounds()));  
-    }
-    
+
     /**
      * Creates a new instance.
      * 
@@ -149,6 +189,48 @@ class CategoriesPopupMenu
 		initComponents();
 	}
 
+	/**
+     * Browses the specified category.
+     * 
+     * @param categoryID 	The id of the category.
+     * @param userID		The id of the user.
+     */
+    void browse(long categoryID, long userID)
+    {
+    	EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+    	bus.post(new Browse(categoryID, Browse.CATEGORY, 
+    			model.getUserDetails(), view.getBounds()));  
+    }
+    
+    /**
+     * Removes the images from the passed category.
+     * 
+     * @param categoryID The category's ID.
+     */
+    void declassify(long categoryID)
+    {
+    	view.declassify(categoryID);
+    }
+    
+	/**
+	 * Shows the menu. Wraps the call b/c we might need to use a different
+	 * component.
+	 * 
+	 * @param source	The invoker.
+	 * @param x			The x-coordinate.
+	 * @param y			The y-coordinate.
+	 */
+	void showMenu(Component source, int x, int y)
+	{
+		show(source, x, y);
+		/*
+		Point p = source.getLocationOnScreen();
+		setLocation(p.x+x, p.y+y);
+		setVisible(true);
+		pack();
+		*/
+	}
+	
 	/**
 	 * Browses the category when the item is selected or 
 	 * creates a new category.
@@ -176,13 +258,13 @@ class CategoriesPopupMenu
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
-		if (CategoryItem.REMOVE_PROPERTY.equals(name)) {
-			CategoryItem item = (CategoryItem) evt.getNewValue();
-			view.declassify(item.getObjectID());
-		} else if (CategoryItem.BROWSE_PROPERTY.equals(name)) {
-			CategoryItem item = (CategoryItem) evt.getNewValue();
-			browse(item.getObjectID(), item.getOwnerID());
+		if (CategoryMenuItem.REMOVE_PROPERTY.equals(name)) {
+			CategoryData item = (CategoryData) evt.getNewValue();
+			view.declassify(item.getId());
+		} else if (CategoryMenuItem.BROWSE_PROPERTY.equals(name)) {
+			CategoryData item = (CategoryData) evt.getNewValue();
+			browse(item.getId(), item.getOwner().getId());
 		}
 	}
-	
+
 }

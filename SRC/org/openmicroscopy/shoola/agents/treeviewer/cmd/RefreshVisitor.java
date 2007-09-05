@@ -156,7 +156,7 @@ public class RefreshVisitor
             }
             l.add(new Long(id));
         } else if (node instanceof TreeImageTimeSet && node.isChildrenLoaded() 
-        		&& node.isExpanded())
+        		&& node.isExpanded() && node.containsImages())
         	foundNodes.add(node);
     }
     

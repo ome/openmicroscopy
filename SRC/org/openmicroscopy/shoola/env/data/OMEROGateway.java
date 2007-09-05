@@ -163,7 +163,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
     	Throwable cause = t.getCause();
-    	t.printStackTrace();
+    	//t.printStackTrace();
     	if (cause instanceof SecurityException) {
     		String s = "Cannot access data for security reasons \n"; 
     		throw new DSAccessException(s+message+"\n\n"+
@@ -1521,6 +1521,42 @@ class OMEROGateway
 	{
 		try {
 			String sql = "from Image as i where i.details.owner.id = :userID " +
+					"and i.details.creationEvent.time < :time and "+
+					"i.details.creationEvent.time > :lowerTime";
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			param.addLong("userID", userID);
+			param.add(new QueryParameter("time", Timestamp.class, time));
+			param.add(new QueryParameter("lowerTime", Timestamp.class, 
+						lowerTime));
+			return service.findAllByQuery(sql, param);
+		} catch (Throwable e) {
+			handleException(e, "Cannot retrieve the images imported during " +
+								"the selected period.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns a collection of images imported after the specified time
+	 * by the specified user.
+	 * 
+	 * @param lowerTime	The reference time.
+	 * @param time		The reference time.
+	 * @param userID	The user's id.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+	 */
+	List getImagesFilledDuring(Timestamp lowerTime, Timestamp time, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			String sql = "select i from Image as i left outer join fetch " +
+                    "i.details.creationEvent as c "+
+                    "where i.details.owner.id = :userID " +
 					"and i.details.creationEvent.time < :time and "+
 					"i.details.creationEvent.time > :lowerTime";
 			IQuery service = getQueryService();
