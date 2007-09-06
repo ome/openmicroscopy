@@ -46,7 +46,7 @@ public class Config extends Configuration {
     }
 
     @Override
-    public BlitzTask createTask() {
+    public Task createTask() {
         if (Boolean.valueOf(getProperties().getProperty("blitz","false"))) {
             Class taskClass = getTaskClass();
             Constructor ctor;
@@ -62,7 +62,7 @@ public class Config extends Configuration {
                 throw new RuntimeException(e);
             }
         } else {
-            return (BlitzTask) super.createTask();
+            return (Task) super.createTask();
         }
         
     }

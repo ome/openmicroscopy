@@ -84,28 +84,30 @@ public class Run extends ome.util.tasks.Run {
     }
 
     protected void acquireLicense() {
-        BlitzTask bt = (BlitzTask)this.task;
-        if (!bt.isBlitz()) {
-            getServiceFactory().acquireLicense();
-        } else {
+        if (BlitzTask.class.isAssignableFrom(this.task.getClass()) && 
+            ((BlitzTask)this.task).isBlitz()) {
+            BlitzTask bt = (BlitzTask)this.task;
             try {
                 bt.getBlitzServiceFactory().createSession();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+        } else {
+            getServiceFactory().acquireLicense();
         }
     }
     
     protected void releaseLicense() {
-        BlitzTask bt = (BlitzTask)this.task;
-        if (!bt.isBlitz()) {
-            getServiceFactory().releaseLicense();
-        } else {
+        if (BlitzTask.class.isAssignableFrom(this.task.getClass()) && 
+            ((BlitzTask)this.task).isBlitz()) {
+            BlitzTask bt = (BlitzTask)this.task;
             try {
                 bt.getBlitzServiceFactory().destroy();
             } catch (Exception e) {
                 // ignore. will timeout eventually
             }
+        } else {
+            getServiceFactory().releaseLicense();
         }
     }
     
