@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="main" default="usage" basedir=".">
+<project name="main" default="usage" basedir="."  xmlns:ivy="antlib:fr.jayasoft.ivy.ant">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -117,10 +117,12 @@
 		<iterate buildpathref="client.buildpath" target="adduser"/>
 	</target>
 
-	<target name="dist" depends="multiproject">
-		<mkdir dir="${dist.dir}"/>
+	<target name="dist" depends="multiproject,_dist">
 		<iterate target="dist"/>
+	</target>
 
+	<target name="_dist" depends="deps-configure">
+		<mkdir dir="${dist.dir}"/>
 		<!-- 
 			etc/
 			========================================================
@@ -142,21 +144,14 @@
 				<include name="components/antlib/**"/>
 				<include name="sql/**"/>
 				<include name="lib/tools/**"/>
-				<include name="lib/repository/ant/**"/>
-				<include name="lib/repository/xml-apis/**"/>
-				<include name="lib/repository/xerces/**"/>
-				<include name="lib/repository/omero/postgresql/**"/>
-				<!-- For testing purposes -->
-				<include name="lib/repository/groovy/**"/>
-				<include name="lib/repository/testng/**"/>
-				<!-- deploy -->
-				<include name="components/common/build.xml"/>
-				<!-- reload-db -->
-				<include name="components/server/build.xml"/>
-				<!-- usermgmt -->
-				<include name="components/client/build.xml"/>
 			</fileset>
 		</copy>
+
+		<ivy:resolve file="${import.dir}/omero.ivy" type="jar"/>
+		<mkdir dir="${dist.dir}/client"/>
+		<ivy:retrieve conf="client" pattern="${dist.dir}/client/[module].[ext]"/>
+		<mkdir dir="${dist.dir}/lib/repository"/>
+		<ivy:retrieve conf="server" pattern="${dist.dir}/lib/repository/[organisation]/[module]/[revision]/[module]-[revision].[ext]"/>
 
 		<!-- Copy new build.xml to ${dist.dir} -->
                 <copy
@@ -164,24 +159,11 @@
                         tofile="${dist.dir}/build.xml"
                         overwrite="true"
                 />
-
-		<copy todir="${dist.dir}/client">
-			<fileset dir="${common.comp}/${target.rel}" includes="*.jar"/>
-			<fileset dir="${client.comp}/${target.rel}" includes="*.jar"/>
-			<fileset dir="${import.comp}/${target.rel}" includes="*.jar"/>
-			<fileset dir="${server.comp}/${target.rel}" includes="*.jar"/>
-			<fileset dir="${blitz.comp}/${target.rel}" includes="*.jar"/>
-			<fileset dir="${lib.dir}/repository">
-				<include name="omero/jboss*/**/*.jar"/>
-				<include name="org/springframework/spring/**/*.jar"/>
-				<include name="commons-logging/commons-logging/**/*.jar"/>
-				<include name="log4j/**/*.jar"/>
-				<include name="omero/omejava/**/*.jar"/>
-				<include name="omero/ice/**/*.jar"/>
-				<include name="omero/client/**/*.jar"/>
-			</fileset>
-			<flattenmapper/>
-		</copy>
+                <copy
+                        file="${import.dir}/omero.ivy"
+                        tofile="${dist.dir}/omero.ivy"
+                        overwrite="true"
+                />
 
 	</target>
 

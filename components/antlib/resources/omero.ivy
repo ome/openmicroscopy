@@ -1,0 +1,44 @@
+<ivy-module version="1.0">
+  <info
+      organisation="omero"
+      module="distribution"
+      status="integration"/>
+  <configurations>
+    <conf name="core"/>
+    <conf name="client"  extends="core"/>
+    <conf name="server"  extends="core"/>
+  </configurations>
+  <publications>
+    <artifact name="server" type="jar" conf="core" />
+  </publications>
+  <dependencies>
+    <!-- NOTE: Jars from lib/tools will be copied separately -->
+    <!-- Internal -->
+    <dependency name="common" rev="${omero.version}" changing="true" conf="core->core" />
+    <dependency name="client" rev="${omero.version}" changing="true" conf="core->core" />
+    <dependency name="server" rev="${omero.version}" changing="true" conf="core->core" />
+    <dependency name="blitz" rev="${omero.version}" changing="true" conf="client->core" />
+    <dependency name="importer" rev="${omero.version}" changing="true" conf="client->core" />
+    <!-- Ant -->
+    <dependency org="ant" name="ant" rev="1.6.5" conf="core->default"/>
+    <dependency org="ant" name="ant-launcher" rev="1.6.5" conf="core->default"/>
+    <!-- Postgres -->
+    <dependency org="omero" name="postgresql" rev="${versions.postgresql}" conf="server->default"/>
+    <!-- JBoss -->
+    <dependency org="omero" name="jbossall-client" rev="${versions.jboss}" conf="client->default"/>
+    <dependency org="omero" name="jboss-ejb3x" rev="${versions.jboss}" conf="client->default"/>
+    <dependency org="omero" name="jboss-ejb3" rev="${versions.jboss}" conf="client->default"/>
+    <dependency org="omero" name="jbosssx" rev="${versions.jboss}" conf="server->default"/>
+    <!-- Other -->
+    <dependency org="org/springframework" name="spring" rev="${versions.spring}" conf="client->default"/>
+    <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}" conf="client->default"/>
+    <dependency org="log4j" name="log4j" rev="${versions.log4j}" conf="client->default"/>
+    <dependency org="omero" name="ice" rev="${versions.ice}" conf="client->default"/>
+    <dependency org="omero" name="ome-java" rev="${versions.ome-java}" conf="client->default"/>
+    <dependency org="omero" name="bio-formats" rev="${versions.bio-formats}" conf="client->default"/>
+    <!-- Testing -->
+    <dependency org="groovy" name="groovy" rev="${versions.groovy}" conf="server->default"/>
+    <dependency org="testng" name="testng" rev="${versions.testng}" conf="server->default"/>
+  </dependencies>
+</ivy-module>
+

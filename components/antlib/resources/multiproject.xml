@@ -36,6 +36,9 @@
 			<property name="multi.test.skip" value="${test.skip}"/>
 			<property name="multi.generate.skip" value="${generate.skip}"/>
 			<property name="multi.checks.skip" value="${checks.skip}"/>
+			<!-- Defaults set in dependencies.xml -->
+			<property name="ivy.buildlist.ivyfilepath" value="${ivy.buildlist.ivyfilepath}"/>
+			<property name="ivy.dep.file" value="${ivy.dep.file}"/>
 		</subant>
 		</sequential>
 	</macrodef>

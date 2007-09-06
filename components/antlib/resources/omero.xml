@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="omero" default="usage" basedir=".">
+<project name="omero" default="usage" basedir="."  xmlns:ivy="antlib:fr.jayasoft.ivy.ant">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -23,19 +23,14 @@
 
 	<!-- This overrides the classpath.file properties of all the components. -->
 	<property name="import.dir"       value="${basedir}/components/antlib/resources/"/>
-	<property name="classpath.file"   value="${import.dir}/dist-classpath.xml"/>
-	<import file="${classpath.file}"/> <!-- imports global.xml -->
+	<property name="ivy.dep.file"  value="${basedir}/omero.ivy"/>
+	<property name="ivy.buildlist.ivyfilepath"  value="${basedir}/omero.ivy"/>
+	<import file="${import.dir}/global.xml"/>
 	<import file="${import.dir}/dependencies.xml"/>
 	<import file="${import.dir}/multiproject.xml"/>
 	<import file="${import.dir}/setup.xml"/>
 	<property file="${basedir}/etc/omero.properties"/>
 
-	<target name="classpath-define">
-		<path id="omero.classpath">
-			<path refid="generated.compile.classpath"/>
-		</path>
-	</target>
-	
 	<target name="usage"
 		description="Usage information">
 		<concat>
@@ -84,10 +79,8 @@
 
 	</target>
 
-	<target name="setup-db" depends="classpath-define">
-		<ant antfile="${server.comp}/build.xml" target="reload-db">
-		<property name="sql.dir" value="${basedir}/sql/${omero.db.profile}"/>
-		</ant>
+	<target name="setup-db">
+		<iterate buildpathref="server.buildpath" target="reload-db"/>
 	</target>
 
 	<target name="earfiles">
@@ -102,19 +95,5 @@
 		</copy>
 	</target>
 
-	<target name="check" depends="classpath-define,load-groovy">
-
-		<groovy classpathRef="generated.compile.classpath">
-		println System.getProperty("java.class.path")
-		sf = new ome.system.ServiceFactory()
-		p = sf.getPojosService()
-
-		s = new HashSet()
-		s.add(new Long(1))
-		s.add(new Long(5588))
-
-		r = p.findCGCPaths(s,ome.api.IPojos.CLASSIFICATION_ME,None)
-		</groovy>
-	</target>
 </project>
 

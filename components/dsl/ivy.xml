@@ -14,16 +14,16 @@
   <dependencies>
     <dependency org="ant" name="ant" rev="1.6.5" conf="build->default"/>
     <dependency org="commons-collections" name="commons-collections" rev="3.1" conf="build->default"/>
-    <dependency org="commons-logging" name="commons-logging" rev="1.0.4" conf="build->default"/>
-    <dependency org="groovy" name="groovy" rev="all-1.0" conf="build->default"/>
+    <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}" conf="build->default"/>
+    <dependency org="groovy" name="groovy" rev="${versions.groovy}" conf="build->default"/>
     <dependency org="jmock" name="jmock" rev="1.0.1" conf="build->default"/>
     <dependency org="junit" name="junit" rev="3.8.1" conf="build->default"/>
     <dependency org="log4j" name="log4j" rev="1.2.14" conf="build->default"/>
-    <dependency org="omero" name="postgresql" rev="8.1-405.jdbc3" conf="build->default"/> 
+    <dependency org="omero" name="postgresql" rev="${versions.postgresql}" conf="build->default"/> 
     <dependency org="org/springframework" name="spring-mock" rev="${versions.spring}" conf="build->default"/>
     <dependency org="org/springframework" name="spring" rev="${versions.spring}" conf="build->default"/> 
     <dependency org="qdox" name="qdox" rev="1.5" conf="build->default"/>
-    <dependency org="testng" name="testng" rev="5.2-jdk15" conf="build->default"/>
+    <dependency org="testng" name="testng" rev="${versions.testng}" conf="build->default"/>
     <dependency org="velocity-tools" name="velocity-tools-generic" rev="1.1" conf="build->default"/>
     <dependency org="velocity" name="velocity" rev="1.4" conf="build->default"/>
   </dependencies>

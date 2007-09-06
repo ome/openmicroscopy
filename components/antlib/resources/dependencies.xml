@@ -24,6 +24,9 @@
   <!-- For these definitions to work properly, directories.xml must be imported-->
   <property name="deps.lib.dir" value="${target.dir}/libs"/>
   <property name="ivy.local.default.root" value="${omero.home}/lib/repository"/>
+  <!-- These are default values. If you'd like to override, due so before import-->
+  <property name="ivy.buildlist.ivyfilepath" value="ivy.xml"/>
+  <property name="ivy.dep.file"             value="${basedir}/ivy.xml"/>
 
   <!--
       Prepare the ivy runtime. This requires the ivy library under lib/repository/tools.
@@ -91,7 +94,7 @@
   <target name="deps-resolve"
 	  depends="deps-configure"
 	  description="Transitively resolves all dependencies">
-    <ivy:resolve file="${basedir}/ivy.xml" type="jar"/>
+    <ivy:resolve file="${ivy.dep.file}" type="jar"/>
   </target>
   
   <target name="deps-report" 
