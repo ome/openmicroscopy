@@ -19,8 +19,8 @@ javac.source=1.5
 javac.target=1.5
 javac.debug=on
 javac.debuglevel=lines,vars,source
-javac.maxmem=100m
-javadoc.maxmem=100m
+javac.maxmem=300m
+javadoc.maxmem=300m
 
 # Determines which Ivy resolver to use for
 # finding the loci libraries. Look in 
