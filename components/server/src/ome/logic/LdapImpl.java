@@ -104,7 +104,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
 	protected transient String values;
 
-	protected transient String config;
+	protected transient boolean config;
 	
 	protected transient IAdmin adminService;
 
@@ -139,8 +139,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 	}
 
 	/** injector for usage by the container. Not for general use */
-	public final void setConfig(String config) {
-		getBeanHelper().throwIfAlreadySet(this.config, config);
+	public final void setConfig(boolean config) {
 		this.config = config;
 	}
 	
@@ -252,9 +251,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
 	@RolesAllowed("system")
 	public boolean getSetting() {
-		if (this.config.equals("true"))
-			return true;
-		return false;
+		return this.config;
 	}
 
 	@RolesAllowed("system")
