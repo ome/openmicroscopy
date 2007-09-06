@@ -107,5 +107,20 @@
 		</rootLoaderRef>
 		<taskdef classname="org.codehaus.groovy.ant.Groovy" loaderref="groovy.classpath" name="groovy"/>
 	</target>
-		
+	
+	<target name="setup-db" depends="prepare">
+		<java classname="ome.security.PasswordUtil" outputproperty="ROOTPASS" classpathref="omero.classpath">
+			<arg value="${omero.rootpass}"/>
+		</java>
+		<copy file="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__schema.sql" tofile="${target.dir}/ddl.sql"  overwrite="true"/>
+		<copy file="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__data.sql" tofile="${target.dir}/data.sql"  overwrite="true"/>
+		<replace file="${target.dir}/data.sql" token="@ROOTPASS@" value="${ROOTPASS}"/>
+		<replace file="${target.dir}/data.sql" token="@DBPATCH@" value="${omero.dbpatch}"/>
+		<replace file="${target.dir}/data.sql" token="@DBVERSION@" value="${omero.dbversion}"/>
+		<sql_run>
+			<transaction src="${target.dir}/ddl.sql"/>
+			<transaction src="${target.dir}/data.sql"/>
+		</sql_run>
+	</target>
+	
 </project>

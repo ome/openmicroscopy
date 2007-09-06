@@ -147,11 +147,12 @@
 			</fileset>
 		</copy>
 
-		<ivy:resolve file="${import.dir}/omero.ivy" type="jar"/>
 		<mkdir dir="${dist.dir}/client"/>
-		<ivy:retrieve conf="client" pattern="${dist.dir}/client/[module].[ext]"/>
+		<ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="client" transitive="false"/>
+		<ivy:retrieve conf="client" pattern="${dist.dir}/client/[module]-[revision].[ext]" sync="true"/>
 		<mkdir dir="${dist.dir}/lib/repository"/>
-		<ivy:retrieve conf="server" pattern="${dist.dir}/lib/repository/[organisation]/[module]/[revision]/[module]-[revision].[ext]"/>
+		<ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="server" transitive="true"/>
+		<ivy:retrieve conf="server" pattern="${dist.dir}/lib/repository/[module]-[revision].[ext]" sync="true"/>
 
 		<!-- Copy new build.xml to ${dist.dir} -->
                 <copy

@@ -23,15 +23,21 @@
 
 -->
 
-	<!-- This overrides the classpath.file properties of all the components. -->
+        <!-- Reproducing dependencies.xml locally -->
+        <target name="deps-configure"> <ivy:resolve file="${basedir}/omero.ivy" type="jar" conf="server"/> </target>
+        <target name="deps-buildlist"> <ivy:buildlist> <fileset dir="${basedir}" includes="build.xml"/> </ivy:buildlist> </target>
+        <target name="deps-retrieve"> <!-- noop --> </target>
+        <target name="deps-publish-local"> <!-- noop --> </target>
+        <path id="omero.classpath">
+          <fileset dir="${basedir}/lib/repository" includes="**/*.jar"/>
+        </path>
+
 	<property name="import.dir"       value="${basedir}/components/antlib/resources/"/>
 	<property name="ivy.dep.file"  value="${basedir}/omero.ivy"/>
 	<property name="ivy.buildlist.ivyfilepath"  value="${basedir}/omero.ivy"/>
 	<import file="${import.dir}/global.xml"/>
-	<import file="${import.dir}/dependencies.xml"/>
-	<import file="${import.dir}/lifecycle.xml"/>
-	<import file="${import.dir}/multiproject.xml"/>
 	<import file="${import.dir}/setup.xml"/>
+	<import file="${import.dir}/lifecycle.xml"/>
 	<property file="${basedir}/etc/omero.properties"/>
 
 	<target name="usage"
@@ -93,21 +99,6 @@
 		</jar>
 
 	</target>
-
-    <target name="setup-db" depends="prepare">
-        <java classname="ome.security.PasswordUtil" outputproperty="ROOTPASS" classpathref="omero.classpath">
-            <arg value="${omero.rootpass}"/>
-        </java>
-        <copy file="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__schema.sql" tofile="${target.dir}/ddl.sql"  overwrite="true"/>
-        <copy file="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__data.sql" tofile="${target.dir}/data.sql"  overwrite="true"/>
-        <replace file="${target.dir}/data.sql" token="@ROOTPASS@" value="${ROOTPASS}"/>
-        <replace file="${target.dir}/data.sql" token="@DBPATCH@" value="${omero.dbpatch}"/>
-        <replace file="${target.dir}/data.sql" token="@DBVERSION@" value="${omero.dbversion}"/>
-        <sql_run>
-            <transaction src="${target.dir}/ddl.sql"/>
-            <transaction src="${target.dir}/data.sql"/>
-        </sql_run>
-    </target>
 
 	<target name="earfiles">
 		<fileset dir="${omero.home}" includes="*.ear" id="ear.files"/>

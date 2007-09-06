@@ -6,7 +6,6 @@
     <import file="${import.dir}/dependencies.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
     <import file="${import.dir}/hibernate.xml"/>
-    <import file="${import.dir}/omero.xml"/> <!-- Distribution tasks -->
 
     <target name="check-db" depends="prepare">
       <sql_run>

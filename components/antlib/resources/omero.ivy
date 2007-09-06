@@ -16,19 +16,21 @@
     <!-- Internal -->
     <dependency name="common" rev="${omero.version}" changing="true" conf="core->core" />
     <dependency name="client" rev="${omero.version}" changing="true" conf="core->core" />
-    <dependency name="server" rev="${omero.version}" changing="true" conf="core->core" />
+    <dependency name="server" rev="${omero.version}" changing="true" conf="server->core" />
     <dependency name="blitz" rev="${omero.version}" changing="true" conf="client->core" />
     <dependency name="importer" rev="${omero.version}" changing="true" conf="client->core" />
+    <dependency name="licenses" rev="${omero.version}" changing="true" conf="client->core" />
     <!-- Ant -->
-    <dependency org="ant" name="ant" rev="1.6.5" conf="core->default"/>
-    <dependency org="ant" name="ant-launcher" rev="1.6.5" conf="core->default"/>
+    <dependency org="ant" name="ant" rev="1.6.5" conf="server->default"/>
+    <dependency org="ant" name="ant-launcher" rev="1.6.5" conf="server->default"/>
     <!-- Postgres -->
     <dependency org="omero" name="postgresql" rev="${versions.postgresql}" conf="server->default"/>
     <!-- JBoss -->
-    <dependency org="omero" name="jbossall-client" rev="${versions.jboss}" conf="client->default"/>
+    <dependency org="omero" name="jbossall-client" rev="${versions.jboss}" conf="core->default"/>
+    <dependency org="omero" name="jboss-annotations-ejb3" rev="${versions.jboss}" conf="client->default"/>
     <dependency org="omero" name="jboss-ejb3x" rev="${versions.jboss}" conf="client->default"/>
     <dependency org="omero" name="jboss-ejb3" rev="${versions.jboss}" conf="client->default"/>
-    <dependency org="omero" name="jbosssx" rev="${versions.jboss}" conf="server->default"/>
+    <dependency org="omero" name="jbosssx" rev="${versions.jboss}" conf="core->default"/>
     <!-- Other -->
     <dependency org="org/springframework" name="spring" rev="${versions.spring}" conf="client->default"/>
     <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}" conf="client->default"/>
@@ -41,4 +43,3 @@
     <dependency org="testng" name="testng" rev="${versions.testng}" conf="server->default"/>
   </dependencies>
 </ivy-module>
-
