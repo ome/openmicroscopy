@@ -53,13 +53,28 @@
          <replacefilter token="@@@JDBC.PASSWORD@@@" value="${hibernate.connection.password}"/>
       </replace>
 
+		<!-- Patterns that will be saved -->
+		<patternset id="etc.files">
+			<include name="local.properties"/>
+			<include name="local.properties.example"/>
+			<include name="omero.properties"/>
+			<include name="hibernate.properties"/>
+		</patternset>
+
+		<!-- Touching the etc files to force update in the case that 
+		the timezone or similar on a system has changed. Please refer to #779 
+
+		This implies that the date on the files could also be the last time 
+		of "ant update" rather than the last editing. -->
+		<touch>
+			<fileset dir="${basedir}/etc">
+				<patternset refid="etc.files"/>
+			</fileset>
+		</touch>
 		<jar update="true"
 		  destfile="${product.final.name}">
 			<fileset dir="${basedir}/etc">
-				<include name="local.properties"/>
-				<include name="local.properties.example"/>
-				<include name="omero.properties"/>
-				<include name="hibernate.properties"/>
+				<patternset refid="etc.files"/>
 			</fileset>
 			<fileset dir="${temp.dir}">
 				<include name="omero-ds.xml"/>
@@ -70,10 +85,7 @@
 		<jar update="true" 
 		  destfile="blitz/blitz.jar">
 			<fileset dir="${basedir}/etc">
-				<include name="local.properties"/>
-				<include name="local.properties.example"/>
-				<include name="omero.properties"/>
-				<include name="hibernate.properties"/>
+				<patternset refid="etc.files"/>
 			</fileset>
 		</jar>
 
