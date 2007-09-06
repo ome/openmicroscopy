@@ -190,17 +190,13 @@ public class omero
     private File[] locateBuildJars()
         throws Exception
     {
-        File[] jars = new File[8];
+        File[] jars = new File[6];
 	jars[0] = new File(mavenPath("ant","ant","1.6.5"));
 	jars[1] = new File(mavenPath("ant","ant-launcher","1.6.5"));
-	jars[2] = new File(mavenPath("xml-apis","xml-apis","1.0.b2"));
-	jars[3] = new File(mavenPath("xerces","xerces","2.0.2"));
-	jars[4] = new File(mavenPath("junit","junit","3.8.1"));
-	jars[5] = new File("lib/tools/ant-junit-1.6.5.jar");
-	jars[6] = new File("lib/tools/ant-nodeps-1.6.5.jar");
-	jars[7] = new File("lib/tools/bsh-2.0b4.jar");
-	//jars[7] = new File("lib/tools/ant-apache-log4j.jar");
-	//jars[5] = new File(mavenPath("log4j","log4j","1.2.8"));
+	jars[2] = new File(mavenPath("junit","junit","3.8.1"));
+	jars[3] = new File("lib/tools/ant-junit-1.6.5.jar");
+	jars[4] = new File("lib/tools/ant-nodeps-1.6.5.jar");
+	jars[5] = new File("lib/tools/bsh-2.0b4.jar");
 
         if (!isJDKToolsAvailable()) {  //Try and grab tools.jar.
             if (jdkTools.exists()) {  //Add it to the other jars.
@@ -244,28 +240,11 @@ public class omero
         //Set Ant properties.
         System.setProperty("ant.home", toolsDir.getAbsolutePath());
         System.setProperty("ant.library.dir", toolsDir.getAbsolutePath());
-	System.setProperty("build.sysclasspath","last"); // or first, ignore, only
-	// This solves the problem of users having conflicting
-	// versions on their CLASSPATH
-        
-        //Set Xerces properties. 
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory", 
-                           "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
-        System.setProperty("javax.xml.parsers.SAXParserFactory", 
-                           "org.apache.xerces.jaxp.SAXParserFactoryImpl");
-//        System.setProperty(
-//                "org.apache.xerces.xni.parser.XMLParserConfiguration",
-//                "org.apache.xerces.parsers.XML11Configuration");
-        System.setProperty("org.xml.sax.driver", 
-                           "org.apache.xerces.parsers.SAXParser");
-
-        //Set Xalan properties.
-        System.setProperty("javax.xml.transform.TransformerFactory", 
-                           "org.apache.xalan.processor.TransformerFactoryImpl");
-        System.setProperty("org.apache.xml.dtm.DTMManager", 
-                           "org.apache.xml.dtm.ref.DTMManagerDefault");
+        System.setProperty("build.sysclasspath","last"); // or first, ignore, only
+        // This solves the problem of users having conflicting
+        // versions on their CLASSPATH
     }
-    
+
     /**
      * Sets the environment and then starts Ant with the specified command line.
      *  
