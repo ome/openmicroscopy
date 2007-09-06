@@ -74,12 +74,10 @@ public class ServiceHandler implements MethodInterceptor {
 
         ApiConstraintChecker.errorOnViolation(implClass, mthd, args);
 
-        String threadId = Utils.getThreadIdentifier();
-
         if (log.isInfoEnabled()) {
             // Method and arguments
-            log.info(threadId + " Meth:\t" + arg0.getMethod().getName());
-            log.info(threadId + " Args:\t" + getArgumentsString(arg0));
+            log.info(" Meth:\t" + arg0.getMethod().getName());
+            log.info(" Args:\t" + getArgumentsString(arg0));
         }
 
         // Results and/or Exceptions
@@ -89,14 +87,14 @@ public class ServiceHandler implements MethodInterceptor {
         try {
             sessions.cleanThread();
             o = arg0.proceed();
-            finalOutput = threadId + " Rslt:\t" + o;
+            finalOutput = " Rslt:\t" + o;
 
             // Extended output and return.
             log(o);
             return o;
 
         } catch (Throwable t) {
-            finalOutput = threadId + " Excp:\t" + t;
+            finalOutput = " Excp:\t" + t;
             throw getAndLogException(t);
         } finally {
             if (log.isInfoEnabled()) {
