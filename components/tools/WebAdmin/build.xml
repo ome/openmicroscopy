@@ -82,6 +82,9 @@
       </copy>
     </target>
 
-    <target name="tools-clean" depends="clean"/>
+    <target name="tools-clean" depends="clean">
+        <delete dir="target"/>
+        <delete file="${war.file.name}"/>
+    </target>
 
   </project>

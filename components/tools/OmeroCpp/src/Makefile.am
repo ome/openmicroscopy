@@ -19,8 +19,12 @@ INCLUDES=-I$(CPP_GEN) -I$(CPP_SRC) -I$(COPY)
 LIBS=-lstdc++ -lIce -lIceUtil -lSlice -lGlacier2
 
 clean-local:
-	find $(CPP_GEN) -name "*.cpp" -exec rm {} \;
-	find $(CPP_GEN) -name "*.h" -exec rm {} \;
+	test -e $(CPP_GEN) && find $(CPP_GEN) -name "*.cpp" -exec rm {} \; || true
+	test -e $(CPP_GEN) && $find $(CPP_GEN) -name "*.h" -exec rm {} \; || true
+
+distclean-local:
+	test -e .deps && rm -rf .deps || true
+	test -e .libs && rm -rf .libs || true
 
 slice: $(CPP_GEN)
 

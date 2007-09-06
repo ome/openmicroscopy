@@ -57,7 +57,6 @@
    <target name="tools-clean" depends="make-clean">
         <delete dir="${copy.dir}"/>
 	<delete dir="${basedir}/target"/>
-        <delete dir="${basedir}/src/slice_generated"/>
     </target>
 
 </project>

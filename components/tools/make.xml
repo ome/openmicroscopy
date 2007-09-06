@@ -9,17 +9,36 @@
     <property name="make.CXX"         value="ccache g++"/>
     <property name="make.J"           value="1"/>
 
-    <target name="make-build" unless="make.NOMAKE">
-        <exec executable="${basedir}/../autogen.sh" failonerror="true">
+    <macrodef name="autogen">
+        <attribute name="file" default="${basedir}/../autogen.sh"/>
+        <sequential>
+        <exec executable="@{file}" failonerror="true">
             <arg value="--with-ice=${make.ICE_HOME}"/>
             <arg value="--prefix=${make.DESTDIR}"/>
             <arg value="LDFLAGS=${make.LDFLAGS}"/>
             <arg value="CXXFLAGS=${make.CXXFLAGS}"/>
             <arg value="CXX=${make.CXX}"/>
         </exec>
-        <exec executable="make" dir="src" failonerror="true"> <arg value="slice"/> </exec>
-        <exec executable="make" dir="src" failonerror="true"> <arg value="-j${make.J}"/> </exec>
-        <exec executable="make" dir="src" failonerror="true"> <arg value="install"/> </exec>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="make">
+        <attribute name="dir" default="${basedir}"/>
+        <attribute name="failonerror" default="true"/>
+        <element name="args" implicit="yes"/>
+        <sequential>
+        <exec executable="make" dir="@{dir}" failonerror="true">
+            <args/>
+        </exec>
+        </sequential>
+    </macrodef>
+
+    <target name="make-build" unless="make.NOMAKE">
+        <autogen/>
+        
+        <make dir="src"> <arg value="slice"/> </make>
+        <make dir="src"> <arg value="-j${make.J}"/> </make>
+        <make dir="src"> <arg value="install"/> </make>
     </target>
 
     <target name="make-install" unless="make.NOMAKE">
@@ -31,7 +50,8 @@
 
     <target name="make-clean" unless="make.NOMAKE">
         <!-- Doesn't fail on error to permit calling the target twice -->
-        <exec executable="make" failonerror="false"> <arg value="maintainer-clean"/> </exec>
+        <make failonerror="false"> <arg value="clean-all"/> </make>
+        <delete dir="${basedir}/src/slice_generated"/>
     </target>
 
 </project>

@@ -1,9 +1,9 @@
 SUBDIR= src test
 
 DISTCLEANFILES = \
+	Makefile.in \
 	config.cache \
-	*.loT
-MAINTAINERCLEANFILES = \
+	*.loT \
 	aclocal.m4 \
 	autoscan.log \
 	compile \
@@ -16,32 +16,34 @@ MAINTAINERCLEANFILES = \
 	ltmain.sh \
 	missing \
 	mkinstalldirs\
-	Makefile.in\
 	configure
 
 all : slice src test
 
-slice: force
+slice:
 	@date
 	cd src ; $(MAKE) $(MFLAGS) slice
 	@date
 
-src: force
+src:
 	@date
 	cd src ; $(MAKE) $(MFLAGS)
 	@date
 
-test: force
+test:
 	@date
 	cd test ; $(MAKE) $(MFLAGS) 
 	@date
 
-clean: force
+clean:
 	@date
 	cd src ; $(MAKE) $(MFLAGS) clean
 	cd test ; $(MAKE) $(MFLAGS) clean
 	@date
 
-force:
-	true
+clean-all:
+	cd src ; $(MAKE) $(MFLAGS) distclean && rm Makefile.in # Not sure why *.in is sticking around
+	cd test ; $(MAKE) $(MFLAGS) distclean && rm Makefile.in 
+	$(MAKE) $(MFLAGS) distclean
 
+.PHONY: all src test clean clean-all

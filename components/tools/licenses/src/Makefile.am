@@ -15,6 +15,8 @@ LIBS = -lstdc++ -lOMERO_client -lIce -lIceUtil -lGlacier2
 
 all: slice libOMERO_licenses.la
 
+distclean-local:
+
 #.PHONY: clean check run slice
 
 slice:

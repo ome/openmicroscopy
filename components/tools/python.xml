@@ -47,10 +47,11 @@
     </target>
 
     <target name="python-clean" unless="py.NOPYTHON">
-        <delete dir="${basedir}/build/lib"/>
         <setup_py>
             <arg value="clean"/>
         </setup_py>
+        <delete dir="${basedir}/build"/>
+        <delete dir="${basedir}/ez_setup.pyc"/>
     </target>
 
 </project>
