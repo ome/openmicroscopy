@@ -33,7 +33,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKeys;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
@@ -98,7 +97,7 @@ public class MeasureEllipseFigure
 			double height)
 	{
 		super(text, x, y, width, height);
-		setAttributeEnabled(AttributeKeys.TEXT_COLOR, true);
+		setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
 		shape=null;
 		roi=null;
 	}
@@ -243,7 +242,7 @@ public class MeasureEllipseFigure
 			NumberFormat formatter=new DecimalFormat("###.#");
 			String ellipseArea=formatter.format(getArea());
 			ellipseArea=addUnits(ellipseArea);
-			double sz=((Double) this.getAttribute(AttributeKeys.FONT_SIZE));
+			double sz=((Double) this.getAttribute(MeasurementAttributes.FONT_SIZE));
 			g.setFont(new Font("Arial", Font.PLAIN, (int) sz));
 			bounds=g.getFontMetrics().getStringBounds(ellipseArea, g);
 			bounds=

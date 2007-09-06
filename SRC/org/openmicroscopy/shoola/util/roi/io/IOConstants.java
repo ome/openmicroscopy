@@ -164,9 +164,6 @@ public class IOConstants
 												new Color(255, 255, 255, 220);
 	public final static double DEFAULT_FONT_SIZE = 12.0f;
 	public final static double DEFAULT_STROKE_WIDTH =  1.0f;
-//	public final static Color DEFAULT_FILL_COLOUR = new Color(255, 255, 255, 0);
-//	public final static Color DEFAULT_STROKE_COLOUR = new Color(255, 255, 255, 255);
-//	public final static Color DEFAULT_MEASUREMENT_TEXT_COLOUR = Color.YELLOW;
 }
 
 

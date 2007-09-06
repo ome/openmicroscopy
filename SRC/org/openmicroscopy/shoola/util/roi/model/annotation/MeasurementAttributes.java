@@ -28,8 +28,8 @@ import java.awt.Color;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
-import org.jhotdraw.draw.AttributeKeys;
 import org.openmicroscopy.shoola.util.roi.io.IOConstants;
+import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 
 //Application-internal dependencies
 
@@ -47,7 +47,7 @@ import org.openmicroscopy.shoola.util.roi.io.IOConstants;
  * @since OME3.0
  */
 public class MeasurementAttributes  
-	extends AttributeKeys 
+	extends DrawingAttributes 
 {
 	/**
 	 * Should the figure show the measurement text.
@@ -75,13 +75,6 @@ public class MeasurementAttributes
 			 // it's ok, we can call this constructor
 			ref = new MeasurementAttributes();		
 		return ref;
-	}
-
-	/** You cannot so don't try. */
-	public Object clone()
-		throws CloneNotSupportedException
-	{
-		throw new CloneNotSupportedException(); 
 	}
 
 	/** Private ref. */

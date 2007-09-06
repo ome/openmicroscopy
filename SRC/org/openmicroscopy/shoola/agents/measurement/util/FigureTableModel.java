@@ -22,18 +22,16 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.util;
 
+//Java imports
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+//Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Figure;
-
-//Java imports
-
-//Third-party libraries
 
 //Application-internal dependencies
 

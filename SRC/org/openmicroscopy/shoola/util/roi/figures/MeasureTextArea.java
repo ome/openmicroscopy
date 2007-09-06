@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.util.roi.figures;
 
 //Java imports
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -32,7 +31,6 @@ import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
@@ -44,18 +42,10 @@ import java.util.LinkedList;
 import java.util.StringTokenizer;
 
 //Third-party libraries
-import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
-import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
-import static org.jhotdraw.draw.AttributeKeys.FONT_UNDERLINED;
-import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
-import static org.jhotdraw.draw.AttributeKeys.TEXT;
-import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
-
 import org.jhotdraw.draw.AbstractAttributedDecoratedFigure;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.FontSizeHandle;
 import org.jhotdraw.draw.Handle;
-import org.jhotdraw.draw.TextAreaFigure;
 import org.jhotdraw.draw.TextAreaTool;
 import org.jhotdraw.draw.TextHolderFigure;
 import org.jhotdraw.draw.Tool;
@@ -64,7 +54,7 @@ import org.jhotdraw.xml.DOMInput;
 import org.jhotdraw.xml.DOMOutput;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 
 /** 
  * 
@@ -98,7 +88,7 @@ public class MeasureTextArea  extends AbstractAttributedDecoratedFigure implemen
         if (getText() != null || isEditable()) {
             
             Font font = getFont();
-            boolean isUnderlined = FONT_UNDERLINED.get(this);
+            boolean isUnderlined = MeasurementAttributes.FONT_UNDERLINED.get(this);
             Insets2D.Double insets = getInsets();
             Rectangle2D.Double textRect = new Rectangle2D.Double(
                     bounds.x + insets.left,
@@ -298,13 +288,13 @@ public class MeasureTextArea  extends AbstractAttributedDecoratedFigure implemen
      * Gets the text shown by the text figure.
      */
     public String getText() {
-        return (String) getAttribute(TEXT);
+        return (String) getAttribute(MeasurementAttributes.TEXT);
     }
     /**
      * Returns the insets used to draw text.
      */
     public Insets2D.Double getInsets() {
-        double sw = Math.ceil(STROKE_WIDTH.get(this) / 2);
+        double sw = Math.ceil(MeasurementAttributes.STROKE_WIDTH.get(this) / 2);
         Insets2D.Double insets = new Insets2D.Double(4,4,4,4);
         return new Insets2D.Double(insets.top+sw,insets.left+sw,insets.bottom+sw,insets.right+sw);
     }
@@ -318,7 +308,7 @@ public class MeasureTextArea  extends AbstractAttributedDecoratedFigure implemen
      * Sets the text shown by the text figure.
      */
     public void setText(String newText) {
-        setAttribute(TEXT, newText);
+        setAttribute(MeasurementAttributes.TEXT, newText);
     }
     
     public int getTextColumns() {
@@ -328,19 +318,19 @@ public class MeasureTextArea  extends AbstractAttributedDecoratedFigure implemen
         return AttributeKeys.getFont(this);
     }
     public Color getTextColor() {
-        return TEXT_COLOR.get(this);
+        return MeasurementAttributes.TEXT_COLOR.get(this);
     }
     
     public Color getFillColor() {
-        return FILL_COLOR.get(this);
+        return MeasurementAttributes.FILL_COLOR.get(this);
     }
     
     public void setFontSize(float size) {
-        FONT_SIZE.set(this, new Double(size));
+    	MeasurementAttributes.FONT_SIZE.set(this, new Double(size));
     }
     
     public float getFontSize() {
-        return FONT_SIZE.get(this).floatValue();
+        return MeasurementAttributes.FONT_SIZE.get(this).floatValue();
     }
     
     // EDITING

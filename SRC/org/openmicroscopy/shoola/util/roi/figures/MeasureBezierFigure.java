@@ -37,10 +37,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKeys;
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
@@ -153,7 +151,7 @@ public class MeasureBezierFigure
 				NumberFormat formatter = new DecimalFormat("###.#");
 				String polygonArea = formatter.format(getArea());
 				polygonArea = addAreaUnits(polygonArea);
-				double sz = ((Double)this.getAttribute(AttributeKeys.FONT_SIZE));
+				double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
 				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 				bounds = g.getFontMetrics().getStringBounds(polygonArea, g);
 				bounds = new Rectangle2D.Double(this.getBounds().getCenterX()-bounds.getWidth()/2,
@@ -167,7 +165,7 @@ public class MeasureBezierFigure
 				NumberFormat formatter = new DecimalFormat("###.#");
 				String polygonLength = formatter.format(getLength());
 				polygonLength = addLineUnits(polygonLength);
-				double sz = ((Double)this.getAttribute(AttributeKeys.FONT_SIZE));
+				double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
 				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 				bounds = g.getFontMetrics().getStringBounds(polygonLength, g);
 				

@@ -41,7 +41,6 @@ import net.n3.nanoxml.IXMLReader;
 import net.n3.nanoxml.StdXMLReader;
 import net.n3.nanoxml.XMLParserFactory;
 import org.jhotdraw.draw.AttributeKey;
-import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.geom.BezierPath.Node;
 
 //Application-internal dependencies
@@ -85,7 +84,6 @@ import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeWidthParse
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGTransformParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.ShowMeasurementParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.ShowTextParser;
-import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 
 /** 
  * 
@@ -111,21 +109,21 @@ public class InputStrategy
 	static
 	{
 		defaultAttributes=new HashMap<AttributeKey, Object>();
-		defaultAttributes.put(AttributeKeys.FILL_COLOR,
+		defaultAttributes.put(MeasurementAttributes.FILL_COLOR,
 			IOConstants.DEFAULT_FILL_COLOUR);
-		defaultAttributes.put(AttributeKeys.STROKE_COLOR,
+		defaultAttributes.put(MeasurementAttributes.STROKE_COLOR,
 			IOConstants.DEFAULT_STROKE_COLOUR);
-		defaultAttributes.put(AttributeKeys.TEXT_COLOR,
+		defaultAttributes.put(MeasurementAttributes.TEXT_COLOR,
 			IOConstants.DEFAULT_TEXT_COLOUR);
-		defaultAttributes.put(AttributeKeys.FONT_SIZE, new Double(10));
-		defaultAttributes.put(AttributeKeys.FONT_BOLD, false);
-		defaultAttributes.put(AttributeKeys.STROKE_WIDTH, new Double(1.0));
-		defaultAttributes.put(AttributeKeys.TEXT, "Text");
+		defaultAttributes.put(MeasurementAttributes.FONT_SIZE, new Double(10));
+		defaultAttributes.put(MeasurementAttributes.FONT_BOLD, false);
+		defaultAttributes.put(MeasurementAttributes.STROKE_WIDTH, new Double(1.0));
+		defaultAttributes.put(MeasurementAttributes.TEXT, "Text");
 		defaultAttributes.put(MeasurementAttributes.MEASUREMENTTEXT_COLOUR,
 			IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
 		defaultAttributes.put(MeasurementAttributes.SHOWMEASUREMENT, new Boolean(
 			false));
-		defaultAttributes.put(DrawingAttributes.SHOWTEXT, new Boolean(false));
+		defaultAttributes.put(MeasurementAttributes.SHOWTEXT, new Boolean(false));
 	}
 	
 	/**
@@ -1057,7 +1055,7 @@ public class InputStrategy
 	 */
 	private void setText(ROIFigure fig, String text)
 	{
-		AttributeKeys.TEXT.set(fig, text);
+		MeasurementAttributes.TEXT.set(fig, text);
 	}
 	
 	/**

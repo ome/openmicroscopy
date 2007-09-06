@@ -33,7 +33,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 
-
 /** 
  * Interface that all areas of the Euclidean space <b>R</b><sup>2</sup> must
  * implement.

@@ -47,6 +47,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
+import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
 
@@ -499,8 +500,8 @@ class MeasurementViewerUI
     	if (figure == null) return;
     	ROI roi = null;
     	try {
-    		roi = model.createROI(figure);
-		} catch (Exception e) {
+    		roi = model.createROI(figure, true);
+    	} catch (Exception e) {
 			handleROIException(e, CREATE_MSG);
 		}
     	if (roi == null) return;

@@ -40,7 +40,6 @@ import javax.swing.JToolBar;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
-import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.DrawingEditor;
 
 //Application-internal dependencies
@@ -56,6 +55,7 @@ import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
+import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.FigureProperties;
 import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingBezierTool;
 import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingConnectionTool;
 import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingObjectCreationTool;
@@ -81,28 +81,30 @@ class ToolBar
 {
 
 	/** The defaults attributes of the line connection figure. */
-	private final static HashMap<AttributeKey, Object>	defaultAttributes;
+	private final static HashMap<AttributeKey, Object>	defaultConnecionAttributes;
 	
 	static
 	{
-		defaultAttributes=new HashMap<AttributeKey, Object>();
-		defaultAttributes.put(AttributeKeys.FILL_COLOR,
+		defaultConnecionAttributes=new HashMap<AttributeKey, Object>();
+		defaultConnecionAttributes.put(MeasurementAttributes.FILL_COLOR,
 						IOConstants.DEFAULT_FILL_COLOUR);
-		defaultAttributes.put(AttributeKeys.STROKE_COLOR,
+		defaultConnecionAttributes.put(MeasurementAttributes.STROKE_COLOR,
 						IOConstants.DEFAULT_STROKE_COLOUR);
-		defaultAttributes.put(AttributeKeys.TEXT_COLOR,
+		defaultConnecionAttributes.put(MeasurementAttributes.TEXT_COLOR,
 						IOConstants.DEFAULT_TEXT_COLOUR);
-		defaultAttributes.put(AttributeKeys.FONT_SIZE, new Double(10));
-		defaultAttributes.put(AttributeKeys.FONT_BOLD, false);
-		defaultAttributes.put(AttributeKeys.STROKE_WIDTH, new Double(1.0));
-		defaultAttributes.put(AttributeKeys.TEXT, "Text");
-		defaultAttributes.put(MeasurementAttributes.MEASUREMENTTEXT_COLOUR,
+		defaultConnecionAttributes.put(MeasurementAttributes.FONT_SIZE, new Double(10));
+		defaultConnecionAttributes.put(MeasurementAttributes.FONT_BOLD, false);
+		defaultConnecionAttributes.put(MeasurementAttributes.STROKE_WIDTH, new Double(1.0));
+		defaultConnecionAttributes.put(MeasurementAttributes.TEXT, "Text");
+		defaultConnecionAttributes.put(MeasurementAttributes.MEASUREMENTTEXT_COLOUR,
 			IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
-		defaultAttributes.put(MeasurementAttributes.SHOWMEASUREMENT, 
+		defaultConnecionAttributes.put(MeasurementAttributes.SHOWMEASUREMENT, 
 							Boolean.FALSE);
-		defaultAttributes.put(DrawingAttributes.SHOWTEXT, Boolean.FALSE);
+		defaultConnecionAttributes.put(DrawingAttributes.SHOWTEXT, Boolean.FALSE);
 	}
 	
+	private FigureProperties 			lineConnectionProperties;
+		
 	/** The default string added to the type of Figure to create. */
 	private static final String			CREATE_KEY = "create";
 	
@@ -145,12 +147,14 @@ class ToolBar
     /** Initializes the component composing the display. */
 	private void initComponents()
 	{
+		lineConnectionProperties = new FigureProperties(defaultConnecionAttributes);
 		ellipseTool = new DrawingObjectCreationTool(new MeasureEllipseFigure());
 		rectTool = new DrawingObjectCreationTool(new MeasureRectangleFigure());
 		textTool = new DrawingObjectCreationTool(new MeasureTextFigure());
 		lineTool = new DrawingObjectCreationTool(new MeasureLineFigure());
 		connectionTool = new DrawingConnectionTool(
-						new MeasureLineConnectionFigure(), defaultAttributes);
+						new MeasureLineConnectionFigure(), 
+						lineConnectionProperties.getProperties());
 		pointTool = new DrawingPointCreationTool(new MeasurePointFigure());
 	    polygonTool = new DrawingBezierTool(new MeasureBezierFigure(true));
 	    polylineTool = new DrawingBezierTool(new MeasureBezierFigure(false));

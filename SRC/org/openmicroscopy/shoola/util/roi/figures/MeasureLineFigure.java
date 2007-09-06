@@ -37,7 +37,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKeys;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
@@ -153,7 +152,7 @@ public class MeasureLineFigure
 				angleArray.add(angle);
 				String lineAngle = formatter.format(angle);
 				lineAngle = addDegrees(lineAngle);
-				double sz = ((Double)this.getAttribute(AttributeKeys.FONT_SIZE));
+				double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
 				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle, g);
 				Point2D.Double lengthPoint = getLengthPosition(0, 1);
@@ -171,7 +170,7 @@ public class MeasureLineFigure
 				angleArray.add(angle);
 				String lineAngle = formatter.format(angle);
 				lineAngle = addDegrees(lineAngle);
-				double sz = ((Double)this.getAttribute(AttributeKeys.FONT_SIZE));
+				double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
 				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle, g);
 				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x,
@@ -187,7 +186,7 @@ public class MeasureLineFigure
 				lengthArray.add(length);
 				String lineLength = formatter.format(length);
 				lineLength = addUnits(lineLength);
-				double sz = ((Double)this.getAttribute(AttributeKeys.FONT_SIZE));
+				double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
 				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 				Point2D.Double lengthPoint = getLengthPosition(x-1, x);
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineLength, g);

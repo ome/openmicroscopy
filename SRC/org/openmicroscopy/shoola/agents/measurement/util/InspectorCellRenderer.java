@@ -22,9 +22,10 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.util;
 
+//Java imports
+
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -36,14 +37,12 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.TableCellRenderer;
 
-import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
-import org.openmicroscopy.shoola.util.ui.PaintPot;
-
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
+import org.openmicroscopy.shoola.util.ui.PaintPot;
 
 /** 
  * 

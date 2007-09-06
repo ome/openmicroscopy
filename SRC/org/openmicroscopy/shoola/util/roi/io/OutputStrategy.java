@@ -38,20 +38,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 // Third-party libraries
-import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
-import static org.jhotdraw.draw.AttributeKeys.FONT_BOLD;
-import static org.jhotdraw.draw.AttributeKeys.FONT_FACE;
-import static org.jhotdraw.draw.AttributeKeys.FONT_ITALIC;
-import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
-import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
-import static org.jhotdraw.draw.AttributeKeys.STROKE_CAP;
-import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
-import static org.jhotdraw.draw.AttributeKeys.STROKE_DASHES;
-import static org.jhotdraw.draw.AttributeKeys.STROKE_DASH_PHASE;
-import static org.jhotdraw.draw.AttributeKeys.STROKE_JOIN;
-import static org.jhotdraw.draw.AttributeKeys.STROKE_MITER_LIMIT;
-import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
-import static org.jhotdraw.draw.AttributeKeys.WINDING_RULE;
 import static org.jhotdraw.samples.svg.SVGAttributeKeys.FILL_GRADIENT;
 import static org.jhotdraw.samples.svg.SVGAttributeKeys.STROKE_GRADIENT;
 import static org.jhotdraw.samples.svg.SVGAttributeKeys.TRANSFORM;
@@ -84,7 +70,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
-import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 
 /**
  * 
@@ -768,7 +753,7 @@ public class OutputStrategy
 		}
 		else
 		{
-			writeAttribute(elem, "fill", toColor(FILL_COLOR.get(f)), "#000");
+			writeAttribute(elem, "fill", toColor(MeasurementAttributes.FILL_COLOR.get(f)), "#000");
 		}
 		
 		
@@ -782,7 +767,7 @@ public class OutputStrategy
 		// Animatable: yes
 		// Computed value: Specified value, except inherit
 		writeAttribute(elem, "fill-opacity",
-			FILL_COLOR.get(f).getAlpha()/255.0, 1d);
+			MeasurementAttributes.FILL_COLOR.get(f).getAlpha()/255.0, 1d);
 		
 		
 		// 'fill-rule'
@@ -794,7 +779,7 @@ public class OutputStrategy
 		// Media: visual
 		// Animatable: yes
 		// Computed value: Specified value, except inherit
-		if (WINDING_RULE.get(f)!=WindingRule.NON_ZERO)
+		if (MeasurementAttributes.WINDING_RULE.get(f)!=WindingRule.NON_ZERO)
 		{
 			writeAttribute(elem, "fill-rule", "evenodd", "nonzero");
 		}
@@ -837,7 +822,7 @@ public class OutputStrategy
 		}
 		else
 		{
-			writeAttribute(elem, "stroke", toColor(STROKE_COLOR.get(f)), "none");
+			writeAttribute(elem, "stroke", toColor(MeasurementAttributes.STROKE_COLOR.get(f)), "none");
 		}
 		
 		
@@ -850,7 +835,7 @@ public class OutputStrategy
 		// Media: visual
 		// Animatable: yes (non-additive)
 		// Computed value: Specified value, except inherit
-		double[] dashes=STROKE_DASHES.get(f);
+		double[] dashes=MeasurementAttributes.STROKE_DASHES.get(f);
 		if (dashes!=null)
 		{
 			StringBuilder buf=new StringBuilder();
@@ -875,7 +860,7 @@ public class OutputStrategy
 		// Media: visual
 		// Animatable: yes
 		// Computed value: Specified value, except inherit
-		writeAttribute(elem, "stroke-dashoffset", STROKE_DASH_PHASE.get(f), 0d);
+		writeAttribute(elem, "stroke-dashoffset", MeasurementAttributes.STROKE_DASH_PHASE.get(f), 0d);
 		
 		
 		// 'stroke-linecap'
@@ -887,7 +872,7 @@ public class OutputStrategy
 		// Media: visual
 		// Animatable: yes
 		// Computed value: Specified value, except inherit
-		writeAttribute(elem, "stroke-linecap", strokeLinecapMap.get(STROKE_CAP
+		writeAttribute(elem, "stroke-linecap", strokeLinecapMap.get(MeasurementAttributes.STROKE_CAP
 			.get(f)), "butt");
 		
 		
@@ -901,7 +886,7 @@ public class OutputStrategy
 		// Animatable: yes
 		// Computed value: Specified value, except inherit
 		writeAttribute(elem, "stroke-linejoin", strokeLinejoinMap
-			.get(STROKE_JOIN.get(f)), "miter");
+			.get(MeasurementAttributes.STROKE_JOIN.get(f)), "miter");
 		
 		
 		// 'stroke-miterlimit'
@@ -913,7 +898,7 @@ public class OutputStrategy
 		// Media: visual
 		// Animatable: yes
 		// Computed value: Specified value, except inherit
-		writeAttribute(elem, "stroke-miterlimit", STROKE_MITER_LIMIT.get(f), 4d);
+		writeAttribute(elem, "stroke-miterlimit", MeasurementAttributes.STROKE_MITER_LIMIT.get(f), 4d);
 		
 		
 		// 'stroke-opacity'
@@ -926,7 +911,7 @@ public class OutputStrategy
 		// Animatable: yes
 		// Computed value: Specified value, except inherit
 		writeAttribute(elem, "stroke-opacity",
-			STROKE_COLOR.get(f).getAlpha()/255.0, 1d);
+			MeasurementAttributes.STROKE_COLOR.get(f).getAlpha()/255.0, 1d);
 		
 		
 		// 'stroke-width'
@@ -938,12 +923,12 @@ public class OutputStrategy
 		// Media: visual
 		// Animatable: yes
 		// Computed value: Specified value, except inherit
-		writeAttribute(elem, "stroke-width", STROKE_WIDTH.get(f), 1d);
+		writeAttribute(elem, "stroke-width", MeasurementAttributes.STROKE_WIDTH.get(f), 1d);
 		
 		writeAttribute(elem, MeasurementAttributes.SHOWMEASUREMENT.getKey(), 
 			MeasurementAttributes.SHOWMEASUREMENT.get(f).toString(), "false");
-		writeAttribute(elem, DrawingAttributes.SHOWTEXT.getKey(), 
-			DrawingAttributes.SHOWTEXT.get(f).toString(), "false");
+		writeAttribute(elem, MeasurementAttributes.SHOWTEXT.getKey(), 
+			MeasurementAttributes.SHOWTEXT.get(f).toString(), "false");
 	}
 	
 	
@@ -1001,7 +986,7 @@ public class OutputStrategy
 		}
 		else
 		{
-			writeAttribute(elem, "fill", toColor(TEXT_COLOR.get(a)), "#000");
+			writeAttribute(elem, "fill", toColor(MeasurementAttributes.TEXT_COLOR.get(a)), "#000");
 		}
 		
 		
@@ -1015,7 +1000,7 @@ public class OutputStrategy
 		// Animatable: yes
 		// Computed value: Specified value, except inherit
 		writeAttribute(elem, "fill-opacity",
-			TEXT_COLOR.get(a).getAlpha()/255.0, 1d);
+			MeasurementAttributes.TEXT_COLOR.get(a).getAlpha()/255.0, 1d);
 		
 		
 		// 'font-family'
@@ -1029,7 +1014,7 @@ public class OutputStrategy
 		// Media: visual
 		// Animatable: yes
 		// Computed value: Specified value, except inherit
-		writeAttribute(elem, "font-family", FONT_FACE.get(a).getFamily(),
+		writeAttribute(elem, "font-family", MeasurementAttributes.FONT_FACE.get(a).getFamily(),
 			"Dialog");
 		
 		
@@ -1043,7 +1028,7 @@ public class OutputStrategy
 		// Media: visual
 		// Animatable: yes
 		// Computed value: Absolute length
-		writeAttribute(elem, "font-size", FONT_SIZE.get(a), 0d);
+		writeAttribute(elem, "font-size", MeasurementAttributes.FONT_SIZE.get(a), 0d);
 		
 		
 		// 'font-style'
@@ -1055,7 +1040,7 @@ public class OutputStrategy
 		// Media: visual
 		// Animatable: yes
 		// Computed value: Specified value, except inherit
-		writeAttribute(elem, "font-style", (FONT_ITALIC.get(a)) ? "italic"
+		writeAttribute(elem, "font-style", (MeasurementAttributes.FONT_ITALIC.get(a)) ? "italic"
 				: "normal", "normal");
 		
 		
@@ -1083,7 +1068,7 @@ public class OutputStrategy
 		// Computed value: one of the legal numeric values, non-numeric
 		// values shall be converted to numeric values according to the rules
 		// defined below.
-		writeAttribute(elem, "font-weight", (FONT_BOLD.get(a)) ? "bold"
+		writeAttribute(elem, "font-weight", (MeasurementAttributes.FONT_BOLD.get(a)) ? "bold"
 				: "normal", "normal");
 	}
 	

@@ -507,6 +507,23 @@ class MeasurementViewerModel
 		return roiComponent.addROI(figure, getCurrentView());
 	}
 	
+
+	/**
+	 * Returns the ROIComponent to create a <code>ROI</code> from 
+	 * the passed figure.
+	 * 
+	 * @param figure The figure to create the <code>ROI</code> from.
+	 * @param addAttribs add atrributs to figure
+	 * @return Returns the created <code>ROI</code>.
+	 * @throws ROICreationException If the ROI cannot be created.
+	 * @throws NoSuchROIException If the ROI does not exist.
+	 */
+	ROI createROI(ROIFigure figure, boolean addAttribs)
+		throws ROICreationException, NoSuchROIException
+	{
+		return roiComponent.addROI(figure, getCurrentView(),addAttribs);
+	}
+	
 	/**
 	 * Returns the {@link ShapeList} for the current plane.
 	 * 

@@ -22,19 +22,16 @@
  */
 package org.openmicroscopy.shoola.util.roi.io.util;
 
-import static org.jhotdraw.samples.svg.SVGConstants.SVG_COLORS;
 
+
+
+//Java imports
 import java.awt.Color;
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.swing.UIManager;
-
-import net.n3.nanoxml.IXMLElement;
-
-//Java imports
 
 //Third-party libraries
 

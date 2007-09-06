@@ -34,7 +34,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKeys;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
@@ -205,7 +204,7 @@ public class MeasureRectangleFigure
 			NumberFormat formatter = new DecimalFormat("###.#");
 			String rectangleArea = formatter.format(getArea());
 			rectangleArea = addUnits(rectangleArea);
-			double sz = ((Double)this.getAttribute(AttributeKeys.FONT_SIZE));
+			double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
 			g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 			bounds = g.getFontMetrics().getStringBounds(rectangleArea, g);
 			bounds = new Rectangle2D.Double(

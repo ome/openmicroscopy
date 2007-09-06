@@ -22,9 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.view;
 
-
-
-
 //Java imports
 import java.awt.Color;
 import java.awt.FontMetrics;

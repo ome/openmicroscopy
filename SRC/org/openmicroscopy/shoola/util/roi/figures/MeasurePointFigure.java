@@ -32,7 +32,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKeys;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
@@ -43,7 +42,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointTextFigure;
 
@@ -89,7 +87,7 @@ public class MeasurePointFigure
 																double height) 
     {
     	super(text, x, y, width, height);
-    	setAttributeEnabled(AttributeKeys.TEXT_COLOR, true);
+    	setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
 	    shape = null;
 		roi = null;
     }
@@ -212,7 +210,7 @@ public class MeasurePointFigure
 				"("+formatter.format(getMeasurementCentre().getX()) 
 				+ ","+formatter.format(getMeasurementCentre().getY())+")";
 			//ellipseArea = addUnits(ellipseArea);
-			double sz = ((Double)this.getAttribute(AttributeKeys.FONT_SIZE));
+			double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
 			g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 			bounds = g.getFontMetrics().getStringBounds(pointCentre, g);
 			bounds = new Rectangle2D.Double(this.getBounds().getCenterX()-bounds.getWidth()/2,

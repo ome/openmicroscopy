@@ -64,17 +64,6 @@ public class DrawingAttributes
 		return ref;
 	}
 
-	/**
-	 * Overridden to throw an exception b/c we don't support clone.
-	 * @see AttributeKeys#clone()
-	 */
-	public Object clone()
-		throws CloneNotSupportedException
-	{
-		throw new CloneNotSupportedException(); 
-		 // that'll teach 'em
-	}
-
 	/** The sole instance. */
 	private static DrawingAttributes ref;
 	

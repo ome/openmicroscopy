@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.view;
 
+
+//Java imports
 import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
@@ -31,8 +33,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-
-//Java imports
 
 //Third-party libraries
 

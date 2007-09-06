@@ -23,10 +23,8 @@
 package org.openmicroscopy.shoola.agents.measurement.util;
 
 //Java imports
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -35,7 +33,6 @@ import java.util.TreeMap;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStats;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
-import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 
  * 
@@ -52,6 +49,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
  */
 public class AnalysisStatsWrapper
 {	
+	/** enumeration of the type of stats in the map. */
 	public enum StatsType 
 	{
 		MIN,

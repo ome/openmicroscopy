@@ -141,7 +141,6 @@ public class ROIComponent
     		AttributeKeys.FILL_COLOR.set(fig, FILL_COLOR);
     		AttributeKeys.STROKE_COLOR.set(fig, STROKE_COLOR);
     	}
-    	fig.setMeasurementUnits(units);
     }
     
     /**
@@ -258,6 +257,32 @@ public class ROIComponent
     {
     	if (figure == null) throw new NullPointerException("Figure param null.");
     	setFigureAttributes(figure);
+    	ROI roi = null;
+    	roi = createROI(figure, currentPlane);
+		if (roi == null) throw new ROICreationException("Unable to create ROI.");
+    	ROIShape shape = figure.getROIShape();
+    	setShapeAnnotations(shape);
+    //	AnnotationKeys.ROIID.set(shape, roi.getID());
+    	return roi;
+    }
+    
+    /**
+     * Adds the specified figure to the display.
+     * 
+     * @param figure The figure to add.
+     * @param currentPlane The plane to add figure to.
+     * @param addAttribs add attributes 
+     * @return returns the newly created ROI. 
+     * @throws NoSuchROIException 
+     * @throws ROICreationException 
+     */
+    public ROI addROI(ROIFigure figure, Coord3D currentPlane, boolean addAttribs)
+    	throws ROICreationException, NoSuchROIException
+    {
+    	if (figure == null) throw new NullPointerException("Figure param null.");
+      	figure.setMeasurementUnits(units);
+        if(addAttribs)
+        	setFigureAttributes(figure);
     	ROI roi = null;
     	roi = createROI(figure, currentPlane);
 		if (roi == null) throw new ROICreationException("Unable to create ROI.");

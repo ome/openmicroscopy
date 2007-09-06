@@ -22,6 +22,7 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.view;
 
+//Java imports
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,8 +37,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
-//Java imports
 
 //Third-party libraries
 

@@ -38,7 +38,6 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
@@ -51,7 +50,6 @@ import org.openmicroscopy.shoola.agents.measurement.util.ValueType;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
-import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 
 
 /** 
@@ -104,22 +102,20 @@ class ObjectInspector
 	private void initComponents()
 	{
 		List<AttributeField> l = new ArrayList<AttributeField>();
-		l.add(new AttributeField(AttributeKeys.TEXT, "Text", true));
-		l.add(new AttributeField(DrawingAttributes.SHOWTEXT, "Show Text", 
+		l.add(new AttributeField(MeasurementAttributes.TEXT, "Text", true));
+		l.add(new AttributeField(MeasurementAttributes.SHOWTEXT, "Show Text", 
 				false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT, 
-					"Show Measurements", 
-				false)); 
-
-		l.add(new AttributeField(AttributeKeys.STROKE_WIDTH, "Line Width", 
-				true, strokeRange(), ValueType.ENUM));
-		l.add(new AttributeField(AttributeKeys.FONT_SIZE, "Font Size", 
+					"Show Measurements", false)); 
+		l.add(new AttributeField(MeasurementAttributes.STROKE_WIDTH, 
+						"Line Width", true, strokeRange(), ValueType.ENUM));
+		l.add(new AttributeField(MeasurementAttributes.FONT_SIZE, "Font Size", 
 				true, fontRange(), ValueType.ENUM));
-		l.add(new AttributeField(AttributeKeys.TEXT_COLOR, "Font Colour", 
+		l.add(new AttributeField(MeasurementAttributes.TEXT_COLOR, "Font Colour", 
 				false));
-		l.add(new AttributeField(AttributeKeys.FILL_COLOR, "Fill Colour", 
+		l.add(new AttributeField(MeasurementAttributes.FILL_COLOR, "Fill Colour", 
 				false));
-		l.add(new AttributeField(AttributeKeys.STROKE_COLOR, "Line Colour", 
+		l.add(new AttributeField(MeasurementAttributes.STROKE_COLOR, "Line Colour", 
 				false));
 		l.add(new AttributeField(MeasurementAttributes.MEASUREMENTTEXT_COLOUR, 
 				"Measurement Colour", false));
