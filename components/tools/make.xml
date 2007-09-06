@@ -27,7 +27,7 @@
         <attribute name="failonerror" default="true"/>
         <element name="args" implicit="yes"/>
         <sequential>
-        <exec executable="make" dir="@{dir}" failonerror="true">
+        <exec executable="make" dir="@{dir}" failonerror="@{failonerror}">
             <args/>
         </exec>
         </sequential>

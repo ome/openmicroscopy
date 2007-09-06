@@ -49,6 +49,18 @@
     <property name="tieClass" value="omero.api._IQueryTie"/>
   </bean>
 
+  <bean id="omero.api.IRepositoryInfo" class="ome.services.blitz.util.ServantDefinition">
+    <property name="operationsClass" value="omero.api._IRepositoryInfoOperations"/>
+    <property name="serviceClass" value="ome.api.IRepositoryInfo"/>
+    <property name="tieClass" value="omero.api._IRepositoryInfoTie"/>
+  </bean>
+
+  <bean id="omero.api.ITypes" class="ome.services.blitz.util.ServantDefinition">
+    <property name="operationsClass" value="omero.api._ITypesOperations"/>
+    <property name="serviceClass" value="ome.api.ITypes"/>
+    <property name="tieClass" value="omero.api._ITypesTie"/>
+  </bean>
+
   <bean id="omero.api.IUpdate" class="ome.services.blitz.util.ServantDefinition">
     <property name="operationsClass" value="omero.api._IUpdateOperations"/>
     <property name="serviceClass" value="ome.api.IUpdate"/>

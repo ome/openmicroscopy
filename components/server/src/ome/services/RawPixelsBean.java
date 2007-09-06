@@ -157,6 +157,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
         buffer = null;
     }
 
+    @RolesAllowed("user")
     @Remove
     @Transactional(readOnly = true)
     public void close() {

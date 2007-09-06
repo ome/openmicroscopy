@@ -155,6 +155,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
      * 
      * @see ome.api.StatefulServiceInterface#close()
      */
+    @RolesAllowed("user")
     @Remove
     @Transactional(readOnly = true)
     public void close() {
