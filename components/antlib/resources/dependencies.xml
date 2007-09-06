@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="dependencies" xmlns:ivy="antlib:fr.jayasoft.ivy.ant">
+<project name="dependencies" xmlns:ivy="antlib:org.apache.ivy.ant">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -26,7 +26,7 @@
   <property name="ivy.local.default.root" value="${omero.home}/lib/repository"/>
   <!-- These are default values. If you'd like to override, due so before import-->
   <property name="ivy.buildlist.ivyfilepath" value="ivy.xml"/>
-  <property name="ivy.dep.file"             value="${basedir}/ivy.xml"/>
+  <property name="ivy.dep.file"              value="ivy.xml"/>
 
   <!--
       Prepare the ivy runtime. This requires the ivy library under lib/repository/tools.
@@ -34,8 +34,8 @@
   <path id="tools.classpath">
     <fileset dir="${omero.home}/lib/tools" includes="*.jar"/>
   </path>
-  <taskdef resource="fr/jayasoft/ivy/ant/antlib.xml"
-	   uri="antlib:fr.jayasoft.ivy.ant" classpathref="tools.classpath"/>
+  <taskdef resource="org/apache/ivy/ant/antlib.xml"
+	   uri="antlib:org.apache.ivy.ant" classpathref="tools.classpath"/>
   
 
   <!-- 
@@ -66,7 +66,7 @@
     -->
   <target name="deps-configure"
 	  description="Parses the Ivy configuration. Required by all Ivy activities.">
-    <ivy:configure file="${etc.dir}/ivyconf.xml" />
+    <ivy:settings id="ivy.instance"  file="${etc.dir}/ivysettings.xml" />
   </target>
   
   <target name="deps-buildlist" 
@@ -107,7 +107,7 @@
       depends="deps-resolve" 
       description="Publish this project in the local ivy repository.">
     <delete file="${target.dir}/${ivy.module}.xml"/> <!-- delete last produced ivy file to be sure a new one will be generated -->
-    <ivy:publish artifactspattern="${target.dir}/[module].[ext]" resolver="omero-resolver" pubrevision="${omero.version}" pubdate="${now}" status="integration"/>
+    <ivy:publish artifactspattern="${target.dir}/[module].[ext]" resolver="omero-resolver" pubrevision="${omero.version}" pubdate="${now}" status="integration" overwrite="true"/>
   </target>
 
   <target name="deps-publish-omero" 

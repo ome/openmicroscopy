@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ivyconf>
+<ivysettings>
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -13,8 +13,8 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
-  <properties file="${ivy.conf.dir}/local.properties"/>
-  <conf defaultCache="${ivy.conf.dir}/../lib/cache" defaultResolver="omero-resolver"/>
+  <properties file="${ivy.settings.dir}/local.properties"/>
+  <settings defaultCache="${ivy.settings.dir}/../lib/cache" defaultResolver="omero-resolver"/>
   <resolvers>
 
     <!-- Main resolver. Uses the OMERO_HOME/lib/repository directory after first
@@ -22,12 +22,12 @@
 
     <chain name="omero-resolver" returnFirst="true">
       <filesystem name="repository">
-        <artifact pattern="${ivy.conf.dir}/../lib/repository/[organization]/[module]/[revision]/[artifact]-[revision].[type]" />
-        <ivy pattern="${ivy.conf.dir}/../lib/repository/[organization]/[module]/[revision]/ivy.xml"/>
+        <artifact pattern="${ivy.settings.dir}/../lib/repository/[organization]/[module]/[revision]/[artifact]-[revision].[type]" />
+        <ivy pattern="${ivy.settings.dir}/../lib/repository/[organization]/[module]/[revision]/ivy.xml"/>
       </filesystem>
       <filesystem name="flatrepository">
-        <artifact pattern="${ivy.conf.dir}/../lib/repository/[module]-[revision].[type]" />
-        <ivy pattern="${ivy.conf.dir}/../lib/repository/[module]-[revision].ivy"/>
+        <artifact pattern="${ivy.settings.dir}/../lib/repository/[module]-[revision].[type]" />
+        <ivy pattern="${ivy.settings.dir}/../lib/repository/[module]-[revision].ivy"/>
       </filesystem>
     </chain>
 
@@ -50,4 +50,4 @@
     <module organisation="omero" name="omejava" resolver="${loci.resolver}" />
   </modules>
 
-</ivyconf>
+</ivysettings>
