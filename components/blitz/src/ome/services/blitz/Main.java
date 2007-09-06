@@ -25,15 +25,15 @@ class RouterControl extends Thread {
 	
     final protected Log log;
 	
-	/**
-	 * Necessary constructor for subclasses.
-	 */
-	RouterControl(ThreadGroup group, String name, Log log) {
-		super(group, name);
-		this.log = log;
-	}
+    /**
+     * Necessary constructor for subclasses.
+     */
+    RouterControl(ThreadGroup group, String name, Log log) {
+        super(group, name);
+        this.log = log;
+    }
 
-	/** 
+    /** 
      * {@link Router} instance which can be added via {@link Main#setRouter(Router)}
      * to have the {@link Router} lifecycle managed.
      */
@@ -84,11 +84,11 @@ class RouterControl extends Thread {
  */
 class Startup extends RouterControl {
 
-	/** 
-	 * Name for this {@link Thread} which matches the name of
-	 * the {@link OmeroContext} chosen by {@link Main}
-	 */
-	final private String name;
+    /**
+     * Name for this {@link Thread} which matches the name of the
+     * {@link OmeroContext} chosen by {@link Main}
+     */
+    final private String name;
 	
     /**
      * A {@link Thread}-implementation which gets registered via
@@ -104,11 +104,11 @@ class Startup extends RouterControl {
     volatile boolean started = false;
     
     /**
-	 * A flag that gets set on a request to shutdown or if startup throws an
-	 * exception. This should only happen if the {@link OmeroContext} is somehow
-	 * improperly configured. This includes database connections, local files,
-	 * and the classpath. If true, OMERO.blitz will shutdown.
-	 */
+     * A flag that gets set on a request to shutdown or if startup throws an
+     * exception. This should only happen if the {@link OmeroContext} is somehow
+     * improperly configured. This includes database connections, local files,
+     * and the classpath. If true, OMERO.blitz will shutdown.
+     */
     volatile boolean stop = false;
     
     Startup(ThreadGroup group, String name, Log log, Shutdown shutdown) {
@@ -175,19 +175,19 @@ class Shutdown extends RouterControl {
  */
 public class Main implements Runnable {
 
-	/**
-	 * This keeps tracks of which servers have already been started
-	 * to prevent multiple allocation. The {@link Shutdown} hook will
-	 * be used to remove the entry from the map. It is still possible 
-	 * for someone to access the given {@link OmeroContext}, but at 
-	 * least the {@link Main} wrapper will provide feedback.
-	 */
-	final static Map<String, Main> IN_USE = 
-		Collections.synchronizedMap(new HashMap<String, Main>());
-	
-	private final static String DEFAULT_NAME = "OMERO.blitz";
-	
-	private final String name;
+    /**
+     * This keeps tracks of which servers have already been started to
+     * prevent multiple allocation. The {@link Shutdown} hook will be used
+     * to remove the entry from the map. It is still possible for someone to
+     * access the given {@link OmeroContext}, but at least the {@link Main}
+     * wrapper will provide feedback.
+     */
+    final static Map<String, Main> IN_USE = Collections
+            .synchronizedMap(new HashMap<String, Main>());
+
+    private final static String DEFAULT_NAME = "OMERO.blitz";
+
+    private final String name;
 	
     private final Log log;
 
@@ -203,11 +203,13 @@ public class Main implements Runnable {
      * {@link Main#Main(String)}. 
      */
     public static void main(final String[] args) {
-    	if (args != null && args.length > 0) {
-    		new Main(args[0]);
+    	Main main;
+        if (args != null && args.length > 0) {
+    		main = new Main(args[0]);
     	} else {
-    		new Main();
+    		main = new Main();
     	}
+    	main.run();
     }
     
     /**
