@@ -16,6 +16,7 @@
     <dependency org="omero" name="common"   rev="${omero.version}" changing="true" />
     <dependency org="omero" name="client"   rev="${omero.version}" changing="true" />
     <dependency org="omero" name="licenses" rev="${omero.version}" changing="true" conf="core->client"/>
+    <dependency org="omero" name="jboss-servlet-api" rev="${versions.jboss}" />
     <dependency org="webadmin" name="chartcreator" rev="${versions.chartcreator}" />
     <dependency org="webadmin" name="commons-digester" rev="${versions.commons-digester}" />
     <dependency org="webadmin" name="commons-el" rev="${versions.commons-el}" />
@@ -37,6 +38,5 @@
     <dependency org="webadmin" name="struts" rev="${versions.struts}"/>
     <dependency org="webadmin" name="tomahawk" rev="${versions.tomahawk}" />
     <dependency org="webadmin" name="tomahawk-sandbox" rev="${versions.tomahawk-sandbox}" />
-    <dependency org="geronimo-spec" name="geronimo-spec-j2ee" rev="1.4-rc4" conf="build->default"/>
   </dependencies>
 </ivy-module>

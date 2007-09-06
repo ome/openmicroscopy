@@ -6,7 +6,8 @@
     <!-- Ivy configuration -->
     <property name="deps.lib.dir" value="${basedir}/WEB-INF/lib"/>
     <property name="import.dir"   value="${basedir}/../../antlib/resources"/>
-    <import file="${import.dir}/directories.xml"/>
+    <import file="${import.dir}/global.xml"/>
+    <import file="${import.dir}/lifecycle.xml"/>
     <import file="${import.dir}/dependencies.xml"/>
 
     <property name="build.compiler"     value="modern"/>
@@ -38,7 +39,7 @@
           </delete>
       </target>
 
-      <target name="compile">
+      <target name="compile" depends="prepare,deps-retrieve">
         <mkdir dir= "${basedir}/WEB-INF/classes" />
         <javac   srcdir="${src.dir}"
                     destdir="${build.dir}"

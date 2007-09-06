@@ -19,7 +19,6 @@
     <dependency name="server" rev="${omero.version}" changing="true" conf="server->core" />
     <dependency name="blitz" rev="${omero.version}" changing="true" conf="client->core" />
     <dependency name="importer" rev="${omero.version}" changing="true" conf="client->core" />
-    <dependency name="licenses" rev="${omero.version}" changing="true" conf="client->core" />
     <!-- Ant -->
     <dependency org="ant" name="ant" rev="1.6.5" conf="server->default"/>
     <dependency org="ant" name="ant-launcher" rev="1.6.5" conf="server->default"/>
