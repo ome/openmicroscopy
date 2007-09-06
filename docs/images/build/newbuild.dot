@@ -1,0 +1,13 @@
+digraph build {
+
+	"java omero build dist withtools" -> "build.xml" [label="uses"];
+
+	"build.xml" -> "<components>/build.xml" [label="calls each"];
+	"<components>/build.xml" -> "dist" [label="copies to"];
+
+	"build.xml" -> "tools" [label="calls"];
+	"tools" -> "*/build-tools" [label="calls each"];
+	"*/build-tools" -> "tools/target" [label="copies to"];
+	"tools/target" -> "dist" [label="copies to"];
+
+}
