@@ -6,19 +6,7 @@
     <import file="${import.dir}/dependencies.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
     <import file="${import.dir}/hibernate.xml"/>
-
-    <target name="prepare" depends="lifecycle.prepare">
-      <presetdef name="sql_run">
-	<sql
-           driver="${hibernate.connection.driver_class}"
-           url="${hibernate.connection.url}"
-           userid="${hibernate.connection.username}"
-           password="${hibernate.connection.password}" 
-	   print="false" 
-	   classpathref="omero.classpath">
-	</sql>
-      </presetdef>
-    </target>
+    <import file="${import.dir}/omero.xml"/> <!-- Distribution tasks -->
 
     <target name="check-db" depends="prepare">
       <sql_run>
@@ -26,20 +14,7 @@
       </sql_run>
     </target>
 
-    <target name="reload-db" depends="prepare">
-        <java classname="ome.security.PasswordUtil" outputproperty="ROOTPASS" classpathref="omero.classpath">
-            <arg value="${omero.rootpass}"/>
-        </java>
-        <copy file="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__schema.sql" tofile="${target.dir}/ddl.sql"  overwrite="true"/>
-        <copy file="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__data.sql" tofile="${target.dir}/data.sql"  overwrite="true"/>
-        <replace file="${target.dir}/data.sql" token="@ROOTPASS@" value="${ROOTPASS}"/>
-        <replace file="${target.dir}/data.sql" token="@DBPATCH@" value="${omero.dbpatch}"/>
-        <replace file="${target.dir}/data.sql" token="@DBVERSION@" value="${omero.dbversion}"/>
-        <sql_run>
-            <transaction src="${target.dir}/ddl.sql"/>
-            <transaction src="${target.dir}/data.sql"/>
-        </sql_run>
-    </target>
+    <target name="reload-db" depends="prepare,setup-db"/>
 
     <target name="compile" depends="generate">
         <hardWireCompile pattern="ome/services/util/OmeroAroundInvoke"

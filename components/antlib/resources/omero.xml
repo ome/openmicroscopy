@@ -19,6 +19,8 @@
   This is the main build script for binary distributions and replaces the 
   main build script (OMERO_HOME/build.xml) in the OMERO_HOME/dist directories. 
 
+  Several of these tasks are used by the components to prevent duplication.
+
 -->
 
 	<!-- This overrides the classpath.file properties of all the components. -->
@@ -27,6 +29,7 @@
 	<property name="ivy.buildlist.ivyfilepath"  value="${basedir}/omero.ivy"/>
 	<import file="${import.dir}/global.xml"/>
 	<import file="${import.dir}/dependencies.xml"/>
+	<import file="${import.dir}/lifecycle.xml"/>
 	<import file="${import.dir}/multiproject.xml"/>
 	<import file="${import.dir}/setup.xml"/>
 	<property file="${basedir}/etc/omero.properties"/>
@@ -91,9 +94,20 @@
 
 	</target>
 
-	<target name="setup-db">
-		<iterate buildpathref="server.buildpath" target="reload-db"/>
-	</target>
+    <target name="setup-db" depends="prepare">
+        <java classname="ome.security.PasswordUtil" outputproperty="ROOTPASS" classpathref="omero.classpath">
+            <arg value="${omero.rootpass}"/>
+        </java>
+        <copy file="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__schema.sql" tofile="${target.dir}/ddl.sql"  overwrite="true"/>
+        <copy file="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__data.sql" tofile="${target.dir}/data.sql"  overwrite="true"/>
+        <replace file="${target.dir}/data.sql" token="@ROOTPASS@" value="${ROOTPASS}"/>
+        <replace file="${target.dir}/data.sql" token="@DBPATCH@" value="${omero.dbpatch}"/>
+        <replace file="${target.dir}/data.sql" token="@DBVERSION@" value="${omero.dbversion}"/>
+        <sql_run>
+            <transaction src="${target.dir}/ddl.sql"/>
+            <transaction src="${target.dir}/data.sql"/>
+        </sql_run>
+    </target>
 
 	<target name="earfiles">
 		<fileset dir="${omero.home}" includes="*.ear" id="ear.files"/>

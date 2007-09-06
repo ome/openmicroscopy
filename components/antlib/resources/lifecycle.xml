@@ -59,6 +59,17 @@
 		    <not><available file="${ice.home}" type="dir"/></not>
 		  </and></condition>
 		</fail>
+		<!-- Used (at least) by server.xml and omero.xml -->
+		<presetdef name="sql_run">
+			<sql
+				driver="${hibernate.connection.driver_class}"
+				url="${hibernate.connection.url}"
+				userid="${hibernate.connection.username}"
+				password="${hibernate.connection.password}" 
+				print="false" 
+				classpathref="omero.classpath">
+			</sql>
+		</presetdef>
 	</target>
 
 
