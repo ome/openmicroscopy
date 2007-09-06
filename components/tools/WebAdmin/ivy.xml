@@ -13,7 +13,30 @@
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency org="omero" name="common" rev="${omero.version}" changing="true" />
-    <dependency org="omero" name="client" rev="${omero.version}" changing="true" />
+    <dependency org="omero" name="common"   rev="${omero.version}" changing="true" />
+    <dependency org="omero" name="client"   rev="${omero.version}" changing="true" />
+    <dependency org="omero" name="licenses" rev="${omero.version}" changing="true" conf="core->client"/>
+    <dependency org="webadmin" name="chartcreator" rev="${versions.chartcreator}" />
+    <dependency org="webadmin" name="commons-digester" rev="${versions.commons-digester}" />
+    <dependency org="webadmin" name="commons-el" rev="${versions.commons-el}" />
+    <dependency org="webadmin" name="commons-fileupload" rev="${versions.commons-fileupload}" />
+    <dependency org="webadmin" name="commons-httpclient" rev="${versions.commons-httpclient}" />
+    <dependency org="webadmin" name="commons-validator" rev="${versions.commons-validator}" />
+    <dependency org="webadmin" name="jcommon" rev="${versions.jcommon}" />
+    <dependency org="webadmin" name="jfreechart" rev="${versions.jfreechart}" />
+    <dependency org="webadmin" name="jstl" rev="${versions.jstl}" />
+    <dependency org="webadmin" name="myfaces-api" rev="${versions.myfaces-api}" />
+    <dependency org="webadmin" name="myfaces-impl" rev="${versions.myfaces-impl}" />
+    <dependency org="webadmin" name="opencsv" rev="${versions.opencsv}" />
+    <dependency org="webadmin" name="poi" rev="${versions.poi}" />
+    <dependency org="webadmin" name="poi-contrib" rev="${versions.poi-contrib}" />
+    <dependency org="webadmin" name="poi-scratchpad" rev="${versions.poi-scratchpad}" />
+    <dependency org="webadmin" name="portlet-api" rev="${versions.portlet-api}" />
+    <dependency org="webadmin" name="standard" rev="${versions.standard}"/>
+    <dependency org="webadmin" name="struts-el" rev="${versions.struts-el}"/>
+    <dependency org="webadmin" name="struts" rev="${versions.struts}"/>
+    <dependency org="webadmin" name="tomahawk" rev="${versions.tomahawk}" />
+    <dependency org="webadmin" name="tomahawk-sandbox" rev="${versions.tomahawk-sandbox}" />
+    <dependency org="geronimo-spec" name="geronimo-spec-j2ee" rev="1.4-rc4" conf="build->default"/>
   </dependencies>
 </ivy-module>

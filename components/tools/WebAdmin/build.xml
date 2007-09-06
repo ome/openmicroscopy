@@ -33,6 +33,9 @@
       <target name="clean">
           <delete dir="${build.dir}" includeEmptyDirs="true" />
           <delete dir="${basedir}/target" includeEmptyDirs="true" />
+          <delete>
+              <fileset dir="${basedir}/WEB-INF/lib" includes="**/*.jar"/>
+          </delete>
       </target>
 
       <target name="compile">
