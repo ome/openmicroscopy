@@ -23,4 +23,8 @@
       <ejb>services.jar</ejb>
     </module>
 
+    <module>
+      <ejb>extensions.jar</ejb>
+    </module>
+
 </application>
