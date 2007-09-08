@@ -96,6 +96,12 @@
                  <attribute name="Class-Path" value="@{manifest} extensions.jar"/>
              </manifest>
            </jar>
+          <jar destfile="@{dir}/extensions.jar">
+             <exclude name="*"/>
+             <manifest>
+                 <attribute name="Class-Path" value=""/>
+             </manifest>
+           </jar>
           </sequential>
       </macrodef>
 
