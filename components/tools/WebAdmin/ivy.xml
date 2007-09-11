@@ -15,7 +15,6 @@
     <!-- Internal -->
     <dependency org="omero" name="common"   rev="${omero.version}" changing="true" />
     <dependency org="omero" name="client"   rev="${omero.version}" changing="true" />
-    <dependency org="omero" name="licenses" rev="${omero.version}" changing="true" conf="core->client"/>
     <dependency org="omero" name="jboss-servlet-api" rev="${versions.jboss}" />
     <dependency org="webadmin" name="chartcreator" rev="${versions.chartcreator}" />
     <dependency org="webadmin" name="commons-digester" rev="${versions.commons-digester}" />
