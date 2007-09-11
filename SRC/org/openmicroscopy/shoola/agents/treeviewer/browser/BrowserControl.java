@@ -187,8 +187,12 @@ class BrowserControl
         }
     }
     
-    /** Brings up the popup menu. */
-    void showPopupMenu() { model.showPopupMenu(); }
+    /** 
+     * Brings up the popup menu. 
+     * 
+     * @param index The index of the menu.
+     */
+    void showPopupMenu(int index) { model.showPopupMenu(index); }
     
     /** Reacts to click events in the tree. */
     void onClick()

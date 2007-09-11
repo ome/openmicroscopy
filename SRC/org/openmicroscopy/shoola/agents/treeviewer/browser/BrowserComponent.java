@@ -345,9 +345,9 @@ class BrowserComponent
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#showPopupMenu()
+     * @see Browser#showPopupMenu(int)
      */
-    public void showPopupMenu()
+    public void showPopupMenu(int index)
     {
         switch (model.getState()) {
             case LOADING_DATA:
@@ -360,7 +360,16 @@ class BrowserComponent
                         " LOADING_LEAVES or DISCARDED state.");
                         */
         }
-        firePropertyChange(POPUP_MENU_PROPERTY, null, view.getTreeDisplay());
+        switch (index) {
+        	case TreeViewer.FULL_POP_UP_MENU:
+        	case TreeViewer.PARTIAL_POP_UP_MENU:
+        		break;
+        	default:
+        		throw new IllegalArgumentException("Menu not supported:" +
+        											" "+index);
+		}
+        firePropertyChange(POPUP_MENU_PROPERTY, new Integer(-1), 
+        					new Integer(index));
     }
 
     /**
@@ -1074,6 +1083,30 @@ class BrowserComponent
 	                    "COUNTING_ITEMS or READY state.");
 		}
 	    model.getParentModel().setStatus(false, "", true);
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getNodeOwner(TreeImageDisplay)
+	 */
+	public ExperimenterData getNodeOwner(TreeImageDisplay node)
+	{
+		if (node == null) 
+			throw new IllegalArgumentException("No node specified.");
+		TreeImageDisplay n = controller.getDataOwner(node);
+		return (ExperimenterData) n.getUserObject();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getClickComponent()
+	 */
+	public JComponent getClickComponent()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException("This method cannot be invoked " +
+					"in the DISCARDED state.");
+		return view.getTreeDisplay();
 	}
     
 }

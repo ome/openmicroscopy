@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveExperimenterNode 
+ * org.openmicroscopy.shoola.agents.treeviewer.actions.BrowseImageCategoriesAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 
 
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
@@ -33,15 +31,19 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
- * Removes the selected experimenter from the display.
+ * Browses the categories the image belonged to.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -53,43 +55,44 @@ import pojos.ExperimenterData;
  * </small>
  * @since OME3.0
  */
-public class RemoveExperimenterNode 
+public class BrowseImageCategoriesAction 
 	extends TreeViewerAction
 {
 
 	/** The name of the action. */
-	private static final String NAME = "Remove Experimenter";
-	
-	/** The description of the action. */
-	private static final String DESCRIPTION = "Remove the data of the" +
-			"selected user from the display";
-	
-	/**
-     * Sets the action enabled depending on the browser's type and 
-     * the currenlty selected node. Sets the name of the action depending on 
-     * the <code>DataObject</code> hosted by the currenlty selected node.
-     * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
+    private static final String NAME = "Browe Categories";
+    
+    /** The description of the action. */
+    private static final String DESCRIPTION= "Browse the categories " +
+    										"containing the image.";
+
+    /**
+     * Callback to notify of a change in the currently selected display
+     * in the currently selected 
+     * {@link org.openmicroscopy.shoola.agents.treeviewer.browser.Browser}.
+     * 
+     * @param selectedDisplay The newly selected display node.
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
-        if (selectedDisplay == null || 
-        	selectedDisplay.getParentDisplay() == null) {
+        if (selectedDisplay == null) {
             setEnabled(false);
             return;
         }
-        Object ho = selectedDisplay.getUserObject();
-        if (ho == null || !(ho instanceof ExperimenterData)) setEnabled(false);
-        else {
-            Browser browser = model.getSelectedBrowser();
-            if (browser != null) {
-                if (browser.getSelectedDisplays().length > 1) {
-                    setEnabled(false);
-                } else {
-                	ExperimenterData exp = (ExperimenterData) ho;
-                	setEnabled(exp.getId() != browser.getRootID());
-                }
-            } else setEnabled(false);
+        Browser browser = model.getSelectedBrowser();
+        if (browser != null) {
+            if (browser.getSelectedDisplays().length > 1) {
+            	setEnabled(false);
+                return;
+            }
+            Object ho = selectedDisplay.getUserObject();
+            //if (ho != null && ho instanceof ImageData)
+           // 	setEnabled(((ImageData) ho).getClassificationCount() != 0);
+            if (ho != null && ho instanceof ImageData)
+            	setEnabled(true);
+            return;
         }
+        setEnabled(false);
     }
     
 	/**
@@ -97,24 +100,34 @@ public class RemoveExperimenterNode
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-	public RemoveExperimenterNode(TreeViewer model)
-	{
-		super(model);
-		name = NAME;
-		putValue(Action.SHORT_DESCRIPTION, 
+    public BrowseImageCategoriesAction(TreeViewer model)
+    {
+        super(model);
+        putValue(Action.NAME, NAME);
+        putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.DELETE));
-	}
-	
-	/**
-     * Removes the selected node hosting the data of an experimenter
-     * other than the currently logged in user from the display.
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.BROWSER));
+    } 
+    
+    /** 
+     * Notifies the model to browse the categories the image belonged to.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
-        model.removeExperimenterData();
+    	Browser browser = model.getSelectedBrowser();
+        if (browser != null) {
+        	TreeImageDisplay node = browser.getLastSelectedDisplay();
+        	Object uo = node.getUserObject();
+        	if (uo instanceof ImageData) {
+        		ExperimenterData exp = model.getUserDetails();
+        		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+        		bus.post(new Browse(((ImageData) uo).getId(), 
+        						Browse.IMAGE_TO_CATEGORIES, exp, 
+        						model.getUI().getBounds()));
+        	}
+        }
     }
     
 }

@@ -368,25 +368,7 @@ public interface DataManagerView
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle getDiskSpace(AgentEventListener observer);
-	
-	/**
-	 * Loads the images imported during the passed period.
-	 * 
-	 * @param constrain		One of the following constants: {@link #BEFORE},
-	 * 						{@link #AFTER} or {@link #PERIOD}
-	 * @param lowerTime		The lower bound of the period interval. 
-	 * 						Pass <code>null</code> if the constrain is either
-	 * 						{@link #BEFORE} or {@link #AFTER}
-	 * @param time			The upper bound of the interval. 
-	 * 						Mustn't be <code>null</code>.
-	 * @param userID		The id of the user the images belonged to.
-	 * @param observer		Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadImages(int constrain, Timestamp lowerTime, 
-								Timestamp time, long userID, 
-								AgentEventListener observer);
-	
+
 	/**
      * Reloads the hierarchy currently displayed.
      * 

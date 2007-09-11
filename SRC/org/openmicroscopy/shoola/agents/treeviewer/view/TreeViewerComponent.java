@@ -1217,5 +1217,5 @@ class TreeViewerComponent
 		}
 		model.firePasteRenderingSettings(nodes);
 	}
-	
+
 }

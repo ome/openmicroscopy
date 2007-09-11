@@ -269,11 +269,11 @@ public class TwoKnobsSlider
         int xmin = uiDelegate.xPositionForValue(model.getMinimum());
         int xmax = uiDelegate.xPositionForValue(model.getMaximum());
         //Identifies the closest knob
-        
-        if (x < (leftKnob+(rightKnob-leftKnob)/2)) {
+        int limit = leftKnob+(rightKnob-leftKnob)/2;
+        if (x < limit && knobControl != RIGHT) {
             knobControl = LEFT;
             left = x;
-        } else {
+        } else if (x > limit && knobControl != LEFT) {
             knobControl = RIGHT;
             right = x;
         }
@@ -283,6 +283,7 @@ public class TwoKnobsSlider
             	left = xmin;
             } else if (left > (xmax-knobWidth)) left = xmax-knobWidth;
             else {
+            	/*
                 if (left > (right-knobWidth) && right < xmax) {
                     //push right
                     //pushKnobControl = RIGHT_KNOB_PUSHED;
@@ -290,19 +291,15 @@ public class TwoKnobsSlider
                     //model.setEndValue(uiDelegate.xValueForPosition(right));
                 	left = right-knobWidth;
                 }   
+                */
+            	if (left > right && right < xmax) left = right-1;
             }
             model.setStartValue(uiDelegate.xValueForPosition(left));
         } else if (knobControl == RIGHT) { //right knob moved.
             if (right > xmax) right = xmax;
             else if (right < (xmin+knobWidth)) right = xmin+knobWidth;
             else {
-                if (right < (left+knobWidth) && left > xmin) {
-                    //push left
-                    //pushKnobControl = LEFT_KNOB_PUSHED;
-                    //left = right-knobWidth;    
-                    //model.setStartValue(uiDelegate.xValueForPosition(left));
-                	right = left+knobWidth;
-                }
+                if (right < left && left > xmin) right = left+1;
             }
             model.setEndValue(uiDelegate.xValueForPosition(right));
         }
@@ -322,10 +319,11 @@ public class TwoKnobsSlider
         int ymin = uiDelegate.yPositionForValue(model.getMaximum());
         int ymax = uiDelegate.yPositionForValue(model.getMinimum());
         //Identifies the closest knob 
-        if (y < (upKnob+(downKnob-upKnob)/2)) {
+        int limit = upKnob+(downKnob-upKnob)/2;
+        if (y < limit && knobControl != RIGHT) {
             knobControl = LEFT; //corresponds to the up knob
             up = y;
-        } else {
+        } else if (y > limit && knobControl != LEFT) {
             knobControl = RIGHT;
             down = y;
         }
@@ -334,25 +332,31 @@ public class TwoKnobsSlider
             if (up < ymin) up = ymin;
             else if (up > (ymax-knobHeight)) up = ymax-knobHeight;
             else {
+            	/*
                 if (up > (down-knobHeight) && down < ymax) {
                     //push down
                     //pushKnobControl = RIGHT_KNOB_PUSHED;
                     //down = up+knobHeight;  
                     //model.setStartValue(uiDelegate.yValueForPosition(down));
                 	up = down-knobHeight;
-                }    
+                }  
+                */ 
+                if (up > down && down < ymax) up = down-1;
             }
             model.setEndValue(uiDelegate.yValueForPosition(up));
         } else if (knobControl == RIGHT) { //right knob moved.
             if (down > ymax) down = ymax;
             else if (down < (ymin+knobHeight)) down = ymin+knobHeight;
             else {
+            	/*
                 if (down < (up+knobHeight) && up > ymin) {
                     //pushKnobControl = LEFT_KNOB_PUSHED;
                     //up = down-knobHeight;  
                     //model.setEndValue(uiDelegate.yValueForPosition(up));
                 	down = up+knobHeight;
                 }    
+                */
+                if (down < up && up > ymin) down = up+1;
             }
             model.setStartValue(uiDelegate.yValueForPosition(down));
         }
@@ -392,6 +396,14 @@ public class TwoKnobsSlider
      * @return See above.
      */
     protected Dimension getMinimumVerticalSize() { return MIN_VERTICAL; }
+    
+    /**
+     * Returns the {@link #knobControl} i.e. either {@link #LEFT},
+     * {@link #RIGHT} of <code>-1</code> if not assigned.
+     * 
+     * @return See above.
+     */
+    int getKnobControl() { return knobControl; }
     
     /**
      * Creates a default slider with two knobs.

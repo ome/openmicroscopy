@@ -430,16 +430,6 @@ public class NullOmeroPojoService
 
 	/**
 	 * No-op implementation
-	 * @see OmeroDataService#findCategoryPaths(long, long)
-	 */
-	public Set findCategoryPaths(long imageID, long userID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	/**
-	 * No-op implementation
 	 * @see OmeroDataService#getImagesAllPeriodCount(Timestamp, Timestamp, long)
 	 */
 	public List getImagesAllPeriodCount(Timestamp lowerTime, Timestamp time, 
@@ -454,6 +444,27 @@ public class NullOmeroPojoService
 	 * @see OmeroDataService#loadTopContainerHierarchy(Class, long)
 	 */
 	public Set loadTopContainerHierarchy(Class rootNodeType, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#findCategoryPaths(long, boolean, long)
+	 */
+	public Set findCategoryPaths(long imageID, boolean leaves, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#findCategoryPaths(Set, boolean, long)
+	 */
+	public Set findCategoryPaths(Set<Long> imagesID, boolean leaves, 
+								long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

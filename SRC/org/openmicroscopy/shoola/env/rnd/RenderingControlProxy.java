@@ -420,7 +420,7 @@ class RenderingControlProxy
             default:
                 sizeX1 = pixs.getSizeX().intValue();
                 sizeX2 = pixs.getSizeY().intValue();
-                if (xyImgSize == 0) xyImgSize = buf.length;
+                if (xyImgSize == 0) xyImgSize = 3*buf.length;
                 break;
         }
         img = createImage(sizeX1, sizeX2, buf);

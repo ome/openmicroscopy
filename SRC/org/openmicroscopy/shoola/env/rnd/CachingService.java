@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.env.rnd.data.PixelsCache;
  */
 public class CachingService
 {
+	
 	/** The sole instance. */
 	private static CachingService	singleton;
 	
@@ -190,7 +191,8 @@ public class CachingService
     {
     	//Retrieve the maximum heap size.
     	MemoryUsage usage = 
-    		ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage();
+    		ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+    	
     	//percentage of memory used for caching.
     	maxSize = (int) (0.6*usage.getMax())/(1024*1024); 
     	pixelsCache = new HashMap<Long, PixelsCache>();

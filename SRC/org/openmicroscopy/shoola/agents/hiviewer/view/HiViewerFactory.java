@@ -38,6 +38,7 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 
 import pojos.ExperimenterData;
@@ -240,6 +241,38 @@ public class HiViewerFactory
 											exp)
     {
         HiViewerModel model = new CategoryModel(categoryID);
+        model.setRootLevel(exp);
+        return singleton.getViewer(model);
+    }
+    
+    /**
+     * Returns a viewer to display the Category/Image hierarchy
+     * rooted by the specified image.
+     * 
+     * @param imageID   The id of the image.
+     * @param exp		The selected experimenter.
+     * @return A {@link HiViewer} component for the specified Category.
+     */
+    public static HiViewer getImageToCategoriesViewer(long imageID, 
+    											ExperimenterData  exp)
+    {
+        HiViewerModel model = new ImageToCategoriesModel(imageID);
+        model.setRootLevel(exp);
+        return singleton.getViewer(model);
+    }
+    
+    /**
+     * Returns a viewer to display the images acquired during a period
+     * of time.
+     * 
+     * @param timeRef   The object storing time information.
+     * @param exp		The selected experimenter.
+     * @return A {@link HiViewer} component for the specified Category.
+     */
+    public static HiViewer getImagePerDateViewer(TimeRefObject timeRef, 
+    											ExperimenterData  exp)
+    {
+        HiViewerModel model = new ImagePerDateModel(timeRef);
         model.setRootLevel(exp);
         return singleton.getViewer(model);
     }

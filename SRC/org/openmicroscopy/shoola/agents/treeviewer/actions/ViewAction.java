@@ -93,17 +93,21 @@ public class ViewAction
             return;
         }
         Object ho = selectedDisplay.getUserObject();
+        Browser browser = model.getSelectedBrowser();
         if (selectedDisplay instanceof TreeImageTimeSet) {
-        	setEnabled(selectedDisplay.containsImages());
         	name = BROWSE;
-            putValue(Action.SMALL_ICON, 
-            			icons.getIcon(IconManager.BROWSER)); 
+            putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER)); 
+            if (browser.getSelectedDisplays().length > 1) {
+            	setEnabled(false);
+            } else {
+            	TreeImageTimeSet timeNode = (TreeImageTimeSet) selectedDisplay;
+            	setEnabled(timeNode.getNumberItems() > 0);
+            }
             return;
         }
         if (ho == null || !(ho instanceof DataObject) ||
         	ho instanceof ExperimenterData) setEnabled(false);
         else {
-            Browser browser = model.getSelectedBrowser();
             if (browser != null) {
                 if (browser.getSelectedDisplays().length > 1) {
                     setEnabled(true);

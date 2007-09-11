@@ -40,7 +40,7 @@ import pojos.ExperimenterData;
 /** 
  * Retrieves images before or after a given day, or during a period of time.
  * This class calls the <code>loadImages</code> in the
- * <code>DataManagerView</code>.
+ * <code>DataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -95,7 +95,7 @@ public class ExperimenterImageLoader
     {
     	ExperimenterData exp = (ExperimenterData) expNode.getUserObject();
     	int c  = getTimeConstrain(timeNode.getType());
-    	handle = dmView.loadImages(c, timeNode.getLowerTime(),
+    	handle = dhView.loadImages(c, timeNode.getLowerTime(),
     					timeNode.getTime(), exp.getId(), this);	
     }
 

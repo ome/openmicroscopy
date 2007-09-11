@@ -254,21 +254,10 @@ public class HistoryDialog
     public Object getSelectedTextValue()
     {
     	ListSelectionModel model = history.getSelectionModel();
-    	int minIndex, maxIndex;
     	if (!model.isSelectionEmpty()) {
     		int index = history.getSelectedIndex();
     		setVisible(false);
         	return data[index];
-        	/*
-    		minIndex = model.getMinSelectionIndex();
-            maxIndex = model.getMaxSelectionIndex();
-            for (int i = minIndex; i <= maxIndex; i++) {
-            	if (model.isSelectedIndex(i)) {
-                	setVisible(false);
-                	return data[i];
-                    
-                }
-            }*/
     	}
         // Now we try the secondary list
         if (secondaryHistory != null) {
@@ -277,17 +266,6 @@ public class HistoryDialog
         		 int index = secondaryHistory.getSelectedIndex();
         		 setVisible(false);
         		 return secondaryData[index];
-        		 /*
-        		 minIndex = model.getMinSelectionIndex();
-        		 maxIndex = model.getMaxSelectionIndex();
-        		 for (int i = minIndex; i <= maxIndex; i++) {
-        			 if (model.isSelectedIndex(i)) {
-        				 setVisible(false);
-        				 return secondaryData[i];
-
-        			 }
-        		 }
-        		 */
          	}
         }
         return null;

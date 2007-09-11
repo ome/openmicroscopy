@@ -318,19 +318,6 @@ class DataManagerViewImpl
 	}
 
 	/**
-     * Implemented as specified by the view interface.
-     * @see DataManagerView#loadImages(int, Timestamp, Timestamp, 
-     * 									long, AgentEventListener)
-     */
-	public CallHandle loadImages(int constrain, Timestamp lowerTime, 
-				Timestamp time, long userID, AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ImagesLoader(constrain, lowerTime, 
-											time, userID);
-	    return cmd.exec(observer);
-	}
-
-	/**
 	 * Implemented as specified by the view interface.
 	 * @see DataManagerView#refreshHierarchy(Class, Map, AgentEventListener)
 	 */

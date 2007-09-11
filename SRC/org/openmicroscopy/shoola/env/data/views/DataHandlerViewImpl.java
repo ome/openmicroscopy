@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +37,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.CategoryData;
@@ -249,10 +251,24 @@ public class DataHandlerViewImpl
 	public CallHandle loadAllClassifications(long imageID, long userID, 
 						AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ClassificationLoader(imageID, userID);
+		BatchCallTree cmd = new ClassificationLoader(imageID,
+								ClassificationLoader.ALL, userID);
 		return cmd.exec(observer);
 	}
     
+	/**
+     * Implemented as specified by the view interface.
+     * @see DataHandlerView#findCategoryPaths(long, boolean, long, 
+     * 											AgentEventListener)
+     */
+	public CallHandle findCategoryPaths(long imageID, boolean leaves, 
+								long userID, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ClassificationLoader(imageID,
+								leaves, userID);
+		return cmd.exec(observer);
+	}
+	
 	/**
      * Implemented as specified by the view interface.
      * @see DataHandlerView#createAndClassify(long, Set, 
@@ -278,6 +294,32 @@ public class DataHandlerViewImpl
 		BatchCallTree cmd = new ClassificationSaver(imageID, categories, 
 												categoriesToUpdate);
 		return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see DataHandlerView#findCategoryPaths(Set, boolean, long,
+     * 										AgentEventListener)
+     */
+	public CallHandle findCategoryPaths(Set<Long> imagesID,  boolean leaves,
+										long userID, 
+										AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ClassificationLoader(imagesID, leaves, userID);
+		return cmd.exec(observer);
+	}
+	
+	/**
+     * Implemented as specified by the view interface.
+     * @see DataHandlerView#loadImages(int, Timestamp, Timestamp, 
+     * 									long, AgentEventListener)
+     */
+	public CallHandle loadImages(int constrain, Timestamp lowerTime, 
+				Timestamp time, long userID, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ImagesLoader(constrain, lowerTime, 
+											time, userID);
+	    return cmd.exec(observer);
 	}
 
 }

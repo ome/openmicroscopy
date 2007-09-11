@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 
 /** 
@@ -61,13 +62,16 @@ public abstract class DataLoader
 {
     
     /** The viewer this data loader is for. */
-    protected final HiViewer              viewer;
+    protected final HiViewer              	viewer;
     
     /** Convenience reference for subclasses. */
-    protected final Registry              registry;
+    protected final Registry              	registry;
     
     /** Convenience reference for subclasses. */
-    protected final HierarchyBrowsingView hiBrwView;
+    protected final HierarchyBrowsingView 	hiBrwView;
+    
+    /** Convenience reference for subclasses. */
+    protected final DataHandlerView 		dhView;
     
     /**
      * Creates a new instance.
@@ -82,6 +86,8 @@ public abstract class DataLoader
         registry = HiViewerAgent.getRegistry();
         hiBrwView = (HierarchyBrowsingView) registry.
                     getDataServicesView(HierarchyBrowsingView.class);
+        dhView = (DataHandlerView) registry.
+        			getDataServicesView(DataHandlerView.class);
     }
     
     /**

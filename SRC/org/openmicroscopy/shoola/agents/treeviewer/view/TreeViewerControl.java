@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AnnotateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AnnotateChildrenAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowseImageCategoriesAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifierAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifyAction;
@@ -212,6 +213,9 @@ class TreeViewerControl
     /** Identifies the <code>Refresh experimenter action</code>. */
     static final Integer    REFRESH_EXPERIMENTER = new Integer(29);
     
+    /** Identifies the <code>Browse categories action</code>. */
+    static final Integer    BROWSE_CATEGORIES = new Integer(30);
+    
     /** 
      * Reference to the {@link TreeViewer} component, which, in this context,
      * is regarded as the Model.
@@ -265,6 +269,8 @@ class TreeViewerControl
         actionsMap.put(REMOVE_FROM_DISPLAY, new RemoveExperimenterNode(model));
         actionsMap.put(REFRESH_EXPERIMENTER, 
         			new RefreshExperimenterData(model));
+        actionsMap.put(BROWSE_CATEGORIES, 
+        			new BrowseImageCategoriesAction(model));
     }
     
     /** 
@@ -474,10 +480,11 @@ class TreeViewerControl
             Browser browser = model.getSelectedBrowser();
             if (browser != null) browser.cancel();
         } else if (name.equals(Browser.POPUP_MENU_PROPERTY)) {
-            Component c = (Component) pce.getNewValue();
+            Integer c = (Integer) pce.getNewValue();
             Browser browser = model.getSelectedBrowser();
-            if (browser != null && c != null)
-                view.showPopup(c, browser.getClickPoint());
+            if (browser != null)
+                view.showPopup(c.intValue(), browser.getClickComponent(), 
+                				browser.getClickPoint());
         } else if (name.equals(Browser.CLOSE_PROPERTY)) {
             Browser browser = (Browser) pce.getNewValue();
             if (browser != null) view.removeBrowser(browser);

@@ -1159,9 +1159,9 @@ class OmeroDataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#findCategoryPaths(long, long)
+	 * @see OmeroDataService#findCategoryPaths(long, boolean, long)
 	 */
-	public Set findCategoryPaths(long imageID, long userID) 
+	public Set findCategoryPaths(long imageID, boolean leaves, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List links = gateway.findLinks(Category.class, imageID, userID);
@@ -1173,9 +1173,30 @@ class OmeroDataServiceImpl
 			id = ((ILink) i.next()).getParent().getId();
 			ids.add(id);
 		}
-		return loadContainerHierarchy(CategoryData.class, ids, false, userID);
+		return loadContainerHierarchy(CategoryData.class, ids, leaves, userID);
 	}
 
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#findCategoryPaths(Set, boolean, long)
+	 */
+	public Set findCategoryPaths(Set<Long> imagesID, boolean leaves, 
+									long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (imagesID == null)
+			throw new IllegalArgumentException("No images specified.");
+		List links = gateway.findLinks(Category.class, imagesID, userID);
+		if (links == null || links.size() == 0) return new HashSet();
+		Iterator i = links.iterator();
+		Set<Long> ids = new HashSet<Long>(links.size());
+		long id;
+		while (i.hasNext()) {
+			id = ((ILink) i.next()).getParent().getId();
+			ids.add(id);
+		}
+		return loadContainerHierarchy(CategoryData.class, ids, leaves, userID);
+	}
 	
 	
 }

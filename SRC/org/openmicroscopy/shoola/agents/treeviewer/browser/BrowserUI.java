@@ -139,6 +139,38 @@ class BrowserUI
         add(p, BorderLayout.NORTH);
         scrollPane = new JScrollPane(treeDisplay);
         add(scrollPane, BorderLayout.CENTER);
+        treeDisplay.addMouseListener(new MouseAdapter() {
+    		
+        	/**
+        	 * Pops up a menu if the mouse click occurs on the tree
+        	 * but not on the a node composing the tree
+        	 * @see MouseAdapter#mousePressed(MouseEvent)
+        	 */
+			public void mousePressed(MouseEvent e)
+			{
+				Point p = e.getPoint();
+				if (treeDisplay.getRowForLocation(p.x, p.y) == -1 &&
+					e.isPopupTrigger()) {
+					model.setClickPoint(p);
+					controller.showPopupMenu(TreeViewer.PARTIAL_POP_UP_MENU);
+				}
+			}
+		
+			/**
+        	 * Pops up a menu if the mouse click occurs on the tree
+        	 * but not on the a node composing the tree
+        	 * @see MouseAdapter#mouseReleased(MouseEvent)
+        	 */
+			public void mouseReleased(MouseEvent e)
+			{
+				Point p = e.getPoint();
+				if (treeDisplay.getRowForLocation(p.x, p.y) == -1 &&
+					e.isPopupTrigger()) {
+					model.setClickPoint(p);
+					controller.showPopupMenu(TreeViewer.PARTIAL_POP_UP_MENU);
+				}
+			}
+		});
     }
     
     /** Helper method to create the menu bar. */
@@ -204,7 +236,8 @@ class BrowserUI
         if (row != -1) {
             if (me.getClickCount() == 1) {
                 model.setClickPoint(p);
-                if (me.isPopupTrigger()) controller.showPopupMenu();
+                if (me.isPopupTrigger()) 
+                	controller.showPopupMenu(TreeViewer.FULL_POP_UP_MENU);
                 //if (!released) controller.onClick();
             } else if (me.getClickCount() == 2 && released) {
             	//controller.cancel();

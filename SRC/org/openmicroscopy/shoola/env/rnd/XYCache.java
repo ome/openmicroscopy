@@ -212,6 +212,7 @@ public class XYCache
                     "Image size must be positive: "+imageSize+".");
         if (nh == null)
             throw new NullPointerException("No navigation history.");
+        
         cache_size = cacheSize;
         image_size = imageSize;
         max_entries = cache_size/image_size;

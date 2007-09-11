@@ -33,6 +33,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 
 /** 
@@ -66,6 +67,9 @@ public abstract class DataBrowserLoader
     
     /** Convenience reference for subclasses. */
     protected final DataManagerView dmView;
+
+    /** Convenience reference for subclasses. */
+    protected final DataHandlerView dhView;
     
     /**
      * Returns the constrain indicating to retrieve the values after
@@ -101,6 +105,8 @@ public abstract class DataBrowserLoader
         registry = TreeViewerAgent.getRegistry();
         dmView = (DataManagerView) 
             registry.getDataServicesView(DataManagerView.class);
+        dhView = (DataHandlerView) 
+        	registry.getDataServicesView(DataHandlerView.class);
     }
     
     /**

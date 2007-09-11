@@ -46,7 +46,11 @@ import javax.ejb.EJBException;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+
+import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
+
 import ome.api.IAdmin;
+import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IRepositoryInfo;
@@ -65,6 +69,9 @@ import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
+import ome.model.display.ChannelBinding;
+import ome.model.display.QuantumDef;
+import ome.model.display.RenderingDef;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
@@ -163,7 +170,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
     	Throwable cause = t.getCause();
-    	//t.printStackTrace();
+    	t.printStackTrace();
     	if (cause instanceof SecurityException) {
     		String s = "Cannot access data for security reasons \n"; 
     		throw new DSAccessException(s+message+"\n\n"+
@@ -556,6 +563,7 @@ class OMEROGateway
     {
         try {
             IPojos service = getPojosService();
+            //testCopySettings();
             return PojoMapper.asDataObjects(service.loadContainerHierarchy(
                     convertPojos(rootNodeType), rootNodeIDs, options));
         } catch (Throwable t) {
@@ -1152,8 +1160,41 @@ class OMEROGateway
     /**
      * Finds the links if any between the specified parent and children.
      * 
-     * @param parentClass    The parent.
+     * @param parentClass	The parent.
      * @param children  	Collection of children as children ids.
+     * @param userID		The id of the user.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMERO service. 
+     */
+    List findLinks(Class parentClass, Set children, long userID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        try {
+            String table = getTableForLink(parentClass);
+            if (table == null) return null;
+            String sql = "select link from "+table+" as link where " +
+                    "link.details.owner.id = :userID and link.child.id in " +
+                    "(:childIDs)";
+            IQuery service = getQueryService();
+            Parameters param = new Parameters();
+            param.addSet("childIDs", children);
+            param.addLong("userID", userID);
+            return service.findAllByQuery(sql, param);
+        } catch (Throwable t) {
+            handleException(t, "Cannot retrieve the requested link for "+
+            					"the specified children");
+        }
+        return null;
+    }
+    
+    /**
+     * Finds the links if any between the specified parent and children.
+     * 
+     * @param parentClass   The parent.
+     * @param childID  		The id of the child.
+     * @param userID		The id of the user.
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
@@ -1617,4 +1658,56 @@ class OMEROGateway
 		return true;
 	}
 
+	void testCopySettings()
+	{
+		
+		long from = 887;
+		long to = 888;
+		IQuery service = getQueryService();
+		String sql = "from RenderingDef as rdef " +
+				"left outer join fetch rdef.quantization "
+						+ "left outer join fetch rdef.model "
+                        + "left outer join fetch rdef.waveRendering as cb "
+                        + "left outer join fetch cb.color "
+                        + "left outer join fetch cb.family "+
+                         " where "+
+						"rdef.pixels.id = :pixelsID and "+
+						"rdef.details.owner.id = :userID";
+		
+		
+		try {
+			long userID = getUserDetails("jburel").getId();
+			Parameters param = new Parameters();
+			param.addLong("pixelsID", from);
+			param.addLong("userID", userID);
+		
+			RenderingDef rFrom = (RenderingDef) service.findByQuery(sql, param);
+			param = new Parameters();
+			param.addLong("pixelsID", to);
+			param.addLong("userID", userID);
+			RenderingDef rTo = (RenderingDef) service.findByQuery(sql, param);
+			
+			QuantumDef qDef = rFrom.getQuantization();
+			System.err.println(qDef);
+			QuantumDef qDef1 = rTo.getQuantization();
+			qDef1.setCdStart(qDef.getCdStart()+50);
+			//rTo.setQuantization(qDef);
+			List l = rFrom.getWaveRendering();
+			List toL = rTo.getWaveRendering();
+			//rTo.setWaveRendering(l);
+			getUpdateService().saveObject(rTo);
+			/*
+			RenderingDef fromDef = service.retrieveRndSettings(from);
+			RenderingDef toDef = service.retrieveRndSettings(to);
+			QuantumDef fromQdef = fromDef.getQuantization();
+			QuantumDef toQdef = toDef.getQuantization();
+			toQdef.setCdStart(fromQdef.getCdStart());
+			getUpdateService().saveObject(toQdef);
+			*/
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 }

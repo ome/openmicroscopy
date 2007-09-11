@@ -69,9 +69,14 @@ public class MeasurementAgent
     private void handleMeasurementToolEvent(MeasurementTool evt)
     {
     	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
-    			evt.getPixelsID(), evt.getImageID(), evt.getName(),
-    			evt.getRequesterBounds(), evt.getDefaultZ(), evt.getDefaultT(),
-    			evt.getMagnification(), evt.getActiveChannels());
+				evt.getPixelsID()); 
+    	if (viewer == null) {
+    		viewer = MeasurementViewerFactory.getViewer(
+        			evt.getPixelsID(), evt.getImageID(), evt.getName(),
+        			evt.getRequesterBounds(), evt.getDefaultZ(), 
+        			evt.getDefaultT(), evt.getMagnification(), 
+        			evt.getActiveChannels());
+    	}
     	if (viewer != null) {
     		MeasurementViewerFactory.addRequest(evt);
     		viewer.activate();

@@ -377,8 +377,13 @@ class TwoKnobsSliderUI
 		int h = component.getKnobHeight();
 		Image img = thumbImage;
 		if (!model.isEnabled()) img = disabledThumbImage;
-		g2D.drawImage(img, l-w/2, 1, w, h, null);
-        g2D.drawImage(img, r-w/2, 1, w, h, null);
+		if (component.getKnobControl() == TwoKnobsSlider.LEFT) {
+	        g2D.drawImage(img, r-w/2, 1, w, h, null);
+	        g2D.drawImage(img, l-w/2, 1, w, h, null);
+		} else {
+			g2D.drawImage(img, l-w/2, 1, w, h, null);
+	        g2D.drawImage(img, r-w/2, 1, w, h, null);
+		}
      }
     
     /**
@@ -408,8 +413,13 @@ class TwoKnobsSliderUI
 		//Draw the knobs
 		Image img = thumbImage;
 		if (!model.isEnabled()) img = disabledThumbImage;
-		g2D.drawImage(img, x, up, w, h, null);
-        g2D.drawImage(img, x, down, w, h, null);
+		if (component.getKnobControl() == TwoKnobsSlider.LEFT) {
+	        g2D.drawImage(img, x, down, w, h, null);
+	        g2D.drawImage(img, x, up, w, h, null);
+		} else {
+			g2D.drawImage(img, x, up, w, h, null);
+	        g2D.drawImage(img, x, down, w, h, null);
+		}
      }
     
     /**

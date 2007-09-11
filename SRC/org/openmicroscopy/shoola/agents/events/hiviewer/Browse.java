@@ -31,6 +31,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import pojos.ExperimenterData;
 
@@ -79,6 +80,18 @@ public class Browse
     /** Event ID corresponding to a browse datasets event. */
     public static final int CATEGORY_GROUPS = 8;
     
+    /** 
+     * Event ID indicating to browse all categories containing a 
+     * specified image. 
+     */
+    public static final int IMAGE_TO_CATEGORIES = 9;
+    
+    /** 
+     * Event ID indicating to browse the images imported during a given 
+     * period of time.
+     */
+    public static final int IMAGE_PER_DATE = 10;
+    
     /** ID of the top element in the hierarchy. */
     private long        		hierarchyObjectID;
     
@@ -98,6 +111,9 @@ public class Browse
     /** The currently selected user. */
     private ExperimenterData	experimenter;
     
+    /** The object hosting time interval information. */
+    private TimeRefObject		timeRefObject;
+    
     /**
      * Controls if the specified index is supported.
      * 
@@ -110,6 +126,7 @@ public class Browse
             case DATASET:
             case CATEGORY_GROUP:
             case CATEGORY:
+            case IMAGE_TO_CATEGORIES:
                 return; 
             default:
                 throw new IllegalArgumentException("Event index not valid.");
@@ -136,6 +153,29 @@ public class Browse
     }
     
     /**
+     * Creates a new instance. 
+     * This constructor should only be invoked to browse smart folders
+     * used to display images imported during a period of time.
+     * 
+     * @param timeRef		Object containing time information.
+     * @param experimenter 	The currently selected experimenter. 
+     * 						Mustn't be <code>null</code>.
+     * @param bounds        The bounds of the component posting the event.
+     */
+    public Browse(TimeRefObject timeRef, 
+    				ExperimenterData experimenter, Rectangle bounds)
+    {
+    	if (timeRef == null)
+    		throw new IllegalArgumentException("No time reference specified.");
+    	if (experimenter == null) 
+        	throw new IllegalArgumentException("No experimenter specified.");
+    	eventIndex = IMAGE_PER_DATE;
+    	requesterBounds = bounds;
+    	timeRefObject = timeRef;
+    	this.experimenter = experimenter;
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param hierarchyObjectID The Id of the <code>Data Object</code> to 
@@ -151,7 +191,7 @@ public class Browse
     {
         checkEventIndex(index);
         if (experimenter == null) 
-        	throw new IllegalArgumentException("No experimenter.");
+        	throw new IllegalArgumentException("No experimenter specified.");
         this.hierarchyObjectID = hierarchyObjectID;
         eventIndex = index;
         this.experimenter = experimenter;
@@ -173,8 +213,8 @@ public class Browse
     			Rectangle bounds)
     {
     	checkMultiNodesIndex(index); 
-    	 if (experimenter == null) 
-         	throw new IllegalArgumentException("No experimenter.");
+    	if (experimenter == null) 
+        	throw new IllegalArgumentException("No experimenter specified.");
         eventIndex = index;
         this.experimenter = experimenter;
         objectsIDs = ids;
@@ -216,5 +256,13 @@ public class Browse
      * @return See above.
      */
     public Rectangle getRequesterBounds() { return requesterBounds; }
+    
+    /**
+     * Returns the object storing the information about the period 
+     * of time. Only used when the event index is {@link #IMAGE_PER_DATE}.
+     * 
+     * @return See above.
+     */
+    public TimeRefObject getTimeRefObject() { return timeRefObject; }
     
 }

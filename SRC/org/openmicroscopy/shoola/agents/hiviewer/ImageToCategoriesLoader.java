@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.hiviewer.ImagesLoader
+ * org.openmicroscopy.shoola.agents.hiviewer.ImageToCategoriesLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,36 +20,38 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.hiviewer;
 
 
 //Java imports
 import java.util.Set;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * Loads asynchronously a collection of images specified by a given set of ids.
+ * Loads asynchronously a collection of categories containing the specified
+ * images.
  * This class calls the <code>loadImages</code> method in the
  * <code>HierarchyBrowsingView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since OME3.0
  */
-public class ImagesLoader
-    extends DataLoader
+public class ImageToCategoriesLoader
+	extends DataLoader
 {
 
     /** Collection of images' id to retrieve. */
@@ -73,7 +75,8 @@ public class ImagesLoader
      * @param refresh	Pass <code>false</code> if we retrieve the data for
      * 					the first time, <code>true</code> otherwise.
      */
-    public ImagesLoader(HiViewer viewer, Set imagesID, boolean refresh)
+    public ImageToCategoriesLoader(HiViewer viewer, Set imagesID, 
+    								boolean refresh)
     {
         super(viewer);
         this.imagesID = imagesID;
@@ -81,13 +84,13 @@ public class ImagesLoader
     }
     
     /**
-     * Retrieves the images.
+     * Retrieves the categories.
      * @see DataLoader#load()
      */
     public void load()
     {
-        handle = hiBrwView.loadImages(imagesID, viewer.getExperimenterID(), 
-        							this);
+    	handle = dhView.findCategoryPaths(imagesID, true, 
+        							viewer.getExperimenterID(), this);
     }
     
     /** 
@@ -97,13 +100,29 @@ public class ImagesLoader
     public void cancel() { handle.cancel(); }
     
     /**
+     * Notifies the viewer of progress. 
+     * @see DataLoader#update(DSCallFeedbackEvent)
+     */
+    public void update(DSCallFeedbackEvent fe) 
+    {
+        String status = fe.getStatus();
+        int percDone = fe.getPercentDone();
+        if (status == null) 
+            status = (percDone == 100) ? HiViewer.PAINTING_TEXT :  //Else
+                                       ""; //Description wasn't available.   
+        if (percDone != 100) //We've only got one call and don't know how long
+            percDone = -1;   //it'll take.  Set to indeterminate.
+        viewer.setStatus(status, percDone);
+    }
+    
+    /**
      * Feeds the result back to the viewer.
      * @see DataLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == HiViewer.DISCARDED) return;
-        viewer.setHierarchyRoots((Set) result, true, refresh);
+        if (viewer.getState() == HiViewer.DISCARDED) return;  //Async cancel.
+        viewer.setHierarchyRoots((Set) result, false, refresh);
     }
     
 }

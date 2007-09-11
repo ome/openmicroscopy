@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.hiviewer.ImagesLoader
+ * org.openmicroscopy.shoola.agents.hiviewer.ImagePerDateLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,8 +20,8 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.hiviewer;
+
 
 
 //Java imports
@@ -31,52 +31,54 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * Loads asynchronously a collection of images specified by a given set of ids.
+ * Loads asynchronously a collection of images.
  * This class calls the <code>loadImages</code> method in the
- * <code>HierarchyBrowsingView</code>.
+ * <code>DataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since OME3.0
  */
-public class ImagesLoader
-    extends DataLoader
+public class ImagePerDateLoader
+	extends DataLoader
 {
 
-    /** Collection of images' id to retrieve. */
-    private Set         imagesID;
+	/** The object hosting the time information. */
+    private TimeRefObject	timeRefObject;
     
     /** 
      * Set to <code>false</code> if we retrieve the data for the first time,
      * set to <code>true</code> otherwise.
      */
-    private boolean		refresh;
+    private boolean			refresh;
     
     /** Handle to the async call so that we can cancel it. */
-    private CallHandle  handle;
+    private CallHandle  	handle;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer    The viewer this data loader is for.
-     *                  Mustn't be <code>null</code>.
-     * @param imagesID  The collection of images' id.
-     * @param refresh	Pass <code>false</code> if we retrieve the data for
-     * 					the first time, <code>true</code> otherwise.
+     * @param viewer    	The viewer this data loader is for.
+     *                  	Mustn't be <code>null</code>.
+     * @param timeRefObject	The object hosting the time information.
+     * @param refresh		Pass <code>false</code> if we retrieve the data for
+     * 						the first time, <code>true</code> otherwise.
      */
-    public ImagesLoader(HiViewer viewer, Set imagesID, boolean refresh)
+    public ImagePerDateLoader(HiViewer viewer, TimeRefObject timeRefObject, 
+    						boolean refresh)
     {
         super(viewer);
-        this.imagesID = imagesID;
+        this.timeRefObject = timeRefObject;
         this.refresh = refresh;
     }
     
@@ -86,8 +88,9 @@ public class ImagesLoader
      */
     public void load()
     {
-        handle = hiBrwView.loadImages(imagesID, viewer.getExperimenterID(), 
-        							this);
+    	handle = dhView.loadImages(timeRefObject.getConstrain(), 
+    				timeRefObject.getLowerTime(),
+    				timeRefObject.getTime(), timeRefObject.getUserID(), this);	
     }
     
     /** 

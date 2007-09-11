@@ -759,6 +759,8 @@ public interface OmeroDataService
 	 * Finds the categories containing the image.
 	 * 
 	 * @param imageID	The id of the image.
+	 * @param leaves	Passed <code>true</code> to retrieve the images
+     * 					<code>false</code> otherwise.	
 	 * @param userID	The Id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -766,7 +768,24 @@ public interface OmeroDataService
      * @throws DSAccessException        If an error occured while trying to 
      *                                  retrieve data from OMEDS service.
 	 */
-	public Set findCategoryPaths(long imageID, long userID)
+	public Set findCategoryPaths(long imageID, boolean leaves, long userID)
+    	throws DSOutOfServiceException, DSAccessException; 
+	
+	/** 
+	 * Finds the categories containing the images.
+	 * 
+	 * @param imagesID	The id of the images.
+	 * @param leaves	Passed <code>true</code> to retrieve the images
+     * 					<code>false</code> otherwise.	
+	 * @param userID	The Id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+	 */
+	public Set findCategoryPaths(Set<Long> imagesID, boolean leaves, 
+									long userID)
     	throws DSOutOfServiceException, DSAccessException; 
 	
 }

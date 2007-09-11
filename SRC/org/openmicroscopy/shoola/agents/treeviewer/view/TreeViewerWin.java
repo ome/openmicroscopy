@@ -413,15 +413,26 @@ class TreeViewerWin
      * Brings up the popup menu on top of the specified component at the
      * specified point.
      * 
-     * @param c The component that requested the popup menu.
-     * @param p The point at which to display the menu, relative to the
-     *            <code>component</code>'s coordinates.
+     * @param index The index of the menu. One of the following constants:
+     * 				{@link TreeViewer#FULL_POP_UP_MENU} or 
+     * 				{@link TreeViewer#PARTIAL_POP_UP_MENU}
+     * @param c 	The component that requested the popup menu.
+     * @param p 	The point at which to display the menu, relative to the
+     *            	<code>component</code>'s coordinates.
      *  
      */
-    void showPopup(Component c, Point p)
+    void showPopup(int index, Component c, Point p)
     { 
-        PopupMenu popupMenu = new PopupMenu(controller);
-        popupMenu.show(c, p.x, p.y);
+    	if (c == null) return;
+    	switch (index) {
+			case TreeViewer.FULL_POP_UP_MENU:
+				PopupMenu popupMenu = new PopupMenu(controller, index);
+		        popupMenu.show(c, p.x, p.y);
+				break;
+			case TreeViewer.PARTIAL_POP_UP_MENU:
+				PopupMenu m = new PopupMenu(controller, index);
+		        m.show(c, p.x, p.y);
+		}
     }
 
     /**

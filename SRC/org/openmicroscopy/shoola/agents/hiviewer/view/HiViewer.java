@@ -149,7 +149,7 @@ public interface HiViewer
      * hierarchy.
      */
     public static final int         IMAGES_HIERARCHY = 107;
-    
+
     /** 
      * Bound property name indicating to bring up on screen the currently 
      * selected node.

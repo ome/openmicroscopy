@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -284,6 +285,36 @@ public interface DataHandlerView
 	 */
 	public CallHandle loadAllClassifications(long imageID, long userID, 
 							AgentEventListener observer);
+	
+	/**
+	 * Loads all classifications for a given image i.e. the categories
+	 * containing the image.
+	 * 
+	 * @param imageID	The id of the image to handle.
+	 * @param leaves	Passed <code>true</code> to retrieve the images
+     * 					<code>false</code> otherwise.
+	 * @param userID	The user's id.
+	 * @param observer	Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle findCategoryPaths(long imageID, boolean leaves, 
+										long userID, 
+										AgentEventListener observer);
+	
+	/**
+	 * Loads all classifications for a given image i.e. the categories
+	 * containing the image.
+	 * 
+	 * @param imagesID	The id of the images to handle.
+	 * @param leaves	Passed <code>true</code> to retrieve the images
+     * 					<code>false</code> otherwise.
+	 * @param userID	The user's id.
+	 * @param observer	Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle findCategoryPaths(Set<Long> imagesID, boolean leaves, 
+									long userID, 
+							AgentEventListener observer);
 	 
 	/**
 	 * Creates new categories and classifies the specified image.
@@ -310,5 +341,23 @@ public interface DataHandlerView
 	public CallHandle createAndClassify(long imageID, 
 			Set<CategoryData> categories, Set<CategoryData> categoriesToUpdate,
 			AgentEventListener observer);
+	
+	/**
+	 * Loads the images imported during the passed period.
+	 * 
+	 * @param constrain		One of the following constants: {@link #BEFORE},
+	 * 						{@link #AFTER} or {@link #PERIOD}
+	 * @param lowerTime		The lower bound of the period interval. 
+	 * 						Pass <code>null</code> if the constrain is either
+	 * 						{@link #BEFORE} or {@link #AFTER}
+	 * @param time			The upper bound of the interval. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param userID		The id of the user the images belonged to.
+	 * @param observer		Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadImages(int constrain, Timestamp lowerTime, 
+								Timestamp time, long userID, 
+								AgentEventListener observer);
 	
 }

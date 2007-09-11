@@ -225,6 +225,13 @@ public interface Browser
      */
     public Point getClickPoint();
     
+    /** 
+     * Returns the UI component where the mouse click event occured.
+     * 
+     * @return See above.
+     */
+    public JComponent getClickComponent();
+    
     /**
      * Returns the currently selected {@link TreeImageDisplay node}.
      * 
@@ -293,8 +300,13 @@ public interface Browser
      */
     public void sortTreeNodes(int sortType);
     
-    /** Brings up on screen the popup menu. */
-    public void showPopupMenu();   
+    /** Brings up on screen the popup menu. 
+     * 
+     * @param menuIndex The index of the menu. One of the following constants
+     * 					{@link TreeViewer#FULL_POP_UP_MENU} or 
+     * 					{@link TreeViewer#PARTIAL_POP_UP_MENU}
+     */
+    public void showPopupMenu(int menuIndex);   
     
     /** 
      * Reloads children of the currently selected node and rebuilds
@@ -482,5 +494,13 @@ public interface Browser
 	 * @param value		The value to set.
 	 */
 	void setExperimenterCount(TreeImageSet expNode, int index, Object value);
+	
+	/**
+	 * Returns the owner of the node.
+	 * 
+	 * @param node The node to handle.
+	 * @return See above.
+	 */
+	ExperimenterData getNodeOwner(TreeImageDisplay node);
 	
 }

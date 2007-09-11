@@ -103,8 +103,13 @@ public class HiViewerAgent
 				break;
 			case Browse.CATEGORY_GROUPS:
 				viewer = HiViewerFactory.getCategoryGroupsViewer(
-									evt.getObjectIDs(),evt.getExperimenter());
+									evt.getObjectIDs(), evt.getExperimenter());
 		        if (viewer != null) viewer.activate(evt.getRequesterBounds());
+				break;
+			case Browse.IMAGE_PER_DATE:
+				viewer = HiViewerFactory.getImagePerDateViewer(
+						evt.getTimeRefObject(), evt.getExperimenter());
+				if (viewer != null) viewer.activate(evt.getRequesterBounds());
 				break;
 			default:
 				browse(evt.getEventIndex(), evt.getHierarchyObjectID(),
@@ -182,6 +187,8 @@ public class HiViewerAgent
                 break;
             case Browse.CATEGORY:
                 viewer = HiViewerFactory.getCategoryViewer(id, exp);  
+            case Browse.IMAGE_TO_CATEGORIES:
+            	viewer = HiViewerFactory.getImageToCategoriesViewer(id, exp);  
         }
         if (viewer != null) viewer.activate(bounds);
     }

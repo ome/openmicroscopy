@@ -607,7 +607,8 @@ class ImViewerComponent
         window.setProgress(50);
         view.buildComponents();
         view.setOnScreen();
-        view.setStatus(RENDERING_MSG);
+        //view.setStatus(RENDERING_MSG);
+        view.setStatus(getStatusText());
         renderXYPlane();
         model.fireCategoriesLoading();
         fireStateChange();

@@ -68,6 +68,12 @@ public class ClassificationLoader
     extends BatchCallTree
 {
     
+	/** Identifies a full categories retrieval. */
+	public static final int ALL = 100;
+	
+	/** Identifies a partial categories retrieval. */
+	public static final int PARTIAL = 101;
+	
     /** Identifies the <code>Declassification</code> algorithm. */
     public static final int DECLASSIFICATION = 
                                 OmeroDataService.DECLASSIFICATION;
@@ -104,7 +110,9 @@ public class ClassificationLoader
         switch (i) {
             case DECLASSIFICATION:
             case CLASSIFICATION_ME:
-            case CLASSIFICATION_NME:    
+            case CLASSIFICATION_NME: 
+            case ALL:
+            case PARTIAL:
                 return true;
             default: return false;
         }
@@ -159,7 +167,7 @@ public class ClassificationLoader
                 OmeroDataService os = context.getDataService();
                 Set<Long> images = new HashSet<Long>(1);
                 images.add(imageID);
-                Set nodes = os.findCategoryPaths(imageID, userID);
+                Set nodes = os.findCategoryPaths(imageID, false, userID);
                 Iterator i = nodes.iterator();
                 List<Long> ids = new ArrayList<Long>();
                 List<CategoryData> r = new ArrayList<CategoryData>();
@@ -200,6 +208,54 @@ public class ClassificationLoader
         };
     }
     
+    /**
+     * Creates a {@link BatchCall} to load all Categories containing the image.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
+     * 
+     * @param imageID	The id of the image.
+     * @param leaves	Passed <code>true</code> to retrieve the images
+     * 					<code>false</code> otherwise.
+     * 
+     * @param userID	The Id of the user.                  
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadPartialClassification(final long imageID, 
+    										final boolean leaves,
+    										final long userID)
+    {
+        return new BatchCall("Loading CGC paths. ") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                rootNodes = os.findCategoryPaths(imageID, leaves, userID);
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to load all Categories containing the image.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
+     * 
+     * @param imagesID	The id of the images.
+     * @param leaves	Passed <code>true</code> to retrieve the images
+     * 					<code>false</code> otherwise.
+     * @param userID	The Id of the user.                  
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadPartialClassification(final Set<Long> imagesID, 
+    										final boolean leaves,
+    										final long userID)
+    {
+        return new BatchCall("Loading CGC paths. ") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                rootNodes = os.findCategoryPaths(imagesID, leaves, userID);
+            }
+        };
+    }
     
     /**
      * Adds the {@link #loadCall} to the computation tree.
@@ -212,21 +268,43 @@ public class ClassificationLoader
      * @see BatchCallTree#getResult()
      */
     protected Object getResult() { return rootNodes; }
-
+    
     /**
      * Creates a new instance to find the Category Group/Category paths that 
      * end or don't end with the specified Image.
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param imageID       The id of the Image.
+     * @param imageID       The id of the Image to classify or declassifiy
+     *                      depending on the algorithm.
+     * @param leaves		Passed <code>true</code> to retrieve the images
+     * 						<code>false</code> otherwise.
      * @param userID   		The Id of the user.                    
      */
-    public ClassificationLoader(long imageID, long userID)
+    public ClassificationLoader(long imageID, boolean leaves, long userID)
     {
         if (imageID < 0) 
             throw new IllegalArgumentException("image ID not valid ");
-        loadCall = loadAllClassification(imageID, userID);
+        loadCall = loadPartialClassification(imageID, leaves, userID);
+    }
+    
+    /**
+     * Creates a new instance to find the Category Group/Category paths that 
+     * end or don't end with the specified Image.
+     * If bad arguments are passed, we throw a runtime exception so to fail
+     * early and in the caller's thread.
+     * 
+     * @param imagesID       The id of the Image to classify or declassifiy
+     *                      depending on the algorithm.
+     * @param leaves		Passed <code>true</code> to retrieve the images
+     * 						<code>false</code> otherwise.
+     * @param userID   		The Id of the user.                    
+     */
+    public ClassificationLoader(Set<Long> imagesID, boolean leaves, long userID)
+    {
+        if (imagesID == null || imagesID.size() == 0) 
+            throw new IllegalArgumentException("image ID not valid ");
+        loadCall = loadPartialClassification(imagesID, leaves, userID);
     }
     
     /**
@@ -249,9 +327,18 @@ public class ClassificationLoader
             throw new IllegalArgumentException("image ID not valid ");
         if (!checkAlgorithmIndex(algorithm))
             throw new IllegalArgumentException("Algorithm not supported.");
-        Set<Long> set = new HashSet<Long>(1);
-        set.add(new Long(imageID));
-        loadCall  = loadCGCPaths(set, algorithm, userID);
+        switch (algorithm) {
+			case ALL:
+				loadCall = loadAllClassification(imageID, userID);
+				break;
+			case PARTIAL:
+				loadCall = loadPartialClassification(imageID, false, userID);
+				break;
+			default:
+				Set<Long> set = new HashSet<Long>(1);
+	        	set.add(new Long(imageID));
+	        	loadCall  = loadCGCPaths(set, algorithm, userID);
+		}
     }
     
     /**

@@ -192,7 +192,7 @@ class ROIAssistant
 			{
 				int col = table.getSelectedColumn();
 				int row = table.getSelectedRow();
-				if(col==0)
+				if (col == 0)
 					return;
 				Object value = table.getShapeAt(row, col);
 				if(value instanceof ROIShape)
@@ -212,7 +212,7 @@ class ROIAssistant
 							shape.getFigure().getEndPoint().getY()-
 							shape.getFigure().getStartPoint().getY())+"");
 				}
-				else if(value == null)
+				else if (value == null)
 				{
 
 				}
@@ -293,10 +293,9 @@ class ROIAssistant
 	private JPanel createInfoPanel()
 	{
 		JPanel infoPanel = new TitlePanel("ROI Assistant", 
-				"<html><body>This is " +
-				"the ROI Assistant. It allows you to create an ROI " +
-				"which extends<p> " +
-				"through time and z-sections.</body></html>", 
+				"The ROI Assistant allows you to create an ROI " +
+				"which extends \n" +
+				"through time and z-sections.", 
 				IconManager.getInstance().getIcon(IconManager.WIZARD));
 		return infoPanel;
 	}
