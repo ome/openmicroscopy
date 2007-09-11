@@ -140,6 +140,11 @@
     <property name="proxyInterface" value="ome.api.IUpdate"/>
   </bean>
 
+  <bean id="managed:ome.api.IRenderingSettings" parent="statelessJndi">
+    <property name="jndiName" value="omero/remote/ome.api.IRenderingSettings"/>
+    <property name="proxyInterface" value="ome.api.IRenderingSettings"/>
+  </bean>
+  
   <bean id="managed:ome.api.IRepositoryInfo" parent="statelessJndi">
     <property name="jndiName" value="omero/remote/ome.api.IRepositoryInfo"/>
     <property name="proxyInterface" value="ome.api.IRepositoryInfo"/>

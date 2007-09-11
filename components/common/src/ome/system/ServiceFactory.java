@@ -27,6 +27,7 @@ import ome.api.IUpdate;
 import ome.api.JobHandle;
 import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
+import ome.api.IRenderingSettings;
 import ome.api.ServiceInterface;
 import ome.model.internal.Permissions;
 import ome.system.OmeroContext;
@@ -206,6 +207,10 @@ public class ServiceFactory {
         return getServiceByClass(IUpdate.class);
     }
 
+    public IRenderingSettings getRenderingSettingsService() {
+        return getServiceByClass(IRenderingSettings.class);
+    }
+    
     public IRepositoryInfo getRepositoryInfoService() {
         return getServiceByClass(IRepositoryInfo.class);
     }

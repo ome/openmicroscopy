@@ -11,6 +11,8 @@ package ome.admin.controller;
 import javax.ejb.EJBAccessException;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.log4j.Logger;
 
 // Third-party libraries
@@ -303,6 +305,15 @@ public class LoginBean implements java.io.Serializable{
 			return "false";
 		}
 
+	}
+	
+	public String getPage() {
+		FacesContext facesContext = FacesContext.getCurrentInstance();
+		HttpServletRequest request = (HttpServletRequest) facesContext
+				.getExternalContext().getRequest();
+		String[] s = request.getRequestURI().split("/");
+		String menu = s[s.length - 1];
+		return menu;
 	}
 
  

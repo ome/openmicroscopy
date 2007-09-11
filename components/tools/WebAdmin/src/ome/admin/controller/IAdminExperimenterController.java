@@ -203,6 +203,10 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	 * @return {@link java.util.List}
 	 */
 	public DataModel getUsers() {
+		if(this.editMode) {
+			this.userModel.setWrappedData(iadmin.getAndSortItems(sortItem, sort));
+			this.scrollerMode = iadmin.setScroller();
+		}
 		return this.userModel;
 	}
 
@@ -344,10 +348,8 @@ public class IAdminExperimenterController implements java.io.Serializable {
 		try {
 			if (this.user.getSelectedGroups() == null)
 				this.user.setSelectedGroups(Collections.EMPTY_LIST);
-
 			iadmin.createExperimenter(this.user);
-			this.userModel.setWrappedData(iadmin.getAndSortItems(sortItem,
-					sort));
+			this.userModel.setWrappedData(iadmin.getAndSortItems(sortItem,sort));
 			return "success";
 		} catch (Exception e) {
 			logger.error("createExperimenter: " + e.getMessage());
@@ -392,8 +394,8 @@ public class IAdminExperimenterController implements java.io.Serializable {
 		try {
 			this.user = (User) userModel.getRowData();
 			iadmin.deleteExperimenter(this.user.getExperimenter().getId());
-			this.userModel.setWrappedData(iadmin.getAndSortItems(sortItem,
-					sort));
+			//this.userModel.setWrappedData(iadmin.getAndSortItems(sortItem,sort));
+			this.scrollerMode = iadmin.setScroller();
 			return "success";
 		} catch (Exception e) {
 			logger.error("deleteExperimenter: " + e.getMessage());
@@ -416,8 +418,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	public String updateExperimenter() {
 		try {
 			iadmin.updateExperimenter(this.user);
-			this.userModel.setWrappedData(iadmin.getAndSortItems(sortItem,
-					sort));
+			//this.userModel.setWrappedData(iadmin.getAndSortItems(sortItem,sort));
 			return "success";
 		} catch (Exception e) {
 			logger.error("updateExperimenter: " + e.getMessage());

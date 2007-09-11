@@ -1,94 +1,91 @@
 <project name="webadmin" default="main" basedir=".">
 
-    <property environment="env"/>
-    <property file="./build.properties"/>
+	<property environment="env" />
+	<property file="./build.properties" />
 
-    <!-- Ivy configuration -->
-    <property name="deps.lib.dir" value="${basedir}/WEB-INF/lib"/>
-    <property name="import.dir"   value="${basedir}/../../antlib/resources"/>
-    <import file="${import.dir}/global.xml"/>
-    <import file="${import.dir}/lifecycle.xml"/>
-    <import file="${import.dir}/dependencies.xml"/>
+	<!-- Ivy configuration -->
+	<property name="deps.lib.dir" value="${basedir}/WEB-INF/lib" />
+	<property name="import.dir" value="${basedir}/../../antlib/resources" />
+	<import file="${import.dir}/global.xml" />
+	<import file="${import.dir}/lifecycle.xml" />
+	<import file="${import.dir}/dependencies.xml" />
 
-    <property name="build.compiler"     value="modern"/>
-    <property name="build.dir"          value="${basedir}/WEB-INF/classes" />
-    <property name="src.dir"            value="${basedir}/src"/>
-    <property name="war.file"           value="WebAdmin"/>
-    <property name="war.file.name"      value="${war.file}.war"/>
-    <property name="jboss.home"         value="/Users/Ola/J2EP/software/jboss-4.0.4.GA"/>
-    <property name="deploy.dir"         value="${jboss.home}/server/default/deploy"/>
+	<property name="build.compiler" value="modern" />
+	<property name="build.dir" value="${basedir}/WEB-INF/classes" />
+	<property name="src.dir" value="${basedir}/src" />
+	<property name="war.file" value="WebAdmin" />
+	<property name="war.file.name" value="${war.file}.war" />
+	<property name="jboss.home" value="/Users/Ola/J2EP/software/jboss-4.0.4.GA" />
+	<property name="deploy.dir" value="${jboss.home}/server/default/deploy" />
 
-    <path id="project.class.path">
-        <fileset dir="${basedir}/WEB-INF/lib/">
-            <include name="**/*.jar"/>
-        </fileset>
-        <fileset dir="${basedir}/WEB-INF">
-            <include name="**/*.properties"/>
-        </fileset>
-        <fileset dir="${basedir}">
-           <include name="**/*.properties"/>
-        </fileset>
-        <pathelement path="${src.dir}"/>
-    </path>
+	<path id="project.class.path">
+		<fileset dir="${basedir}/WEB-INF/lib/">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${basedir}/WEB-INF">
+			<include name="**/*.properties" />
+		</fileset>
+		<fileset dir="${basedir}">
+			<include name="**/*.properties" />
+		</fileset>
+		<pathelement path="${src.dir}" />
+	</path>
 
-      <target name="clean">
-          <delete dir="${build.dir}" includeEmptyDirs="true" />
-          <delete dir="${basedir}/target" includeEmptyDirs="true" />
-          <delete>
-              <fileset dir="${basedir}/WEB-INF/lib" includes="**/*.jar"/>
-          </delete>
-      </target>
+	<target name="clean">
+		<delete dir="${build.dir}" includeEmptyDirs="true" />
+		<delete dir="${basedir}/target" includeEmptyDirs="true" />
+		<delete>
+			<fileset dir="${basedir}/WEB-INF/lib" includes="**/*.jar" />
+		</delete>
+	</target>
 
-      <target name="compile" depends="prepare,deps-retrieve">
-        <mkdir dir= "${basedir}/WEB-INF/classes" />
-        <javac   srcdir="${src.dir}"
-                    destdir="${build.dir}"
-                    debug="on"
-                deprecation="on">
-          <include name="**/*.java"/>
-          <classpath refid="project.class.path"/>
-        </javac>
-        <copy todir="${build.dir}/ome/admin/bundle">
-          <fileset dir="${src.dir}/ome/admin/bundle" includes="**/*.properties"/>
-        </copy>
-        <copy todir="${build.dir}">
-          <fileset dir="${src.dir}" includes="**/*.properties"/>
-        </copy>
-      </target>
+	<target name="compile" depends="prepare,deps-retrieve">
+		<mkdir dir="${basedir}/WEB-INF/classes" />
+		<javac srcdir="${src.dir}" destdir="${build.dir}" debug="on" deprecation="on">
+			<include name="**/*.java" />
+			<classpath refid="project.class.path" />
+		</javac>
+		<copy todir="${build.dir}/ome/admin/bundle">
+			<fileset dir="${src.dir}/ome/admin/bundle" includes="**/*.properties" />
+		</copy>
+		<copy todir="${build.dir}">
+			<fileset dir="${src.dir}" includes="**/*.properties" />
+		</copy>
+	</target>
 
-      <target name="cleanWebApp">
-        <delete file="${deploy.dir}/${war.file.name}" />
-        <delete dir="${deploy.dir}/${war.file}" includeEmptyDirs="true" />
-      </target>
+	<target name="cleanWebApp">
+		<delete file="${deploy.dir}/${war.file.name}" />
+		<delete dir="${deploy.dir}/${war.file}" includeEmptyDirs="true" />
+	</target>
 
-      <target name="war" depends="clean, compile">
-          <war warfile="${war.file.name}" webxml="${basedir}/WEB-INF/web.xml">
-                 <fileset dir="${basedir}" includes="**/*.*" excludes="*.war, **/*.java, *.xml, src/**/*, target/**/*, **/*.nbattrs, web.xml, **/WEB-INF/**/*.*, **/*.classpath"/>
-                 <webinf  dir="${basedir}/WEB-INF"    includes="**/* **/*.class" excludes="web.xml, **/*.jar, **/*.class"/>
-                 <lib     dir="${basedir}/WEB-INF/lib" excludes="j2ee.jar"/>
-                 <classes dir="${basedir}/WEB-INF/classes" />
-          </war>
-      </target>
+	<target name="war" depends="clean, compile">
+		<war warfile="${war.file.name}" webxml="${basedir}/WEB-INF/web.xml">
+			<fileset dir="${basedir}" includes="**/*.*" excludes="*.war, **/*.java, *.xml, src/**/*, target/**/*, **/*.nbattrs, web.xml, **/WEB-INF/**/*.*, **/*.classpath" />
+			<webinf dir="${basedir}/WEB-INF" includes="**/* **/*.class" excludes="web.xml, **/*.jar, **/*.class" />
+			<lib dir="${basedir}/WEB-INF/lib" excludes="ant.jar,antlr.jar,asm-attrs.jar,asm.jar,cglib.jar,dom4j.jar,dsl.jar,ehcache.jar,geronimo-spec-jta.jar,groovy.jar,hibernate-tools.jar,hibernate.jar,jboss-servlet-api.jar,jmock.jar,jtidy.jar,junit.jar,jboss-j2ee.jar,postgresql.jar,qdox.jar,spring-mock.jar,testng.jar,velocity-tools-generic.jar,velocity.jar" />
+			<classes dir="${basedir}/WEB-INF/classes" />
+		</war>
+	</target>
 
-      <target name="deploy">
-          <copy todir="${deploy.dir}">
-            <fileset dir="${basedir}" includes="${war.file.name}"/>
-          </copy>
-      </target>
+	<target name="deploy">
+		<copy todir="${deploy.dir}">
+			<fileset dir="${basedir}" includes="${war.file.name}" />
+		</copy>
+	</target>
 
-    <target name="main" depends="clean, cleanWebApp, compile, war, deploy"/>
+	<target name="main" depends="clean, cleanWebApp, compile, war, deploy" />
 
-    <target name="tools-build" depends="war" description="Tools build hook: runs war"/>
+	<target name="tools-build" depends="war" description="Tools build hook: runs war" />
 
-    <target name="tools-dist" depends="tools-build" description="Tools dist hook: copies war to tools/target">
-      <copy todir="../target">
-        <fileset dir="${basedir}" includes="*.war"/>
-      </copy>
-    </target>
+	<target name="tools-dist" depends="tools-build" description="Tools dist hook: copies war to tools/target">
+		<copy todir="../target">
+			<fileset dir="${basedir}" includes="*.war" />
+		</copy>
+	</target>
 
-    <target name="tools-clean" depends="clean">
-        <delete dir="target"/>
-        <delete file="${war.file.name}"/>
-    </target>
+	<target name="tools-clean" depends="clean">
+		<delete dir="target" />
+		<delete file="${war.file.name}" />
+	</target>
 
-  </project>
+</project>

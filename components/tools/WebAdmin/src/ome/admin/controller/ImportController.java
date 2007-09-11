@@ -12,7 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
-//Third-party libraries
+// Third-party libraries
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -26,7 +26,7 @@ import org.apache.myfaces.custom.tree2.HtmlTree;
 import org.apache.myfaces.custom.tree2.TreeNode;
 import org.apache.myfaces.custom.tree2.TreeNodeBase;
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.admin.logic.ImportManagerDelegate;
 import ome.admin.logic.UpdateManagerDelegate;
 import ome.admin.model.User;
@@ -171,7 +171,7 @@ public class ImportController implements java.io.Serializable {
 	 * Sets {@link ome.admin.controller.ImportController#nodePath}
 	 * 
 	 * @param nodePath
-	 *            
+	 * 
 	 */
 	public void setNodePath(String nodePath) {
 		this.nodePath = nodePath;
@@ -243,8 +243,7 @@ public class ImportController implements java.io.Serializable {
 			this.selectedNode = this.tree.getNode();
 			this.fileName = selectedNode.getIdentifier();
 			this.imp.setFilePath(fileName);
-			this.userModel.setWrappedData(imp.sortItems("firstname",
-					"asc"));
+			this.userModel.setWrappedData(imp.sortItems("firstname", "asc"));
 			return "success";
 		} catch (ApiUsageException e) {
 			FacesContext context = FacesContext.getCurrentInstance();
@@ -283,11 +282,15 @@ public class ImportController implements java.io.Serializable {
 	public String saveItems() {
 		FacesContext context = FacesContext.getCurrentInstance();
 		try {
-			imp
-					.createExperimenters((List<User>) this.userModel
-							.getWrappedData());
+			imp.createExperimenters((List<User>) this.userModel
+					.getWrappedData());
+
+			IAdminExperimenterController ia = (IAdminExperimenterController) context.getApplication().getVariableResolver().resolveVariable(
+					context, "IAEManagerBean");
+			ia.setEditMode(true);
 			
-			FacesMessage message = new FacesMessage("Imported succesful. Go to Scientist.");
+			FacesMessage message = new FacesMessage(
+					"Imported succesful. Go to Scientist.");
 			context.addMessage("clientTree", message);
 		} catch (Exception e) {
 			FacesMessage message = new FacesMessage("Exception: "
@@ -346,8 +349,7 @@ public class ImportController implements java.io.Serializable {
 		try {
 			this.sortItem = getAttribute(event, "sortItem");
 			this.sort = getAttribute(event, "sort");
-			this.userModel
-					.setWrappedData(imp.sortItems(sortItem, sort));
+			this.userModel.setWrappedData(imp.sortItems(sortItem, sort));
 		} catch (FileNotFoundException e) {
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("File not found : "

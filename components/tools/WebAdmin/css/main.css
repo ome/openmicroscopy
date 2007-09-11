@@ -158,6 +158,11 @@ select.manypick {
 	text-decoration: none;
 }
 
+#navigation a.menu:link,#navigation a.menu:visited {
+	color: #ffffff;
+	text-decoration: none;
+}
+
 #navigation a:hover {
 	color: #ffffff;
 	text-decoration: none;

@@ -89,7 +89,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Remote(ILdap.class)
 @RemoteBinding(jndiBinding = "omero/remote/ome.api.ILdap")
 @Local(ILdap.class)
-@LocalBinding(jndiBinding = "omero/local/ome.api.ILdap")
+@LocalBinding(jndiBinding = "omero/local/ome.api.local.LocalLdap")
 @SecurityDomain("OmeroSecurity")
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class LdapImpl extends AbstractLevel2Service implements LocalLdap {

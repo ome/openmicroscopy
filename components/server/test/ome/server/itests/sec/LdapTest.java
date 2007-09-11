@@ -43,7 +43,7 @@ public class LdapTest extends AbstractManagedContextTest {
 		loginRoot();
 
 		List<Experimenter> exps = iLdap.searchByAttribute(
-				DistinguishedName.EMPTY_PATH, "sn", "Smith");
+				"", "sn", "Smith");
 		for (Experimenter e : exps) {
 			System.out.println(e.getOmeName());
 		}
@@ -62,14 +62,13 @@ public class LdapTest extends AbstractManagedContextTest {
 		vals[1] = "1111";
 
 		List<Experimenter> exps = iLdap.searchByAttributes(
-				DistinguishedName.EMPTY_PATH, attrs, vals);
+				"", attrs, vals);
 		System.out.println("size " + exps.size());
 		for (Experimenter e : exps) {
 			System.out.println(e.getOmeName());
 		}
 
-		DistinguishedName dn = new DistinguishedName(
-				"cn=jsmith,ou=example");
+		String dn = "cn=jsmith,ou=example";
 		List<Experimenter> exps1 = iLdap.searchByAttributes(dn, attrs, vals);
 		System.out.println("size " + exps1.size());
 		for (Experimenter e : exps1) {
@@ -82,8 +81,7 @@ public class LdapTest extends AbstractManagedContextTest {
 	public void testSearchByDN() throws Exception {
 		loginRoot();
 
-		DistinguishedName dn = new DistinguishedName(
-				"cn=atarkowska,ou=example");
+		String dn = "cn=atarkowska,ou=example";
 		Experimenter exp = iLdap.searchByDN(dn);
 		System.out.println("Experimenter: " + exp.getFirstName() + " "
 				+ exp.getLastName() + ", " + exp.getOmeName() + " "
@@ -95,7 +93,7 @@ public class LdapTest extends AbstractManagedContextTest {
 	public void testFindDN() throws Exception {
 		loginRoot();
 
-		DistinguishedName dn = iLdap.findDN("jsmith");
+		String dn = iLdap.findDN("jsmith");
 		System.out.println("DN: " + dn.toString());
 
 		// should be created 2 the same cns on the subtree.

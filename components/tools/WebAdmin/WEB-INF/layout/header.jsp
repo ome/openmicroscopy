@@ -13,14 +13,18 @@
 <ul>
 	<c:if
 		test="${sessionScope.LoginBean.role && sessionScope.LoginBean.mode}">
-		<li><a href="./space.jsf">${msg.headerSpace}</a></li>
-		<li><a href="./imports.jsf">${msg.headerUpload}</a></li>
-		<li><a href="./experimenters.jsf">${msg.headerExperimenters}</a>
-		</li>
-		<li><a href="./groups.jsf">${msg.headerGroups}</a></li>
+		<li><a href="./space.jsf"
+			<c:if test="${sessionScope.LoginBean.page == 'space.jsf'}" >class="menu"</c:if>>${msg.headerSpace}</a</li>
+		<li><a href="./imports.jsf"
+			<c:if test="${sessionScope.LoginBean.page == 'imports.jsf' || sessionScope.LoginBean.page == 'uploadFile.jsf' || sessionScope.LoginBean.page == 'importForm.jsf'}" >class="menu"</c:if>>${msg.headerUpload}</a></li>
+		<li><a href="./experimenters.jsf"
+			<c:if test="${sessionScope.LoginBean.page == 'experimenters.jsf' || sessionScope.LoginBean.page == 'experimenterForm.jsf'}" >class="menu"</c:if>>${msg.headerExperimenters}</a></li>
+		<li><a href="./groups.jsf"
+			<c:if test="${sessionScope.LoginBean.page == 'groups.jsf' || sessionScope.LoginBean.page == 'groupsForm.jsf' || sessionScope.LoginBean.page == 'editInGroup.jsf'}" >class="menu"</c:if>>${msg.headerGroups}</a></li>
 	</c:if>
 	<c:if test="${sessionScope.LoginBean.mode}">
-		<li><a href="./myAccount.jsf">${msg.headerMyAccount}</a></li>
+		<li><a href="./myAccount.jsf"
+			<c:if test="${sessionScope.LoginBean.page == 'myAccount.jsf'}" >class="menu"</c:if>>${msg.headerMyAccount}</a></li>
 		<li><a href="./logout">${msg.headerLogout}</a></li>
 	</c:if>
 
@@ -33,6 +37,4 @@
 	<h1>${msg.headerHello} <c:out
 		value="${sessionScope.LoginBean.username}" />!</h1>
 	</div>
-</c:if>
-
-</div>
+</c:if></div>

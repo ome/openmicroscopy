@@ -9,13 +9,13 @@
 	test="${sessionScope.LoginBean.mode && sessionScope.LoginBean.role}">
 	<f:view>
 
-		<h2><h:outputText value="#{msg.uploadImport}" /></h2>
-		<p><h:outputText value="#{TreeBean.fileName}" /></p>
+		<h:form id="importexperimenters">
+		
+			<h2><h:outputText value="#{msg.uploadImport}" /></h2>
+			<p><h:outputText value="#{TreeBean.fileName}" /></p>
 
-		<h:form>
-
-			<h:message styleClass="errorText" id="experimentersError"
-				for="experimenters" />
+			<h:message styleClass="errorText" id="importexperimentersError"
+				for="importexperimenters" />
 
 			<div id="main"><h:dataTable id="items"
 				value="#{TreeBean.experimenters}" var="user"

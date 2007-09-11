@@ -1,10 +1,11 @@
 package ome.api;
 
+import java.util.List;
 import java.util.Set;
 
 import ome.model.display.RenderingDef;
 
-public interface IRenderingSettings {
+public interface IRenderingSettings extends ServiceInterface {
 	/**
 	 * Returns the rendering settings for a given pixels for the current user.
 	 * 
@@ -53,7 +54,7 @@ public interface IRenderingSettings {
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the project <code>to</code> is unlocatable.
 	 */
-	void applySettingsToProject(long from, long to);
+	List applySettingsToProject(long from, long to);
 	
 	/**
 	 * Applies rendering settings to all images in a given <code>Dataset</code>. 
@@ -64,7 +65,7 @@ public interface IRenderingSettings {
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the dataset <code>to</code> is unlocatable.
 	 */
-	void applySettingsToDataset(long from, long to);
+	List applySettingsToDataset(long from, long to);
 	
 	/**
 	 * Applies rendering settings to a given <code>Image</code>. 
@@ -75,5 +76,6 @@ public interface IRenderingSettings {
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the image <code>to</code> is unlocatable.
 	 */
-	void applySettingsToImage(long from, long to);
+	boolean applySettingsToImage(long from, long to);
+
 }
