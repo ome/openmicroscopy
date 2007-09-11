@@ -54,67 +54,7 @@ public class RenderingSettingsTest extends AbstractManagedContextTest {
 		Long from = 1L;
 		Long to = 2L;
 
-		/*RenderingDef rdFrom = rsx.getRenderingSettings(from);
-		QuantumDef qDefFrom = rdFrom.getQuantization();
-		System.err.println("From " + qDefFrom.getBitResolution() + " "
-				+ qDefFrom.getCdStart() + " " + qDefFrom.getCdEnd());
-		List wavesFrom = rdFrom.getWaveRendering();
-		ChannelBinding bFrom;
-		for (Iterator i = wavesFrom.iterator(); i.hasNext();) {
-			bFrom = (ChannelBinding) i.next();
-			System.err.println("CHB From" + bFrom.getActive() + " "
-					+ bFrom.getCoefficient() + " "
-					+ bFrom.getFamily().getValue() + " "
-					+ bFrom.getInputStart() + " " + bFrom.getInputEnd() + " "
-					+ bFrom.getNoiseReduction() + " "
-					+ bFrom.getColor().getAlpha() + " "
-					+ bFrom.getColor().getBlue() + " "
-					+ bFrom.getColor().getGreen() + " "
-					+ bFrom.getColor().getRed());
-		}
+		System.err.println("RESULT" + rsx.applySettingsToImage(from, to));
 
-		RenderingDef rdToOld = rsx.getRenderingSettings(to);
-		QuantumDef qDef1 = rdToOld.getQuantization();
-		System.err.println("To old " + qDef1.getBitResolution() + " "
-				+ qDef1.getCdStart() + " " + qDef1.getCdEnd());
-		List wavesToOld = rdToOld.getWaveRendering();
-		ChannelBinding bToOld;
-		for (Iterator i = wavesToOld.iterator(); i.hasNext();) {
-			bToOld = (ChannelBinding) i.next();
-			System.err.println("CHB Old " + bToOld.getActive() + " "
-					+ bToOld.getCoefficient() + " "
-					+ bToOld.getFamily().getValue() + " "
-					+ bToOld.getInputStart() + " " + bToOld.getInputEnd() + " "
-					+ bToOld.getNoiseReduction() + " "
-					+ bToOld.getColor().getAlpha() + " "
-					+ bToOld.getColor().getBlue() + " "
-					+ bToOld.getColor().getGreen() + " "
-					+ bToOld.getColor().getRed());
-		}*/
-
-		//System.err.println("RESALT" + rsx.applySettingsToImage(from, to));
-
-		System.err.println("RESALT" + rsx.getRenderingSettings(1L));
-		
-		/*RenderingDef rdToNew = rsx.getRenderingSettings(to);
-		QuantumDef qDef2 = rdToNew.getQuantization();
-		System.err.println("To new " + qDef2.getBitResolution() + " "
-				+ qDef2.getCdStart() + " " + qDef2.getCdEnd());
-
-		List wavesToNew = rdToNew.getWaveRendering();
-		ChannelBinding bToNew;
-		for (Iterator i = wavesToNew.iterator(); i.hasNext();) {
-			bToNew = (ChannelBinding) i.next();
-			System.err.println("CHB New " + bToNew.getActive() + " "
-					+ bToNew.getCoefficient() + " "
-					+ bToNew.getFamily().getValue() + " "
-					+ bToNew.getInputStart() + " " + bToNew.getInputEnd() + " "
-					+ bToNew.getNoiseReduction() + " "
-					+ bToNew.getColor().getAlpha() + " "
-					+ bToNew.getColor().getBlue() + " "
-					+ bToNew.getColor().getGreen() + " "
-					+ bToNew.getColor().getRed());
-		}
-*/
 	}
 }

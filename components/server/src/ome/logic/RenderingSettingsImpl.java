@@ -107,22 +107,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		rd = iQuery.findByQuery(sql, param);
 		
 		QuantumDef qDefFrom = rd.getQuantization();
-		System.err.println("From " + qDefFrom.getBitResolution() + " "
-				+ qDefFrom.getCdStart() + " " + qDefFrom.getCdEnd());
-		List wavesFrom = rd.getWaveRendering();
-		ChannelBinding bFrom;
-		for (Iterator i = wavesFrom.iterator(); i.hasNext();) {
-			bFrom = (ChannelBinding) i.next();
-			System.err.println("CHB From" + bFrom.getActive() + " "
-					+ bFrom.getCoefficient() + " "
-					+ bFrom.getFamily().getValue() + " "
-					+ bFrom.getInputStart() + " " + bFrom.getInputEnd() + " "
-					+ bFrom.getNoiseReduction() + " "
-					+ bFrom.getColor().getAlpha() + " "
-					+ bFrom.getColor().getBlue() + " "
-					+ bFrom.getColor().getGreen() + " "
-					+ bFrom.getColor().getRed());
-		}
+		
 		return rd;
 	}
 
