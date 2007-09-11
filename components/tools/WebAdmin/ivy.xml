@@ -16,8 +16,17 @@
     <dependency org="omero" name="common"   rev="${omero.version}" changing="true" />
     <dependency org="omero" name="client"   rev="${omero.version}" changing="true" />
     <dependency org="omero" name="jboss-servlet-api" rev="${versions.jboss}" />
+    <dependency org="omero" name="jboss-j2ee" rev="${versions.jboss}" />
+    <dependency org="omero" name="jboss-servlet-api" rev="${versions.jboss}" />
+    <dependency org="omero" name="jboss-ejb3x" rev="${versions.jboss}" />
+    <dependency org="omero" name="jboss-ejb3" rev="${versions.jboss}" />
+    <dependency org="omero" name="jboss-annotations-ejb3" rev="${versions.jboss}" />
+    <dependency org="omero" name="jbossall-client" rev="${versions.jboss}" />
     <dependency org="webadmin" name="chartcreator" rev="${versions.chartcreator}" />
     <dependency org="webadmin" name="commons-beanutils" rev="${versions.commons-beanutils}" />
+    <dependency org="webadmin" name="commons-codec" rev="${versions.commons-codec}" />
+    <dependency org="webadmin" name="commons-collections" rev="${versions.commons-collections}" />
+    <dependency org="webadmin" name="commons-lang" rev="${versions.commons-lang}" />
     <dependency org="webadmin" name="commons-digester" rev="${versions.commons-digester}" />
     <dependency org="webadmin" name="commons-el" rev="${versions.commons-el}" />
     <dependency org="webadmin" name="commons-fileupload" rev="${versions.commons-fileupload}" />
@@ -25,6 +34,8 @@
     <dependency org="webadmin" name="commons-validator" rev="${versions.commons-validator}" />
     <dependency org="webadmin" name="jcommon" rev="${versions.jcommon}" />
     <dependency org="webadmin" name="jfreechart" rev="${versions.jfreechart}" />
+    <dependency org="webadmin" name="jfreechart" rev="${versions.jfreechart}-swt" />
+    <dependency org="webadmin" name="jfreechart" rev="${versions.jfreechart}-experimental" />
     <dependency org="webadmin" name="jstl" rev="${versions.jstl}" />
     <dependency org="webadmin" name="myfaces-api" rev="${versions.myfaces-api}" />
     <dependency org="webadmin" name="myfaces-impl" rev="${versions.myfaces-impl}" />
