@@ -17,6 +17,7 @@
     <dependency org="omero" name="client"   rev="${omero.version}" changing="true" />
     <dependency org="omero" name="jboss-servlet-api" rev="${versions.jboss}" />
     <dependency org="webadmin" name="chartcreator" rev="${versions.chartcreator}" />
+    <dependency org="webadmin" name="commons-beanutils" rev="${versions.commons-beanutils}" />
     <dependency org="webadmin" name="commons-digester" rev="${versions.commons-digester}" />
     <dependency org="webadmin" name="commons-el" rev="${versions.commons-el}" />
     <dependency org="webadmin" name="commons-fileupload" rev="${versions.commons-fileupload}" />
