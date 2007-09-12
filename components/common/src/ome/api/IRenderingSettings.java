@@ -54,7 +54,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the project <code>to</code> is unlocatable.
 	 */
-	List applySettingsToProject(long from, long to);
+	Set applySettingsToProject(long from, long to);
 	
 	/**
 	 * Applies rendering settings to all images in a given <code>Dataset</code>. 
@@ -65,7 +65,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the dataset <code>to</code> is unlocatable.
 	 */
-	List applySettingsToDataset(long from, long to);
+	Set applySettingsToDataset(long from, long to);
 	
 	/**
 	 * Applies rendering settings to a given <code>Image</code>. 
@@ -76,6 +76,6 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the image <code>to</code> is unlocatable.
 	 */
-	boolean applySettingsToImage(long from, long to);
+	boolean applySettingsToPixel(long from, long to);
 
 }

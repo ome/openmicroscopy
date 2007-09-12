@@ -1,8 +1,10 @@
 package ome.logic;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.ejb.Local;
@@ -19,12 +21,12 @@ import ome.api.IRenderingSettings;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.io.nio.PixelsService;
+import ome.model.containers.DatasetImageLink;
+import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.Color;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
-import ome.model.enums.Family;
-import ome.model.internal.Details;
 import ome.parameters.Parameters;
 import ome.services.util.OmeroAroundInvoke;
 
@@ -83,35 +85,64 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		return IRenderingSettings.class;
 	}
 
-	public List applySettingsToDataset(long from, long to) {
-		return null;
+	public Set<Pixels> applySettingsToProject(long from, long to) {
 
+		String sql = "select p from Pixels p "
+				+ " left outer join fetch p.image i "
+				+ " left outer join fetch i.datasetLinks dil "
+				+ " left outer join fetch dil.parent d "
+				+ " left outer join fetch d.projectLinks pdl "
+				+ " left outer join fetch pdl.parent pr "
+				+ " where pr.id = :id";
+		Set<Pixels> pixels = new HashSet(iQuery.findAllByQuery(sql,
+				new Parameters().addId(to)));
+
+		try {
+			Iterator<Pixels> i = pixels.iterator();
+			while (i.hasNext()) {
+				Pixels p = (Pixels) i.next();
+				boolean r = applySettingsToPixel(from, p.getId());
+				if (r) i.remove();
+			}
+		} catch (NoSuchElementException expected) {
+			throw new ApiUsageException("There are no elements assigned to the Project");
+		}
+		return pixels;
+	}
+
+	public <T> void applySettingsToSet(long from, Class<T> toType, Set<T> to) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public Set<Pixels> applySettingsToDataset(long from, long to) {
+		String sql = "select p from Pixels p "
+				+ " left outer join fetch p.image i "
+				+ " left outer join fetch i.datasetLinks dil "
+				+ " left outer join fetch dil.parent d " + " where d.id = :id";
+
+		Set<Pixels> pixels = new HashSet(iQuery.findAllByQuery(sql,
+				new Parameters().addId(to)));
+
+		try {
+			Iterator<Pixels> i = pixels.iterator();
+			while (i.hasNext()) {
+				Pixels p = (Pixels) i.next();
+				boolean r = applySettingsToPixel(from, p.getId());
+				if (r) i.remove();
+			}
+		} catch (NoSuchElementException expected) {
+			throw new ApiUsageException("There are no elements assigned to the Dataset");
+		}
+
+		return pixels;
 	}
 
 	protected RenderingDef getRenderingDef(long id) {
-		RenderingDef rd = null;
-		String sql = "from RenderingDef as rdef "
-				+ "left outer join fetch rdef.quantization "
-				+ "left outer join fetch rdef.model "
-				+ "left outer join fetch rdef.waveRendering as cb "
-				+ "left outer join fetch cb.color "
-				+ "left outer join fetch cb.family where "
-				+ "rdef.id = :rID and "
-				+ "rdef.details.owner.id = :userID";
-
-		long userID = getSecuritySystem().getEventContext().getCurrentUserId();
-		Parameters param = new Parameters();
-		param.addLong("rID", id);
-		param.addLong("userID", userID);
-
-		rd = iQuery.findByQuery(sql, param);
-		
-		QuantumDef qDefFrom = rd.getQuantization();
-		
-		return rd;
+		return iQuery.get(RenderingDef.class, id);
 	}
 
-	public boolean applySettingsToImage(long from, long to) {
+	public boolean applySettingsToPixel(long from, long to) {
 
 		// get rendering settings from RenderingDef to PixelId
 		RenderingDef rdFrom = getRenderingDef(from);
@@ -174,16 +205,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		}
 
 		return true;
-
-	}
-
-	public List applySettingsToProject(long from, long to) {
-		return null;
-
-	}
-
-	public <T> void applySettingsToSet(long from, Class<T> toType, Set<T> to) {
-		// TODO Auto-generated method stub
 
 	}
 

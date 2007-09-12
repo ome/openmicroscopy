@@ -54,7 +54,9 @@ public class RenderingSettingsTest extends AbstractManagedContextTest {
 		Long from = 1L;
 		Long to = 2L;
 
-		System.err.println("RESULT" + rsx.applySettingsToImage(from, to));
+		rsx.applySettingsToPixel(from, to);
+		rsx.applySettingsToProject(from, to);
+		rsx.applySettingsToDataset(from, to);
 
 	}
 }
