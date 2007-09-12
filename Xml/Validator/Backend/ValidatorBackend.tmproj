@@ -2,23 +2,21 @@
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>currentDocument</key>
-	<string>OmeValidator.py</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
 			<string>RunAndCheck.py</string>
 			<key>lastUsed</key>
-			<date>2007-08-17T13:05:54Z</date>
+			<date>2007-09-06T11:24:18Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>OmeValidator.py</string>
 			<key>lastUsed</key>
-			<date>2007-08-17T13:05:54Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2007-09-06T11:24:17Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -47,42 +45,42 @@
 	<integer>200</integer>
 	<key>metaData</key>
 	<dict>
-		<key>OmeValidator.py</key>
+		<key>samples/completesamplenoenc.xml</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>36</integer>
 				<key>line</key>
-				<integer>204</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>182</integer>
-		</dict>
-		<key>RunAndCheck.py</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>14</integer>
+				<integer>15</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
-		<key>samples/missingref.ome</key>
+		<key>samples/completesamplenopre.xml</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>25</integer>
+				<integer>66</integer>
 				<key>line</key>
-				<integer>12</integer>
+				<integer>27</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>samples/sdub-fix.ome</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
 			</dict>
 			<key>columnSelection</key>
 			<false/>
@@ -93,43 +91,36 @@
 			<key>selectFrom</key>
 			<dict>
 				<key>column</key>
-				<integer>13</integer>
+				<integer>43</integer>
 				<key>line</key>
-				<integer>12</integer>
+				<integer>0</integer>
 			</dict>
 			<key>selectTo</key>
 			<dict>
 				<key>column</key>
-				<integer>29</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>12</integer>
+				<integer>0</integer>
 			</dict>
 		</dict>
-		<key>samples/tiny.ome</key>
+		<key>samples/untitled.txt</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>19</integer>
+				<integer>35</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>10</integer>
 		</dict>
 	</dict>
-	<key>openDocuments</key>
-	<array>
-		<string>RunAndCheck.py</string>
-		<string>OmeValidator.py</string>
-		<string>samples/tiny.ome</string>
-		<string>samples/missingref.ome</string>
-	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{278, 50}, {929, 828}}</string>
+	<string>{{402, 269}, {954, 778}}</string>
 </dict>
 </plist>

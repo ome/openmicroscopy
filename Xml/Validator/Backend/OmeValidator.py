@@ -186,12 +186,15 @@ class XmlReport(object):
 		"""
 		# mark xlm as having been parsed
 		self.hasParsedXml = True
-		
+
 		# look at file for Ids, Refs, and namespaces
 		self.scanForIdsAndNamespace(inFile)
 		
 		# check the xml is valid aginst it's schema
 		self.validateAgainstSchema()
+		
+		if self.isXsdValid is True and len(self.errorList) is 0 :
+			self.isOmeXml = True
 	
 	def validateAgainstSchema(self):
 		if not haveXsdSupport:
@@ -540,7 +543,9 @@ class NamespaceSearcher(sax.ContentHandler):
 ### Test code below this line ###
 
 if __name__ == '__main__':
-	for aFilename in ["samples/sdub.ome", "samples/tiny.ome", "samples/broke.ome"]:
+	for aFilename in ["samples/completesamplenopre.xml","samples/completesample.xml","samples/completesamplenoenc.xml",
+		"samples/sdub.ome", "samples/sdub-fix.ome", "samples/sdub-fix-pre.ome", 
+		"samples/tiny.ome", "samples/broke.ome"]:
 		print "============ XML file %s ============ " % aFilename
 		print XmlReport.validateFile(aFilename)
 	
@@ -551,5 +556,3 @@ if __name__ == '__main__':
 		print XmlReport.validateTiff(aFilename)
 	
 	print "============"
-
-
