@@ -1,0 +1,2 @@
+db_module=validator.model
+history_dir=$base/validator/sqlobject-history

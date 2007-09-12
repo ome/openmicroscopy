@@ -1,0 +1,570 @@
+#!/usr/bin/env python
+# encoding: utf-8
+"""
+OmeValidator.py
+
+Created by Andrew Patterson on 2007-07-24.
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright (C) 2002-2007 Open Microscopy Environment
+#       Massachusetts Institute of Technology,
+#       National Institutes of Health,
+#       University of Dundee,
+#       University of Wisconsin at Madison
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""
+
+# Standard Imports
+import logging, cherrypy
+from xml.dom.minidom import getDOMImplementation
+from StringIO import StringIO
+from xml import sax
+import os
+from stat import *
+
+# LocalDir for shames
+SCHEMA_DIR = cherrypy.config.get("validator.schema", os.path.join(os.getcwd(),"schema"))
+
+# Try to load Image for XML Schema Vlaidation Support
+haveTiffSupport = True
+try:
+	import Image
+except ImportError:
+	# This exception means that we do not have tiff support loading
+	haveTiffSupport = False
+
+# Try to load lxml for XML Schema Vlaidation Support
+haveXsdSupport = True
+try:
+	from lxml import etree
+except ImportError:
+	# This exception means that we do not have lxml support loading
+	haveXsdSupport = False
+
+# Default logger configuration
+logging.basicConfig()
+
+# Class used to store each error or warning message
+class ParseMessage(object):
+	filename = None
+	line = None
+	column = None
+	errortype = None
+	context = None
+	message = None
+	
+	def __init__(self, inFilename,inLine,inColumn, inErrorType, inContext, inMessage):
+		'''
+		Populate the new message with the information
+		'''
+		self.filename = inFilename
+		self.line = inLine
+		self.column = inColumn
+		self.errortype = inErrorType
+		self.context = inContext
+		self.message = inMessage
+	
+	def __str__(self):
+		'''
+		Convert the message to a string for printing
+		'''
+		return "File: %s Line: (%s, %s) Type: %s (%s) - %s\n" % (self.filename, self.line, self.column, self.errortype, self.context, self.message)
+	
+
+# The valiadtion report - this stores the results and dose the analysis
+class XmlReport(object):
+	"""
+	True if the OME-XML document or fragment has been parsed by the report. If
+	false no xml has been processed but the error and warning logs and other
+	flags may still be used.
+	"""
+	hasParsedXml = False
+	
+	"""
+	Whether or not OME-XML document or fragment contains a valid <xml> tag and
+	a valid <OME> tag.
+	"""
+	isOmeXml = None
+	
+	"""
+	Whether or not the OME-XML document or fragment passes XMLSchema
+	validation.
+	"""
+	isXsdValid = None
+	
+	"""
+	Whether or not the OME-XML document or fragment has unresolvable external
+	identifiers.
+	"""
+	hasUnresolvableIds = None
+	
+	"""
+	Whether or not the OME-XML document or fragment passes internal
+	consistency checks that are implicit but are beyond the scope of XML
+	schema validation.
+	"""
+	isInternallyConsistent = None
+	
+	"""
+	Whether or not the OME-XML document or fragment is from an OME-TIFF.
+	"""
+	isOmeTiff = None
+	
+	"""
+	Whether or not the binary data within the OME-TIFF is consistent with the
+	<TiffData> block within the OME-XML document or fragment.
+	"""
+	isOmeTiffConsistent = None
+	
+	"""
+	Whether or not the OME-XML document or fragment has <CustomAttribute>'s.
+	"""
+	hasCustomAttributes = None
+	
+	"""
+	The namespace define in the OME element of the OME-XML document
+	"""
+	theNamespace = None
+	
+	"""
+	Create the message lists for this instance of the report object
+	"""
+	errorList = None
+	warningList = None
+	unresolvedList = None
+	
+	def __init__(self):
+		"""
+		Constructor - creates the error and warning logs
+		"""
+		# construct the message lists
+		self.errorList = list()
+		self.warningList = list()
+		self.unresolvedList = list()
+		
+		# build the blank dom
+		self.theDom = None
+	
+	def __str__(self):
+		'''
+		Convert the report to a string
+		'''
+		out = str()
+		errors = list()
+		errors.append("Errors\n")
+		errors.extend(self.errorList)
+		errors.append("Warnings\n")
+		errors.extend(self.warningList)
+		errors.append("Unresolved\n")
+		errors.extend(self.unresolvedList)
+		for error in errors:
+			out = out + str(error)
+		
+		out = out + "hasParsedXml : %s\n" % self.hasParsedXml
+		
+		if self.isOmeXml is not None:
+			out = out + "isOmeXml : %s\n" % self.isOmeXml
+		if self.isXsdValid is not None:
+			out = out + "isXsdValid : %s\n" % self.isXsdValid
+		if self.hasUnresolvableIds is not None:
+			out = out + "hasUnresolvableIds : %s\n" % self.hasUnresolvableIds
+		if self.isInternallyConsistent is not None:
+			out = out +  "isInternallyConsistent : %s\n" % self.isInternallyConsistent
+		if self.isOmeTiff is not None:
+			out = out +  "isOmeTiff : %s\n" % self.isOmeTiff
+		if self.isOmeTiffConsistent is not None:
+			out = out +  "isOmeTiffConsistent : %s\n" % self.isOmeTiffConsistent
+		if self.hasCustomAttributes is not None:
+			out = out +  "hasCustomAttributes : %s\n" % self.hasCustomAttributes
+		if self.theNamespace is not None:
+			out = out +  "theNamespace : %s\n" % self.theNamespace
+		return out
+	
+	def parse(self, inFile):
+		"""
+		Parse - Main work function - Validates the XML, sets the flags and
+		populates the error and warning logs
+		"""
+		# mark xlm as having been parsed
+		self.hasParsedXml = True
+		
+		# look at file for Ids, Refs, and namespaces
+		self.scanForIdsAndNamespace(inFile)
+		
+		# check the xml is valid aginst it's schema
+		self.validateAgainstSchema()
+		
+		if len(self.unresolvedList) is not 0 :
+			self.hasUnresolvableIds = True
+		
+		if self.isXsdValid is True and len(self.errorList) is 0 :
+			self.isOmeXml = True
+				
+	def validateAgainstSchema(self):
+		if not haveXsdSupport:
+			self.errorList.append(ParseMessage(None, None, None, "XSD", None, " LXML support not available - no validation"))
+			return
+		
+		# loading the OME schema to validate against
+		schema = self.loadChoosenSchema()
+		# create an IO string for the xml string provided
+		stringXml = StringIO(self.theDom.toxml())
+		# building the document tree from the input xml
+		try:
+			document = etree.parse(stringXml)
+		except etree.XMLSyntaxError:
+			self.errorList.append(ParseMessage(None, None, None, "XmlSyntax", None, "Xml Syntax error while parsing XSD schema"))
+			return
+		
+		# validating the documnet tree against the loaded schema
+		# this should not throw an exception
+		schema.validate(document)
+		err = schema.error_log.last_error
+		if err:
+			self.isXsdValid = False
+			self.errorList.append(ParseMessage(None, err.line, None, "XSD", None, err.message))
+		else:
+			self.isXsdValid = True
+	
+	def loadChoosenSchema(self):
+		# choose the schema source
+		# assume the new schema
+		theSchemaFile = os.path.join(os.getcwd(), SCHEMA_DIR, "ome-2007-07.xsd")
+		# if old schema
+		if self.theNamespace == "http://www.openmicroscopy.org/XMLschemas/OME/FC/ome.xsd":
+			# check if used by tiff
+			if self.isOmeTiff:
+				# use special tiff version of old schema
+				theSchemaFile = os.path.join(os.getcwd(), SCHEMA_DIR, "ome-fc-tiff.xsd")
+			else:
+				# use normal version of old schema
+				theSchemaFile = os.path.join(os.getcwd(), SCHEMA_DIR, "ome-fc.xsd")
+		
+		# loading the OME schema to validate against
+		try:
+			schema = etree.XMLSchema(etree.parse(theSchemaFile))
+		except:
+			#chosen scema failed to laod
+			self.errorList.append(ParseMessage(None, None, None, "XSD", None, "Validator Internal error: XSD schema file could not be found"))
+		
+		return schema
+	
+	def scanForIdsAndNamespace(self, inFile):
+		'''
+		Look through the Xml stream for the namespace and store all the ID tags
+		This version looks at all the elements
+		'''
+
+		# locate the handler class to the parser
+		handlerContent = ElementAggregator()
+		handlerError = ParseErrorHandler()
+		# parse the string - this applies the handler to each part of
+		# the xml in turn
+		try:
+			sax.parse(inFile, handlerContent, handlerError)
+			self.hasCustomAttributes = handlerContent.hasCustomAttributes;
+		except 	sax.SAXParseException:
+			self.errorList.append(ParseMessage(None, None, None, "XmlError",None, "Parsing of XML failed"))
+		self.errorList.extend(handlerError.errorList)
+		self.warningList.extend(handlerError.warningList)
+		
+		# store the unresolved refrences
+		for reference in handlerContent.references:
+			if reference not in handlerContent.ids:
+				self.unresolvedList.append(ParseMessage(None, None, None, "UnresolvedID",None, reference))
+		
+		# store the namespace
+		self.theNamespace = handlerContent.theNamespace
+		# store the dom
+		self.theDom = handlerContent.dom
+	
+	def scanForFirstOmeNamespace(self, inXml):
+		'''
+		Look through the Xml stream for the namespace
+		This version looks at as few elements as possible as it stops as soon
+		as it has found the first ome element - If there is no ome element it
+		will have read the entire file
+		'''
+		# locate the handler class to the parser
+		handlerContent = NamespaceSearcher()
+		handlerError = ParseErrorHandler()
+		# parse the string - this applies the handler to each part of
+		# the xml untill the OME node is found
+		try:
+			sax.parseString(inXml, handlerContent, handlerError)
+		except 	sax.SAXParseException:
+			self.errorList.append(ParseMessage(None, None, None, "XmlError",None, "Parsing of XML failed"))
+		self.errorList.extend(handlerError.errorList)
+		self.warningList.extend(handlerError.warningList)
+		
+		# store the namespace
+		self.theNamespace = handlerContent.theNamespace
+	
+	def validateFile(klass, inFilename):
+		"""
+		Opens an XML file and examines the header to see if it is using the
+		OME Schema
+		"""
+		# create the report
+		theFileReport = klass()
+		
+		# Open the file
+		try:
+			theFile = open(inFilename, 'r')
+            # check the file contains some data
+			length = os.stat(inFilename)[ST_SIZE]
+			if length == 0:
+				theFileReport.errorList.append(ParseMessage(inFilename, None, None, "IOFile","", "XML file was of zero length"))
+		except IOError:
+			theFileReport.errorList.append(ParseMessage(inFilename, None, None, "IOFile","", "XML file could not be read"))
+			return theFileReport
+		
+		# parse the file into the report and validate it
+		theFileReport.parse(theFile)
+		theFileReport.isOmeTiff = False
+		# the report has now been populated 
+		return theFileReport
+	validateFile = classmethod(validateFile)
+	
+	def validateTiff(klass, inFilename):
+		"""
+		Opens a Tiff file and extracts the OME-XML part of the file
+		"""
+		theTiffReport = klass()
+		# check there is tiff file support
+		if not haveTiffSupport:
+			theTiffReport.isOmeTiff = False
+			theTiffReport.errorList.append(ParseMessage(inFilename, None, None, "NoLibrary","", "No Tiff library found - file could not be read"))
+		else:
+            # load the tiff image
+			try:
+				image = Image.open(inFilename)
+			except IOError:
+				theTiffReport.isOmeTiff = False
+				theTiffReport.errorList.append(ParseMessage(inFilename, None, None, "InvalidFile","", "Not recognised as Tiff format - file could not be read"))
+			else:
+                # check for the XML containing tag within the tiff
+				if 270 not in image.tag.keys():
+					theTiffReport.isOmeTiff = False
+					theTiffReport.errorList.append(ParseMessage(inFilename, None, None, "InvalidTiff","", "Tiff file did not containg an ImageDescription Tag - no XML found"))
+				else:
+				    # read the xml from the tiff
+					theXml = image.tag[270]
+					theTiffReport.isOmeTiff = True
+					# create a file object to represent the xml string
+					theFileString = StringIO(theXml)
+					# parse the new string/file object into the report and validate it 
+					theTiffReport.parse(theFileString)
+		return theTiffReport
+	validateTiff = classmethod(validateTiff)
+	
+
+# Used by sax parser to handle errors when processing Elements
+class ParseErrorHandler(sax.ErrorHandler):
+	def __init__(self):
+		self.errorList = list()
+		self.warningList = list()
+	
+	def error(self, exception):
+		# Called when the parser encounters a recoverable error.
+		# If this method does not raise an exception, parsing may continue,
+		# but further document information should not be expected by the
+		# application. Allowing the parser to continue may allow additional
+		# errors to be discovered in the input document.
+		self.errorList.append(ParseMessage(exception.getPublicId(), exception.getLineNumber(), exception.getColumnNumber(), "XmlError",exception.getPublicId(), exception.getMessage()))
+	
+	def fatalError(self, exception):
+		# Called when the parser encounters an error it cannot recover from;
+		# parsing is expected to terminate when this method returns.
+		self.errorList.append(ParseMessage(exception.getPublicId(), exception.getLineNumber(), exception.getColumnNumber(), "XmlFatalError",exception.getPublicId(), exception.getMessage()))
+	
+	def warning(self, exception):
+		# Called when the parser presents minor warning information to the
+		# application.
+		self.warningList.append(ParseMessage(exception.getPublicId(), exception.getLineNumber(), exception.getColumnNumber(), "XmlWarning",exception.getPublicId(), exception.getMessage()))
+
+# Used to process all Elements by sax parser
+class ElementAggregator(sax.ContentHandler):
+	inBinData = False
+	
+	def startDocument(self):
+		'''
+		Initialise this object at the start of the document
+		'''
+		self.ids = list()
+		self.references = list()
+		self.theNamespace = None
+		self.inBinDataContent = False
+		self.shortFormXml = ""
+		self.skipCount = 0
+		self.hasCustomAttributes = False
+		
+		# Setup the DOM chunk
+		impl = getDOMImplementation()
+		self.dom = impl.createDocument(None, None, None)
+		self.stack = list()
+	
+	def startElement(self, name, attribs):
+		'''
+		Examine each element in turn and harvest any useful information
+		'''
+		# pull the namespace out of the OME element
+		if name[-3:] == "OME":
+			if name[-4:] == ":OME":
+				# a prefex is being used
+				self.thePrefix = name[:-4]
+				print "Prefix : %s" % self.thePrefix
+				try:
+					self.theNamespace = attribs.getValue("xmlns" + ':' + self.thePrefix)
+				except KeyError:
+					self.theNamespace = ""
+			else:
+				try:
+					self.theNamespace = attribs.getValue("xmlns")
+				except KeyError:
+					self.theNamespace = ""
+			
+		# save the ID in any elements encountered
+		if name[-16:] == "CustomAttributes":
+			self.hasCustomAttributes = True
+			
+		# save the ID in any elements encountered
+		if name[-3:] == "Ref":
+			try:
+				# If a Ref element then save in the refrences
+				self.references.append(attribs.getValue("ID"))
+			except KeyError:
+				pass
+		else:
+			if name[-6:] == "Leader":
+				try:
+					# in Leader - ID is actually a Reference
+					self.references.append(attribs.getValue("ID"))
+				except KeyError:
+					pass
+			else:	
+				if name[-7:] == "Contact":
+					try:
+						# in Contact - ID is actually a Reference
+						self.references.append(attribs.getValue("ID"))
+					except KeyError:
+						pass
+				else:
+					if name[-5:] == "Image":
+						try:
+							# in Image - ID is an ID and DefaultPixels is a Reference
+							self.references.append(attribs.getValue("DefaultPixels"))
+						except KeyError:
+							pass
+					if name[-16:] == "ChannelComponent":
+						try:
+							# in ChannelComponent - Pixels is a Reference
+							self.references.append(attribs.getValue("Pixels"))
+						except KeyError:
+							pass
+					if name[-14:] == "LogicalChannel":
+						try:
+							# in LogicalChannel ID is an ID 
+							# and SecondaryEmissionFilter is a Reference
+							self.references.append(attribs.getValue("SecondaryEmissionFilter"))
+						except KeyError:
+							pass
+						try:
+							# and SecondaryExcitationFilter is a Reference
+							self.references.append(attribs.getValue("SecondaryExcitationFilter"))
+						except KeyError:
+							pass
+							
+					try:
+						# If any other element then save in the ids
+						self.ids.append(attribs.getValue("ID"))
+					except KeyError:
+						pass
+		
+		if name[-7:] == "BinData":
+			self.inBinData = True
+		self.domify(name, attribs)
+			
+	def endElement(self, name):
+		newElement = self.stack.pop()
+		length = len(self.stack)
+		if length == 0:
+			self.dom.appendChild(newElement)
+		else:
+			self.stack[-1].appendChild(newElement)
+		self.clear()	
+
+	def domify(self, name, attribs):
+		newElement = self.dom.createElement(name)
+		for (attr, value) in attribs.items():
+			newAttribute = self.dom.createAttribute(attr)
+			newAttribute.value = value
+			newElement.setAttributeNode(newAttribute)
+		self.stack.append(newElement)
+		
+	def characters(self, content):
+		if not self.inBinData:
+			# Strip trailing and/or leading whitespace, "\n", "\r", etc.
+			content = content.strip().strip('\n\r')
+			if len(content) > 0 and len(self.stack) > 0:
+				textNode = self.dom.createTextNode(content)
+				self.stack[-1].appendChild(textNode)
+		
+	def clear(self):
+		self.inBinData = False
+
+# Used to process the Elements until a namespace is found by sax parser
+class NamespaceSearcher(sax.ContentHandler):
+	def startDocument(self):
+		'''
+		Initialise this object at the start of the document
+		'''
+		self.theNamespace = None
+	
+	def startElement(self, name, attribs):
+		'''
+		Examine each element in turn and check of the main OME element
+		'''
+		# pull the namespace out of the OME element
+		if name[-3:] == "OME":
+			if name[-4:] == ":OME":
+				# a prefex is being used
+				self.thePrefix = name[:-4]
+				print "Prefix : %s" % self.thePrefix
+				try:
+					# pull the namespace for prefix out of the OME element
+					self.theNamespace = attribs.getValue("xmlns" + ':' + self.thePrefix)
+				except KeyError:
+					# assume default namespace
+					self.theNamespace = ""
+			else:
+				try:
+					# pull the namespace out of the OME element
+					self.theNamespace = attribs.getValue("xmlns")
+				except KeyError:
+					self.theNamespace = ""
+			#finally:
+				# the OME node has been found (even if it does not have a
+				# namespace) so stop parsing the file
+				# TODO
+
+
+
+### Test code below this line ###
+
+if __name__ == '__main__':
+	for aFilename in ["samples/sdub.ome", "samples/tiny.ome", "samples/broke.ome"]:
+		print "============ XML file %s ============ " % aFilename
+		print XmlReport.validateFile(aFilename)
+	
+	for aFilename in ["samples/4d2wOME.tif", "samples/4d2wOME-fixed.tif",
+	 	"samples/4d2wOME-fixed-updated.tif", "samples/blank.tif",
+		"samples/ome.xsd"]:
+		print "============ XML file %s ============ " % aFilename
+		print XmlReport.validateTiff(aFilename)
+	
+	print "============"
+
+
