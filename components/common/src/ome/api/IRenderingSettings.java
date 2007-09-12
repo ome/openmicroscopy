@@ -3,6 +3,7 @@ package ome.api;
 import java.util.List;
 import java.util.Set;
 
+import ome.annotations.NotNull;
 import ome.model.display.RenderingDef;
 
 public interface IRenderingSettings extends ServiceInterface {
@@ -14,7 +15,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if the image qualified by 
 	 * <code>imageId</code> is unlocatable.
 	 */
-	RenderingDef getRenderingSettings(long pixelsId);
+	RenderingDef getRenderingSettings(@NotNull long pixelsId);
 	
     /**
      * Resets a pixels' rendering settings back to those that are specified
@@ -23,7 +24,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if the image qualified by 
 	 * <code>pixelsId</code> is unlocatable.
      */
-	void resetDefaults(long pixelsId);
+	void resetDefaults(@NotNull long pixelsId);
 	
 	/**
 	 * Applies rendering settings to one or many containers. If a container such 
@@ -42,7 +43,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if an illegal <code>toType</code> is
 	 * passed in or the rendering settings <code>from</code> is unlocatable.
 	 */
-	<T> void applySettingsToSet(long from, Class<T> toType, Set<T> to);
+	<T> void applySettingsToSet(@NotNull long from, Class<T> toType, Set<T> to);
 	
 	/**
 	 * Applies rendering settings to all images in all <code>Datasets</code> 
@@ -54,7 +55,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the project <code>to</code> is unlocatable.
 	 */
-	Set applySettingsToProject(long from, long to);
+	Set applySettingsToProject(@NotNull long from, @NotNull long to);
 	
 	/**
 	 * Applies rendering settings to all images in a given <code>Dataset</code>. 
@@ -65,7 +66,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the dataset <code>to</code> is unlocatable.
 	 */
-	Set applySettingsToDataset(long from, long to);
+	Set applySettingsToDataset(@NotNull long from, @NotNull long to);
 	
 	/**
 	 * Applies rendering settings to a given <code>Image</code>. 
@@ -76,6 +77,6 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the image <code>to</code> is unlocatable.
 	 */
-	boolean applySettingsToPixel(long from, long to);
+	boolean applySettingsToPixel(@NotNull long from, @NotNull long to);
 
 }

@@ -119,7 +119,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		String sql = "select p from Pixels p "
 				+ " left outer join fetch p.image i "
 				+ " left outer join fetch i.datasetLinks dil "
-				+ " left outer join fetch dil.parent d " + " where d.id = :id";
+				+ " left outer join fetch dil.parent d where d.id = :id";
 
 		Set<Pixels> pixels = new HashSet(iQuery.findAllByQuery(sql,
 				new Parameters().addId(to)));
@@ -209,13 +209,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 	}
 
 	public RenderingDef getRenderingSettings(long pixelsId) {
-		RenderingDef rDef = null;
-		try {
-			pixelsMetadata.retrieveRndSettings(pixelsId);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return rDef;
+		return pixelsMetadata.retrieveRndSettings(pixelsId);
 	}
 
 	public void resetDefaults(long pixelsId) {

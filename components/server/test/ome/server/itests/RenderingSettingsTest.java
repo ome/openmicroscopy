@@ -52,7 +52,7 @@ public class RenderingSettingsTest extends AbstractManagedContextTest {
 	@Test
 	public void test() {
 		Long from = 1L;
-		Long to = 2L;
+		Long to = 3L;
 
 		rsx.applySettingsToPixel(from, to);
 		rsx.applySettingsToProject(from, to);
