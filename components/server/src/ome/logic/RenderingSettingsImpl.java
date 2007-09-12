@@ -198,11 +198,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 
 		}
 
-		try {
-			pixelsMetadata.saveRndSettings(rdTo);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		pixelsMetadata.saveRndSettings(rdTo);
 
 		return true;
 

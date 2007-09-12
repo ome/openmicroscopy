@@ -28,7 +28,6 @@
 	<classpathentry kind="lib" path="target/libs/drools-all-jdk5.jar"/>
 	<classpathentry kind="lib" path="target/libs/dsl.jar"/>
 	<classpathentry kind="lib" path="target/libs/ehcache.jar"/>
-	<classpathentry kind="lib" path="target/libs/geronimo-spec-j2ee.jar"/>
 	<classpathentry kind="lib" path="target/libs/geronimo-spec-jta.jar"/>
 	<classpathentry kind="lib" path="target/libs/groovy.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate.jar"/>
@@ -47,7 +46,6 @@
 	<classpathentry kind="lib" path="target/libs/log4j.jar"/>
 	<classpathentry kind="lib" path="target/libs/ldaptemplate.jar"/>
 	<classpathentry kind="lib" path="target/libs/lucene.jar"/>
-	<classpathentry kind="lib" path="target/libs/omejava.jar"/>
 	<classpathentry kind="lib" path="target/libs/postgresql.jar"/>
 	<classpathentry kind="lib" path="target/libs/qdox.jar"/>
 	<classpathentry kind="lib" path="target/libs/quartz.jar"/>
