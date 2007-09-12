@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>currentDocument</key>
+	<string>OmeValidator.py</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -9,14 +11,14 @@
 			<string>RunAndCheck.py</string>
 			<key>lastUsed</key>
 			<date>2007-09-06T11:24:18Z</date>
-			<key>selected</key>
-			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>OmeValidator.py</string>
 			<key>lastUsed</key>
-			<date>2007-09-06T11:24:17Z</date>
+			<date>2007-09-12T10:04:09Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -45,6 +47,20 @@
 	<integer>200</integer>
 	<key>metaData</key>
 	<dict>
+		<key>OmeValidator.py</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>2</integer>
+				<key>line</key>
+				<integer>202</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>140</integer>
+		</dict>
 		<key>samples/completesamplenoenc.xml</key>
 		<dict>
 			<key>caret</key>
@@ -118,6 +134,10 @@
 			<integer>10</integer>
 		</dict>
 	</dict>
+	<key>openDocuments</key>
+	<array>
+		<string>OmeValidator.py</string>
+	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
