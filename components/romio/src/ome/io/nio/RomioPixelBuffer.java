@@ -1,7 +1,7 @@
 /*
  * ome.io.nio.PixelBuffer
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2007 Glencoe Software Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.io.nio;
@@ -20,12 +20,18 @@ import java.security.NoSuchAlgorithmException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ome.conditions.ApiUsageException;
 import ome.model.core.Pixels;
-import ome.model.enums.PixelsType;
 
 /**
- * @author callan
- * 
+ * Class implementation of the PixelBuffer interface for standard "proprietary"
+ * ROMIO/OMEIS data data format.
+ *
+ * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:chris@glencoesoftware.com">chris@glencoesoftware.com</a>
+ * @version $Revision$
+ * @since 3.0
+ * @see PixelBuffer
  */
 public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     /** The logger for this particular class */
@@ -184,7 +190,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
         return (long) timepointSize * t;
     }
 
-    public MappedByteBuffer getRegion(Integer size, Long offset)
+    public PixelData getRegion(Integer size, Long offset)
             throws IOException {
         FileChannel fileChannel = getFileChannel();
 
@@ -193,49 +199,110 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
          * there happens to be an error.
          */
 
-        return fileChannel.map(MapMode.READ_ONLY, offset, size);
+        MappedByteBuffer b = fileChannel.map(MapMode.READ_ONLY, offset, size);
+        return new PixelData(pixels.getPixelsType(), b);
+    }
+    
+    public byte[] getRegionDirect(Integer size, Long offset, byte[] buffer)
+    		throws IOException
+    {
+		if (buffer.length != size)
+			throw new ApiUsageException("Buffer size incorrect.");
+		MappedByteBuffer b = getRegion(size, offset).getData();
+		b.get(buffer);
+		return buffer;
     }
 
-    public MappedByteBuffer getRow(Integer y, Integer z, Integer c, Integer t)
+    public PixelData getRow(Integer y, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException {
         Long offset = getRowOffset(y, z, c, t);
         Integer size = getRowSize();
 
         return getRegion(size, offset);
     }
+    
+    public byte[] getRowDirect(Integer y, Integer z, Integer c, Integer t,
+    		byte[] buffer) throws IOException, DimensionsOutOfBoundsException
+    {
+		if (buffer.length != getRowSize())
+			throw new ApiUsageException("Buffer size incorrect.");
+		MappedByteBuffer b = getRow(y, z, c, t).getData();
+		b.get(buffer);
+		return buffer;
+    }
+    
+	public byte[] getPlaneRegionDirect(Integer z, Integer c, Integer t,
+			Integer count, Integer offset, byte[] buffer)
+		throws IOException, DimensionsOutOfBoundsException
+	{
+		MappedByteBuffer b = getPlane(z, c, t).getData();
+		b.position(offset);
+		b.get(buffer, 0, count * getByteWidth());
+		return buffer;
+	}
 
-    public MappedByteBuffer getPlane(Integer z, Integer c, Integer t)
+    public PixelData getPlane(Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException {
         log.info("Retrieving plane: " + z + "x" + c + "x" + t);
         Long offset = getPlaneOffset(z, c, t);
         Integer size = getPlaneSize();
-        MappedByteBuffer region = getRegion(size, offset);
+        PixelData region = getRegion(size, offset);
 
         byte[] nullPlane = PixelsService.nullPlane;
 
         for (int i = 0; i < PixelsService.NULL_PLANE_SIZE; i++) {
-            if (region.get(i) != nullPlane[i]) {
+            if (region.getData().get(i) != nullPlane[i]) {
                 return region;
             }
         }
 
         return null; // All of the nullPlane bytes match, non-filled plane
     }
+    
+    public byte[] getPlaneDirect(Integer z, Integer c, Integer t, byte[] buffer)
+    		throws IOException, DimensionsOutOfBoundsException
+    {
+		if (buffer.length != getPlaneSize())
+			throw new ApiUsageException("Buffer size incorrect.");
+		MappedByteBuffer b = getPlane(z, c, t).getData();
+		b.get(buffer);
+		return buffer;
+    }
 
-    public MappedByteBuffer getStack(Integer c, Integer t) throws IOException,
+    public PixelData getStack(Integer c, Integer t) throws IOException,
             DimensionsOutOfBoundsException {
         Long offset = getStackOffset(c, t);
         Integer size = getStackSize();
 
         return getRegion(size, offset);
     }
+    
+    public byte[] getStackDirect(Integer c, Integer t, byte[] buffer)
+    		throws IOException, DimensionsOutOfBoundsException
+    {
+		if (buffer.length != getStackSize())
+			throw new ApiUsageException("Buffer size incorrect.");
+		MappedByteBuffer b = getStack(c, t).getData();
+		b.get(buffer);
+		return buffer;
+    }
 
-    public MappedByteBuffer getTimepoint(Integer t) throws IOException,
+    public PixelData getTimepoint(Integer t) throws IOException,
             DimensionsOutOfBoundsException {
         Long offset = getTimepointOffset(t);
         Integer size = getTimepointSize();
 
         return getRegion(size, offset);
+    }
+    
+    public byte[] getTimepointDirect(Integer t, byte[] buffer)
+    		throws IOException, DimensionsOutOfBoundsException
+    {
+		if (buffer.length != getTimepointSize())
+			throw new ApiUsageException("Buffer size incorrect.");
+		MappedByteBuffer b = getTimepoint(t).getData();
+		b.get(buffer);
+		return buffer;
     }
 
     public void setRegion(Integer size, Long offset, byte[] buffer)
@@ -324,7 +391,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 
         for (int t = 0; t < getSizeT(); t++) {
             try {
-                MappedByteBuffer buffer = getTimepoint(t);
+                MappedByteBuffer buffer = getTimepoint(t).getData();
                 md.update(buffer);
             } catch (DimensionsOutOfBoundsException e) {
                 // This better not happen. :)
@@ -335,13 +402,36 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
         return md.digest();
     }
 
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getByteWidth()
+     */
+    public int getByteWidth() {
+        return PixelsService.getBitDepth(pixels.getPixelsType()) / 8;
+    }
+    
+	/* (non-Javadoc)
+	 * @see ome.io.nio.PixelBuffer#isSigned()
+	 */
+	public boolean isSigned()
+	{
+		MappedByteBuffer b = null;
+		PixelData d = new PixelData(pixels.getPixelsType(), b);
+		return d.isSigned();
+	}
+	
+	/* (non-Javadoc)
+	 * @see ome.io.nio.PixelBuffer#isFloat()
+	 */
+	public boolean isFloat()
+	{
+		MappedByteBuffer b = null;
+		PixelData d = new PixelData(pixels.getPixelsType(), b);
+		return d.isFloat();
+	}
+    
     //
     // Delegate methods to ease work with pixels
     //
-
-    int getByteWidth() {
-        return PixelsService.getBitDepth(pixels.getPixelsType()) / 8;
-    }
 
     public int getSizeC() {
         return pixels.getSizeC();

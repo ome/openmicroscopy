@@ -74,6 +74,13 @@ public interface RawPixelsStore extends StatefulServiceInterface {
     Integer c, @NotNull
     Integer t);
 
+    public byte[] getPlaneRegion(@NotNull
+    Integer z, @NotNull
+    Integer c, @NotNull
+    Integer t, @NotNull 
+    Integer count, @NotNull
+    Integer offset);
+    
     public byte[] getPlane(@NotNull
     Integer z, @NotNull
     Integer c, @NotNull
@@ -113,6 +120,12 @@ public interface RawPixelsStore extends StatefulServiceInterface {
     byte[] buffer, @NotNull
     Integer t);
 
+    public int getByteWidth();
+    
+    public boolean isSigned();
+    
+    public boolean isFloat();
+    
     public byte[] calculateMessageDigest();
 
 }

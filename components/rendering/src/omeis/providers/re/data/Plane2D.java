@@ -15,6 +15,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
+import ome.io.nio.PixelData;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 import omeis.providers.re.Renderer;
@@ -55,7 +56,7 @@ public abstract class Plane2D {
     private static Log log = LogFactory.getLog(Renderer.class);
 
     /** Contains the plane data. */
-    private MappedByteBuffer data;
+    private PixelData data;
 
     /** The type of plane. */
     protected PlaneDef planeDef;
@@ -85,7 +86,7 @@ public abstract class Plane2D {
      * @param data
      *            The raw pixels.
      */
-    protected Plane2D(PlaneDef pDef, Pixels pixels, MappedByteBuffer data) {
+    protected Plane2D(PlaneDef pDef, Pixels pixels, PixelData data) {
         this.planeDef = pDef;
         this.sizeX = pixels.getSizeX();
         this.sizeY = pixels.getSizeY();
@@ -131,9 +132,8 @@ public abstract class Plane2D {
      * @return The intensity value.
      */
     public double getPixelValue(int x1, int x2) {
-    	return getPixelValueDirect(calculateOffset(x1, x2));
+    	return data.getPixelValueDirect(calculateOffset(x1, x2));
     }
-    
     
     /**
      * Returns the pixel intensity value of the pixel at a given offset within
@@ -147,43 +147,7 @@ public abstract class Plane2D {
      */
     public double getPixelValue(int offset)
     {
-    	return getPixelValueDirect(offset * bytesPerPixel);
-    }
-    
-    /**
-     * Returns the pixel intensity value of the pixel at a given offset within
-     * the backing buffer. This method does not take into account bytes per
-     * pixel.
-     * 
-     * @param offset The absolute offset within the backing buffer.
-     * @return The intensity value.
-     */
-    private double getPixelValueDirect(int offset)
-    {
-        if (signed) {
-            switch (javaType) {
-                case PlaneFactory.BYTE:
-                    return data.get(offset);
-                case PlaneFactory.SHORT:
-                    return data.getShort(offset);
-                case PlaneFactory.INT:
-                    return data.getInt(offset);
-                case PlaneFactory.FLOAT:
-                    return data.getFloat(offset);
-                case PlaneFactory.DOUBLE:
-                    return data.getDouble(offset);
-            }
-        } else {
-            switch (javaType) {
-                case PlaneFactory.BYTE:
-                    return (short) (data.get(offset) & 0xff);
-                case PlaneFactory.SHORT:
-                    return data.getShort(offset) & 0xffff;
-                case PlaneFactory.INT:
-                    return data.getInt(offset) & 0xffffffffL;
-            }
-        }
-        throw new RuntimeException("Unknown pixel type.");
+    	return data.getPixelValue(offset);
     }
 
     /**

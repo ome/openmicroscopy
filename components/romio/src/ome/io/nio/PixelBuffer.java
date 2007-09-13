@@ -134,16 +134,51 @@ public interface PixelBuffer
      */
     public Long getTimepointOffset(Integer t)
             throws DimensionsOutOfBoundsException;
+    
+    /**
+     * Retrieves a region from a given plane directly.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @param count the number of pixels to retrieve.
+     * @param offset the offset at which to retrieve <code>count</code> pixels.
+     * @param buffer pre-allocated buffer, <code>count</code> in size.
+     * @return buffer containing the data which comprises the region of the
+     * given 2D image plane. It is guaranteed that this buffer will have been 
+     * byte swapped.
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     * @see getPlaneRegionDirect()
+     */
+    public byte[] getPlaneRegionDirect(Integer z, Integer c, Integer t, 
+    		Integer count, Integer offset, byte[] buffer)
+    	throws IOException, DimensionsOutOfBoundsException;
 
     /**
      * Retrieves a region from this pixel buffer.
      * @param size byte width of the region to retrieve.
      * @param offset offset within the pixel buffer.
-     * @return buffer containing the data.
+     * @return buffer containing the data. It is guaranteed that this buffer 
+     * will have its <code>order</code> set correctly but <b>not</b> that the
+     * backing buffer will have been byte swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
+     * @see getRegionDirect()
      */
-    public MappedByteBuffer getRegion(Integer size, Long offset)
+    public PixelData getRegion(Integer size, Long offset)
             throws IOException;
+    
+    /**
+     * Retrieves a region from this pixel buffer directly.
+     * @param size byte width of the region to retrieve.
+     * @param offset offset within the pixel buffer.
+     * @param buffer pre-allocated buffer of the row's size.
+     * @return <code>buffer</code> containing the data which comprises this 
+     * region. It is guaranteed that this buffer will have been byte 
+     * swapped.
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     * @see getRegion()
+     */
+    public byte[] getRegionDirect(Integer size, Long offset, byte[] buffer)
+    	throws IOException;
 
     /**
      * Retrieves a particular row or scanline from this pixel buffer.
@@ -152,11 +187,34 @@ public interface PixelBuffer
      * @param c offset across the C-axis of the pixel buffer.
      * @param t offset across the T-axis of the pixel buffer.
      * @return buffer containing the data which comprises this row or scanline.
+     * It is guaranteed that this buffer will have its <code>order</code> set 
+     * correctly but <b>not</b> that the backing buffer will have been byte 
+     * swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
      * after checking with {@link checkBounds()}.
+     * @see getRowDirect()
      */
-    public MappedByteBuffer getRow(Integer y, Integer z, Integer c, Integer t)
+    public PixelData getRow(Integer y, Integer z, Integer c, Integer t)
+            throws IOException, DimensionsOutOfBoundsException;
+    
+    /**
+     * Retrieves a particular row or scanline from this pixel buffer.
+     * @param y offset across the Y-axis of the pixel buffer.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @param buffer pre-allocated buffer of the row's size.
+     * @return <code>buffer</code> containing the data which comprises this row 
+     * or scanline. It is guaranteed that this buffer will have been byte 
+     * swapped.
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     * @see getRowDirect()
+     */
+    public byte[] getRowDirect(Integer y, Integer z, Integer c, 
+    		                   Integer t, byte[] buffer)
             throws IOException, DimensionsOutOfBoundsException;
 
     /**
@@ -165,11 +223,30 @@ public interface PixelBuffer
      * @param c offset across the C-axis of the pixel buffer.
      * @param t offset across the T-axis of the pixel buffer.
      * @return buffer containing the data which comprises this 2D image plane.
+     * It is guaranteed that this buffer will have its <code>order</code> set 
+     * correctly but <b>not</b> that the backing buffer will have been byte 
+     * swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
      * after checking with {@link checkBounds()}.
      */
-    public MappedByteBuffer getPlane(Integer z, Integer c, Integer t)
+    public PixelData getPlane(Integer z, Integer c, Integer t)
+            throws IOException, DimensionsOutOfBoundsException;
+    
+    /**
+     * Retrieves a particular 2D image plane from this pixel buffer.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @param buffer pre-allocated buffer of the plane's size.
+     * @return <code>buffer</code> containing the data which comprises this 2D 
+     * image plane. It is guaranteed that this buffer will have been byte 
+     * swapped.
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     */
+    public byte[] getPlaneDirect(Integer z, Integer c, Integer t, byte[] buffer)
             throws IOException, DimensionsOutOfBoundsException;
 
     /**
@@ -177,25 +254,59 @@ public interface PixelBuffer
      * wavelength or channel at a particular timepoint in this pixel buffer.
      * @param c offset across the C-axis of the pixel buffer.
      * @param t offset across the T-axis of the pixel buffer.
-     * @return buffer containing the data which comprises this stack.
+     * @return buffer containing the data which comprises this stack. It is 
+     * guaranteed that this buffer will have its <code>order</code> set 
+     * correctly but <b>not</b> that the backing buffer will have been byte 
+     * swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
      * after checking with {@link checkBounds()}.
      */
-    public MappedByteBuffer getStack(Integer c, Integer t) throws IOException,
-            DimensionsOutOfBoundsException;
+    public PixelData getStack(Integer c, Integer t)
+    	throws IOException, DimensionsOutOfBoundsException;
+    
+    /**
+     * Retreives the the entire number of optical sections for a <b>single</b>
+     * wavelength or channel at a particular timepoint in this pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @param buffer pre-allocated buffer of the stack's size.
+     * @return <code>buffer</code> containing the data which comprises this 
+     * stack. It is guaranteed that this buffer will have been byte swapped.
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     */
+    public byte[] getStackDirect(Integer c, Integer t, byte[] buffer) 
+    	throws IOException, DimensionsOutOfBoundsException;
 
     /**
      * Retrieves the entire number of optical sections for <b>all</b>
      * wavelengths or channels at a particular timepoint in this pixel buffer.
      * @param t offset across the T-axis of the pixel buffer.
-     * @return buffer containing the data which comprises this timepoint.
+     * @return buffer containing the data which comprises this timepoint. It is 
+     * guaranteed that this buffer will have its <code>order</code> set 
+     * correctly but <b>not</b> that the backing buffer will have been byte 
+     * swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
      * @throws DimensionsOutOfBoundsException if offsets are out of bounds
      * after checking with {@link checkBounds()}.
      */
-    public MappedByteBuffer getTimepoint(Integer t) throws IOException,
-            DimensionsOutOfBoundsException;
+    public PixelData getTimepoint(Integer t) 
+    	throws IOException, DimensionsOutOfBoundsException;
+    /**
+     * Retrieves the entire number of optical sections for <b>all</b>
+     * wavelengths or channels at a particular timepoint in this pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @param buffer pre-allocated buffer of the timepoint's size.
+     * @return <code>buffer</code> containing the data which comprises this 
+     * timepoint. It is guaranteed that this buffer will have been byte swapped.
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     */
+    public byte[] getTimepointDirect(Integer t, byte[] buffer) 
+    	throws IOException, DimensionsOutOfBoundsException;
 
     /**
      * Sets a region in this pixel buffer.
@@ -335,6 +446,24 @@ public interface PixelBuffer
      * @throws IOException if there is a problem reading from the pixel buffer.
      */
     public byte[] calculateMessageDigest() throws IOException;
+    
+    /**
+     * Returns the byte width for the pixel buffer.
+     * @return See above.
+     */
+    public int getByteWidth();
+    
+    /**
+     * Returns whether or not the pixel buffer has signed pixels.
+     * @return See above.
+     */
+    public boolean isSigned();
+    
+    /**
+     * Returns whether or not the pixel buffer has floating point pixels. 
+     * @return
+     */
+    public boolean isFloat();
     
     /**
      * Retrieves the full path to this pixel buffer on disk

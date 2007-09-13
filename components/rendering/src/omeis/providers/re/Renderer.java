@@ -9,9 +9,6 @@ package omeis.providers.re;
 
 // Java imports
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,7 +18,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
-import ome.api.IPixels;
 import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Channel;
@@ -36,7 +32,6 @@ import ome.model.enums.RenderingModel;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
-import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.metadata.StatsFactory;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
@@ -107,7 +102,7 @@ public class Renderer {
     /** The settings that define the transformation context. */
     private RenderingDef rndDef;
 
-    /** The object that allows to access the pixels raw data. */
+    /** The object that allows access the raw pixel data. */
     private PixelBuffer buffer;
 
     /**

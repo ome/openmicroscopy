@@ -1,6 +1,12 @@
+/*
+ * ome.io.nio.DeltaVision
+ *
+ *   Copyright 2007 Glencoe Software Inc. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
+
 package ome.io.nio;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -15,17 +21,17 @@ import java.nio.channels.FileChannel.MapMode;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import ome.conditions.ApiUsageException;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.model.core.OriginalFile;
+import ome.model.core.Pixels;
 
 /**
  * Class implementation of the PixelBuffer interface for a DeltaVision specific
  * image file.
- * <p>
- * Copyright 2007 Glencoe Software Inc. All rights reserved.
- * Use is subject to license terms supplied in LICENSE.txt 
- * <p/>
  *
+ * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:chris@glencoesoftware.com">chris@glencoesoftware.com</a>
  * @author David L. Whitehurst &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:david@glencoesoftware.com">david@glencoesoftware.com</a>
  * @version $Revision$
@@ -45,7 +51,7 @@ public class DeltaVision implements PixelBuffer {
 	private Integer timepointSize;
 
 	private Integer totalSize;
-
+	
 	protected MappedByteBuffer buf;
 
 	private OriginalFile originalFile;
@@ -88,7 +94,7 @@ public class DeltaVision implements PixelBuffer {
 
 		for (int t = 0; t < getSizeT(); t++) {
 			try {
-				MappedByteBuffer buffer = getTimepoint(t);
+				MappedByteBuffer buffer = getTimepoint(t).getData();
 				md.update(buffer);
 			} catch (DimensionsOutOfBoundsException e) {
 				throw new RuntimeException(e);
@@ -118,14 +124,95 @@ public class DeltaVision implements PixelBuffer {
 	}
 
 	/* (non-Javadoc)
+	 * @see ome.io.nio.PixelBuffer#getPlaneRegionDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
+	 */
+	public byte[] getPlaneRegionDirect(Integer z, Integer c, Integer t,
+			Integer count, Integer offset, byte[] buffer)
+		throws IOException, DimensionsOutOfBoundsException
+	{
+		int bytesPerPixel = header.getBytesPerPixel();
+		int planeSize = getPlaneSize();
+		int pixelType = header.getPixelType();
+		int rowSize = getRowSize();
+		MappedByteBuffer plane = getPlane(z, c, t).getData();
+		ByteBuffer buf = ByteBuffer.wrap(buffer);
+		
+		// We only need to re-order if the pixels are 8-bits wide.
+		switch (pixelType)
+		{
+			case DeltaVisionHeader.PIXEL_TYPE_BYTE:
+			case DeltaVisionHeader.PIXEL_TYPE_FLOAT:
+			case DeltaVisionHeader.PIXEL_TYPE_2BYTE_COMPLEX:
+			case DeltaVisionHeader.PIXEL_TYPE_4BYTE_COMPLEX:
+				reorderPixels(plane, buffer, count, offset);
+				return buffer;
+		}
+		
+		if (!header.isNative())  // DeltaVision file is little endian.
+		{
+			if (bytesPerPixel == 2)  // Short.
+			{
+				ShortBuffer swapBuf = plane.asShortBuffer();
+				ShortBuffer copyBuf = buf.asShortBuffer();
+				int actualOffset;
+				for (int i = 0; i < count; i++)
+				{
+					actualOffset = ReorderedPixelData.getReorderedPixelOffset(
+							planeSize, (i + offset) * 2, rowSize) / 2;
+					System.err.println("offset: " + actualOffset);
+					copyBuf.put(i, swapBuf.get(actualOffset));
+				}
+				return buffer;
+			}
+			else if (bytesPerPixel == 4)  // Integer or unsigned integer.
+			{
+				ShortBuffer swapBuf = plane.asShortBuffer();
+				ShortBuffer copyBuf = buf.asShortBuffer();
+				int actualOffset;
+				for (int i = 0; i < count; i++)
+				{
+					actualOffset = ReorderedPixelData.getReorderedPixelOffset(
+							planeSize, (i + offset) * 4, rowSize) / 4;
+					copyBuf.put(i, swapBuf.get(actualOffset));
+				}
+				return buffer;
+			}
+			else
+			{
+				throw new RuntimeException(
+					"Unsupported sample bit width: '" + bytesPerPixel + "'");
+			}
+		}
+		reorderPixels(plane, buffer, count, offset);
+		return buffer;
+	}
+	
+	/* (non-Javadoc)
 	 * @see ome.io.nio.PixelBuffer#getPlane(java.lang.Integer, java.lang.Integer, java.lang.Integer)
 	 */
-	public MappedByteBuffer getPlane(Integer z, Integer c, Integer t)
-			throws IOException, DimensionsOutOfBoundsException {
+	public PixelData getPlane(Integer z, Integer c, Integer t)
+			throws IOException, DimensionsOutOfBoundsException
+	{
 		Long offset = getPlaneOffset(z, c, t);
 		Integer size = getPlaneSize();
-		
-		return getRegion(size, offset);
+		PixelData d = getRegion(size, offset);
+		if (!header.isNative())
+			d.setOrder(ByteOrder.LITTLE_ENDIAN);
+		return d;
+	}
+	
+	/* (non-Javadoc)
+	 * @see ome.io.nio.PixelBuffer#getPlaneDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
+	 */
+	public byte[] getPlaneDirect(Integer z, Integer c, Integer t, byte[] buffer)
+			throws IOException, DimensionsOutOfBoundsException
+	{
+		if (buffer.length != getPlaneSize())
+			throw new ApiUsageException("Buffer size incorrect.");
+		MappedByteBuffer b = getPlane(z, c, t).getData();
+		b.get(buffer);
+		swapIfRequired(ByteBuffer.wrap(buffer));
+		return buffer;
 	}
 
 	/* (non-Javadoc)
@@ -154,22 +241,51 @@ public class DeltaVision implements PixelBuffer {
 	/* (non-Javadoc)
 	 * @see ome.io.nio.PixelBuffer#getRegion(java.lang.Integer, java.lang.Long)
 	 */
-	public MappedByteBuffer getRegion(Integer size, Long offset)
+	public PixelData getRegion(Integer size, Long offset)
 			throws IOException {
 		FileChannel fileChannel = getFileChannel();
 		MappedByteBuffer buf = fileChannel.map(MapMode.READ_ONLY, offset, size);
-		return swapIfRequired(buf);
+		int rowSize = getRowSize();
+		return new ReorderedPixelData(header.getOmeroPixelType(), buf, rowSize);
+	}
+	
+	/* (non-Javadoc)
+	 * @see ome.io.nio.PixelBuffer#getRegionDirect(java.lang.Integer, java.lang.Long, byte[])
+	 */
+	public byte[] getRegionDirect(Integer size, Long offset, byte[] buffer)
+		throws IOException
+	{
+		if (buffer.length != size)
+			throw new ApiUsageException("Buffer size incorrect.");
+		MappedByteBuffer b = getRegion(size, offset).getData();
+		b.get(buffer);
+		swapIfRequired((MappedByteBuffer) MappedByteBuffer.wrap(buffer));
+		return buffer;
 	}
 
 	/* (non-Javadoc)
 	 * @see ome.io.nio.PixelBuffer#getRow(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
 	 */
-	public MappedByteBuffer getRow(Integer y, Integer z, Integer c, Integer t)
+	public PixelData getRow(Integer y, Integer z, Integer c, Integer t)
 			throws IOException, DimensionsOutOfBoundsException {
 		Long offset = getRowOffset(y, z, c, t);
 		Integer size = getRowSize();
 
 		return getRegion(size, offset);
+	}
+	
+	/* (non-Javadoc)
+	 * @see ome.io.nio.PixelBuffer#getRowDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
+	 */
+	public byte[] getRowDirect(Integer y, Integer z, Integer c, Integer t,
+			byte[] buffer) throws IOException, DimensionsOutOfBoundsException
+	{
+		if (buffer.length != getRowSize())
+			throw new ApiUsageException("Buffer size incorrect.");
+		MappedByteBuffer b = getRow(y, z, c, t).getData();
+		b.get(buffer);
+		swapIfRequired((MappedByteBuffer) MappedByteBuffer.wrap(buffer));
+		return buffer;
 	}
 
 	/* (non-Javadoc)
@@ -179,9 +295,10 @@ public class DeltaVision implements PixelBuffer {
 			throws DimensionsOutOfBoundsException {
 		checkBounds(y, z, c, t);
 		Long planeOffset = getPlaneOffset(z, c, t);
+		int sizeY = getSizeX();
 		Integer rowSize = getRowSize();
 
-		return planeOffset + rowSize * y;
+		return planeOffset + rowSize * (sizeY - y);
 	}
 
 	/* (non-Javadoc)
@@ -233,8 +350,17 @@ public class DeltaVision implements PixelBuffer {
 	/* (non-Javadoc)
 	 * @see ome.io.nio.PixelBuffer#getStack(java.lang.Integer, java.lang.Integer)
 	 */
-	public MappedByteBuffer getStack(Integer c, Integer t) throws IOException,
+	public PixelData getStack(Integer c, Integer t) throws IOException,
 			DimensionsOutOfBoundsException {
+		throw new UnsupportedOperationException("This method is not supported");
+	}
+	
+	/* (non-Javadoc)
+	 * @see ome.io.nio.PixelBuffer#getStackDirect(java.lang.Integer, java.lang.Integer, byte[])
+	 */
+	public byte[] getStackDirect(Integer c, Integer t, byte[] buffer)
+			throws IOException, DimensionsOutOfBoundsException
+	{
 		throw new UnsupportedOperationException("This method is not supported");
 	}
 
@@ -264,8 +390,17 @@ public class DeltaVision implements PixelBuffer {
 	/* (non-Javadoc)
 	 * @see ome.io.nio.PixelBuffer#getTimepoint(java.lang.Integer)
 	 */
-	public MappedByteBuffer getTimepoint(Integer t) throws IOException,
+	public PixelData getTimepoint(Integer t) throws IOException,
 			DimensionsOutOfBoundsException {
+		throw new UnsupportedOperationException("This method is not supported");
+	}
+	
+	/* (non-Javadoc)
+	 * @see ome.io.nio.PixelBuffer#getTimepointDirect(java.lang.Integer, byte[])
+	 */
+	public byte[] getTimepointDirect(Integer t, byte[] buffer)
+			throws IOException, DimensionsOutOfBoundsException
+	{
 		throw new UnsupportedOperationException("This method is not supported");
 	}
 
@@ -505,13 +640,43 @@ public class DeltaVision implements PixelBuffer {
 		return z + a + b;
 	}
 	
-	/**
-	 * Returns the file's byte width.
-	 * @return See above.
+	/* (non-Javadoc)
+	 * @see ome.io.nio.PixelBuffer#getByteWidth()
 	 */
-	private int getByteWidth()
+	public int getByteWidth()
 	{
 		return header.getBytesPerPixel();
+	}
+	
+	/* (non-Javadoc)
+	 * @see ome.io.nio.PixelBuffer#isSigned()
+	 */
+	public boolean isSigned()
+	{
+		switch(header.getPixelType())
+		{
+			case DeltaVisionHeader.PIXEL_TYPE_BYTE:
+			case DeltaVisionHeader.PIXEL_TYPE_SIGNED_SHORT:
+				return true;
+			default:
+				return false;
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see ome.io.nio.PixelBuffer#isFloat()
+	 */
+	public boolean isFloat()
+	{
+		switch(header.getPixelType())
+		{
+			case DeltaVisionHeader.PIXEL_TYPE_2BYTE_COMPLEX:
+			case DeltaVisionHeader.PIXEL_TYPE_4BYTE_COMPLEX:
+			case DeltaVisionHeader.PIXEL_TYPE_FLOAT:
+				return true;
+			default:
+				return false;
+		}
 	}
 	
 	/**
@@ -528,6 +693,8 @@ public class DeltaVision implements PixelBuffer {
 		if (header == null) {
 			header = new DeltaVisionHeader(buf, true);
 		}
+		//swapBuffer = (MappedByteBuffer)
+		//	MappedByteBuffer.allocateDirect(getPlaneSize());
 	}
 
 	/**
@@ -546,59 +713,109 @@ public class DeltaVision implements PixelBuffer {
 	}
 
     /**
-     * Examines a byte array to see if it needs to be byte swapped. If byte
-     * swapping is deemed necessary a new swap buffer is created and returned.
-     * @param buffer The byte buffer to check and modify if required.
-     * @return <i>buffer</i> directly if swapping is required, otherwise a newly
-     * allocated buffer with byte swapped pixel values.
+     * Examines a byte array to see if it needs to be byte swapped. It also 
+	 * handles the re-ordering of the origin from top-left to bottom-left.
+     * @param buffer The byte buffer to check and re-order.
+     * @return <code>buffer</code> with byte swapped pixel values if required.
      * @throws IOException if there is an error read from the file.
      * @throws FormatException if there is an error during metadata parsing.
      */
-	private MappedByteBuffer swapIfRequired(MappedByteBuffer buffer)
+	private ByteBuffer swapIfRequired(ByteBuffer buffer)
 		throws IOException
 	{
 		int pixelType = header.getPixelType();
 		int bytesPerPixel = header.getBytesPerPixel();
-		
-		// We've got nothing to do if the samples are only 8-bits wide, if they
-		// are floating point or complex.
+				
+		// We only need to re-order the rows if the pixels are 8-bits wide.
 		switch (pixelType)
 		{
 			case DeltaVisionHeader.PIXEL_TYPE_FLOAT:
 			case DeltaVisionHeader.PIXEL_TYPE_2BYTE_COMPLEX:
 			case DeltaVisionHeader.PIXEL_TYPE_4BYTE_COMPLEX:
+				reorderRows(buffer);
 				return buffer;
 		}
 		if (bytesPerPixel == 1)
-			return buffer;
-		
-		if (!header.isNative())  // Is little endian.
 		{
+			reorderRows(buffer);
+			return buffer;
+		}
+		
+		if (!header.isNative())  // DeltaVision file is little endian.
+		{
+			int size = buffer.capacity();
+			int rowSize = getRowSize();
+			int reorderedOffset;
 			if (bytesPerPixel == 2)  // Short.
 			{
-				MappedByteBuffer swapBuffer = (MappedByteBuffer)
-					MappedByteBuffer.allocateDirect(buffer.capacity());
-				ShortBuffer buf = buffer.asShortBuffer();
-				ShortBuffer swapBuf = swapBuffer.asShortBuffer();
-				for (int i = 0; i < (buffer.capacity() / 2); i++) {
-					swapBuf.put(i, swap(buf.get(i)));
+				ShortBuffer swapBuf = buffer.asShortBuffer();
+				for (int i = 0; i < (buffer.capacity() / 4); i++)
+				{
+					reorderedOffset =
+						ReorderedPixelData.getReorderedPixelOffset(
+								size, i * 2, rowSize) / 2;
+					short val = swap(swapBuf.get(i));
+					swapBuf.put(i, swap(swapBuf.get(reorderedOffset)));
+					swapBuf.put(reorderedOffset, val);
 				}
-				return swapBuffer;
-			} else if (bytesPerPixel == 4) {  // Integer or unsigned integer.
-				MappedByteBuffer swapBuffer = (MappedByteBuffer)
-					MappedByteBuffer.allocateDirect(buffer.capacity());
-				IntBuffer buf = buffer.asIntBuffer();
-				IntBuffer swapBuf = swapBuffer.asIntBuffer();
-				for (int i = 0; i < (buffer.capacity() / 4); i++) {
-					swapBuf.put(i, swap(buf.get(i)));
+				return buffer;
+			}
+			else if (bytesPerPixel == 4)  // Integer or unsigned integer.
+			{
+				IntBuffer swapBuf = buffer.asIntBuffer();
+				for (int i = 0; i < (buffer.capacity() / 4); i++)
+				{
+					reorderedOffset = 
+						ReorderedPixelData.getReorderedPixelOffset(
+								size, i, rowSize) / 4;
+					swapBuf.put(i, swap(swapBuf.get(reorderedOffset)));
 				}
-				return swapBuffer;
-			} else {
+				return buffer;
+			}
+			else
+			{
 				throw new RuntimeException(
 					"Unsupported sample bit width: '" + bytesPerPixel + "'");
 			}
 		}
+		reorderRows(buffer);
 		return buffer;
+	}
+	
+	/**
+	 * Copies and re-orders a given set of pixels from a plane in a new buffer.
+	 * @param plane The plane.
+	 * @param buffer The buffer.
+	 * @param count The number of pixels to copy and re-order.
+	 * @param offset The offset to start copying and re-ordering <code>count
+	 * </code> pixels from.
+	 */
+	private void reorderPixels(ByteBuffer plane, byte[] buffer,
+	                           int count, int offset)
+	{
+		int actualOffset;
+		for (int i = 0; i < count; i++)
+		{
+			actualOffset = ReorderedPixelData.getReorderedPixelOffset(
+					planeSize, i + offset, rowSize);
+			buffer[i] = plane.get(actualOffset);
+		}
+	}
+	/**
+	 * Re-orders the rows in a given buffer.
+	 * @param buffer The buffer to re-order.
+     */
+	private void reorderRows(ByteBuffer buffer)
+	{
+		int size = buffer.capacity();
+		int rowSize = getRowSize();
+		int reorderedOffset;
+		for (int i = 0; i < size; i++)
+		{
+			reorderedOffset = 
+				ReorderedPixelData.getReorderedPixelOffset(size, i, rowSize);
+			buffer.put(i, buffer.get(reorderedOffset));
+		}
 	}
 	
 	/** Byte swaps one short value. */

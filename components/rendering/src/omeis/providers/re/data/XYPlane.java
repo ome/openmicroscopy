@@ -13,6 +13,7 @@ import java.nio.MappedByteBuffer;
 // Third-party libraries
 
 // Application-internal dependencies
+import ome.io.nio.PixelData;
 import ome.model.core.Pixels;
 
 /**
@@ -39,7 +40,7 @@ class XYPlane extends Plane2D {
      * @param data
      *            The raw pixels.
      */
-    XYPlane(PlaneDef pDef, Pixels pixels, MappedByteBuffer data) {
+    XYPlane(PlaneDef pDef, Pixels pixels, PixelData data) {
         super(pDef, pixels, data);
     }
 

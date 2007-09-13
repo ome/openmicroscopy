@@ -8,10 +8,6 @@
 package ome.services;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
@@ -47,7 +43,6 @@ import ome.conditions.ResourceError;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
-import ome.io.nio.RomioPixelBuffer;
 import ome.model.core.Pixels;
 import ome.services.util.OmeroAroundInvoke;
 
@@ -93,6 +88,9 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
 
     /** is file service checking for disk overflow */
     private transient boolean diskSpaceChecking;
+    
+    /** A copy buffer for the pixel retrieval. */
+    private transient byte[] readBuffer;
 
     /**
      * default constructor
@@ -155,6 +153,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
         pixelsInstance = null;
         closePixelBuffer();
         buffer = null;
+        readBuffer = null;
     }
 
     @RolesAllowed("user")
@@ -229,17 +228,35 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
     }
 
     @RolesAllowed("user")
-    public byte[] getPlane(Integer arg0, Integer arg1, Integer arg2) {
+    public byte[] getPlaneRegion(Integer z, Integer c, Integer t,
+    		Integer count, Integer offset) {
         errorIfNotLoaded();
 
-        MappedByteBuffer plane = null;
+        int size = buffer.getByteWidth() * count;
+        if (readBuffer == null || readBuffer.length != size)
+        	readBuffer = new byte[size];
         try {
-            plane = buffer.getPlane(arg0, arg1, arg2);
+            readBuffer = buffer.getPlaneRegionDirect(z, c, t, count,
+                                                     offset, readBuffer);
         } catch (Exception e) {
             handleException(e);
         }
+        return readBuffer;
+    }
+    
+    @RolesAllowed("user")
+    public byte[] getPlane(Integer arg0, Integer arg1, Integer arg2) {
+        errorIfNotLoaded();
 
-        return bufferAsByteArrayWithExceptionIfNull(plane);
+        int size = buffer.getPlaneSize();
+        if (readBuffer == null || readBuffer.length != size)
+        	readBuffer = new byte[size];
+        try {
+            readBuffer = buffer.getPlaneDirect(arg0, arg1, arg2, readBuffer);
+        } catch (Exception e) {
+            handleException(e);
+        }
+        return readBuffer;
     }
 
     @RolesAllowed("user")
@@ -267,7 +284,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
 
         MappedByteBuffer region = null;
         try {
-            region = buffer.getRegion(arg0, arg1);
+            region = buffer.getRegion(arg0, arg1).getData();
         } catch (Exception e) {
             handleException(e);
         }
@@ -278,14 +295,15 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
     public byte[] getRow(Integer arg0, Integer arg1, Integer arg2, Integer arg3) {
         errorIfNotLoaded();
 
-        MappedByteBuffer row = null;
+        int size = buffer.getRowSize();
+        if (readBuffer == null || readBuffer.length != size)
+        	readBuffer = new byte[size];
         try {
-            row = buffer.getRow(arg0, arg1, arg2, arg3);
+            readBuffer = buffer.getRowDirect(arg0, arg1, arg2, arg3, readBuffer);
         } catch (Exception e) {
             handleException(e);
         }
-        return bufferAsByteArrayWithExceptionIfNull(row);
-
+        return readBuffer;
     }
 
     @RolesAllowed("user")
@@ -312,13 +330,15 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
     public byte[] getStack(Integer arg0, Integer arg1) {
         errorIfNotLoaded();
 
-        MappedByteBuffer stack = null;
+        int size = buffer.getStackSize();
+        if (readBuffer == null || readBuffer.length != size)
+        	readBuffer = new byte[size];
         try {
-            stack = buffer.getStack(arg0, arg1);
+            readBuffer = buffer.getStackDirect(arg0, arg1, readBuffer);
         } catch (Exception e) {
             handleException(e);
         }
-        return bufferAsByteArrayWithExceptionIfNull(stack);
+        return readBuffer;
     }
 
     @RolesAllowed("user")
@@ -344,13 +364,15 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
     public byte[] getTimepoint(Integer arg0) {
         errorIfNotLoaded();
 
-        MappedByteBuffer timepoint = null;
+        int size = buffer.getTimepointSize();
+        if (readBuffer == null || readBuffer.length != size)
+        	readBuffer = new byte[size];
         try {
-            timepoint = buffer.getTimepoint(arg0);
+            readBuffer = buffer.getTimepointDirect(arg0, readBuffer);
         } catch (Exception e) {
             handleException(e);
         }
-        return bufferAsByteArrayWithExceptionIfNull(timepoint);
+        return readBuffer;
     }
 
     @RolesAllowed("user")
@@ -377,6 +399,27 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
         errorIfNotLoaded();
 
         return buffer.getTotalSize();
+    }
+    
+    @RolesAllowed("user")
+    public int getByteWidth() {
+    	errorIfNotLoaded();
+    	
+    	return buffer.getByteWidth();
+    }
+    
+    @RolesAllowed("user")
+    public boolean isSigned() {
+    	errorIfNotLoaded();
+    	
+    	return buffer.isSigned();
+    }
+    
+    @RolesAllowed("user")
+    public boolean isFloat() {
+    	errorIfNotLoaded();
+    	
+    	return buffer.isFloat();
     }
 
     @RolesAllowed("user")

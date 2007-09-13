@@ -35,54 +35,8 @@ import omeis.providers.re.data.PlaneDef;
  *          2005/06/20 11:00:11 $) </small>
  * @since OME2.2
  */
-public class RenderingStats {
-
-    // Fields for the stats log message -- see getStats().
-    private static final String RENDERING_STATS = "--------------- RENDERING STATS ---------------";
-
-    private static final String CONTEXT = "CONTEXT";
-
-    private static final String CONTEXT_UNDERLINE = "-------";
-
-    private static final String OMEIS_PIXELS_ID = "OMEIS Pixels ID: ";
-
-    private static final String PLANE = "Plane: ";
-
-    private static final String PLANE_DATA = "Plane Data: ";
-
-    private static final String SPACE = " ";
-
-    private static final String CHANNELS = "Channels: ";
-
-    private static final String RENDERED_IMAGE = "Rendered Image: ";
-
-    private static final String BYTES = " bytes";
-
-    private static final String COLOR_MODEL = "Color Model: ";
-
-    private static final String TIMES = "TIMES (ms)";
-
-    private static final String TIMES_UNDERLINE = "----------";
-
-    private static final String MEMORY_ALLOCATION = "Memory Allocation: ";
-
-    private static final String IO = "I/O: ";
-
-    private static final String RENDERING = "Rendering: ";
-
-    private static final String TOTAL = "Total: ";
-
-    private static final String CODOMAIN_MAPS = "Codomain maps: ";
-
-    private static final String BOTTOM_LINE = "-----------------------------------------------";
-
-    // Fields for the stats log message -- see getIoTimeString().
-    private static final String C_EQUALS = "c=";
-
-    private static final String COLON = ":";
-
-    private static final String ARROW = " -> ";
-
+public class RenderingStats
+{
     /** The object whose <code>render</code> method is being timed. */
     private Renderer context;
 
@@ -97,7 +51,7 @@ public class RenderingStats {
      * contains an I/O measurement for each wavelength that is being rendered.
      * (The key is the wavelength index.)
      */
-    private Map ioTime;
+    private Map<Integer, Long> ioTime;
 
     /** The time that it took to transform the pixels data into an image. */
     private long renderingTime;
@@ -112,21 +66,19 @@ public class RenderingStats {
      */
     private String getIoTimeString() {
         StringBuffer buf = new StringBuffer();
-        Integer i;
-        Long t;
         long total = 0;
-        Iterator k = ioTime.keySet().iterator();
-        while (k.hasNext()) {
-            i = (Integer) k.next();
-            t = (Long) ioTime.get(i);
-            total += t.longValue();
-            buf.append(C_EQUALS);
-            buf.append(i);
-            buf.append(COLON);
+        Long t;
+        for (Integer key : ioTime.keySet())
+        {
+            t = ioTime.get(key);
+            total += t;
+            buf.append("c=");
+            buf.append(key);
+            buf.append(";");
             buf.append(t);
-            buf.append(SPACE);
+            buf.append(" ");
         }
-        return total + ARROW + buf.toString();
+        return total + " -> " + buf.toString();
     }
 
     /**
@@ -146,7 +98,7 @@ public class RenderingStats {
     public RenderingStats(Renderer context, PlaneDef plane) {
         this.context = context;
         this.plane = plane;
-        ioTime = new HashMap();
+        ioTime = new HashMap<Integer, Long>();
         totalTime = System.currentTimeMillis();
         mallocTime = 0;
     }
@@ -244,45 +196,32 @@ public class RenderingStats {
      * 
      * @return A log message embedding the stats report.
      */
-    public String getStats() {
-        StringBuilder sb = new StringBuilder(2048);
-        String n = "\n";
-        sb.append(n);
-        sb.append(RENDERING_STATS);
-        sb.append(n);
-        sb.append(CONTEXT);
-        sb.append(CONTEXT_UNDERLINE);
-        sb.append(OMEIS_PIXELS_ID);
-        sb.append(context.getMetadata().getId());
-        sb.append(PLANE);
-        sb.append(plane);
-        sb.append(PLANE_DATA);
-        sb.append(context.getPlaneDimsAsString(plane));
-        sb.append(SPACE);
-        sb.append(context.getPixelsType());
-        sb.append(CHANNELS);
-        sb.append(ioTime.keySet().size());
-        sb.append(RENDERED_IMAGE);
-        sb.append(context.getImageSize(plane));
-        sb.append(BYTES);
-        sb.append(COLOR_MODEL);
-        sb.append(context.getRenderingDef().getModel().getValue());
-        sb.append(CODOMAIN_MAPS);
-        sb.append(context.getCodomainChain());
-        sb.append(n);
-        sb.append(TIMES);
-        sb.append(TIMES_UNDERLINE);
-        sb.append(MEMORY_ALLOCATION);
-        sb.append(mallocTime);
-        sb.append(IO);
-        sb.append(getIoTimeString());
-        sb.append(RENDERING);
-        sb.append(renderingTime);
-        sb.append(TOTAL);
-        sb.append(totalTime);
-        sb.append(n);
-        sb.append(BOTTOM_LINE);
-        return sb.toString();
+    public String getStats()
+    {
+//CONTEXT-------OMEIS Pixels ID: 1Plane: Type: XY, z=38, timepoint: 0Plane Data: 512x512 PixelsType:Id_5Channels: 3Rendered Image: 786432 bytesColor Model: hsbCodomain maps: IdentityMap.
+//TIMES (ms)----------Memory Allocation: 0I/O: 2 -> c=2:0 c=1:2 c=0:0 Rendering: 47Total: 49
+		String a = "--------------- RENDERING STATS ---------------\n";
+    	a += String.format(
+    			"CONTEXT ---- OMEIS Pixels ID: %d Plane: %s Type: %s " +
+    			"PlaneData: %s Channels: %d Renderered Image: %s " +
+    			"Color Model: %s Maps: %s",
+    				context.getMetadata().getId(),
+    				plane,
+    				context.getPlaneDimsAsString(plane),
+    				context.getPixelsType(),
+    				ioTime.keySet().size(),
+    				context.getImageSize(plane),
+    				context.getRenderingDef().getModel().getValue(),
+    				context.getCodomainChain());
+    	a += "\n";
+    	a += String.format(
+    			"TIMES (ms) ---- Memory Allocation: %d I/O: %s " +
+    			"Rendering: %d Total: %d",
+    				mallocTime,
+    				getIoTimeString(),
+    				renderingTime,
+    				totalTime);
+    	a += "-----------------------------------------------";
+    	return a;
     }
-
 }

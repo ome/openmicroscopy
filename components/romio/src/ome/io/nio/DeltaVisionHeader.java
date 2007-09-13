@@ -3,6 +3,8 @@ package ome.io.nio;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 
+import ome.model.enums.PixelsType;
+
 /**
  * Temporary class implementation of an image file header for the server-side
  * import of a DeltaVision file.
@@ -244,6 +246,40 @@ public class DeltaVisionHeader {
 		default:
 			throw new RuntimeException("Unknown pixel type: " + pixelType);
 		}
+	}
+	
+	/**
+	 * Returns a new OMERO pixels type object which corresponds to the
+	 * DeltaVision pixels type.
+	 * @return
+	 */
+	public PixelsType getOmeroPixelType()
+	{
+		int pixelType = getPixelType();
+		PixelsType t = new PixelsType();
+		switch (pixelType) {
+			case PIXEL_TYPE_BYTE:
+				t.setValue("int8");
+				break;
+			case PIXEL_TYPE_UNSIGNED_SHORT:
+				t.setValue("uint16");
+				break;
+			case PIXEL_TYPE_SIGNED_SHORT:
+				t.setValue("int16");
+				break;
+			case PIXEL_TYPE_FLOAT:
+				t.setValue("float");
+				break;
+			case PIXEL_TYPE_2BYTE_COMPLEX:
+				t.setValue("float");
+				break;
+			case PIXEL_TYPE_4BYTE_COMPLEX:
+				t.setValue("double");
+				break;
+			default:
+				throw new RuntimeException("Unknown pixel type: " + pixelType);
+		}
+		return t;
 	}
 
 	/**
