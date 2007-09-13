@@ -1,6 +1,7 @@
 package ome.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ome.annotations.NotNull;
@@ -55,7 +56,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the project <code>to</code> is unlocatable.
 	 */
-	Set applySettingsToProject(@NotNull long from, @NotNull long to);
+	Map applySettingsToProject(@NotNull long from, @NotNull long to);
 	
 	/**
 	 * Applies rendering settings to all images in a given <code>Dataset</code>. 
@@ -66,7 +67,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the dataset <code>to</code> is unlocatable.
 	 */
-	Set applySettingsToDataset(@NotNull long from, @NotNull long to);
+	Map applySettingsToDataset(@NotNull long from, @NotNull long to);
 	
 	/**
 	 * Applies rendering settings to a given <code>Image</code>. 
@@ -76,6 +77,17 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @param to The Id of the image container to apply settings to.
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the image <code>to</code> is unlocatable.
+	 */
+	boolean applySettingsToImage(@NotNull long from, @NotNull long to);
+	
+	/**
+	 * Applies rendering settings to a given <code>Pixels</code>. 
+	 * 
+	 * @param from The Id of the rendering settings object to copy settings
+	 * from.
+	 * @param to The Id of the pixels container to apply settings to.
+	 * @throws ValidationException if the rendering settings <code>from</code> 
+	 * is unlocatable or the pixels<code>to</code> is unlocatable.
 	 */
 	boolean applySettingsToPixel(@NotNull long from, @NotNull long to);
 

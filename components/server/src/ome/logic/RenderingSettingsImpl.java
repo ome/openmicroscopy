@@ -1,9 +1,12 @@
 package ome.logic;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -20,8 +23,10 @@ import ome.api.IPixels;
 import ome.api.IRenderingSettings;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
+import ome.conditions.ValidationException;
 import ome.io.nio.PixelsService;
 import ome.model.containers.DatasetImageLink;
+import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.Color;
@@ -85,61 +90,74 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		return IRenderingSettings.class;
 	}
 
-	public Set<Pixels> applySettingsToProject(long from, long to) {
-
-		String sql = "select p from Pixels p "
-				+ " left outer join fetch p.image i "
-				+ " left outer join fetch i.datasetLinks dil "
-				+ " left outer join fetch dil.parent d "
-				+ " left outer join fetch d.projectLinks pdl "
-				+ " left outer join fetch pdl.parent pr "
-				+ " where pr.id = :id";
-		Set<Pixels> pixels = new HashSet(iQuery.findAllByQuery(sql,
-				new Parameters().addId(to)));
-
-		try {
-			Iterator<Pixels> i = pixels.iterator();
-			while (i.hasNext()) {
-				Pixels p = (Pixels) i.next();
-				boolean r = applySettingsToPixel(from, p.getId());
-				if (r) i.remove();
-			}
-		} catch (NoSuchElementException expected) {
-			throw new ApiUsageException("There are no elements assigned to the Project");
-		}
-		return pixels;
-	}
-
 	public <T> void applySettingsToSet(long from, Class<T> toType, Set<T> to) {
 		// TODO Auto-generated method stub
 
 	}
 
-	public Set<Pixels> applySettingsToDataset(long from, long to) {
-		String sql = "select p from Pixels p "
-				+ " left outer join fetch p.image i "
+	public Map<Boolean, List<Long>> applySettingsToProject(long from, long to) {
+
+		String sql = "select i from Image i "
+				+ " left outer join fetch i.datasetLinks dil "
+				+ " left outer join fetch dil.parent d "
+				+ " left outer join fetch d.projectLinks pdl "
+				+ " left outer join fetch pdl.parent pr "
+				+ " where pr.id = :id";
+		Set<Image> images = new HashSet(iQuery.findAllByQuery(sql,
+				new Parameters().addId(to)));
+
+		return applySettings(from, images);
+	}
+
+	public Map<Boolean, List<Long>> applySettingsToDataset(long from, long to) {
+		String sql = "select i from Image i "
 				+ " left outer join fetch i.datasetLinks dil "
 				+ " left outer join fetch dil.parent d where d.id = :id";
 
-		Set<Pixels> pixels = new HashSet(iQuery.findAllByQuery(sql,
+		Set<Image> images = new HashSet(iQuery.findAllByQuery(sql,
 				new Parameters().addId(to)));
 
-		try {
-			Iterator<Pixels> i = pixels.iterator();
-			while (i.hasNext()) {
-				Pixels p = (Pixels) i.next();
-				boolean r = applySettingsToPixel(from, p.getId());
-				if (r) i.remove();
-			}
-		} catch (NoSuchElementException expected) {
-			throw new ApiUsageException("There are no elements assigned to the Dataset");
-		}
-
-		return pixels;
+		return applySettings(from, images);
 	}
 
-	protected RenderingDef getRenderingDef(long id) {
-		return iQuery.get(RenderingDef.class, id);
+	protected Map<Boolean, List<Long>> applySettings(long from,
+			Set<Image> images) {
+		
+		if (images.isEmpty())
+			throw new ValidationException("Target does not contain any Images.");
+		
+		List<Long> trueList = new ArrayList<Long>();
+		List<Long> falseList = new ArrayList<Long>();
+
+		try {
+			Iterator<Image> i = images.iterator();
+			while (i.hasNext()) {
+				Image image = (Image) i.next();
+				try {
+					boolean r = applySettingsToImage(from, image.getId());
+					if (r)
+						trueList.add(image.getId());
+					else
+						falseList.add(image.getId());
+				} catch (Exception e) {
+					falseList.add(image.getId());
+				}
+			}
+		} catch (NoSuchElementException expected) {
+			throw new ApiUsageException(
+					"There are no elements assigned to the Dataset");
+		}
+
+		Map<Boolean, List<Long>> result = new HashMap<Boolean, List<Long>>();
+		result.put(Boolean.TRUE, trueList);
+		result.put(Boolean.FALSE, falseList);
+
+		return result;
+	}
+
+	public boolean applySettingsToImage(long from, long to) {
+		Image img = iQuery.get(Image.class, to);
+		return applySettingsToPixel(from, img.getDefaultPixels().getId());
 	}
 
 	public boolean applySettingsToPixel(long from, long to) {
@@ -148,15 +166,35 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		RenderingDef rdFrom = getRenderingDef(from);
 		RenderingDef rdTo = pixelsMetadata.retrieveRndSettings(to);
 
-		if (rdFrom == null || rdTo == null)
-			throw new ApiUsageException(
+		if (rdFrom == null)
+			throw new ValidationException(
 					"Rendering definition could not be retrieved");
 
+		if (rdTo == null) {
+			// create Rnd Settings.
+			Pixels p = iQuery.get(Pixels.class, to);
+			rdTo = new RenderingDef();
+			rdTo.setQuantization(new QuantumDef());
+			ArrayList<ChannelBinding> cbs = new ArrayList<ChannelBinding>();
+			ChannelBinding binding;
+			for (int i = 0; i < p.getSizeC(); i++) {
+				binding = new ChannelBinding();
+				binding.setColor(new Color());
+				cbs.add(binding);
+			}
+			rdTo.setWaveRendering(cbs);
+			rdTo.setPixels(p);
+		}
+
+		// TODO: Add more controls
 		Integer size1 = rdFrom.getWaveRendering().size();
 		Integer size2 = rdTo.getWaveRendering().size();
 		if (size1.compareTo(size2) != 0) {
-			throw new ApiUsageException("Channel are not equals");
+			throw new ValidationException("Channel are not equals");
 		}
+		rdTo.setDefaultT(rdFrom.getDefaultT());
+		rdTo.setDefaultZ(rdFrom.getDefaultZ());
+		rdTo.setModel(rdFrom.getModel());
 
 		QuantumDef qDefFrom = rdFrom.getQuantization();
 		QuantumDef qDefTo = rdTo.getQuantization();
@@ -211,6 +249,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 	public void resetDefaults(long pixelsId) {
 		// TODO Auto-generated method stub
 
+	}
+
+	protected RenderingDef getRenderingDef(long id) {
+		return iQuery.get(RenderingDef.class, id);
 	}
 
 }
