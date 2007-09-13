@@ -70,6 +70,17 @@ public interface IRenderingSettings extends ServiceInterface {
 	Map applySettingsToDataset(@NotNull long from, @NotNull long to);
 	
 	/**
+	 * Applies rendering settings to all images in all <code>Categories</code>.
+	 * 
+	 * @param from The Id of the rendering settings object to copy settings
+	 * from.
+	 * @param to The Id of the categories container to apply settings to.
+	 * @throws ValidationException if the rendering settings <code>from</code> 
+	 * is unlocatable or the project <code>to</code> is unlocatable.
+	 */
+	Map applySettingsToCategory(@NotNull long from, @NotNull long to);
+	
+	/**
 	 * Applies rendering settings to a given <code>Image</code>. 
 	 * 
 	 * @param from The Id of the rendering settings object to copy settings

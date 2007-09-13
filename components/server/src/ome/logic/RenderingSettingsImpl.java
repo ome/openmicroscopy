@@ -95,6 +95,19 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 
 	}
 
+	public Map<Boolean, List<Long>> applySettingsToCategory(long from, long to) {
+
+		String sql = "select i from Image i "
+				+ " left outer join fetch i.categoryLinks cil "
+				+ " left outer join fetch cil.parent c "
+				+ " where c.id = :id";
+		Set<Image> images = new HashSet(iQuery.findAllByQuery(sql,
+				new Parameters().addId(to)));
+
+		System.out.println(images);
+		return applySettings(from, images);
+	}
+	
 	public Map<Boolean, List<Long>> applySettingsToProject(long from, long to) {
 
 		String sql = "select i from Image i "

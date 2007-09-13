@@ -25,6 +25,6 @@ public class RenderingSettingsTest extends AbstractManagedContextTest {
 		rsx.applySettingsToImage(from, to);
 		rsx.applySettingsToProject(from, to);
 		rsx.applySettingsToDataset(from, to);
-
+		rsx.applySettingsToCategory(from, to);
 	}
 }
