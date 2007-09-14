@@ -90,15 +90,15 @@ import ome.util.Utils;
  * while developing services. Misuse could circumvent security or auditing.
  *
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision: 1593 $, $Date: 2007-06-05 15:59:33 +0200 (Tue, 05 Jun 2007) $
+ * @version $Revision:1754 $, $Date:2007-08-20 10:36:07 +0100 (Mon, 20 Aug 2007) $
  * @see SecuritySystem
  * @see Permissions
  * @since 3.0-M3
  */
 @TransactionManagement(TransactionManagementType.BEAN)
 @Transactional
-@RevisionDate("$Date: 2007-06-05 15:59:33 +0200 (Tue, 05 Jun 2007) $")
-@RevisionNumber("$Revision: 1593 $")
+@RevisionDate("$Date:2007-08-20 10:36:07 +0100 (Mon, 20 Aug 2007) $")
+@RevisionNumber("$Revision:1754 $")
 @Stateless
 @Remote(IAdmin.class)
 @RemoteBinding(jndiBinding = "omero/remote/ome.api.IAdmin")
@@ -256,7 +256,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     @RolesAllowed("user")
     public List<Experimenter> lookupExperimenters() {
-        return iQuery.findAll(Experimenter.class, null);
+        return iQuery.findAllByQuery("select e from Experimenter e "+
+        		"left outer join fetch e.groupExperimenterMap m "+
+        		"left outer join fetch m.parent g",null);
     }
 
     @RolesAllowed("user")
@@ -285,7 +287,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     @RolesAllowed("user")
     public List<ExperimenterGroup> lookupGroups() {
-        return iQuery.findAll(ExperimenterGroup.class, null);
+        return iQuery.findAllByQuery("select g from ExperimenterGroup g "+
+        		"left outer join fetch g.groupExperimenterMap m "+
+        		"left outer join fetch m.child",null);
     }
 
     @RolesAllowed("user")
