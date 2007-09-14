@@ -73,7 +73,8 @@ public interface IAdmin extends ServiceInterface {
     String omeName);
 
     /**
-     * Looks up all experimenters that are present.
+     * Looks up all {@link Experimenter experimenters} present
+     *  and all related {@link ExperimenterGroup groups}.
      * 
      * @return all Experimenters. Never null.
      */
@@ -106,7 +107,8 @@ public interface IAdmin extends ServiceInterface {
     String groupName);
 
     /**
-     * Looks up all groups that are present.
+     * Looks up all {@link ExperimenterGroups groups} present
+     *  and all related {@link Experimenter experimenters}.
      * 
      * @return all Groups. Never null.
      */

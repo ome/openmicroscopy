@@ -125,15 +125,13 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         getBeanHelper().throwIfAlreadySet(this.em, extMetadata);
         em = extMetadata;
     }
-    
+
     /** injector for usage by the container. Not for general use */
     public final void setSessionFactory(SessionFactory sessions) {
         getBeanHelper().throwIfAlreadySet(this.sf, sessions);
         sf = sessions;
     }
-    
-    
-    
+
     public Class<? extends ServiceInterface> getServiceInterface() {
         return IAdmin.class;
     }
@@ -257,8 +255,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     @RolesAllowed("user")
     public List<Experimenter> lookupExperimenters() {
         return iQuery.findAllByQuery("select e from Experimenter e "+
-        		"left outer join fetch e.groupExperimenterMap m "+
-        		"left outer join fetch m.parent g",null);
+                        "left outer join fetch e.groupExperimenterMap m "+
+                        "left outer join fetch m.parent g",null);
     }
 
     @RolesAllowed("user")
@@ -288,8 +286,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     @RolesAllowed("user")
     public List<ExperimenterGroup> lookupGroups() {
         return iQuery.findAllByQuery("select g from ExperimenterGroup g "+
-        		"left outer join fetch g.groupExperimenterMap m "+
-        		"left outer join fetch m.child",null);
+                        "left outer join fetch g.groupExperimenterMap m "+
+                        "left outer join fetch m.child",null);
     }
 
     @RolesAllowed("user")
@@ -343,40 +341,45 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     @RolesAllowed("user")
     public void updateSelf(@NotNull Experimenter e) {
-    	EventContext ec = getSecuritySystem().getEventContext();
-    	final Experimenter self = getExperimenter(ec.getCurrentUserId());
-    	self.setFirstName(e.getFirstName());
-    	self.setMiddleName(e.getMiddleName());
-    	self.setLastName(e.getLastName());
-    	self.setEmail(e.getEmail());
-    	self.setInstitution(e.getInstitution());
+        EventContext ec = getSecuritySystem().getEventContext();
+        final Experimenter self = getExperimenter(ec.getCurrentUserId());
+        self.setFirstName(e.getFirstName());
+        self.setMiddleName(e.getMiddleName());
+        self.setLastName(e.getLastName());
+        self.setEmail(e.getEmail());
+        self.setInstitution(e.getInstitution());
         getSecuritySystem().runAsAdmin(new AdminAction(){
             public void runAsAdmin() {
                 iUpdate.flush();
             }
         });
+        getBeanHelper().getLogger().info("Updated own user info: "+self.getOmeName());
     }
-    
+
     @RolesAllowed("system")
     public void updateExperimenter(@NotNull
     Experimenter experimenter) {
         iUpdate.saveObject(experimenter);
+        getBeanHelper().getLogger().info("Updated user info for "+experimenter.getOmeName());
     }
 
     @RolesAllowed("system")
     public void updateGroup(@NotNull
     ExperimenterGroup group) {
         iUpdate.saveObject(group);
+        getBeanHelper().getLogger().info("Updated group info for "+group);
     }
 
     @RolesAllowed("system")
     public long createUser(Experimenter newUser, String defaultGroup) {
+        // logged via createExperimenter
         return createExperimenter(newUser, groupProxy(defaultGroup),
                 groupProxy("user"));
     }
 
     @RolesAllowed("system")
     public long createSystemUser(Experimenter newSystemUser) {
+        // logged via createExperimenter
         return createExperimenter(newSystemUser, groupProxy("system"),
                 groupProxy("user"));
     }
@@ -428,6 +431,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         }
 
         changeUserPassword(e.getOmeName(), " ");
+
+        getBeanHelper().getLogger().info("Created user with blank password: " + e.getOmeName());
         return e.getId();
     }
 
@@ -440,6 +445,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
                         return iUpdate.saveAndReturnObject(obj);
                     }
                 });
+
+        getBeanHelper().getLogger().info("Created group: "+g.getName());
         return g.getId();
     }
 
@@ -452,6 +459,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
             return;
         }
 
+        List<String> added = new ArrayList<String>();
+
         Experimenter foundUser = userProxy(user.getId());
         for (ExperimenterGroup group : groups) {
             ExperimenterGroup foundGroup = groupProxy(group.getId());
@@ -463,8 +472,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
                     return iUpdate.saveAndReturnObject(obj);
                 }
             });
+            added.add(foundGroup.getName());
         }
         iUpdate.flush();
+
+        getBeanHelper().getLogger().info(String.format("Added user %s to groups %s",
+                          foundUser.getOmeName(), added));
     }
 
     @RolesAllowed("system")
@@ -478,6 +491,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
         Experimenter foundUser = getExperimenter(user.getId());
         List<Long> toRemove = new ArrayList<Long>();
+        List<String> removed = new ArrayList<String>();
 
         for (ExperimenterGroup g : groups) {
             if (g.getId() != null) {
@@ -498,9 +512,13 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
                         return null;
                     }
                 });
+                removed.add(p.getName());
             }
         }
         iUpdate.flush();
+
+        getBeanHelper().getLogger().info(String.format("Removed user %s from groups %s",
+                        foundUser.getOmeName(), removed));
     }
 
     @RolesAllowed("user")
@@ -516,19 +534,20 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
             throw new ApiUsageException("Group argument to setDefaultGroup "
                     + "must be managed (i.e. have an id)");
         }
-        
+
         EventContext ec = getSecuritySystem().getEventContext();
         if (!ec.isCurrentUserAdmin() && !ec.getCurrentUserId().equals(user.getId())) {
-        	throw new SecurityViolation("User "+user.getId()+" can only set own default group.");
+                throw new SecurityViolation("User "+user.getId()+" can only set own default group.");
         }
 
         Roles roles = getSecuritySystem().getSecurityRoles();
         if (Long.valueOf(roles.getUserGroupId()).equals(group.getId())) {
-        	throw new ApiUsageException("Cannot set default group to: "+roles.getUserGroupName());
+               throw new ApiUsageException("Cannot set default group to: "+roles.getUserGroupName());
         }
-        
+
         boolean newDefaultSet = false;
         Experimenter foundUser = getExperimenter(user.getId());
+        ExperimenterGroup foundGroup = getGroup(group.getId());
         for (GroupExperimenterMap map : (List<GroupExperimenterMap>) foundUser
                 .collectGroupExperimenterMap(null)) {
             if (map.parent().getId().equals(group.getId())) {
@@ -537,7 +556,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
             } else {
                 map.setDefaultGroupLink(Boolean.FALSE);
             }
-            // TODO: May want to move this outside the loop 
+            // TODO: May want to move this outside the loop
             // and after the !newDefaultSet check.
             getSecuritySystem().doAction(map, new SecureAction() {
                 public <T extends IObject> T updateObject(T obj) {
@@ -554,7 +573,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         }
 
         iUpdate.flush();
-        
+
+        getBeanHelper().getLogger().info(String.format("Changing default group for %s to %s",
+               foundUser.getOmeName(), foundGroup.getName()));
+
     }
 
     @RolesAllowed("system")
@@ -581,6 +603,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         ExperimenterGroup foundGroup = groupProxy(group.getId());
         foundGroup.getDetails().setOwner(foundUser);
         iUpdate.flush();
+
+        getBeanHelper().getLogger().info(String.format("Changing owner for group %s to %s",
+                foundGroup.getName(), foundUser.getOmeName()));
     }
 
     @RolesAllowed("user")
@@ -612,6 +637,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         }
 
         iUpdate.deleteObject(e);
+        getBeanHelper().getLogger().info("Deleted user: " + e.getOmeName());
     }
 
     // ~ chown / chgrp / chmod
@@ -805,16 +831,20 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     @RolesAllowed("user")
     public void changePassword(String newPassword) {
-        PasswordUtil.changeUserPasswordById(jdbc, getSecuritySystem().getEventContext()
-                .getCurrentUserId(), newPassword);
-        synchronizeLoginCache();
+        long id = getSecuritySystem().getEventContext().getCurrentUserId();
+        changePasswordById(id, newPassword);
     }
 
     @RolesAllowed("system")
     public void changeUserPassword(String omeName, String newPassword) {
         Experimenter e = lookupExperimenter(omeName);
-        PasswordUtil.changeUserPasswordById(jdbc, e.getId(), newPassword);
+        changePasswordById(e.getId(), newPassword);
+    }
+
+    private void changePasswordById(long id, String newPassword) {
+        PasswordUtil.changeUserPasswordById(jdbc, id, newPassword);
         synchronizeLoginCache();
+        getBeanHelper().getLogger().info("Changed password for user: " + id);
     }
 
     /**
