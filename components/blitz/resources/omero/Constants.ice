@@ -41,11 +41,11 @@ module omero {
     const string REPOSITORYINFO   = "omero.api.IRepositoryInfo";
 
     // User context for logging in
-    const string USERNAME = "OMERO.user";
-    const string PASSWORD = "OMERO.pass";
-    const string GROUP    = "OMERO.group";
-    const string EVENT    = "OMERO.event";
-    const string UMASK    = "OMERO.umask"; 
+    const string USERNAME = "omero.user";
+    const string PASSWORD = "omero.pass";
+    const string GROUP    = "omero.group";
+    const string EVENT    = "omero.event";
+    const string UMASK    = "omero.umask"; 
 
     /*
      * Strings used by the Java class ome.util.builders.PojoOptions

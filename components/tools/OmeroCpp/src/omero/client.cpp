@@ -35,8 +35,8 @@ namespace omero {
   
   void client::createSession() {
     
-    string username = getProperty("OMERO.username");
-    string password = getProperty("OMERO.password");
+    string username = getProperty(omero::constants::USERNAME);
+    string password = getProperty(omero::constants::PASSWORD);
 
     Ice::RouterPrx prx = ic->getDefaultRouter();
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(prx);

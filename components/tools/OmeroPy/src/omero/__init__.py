@@ -14,6 +14,7 @@ import api
 import model
 import util
 from omero_ext import pysys
+import omero_Constants_ice
 
 class client(object):
 
@@ -48,8 +49,8 @@ class client(object):
         return self.getProperties().getProperty(key)
 
     def createSession(self):
-        username = self.getProperty("OMERO.username")
-        password = self.getProperty("OMERO.password")
+        username = self.getProperty(constants.USERNAME)
+        password = self.getProperty(constants.PASSWORD)
 
         prx = self.ic.getDefaultRouter()
         router = Glacier2.RouterPrx.checkedCast(prx)
@@ -60,6 +61,9 @@ class client(object):
         if not self.sf:
             raise ClientError("No session obtained.")
         return self.sf
+
+    def closeSession(self):
+        self.sf.close() 
 
 import util.FactoryMap
 class ObjectFactory(Ice.ObjectFactory):
