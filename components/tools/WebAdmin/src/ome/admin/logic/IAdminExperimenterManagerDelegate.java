@@ -26,6 +26,7 @@ import ome.admin.data.ConnectionDB;
 import ome.admin.model.User;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.GroupExperimenterMap;
 
 /**
  * Delegate of experimenter mangement.
@@ -267,12 +268,21 @@ public class IAdminExperimenterManagerDelegate implements java.io.Serializable {
 		List<Experimenter> exps = db.lookupExperimenters();
 		List<User> mexps = new ArrayList<User>();
 		for (Experimenter exp : exps) {
+			
+			
 			User mexp = new User();
 			mexp.setExperimenter(exp);
 			// mexp.setDefaultGroup(db.getDefaultGroup(exp.getId()).getId().toString());
 			// mexp.setSelectedGroups(db.containedGroupsListString(exp.getId()));
-			mexp.setAdminRole(db.isAdmin(exp.getId()));
-			mexp.setUserRole(db.isUser(exp.getId()));
+			//mexp.setAdminRole(db.isAdmin(exp.getId()));
+			//mexp.setUserRole(db.isUser(exp.getId()));
+			Iterator i = exp.iterateGroupExperimenterMap();
+			while (i.hasNext()) {
+				GroupExperimenterMap g = (GroupExperimenterMap) i.next();
+				ExperimenterGroup expg = (ExperimenterGroup) g.getParent();
+				if(expg.getName().equals("system")) mexp.setAdminRole(true);
+				if(expg.getName().equals("user")) mexp.setUserRole(true);
+			}
 			mexps.add(mexp);
 		}
 		this.experimenters = mexps;
