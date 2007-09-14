@@ -49,6 +49,12 @@
 
 	<target name="install" depends="lifecycle.install,standalone">
 		<useServices dir="${target.dir}/standalone"/>
+		<copy todir="${target.dir}/standalone">
+			<fileset dir="${resrc.dir}">
+				<include name="blitz"/>
+				<include name="blitz.tac"/>
+			</fileset>
+		</copy>
 	</target>
 
     <!-- = = = = = = = = = = = = = = = = =
