@@ -8,7 +8,9 @@ package ome.client.itests;
 
 import org.testng.annotations.*;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -30,6 +32,8 @@ import ome.model.enums.Format;
 import ome.model.meta.Experimenter;
 import ome.system.Login;
 import ome.system.ServiceFactory;
+import ome.util.Filter;
+import ome.util.Filterable;
 import ome.util.builders.PojoOptions;
 
 @Test(groups = { "client", "integration" })
@@ -215,6 +219,36 @@ public class TicketsUpTo1000Test extends TestCase {
         test = services.getAdminService().lookupExperimenter(name);
         assertEquals(email, test.getEmail());
         return name;
+    }
+    
+    // =========================================================================
+
+    @Test(groups = "ticket:778")
+    public void test_ProjAnnCollectionError() throws Exception {
+        Project p = new Project();
+        p.setName("ticket:778");
+        p = sf.getPojosService().createDataObject(p, new PojoOptions().map());
+
+        Project fromServer = sf.getQueryService().get(Project.class, p.getId());
+        fromServer.setDescription("desc updated");
+        fromServer.acceptFilter(new Filter() {
+			public Filterable filter(String fieldId, Filterable f) {
+				return f;
+			}
+			public Collection filter(String fieldId, Collection c) {
+				return null;
+			}
+			public Map filter(String fieldId, Map m) {
+				return m;
+			}
+			public Object filter(String fieldId, Object o) {
+				return o;
+			}
+        });
+        
+        sf.getPojosService().updateDataObject(fromServer, 
+                new PojoOptions().map());
+       
     }
 
     // ~ Helpers
