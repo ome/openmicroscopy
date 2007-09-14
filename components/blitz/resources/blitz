@@ -66,6 +66,8 @@ twistd_y() {
 }
 
 trap "echo Continuing..." SIGINT
+
+cd $BLITZDIR
 while [ $# -gt 0 ]; do
    command=$1
    shift
@@ -92,22 +94,21 @@ while [ $# -gt 0 ]; do
        ;;
      status)
            echo -n "OMERO.blitz: "
-	   cat<<EOF|python 2>&1 >/dev/null
-import sys, Ice, Glacier2
-ic = Ice.initialize([])
-base = ic.stringToProxy("Manager:tcp -h 127.0.0.1 -p 9999")
-try:
-	mgr = Glacier2.SessionManagerPrx.checkedCast(base)
-	if not mgr:
-		sys.exit(1)
-except Ice.ConnectionRefusedException, msg:
-	sys.exit(2)
+	   java -jar blitz.jar -s 
+           rv=$?
 
-EOF
            if [ ! -e $PID_FILE ]; then
-               my_failure "stopped"
+               if [ $rv -eq 0 ]; then
+                    my_failure "pid missing but running"
+                else
+                    my_failure "stopped"
+               fi
            elif (ps `cat $PID_FILE` | grep twistd 2>/dev/null 1>/dev/null); then
-               my_success "running" 
+                if [ $rv -eq 0 ]; then
+                    my_success "running" 
+                else
+                    my_failure "pid found but no connection"
+                fi
            else
                my_failure "process died"
            fi

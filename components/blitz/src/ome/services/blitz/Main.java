@@ -200,12 +200,23 @@ public class Main implements Runnable {
     /**
      * Entry point to the server. The first argument on the command line
      * will be used as the name for the {@link OmeroContext} via
-     * {@link Main#Main(String)}. 
+     * {@link Main#Main(String)}. Other options include:
+     * 
+     *    -s Check status (all args passed to {@link Ice.Util.initialize(String[])}
+     *    
      */
     public static void main(final String[] args) {
     	Main main;
         if (args != null && args.length > 0) {
-    		main = new Main(args[0]);
+        	if ("-s".equals(args[0])) {
+        		try {
+        			new Status(args).run();
+        		} catch (Throwable t) {
+        			System.exit(1);
+        		}
+        		System.exit(0);
+        	} 
+        	main = new Main(args[0]);
     	} else {
     		main = new Main();
     	}
