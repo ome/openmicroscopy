@@ -5,6 +5,7 @@
  */
 package ome.icy.fixtures;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import ome.api.local.LocalAdmin;
@@ -34,8 +35,24 @@ public class BlitzServerFixture extends MockObjectTestCase {
 
 	private static final Map<String, Object> STUBS = StubBeanPostProcessor.stubs;
 
-	public Mock adminMock, secSysMock, reMock, msMock;
-
+	private static final Map<String, Mock> MOCKS = new HashMap<String, Mock>();
+	
+	public void addMock(String name, Class iface) {
+		MOCKS.put(name, mock(iface));
+		STUBS.put(name, MOCKS.get(name).proxy());
+	}
+	
+	public Mock getMock(String name) {
+		return MOCKS.get(name);
+	}
+	
+	public Object getStub(String name) {
+		return STUBS.get(name);
+	}
+	
+	// Name used to look up the test context.
+	static String DEFAULT = "OMERO.blitz.test"; 
+	String name;
 	Thread t;
 	Main m;
 	Router r;
@@ -43,19 +60,15 @@ public class BlitzServerFixture extends MockObjectTestCase {
 
 	int sessionTimeout = 30, serviceTimeout = 10;
 
-	{
-		adminMock = mock(LocalAdmin.class);
-		secSysMock = mock(SecuritySystem.class);
-		reMock = mock(RenderingEngine.class);
-		msMock = mock(MethodSecurity.class);
-
-		// Stubs will be replaced by the bean post processor
-		STUBS.put("internal:ome.api.IAdmin", adminMock.proxy());
-		STUBS.put("securitySystem", secSysMock.proxy());
-		STUBS.put("managed:omeis.providers.re.RenderingEngine", reMock.proxy());
-		STUBS.put("methodSecurity", msMock.proxy());
-	}
-
+	// Keys for the mocks that are known to be needed
+	String adm = "internal:ome.api.IAdmin", ss = "securitySystem",
+	re = "managed:omeis.providers.re.RenderingEngine", 
+	ms = "methodSecurity";
+	public Mock getAdmin() { return MOCKS.get(adm); }
+	public Mock getSecSystem() { return MOCKS.get(ss); }
+	public Mock getRndEngine() { return MOCKS.get(re); }
+	public Mock getMethodSecurity() { return MOCKS.get(ms); }
+	
 	public void setSessionTimeout(int st) {
 		sessionTimeout = st;
 	}
@@ -64,11 +77,21 @@ public class BlitzServerFixture extends MockObjectTestCase {
 		serviceTimeout = st;
 	}
 
+	public BlitzServerFixture() { this(DEFAULT);}
+	public BlitzServerFixture(String contextName) { 
+		this.name = contextName; 
+		// Stubs will be replaced by the bean post processor
+		addMock(adm, LocalAdmin.class);
+		addMock(ss, SecuritySystem.class);
+		addMock(re, RenderingEngine.class);
+		addMock(ms, MethodSecurity.class);
+	}
+	
 	public void startServer() {
 		// Set property before the OmeroContext is created
 		System.setProperty("omero.blitz.cache.timeToIdle", "" + serviceTimeout);
 
-		m = new Main("OMERO.blitz.test");
+		m = new Main(name);
 		t = new Thread(m);
 		r = new Router();
 		r.setTimeout(sessionTimeout);
@@ -85,9 +108,9 @@ public class BlitzServerFixture extends MockObjectTestCase {
 	}
 
 	public void prepareLogin() {
-		adminMock.expects(once()).method("checkPassword").will(
+		getMock(adm).expects(once()).method("checkPassword").will(
 				returnValue(true));
-		secSysMock.expects(once()).method("getSecurityRoles").will(
+		getMock(ss).expects(once()).method("getSecurityRoles").will(
 				returnValue(new Roles()));
 	}
 
@@ -100,11 +123,11 @@ public class BlitzServerFixture extends MockObjectTestCase {
 	}
 
 	public void methodCall() throws Exception {
-		msMock.expects(once()).method("isActive").will(returnValue(true));
-		msMock.expects(once()).method("checkMethod");
-		secSysMock.expects(once()).method("login");
-		secSysMock.expects(once()).method("logout");
-		reMock.expects(once()).method("close");
+		getMock(ms).expects(once()).method("isActive").will(returnValue(true));
+		getMock(ms).expects(once()).method("checkMethod");
+		getMock(ss).expects(once()).method("login");
+		getMock(ss).expects(once()).method("logout");
+		getMock(re).expects(once()).method("close");
 	}
 	
 	public void destroySession() throws Exception {
@@ -116,7 +139,7 @@ public class BlitzServerFixture extends MockObjectTestCase {
 			super.tearDown();
 		} finally {
 			Ice.Communicator ic = (Ice.Communicator) OmeroContext.getInstance(
-				"OMERO.blitz.test").getBean("Ice.Communicator");
+				name).getBean("Ice.Communicator");
 			m.stop();
 		}
 	}

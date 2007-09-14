@@ -39,7 +39,7 @@ public class ApiArrayHandlingTest extends MockObjectTestCase {
     	fixture.methodCall();
 
     	
-    	fixture.adminMock.expects(once()).method("containedExperimenters")
+    	fixture.getAdmin().expects(once()).method("containedExperimenters")
     		.will(returnValue(new ome.model.meta.Experimenter[]{
     				new ome.model.meta.Experimenter(1l,false),
     				new ome.model.meta.Experimenter(2l,false),

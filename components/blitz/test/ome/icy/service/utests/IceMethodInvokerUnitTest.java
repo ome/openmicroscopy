@@ -30,6 +30,7 @@ import ome.model.containers.Dataset;
 import ome.model.enums.Family;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.QueryParameter;
+import ome.services.blitz.util.ConvertToBlitzExceptionMessage;
 import ome.services.blitz.util.IceMethodInvoker;
 import ome.services.blitz.util.ServantHelper;
 import ome.system.EventContext;
@@ -38,6 +39,7 @@ import ome.system.Roles;
 import ome.util.builders.PojoOptions;
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.RenderingEngine;
+import omero.ApiUsageException;
 import omero.JArray;
 import omero.JBool;
 import omero.JList;
@@ -61,8 +63,20 @@ import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.builder.ArgumentsMatchBuilder;
 import org.jmock.core.Constraint;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
+
+class ListenerAddableOmeroContext extends OmeroContext {
+	ListenerAddableOmeroContext(String file) {
+		super(file);
+	}
+	@Override
+	public void addListener(ApplicationListener listener) {
+		super.addListener(listener);
+	}
+}
 
 @Test
 public class IceMethodInvokerUnitTest extends MockObjectTestCase {
@@ -72,19 +86,18 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 	Destroyable tb;
 	IceMapper mapper;
 	Ice.Current current;
-	OmeroContext ctx;
+	ListenerAddableOmeroContext ctx;
 
 	@Override
 	@Configuration(beforeTestMethod = true)
 	protected void setUp() throws Exception {
 		tb = new Destroyable();
-		invoker = new IceMethodInvoker(ThumbnailStore.class, 
-				new OmeroContext("classpath:ome/testing/empty.xml"));
+		ctx = new ListenerAddableOmeroContext("classpath:ome/testing/empty.xml");
+		invoker = new IceMethodInvoker(ThumbnailStore.class, ctx); 
 		mapper = new IceMapper();
 		current = new Ice.Current();
 		current.operation = "close";
 		current.id = Ice.Util.stringToIdentity("test");
-        ctx = new OmeroContext("classpath:ome/testing/empty.xml");
 	}
 
 	@Test
@@ -711,6 +724,39 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
     // input values:
     // long, int, double, Long, Integer, String, RString,
     // arrags
+    
+    // ~ Exceptions
+    // =========================================================================
+
+    public void testExceptionsDirect() throws Exception {
+    	omero.ServerError se = new omero.ServerError();
+    	Throwable t = invoker.handleException(se);
+    	assertEquals(t,se);
+    	
+    	t = invoker.handleException(new java.lang.IllegalThreadStateException());
+    	assertTrue(t instanceof omero.InternalException);
+    }
+
+    public void testExceptionsWithHandler() throws Exception {
+    	// addApplicationListener currently does not work
+    	// instead we've subclassed OmeroContext to make
+    	// addListener public
+    	ctx.addListener(new ApplicationListener(){
+    		public void onApplicationEvent(ApplicationEvent arg0) {
+    			int i = 0; i++;
+    			if (arg0 instanceof ConvertToBlitzExceptionMessage) {
+        			ConvertToBlitzExceptionMessage msg = 
+        				(ConvertToBlitzExceptionMessage) arg0;
+    				if (msg.from instanceof NullPointerException) {
+        				msg.to = new omero.ApiUsageException();
+        			}    				
+    			}
+    		}
+    	});
+    	
+    	Throwable t = invoker.handleException(new NullPointerException());
+    	assertTrue(t instanceof omero.ApiUsageException);
+    }
 
     // ~ Helpers
     // =========================================================================

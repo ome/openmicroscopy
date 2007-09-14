@@ -22,11 +22,11 @@ public class ServantHelper {
      * otherwise the appropriate exception will not get thrown.
      * 
      * @param obj
-     * @throws ServerError
+     * @throws Ice.UserException
      */
-    public static void throwIfNecessary(Object obj) throws ServerError {
-        if (obj instanceof ServerError) {
-            throw (ServerError) obj;
+    public static void throwIfNecessary(Object obj) throws Ice.UserException {
+        if (obj instanceof Ice.UserException) {
+            throw (Ice.UserException) obj;
         }
     }
 
@@ -42,7 +42,7 @@ public class ServantHelper {
      * @param mapper
      * @return
      */
-    public void checkVoid(Object obj) throws ServerError {
+    public void checkVoid(Object obj) throws Ice.UserException {
         throwIfNecessary(obj);
         if (obj != null) {
             InternalException ie = new InternalException();
@@ -63,7 +63,7 @@ public class ServantHelper {
      * @param mapper
      * @return
      */
-    public <T> T returnValue(Class<T> c, Object obj) throws ServerError {
+    public <T> T returnValue(Class<T> c, Object obj) throws Ice.UserException {
         throwIfNecessary(obj);
         return c.cast(obj);
     }

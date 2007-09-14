@@ -36,12 +36,7 @@ public class ServiceTimeoutTest extends MockObjectTestCase {
     	fixture.setServiceTimeout(2);
     	fixture.setSessionTimeout(200); // this is not what we're testing
 
-    	fixture.msMock.expects(once()).method("isActive").will(returnValue(true));
-    	fixture.msMock.expects(once()).method("checkMethod");
-    	fixture.secSysMock.expects(once()).method("login");
-    	fixture.secSysMock.expects(once()).method("logout");
-    	fixture.reMock.expects(once()).method("close");
-    	
+    	fixture.methodCall();
     	fixture.startServer();
 
     	ServiceFactoryPrx session = fixture.createSession();

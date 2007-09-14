@@ -231,7 +231,7 @@ public class IceMethodInvoker {
         return false;
     }
 
-    protected Object handleInput(IceMapper mapper, Class p, Object arg)
+    public Object handleInput(IceMapper mapper, Class p, Object arg)
     throws ServerError {
         if (arg instanceof RType) {
             RType rt = (RType) arg;
@@ -271,7 +271,7 @@ public class IceMethodInvoker {
         }
     }
 
-    protected Object handleOutput(IceMapper mapper, Class type, Object o) {
+    public Object handleOutput(IceMapper mapper, Class type, Object o) {
         if (void.class.isAssignableFrom(type)) {
             assert o == null;
             return o;
@@ -300,7 +300,7 @@ public class IceMethodInvoker {
         }
     }
 
-    protected Ice.UserException handleException(Throwable t) {
+    public Ice.UserException handleException(Throwable t) {
 
         // Getting rid of the reflection wrapper.
         if (InvocationTargetException.class.isAssignableFrom(t.getClass())) {
@@ -311,8 +311,25 @@ public class IceMethodInvoker {
             log.info("Handling:", t);
         }
 
+        // First we give registered handlers a chance to convert the message,
+        // if that doesn't succeed, then we try either manually, or just 
+        // wrap the exception in an InternalException
+        try {
+        	ConvertToBlitzExceptionMessage ctbem = new ConvertToBlitzExceptionMessage(this, t);
+        	ctx.publishMessage(ctbem);
+        	if (ctbem.to != null) {
+        		t = ctbem.to;
+        	}
+        } catch (Throwable handlerT) {
+        	// Logging the output, but we shouldn't worry the user
+        	// with a failing handler
+        	log.error("Exception handler failure",handlerT);
+        }
+        
         Class c = t.getClass();
-        if (ome.conditions.ValidationException.class.isAssignableFrom(c)) {
+        if (Ice.UserException.class.isAssignableFrom(c)) {
+        	return (Ice.UserException) t;
+        } else if (ome.conditions.ValidationException.class.isAssignableFrom(c)) {
             omero.ValidationException ve = new omero.ValidationException();
             return IceMapper.fillServerError(ve, t);
         } else if (ome.conditions.ApiUsageException.class.isAssignableFrom(c)) {
@@ -329,8 +346,8 @@ public class IceMethodInvoker {
             omero.ResourceError re = new omero.ResourceError();
             return IceMapper.fillServerError(re, t);
         } else {
-            omero.InternalException ie = new omero.InternalException();
-            return IceMapper.fillServerError(ie, t);
+        	omero.InternalException ie = new omero.InternalException();
+        	return IceMapper.fillServerError(ie, t);
         }
     }
 

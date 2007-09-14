@@ -26,12 +26,12 @@ module omero {
 
     interface ILicense
     {
-      Ice::ByteSeq acquireLicense();
+      Ice::ByteSeq acquireLicense() throws NoAvailableLicenseException;
       long getAvailableLicenseCount();
       long getLicenseTimeout();
       long getTotalLicenseCount();
       bool releaseLicense(Ice::ByteSeq token);
-      void resetLicenses();
+      void resetLicenses() throws ServerError;
     };
 
   };
