@@ -25,7 +25,6 @@ import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.io.nio.PixelsService;
-import ome.model.containers.DatasetImageLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
@@ -104,7 +103,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		Set<Image> images = new HashSet(iQuery.findAllByQuery(sql,
 				new Parameters().addId(to)));
 
-		System.out.println(images);
 		return applySettings(from, images);
 	}
 	
