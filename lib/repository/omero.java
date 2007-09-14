@@ -191,12 +191,12 @@ public class omero
         throws Exception
     {
         File[] jars = new File[6];
-	jars[0] = new File(mavenPath("ant","ant","1.6.5"));
-	jars[1] = new File(mavenPath("ant","ant-launcher","1.6.5"));
-	jars[2] = new File(mavenPath("junit","junit","3.8.1"));
-	jars[3] = new File("lib/tools/ant-junit-1.6.5.jar");
-	jars[4] = new File("lib/tools/ant-nodeps-1.6.5.jar");
-	jars[5] = new File("lib/tools/bsh-2.0b4.jar");
+	jars[0] = new File("lib/repository/junit-3.8.1.jar");
+	jars[1] = new File("lib/repository/ant-1.6.5.jar");
+	jars[2] = new File("lib/repository/ant-launcher-1.6.5.jar");
+	jars[3] = new File("lib/repository/ant-junit-1.6.5.jar");
+	jars[4] = new File("lib/repository/ant-nodeps-1.6.5.jar");
+	jars[5] = new File("lib/repository/bsh-2.0b4.jar");
 
         if (!isJDKToolsAvailable()) {  //Try and grab tools.jar.
             if (jdkTools.exists()) {  //Add it to the other jars.
