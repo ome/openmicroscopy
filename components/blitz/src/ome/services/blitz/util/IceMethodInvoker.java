@@ -264,6 +264,8 @@ public class IceMethodInvoker {
             return mapper.reverse((Map) arg);
         } else if (PlaneDef.class.isAssignableFrom(p)) {
             return mapper.convert((omero.romio.PlaneDef) arg);
+        } else if (Filterable[].class.isAssignableFrom(p)) {
+        	return mapper.reverseArray((List) arg, p);
         } else {
             throw new IllegalStateException("Can't handle input " + p);
         }
@@ -291,6 +293,8 @@ public class IceMethodInvoker {
             return mapper.map((Filterable) o);
         } else if (Map.class.isAssignableFrom(type)) {
             return mapper.map((Map) o);
+        } else if (Filterable[].class.isAssignableFrom(type)) {
+        	return mapper.map((Filterable[]) o);
         } else {
             throw new IllegalStateException("Can't handle output " + type);
         }

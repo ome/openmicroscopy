@@ -378,6 +378,21 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         return target;
     }
 
+    
+    public List map(Filterable[] array) {
+    	if (array == null) {
+    		return null;
+    	} else if (array.length == 0) {
+    		return new ArrayList();
+    	} else {
+    		List l = new ArrayList(array.length);
+    		for (int i = 0; i < array.length; i++) {
+				l.add(map((Filterable)array[i]));
+			}
+    		return l;
+    	}
+    }
+    
     // ~ For Reversing (omero->ome). Copied from ReverseModelMapper.
     // =========================================================================
 
@@ -467,6 +482,44 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         return target;
     }
 
+    /**
+     * Supports the separate case of reversing for arrays. See
+     * {@link #reverse(Collection, Class)} and {@link #map(Filterable[])}.
+     * 
+     * @param list
+     * @param type
+     * @return
+     * @throws omero.ServerError
+     */
+    public Filterable[] reverseArray(List list, Class type) throws omero.ServerError {
+    	
+    	if (list == null) { 
+    		return null;
+    	}
+    	
+    	Class component = type.getComponentType();
+    	Filterable[] array = null;
+    	try {
+    		
+    		array = (Filterable[])
+    			Array.newInstance(component, list.size());
+        	for (int i = 0; i < array.length; i++) {
+    			array[i] = (Filterable) reverse((Object)list.get(i));
+    		}
+    	} catch (Exception e) {
+    		String msg = "Cannot create filterable array from type "+type;
+    		if (log.isErrorEnabled()) {
+    			log.error(msg,e);
+    		}
+    		omero.ApiUsageException aue = new omero.ApiUsageException();
+    		aue.message = msg;
+    		aue.serverExceptionClass = e.getClass().getName();
+    		throw aue;
+    	}
+
+    	return array;
+    }
+    
     public Map reverse(Map map) {
         if (map == null) return null;
         Map<Object, Object> target = new HashMap<Object, Object>();

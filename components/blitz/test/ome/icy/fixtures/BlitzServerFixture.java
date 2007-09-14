@@ -99,6 +99,14 @@ public class BlitzServerFixture extends MockObjectTestCase {
 		return session;
 	}
 
+	public void methodCall() throws Exception {
+		msMock.expects(once()).method("isActive").will(returnValue(true));
+		msMock.expects(once()).method("checkMethod");
+		secSysMock.expects(once()).method("login");
+		secSysMock.expects(once()).method("logout");
+		reMock.expects(once()).method("close");
+	}
+	
 	public void destroySession() throws Exception {
 		ice.destroy();
 	}
