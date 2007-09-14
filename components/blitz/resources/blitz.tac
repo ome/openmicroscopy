@@ -12,10 +12,10 @@ kill = 10
 # Environement variables:
 #
 #   Use DEBUG=1 to turn on Java remote debugging
-#
+#   Use JAVA_OPTS="-X..." to configure Java
 ################################################################################
 
-import sys
+import sys, os
 print """
 
 
@@ -44,23 +44,20 @@ from twisted.internet import protocol, reactor, process
 from twisted.runner.procmon import ProcessMonitor, LoggingProtocol
 from twisted.application import service, internet
 
-#
-# Because of the subshell handling of twisted, it's (currently) possible to
-# use a bash login shell, but using a simple "bash -c" causes the wrong paths
-# to be set. As a workaround, we're pre-determining the paths now.
-# 
-import subprocess
-proc = subprocess.Popen(['which','java'],stdout=subprocess.PIPE)
-java = [proc.communicate()[0].rstrip()]
-proc = subprocess.Popen(['which','glacier2router'],stdout=subprocess.PIPE)
-rter = [proc.communicate()[0].rstrip()]
-
-import os
+java = ["java"]
+if os.environ.has_key("JAVA_OPTS"):
+	java += os.environ["JAVA_OPTS"].split()
 if os.environ.has_key("DEBUG"):
 	java += ['-Xrunjdwp:server=y,transport=dt_socket,address=9777,suspend=n']
 
-blitz  = java+['-jar','blitz.jar']
-router = rter+['--Ice.Config=../etc/glacier2.config']
+PATH = os.environ["PATH"]
+blitz  = ['env','PATH='+PATH]+java+['-jar','blitz.jar']
+router = ['env','PATH='+PATH,'glacier2router','--Ice.Config=../etc/glacier2.config']
+
+print """
+  Blitz:  %(blitz)s
+  Router: %(router)s
+""" % {"router":router,"blitz":blitz}
 
 class Builder(object):
 

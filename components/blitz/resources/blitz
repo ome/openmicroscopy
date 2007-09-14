@@ -49,19 +49,13 @@ test -e /lib/lsb/init-functions && {
     }
 }
 
-#TESTINGONLY
-#set -x
-BLITZDIR=.
-BLITZTAC=./blitz.tac
-PID_FILE=./blitz.pid
-LOG_FILE=./blitz.log
-#LOGGER="--syslog"
-
-BLITZDIR=${BLITZDIR:-"/opt/omero"}
+BLITZEXE=`readlink -f $0`
+BLITZDIR=${BLITZDIR:-"`dirname $BLITZEXE`"}
 BLITZTAC=${BLITZTAC:-"$BLITZDIR/blitz.tac"}
-PID_FILE=${PID_FILE:-"/var/run/blitz.pid"}
-LOG_FILE=${LOG_FILE:-"/var/log/blitz.log"}
+PID_FILE=${PID_FILE:-"$BLITZDIR/blitz.pid"}
+LOG_FILE=${LOG_FILE:-"$BLITZDIR/blitz.log"}
 
+# Use LOGGER="--syslog" for system logging
 LOGGER=${LOGGER:-"--logfile $LOG_FILE"}
 
 twistd_y() {
@@ -97,21 +91,35 @@ while [ $# -gt 0 ]; do
        echo
        ;;
      status)
-	   echo "OMERO.blitz:" unknown
+           echo -n "OMERO.blitz: "
+	   cat<<EOF|python 2>&1 >/dev/null
+import sys, Ice, Glacier2
+ic = Ice.initialize([])
+base = ic.stringToProxy("Manager:tcp -h 127.0.0.1 -p 9999")
+try:
+	mgr = Glacier2.SessionManagerPrx.checkedCast(base)
+	if not mgr:
+		sys.exit(1)
+except Ice.ConnectionRefusedException, msg:
+	sys.exit(2)
+
+EOF
+           if [ ! -e $PID_FILE ]; then
+               my_failure "stopped"
+           elif (ps `cat $PID_FILE` | grep twistd 2>/dev/null 1>/dev/null); then
+               my_success "running" 
+           else
+               my_failure "process died"
+           fi
 	;;
      restart)
       	   $0 stop
 	   $0 start
        ;;
-     tail)
-	   tail -f $LOG_FILE
-       ;;
-     grep)
-	   ps aux | grep -E "(blitz|glacier)"
-       ;;
-     console)
-	   $0 start tail stop
-       ;;
+     tail) tail -f $LOG_FILE ;;
+     less) less $LOG_FILE ;;
+     grep) ps auxww | grep -E "(blitz|glacier)" ;;
+     console) $0 start tail stop ;;
      *)
        echo "Usage: $0 {start|stop|status|restart}"
        false
