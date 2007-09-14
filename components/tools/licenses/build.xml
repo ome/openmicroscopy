@@ -86,9 +86,6 @@
     <target name="tools-dist" depends="tools-build,python-install" description="Copied artifacts to tools/target" unless="skip.compile">
         <mkdir dir="${tools.classes}"/>
         <unjar src="${target.dir}/${ivy.module}.jar" dest="${tools.classes}"/>
-        <copy todir="../target/client">
-            <fileset dir="${target.dir}" includes="${ivy.module}.jar"/>
-        </copy>
         <copy todir="../target/include">
             <fileset dir="${resrc.dir}" includes="**/*.ice,**/*.h"/>
             <fileset dir="src/slice_generated" includes="**/*.h"/>
