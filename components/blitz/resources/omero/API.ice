@@ -243,6 +243,7 @@ module omero {
 	idempotent Ice::ByteSeq getRegion(int size, long offset) throws ServerError;
 	idempotent Ice::ByteSeq getRow(int y, int z, int c, int t) throws ServerError;
 	idempotent Ice::ByteSeq getPlane(int z, int c, int t) throws ServerError;
+	idempotent Ice::ByteSeq getPlaneRegion(int z, int c, int t, int size, int offset) throws ServerError;
 	idempotent Ice::ByteSeq getStack(int c, int t) throws ServerError;
 	idempotent Ice::ByteSeq getTimepoint(int t) throws ServerError;
 	idempotent void setRegion(int size, long offset, Ice::ByteSeq buffer) throws ServerError;
@@ -250,6 +251,9 @@ module omero {
 	idempotent void setPlane(Ice::ByteSeq buf, int z, int c, int t) throws ServerError;
 	idempotent void setStack(Ice::ByteSeq buf, int z, int c, int t) throws ServerError;
 	idempotent void setTimepoint(Ice::ByteSeq buf, int t) throws ServerError;
+	idempotent int getByteWidth() throws ServerError;
+	idempotent bool isSigned() throws ServerError;
+	idempotent bool isFloat() throws ServerError;
 	idempotent Ice::ByteSeq calculateMessageDigest() throws ServerError;
       };
 
