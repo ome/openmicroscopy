@@ -24,6 +24,18 @@ from xml import sax
 import os
 from stat import *
 
+"""
+# Load schemas from configured directory 
+import cherrypy
+# LocalDir for schemas
+SCHEMA_DIR = cherrypy.config.get("validator.schema", os.path.join(os.getcwd(),"schema"))
+def schemaFilePath(inFilename):
+	return os.path.join(os.getcwd(), SCHEMA_DIR, inFilename)
+"""
+# Load schemas from current directory 
+def schemaFilePath(inFilename):
+	return inFilename
+
 # Try to load Image for XML Schema Vlaidation Support
 haveTiffSupport = True
 try:
@@ -161,7 +173,6 @@ class XmlReport(object):
 		# build the blank dom
 		self.theDom = None
 	
-	
 	def __str__(self):
 		'''
 		Convert the report to a string
@@ -211,6 +222,9 @@ class XmlReport(object):
 		# check the xml is valid aginst it's schema
 		self.validateAgainstSchema()
 		
+		if len(self.unresolvedList) is not 0 :
+			self.hasUnresolvableIds = True
+		
 		if self.isXsdValid is True and len(self.errorList) is 0 :
 			self.isOmeXml = True
 	
@@ -256,7 +270,7 @@ class XmlReport(object):
 		
 		# loading the OME schema to validate against
 		try:
-			schema = etree.XMLSchema(etree.parse(theSchemaFile))
+			schema = etree.XMLSchema(etree.parse(schemaFilePath(theSchemaFile)))
 		except:
 			#chosen scema failed to laod
 			self.errorList.append(ParseMessage(None, None, None, "XSD", None, "Validator Internal error: XSD schema file could not be found"))
@@ -276,6 +290,7 @@ class XmlReport(object):
 		# the xml in turn
 		try:
 			sax.parse(inFile, handlerContent, handlerError)
+			self.hasCustomAttributes = handlerContent.hasCustomAttributes;
 		except 	sax.SAXParseException:
 			self.errorList.append(ParseMessage(None, None, None, "XmlError",None, "Parsing of XML failed"))
 		self.errorList.extend(handlerError.errorList)
@@ -374,12 +389,11 @@ class XmlReport(object):
 					theTiffReport.isOmeTiff = True
 					# create a file object to represent the xml string
 					theFileString = StringIO(theXml)
-					# print theXml
-					
 					# parse the new string/file object into the report and validate it 
 					theTiffReport.parse(theFileString)
 					theTiffReport.validateTiffImageData(image)
 					"""
+					# print theXml
 					print "Tiff Frames    : %s" % theTiffReport.tiffFileFrames	
 					print "Ome Frames     : %s" % theTiffReport.omeTiffDataCount	
 					print "Ome Pixels     : %s" % theTiffReport.omePixelsCount	
@@ -485,6 +499,7 @@ class ElementAggregator(sax.ContentHandler):
 		self.ome5dPlaneCount = 0
 		self.omeTiffDataPlaneCount = 0
 		self.theAllFrameCount = 0
+		self.hasCustomAttributes = False
 		
 		# Setup the DOM chunk
 		impl = getDOMImplementation()
@@ -510,6 +525,10 @@ class ElementAggregator(sax.ContentHandler):
 					self.theNamespace = attribs.getValue("xmlns")
 				except KeyError:
 					self.theNamespace = ""
+			
+		# save the ID in any elements encountered
+		if name[-16:] == "CustomAttributes":
+			self.hasCustomAttributes = True
 			
 		# save the ID in any elements encountered
 		if name[-3:] == "Ref":
@@ -569,7 +588,7 @@ class ElementAggregator(sax.ContentHandler):
 		
 		if name[-8:] == "TiffData":
 			self.omeTiffDataCount = self.omeTiffDataCount + 1
-			# omeTiffDataPlaneCount
+			# record the number of planes used by the TiffData block
 			if "NumPlanes" in attribs:
 				# use the number of planes specified
 				self.omeTiffDataPlaneCount = self.omeTiffDataPlaneCount + int(attribs.getValue("NumPlanes"))
@@ -684,12 +703,12 @@ class NamespaceSearcher(sax.ContentHandler):
 ### Test code below this line ###
 
 if __name__ == '__main__':
-	"""	for aFilename in ["samples/completesamplenopre.xml","samples/completesample.xml","samples/completesamplenoenc.xml",
+	for aFilename in ["samples/completesamplenopre.xml","samples/completesample.xml","samples/completesamplenoenc.xml",
 			"samples/sdub.ome", "samples/sdub-fix.ome", "samples/sdub-fix-pre.ome", 
 			"samples/tiny.ome", "samples/broke.ome"]:
 			print "============ XML file %s ============ " % aFilename
 			print XmlReport.validateFile(aFilename)
-	"""
+	
 	
 	for aFilename in ["samples/4d2wOME.tif", "samples/4d2wOME-fixed.tif",
 	 	"samples/4d2wOME-fixed-updated.tif", "samples/blank.tif",

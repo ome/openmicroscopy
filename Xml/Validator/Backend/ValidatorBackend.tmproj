@@ -16,7 +16,7 @@
 			<key>filename</key>
 			<string>OmeValidator.py</string>
 			<key>lastUsed</key>
-			<date>2007-09-12T10:04:09Z</date>
+			<date>2007-09-13T09:19:26Z</date>
 			<key>selected</key>
 			<true/>
 		</dict>
@@ -52,14 +52,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>2</integer>
+				<integer>21</integer>
 				<key>line</key>
-				<integer>202</integer>
+				<integer>35</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>140</integer>
+			<integer>0</integer>
 		</dict>
 		<key>samples/completesamplenoenc.xml</key>
 		<dict>
@@ -141,6 +141,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{402, 269}, {954, 778}}</string>
+	<string>{{162, 48}, {1189, 830}}</string>
 </dict>
 </plist>
