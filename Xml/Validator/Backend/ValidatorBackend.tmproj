@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>RunAndCheck.py</string>
+	<string>OmeValidator.py</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -16,19 +16,21 @@
 			<key>filename</key>
 			<string>RunAndCheck.py</string>
 			<key>lastUsed</key>
-			<date>2007-09-18T09:26:59Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2007-09-19T09:21:35Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>OmeValidator.py</string>
 			<key>lastUsed</key>
-			<date>2007-09-18T09:26:59Z</date>
+			<date>2007-09-19T09:23:40Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>ome-fc-tiff.xsd</string>
+			<key>lastUsed</key>
+			<date>2007-09-19T09:23:40Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -58,9 +60,9 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>8</integer>
+				<integer>2</integer>
 				<key>line</key>
-				<integer>241</integer>
+				<integer>239</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -94,6 +96,20 @@
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>19</integer>
+		</dict>
+		<key>ome-fc-tiff.xsd</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>16</integer>
+				<key>line</key>
+				<integer>9</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
 		</dict>
 		<key>samples/completesamplenoenc.xml</key>
 		<dict>
@@ -173,6 +189,7 @@
 		<string>mateTiff.py</string>
 		<string>OmeValidator.py</string>
 		<string>RunAndCheck.py</string>
+		<string>ome-fc-tiff.xsd</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
