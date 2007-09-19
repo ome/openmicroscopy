@@ -3,14 +3,16 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>OmeValidator.py</string>
+	<string>mateTiff.py</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
 			<string>mateTiff.py</string>
 			<key>lastUsed</key>
-			<date>2007-09-17T09:26:23Z</date>
+			<date>2007-09-19T13:54:42Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -22,9 +24,7 @@
 			<key>filename</key>
 			<string>OmeValidator.py</string>
 			<key>lastUsed</key>
-			<date>2007-09-19T09:23:40Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2007-09-19T13:54:42Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -60,14 +60,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>2</integer>
+				<integer>40</integer>
 				<key>line</key>
-				<integer>239</integer>
+				<integer>224</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>206</integer>
+			<integer>103</integer>
 		</dict>
 		<key>RunAndCheck.py</key>
 		<dict>
@@ -88,14 +88,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>20</integer>
 				<key>line</key>
-				<integer>24</integer>
+				<integer>44</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>19</integer>
+			<integer>38</integer>
 		</dict>
 		<key>ome-fc-tiff.xsd</key>
 		<dict>

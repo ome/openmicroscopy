@@ -7,7 +7,7 @@ Created by Andrew Patterson on 2007-09-14.
 Copyright (c) 2007 OME Group. All rights reserved.
 """
 
-import sys
+import sys, os, tempfile
 import getopt
 import Image
 
@@ -24,6 +24,7 @@ class Usage(Exception):
 
 
 def main(argv=None):
+	print "At present this destroys multi plane TIFF files - kill process to stop changes being applied"
 	if argv is None:
 		argv = sys.argv
 	try:
@@ -57,16 +58,50 @@ def main(argv=None):
 				else:
 				    # read the xml from the tiff
 					theXml = image.tag[270]
-					print "Processing file : %s\n" % aFilename
-					print theXml
-					print ""
+					# print "Processing file : %s\n" % aFilename
+					# print theXml
+					# print ""
+					theNewXml = edited_text(theXml)
+					image.tag[270] = theNewXml
+					print "At present this destroys multi plane TIFF files - are you sure you want to save? y/n"
+					confirm = sys.stdin.readline()[:-1]
+					print 'confirm = \'%s\'' %(confirm)
+					if confirm in ['y', 'Y', 'Yes', 'YES', 'yes']:
+						print "Saving..."
+						image.save(aFilename)
+						print "done"
+					else:
+						print "Skipped"
 		
 		
 	except Usage, err:
 		print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
 		print >> sys.stderr, "\t for help use --help"
 		return 2
+	
+	''' From Python Cookbook [#10.6]'''
+	''' Edited as original version would not work for an editor that had an argument e.g. "mate -w" '''
+def what_editor():
+	editor = os.getenv('VISUAL') or os.getenv('EDITOR')
+	if not editor:
+		if sys.playform == 'windows':
+			editor = 'Notepad.Exe'
+		else:
+			editor = 'vi'
+	return editor
 
-
+def edited_text(starting_text=''):
+	temp_fd, temp_filename = tempfile.mkstemp(text=True)
+	os.write(temp_fd, starting_text)
+	os.close(temp_fd)
+	#editor = what_editor()
+	#x = os.spawnlp(os.P_WAIT, editor, editor, temp_filename)
+	x = os.spawnlp(os.P_WAIT, "mate", "mate", "-w", temp_filename)
+	if x:
+		raise RuntimeError, "Can't run %s %s (%s)" % (editor, temp_filename,x)
+	result = open(temp_filename).read()
+	os.unlink(temp_filename)
+	return result
+	
 if __name__ == "__main__":
 	sys.exit(main())
