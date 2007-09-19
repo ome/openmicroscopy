@@ -3,22 +3,28 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>OmeValidator.py</string>
+	<string>RunAndCheck.py</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
+			<string>mateTiff.py</string>
+			<key>lastUsed</key>
+			<date>2007-09-17T09:26:23Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
 			<string>RunAndCheck.py</string>
 			<key>lastUsed</key>
-			<date>2007-09-06T11:24:18Z</date>
+			<date>2007-09-18T09:26:59Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>OmeValidator.py</string>
 			<key>lastUsed</key>
-			<date>2007-09-13T09:19:26Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2007-09-18T09:26:59Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -52,14 +58,42 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>21</integer>
+				<integer>8</integer>
 				<key>line</key>
-				<integer>35</integer>
+				<integer>241</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>206</integer>
+		</dict>
+		<key>RunAndCheck.py</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>1</integer>
+				<key>line</key>
+				<integer>29</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
+		</dict>
+		<key>mateTiff.py</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>24</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>19</integer>
 		</dict>
 		<key>samples/completesamplenoenc.xml</key>
 		<dict>
@@ -136,11 +170,13 @@
 	</dict>
 	<key>openDocuments</key>
 	<array>
+		<string>mateTiff.py</string>
 		<string>OmeValidator.py</string>
+		<string>RunAndCheck.py</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{162, 48}, {1189, 830}}</string>
+	<string>{{580, 61}, {788, 840}}</string>
 </dict>
 </plist>

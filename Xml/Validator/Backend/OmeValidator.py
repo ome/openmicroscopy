@@ -237,6 +237,10 @@ class XmlReport(object):
 		schema = self.loadChoosenSchema()
 		# create an IO string for the xml string provided
 		stringXml = StringIO(self.theDom.toxml())
+		
+		#
+		print self.theDom.toprettyxml()
+		
 		# building the document tree from the input xml
 		try:
 			document = etree.parse(stringXml)
@@ -439,6 +443,8 @@ class XmlReport(object):
 		    inImage.seek( 0 )
 		    pass
 		
+		self.isOmeTiffConsistent = True
+		
 		# compare with values from xml and tiff
 		if self.tiffFileFrames > self.ome5dPlaneCount:
 			self.warningList.append(ParseMessage(None, None, None, "TIFF", ("Frames %s needing %s" % (self.tiffFileFrames,self.ome5dPlaneCount)) , "Extra frames are present in this Tiff file"))
@@ -453,7 +459,8 @@ class XmlReport(object):
 
 		if self.tiffFileFrames < totalTiffDataFrames:
 			self.errorList.append(ParseMessage(None, None, None, "TIFF", ("Frames %s out of %s" % (self.tiffFileFrames,totalTiffDataFrames)) , "Not all required frames are present in this Tiff file"))
-
+			self.isOmeTiffConsistent = False
+		
 # Used by sax parser to handle errors when processing Elements
 class ParseErrorHandler(sax.ErrorHandler):
 	def __init__(self):

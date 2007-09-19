@@ -17,16 +17,25 @@ Created by Andrew Patterson on 2007-07-24.
 """
 
 # Standard Imports
-import logging, cherrypy
+import logging
 from xml.dom.minidom import getDOMImplementation
 from StringIO import StringIO
 from xml import sax
 import os
 from stat import *
 
-# LocalDir for shames
-SCHEMA_DIR = cherrypy.config.get("validator.schema", os.path.join(os.getcwd(),"schema"))
 
+# Load schemas from configured directory 
+import cherrypy
+# LocalDir for schemas
+SCHEMA_DIR = cherrypy.config.get("validator.schema", os.path.join(os.getcwd(),"schema"))
+def schemaFilePath(inFilename):
+	return os.path.join(os.getcwd(), SCHEMA_DIR, inFilename)
+"""
+# Load schemas from current directory 
+def schemaFilePath(inFilename):
+	return inFilename
+"""
 # Try to load Image for XML Schema Vlaidation Support
 haveTiffSupport = True
 try:
@@ -135,6 +144,23 @@ class XmlReport(object):
 	warningList = None
 	unresolvedList = None
 	
+	"""
+	Create variables used to check internal consistency
+	"""
+	# count of TiffData elements founf in the XML
+	omeTiffDataCount = None
+	# count of image frames found in Tiff file
+	tiffFileFrames = None
+	
+	# count of pixels
+	omePixelsCount = None
+	# count of planes
+	omePlanesCount = None
+	# count of Z * C * T
+	ome5dPlaneCount = None
+	# count of number of times a tiff data block has asked for "all available frames" - value of more then 1 indicates an error
+	theAllFrameCount = None
+	
 	def __init__(self):
 		"""
 		Constructor - creates the error and warning logs
@@ -211,6 +237,10 @@ class XmlReport(object):
 		schema = self.loadChoosenSchema()
 		# create an IO string for the xml string provided
 		stringXml = StringIO(self.theDom.toxml())
+		
+		#
+		# print self.theDom.toprettyxml()
+		
 		# building the document tree from the input xml
 		try:
 			document = etree.parse(stringXml)
@@ -231,20 +261,20 @@ class XmlReport(object):
 	def loadChoosenSchema(self):
 		# choose the schema source
 		# assume the new schema
-		theSchemaFile = os.path.join(os.getcwd(), SCHEMA_DIR, "ome-2007-07.xsd")
+		theSchemaFile = "ome-2007-07.xsd"
 		# if old schema
 		if self.theNamespace == "http://www.openmicroscopy.org/XMLschemas/OME/FC/ome.xsd":
 			# check if used by tiff
 			if self.isOmeTiff:
 				# use special tiff version of old schema
-				theSchemaFile = os.path.join(os.getcwd(), SCHEMA_DIR, "ome-fc-tiff.xsd")
+				theSchemaFile = "ome-fc-tiff.xsd"
 			else:
 				# use normal version of old schema
-				theSchemaFile = os.path.join(os.getcwd(), SCHEMA_DIR, "ome-fc.xsd")
+				theSchemaFile = "ome-fc.xsd"
 		
 		# loading the OME schema to validate against
 		try:
-			schema = etree.XMLSchema(etree.parse(theSchemaFile))
+			schema = etree.XMLSchema(etree.parse(schemaFilePath(theSchemaFile)))
 		except:
 			#chosen scema failed to laod
 			self.errorList.append(ParseMessage(None, None, None, "XSD", None, "Validator Internal error: XSD schema file could not be found"))
@@ -274,6 +304,14 @@ class XmlReport(object):
 		for reference in handlerContent.references:
 			if reference not in handlerContent.ids:
 				self.unresolvedList.append(ParseMessage(None, None, None, "UnresolvedID",None, reference))
+		
+		# store the internal counters
+		self.omeTiffDataCount = handlerContent.omeTiffDataCount
+		self.omePixelsCount = handlerContent.omePixelsCount
+		self.omePlanesCount = handlerContent.omePlanesCount
+		self.ome5dPlaneCount = handlerContent.ome5dPlaneCount
+		self.omeTiffDataPlaneCount = handlerContent.omeTiffDataPlaneCount
+		self.theAllFrameCount = handlerContent.theAllFrameCount
 		
 		# store the namespace
 		self.theNamespace = handlerContent.theNamespace
@@ -357,9 +395,71 @@ class XmlReport(object):
 					theFileString = StringIO(theXml)
 					# parse the new string/file object into the report and validate it 
 					theTiffReport.parse(theFileString)
+					theTiffReport.validateTiffImageData(image)
+					"""
+					# print theXml
+					print "Tiff Frames    : %s" % theTiffReport.tiffFileFrames	
+					print "Ome Frames     : %s" % theTiffReport.omeTiffDataCount	
+					print "Ome Pixels     : %s" % theTiffReport.omePixelsCount	
+					print "Ome Planes     : %s" % theTiffReport.omePlanesCount	
+					print "Ome 5dPlane    : %s" % theTiffReport.ome5dPlaneCount	
+					print "Ome TiffPlane  : %s" % theTiffReport.omeTiffDataPlaneCount	
+					print "Ome AllFrame   : %s" % theTiffReport.theAllFrameCount	
+					"""
+					
 		return theTiffReport
 	validateTiff = classmethod(validateTiff)
 	
+	def validateTiffImageData(self, inImage, ):
+		"""
+		Examines the tiff image data to compare with 
+		"""
+		
+		""" code to look at the list of tiff image dimensions
+		theTiffWidth = None
+		theTiffHeight = None
+		try:
+			#theTiffWidth = int(inImage.tag[256])
+			print inImage.tag[256]
+		except KeyError:
+			pass
+		except ValueError:
+			pass
+		try:
+			theTiffHeight = int(inImage.tag[257])
+		except KeyError:
+			pass
+		except ValueError:
+			pass
+		"""
+		
+		#look for frames
+		self.tiffFileFrames = 0
+		try:
+		    while True:
+		        inImage.seek( self.tiffFileFrames )
+		        self.tiffFileFrames = self.tiffFileFrames + 1
+		except EOFError:
+		    inImage.seek( 0 )
+		    pass
+		
+		self.isOmeTiffConsistent = True
+		
+		# compare with values from xml and tiff
+		if self.tiffFileFrames > self.ome5dPlaneCount:
+			self.warningList.append(ParseMessage(None, None, None, "TIFF", ("Frames %s needing %s" % (self.tiffFileFrames,self.ome5dPlaneCount)) , "Extra frames are present in this Tiff file"))
+
+		if self.tiffFileFrames < self.ome5dPlaneCount:
+			self.warningList.append(ParseMessage(None, None, None, "TIFF", ("Frames %s out of %s" % (self.tiffFileFrames,self.ome5dPlaneCount)) , "Not all possible frames are present in this Tiff file"))
+
+		# compare with values from xml TiffData and tiff
+		totalTiffDataFrames = self.omeTiffDataPlaneCount + (self.tiffFileFrames * self.theAllFrameCount)
+		if self.tiffFileFrames > totalTiffDataFrames:
+			self.warningList.append(ParseMessage(None, None, None, "TIFF", ("Frames %s referenced %s" % (self.tiffFileFrames,totalTiffDataFrames)) , "Unreferenced frames are present in this Tiff file"))
+
+		if self.tiffFileFrames < totalTiffDataFrames:
+			self.errorList.append(ParseMessage(None, None, None, "TIFF", ("Frames %s out of %s" % (self.tiffFileFrames,totalTiffDataFrames)) , "Not all required frames are present in this Tiff file"))
+			self.isOmeTiffConsistent = False
 
 # Used by sax parser to handle errors when processing Elements
 class ParseErrorHandler(sax.ErrorHandler):
@@ -398,7 +498,14 @@ class ElementAggregator(sax.ContentHandler):
 		self.theNamespace = None
 		self.inBinDataContent = False
 		self.shortFormXml = ""
+		# internal check counters
 		self.skipCount = 0
+		self.omeTiffDataCount = 0
+		self.omePixelsCount = 0
+		self.omePlanesCount = 0
+		self.ome5dPlaneCount = 0
+		self.omeTiffDataPlaneCount = 0
+		self.theAllFrameCount = 0
 		self.hasCustomAttributes = False
 		
 		# Setup the DOM chunk
@@ -485,6 +592,45 @@ class ElementAggregator(sax.ContentHandler):
 		
 		if name[-7:] == "BinData":
 			self.inBinData = True
+		
+		if name[-8:] == "TiffData":
+			self.omeTiffDataCount = self.omeTiffDataCount + 1
+			# record the number of planes used by the TiffData block
+			if "NumPlanes" in attribs:
+				# use the number of planes specified
+				self.omeTiffDataPlaneCount = self.omeTiffDataPlaneCount + int(attribs.getValue("NumPlanes"))
+				if self.theAllFrameCount > 0:
+					self.errorList.append(ParseMessage(None, None, None, "OME","", "Inconsistent use of TiffData element [Type 1]"))
+				
+			else:
+				if "IFD" in attribs:
+					# use one frame
+					self.omeTiffDataPlaneCount = self.omeTiffDataPlaneCount + 1
+					if self.theAllFrameCount > 0:
+						self.errorList.append(ParseMessage(None, None, None, "OME","", "Inconsistent use of TiffData element [Type 2]"))
+				else:
+					# use all the frames in the tiff
+					self.theAllFrameCount = self.theAllFrameCount + 1
+					if (self.theAllFrameCount > 1) or (self.omeTiffDataPlaneCount > 0):
+						self.errorList.append(ParseMessage(None, None, None, "OME","", "Inconsistent use of TiffData element [Type 3]"))
+			
+		if name[-6:] == "Pixels":
+			self.omePixelsCount = self.omePixelsCount + 1
+			try:
+				# total up planes needed from Z, C and T
+				theZ = int(attribs.getValue("SizeZ"))
+				theC = int(attribs.getValue("SizeC"))
+				theT = int(attribs.getValue("SizeT"))
+				# print "Z: %s, C: %s, T: %s" % (theZ, theC, theT)
+				self.ome5dPlaneCount = self.ome5dPlaneCount + (theZ * theC * theT)
+			except KeyError:
+				pass
+			except ValueError:
+				pass
+		
+		if name[-5:] == "Plane":
+			self.omePlanesCount = self.omePlanesCount + 1
+		
 		self.domify(name, attribs)
 			
 	def endElement(self, name):
@@ -555,9 +701,12 @@ class NamespaceSearcher(sax.ContentHandler):
 ### Test code below this line ###
 
 if __name__ == '__main__':
-	for aFilename in ["samples/sdub.ome", "samples/tiny.ome", "samples/broke.ome"]:
-		print "============ XML file %s ============ " % aFilename
-		print XmlReport.validateFile(aFilename)
+	for aFilename in ["samples/completesamplenopre.xml","samples/completesample.xml","samples/completesamplenoenc.xml",
+			"samples/sdub.ome", "samples/sdub-fix.ome", "samples/sdub-fix-pre.ome", 
+			"samples/tiny.ome", "samples/broke.ome"]:
+			print "============ XML file %s ============ " % aFilename
+			print XmlReport.validateFile(aFilename)
+	
 	
 	for aFilename in ["samples/4d2wOME.tif", "samples/4d2wOME-fixed.tif",
 	 	"samples/4d2wOME-fixed-updated.tif", "samples/blank.tif",
@@ -566,5 +715,3 @@ if __name__ == '__main__':
 		print XmlReport.validateTiff(aFilename)
 	
 	print "============"
-
-
