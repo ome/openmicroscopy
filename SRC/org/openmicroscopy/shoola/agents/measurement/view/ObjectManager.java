@@ -75,37 +75,10 @@ class ObjectManager
 	extends JPanel
 	implements TabPaneInterface
 {
-	/** Index to identify tab */
-	public final static int		INDEX = MeasurementViewerUI.MANAGER_INDEX;
-
-	/** The minimum width of the columns. */
-	private static int					COLUMNWIDTH = 32; 
-	
-	
-	/** Collection of column names. */
-	private static List<String>			columnNames;
-	
-	/** The name of the panel. */
-	private static final String			NAME = "Manager";
-	
-	/** The table hosting the ROI objects. */
-	private ROITable					objectsTable;
-
-	/** Reference to the Model. */
-	private MeasurementViewerModel		model;
-	
-	/** Reference to the View. */
-	private MeasurementViewerUI 		view;
-	
-	/** 
-	 * The table selection listener attached to the table displaying the 
-	 * objects.
-	 */
-	private TreeSelectionListener		treeSelectionListener;
-	
 	/** 
 	 * List of default column names.
 	 */
+	static List<String>			columnNames;
 	static {
 		columnNames = new Vector<String>(6);
 		columnNames.add("ROI");
@@ -132,7 +105,31 @@ class ObjectManager
         columnWidths.put(columnNames.get(5),128);
         columnWidths.put(columnNames.get(6),48);
 	}
-        
+	
+	/** Index to identify tab */
+	public final static int		INDEX = MeasurementViewerUI.MANAGER_INDEX;
+
+	/** The minimum width of the columns. */
+	private static int					COLUMNWIDTH = 32; 
+
+	/** The name of the panel. */
+	private static final String			NAME = "Manager";
+	
+	/** The table hosting the ROI objects. */
+	private ROITable					objectsTable;
+
+	/** Reference to the Model. */
+	private MeasurementViewerModel		model;
+	
+	/** Reference to the View. */
+	private MeasurementViewerUI 		view;
+	
+	/** 
+	 * The table selection listener attached to the table displaying the 
+	 * objects.
+	 */
+	private TreeSelectionListener		treeSelectionListener;
+	
 	/**
 	 * overridden version of {@line TabPaneInterface#getIndex()}
 	 */
@@ -346,7 +343,7 @@ class ObjectManager
 		objectsTable.clearSelection();
 		TreeSelectionModel tsm = objectsTable.getTreeSelectionModel();
 		if (clear) tsm.clearSelection();
-		tsm.removeTreeSelectionListener(treeSelectionListener);
+		objectsTable.removeTreeSelectionListener(treeSelectionListener);
 	
 		try {
 			while (i.hasNext()) {
@@ -359,7 +356,7 @@ class ObjectManager
 			MeasurementAgent.getRegistry().getLogger().info(this, 
 					"Figure selection "+e);
 		}
-		tsm.addTreeSelectionListener(treeSelectionListener);
+		objectsTable.addTreeSelectionListener(treeSelectionListener);
 	}
 	
 	/**

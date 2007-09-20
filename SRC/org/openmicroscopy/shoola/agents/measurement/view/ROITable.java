@@ -124,7 +124,7 @@ public class ROITable
 		expandROIRow(parent);
 		int roiIndex = root.getIndex(parent);
 		int roiShapeIndex = parent.getIndex(child) + roiIndex+1;
-		this.selectionModel.setSelectionInterval(roiShapeIndex, roiShapeIndex);
+		this.selectionModel.addSelectionInterval(roiShapeIndex, roiShapeIndex);
 		this.scrollCellToVisible(roiShapeIndex, 0);
 	}
 	
@@ -225,7 +225,6 @@ public class ROITable
 	 */
 	public void expandROIRow(ROINode parent)
 	{
-		this.collapseAll();
 		int addedNodeIndex = root.getIndex(parent);
 		this.expandRow(addedNodeIndex);
 		this.scrollCellToVisible(addedNodeIndex+parent.getChildCount(), 0);
@@ -239,7 +238,6 @@ public class ROITable
 	 */
 	public void expandROIRow(ROI roi)
 	{
-		this.collapseAll();
 		ROINode selectedNode = findParent(roi);
 		int selectedNodeIndex = root.getIndex(selectedNode);
 		this.expandROIRow(selectedNode);

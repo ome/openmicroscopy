@@ -27,9 +27,9 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.util.Vector;
 
 //Third-party libraries
-import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 
 //Application-internal dependencies
+import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.openmicroscopy.shoola.agents.measurement.util.ROINode;
 
 /**

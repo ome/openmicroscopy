@@ -28,10 +28,12 @@ package org.openmicroscopy.shoola.agents.measurement.util;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import javax.swing.tree.DefaultMutableTreeNode;
+
 //Third-party libraries
-import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 
 //Application-internal dependencies
+import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
