@@ -180,12 +180,21 @@ class MeasurementViewerModel
 		roiFileName = imageID+".xml";
 	}
 	
-	 /**
-     * Called by the <code>ROIViewer</code> after creation to allow this
-     * object to store a back reference to the embedding component.
-     * 
-     * @param component The embedding component.
-     */
+	/**
+	 * Get a link to the ROIComponent. 
+	 * @return see above.
+	 */
+	public ROIComponent getROIComponent()
+	{
+		return roiComponent;
+	}
+	
+	/**
+    * Called by the <code>ROIViewer</code> after creation to allow this
+    * object to store a back reference to the embedding component.
+    * 
+    * @param component The embedding component.
+    */
 	void initialize(MeasurementViewer component)
 	{
 		this.component = component;

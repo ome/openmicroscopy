@@ -84,4 +84,31 @@ class RendererUtils
 		}
 	}
 	
+	/**
+	 * Sets the color of the component depending on the value of the
+	 * selected boolean.
+	 * 
+	 * @param c				The component to handle.
+	 * @param selected 		The row is selected.
+	 * @param row			The index of the current row.
+	 */
+	static void setRowColor(Component c, boolean selected, int row)
+	{
+		if (c == null) return;
+		if (selected) 
+		{
+			c.setBackground(
+							RendererUtils.SELECTED_BACKGROUND_COLOUR);
+			c.setForeground(RendererUtils.FOREGROUND_COLOUR);
+		} 
+		else 
+		{
+			if (row % 2 == 0)
+				c.setBackground(RendererUtils.BACKGROUND_COLOUR_EVEN);
+			else
+				c.setBackground(RendererUtils.BACKGROUND_COLOUR_ODD);
+			c.setForeground(RendererUtils.FOREGROUND_COLOUR);
+		}
+	}
+	
 }

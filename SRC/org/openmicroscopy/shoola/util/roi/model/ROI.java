@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.roi.model;
 //Java imports
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -149,6 +150,78 @@ public class ROI
 		return id;
 	}
 	
+	/** Get the range of the T sections this ROI spans. 
+	 * @return string. see above.
+	 */
+	public String getTRange()
+	{
+		Coord3D low = roiShapes.firstKey();
+		Coord3D high = roiShapes.lastKey();
+		return new String("["+low.getTimePoint()+","+high.getTimePoint()+"]");
+	}
+	
+	/** Get the range of the timepoints this ROI spans. 
+	 * @return string. see above.
+	 */
+	public String getZRange()
+	{
+		Coord3D low = roiShapes.firstKey();
+		Coord3D high = roiShapes.lastKey();
+		return new String("["+low.getZSection()+","+high.getZSection()+"]");
+	}
+	
+	/** Get the range of the shapes this ROI contains. 
+	 * @return string. see above.
+	 */
+	public String getShapeTypes()
+	{
+		String shapes = new String("");
+		HashMap<String,Integer> shapeTypes = new HashMap<String, Integer>();
+		Iterator<ROIShape> shapeIterator = roiShapes.values().iterator();
+		while(shapeIterator.hasNext())
+		{
+			ROIShape shape = shapeIterator.next();
+			String type = shape.getFigure().getType();
+			if(shapeTypes.containsKey(type))
+			{
+				int value  = shapeTypes.get(type)+1;
+				shapeTypes.put(type, value);
+			}
+			else
+				shapeTypes.put(type, new Integer(1));
+		}
+		
+		Iterator<String> typeIterator = shapeTypes.keySet().iterator();
+		boolean first = true;
+		while(typeIterator.hasNext())
+		{
+			String shape = typeIterator.next();
+			if(!first)
+			{
+				shapes = shapes + ",";
+				first = false;
+			}
+			shapes = shapes+shape;
+		}
+		shapes = shapes + "";
+		return shapes;
+	}
+
+	/**
+	 * Is this ROI's roiShapes visible.
+	 * @return see above.
+	 */
+	public boolean isVisible()
+	{
+		boolean visible = true;
+		Iterator<ROIShape> shapeIterator = roiShapes.values().iterator();
+		while(shapeIterator.hasNext())
+		{
+			ROIShape shape = shapeIterator.next();
+			visible = visible & shape.getFigure().isVisible();
+		}
+		return visible;
+	}
 	/** 
 	 * Return true if the ROI contains a ROIShape on coord.
 	 * @param coord see above.
@@ -228,6 +301,7 @@ public class ROI
 		roiShapes.put(shape.getCoord3D(), shape);
 	}
 
+	
 	/** 
 	 * Delete the ROIShape on coord from the ROI.
 	 * @param coord see above.

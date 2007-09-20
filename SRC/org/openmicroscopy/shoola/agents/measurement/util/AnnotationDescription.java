@@ -22,14 +22,12 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.util;
 
-import java.util.HashMap;
-
 
 //Java imports
+import java.util.HashMap;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
-import org.jhotdraw.draw.AttributeKeys;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
@@ -52,7 +50,7 @@ public class AnnotationDescription
 {	
 
 	/** Description of the roi id. */
-	public final static String ROIID_STRING = "ROI ID";
+	public final static String ROIID_STRING = "ID";
 	
 	/** Description of the time point. */
 	public final static String TIME_STRING = "T";
@@ -61,7 +59,7 @@ public class AnnotationDescription
 	public final static String ZSECTION_STRING = "Z";
 	
 	/** Description of the shape string. */
-	public final static String SHAPE_STRING = "Shape";
+	public final static String SHAPE_STRING = "Type";
 	
 	/** 
 	 * The map of annotations/attributes to text descriptions in 
@@ -87,11 +85,11 @@ public class AnnotationDescription
 		annotationDescription.put(AnnotationKeys.POINTARRAYX, "Coord List(X)");
 		annotationDescription.put(AnnotationKeys.POINTARRAYY, "Coord List(Y)");
 		annotationDescription.put(AnnotationKeys.VOLUME, "Volume");
-		annotationDescription.put(AttributeKeys.FILL_COLOR, "Fill Colour");
-		annotationDescription.put(AttributeKeys.FONT_SIZE, "Font Size");
-		annotationDescription.put(AttributeKeys.STROKE_COLOR, "Line Colour");
-		annotationDescription.put(AttributeKeys.STROKE_WIDTH, "Line Width");
-		annotationDescription.put(AttributeKeys.TEXT_COLOR, "Font Colour");
+		annotationDescription.put(MeasurementAttributes.FILL_COLOR, "Fill Colour");
+		annotationDescription.put(MeasurementAttributes.FONT_SIZE, "Font Size");
+		annotationDescription.put(MeasurementAttributes.STROKE_COLOR, "Line Colour");
+		annotationDescription.put(MeasurementAttributes.STROKE_WIDTH, "Line Width");
+		annotationDescription.put(MeasurementAttributes.TEXT_COLOR, "Font Colour");
 		annotationDescription.put(MeasurementAttributes.MEASUREMENTTEXT_COLOUR,
 														"Measurement Colour");
 		annotationDescription.put(MeasurementAttributes.SHOWMEASUREMENT,

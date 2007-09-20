@@ -136,11 +136,42 @@ public class IconManager
     /** The <code>Itensity View</code> icon. */
     public static int          INTENSITYVIEW = 26;
     
+    /** The <code>Roi stack</code> icon. */
+    public static int          ROISTACK = 27;
+    
+    /** The <code>Rioshape</code> icon. */
+    public static int          ROISHAPE = 28;
+    
+    /** The <code>Line16</code> icon. */
+    public static int          LINE16 = 29;
+    
+    /** The <code>Ellipse16</code> icon. */
+    public static int          ELLIPSE16 = 30;
+    
+    /** The <code>Rectangle16</code> icon. */
+    public static int          RECTANGLE16 = 31;
+    
+    /** The <code>Connection16</code> icon. */
+    public static int          CONNECTION16 = 32;
+    
+    /** The <code>Polygon</code> icon. */
+    public static int          POLYGON16 = 33;
+    
+    /** The <code>Scribble16</code> icon. */
+    public static int          SCRIBBLE16 = 34;
+
+    /** The <code>Point16</code> icon. */
+    public static int          POINT16 = 35;
+
+    /** The <code>Text</code> icon. */
+    public static int          TEXT16 = 36;
+    
+    
 	/** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 26;
+    private static final int    MAX_ID = 36;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -177,6 +208,16 @@ public class IconManager
         relPaths[PROGRESS] = "eclipse_progress_none16.png";
         relPaths[GRAPHPANE] = "nuvola_kmplot16.png";
         relPaths[INTENSITYVIEW] = "nuvola_kig16.png";
+        relPaths[ROISTACK] = "roistack16.png";
+        relPaths[ROISHAPE] = "roishape16.png";
+        relPaths[RECTANGLE16] = "rectangle16.png";
+        relPaths[ELLIPSE16] = "ellipse16.png";
+        relPaths[CONNECTION16] = "connection16.png";
+        relPaths[LINE16] = "line16.png";
+        relPaths[SCRIBBLE16] = "scribble16.png";
+        relPaths[POLYGON16] = "polygon16.png";
+        relPaths[POINT16] = "point16.png";
+        relPaths[TEXT16] = "text16.png";
     }
     
     /** 

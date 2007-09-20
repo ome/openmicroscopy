@@ -392,8 +392,8 @@ public class MeasureBezierFigure
 		}
 		else
 		{
+			lengthArray.clear();
 			lengthArray.add(getLength());
-			
 			AnnotationKeys.LENGTH.set(shape, lengthArray);
 			AnnotationKeys.CENTREX.set(shape, getCentre().getX());
 			AnnotationKeys.CENTREY.set(shape, getCentre().getY());

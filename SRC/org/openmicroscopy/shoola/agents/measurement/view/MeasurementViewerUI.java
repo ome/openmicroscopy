@@ -484,7 +484,7 @@ class MeasurementViewerUI
     	if (figure == null) return;
     	try {
     		model.removeROIShape(figure.getROI().getID());
-        	roiManager.removeFigure(figure);
+    	    roiManager.removeFigure(figure);
 		} catch (Exception e) {
 			handleROIException(e, DELETE_MSG);
 		}
