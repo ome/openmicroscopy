@@ -165,8 +165,7 @@ public class IconManager
 
     /** The <code>Text</code> icon. */
     public static int          TEXT16 = 36;
-    
-    
+        
 	/** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 

@@ -42,11 +42,11 @@ import javax.swing.tree.TreeSelectionModel;
 
 
 //Third-party libraries
-
-//Application-internal dependencies
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.AnnotationDescription;

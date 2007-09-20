@@ -32,7 +32,6 @@ import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
-
 import org.jdesktop.swingx.JXTreeTable;
 
 //Application-internal dependencies

@@ -35,9 +35,9 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
 
 //Third-party libraries
+import org.jdesktop.swingx.JXTree;
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXTree;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.view.ROITable;
 import org.openmicroscopy.shoola.util.roi.figures.ShapeTypes;
