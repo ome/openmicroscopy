@@ -428,9 +428,36 @@ public interface RenderingEngine extends SelfConfigurableService,
 	/**
 	 * Returns the current compression level for the service.
 	 * 
-	 * @returns See above.
+	 * @return See above.
 	 * @see ICompress#getCompressionLevel()
 	 */
 	public float getCompressionLevel();
+	
+	/**
+     * Returns <code>true</code> if the pixels type is signed, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+	public boolean isPixelsTypeSigned();
+	
+	/**
+     * Returns the minimum value for that channels depending on the pixels
+     * type and the orginal range (globalmax, globalmin)
+     * 
+     * @param w The channel index.
+     * @return See above.
+     */
+	public double getPixelsTypeLowerBound(int w);
 
+	/**
+     * Returns the maximum value for that channels depending on the pixels
+     * type and the orginal range (globalmax, globalmin)
+     * 
+     * @param w The channel index.
+     * @return See above.
+     */
+	public double getPixelsTypeUpperBound(int w);
+	
 }
+

@@ -1,12 +1,33 @@
+/*
+ * ome.api.IRenderingSettings
+ *
+ *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
 package ome.api;
 
-import java.util.List;
+
+//Java imports
 import java.util.Map;
 import java.util.Set;
 
+// Third-party libraries
+
+// Application-internal dependencies
 import ome.annotations.NotNull;
 import ome.model.display.RenderingDef;
 
+
+/**
+ * Provides method to apply rendering settings to a collection of images.
+ * All methods will receive the id of the pixels set to copy the rendering
+ * settings from.
+ * 
+ * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
+ * @version 3.0 <small> (<b>Internal version:</b> $Rev: 1187 $ $Date: 2007-01-14 22:36:45 +0000 (Sun, 14 Jan 2007) $) </small>
+ * @since 3.0
+ */
 public interface IRenderingSettings extends ServiceInterface {
 	/**
 	 * Returns the rendering settings for a given pixels for the current user.
@@ -34,8 +55,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * 
 	 * @param <T> The type of object to copy to. <code>Project</code>, 
 	 * <code>Dataset</code> and <code>Image</code> are currently supported.
-	 * @param from The Id of the rendering settings object to copy settings
-	 * from.
+	 * @param from The Id of the pixels set to copy the rendering settings from.
 	 * @param toType The type of the object to copy to as also declared by
 	 * <code>T</code>
 	 * @param to The list of containers to either apply the settings to
@@ -49,10 +69,16 @@ public interface IRenderingSettings extends ServiceInterface {
 	/**
 	 * Applies rendering settings to all images in all <code>Datasets</code> 
 	 * of a given <code>Project</code>.
+	 * Returns a map with two boolean keys. The value of the 
+	 * <code>TRUE</code> is a collection of images ID, the settings were 
+	 * successfully applied to. The value of the 
+	 * <code>FALSE</code> is a collection of images ID, the settings could not 
+	 * be applied to. 
 	 * 
-	 * @param from The Id of the rendering settings object to copy settings
-	 * from.
+	 * 
+	 * @param from The Id of the pixels set to copy the rendering settings from.
 	 * @param to The Id of the project container to apply settings to.
+	 * @return See above.
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the project <code>to</code> is unlocatable.
 	 */
@@ -60,10 +86,15 @@ public interface IRenderingSettings extends ServiceInterface {
 	
 	/**
 	 * Applies rendering settings to all images in a given <code>Dataset</code>. 
+	 * Returns a map with two boolean keys. The value of the 
+	 * <code>TRUE</code> is a collection of images ID, the settings were 
+	 * successfully applied to. The value of the 
+	 * <code>FALSE</code> is a collection of images ID, the settings could not 
+	 * be applied to. 
 	 * 
-	 * @param from The Id of the rendering settings object to copy settings
-	 * from.
+	 * @param from The Id of the pixels set to copy the rendering settings from.
 	 * @param to The Id of the dataset container to apply settings to.
+	 * @return See above.
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the dataset <code>to</code> is unlocatable.
 	 */
@@ -71,10 +102,15 @@ public interface IRenderingSettings extends ServiceInterface {
 	
 	/**
 	 * Applies rendering settings to all images in all <code>Categories</code>.
+	 * Returns a map with two boolean keys. The value of the 
+	 * <code>TRUE</code> is a collection of images ID, the settings were 
+	 * successfully applied to. The value of the 
+	 * <code>FALSE</code> is a collection of images ID, the settings could not 
+	 * be applied to. 
 	 * 
-	 * @param from The Id of the rendering settings object to copy settings
-	 * from.
+	 * @param from The Id of the pixels set to copy the rendering settings from.
 	 * @param to The Id of the categories container to apply settings to.
+	 * @return See above.
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the project <code>to</code> is unlocatable.
 	 */
@@ -82,10 +118,12 @@ public interface IRenderingSettings extends ServiceInterface {
 	
 	/**
 	 * Applies rendering settings to a given <code>Image</code>. 
+	 * Returns <code>true</code> if the settings were 
+	 * successfully applied to, <code>false</code> otherwise.
 	 * 
-	 * @param from The Id of the rendering settings object to copy settings
-	 * from.
+	 * @param from The Id of the pixels set to copy the rendering settings from.
 	 * @param to The Id of the image container to apply settings to.
+	 * @return See above.
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the image <code>to</code> is unlocatable.
 	 */
@@ -94,9 +132,9 @@ public interface IRenderingSettings extends ServiceInterface {
 	/**
 	 * Applies rendering settings to a given <code>Pixels</code>. 
 	 * 
-	 * @param from The Id of the rendering settings object to copy settings
-	 * from.
+	 * @param from The Id of the pixels set to copy the rendering settings from.
 	 * @param to The Id of the pixels container to apply settings to.
+	 * @return See above.
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the pixels<code>to</code> is unlocatable.
 	 */
