@@ -8,13 +8,11 @@
 package omeis.providers.re.quantum;
 
 // Java imports
+import java.util.List;
 
 // Third-party libraries
 
 // Application-internal dependencies
-import java.util.List;
-
-import ome.api.IPixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
@@ -136,6 +134,7 @@ public class QuantumFactory {
      * 
      * @param qd
      *            The definition to verify.
+     * @param type The pixels type to handle.
      * @throws IllegalArgumentException
      *             If the check fails.
      */
@@ -195,6 +194,7 @@ public class QuantumFactory {
      * 
      * @param qd
      *            Defines the quantization context.
+     * @param type The pixels type to handle.
      * @return A {@link QuantumStrategy} object suitable for the given pixels
      *         type.
      */
@@ -209,6 +209,7 @@ public class QuantumFactory {
      * @param qd
      *            Defines the quantization context. Mustn't be <code>null</code>
      *            and its values must have been properly specified.
+     * @param type The pixels type to handle.
      * @return A {@link QuantumStrategy} suitable for the specified context.
      */
     public QuantumStrategy getStrategy(QuantumDef qd, PixelsType type) {

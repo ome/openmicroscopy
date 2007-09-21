@@ -14,7 +14,6 @@ import java.util.List;
 // Third-party libraries
 
 // Application-internal dependencies
-import ome.api.IPixels;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;

@@ -12,7 +12,6 @@ package omeis.providers.re.quantum;
 // Third-party libraries
 
 // Application-internal dependencies
-import ome.api.IPixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
@@ -55,6 +54,12 @@ public abstract class QuantumStrategy {
      */
     public static final int DECILE = 10;
 
+    /** The minimun value for the pixels type. */
+    private double pixelsTypeMin;
+    
+    /** The maximun value for the pixels type. */
+    private double pixelsTypeMax;
+    
     /** Minimum of all minima. */
     private double globalMin;
 
@@ -140,22 +145,26 @@ public abstract class QuantumStrategy {
         boolean b = false;
         if (min <= max) {
             double range = max - min;
-            if (PlaneFactory.in(type, new String[] { "int8", "uint8" })) {
+            if (PlaneFactory.in(type, 
+            		new String[] { PlaneFactory.INT8, PlaneFactory.UINT8 })) {
                 if (range < 0x100) {
                     b = true;
                 }
             } else if (PlaneFactory
-                    .in(type, new String[] { "int16", "uint16" })) {
+                    .in(type, new String[] { PlaneFactory.INT16, 
+                    		PlaneFactory.UINT16 })) {
                 if (range < 0x10000) {
                     b = true;
                 }
             } else if (PlaneFactory
-                    .in(type, new String[] { "int32", "uint32" })) {
+                    .in(type, new String[] { PlaneFactory.INT32, 
+                    		PlaneFactory.UINT32 })) {
                 if (range < 0x100000000L) {
                     b = true;
                 }
             } else if (PlaneFactory
-                    .in(type, new String[] { "float", "double" })) {
+                    .in(type, new String[] { PlaneFactory.FLOAT_TYPE,  
+                    		PlaneFactory.DOUBLE_TYPE })) {
                 b = true;
             }
         }
@@ -164,6 +173,48 @@ public abstract class QuantumStrategy {
         }
     }
 
+    /** 
+     * Initializes the minimum (resp. value) used to 
+     * build a LUT depending on the pixels type.
+     */
+    private void initPixelsRange()
+    {
+    	double range;
+    	String typeAsString = type.getValue();
+    	if (PlaneFactory.INT8.equals(typeAsString)) {
+    		pixelsTypeMin = -128;
+    		pixelsTypeMax = 127;
+    	} else if (PlaneFactory.UINT8.equals(typeAsString)) {
+    		pixelsTypeMin = 0;
+    		pixelsTypeMax = 255;
+    	} else if (PlaneFactory.INT16.equals(typeAsString)) {
+    		pixelsTypeMin = -32768;
+    		pixelsTypeMax = 32767;
+    	} else if (PlaneFactory.UINT16.equals(typeAsString)) {
+    		pixelsTypeMin = 0;
+    		pixelsTypeMax = 65535;
+    	} else if (PlaneFactory.INT32.equals(typeAsString)) {
+    		range = globalMax - globalMin;
+    		if (range < 0x10000) { 
+    			pixelsTypeMin = -32768;
+        		pixelsTypeMax = 32767;
+            }
+    	} else if (PlaneFactory.UINT32.equals(typeAsString)) {
+    		range = globalMax - globalMin;
+    		if (range < 0x10000) { 
+    			pixelsTypeMin = 0;
+        		pixelsTypeMax = 65535;
+            }
+    	} else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
+    			PlaneFactory.DOUBLE_TYPE.equals(typeAsString)) {
+    		range = globalMax - globalMin;
+    		if (range < 0x10000) { 
+    			pixelsTypeMin = 0;
+        		pixelsTypeMax = 65535;
+            }
+    	} 
+    }
+    
     /**
      * Creates a new instance.
      * 
@@ -175,6 +226,8 @@ public abstract class QuantumStrategy {
         windowStart = globalMin = 0.0;
         windowEnd = globalMax = 1.0;
         curveCoefficient = 1.0;
+        pixelsTypeMax = 0.0;
+        pixelsTypeMin = 0.0;
         if (qd == null) {
             throw new NullPointerException("No quantum definition");
         }
@@ -199,6 +252,7 @@ public abstract class QuantumStrategy {
         this.globalMax = globalMax;
         this.windowStart = globalMin;
         this.windowEnd = globalMax;
+        initPixelsRange();
     }
 
     /**
@@ -210,6 +264,7 @@ public abstract class QuantumStrategy {
      *            The upper bound of the interval.
      */
     public void setWindow(double start, double end) {
+    	/*
         if (start < globalMin) {
             throw new IllegalArgumentException("'" + start
                     + " less than global minimum: '" + globalMin + "'");
@@ -218,6 +273,7 @@ public abstract class QuantumStrategy {
             throw new IllegalArgumentException("'" + end
                     + " greater than global maximum: '" + globalMax + "'");
         }
+        */
         verifyInterval(start, end);
         windowStart = start;
         windowEnd = end;
@@ -259,18 +315,39 @@ public abstract class QuantumStrategy {
         onWindowChange();
     }
 
+    /**
+     * Sets the quantum map. 
+     * 
+     * @param qMap The value to set.
+     */
     void setMap(QuantumMap qMap) {
         valueMapper = qMap;
     }
 
+    /**
+     * Returns the mapping family.
+     * 
+     * @return See above.
+     */
     Family getFamily() {
         return family;
     }
 
+    /**
+     * Returns the coefficient identifying a curve within a given family.
+     * 
+     * @return See above.
+     */
     double getCurveCoefficient() {
         return curveCoefficient;
     }
 
+    /**
+     * Returns <code>true</code> if the noise reduction algorithm 
+     * is turned on, <code>false</code> if turned off.
+     * 
+     * @return See above.
+     */
     boolean getNoiseReduction() {
         return noiseReduction;
     }
@@ -298,6 +375,26 @@ public abstract class QuantumStrategy {
         return globalMax;
     }
 
+    /**
+     * Returns the lower bound of the pixels range or <code>0</code>
+     * if the value couldn't be set.
+     * 
+     * @return See above.
+     */
+    public double getPixelsTypeMin() {
+    	return pixelsTypeMin;
+    }
+    
+    /**
+     * Returns the upper bound of the pixels range or <code>0</code>
+     * if the value couldn't be set.
+     * 
+     * @return See above.
+     */
+    public double getPixelsTypeMax() {
+    	return pixelsTypeMax;
+    }
+    
     /**
      * Returns the lower bound of the input interval.
      * 

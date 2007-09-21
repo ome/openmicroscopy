@@ -7,12 +7,10 @@
 package omeis.providers.re.data;
 
 import java.io.IOException;
-import ome.api.IPixels;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
-import ome.model.enums.RenderingModel;
 
 /**
  * 
@@ -24,6 +22,55 @@ import ome.model.enums.RenderingModel;
  * 
  */
 public class PlaneFactory {
+    
+    /** 
+     * Identifies the <i>INT8</i> data type used to store pixel values,
+     * as per <i>OME</i> spec. 
+     */
+    public static final String     INT8 = "int8";
+    
+    /** 
+     * Identifies the <i>INT16</i> data type used to store pixel values,
+     * as per <i>OME</i> spec. 
+     */
+    public static final String     INT16 = "int16";
+    
+    /** 
+     * Identifies the <i>INT32</i> data type used to store pixel values,
+     * as per <i>OME</i> spec. 
+     */
+    public static final String     INT32 = "int32";
+    
+    /** 
+     * Identifies the <i>UINT8</i> data type used to store pixel values,
+     * as per <i>OME</i> spec. 
+     */
+    public static final String     UINT8 = "uint8";
+    
+    /** 
+     * Identifies the <i>UINT16</i> data type used to store pixel values,
+     * as per <i>OME</i> spec. 
+     */
+    public static final String     UINT16 = "uint16";
+    
+    /** 
+     * Identifies the <i>UINT32</i> data type used to store pixel values,
+     * as per <i>OME</i> spec. 
+     */
+    public static final String     UINT32 = "uint32";
+    
+    /** 
+     * Identifies the <i>FLOAT</i> data type used to store pixel values,
+     * as per <i>OME</i> spec. 
+     */
+    public static final String     FLOAT_TYPE = "float";
+    
+    /** 
+     * Identifies the <i>DOUBLE</i> data type used to store pixel values,
+     * as per <i>OME</i> spec. 
+     */
+    public static final String     DOUBLE_TYPE = "double";
+    
     /** Identifies the type used to store pixel values. */
     public static final int BYTE = 0;
 
@@ -70,13 +117,13 @@ public class PlaneFactory {
      * @return The number of bytes per pixel value.
      */
     static int bytesPerPixel(PixelsType type) {
-        if (in(type, new String[] { "int8", "uint8" })) {
+        if (in(type, new String[] { INT8, UINT8 })) {
             return 1;
-        } else if (in(type, new String[] { "int16", "uint16" })) {
+        } else if (in(type, new String[] { INT16, UINT16 })) {
             return 2;
-        } else if (in(type, new String[] { "int32", "uint32", "float" })) {
+        } else if (in(type, new String[] { INT32, UINT32, FLOAT_TYPE })) {
             return 4;
-        } else if (type.getValue().equals("double")) {
+        } else if (type.getValue().equals(DOUBLE_TYPE)) {
             return 8;
         } else {
             throw new RuntimeException("Unknown pixel type: '"
@@ -93,15 +140,15 @@ public class PlaneFactory {
      * @return The Java type as an enumerated integer.
      */
     static int javaType(PixelsType type) {
-        if (in(type, new String[] { "int8", "uint8" })) {
+        if (in(type, new String[] { INT8, UINT8 })) {
             return BYTE;
-        } else if (in(type, new String[] { "int16", "uint16" })) {
+        } else if (in(type, new String[] { INT16, UINT16 })) {
             return SHORT;
-        } else if (in(type, new String[] { "int32", "uint32" })) {
+        } else if (in(type, new String[] { INT32, UINT32 })) {
             return INT;
-        } else if (type.getValue().equals("float")) {
+        } else if (type.getValue().equals(FLOAT_TYPE)) {
             return FLOAT;
-        } else if (type.getValue().equals("double")) {
+        } else if (type.getValue().equals(DOUBLE_TYPE)) {
             return DOUBLE;
         } else {
             throw new RuntimeException("Unknown pixel type: '"
@@ -116,11 +163,11 @@ public class PlaneFactory {
      *            The pixels type for which you want to know the byte width.
      * @return The number of bytes per pixel value.
      */
-    static boolean isTypeSigned(PixelsType type) {
-        if (in(type, new String[] { "uint8", "uint16", "uint32" })) {
+    public static boolean isTypeSigned(PixelsType type) {
+        if (in(type, new String[] { UINT8, UINT16, UINT32 })) {
             return false;
-        } else if (in(type, new String[] { "int8", "int16", "int32", "float",
-                "double" })) {
+        } else if (in(type, new String[] { INT8, INT16, INT32, FLOAT_TYPE,
+        		DOUBLE_TYPE })) {
             return true;
         } else {
             throw new RuntimeException("Unknown pixel type: '"

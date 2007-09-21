@@ -32,6 +32,7 @@ import ome.model.enums.RenderingModel;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.metadata.StatsFactory;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
@@ -78,7 +79,7 @@ public class Renderer {
 
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(Renderer.class);
-
+    
     /** Identifies the type used to store model values. */
     public static final String MODEL_GREYSCALE = "greyscale";
 
@@ -91,7 +92,7 @@ public class Renderer {
     /** Identifies the type used to store photometric interpretation values. */
     public static final String PHOTOMETRIC_MONOCHROME = "Monochrome";
 
-    static final String RGB_COLOR_DOMAIN = "RGB";
+    //static final String RGB_COLOR_DOMAIN = "RGB";
 
     /**
      * The {@link Pixels} object to access the metadata of the pixels set bound
@@ -138,6 +139,227 @@ public class Renderer {
     /** Renderer optimizations. */
     private Optimizations optimizations = new Optimizations();
 
+    /**
+     * Returns a copy of a list of channel bindings with one element removed;
+     * the so called "other" channel bindings for the image.
+     * 
+     * @param bindings	The original bindings.
+     * @param toRemove	The bindings to remove.
+     * @throws IllegalArgumentException if the <code>toRemove</code> channel
+     * binding is not present in the list.
+     * @return See above.
+     */
+    private List<ChannelBinding> getOtherBindings(
+    		List<ChannelBinding> bindings, ChannelBinding toRemove)
+    {
+    	if (!bindings.contains(toRemove))
+    		throw new IllegalArgumentException(
+    				"Channel binding not found in list.");
+    	List<ChannelBinding> otherBindings =
+    		new ArrayList<ChannelBinding>(bindings.size() - 1);
+    	for (ChannelBinding binding : bindings)
+    	{
+    		if (binding != toRemove)
+    			otherBindings.add(binding);
+    	}
+    	return otherBindings;
+    }
+    
+    /**
+     * Implemented as specified by the {@link PixelsMetadata} interface.
+     * @see PixelsMetadata#computeLocationStats(PlaneDef)
+     */
+    private static void computeLocationStats(Pixels pixels,
+            List<ChannelBinding> cbs, PlaneDef planeDef, PixelBuffer buf) {
+        if (planeDef == null) {
+            throw new NullPointerException("No plane definition.");
+        }
+        StatsFactory sf = new StatsFactory();
+
+        int w = 0;
+        List<Channel> channels = pixels.getChannels();
+        for (Channel channel : channels) {
+            // FIXME: This is where we need to have the ChannelBinding -->
+            // Channel linkage. Without it, we have to assume that the order in
+            // which the channel bindings was created matches up with the order
+            // of the channels linked to the pixels set.
+            ChannelBinding cb = cbs.get(w);
+            sf.computeLocationStats(pixels, buf, planeDef, w);
+            cb.setNoiseReduction(sf.isNoiseReduction());
+            cb.setInputStart(new Float(sf.getInputStart()));
+            cb.setInputEnd(new Float(sf.getInputEnd()));
+            w++;
+        }
+    }
+    
+    /**
+	 * Resets the channel bindings for the current active pixels set.
+	 * 
+	 * @param def
+	 *            the rendering definition to link to.
+	 * @param pixels
+	 *            the pixels set to reset the bindings based upon.
+	 * @param quantumFactory
+	 *            a populated quantum factory.
+	 * @param buffer
+	 *            a pixel buffer which maps to the <i>planeDef</i>.
+	 */
+	private static void resetChannelBindings(RenderingDef def, Pixels pixels,
+	        QuantumFactory quantumFactory, PixelBuffer buffer) {
+	    // The actual channel bindings we are returning
+	    List<ChannelBinding> channelBindings = def.getWaveRendering();
+	
+	    // Default plane definition for our rendering definition
+	    PlaneDef planeDef = getDefaultPlaneDef(def);
+	
+	    List<Channel> channels = pixels.getChannels();
+	    int i = 0;
+	    for (Channel channel : channels) {
+	        Family family = quantumFactory.getFamily(QuantumFactory.LINEAR);
+	
+	        ChannelBinding channelBinding = channelBindings.get(i);
+	        channelBinding.setFamily(family);
+	        channelBinding.setCoefficient(new Double(1));
+	
+	        // If we have more than one channel set each of the first three
+	        // active, otherwise only activate the first.
+	        if (i < 3) {
+	            channelBinding.setActive(true);
+	        } else {
+	            channelBinding.setActive(false);
+	        }
+	
+	        channelBinding.setColor(ColorsFactory.getColor(i, channel));
+	        channelBinding.setNoiseReduction(false);
+	        i++;
+	    }
+	
+	    // Set the input start and input end for each channel binding based upon
+	    // the computation of the pixels set's location statistics.
+	    computeLocationStats(pixels, channelBindings, planeDef, buffer);
+	}
+
+	/**
+     * Checks to see if we can enable specific optimizations for "primary" color
+     * rendering and alphaless rendering.
+     * 
+     * Alphaless rendering is only enabled when each of the active channels has
+     * no alpha blending (alpha of 0xFF [255]).
+     * 
+     * Primary color rendering optimizations are only enabled when the
+     * number of active channels < 4, each of the active channels is mapped
+     * to a primary color (0xFF0000 [Red], 0x00FF00 [Green], 0x0000FF [Blue])
+     * and there are no duplicate mappings (two channels mapped to Green for 
+     * example). It is also dependant on alphaless rendering being enabled.
+     */
+    private void checkOptimizations()
+    {
+    	List<ChannelBinding> channelBindings = getChannelBindingsAsList();
+    	
+    	for (ChannelBinding channelBinding : channelBindings)
+    	{
+    		Color color = channelBinding.getColor();
+    		boolean isActive = channelBinding.getActive();
+    		if (isActive && color.getAlpha() != 255)
+    		{
+    			log.info("Disabling alphaless rendering and " +
+    					"PriColor rendering.");
+    			optimizations.setAlphalessRendering(false);
+    			return;
+    		}
+    	}
+    	log.info("Enabling alphaless rendering.");
+    	optimizations.setAlphalessRendering(true);
+    	
+    	int channelsActive = 0;
+    	for (ChannelBinding channelBinding : channelBindings)
+    	{
+    		// First lets check and see if we have more than 3 channels active.
+    		if (channelBinding.getActive() == false)
+    			continue;
+    		
+    		channelsActive++;
+    		if (channelsActive > 3)
+    		{
+    			log.info("Disabling PriColor rendering, active channels > 3");
+    			optimizations.setPrimaryColorEnabled(false);
+    			return;
+    		}
+    		
+			// Now we ensure the color is "primary" (Red, Green or Blue).
+			Color channelColor = channelBinding.getColor();
+			boolean isPrimary = false;
+			int[] colorArray = getColorArray(channelColor);
+			for (int value : colorArray)
+			{
+				if (value != 0 && value != 255)
+				{
+					log.info("Disabling PriColor rendering, " +
+							"channel color not primary.");
+					optimizations.setPrimaryColorEnabled(false);
+					return;
+				}
+				if (value == 255)
+				{
+					if (isPrimary == true)
+					{
+						log.info("Disabling PriColor rendering, " +
+								"duplicate channel color component.");
+						optimizations.setPrimaryColorEnabled(false);
+						return;
+					}
+					isPrimary = true;
+				}
+			}
+			
+    		// Finally we check to make sure that the color is different from
+			// all other channels that are active.
+			List<ChannelBinding> otherBindings =
+				getOtherBindings(channelBindings, channelBinding);
+    		for (ChannelBinding otherChannelBinding : otherBindings)
+    		{
+    			if (otherChannelBinding.getActive() == false)
+    				continue;
+    			
+    			int[] otherColorArray =
+    				getColorArray(otherChannelBinding.getColor());
+    			for (int i = 0; i < colorArray.length; i++)
+    			{
+    				if (colorArray[i] == otherColorArray[i]
+    				    && colorArray[i] != 0)
+    				{
+    					log.info("Disabling PriColor rendering, " +
+    							"duplicate channel color.");
+    					optimizations.setPrimaryColorEnabled(false);
+    					return;
+    				}
+    			}
+    		}
+    	}
+    	
+    	// All checks have passed, enable "primary" color rendering.
+    	log.info("Enabling primary color rendering.");
+    	optimizations.setPrimaryColorEnabled(true);
+    }
+
+    /**
+     * Creates new channel bindings for each channel in the pixels set.
+     * 
+     * @param p
+     *            the pixels set to create channel bindings based upon.
+     * @return a new set of blank channel bindings.
+     */
+    private static List<ChannelBinding> createNewChannelBindings(Pixels p) {
+        ArrayList<ChannelBinding> cbs = new ArrayList<ChannelBinding>();
+        ChannelBinding binding;
+        for (int i = 0; i < p.getSizeC(); i++) {
+        	binding = new ChannelBinding();
+        	binding.setColor(new Color());
+            cbs.add(binding);
+        }
+        return cbs;
+    }
+ 
     /**
      * Creates a new instance to render the specified pixels set and get this
      * new instance ready for rendering.
@@ -193,7 +415,8 @@ public class Renderer {
      * @param model
      *            Identifies the color space model.
      */
-    public void setModel(RenderingModel model) {
+    public void setModel(RenderingModel model)
+    {
         rndDef.setModel(model);
         renderingStrategy = RenderingStrategy.makeNew(model);
     }
@@ -207,7 +430,8 @@ public class Renderer {
      * @see #setDefaultT(int)
      * @see #getDefaultPlaneDef()
      */
-    public void setDefaultZ(int z) {
+    public void setDefaultZ(int z)
+    {
         rndDef.setDefaultZ(Integer.valueOf(z));
     }
 
@@ -470,33 +694,7 @@ public class Renderer {
         return stats;
     }
 
-    /**
-     * Implemented as specified by the {@link PixelsMetadata} interface.
-     * 
-     * @see PixelsMetadata#computeLocationStats(PlaneDef)
-     */
-    private static void computeLocationStats(Pixels pixels,
-            List<ChannelBinding> cbs, PlaneDef planeDef, PixelBuffer buf) {
-        if (planeDef == null) {
-            throw new NullPointerException("No plane definition.");
-        }
-        StatsFactory sf = new StatsFactory();
-
-        int w = 0;
-        List<Channel> channels = pixels.getChannels();
-        for (Channel channel : channels) {
-            // FIXME: This is where we need to have the ChannelBinding -->
-            // Channel linkage. Without it, we have to assume that the order in
-            // which the channel bindings was created matches up with the order
-            // of the channels linked to the pixels set.
-            ChannelBinding cb = cbs.get(w);
-            sf.computeLocationStats(pixels, buf, planeDef, w);
-            cb.setNoiseReduction(sf.isNoiseReduction());
-            cb.setInputStart(new Float(sf.getInputStart()));
-            cb.setInputEnd(new Float(sf.getInputEnd()));
-            w++;
-        }
-    }
+   
 
     //
     // Methods pushed down from RenderingBean
@@ -713,53 +911,6 @@ public class Renderer {
 	}
 
 	/**
-	 * Resets the channel bindings for the current active pixels set.
-	 * 
-	 * @param def
-	 *            the rendering definition to link to.
-	 * @param pixels
-	 *            the pixels set to reset the bindings based upon.
-	 * @param quantumFactory
-	 *            a populated quantum factory.
-	 * @param buffer
-	 *            a pixel buffer which maps to the <i>planeDef</i>.
-	 */
-	private static void resetChannelBindings(RenderingDef def, Pixels pixels,
-	        QuantumFactory quantumFactory, PixelBuffer buffer) {
-	    // The actual channel bindings we are returning
-	    List<ChannelBinding> channelBindings = def.getWaveRendering();
-	
-	    // Default plane definition for our rendering definition
-	    PlaneDef planeDef = getDefaultPlaneDef(def);
-	
-	    List<Channel> channels = pixels.getChannels();
-	    int i = 0;
-	    for (Channel channel : channels) {
-	        Family family = quantumFactory.getFamily(QuantumFactory.LINEAR);
-	
-	        ChannelBinding channelBinding = channelBindings.get(i);
-	        channelBinding.setFamily(family);
-	        channelBinding.setCoefficient(new Double(1));
-	
-	        // If we have more than one channel set each of the first three
-	        // active, otherwise only activate the first.
-	        if (i < 3) {
-	            channelBinding.setActive(true);
-	        } else {
-	            channelBinding.setActive(false);
-	        }
-	
-	        channelBinding.setColor(ColorsFactory.getColor(i, channel));
-	        channelBinding.setNoiseReduction(false);
-	        i++;
-	    }
-	
-	    // Set the input start and input end for each channel binding based upon
-	    // the computation of the pixels set's location statistics.
-	    computeLocationStats(pixels, channelBindings, planeDef, buffer);
-	}
-
-	/**
      * Closes the buffer, cleaning up file state.
      * 
      * @throws IOException if an I/O error occurs.
@@ -787,126 +938,15 @@ public class Renderer {
      */
     public static RenderingDef createNewRenderingDef(Pixels p) {
         RenderingDef r = new RenderingDef();
+        //The default rendering definition settings
+	    r.setDefaultZ(p.getSizeZ() / 2);
+	    r.setDefaultT(0);
         r.setQuantization(new QuantumDef());
         r.setWaveRendering(createNewChannelBindings(p));
         r.setPixels(p);
         return r;
     }
 
-    /**
-     * Creates new channel bindings for each channel in the pixels set.
-     * 
-     * @param p
-     *            the pixels set to create channel bindings based upon.
-     * @return a new set of blank channel bindings.
-     */
-    private static List<ChannelBinding> createNewChannelBindings(Pixels p) {
-        ArrayList<ChannelBinding> cbs = new ArrayList<ChannelBinding>();
-        for (int i = 0; i < p.getSizeC(); i++) {
-            cbs.add(new ChannelBinding());
-        }
-        return cbs;
-    }
-    
-    /**
-     * Checks to see if we can enable specific optimizations for "primary" color
-     * rendering and alphaless rendering.
-     * 
-     * Alphaless rendering is only enabled when each of the active channels has
-     * no alpha blending (alpha of 0xFF [255]).
-     * 
-     * Primary color rendering optimizations are only enabled when the
-     * number of active channels < 4, each of the active channels is mapped
-     * to a primary color (0xFF0000 [Red], 0x00FF00 [Green], 0x0000FF [Blue])
-     * and there are no duplicate mappings (two channels mapped to Green for 
-     * example). It is also dependant on alphaless rendering being enabled.
-     */
-    private void checkOptimizations()
-    {
-    	List<ChannelBinding> channelBindings = getChannelBindingsAsList();
-    	
-    	for (ChannelBinding channelBinding : channelBindings)
-    	{
-    		Color color = channelBinding.getColor();
-    		boolean isActive = channelBinding.getActive();
-    		if (isActive && color.getAlpha() != 255)
-    		{
-    			log.info("Disabling alphaless rendering and PriColor rendering.");
-    			optimizations.setAlphalessRendering(false);
-    			return;
-    		}
-    	}
-    	log.info("Enabling alphaless rendering.");
-    	optimizations.setAlphalessRendering(true);
-    	
-    	int channelsActive = 0;
-    	for (ChannelBinding channelBinding : channelBindings)
-    	{
-    		// First lets check and see if we have more than 3 channels active.
-    		if (channelBinding.getActive() == false)
-    			continue;
-    		
-    		channelsActive++;
-    		if (channelsActive > 3)
-    		{
-    			log.info("Disabling PriColor rendering, active channels > 3");
-    			optimizations.setPrimaryColorEnabled(false);
-    			return;
-    		}
-    		
-			// Now we ensure the color is "primary" (Red, Green or Blue).
-			Color channelColor = channelBinding.getColor();
-			boolean isPrimary = false;
-			int[] colorArray = getColorArray(channelColor);
-			for (int value : colorArray)
-			{
-				if (value != 0 && value != 255)
-				{
-					log.info("Disabling PriColor rendering, channel color not primary.");
-					optimizations.setPrimaryColorEnabled(false);
-					return;
-				}
-				if (value == 255)
-				{
-					if (isPrimary == true)
-					{
-						log.info("Disabling PriColor rendering, duplicate channel color component.");
-						optimizations.setPrimaryColorEnabled(false);
-						return;
-					}
-					isPrimary = true;
-				}
-			}
-			
-    		// Finally we check to make sure that the color is different from
-			// all other channels that are active.
-			List<ChannelBinding> otherBindings =
-				getOtherBindings(channelBindings, channelBinding);
-    		for (ChannelBinding otherChannelBinding : otherBindings)
-    		{
-    			if (otherChannelBinding.getActive() == false)
-    				continue;
-    			
-    			int[] otherColorArray =
-    				getColorArray(otherChannelBinding.getColor());
-    			for (int i = 0; i < colorArray.length; i++)
-    			{
-    				if (colorArray[i] == otherColorArray[i]
-    				    && colorArray[i] != 0)
-    				{
-    					log.info("Disabling PriColor rendering, duplicate channel color.");
-    					optimizations.setPrimaryColorEnabled(false);
-    					return;
-    				}
-    			}
-    		}
-    	}
-    	
-    	// All checks have passed, enable "primary" color rendering.
-    	log.info("Enabling primary color rendering.");
-    	optimizations.setPrimaryColorEnabled(true);
-    }
-    
     /**
      * Returns an array  whose ascending indicies represent the color
      * components Red, Green and Blue.
@@ -924,27 +964,41 @@ public class Renderer {
     }
 
     /**
-     * Returns a copy of a list of channel bindings with one element removed;
-     * the so called "other" channel bindings for the image.
-     * @param bindings
-     * @param toRemove
-     * @throws IllegalArgumentException if the <code>toRemove</code> channel
-     * binding is not present in the list.
+     * Returns <code>true</code> if the pixels type is signed, 
+     * <code>false</code> otherwise.
+     * 
      * @return See above.
      */
-    private List<ChannelBinding> getOtherBindings(
-    		List<ChannelBinding> bindings, ChannelBinding toRemove)
+    public boolean isPixelsTypeSigned()
     {
-    	if (!bindings.contains(toRemove))
-    		throw new IllegalArgumentException(
-    				"Channel binding not found in list.");
-    	List<ChannelBinding> otherBindings =
-    		new ArrayList<ChannelBinding>(bindings.size() - 1);
-    	for (ChannelBinding binding : bindings)
-    	{
-    		if (binding != toRemove)
-    			otherBindings.add(binding);
-    	}
-    	return otherBindings;
+    	if (metadata == null) return false;
+    	return PlaneFactory.isTypeSigned(metadata.getPixelsType());
     }
+	
+    /**
+     * Returns the minimum value for that channels depending on the pixels
+     * type and the orginal range (globalmax, globalmin)
+     * 
+     * @param w The channel index.
+     * @return See above.
+     */
+	public double getPixelsTypeLowerBound(int w)
+	{
+		QuantumStrategy qs = getQuantumManager().getStrategyFor(w);
+		return qs.getPixelsTypeMin();
+	}
+
+	/**
+     * Returns the maximum value for that channels depending on the pixels
+     * type and the orginal range (globalmax, globalmin)
+     * 
+     * @param w The channel index.
+     * @return See above.
+     */
+	public double getPixelsTypeUpperBound(int w)
+	{
+		QuantumStrategy qs = getQuantumManager().getStrategyFor(w);
+		return qs.getPixelsTypeMax();
+	}
+	
 }

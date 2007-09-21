@@ -15,7 +15,6 @@ package omeis.providers.re;
 import ome.model.core.Channel;
 import ome.model.core.LogicalChannel;
 import ome.model.display.Color;
-import ome.model.enums.PhotometricInterpretation;
 
 /**
  * Utility class to determine the color usually associated to a specified

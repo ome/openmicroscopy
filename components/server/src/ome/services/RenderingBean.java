@@ -1041,6 +1041,57 @@ public class RenderingBean extends AbstractLevel2Service implements
     }
     
     /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see RenderingEngine#isPixelsTypeSigned()
+     */
+    @RolesAllowed("user")
+    public boolean isPixelsTypeSigned()
+    {
+    	rwl.readLock().lock();
+        try {
+        	errorIfInvalidState();
+            return renderer.isPixelsTypeSigned();
+        } finally {
+            rwl.readLock().unlock();
+        }
+    }
+    
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see RenderingEngine#getPixelsTypeLowerBound(int)
+     */
+    @RolesAllowed("user")
+    public double getPixelsTypeLowerBound(int w)
+    {
+    	rwl.readLock().lock();
+        try {
+        	errorIfInvalidState();
+            return renderer.getPixelsTypeLowerBound(w);
+        } finally {
+            rwl.readLock().unlock();
+        }
+    }
+    
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see RenderingEngine#getPixelsTypeUpperBound(int)
+     */
+    @RolesAllowed("user")
+    public double getPixelsTypeUpperBound(int w)
+    {
+    	rwl.readLock().lock();
+        try {
+        	errorIfInvalidState();
+        	 return renderer.getPixelsTypeUpperBound(w);
+        } finally {
+            rwl.readLock().unlock();
+        }
+    }
+    
+    /**
      * Close the active renderer, cleaning up any potential messes left by
      * the included pixel buffer.
      */
