@@ -21,7 +21,6 @@
  *------------------------------------------------------------------------------
  */
 package org.openmicroscopy.shoola.util.ui.lens;
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
@@ -50,7 +49,7 @@ class ZoomAction
 {
 	
 	/** Number of options in action. */
-	final static int 		MAX = 10;
+	final static int 		MAX = 11;
 
 	/** Constant for zoom action to set the magnification of the lens to x1.*/
 	final static int		ZOOMx1 = 0;
@@ -82,6 +81,9 @@ class ZoomAction
 	/** Constant for zoom action to set the magnification of the lens to x10.*/
 	final static int		ZOOMx10 = 9;
 	
+	/** Constant for zoom action to set the magnification of the lens to x10.*/
+	final static int		MANUAL = 10;
+	
 	/** Parent component of the lens object. */
 	private LensComponent	lens;
 	
@@ -92,17 +94,18 @@ class ZoomAction
 	private static String[]	names;
 	   
 	static {
-	        names = new String[MAX];
-	        names[ZOOMx1] = "100%";
-	        names[ZOOMx2] = "200%";
-	        names[ZOOMx3] = "300%";
-	        names[ZOOMx4] = "400%";
-	        names[ZOOMx5] = "500%";
-	        names[ZOOMx6] = "600%";
-	        names[ZOOMx7] = "700%";
-	        names[ZOOMx8] = "800%";
-	        names[ZOOMx9] = "900%";
-	        names[ZOOMx10] = "1000%";
+		names = new String[MAX];
+		names[ZOOMx1] = "100%";
+		names[ZOOMx2] = "200%";
+		names[ZOOMx3] = "300%";
+		names[ZOOMx4] = "400%";
+		names[ZOOMx5] = "500%";
+		names[ZOOMx6] = "600%";
+		names[ZOOMx7] = "700%";
+		names[ZOOMx8] = "800%";
+		names[ZOOMx9] = "900%";
+		names[ZOOMx10] = "1000%";
+		names[MANUAL] = "Manual";
 	}
 
 	/** 
@@ -110,25 +113,63 @@ class ZoomAction
      * 
      * @param i The index to check.
      */
-   private void checkIndex(int i)
-   {
-       switch (i) {
-           case ZOOMx1:
-           case ZOOMx2:
-           case ZOOMx3:
-           case ZOOMx4:
-           case ZOOMx5:
-           case ZOOMx6:
-           case ZOOMx7:
-           case ZOOMx8:
-           case ZOOMx9:
-           case ZOOMx10:
-            return;
-           default:
-               throw new IllegalArgumentException("Index not supported.");
-       }
-   }
+	private void checkIndex(int i)
+	{
+		switch (i) {
+			case ZOOMx1:
+			case ZOOMx2:
+			case ZOOMx3:
+			case ZOOMx4:
+			case ZOOMx5:
+			case ZOOMx6:
+			case ZOOMx7:
+			case ZOOMx8:
+			case ZOOMx9:
+			case ZOOMx10:
+			case MANUAL:
+				return;
+			default:
+				throw new IllegalArgumentException("Index not supported.");
+		}
+	}
    
+	/** 
+	 * Returns the index corresponding to the passed factor.
+	 * 
+	 * @param i The magnification factor.
+	 * @return See above.
+	 */
+	static int factorToIndex(float i)
+	{
+		double d = Math.ceil(i);
+		if ((i-d) != 0) return MANUAL;
+		int v = (int) i;
+		switch (v) {
+			case ZOOMx1+1:
+				return ZOOMx1;
+			case ZOOMx2+1:
+				return ZOOMx2;
+			case ZOOMx3+1:
+				return ZOOMx3;
+			case ZOOMx4+1:
+				return ZOOMx4;
+			case ZOOMx5+1:
+				return ZOOMx5;
+			case ZOOMx6+1:
+				return ZOOMx6;
+			case ZOOMx7+1:
+				return ZOOMx7;
+			case ZOOMx8+1:
+				return ZOOMx8;
+			case ZOOMx9+1:
+				return ZOOMx9;
+			case ZOOMx10+1:
+				return ZOOMx10;
+			default:
+				return MANUAL;
+		}
+	}
+	
 	/**
 	 * Zoom action changes the magnification of the lens based on the parameter 
 	 * zoomIndex. 
@@ -145,9 +186,19 @@ class ZoomAction
 	}
 	
 	/**
+	 * Returns the index of the action.
+	 * 
+	 * @return See above.
+	 */
+	int getIndex() { return index; }
+	
+	/**
      * Sets the magnification factor.
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void actionPerformed(ActionEvent e) { lens.setZoomFactor(index+1); }
+	public void actionPerformed(ActionEvent e)
+	{ 
+		if (index != MANUAL) lens.setZoomFactor(index+1); 
+	}
 
 }

@@ -64,26 +64,30 @@ import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /** 
- * Modal dialog presenting the existing user groups and 
- * and the experimenters in each group. The user can then select and 
- * view other people data.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since OME3.0
- */
+* Modal dialog presenting the existing user groups and 
+* and the experimenters in each group. The user can then select and 
+* view other people data.
+*
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $Date: $)
+* </small>
+* @since OME3.0
+*/
 public class UserManagerDialog 
 	extends JDialog
+	implements ActionListener
 {
 
 	/** Bounds property indicating that a new user has been selected. */
 	public static final String		USER_SWITCH_PROPERTY = "userSwitch";
+	
+	/** The default size of the window. */
+	private static final Dimension	DEFAULT_SIZE = new Dimension(350, 400);
 	
 	/** The window's title. */
 	private static final String		TITLE = "Switch user";
@@ -99,24 +103,27 @@ public class UserManagerDialog
 	private static final String		APPLY_DESCRIPTION = "View selected " +
 			"user's data.";
 	
-	/** The description of the {@link #mySelf} button. */
-	private static final String		MYSELF_DESCRIPTION = "View my data.";
+	/** Action command ID indicating to close the window. */
+	private static final int		CANCEL = 0;
 	
-    /** 
-     * The size of the invisible components used to separate buttons
-     * horizontally.
-     */
-    private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
-    
+	/** Action command ID indicating to apply the selection. */
+	private static final int		APPLY = 1;
+	
+	/** Action command ID indicating to display content of a group. */
+	private static final int		GROUPS = 2;
+	
+  /** 
+   * The size of the invisible components used to separate buttons
+   * horizontally.
+   */
+  private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
+  
 	/** Button to close without applying the selection. */
 	private JButton 					cancel;
 	
 	/** Button to apply the selection. */
 	private JButton						apply;
-	
-	/** Button to select the logged in user. */
-	private JButton						mySelf;
-	
+
 	/** The box hosting the groups. */
 	private JComboBox					groups;
 	
@@ -180,39 +187,19 @@ public class UserManagerDialog
 				model.add(index, d);
 				index++;
 			}	
-        }
+      }
 	}
 	
 	/** Adds listeners. */
 	private void attachListeners()
 	{
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		cancel.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { cancel(); }
-		});
-		apply.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { apply(); }
-		});
-		mySelf.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e)
-			{ 
-				Map<Long, ExperimenterData> 
-					r = new HashMap<Long, ExperimenterData>(1);
-				r.put(new Long(loggedUser.getDefaultGroup().getId()), 
-						loggedUser);
-				firePropertyChange(USER_SWITCH_PROPERTY, null, r);
-				cancel();
-			}
-		});
-		groups.addActionListener(new ActionListener() {
-		
-			public void actionPerformed(ActionEvent e)
-			{ 
-				DefaultListModel model = (DefaultListModel) users.getModel();
-				model.clear();
-				fillList(orderedMap.get(groups.getSelectedItem()));
-			}
-		});
+		cancel.setActionCommand(""+CANCEL);
+		cancel.addActionListener(this);
+		apply.setActionCommand(""+APPLY);
+		apply.addActionListener(this);
+		groups.setActionCommand(""+GROUPS);
+		groups.addActionListener(this);
 		users.getSelectionModel().addListSelectionListener(
 				new ListSelectionListener() {
 		
@@ -243,13 +230,6 @@ public class UserManagerDialog
 		apply.setToolTipText(
 				UIUtilities.formatToolTipText(APPLY_DESCRIPTION));
 		getRootPane().setDefaultButton(apply);
-		mySelf = new JButton("Myself");
-		//IconManager im = IconManager.getInstance();
-		//mySelf.setIcon(im.getIcon(IconManager.OWNER));
-		mySelf.setToolTipText(
-				UIUtilities.formatToolTipText(MYSELF_DESCRIPTION));
-		mySelf.setEnabled(false);
-		
 		GroupData defaultGroup = loggedUser.getDefaultGroup();
 		long groupID = defaultGroup.getId();
 		//Build the array for box.
@@ -275,15 +255,18 @@ public class UserManagerDialog
 		//sort by name
 		groups = new JComboBox(objects);
 		groups.setRenderer(new GroupsRenderer());
-		if (objects.length != 0)
-			groups.setSelectedIndex(selectedIndex);
+		
 		
 		DefaultListModel model = new DefaultListModel();
 		users = new JList(model);
 		fillList(orderedMap.get(selectedGroup));
 		users.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		users.setLayoutOrientation(JList.VERTICAL);
-		users.setCellRenderer(new UserListRenderer());		
+		users.setCellRenderer(new UserListRenderer());	
+		attachListeners();
+		if (objects.length != 0)
+			groups.setSelectedIndex(selectedIndex);
+		
 	}
 	
 	/** 
@@ -294,30 +277,30 @@ public class UserManagerDialog
 	private JPanel buildContent()
 	{
 		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
- 				{TableLayout.PREFERRED, 5,
+				{TableLayout.PREFERRED, 5,
 			 	TableLayout.PREFERRED, TableLayout.FILL}}; //rows
 		JPanel content = new JPanel();
 		content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        content.setLayout(new TableLayout(tl));
+      content.setLayout(new TableLayout(tl));
 		//content.add(currentUser, "1, 0");
-        JLabel label = UIUtilities.setTextFont("Groups");
-        label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+      JLabel label = UIUtilities.setTextFont("Groups");
+      label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		content.add(label, "0, 0, l, c");
 		content.add(groups, "1, 0, f, c");
 		content.add(new JLabel(), "0, 1, 1, 1");
 		label = UIUtilities.setTextFont("Users");
-        label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+      label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		content.add(label, "0, 2, l, c");
 		content.add(new JScrollPane(users), "1, 2, 1, 3");
 		return content;
 	}
 	
-    /**
-     * Builds the tool bar hosting the {@link #cancel} and {@link #apply}
-     * buttons.
-     * 
-     * @return See above;
-     */
+  /**
+   * Builds the tool bar hosting the {@link #cancel} and {@link #apply}
+   * buttons.
+   * 
+   * @return See above;
+   */
 	private JPanel buildToolBar()
 	{
 		JPanel bar = new JPanel();
@@ -335,12 +318,12 @@ public class UserManagerDialog
 	{
 		IconManager im = IconManager.getInstance();
 		TitlePanel titlePanel = new TitlePanel(TITLE, TEXT, 
-                im.getIcon(IconManager.OWNER_48));
+              im.getIcon(IconManager.OWNER_48));
 		Container c = getContentPane();
-        c.setLayout(new BorderLayout(0, 0));
-        c.add(titlePanel, BorderLayout.NORTH);
-        c.add(buildContent(), BorderLayout.CENTER);
-        c.add(buildToolBar(), BorderLayout.SOUTH);
+      c.setLayout(new BorderLayout(0, 0));
+      c.add(titlePanel, BorderLayout.NORTH);
+      c.add(buildContent(), BorderLayout.CENTER);
+      c.add(buildToolBar(), BorderLayout.SOUTH);
 	}
 	
 	/**
@@ -359,8 +342,33 @@ public class UserManagerDialog
 		setProperties();
 		this.loggedUser = loggedUser;
 		initComponents(groups);
-		attachListeners();
 		buildGUI();
+	}
+
+	/** Sets the default size of window. */
+	public void setDefaultSize()
+	{
+		setSize(DEFAULT_SIZE);
+	}
+	
+	/**
+	 * Performs the actions.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int id = Integer.parseInt(e.getActionCommand());
+		switch (id) {
+			case CANCEL:
+				cancel();
+				break;
+			case APPLY:
+				apply();
+			case GROUPS:
+				DefaultListModel model = (DefaultListModel) users.getModel();
+				model.clear();
+				fillList(orderedMap.get(groups.getSelectedItem()));
+		}
 	}
 	
 }

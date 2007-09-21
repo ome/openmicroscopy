@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.util.ui.lens;
 
 //Java imports
+import java.util.Enumeration;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
@@ -36,19 +37,19 @@ import javax.swing.JPopupMenu;
 import org.openmicroscopy.shoola.util.ui.ColorMenuItem;
 
 /** 
- * LensMenu is a singleton class which creates both the popupmenus and menubars
- * used in the lensUI and zoomWindowUI.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since OME3.0
- */
+* LensMenu is a singleton class which creates both the popupmenus and menubars
+* used in the lensUI and zoomWindowUI.
+*
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+* 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $Date: $)
+* </small>
+* @since OME3.0
+*/
 class LensMenu 
 {
 	
@@ -90,6 +91,12 @@ class LensMenu
 	/** The menubar which holds the menu items. */
 	private JMenuBar			menubar;
 
+	/** Group hosting the lens width check box elements. */
+	private ButtonGroup			lensGroup;
+	
+	/** Group hosting the zooming check box elements. */
+	private ButtonGroup			zoomGroup;
+	
 	/**
 	 * Creates the menu which will allow the user to adjust the size of the lens.
 	 * 
@@ -98,12 +105,17 @@ class LensMenu
 	private JMenu createLensOptions()
 	{
 		JMenu lensOptions = new JMenu(LENS_OPTIONS);
-		JMenuItem setLensSize;
+		JCheckBoxMenuItem setLensSize;
+		LensAction a;
+		lensGroup = new ButtonGroup();
 		
-		for (int indexCnt = 0 ; indexCnt < LensAction.MAX ; indexCnt++)
+		for (int i = 0 ; i < LensAction.MAX ; i++)
 		{
-			setLensSize = new JMenuItem(new LensAction(lensComponent, 
-																	indexCnt));
+			a = new LensAction(lensComponent, i);
+			setLensSize = new JCheckBoxMenuItem();
+			setLensSize.setSelected(i == LensAction.LENSDEFAULTSIZE);
+			setLensSize.setAction(a);
+			lensGroup.add(setLensSize);
 			lensOptions.add(setLensSize);
 		}
 		return lensOptions;
@@ -117,13 +129,16 @@ class LensMenu
 	 */
 	private JMenu createZoomOptions()
 	{
-		JMenu					zoomOptions;
-		JMenuItem				setLensZoom;
-		zoomOptions = new JMenu(ZOOM_OPTIONS);
-		for (int indexCnt = 0 ; indexCnt < ZoomAction.MAX ; indexCnt++)
-		{
-			setLensZoom = new JMenuItem(new ZoomAction(lensComponent, 
-																	indexCnt));
+		JMenu zoomOptions = new JMenu(ZOOM_OPTIONS);
+		JCheckBoxMenuItem setLensZoom;
+		ZoomAction a;
+		zoomGroup = new ButtonGroup();
+		for (int i = 0 ; i < ZoomAction.MAX ; i++) {
+			a = new ZoomAction(lensComponent, i);
+			setLensZoom = new JCheckBoxMenuItem();
+			setLensZoom.setSelected(i == ZoomAction.ZOOMx1);
+			setLensZoom.setAction(a);
+			zoomGroup.add(setLensZoom);
 			zoomOptions.add(setLensZoom);
 		}
 		return zoomOptions;
@@ -136,8 +151,8 @@ class LensMenu
 	 */
 	private JMenu createLensColorOptions()
 	{
-		JMenu					lensColorOptions;
-		ColorMenuItem			lensColor;
+		JMenu lensColorOptions;
+		ColorMenuItem lensColor;
 		LensColorAction lensColorAction;
 		lensColorOptions = new JMenu(LENS_COLOR_OPTIONS);
 		for (int indexCnt = 0; indexCnt < LensColorAction.MAX ; indexCnt++)
@@ -159,17 +174,18 @@ class LensMenu
 	 */
 	private JMenu createDisplayOptions()
 	{
-		JMenu					displayOptions;
-		JCheckBoxMenuItem	setDisplayScale;
+		JMenu displayOptions;
+		JCheckBoxMenuItem setDisplayScale;
 		displayOptions = new JMenu(DISPLAY_UNITS);
 		ButtonGroup displayUnits = new ButtonGroup();
-		for (int indexCnt = 0 ; indexCnt < DisplayAction.MAX ; indexCnt++)
+		int i;
+		for (i = 0 ; i < DisplayAction.MAX ; i++)
 		{
 			setDisplayScale = new JCheckBoxMenuItem(new DisplayAction
-													(lensComponent, indexCnt));
+													(lensComponent, i));
 			displayUnits.add(setDisplayScale);
 			displayOptions.add(setDisplayScale);
-			setDisplayScale.setSelected(indexCnt == 1);
+			setDisplayScale.setSelected(i == 1);
 		}
 		return displayOptions;
 	}
@@ -180,13 +196,9 @@ class LensMenu
 	 */
 	private void createPopupMenu()
 	{
-		JMenuItem 				topOption;
-			
 		popupMenu = new JPopupMenu(POPUP_MENU_DESCRIPTION);
-		topOption = new JMenuItem(POPUP_MENU_TOPOPTION);
-		popupMenu.add(topOption);
+		popupMenu.add(new JMenuItem(POPUP_MENU_TOPOPTION));
 		popupMenu.addSeparator();
-		
 		popupMenu.add(createLensOptions());
 		popupMenu.add(createZoomOptions());
 		popupMenu.add(createDisplayOptions());
@@ -200,13 +212,11 @@ class LensMenu
 	private void createMenubarMenu()
 	{
 		menubar = new JMenuBar();
-		
 		menubar.add(createLensOptions());
 		menubar.add(createZoomOptions());
 		menubar.add(createDisplayOptions());
 		menubar.add(createLensColorOptions());
 	}
-
 	
 	/**
 	 * Creates the menu and attaches the lens component. 
@@ -233,6 +243,44 @@ class LensMenu
 	 * @return See above.
 	 */
 	JMenuBar getMenubar() { return menubar; }
+	
+	/**
+	 * Selects the menu item corresponding to the passed index.
+	 * 
+	 * @param index The index. 
+	 */
+	void setSelectedSize(int index)
+	{
+		JCheckBoxMenuItem item;
+		LensAction a;
+		Enumeration e;
+		for (e = lensGroup.getElements(); e.hasMoreElements();) {
+			item = (JCheckBoxMenuItem) e.nextElement();
+			a = (LensAction) item.getAction();
+			item.removeActionListener(a);
+			item.setSelected(a.getIndex() == index);
+			item.setAction(a);
+		}
+	}
+	
+	/**
+	 * Selects the menu item corresponding to the passed index.
+	 * 
+	 * @param index The index. 
+	 */
+	void setZoomIndex(int index)
+	{
+		JCheckBoxMenuItem item;
+		ZoomAction a;
+		Enumeration e;
+		for (e = zoomGroup.getElements(); e.hasMoreElements();) {
+			item = (JCheckBoxMenuItem) e.nextElement();
+			a = (ZoomAction) item.getAction();
+			item.removeActionListener(a);
+			item.setSelected(a.getIndex() == index);
+			item.setAction(a);
+		}
+	}
 	
 }
 

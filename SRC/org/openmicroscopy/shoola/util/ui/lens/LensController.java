@@ -21,7 +21,6 @@
  *------------------------------------------------------------------------------
  */
 package org.openmicroscopy.shoola.util.ui.lens;
-
 //Java imports
 import java.awt.Cursor;
 
@@ -366,23 +365,6 @@ class LensController
 			startY = lens.getY();
 			lensDrag = true;
 		}
-	}
-	
-	/**
-	 * Magnifies the image.
-	 * 
-	 * @param tick The number of "clicks" the mouse wheel was rotated.
-	 */
-	void lensMouseWheelMoved(int tick)
-	{
-		float zoomFactor = lensModel.getZoomFactor();
-		zoomFactor -= 0.1f*tick;
-		zoomFactor = Math.round(zoomFactor*10)/10.0f;
-		if (zoomFactor < LensModel.MINIMUM_ZOOM)
-			zoomFactor = LensModel.MINIMUM_ZOOM;
-		if (zoomFactor > LensModel.MAXIMUM_ZOOM)
-			zoomFactor = LensModel.MAXIMUM_ZOOM;
-		setZoomFactor(zoomFactor);
 	}
 	
 	/**

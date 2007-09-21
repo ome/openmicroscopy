@@ -31,6 +31,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.core.Pixels;
 import ome.model.display.CodomainMapContext;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
@@ -555,5 +556,41 @@ public interface RenderingControl
      */
     public void resetSettings(RndProxyDef settings)
     	throws RenderingServiceException, DSOutOfServiceException;
+    
+    /**
+     * Returns <code>true</code> if the pixels type is signed, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+	public boolean isPixelsTypeSigned();
+	
+	/**
+     * Returns the minimum value for that channels depending on the pixels
+     * type and the orginal range (globalmax, globalmin)
+     * 
+     * @param w The channel index.
+     * @return See above.
+     */
+	public double getPixelsTypeLowerBound(int w);
+
+	/**
+     * Returns the maximum value for that channels depending on the pixels
+     * type and the orginal range (globalmax, globalmin)
+     * 
+     * @param w The channel index.
+     * @return See above.
+     */
+	public double getPixelsTypeUpperBound(int w);
+	
+	/**
+	 * Controls if the passed set of pixels is compatible
+	 * to the set the rendering engine is for. 
+	 * This method should be invoked before copying the rendering settings.
+	 * 
+	 * @param pixels The pixels to controls.
+	 * @return See above.
+	 */
+	public boolean validatePixels(Pixels pixels);
 
 }

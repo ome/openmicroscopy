@@ -31,6 +31,7 @@ import java.awt.Rectangle;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
+import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewerFactory;
@@ -39,7 +40,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
-
 import pojos.ExperimenterData;
 
 /** 
@@ -118,6 +118,16 @@ public class HiViewerAgent
 		}
     }
     
+    /**
+     * Handles the {@link CopyRndSettings} event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleCopyRndSettings(CopyRndSettings evt)
+    {
+    	HiViewerFactory.setRefPixelsID(evt.getPixelsID());
+    }
+    
     /** Creates a new instance. */
     public HiViewerAgent() {}
     
@@ -142,6 +152,7 @@ public class HiViewerAgent
         registry = ctx;
         EventBus bus = registry.getEventBus();
         bus.register(this, Browse.class);
+        bus.register(this, CopyRndSettings.class);
     }
 
     /**
@@ -160,6 +171,8 @@ public class HiViewerAgent
     {
         if (e instanceof Browse)
             handleBrowse((Browse) e);
+        else if (e instanceof CopyRndSettings)
+			handleCopyRndSettings((CopyRndSettings) e);
     }
     
     /** 
@@ -194,3 +207,4 @@ public class HiViewerAgent
     }
 
 }
+

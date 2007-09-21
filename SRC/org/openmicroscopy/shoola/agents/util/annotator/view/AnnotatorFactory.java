@@ -31,22 +31,24 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+
 import pojos.DataObject;
 
 /** 
- * Factory to create {@link Annotator} and {@link AnnotatorEditor} components.
- *
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since OME3.0
- */
+* Factory to create {@link Annotator} and {@link AnnotatorEditor} components.
+*
+*
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $Date: $)
+* </small>
+* @since OME3.0
+*/
 public class AnnotatorFactory
 {
 	
@@ -85,9 +87,27 @@ public class AnnotatorFactory
 		if (registry == null) registry = ctx;
 		if (parent == null) owner = parent;
 		if (objects == null || objects.size() == 0) return null;
-		return singleton.createAnnotator(objects, Annotator.ANNOTATE_MODE, type);
+		return singleton.createAnnotator(objects, Annotator.ANNOTATE_MODE, 
+										type);
 	}
-	  
+
+	/**
+	 * Returns the {@link Annotator}.
+	 * 
+	 * @param parent	The owner of the dialog.
+	 * @param ref 		The time ref object.
+	 * @param ctx 		A reference to the {@link Registry}.
+	 * @return See above.
+	 */
+	public static Annotator getAnnotator(JFrame parent, TimeRefObject ref,
+										Registry ctx)
+	{
+		if (registry == null) registry = ctx;
+		if (parent == null) owner = parent;
+		if (ref == null) return null;
+		return singleton.createAnnotator(ref);
+	}
+	
 	/**
 	 * Returns the {@link Annotator}.
 	 * 
@@ -126,9 +146,9 @@ public class AnnotatorFactory
 	/** Reference to the registry. */
 	private static Registry         registry;
 	  
-    /** The owner of the dialog. */
-    private static JFrame			owner;
-    
+  /** The owner of the dialog. */
+  private static JFrame			owner;
+  
 	/** Creates a new instance.*/
 	private AnnotatorFactory() {}
 	  
@@ -141,7 +161,7 @@ public class AnnotatorFactory
 	 * 					{@link Annotator#BULK_ANNOTATE_MODE} or
 	 * 					{@link Annotator#ANNOTATE_MODE}.
 	 * @param type		The type of node, either <code>ImageData</code> or
-	 * 					either <code>DatasetData</code>
+	 * 					either <code>DatasetData</code>.
 	 * @return A {@link Annotator}.
 	 */
 	private Annotator createAnnotator(Set objects, int mode, Class type)
@@ -152,7 +172,23 @@ public class AnnotatorFactory
 	  	component.initialize();
 	    return component;
 	}
-  
+
+	/**
+	 * Creates or recycles an annotator component for the specified 
+	 * <code>model</code>.
+	 * 
+	 * @param ref	The time ref objects.
+	 * @return A {@link Annotator}.
+	 */
+	private Annotator createAnnotator(TimeRefObject ref)
+	{
+		AnnotatorModel model = new AnnotatorModel(ref);
+	  	AnnotatorComponent component = new AnnotatorComponent(model);
+	  	model.initialize(component);
+	  	component.initialize();
+	    return component;
+	}
+	
 	/**
 	 * Creates an editor for the passed object.
 	 * 

@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.JFrame;
 
@@ -502,5 +503,23 @@ public interface HiViewer
 	 * @param b The value to set.
 	 */
 	public void mouseOver(boolean b);
+
+	/**
+	 * Returns <code>true</code> if we can paste some rendering settings,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasRndSettings();
+	
+	/** Pastes the stored rendering settings across the selected images. */
+	public void pasteRndSettings();
+
+	/** 
+	 * Notifies the user that the save is done.
+	 * 
+	 * @param map The value to set.
+	 */
+	public void rndSettingsPasted(Map map);
     
 }

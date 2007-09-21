@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
-
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,10 +36,9 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import layout.TableLayout;
-
 
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
@@ -132,7 +130,9 @@ class GraphicsPane
         
         int s = (int) model.getWindowStart();
         int e = (int) model.getWindowEnd();
-        domainSlider = new TwoKnobsSlider((int) model.getGlobalMin(), 
+        domainSlider = new TwoKnobsSlider((int) model.getLowestValue(), 
+                            (int) model.getHighestValue(), 
+                            (int) model.getGlobalMin(),
                             (int) model.getGlobalMax(), s, e);
         domainSlider.setPaintLabels(false);
         domainSlider.setPaintEndLabels(false);
@@ -206,16 +206,6 @@ class GraphicsPane
    	 	p.add(panel, "0, 0");
    	 	panel = buildFieldsPanel("Max", maxLabel, "End", endField);
    	 	p.add(panel, "2, 0");
-        /*
-        GridBagConstraints c = new GridBagConstraints();
-        p.setLayout(new GridBagLayout());
-        c.insets = new Insets(5, 20, 5, 30);
-        c.anchor = GridBagConstraints.WEST;
-        p.add(buildFieldsPanel("Min", minLabel, "Start", startField), c);
-        c.anchor = GridBagConstraints.EAST;
-        c.gridx = 1;
-        p.add(buildFieldsPanel("Max", maxLabel, "End", endField), c);
-        */
         return p;//UIUtilities.buildComponentPanel(p);
     }
     
@@ -244,32 +234,6 @@ class GraphicsPane
    	 	label.setText(txt2);
    	 	p.add(label, "0, 2");
    	 	p.add(f, "2, 2");
-        /*
-        GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(0, 10, 5, 10);
-        c.weightx = 60;
-        c.anchor = GridBagConstraints.WEST;
-        p.setLayout(new GridBagLayout());
-        JLabel label = new JLabel(txt1);
-        p.add(label, c);
-        c.gridx = 1;
-        c.weightx = 40;
-        c.anchor = GridBagConstraints.WEST;
-        p.add(l, c);
-        c.gridx = 0;
-        c.gridy = 1;
-        c.weightx = 60;
-        
-        label = new JLabel(txt2);
-        c.anchor = GridBagConstraints.CENTER;
-        
-        p.add(label, c);
-        c.gridx = 1;
-        c.weightx = 40;
-        
-        p.add(f, c);
-        p.validate();
-        */
         return p;
     }
     
@@ -285,7 +249,7 @@ class GraphicsPane
         double e = model.getWindowEnd();
         try {
             val = Double.parseDouble(startField.getText());
-            return (model.getGlobalMin() <= val && val < e);
+            return (model.getLowestValue() <= val && val < e);
         } catch(NumberFormatException nfe) {}
         return false;
     }
@@ -302,7 +266,7 @@ class GraphicsPane
          double s = model.getWindowStart();
          try {
              val = Double.parseDouble(endField.getText());
-             return (s < val && val <= model.getGlobalMax());
+             return (s < val && val <= model.getHighestValue());
          } catch(NumberFormatException nfe) {}
          return false;
     }
@@ -403,7 +367,8 @@ class GraphicsPane
         startField.setText(""+s);
         minLabel.setText(""+min);
         maxLabel.setText(""+max);
-        domainSlider.setValues(max, min, s, e);
+        domainSlider.setValues((int) model.getHighestValue(), 
+        		(int) model.getLowestValue(), max, min, s, e);
         onCurveChange();
     }
     
@@ -461,6 +426,20 @@ class GraphicsPane
      */
     int getVerticalLine() { return verticalLine; }
      
+    /**
+     * Returns the value of the partial minimum.
+     * 
+     * @return See above.
+     */
+    int getPartialMinimum() { return domainSlider.getPartialMinimum(); }
+    
+    /**
+     * Returns the value of the partial maximum.
+     * 
+     * @return See above.
+     */
+    int getPartialMaximum() { return domainSlider.getPartialMaximum(); }
+    
     /**
      * Reacts to property changes fired by the {@link TwoKnobsSlider}s.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

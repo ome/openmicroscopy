@@ -24,44 +24,51 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.IObject;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import pojos.CategoryData;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
- * Command to paste the rendering settings.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since OME3.0
- */
+* Command to paste the rendering settings.
+*
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $Date: $)
+* </small>
+* @since OME3.0
+*/
 public class RenderingSettingsSaver 
 	extends BatchCallTree
 {
 
-	 /** Result of the call. */
-    private Object    	result;
-    
-    /** Loads the specified tree. */
-    private BatchCall	loadCall;
-    
-    /** 
+	/** Result of the call. */
+	private Object    	result;
+
+	/** Loads the specified tree. */
+	private BatchCall	loadCall;
+
+	/** 
 	 * Controls if the passed type is supported.
 	 * 
 	 * @param type The type to check;
@@ -73,60 +80,121 @@ public class RenderingSettingsSaver
 			return;
 		throw new IllegalArgumentException("Type not supported.");
 	}
-	
+
 	/**
 	 * Creates a {@link BatchCall} to paste the rendering settings.
 	 * 
 	 * @param pixelsID		The id of the pixels set of reference.
-     * @param rootType		The type of nodes. Can either be 
-     * 						<code>ImageData</code>, <code>DatasetData</code> or 
-     * 						<code>CategoryData</code>.
-     * @param nodes			The nodes to apply settings to. 
+	 * @param rootType		The type of nodes. Can either be 
+	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
+	 * 						<code>CategoryData</code>.
+	 * @param ids			The id of the nodes to apply settings to. 
 	 * @return The {@link BatchCall}.
 	 */
 	private BatchCall makeBatchCall(final long pixelsID, final Class rootType,
-									final List nodes)
-    {
-    	return new BatchCall("Paste the rendering settings: ") {
-            public void doCall() throws Exception
-            {
-            	OmeroImageService rds = context.getImageService();
-            	result = rds.pasteRenderingSettings(pixelsID, rootType, nodes);
-            }
-        };
-    } 
-	
-    /**
-     * Adds the {@link #loadCall} to the computation tree.
-     * 
-     * @see BatchCallTree#buildTree()
-     */
-    protected void buildTree() { add(loadCall); }
+			final Set<Long> ids)
+	{
+		return new BatchCall("Paste the rendering settings: ") {
+			public void doCall() throws Exception
+			{
+				OmeroImageService rds = context.getImageService();
+				result = rds.pasteRenderingSettings(pixelsID, rootType, ids);
+			}
+		};
+	} 
 
-    /**
-     * Returns the {@link RenderingControl}.
-     * 
-     * @see BatchCallTree#getResult()
-     */
-    protected Object getResult() { return result; }
+	/**
+	 * Creates a {@link BatchCall} to paste the rendering settings.
+	 * 
+	 * @param pixelsID	The id of the pixels set of reference.
+	 * @param ref		The time reference object.
+	 * @return The {@link BatchCall}.
+	 */
+	private BatchCall makeBatchCall(final long pixelsID,
+			final TimeRefObject ref)
+	{
+		return new BatchCall("Paste the rendering settings: ") {
+			public void doCall() throws Exception
+			{
+				List l = null;
+				long userID = ((ExperimenterData) context.lookup(
+						LookupNames.CURRENT_USER_DETAILS)).getId();
+				OmeroDataService os = context.getDataService();
+				switch (ref.getConstrain()) {
+				case ImagesLoader.BEFORE:
+					l = os.getImagesBeforeIObject(ref.getTime(), userID);
+					break;
+				case ImagesLoader.AFTER:
+					l = os.getImagesAfterIObject(ref.getTime(), userID);
+					break;
+				case ImagesLoader.PERIOD:
+					l = os.getImagesPeriodIObject(ref.getLowerTime(), 
+							ref.getTime(), userID);
+					break;
+				}
+				if (l != null) {
+					Iterator i = l.iterator();
+					IObject element;
+					Set<Long> ids = new HashSet<Long>(l.size());
+					while (i.hasNext()) {
+						element = (IObject) i.next();
+						ids.add(element.getId());
+					}
+					OmeroImageService rds = context.getImageService();
+					result = rds.pasteRenderingSettings(pixelsID, 
+							ImageData.class, ids);
+				}
 
-    /**
-     * 
-     * @param pixelsID		The id of the pixels set of reference.
-     * @param rootNodeType	The type of nodes. Can either be 
-     * 						<code>ImageData</code>, <code>DatasetData</code> or 
-     * 						<code>CategoryData</code>.
-     * @param nodes			The nodes to apply settings to. 
-     * 						Mustn't be <code>null</code>.
-     */
-    public RenderingSettingsSaver(long pixelsID, Class rootNodeType, List nodes)
-    {
-    	checkRootType(rootNodeType);
-    	if (nodes == null || nodes.size() == 0)
+			}
+		};
+	} 
+
+	/**
+	 * Adds the {@link #loadCall} to the computation tree.
+	 * 
+	 * @see BatchCallTree#buildTree()
+	 */
+	protected void buildTree() { add(loadCall); }
+
+	/**
+	 * Returns the {@link RenderingControl}.
+	 * 
+	 * @see BatchCallTree#getResult()
+	 */
+	protected Object getResult() { return result; }
+
+	/**
+	 * 
+	 * @param pixelsID		The id of the pixels set of reference.
+	 * @param rootNodeType	The type of nodes. Can either be 
+	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
+	 * 						<code>CategoryData</code>.
+	 * @param ids			The nodes to apply settings to. 
+	 * 						Mustn't be <code>null</code>.
+	 */
+	public RenderingSettingsSaver(long pixelsID, Class rootNodeType, 
+			Set<Long> ids)
+	{
+		checkRootType(rootNodeType);
+		if (ids == null || ids.size() == 0)
 			throw new IllegalArgumentException("No nodes specified.");
 		if (pixelsID < 0)
 			throw new IllegalArgumentException("Pixels ID not valid.");
-		loadCall = makeBatchCall(pixelsID, rootNodeType, nodes);
-    }
-    
+		loadCall = makeBatchCall(pixelsID, rootNodeType, ids);
+	}
+
+	/**
+	 * 
+	 * @param pixelsID	The id of the pixels set of reference.
+	 * @param ref		The time reference object.
+	 */
+	public RenderingSettingsSaver(long pixelsID, TimeRefObject ref)
+	{
+		if (pixelsID < 0)
+			throw new IllegalArgumentException("Pixels ID not valid.");
+		if (ref == null)
+			throw new IllegalArgumentException("Period not valid.");
+		loadCall = makeBatchCall(pixelsID, ref);
+	}
+
 }

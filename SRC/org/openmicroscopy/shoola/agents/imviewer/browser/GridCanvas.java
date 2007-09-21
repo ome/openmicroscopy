@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -57,7 +58,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 class GridCanvas 
 	extends ImageCanvas
 {
-    
+ 
     /** 
      * Paints the image.
      * 
@@ -87,11 +88,13 @@ class GridCanvas
         int x = 0, y = 0;
         SplitImage channel;
         String v = model.getUnitBarValue(); 
-        int s = (int) (model.getUnitBarSize()*model.getRatio());
+        int s = (int) (model.getUnitBarSize()*model.getGridRatio());
         Color c = model.getUnitBarColor();
-        FontMetrics fm = getFontMetrics(getFont());
+        Font font = getFont();;
+        FontMetrics fm = getFontMetrics(font);
         int textWidth;
         boolean text = model.isTextVisible();
+        String name;
         for (int i = 0; i < n; ++i) {
             for (int j = 0; j < n; ++j) {
                 if (!channels.hasNext()) return; //Done
@@ -102,22 +105,30 @@ class GridCanvas
                 	g2D.drawImage(image, null, x, y);
                 	//draw string.
                 	if (text) {
-                		textWidth = fm.stringWidth(channel.getName());
-                    	g2D.setColor(BACKGROUND);
-                    	g2D.fillRect(x, y, textWidth+4, 3*height/2);
-                    	g2D.setColor(getBackground());
-                        g2D.drawString(channel.getName(), x+2, y+height);
+                		name = channel.getName();
+                		textWidth = fm.stringWidth(name)+4;
+                		if (textWidth < w) {
+                			g2D.setColor(BACKGROUND);
+                        	g2D.fillRect(x, y, textWidth, 3*height/2);
+                        	g2D.setColor(getBackground());
+                            g2D.drawString(name, x+2, y+height);
+                		}
                 	}
-                    if (bar && v != null && s < w) 
-                    	ImagePaintingFactory.paintScaleBar(g2D, x+w-s-5, y+h-5, 
-                    							s, v, c);
-                    
+                	
+                    if (bar && v != null) {
+                    	textWidth = fm.stringWidth(v)+4;
+                    	if (textWidth < w/2)
+                    		ImagePaintingFactory.paintScaleBar(g2D, x+w-s-5, 
+                    									y+h-5, s, v, c);
+                    }
                 } else { //just paint rectangle.
                 	if (text) {
+                		name = channel.getName();
                 		g2D.setColor(BACKGROUND);
                     	g2D.drawRect(x, y, w-1, h-1);
-                    	//g2D.setColor(getBackground());
-                        g2D.drawString(channel.getName(), x+2, y+height);
+                    	textWidth = fm.stringWidth(name)+4;
+                    	if (textWidth < w) 
+                    		g2D.drawString(name, x+2, y+height);
                 	}
                 }
             }
@@ -132,15 +143,21 @@ class GridCanvas
         		g2D.drawImage(image, null, x, y);
             	//draw string.
             	if (text) {
-            		textWidth = fm.stringWidth(combined.getName());
-                	g2D.setColor(BACKGROUND);
-                	g2D.fillRect(x, y, textWidth+4, 3*height/2);
-                	g2D.setColor(getBackground());
-                    g2D.drawString(combined.getName(), x+2, y+height);
+            		name = combined.getName();
+            		textWidth = fm.stringWidth(name)+4;
+            		if (textWidth < w) {
+            			g2D.setColor(BACKGROUND);
+                    	g2D.fillRect(x, y, textWidth, 3*height/2);
+                    	g2D.setColor(getBackground());
+                        g2D.drawString(name, x+2, y+height);
+            		}
             	}
-                if (bar && v != null && s < w) 
-                	ImagePaintingFactory.paintScaleBar(g2D, x+w-s-5, y+h-5, 
-                							s, v, c);
+            	if (bar && v != null) {
+                	textWidth = fm.stringWidth(v)+4;
+                	if (textWidth < w/2)
+                		ImagePaintingFactory.paintScaleBar(g2D, x+w-s-5, 
+                									y+h-5, s, v, c);
+                }
         	}
         }
 	}
@@ -249,7 +266,7 @@ class GridCanvas
         }
         return null;
 	}
-	
+
 	/**
      * Overridden to paint the image.
      * @see javax.swing.JComponent#paintComponent(Graphics)
@@ -259,11 +276,9 @@ class GridCanvas
         super.paintComponent(g);
         Graphics2D g2D = (Graphics2D) g;
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
-        BufferedImage original = model.getAnnotateImage();
+        BufferedImage original = model.getCombinedImage();
     	paintImage(g2D, original.getWidth(), original.getHeight(), 
     				model.isUnitBar());
     }
 
-	
-    
 }

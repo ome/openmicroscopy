@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.DataObjectRemover;
 import org.openmicroscopy.shoola.agents.hiviewer.DataObjectSaver;
 import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
+import org.openmicroscopy.shoola.agents.hiviewer.RndSettingsSaver;
 import org.openmicroscopy.shoola.agents.hiviewer.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ThumbnailsManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
@@ -646,6 +647,19 @@ abstract class HiViewerModel
 	 * @return See above.
 	 */
 	DataHandler getDataHandler() { return dataHandler; }
+	
+	/**
+	 * Fires an asynchronous call to paste the rendering settings.
+	 * 
+	 * @param klass		The type of the node
+	 * @param nodesID	The nodes to handle.
+	 */
+	void firePasteRenderingSettings(Class klass, Set<Long> nodesID)
+	{
+		currentLoader = new RndSettingsSaver(component, klass, nodesID, 
+											HiViewerFactory.getRefPixelsID());
+		currentLoader.load();
+	}
 	
     /**
      * Indicates what kind of hierarchy this model is for.

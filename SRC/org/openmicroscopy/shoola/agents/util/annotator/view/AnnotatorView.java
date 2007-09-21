@@ -44,20 +44,20 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 
 /** 
- * The {@link Annotator}'s View. Embeds the <code>AnnotatorUI</code>
- * to let users interact with annotations. Also provides statusBar
- * and a working pane. 
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since OME3.0
- */
+* The {@link Annotator}'s View. Embeds the <code>AnnotatorUI</code>
+* to let users interact with annotations. Also provides statusBar
+* and a working pane. 
+*
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $Date: $)
+* </small>
+* @since OME3.0
+*/
 class AnnotatorView
 	extends JDialog
 {
@@ -70,26 +70,26 @@ class AnnotatorView
 	
 	/** The subtitle of the window. */
 	private static final String		NOTE = "Annotate the selected items.";
-  
+
 	/** 
 	 * The subtitle of the window when the annotation mode
 	 * is {@link Annotator#BULK_ANNOTATE_MODE}.
 	 */
 	private static final String		NOTE_CHILDREN = "Annotate the images " +
 			"contained in the selected folder.";
-  
+
 	/** Reference to the Controller. */
 	private AnnotatorControl	controller;
-  
+
 	/** Reference to the Model. */
 	private AnnotatorModel		model;
-  
+
 	/** The status bar. */
 	private StatusBar			statusBar;
-  
+
 	/** The UI component displaying the annotations. */
 	private AnnotatorUI			annotatorUI;
-  
+
 	/** 
 	 * Builds the UI component hosting the controls.
 	 * 
@@ -107,7 +107,7 @@ class AnnotatorView
 		bar.add(b);
 		return UIUtilities.buildComponentPanelRight(bar);
 	}
-  
+
 	/**
 	 * Builds the UI component displaying the annotations.
 	 * 
@@ -122,7 +122,7 @@ class AnnotatorView
 		p.add(buildToolBar());
 		return p;
 	}
-  
+
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
@@ -131,29 +131,29 @@ class AnnotatorView
 		if (model.getAnnotationMode() == Annotator.BULK_ANNOTATE_MODE)
 			note = NOTE_CHILDREN;
 		TitlePanel tp = new TitlePanel(TITLE, note, 
-  						icons.getIcon(IconManager.ANNOTATION_48));
-  	
+						icons.getIcon(IconManager.ANNOTATION_48));
+	
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(0, 0));
 		c.add(tp, BorderLayout.NORTH);
 		c.add(buildBody(), BorderLayout.CENTER);
 		c.add(statusBar, BorderLayout.SOUTH);
 	}
-  
+
 	/** Sets the properties of the window. */
 	private void setProperties()
 	{
 		setModal(true);
 		setTitle(TITLE);
 	}
-  
+
 	/** Creates a new instance. */
 	AnnotatorView()
 	{
 		super(AnnotatorFactory.getOwner());
 		setProperties();
 	}
-  
+
 	/**
 	 * Links this View to its Controller.
 	 * 
@@ -231,4 +231,15 @@ class AnnotatorView
 		return annotatorUI.getSelectedDataObject();
 	}
 
+	/** Relays out the {@link #annotatorUI}. */
+	void resetDisplay() { annotatorUI.resetDisplay(); }
+
+	/**
+	 * Returns <code>true</code> if the UI has been reset, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isResetDisplay() { return annotatorUI.isResetDisplay(); }
+	
 }

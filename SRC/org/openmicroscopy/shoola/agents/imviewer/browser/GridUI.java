@@ -139,6 +139,15 @@ class GridUI
 	 */
 	BufferedImage getGridImage() { return canvas.getGridImage(); }
 	
+	/** Resets the size of the components when a new ratio is selected. */
+	void setGridRatio()
+	{
+		setGridSize();
+		getViewport().setViewPosition(new Point(-1, -1));
+		canvas.repaint();
+		setBounds(getBounds());
+	}
+	
 	/**
 	 * Returns the coordinate of the point w.r.t the grid image 
 	 * coordinate system if the passed rectangle is contained in an image 
@@ -172,12 +181,10 @@ class GridUI
 		Dimension d = layeredPane.getPreferredSize();
 		int xLoc = ((r.width-d.width)/2);
 		int yLoc = ((r.height-d.height)/2);
-		if (xLoc < 0) xLoc = 0;
-		if (yLoc < 0) yLoc = 0;
-		//layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
-		layeredPane.setLocation(xLoc, yLoc);
+		//if (xLoc < 0) xLoc = 0;
+		//if (yLoc < 0) yLoc = 0;
+		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
+		//layeredPane.setLocation(xLoc, yLoc);
 	}
 
-	
-	
 }

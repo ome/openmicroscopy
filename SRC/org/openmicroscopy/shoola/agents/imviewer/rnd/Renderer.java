@@ -23,7 +23,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
-
 //Java imports
 import javax.swing.JComponent;
 
@@ -237,6 +236,20 @@ public interface Renderer
      * @return See above.
      */
     public double getGlobalMax();
+    
+    /**
+     * Returns the global minimum for the currently selected channel.
+     * 
+     * @return See above.
+     */
+    public double getLowestValue();
+    
+    /**
+     * Returns the global maximum for the currently selected channel.
+     * 
+     * @return See above.
+     */
+    public double getHighestValue();
     
     /** Resets the default settings. */
     public void resetDefaultRndSettings();

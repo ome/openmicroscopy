@@ -100,12 +100,6 @@ class BrowserModel
 	/** The title of the grid view. */
 	private static final String TITLE_GRIDVIEW = "Split";
 	
-	/** 
-	 * Factor use to determine the size of the annotate image
-	 * w.r.t the rendered image.
-	 */
-	private static final double	RATIO = 0.50;
-	
     /** Reference to the component that embeds this model. */ 
     private Browser         	component;
     
@@ -120,6 +114,9 @@ class BrowserModel
     
     /** A smaller version (50%) of the original image. */
     private BufferedImage		annotateImage;
+    
+    /** A smaller version (50%) of the original image. */
+    private BufferedImage		combinedImage;
     
     /** The zoom factor. */
     private double          	zoomFactor;
@@ -154,6 +151,9 @@ class BrowserModel
     /** The magnification factor used to render the annotate image. */
     private double 				ratio;
     
+    /** The magnification factor used to render the grid image. */
+    private double				gridRatio;
+    
     /** Flag indicating to initialize {@link #ratio} and {@link #unitBar}. */
     private boolean				init;
     
@@ -187,60 +187,6 @@ class BrowserModel
         return new BufferedImage(colorModel, raster, false, null);
     }
     
-    /** 
-     * Creates a new instance.
-     * 
-     * @param parent    The parent of this component.
-     *                  Mustn't be <code>null</code>.
-     * @param imageID	The id of the image.
-     */
-    BrowserModel(ImViewer parent, long imageID)
-    {
-        if (parent == null) throw new IllegalArgumentException("No parent.");
-        //unloaded image data
-        data = new ImageData();
-        data.setId(imageID);
-        this.parent = parent;
-        unitBar = true;
-        ratio = RATIO;
-        init = true;
-        unitInMicrons = UnitBarSizeAction.getDefaultValue(); // size microns.
-        unitBarColor = ImagePaintingFactory.UNIT_BAR_COLOR;
-        backgroundColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
-        gridImages = new ArrayList<BufferedImage>();
-        zoomFactor = ZoomAction.DEFAULT_ZOOM_FACTOR;
-    }
-    
-    /**
-     * Called by the <code>Browser</code> after creation to allow this
-     * object to store a back reference to the embedding component.
-     * 
-     * @param component The embedding component.
-     */
-    void initialize(Browser component) { this.component = component; }
-
-    /**
-     * Sets the rendered image.
-     * 
-     * @param image The image to set.
-     */
-    void setRenderedImage(BufferedImage image)
-    {
-        renderedImage = image;
-        //Create the annotate image.
-        if (renderedImage != null) {
-        	if (init) {
-        		if (image.getWidth() < ImViewer.MINIMUM_SIZE) {
-        			ratio = 1;
-        			unitBar = false;
-        		}
-        		init = false;
-        	}
-        	annotateImage = Factory.magnifyImage(ratio, renderedImage);
-        } else annotateImage = null;
-        displayedImage = null;
-        gridImages.clear();
-    }
     
     /**
      * Returns <code>true</code> if the channel is mapped to <code>Red</code>,
@@ -281,12 +227,10 @@ class BrowserModel
 		return (n == rgb.size());
     }
     
-    /** Sets the images composing the grid. */
-    void setGridImages()
+    /** Creates the images composing the grid. */
+    private void createGridImages()
     {
-    	if (gridImages.size() != 0) return;
     	gridImages.clear();
-    	//
     	List l = parent.getActiveChannels();
     	int maxC = parent.getMaxC();
     	List<BufferedImage> images = new ArrayList<BufferedImage>(maxC);
@@ -301,10 +245,16 @@ class BrowserModel
 	    		case 2:
 	    		case 3:
 	    			if (isImageRGB()) {
-	    				int w = annotateImage.getWidth();
-	    	        	int h = annotateImage.getHeight();
+	    				if (gridRatio == ratio) 
+	    					combinedImage = annotateImage;
+	    				else {
+	    					combinedImage = Factory.magnifyImage(gridRatio, 
+	    													renderedImage);
+	    				}
+	    				int w = combinedImage.getWidth();
+	    	        	int h = combinedImage.getHeight();
 	    	        	DataBuffer buf = 
-	    	        		annotateImage.getRaster().getDataBuffer();
+	    	        		combinedImage.getRaster().getDataBuffer();
 	    	    		for (int i = 0; i < maxC; i++) {
 	    					if (parent.isChannelActive(i)) {
 	    						if (parent.isChannelRed(i)) { 
@@ -328,7 +278,7 @@ class BrowserModel
 	    	    	if (images != null) {
 	    	    		Iterator i = images.iterator();
 	    	        	while (i.hasNext()) {
-	    	        		gridImages.add(Factory.magnifyImage(ratio, 
+	    	        		gridImages.add(Factory.magnifyImage(gridRatio, 
 	    	        								(BufferedImage) i.next()));
 	    	    		}
 	    	    	}
@@ -337,42 +287,72 @@ class BrowserModel
     		for (int i = 0; i < maxC; i++) 
 				gridImages.add(null);
     	}
-    	
-    	/*
-    	if (l.size() <= 3 && 
-    		!parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
-    		int w = annotateImage.getWidth();
-        	int h = annotateImage.getHeight();
-        	DataBuffer buf = annotateImage.getRaster().getDataBuffer();
-    		for (int i = 0; i < maxC; i++) {
-				if (parent.isChannelActive(i)) {
-					if (parent.isChannelRed(i)) {
-						gridImages.add(createBandImage(buf, w, h, RED_MASK, 
-								BLANK_MASK, BLANK_MASK));
-					} else if (parent.isChannelGreen(i)) {
-						gridImages.add(createBandImage(buf, w, h, BLANK_MASK, 
-								GREEN_MASK, BLANK_MASK));
-					} else if (parent.isChannelBlue(i)) {
-						gridImages.add(createBandImage(buf, w, h, BLANK_MASK, 
-								BLANK_MASK, BLUE_MASK));
-					} else {
-						gridImages.add(parent.getImageForGrid(i));
-					}
-				} else {
-					gridImages.add(null);
-				}
-			}
-    		return;
-    	}
-    	images = parent.getGridImages();
-    	if (images != null) {
-    		Iterator i = images.iterator();
-        	while (i.hasNext()) {
-        		gridImages.add(Factory.magnifyImage(ratio, 
-        									(BufferedImage) i.next()));
-    		}
-    	}
-    	*/
+    }
+    
+    /** 
+     * Creates a new instance.
+     * 
+     * @param parent    The parent of this component.
+     *                  Mustn't be <code>null</code>.
+     * @param imageID	The id of the image.
+     */
+    BrowserModel(ImViewer parent, long imageID)
+    {
+        if (parent == null) throw new IllegalArgumentException("No parent.");
+        //unloaded image data
+        data = new ImageData();
+        data.setId(imageID);
+        this.parent = parent;
+        unitBar = true;
+        ratio = (double) Browser.RATIO/10;
+        gridRatio = (double) Browser.RATIO/10;
+        init = true;
+        unitInMicrons = UnitBarSizeAction.getDefaultValue(); // size microns.
+        unitBarColor = ImagePaintingFactory.UNIT_BAR_COLOR;
+        backgroundColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
+        gridImages = new ArrayList<BufferedImage>();
+        zoomFactor = ZoomAction.DEFAULT_ZOOM_FACTOR;
+    }
+    
+    /**
+     * Called by the <code>Browser</code> after creation to allow this
+     * object to store a back reference to the embedding component.
+     * 
+     * @param component The embedding component.
+     */
+    void initialize(Browser component) { this.component = component; }
+
+    /**
+     * Sets the rendered image.
+     * 
+     * @param image The image to set.
+     */
+    void setRenderedImage(BufferedImage image)
+    {
+        renderedImage = image;
+        //Create the annotate image.
+        if (renderedImage != null) {
+        	if (init) {
+        		if (image.getWidth() < ImViewer.MINIMUM_SIZE) {
+        			ratio = 1;
+        			gridRatio = 1;
+        			unitBar = false;
+        		}
+        		init = false;
+        	}
+        	annotateImage = Factory.magnifyImage(ratio, renderedImage);
+        } else annotateImage = null;
+        displayedImage = null;
+        gridImages.clear();
+    }
+    
+    
+    
+    /** Sets the images composing the grid. */
+    void setGridImages()
+    {
+    	if (gridImages.size() != 0) return;
+    	createGridImages();
     }
     
     /**
@@ -649,8 +629,8 @@ class BrowserModel
      */
     Dimension getGridSize()
     {
-    	int w = (int) (getMaxX()*ratio);
-    	int h = (int) (getMaxY()*ratio);
+    	int w = (int) (getMaxX()*gridRatio);
+    	int h = (int) (getMaxY()*gridRatio);
     	int n = parent.getMaxC()+1; //add one for combined image.
     	if (n <= 3) n = 4;
     	int index = 0;
@@ -679,47 +659,8 @@ class BrowserModel
     	else splitImages.clear();
     	boolean grey = parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
     	BufferedImage combined;
-    	/*
-    	if (getRGBSplit()) {	
-        	BufferedImage r = null, g = null, b = null;
-        	if (!grey) { //shouldn't happen
-        		int w = annotateImage.getWidth();
-            	int h = annotateImage.getHeight();
-            	DataBuffer buf = annotateImage.getRaster().getDataBuffer();
-        		boolean[] rgb = parent.hasRGB();
-            	if (rgb[0])
-            		r = createBandImage(buf, w, h, RED_MASK, BLANK_MASK, 
-            				BLANK_MASK);
-            	if (rgb[1])
-            		g = createBandImage(buf, w, h, BLANK_MASK, GREEN_MASK, 
-            							BLANK_MASK);
-            	if (rgb[2])
-            		b = createBandImage(buf, w, h, BLANK_MASK, BLANK_MASK, 
-            							BLUE_MASK);
-        	}
-        	
-        	splitImages.add(new SplitImage(r, RED));
-        	splitImages.add(new SplitImage(g, GREEN));
-        	splitImages.add(new SplitImage(b, BLUE));
-        	combined = annotateImage;
-    	} else { 
-	    	String n;
-	    	combined = annotateImage;
-	    	int length = gridImages.size();
-	    	if (grey) {
-	    		length = length-1;
-	    		combined = gridImages.get(length);
-	    	}
-	    	for (int j = 0; j < length; j++) {
-	    		n = PREFIX+
-    				parent.getChannelMetadata(j).getEmissionWavelength();
-	    		splitImages.add(new SplitImage(gridImages.get(j), n));
-			}
-    	}
-    	splitImages.add(new SplitImage(combined, COMBINED));
-    	*/
     	String n;
-    	combined = annotateImage;
+    	combined = combinedImage;//annotateImage;
     	int length = gridImages.size();
     	if (grey) {
     		length = length-1;
@@ -755,7 +696,35 @@ class BrowserModel
 	 * @return See above.
 	 */
 	double getRatio() { return ratio; }
+	
+	/**
+	 * Returns the magnification factor used to render a grid image.
+	 * 
+	 * @return See above.
+	 */
+	double getGridRatio() { return gridRatio; }
 
+	/** 
+	 * Sets the ratio of the grid image.
+	 * 
+	 * @param gridRatio The value to set. 
+	 */
+	void setGridRatio(double gridRatio)
+	{ 
+		//if (ratio == 1) return; //We don't want to be too small.
+		double max = (double) Browser.MAX_RATIO/10;
+		if (gridRatio > max) return;
+		this.gridRatio = gridRatio; 
+		createGridImages();
+	}
+	
+	/**
+	 * Returns the combined image, displayed in the grid view.
+	 * 
+	 * @return See above.
+	 */
+	BufferedImage getCombinedImage() { return combinedImage; }
+	
 	/** 
 	 * Returns the number of the channels.
 	 * 

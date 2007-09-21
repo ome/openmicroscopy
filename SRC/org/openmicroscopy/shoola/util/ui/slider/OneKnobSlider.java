@@ -24,6 +24,7 @@
 package org.openmicroscopy.shoola.util.ui.slider;
 
 //Java imports
+import javax.swing.ImageIcon;
 import javax.swing.JSlider;
 
 //Third-party libraries
@@ -31,31 +32,28 @@ import javax.swing.JSlider;
 //Application-internal dependencies
 
 /** 
- * OneKnobSlider is an extension of the {@link JSlider}, 
- * it has a more <code>Aqua look and feel</code>, 
- * plus the addition of arrow buttons at the ends of the track which can 
- * increment the slider by one.
- * <p>
- * When the track is selected, the thumb will move to the point clicked, which
- * is different to the original.
- * </p>
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since OME2.2
- */
+* OneKnobSlider is an extension of the {@link JSlider}, 
+* it has a more <code>Aqua look and feel</code>, 
+* plus the addition of arrow buttons at the ends of the track which can 
+* increment the slider by one.
+* <p>
+* When the track is selected, the thumb will move to the point clicked, which
+* is different to the original.
+* </p>
+*
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+* 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $Date: $)
+* </small>
+* @since OME2.2
+*/
 public class OneKnobSlider
 	extends JSlider
 {
-
-	/** Show the arrows on the track if true. */
-	private boolean			showArrows;
 	
 	/** Slider UI for new laf. */
 	private OneKnobSliderUI	sliderUI;	
@@ -105,22 +103,35 @@ public class OneKnobSlider
 	
 	/**
 	 * Returns <code>true</code> if the  arrows on the track, 
-     * <code>false</code> otherwise.
+   * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
-	public boolean isShowArrows() { return showArrows; }
+	public boolean isShowArrows() { return sliderUI.isShowArrows(); }
 	
 	/**
 	 * Shows the arrows on the track if the passed value is <code>true</code>,
-     * hides otherwise.
+   * hides otherwise.
 	 * 
 	 * @param isShow See above.
 	 */
 	public void setShowArrows(boolean isShow)
 	{
-		showArrows = isShow;
-		sliderUI.setShowArrows(showArrows);
+		sliderUI.setShowArrows(isShow);
+	}
+	
+	/**
+	 * Replaces the arrows icons by the specified one.
+	 * 
+	 * @param up	The icon displayed at the top of the slider if
+	 * 				vertical, at the right of the slider if horizontal.
+	 * @param down  The icon displayed at the bottom of the slider if
+	 * 				vertical, at the left of the slider if horizontal.
+	 */
+	public void setArrowsImageIcon(ImageIcon up, ImageIcon down)
+	{
+		if (up == null || down == null) return;
+		sliderUI.setArrowsImageIcon(up, down);
 	}
 	
 	/**
@@ -145,32 +156,32 @@ public class OneKnobSlider
 	
 	/**
 	 * Returns <code>true</code> if the component has an <code>endLabel</code>,
-     * <code>false</code> otherwise.
+   * <code>false</code> otherwise.
 	 * 
 	 * @return See above. 
 	 */
 	public boolean hasEndLabel() { return hasLabel; }
 	
-    /**
-     * Shows the end label if set to <code>true</code>, hides it 
-     * <code>otherwise</code>.
-     *  
-     * @param show  Pass <code>true</code> to show the label, 
-     *              <code>false</code> otherwise.
-     */
+  /**
+   * Shows the end label if set to <code>true</code>, hides it 
+   * <code>otherwise</code>.
+   *  
+   * @param show  Pass <code>true</code> to show the label, 
+   *              <code>false</code> otherwise.
+   */
 	public void setShowEndLabel(boolean show)
 	{
 		showEndLabel = show;
 		sliderUI.setShowEndLabel(show);
 	}
 	
-    /**
-     * Shows the tip label if set to <code>true</code>, hides it 
-     * <code>otherwise</code>.
-     *  
-     * @param show Pass <code>true</code> to show the tip label, 
-     *              <code>false</code> otherwise.
-     */
+  /**
+   * Shows the tip label if set to <code>true</code>, hides it 
+   * <code>otherwise</code>.
+   *  
+   * @param show Pass <code>true</code> to show the tip label, 
+   *              <code>false</code> otherwise.
+   */
 	public void setShowTipLabel(boolean show)
 	{
 		showTipLabel = show;
@@ -179,7 +190,7 @@ public class OneKnobSlider
 	
 	/**
 	 * Returns <code>true</code> if the tip label will be displayed,
-     * <code>false</code> otherwise.
+   * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
@@ -187,7 +198,7 @@ public class OneKnobSlider
 	
 	/**
 	 * Returns <code>true</code> if the end label will be displayed,
-     * <code>false</code> otherwise.
+   * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */

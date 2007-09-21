@@ -29,6 +29,8 @@ package org.openmicroscopy.shoola.env.data;
 //Java imports
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -105,12 +107,6 @@ public class NullRenderingService
         return null;
     }
 
-    /**
-     * No-op implementation
-     * @see OmeroImageService#reloadRenderingService(long)
-     */
-	public void reloadRenderingService(long pixelsID) {}
-
 	/**
      * No-op implementation
      * @see OmeroImageService#loadPixelsDimensions(long)
@@ -160,6 +156,16 @@ public class NullRenderingService
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		return false;
+	}
+
+	public Map pasteRenderingSettings(long pixelsID, Class rootNodeType, Set<Long> nodeIDs) throws DSOutOfServiceException, DSAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public RenderingControl reloadRenderingService(long pixelsID) throws DSAccessException, RenderingServiceException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

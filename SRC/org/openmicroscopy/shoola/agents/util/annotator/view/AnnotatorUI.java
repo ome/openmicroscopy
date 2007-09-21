@@ -70,25 +70,25 @@ import pojos.ExperimenterData;
 
 
 /** 
- * Displays the list of annotations if some of the <code>DataObject</code>s
- * have already been annotated and a text area to enter the annotation.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since OME3.0
- */
+* Displays the list of annotations if some of the <code>DataObject</code>s
+* have already been annotated and a text area to enter the annotation.
+*
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $Date: $)
+* </small>
+* @since OME3.0
+*/
 class AnnotatorUI
 	extends JPanel
 {
 
-    /** Area where to annotate the <code>DataObject</code>. */
-    private MultilineLabel           annotationArea; 
+  /** Area where to annotate the <code>DataObject</code>. */
+  private MultilineLabel           annotationArea; 
 	
 	/** The id of the selected experimenter. */
 	private long					selectedOwnerID;
@@ -114,6 +114,9 @@ class AnnotatorUI
 	 */
 	private Map<Long, List> 		areas;
 	
+	/** Panel hosting the annotation. */
+	private JPanel					annotationPanel;
+	
 	/** Panel hosting the UI components displaying the annotations. */
 	private JPanel					listAnnotations;
 	
@@ -132,10 +135,13 @@ class AnnotatorUI
 	/** Tree hosting the selected images. */
 	private JTree					objectsTree;
 	
-    /** Handles the selection of a node in the {@link #ownerTree}. */
-    private void handleNodeSelection()
-    {
-    	Object o = ownerTree.getLastSelectedPathComponent();
+	/** Flag indicating if the diplay has been reset. */
+	private boolean					resetDisplay;
+	
+  /** Handles the selection of a node in the {@link #ownerTree}. */
+  private void handleNodeSelection()
+  {
+  	Object o = ownerTree.getLastSelectedPathComponent();
 		if (o instanceof OwnerNode) {
 			long ownerID = ((OwnerNode) o).getOwnerID();
 			showSingleAnnotation(ownerID);
@@ -150,30 +156,30 @@ class AnnotatorUI
 		}
 		validate();
 		repaint();
-    }
+  }
 
-    /** Handles the selection of a node in the {@link #objectsTree}. */
-    private void handleAnnotateNodeSelection()
-    {
-    	AnnotateNode node = 
-    				(AnnotateNode) objectsTree.getLastSelectedPathComponent();
+  /** Handles the selection of a node in the {@link #objectsTree}. */
+  private void handleAnnotateNodeSelection()
+  {
+  	AnnotateNode node = 
+  				(AnnotateNode) objectsTree.getLastSelectedPathComponent();
 		selectedNode = node;
 		showObjectAnnotation(selectedNode);
 		validate();
 		repaint();
-    }
-    
-    /** 
-     * Scrolls to the passed node.
-     * 
-     * @param c The component to handle.
-     */
-    private void scrollToNode(JComponent c)
-    {
-    	if (c == null) return;
-    	init = true;
-    	Rectangle bounds = c.getBounds();
-    	Rectangle viewRect = scrollAnnotations.getViewport().getViewRect();
+  }
+  
+  /** 
+   * Scrolls to the passed node.
+   * 
+   * @param c The component to handle.
+   */
+  private void scrollToNode(JComponent c)
+  {
+  	if (c == null) return;
+  	init = true;
+  	Rectangle bounds = c.getBounds();
+  	Rectangle viewRect = scrollAnnotations.getViewport().getViewRect();
 		if (!viewRect.contains(bounds)) {
 			int x = 0;
 			int y = 0;
@@ -187,37 +193,37 @@ class AnnotatorUI
 			JScrollBar vBar = scrollAnnotations.getVerticalScrollBar();
 			vBar.setValue(y);
 			hBar.setValue(x);
-        } 
+      } 
 		if (c == annotationArea) {
 			c.setVisible(true);
 			c.requestFocus();
 		}
-    }
+  }
 
-    /**
-     * Enables the <code>Finish</code> action depending on the
-     * length of the text entered.
-     */
-    private void handleAnnotationAreaInsert()
-    {
-    	FinishAction action = (FinishAction)
-    		controller.getAction(AnnotatorControl.FINISH);
-    	action.setEnabled(hasDataToSave());
-    }
-    
-    
-    /** Initializes the UI components. */
-    private void initComponents()
-    {
-    	commentLabel = new JLabel("0 "+AnnotatorUtil.COMMENT);
-    	listAnnotations = new JPanel();
-    	listAnnotations.setLayout(new BoxLayout(listAnnotations, 
-    							BoxLayout.Y_AXIS));
-    	scrollAnnotations = new JScrollPane(listAnnotations);
-    	JScrollBar vBar = scrollAnnotations.getVerticalScrollBar();
-    	//necessary to set the location of the scrollbar when 
-    	// the component is embedded in another UI component. */
-    	vBar.addAdjustmentListener(new AdjustmentListener() {
+  /**
+   * Enables the <code>Finish</code> action depending on the
+   * length of the text entered.
+   */
+  private void handleAnnotationAreaInsert()
+  {
+  	FinishAction action = (FinishAction)
+  		controller.getAction(AnnotatorControl.FINISH);
+  	action.setEnabled(hasDataToSave());
+  }
+  
+  
+  /** Initializes the UI components. */
+  private void initComponents()
+  {
+  	commentLabel = new JLabel("0 "+AnnotatorUtil.COMMENT);
+  	listAnnotations = new JPanel();
+  	listAnnotations.setLayout(new BoxLayout(listAnnotations, 
+  							BoxLayout.Y_AXIS));
+  	scrollAnnotations = new JScrollPane(listAnnotations);
+  	JScrollBar vBar = scrollAnnotations.getVerticalScrollBar();
+  	//necessary to set the location of the scrollbar when 
+  	// the component is embedded in another UI component. */
+  	vBar.addAdjustmentListener(new AdjustmentListener() {
 		
 			public void adjustmentValueChanged(AdjustmentEvent e) {
 				if (!e.getValueIsAdjusting() && !init) {
@@ -227,131 +233,140 @@ class AnnotatorUI
 			}
 		
 		});
-    	ownerTree = AnnotatorUtil.initTree();
-        ownerTree.setCellRenderer(new EditorTreeCellRenderer());
-        
-        ownerTree.addTreeSelectionListener(new TreeSelectionListener() {
+  	ownerTree = AnnotatorUtil.initTree();
+      ownerTree.setCellRenderer(new EditorTreeCellRenderer());
+      
+      ownerTree.addTreeSelectionListener(new TreeSelectionListener() {
 			public void valueChanged(TreeSelectionEvent e) {
 				handleNodeSelection();
 			}
 		});
-        ownerTree.addTreeExpansionListener(new TreeExpansionListener() {
-            public void treeCollapsed(TreeExpansionEvent e) {
-            	ownerTree.setSelectionPath(
-            			new TreePath(e.getPath().getLastPathComponent()));
-            }
-            public void treeExpanded(TreeExpansionEvent e) {
-            	ownerTree.setSelectionPath(
-            			new TreePath(e.getPath().getLastPathComponent()));
-            }
-        });
-         
-        objectsTree = AnnotatorUtil.initTree();
-        objectsTree.addTreeSelectionListener(new TreeSelectionListener() {
+      ownerTree.addTreeExpansionListener(new TreeExpansionListener() {
+          public void treeCollapsed(TreeExpansionEvent e) {
+          	ownerTree.setSelectionPath(
+          			new TreePath(e.getPath().getLastPathComponent()));
+          }
+          public void treeExpanded(TreeExpansionEvent e) {
+          	ownerTree.setSelectionPath(
+          			new TreePath(e.getPath().getLastPathComponent()));
+          }
+      });
+       
+      objectsTree = AnnotatorUtil.initTree();
+      objectsTree.addTreeSelectionListener(new TreeSelectionListener() {
 			public void valueChanged(TreeSelectionEvent e) {
 				handleAnnotateNodeSelection();
 			}
 		});
-        objectsTree.addTreeExpansionListener(new TreeExpansionListener() {
-            public void treeCollapsed(TreeExpansionEvent e) {
-            	objectsTree.setSelectionPath(
-            			new TreePath(e.getPath().getLastPathComponent()));
-            }
-            public void treeExpanded(TreeExpansionEvent e) {
-            	objectsTree.setSelectionPath(
-            			new TreePath(e.getPath().getLastPathComponent()));
-            }
-        });
-        annotationArea = new MultilineLabel();
-        annotationArea.setBorder(BorderFactory.createEtchedBorder());
-        annotationArea.setRows(AnnotatorUtil.ROWS);
-        listener = new DocumentListener() {
-            
-            /** 
-             * Indicates that the object is annotated. 
-             * @see DocumentListener#insertUpdate(DocumentEvent)
-             */
-            public void insertUpdate(DocumentEvent de)
-            {
-            	handleAnnotationAreaInsert();
-            }
-            
-            /** 
-             * Indicates that the object is annotated. 
-             * @see DocumentListener#removeUpdate(DocumentEvent)
-             */
-            public void removeUpdate(DocumentEvent de)
-            {
-            	handleAnnotationAreaInsert();
-            }
+      objectsTree.addTreeExpansionListener(new TreeExpansionListener() {
+          public void treeCollapsed(TreeExpansionEvent e) {
+          	objectsTree.setSelectionPath(
+          			new TreePath(e.getPath().getLastPathComponent()));
+          }
+          public void treeExpanded(TreeExpansionEvent e) {
+          	objectsTree.setSelectionPath(
+          			new TreePath(e.getPath().getLastPathComponent()));
+          }
+      });
+      annotationArea = new MultilineLabel();
+      annotationArea.setBorder(BorderFactory.createEtchedBorder());
+      annotationArea.setRows(AnnotatorUtil.ROWS);
+      listener = new DocumentListener() {
+          
+          /** 
+           * Indicates that the object is annotated. 
+           * @see DocumentListener#insertUpdate(DocumentEvent)
+           */
+          public void insertUpdate(DocumentEvent de)
+          {
+          	handleAnnotationAreaInsert();
+          }
+          
+          /** 
+           * Indicates that the object is annotated. 
+           * @see DocumentListener#removeUpdate(DocumentEvent)
+           */
+          public void removeUpdate(DocumentEvent de)
+          {
+          	handleAnnotationAreaInsert();
+          }
 
-            /** 
-             * Required by I/F but no-op implementation in our case. 
-             * @see DocumentListener#changedUpdate(DocumentEvent)
-             */
-            public void changedUpdate(DocumentEvent de) {}
-            
-        };
-        annotationArea.getDocument().addDocumentListener(listener);
-        handleAnnotationAreaInsert();
-    }
-    
-    /**
-     * Builds a panel hosting the {@link #annotationArea} and the list of users
-     * who annotated the data object.
-     * 
-     * @return See above.
-     */
-    private JComponent buildAnnotationPanel()
-    {
-        JPanel p = new JPanel();
-        p.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        
-        if (model.getAnnotationMode() == Annotator.BULK_ANNOTATE_MODE) {
-        	double[][] tl = {{TableLayout.FILL}, //columns
-    						{TableLayout.FILL} }; //rows
-    		p.setLayout(new TableLayout(tl));
-        	AnnotatorUtil.setAnnotationAreaDefault(annotationArea, 
-        			AnnotatorUtil.NEW_ANNOTATION);
-        	p.add(annotationArea, "0, 0");
-        	commentLabel.setText(AnnotatorUtil.BULK_TEXT);
-        } else {
-        	JPanel empty = new JPanel();
-            empty.setOpaque(true);
-            double[][] tl = {{250, 5, 250, 5, TableLayout.FILL}, //columns
-    				{0, TableLayout.FILL} }; //rows
-    		p.setLayout(new TableLayout(tl));
-    		p.add(new JScrollPane(objectsTree), "0, 0, 0, 1");
-    		p.add(empty, "1, 0, f, t");
-    		p.add(new JScrollPane(ownerTree), "2, 0, 0, 1");
-    		p.add(empty, "3, 0, f, t");
-    		p.add(scrollAnnotations , "4, 0, 4, 1");  
-        }
-        
-		return p;
-    }
+          /** 
+           * Required by I/F but no-op implementation in our case. 
+           * @see DocumentListener#changedUpdate(DocumentEvent)
+           */
+          public void changedUpdate(DocumentEvent de) {}
+          
+      };
+      annotationArea.getDocument().addDocumentListener(listener);
+      handleAnnotationAreaInsert();
+  }
+  
+  /**
+   * Builds a panel hosting the {@link #annotationArea} and the list of users
+   * who annotated the data object.
+   * 
+   * @return See above.
+   */
+  private JComponent buildAnnotationPanel()
+  {
+      annotationPanel = new JPanel();
+      annotationPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+      
+      if (model.getAnnotationMode() == Annotator.BULK_ANNOTATE_MODE) {
+      	layoutAnnotationArea(annotationPanel);
+      } else {
+      	JPanel empty = new JPanel();
+          empty.setOpaque(true);
+          double[][] tl = {{250, 5, 250, 5, TableLayout.FILL}, //columns
+  				{0, TableLayout.FILL} }; //rows
+          annotationPanel.setLayout(new TableLayout(tl));
+          annotationPanel.add(new JScrollPane(objectsTree), "0, 0, 0, 1");
+          annotationPanel.add(empty, "1, 0, f, t");
+          annotationPanel.add(new JScrollPane(ownerTree), "2, 0, 0, 1");
+          annotationPanel.add(empty, "3, 0, f, t");
+          annotationPanel.add(scrollAnnotations , "4, 0, 4, 1");  
+      }
+      return annotationPanel;
+  }
 
-    /** Builds and lays out the GUI. */
-    private void buildGUI()
-    {
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        
-        JPanel p = new JPanel();
-        p.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        p.add(commentLabel);
-        add(UIUtilities.buildComponentPanel(p));
-        add(new JSeparator());
-        add(Box.createRigidArea(AnnotatorUtil.SMALL_V_SPACER_SIZE));
-        add(buildAnnotationPanel());
-    }
+  /**
+   * Lays out the annotation panel when the annotation mode equals
+   * {@link Annotator#BULK_ANNOTATE_MODE} or when no annotations no displayed.
+   * 
+   * @param p The panel to lay out.
+   */
+  private void layoutAnnotationArea(JPanel p)
+  {
+  	double[][] tl = {{TableLayout.FILL}, //columns
+				{TableLayout.FILL} }; //rows
+		p.setLayout(new TableLayout(tl));
+		AnnotatorUtil.setAnnotationAreaDefault(annotationArea, 
+				AnnotatorUtil.NEW_ANNOTATION);
+		p.add(annotationArea, "0, 0");
+		commentLabel.setText(AnnotatorUtil.BULK_TEXT);
+  }
+  
+  /** Builds and lays out the GUI. */
+  private void buildGUI()
+  {
+      setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+      JPanel p = new JPanel();
+      p.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+      p.add(commentLabel);
+      add(UIUtilities.buildComponentPanel(p));
+      add(new JSeparator());
+      add(Box.createRigidArea(AnnotatorUtil.SMALL_V_SPACER_SIZE));
+      add(buildAnnotationPanel());
+  }
 
-    /**
-     * Shows the last annotation for the passed experimenter.
-     * 
-     * @param ownerID The experimenter's id.
-     */
-    private void showSingleAnnotation(long ownerID)
-    {
+  /**
+   * Shows the last annotation for the passed experimenter.
+   * 
+   * @param ownerID The experimenter's id.
+   */
+  private void showSingleAnnotation(long ownerID)
+  {
 		listAnnotations.removeAll();
 		List l = areas.get(new Long(ownerID));
 		Iterator i = l.iterator();
@@ -368,172 +383,172 @@ class AnnotatorUI
 				listAnnotations.add(pane);
 			}
 		}
-    	//setComponentsEnabled(ownerID == model.getUserDetails().getId());
-    }
-    
-    /**
-     * Shows the specified annotation for the passed experimenter.
-     * 
-     * @param ownerID	The experimenter's id.
-     * @param index		The annotation index in the list of annotation.
-     */
-    private void showDateAnnotation(long ownerID, int index)
-    {
-    	List l = areas.get(new Long(ownerID));
-    	MultilineLabel c;
-    	int j = index; 
-    	long userID = model.getUserDetails().getId();
-    	if (ownerID == userID) j++;
-    	for (int i = 0; i < l.size(); i++) {
+  	//setComponentsEnabled(ownerID == model.getUserDetails().getId());
+  }
+  
+  /**
+   * Shows the specified annotation for the passed experimenter.
+   * 
+   * @param ownerID	The experimenter's id.
+   * @param index		The annotation index in the list of annotation.
+   */
+  private void showDateAnnotation(long ownerID, int index)
+  {
+  	List l = areas.get(new Long(ownerID));
+  	MultilineLabel c;
+  	int j = index; 
+  	long userID = model.getUserDetails().getId();
+  	if (ownerID == userID) j++;
+  	for (int i = 0; i < l.size(); i++) {
 			c = (MultilineLabel) l.get(i);
 			c.setBackground(c.getOriginalBackground());
 			if (j == i && c != annotationArea) 
 				c.setBackground(UIUtilities.HIGHLIGHT);
 		}
-    	c = (MultilineLabel) l.get(j);
-    	scrollToNode(c);
-    	//deleteButton.setEnabled(index != -1 && (ownerID == userID));
-    }
-    
-    /**
-     * Displays the list of annotations linked to the data object specified
-     * by the passed id.
-     * 
-     * @param node The selected node.
-     */
-    private void showObjectAnnotation(AnnotateNode node)
-    {
-    	long objectID = node.getUserObjectID();
-    	DefaultTreeModel dtm = (DefaultTreeModel) ownerTree.getModel();
-    	DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot();
-    	root.removeAllChildren();
-    	dtm.reload(root);
-    	listAnnotations.removeAll();
-    	areas.clear();
-    	//deleteButton.setSelected(false);
-    	ExperimenterData userDetails = model.getUserDetails();
-        if (userDetails == null) return;
-    	Map annotations = null;
-        annotations = model.getAnnotationsFor(objectID);
-        OwnerNode currentUser = null;
-        int number = 0;
-        if (annotations != null) { // no annotation for this image.
-        	Iterator i = annotations.keySet().iterator();
-            Long id;
-            int index = 0;
-            List list;
-            ExperimenterData data;
-            OwnerNode owner;
-            while (i.hasNext()) {
-                id = (Long) i.next();
-                list = (List) annotations.get(id);
-                number += list.size();
-                data = ((AnnotationData) list.get(0)).getOwner();
-                owner = new OwnerNode(data);
-                owner.setNumberOfAnnotations(list.size());
-                dtm.insertNodeInto(owner, root, root.getChildCount());
-                buildTreeNode(owner, list, dtm);
-                if (userDetails.getId() == id.intValue()) currentUser = owner;
-                index++;
-            }
-        } 
-        
-        //No annotation for the current user so we add a node
-        if (currentUser == null) { 
-        	currentUser = new OwnerNode(userDetails);
-        	dtm.insertNodeInto(currentUser, root, root.getChildCount());
-        	buildTreeNode(currentUser, null, dtm);
-        }
-        TreePath path = new TreePath(currentUser.getPath());
-        ownerTree.setSelectionPath(path);
-        ownerTree.expandPath(path);
-        //setComponentsEnabled(true);
-        String text = number+AnnotatorUtil.COMMENT;
-        if (number > 1) text += "s";
-        text += " for "+node.getObjectName();
-        commentLabel.setText(text);
-    }
-    
-    /**
-     * Creates child nodes and adds to the passed parent.
-     * 
-     * @param parent		The parent's node.
-     * @param annotations	The annotations to convert.
-     * @param dtm			The default tree model.
-     */
-    private void buildTreeNode(OwnerNode parent, List annotations, 
-    							DefaultTreeModel dtm)
-    {
-    	long ownerID = parent.getOwnerID();
-    	Long id = new Long(ownerID);
-    	boolean user = model.getUserDetails().getId() == ownerID;
-    	TimeNode node = new TimeNode(ownerID, -1, null);
-    	if (user) {
-    		dtm.insertNodeInto(node, parent, parent.getChildCount());
-    		AnnotatorUtil.setAnnotationAreaDefault(annotationArea, 
-    												node.toString());
-    	}
-    	if ((annotations == null || annotations.size() == 0) && user) {
-    		List<JTextArea> l = new ArrayList<JTextArea>(1);
-    		l.add(annotationArea);
-    		areas.put(id, l);
-    		return;
-    	}
+  	c = (MultilineLabel) l.get(j);
+  	scrollToNode(c);
+  	//deleteButton.setEnabled(index != -1 && (ownerID == userID));
+  }
+  
+  /**
+   * Displays the list of annotations linked to the data object specified
+   * by the passed id.
+   * 
+   * @param node The selected node.
+   */
+  private void showObjectAnnotation(AnnotateNode node)
+  {
+  	long objectID = node.getUserObjectID();
+  	DefaultTreeModel dtm = (DefaultTreeModel) ownerTree.getModel();
+  	DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot();
+  	root.removeAllChildren();
+  	dtm.reload(root);
+  	listAnnotations.removeAll();
+  	areas.clear();
+  	//deleteButton.setSelected(false);
+  	ExperimenterData userDetails = model.getUserDetails();
+      if (userDetails == null) return;
+  	Map annotations = null;
+      annotations = model.getAnnotationsFor(objectID);
+      OwnerNode currentUser = null;
+      int number = 0;
+      if (annotations != null) { // no annotation for this image.
+      	Iterator i = annotations.keySet().iterator();
+          Long id;
+          int index = 0;
+          List list;
+          ExperimenterData data;
+          OwnerNode owner;
+          while (i.hasNext()) {
+              id = (Long) i.next();
+              list = (List) annotations.get(id);
+              number += list.size();
+              data = ((AnnotationData) list.get(0)).getOwner();
+              owner = new OwnerNode(data);
+              owner.setNumberOfAnnotations(list.size());
+              dtm.insertNodeInto(owner, root, root.getChildCount());
+              buildTreeNode(owner, list, dtm);
+              if (userDetails.getId() == id.intValue()) currentUser = owner;
+              index++;
+          }
+      } 
+      
+      //No annotation for the current user so we add a node
+      if (currentUser == null) { 
+      	currentUser = new OwnerNode(userDetails);
+      	dtm.insertNodeInto(currentUser, root, root.getChildCount());
+      	buildTreeNode(currentUser, null, dtm);
+      }
+      TreePath path = new TreePath(currentUser.getPath());
+      ownerTree.setSelectionPath(path);
+      ownerTree.expandPath(path);
+      //setComponentsEnabled(true);
+      String text = number+AnnotatorUtil.COMMENT;
+      if (number > 1) text += "s";
+      text += " for "+node.getObjectName();
+      commentLabel.setText(text);
+  }
+  
+  /**
+   * Creates child nodes and adds to the passed parent.
+   * 
+   * @param parent		The parent's node.
+   * @param annotations	The annotations to convert.
+   * @param dtm			The default tree model.
+   */
+  private void buildTreeNode(OwnerNode parent, List annotations, 
+  							DefaultTreeModel dtm)
+  {
+  	long ownerID = parent.getOwnerID();
+  	Long id = new Long(ownerID);
+  	boolean user = model.getUserDetails().getId() == ownerID;
+  	TimeNode node = new TimeNode(ownerID, -1, null);
+  	if (user) {
+  		dtm.insertNodeInto(node, parent, parent.getChildCount());
+  		AnnotatorUtil.setAnnotationAreaDefault(annotationArea, 
+  												node.toString());
+  	}
+  	if ((annotations == null || annotations.size() == 0) && user) {
+  		List<JTextArea> l = new ArrayList<JTextArea>(1);
+  		l.add(annotationArea);
+  		areas.put(id, l);
+  		return;
+  	}
 
-        List<JComponent> l;
-        int row = 0;
-        if (user) {
-        	l = new ArrayList<JComponent>(annotations.size()+1);
-        	l.add(annotationArea);
-        	row = 1;
-        } else {
-        	l = new ArrayList<JComponent>(annotations.size());
-        }
-        Iterator i = annotations.iterator();
-        int index = 0;
-        MultilineLabel area;
-        Timestamp date;
-        AnnotationData data;
-        while (i.hasNext()) {
-        	data = (AnnotationData) i.next();
-        	date = data.getLastModified();
-        	if (date == null) date = new Timestamp(new Date().getTime());
-        	node = new TimeNode(ownerID, index, date);
-        	data = (AnnotationData) annotations.get(index);
-        	dtm.insertNodeInto(node, parent, parent.getChildCount());
-        	area = new MultilineLabel();
-            area.setEditable(false);
-            area.setOpaque(true);
-        	area.setBorder(new TitledLineBorder(node.toString()));
-        	area.setText(data.getText());
-        	if (index%2 == row) area.setOriginalBackground(
-        			UIUtilities.BACKGROUND);
-            else area.setOriginalBackground(UIUtilities.BACKGROUND_ONE);
-        	l.add(area);
-        	index++;
+      List<JComponent> l;
+      int row = 0;
+      if (user) {
+      	l = new ArrayList<JComponent>(annotations.size()+1);
+      	l.add(annotationArea);
+      	row = 1;
+      } else {
+      	l = new ArrayList<JComponent>(annotations.size());
+      }
+      Iterator i = annotations.iterator();
+      int index = 0;
+      MultilineLabel area;
+      Timestamp date;
+      AnnotationData data;
+      while (i.hasNext()) {
+      	data = (AnnotationData) i.next();
+      	date = data.getLastModified();
+      	if (date == null) date = new Timestamp(new Date().getTime());
+      	node = new TimeNode(ownerID, index, date);
+      	data = (AnnotationData) annotations.get(index);
+      	dtm.insertNodeInto(node, parent, parent.getChildCount());
+      	area = new MultilineLabel();
+          area.setEditable(false);
+          area.setOpaque(true);
+      	area.setBorder(new TitledLineBorder(node.toString()));
+      	area.setText(data.getText());
+      	if (index%2 == row) area.setOriginalBackground(
+      			UIUtilities.BACKGROUND);
+          else area.setOriginalBackground(UIUtilities.BACKGROUND_ONE);
+      	l.add(area);
+      	index++;
 		}
-        areas.put(id, l);
-    }
-    
-    /**
-     * Builds the nodes composing the {@link #objectsTree}.
-     * 
-     * @param parent
-     * @param nodes
-     * @param dtm
-     */
-    private void buildImageTree(DefaultMutableTreeNode parent, Set nodes,
-    							DefaultTreeModel dtm)
-    {
-    	Iterator i = nodes.iterator();
-    	AnnotateNode node;
-    	while (i.hasNext()) {
-    		node = new AnnotateNode(i.next());
-    		if (selectedNode == null) 
-    			selectedNode = node;
-    		dtm.insertNodeInto(node, parent, parent.getChildCount());
+      areas.put(id, l);
+  }
+  
+  /**
+   * Builds the nodes composing the {@link #objectsTree}.
+   * 
+   * @param parent 	The parent of the node.
+   * @param nodes		The nodes to display.
+   * @param dtm		The tree model.
+   */
+  private void buildImageTree(DefaultMutableTreeNode parent, Set nodes,
+  							DefaultTreeModel dtm)
+  {
+  	Iterator i = nodes.iterator();
+  	AnnotateNode node;
+  	while (i.hasNext()) {
+  		node = new AnnotateNode(i.next());
+  		if (selectedNode == null) 
+  			selectedNode = node;
+  		dtm.insertNodeInto(node, parent, parent.getChildCount());
 		}
-    }
+  }
 	
 	/**
 	 * Creates a new instance.
@@ -557,22 +572,29 @@ class AnnotatorUI
 	}
 	
 	/** Shows the annotations. */
-    void showAnnotations()
-    {
-    	//Build the image tree
-    	DefaultTreeModel dtm = (DefaultTreeModel) objectsTree.getModel();
-    	DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot();
-    	root.removeAllChildren();
-    	buildImageTree(root, model.getSelectedObjects(), dtm);
-    	dtm.reload(root);
-    	//if (selectedNode != null)
-    	//	objectsTree.setSe
-    	if (selectedNode != null) {
-    		showObjectAnnotation(selectedNode);
-    		objectsTree.setSelectionPath(new TreePath(selectedNode.getPath()));
-    	}
-    		
-    }
+  void showAnnotations()
+  {
+  	Set selected = model.getSelectedObjects();
+  	if (selected == null || selected.size() == 0) {
+  		annotationPanel.removeAll();
+  		layoutAnnotationArea(annotationPanel);
+  		repaint();
+  		return;
+  	}
+  	//Build the image tree
+  	DefaultTreeModel dtm = (DefaultTreeModel) objectsTree.getModel();
+  	DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot();
+  	root.removeAllChildren();
+  	buildImageTree(root, selected, dtm);
+  	dtm.reload(root);
+  	//if (selectedNode != null)
+  	//	objectsTree.setSe
+  	if (selectedNode != null) {
+  		showObjectAnnotation(selectedNode);
+  		objectsTree.setSelectionPath(new TreePath(selectedNode.getPath()));
+  	}
+  		
+  }
 	
 	/**
 	 * Returns the textual annotation.
@@ -582,8 +604,8 @@ class AnnotatorUI
 	String getAnnotationText()
 	{ 
 		String s = annotationArea.getText();
-    	if (s == null) return "";
-    	return s.trim(); 
+  	if (s == null) return "";
+  	return s.trim(); 
 	}
 
 	/**
@@ -621,5 +643,24 @@ class AnnotatorUI
 		if (uo instanceof DataObject) return (DataObject) uo;
 		return null;
 	}
+
+	/** Lays out the annotation panel. */
+	void resetDisplay()
+	{
+		if (model.getAnnotationMode() == Annotator.ANNOTATE_MODE) {
+			resetDisplay = true;
+			annotationPanel.removeAll();
+			layoutAnnotationArea(annotationPanel);
+			repaint();
+		}
+	}
+	
+	/**
+	 * Returns <code>true</code> if the UI has been reset, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isResetDisplay() { return resetDisplay; }
 	
 }

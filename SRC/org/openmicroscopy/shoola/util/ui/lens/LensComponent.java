@@ -38,19 +38,19 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /** 
- * The Lens Component is the main component of the lens accessable from outside
- * of the lens Package. 
- * 
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since OME2.2
- */
+* The Lens Component is the main component of the lens accessable from outside
+* of the lens Package. 
+* 
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+* 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $Date: $)
+* </small>
+* @since OME2.2
+*/
 public class LensComponent
 	extends AbstractComponent
 {
@@ -60,12 +60,12 @@ public class LensComponent
 	
 	/** Bound property indicating to close the zoom Window. */
 	final static String		ZOOM_WINDOW_CLOSED_PROPERTY = "zoomWindowClosed";
-    
+  
 	/** Default width of a lens */
 	final static int		LENS_DEFAULT_WIDTH	= 50;
 	
 	/** Default height of a lens */
-	final static int		LENS_DEFAULT_HEIGHT	= 50;
+	//final static int		LENS_DEFAULT_HEIGHT	= 50;
 	
 	/** Default magnification of lens. */
 	final static float		DEFAULT_ZOOM = 2.0f;
@@ -103,45 +103,12 @@ public class LensComponent
 	/**
 	 * Sets the lens Size to a value described in LensAction. 
 	 * 
-	 * @param lensSize The size of the lens. 
+	 * @param width The width of the lens. 
+	 * @param height The height of the lens. 
 	 */
-	void setLensSize(int lensSize) 
+	void setLensSize(int width, int height) 
 	{
-	     switch (lensSize) {
-             case LensAction.LENSDEFAULTSIZE:
-            	 lensController.setLensSize(LensComponent.LENS_DEFAULT_WIDTH, 
-            			 LensComponent.LENS_DEFAULT_HEIGHT);
-            	 break;
-             case LensAction.LENS40x40:
-            	 lensController.setLensSize(40, 40);
-            	 break;
-             case LensAction.LENS50x50:
-            	 lensController.setLensSize(50, 50);
-            	 break;
-             case LensAction.LENS60x60:
-            	 lensController.setLensSize(60, 60);
-            	 break;
-             case LensAction.LENS70x70:
-            	 lensController.setLensSize(70, 70);
-            	 break;
-             case LensAction.LENS80x80:
-            	 lensController.setLensSize(80, 80);
-            	 break;
-             case LensAction.LENS90x90:
-            	 lensController.setLensSize(90, 90);
-            	 break;
-             case LensAction.LENS100x100:
-            	 lensController.setLensSize(100, 100);
-            	 break;
-             case LensAction.LENS120x120:
-            	 lensController.setLensSize(120, 120);
-            	 break;
-             case LensAction.LENS150x150:
-            	 lensController.setLensSize(150, 150);
-            	 break;
-             default:
-                 throw new IllegalArgumentException("Index not supported.");
-	     }
+		lensController.setLensSize(width, height);
 	}
 	
 	/**
@@ -154,22 +121,63 @@ public class LensComponent
 		firePropertyChange(LENS_LOCATION_PROPERTY, null, bounds);
 	}
 	
+	/** Selects the menu item if the size corresponds to a predefined size. */
+	void updateLensSize()
+	{
+		int w = lensModel.getWidth();
+		int h = lensModel.getHeight();
+		int index = LensAction.sizeToIndex(w, h);
+		menu.setSelectedSize(index);
+		zoomWindow.setSelectedSize(index);
+	}
+	
+	/**
+	 * Sets the zoomfactor for the lens. 
+	 * 
+	 * @param zoomFactor The magnification factor.
+	 */
+	void setZoomFactor(float zoomFactor)
+	{
+		System.err.println(zoomFactor);
+		lensController.setZoomFactor(zoomFactor);
+		int index = ZoomAction.factorToIndex(zoomFactor);
+		menu.setZoomIndex(index);
+		zoomWindow.setZoomIndex(index);
+	}
+	
+	/**
+	 * Magnifies the image.
+	 * 
+	 * @param tick The number of "clicks" the mouse wheel was rotated.
+	 */
+	void lensMouseWheelMoved(int tick)
+	{
+		float zoomFactor = lensModel.getZoomFactor();
+		zoomFactor -= 0.1f*tick;
+		zoomFactor = Math.round(zoomFactor*10)/10.0f;
+		if (zoomFactor < LensModel.MINIMUM_ZOOM)
+			zoomFactor = LensModel.MINIMUM_ZOOM;
+		if (zoomFactor > LensModel.MAXIMUM_ZOOM)
+			zoomFactor = LensModel.MAXIMUM_ZOOM;
+		setZoomFactor(zoomFactor);
+	}
+	
 	/**
 	 * Creates the lenscomponent which is the container for the lens 
 	 * infrastructure.
 	 * 
-     * @param parent    parent JFrame of ZoomWindowUI. 
+   * @param parent    parent JFrame of ZoomWindowUI. 
 	 * @param planeImage Image being displayed by the viewer.
 	 */
 	public LensComponent(JFrame parent, BufferedImage planeImage)
 	{
 		lensModel = new LensModel(planeImage);
 		zoomWindow = new ZoomWindow(parent, this);
-		lens = new LensUI(this, LENS_DEFAULT_WIDTH, LENS_DEFAULT_HEIGHT);
+		lens = new LensUI(this, LENS_DEFAULT_WIDTH, LENS_DEFAULT_WIDTH);
 		lensController = new LensController(lensModel, lens, zoomWindow);
 		lensModel.setWidth(LENS_DEFAULT_WIDTH);
-		lensModel.setHeight(LENS_DEFAULT_HEIGHT);
-		lensModel.setImageZoomFactor(1.0f);
+		lensModel.setHeight(LENS_DEFAULT_WIDTH);
+		lensModel.setImageZoomFactor(ZoomAction.ZOOMx1+1);
 		lens.addController(lensController);
 		lens.setLensColour(lensModel.getLensPreferredColour());
 		zoomWindow.addController(lensController);
@@ -207,7 +215,7 @@ public class LensComponent
 	
 	/**
 	 * Sets the mapping from pixel size to microns along the x and y axis. 
-     * 
+   * 
 	 * @param x mapping in x axis.
 	 * @param y mapping in y axis.
 	 */
@@ -254,16 +262,6 @@ public class LensComponent
 	}
 	
 	/**
-	 * Sets the zoomfactor for the lens. 
-	 * 
-	 * @param zoomFactor The magnification factor.
-	 */
-	public void setZoomFactor(float zoomFactor)
-	{
-		lensController.setZoomFactor(zoomFactor);
-	}
-	
-	/**
 	 * Sets the location of the lens on the canvas.
 	 * 
 	 * @param x The x-coordinate.
@@ -290,7 +288,7 @@ public class LensComponent
 	
 	/**
 	 * Returns <code>true</code> if the lens and zoomWindow are visible,
-     * <code>false</code> otherwise.
+   * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */

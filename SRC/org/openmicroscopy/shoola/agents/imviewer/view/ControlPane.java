@@ -23,7 +23,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
-
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
@@ -38,6 +37,7 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JToggleButton;
@@ -45,13 +45,17 @@ import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+
+
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -77,14 +81,23 @@ class ControlPane
     implements ActionListener, ChangeListener, MouseWheelListener
 {
 
-    /** The description of the {@link #zSlider}. */
+    /** The description of a z-sections selection slider. */
     private static final String Z_SLIDER_DESCRIPTION = "Use the slider to " +
                             "select a z-section.";
 
-    /** The description of the {@link #tSlider}. */
+    /** The description of a timepoint selection slider. */
     private static final String T_SLIDER_DESCRIPTION = "Use the slider to " +
                             "select a timepoint.";
+    
+    /** The description of a magnification selection slider. */
+    private static final String RATIO_SLIDER_DESCRIPTION = "Select the " +
+                            "magnification factor of an image composing " +
+                            "the grid.";
 
+    /** The description of a magnification selection slider. */
+    private static final String ZOOM_SLIDER_DESCRIPTION = "Select the " +
+                            "magnification factor of the image.";
+    
     /** The tipString of the {@link #zSlider}. */
     private static final String Z_SLIDER_TIPSTRING = "Z";
 
@@ -124,6 +137,12 @@ class ControlPane
     /** Slider to select the timepoint. */
     private OneKnobSlider			tSliderAnnotator;
     
+    /** Slider to set the magnification factor of an image of the grid. */
+    private OneKnobSlider			gridRatioSlider;
+    
+    /** Slider to set the magnification factor of the image. */
+    private OneKnobSlider			ratioSlider;
+    
     /** One  {@link ChannelButton} per channel. */
     private HashSet<ChannelButton>	channelButtons;
 
@@ -144,6 +163,9 @@ class ControlPane
     
     /** Button to play movie. */
     private JButton					playMovie;
+    
+    /** Button to play movie displayed in the split view. */
+    private JButton					playMovieGrid;
     
     /** Helper reference. */
     private IconManager     		icons;
@@ -255,6 +277,24 @@ class ControlPane
         tSliderAnnotator = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
         tSliderAnnotator.setEnabled(false);
         
+        gridRatioSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 1, 10, 5);
+        gridRatioSlider.setEnabled(true);
+        gridRatioSlider.setShowArrows(false);
+        gridRatioSlider.setToolTipText(RATIO_SLIDER_DESCRIPTION);
+        ratioSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 
+        					ZoomAction.MIN_ZOOM_INDEX, 
+        					ZoomAction.MAX_ZOOM_INDEX, 
+        					ZoomAction.DEFAULT_ZOOM_INDEX);
+        ratioSlider.setEnabled(true);
+        ratioSlider.setShowArrows(true);
+        ratioSlider.setToolTipText(ZOOM_SLIDER_DESCRIPTION);
+        
+        IconManager icons = IconManager.getInstance();
+        ratioSlider.setArrowsImageIcon(
+        		icons.getImageIcon(IconManager.RATIO_MAX), 
+        		icons.getImageIcon(IconManager.RATIO_MIN));
+        
+        
         channelMovieButton = new JButton(
                 controller.getAction(ImViewerControl.CHANNEL_MOVIE));
         UIUtilities.unifiedButtonLookAndFeel(channelMovieButton);
@@ -276,6 +316,9 @@ class ControlPane
         playMovie = new JButton(
         			controller.getAction(ImViewerControl.PLAY_MOVIE));
         UIUtilities.unifiedButtonLookAndFeel(playMovie);
+        playMovieGrid = new JButton(
+    			controller.getAction(ImViewerControl.PLAY_MOVIE));
+        UIUtilities.unifiedButtonLookAndFeel(playMovieGrid);
     }
     
     /**
@@ -293,7 +336,6 @@ class ControlPane
     						String toolTip, String endLabel)
     {
     	slider.setVisible(max != 0);
-    	
     	slider.setMaximum(max);
     	slider.setValue(v);
     	slider.addChangeListener(this);
@@ -341,7 +383,11 @@ class ControlPane
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
         initSlider(tSliderAnnotator, maxT, model.getDefaultT(), 
         		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
+        gridRatioSlider.addChangeListener(this);
+        ratioSlider.addChangeListener(this);
+        
         playMovie.setVisible(maxT != 0);
+        playMovieGrid.setVisible(maxT != 0);
         
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
         colorModelButton.setToolTipText(
@@ -440,11 +486,22 @@ class ControlPane
             p.add(Box.createRigidArea(VBOX));
         }
         
-        JPanel controls = new JPanel();
+        /*
         controls.setLayout(new BoxLayout(controls,BoxLayout.Y_AXIS));
         controls.add(Box.createVerticalStrut(20));
-        controls.add(buildToolBar());
-        controls.add(p);
+        controls.add(buildGridBar());
+        controls.add(buttons);
+        */
+        JPanel controls = new JPanel();
+        double size[][] = {{TableLayout.PREFERRED}, 
+        				{TableLayout.PREFERRED, TableLayout.PREFERRED,
+        				TableLayout.PREFERRED, TableLayout.PREFERRED}};
+        controls.setLayout(new TableLayout(size));
+        //controls.setLayout(new BoxLayout(controls,BoxLayout.Y_AXIS));
+        controls.add(Box.createVerticalStrut(20), "0, 0");
+        controls.add(buildToolBar(), "0, 1, c, c");
+        controls.add(p, "0, 2");
+        controls.add(buildMagnificationPanel(ratioSlider), "0, 3, c, c");
         return UIUtilities.buildComponentPanel(controls);
     }
     
@@ -468,6 +525,32 @@ class ControlPane
         slider.removeChangeListener(this);
         slider.setValue(v);
         slider.addChangeListener(this);
+    }
+    
+    /**
+     * Builds the panel hosting the passed slider.
+     * 
+     * @param slider The slider to lay out.
+     * @return See above.
+     */
+    private JPanel buildMagnificationPanel(OneKnobSlider slider)
+    {
+    	JPanel p = new JPanel();
+        IconManager icons = IconManager.getInstance();
+        Icon top = icons.getIcon(IconManager.RATIO_MAX);
+        Icon bottom = icons.getIcon(IconManager.RATIO_MIN);
+        double s[][] = {{TableLayout.PREFERRED}, 
+        		{top.getIconHeight(), 80, bottom.getIconHeight()}};
+        p.setLayout(new TableLayout(s));
+        JLabel l =  new JLabel();
+        l.setIcon(top);
+        p.add(l, "0, 0, c, c");
+        p.add(slider, "0, 1");
+        l =  new JLabel();
+        l.setIcon(bottom);
+        l.setBackground(Color.RED);
+        p.add(l, "0, 2, c, c");
+        return p;
     }
     
     /**
@@ -543,11 +626,24 @@ class ControlPane
             buttons.add(button);
             buttons.add(Box.createRigidArea(VBOX));
         }
+        
         JPanel controls = new JPanel();
+        double size[][] = {{TableLayout.PREFERRED}, 
+        				{TableLayout.PREFERRED, TableLayout.PREFERRED,
+        				TableLayout.PREFERRED, TableLayout.PREFERRED}};
+        /*
         controls.setLayout(new BoxLayout(controls,BoxLayout.Y_AXIS));
         controls.add(Box.createVerticalStrut(20));
         controls.add(buildGridBar());
         controls.add(buttons);
+        */
+        controls.setLayout(new TableLayout(size));
+        controls.add(Box.createVerticalStrut(20), "0, 0");
+        controls.add(buildGridBar(), "0, 1, c, c");
+        controls.add(buttons, "0, 2");
+        controls.add(buildMagnificationPanel(gridRatioSlider), "0, 3, c, c");
+        //controls.add(gridPanel);
+        //
         JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.X_AXIS));
         content.add(UIUtilities.buildComponentPanel(controls));
@@ -712,7 +808,12 @@ class ControlPane
 			case ImViewer.ANNOTATOR_INDEX:
 				return createSliderPane(tSliderAnnotator);
 			case ImViewer.GRID_INDEX:
-				return createSliderPane(tSliderGrid);
+				JPanel p = new JPanel();
+	        	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+	        	p.add(playMovieGrid);
+	        	p.add(tSliderGrid);
+	        	return p;
+				//return createSliderPane(tSliderGrid);
 			case ImViewer.VIEW_INDEX:
 			default:
 				JPanel pane = new JPanel();
@@ -767,6 +868,21 @@ class ControlPane
 	}
     
     /**
+     * Updates UI components when a zooming factor is selected.
+     * 
+     * @param zoomIndex The index of the selected zoomFactor.
+     */
+    void setZoomFactor(int zoomIndex)
+    {
+    	if (ratioSlider.getMinimum() > zoomIndex || 
+    		ratioSlider.getMaximum() < zoomIndex)
+    		return;
+    	ratioSlider.removeChangeListener(this);
+    	ratioSlider.setValue(zoomIndex);
+    	ratioSlider.addChangeListener(this);
+    }
+    
+    /**
      * Reacts to the selection of an item in the {@link #zoomingBox} or
      * {@link #ratingBox}.
      * @see ActionListener#actionPerformed(ActionEvent)
@@ -786,6 +902,13 @@ class ControlPane
     {
         Object object = e.getSource();
         if (object instanceof JSlider) {
+        	if (object == gridRatioSlider) {
+        		double r = (double) gridRatioSlider.getValue()/10;
+        		model.getBrowser().setGridRatio(r);
+        		return;
+        	} else if (object == ratioSlider) {
+        		controller.setZoomFactor(ratioSlider.getValue());
+        	}
         	if (object == zSlider || object == tSlider)
         		controller.setSelectedXYPlane(zSlider.getValue(), 
                     tSlider.getValue());

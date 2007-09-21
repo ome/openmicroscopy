@@ -58,7 +58,7 @@ public class CloseButton
 {
  
     /** Tooltip text when the button represents the close action. */
-    static final String CLOSE_TOOLTIP = "Collapse";
+    static final String CLOSE_TOOLTIP = "Close";
     
     /** The Model this button is working with. */
     private TinyPane   model;

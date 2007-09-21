@@ -87,6 +87,13 @@ public class HiViewerFactory
     static JMenu getWindowMenu() { return singleton.windowMenu; }
     
     /**
+     * Returns the id of the pixels set to copy the rendering settings from.
+     * 
+     * @return See above.
+     */
+    static long getRefPixelsID() { return singleton.refPixelsID; }
+    
+    /**
      * Returns <code>true</code> is the {@link #windowMenu} is attached 
      * to the <code>TaskBar</code>, <code>false</code> otherwise.
      *
@@ -329,6 +336,13 @@ public class HiViewerFactory
         return singleton.copy(master);
     }
     
+    /**
+     * Sets the id of the pixels set to copy the rendering settings from.
+     * 
+     * @param id The value to set.
+     */
+    public static void setRefPixelsID(long id) { singleton.refPixelsID = id; }
+   
     /** All the tracked components. */
     private Set<HiViewer>     	viewers;
      
@@ -339,13 +353,17 @@ public class HiViewerFactory
      * Indicates if the {@link #windowMenu} is attached to the 
      * <code>TaskBar</code>.
      */
-    private boolean isAttached;
+    private boolean 			isAttached;
+    
+    /** The id of the pixels set to copy. */
+    private long				refPixelsID;
     
     /** Creates a new instance. */
     private HiViewerFactory() 
     {
         viewers = new HashSet<HiViewer>();
         isAttached = false;
+        refPixelsID = -1;
         windowMenu = new JMenu("HiViewers");
     }
     

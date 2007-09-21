@@ -260,6 +260,9 @@ public class IconManager
     /** The <code>Mouse over</code> icon. */
     public static int           MOUSE_OVER = 67;
 
+    /** The <code>Paste</code> icon. */
+    public static int           PASTE = 68;
+
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
@@ -340,6 +343,7 @@ public class IconManager
         relPaths[BACKWARD_NAV] = "eclipse_backward_nav16.png";
         relPaths[REDO] = "nuvola_redo16.png";
         relPaths[MOUSE_OVER] = "nuvola_mouse16.png";
+        relPaths[PASTE] = "eclipse_paste_edit16.png";
     }
     
     /** The sole instance. */

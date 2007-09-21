@@ -27,11 +27,9 @@ package org.openmicroscopy.shoola.env.data;
 //Java import
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-
 import javax.imageio.ImageIO;
 
 //Third-party libraries
@@ -46,239 +44,232 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
-
-import pojos.DataObject;
 import pojos.ExperimenterData;
 
 
 /** 
- * Implementation of the {@link OmeroImageService} I/F.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
- * @since OME3.0
- */
+* Implementation of the {@link OmeroImageService} I/F.
+*
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+* 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $ $Date: $)
+* </small>
+* @since OME3.0
+*/
 class OmeroImageServiceImpl
-    implements OmeroImageService
+ 	implements OmeroImageService
 {
 
-    /** Uses it to gain access to the container's services. */
-    private Registry                context;
-    
-    /** Reference to the entry point to access the <i>OMERO</i> services. */
-    private OMEROGateway            gateway;
+	/** Uses it to gain access to the container's services. */
+	private Registry                context;
 
-    /**
-     * Creates a <code>BufferedImage</code> from the passed array of bytes.
-     * 
-     * @param values    The array of bytes.
-     * @return See above.
-     * @throws RenderingServiceException If we cannot create an image.
-     */
-    private BufferedImage createImage(byte[] values) 
-        throws RenderingServiceException
-    {
-        try {
-            ByteArrayInputStream stream = new ByteArrayInputStream(values);
-            return ImageIO.read(stream);
-        } catch (Exception e) {
-            throw new RenderingServiceException("Cannot create buffered image",
-                    e);
-        }
-    }
-    
-    /**
-     * Creates a new instance.
-     * 
-     * @param gateway   Reference to the OMERO entry point.
-     *                  Mustn't be <code>null</code>.
-     * @param registry  Reference to the registry. Mustn't be <code>null</code>.
-     */
-    OmeroImageServiceImpl(OMEROGateway gateway, Registry registry)
-    {
-        if (registry == null)
-            throw new IllegalArgumentException("No registry.");
-        if (gateway == null)
-            throw new IllegalArgumentException("No gateway.");
-        context = registry;
-        this.gateway = gateway;
-    }
-    
-    /** Shuts down all active rendering engines. */
-    void shutDown()
-    {
-        PixelsServicesFactory.shutDownRenderingControls(context);
-    }
+	/** Reference to the entry point to access the <i>OMERO</i> services. */
+	private OMEROGateway            gateway;
 
-    /** 
-     * Implemented as specified by {@link OmeroImageService}. 
-     * @see OmeroImageService#loadRenderingControl(long)
-     */
-    public RenderingControl loadRenderingControl(long pixelsID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        RenderingControl proxy = 
-                PixelsServicesFactory.getRenderingControl(context, 
-                                                new Long(pixelsID));
-        if (proxy == null) {
-            RenderingEngine re = gateway.createRenderingEngine(pixelsID);
-            PixelsDimensions pixDims = gateway.getPixelsDimensions(pixelsID);
-            List l = context.getDataService().getChannelsMetadata(pixelsID);
-            proxy = PixelsServicesFactory.createRenderingControl(context, re,
-                                                    pixDims, l);
-        }
-        return proxy;
-    }
+	/**
+	 * Creates a <code>BufferedImage</code> from the passed array of bytes.
+	 * 
+	 * @param values    The array of bytes.
+	 * @return See above.
+	 * @throws RenderingServiceException If we cannot create an image.
+	 */
+	private BufferedImage createImage(byte[] values) 
+	throws RenderingServiceException
+	{
+		try {
+			ByteArrayInputStream stream = new ByteArrayInputStream(values);
+			return ImageIO.read(stream);
+		} catch (Exception e) {
+			throw new RenderingServiceException("Cannot create buffered image",
+					e);
+		}
+	}
 
-    /** 
-     * Implemented as specified by {@link OmeroImageService}. 
-     * @see OmeroImageService#renderImage(long, PlaneDef)
-     */
-    public BufferedImage renderImage(long pixelsID, PlaneDef pDef)
-            throws RenderingServiceException
-    {
-        try {
-            return PixelsServicesFactory.render(context, new Long(pixelsID), 
-                                                    pDef);
-        } catch (Exception e) {
-            throw new RenderingServiceException("RenderImage", e);
-        }
-    }
-    
-    /** 
-     * Implemented as specified by {@link OmeroImageService}. 
-     * @see OmeroImageService#renderImage(long)
-     */
-    public BufferedImage renderImage(long pixelsID)
-            throws RenderingServiceException
-    {
-        return renderImage(pixelsID, null);
-    }
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param gateway   Reference to the OMERO entry point.
+	 *                  Mustn't be <code>null</code>.
+	 * @param registry  Reference to the registry. Mustn't be <code>null</code>.
+	 */
+	OmeroImageServiceImpl(OMEROGateway gateway, Registry registry)
+	{
+		if (registry == null)
+			throw new IllegalArgumentException("No registry.");
+		if (gateway == null)
+			throw new IllegalArgumentException("No gateway.");
+		context = registry;
+		this.gateway = gateway;
+	}
 
-    /** 
-     * Implemented as specified by {@link OmeroImageService}. 
-     * @see OmeroImageService#shutDown(long)
-     */
-    public void shutDown(long pixelsID)
-    {
-        PixelsServicesFactory.shutDownRenderingControl(context, pixelsID);
-    }
-    
-    /** 
-     * Implemented as specified by {@link OmeroImageService}. 
-     * @see OmeroImageService#getThumbnail(long, int, int)
-     */
-    public BufferedImage getThumbnail(long pixID, int sizeX, int sizeY)
-        throws RenderingServiceException
-    {
-        try {
-            return createImage(gateway.getThumbnail(pixID, sizeX, sizeY));
-        } catch (Exception e) {
-        	if (e instanceof DSOutOfServiceException) {
-        		context.getLogger().error(this, e.getMessage());
-        		return getThumbnail(pixID, sizeX, sizeY);
-        	}
-            throw new RenderingServiceException("Get Thumbnail", e);
-        }
-    }
-    
-    /** 
-     * Implemented as specified by {@link OmeroImageService}. 
-     * @see OmeroImageService#reloadRenderingService(long)
-     */
-	public void reloadRenderingService(long pixelsID)
-		throws RenderingServiceException
+	/** Shuts down all active rendering engines. */
+	void shutDown()
+	{
+		PixelsServicesFactory.shutDownRenderingControls(context);
+	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#loadRenderingControl(long)
+	 */
+	public RenderingControl loadRenderingControl(long pixelsID)
+	throws DSOutOfServiceException, DSAccessException
 	{
 		RenderingControl proxy = 
-            PixelsServicesFactory.getRenderingControl(context, 
-                                            new Long(pixelsID));
-		if (proxy == null) return;
+			PixelsServicesFactory.getRenderingControl(context, 
+					new Long(pixelsID));
+		if (proxy == null) {
+			RenderingEngine re = gateway.createRenderingEngine(pixelsID);
+			PixelsDimensions pixDims = gateway.getPixelsDimensions(pixelsID);
+			List l = context.getDataService().getChannelsMetadata(pixelsID);
+			proxy = PixelsServicesFactory.createRenderingControl(context, re,
+					pixDims, l);
+		}
+		return proxy;
+	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#renderImage(long, PlaneDef)
+	 */
+	public BufferedImage renderImage(long pixelsID, PlaneDef pDef)
+	throws RenderingServiceException
+	{
+		try {
+			return PixelsServicesFactory.render(context, new Long(pixelsID), 
+					pDef);
+		} catch (Exception e) {
+			throw new RenderingServiceException("RenderImage", e);
+		}
+	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#renderImage(long)
+	 */
+	public BufferedImage renderImage(long pixelsID)
+	throws RenderingServiceException
+	{
+		return renderImage(pixelsID, null);
+	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#shutDown(long)
+	 */
+	public void shutDown(long pixelsID)
+	{
+		PixelsServicesFactory.shutDownRenderingControl(context, pixelsID);
+	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#getThumbnail(long, int, int)
+	 */
+	public BufferedImage getThumbnail(long pixID, int sizeX, int sizeY)
+	throws RenderingServiceException
+	{
+		try {
+			return createImage(gateway.getThumbnail(pixID, sizeX, sizeY));
+		} catch (Exception e) {
+			if (e instanceof DSOutOfServiceException) {
+				context.getLogger().error(this, e.getMessage());
+				return getThumbnail(pixID, sizeX, sizeY);
+			}
+			throw new RenderingServiceException("Get Thumbnail", e);
+		}
+	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#reloadRenderingService(long)
+	 */
+	public RenderingControl reloadRenderingService(long pixelsID)
+	throws RenderingServiceException
+	{
+		RenderingControl proxy = 
+			PixelsServicesFactory.getRenderingControl(context, 
+					new Long(pixelsID));
+		if (proxy == null) return null;
 		try {
 			PixelsServicesFactory.shutDownRenderingControl(context, pixelsID);
 			RenderingEngine re = gateway.createRenderingEngine(pixelsID);
-			PixelsServicesFactory.resetRenderingControl(context, pixelsID, 
-								re);
+			return PixelsServicesFactory.resetRenderingControl(context, 
+					pixelsID, re);
 		} catch (Exception e) {
 			throw new RenderingServiceException("Cannot restart the " +
 					"rendering engine for : "+pixelsID, e);
 		}
 	}
-	
+
 	/** 
-     * Implemented as specified by {@link OmeroImageService}. 
-     * @see OmeroImageService#loadPixelsDimensions(long)
-     */
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#loadPixelsDimensions(long)
+	 */
 	public PixelsDimensions loadPixelsDimensions(long pixelsID) 
-		throws DSOutOfServiceException, DSAccessException
+	throws DSOutOfServiceException, DSAccessException
 	{
 		return gateway.getPixelsDimensions(pixelsID);
 	}
 
 	/** 
-     * Implemented as specified by {@link OmeroImageService}. 
-     * @see OmeroImageService#loadPixels(long)
-     */
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#loadPixels(long)
+	 */
 	public Pixels loadPixels(long pixelsID)
-		throws DSOutOfServiceException, DSAccessException
+	throws DSOutOfServiceException, DSAccessException
 	{
 		return gateway.getPixels(pixelsID);
 	}
 
 	/** 
-     * Implemented as specified by {@link OmeroImageService}. 
-     * @see OmeroImageService#getThumbnailByLongestSide(long, int)
-     */
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#getThumbnailByLongestSide(long, int)
+	 */
 	public BufferedImage getThumbnailByLongestSide(long pixelsID, int maxLength) 
-		throws RenderingServiceException 
+	throws RenderingServiceException 
 	{
-        try {
-            return createImage(gateway.getThumbnailByLongestSide(pixelsID, 
-            					maxLength));
-        } catch (Exception e) {
-        	if (e instanceof DSOutOfServiceException) {
-        		context.getLogger().error(this, e.getMessage());
-        		return getThumbnailByLongestSide(pixelsID, maxLength);
-        	}
-            throw new RenderingServiceException("Get Thumbnail", e);
-        }
+		try {
+			return createImage(gateway.getThumbnailByLongestSide(pixelsID, 
+					maxLength));
+		} catch (Exception e) {
+			if (e instanceof DSOutOfServiceException) {
+				context.getLogger().error(this, e.getMessage());
+				return getThumbnailByLongestSide(pixelsID, maxLength);
+			}
+			throw new RenderingServiceException("Get Thumbnail", e);
+		}
 	}
 
 	/** 
-     * Implemented as specified by {@link OmeroImageService}. 
-     * @see OmeroImageService#getPlane(long, int, int, int)
-     */
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#getPlane(long, int, int, int)
+	 */
 	public byte[] getPlane(long pixelsID, int z, int t, int c)
-		throws DSOutOfServiceException, DSAccessException
+	throws DSOutOfServiceException, DSAccessException
 	{
 		return gateway.getPlane(pixelsID, z, t, c);
 	}
 
 	/** 
-     * Implemented as specified by {@link OmeroImageService}. 
-     * @see OmeroImageService#pasteRenderingSettings(long, Class, List)
-     */
-	public boolean pasteRenderingSettings(long pixelsID, Class rootNodeType, 
-			List nodes) 
-		throws DSOutOfServiceException, DSAccessException 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#pasteRenderingSettings(long, Class, List)
+	 */
+	public Map pasteRenderingSettings(long pixelsID, Class rootNodeType, 
+			Set nodesID) 
+	throws DSOutOfServiceException, DSAccessException 
 	{
-		if (nodes == null || nodes.size() == 0)
+		if (nodesID == null || nodesID.size() == 0)
 			throw new IllegalArgumentException("No nodes specified.");
-		Iterator i = nodes.iterator();
-		Set n = new HashSet(nodes.size());
-		while (i.hasNext()) 
-			n.add(((DataObject) i.next()).asIObject());
-		
 		ExperimenterData exp = (ExperimenterData) context.lookup(
-								LookupNames.CURRENT_USER_DETAILS);
-		gateway.pasteRenderingSettings(exp.getId(), pixelsID, rootNodeType, n);
-		return true;
-		//return 
+				LookupNames.CURRENT_USER_DETAILS);
+
+		return gateway.pasteRenderingSettings(exp.getId(), pixelsID, 
+				rootNodeType, nodesID);
 	}
-	
+
 }

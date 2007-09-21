@@ -35,88 +35,90 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.ClassifyChildrenCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
 import pojos.DatasetData;
 
 /** 
- * Brings the window to classify the images contained in 
- * the data object.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since OME3.0
- */
+* Brings the window to classify the images contained in 
+* the data object.
+*
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $Date: $)
+* </small>
+* @since OME3.0
+*/
 public class ClassifyChildrenAction
 	extends TreeViewerAction
 {
 
 	/** The name of the action. */
-    private static final String NAME = "Categorise Images";
-    
-    /** The description of the action. */
-    private static final String DESCRIPTION = "Categorise the " +
-                                 "images contained in the selected folder.";
-    
-    /**
-     * Sets the action enabled depending on the selected type.
-     * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
-     */
-    protected void onDisplayChange(TreeImageDisplay selectedDisplay)
-    {
-    	if (selectedDisplay == null) {
-            setEnabled(false);
-            
-            return;
-        }
-        Browser browser = model.getSelectedBrowser();
-        if (browser != null) {
-            if (browser.getSelectedDisplays().length > 1) {
-            	setEnabled(false);
-                return;
-            }
-            Object ho = selectedDisplay.getUserObject();
-            setEnabled(((ho instanceof DatasetData) || 
-            		(ho instanceof CategoryData)));
-            return;
-        }
-        setEnabled(false);
-    }
-    
-    /**
-     * Creates a new instance.
-     * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
-     */
-    public ClassifyChildrenAction(TreeViewer model)
-    {
-        super(model);
-        IconManager im = IconManager.getInstance();
-        putValue(Action.NAME, NAME);
-        putValue(Action.SHORT_DESCRIPTION, 
-        		UIUtilities.formatToolTipText(DESCRIPTION));
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.CLASSIFY));
-    }
-    
-    /**
-     * Notifies the model to classify the images contained in the
-     * selected folder. 
-     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-     */
-    public void actionPerformed(ActionEvent e)
-    {
-    	Browser browser = model.getSelectedBrowser();
-        if (browser != null) {
-        	TreeImageDisplay node = browser.getLastSelectedDisplay();
-        	model.classifyChildren(node);
-        }
-    }
-    
+	private static final String NAME = "Categorise Images";
+
+	/** The description of the action. */
+	private static final String DESCRIPTION = "Categorise the " +
+	"images contained in the selected folder.";
+
+	/**
+	 * Sets the action enabled depending on the selected type.
+	 * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
+	 */
+	protected void onDisplayChange(TreeImageDisplay selectedDisplay)
+	{
+		if (selectedDisplay == null) {
+			setEnabled(false);
+			return;
+		}
+		Browser browser = model.getSelectedBrowser();
+		if (browser != null) {
+			if (browser.getSelectedDisplays().length > 1) {
+				setEnabled(false);
+				return;
+			}
+			if (selectedDisplay instanceof TreeImageTimeSet) {
+				TreeImageTimeSet timeNode = (TreeImageTimeSet) selectedDisplay;
+				setEnabled(timeNode.getNumberItems() > 0);
+				return;
+			}
+			Object ho = selectedDisplay.getUserObject();
+			setEnabled(((ho instanceof DatasetData) || 
+					(ho instanceof CategoryData)));
+			return;
+		}
+		setEnabled(false);
+	}
+
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param model Reference to the Model. Mustn't be <code>null</code>.
+	 */
+	public ClassifyChildrenAction(TreeViewer model)
+	{
+		super(model);
+		IconManager im = IconManager.getInstance();
+		putValue(Action.NAME, NAME);
+		putValue(Action.SHORT_DESCRIPTION, 
+				UIUtilities.formatToolTipText(DESCRIPTION));
+		putValue(Action.SMALL_ICON, im.getIcon(IconManager.CLASSIFY));
+	}
+
+	/**
+	 * Creates a  {@link ClassifyChildrenCmd} command to execute the action. 
+	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		ClassifyChildrenCmd cmd = new ClassifyChildrenCmd(model);
+		cmd.execute();
+	}
+
 }

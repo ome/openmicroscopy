@@ -90,7 +90,8 @@ class ImageToCategoriesModel
      */
     protected boolean isSameDisplay(HiViewerModel other)
     {
-        if (other == null || !(other instanceof CategoryModel)) return false;
+        if (other == null || 
+        		!(other instanceof ImageToCategoriesModel)) return false;
         ImageToCategoriesModel cm = (ImageToCategoriesModel) other;
         if (cm.getHierarchyType() != getHierarchyType()) return false;
         if (cm.imagesID.size() != imagesID.size()) return false;

@@ -470,4 +470,19 @@ public class NullOmeroPojoService
 		return null;
 	}
 
+	public List getImagesAfterIObject(Timestamp time, long userID) throws DSOutOfServiceException, DSAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public List getImagesBeforeIObject(Timestamp time, long userID) throws DSOutOfServiceException, DSAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public List getImagesPeriodIObject(Timestamp lowerTime, Timestamp time, long userID) throws DSOutOfServiceException, DSAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

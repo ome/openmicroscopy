@@ -32,7 +32,6 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CopyCmd;
@@ -45,103 +44,103 @@ import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
- * Action to copy the selected elements, a {@link CopyCmd} is executed.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
- * @since OME2.2
- */
+* Action to copy the selected elements, a {@link CopyCmd} is executed.
+*
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @version 2.2
+* <small>
+* (<b>Internal version:</b> $Revision$ $Date$)
+* </small>
+* @since OME2.2
+*/
 public class CopyAction
-    extends TreeViewerAction
+ 	extends TreeViewerAction
 {
 
-    /** The name of the action. */
-    private static final String NAME = "Copy";
-    
-    /** The description of the action. */
-    private static final String DESCRIPTION = "Copy the selected elements.";
-    
-    /** 
-     * Sets the action enabled depending on the state of the {@link Browser}.
-     * @see TreeViewerAction#onBrowserStateChange(Browser)
-     */
-    protected void onBrowserStateChange(Browser browser)
-    {
-        if (browser == null) return;
-        switch (browser.getState()) {
-            case Browser.LOADING_DATA:
-            case Browser.LOADING_LEAVES:
-            case Browser.COUNTING_ITEMS:  
-                setEnabled(false);
-                break;
-            default:
-                onDisplayChange(browser.getLastSelectedDisplay());
-                break;
-        }
-    }
-    
-    /**
-     * Sets the action enabled depending on the selected type.
-     * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
-     */
-    protected void onDisplayChange(TreeImageDisplay selectedDisplay)
-    {
-        if (selectedDisplay == null) {
-            setEnabled(false);
-            return;
-        }
-        Object ho = selectedDisplay.getUserObject(); 
-        if (ho instanceof DatasetData) {
-        	TreeImageDisplay parentDisplay = selectedDisplay.getParentDisplay();
-        	if (parentDisplay == null) setEnabled(false);
-        	else {
-        		Object parent = parentDisplay.getUserObject();
-            	if (parent instanceof ProjectData)
-                	setEnabled(model.isObjectWritable(ho));
-                else setEnabled(false);
-        	}
-        	
-        } else if (ho instanceof CategoryData) {
-        	TreeImageDisplay parentDisplay = selectedDisplay.getParentDisplay();
-        	if (parentDisplay == null) setEnabled(false);
-        	else {
-            	if (parentDisplay.getUserObject() instanceof CategoryGroupData)
-                	setEnabled(model.isObjectWritable(ho));
-                else setEnabled(false);
-        	}
-        } else if (ho instanceof ImageData) 
-            setEnabled(model.isObjectWritable(ho));
-        else setEnabled(false);
-    }
-    
-    /**
-     * Creates a new instance.
-     * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
-     */
-    public CopyAction(TreeViewer model)
-    {
-        super(model);
-        name = NAME;
-        putValue(Action.NAME, NAME);
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.COPY));
-    }
-    
-    /**
-     * Creates a {@link CopyCmd} command to execute the action.
-     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-     */
-    public void actionPerformed(ActionEvent e)
-    {
-        CopyCmd cmd = new CopyCmd(model);
-        cmd.execute();
-    }
-    
+	/** The name of the action. */
+	private static final String NAME = "Copy";
+
+	/** The description of the action. */
+	private static final String DESCRIPTION = "Copy the selected elements.";
+
+	/** 
+	 * Sets the action enabled depending on the state of the {@link Browser}.
+	 * @see TreeViewerAction#onBrowserStateChange(Browser)
+	 */
+	protected void onBrowserStateChange(Browser browser)
+	{
+		if (browser == null) return;
+		switch (browser.getState()) {
+		case Browser.LOADING_DATA:
+		case Browser.LOADING_LEAVES:
+		case Browser.COUNTING_ITEMS:  
+			setEnabled(false);
+			break;
+		default:
+			onDisplayChange(browser.getLastSelectedDisplay());
+		break;
+		}
+	}
+
+	/**
+	 * Sets the action enabled depending on the selected type.
+	 * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
+	 */
+	protected void onDisplayChange(TreeImageDisplay selectedDisplay)
+	{
+		if (selectedDisplay == null) {
+			setEnabled(false);
+			return;
+		}
+		Object ho = selectedDisplay.getUserObject(); 
+		if (ho instanceof DatasetData) {
+			TreeImageDisplay parentDisplay = selectedDisplay.getParentDisplay();
+			if (parentDisplay == null) setEnabled(false);
+			else {
+				Object parent = parentDisplay.getUserObject();
+				if (parent instanceof ProjectData)
+					setEnabled(model.isObjectWritable(ho));
+				else setEnabled(false);
+			}
+
+		} else if (ho instanceof CategoryData) {
+			TreeImageDisplay parentDisplay = selectedDisplay.getParentDisplay();
+			if (parentDisplay == null) setEnabled(false);
+			else {
+				if (parentDisplay.getUserObject() instanceof CategoryGroupData)
+					setEnabled(model.isObjectWritable(ho));
+				else setEnabled(false);
+			}
+		} else if (ho instanceof ImageData) 
+			setEnabled(model.isObjectWritable(ho));
+		else setEnabled(false);
+	}
+
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param model Reference to the Model. Mustn't be <code>null</code>.
+	 */
+	public CopyAction(TreeViewer model)
+	{
+		super(model);
+		name = NAME;
+		putValue(Action.NAME, NAME);
+		putValue(Action.SHORT_DESCRIPTION, 
+				UIUtilities.formatToolTipText(DESCRIPTION));
+		IconManager im = IconManager.getInstance();
+		putValue(Action.SMALL_ICON, im.getIcon(IconManager.COPY));
+	}
+
+	/**
+	 * Creates a {@link CopyCmd} command to execute the action.
+	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		CopyCmd cmd = new CopyCmd(model);
+		cmd.execute();
+	}
+  
 }

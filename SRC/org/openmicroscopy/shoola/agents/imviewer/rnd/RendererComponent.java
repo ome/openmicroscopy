@@ -449,5 +449,23 @@ class RendererComponent
 	{
 		view.resetDefaultRndSettings();
 	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getHighestValue()
+     */
+	public double getHighestValue()
+	{
+		return model.getHighestValue();
+	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getLowestValue()
+     */
+	public double getLowestValue()
+	{
+		return model.getLowestValue();
+	}
     
 }

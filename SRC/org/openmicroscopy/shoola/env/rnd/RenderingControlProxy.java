@@ -22,7 +22,6 @@
  */
 
 package org.openmicroscopy.shoola.env.rnd;
-
 //Java imports
 import java.awt.Color;
 import java.awt.Point;
@@ -238,6 +237,7 @@ class RenderingControlProxy
     /** Initializes the cached rendering settings to speed up process. */
     private void initialize()
     {
+    	rndDef.setTypeSigned(servant.isPixelsTypeSigned());
         rndDef.setDefaultZ(servant.getDefaultZ());
         rndDef.setDefaultT(servant.getDefaultT());
         QuantumDef qDef = servant.getQuantumDef();
@@ -260,6 +260,8 @@ class RenderingControlProxy
                     servant.getChannelCurveCoefficient(i), 
                     servant.getChannelNoiseReduction(i));
             cb.setRGBA(servant.getRGBA(i));
+            cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
+            cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
         }
     }
     
@@ -371,7 +373,6 @@ class RenderingControlProxy
         rndDef = new RndProxyDef();
         initialize();
         tmpSolutionForNoiseReduction();
-        
         metadata = new ChannelMetadata[m.size()];
         Iterator i = m.iterator();
         ChannelMetadata cm;
@@ -1007,6 +1008,55 @@ class RenderingControlProxy
 									c.isNoiseReduction());
 			}		
 		}
+	}
+
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#getPixelsTypeLowerBound(int)
+	 */
+	public double getPixelsTypeLowerBound(int w)
+	{
+		return rndDef.getChannel(w).getLowerBound();
+	}
+
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#getPixelsTypeUpperBound(int)
+	 */
+	public double getPixelsTypeUpperBound(int w)
+	{
+		return rndDef.getChannel(w).getUpperBound();
+	}
+
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#isPixelsTypeSigned()
+	 */
+	public boolean isPixelsTypeSigned() { return rndDef.isTypeSigned(); }
+	
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#validatePixels(Pixels)
+	 */
+	public boolean validatePixels(Pixels pixels)
+	{
+		if (pixels == null) return false;
+		if (getPixelsDimensionsC() != pixels.getSizeC().intValue())
+			return false;
+		if (getPixelsDimensionsY() != pixels.getSizeY().intValue())
+			return false;
+		if (getPixelsDimensionsX() != pixels.getSizeX().intValue())
+			return false;
+		/*
+		if (getPixelsDimensionsZ() != pixels.getSizeZ().intValue())
+			return false;
+		if (getPixelsDimensionsT() != pixels.getSizeT().intValue())
+			return false;
+		*/
+		String s = pixels.getPixelsType().getValue();
+		String value = pixs.getPixelsType().getValue();
+		if (!value.equals(s)) return false;
+		return true;
 	}
 	
 }

@@ -6,7 +6,23 @@
   client for the visualization and manipulation of both image data and metadata
   maintained at an OMERO server site. OMERO.insight is completely written in 
   Java.
-  
+
+--------------------------------------------------------------------------------
+ Last update: 11/09/2007 (revision 5010)
+ Version: Beta 2.2
+ 
+  - Container: Fixed OutofMemory problem while caching images.
+  - Measurement Tool: Fixed bug related to the index of ROI.
+  - UI: Fixed 2 knobs sliders mouse moved (cf. ticket#367)
+--------------------------------------------------------------------------------
+ Last update: 05/09/2007 (revision 5008)
+ Version: Beta 2.2
+ 
+  - TreeViewer: Improved smart folders in images tabbedPane.
+  - TreeViewer: Fixed Refresh problem related to smart folders (cf. ticket #362)
+  - Viewer: Improved category/tagging editor. Introduce a new way of using
+  			categoryGroup i.e. similar to Tag Bundles.
+  - Viewer: Added way auto complete feature.
 --------------------------------------------------------------------------------
  Last update: 31/08/2007 (revision 5004)
  Version: Beta 2.2

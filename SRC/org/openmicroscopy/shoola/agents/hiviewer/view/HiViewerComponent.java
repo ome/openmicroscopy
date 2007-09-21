@@ -29,10 +29,12 @@ import java.awt.Cursor;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
@@ -833,5 +835,81 @@ class HiViewerComponent
      * @see HiViewer#mouseOver(boolean)
      */
 	public void mouseOver(boolean b) { model.setMouseOver(b); }
+
+	/**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#hasRndSettings()
+     */
+	public boolean hasRndSettings()
+	{
+		return (HiViewerFactory.getRefPixelsID() != -1);
+	}
+
+	/**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#pasteRndSettings()
+     */
+	public void pasteRndSettings()
+	{
+		if (!hasRndSettings()) {
+			UserNotifier un = HiViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Paste settings", "No rendering settings to" +
+					"paste. Please first copy settings.");
+			return;
+		}
+		Set nodes = model.getBrowser().getSelectedDisplays();
+		if (nodes == null || nodes.size() == 0){
+			UserNotifier un = HiViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Paste settings", "Please select the nodes" +
+					"you wish to apply the settings to.");
+			return;
+		}
+		Iterator i = nodes.iterator();
+		ImageDisplay node;
+		Object ho;
+		Set<Long> ids = new HashSet<Long>();
+		Class klass = null;
+		while (i.hasNext()) {
+			node = (ImageDisplay) i.next();
+			ho = node.getHierarchyObject();
+			klass = ho.getClass();
+			if (ho instanceof DataObject) {
+				ids.add(((DataObject) ho).getId());
+			}
+		}
+		model.firePasteRenderingSettings(klass, ids);
+	}
+
+	/**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#rndSettingsPasted(Map)
+     */
+	public void rndSettingsPasted(Map map)
+	{
+		if (map == null || map.size() != 2) return;
+		Collection failure = (Collection) map.get(Boolean.FALSE);
+		UserNotifier un = HiViewerAgent.getRegistry().getUserNotifier();
+		if (failure.size() == 0) {
+			un.notifyInfo("Paste settings", "Rendering settings have been " +
+					"applied to all selected images.");
+		} else {
+			String s = "";
+			Iterator i = failure.iterator();
+			int index = 0;
+			int size = failure.size()-1;
+			while (i.hasNext()) {
+				s += (Long) i.next();
+				if (index != size) {
+					if (index%10 == 0) s += "\n";
+					else s += ", ";
+				}
+				
+				index++;
+			}
+			s.trim();
+			un.notifyInfo("Paste settings", "Rendering settings couldn't be " +
+							"applied to the following images: \n"+s);
+		}
+	}
 	
 }

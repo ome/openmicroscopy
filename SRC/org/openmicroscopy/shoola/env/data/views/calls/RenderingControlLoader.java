@@ -37,86 +37,88 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 
 /** 
- * Command to retrieve the {@link RenderingControl}.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
- * @since OME2.2
- */
+* Command to retrieve the {@link RenderingControl}.
+*
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+* 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+* @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+* 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $ $Date: $)
+* </small>
+* @since OME2.2
+*/
 public class RenderingControlLoader
-    extends BatchCallTree
+  	extends BatchCallTree
 {
 
-    /** Result of the call. */
-    private Object    	result;
-    
-    /** Loads the specified tree. */
-    private BatchCall	loadCall;
-    
-    /**
-     * Creates a {@link BatchCall} to retrieve rendering control.
-     * 
-     * @param pixelsID  The id of the pixels set the rendering control is for.
-     * @param reload	Pass <code>true</code> to reload the rendering engine,
-     * 					<code>false</code> otherwise.
-     * @return          The {@link BatchCall}.
-     */
-    private BatchCall makeBatchCall(final long pixelsID, final boolean reload)
-    {
-    	return new BatchCall("Loading rendering control: ") {
-            public void doCall() throws Exception
-            {
-            	try {
-            		OmeroImageService rds = context.getImageService();
-                    if (reload) {
-                    	result = Boolean.TRUE;
-                    	rds.reloadRenderingService(pixelsID);
-                    } else result = rds.loadRenderingControl(pixelsID);
+	/** Result of the call. */
+	private Object    	result;
+
+	/** Loads the specified tree. */
+	private BatchCall	loadCall;
+
+	/**
+	 * Creates a {@link BatchCall} to retrieve rendering control.
+	 * 
+	 * @param pixelsID  The id of the pixels set the rendering control is for.
+	 * @param reload	Pass <code>true</code> to reload the rendering engine,
+	 * 					<code>false</code> otherwise.
+	 * @return          The {@link BatchCall}.
+	 */
+	private BatchCall makeBatchCall(final long pixelsID, final boolean reload)
+	{
+		return new BatchCall("Loading rendering control: ") {
+			public void doCall() throws Exception
+			{
+				try {
+					OmeroImageService rds = context.getImageService();
+					if (reload) {
+						result = rds.reloadRenderingService(pixelsID);
+					} else result = rds.loadRenderingControl(pixelsID);
+					if (result == null) {
+						throw new DSOutOfServiceException("Cannot start the " +
+								"rendering engine for pixelsID "+pixelsID);
+					}
 				} catch (Exception e) {
 					throw new DSOutOfServiceException("Cannot start the " +
 							"rendering engine for pixelsID "+pixelsID, e);
 				}
-            	
-            }
-        };
-    } 
+			}
+		};
+	} 
 
-    /**
-     * Adds the {@link #loadCall} to the computation tree.
-     * 
-     * @see BatchCallTree#buildTree()
-     */
-    protected void buildTree() { add(loadCall); }
+	/**
+	 * Adds the {@link #loadCall} to the computation tree.
+	 * 
+	 * @see BatchCallTree#buildTree()
+	 */
+	protected void buildTree() { add(loadCall); }
 
-    /**
-     * Returns the {@link RenderingControl}.
-     * 
-     * @see BatchCallTree#getResult()
-     */
-    protected Object getResult() { return result; }
+	/**
+	 * Returns the {@link RenderingControl}.
+	 * 
+	 * @see BatchCallTree#getResult()
+	 */
+	protected Object getResult() { return result; }
 
-    /**
-     * Creates a new instance.
-     * If bad arguments are passed, we throw a runtime exception so to fail
-     * early and in the caller's thread.
-     * 
-     * @param pixelsID  The id of the pixels set the rendering control is for.
-     * @param reload	Pass <code>true</code> to reload the rendering engine,
-     * 					<code>false</code> otherwise.
-     */
-    public RenderingControlLoader(long pixelsID, boolean reload)
-    {
-        if (pixelsID < 0)
-             throw new IllegalArgumentException("ID not valid.");
-        loadCall = makeBatchCall(pixelsID, reload);
-    }
-    
+	/**
+	 * Creates a new instance.
+	 * If bad arguments are passed, we throw a runtime exception so to fail
+	 * early and in the caller's thread.
+	 * 
+	 * @param pixelsID  The id of the pixels set the rendering control is for.
+	 * @param reload	Pass <code>true</code> to reload the rendering engine,
+	 * 					<code>false</code> otherwise.
+	 */
+	public RenderingControlLoader(long pixelsID, boolean reload)
+	{
+		if (pixelsID < 0)
+			throw new IllegalArgumentException("ID not valid.");
+		loadCall = makeBatchCall(pixelsID, reload);
+	}
+
 }

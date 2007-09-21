@@ -104,6 +104,12 @@ public class ZoomAction
     /** The default zooming index. */
     public static final int  	DEFAULT_ZOOM_INDEX = ZOOM_100;
     
+    /** The minimum value of zooming index. */
+    public static final int  	MIN_ZOOM_INDEX = ZOOM_25;
+    
+    /** The maximum value of zooming index. */
+    public static final int  	MAX_ZOOM_INDEX = ZOOM_300;
+    
     /** The number of supported ids. */
     private static final int    MAX = 12;
     
@@ -194,6 +200,19 @@ public class ZoomAction
 		}
     	return ZOOM_FIT_TO_WINDOW;
     }
+
+    /**
+     * Returns the magnification factor corresponding to the passed index.
+     * 
+     * @param index The magnification index.
+     * @return See above.
+     */
+    public static double getZoomFactor(int index)
+    {
+    	if (index < 0 || index >= (factors.length-1))
+    		return -1;
+    	return factors[index];
+    }
     
     /**
      * Creates a new instance.
@@ -213,6 +232,7 @@ public class ZoomAction
         putValue(Action.NAME, names[zoomingIndex]);
         name = names[zoomingIndex];
     }
+    
     
     /**
      * Returns the zoom index associated to this action.

@@ -59,6 +59,18 @@ public interface Browser
     extends ObservableComponent
 {
 
+	/** 
+	 * Factor use to determine the size of the annotate image
+	 * w.r.t the rendered image.
+	 */
+	public static final int	RATIO = 5;
+	
+	/** 
+	 * Factor use to determine the size of the annotate image
+	 * w.r.t the rendered image.
+	 */
+	public static final int	MAX_RATIO = 10;
+	
     /**
      * Returns the widget that displays the image.
      *  
@@ -322,5 +334,12 @@ public interface Browser
 	 * @return See above.
 	 */
 	public double getRatio();
+
+	/**
+	 * Sets the ratio of the an image composing the grid.
+	 * 
+	 * @param r The value to set.
+	 */
+	public void setGridRatio(double r);
 	
 }

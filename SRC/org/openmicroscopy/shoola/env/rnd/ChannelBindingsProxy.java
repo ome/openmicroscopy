@@ -46,6 +46,7 @@ package org.openmicroscopy.shoola.env.rnd;
 class ChannelBindingsProxy
 {
 
+
     /** The lower bound of the pixel intensity interval. */
     private double      inputStart;
     
@@ -67,6 +68,12 @@ class ChannelBindingsProxy
     /** Flag to indicate if the noise reduction is turned on or off. */
     private boolean     noiseReduction;
 
+    /** The lowest possible value. */
+    private double		lowerBound;
+    
+    /** The highest possible value. */
+    private double		upperBound;
+    
     /** Creates a new instance. */
     ChannelBindingsProxy()
     {
@@ -183,6 +190,34 @@ class ChannelBindingsProxy
     }
     
     /**
+     * Sets the highest possible value.
+     * 
+     * @param v The value to set.
+     */
+    void setUpperBound(double v) { upperBound = v; }
+    
+    /**
+     * Sets the lowest possible value.
+     * 
+     * @param v The value to set.
+     */
+    void setLowerBound(double v) { lowerBound = v; }
+    
+    /**
+     * Returns the highest possible value.
+     * 
+     * @return See above.
+     */
+    double getUpperBound() { return upperBound; }
+    
+    /**
+     * Returns the lowest possible value.
+     * 
+     * @return See above.
+     */
+    double getLowerBound() { return lowerBound; }
+    
+    /**
      * Creates and returns a copy of the element.
      * 
      * @return See above.
@@ -190,11 +225,13 @@ class ChannelBindingsProxy
     ChannelBindingsProxy copy()
     {
     	ChannelBindingsProxy copy = new ChannelBindingsProxy();
+    	copy.setUpperBound(upperBound);
+    	copy.setLowerBound(lowerBound);
     	copy.setActive(active);
     	copy.setInterval(inputStart, inputEnd);
     	copy.setQuantization(family, curveCoefficient, noiseReduction);
     	copy.setRGBA(rgba);
     	return copy;
     }
-    
+       
 }

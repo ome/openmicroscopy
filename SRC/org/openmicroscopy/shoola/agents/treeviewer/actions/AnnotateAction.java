@@ -24,9 +24,11 @@
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 
-
 //Java imports
 import java.awt.event.ActionEvent;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.swing.Action;
 
 //Third-party libraries
@@ -38,6 +40,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PropertiesCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 
@@ -153,7 +157,18 @@ public class AnnotateAction
         if (browser != null) {
         	TreeImageDisplay[] nodes = browser.getSelectedDisplays();
             if (nodes.length > 1) {
-                model.annotate(nodes);
+            	Set<DataObject> s = new HashSet<DataObject>();
+            	Class type = null;
+            	TreeImageDisplay node;
+            	Object ho;
+            	for (int i = 0; i < nodes.length; i++) {
+					node = nodes[i];
+					ho = node.getUserObject();
+					type = ho.getClass();
+					if (ho instanceof ImageData || ho instanceof DatasetData)
+						s.add((DataObject) ho);
+				}
+                model.annotate(type, s);
                 return;
             }
         }

@@ -32,25 +32,26 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.annotator.view.Annotator;
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.AnnotationData;
 
 /** 
- * Creates or updates the specified annotation.
- * This class calls the <code>createAnnotation</code>, 
- * <code>updateAndCreateAnnotation</code> or <code>updateAnnotation</code>
- * methods in the <code>DataHandlerView</code>.
- * 
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since OME3.0
- */
+* Creates or updates the specified annotation.
+* This class calls the <code>createAnnotation</code>, 
+* <code>updateAndCreateAnnotation</code> or <code>updateAnnotation</code>
+* methods in the <code>DataHandlerView</code>.
+* 
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $Date: $)
+* </small>
+* @since OME3.0
+*/
 public class AnnotationsSaver
 	extends AnnotatorLoader
 {
@@ -84,6 +85,9 @@ public class AnnotationsSaver
 	
 	/** One of the constants defined by this class. */
 	private int				index;
+	
+	/** The time reference object if any. */
+	private TimeRefObject	timeRef;
 	
 	/** Handle to the async call so that we can cancel it. */
 	private CallHandle  	handle;
@@ -187,6 +191,28 @@ public class AnnotationsSaver
 		this.toAnnotate = toAnnotate;
 	}
 	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param viewer		The Annotator this loader is for. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param ref			The time reference.	
+	 * 						Mustn't be <code>null</code>.
+	 * @param annotation	The annotation. Mustn't be <code>null</code>.
+	 */
+	public AnnotationsSaver(Annotator viewer, TimeRefObject ref, 
+							AnnotationData annotation)
+	{
+		super(viewer);
+		if (annotation == null)
+			throw new IllegalArgumentException("No annotation.");
+		if (ref == null)
+			throw new IllegalArgumentException("No period specified.");
+		this.mode = Annotator.BULK_ANNOTATE_MODE;
+		this.annotation = annotation;
+		timeRef = ref;
+	}
+	
 	/** 
 	 * Updates or creates annotations.
 	 * @see AnnotatorLoader#load()
@@ -207,7 +233,10 @@ public class AnnotationsSaver
 											toAnnotate, annotation, this);
 			}
 		} else {
-			handle = aView.annotateChildren(toAnnotate, annotation, this);
+			if (timeRef == null)
+				handle = aView.annotateChildren(toAnnotate, annotation, this);
+			else 
+				handle = aView.annotateChildren(timeRef, annotation, this);
 		}
 	}
 	

@@ -25,54 +25,58 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.CategoryData;
 import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
- * Pastes the rendering settings associated to the passed set of pixels
- * across a collection of images.
- * This class calls the <code>pasteRndSettings</code> method in the
- * <code>DataManagerView</code>.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since OME3.0
- */
+* Pastes the rendering settings associated to the passed set of pixels
+* across a collection of images.
+* This class calls the <code>pasteRndSettings</code> method in the
+* <code>DataManagerView</code>.
+*
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $Date: $)
+* </small>
+* @since OME3.0
+*/
 public class RndSettingsSaver 
 	extends DataTreeViewerLoader
 {
-
 	
 	/** The id of the pixels set of reference. */
-	private long 		pixelsID;
-	
+	private long 			pixelsID;
+
 	/** 
 	 * One of the following supported types:
 	 * <code>ImageData</code>, <code>DatasetData</code> or
 	 * <code>CategoryData</code>.
 	 */
-	private Class		rootType;
-	
-	/** Collection of data objects. */
-	private List		nodes;
-	
+	private Class			rootType;
+
+	/** Collection of data objects id. */
+	private Set<Long>		ids;
+
+	/** Time reference object. */
+	private TimeRefObject 	ref;
+
 	/** Handle to the async call so that we can cancel it. */
-    private CallHandle  handle;
-    
+	private CallHandle  handle;
+
 	/** 
 	 * Controls if the passed type is supported.
 	 * 
@@ -85,58 +89,81 @@ public class RndSettingsSaver
 			return;
 		throw new IllegalArgumentException("Type not supported.");
 	}
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param viewer	The TreeViewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
+	 *               	Mustn't be <code>null</code>.
 	 * @param rootType	The type of nodes. Supported type 
 	 * 					<code>ImageData</code>, <code>DatasetData</code> or
 	 * 					<code>CategoryData</code>.
-	 * @param nodes		Collection of nodes. If the rootType equals 
+	 * @param ids		Collection of nodes ids. If the rootType equals 
 	 * 					<code>DatasetData</code> or
 	 * 					<code>CategoryData</code>, the settings will be applied
 	 * 					to the images contained in the specified containers.
 	 * @param pixelsID	The id of the pixels of reference.
 	 */
-	public RndSettingsSaver(TreeViewer viewer, Class rootType, List nodes, long
-							pixelsID)
+	public RndSettingsSaver(TreeViewer viewer, Class rootType, Set<Long> ids, 
+			long pixelsID)
 	{
 		super(viewer);
 		checkRootType(rootType);
-		if (nodes == null || nodes.size() == 0)
+		if (ids == null || ids.size() == 0)
 			throw new IllegalArgumentException("No nodes specified.");
 		if (pixelsID < 0)
 			throw new IllegalArgumentException("Pixels ID not valid.");
 		this.rootType = rootType;
 		this.pixelsID = pixelsID;
-		this.nodes = nodes;
+		this.ids = ids;
+		ref = null;
 	}
-	
+
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param viewer	The TreeViewer this data loader is for.
+	 *               	Mustn't be <code>null</code>.
+	 * @param ref		The time reference object.
+	 * @param pixelsID	The id of the pixels of reference.
+	 */
+	public RndSettingsSaver(TreeViewer viewer, TimeRefObject ref, long pixelsID)
+	{
+		super(viewer);
+		if (pixelsID < 0)
+			throw new IllegalArgumentException("Pixels ID not valid.");
+		if (ref == null)
+			throw new IllegalArgumentException("Period not valid.");
+		this.pixelsID = pixelsID;
+		this.ref = ref;
+	}
+
 	/** 
-     * Retrieves the available experimenter groups. 
-     * @see DataTreeViewerLoader#cancel()
-     */
+	 *  Cancels the data loading. 
+	 * @see DataTreeViewerLoader#cancel()
+	 */
 	public void cancel() { handle.cancel(); }
 
 	/** 
-     * Cancels the data loading. 
-     * @see DataTreeViewerLoader#load()
-     */
+	 * Pastes the rendering settings.
+	 * @see DataTreeViewerLoader#load()
+	 */
 	public void load()
 	{
-		handle = dmView.pasteRndSettings(pixelsID, rootType, nodes, this);
+		if (ref == null)
+			handle = dhView.pasteRndSettings(pixelsID, rootType, ids, this);
+		else 
+			handle = dhView.pasteRndSettings(pixelsID, ref, this);
 	}
 
 	/** 
-     * Feeds the result back to the viewer. 
-     * @see DataTreeViewerLoader#handleResult(Object)
-     */
-    public void handleResult(Object result)
-    {
-        if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        //viewer.setAvailableGroups((Map) result);
-    }
-    
+	 * Feeds the result back to the viewer. 
+	 * @see DataTreeViewerLoader#handleResult(Object)
+	 */
+	public void handleResult(Object result)
+	{
+		if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
+		viewer.rndSettingsPasted((Map) result);
+	}
+
 }

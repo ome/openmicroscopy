@@ -33,6 +33,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
@@ -40,226 +41,226 @@ import pojos.CategoryData;
 import pojos.DataObject;
 
 /** 
- * Provides methods to support annotation.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since OME3.0
- */
+* Provides methods to support annotation.
+*
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $Date: $)
+* </small>
+* @since OME3.0
+*/
 public interface DataHandlerView
 	extends DataServicesView
 {
 
 	/** Identifies the <code>Declassification</code> algorithm. */
-    public static final int DECLASSIFICATION = 
-    						ClassificationLoader.DECLASSIFICATION;
-    
-    /**
-     * Identifies the <code>Classification</code> algorithm with
-     * mutually exclusive rule.
-     */
-    public static final int CLASSIFICATION_ME = 
-    						ClassificationLoader.CLASSIFICATION_ME;
-    
-    /**
-     * Identifies the <code>Classification</code> algorithm without
-     * mutually exclusive rule.
-     */
-    public static final int CLASSIFICATION_NME = 
-    						ClassificationLoader.CLASSIFICATION_NME;
-    
-    /** 
-     * Creates an annotation of the specified type for the specified node.
-     * 
-     * @param annotatedObject   The <code>DataObject</code> to annotate.
-     *                          One of the following type:
-     *                          <code>DatasetData</code>,
-     *                          <code>ImageData</code>.   
-     *                          Mustn't be <code>null</code>.
-     * @param data              The annotation to create.
-     * @param observer          Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle createAnnotation(DataObject annotatedObject,
-                                        AnnotationData data,  
-                                        AgentEventListener observer);
-    
-    /**
-     * Updates the specified annotation.
-     * 
-     * @param annotatedObject   The annotated <code>DataObject</code>.
-     *                          One of the following type:
-     *                          <code>DatasetData</code>,
-     *                          <code>ImageData</code>.   
-     *                          Mustn't be <code>null</code>.
-     * @param data              The Annotation object to update.
-     *                          Mustn't be <code>null</code>.
-     * @param observer          Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle updateAnnotation(DataObject annotatedObject,
-                                        AnnotationData data,
-                                        AgentEventListener observer);
-    
-    /**
-     * Deletes the specified annotation.
-     * 
-     * @param annotatedObject   The annotated <code>DataObject</code>.
-     *                          One of the following type:
-     *                          <code>DatasetData</code>,
-     *                          <code>ImageData</code>.   
-     *                          Mustn't be <code>null</code>.
-     * @param data              The annotation object to delete. 
-     *                          Mustn't be <code>null</code>.
-     * @param observer          Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle deleteAnnotation(DataObject annotatedObject,
-                                        AnnotationData data,
-                                        AgentEventListener observer);
-    
-    /**
-     * Deletes the specified annotation.
-     * 
-     * @param annotatedObject   The annotated <code>DataObject</code>.
-     *                          One of the following type:
-     *                          <code>DatasetData</code>,
-     *                          <code>ImageData</code>.   
-     *                          Mustn't be <code>null</code>.
-     * @param data              Collection of annotation objects to delete. 
-     *                          Mustn't be <code>null</code>.
-     * @param observer          Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle deleteAnnotation(DataObject annotatedObject,
-                                        List data,
-                                        AgentEventListener observer);
-    
-    /**
-     * Retrieves all the annotations linked to the specified node type.
-     * 
-     * @param nodeType  The type of the node. One out of the following types:
-     *                  <code>DatasetData, ImageData</code>.      
-     * @param nodeID    The id of the node.
-     * @param observer  Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle loadAnnotations(Class nodeType, long nodeID,
-                                        AgentEventListener observer);
-    
-    /**
-     * Retrieves all the annotations made by the current user linked to the 
-     * specified nodes.
-     * 
-     * @param nodeType  The type of the node. One out of the following types:
-     *                  <code>DatasetData, ImageData</code>.      
-     * @param nodeIDs    The id of the node.
-     * @param observer  Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle loadAnnotations(Class nodeType, Set<Long> nodeIDs,
-                                        AgentEventListener observer);
-    
-    /** 
-     * Creates an annotation of the specified type for the specified node.
-     * 
-     * @param annotatedObjects  The <code>DataObject</code>s to annotate. 
-     *                          Mustn't be <code>null</code>.
-     * @param data              The annotation to create.
-     * @param observer          Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle createAnnotation(Set annotatedObjects, 
-    								AnnotationData data,  
-                                        AgentEventListener observer);
-    
-    /**
-     * Updates the specified annotation.
-     * 
-     * @param annotatedObjects  The annotated <code>DataObject</code>s. 
-     *                          Mustn't be <code>null</code>.
-     * @param observer          Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle updateAnnotation(Map annotatedObjects,
-                                        AgentEventListener observer);
-    
-    /**
-     * Updates and creates the specified annotation.
-     * 
-     * @param toUpdate  		The annotated <code>DataObject</code>s.
-     *                          Mustn't be <code>null</code>.
-	 * @param toCreate  		The annotated <code>DataObject</code>s.
-     *                          Mustn't be <code>null</code>.                          
-     * @param data              The Annotation object to update.
-     *                          Mustn't be <code>null</code>.
-     * @param observer          Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle updateAndCreateAnnotation(Map toUpdate, Set toCreate, 
-    						AnnotationData data, AgentEventListener observer);
-    
-    /**
-     * Loads all Category Group/Category paths.
-     * 
-     * @param imageIDs      The id of the images.
-     * @param userID   		The Id of the user.   
-     * @param algorithm     One of the constants defined by this class.              
-     * @param observer  Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle loadClassificationPaths(Set imageIDs, long userID, 
-    						int algorithm, AgentEventListener observer);
-    
-    /**
-     * Adds the images to the specified categories.
-     * 
-     * @param images        The images to classify.        
-     * @param categories    Collection of <code>CategoryData</code>.
-     * @param observer      Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle classify(Set images, Set categories, 
-                                AgentEventListener observer);
-    
-    /**
-     * Removes the images from the specified categories.
-     * 
-     * @param images        The images to classify.        
-     * @param categories    Collection of <code>CategoryData</code>.
-     * @param observer      Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle declassify(Set images, Set categories, 
-                                AgentEventListener observer);
-    
-    /**
-     * Loads the original archived files if any linked to the set of pixels.
-     * 
-     * @param location	The location where to save the file.
-     * @param pixelsID	The pixels set ID.
-     * @param observer	Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle loadArchivedFiles(String location, long pixelsID, 
-    									AgentEventListener observer);
+	public static final int DECLASSIFICATION = 
+		ClassificationLoader.DECLASSIFICATION;
 
-    /**
-     * Classifies the images contained in the specified folders.
-     * 
-     * @param containers	The folders containing the images to classify.
-     * @param categories	Collection of <code>CategoryData</code>.
-     * @param observer      Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
+	/**
+	 * Identifies the <code>Classification</code> algorithm with
+	 * mutually exclusive rule.
+	 */
+	public static final int CLASSIFICATION_ME = 
+		ClassificationLoader.CLASSIFICATION_ME;
+
+	/**
+	 * Identifies the <code>Classification</code> algorithm without
+	 * mutually exclusive rule.
+	 */
+	public static final int CLASSIFICATION_NME = 
+		ClassificationLoader.CLASSIFICATION_NME;
+
+	/** 
+	 * Creates an annotation of the specified type for the specified node.
+	 * 
+	 * @param annotatedObject   The <code>DataObject</code> to annotate.
+	 *                          One of the following type:
+	 *                          <code>DatasetData</code>,
+	 *                          <code>ImageData</code>.   
+	 *                          Mustn't be <code>null</code>.
+	 * @param data              The annotation to create.
+	 * @param observer          Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle createAnnotation(DataObject annotatedObject,
+			AnnotationData data,  
+			AgentEventListener observer);
+
+	/**
+	 * Updates the specified annotation.
+	 * 
+	 * @param annotatedObject   The annotated <code>DataObject</code>.
+	 *                          One of the following type:
+	 *                          <code>DatasetData</code>,
+	 *                          <code>ImageData</code>.   
+	 *                          Mustn't be <code>null</code>.
+	 * @param data              The Annotation object to update.
+	 *                          Mustn't be <code>null</code>.
+	 * @param observer          Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle updateAnnotation(DataObject annotatedObject,
+			AnnotationData data,
+			AgentEventListener observer);
+
+	/**
+	 * Deletes the specified annotation.
+	 * 
+	 * @param annotatedObject   The annotated <code>DataObject</code>.
+	 *                          One of the following type:
+	 *                          <code>DatasetData</code>,
+	 *                          <code>ImageData</code>.   
+	 *                          Mustn't be <code>null</code>.
+	 * @param data              The annotation object to delete. 
+	 *                          Mustn't be <code>null</code>.
+	 * @param observer          Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle deleteAnnotation(DataObject annotatedObject,
+			AnnotationData data,
+			AgentEventListener observer);
+
+	/**
+	 * Deletes the specified annotation.
+	 * 
+	 * @param annotatedObject   The annotated <code>DataObject</code>.
+	 *                          One of the following type:
+	 *                          <code>DatasetData</code>,
+	 *                          <code>ImageData</code>.   
+	 *                          Mustn't be <code>null</code>.
+	 * @param data              Collection of annotation objects to delete. 
+	 *                          Mustn't be <code>null</code>.
+	 * @param observer          Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle deleteAnnotation(DataObject annotatedObject,
+			List data,
+			AgentEventListener observer);
+
+	/**
+	 * Retrieves all the annotations linked to the specified node type.
+	 * 
+	 * @param nodeType  The type of the node. One out of the following types:
+	 *                  <code>DatasetData, ImageData</code>.      
+	 * @param nodeID    The id of the node.
+	 * @param observer  Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadAnnotations(Class nodeType, long nodeID,
+			AgentEventListener observer);
+
+	/**
+	 * Retrieves all the annotations made by the current user linked to the 
+	 * specified nodes.
+	 * 
+	 * @param nodeType  The type of the node. One out of the following types:
+	 *                  <code>DatasetData, ImageData</code>.      
+	 * @param nodeIDs    The id of the node.
+	 * @param observer  Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadAnnotations(Class nodeType, Set<Long> nodeIDs,
+			AgentEventListener observer);
+
+	/** 
+	 * Creates an annotation of the specified type for the specified node.
+	 * 
+	 * @param annotatedObjects  The <code>DataObject</code>s to annotate. 
+	 *                          Mustn't be <code>null</code>.
+	 * @param data              The annotation to create.
+	 * @param observer          Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle createAnnotation(Set annotatedObjects, 
+			AnnotationData data,  
+			AgentEventListener observer);
+
+	/**
+	 * Updates the specified annotation.
+	 * 
+	 * @param annotatedObjects  The annotated <code>DataObject</code>s. 
+	 *                          Mustn't be <code>null</code>.
+	 * @param observer          Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle updateAnnotation(Map annotatedObjects,
+			AgentEventListener observer);
+
+	/**
+	 * Updates and creates the specified annotation.
+	 * 
+	 * @param toUpdate  		The annotated <code>DataObject</code>s.
+	 *                          Mustn't be <code>null</code>.
+	 * @param toCreate  		The annotated <code>DataObject</code>s.
+	 *                          Mustn't be <code>null</code>.                          
+	 * @param data              The Annotation object to update.
+	 *                          Mustn't be <code>null</code>.
+	 * @param observer          Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle updateAndCreateAnnotation(Map toUpdate, Set toCreate, 
+			AnnotationData data, AgentEventListener observer);
+
+	/**
+	 * Loads all Category Group/Category paths.
+	 * 
+	 * @param imageIDs      The id of the images.
+	 * @param userID   		The Id of the user.   
+	 * @param algorithm     One of the constants defined by this class.              
+	 * @param observer  Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadClassificationPaths(Set imageIDs, long userID, 
+			int algorithm, AgentEventListener observer);
+
+	/**
+	 * Adds the images to the specified categories.
+	 * 
+	 * @param images        The images to classify.        
+	 * @param categories    Collection of <code>CategoryData</code>.
+	 * @param observer      Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle classify(Set images, Set categories, 
+			AgentEventListener observer);
+
+	/**
+	 * Removes the images from the specified categories.
+	 * 
+	 * @param images        The images to classify.        
+	 * @param categories    Collection of <code>CategoryData</code>.
+	 * @param observer      Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle declassify(Set images, Set categories, 
+			AgentEventListener observer);
+
+	/**
+	 * Loads the original archived files if any linked to the set of pixels.
+	 * 
+	 * @param location	The location where to save the file.
+	 * @param pixelsID	The pixels set ID.
+	 * @param observer	Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadArchivedFiles(String location, long pixelsID, 
+			AgentEventListener observer);
+
+	/**
+	 * Classifies the images contained in the specified folders.
+	 * 
+	 * @param containers	The folders containing the images to classify.
+	 * @param categories	Collection of <code>CategoryData</code>.
+	 * @param observer      Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
 	public CallHandle classifyChildren(Set containers, Set categories, 
-			 							AgentEventListener observer);
+			AgentEventListener observer);
 
 	/**
 	 * Annotates the images contained in the passed folder.
@@ -268,11 +269,11 @@ public interface DataHandlerView
 	 * 						to annotate.
 	 * @param annotation	The annotation.
 	 * @param observer		Callback handler.
-     * @return A handle that can be used to cancel the call.
+	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle annotateChildren(Set folders, 
-					AnnotationData annotation, AgentEventListener observer);
-	
+			AnnotationData annotation, AgentEventListener observer);
+
 	/**
 	 * Loads all classifications for a given image i.e. 
 	 * first the categories containing the image, then the categories
@@ -281,53 +282,53 @@ public interface DataHandlerView
 	 * @param imageID	The id of the image to handle.
 	 * @param userID	The user's id.
 	 * @param observer	Callback handler.
-     * @return A handle that can be used to cancel the call.
+	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadAllClassifications(long imageID, long userID, 
-							AgentEventListener observer);
-	
+			AgentEventListener observer);
+
 	/**
 	 * Loads all classifications for a given image i.e. the categories
 	 * containing the image.
 	 * 
 	 * @param imageID	The id of the image to handle.
 	 * @param leaves	Passed <code>true</code> to retrieve the images
-     * 					<code>false</code> otherwise.
+	 * 					<code>false</code> otherwise.
 	 * @param userID	The user's id.
 	 * @param observer	Callback handler.
-     * @return A handle that can be used to cancel the call.
+	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle findCategoryPaths(long imageID, boolean leaves, 
-										long userID, 
-										AgentEventListener observer);
-	
+			long userID, 
+			AgentEventListener observer);
+
 	/**
 	 * Loads all classifications for a given image i.e. the categories
 	 * containing the image.
 	 * 
 	 * @param imagesID	The id of the images to handle.
 	 * @param leaves	Passed <code>true</code> to retrieve the images
-     * 					<code>false</code> otherwise.
+	 * 					<code>false</code> otherwise.
 	 * @param userID	The user's id.
 	 * @param observer	Callback handler.
-     * @return A handle that can be used to cancel the call.
+	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle findCategoryPaths(Set<Long> imagesID, boolean leaves, 
-									long userID, 
-							AgentEventListener observer);
-	 
+			long userID, 
+			AgentEventListener observer);
+
 	/**
 	 * Creates new categories and classifies the specified image.
 	 * 
 	 * @param imageID		The id of the image to classify.
 	 * @param categories	The categories to create.
 	 * @param observer		Callback handler.
-     * @return A handle that can be used to cancel the call.
+	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle createAndClassify(long imageID, 
-									Set<CategoryData> categories,
-									AgentEventListener observer);
-	
+			Set<CategoryData> categories,
+			AgentEventListener observer);
+
 	/**
 	 * Creates new categories and classifies the specified image into
 	 * the newly created categories and the updated ones.
@@ -336,12 +337,12 @@ public interface DataHandlerView
 	 * @param categories			The categories to create.			
 	 * @param categoriesToUpdate	The categories to update.
 	 * @param observer				Callback handler.
-     * @return A handle that can be used to cancel the call.
+	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle createAndClassify(long imageID, 
 			Set<CategoryData> categories, Set<CategoryData> categoriesToUpdate,
 			AgentEventListener observer);
-	
+
 	/**
 	 * Loads the images imported during the passed period.
 	 * 
@@ -357,7 +358,63 @@ public interface DataHandlerView
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadImages(int constrain, Timestamp lowerTime, 
-								Timestamp time, long userID, 
-								AgentEventListener observer);
+			Timestamp time, long userID, 
+			AgentEventListener observer);
+
+	/**
+	 * Applies the rendering settings associated to the passed pixels set 
+	 * to the images contained in the specified datasets or categories
+	 * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
+	 * Applies the settings to the passed images if the type is 
+	 * <code>ImageData</code>.
+	 * 
+	 * @param pixelsID		The id of the pixels set of reference.
+	 * @param rootNodeType	The type of nodes. Can either be 
+	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
+	 * 						<code>CategoryData</code>.
+	 * @param ids			The ids of the nodes to apply settings to. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param observer		Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle pasteRndSettings(long pixelsID, Class rootNodeType,
+			Set<Long> ids, AgentEventListener observer);
+
+	/**
+	 * Applies the rendering settings associated to the passed pixels set 
+	 * to the images contained in the specified datasets or categories
+	 * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
+	 * Applies the settings to the passed images if the type is 
+	 * <code>ImageData</code>.
+	 * 
+	 * @param pixelsID		The id of the pixels set of reference.
+	 * @param ref			The time reference object.
+	 * @param observer		Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle pasteRndSettings(long pixelsID, TimeRefObject ref, 
+			AgentEventListener observer);
+
+	/**
+	 * Classifies the images imported during the given period of time.
+	 * 
+	 * @param timeRef		The time reference.
+	 * @param categories	Collection of <code>CategoryData</code>.
+	 * @param observer      Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle classifyChildren(TimeRefObject timeRef, Set categories, 
+			AgentEventListener observer);
+
+	/**
+	 * Annotates the images imported during the given period of time.
+	 * 
+	 * @param timeRef		The time reference.
+	 * @param annotation	The annotation.
+	 * @param observer		Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle annotateChildren(TimeRefObject timeRef, 
+			AnnotationData annotation, AgentEventListener observer);
 	
 }

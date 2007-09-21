@@ -21,7 +21,6 @@
  *------------------------------------------------------------------------------
  */
 package org.openmicroscopy.shoola.util.ui.lens;
-
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -140,10 +139,9 @@ class ZoomWindowUI
         int viewportW = currentView.getWidth();
 	    int viewportH = currentView.getHeight();
 	    int x = w/2-viewportW/2;
-	    if (x<0) x = 0;
+	    if (x < 0) x = 0;
 	    int y = h/2-viewportH/2;
-	    if (y<0) y = 0;
-	        
+	    if (y < 0) y = 0;  
 	    currentView.setViewPosition(new Point(x, y));
 	}
 	
@@ -208,5 +206,19 @@ class ZoomWindowUI
 	{
 		zoomPanel.setZoomImage(zoomImage);
 	}
+	
+	/**
+	 * Forwards call to {@link #lensMenu}.
+	 * 
+	 * @param index The index. 
+	 */
+	void setSelectedSize(int index) { lensMenu.setSelectedSize(index); }
+
+	/**
+	 * Forwards call to {@link #lensMenu}.
+	 * 
+	 * @param index The index. 
+	 */
+	void setZoomIndex(int index) { lensMenu.setZoomIndex(index); }
 	
 }

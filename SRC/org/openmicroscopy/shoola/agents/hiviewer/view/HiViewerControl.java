@@ -65,6 +65,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.FindAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindwSTAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FlatLayoutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.MouseOverAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.PasteRndSettingsAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.PropertiesAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.RemoveAction;
@@ -197,6 +198,9 @@ class HiViewerControl
     
     /** Identifies the <code>Mouse over</code> action. */
     static final Integer     MOUSE_OVER = new Integer(30);
+    
+    /** Identifies the <code>Paste rendering settings</code> action. */
+    static final Integer     PASTE_RND_SETTINGS = new Integer(31);
        
     /** 
      * Reference to the {@link HiViewer} component, which, in this context,
@@ -247,6 +251,7 @@ class HiViewerControl
         actionsMap.put(ANNOTATE_CHILDREN, new AnnotateChildrenAction(model));
         actionsMap.put(RESET_LAYOUT, new ResetLayoutAction(model));
         actionsMap.put(MOUSE_OVER, new MouseOverAction(model));
+        actionsMap.put(PASTE_RND_SETTINGS, new PasteRndSettingsAction(model));
     }
   
     /** 
@@ -528,7 +533,7 @@ class HiViewerControl
         	if (view.getDataHandler() == null) return;
         	if (pce.getNewValue() != null) {
         		Set set = (Set) pce.getNewValue();
-        		List l = new ArrayList(set.size());
+        		List<Object> l = new ArrayList<Object>(set.size());
         		Iterator i = set.iterator();
         		while (i.hasNext()) 
 					l.add(i.next());

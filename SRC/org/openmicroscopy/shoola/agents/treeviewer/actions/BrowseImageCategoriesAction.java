@@ -43,91 +43,93 @@ import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
- * Browses the categories the image belonged to.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since OME3.0
- */
+* Browses the categories the image belonged to.
+*
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $Date: $)
+* </small>
+* @since OME3.0
+*/
 public class BrowseImageCategoriesAction 
 	extends TreeViewerAction
 {
 
 	/** The name of the action. */
-    private static final String NAME = "Browe Categories";
-    
-    /** The description of the action. */
-    private static final String DESCRIPTION= "Browse the categories " +
-    										"containing the image.";
+  private static final String NAME = "Browe Categories";
+  
+  /** The description of the action. */
+  private static final String DESCRIPTION= "Browse the categories " +
+  										"containing the image.";
 
-    /**
-     * Callback to notify of a change in the currently selected display
-     * in the currently selected 
-     * {@link org.openmicroscopy.shoola.agents.treeviewer.browser.Browser}.
-     * 
-     * @param selectedDisplay The newly selected display node.
-     */
-    protected void onDisplayChange(TreeImageDisplay selectedDisplay)
-    {
-        if (selectedDisplay == null) {
-            setEnabled(false);
-            return;
-        }
-        Browser browser = model.getSelectedBrowser();
-        if (browser != null) {
-            if (browser.getSelectedDisplays().length > 1) {
-            	setEnabled(false);
-                return;
-            }
-            Object ho = selectedDisplay.getUserObject();
-            //if (ho != null && ho instanceof ImageData)
-           // 	setEnabled(((ImageData) ho).getClassificationCount() != 0);
-            if (ho != null && ho instanceof ImageData)
-            	setEnabled(true);
-            return;
-        }
-        setEnabled(false);
-    }
-    
+  /**
+   * Callback to notify of a change in the currently selected display
+   * in the currently selected 
+   * {@link org.openmicroscopy.shoola.agents.treeviewer.browser.Browser}.
+   * 
+   * @param selectedDisplay The newly selected display node.
+   */
+  protected void onDisplayChange(TreeImageDisplay selectedDisplay)
+  {
+      if (selectedDisplay == null) {
+          setEnabled(false);
+          return;
+      }
+      Browser browser = model.getSelectedBrowser();
+      if (browser != null) {
+          if (browser.getSelectedDisplays().length > 1) {
+          	setEnabled(false);
+              return;
+          }
+          Object ho = selectedDisplay.getUserObject();
+          if (ho != null && ho instanceof ImageData) {
+          	ImageData img = (ImageData) ho;
+          	Long l = img.getClassificationCount();
+          	if (l != null) setEnabled(l.longValue() != 0);
+          	else setEnabled(false);
+          }
+          return;
+      }
+      setEnabled(false);
+  }
+  
 	/**
-     * Creates a new instance.
-     * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
-     */
-    public BrowseImageCategoriesAction(TreeViewer model)
-    {
-        super(model);
-        putValue(Action.NAME, NAME);
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.BROWSER));
-    } 
-    
-    /** 
-     * Notifies the model to browse the categories the image belonged to.
-     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-     */
-    public void actionPerformed(ActionEvent e)
-    {
-    	Browser browser = model.getSelectedBrowser();
-        if (browser != null) {
-        	TreeImageDisplay node = browser.getLastSelectedDisplay();
-        	Object uo = node.getUserObject();
-        	if (uo instanceof ImageData) {
-        		ExperimenterData exp = model.getUserDetails();
-        		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-        		bus.post(new Browse(((ImageData) uo).getId(), 
-        						Browse.IMAGE_TO_CATEGORIES, exp, 
-        						model.getUI().getBounds()));
-        	}
-        }
-    }
-    
+   * Creates a new instance.
+   * 
+   * @param model Reference to the Model. Mustn't be <code>null</code>.
+   */
+  public BrowseImageCategoriesAction(TreeViewer model)
+  {
+      super(model);
+      putValue(Action.NAME, NAME);
+      putValue(Action.SHORT_DESCRIPTION, 
+              UIUtilities.formatToolTipText(DESCRIPTION));
+      IconManager im = IconManager.getInstance();
+      putValue(Action.SMALL_ICON, im.getIcon(IconManager.BROWSER));
+  } 
+  
+  /** 
+   * Notifies the model to browse the categories the image belonged to.
+   * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+   */
+  public void actionPerformed(ActionEvent e)
+  {
+  	Browser browser = model.getSelectedBrowser();
+      if (browser != null) {
+      	TreeImageDisplay node = browser.getLastSelectedDisplay();
+      	Object uo = node.getUserObject();
+      	if (uo instanceof ImageData) {
+      		ExperimenterData exp = model.getUserDetails();
+      		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+      		bus.post(new Browse(((ImageData) uo).getId(), 
+      						Browse.IMAGE_TO_CATEGORIES, exp, 
+      						model.getUI().getBounds()));
+      	}
+      }
+  }
+  
 }

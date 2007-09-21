@@ -39,29 +39,29 @@ import javax.swing.JPopupMenu;
 //Application-internal dependencies
 
 /** 
- * Magnifing lens, will show a lens on the image and link into a second window
- * which will display the magnified image.
- * 
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since OME2.2
- */
+* Magnifing lens, will show a lens on the image and link into a second window
+* which will display the magnified image.
+* 
+*
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+* 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $Date: $)
+* </small>
+* @since OME2.2
+*/
 public class LensUI 
 	extends JPanel
 {
-	
+
 	/** Pick size of the border, this is a border running <code>BORDER_PICK_SIZE
 	 * </code> units around the edge of the lens. 
 	 */
 	private int 				borderPickSize = 8;	
-	
+
 	/** Constants defining the border being picked. Where
 	 *  +-----+=====+-----+
 	 *  | ^^^   ^^^   ^^^ |
@@ -81,119 +81,119 @@ public class LensUI
 	 *  |                 |
 	 *  |                 |
 	 *  |                 |
-     *  +-----+=====+-----+
-     *    ^^^   ^^^   ^^^
-     *     SW    S     SE
-     *  are passed back by {@link #getPickDir(int, int)} return the border area
-     *  picked by the user.
-     *  
-     *  Constant for North border Pick.
+	 *  +-----+=====+-----+
+	 *    ^^^   ^^^   ^^^
+	 *     SW    S     SE
+	 *  are passed back by {@link #getPickDir(int, int)} return the border area
+	 *  picked by the user.
+	 *  
+	 *  Constant for North border Pick.
 	 */ 
 	final static int			NORTH = 0;
 
-    /**  Constant for North west border Pick. */
-    final static int			NORTH_WEST = 1;
+	/**  Constant for North west border Pick. */
+	final static int			NORTH_WEST = 1;
 
-    /**  Constant for North east border Pick. */
+	/**  Constant for North east border Pick. */
 	final static int			NORTH_EAST = 2;
-	
-    /**  Constant for South border Pick. */
+
+	/**  Constant for South border Pick. */
 	final static int			SOUTH = 3;
-	
-    /**  Constant for South west border Pick. */
+
+	/**  Constant for South west border Pick. */
 	final static int			SOUTH_WEST = 4;
-	
-    /**  Constant for South east border Pick. */
+
+	/**  Constant for South east border Pick. */
 	final static int			SOUTH_EAST = 5;
-	
-    /**  Constant for East border Pick. */
+
+	/**  Constant for East border Pick. */
 	final static int			EAST = 6;
-	
-    /**  Constant for West border Pick. */
+
+	/**  Constant for West border Pick. */
 	final static int			WEST = 7;
-	
+
 	/** Minimum height of the lens. This will constrain the size of the lens 
 	 * when the user resizes it using the border picking. */
 	final static int 			MINIMUM_HEIGHT = 20;
-	
+
 	/** Maximum height of the lens. This will constrain the size of the lens 
 	 * when the user resizes it using the border picking. */
 	final static int			MAXIMUM_HEIGHT = 150;
-	
+
 	/** Minimum width of the lens. This will constrain the size of the lens 
 	 * when the user resizes it using the border picking. */
 	final static int			MINIMUM_WIDTH = 20;
-	
+
 	/** Maximum width of the lens. This will constrain the size of the lens 
 	 * when the user resizes it using the border picking. */
 	final static int			MAXIMUM_WIDTH = 150;
-	
+
 	/** When the width or height of the lens is this size, snap the cross hair 
 	 * to SNAPPED_CROSSHAIR length; 
 	 */
 	final static int			CROSSHAIR_SNAP = 30;
-	
+
 	/** size of the crosshair when snapped. */
 	final static int			SNAPPED_CROSSHAIR = 6;
 
 	/** size of the crosshair when nto snapped. */
 	final static int			UNSNAPPED_CROSSHAIR = 8;
-	
+
 	/** Default colour of the lens. */
 	final static Color 			DEFAULT_LENS_COLOR = 
-												new Color(128, 128, 128, 240);
-	
+		new Color(128, 128, 128, 240);
+
 	/** size of the crosshair, running from centre of lens. */
 	private int 				crosshairLength = UNSNAPPED_CROSSHAIR;
-	
+
 	/** size of the visble crosshair. */
 	private int 				crosshairTick = crosshairLength/2-1;
-	
+
 	/** Colour of the frame of the lens */
 	private Color 				lensBorderColour = DEFAULT_LENS_COLOR; 
-		
+
 	/** Colour of the lens cross hair. */
 	private Color 				lensCrossHairColour = 
-								new Color(194, 194, 194, 220);
+		new Color(194, 194, 194, 220);
 
 	/** LensUI Controller.	 */
 	private LensController		lensController;
-	
+
 	/** Show the cross hair on the lens */
 	private boolean 			showCrossHair;
-	
+
 	/** Mouselistener for the lens. */
 	private LensMouseListener	mouseListener;
-	
-	
+
+
 	/** Parent component of the lens and zoomWindowUI. */
 	private LensComponent		lensComponent;
-	
+
 	/** lens popupMenu. */
 	private JPopupMenu			menu;
-    
-    /**
-     * Sets the pick border area when the lens resizes and also change the size
-     * of the crosshairs. 
-     * 
-     * @param w Width of lens. 
-     * @param h Height of lens. 
-     */
-    private void setPickParam(int w, int h)
-    {
-        if (Math.min(w, h) < CROSSHAIR_SNAP)
-        {
-            crosshairLength = 6;
-            borderPickSize = 4;
-        }
-        else
-        {
-            crosshairLength = 8;
-            borderPickSize = 8;
-        }
-        crosshairTick = crosshairLength/2-1;
-    }
-    
+
+	/**
+	 * Sets the pick border area when the lens resizes and also change the size
+	 * of the crosshairs. 
+	 * 
+	 * @param w Width of lens. 
+	 * @param h Height of lens. 
+	 */
+	private void setPickParam(int w, int h)
+	{
+		if (Math.min(w, h) < CROSSHAIR_SNAP)
+		{
+			crosshairLength = 6;
+			borderPickSize = 4;
+		}
+		else
+		{
+			crosshairLength = 8;
+			borderPickSize = 8;
+		}
+		crosshairTick = crosshairLength/2-1;
+	}
+
 	/** 
 	 * Constructor for the lens control. Will set initial width and height of
 	 * the LensUI. 
@@ -236,7 +236,7 @@ public class LensUI
 		super.setPreferredSize(new Dimension(w, h));
 		setPickParam(w, h);
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if the lens has been picked, this is the area
 	 * inside the border. 
@@ -272,7 +272,7 @@ public class LensUI
 		setLocation(lensComponent.getLensScaledLocation().x, 
 				lensComponent.getLensScaledLocation().y);
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if the mouse event at the passed lcoation
 	 * (x,y) is inside the border, <code>false</code> otherwise.
@@ -298,7 +298,7 @@ public class LensUI
 				this.getWidth(), this.getHeight());
 		return (!rect.contains(x, y) && rectBorder.contains(x, y)); 
 	}
-	
+
 	/**
 	 * Shows or hides the cross hairs in the lens. 
 	 * 
@@ -308,7 +308,7 @@ public class LensUI
 	{
 		showCrossHair = show;
 	}
-	
+
 	/**
 	 * Mouse down event triggered from lens mouse listener.
 	 * 
@@ -320,7 +320,7 @@ public class LensUI
 		lensController.lensMouseMoved(x, y);
 		lensComponent.updateLensLocation();
 	}
-	
+
 	/**
 	 * Mouse down event triggered from lens mouse listener.
 	 * 
@@ -347,7 +347,7 @@ public class LensUI
 		lensController.lensMouseDrag(x, y, shift);
 		lensComponent.updateLensLocation();
 	}
-	
+
 	/**
 	 * Mouse down event triggered from lens mouse listener.
 	 * 
@@ -357,8 +357,9 @@ public class LensUI
 	void mouseUp(int x, int y)
 	{
 		lensController.lensMouseUp(x, y);
+		lensComponent.updateLensSize();
 	}
-	
+
 	/**
 	 * MouseWheel moved by tick units. 
 	 * 
@@ -366,9 +367,9 @@ public class LensUI
 	 */
 	void mouseWheelMoved(int tick)
 	{     
-		lensController.lensMouseWheelMoved(tick);
+		lensComponent.lensMouseWheelMoved(tick);
 	}
-	
+
 	/** 
 	 * Shows the popup menu at (x,y).
 	 * 
@@ -376,7 +377,7 @@ public class LensUI
 	 * @param y see above.
 	 * */
 	void showMenu(int x, int y) { menu.show(this, x, y); }
-	
+
 	/**
 	 * Attaches lens to controller.
 	 *  
@@ -386,7 +387,7 @@ public class LensUI
 	{
 		this.lensController = lensController;
 	}
-	
+
 	/** 
 	 * Returns the constant defining where in the border the user cliked.
 	 *  +-----+=====+-----+
@@ -407,43 +408,43 @@ public class LensUI
 	 *  |                 |
 	 *  |                 |
 	 *  |                 |
-     *  +-----+=====+-----+
-     *    ^^^   ^^^   ^^^
-     *     SW    S     SE
-     *  
-     *  @param x mouse x position in the border.
-     *  @param y mouse y position in the border.
-     *  
-     *  @return see above.
+	 *  +-----+=====+-----+
+	 *    ^^^   ^^^   ^^^
+	 *     SW    S     SE
+	 *  
+	 *  @param x mouse x position in the border.
+	 *  @param y mouse y position in the border.
+	 *  
+	 *  @return see above.
 	 */ 
 	int getPickDir(int x, int y)
 	{
 		int resizeDir=-1;
 		int resizeCornerSize = 0;
-		
-		  if (x <= borderPickSize) {
-              if (y < resizeCornerSize + borderPickSize) 
-            	  resizeDir = NORTH_WEST;
-              else if (y > this.getHeight()-resizeCornerSize-borderPickSize)
-                  resizeDir = SOUTH_WEST;
-              else resizeDir = WEST;
-          } else if (x >= this.getWidth()-borderPickSize) {
-              if (y < resizeCornerSize+borderPickSize) resizeDir = NORTH_EAST;
-              else if (y > this.getHeight()-resizeCornerSize-borderPickSize)
-                  resizeDir = SOUTH_EAST;
-              else resizeDir = EAST;
-          } else if (y <= borderPickSize) {
-              if (x < resizeCornerSize+borderPickSize) resizeDir = NORTH_WEST;
-              else if (x > this.getWidth()-resizeCornerSize-borderPickSize)
-                  resizeDir = NORTH_EAST;
-              else resizeDir = NORTH;
-          } else if (y >= this.getHeight()-borderPickSize) {
-              if (x < resizeCornerSize+borderPickSize) resizeDir = SOUTH_WEST;
-              else if (x > this.getWidth()-resizeCornerSize-borderPickSize)
-                  resizeDir = SOUTH_EAST;
-              else resizeDir = SOUTH;	
-          }
-		  return resizeDir;
+
+		if (x <= borderPickSize) {
+			if (y < resizeCornerSize + borderPickSize) 
+				resizeDir = NORTH_WEST;
+			else if (y > this.getHeight()-resizeCornerSize-borderPickSize)
+				resizeDir = SOUTH_WEST;
+			else resizeDir = WEST;
+		} else if (x >= this.getWidth()-borderPickSize) {
+			if (y < resizeCornerSize+borderPickSize) resizeDir = NORTH_EAST;
+			else if (y > this.getHeight()-resizeCornerSize-borderPickSize)
+				resizeDir = SOUTH_EAST;
+			else resizeDir = EAST;
+		} else if (y <= borderPickSize) {
+			if (x < resizeCornerSize+borderPickSize) resizeDir = NORTH_WEST;
+			else if (x > this.getWidth()-resizeCornerSize-borderPickSize)
+				resizeDir = NORTH_EAST;
+			else resizeDir = NORTH;
+		} else if (y >= this.getHeight()-borderPickSize) {
+			if (x < resizeCornerSize+borderPickSize) resizeDir = SOUTH_WEST;
+			else if (x > this.getWidth()-resizeCornerSize-borderPickSize)
+				resizeDir = SOUTH_EAST;
+			else resizeDir = SOUTH;	
+		}
+		return resizeDir;
 	}
 
 
@@ -460,95 +461,95 @@ public class LensUI
 		invalidate();
 		repaint();
 	}
-	
-    /**
-     * Overridden to show the lens frame and depending on settings the 
-     * crosshairs.
-     * @see javax.swing.JComponent#paintComponent(Graphics)
-     */
-    public void paintComponent(Graphics og)
-    {
-        super.paintComponent(og);
-        Graphics2D g = (Graphics2D) og;
-        g.setStroke(new BasicStroke(2.0f));
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
-                                RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setColor(lensBorderColour);
-        
-        g.drawRect(1, 1, getWidth()-3, getHeight()-3);
-        if (showCrossHair)
-        {
-            g.setStroke(new BasicStroke(1.0f));
-            g.setColor(lensCrossHairColour);
-            g.drawLine((getWidth()-crosshairTick+1)/2, 
-                    (getHeight()-crosshairTick+1)/2-crosshairLength, 
-                    (getWidth()-crosshairTick+1)/2, 
-                    (getHeight()-crosshairTick+1)/2-crosshairTick);
-            g.drawLine((getWidth()-crosshairTick+1)/2, 
-                    (getHeight()-crosshairTick+1)/2+crosshairTick, 
-                    (getWidth()-crosshairTick+1)/2, 
-                    (getHeight()-crosshairTick+1)/2+crosshairLength);
-            g.drawLine((getWidth()-crosshairTick+1)/2-crosshairLength, 
-                    (getHeight()-crosshairTick+1)/2, 
-                    (getWidth()-crosshairTick+1)/2-crosshairTick, 
-                    (getHeight()-crosshairTick+1)/2);
-            g.drawLine((getWidth()-crosshairTick+1)/2+crosshairTick, 
-                    (getHeight()-crosshairTick+1)/2, 
-                    (getWidth()-crosshairTick+1)/2+crosshairLength, 
-                    (getHeight()-crosshairTick+1)/2);
-        }
-    }
-    
-    /**
-     * Overridden to set the location of the lens to the coordinates (x,y)
-     * @see java.awt.Component#setLocation(int, int)
-     */
-    public void setLocation(int x, int y)
-    {
-        this.setBounds(x, y, getWidth(), getHeight());
-    }
-    
-    /**
-     * Overridden to allow the panel to change size and the lens to resize with
-     * it.
-     * @see java.awt.Component#setSize(Dimension)
-     */
-    public void setSize(Dimension d)
-    {
-        super.setSize(d);
-        setPickParam(d.width, d.height);
-    }
-    
-    /**
-     * Overridden to allows the panel to change size and the lens to resize with
-     * it.
-     * @see java.awt.Component#setSize(int, int)
-     */
-    public void setSize(int w, int h)
-    {
-        super.setSize(w, h);
-        setPickParam(w, h);
-    }
-    
-    /**
-     * Overridden to set the bounds of the lens; x,y position and width and
-     * height. If the lens is too small shrink crosshairs. 
-     * @see java.awt.Component#setBounds(int, int, int, int)
-     */
-    public void setBounds(int x, int y, int w, int h) 
-    {
-        super.setBounds(x, y, w, h);
-        setPickParam(w, h);
-    }
-    
-    /**
-     * Overridden to set the bounds of the lens; x,y position and width and
-     * height. If the lens is too small shrink crosshairs. 
-     * @see java.awt.Component#setBounds(Rectangle)
-     */
-    public void setBounds(Rectangle r)
-    {
-        setBounds(r.x, r.y, r.width, r.height);
-    }
-    
+
+	/**
+	 * Overridden to show the lens frame and depending on settings the 
+	 * crosshairs.
+	 * @see javax.swing.JComponent#paintComponent(Graphics)
+	 */
+	public void paintComponent(Graphics og)
+	{
+		super.paintComponent(og);
+		Graphics2D g = (Graphics2D) og;
+		g.setStroke(new BasicStroke(2.0f));
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
+				RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setColor(lensBorderColour);
+
+		g.drawRect(1, 1, getWidth()-3, getHeight()-3);
+		if (showCrossHair)
+		{
+			g.setStroke(new BasicStroke(1.0f));
+			g.setColor(lensCrossHairColour);
+			g.drawLine((getWidth()-crosshairTick+1)/2, 
+					(getHeight()-crosshairTick+1)/2-crosshairLength, 
+					(getWidth()-crosshairTick+1)/2, 
+					(getHeight()-crosshairTick+1)/2-crosshairTick);
+			g.drawLine((getWidth()-crosshairTick+1)/2, 
+					(getHeight()-crosshairTick+1)/2+crosshairTick, 
+					(getWidth()-crosshairTick+1)/2, 
+					(getHeight()-crosshairTick+1)/2+crosshairLength);
+			g.drawLine((getWidth()-crosshairTick+1)/2-crosshairLength, 
+					(getHeight()-crosshairTick+1)/2, 
+					(getWidth()-crosshairTick+1)/2-crosshairTick, 
+					(getHeight()-crosshairTick+1)/2);
+			g.drawLine((getWidth()-crosshairTick+1)/2+crosshairTick, 
+					(getHeight()-crosshairTick+1)/2, 
+					(getWidth()-crosshairTick+1)/2+crosshairLength, 
+					(getHeight()-crosshairTick+1)/2);
+		}
+	}
+
+	/**
+	 * Overridden to set the location of the lens to the coordinates (x,y)
+	 * @see java.awt.Component#setLocation(int, int)
+	 */
+	public void setLocation(int x, int y)
+	{
+		this.setBounds(x, y, getWidth(), getHeight());
+	}
+
+	/**
+	 * Overridden to allow the panel to change size and the lens to resize with
+	 * it.
+	 * @see java.awt.Component#setSize(Dimension)
+	 */
+	public void setSize(Dimension d)
+	{
+		super.setSize(d);
+		setPickParam(d.width, d.height);
+	}
+
+	/**
+	 * Overridden to allows the panel to change size and the lens to resize with
+	 * it.
+	 * @see java.awt.Component#setSize(int, int)
+	 */
+	public void setSize(int w, int h)
+	{
+		super.setSize(w, h);
+		setPickParam(w, h);
+	}
+
+	/**
+	 * Overridden to set the bounds of the lens; x,y position and width and
+	 * height. If the lens is too small shrink crosshairs. 
+	 * @see java.awt.Component#setBounds(int, int, int, int)
+	 */
+	public void setBounds(int x, int y, int w, int h) 
+	{
+		super.setBounds(x, y, w, h);
+		setPickParam(w, h);
+	}
+
+	/**
+	 * Overridden to set the bounds of the lens; x,y position and width and
+	 * height. If the lens is too small shrink crosshairs. 
+	 * @see java.awt.Component#setBounds(Rectangle)
+	 */
+	public void setBounds(Rectangle r)
+	{
+		setBounds(r.x, r.y, r.width, r.height);
+	}
+  
 }

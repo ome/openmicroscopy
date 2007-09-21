@@ -203,11 +203,17 @@ public class IconManager
     /** The <code>Transparent</code> icon. */
     public static int           TRANSPARENT = 47;
     
+    /** The <code>Ratio min</code> icon. */
+    public static int           RATIO_MIN = 48;
+    
+    /** The <code>Ratio max</code> icon. */
+    public static int           RATIO_MAX = 49;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 47;
+    private static int          MAX_ID = 49;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -262,6 +268,8 @@ public class IconManager
         relPaths[CATEGORY_GROUP] = "category_group16.png"; 
         relPaths[BROWSE] = "zoom16.png";
         relPaths[TRANSPARENT] = "eclipse_transparent16.png";
+        relPaths[RATIO_MIN] = "image8.png";
+        relPaths[RATIO_MAX] = "image12.png";
     }
     
     /** The sole instance. */

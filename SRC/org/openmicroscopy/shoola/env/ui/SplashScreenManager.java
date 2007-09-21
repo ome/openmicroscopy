@@ -113,6 +113,7 @@ class SplashScreenManager
 	private void login(LoginCredentials lc)
 	{
 		try {
+			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			UserCredentials uc = new UserCredentials(lc.getUserName(), 
 					lc.getPassword(), lc.getHostName());
 			userCredentials.set(uc);
@@ -121,6 +122,7 @@ class SplashScreenManager
             un.notifyError("Login Incomplete", e.getMessage());
             view.setControlsEnabled(true);
 		}
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 	
 	/**
@@ -264,8 +266,7 @@ class SplashScreenManager
         userCredentials = future;
         view.setControlsEnabled(true);
     }
-    
-	
+
 	/**
 	 * Reacts to property changes fired by the {@link ScreenLogin} and
 	 * {@link ScreenLogo}.

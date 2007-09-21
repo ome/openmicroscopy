@@ -32,19 +32,19 @@ import javax.swing.JMenuBar;
 //Application-internal dependencies
 
 /** 
- *	ZoomWindow is the component of the zoomWindowUI showing the zoomed verison
- *	of the lens.  
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since OME2.2
- */
+*	ZoomWindow is the component of the zoomWindowUI showing the zoomed verison
+*	of the lens.  
+*
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+* 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $Date: $)
+* </small>
+* @since OME2.2
+*/
 class ZoomWindow
 {
 	
@@ -117,7 +117,7 @@ class ZoomWindow
 	
 	/**
 	 * Sets the mapping from pixel size to microns along the x and y axis. 
-     * 
+   * 
 	 * @param x mapping in x axis.
 	 * @param y mapping in y axis.
 	 */
@@ -138,7 +138,7 @@ class ZoomWindow
 	{
 		zoomWindowUI.setVisible(makeVisible);
 	}
-    
+  
 	/**
 	 * Sets the zoomImage to be the bufferedImage.
 	 * 
@@ -169,7 +169,7 @@ class ZoomWindow
 	}
 
 	/** 
-     * Sets the zoomFactor of the lens.
+   * Sets the zoomFactor of the lens.
 	 * 
 	 * @param zoomFactor See above.
 	 */
@@ -198,10 +198,24 @@ class ZoomWindow
 	
 	/**
 	 * Returns <code>true</code> if the zoomWindowUI is visible,
-     * <code>false</code> otherwise.
+   * <code>false</code> otherwise.
 	 *  
 	 * @return See above.
 	 */
 	boolean isVisible() { return zoomWindowUI.isVisible(); }
+
+	/**
+	 * Forwards call to {@link #zoomWindowUI}.
+	 * 
+	 * @param index The index. 
+	 */
+	void setSelectedSize(int index) { zoomWindowUI.setSelectedSize(index); }
+
+	/**
+	 * Forwards call to {@link #zoomWindowUI}.
+	 * 
+	 * @param index The index. 
+	 */
+	void setZoomIndex(int index) { zoomWindowUI.setZoomIndex(index); }
 	
 }
