@@ -269,7 +269,7 @@ public class IconManager
         relPaths[BROWSE] = "zoom16.png";
         relPaths[TRANSPARENT] = "eclipse_transparent16.png";
         relPaths[RATIO_MIN] = "image8.png";
-        relPaths[RATIO_MAX] = "image12.png";
+        relPaths[RATIO_MAX] = "image14.png";
     }
     
     /** The sole instance. */

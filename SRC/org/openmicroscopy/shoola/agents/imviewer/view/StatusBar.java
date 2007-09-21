@@ -61,8 +61,12 @@ class StatusBar
 	/** Dimension of the horizontal space between UI components. */
 	private static final		Dimension HBOX = new Dimension(5, 5);
 	
-    /** Displays the status message. */
-    private JLabel              status;
+    /** Displays the status message displayed on the rigth side. */
+    private JLabel              leftStatus;
+    
+    /** Displays the status message displayed on the rigth side. */
+    private JLabel              rigthStatus;
+    
     
     /** Button to display plane info. */
     private JButton				statusButton;
@@ -75,7 +79,8 @@ class StatusBar
         statusButton.setContentAreaFilled(false);
         statusButton.setBorder(null);
         UIUtilities.unifiedButtonLookAndFeel(statusButton);
-        status = new JLabel();
+        leftStatus = new JLabel();
+        rigthStatus = new JLabel();
     }
     
     /** Build and lay out the UI. */
@@ -85,7 +90,9 @@ class StatusBar
         setBorder(BorderFactory.createEtchedBorder());
         add(statusButton);
         add(Box.createRigidArea(HBOX));
-        add(status);
+        add(leftStatus);
+        add(UIUtilities.buildComponentPanelRight(rigthStatus));
+        add(Box.createRigidArea(new Dimension(20, 5)));
     }
     
     /** Creates a new instance. */
@@ -100,6 +107,13 @@ class StatusBar
      * 
      * @param s The message to display.
      */
-    void setStatus(String s) { status.setText(s); }
+    void setLeftStatus(String s) { leftStatus.setText(s); }
+    
+    /** 
+     * Sets the status message.
+     * 
+     * @param s The message to display.
+     */
+    void setRigthStatus(String s) { rigthStatus.setText(s); }
     
 }

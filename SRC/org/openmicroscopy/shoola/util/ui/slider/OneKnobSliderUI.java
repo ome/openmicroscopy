@@ -59,116 +59,116 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 public class OneKnobSliderUI
 	extends BasicSliderUI
 {
-	
+
 	/** Spacing between the arrow and the end of the slider track. */
 	private static final int 	ARROW_SPACE = 2;
-	
+
 	/** Spacing between the arrow and the end label. */
 	private static final int 	TEXT_SPACE = 2;
-	
+
 	/** The starting color of the gradient used in the track. */
-  private static final Color 	TRACK_GRADIENT_START = new Color(76, 76, 76);
-  
-  /** The final color of the gradient used in the track. */
-  private static final Color 	TRACK_GRADIENT_END = new Color(176, 176, 176);
-  
-  /** Offset to the left of the mouse used for placing tooltip. */
-  //private static final int 	TOOLTIP_OFFSET = 25;
-  
-  /** Image used for the thumb. */
-  private  Image 				thumbImage;
-      
+	private static final Color 	TRACK_GRADIENT_START = new Color(76, 76, 76);
 
-  /** Image used for the thumb when the component is disabled. */
-  private  Image 				disabledThumbImage;
-  
-  /** Image used for the up arrow. */
-  private  Image 				upArrowImage;
-  
-  /** Image used for the up arrow when the component is disabled. */
-  private  Image 				upArrowDisabledImage;
-  
-  /** Image used for the down arrow. */
-  private  Image 				downArrowImage;
-  
-  /** Image used for the down arrow when the component is disabled. */
-  private  Image 				downArrowDisabledImage;
-  
-  /** Image used for the left arrow. */
-  private  Image 				leftArrowImage;
-  
-  /** Image used for the left arrow when the component is disabled. */
-  private  Image 				leftArrowDisabledImage;
-      
-  /** Image used for the right arrow. */
-  private  Image 				rightArrowImage;
-  
-  /** Image used for the right arrow when the component is disabled. */
-  private  Image 				rightArrowDisabledImage;
-  
-  /** Show arrow at the side of the slider track. */
-  private  boolean			showArrows;
-  
-  /** Area in which the min arrow will reside. */
-  private  Rectangle			minArrowRect;
-  
-  /** Area in which the max arrow will reside. */
-  private  Rectangle			maxArrowRect;
-  
-  /** Dialog used to display tooltip containing the position of the slider. */
-  //private  TipDialog			tipDialog;
-  
-  /** The end label displayed at top, or left of slider. */
-  private  String				endLabel;
-  
-  /** Show the end label if set. */
-  private  boolean			showEndLabel;
-  
-  /** Show the tip label ovet the thumb when slider moved. */
-  //private boolean 			showTipLabel;
-  
-  /** The rect holding the location of the end label. */
-  private Rectangle			endLabelRect;
-  
-  /** The height of the end label. */
-  private int					labelHeight;
-  
-  /** The width of the end label. */
-  private	int 				labelWidth;
+	/** The final color of the gradient used in the track. */
+	private static final Color 	TRACK_GRADIENT_END = new Color(176, 176, 176);
 
-  /** This variable is set to <code>true</code> if user dragging thumb. */
+	/** Offset to the left of the mouse used for placing tooltip. */
+	//private static final int 	TOOLTIP_OFFSET = 25;
+
+	/** Image used for the thumb. */
+	private  Image 				thumbImage;
+
+
+	/** Image used for the thumb when the component is disabled. */
+	private  Image 				disabledThumbImage;
+
+	/** Image used for the up arrow. */
+	private  Image 				upArrowImage;
+
+	/** Image used for the up arrow when the component is disabled. */
+	private  Image 				upArrowDisabledImage;
+
+	/** Image used for the down arrow. */
+	private  Image 				downArrowImage;
+
+	/** Image used for the down arrow when the component is disabled. */
+	private  Image 				downArrowDisabledImage;
+
+	/** Image used for the left arrow. */
+	private  Image 				leftArrowImage;
+
+	/** Image used for the left arrow when the component is disabled. */
+	private  Image 				leftArrowDisabledImage;
+
+	/** Image used for the right arrow. */
+	private  Image 				rightArrowImage;
+
+	/** Image used for the right arrow when the component is disabled. */
+	private  Image 				rightArrowDisabledImage;
+
+	/** Show arrow at the side of the slider track. */
+	private  boolean			showArrows;
+
+	/** Area in which the min arrow will reside. */
+	private  Rectangle			minArrowRect;
+
+	/** Area in which the max arrow will reside. */
+	private  Rectangle			maxArrowRect;
+
+	/** Dialog used to display tooltip containing the position of the slider. */
+	//private  TipDialog			tipDialog;
+
+	/** The end label displayed at top, or left of slider. */
+	private  String				endLabel;
+
+	/** Show the end label if set. */
+	private  boolean			showEndLabel;
+
+	/** Show the tip label ovet the thumb when slider moved. */
+	//private boolean 			showTipLabel;
+
+	/** The rect holding the location of the end label. */
+	private Rectangle			endLabelRect;
+
+	/** The height of the end label. */
+	private int					labelHeight;
+
+	/** The width of the end label. */
+	private	int 				labelWidth;
+
+	/** This variable is set to <code>true</code> if user dragging thumb. */
 	protected boolean 			isDragging;
 
 	/** The height of the arrow. */
 	private int					arrowHeight;
-	
+
 	/** The width of the arrow. */
 	private int					arrowWidth;
-	
+
 	/** The width of the bottom/left arrow. */
 	private int					minArrowWidth;
-	
+
 	/** The height of the bottom/left arrow. */
 	private int					minArrowHeight;
-	
+
 	/** The width of the thumb. */
 	private int					thumbWidth;
-	
+
 	/** The height of the thumb. */
 	private int					thumbHeight;
-	
+
 	/** Load the thumb and arrow images. */
 	private void loadThumbArrowImage()
 	{
 		IconManager icons = IconManager.getInstance();
-  	
+
 		ImageIcon img = icons.getImageIcon(IconManager.THUMB);
 		thumbWidth = img.getIconWidth();
 		thumbHeight = img.getIconHeight();
 		thumbImage = img.getImage();
 		img = icons.getImageIcon(IconManager.THUMB_DISABLED);
 		disabledThumbImage = img.getImage();
-		
+
 		img = icons.getImageIcon(IconManager.UP_ARROW_DISABLED);
 		arrowWidth = img.getIconWidth();
 		arrowHeight = img.getIconHeight();
@@ -198,21 +198,25 @@ public class OneKnobSliderUI
 	private void calculateArrowRect()
 	{
 		if (slider.getOrientation() == JSlider.HORIZONTAL) {
-			int offsetY = trackRect.height/2-arrowHeight/2-1;
+			int offsetY = (trackRect.height-minArrowHeight)/2-1;
 			//minArrowRect = new Rectangle(trackRect.x-(arrowWidth+thumbWidth/2+
 			//		ARROW_SPACE),trackRect.y+offsetY, arrowWidth, arrowHeight);
 			minArrowRect = new Rectangle(trackRect.x-
-								(minArrowWidth+thumbWidth/2+ARROW_SPACE), 
-								trackRect.y+offsetY, minArrowWidth, 
-								minArrowHeight);
+					(minArrowWidth+thumbWidth/2+ARROW_SPACE), 
+					trackRect.y+offsetY, minArrowWidth, 
+					minArrowHeight);
+			offsetY = (trackRect.height-arrowHeight)/2-1;
 			maxArrowRect = new Rectangle(trackRect.x+trackRect.width+
 					ARROW_SPACE+thumbWidth/2, trackRect.y+offsetY, arrowWidth, 
 					arrowHeight);
 		} else {
-			int offsetX = trackRect.width/2-arrowWidth/2;
+			int offsetX = (trackRect.width-arrowWidth)/2;
+			if (arrowWidth != minArrowWidth) offsetX +=1;
 			maxArrowRect = new Rectangle(trackRect.x+offsetX, trackRect.y-
 					(arrowHeight+thumbHeight/2+ARROW_SPACE), arrowWidth, 
 					arrowHeight);
+			offsetX = (trackRect.width-minArrowWidth)/2;
+			if (arrowWidth != minArrowWidth) offsetX +=1;
 			minArrowRect = new Rectangle(trackRect.x+offsetX, trackRect.y+
 					trackRect.height+ARROW_SPACE+thumbHeight/2, minArrowWidth, 
 					minArrowHeight);
@@ -242,138 +246,139 @@ public class OneKnobSliderUI
 		}
 	}
 
-  /**
-   * Paints the vertical track, and arrows if selected, this method is called
-   * from the {@link #paintTrack(Graphics)} method. 
-   * 
-   * @param g Graphics context.
-   */
-  private void paintVerticalTrack(Graphics2D g)
-  {
-      Color gradientStart = TRACK_GRADIENT_START;
-      Color gradientEnd = TRACK_GRADIENT_END;
-      
-      Paint paint = new GradientPaint(trackRect.x+trackRect.width/2-2, 
-              						trackRect.y, gradientStart, 
-              						trackRect.x+trackRect.width/2+2,
-              						trackRect.y, gradientEnd, false);
-      g.setPaint(paint);
-      g.fillRoundRect(trackRect.x+trackRect.width/2-2, trackRect.y, 4, 
-              trackRect.height, 4, 4);
-      g.setPaint(Color.black);
-      if (showArrows) {
-          if (slider.isEnabled()) {
-              g.drawImage(downArrowImage, minArrowRect.x, minArrowRect.y, 
-                  minArrowRect.width, minArrowRect.height, null);
-              g.drawImage(upArrowImage, maxArrowRect.x, maxArrowRect.y, 
-                  maxArrowRect.width, maxArrowRect.height, null);
-          } else {
-              g.drawImage(downArrowDisabledImage, minArrowRect.x, 
-                      minArrowRect.y, minArrowRect.width, minArrowRect.height,
-                      null);
-              g.drawImage(upArrowDisabledImage, maxArrowRect.x,
-                      maxArrowRect.y, maxArrowRect.width, maxArrowRect.height, 
-                      null);
-          }           
-      }
-      if (showEndLabel && endLabel != null)
-      	g.drawString(endLabel, endLabelRect.x, endLabelRect.y);
-  }
+	/**
+	 * Paints the vertical track, and arrows if selected, this method is called
+	 * from the {@link #paintTrack(Graphics)} method. 
+	 * 
+	 * @param g Graphics context.
+	 */
+	private void paintVerticalTrack(Graphics2D g)
+	{
+		Color gradientStart = TRACK_GRADIENT_START;
+		Color gradientEnd = TRACK_GRADIENT_END;
 
-  /**
-   * Paints the Horizontal track, and arrows if selected, this method is 
-   * called from the {@link #paintTrack(Graphics)} method. 
-   * 
-   * @param g Graphics context.
-   */
-  private void paintHorizontalTrack(Graphics2D g)
-  {
-      Color gradientStart = TRACK_GRADIENT_START;
-      Color gradientEnd = TRACK_GRADIENT_END;
-      g.setPaint(Color.black);
-      
-      Paint paint = new GradientPaint(0, trackRect.y+thumbRect.height/2-3, 
-      								gradientStart, 0, 
-      								trackRect.y+thumbRect.height/2+2, 
-      								gradientEnd, false);
-      g.setPaint(paint);
-      g.fillRoundRect(trackRect.x, trackRect.y+thumbRect.height/2-3, 
-              trackRect.width, 4, 4, 4);
-      g.setPaint(Color.black);
-      if (showArrows) {
-          if (slider.isEnabled()) {
-              g.drawImage(leftArrowImage, minArrowRect.x, minArrowRect.y, 
-                  minArrowRect.width, minArrowRect.height, null);
-              g.drawImage(rightArrowImage, maxArrowRect.x, maxArrowRect.y, 
-                  maxArrowRect.width, maxArrowRect.height, null);
-          } else {
-              g.drawImage(leftArrowDisabledImage, minArrowRect.x, 
-                      minArrowRect.y, minArrowRect.width, minArrowRect.height,
-                      null);
-              g.drawImage(rightArrowDisabledImage, maxArrowRect.x,
-                      maxArrowRect.y, maxArrowRect.width, maxArrowRect.height, 
-                      null);
-          }
-      }
-      if (showEndLabel && endLabel != null)
-      	g.drawString(endLabel, endLabelRect.x, endLabelRect.height);
-  }
+		Paint paint = new GradientPaint(trackRect.x+trackRect.width/2-2, 
+				trackRect.y, gradientStart, 
+				trackRect.x+trackRect.width/2+2,
+				trackRect.y, gradientEnd, false);
+		g.setPaint(paint);
+		g.fillRoundRect(trackRect.x+trackRect.width/2-2, trackRect.y, 4, 
+				trackRect.height, 4, 4);
+		g.setPaint(Color.black);
+		if (showArrows) {
+			if (slider.isEnabled()) {
+				g.drawImage(downArrowImage, minArrowRect.x, minArrowRect.y, 
+						minArrowRect.width, minArrowRect.height, null);
+				g.drawImage(upArrowImage, maxArrowRect.x, maxArrowRect.y, 
+						maxArrowRect.width, maxArrowRect.height, null);
+			} else {
+				g.drawImage(downArrowDisabledImage, minArrowRect.x, 
+						minArrowRect.y, minArrowRect.width, minArrowRect.height,
+						null);
+				g.drawImage(upArrowDisabledImage, maxArrowRect.x,
+						maxArrowRect.y, maxArrowRect.width, maxArrowRect.height, 
+						null);
+			}           
+		}
+		if (showEndLabel && endLabel != null)
+			g.drawString(endLabel, endLabelRect.x, endLabelRect.y);
+	}
 
-  /**
-   * Creates a new instance.
-   * 
-   * @param slider parent slider component.
-   */
-  OneKnobSliderUI(OneKnobSlider slider) 
-  {
-      super(slider);
-      showArrows = true;
-      loadThumbArrowImage();    
-      showEndLabel = false;
-  }
-  
-  /** 
-   * Sets the end label. 
-   * 
-   * @param endLabel
-   */
-  void setEndLabel(String endLabel)
-  {
-    	this.endLabel = endLabel;
-    	labelWidth = 6;
-    	labelHeight = 12;
-  }
-  
-  /**
-   * Will show the end tip label which hovers over the thumb if set.
-   *  
-   * @param show see above.
-   */
-  void setShowTipLabel(boolean show)
-  {
-  	//showTipLabel = show;
-  	//if (showTipLabel) tipDialog = new TipDialog(endLabel);
-  }
-  
-  /**
-   * Shows the end label if set.
-   * 
-   * @param show see above.
-   */
-  void setShowEndLabel(boolean show) { showEndLabel = show; }
-  
-  /**
-   * Shows or hides the arrows on the track.
-   * 
-   * @param isShow See above.
-   */
-  void setShowArrows(boolean isShow)
-  {
-      showArrows = isShow;
-      this.calculateGeometry();
-  }
-  
-  /**
+	/**
+	 * Paints the Horizontal track, and arrows if selected, this method is 
+	 * called from the {@link #paintTrack(Graphics)} method. 
+	 * 
+	 * @param g Graphics context.
+	 */
+	private void paintHorizontalTrack(Graphics2D g)
+	{
+		Color gradientStart = TRACK_GRADIENT_START;
+		Color gradientEnd = TRACK_GRADIENT_END;
+		g.setPaint(Color.black);
+
+		Paint paint = new GradientPaint(0, trackRect.y+thumbRect.height/2-3, 
+				gradientStart, 0, 
+				trackRect.y+thumbRect.height/2+2, 
+				gradientEnd, false);
+		g.setPaint(paint);
+		g.fillRoundRect(trackRect.x, trackRect.y+thumbRect.height/2-3, 
+				trackRect.width, 4, 4, 4);
+		g.setPaint(Color.black);
+		if (showArrows) {
+			if (slider.isEnabled()) {
+				g.drawImage(leftArrowImage, minArrowRect.x, minArrowRect.y, 
+						minArrowRect.width, minArrowRect.height, null);
+				g.drawImage(rightArrowImage, maxArrowRect.x, maxArrowRect.y, 
+						maxArrowRect.width, maxArrowRect.height, null);
+			} else {
+				g.drawImage(leftArrowDisabledImage, minArrowRect.x, 
+						minArrowRect.y, minArrowRect.width, minArrowRect.height,
+						null);
+				g.drawImage(rightArrowDisabledImage, maxArrowRect.x,
+						maxArrowRect.y, maxArrowRect.width, maxArrowRect.height, 
+						null);
+			}
+		}
+		if (showEndLabel && endLabel != null)
+			g.drawString(endLabel, endLabelRect.x, endLabelRect.height);
+	}
+
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param slider parent slider component.
+	 */
+	OneKnobSliderUI(OneKnobSlider slider) 
+	{
+		super(slider);
+		showArrows = true;
+		loadThumbArrowImage();    
+		showEndLabel = false;
+		endLabelRect = new Rectangle();
+	}
+
+	/** 
+	 * Sets the end label. 
+	 * 
+	 * @param endLabel
+	 */
+	void setEndLabel(String endLabel)
+	{
+		this.endLabel = endLabel;
+		labelWidth = 6;
+		labelHeight = 12;
+	}
+
+	/**
+	 * Will show the end tip label which hovers over the thumb if set.
+	 *  
+	 * @param show see above.
+	 */
+	void setShowTipLabel(boolean show)
+	{
+		//showTipLabel = show;
+		//if (showTipLabel) tipDialog = new TipDialog(endLabel);
+	}
+
+	/**
+	 * Shows the end label if set.
+	 * 
+	 * @param show see above.
+	 */
+	void setShowEndLabel(boolean show) { showEndLabel = show; }
+
+	/**
+	 * Shows or hides the arrows on the track.
+	 * 
+	 * @param isShow See above.
+	 */
+	void setShowArrows(boolean isShow)
+	{
+		showArrows = isShow;
+		this.calculateGeometry();
+	}
+
+	/**
 	 * Replaces the arrows icons by the specified one.
 	 * 
 	 * @param up	The icon displayed at the top of the slider if
@@ -381,38 +386,38 @@ public class OneKnobSliderUI
 	 * @param down  The icon displayed at the bottom of the slider if
 	 * 				vertical, at the left of the slider if horizontal.
 	 */
-  void setArrowsImageIcon(ImageIcon up, ImageIcon down)
-  {
-  	if (slider.getOrientation() == JSlider.HORIZONTAL) {
-  		rightArrowImage = up.getImage();
-  		rightArrowDisabledImage = up.getImage();
-  		leftArrowImage = down.getImage();
-  		leftArrowDisabledImage = down.getImage();
-  	} else {
-  		upArrowImage = up.getImage();
-  		upArrowDisabledImage = up.getImage();
-  		downArrowImage = down.getImage();
-  		downArrowDisabledImage = down.getImage();
-  	}
+	void setArrowsImageIcon(ImageIcon up, ImageIcon down)
+	{
+		if (slider.getOrientation() == JSlider.HORIZONTAL) {
+			rightArrowImage = up.getImage();
+			rightArrowDisabledImage = up.getImage();
+			leftArrowImage = down.getImage();
+			leftArrowDisabledImage = down.getImage();
+		} else {
+			upArrowImage = up.getImage();
+			upArrowDisabledImage = up.getImage();
+			downArrowImage = down.getImage();
+			downArrowDisabledImage = down.getImage();
+		}
 		arrowWidth = up.getIconWidth();
 		arrowHeight = up.getIconHeight();
 		minArrowWidth = down.getIconWidth();
-		minArrowHeight = up.getIconHeight();
+		minArrowHeight = down.getIconHeight();
 		this.calculateGeometry();
 	}
-  	
-  /**
+
+	/**
 	 * Returns <code>true</code> if the  arrows on the track, 
-   * <code>false</code> otherwise.
+	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
 	boolean isShowArrows() { return showArrows; }
-	
+
 	/**
 	 * Extends the {@link #calculateTrackBuffer()} to allow the extra space 
 	 * required to display the arrows on the track. 
-   * @see BasicSliderUI#calculateTrackBuffer()
+	 * @see BasicSliderUI#calculateTrackBuffer()
 	 */
 	protected void calculateTrackBuffer()
 	{
@@ -429,26 +434,26 @@ public class OneKnobSliderUI
 				else 
 					trackBuffer += minArrowHeight+ARROW_SPACE;
 			}
-				
+
 		if	(showEndLabel)
 			if (slider.getOrientation() == JSlider.HORIZONTAL)
 				trackBuffer += labelWidth+TEXT_SPACE;
 			else
 				trackBuffer += labelHeight+TEXT_SPACE;
 	}
-	
-  /**
-   * Overridden to get the size of the thumb.
-   * @see BasicSliderUI#getThumbSize()
-   */
-  protected Dimension getThumbSize() 
-  {
-      return new Dimension(thumbWidth, thumbHeight);
-  }
-  
+
+	/**
+	 * Overridden to get the size of the thumb.
+	 * @see BasicSliderUI#getThumbSize()
+	 */
+	protected Dimension getThumbSize() 
+	{
+		return new Dimension(thumbWidth, thumbHeight);
+	}
+
 	/**
 	 * Overridden to calculate the size of the thumb rect. 
-   * @see BasicSliderUI#calculateThumbSize()
+	 * @see BasicSliderUI#calculateThumbSize()
 	 */
 	public void calculateThumbSize()
 	{
@@ -457,7 +462,7 @@ public class OneKnobSliderUI
 
 	/**
 	 * Overridden to calculate the size of the thumb rect. 
-   * @see BasicSliderUI#paintFocus(Graphics g)
+	 * @see BasicSliderUI#paintFocus(Graphics g)
 	 */
 	public void paintFocus(Graphics g) {}
 
@@ -488,75 +493,75 @@ public class OneKnobSliderUI
 					thumbRect.width, thumbRect.height, null);
 	}
 
-  /**
-   * Overridden to calculate the geometry of the slider, this calls the 
-   * {@link BasicSliderUI#calculateGeometry} and to add extra calculations to 
-   * calculate the <code>ArrowRect</code> if showArrows is <code>true</code>. 
-   * @see BasicSliderUI#calculateGeometry()
-   */
-  public void calculateGeometry()
-  {
-      super.calculateGeometry();
-      if (showArrows) calculateArrowRect();
-      if (showEndLabel) calculateEndLabelRect();
-  }
-  
-  /**
-   * Overridden to avoid flicking.
-   * @see BasicSliderUI#paint(Graphics, JComponent)
-   */
-  public void paint(Graphics g, JComponent c)   
-  {
-      recalculateIfInsetsChanged();
-      recalculateIfOrientationChanged();
-      Rectangle clip = g.getClipBounds();
+	/**
+	 * Overridden to calculate the geometry of the slider, this calls the 
+	 * {@link BasicSliderUI#calculateGeometry} and to add extra calculations to 
+	 * calculate the <code>ArrowRect</code> if showArrows is <code>true</code>. 
+	 * @see BasicSliderUI#calculateGeometry()
+	 */
+	public void calculateGeometry()
+	{
+		super.calculateGeometry();
+		if (showArrows) calculateArrowRect();
+		if (showEndLabel) calculateEndLabelRect();
+	}
 
-      if (!clip.intersects(trackRect) && slider.getPaintTrack())
-          calculateGeometry();
+	/**
+	 * Overridden to avoid flicking.
+	 * @see BasicSliderUI#paint(Graphics, JComponent)
+	 */
+	public void paint(Graphics g, JComponent c)   
+	{
+		recalculateIfInsetsChanged();
+		recalculateIfOrientationChanged();
+		Rectangle clip = g.getClipBounds();
 
-      if (slider.getPaintTrack() && (clip.intersects(trackRect) || 
-               clip.intersects(minArrowRect) || clip.intersects(maxArrowRect)
-               || clip.intersects(endLabelRect))) 
-          paintTrack(g);
-       
-      if (slider.getPaintTicks() && clip.intersects(tickRect)) 
-           paintTicks(g);
-       
-      //if (slider.getP)
-      if (slider.getPaintLabels() && clip.intersects(labelRect)) 
-              paintLabels(g);
-       
-     if (slider.hasFocus() && clip.intersects(focusRect)) 
-          paintFocus(g);      
-      
-     if (clip.intersects(thumbRect)) 
-          paintThumb(g);
-   }
-   
-  /**
-   * Assign the new overloaded trackListener to the slider. 
-   * 
-   * @param slider Parent slider.
-   * @return TrackListner New listener.
-   * @see BasicSliderUI#createTrackListener(JSlider)
-   */
-  protected TrackListener createTrackListener(JSlider slider) 
-  {
-      return new TrackListener2();
-  }
-  
+		if (!clip.intersects(trackRect) && slider.getPaintTrack())
+			calculateGeometry();
+
+		if (slider.getPaintTrack() && (clip.intersects(trackRect) || 
+				clip.intersects(minArrowRect) || clip.intersects(maxArrowRect)
+				|| clip.intersects(endLabelRect))) 
+			paintTrack(g);
+
+		if (slider.getPaintTicks() && clip.intersects(tickRect)) 
+			paintTicks(g);
+
+		//if (slider.getP)
+		if (slider.getPaintLabels() && clip.intersects(labelRect)) 
+			paintLabels(g);
+
+		if (slider.hasFocus() && clip.intersects(focusRect)) 
+			paintFocus(g);      
+
+		if (clip.intersects(thumbRect)) 
+			paintThumb(g);
+	}
+
+	/**
+	 * Assign the new overloaded trackListener to the slider. 
+	 * 
+	 * @param slider Parent slider.
+	 * @return TrackListner New listener.
+	 * @see BasicSliderUI#createTrackListener(JSlider)
+	 */
+	protected TrackListener createTrackListener(JSlider slider) 
+	{
+		return new TrackListener2();
+	}
+
 	/** 
 	 * Overridden TrackListener class, as we wish to extend the functionality
 	 * of the on track click events.  
 	 */
 	public class TrackListener2 
-      extends TrackListener 
+	extends TrackListener 
 	{
 
 		/**
 		 * Overridden to determine when a drag event ends. 
-       * This method will also determine when the tooltip Dialog should 
-       * stop showing. 
+		 * This method will also determine when the tooltip Dialog should 
+		 * stop showing. 
 		 * @see TrackListener#mouseReleased(MouseEvent)
 		 */
 		public void mouseReleased(MouseEvent event)
@@ -568,78 +573,78 @@ public class OneKnobSliderUI
 				if (tipDialog.isVisible()) tipDialog.setVisible(false);
 			}	
           slider.repaint();
-          */
+			 */
 		}
-		
-      /**
-       * This method will detect a click on the track or min/max arrows and 
-       * behave accordingly.
-       * If the user clicks in the track then the thumb is moved to that 
-       * position and the value updated. If the user clicks the arrows then
-       * the value is incremented or decremented by one depending on which 
-       * slider was clicked. 
-       * 
-       * @param event mouseEvent.
-       */
-      public void mouseClicked(MouseEvent event)
-      {   
-          // Check to see that the slider is enabled before proceeeding.
-          if (!slider.isEnabled())
-              return;
 
-          // Get mouse x, y positions.
-          currentMouseX = event.getX();
-          currentMouseY = event.getY();
-  
-          int value; 
-          scrollTimer.stop();
-              
-          if (showArrows)
-	        {
+		/**
+		 * This method will detect a click on the track or min/max arrows and 
+		 * behave accordingly.
+		 * If the user clicks in the track then the thumb is moved to that 
+		 * position and the value updated. If the user clicks the arrows then
+		 * the value is incremented or decremented by one depending on which 
+		 * slider was clicked. 
+		 * 
+		 * @param event mouseEvent.
+		 */
+		public void mouseClicked(MouseEvent event)
+		{   
+			// Check to see that the slider is enabled before proceeeding.
+			if (!slider.isEnabled())
+				return;
+
+			// Get mouse x, y positions.
+			currentMouseX = event.getX();
+			currentMouseY = event.getY();
+
+			int value; 
+			scrollTimer.stop();
+
+			if (showArrows)
+			{
 				if (minArrowRect.contains(currentMouseX, currentMouseY))
-	            {
+				{
 					value = slider.getValue();
-	                if (value > slider.getMinimum())
-	                {
-	                	slider.setValue(value-1);
-	                    slider.repaint();
-	                }
-	                isDragging = false;
-	                return;     
-	            }
-	            if (maxArrowRect.contains(currentMouseX, currentMouseY))
-	            {
-	            	value = slider.getValue();
-	                if (value < slider.getMaximum())
-	                {
-	                	slider.setValue(value+1);
-	                    slider.repaint();
-	                }
-	                isDragging = false;
-	                return;
-	            }
-	        }
-          
-          if (trackRect.contains(currentMouseX, currentMouseY))
-          {
-          // Depending on the slider orientation lets move the thumb to the 
-          // position clicked by the user. 
-          	switch (slider.getOrientation()) {
-              	case JSlider.HORIZONTAL:
-                  	value = valueForXPosition(currentMouseX);
-                  	slider.setValue(value);
-                  break;
-              	case JSlider.VERTICAL:
-                  	value = valueForYPosition(currentMouseY);
-                  	slider.setValue(value);
-                  break;
-          	}
-          }
-      }
-      
+					if (value > slider.getMinimum())
+					{
+						slider.setValue(value-1);
+						slider.repaint();
+					}
+					isDragging = false;
+					return;     
+				}
+				if (maxArrowRect.contains(currentMouseX, currentMouseY))
+				{
+					value = slider.getValue();
+					if (value < slider.getMaximum())
+					{
+						slider.setValue(value+1);
+						slider.repaint();
+					}
+					isDragging = false;
+					return;
+				}
+			}
+
+			if (trackRect.contains(currentMouseX, currentMouseY))
+			{
+				// Depending on the slider orientation lets move the thumb to the 
+				// position clicked by the user. 
+				switch (slider.getOrientation()) {
+				case JSlider.HORIZONTAL:
+					value = valueForXPosition(currentMouseX);
+					slider.setValue(value);
+					break;
+				case JSlider.VERTICAL:
+					value = valueForYPosition(currentMouseY);
+					slider.setValue(value);
+					break;
+				}
+			}
+		}
+
 		/**
 		 * Overloaded the <code>mousePressed</code> event in the TrackListener.
-       * @see TrackListener#mousePressed(MouseEvent)
+		 * @see TrackListener#mousePressed(MouseEvent)
 		 */
 		public void mousePressed(MouseEvent event) 
 		{
@@ -661,39 +666,39 @@ public class OneKnobSliderUI
 				super.mousePressed(event);
 
 			if (showArrows)
-	        {
+			{
 				if (minArrowRect.contains(currentMouseX, currentMouseY))
-	            {
+				{
 					int value = slider.getValue();
-	                if (value > slider.getMinimum())
-	                {
-	                	scrollTimer.stop();
-	                	scrollListener.setScrollByBlock(false);
-	                    scrollListener.setDirection(
-	                    				OneKnobSliderUI.NEGATIVE_SCROLL);
-	                    scrollTimer.start();
-	                    slider.repaint();
-	                }
-	                isDragging = false;
-	                return;     
-	            }
-	            if (maxArrowRect.contains(currentMouseX, currentMouseY))
-	            {
-	            	int value = slider.getValue();
-	                if (value < slider.getMaximum())
-	                {
-	                	scrollTimer.stop();
-	                	scrollListener.setScrollByBlock(false);
-	                    scrollListener.setDirection(
-                              OneKnobSliderUI.POSITIVE_SCROLL);
-	                    scrollTimer.start();
-	                    slider.repaint();
-	                }
-	                isDragging = false;
-	                return;
-	            }
-	        }
-			
+					if (value > slider.getMinimum())
+					{
+						scrollTimer.stop();
+						scrollListener.setScrollByBlock(false);
+						scrollListener.setDirection(
+								OneKnobSliderUI.NEGATIVE_SCROLL);
+						scrollTimer.start();
+						slider.repaint();
+					}
+					isDragging = false;
+					return;     
+				}
+				if (maxArrowRect.contains(currentMouseX, currentMouseY))
+				{
+					int value = slider.getValue();
+					if (value < slider.getMaximum())
+					{
+						scrollTimer.stop();
+						scrollListener.setScrollByBlock(false);
+						scrollListener.setDirection(
+								OneKnobSliderUI.POSITIVE_SCROLL);
+						scrollTimer.start();
+						slider.repaint();
+					}
+					isDragging = false;
+					return;
+				}
+			}
+
 			slider.repaint();
 		}
 
@@ -714,13 +719,13 @@ public class OneKnobSliderUI
 				Point location = slider.getLocationOnScreen();
 				location.x += thumbRect.x+TOOLTIP_OFFSET;
 				location.y += thumbRect.y;
-					
+
 				tipDialog.setTipString(
 						endLabel+" : " + slider.getValue());
 				tipDialog.setLocation(location);
 				tipDialog.setVisible(true);
 			}
-			*/
+			 */
 		}
 	}
 	

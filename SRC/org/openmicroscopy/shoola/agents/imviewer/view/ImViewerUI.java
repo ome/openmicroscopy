@@ -248,7 +248,6 @@ class ImViewerUI
 	 */
 	private JTabbedPane				bottomPane;
 
-
 	/**
 	 * Initializes and returns a split pane, either verical or horizontal 
 	 * depending on the passed parameter.
@@ -260,14 +259,12 @@ class ImViewerUI
 	{
 		int type;
 		switch (orientation) {
-		case JSplitPane.HORIZONTAL_SPLIT:
-		case JSplitPane.VERTICAL_SPLIT:
-			type = orientation;
-			break;
-
-		default:
-			type = JSplitPane.HORIZONTAL_SPLIT;
-		break;
+			case JSplitPane.HORIZONTAL_SPLIT:
+			case JSplitPane.VERTICAL_SPLIT:
+				type = orientation;
+				break;
+			default:
+				type = JSplitPane.HORIZONTAL_SPLIT;
 		}
 		JSplitPane pane = new JSplitPane(type);
 		//pane.setOneTouchExpandable(true);
@@ -286,11 +283,11 @@ class ImViewerUI
 	private boolean isHistoryShown()
 	{
 		switch (displayMode) {
-		case HISTORY:
-		case HISTORY_AND_RENDERER:
-			return true;
-		default:
-			return false;
+			case HISTORY:
+			case HISTORY_AND_RENDERER:
+				return true;
+			default:
+				return false;
 		}
 	}
 
@@ -619,7 +616,8 @@ class ImViewerUI
 		item = new JCheckBoxMenuItem(action);
 		menu.add(item);
 		zoomingGroup.add(item);
-		setZoomFactor(ZoomAction.DEFAULT_ZOOM_INDEX);
+		setZoomFactor(ZoomAction.DEFAULT_ZOOM_FACTOR, 
+						ZoomAction.DEFAULT_ZOOM_INDEX);
 		return menu;
 	}
 
@@ -686,17 +684,9 @@ class ImViewerUI
 		p.add(controlPane, "0, 0");
 		p.add(browser.getUI(), "1, 0");
 		p.add(controlPane.getTimeSliderPane(ImViewer.VIEW_INDEX), "1, 1");
-		/*
-  	p.setLayout(new BorderLayout(0, 0));
-  	p.add(controlPane, BorderLayout.WEST);
-      p.add(browser.getUI(), BorderLayout.CENTER);
-		 */
-
 		tabbedIconHeight = browser.getIcon().getIconHeight()+ICON_EXTRA;
 		tabs.insertTab(browser.getTitle(), browser.getIcon(), p, "", 
 				ImViewer.VIEW_INDEX);
-		//tabbedIconHeight = tabs.getUI().getTabBounds(tabs, 0).height-4;
-		//System.err.println(tabs.getUI().getTabBounds(tabs, 0));
 		browser.layoutAnnotator(controlPane.buildAnnotatorComponent(), 
 				controlPane.getTimeSliderPane(ImViewer.ANNOTATOR_INDEX));
 		tabs.insertTab(browser.getAnnotatorTitle(), browser.getAnnotatorIcon(), 
@@ -830,7 +820,6 @@ class ImViewerUI
 			if (diff > 0) {
 				height += diff;
 			}
-
 			width = restoreSize.width;
 
 			width += d.width;
@@ -863,9 +852,9 @@ class ImViewerUI
 		case NEUTRAL:
 		default:
 			container.add(tabs, BorderLayout.CENTER);
-		width = restoreSize.width;
-		height = restoreSize.height;
-		break;
+			width = restoreSize.width;
+			height = restoreSize.height;
+			break;
 		}
 		//setSize(getIdealSize(width, height));
 		d = getIdealSize(width, height);
@@ -930,10 +919,12 @@ class ImViewerUI
 	/**
 	 * Updates UI components when a zooming factor is selected.
 	 * 
+	 * @param factor	The magnification factor.
 	 * @param zoomIndex The index of the selected zoomFactor.
 	 */
-	void setZoomFactor(int zoomIndex)
+	void setZoomFactor(double factor, int zoomIndex)
 	{
+		statusBar.setRigthStatus("x"+factor);
 		JCheckBoxMenuItem b;
 		Enumeration e;
 		Action a;
@@ -1028,7 +1019,7 @@ class ImViewerUI
 	 */
 	void setStatus(String description)
 	{
-		statusBar.setStatus(description);
+		statusBar.setLeftStatus(description);
 	}
 
 	/**

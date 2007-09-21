@@ -123,6 +123,9 @@ class PopupMenu
 	/** Button to copy Rnd settings. */
 	private JMenuItem			copyRndElement;
 
+	/** Button to quit the application. */
+	private JMenuItem			quitElement;
+	
 	/** Reference to the Control. */
 	private TreeViewerControl   controller;
 
@@ -212,10 +215,12 @@ class PopupMenu
 					TreeViewerControl.CREATE_TOP_CONTAINER);
 			createTopElement = new JMenuItem(a);
 			initMenuItem(createTopElement, a.getActionName());
-			a = controller.getAction(
-					TreeViewerControl.SWITCH_USER);
+			a = controller.getAction(TreeViewerControl.SWITCH_USER);
 			switchUserElement = new JMenuItem(a);
 			initMenuItem(switchUserElement, a.getActionName());
+			a = controller.getAction(TreeViewerControl.EXIT);
+			quitElement = new JMenuItem(a);
+			initMenuItem(quitElement, a.getActionName());
 			break;
 		}
 
@@ -267,6 +272,7 @@ class PopupMenu
 			add(refreshTreeElement);
 			add(createTopElement);
 			add(switchUserElement);
+			add(quitElement);
 			break;
 		}
 	}

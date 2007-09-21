@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.border.FrameBorder;
 import org.openmicroscopy.shoola.util.ui.border.PartialLineBorder;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -595,6 +596,7 @@ class EditorUI
     void setThumbnail(BufferedImage thumbnail)
     {
         JLabel label = new JLabel(new ImageIcon(thumbnail));
+        label.setBorder(new FrameBorder(Color.BLACK));
         label.addMouseListener(new MouseAdapter() {
             
             /**

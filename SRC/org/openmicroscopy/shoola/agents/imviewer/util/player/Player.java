@@ -157,7 +157,7 @@ public abstract class Player
      */
     public void stateChanged(ChangeEvent e)
     {
-        if (model.getState() == ImViewer.DISCARDED)
+    	if (model.getState() == ImViewer.DISCARDED)
             setPlayerState(STOP);
     }
     

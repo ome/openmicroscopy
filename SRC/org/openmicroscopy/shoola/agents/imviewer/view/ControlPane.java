@@ -104,6 +104,9 @@ class ControlPane
     /** The tipString of the {@link #tSlider}. */
     private static final String T_SLIDER_TIPSTRING = "T";
     
+    /** The maximum height of a magnification slider. */
+    private static final int	SLIDER_HEIGHT = 100;
+    
     /** Dimension of the box between the channel buttons. */
     private static final Dimension VBOX = new Dimension(1, 10);
     
@@ -277,10 +280,14 @@ class ControlPane
         tSliderAnnotator = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
         tSliderAnnotator.setEnabled(false);
         
+        IconManager icons = IconManager.getInstance();
         gridRatioSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 1, 10, 5);
         gridRatioSlider.setEnabled(true);
-        gridRatioSlider.setShowArrows(false);
+        gridRatioSlider.setShowArrows(true);
         gridRatioSlider.setToolTipText(RATIO_SLIDER_DESCRIPTION);
+        gridRatioSlider.setArrowsImageIcon(
+        				icons.getImageIcon(IconManager.RATIO_MAX), 
+        				icons.getImageIcon(IconManager.RATIO_MIN));
         ratioSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 
         					ZoomAction.MIN_ZOOM_INDEX, 
         					ZoomAction.MAX_ZOOM_INDEX, 
@@ -288,8 +295,7 @@ class ControlPane
         ratioSlider.setEnabled(true);
         ratioSlider.setShowArrows(true);
         ratioSlider.setToolTipText(ZOOM_SLIDER_DESCRIPTION);
-        
-        IconManager icons = IconManager.getInstance();
+       
         ratioSlider.setArrowsImageIcon(
         		icons.getImageIcon(IconManager.RATIO_MAX), 
         		icons.getImageIcon(IconManager.RATIO_MIN));
@@ -495,13 +501,13 @@ class ControlPane
         JPanel controls = new JPanel();
         double size[][] = {{TableLayout.PREFERRED}, 
         				{TableLayout.PREFERRED, TableLayout.PREFERRED,
-        				TableLayout.PREFERRED, TableLayout.PREFERRED}};
+        				TableLayout.PREFERRED, SLIDER_HEIGHT}};
         controls.setLayout(new TableLayout(size));
         //controls.setLayout(new BoxLayout(controls,BoxLayout.Y_AXIS));
         controls.add(Box.createVerticalStrut(20), "0, 0");
         controls.add(buildToolBar(), "0, 1, c, c");
         controls.add(p, "0, 2");
-        controls.add(buildMagnificationPanel(ratioSlider), "0, 3, c, c");
+        controls.add(ratioSlider, "0, 3, c, c");
         return UIUtilities.buildComponentPanel(controls);
     }
     
@@ -533,6 +539,7 @@ class ControlPane
      * @param slider The slider to lay out.
      * @return See above.
      */
+    /*
     private JPanel buildMagnificationPanel(OneKnobSlider slider)
     {
     	JPanel p = new JPanel();
@@ -552,6 +559,7 @@ class ControlPane
         p.add(l, "0, 2, c, c");
         return p;
     }
+    */
     
     /**
      * Creates a new instance.
@@ -630,7 +638,7 @@ class ControlPane
         JPanel controls = new JPanel();
         double size[][] = {{TableLayout.PREFERRED}, 
         				{TableLayout.PREFERRED, TableLayout.PREFERRED,
-        				TableLayout.PREFERRED, TableLayout.PREFERRED}};
+        				TableLayout.PREFERRED, SLIDER_HEIGHT}};
         /*
         controls.setLayout(new BoxLayout(controls,BoxLayout.Y_AXIS));
         controls.add(Box.createVerticalStrut(20));
@@ -641,7 +649,7 @@ class ControlPane
         controls.add(Box.createVerticalStrut(20), "0, 0");
         controls.add(buildGridBar(), "0, 1, c, c");
         controls.add(buttons, "0, 2");
-        controls.add(buildMagnificationPanel(gridRatioSlider), "0, 3, c, c");
+        controls.add(gridRatioSlider, "0, 3, c, c");
         //controls.add(gridPanel);
         //
         JPanel content = new JPanel();
