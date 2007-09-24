@@ -277,6 +277,7 @@ class GridCanvas
         Graphics2D g2D = (Graphics2D) g;
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
         BufferedImage original = model.getCombinedImage();
+        if (original == null) return;
     	paintImage(g2D, original.getWidth(), original.getHeight(), 
     				model.isUnitBar());
     }

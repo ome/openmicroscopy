@@ -282,6 +282,7 @@ public class HistoryDialog
     public boolean setSelectedTextValue(String v)
     {
     	if (v == null) return false;
+    	if (originalData == null) return false;
     	String value;
     	List<Object> l = new ArrayList<Object>();
     	for (int i = 0; i < originalData.length; i++) {
@@ -494,6 +495,7 @@ public class HistoryDialog
     /** Resets the original list of data. */
 	public void resetListData()
 	{
+		if (originalData == null || originalData.length == 0) return;
 		data = originalData;
 		history.setListData(originalData);
     	history.setSelectedValue(originalData[0], true);

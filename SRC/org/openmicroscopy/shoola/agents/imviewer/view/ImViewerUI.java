@@ -738,11 +738,11 @@ class ImViewerUI
 		Dimension statusDim = statusBar.getPreferredSize();
 		Insets frameInsets = getInsets();
 		Insets stInsets = statusBar.getInsets();
-		sz.width = w+frameInsets.left+frameInsets.right
-		+stInsets.left+stInsets.right;
-		sz.height = h+tbDim.height+statusDim.height+
-		frameInsets.top+frameInsets.bottom+tabbedIconHeight
-		+stInsets.top+stInsets.bottom;
+		sz.width = w+frameInsets.left+frameInsets.right+stInsets.left
+					+stInsets.right;
+		sz.height = h+tbDim.height+statusDim.height+frameInsets.top
+					+frameInsets.bottom+tabbedIconHeight+stInsets.top
+					+stInsets.bottom;
 		return sz;
 	}
 
@@ -797,64 +797,60 @@ class ImViewerUI
 		int width = 0, height = 0;
 
 		switch (displayMode) {
-		case HISTORY:
-			initHistorySplit();
-			historySplit.setTopComponent(tabs);
-			historySplit.setBottomComponent(historyUI);
-			height = restoreSize.height;
-			width = restoreSize.width;
-			d = historyUI.getIdealSize();
-
-			height += d.height;
-			historyUI.setPreferredSize(new Dimension(width, d.height));
-			container.add(historySplit, BorderLayout.CENTER);
-			break;
-		case RENDERER:
-			if (rendererSplit == null)
-				rendererSplit = new SplitPanel(SplitPanel.VERTICAL);
-
-			JComponent rightComponent = model.getRenderer().getUI();
-			d = rightComponent.getPreferredSize();
-			height = restoreSize.height;
-			diff = d.height-restoreSize.height;
-			if (diff > 0) {
-				height += diff;
-			}
-			width = restoreSize.width;
-
-			width += d.width;
-			rendererSplit.setLeftComponent(tabs);
-			rendererSplit.setRightComponent(rightComponent);
-			container.add(rendererSplit, BorderLayout.CENTER);
-			break;
-		case HISTORY_AND_RENDERER:
-			initHistorySplit();
-			if (rendererSplit == null)
-				rendererSplit = new SplitPanel(SplitPanel.VERTICAL);
-			rightComponent = model.getRenderer().getUI();
-			rendererSplit.setLeftComponent(tabs);
-			rendererSplit.setRightComponent(rightComponent); 
-			historySplit.setTopComponent(rendererSplit);
-			historySplit.setBottomComponent(historyUI);
-			container.add(historySplit, BorderLayout.CENTER);
-			d = rightComponent.getPreferredSize();
-			//height = restoreSize.height;
-			height = restoreSize.height;
-			diff = d.height-restoreSize.height;
-			if (diff > 0) height += diff;
-			width = restoreSize.width;
-
-			width += d.width;
-			d = historyUI.getIdealSize();
-			height += d.height;
-			historyUI.setPreferredSize(new Dimension(width, d.height));
-			break;
-		case NEUTRAL:
-		default:
-			container.add(tabs, BorderLayout.CENTER);
-			width = restoreSize.width;
-			height = restoreSize.height;
-			break;
+			case HISTORY:
+				initHistorySplit();
+				historySplit.setTopComponent(tabs);
+				historySplit.setBottomComponent(historyUI);
+				height = restoreSize.height;
+				width = restoreSize.width;
+				d = historyUI.getIdealSize();
+	
+				height += d.height;
+				historyUI.setPreferredSize(new Dimension(width, d.height));
+				container.add(historySplit, BorderLayout.CENTER);
+				break;
+			case RENDERER:
+				if (rendererSplit == null)
+					rendererSplit = new SplitPanel(SplitPanel.VERTICAL);
+	
+				JComponent rightComponent = model.getRenderer().getUI();
+				d = rightComponent.getPreferredSize();
+				height = restoreSize.height;
+				diff = d.height-restoreSize.height;
+				if (diff > 0) height += diff;
+				width = restoreSize.width+d.width;
+				rendererSplit.setLeftComponent(tabs);
+				rendererSplit.setRightComponent(rightComponent);
+				container.add(rendererSplit, BorderLayout.CENTER);
+				break;
+			case HISTORY_AND_RENDERER:
+				initHistorySplit();
+				if (rendererSplit == null)
+					rendererSplit = new SplitPanel(SplitPanel.VERTICAL);
+				rightComponent = model.getRenderer().getUI();
+				rendererSplit.setLeftComponent(tabs);
+				rendererSplit.setRightComponent(rightComponent); 
+				historySplit.setTopComponent(rendererSplit);
+				historySplit.setBottomComponent(historyUI);
+				container.add(historySplit, BorderLayout.CENTER);
+				d = rightComponent.getPreferredSize();
+				//height = restoreSize.height;
+				height = restoreSize.height;
+				diff = d.height-restoreSize.height;
+				if (diff > 0) height += diff;
+				width = restoreSize.width;
+	
+				width += d.width;
+				d = historyUI.getIdealSize();
+				height += d.height;
+				historyUI.setPreferredSize(new Dimension(width, d.height));
+				break;
+			case NEUTRAL:
+			default:
+				container.add(tabs, BorderLayout.CENTER);
+				width = restoreSize.width;
+				height = restoreSize.height;
+				break;
 		}
 		//setSize(getIdealSize(width, height));
 		d = getIdealSize(width, height);
@@ -864,7 +860,6 @@ class ImViewerUI
 		if (d.width > w || d.height > h) {
 			setSize(width, height);
 		} else setSize(d);
-
 		container.addHierarchyBoundsListener(boundsAdapter);
 	}
 
@@ -1244,27 +1239,27 @@ class ImViewerUI
 	void showMenu(int menuID, Component source, Point location)
 	{
 		switch (menuID) {
-		case ImViewer.COLOR_PICKER_MENU:
-			ChannelMetadata[] data = model.getChannelData();
-			ChannelMetadata d;
-			JPopupMenu menu = new JPopupMenu();
-			ChannelColorMenuItem item;
-			for (int j = 0; j < data.length; j++) {
-				d = data[j];
-				item = new ChannelColorMenuItem(
-						"Wavelength "+d.getEmissionWavelength(), 
-						model.getChannelColor(j), j);
-				menu.add(item);
-				item.addPropertyChangeListener(controller);
-			}
-			menu.show(source, location.x, location.y);
-			break;
-
-		case ImViewer.CATEGORY_MENU:
-			//if (categoriesMenu == null)
-			categoriesMenu = new CategoriesPopupMenu(this, model);
-			categoriesMenu.showMenu(source, location.x, location.y);
-			break;
+			case ImViewer.COLOR_PICKER_MENU:
+				ChannelMetadata[] data = model.getChannelData();
+				ChannelMetadata d;
+				JPopupMenu menu = new JPopupMenu();
+				ChannelColorMenuItem item;
+				for (int j = 0; j < data.length; j++) {
+					d = data[j];
+					item = new ChannelColorMenuItem(
+							"Wavelength "+d.getEmissionWavelength(), 
+							model.getChannelColor(j), j);
+					menu.add(item);
+					item.addPropertyChangeListener(controller);
+				}
+				menu.show(source, location.x, location.y);
+				break;
+	
+			case ImViewer.CATEGORY_MENU:
+				//if (categoriesMenu == null)
+				categoriesMenu = new CategoriesPopupMenu(this, model);
+				categoriesMenu.showMenu(source, location.x, location.y);
+				break;
 		}
 	}
 
@@ -1384,11 +1379,11 @@ class ImViewerUI
 	boolean isRendererShown()
 	{
 		switch (displayMode) {
-		case RENDERER:
-		case HISTORY_AND_RENDERER:
-			return true;
-		default:
-			return false;
+			case RENDERER:
+			case HISTORY_AND_RENDERER:
+				return true;
+			default:
+				return false;
 		}
 	}
 

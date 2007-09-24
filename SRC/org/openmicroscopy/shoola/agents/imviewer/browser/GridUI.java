@@ -181,10 +181,7 @@ class GridUI
 		Dimension d = layeredPane.getPreferredSize();
 		int xLoc = ((r.width-d.width)/2);
 		int yLoc = ((r.height-d.height)/2);
-		//if (xLoc < 0) xLoc = 0;
-		//if (yLoc < 0) yLoc = 0;
 		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
-		//layeredPane.setLocation(xLoc, yLoc);
 	}
 
 }

@@ -589,39 +589,39 @@ class ImViewerControl
 
 		int state = model.getState();
 		switch (state) {
-		case ImViewer.DISCARDED:
-			LoadingWindow window = view.getLoadingWindow();
-			window.setVisible(false);
-			window.dispose();
-			view.setVisible(false);
-			if (view.isLensVisible())
-				view.setLensVisible(false, model.getSelectedIndex());
-			view.dispose();
-			historyState = state;
-			break;
-		case ImViewer.LOADING_RENDERING_CONTROL:
-			UIUtilities.centerAndShow(view.getLoadingWindow());
-			historyState = state;
-			break;
-		case ImViewer.LOADING_IMAGE:
-			if (historyState == ImViewer.LOADING_METADATA)
-				//if (historyState == ImViewer.LOADING_RENDERING_CONTROL)
-					view.getLoadingWindow().setVisible(false);
-			view.onStateChange(false);
-			historyState = state;
-			break;  
-		case ImViewer.READY:
-			view.getLoadingWindow().setVisible(false);
-			if (historyState == ImViewer.CHANNEL_MOVIE)
-				view.onStateChange(false);
-			else {
-				view.onStateChange(true);
+			case ImViewer.DISCARDED:
+				LoadingWindow window = view.getLoadingWindow();
+				window.setVisible(false);
+				window.dispose();
+				view.setVisible(false);
+				if (view.isLensVisible())
+					view.setLensVisible(false, model.getSelectedIndex());
+				view.dispose();
 				historyState = state;
-			}
-			break;
-		case ImViewer.CHANNEL_MOVIE:
-			historyState = ImViewer.CHANNEL_MOVIE;
-			view.onStateChange(false); 
+				break;
+			case ImViewer.LOADING_RENDERING_CONTROL:
+				UIUtilities.centerAndShow(view.getLoadingWindow());
+				historyState = state;
+				break;
+			case ImViewer.LOADING_IMAGE:
+				if (historyState == ImViewer.LOADING_METADATA)
+					//if (historyState == ImViewer.LOADING_RENDERING_CONTROL)
+						view.getLoadingWindow().setVisible(false);
+				view.onStateChange(false);
+				historyState = state;
+				break;  
+			case ImViewer.READY:
+				view.getLoadingWindow().setVisible(false);
+				if (historyState == ImViewer.CHANNEL_MOVIE)
+					view.onStateChange(false);
+				else {
+					view.onStateChange(true);
+					historyState = state;
+				}
+				break;
+			case ImViewer.CHANNEL_MOVIE:
+				historyState = ImViewer.CHANNEL_MOVIE;
+				view.onStateChange(false); 
 		}
 	}
 

@@ -35,6 +35,8 @@ import javax.swing.JLayeredPane;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -77,6 +79,9 @@ class BrowserUI
     /** Listens to the mouse moves on the Image canvas. */
     private ImageCanvasListener	canvasListener;
     
+    /** Component related to the view while settings the bounds. */
+    private JComponent			sibling;
+    
     /** Initializes the components composing the display. */
     private void initComponents()
     {
@@ -116,6 +121,14 @@ class BrowserUI
         buildGUI();
     }
 
+    /** 
+     * Sets the component related to this component when the bounds of 
+     * the view are reset.
+     * 
+     * @param sibling The value to set.
+     */
+    void setSibling(JComponent sibling) { this.sibling = sibling; }
+    
     /**
      * Adds the component to the {@link #layeredPane}. The component will
      * be added to the top of the pile
@@ -249,7 +262,7 @@ class BrowserUI
 		vBar.setValue(y);
 		hBar.setValue(x);
 	}
-
+	
 	/**
 	 * Overridden to center the image.
 	 * @see JComponent#setBounds(Rectangle)
@@ -270,8 +283,10 @@ class BrowserUI
 		Dimension d = layeredPane.getPreferredSize();
 		int xLoc = ((r.width-d.width)/2);
 		int yLoc = ((r.height-d.height)/2);
-		//if (xLoc < 0) xLoc = 0; if added to a tabbed pane.
-		//if (yLoc < 0) yLoc = 0; if added to a tabbed pane.
+		
+		if (sibling != null && 
+				model.getSelectedIndex() == ImViewer.GRID_INDEX) 
+			sibling.setBounds(sibling.getBounds());
 		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
 	}
 	

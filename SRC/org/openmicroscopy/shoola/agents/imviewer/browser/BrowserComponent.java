@@ -101,6 +101,7 @@ class BrowserComponent
         view = new BrowserUI();
         annotator = new AnnotatorUI();
         gridView = new GridUI();
+        view.setSibling(gridView);
     }
     
     /** Links up the MVC triad. */
@@ -385,7 +386,7 @@ class BrowserComponent
 					model.setGridImages();
 				}
 				gridView.paintImage();
-			}
+		}
 	}
 	
 	/** 
