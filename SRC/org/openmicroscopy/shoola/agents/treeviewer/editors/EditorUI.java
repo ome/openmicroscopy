@@ -416,16 +416,16 @@ class EditorUI
 						if (annotator != null) 
 							tabs.setSelectedIndex(index);
 						else {
-							setEditorSelectedPane(0);
-							tabs.setSelectedIndex(0);
+							setEditorSelectedPane(Editor.PROPERTIES_INDEX);
+							tabs.setSelectedIndex(Editor.PROPERTIES_INDEX);
 						}
 						break;
 					case Editor.INFO_INDEX:
 						if (hierarchyObject instanceof ImageData) 
 							tabs.setSelectedIndex(index);
 						else {
-							setEditorSelectedPane(0);
-							tabs.setSelectedIndex(0);
+							setEditorSelectedPane(Editor.PROPERTIES_INDEX);
+							tabs.setSelectedIndex(Editor.PROPERTIES_INDEX);
 						}
 						break;
 				}

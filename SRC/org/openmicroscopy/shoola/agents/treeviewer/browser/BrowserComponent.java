@@ -129,11 +129,7 @@ class BrowserComponent
     private void handleNodeDisplay(TreeImageDisplay node)
     {
         view.selectFoundNode(node);
-        Object ho = node.getUserObject();
-        if (ho instanceof DataObject) {
-        	model.getParentModel().showProperties((DataObject) ho,
-        							TreeViewer.PROPERTIES_EDITOR);
-        }
+        model.getParentModel().showProperties(node, -1);
     }
     
     /**

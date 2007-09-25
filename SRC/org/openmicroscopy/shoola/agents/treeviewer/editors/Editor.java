@@ -83,7 +83,7 @@ public interface Editor
     
     /** Identifies the <code>Edit</code> type for the editor. */
     public static final int         PROPERTIES_EDITOR = 
-                                                TreeViewer.PROPERTIES_EDITOR;
+                                               TreeViewer.PROPERTIES_EDITOR;
     
 	/** The index of the <code>Properties</code> pane. */
 	public static final int			PROPERTIES_INDEX = 0;
@@ -95,10 +95,10 @@ public interface Editor
 	public static final int			INFO_INDEX = 2;
 	
 	/** The index of the <code>Annotation sub</code> pane. */
-	public static final int			ANNOTATION_INDEX = 0;
+	//public static final int			ANNOTATION_INDEX = 100;
 	
 	/** The index of the <code>classification sub</code> pane. */
-	public static final int			CLASSIFICATION_INDEX = 1;
+	//public static final int			CLASSIFICATION_INDEX = 101;
 	
     /** Bounds property to indicate to close the {@link Editor}. */
     public static final String      CLOSE_EDITOR_PROPERTY = "closeEditor";

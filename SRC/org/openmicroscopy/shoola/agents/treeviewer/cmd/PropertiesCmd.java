@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import pojos.DataObject;
 
 /** 
  * Displays the properties of the <code>DataObject</code> if not
@@ -72,11 +71,7 @@ public class PropertiesCmd
         Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
         TreeImageDisplay display = browser.getLastSelectedDisplay();
-        
-        if (display == null) return;
-        Object ho = display.getUserObject();
-        if (ho instanceof DataObject)
-            model.showProperties((DataObject) ho, TreeViewer.PROPERTIES_EDITOR);
+        model.showProperties(display, -1);
     }
     
 }

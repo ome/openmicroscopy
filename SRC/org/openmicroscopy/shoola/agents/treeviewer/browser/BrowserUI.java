@@ -263,8 +263,8 @@ class BrowserUI
         TreeImageDisplay node = (TreeImageDisplay) path.getLastPathComponent();
     	Object uo = node.getUserObject();
     	if (!(uo instanceof DataObject)) return;
-    	model.getParentModel().showProperties((DataObject) uo, 
-    								TreeViewer.PROPERTIES_EDITOR);
+    	//model.getParentModel().showProperties((DataObject) uo, 
+    	//							TreeViewer.PROPERTIES_EDITOR);
     }
     
     /**

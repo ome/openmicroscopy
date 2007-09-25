@@ -83,10 +83,11 @@ public class ChannelMovieAction
     protected void onStateChange(ChangeEvent e)
     {
         if (play) {
-            setEnabled(true);
+        	if (model.getActiveChannels().size() > 1)
+        		setEnabled(true);
         } else {
             if (model.getState() == ImViewer.READY) {
-                setEnabled(!(model.getActiveChannels().size() <= 1));
+                setEnabled((model.getActiveChannels().size() > 1));
             }
         }
     }
@@ -135,7 +136,7 @@ public class ChannelMovieAction
         if (evt.getPropertyName().equals(ImViewer.CHANNEL_ACTIVE_PROPERTY)) {
             if (!play) {
                 if (model.getState() == ImViewer.READY) {
-                    setEnabled(!(model.getActiveChannels().size() <= 1));
+                    setEnabled(model.getActiveChannels().size() > 1);
                 }
             }    
         }

@@ -204,7 +204,7 @@ class MoviePlayerUI
 		int minZ = model.getMinZ();
 		int rangeZ = maxZ-minZ;
 		zSlider = new TwoKnobsSlider(minZ, maxZ, model.getStartZ(), 
-				model.getEndZ());
+									model.getEndZ());
 		zSlider.setPaintEndLabels(false);
 		zSlider.setPaintLabels(false);
 		if (rangeZ <= 0 || rangeZ > MAX_RANGE) zSlider.setPaintTicks(false);

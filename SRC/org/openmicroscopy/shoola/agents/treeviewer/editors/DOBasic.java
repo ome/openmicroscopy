@@ -274,6 +274,7 @@ class DOBasic
              */
             public void stateChanged(ChangeEvent ce)
             {
+            	/*
                 JTabbedPane pane = (JTabbedPane) ce.getSource();
                 int index = pane.getSelectedIndex();
                 EditorFactory.setSubSelectedPane(index);
@@ -289,6 +290,7 @@ class DOBasic
 	                    }
 						break;
 				}
+				*/
             };
         });
     }   

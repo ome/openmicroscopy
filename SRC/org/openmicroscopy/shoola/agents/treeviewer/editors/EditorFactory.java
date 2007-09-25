@@ -107,6 +107,7 @@ public class EditorFactory
      */
     public static void setSubSelectedPane(int index)
     { 
+    	/*
     	switch (index) {
 			case Editor.ANNOTATION_INDEX:
 			case Editor.CLASSIFICATION_INDEX:
@@ -116,6 +117,7 @@ public class EditorFactory
 				break;
     	}
         singleton.subSelectedPane = index;
+        */
     }
     
     /**

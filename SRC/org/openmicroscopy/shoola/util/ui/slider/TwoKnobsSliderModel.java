@@ -155,11 +155,11 @@ class TwoKnobsSliderModel
 	 */
 	TwoKnobsSliderModel(int absoluteMax, int absoluteMin, int maximum, 
 			int minimum, int startValue, int endValue)
-			{
+	{
 		checkValues(absoluteMax, absoluteMin, maximum, minimum, startValue, 
 				endValue);
 		installDefaults();
-			}
+	}
 
 	/**
 	 * Checks if the specified values are valid.
@@ -174,10 +174,10 @@ class TwoKnobsSliderModel
 	void checkValues(int absoluteMax, int absoluteMin, int maximum, int minimum,
 			int startValue, int endValue)
 	{
-		if (maximum > minimum && startValue >= absoluteMin && 
+		if (maximum >= minimum && startValue >= absoluteMin && 
 				startValue <= absoluteMax && endValue >= absoluteMin &&
 				endValue <= absoluteMax && startValue <= endValue &&
-				absoluteMax > absoluteMin && maximum <= absoluteMax &&
+				absoluteMax >= absoluteMin && maximum <= absoluteMax &&
 				minimum >= absoluteMin) {
 			this.startValue = startValue;
 			this.endValue = endValue;

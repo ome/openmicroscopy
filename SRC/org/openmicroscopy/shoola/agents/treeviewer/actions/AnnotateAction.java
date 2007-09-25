@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PropertiesCmd;
+import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -154,26 +155,25 @@ public class AnnotateAction
     public void actionPerformed(ActionEvent e)
     {
     	Browser browser = model.getSelectedBrowser();
-        if (browser != null) {
-        	TreeImageDisplay[] nodes = browser.getSelectedDisplays();
-            if (nodes.length > 1) {
-            	Set<DataObject> s = new HashSet<DataObject>();
-            	Class type = null;
-            	TreeImageDisplay node;
-            	Object ho;
-            	for (int i = 0; i < nodes.length; i++) {
-					node = nodes[i];
-					ho = node.getUserObject();
-					type = ho.getClass();
-					if (ho instanceof ImageData || ho instanceof DatasetData)
-						s.add((DataObject) ho);
-				}
-                model.annotate(type, s);
-                return;
-            }
+    	if (browser == null) return;
+    	TreeImageDisplay[] nodes = browser.getSelectedDisplays();
+        if (nodes.length > 1) {
+        	Set<DataObject> s = new HashSet<DataObject>();
+        	Class type = null;
+        	TreeImageDisplay node;
+        	Object ho;
+        	for (int i = 0; i < nodes.length; i++) {
+				node = nodes[i];
+				ho = node.getUserObject();
+				type = ho.getClass();
+				if (ho instanceof ImageData || ho instanceof DatasetData)
+					s.add((DataObject) ho);
+			}
+            model.annotate(type, s);
+            return;
         }
-        PropertiesCmd cmd = new PropertiesCmd(model);
-        cmd.execute();
+        TreeImageDisplay display = browser.getLastSelectedDisplay();
+        model.showProperties(display, Editor.ANNOTATIONS_INDEX);
     }
 
 }

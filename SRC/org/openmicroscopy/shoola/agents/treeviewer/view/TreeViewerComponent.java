@@ -295,30 +295,53 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#showProperties(DataObject, int)
+	 * @see TreeViewer#createDataObject(DataObject)
 	 */
-	public void showProperties(DataObject object, int editorType)
+	public void createDataObject(DataObject object)
 	{
 		switch (model.getState()) {
-		case DISCARDED:
-		case SAVE:
-			throw new IllegalStateException(
-					"This method cannot be invoked in the DISCARDED or SAVE " +
-			"state.");
-		}
-		TreeImageDisplay parent = null;
-		switch (editorType) {
-		case PROPERTIES_EDITOR:
-			break;
-		case CREATE_EDITOR:  
-			parent =  model.getSelectedBrowser().getLastSelectedDisplay();
-			break;
-		default:
-			throw new IllegalArgumentException("This method only " +
-					"supports the PROPERTIES_EDITOR and CREATE_EDITOR.");
+			case DISCARDED:
+			case SAVE:
+				throw new IllegalStateException(
+						"This method cannot be invoked in the DISCARDED " +
+						"or SAVE state.");
 		}
 		removeEditor();
 		//tmp solution
+		if (object == null) return;
+		TreeImageDisplay parent =  
+							model.getSelectedBrowser().getLastSelectedDisplay();
+		int editorType = CREATE_EDITOR;
+		model.setEditorType(editorType);
+		Editor editor = EditorFactory.getEditor(this, object, editorType, 
+				parent);
+		editor.addPropertyChangeListener(controller);
+		editor.activate();
+		model.setEditor(editor);
+		editorDialog = new EditorDialog(view, editor);
+		UIUtilities.centerAndShow(editorDialog);
+		onComponentStateChange(false);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#showProperties(DataObject, int)
+	 */
+	public void showProperties(TreeImageDisplay node, int editorIndex)
+	{
+		switch (model.getState()) {
+			case DISCARDED:
+			case SAVE:
+				throw new IllegalStateException(
+						"This method cannot be invoked in the DISCARDED " +
+						"or SAVE state.");
+		}
+		if (node  == null) return;
+		Object object = node.getUserObject();
+        if (!(object instanceof DataObject)) return;
+		removeEditor();
+		//tmp solution
+		
 		if (object == null) return;
 		if (object instanceof ExperimenterData) {
 			ExperimenterData exp = (ExperimenterData) object;
@@ -330,23 +353,18 @@ class TreeViewerComponent
 
 			return;
 		}
-		model.setEditorType(editorType);
-		Editor editor = EditorFactory.getEditor(this, object, editorType, 
-				parent);
+		if (editorIndex != -1) EditorFactory.setEditorSelectedPane(editorIndex);
+		DataObject ho = (DataObject) object;
+		model.setEditorType(PROPERTIES_EDITOR);
+		Editor editor = EditorFactory.getEditor(this, ho, 
+												PROPERTIES_EDITOR, null);
 		editor.addPropertyChangeListener(controller);
 		editor.activate();
 		model.setEditor(editor);
-
-		if (editorType == CREATE_EDITOR) {
-			editorDialog = new EditorDialog(view, editor);
-			UIUtilities.centerAndShow(editorDialog);
-			onComponentStateChange(false);
-		} else {
-			editor.addSiblings(
-					model.getSelectedBrowser().getSelectedDataObjects());
-			view.addComponent(editor.getUI());
-			editor.setDefaultButton(view.getRootPane());
-		}
+		editor.addSiblings(
+				model.getSelectedBrowser().getSelectedDataObjects());
+		view.addComponent(editor.getUI());
+		editor.setDefaultButton(view.getRootPane());
 	}
 
 	/**
@@ -948,19 +966,6 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setEditorSelectedPane(int)
-	 */
-	public void setEditorSelectedPane(int index)
-	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException("This method cannot be invoked " +
-			"in the DISCARDED state.");
-		if (model.getEditorType() == Editor.PROPERTIES_EDITOR)
-			EditorFactory.setEditorSelectedPane(index);
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#getEditorType()
 	 */
 	public int getEditorType()
@@ -1084,6 +1089,12 @@ class TreeViewerComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
+		Browser b = model.getSelectedBrowser();
+		if (b != null) {
+			TreeImageDisplay node = b.getLastSelectedDisplay();
+			if (node != null)
+				return b.getNodeOwner(node);
+		}
 		return model.getExperimenter();
 	}
 

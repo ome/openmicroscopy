@@ -197,8 +197,6 @@ public class CachingService
 		MemoryUsage usage = 
 			ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
 		String message = "Heap memory usage: max "+usage.getMax();
-
-		//System.err.println(usage);
 		registry.getLogger().info(this, message);
 		//percentage of memory used for caching.
 		maxSize = (int) (0.6*usage.getMax())/(1024*1024); 

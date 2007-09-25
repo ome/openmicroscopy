@@ -111,7 +111,8 @@ public class CreateCmd
         Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
         if (userObject == null) return; //shouldn't happen.
-        model.showProperties(userObject, TreeViewer.CREATE_EDITOR);
+        //model.showProperties(userObject, TreeViewer.CREATE_EDITOR);
+        model.createDataObject(userObject);
     }
     
 }

@@ -285,7 +285,7 @@ class EditorModel
     	if (hierarchyObject == null) return null;
     	ExperimenterData exp =  hierarchyObject.getOwner();
     	if (exp == null) return null;
-    	if (exp.isLoaded()) return exp;
+;    	if (exp.isLoaded()) return exp;
     	ExperimenterData selectedExp = parentModel.getSelectedExperimenter();
     	if (exp.getId() == selectedExp.getId()) return selectedExp;
     	return exp;

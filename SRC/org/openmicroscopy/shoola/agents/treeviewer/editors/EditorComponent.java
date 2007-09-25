@@ -127,6 +127,7 @@ class EditorComponent
                 if (model.getEditorType() == PROPERTIES_EDITOR) {
                 	switch (model.getSelectedTabbedIndex()) {
 						case Editor.PROPERTIES_INDEX:
+							/*
 							int subIndex = model.getSelectedSubPane();
 	                		if (model.isAnnotatable() && 
 	                			subIndex == Editor.ANNOTATION_INDEX) {
@@ -134,10 +135,15 @@ class EditorComponent
 	                		} else if (model.isClassified() && 
 	                			subIndex == Editor.CLASSIFICATION_INDEX)
 	                			loadClassifications();
-							break;
-						case Editor.ANNOTATIONS_INDEX:
+	                			*/
 							retrieveThumbnail();
 							break;
+						case Editor.ANNOTATIONS_INDEX:
+							if (model.isAnnotatable())
+								retrieveAnnotations();
+							else retrieveThumbnail();
+							break;
+
 						default:
 							model.setState(READY);
 					}
@@ -354,12 +360,20 @@ class EditorComponent
 	public void retrieveAnnotations()
 	{
 		if (model.getEditorType() != PROPERTIES_EDITOR) return;
+		/*
 		if (model.isAnnotatable() && model.getSelectedTabbedIndex() == 
         			Editor.ANNOTATIONS_INDEX) {
 			model.fireAnnotationsLoading();
 	        model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, 
 	        								false);
         }  
+        */
+		if (model.isAnnotatable() && model.getSelectedTabbedIndex() == 
+			Editor.ANNOTATIONS_INDEX) {
+			model.fireAnnotationsLoading();
+			model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, 
+    								false);
+		}  
 		retrieveThumbnail();
 	}
 

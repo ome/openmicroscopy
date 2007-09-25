@@ -86,6 +86,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.UserManagerDialog;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
+
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -473,6 +475,39 @@ class TreeViewerControl
 	/** Forwards call to the {@link TreeViewer}. */
 	void cancel() { model.cancel(); }
 
+	private void handleSelectedDisplay(Object oldValue, Object newValue) {
+		if (oldValue == null || newValue == null) return;
+		if (oldValue.getClass().equals(newValue.getClass())) return;
+		if (!(oldValue instanceof TreeImageDisplay)) return;
+		TreeImageDisplay d = (TreeImageDisplay) oldValue;
+		
+		if (d != null) return;
+		Object ho = d.getUserObject();
+		if (ho instanceof ImageData || 
+				ho instanceof DatasetData) {
+			int index = EditorFactory.getEditorSelectedPane();
+			switch (index) {
+				case Editor.INFO_INDEX:
+					EditorFactory.setEditorSelectedPane(
+							Editor.PROPERTIES_INDEX);
+					break;
+				case Editor.ANNOTATIONS_INDEX:
+					if (newValue instanceof TreeImageDisplay) {
+						d = (TreeImageDisplay) newValue;
+						Object newHo = d.getUserObject();
+						if (!(newHo instanceof ImageData || 
+							newHo instanceof DatasetData)) {
+							EditorFactory.setEditorSelectedPane(
+									Editor.PROPERTIES_INDEX);
+						}
+					} else EditorFactory.setEditorSelectedPane(
+										Editor.PROPERTIES_INDEX);
+				default:
+					break;
+			}
+		}
+	}
+	
 	/**
 	 * Reacts to property changed. 
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -528,20 +563,7 @@ class TreeViewerControl
 		} else if (name.equals(Browser.SELECTED_DISPLAY_PROPERTY)) {
 			Object oldValue = pce.getOldValue();
 			Object newValue = pce.getNewValue();
-			if (oldValue != null && newValue != null) {
-				if (!(oldValue.getClass().equals(newValue.getClass()))) {
-					if (oldValue instanceof TreeImageDisplay) {
-						TreeImageDisplay d = (TreeImageDisplay) oldValue;
-						if (d != null && 
-								(d.getUserObject() instanceof ImageData)) {
-							int index = EditorFactory.getEditorSelectedPane();
-							if (index == Editor.INFO_INDEX)
-								EditorFactory.setEditorSelectedPane(
-										Editor.PROPERTIES_INDEX);
-						}
-					}
-				}
-			}
+			handleSelectedDisplay(oldValue, newValue);
 			model.onSelectedDisplay();
 			view.updateMenuItems();
 		} else if (name.equals(TreeViewer.HIERARCHY_ROOT_PROPERTY)) {
