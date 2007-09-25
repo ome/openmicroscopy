@@ -31,8 +31,9 @@ import javax.swing.tree.TreePath;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.openmicroscopy.shoola.agents.measurement.util.ROINode;
+import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
+import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeTableModel;
 
 /**
  * 
@@ -49,7 +50,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.ROINode;
  * @since OME3.0
  */
 class ROITableModel 
-	extends DefaultTreeTableModel
+	extends OMETreeTableModel
 {
 	/** ROI ID Column no for the wizard. */
 	public static final int				ROIID_COLUMN = 0;
@@ -79,6 +80,10 @@ class ROITableModel
 		super(node, columns);
 	}
 	
+	/**
+	 * The node has been updated.
+	 * @param node see above.
+	 */
 	public void nodeUpdated(ROINode node)
 	{
 		Object[] objects = new Object[2];
@@ -132,9 +137,7 @@ class ROITableModel
 	 */
 	public boolean isCellEditable(Object node, int column) 
 	{
-	    boolean editable = false;
-	    if(column==VISIBLE_COLUMN+1) editable = true;
-	    return editable;
+		return isCellEditable((ROINode)node, column);
 	}
  
 	/**

@@ -20,27 +20,16 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.util;
+package org.openmicroscopy.shoola.util.ui.treetable.editors;
 
 //Java imports
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.EventObject;
-
-import javax.swing.AbstractCellEditor;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
-import javax.swing.JRadioButton;
 import javax.swing.JTable;
-import javax.swing.table.TableCellEditor;
 //Third-party libraries
-
-import org.openmicroscopy.shoola.agents.measurement.view.ROITable;
-
-import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 //Application-internal dependencies
 
@@ -65,44 +54,15 @@ public class BooleanCellEditor
 	/** Reference to boolean component. */
 	private JCheckBox	checkBox;
 	
-	private ROITable	table;
-	
-	int row, column;
-	
-	//static boolean 		cascadeUpdate;
-	
 	/**
 	 * Create a new instance.
+	 * @param box the checkbox to use.
 	 */
-	/*
-	public BooleanCellEditor(ROITable table)
-	{
-		this.table = table;
-		checkBox=new JCheckBox();
-		checkBox.addItemListener(this);
-	//	cascadeUpdate = false;
-	}
-	*/
 	public BooleanCellEditor(JCheckBox box)
 	{
 		super(box);
 		this.checkBox = box;
 	}
-	//public static void setCascadeUpdate(boolean value)
-	//{
-	//	cascadeUpdate = value;
-	//}
-	
-	/**
-	 * Get the value of the DateCellEditor
-	 * @return see above.
-	 */
-	/*
-	public Object getCellEditorValue()
-	{
-		return checkBox.isSelected();
-	}
-	*/
 	
 	/**
 	 * Get the component used to edit boolean cells
@@ -113,7 +73,6 @@ public class BooleanCellEditor
 	 * @param column number of the column being edited
 	 * @return  editor component to use
 	 */
-	
 	public Component getTableCellEditorComponent(
 	JTable table, Object value, boolean isSelected, int row, int column)
 	{
@@ -123,22 +82,23 @@ public class BooleanCellEditor
 		checkBox.setSelected((Boolean) value);
 		checkBox.addItemListener(this);
         return checkBox;
-		
-        /*
-		this.row = row;
-		this.column = column;
-		if (value!=null&&value instanceof Boolean)
-			checkBox.setSelected((Boolean) value);
-		return checkBox;
-		*/
 	}
 
+	/**
+	 * Get the value of the editor item.
+	 * @return the value.
+	 */
 	public Object getCellEditorValue()
     {
 		checkBox.removeItemListener(this);
         return checkBox.isSelected();
     }
     
+	/**
+	 * listener method called when the object in the cell changes. Posts message
+	 * to the table.
+	 * @param e the item event.
+	 */
     public void itemStateChanged(ItemEvent e)
     {
         super.fireEditingStopped();

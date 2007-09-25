@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
+import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
 
 /**
  * The ROINode is an extension of the DefaultMutableTreeTableNode
@@ -54,7 +55,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
  * @since OME3.0
  */
 public class ROINode 
-	extends DefaultMutableTreeTableNode
+	extends OMETreeNode
 {
 
 	/** ROI ID Column no for the wizard. */
@@ -76,11 +77,8 @@ public class ROINode
 	private static final int				VISIBLE_COLUMN = 5;
 	
 	/** The map of the children, ROIShapes belonging to the ROINode. */
-	HashMap<ROIShape, ROINode>	childMap;
-	
-	/** is the node expanded in the tree. */
-	private boolean				expanded;
-	
+	HashMap<ROIShape, ROINode>				childMap;
+		
 	/**
 	 * Constructor for parent node. 
 	 * @param str parent type.
@@ -89,7 +87,6 @@ public class ROINode
 	{
 		super(str);
 		childMap = new HashMap<ROIShape, ROINode>();
-		expanded = false;
 	}
 	
 	/**
@@ -100,55 +97,7 @@ public class ROINode
 	{
 		super(nodeName);
 		childMap = new HashMap<ROIShape, ROINode>();
-		expanded = false;
 	}
-
-	/** 
-	 * Return true if the node is expanded in the tree view
-	 * @return see above.
-	 */
-	public boolean isExpanded() { return expanded; }
-	
-	/** 
-	 * Set to true if the node is expanded in the tree view
-	 * param expanded see above.
-	 */
-	public void setExpanded(boolean expanded) { this.expanded = expanded; }
-	
-	/**
-	 * Get the path of the node.
-	 * @return see above.
-	 */
-	public TreePath getPath()
-	{
-		return new TreePath(getPathToRoot(this, 0));
-	}
-	
-	/** 
-	 * Method called to get the path of the node. 
-	 * @param aNode node. 
-	 * @param depth the depth.
-	 * @return
-	 */
-	protected TreeNode[] getPathToRoot(TreeNode aNode, int depth) {
-			TreeNode[]              retNodes;
-
-			/* Check for null, in case someone passed in a null node, or
-			   they passed in an element that isn't rooted at root. */
-			if(aNode == null) {
-			    if(depth == 0)
-				return null;
-			    else
-				retNodes = new TreeNode[depth];
-			}
-			else {
-			    depth++;
-			    retNodes = getPathToRoot(aNode.getParent(), depth);
-			    retNodes[retNodes.length - depth] = aNode;
-			}
-			return retNodes;
-		    }
-
 	
 	/**
 	 * Construct ROINode with ROIShape type.
@@ -177,12 +126,10 @@ public class ROINode
 	 * @param column the column to edit.
 	 * @return see above.
 	 */
-	public boolean isCellEditable(int column)
+	public boolean isEditable(int column)
 	{
 		if(column==VISIBLE_COLUMN+1)
-		{
 			return true;
-		}
 		return false;
 	}
 	

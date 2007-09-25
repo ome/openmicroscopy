@@ -20,15 +20,19 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.util;
+package org.openmicroscopy.shoola.util.ui.treetable.editors;
 
 
 //Java imports
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.AbstractCellEditor;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.table.TableCellEditor;
 
 //Third-party libraries
@@ -49,53 +53,77 @@ import javax.swing.table.TableCellEditor;
  * @since OME3.0
  */
 public class StringCellEditor
-	extends AbstractCellEditor 
-	implements TableCellEditor 
+	extends DefaultCellEditor
+	implements ActionListener
 {
 
-	/** Reference to boolean component. */
-	private JTextArea	textArea;
-	
-	
+	/** Reference to textfield component. */
+	private JTextField	textField;
+
 	/**
-	 * Create a new instance.
+	 * 	Create a new instance.
+	 * 	@param textField the textField to use.
 	 */
-	public StringCellEditor()
+	public StringCellEditor(JTextField textField)
 	{
-		textArea=new JTextArea();
+		super(textField);
+		this.textField = textField;
+	}
+
+	/**
+	 * Get the component used to edit boolean cells
+	 * 
+	 * @param table the table this object edits.
+	 * @param value the value to be edited
+	 * @param isSelected indicates whether or not the cell is selected
+	 * @param row number of the row being edited
+	 * @param column number of the column being edited
+	 * @return editor component to use
+	 */
+	public Component getTableCellEditorComponent(JTable table, Object value,
+			boolean isSelected, int row, int column)
+	{
+		if (value==null || !(acceptedValue(value))) return textField;
+		
+		textField.setText(value.toString());
+		textField.addActionListener(this);
+		return textField;
 	}
 	
 	/**
-	 * Get the value of the DateCellEditor
+	 * Return true if the value passed is an accepted value
+	 * @param value see above.
 	 * @return see above.
+	 */
+	private boolean acceptedValue(Object value)
+	{
+		if(value instanceof String)
+			return true;
+		return false;
+	}
+	
+	/**
+	 * Get the value of the editor item.
+	 * 
+	 * @return the value.
 	 */
 	public Object getCellEditorValue()
 	{
-		return textArea.getText();
+		textField.removeActionListener(this);
+		return textField.getText();
 	}
 	
 	/**
-	 * Get the component used to edit boolean cells
-	 * @param table  the table this object edits.
-	 * @param value  the value to be edited
-	 * @param isSelected  indicates whether or not the cell is selected
-	 * @param row  number of the row being edited
-	 * @param column number of the column being edited
-	 * @return  editor component to use
+	 * listener method called when the object in the cell changes. Posts message
+	 * to the table.
+	 * 
+	 * @param e the actionevent.
 	 */
-	
-	public Component getTableCellEditorComponent(
-	JTable table, Object value, boolean isSelected, int row, int column)
+	public void actionPerformed(ActionEvent e)
 	{
-		
-		if (value!=null&&value instanceof String)
-		{
-			textArea.setText((String) value);
-		}
-		return textArea;
+		super.fireEditingStopped();
 	}
 	
 }
-
 
 

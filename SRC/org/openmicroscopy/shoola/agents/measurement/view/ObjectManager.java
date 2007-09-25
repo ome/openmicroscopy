@@ -162,7 +162,7 @@ class ObjectManager
 					if (index.length==1)
 					{
 						ROINode node=
-								objectsTable.getROINodeAtRow(objectsTable
+								(ROINode)objectsTable.getNodeAtRow(objectsTable
 									.getSelectedRow());
 						if (node==null) return;
 						Object nodeValue=node.getUserObject();

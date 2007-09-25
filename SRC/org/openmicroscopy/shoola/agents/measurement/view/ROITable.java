@@ -38,11 +38,12 @@ import javax.swing.tree.TreePath;
 import org.jdesktop.swingx.JXTreeTable;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.measurement.util.BooleanCellEditor;
 import org.openmicroscopy.shoola.agents.measurement.util.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
+import org.openmicroscopy.shoola.util.ui.treetable.editors.BooleanCellEditor;
 
 /**
  * The ROITable is the class extending the JXTreeTable, this shows the 
@@ -60,7 +61,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
  * @since OME3.0
  */
 public class ROITable 
-	extends JXTreeTable
+	extends OMETreeTable
 {
 
 	/** The root node of the tree. */
@@ -78,18 +79,6 @@ public class ROITable
 	/** Cell editor for the boolean values. */
 	private BooleanCellEditor booleanCellEditor;
 	
-	/** 
-     * Reacts to node expansion event.
-     * 
-     * @param tee       The event to handle.
-     * @param expanded 	Pass <code>true</code> is the node is expanded,
-     * 					<code>false</code> otherwise.
-     */
-    private void onNodeNavigation(TreeExpansionEvent tee, boolean expanded)
-    {
-    	ROINode node = (ROINode) tee.getPath().getLastPathComponent();
-        node.setExpanded(expanded);
-    }
     
 	/**
 	 * The constructor for the ROITable, taking the root node and
@@ -107,23 +96,10 @@ public class ROITable
 		ROIMap = new HashMap<ROI, ROINode>();
 		for( int i = 0 ; i < model.getColumnCount() ; i++)
 		{
-			setDefaultRenderer(model.getColumnClass(i), new ROITableCellRenderer());
 			TableColumn column = this.getColumn(i);
 			column.setResizable(true);
 		}
-		booleanCellEditor = new BooleanCellEditor(new JCheckBox());
-		setDefaultEditor(Boolean.class, booleanCellEditor);
-		getDefaultEditor(Boolean.class).addCellEditorListener(this);
 		setTreeCellRenderer(new ROITableCellRenderer());
-		TreeExpansionListener listener = new TreeExpansionListener() {
-            public void treeCollapsed(TreeExpansionEvent e) {
-                onNodeNavigation(e, false);
-            }
-            public void treeExpanded(TreeExpansionEvent e) {
-                onNodeNavigation(e, true);  
-            }   
-        };
-        addTreeExpansionListener(listener);
 	}
 
 	/** 
@@ -185,7 +161,7 @@ public class ROITable
 	 */
 	public void setValueAt(Object obj, int row, int column)
 	{
-		ROINode node = getROINodeAtRow(row);
+		ROINode node = (ROINode)getNodeAtRow(row);
 		super.setValueAt(obj, row, column);
 		ROINode expandNode;
 		if(node.getUserObject() instanceof ROI)
@@ -258,17 +234,6 @@ public class ROITable
 		return null;
 	}
 	
-	/**
-	 * Get the Node at Row 
-	 * @param row see above.
-	 * @return see above.
-	 */
-	public ROINode getROINodeAtRow(int row)
-	{
-		TreePath path = this.getPathForRow(row);
-		return ((ROINode)path.getLastPathComponent());
-	}
-
 	/**
 	 * Get the ROI at row index.
 	 * @param index see above.

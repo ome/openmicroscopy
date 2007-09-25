@@ -20,16 +20,21 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.util;
+package org.openmicroscopy.shoola.util.ui.treetable.editors;
 
 //Java imports
 import java.awt.Component;
-import java.sql.Date;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.DateFormat;
+import java.util.Date;
 
 import javax.swing.AbstractCellEditor;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JTable;
+import javax.swing.JTree;
 import javax.swing.table.TableCellEditor;
+import javax.swing.tree.TreeCellEditor;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXDatePicker;
@@ -51,19 +56,20 @@ import org.jdesktop.swingx.JXDatePicker;
  */
 public class DateCellEditor 
 	extends AbstractCellEditor 
-	implements TableCellEditor 
+	implements TableCellEditor, ActionListener
 {
 
 	/** Reference to date component. */
 	private JXDatePicker	datePicker;
 	
-	
 	/**
 	 * Create a new instance.
+	 * @param picker the date picker component.
 	 */
-	public DateCellEditor()
+	public DateCellEditor(JXDatePicker picker)
 	{
-		datePicker=new JXDatePicker();
+		super();
+		datePicker = picker;
 		datePicker.setFormats(new DateFormat[] { DateFormat
 			.getDateInstance(DateFormat.SHORT) });
 	}
@@ -73,7 +79,7 @@ public class DateCellEditor
 	 * @return see above.
 	 */
 	public Object getCellEditorValue()
-	{
+	{		datePicker.removeActionListener(this);
 		return datePicker.getDate();
 	}
 	
@@ -94,8 +100,22 @@ public class DateCellEditor
 		if (value!=null&&value instanceof Date)
 		{
 			datePicker.setDate((Date) value);
+			datePicker.addActionListener(this);
 		}
 		return datePicker;
 	}
+	
+	/**
+	 * listener method called when the object in the cell changes. Posts message
+	 * to the table.
+	 * 
+	 * @param e the actionevent.
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		super.fireEditingStopped();
+	}
+
+	
 	
 }

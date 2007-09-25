@@ -49,7 +49,8 @@ import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 
 /** 
- * 
+ * FileMap is the link to the FileMap.xml file which lists all the pixelsID
+ * and maps them to the file where the ROI data is saved. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
