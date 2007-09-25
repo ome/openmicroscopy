@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.measurement.util;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
-
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -83,29 +82,11 @@ public class ROITableCellRenderer
 			Object value, boolean selected, boolean expanded, 
 			boolean leaf, int row, boolean hasFocus)
 	{
+		
 		Component thisComponent = new JLabel();
 		Object thisObject = ((ROINode)value).getUserObject();
-		if ( (thisObject instanceof Double) || (thisObject instanceof String) ||
-			 (thisObject instanceof FigureType) || thisObject instanceof Integer || 
-			 thisObject instanceof Long)
-		{
-			JLabel label = new JLabel();
-			label.setOpaque(true);
-    		label.setText(thisObject+"");
-    		thisComponent = label;
-    	} 
-		else if (thisObject instanceof Color) 
-		{
-    		PaintPot paintPot = new PaintPot((Color)thisObject);
-    		thisComponent = paintPot;
-    	}
-    	else if( thisObject instanceof Boolean)
-    	{
-    		JCheckBox checkBox = new JCheckBox();
-    		checkBox.setSelected((Boolean)thisObject);
-    		thisComponent = checkBox;
-    	}
-    	else if( thisObject instanceof ROI)
+		
+		if( thisObject instanceof ROI)
     	{
     		JLabel label = new JLabel();
     		label.setIcon(IconManager.getInstance().getIcon(IconManager.ROISTACK));
@@ -117,8 +98,7 @@ public class ROITableCellRenderer
     		label.setIcon(IconManager.getInstance().getIcon(IconManager.ROISHAPE));
     		thisComponent = label;    	
     	}
-    	if (!(value instanceof Color)) 
-			RendererUtils.setRowColor(thisComponent, selected, row);
+    	RendererUtils.setRowColor(thisComponent, selected, row);
 		
 		return thisComponent;
 	}
@@ -154,6 +134,10 @@ public class ROITableCellRenderer
     	{
     		JCheckBox checkBox = new JCheckBox();
     		checkBox.setSelected((Boolean)thisObject);
+    		
+    		
+
+  //  		checkBox.addActionListener(new CheckBoxListener((ROITable)table, checkBox, row, column));
     		thisComponent = checkBox;
     	}
     	else if( thisObject == null)
@@ -210,6 +194,7 @@ public class ROITableCellRenderer
 		if(shape.equals(FigureUtil.TEXT_TYPE))
 			label.setIcon(IconManager.getInstance().getIcon(IconManager.TEXT16));
 	}
+	
 }
 
 

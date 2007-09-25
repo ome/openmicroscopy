@@ -32,8 +32,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -44,12 +47,14 @@ import org.jhotdraw.draw.Drawing;
 import ome.model.core.Pixels;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -182,6 +187,12 @@ class MeasurementViewerComponent
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#setDataChanged()
+     */
+	public void setDataChanged() { model.setDataChanged(); }
+	
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#cancel()
      */
 	public void cancel()
@@ -298,6 +309,22 @@ class MeasurementViewerComponent
 		if (model.getState() == DISCARDED) 
 			throw new IllegalStateException("This method shouldn't be " +
 					"invoked in the DISCARDED state:"+model.getState());
+		if (!model.isDataSaved())
+		{ 
+			JOptionPane pane = new JOptionPane(
+				"Exit without saving changes to your ROI?");
+			Object[] options = new String[] { "Yes", "No" };
+			pane.setOptions(options);
+			JDialog dialog = pane.createDialog(new JFrame(), "Dialog");
+			dialog.setVisible(true);
+			Object obj = pane.getValue(); 
+			int result = -1;
+			for (int k = 0; k < options.length; k++)
+				if (options[k].equals(obj))
+					result = k;
+			if(result == 1)
+				return;
+	    }
 		if (post) postEvent(MeasurementToolLoaded.REMOVE);
 		view.setVisible(false);
 	}
@@ -324,9 +351,20 @@ class MeasurementViewerComponent
 		FileFilter filter = new XMLFilter();
 		chooser.addChoosableFileFilter(filter);
 		chooser.setFileFilter(filter);
-
 		File f = UIUtilities.getDefaultFolder();
 	    if (f != null) chooser.setCurrentDirectory(f);
+		try
+		{
+			String savedFileString=FileMap.getSavedFile(model.getPixelsID());
+			File savedFile = new File(savedFileString);
+			chooser.setCurrentDirectory(savedFile);
+			chooser.setSelectedFile(savedFile);
+		}
+		catch (ParsingException e)
+		{
+			// Do nothing as we're really only looking to see if the default 
+			// directory or filename should be set for loading.
+		}
 		int results = chooser.showOpenDialog(view.getParent());
 		if (results != JFileChooser.APPROVE_OPTION) return;
 		model.fireROILoading(chooser.getSelectedFile().getAbsolutePath());
@@ -336,14 +374,52 @@ class MeasurementViewerComponent
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @throws ParsingException 
      * @see MeasurementViewer#saveROI()
      */
-	public void saveROI() 
+	public void saveROI()
 	{
 		Registry reg = MeasurementAgent.getRegistry();
 		UserNotifier un = reg.getUserNotifier();
+	
+		JFileChooser chooser = new JFileChooser();
+		FileFilter filter = new XMLFilter();
+		chooser.addChoosableFileFilter(filter);
+		chooser.setFileFilter(filter);
+
+		File f = UIUtilities.getDefaultFolder();
+	    if (f != null) chooser.setCurrentDirectory(f);
+		try
+		{
+			String savedFileString=FileMap.getSavedFile(model.getPixelsID());
+			File savedFile = new File(savedFileString);
+			chooser.setCurrentDirectory(savedFile);
+			chooser.setSelectedFile(savedFile);
+		}
+		catch (ParsingException e)
+		{
+			// Do nothing as we're really only looking to see if the default 
+			// directory or filename should be set for loading.
+		}
+		int results = chooser.showSaveDialog(view.getParent());
+		if (results != JFileChooser.APPROVE_OPTION) return;
+		File file = chooser.getSelectedFile();
+		if (!file.getAbsolutePath().endsWith(XMLFilter.XML))
+		{
+			String fileName = file.getAbsolutePath()+"."+XMLFilter.XML;
+			file = new File(fileName);
+		}
+		if (file.exists()) 
+		{
+			int response = JOptionPane.showConfirmDialog (null,
+						"Overwrite existing file?","Confirm Overwrite",
+						JOptionPane.OK_CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE);
+	        if (response == JOptionPane.CANCEL_OPTION) return;
+	    }
+
 		try {
-			model.saveROI();
+			model.saveROI(file.getAbsolutePath());
 		} catch (ParsingException e) {
 			reg.getLogger().error(this, "Cannot save the ROI "+e.getMessage());
 			un.notifyInfo("Save ROI", "Cannot save ROI " +

@@ -27,6 +27,10 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -38,6 +42,14 @@ import java.util.TreeMap;
 
 
 //Third-party libraries
+import net.n3.nanoxml.IXMLElement;
+import net.n3.nanoxml.IXMLParser;
+import net.n3.nanoxml.IXMLReader;
+import net.n3.nanoxml.StdXMLReader;
+import net.n3.nanoxml.XMLElement;
+import net.n3.nanoxml.XMLParserFactory;
+import net.n3.nanoxml.XMLWriter;
+
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
@@ -52,6 +64,7 @@ import org.openmicroscopy.shoola.agents.measurement.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsLoader;
+import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -62,6 +75,7 @@ import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
@@ -148,6 +162,9 @@ class MeasurementViewerModel
     /** Reference to the component that embeds this model. */
     private MeasurementViewer		component;
     
+    /** Has the data been saved since last update. 			*/
+    private Boolean					hasBeenSaved;
+    
     /**
      * Returns the current user's details.
      * 
@@ -178,6 +195,7 @@ class MeasurementViewerModel
 		drawingComponent = new DrawingComponent();
 		roiComponent = new ROIComponent();
 		roiFileName = imageID+".xml";
+		hasBeenSaved = true;
 	}
 	
 	/**
@@ -302,31 +320,7 @@ class MeasurementViewerModel
 		currentLoader.load();
 	}
 	
-	/** 
-	 * Fires an asynchronous retrieval of the ROI related to the pixels set. 
-	 * 
-	 * @param fileName The name of the file to load. If <code>null</code>
-	 * 					the {@link #roiFileName} is selected.
-	 */
-	void fireROILoading(String fileName)
-	{
-		state = MeasurementViewer.LOADING_ROI;
-		if (fileName == null) fileName = roiFileName;
-		InputStream stream = null;
-		try {
-			stream = IOUtil.readFile(fileName);
-		} catch (Exception e) {
-			Logger log = MeasurementAgent.getRegistry().getLogger();
-			log.warn(this, "Cannot load the ROI "+e.getMessage());
-		}
-		component.setROI(stream);
-		try {
-			if (stream != null) stream.close();
-		} catch (Exception e) {
-			Logger log = MeasurementAgent.getRegistry().getLogger();
-			log.warn(this, "Cannot close the stream "+e.getMessage());
-		}
-	}
+	
 	
 	/**
 	 * Returns the currently selected z-section.
@@ -575,6 +569,34 @@ class MeasurementViewerModel
 		roiComponent.setMicronsPixelZ(getPixelSizeZ());
 	}
 	
+	
+	/** 
+	 * Fires an asynchronous retrieval of the ROI related to the pixels set. 
+	 * 
+	 * @param fileName The name of the file to load. If <code>null</code>
+	 * 					the {@link #roiFileName} is selected.
+	 */
+	void fireROILoading(String fileName)
+	{
+		state = MeasurementViewer.LOADING_ROI;
+		InputStream stream = null;
+		try {
+			if (fileName == null) 
+				fileName = FileMap.getSavedFile(this.getPixelsID());
+			stream = IOUtil.readFile(fileName);
+		} catch (Exception e) {
+			Logger log = MeasurementAgent.getRegistry().getLogger();
+			log.warn(this, "Cannot load the ROI "+e.getMessage());
+		}
+		component.setROI(stream);
+		try {
+			if (stream != null) stream.close();
+		} catch (Exception e) {
+			Logger log = MeasurementAgent.getRegistry().getLogger();
+			log.warn(this, "Cannot close the stream "+e.getMessage());
+		}
+	}
+	
 	/**
 	 * Saves the current ROISet in the roi component to file.
 	 * @throws ParsingException
@@ -582,9 +604,20 @@ class MeasurementViewerModel
 	void saveROI()
 		throws ParsingException
 	{
+		saveROI(roiFileName);
+	}
+	
+	/**
+	 * Saves the current ROISet in the roi component to file.
+	 * @param fileName name of the file to be saved.
+	 * @throws ParsingException
+	 */
+	void saveROI(String fileName)
+		throws ParsingException
+	{
 		OutputStream stream = null;
 		try {
-			stream = IOUtil.writeFile(roiFileName);
+			stream = IOUtil.writeFile(fileName);
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot save the ROI "+e.getMessage());
@@ -592,6 +625,8 @@ class MeasurementViewerModel
 		roiComponent.saveROI(stream);
 		try {
 			if (stream != null) stream.close();
+			this.setDataSaved();
+			FileMap.setSavedFile(fileName, this.getPixelsID());
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot close the stream "+e.getMessage());
@@ -771,6 +806,31 @@ class MeasurementViewerModel
 	boolean isChannelActive(int index)
 	{
 		return (activeChannels.get(index) != null);
+	}
+	
+	/**
+	 * Has the data been saved since the last update in the model.
+	 * @return see above.
+	 */
+	public boolean isDataSaved()
+	{
+		return hasBeenSaved;
+	}
+	
+	/**
+	 * The model has changed the data has not all been saved.
+	 */
+	public void setDataChanged()
+	{
+		hasBeenSaved = false;
+	}
+	
+	/**
+	 * The data has been saved. 
+	 */
+	private void setDataSaved()
+	{
+		hasBeenSaved = true;
 	}
 	
 }	

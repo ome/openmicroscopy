@@ -154,6 +154,9 @@ public interface MeasurementViewer
 	 */
 	public void iconified(boolean b);
 
+	/** The data has changed. */
+	public void setDataChanged();
+	
 	/** Loads the ROI. */
 	public void loadROI();
 

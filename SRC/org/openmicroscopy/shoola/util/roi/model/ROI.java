@@ -213,12 +213,12 @@ public class ROI
 	 */
 	public boolean isVisible()
 	{
-		boolean visible = true;
+		boolean visible = false;
 		Iterator<ROIShape> shapeIterator = roiShapes.values().iterator();
 		while(shapeIterator.hasNext())
 		{
 			ROIShape shape = shapeIterator.next();
-			visible = visible & shape.getFigure().isVisible();
+			visible = visible | shape.getFigure().isVisible();
 		}
 		return visible;
 	}

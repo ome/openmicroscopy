@@ -28,6 +28,9 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.util.HashMap;
 import java.util.Vector;
 
+import javax.swing.JCheckBox;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
 
@@ -35,6 +38,7 @@ import javax.swing.tree.TreePath;
 import org.jdesktop.swingx.JXTreeTable;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.util.BooleanCellEditor;
 import org.openmicroscopy.shoola.agents.measurement.util.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -68,48 +72,60 @@ public class ROITable
 	/** The map to relate ROI to ROINodes. */
 	private HashMap<ROI, ROINode> ROIMap;
 	
+	/** The tree model. */
+	private ROITableModel	model;
 	
+	/** Cell editor for the boolean values. */
+	private BooleanCellEditor booleanCellEditor;
+	
+	/** 
+     * Reacts to node expansion event.
+     * 
+     * @param tee       The event to handle.
+     * @param expanded 	Pass <code>true</code> is the node is expanded,
+     * 					<code>false</code> otherwise.
+     */
+    private void onNodeNavigation(TreeExpansionEvent tee, boolean expanded)
+    {
+    	ROINode node = (ROINode) tee.getPath().getLastPathComponent();
+        node.setExpanded(expanded);
+    }
+    
 	/**
 	 * The constructor for the ROITable, taking the root node and
 	 * column names as parameters.  
-	 * 
+	 * @param model the table model.
+	 * @param columnNames the column names.
 	 */
 	ROITable(ROITableModel model, Vector columnNames)
 	{
 		super(model);
+		this.model = model;
 		this.root = (ROINode) model.getRoot();
 		this.columnNames = columnNames;
 		this.setAutoResizeMode(JXTreeTable.AUTO_RESIZE_ALL_COLUMNS);
 		ROIMap = new HashMap<ROI, ROINode>();
 		for( int i = 0 ; i < model.getColumnCount() ; i++)
 		{
-			this.setDefaultRenderer(model.getColumnClass(i), new ROITableCellRenderer());
+			setDefaultRenderer(model.getColumnClass(i), new ROITableCellRenderer());
 			TableColumn column = this.getColumn(i);
 			column.setResizable(true);
 		}
-		this.setTreeCellRenderer(new ROITableCellRenderer());
+		booleanCellEditor = new BooleanCellEditor(new JCheckBox());
+		setDefaultEditor(Boolean.class, booleanCellEditor);
+		getDefaultEditor(Boolean.class).addCellEditorListener(this);
+		setTreeCellRenderer(new ROITableCellRenderer());
+		TreeExpansionListener listener = new TreeExpansionListener() {
+            public void treeCollapsed(TreeExpansionEvent e) {
+                onNodeNavigation(e, false);
+            }
+            public void treeExpanded(TreeExpansionEvent e) {
+                onNodeNavigation(e, true);  
+            }   
+        };
+        addTreeExpansionListener(listener);
 	}
 
-	/**
-	 * is the cell at node with column editable.
-	 * @param node the ROINode.
-	 * @param column the column of the object in the roiNode.
-	 * @return see above.
-	 */
-	public boolean isCellEditable(Object node, int column) 
-	{
-        ROINode aNode = (ROINode)node;
-        switch(column) {
-              case 0  : return true;
-              default : 
-            	  if (aNode.isLeaf()) 
-            		  return aNode.isEditable(column); 
-            	  else
-            		  return false; 
-        }
-	}
-	
-	
 	/** 
 	 * Select the ROIShape in the TreeTable and move the view port of the 
 	 * table to the shape selected. 
@@ -120,13 +136,19 @@ public class ROITable
 		ROINode parent = findParent(shape.getROI());
 		if(parent == null)
 			return;
-		ROINode child = parent.findChild(shape);
 		expandROIRow(parent);
-		int roiIndex = root.getIndex(parent);
-		int roiShapeIndex = parent.getIndex(child) + roiIndex+1;
-		this.selectionModel.addSelectionInterval(roiShapeIndex, roiShapeIndex);
-		this.scrollCellToVisible(roiShapeIndex, 0);
+		ROINode child = parent.findChild(shape);
+		ROINode pathList[] = new ROINode[3];
+		pathList[0] = root;
+		pathList[1] = parent;
+		pathList[2] = child;
+		TreePath path = new TreePath(pathList);
+		
+		int row = this.getRowForPath(path);
+		this.selectionModel.addSelectionInterval(row, row);
+		this.scrollCellToVisible(row, 0);
 	}
+	
 	
 	
 	/**
@@ -154,17 +176,36 @@ public class ROITable
 	}
 
 	/**
-	 * Set the value of the object at row and col to value object.
+	 * Set the value of the object at row and col to value object, 
+	 * this will also expand the row of the object set, unless the ROI
+	 * of the object is not visible it will then collapse the row.
 	 * @param obj see above.
 	 * @param row see above.
-	 * @param col see above.
+	 * @param column see above.
 	 */
-	public void setValueAt(Object obj, int row, int col)
+	public void setValueAt(Object obj, int row, int column)
 	{
-		TreePath path = this.getPathForRow(row);
-		ROINode node = (ROINode)path.getLastPathComponent();
-		node.setValueAt(obj, col);
-		this.refresh();
+		ROINode node = getROINodeAtRow(row);
+		super.setValueAt(obj, row, column);
+		ROINode expandNode;
+		if(node.getUserObject() instanceof ROI)
+		{
+			ROI roi = (ROI)node.getUserObject();
+			expandNode = node;
+			if(roi.isVisible())
+				expandROIRow(expandNode);
+			else
+				collapseROIRow(expandNode);
+		}
+		else
+		{
+			expandNode = (ROINode)node.getParent();
+			ROIShape roiShape = (ROIShape)node.getUserObject();
+			if(roiShape.getROI().isVisible())
+				expandROIRow(expandNode);
+			else
+				collapseROIRow(expandNode);
+		}
 	}
 	
 	/**
@@ -185,9 +226,21 @@ public class ROITable
 			int childCount = root.getChildCount();
 			root.insert(parent,childCount);
 		}
-		parent.insert(new ROINode(shape), parent.getChildCount());
+		ROINode newNode = new ROINode(shape);
+		newNode.setExpanded(true);
+		parent.insert(newNode, parent.getChildCount());
 		this.setTreeTableModel(new ROITableModel(root, columnNames));
 		expandROIRow(parent);
+	}
+	
+	/** 
+	 * Expand the row of the node 
+	 * @param node see above.
+	 */
+	public void expandNode(ROINode node)
+	{
+		if(node.getUserObject() instanceof ROI)
+			expandROIRow((ROI)node.getUserObject());
 	}
 	
 	/**
@@ -198,12 +251,23 @@ public class ROITable
 	public ROIShape getROIShapeAtRow(int index)
 	{
 		TreePath path = this.getPathForRow(index);
+		if(path==null) return null;
 		ROINode node = (ROINode)path.getLastPathComponent();
 		if(node.getUserObject() instanceof ROIShape)
 			return (ROIShape)node.getUserObject();
 		return null;
 	}
 	
+	/**
+	 * Get the Node at Row 
+	 * @param row see above.
+	 * @return see above.
+	 */
+	public ROINode getROINodeAtRow(int row)
+	{
+		TreePath path = this.getPathForRow(row);
+		return ((ROINode)path.getLastPathComponent());
+	}
 
 	/**
 	 * Get the ROI at row index.
@@ -226,11 +290,35 @@ public class ROITable
 	public void expandROIRow(ROINode parent)
 	{
 		int addedNodeIndex = root.getIndex(parent);
+		parent.setExpanded(true);
 		this.expandRow(addedNodeIndex);
+		ROINode node;
+		for (int i=0; i<root.getChildCount(); i++)
+		{
+				node = (ROINode) root.getChildAt(i);
+				if (node.isExpanded()) 
+					expandPath(node.getPath());
+		}
 		this.scrollCellToVisible(addedNodeIndex+parent.getChildCount(), 0);
 	}
 	
-
+	/** 
+	 * Collapse the row with node parent.
+	 * @param parent see above.
+	 */
+	public void collapseROIRow(ROINode parent)
+	{
+		int addedNodeIndex = root.getIndex(parent);
+		this.collapseRow(addedNodeIndex);
+		parent.setExpanded(false);
+		ROINode node;
+		for (int i=0; i<root.getChildCount(); i++)
+		{
+				node = (ROINode) root.getChildAt(i);
+				if (node.isExpanded()) 
+					expandROIRow((ROINode) node);
+		}
+	}
 	
 	/** 
 	 * Expand the row with ROI.
@@ -284,6 +372,18 @@ public class ROITable
 		return null;
 	}
 	
+	/**
+	 * The ROIShape has changed it's properties. 
+	 * @param shape the roiShape which has to be updated.
+	 */
+	public void setROIAttributesChanged(ROIShape shape)
+	{
+		ROINode parent = findParent(shape.getROI());
+		ROINode child = parent.findChild(shape);
+		model.nodeUpdated(child);
+	}
+	
+	
 	/** is this column the shapeType column.
 	 * @param column see above
 	 * @return see above 
@@ -295,5 +395,6 @@ public class ROITable
 			return true;
 		return false;
 	}
+
 }
 

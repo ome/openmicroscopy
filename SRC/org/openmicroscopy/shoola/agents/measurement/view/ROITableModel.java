@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.util.Vector;
 
+import javax.swing.tree.TreePath;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -77,30 +79,70 @@ class ROITableModel
 		super(node, columns);
 	}
 	
+	public void nodeUpdated(ROINode node)
+	{
+		Object[] objects = new Object[2];
+		objects[0] = getRoot();
+		objects[1] = node.getParent();
+		TreePath path = new TreePath(objects);
+		modelSupport.fireChildChanged(path, node.getParent().getIndex(node), node);
+	}
 	
-	 public boolean isEditable(int column) {
-            	switch (column)
-    			{
-    				case 0:
-    					return false;
-    				case ROIID_COLUMN+1:
-    					return false;
-    				case TIME_COLUMN+1:
-    					return false;
-    				case Z_COLUMN+1:
-    					return false;
-    				case SHAPE_COLUMN+1:
-    					return false;
-    				case ANNOTATION_COLUMN+1:
-    					return true;
-    				case VISIBLE_COLUMN+1:
-    					return false;
-    				default:
-    					return false;
-    			}
-      }
+	/**
+	 * Set the value of column field of the node object to the value param.
+	 * @param value the new value of the object.
+	 * @param nodeObject the node.
+	 * @param column the field.
+	 */
+	public void setValueAt(Object value, Object nodeObject, int column)
+	{
+		if(nodeObject instanceof ROINode)
+		{
+			ROINode node = (ROINode)nodeObject;
+			node.setValueAt(value, column);
+			TreePath path;
+			modelSupport.fireNewRoot();
+		}
+	}
+		
+	/**
+	 * Get the value of the column field of the node.
+	 * @param nodeObject the node.
+	 * @param column the field.
+	 * @return see above.
+	 */
+	public Object getValueAt(Object nodeObject, int column)
+	{
+		Object value=null;
+
+		if (nodeObject instanceof ROINode)
+		{
+			ROINode roiNode=(ROINode)nodeObject;
+			Object object =roiNode.getUserObject();
+			return roiNode.getValueAt(column);
+		}
+		return null;
+	}
 	
-	 public Class<?> getColumnClass(int column) 
+	/**
+	 * Is the cell editable for this node and column.
+	 * @param node the node of the tree.
+	 * @param column the field to edit.
+	 * @return see above.
+	 */
+	public boolean isCellEditable(Object node, int column) 
+	{
+	    boolean editable = false;
+	    if(column==VISIBLE_COLUMN+1) editable = true;
+	    return editable;
+	}
+ 
+	/**
+	 * Get the class of each column.
+	 * @param column the field in the data for the node.
+	 * @return see above.
+	 */
+	public Class<?> getColumnClass(int column) 
 	{
 		switch (column)
 		{

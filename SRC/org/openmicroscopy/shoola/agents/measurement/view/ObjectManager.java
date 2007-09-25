@@ -149,68 +149,55 @@ class ObjectManager
 	    objectsTable.setRowSelectionAllowed(true);
 	    treeSelectionListener = new TreeSelectionListener()
 	    {
-
+			
 			public void valueChanged(TreeSelectionEvent e)
 			{
+				TreeSelectionModel tsm=objectsTable.getTreeSelectionModel();
+				if (tsm.isSelectionEmpty())
+				{}
+				else
 				{
-					TreeSelectionModel tsm =
-			            objectsTable.getTreeSelectionModel();
-			        if (tsm.isSelectionEmpty()) 
-			        {
-			        } 
-			        else 
-			        {
-			        	int []index = tsm.getSelectionRows();
-			        	if (index.length == 0) return;
-			        	if (index.length == 1)
-			        	{
-			        		ROIShape shape = objectsTable.
-			        		getROIShapeAtRow(objectsTable.getSelectedRow());
-			        		if(shape == null) return;
-			        		view.selectFigure(shape.getFigure());
-			        		int col = objectsTable.getSelectedColumn();
-							int row = objectsTable.getSelectedRow();
-							if(row < 0 || col < 0)
-								return;
-							Object value = objectsTable.getValueAt(row, col);
-							if (value instanceof Boolean) toggleValue();
-				    	}
-	
-			        	for(int i = 0 ; i  < index.length ; i++)
-			        	{
-			        		ROIShape shape = objectsTable.
-			        						getROIShapeAtRow(index[i]);
-			        		if(shape != null)
-			        		{
-			        			view.selectFigure(shape.getFigure());
-			        			requestFocus();
-			        		}
-			        	}
-			        }
+					int[] index=tsm.getSelectionRows();
+					if (index.length==0) return;
+					if (index.length==1)
+					{
+						ROINode node=
+								objectsTable.getROINodeAtRow(objectsTable
+									.getSelectedRow());
+						if (node==null) return;
+						Object nodeValue=node.getUserObject();
+						if (nodeValue instanceof ROIShape) view
+							.selectFigure(((ROIShape) nodeValue).getFigure());
+						int col=objectsTable.getSelectedColumn();
+						int row=objectsTable.getSelectedRow();
+						
+						if (row<0||col<0) return;
+					}
+					else
+					{
+						for (int i=0; i<index.length; i++)
+						{
+							ROIShape shape=
+									objectsTable.getROIShapeAtRow(index[i]);
+							if (shape!=null)
+							{
+								view.selectFigure(shape.getFigure());
+								requestFocus();
+							}
+						}
+					}
 				}
-			}	    	
-	    };
+			}
+		};
 	    
 	    objectsTable.addTreeSelectionListener(treeSelectionListener);
-		objectsTable.addMouseListener(new java.awt.event.MouseAdapter() 
-		{
-			public void mouseClicked(java.awt.event.MouseEvent e) 
-			{
-				int col = objectsTable.getSelectedColumn();
-				int row = objectsTable.getSelectedRow();
-				if(row < 0 || col < 0)
-					return;
-				Object value = objectsTable.getValueAt(row, col);
-				if (value instanceof Boolean) toggleValue();
-			}
-		});
 		
 	     ColumnFactory columnFactory = new ColumnFactory() {
             @Override
             public void configureTableColumn(TableModel model, TableColumnExt columnExt) {
                 super.configureTableColumn(model, columnExt);
                 if (columnExt.getModelIndex() == 1) {
-                    //columnExt.setVisible(false);
+                	
                 }
             }
  
@@ -224,23 +211,6 @@ class ObjectManager
 	    objectsTable.setColumnFactory(columnFactory);
 	}
 
-
-	/** Toggles the value of the boolean under the current selection. */
-	private void toggleValue()
-	{
-		int col = objectsTable.getSelectedColumn();
-		int row = objectsTable.getSelectedRow();
-		Boolean value = (Boolean) objectsTable.getValueAt(row, col);
-		ROIShape roiShape = objectsTable.getROIShapeAtRow(row);
-		boolean newValue = !(value.booleanValue());
-		objectsTable.setValueAt(new Boolean(newValue), row, col);
-		if(roiShape!=null)
-			objectsTable.selectROIShape(roiShape);
-		else
-			objectsTable.expandROIRow(objectsTable.getROIAtRow(row));		
-
-	}
-	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
@@ -340,7 +310,6 @@ class ObjectManager
 		Iterator i = l.iterator();
 		ROI roi;
 		ROIFigure figure;
-		objectsTable.clearSelection();
 		TreeSelectionModel tsm = objectsTable.getTreeSelectionModel();
 		if (clear) tsm.clearSelection();
 		objectsTable.removeTreeSelectionListener(treeSelectionListener);

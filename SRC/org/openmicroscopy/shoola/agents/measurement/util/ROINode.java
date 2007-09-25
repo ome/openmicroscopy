@@ -27,8 +27,8 @@ package org.openmicroscopy.shoola.agents.measurement.util;
 //Java imports
 import java.util.HashMap;
 import java.util.Iterator;
-
-import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 
 //Third-party libraries
 
@@ -76,7 +76,10 @@ public class ROINode
 	private static final int				VISIBLE_COLUMN = 5;
 	
 	/** The map of the children, ROIShapes belonging to the ROINode. */
-	HashMap<ROIShape, ROINode> childMap;
+	HashMap<ROIShape, ROINode>	childMap;
+	
+	/** is the node expanded in the tree. */
+	private boolean				expanded;
 	
 	/**
 	 * Constructor for parent node. 
@@ -86,6 +89,7 @@ public class ROINode
 	{
 		super(str);
 		childMap = new HashMap<ROIShape, ROINode>();
+		expanded = false;
 	}
 	
 	/**
@@ -96,8 +100,56 @@ public class ROINode
 	{
 		super(nodeName);
 		childMap = new HashMap<ROIShape, ROINode>();
+		expanded = false;
 	}
 
+	/** 
+	 * Return true if the node is expanded in the tree view
+	 * @return see above.
+	 */
+	public boolean isExpanded() { return expanded; }
+	
+	/** 
+	 * Set to true if the node is expanded in the tree view
+	 * param expanded see above.
+	 */
+	public void setExpanded(boolean expanded) { this.expanded = expanded; }
+	
+	/**
+	 * Get the path of the node.
+	 * @return see above.
+	 */
+	public TreePath getPath()
+	{
+		return new TreePath(getPathToRoot(this, 0));
+	}
+	
+	/** 
+	 * Method called to get the path of the node. 
+	 * @param aNode node. 
+	 * @param depth the depth.
+	 * @return
+	 */
+	protected TreeNode[] getPathToRoot(TreeNode aNode, int depth) {
+			TreeNode[]              retNodes;
+
+			/* Check for null, in case someone passed in a null node, or
+			   they passed in an element that isn't rooted at root. */
+			if(aNode == null) {
+			    if(depth == 0)
+				return null;
+			    else
+				retNodes = new TreeNode[depth];
+			}
+			else {
+			    depth++;
+			    retNodes = getPathToRoot(aNode.getParent(), depth);
+			    retNodes[retNodes.length - depth] = aNode;
+			}
+			return retNodes;
+		    }
+
+	
 	/**
 	 * Construct ROINode with ROIShape type.
 	 * @param nodeName see above.
@@ -118,6 +170,20 @@ public class ROINode
 		if(childMap.containsKey(shape))
 			return childMap.get(shape);
 		return null;
+	}
+	
+	/**
+	 * Is the cell editable. 
+	 * @param column the column to edit.
+	 * @return see above.
+	 */
+	public boolean isCellEditable(int column)
+	{
+		if(column==VISIBLE_COLUMN+1)
+		{
+			return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -225,7 +291,6 @@ public class ROINode
 							ROIShape shape = roiIterator.next();
 							shape.getFigure().setVisible((Boolean)value);
 						}
-
 					}
 					break;
 					default:

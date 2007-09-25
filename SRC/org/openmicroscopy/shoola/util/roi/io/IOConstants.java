@@ -45,6 +45,25 @@ import java.awt.Color;
  */
 public class IOConstants 
 {
+	/** The file which maps the pixelIDs to the file saved by the user. */
+	public static final String FILEMAP_XML = "fileMap.xml";
+	/** The tag in the filemap listing all the pixels saved in the fileMap. */
+	public static final String PIXELSID_TAG = "pixelsid";
+	/** The tag in the pixelsidtag listing all the files saved under pixels id. */
+	public static final String FILE_TAG = "file";
+	/** Name space for the fileMap object. */
+	public final static String FILEMAP_XML_NAMESPACE = "http://www.openmicroscopy.org.uk";
+	/** Version number for the filemap object. */
+	public final static String FILEMAP_XML_VERSION = "1.0";
+	/** Version tag for fileMap object. */
+	public final static String FILEMAP_XML_VERSION_TAG = "version";
+	/** Attribute with value of pixel for pixels id. */
+	public final static String PIXELSID_ATTRIBUTE = "id";
+	/** Attribute with name of file.*/
+	public final static String FILENAME_ATTRIBUTE = "filename";
+	/** The pixels tag contains the set of pixels used in the system. */
+	public final static String PIXELSSET_TAG = "pixelset";
+
 	public final static String SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 	public final static String ROI_NAMESPACE = "http://www.openmicroscopy.org.uk";
 	public final static String VERSION_TAG = "version";
