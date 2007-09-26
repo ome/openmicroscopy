@@ -14,7 +14,7 @@ import Image
 
 help_message = '''
 This extracts the Description block [270] from the TIFF file and opens it 
-in the mate editor
+in the mate editor then writes it back
 '''
 
 
@@ -58,21 +58,8 @@ def main(argv=None):
 				else:
 				    # read the xml from the tiff
 					theXml = image.tag[270]
-					# print "Processing file : %s\n" % aFilename
-					# print theXml
-					# print ""
 					theNewXml = edited_text(theXml)
-					image.tag[270] = theNewXml
-					print "At present this destroys multi plane TIFF files - are you sure you want to save? y/n"
-					confirm = sys.stdin.readline()[:-1]
-					print 'confirm = \'%s\'' %(confirm)
-					if confirm in ['y', 'Y', 'Yes', 'YES', 'yes']:
-						print "Saving..."
-						image.save(aFilename)
-						print "done"
-					else:
-						print "Skipped"
-		
+					write_tag_into_tiff(aFilename, theNewXml)
 		
 	except Usage, err:
 		print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
@@ -99,6 +86,17 @@ def edited_text(starting_text=''):
 	x = os.spawnlp(os.P_WAIT, "mate", "mate", "-w", temp_filename)
 	if x:
 		raise RuntimeError, "Can't run %s %s (%s)" % (editor, temp_filename,x)
+	result = open(temp_filename).read()
+	os.unlink(temp_filename)
+	return result
+
+def write_tag_into_tiff(inTiffFilename, inXmlString):
+	temp_fd, temp_filename = tempfile.mkstemp(text=True)
+	os.write(temp_fd, inXmlString)
+	os.close(temp_fd)
+	x = os.spawnlp(os.P_WAIT, "java", "java", "EditTiff", inTiffFilename, temp_filename)
+	if x:
+		raise RuntimeError, "Can't run java EditTiff %s %s (%s)" % (inTiffFilename, temp_filename,x)
 	result = open(temp_filename).read()
 	os.unlink(temp_filename)
 	return result
