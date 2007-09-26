@@ -2,35 +2,39 @@
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>currentDocument</key>
-	<string>mateTiff.py</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
+			<string>isValidOME.py</string>
+			<key>lastUsed</key>
+			<date>2007-09-24T11:42:01Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
 			<string>mateTiff.py</string>
 			<key>lastUsed</key>
-			<date>2007-09-19T13:54:42Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2007-09-24T11:41:59Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>RunAndCheck.py</string>
 			<key>lastUsed</key>
-			<date>2007-09-19T09:21:35Z</date>
+			<date>2007-09-24T11:42:02Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>OmeValidator.py</string>
 			<key>lastUsed</key>
-			<date>2007-09-19T13:54:42Z</date>
+			<date>2007-09-24T11:42:02Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>ome-fc-tiff.xsd</string>
 			<key>lastUsed</key>
-			<date>2007-09-19T09:23:40Z</date>
+			<date>2007-09-24T11:42:03Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -55,62 +59,6 @@
 	<integer>200</integer>
 	<key>metaData</key>
 	<dict>
-		<key>OmeValidator.py</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>40</integer>
-				<key>line</key>
-				<integer>224</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>103</integer>
-		</dict>
-		<key>RunAndCheck.py</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>1</integer>
-				<key>line</key>
-				<integer>29</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>mateTiff.py</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>20</integer>
-				<key>line</key>
-				<integer>44</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>38</integer>
-		</dict>
-		<key>ome-fc-tiff.xsd</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>16</integer>
-				<key>line</key>
-				<integer>9</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
 		<key>samples/completesamplenoenc.xml</key>
 		<dict>
 			<key>caret</key>
@@ -184,16 +132,9 @@
 			<integer>10</integer>
 		</dict>
 	</dict>
-	<key>openDocuments</key>
-	<array>
-		<string>mateTiff.py</string>
-		<string>OmeValidator.py</string>
-		<string>RunAndCheck.py</string>
-		<string>ome-fc-tiff.xsd</string>
-	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{580, 61}, {788, 840}}</string>
+	<string>{{392, 104}, {857, 983}}</string>
 </dict>
 </plist>

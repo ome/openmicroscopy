@@ -36,7 +36,7 @@ def schemaFilePath(inFilename):
 def schemaFilePath(inFilename):
 	return inFilename
 
-# Try to load Image for XML Schema Vlaidation Support
+# Try to load Image for Tiff Support
 haveTiffSupport = True
 try:
 	import Image
@@ -44,7 +44,7 @@ except ImportError:
 	# This exception means that we do not have tiff support loading
 	haveTiffSupport = False
 
-# Try to load lxml for XML Schema Vlaidation Support
+# Try to load lxml for XML Schema Validation Support
 haveXsdSupport = True
 try:
 	from lxml import etree
@@ -136,6 +136,11 @@ class XmlReport(object):
 	The namespace define in the OME element of the OME-XML document
 	"""
 	theNamespace = None
+	
+	"""
+	The namespace define in the OME element of the OME-XML document
+	"""
+	thePrefix = None
 	
 	"""
 	Create the message lists for this instance of the report object
@@ -239,7 +244,7 @@ class XmlReport(object):
 		stringXml = StringIO(self.theDom.toxml())
 		
 		#
-		print self.theDom.toprettyxml()
+		#print self.theDom.toprettyxml()
 		
 		# building the document tree from the input xml
 		try:
@@ -522,7 +527,6 @@ class ElementAggregator(sax.ContentHandler):
 			if name[-4:] == ":OME":
 				# a prefex is being used
 				self.thePrefix = name[:-4]
-				print "Prefix : %s" % self.thePrefix
 				try:
 					self.theNamespace = attribs.getValue("xmlns" + ':' + self.thePrefix)
 				except KeyError:
@@ -640,6 +644,15 @@ class ElementAggregator(sax.ContentHandler):
 		if name[-5:] == "Plane":
 			self.omePlanesCount = self.omePlanesCount + 1
 		
+		if name[-12:] == "ManufactSpec":
+			try:
+				# look for the serial number
+				theSerial = int(attribs.getValue("SerialNumber"))
+			except KeyValue:
+				pass
+			if theSerial is None or len(theSerial) == 0:
+				self.warningList.append(ParseMessage(None, None, None, "OME","", "Missing or empty SerialNumber in ManufactSpec"))
+		
 		self.domify(name, attribs)
 			
 	def endElement(self, name):
@@ -687,7 +700,6 @@ class NamespaceSearcher(sax.ContentHandler):
 			if name[-4:] == ":OME":
 				# a prefex is being used
 				self.thePrefix = name[:-4]
-				print "Prefix : %s" % self.thePrefix
 				try:
 					# pull the namespace for prefix out of the OME element
 					self.theNamespace = attribs.getValue("xmlns" + ':' + self.thePrefix)
@@ -719,7 +731,7 @@ if __name__ == '__main__':
 	
 	for aFilename in ["samples/4d2wOME.tif", "samples/4d2wOME-fixed.tif",
 	 	"samples/4d2wOME-fixed-updated.tif", "samples/blank.tif",
-		"samples/ome.xsd"]:
+		"samples/ome.xsd", "samples/4d2wOME-EdExtra.tif"]:
 		print "============ XML file %s ============ " % aFilename
 		print XmlReport.validateTiff(aFilename)
 	
