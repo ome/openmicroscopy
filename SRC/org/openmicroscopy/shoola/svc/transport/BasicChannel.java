@@ -31,6 +31,7 @@ import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.params.HttpClientParams;
 
 //Application-internal dependencies
 
@@ -82,7 +83,7 @@ class BasicChannel
     	throws IllegalArgumentException
 	{
 	    try {
-	    	serverURL = new URI(url);
+	    	serverURL = new URI(url, true);
 	        requestPath = serverURL.getPath();
 	    } catch (URIException e) {
 	        throw new IllegalArgumentException(
@@ -108,7 +109,9 @@ class BasicChannel
       
         HttpClient channel = new HttpClient();
         channel.setHostConfiguration(cfg);
-        channel.setConnectionTimeout(connTimeout);
+        HttpClientParams params = new HttpClientParams();
+        params.setConnectionManagerTimeout(connTimeout);
+        channel.setParams(params);
         return channel;
     }
  

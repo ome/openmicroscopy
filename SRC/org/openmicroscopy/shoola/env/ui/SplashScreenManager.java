@@ -121,7 +121,8 @@ class SplashScreenManager
 			UserNotifier un = UIFactory.makeUserNotifier(container);
             un.notifyError("Login Incomplete", e.getMessage());
             view.setControlsEnabled(true);
-		}
+            updateView();
+ 		}
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 	
@@ -138,6 +139,14 @@ class SplashScreenManager
 		f.addWindowStateListener(this);
 	}
 	
+	/** Sets the views on top. */
+    private void updateView()
+    {
+    	view.setAlwaysOnTop(true);
+    	viewTop.setAlwaysOnTop(true); 
+    	view.requestFocusOnField();
+    }
+    
 	/**
 	 * Creates the splash screen component.
 	 * Creates a new instance of this manager and links them as needed.
@@ -162,7 +171,7 @@ class SplashScreenManager
 	    		 	(screenSize.height-totalHeight)/2, d.width, 
 	    		 	viewTop.getSize().height);
 	    Rectangle r = viewTop.getBounds();
-		view.setBounds(r.x,  r.y+d.height, dlogin.width, dlogin.height);
+		view.setBounds(r.x, r.y+d.height, dlogin.width, dlogin.height);
 		view.addPropertyChangeListener(this);
 		viewTop.addPropertyChangeListener(this);
 		view.addWindowStateListener(this);
@@ -173,6 +182,17 @@ class SplashScreenManager
 		doneTasks = 0;
 	}
 
+	/** Updates the {@link ScreenLogin}. */
+    void nofityLoginFailure()
+    { 
+    	UserNotifier un = UIFactory.makeUserNotifier(container);
+    	un.notifyError("Login Failure", 
+                "Failed to log onto OMERO.\n" +
+                "Please check your user name\n"+
+                "and/or password or try again later.");
+    	updateView();
+	}
+    
 	/**
 	 * Implemented as specified by {@link SplashScreen}.
 	 * @see SplashScreen#open()
@@ -252,6 +272,7 @@ class SplashScreenManager
         if (!init) {
             view.setCursor(Cursor.getDefaultCursor());
             view.cleanField(ScreenLogin.PASSWORD_FIELD);
+            updateView();
         }
     }
 	
@@ -283,8 +304,7 @@ class SplashScreenManager
 		     component.close();
 		} else if (ScreenLogin.TO_FRONT_PROPERTY.equals(name) || 
 				ScreenLogo.MOVE_FRONT_PROPERTY.equals(name)) {
-			view.setAlwaysOnTop(true);
-			viewTop.setAlwaysOnTop(true);
+			updateView();
 		} 
 	}
 

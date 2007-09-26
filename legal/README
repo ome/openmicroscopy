@@ -209,3 +209,12 @@
   Artifacts: The jcommon-* file under LIB/
   License: Lesser General Public License (LGPL)
   License File: lgpl.txt
+  
+  Project: The Swing labs project. 
+  SwingLabs is an Open Source laboratory for exploring new ways to make 
+  Swing applications easier to write, with improved performance and 
+  greater visual appeal.
+  Web Site: http://swinglabs.org/
+  Artifacts: The swingx-* file under LIB/
+  License: Lesser General Public License (LGPL)
+  License File: lgpl.txt

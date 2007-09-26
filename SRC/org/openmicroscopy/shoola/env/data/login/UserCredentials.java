@@ -79,10 +79,12 @@ public class UserCredentials
      */
     public UserCredentials(String userName, String password, String hostName)
     {
+    	/*
         if (userName == null || userName.length() == 0)
             throw new IllegalArgumentException("Please specify a user name.");
         if (password == null || password.length() == 0)
             throw new IllegalArgumentException("Please specify a password.");
+            */
         this.userName = userName;
         this.password = password;
         this.hostName = hostName;
@@ -95,7 +97,7 @@ public class UserCredentials
      */
     public void resetPassword(String password)
     {
-    	 if (password == null || password.length() == 0)
+    	 if (password == null || password.trim().length() == 0)
              throw new IllegalArgumentException("Please specify a password.");
     	 this.password = password;
     }

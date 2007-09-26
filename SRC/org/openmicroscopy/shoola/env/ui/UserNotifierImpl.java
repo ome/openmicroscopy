@@ -90,7 +90,7 @@ public class UserNotifierImpl
         NotificationDialog dialog = new NotificationDialog(
                                                 SHARED_FRAME, title, message, 
                                                 icon);
-        dialog.pack();                                      
+        dialog.pack();  
         UIUtilities.centerAndShow(dialog);
     }
     
@@ -155,7 +155,7 @@ public class UserNotifierImpl
      */     
 	public void notifyError(String title, String summary)
 	{
-		if (title == null || title.length() == 0)	title = DEFAULT_ERROR_TITLE;
+		if (title == null || title.length() == 0) title = DEFAULT_ERROR_TITLE;
 		showNotificationDialog(title, summary, 
 								IconManager.getDefaultErrorIcon());
 	}

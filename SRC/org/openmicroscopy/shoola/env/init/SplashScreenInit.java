@@ -137,27 +137,29 @@ public final class SplashScreenInit
         LoginConfig cfg = new LoginConfig(reg);
         int max = cfg.getMaxRetry();
         LoginService loginSvc = (LoginService) reg.lookup(LookupNames.LOGIN);
-        boolean succeeded = false;
+
         int index = max;
         UserCredentials uc;
+        UserNotifier un = UIFactory.makeUserNotifier(container);
         while (0 < max--) {
             uc = splashScreen.getUserCredentials((max == index-1));
-            if ((succeeded = loginSvc.login(uc))) {
+            if ((loginSvc.login(uc))) {
                 //needed b/c need to retrieve user's details later.
                 reg.bind(LookupNames.USER_CREDENTIALS, uc);
                 break;
+            } else {
+            	if (max != 0) {
+            		splashScreen.notifyLoginFailure();
+            	} else if (max == 0) {
+            		//Exit if we couldn't manage to log in.
+            		 un.notifyError("Login Failure", 
+            				 "A valid connection to the OMERO \n"+
+                             "server could not be established. \n" +
+                             "The application will exit.");
+                     container.exit();
+             	}
             }
         }
-
-        //Exit if we couldn't manage to log in.
-        if (!succeeded) {
-            UserNotifier un = UIFactory.makeUserNotifier(container);
-            un.notifyError("Login Failure", "A valid connection to the OMERO "+
-                    "server couldn't be established. " +
-                    "The application will exit.");
-            container.exit();
-        }
-
         //Now get rid of the Splash Screen.
         splashScreen.close();
     }

@@ -95,7 +95,8 @@ public class LoginManager
      */
     public synchronized boolean login(UserCredentials uc) 
     { 
-        return service.login(uc); 
+    	if (service.getState() == IDLE) return service.login(uc); 
+    	return false;
     }
 
     /**

@@ -23,5 +23,6 @@
 	<classpathentry kind="lib" path="LIB/log4j-1.2.14.jar"/>
 	<classpathentry kind="lib" path="LIB/common-3.0-Beta2.jar"/>
 	<classpathentry kind="lib" path="LIB/client-3.0-Beta2.jar"/>
+	<classpathentry kind="lib" path="LIB/commons-codec-1.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

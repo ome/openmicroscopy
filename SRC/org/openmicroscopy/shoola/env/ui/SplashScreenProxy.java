@@ -222,5 +222,23 @@ class SplashScreenProxy
 		//Now we can safely wait for the user to enter their credentials.
 		return (UserCredentials) future.get(); 
 	}
+	
+	/**
+	 * Implemented as specified by {@link SplashScreen}.
+	 * @see SplashScreen#notifyLoginFailure()
+	 */
+	public void notifyLoginFailure()
+	{
+		if (!isValid) return;  //Somebody's already called close().
+		
+
+		//Construct request of mehtod execution.
+		Runnable doUpdate = new Runnable() {
+			public void run() { servant.nofityLoginFailure(); }
+		};
+
+		//Schedule execution within Swing dispatching thread.
+		SwingUtilities.invokeLater(doUpdate);
+	}
    
 }

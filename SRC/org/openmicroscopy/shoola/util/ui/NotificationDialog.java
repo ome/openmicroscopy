@@ -225,13 +225,14 @@ public class NotificationDialog
 	public NotificationDialog(JFrame owner, String title, String message, 
 															Icon messageIcon) 
 	{
-		super(owner, title, true);
-		setAlwaysOnTop(true);
+		super(owner, title);
 		//setResizable(false);  
 		//Believe it or not the icon from owner won't be displayed if the
 		//dialog is not resizable. 
 		createComponents();
 		attachListeners();
+		setAlwaysOnTop(true);
+		setModal(true);
 		buildGUI(message, messageIcon);
 	}
 

@@ -102,5 +102,8 @@ public interface SplashScreen
 	 * @return	The user's credentials for logging into OME.
 	 */
 	public UserCredentials getUserCredentials(boolean init);
+	
+	/** Updates the view when failed to log in. */
+	public void notifyLoginFailure();
     
 }

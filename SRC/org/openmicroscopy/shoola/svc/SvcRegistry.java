@@ -52,7 +52,8 @@ public class SvcRegistry
 {
 
     /** Maps a {@link SvcDescriptor}' class to a {@link SvcActivator} object. */
-	protected static final Map activationMap = new HashMap();
+	protected static final Map<Class, Class> 
+					activationMap = new HashMap<Class, Class>();
 	
     static {
         activationMap.put(CommunicatorDescriptor.class, 

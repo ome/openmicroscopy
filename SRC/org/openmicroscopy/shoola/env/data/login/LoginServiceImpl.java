@@ -38,7 +38,6 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * Implements the Login Service's logic.
@@ -83,7 +82,7 @@ public class LoginServiceImpl
             Thread.sleep(config.getRetryInterval());
         } catch (InterruptedException e) {}
     }
-    
+
     /**
      * Attempts to log onto <i>OMERO</i> using the current user's 
      * credentials.
@@ -173,7 +172,7 @@ public class LoginServiceImpl
     {
         state = ATTEMPTING_LOGIN;
         int max = config.getMaxRetry();
-        while (0 < max--) {
+         while (0 < max--) {
             if (attempt()) {
                 state = IDLE;
                 return;
@@ -189,16 +188,17 @@ public class LoginServiceImpl
      */
     public boolean login(UserCredentials uc)
     {
+    	if (uc == null) return false;
+    	String name = uc.getUserName();
+    	if (name == null || name.trim().length() == 0)
+    		return false;
+    	String password = uc.getPassword();
+    	if (password == null || password.trim().length() == 0)
+    		return false;
+    	
         state = ATTEMPTING_LOGIN;
         config.setCredentials(uc);
         boolean succeeded = attempt(); 
-        if (!succeeded) {
-            UserNotifier un = container.getRegistry().getUserNotifier();
-            un.notifyError("Login Failure", 
-                           "Failed to log onto OMERO.\n" +
-                           "Please check your user name\n"+
-                           "and/or password or try again later.");
-        }
         state = IDLE;
         return succeeded;
     }
