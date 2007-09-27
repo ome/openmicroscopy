@@ -633,6 +633,13 @@ public interface OmeroDataService
 	 * @return See above.
 	 */
 	public String getServerName();
+	
+	/**
+	 * Returns the name used to log in.
+	 * 
+	 * @return See above.
+	 */
+	public String getLoggingName();
 
 	/**
 	 * Returns the free or available space (in Kilobytes) if the passed
@@ -650,7 +657,7 @@ public interface OmeroDataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public long getSpace(int index)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Retrieves the images before a given date.
@@ -664,7 +671,7 @@ public interface OmeroDataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Set getImagesBefore(Timestamp time, long userID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Retrieves the images after a given date.
@@ -678,7 +685,7 @@ public interface OmeroDataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Set getImagesAfter(Timestamp time, long userID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Retrieves the images after a given date.
@@ -693,7 +700,7 @@ public interface OmeroDataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Set getImagesPeriod(Timestamp lowerTime, Timestamp time, long userID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Retrieves the number of images imported during a given period of time.
@@ -709,7 +716,7 @@ public interface OmeroDataService
 	 */
 	public List getImagesPeriodIObject(Timestamp lowerTime, Timestamp time, 
 			long userID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Retrieves the number of images imported during a given period of time.
@@ -725,7 +732,7 @@ public interface OmeroDataService
 	 */
 	public List getImagesAllPeriodCount(Timestamp lowerTime, Timestamp time, 
 			long userID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Retrieves the number of images imported after a given date.
@@ -739,7 +746,7 @@ public interface OmeroDataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public List getImagesAfterIObject(Timestamp time, long userID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Retrieves the number of images imported before a given date.
@@ -753,7 +760,7 @@ public interface OmeroDataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public List getImagesBeforeIObject(Timestamp time, long userID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/** 
 	 * Finds the categories containing the image.
@@ -769,7 +776,7 @@ public interface OmeroDataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Set findCategoryPaths(long imageID, boolean leaves, long userID)
-	throws DSOutOfServiceException, DSAccessException; 
+		throws DSOutOfServiceException, DSAccessException; 
 
 	/** 
 	 * Finds the categories containing the images.
@@ -786,6 +793,6 @@ public interface OmeroDataService
 	 */
 	public Set findCategoryPaths(Set<Long> imagesID, boolean leaves, 
 			long userID)
-	throws DSOutOfServiceException, DSAccessException; 
+		throws DSOutOfServiceException, DSAccessException; 
 	
 }

@@ -162,7 +162,7 @@ class ToolBar
         p.setLayout(new FlowLayout(FlowLayout.LEFT));
         p.add(bar);
         add(p);
-        add(UIUtilities.buildComponentPanelRight(categoryButton));
+        //add(UIUtilities.buildComponentPanelRight(categoryButton));
     }
     
     /**

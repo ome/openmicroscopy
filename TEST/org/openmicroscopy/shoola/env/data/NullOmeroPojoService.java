@@ -399,37 +399,6 @@ public class NullOmeroPojoService
 
 	/**
 	 * No-op implementation
-	 * @see OmeroDataService#getImagesAfterCount(Timestamp, long)
-	 */
-	public int getImagesAfterCount(Timestamp time, long userID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return 0;
-	}
-
-	/**
-	 * No-op implementation
-	 * @see OmeroDataService#getImagesBeforeCount(Timestamp, long)
-	 */
-	public int getImagesBeforeCount(Timestamp time, long userID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return 0;
-	}
-
-	/**
-	 * No-op implementation
-	 * @see OmeroDataService#getImagesPeriodCount(Timestamp, Timestamp, long)
-	 */
-	public int getImagesPeriodCount(Timestamp lowerTime, Timestamp time, 
-									long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return 0;
-	}
-
-	/**
-	 * No-op implementation
 	 * @see OmeroDataService#getImagesAllPeriodCount(Timestamp, Timestamp, long)
 	 */
 	public List getImagesAllPeriodCount(Timestamp lowerTime, Timestamp time, 
@@ -470,18 +439,43 @@ public class NullOmeroPojoService
 		return null;
 	}
 
-	public List getImagesAfterIObject(Timestamp time, long userID) throws DSOutOfServiceException, DSAccessException {
-		// TODO Auto-generated method stub
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#getImagesAfterIObject(Timestamp, long)
+	 */
+	public List getImagesAfterIObject(Timestamp time, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
 		return null;
 	}
 
-	public List getImagesBeforeIObject(Timestamp time, long userID) throws DSOutOfServiceException, DSAccessException {
-		// TODO Auto-generated method stub
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#getImagesBeforeIObject(Timestamp, long)
+	 */
+	public List getImagesBeforeIObject(Timestamp time, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
 		return null;
 	}
 
-	public List getImagesPeriodIObject(Timestamp lowerTime, Timestamp time, long userID) throws DSOutOfServiceException, DSAccessException {
-		// TODO Auto-generated method stub
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#getImagesPeriodIObject(Timestamp, Timestamp, long)
+	 */
+	public List getImagesPeriodIObject(Timestamp lowerTime, Timestamp time, 
+								long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#getLoggingName()
+	 */
+	public String getLoggingName()
+	{
 		return null;
 	}
 

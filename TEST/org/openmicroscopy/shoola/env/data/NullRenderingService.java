@@ -149,21 +149,22 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#pasteRenderingSettings(long, Class, List)
+     * @see OmeroImageService#pasteRenderingSettings(long, Class, Set)
      */
-	public boolean pasteRenderingSettings(long pixelsID, Class rootNodeType,
-											List nodes) 
-		throws DSOutOfServiceException, DSAccessException 
+	public Map pasteRenderingSettings(long pixelsID, Class rootNodeType, 
+			Set<Long> nodeIDs)
+		throws DSOutOfServiceException, DSAccessException
 	{
-		return false;
-	}
-
-	public Map pasteRenderingSettings(long pixelsID, Class rootNodeType, Set<Long> nodeIDs) throws DSOutOfServiceException, DSAccessException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public RenderingControl reloadRenderingService(long pixelsID) throws DSAccessException, RenderingServiceException {
+	/**
+     * No-op implementation
+     * @see OmeroImageService#reloadRenderingService(long)
+     */
+	public RenderingControl reloadRenderingService(long pixelsID) 
+		throws DSAccessException, RenderingServiceException
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}

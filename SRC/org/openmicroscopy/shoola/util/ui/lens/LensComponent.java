@@ -138,7 +138,6 @@ public class LensComponent
 	 */
 	void setZoomFactor(float zoomFactor)
 	{
-		System.err.println(zoomFactor);
 		lensController.setZoomFactor(zoomFactor);
 		int index = ZoomAction.factorToIndex(zoomFactor);
 		menu.setZoomIndex(index);
