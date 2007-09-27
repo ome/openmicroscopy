@@ -187,11 +187,12 @@ public class ROINode
 				case 0:
 					return null;
 				case ROIID_COLUMN+1:
-					return new Long(roiShape.getID());
+					return ((Long)roiShape.getID()).toString();
 				case TIME_COLUMN+1:
-					return new Long(roiShape.getT());
+					return ((Integer)roiShape.getT()).toString();
 				case Z_COLUMN+1:
-					return new Long(roiShape.getZ());
+					Integer z = (Integer)roiShape.getZ()+1;
+					return z.toString();
 				case SHAPE_COLUMN+1:
 					return roiShape.getFigure().getType();
 				case ANNOTATION_COLUMN+1:

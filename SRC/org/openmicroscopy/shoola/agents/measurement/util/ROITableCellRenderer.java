@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 import org.openmicroscopy.shoola.util.ui.PaintPot;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
+import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
 
 /** 
  * Basic cell renderer displaying color in a cell.
@@ -60,8 +61,8 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
  * @since OME3.0
  */
 public class ROITableCellRenderer 
-	extends JXTree 
-	implements TreeCellRenderer, TableCellRenderer
+	extends JLabel
+	implements TreeCellRenderer
 {
 
 	/**
@@ -70,7 +71,7 @@ public class ROITableCellRenderer
 	 */
 	public ROITableCellRenderer()
 	{
-		setOpaque(true);
+		setOpaque(false);
 	}
 	
 	/* (non-Javadoc)
@@ -83,79 +84,19 @@ public class ROITableCellRenderer
 			boolean leaf, int row, boolean hasFocus)
 	{
 		
-		Component thisComponent = new JLabel();
 		Object thisObject = ((ROINode)value).getUserObject();
 		
 		if( thisObject instanceof ROI)
     	{
-    		JLabel label = new JLabel();
-    		label.setIcon(IconManager.getInstance().getIcon(IconManager.ROISTACK));
-    		thisComponent = label;
+    		setIcon(IconManager.getInstance().getIcon(IconManager.ROISTACK));
     	}
     	else if( thisObject instanceof ROIShape)
     	{
-    		JLabel label = new JLabel();
-    		label.setIcon(IconManager.getInstance().getIcon(IconManager.ROISHAPE));
-    		thisComponent = label;    	
+    		setIcon(IconManager.getInstance().getIcon(IconManager.ROISHAPE));
     	}
-    	RendererUtils.setRowColor(thisComponent, selected, row);
-		
-		return thisComponent;
+		return this;
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(
-	 * javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
-	 */
-	public Component getTableCellRendererComponent(JTable table, Object value, 
-			boolean isSelected, boolean hasFocus, int row, int column)
-	{
-		Component thisComponent = new JLabel();
-		Object thisObject = value;
-		if ( (thisObject instanceof Double) || (thisObject instanceof String) ||
-			 (thisObject instanceof FigureType) || thisObject instanceof Integer || 
-			 thisObject instanceof Long)
-		{
-			JLabel label = new JLabel();
-			label.setOpaque(true);
-			if( ((ROITable)table).isShapeTypeColumn(column))
-			{
-				makeShapeIcon(label, (String)thisObject);
-			}
-			else
-				label.setText(thisObject+"");
-			thisComponent = label;
-    	} 
-		else if (thisObject instanceof Color) {
-    		PaintPot paintPot = new PaintPot((Color)thisObject);
-    		thisComponent = paintPot;
-    	}
-    	else if( thisObject instanceof Boolean)
-    	{
-    		JCheckBox checkBox = new JCheckBox();
-    		checkBox.setSelected((Boolean)thisObject);
-    		
-    		
-
-  //  		checkBox.addActionListener(new CheckBoxListener((ROITable)table, checkBox, row, column));
-    		thisComponent = checkBox;
-    	}
-    	else if( thisObject == null)
-    	{
-    		JLabel label = new JLabel();
-    		thisComponent = label;
-    	}
-
-		if (!(value instanceof Color)) {
-			int[] selectionRows = table.getSelectedRows();
-			for(int i = 0 ; i < selectionRows.length ; i++)
-			
-				RendererUtils.setRowColor(thisComponent, selectionRows[i], 
-									row);
-		}
-	 
-		return thisComponent;
-	}
 		
 	/**
 	 * is the str representing a shapes object.

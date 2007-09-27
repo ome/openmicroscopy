@@ -125,10 +125,10 @@ public class ROICoordMap
 	public void deleteROI(ROI roi) throws NoSuchROIException
 	{
 		TreeMap<Coord3D, ROIShape> roiMap = roi.getShapes();
-		Iterator roiIterator = roiMap.keySet().iterator();
+		Iterator<ROIShape> roiIterator = roiMap.values().iterator();
 		while(roiIterator.hasNext())
 		{
-			ROIShape shape = (ROIShape)roiIterator.next();
+			ROIShape shape = roiIterator.next();
 			ShapeList list = coordMap.get(shape.getCoord3D());
 			list.deleteShape(shape.getID());
 		}

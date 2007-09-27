@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.treetable.renderers.ListCellRenderer 
+ * org.openmicroscopy.shoola.util.ui.treetable.renderers.SelectionHighLighter 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -22,11 +22,15 @@
  */
 package org.openmicroscopy.shoola.util.ui.treetable.renderers;
 
+
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
-import javax.swing.JComboBox;
-import javax.swing.JTable;
-import javax.swing.table.TableCellRenderer;
+
+import org.jdesktop.swingx.JXTreeTable;
+import org.jdesktop.swingx.decorator.ColorHighlighter;
+import org.jdesktop.swingx.decorator.ComponentAdapter;
+import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
 
 //Third-party libraries
 
@@ -45,45 +49,23 @@ import javax.swing.table.TableCellRenderer;
  * </small>
  * @since OME3.0
  */
-public class ListCellRenderer
-	extends JComboBox 
-	implements TableCellRenderer
-{
-		/** Default font size. */
-		private static final int 	FONTSIZE = 10;
+public class SelectionHighLighter
+	extends ColorHighlighter
+{	
+	private JXTreeTable table;
+	public SelectionHighLighter(JXTreeTable table)
+	{
+		this.table = table;
+	}
 	
-		/**
-		 * Creates a new instance. Sets the opacity of the label to
-		 * <code>true</code>.
-		 */
-		public ListCellRenderer(String[] items)
-		{
-			super(items);
-			setOpaque(true);
-		}
-		
-		/** Set the Items in the combobox to new Items. 
-		 * 
-		 * @param items see above.
-		 */
-		public void setItems(String[] items)
-		{
-			this.removeAllItems();
-			for(int i = 0 ; i < items.length ; i++)
-				addItem(items[i]);
-		}
-		
-		/**
-		 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object,
-		 *      boolean, boolean, int, int)
-		 */
-		public Component getTableCellRendererComponent(JTable table, Object value,
-				boolean isSelected, boolean hasFocus, int row, int column)
-		{
-			setSelectedItem(value);
-			return this;
-		}
-		
+	   @Override
+       protected void applyBackground(Component renderer, ComponentAdapter adapter) 
+	   {
+           if (adapter.row==table.getSelectedRow())
+           {
+               renderer.setBackground(OMETreeTableRenderUtils.SELECTED_BACKGROUND_COLOUR);
+           }
+       }
 }
 
 

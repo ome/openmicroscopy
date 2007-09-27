@@ -32,6 +32,7 @@ import org.jhotdraw.draw.DefaultDrawingEditor;
 import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.DrawingEvent;
 import org.jhotdraw.draw.DrawingListener;
+import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.draw.FigureSelectionListener;
 
@@ -162,6 +163,34 @@ public class DrawingComponent
 		figureListeners.add(listener);
 	}
 
+	/**
+	 * Remove the figure from the drawing.
+	 * @param f figure to remove. 
+	 */
+	public void removeFigure(Figure f)
+	{
+		drawing.remove(f);
+	}
+	
+	/**
+	 * Remove the figure from the drawing.
+	 * @param f figure to remove. 
+	 */
+	public void addFigure(Figure f)
+	{
+		drawing.add(f);
+	}
+	
+	/** 
+	 * Return true if drawing contains figure.
+	 * @param f figure, see above.
+	 * @return see above.
+	 */
+	public boolean contains(Figure f)
+	{
+		return drawing.contains(f);
+	}
+	
 	/**
 	 * Notifies all figure listeners.
 	 * @see DrawingListener#figureAdded(DrawingEvent)

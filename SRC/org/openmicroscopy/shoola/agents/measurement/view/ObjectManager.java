@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.AnnotationDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
+import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -143,7 +144,7 @@ class ObjectManager
         Vector cName = (Vector) columnNames;
         ROITableModel tableModel = new ROITableModel(root, cName);
         	   
-	    objectsTable = new ROITable(tableModel, cName);
+	    objectsTable = new ROITable(tableModel, cName, this);
 	    objectsTable.setRootVisible(false);
 	    objectsTable.setColumnSelectionAllowed(true);
 	    objectsTable.setRowSelectionAllowed(true);
@@ -340,12 +341,53 @@ class ObjectManager
 		objectsTable.repaint();
 	}
 	
+	/**
+	 * Delete ROI from model. 
+	 * @param roi the roi to delete.
+	 */
+	public void deleteROI(ROI roi)
+	{
+		try
+		{
+			model.removeROI(roi.getID());
+			this.rebuildTable();
+		}
+		catch (NoSuchROIException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void deleteROIShape(ROIShape shape)
+	{
+		try
+		{
+			model.removeROIShape(shape.getID(), shape.getCoord3D());
+			this.rebuildTable();
+		}
+		catch (NoSuchROIException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	/** Repaints the table. */
 	void update() 
 	{ 
 		objectsTable.refresh();
 		objectsTable.invalidate(); 
 		objectsTable.repaint();
+	}
+
+
+	/**
+	 * @param id
+	 */
+	public void propagateROI(long id)
+	{
+		
 	}
 	
 }

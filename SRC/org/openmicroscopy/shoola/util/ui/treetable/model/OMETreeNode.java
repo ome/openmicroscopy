@@ -31,6 +31,7 @@ import javax.swing.tree.TreePath;
 
 //Third-party libraries
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
+import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
 //Application-internal dependencies
 
@@ -53,9 +54,6 @@ public class OMETreeNode
 	 /** is the node expanded in the view.*/
 	private boolean expanded;
 
-    /** array of children, may be null if this node has no children */
-    protected Vector<OMETreeNode> children;
-    
     /**
      * Create instance.
      */
@@ -144,7 +142,7 @@ public class OMETreeNode
 	 * Get the child list of the node. Used to allow for(iterator)
 	 * @return see above.
 	 */
-	public Vector<OMETreeNode> getChildList()
+	public Vector<MutableTreeTableNode> getChildList()
 	{
 		return children;
 	}

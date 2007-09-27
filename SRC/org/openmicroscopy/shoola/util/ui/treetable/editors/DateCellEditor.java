@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.util.DateCellEditor 
+ * org.openmicroscopy.shoolautil.ui.treetable.editors.DateCellEditor 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -30,11 +30,8 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import javax.swing.AbstractCellEditor;
-import javax.swing.DefaultCellEditor;
 import javax.swing.JTable;
-import javax.swing.JTree;
 import javax.swing.table.TableCellEditor;
-import javax.swing.tree.TreeCellEditor;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXDatePicker;

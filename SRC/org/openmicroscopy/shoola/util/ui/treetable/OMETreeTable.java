@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.util.ui.treetable;
 
 //Java imports
 import java.awt.Color;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -39,6 +41,10 @@ import javax.swing.tree.TreePath;
 //Third-party libraries
 
 import org.jdesktop.swingx.JXTreeTable;
+import org.jdesktop.swingx.decorator.ColorHighlighter;
+import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 
 //Application-internal dependencies
@@ -47,9 +53,10 @@ import org.openmicroscopy.shoola.util.ui.treetable.editors.NumberCellEditor;
 import org.openmicroscopy.shoola.util.ui.treetable.editors.StringCellEditor;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.BooleanCellRenderer;
-import org.openmicroscopy.shoola.util.ui.treetable.renderers.ColourCellRenderer;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.NumberCellRenderer;
+import org.openmicroscopy.shoola.util.ui.treetable.renderers.SelectionHighLighter;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.StringCellRenderer;
+import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
 
 /** 
  * 
@@ -70,7 +77,7 @@ public class OMETreeTable
 	/** 
 	 * A map of the default cell editors in the table. 
 	 */
-	private static HashMap<Class<?>, DefaultCellEditor> defaultEditors;
+	protected static HashMap<Class<?>, DefaultCellEditor> defaultEditors;
 	
 	static
 	{
@@ -83,24 +90,31 @@ public class OMETreeTable
 	/** 
 	 * A map of the default cell renderers in the table. 
 	 */
-	private static HashMap<Class<?>, TableCellRenderer> defaultTableRenderers;
+	protected static HashMap<Class<?>, TableCellRenderer> defaultTableRenderers;
 	
 	static
 	{
 		defaultTableRenderers = 
 							new HashMap<Class<?>, TableCellRenderer>();
 		defaultTableRenderers.put(Boolean.class, new BooleanCellRenderer());
-//		defaultTableRenderers.put(Integer.class, new NumberCellRenderer());
-//		defaultTableRenderers.put(String.class, new StringCellRenderer());
+	//	defaultTableRenderers.put(Integer.class, new NumberCellRenderer());
+	//	defaultTableRenderers.put(Long.class, new NumberCellRenderer());
+	//	defaultTableRenderers.put(Float.class, new NumberCellRenderer());
+	//	defaultTableRenderers.put(Double.class, new NumberCellRenderer());
+	//	defaultTableRenderers.put(String.class, new StringCellRenderer());
 //		defaultTableRenderers.put(Color.class, new ColourCellRenderer());
-//		defaultTableRenderers.put(String.class, new StringCellRenderer());
+	//	defaultTableRenderers.put(String.class, new StringCellRenderer());
 	}
 	
 	/** A reference to the tree table model. */
-	TreeTableModel						model;
+	protected TreeTableModel				model;
 	
+
 	/** Tree expansion listener. */
-	private TreeExpansionListener 		treeExpansionListener;
+	protected TreeExpansionListener 		treeExpansionListener;
+
+	/** mouse listener. */
+	protected MouseListener 				mouseListener;
 	
 	/**
 	 * Create an instance of the treetable. 
@@ -110,10 +124,143 @@ public class OMETreeTable
 	{
 		super(model);
 		this.model = model;
+		setColumnSelectionAllowed(false);
+		setRowSelectionAllowed(true);
+		setCellSelectionEnabled(false);
 		setTreeExpansionListener();
+		setMouseListener();
 		setDefaultRenderers();
 		setDefaultEditors();
+		setDefaultHighLighter();
 	}
+	
+	/**
+	 * Set the default hightlighter for this table.
+	 */
+	protected void setDefaultHighLighter()
+	{
+		Highlighter h = HighlighterFactory.createAlternateStriping(
+			OMETreeTableRenderUtils.BACKGROUND_COLOUR_EVEN, 
+			OMETreeTableRenderUtils.BACKGROUND_COLOUR_ODD);
+		SelectionHighLighter sh = new SelectionHighLighter(this);
+		addHighlighter(h);
+		addHighlighter(sh);
+	}
+	
+	/**
+	 * Return true if the left button was clicked.
+	 * @param e mouse event.
+	 * @return see above.
+	 */
+	protected boolean leftClick(MouseEvent e)
+	{
+		if(e.getButton() == MouseEvent.BUTTON1)
+			return true;
+		return false;
+	}
+	
+	/**
+	 * Return true if the right button was clicked or left button was clicked with
+	 * control held down.
+	 * @param e mouse event.
+	 * @return see above.
+	 */
+	protected boolean rightClick(MouseEvent e)
+	{
+		if(e.getButton() == MouseEvent.BUTTON3 || 
+				(e.getButton() == MouseEvent.BUTTON1 && e.isControlDown()))
+			return true;
+		return false;
+	}
+	
+	/**
+	 * Set the mouse listener for mouse events and attach it to the methods
+	 * onLeftMouseDown(), onRightMouseDown()
+	 */
+	protected void setMouseListener()
+	{
+		mouseListener = new MouseListener()
+		{
+
+			public void mouseClicked(MouseEvent e)
+			{
+				onMouseClicked(e);
+			}
+
+			public void mouseEntered(MouseEvent e)
+			{
+				onMouseEnter(e);
+			}
+
+			public void mouseExited(MouseEvent e)
+			{
+				onMouseExit(e);
+			}
+
+			public void mousePressed(MouseEvent e)
+			{
+				onMousePressed(e);
+			}
+
+			public void mouseReleased(MouseEvent e)
+			{
+				onMouseReleased(e);
+			}
+			
+		};
+		this.addMouseListener(mouseListener);
+	}
+	
+	/**
+	 * MouseEvent called from mouseListener. 
+	 * This Event Responds to mouseClicked events.
+	 * @param e thie mouse event.
+	 */
+	protected void onMouseClicked(MouseEvent e)
+	{
+		
+	}
+	
+	/**
+	 * MouseEvent called from mouseListener. 
+	 * This Event Responds to mouse released events.
+	 * @param e thie mouse event.
+	 */
+	protected void onMouseReleased(MouseEvent e)
+	{
+		
+	}
+	
+	/**
+	 * MouseEvent called from mouseListener. 
+	 * This Event Responds to mouse pressed events.
+	 * @param e thie mouse event.
+	 */
+	protected void onMousePressed(MouseEvent e)
+	{
+		
+	}
+	
+	/**
+	 * MouseEvent called from mouseListener. 
+	 * This Event Responds to mouse enter events.
+	 * @param e thie mouse event.
+	 */
+	protected void onMouseEnter(MouseEvent e)
+	{
+		
+	}
+
+	/**
+	 * MouseEvent called from mouseListener. 
+	 * This Event Responds to mouseExit events.
+	 * @param e thie mouse event.
+	 */
+	protected void onMouseExit(MouseEvent e)
+	{
+		
+	}
+
 	
 	/**
 	 * Set the tree expansion listener for the tree. 
@@ -154,7 +301,7 @@ public class OMETreeTable
 	 * floats, longs, doubles. 
 	 *
 	 */
-	private void setDefaultEditors()
+	protected void setDefaultEditors()
 	{
 		Iterator<Class<?>> classIterator = defaultEditors.keySet().iterator();
 		while(classIterator.hasNext())
@@ -171,7 +318,7 @@ public class OMETreeTable
 	 * floats, longs, doubles, colour. 
 	 *
 	 */
-	private void setDefaultRenderers()
+	protected void setDefaultRenderers()
 	{
 		Iterator<Class<?>> classIterator = defaultTableRenderers.keySet().iterator();
 		while(classIterator.hasNext())
@@ -211,9 +358,9 @@ public class OMETreeTable
 	public void expandAll()
 	{
 		super.expandAll();
-		OMETreeNode rootNode = (OMETreeNode)this.getTreeTableModel().getRoot();
-		for(OMETreeNode node : rootNode.getChildList())
-			node.setExpanded(true);
+		MutableTreeTableNode rootNode = (MutableTreeTableNode)this.getTreeTableModel().getRoot();
+		for(MutableTreeTableNode node : ((OMETreeNode)rootNode).getChildList())
+			((OMETreeNode)node).setExpanded(true);
 	}
 	
 	/**
@@ -254,9 +401,9 @@ public class OMETreeTable
 	public void collapseAll()
 	{
 		super.collapseAll();
-		OMETreeNode rootNode = (OMETreeNode)this.getTreeTableModel().getRoot();
-		for(OMETreeNode node : rootNode.getChildList())
-			node.setExpanded(false);
+		MutableTreeTableNode rootNode = (MutableTreeTableNode)this.getTreeTableModel().getRoot();
+		for(MutableTreeTableNode node : ((OMETreeNode)rootNode).getChildList())
+			((OMETreeNode)node).setExpanded(true);
 	}
 	
 	/**

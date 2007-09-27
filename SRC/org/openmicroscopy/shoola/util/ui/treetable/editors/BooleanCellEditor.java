@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.util.BooleanCellEditor 
+ * org.openmicroscopy.shoolautil.ui.treetable.editors.BooleanCellEditor 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -30,6 +30,8 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
 import javax.swing.JTable;
 //Third-party libraries
+
+import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
 
 //Application-internal dependencies
 

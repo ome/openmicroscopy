@@ -47,6 +47,14 @@ public class IOConstants
 {
 	/** The file which maps the pixelIDs to the file saved by the user. */
 	public static final String FILEMAP_XML = "fileMap.xml";
+	/** The tag in the filemap listing all the server saved in the fileMap. */
+	public static final String SERVER_TAG = "server";
+	/** The attribute for the name of the server. */
+	public static final String SERVER_NAME_ATTRIBUTE = "name";
+	/** The attribute for the name of the user. */
+	public static final String USER_NAME_ATTRIBUTE = "name";
+	/** The tag in the filemap listing all the users saved in the fileMap. */
+	public static final String USER_TAG = "user";
 	/** The tag in the filemap listing all the pixels saved in the fileMap. */
 	public static final String PIXELSID_TAG = "pixelsid";
 	/** The tag in the pixelsidtag listing all the files saved under pixels id. */

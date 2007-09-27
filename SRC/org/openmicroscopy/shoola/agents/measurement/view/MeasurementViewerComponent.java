@@ -312,7 +312,7 @@ class MeasurementViewerComponent
 		{ 
 			JOptionPane pane = new JOptionPane(
 				"Exit without saving changes to your ROI?");
-			Object[] options = new String[] { "Yes", "No" };
+			Object[] options = new String[] { "No", "Yes" };
 			pane.setOptions(options);
 			JDialog dialog = pane.createDialog(new JFrame(), "Dialog");
 			dialog.setVisible(true);
@@ -321,7 +321,7 @@ class MeasurementViewerComponent
 			for (int k = 0; k < options.length; k++)
 				if (options[k].equals(obj))
 					result = k;
-			if(result == 1)
+			if(result == 0)
 				return;
 	    }
 		if (post) postEvent(MeasurementToolLoaded.REMOVE);
@@ -354,7 +354,7 @@ class MeasurementViewerComponent
 	    if (f != null) chooser.setCurrentDirectory(f);
 		try
 		{
-			String savedFileString=FileMap.getSavedFile(model.getPixelsID());
+			String savedFileString=FileMap.getSavedFile(model.getServerName(), model.getUserName(), model.getPixelsID());
 			File savedFile = new File(savedFileString);
 			chooser.setCurrentDirectory(savedFile);
 			chooser.setSelectedFile(savedFile);
@@ -389,11 +389,14 @@ class MeasurementViewerComponent
 	    if (f != null) chooser.setCurrentDirectory(f);
 		try
 		{
-			String savedFileString=FileMap.getSavedFile(model.getPixelsID());
-			File savedFile = new File(savedFileString);
-			chooser.setCurrentDirectory(savedFile);
-			chooser.setSelectedFile(savedFile);
-		}
+			String savedFileString=FileMap.getSavedFile(model.getServerName(), model.getUserName(), model.getPixelsID());
+			if(savedFileString!=null)
+			{
+				File savedFile = new File(savedFileString);
+				chooser.setCurrentDirectory(savedFile);
+				chooser.setSelectedFile(savedFile);
+			}
+		}	
 		catch (ParsingException e)
 		{
 			// Do nothing as we're really only looking to see if the default 

@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.util.ui.treetable.renderers;
 //Java imports
 import java.awt.Component;
 
-import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.TableCellRenderer;
@@ -33,7 +32,6 @@ import javax.swing.table.TableCellRenderer;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
 
 /** 
  * 
@@ -49,7 +47,7 @@ import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
  * @since OME3.0
  */
 public class StringCellRenderer 
-	extends JComponent 
+	extends JTextField 
 	implements TableCellRenderer
 {
 	/**
@@ -59,6 +57,7 @@ public class StringCellRenderer
 	public StringCellRenderer()
 	{
 		setOpaque(true);
+		setBorder(null);
 	}
 	
 	/**
@@ -68,10 +67,7 @@ public class StringCellRenderer
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		JTextField textField=new JTextField();
-		textField.setText((String) value);
-		OMETreeTableRenderUtils
-			.setRowColor(textField, table.getSelectedRow(), row);
-		return textField;
+		setText((String) value);
+		return this;
 	}
 }

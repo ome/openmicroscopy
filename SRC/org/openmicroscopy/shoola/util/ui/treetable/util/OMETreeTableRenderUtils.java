@@ -49,16 +49,16 @@ public class OMETreeTableRenderUtils
 {
 
 	/** Background color of an even row. */
-	final static Color BACKGROUND_COLOUR_EVEN = new Color(241, 245, 250);
+	public final static Color BACKGROUND_COLOUR_EVEN = new Color(232, 242, 254);
 	
 	/** Background color of an odd row. */
-	final static Color BACKGROUND_COLOUR_ODD = new Color(255, 255, 255);
+	public final static Color BACKGROUND_COLOUR_ODD = new Color(255, 255, 255);
 	
 	/** Background color of the selected row */
-	final static Color SELECTED_BACKGROUND_COLOUR = new Color(180, 213, 255);
+	public final static Color SELECTED_BACKGROUND_COLOUR = new Color(180, 213, 255);
 	
 	/** Foreground color of a cell.*/
-	final static Color FOREGROUND_COLOUR = new Color(0, 0, 0);
+	public final static Color FOREGROUND_COLOUR = new Color(0, 0, 0);
 	
 	/**
 	 * Sets the color of the component depending on the value of the

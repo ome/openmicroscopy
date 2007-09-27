@@ -28,13 +28,11 @@ package org.openmicroscopy.shoola.util.ui.treetable.renderers;
 import java.awt.Component;
 
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
 /** 
  * 
  *
@@ -49,7 +47,7 @@ import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
  * @since OME3.0
  */
 public class BooleanCellRenderer
-	extends JComponent 
+	extends JCheckBox 
 	implements TableCellRenderer
 {
 	
@@ -69,9 +67,7 @@ public class BooleanCellRenderer
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		JCheckBox checkBox=new JCheckBox();
-		checkBox.setSelected((Boolean) value);
-		OMETreeTableRenderUtils.setRowColor(checkBox, table.getSelectedRow(), row);
-		return checkBox;
+		setSelected((Boolean) value);
+		return this;
 	}
 }

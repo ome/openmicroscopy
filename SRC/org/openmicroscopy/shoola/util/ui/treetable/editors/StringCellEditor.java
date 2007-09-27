@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.util.StringCellEditor 
+ * org.openmicroscopy.shoolautil.ui.treetable.editors.StringCellEditor 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -28,13 +28,9 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.AbstractCellEditor;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.table.TableCellEditor;
-
 //Third-party libraries
 
 //Application-internal dependencies

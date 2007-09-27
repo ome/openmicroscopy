@@ -65,7 +65,9 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsLoader;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
+import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.util.file.IOUtil;
@@ -164,6 +166,26 @@ class MeasurementViewerModel
     
     /** Has the data been saved since last update. 			*/
     private Boolean					hasBeenSaved;
+    
+    /**
+     * Returns the name used to log in.
+     * 
+     * @return See above.
+     */
+    public String getUserName()
+    {
+    	return MeasurementAgent.getRegistry().getDataService().getLoggingName();
+    }
+    
+    /**
+     * Returns the name of the server the user is connected to.
+     * 
+     * @return See above.
+     */
+    public String getServerName()
+    {
+    	return MeasurementAgent.getRegistry().getDataService().getServerName();
+    }
     
     /**
      * Returns the current user's details.
@@ -471,7 +493,8 @@ class MeasurementViewerModel
 	}
 	
 	/**
-	 * Removes the <code>ROI</code> corresponding to the passed id.
+	 * Removes the <code>ROIShape</code> on the current View corresponding 
+	 * to the passed id.
 	 * 
 	 * @param id The id of the <code>ROI</code>.
 	 * @throws NoSuchROIException If the ROI does not exist.
@@ -479,8 +502,53 @@ class MeasurementViewerModel
 	void removeROIShape(long id)
 		throws NoSuchROIException
 	{
-		roiComponent.deleteShape(id, getCurrentView());
+		ROIShape shape = roiComponent.getShape(id, getCurrentView());
+		if(shape!=null)
+		{
+			if(drawingComponent.contains(shape.getFigure()))
+				drawingComponent.removeFigure(shape.getFigure());
+			roiComponent.deleteShape(id, getCurrentView());
+		}
 	}
+		
+	/**
+	 * Removes the <code>ROIShape</code> corresponding to the passed id on the plane
+	 * coord.
+	 * 
+	 * @param id The id of the <code>ROI</code>.
+	 * @param coord the coord of the shape to delete.
+	 * @throws NoSuchROIException If the ROI does not exist.
+	 */
+	void removeROIShape(long id, Coord3D coord)
+		throws NoSuchROIException
+	{
+		ROIShape shape = roiComponent.getShape(id, coord);
+		if(shape!=null)
+		{
+			if(drawingComponent.contains(shape.getFigure()))
+				drawingComponent.removeFigure(shape.getFigure());
+			roiComponent.deleteShape(id, coord);
+		}	
+	}
+	
+	/**
+	 * Removes the <code>ROI</code> corresponding to the passed id.
+	 * 
+	 * @param id The id of the <code>ROI</code>.
+	 * @throws NoSuchROIException If the ROI does not exist.
+	 */
+	void removeROI(long id)
+		throws NoSuchROIException
+	{
+		ROIShape shape = roiComponent.getShape(id, getCurrentView());
+		if(shape!=null)
+		{
+			if(drawingComponent.contains(shape.getFigure()))
+				drawingComponent.removeFigure(shape.getFigure());
+		}
+		roiComponent.deleteROI(id);
+	}
+	
 	
 	/**
 	 * Returns the <code>ROI</code> corresponding to the passed id.
@@ -581,8 +649,10 @@ class MeasurementViewerModel
 		state = MeasurementViewer.LOADING_ROI;
 		InputStream stream = null;
 		try {
-			if (fileName == null) 
-				fileName = FileMap.getSavedFile(this.getPixelsID());
+			if (fileName == null)
+			{
+				fileName = FileMap.getSavedFile(getServerName(), getUserName(), getPixelsID());
+			}
 			stream = IOUtil.readFile(fileName);
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
@@ -626,8 +696,9 @@ class MeasurementViewerModel
 		try {
 			if (stream != null) stream.close();
 			this.setDataSaved();
-			FileMap.setSavedFile(fileName, this.getPixelsID());
+			FileMap.setSavedFile(getServerName(), getUserName(), getPixelsID(), fileName);
 		} catch (Exception e) {
+			e.printStackTrace();
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot close the stream "+e.getMessage());
 		}
@@ -660,6 +731,8 @@ class MeasurementViewerModel
 	void deleteShape(ROIShape shape, int timePoint, int zSection) 
 		throws NoSuchROIException
 	{
+		if(drawingComponent.contains(shape.getFigure()))
+			drawingComponent.getDrawing().remove(shape.getFigure());
 		roiComponent.deleteShape(shape.getID(), shape.getCoord3D(), 
 			new Coord3D(zSection, timePoint));
 	}

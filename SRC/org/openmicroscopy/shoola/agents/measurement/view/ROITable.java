@@ -25,25 +25,27 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 
 //Java imports
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Vector;
 
-import javax.swing.JCheckBox;
-import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeExpansionListener;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
+import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.util.ROIActionController;
 import org.openmicroscopy.shoola.agents.measurement.util.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
+import org.openmicroscopy.shoola.agents.measurement.util.roimenu.ROIPopupMenu;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
-import org.openmicroscopy.shoola.util.ui.treetable.editors.BooleanCellEditor;
+import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
 
 /**
  * The ROITable is the class extending the JXTreeTable, this shows the 
@@ -61,7 +63,7 @@ import org.openmicroscopy.shoola.util.ui.treetable.editors.BooleanCellEditor;
  * @since OME3.0
  */
 public class ROITable 
-	extends OMETreeTable
+	extends OMETreeTable implements ROIActionController
 {
 
 	/** The root node of the tree. */
@@ -76,9 +78,11 @@ public class ROITable
 	/** The tree model. */
 	private ROITableModel	model;
 	
-	/** Cell editor for the boolean values. */
-	private BooleanCellEditor booleanCellEditor;
+	/** The roi popup menu creation class .*/
+	private ROIPopupMenu 	popupMenu;
 	
+	/** Reference to the object manager. */
+	private ObjectManager   manager;
     
 	/**
 	 * The constructor for the ROITable, taking the root node and
@@ -86,10 +90,11 @@ public class ROITable
 	 * @param model the table model.
 	 * @param columnNames the column names.
 	 */
-	ROITable(ROITableModel model, Vector columnNames)
+	ROITable(ROITableModel model, Vector columnNames, ObjectManager manager)
 	{
 		super(model);
 		this.model = model;
+		this.manager = manager;
 		this.root = (ROINode) model.getRoot();
 		this.columnNames = columnNames;
 		this.setAutoResizeMode(JXTreeTable.AUTO_RESIZE_ALL_COLUMNS);
@@ -100,8 +105,18 @@ public class ROITable
 			column.setResizable(true);
 		}
 		setTreeCellRenderer(new ROITableCellRenderer());
+		createPopupMenu();
 	}
 
+	/**
+	 * Create a popup menu to show different options to act of ROI.
+	 *
+	 */
+	private void createPopupMenu()
+	{
+		popupMenu = new ROIPopupMenu(this);
+	}
+	
 	/** 
 	 * Select the ROIShape in the TreeTable and move the view port of the 
 	 * table to the shape selected. 
@@ -125,6 +140,15 @@ public class ROITable
 		this.scrollCellToVisible(row, 0);
 	}
 	
+	/**
+	 * Extending the mouse pressed event to show menu. 
+	 * @param e mouse event.
+	 */
+	protected void onMousePressed(MouseEvent e)
+	{
+		if(rightClick(e))
+			popupMenu.getPopupMenu().show(this, e.getX(), e.getY());
+	}
 	
 	
 	/**
@@ -359,6 +383,59 @@ public class ROITable
 		if(col.getModelIndex()==(ROITableModel.SHAPE_COLUMN+1))
 			return true;
 		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.agents.measurement.util.ROIActionController#deleteROI()
+	 */
+	public void deleteROI()
+	{
+		ROINode node = (ROINode)this.getNodeAtRow(this.getSelectedRow());
+		Object nodeObject = node.getUserObject(); 
+		if(nodeObject instanceof ROI)
+			manager.deleteROI((ROI)nodeObject);
+		if(nodeObject instanceof ROIShape)
+			manager.deleteROIShape((ROIShape)nodeObject);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.agents.measurement.util.ROIActionController#duplicateROI()
+	 */
+	public void duplicateROI()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.agents.measurement.util.ROIActionController#mergeROI()
+	 */
+	public void mergeROI()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.agents.measurement.util.ROIActionController#propagateROI()
+	 */
+	public void propagateROI()
+	{
+		ROINode node = (ROINode)this.getNodeAtRow(this.getSelectedRow());
+		Object nodeObject = node.getUserObject(); 
+		if(nodeObject instanceof ROI)
+			manager.propagateROI(((ROI)nodeObject).getID());
+		if(nodeObject instanceof ROIShape)
+			manager.propagateROI(((ROIShape)nodeObject).getID());
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.agents.measurement.util.ROIActionController#splitROI()
+	 */
+	public void splitROI()
+	{
+		// TODO Auto-generated method stub
+		
 	}
 
 }

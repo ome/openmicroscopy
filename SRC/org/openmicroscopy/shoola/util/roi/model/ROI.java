@@ -167,7 +167,7 @@ public class ROI
 	{
 		Coord3D low = roiShapes.firstKey();
 		Coord3D high = roiShapes.lastKey();
-		return new String("["+low.getZSection()+","+high.getZSection()+"]");
+		return new String("["+(low.getZSection()+1)+","+(high.getZSection()+1)+"]");
 	}
 	
 	/** Get the range of the shapes this ROI contains. 

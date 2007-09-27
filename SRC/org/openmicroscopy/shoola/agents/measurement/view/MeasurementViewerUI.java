@@ -635,6 +635,7 @@ class MeasurementViewerUI
 	{
 		try {
 			model.deleteShape(shape, timePoint, zSection);
+			
 		} catch (Exception e) {
 			handleROIException(e, RETRIEVE_MSG);
 		}
