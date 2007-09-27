@@ -21,6 +21,7 @@
 	<classpathentry kind="lib" path="WEB-INF/lib/jboss-ejb3.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/jboss-annotations-ejb3.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/jbossall-client.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/jboss-servlet-api.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/jcommon.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/jfreechart.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/ldaptemplate.jar"/>

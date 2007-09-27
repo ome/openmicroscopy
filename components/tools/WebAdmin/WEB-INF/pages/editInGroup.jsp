@@ -11,12 +11,13 @@
 	<f:view>
 		<div id="addform"><h:form id="group">
 
-			<h2><h:outputText value="#{msg.groupsEditIn}" />'<h:outputText value="#{IAGManagerBean.group.name}" />'</h2>
+			<h2><h:outputText value="#{msg.groupsEditIn}" />'<h:outputText
+				value="#{IAGManagerBean.group.name}" />'</h2>
 
 			<h:message styleClass="errorText" id="groupError" for="group" />
 			<br />
 
-			<s:selectManyPicklist size="20" styleClass="manypick" 
+			<s:selectManyPicklist size="20" styleClass="manypick"
 				value="#{IAGManagerBean.selectedExperimenters}">
 				<f:selectItems value="#{IAGManagerBean.experimenters}" />
 			</s:selectManyPicklist>

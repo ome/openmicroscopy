@@ -13,6 +13,7 @@ package ome.api;
 
 // Application-internal dependencies
 import java.util.List;
+import java.util.Map;
 
 import ome.annotations.Hidden;
 import ome.annotations.NotNull;
@@ -80,6 +81,14 @@ public interface IAdmin extends ServiceInterface {
      */
     List<Experimenter> lookupExperimenters();
 
+    /**
+     * Looks up all id of {@link Experimenter experimenters} who
+     * uses LDAP authentication (has set dn on password table).
+     * 
+     * @return list of Experimenters. Never null.
+     */
+    List<Map<String, Object>> lookupLdapAuthExperimenters();
+    
     /**
      * fetch an {@link ExperimenterGroup} and all contained
      * {@link Experimenter users}.

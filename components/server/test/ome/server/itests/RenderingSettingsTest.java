@@ -27,4 +27,9 @@ public class RenderingSettingsTest extends AbstractManagedContextTest {
 		rsx.applySettingsToDataset(from, to);
 		rsx.applySettingsToCategory(from, to);
 	}
+	
+	@Test
+	public void test1() {
+		rsx.resetDefaults(2L);
+	}
 }

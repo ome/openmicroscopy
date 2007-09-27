@@ -8,11 +8,14 @@
 package ome.security;
 
 // Java imports
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 /**
- * Static methods for dealing with LDAP (DN) and the
- * "password" table. Used primarily by {@link ome.security.JBossLoginModule}
+ * Static methods for dealing with LDAP (DN) and the "password" table. Used
+ * primarily by {@link ome.security.JBossLoginModule}
  * 
  * @author Aleksandra Tarkowska, A.Tarkowska at dundee.ac.uk
  * @see SecuritySystem
@@ -32,4 +35,11 @@ public class LdapUtil {
 		}
 	}
 
+	public static List<Map<String, Object>> lookupLdapAuthExperimenters(
+			SimpleJdbcOperations jdbc) {
+		return jdbc
+				.queryForList(
+						"select dn, experimenter_id from password where dn is not null ",
+						null);
+	}
 }
