@@ -35,8 +35,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Vector;
 
 import net.n3.nanoxml.IXMLElement;
@@ -47,7 +45,6 @@ import net.n3.nanoxml.XMLElement;
 import net.n3.nanoxml.XMLParserFactory;
 import net.n3.nanoxml.XMLWriter;
 
-import org.jdesktop.swingx.treetable.AbstractMutableTreeTableNode;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.io.IOConstants;

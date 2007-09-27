@@ -32,6 +32,7 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.util.ROINode;
+import org.openmicroscopy.shoola.util.ui.graphutils.ShapeType;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeTableModel;
 
@@ -158,7 +159,7 @@ class ROITableModel
 			case Z_COLUMN+1:
 				return String.class;
 			case SHAPE_COLUMN+1:
-				return String.class;
+				return ShapeType.class;
 			case ANNOTATION_COLUMN+1:
 				return String.class;
 			case VISIBLE_COLUMN+1:

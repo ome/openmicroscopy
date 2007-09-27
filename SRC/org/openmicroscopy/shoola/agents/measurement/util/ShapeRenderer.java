@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.treetable.renderers.StringCellRenderer 
+ * org.openmicroscopy.shoola.util.ui.treetable.renderers.ShapeRenderer 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,24 +20,23 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.treetable.renderers;
+package org.openmicroscopy.shoola.agents.measurement.util;
+
+
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.table.TableCellRenderer;
-
-import org.openmicroscopy.shoola.agents.measurement.IconManager;
-import org.openmicroscopy.shoola.util.roi.figures.ShapeTypes;
-import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 /** 
  * 
@@ -52,17 +51,17 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
  * </small>
  * @since OME3.0
  */
-public class StringCellRenderer 
-	extends JComponent 
+public class ShapeRenderer
+	extends JLabel 
 	implements TableCellRenderer
 {
 	/**
 	 * Creates a new instance. Sets the opacity of the label to
 	 * <code>true</code>.
 	 */
-	public StringCellRenderer()
+	public ShapeRenderer()
 	{
-		
+		setOpaque(true);
 	}
 	
 	/**
@@ -72,8 +71,37 @@ public class StringCellRenderer
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		JLabel label = new JLabel();
-		label.setText((String) value);
-		return label;
+		setBackground(Color.red);
+		setForeground(Color.blue);
+		makeShapeIcon(this, (String) value);
+		return this;
 	}
+	
+	/**
+	 * Add the approriate shape icon to the label.
+	 * 
+	 * @param label see above.
+	 * @param shape above.
+	 */
+	private void makeShapeIcon(JLabel label, String shape)
+	{
+		if (shape.equals(FigureUtil.SCRIBBLE_TYPE)) label.setIcon(IconManager
+			.getInstance().getIcon(IconManager.SCRIBBLE16));
+		if (shape.equals(FigureUtil.LINE_TYPE)) label.setIcon(IconManager
+			.getInstance().getIcon(IconManager.LINE16));
+		if (shape.equals(FigureUtil.LINE_CONNECTION_TYPE)) label
+			.setIcon(IconManager.getInstance()
+				.getIcon(IconManager.CONNECTION16));
+		if (shape.equals(FigureUtil.POLYGON_TYPE)) label.setIcon(IconManager
+			.getInstance().getIcon(IconManager.POLYGON16));
+		if (shape.equals(FigureUtil.POINT_TYPE)) label.setIcon(IconManager
+			.getInstance().getIcon(IconManager.POINT16));
+		if (shape.equals(FigureUtil.RECTANGLE_TYPE)) label.setIcon(IconManager
+			.getInstance().getIcon(IconManager.RECTANGLE16));
+		if (shape.equals(FigureUtil.ELLIPSE_TYPE)) label.setIcon(IconManager
+			.getInstance().getIcon(IconManager.ELLIPSE16));
+		if (shape.equals(FigureUtil.TEXT_TYPE)) label.setIcon(IconManager
+			.getInstance().getIcon(IconManager.TEXT16));
+	}
+	
 }

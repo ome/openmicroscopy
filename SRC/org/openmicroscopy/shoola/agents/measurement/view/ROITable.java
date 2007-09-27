@@ -41,9 +41,11 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.openmicroscopy.shoola.agents.measurement.util.ROIActionController;
 import org.openmicroscopy.shoola.agents.measurement.util.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
+import org.openmicroscopy.shoola.agents.measurement.util.ShapeRenderer;
 import org.openmicroscopy.shoola.agents.measurement.util.roimenu.ROIPopupMenu;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.ui.graphutils.ShapeType;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
 import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
 
@@ -104,6 +106,7 @@ public class ROITable
 			TableColumn column = this.getColumn(i);
 			column.setResizable(true);
 		}
+		setDefaultRenderer(ShapeType.class, new ShapeRenderer());
 		setTreeCellRenderer(new ROITableCellRenderer());
 		createPopupMenu();
 	}
