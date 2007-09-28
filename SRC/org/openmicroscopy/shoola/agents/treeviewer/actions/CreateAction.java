@@ -106,7 +106,7 @@ public class CreateAction
         switch (browser.getState()) {
 	        case Browser.LOADING_DATA:
 	        case Browser.LOADING_LEAVES:
-	        case Browser.COUNTING_ITEMS:  
+	        //case Browser.COUNTING_ITEMS:  
 	            setEnabled(false);
 	            break;
 	        default:

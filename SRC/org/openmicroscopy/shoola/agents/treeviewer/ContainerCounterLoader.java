@@ -88,7 +88,7 @@ public class ContainerCounterLoader
 
     /** 
      * Cancels the data loading. 
-     * @see DataTreeViewerLoader#cancel()
+     * @see DataBrowserLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
     

@@ -251,10 +251,11 @@ class BrowserComponent
     public void cancel()
     { 
         int state = model.getState();
-        if ((state == LOADING_DATA) || (state == LOADING_LEAVES) ||
-             (state == COUNTING_ITEMS)) {
+        if ((state == LOADING_DATA) || (state == LOADING_LEAVES)) {
+        	//(state == COUNTING_ITEMS)) {
+
             model.cancel();
-            if (state != COUNTING_ITEMS) 
+            //if (state != COUNTING_ITEMS) 
                 view.cancel(model.getLastSelectedDisplay()); 
             fireStateChange();
         }
@@ -461,7 +462,7 @@ class BrowserComponent
     public void sortTreeNodes(int sortType)
     {
         switch (model.getState()) {
-        	case COUNTING_ITEMS:
+        	//case COUNTING_ITEMS:
             case LOADING_DATA:
             case LOADING_LEAVES:
             case DISCARDED:
@@ -500,7 +501,13 @@ class BrowserComponent
      */
     public void setContainerCountValue(long containerID, int value)
     {
-        int state = model.getState();
+        //int state = model.getState();
+        boolean b = model.setContainerCountValue(view.getTreeDisplay(), 
+									containerID, value);
+        if (b) {
+        	view.getTreeDisplay().repaint();
+        }
+        /*
         switch (state) {
 	        case COUNTING_ITEMS:
 	            model.setContainerCountValue(view.getTreeDisplay(), 
@@ -517,6 +524,7 @@ class BrowserComponent
 	                    "This method can only be invoked in the " +
 	                    "COUNTING_ITEMS or READY state.");
         }
+        */
         model.getParentModel().setStatus(false, "", true);
     }
 
@@ -1058,6 +1066,7 @@ class BrowserComponent
 				!(expNode.getUserObject() instanceof ExperimenterData))
 				throw new IllegalArgumentException("Node not valid.");
 		if (model.getBrowserType() != IMAGES_EXPLORER) return;
+		/*
 		int state = model.getState();
 		switch (state) {
 			case COUNTING_ITEMS:
@@ -1078,6 +1087,12 @@ class BrowserComponent
 	                    "This method can only be invoked in the " +
 	                    "COUNTING_ITEMS or READY state.");
 		}
+		*/
+		boolean b = model.setExperimenterCount(expNode, index);
+		if (index != -1 && v != null) {
+			view.setCountValues(expNode, index, v);
+		}
+		if (b) view.getTreeDisplay().repaint();
 	    model.getParentModel().setStatus(false, "", true);
 	}
 

@@ -93,7 +93,7 @@ class TreeViewerModel
 	 * <code>null</code> depending on the current state. 
 	 */
 	private DataTreeViewerLoader	currentLoader;
-
+	
 	/** The browsers controlled by the model. */
 	private Map<Integer, Browser>	browsers;
 

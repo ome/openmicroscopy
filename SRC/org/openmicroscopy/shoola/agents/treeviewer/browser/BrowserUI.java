@@ -417,7 +417,7 @@ class BrowserUI
 						switch (model.getState()) {
 							case Browser.LOADING_DATA:
 							case Browser.LOADING_LEAVES:
-							case Browser.COUNTING_ITEMS:  
+							//case Browser.COUNTING_ITEMS:  
 								break;
 							default:
 								DeleteCmd c = new DeleteCmd(

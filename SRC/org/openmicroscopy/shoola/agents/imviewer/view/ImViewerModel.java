@@ -807,9 +807,9 @@ class ImViewerModel
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	void saveRndSettings()
-	throws RenderingServiceException, DSOutOfServiceException
+		throws RenderingServiceException, DSOutOfServiceException
 	{
-		rndControl.saveCurrentSettings(); 
+		if (rndControl != null) rndControl.saveCurrentSettings(); 
 	}
 
 	/**

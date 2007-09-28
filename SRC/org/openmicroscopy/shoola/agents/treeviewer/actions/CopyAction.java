@@ -72,14 +72,14 @@ public class CopyAction
 	{
 		if (browser == null) return;
 		switch (browser.getState()) {
-		case Browser.LOADING_DATA:
-		case Browser.LOADING_LEAVES:
-		case Browser.COUNTING_ITEMS:  
-			setEnabled(false);
+			case Browser.LOADING_DATA:
+			case Browser.LOADING_LEAVES:
+			//case Browser.COUNTING_ITEMS:  
+				setEnabled(false);
+				break;
+			default:
+				onDisplayChange(browser.getLastSelectedDisplay());
 			break;
-		default:
-			onDisplayChange(browser.getLastSelectedDisplay());
-		break;
 		}
 	}
 

@@ -162,8 +162,9 @@ class BrowserControl
     	}
         int state = model.getState();
         if ((state == Browser.LOADING_DATA) ||
-             (state == Browser.LOADING_LEAVES) || 
-             (state == Browser.COUNTING_ITEMS)) return;
+             (state == Browser.LOADING_LEAVES)) 
+             //|| (state == Browser.COUNTING_ITEMS)) 
+             return;
         
         Object ho = display.getUserObject();
         model.setSelectedDisplay(display); 

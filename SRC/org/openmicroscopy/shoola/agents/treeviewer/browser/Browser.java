@@ -94,10 +94,10 @@ public interface Browser
     
     /** Flag to denote the <i>Ready</i> state. */
     public static final int     	READY = 5;
-    
+
     /** Flag to denote the <i>Discarded</i> state. */
     public static final int     	DISCARDED = 6;
-   
+
     /** 
      * Indicates that the browser corresponds to an <code>Hierarchy</code>
      * explorer.

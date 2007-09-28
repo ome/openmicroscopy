@@ -88,6 +88,12 @@ class BrowserModel
      */
     private DataBrowserLoader	currentLoader;
     
+    /** 
+	 * Will either be a data loader or
+	 * <code>null</code> depending on the current state. 
+	 */
+	private DataBrowserLoader	numberLoader;
+	
     /** List of founds nodes. */
     private List				foundNodes;
     
@@ -321,9 +327,11 @@ class BrowserModel
             state = Browser.READY;
             return;
         }
-        state = Browser.COUNTING_ITEMS;
-        currentLoader = new ContainerCounterLoader(component, containers);
-        currentLoader.load();
+        //state = Browser.COUNTING_ITEMS;
+        //currentLoader = new ContainerCounterLoader(component, containers);
+        //currentLoader.load();
+        numberLoader = new ContainerCounterLoader(component, containers);
+        numberLoader.load();
     }
     
     /**
@@ -333,6 +341,10 @@ class BrowserModel
     void discard()
     {
         cancel();
+        if (numberLoader != null) {
+        	numberLoader.cancel();
+        	numberLoader = null;
+        }
         state = Browser.DISCARDED;
     }
     
@@ -351,21 +363,27 @@ class BrowserModel
 
     /**
      * Sets the number of items contained in the specified container.
-     *  
+     * Returns <code>true</code> if all the nodes have been visited,
+     * <code>false</code> otherwise.
+     * 
      * @param tree The component hosting the node.
      * @param containerID The ID of the container.
      * @param value	The number of items.
+     * @return See above.
      */
-    void setContainerCountValue(JTree tree, long containerID, int value)
+    boolean setContainerCountValue(JTree tree, long containerID, int value)
     {
         if (containersManager == null)
             containersManager = new ContainersManager(tree, 
                     			component.getContainersWithImagesNodes());
         containersManager.setNumberItems(containerID, value);
         if (containersManager.isDone()) {
-            state = Browser.READY;
+            //state = Browser.READY;
             containersManager = null;
+            numberLoader = null;
+            return true;
         }
+        return false;
     }
     
     /**
@@ -541,25 +559,31 @@ class BrowserModel
 		}
 		if (containersManager == null)
             containersManager = new ContainersManager(indexes);
-		state = Browser.COUNTING_ITEMS;
-        currentLoader = new ExperimenterImagesCounter(component, expNode, n);
-        currentLoader.load();  
+		//state = Browser.COUNTING_ITEMS;
+        numberLoader = new ExperimenterImagesCounter(component, expNode, n);
+        numberLoader.load();  
 	}
 	
 	/**
 	 * Indicates that the node with specified index is done.
-	 * 
+	 * Returns <code>true</code> if all the nodes have been visited,
+     * <code>false</code> otherwise.
+     * 
 	 * @param expNode	The node hosting the experimenter.
 	 * @param index		The index of the node.
+	 * @return See above.
 	 */
-	void setExperimenterCount(TreeImageSet expNode, int index) 
+	boolean setExperimenterCount(TreeImageSet expNode, int index) 
 	{
-		if (containersManager == null) return;
+		if (containersManager == null) return true;
 		containersManager.setItem(index);
 		if (containersManager.isDone()) {
-			state = Browser.READY;
+			//state = Browser.READY;
 			containersManager = null;
+			numberLoader = null;
+			return true;
 		}
+		return false;
 	}
 	
 }
