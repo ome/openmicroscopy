@@ -427,7 +427,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 
 	}
 	
-	public void resetDefaultsToCategories(long categoriesId) {
+	public void resetDefaultsToCategory(long categoriesId) {
 		String sql = "select i from Image i "
 			+ " left outer join fetch i.categoryLinks cil "
 			+ " left outer join fetch cil.parent c " + " where c.id = :id";
@@ -456,5 +456,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		}
 
 	}
+
 	
 }
