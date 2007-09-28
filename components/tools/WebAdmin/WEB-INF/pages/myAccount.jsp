@@ -26,7 +26,7 @@
 
 				<h:outputText value=" " />
 
-				<h:outputText value="#{msg.myaccountFirstName}" />
+				<h:outputText value="#{msg.myaccountFirstName}*" />
 
 				<h:inputText id="firstName" maxlength="255"
 					value="#{IAMAManagerBean.user.experimenter.firstName}" required="true">
@@ -46,7 +46,7 @@
 				<h:message styleClass="errorText" id="middleNameError"
 					for="middleName" />
 
-				<h:outputText value="#{msg.myaccountLastName}" />
+				<h:outputText value="#{msg.myaccountLastName}*" />
 
 				<h:inputText id="lastName" maxlength="255"
 					value="#{IAMAManagerBean.user.experimenter.lastName}" required="true">
@@ -55,7 +55,7 @@
 
 				<h:message styleClass="errorText" id="lastNameError" for="lastName" />
 
-				<h:outputText value="#{msg.myaccountEmail}" />
+				<h:outputText value="#{msg.myaccountEmail}*" />
 
 				<h:inputText id="email" maxlength="255"
 					value="#{IAMAManagerBean.user.experimenter.email}"
@@ -75,7 +75,7 @@
 				<h:message styleClass="errorText" id="institutionError"
 					for="institution" />
 
-				<h:outputText value="#{msg.myaccountDefaultGroup}" />
+				<h:outputText value="#{msg.myaccountDefaultGroup}*" />
 
 				<h:selectOneMenu id="defaultGroup"
 					value="#{IAMAManagerBean.user.defaultGroup}" required="true">

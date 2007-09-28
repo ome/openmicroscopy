@@ -21,7 +21,7 @@
 
 			<h:panelGrid columns="3" columnClasses="form, input">
 
-				<h:outputText value="#{msg.groupsGroupName}" />
+				<h:outputText value="#{msg.groupsGroupName}*" />
 
 				<h:inputText id="name" value="#{IAGManagerBean.group.name}"
 					required="true" maxlength="255" size="30">

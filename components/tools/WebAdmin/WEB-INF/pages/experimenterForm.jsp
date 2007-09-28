@@ -23,7 +23,7 @@
 
 			<h:panelGrid columns="3" columnClasses="form, input">
 
-				<h:outputText value="#{msg.experimentersOmeName}" />
+				<h:outputText value="#{msg.experimentersOmeName}*" />
 
 				<h:inputText id="omeName" maxlength="255"
 					value="#{IAEManagerBean.user.experimenter.omeName}" required="true"
@@ -33,7 +33,7 @@
 
 				<h:message styleClass="errorText" id="omeNameError" for="omeName" />
 
-				<h:outputText value="#{msg.experimentersFirstName}" />
+				<h:outputText value="#{msg.experimentersFirstName}*" />
 
 				<h:inputText id="firstName" maxlength="255"
 					value="#{IAEManagerBean.user.experimenter.firstName}" required="true">
@@ -53,7 +53,7 @@
 				<h:message styleClass="errorText" id="middleNameError"
 					for="middleName" />
 
-				<h:outputText value="#{msg.experimentersLastName}" />
+				<h:outputText value="#{msg.experimentersLastName}*" />
 
 				<h:inputText id="lastName" maxlength="255"
 					value="#{IAEManagerBean.user.experimenter.lastName}" required="true">
@@ -62,7 +62,7 @@
 
 				<h:message styleClass="errorText" id="lastNameError" for="lastName" />
 
-				<h:outputText value="#{msg.experimentersEmail}" />
+				<h:outputText value="#{msg.experimentersEmail}*" />
 
 				<h:inputText id="email" maxlength="255"
 					value="#{IAEManagerBean.user.experimenter.email}"
@@ -98,7 +98,7 @@
 
 				<h:outputText value=" " />
 
-				<h:outputText value="#{msg.experimentersDefaultGroup}" />
+				<h:outputText value="#{msg.experimentersDefaultGroup}*" />
 
 				<h:selectOneMenu id="defaultGroup" 
 					value="#{IAEManagerBean.user.defaultGroup}" required="true">
@@ -133,6 +133,7 @@
 				rendered="#{IAEManagerBean.editMode}" />
 
 		</h:form> <h:form id="passwd">
+		
 			<br />
 			<h:graphicImage url="/images/add.png"
 				rendered="#{IAEManagerBean.editMode}" />

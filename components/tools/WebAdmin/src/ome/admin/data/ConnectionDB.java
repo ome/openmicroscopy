@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 import javax.faces.context.FacesContext;
 
@@ -334,6 +335,17 @@ public class ConnectionDB {
 					+ "', Institution: '" + exp.getInstitution() + "]");
 		}
 		return exps;
+	}
+
+	public List<Map<String, Object>> lookupLdapAuthExperimenters() {
+		logger.info("lookupLdapAuthExperimenters by user ID: " + userid + "'");
+		return adminService.lookupLdapAuthExperimenters();
+	}
+
+	public String lookupLdapAuthExperimenter(Long id) {
+		logger.info("lookupLdapAuthExperimenter for id = " + id
+				+ " by user ID: " + userid + "'");
+		return adminService.lookupLdapAuthExperimenter(id);
 	}
 
 	/**

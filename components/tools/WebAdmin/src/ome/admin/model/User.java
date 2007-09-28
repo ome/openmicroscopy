@@ -13,6 +13,8 @@ public class User {
 	
 	private List<String> selectedGroups = Collections.EMPTY_LIST;
 	
+	private String dn;
+	
 	/**
 	 * boolean Provides Admin role in database, which gives admin permission.
 	 */
@@ -123,6 +125,22 @@ public class User {
 	 */
 	public void setUserRole(boolean userRole) {
 		this.userRole = userRole;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getDn() {
+		return dn;
+	}
+
+	/**
+	 * 
+	 * @param dn
+	 */
+	public void setDn(String dn) {
+		this.dn = dn;
 	}
 
 

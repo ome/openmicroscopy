@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.faces.context.FacesContext;
@@ -256,6 +257,8 @@ public class IAdminExperimenterManagerDelegate implements java.io.Serializable {
 		mexp.setSelectedGroups(db.containedGroupsListString(exp.getId()));
 		mexp.setAdminRole(db.isAdmin(exp.getId()));
 		mexp.setUserRole(db.isUser(exp.getId()));
+
+		mexp.setDn(db.lookupLdapAuthExperimenter(exp.getId()));
 		return mexp;
 	}
 
@@ -266,16 +269,14 @@ public class IAdminExperimenterManagerDelegate implements java.io.Serializable {
 	 */
 	public List<User> getExperimenters() {
 		List<Experimenter> exps = db.lookupExperimenters();
+		List<Map<String, Object>> auth = db.lookupLdapAuthExperimenters();
+		
 		List<User> mexps = new ArrayList<User>();
 		for (Experimenter exp : exps) {
 			
-			
 			User mexp = new User();
 			mexp.setExperimenter(exp);
-			// mexp.setDefaultGroup(db.getDefaultGroup(exp.getId()).getId().toString());
-			// mexp.setSelectedGroups(db.containedGroupsListString(exp.getId()));
-			//mexp.setAdminRole(db.isAdmin(exp.getId()));
-			//mexp.setUserRole(db.isUser(exp.getId()));
+			
 			Iterator i = exp.iterateGroupExperimenterMap();
 			while (i.hasNext()) {
 				GroupExperimenterMap g = (GroupExperimenterMap) i.next();
@@ -283,8 +284,17 @@ public class IAdminExperimenterManagerDelegate implements java.io.Serializable {
 				if(expg.getName().equals("system")) mexp.setAdminRole(true);
 				if(expg.getName().equals("user")) mexp.setUserRole(true);
 			}
+			
+			for (Map<String,Object> m : auth) {
+				Long id = (Long) m.get("experimenter_id");
+				if (exp.getId().equals(id)) {
+					mexp.setDn((String) m.get("dn"));
+				}
+			}
+			
 			mexps.add(mexp);
 		}
+		
 		this.experimenters = mexps;
 		return this.experimenters;
 	}

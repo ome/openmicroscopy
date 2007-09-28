@@ -22,7 +22,7 @@
 
 			<h:panelGrid columns="3" columnClasses="form">
 
-				<h:outputText value="#{msg.myaccountPassword}" />
+				<h:outputText value="#{msg.myaccountPassword}*" />
 
 				<h:inputSecret id="password" value="#{IAEManagerBean.password}"
 					maxlength="255">
@@ -31,7 +31,7 @@
 
 				<h:message styleClass="errorText" id="passwordError" for="password" />
 
-				<h:outputText value="#{msg.myaccountPassword2}" />
+				<h:outputText value="#{msg.myaccountPassword2}*" />
 
 				<h:inputSecret id="password2" value="#{IAEManagerBean.password2}"
 					maxlength="255">
