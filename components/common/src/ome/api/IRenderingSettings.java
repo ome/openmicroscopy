@@ -49,6 +49,24 @@ public interface IRenderingSettings extends ServiceInterface {
 	void resetDefaults(@NotNull long pixelsId);
 	
 	/**
+     * Resets a category's rendering settings back to those that are specified
+     * by the rendering engine intelligent <i>pretty good image (PG)</i> logic.
+     * @param categoriesId The Id of the <code>Category</code>.
+	 * @throws ValidationException if the image qualified by 
+	 * <code>categoryId</code> is unlocatable.
+     */
+	void resetDefaultsToCategory(@NotNull long categoryId);
+	
+	/**
+     * Resets a dataset's rendering settings back to those that are specified
+     * by the rendering engine intelligent <i>pretty good image (PG)</i> logic.
+     * @param dataSetId The Id of the <code>DataSet</code>.
+	 * @throws ValidationException if the image qualified by 
+	 * <code>dataSetId</code> is unlocatable.
+     */
+	void resetDefaultsToDataSet(@NotNull long dataSetId);
+	
+	/**
 	 * Applies rendering settings to one or many containers. If a container such 
 	 * as <code>Dataset</code> is to be copied to, all images within that 
 	 * <code>Dataset</code> will have the rendering settings applied.

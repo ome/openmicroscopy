@@ -90,6 +90,14 @@ public interface IAdmin extends ServiceInterface {
     List<Map<String, Object>> lookupLdapAuthExperimenters();
     
     /**
+     * Looks up {@link Experimenter experimenters} who
+     * uses LDAP authentication (has set dn on password table).
+     * 
+     * @return Experimenter. Never null.
+     */
+    String lookupLdapAuthExperimenter(Long id);
+    
+    /**
      * fetch an {@link ExperimenterGroup} and all contained
      * {@link Experimenter users}.
      * 

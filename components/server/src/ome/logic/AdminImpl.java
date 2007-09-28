@@ -263,6 +263,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 		return LdapUtil.lookupLdapAuthExperimenters(jdbc);
 	}
 
+	public String lookupLdapAuthExperimenter(Long id) {
+		return LdapUtil.lookupLdapAuthExperimenter(jdbc, id);
+	}
+
 	@RolesAllowed("user")
 	public ExperimenterGroup getGroup(Long id) {
 		ExperimenterGroup g = iQuery.execute(new GroupQ(new Parameters()

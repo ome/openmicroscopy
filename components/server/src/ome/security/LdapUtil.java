@@ -11,6 +11,7 @@ package ome.security;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 /**
@@ -41,5 +42,21 @@ public class LdapUtil {
 				.queryForList(
 						"select dn, experimenter_id from password where dn is not null ",
 						null);
+	}
+
+	public static String lookupLdapAuthExperimenter(SimpleJdbcOperations jdbc,
+			Long id) {
+		String s;
+
+		try {
+			s = jdbc
+					.queryForObject(
+							"select dn from password where dn is not null and experimenter_id = ? ",
+							String.class, id);
+		} catch (EmptyResultDataAccessException e) {
+			s = null;
+		} 
+
+		return s;
 	}
 }

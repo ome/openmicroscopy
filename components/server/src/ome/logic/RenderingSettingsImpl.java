@@ -24,7 +24,6 @@ import ome.api.IPixels;
 import ome.api.IRenderingSettings;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
-import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
@@ -43,8 +42,6 @@ import ome.services.util.OmeroAroundInvoke;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.quantum.QuantumFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
@@ -411,5 +408,53 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         }
 
 	}
+	
+	public void resetDefaultsToImage(long to) {
+		Image img = iQuery.get(Image.class, to);
+		resetDefaults(img.getDefaultPixels().getId());
 
+	}
+	
+	public void resetDefaultsToDataSet(long dataSetId) {
+		String sql = "select i from Image i "
+			+ " left outer join fetch i.datasetLinks dil "
+			+ " left outer join fetch dil.parent d where d.id = :id";
+
+		Set<Image> images = new HashSet(iQuery.findAllByQuery(sql,
+			new Parameters().addId(dataSetId)));
+
+		applyResetDefaults(images);
+
+	}
+	
+	public void resetDefaultsToCategories(long categoriesId) {
+		String sql = "select i from Image i "
+			+ " left outer join fetch i.categoryLinks cil "
+			+ " left outer join fetch cil.parent c " + " where c.id = :id";
+		Set<Image> images = new HashSet(iQuery.findAllByQuery(sql,
+			new Parameters().addId(categoriesId)));
+
+		applyResetDefaults(images);
+
+	}	
+	
+	protected void applyResetDefaults(Set<Image> images) {
+
+		if (images.isEmpty())
+			throw new ValidationException("Target does not contain any Images.");
+
+		try {
+			Iterator<Image> i = images.iterator();
+			Image image;
+			while (i.hasNext()) {
+				image = i.next();
+				resetDefaults(image.getId());
+			}
+		} catch (NoSuchElementException expected) {
+			throw new ApiUsageException(
+					"There are no elements assigned to the Dataset");
+		}
+
+	}
+	
 }
