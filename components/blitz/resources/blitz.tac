@@ -50,9 +50,10 @@ if os.environ.has_key("JAVA_OPTS"):
 if os.environ.has_key("DEBUG"):
 	java += ['-Xrunjdwp:server=y,transport=dt_socket,address=9777,suspend=n']
 
-PATH = os.environ["PATH"]
-blitz  = ['env','PATH='+PATH]+java+['-jar','blitz.jar']
-router = ['env','PATH='+PATH,'glacier2router','--Ice.Config=../etc/glacier2.config']
+PATH = "PATH="+os.environ["PATH"]
+LIBS = "LD_LIBRARY_PATH="+os.environ["LD_LIBRARY_PATH"]
+blitz  = ['env',PATH,LIBS]+java+['-jar','blitz.jar']
+router = ['env',PATH,LIBS,'glacier2router','--Ice.Config=../etc/glacier2.config']
 
 print """
   Blitz:  %(blitz)s
