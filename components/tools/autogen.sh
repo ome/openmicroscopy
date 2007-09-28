@@ -1,5 +1,12 @@
 #!/bin/sh
 
+test -n "$NOMAKE" && {
+	echo;
+	echo "Skipping autogen.sh";
+	echo;
+	exit;
+}
+
 (automake --version) < /dev/null > /dev/null 2>&1 || {
 	echo;
 	echo "You must have automake installed to compile OMERO.blitz for C++";

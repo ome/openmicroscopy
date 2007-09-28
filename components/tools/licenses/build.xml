@@ -71,11 +71,12 @@
         </get-source>
     </target>
 
-    <target name="tools-build" depends="tools-init,install,make-build,python-build" description="Creates all artifacts for tools/target">
+    <target name="tools-build" depends="tools-init,install,make-build" description="Creates all artifacts for tools/target">
         <mkdir dir="${basedir}/src/slice_generated"/>
         <slice_py todir="${basedir}/target" include="../../blitz/resources" prefix="omero_">
             <fileset dir="${basedir}/resources/omero" includes="*.ice"/>
         </slice_py>
+        <antcall target="python-build" inheritAll="true" inheritRefs="true"/>
     </target>
 
     <!-- Additional functionality for the lifecycle.package target.
