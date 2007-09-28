@@ -11,17 +11,8 @@ import java.util.UUID;
 import javax.sql.DataSource;
 
 import net.sf.ldaptemplate.LdapTemplate;
-
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
-import org.testng.annotations.Configuration;
-import org.testng.annotations.Test;
-
 import ome.api.IAnalysis;
 import ome.api.IConfig;
-import ome.api.ILdap;
 import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.local.LocalAdmin;
@@ -36,6 +27,13 @@ import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.testing.OMEData;
+
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 @Test(groups = { "integration" })
 public class AbstractManagedContextTest extends
@@ -64,7 +62,7 @@ public class AbstractManagedContextTest extends
     protected LocalAdmin iAdmin;
 
     protected LocalLdap iLdap;
-    
+
     protected IConfig iConfig;
 
     protected IAnalysis iAnalysis;
@@ -76,7 +74,7 @@ public class AbstractManagedContextTest extends
     protected OMEData data;
 
     protected JdbcTemplate jdbcTemplate;
-    
+
     protected LdapTemplate ldapTemplate;
 
     protected HibernateTemplate hibernateTemplate;
@@ -104,9 +102,9 @@ public class AbstractManagedContextTest extends
                 .getBean("dataSource");
         jdbcTemplate = (JdbcTemplate) applicationContext
                 .getBean("jdbcTemplate");
-        
+
         ldapTemplate = (LdapTemplate) applicationContext
-        .getBean("ldapTemplate");
+                .getBean("ldapTemplate");
 
         data = new OMEData();
         data.setDataSource(dataSource);
@@ -126,7 +124,7 @@ public class AbstractManagedContextTest extends
         login(roles.getRootName(), roles.getSystemGroupName(), "Test");
     }
 
-    protected Experimenter loginNewUser() {
+    public Experimenter loginNewUser() {
         loginRoot();
         String guid = uuid();
         ExperimenterGroup group = new ExperimenterGroup();

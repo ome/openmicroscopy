@@ -22,6 +22,12 @@
 
  <alias name="internal:ome.api.IAdmin" alias="managed:ome.api.IAdmin"/>
  <bean id="internal:ome.api.IAdmin" factory-bean="adminMock" factory-method="proxy"/>
+ <alias name="internal:ome.api.IQuery" alias="managed:ome.api.IQuery"/>
+ <bean id="internal:ome.api.IQuery" factory-bean="queryMock" factory-method="proxy"/>
+ <alias name="internal:ome.api.IUpdate" alias="managed:ome.api.IUpdate"/>
+ <bean id="internal:ome.api.IUpdate" factory-bean="updateMock" factory-method="proxy"/>
+ <alias name="internal:ome.api.RawPixelsStore" alias="managed:ome.api.RawPixelsStore"/>
+ <bean id="internal:ome.api.RawPixelsStore" factory-bean="pixMock" factory-method="proxy"/>
  <bean id="managed:omeis.providers.re.RenderingEngine" factory-bean="reMock" factory-method="proxy"/>
  <bean id="securitySystem" factory-bean="securityMock" factory-method="proxy"/>
  <bean id="methodSecurity" factory-bean="methodMock" factory-method="proxy"/>
@@ -36,7 +42,19 @@
  <bean id="adminMock" class="org.jmock.Mock">
    <constructor-arg value="ome.api.local.LocalAdmin" type="java.lang.Class"/>
  </bean>
-  
+
+ <bean id="queryMock" class="org.jmock.Mock">
+   <constructor-arg value="ome.api.local.LocalQuery" type="java.lang.Class"/>
+ </bean>
+
+  <bean id="updateMock" class="org.jmock.Mock">
+   <constructor-arg value="ome.api.local.LocalUpdate" type="java.lang.Class"/>
+ </bean>
+
+ <bean id="pixMock" class="org.jmock.Mock">
+   <constructor-arg value="ome.api.RawPixelsStore" type="java.lang.Class"/>
+ </bean>
+
  <bean id="reMock" class="org.jmock.Mock">
    <constructor-arg value="omeis.providers.re.RenderingEngine" type="java.lang.Class"/>
  </bean>
