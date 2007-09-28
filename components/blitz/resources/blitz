@@ -49,6 +49,19 @@ test -e /lib/lsb/init-functions && {
     }
 }
 
+#Gentoo
+test -e /etc/init.d/functions.sh && {
+    . /etc/init.d/functions.sh
+    my_success(){
+	einfo "$@"
+	true
+    }
+    my_failure(){
+	ewarn "$@"
+	false
+    }
+}
+
 BLITZEXE=`readlink -f $0`
 BLITZDIR=${BLITZDIR:-"`dirname $BLITZEXE`"}
 BLITZTAC=${BLITZTAC:-"$BLITZDIR/blitz.tac"}
