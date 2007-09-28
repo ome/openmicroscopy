@@ -37,7 +37,15 @@ public class PermissionsVerifierI extends _PermissionsVerifierDisp {
     
     public boolean checkPermissions(String userId, String password,
             StringHolder reason, Current __current) {
-        return rawAdmin.checkPassword(userId, password);
+    	boolean value = false;
+    	try {
+    		value = rawAdmin.checkPassword(userId, password);
+    	} catch (Throwable t) {
+    		reason.value = "Internal error. Please contact your administrator.";
+    		log.error("Exception thrown while checking password for:"
+    				+ userId, t);
+    	}
+    	return value;
     }
 
 }
