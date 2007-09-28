@@ -24,28 +24,19 @@ package org.openmicroscopy.shoola.agents.measurement.util;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JTable;
 import javax.swing.JTree;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
 
 //Third-party libraries
-import org.jdesktop.swingx.JXTree;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
-import org.openmicroscopy.shoola.agents.measurement.view.ROITable;
 import org.openmicroscopy.shoola.util.roi.figures.ShapeTypes;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
-import org.openmicroscopy.shoola.util.ui.PaintPot;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
-import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
 
 /** 
  * Basic cell renderer displaying color in a cell.
