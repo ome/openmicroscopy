@@ -117,7 +117,7 @@
 			<arg value="-I${resrc.dest}"/>
 			<arg value="-I${resrc.dir}"/>
 			<arg value="-I${blitz.comp}/resources"/>
-			<arg value="-I${blitz.comp}target/generated/resources"/>
+			<arg value="-I${blitz.comp}/target/generated/resources"/>
 			<arg value="-I@{ice.slice}"/>
 			<arg line="@{files}"/>
 		 </exec>

@@ -67,7 +67,7 @@
 
     <target name="tools-init">
         <get-source todir="${target.dir}">
-            <fileset dir="." excludes="*"/>
+            <fileset dir="." excludes="**/*"/>
         </get-source>
     </target>
 
