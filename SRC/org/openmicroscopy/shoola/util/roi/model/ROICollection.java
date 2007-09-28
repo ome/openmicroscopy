@@ -110,6 +110,16 @@ public class ROICollection
 	}
 	
 	/**
+	 * Returns true if the roiComponent contains the roi with id.
+	 * @param id see above.
+	 * @return see above.
+	 */
+	public boolean containsROI(long id)
+	{
+		return roiMap.containsROI(id);
+	}
+	
+	/**
 	 * Create an ROI with id. Add the ROI to the ROIMap.
 	 * @param id see above.
 	 * @return see above.

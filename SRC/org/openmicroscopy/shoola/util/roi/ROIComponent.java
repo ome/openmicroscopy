@@ -407,6 +407,16 @@ public class ROIComponent
 	}
 
 	/**
+	 * Returns true if the roiComponent contains the roi with id.
+	 * @param id see above.
+	 * @return see above.
+	 */
+	public boolean containsROI(long id)
+	{
+		return roiCollection.containsROI(id);
+	}
+	
+	/**
 	 * Returns the RIOShape which is part of the ROI id, and exists on the plane
 	 * coord. This method looks up the ROIIDMap (TreeMap) for the ROI with id 
 	 * and then looks up that ROIs TreeMap for the ROIShape on the plane coord.

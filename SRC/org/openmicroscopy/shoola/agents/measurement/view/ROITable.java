@@ -26,7 +26,9 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Vector;
 
 import javax.swing.table.TableColumn;
@@ -149,8 +151,8 @@ public class ROITable
 	 */
 	protected void onMousePressed(MouseEvent e)
 	{
-		if(rightClick(e))
-			popupMenu.getPopupMenu().show(this, e.getX(), e.getY());
+	//	if(rightClick(e))
+	//		popupMenu.getPopupMenu().show(this, e.getX(), e.getY());
 	}
 	
 	
@@ -225,6 +227,7 @@ public class ROITable
 		if(parent == null)
 		{
 			parent = new ROINode(shape.getROI());
+			parent.setExpanded(true);
 			ROIMap.put(shape.getROI(), parent);
 			int childCount = root.getChildCount();
 			root.insert(parent,childCount);
@@ -393,12 +396,33 @@ public class ROITable
 	 */
 	public void deleteROI()
 	{
-		ROINode node = (ROINode)this.getNodeAtRow(this.getSelectedRow());
-		Object nodeObject = node.getUserObject(); 
-		if(nodeObject instanceof ROI)
-			manager.deleteROI((ROI)nodeObject);
-		if(nodeObject instanceof ROIShape)
-			manager.deleteROIShape((ROIShape)nodeObject);
+		int [] selectedRows = this.getSelectedRows();
+		HashMap<Long, Object> objectMap = new HashMap<Long, Object>(); 
+		for(int i = 0 ; i < selectedRows.length ; i++)
+		{
+			Object nodeObject = this.getNodeAtRow(i).getUserObject();
+			if(nodeObject instanceof ROI)
+			{
+				ROI roi = (ROI)nodeObject;
+				objectMap.put(roi.getID(), roi);
+			}
+			else if (nodeObject instanceof ROIShape)
+			{
+				ROIShape roiShape = (ROIShape)nodeObject;
+				if(!objectMap.containsKey(roiShape.getID()))
+					objectMap.put(roiShape.getID(), roiShape);
+			}
+		}
+
+		Iterator objectIterator = objectMap.values().iterator();
+		while(objectIterator.hasNext())
+		{
+			Object nodeObject = objectIterator.next();
+			if(nodeObject instanceof ROI)
+				manager.deleteROI((ROI)nodeObject);
+			else if(nodeObject instanceof ROIShape)
+				manager.deleteROIShape((ROIShape)nodeObject);
+		}
 	}
 
 	/* (non-Javadoc)

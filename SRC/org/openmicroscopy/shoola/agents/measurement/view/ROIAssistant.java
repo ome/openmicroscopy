@@ -194,6 +194,9 @@ class ROIAssistant
 				int row = table.getSelectedRow();
 				if (col == 0)
 					return;
+				if(row < 0 || row >= table.getRowCount() || 
+							col < 1 || col > table.getColumnCount())
+					return;
 				Object value = table.getShapeAt(row, col);
 				if(value instanceof ROIShape)
 				{
@@ -244,12 +247,17 @@ class ROIAssistant
 				}
 				maxcol = maxcol-1;
 				mincol = mincol-1;
+				
+				if(minrow < 0 || maxrow >= table.getRowCount() || 
+						mincol < 0 || maxcol > table.getColumnCount()-1)
+					return;
 				int boundrow;
 				int boundcol;
 				if (maxcol != initialShape.getT()) boundcol = maxcol;
 				else boundcol = mincol;
 				if (maxrow != initialShape.getZ()) boundrow = maxrow;
 				else boundrow = minrow;
+				
 				if (addButton.isSelected())
 					view.propagateShape(initialShape, boundcol, boundrow);
 				if (removeButton.isSelected())

@@ -71,6 +71,16 @@ public class ROIMap
 		roiIDMap	= new ROIIDMap();
 	}
 	
+	/**
+	 * Returns true if the roiIDMap contains the roi with id.
+	 * @param id see above.
+	 * @return see above.
+	 */
+	public boolean containsROI(long id)
+	{
+		return roiIDMap.containsKey(id);
+	}
+	
 	/** 
 	 * Add an ROI with id to the maps. This maps the ROI to id in the ROIIDMap,
 	 * and adds the ROIshapes of that ROI to the list of ROIShapes at Coord3D 

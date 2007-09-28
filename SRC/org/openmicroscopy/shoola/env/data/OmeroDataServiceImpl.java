@@ -1023,7 +1023,7 @@ class OmeroDataServiceImpl
 	{
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);
-		return uc.getHostName();
+		return uc.getUserName();
 	}
 	
 	/**

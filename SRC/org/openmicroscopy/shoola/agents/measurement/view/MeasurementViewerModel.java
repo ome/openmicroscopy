@@ -27,10 +27,6 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -42,13 +38,6 @@ import java.util.TreeMap;
 
 
 //Third-party libraries
-import net.n3.nanoxml.IXMLElement;
-import net.n3.nanoxml.IXMLParser;
-import net.n3.nanoxml.IXMLReader;
-import net.n3.nanoxml.StdXMLReader;
-import net.n3.nanoxml.XMLElement;
-import net.n3.nanoxml.XMLParserFactory;
-import net.n3.nanoxml.XMLWriter;
 
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.AttributeKey;
@@ -65,9 +54,7 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsLoader;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
-import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.util.file.IOUtil;
@@ -77,7 +64,6 @@ import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
@@ -172,7 +158,7 @@ class MeasurementViewerModel
      * 
      * @return See above.
      */
-    public String getUserName()
+    String getUserName()
     {
     	return MeasurementAgent.getRegistry().getDataService().getLoggingName();
     }
@@ -182,7 +168,7 @@ class MeasurementViewerModel
      * 
      * @return See above.
      */
-    public String getServerName()
+    String getServerName()
     {
     	return MeasurementAgent.getRegistry().getDataService().getServerName();
     }
@@ -507,6 +493,7 @@ class MeasurementViewerModel
 		{
 			if(drawingComponent.contains(shape.getFigure()))
 				drawingComponent.removeFigure(shape.getFigure());
+			else
 			roiComponent.deleteShape(id, getCurrentView());
 		}
 	}
@@ -527,7 +514,8 @@ class MeasurementViewerModel
 		{
 			if(drawingComponent.contains(shape.getFigure()))
 				drawingComponent.removeFigure(shape.getFigure());
-			roiComponent.deleteShape(id, coord);
+			else
+				roiComponent.deleteShape(id, coord);
 		}	
 	}
 	
@@ -546,7 +534,8 @@ class MeasurementViewerModel
 			if(drawingComponent.contains(shape.getFigure()))
 				drawingComponent.removeFigure(shape.getFigure());
 		}
-		roiComponent.deleteROI(id);
+		if(roiComponent.containsROI(id))
+			roiComponent.deleteROI(id);
 	}
 	
 	
@@ -885,15 +874,23 @@ class MeasurementViewerModel
 	 * Has the data been saved since the last update in the model.
 	 * @return see above.
 	 */
-	public boolean isDataSaved()
+	boolean isDataSaved()
 	{
 		return hasBeenSaved;
 	}
 	
 	/**
+	 * Don't care about data changes.
+	 */
+	void setDataDiscarded()
+	{
+		hasBeenSaved = true;
+	}
+	
+	/**
 	 * The model has changed the data has not all been saved.
 	 */
-	public void setDataChanged()
+	void setDataChanged()
 	{
 		hasBeenSaved = false;
 	}

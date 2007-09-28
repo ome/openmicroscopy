@@ -34,6 +34,7 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
@@ -128,9 +129,14 @@ public class ROINode
 	 */
 	public boolean isEditable(int column)
 	{
-		if(column==VISIBLE_COLUMN+1)
-			return true;
-		return false;
+		switch(column)
+		{
+			case VISIBLE_COLUMN+1:
+			case ANNOTATION_COLUMN+1:
+				return true;
+			default:
+				return false;
+		}
 	}
 	
 	/**
@@ -145,6 +151,7 @@ public class ROINode
 		 if(userObject instanceof ROIShape)
 		 {
 			 ROIShape shape = (ROIShape)userObject;
+			 child.setExpanded(true);
 			 childMap.put(shape, (ROINode)child);
 		 }
 	 }
@@ -227,7 +234,8 @@ public class ROINode
 				case SHAPE_COLUMN+1:
 					break;
 				case ANNOTATION_COLUMN+1:
-					//return new String(AnnotationKeys.BASIC_TEXT.get(roi));
+					if(value instanceof String)
+						roi.setAnnotation(AnnotationKeys.BASIC_TEXT, (String) value);
 					break;
 				case VISIBLE_COLUMN+1:
 					if(value instanceof Boolean)
@@ -248,6 +256,7 @@ public class ROINode
 		else if (userObject instanceof ROIShape)
 		{
 			ROIShape roiShape=(ROIShape) userObject;
+			ROIFigure figure = roiShape.getFigure();
 			switch (column)
 			{
 				case 0:
@@ -256,7 +265,11 @@ public class ROINode
 				case Z_COLUMN+1:
 				case SHAPE_COLUMN+1:
 				case ANNOTATION_COLUMN+1:
-					//
+					if(value instanceof String)
+					{
+						MeasurementAttributes.TEXT.set(figure, (String)value);
+						MeasurementAttributes.SHOWTEXT.set(figure, true);
+					}
 					break;
 				case VISIBLE_COLUMN+1:
 					if(value instanceof Boolean)

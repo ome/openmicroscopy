@@ -69,7 +69,7 @@ public class MeasurementAgent
     private void handleMeasurementToolEvent(MeasurementTool evt)
     {
     	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
-				evt.getPixelsID()); 
+				evt.getPixelsID());
     	if (viewer == null) {
     		viewer = MeasurementViewerFactory.getViewer(
         			evt.getPixelsID(), evt.getImageID(), evt.getName(),

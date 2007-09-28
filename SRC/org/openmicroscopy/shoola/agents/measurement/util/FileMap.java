@@ -109,6 +109,7 @@ public class FileMap
 			IXMLReader reader=new StdXMLReader(in);
 			parser.setReader(reader);
 			document=(IXMLElement) parser.parse();
+			in.close();
 		}
 		catch (Exception ex)
 		{
@@ -209,7 +210,7 @@ public class FileMap
 		ArrayList<IXMLElement> pixels = parent.getChildrenNamed(IOConstants.PIXELSID_TAG);
 		for(IXMLElement node : pixels)
 		{
-			if(node.getAttribute(IOConstants.PIXELSID_ATTRIBUTE, "").equals(pixelsID))
+			if(node.getAttribute(IOConstants.PIXELSID_ATTRIBUTE,-1) == pixelsID)
 				return node;
 		}
 		return null;
@@ -272,8 +273,11 @@ public class FileMap
 			userNode.addChild(pixelsNode);
 		}
 		if(pixelsNode.getChildrenCount()!=0)
-			for(IXMLElement node : pixelsNode.getChildren())
-				pixelsNode.removeChild(node);
+		{
+			for(int i = pixelsNode.getChildrenCount()-1 ; i >= 0 ; i--)
+				pixelsNode.removeChildAtIndex(i);
+		}
+		
 		IXMLElement fileNode = createFileNode(fileName);
 		pixelsNode.addChild(fileNode);
 	}

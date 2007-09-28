@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -46,12 +45,14 @@ import org.jhotdraw.draw.Drawing;
 //Application-internal dependencies
 import ome.model.core.Pixels;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.SaveChangesDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
@@ -310,20 +311,12 @@ class MeasurementViewerComponent
 					"invoked in the DISCARDED state:"+model.getState());
 		if (!model.isDataSaved())
 		{ 
-			JOptionPane pane = new JOptionPane(
-				"Exit without saving changes to your ROI?");
-			Object[] options = new String[] { "No", "Yes" };
-			pane.setOptions(options);
-			JDialog dialog = pane.createDialog(new JFrame(), "Dialog");
-			dialog.setVisible(true);
-			Object obj = pane.getValue(); 
-			int result = -1;
-			for (int k = 0; k < options.length; k++)
-				if (options[k].equals(obj))
-					result = k;
-			if(result == 0)
+			SaveChangesDialog dialog = new SaveChangesDialog(MeasurementViewerFactory.getViewer(model.getPixelsID()).getUI(), 
+				IconManager.getInstance().getIcon(IconManager.QUESTION));
+			if(!dialog.showDialog())
 				return;
-	    }
+		}
+		model.setDataDiscarded();
 		if (post) postEvent(MeasurementToolLoaded.REMOVE);
 		view.setVisible(false);
 	}
