@@ -840,6 +840,7 @@ class BrowserComponent
         Set convertedNodes = TreeViewerTranslator.transformHierarchy(nodes, 
 					exp.getId(), exp.getDefaultGroup().getId());
         view.setExperimenterData(convertedNodes, expNode);
+        model.setState(READY);
         model.fireContainerCountLoading();
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();

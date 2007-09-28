@@ -400,8 +400,7 @@ class BrowserModel
      * @return See above.
      */
     boolean isSelected() { return selected; }
-    
-    
+
     /**
      * Sets the list of found nodes.
      * 
