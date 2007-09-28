@@ -116,14 +116,15 @@ while [ $# -gt 0 ]; do
                 else
                     my_failure "stopped"
                fi
-           elif (ps `cat $PID_FILE` | grep twistd 2>/dev/null 1>/dev/null); then
+           else 
+                PID=`cat $PID_FILE`
+                ps $PID | grep $PID 2>/dev/null 1>/dev/null || my_failure "process died"
+               
                 if [ $rv -eq 0 ]; then
                     my_success "running" 
                 else
                     my_failure "pid found but no connection"
                 fi
-           else
-               my_failure "process died"
            fi
 	;;
      restart)
