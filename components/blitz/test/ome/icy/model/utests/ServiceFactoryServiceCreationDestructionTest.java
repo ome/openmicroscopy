@@ -8,11 +8,11 @@ package ome.icy.model.utests;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import ome.icy.service.utests.Ref;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.SessionPrincipal;
 import ome.services.blitz.impl.ServiceFactoryI;
@@ -27,15 +27,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import Ice.BooleanHolder;
-import Ice.ConnectionI;
-import Ice.EndpointSelectionType;
-import Ice.InitializationData;
-import Ice.LocatorPrx;
 import Ice.OperationMode;
-import Ice.RouterPrx;
-import IceInternal.EndpointI;
-import IceInternal.Reference;
 
 public class ServiceFactoryServiceCreationDestructionTest extends MockObjectTestCase {
 
@@ -157,164 +149,3 @@ public class ServiceFactoryServiceCreationDestructionTest extends MockObjectTest
     
 }
 
-class Ref extends IceInternal.Reference {
-
-	
-	public Ref() {
-		super(inst(), communicator(), Ice.Util.stringToIdentity("test:test"), new HashMap(), "facet", 0);
-	}
-
-	static IceInternal.Instance inst() {
-		IceInternal.Instance i = new IceInternal.Instance(null, new InitializationData());
-		return i;
-	}
-	
-	static Ice.Communicator communicator() {
-		return null;
-	}
-	
-	@Override
-	public Reference changeAdapterId(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Reference changeCacheConnection(boolean arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Reference changeCollocationOptimization(boolean arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Reference changeCompress(boolean arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Reference changeConnectionId(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Reference changeEndpointSelection(EndpointSelectionType arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Reference changeEndpoints(EndpointI[] arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Reference changeLocator(LocatorPrx arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Reference changeLocatorCacheTimeout(int arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Reference changePreferSecure(boolean arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Reference changeRouter(RouterPrx arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Reference changeSecure(boolean arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Reference changeThreadPerConnection(boolean arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Reference changeTimeout(int arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getAdapterId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean getCacheConnection() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean getCollocationOptimization() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public ConnectionI getConnection(BooleanHolder arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public EndpointSelectionType getEndpointSelection() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public EndpointI[] getEndpoints() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int getLocatorCacheTimeout() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public boolean getPreferSecure() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean getSecure() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean getThreadPerConnection() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-	
-}

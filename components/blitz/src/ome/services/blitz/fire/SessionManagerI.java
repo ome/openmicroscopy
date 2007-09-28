@@ -13,6 +13,7 @@ import java.util.Map;
 import ome.conditions.InternalException;
 import ome.logic.HardWiredInterceptor;
 import ome.security.SecuritySystem;
+import ome.services.blitz.util.ConvertToBlitzExceptionMessage;
 import ome.services.blitz.util.CreateSessionMessage;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -105,6 +106,19 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
         } catch (CannotCreateSessionException ccse) {
             throw ccse;
         } catch (Throwable t) {
+            ConvertToBlitzExceptionMessage convert = new ConvertToBlitzExceptionMessage(this,t);
+
+            try {
+                // TODO Possibly provide context.convert(ConversionMsg) methd.
+                context.publishMessage(convert);
+            } catch (Throwable t2) {
+                log.error("Error while converting exception:",t2);
+            }
+
+            if (convert.to instanceof CannotCreateSessionException) {
+            	throw (CannotCreateSessionException) convert.to;
+            }
+
             // FIXME this copying should be a part of ome.conditions.*
             InternalException ie = new InternalException(t.getMessage());
             ie.setStackTrace(t.getStackTrace());

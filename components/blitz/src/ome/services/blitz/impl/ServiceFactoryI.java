@@ -293,8 +293,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
         if (log.isInfoEnabled()) {
             log.info(String.format("Closing %s session", this));
         }
-        
-        List<String> ids = activeServices(current);
+                List<String> ids = activeServices(current);
         
         // Here we call the "close()" method on all methods which require that logic
         // allowing the IceMethodInvoker to raise the UnregisterServantEvent, other-
@@ -319,13 +318,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
         		log.error("Failure to close: "+idString + "=" +obj,e);
         	}
         }
-    }
 
-    public void destroy(Ice.Current current) {
-        if (log.isInfoEnabled()) {
-            log.info(String.format("Destroying %s session", current.id.name));
-        }
-        close(current);
         DestroySessionMessage msg = new DestroySessionMessage(this,current.id.name,principal);
         try {
             context.publishMessage(msg);
@@ -335,6 +328,13 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
             ie.setStackTrace(t.getStackTrace());
         }
     }
+
+    public void destroy(Ice.Current current) {
+        if (log.isInfoEnabled()) {
+            log.info(String.format("Destroying %s session", current.id.name));
+        }
+        close(current);
+    }
     
     public List<String> activeServices(Current __current) {
     	List list = cache.getKeysWithExpiryCheck();
@@ -342,7 +342,10 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
     	for (Object object : list) {
 			if (object instanceof Ice.Identity) {
 				Ice.Identity id = (Ice.Identity) object;
-				rv.add(Ice.Util.identityToString(id));
+				// Here we filter out the ids belong to another session
+				if (__current.id.name.equals(id.category)) {
+					rv.add(Ice.Util.identityToString(id));
+				}
 			} else {
 				throw new RuntimeException(object + " found in cache. Not an Ice.Identity");
 			}
