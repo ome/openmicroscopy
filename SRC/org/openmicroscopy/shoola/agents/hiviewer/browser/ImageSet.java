@@ -25,34 +25,14 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 
 //Java imports
-import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JToggleButton;
-import javax.swing.JToolBar;
-
-import org.jhotdraw.draw.DrawingEditor;
-import org.jhotdraw.draw.DrawingEvent;
-import org.jhotdraw.draw.DrawingListener;
-import org.jhotdraw.draw.Figure;
-import org.jhotdraw.util.ResourceBundleUtil;
-import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
-import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
-import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
-import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingObjectCreationTool;
-import org.openmicroscopy.shoola.util.ui.drawingtools.creationtools.DrawingToolBarButtonFactory;
-import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
-import org.openmicroscopy.shoola.util.ui.drawingtools.figures.RectangleTextFigure;
-import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 import pojos.DatasetData;
 
 /** 
@@ -76,11 +56,11 @@ import pojos.DatasetData;
  */
 public class ImageSet
     extends ImageDisplay
-    implements PropertyChangeListener, DrawingListener
+    implements PropertyChangeListener
 {
 
 	/** Drawing component added to the desktop. */
-	private DrawingComponent	drawingComponent;
+	//private DrawingComponent	drawingComponent;
 	
     /**
      * Tells if the children of this node are {@link ImageNode}s.
@@ -211,6 +191,7 @@ public class ImageSet
         if (isAnnotated()) fireAnnotation();
     }
 
+    /*
 	public void areaInvalidated(DrawingEvent e) {
 		// TODO Auto-generated method stub
 		
@@ -227,5 +208,5 @@ public class ImageSet
 		// TODO Auto-generated method stub
 		
 	}
-    
+    */
 }

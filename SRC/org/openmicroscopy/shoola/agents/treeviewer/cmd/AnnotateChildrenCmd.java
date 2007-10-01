@@ -24,14 +24,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
 
 //Java imports
+import java.util.HashSet;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
@@ -42,10 +40,9 @@ import pojos.CategoryData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.ImageData;
 
 /** 
- * 
+ * Command to annotate all the images within a given container.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

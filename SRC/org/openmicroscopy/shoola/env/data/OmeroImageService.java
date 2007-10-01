@@ -182,7 +182,7 @@ public interface OmeroImageService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public byte[] getPlane(long pixelsID, int z, int t, int c)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Applies the rendering settings associated to the passed pixels set 
@@ -208,6 +208,33 @@ public interface OmeroImageService
 	 */
 	public Map pasteRenderingSettings(long pixelsID, Class rootNodeType,
 			Set<Long> nodeIDs)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Applies the rendering settings associated to the passed pixels set 
+	 * to the images contained in the specified datasets or categories
+	 * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
+	 * Applies the settings to the passed images if the type is 
+	 * <code>ImageData</code>.
+	 * 
+	 * @param pixelsID		The id of the pixels set of reference.
+	 * @param rootNodeType	The type of nodes. Can either be 
+	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
+	 * 						<code>CategoryData</code>.
+	 * @param nodeIDs		The id of the nodes to apply settings to. 
+	 * 						Mustn't be <code>null</code>.
+	 * @return A map with two keys. A <code>True</code> key whose value 
+	 * is a list of image's id, the settings have been applied to. 
+	 * A <code>False</code> key whose value is a list
+	 * of image's id, the settings couldn't be applied.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Map resetRenderingSettings(long pixelsID, Class rootNodeType,
+			Set<Long> nodeIDs)
+		throws DSOutOfServiceException, DSAccessException;
+	
 
 }

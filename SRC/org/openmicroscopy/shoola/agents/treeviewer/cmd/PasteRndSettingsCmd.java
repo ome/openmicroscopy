@@ -59,17 +59,45 @@ public class PasteRndSettingsCmd
 	implements ActionCmd
 {
 
+	/** Indicates to paste the rendering settings. */
+	public static final int PASTE = 0;
+	
+	/** Indicates to reset the rendering settings. */
+	public static final int RESET = 1;
+	
 	/** Reference to the model. */
-    private TreeViewer model;
+    private TreeViewer	model;
+    
+    /** One of the constants defined by this class. */
+    private int			index;
+    
+    /**
+     * Controls if the passed index is supported.
+     * 
+     * @param i The value to check.
+     */
+    private void checkIndex(int i)
+    {
+    	switch (i) {
+			case PASTE:
+			case RESET:
+				break;
+			default:
+				throw new IllegalArgumentException("Index not supported.");
+		}
+    }
     
     /**
      * Creates a new instance.
      * 
      * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param index One of the constants defined by this class.
      */
-    public PasteRndSettingsCmd(TreeViewer model)
+    public PasteRndSettingsCmd(TreeViewer model, int index)
     {
         if (model == null) throw new IllegalArgumentException("No model.");
+        checkIndex(index);
+        this.index = index;
         this.model = model;
     }
     
@@ -112,8 +140,16 @@ public class PasteRndSettingsCmd
 				}
 			}
 		}
-		if (ref != null) model.pasteRndSettings(ref);
-		else model.pasteRndSettings(ids, klass);
+		switch (index) {
+			case PASTE:
+				if (ref != null) model.pasteRndSettings(ref);
+				else model.pasteRndSettings(ids, klass);
+				break;
+			case RESET:
+				if (ref != null) model.resetRndSettings(ref);
+				else model.resetRndSettings(ids, klass);
+				break;
+		}
     }
     
 }

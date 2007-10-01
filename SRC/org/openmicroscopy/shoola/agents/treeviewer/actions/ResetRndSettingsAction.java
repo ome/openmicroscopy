@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.PasteRndSettingsAction
+ * org.openmicroscopy.shoola.agents.treeviewer.actions.ResetRndSettingsAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -42,7 +42,7 @@ import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
- * Action to paste the rendering settings previously copied from
+ * Action to reset the rendering settings previously copied from
  * another image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -55,27 +55,16 @@ import pojos.ImageData;
  * </small>
  * @since OME3.0
  */
-public class PasteRndSettingsAction 
+public class ResetRndSettingsAction 
 	extends TreeViewerAction
 {
 
 	/** The name of the action. */
-	private static final String NAME = "Paste Settings";
+	private static final String NAME = "Reset Settings";
 
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Paste the rendering settings.";
+	private static final String DESCRIPTION = "Reset the rendering settings.";
 
-	/**
-	 * Callback to notify of a change of state in the currently selected 
-	 * browser.
-	 * @see TreeViewerAction#onBrowserStateChange(Browser)
-	 */
-	protected void onBrowserStateChange(Browser browser)
-	{
-		if (browser != null) 
-			onDisplayChange(browser.getLastSelectedDisplay());
-	}
-	
 	/**
 	 * Callback to notify of a change in the currently selected display
 	 * in the currently selected 
@@ -85,7 +74,7 @@ public class PasteRndSettingsAction
 	 */
 	protected void onDisplayChange(TreeImageDisplay selectedDisplay)
 	{
-		if (selectedDisplay == null || !model.hasRndSettings()) {
+		if (selectedDisplay == null) {
 			setEnabled(false);
 			return;
 		}
@@ -118,14 +107,14 @@ public class PasteRndSettingsAction
 	 * 
 	 * @param model Reference to the Model. Mustn't be <code>null</code>.
 	 */
-	public PasteRndSettingsAction(TreeViewer model)
+	public ResetRndSettingsAction(TreeViewer model)
 	{
 		super(model);
 		name = NAME;
 		putValue(Action.SHORT_DESCRIPTION, 
 				UIUtilities.formatToolTipText(DESCRIPTION));
 		IconManager im = IconManager.getInstance();
-		putValue(Action.SMALL_ICON, im.getIcon(IconManager.PASTE));
+		putValue(Action.SMALL_ICON, im.getIcon(IconManager.REDO));
 	}
 
 	/** 
@@ -135,8 +124,8 @@ public class PasteRndSettingsAction
 	public void actionPerformed(ActionEvent e)
 	{
 		PasteRndSettingsCmd cmd = new PasteRndSettingsCmd(model, 
-										PasteRndSettingsCmd.PASTE);
+									PasteRndSettingsCmd.RESET);
 		cmd.execute();
 	}
-  
+
 }

@@ -248,11 +248,14 @@ public class IconManager
     /** The <code>disk space</code> icon. */
     public static int           DATE = 64;
     
+    /** The <code>Redo</code> icon. */
+    public static int           REDO = 65;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 64;
+    private static int          MAX_ID = 65;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -325,6 +328,7 @@ public class IconManager
         relPaths[BROWSER] = "zoom16.png";
         relPaths[DISK_SPACE] = "nuvola_kcmpartitions16.png";
         relPaths[DATE] = "nuvola_date16.png";
+        relPaths[REDO] = "nuvola_redo16.png";
     }
     
     /** The sole instance. */

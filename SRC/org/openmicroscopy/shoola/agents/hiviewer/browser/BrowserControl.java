@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 //Java imports
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Iterator;
@@ -63,8 +62,7 @@ import pojos.ImageData;
  * @since OME2.2
  */
 class BrowserControl
-    implements MouseMotionListener, MouseListener, ImageDisplayVisitor, 
-    PropertyChangeListener
+    implements MouseListener, ImageDisplayVisitor, PropertyChangeListener
 {
     
     //TODO: Implement scroll listener.  When the currently selected node is 
@@ -277,14 +275,6 @@ class BrowserControl
         } else model.setRollOverNode(null);
     }
 
-    public void mouseDragged(MouseEvent e)
-    {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	
     /**
      * Displays the name of the selected node if any when the mouse exited.
      * @see MouseListener#mouseExited(MouseEvent)
@@ -297,19 +287,12 @@ class BrowserControl
         //else view.setTitle("");
         //model.setNodeForProperty(Browser.SELECTED_DISPLAY_PROPERTY, d);
     }
-
+    
     /**
      * Required by the {@link MouseListener} I/F but no-op implementation
      * in our case.
      * @see MouseListener#mouseClicked(MouseEvent)
      */
     public void mouseClicked(MouseEvent me) {}
-
-    /**
-     * Required by the {@link MouseMotionListener} I/F but no-op implementation
-     * in our case.
-     * @see MouseMotionListener#mouseMoved(MouseEvent)
-     */
-	public void mouseMoved(MouseEvent e) {}
    
 }

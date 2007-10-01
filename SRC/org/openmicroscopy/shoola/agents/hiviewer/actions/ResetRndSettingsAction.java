@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.hiviewer.actions.PasteRndSettingsAction 
+ * org.openmicroscopy.shoola.agents.hiviewer.actions.ResetRndSettingsAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -23,11 +23,8 @@
 package org.openmicroscopy.shoola.agents.hiviewer.actions;
 
 
-
-
 //Java imports
 import java.awt.event.ActionEvent;
-import java.util.Set;
 import javax.swing.Action;
 
 //Third-party libraries
@@ -42,7 +39,7 @@ import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
- * Action to paste the rendering settings previously copied from
+ * Action to reset the rendering settings previously copied from
  * another image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -55,15 +52,15 @@ import pojos.ImageData;
  * </small>
  * @since OME3.0
  */
-public class PasteRndSettingsAction     
+public class ResetRndSettingsAction 	
 	extends HiViewerAction
 {
 
 	/** The name of the action. */
-	private static final String NAME = "Paste Settings";
+	private static final String NAME = "Reset Settings";
 
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Paste the rendering settings.";
+	private static final String DESCRIPTION = "Reset the rendering settings.";
 
     /**
      * Sets the action enabled depending on the currently selected display
@@ -71,19 +68,14 @@ public class PasteRndSettingsAction
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
-        if (selectedDisplay == null || model.getBrowser() == null ||
-        	!model.hasRndSettings()) {
+        if (selectedDisplay == null || model.getBrowser() == null) {
             setEnabled(false);
             return;
         }
         Object ho = selectedDisplay.getHierarchyObject();
         if (!(ho instanceof ImageData || ho instanceof DatasetData ||
         		ho instanceof CategoryData)) setEnabled(false);
-        else {
-        	Set nodes = model.getBrowser().getSelectedDisplays();
-        	if (nodes.size() > 1) setEnabled(ho instanceof ImageData);
-        	else setEnabled(true);
-        }
+        else setEnabled(true);
     }
     
     /**
@@ -91,14 +83,14 @@ public class PasteRndSettingsAction
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-    public PasteRndSettingsAction(HiViewer model)
+    public ResetRndSettingsAction(HiViewer model)
     {
         super(model);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.COPY));
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.REDO));
     }
     
     /** 
@@ -107,7 +99,7 @@ public class PasteRndSettingsAction
      */
     public void actionPerformed(ActionEvent e)
     {
-    	model.pasteRndSettings();
+    	model.resetRndSettings();
     }
     
 }

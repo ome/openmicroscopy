@@ -1327,5 +1327,39 @@ class TreeViewerComponent
 		dh.addPropertyChangeListener(controller);
 		dh.activate();
 	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#resetRndSettings(Set, Class)
+	 */
+	public void resetRndSettings(Set<Long> ids, Class klass)
+	{
+		if (ids == null || ids.size() == 0) {
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Reset settings", "Please select the nodes" +
+			"you wish to reset the rendering settings.");
+			return;
+		}
+		model.firePasteRenderingSettings(ids, klass);
+		fireStateChange();
+		
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#resetRndSettings(TimeRefObject)
+	 */
+	public void resetRndSettings(TimeRefObject ref)
+	{
+		if (ref == null) {
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Reset settings", "Please select the nodes" +
+			"you wish to reset the rendering settings.");
+			return;
+		}
+		model.firePasteRenderingSettings(ref);
+		fireStateChange();
+		
+	}
 	
 }

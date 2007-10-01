@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 
 //Java imports
-import java.util.Iterator;
-import java.util.Set;
 
 
 //Third-party libraries
@@ -33,11 +31,10 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ImagePerDateLoader;
-import org.openmicroscopy.shoola.agents.hiviewer.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 
 /** 
- * 
+ * A concrete model for images imported during a given period of time.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -82,7 +79,7 @@ class ImagePerDateModel
         if (other == null || !(other instanceof ImagesModel)) return false;
         ImagesModel im = (ImagesModel) other;
         if (im.getHierarchyType() != getHierarchyType()) return false;
-        return true; //TODO
+        return true; 
     }
 
     /** 

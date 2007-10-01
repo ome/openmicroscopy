@@ -1629,7 +1629,6 @@ class OMEROGateway
 	 * Applies the settings to the passed images if the type is 
 	 * <code>ImageData</code>.
 	 * 
-	 * @param userID		The id of the user currently logged in.
 	 * @param pixelsID		The id of the pixels set of reference.
 	 * @param rootNodeType	The type of nodes. Can either be 
 	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
@@ -1641,9 +1640,8 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Map pasteRenderingSettings(long userID, long pixelsID, 
-			Class rootNodeType, Set nodes) 
-	throws DSOutOfServiceException, DSAccessException
+	Map resetRenderingSettings(long pixelsID, Class rootNodeType, Set nodes) 
+		throws DSOutOfServiceException, DSAccessException
 	{
 		Set<Long> success = new HashSet<Long>();
 		Set<Long> failure = new HashSet<Long>();
@@ -1717,4 +1715,97 @@ class OMEROGateway
 		return result;
 	}
   
+	/**
+	 * Applies the rendering settings associated to the passed pixels set 
+	 * to the images contained in the specified datasets or categories
+	 * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
+	 * Applies the settings to the passed images if the type is 
+	 * <code>ImageData</code>.
+	 * 
+	 * @param pixelsID		The id of the pixels set of reference.
+	 * @param rootNodeType	The type of nodes. Can either be 
+	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
+	 * 						<code>CategoryData</code>.
+	 * @param nodes			The nodes to apply settings to. 
+	 * @return <true> if the call was successful, <code>false</code> otherwise.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Map pasteRenderingSettings(long pixelsID, Class rootNodeType, Set nodes) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Set<Long> success = new HashSet<Long>();
+		Set<Long> failure = new HashSet<Long>();
+		try {
+			IRenderingSettings service = getRenderingSettingsService();
+
+			long rndID = service.getRenderingSettings(pixelsID).getId();
+
+			Class klass = convertPojos(rootNodeType);
+			Iterator i = nodes.iterator();
+			long id;
+			boolean b = false;
+			if (klass.equals(Image.class)) {
+				while (i.hasNext()) {
+					id = (Long) i.next();
+					b = service.applySettingsToImage(rndID, id);
+					if (b) success.add(id);
+					else failure.add(id);
+				}
+			} else if (klass.equals(Dataset.class)) {
+				Map m;
+				List l;
+				Iterator k;
+				while (i.hasNext()) {
+					id = (Long) i.next();
+					m = service.applySettingsToDataset(rndID, id);
+					l = (List) m.get(Boolean.TRUE);
+					if (l != null && l.size() > 0) {
+						k = l.iterator();
+						while (k.hasNext()) {
+							success.add((Long) k.next());
+						}
+					}
+					l = (List) m.get(Boolean.FALSE);
+					if (l != null && l.size() > 0) {
+						k = l.iterator();
+						while (k.hasNext()) {
+							failure.add((Long) k.next());
+						}
+					}
+				}
+			} else if (klass.equals(Dataset.class)) {
+				Map m;
+				List l;
+				Iterator k;
+				while (i.hasNext()) {
+					id = (Long) i.next();
+					m = service.applySettingsToCategory(rndID, id);
+					l = (List) m.get(Boolean.TRUE);
+					if (l != null && l.size() > 0) {
+						k = l.iterator();
+						while (k.hasNext()) {
+							success.add((Long) k.next());
+						}
+					}
+					l = (List) m.get(Boolean.FALSE);
+					if (l != null && l.size() > 0) {
+						k = l.iterator();
+						while (k.hasNext()) {
+							failure.add((Long) k.next());
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			handleException(e, "Cannot paste the rendering settings.");
+		}
+		Map<Boolean, Set> result = new HashMap<Boolean, Set>(2);
+		result.put(Boolean.TRUE, success);
+		result.put(Boolean.FALSE, failure);
+		return result;
+	}
+	
 }

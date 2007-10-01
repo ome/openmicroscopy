@@ -49,7 +49,7 @@ class SortVisitor
 {
 
     /** Collection of retrieved {@link TreeImageNode}s. */
-    private List nodes;
+    private List<TreeImageNode> nodes;
     
     /**
      * Creates a new instance.
@@ -60,7 +60,7 @@ class SortVisitor
     SortVisitor(Browser model)
     {
         super(model);
-        nodes = new ArrayList();
+        nodes = new ArrayList<TreeImageNode>();
     }
     
     /** 

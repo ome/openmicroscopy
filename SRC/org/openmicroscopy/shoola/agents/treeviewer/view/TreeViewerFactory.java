@@ -125,7 +125,7 @@ public class TreeViewerFactory
 	 * @param userID	The id of the user.
 	 * @param pixelsID  The id of the pixels set. 
 	 */
-	public static void copyRndSettings(long userID, long pixelsID)
+	public static void copyRndSettings(long pixelsID)
 	{
 		Iterator v = singleton.viewers.iterator();
 		TreeViewerComponent comp;

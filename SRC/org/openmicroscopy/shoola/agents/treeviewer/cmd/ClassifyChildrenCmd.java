@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
 //Java imports
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 //Third-party libraries
@@ -40,7 +39,6 @@ import pojos.CategoryData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.ImageData;
 
 /** 
  * Command to classify a collection of images by either selecting a 

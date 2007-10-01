@@ -120,8 +120,14 @@ class PopupMenu
 	/** Button to switch user. */
 	private JMenuItem			switchUserElement;
 
+	/** Button to paste Rnd settings. */
+	private JMenuItem			pasteRndElement;
+	
 	/** Button to copy Rnd settings. */
 	private JMenuItem			copyRndElement;
+	
+	/** Button to reset default Rnd settings. */
+	private JMenuItem			resetRndElement;
 
 	/** Button to quit the application. */
 	private JMenuItem			quitElement;
@@ -203,9 +209,15 @@ class PopupMenu
 			a = controller.getAction(TreeViewerControl.BROWSE_CATEGORIES);
 			browseClassificationElement = new JMenuItem(a);
 			initMenuItem(browseClassificationElement, a.getActionName());
+			a = controller.getAction(TreeViewerControl.PASTE_RND_SETTINGS);
+			pasteRndElement = new JMenuItem(a);
+			initMenuItem(pasteRndElement, a.getActionName());
 			a = controller.getAction(TreeViewerControl.COPY_RND_SETTINGS);
 			copyRndElement = new JMenuItem(a);
 			initMenuItem(copyRndElement, a.getActionName());
+			a = controller.getAction(TreeViewerControl.RESET_RND_SETTINGS);
+			resetRndElement = new JMenuItem(a);
+			initMenuItem(resetRndElement, a.getActionName());
 			break;
 		case TreeViewer.PARTIAL_POP_UP_MENU:
 			a = controller.getAction(TreeViewerControl.REFRESH_TREE);
@@ -261,7 +273,10 @@ class PopupMenu
 			add(new JSeparator(JSeparator.HORIZONTAL));
 			add(annotate);
 			add(annotateChildrenElement);
+			add(new JSeparator(JSeparator.HORIZONTAL));
 			add(copyRndElement);
+			add(pasteRndElement);
+			add(resetRndElement);
 			add(new JSeparator(JSeparator.HORIZONTAL));
 			add(properties);
 			add(new JSeparator(JSeparator.HORIZONTAL));

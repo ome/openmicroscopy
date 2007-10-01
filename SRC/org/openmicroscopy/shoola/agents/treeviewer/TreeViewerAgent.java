@@ -75,10 +75,12 @@ public class TreeViewerAgent
      */
     private void handleCopyRndSettings(CopyRndSettings evt)
     {
+    	/*
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
 				LookupNames.CURRENT_USER_DETAILS);
     	long userID = exp.getDefaultGroup().getId();
-    	TreeViewerFactory.copyRndSettings(userID, evt.getPixelsID());
+    	*/
+    	TreeViewerFactory.copyRndSettings(evt.getPixelsID());
     }
     
     /**

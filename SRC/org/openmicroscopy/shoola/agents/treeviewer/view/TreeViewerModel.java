@@ -254,6 +254,7 @@ class TreeViewerModel
 		state = TreeViewer.NEW;
 		editorType = TreeViewer.PROPERTIES_EDITOR;
 		recycled = false;
+		refPixelsID = -1;
 		this.experimenter = exp;
 		browsers = new HashMap<Integer, Browser>();
 		setHierarchyRoot(exp.getId(), userGroupID);
@@ -815,7 +816,7 @@ class TreeViewerModel
 	{
 		//TODO: add state change.
 		currentLoader = new RndSettingsSaver(component, klass, ids, 
-				refPixelsID);
+								refPixelsID, RndSettingsSaver.PASTE);
 		currentLoader.load();
 	}
 
@@ -827,7 +828,35 @@ class TreeViewerModel
 	void firePasteRenderingSettings(TimeRefObject ref)
 	{
 		//TODO: add state change.
-		currentLoader = new RndSettingsSaver(component, ref, refPixelsID);
+		currentLoader = new RndSettingsSaver(component, ref, refPixelsID, 
+				RndSettingsSaver.PASTE);
+		currentLoader.load();
+	}
+	
+	/**
+	 * Fires an asynchronous call to paste the rendering settings.
+	 * 
+	 * @param ids 	Collection of nodes ids.
+	 * @param klass Either dataset, catgory or image.
+	 */
+	void fireResetRenderingSettings(Set<Long> ids, Class klass)
+	{
+		//TODO: add state change.
+		currentLoader = new RndSettingsSaver(component, klass, ids, 
+										refPixelsID, RndSettingsSaver.RESET);
+		currentLoader.load();
+	}
+
+	/**
+	 * Fires an asynchronous call to paste the rendering settings.
+	 * 
+	 * @param ref The time reference object.	
+	 */
+	void fireResetRenderingSettings(TimeRefObject ref)
+	{
+		//TODO: add state change.
+		currentLoader = new RndSettingsSaver(component, ref, refPixelsID, 
+									RndSettingsSaver.RESET);
 		currentLoader.load();
 	}
 

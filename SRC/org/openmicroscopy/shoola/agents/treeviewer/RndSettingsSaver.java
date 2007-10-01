@@ -58,6 +58,12 @@ public class RndSettingsSaver
 	extends DataTreeViewerLoader
 {
 	
+	/** Indicates to paste the rendering settings. */
+	public static final int PASTE = 0;
+	
+	/** Indicates to reset the rendering settings. */
+	public static final int RESET = 1;
+	
 	/** The id of the pixels set of reference. */
 	private long 			pixelsID;
 
@@ -75,8 +81,27 @@ public class RndSettingsSaver
 	private TimeRefObject 	ref;
 
 	/** Handle to the async call so that we can cancel it. */
-	private CallHandle  handle;
+	private CallHandle  	handle;
 
+	/** One of the constants defined by this class. */
+    private int				index;
+    
+    /**
+     * Controls if the passed index is supported.
+     * 
+     * @param i The value to check.
+     */
+    private void checkIndex(int i)
+    {
+    	switch (i) {
+			case PASTE:
+			case RESET:
+				break;
+			default:
+				throw new IllegalArgumentException("Index not supported.");
+		}
+    }
+    
 	/** 
 	 * Controls if the passed type is supported.
 	 * 
@@ -103,12 +128,15 @@ public class RndSettingsSaver
 	 * 					<code>CategoryData</code>, the settings will be applied
 	 * 					to the images contained in the specified containers.
 	 * @param pixelsID	The id of the pixels of reference.
+	 * @param index 	One of the constants defined by this class.
 	 */
 	public RndSettingsSaver(TreeViewer viewer, Class rootType, Set<Long> ids, 
-			long pixelsID)
+							long pixelsID, int index)
 	{
 		super(viewer);
 		checkRootType(rootType);
+		checkIndex(index);
+		this.index = index;
 		if (ids == null || ids.size() == 0)
 			throw new IllegalArgumentException("No nodes specified.");
 		if (pixelsID < 0)
@@ -126,10 +154,14 @@ public class RndSettingsSaver
 	 *               	Mustn't be <code>null</code>.
 	 * @param ref		The time reference object.
 	 * @param pixelsID	The id of the pixels of reference.
+	 * @param index 	One of the constants defined by this class.
 	 */
-	public RndSettingsSaver(TreeViewer viewer, TimeRefObject ref, long pixelsID)
+	public RndSettingsSaver(TreeViewer viewer, TimeRefObject ref, 
+							long pixelsID, int index)
 	{
 		super(viewer);
+		checkIndex(index);
+		this.index = index;
 		if (pixelsID < 0)
 			throw new IllegalArgumentException("Pixels ID not valid.");
 		if (ref == null)
@@ -137,7 +169,7 @@ public class RndSettingsSaver
 		this.pixelsID = pixelsID;
 		this.ref = ref;
 	}
-
+	
 	/** 
 	 *  Cancels the data loading. 
 	 * @see DataTreeViewerLoader#cancel()
@@ -150,10 +182,21 @@ public class RndSettingsSaver
 	 */
 	public void load()
 	{
-		if (ref == null)
-			handle = dhView.pasteRndSettings(pixelsID, rootType, ids, this);
-		else 
-			handle = dhView.pasteRndSettings(pixelsID, ref, this);
+		switch (index) {
+			case PASTE:
+				if (ref == null)
+					handle = dhView.pasteRndSettings(pixelsID, rootType, ids, 
+													this);
+				else 
+					handle = dhView.pasteRndSettings(pixelsID, ref, this);
+				break;
+			case RESET:
+				if (ref == null)
+					handle = dhView.resetRndSettings(pixelsID, rootType, ids, 
+													this);
+				else 
+					handle = dhView.resetRndSettings(pixelsID, ref, this);
+		}
 	}
 
 	/** 

@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifyChildrenAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClearAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CopyAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.CopyRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateTopContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CutAction;
@@ -72,6 +73,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.PropertiesAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshExperimenterData;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshTreeAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveExperimenterNode;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ResetRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
@@ -219,9 +221,15 @@ class TreeViewerControl
 	/** Identifies the <code>Browse categories action</code>. */
 	static final Integer    BROWSE_CATEGORIES = new Integer(30);
 
-	/** Identifies the <code>Copy rendering settings action</code>. */
-	static final Integer    COPY_RND_SETTINGS = new Integer(31);
+	/** Identifies the <code>Paste rendering settings action</code>. */
+	static final Integer    PASTE_RND_SETTINGS = new Integer(31);
 
+	/** Identifies the <code>Copy rendering settings action</code>. */
+	static final Integer    COPY_RND_SETTINGS = new Integer(32);
+	
+	/** Identifies the <code>Reset rendering settings action</code>. */
+	static final Integer    RESET_RND_SETTINGS = new Integer(33);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -277,7 +285,9 @@ class TreeViewerControl
 				new RefreshExperimenterData(model));
 		actionsMap.put(BROWSE_CATEGORIES, 
 				new BrowseImageCategoriesAction(model));
-		actionsMap.put(COPY_RND_SETTINGS, new PasteRndSettingsAction(model));
+		actionsMap.put(PASTE_RND_SETTINGS, new PasteRndSettingsAction(model));
+		actionsMap.put(COPY_RND_SETTINGS, new CopyRndSettingsAction(model));
+		actionsMap.put(RESET_RND_SETTINGS, new ResetRndSettingsAction(model));
 	}
 
 	/** 
@@ -384,6 +394,45 @@ class TreeViewerControl
 	}
 
 	/**
+	 * Handles the selection of a new node.
+	 * 
+	 * @param oldValue	The previously selected node.
+	 * @param newValue	The new selection.
+	 */
+	private void handleSelectedDisplay(Object oldValue, Object newValue) {
+		if (oldValue == null || newValue == null) return;
+		if (oldValue.getClass().equals(newValue.getClass())) return;
+		if (!(oldValue instanceof TreeImageDisplay)) return;
+		TreeImageDisplay d = (TreeImageDisplay) oldValue;
+		
+		if (d != null) return;
+		Object ho = d.getUserObject();
+		if (ho instanceof ImageData || 
+				ho instanceof DatasetData) {
+			int index = EditorFactory.getEditorSelectedPane();
+			switch (index) {
+				case Editor.INFO_INDEX:
+					EditorFactory.setEditorSelectedPane(
+							Editor.PROPERTIES_INDEX);
+					break;
+				case Editor.ANNOTATIONS_INDEX:
+					if (newValue instanceof TreeImageDisplay) {
+						d = (TreeImageDisplay) newValue;
+						Object newHo = d.getUserObject();
+						if (!(newHo instanceof ImageData || 
+							newHo instanceof DatasetData)) {
+							EditorFactory.setEditorSelectedPane(
+									Editor.PROPERTIES_INDEX);
+						}
+					} else EditorFactory.setEditorSelectedPane(
+										Editor.PROPERTIES_INDEX);
+				default:
+					break;
+			}
+		}
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * The {@link #initialize(TreeViewerWin) initialize} method 
 	 * should be called straight 
@@ -474,39 +523,6 @@ class TreeViewerControl
 
 	/** Forwards call to the {@link TreeViewer}. */
 	void cancel() { model.cancel(); }
-
-	private void handleSelectedDisplay(Object oldValue, Object newValue) {
-		if (oldValue == null || newValue == null) return;
-		if (oldValue.getClass().equals(newValue.getClass())) return;
-		if (!(oldValue instanceof TreeImageDisplay)) return;
-		TreeImageDisplay d = (TreeImageDisplay) oldValue;
-		
-		if (d != null) return;
-		Object ho = d.getUserObject();
-		if (ho instanceof ImageData || 
-				ho instanceof DatasetData) {
-			int index = EditorFactory.getEditorSelectedPane();
-			switch (index) {
-				case Editor.INFO_INDEX:
-					EditorFactory.setEditorSelectedPane(
-							Editor.PROPERTIES_INDEX);
-					break;
-				case Editor.ANNOTATIONS_INDEX:
-					if (newValue instanceof TreeImageDisplay) {
-						d = (TreeImageDisplay) newValue;
-						Object newHo = d.getUserObject();
-						if (!(newHo instanceof ImageData || 
-							newHo instanceof DatasetData)) {
-							EditorFactory.setEditorSelectedPane(
-									Editor.PROPERTIES_INDEX);
-						}
-					} else EditorFactory.setEditorSelectedPane(
-										Editor.PROPERTIES_INDEX);
-				default:
-					break;
-			}
-		}
-	}
 	
 	/**
 	 * Reacts to property changed. 

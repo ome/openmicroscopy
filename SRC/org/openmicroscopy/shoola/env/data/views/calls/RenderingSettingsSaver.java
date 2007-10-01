@@ -62,12 +62,34 @@ public class RenderingSettingsSaver
 	extends BatchCallTree
 {
 
+	/** Indicates to paste the rendering settings. */
+	public static final int PASTE = 0;
+	
+	/** Indicates to reset the rendering settings. */
+	public static final int RESET = 1;
+	
 	/** Result of the call. */
 	private Object    	result;
 
 	/** Loads the specified tree. */
 	private BatchCall	loadCall;
 
+	/**
+	 * Controls if the passed index is supported.
+	 * 
+	 * @param i The value to check.
+	 */
+    private void checkIndex(int i)
+    {
+    	switch (i) {
+			case PASTE:
+			case RESET:
+				break;
+			default:
+				throw new IllegalArgumentException("Index not supported.");
+		}
+    }
+    
 	/** 
 	 * Controls if the passed type is supported.
 	 * 
@@ -89,16 +111,26 @@ public class RenderingSettingsSaver
 	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
 	 * 						<code>CategoryData</code>.
 	 * @param ids			The id of the nodes to apply settings to. 
+	 * @param index 		One of the constants defined by this class.
 	 * @return The {@link BatchCall}.
 	 */
 	private BatchCall makeBatchCall(final long pixelsID, final Class rootType,
-			final Set<Long> ids)
+			final Set<Long> ids, final int index)
 	{
 		return new BatchCall("Paste the rendering settings: ") {
 			public void doCall() throws Exception
 			{
 				OmeroImageService rds = context.getImageService();
-				result = rds.pasteRenderingSettings(pixelsID, rootType, ids);
+				switch (index) {
+					case PASTE:
+						result = rds.pasteRenderingSettings(pixelsID, rootType, 
+															ids);
+						break;
+					case RESET:
+						result = rds.resetRenderingSettings(pixelsID, rootType, 
+								ids);
+				}
+				
 			}
 		};
 	} 
@@ -108,10 +140,11 @@ public class RenderingSettingsSaver
 	 * 
 	 * @param pixelsID	The id of the pixels set of reference.
 	 * @param ref		The time reference object.
+	 * @param index 	One of the constants defined by this class.
 	 * @return The {@link BatchCall}.
 	 */
 	private BatchCall makeBatchCall(final long pixelsID,
-			final TimeRefObject ref)
+			final TimeRefObject ref, final int index)
 	{
 		return new BatchCall("Paste the rendering settings: ") {
 			public void doCall() throws Exception
@@ -141,8 +174,15 @@ public class RenderingSettingsSaver
 						ids.add(element.getId());
 					}
 					OmeroImageService rds = context.getImageService();
-					result = rds.pasteRenderingSettings(pixelsID, 
-							ImageData.class, ids);
+					switch (index) {
+						case PASTE:
+							result = rds.pasteRenderingSettings(pixelsID, 
+													ImageData.class, ids);
+							break;
+						case RESET:
+							result = rds.resetRenderingSettings(pixelsID, 
+									ImageData.class, ids);
+					}
 				}
 
 			}
@@ -164,6 +204,7 @@ public class RenderingSettingsSaver
 	protected Object getResult() { return result; }
 
 	/**
+	 * Creates a new instance.
 	 * 
 	 * @param pixelsID		The id of the pixels set of reference.
 	 * @param rootNodeType	The type of nodes. Can either be 
@@ -171,30 +212,35 @@ public class RenderingSettingsSaver
 	 * 						<code>CategoryData</code>.
 	 * @param ids			The nodes to apply settings to. 
 	 * 						Mustn't be <code>null</code>.
+	 * @param index 		One of the constants defined by this class.
 	 */
 	public RenderingSettingsSaver(long pixelsID, Class rootNodeType, 
-			Set<Long> ids)
+			Set<Long> ids, int index)
 	{
 		checkRootType(rootNodeType);
 		if (ids == null || ids.size() == 0)
 			throw new IllegalArgumentException("No nodes specified.");
 		if (pixelsID < 0)
 			throw new IllegalArgumentException("Pixels ID not valid.");
-		loadCall = makeBatchCall(pixelsID, rootNodeType, ids);
+		checkIndex(index);
+		loadCall = makeBatchCall(pixelsID, rootNodeType, ids, index);
 	}
 
 	/**
+	 * Creates a new instance.
 	 * 
 	 * @param pixelsID	The id of the pixels set of reference.
 	 * @param ref		The time reference object.
+	 * @param index 	One of the constants defined by this class.
 	 */
-	public RenderingSettingsSaver(long pixelsID, TimeRefObject ref)
+	public RenderingSettingsSaver(long pixelsID, TimeRefObject ref, int index)
 	{
 		if (pixelsID < 0)
 			throw new IllegalArgumentException("Pixels ID not valid.");
 		if (ref == null)
 			throw new IllegalArgumentException("Period not valid.");
-		loadCall = makeBatchCall(pixelsID, ref);
+		checkIndex(index);
+		loadCall = makeBatchCall(pixelsID, ref, index);
 	}
 
 }

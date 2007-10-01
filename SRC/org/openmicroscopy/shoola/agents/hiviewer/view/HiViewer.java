@@ -514,6 +514,9 @@ public interface HiViewer
 	
 	/** Pastes the stored rendering settings across the selected images. */
 	public void pasteRndSettings();
+	
+	/** Pastes the stored rendering settings across the selected images. */
+	public void resetRndSettings();
 
 	/** 
 	 * Notifies the user that the save is done.

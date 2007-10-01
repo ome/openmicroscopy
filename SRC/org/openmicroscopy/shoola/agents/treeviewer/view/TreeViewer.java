@@ -624,6 +624,21 @@ public interface TreeViewer
 	 * @param ref The time reference object.
 	 */
 	public void pasteRndSettings(TimeRefObject ref);
+	
+	/** 
+	 * Resets the rendering settings across the selected images. 
+	 * 
+	 * @param ids Collection of node ids.
+	 * @param klass Either dataset, image or category.
+	 */
+	public void resetRndSettings(Set<Long> ids, Class klass);
+
+	/** 
+	 * Resets the rendering settings across the selected images. 
+	 * 
+	 * @param ref The time reference object.
+	 */
+	public void resetRndSettings(TimeRefObject ref);
 
 	/** 
 	 * Notifies the user that the save is done.

@@ -882,6 +882,34 @@ class HiViewerComponent
 
 	/**
      * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#resetRndSettings()
+     */
+	public void resetRndSettings()
+	{
+		Set nodes = model.getBrowser().getSelectedDisplays();
+		if (nodes == null || nodes.size() == 0){
+			UserNotifier un = HiViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Reset settings", "Please select the nodes first.");
+			return;
+		}
+		Iterator i = nodes.iterator();
+		ImageDisplay node;
+		Object ho;
+		Set<Long> ids = new HashSet<Long>();
+		Class klass = null;
+		while (i.hasNext()) {
+			node = (ImageDisplay) i.next();
+			ho = node.getHierarchyObject();
+			klass = ho.getClass();
+			if (ho instanceof DataObject) {
+				ids.add(((DataObject) ho).getId());
+			}
+		}
+		model.fireResetRenderingSettings(klass, ids);
+	}
+	
+	/**
+     * Implemented as specified by the {@link HiViewer} interface.
      * @see HiViewer#rndSettingsPasted(Map)
      */
 	public void rndSettingsPasted(Map map)

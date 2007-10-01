@@ -261,15 +261,24 @@ class OmeroImageServiceImpl
 	 */
 	public Map pasteRenderingSettings(long pixelsID, Class rootNodeType, 
 			Set nodesID) 
-	throws DSOutOfServiceException, DSAccessException 
+		throws DSOutOfServiceException, DSAccessException 
 	{
 		if (nodesID == null || nodesID.size() == 0)
 			throw new IllegalArgumentException("No nodes specified.");
-		ExperimenterData exp = (ExperimenterData) context.lookup(
-				LookupNames.CURRENT_USER_DETAILS);
-
-		return gateway.pasteRenderingSettings(exp.getId(), pixelsID, 
-				rootNodeType, nodesID);
+		return gateway.pasteRenderingSettings(pixelsID, rootNodeType, nodesID);
 	}
 
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#resetRenderingSettings(long, Class, List)
+	 */
+	public Map resetRenderingSettings(long pixelsID, Class rootNodeType, 
+			Set nodesID) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		if (nodesID == null || nodesID.size() == 0)
+			throw new IllegalArgumentException("No nodes specified.");
+		return gateway.resetRenderingSettings(pixelsID, rootNodeType, nodesID);
+	}
+	
 }

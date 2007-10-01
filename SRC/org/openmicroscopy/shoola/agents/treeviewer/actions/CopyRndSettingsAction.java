@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.PasteRndSettingsAction
+ * org.openmicroscopy.shoola.agents.treeviewer.actions.CopyRndSettingsAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
@@ -30,20 +29,18 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteRndSettingsCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.CategoryData;
-import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
- * Action to paste the rendering settings previously copied from
- * another image.
+ * Copies the id of the pixels set to copy the rendering settings from.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -55,15 +52,15 @@ import pojos.ImageData;
  * </small>
  * @since OME3.0
  */
-public class PasteRndSettingsAction 
+public class CopyRndSettingsAction 
 	extends TreeViewerAction
 {
 
 	/** The name of the action. */
-	private static final String NAME = "Paste Settings";
+	private static final String NAME = "Copy Settings";
 
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Paste the rendering settings.";
+	private static final String DESCRIPTION = "Copy the rendering settings.";
 
 	/**
 	 * Callback to notify of a change of state in the currently selected 
@@ -80,12 +77,11 @@ public class PasteRndSettingsAction
 	 * Callback to notify of a change in the currently selected display
 	 * in the currently selected 
 	 * {@link org.openmicroscopy.shoola.agents.treeviewer.browser.Browser}.
-	 * 
-	 * @param selectedDisplay The newly selected display node.
+	 * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
 	 */
 	protected void onDisplayChange(TreeImageDisplay selectedDisplay)
 	{
-		if (selectedDisplay == null || !model.hasRndSettings()) {
+		if (selectedDisplay == null) {
 			setEnabled(false);
 			return;
 		}
@@ -96,21 +92,12 @@ public class PasteRndSettingsAction
 			return;
 		}
 		int n = browser.getSelectedDisplays().length;
-
-		if (selectedDisplay instanceof TreeImageTimeSet) {
-			if (n > 1) setEnabled(false);
-			else {
-				TreeImageTimeSet timeNode = (TreeImageTimeSet) selectedDisplay;
-				setEnabled(timeNode.getNumberItems() > 0);
-			}
+		
+		if (n > 1) {
+			setEnabled(false);
 			return;
 		}
-		if (!(ho instanceof ImageData || ho instanceof DatasetData ||
-				ho instanceof CategoryData)) setEnabled(false);
-		else {
-			if (n > 1) setEnabled(ho instanceof ImageData);
-			else setEnabled(true);
-		}
+		setEnabled(ho instanceof ImageData);
 	}
 
 	/**
@@ -118,25 +105,32 @@ public class PasteRndSettingsAction
 	 * 
 	 * @param model Reference to the Model. Mustn't be <code>null</code>.
 	 */
-	public PasteRndSettingsAction(TreeViewer model)
+	public CopyRndSettingsAction(TreeViewer model)
 	{
 		super(model);
 		name = NAME;
 		putValue(Action.SHORT_DESCRIPTION, 
 				UIUtilities.formatToolTipText(DESCRIPTION));
 		IconManager im = IconManager.getInstance();
-		putValue(Action.SMALL_ICON, im.getIcon(IconManager.PASTE));
+		putValue(Action.SMALL_ICON, im.getIcon(IconManager.COPY));
 	}
 
 	/** 
-	 * Creates a  {@link PasteRndSettingsCmd} command to execute the action.
+	 * Notifies the model to stored the id of the pixels set to copy 
+	 * the rendering settings from.
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
-		PasteRndSettingsCmd cmd = new PasteRndSettingsCmd(model, 
-										PasteRndSettingsCmd.PASTE);
-		cmd.execute();
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return;
+		TreeImageDisplay node = browser.getLastSelectedDisplay();
+		Object o = node.getUserObject();
+		if (!(o instanceof ImageData)) return;
+		ImageData img = (ImageData) o;
+		long pixelsID = img.getDefaultPixels().getId();
+		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+		bus.post(new CopyRndSettings(pixelsID));
 	}
-  
+
 }

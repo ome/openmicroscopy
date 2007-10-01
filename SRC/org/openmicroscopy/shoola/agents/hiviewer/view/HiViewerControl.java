@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.AnnotateChildrenAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ClassifyAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ClassifyChildrenAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ClipBoardViewAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.CopyRndSettingsAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.DeclassifyAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ExitAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindAction;
@@ -70,6 +71,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.PropertiesAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.RemoveAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ResetLayoutAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.ResetRndSettingsAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveLayoutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveThumbnailsAction;
@@ -201,6 +203,12 @@ class HiViewerControl
     
     /** Identifies the <code>Paste rendering settings</code> action. */
     static final Integer     PASTE_RND_SETTINGS = new Integer(31);
+    
+    /** Identifies the <code>Copy rendering settings</code> action. */
+    static final Integer     COPY_RND_SETTINGS = new Integer(32);
+    
+    /** Identifies the <code>Reset rendering settings</code> action. */
+    static final Integer     RESET_RND_SETTINGS = new Integer(33);
        
     /** 
      * Reference to the {@link HiViewer} component, which, in this context,
@@ -252,6 +260,8 @@ class HiViewerControl
         actionsMap.put(RESET_LAYOUT, new ResetLayoutAction(model));
         actionsMap.put(MOUSE_OVER, new MouseOverAction(model));
         actionsMap.put(PASTE_RND_SETTINGS, new PasteRndSettingsAction(model));
+        actionsMap.put(COPY_RND_SETTINGS, new CopyRndSettingsAction(model));
+        actionsMap.put(RESET_RND_SETTINGS, new ResetRndSettingsAction(model));
     }
   
     /** 

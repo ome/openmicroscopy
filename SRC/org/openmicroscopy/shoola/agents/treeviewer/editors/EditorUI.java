@@ -157,7 +157,7 @@ class EditorUI
      * The title of the tabbed pane hosting the details of the owner of the
      * edited <code>DataObject</code>.
      */
-    private static final String     OWNER_TITLE = "Permissions";
+    //private static final String     OWNER_TITLE = "Permissions";
     
     /** The title of the tabbed pane hosting the details on the image. */
     private static final String     INFO_TITLE = "Info";

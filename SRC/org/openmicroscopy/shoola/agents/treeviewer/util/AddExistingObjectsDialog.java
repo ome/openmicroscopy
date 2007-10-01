@@ -142,7 +142,7 @@ public class AddExistingObjectsDialog
             un.notifyInfo("Add existing items", "No item selected.");
             return;
         }
-        Set paths = new HashSet();
+        Set<Object> paths = new HashSet<Object>();
         Iterator i = nodes.iterator();
         Object object;
         while (i.hasNext()) {
