@@ -367,9 +367,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 	@RolesAllowed("system")
 	public void updateExperimenter(@NotNull
 	Experimenter experimenter) {
+		String name = experimenter.getOmeName();
 		iUpdate.saveObject(experimenter);
 		getBeanHelper().getLogger().info(
-				"Updated user info for " + experimenter.getOmeName());
+				"Updated user info for " + name);
 	}
 
 	@RolesAllowed("system")
