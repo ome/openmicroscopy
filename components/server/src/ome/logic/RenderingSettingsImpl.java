@@ -386,7 +386,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 	 * 
 	 * @see IRenderingSettings#resetDefaults(long)
 	 */
-	public void resetDefaults(long pixelsId) {
+	protected void resetDefaults(long pixelsId) {
 
 		Pixels pixelsObj = pixelsMetadata.retrievePixDescription(pixelsId);
 
@@ -448,7 +448,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			Image image;
 			while (i.hasNext()) {
 				image = i.next();
-				resetDefaults(image.getId());
+				resetDefaultsToImage(image.getId());
 			}
 		} catch (NoSuchElementException expected) {
 			throw new ApiUsageException(

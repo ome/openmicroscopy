@@ -18,7 +18,7 @@ public class RenderingSettingsTest extends AbstractManagedContextTest {
 	}
 
 	@Test
-	public void test() {
+	public void testApply() {
 		Long from = 1L;
 		Long to = 2L;
 
@@ -27,9 +27,12 @@ public class RenderingSettingsTest extends AbstractManagedContextTest {
 		rsx.applySettingsToDataset(from, to);
 		rsx.applySettingsToCategory(from, to);
 	}
-	
+
 	@Test
-	public void test1() {
-		rsx.resetDefaults(2L);
+	public void testReset() {
+		Long id = 2L;
+		rsx.resetDefaultsToImage(id);
+		rsx.resetDefaultsToCategory(id);
+		rsx.resetDefaultsToDataSet(id);
 	}
 }

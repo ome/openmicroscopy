@@ -40,13 +40,13 @@ public interface IRenderingSettings extends ServiceInterface {
 	RenderingDef getRenderingSettings(@NotNull long pixelsId);
 	
     /**
-     * Resets a pixels' rendering settings back to those that are specified
+     * Resets a image's rendering settings back to those that are specified
      * by the rendering engine intelligent <i>pretty good image (PG)</i> logic.
-     * @param pixelsId The Id of the <code>Pixels</code>.
+     * @param imageId The Id of the <code>Image</code>.
 	 * @throws ValidationException if the image qualified by 
 	 * <code>pixelsId</code> is unlocatable.
      */
-	void resetDefaults(@NotNull long pixelsId);
+	void resetDefaultsToImage(@NotNull long imageId);
 	
 	/**
      * Resets a category's rendering settings back to those that are specified
