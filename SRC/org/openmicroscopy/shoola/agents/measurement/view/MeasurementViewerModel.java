@@ -705,8 +705,17 @@ class MeasurementViewerModel
 	void propagateShape(ROIShape shape, int timePoint, int zSection) 
 		throws ROICreationException, NoSuchROIException
 	{
+		setDataChanged();
+		Coord3D coord = new Coord3D(zSection, timePoint);
 		roiComponent.propagateShape(shape.getID(), shape.getCoord3D(), 
-					shape.getCoord3D(), new Coord3D(zSection, timePoint));
+			shape.getCoord3D(),coord);
+		if(coord.equals(getCurrentView()))
+		{
+			state = MeasurementViewer.VALUE_ADJUSTING;
+			ROIShape createdShape = roiComponent.getShape(shape.getID(), coord);
+			getDrawing().add(createdShape.getFigure());
+			state = MeasurementViewer.READY;
+		}
 	}
 	
 	/**
@@ -722,8 +731,12 @@ class MeasurementViewerModel
 	{
 		if(drawingComponent.contains(shape.getFigure()))
 			drawingComponent.getDrawing().remove(shape.getFigure());
-		roiComponent.deleteShape(shape.getID(), shape.getCoord3D(), 
+		else
+		{
+			setDataChanged();
+			roiComponent.deleteShape(shape.getID(), shape.getCoord3D(), 
 			new Coord3D(zSection, timePoint));
+		}
 	}
 
 	/** 
@@ -902,5 +915,114 @@ class MeasurementViewerModel
 	{
 		hasBeenSaved = true;
 	}
+	
+	/**
+	 * Calculate the stats for the roi in the shapelist with id.
+	 * @param id see above.
+	 * @param shapeList see above.
+	 */
+	public void calculateStats(long id, ArrayList<ROIShape> shapeList)
+	{
+		
+	}
+	
+	
+	/**
+	 * Duplicate the ROI with id and the ROIShapes selected in the shapeList 
+	 * from that ROI.
+	 * @param id see above.
+	 * @param shapeList see above.
+	 */
+	void duplicateROI(long id, ArrayList<ROIShape> shapeList)
+	{
+		try
+		{
+			setDataChanged();
+			ROI newROI = roiComponent.cloneROI(id);
+			for(ROIShape shape : shapeList)
+			{
+				ROIShape newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
+				newROI.addShape(newShape);
+				state = MeasurementViewer.VALUE_ADJUSTING;
+				if(newShape.getCoord3D().equals(getCurrentView()))
+					this.getDrawing().add(newShape.getFigure());
+				state = MeasurementViewer.READY;
+			}
+		}
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	/**
+	 * split the ROIShapes from the ROI with id and the ROIShapes selected in the shapeList 
+	 * from that ROI.
+	 * @param id see above.
+	 * @param shapeList see above.
+	 */
+	void splitROI(long id, ArrayList<ROIShape> shapeList)
+	{
+		try
+		{
+			setDataChanged();
+			ROI newROI = roiComponent.cloneROI(id);
+			for(ROIShape shape : shapeList)
+			{
+				ROIShape newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
+				state = MeasurementViewer.VALUE_ADJUSTING;
+				if(getDrawing().contains(shape.getFigure()))
+					this.getDrawing().remove(shape.getFigure());
+				if(newShape.getCoord3D().equals(getCurrentView()))
+					this.getDrawing().add(newShape.getFigure());
+				roiComponent.deleteShape(shape.getID(), shape.getCoord3D());
+				roiComponent.addShape(newShape.getID(), newShape.getCoord3D(), newShape);
+				state = MeasurementViewer.READY;
+			}
+		}
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+			
+	}
+	
+	/**
+	 * Merge the ROIShapes with ids in the idList and the ROIShapes selected 
+	 * in the shapeList from those ROI.
+	 * @param idList see above.
+	 * @param shapeList see above.
+	 */
+	void mergeROI(ArrayList<Long> idList, ArrayList<ROIShape> shapeList)
+	{
+		try
+		{
+			setDataChanged();
+			ROI newROI = roiComponent.cloneROI(idList.get(0));
+			for(ROIShape shape : shapeList)
+			{
+				ROIShape newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
+				state = MeasurementViewer.VALUE_ADJUSTING;
+				if(getDrawing().contains(shape.getFigure()))
+					this.getDrawing().remove(shape.getFigure());
+				if(newShape.getCoord3D().equals(getCurrentView()))
+					this.getDrawing().add(newShape.getFigure());
+				roiComponent.deleteShape(shape.getID(), shape.getCoord3D());
+				roiComponent.addShape(newShape.getID(), newShape.getCoord3D(), newShape);
+				state = MeasurementViewer.READY;
+			}
+		}
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
 	
 }	

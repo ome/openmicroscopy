@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAct
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
@@ -399,7 +400,62 @@ class MeasurementViewerUI
 			handleROIException(e, RETRIEVE_MSG);
 		}	
     }
-    
+    /** 
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#showROIAssistant()
+	 */
+	public void showROIAssistant()
+	{
+		Registry reg = MeasurementAgent.getRegistry();
+		UserNotifier un = reg.getUserNotifier();
+		if (inDataView())
+		{
+			un.notifyInfo("ROI Assistant", "ROI Assistant cannot be used" +
+					" in graph pane or intensity view");
+			return;
+		}
+		
+		Collection<ROI> roiList = model.getSelectedROI();
+		if (roiList.size() == 0)
+		{
+			un.notifyInfo("ROI Assistant", "Select a Figure to modify " +
+			"using the ROI Assistant.");
+			return;
+		}
+		if (roiList.size() > 1)
+		{
+			un.notifyInfo("ROI Assistant", "The ROI Assistant can" +
+					"only be used on one ROI" +
+			"at a time.");
+			return;
+		}
+		ROI currentROI = roiList.iterator().next();
+			
+    	ROIAssistant assistant = new ROIAssistant(model.getNumTimePoints(), 
+    		model.getNumZSections(), model.getCurrentView(), currentROI, this);
+    	UIUtilities.setLocationRelativeToAndShow(this, assistant);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#showROIAssistant(ROI)
+	 */
+	public void showROIAssistant(ROI roi)
+	{
+		Registry reg = MeasurementAgent.getRegistry();
+		UserNotifier un = reg.getUserNotifier();
+		if (inDataView())
+		{
+			un.notifyInfo("ROI Assistant", "ROI Assistant cannot be used" +
+					" in graph pane or intensity view");
+			return;
+		}
+
+	  	ROIAssistant assistant = new ROIAssistant(model.getNumTimePoints(), 
+    		model.getNumZSections(), model.getCurrentView(), roi, this);
+    	UIUtilities.setLocationRelativeToAndShow(this, assistant);
+	}
+	
     /**
      * Selects the passed figure.
      * 

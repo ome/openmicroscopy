@@ -348,9 +348,12 @@ class MeasurementViewerComponent
 		try
 		{
 			String savedFileString=FileMap.getSavedFile(model.getServerName(), model.getUserName(), model.getPixelsID());
-			File savedFile = new File(savedFileString);
-			chooser.setCurrentDirectory(savedFile);
-			chooser.setSelectedFile(savedFile);
+			if(savedFileString!=null)
+			{
+				File savedFile = new File(savedFileString);
+				chooser.setCurrentDirectory(savedFile);
+				chooser.setSelectedFile(savedFile);
+			}
 		}
 		catch (ParsingException e)
 		{
@@ -486,34 +489,16 @@ class MeasurementViewerComponent
 	 */
 	public void showROIAssistant()
 	{
-		Registry reg = MeasurementAgent.getRegistry();
-		UserNotifier un = reg.getUserNotifier();
-		if (view.inDataView())
-		{
-			un.notifyInfo("ROI Assistant", "ROI Assistant cannot be used" +
-					" in graph pane or intensity view");
-			return;
-		}
-		
-		Collection<ROI> roiList = model.getSelectedROI();
-		if (roiList.size() == 0)
-		{
-			un.notifyInfo("ROI Assistant", "Select a Figure to modify " +
-			"using the ROI Assistant.");
-			return;
-		}
-		if (roiList.size() > 1)
-		{
-			un.notifyInfo("ROI Assistant", "The ROI Assistant can" +
-					"only be used on one ROI" +
-			"at a time.");
-			return;
-		}
-		ROI currentROI = roiList.iterator().next();
-			
-    	ROIAssistant assistant = new ROIAssistant(model.getNumTimePoints(), 
-    		model.getNumZSections(), model.getCurrentView(), currentROI, view);
-    	UIUtilities.setLocationRelativeToAndShow(view, assistant);
+		view.showROIAssistant();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#showROIAssistant(ROI)
+	 */
+	public void showROIAssistant(ROI roi)
+	{
+		view.showROIAssistant(roi);
 	}
 	
 	/** 

@@ -25,9 +25,11 @@ package org.openmicroscopy.shoola.util.ui.treetable.renderers;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Component;
 
 import javax.swing.JCheckBox;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 //Third-party libraries

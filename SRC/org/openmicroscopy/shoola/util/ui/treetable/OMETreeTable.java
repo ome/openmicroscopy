@@ -33,6 +33,7 @@ import java.util.Iterator;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.table.TableCellRenderer;
@@ -97,13 +98,12 @@ public class OMETreeTable
 		defaultTableRenderers = 
 							new HashMap<Class<?>, TableCellRenderer>();
 		defaultTableRenderers.put(Boolean.class, new BooleanCellRenderer());
-	//	defaultTableRenderers.put(Integer.class, new NumberCellRenderer());
-	//	defaultTableRenderers.put(Long.class, new NumberCellRenderer());
-	//	defaultTableRenderers.put(Float.class, new NumberCellRenderer());
-	//	defaultTableRenderers.put(Double.class, new NumberCellRenderer());
-	//	defaultTableRenderers.put(String.class, new StringCellRenderer());
+		defaultTableRenderers.put(Long.class, new NumberCellRenderer());
+		defaultTableRenderers.put(Integer.class, new NumberCellRenderer());
+		defaultTableRenderers.put(Float.class, new NumberCellRenderer());
+		defaultTableRenderers.put(Double.class, new NumberCellRenderer());
+		defaultTableRenderers.put(String.class, new NumberCellRenderer(SwingConstants.LEFT));
 //		defaultTableRenderers.put(Color.class, new ColourCellRenderer());
-	//	defaultTableRenderers.put(String.class, new StringCellRenderer());
 	}
 	
 	/** A reference to the tree table model. */

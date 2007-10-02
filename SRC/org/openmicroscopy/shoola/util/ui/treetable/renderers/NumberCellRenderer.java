@@ -23,18 +23,17 @@
 package org.openmicroscopy.shoola.util.ui.treetable.renderers;
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 
-import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.table.TableCellRenderer;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
 
 /** 
  * 
@@ -50,19 +49,31 @@ import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
  * @since OME3.0
  */
 public class NumberCellRenderer
-	extends JTextField 
+	extends JLabel 
 	implements TableCellRenderer
 {
+	/**
+	 * Creates a new instance. Sets the opacity of the label to
+	 * <code>true</code>.
+	 * 
+	 * @param alignment The alignment of the label being rendered.
+	 */
+	public NumberCellRenderer(int alignment)
+	{
+		setHorizontalAlignment(alignment);
+		setOpaque(true);
+		setBorder(null);
+	}
+	
 	/**
 	 * Creates a new instance. Sets the opacity of the label to
 	 * <code>true</code>.
 	 */
 	public NumberCellRenderer()
 	{
-		setOpaque(true);
-		setBorder(null);
+		this(JLabel.CENTER);
 	}
-	
+
 	/**
 	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object,
 	 *      boolean, boolean, int, int)
@@ -70,6 +81,7 @@ public class NumberCellRenderer
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
+		
 		setText(value.toString());
 		return this;
 	}

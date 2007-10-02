@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -359,6 +360,10 @@ class ObjectManager
 		}
 	}
 	
+	/**
+	 * Delete the ROIShape shape from the system.
+	 * @param shape see above.
+	 */
 	public void deleteROIShape(ROIShape shape)
 	{
 		try
@@ -373,6 +378,56 @@ class ObjectManager
 		}
 	}
 	
+	/**
+	 * Duplicate the ROI shapes in the shapelist and belonging to the ROI with
+	 * id.
+	 * @param id see above.
+	 * @param shapeList see above.
+	 */
+	public void duplicateROI(long id, ArrayList<ROIShape> shapeList)
+	{
+		model.duplicateROI(id, shapeList);
+		this.rebuildTable();
+	}
+	
+	/**
+	 * Calculate the stats for the roi in the shapelist with id.
+	 * @param id see above.
+	 * @param shapeList see above.
+	 */
+	public void calculateStats(long id, ArrayList<ROIShape> shapeList)
+	{
+		model.calculateStats(id, shapeList);
+		this.rebuildTable();
+	}
+	
+	/**
+	 * Merge the ROI shapes in the shapelist and belonging to the ROI with
+	 * id in idList into a single new ROI. The ROI in the shape list should 
+	 * all be on separate planes.
+	 * @param idList see above. see above.
+	 * @param shapeList see above.
+	 */
+	public void mergeROI(ArrayList<Long> idList, ArrayList<ROIShape> shapeList)
+	{
+		model.mergeROI(idList, shapeList);
+		this.rebuildTable();
+	}
+	
+	/**
+	 * Split the ROI shapes in the shapelist and belonging to the ROI with
+	 * id into a single new ROI. The ROI in the shape list should 
+	 * all be on separate planes.
+	 * @param id see above. see above.
+	 * @param shapeList see above.
+	 */
+	public void splitROI(long id, ArrayList<ROIShape> shapeList)
+	{
+			model.splitROI(id, shapeList);
+			this.rebuildTable();
+		
+	}
+	
 	/** Repaints the table. */
 	void update() 
 	{ 
@@ -383,11 +438,12 @@ class ObjectManager
 
 
 	/**
+	 * Show the roi assistant for the roi.
 	 * @param id
 	 */
-	public void propagateROI(long id)
+	public void propagateROI(ROI roi)
 	{
-		
+		view.showROIAssistant(roi);
 	}
 	
 }

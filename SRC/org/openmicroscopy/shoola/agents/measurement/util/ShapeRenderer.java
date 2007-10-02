@@ -23,12 +23,11 @@
 package org.openmicroscopy.shoola.agents.measurement.util;
 
 
-
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
-
+import java.awt.FlowLayout;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
@@ -39,7 +38,7 @@ import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 /** 
- * 
+ * Table Cell renderer for the ROIShape type in the ROI Manager.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,56 +51,66 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
  * @since OME3.0
  */
 public class ShapeRenderer
-	extends JLabel 
+	extends JPanel
 	implements TableCellRenderer
 {
+	
+	/** Helper reference. */
+	private IconManager icons;
+	
+	/** Component hosting the icon representing the shape. */
+	private JLabel label;
+	
+	/**
+	 * Add the approriate shape icon to the label.
+	 * 
+	 * @param shape above.
+	 */
+	private void makeShapeIcon(String shape)
+	{
+		if (shape.equals(FigureUtil.SCRIBBLE_TYPE)) 
+			label.setIcon(icons.getIcon(IconManager.SCRIBBLE16));
+		if (shape.equals(FigureUtil.LINE_TYPE)) 
+			label.setIcon(icons.getIcon(IconManager.LINE16));
+		if (shape.equals(FigureUtil.LINE_CONNECTION_TYPE)) 
+			label.setIcon(icons.getIcon(IconManager.CONNECTION16));
+		if (shape.equals(FigureUtil.POLYGON_TYPE)) 
+			label.setIcon(icons.getIcon(IconManager.POLYGON16));
+		if (shape.equals(FigureUtil.POINT_TYPE)) 
+			label.setIcon(icons.getIcon(IconManager.POINT16));
+		if (shape.equals(FigureUtil.RECTANGLE_TYPE)) 
+			label.setIcon(icons.getIcon(IconManager.RECTANGLE16));
+		if (shape.equals(FigureUtil.ELLIPSE_TYPE)) 
+			label.setIcon(icons.getIcon(IconManager.ELLIPSE16));
+		if (shape.equals(FigureUtil.TEXT_TYPE)) 
+			label.setIcon(icons.getIcon(IconManager.TEXT16));
+	}
+	
 	/**
 	 * Creates a new instance. Sets the opacity of the label to
 	 * <code>true</code>.
 	 */
 	public ShapeRenderer()
 	{
+		icons = IconManager.getInstance();
+		label = new JLabel();
+		FlowLayout layout = new FlowLayout(FlowLayout.CENTER);
+		layout.setVgap(0);
+        setLayout(layout);
 		setOpaque(true);
+		add(label);
 	}
 	
 	/**
+	 * Overridden to set the icon corresponding to the shape.
 	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object,
 	 *      boolean, boolean, int, int)
 	 */
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		setBackground(Color.red);
-		setForeground(Color.blue);
-		makeShapeIcon(this, (String) value);
+		makeShapeIcon((String) value);
 		return this;
 	}
-	
-	/**
-	 * Add the approriate shape icon to the label.
-	 * 
-	 * @param label see above.
-	 * @param shape above.
-	 */
-	private void makeShapeIcon(JLabel label, String shape)
-	{
-		if (shape.equals(FigureUtil.SCRIBBLE_TYPE)) label.setIcon(IconManager
-			.getInstance().getIcon(IconManager.SCRIBBLE16));
-		if (shape.equals(FigureUtil.LINE_TYPE)) label.setIcon(IconManager
-			.getInstance().getIcon(IconManager.LINE16));
-		if (shape.equals(FigureUtil.LINE_CONNECTION_TYPE)) label
-			.setIcon(IconManager.getInstance()
-				.getIcon(IconManager.CONNECTION16));
-		if (shape.equals(FigureUtil.POLYGON_TYPE)) label.setIcon(IconManager
-			.getInstance().getIcon(IconManager.POLYGON16));
-		if (shape.equals(FigureUtil.POINT_TYPE)) label.setIcon(IconManager
-			.getInstance().getIcon(IconManager.POINT16));
-		if (shape.equals(FigureUtil.RECTANGLE_TYPE)) label.setIcon(IconManager
-			.getInstance().getIcon(IconManager.RECTANGLE16));
-		if (shape.equals(FigureUtil.ELLIPSE_TYPE)) label.setIcon(IconManager
-			.getInstance().getIcon(IconManager.ELLIPSE16));
-		if (shape.equals(FigureUtil.TEXT_TYPE)) label.setIcon(IconManager
-			.getInstance().getIcon(IconManager.TEXT16));
-	}
-	
+
 }

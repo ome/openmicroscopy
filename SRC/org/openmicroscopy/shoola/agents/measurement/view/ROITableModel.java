@@ -155,9 +155,9 @@ class ROITableModel
 			case ROIID_COLUMN+1:
 				return Long.class;
 			case TIME_COLUMN+1:
-				return String.class;
+				return Integer.class;
 			case Z_COLUMN+1:
-				return String.class;
+				return Integer.class;
 			case SHAPE_COLUMN+1:
 				return ShapeType.class;
 			case ANNOTATION_COLUMN+1:

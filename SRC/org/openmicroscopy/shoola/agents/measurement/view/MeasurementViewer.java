@@ -79,6 +79,9 @@ public interface MeasurementViewer
     
     /** Flag to denote the <i>Discarded</i> state. */
     public static final int     DISCARDED = 7;
+
+    /** Flag to denote the <i>Value adjusting</i> state. */
+    public static final int     VALUE_ADJUSTING = 8;
  
     /**
      * Starts the data loading process when the current state is {@link #NEW} 
@@ -187,6 +190,12 @@ public interface MeasurementViewer
 
 	/** Brings up on screen the ROI Assistant. */
 	public void showROIAssistant();
+	
+	/**
+	 * Show the ROI assistant for the roi.
+	 * @param roi see above.
+	 */
+	public void showROIAssistant(ROI roi);
 	
 	/** 
 	 * Shows the measurements in the figures in Microns. 

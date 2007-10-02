@@ -36,6 +36,7 @@ import javax.swing.JPopupMenu;
 
 import org.openmicroscopy.shoola.agents.measurement.util.ROIActionController;
 import org.openmicroscopy.shoola.agents.measurement.util.actions.ROIAction;
+import org.openmicroscopy.shoola.agents.measurement.util.actions.ROIStatsAction;
 
 /** 
  * 
@@ -54,12 +55,18 @@ public class ROIPopupMenu
 {	
 	/** Text for the popup Menu -- not shown. */
 	final static String POPUP_MENU_DESCRIPTION = "Manager Options";
-	
+
 	/** 
 	 * Text for the ROI options -- parent of Split, merge, delete, propagate, 
 	 * duplicate. 
 	 * */
-	final static String ROI_OPTIONS = "ROI Options";
+	final static String ROI_CREATION_OPTIONS = "ROI Creation Options";
+	
+	/** 
+	 * Text for the ROI stats options, the ability to call the roi stats:
+	 * show intensity over time, project, etc.
+	 * */
+	final static String ROI_STATS_OPTIONS = "ROI Stats Options";
 	
 	/** The menubar which holds the menu items. */
 	private JPopupMenu				popupMenu;
@@ -83,19 +90,36 @@ public class ROIPopupMenu
 	 * 
 	 * @return The ROI control menu.
 	 */
-	private JMenu createROIOptions()
+	private JMenu createROICreationOptions()
 	{
-		JMenu roiOptionsParent = new JMenu(ROI_OPTIONS);
+		JMenu roiOptionsParent = new JMenu(ROI_CREATION_OPTIONS);
 		JMenuItem roiOption;
 		
-		for (int indexCnt = 0 ; indexCnt < ROIActionController.ActionType.values().length ; indexCnt++)
+		for (int indexCnt = 0 ; indexCnt < ROIActionController.CreationActionType.values().length ; indexCnt++)
 		{
-			roiOption = new JMenuItem(new ROIAction(controller, ROIActionController.ActionType.values()[indexCnt]));
+			roiOption = new JMenuItem(new ROIAction(controller, ROIActionController.CreationActionType.values()[indexCnt]));
 			roiOptionsParent.add(roiOption);
 		}
 		return roiOptionsParent;
 	}
 	
+	/**
+	 * Creates the menu which will allow the user to calculate the ROIstats.
+	 * 
+	 * @return The ROI control menu.
+	 */
+	private JMenu createROIStatsOptions()
+	{
+		JMenu roiOptionsParent = new JMenu(ROI_STATS_OPTIONS);
+		JMenuItem roiOption;
+		
+		for (int indexCnt = 0 ; indexCnt < ROIActionController.StatsActionType.values().length ; indexCnt++)
+		{
+			roiOption = new JMenuItem(new ROIStatsAction(controller, ROIActionController.StatsActionType.values()[indexCnt]));
+			roiOptionsParent.add(roiOption);
+		}
+		return roiOptionsParent;
+	}
 	/**
 	 * Create the popup menu;
 	 *
@@ -109,7 +133,8 @@ public class ROIPopupMenu
 		topOption = new JMenuItem(POPUP_MENU_DESCRIPTION);
 		popupMenu.add(topOption);
 		popupMenu.addSeparator();
-		popupMenu.add(createROIOptions());
+		popupMenu.add(createROICreationOptions());
+		popupMenu.add(createROIStatsOptions());
 	}
 
 	/**

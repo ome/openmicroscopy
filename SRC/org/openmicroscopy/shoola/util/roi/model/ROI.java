@@ -316,6 +316,8 @@ public class ROI
 			roiShapes.remove(coord);
 	}
 	  
+	
+	
 	/**
 	 * Set the value off the annotation with key.
 	 * @param key see above.

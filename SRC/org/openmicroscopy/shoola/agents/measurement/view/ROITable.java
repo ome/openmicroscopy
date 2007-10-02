@@ -29,6 +29,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.TreeMap;
 import java.util.Vector;
 
 import javax.swing.table.TableColumn;
@@ -36,8 +37,6 @@ import javax.swing.tree.TreePath;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
-import org.jdesktop.swingx.decorator.Highlighter;
-import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.util.ROIActionController;
@@ -47,9 +46,9 @@ import org.openmicroscopy.shoola.agents.measurement.util.ShapeRenderer;
 import org.openmicroscopy.shoola.agents.measurement.util.roimenu.ROIPopupMenu;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.graphutils.ShapeType;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
-import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
 
 /**
  * The ROITable is the class extending the JXTreeTable, this shows the 
@@ -151,8 +150,8 @@ public class ROITable
 	 */
 	protected void onMousePressed(MouseEvent e)
 	{
-	//	if(rightClick(e))
-	//		popupMenu.getPopupMenu().show(this, e.getX(), e.getY());
+		if(rightClick(e))
+			popupMenu.getPopupMenu().show(this, e.getX(), e.getY());
 	}
 	
 	
@@ -396,42 +395,218 @@ public class ROITable
 	 */
 	public void deleteROI()
 	{
-		int [] selectedRows = this.getSelectedRows();
-		HashMap<Long, Object> objectMap = new HashMap<Long, Object>(); 
-		for(int i = 0 ; i < selectedRows.length ; i++)
+		ArrayList selectionList = getSelectedObjects();
+		for(Object nodeObject : selectionList)
 		{
-			Object nodeObject = this.getNodeAtRow(i).getUserObject();
-			if(nodeObject instanceof ROI)
-			{
-				ROI roi = (ROI)nodeObject;
-				objectMap.put(roi.getID(), roi);
-			}
-			else if (nodeObject instanceof ROIShape)
-			{
-				ROIShape roiShape = (ROIShape)nodeObject;
-				if(!objectMap.containsKey(roiShape.getID()))
-					objectMap.put(roiShape.getID(), roiShape);
-			}
-		}
-
-		Iterator objectIterator = objectMap.values().iterator();
-		while(objectIterator.hasNext())
-		{
-			Object nodeObject = objectIterator.next();
 			if(nodeObject instanceof ROI)
 				manager.deleteROI((ROI)nodeObject);
 			else if(nodeObject instanceof ROIShape)
 				manager.deleteROIShape((ROIShape)nodeObject);
 		}
 	}
+	
+	/**
+	 * Create a list of all the roi and roishapes selected in the table.
+	 * This will only list an roi even if the roi and roishapes are selected.
+	 * @return see above.
+	 */
+	ArrayList getSelectedObjects()
+	{
+		int [] selectedRows = this.getSelectedRows();
+		HashMap<Long, Object> roiMap = new HashMap<Long, Object>(); 
+		ArrayList selectedList = new ArrayList();
+		for(int i = 0 ; i < selectedRows.length ; i++)
+		{	
+			Object nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
+			if(nodeObject instanceof ROI)
+			{
+				ROI roi = (ROI)nodeObject;
+				roiMap.put(roi.getID(), roi);
+				selectedList.add(roi);
+			}
+		}
+		for(int i = 0 ; i < selectedRows.length ; i++)
+		{	
+			Object nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
+			if (nodeObject instanceof ROIShape)
+			{
+				ROIShape roiShape = (ROIShape)nodeObject;
+				if(!roiMap.containsKey(roiShape.getID()))
+					selectedList.add(roiShape);
+			}
+		}
+		return selectedList;
+	}
 
+	/**
+	 * Build the plane map from the selected object list. This builds a map
+	 * of all the planes that have objects reside on them.
+	 * @param objectList see above.
+	 * @return see above.
+	 */
+	HashMap<Coord3D, ROIShape> buildPlaneMap(ArrayList objectList)
+	{
+		HashMap<Coord3D, ROIShape> planeMap = new HashMap<Coord3D, ROIShape>();
+		for(Object node : objectList)
+		{
+			if(node instanceof ROI)
+			{
+				ROI roi = (ROI)node;
+				TreeMap<Coord3D, ROIShape> shapeMap =  roi.getShapes();
+				Iterator<Coord3D> coordIterator = shapeMap.keySet().iterator();
+				while(coordIterator.hasNext())
+				{
+					Coord3D coord = coordIterator.next();
+					if(planeMap.containsKey(coord))
+						return null;
+					planeMap.put(coord, shapeMap.get(coord));
+					System.err.println("ROI.id= "+shapeMap.get(coord).getID());
+				}
+			} else if (node instanceof ROIShape)
+			{
+				ROIShape shape = (ROIShape)node;
+				if(planeMap.containsKey(shape.getCoord3D()))
+					return null;
+				else
+					planeMap.put(shape.getCoord3D(), shape);
+			}
+		}
+		return planeMap;
+	}
+	
+	/**
+	 * Get the id of objects in the selected list. 
+	 * @param selectedObjects
+	 * @return see above.
+	 */
+	ArrayList<Long> getIDList(ArrayList selectedObjects)
+	{
+		HashMap<Long,ROI> idMap = new HashMap<Long, ROI>();
+		ArrayList<Long> idList = new ArrayList<Long>();
+		for(Object node : selectedObjects)
+		{
+			ROI roi;
+			if(node instanceof ROI)
+				roi = (ROI)node;
+			else
+				roi = ((ROIShape)node).getROI();
+			if(!idMap.containsKey(roi.getID()))
+			{
+				idMap.put(roi.getID(), roi);
+				idList.add(roi.getID());
+			}
+		}
+		return idList;
+	}
+	
+	/**
+	 * Get the roishapes of the selected objects, this method will split ROI
+	 * into their respective ROIshapes. 
+	 * @return see above.
+	 */
+	ArrayList<ROIShape> getSelectedROIShapes()
+	{
+		int [] selectedRows = this.getSelectedRows();
+		HashMap<Long, Object> roiMap = new HashMap<Long, Object>(); 
+		ArrayList selectedList = new ArrayList();
+		for(int i = 0 ; i < selectedRows.length ; i++)
+		{	
+			Object nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
+			if(nodeObject instanceof ROI)
+			{
+				ROI roi = (ROI)nodeObject;
+				roiMap.put(roi.getID(), roi);
+				Iterator<ROIShape> shapeIterator = roi.getShapes().values().iterator();
+				while(shapeIterator.hasNext())
+					selectedList.add(shapeIterator.next());
+			}
+		}
+		for(int i = 0 ; i < selectedRows.length ; i++)
+		{	
+			Object nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
+			if (nodeObject instanceof ROIShape)
+			{
+				ROIShape roiShape = (ROIShape)nodeObject;
+				if(!roiMap.containsKey(roiShape.getID()))
+					selectedList.add(roiShape);
+			}
+		}
+
+		return selectedList;
+	}
+	
+	/**
+	 * Are all the roishapes in the shapelist on separate planes. 
+	 * @param shapeList see above.
+	 * @return see above.
+	 */
+	boolean onSeparatePlanes(ArrayList<ROIShape> shapeList)
+	{
+		HashMap<Coord3D, ROIShape> shapeMap = new HashMap<Coord3D, ROIShape>();
+		for(ROIShape shape : shapeList)
+		{
+			if(shapeMap.containsKey(shape.getCoord3D()))
+				return false;
+			else
+				shapeMap.put(shape.getCoord3D(), shape);
+		}
+		return true;
+	}
+	
+	/**
+	 * Return true if all the roishapes in the shapelist have the same id. 
+	 * @param shapeList see above.
+	 * @return see above.
+	 */
+	boolean haveSameID(ArrayList<ROIShape> shapeList)
+	{
+		HashMap<Long, ROIShape> shapeMap = new HashMap<Long, ROIShape>();
+		for(ROIShape shape : shapeList)
+		{
+			if(!shapeMap.containsKey(shape.getID()))
+			{
+				if(shapeMap.size()==0)
+					shapeMap.put(shape.getID(), shape);
+				else
+					return false;
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * Get the id that the roishapes in the shapelist contain, if they
+	 * do not contain the same id return -1;
+	 * @param shapeList see above.
+	 * @return see above.
+	 */
+	long getSameID(ArrayList<ROIShape> shapeList)
+	{
+		HashMap<Long, ROIShape> shapeMap = new HashMap<Long, ROIShape>();
+		if(shapeList.size()==0)
+			return -1;
+		for(ROIShape shape : shapeList)
+		{
+			if(!shapeMap.containsKey(shape.getID()))
+			{
+				if(shapeMap.size()==0)
+					shapeMap.put(shape.getID(), shape);
+				else
+					return -1;
+			}
+		}
+		return shapeList.get(0).getID();
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.openmicroscopy.shoola.agents.measurement.util.ROIActionController#duplicateROI()
 	 */
 	public void duplicateROI()
 	{
-		// TODO Auto-generated method stub
-		
+		ArrayList<ROIShape> selectedObjects = getSelectedROIShapes();
+		if(onSeparatePlanes(selectedObjects) && haveSameID(selectedObjects))
+			manager.duplicateROI(getSameID(selectedObjects), selectedObjects );
+				
 	}
 
 	/* (non-Javadoc)
@@ -439,8 +614,13 @@ public class ROITable
 	 */
 	public void mergeROI()
 	{
-		// TODO Auto-generated method stub
-		
+		ArrayList<ROIShape> selectedObjects = getSelectedROIShapes();
+		if(onSeparatePlanes(selectedObjects))
+		{
+			ArrayList<Long> idList = getIDList(selectedObjects);
+			manager.mergeROI(idList, selectedObjects);
+		}
+			
 	}
 
 	/* (non-Javadoc)
@@ -448,12 +628,14 @@ public class ROITable
 	 */
 	public void propagateROI()
 	{
+		if(this.getSelectedRows().length!=1)
+			return;
 		ROINode node = (ROINode)this.getNodeAtRow(this.getSelectedRow());
 		Object nodeObject = node.getUserObject(); 
 		if(nodeObject instanceof ROI)
-			manager.propagateROI(((ROI)nodeObject).getID());
+			manager.propagateROI(((ROI)nodeObject));
 		if(nodeObject instanceof ROIShape)
-			manager.propagateROI(((ROIShape)nodeObject).getID());
+			manager.propagateROI(((ROIShape)nodeObject).getROI());
 	}
 
 	/* (non-Javadoc)
@@ -461,8 +643,50 @@ public class ROITable
 	 */
 	public void splitROI()
 	{
-		// TODO Auto-generated method stub
-		
+		ArrayList<ROIShape> selectedObjects = getSelectedROIShapes();
+		if(onSeparatePlanes(selectedObjects) && haveSameID(selectedObjects))
+			manager.splitROI(getSameID(selectedObjects), selectedObjects);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.agents.measurement.util.ROIActionController#calculateStats()
+	 */
+	public void calculateStats()
+	{
+		ArrayList<ROIShape> selectedObjects = getSelectedROIShapes();
+		if(onSeparatePlanes(selectedObjects) && haveSameID(selectedObjects))
+			manager.calculateStats(getSameID(selectedObjects), selectedObjects );
+	}
+	
+	/**
+	 * Check the list of to make sure the ROIShapes in the list are from the
+	 * same ROI and if they are then return true;
+	 * @param shapeList see above.
+	 * @return see above.
+	 */
+	boolean shapesInSameROI(ArrayList shapeList)
+	{
+		long id=-1;
+		if(shapeList.size() == 0)
+			return false;
+		boolean first = true;
+		for(Object node : shapeList)
+		{
+			if(node instanceof ROI)
+				return false;
+			else if(node instanceof ROIShape)
+			{
+				ROIShape shape = (ROIShape)node;
+				if(first)
+				{
+					id = shape.getID();
+					first = false;
+				}
+				if(id != shape.getID())
+					return false;
+			}
+		}
+		return true;
 	}
 
 }

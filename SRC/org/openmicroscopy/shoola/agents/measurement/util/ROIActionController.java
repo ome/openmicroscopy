@@ -45,7 +45,7 @@ public interface ROIActionController
 {	
 
 	/** List of actions possible to be performed by ROIActionController.*/
-	public enum ActionType
+	public enum CreationActionType
 	{
 		DELETE,
 		MERGE,
@@ -54,11 +54,19 @@ public interface ROIActionController
 		DUPLICATE
 	};
 	
+	public enum StatsActionType
+	{
+		CALCULATE
+	};
+	
+	
+	
 	public void deleteROI();
 	public void mergeROI();
 	public void splitROI();
 	public void propagateROI();
 	public void duplicateROI();
+	public void calculateStats();
 	
 }
 

@@ -31,10 +31,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.TableCellRenderer;
 
-import org.openmicroscopy.shoola.agents.measurement.IconManager;
-import org.openmicroscopy.shoola.util.roi.figures.ShapeTypes;
-import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -53,7 +49,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
  * @since OME3.0
  */
 public class StringCellRenderer 
-	extends JComponent 
+	extends JLabel 
 	implements TableCellRenderer
 {
 	/**
@@ -62,7 +58,8 @@ public class StringCellRenderer
 	 */
 	public StringCellRenderer()
 	{
-		
+		setOpaque(true);
+		setBorder(null);
 	}
 	
 	/**
@@ -72,8 +69,9 @@ public class StringCellRenderer
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		JLabel label = new JLabel();
-		label.setText((String) value);
-		return label;
+		//setAlignmentX(JLabel.CENTER_ALIGNMENT);
+		//setHorizontalTextPosition(JLabel.CENTER);
+		setText(value.toString());
+		return this;
 	}
 }

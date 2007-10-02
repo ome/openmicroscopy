@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.util.roimenu.ROIMenuAction 
+ * org.openmicroscopy.shoola.agents.measurement.util.actions.ROIStatsAction 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -23,8 +23,11 @@
 package org.openmicroscopy.shoola.agents.measurement.util.actions;
 
 
+
 //Java imports
+
 import java.awt.event.ActionEvent;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
@@ -32,7 +35,8 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.util.ROIActionController;
-import org.openmicroscopy.shoola.agents.measurement.util.ROIActionController.CreationActionType;
+import org.openmicroscopy.shoola.agents.measurement.util.ROIActionController.StatsActionType;
+
 /** 
  * 
  *
@@ -46,11 +50,11 @@ import org.openmicroscopy.shoola.agents.measurement.util.ROIActionController.Cre
  * </small>
  * @since OME3.0
  */
-public class ROIAction
-	extends AbstractAction
+public class ROIStatsAction
+extends AbstractAction
 {
 	/** action for this 'action' to perform. */
-	protected CreationActionType 				action;
+	protected StatsActionType 				action;
 	
 	/** The controller for the event. */
 	protected ROIActionController 		controller;
@@ -59,27 +63,15 @@ public class ROIAction
 	 * Create instance;
 	 *@param controller the reference to the action controller.
 	 */
-	public ROIAction(ROIActionController controller, CreationActionType action)
+	public ROIStatsAction(ROIActionController controller, StatsActionType action)
 	{
 		this.controller = controller;
 		this.action = action;
 		switch(action)
 		{
-			case DUPLICATE:
+			case CALCULATE:
 				this.
-				setName("Duplicate");
-				break;
-			case DELETE:
-				setName("Delete");
-				break;
-			case MERGE:
-				setName("Merge");
-				break;
-			case SPLIT:
-				setName("Split");
-				break;
-			case PROPAGATE:
-				setName("Propagate");
+				setName("Calculate");
 				break;
 		}
 	}
@@ -111,26 +103,10 @@ public class ROIAction
 	{
 		switch(action)
 		{
-			case DUPLICATE:
+			case CALCULATE:
 				this.
-				setName("Duplicate");
-				controller.duplicateROI();
-				break;
-			case DELETE:
-				setName("Delete");
-				controller.deleteROI();
-				break;
-			case MERGE:
-				setName("Merge");
-				controller.mergeROI();
-				break;
-			case SPLIT:
-				setName("Split");
-				controller.splitROI();
-				break;
-			case PROPAGATE:
-				setName("Propagate");
-				controller.propagateROI();
+				setName("Calculate");
+				controller.calculateStats();
 				break;
 		}
 	}	

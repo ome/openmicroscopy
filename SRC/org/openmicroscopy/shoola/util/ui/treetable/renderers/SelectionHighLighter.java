@@ -61,11 +61,23 @@ public class SelectionHighLighter
 	   @Override
        protected void applyBackground(Component renderer, ComponentAdapter adapter) 
 	   {
-           if (adapter.row==table.getSelectedRow())
-           {
-               renderer.setBackground(OMETreeTableRenderUtils.SELECTED_BACKGROUND_COLOUR);
-           }
+           if (isSelected(adapter.row, table.getSelectedRows()))
+                renderer.setBackground(OMETreeTableRenderUtils.SELECTED_BACKGROUND_COLOUR);
        }
+	   
+	   /**
+	    * Is the row in the selected rows field.
+	    * @param row see above.
+	    * @param rows see above.
+	    * @return see above.
+	    */
+	   private boolean isSelected(int row, int [] rows)
+	   {
+		   for(int i = 0 ; i < rows.length ; i++)
+			   if(row==rows[i])
+				   return true;
+		   return false;
+	   }
 }
 
 

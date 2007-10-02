@@ -382,6 +382,22 @@ public class ROIComponent
 	}
 
 	/**
+	 * Create a new ROI, assign it an ROI from the getNextID call.
+	 * 
+	 * @return See above. 
+	 * @throws ROICreationException	If an error occured while creating 
+	 * 								an ROI, basic assumption is this is 
+	 * 								linked to memory issues.
+	 * @throws NoSuchROIException 	If the roi to be cloned does not exist.
+	 */
+	public ROI cloneROI(long id)
+		throws 	ROICreationException, NoSuchROIException
+	{
+		ROI newROI = roiCollection.createROI();
+		newROI.setAnnotations(roiCollection.getROI(id).getAnnotation());
+		return newROI;
+	}
+	/**
 	 * Returns the roiMap which is the TreeMap containing the ROI, ROI.id pairs. 
 	 * It is an ordered Tree. 
 	 * 
