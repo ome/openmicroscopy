@@ -82,7 +82,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 3.0-M3
  */
 @TransactionManagement(TransactionManagementType.BEAN)
-@Transactional
+@Transactional(readOnly = true)
 @RevisionDate("$Date: 2007-05-23 09:43:33 +0100 (Wed, 23 May 2007) $")
 @RevisionNumber("$Revision: 1552 $")
 @Stateless
@@ -241,6 +241,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 	}
 
 	@RolesAllowed("system")
+	@Transactional(readOnly = false)
 	public void setDN(Long experimenterID, String dn) {
 		LdapUtil.setDNById(jdbc, experimenterID, dn);
 		synchronizeLoginCache();
@@ -482,6 +483,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 	 * 
 	 * @return {@link ome.system.ServiceFactory}
 	 */
+	@Transactional(readOnly = false)
 	public boolean createUserFromLdap(String username, String password) {
 		// Find user by DN
 		DistinguishedName dn;
