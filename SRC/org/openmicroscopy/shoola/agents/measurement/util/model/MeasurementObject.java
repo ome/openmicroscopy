@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.util.AnnotationField 
+ * org.openmicroscopy.shoola.agents.measurement.util.MeasurementObject 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,19 +20,20 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.util;
+package org.openmicroscopy.shoola.agents.measurement.util.model;
 
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 
 /** 
- * Helper class used to store various information about the annotation key.
+ * Helper class used to store various object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -44,53 +45,63 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
  * </small>
  * @since OME3.0
  */
-public class AnnotationField
+public class MeasurementObject
 {
+
+	/** Store the passed objects. */
+	protected List<Object>	elements;
 	
-	/** The key hosted by this class. */
-	private AnnotationKey 	key;
-	
-	/** The name of the field. */
-	private String 			name;
-	
-	/** Flag indicating if the field is editable or not. */
-	private boolean 		editable;
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param key	The key hosted by this class.
-	 * @param name	The name of the field.
-	 * @param editable	Pass <code>true</code> to edit the field, 
-	 * 					<code>false</code> otherwise.
-	 */
-	public AnnotationField(AnnotationKey key, String name, boolean editable)
+	/** Creates a new instance. */
+	public MeasurementObject()
 	{
-		this.key = key;
-		this.name = name;
-		this.editable = editable;
+		elements = new ArrayList<Object>();
 	}
 	
 	/**
-	 * Returns the name of the field.
+	 * Adds the passed element to the collection if not <code>null</code>.
 	 * 
-	 * @return See above.
+	 * @param element The element to add.
 	 */
-	public String getName() { return name; }
+	public void addElement(Object element)
+	{
+		if (element != null) elements.add(element);
+		else
+			elements.add("");
+	}
 	
 	/**
-	 * Returns <code>true</code> if the field is editable, 
-	 * <code>false</code> otherwise.
+	 * Returns the element at the specified position in this list.
 	 * 
+	 * @param index The index of the element to return.
 	 * @return See above.
 	 */
-	public boolean isEditable() { return editable; }
+	public Object getElement(int index)
+	{
+		if (index >= 0 &&  index < elements.size()) 
+			return elements.get(index);
+		return null;
+	}
 	
 	/**
-	 * Returns the <code>key</code> hosted by this class.
+	 * Replaces the element at the specified position in this list with the
+     * specified element.
+     * 
+	 * @param value	The value to set.
+	 * @param index	The index of the element to set.
+	 */
+	public void setElement(Object value, int index)
+	{
+		if (index >= 0 || index < elements.size()) 
+			elements.set(index, value);
+		else
+			return;
+	}
+	
+	/**
+	 * Returns the size of the list.
 	 * 
 	 * @return See above.
 	 */
-	public AnnotationKey getKey() { return key; }
+	public int getSize() { return elements.size(); }
 	
 }

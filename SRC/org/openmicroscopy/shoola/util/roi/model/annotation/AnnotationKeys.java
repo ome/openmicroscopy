@@ -53,7 +53,7 @@ import java.util.Set;
 public class AnnotationKeys {
 	
 	/** This is the text of the figure object. */
-	public static final AnnotationKey<String> BASIC_TEXT =
+	public static final AnnotationKey<String> TEXT =
 		new AnnotationKey<String>("basicTextAnnotation", "");
 	
 	/** The area of the figure. */
@@ -148,7 +148,7 @@ public class AnnotationKeys {
         HashSet<AnnotationKey> as = new HashSet<AnnotationKey>();
         as.addAll(Arrays.asList(new AnnotationKey[] 
                                                   {
-        		BASIC_TEXT,
+        		TEXT,
         		AREA,
         		PERIMETER, 
         		VOLUME, 

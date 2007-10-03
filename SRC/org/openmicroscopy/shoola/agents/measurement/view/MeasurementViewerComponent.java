@@ -45,14 +45,13 @@ import org.jhotdraw.draw.Drawing;
 //Application-internal dependencies
 import ome.model.core.Pixels;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
-import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.SaveChangesDialog;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
@@ -311,9 +310,15 @@ class MeasurementViewerComponent
 					"invoked in the DISCARDED state:"+model.getState());
 		if (!model.isDataSaved())
 		{ 
-			SaveChangesDialog dialog = new SaveChangesDialog(MeasurementViewerFactory.getViewer(model.getPixelsID()).getUI(), 
-				IconManager.getInstance().getIcon(IconManager.QUESTION));
-			if(!dialog.showDialog())
+			String title = "Discard Changes?";
+		    String message = "Do you want to exit and " +
+		    										"discard changes?";
+		  
+			MessageBox dialog = new MessageBox
+			(MeasurementViewerFactory.getViewer(model.getPixelsID()).getUI(),
+				title, message);
+				
+			if(dialog.showMsgBox()==MessageBox.NO_OPTION)
 				return;
 		}
 		model.setDataDiscarded();
@@ -347,7 +352,8 @@ class MeasurementViewerComponent
 	    if (f != null) chooser.setCurrentDirectory(f);
 		try
 		{
-			String savedFileString=FileMap.getSavedFile(model.getServerName(), model.getUserName(), model.getPixelsID());
+			String savedFileString=FileMap.getSavedFile(model.getServerName(), 
+								model.getUserName(), model.getPixelsID());
 			if(savedFileString!=null)
 			{
 				File savedFile = new File(savedFileString);
@@ -385,7 +391,8 @@ class MeasurementViewerComponent
 	    if (f != null) chooser.setCurrentDirectory(f);
 		try
 		{
-			String savedFileString=FileMap.getSavedFile(model.getServerName(), model.getUserName(), model.getPixelsID());
+			String savedFileString=FileMap.getSavedFile(model.getServerName(), 
+							model.getUserName(), model.getPixelsID());
 			if(savedFileString!=null)
 			{
 				File savedFile = new File(savedFileString);

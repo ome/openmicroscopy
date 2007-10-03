@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.util.ROINode 
+ * org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.util;
+package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 
 
 
@@ -179,7 +179,7 @@ public class ROINode
 				case SHAPE_COLUMN+1:
 					return roi.getShapeTypes();
 				case ANNOTATION_COLUMN+1:
-					return new String(AnnotationKeys.BASIC_TEXT.get(roi));
+					return new String(AnnotationKeys.TEXT.get(roi));
 				case VISIBLE_COLUMN+1:
 					return roi.isVisible();
 				default:
@@ -203,8 +203,8 @@ public class ROINode
 				case SHAPE_COLUMN+1:
 					return roiShape.getFigure().getType();
 				case ANNOTATION_COLUMN+1:
-					return new String(MeasurementAttributes.TEXT
-						.get(roiShape.getFigure()));
+					return new String(AnnotationKeys.TEXT
+						.get(roiShape));
 				case VISIBLE_COLUMN+1:
 					return new Boolean(roiShape.getFigure().isVisible());
 				default:
@@ -235,7 +235,7 @@ public class ROINode
 					break;
 				case ANNOTATION_COLUMN+1:
 					if(value instanceof String)
-						roi.setAnnotation(AnnotationKeys.BASIC_TEXT, (String) value);
+						roi.setAnnotation(AnnotationKeys.TEXT, (String) value);
 					break;
 				case VISIBLE_COLUMN+1:
 					if(value instanceof Boolean)

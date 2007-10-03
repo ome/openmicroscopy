@@ -55,11 +55,11 @@ import javax.swing.table.TableColumn;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
-import org.openmicroscopy.shoola.agents.measurement.util.AnnotationDescription;
-import org.openmicroscopy.shoola.agents.measurement.util.AnnotationField;
-import org.openmicroscopy.shoola.agents.measurement.util.MeasurementObject;
-import org.openmicroscopy.shoola.agents.measurement.util.ResultsCellRenderer;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
+import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
+import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationField;
+import org.openmicroscopy.shoola.agents.measurement.util.model.MeasurementObject;
+import org.openmicroscopy.shoola.agents.measurement.util.ui.ResultsCellRenderer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -233,9 +233,9 @@ class MeasurementResults
 	private void createAllFields()
 	{
 		allFields = new ArrayList<AnnotationField>();
-		allFields.add(new AnnotationField(AnnotationKeys.BASIC_TEXT,
+		allFields.add(new AnnotationField(AnnotationKeys.TEXT,
 						AnnotationDescription.annotationDescription.get(
-							AnnotationKeys.BASIC_TEXT), false)); 
+							AnnotationKeys.TEXT), false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.CENTREX,
 			AnnotationDescription.annotationDescription.get(
 							AnnotationKeys.CENTREX), false)); 
@@ -287,9 +287,9 @@ class MeasurementResults
 	private void createDefaultFields()
 	{
 		fields = new ArrayList<AnnotationField>();	
-		fields.add(new AnnotationField(AnnotationKeys.BASIC_TEXT,
+		fields.add(new AnnotationField(AnnotationKeys.TEXT,
 			AnnotationDescription.annotationDescription.get(
-				AnnotationKeys.BASIC_TEXT), false)); 
+				AnnotationKeys.TEXT), false)); 
 		fields.add(new AnnotationField(AnnotationKeys.CENTREX,
 			AnnotationDescription.annotationDescription.get(
 				AnnotationKeys.CENTREX), false)); 

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.util.ROIActionController 
+ * org.openmicroscopy.shoola.agents.measurement.util.analysis.Dijkstra 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,16 +20,18 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.util;
+package org.openmicroscopy.shoola.agents.measurement.util.analysis;
+
 
 //Java imports
+import java.util.LinkedList;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Directed Graph for analysis chain.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -41,33 +43,19 @@ package org.openmicroscopy.shoola.agents.measurement.util;
  * </small>
  * @since OME3.0
  */
-public interface ROIActionController
+public class Dijkstra
 {	
-
-	/** List of actions possible to be performed by ROIActionController.*/
-	public enum CreationActionType
+	class Node 
 	{
-		DELETE,
-		MERGE,
-		SPLIT,
-		PROPAGATE,
-		DUPLICATE
-	};
-	
-	public enum StatsActionType
-	{
-		CALCULATE
-	};
-	
-	
-	
-	public void deleteROI();
-	public void mergeROI();
-	public void splitROI();
-	public void propagateROI();
-	public void duplicateROI();
-	public void calculateStats();
-	
+		LinkedList<Node> children = new LinkedList<Node>();
+		
+		Node()
+		{
+			
+		}
+		
+		
+	}
 }
 
 

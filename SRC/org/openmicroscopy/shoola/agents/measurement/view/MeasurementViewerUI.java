@@ -52,6 +52,7 @@ import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
+import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -104,19 +105,22 @@ class MeasurementViewerUI
 	private static final String			WINDOW_TITLE = "Measurement Tool ";
 	
 	/** index to identify inspector tab. */
-	public static final int			INSPECTOR_INDEX = 100;
+	public static final int			INSPECTOR_INDEX = 0;
 
 	/** index to identify manager tab. */
-	public static final int			MANAGER_INDEX = 101;
+	public static final int			MANAGER_INDEX = 1;
 	
 	/** index to identify results tab. */
-	public static final int			RESULTS_INDEX = 102;
+	public static final int			RESULTS_INDEX = 2;
 	
 	/** index to identify graph tab. */
-	public static final int			GRAPH_INDEX = 103;
-	
+	public static final int			GRAPH_INDEX = 3;
+
 	/** index to identify intensity tab. */
-	public static final int			INTENSITY_INDEX = 104;
+	public static final int			INTENSITY_INDEX = 4;
+	
+	/** index to identify calculation tab. */
+	public static final int			CALCWIZARD_INDEX = 5;
 	
 	/** Reference to the Model. */
 	private MeasurementViewerModel 		model;
@@ -144,6 +148,9 @@ class MeasurementViewerUI
 	
 	/** The graphing component. */
 	private IntensityView				intensityView;
+	
+	/** The calculation Wizard component. */
+	private CalculationWizard			calcWizard;
 	
     /** Tabbed pane hosting the various panel. */
     private JTabbedPane					tabs;
@@ -251,6 +258,7 @@ class MeasurementViewerUI
 		roiResults = new MeasurementResults(controller, model, this);
 		graphPane = new GraphPane(controller, model);
 		intensityView = new IntensityView(controller, model);
+		calcWizard = new CalculationWizard(controller, model);
 		tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
 		addTabbedPaneListener();
         tabs.setAlignmentX(LEFT_ALIGNMENT);
@@ -289,6 +297,8 @@ class MeasurementViewerUI
 			graphPane.getComponentIcon(), graphPane);
 		tabs.addTab(intensityView.getComponentName(), 
 			intensityView.getComponentIcon(), intensityView);
+		tabs.addTab(calcWizard.getComponentName(), 
+			calcWizard.getComponentIcon(), calcWizard);
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout(0, 0));
 		container.add(toolBar, BorderLayout.NORTH);
@@ -339,7 +349,19 @@ class MeasurementViewerUI
 	 */
 	boolean inDataView()
 	{
-		return (inIntensityView() || inGraphView());
+		return (inIntensityView() || inGraphView() || inCalcWizardView());
+	}
+	
+	/**
+	 * Returns <code>true</code> if in the calcWizard view,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean inCalcWizardView()
+	{
+		return (tabs.getTitleAt(tabs.getSelectedIndex()).
+				equals(calcWizard.getComponentName()));
 	}
 	
 	/**
@@ -737,5 +759,19 @@ class MeasurementViewerUI
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
+
+    /**
+	 * Calculate the stats for the roi in the shapelist with id. This method
+	 * will call the CalcWizard.
+	 * @param id see above.
+	 * @param shapeList see above.
+	 */
+	public void calculateStats(long id, ArrayList<ROIShape> shapeList)
+	{
+		if(model.getState() != MeasurementViewer.READY)
+			return;
+		tabs.setSelectedIndex(calcWizard.getIndex());
+		calcWizard.calculateStats(id, shapeList);
+	}
     
 }

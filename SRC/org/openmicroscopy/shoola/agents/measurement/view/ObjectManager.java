@@ -50,9 +50,10 @@ import org.jdesktop.swingx.table.TableColumnExt;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
-import org.openmicroscopy.shoola.agents.measurement.util.AnnotationDescription;
-import org.openmicroscopy.shoola.agents.measurement.util.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
+import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
+import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
+import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -89,7 +90,7 @@ class ObjectManager
 		columnNames.add(AnnotationDescription.ZSECTION_STRING);
 		columnNames.add(AnnotationDescription.SHAPE_STRING);
 		columnNames.add(AnnotationDescription.annotationDescription.get(
-			AnnotationKeys.BASIC_TEXT));
+			AnnotationKeys.TEXT));
 		columnNames.add("Visible");
 	}
 	
@@ -397,7 +398,7 @@ class ObjectManager
 	 */
 	public void calculateStats(long id, ArrayList<ROIShape> shapeList)
 	{
-		model.calculateStats(id, shapeList);
+		view.calculateStats(id, shapeList);
 		this.rebuildTable();
 	}
 	
@@ -439,11 +440,20 @@ class ObjectManager
 
 	/**
 	 * Show the roi assistant for the roi.
-	 * @param id
+	 * @param roi see above.
 	 */
 	public void propagateROI(ROI roi)
 	{
 		view.showROIAssistant(roi);
+	}
+	
+	/**
+	 * Display message in status bar. 
+	 * @param messageString see above.
+	 */
+	void showMessage(String messageString)
+	{
+		view.setStatus(messageString);
 	}
 	
 }

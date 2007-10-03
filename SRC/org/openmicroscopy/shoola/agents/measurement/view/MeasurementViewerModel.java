@@ -605,9 +605,22 @@ class MeasurementViewerModel
 	 */
 	void figureAttributeChanged(AttributeKey attribute, ROIFigure figure)
 	{
-		if (attribute.getKey().equals(AttributeKeys.TEXT.getKey())) {
+		mapFigureAttributeToROIAnnotation(attribute, figure);
+	}
+	
+	/**
+	 * Map figure attributes to ROIa nd ROIShape annotations where necessary. 
+	 * @param attribute see above.
+	 * @param figure see above.
+	 */
+	private void mapFigureAttributeToROIAnnotation(AttributeKey attribute, 
+													ROIFigure figure)
+	{
+
+		if (attribute.getKey().equals(AttributeKeys.TEXT.getKey())) 
+		{
 			ROIShape shape = figure.getROIShape();
-			AnnotationKeys.BASIC_TEXT.set(shape, 
+			AnnotationKeys.TEXT.set(shape, 
 									AttributeKeys.TEXT.get(figure));
 		}
 	}

@@ -43,10 +43,10 @@ import org.jhotdraw.draw.Figure;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
-import org.openmicroscopy.shoola.agents.measurement.util.AttributeField;
-import org.openmicroscopy.shoola.agents.measurement.util.FigureTable;
-import org.openmicroscopy.shoola.agents.measurement.util.FigureTableModel;
-import org.openmicroscopy.shoola.agents.measurement.util.ValueType;
+import org.openmicroscopy.shoola.agents.measurement.util.model.AttributeField;
+import org.openmicroscopy.shoola.agents.measurement.util.model.FigureTableModel;
+import org.openmicroscopy.shoola.agents.measurement.util.model.ValueType;
+import org.openmicroscopy.shoola.agents.measurement.util.ui.FigureTable;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;

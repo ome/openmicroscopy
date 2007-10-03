@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -204,8 +205,8 @@ class ROIAssistant
 					initialShape = shape;
 					shapeType.setText(shape.getFigure().getType());
 					description.setText(
-							(String) shape.getAnnotation(
-									AnnotationKeys.BASIC_TEXT));
+							(String) shape.getFigure().getAttribute(
+									MeasurementAttributes.TEXT));
 					xCoord.setText(shape.getFigure().getStartPoint().getX()+"");
 					yCoord.setText(shape.getFigure().getStartPoint().getY()+"");
 					width.setText(Math.abs(

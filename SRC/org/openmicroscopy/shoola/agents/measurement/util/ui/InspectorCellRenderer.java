@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.util;
+package org.openmicroscopy.shoola.agents.measurement.util.ui;
 
 //Java imports
 
@@ -41,6 +41,8 @@ import javax.swing.table.TableCellRenderer;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.util.model.AttributeField;
+import org.openmicroscopy.shoola.agents.measurement.util.model.ValueType;
 import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 import org.openmicroscopy.shoola.util.ui.PaintPot;
 

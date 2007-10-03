@@ -39,11 +39,12 @@ import javax.swing.tree.TreePath;
 import org.jdesktop.swingx.JXTreeTable;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.measurement.util.ROIActionController;
-import org.openmicroscopy.shoola.agents.measurement.util.ROINode;
-import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
-import org.openmicroscopy.shoola.agents.measurement.util.ShapeRenderer;
 import org.openmicroscopy.shoola.agents.measurement.util.roimenu.ROIPopupMenu;
+import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController;
+import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
+import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableCellRenderer;
+import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel;
+import org.openmicroscopy.shoola.agents.measurement.util.ui.ShapeRenderer;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
@@ -150,8 +151,8 @@ public class ROITable
 	 */
 	protected void onMousePressed(MouseEvent e)
 	{
-		if(rightClick(e))
-			popupMenu.getPopupMenu().show(this, e.getX(), e.getY());
+	//	if(rightClick(e))
+	//		popupMenu.getPopupMenu().show(this, e.getX(), e.getY());
 	}
 	
 	
@@ -413,7 +414,7 @@ public class ROITable
 	ArrayList getSelectedObjects()
 	{
 		int [] selectedRows = this.getSelectedRows();
-		HashMap<Long, Object> roiMap = new HashMap<Long, Object>(); 
+		TreeMap<Long, Object> roiMap = new TreeMap<Long, Object>(); 
 		ArrayList selectedList = new ArrayList();
 		for(int i = 0 ; i < selectedRows.length ; i++)
 		{	
@@ -444,9 +445,9 @@ public class ROITable
 	 * @param objectList see above.
 	 * @return see above.
 	 */
-	HashMap<Coord3D, ROIShape> buildPlaneMap(ArrayList objectList)
+	TreeMap<Coord3D, ROIShape> buildPlaneMap(ArrayList objectList)
 	{
-		HashMap<Coord3D, ROIShape> planeMap = new HashMap<Coord3D, ROIShape>();
+		TreeMap<Coord3D, ROIShape> planeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
 		for(Object node : objectList)
 		{
 			if(node instanceof ROI)
@@ -481,7 +482,7 @@ public class ROITable
 	 */
 	ArrayList<Long> getIDList(ArrayList selectedObjects)
 	{
-		HashMap<Long,ROI> idMap = new HashMap<Long, ROI>();
+		TreeMap<Long,ROI> idMap = new TreeMap<Long, ROI>();
 		ArrayList<Long> idList = new ArrayList<Long>();
 		for(Object node : selectedObjects)
 		{
@@ -507,8 +508,8 @@ public class ROITable
 	ArrayList<ROIShape> getSelectedROIShapes()
 	{
 		int [] selectedRows = this.getSelectedRows();
-		HashMap<Long, Object> roiMap = new HashMap<Long, Object>(); 
-		ArrayList selectedList = new ArrayList();
+		TreeMap<Long, Object> roiMap = new TreeMap<Long, Object>(); 
+		ArrayList<ROIShape> selectedList = new ArrayList<ROIShape>();
 		for(int i = 0 ; i < selectedRows.length ; i++)
 		{	
 			Object nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
@@ -542,7 +543,7 @@ public class ROITable
 	 */
 	boolean onSeparatePlanes(ArrayList<ROIShape> shapeList)
 	{
-		HashMap<Coord3D, ROIShape> shapeMap = new HashMap<Coord3D, ROIShape>();
+		TreeMap<Coord3D, ROIShape> shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
 		for(ROIShape shape : shapeList)
 		{
 			if(shapeMap.containsKey(shape.getCoord3D()))
@@ -560,7 +561,7 @@ public class ROITable
 	 */
 	boolean haveSameID(ArrayList<ROIShape> shapeList)
 	{
-		HashMap<Long, ROIShape> shapeMap = new HashMap<Long, ROIShape>();
+		TreeMap<Long, ROIShape> shapeMap = new TreeMap<Long, ROIShape>(new Coord3D());
 		for(ROIShape shape : shapeList)
 		{
 			if(!shapeMap.containsKey(shape.getID()))
@@ -582,7 +583,7 @@ public class ROITable
 	 */
 	long getSameID(ArrayList<ROIShape> shapeList)
 	{
-		HashMap<Long, ROIShape> shapeMap = new HashMap<Long, ROIShape>();
+		TreeMap<Long, ROIShape> shapeMap = new TreeMap<Long, ROIShape>();
 		if(shapeList.size()==0)
 			return -1;
 		for(ROIShape shape : shapeList)
@@ -606,6 +607,8 @@ public class ROITable
 		ArrayList<ROIShape> selectedObjects = getSelectedROIShapes();
 		if(onSeparatePlanes(selectedObjects) && haveSameID(selectedObjects))
 			manager.duplicateROI(getSameID(selectedObjects), selectedObjects );
+		else
+			manager.showMessage("Duplicate: ROIs must be from the same ROI and on separate planes.");
 				
 	}
 
@@ -615,12 +618,13 @@ public class ROITable
 	public void mergeROI()
 	{
 		ArrayList<ROIShape> selectedObjects = getSelectedROIShapes();
-		if(onSeparatePlanes(selectedObjects))
+		if(onSeparatePlanes(selectedObjects) && selectedObjects.size() > 1)
 		{
 			ArrayList<Long> idList = getIDList(selectedObjects);
 			manager.mergeROI(idList, selectedObjects);
 		}
-			
+			else
+				manager.showMessage("Merge: ROIs must be on separate planes and must include more than one.");	
 	}
 
 	/* (non-Javadoc)
@@ -629,7 +633,10 @@ public class ROITable
 	public void propagateROI()
 	{
 		if(this.getSelectedRows().length!=1)
+		{
+			manager.showMessage("Propagate: Only one ROI may be propagated at a time.");
 			return;
+		}
 		ROINode node = (ROINode)this.getNodeAtRow(this.getSelectedRow());
 		Object nodeObject = node.getUserObject(); 
 		if(nodeObject instanceof ROI)
@@ -644,8 +651,12 @@ public class ROITable
 	public void splitROI()
 	{
 		ArrayList<ROIShape> selectedObjects = getSelectedROIShapes();
+		Coord3D coord = new Coord3D(10,2);
 		if(onSeparatePlanes(selectedObjects) && haveSameID(selectedObjects))
 			manager.splitROI(getSameID(selectedObjects), selectedObjects);
+		else
+			manager.showMessage("Split: ROIs must be from the same ROI and on separate planes.");
+
 	}
 	
 	/* (non-Javadoc)
@@ -656,6 +667,9 @@ public class ROITable
 		ArrayList<ROIShape> selectedObjects = getSelectedROIShapes();
 		if(onSeparatePlanes(selectedObjects) && haveSameID(selectedObjects))
 			manager.calculateStats(getSameID(selectedObjects), selectedObjects );
+		else
+			manager.showMessage("Calculate: ROIs must be from the same ROI and on separate planes.");
+
 	}
 	
 	/**

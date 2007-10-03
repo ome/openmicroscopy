@@ -34,9 +34,9 @@ import javax.swing.JPopupMenu;
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.measurement.util.ROIActionController;
 import org.openmicroscopy.shoola.agents.measurement.util.actions.ROIAction;
 import org.openmicroscopy.shoola.agents.measurement.util.actions.ROIStatsAction;
+import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController;
 
 /** 
  * 

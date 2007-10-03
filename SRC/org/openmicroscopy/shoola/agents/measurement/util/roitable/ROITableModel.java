@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.view.ROITableModel 
+ * org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.view;
+package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 
 
 //Java imports
@@ -31,9 +31,7 @@ import javax.swing.tree.TreePath;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.measurement.util.ROINode;
 import org.openmicroscopy.shoola.util.ui.graphutils.ShapeType;
-import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeTableModel;
 
 /**
@@ -50,7 +48,7 @@ import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeTableModel;
  * </small>
  * @since OME3.0
  */
-class ROITableModel 
+public class ROITableModel 
 	extends OMETreeTableModel
 {
 	/** ROI ID Column no for the wizard. */
@@ -76,7 +74,7 @@ class ROITableModel
 	 * @param node root node for model.
 	 * @param columns column names.
 	 */
-	ROITableModel(ROINode node, Vector columns)
+	public ROITableModel(ROINode node, Vector columns)
 	{
 		super(node, columns);
 	}

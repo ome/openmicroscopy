@@ -44,7 +44,7 @@ import javax.swing.JScrollPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
-import org.openmicroscopy.shoola.agents.measurement.util.AnnotationField;
+import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 

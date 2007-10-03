@@ -34,8 +34,8 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.measurement.util.ROIActionController;
-import org.openmicroscopy.shoola.agents.measurement.util.ROIActionController.StatsActionType;
+import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController;
+import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController.StatsActionType;
 
 /** 
  * 

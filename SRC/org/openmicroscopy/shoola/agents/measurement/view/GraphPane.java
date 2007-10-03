@@ -43,9 +43,9 @@ import javax.swing.JTextField;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
-import org.openmicroscopy.shoola.agents.measurement.util.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
-import org.openmicroscopy.shoola.agents.measurement.util.AnalysisStatsWrapper.StatsType;
+import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
+import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;

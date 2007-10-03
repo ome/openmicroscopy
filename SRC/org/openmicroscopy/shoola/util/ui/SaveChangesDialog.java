@@ -47,7 +47,7 @@ import org.openmicroscopy.shoola.env.Container;
  * @since OME3.0
  */
 public class SaveChangesDialog
-extends OptionsDialog
+	extends OptionsDialog
 {
 
     /** The title of this window. */

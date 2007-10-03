@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.treetable.OMETreeTableModel 
+ * org.openmicroscopy.shoola.agents.measurement.util.analysis.StdDevFn 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,16 +20,11 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.treetable.model;
-
+package org.openmicroscopy.shoola.agents.measurement.util.analysis;
 
 //Java imports
-import java.util.Vector;
 
 //Third-party libraries
-import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
-import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
-import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
 
 //Application-internal dependencies
 
@@ -46,29 +41,17 @@ import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
  * </small>
  * @since OME3.0
  */
-public class OMETreeTableModel
-	extends DefaultTreeTableModel
-{	
-	/**
-	 * Set the model to use OMETreeNodes and columns as a vector.
-	 * @param node root node for model.
-	 * @param columns column names.
-	 */
-	public OMETreeTableModel(OMETreeNode node, Vector columns)
-	{
-		super(node, columns);
-	}
+public class StdDevFn
+	implements AnalysisFunction
+{
 
-	/**
-	 * Is the cell editable for this node and column.
-	 * @param node the node of the tree.
-	 * @param column the field to edit.
-	 * @return see above.
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.agents.measurement.util.analysis.AnalysisFunction#run(org.openmicroscopy.shoola.agents.measurement.util.analysis.AnalysisChain)
 	 */
-	public boolean isCellEditable(DefaultMutableTreeTableNode node, int column) 
+	public void run(AnalysisChain chain )
 	{
-		return node.isEditable(column);
-	}
+		
+	}	
 	
 }
 

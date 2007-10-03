@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.util.ValueType 
+ * org.openmicroscopy.shoola.agents.measurement.util.analysis.AnalysisChain 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,7 +20,9 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.util;
+package org.openmicroscopy.shoola.agents.measurement.util.analysis;
+
+import java.util.Stack;
 
 //Java imports
 
@@ -41,11 +43,19 @@ package org.openmicroscopy.shoola.agents.measurement.util;
  * </small>
  * @since OME3.0
  */
-public enum ValueType
+public class AnalysisChain
 {	
-	RANGE,
-	ENUM,
-	DEFAULT
+	private Stack<AnalysisResults> results;
+	
+	AnalysisChain()
+	{
+		results = new Stack<AnalysisResults>();
+	}
+	
+	public AnalysisResults getResults()
+	{
+		return results.pop();
+	}
 }
 
 

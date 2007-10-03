@@ -70,8 +70,8 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.agents.measurement.util.ColourListRenderer;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
+import org.openmicroscopy.shoola.agents.measurement.util.ui.ColourListRenderer;
 
 /** 
  * Displays stats computed on the pixels intensity value of a given ROI shape.

@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.util;
+package org.openmicroscopy.shoola.agents.measurement.util.ui;
 
 
 //Java imports
@@ -30,6 +30,10 @@ import javax.swing.JComboBox;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.TableCellRenderer;
+
+import org.openmicroscopy.shoola.agents.measurement.util.model.AttributeField;
+import org.openmicroscopy.shoola.agents.measurement.util.model.FigureTableModel;
+import org.openmicroscopy.shoola.agents.measurement.util.model.ValueType;
 
 //Third-party libraries
 

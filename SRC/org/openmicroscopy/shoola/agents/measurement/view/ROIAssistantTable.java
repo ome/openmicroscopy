@@ -33,7 +33,7 @@ import javax.swing.table.TableColumn;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.measurement.util.ROIAssistantCellRenderer;
+import org.openmicroscopy.shoola.agents.measurement.util.ui.ROIAssistantCellRenderer;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 

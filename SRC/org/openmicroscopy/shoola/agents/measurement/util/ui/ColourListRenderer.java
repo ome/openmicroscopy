@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.agents.measurement.util
+ * org.openmicroscopy.shoola.util.agents.measurement.util.ui.ColourListRenderer
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.measurement.util;
+package org.openmicroscopy.shoola.agents.measurement.util.ui;
 
 //Java imports
 import java.awt.Color;

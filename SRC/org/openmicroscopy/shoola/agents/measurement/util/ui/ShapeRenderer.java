@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.treetable.renderers.ShapeRenderer 
+ * org.openmicroscopy.shoola.agents.measurement.util.ui.ShapeRenderer 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.util;
+package org.openmicroscopy.shoola.agents.measurement.util.ui;
 
 
 //Java imports
