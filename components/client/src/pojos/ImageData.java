@@ -17,6 +17,7 @@ import java.util.Set;
 // Application-internal dependencies
 import ome.model.IObject;
 import ome.model.annotations.ImageAnnotation;
+import ome.model.containers.CategoryImageLink;
 import ome.model.containers.Category;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
@@ -411,7 +412,7 @@ public class ImageData extends DataObject {
      */
     public Long getAnnotationCount() {
         if (annotationCount == null) {
-            annotationCount = getCount(Image.ANNOTATIONS);
+            annotationCount = getCount(ImageAnnotation.IMAGE);
         }
         return annotationCount;
     }
@@ -423,7 +424,7 @@ public class ImageData extends DataObject {
      */
     public Long getClassificationCount() {
         if (classificationCount == null) {
-            classificationCount = getCount(Image.CATEGORYLINKS);
+            classificationCount = getCount(CategoryImageLink.CHILD);
         }
         return classificationCount;
     }

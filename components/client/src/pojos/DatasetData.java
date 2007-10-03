@@ -290,7 +290,7 @@ public class DatasetData extends DataObject {
      */
     public Long getAnnotationCount() {
         if (annotationCount == null) {
-            annotationCount = getCount(Dataset.ANNOTATIONS);
+            annotationCount = getCount(DatasetAnnotation.DATASET);
         }
         return annotationCount;
     }
