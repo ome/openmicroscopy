@@ -50,6 +50,8 @@ public class ExtendedMetadata {
 
     private final Map<String, String> collectionCountHolder = new HashMap<String, String>();
 
+    private final Map<String, Class<IObject>> targetHolder = new HashMap<String, Class<IObject>>();
+
     // NOTES:
     // TODO we could just delegate to sf and implement the same interface.
     // TOTEST
@@ -91,8 +93,8 @@ public class ExtendedMetadata {
 
         for (String key : m.keySet()) {
             ClassMetadata cm = m.get(key);
-            Map<String, String> queries = countQueries(key, lockedByHolder
-                    .get(key));
+            Map<String, String> queries = countQueriesAndEditTargets(key,
+                    lockedByHolder.get(key));
             collectionCountHolder.putAll(queries);
         }
 
@@ -155,6 +157,10 @@ public class ExtendedMetadata {
 
     }
 
+    private final static String field_msg = " is not a valid field for counting. Make sure you use "
+            + "the single-valued (e.g. ImageAnnotation.IMAGE) and "
+            + "not the collection-valued (e.g. Image.ANNOTATIONS) end.";
+
     /**
      * Returns the query for obtaining the number of collection items to a
      * particular instance. All such queries will return a ResultSet with rows
@@ -170,12 +176,21 @@ public class ExtendedMetadata {
     public String getCountQuery(String field) throws ApiUsageException {
         String q = collectionCountHolder.get(field);
         if (q == null) {
-            throw new ApiUsageException(field
-                    + " is not a valid field for counting. Make sure you use "
-                    + "the single-valued (e.g. ImageAnnotation.IMAGE) and "
-                    + "not the collection-valued (e.g. Image.ANNOTATIONS) end.");
+            throw new ApiUsageException(field + field_msg);
         }
         return q;
+    }
+
+    /**
+     * Returns the {@link IObject} type which a given field points to. E.g.
+     * getTargetType(ImageAnnotation.IMAGE) returns Image.class.
+     */
+    public Class<IObject> getTargetType(String field) throws ApiUsageException {
+        Class<IObject> k = targetHolder.get(field);
+        if (k == null) {
+            throw new ApiUsageException(field + field_msg);
+        }
+        return k;
     }
 
     // ~ Helpers
@@ -230,7 +245,9 @@ public class ExtendedMetadata {
      * Pre-builds all queries for checking the count of collections based on the
      * field names as defined in the ome.model.* classes.
      */
-    private Map<String, String> countQueries(String type, String[][] lockedBy) {
+    @SuppressWarnings("unchecked")
+    private Map<String, String> countQueriesAndEditTargets(String type,
+            String[][] lockedBy) {
         Map<String, String> queries = new HashMap<String, String>();
 
         for (int t = 0; t < lockedBy.length; t++) {
@@ -246,10 +263,18 @@ public class ExtendedMetadata {
             // field names, e.g. Pixels_defaultPixelsTag.image
             idx = lfield.lastIndexOf(".");
             String sfield = lfield.substring(idx + 1);
-            queries.put(String.format("%s_%s", stype, sfield), String.format(
+            String field_description = String.format("%s_%s", stype, sfield);
+            queries.put(field_description, String.format(
                     "select target.%s.id, count(target) "
                             + "from %s target group by target.%s.id", sfield,
                     ltype, sfield));
+
+            try {
+                targetHolder.put(field_description, (Class<IObject>) Class
+                        .forName(type));
+            } catch (Exception e) {
+                throw new RuntimeException("Error getting class: " + ltype, e);
+            }
         }
 
         return queries;

@@ -154,6 +154,14 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
 
     }
 
+    @Test(groups = { "ticket:657" })
+    public void testTargetTypes() throws Exception {
+        assertEquals(metadata.getTargetType(ImageAnnotation.IMAGE), Image.class);
+        assertEquals(metadata.getTargetType(Pixels.IMAGE), Image.class);
+        assertEquals(metadata.getTargetType(CategoryImageLink.CHILD),
+                Image.class);
+    }
+
     // ~ Helpers
     // =========================================================================
 

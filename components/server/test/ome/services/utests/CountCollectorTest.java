@@ -6,16 +6,16 @@
  */
 package ome.services.utests;
 
-import org.testng.annotations.*;
-import java.util.Set;
-
-import ome.model.annotations.ImageAnnotation;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
-import ome.model.core.Image;
-import ome.services.util.CountCollector;
+import java.util.Collections;
+import java.util.List;
 
 import junit.framework.TestCase;
+import ome.conditions.ApiUsageException;
+import ome.model.containers.Project;
+import ome.model.containers.ProjectDatasetLink;
+import ome.services.util.CountCollector;
+
+import org.testng.annotations.Test;
 
 public class CountCollectorTest extends TestCase {
 
@@ -28,95 +28,50 @@ public class CountCollectorTest extends TestCase {
     }
 
     @Test
-    public void testSingleField() throws Exception {
-        c = new CountCollector(new String[] { Dataset.ANNOTATIONS });
-
-        Project p = new Project(next());
-        Dataset d = new Dataset(next());
-        p.linkDataset(d);
-
-        c.collect(p);
-        Set s = c.getIds(Dataset.ANNOTATIONS);
-
-        assertTrue(s.contains(d.getId()));
-    }
-
-    @Test
-    public void testMultipleFields() throws Exception {
-        c = new CountCollector(new String[] { Dataset.IMAGELINKS,
-                Image.ANNOTATIONS });
-
-        Project p = new Project(next());
-        Dataset d = new Dataset(next());
-        p.linkDataset(d);
-
-        Image i = new Image(next());
-        d.linkImage(i);
-
-        ImageAnnotation iann = new ImageAnnotation(next());
-        i.addImageAnnotation(iann);
-
-        c.collect(p);
-        Set s_1 = c.getIds(Dataset.IMAGELINKS);
-        Set s_2 = c.getIds(Image.ANNOTATIONS);
-
-        assertTrue(s_1.contains(d.getId()));
-        assertTrue(s_2.contains(i.getId()));
-
-    }
-
-    @Test
-    public void testMultipleIdsInOneField() throws Exception {
-
-        c = new CountCollector(new String[] { Image.CATEGORYLINKS });
-
-        Dataset d = new Dataset(next());
-        Image i1 = new Image(next());
-        Image i2 = new Image(next());
-        d.linkImage(i1);
-        d.linkImage(i2);
-
-        c.collect(d);
-        Set s = c.getIds(Image.CATEGORYLINKS);
-        assertTrue(s.size() == 2);
-        assertTrue(s.contains(i1.getId()));
-        assertTrue(s.contains(i2.getId()));
-    }
-
-    @Test
     public void testLookupTablesCreated() throws Exception {
-        c = new CountCollector(new String[] { Project.DATASETLINKS });
+        c = new CountCollector();
 
-        Project p = new Project(next());
+        Long id = next();
+        Project p = new Project(id);
+        c.addCounts(Project.class, ProjectDatasetLink.PARENT, Collections
+                .<Object[]> singletonList(new Object[] { id, 1000L }));
         c.collect(p);
-        c.addCounts(Project.DATASETLINKS, p.getId(), 10L);
+        assertEquals(p.getDetails().getCounts().get(ProjectDatasetLink.PARENT),
+                1000L);
     }
 
     @Test
     public void testNoCountGiven() throws Exception {
-        c = new CountCollector(new String[] { Project.DATASETLINKS });
+        c = new CountCollector();
 
         Project p = new Project(next());
+        c.addCounts(Project.class, ProjectDatasetLink.PARENT, queryResults(-1L,
+                499L));
         c.collect(p);
-        c.addCounts(Project.DATASETLINKS, p.getId(), null);
     }
 
-    @Test
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testNegativeCountGiven() throws Exception {
-        c = new CountCollector(new String[] { Project.DATASETLINKS });
+        c = new CountCollector();
 
         Project p = new Project(next());
+        c.addCounts(Project.class, ProjectDatasetLink.PARENT, queryResults(1L,
+                -1L));
         c.collect(p);
-        c.addCounts(Project.DATASETLINKS, p.getId(), -10L);
     }
 
     @Test
     public void testWhatHappensOnNullIdThough() throws Exception {
-        c = new CountCollector(new String[] { Project.DATASETLINKS });
-
+        c = new CountCollector();
         Project p = new Project();
-
         c.collect(p);
+    }
+
+    // Helpers ~
+    // =========================================================================
+
+    private List<Object[]> queryResults(Long id, Long count) {
+        return Collections.<Object[]> singletonList(new Object[] { id, count });
     }
 
 }

@@ -6,17 +6,12 @@
  */
 package ome.adapters.pojos.utests;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.testng.annotations.*;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 import junit.framework.TestCase;
-
 import ome.model.IObject;
 import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
@@ -32,6 +27,11 @@ import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -241,7 +241,7 @@ public class PojosTest extends TestCase {
                 break;
             }
         }
-        
+
         assert dd != null;
         id = (ImageData) dd.getImages().iterator().next();
         assertTrue(id.getCategories().size() == 1);
@@ -320,13 +320,13 @@ public class PojosTest extends TestCase {
     public void testLongValuedCounts() throws Exception {
         Image i = new Image();
         i.getDetails().setCounts(new HashMap());
-        i.getDetails().getCounts().put(Image.ANNOTATIONS, new Long(1L));
+        i.getDetails().getCounts().put(ImageAnnotation.IMAGE, new Long(1L));
         ImageData id = new ImageData(i);
         assertNotNull(id.getAnnotationCount());
 
         // we check for a Long value. non-Long --> null.
         i.getDetails().setCounts(new HashMap());
-        i.getDetails().getCounts().put(Image.ANNOTATIONS, new Integer(1));
+        i.getDetails().getCounts().put(ImageAnnotation.IMAGE, new Integer(1));
         id = new ImageData(i);
         assertNull(id.getAnnotationCount());
     }

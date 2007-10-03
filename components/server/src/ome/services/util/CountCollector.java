@@ -7,144 +7,104 @@
 
 package ome.services.util;
 
-// Java imports
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-// Third-party libraries
-
-// Application-internal dependencies
+import ome.conditions.ApiUsageException;
 import ome.model.IObject;
-import ome.model.internal.Details;
 import ome.tools.hibernate.ProxySafeFilter;
+import ome.util.Filterable;
 
 /**
  * filter implementation which collects the ids of certain fields.
  */
 public class CountCollector extends ProxySafeFilter {
 
-    protected String[] fields;
+    /**
+     * { Class : { Id : { Field : Count } } }
+     */
+    private final Map<Class<? extends IObject>, Map<Long, Map<String, Long>>> lookup = new HashMap<Class<? extends IObject>, Map<Long, Map<String, Long>>>();
 
-    protected Set[] ids;
-
-    protected Map[] lookup;
-
-    public CountCollector(String[] targetFields) {
-
-        if (targetFields == null) {
-            throw new IllegalArgumentException("Expecting non null argument.");
-        }
-
-        this.fields = new String[targetFields.length];
-        System.arraycopy(targetFields, 0, this.fields, 0, targetFields.length);
-        Arrays.sort(targetFields);
-
-        ids = new Set[fields.length];
-        lookup = new Map[fields.length];
-
-    }
-
+    /**
+     * Execution method.
+     * 
+     * @param target
+     */
     public void collect(Object target) {
         super.filter(null, target);
     }
 
-    protected void addIfHit(String field) {
+    /**
+     * This is the method that actually hooks us into the graph-parsing logic.
+     */
+    @Override
+    public Filterable filter(String fieldId, Filterable f) {
+        if (f instanceof IObject) {
+            addIfHit((IObject) f);
+        }
+        return super.filter(fieldId, f);
+    }
 
-        Object o = previousContext(1);
+    /**
+     * @param k
+     * @param field
+     * @param list
+     *            List as returned by the count queries from extended metadata.
+     */
+    public void addCounts(Class<? extends IObject> k, String field,
+            List<Object[]> list) {
 
-        if (o instanceof IObject) {
+        Map<Long, Map<String, Long>> id_field_count = lookup.get(k);
+        if (id_field_count == null) {
+            id_field_count = new HashMap<Long, Map<String, Long>>();
+            lookup.put(k, id_field_count);
+        }
 
-            IObject ctx = (IObject) o;
+        for (Object[] longs : list) {
+            Long id = (Long) longs[0];
+            Long count = (Long) longs[1];
 
-            int idx = Arrays.binarySearch(fields, field);
-            if (idx >= 0) {
-
-                Set<Long> s;
-                if (ids[idx] == null) {
-                    s = new HashSet<Long>();
-                    ids[idx] = s;
-                } else {
-                    s = ids[idx];
-                }
-                s.add(ctx.getId());
-
-                Map<Long, IObject> m;
-                if (lookup[idx] == null) {
-                    m = new HashMap<Long, IObject>();
-                    lookup[idx] = m;
-                } else {
-                    m = lookup[idx];
-                }
-                m.put(ctx.getId(), ctx);
-
+            Map<String, Long> field_count = id_field_count.get(id);
+            if (field_count == null) {
+                field_count = new HashMap<String, Long>();
+                id_field_count.put(id, field_count);
             }
 
+            // Checks
+            if (count == null) {
+                throw new ApiUsageException("Count cannot be null for " + field);
+            } else if (count.longValue() < 0L) {
+                throw new ApiUsageException("Count cannot be negative.");
+            }
+
+            field_count.put(field, count);
         }
 
     }
 
-    public Set<Long> getIds(String field) {
-        int idx = Arrays.binarySearch(fields, field);
-        if (idx < 0) {
-            return null;
-        }
+    protected void addIfHit(IObject o) {
 
-        return ids[idx];
+        Class<? extends IObject> k = o.getClass();
+        Long id = o.getId();
 
-    }
-
-    public void addCounts(String field, Long id, Long count) {
-
-        int idx = Arrays.binarySearch(fields, field);
-        if (idx < 0) {
+        Map<Long, Map<String, Long>> id_field_count = lookup.get(k);
+        if (id_field_count == null) {
             return;
         }
 
-        if (count == null) {
+        Map<String, Long> field_count = id_field_count.get(id);
+        if (field_count == null) {
             return;
         }
 
-        Map<Long, IObject> l = lookup[idx];
-
-        if (l == null) {
-            return;
-        }
-
-        IObject obj = l.get(id);
-
-        if (obj == null) {
-            return;
-        }
-
-        if (obj.getDetails() == null) {
-            obj.setDetails(new Details());
-        }
-
-        Map counts;
-        if (obj.getDetails().getCounts() == null) {
+        Map counts = o.getDetails().getCounts();
+        if (counts == null) {
             counts = new HashMap();
-            obj.getDetails().setCounts(counts);
-        } else {
-            counts = obj.getDetails().getCounts();
+            o.getDetails().setCounts(counts);
         }
+        counts.putAll(field_count);
 
-        Integer previous = (Integer) counts.get(field);
-        if (previous != null) {
-            counts.put(field, new Integer(count.intValue()
-                    + previous.intValue()));
-        } else {
-            counts.put(field, count);
-        }
-
-    }
-
-    @Override
-    protected void beforeFilter(String fieldId, Object o) {
-        super.beforeFilter(fieldId, o); // Enter context;
-        addIfHit(fieldId);
     }
 
 }

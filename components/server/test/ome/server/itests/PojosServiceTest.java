@@ -15,16 +15,17 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import org.testng.annotations.Test;
-
-// Application-internal dependencies
 import ome.api.IPojos;
 import ome.conditions.ApiUsageException;
 import ome.model.annotations.DatasetAnnotation;
+import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
+import ome.model.core.Image;
 import ome.testing.OMEData;
 import ome.util.builders.PojoOptions;
+
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -78,6 +79,37 @@ public class PojosServiceTest extends AbstractManagedContextTest {
 
         po = new PojoOptions().grp(0L);
         iPojos.loadContainerHierarchy(Project.class, null, po.map());
+
+    }
+
+    @Test(groups = "ticket:657")
+    public void testAnnotationsStillCounted() throws Exception {
+        Dataset d = new Dataset();
+        d.setName("ticket:657");
+        DatasetAnnotation da = new DatasetAnnotation();
+        da.setContent("ticket:657");
+        d.addDatasetAnnotation(da);
+        Image i = new Image();
+        i.setName("ticket:657");
+        i.linkDataset(d);
+        ImageAnnotation ia = new ImageAnnotation();
+        ia.setContent("ticket:657");
+        ia.setImage(i);
+        i.addImageAnnotation(ia);
+
+        d = iUpdate.saveAndReturnObject(d);
+
+        Set<Image> list = iPojos.getImages(Dataset.class, Collections
+                .singleton(d.getId()), null);
+
+        i = list.iterator().next();
+        d = (Dataset) i.linkedDatasetList().get(0);
+
+        assertTrue(d.getDetails().getCounts() != null);
+        assertEquals(d.getDetails().getCounts().get(DatasetAnnotation.DATASET),
+                1L);
+        assertTrue(i.getDetails().getCounts() != null);
+        assertEquals(i.getDetails().getCounts().get(ImageAnnotation.IMAGE), 1L);
 
     }
 

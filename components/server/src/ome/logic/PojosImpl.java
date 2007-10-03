@@ -495,36 +495,20 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
      */
     private void collectCounts(Object retVal, PojoOptions po) {
         if (po.hasCountFields() && po.isCounts()) {
-            CountCollector c = new CountCollector(po.countFields());
-            c.collect(retVal);
+            CountCollector c = new CountCollector();
             for (String key : po.countFields()) {
-
-                if (key == null || c.getIds(key) == null
-                        || c.getIds(key).size() == 0) {
-                    if (getBeanHelper().getLogger().isDebugEnabled()) {
-                        getBeanHelper().getLogger().warn(
-                                String.format(
-                                        "Skipping %s in collection counts.",
-                                        key));
-                    }
-                    continue;
-                }
 
                 final String q = getExtendedMetadata().getCountQuery(key);
                 List<Object[]> l_c = null;
                 l_c = iQuery.execute(new HibernateCallback() {
                     public Object doInHibernate(Session arg0) {
-                        return arg0.createQuery(q).list();
+                        org.hibernate.Query query = arg0.createQuery(q);
+                        return query.list();
                     }
                 });
-
-                for (Object[] results : l_c) {
-                    Long id = (Long) results[0];
-                    Long count = (Long) results[1];
-                    c.addCounts(key, id, count);
-                }
-
+                c.addCounts(getExtendedMetadata().getTargetType(key), key, l_c);
             }
+            c.collect(retVal);
         }
     }
 
