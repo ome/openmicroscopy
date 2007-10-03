@@ -10,6 +10,8 @@ import java.util.Arrays;
 
 import ome.model.ILink;
 import ome.model.IObject;
+import ome.model.annotations.ImageAnnotation;
+import ome.model.containers.CategoryImageLink;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
@@ -127,6 +129,29 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
     public void testCreateEventImmutable() throws Exception {
         assertContains(metadata.getImmutableFields(Image.class),
                 "details.creationEvent");
+    }
+
+    // ~ Counting
+    // =========================================================================
+
+    @Test(groups = { "ticket:657" })
+    public void testCountQueriesAreCorrect() throws Exception {
+        assertEquals(metadata.getCountQuery(ImageAnnotation.IMAGE), metadata
+                .getCountQuery(ImageAnnotation.IMAGE),
+                "select target.image.id, count(target) "
+                        + "from ome.model.annotations.ImageAnnotation target "
+                        + "group by target.image.id");
+        assertEquals(metadata.getCountQuery(CategoryImageLink.CHILD), metadata
+                .getCountQuery(CategoryImageLink.CHILD),
+                "select target.child.id, count(target) "
+                        + "from ome.model.containers.CategoryImageLink target "
+                        + "group by target.child.id");
+        assertEquals(metadata.getCountQuery(Pixels.IMAGE), metadata
+                .getCountQuery(Pixels.IMAGE),
+                "select target.image.id, count(target) "
+                        + "from ome.model.core.Pixels target "
+                        + "group by target.image.id");
+
     }
 
     // ~ Helpers

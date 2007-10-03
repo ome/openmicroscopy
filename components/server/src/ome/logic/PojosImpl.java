@@ -31,13 +31,6 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
-// Third-party libraries
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.security.SecurityDomain;
-import org.springframework.transaction.annotation.Transactional;
-
-// Application-internal dependencies
 import ome.api.IPojos;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
@@ -47,11 +40,10 @@ import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
-import ome.model.core.Image;
 import ome.model.containers.Project;
+import ome.model.core.Image;
 import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
-import ome.services.query.CollectionCountQueryDefinition;
 import ome.services.query.PojosCGCPathsQueryDefinition;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
@@ -66,6 +58,13 @@ import ome.tools.HierarchyTransformations;
 import ome.tools.lsid.LsidUtils;
 import ome.util.CBlock;
 import ome.util.builders.PojoOptions;
+
+import org.hibernate.Session;
+import org.jboss.annotation.ejb.LocalBinding;
+import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.security.SecurityDomain;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * implementation of the Pojos service interface.
@@ -119,7 +118,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
                 PojosLoadHierarchyQueryDefinition.class.getName(),
                 new Parameters().addClass(rootNodeType).addIds(rootNodeIds)
                         .addOptions(po.map())); // TODO no more "options" just
-                                                // QPs.
+        // QPs.
         List<IObject> l = iQuery.execute(q);
 
         collectCounts(l, po);
@@ -409,7 +408,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
     public Collection retrieveCollection(IObject arg0, String arg1, Map arg2) {
         IObject context = iQuery.get(arg0.getClass(), arg0.getId());
         Collection c = (Collection) context.retrieve(arg1); // FIXME not
-                                                            // type.o.null safe
+        // type.o.null safe
         iQuery.initialize(c);
         return c;
     }
@@ -502,18 +501,23 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
                 if (key == null || c.getIds(key) == null
                         || c.getIds(key).size() == 0) {
-                    getBeanHelper().getLogger().warn(
-                            " Skipping " + key + " in collection counts.");
+                    if (getBeanHelper().getLogger().isDebugEnabled()) {
+                        getBeanHelper().getLogger().warn(
+                                String.format(
+                                        "Skipping %s in collection counts.",
+                                        key));
+                    }
                     continue;
                 }
 
-                Query<List<Object[]>> q_c = getQueryFactory().lookup(
-                        /* TODO po.map() here */
-                        CollectionCountQueryDefinition.class.getName(),
-                        new Parameters().addIds(c.getIds(key)).addString(
-                                "field", key));
+                final String q = getExtendedMetadata().getCountQuery(key);
+                List<Object[]> l_c = null;
+                l_c = iQuery.execute(new HibernateCallback() {
+                    public Object doInHibernate(Session arg0) {
+                        return arg0.createQuery(q).list();
+                    }
+                });
 
-                List<Object[]> l_c = iQuery.execute(q_c);
                 for (Object[] results : l_c) {
                     Long id = (Long) results[0];
                     Long count = (Long) results[1];
@@ -527,7 +531,8 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
     final static String alphaNumeric = "^\\w+$";
 
     final static String alphaNumericDotted = "^\\w[.\\w]+$"; // TODO
-                                                                // annotations
+
+    // annotations
 
     protected void checkType(String type) {
         if (!type.matches(alphaNumericDotted)) {

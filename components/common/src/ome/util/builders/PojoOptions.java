@@ -10,8 +10,9 @@ package ome.util.builders;
 import java.util.HashMap;
 import java.util.Map;
 
-import ome.model.containers.Dataset;
-import ome.model.core.Image;
+import ome.model.annotations.DatasetAnnotation;
+import ome.model.annotations.ImageAnnotation;
+import ome.model.containers.CategoryImageLink;
 
 // Java imports
 
@@ -30,8 +31,7 @@ import ome.model.core.Image;
  * @author <br>
  *         Josh Moore&nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
- *          </small>
+ * @version 1.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
  * @since OME2.2
  */
 public class PojoOptions
@@ -47,12 +47,12 @@ public class PojoOptions
 
     public static final String GROUP = "group";
 
-    private Map options = new HashMap();
+    private final Map options = new HashMap();
 
     public PojoOptions() {
         this.noLeaves().countsForUser().countFields(
-                new String[] { Dataset.ANNOTATIONS, Image.ANNOTATIONS,
-                        Image.CATEGORYLINKS });
+                new String[] { DatasetAnnotation.DATASET,
+                        ImageAnnotation.IMAGE, CategoryImageLink.CHILD });
     }
 
     /**

@@ -48,6 +48,8 @@ public class ExtendedMetadata {
 
     private final Map<String, Immutables> immutablesHolder = new HashMap<String, Immutables>();
 
+    private final Map<String, String> collectionCountHolder = new HashMap<String, String>();
+
     // NOTES:
     // TODO we could just delegate to sf and implement the same interface.
     // TOTEST
@@ -77,15 +79,21 @@ public class ExtendedMetadata {
             locksHolder.put(key, new Locks(cm));
         }
 
-        // now that all Locks() are available, deteremine LockedBy()
+        // now that all Locks() are available, determine LockedBy()
         for (String key : m.keySet()) {
-            ClassMetadata cm = m.get(key);
             lockedByHolder.put(key, lockedByFields(key, m));
         }
 
         for (String key : m.keySet()) {
             ClassMetadata cm = m.get(key);
             immutablesHolder.put(key, new Immutables(cm));
+        }
+
+        for (String key : m.keySet()) {
+            ClassMetadata cm = m.get(key);
+            Map<String, String> queries = countQueries(key, lockedByHolder
+                    .get(key));
+            collectionCountHolder.putAll(queries);
         }
 
     }
@@ -147,6 +155,29 @@ public class ExtendedMetadata {
 
     }
 
+    /**
+     * Returns the query for obtaining the number of collection items to a
+     * particular instance. All such queries will return a ResultSet with rows
+     * of the form: 0 (Long) id of the locked class 1 (Long) count of the
+     * instances locking that class
+     * 
+     * @param field
+     *            Field name as specified in the class.
+     * @return String query. Never null.
+     * @throws ApiUsageException
+     *             if return value would be null.
+     */
+    public String getCountQuery(String field) throws ApiUsageException {
+        String q = collectionCountHolder.get(field);
+        if (q == null) {
+            throw new ApiUsageException(field
+                    + " is not a valid field for counting. Make sure you use "
+                    + "the single-valued (e.g. ImageAnnotation.IMAGE) and "
+                    + "not the collection-valued (e.g. Image.ANNOTATIONS) end.");
+        }
+        return q;
+    }
+
     // ~ Helpers
     // =========================================================================
 
@@ -195,6 +226,34 @@ public class ExtendedMetadata {
         return fields.toArray(new String[fields.size()][2]);
     }
 
+    /**
+     * Pre-builds all queries for checking the count of collections based on the
+     * field names as defined in the ome.model.* classes.
+     */
+    private Map<String, String> countQueries(String type, String[][] lockedBy) {
+        Map<String, String> queries = new HashMap<String, String>();
+
+        for (int t = 0; t < lockedBy.length; t++) {
+            String ltype = lockedBy[t][0];
+            String lfield = lockedBy[t][1];
+
+            // The reduces the full class name to its UQN form, which is
+            // used in the code-generated fields.
+            int idx = ltype.lastIndexOf(".");
+            String stype = ltype.substring(idx + 1);
+
+            // It's also necessary to remove any component prefixes from the
+            // field names, e.g. Pixels_defaultPixelsTag.image
+            idx = lfield.lastIndexOf(".");
+            String sfield = lfield.substring(idx + 1);
+            queries.put(String.format("%s_%s", stype, sfield), String.format(
+                    "select target.%s.id, count(target) "
+                            + "from %s target group by target.%s.id", sfield,
+                    ltype, sfield));
+        }
+
+        return queries;
+    }
 }
 
 /**
@@ -206,17 +265,17 @@ public class ExtendedMetadata {
  * true, special logic must be implemented to retrieve the proper values.
  */
 class Locks {
-    private ClassMetadata cm;
+    private final ClassMetadata cm;
 
-    private int size;
+    private final int size;
 
     private int total = 0;
 
-    private boolean[] include;
+    private final boolean[] include;
 
-    private String[][] subnames;
+    private final String[][] subnames;
 
-    private Type[][] subtypes;
+    private final Type[][] subtypes;
 
     /**
      * examines all {@link Type types} for this class and stores pointers to

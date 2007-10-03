@@ -22,6 +22,7 @@ import ome.security.SecuritySystem;
 import ome.services.query.QueryFactory;
 import ome.services.util.BeanHelper;
 import ome.system.SelfConfigurableService;
+import ome.tools.hibernate.ExtendedMetadata;
 
 /**
  * service level 2
@@ -33,14 +34,16 @@ import ome.system.SelfConfigurableService;
 public abstract class AbstractLevel2Service implements SelfConfigurableService {
 
     private transient BeanHelper beanHelper = new BeanHelper(this.getClass());
-    
+
     protected transient LocalUpdate iUpdate;
 
     protected transient LocalQuery iQuery;
-    
+
     protected transient QueryFactory queryFactory;
-    
+
     protected transient SecuritySystem sec;
+
+    protected transient ExtendedMetadata metadata;
 
     // ~ Selfconfiguration (injection) for Non-JavaEE
     // =========================================================================
@@ -71,7 +74,7 @@ public abstract class AbstractLevel2Service implements SelfConfigurableService {
         getBeanHelper().throwIfAlreadySet(this.queryFactory, qFactory);
         this.queryFactory = qFactory;
     }
-    
+
     public final void setQueryService(LocalQuery query) {
         getBeanHelper().throwIfAlreadySet(this.iQuery, query);
         this.iQuery = query;
@@ -82,11 +85,20 @@ public abstract class AbstractLevel2Service implements SelfConfigurableService {
         this.sec = secSys;
     }
 
+    public final void setExtendedMetadata(ExtendedMetadata em) {
+        getBeanHelper().throwIfAlreadySet(this.metadata, em);
+        this.metadata = em;
+    }
+
     public final QueryFactory getQueryFactory() {
         return this.queryFactory;
     }
-    
+
     public final SecuritySystem getSecuritySystem() {
         return this.sec;
+    }
+
+    public final ExtendedMetadata getExtendedMetadata() {
+        return this.metadata;
     }
 }

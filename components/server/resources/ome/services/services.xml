@@ -89,8 +89,9 @@
   </bean>
 
   <bean id="level2" parent="bean"  abstract="true">
-    <property name="updateService" 	ref="internal:ome.api.IUpdate"/>
-    <property name="queryService"	ref="internal:ome.api.IQuery"/>
+    <property name="updateService"    ref="internal:ome.api.IUpdate"/>
+    <property name="queryService"     ref="internal:ome.api.IQuery"/>
+    <property name="extendedMetadata" ref="extendedMetadata"/>
   </bean>
 
   <bean id="level3" parent="bean" abstract="true">
