@@ -6,14 +6,17 @@
  */
 package ome.security.basic;
 
-// Java imports
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-// Third-party libraries
+import ome.api.StatefulServiceInterface;
+import ome.conditions.InternalException;
+import ome.model.meta.EventLog;
+import ome.system.EventContext;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
@@ -28,13 +31,6 @@ import org.springframework.transaction.annotation.AnnotationTransactionAttribute
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAttribute;
 import org.springframework.util.Assert;
-
-// Application-internal dependencies
-import ome.api.StatefulServiceInterface;
-import ome.conditions.InternalException;
-import ome.model.meta.EventLog;
-import ome.system.EventContext;
-import ome.util.Utils;
 
 /**
  * method interceptor responsible for login and creation of Events. Calls are
@@ -62,10 +58,10 @@ public class EventHandler implements MethodInterceptor {
     protected HibernateTemplate ht;
 
     // for StatefulServices TODO
-    private Map<Object, EventContext> objCtxMap = Collections
+    private final Map<Object, EventContext> objCtxMap = Collections
             .synchronizedMap(new WeakHashMap<Object, EventContext>());
 
-    private Map<Object, Object> objSeen = Collections
+    private final Map<Object, Object> objSeen = Collections
             .synchronizedMap(new WeakHashMap<Object, Object>());
 
     /**
@@ -87,7 +83,7 @@ public class EventHandler implements MethodInterceptor {
 
     /**
      * invocation interceptor for prepairing this {@link Thread} for execution
-     * and subsequently reseting it. 
+     * and subsequently reseting it.
      * 
      * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
      */
@@ -110,11 +106,11 @@ public class EventHandler implements MethodInterceptor {
                     secSys.loadEventContext(readOnly);
                     objCtxMap.put(arg0.getThis(), secSys.getEventContext());
                     prevCtx = secSys.getEventContext();
-                    objSeen.put(arg0.getThis(), arg0.getThis());
+                    objSeen.put(arg0.getThis(), objSeen); // Actualy a HashSet
                 }
             }
             // Need to update the read-ability
-            ((BasicEventContext)prevCtx).isReadOnly = readOnly;
+            ((BasicEventContext) prevCtx).isReadOnly = readOnly;
             secSys.setEventContext(prevCtx);
         }
 
@@ -128,10 +124,9 @@ public class EventHandler implements MethodInterceptor {
         // now the user can be considered to be logged in.
         EventContext ec = secSys.getEventContext();
         if (log.isInfoEnabled()) {
-            log.info(String.format("  Auth:\tuser=%s,group=%s,event=%s(%s)",
-                    		ec.getCurrentUserId(), ec
-                            .getCurrentGroupId(), ec.getCurrentEventId(), ec
-                            .getCurrentEventType()));
+            log.info(String.format("  Auth:\tuser=%s,group=%s,event=%s(%s)", ec
+                    .getCurrentUserId(), ec.getCurrentGroupId(), ec
+                    .getCurrentEventId(), ec.getCurrentEventType()));
         }
 
         boolean failure = false;
@@ -228,7 +223,7 @@ public class EventHandler implements MethodInterceptor {
  * {@link HibernateCallback} which enables our read-security filter.
  */
 class EnableFilterAction implements HibernateCallback {
-    private BasicSecuritySystem secSys;
+    private final BasicSecuritySystem secSys;
 
     public EnableFilterAction(BasicSecuritySystem sec) {
         this.secSys = sec;
@@ -245,7 +240,7 @@ class EnableFilterAction implements HibernateCallback {
  * {@link HibernateCallback} which disables our read-security filter.
  */
 class DisableFilterAction implements HibernateCallback {
-    private BasicSecuritySystem secSys;
+    private final BasicSecuritySystem secSys;
 
     public DisableFilterAction(BasicSecuritySystem sec) {
         this.secSys = sec;
@@ -265,7 +260,7 @@ class DisableFilterAction implements HibernateCallback {
 class ClearIfDirtyAction implements HibernateCallback {
     private static Log log = LogFactory.getLog(ClearIfDirtyAction.class);
 
-    private BasicSecuritySystem secSys;
+    private final BasicSecuritySystem secSys;
 
     public ClearIfDirtyAction(BasicSecuritySystem sec) {
         this.secSys = sec;
@@ -288,7 +283,7 @@ class ClearIfDirtyAction implements HibernateCallback {
  * If so, an exception will be thrown.
  */
 class CheckDirtyAction implements HibernateCallback {
-    private BasicSecuritySystem secSys;
+    private final BasicSecuritySystem secSys;
 
     public CheckDirtyAction(BasicSecuritySystem sec) {
         this.secSys = sec;
