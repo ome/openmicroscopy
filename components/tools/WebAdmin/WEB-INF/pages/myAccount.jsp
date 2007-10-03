@@ -91,13 +91,16 @@
 				action="#{IAMAManagerBean.updateExperimenter}"
 				value="#{msg.myaccountSave}" />
 
-		</h:form> <h:form id="passwd">
-			<br />
-			<h:graphicImage url="/images/add.png" />
-			<h:commandLink action="#{IAMAManagerBean.changeMyPassword}">
-				<h:outputText value="#{msg.myaccountChangePassword}" />
-			</h:commandLink>
-		</h:form></div>
+		</h:form> 
+		<c:if test="${empty sessionScope.IAMAManagerBean.user.dn}">
+			<h:form id="passwd">
+				<br />
+				<h:graphicImage url="/images/add.png" />
+				<h:commandLink action="#{IAMAManagerBean.changeMyPassword}">
+					<h:outputText value="#{msg.myaccountChangePassword}" />
+				</h:commandLink>
+			</h:form>
+		</c:if></div>
 
 	</f:view>
 </c:if>

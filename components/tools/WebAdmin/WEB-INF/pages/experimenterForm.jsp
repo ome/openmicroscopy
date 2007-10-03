@@ -132,15 +132,20 @@
 				value="#{msg.experimentersSave}"
 				rendered="#{IAEManagerBean.editMode}" />
 
-		</h:form> <h:form id="passwd">
+		</h:form> 
 		
-			<br />
-			<h:graphicImage url="/images/add.png"
-				rendered="#{IAEManagerBean.editMode}" />
-			<h:commandLink action="#{IAEManagerBean.changePassword}"
-				rendered="#{IAEManagerBean.editMode}">
-				<h:outputText value="#{msg.experimentersChangePassword}" />
-			</h:commandLink>
-		</h:form></div>
+		<c:if test="${empty sessionScope.IAEManagerBean.user.dn}">
+			<h:form id="passwd">
+		
+				<br />
+				<h:graphicImage url="/images/add.png"
+					rendered="#{IAEManagerBean.editMode}" />
+				<h:commandLink action="#{IAEManagerBean.changePassword}"
+					rendered="#{IAEManagerBean.editMode}">
+					<h:outputText value="#{msg.experimentersChangePassword}" />
+				</h:commandLink>
+			</h:form>
+		</c:if></div>
+		
 	</f:view>
 </c:if>
