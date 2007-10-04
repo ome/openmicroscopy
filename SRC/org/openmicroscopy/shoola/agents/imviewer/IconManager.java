@@ -209,11 +209,17 @@ public class IconManager
     /** The <code>Ratio max</code> icon. */
     public static int           RATIO_MAX = 49;
     
+    /** The <code>Copy</code> icon. */
+    public static int           COPY = 50;
+    
+    /** The <code>Paste</code> icon. */
+    public static int           PASTE = 51;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 49;
+    private static int          MAX_ID = 51;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -270,6 +276,8 @@ public class IconManager
         relPaths[TRANSPARENT] = "eclipse_transparent16.png";
         relPaths[RATIO_MIN] = "image8.png";
         relPaths[RATIO_MAX] = "image14.png";
+        relPaths[COPY] = "eclipse_copy_edit16.png";
+        relPaths[PASTE] = "eclipse_paste_edit16.png";
     }
     
     /** The sole instance. */

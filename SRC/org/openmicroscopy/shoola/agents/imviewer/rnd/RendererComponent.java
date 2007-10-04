@@ -392,23 +392,6 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#resetDefaultRndSettings()
-     */
-    public void resetDefaultRndSettings()
-    {
-    	try {
-    		model.getParentModel().createHistoryItem();
-    		model.resetDefaultRndSettings();
-            view.resetDefaultRndSettings();
-            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
-            		Boolean.TRUE);
-		} catch (Exception ex) {
-			model.getParentModel().reload(ex);
-		}
-    }
-
-    /** 
-     * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getUI()
      */
     public JComponent getUI()

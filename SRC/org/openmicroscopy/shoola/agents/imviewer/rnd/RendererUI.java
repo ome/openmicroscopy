@@ -27,17 +27,18 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Iterator;
+import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
+import javax.swing.JToolBar;
 
 //Third-party libraries
 
@@ -95,7 +96,13 @@ class RendererUI
 	
 	/** Action ID to show or hide the history. */
 	private static final int				HISTORY = 2;
+	
+	/** Action ID to reset the original rendering settings. */
+	private static final int				RESET_DEFAULT = 3;
 
+	/** Horizontal space between the buttons. */
+	private static final Dimension			H_SPACE = new Dimension(5, 5);
+	
 	/** Reference to the control. */
 	private RendererControl     			controller;
 
@@ -113,57 +120,40 @@ class RendererUI
 	
 	/** Button to display the local history. */
 	private JButton							historyButton;
+	
+	/** Button to display the reset the rendering settings. */
+	private JButton							resetButton;
 
 	/** Initializes the components. */
 	private void initComponents()
 	{
-		copyButton = new JButton("Copy");
+		IconManager icons = IconManager.getInstance();
+		
+		//copyButton = new JButton("Copy");
+		copyButton = new JButton(icons.getIcon(IconManager.COPY));
 		copyButton.setToolTipText(
 			UIUtilities.formatToolTipText("Copies the rendering settings."));
 		copyButton.setActionCommand(""+COPY);
 		copyButton.addActionListener(this);
-		pasteButton = new JButton("Paste");
+		//UIUtilities.unifiedButtonLookAndFeel(copyButton);
+		//pasteButton = new JButton("Paste");
+		pasteButton = new JButton(icons.getIcon(IconManager.PASTE));
 		pasteButton.setEnabled(model.getParentModel().hasSettingsToPaste());
 		pasteButton.setToolTipText(
 			UIUtilities.formatToolTipText("Pastes the rendering settings."));
 		pasteButton.setActionCommand(""+PASTE);
 		pasteButton.addActionListener(this);
+		//UIUtilities.unifiedButtonLookAndFeel(pasteButton);
 		historyButton = new JButton();
 		updateHistory(!model.getParentModel().isHistoryShown());
 		historyButton.setActionCommand(""+HISTORY);
 		historyButton.addActionListener(this);
-	}
-
-	/**
-	 * Creates the menu bar.
-	 * 
-	 * @return See above
-	 */
-	private JMenuBar createMenuBar()
-	{
-		JMenuBar menuBar = new JMenuBar(); 
-		menuBar.add(createControlsMenu());
-		return menuBar;
-	}
-
-	/**
-	 * Helper method to create the <code>Controls</code> menu.
-	 * 
-	 * @return See above.
-	 */
-	private JMenu createControlsMenu()
-	{
-		IconManager icons = IconManager.getInstance();
-		JMenu menu = new JMenu("Controls");
-		JMenuItem item = new JMenuItem(
-				controller.getAction(RendererControl.SAVE_SETTINGS));
-		item.setIcon(icons.getIcon(IconManager.SAVE_SETTINGS));
-		menu.add(item);
-		item = new JMenuItem(
-				controller.getAction(RendererControl.RESET_SETTINGS));
-		item.setIcon(icons.getIcon(IconManager.RESET_SETTINGS));
-		menu.add(item);
-		return menu;
+		resetButton = new JButton(icons.getIcon(IconManager.RESET_SETTINGS));
+		resetButton.setToolTipText(
+				UIUtilities.formatToolTipText( "Reverts to Original Settings"));
+		resetButton.setActionCommand(""+RESET_DEFAULT);
+		resetButton.addActionListener(this);
+		//UIUtilities.unifiedButtonLookAndFeel(resetButton);
 	}
 
 	/** Creates the panels hosting the rendering controls. */
@@ -184,31 +174,21 @@ class RendererUI
 	 */
 	private JPanel createButtonsPanel()
 	{
-			/*
-	  	JButton acceptButton, revertButton;
-	  	JPanel p = new JPanel();
-	  	GridBagConstraints gbc = new GridBagConstraints();
-	
-	  	revertButton = new JButton(
-	              controller.getAction(RendererControl.RESET_SETTINGS));
-	
-	      acceptButton = new JButton(
-	              controller.getAction(RendererControl.SAVE_SETTINGS));
-	
-	    	p.setLayout(new GridBagLayout());
-	  	gbc.gridx = 0;
-	  	gbc.anchor = GridBagConstraints.EAST;
-	      p.add(acceptButton, gbc);
-	      gbc.gridx = 1;
-	      gbc.insets = new Insets(0, 0, 0, 14);
-	      p.add(revertButton, gbc);
-	      return p;
-			 */
 		JPanel bar = new JPanel();
 		bar.setBorder(null);
 		bar.add(historyButton);
-		bar.add(pasteButton);
-		bar.add(copyButton);
+		
+		JToolBar tb = new JToolBar();
+		tb.setFloatable(false);
+		tb.setRollover(true);
+		tb.setBorder(null);
+		tb.add(new JSeparator());
+		tb.add(copyButton);
+		tb.add(Box.createRigidArea(H_SPACE));
+		tb.add(pasteButton);
+		tb.add(Box.createRigidArea(H_SPACE));
+		//tb.add(resetButton);
+		bar.add(tb);
 		JPanel p = UIUtilities.buildComponentPanelRight(bar);
 		p.setOpaque(true);
 		return p;
@@ -217,21 +197,6 @@ class RendererUI
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		/*
-      Container c = getContentPane();
-      JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP,
-                              JTabbedPane.WRAP_TAB_LAYOUT);
-      tabs.setAlignmentX(LEFT_ALIGNMENT);
-      ControlPane pane = controlPanes.get(DOMAIN);
-      tabs.insertTab(pane.getPaneName(), pane.getPaneIcon(), pane,
-                      pane.getPaneDescription(), pane.getPaneIndex());
-      pane = controlPanes.get(CODOMAIN);
-      tabs.insertTab(pane.getPaneName(), pane.getPaneIcon(), pane,
-                      pane.getPaneDescription(), pane.getPaneIndex());
-      c.setLayout(new BorderLayout());
-      c.add(tabs,BorderLayout.NORTH);
-      c.add(createButtonPanel(),BorderLayout.SOUTH);
-		 */
 		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP,
 				JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
@@ -399,12 +364,14 @@ class RendererUI
 				break;
 			case PASTE:
 				model.getParentModel().pasteRenderingSettings();
-				model.getParentModel().createHistoryItem();
 				break;
 			case HISTORY:
 				boolean b = !model.getParentModel().isHistoryShown();
 				updateHistory(b);
 				model.getParentModel().showHistory(b);
+				break;
+			case RESET_DEFAULT:
+				model.getParentModel().resetDefaultRndSettings();
 		}
 	}
 

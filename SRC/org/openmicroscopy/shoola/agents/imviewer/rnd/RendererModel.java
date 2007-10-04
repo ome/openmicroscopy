@@ -511,20 +511,6 @@ class RendererModel
 		return rndControl.getChannelWindowEnd(selectedChannelIndex);
 	}
 
-	/** 
-	 * Resets the default settings. 
-	 * 
-	 * @throws RenderingServiceException 	If an error occured while setting 
-	 * 										the value.
-	 * @throws DSOutOfServiceException  	If the connection is broken.
-	 */
-	void resetDefaultRndSettings()
-	throws RenderingServiceException, DSOutOfServiceException
-	{ 
-		rndControl.resetDefaults(); 
-		parentModel.resetDefaults(); 
-	}
-
 	/**
 	 * Returns the currently selected color model.
 	 * 

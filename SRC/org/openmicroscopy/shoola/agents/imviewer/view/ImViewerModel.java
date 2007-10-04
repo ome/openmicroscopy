@@ -915,6 +915,14 @@ class ImViewerModel
 		if (historyItems != null) historyItems.remove(node);
 	}
 
+	/** Removes the last item from the list. */
+	void removeLastHistoryItem()
+	{
+		if (historyItems != null || historyItems.size() > 1) {
+			historyItems.remove(historyItems.size()-1);
+		}
+	}
+	
 	/** Clears the history. */
 	void clearHistory()
 	{
@@ -996,6 +1004,19 @@ class ImViewerModel
 		return false;
 	}
 
+	/** 
+	 * Resets the default settings. 
+	 * 
+	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * 										the value.
+	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	void resetDefaultRndSettings()
+		throws RenderingServiceException, DSOutOfServiceException
+	{ 
+		rndControl.resetDefaults(); 
+	}
+	
 	/** Sets the reference to the pixels set to <code>null</code>. */
 	void copyRndSettings() { pixels = null; }
 

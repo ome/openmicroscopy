@@ -251,8 +251,6 @@ public interface Renderer
      */
     public double getHighestValue();
     
-    /** Resets the default settings. */
-    public void resetDefaultRndSettings();
 
     /** Saves the rendering settings. */
     public void saveRndSettings();

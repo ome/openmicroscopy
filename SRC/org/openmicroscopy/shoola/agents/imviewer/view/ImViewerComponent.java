@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
+import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.imviewer.util.CategorySaverDef;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImageDetailsDialog;
@@ -137,6 +138,9 @@ class ImViewerComponent
 	 */
 	private ViewerSorter    				sorter;
 
+	/** Flag indicating that the rendering settings have been modified. */
+	private boolean							rndToSave;
+	
 	/** 
 	 * Returns the description displayed in the status bar.
 	 * 
@@ -212,25 +216,31 @@ class ImViewerComponent
 	/** Displays message bebofe closing the viewer. */
 	private void saveOnClose()
 	{
+		boolean showBox = false;
 		MessageBox msg = new MessageBox(view, "Save Data", 
 						"Before closing the viewer, do you want to save: ");
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		JCheckBox rndBox = new JCheckBox("The Rendering Settings");
-		rndBox.setSelected(true);
-		p.add(rndBox);
+		JCheckBox rndBox = null;
+		if (rndToSave) {
+			rndBox = new JCheckBox("The Rendering Settings");
+			rndBox.setSelected(true);
+			p.add(rndBox);
+			showBox = true;
+		}
 		JCheckBox annotationBox = null;
 		if (model.getBrowser().hasAnnotationToSave()) {
 			annotationBox = new JCheckBox("The Annotation");
 			annotationBox.setSelected(true);
 			p.add(annotationBox);
-
+			showBox = true;
 		}
 		msg.addBodyComponent(p);
 		List<SaveEventBox> boxes = null;
 		SaveEventBox box;
 		Iterator j;
 		if (events != null) {
+			showBox = true;
 			boxes = new ArrayList<SaveEventBox>(events.size());
 			j = events.keySet().iterator();
 			SaveRelatedData value;
@@ -243,7 +253,10 @@ class ImViewerComponent
 				}
 			}
 		}
-		
+		if (!showBox) {
+			postViewerState(ViewerState.CLOSE);
+			return;
+		}
 		if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
 			if (rndBox != null && rndBox.isSelected()) {
 				try {
@@ -269,8 +282,8 @@ class ImViewerComponent
 			}
 		}
 		postViewerState(ViewerState.CLOSE);
-		
 	}
+	
 	/**
 	 * Creates a new instance.
 	 * The {@link #initialize() initialize} method should be called straigh 
@@ -544,6 +557,7 @@ class ImViewerComponent
 			createHistoryItem();
 			HistoryItem node = (HistoryItem) model.getHistory().get(0);
 			node.allowClose(false);
+			rndToSave = false;
 		}
 			
 		fireStateChange();
@@ -1743,6 +1757,7 @@ class ImViewerComponent
 	 */
 	public void createHistoryItem()
 	{
+		rndToSave = true;
 		HistoryItem node = model.createHistoryItem();
 		node.addPropertyChangeListener(controller);
 		//add Listener to node.
@@ -1961,4 +1976,22 @@ class ImViewerComponent
 		view.showHistory(b);
 	}
 	
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#resetDefaultRndSettings()
+     */
+    public void resetDefaultRndSettings()
+    {
+    	try {
+    		createHistoryItem();
+    		model.resetDefaultRndSettings();
+    		view.resetDefaults();
+    		model.getRenderer().resetRndSettings();
+			renderXYPlane();
+		} catch (Exception ex) {
+			model.removeLastHistoryItem();
+			reload(ex);
+		}
+    }
+    
 }

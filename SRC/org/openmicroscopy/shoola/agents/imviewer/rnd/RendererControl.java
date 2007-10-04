@@ -40,7 +40,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ContrastStretchingActio
 import org.openmicroscopy.shoola.agents.imviewer.actions.HistogramAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.NoiseReductionAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlaneSlicingAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.ResetSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ReverseIntensityAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RndAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveSettingsAction;
@@ -69,9 +68,6 @@ class RendererControl
 
     /** Identifies the Save settings action in the menu. */
     static final Integer    SAVE_SETTINGS = new Integer(0);
-    
-    /** Identifies the Reset settings action in the menu. */
-    static final Integer    RESET_SETTINGS = new Integer(1);
     
     /** Identifies the action to select the bit resolution. */
     static final Integer    BIT_RESOLUTION = new Integer(2);
@@ -119,7 +115,6 @@ class RendererControl
         actionsMap.put(CONTRAST_STRETCHING, 
                         new ContrastStretchingAction(model));
         actionsMap.put(SAVE_SETTINGS, new SaveSettingsAction(model));
-        actionsMap.put(RESET_SETTINGS, new ResetSettingsAction(model));
         actionsMap.put(NOISE_REDUCTION, new NoiseReductionAction(model));
         actionsMap.put(HISTOGRAM, new HistogramAction(model));
     }

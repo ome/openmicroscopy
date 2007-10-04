@@ -777,4 +777,7 @@ public interface ImViewer
 	 */
 	public void showHistory(boolean b); 
 	
+	/** Resets the default settings. */
+    public void resetDefaultRndSettings();
+	
 }
