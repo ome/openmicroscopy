@@ -494,6 +494,7 @@ public class RenderingBean extends AbstractLevel2Service implements
             {
             	errorIfInvalidState();
             	renderer.resetDefaults();
+            	pixMetaSrv.saveRndSettings(rendDefObj);
             }
         }
         catch (IOException e)
@@ -509,6 +510,26 @@ public class RenderingBean extends AbstractLevel2Service implements
             rwl.writeLock().unlock();
         }
         iUpdate.flush();
+    }
+    
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see RenderingEngine#resetDefaults()
+     */
+    @RolesAllowed("user")
+    public void resetDefaultsNoSave()
+    {
+    	rwl.writeLock().lock();
+        try
+        {
+        	errorIfInvalidState();
+        	renderer.resetDefaults();
+        }
+        finally
+        {
+            rwl.writeLock().unlock();
+        }
     }
     
     /**

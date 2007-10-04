@@ -410,9 +410,16 @@ public interface RenderingEngine extends SelfConfigurableService,
 
     /**
      * Resets the default settings i.e. the default values internal to the
-     * Rendering engine.
+     * Rendering engine. The settings will be saved.
      */
     public void resetDefaults();
+    
+    /**
+     * Resets the default settings i.e. the default values internal to the
+     * Rendering engine. In this case, the rendering settings will not 
+     * be saved.
+     */
+    public void resetDefaultsNoSave();
     
 	/**
 	 * Sets the current compression level for the service. (The default is 85%)
