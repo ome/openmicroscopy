@@ -519,6 +519,7 @@ class RenderingControlProxy
     	throws RenderingServiceException, DSOutOfServiceException
     {
         //TODO: need to convert value.
+    	
     	try {
     		checkBitResolution(bitResolution);
             servant.setQuantumStrategy(bitResolution);
@@ -526,7 +527,7 @@ class RenderingControlProxy
             invalidateCache();
 		} catch (Exception e) {
 			rndDef.setBitResolution(bitResolution);
-			handleException(e, ERROR+"bit beth.");
+			handleException(e, ERROR+"bit resolution.");
 		}
     }
 
@@ -756,7 +757,7 @@ class RenderingControlProxy
     	throws RenderingServiceException, DSOutOfServiceException
     { 
     	try {
-    		 servant.resetDefaults();
+    		 servant.resetDefaultsNoSave();
     		 initialize();
     		 tmpSolutionForNoiseReduction();
 		} catch (Exception e) {
@@ -997,6 +998,7 @@ class RenderingControlProxy
 			throw new IllegalArgumentException("Rendering settings not " +
 					"compatible.");
 		setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
+		
 		setQuantumStrategy(rndDef.getBitResolution());
 		ChannelBindingsProxy c;
 		for (int i = 0; i < getPixelsDimensionsC(); i++) {

@@ -394,23 +394,7 @@ class RendererComponent
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getUI()
      */
-    public JComponent getUI()
-    {
-        return view;
-    }
-
-    /** 
-     * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#saveRndSettings()
-     */
-    public void saveRndSettings()
-    {
-    	try {
-    		model.saveRndSettings();
-		} catch (Exception ex) {
-			model.getParentModel().reload(ex);
-		}
-    }
+    public JComponent getUI() { return view; }
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.

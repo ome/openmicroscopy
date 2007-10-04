@@ -42,7 +42,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.NoiseReductionAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlaneSlicingAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ReverseIntensityAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RndAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.SaveSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.cdm.CodomainMapContextDialog;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
@@ -66,9 +65,6 @@ class RendererControl
     implements PropertyChangeListener
 {
 
-    /** Identifies the Save settings action in the menu. */
-    static final Integer    SAVE_SETTINGS = new Integer(0);
-    
     /** Identifies the action to select the bit resolution. */
     static final Integer    BIT_RESOLUTION = new Integer(2);
     
@@ -114,7 +110,6 @@ class RendererControl
         actionsMap.put(PLANE_SLICING, new PlaneSlicingAction(model));
         actionsMap.put(CONTRAST_STRETCHING, 
                         new ContrastStretchingAction(model));
-        actionsMap.put(SAVE_SETTINGS, new SaveSettingsAction(model));
         actionsMap.put(NOISE_REDUCTION, new NoiseReductionAction(model));
         actionsMap.put(HISTOGRAM, new HistogramAction(model));
     }

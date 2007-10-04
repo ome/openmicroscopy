@@ -99,6 +99,9 @@ class RendererUI
 	
 	/** Action ID to reset the original rendering settings. */
 	private static final int				RESET_DEFAULT = 3;
+	
+	/** Action ID to save the  the rendering settings. */
+	private static final int				SAVE = 4;
 
 	/** Horizontal space between the buttons. */
 	private static final Dimension			H_SPACE = new Dimension(5, 5);
@@ -121,8 +124,11 @@ class RendererUI
 	/** Button to display the local history. */
 	private JButton							historyButton;
 	
-	/** Button to display the reset the rendering settings. */
+	/** Button to reset the rendering settings. */
 	private JButton							resetButton;
+
+	/** Button to save the rendering settings. */
+	private JButton							saveButton;
 
 	/** Initializes the components. */
 	private void initComponents()
@@ -150,9 +156,14 @@ class RendererUI
 		historyButton.addActionListener(this);
 		resetButton = new JButton(icons.getIcon(IconManager.RESET_SETTINGS));
 		resetButton.setToolTipText(
-				UIUtilities.formatToolTipText( "Reverts to Original Settings"));
+				UIUtilities.formatToolTipText("Reverts to Original Settings."));
 		resetButton.setActionCommand(""+RESET_DEFAULT);
 		resetButton.addActionListener(this);
+		saveButton = new JButton(icons.getIcon(IconManager.SAVE_SETTINGS));
+		saveButton.setToolTipText(
+				UIUtilities.formatToolTipText("Save the current settings."));
+		saveButton.setActionCommand(""+SAVE);
+		saveButton.addActionListener(this);
 		//UIUtilities.unifiedButtonLookAndFeel(resetButton);
 	}
 
@@ -177,7 +188,6 @@ class RendererUI
 		JPanel bar = new JPanel();
 		bar.setBorder(null);
 		bar.add(historyButton);
-		
 		JToolBar tb = new JToolBar();
 		tb.setFloatable(false);
 		tb.setRollover(true);
@@ -187,7 +197,9 @@ class RendererUI
 		tb.add(Box.createRigidArea(H_SPACE));
 		tb.add(pasteButton);
 		tb.add(Box.createRigidArea(H_SPACE));
-		//tb.add(resetButton);
+		tb.add(resetButton);
+		tb.add(Box.createRigidArea(H_SPACE));
+		tb.add(saveButton);
 		bar.add(tb);
 		JPanel p = UIUtilities.buildComponentPanelRight(bar);
 		p.setOpaque(true);
@@ -372,6 +384,10 @@ class RendererUI
 				break;
 			case RESET_DEFAULT:
 				model.getParentModel().resetDefaultRndSettings();
+				break;
+			case SAVE:
+				model.getParentModel().saveRndSettings();
+				break;
 		}
 	}
 

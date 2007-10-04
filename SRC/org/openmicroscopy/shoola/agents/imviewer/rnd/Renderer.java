@@ -250,11 +250,7 @@ public interface Renderer
      * @return See above.
      */
     public double getHighestValue();
-    
 
-    /** Saves the rendering settings. */
-    public void saveRndSettings();
-    
     /**
      * Returns the {@link RendererUI View}.
      * 

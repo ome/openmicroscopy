@@ -6,7 +6,17 @@
   client for the visualization and manipulation of both image data and metadata
   maintained at an OMERO server site. OMERO.insight is completely written in 
   Java.
-
+--------------------------------------------------------------------------------
+ Last update: 04/10/2007 (revision 5035)
+ Version: Beta 2.2 rc2
+ 
+  - Viewer: Fixed Image grid bug see ticket #389 and ticket #390
+  - Viewer: Fixed play movie bug see ticket #392 
+  - Renderer: Fixed slider location problem see ticket #391
+  - DataManager and HiViewer: Fixed copy paste rnd settings bug see ticket #393
+  - Viewer: Add item to local history if "cut and paste" action see ticket #394
+  - Viewer: Display local history when launching the renderer see ticket #395
+  - Viewer: Saving on close see ticket #396
 --------------------------------------------------------------------------------
  Last update: 01/10/2007 (revision 5030)
  Version: Beta 2.2 rc1

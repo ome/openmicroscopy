@@ -1818,11 +1818,11 @@ class ImViewerComponent
 	public void pasteRenderingSettings()
 	{
 		switch (model.getState()) {
-		case NEW:
-		case DISCARDED:
-			//throw new IllegalStateException(
-			//"This method can't be invoked in the DISCARDED, NEW state.");
-			return;
+			case NEW:
+			case DISCARDED:
+				//throw new IllegalStateException(
+				//"This method can't be invoked in the DISCARDED, NEW state.");
+				return;
 		}
 		if (!model.hasRndToPaste()) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
@@ -1833,6 +1833,7 @@ class ImViewerComponent
 
 		try {
 			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			createHistoryItem();
 			boolean b = model.resetSettings();
 			if (b) {
 				view.resetDefaults();
@@ -1977,8 +1978,8 @@ class ImViewerComponent
 	}
 	
 	/** 
-     * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#resetDefaultRndSettings()
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#resetDefaultRndSettings()
      */
     public void resetDefaultRndSettings()
     {
@@ -1994,4 +1995,17 @@ class ImViewerComponent
 		}
     }
     
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#saveRndSettings()
+     */
+    public void saveRndSettings()
+    {
+    	try {
+    		model.saveRndSettings();
+		} catch (Exception ex) {
+			reload(ex);
+		}
+    }
+
 }

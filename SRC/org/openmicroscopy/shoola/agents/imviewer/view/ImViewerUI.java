@@ -157,6 +157,7 @@ class ImViewerUI
 		colors.put(Color.RED, "Red");
 		colors.put(Color.GREEN, "Green");
 		colors.put(Color.BLUE, "Blue");
+		colors.put(Color.WHITE, "White");
 
 		backgrounds = new LinkedHashMap<Color, String>();
 		backgrounds.put(ImagePaintingFactory.DEFAULT_BACKGROUND, 
@@ -1116,17 +1117,17 @@ class ImViewerUI
 		int index = model.getTabbedIndex();
 		switch (index) {
 		case ImViewer.VIEW_INDEX:
-		default:
-			f = (float) model.getZoomFactor();
-		img = model.getOriginalImage();
-		break;
-		case ImViewer.GRID_INDEX:
-			img = model.getGridImage();
-			break;
-		case ImViewer.ANNOTATOR_INDEX:
-			img = model.getOriginalImage();
-			f = (float) model.getBrowser().getRatio();
-			break;
+			default:
+				f = (float) model.getZoomFactor();
+				img = model.getOriginalImage();
+				break;
+			case ImViewer.GRID_INDEX:
+				img = model.getGridImage();
+				break;
+			case ImViewer.ANNOTATOR_INDEX:
+				img = model.getOriginalImage();
+				f = (float) model.getBrowser().getRatio();
+				break;
 		}
 		int width = lens.getLensUI().getWidth();
 		int height = lens.getLensUI().getHeight();
@@ -1144,32 +1145,31 @@ class ImViewerUI
 			if (lensY+height > maxY) lensY = diffY;
 		} else {
 			switch (historyIndex) {
-			case ImViewer.GRID_INDEX:
-				if (historyIndex != index) {
-					Point point = model.getBrowser().isOnImageInGrid(
-							lens.getLensScaledBounds());
-					if (point == null) {
-						int diffX = maxX-width;
-						int diffY = maxY-height;
-						lensX = diffX/2;
-						lensY = diffY/2;
-						if (lensX+width > maxX) lensX = diffX;
-						if (lensY+height > maxY) lensY = diffY;
-					} else {
-						double r = model.getBrowser().getRatio();
-						lensX = (int) (point.x/r);
-						lensY = (int) (point.y/r);
+				case ImViewer.GRID_INDEX:
+					if (historyIndex != index) {
+						Point point = model.getBrowser().isOnImageInGrid(
+								lens.getLensScaledBounds());
+						if (point == null) {
+							int diffX = maxX-width;
+							int diffY = maxY-height;
+							lensX = diffX/2;
+							lensY = diffY/2;
+							if (lensX+width > maxX) lensX = diffX;
+							if (lensY+height > maxY) lensY = diffY;
+						} else {
+							double r = model.getBrowser().getRatio();
+							lensX = (int) (point.x/r);
+							lensY = (int) (point.y/r);
+						}
 					}
-				}
-				break;
-			case ImViewer.VIEW_INDEX:
-			case ImViewer.ANNOTATOR_INDEX:
-				if (index == ImViewer.GRID_INDEX) {
-					double r = model.getBrowser().getRatio();
-					lensX = (int) (lensX*r);
-					lensY = (int) (lensY*r);
-				}
-				break;
+					break;
+				case ImViewer.VIEW_INDEX:
+				case ImViewer.ANNOTATOR_INDEX:
+					if (index == ImViewer.GRID_INDEX) {
+						double r = model.getBrowser().getRatio();
+						lensX = (int) (lensX*r);
+						lensY = (int) (lensY*r);
+					}
 			}
 		}
 		lens.resetLens(img, f, lensX, lensY);  
