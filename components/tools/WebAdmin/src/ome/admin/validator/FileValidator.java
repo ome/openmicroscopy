@@ -28,7 +28,7 @@ public class FileValidator {
 		if (fileName.length() > 4) {
 			ArrayList<String> supportedSuffix = new ArrayList<String>();
 			supportedSuffix.add("xls");
-			supportedSuffix.add("xml");
+			//supportedSuffix.add("xml");
 			supportedSuffix.add("csv");
 
 			String suffix = getTypeOfFile(fileName);
@@ -42,7 +42,8 @@ public class FileValidator {
 	public static boolean validFileType(UploadedFile uploadedFile) {
 		if (uploadedFile.getContentType().equals("application/octet-stream")
 				|| uploadedFile.getContentType().equals("text/plain")
-				|| uploadedFile.getContentType().equals("text/xml")) {
+				//|| uploadedFile.getContentType().equals("text/xml")
+				) {
 
 			return validFileName(uploadedFile.getName());
 		}

@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-//Third-party libraries
+// Third-party libraries
 import javax.faces.model.DataModel;
 import javax.faces.model.ListDataModel;
 import javax.faces.component.UIInput;
@@ -50,10 +50,11 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	/**
 	 * log4j logger
 	 */
-	static Logger logger = Logger.getLogger(IAdminExperimenterController.class.getName());
+	static Logger logger = Logger.getLogger(IAdminExperimenterController.class
+			.getName());
 
 	/**
-	 * {@link ome.model.meta.Experimenter}.
+	 * {@link ome.admin.model.User}.
 	 */
 	private User user = new User();
 
@@ -77,7 +78,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	 * boolean value for providing Add/Edit form in one JSP.
 	 */
 	private boolean scrollerMode = true;
-	
+
 	/**
 	 * Sort item default value "lastName".
 	 */
@@ -98,7 +99,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	 * Confirmation of password.
 	 */
 	private String password2;
-	
+
 	/**
 	 * Creates a new instance of IAdminExperimenterController.
 	 */
@@ -166,18 +167,30 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	public int getSize() {
 		return this.userModel.getRowCount();
 	}
-	
+
+	/**
+	 * Checks
+	 * {@link ome.admin.controller.IAdminExperimenterController#scrollerMode}
+	 * 
+	 * @return boolean
+	 */
 	public boolean isScrollerMode() {
 		return this.scrollerMode;
 	}
 
+	/**
+	 * Sets
+	 * {@link ome.admin.controller.IAdminExperimenterController#scrollerMode}
+	 * 
+	 * @param scrollerMode
+	 *            boolean
+	 */
 	public void setScrollerMode(boolean scrollerMode) {
 		this.scrollerMode = scrollerMode;
 	}
 
 	/**
-	 * Sets
-	 * {@link ome.admin.controller.IAdminExperimenterController#user}
+	 * Sets {@link ome.admin.controller.IAdminExperimenterController#user}
 	 * 
 	 * @param u
 	 *            {@link ome.admin.model.User}
@@ -187,8 +200,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	}
 
 	/**
-	 * Gets
-	 * {@link ome.admin.model.User}
+	 * Gets {@link ome.admin.model.User}
 	 * 
 	 * @return {@link ome.admin.controller.IAdminExperimenterController#user}
 	 */
@@ -203,8 +215,9 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	 * @return {@link java.util.List}
 	 */
 	public DataModel getUsers() {
-		if(this.editMode) {
-			this.userModel.setWrappedData(iadmin.getAndSortItems(sortItem, sort));
+		if (this.editMode) {
+			this.userModel.setWrappedData(iadmin
+					.getAndSortItems(sortItem, sort));
 			this.scrollerMode = iadmin.setScroller();
 		}
 		return this.userModel;
@@ -261,16 +274,18 @@ public class IAdminExperimenterController implements java.io.Serializable {
 		return this.sort;
 	}
 
-    public void scrollerAction(ActionEvent event)
-    {
-        ScrollerActionEvent scrollerEvent = (ScrollerActionEvent) event;
-        FacesContext.getCurrentInstance().getExternalContext().log(
-                        "scrollerAction: facet: "
-                                        + scrollerEvent.getScrollerfacet()
-                                        + ", pageindex: "
-                                        + scrollerEvent.getPageIndex());
-    }
-    
+	/**
+	 * Provides the scroller action.
+	 * 
+	 * @param event
+	 */
+	public void scrollerAction(ActionEvent event) {
+		ScrollerActionEvent scrollerEvent = (ScrollerActionEvent) event;
+		logger.info("scrollerAction: facet: "
+				+ scrollerEvent.getScrollerfacet() + ", pageindex: "
+				+ scrollerEvent.getPageIndex());
+	}
+
 	/**
 	 * Provides action for navigation rule "changePassword" what is described in
 	 * the faces-config.xml file. Changes the password for
@@ -280,8 +295,8 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	 */
 	public String changePassword() {
 		try {
-			this.user = (User) this.iadmin
-					.getExperimenterById(this.user.getExperimenter().getId());
+			this.user = (User) this.iadmin.getExperimenterById(this.user
+					.getExperimenter().getId());
 			this.editMode = true;
 			return "success";
 		} catch (Exception e) {
@@ -289,7 +304,8 @@ public class IAdminExperimenterController implements java.io.Serializable {
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Experimenter: [id: "
 					+ this.user.getExperimenter().getId() + ", '"
-					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
+					+ this.user.getExperimenter().getOmeName() + "'] : "
+					+ e.getMessage());
 			context.addMessage("changePassword", message);
 			return "false";
 		}
@@ -320,12 +336,13 @@ public class IAdminExperimenterController implements java.io.Serializable {
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Experimenter: [id: "
 					+ this.user.getExperimenter().getId() + ", '"
-					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
+					+ this.user.getExperimenter().getOmeName() + "'] : "
+					+ e.getMessage());
 			context.addMessage("changePassword", message);
 			return "false";
 		}
 	}
-	
+
 	/**
 	 * Provides action for navigation rule "addNewExperimenter" what is
 	 * described in the faces-config.xml file.
@@ -349,14 +366,16 @@ public class IAdminExperimenterController implements java.io.Serializable {
 			if (this.user.getSelectedGroups() == null)
 				this.user.setSelectedGroups(Collections.EMPTY_LIST);
 			iadmin.createExperimenter(this.user);
-			this.userModel.setWrappedData(iadmin.getAndSortItems(sortItem,sort));
+			this.userModel.setWrappedData(iadmin
+					.getAndSortItems(sortItem, sort));
 			return "success";
 		} catch (Exception e) {
 			logger.error("createExperimenter: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Experimenter: [id: "
 					+ this.user.getExperimenter().getId() + ", '"
-					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
+					+ this.user.getExperimenter().getOmeName() + "'] : "
+					+ e.getMessage());
 			context.addMessage("experimenters", message);
 			return "false";
 		}
@@ -371,14 +390,16 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	public String editExperimenter() {
 		try {
 			this.editMode = true;
-			this.user = (User) iadmin.getExperimenterById(((User) userModel.getRowData()).getExperimenter().getId());
+			this.user = (User) iadmin.getExperimenterById(((User) userModel
+					.getRowData()).getExperimenter().getId());
 			return "success";
 		} catch (Exception e) {
 			logger.error("editExperimenter: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Experimenter: [id: "
 					+ this.user.getExperimenter().getId() + ", '"
-					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
+					+ this.user.getExperimenter().getOmeName() + "'] : "
+					+ e.getMessage());
 			context.addMessage("experimenters", message);
 			return "false";
 		}
@@ -394,7 +415,8 @@ public class IAdminExperimenterController implements java.io.Serializable {
 		try {
 			this.user = (User) userModel.getRowData();
 			iadmin.deleteExperimenter(this.user.getExperimenter().getId());
-			this.userModel.setWrappedData(iadmin.getAndSortItems(sortItem,sort));
+			this.userModel.setWrappedData(iadmin
+					.getAndSortItems(sortItem, sort));
 			this.scrollerMode = iadmin.setScroller();
 			return "success";
 		} catch (Exception e) {
@@ -402,7 +424,8 @@ public class IAdminExperimenterController implements java.io.Serializable {
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Experimenter: [id: "
 					+ this.user.getExperimenter().getId() + ", '"
-					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
+					+ this.user.getExperimenter().getOmeName() + "'] : "
+					+ e.getMessage());
 			context.addMessage("experimenters", message);
 			return "false";
 		}
@@ -418,14 +441,16 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	public String updateExperimenter() {
 		try {
 			iadmin.updateExperimenter(this.user);
-			this.userModel.setWrappedData(iadmin.getAndSortItems(sortItem,sort));
+			this.userModel.setWrappedData(iadmin
+					.getAndSortItems(sortItem, sort));
 			return "success";
 		} catch (Exception e) {
 			logger.error("updateExperimenter: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Experimenter: [id: "
 					+ this.user.getExperimenter().getId() + ", '"
-					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
+					+ this.user.getExperimenter().getOmeName() + "'] : "
+					+ e.getMessage());
 			context.addMessage("experimenterForm", message);
 			return "false";
 		}
@@ -447,7 +472,8 @@ public class IAdminExperimenterController implements java.io.Serializable {
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Experimenter: [id: "
 					+ this.user.getExperimenter().getId() + ", '"
-					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
+					+ this.user.getExperimenter().getOmeName() + "'] : "
+					+ e.getMessage());
 			context.addMessage("experimenterForm", message);
 		}
 		return Utils.wrapAsGUIList(groups);
@@ -482,12 +508,13 @@ public class IAdminExperimenterController implements java.io.Serializable {
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Experimenter: [id: "
 					+ this.user.getExperimenter().getId() + ", '"
-					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
+					+ this.user.getExperimenter().getOmeName() + "'] : "
+					+ e.getMessage());
 			context.addMessage("experimenterForm", message);
 		}
 		return Utils.wrapAsGUIList(groups);
 	}
-	
+
 	/**
 	 * Provides validaton for email
 	 * 
@@ -518,7 +545,8 @@ public class IAdminExperimenterController implements java.io.Serializable {
 			logger.error("validateEmail: " + e.getMessage());
 			FacesMessage message = new FacesMessage("Experimenter: [id: "
 					+ this.user.getExperimenter().getId() + ", '"
-					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
+					+ this.user.getExperimenter().getOmeName() + "'] : "
+					+ e.getMessage());
 			context.addMessage("experimenterForm", message);
 		}
 	}
@@ -544,7 +572,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
 			context.addMessage(toValidate.getClientId(context), message);
 		}
 	}
-	
+
 	/**
 	 * Provides validaton for {@link ome.model.meta.Experimenter#getOmeName()}.
 	 * Cannot exist the same omeNames.

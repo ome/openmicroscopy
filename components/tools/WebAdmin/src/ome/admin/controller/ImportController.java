@@ -218,7 +218,6 @@ public class ImportController implements java.io.Serializable {
 						"Invalid node path (cannot expand a leaf): " + nodeId);
 
 				context.addMessage("clientTreeForm", message);
-				// throw new ValidatorException(message);
 			}
 		}
 	}

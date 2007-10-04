@@ -90,8 +90,9 @@
 			<h:commandButton id="submitUpdate"
 				action="#{IAMAManagerBean.updateExperimenter}"
 				value="#{msg.myaccountSave}" />
-
-		</h:form> 
+				
+		</h:form>
+		 
 		<c:if test="${empty sessionScope.IAMAManagerBean.user.dn}">
 			<h:form id="passwd">
 				<br />
@@ -100,6 +101,10 @@
 					<h:outputText value="#{msg.myaccountChangePassword}" />
 				</h:commandLink>
 			</h:form>
+		</c:if>
+		
+		<c:if test="${sessionScope.IAEManagerBean.user.dn}">
+			<h:outputText value="#{msg.myaccountLdapInfo}"/>
 		</c:if></div>
 
 	</f:view>

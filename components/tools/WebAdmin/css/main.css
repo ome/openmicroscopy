@@ -66,6 +66,10 @@ body {
 	width: 550px;
 	margin: auto;
 }
+#imageTitle {
+	margin: 5px;
+	text-align: center;
+}
 
 #button {
 	margin-top: 10px;

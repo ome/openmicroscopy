@@ -12,24 +12,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.faces.model.DataModel;
-import javax.faces.model.ListDataModel;
-import javax.faces.model.SelectItem;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.faces.model.DataModel;
+import javax.faces.model.ListDataModel;
+import javax.faces.model.SelectItem;
+
+import ome.admin.logic.IAdminGroupManagerDelegate;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 
 import org.apache.log4j.Logger;
 import org.apache.myfaces.custom.datascroller.ScrollerActionEvent;
-
-// Third-party libraries
-
-// Application-internal dependencies
-import ome.admin.data.ConnectionDB;
-import ome.admin.logic.IAdminGroupManagerDelegate;
-import ome.admin.model.User;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
 
 /**
  * It's the Java bean with six attributes and setter/getter and actions methods.
@@ -172,10 +167,21 @@ public class IAdminGroupController implements java.io.Serializable {
 		return editMode;
 	}
 
+	/**
+	 * Checks {@link ome.admin.controller.IAdminGroupController#scrollerMode}
+	 * 
+	 * @return boolean
+	 */
 	public boolean isScrollerMode() {
 		return this.scrollerMode;
 	}
 
+	/**
+	 * Sets {@link ome.admin.controller.IAdminGroupController#scrollerMode}
+	 * 
+	 * @param scrollerMode
+	 *            boolean
+	 */
 	public void setScrollerMode(boolean scrollerMode) {
 		this.scrollerMode = scrollerMode;
 	}
@@ -248,6 +254,13 @@ public class IAdminGroupController implements java.io.Serializable {
 		}
 	}
 
+	/**
+	 * Checks system or default group name
+	 * 
+	 * @param name
+	 *            {@link java.lang.String}
+	 * @return
+	 */
 	private boolean checkGroup(String name) {
 		if (name.equals("system"))
 			return true;
@@ -265,9 +278,7 @@ public class IAdminGroupController implements java.io.Serializable {
 	public String delGroup() {
 		FacesContext context = FacesContext.getCurrentInstance();
 		try {
-			// this.group = (ExperimenterGroup) groupModel.getRowData();
-			this.group = (ExperimenterGroup) iadmin.getGroupById(this.group
-					.getId());
+			this.group = (ExperimenterGroup) groupModel.getRowData();
 			if (!checkGroup(this.group.getName())) {
 				this.editMode = true;
 				iadmin.deleteGroup(this.group.getId());
@@ -468,11 +479,15 @@ public class IAdminGroupController implements java.io.Serializable {
 		return this.sort;
 	}
 
+	/**
+	 * Provides the scroller action.
+	 * 
+	 * @param event
+	 */
 	public void scrollerAction(ActionEvent event) {
 		ScrollerActionEvent scrollerEvent = (ScrollerActionEvent) event;
-		FacesContext.getCurrentInstance().getExternalContext().log(
-				"scrollerAction: facet: " + scrollerEvent.getScrollerfacet()
-						+ ", pageindex: " + scrollerEvent.getPageIndex());
+		logger.info("scrollerAction: facet: "
+				+ scrollerEvent.getScrollerfacet() + ", pageindex: "
+				+ scrollerEvent.getPageIndex());
 	}
-
 }

@@ -17,5 +17,13 @@
 				imgTitle="#{msg.spaceTitle}">
 			</ch:chart>
 		</h:form></div>
+		
+		<div id="imageTitle">
+			<h:outputText value="#{msg.spaceFree} "/>
+			<h:outputText value="#{IRIPieChartBean.freeSpace}"/> [KB]
+			<br/>
+			<h:outputText value="#{msg.spaceUsed} "/>
+			<h:outputText value="#{IRIPieChartBean.usedSpace}"/> [KB]
+		</div>
 	</f:view>
 </c:if>

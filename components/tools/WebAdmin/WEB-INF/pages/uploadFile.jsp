@@ -10,11 +10,13 @@
 	<f:view>
 		<h2><h:outputText value="#{msg.uploadFile}" /></h2>
 
-		FileName: <h:outputText value="#{UploadBean.uploadedNewFile.name}" />
+		<p><h:outputText value="#{msg.uploadFileName} " /><h:outputText
+			value="#{UploadBean.uploadedNewFile.name}" /></p>
 
-		<h:form enctype="multipart/form-data" id="uploadedNewFileForm">
+		<div><h:form enctype="multipart/form-data" id="uploadedNewFileForm">
 			<h:message styleClass="errorText" id="uploadedNewFileFormError"
-				for="uploadedNewFileForm" /><br/>
+				for="uploadedNewFileForm" />
+			<br />
 
 			<h:outputText value="#{msg.uploadFile}" />
 			<t:inputFileUpload id="uploadedNewFile"
@@ -24,7 +26,7 @@
 			</t:inputFileUpload>
 			<h:commandButton id="submitUpdate" action="#{UploadBean.uploadFile}"
 				value="#{msg.uploadSave}" />
-		</h:form>
+		</h:form></div>
 
 	</f:view>
 </c:if>

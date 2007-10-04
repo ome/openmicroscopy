@@ -9,8 +9,10 @@ package ome.admin.logic;
 
 //Java imports
 import java.util.HashMap;
+import java.util.List;
 
 import ome.admin.data.ConnectionDB;
+import ome.model.meta.Experimenter;
 
 //Third-party libraries
 
@@ -60,7 +62,7 @@ public class IRepositoryInfoManagerDelegator implements java.io.Serializable {
 
     /**
      * Gets TopTen user space in kilobytes.
-     * @return {@link java.util.HashMap} used space in Bytes
+     * @return {@link java.util.HashMap} ExperimenterId, used space in Bytes
 	 */
     public HashMap getTopTenUserSpace() {
     	return db.getTopTen();

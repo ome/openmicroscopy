@@ -145,6 +145,10 @@
 					<h:outputText value="#{msg.experimentersChangePassword}" />
 				</h:commandLink>
 			</h:form>
+		</c:if>
+		
+		<c:if test="${sessionScope.IAEManagerBean.user.dn}">
+			<h:outputText value="#{msg.experimentersLdapInfo}"/>
 		</c:if></div>
 		
 	</f:view>
