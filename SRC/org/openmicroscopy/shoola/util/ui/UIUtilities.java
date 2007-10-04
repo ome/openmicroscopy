@@ -86,6 +86,7 @@ import javax.swing.text.StyledDocument;
  */
 public class UIUtilities
 {
+	
 	/** Unicode for the degrees symbol. */
 	public final static String 	DEGREES_SYMBOL = "\u00B0";
 	
@@ -421,6 +422,21 @@ public class UIUtilities
     {
         JPanel p = new JPanel();
         p.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        p.add(component);
+        return p;
+    }
+    
+    /**
+     * Adds the specified {@link JComponent} to a {@link JPanel} 
+     * with a right flowlayout.
+     * 
+     * @param component The component to add.
+     * @return See below.
+     */
+    public static JPanel buildComponentPanelCenter(JComponent component)
+    {
+        JPanel p = new JPanel();
+        p.setLayout(new FlowLayout(FlowLayout.CENTER));
         p.add(component);
         return p;
     }

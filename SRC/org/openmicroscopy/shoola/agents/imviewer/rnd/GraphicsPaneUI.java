@@ -51,76 +51,76 @@ import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 * @since OME2.2
 */
 class GraphicsPaneUI 
- extends JPanel 
+	extends JPanel 
 {
  
 	/** Color used to draw a line to indicate the selected value. */
 	private final static Color			LINECOLOUR = Color.BLACK;
 	
- /** The color used to grey out the non selected area. */
- private final static Color			GREYCOLOUR = new Color(196, 196, 196, 
- 															128);
- 
- /** The color of the filled background area. */
- private final static Color      	FILLCOLOUR = new Color(255, 255, 255);
+	/** The color used to grey out the non selected area. */
+	private final static Color			GREYCOLOUR = new Color(196, 196, 196, 
+			128);
 
- /** The color of the border of the histogram. */
- private final static Color      	BORDERCOLOUR = new Color(224, 209, 207);
-     
- /** The curve's stroke. */
- private final static BasicStroke	STROKE1_5 = new BasicStroke(1.5f);
+	/** The color of the filled background area. */
+	private final static Color      	FILLCOLOUR = new Color(255, 255, 255);
 
- /** The border stroke. */
- private final static BasicStroke 	STROKE2 = new BasicStroke(2.0f);
- 
+	/** The color of the border of the histogram. */
+	private final static Color      	BORDERCOLOUR = new Color(224, 209, 207);
+
+	/** The curve's stroke. */
+	private final static BasicStroke	STROKE1_5 = new BasicStroke(1.5f);
+
+	/** The border stroke. */
+	private final static BasicStroke 	STROKE2 = new BasicStroke(2.0f);
+
 	/** A temporary image of a histogram */
 	private ImageIcon       histogramImage;
 
 	/** A reference to the model. */
- private RendererModel   model;
+	private RendererModel   model;
 
- /** A reference to the model. */
- private GraphicsPane   	view;
- 
+	/** A reference to the model. */
+	private GraphicsPane   	view;
+
 	/** 
-  * Creates a new instance. 
-  * 
-  * @param view 	Reference to the view.
-  * @param model Reference to the model. Mustn't be <code>null</code>.
-  */
+	 * Creates a new instance. 
+	 * 
+	 * @param view 	Reference to the view.
+	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 */
 	GraphicsPaneUI(GraphicsPane view, RendererModel model)
- {
+	{
 		if (view == null) throw new IllegalArgumentException("No view.");
-     if (model == null) throw new IllegalArgumentException("No model.");
+		if (model == null) throw new IllegalArgumentException("No model.");
 		this.model = model;
 		this.view = view;
 		IconManager icons = IconManager.getInstance();
 		histogramImage = icons.getImageIcon(IconManager.TEMPORARY_HISTOGRAM);
 	}
-	
+
 	/**
 	 * Overridden to paint the histogram image.
 	 * @see JPanel#paintComponent(Graphics)
 	 */
 	public void paintComponent(Graphics og)
- {
+	{
 		super.paintComponent(og);
 		Graphics2D g = (Graphics2D) og;
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
-		
-     double width = getWidth();
-     double height = getHeight();
-     g.setColor(FILLCOLOUR);
-     g.fillRect(1, 1, (int) width-1, (int) height-1);
-     g.setColor(BORDERCOLOUR);
-     g.setStroke(STROKE2);
-     g.drawRect(0, 0, (int) width-1, (int) height-1);
-     
-     if (histogramImage != null)
-         g.drawImage(histogramImage.getImage(), 0, 0, (int) width-1, 
-                 (int) height-1, null);
-		
+
+		double width = getWidth();
+		double height = getHeight();
+		g.setColor(FILLCOLOUR);
+		g.fillRect(1, 1, (int) width-1, (int) height-1);
+		g.setColor(BORDERCOLOUR);
+		g.setStroke(STROKE2);
+		g.drawRect(0, 0, (int) width-1, (int) height-1);
+
+		if (histogramImage != null)
+			g.drawImage(histogramImage.getImage(), 0, 0, (int) width-1, 
+					(int) height-1, null);
+
 		double codomainMin = model.getCodomainStart();
 		double codomainMax = model.getCodomainEnd();
 		//double domainGlobalMin = model.getGlobalMin();
@@ -129,18 +129,20 @@ class GraphicsPaneUI
 		double domainGlobalMax = view.getPartialMaximum();
 		double domainMin = model.getWindowStart();
 		double domainMax = model.getWindowEnd();
-
+		//Added jmarie 03/10/07
+		if (domainMin < domainGlobalMin) domainMin = domainGlobalMin;
+		if (domainMax > domainGlobalMax) domainMax = domainGlobalMax;
 		double domainMinScreenX = ((domainMin-domainGlobalMin)/
-							(domainGlobalMax-domainGlobalMin))*width;
+				(domainGlobalMax-domainGlobalMin))*width;
 		double domainMaxScreenX = ((domainMax-domainGlobalMin)/
-							(domainGlobalMax-domainGlobalMin))*width;
+				(domainGlobalMax-domainGlobalMin))*width;
 		double codomainMinScreenY = ((255-codomainMin)/255.0f)*height;
 		double codomainMaxScreenY = ((255-codomainMax)/255.0f)*height;
 		double domainRangeScreen = domainMaxScreenX-domainMinScreenX;
 		double codomainRangeScreen = codomainMinScreenY-codomainMaxScreenY;
 
 		g.setColor(GREYCOLOUR);
-		
+
 		g.fillRect(0, 0, (int) domainMinScreenX+1, (int) height);
 		g.fillRect((int) domainMaxScreenX-1, 0, (int) width, (int) height);
 
@@ -149,10 +151,10 @@ class GraphicsPaneUI
 
 		g.fillRect(0, 0, (int) width, (int) codomainMaxScreenY);
 		g.fillRect(0, (int) codomainMinScreenY, (int) width, (int) height);
-		
+
 		String family = model.getFamily();
 		double k = model.getCurveCoefficient();
-	
+
 		double a = 0;
 		if (family.equals(RendererModel.LINEAR)) 
 			a = codomainRangeScreen/domainRangeScreen;
@@ -161,32 +163,32 @@ class GraphicsPaneUI
 		else if (family.equals(RendererModel.EXPONENTIAL)) 
 			a = codomainRangeScreen/Math.exp(Math.pow(domainRangeScreen, k));
 		else if (family.equals(RendererModel.LOGARITHMIC)) {
-         if (domainRangeScreen <= 1) domainRangeScreen = 1;
-         a = codomainRangeScreen/Math.log(domainRangeScreen);
-     }	
-	
+			if (domainRangeScreen <= 1) domainRangeScreen = 1;
+			a = codomainRangeScreen/Math.log(domainRangeScreen);
+		}	
+
 		double b = codomainMinScreenY;
 		double currentX = domainMinScreenX-1;
 		double currentY = b;
 		double oldX, oldY;
-		
+
 		g.setColor(model.getChannelColor(model.getSelectedChannel()));
 		g.setStroke(STROKE1_5);
-		
+
 		for (double x = 1; x < domainRangeScreen; x += 1) {
-				oldX = currentX;
-				oldY = currentY;
-				currentX = x+domainMinScreenX-1;
-      		if (family.equals(RendererModel.LINEAR)) 
-					currentY = b-a*x;
-				else if (family.equals(RendererModel.EXPONENTIAL)) 
-					currentY = b-a*Math.exp(Math.pow(x,	k));
-				else if (family.equals(RendererModel.POLYNOMIAL)) 
-					currentY = b-a*Math.pow(x, k);
-				else if (family.equals(RendererModel.LOGARITHMIC)) 
-					currentY = b-a*Math.log(x);
-				g.drawLine((int) oldX, (int) oldY, (int) currentX,
-						(int) currentY);
+			oldX = currentX;
+			oldY = currentY;
+			currentX = x+domainMinScreenX-1;
+			if (family.equals(RendererModel.LINEAR)) 
+				currentY = b-a*x;
+			else if (family.equals(RendererModel.EXPONENTIAL)) 
+				currentY = b-a*Math.exp(Math.pow(x,	k));
+			else if (family.equals(RendererModel.POLYNOMIAL)) 
+				currentY = b-a*Math.pow(x, k);
+			else if (family.equals(RendererModel.LOGARITHMIC)) 
+				currentY = b-a*Math.log(x);
+			g.drawLine((int) oldX, (int) oldY, (int) currentX,
+					(int) currentY);
 		}
 		if (view.isPaintLine()) {
 			int vertical = view.getVerticalLine();

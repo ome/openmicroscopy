@@ -655,8 +655,14 @@ public class TinyPane
     /** Indicates no to add buttons to the <code>TitleBar</code>. */
     public void noDecoration() { setDecoration(new ArrayList()); }
     
-    /** Adds a close button to the frame. */
-    public void allowClose() {  uiDelegate.allowClose(); }
+    /** 
+     * Adds a close button to the frame if the passed value
+     * is <code>true</code>, no close button if <code>false</code>.
+     * 
+     * @param b Pass <code>true</code> to add a close button,
+     * 			<code>false</code> to remove the close button.
+     */
+    public void allowClose(boolean b) {  uiDelegate.allowClose(b); }
     
     /**
      * Overridden to return the title of the frame.

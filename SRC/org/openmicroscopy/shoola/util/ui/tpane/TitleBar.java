@@ -271,8 +271,18 @@ class TitleBar
         return icon.getBounds();
     }
     
-    /** Adds a {@link #closeButton}. */
-    void allowClose() { closeButton =  new CloseButton(model); }
+    /** 
+     * Adds a {@link #closeButton} if the passed value is <code>true</code>. 
+     * 
+     * @param b Pass <code>true</code> to add a close button,
+     * 			<code>false</code> to remove the close button.
+     */
+    void allowClose(boolean b)
+    { 
+    	if (b) closeButton =  new CloseButton(model); 
+    	else closeButton = null;
+    	update(model.getTitleBarType(), model.getDecoration());
+    }
     
     /** 
      * Overridden to do custom painting required for this component. 

@@ -1740,9 +1740,6 @@ class OMEROGateway
 		Set<Long> failure = new HashSet<Long>();
 		try {
 			IRenderingSettings service = getRenderingSettingsService();
-
-			long rndID = service.getRenderingSettings(pixelsID).getId();
-
 			Class klass = convertPojos(rootNodeType);
 			Iterator i = nodes.iterator();
 			long id;
@@ -1750,7 +1747,8 @@ class OMEROGateway
 			if (klass.equals(Image.class)) {
 				while (i.hasNext()) {
 					id = (Long) i.next();
-					b = service.applySettingsToImage(rndID, id);
+					System.err.println("ImageID "+id);
+					b = service.applySettingsToImage(pixelsID, id);
 					if (b) success.add(id);
 					else failure.add(id);
 				}
@@ -1760,7 +1758,7 @@ class OMEROGateway
 				Iterator k;
 				while (i.hasNext()) {
 					id = (Long) i.next();
-					m = service.applySettingsToDataset(rndID, id);
+					m = service.applySettingsToDataset(pixelsID, id);
 					l = (List) m.get(Boolean.TRUE);
 					if (l != null && l.size() > 0) {
 						k = l.iterator();
@@ -1776,13 +1774,13 @@ class OMEROGateway
 						}
 					}
 				}
-			} else if (klass.equals(Dataset.class)) {
+			} else if (klass.equals(Category.class)) {
 				Map m;
 				List l;
 				Iterator k;
 				while (i.hasNext()) {
 					id = (Long) i.next();
-					m = service.applySettingsToCategory(rndID, id);
+					m = service.applySettingsToCategory(pixelsID, id);
 					l = (List) m.get(Boolean.TRUE);
 					if (l != null && l.size() > 0) {
 						k = l.iterator();

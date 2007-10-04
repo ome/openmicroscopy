@@ -25,23 +25,24 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
-import java.awt.Dimension;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
+
 
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 
@@ -69,35 +70,11 @@ public class OptionsDialog
 {
 
 	/** 
-	 * The preferred size of the widget that displays the notification message.
-	 * Only the part of text that fits into this display area will be displayed.
-	 */
-	protected static final Dimension	MSG_AREA_SIZE = new Dimension(300, 50);
-
-	/** 
-	 * The size of the invisible components used to separate widgets
-	 * horizontally.
-	 */
-	protected static final Dimension	H_SPACER_SIZE = new Dimension(20, 1);
-	
-	/** 
-	 * The size of the invisible components used to separate widgets
-	 * vertically.
-	 */
-	protected static final Dimension	V_SPACER_SIZE = new Dimension(1, 20);
-	
-	/** 
 	 * The outmost container.  
 	 * All other widgets are added to this panel, which, in turn, is then 
 	 * added to the dialog's content pane.
 	 */
-	protected JPanel	  contentPanel;
-	
-	/** Contains the message and the message icon, if any. */
-	protected JPanel	  messagePanel;
-	
-	/** Contains the {@link #noButton} and {@link #yesButton}. */
-	protected JPanel	  buttonPanel;
+	private JPanel	  contentPanel;
 	
 	/** Controls to ask a confirmation question */
 	private JButton	       noButton;
@@ -123,8 +100,8 @@ public class OptionsDialog
     private void createComponents()
     {
         contentPanel = new JPanel();
-        messagePanel = new JPanel();
-        buttonPanel = new JPanel();
+        //messagePanel = new JPanel();
+        //buttonPanel = new JPanel();
         noButton = new JButton("No");
         yesButton = new JButton("Yes");
         getRootPane().setDefaultButton(yesButton);
@@ -154,70 +131,76 @@ public class OptionsDialog
         setVisible(false);
         dispose();
     }
-    
-    /**
-     * Builds and lays out the {@link #messagePanel}.
-     * It will contain the notification message along with the message icon, 
-     * if any.
-     * 
-     * @param msg       The notification message.
-     * @param msgIcon   The icon to display by the message.
-     */
-    private void buildMessagePanel(String msg, Icon msgIcon)
-    {
-        messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.X_AXIS));
-        messagePanel.setOpaque(false);
-        if (msgIcon != null) {
-            JLabel iconLabel = new JLabel(msgIcon);
-            iconLabel.setAlignmentY(TOP_ALIGNMENT);
-            JPanel p = UIUtilities.buildComponentPanel(iconLabel);
-            p.setAlignmentY(TOP_ALIGNMENT);
-            messagePanel.add(p);
-            messagePanel.add(Box.createRigidArea(H_SPACER_SIZE));
-        }
-        //UIUtilities.buildTextPane(msg);
-        JTextPane message = UIUtilities.buildTextPane(msg);;
-        message.setOpaque(false);
-        message.setPreferredSize(MSG_AREA_SIZE);
-        message.setAlignmentY(TOP_ALIGNMENT);
-        messagePanel.add(UIUtilities.buildComponentPanelRight(message));
-    }
-    
-    /**
-     * Builds and lays out the {@link #buttonPanel}.
-     * The {@link #noButton} and {@link #yesButton} will be added to this panel.
-     */
-    private void buildButtonsPanel()
-    {
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-        buttonPanel.add(Box.createHorizontalGlue());
-        buttonPanel.add(yesButton);
-        buttonPanel.add(Box.createRigidArea(H_SPACER_SIZE));
-        buttonPanel.add(noButton);
-    }
 
+    /**
+	 * Builds and lays out the panel hosting the comments.
+	 * 
+	 * @param instructions	The message explaining to the user what to do.
+	 * @param comment		The comment's text.
+	 * @param icon			The icon to display.
+	 * @return See above.
+	 */
+	private JPanel buildCommentPanel(String instructions, Icon icon)
+	{
+		contentPanel = new JPanel();
+        int iconSpace = 0;
+        int height = 20;
+        if (icon != null) iconSpace = icon.getIconWidth()+20;
+        if (icon != null) height = icon.getIconHeight();
+        double tableSize[][] =  
+        		{{iconSpace, TableLayout.PREFERRED, TableLayout.FILL}, // columns
+                {TableLayout.PREFERRED, height, TableLayout.PREFERRED}}; // rows
+        TableLayout layout = new TableLayout(tableSize);
+        contentPanel.setLayout(layout);  
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+        if (icon != null)
+        	contentPanel.add(new JLabel(icon), "0, 0, 0, 2");
+        JComponent c = UIUtilities.buildTextPane(instructions);
+        c.setBackground(Color.BLUE);
+        contentPanel.add(c, "1, 0, 2, 0");
+		return contentPanel;
+	}
+	
     /**
      * Builds and lays out the {@link #contentPanel}, then adds it to the
      * content pane.
      * 
-     * @param message       The notification message.
-     * @param messageIcon   The icon to display by the message.
+     * @param message   The notification message.
+     * @param icon  	The icon to display by the message.
      */
-    private void buildGUI(String message, Icon messageIcon)
+    private void buildGUI(String message, Icon icon)
     {
-        contentPanel.setBorder(BorderFactory.createCompoundBorder(
-                                BorderFactory.createEtchedBorder(),
-                                BorderFactory.createEmptyBorder(5, 5, 15, 10)));
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-        buildMessagePanel(message, messageIcon);
-        contentPanel.add(messagePanel);
-        JPanel vSpacer = new JPanel();
-        vSpacer.add(Box.createRigidArea(V_SPACER_SIZE));
-        contentPanel.add(vSpacer);
-        buildButtonsPanel();
-        contentPanel.add(buttonPanel);
-        getContentPane().add(contentPanel);
-        pack();
+    	JPanel mainPanel = new JPanel();
+		mainPanel.setOpaque(false);
+		double tableSize[][] = {{TableLayout.FILL, 100, 5, 100, 10}, // columns
+								{TableLayout.FILL, 40}}; // rows
+        TableLayout layout = new TableLayout(tableSize);
+        mainPanel.setLayout(layout);       
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+        //Add the buttons.
+        mainPanel.add(yesButton, "1, 1, f, c");
+        mainPanel.add(noButton, "3, 1, f, c");
+        JComponent component;
+    	component = buildCommentPanel(message, icon);
+        
+        mainPanel.add(component, "0, 0, 4, 0");
+		getContentPane().add(mainPanel, BorderLayout.CENTER);
+    }
+    
+    /**
+     * Initializes the components and builds the dialog.
+     * 
+     * @param message		The notification message.
+	 * @param messageIcon	An optional icon to display by the message.
+     */
+    private void initialize(String message, Icon messageIcon)
+    {
+    	createComponents();
+		attachListeners();
+		buildGUI(message, messageIcon);
+		pack();
     }
     
 	/**
@@ -234,9 +217,7 @@ public class OptionsDialog
 						Icon messageIcon) 
 	{
 		super(owner, title, true);
-		createComponents();
-		attachListeners();
-		buildGUI(message, messageIcon);
+		initialize(message, messageIcon);
 	}
 	
 	/**
@@ -253,9 +234,18 @@ public class OptionsDialog
 						Icon messageIcon) 
 	{
 		super(owner, title, true);
-		createComponents();
-		attachListeners();
-		buildGUI(message, messageIcon);
+		initialize(message, messageIcon);
+	}
+	
+	/** 
+	 * Adds the specified component to the main panel.
+	 * 
+	 * @param c The component to add. Mustn't be <code>null</code>.
+	 */
+	public void addBodyComponent(JComponent c) 
+	{
+		contentPanel.add(c, "1, 2, l, t");
+		pack();
 	}
 	
     /**

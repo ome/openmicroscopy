@@ -8,6 +8,14 @@
   Java.
 
 --------------------------------------------------------------------------------
+ Last update: 01/10/2007 (revision 5030)
+ Version: Beta 2.2 rc1
+ 
+  - HiViewer, DataManager. Options to copy and paste settings.
+  - Measurement Tool: Modify the ROI Manager. Bug fixing
+  - Viewer: Options to modify the magnification factor in split view.
+  - Lib: JBoss lib update
+--------------------------------------------------------------------------------
  Last update: 11/09/2007 (revision 5010)
  Version: Beta 2.2
  

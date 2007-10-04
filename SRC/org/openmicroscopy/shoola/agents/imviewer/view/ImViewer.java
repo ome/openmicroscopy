@@ -131,6 +131,9 @@ public interface ImViewer
 
 	/** Bound Property name indicating rendering settings are set. */
 	public static final String  RND_SETTINGS_PROPERTY = "rndSettings";
+	
+	/** Bound Property name indicating that the renderer is shown or hidden. */
+	public static final String  HISTORY_VISIBLE_PROPERTY = "historyVisible";
 
 	/** Identifies the <code>Color Picket</code> menu. */
 	public static final int 	COLOR_PICKER_MENU = 0;
@@ -757,5 +760,21 @@ public interface ImViewer
 
 	/** Invoked when the image classification is finished. */
 	public void setImageClassified();
+
+	/**
+	 * Returns <code>true</code> if the history is displayed, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isHistoryShown();
+	
+	/** 
+	 * Shows or hides the local history.
+	 * 
+	 * @param b Pass <code>true</code> to display the history,
+	 * 			<code>false</code> otherwise.
+	 */
+	public void showHistory(boolean b); 
 	
 }

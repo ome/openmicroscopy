@@ -161,7 +161,7 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		PojoOptions po = new PojoOptions();
-		po.allCounts();
+		
 		po.exp(new Long(userID));
 		if (withLeaves) po.leaves();
 		else po.noLeaves();

@@ -698,7 +698,7 @@ class RenderingControlProxy
     public void addCodomainMap(CodomainMapContext mapCtx)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-        //servant.addCodomainMap(mapCtx);
+    	//servant.addCodomainMap(mapCtx);
         invalidateCache();
     }
 

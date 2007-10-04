@@ -114,12 +114,12 @@ class ImViewerUI
 	 * Text display in the {@link #historyItem} when the local history
 	 * is hidden.
 	 */
-	private static final String SHOW_HISTORY = "Show Local History...";
+	//private static final String SHOW_HISTORY = "Show Local History...";
 
 	/** 
 	 * Text display in the {@link #historyItem} when the local history is shown.
 	 */
-	private static final String HIDE_HISTORY = "Hide Local History...";
+	//private static final String HIDE_HISTORY = "Hide Local History...";
 
 	/** Indicates that only the image is displayed. */
 	private static final int	NEUTRAL = 0;
@@ -272,23 +272,6 @@ class ImViewerUI
 		pane.setResizeWeight(1D);
 
 		return pane;
-	}
-
-	/**
-	 * Returns <code>true</code> if the history is shown, <code>false</code>
-	 * otherwise.
-	 * 
-	 * @return See above.
-	 */
-	private boolean isHistoryShown()
-	{
-		switch (displayMode) {
-			case HISTORY:
-			case HISTORY_AND_RENDERER:
-				return true;
-			default:
-				return false;
-		}
 	}
 
 	/** 
@@ -459,6 +442,7 @@ class ImViewerUI
 		menu.add(new JSeparator(JSeparator.HORIZONTAL));
 		menu.add(createBackgroundColorSubMenu());
 		menu.add(new JSeparator(JSeparator.HORIZONTAL));
+		/*
 		JMenuItem historyItem = new JMenuItem();
 		if (isHistoryShown()) historyItem.setText(HIDE_HISTORY);
 		else historyItem.setText(SHOW_HISTORY);
@@ -480,6 +464,7 @@ class ImViewerUI
 			}
 		});
 		menu.add(historyItem);
+		*/
 		return menu;
 	}
 
@@ -1357,13 +1342,15 @@ class ImViewerUI
 	void displayRenderer()
 	{
 		boolean show = !isRendererShown();
-		boolean b = isHistoryShown();
+		//boolean b = isHistoryShown();
 		if (show) {
-			if (b) displayMode = HISTORY_AND_RENDERER;
-			else displayMode = RENDERER;
+			//if (b) displayMode = HISTORY_AND_RENDERER;
+			//else displayMode = RENDERER;
+			displayMode = HISTORY_AND_RENDERER;
 		} else {
-			if (b) displayMode = HISTORY;
-			else displayMode = NEUTRAL;
+			//if (b) displayMode = HISTORY;
+			//else displayMode = NEUTRAL;
+			displayMode = NEUTRAL;
 		}
 		rndItem.setSelected(isRendererShown());
 		toolBar.displayRenderer();
@@ -1387,6 +1374,23 @@ class ImViewerUI
 		}
 	}
 
+	/**
+	 * Returns <code>true</code> if the history is shown, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isHistoryShown()
+	{
+		switch (displayMode) {
+			case HISTORY:
+			case HISTORY_AND_RENDERER:
+				return true;
+			default:
+				return false;
+		}
+	}
+	
 	/**
 	 * Returns the {@link #restoreSize}.
 	 * 
@@ -1415,6 +1419,26 @@ class ImViewerUI
 		UIUtilities.centerAndShow(editor);
 	}
 
+	/** 
+	 * Shows or hides the local history.
+	 * 
+	 * @param b Pass <code>true</code> to display the history,
+	 * 			<code>false</code> otherwise.
+	 */
+	void showHistory(boolean b)
+	{
+		System.err.println(b);
+		boolean rnd = isRendererShown();
+		if (b) {
+			if (rnd) displayMode = HISTORY_AND_RENDERER;
+			else displayMode = HISTORY;
+		} else {
+			if (rnd) displayMode = RENDERER;
+			else displayMode = NEUTRAL;
+		}
+		layoutComponents();
+	}
+	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

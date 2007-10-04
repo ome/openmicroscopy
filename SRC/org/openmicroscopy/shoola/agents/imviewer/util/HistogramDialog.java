@@ -50,6 +50,7 @@ import javax.swing.JTextField;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.imviewer.rnd.RendererFactory;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
@@ -209,8 +210,10 @@ public class HistogramDialog
 		int e = (int) model.getWindowEnd();
 		int min = (int) model.getGlobalMin();
 		int max = (int) model.getGlobalMax();
-		slider.setValues((int) model.getHighestValue(),  
-				(int) model.getLowestValue(), max, min, s, e);
+		RendererFactory.initSlider(slider, (int) model.getLowestValue(), 
+    			(int) model.getHighestValue(), min, max, s, e);
+		//slider.setValues((int) model.getHighestValue(),  
+		//		(int) model.getLowestValue(), max, min, s, e);
 		startLabel.setText(START+s);
 		endLabel.setText(END+e);
 	}

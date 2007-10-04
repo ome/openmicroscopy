@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -38,9 +39,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 //Third-party libraries
 
@@ -48,6 +52,7 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
+import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
@@ -55,6 +60,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.CategorySaverDef;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImageDetailsDialog;
+import org.openmicroscopy.shoola.agents.imviewer.util.SaveEventBox;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -105,9 +111,6 @@ class ImViewerComponent
 	implements ImViewer
 {
 
-	/** Text message displayed when an image is rendered. */
-	private static final String RENDERING_MSG = "Render image";
-
 	/** The Model sub-component. */
 	private ImViewerModel       model;
 
@@ -115,22 +118,25 @@ class ImViewerComponent
 	private ImViewerControl     controller;
 
 	/** The View sub-component. */
-	private ImViewerUI          view;
+	private ImViewerUI          	view;
 
 	/** List of active channels before switching between color mode. */
-	private List                historyActiveChannels;
+	private List                	historyActiveChannels;
 
+	/** Collection of events to display. */
+	private List<SaveRelatedData> 	events;
+	
 	/** Flag indicating that a new z-section or timepoint is selected. */
-	private boolean				newPlane;
+	private boolean					newPlane;
 
 	/** Listener attached to the rendering node. */
-	private MouseAdapter		nodeListener;
+	private MouseAdapter			nodeListener;
 
 	/** 
 	 * A {@link ViewerSorter sorter} to order nodes in ascending 
 	 * alphabetical order.
 	 */
-	private ViewerSorter    	sorter;
+	private ViewerSorter    		sorter;
 
 	/** 
 	 * Returns the description displayed in the status bar.
@@ -204,6 +210,61 @@ class ImViewerComponent
 		return null;
 	}
 
+	/** Displays message bebofe closing the viewer. */
+	private void saveOnClose()
+	{
+		MessageBox msg = new MessageBox(view, "Save Data", 
+						"Before closing the viewer, do you want to save: ");
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		JCheckBox rndBox = new JCheckBox("The Rendering Settings");
+		rndBox.setSelected(true);
+		p.add(rndBox);
+		JCheckBox annotationBox = null;
+		if (model.getBrowser().hasAnnotationToSave()) {
+			annotationBox = new JCheckBox("The Annotation");
+			annotationBox.setSelected(true);
+			p.add(annotationBox);
+
+		}
+		msg.addBodyComponent(p);
+		List<SaveEventBox> boxes = null;
+		SaveEventBox box;
+		Iterator j;
+		if (events != null) {
+			boxes = new ArrayList<SaveEventBox>(events.size());
+			j = events.iterator();
+			while (j.hasNext()) {
+				box = new SaveEventBox((SaveRelatedData) j.next());
+				boxes.add(box);
+			}
+		}
+		
+		if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
+			if (rndBox != null && rndBox.isSelected()) {
+				try {
+					if (view.saveSettingsOnClose()) model.saveRndSettings();
+				} catch (Exception e) {
+					LogMessage logMsg = new LogMessage();
+					logMsg.println("Cannot save rendering settings. ");
+					logMsg.print(e);
+					ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
+				}
+			}
+			if (annotationBox != null && annotationBox.isSelected())
+				model.getBrowser().saveAnnotation();
+			if (boxes != null) {
+				j = boxes.iterator();
+				EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+				while (j.hasNext()) {
+					box = (SaveEventBox) j.next();
+					if (box.isSelected()) {
+						bus.post(box.getEvent().getSaveEvent());
+					}
+				}
+			}
+		}
+	}
 	/**
 	 * Creates a new instance.
 	 * The {@link #initialize() initialize} method should be called straigh 
@@ -248,6 +309,17 @@ class ImViewerComponent
 		firePropertyChange(RND_SETTINGS_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
 
+	/**
+	 * Stored the event to display.
+	 * 
+	 * @param evt The event to store.
+	 */
+	void storeEvent(SaveRelatedData evt)
+	{
+		if (events == null) events = new ArrayList<SaveRelatedData>();
+		events.add(evt);
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#activate()
@@ -256,17 +328,17 @@ class ImViewerComponent
 	{
 		int state = model.getState();
 		switch (state) {
-		case NEW:
-			//model.fireCategoriesLoading();
-			model.fireRenderingControlLoading();
-			fireStateChange();
-			break;
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED state.");
-		default:
-			view.deIconify();
-		UIUtilities.centerOnScreen(view);
+			case NEW:
+				//model.fireCategoriesLoading();
+				model.fireRenderingControlLoading();
+				fireStateChange();
+				break;
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED state.");
+			default:
+				view.deIconify();
+			UIUtilities.centerOnScreen(view);
 		}
 	}
 
@@ -277,6 +349,9 @@ class ImViewerComponent
 	public void discard()
 	{
 		if (model.getState() != DISCARDED) {
+			
+				
+			/*
 			try {
 				if (view.saveSettingsOnClose()) model.saveRndSettings();
 			} catch (Exception e) {
@@ -294,7 +369,9 @@ class ImViewerComponent
 					model.getBrowser().saveAnnotation();
 
 			}
-			postViewerState(ViewerState.CLOSE);
+			*/
+			saveOnClose();
+			//postViewerState(ViewerState.CLOSE);
 			model.discard();
 			fireStateChange();
 		}
@@ -478,6 +555,13 @@ class ImViewerComponent
 		if (!model.isPlayingMovie())
 			view.setIconImage(model.getImageIcon());
 		if (view.isLensVisible()) view.setLensPlaneImage();
+		List history = model.getHistory();
+		if (history == null || history.size() == 0) {
+			createHistoryItem();
+			HistoryItem node = (HistoryItem) model.getHistory().get(0);
+			node.allowClose(false);
+		}
+			
 		fireStateChange();
 	}
 
@@ -748,7 +832,9 @@ class ImViewerComponent
 					"This method can't be invoked in the DISCARDED, NEW or" +
 			"LOADING_RENDERING_CONTROL state.");
 		}
+		boolean oldValue = view.isHistoryShown();
 		view.displayRenderer();
+		firePropertyChange(HISTORY_VISIBLE_PROPERTY, oldValue, !oldValue);
 		//JFrame f = model.getRenderer().getUI();
 		//UIUtilities.setLocationRelativeToAndShow(view, f);
 	}
@@ -904,12 +990,12 @@ class ImViewerComponent
 	public List getGridImages()
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED, " +
+						"NEW or LOADING_RENDERING_CONTROL state.");
 		}
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		//if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
@@ -1865,6 +1951,30 @@ class ImViewerComponent
 			"This method can't be invoked in the CLASSIFICATION state.");
 		model.fireCategoriesLoading();
 		fireStateChange();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#isHistoryShown()
+	 */
+	public boolean isHistoryShown()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+			"This method can't be invoked in the DISCARDED state.");
+		return view.isHistoryShown();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#showHistory(boolean)
+	 */
+	public void showHistory(boolean b)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+			"This method can't be invoked in the DISCARDED state.");
+		view.showHistory(b);
 	}
 	
 }

@@ -86,6 +86,11 @@ class HistoryUI
 		model.clearHistory();
 		JComponent desktop = canvas.getInternalDesktop();
 		desktop.removeAll();
+		List nodes = model.getHistory();
+		Iterator i = nodes.iterator();
+		while (i.hasNext()) 
+			desktop.add((HistoryItem) i.next());
+
 		Rectangle r = getBounds();
 		Rectangle bounds = canvas.getContentsBounds();
 		Insets insets = canvas.getInsets();

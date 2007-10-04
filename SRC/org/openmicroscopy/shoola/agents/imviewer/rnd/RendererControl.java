@@ -280,8 +280,12 @@ class RendererControl
         } else if (name.equals(ImViewer.COLOR_MODEL_CHANGE_PROPERTY)) {
             // DO SOME UPDATES ON THE CHANNEL TOGGLE BUTTON MODEL.
         	model.setColorModelChanged();
-        } else if (name.equals(ImViewer.RND_SETTINGS_PROPERTY))
-        	view.enablePasteButton(true);
+        } else if (name.equals(ImViewer.RND_SETTINGS_PROPERTY)) {
+        	view.enablePasteButton(true); 	
+        } else if (name.equals(ImViewer.HISTORY_VISIBLE_PROPERTY)) {
+        	boolean b = ((Boolean) evt.getNewValue()).booleanValue();
+        	view.updateHistory(b); 	
+        }
     }
     
     /**

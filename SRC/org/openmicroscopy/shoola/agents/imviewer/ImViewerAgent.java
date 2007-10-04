@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.imviewer;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
+import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
@@ -90,6 +91,17 @@ public class ImViewerAgent
                                         evt.getImageID(), evt.getName(),
                                         evt.getRequesterBounds());
         if (view != null) view.activate();
+    }
+    
+    /**
+     * Handles the {@link SaveRelatedData} event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleSaveRelatedData(SaveRelatedData evt)
+    {
+        if (evt == null) return;
+        ImViewerFactory.storeEvent(evt);
     }
     
     /**
@@ -167,6 +179,7 @@ public class ImViewerAgent
         bus.register(this, MeasurementToolLoaded.class);
         bus.register(this, SelectPlane.class);
         bus.register(this, CopyRndSettings.class);
+        bus.register(this, SaveRelatedData.class);
     }
 
     /**

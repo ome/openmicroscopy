@@ -76,17 +76,24 @@ public class ChannelMovieAction
     private boolean play;
     
     /** 
-     * Overriden to make sure that the movie player is not enabled when 
+     * Overridden to make sure that the movie player is not enabled when 
      * there is only one channel.
      * @see ViewerAction#onStateChange(ChangeEvent)
      */
     protected void onStateChange(ChangeEvent e)
     {
+    	int state = model.getState();
+    	switch (state) {
+    		case ImViewer.DISCARDED:
+    		case ImViewer.NEW:
+    			setEnabled(false);
+    			return;
+		}
         if (play) {
         	if (model.getActiveChannels().size() > 1)
         		setEnabled(true);
         } else {
-            if (model.getState() == ImViewer.READY) {
+            if (state == ImViewer.READY) {
                 setEnabled((model.getActiveChannels().size() > 1));
             }
         }

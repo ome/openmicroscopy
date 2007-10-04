@@ -393,7 +393,8 @@ public class TwoKnobsSlider
 	public TwoKnobsSlider()
 	{
 		this(TwoKnobsSliderModel.DEFAULT_MIN, TwoKnobsSliderModel.DEFAULT_MAX, 
-				TwoKnobsSliderModel.DEFAULT_MIN, TwoKnobsSliderModel.DEFAULT_MAX);
+				TwoKnobsSliderModel.DEFAULT_MIN, 
+				TwoKnobsSliderModel.DEFAULT_MAX);
 	}
 
 	/**
@@ -480,12 +481,14 @@ public class TwoKnobsSlider
 	 */
 	public void setStartValue(int v)
 	{
+		/*
 		int min = model.getAbsoluteMinimum();
-		if (v < min) 
-			throw new IllegalArgumentException("Start cannot be < "+min);
-		if (v >= getEndValue())
-			throw new IllegalArgumentException("Start cannot be >= " +
-					""+getEndValue());
+		if (v < min) return;
+			//throw new IllegalArgumentException("Start cannot be < "+min);
+		if (v >= getEndValue()) return;
+			//throw new IllegalArgumentException("Start cannot be >= " +
+			//		""+getEndValue());
+			 * */
 		int old = model.getStartValue();
 		model.setStartValue(v);
 		firePropertyChange(START_VALUE_PROPERTY, new Integer(old), 
@@ -502,11 +505,11 @@ public class TwoKnobsSlider
 	public void setEndValue(int v)
 	{
 		int max = model.getAbsoluteMaximum();
-		if (v > max) 
-			throw new IllegalArgumentException("End cannot be > "+max);
-		if (v <= getStartValue())
-			throw new IllegalArgumentException("End cannot be <= " +
-					""+getStartValue());
+		if (v > max) return;
+			//throw new IllegalArgumentException("End cannot be > "+max);
+		if (v <= getStartValue()) return;
+			//throw new IllegalArgumentException("End cannot be <= " +
+				//	""+getStartValue());
 		int old = model.getEndValue();
 		model.setEndValue(v);
 		firePropertyChange(END_VALUE_PROPERTY, new Integer(old), 
@@ -632,7 +635,7 @@ public class TwoKnobsSlider
 
 	/**
 	 * Returns the minimum value if the asbolute min equals the minimum
-	 * otherwise returns the minimum value minus a factor.
+	 * otherwise returns the minimum value.
 	 * 
 	 * @return See above.
 	 */
@@ -643,7 +646,7 @@ public class TwoKnobsSlider
 
 	/**
 	 * Returns the maximum value if the asbolute max equals the maximum
-	 * otherwise returns the maximum value plus a factor.
+	 * otherwise returns the maximum value.
 	 * 
 	 * @return See above.
 	 */

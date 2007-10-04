@@ -26,7 +26,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.profile;
 
 //Java imports
 import java.awt.BorderLayout;
-
+import java.text.NumberFormat;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -71,10 +71,11 @@ class DiskSpace
 	 */
 	private String convertValue(long v)
 	{
-		long value = v/1000;
+		long value = v;///1000;
+		NumberFormat.getInstance().format(v);
 		if (value > 1000) value = value/1000;
-		else return value+"Kb";
-		return value+"Mb";
+		else return NumberFormat.getInstance().format(value)+" Kb";
+		return NumberFormat.getInstance().format(value)+" Mb";
 	}
 	
 	/** Builds and lays out the GUI. */

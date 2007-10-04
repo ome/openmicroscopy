@@ -63,136 +63,161 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 * @since OME2.2
 */
 class RendererUI
-  extends JPanel//TopWindow
-  implements ActionListener
+	extends JPanel//TopWindow
+	implements ActionListener
 {
   
-  /** Identifies the {@link DomainPane}. */
-  static final Integer        DOMAIN = new Integer(0);
-  
-  /** Identifies the {@link CodomainPane}. */
-  static final Integer        CODOMAIN = new Integer(1);
-  
-  /** Action ID to copy the rendering settings. */
-  private static final int				COPY = 0;
-  
-  /** Action ID to paste the rendering settings. */
-  private static final int				PASTE = 1;
-  
-  /** Reference to the control. */
-  private RendererControl     			controller;
-  
-  /** Reference to the model. */
-  private RendererModel       			model;
-  
-  /** The map hosting the controls pane. */
-  private HashMap<Integer, ControlPane>	controlPanes;
-  
-  /** Button to copy the rendering settings. */
-  private JButton							copyButton;
-  
-  /** Button to paste the rendering settings. */
-  private JButton							pasteButton;
-  
-  /** Initializes the components. */
-  private void initComponents()
-  {
-  	copyButton = new JButton("Copy");
-  	copyButton.setToolTipText(
-  		UIUtilities.formatToolTipText("Copies the rendering settings."));
-  	copyButton.setActionCommand(""+COPY);
-  	copyButton.addActionListener(this);
-  	pasteButton = new JButton("Paste");
-  	pasteButton.setEnabled(model.getParentModel().hasSettingsToPaste());
-  	pasteButton.setToolTipText(
-  		UIUtilities.formatToolTipText("Pastes the rendering settings."));
-  	pasteButton.setActionCommand(""+PASTE);
-  	pasteButton.addActionListener(this);
-  }
-  
-  /**
-   * Creates the menu bar.
-   * 
-   * @return See above
-   */
-  private JMenuBar createMenuBar()
-  {
-      JMenuBar menuBar = new JMenuBar(); 
-      menuBar.add(createControlsMenu());
-      return menuBar;
-  }
-  
-  /**
-   * Helper method to create the <code>Controls</code> menu.
-   * 
-   * @return See above.
-   */
-  private JMenu createControlsMenu()
-  {
-      IconManager icons = IconManager.getInstance();
-      JMenu menu = new JMenu("Controls");
-      JMenuItem item = new JMenuItem(
-              controller.getAction(RendererControl.SAVE_SETTINGS));
-      item.setIcon(icons.getIcon(IconManager.SAVE_SETTINGS));
-      menu.add(item);
-      item = new JMenuItem(
-              controller.getAction(RendererControl.RESET_SETTINGS));
-      item.setIcon(icons.getIcon(IconManager.RESET_SETTINGS));
-      menu.add(item);
-      return menu;
-  }
-  
-  /** Creates the panels hosting the rendering controls. */
-  private void createControlPanes()
-  {
-      ControlPane p = new DomainPane(model, controller);
-      p.addPropertyChangeListener(controller);
-      controlPanes.put(DOMAIN, p);
-      p = new CodomainPane(model, controller);
-      p.addPropertyChangeListener(controller);
-      controlPanes.put(CODOMAIN, p);
-  }
-  
-  /**
-   * Creates the accept, revert buttons on the bottom on the panel.
-   * 
-   * @return See above.
-   */
-  private JPanel createButtonsPanel()
-  {
-  	/*
-  	JButton acceptButton, revertButton;
-  	JPanel p = new JPanel();
-  	GridBagConstraints gbc = new GridBagConstraints();
- 	   	
-  	revertButton = new JButton(
-              controller.getAction(RendererControl.RESET_SETTINGS));
-      
-      acceptButton = new JButton(
-              controller.getAction(RendererControl.SAVE_SETTINGS));
-      
-    	p.setLayout(new GridBagLayout());
-  	gbc.gridx = 0;
-  	gbc.anchor = GridBagConstraints.EAST;
-      p.add(acceptButton, gbc);
-      gbc.gridx = 1;
-      gbc.insets = new Insets(0, 0, 0, 14);
-      p.add(revertButton, gbc);
-      return p;
-      */
-  	JPanel bar = new JPanel();
-  	bar.setBorder(null);
-  	bar.add(pasteButton);
-  	bar.add(copyButton);
-  	JPanel p = UIUtilities.buildComponentPanelRight(bar);
-      p.setOpaque(true);
-      return p;
-  }
-  
-  /** Builds and lays out the UI. */
-  private void buildGUI()
-  {
-  	/*
+	/** Identifies the {@link DomainPane}. */
+	static final Integer        DOMAIN = new Integer(0);
+
+	/** Identifies the {@link CodomainPane}. */
+	static final Integer        CODOMAIN = new Integer(1);
+
+	/** 
+	 * Text display in the {@link #historyButton} when the local history
+	 * is hidden.
+	 */
+	private static final String 			SHOW_HISTORY = "Show Local " +
+															"History...";
+
+	/** 
+	 * Text display in the {@link #historyButton} when the local history 
+	 * is shown.
+	 */
+	private static final String 			HIDE_HISTORY = "Hide Local " +
+														"History...";
+	
+	/** Action ID to copy the rendering settings. */
+	private static final int				COPY = 0;
+
+	/** Action ID to paste the rendering settings. */
+	private static final int				PASTE = 1;
+	
+	/** Action ID to show or hide the history. */
+	private static final int				HISTORY = 2;
+
+	/** Reference to the control. */
+	private RendererControl     			controller;
+
+	/** Reference to the model. */
+	private RendererModel       			model;
+
+	/** The map hosting the controls pane. */
+	private HashMap<Integer, ControlPane>	controlPanes;
+
+	/** Button to copy the rendering settings. */
+	private JButton							copyButton;
+
+	/** Button to paste the rendering settings. */
+	private JButton							pasteButton;
+	
+	/** Button to display the local history. */
+	private JButton							historyButton;
+
+	/** Initializes the components. */
+	private void initComponents()
+	{
+		copyButton = new JButton("Copy");
+		copyButton.setToolTipText(
+			UIUtilities.formatToolTipText("Copies the rendering settings."));
+		copyButton.setActionCommand(""+COPY);
+		copyButton.addActionListener(this);
+		pasteButton = new JButton("Paste");
+		pasteButton.setEnabled(model.getParentModel().hasSettingsToPaste());
+		pasteButton.setToolTipText(
+			UIUtilities.formatToolTipText("Pastes the rendering settings."));
+		pasteButton.setActionCommand(""+PASTE);
+		pasteButton.addActionListener(this);
+		historyButton = new JButton();
+		updateHistory(!model.getParentModel().isHistoryShown());
+		historyButton.setActionCommand(""+HISTORY);
+		historyButton.addActionListener(this);
+	}
+
+	/**
+	 * Creates the menu bar.
+	 * 
+	 * @return See above
+	 */
+	private JMenuBar createMenuBar()
+	{
+		JMenuBar menuBar = new JMenuBar(); 
+		menuBar.add(createControlsMenu());
+		return menuBar;
+	}
+
+	/**
+	 * Helper method to create the <code>Controls</code> menu.
+	 * 
+	 * @return See above.
+	 */
+	private JMenu createControlsMenu()
+	{
+		IconManager icons = IconManager.getInstance();
+		JMenu menu = new JMenu("Controls");
+		JMenuItem item = new JMenuItem(
+				controller.getAction(RendererControl.SAVE_SETTINGS));
+		item.setIcon(icons.getIcon(IconManager.SAVE_SETTINGS));
+		menu.add(item);
+		item = new JMenuItem(
+				controller.getAction(RendererControl.RESET_SETTINGS));
+		item.setIcon(icons.getIcon(IconManager.RESET_SETTINGS));
+		menu.add(item);
+		return menu;
+	}
+
+	/** Creates the panels hosting the rendering controls. */
+	private void createControlPanes()
+	{
+		ControlPane p = new DomainPane(model, controller);
+		p.addPropertyChangeListener(controller);
+		controlPanes.put(DOMAIN, p);
+		p = new CodomainPane(model, controller);
+		p.addPropertyChangeListener(controller);
+		controlPanes.put(CODOMAIN, p);
+	}
+
+	/**
+	 * Creates the accept, revert buttons on the bottom on the panel.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel createButtonsPanel()
+	{
+			/*
+	  	JButton acceptButton, revertButton;
+	  	JPanel p = new JPanel();
+	  	GridBagConstraints gbc = new GridBagConstraints();
+	
+	  	revertButton = new JButton(
+	              controller.getAction(RendererControl.RESET_SETTINGS));
+	
+	      acceptButton = new JButton(
+	              controller.getAction(RendererControl.SAVE_SETTINGS));
+	
+	    	p.setLayout(new GridBagLayout());
+	  	gbc.gridx = 0;
+	  	gbc.anchor = GridBagConstraints.EAST;
+	      p.add(acceptButton, gbc);
+	      gbc.gridx = 1;
+	      gbc.insets = new Insets(0, 0, 0, 14);
+	      p.add(revertButton, gbc);
+	      return p;
+			 */
+		JPanel bar = new JPanel();
+		bar.setBorder(null);
+		bar.add(historyButton);
+		bar.add(pasteButton);
+		bar.add(copyButton);
+		JPanel p = UIUtilities.buildComponentPanelRight(bar);
+		p.setOpaque(true);
+		return p;
+	}
+
+	/** Builds and lays out the UI. */
+	private void buildGUI()
+	{
+		/*
       Container c = getContentPane();
       JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP,
                               JTabbedPane.WRAP_TAB_LAYOUT);
@@ -206,9 +231,9 @@ class RendererUI
       c.setLayout(new BorderLayout());
       c.add(tabs,BorderLayout.NORTH);
       c.add(createButtonPanel(),BorderLayout.SOUTH);
-      */
-  	JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP,
-              JTabbedPane.WRAP_TAB_LAYOUT);
+		 */
+		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP,
+				JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 		ControlPane pane = controlPanes.get(DOMAIN);
 		tabs.insertTab(pane.getPaneName(), pane.getPaneIcon(), 
@@ -216,143 +241,155 @@ class RendererUI
 				pane.getPaneIndex());
 		pane = controlPanes.get(CODOMAIN);
 		tabs.insertTab(pane.getPaneName(), pane.getPaneIcon(), 
-					new JScrollPane(pane), pane.getPaneDescription(), 
-					pane.getPaneIndex());
+				new JScrollPane(pane), pane.getPaneDescription(), 
+				pane.getPaneIndex());
 		setLayout(new BorderLayout());
-  	add(tabs, BorderLayout.CENTER);
-  	add(createButtonsPanel(), BorderLayout.SOUTH);
-  }
+		add(tabs, BorderLayout.CENTER);
+		add(createButtonsPanel(), BorderLayout.SOUTH);
+	}
 
-  /**
-   * Creates a new instance. The method 
-   * {@link #initialize(RendererControl, RendererModel) initialize}
-   * should be called straight after.
-   * 
-   * @param title The name of the image.
-   */
-  RendererUI(String title)
-  {
-      //super("Display Settings:  "+title);
-      controlPanes = new HashMap<Integer, ControlPane>(2);
-  }
-  
-  /**
-   * Links the MVC triad.
-   * 
-   * @param controller    Reference to the Control.
-   *                      Mustn't be <code>null</code>.
-   * @param model         Reference to the Model.
-   *                      Mustn't be <code>null</code>.
-   */
-  void initialize(RendererControl controller, RendererModel model)
-  {
-      if (controller == null) throw new NullPointerException("No control.");
-      if (model == null) throw new NullPointerException("No model.");
-      this.controller = controller;
-      this.model = model;
-      initComponents();
-      //setJMenuBar(createMenuBar());
-      createControlPanes();
-      buildGUI();
-      //pack();
-  }
+	/**
+	 * Creates a new instance. The method 
+	 * {@link #initialize(RendererControl, RendererModel) initialize}
+	 * should be called straight after.
+	 * 
+	 * @param title The name of the image.
+	 */
+	RendererUI(String title)
+	{
+		//super("Display Settings:  "+title);
+		controlPanes = new HashMap<Integer, ControlPane>(2);
+	}
 
-  /**
-   * Updates the corresponding controls when a codomain transformation
-   * is added.
-   * 
-   * @param mapType The type of codomain transformation. 
-   */
-  void addCodomainMap(Class mapType)
-  {
-      CodomainPane pane = (CodomainPane) controlPanes.get(CODOMAIN);
-      pane.addCodomainMap(mapType);
-  }
-  
-  /**
-   * Updates the corresponding controls when a codomain transformation
-   * is added.
-   * 
-   * @param mapType The type of codomain transformation. 
-   */
-  void removeCodomainMap(Class mapType)
-  {
-      CodomainPane pane = (CodomainPane) controlPanes.get(CODOMAIN);
-      pane.removeCodomainMap(mapType);
-  }
-  
-  /**
-   * Sets the specified channel as current.
-   * 
-   * @param c The channel's index.
-   */
-  void setSelectedChannel(int c)
-  {
-      DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-      pane.setSelectedChannel(c);
-  }
+	/**
+	 * Links the MVC triad.
+	 * 
+	 * @param controller    Reference to the Control.
+	 *                      Mustn't be <code>null</code>.
+	 * @param model         Reference to the Model.
+	 *                      Mustn't be <code>null</code>.
+	 */
+	void initialize(RendererControl controller, RendererModel model)
+	{
+		if (controller == null) throw new NullPointerException("No control.");
+		if (model == null) throw new NullPointerException("No model.");
+		this.controller = controller;
+		this.model = model;
+		initComponents();
+		//setJMenuBar(createMenuBar());
+		createControlPanes();
+		buildGUI();
+		//pack();
+	}
 
-  /** 
-   * Sets the color of the specified channel
-   * 
-   * @param c The channel's index.
-   */
-  void setChannelButtonColor(int c)
-  {
-      DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-      pane.setChannelButtonColor(c);
-  }
-  
-  /** Sets the pixels intensity interval. */
-  void setInputInterval()
-  {
-      DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-      pane.setInputInterval();
-  }
+	/**
+	 * Updates the corresponding controls when a codomain transformation
+	 * is added.
+	 * 
+	 * @param mapType The type of codomain transformation. 
+	 */
+	void addCodomainMap(Class mapType)
+	{
+		CodomainPane pane = (CodomainPane) controlPanes.get(CODOMAIN);
+		pane.addCodomainMap(mapType);
+	}
 
-  /** Resets the UI controls. */
-  void resetDefaultRndSettings()
-  {
-      Iterator i = controlPanes.keySet().iterator();
-      ControlPane pane;
-      while (i.hasNext()) {
-          pane = controlPanes.get(i.next());
-          pane.resetDefaultRndSettings();
-      }
-  }
+	/**
+	 * Updates the corresponding controls when a codomain transformation
+	 * is added.
+	 * 
+	 * @param mapType The type of codomain transformation. 
+	 */
+	void removeCodomainMap(Class mapType)
+	{
+		CodomainPane pane = (CodomainPane) controlPanes.get(CODOMAIN);
+		pane.removeCodomainMap(mapType);
+	}
+
+	/**
+	 * Sets the specified channel as current.
+	 * 
+	 * @param c The channel's index.
+	 */
+	void setSelectedChannel(int c)
+	{
+		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+		pane.setSelectedChannel(c);
+	}
+
+	/** 
+	 * Sets the color of the specified channel
+	 * 
+	 * @param c The channel's index.
+	 */
+	void setChannelButtonColor(int c)
+	{
+		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+		pane.setChannelButtonColor(c);
+	}
+
+	/** Sets the pixels intensity interval. */
+	void setInputInterval()
+	{
+		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+		pane.setInputInterval();
+	}
+
+	/** Resets the UI controls. */
+	void resetDefaultRndSettings()
+	{
+		Iterator i = controlPanes.keySet().iterator();
+		ControlPane pane;
+		while (i.hasNext()) {
+			pane = controlPanes.get(i.next());
+			pane.resetDefaultRndSettings();
+		}
+	}
 
 	/**
 	 * This is a method which is triggered from the {@link RendererControl} 
-   * if the colour model has changed.
+	 * if the colour model has changed.
 	 */
 	void setColorModelChanged() 
 	{
-	     DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-	     pane.setColorModelChanged();
+		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+		pane.setColorModelChanged();
 	}
 
-  /** 
-   * Updates the UI when a new curve is selected i.e. when a new family
-   * is selected or when a new gamma value is selected.
-   */
-  void onCurveChange()
-  {
-      DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-      pane.onCurveChange();
-  }
-  
-  /**
-   * Sets the {@link #pasteButton} enable.
-   * 
-   * @param b Pass <code>true</code> to enable the button, <code>false</code>
-   * 			otherwise.
-   */
-  void enablePasteButton(boolean b) { pasteButton.setEnabled(b); }
+	/** 
+	 * Updates the UI when a new curve is selected i.e. when a new family
+	 * is selected or when a new gamma value is selected.
+	 */
+	void onCurveChange()
+	{
+		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+		pane.onCurveChange();
+	}
 
-  /**
-   * Copies or pastes the rendering settings.
-   * @see ActionListener#actionPerformed(ActionEvent)
-   */
+	/**
+	 * Sets the {@link #pasteButton} enable.
+	 * 
+	 * @param b Pass <code>true</code> to enable the button, <code>false</code>
+	 * 			otherwise.
+	 */
+	void enablePasteButton(boolean b) { pasteButton.setEnabled(b); }
+
+	/** Updates the text of the {@link #historyButton}. 
+	 * 
+	 * @param b Pass <code>true</code> to display the <code>hide</code> text,
+	 * 			<code>false</code> to display the <code>show</code> text.
+	 */
+	void updateHistory(boolean b)
+	{
+		if (b) historyButton.setText(HIDE_HISTORY);
+		else historyButton.setText(SHOW_HISTORY);
+	}
+	
+	/**
+	 * Copies, pastes the rendering settings
+	 * or displays the local history.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
 	public void actionPerformed(ActionEvent e)
 	{
 		int index = Integer.parseInt(e.getActionCommand());
@@ -362,6 +399,12 @@ class RendererUI
 				break;
 			case PASTE:
 				model.getParentModel().pasteRenderingSettings();
+				model.getParentModel().createHistoryItem();
+				break;
+			case HISTORY:
+				boolean b = !model.getParentModel().isHistoryShown();
+				updateHistory(b);
+				model.getParentModel().showHistory(b);
 		}
 	}
 

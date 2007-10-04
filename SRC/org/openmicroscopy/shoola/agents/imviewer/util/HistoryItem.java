@@ -96,7 +96,7 @@ public class HistoryItem
 		setTitle(f);
 		*/
 		setTitle(title);
-		allowClose();
+		allowClose(true);
 		setTitleBarType(SMALL_TITLE_BAR);
 		setListenToBorder(false);
 		canvas = new HistoryItemCanvas(this);

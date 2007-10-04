@@ -68,6 +68,10 @@ class GraphicsPane
 
 	/** Text of the preview check box. */
 	private static final String		PREVIEW = "Immediate Update";
+	
+	/** The description of the preview check box. */
+	private static final String		PREVIEW_DESCRIPTION = "Update the " +
+			"rendering settings without releasing the mouse.";
 		
     /** Action command ID to indicate that the start value is modified.*/
     private static final int        START_SELECTED = 0;
@@ -114,6 +118,16 @@ class GraphicsPane
     /** The equation of the vertical line. */
     private int					verticalLine = -1;
     
+    /** Initializes the domain slider. */
+    private void initDomainSlider()
+    {
+    	int s = (int) model.getWindowStart();
+        int e = (int) model.getWindowEnd();
+    	RendererFactory.initSlider(domainSlider, (int) model.getLowestValue(), 
+    			(int) model.getHighestValue(), (int) model.getGlobalMin(), 
+    			(int) model.getGlobalMax(), s, e);
+    }
+    
     /** Initializes the components. */
     private void initComponents()
     {
@@ -130,10 +144,8 @@ class GraphicsPane
         
         int s = (int) model.getWindowStart();
         int e = (int) model.getWindowEnd();
-        domainSlider = new TwoKnobsSlider((int) model.getLowestValue(), 
-                            (int) model.getHighestValue(), 
-                            (int) model.getGlobalMin(),
-                            (int) model.getGlobalMax(), s, e);
+        domainSlider = new TwoKnobsSlider();
+        initDomainSlider();
         domainSlider.setPaintLabels(false);
         domainSlider.setPaintEndLabels(false);
         domainSlider.setPaintTicks(false);
@@ -156,6 +168,7 @@ class GraphicsPane
         maxLabel = new JLabel(""+(int) max);
         minLabel = new JLabel(""+(int) min);
         preview = new JCheckBox(PREVIEW);
+        preview.setToolTipText(PREVIEW_DESCRIPTION);
     }
     
     /** Builds and lays out the GUI. */
@@ -367,8 +380,11 @@ class GraphicsPane
         startField.setText(""+s);
         minLabel.setText(""+min);
         maxLabel.setText(""+max);
+        initDomainSlider();
+        /*
         domainSlider.setValues((int) model.getHighestValue(), 
         		(int) model.getLowestValue(), max, min, s, e);
+        		*/
         onCurveChange();
     }
     

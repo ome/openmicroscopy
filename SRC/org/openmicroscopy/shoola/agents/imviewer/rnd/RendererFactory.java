@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 
 /** 
  * Factory to create the {@link Renderer} components.
@@ -51,6 +52,35 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 public class RendererFactory
 {
 
+	/** 
+	 * Factor used to determine the percentage of the range added 
+	 * (resp. removed) to (resp. from) the maximum (resp. the minimum).
+	 */
+	private static final double RATIO = 0.2;
+	
+	/**
+	 * Initializes the values of the passed slider.
+	 * 
+	 * @param slider	The slider to handle.
+	 * @param absMin	The absolute minimum value.
+	 * @param absMax	The absolute maximum value.
+	 * @param min		The minimum value.
+	 * @param max		The maximum value.
+	 * @param s			The start value.
+	 * @param e			The end value.
+	 */
+	public static void initSlider(TwoKnobsSlider slider, int absMin, int absMax, 
+			int min, int max, int s, int e)
+	{
+        double range = max-min;
+        range = range*RATIO;
+        int lowestBound = (int) (min-range);
+        if (lowestBound < absMin) lowestBound = absMin;
+        int highestBound = (int) (max+range);
+        if (highestBound > absMax) highestBound = absMax;
+        slider.setValues(highestBound, lowestBound, max, min, s, e);
+	}
+	
     /**
      * Creates a new {@link Renderer}.
      * 

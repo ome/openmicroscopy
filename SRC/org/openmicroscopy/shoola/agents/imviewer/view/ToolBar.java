@@ -112,14 +112,14 @@ class ToolBar
         bar.add(new JSeparator(JSeparator.VERTICAL));
         button =  new JButton(controller.getAction(ImViewerControl.ZOOM_IN));
         UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);    
+        //bar.add(button);    
         button =  new JButton(controller.getAction(ImViewerControl.ZOOM_OUT));
         UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);  
+        //bar.add(button);  
         button =  new JButton(controller.getAction(ImViewerControl.ZOOM_FIT));
         UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);  
-        bar.add(new JSeparator(JSeparator.VERTICAL));
+        //bar.add(button);  
+        //bar.add(new JSeparator(JSeparator.VERTICAL));
         button = new JButton(
         		controller.getAction(ImViewerControl.MEASUREMENT_TOOL));
         UIUtilities.unifiedButtonLookAndFeel(button);
@@ -135,8 +135,8 @@ class ToolBar
         button = new JButton(controller.getAction(ImViewerControl.DOWNLOAD));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);  
-        bar.add(new JSeparator(JSeparator.VERTICAL));
-        bar.add(saveOnClose);
+        //bar.add(new JSeparator(JSeparator.VERTICAL));
+        //bar.add(saveOnClose);
     }
     
     /** Initializes the components composing this tool bar. */

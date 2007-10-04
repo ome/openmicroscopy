@@ -117,7 +117,7 @@ class BrowserModel
     
     /** A smaller version (50%) of the original image. */
     private BufferedImage		combinedImage;
-    
+
     /** The zoom factor. */
     private double          	zoomFactor;
     
@@ -142,6 +142,9 @@ class BrowserModel
     /** Unloaded image data. */
     private ImageData			data;
 
+    /** Collection of images composing the grid. */
+    private List<BufferedImage>	originalGridImages;
+    
     /** Collection of retrieved images composing the grid. */
     private List<BufferedImage>	gridImages;
 
@@ -230,62 +233,92 @@ class BrowserModel
     /** Creates the images composing the grid. */
     private void createGridImages()
     {
+    	if (originalGridImages == null)
+    		originalGridImages = new ArrayList<BufferedImage>();
     	gridImages.clear();
     	List l = parent.getActiveChannels();
     	int maxC = parent.getMaxC();
     	List<BufferedImage> images = new ArrayList<BufferedImage>(maxC);
     	int n = l.size();
-    	if (!parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
-    		switch (n) {
-	    		case 0:
-	    			for (int i = 0; i < maxC; i++) 
-	    				gridImages.add(null);
-	    			break;
-	    		case 1:
-	    		case 2:
-	    		case 3:
-	    			if (isImageRGB()) {
-	    				if (gridRatio == ratio) 
-	    					combinedImage = annotateImage;
-	    				else {
-	    					combinedImage = Factory.magnifyImage(gridRatio, 
-	    													renderedImage);
-	    				}
-	    				int w = combinedImage.getWidth();
-	    	        	int h = combinedImage.getHeight();
-	    	        	DataBuffer buf = 
-	    	        		combinedImage.getRaster().getDataBuffer();
-	    	    		for (int i = 0; i < maxC; i++) {
-	    					if (parent.isChannelActive(i)) {
-	    						if (parent.isChannelRed(i)) { 
-	    							gridImages.add(createBandImage(buf, w, h, 
-	    								RED_MASK, BLANK_MASK, BLANK_MASK));
-	    						} else if (parent.isChannelGreen(i)) {
-	    							gridImages.add(createBandImage(buf, w, h, 
-	    								BLANK_MASK, GREEN_MASK, BLANK_MASK));
-	    						} else if (parent.isChannelBlue(i)) {
-	    							gridImages.add(createBandImage(buf, w, h, 
-	    								BLANK_MASK, BLANK_MASK, BLUE_MASK));
-	    						}
-	    					} else {
-	    						gridImages.add(null);
-	    					}
-	    				}
-	    			}
-	    			break;
-	    		default:
-	    			images = parent.getGridImages();
+    	if (parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
+    		for (int i = 0; i < maxC; i++) 
+				gridImages.add(null);
+    		return;
+    	}
+    	switch (n) {
+			case 0:
+				for (int i = 0; i < maxC; i++) 
+					gridImages.add(null);
+				break;
+			case 1:
+			case 2:
+			case 3:
+				if (isImageRGB()) {
+					if (gridRatio == ratio) 
+						combinedImage = annotateImage;
+					else {
+						combinedImage = Factory.magnifyImage(gridRatio, 
+														renderedImage);
+					}
+					int w = combinedImage.getWidth();
+		        	int h = combinedImage.getHeight();
+		        	DataBuffer buf = 
+		        		combinedImage.getRaster().getDataBuffer();
+		    		for (int i = 0; i < maxC; i++) {
+						if (parent.isChannelActive(i)) {
+							if (parent.isChannelRed(i)) { 
+								gridImages.add(createBandImage(buf, w, h, 
+									RED_MASK, BLANK_MASK, BLANK_MASK));
+							} else if (parent.isChannelGreen(i)) {
+								gridImages.add(createBandImage(buf, w, h, 
+									BLANK_MASK, GREEN_MASK, BLANK_MASK));
+							} else if (parent.isChannelBlue(i)) {
+								gridImages.add(createBandImage(buf, w, h, 
+									BLANK_MASK, BLANK_MASK, BLUE_MASK));
+							}
+						} else {
+							gridImages.add(null);
+						}
+					}
+		    		
+				} else {
+					images = parent.getGridImages();
 	    	    	if (images != null) {
 	    	    		Iterator i = images.iterator();
 	    	        	while (i.hasNext()) {
 	    	        		gridImages.add(Factory.magnifyImage(gridRatio, 
-	    	        								(BufferedImage) i.next()));
+	    	        					(BufferedImage) i.next()));
 	    	    		}
+	    	        	if (originalGridImages.size() == 0) {
+	    	        		i = images.iterator();
+		    	        	while (i.hasNext()) {
+		    	        		originalGridImages.add(
+		    	        					(BufferedImage) i.next());
+		    	    		}
+	    	        	}
+	    	        	combinedImage = Factory.magnifyImage(gridRatio, 
+								renderedImage);
 	    	    	}
-    		}
-    	} else {
-    		for (int i = 0; i < maxC; i++) 
-				gridImages.add(null);
+				}
+				break;
+			default:
+				images = parent.getGridImages();
+	    		if (images != null) {
+		    		Iterator i = images.iterator();
+		    		while (i.hasNext()) {
+    	        		gridImages.add(Factory.magnifyImage(gridRatio, 
+    	        					(BufferedImage) i.next()));
+    	    		}
+		        	if (originalGridImages.size() == 0) {
+		        		i = images.iterator();
+	    	        	while (i.hasNext()) {
+	    	        		originalGridImages.add(
+	    	        					(BufferedImage) i.next());
+	    	    		}
+		        	}
+		        	combinedImage = Factory.magnifyImage(gridRatio, 
+							renderedImage);
+	    		}
     	}
     }
     
@@ -352,6 +385,7 @@ class BrowserModel
     void setGridImages()
     {
     	if (gridImages.size() != 0) return;
+    	if (originalGridImages != null) originalGridImages.clear();
     	createGridImages();
     }
     
@@ -653,7 +687,7 @@ class BrowserModel
      * 
      * @return See above.
      */
-    List getGridImages()
+    List getSplitImages()
     { 
     	if (splitImages == null) splitImages = new ArrayList<SplitImage>();
     	else splitImages.clear();
@@ -715,7 +749,42 @@ class BrowserModel
 		double max = (double) Browser.MAX_RATIO/10;
 		if (gridRatio > max) return;
 		this.gridRatio = gridRatio; 
-		createGridImages();
+		int n = originalGridImages.size();
+		if (originalGridImages == null || n == 0) {
+			createGridImages(); 
+			return;
+		}
+		gridImages.clear();
+		int maxC = parent.getMaxC();
+		//List<BufferedImage> images = new ArrayList<BufferedImage>(maxC);
+		switch (n) {
+			case 0:
+				for (int i = 0; i < maxC; i++) 
+					gridImages.add(null);
+				break;
+			case 1:
+			case 2:
+			case 3:
+				if (isImageRGB()) {
+					createGridImages(); 
+				} else {
+					combinedImage = Factory.magnifyImage(gridRatio, 
+														renderedImage);
+					Iterator i = originalGridImages.iterator();
+					while (i.hasNext()) {
+    	        		gridImages.add(Factory.magnifyImage(gridRatio, 
+    	        							(BufferedImage) i.next()));
+    	    		}
+				}
+				break;
+			default:
+				combinedImage = Factory.magnifyImage(gridRatio, renderedImage);
+				Iterator i = originalGridImages.iterator();
+				while (i.hasNext()) {
+		    		gridImages.add(Factory.magnifyImage(gridRatio, 
+		    							(BufferedImage) i.next()));
+				}
+		}
 	}
 	
 	/**

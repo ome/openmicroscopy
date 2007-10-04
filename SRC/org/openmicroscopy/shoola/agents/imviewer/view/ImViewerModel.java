@@ -550,7 +550,7 @@ class ImViewerModel
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	void setSelectedXYPlane(int z, int t)
-	throws RenderingServiceException, DSOutOfServiceException
+		throws RenderingServiceException, DSOutOfServiceException
 	{
 		rndControl.setDefaultT(t);
 		rndControl.setDefaultZ(z);
@@ -582,7 +582,7 @@ class ImViewerModel
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	void setChannelActive(int index, boolean b)
-	throws RenderingServiceException, DSOutOfServiceException
+		throws RenderingServiceException, DSOutOfServiceException
 	{
 		rndControl.setActive(index, b);
 	}  
@@ -633,18 +633,15 @@ class ImViewerModel
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	void playMovie(boolean play)
-	throws RenderingServiceException, DSOutOfServiceException
+		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (player != null && !play) {
 			player.setPlayerState(Player.STOP);
 			List l = player.getChannels();
 			if (l != null) {
 				Iterator i = l.iterator();
-				int index;
-				while (i.hasNext()) { //reset values.
-					index = ((Integer) i.next()).intValue();
-					setChannelActive(index, true);
-				}
+				while (i.hasNext()) 
+					setChannelActive( ((Integer) i.next()).intValue(), true);
 			}
 			player = null;
 			state = ImViewer.READY;
@@ -921,7 +918,11 @@ class ImViewerModel
 	/** Clears the history. */
 	void clearHistory()
 	{
-		if (historyItems != null) historyItems = new ArrayList<HistoryItem>();
+		if (historyItems != null) {
+			HistoryItem node = historyItems.get(0);
+			historyItems.clear();
+			historyItems.add(node);
+		}
 		historyItemReplacement = false;
 	}
 
@@ -960,7 +961,7 @@ class ImViewerModel
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	void resetMappingSettings(RndProxyDef settings) 
-	throws RenderingServiceException, DSOutOfServiceException
+		throws RenderingServiceException, DSOutOfServiceException
 	{
 		rndControl.resetMappingSettings(settings);
 		renderer.resetRndSettings();
@@ -978,8 +979,8 @@ class ImViewerModel
 	 * @throws DSAccessException  			If the data cannot be retrieved.
 	 */
 	boolean resetSettings() 
-	throws RenderingServiceException, DSOutOfServiceException,
-	DSAccessException
+		throws RenderingServiceException, DSOutOfServiceException,
+				DSAccessException
 	{
 		//First check that the pixels are compatible
 		if (pixels == null) {

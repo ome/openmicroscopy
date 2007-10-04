@@ -263,8 +263,14 @@ class TinyPaneUI
         return borderListener.getDesktopManager();
     }
     
-    /** Adds a close button to the title bar. */
-    void allowClose() { titleBar.allowClose(); }
+    /** 
+     * Adds a close button to the title bar if the passed value
+     * is <code>true</code>, no close button if <code>false</code>.
+     * 
+     * @param b Pass <code>true</code> to add a close button,
+     * 			<code>false</code> to remove the close button.
+     */
+    void allowClose(boolean b) { titleBar.allowClose(b); }
     
     /**
      * Monitors frame's state changes and updates the UI accordingly.

@@ -38,6 +38,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -159,6 +160,23 @@ public class ImViewerFactory
 		}
 	}
 
+	/**
+	 * Stores the passed event in the correct viewer.
+	 * 
+	 * @param evt The event to store.
+	 */
+	public static void storeEvent(SaveRelatedData evt)
+	{
+		Iterator v = singleton.viewers.iterator();
+		ImViewerComponent comp;
+		long pixelsID = evt.getPixelsID();
+		while (v.hasNext()) {
+			comp = (ImViewerComponent) v.next();
+			if (comp.getModel().getPixelsID() != pixelsID) 
+				comp.storeEvent(evt);
+		}
+	}
+	
 	/** 
 	 * Returns the rendering settings to copy.
 	 * 

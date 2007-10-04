@@ -142,7 +142,7 @@ class RendererModel
 		visible = false;
 		//state = Renderer.READY;
 	}
-
+	
 	/**
 	 * Gets the colour of the channel from the model. 
 	 * 

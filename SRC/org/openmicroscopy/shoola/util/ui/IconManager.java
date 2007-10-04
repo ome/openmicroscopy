@@ -233,7 +233,7 @@ public class IconManager
         relPaths[LEFT_ARROW_DISABLED] = 
         							"nuvola_player_play10_left_disabled.png"; 
         relPaths[RIGHT_ARROW_DISABLED] = 
-        							"nuvola_player_play10_right_disabled.png";
+        						"nuvola_player_play10_right_disabled.png";
         relPaths[QUESTION_ICON] = "nuvola_filetypes48.png";
     	relPaths[ANNOTATION_48] = "nuvola_kwrite48.png";
     	relPaths[INFO] = "nuvola_messagebox_info16.png";

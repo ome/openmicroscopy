@@ -855,6 +855,7 @@ class BrowserComponent
 		//TODO check state
 		if (experimenter == null)
 			throw new IllegalArgumentException("Experimenter cannot be null.");
+		setSelectedDisplay(null);
 		view.addExperimenter(experimenter);
 	}
 

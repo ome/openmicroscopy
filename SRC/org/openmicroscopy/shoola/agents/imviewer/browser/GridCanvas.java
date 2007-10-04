@@ -70,7 +70,7 @@ class GridCanvas
      */
     private void paintImage(Graphics2D g2D, int w, int h, boolean bar)
 	{
-		List images = model.getGridImages();
+		List images = model.getSplitImages();
     	if (images == null) return; 
     	SplitImage combined = null;
 		g2D.setColor(model.getBackgroundColor());
@@ -216,7 +216,7 @@ class GridCanvas
 	 */
 	Point isOnImageInGrid(Rectangle r)
 	{
-		List images = model.getGridImages();
+		List images = model.getSplitImages();
     	if (images == null) return null; 
     	SplitImage combined = null;
     	int n = images.size();

@@ -55,12 +55,6 @@ class TwoKnobsSliderModel
 	/** The default maximum value. */
 	static final int    				DEFAULT_MAX = 100;
 
-	/** 
-	 * The value to add to the max or min to initialize the partial max and
-	 * partial min.
-	 */
-	private static final int			INCREMENT = 200;
-
 	/** The absolute minimum. */
 	private int							absoluteMin;
 
@@ -174,6 +168,7 @@ class TwoKnobsSliderModel
 	void checkValues(int absoluteMax, int absoluteMin, int maximum, int minimum,
 			int startValue, int endValue)
 	{
+		/*
 		if (maximum >= minimum && startValue >= absoluteMin && 
 				startValue <= absoluteMax && endValue >= absoluteMin &&
 				endValue <= absoluteMax && startValue <= endValue &&
@@ -187,11 +182,24 @@ class TwoKnobsSliderModel
 			this.absoluteMin = absoluteMin;
 		} else
 			throw new IllegalArgumentException("Invalid range properties");
+		*/
+		if (maximum >= minimum && startValue <= endValue &&
+				absoluteMax >= absoluteMin && maximum <= absoluteMax &&
+				minimum >= absoluteMin) {
+			this.startValue = startValue;
+			this.endValue = endValue;
+			this.minimum = minimum;
+			this.maximum = maximum;
+			this.absoluteMax = absoluteMax;
+			this.absoluteMin = absoluteMin;
+		}
+		if (startValue < absoluteMin) startValue = minimum;
+		if (endValue > absoluteMax) endValue = absoluteMax;
 		increment = (maximum-minimum)/10;
-		if (startValue < minimum) partialMin = startValue-INCREMENT;
-		else partialMin = minimum-INCREMENT;
-		if (endValue > maximum) partialMax = endValue+INCREMENT;
-		else partialMax = maximum+INCREMENT;
+		if (startValue < minimum) partialMin = startValue;
+		else partialMin = minimum;
+		if (endValue > maximum) partialMax = endValue;
+		else partialMax = maximum;
 	}
 
 	/**
@@ -284,10 +292,11 @@ class TwoKnobsSliderModel
 	 */
 	void setStartValue(int startValue)
 	{ 
-		if (startValue < absoluteMin || startValue >= endValue)
+		if (startValue >= endValue)
 			throw new IllegalArgumentException("Start value not valid.");
+		if (startValue < absoluteMin) startValue = absoluteMin;
+		if (startValue <= partialMin) partialMin = startValue;
 		this.startValue = startValue;
-		if (startValue <= partialMin) partialMin = startValue-INCREMENT;
 	}
 
 	/**
@@ -298,10 +307,11 @@ class TwoKnobsSliderModel
 	 */
 	void setEndValue(int endValue)
 	{ 
-		if (endValue <= startValue || endValue > absoluteMax)
+		if (endValue <= startValue)
 			throw new IllegalArgumentException("End value not valid.");
+		if (endValue > absoluteMax) endValue = absoluteMax;
+		if (endValue >= partialMax) partialMax = endValue;
 		this.endValue = endValue;
-		if (endValue >= partialMax) partialMax = endValue+INCREMENT;
 	}
 
 	/**
