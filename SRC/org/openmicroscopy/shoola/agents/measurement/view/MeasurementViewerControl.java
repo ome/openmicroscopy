@@ -187,15 +187,7 @@ class MeasurementViewerControl
     	 view.getDrawingView().addFigureSelectionListener(this);
     	 view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
     	 view.addWindowListener(new WindowAdapter() {
-             public void windowClosing(WindowEvent e) { model.close(true); }
-             public void windowDeiconified(WindowEvent e) { 
-                 //model.iconified(false);
-             }
-     
-             public void windowIconified(WindowEvent e)
-             { 
-                 //model.iconified(true); 
-             }
+             public void windowClosing(WindowEvent e) { model.close(); }
          });
     }
     /**
@@ -220,7 +212,7 @@ class MeasurementViewerControl
 		UIUtilities.setLocationRelativeTo(view, colourPicker);
 	}
     
-    /** Analyse the selected figures. */
+    /** Analyses the selected figures. */
 	void analyseSelectedFigures()
 	{
 		Collection<Figure> figures = model.getSelectedFigures();
@@ -232,7 +224,7 @@ class MeasurementViewerControl
 	}
 	
     /**
-     * Reacts to property change
+     * Reacts to property change.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
 	public void propertyChange(PropertyChangeEvent evt)

@@ -48,14 +48,16 @@ import org.jhotdraw.draw.Figure;
 //Application-internal dependencies
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
+import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
+import org.openmicroscopy.shoola.agents.events.measurement.SaveData;
 import org.openmicroscopy.shoola.agents.measurement.Analyser;
 import org.openmicroscopy.shoola.agents.measurement.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsLoader;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
@@ -70,7 +72,6 @@ import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
-import pojos.ExperimenterData;
 
 /** 
  * The Model component in the <code>MeasurementViewer</code> MVC triad.
@@ -153,6 +154,12 @@ class MeasurementViewerModel
     /** Has the data been saved since last update. 			*/
     private Boolean					hasBeenSaved;
     
+    /** 
+     * Reference to the event posted to save the data when closing the
+     * viewer.
+     */
+    private SaveRelatedData 		event;
+    
     /**
      * Returns the name used to log in.
      * 
@@ -172,18 +179,7 @@ class MeasurementViewerModel
     {
     	return MeasurementAgent.getRegistry().getDataService().getServerName();
     }
-    
-    /**
-     * Returns the current user's details.
-     * 
-     * @return See above.
-     */
-    private ExperimenterData getUserDetails()
-    { 
-    	return (ExperimenterData) MeasurementAgent.getRegistry().lookup(
-    			LookupNames.CURRENT_USER_DETAILS);
-    }
-    
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -327,9 +323,7 @@ class MeasurementViewerModel
 		currentLoader = new PixelsLoader(component, pixelsID);
 		currentLoader.load();
 	}
-	
-	
-	
+
 	/**
 	 * Returns the currently selected z-section.
 	 * 
@@ -653,7 +647,8 @@ class MeasurementViewerModel
 		try {
 			if (fileName == null)
 			{
-				fileName = FileMap.getSavedFile(getServerName(), getUserName(), getPixelsID());
+				fileName = FileMap.getSavedFile(getServerName(), getUserName(), 
+												getPixelsID());
 			}
 			stream = IOUtil.readFile(fileName);
 		} catch (Exception e) {
@@ -676,15 +671,18 @@ class MeasurementViewerModel
 	void saveROI()
 		throws ParsingException
 	{
-		saveROI(roiFileName);
+		saveROI(roiFileName, true);
 	}
 	
 	/**
 	 * Saves the current ROISet in the roi component to file.
-	 * @param fileName name of the file to be saved.
+	 * 
+	 * @param fileName 	name of the file to be saved.
+	 * @param post		Pass <code>true</code> to post an event, 
+	 * 					<code>false</code> otherwise.
 	 * @throws ParsingException
 	 */
-	void saveROI(String fileName)
+	void saveROI(String fileName, boolean post)
 		throws ParsingException
 	{
 		OutputStream stream = null;
@@ -697,10 +695,11 @@ class MeasurementViewerModel
 		roiComponent.saveROI(stream);
 		try {
 			if (stream != null) stream.close();
-			this.setDataSaved();
-			FileMap.setSavedFile(getServerName(), getUserName(), getPixelsID(), fileName);
+			FileMap.setSavedFile(getServerName(), getUserName(), getPixelsID(), 
+								fileName);
+			if (!post) event = null;
+			setDataDiscarded();
 		} catch (Exception e) {
-			e.printStackTrace();
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot close the stream "+e.getMessage());
 		}
@@ -898,35 +897,39 @@ class MeasurementViewerModel
 	
 	/**
 	 * Has the data been saved since the last update in the model.
-	 * @return see above.
+	 * 
+	 * @return See above.
 	 */
-	boolean isDataSaved()
-	{
-		return hasBeenSaved;
-	}
+	boolean isDataSaved() { return hasBeenSaved; }
 	
 	/**
 	 * Don't care about data changes.
+	 * Notifies listeners that the measurement tool does not have data to save.
 	 */
 	void setDataDiscarded()
 	{
 		hasBeenSaved = true;
+		if (event == null) return;
+		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
+		event = new SaveRelatedData(pixelsID, new SaveData(pixelsID), 
+									"The ROI", false);
+		bus.post(event);
+		event = null;
 	}
 	
 	/**
-	 * The model has changed the data has not all been saved.
+	 * The model has changed the data has not all been saved
+	 * Notifies listeners that the measurement tool has data to save.
 	 */
 	void setDataChanged()
 	{
+		//Post an event.
 		hasBeenSaved = false;
-	}
-	
-	/**
-	 * The data has been saved. 
-	 */
-	private void setDataSaved()
-	{
-		hasBeenSaved = true;
+		if (event != null) return;
+		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
+		event = new SaveRelatedData(pixelsID, new SaveData(pixelsID), 
+									"The ROI", true);
+		bus.post(event);
 	}
 	
 	/**

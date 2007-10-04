@@ -32,8 +32,6 @@ import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -168,7 +166,7 @@ public class MeasurementViewerFactory
         }
         comp = new MeasurementViewerComponent(model);
         comp.initialize();
-        //comp.addChangeListener(this);
+        comp.addChangeListener(this);
         viewers.add(comp);
         return comp;
 	}
@@ -180,8 +178,10 @@ public class MeasurementViewerFactory
      */
 	public void stateChanged(ChangeEvent e)
 	{
-		// TODO Auto-generated method stub
-		
+		MeasurementViewerComponent comp = 
+						(MeasurementViewerComponent) e.getSource(); 
+		if (comp.getState() == MeasurementViewer.DISCARDED) 
+			viewers.remove(comp);
 	}
 	
 }

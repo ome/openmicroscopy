@@ -141,12 +141,10 @@ public interface MeasurementViewer
 	public void setPixels(Pixels pixels);
 	
 	/** 
-	 * Closes the application.
-	 * 
-	 *  @param post Pass <code>true</code> to post an event, 
-	 *  			<code>false</code> otherwise.
+	 * Closes the window, before closing, ask the user if he/she wants
+	 * to save the changes.
 	 */
-	public void close(boolean post);
+	public void close();
 
 	/**
 	 * Sets the visibilty of the component depending on the passed
@@ -263,5 +261,8 @@ public interface MeasurementViewer
 	 * 						tool.
 	 */
 	public void createSingleFigure(boolean createSingleFig);
+
+	/** Saves the roi data and discards. */
+	public void saveAndDiscard();
 	
 }

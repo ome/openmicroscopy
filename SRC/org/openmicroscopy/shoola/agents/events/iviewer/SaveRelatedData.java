@@ -57,6 +57,12 @@ public class SaveRelatedData
     /** The event to post. */
     private RequestEvent	saveEvent;
     
+    /** 
+     * Flag set to <code>true</code> to save the data the event,
+     * set to <code>false</code> to ignore.
+     */
+    private boolean			toSave;
+    
     /**
      * Creates a new instance.
      * 
@@ -64,9 +70,11 @@ public class SaveRelatedData
      * @param saveEvent	The event to post if this event is taken into account.
      * 					Mustn't be <code>null</code>.
      * @param message	The message to display.
+     * @param toSave	Pass <code>true</code> to save the data the event,
+     * 					set to <code>false</code> to ignore.
      */
     public SaveRelatedData(long pixelsID, RequestEvent saveEvent, 
-    						String message)
+    						String message, boolean toSave)
     {
     	 if (pixelsID < 0) 
              throw new IllegalArgumentException("Pixels set ID not valid.");
@@ -79,8 +87,17 @@ public class SaveRelatedData
     	this.pixelsID = pixelsID;
     	this.message = message;
     	this.saveEvent = saveEvent;
+    	this.toSave = toSave;
     }
 
+    /**
+     * Returns <code>true</code> to add the event to the list,
+     * <code>false</code> to remove the event from the list.
+     * 
+     * @return See above.
+     */
+    public boolean isToSave() { return toSave; }
+    
     /**
      * Returns the Id of the pixels set.
      * 

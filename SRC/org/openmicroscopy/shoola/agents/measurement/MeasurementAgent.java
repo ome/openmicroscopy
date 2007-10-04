@@ -32,6 +32,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
+import org.openmicroscopy.shoola.agents.events.measurement.SaveData;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -109,7 +110,7 @@ public class MeasurementAgent
     	if (viewer != null) {
     		switch (evt.getIndex()) {
 				case ViewerState.CLOSE:
-					viewer.close(false);
+					viewer.discard();
 					break;
 				case ViewerState.ICONIFIED:
 					viewer.iconified(false);
@@ -139,6 +140,21 @@ public class MeasurementAgent
 					viewer.setActiveChannelsColor(evt.getChannels());
 					break;
 			}
+    		
+    	}
+    }
+    
+    /**
+     * Reacts to the passed event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleSaveData(SaveData evt)
+    {
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+    									evt.getPixelsID());
+    	if (viewer != null) {
+    		viewer.saveAndDiscard();
     		
     	}
     }
@@ -174,6 +190,7 @@ public class MeasurementAgent
 		bus.register(this, MeasurePlane.class);
 		bus.register(this, ViewerState.class);
 		bus.register(this, ChannelSelection.class);
+		bus.register(this, SaveData.class);
 	}
 
 	/**
@@ -196,6 +213,8 @@ public class MeasurementAgent
 			handleViewerStateEvent((ViewerState) e);
 		else if (e instanceof ChannelSelection)
 			handleChannelSelectionEvent((ChannelSelection) e);
+		else if (e instanceof SaveData)
+			handleSaveData((SaveData) e);
 	}
 	
 }

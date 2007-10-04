@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -35,10 +34,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
@@ -79,7 +79,6 @@ import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
 import pojos.CategoryData;
 
 /** 
@@ -112,31 +111,31 @@ class ImViewerComponent
 {
 
 	/** The Model sub-component. */
-	private ImViewerModel       model;
+	private ImViewerModel       			model;
 
 	/** The Control sub-component. */
-	private ImViewerControl     controller;
+	private ImViewerControl     			controller;
 
 	/** The View sub-component. */
-	private ImViewerUI          	view;
+	private ImViewerUI          			view;
 
 	/** List of active channels before switching between color mode. */
-	private List                	historyActiveChannels;
+	private List                			historyActiveChannels;
 
 	/** Collection of events to display. */
-	private List<SaveRelatedData> 	events;
+	private Map<String, SaveRelatedData>	events;
 	
 	/** Flag indicating that a new z-section or timepoint is selected. */
-	private boolean					newPlane;
+	private boolean							newPlane;
 
 	/** Listener attached to the rendering node. */
-	private MouseAdapter			nodeListener;
+	private MouseAdapter					nodeListener;
 
 	/** 
 	 * A {@link ViewerSorter sorter} to order nodes in ascending 
 	 * alphabetical order.
 	 */
-	private ViewerSorter    		sorter;
+	private ViewerSorter    				sorter;
 
 	/** 
 	 * Returns the description displayed in the status bar.
@@ -233,10 +232,15 @@ class ImViewerComponent
 		Iterator j;
 		if (events != null) {
 			boxes = new ArrayList<SaveEventBox>(events.size());
-			j = events.iterator();
+			j = events.keySet().iterator();
+			SaveRelatedData value;
 			while (j.hasNext()) {
-				box = new SaveEventBox((SaveRelatedData) j.next());
-				boxes.add(box);
+				value = events.get(j.next());
+				if (value.isToSave()) {
+					box = new SaveEventBox(value);
+					boxes.add(box);
+					p.add(box);
+				}
 			}
 		}
 		
@@ -258,12 +262,14 @@ class ImViewerComponent
 				EventBus bus = ImViewerAgent.getRegistry().getEventBus();
 				while (j.hasNext()) {
 					box = (SaveEventBox) j.next();
-					if (box.isSelected()) {
+					if (box.isSelected() && box.getEvent().isToSave()) {
 						bus.post(box.getEvent().getSaveEvent());
 					}
 				}
 			}
 		}
+		postViewerState(ViewerState.CLOSE);
+		
 	}
 	/**
 	 * Creates a new instance.
@@ -316,8 +322,8 @@ class ImViewerComponent
 	 */
 	void storeEvent(SaveRelatedData evt)
 	{
-		if (events == null) events = new ArrayList<SaveRelatedData>();
-		events.add(evt);
+		if (events == null) events = new HashMap<String, SaveRelatedData>();
+ 		events.put(evt.toString(), evt);
 	}
 	
 	/** 
@@ -349,29 +355,7 @@ class ImViewerComponent
 	public void discard()
 	{
 		if (model.getState() != DISCARDED) {
-			
-				
-			/*
-			try {
-				if (view.saveSettingsOnClose()) model.saveRndSettings();
-			} catch (Exception e) {
-				LogMessage msg = new LogMessage();
-				msg.println("Cannot save rendering settings. ");
-				msg.print(e);
-				ImViewerAgent.getRegistry().getLogger().error(this, msg);
-			}
-			//First make sure that we save the annotation.
-			//Save rendering settings.
-			if (model.getBrowser().hasAnnotationToSave()) {
-				MessageBox msg = new MessageBox(view, "Save Annotation", 
-				"Do you want to save the annotation before closing?");
-				if (msg.centerMsgBox() == MessageBox.YES_OPTION)
-					model.getBrowser().saveAnnotation();
-
-			}
-			*/
 			saveOnClose();
-			//postViewerState(ViewerState.CLOSE);
 			model.discard();
 			fireStateChange();
 		}

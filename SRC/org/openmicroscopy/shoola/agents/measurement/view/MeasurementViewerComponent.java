@@ -176,12 +176,14 @@ class MeasurementViewerComponent
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#activate()
+     * @see MeasurementViewer#discard()
      */
 	public void discard()
 	{
-		// TODO Auto-generated method stub
-		
+		if (model.getState() != DISCARDED) {
+			model.discard();
+			fireStateChange();
+		}
 	}
 
 	/** 
@@ -301,28 +303,24 @@ class MeasurementViewerComponent
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#close(boolean)
+     * @see MeasurementViewer#close()
      */
-	public void close(boolean post)
+	public void close()
 	{
 		if (model.getState() == DISCARDED) 
 			throw new IllegalStateException("This method shouldn't be " +
 					"invoked in the DISCARDED state:"+model.getState());
-		if (!model.isDataSaved())
-		{ 
-			String title = "Discard Changes?";
-		    String message = "Do you want to exit and " +
-		    										"discard changes?";
+		if (!model.isDataSaved()) { 
+			String title = "Discard Changes";
+		    String message = "Do you want to exit and discard changes?";
 		  
-			MessageBox dialog = new MessageBox
-			(MeasurementViewerFactory.getViewer(model.getPixelsID()).getUI(),
-				title, message);
+			MessageBox dialog = new MessageBox(view, title, message);
 				
-			if(dialog.showMsgBox()==MessageBox.NO_OPTION)
-				return;
+			if (dialog.showMsgBox() == MessageBox.NO_OPTION) return;
 		}
 		model.setDataDiscarded();
-		if (post) postEvent(MeasurementToolLoaded.REMOVE);
+		//Post event indicating that we don't care about saving.
+		postEvent(MeasurementToolLoaded.REMOVE);
 		view.setVisible(false);
 	}
 
@@ -423,7 +421,7 @@ class MeasurementViewerComponent
 	    }
 
 		try {
-			model.saveROI(file.getAbsolutePath());
+			model.saveROI(file.getAbsolutePath(), true);
 		} catch (ParsingException e) {
 			reg.getLogger().error(this, "Cannot save the ROI "+e.getMessage());
 			un.notifyInfo("Save ROI", "Cannot save ROI " +
@@ -664,6 +662,69 @@ class MeasurementViewerComponent
 	public void createSingleFigure(boolean createSingleFig)
 	{
 		view.createSingleFigure(createSingleFig);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#saveAndDiscard()
+	 */
+	public void saveAndDiscard()
+	{
+		//TODO: Externalize the UI code in a customized FileChooser Dialog
+		Registry reg = MeasurementAgent.getRegistry();
+		UserNotifier un = reg.getUserNotifier();
+	
+		JFileChooser chooser = new JFileChooser();
+		FileFilter filter = new XMLFilter();
+		chooser.addChoosableFileFilter(filter);
+		chooser.setFileFilter(filter);
+
+		File f = UIUtilities.getDefaultFolder();
+	    if (f != null) chooser.setCurrentDirectory(f);
+		try
+		{
+			String savedFileString=FileMap.getSavedFile(model.getServerName(), 
+							model.getUserName(), model.getPixelsID());
+			if(savedFileString!=null)
+			{
+				File savedFile = new File(savedFileString);
+				chooser.setCurrentDirectory(savedFile);
+				chooser.setSelectedFile(savedFile);
+			}
+		}	
+		catch (ParsingException e)
+		{
+			// Do nothing as we're really only looking to see if the default 
+			// directory or filename should be set for loading.
+		}
+		int results = chooser.showSaveDialog(view.getParent());
+		if (results != JFileChooser.APPROVE_OPTION) return;
+		File file = chooser.getSelectedFile();
+		if (!file.getAbsolutePath().endsWith(XMLFilter.XML))
+		{
+			String fileName = file.getAbsolutePath()+"."+XMLFilter.XML;
+			file = new File(fileName);
+		}
+		if (file.exists()) 
+		{
+			int response = JOptionPane.showConfirmDialog (null,
+						"Overwrite existing file?","Confirm Overwrite",
+						JOptionPane.OK_CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE);
+	        if (response == JOptionPane.CANCEL_OPTION) return;
+	    }
+		//
+		try {
+			model.saveROI(file.getAbsolutePath(), false);
+		} catch (ParsingException e) {
+			reg.getLogger().error(this, "Cannot save the ROI "+e.getMessage());
+			un.notifyInfo("Save ROI", "Cannot save ROI " +
+										"for "+model.getImageID());
+		}
+		un.notifyInfo("Save ROI", "The Regions of Interests have been " +
+									"successfully saved. ");
+		
+		discard();
 	}
 	
 }

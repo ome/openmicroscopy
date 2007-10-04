@@ -172,7 +172,7 @@ public class ImViewerFactory
 		long pixelsID = evt.getPixelsID();
 		while (v.hasNext()) {
 			comp = (ImViewerComponent) v.next();
-			if (comp.getModel().getPixelsID() != pixelsID) 
+			if (comp.getModel().getPixelsID() == pixelsID) 
 				comp.storeEvent(evt);
 		}
 	}

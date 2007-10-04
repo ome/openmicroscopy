@@ -202,6 +202,8 @@ public class ImViewerAgent
         	handleSelectPlane((SelectPlane) e);
         else if (e instanceof CopyRndSettings)
         	handleCopyRndSettings((CopyRndSettings) e);
+        else if (e instanceof SaveRelatedData)
+        	handleSaveRelatedData((SaveRelatedData) e);
     }
 
 }
