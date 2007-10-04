@@ -24,7 +24,7 @@
 	<!-- StoreRepositoryPath params -->
 	<context-param>
 		<param-name>usersListsDir</param-name>
-		<param-value>/Users/Ola/J2EP/tmp/UsersLists</param-value>
+		<param-value>/Users/tmp/UsersLists</param-value>
 	</context-param>
 <!-- END Users configuration -->	
 
@@ -150,7 +150,7 @@
 		</init-param>
 		<init-param>
 			<param-name>uploadRepositoryPath</param-name>
-			<param-value>/Users/Ola/J2EP/tmp</param-value>
+			<param-value>/Users/tmp</param-value>
 			<description>
 				Set the path where the intermediary files will be
 				stored.
