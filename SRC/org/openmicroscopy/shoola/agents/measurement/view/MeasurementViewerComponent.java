@@ -400,7 +400,13 @@ class MeasurementViewerComponent
 		{
 			String savedFileString=FileMap.getSavedFile(model.getServerName(), 
 							model.getUserName(), model.getPixelsID());
-			if(savedFileString!=null)
+			if(savedFileString==null)
+			{
+				savedFileString = model.getImageName();
+				File savedFile = new File(savedFileString);
+				chooser.setSelectedFile(savedFile);
+			}
+			else
 			{
 				File savedFile = new File(savedFileString);
 				chooser.setCurrentDirectory(savedFile);

@@ -151,8 +151,8 @@ public class ROITable
 	 */
 	protected void onMousePressed(MouseEvent e)
 	{
-	//	if(rightClick(e))
-	//		popupMenu.getPopupMenu().show(this, e.getX(), e.getY());
+		if(rightClick(e))
+			popupMenu.getPopupMenu().show(this, e.getX(), e.getY());
 	}
 	
 	
