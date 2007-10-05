@@ -382,7 +382,7 @@ class DomainPane
     private void buildGUI()
     {
     	double size[][] =
-        {{TableLayout.PREFERRED},  // Columns
+        {{TableLayout.FILL},  // Columns
          {TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
         	TableLayout.PREFERRED}}; // Rows
     	setLayout(new TableLayout(size));

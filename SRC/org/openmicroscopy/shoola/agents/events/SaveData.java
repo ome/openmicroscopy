@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.events.measurement;
+package org.openmicroscopy.shoola.agents.events;
 
 
 //Java imports
@@ -31,7 +31,7 @@ package org.openmicroscopy.shoola.agents.events.measurement;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
- * 
+ * Event posted back to an agent to perform is saving action.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,19 +47,43 @@ public class SaveData
 	extends RequestEvent
 {
 
+	/** Indicates that this event is for the measurement tool. */
+	public static final int	MEASUREMENT_TYPE = 0;
+
 	/** The Id of the pixels set, this event is for. */
 	private long pixelsID;
+	
+	/** One of the constants defined by this class. */
+	private int type;
+	
+	/**
+	 * Controls if the specified type is supported.
+	 * 
+	 * @param t The valye to check.
+	 */
+	private void checkType(int t)
+	{
+		switch (t) {
+			case MEASUREMENT_TYPE:
+				return;
+			default:
+				throw new IllegalArgumentException("Type not supported.");
+		}
+	}
 	
 	 /**
      * Creates a new instance.
      * 
      * @param pixelsID	The pixels set ID.
+     * @param type 		One of the constants defined by this class.
      */
-	public SaveData(long pixelsID)
+	public SaveData(long pixelsID, int type)
 	{
 		 if (pixelsID < 0) 
              throw new IllegalArgumentException("Pixels set ID not valid.");
+		 checkType(type);
 		 this.pixelsID = pixelsID;
+		 this.type = type;
 	}
 	
 	/**
@@ -68,5 +92,12 @@ public class SaveData
      * @return See above.
      */
 	public long getPixelsID() { return pixelsID; }
+	
+	/**
+	 * Returns the type.
+	 * 
+	 * @return See above.
+	 */
+	public int getType() { return type; }
 	
 }

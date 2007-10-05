@@ -443,10 +443,9 @@ class ImViewerModel
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occured while setting 
 	 * 										the value.
-	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	BufferedImage getSplitComponentImage()
-		throws RenderingServiceException, DSOutOfServiceException
+		throws RenderingServiceException
 	{
 		PlaneDef pDef = new PlaneDef(PlaneDef.XY, getDefaultT());
 		pDef.setZ(getDefaultZ());
@@ -919,7 +918,7 @@ class ImViewerModel
 	void removeLastHistoryItem()
 	{
 		if (historyItems != null || historyItems.size() > 1) {
-			historyItems.remove(historyItems.size()-1);
+			//historyItems.remove(historyItems.size()-1);
 		}
 	}
 	

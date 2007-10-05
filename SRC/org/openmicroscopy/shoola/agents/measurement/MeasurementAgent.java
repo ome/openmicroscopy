@@ -28,11 +28,11 @@ package org.openmicroscopy.shoola.agents.measurement;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
-import org.openmicroscopy.shoola.agents.events.measurement.SaveData;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -153,7 +153,7 @@ public class MeasurementAgent
     {
     	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
     									evt.getPixelsID());
-    	if (viewer != null) {
+    	if (viewer != null && evt.getType() == SaveData.MEASUREMENT_TYPE) {
     		viewer.saveAndDiscard();
     		
     	}

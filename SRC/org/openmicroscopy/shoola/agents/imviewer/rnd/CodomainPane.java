@@ -26,8 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
@@ -39,6 +38,7 @@ import javax.swing.JPanel;
 
 
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import ome.model.display.CodomainMapContext;
@@ -156,41 +156,29 @@ class CodomainPane
     }
     
     /**
-     * lays out the controls.
+     * Lays out the controls.
      * 
      * @return See below.
      */
     private JPanel buildControlsPane()
     {
-        JPanel p = new JPanel();
-        GridBagLayout gridbag = new GridBagLayout();
-        GridBagConstraints c = new GridBagConstraints();
-        p.setLayout(gridbag);
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
-        p.add(reverseIntensity, c);
-        c.gridy = 1;
-        c.gridx = 0;
-        c.fill = GridBagConstraints.NONE;
-        p.add(contrastStretching , c);
-        c.gridx = 1;
-        c.anchor = GridBagConstraints.EAST;
-        p.add(contrastStretchingButton, c);
-        
-        c.gridy = 2;
-        c.gridx = 0;
-        c.anchor = GridBagConstraints.WEST;
-        c.fill = GridBagConstraints.NONE;
-        p.add(planeSlicing , c);
-        c.gridx = 1;
-        c.anchor = GridBagConstraints.EAST;
-        p.add(planeSlicingButton, c);
+    	JPanel p = new JPanel();
+        double size[][] =
+        {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED}, 
+         {TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED}}; 
+        p.setLayout(new TableLayout(size));
+        p.add(reverseIntensity, "0, 0");
+        p.add(contrastStretching, "0, 1");
+        p.add(contrastStretchingButton, "2, 1");
+        p.add(planeSlicing, "0, 2");
+        p.add(planeSlicingButton, "2, 2");
         return p;
     }
     
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
+    	setLayout(new FlowLayout(FlowLayout.LEFT));
         add(buildControlsPane());
     }
     
@@ -258,7 +246,6 @@ class CodomainPane
         buildGUI();
     }
 
-    
     /**
      * Updates the corresponding controls when a codomain transformation
      * is added.

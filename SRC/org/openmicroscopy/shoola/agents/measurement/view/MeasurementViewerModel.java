@@ -38,7 +38,6 @@ import java.util.TreeMap;
 
 
 //Third-party libraries
-
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
@@ -48,8 +47,9 @@ import org.jhotdraw.draw.Figure;
 //Application-internal dependencies
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
+
+import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
-import org.openmicroscopy.shoola.agents.events.measurement.SaveData;
 import org.openmicroscopy.shoola.agents.measurement.Analyser;
 import org.openmicroscopy.shoola.agents.measurement.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
@@ -911,7 +911,8 @@ class MeasurementViewerModel
 		hasBeenSaved = true;
 		if (event == null) return;
 		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
-		event = new SaveRelatedData(pixelsID, new SaveData(pixelsID), 
+		event = new SaveRelatedData(pixelsID, 
+					new SaveData(pixelsID, SaveData.MEASUREMENT_TYPE), 
 									"The ROI", false);
 		bus.post(event);
 		event = null;
@@ -927,7 +928,8 @@ class MeasurementViewerModel
 		hasBeenSaved = false;
 		if (event != null) return;
 		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
-		event = new SaveRelatedData(pixelsID, new SaveData(pixelsID), 
+		event = new SaveRelatedData(pixelsID, 
+						new SaveData(pixelsID, SaveData.MEASUREMENT_TYPE),
 									"The ROI", true);
 		bus.post(event);
 	}

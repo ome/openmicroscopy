@@ -558,7 +558,6 @@ class ImViewerComponent
 			node.allowClose(false);
 			rndToSave = false;
 		}
-			
 		fireStateChange();
 	}
 
