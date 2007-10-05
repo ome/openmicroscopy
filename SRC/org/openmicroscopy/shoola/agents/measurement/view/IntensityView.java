@@ -32,6 +32,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -70,6 +71,7 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ColourListRenderer;
 
@@ -124,9 +126,12 @@ class IntensityView
 	
 	/** Reference to the control. */
 	private MeasurementViewerControl	controller;
-	
+
 	/** Reference to the model. */
 	private MeasurementViewerModel		model;
+	
+	/** Reference to the view. */
+	private MeasurementViewerUI			view;
 
 	/** SelectChannelsForm the form to select the channels to output to the 
 	 * file. 
@@ -202,13 +207,19 @@ class IntensityView
 	/** CentreY textfield. */
 	private JTextField					YCentreValue;
 
-	
+	/** The channel selected in the combo box. */
+	private int 						selectedChannel;
+
+	/** The name of the channel selected in the combo box. */
+	private String 						selectedChannelName	
+	;
 	/** Select to choose the channel to show values for . */
 	private JComboBox 					channelSelection;
 	
 	/** The save button. */
 	private JButton 					saveButton; 
 	
+	 
 	/** list of the channel names. */
 	private Map<Integer, String> channelName = new TreeMap<Integer, String>();
 	
@@ -276,7 +287,6 @@ class IntensityView
 		saveButton.addActionListener(this);
 		saveButton.setActionCommand(SAVEACTION);
 		state = State.READY;
-		
 	}
 	
 	/** Builds and lays out the UI. */
@@ -363,15 +373,19 @@ class IntensityView
 	 * @param controller Reference to the Control. Mustn't be <code>null</code>.
 	 * @param model		 Reference to the Model. Mustn't be <code>null</code>.
 	 */
-	IntensityView(MeasurementViewerControl controller, 
+	IntensityView(MeasurementViewerUI view, MeasurementViewerControl controller, 
 		MeasurementViewerModel model)
 	{
+		if (view == null)
+			throw new IllegalArgumentException("No view.");
 		if (controller == null)
 			throw new IllegalArgumentException("No control.");
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
+		this.view = view;
 		this.controller = controller;
 		this.model = model;
+		selectedChannelName = "";
 		initComponents();
 		buildGUI();
 	}
@@ -494,7 +508,11 @@ class IntensityView
 		channelSelection.setModel(new DefaultComboBoxModel(channelCols));	
 		ColourListRenderer renderer =  new ColourListRenderer();
 		channelSelection.setRenderer(renderer);
-		channelSelection.setSelectedIndex(0);
+		if(nameMap.containsKey(selectedChannelName))
+			selectedChannel = nameMap.get(selectedChannelName);
+		else
+			selectedChannel = 0;
+		channelSelection.setSelectedIndex(selectedChannel);
 	}
 	
 	/** Populate the table and fields with the data. */
@@ -710,29 +728,24 @@ class IntensityView
 	/** Save the results to a csv File. */
 	private void saveResults() 
 	{
-		JFileChooser chooser = new JFileChooser();
-		FileFilter filter = new CSVFilter();
-		chooser.addChoosableFileFilter(filter);
-		chooser.setFileFilter(filter);
-
-		File f = UIUtilities.getDefaultFolder();
-	    if(f != null) chooser.setCurrentDirectory(f);
-		int results = chooser.showSaveDialog(this.getParent());
-		if(results != JFileChooser.APPROVE_OPTION) return;
+		ArrayList<FileFilter> filterList=new ArrayList<FileFilter>();
+		FileFilter filter=new CSVFilter();
+		filterList.add(filter);
+		FileChooser chooser=
+				new FileChooser(
+					 view, FileChooser.SAVE, "Save the Results",
+					"Save the Results data to a file which can be loaded by a spreadsheet.",
+					filterList);
+		File f=UIUtilities.getDefaultFolder();
+	    if (f != null) chooser.setCurrentDirectory(f);
+		int results = chooser.showDialog();
+		if (results != JFileChooser.APPROVE_OPTION) return;
 		File file = chooser.getSelectedFile();
 		if (!file.getAbsolutePath().endsWith(CSVFilter.CSV))
 		{
 			String fileName = file.getAbsolutePath()+"."+CSVFilter.CSV;
 			file = new File(fileName);
 		}
-		if (file.exists()) 
-		{
-			int response = JOptionPane.showConfirmDialog (null,
-						"Overwrite existing file?","Confirm Overwrite",
-						JOptionPane.OK_CANCEL_OPTION,
-						JOptionPane.QUESTION_MESSAGE);
-	        if (response == JOptionPane.CANCEL_OPTION) return;
-	    }
 		channelsSelectionForm = new ChannelSelectionForm(channelName);
 		UIUtilities.setLocationRelativeToAndShow(this, channelsSelectionForm);
 		if(channelsSelectionForm.getState()!= 
@@ -984,6 +997,7 @@ class IntensityView
 			String string = (String)nameColour[1];
 			if(!nameMap.containsKey(string))
 				return;
+			selectedChannelName = string;
 			int channel = nameMap.get(string);
 			if(channel!=-1)
 			{

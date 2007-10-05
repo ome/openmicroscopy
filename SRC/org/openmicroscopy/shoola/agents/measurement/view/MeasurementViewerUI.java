@@ -27,8 +27,11 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,8 +48,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
+import org.jhotdraw.draw.DelegationSelectionTool;
 import org.jhotdraw.draw.Drawing;
+import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.Figure;
+import org.jhotdraw.draw.Tool;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
@@ -82,7 +88,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
  * @since OME3.0
  */
 class MeasurementViewerUI 
-	extends TopWindow
+	extends TopWindow implements MouseListener
 {
 
 	/** The message displayed when a ROI cannot be retrieved. */
@@ -100,6 +106,9 @@ class MeasurementViewerUI
 	
 	/** The default size of the window. */
 	private static final Dimension		DEFAULT_SIZE = new Dimension(400, 300);
+	
+	/** The maximum size of the window. */
+	private static final Dimension		MAXIMUM_SIZE = new Dimension(700, 300);
 	
 	/** The title for the measurement tool main window. */
 	private static final String			WINDOW_TITLE = "Measurement Tool ";
@@ -257,9 +266,11 @@ class MeasurementViewerUI
 		roiManager = new ObjectManager(this, model);
 		roiResults = new MeasurementResults(controller, model, this);
 		graphPane = new GraphPane(controller, model);
-		intensityView = new IntensityView(controller, model);
+		intensityView = new IntensityView(this, controller, model);
 		calcWizard = new CalculationWizard(controller, model);
 		tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
+		DrawingCanvasView canvasView = model.getDrawingView();
+		canvasView.addMouseListener(this);
 		addTabbedPaneListener();
         tabs.setAlignmentX(LEFT_ALIGNMENT);
 	}
@@ -753,7 +764,9 @@ class MeasurementViewerUI
     {
         if (model != null) { //Shouldn't happen
         	setSize(DEFAULT_SIZE);
-            UIUtilities.setLocationRelativeTo(model.getRequesterBounds(), this);
+        	
+            UIUtilities.setLocationRelativeToAndSizeToWindow(
+            		model.getRequesterBounds(), this, MAXIMUM_SIZE);
         } else {
             pack();
             UIUtilities.incrementRelativeToAndShow(null, this);
@@ -772,6 +785,55 @@ class MeasurementViewerUI
 			return;
 		tabs.setSelectedIndex(calcWizard.getIndex());
 		calcWizard.calculateStats(id, shapeList);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+	 */
+	public void mouseClicked(MouseEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+	 */
+	public void mouseEntered(MouseEvent e)
+	{
+		Cursor cursor;
+		if(model.getDrawingEditor().getTool() instanceof DelegationSelectionTool)
+			cursor = new Cursor(Cursor.DEFAULT_CURSOR);
+		else
+			cursor = new Cursor(Cursor.CROSSHAIR_CURSOR);
+		getDrawingView().setCursor(cursor);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+	 */
+	public void mouseExited(MouseEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+	 */
+	public void mousePressed(MouseEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+	 */
+	public void mouseReleased(MouseEvent e)
+	{
+		// TODO Auto-generated method stub
+		
 	}
     
 }

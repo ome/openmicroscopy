@@ -216,6 +216,61 @@ public class UIUtilities
     }
     
     /**
+     * Sets the location of the specified child relative to the location
+     * of the specified parent and then makes it visible, and size to fill window.
+     * This method is mainly useful for windows, frames and dialogs. 
+     * 
+     * @param parent    The visible parent.
+     * @param child     The child to display.
+     * @param max		The maximum size of the window.
+     */
+    public static void setLocationRelativeToAndSizeToWindow(Component parent, 
+                                                Component child, Dimension max)
+    {
+    	setLocationRelativeToAndSizeToWindow(parent.getBounds(), child, max);
+    }
+    
+    /**
+     * Sets the location of the specified child relative to the location
+     * of the specified parent and then makes it visible, and size to fill window.
+     * This method is mainly useful for windows, frames and dialogs. 
+     * 
+     * @param parentBounds    The bounds of the visible parent.
+     * @param child     The child to display.
+     * @param max		The maximum size of the window.
+     */
+    public static void setLocationRelativeToAndSizeToWindow(Rectangle parentBounds, 
+                                                Component child, Dimension max)
+    {
+
+        int x = (int) (parentBounds.getX()+ parentBounds.getWidth());
+        int y = (int) parentBounds.getY();
+        int childWidth = child.getWidth();
+        int childHeight = child.getHeight();
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        if (x+childWidth > screenSize.getWidth()) {
+            if (childWidth < parentBounds.getX()) x = (int)(parentBounds.getX())-childWidth;
+            else x = (int) (screenSize.getWidth()-childWidth);
+        } 
+        child.setLocation(x, y);
+        int newHeight = (int)screenSize.getHeight()-y-10;
+        int newWidth = (int)screenSize.getWidth()-x-10;
+        
+        if(newWidth>childWidth)
+        	childWidth = newWidth;
+        if(newHeight>childHeight)
+        	childHeight = newHeight;
+        
+        if(childWidth>max.getWidth())
+        	childWidth = (int)max.getWidth();
+        if(childHeight>max.getHeight())
+        	childHeight = (int)max.getHeight();
+        
+        child.setSize(childWidth, childHeight);
+        child.setVisible(true);
+    }
+    
+    /**
      * Sets the location of the specified child relative to the passed 
      * bounds.
      * This method is mainly useful for windows, frames and dialogs. 

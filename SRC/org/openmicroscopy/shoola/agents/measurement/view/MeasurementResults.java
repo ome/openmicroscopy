@@ -55,6 +55,7 @@ import javax.swing.table.TableColumn;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationField;
@@ -62,12 +63,15 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.MeasurementObject
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ResultsCellRenderer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
+import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
+import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
 /** 
  * UI component displaying various value computed on a Region of Interest.
@@ -517,12 +521,9 @@ class MeasurementResults
 			int w  =  metrics.stringWidth(tm.getColumnName(i));
 			columnWidth = Math.max(w, COLUMNWIDTH);
 			col.setMinWidth(columnWidth);
-			col.setMaxWidth(columnWidth);
 			col.setPreferredWidth(columnWidth);
-			col.setResizable(false);
 		}
 	}
-	
 	
 	/**
 	 * Returns the name of the component.
@@ -551,29 +552,24 @@ class MeasurementResults
 	boolean saveResults()
 		throws IOException
 	{
-		JFileChooser chooser = new JFileChooser();
-		FileFilter filter = new CSVFilter();
-		chooser.addChoosableFileFilter(filter);
-		chooser.setFileFilter(filter);
-
-		File f = UIUtilities.getDefaultFolder();
-	    if(f != null) chooser.setCurrentDirectory(f);
-		int results = chooser.showSaveDialog(this.getParent());
-		if(results != JFileChooser.APPROVE_OPTION) return false;
+		ArrayList<FileFilter> filterList=new ArrayList<FileFilter>();
+		FileFilter filter=new CSVFilter();
+		filterList.add(filter);
+		FileChooser chooser=
+				new FileChooser(
+					view, FileChooser.SAVE, "Save the Results",
+					"Save the Results data to a file which can be loaded by a spreadsheet.",
+					filterList);
+		File f=UIUtilities.getDefaultFolder();
+	    if (f != null) chooser.setCurrentDirectory(f);
+		int results = chooser.showDialog();
+		if (results != JFileChooser.APPROVE_OPTION) return false;
 		File file = chooser.getSelectedFile();
 		if (!file.getAbsolutePath().endsWith(CSVFilter.CSV))
 		{
 			String fileName = file.getAbsolutePath()+"."+CSVFilter.CSV;
 			file = new File(fileName);
 		}
-		if (file.exists()) 
-		{
-			int response = JOptionPane.showConfirmDialog (null,
-						"Overwrite existing file?","Confirm Overwrite",
-						JOptionPane.OK_CANCEL_OPTION,
-						JOptionPane.QUESTION_MESSAGE);
-	        if (response == JOptionPane.CANCEL_OPTION) return false;
-	    }
 		BufferedWriter out = new BufferedWriter(new FileWriter(file));
 		writeColumns(out);
 		writeData(out);
@@ -625,9 +621,7 @@ class MeasurementResults
 				TableColumn col;
 				col = getColumnModel().getColumn(i);
 				col.setMinWidth(columnWidth);
-				col.setMaxWidth(columnWidth);
 				col.setPreferredWidth(columnWidth);
-				col.setResizable(true);
 			}
 		
 		}

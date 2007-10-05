@@ -103,6 +103,7 @@ class ToolBar
 		defaultConnecionAttributes.put(DrawingAttributes.SHOWTEXT, Boolean.FALSE);
 	}
 	
+	/** The properties figure for a line connection object. */
 	private FigureProperties 			lineConnectionProperties;
 		
 	/** The default string added to the type of Figure to create. */

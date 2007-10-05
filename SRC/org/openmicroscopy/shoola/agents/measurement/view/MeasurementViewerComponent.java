@@ -391,7 +391,7 @@ class MeasurementViewerComponent
 		filterList.add(filter);
 		FileChooser chooser=
 				new FileChooser(
-					view, FileChooser.SAVE, "Sane the ROI File",
+					view, FileChooser.SAVE, "Save the ROI File",
 					"Save the ROI data in the file associate with this image.",
 					filterList);
 		File f=UIUtilities.getDefaultFolder();
