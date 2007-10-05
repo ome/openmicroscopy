@@ -1,55 +1,39 @@
 <html>
 <head>
-<title>How to edit an existing user?</title>
+<title>How to add list new users in the one time?</title>
 </head>
 <body>
-<p>From the <b><i>Scientists</i></b> page (see <a
-	href="section_4_2.html">Section 4.2</a>), click on the <b><i>Edit</i></b>
-button <img src="images/editButton.jpg" /> in the <b><i>Actions</i></b>
-column.<br />
-Then modify the following required information:
-<ul>
-	<li>Edit the user's first name: field <b><i>First Name</i></b>.</li>
-	<li>Edit the user's last name: field <b><i>Last Name</i></b>.</li>
-</ul>
-Additional optional information can be updated:
-<ul>
-	<li>Edit the user's middle name: field <b><i>Middle Name</i></b>.
-	</li>
-	<li>Edit the user's e-mail address: field <b><i>Email</i></b>.</li>
-	<li>Edit the institution the user is a member of: field <b><i>Institution</i></b>.</li>
-	<li>Select <b><i>Save</i></b> to confirm.</li>
-</ul>
-<p>
-<div class="noteFrame">
-<div class="noteLabel">NB</div>
-<div class="noteContent">Modifying the username of a given user is
-possible if only if the new username is not already used.</div>
-</div>
-</p>
-<p>
-<div class="noteFrame">
-<div class="noteLabel">NB</div>
-<div class="noteContent">To be a valid email address, you need to
-enter a string including the following characters <code>@</code> for <code>at</code>
-and <code>.</code> for <code>dot</code>.</div>
-</div>
+<p>The different possibility to add new users is to add them from
+the additional source. For this reason should be prepared file with
+user's details. There is possibility to import only XLS (Excel) and CSV
+files. <br />
+Example Microsoft Excel file please, find <a href="example/example1.xls">here</a>.</p>
+<p>To add new usersuser should click on the <b><i>Import</i></b> button in the toolbar to
+	display the list of existing users (see <a
+		href="section_4_2.html#figure_4_2_1">Figure 4.2-1</a>).</p>
+
+<p>Click on the <b><i>Upload new File</i></b> button <img
+		src="images/addButton.jpg" width="16" height="16" /> .
+
+Chose file from hardrive with using
+<b>Broswer</b>
+button and click
+<b>Import</b>
 </p>
 
-</p>
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="0"
 	align="center">
 	<tr>
-		<td align="center"><img src="images/editUser.jpg"
-			alt="Edit an existing user User"></img></td>
+		<td align="center"><img src="images/importForm.jpg"
+			alt="OMERO.webadmin import file"></img></td>
 	</tr>
 	<tr>
 		<td height="10">&#160;</td>
 	</tr>
 	<tr>
-		<td align="center"><a name="figure_4_5_1"><b>Figure 4.5-1</b></a><b>:
-		Edit an existing user</b></td>
+		<td align="center"><a name="figure_4_5_1"><b>Figure
+		4.5-1</b></a><b>: Import file from the hard drive.</b></td>
 	</tr>
 	<tr>
 		<td height="40"></td>
@@ -57,30 +41,76 @@ and <code>.</code> for <code>dot</code>.</div>
 </table>
 </p>
 
-<p>Roles and groups information:
-<ul>
-	<li>Edit <b><i>Active</i></b> parameter to allow to log in to the
-	system (see <a href="section_4_6.html">Section 4.6</a>).</li>
-	<li>Edit <b><i>Administrator</i></b> parameter to allow log in to
-	the system as administrator (see <a href="section_4_8.html">Section
-	4.8</a>).</li>
-	<li>Edit <b><i>Default Group</i></b> single selection.</li>
-	<li>Edit <b><i>Other Groups</i></b> multi selection (see <a
-		href="section_4_7.html">Section 4.7</a>).</li>
-</ul>
-This section allowes to change the password as well. For changing
-password click on the
-<b><i>Change password</i></b>
-button
-<img src="images/addButton.jpg" width="16" height="16" />.
+<p>For kipping uploaded files each of them is stored on the hard drive
+under the
+<b><i>OmeName</i></b>
+directory on the path
+<b><i>/Users/tmp/UsersLists</i></b>
+. Every user are recognized by the icon
+<img src="images/dirRoot.jpg" alt="OMERO.webadmin dir user"></img>
+. The name includes date when file was
+uploaded.
+</p>
+<p>
+If file was uploaded before, click chose one of the file under the branch.
+
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0"
+	align="center">
+	<tr>
+		<td align="center"><img src="images/import.jpg"
+			alt="OMERO.webadmin import"></img></td>
+	</tr>
+	<tr>
+		<td height="10">&#160;</td>
+	</tr>
+	<tr>
+		<td align="center"><a name="figure_4_5_2"><b>Figure
+		4.5-2</b></a><b>: Choosing the file.</b></td>
+	</tr>
+	<tr>
+		<td height="40"></td>
+	</tr>
+</table>
+</p>
+
+Recognized users will appear on the table (see
+<a href="section_4_5.html#figure_4_5_2">Figure 4.5-2</a>
+)
+
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0"
+	align="center">
+	<tr>
+		<td align="center"><img src="images/importUsers.jpg"
+			alt="OMERO.webadmin import users"></img></td>
+	</tr>
+	<tr>
+		<td height="10">&#160;</td>
+	</tr>
+	<tr>
+		<td align="center"><a name="figure_4_5_3"><b>Figure
+		4.5-3</b></a><b>: Import users from external source.</b></td>
+	</tr>
+	<tr>
+		<td height="40"></td>
+	</tr>
+</table>
+</p>
 
 <p>
 <div class="noteFrame">
 <div class="noteLabel">NB</div>
-<div class="noteContent">If user is authenticated by LDAP server there is no possibility to change the password form the WebAdmin. This link will not appear.</div>
+<div class="noteContent">The <b><i>Active</i></b> column includes
+checkboxes that allow us to specify which of users should be imported.
+If user has empty field it means that the user with this username or
+email address exists in the database.</div>
 </div>
 </p>
-
+After making the decision which one of them should be imported user can
+click Import and will go back to the tree automaticaly, that means
+there was no problem with import.
 </p>
+
 </body>
 </html>
