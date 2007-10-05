@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -54,6 +55,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -342,30 +344,35 @@ class MeasurementViewerComponent
      */
 	public void loadROI()
 	{
-		JFileChooser chooser = new JFileChooser();
-		FileFilter filter = new XMLFilter();
-		chooser.addChoosableFileFilter(filter);
-		chooser.setFileFilter(filter);
-		File f = UIUtilities.getDefaultFolder();
-	    if (f != null) chooser.setCurrentDirectory(f);
+		ArrayList<FileFilter> filterList=new ArrayList<FileFilter>();
+		FileFilter filter=new XMLFilter();
+		filterList.add(filter);
+		FileChooser chooser=
+				new FileChooser(
+					view, FileChooser.LOAD, "Load the ROI File",
+					"Load the ROI data in the file associate with this image.",
+					filterList);
+		File f=UIUtilities.getDefaultFolder();
+		if (f!=null) chooser.setCurrentDirectory(f);
 		try
 		{
-			String savedFileString=FileMap.getSavedFile(model.getServerName(), 
-								model.getUserName(), model.getPixelsID());
-			if(savedFileString!=null)
+			String savedFileString=
+					FileMap.getSavedFile(model.getServerName(), model
+						.getUserName(), model.getPixelsID());
+			if (savedFileString!=null)
 			{
-				File savedFile = new File(savedFileString);
+				File savedFile=new File(savedFileString);
 				chooser.setCurrentDirectory(savedFile);
 				chooser.setSelectedFile(savedFile);
 			}
 		}
 		catch (ParsingException e)
 		{
-			// Do nothing as we're really only looking to see if the default 
+			// Do nothing as we're really only looking to see if the default
 			// directory or filename should be set for loading.
 		}
-		int results = chooser.showOpenDialog(view.getParent());
-		if (results != JFileChooser.APPROVE_OPTION) return;
+		int results=chooser.showDialog();
+		if (results!=JFileChooser.APPROVE_OPTION) return;
 		model.fireROILoading(chooser.getSelectedFile().getAbsolutePath());
 		fireStateChange();
 		view.updateDrawingArea();
@@ -379,13 +386,15 @@ class MeasurementViewerComponent
 	{
 		Registry reg = MeasurementAgent.getRegistry();
 		UserNotifier un = reg.getUserNotifier();
-	
-		JFileChooser chooser = new JFileChooser();
-		FileFilter filter = new XMLFilter();
-		chooser.addChoosableFileFilter(filter);
-		chooser.setFileFilter(filter);
-
-		File f = UIUtilities.getDefaultFolder();
+		ArrayList<FileFilter> filterList=new ArrayList<FileFilter>();
+		FileFilter filter=new XMLFilter();
+		filterList.add(filter);
+		FileChooser chooser=
+				new FileChooser(
+					view, FileChooser.SAVE, "Sane the ROI File",
+					"Save the ROI data in the file associate with this image.",
+					filterList);
+		File f=UIUtilities.getDefaultFolder();
 	    if (f != null) chooser.setCurrentDirectory(f);
 		try
 		{
@@ -403,7 +412,7 @@ class MeasurementViewerComponent
 			// Do nothing as we're really only looking to see if the default 
 			// directory or filename should be set for loading.
 		}
-		int results = chooser.showSaveDialog(view.getParent());
+		int results = chooser.showDialog();
 		if (results != JFileChooser.APPROVE_OPTION) return;
 		File file = chooser.getSelectedFile();
 		if (!file.getAbsolutePath().endsWith(XMLFilter.XML))
@@ -411,15 +420,7 @@ class MeasurementViewerComponent
 			String fileName = file.getAbsolutePath()+"."+XMLFilter.XML;
 			file = new File(fileName);
 		}
-		if (file.exists()) 
-		{
-			int response = JOptionPane.showConfirmDialog (null,
-						"Overwrite existing file?","Confirm Overwrite",
-						JOptionPane.OK_CANCEL_OPTION,
-						JOptionPane.QUESTION_MESSAGE);
-	        if (response == JOptionPane.CANCEL_OPTION) return;
-	    }
-
+	
 		try {
 			model.saveROI(file.getAbsolutePath(), true);
 		} catch (ParsingException e) {
