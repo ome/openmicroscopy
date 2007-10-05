@@ -57,7 +57,6 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
-import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.imviewer.util.CategorySaverDef;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImageDetailsDialog;
@@ -831,7 +830,7 @@ class ImViewerComponent
 			"LOADING_RENDERING_CONTROL state.");
 		}
 		boolean oldValue = view.isHistoryShown();
-		view.displayRenderer();
+		view.showRenderer();
 		firePropertyChange(HISTORY_VISIBLE_PROPERTY, oldValue, !oldValue);
 		//JFrame f = model.getRenderer().getUI();
 		//UIUtilities.setLocationRelativeToAndShow(view, f);

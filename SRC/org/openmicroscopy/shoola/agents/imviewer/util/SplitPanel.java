@@ -57,11 +57,14 @@ public class SplitPanel
 	/** Indicates the split is horizontal i.e. top and bottom component. */
 	public static final int HORIZONTAL = 1;
 	
+	/** The size of the divider. */
+	private static final int DIVIDER_SIZE = 0;
+		
 	/** 
 	 * One of the constants defined by this class. Default is 
 	 * {@link #VERTICAL}. 
 	 */
-	private int orientation;
+	private int 	orientation;
 	
 	/** Initializes the components. */
 	private void initialize()
@@ -156,5 +159,12 @@ public class SplitPanel
 		if (orientation == HORIZONTAL) setBottomComponent(c);
 		else add(c, "1, 0");
 	}
+	
+	/**
+	 * Returns the size in pixels of the divider.
+	 * 
+	 * @return See above.
+	 */
+	public int getDividerSize() { return DIVIDER_SIZE; }
 	
 }

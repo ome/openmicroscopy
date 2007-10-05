@@ -110,17 +110,6 @@ class ImViewerUI
 	/** Indicates the percentage of the screen to use to display the viewer. */
 	private static final double SCREEN_RATIO = 0.9;
 
-	/** 
-	 * Text display in the {@link #historyItem} when the local history
-	 * is hidden.
-	 */
-	//private static final String SHOW_HISTORY = "Show Local History...";
-
-	/** 
-	 * Text display in the {@link #historyItem} when the local history is shown.
-	 */
-	//private static final String HIDE_HISTORY = "Hide Local History...";
-
 	/** Indicates that only the image is displayed. */
 	private static final int	NEUTRAL = 0;
 
@@ -214,7 +203,7 @@ class ImViewerUI
 	 * Split component used to display the renderer component on the left hand
 	 * side of the pane.
 	 */
-	private SplitPanel				rendererSplit;
+	private JSplitPane				rendererSplit;
 
 	/** 
 	 * The location of the divider before removing the {@link #historySplit}.
@@ -249,6 +238,13 @@ class ImViewerUI
 	 */
 	private JTabbedPane				bottomPane;
 
+	/** The default insets of a split pane. */
+	private Insets					refInsets;
+	
+	private int						widthAdded;
+	
+	private int						heightAdded;
+	
 	/**
 	 * Initializes and returns a split pane, either verical or horizontal 
 	 * depending on the passed parameter.
@@ -270,11 +266,21 @@ class ImViewerUI
 		JSplitPane pane = new JSplitPane(type);
 		//pane.setOneTouchExpandable(true);
 		pane.setContinuousLayout(true);
-		pane.setResizeWeight(1D);
-
+		pane.setResizeWeight(1.0);
 		return pane;
 	}
 
+	private void initSplitPanes()
+	{
+		historyUI = new HistoryUI(this, model);
+		historySplit = new SplitPanel(SplitPanel.HORIZONTAL);//initSplitPane(JSplitPane.VERTICAL_SPLIT);
+		rendererSplit = initSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		rendererSplit.setResizeWeight(1.0);
+		refInsets = rendererSplit.getInsets();
+		widthAdded = 0;
+		heightAdded = 0;
+	}
+	
 	/** 
 	 * Creates the menu bar.
 	 * 
@@ -735,11 +741,6 @@ class ImViewerUI
 	/** Initializes or recycles the {@link #historySplit} component. */
 	private void initHistorySplit()
 	{
-		if (historyUI == null) {
-			historyUI = new HistoryUI(this, model);
-			//historySplit = initSplitPane(JSplitPane.VERTICAL_SPLIT);
-			historySplit = new SplitPanel(SplitPanel.HORIZONTAL);
-		}
 		historySplit.removeAll();
 		historyUI.doGridLayout();
 	}
@@ -770,6 +771,37 @@ class ImViewerUI
 		//((BasicSplitPaneUI) historySplit.getUI()).getDivider().setVisible(true);
 	}
 
+	/*
+	public Container lookupDivider(Container container) {
+	    List listDividerList = new ArrayList();
+	    Component acomponent[] = container.getComponents();
+	    for (int i = 0; i < acomponent.length; i++) {
+	        if (acomponent[i] instanceof BasicSplitPaneDivider) {
+	            return (BasicSplitPaneDivider) acomponent[i];
+	        } else if (acomponent[i] instanceof Container) { 
+	            Container divider = lookupDivider((Container) acomponent[i]);
+	            if (divider != null) {
+	                return divider;
+	            }
+	        }
+	    }
+	    return null;
+	}
+	 
+	public List lookupButtons(Container container) {
+	    List listButtonList = new ArrayList();
+	    Component acomponent[] = container.getComponents();
+	    for (int i = 0; i < acomponent.length; i++) {
+	        if (acomponent[i] instanceof JButton) {
+	            listButtonList.add(acomponent[i]);
+	        } else if (acomponent[i] instanceof Container) { 
+	            listButtonList.addAll(lookupButtons((Container) acomponent[i]));
+	        }
+	    }
+	    return listButtonList;
+	}
+*/
+	
 	/** Lays out the components composing main panel. */
 	private void layoutComponents()
 	{
@@ -792,50 +824,66 @@ class ImViewerUI
 				d = historyUI.getIdealSize();
 	
 				height += d.height;
+				heightAdded = historySplit.getDividerSize()+
+								(refInsets.top+refInsets.bottom);
+				height += historySplit.getDividerSize()+
+							2*(refInsets.top+refInsets.bottom);
 				historyUI.setPreferredSize(new Dimension(width, d.height));
 				container.add(historySplit, BorderLayout.CENTER);
 				break;
 			case RENDERER:
-				if (rendererSplit == null)
-					rendererSplit = new SplitPanel(SplitPanel.VERTICAL);
-	
 				JComponent rightComponent = model.getRenderer().getUI();
 				d = rightComponent.getPreferredSize();
 				height = restoreSize.height;
 				diff = d.height-restoreSize.height;
 				if (diff > 0) height += diff;
+				heightAdded = (refInsets.top+refInsets.bottom);
+				height += 2*heightAdded;
 				width = restoreSize.width+d.width;
+				widthAdded = rendererSplit.getDividerSize()+
+								refInsets.left+refInsets.right;
+				width += rendererSplit.getDividerSize()+
+							2*(refInsets.left+refInsets.right);
 				rendererSplit.setLeftComponent(tabs);
 				rendererSplit.setRightComponent(rightComponent);
 				container.add(rendererSplit, BorderLayout.CENTER);
 				break;
 			case HISTORY_AND_RENDERER:
 				initHistorySplit();
-				if (rendererSplit == null)
-					rendererSplit = new SplitPanel(SplitPanel.VERTICAL);
 				rightComponent = model.getRenderer().getUI();
 				rendererSplit.setLeftComponent(tabs);
 				rendererSplit.setRightComponent(rightComponent); 
 				historySplit.setTopComponent(rendererSplit);
 				historySplit.setBottomComponent(historyUI);
-				container.add(historySplit, BorderLayout.CENTER);
+				
 				d = rightComponent.getPreferredSize();
 				//height = restoreSize.height;
 				height = restoreSize.height;
 				diff = d.height-restoreSize.height;
 				if (diff > 0) height += diff;
-				width = restoreSize.width;
-	
-				width += d.width;
+				width = restoreSize.width+d.width;
+				heightAdded = (refInsets.top+refInsets.bottom);
+				height += 2*heightAdded;
+				widthAdded = rendererSplit.getDividerSize()+
+							refInsets.left+refInsets.right;
+				width += rendererSplit.getDividerSize()+
+							2*(refInsets.left+refInsets.right);
 				d = historyUI.getIdealSize();
 				height += d.height;
+				heightAdded += historySplit.getDividerSize()
+								+(refInsets.top+refInsets.bottom);
+				height += historySplit.getDividerSize()
+							+2*(refInsets.top+refInsets.bottom);
 				historyUI.setPreferredSize(new Dimension(width, d.height));
+				container.add(historySplit, BorderLayout.CENTER);
 				break;
 			case NEUTRAL:
 			default:
 				container.add(tabs, BorderLayout.CENTER);
-				width = restoreSize.width;
-				height = restoreSize.height;
+				width = restoreSize.width-widthAdded;
+				height = restoreSize.height-heightAdded;
+				widthAdded = 0;
+				heightAdded = 0;
 				break;
 		}
 		//setSize(getIdealSize(width, height));
@@ -882,6 +930,7 @@ class ImViewerUI
 		toolBar = new ToolBar(this, controller);
 		controlPane = new ControlPane(controller, model, this); 
 		statusBar = new StatusBar();
+		initSplitPanes();
 		addComponentListener(controller);
 	}
 
@@ -1339,14 +1388,14 @@ class ImViewerUI
 	}
 
 	/** Shows or hides the renderer. */
-	void displayRenderer()
+	void showRenderer()
 	{
 		boolean show = !isRendererShown();
 		//boolean b = isHistoryShown();
 		if (show) {
 			//if (b) displayMode = HISTORY_AND_RENDERER;
 			//else displayMode = RENDERER;
-			displayMode = HISTORY_AND_RENDERER;
+			displayMode = HISTORY_AND_RENDERER; 
 		} else {
 			//if (b) displayMode = HISTORY;
 			//else displayMode = NEUTRAL;
