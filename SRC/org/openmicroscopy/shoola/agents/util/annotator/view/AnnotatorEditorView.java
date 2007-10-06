@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -49,6 +50,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeExpansionEvent;
@@ -132,6 +134,9 @@ class AnnotatorEditorView
 	/** ScrollPane hosting the UI component displaying the annotations. */
 	private JScrollPane				scrollAnnotations;
 	
+	/** ScrollPane hosting the {@link #annotationArea}. */
+	private JScrollPane				annotationAreaPane;
+	
 	/** Flag indicating if the node is brought up on screen programatically.*/
 	private boolean					init;
 	
@@ -143,6 +148,9 @@ class AnnotatorEditorView
 
 	/** Listener added to the vertical scrollBar. */
 	private AdjustmentListener 		adjustementlistener;
+	
+	/** The height of the font. */
+	private int						areaFontHeight;
 	
     /** Handles the selection of a node in the tree. */
     private void handleNodeSelection()
@@ -254,6 +262,13 @@ class AnnotatorEditorView
         annotationArea = new MultilineLabel();
         annotationArea.setBorder(BorderFactory.createEtchedBorder());
         annotationArea.setRows(AnnotatorUtil.ROWS);
+        annotationAreaPane = new JScrollPane(annotationArea);
+        annotationAreaPane.setVerticalScrollBar(new JScrollBar());
+        annotationAreaPane.setVerticalScrollBarPolicy(
+        				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        annotationAreaPane.getVerticalScrollBar().setVisible(true);
+        areaFontHeight = 3+
+        	annotationArea.getFontMetrics(annotationArea.getFont()).getHeight();
         deleteButton = new JButton(
     			controller.getAction(AnnotatorEditorControl.DELETE));
 
@@ -268,6 +283,15 @@ class AnnotatorEditorView
             	model.setAnnotated(true);
             	saveButton.setEnabled(true);
             	clearButton.setEnabled(true);
+            	int v = areaFontHeight*annotationArea.getLineCount();
+            	Rectangle rec = annotationAreaPane.getViewport().getBounds();
+            	if (v > rec.height) {
+            		Dimension d = new Dimension(annotationArea.getSize().width, 
+            									v);
+            		annotationArea.setSize(d);
+            		annotationArea.setPreferredSize(d);
+            		annotationAreaPane.getVerticalScrollBar().setValue(v);
+            	}
             }
             
             /** 
@@ -289,11 +313,8 @@ class AnnotatorEditorView
         annotationArea.getDocument().addDocumentListener(listener);
     }
     
-    /** Clear the annotation text. */
-    private void clear()
-    {
-    	annotationArea.setText("");
-    }
+    /** Clears the annotation text. */
+    private void clear() { annotationArea.setText(""); }
     
     /**
      * Builds a panel hosting the {@link #annotationArea} and the list of users
@@ -376,7 +397,7 @@ class AnnotatorEditorView
 		List l = areas.get(new Long(ownerID));
 		Iterator i = l.iterator();
 		MultilineLabel c;
-		JScrollPane pane;
+		//JScrollPane pane;
 		while (i.hasNext()) {
 			c = (MultilineLabel) i.next();
 			if (c != annotationArea) {
@@ -384,9 +405,10 @@ class AnnotatorEditorView
 				listAnnotations.add(c);
 			} else {
 				c.setBackground(c.getOriginalBackground());
-				pane = new JScrollPane(c);
-				pane.getVerticalScrollBar().setVisible(true);
-				listAnnotations.add(pane);
+				//pane = new JScrollPane(c);
+				//pane.getVerticalScrollBar().setVisible(true);
+				//listAnnotations.add(pane);
+				listAnnotations.add(annotationAreaPane);
 			}
 		}
 		setComponentsEnabled(false);

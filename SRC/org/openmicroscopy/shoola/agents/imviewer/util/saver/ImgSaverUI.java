@@ -32,7 +32,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -164,21 +163,21 @@ class ImgSaverUI
     static {
         selections = new String[MAX+1];
         selections[IMAGE] = "image";
-        selections[GRID_IMAGE] = "grid view";
-        selections[IMAGE_AND_COMPONENTS] = "image and split channels";
+        selections[GRID_IMAGE] = "split view";
+        selections[IMAGE_AND_COMPONENTS] = "image and channels panorama";
         selections[IMAGE_AND_COMPONENTS_GREY] = 
-        					"image and split channels in grey";
+        					"image and (grey scale) channels panorama";
         selections[LENS_IMAGE] = "lens' image";
         selections[LENS_IMAGE_AND_COMPONENTS] = 
-        						"lens' image and split channels";
+        						"lens' image and channels panorama";
         selections[LENS_IMAGE_AND_COMPONENTS_GREY] = 
-								"lens' image and split channels  in grey";
+							"lens' image and (grey scale) channels panorama";
         partialSelections = new String[MAX_PARTIAL+1];
         partialSelections[IMAGE] = "image";
-        partialSelections[GRID_IMAGE] = "grid view";
-        partialSelections[IMAGE_AND_COMPONENTS] = "image and split channels";
+        partialSelections[GRID_IMAGE] = "split view";
+        partialSelections[IMAGE_AND_COMPONENTS] = "image and channels panorama";
         partialSelections[IMAGE_AND_COMPONENTS_GREY] = 
-        					"image and split channels in grey";
+        					"image and (grey scale) channels panorama";
         basicSelections = new String[1];
         basicSelections[IMAGE] = "image";
     }
@@ -251,27 +250,29 @@ class ImgSaverUI
      * 
      * @return See above.
      */
-    private JPanel buildSelectionPane()
+    private JPanel buildImagePanel()
     {
-        JPanel p = new JPanel();
+        //JPanel p = new JPanel();
         JPanel result = new JPanel();
         result.setLayout(new BoxLayout(result, BoxLayout.X_AXIS));
-        JLabel l = new JLabel("Images: ");
+        JLabel l = new JLabel("Saving Types: ");
         result.add(l);
         result.add(UIUtilities.buildComponentPanel(savingTypes));
-        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(result);
-        p.add(UIUtilities.buildComponentPanelRight(settings));
-        return p;
+        //p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        //p.add(result);
+        //p.add(UIUtilities.buildComponentPanelRight(settings));
+        return UIUtilities.buildComponentPanelCenter(result);
     }
-    
+     
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
     	JPanel controls = new JPanel();
     	controls.setLayout(new BorderLayout(0, 0));
+    	controls.add(buildImagePanel(), BorderLayout.NORTH);
     	controls.add(buildToolbar(), BorderLayout.CENTER);
-    	controls.add(buildSelectionPane(), BorderLayout.SOUTH);
+    	controls.add(UIUtilities.buildComponentPanel(settings), 
+    							BorderLayout.SOUTH);
         JPanel p = new JPanel();
         p.setLayout(new BorderLayout(0, 0));
         p.add(chooser, BorderLayout.CENTER);

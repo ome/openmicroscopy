@@ -74,13 +74,16 @@ public class OptionsDialog
 	 * All other widgets are added to this panel, which, in turn, is then 
 	 * added to the dialog's content pane.
 	 */
-	private JPanel	  contentPanel;
+	private JPanel			contentPanel;
 	
 	/** Controls to ask a confirmation question */
-	private JButton	       noButton;
+	private JButton			noButton;
 	
 	/** Controls to ask a confirmation question */
-	private JButton	       yesButton;
+	private JButton	       	yesButton;
+	
+	/** Panel hosting the UI components. */
+	private JPanel 			mainPanel;
 	
     /** Action performed when the {@link #yesButton} is pressed. */
     private void yesSelection()
@@ -171,7 +174,7 @@ public class OptionsDialog
      */
     private void buildGUI(String message, Icon icon)
     {
-    	JPanel mainPanel = new JPanel();
+    	mainPanel = new JPanel();
 		mainPanel.setOpaque(false);
 		double tableSize[][] = {{TableLayout.FILL, 100, 5, 100, 10}, // columns
 								{TableLayout.FILL, 40}}; // rows
@@ -246,6 +249,35 @@ public class OptionsDialog
 	{
 		contentPanel.add(c, "1, 2, l, t");
 		pack();
+	}
+	
+	/**
+	 * Sets the label of the {@link #yesButton}.
+	 * 
+	 * @param txt The value to set.
+	 */
+	public void setYesLabel(String txt)
+	{
+		if (txt == null || txt.trim().length() == 0) return;
+		yesButton.setText(txt);
+	}
+	
+	/**
+	 * Sets the label of the {@link #noButton}.
+	 * 
+	 * @param txt The value to set.
+	 */
+	public void setNoLabel(String txt)
+	{
+		if (txt == null || txt.trim().length() == 0) return;
+		noButton.setText(txt);
+	}
+	
+	/** Hides the {@link #noButton}. */
+	public void hideNoButton()
+	{
+		mainPanel.remove(noButton);
+		repaint();
 	}
 	
     /**

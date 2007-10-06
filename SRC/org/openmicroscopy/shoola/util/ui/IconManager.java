@@ -206,6 +206,9 @@ public class IconManager
     /** ID of the views list over icon in the browser's internal frame. */
     public static final int	VIEWS_LIST_OVER = 50;
     
+    /** ID of <code>information message</code> icon. */
+    public static final int	INFORMATION_MESSAGE = 51;
+
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
@@ -269,6 +272,7 @@ public class IconManager
         relPaths[MULTI_VIEW_MODE] = "nuvola_view_multicolumn16.png";
         relPaths[VIEWS_LIST] = "frame_list.png";
         relPaths[VIEWS_LIST_OVER] = "frame_list_over.png";
+        relPaths[INFORMATION_MESSAGE] = "nuvola_messagebox_info48.png";
     }
     
     /** 

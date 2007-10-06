@@ -41,7 +41,6 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -230,8 +229,13 @@ public class MessengerDialog
 		String email = emailArea.getText().trim();
 		String comment = commentArea.getText().trim();
 		if (!checkValidEmail(email)) {
-			JOptionPane.showMessageDialog(this, EMAIL_MESSAGE, "Unvalid email", 
-						JOptionPane.INFORMATION_MESSAGE);
+			IconManager icons = IconManager.getInstance();
+			MessageBox box = new MessageBox(this, "Unvalid email", 
+											EMAIL_MESSAGE,
+					icons.getIcon(IconManager.INFORMATION_MESSAGE));
+			box.hideNoButton();
+			box.setYesLabel("OK");
+			box.centerMsgBox();
 			return;
 		}
 		String error = null;

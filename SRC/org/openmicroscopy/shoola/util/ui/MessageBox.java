@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
+import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
@@ -97,6 +98,37 @@ public class MessageBox
 				(IconManager.QUESTION_ICON));
 	}
 
+	/**
+	 * Creates a new dialog.
+	 * You have to call {@link #setVisible(boolean)} method to actually
+     * display it on screen.
+	 * 
+	 * @param owner			The parent window.
+	 * @param title			The title to display on the title bar.
+	 * @param message		The notification message.
+	 * @param icon			The icon to display.
+	 */
+	public MessageBox(JDialog owner, String title, String message, 
+					Icon icon)
+	{
+		super(owner, title, message, icon);
+	}
+	
+	/**
+	 * Creates a new dialog.
+	 * You have to call {@link #setVisible(boolean)} method to actually
+     * display it on screen.
+	 * 
+	 * @param owner			The parent window.
+	 * @param title			The title to display on the title bar.
+	 * @param message		The notification message.
+	 * @param icon			The icon to display.
+	 */
+	public MessageBox(JFrame owner, String title, String message, Icon icon)
+	{
+		super(owner, title, message, icon);
+	}
+	
     /**
      * Shows the message box and returns the option selected by the user. 
      * 

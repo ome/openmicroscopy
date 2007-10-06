@@ -146,7 +146,8 @@ class AnnotatorUI
 	/** Retrieves the annotations linked to the viewed image. */
 	void activateEditor()
 	{
-		if (editor != null && !editor.hasTextEntered()) editor.activate();
+		//if (editor != null && !editor.hasTextEntered()) editor.activate();
+		if (editor != null) editor.activate();
 		if (infoPane != null) infoPane.buildGUI();
 	}
 

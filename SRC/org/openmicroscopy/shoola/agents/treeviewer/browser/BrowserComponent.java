@@ -1029,6 +1029,7 @@ class BrowserComponent
 				view.setExperimenterData(convertedNodes, expNode);
 			}
 		}
+		model.setState(READY);
 		model.fireContainerCountLoading();
 		model.getParentModel().setStatus(false, "", true);
 		PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
