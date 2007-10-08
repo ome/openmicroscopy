@@ -10,17 +10,11 @@ package ome.admin.controller;
 // Java imports
 import java.util.HashMap;
 
-import javax.faces.model.DataModel;
-import javax.faces.model.ListDataModel;
-
+//Third-party libraries
 import org.jfree.data.general.DefaultPieDataset;
 
-// Third-party libraries
-
-// Application-internal dependencies
+//Application-internal dependencies
 import ome.admin.logic.IRepositoryInfoManagerDelegator;
-import ome.admin.model.User;
-import ome.model.meta.Experimenter;
 
 /**
  * It's the Java bean with fife attributes and setter/getter and actions
@@ -64,7 +58,7 @@ public class IRepositoryInfoPieChartController implements java.io.Serializable {
 	/**
 	 * Gets value of free space
 	 * 
-	 * @return
+	 * @return long freeSpace
 	 */
 	public Long getFreeSpace() {
 		return freeSpace;
@@ -82,7 +76,7 @@ public class IRepositoryInfoPieChartController implements java.io.Serializable {
 	/**
 	 * Gets value of used space
 	 * 
-	 * @return
+	 * @return long usedSpace
 	 */
 	public Long getUsedSpace() {
 		return usedSpace;

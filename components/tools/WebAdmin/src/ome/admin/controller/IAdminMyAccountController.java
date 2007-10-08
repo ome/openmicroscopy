@@ -11,23 +11,20 @@ package ome.admin.controller;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.faces.component.UIInput;
-import javax.faces.component.UIComponent;
+
+//Third-party libraries
 import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
-import javax.faces.event.ActionEvent;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
-// Third-party libraries
-
-// Application-internal dependencies
-import ome.model.meta.ExperimenterGroup;
+//Application-internal dependencies
 import ome.admin.logic.IAdminExperimenterManagerDelegate;
 import ome.admin.model.User;
-import ome.admin.controller.LoginBean;
+import ome.model.meta.ExperimenterGroup;
 
 /**
  * It's the Java bean with fife attributes and setter/getter and actions methods. The bean captures login params entered by a user after the user clicks the submit button. This way the bean provides a bridge between the JSP page and the application logic.
@@ -96,7 +93,7 @@ public class IAdminMyAccountController implements java.io.Serializable {
 		try {
 			this.user = (User) this.iadmin
 					.getExperimenterById(this.user.getExperimenter().getId());
-			return "success";
+			return NavigationResults.SUCCESS;
 		} catch (Exception e) {
 			logger.error("changeMyPassword: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
@@ -104,7 +101,7 @@ public class IAdminMyAccountController implements java.io.Serializable {
 					+ this.user.getExperimenter().getId() + ", '"
 					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
 			context.addMessage("changePassword", message);
-			return "false";
+			return NavigationResults.FALSE;
 		}
 	}
 
@@ -118,14 +115,14 @@ public class IAdminMyAccountController implements java.io.Serializable {
 				FacesMessage message = new FacesMessage(
 						"Confirmation has to be the same as password.");
 				context.addMessage("changePassword", message);
-				return "false";
+				return NavigationResults.FALSE;
 			} else {
 				iadmin.changeMyPassword(this.password);
 				FacesContext facesContext = FacesContext.getCurrentInstance();
 				HttpSession session = (HttpSession) facesContext
 						.getExternalContext().getSession(false);
 				session.invalidate();
-				return "success";
+				return NavigationResults.SUCCESS;
 			}
 		} catch (Exception e) {
 			logger.error("updateMyPassword: " + e.getMessage());
@@ -134,7 +131,7 @@ public class IAdminMyAccountController implements java.io.Serializable {
 					+ this.user.getExperimenter().getId() + ", '"
 					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
 			context.addMessage("experimenterForm", message);
-			return "false";
+			return NavigationResults.FALSE;
 		}
 
 	}
@@ -196,7 +193,7 @@ public class IAdminMyAccountController implements java.io.Serializable {
 					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
 			context.addMessage("experimenterForm", message);
 		}
-		return Utils.wrapAsGUIList(groups);
+		return Utils.wrapExperimenterGroupAsGUIList(groups);
 	}
 
 
@@ -224,7 +221,7 @@ public class IAdminMyAccountController implements java.io.Serializable {
 		try {
 			this.user = (User) iadmin
 					.getExperimenterById(this.user.getExperimenter().getId());
-			return "success";
+			return NavigationResults.SUCCESS;
 		} catch (Exception e) {
 			logger.error("editExperimenter: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
@@ -232,7 +229,7 @@ public class IAdminMyAccountController implements java.io.Serializable {
 					+ this.user.getExperimenter().getId() + ", '"
 					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
 			context.addMessage("experimenterForm", message);
-			return "false";
+			return NavigationResults.FALSE;
 		}
 	}
 
@@ -247,7 +244,7 @@ public class IAdminMyAccountController implements java.io.Serializable {
 			HttpSession session = (HttpSession) facesContext
 					.getExternalContext().getSession(true);
 			session.invalidate();
-			return "success";
+			return NavigationResults.SUCCESS;
 		} catch (Exception e) {
 			logger.error("updateExperimenter: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
@@ -255,7 +252,7 @@ public class IAdminMyAccountController implements java.io.Serializable {
 					+ this.user.getExperimenter().getId() + ", '"
 					+ this.user.getExperimenter().getOmeName() + "'] : " + e.getMessage());
 			context.addMessage("experimenterForm", message);
-			return "false";
+			return NavigationResults.FALSE;
 		}
 	}
 

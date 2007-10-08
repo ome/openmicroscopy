@@ -129,7 +129,7 @@ public class User {
 
 	/**
 	 * 
-	 * @return
+	 * @return {@link java.lang.String}
 	 */
 	public String getDn() {
 		return dn;

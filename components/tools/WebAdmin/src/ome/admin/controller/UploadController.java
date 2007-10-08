@@ -1,15 +1,29 @@
 package ome.admin.controller;
 
+//Java imports
 import java.io.IOException;
 
+//Third-party libraries
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
-
-import ome.admin.validator.FileValidator;
 
 import org.apache.log4j.Logger;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
+//Application-internal dependencies
+import ome.admin.validator.FileValidator;
+
+/**
+ * It's the Java bean with attributes and setter/getter and actions methods. The
+ * bean captures login params entered by a user after the user clicks the submit
+ * button. This way the bean provides a bridge between the JSP page and the
+ * application logic.
+ * 
+ * @author Aleksandra Tarkowska &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:A.Tarkowska@dundee.ac.uk">A.Tarkowska@dundee.ac.uk</a>
+ * @version 1.0 <small> (<b>Internal version:</b> $Revision$Date: $)</small>
+ * @since OME3.0
+ */
 public class UploadController implements java.io.Serializable {
 
 	/**

@@ -8,14 +8,14 @@
 package ome.admin.controller;
 
 // Java imports
+
+//Third-party libraries
 import javax.ejb.EJBAccessException;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
-
-// Third-party libraries
 
 // Application-internal dependencies
 import ome.api.IAdmin;
@@ -27,12 +27,16 @@ import ome.system.Server;
 import ome.system.ServiceFactory;
 
 /**
- * It's the Java bean with eight attributes and setter/getter and action methods. The bean captures login params entered by a user after the user clicks the submit button. This way the bean provides a bridge between the JSP page and the application logic.
- * @author Aleksandra Tarkowska &nbsp;&nbsp;&nbsp;&nbsp; <a href="mailto:A.Tarkowska@dundee.ac.uk">A.Tarkowska@dundee.ac.uk</a>
+ * It's the Java bean with attributes and setter/getter and actions methods. The
+ * bean captures login params entered by a user after the user clicks the submit
+ * button. This way the bean provides a bridge between the JSP page and the
+ * application logic.
+ * 
+ * @author Aleksandra Tarkowska &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:A.Tarkowska@dundee.ac.uk">A.Tarkowska@dundee.ac.uk</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Revision$Date: $)</small>
  * @since OME3.0
  */
-
 public class LoginBean implements java.io.Serializable{
 	
     /**
@@ -266,7 +270,7 @@ public class LoginBean implements java.io.Serializable{
 				this.adminService = sf.getAdminService();
 				this.queryService = sf.getQueryService();
 				this.repService = sf.getRepositoryInfoService();
-				jsfnav = "success";
+				jsfnav = NavigationResults.SUCCESS;
 				logger.info("Admin role for user "
 						+ adminService.getEventContext().getCurrentUserId());
 			} catch (Exception e) {
@@ -276,7 +280,7 @@ public class LoginBean implements java.io.Serializable{
 				ServiceFactory sf = new ServiceFactory(s, l);
 				this.adminService = sf.getAdminService();
 				this.queryService = sf.getQueryService();
-				jsfnav = "account";
+				jsfnav = NavigationResults.ACCOUNT;
 				logger.info("User role for user "
 						+ adminService.getEventContext().getCurrentUserId());
 
@@ -294,7 +298,7 @@ public class LoginBean implements java.io.Serializable{
 			FacesMessage message = new FacesMessage("Invalid Login Params: "+e.getMessage());
 			context.addMessage("loginForm", message);
 			this.mode = false;
-			return "false";
+			return NavigationResults.FALSE;
 		} catch (Exception e) {
 			logger.info("Authentication not succesfule - connection failure: "+e.getMessage());
 			e.printStackTrace();
@@ -302,7 +306,7 @@ public class LoginBean implements java.io.Serializable{
 			FacesMessage message = new FacesMessage("Connection failure: "+e.getMessage());
 			context.addMessage("loginForm", message);
 			this.mode = false;
-			return "false";
+			return NavigationResults.FALSE;
 		}
 
 	}

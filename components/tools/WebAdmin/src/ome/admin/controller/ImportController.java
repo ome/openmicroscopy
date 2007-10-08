@@ -243,32 +243,32 @@ public class ImportController implements java.io.Serializable {
 			this.fileName = selectedNode.getIdentifier();
 			this.imp.setFilePath(fileName);
 			this.userModel.setWrappedData(imp.sortItems("firstname", "asc"));
-			return "success";
+			return NavigationResults.SUCCESS;
 		} catch (ApiUsageException e) {
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage(
 					FacesMessage.SEVERITY_ERROR, "IO exception: "
 							+ e.getMessage(), "IO exception: " + e.getMessage());
 			context.addMessage("clientTree", message);
-			return "false";
+			return NavigationResults.FALSE;
 		} catch (FileNotFoundException e) {
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("File not found : "
 					+ e.getMessage());
 			context.addMessage("clientTree", message);
-			return "false";
+			return NavigationResults.FALSE;
 		} catch (IOException e) {
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("IO exception: "
 					+ e.getMessage());
 			context.addMessage("clientTree", message);
-			return "false";
+			return NavigationResults.FALSE;
 		} catch (Exception e) {
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("IO exception: "
 					+ e.getMessage());
 			context.addMessage("clientTree", message);
-			return "false";
+			return NavigationResults.FALSE;
 		}
 
 	}
@@ -295,10 +295,10 @@ public class ImportController implements java.io.Serializable {
 			FacesMessage message = new FacesMessage("Exception: "
 					+ e.getMessage());
 			context.addMessage("clientTree", message);
-			return "false";
+			return NavigationResults.FALSE;
 		}
 
-		return "success";
+		return NavigationResults.SUCCESS;
 	}
 
 	/**

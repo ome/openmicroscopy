@@ -10,6 +10,7 @@ package ome.admin.controller;
 // Java imports
 import java.io.IOException;
 
+// Third-party libraries
 import javax.faces.FactoryFinder;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
@@ -21,14 +22,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.log4j.Logger;
 
-// Third-party libraries
+import org.apache.log4j.Logger;
 
 // Application-internal dependencies
 
 /**
- * Log4jInit initializes log4j.properties file
+ * It's the servlet class which destroy the session.
  * 
  * @author Aleksandra Tarkowska &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:A.Tarkowska@dundee.ac.uk">A.Tarkowska@dundee.ac.uk</a>

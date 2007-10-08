@@ -102,8 +102,8 @@
 				</h:commandLink>
 			</h:form>
 		</c:if>
-		
-		<c:if test="${sessionScope.IAEManagerBean.user.dn}">
+		<br/>
+		<c:if test="${not empty sessionScope.IAMAManagerBean.user.dn}">
 			<h:outputText value="#{msg.myaccountLdapInfo}"/>
 		</c:if></div>
 

@@ -147,7 +147,8 @@
 			</h:form>
 		</c:if>
 		
-		<c:if test="${sessionScope.IAEManagerBean.user.dn}">
+		<br/>
+		<c:if test="${not empty sessionScope.IAEManagerBean.user.dn}">
 			<h:outputText value="#{msg.experimentersLdapInfo}"/>
 		</c:if></div>
 		

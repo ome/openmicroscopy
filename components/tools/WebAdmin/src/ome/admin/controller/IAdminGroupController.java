@@ -8,23 +8,23 @@
 package ome.admin.controller;
 
 // Java imports
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+//Third-party libraries
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.DataModel;
 import javax.faces.model.ListDataModel;
 import javax.faces.model.SelectItem;
+import org.apache.log4j.Logger;
+import org.apache.myfaces.custom.datascroller.ScrollerActionEvent;
 
+//Application-internal dependencies
 import ome.admin.logic.IAdminGroupManagerDelegate;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-
-import org.apache.log4j.Logger;
-import org.apache.myfaces.custom.datascroller.ScrollerActionEvent;
 
 /**
  * It's the Java bean with six attributes and setter/getter and actions methods.
@@ -195,7 +195,7 @@ public class IAdminGroupController implements java.io.Serializable {
 	public String addNewGroup() {
 		this.editMode = false;
 		this.group = new ExperimenterGroup();
-		return "success";
+		return NavigationResults.SUCCESS;
 	}
 
 	/**
@@ -209,7 +209,7 @@ public class IAdminGroupController implements java.io.Serializable {
 			iadmin.addGroup(this.group);
 			this.groupModel.setWrappedData(iadmin.getAndSortItems(sortItem,
 					sort));
-			return "success";
+			return NavigationResults.SUCCESS;
 		} catch (Exception e) {
 			logger.error("addGroup: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
@@ -217,7 +217,7 @@ public class IAdminGroupController implements java.io.Serializable {
 					+ this.group.getId() + ", '" + this.group.getName()
 					+ "'] : " + e.getMessage());
 			context.addMessage("changePassword", message);
-			return "false";
+			return NavigationResults.FALSE;
 		}
 	}
 
@@ -235,14 +235,14 @@ public class IAdminGroupController implements java.io.Serializable {
 							.getId());
 			if (!checkGroup(this.group.getName())) {
 				this.editMode = true;
-				return "success";
+				return NavigationResults.SUCCESS;
 			} else {
 				this.editMode = false;
 				FacesMessage message = new FacesMessage(
 						"Cannot edit group [name '" + this.group.getName()
 								+ "']. This is system group.");
 				context.addMessage("groups", message);
-				return "false";
+				return NavigationResults.FALSE;
 			}
 		} catch (Exception e) {
 			logger.error("editGroup: " + e.getMessage());
@@ -250,7 +250,7 @@ public class IAdminGroupController implements java.io.Serializable {
 					+ this.group.getId() + ", '" + this.group.getName()
 					+ "'] : " + e.getMessage());
 			context.addMessage("groups", message);
-			return "false";
+			return NavigationResults.FALSE;
 		}
 	}
 
@@ -284,20 +284,20 @@ public class IAdminGroupController implements java.io.Serializable {
 				iadmin.deleteGroup(this.group.getId());
 				this.groupModel.setWrappedData(iadmin.getAndSortItems(sortItem,
 						sort));
-				return "success";
+				return NavigationResults.SUCCESS;
 			}
 			FacesMessage message = new FacesMessage(
 					"Cannot delete group [name '" + this.group.getName()
 							+ "']. This is system group.");
 			context.addMessage("groups", message);
-			return "false";
+			return NavigationResults.FALSE;
 		} catch (Exception e) {
 			logger.error("delGroup: " + e.getMessage());
 			FacesMessage message = new FacesMessage("Group: [id: "
 					+ this.group.getId() + ", '" + this.group.getName()
 					+ "'] : " + e.getMessage());
 			context.addMessage("groups", message);
-			return "false";
+			return NavigationResults.FALSE;
 		}
 	}
 
@@ -313,7 +313,7 @@ public class IAdminGroupController implements java.io.Serializable {
 			iadmin.updateGroup(this.group);
 			this.groupModel.setWrappedData(iadmin.getAndSortItems(sortItem,
 					sort));
-			return "success";
+			return NavigationResults.SUCCESS;
 		} catch (Exception e) {
 			logger.error("updateGroup: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
@@ -321,7 +321,7 @@ public class IAdminGroupController implements java.io.Serializable {
 					+ this.group.getId() + ", '" + this.group.getName()
 					+ "'] : " + e.getMessage());
 			context.addMessage("groupForm", message);
-			return "false";
+			return NavigationResults.FALSE;
 		}
 	}
 
@@ -377,28 +377,7 @@ public class IAdminGroupController implements java.io.Serializable {
 					+ "'] : " + e.getMessage());
 			context.addMessage("group", message);
 		}
-		return wrapAsGUIList(this.experimenters);
-	}
-
-	/**
-	 * Wraps original {@link java.util.List} as GUI List
-	 * {@link javax.faces.model.SelectItem}
-	 * 
-	 * @param originalList
-	 *            {@link java.util.List} never-null.
-	 * @return {@link java.util.ArrayList}<{@link javax.faces.model.SelectItem}>
-	 */
-	private static synchronized List<SelectItem> wrapAsGUIList(
-			List<Experimenter> originalList) {
-		ArrayList<SelectItem> items = new ArrayList<SelectItem>(originalList
-				.size());
-		for (int i = 0, n = originalList.size(); i < n; i++) {
-			Experimenter bean = originalList.get(i);
-			SelectItem item = new SelectItem(bean.getId().toString(), bean
-					.getOmeName());
-			items.add(item);
-		}
-		return items;
+		return Utils.wrapSelectItemAsGUIList(this.experimenters);
 	}
 
 	/**
@@ -413,7 +392,7 @@ public class IAdminGroupController implements java.io.Serializable {
 			this.group = (ExperimenterGroup) iadmin
 					.getGroupById(((ExperimenterGroup) groupModel.getRowData())
 							.getId());
-			return "success";
+			return NavigationResults.SUCCESS;
 		} catch (Exception e) {
 			logger.error("editInGroup: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
@@ -421,7 +400,7 @@ public class IAdminGroupController implements java.io.Serializable {
 					+ this.group.getId() + ", '" + this.group.getName()
 					+ "'] : " + e.getMessage());
 			context.addMessage("groups", message);
-			return "false";
+			return NavigationResults.FALSE;
 		}
 	}
 
@@ -435,7 +414,7 @@ public class IAdminGroupController implements java.io.Serializable {
 		try {
 			iadmin.updateExperimenters(this.selectedExperimenters, this.group
 					.getId());
-			return "success";
+			return NavigationResults.SUCCESS;
 		} catch (Exception e) {
 			logger.error("SaveInToGroup: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
@@ -443,7 +422,7 @@ public class IAdminGroupController implements java.io.Serializable {
 					+ this.group.getId() + ", '" + this.group.getName()
 					+ "'] : " + e.getMessage());
 			context.addMessage("groups", message);
-			return "false";
+			return NavigationResults.FALSE;
 		}
 	}
 
