@@ -29,5 +29,9 @@
     <section href="section_4_15.html" name="How to manage drive space?"/>
     <section href="section_4_16.html" name="How to manage my account?"/>
  </section>
+ <section href="section_5.html" name="Troubleshooting">
+ 	<section href="section_5_1.html" name="While I cannot log in?"/>
+ 	<section href="section_5_2.html" name="While I cannot change my password?"/>
+ </section>
   </toc>
 </xdoc>
