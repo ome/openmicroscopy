@@ -5,8 +5,8 @@
 <body>
 <p>The list below presents the files that can be configured.
 <ul>
-	<li>The file <b>web.xml</b> is the main web-application
-	configuration file. You can set the following parameters
+	<li><b>web.xml</b> is the main web-application configuration file.
+	You can set the following parameters
 	<ol type="a">
 		<li><b><i>defaultServerHost</i></b>: the value sets in the <b><i>Hostname</i></b>
 		field of the login page (see <a href="section_4_1.html">Section
@@ -24,19 +24,20 @@
 		The default value is <b>/Users/tmp</b>).</li>
 	</ol>
 	</li>
-	<li>log4j.properties Log4j is used to collect logs statement. You
-	can edit log4j.properties to specify the location of the log file.</li>
+	<li><b>log4j.properties</b> - Log4j is used to collect logs
+	statement. You can edit log4j.properties to specify the location of the
+	log file.</li>
 
-	<li>faces-config.xml. Set the parameter <b><i>ome.admin.bundle.messages
+	<li><b>faces-config.xml</b> - sets the parameter <b><i>ome.admin.bundle.messages
 	</i></b> to specify the language used, which supporting internationalization
 	and accessibility (default language: en, supported: de, nl, fr, sp, it,
 	pl, ect.). (<b>WARNING</b>: For adding new language needs to be
 	duplicated the tag: <code>&lt;supported-locale&gt;lang&lt;/supported-locale&gt;</code>
-	and create new file under <b><i>/WebAdmin/src/omero/admin/boundle/</i></b>
+	and creates the new file under <b><i>/WebAdmin/src/omero/admin/boundle/</i></b>
 	with specified name: <b><i>messages_LANG.properties</i></b> and context
 	with translated sentences)</li>
-	<li>message.properties. Defines the internationalization context.
-	</li>
+	<li><b>message.properties</b> - defines the internationalization
+	context.</li>
 </ul>
 </p>
 

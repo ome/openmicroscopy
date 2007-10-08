@@ -2,7 +2,7 @@
 <xdoc>
 <xdoc-info>
   <title>OMERO.webadmin User Guide</title>
-  <author name="Aleksandra Takowska" email="comments@openmicroscopy.org.uk" />
+  <author name="Aleksandra Tarkowska" email="comments@openmicroscopy.org.uk" />
   <version number="3.0-Beta 2.2"/>
   <last-modified date="2007-10-05"/>
 </xdoc-info>
@@ -20,13 +20,14 @@
     <section href="section_4_6.html" name="How to edit an existing user?"/>
     <section href="section_4_7.html" name="How to desactivate an account?"/>
     <section href="section_4_8.html" name="How to modify the list of groups the user belongs to?"/>
-    <section href="section_4_9.html" name="How to delete group(s) a user is a member of?"/>
+    <section href="section_4_9.html" name="How to set user as administrator?"/>
     <section href="section_4_10.html" name="How to manage groups?"/>
     <section href="section_4_11.html" name="How to add new group?"/>
     <section href="section_4_12.html" name="How to delete a group?"/>
     <section href="section_4_13.html" name="How to edit a group?"/>
     <section href="section_4_14.html" name="How to manage users within a group?"/>
     <section href="section_4_15.html" name="How to manage drive space?"/>
+    <section href="section_4_16.html" name="How to manage my account?"/>
  </section>
   </toc>
 </xdoc>
