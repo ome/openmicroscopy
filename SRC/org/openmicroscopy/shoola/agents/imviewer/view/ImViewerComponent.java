@@ -600,6 +600,8 @@ class ImViewerComponent
 		newPlane = false;
 		model.setImage(image);
 		view.setStatus(getStatusText());
+		if (model.isPlayingChannelMovie())
+			model.setState(ImViewer.CHANNEL_MOVIE);
 		if (!model.isPlayingMovie())
 			view.setIconImage(model.getImageIcon());
 		if (view.isLensVisible()) view.setLensPlaneImage();
@@ -620,16 +622,18 @@ class ImViewerComponent
 	public void playChannelMovie(boolean play)
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED, NEW " +
+						"or LOADING_RENDERING_CONTROL state.");
 		}
-		if (model.getState() != READY) return;
+		//if (model.getState() != READY || model.getState() != CHANNEL_MOVIE) 
+			//return;
 		try {
 			model.playMovie(play);
+			view.playChannelMovie(!play);
 			if (!play) {
 				displayChannelMovie();
 				controller.setHistoryState(READY);
@@ -689,12 +693,12 @@ class ImViewerComponent
 	public void setChannelSelection(int index, boolean b)
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED, " +
+						"NEW or LOADING_RENDERING_CONTROL state.");
 		}
 		//depends on model
 		try {
@@ -758,11 +762,11 @@ class ImViewerComponent
 	{
 		//Check state
 		switch (model.getState()) {
-		case NEW:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case DISCARDED:
+				throw new IllegalStateException(
+				"This method can't be invoked in the DISCARDED, NEW or" +
+				"LOADING_RENDERING_CONTROL state.");
 		} 
 		model.fireImageRetrieval();
 		newPlane = false;
@@ -776,12 +780,12 @@ class ImViewerComponent
 	public void setChannelActive(int index, boolean b)
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED, NEW or" +
+				"LOADING_RENDERING_CONTROL state.");
 		}
 		//if (model.getColorModel().equals(RGB_MODEL)) {
 		//    if (model.getActiveChannels().size() == MAX_CHANNELS_RGB);
@@ -804,12 +808,12 @@ class ImViewerComponent
 	public void displayChannelMovie()
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED, NEW or" +
+				"LOADING_RENDERING_CONTROL state.");
 		}
 		view.setChannelsSelection();
 		renderXYPlane();
@@ -822,12 +826,12 @@ class ImViewerComponent
 	public int getMaxC()
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED, " +
+						"NEW or LOADING_RENDERING_CONTROL state.");
 		}
 		return model.getMaxC();
 	}
@@ -839,12 +843,12 @@ class ImViewerComponent
 	public int getMaxT()
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
 					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+					"LOADING_RENDERING_CONTROL state.");
 		}
 		return model.getMaxT();
 	}
@@ -856,12 +860,12 @@ class ImViewerComponent
 	public int getMaxZ()
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
 					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+					"LOADING_RENDERING_CONTROL state.");
 		}
 		return model.getMaxZ();
 	}
@@ -873,12 +877,12 @@ class ImViewerComponent
 	public void showRenderer()
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
 					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+					"LOADING_RENDERING_CONTROL state.");
 		}
 		boolean oldValue = view.isHistoryShown();
 		view.showRenderer();

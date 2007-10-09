@@ -103,6 +103,7 @@ public class ChannelPlayer
      */
     public void actionPerformed(ActionEvent e)
     {
+    	
         if (activeChannels == null || activeChannels.size() == 0) return;
         for (int j = 0; j < model.getMaxC(); j++)
             model.setChannelActive(j, j == index);

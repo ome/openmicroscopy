@@ -88,6 +88,9 @@ public class ChannelMovieAction
     		case ImViewer.NEW:
     			setEnabled(false);
     			return;
+    		case ImViewer.CHANNEL_MOVIE:
+    			setEnabled(true);
+    			return;
 		}
         if (play) {
         	if (model.getActiveChannels().size() > 1)

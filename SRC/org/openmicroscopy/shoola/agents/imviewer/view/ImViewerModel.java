@@ -175,6 +175,9 @@ class ImViewerModel
 
 	/** Flag indicating that a movie is played. */
 	private boolean				playingMovie;
+	
+	/** Flag indicating that a movie is played. */
+	private boolean				playingChannelMovie;
 
 	/** Collection of history item. */
 	private List<HistoryItem>	historyItems;
@@ -448,10 +451,6 @@ class ImViewerModel
 		} catch (Exception e) {
 			component.reload(e);
 		}
-		/*
-      currentLoader = new ImageLoader(component, pixelsID, pDef);
-      currentLoader.load();
-		 */
 	}
 
 	/**
@@ -658,12 +657,14 @@ class ImViewerModel
 			if (l != null) {
 				Iterator i = l.iterator();
 				while (i.hasNext()) 
-					setChannelActive( ((Integer) i.next()).intValue(), true);
+					setChannelActive(((Integer) i.next()).intValue(), true);
 			}
 			player = null;
 			state = ImViewer.READY;
+			playingChannelMovie = false;
 			return;
 		}
+		playingChannelMovie = true;
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				player = new ChannelPlayer(component);
@@ -673,6 +674,21 @@ class ImViewerModel
 		state = ImViewer.CHANNEL_MOVIE;
 	}
 
+	/**
+	 * Returns <code>true</code> if playing movie across channels,
+	 * <code>false</code> oherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isPlayingChannelMovie() { return playingChannelMovie; }
+	
+	/**
+	 * Sets the state.
+	 * 
+	 * @param state The value to set.
+	 */
+	void setState(int state) { this.state = state; };
+	
 	/**
 	 * Returns the {@link Renderer}.
 	 * 

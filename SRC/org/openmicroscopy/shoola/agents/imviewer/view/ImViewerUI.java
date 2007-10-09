@@ -1034,6 +1034,14 @@ class ImViewerUI
 	void setChannelsSelection() { controlPane.setChannelsSelection(); }
 
 	/** 
+	 * Sets whether or not the tabbed pane is enabled.
+	 * 
+	 * @param enabled 	Pass <code>true</code> to enable the component, 
+	 * 					<code>false</code> otherwise.
+	 */
+	void playChannelMovie(boolean enabled) { tabs.setEnabled(enabled); }
+	
+	/** 
 	 * Sets the color of the specified channel. 
 	 * 
 	 * @param index The channel index. 
