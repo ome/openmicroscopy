@@ -174,29 +174,19 @@ public class PixelData
      */
     public double getPixelValueDirect(int offset)
     {
-        if (isSigned) {
-            switch (javaType) {
-                case BYTE:
-                    return data.get(offset);
-                case SHORT:
-                    return data.getShort(offset);
-                case INT:
-                    return data.getInt(offset);
-                case FLOAT:
-                    return data.getFloat(offset);
-                case DOUBLE:
-                    return data.getDouble(offset);
-            }
-        } else {
-            switch (javaType) {
-                case BYTE:
-                    return (short) (data.get(offset) & 0xFF);
-                case SHORT:
-                    return data.getShort(offset) & 0xFFFF;
-                case INT:
-                    return data.getInt(offset) & 0xFFFFFFFFL;
-            }
-        }
+    	switch (javaType)
+    	{
+    	case BYTE:
+    		return (short) (data.get(offset) & 0xFF);
+    	case SHORT:
+    		return data.getShort(offset) & 0xFFFF;
+    	case INT:
+    		return data.getInt(offset) & 0xFFFFFFFFL;
+    	case FLOAT:
+    		return data.getFloat(offset);
+    	case DOUBLE:
+    		return data.getDouble(offset);
+    	}
         throw new RuntimeException("Unknown pixel type.");
     }
     

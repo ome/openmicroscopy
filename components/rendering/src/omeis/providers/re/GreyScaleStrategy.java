@@ -185,7 +185,9 @@ class GreyScaleStrategy extends RenderingStrategy {
         	for (int i = 0; i < planeSize; i++)
         	{
                 discreteValue = qs.quantize(plane.getPixelValue(i));
-                discreteValue = cc.transform(discreteValue);
+                // Right now we have no transforms being used so it's safe to
+                // comment this out for the time being.
+                //discreteValue = cc.transform(discreteValue);
                 buf[i] = alpha << 24 | discreteValue << 16
                         | discreteValue << 8 | discreteValue;            		
         	}

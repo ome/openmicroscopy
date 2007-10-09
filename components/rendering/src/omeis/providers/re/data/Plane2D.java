@@ -49,7 +49,11 @@ import omeis.providers.re.Renderer;
  *          2005/06/08 20:15:03 $) </small>
  * @since OME2.2
  */
-public abstract class Plane2D {
+/**
+ * @author callan
+ *
+ */
+public class Plane2D {
 
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(Renderer.class);
@@ -72,8 +76,11 @@ public abstract class Plane2D {
     /** The Java type that we're using for pixel value retrieval */
     protected int javaType;
 
-    /** The sign of the type * */
+    /** The sign of the type */
     protected boolean signed;
+    
+    /** The slice we're working with */
+    protected int slice;
 
     /**
      * Constructor that sub-classes must call.
@@ -97,25 +104,11 @@ public abstract class Plane2D {
         this.bytesPerPixel = PlaneFactory.bytesPerPixel(type);
         this.javaType = PlaneFactory.javaType(type);
         this.signed = PlaneFactory.isTypeSigned(type);
+        this.slice = pDef.getSlice();
 
         log.info("Created Plane2D with dimensions " + sizeX + "x" + sizeY + "x"
                 + bytesPerPixel);
     }
-
-    /**
-     * Sub-classes have to implement this method to return the offset of the
-     * first byte storing the pixel intensity value at <code>(x1, x2)
-     * </code>.
-     * The coordinates are relative to the <i>XY</i>, <i>ZY</i> or <i>XZ</i>
-     * reference frame, depending on the plane type.
-     * 
-     * @param x1
-     *            The first coordinate.
-     * @param x2
-     *            The second coordinate.
-     * @return The offset.
-     */
-    protected abstract int calculateOffset(int x1, int x2);
 
     /**
      * Returns the pixel intensity value of the pixel at <code>(x1, x2)</code>.
@@ -131,7 +124,22 @@ public abstract class Plane2D {
      * @return The intensity value.
      */
     public double getPixelValue(int x1, int x2) {
-    	return data.getPixelValueDirect(calculateOffset(x1, x2));
+    	switch (slice)
+    	{
+    		case PlaneDef.XY:
+    			return data.getPixelValueDirect(
+    					bytesPerPixel * (sizeX * x2 + x1));
+    		case PlaneDef.XZ:
+    			return data.getPixelValueDirect(
+    					bytesPerPixel
+    	                * (x2 * sizeX * sizeY + sizeX * planeDef.getY() + x1));
+    		case PlaneDef.ZY:
+    			return data.getPixelValueDirect(
+    					bytesPerPixel
+    					* (x1 * sizeX * sizeY + sizeX * x2 + planeDef.getX()));
+    		default:
+    			throw new RuntimeException("Unknown PlaneDef slice: " + slice);
+    	}
     }
     
     /**
@@ -157,6 +165,16 @@ public abstract class Plane2D {
      */
     public boolean isXYPlanar()
     {
-    	return (planeDef.getSlice() == PlaneDef.XY);
+    	return (slice == PlaneDef.XY);
+    }
+    
+    /**
+     * Returns the pixel data that is used to back this Plane.
+     * 
+     * @return See above.
+     */
+    public PixelData getData()
+    {
+    	return data;
     }
 }

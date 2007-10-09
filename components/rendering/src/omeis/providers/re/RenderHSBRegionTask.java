@@ -13,6 +13,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 // Application-internal dependencies
+import ome.io.nio.PixelData;
 import ome.model.display.Color;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.Plane2D;
@@ -207,6 +208,9 @@ class RenderHSBRegionTask implements RenderingTask {
             redRatio = color.getRed() > 0? color.getRed() / 255.0 : 0.0;
             greenRatio = color.getGreen() > 0? color.getGreen() / 255.0 : 0.0;
             blueRatio = color.getBlue() > 0? color.getBlue() / 255.0 : 0.0;
+            boolean isXYPlanar = plane.isXYPlanar();
+            PixelData data = plane.getData();
+            int bytesPerPixel = data.bytesPerPixel();
 
             // Get our color offset if we've got the primary color optimization
             // enabled.
@@ -217,8 +221,16 @@ class RenderHSBRegionTask implements RenderingTask {
             for (int x2 = x2Start; x2 < x2End; ++x2) {
                 for (int x1 = x1Start; x1 < x1End; ++x1) {
                     pix = width * x2 + x1;
-                    discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
-                    discreteValue = cc.transform(discreteValue);
+                    if (isXYPlanar)
+                    	discreteValue = 
+                    		qs.quantize(
+                    			data.getPixelValueDirect(pix * bytesPerPixel));
+                    else
+                    	discreteValue = 
+                    		qs.quantize(plane.getPixelValue(x1, x2));
+                    // Right now we have no transforms being used so it's safe to
+                    // comment this out for the time being.
+                    //discreteValue = cc.transform(discreteValue);
 
                     // Primary colour optimization is in effect, we don't need
                     // to do any of the sillyness below just shift the value
