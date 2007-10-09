@@ -250,7 +250,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#getPlane(long, int, int, int)
 	 */
 	public byte[] getPlane(long pixelsID, int z, int t, int c)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		return gateway.getPlane(pixelsID, z, t, c);
 	}
@@ -270,15 +270,14 @@ class OmeroImageServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#resetRenderingSettings(long, Class, List)
+	 * @see OmeroImageService#resetRenderingSettings(Class, List)
 	 */
-	public Map resetRenderingSettings(long pixelsID, Class rootNodeType, 
-			Set nodesID) 
+	public Map resetRenderingSettings(Class rootNodeType, Set nodesID) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		if (nodesID == null || nodesID.size() == 0)
 			throw new IllegalArgumentException("No nodes specified.");
-		return gateway.resetRenderingSettings(pixelsID, rootNodeType, nodesID);
+		return gateway.resetRenderingSettings(rootNodeType, nodesID);
 	}
 	
 }

@@ -289,10 +289,12 @@ class BrowserComponent
      */
     public void setLeaves(Set leaves, TreeImageSet parent, TreeImageSet expNode)
     {
-        if (model.getState() != LOADING_LEAVES)
+        if (model.getState() != LOADING_LEAVES) return;
+        /*
             throw new IllegalStateException(
                     "This method can only be invoked in the LOADING_LEAVES "+
                     "state.");
+        */
         if (leaves == null) throw new NullPointerException("No leaves.");
         Object ho = expNode.getUserObject();
         if (!(ho instanceof ExperimenterData))
@@ -302,11 +304,10 @@ class BrowserComponent
         long groupID = exp.getDefaultGroup().getId();
         Set visLeaves = TreeViewerTranslator.transformHierarchy(leaves, userID, 
                                                                 groupID);
-
         view.setLeavesViews(visLeaves, parent);
         if (!view.isPartialName()) {
-        	PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
-    		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
+    		accept(new PartialNameVisitor(view.isPartialName()), 
+    				TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
         }
         model.setState(READY);
         model.getParentModel().setStatus(false, "", true);

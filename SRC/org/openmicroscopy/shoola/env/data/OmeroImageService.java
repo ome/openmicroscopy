@@ -112,7 +112,7 @@ public interface OmeroImageService
 	 *                                      thumbnail.
 	 */
 	public BufferedImage getThumbnail(long pixelsID, int sizeX, int sizeY)
-	throws RenderingServiceException;
+		throws RenderingServiceException;
 
 	/**
 	 * Returns a thumbnail of the currently selected 2D-plane for the
@@ -126,7 +126,7 @@ public interface OmeroImageService
 	 *                                      thumbnail.
 	 */
 	public BufferedImage getThumbnailByLongestSide(long pixelsID, int maxLength)
-	throws RenderingServiceException;
+		throws RenderingServiceException;
 
 	/**
 	 * Reloads the rendering engine for the passed set of pixels.
@@ -139,7 +139,7 @@ public interface OmeroImageService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public RenderingControl reloadRenderingService(long pixelsID)
-	throws DSAccessException, RenderingServiceException;
+		throws DSAccessException, RenderingServiceException;
 
 	/**
 	 * Loads the dimensions in microns of the pixels set.
@@ -152,7 +152,7 @@ public interface OmeroImageService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public PixelsDimensions loadPixelsDimensions(long pixelsID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Loads the pixels set.
@@ -165,7 +165,7 @@ public interface OmeroImageService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Pixels loadPixels(long pixelsID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Returns the XY-plane identified by the passed z-section, timepoint 
@@ -211,13 +211,12 @@ public interface OmeroImageService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
-	 * Applies the rendering settings associated to the passed pixels set 
-	 * to the images contained in the specified datasets or categories
+	 * Resets the rendering settings for the images contained in the 
+	 * specified datasets or categories
 	 * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
-	 * Applies the settings to the passed images if the type is 
+	 * Resets the settings to the passed images if the type is 
 	 * <code>ImageData</code>.
 	 * 
-	 * @param pixelsID		The id of the pixels set of reference.
 	 * @param rootNodeType	The type of nodes. Can either be 
 	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
 	 * 						<code>CategoryData</code>.
@@ -232,8 +231,7 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Map resetRenderingSettings(long pixelsID, Class rootNodeType,
-			Set<Long> nodeIDs)
+	public Map resetRenderingSettings(Class rootNodeType, Set<Long> nodeIDs)
 		throws DSOutOfServiceException, DSAccessException;
 	
 

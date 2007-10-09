@@ -657,8 +657,7 @@ abstract class HiViewerModel
 	void firePasteRenderingSettings(Class klass, Set<Long> nodesID)
 	{
 		currentLoader = new RndSettingsSaver(component, klass, nodesID, 
-											HiViewerFactory.getRefPixelsID(),
-											RndSettingsSaver.PASTE);
+											HiViewerFactory.getRefPixelsID());
 		currentLoader.load();
 	}
 	
@@ -671,8 +670,7 @@ abstract class HiViewerModel
 	void fireResetRenderingSettings(Class klass, Set<Long> nodesID)
 	{
 		currentLoader = new RndSettingsSaver(component, klass, nodesID, 
-											HiViewerFactory.getRefPixelsID(),
-											RndSettingsSaver.RESET);
+											HiViewerFactory.getRefPixelsID());
 		currentLoader.load();
 	}
 	

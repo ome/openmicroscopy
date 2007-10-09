@@ -85,23 +85,7 @@ public class RndSettingsSaver
 
 	/** One of the constants defined by this class. */
     private int				index;
-    
-    /**
-     * Controls if the passed index is supported.
-     * 
-     * @param i The value to check.
-     */
-    private void checkIndex(int i)
-    {
-    	switch (i) {
-			case PASTE:
-			case RESET:
-				break;
-			default:
-				throw new IllegalArgumentException("Index not supported.");
-		}
-    }
-    
+   
 	/** 
 	 * Controls if the passed type is supported.
 	 * 
@@ -130,13 +114,54 @@ public class RndSettingsSaver
 	 * @param pixelsID	The id of the pixels of reference.
 	 * @param index 	One of the constants defined by this class.
 	 */
-	public RndSettingsSaver(TreeViewer viewer, Class rootType, Set<Long> ids, 
-							long pixelsID, int index)
+	public RndSettingsSaver(TreeViewer viewer, Class rootType, Set<Long> ids)
 	{
 		super(viewer);
 		checkRootType(rootType);
-		checkIndex(index);
-		this.index = index;
+		this.index = RESET;
+		if (ids == null || ids.size() == 0)
+			throw new IllegalArgumentException("No nodes specified.");
+		this.rootType = rootType;
+		this.ids = ids;
+		ref = null;
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param viewer	The TreeViewer this data loader is for.
+	 *               	Mustn't be <code>null</code>.
+	 * @param ref		The time reference object.
+	 */
+	public RndSettingsSaver(TreeViewer viewer, TimeRefObject ref)
+	{
+		super(viewer);
+		this.index = RESET;
+		if (ref == null)
+			throw new IllegalArgumentException("Period not valid.");
+		this.ref = ref;
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param viewer	The TreeViewer this data loader is for.
+	 *               	Mustn't be <code>null</code>.
+	 * @param rootType	The type of nodes. Supported type 
+	 * 					<code>ImageData</code>, <code>DatasetData</code> or
+	 * 					<code>CategoryData</code>.
+	 * @param ids		Collection of nodes ids. If the rootType equals 
+	 * 					<code>DatasetData</code> or
+	 * 					<code>CategoryData</code>, the settings will be applied
+	 * 					to the images contained in the specified containers.
+	 * @param pixelsID	The id of the pixels of reference.
+	 */
+	public RndSettingsSaver(TreeViewer viewer, Class rootType, Set<Long> ids, 
+							long pixelsID)
+	{
+		super(viewer);
+		checkRootType(rootType);
+		this.index = PASTE;
 		if (ids == null || ids.size() == 0)
 			throw new IllegalArgumentException("No nodes specified.");
 		if (pixelsID < 0)
@@ -154,14 +179,11 @@ public class RndSettingsSaver
 	 *               	Mustn't be <code>null</code>.
 	 * @param ref		The time reference object.
 	 * @param pixelsID	The id of the pixels of reference.
-	 * @param index 	One of the constants defined by this class.
 	 */
-	public RndSettingsSaver(TreeViewer viewer, TimeRefObject ref, 
-							long pixelsID, int index)
+	public RndSettingsSaver(TreeViewer viewer, TimeRefObject ref, long pixelsID)
 	{
 		super(viewer);
-		checkIndex(index);
-		this.index = index;
+		this.index = PASTE;
 		if (pixelsID < 0)
 			throw new IllegalArgumentException("Pixels ID not valid.");
 		if (ref == null)
@@ -192,10 +214,9 @@ public class RndSettingsSaver
 				break;
 			case RESET:
 				if (ref == null)
-					handle = dhView.resetRndSettings(pixelsID, rootType, ids, 
-													this);
+					handle = dhView.resetRndSettings(rootType, ids, this);
 				else 
-					handle = dhView.resetRndSettings(pixelsID, ref, this);
+					handle = dhView.resetRndSettings(ref, this);
 		}
 	}
 

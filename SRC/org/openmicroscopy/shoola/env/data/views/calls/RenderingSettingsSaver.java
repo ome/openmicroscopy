@@ -63,10 +63,10 @@ public class RenderingSettingsSaver
 {
 
 	/** Indicates to paste the rendering settings. */
-	public static final int PASTE = 0;
+	private static final int PASTE = 0;
 	
 	/** Indicates to reset the rendering settings. */
-	public static final int RESET = 1;
+	private static final int RESET = 1;
 	
 	/** Result of the call. */
 	private Object    	result;
@@ -127,8 +127,7 @@ public class RenderingSettingsSaver
 															ids);
 						break;
 					case RESET:
-						result = rds.resetRenderingSettings(pixelsID, rootType, 
-								ids);
+						result = rds.resetRenderingSettings(rootType, ids);
 				}
 				
 			}
@@ -180,8 +179,8 @@ public class RenderingSettingsSaver
 													ImageData.class, ids);
 							break;
 						case RESET:
-							result = rds.resetRenderingSettings(pixelsID, 
-									ImageData.class, ids);
+							result = rds.resetRenderingSettings(ImageData.class, 
+																ids);
 					}
 				}
 
@@ -206,26 +205,41 @@ public class RenderingSettingsSaver
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param rootNodeType	The type of nodes. Can either be 
+	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
+	 * 						<code>CategoryData</code>.
+	 * @param ids			The nodes to apply settings to. 
+	 * 						Mustn't be <code>null</code>.
+	 */
+	public RenderingSettingsSaver(Class rootNodeType, Set<Long> ids)
+	{
+		checkRootType(rootNodeType);
+		if (ids == null || ids.size() == 0)
+			throw new IllegalArgumentException("No nodes specified.");
+		loadCall = makeBatchCall(-1, rootNodeType, ids, RESET);
+	}
+
+	/**
+	 * Creates a new instance.
+	 * 
 	 * @param pixelsID		The id of the pixels set of reference.
 	 * @param rootNodeType	The type of nodes. Can either be 
 	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
 	 * 						<code>CategoryData</code>.
 	 * @param ids			The nodes to apply settings to. 
 	 * 						Mustn't be <code>null</code>.
-	 * @param index 		One of the constants defined by this class.
 	 */
 	public RenderingSettingsSaver(long pixelsID, Class rootNodeType, 
-			Set<Long> ids, int index)
+			Set<Long> ids)
 	{
 		checkRootType(rootNodeType);
 		if (ids == null || ids.size() == 0)
 			throw new IllegalArgumentException("No nodes specified.");
 		if (pixelsID < 0)
 			throw new IllegalArgumentException("Pixels ID not valid.");
-		checkIndex(index);
-		loadCall = makeBatchCall(pixelsID, rootNodeType, ids, index);
+		loadCall = makeBatchCall(pixelsID, rootNodeType, ids, PASTE);
 	}
-
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -233,14 +247,28 @@ public class RenderingSettingsSaver
 	 * @param ref		The time reference object.
 	 * @param index 	One of the constants defined by this class.
 	 */
-	public RenderingSettingsSaver(long pixelsID, TimeRefObject ref, int index)
+	public RenderingSettingsSaver(long pixelsID, TimeRefObject ref)
 	{
 		if (pixelsID < 0)
 			throw new IllegalArgumentException("Pixels ID not valid.");
 		if (ref == null)
 			throw new IllegalArgumentException("Period not valid.");
-		checkIndex(index);
-		loadCall = makeBatchCall(pixelsID, ref, index);
+		
+		loadCall = makeBatchCall(pixelsID, ref, PASTE);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param pixelsID	The id of the pixels set of reference.
+	 * @param ref		The time reference object.
+	 * @param index 	One of the constants defined by this class.
+	 */
+	public RenderingSettingsSaver(TimeRefObject ref)
+	{
+		if (ref == null)
+			throw new IllegalArgumentException("Period not valid.");
+		loadCall = makeBatchCall(-1, ref, RESET);
 	}
 
 }

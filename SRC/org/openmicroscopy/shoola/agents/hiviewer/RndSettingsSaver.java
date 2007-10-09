@@ -58,10 +58,10 @@ public class RndSettingsSaver
 {
 	
 	/** Indicates to paste the rendering settings. */
-	public static final int PASTE = 0;
+	private static final int PASTE = 0;
 	
 	/** Indicates to reset the rendering settings. */
-	public static final int RESET = 1;
+	private static final int RESET = 1;
 	
 	/** The id of the pixels set of reference. */
 	private long 		pixelsID;
@@ -81,22 +81,6 @@ public class RndSettingsSaver
     
     /** One of the constants defined by this class. */
     private int			index;
-    
-    /**
-     * Controls if the passed index is supported.
-     * 
-     * @param i The value to check.
-     */
-    private void checkIndex(int i)
-    {
-    	switch (i) {
-			case PASTE:
-			case RESET:
-				break;
-			default:
-				throw new IllegalArgumentException("Index not supported.");
-		}
-    }
     
 	/** 
 	 * Controls if the passed type is supported.
@@ -124,10 +108,9 @@ public class RndSettingsSaver
 	 * 					<code>CategoryData</code>, the settings will be applied
 	 * 					to the images contained in the specified containers.
 	 * @param pixelsID	The id of the pixels of reference.
-	 * @param index 	One of the constants defined by this class.
 	 */
 	public RndSettingsSaver(HiViewer viewer, Class rootType, Set<Long> ids, 
-							long pixelsID, int index)
+							long pixelsID)
 	{
 		super(viewer);
 		checkRootType(rootType);
@@ -135,10 +118,33 @@ public class RndSettingsSaver
 			throw new IllegalArgumentException("No nodes specified.");
 		if (pixelsID < 0)
 			throw new IllegalArgumentException("Pixels ID not valid.");
-		checkIndex(index);
-		this.index = index;
+		this.index = PASTE;
 		this.rootType = rootType;
 		this.pixelsID = pixelsID;
+		this.ids = ids;
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param viewer	The HiViewer this data loader is for.
+     *               	Mustn't be <code>null</code>.
+	 * @param rootType	The type of nodes. Supported type 
+	 * 					<code>ImageData</code>, <code>DatasetData</code> or
+	 * 					<code>CategoryData</code>.
+	 * @param ids		Collection of nodes ids. If the rootType equals 
+	 * 					<code>DatasetData</code> or
+	 * 					<code>CategoryData</code>, the settings will be applied
+	 * 					to the images contained in the specified containers.
+	 */
+	public RndSettingsSaver(HiViewer viewer, Class rootType, Set<Long> ids)
+	{
+		super(viewer);
+		checkRootType(rootType);
+		if (ids == null || ids.size() == 0)
+			throw new IllegalArgumentException("No nodes specified.");
+		this.index = RESET;
+		this.rootType = rootType;
 		this.ids = ids;
 	}
 	
@@ -159,7 +165,7 @@ public class RndSettingsSaver
 				handle = dhView.pasteRndSettings(pixelsID, rootType, ids, this);
 				break;
 			case RESET:
-				handle = dhView.resetRndSettings(pixelsID, rootType, ids, this);
+				handle = dhView.resetRndSettings(rootType, ids, this);
 		}
 	}
 

@@ -1623,13 +1623,12 @@ class OMEROGateway
 	}
 
 	/**
-	 * Applies the rendering settings associated to the passed pixels set 
-	 * to the images contained in the specified datasets or categories
+	 * Resets the rendering settings for the images contained in the 
+	 * specified datasets or categories
 	 * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
-	 * Applies the settings to the passed images if the type is 
+	 * Resets the settings to the passed images if the type is 
 	 * <code>ImageData</code>.
 	 * 
-	 * @param pixelsID		The id of the pixels set of reference.
 	 * @param rootNodeType	The type of nodes. Can either be 
 	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
 	 * 						<code>CategoryData</code>.
@@ -1640,15 +1639,13 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Map resetRenderingSettings(long pixelsID, Class rootNodeType, Set nodes) 
+	Map resetRenderingSettings(Class rootNodeType, Set nodes) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Set<Long> success = new HashSet<Long>();
 		Set<Long> failure = new HashSet<Long>();
 		try {
 			IRenderingSettings service = getRenderingSettingsService();
-
-			long rndID = service.getRenderingSettings(pixelsID).getId();
 
 			Class klass = convertPojos(rootNodeType);
 			Iterator i = nodes.iterator();
@@ -1657,7 +1654,8 @@ class OMEROGateway
 			if (klass.equals(Image.class)) {
 				while (i.hasNext()) {
 					id = (Long) i.next();
-					b = service.applySettingsToImage(rndID, id);
+					service.resetDefaultsToImage(id);
+					b = true; //TODO modify 
 					if (b) success.add(id);
 					else failure.add(id);
 				}
@@ -1667,7 +1665,9 @@ class OMEROGateway
 				Iterator k;
 				while (i.hasNext()) {
 					id = (Long) i.next();
-					m = service.applySettingsToDataset(rndID, id);
+					service.resetDefaultsToDataSet(id);
+					//m = service.applySettingsToDataset(rndID, id);
+					/*
 					l = (List) m.get(Boolean.TRUE);
 					if (l != null && l.size() > 0) {
 						k = l.iterator();
@@ -1682,6 +1682,7 @@ class OMEROGateway
 							failure.add((Long) k.next());
 						}
 					}
+					*/
 				}
 			} else if (klass.equals(Dataset.class)) {
 				Map m;
@@ -1689,6 +1690,8 @@ class OMEROGateway
 				Iterator k;
 				while (i.hasNext()) {
 					id = (Long) i.next();
+					service.resetDefaultsToCategory(id);
+					/*
 					m = service.applySettingsToCategory(rndID, id);
 					l = (List) m.get(Boolean.TRUE);
 					if (l != null && l.size() > 0) {
@@ -1703,11 +1706,11 @@ class OMEROGateway
 						while (k.hasNext()) {
 							failure.add((Long) k.next());
 						}
-					}
+					}*/
 				}
 			}
 		} catch (Exception e) {
-			handleException(e, "Cannot paste the rendering settings.");
+			handleException(e, "Cannot reset the rendering settings.");
 		}
 		Map<Boolean, Set> result = new HashMap<Boolean, Set>(2);
 		result.put(Boolean.TRUE, success);

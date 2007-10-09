@@ -333,7 +333,7 @@ public class DataHandlerViewImpl
 			Set<Long> ids, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new RenderingSettingsSaver(pixelsID, rootNodeType, 
-								ids, RenderingSettingsSaver.PASTE);
+								ids);
 		return cmd.exec(observer);
 	}
 
@@ -345,34 +345,29 @@ public class DataHandlerViewImpl
 	public CallHandle pasteRndSettings(long pixelsID, TimeRefObject ref, 
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new RenderingSettingsSaver(pixelsID, ref, 
-									RenderingSettingsSaver.PASTE);
+		BatchCallTree cmd = new RenderingSettingsSaver(pixelsID, ref);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#resetRndSettings(long, Class, Set, 
-	 * 										AgentEventListener)
+	 * @see DataHandlerView#resetRndSettings(Class, Set, AgentEventListener)
 	 */
-	public CallHandle resetRndSettings(long pixelsID, Class rootNodeType, 
-			Set<Long> ids, AgentEventListener observer)
+	public CallHandle resetRndSettings(Class rootNodeType, Set<Long> ids, 
+										AgentEventListener observer)
 	{
-		BatchCallTree cmd = new RenderingSettingsSaver(pixelsID, rootNodeType, 
-								ids, RenderingSettingsSaver.RESET);
+		BatchCallTree cmd = new RenderingSettingsSaver(rootNodeType, ids);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#resetRndSettings(long, TimeRefObject, 
-	 * 										AgentEventListener)
+	 * @see DataHandlerView#resetRndSettings(TimeRefObject, AgentEventListener)
 	 */
-	public CallHandle resetRndSettings(long pixelsID, TimeRefObject ref, 
+	public CallHandle resetRndSettings(TimeRefObject ref, 
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new RenderingSettingsSaver(pixelsID, ref, 
-									RenderingSettingsSaver.RESET);
+		BatchCallTree cmd = new RenderingSettingsSaver(ref);
 		return cmd.exec(observer);
 	}
 	/**

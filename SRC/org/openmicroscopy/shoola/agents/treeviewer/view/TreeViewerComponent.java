@@ -1369,7 +1369,7 @@ class TreeViewerComponent
 			"you wish to reset the rendering settings.");
 			return;
 		}
-		model.firePasteRenderingSettings(ids, klass);
+		model.fireResetRenderingSettings(ids, klass);
 		fireStateChange();
 		
 	}
@@ -1386,7 +1386,7 @@ class TreeViewerComponent
 			"you wish to reset the rendering settings.");
 			return;
 		}
-		model.firePasteRenderingSettings(ref);
+		model.fireResetRenderingSettings(ref);
 		fireStateChange();
 		
 	}

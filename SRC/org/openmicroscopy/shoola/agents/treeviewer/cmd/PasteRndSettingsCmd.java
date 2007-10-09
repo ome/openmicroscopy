@@ -104,7 +104,7 @@ public class PasteRndSettingsCmd
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-    	if (!model.hasRndSettings()) return;
+    	//if (!model.hasRndSettings()) return;
     	Browser b = model.getSelectedBrowser();
 		if (b == null) return;
 		TreeImageDisplay[] nodes = b.getSelectedDisplays();
@@ -142,8 +142,10 @@ public class PasteRndSettingsCmd
 		}
 		switch (index) {
 			case PASTE:
-				if (ref != null) model.pasteRndSettings(ref);
-				else model.pasteRndSettings(ids, klass);
+				if (model.hasRndSettings()) {
+					if (ref != null) model.pasteRndSettings(ref);
+					else model.pasteRndSettings(ids, klass);
+				}
 				break;
 			case RESET:
 				if (ref != null) model.resetRndSettings(ref);

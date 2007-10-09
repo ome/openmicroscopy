@@ -169,10 +169,9 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#resetRenderingSettings(long, Class, Set)
+     * @see OmeroImageService#resetRenderingSettings(Class, Set)
      */
-	public Map resetRenderingSettings(long pixelsID, Class rootNodeType, 
-			Set<Long> nodeIDs) 
+	public Map resetRenderingSettings(Class rootNodeType, Set<Long> nodeIDs) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

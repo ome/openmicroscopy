@@ -29,6 +29,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.Box;
@@ -57,6 +59,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 
 
 /** 
@@ -140,10 +143,10 @@ class DomainPane
     private JPanel						advancedPanel;
     
     /** Slider to select a curve in the family. */
-    private JSlider         			gammaSlider;
+    private OneKnobSlider         		gammaSlider;
     
     /** Slider to select the bit resolution of the rendered image. */
-    private JSlider        	 			bitDepthSlider;
+    private OneKnobSlider        	 	bitDepthSlider;
     
     /** Field displaying the <code>Gamma</code> value. */
     private JTextField      			gammaLabel;
@@ -177,18 +180,41 @@ class DomainPane
         familyBox.setActionCommand(""+FAMILY);
         
         double k = model.getCurveCoefficient();
-        gammaSlider = new JSlider(JSlider.HORIZONTAL, 
+        gammaSlider = new OneKnobSlider(JSlider.HORIZONTAL, 
         							MIN_GAMMA, MAX_GAMMA, 
                                     (int) (k*FACTOR));
+        gammaSlider.setShowArrows(false);
         gammaSlider.setEnabled(!(family.equals(RendererModel.LINEAR) || 
                 family.equals(RendererModel.LOGARITHMIC)));
         gammaSlider.addChangeListener(this);
+        gammaSlider.addMouseListener(new MouseAdapter() {
+    		
+			public void mouseReleased(MouseEvent e) {
+				double v = (double) gammaSlider.getValue()/FACTOR;
+	            gammaLabel.setText(""+v);
+	            firePropertyChange(GAMMA_PROPERTY, 
+	            			new Double(model.getCurveCoefficient()), 
+	                        new Double(v));
+			}
+		
+		});
         gammaLabel = new JTextField(""+k);
         gammaLabel.setEnabled(false);
         gammaLabel.setEditable(false);
         int v = model.getBitResolution();
-        bitDepthSlider = new JSlider(JSlider.HORIZONTAL, MIN_BIT_DEPTH, 
+        bitDepthSlider = new OneKnobSlider(JSlider.HORIZONTAL, MIN_BIT_DEPTH, 
                                 MAX_BIT_DEPTH, convertBitResolution(v));
+        bitDepthSlider.setShowArrows(false);
+        bitDepthSlider.addMouseListener(new MouseAdapter() {
+		
+			public void mouseReleased(MouseEvent e) {
+				int v = convertUIBitResolution(bitDepthSlider.getValue());
+	            bitDepthLabel.setText(""+v);
+	            firePropertyChange(BIT_RESOLUTION_PROPERTY, 
+	            		new Integer(model.getBitResolution()), new Integer(v));
+			}
+		
+		});
         bitDepthSlider.addChangeListener(this);
         bitDepthLabel = new JTextField(""+v);
         bitDepthLabel.setEnabled(false);
@@ -625,17 +651,10 @@ class DomainPane
     {
         Object source = e.getSource();
         if (source.equals(gammaSlider)) {
-            double v = (double) gammaSlider.getValue()/FACTOR;
-            double oldValue = model.getCurveCoefficient();
-            gammaLabel.setText(""+v);
-            firePropertyChange(GAMMA_PROPERTY, new Double(oldValue), 
-                            new Double(v));
+            gammaLabel.setText(""+(double) gammaSlider.getValue()/FACTOR);
         } else if (source.equals(bitDepthSlider)) {
-            int v = convertUIBitResolution(bitDepthSlider.getValue());
-            int oldValue = model.getBitResolution();
-            bitDepthLabel.setText(""+v);
-            firePropertyChange(BIT_RESOLUTION_PROPERTY, new Integer(oldValue), 
-                    new Integer(v));
+            bitDepthLabel.setText(""+
+            		convertUIBitResolution(bitDepthSlider.getValue()));
         }
     }
     

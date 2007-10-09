@@ -134,7 +134,7 @@ class PopupMenu
 		add(new JSeparator(JSeparator.HORIZONTAL));
 		add(copyRndSettings);
 		add(pasteRndSettings);
-		//add(resetRndSettings);
+		add(resetRndSettings);
 		add(new JSeparator(JSeparator.HORIZONTAL));
 		add(properties);
 		add(new JSeparator(JSeparator.HORIZONTAL));
