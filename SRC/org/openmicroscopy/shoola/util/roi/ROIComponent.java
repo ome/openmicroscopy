@@ -151,7 +151,7 @@ public class ROIComponent
     private void setShapeAnnotations(ROIShape shape)
 	{
     	ROIFigure fig = shape.getFigure();
-		String type = fig.getType();
+	//	String type = fig.getType();
 	//	if (type != null) AnnotationKeys.FIGURETYPE.set(shape, type);
 		
 		ROIShape s = fig.getROIShape();

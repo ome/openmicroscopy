@@ -28,9 +28,13 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
+
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -55,7 +59,9 @@ import org.openmicroscopy.shoola.agents.measurement.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
@@ -216,11 +222,21 @@ class MeasurementViewerControl
 	void analyseSelectedFigures()
 	{
 		Collection<Figure> figures = model.getSelectedFigures();
-		if (figures.size() == 1) {
+		if (figures.size() == 1) 
+		{
 			ROIFigure figure = (ROIFigure) figures.iterator().next();
 			ROIShape shape = figure.getROIShape();
-			if (shape != null) model.analyseShape(shape);
-		}		
+			if (view.inDataView()) 
+			{
+				ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+				ROI roi = shape.getROI();
+				TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
+				Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
+				while(shapeIterator.hasNext())
+					shapeList.add(shapeMap.get(shapeIterator.next()));
+				if (shapeList.size() != 0) model.analyseShapeList(shapeList);
+			}
+		}
 	}
 	
     /**
@@ -283,8 +299,17 @@ class MeasurementViewerControl
 		model.setDataChanged();
 		if (!view.inDataView()) return;
 		ROIShape shape = roiFigure.getROIShape();
-		if (shape != null)
-			model.analyseShape(roiFigure.getROIShape());
+		if (view.inDataView())
+		{
+			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+			ROI roi = shape.getROI();
+			TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
+			Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
+			while(shapeIterator.hasNext())
+				shapeList.add(shapeMap.get(shapeIterator.next()));
+			if (shapeList.size() != 0) model.analyseShapeList(shapeList);
+		}
+		
 	}
 	
 	/**
@@ -307,10 +332,17 @@ class MeasurementViewerControl
 	{
 		Collection figures = evt.getView().getSelectedFigures();
 		if (figures == null) return;
-		if (view.inDataView() && figures.size() == 1) {
+		if (view.inDataView() && figures.size() == 1) 
+		{
 			ROIFigure figure = (ROIFigure) figures.iterator().next();
 			ROIShape shape = figure.getROIShape();
-			if (shape != null) model.analyseShape(shape);
+			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+			ROI roi = shape.getROI();
+			TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
+			Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
+			while(shapeIterator.hasNext())
+				shapeList.add(shapeMap.get(shapeIterator.next()));
+			if (shapeList.size() != 0) model.analyseShapeList(shapeList);
 		}
 		view.setSelectedFigures(figures);
 	}
@@ -348,7 +380,13 @@ class MeasurementViewerControl
 			if (view.inDataView())
 			{
 				ROIShape shape = roiFigure.getROIShape();
-				if (shape != null) model.analyseShape(shape);
+				ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+				ROI roi = shape.getROI();
+				TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
+				Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
+				while(shapeIterator.hasNext())
+					shapeList.add(shapeMap.get(shapeIterator.next()));
+				if (shapeList.size() != 0) model.analyseShapeList(shapeList);
 			}
 		}
 	}

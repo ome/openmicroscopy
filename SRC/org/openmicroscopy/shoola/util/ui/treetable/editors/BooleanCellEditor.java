@@ -31,7 +31,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JTable;
 //Third-party libraries
 
-import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
 
 //Application-internal dependencies
 

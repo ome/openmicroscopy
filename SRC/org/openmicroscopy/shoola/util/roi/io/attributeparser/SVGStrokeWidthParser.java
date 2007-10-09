@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 
 
 //Java imports
-import java.awt.Color;
-
 //Third-party libraries
 import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
 
@@ -33,7 +31,6 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
 import net.n3.nanoxml.IXMLElement;
 
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
 
 /** 
  * 

@@ -22,9 +22,9 @@
  */
 package org.openmicroscopy.shoola.util.roi.io;
 
-import java.awt.Color;
 
 //Java imports
+import java.awt.Color;
 
 //Third-party libraries
 

@@ -67,7 +67,8 @@ import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
  * @since OME3.0
  */
 public class ROITable 
-	extends OMETreeTable implements ROIActionController
+	extends OMETreeTable
+	implements ROIActionController
 {
 
 	/** The root node of the tree. */
@@ -561,7 +562,7 @@ public class ROITable
 	 */
 	boolean haveSameID(ArrayList<ROIShape> shapeList)
 	{
-		TreeMap<Long, ROIShape> shapeMap = new TreeMap<Long, ROIShape>(new Coord3D());
+		TreeMap<Long, ROIShape> shapeMap = new TreeMap<Long, ROIShape>();
 		for(ROIShape shape : shapeList)
 		{
 			if(!shapeMap.containsKey(shape.getID()))

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -231,7 +232,22 @@ public interface MeasurementViewer
 	 * 
 	 * @param shape The shape to analyse. Mustn't be <code>null</code>.
 	 */
-	public void analyseShape(ROIShape shape);
+	//public void analyseShape(ROIShape shape);
+
+	/**
+	 * Analyses the specifed list of ROIShapes.
+	 * 
+	 * @param shape The list of ROIShapes to analyse. Mustn't be <code>null</code>.
+	 */
+	public void analyseShapeList(ArrayList<ROIShape> shape);
+
+	
+	/**
+	 * Analyses the specifed ROI.
+	 * 
+	 * @param roi The shape to analyse. Mustn't be <code>null</code>.
+	 */
+	//public void analyseROI(ROI roi);
 
 	/**
 	 * Sets the metadata.

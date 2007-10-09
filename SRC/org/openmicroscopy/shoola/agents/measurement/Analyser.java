@@ -110,6 +110,7 @@ public class Analyser
 				break;
 	
 			case ROI:
+				handle = idView.analyseShapes(pixels, channels, shapes, this);
 				break;
 		}
     }

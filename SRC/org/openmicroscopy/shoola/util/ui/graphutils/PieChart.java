@@ -35,7 +35,6 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PiePlot3D;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.util.Rotation;
@@ -58,12 +57,6 @@ import org.jfree.util.Rotation;
 public class PieChart
 {	
 		
-	/** The X-Axis label. Also can,but not currenly used set the range. */
-	private NumberAxis  			domainAxis;
-	
-	/** The Y-Axis label. Also can,but not currenly used set the range. */
-	private NumberAxis 				rangeAxis;
-	
 	/** Title of the graph. */
 	private String					title;
 	
@@ -114,38 +107,6 @@ public class PieChart
 		init();
 		for (int i = 0 ; i < newLegends.size(); i++)
 			addValue(newLegends.get(i), newData.get(i), newColours.get(i));
-		setDefaultAxis();
-	}
-	
-	/** Sets the default names for the x and y axis in the plot. */
-	public void setDefaultAxis()
-	{
-		setXAxis("X");
-		setYAxis("Y");
-	}
-	
-	/** 
-	 * Sets the name of the x axis to axisName. 
-	 * 
-	 * @param axisName The value to set.
-	 */
-	public void setXAxis(String axisName)
-	{
-		if (axisName==null)
-			throw new IllegalArgumentException("Null parameter for Axis name."); 
-		domainAxis = new NumberAxis(axisName);
-	}
-
-	/** 
-	 * Set the name of the y axis to axisName.
-	 *  
-	 * @param axisName The value to set. 
-	 */
-	public void setYAxis(String axisName)
-	{
-		if (axisName==null)
-			throw new IllegalArgumentException("Null parameter for Axis name."); 
-		rangeAxis = new NumberAxis(axisName);
 	}
 	
 	/**

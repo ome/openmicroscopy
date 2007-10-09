@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.util.ui.treetable;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.HashMap;
@@ -42,7 +41,6 @@ import javax.swing.tree.TreePath;
 //Third-party libraries
 
 import org.jdesktop.swingx.JXTreeTable;
-import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
@@ -56,7 +54,6 @@ import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.BooleanCellRenderer;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.NumberCellRenderer;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.SelectionHighLighter;
-import org.openmicroscopy.shoola.util.ui.treetable.renderers.StringCellRenderer;
 import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
 
 /** 

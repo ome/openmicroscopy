@@ -50,15 +50,12 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 import org.jhotdraw.draw.DelegationSelectionTool;
 import org.jhotdraw.draw.Drawing;
-import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.Figure;
-import org.jhotdraw.draw.Tool;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
-import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -308,8 +305,6 @@ class MeasurementViewerUI
 			graphPane.getComponentIcon(), graphPane);
 		tabs.addTab(intensityView.getComponentName(), 
 			intensityView.getComponentIcon(), intensityView);
-		tabs.addTab(calcWizard.getComponentName(), 
-			calcWizard.getComponentIcon(), calcWizard);
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout(0, 0));
 		container.add(toolBar, BorderLayout.NORTH);
@@ -775,7 +770,7 @@ class MeasurementViewerUI
 
     /**
 	 * Calculate the stats for the roi in the shapelist with id. This method
-	 * will call the CalcWizard.
+	 * will call the graphView.
 	 * @param id see above.
 	 * @param shapeList see above.
 	 */
@@ -783,8 +778,7 @@ class MeasurementViewerUI
 	{
 		if(model.getState() != MeasurementViewer.READY)
 			return;
-		tabs.setSelectedIndex(calcWizard.getIndex());
-		calcWizard.calculateStats(id, shapeList);
+		model.calculateStats(id, shapeList);
 	}
 
 	/* (non-Javadoc)

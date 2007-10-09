@@ -24,17 +24,16 @@ package org.openmicroscopy.shoola.util.ui.treetable.renderers;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
-import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
-
 //Third-party libraries
 
 //Application-internal dependencies
+
+import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
 
 /** 
  * 

@@ -29,7 +29,6 @@ import java.util.Vector;
 //Third-party libraries
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
-import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
 
 //Application-internal dependencies
 

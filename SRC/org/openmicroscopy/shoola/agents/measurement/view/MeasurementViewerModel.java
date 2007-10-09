@@ -790,6 +790,46 @@ class MeasurementViewerModel
 		currentLoader = new Analyser(component, pixels, channels, l);
 		currentLoader.load();
 	}
+		
+	/**
+	 * Fires an asynchronous call to analyse the passed shapes.
+	 *  
+	 * @param shapeList The shapelist to analyse. Mustn't be <code>null</code>.
+	 */
+	void fireAnalyzeShape(ArrayList<ROIShape> shapeList)
+	{
+		if(getState() == MeasurementViewer.ANALYSE_SHAPE)
+			return;
+		state = MeasurementViewer.ANALYSE_SHAPE;
+		List channels = new ArrayList(activeChannels.size());
+		channels.addAll(activeChannels.keySet());
+		
+		currentLoader = new Analyser(component, pixels, channels, shapeList);
+		currentLoader.load();
+	}
+	
+	
+	/**
+	 * Fires an asynchronous call to analyse the passed roi.
+	 *  
+	 * @param roi The roi to analyse. Mustn't be <code>null</code>.
+	 */
+	void fireAnalyzeROI(ROI roi)
+	{
+		if(getState() == MeasurementViewer.ANALYSE_SHAPE)
+			return;
+		List<ROIShape> l = new ArrayList<ROIShape>(roi.getShapes().size());
+		Iterator<ROIShape> shapeIterator = roi.getShapes().values().iterator();
+		while(shapeIterator.hasNext())
+			l.add(shapeIterator.next());
+		
+		state = MeasurementViewer.ANALYSE_SHAPE;
+		List channels = new ArrayList(activeChannels.size());
+		channels.addAll(activeChannels.keySet());
+		
+		currentLoader = new Analyser(component, pixels, channels, l);
+		currentLoader.load();
+	}
 	
 	/** Fires an asynchronous call to retrieve the channel metadata. */
 	void fireChannelMetadataLoading()
@@ -941,7 +981,7 @@ class MeasurementViewerModel
 	 */
 	public void calculateStats(long id, ArrayList<ROIShape> shapeList)
 	{
-		
+		component.analyseShapeList(shapeList);
 	}
 	
 	

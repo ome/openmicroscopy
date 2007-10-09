@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 
 //Java imports
-import java.awt.Color;
 
 //Third-party libraries
 import static org.jhotdraw.draw.AttributeKeys.STROKE_MITER_LIMIT;

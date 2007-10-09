@@ -22,20 +22,16 @@
  */
 package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 
-import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
 
-import java.awt.Color;
 
-import net.n3.nanoxml.IXMLElement;
-
-import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
 
 //Java imports
 
 //Third-party libraries
+import net.n3.nanoxml.IXMLElement;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
 /** 
  * 

@@ -22,15 +22,12 @@
  */
 package org.openmicroscopy.shoola.util.ui.treetable.editors;
 
+//Java imports
 import java.awt.Component;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.JTable;
-import javax.swing.JTree;
 import javax.swing.table.TableCellEditor;
-import javax.swing.tree.TreeCellEditor;
-
-//Java imports
 
 //Third-party libraries
 

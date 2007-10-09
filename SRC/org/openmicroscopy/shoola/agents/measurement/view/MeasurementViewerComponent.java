@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 
  * Implements the {@link MeasurementViewer} interface to provide the 
@@ -542,7 +543,14 @@ class MeasurementViewerComponent
 			Collection<ROIFigure> collection = getSelectedFigures();
 			if (collection.size() != 1) return;
 			ROIFigure figure = collection.iterator().next();
-			analyseShape(figure.getROIShape());
+			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+			ROI roi = figure.getROI();
+			TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
+			Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
+			while(shapeIterator.hasNext())
+				shapeList.add(shapeMap.get(shapeIterator.next()));
+			if(shapeList.size()!=0)
+			analyseShapeList(shapeList);
 		}
 	}
 
@@ -565,7 +573,14 @@ class MeasurementViewerComponent
 			Collection<ROIFigure> collection = getSelectedFigures();
 			if (collection.size() != 1) return;
 			ROIFigure figure = collection.iterator().next();
-			analyseShape(figure.getROIShape());
+			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+			ROI roi = figure.getROI();
+			TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
+			Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
+			while(shapeIterator.hasNext())
+				shapeList.add(shapeMap.get(shapeIterator.next()));
+			if(shapeList.size()!=0)
+			analyseShapeList(shapeList);
 		}
 	}
 
@@ -589,6 +604,7 @@ class MeasurementViewerComponent
 			un.notifyInfo("Sets stats results", "No result to display.");
 			return;
 		}
+		System.err.println("Result size : " + result.size());
 		model.setAnalysisResults(result);
 		view.displayAnalysisResults();
 		fireStateChange();
@@ -598,7 +614,7 @@ class MeasurementViewerComponent
 	 * Implemented as specified by the {@link MeasurementViewer} interface.
 	 * @see MeasurementViewer#analyseShape(ROIShape)
 	 */
-	public void analyseShape(ROIShape shape)
+	/*public void analyseShape(ROIShape shape)
 	{
 		if (shape == null)
 			throw new IllegalArgumentException("No shape specified.");
@@ -618,8 +634,63 @@ class MeasurementViewerComponent
 		if (model.getActiveChannels().size() == 0) return;
 		model.fireAnalyzeShape(shape);
 		fireStateChange();
+	}*/
+	
+	/** 
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#analyseShapeList(ArrayList)
+	 */
+	public void analyseShapeList(ArrayList<ROIShape> shapeList)
+	{
+		if (shapeList == null)
+			throw new IllegalArgumentException("No shape specified.");
+		int state = model.getState();
+		switch (model.getState()) {
+			case DISCARDED:
+			case LOADING_DATA:
+			case LOADING_ROI:
+				throw new IllegalStateException("This method cannot be " +
+						"invoked in the DISCARDED, LOADING_DATA or " +
+						"LOADING_ROI state: "+state);
+				
+			case ANALYSE_SHAPE:
+				model.cancel();
+				break;
+		}
+		if (model.getActiveChannels().size() == 0) return;
+		System.err.println("ShapeList size : " + shapeList.size());
+		model.fireAnalyzeShape(shapeList);
+		fireStateChange();
 	}
 
+	
+	/** 
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#analyseROI(ROI)
+	 */
+	public void analyseROI(ROI roi)
+	{
+	/*	if (roi == null)
+			throw new IllegalArgumentException("No shape specified.");
+		int state = model.getState();
+		switch (model.getState()) {
+			case DISCARDED:
+			case LOADING_DATA:
+			case LOADING_ROI:
+				throw new IllegalStateException("This method cannot be " +
+						"invoked in the DISCARDED, LOADING_DATA or " +
+						"LOADING_ROI state: "+state);
+				
+			case ANALYSE_SHAPE:
+				model.cancel();
+				break;
+		}
+		if (model.getActiveChannels().size() == 0) return;
+		model.fireAnalyzeROI(roi);
+		fireStateChange();*/
+	}
+
+	
 	/** 
 	 * Implemented as specified by the {@link MeasurementViewer} interface.
 	 * @see MeasurementViewer#setChannelMetadata(List)
@@ -664,7 +735,7 @@ class MeasurementViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link MeasurementViewer} interface.
-	 * @see MeasurementViewer#createSingleFigure(List)
+	 * @see MeasurementViewer#createSingleFigure(boolean)
 	 */
 	public void createSingleFigure(boolean createSingleFig)
 	{

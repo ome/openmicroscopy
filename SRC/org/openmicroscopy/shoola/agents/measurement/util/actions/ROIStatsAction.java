@@ -71,7 +71,7 @@ extends AbstractAction
 		{
 			case CALCULATE:
 				this.
-				setName("Calculate");
+				setName("Calculate ROI Statistics");
 				break;
 		}
 	}

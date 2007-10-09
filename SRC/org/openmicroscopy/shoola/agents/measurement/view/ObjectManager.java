@@ -399,7 +399,6 @@ class ObjectManager
 	public void calculateStats(long id, ArrayList<ROIShape> shapeList)
 	{
 		view.calculateStats(id, shapeList);
-		this.rebuildTable();
 	}
 	
 	/**

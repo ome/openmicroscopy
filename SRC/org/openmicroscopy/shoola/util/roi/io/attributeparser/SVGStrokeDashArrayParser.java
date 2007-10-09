@@ -22,19 +22,16 @@
  */
 package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 
-import static org.jhotdraw.draw.AttributeKeys.STROKE_DASHES;
-
-import java.io.IOException;
-
-import net.n3.nanoxml.IXMLElement;
-
-import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
 //Java imports
 
 //Third-party libraries
+import static org.jhotdraw.draw.AttributeKeys.STROKE_DASHES;
+import net.n3.nanoxml.IXMLElement;
 
 //Application-internal dependencies
+
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
 /** 
  * 

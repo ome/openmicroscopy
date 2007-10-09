@@ -31,7 +31,6 @@ import net.n3.nanoxml.IXMLElement;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.io.IOConstants;
-import org.openmicroscopy.shoola.util.roi.io.InputStrategy;
 import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
