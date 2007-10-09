@@ -45,10 +45,12 @@ import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
+import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
@@ -129,6 +131,12 @@ class GraphPane
 	
 	/** The state of the Graph pane. */
 	int state= READY;
+	
+	/** Reference to the view.*/
+	MeasurementViewerUI 				view;
+	
+	/** Current shape. */
+	ROIShape 						shape;
 	
 	/**
 	 * overridded version of {@line TabPaneInterface#getIndex()}
@@ -227,17 +235,21 @@ class GraphPane
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param view 		 Reference to the View. Mustn't be <code>null</code>.
 	 * @param controller Reference to the Control. Mustn't be <code>null</code>.
 	 * @param model		 Reference to the Model. Mustn't be <code>null</code>.
 	 */
-	GraphPane(MeasurementViewerControl controller, 
+	GraphPane(MeasurementViewerUI view, MeasurementViewerControl controller, 
 		MeasurementViewerModel model)
 	{
+		if (view == null)
+			throw new IllegalArgumentException("No view.");
 		if (controller == null)
 			throw new IllegalArgumentException("No control.");
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
 		this.model = model;
+		this.view = view;
 		initComponents();
 		buildGUI();
 	}
@@ -280,7 +292,6 @@ class GraphPane
 		int minT=Integer.MAX_VALUE, maxT=Integer.MIN_VALUE;
 		while(shapeIterator.hasNext())
 		{
-			ROIShape shape;
 			shape = (ROIShape) shapeIterator.next();
 			minT = Math.min(minT, shape.getCoord3D().getTimePoint());
 			maxT = Math.max(maxT, shape.getCoord3D().getTimePoint());
@@ -325,7 +336,7 @@ class GraphPane
 		Map<Integer, double[]> data = pixelStats.get(coord);
 		if(data==null)
 			return;
-		ROIShape shape = shapeMap.get(coord);
+		shape = shapeMap.get(coord);
 		double[] dataY;
 		double[][] dataXY;
 		Color c;
@@ -458,8 +469,11 @@ class GraphPane
 			return;
 		state = ANALYSING;
 		this.buildGraphsAndDisplay();
-		this.repaint();
 		state=READY;
+		if(shape!=null)
+		{
+			view.selectFigure(shape.getFigure());
+		}
 	}
 	
 }

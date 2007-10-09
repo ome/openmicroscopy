@@ -405,7 +405,7 @@ class MeasurementViewerComponent
 			{
 				savedFileString = model.getImageName();
 				File savedFile = new File(savedFileString);
-				chooser.setSelectedFile(savedFile);
+				chooser.setSelectedFile(savedFile.getName());
 			}
 			else
 			{
@@ -749,19 +749,28 @@ class MeasurementViewerComponent
 		//TODO: Externalize the UI code in a customized FileChooser Dialog
 		Registry reg = MeasurementAgent.getRegistry();
 		UserNotifier un = reg.getUserNotifier();
-	
-		JFileChooser chooser = new JFileChooser();
-		FileFilter filter = new XMLFilter();
-		chooser.addChoosableFileFilter(filter);
-		chooser.setFileFilter(filter);
-
-		File f = UIUtilities.getDefaultFolder();
+		
+		ArrayList<FileFilter> filterList=new ArrayList<FileFilter>();
+		FileFilter filter=new XMLFilter();
+		filterList.add(filter);
+		FileChooser chooser=
+				new FileChooser(
+					view, FileChooser.SAVE, "Save the ROI File",
+					"Save the ROI data in the file associate with this image.",
+					filterList);
+		File f=UIUtilities.getDefaultFolder();
 	    if (f != null) chooser.setCurrentDirectory(f);
 		try
 		{
 			String savedFileString=FileMap.getSavedFile(model.getServerName(), 
 							model.getUserName(), model.getPixelsID());
-			if(savedFileString!=null)
+			if(savedFileString==null)
+			{
+				savedFileString = model.getImageName();
+				File savedFile = new File(savedFileString);
+				chooser.setSelectedFile(savedFile.getName());
+			}
+			else
 			{
 				File savedFile = new File(savedFileString);
 				chooser.setCurrentDirectory(savedFile);
@@ -773,7 +782,7 @@ class MeasurementViewerComponent
 			// Do nothing as we're really only looking to see if the default 
 			// directory or filename should be set for loading.
 		}
-		int results = chooser.showSaveDialog(view.getParent());
+		int results = chooser.showDialog();
 		if (results != JFileChooser.APPROVE_OPTION) return;
 		File file = chooser.getSelectedFile();
 		if (!file.getAbsolutePath().endsWith(XMLFilter.XML))
@@ -781,15 +790,7 @@ class MeasurementViewerComponent
 			String fileName = file.getAbsolutePath()+"."+XMLFilter.XML;
 			file = new File(fileName);
 		}
-		if (file.exists()) 
-		{
-			int response = JOptionPane.showConfirmDialog (null,
-						"Overwrite existing file?","Confirm Overwrite",
-						JOptionPane.OK_CANCEL_OPTION,
-						JOptionPane.QUESTION_MESSAGE);
-	        if (response == JOptionPane.CANCEL_OPTION) return;
-	    }
-		//
+	
 		try {
 			model.saveROI(file.getAbsolutePath(), false);
 		} catch (ParsingException e) {

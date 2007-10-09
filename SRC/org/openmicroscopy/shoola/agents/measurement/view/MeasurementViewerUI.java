@@ -259,10 +259,10 @@ class MeasurementViewerUI
 	{
 		statusBar = new StatusBar();
 		toolBar = new ToolBar(controller, model);
-		roiInspector = new ObjectInspector(controller, model);
 		roiManager = new ObjectManager(this, model);
+		roiInspector = new ObjectInspector(controller, model);
 		roiResults = new MeasurementResults(controller, model, this);
-		graphPane = new GraphPane(controller, model);
+		graphPane = new GraphPane(this, controller, model);
 		intensityView = new IntensityView(this, controller, model);
 		calcWizard = new CalculationWizard(controller, model);
 		tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
@@ -295,10 +295,10 @@ class MeasurementViewerUI
 	private void buildGUI()
 	{
 		setJMenuBar(createMenuBar());
-		tabs.addTab(roiInspector.getComponentName(), 
-					roiInspector.getComponentIcon(), roiInspector);
 		tabs.addTab(roiManager.getComponentName(), 
 					roiManager.getComponentIcon(), roiManager);
+		tabs.addTab(roiInspector.getComponentName(), 
+			roiInspector.getComponentIcon(), roiInspector);
 		tabs.addTab(roiResults.getComponentName(), 
 			roiResults.getComponentIcon(), roiResults);
 		tabs.addTab(graphPane.getComponentName(), 

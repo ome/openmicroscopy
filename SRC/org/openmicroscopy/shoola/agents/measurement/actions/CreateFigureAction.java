@@ -50,18 +50,18 @@ public class CreateFigureAction
 {
 
 		/** Show the pixels in create single. */
-		private static final String NAME_CREATE_SINGLE = "Create Single Figure";
+		private static final String NAME_CREATE_SINGLE = "Create Single ROI";
 		
 		/** Show the pixels in create multiple. */
-		private static final String NAME_CREATE_MULTIPLE = "Create Multiple Figures";
+		private static final String NAME_CREATE_MULTIPLE = "Create Multiple ROI";
 		
 		/** The description of the action for create single. */
 		private static final String DESCRIPTION_CREATE_SINGLE = 
-			"Create a single figure and go back to selection tool.";
+			"Create a single ROI and go back to selection tool.";
 
 		/** The description of the action for create multiple. */
 		private static final String DESCRIPTION_CREATE_MULTIPLE = 
-			"Create multiple figures, user needs to select selection tool by hand.";
+			"Create multiple ROIs, user needs to select selection tool by hand.";
 
 		/** Create a single figure. */
 		private boolean				createSingleFigure; 

@@ -299,7 +299,7 @@ class MeasurementViewerControl
 		model.setDataChanged();
 		if (!view.inDataView()) return;
 		ROIShape shape = roiFigure.getROIShape();
-		if (view.inDataView())
+		/*if (view.inDataView())
 		{
 			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
 			ROI roi = shape.getROI();
@@ -308,7 +308,7 @@ class MeasurementViewerControl
 			while(shapeIterator.hasNext())
 				shapeList.add(shapeMap.get(shapeIterator.next()));
 			if (shapeList.size() != 0) model.analyseShapeList(shapeList);
-		}
+		}*/
 		
 	}
 	

@@ -56,16 +56,14 @@ class ROIAssistantModel
 	
 	/** The roi this table model is based on. */
 	private ROI							currentROI;
-	
-	/** The current plane of the viewer. */
-	private Coord3D 					currentPlane;
-	
+		
 	/** The number of columns in the model. */
 	private int							numColumns;
 	
 	/** The number of the rows in the model. */
 	private int 						numRows;
 	
+	/** The map of the shape type to a coord3D object. */
 	private TreeMap<Coord3D, String> 	shapeMap;
 	
 	/** The name of the columns. */
@@ -105,7 +103,6 @@ class ROIAssistantModel
 		this.setColumnCount(numCol+1);
 		this.setRowCount(numRow);
 		this.columnNames = new ArrayList<String>();
-		this.currentPlane = currentPlane;
 		currentROI = roi;
 		columnNames.add("Z Section\\Time");
 		shapeMap = new TreeMap<Coord3D, String>(new Coord3D());

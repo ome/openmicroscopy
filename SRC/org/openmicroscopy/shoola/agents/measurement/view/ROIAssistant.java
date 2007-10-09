@@ -130,8 +130,9 @@ class ROIAssistant
 	private Point mapCoordToCell(Coord3D coord)
 	{
 		int w = table.getColumnWidth();
+		int h = table.getRowHeight();
 		int x = coord.getTimePoint()*w+table.getLeaderColumnWidth(); 
-		int y = coord.getZSection()*w;
+		int y = (table.getRowCount()-coord.getZSection())*h;
 		return new Point(x, y);
 	}
 	

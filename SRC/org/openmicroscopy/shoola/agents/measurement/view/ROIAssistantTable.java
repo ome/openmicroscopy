@@ -77,7 +77,7 @@ class ROIAssistantTable
 	{
 		this.setModel(model);
 		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		int columnWidth = 0;
+		columnWidth = 0;
 		FontMetrics metrics = getFontMetrics(getFont());
 		int w;
 		for(int i = 0 ; i < getColumnCount(); i++)

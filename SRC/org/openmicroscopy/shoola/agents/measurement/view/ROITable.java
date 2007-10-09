@@ -397,14 +397,9 @@ public class ROITable
 	 */
 	public void deleteROI()
 	{
-		ArrayList selectionList = getSelectedObjects();
-		for(Object nodeObject : selectionList)
-		{
-			if(nodeObject instanceof ROI)
-				manager.deleteROI((ROI)nodeObject);
-			else if(nodeObject instanceof ROIShape)
-				manager.deleteROIShape((ROIShape)nodeObject);
-		}
+		ArrayList<ROIShape> selectionList = getSelectedROIShapes();
+		for(ROIShape shape : selectionList)
+			manager.deleteROIShape(shape);
 	}
 	
 	/**
@@ -462,7 +457,6 @@ public class ROITable
 					if(planeMap.containsKey(coord))
 						return null;
 					planeMap.put(coord, shapeMap.get(coord));
-					System.err.println("ROI.id= "+shapeMap.get(coord).getID());
 				}
 			} else if (node instanceof ROIShape)
 			{

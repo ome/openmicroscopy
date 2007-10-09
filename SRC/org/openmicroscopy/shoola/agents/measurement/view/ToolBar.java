@@ -178,12 +178,21 @@ class ToolBar
 			JToggleButton button = (JToggleButton) component;
 			IconManager icons = IconManager.getInstance();
 			button.setIcon(icons.getIcon(IconManager.POINTICON));
+			button.setToolTipText(FigureUtil.POINT_TYPE);
 		}
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, lineTool, 
 					CREATE_KEY+FigureUtil.LINE_TYPE);
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, connectionTool, 
 	    			CREATE_KEY+FigureUtil.LINE_CONNECTION_TYPE);
-		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polylineTool, 
+		 component = toolBar.getComponent(
+			toolBar.getComponentCount()-1);
+		 if (component instanceof JToggleButton)
+		 {
+			 JToggleButton button = (JToggleButton) component;
+			 IconManager icons = IconManager.getInstance();
+			 button.setToolTipText(FigureUtil.LINE_CONNECTION_TYPE);
+		 }
+		 DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polylineTool, 
 				  CREATE_KEY+FigureUtil.SCRIBBLE_TYPE);
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polygonTool, 
 	    		  CREATE_KEY+FigureUtil.POLYGON_TYPE);
