@@ -28,6 +28,9 @@ package org.openmicroscopy.shoola.agents.measurement;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.Map;
+import java.util.Set;
+
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
@@ -193,6 +196,15 @@ public class MeasurementAgent
 		bus.register(this, SaveData.class);
 	}
 
+	/**
+     * Implemented as specified by {@link Agent}. 
+     * @see Agent# hasDataToSave()
+     */
+    public Map<String, Set> hasDataToSave() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+    
 	/**
      * Implemented as specified by {@link Agent}.
      * @see Agent#terminate()

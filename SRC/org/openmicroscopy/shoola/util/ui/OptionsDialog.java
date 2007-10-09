@@ -27,11 +27,13 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -70,6 +72,12 @@ public class OptionsDialog
 {
 
 	/** 
+     * The size of the invisible components used to separate buttons
+     * horizontally.
+     */
+    private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
+    
+	/** 
 	 * The outmost container.  
 	 * All other widgets are added to this panel, which, in turn, is then 
 	 * added to the dialog's content pane.
@@ -82,8 +90,14 @@ public class OptionsDialog
 	/** Controls to ask a confirmation question */
 	private JButton	       	yesButton;
 	
+	/** Controls to cancel the operation */
+	private JButton	       	cancelButton;
+	
 	/** Panel hosting the UI components. */
 	private JPanel 			mainPanel;
+	
+	/** Panel hosting the UI buttons. */
+	private JPanel 			controlPanel;
 	
     /** Action performed when the {@link #yesButton} is pressed. */
     private void yesSelection()
@@ -99,12 +113,19 @@ public class OptionsDialog
         close();
     }
     
+    /** Action performed when the {@link #cancelButton} is pressed. */
+    private void cancel()
+    { 
+        onCancel();
+        close();
+    }
+    
     /** Creates the various UI components that make up the dialog. */
     private void createComponents()
     {
+    	mainPanel = new JPanel();
+    	controlPanel = new JPanel();
         contentPanel = new JPanel();
-        //messagePanel = new JPanel();
-        //buttonPanel = new JPanel();
         noButton = new JButton("No");
         yesButton = new JButton("Yes");
         getRootPane().setDefaultButton(yesButton);
@@ -145,7 +166,6 @@ public class OptionsDialog
 	 */
 	private JPanel buildCommentPanel(String instructions, Icon icon)
 	{
-		contentPanel = new JPanel();
         int iconSpace = 0;
         int height = 20;
         if (icon != null) iconSpace = icon.getIconWidth()+20;
@@ -165,6 +185,21 @@ public class OptionsDialog
 		return contentPanel;
 	}
 	
+	/**
+	 * Builds the panel hosting the components.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildControlPanel()
+	{
+		controlPanel.setBorder(null);
+		controlPanel.add(yesButton);
+		controlPanel.add(Box.createRigidArea(H_SPACER_SIZE));
+		controlPanel.add(noButton);
+		controlPanel.add(Box.createRigidArea(H_SPACER_SIZE));
+		return UIUtilities.buildComponentPanelRight(controlPanel);
+	}
+	
     /**
      * Builds and lays out the {@link #contentPanel}, then adds it to the
      * content pane.
@@ -174,21 +209,15 @@ public class OptionsDialog
      */
     private void buildGUI(String message, Icon icon)
     {
-    	mainPanel = new JPanel();
+    	
 		mainPanel.setOpaque(false);
-		double tableSize[][] = {{TableLayout.FILL, 100, 5, 100, 10}, // columns
+		double tableSize[][] = {{TableLayout.FILL}, // columns
 								{TableLayout.FILL, 40}}; // rows
         TableLayout layout = new TableLayout(tableSize);
         mainPanel.setLayout(layout);       
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        //Add the buttons.
-        mainPanel.add(yesButton, "1, 1, f, c");
-        mainPanel.add(noButton, "3, 1, f, c");
-        JComponent component;
-    	component = buildCommentPanel(message, icon);
-        
-        mainPanel.add(component, "0, 0, 4, 0");
+        mainPanel.add(buildCommentPanel(message, icon), "0, 0");
+        mainPanel.add(buildControlPanel(), "0, 1");
 		getContentPane().add(mainPanel, BorderLayout.CENTER);
     }
     
@@ -280,6 +309,19 @@ public class OptionsDialog
 		repaint();
 	}
 	
+	/** Adds the {@link #cancelButton}. */
+	public void addCancelButton()
+	{
+		if (cancelButton == null) {
+			cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(new ActionListener() {
+	            public void actionPerformed(ActionEvent e) { cancel(); }
+	        });
+		}
+		controlPanel.add(cancelButton);
+		repaint();
+	}
+	
     /**
      * Subclasses should override the method to perform an action.
      * We cannot fire a property change event b/c the dialog is modal.
@@ -291,5 +333,11 @@ public class OptionsDialog
      * We cannot fire a property change event b/c the dialog is modal.
      */
     protected void onNoSelection() {}
+    
+    /**
+     * Subclasses should override the method to perform an action.
+     * We cannot fire a property change event b/c the dialog is modal.
+     */
+    protected void onCancel() {}
     
 }

@@ -196,4 +196,9 @@ public class ClassificationPane
         uiDelegate.onSelectedDisplay(title);   
     }
 
+    /**
+     * Overridden to return the name of this UI component.
+     * @see ClipBoardPane#hasDataToSave()
+     */
+    public boolean hasDataToSave() {  return false; }
 }

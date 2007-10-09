@@ -74,7 +74,12 @@ class AnnotatorCanvas
         if (img == null) return;
         Graphics2D g2D = (Graphics2D) g;
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
-        g2D.drawImage(img, null, 0, 0); 
+        if (model.isReverse()) {
+        	int w = img.getWidth();
+        	int h = img.getHeight();
+        	g2D.drawImage(img, 0, 0, w, h, w, h, 0, 0, null); 
+       } else g2D.drawImage(img, null, 0, 0); 
+        
         if (paintedString != null) {
         	FontMetrics fm = getFontMetrics(getFont());
         	g2D.setColor(BACKGROUND);

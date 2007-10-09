@@ -241,5 +241,13 @@ public interface Editor
 	 * @param nodes The nodes to add.
 	 */
 	public void addSiblings(List nodes);
+
+	/**
+	 * Returns <code>true</code> if there is annotation to save,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasAnnotationToSave();
 	
 }

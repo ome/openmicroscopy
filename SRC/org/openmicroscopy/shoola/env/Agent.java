@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.env;
 
 
 // Java Imports;
+import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -76,4 +78,11 @@ public interface Agent
      */
     public boolean canTerminate();
     
+    /**
+     * Returns the map with events and data to save.
+     * 
+     * @return See above.
+     */
+    public Map<String, Set> hasDataToSave();
+
 }

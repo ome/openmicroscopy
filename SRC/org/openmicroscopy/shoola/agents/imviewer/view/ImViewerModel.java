@@ -197,6 +197,8 @@ class ImViewerModel
 	/** The pixels set to copy the rendering settings from. */
 	private Pixels 				pixels;
 
+	private boolean				reverse;
+	
 	/** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
 	private void computeSizes()
 	{
@@ -233,6 +235,13 @@ class ImViewerModel
 		zoomFitToWindow = false; 
 		tabbedIndex = ImViewer.VIEW_INDEX;
 		textVisible = true;
+		reverse = false;
+		/*
+		if (name != null) {
+			if (name.endsWith(".dv") || name.endsWith(".DV"))
+				reverse = true;
+		}
+		*/
 	}
 
 	/**
@@ -247,6 +256,15 @@ class ImViewerModel
 		browser = BrowserFactory.createBrowser(component, imageID);
 	}
 
+	/**
+	 * Returns <code>true</code> if we need to flip along the X-axis the image,
+     * <code>false</code> otherwise.
+	 * This is only valid for dv file.
+	 * 
+	 * @return See above.
+	 */
+	boolean isReverse() { return reverse; }
+	
 	/**
 	 * Returns the current user's details.
 	 * 
@@ -898,7 +916,8 @@ class ImViewerModel
 			else ratio = (double) ImViewer.MINIMUM_SIZE/h;
 		}
 		BufferedImage thumb = Factory.magnifyImage(ratio, img);
-		HistoryItem i = new HistoryItem(rndControl.getRndSettingsCopy(), thumb);
+		HistoryItem i = new HistoryItem(rndControl.getRndSettingsCopy(), 
+										thumb, reverse);
 		if (historyItems == null) historyItems = new ArrayList<HistoryItem>();
 		historyItems.add(i);
 		return i;

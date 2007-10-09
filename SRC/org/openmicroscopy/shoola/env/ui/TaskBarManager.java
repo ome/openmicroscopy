@@ -35,23 +35,36 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
+import org.openmicroscopy.shoola.env.data.events.SaveEventResponse;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.event.RequestEvent;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -107,6 +120,8 @@ class TaskBarManager
 
 	/** The software update dialog. */
 	private SoftwareUpdateDialog	suDialog;
+	
+	private Map<Agent, Integer> 	exitResponses;
 	
 	/** 
 	 * Parses the <code>about.xml</code> file to determine the value
@@ -244,6 +259,27 @@ class TaskBarManager
 		} 
 	}
 	
+	private void handleSaveEventResponse(SaveEventResponse e)
+	{
+		Iterator j = exitResponses.keySet().iterator();
+		while (j.hasNext()) {
+			System.err.println(j.next());
+			
+		}
+		if (e == null) return;
+		Agent a = e.getAgent();
+		Integer r = exitResponses.get(a);
+		System.err.println(exitResponses.size());
+		System.err.println(a+" size : "+r);
+		if (r != null) {
+			int v = r.intValue()-1;
+			if (v == 0) exitResponses.remove(a);
+			//else exitResponses.put(a, v);
+		}
+		System.err.println(exitResponses.size());
+		if (exitResponses.size() == 0) container.exit();
+	}
+	
 	/**
 	 * The exit action.
 	 * Just forwards to the container.
@@ -251,9 +287,103 @@ class TaskBarManager
 	private void doExit()
     { 
         IconManager icons = IconManager.getInstance(container.getRegistry());
-        ExitDialog d = new ExitDialog(view, 
-                                icons.getIcon(IconManager.QUESTION), container);
-        UIUtilities.centerAndShow(d);
+        /*
+        JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		List agents = (List) container.getRegistry().lookup(LookupNames.AGENTS);
+		Iterator i = agents.iterator();
+		AgentInfo agentInfo;
+		Agent a;
+		//Agents termination phase.
+		i = agents.iterator();
+		Map m;
+		List<SaveEventBox> boxes = null;
+		SaveEventBox box;
+		Iterator k, v;
+		String key;
+		JPanel item;
+		Set values;
+		Map<Agent, List> results = new HashMap<Agent, List>();
+		while (i.hasNext()) {
+			agentInfo = (AgentInfo) i.next();
+			a = agentInfo.getAgent();
+			m = a.hasDataToSave();
+			if (m != null && m.size() > 0) {
+				boxes = new ArrayList<SaveEventBox>();
+				k = m.keySet().iterator();
+				while (k.hasNext()) {
+					key = (String) k.next();
+					item = new JPanel();
+					item.setLayout(new BoxLayout(item, BoxLayout.Y_AXIS));
+					p.add(UIUtilities.setTextFont(key));
+					p.add(item);
+					values = (Set) m.get(key);
+					v = values.iterator();
+					while (v.hasNext()) {
+						box = new SaveEventBox((RequestEvent) v.next());
+						boxes.add(box);
+						item.add(box);
+					}
+				}
+				if (boxes != null && boxes.size() != 0) results.put(a, boxes);
+			}
+		}
+		
+		MessageBox msg;
+		if (results.size() != 0) {
+			EventBus bus = container.getRegistry().getEventBus();
+			msg = new MessageBox(view, "Exit application", 
+        			"Before closing the application, do you want to save" +
+        			" data from : ", icons.getIcon(IconManager.QUESTION));
+			msg.addCancelButton();
+			msg.addBodyComponent(p);
+			exitResponses = new HashMap<Agent, Integer>();
+			switch (msg.centerMsgBox()) {
+				case MessageBox.YES_OPTION:
+					i = results.keySet().iterator();
+					Integer number;
+					while (i.hasNext()) {
+						a = (Agent) i.next();
+						boxes = results.get(a);
+						k = boxes.iterator();
+						while (k.hasNext()) {
+							box = (SaveEventBox) k.next();
+							if (box.isSelected()) {
+								bus.post(box.getEvent());
+								number = exitResponses.get(a);
+								System.err.println("Agent: "+a);
+								if (number == null) {
+									exitResponses.put(a, new Integer(1));
+								} else {
+									number = new Integer(number.intValue()+1);
+								}
+							}
+						}
+					}
+					//container.exit();
+					break;
+				case MessageBox.NO_OPTION:
+					container.exit();
+					break;
+				case MessageBox.CANCEL:
+					break;
+			}
+		} else {
+			msg = new MessageBox(view, "Exit application", 
+        			"Do you really want to close the application?", 
+        			icons.getIcon(IconManager.QUESTION));
+			if (msg.centerMsgBox() == MessageBox.YES_OPTION)
+				container.exit();
+		}
+		*/
+		
+        MessageBox msg;
+        msg = new MessageBox(view, "Exit application", 
+    			"Do you really want to close the application?", 
+    			icons.getIcon(IconManager.QUESTION));
+		if (msg.centerMsgBox() == MessageBox.YES_OPTION)
+			container.exit();
+		
     }
 	
 	/**
@@ -370,6 +500,7 @@ class TaskBarManager
 		EventBus bus = container.getRegistry().getEventBus();
 		bus.register(this, ServiceActivationResponse.class);
         bus.register(this, ExitApplication.class);
+        bus.register(this, SaveEventResponse.class);
 	}
 	
 	/**
@@ -403,6 +534,8 @@ class TaskBarManager
 	{
 		if (e instanceof ServiceActivationResponse)	synchConnectionButtons();
         else if (e instanceof ExitApplication) doExit();
+        else if (e instanceof SaveEventResponse) 
+        	handleSaveEventResponse((SaveEventResponse) e);
 	}
 
 	/**

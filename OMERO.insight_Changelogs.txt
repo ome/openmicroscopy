@@ -6,6 +6,16 @@
   client for the visualization and manipulation of both image data and metadata
   maintained at an OMERO server site. OMERO.insight is completely written in 
   Java.
+ --------------------------------------------------------------------------------
+ Last update: 09/10/2007 (revision 5046)
+ Version: Beta 2.2 rc3
+ 
+  - Viewer: Fixed refreshing problem after annotating ticket #397
+  - Viewer: Save as. Modified layout and names of saving options ticket #398
+  - DataManager: Fixed refresh problem ticket #399
+  - Viewer: Modify closing and saving sequence.
+  - Measurement tool: Bugs fixing.
+  - Annotator: Display scrollbar when the text entered is too long.
 --------------------------------------------------------------------------------
  Last update: 04/10/2007 (revision 5035)
  Version: Beta 2.2 rc2

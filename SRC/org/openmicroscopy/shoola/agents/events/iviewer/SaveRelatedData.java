@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.events.iviewer;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
@@ -55,7 +56,7 @@ public class SaveRelatedData
     private String			message;
     
     /** The event to post. */
-    private RequestEvent	saveEvent;
+    private SaveData	saveEvent;
     
     /** 
      * Flag set to <code>true</code> to save the data the event,
@@ -73,7 +74,7 @@ public class SaveRelatedData
      * @param toSave	Pass <code>true</code> to save the data the event,
      * 					set to <code>false</code> to ignore.
      */
-    public SaveRelatedData(long pixelsID, RequestEvent saveEvent, 
+    public SaveRelatedData(long pixelsID, SaveData saveEvent, 
     						String message, boolean toSave)
     {
     	 if (pixelsID < 0) 
@@ -110,7 +111,7 @@ public class SaveRelatedData
 	 * 
 	 * @return See above.
 	 */
-	public RequestEvent getSaveEvent() { return saveEvent; }
+	public SaveData getSaveEvent() { return saveEvent; }
     
 	/**
 	 * Overridden to return the message associated to this event

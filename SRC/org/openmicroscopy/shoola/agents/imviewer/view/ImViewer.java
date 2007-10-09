@@ -68,7 +68,7 @@ public interface ImViewer
 {
 
 	/** The minimum size of an original image. */
-	public static final int	MINIMUM_SIZE = 96;
+	public static final int		MINIMUM_SIZE = 96;
 	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
@@ -783,4 +783,12 @@ public interface ImViewer
     /** Saves the rendering settings. */
     public void saveRndSettings();
 	
+    /**
+     * Returns <code>true</code> if we need to flip along the X-axis the image,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isReverse();
+    
 }

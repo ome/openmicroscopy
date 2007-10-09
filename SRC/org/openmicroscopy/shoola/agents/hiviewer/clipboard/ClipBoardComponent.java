@@ -387,5 +387,23 @@ class ClipBoardComponent
 	{
 		return model.getParentModel().getExperimenter();
 	}
+
+	/**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#hasAnnotationToSave()
+     */
+	public boolean hasAnnotationToSave()
+	{
+		return view.hasAnnotationToSave();
+	}
+
+	/**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#hasEditedDataToSave()
+     */
+	public boolean hasEditedDataToSave()
+	{
+		return view.hasEditedToSave();
+	}
     
 }

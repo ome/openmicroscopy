@@ -662,6 +662,18 @@ class EditorUI
     }
     
     /**
+     * Returns <code>true</code> if there is annotation to save,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean hasAnnotationToSave()
+    {
+    	if (annotator == null) return false;
+    	return annotator.hasDataToSave();
+    }
+    
+    /**
      * Handles the <code>finish</code> action depending on the type of editor.
      */
     void finish()

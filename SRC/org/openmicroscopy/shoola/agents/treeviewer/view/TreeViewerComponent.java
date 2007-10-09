@@ -42,6 +42,7 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
@@ -195,6 +196,34 @@ class TreeViewerComponent
 	 */
 	void setRecycled(boolean b) { model.setRecycled(b); }
 
+	/**
+	 * Returns <code>true</code> if there is annotation to save,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasAnnotationToSave()
+	{
+		Editor editor = model.getEditor();
+		if (editor == null) return false;
+		return editor.hasAnnotationToSave();
+	}
+	
+	void saveOnClose(SaveData evt)
+	{
+		Editor editor = model.getEditor();
+		switch (evt.getType()) {
+			case SaveData.DATA_MANAGER_ANNOTATION:
+				if (editor == null) 
+					editor.saveData();
+				break;
+			case SaveData.DATA_MANAGER_EDIT:
+				if (editor == null) 
+					editor.saveData();
+				break;
+		};
+	}
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#getState()

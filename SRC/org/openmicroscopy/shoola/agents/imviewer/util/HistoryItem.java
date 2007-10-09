@@ -70,8 +70,11 @@ public class HistoryItem
 	 * 
 	 * @param settings 	Object constaining the rendering settings.
 	 * @param thumbnail	The image rendered using the rendering settings.
+	 * @param reverse	Pass <code>true</code> to indicate to flip the image
+	 * 					along the X-axis, <code>false</code> otherwise.
 	 */
-	public HistoryItem(RndProxyDef settings, BufferedImage thumbnail)
+	public HistoryItem(RndProxyDef settings, BufferedImage thumbnail,
+						boolean reverse)
 	{
 		if (settings == null)
 			throw new IllegalArgumentException("No rnd settings specified.");
@@ -99,7 +102,7 @@ public class HistoryItem
 		allowClose(true);
 		setTitleBarType(SMALL_TITLE_BAR);
 		setListenToBorder(false);
-		canvas = new HistoryItemCanvas(this);
+		canvas = new HistoryItemCanvas(this, reverse);
         getInternalDesktop().add(canvas);
         int w = thumbnail.getWidth();
         int h = thumbnail.getHeight();

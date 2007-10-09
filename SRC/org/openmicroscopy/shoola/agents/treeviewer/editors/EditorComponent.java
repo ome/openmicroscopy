@@ -315,6 +315,18 @@ class EditorComponent
 
     /**
      * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#hasAnnotationToSave()
+     */
+    public boolean hasAnnotationToSave()
+    {
+        if (model.getState() == DISCARDED) return false; //Need to review
+            //throw new IllegalStateException("This method cannot be invoked " +
+            //            "in the DISCARDED state.");
+        return view.hasAnnotationToSave();
+    }
+    
+    /**
+     * Implemented as specified by the {@link Editor} interface.
      * @see Editor#saveData()
      */
     public void saveData()

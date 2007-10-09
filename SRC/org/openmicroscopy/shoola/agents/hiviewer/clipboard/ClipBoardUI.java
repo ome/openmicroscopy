@@ -280,4 +280,28 @@ class ClipBoardUI
         pane.showClassifications(paths);
     }
     
+    /**
+	 * Returns <code>true</code> if annotation data to save, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+    boolean hasAnnotationToSave()
+    {
+    	ClipBoardPane pane = model.getClipboardPane(ClipBoard.ANNOTATION_PANE);
+        return pane.hasDataToSave();
+    }
+    
+    /**
+	 * Returns <code>true</code> if edited data to save, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+    boolean hasEditedToSave()
+    {
+        ClipBoardPane pane = model.getClipboardPane(ClipBoard.EDITOR_PANE);
+        return pane.hasDataToSave();
+    }
+    
 }

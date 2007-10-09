@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 //Java imports
 import java.awt.Rectangle;
+import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -162,6 +164,15 @@ public class HiViewerAgent
     public boolean canTerminate() { return true; }
 
     /**
+     * Implemented as specified by {@link Agent}. 
+     * @see Agent# hasDataToSave()
+     */
+    public Map<String, Set> hasDataToSave()
+    {
+		return HiViewerFactory.hasDataToSave();
+	}
+    
+    /**
      * Responds to an event fired trigger on the bus.
      * Listens to BrowseProject, BrowseDataset, BrowseCategoryGroup, 
      * BrowseCategory.
@@ -205,6 +216,8 @@ public class HiViewerAgent
         }
         if (viewer != null) viewer.activate(bounds);
     }
+
+	
 
 }
 

@@ -54,6 +54,9 @@ public class MessageBox
 
 	/** User have selected the no option. */
 	public final static int			NO_OPTION = 0;
+	
+	/** User have selected the no option. */
+	public final static int			CANCEL = 2;
 
 	/** Option chosen by the user. */
 	private int option; 
@@ -67,6 +70,11 @@ public class MessageBox
      * Overridden to perform the action as the user has selected the no option.
      */
     protected void onNoSelection() { option = NO_OPTION; }
+    
+    /**
+     * Overridden to perform the action as the user has selected the no option.
+     */
+    protected void onCancel() { option = CANCEL; }
     
 	/**
 	 * Creates a new dialog.

@@ -28,8 +28,10 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Rectangle;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.JMenu;
 import javax.swing.event.ChangeEvent;
@@ -38,9 +40,11 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 
@@ -68,6 +72,9 @@ public class ImViewerFactory
   	implements ChangeListener
 {
 
+	/** The name associated to the component. */
+	private static final String NAME = "Viewer: ";
+	
 	/** The sole instance. */
 	private static final ImViewerFactory  singleton = new ImViewerFactory();
 
@@ -176,6 +183,54 @@ public class ImViewerFactory
 				comp.storeEvent(evt);
 		}
 	}
+
+	/**
+	 * Returns map containing the event to post if selected.
+	 * 
+	 * @return See above.
+	 */
+	public static Map<String, Set> hasDataToSave()
+	{
+		Set<SaveEventRequest> events;
+		Iterator i = singleton.viewers.iterator();
+		ImViewerComponent comp;
+		SaveData event;
+		Map<String, SaveRelatedData> saveEvents;
+		Iterator j;
+		SaveRelatedData value;
+		Map<String, Set> m =  new HashMap<String, Set>();
+		while (i.hasNext()) {
+			events = new HashSet<SaveEventRequest>();
+			comp = (ImViewerComponent) i.next();
+			if (comp.hasRndToSave()){
+				event = new SaveData(comp.getPixelsID(), 
+									SaveData.VIEWER_RND_SETTINGS);
+				event.setMessage(ImViewerComponent.RND);
+				events.add(new SaveEventRequest(comp, event));
+			}
+			if (comp.hasAnnotationToSave()){
+				event = new SaveData(comp.getPixelsID(), 
+									SaveData.VIEWER_ANNOTATION);
+				event.setMessage(ImViewerComponent.RND);
+				events.add(new SaveEventRequest(comp, event));
+			}
+			saveEvents = comp.getSaveEvents();
+			if (saveEvents != null) {
+				j = saveEvents.keySet().iterator();
+				while (j.hasNext()) {
+					value = saveEvents.get(j.next());
+					if (value.isToSave()) {
+						event = value.getSaveEvent();
+						event.setMessage(value.toString());
+						events.add(new SaveEventRequest(comp, event));
+					}
+				}
+			}
+			if (events.size() != 0)
+				m.put(NAME+comp.getTitle(), events);
+		}
+		return m;
+	}
 	
 	/** 
 	 * Returns the rendering settings to copy.
@@ -254,5 +309,6 @@ public class ImViewerFactory
 			isAttached = false;
 		}
 	}
+
 
 }

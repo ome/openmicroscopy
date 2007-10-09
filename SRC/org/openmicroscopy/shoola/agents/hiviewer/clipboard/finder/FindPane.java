@@ -376,5 +376,11 @@ public class FindPane
      */
     public String getPaneDescription() { return "Find"; }
     
+    /**
+     * Overridden to return the name of this UI component.
+     * @see ClipBoardPane#hasDataToSave()
+     */
+    public boolean hasDataToSave() {  return false; }
+    
 }
 

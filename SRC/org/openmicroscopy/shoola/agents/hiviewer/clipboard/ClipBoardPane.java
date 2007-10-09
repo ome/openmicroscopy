@@ -92,6 +92,14 @@ public abstract class ClipBoardPane
     public abstract String getPaneDescription();
     
     /**
+	 * Returns <code>true</code> if data to save, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+    public abstract boolean hasDataToSave();
+    
+    /**
      * Creates a new instance.
      * 
      * @param model Reference to the model. Mustn't be <code>null</code>.

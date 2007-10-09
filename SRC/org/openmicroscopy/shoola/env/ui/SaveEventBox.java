@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.util.SaveEventBox 
+ * org.openmicroscopy.shoola.env.ui.SaveEventBox 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,20 +20,21 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.imviewer.util;
+package org.openmicroscopy.shoola.env.ui;
 
+import javax.swing.JCheckBox;
+
+import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 
 //Java imports
-import javax.swing.JCheckBox;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 
 /** 
- * Utility class used to store a {@link SaveRelatedData} event.
+ * Utility class used to save the data before closing the application.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,19 +46,20 @@ import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
  * </small>
  * @since OME3.0
  */
-public class SaveEventBox 
+public class SaveEventBox
 	extends JCheckBox
 {
 
 	/** The event hosted by this node. */
-	private SaveRelatedData evt;
+	private RequestEvent evt;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param evt The event hosted by this node. Mustn't be <code>null</code>.
+	 * @param evt 	The event hosted by this node. Mustn't be <code>null</code>.
+	 * @param text	The text to set.
 	 */
-	public SaveEventBox(SaveRelatedData evt)
+	public SaveEventBox(RequestEvent evt)
 	{
 		if (evt == null)
 			throw new IllegalArgumentException("Event cannot be null.");
@@ -71,6 +73,6 @@ public class SaveEventBox
 	 * 
 	 * @return See above.
 	 */
-	public SaveRelatedData getEvent() { return evt; }
+	public RequestEvent getEvent() { return evt; }
 	
 }

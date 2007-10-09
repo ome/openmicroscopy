@@ -30,6 +30,9 @@ package org.openmicroscopy.shoola.agents.imviewer;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.Map;
+import java.util.Set;
+
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
@@ -186,8 +189,22 @@ public class ImViewerAgent
      * Implemented as specified by {@link Agent}. 
      * @see Agent#canTerminate()
      */
-    public boolean canTerminate() { return true; }
+    public boolean canTerminate()
+    { 
+    	//Map m = ImViewerFactory.hasDataToSave();
+    	return true; 
+    }
 
+    /**
+     * Implemented as specified by {@link Agent}. 
+     * @see Agent# hasDataToSave()
+     */
+    public Map<String, Set> hasDataToSave()
+    {
+		// TODO Auto-generated method stub
+		return ImViewerFactory.hasDataToSave();
+	}
+    
     /**
      * Responds to an event fired trigger on the bus.
      * Listens to ViewImage event.

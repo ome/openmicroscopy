@@ -288,5 +288,21 @@ public interface ClipBoard
 	 */
 	public ExperimenterData getExperimenter();
     
+	/**
+	 * Returns <code>true</code> if annotation to save, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasAnnotationToSave();
+	
+	/**
+	 * Returns <code>true</code> if edited data to save, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasEditedDataToSave();
+	
 }
 

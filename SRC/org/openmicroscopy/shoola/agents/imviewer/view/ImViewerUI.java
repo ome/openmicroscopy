@@ -210,16 +210,6 @@ class ImViewerUI
 	private JSplitPane				rendererSplit;
 
 	/** 
-	 * The location of the divider before removing the {@link #historySplit}.
-	 */
-	private int                 	historyMove;
-	
-	/** 
-	 * The location of the divider before removing the {@link #renderSplit}.
-	 */
-	private int                 	rendererMove;
-
-	/** 
 	 * One out of the following list: 
 	 * {@link #NEUTRAL}, {@link #HISTORY}, {@link #RENDERER} and
 	 * {@link #HISTORY_AND_RENDERER}.
@@ -241,12 +231,6 @@ class ImViewerUI
 	/** The menu displaying the categories the image is categorised into. */
 	private CategoriesPopupMenu		categoriesMenu;
 
-	/** 
-	 * The component hosting the various components displayed at the 
-	 * bottom of the display.
-	 */
-	private JTabbedPane				bottomPane;
-
 	/** The default insets of a split pane. */
 	private Insets					refInsets;
 	
@@ -255,8 +239,7 @@ class ImViewerUI
 	
 	/** The number of pixels added between the top and bottom components. */
 	private int						heightAdded;
-	
-	
+
 	/**
 	 * Initializes and returns a split pane, either verical or horizontal 
 	 * depending on the passed parameter.
@@ -283,19 +266,12 @@ class ImViewerUI
 		return pane;
 	}
 
+	/** Initializes the split panes. */
 	private void initSplitPanes()
 	{
 		if (historyUI == null) historyUI = new HistoryUI(this, model);
-		historySplit = new SplitPanel(SplitPanel.HORIZONTAL);//initSplitPane(JSplitPane.VERTICAL_SPLIT);//
+		historySplit = new SplitPanel(SplitPanel.HORIZONTAL);
 		rendererSplit = initSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		BasicSplitPaneDivider div =
-			((BasicSplitPaneUI) rendererSplit.getUI()).getDivider();
-		div.addMouseListener(new MouseAdapter() {
-		
-			public void mouseReleased(MouseEvent e) {
-				rendererMove = rendererSplit.getDividerLocation();
-			}
-		});
 		
 	}
     
@@ -756,37 +732,15 @@ class ImViewerUI
 		return sz;
 	}
 
-	/*
-	public Container lookupDivider(Container container) {
-	    List listDividerList = new ArrayList();
-	    Component acomponent[] = container.getComponents();
-	    for (int i = 0; i < acomponent.length; i++) {
-	        if (acomponent[i] instanceof BasicSplitPaneDivider) {
-	            return (BasicSplitPaneDivider) acomponent[i];
-	        } else if (acomponent[i] instanceof Container) { 
-	            Container divider = lookupDivider((Container) acomponent[i]);
-	            if (divider != null) {
-	                return divider;
-	            }
-	        }
-	    }
-	    return null;
-	}
-	 
-	public List lookupButtons(Container container) {
-	    List listButtonList = new ArrayList();
-	    Component acomponent[] = container.getComponents();
-	    for (int i = 0; i < acomponent.length; i++) {
-	        if (acomponent[i] instanceof JButton) {
-	            listButtonList.add(acomponent[i]);
-	        } else if (acomponent[i] instanceof Container) { 
-	            listButtonList.addAll(lookupButtons((Container) acomponent[i]));
-	        }
-	    }
-	    return listButtonList;
-	}
-*/
-	private void addComponents(JSplitPane pane, JComponent left, JComponent right)
+	/**
+	 * Adds a left and right component to the specified pane.
+	 * 
+	 * @param pane	The split pane to add the components to.
+	 * @param left	The left component to add.
+	 * @param right The right component to add.
+	 */
+	private void addComponents(JSplitPane pane, JComponent left, 
+								JComponent right)
 	{
 		Component c = pane.getLeftComponent();
 		if (c != null) pane.remove(c);
@@ -809,24 +763,24 @@ class ImViewerUI
 		container.add(statusBar, BorderLayout.SOUTH);
 		int width = 0, height = 0;
 		JComponent rightComponent;
-		int divider = 0;
+		//int divider = 0;
 		switch (displayMode) {
 			case HISTORY:
 				historyUI.doGridLayout();
 				height = restoreSize.height;
 				width = restoreSize.width;
 				d = historyUI.getIdealSize();
-				divider += d.height;
+				//divider += d.height;
 				height += d.height;
 				heightAdded = historySplit.getDividerSize()+
 								(refInsets.top+refInsets.bottom);
 				height += historySplit.getDividerSize()+
 							2*(refInsets.top+refInsets.bottom);
-				divider += heightAdded;
+				//divider += heightAdded;
 				historyUI.setPreferredSize(new Dimension(width, d.height));
 				//addComponents(historySplit, tabs, historyUI);
 				//if (historyMove == -1) 
-				historyMove = (height-divider);
+				//historyMove = (height-divider);
 				//historySplit.setDividerLocation(historyMove);
 				
 				container.add(historySplit, BorderLayout.CENTER);
@@ -871,14 +825,16 @@ class ImViewerUI
 				//heightAdded = (refInsets.top+refInsets.bottom);
 				height += 2*heightAdded;
 				widthAdded = rendererSplit.getDividerSize();
-				width += rendererSplit.getDividerSize()+(refInsets.left+refInsets.right);
+				width += rendererSplit.getDividerSize()+
+						(refInsets.left+refInsets.right);
 				d = historyUI.getIdealSize();
-				divider += d.height;
+				//divider += d.height;
 				height += d.height;
 				heightAdded += historySplit.getDividerSize();
-				height += historySplit.getDividerSize()+(refInsets.top+refInsets.bottom);
-				divider += historySplit.getDividerSize()
-								+(refInsets.top+refInsets.bottom);
+				height += historySplit.getDividerSize()+
+							(refInsets.top+refInsets.bottom);
+				//divider += historySplit.getDividerSize()
+				//				+(refInsets.top+refInsets.bottom);
 				historyUI.setPreferredSize(new Dimension(width, d.height));
 				//if (historyMove == -1 || historyMove < height) 
 				//historyMove = (height-divider);
@@ -912,7 +868,6 @@ class ImViewerUI
 			setSize(width, height);
 		} else setSize(d);
 		container.addHierarchyBoundsListener(boundsAdapter);
-		
 	}
 
 	/**
@@ -928,8 +883,6 @@ class ImViewerUI
 		super(title);
 		loadingWindow = new LoadingWindow(this);
 		displayMode = NEUTRAL;
-		historyMove = -1;
-		rendererMove = -1;
 	}
 
 	/**
@@ -1338,6 +1291,24 @@ class ImViewerUI
 		model.getBrowser().scrollTo(lens.getLensScaledBounds(), false);
 	}
 
+	/**
+	 * Selects the tabbed pane specified by the passed index.
+	 * 
+	 * @param index The index.
+	 */
+	void selectTabbedPane(int index)
+	{
+		switch (index) {
+			case ImViewer.VIEW_INDEX:
+			case ImViewer.ANNOTATOR_INDEX:
+			case ImViewer.GRID_INDEX:
+				tabs.setSelectedIndex(index);
+				break;
+			default:
+				return;
+		}
+	}
+	
 	/** 
 	 * Sets the selected pane.
 	 * 

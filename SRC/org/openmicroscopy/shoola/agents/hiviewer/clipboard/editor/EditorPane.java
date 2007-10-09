@@ -268,5 +268,11 @@ public class EditorPane
      * @see ClipBoardPane#getPaneDescription()
      */
     public String getPaneDescription() { return "Edit the selected object."; }
+    
+    /**
+     * Overridden to return the name of this UI component.
+     * @see ClipBoardPane#hasDataToSave()
+     */
+    public boolean hasDataToSave() {  return uiDelegate.isEdit(); }
 
 }

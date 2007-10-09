@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.env.data.events.ExitApplication
+ * org.openmicroscopy.shoola.env.data.events.SaveEventResponse 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,9 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data.events;
-
 
 
 //Java imports
@@ -30,24 +28,49 @@ package org.openmicroscopy.shoola.env.data.events;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
+import org.openmicroscopy.shoola.env.event.ResponseEvent;
 
 /** 
- * Event fired by the agents to exit the application.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @version 2.2
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since OME3.0
  */
-public class ExitApplication
-    extends RequestEvent
+public class SaveEventResponse
+	extends ResponseEvent
 {
 
-    /** Creates a new instance. */
-    public ExitApplication() {}
-    
+	/** The agent related to that event. */
+	private Agent	agent;
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param act	The original service activation request.
+	 * @param agent	The agent related to that event.
+	 */
+	public SaveEventResponse(RequestEvent act, Agent agent)
+	{
+		super(act);
+		if (agent == null)
+			throw new IllegalArgumentException("No agent specified.");
+		this.agent = agent;
+	}
+
+	/**
+	 * Returns the agent related to that event.
+	 * 
+	 * @return See above.
+	 */
+	public Agent getAgent() { return agent; }
+	
 }

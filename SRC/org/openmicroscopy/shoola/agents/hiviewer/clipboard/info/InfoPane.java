@@ -161,6 +161,12 @@ public class InfoPane
      * @see ClipBoardPane#getPaneDescription()
      */
     public String getPaneDescription() { return "Image's information."; }
+    
+    /**
+     * Overridden to return the name of this UI component.
+     * @see ClipBoardPane#hasDataToSave()
+     */
+    public boolean hasDataToSave() {  return false; }
 
 }
 

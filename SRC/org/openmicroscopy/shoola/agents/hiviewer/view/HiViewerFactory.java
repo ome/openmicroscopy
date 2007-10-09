@@ -25,8 +25,10 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 
 //Java imports
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.JMenu;
 import javax.swing.event.ChangeEvent;
@@ -36,11 +38,11 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
-
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -337,6 +339,40 @@ public class HiViewerFactory
     }
     
     /**
+	 * Returns map containing the event to post if selected.
+	 * 
+	 * @return See above.
+	 */
+	public static Map<String, Set> hasDataToSave()
+	{
+		Set<SaveEventRequest> events;
+		Iterator i = singleton.viewers.iterator();
+		HiViewerComponent comp;
+		SaveData event;
+		Map<String, Set> m =  new HashMap<String, Set>();
+		while (i.hasNext()) {
+			events = new HashSet<SaveEventRequest>();
+			comp = (HiViewerComponent) i.next();
+			if (comp.hasEditedDataToSave()) {
+				event = new SaveData(comp, 
+									SaveData.VIEWER_RND_SETTINGS);
+				event.setMessage("Edited data");
+				events.add(new SaveEventRequest(comp, event));
+			}
+			if (comp.hasAnnotatedDataToSave()) {
+				event = new SaveData(comp, 
+									SaveData.VIEWER_ANNOTATION);
+				event.setMessage("The anntotation");
+				events.add(new SaveEventRequest(comp, event));
+			}
+			
+			if (events.size() != 0)
+				m.put(comp.getTitle(), events);
+		}
+		return m;
+	}
+	
+    /**
      * Sets the id of the pixels set to copy the rendering settings from.
      * 
      * @param id The value to set.
@@ -422,7 +458,7 @@ public class HiViewerFactory
         HiViewerComponent comp = (HiViewerComponent) ce.getSource(); 
         if (comp.getState() == HiViewer.DISCARDED) viewers.remove(comp);
         if (viewers.size() == 0) {
-        	TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
+        	TaskBar tb = HiViewerAgent.getRegistry().getTaskBar();
             tb.removeFromMenu(TaskBar.WINDOW_MENU, windowMenu);
             isAttached = false;
         }

@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
 import java.awt.Rectangle;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -39,7 +40,14 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.env.Agent;
+import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
+import org.openmicroscopy.shoola.env.data.events.SaveEventResponse;
+import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.event.RequestEvent;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import pojos.ExperimenterData;
 
@@ -60,6 +68,9 @@ public class TreeViewerFactory
   	implements ChangeListener
 {
 
+	/** The name associated to the component. */
+	private static final String NAME = "Data Manager";
+	
 	/** The sole instance. */
 	private static final TreeViewerFactory  singleton = new TreeViewerFactory();
 
@@ -135,6 +146,20 @@ public class TreeViewerFactory
 		}
 	}
 
+	public static void saveOnClose(SaveEventRequest evt, Object agent)
+	{
+		//if (!(evt instanceof SaveData)) return;
+		Iterator v = singleton.viewers.iterator();
+		TreeViewerComponent comp;
+		//tmp
+		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+		while (v.hasNext()) {
+			comp = (TreeViewerComponent) v.next();
+			comp.saveOnClose((SaveData) evt.getAnswer());
+			bus.post(new SaveEventResponse(evt, (Agent) agent));
+		}
+	}
+	
 	/**
 	 * Returns the {@link TreeViewer}.
 	 * 
@@ -151,6 +176,38 @@ public class TreeViewerFactory
 		return singleton.getTreeViewer(model, bounds);
 	}
 
+	/**
+	 * Returns map containing the event to post if selected.
+	 * 
+	 * @return See above.
+	 */
+	public static Map<String, Set> hasDataToSave()
+	{
+		Set<SaveEventRequest> events = new HashSet<SaveEventRequest>();
+		Iterator i = singleton.viewers.iterator();
+		TreeViewerComponent comp;
+		SaveData event;
+		while (i.hasNext()) {
+			comp = (TreeViewerComponent) i.next();
+			if (comp.hasDataToSave()) {
+				event = new SaveData(SaveData.DATA_MANAGER_EDIT);
+				event.setMessage("Edited data");
+				events.add(new SaveEventRequest(comp, event));
+			}
+			if (comp.hasAnnotationToSave()) {
+				event = new SaveData(SaveData.DATA_MANAGER_ANNOTATION);
+				event.setMessage("The annotation");
+				events.add(new SaveEventRequest(comp, event));
+			}
+		}
+		if (events.size() != 0) {
+			Map<String, Set> m =  new HashMap<String, Set>();
+			m.put(NAME, events);
+			return m;
+		}
+		return null;
+	}
+	
 	/**
 	 * Returns the available user groups.
 	 * 

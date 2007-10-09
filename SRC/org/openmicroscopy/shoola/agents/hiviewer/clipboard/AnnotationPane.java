@@ -98,6 +98,15 @@ class AnnotationPane
     
     /**
      * Overridden to return the name of this UI component.
+     * @see ClipBoardPane#hasDataToSave()
+     */
+    public boolean hasDataToSave()
+    { 
+    	return annotator.hasDataToSave();
+    }
+    
+    /**
+     * Overridden to return the name of this UI component.
      * @see ClipBoardPane#getPaneName()
      */
     public String getPaneName() { return "Annotation"; }

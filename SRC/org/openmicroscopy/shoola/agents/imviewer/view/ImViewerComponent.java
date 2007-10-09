@@ -60,7 +60,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.CategorySaverDef;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImageDetailsDialog;
-import org.openmicroscopy.shoola.agents.imviewer.util.SaveEventBox;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -74,6 +73,7 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+import org.openmicroscopy.shoola.env.ui.SaveEventBox;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -110,6 +110,10 @@ class ImViewerComponent
 	implements ImViewer
 {
 
+	static final String						RND = "The rendering settings";
+	
+	static final String						ANNOTATION = "The annotations";
+	
 	/** The Model sub-component. */
 	private ImViewerModel       			model;
 
@@ -218,18 +222,19 @@ class ImViewerComponent
 		boolean showBox = false;
 		MessageBox msg = new MessageBox(view, "Save Data", 
 						"Before closing the viewer, do you want to save: ");
+		msg.addCancelButton();
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		JCheckBox rndBox = null;
 		if (rndToSave) {
-			rndBox = new JCheckBox("The Rendering Settings");
+			rndBox = new JCheckBox(RND);
 			rndBox.setSelected(true);
 			p.add(rndBox);
 			showBox = true;
 		}
 		JCheckBox annotationBox = null;
 		if (model.getBrowser().hasAnnotationToSave()) {
-			annotationBox = new JCheckBox("The Annotation");
+			annotationBox = new JCheckBox(ANNOTATION);
 			annotationBox.setSelected(true);
 			p.add(annotationBox);
 			showBox = true;
@@ -272,16 +277,63 @@ class ImViewerComponent
 			if (boxes != null) {
 				j = boxes.iterator();
 				EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+				SaveRelatedData event;
 				while (j.hasNext()) {
 					box = (SaveEventBox) j.next();
-					if (box.isSelected() && box.getEvent().isToSave()) {
-						bus.post(box.getEvent().getSaveEvent());
+					if (box.isSelected()) {
+						event = (SaveRelatedData) box.getEvent();
+						if (event.isToSave()) {
+							bus.post(event.getSaveEvent());
+						}
 					}
 				}
 			}
 		}
 		postViewerState(ViewerState.CLOSE);
 	}
+	
+	/**
+	 * Returns a map with events to save.
+	 * 
+	 * @return See above.
+	 */
+	Map<String, SaveRelatedData> getSaveEvents() 
+	{
+		return events;
+	}
+	
+	/**
+	 * Returns <code>true</code> if there are annotations to save,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasAnnotationToSave() 
+	{ 
+		return model.getBrowser().hasAnnotationToSave();
+	}
+	
+	/**
+	 * Returns <code>true</code> if there are rendering settings to save,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasRndToSave() { return rndToSave; }
+	
+	/**
+	 * Returns the id of the pixels set thie viewer is for.
+	 * 
+	 * @return See above.
+	 */
+	long getPixelsID() { return model.getPixelsID(); }
+	
+	/**
+	 * Returns the title associated to the viewer.
+	 * 
+	 * @return See above.
+	 */
+	String getTitle() { return view.getTitle(); }
 	
 	/**
 	 * Creates a new instance.
@@ -1638,6 +1690,7 @@ class ImViewerComponent
 				model.getActiveChannelsMap(), model.getZoomFactor(), 
 				view.getBounds());
 		bus.post(request);
+		view.selectTabbedPane(ImViewer.VIEW_INDEX);
 	}
 
 	/** 
@@ -1726,7 +1779,6 @@ class ImViewerComponent
 	 */
 	public boolean isChannelGreen(int index)
 	{
-//		TODO: check state
 		return model.isChannelGreen(index);
 	}
 
@@ -1736,7 +1788,6 @@ class ImViewerComponent
 	 */
 	public boolean isChannelBlue(int index)
 	{
-//		TODO: check state
 		return model.isChannelBlue(index);
 	}
 
@@ -1800,11 +1851,11 @@ class ImViewerComponent
 	public void copyRenderingSettings()
 	{
 		switch (model.getState()) {
-		case NEW:
-		case DISCARDED:
-			//throw new IllegalStateException(
-			//"This method can't be invoked in the DISCARDED, NEW state.");
-			return;
+			case NEW:
+			case DISCARDED:
+				//throw new IllegalStateException(
+				//"This method can't be invoked in the DISCARDED, NEW state.");
+				return;
 		}
 		model.copyRenderingSettings();
 	}
@@ -1825,7 +1876,7 @@ class ImViewerComponent
 		if (!model.hasRndToPaste()) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Paste rendering settings", "No rendering settings" +
-			" to paste.");
+							" to paste.");
 			return;
 		}
 
@@ -1864,9 +1915,9 @@ class ImViewerComponent
 	public boolean hasSettingsToPaste()
 	{
 		switch (model.getState()) {
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED state.");
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED state.");
 		}
 		return model.hasRndToPaste();
 	}
@@ -1906,9 +1957,9 @@ class ImViewerComponent
 	public void declassify(long categoryID)
 	{
 		switch (model.getState()) {
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED state.");
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED state.");
 		}
 		model.declassify(categoryID);
 		fireStateChange();
@@ -1921,9 +1972,9 @@ class ImViewerComponent
 	public void createAndClassify(CategorySaverDef data)
 	{
 		switch (model.getState()) {
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED state.");
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED state.");
 		}
 		if (data == null) 
 			throw new IllegalArgumentException("No category specified.");
@@ -2001,9 +2052,15 @@ class ImViewerComponent
     {
     	try {
     		model.saveRndSettings();
+    		rndToSave = false;
 		} catch (Exception ex) {
 			reload(ex);
 		}
     }
-
+    
+    public boolean isReverse()
+    {
+    	return model.isReverse();
+    }
+    
 }

@@ -31,12 +31,16 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.Map;
+import java.util.Set;
+
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -75,12 +79,19 @@ public class TreeViewerAgent
      */
     private void handleCopyRndSettings(CopyRndSettings evt)
     {
-    	/*
-    	ExperimenterData exp = (ExperimenterData) registry.lookup(
-				LookupNames.CURRENT_USER_DETAILS);
-    	long userID = exp.getDefaultGroup().getId();
-    	*/
     	TreeViewerFactory.copyRndSettings(evt.getPixelsID());
+    }
+    
+    /**
+     * Handles the {@link SaveEventRequest} event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleSaveEventRequest(SaveEventRequest evt)
+    {
+    	Object origin = evt.getOrigin();
+    	if (!(origin instanceof TreeViewer)) return;
+    	TreeViewerFactory.saveOnClose(evt, this);
     }
     
     /**
@@ -111,6 +122,7 @@ public class TreeViewerAgent
         registry = ctx;
         EventBus bus = registry.getEventBus();
         bus.register(this, CopyRndSettings.class);
+        bus.register(this, SaveEventRequest.class);
     }
 
     /**
@@ -120,6 +132,15 @@ public class TreeViewerAgent
     public boolean canTerminate() { return true; }
 
     /**
+     * Implemented as specified by {@link Agent}. 
+     * @see Agent# hasDataToSave()
+     */
+    public Map<String, Set> hasDataToSave()
+    {
+    	return TreeViewerFactory.hasDataToSave();
+	}
+    
+    /**
      * Responds to an event fired trigger on the bus.
      * Listens to ViewImage event.
      * @see AgentEventListener#eventFired(AgentEvent)
@@ -128,6 +149,8 @@ public class TreeViewerAgent
 	{
 		if (e instanceof CopyRndSettings)
 			handleCopyRndSettings((CopyRndSettings) e);
+		else if (e instanceof SaveEventRequest) 
+		handleSaveEventRequest((SaveEventRequest) e);
 	}
 
 }

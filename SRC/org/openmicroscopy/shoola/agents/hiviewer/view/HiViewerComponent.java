@@ -124,6 +124,35 @@ class HiViewerComponent
     }
     
     /**
+     * Returns <code>true</code> if edited data to save,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean hasEditedDataToSave()
+    {
+    	return model.getClipBoard().hasEditedDataToSave();
+    }
+     
+    /**
+     * Returns <code>true</code> if annotated data to save,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean hasAnnotatedDataToSave()
+    {
+    	return model.getClipBoard().hasAnnotationToSave();
+    }
+    
+    /**
+     * Returns the title associated to this viewer.
+     * 
+     * @return See above.
+     */
+    String getTitle() { return view.getTitle(); }
+    
+    /**
      * Returns the Model sub-component.
      * 
      * @return See above.
