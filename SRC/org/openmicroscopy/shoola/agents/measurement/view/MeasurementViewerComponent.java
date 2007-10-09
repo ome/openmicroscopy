@@ -604,7 +604,6 @@ class MeasurementViewerComponent
 			un.notifyInfo("Sets stats results", "No result to display.");
 			return;
 		}
-		System.err.println("Result size : " + result.size());
 		model.setAnalysisResults(result);
 		view.displayAnalysisResults();
 		fireStateChange();
@@ -658,7 +657,6 @@ class MeasurementViewerComponent
 				break;
 		}
 		if (model.getActiveChannels().size() == 0) return;
-		System.err.println("ShapeList size : " + shapeList.size());
 		model.fireAnalyzeShape(shapeList);
 		fireStateChange();
 	}

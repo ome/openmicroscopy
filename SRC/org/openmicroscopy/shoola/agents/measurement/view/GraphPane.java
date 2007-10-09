@@ -26,26 +26,21 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
@@ -56,10 +51,10 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
 import org.openmicroscopy.shoola.util.ui.graphutils.LinePlot;
 import org.openmicroscopy.shoola.util.ui.graphutils.ScatterPlot;
+import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 
 /** 
  * 
@@ -78,15 +73,17 @@ class GraphPane
 	extends JPanel 
 	implements TabPaneInterface, ChangeListener
 {
+	/** Ready state. */
+	final static int READY = 1;
+	
+	/** Analysing state. */
+	final static int ANALYSING = 0;
 	
 	/** Index to identify tab */
 	public final static int		INDEX = MeasurementViewerUI.GRAPH_INDEX;
 	
 	/** The name of the panel. */
 	private static final String			NAME = "Graph Pane";
-	
-	/** Reference to the control. */
-	private MeasurementViewerControl	controller;
 	
 	/** Reference to the model. */
 	private MeasurementViewerModel		model;
@@ -95,33 +92,49 @@ class GraphPane
 	private Map							ROIStats;
 
 	/** The slider controlling the movement of the analysis through Z. */
-	private JSlider 					zSlider;
+	private OneKnobSlider 				zSlider;
 
 	/** The slider controlling the movement of the analysis through T. */
-	private JSlider 					tSlider;
+	private OneKnobSlider 				tSlider;
 	
 	/** The main panel holding the graphs. */
 	private JPanel 						mainPanel;
 		
+	/** Map of the active channels in the viewer. */
+	private Map activeChannels;
+	
+	/** The map of the shape stats to coord. */
+	private HashMap<Coord3D, Map<StatsType, Map>> shapeStatsList;
+	
+	/** Map of the pixel intensity values to coord. */
+	HashMap<Coord3D, Map<Integer, double[]>> pixelStats;
+	
+	/** Map of the coord to a shape. */
+	HashMap<Coord3D, ROIShape> shapeMap;
+	
+	/** List of channel Names. */
+	List<String> channelName ;
+	
+	/** List of channel colours. */
+	List<Color> channelColour;
+	
+	/** The current coord of the ROI being depicted in the slider. */
+	Coord3D coord;
+		
+	/** The line profile charts. */
+	LinePlot lineProfileChart;
+	
+	/** The histogram chart. */
+	HistogramPlot histogramChart;
+	
+	/** The state of the Graph pane. */
+	int state= READY;
+	
 	/**
 	 * overridded version of {@line TabPaneInterface#getIndex()}
 	 */
 	public int getIndex() {return INDEX; }
-	
-	final static int READY = 1;
-	final static int ANALYSING = 0;
-	
-	Map activeChannels;
-	HashMap<Coord3D, Map<StatsType, Map>> shapeStatsList; 
-	HashMap<Coord3D, Map<Integer, double[]>> pixelStats; 
-	HashMap<Coord3D, ROIShape> shapeMap; 
-	List<String> channelName ;
-	List<Color> channelColour;
-	Coord3D coord;
-	int state= READY;
-	
-	LinePlot lineProfileChart;
-	HistogramPlot histogramChart;
+		
 	/**
 	 * Returns <code>true</code> if the figure contained in the ROIShape
 	 * is a line or bezier path, <code>false</code> otherwise.
@@ -179,40 +192,19 @@ class GraphPane
 		return value;
 	}
 	
-	/**
-	 * Creates a UI component with the label assigned the value str and
-	 * the textbox the value value.
-	 * 
-	 * @param str 	The value assigned to the label.
-	 * @param value The value assigned to the textbox.
-	 * @return See above
-	 */
-	private JPanel createLabelText(String str, String value)
-	{
-		JLabel label = new JLabel(str);
-		JTextField text = new JTextField(value);
-		UIUtilities.setDefaultSize(label, new Dimension(80, 26));
-		UIUtilities.setDefaultSize(text, new Dimension(80, 26));
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-		panel.add(label);
-		panel.add(Box.createHorizontalStrut(10));
-		panel.add(text);
-		return panel;
-	}
-	
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
-		zSlider = new JSlider();
+		zSlider = new OneKnobSlider();
 		zSlider.setOrientation(JSlider.VERTICAL);
 		zSlider.setPaintTicks(true);
 		zSlider.setMajorTickSpacing(1);
 		zSlider.addChangeListener(this);
 
-		tSlider = new JSlider();
+		tSlider = new OneKnobSlider();
 		tSlider.setPaintTicks(true);
 		tSlider.setMajorTickSpacing(1);
+		tSlider.setSnapToTicks(true);
 		tSlider.addChangeListener(this);
 		mainPanel = new JPanel();
 		
@@ -245,7 +237,6 @@ class GraphPane
 			throw new IllegalArgumentException("No control.");
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
-		this.controller = controller;
 		this.model = model;
 		initComponents();
 		buildGUI();
@@ -278,7 +269,6 @@ class GraphPane
 	{
 		this.ROIStats = model.getAnalysisResults();
 		if (ROIStats == null) return;
-		Map activeChannels = model.getActiveChannels();
 		shapeStatsList = new HashMap<Coord3D, Map<StatsType, Map>>();
 		pixelStats = new HashMap<Coord3D, Map<Integer, double[]>>();
 		Iterator<ROIShape> shapeIterator  = ROIStats.keySet().iterator();
@@ -322,6 +312,13 @@ class GraphPane
 		buildGraphsAndDisplay();
 	}
 
+	/**
+	 * The method builds the graphs from the data that was constructed in the
+	 * display analysis method. This method should be called from either the 
+	 * display analysis method or the changelistener which uses the same ROI 
+	 * data generated in the displayAnalysis method.
+	 *
+	 */
 	private void buildGraphsAndDisplay()
 	{
 		coord = new Coord3D(zSlider.getValue(), tSlider.getValue());
@@ -458,9 +455,6 @@ class GraphPane
 		if(coord.equals(thisCoord))
 			return;
 		if(state==ANALYSING)
-			return;
-		JSlider slider = (JSlider)(e.getSource());
-		if(slider.getValueIsAdjusting())
 			return;
 		state = ANALYSING;
 		this.buildGraphsAndDisplay();
