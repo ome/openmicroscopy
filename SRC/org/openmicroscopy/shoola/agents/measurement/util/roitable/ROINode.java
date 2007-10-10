@@ -264,6 +264,7 @@ public class ROINode
 				case ANNOTATION_COLUMN+1:
 					if(value instanceof String)
 					{
+						AnnotationKeys.TEXT.set(roiShape, (String)value);
 						MeasurementAttributes.TEXT.set(figure, (String)value);
 						MeasurementAttributes.SHOWTEXT.set(figure, true);
 					}

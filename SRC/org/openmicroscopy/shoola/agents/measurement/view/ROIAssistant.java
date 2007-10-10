@@ -25,11 +25,13 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.AbstractListModel;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -37,10 +39,15 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
+import javax.swing.ListCellRenderer;
+import javax.swing.UIManager;
+import javax.swing.table.JTableHeader;
 
 //Third-party libraries
 
@@ -131,7 +138,7 @@ class ROIAssistant
 	{
 		int w = table.getColumnWidth();
 		int h = table.getRowHeight();
-		int x = coord.getTimePoint()*w+table.getLeaderColumnWidth(); 
+		int x = coord.getTimePoint()*w; 
 		int y = (table.getRowCount()-coord.getZSection())*h;
 		return new Point(x, y);
 	}
@@ -193,10 +200,8 @@ class ROIAssistant
 			{
 				int col = table.getSelectedColumn();
 				int row = table.getSelectedRow();
-				if (col == 0)
-					return;
 				if(row < 0 || row >= table.getRowCount() || 
-							col < 1 || col > table.getColumnCount())
+							col < 0 || col > table.getColumnCount())
 					return;
 				Object value = table.getShapeAt(row, col);
 				if(value instanceof ROIShape)
@@ -218,7 +223,7 @@ class ROIAssistant
 				}
 				else if (value == null)
 				{
-
+			
 				}
 
 			}
@@ -230,7 +235,6 @@ class ROIAssistant
 				int[] row = table.getSelectedRows();
 				for (int i = 0 ; i < row.length ; i++)
 					row[i] = (table.getRowCount()-row[i])-1;
-
 				int mincol = col[0];
 				int maxcol = col[0];
 				int minrow = row[0];
@@ -241,24 +245,24 @@ class ROIAssistant
 					mincol = Math.min(mincol, col[i]);
 					maxcol = Math.max(maxcol, col[i]);
 				}
+
 				for (int i = 0 ; i < row.length; i++)
 				{
 					minrow = Math.min(minrow, row[i]);
 					maxrow = Math.max(maxrow, row[i]);
 				}
-				maxcol = maxcol-1;
-				mincol = mincol-1;
-				
-				if(minrow < 0 || maxrow >= table.getRowCount() || 
-						mincol < 0 || maxcol > table.getColumnCount()-1)
+
+				if(minrow < 0 || maxrow > table.getRowCount() || 
+						mincol < 0 || maxcol > table.getColumnCount())
 					return;
+
 				int boundrow;
 				int boundcol;
 				if (maxcol != initialShape.getT()) boundcol = maxcol;
 				else boundcol = mincol;
 				if (maxrow != initialShape.getZ()) boundrow = maxrow;
 				else boundrow = minrow;
-				
+
 				if (addButton.isSelected())
 					view.propagateShape(initialShape, boundcol, boundrow);
 				if (removeButton.isSelected())
@@ -267,6 +271,7 @@ class ROIAssistant
 				table.repaint();
 			}
 		});
+   
 	}
 	
 	/**
@@ -410,12 +415,20 @@ class ROIAssistant
 		createTable(numRow, numCol,currentPlane, selectedROI);
 		buildUI();
 
-		JViewport viewPort = scrollPane.getViewport();
-		Point point = mapCoordToCell(currentPlane);
+		JList rowHeader = new JList(new HeaderListModel(table.getRowCount()));
+		//table.setDefaultRenderer(JComponent.class, new TableComponentCellRenderer());
+		rowHeader.setFixedCellHeight(table.getRowHeight());
+		rowHeader.setFixedCellWidth(table.getColumnWidth());
+        rowHeader.setCellRenderer(new RowHeaderRenderer(table));
+        scrollPane.setRowHeaderView(rowHeader);
+        
+        JViewport viewPort = scrollPane.getViewport();
+        Point point = mapCoordToCell(currentPlane);
 		int x = (int) Math.max((point.getX()-6*table.getColumnWidth()), 0);
 		int y = (int) Math.max((point.getY()-6*table.getColumnWidth()), 0);
 		
 		viewPort.setViewPosition(new Point(x, y));
+		
 	}
 
 	/**
@@ -441,6 +454,86 @@ class ROIAssistant
 		}
 	}
 
+	/**
+	 * Class to define the row header data, this is the Z section 
+	 * count in the ROIAssistant.
+	 */
+	class HeaderListModel
+		extends AbstractListModel
+	{
+
+		/** The header values. */
+		private String[] headers;
+    
+		/**
+		 * Instantiate the header values with a count from n to 1. 
+		 * @param n see above.
+		 */
+		public HeaderListModel(int n)
+		{
+			headers = new String[n];
+			for (int i = 0; i<n; i++) 
+				headers[i] = ""+(n-i);
+		}
+    
+		/** 
+		 * Get the size of the header. 
+		 * @return see above.
+		 */
+		public int getSize(){ return headers.length; }
+    
+		/** 
+		 * Get the header object at index.
+		 * @param index see above. 
+		 * @return see above.
+		 */
+		public Object getElementAt(int index) { return headers[index]; }
+    
+	}
+
+	/**
+	 * The renderer for the row header. 
+	 */
+	class RowHeaderRenderer
+    	extends JLabel 
+    	implements ListCellRenderer
+    {
+    
+		/** 
+		 * Instantiate row renderer for table.
+		 * @param table see above.
+		 */
+		public RowHeaderRenderer(JTable table)
+		{
+			if (table != null) 
+			{
+				JTableHeader header = table.getTableHeader();
+				setOpaque(true);
+				setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+				setHorizontalAlignment(CENTER);
+				setForeground(header.getForeground());
+				setBackground(header.getBackground());
+				setFont(header.getFont());
+			}
+		}
+    
+		/**
+		 * Return the component for the renderer.
+		 * @param list the list containing the headers render context.
+		 * @param value the value to be rendered.
+		 * @param index the index of the rendered object. 
+		 * @param isSelected is the  current header selected.
+		 * @param cellHasFocus has the cell focus.
+		 * @return the render component. 
+		 */
+		public Component getListCellRendererComponent(JList list, Object value, 
+            int index, boolean isSelected, boolean cellHasFocus)
+		{
+			setText((value == null) ? "" : value.toString());
+			return this;
+		}
+    
+    }
 }
 
 

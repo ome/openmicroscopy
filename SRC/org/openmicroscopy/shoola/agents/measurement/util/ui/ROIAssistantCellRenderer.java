@@ -85,11 +85,6 @@ public class ROIAssistantCellRenderer
 		label.setOpaque(true);
 		label.setBackground(Color.white);
 		IconManager icons = IconManager.getInstance(); 
-		if (column == 0 && value instanceof String)
-		{
-			label.setText((String) value);
-			return label;
-		}
 		if (value instanceof String)
 		{
 			if (value.equals(FigureUtil.ELLIPSE_TYPE))

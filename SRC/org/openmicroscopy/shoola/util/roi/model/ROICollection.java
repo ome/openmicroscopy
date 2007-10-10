@@ -73,7 +73,7 @@ public class ROICollection
 	private ROIShapeRelationshipMap shapeRelationshipMap;
 	
 	/** The last id assigned to a ROI. */
-	static  long					lastID;
+	private long					lastID;
 	
 	/**
 	 * The ROICollection contains the separate objects which manage the 

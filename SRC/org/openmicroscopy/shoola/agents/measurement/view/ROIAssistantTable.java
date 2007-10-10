@@ -25,8 +25,16 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FontMetrics;
+
+import javax.swing.AbstractListModel;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JTable;
+import javax.swing.ListCellRenderer;
+import javax.swing.UIManager;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
@@ -56,17 +64,11 @@ class ROIAssistantTable
 	/** The default, minimum width of the column in the table. */
 	private final static int 	COLUMNWIDTH = 32;
 	
-	/** The width of the leader column in the table. */
-	private final static int 	LEADERCOLUMN_WIDTH = 80;
-	
 	/** The colour of the grid in the table. */
 	private final static Color 	GRIDCOLOUR = new Color(180, 213, 255);
 	
 	/** The column width finally chosen, determined by the number in the col. */
 	private int columnWidth;
-	
-	/** final width of the leader column. */
-	private int leaderColumnWidth;
 	
 	/**
 	 * Creates a new instance.
@@ -88,14 +90,12 @@ class ROIAssistantTable
 		
 		w  =  metrics.stringWidth(model.getColumnName(0));
 
-		leaderColumnWidth = Math.max(w, LEADERCOLUMN_WIDTH);
 		TableColumn col;
 		int width;
 		for (int i = 0 ; i < getColumnCount(); i++)
 		{
 			col = getColumnModel().getColumn(i);
 			width = columnWidth;
-			if (i == 0) width = leaderColumnWidth;
 			col.setMinWidth(width);
 			col.setMaxWidth(width);
 			col.setPreferredWidth(width);
@@ -117,13 +117,6 @@ class ROIAssistantTable
 	int getColumnWidth() { return columnWidth; }
 	
 	/** 
-	 * Returns the width of the leader column, used in the ROIAssistant.
-	 * 
-	 * @return See above. 
-	 */
-	int getLeaderColumnWidth() { return leaderColumnWidth; }
-	
-	/** 
 	 * Returns the shape at the specified column and row.
 	 *  
 	 * @param row The selected row.
@@ -143,6 +136,7 @@ class ROIAssistantTable
 	{
         return new ROIAssistantCellRenderer();
     }
+	
 
 }
 

@@ -290,16 +290,16 @@ class MeasurementViewerControl
 	 */
 	public void figureAdded(DrawingEvent e)
 	{
-		if (model.getState() != MeasurementViewer.READY) return;
+		//if (model.getState() != MeasurementViewer.READY) return;
 		Figure f = e.getFigure();
 		if (!(f instanceof ROIFigure)) return;
 		ROIFigure roiFigure = (ROIFigure) f;
-		roiFigure.addFigureListener(this);
 		view.addROI(roiFigure);
+		roiFigure.addFigureListener(this);
 		model.setDataChanged();
 		if (!view.inDataView()) return;
 		ROIShape shape = roiFigure.getROIShape();
-		/*if (view.inDataView())
+		if (view.inDataView())
 		{
 			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
 			ROI roi = shape.getROI();
@@ -308,7 +308,7 @@ class MeasurementViewerControl
 			while(shapeIterator.hasNext())
 				shapeList.add(shapeMap.get(shapeIterator.next()));
 			if (shapeList.size() != 0) model.analyseShapeList(shapeList);
-		}*/
+		}
 		
 	}
 	
@@ -335,9 +335,15 @@ class MeasurementViewerControl
 		if (view.inDataView() && figures.size() == 1) 
 		{
 			ROIFigure figure = (ROIFigure) figures.iterator().next();
+			if(figure==null)
+				return;
 			ROIShape shape = figure.getROIShape();
+			if(shape ==null)
+				return;
 			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
 			ROI roi = shape.getROI();
+			if(roi==null)
+				return;
 			TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
 			Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
 			while(shapeIterator.hasNext())

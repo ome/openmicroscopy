@@ -61,6 +61,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
@@ -611,11 +612,11 @@ class MeasurementViewerModel
 													ROIFigure figure)
 	{
 
-		if (attribute.getKey().equals(AttributeKeys.TEXT.getKey())) 
+		if (attribute.getKey().equals(MeasurementAttributes.TEXT.getKey())) 
 		{
 			ROIShape shape = figure.getROIShape();
 			AnnotationKeys.TEXT.set(shape, 
-									AttributeKeys.TEXT.get(figure));
+				MeasurementAttributes.TEXT.get(figure));
 		}
 	}
 	

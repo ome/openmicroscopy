@@ -100,14 +100,13 @@ class ROIAssistantModel
 	 */
 	ROIAssistantModel(int numCol, int numRow, Coord3D currentPlane, ROI roi)
 	{
-		this.setColumnCount(numCol+1);
+		this.setColumnCount(numCol);
 		this.setRowCount(numRow);
 		this.columnNames = new ArrayList<String>();
 		currentROI = roi;
-		columnNames.add("Z Section\\Time");
 		shapeMap = new TreeMap<Coord3D, String>(new Coord3D());
 		for (int i = 0 ; i < numCol ; i++)
-			columnNames.add((i+1)+"");
+			columnNames.add(i+"");
 		populateShapeMap();
 	}
 
@@ -125,7 +124,7 @@ class ROIAssistantModel
 		{
 			int translateZ = (getRowCount()-zSection);
 			return currentROI.getShape(
-						new Coord3D(translateZ-1, timePoint-1));
+						new Coord3D(translateZ-1, timePoint));
 			
 		}
 		catch (NoSuchROIException e)
@@ -169,11 +168,10 @@ class ROIAssistantModel
 	public Object getValueAt(int zSection, int timePoint)
 	{
 		int translateZ = (getRowCount()-zSection);
-		if (timePoint == 0) return translateZ+"";
 		try
 		{
 			ROIShape shape = currentROI.getShape(new Coord3D(translateZ-1, 
-											timePoint-1));
+											timePoint));
 			if (shape == null) return null;
 			return shape.getFigure().getType();
 		}
