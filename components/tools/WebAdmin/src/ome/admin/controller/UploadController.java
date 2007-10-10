@@ -54,7 +54,7 @@ public class UploadController implements java.io.Serializable {
 
 		try {
 			if(FileValidator.validFileType(uploadedNewFile)) {
-				System.out.println("name: " + uploadedNewFile.getName() + " ct: "
+				logger.info("name: " + uploadedNewFile.getName() + " ct: "
 						+ uploadedNewFile.getContentType() + " byte: "
 						+ uploadedNewFile.getBytes());
 			} else {

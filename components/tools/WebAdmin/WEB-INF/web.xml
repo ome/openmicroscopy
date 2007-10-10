@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee">
 
 
-<!-- Users configuration -->
+	<!-- Users configuration -->
 	<!-- Login form params -->
 	<context-param>
 		<param-name>defaultServerHost</param-name>
@@ -14,7 +14,7 @@
 		<param-name>defaultServerPort</param-name>
 		<param-value>1099</param-value>
 	</context-param>
-		
+
 	<!-- TopTen params -->
 	<context-param>
 		<param-name>topTenValue</param-name>
@@ -26,16 +26,16 @@
 		<param-name>usersListsDir</param-name>
 		<param-value>/Users/tmp/UsersLists</param-value>
 	</context-param>
-<!-- END Users configuration -->	
+	<!-- END Users configuration -->
 
-	
+
 	<!-- Scroller Size -->
 	<context-param>
 		<param-name>scrollerSize</param-name>
 		<param-value>15</param-value>
 	</context-param>
-	
-	
+
+
 	<!-- This will cause JBoss to ignore the built-in JSF implementation 
 		as long as you use the default classloader settings. Look on 
 		http://wiki.jboss.org/wiki/Wiki.jsp?page=JBoss5AndMyFaces -->
@@ -82,6 +82,22 @@
 		<param-value>true</param-value>
 	</context-param>
 	<context-param>
+		<param-name>
+			org.apache.myfaces.redirectTracker.POLICY
+		</param-name>
+
+		<param-value>
+			org.apache.myfaces.redirectTracker.NoopRedirectTrackPolicy
+		</param-value>
+	</context-param>
+	<context-param>
+		<param-name>
+			org.apache.myfaces.redirectTracker.MAX_REDIRECTS
+		</param-name>
+		<param-value>20</param-value>
+	</context-param>
+
+	<context-param>
 		<param-name>org.apache.myfaces.ALLOW_JAVASCRIPT</param-name>
 		<param-value>true</param-value>
 	</context-param>
@@ -108,6 +124,17 @@
 		<param-value>true</param-value>
 	</context-param>
 	<context-param>
+		<description>
+			Treat readonly same as if disabled attribute was set for
+			select elements.
+		</description>
+		<param-name>
+			org.apache.myfaces.READONLY_AS_DISABLED_FOR_SELECTS
+		</param-name>
+		<param-value>true</param-value>
+	</context-param>
+
+	<context-param>
 		<param-name>org.apache.myfaces.ADD_RESOURCE_CLASS</param-name>
 		<param-value>
 			org.apache.myfaces.renderkit.html.util.DefaultAddResource
@@ -120,6 +147,19 @@
 			org.apache.myfaces.CHECK_EXTENSIONS_FILTER
 		</param-name>
 		<param-value>true</param-value>
+	</context-param>
+
+	<context-param>
+		<description>
+			Change the url-pattern from the ExtensionsFilter Default is
+			"/faces/myFacesExtensionResource" Note: The filter-mapping
+			for ExtensionsFilter, the url-pattern is this value + "/*",
+			else there comes a exception
+		</description>
+		<param-name>
+			org.apache.myfaces.RESOURCE_VIRTUAL_PATH
+		</param-name>
+		<param-value>/faces/myFacesExtensionResource</param-value>
 	</context-param>
 
 	<!-- Extensions Filter -->
@@ -158,6 +198,19 @@
 		</init-param>
 	</filter>
 
+	<!-- Faces Servlet -->
+	<servlet>
+		<servlet-name>Faces Servlet</servlet-name>
+		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>SourceCodeServlet</servlet-name>
+		<servlet-class>
+			org.apache.myfaces.shared_tomahawk.util.servlet.SourceCodeServlet
+		</servlet-class>
+	</servlet>
+
 	<!-- Faces Servlet Mapping -->
 	<filter-mapping>
 		<filter-name>extensionsFilter</filter-name>
@@ -172,20 +225,6 @@
 		<filter-name>extensionsFilter</filter-name>
 		<url-pattern>/faces/*</url-pattern>
 	</filter-mapping>
-
-
-	<!-- Faces Servlet -->
-	<servlet>
-		<servlet-name>Faces Servlet</servlet-name>
-		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-	<servlet>
-		<servlet-name>SourceCodeServlet</servlet-name>
-		<servlet-class>
-			org.apache.myfaces.shared_tomahawk.util.servlet.SourceCodeServlet
-		</servlet-class>
-	</servlet>
 
 	<!-- Log4J path properties-->
 	<servlet>
@@ -257,7 +296,7 @@
 		<servlet-name>Chartlet</servlet-name>
 		<url-pattern>*.chart</url-pattern>
 	</servlet-mapping>
-	
+
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 		<welcome-file>index.html</welcome-file>
