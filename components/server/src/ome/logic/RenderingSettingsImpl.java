@@ -385,9 +385,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 	}
 
 	/**
-	 * Implemented as specified by the {@link IRenderingSettings} I/F
-	 * 
-	 * @see IRenderingSettings#resetDefaults(long)
+	 * Resets a pixel's rendering settings back to those that are specified
+     * by the rendering engine intelligent <i>pretty good image (PG)</i> logic.
+	 * @param pixelsId Pixel id.
 	 */
 	private void resetDefaults(long pixelsId) {
 
@@ -412,12 +412,22 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 
 	}
 	
+	/**
+	 * Implemented as specified by the {@link IRenderingSettings} I/F
+	 * 
+	 * @see IRenderingSettings#resetDefaultsInImage(long)
+	 */
 	public void resetDefaultsInImage(long to) {
 		Image img = iQuery.get(Image.class, to);
 		resetDefaults(img.getDefaultPixels().getId());
 
 	}
 	
+	/**
+	 * Implemented as specified by the {@link IRenderingSettings} I/F
+	 * 
+	 * @see IRenderingSettings#resetDefaultsInDataset(long)
+	 */
 	public void resetDefaultsInDataset(long dataSetId) {
 		String sql = "select i from Image i "
 			+ " left outer join fetch i.datasetLinks dil "
@@ -430,6 +440,11 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 
 	}
 	
+	/**
+	 * Implemented as specified by the {@link IRenderingSettings} I/F
+	 * 
+	 * @see IRenderingSettings#resetDefaultsInCategory(long)
+	 */
 	public void resetDefaultsInCategory(long categoriesId) {
 		String sql = "select i from Image i "
 			+ " left outer join fetch i.categoryLinks cil "
@@ -441,6 +456,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 
 	}	
 	
+	/**
+	 * Resets a rendering settings back to one or many <code>Images</code> that are 
+     * specified by the rendering engine intelligent <i>pretty good image
+     * (PG)</i> logic.
+	 * @param images Set<Image>.
+	 */
 	private void resetDefaults(Set<Image> images) {
 
 		if (images.isEmpty())
