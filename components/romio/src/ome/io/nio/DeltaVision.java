@@ -159,7 +159,6 @@ public class DeltaVision implements PixelBuffer {
 				{
 					actualOffset = ReorderedPixelData.getReorderedPixelOffset(
 							planeSize, (i + offset) * 2, rowSize) / 2;
-					System.err.println("offset: " + actualOffset);
 					copyBuf.put(i, swapBuf.get(actualOffset));
 				}
 				return buffer;
