@@ -27,6 +27,9 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
+import ome.model.containers.Category;
+import ome.model.containers.Dataset;
+import ome.model.containers.Project;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
@@ -153,7 +156,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 	 *            The collection of image to copy the settings to.
 	 * @return See above.
 	 */
-	protected Map<Boolean, List<Long>> applySettings(long from,
+	private Map<Boolean, List<Long>> applySettings(long from,
 			Set<Image> images) {
 
 		if (images.isEmpty())
@@ -386,7 +389,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 	 * 
 	 * @see IRenderingSettings#resetDefaults(long)
 	 */
-	protected void resetDefaults(long pixelsId) {
+	private void resetDefaults(long pixelsId) {
 
 		Pixels pixelsObj = pixelsMetadata.retrievePixDescription(pixelsId);
 
@@ -409,13 +412,13 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 
 	}
 	
-	public void resetDefaultsToImage(long to) {
+	public void resetDefaultsInImage(long to) {
 		Image img = iQuery.get(Image.class, to);
 		resetDefaults(img.getDefaultPixels().getId());
 
 	}
 	
-	public void resetDefaultsToDataSet(long dataSetId) {
+	public void resetDefaultsInDataset(long dataSetId) {
 		String sql = "select i from Image i "
 			+ " left outer join fetch i.datasetLinks dil "
 			+ " left outer join fetch dil.parent d where d.id = :id";
@@ -423,22 +426,22 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		Set<Image> images = new HashSet(iQuery.findAllByQuery(sql,
 			new Parameters().addId(dataSetId)));
 
-		applyResetDefaults(images);
+		resetDefaults(images);
 
 	}
 	
-	public void resetDefaultsToCategory(long categoriesId) {
+	public void resetDefaultsInCategory(long categoriesId) {
 		String sql = "select i from Image i "
 			+ " left outer join fetch i.categoryLinks cil "
 			+ " left outer join fetch cil.parent c " + " where c.id = :id";
 		Set<Image> images = new HashSet(iQuery.findAllByQuery(sql,
 			new Parameters().addId(categoriesId)));
 
-		applyResetDefaults(images);
+		resetDefaults(images);
 
 	}	
 	
-	protected void applyResetDefaults(Set<Image> images) {
+	private void resetDefaults(Set<Image> images) {
 
 		if (images.isEmpty())
 			throw new ValidationException("Target does not contain any Images.");
@@ -448,7 +451,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			Image image;
 			while (i.hasNext()) {
 				image = i.next();
-				resetDefaultsToImage(image.getId());
+				resetDefaultsInImage(image.getId());
 			}
 		} catch (NoSuchElementException expected) {
 			throw new ApiUsageException(
@@ -456,6 +459,41 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		}
 
 	}
+	
 
+	/**
+	 * Implemented as specified by the {@link IRenderingSettings} I/F
+	 * 
+	 * @see IRenderingSettings#resetDefaultsInSet(Class, Set)
+	 */
+	public <T> void resetDefaultsInSet(Class<T> klass, Set<Long> noteIds) {
+        
+		if (!Dataset.class.equals(klass)
+                && !Category.class.equals(klass)
+                && !Image.class.equals(klass)) {
+            throw new IllegalArgumentException(
+                    "Class parameter for resetDefaultsInSet() must be in "
+                            + "{Dataset, Category, Image}, not "
+                            + klass);
+        }
+		
+		Iterator i = noteIds.iterator();
+		while(i.hasNext()) {
+			Long id = (Long) i.next();
+			if(klass.equals(Image.class))
+				resetDefaultsInImage(id);
+			else if(klass.equals(Category.class))
+				resetDefaultsInCategory(id);
+			else if(klass.equals(Dataset.class))
+				resetDefaultsInDataset(id);
+			else {
+				throw new IllegalArgumentException(
+	                    "Class parameter for resetDefaultsInSet() must be in "
+	                            + "{Dataset, Category, Image}, not "
+	                            + klass);
+	        }
+		}
+
+	}
 	
 }

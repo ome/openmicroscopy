@@ -1,8 +1,13 @@
 package ome.server.itests;
 
-import ome.api.IRenderingSettings;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.testng.annotations.Configuration;
+import ome.api.IRenderingSettings;
+import ome.model.containers.Category;
+import ome.model.containers.Dataset;
+import ome.model.core.Image;
+
 import org.testng.annotations.Test;
 
 public class RenderingSettingsTest extends AbstractManagedContextTest {
@@ -27,12 +32,23 @@ public class RenderingSettingsTest extends AbstractManagedContextTest {
 		rsx.applySettingsToDataset(from, to);
 		rsx.applySettingsToCategory(from, to);
 	}
-
+	
 	@Test
 	public void testReset() {
 		Long id = 2L;
-		rsx.resetDefaultsToImage(id);
-		rsx.resetDefaultsToCategory(id);
-		rsx.resetDefaultsToDataSet(id);
+		rsx.resetDefaultsInImage(id);
+		rsx.resetDefaultsInCategory(id);
+		rsx.resetDefaultsInDataset(id);
 	}
+	
+	@Test
+	public void testSet() {
+		Set<Long> s = new HashSet<Long>();
+		s.add(1L);
+		s.add(2L);
+		rsx.resetDefaultsInSet(Image.class, s);
+		rsx.resetDefaultsInSet(Category.class, s);
+		rsx.resetDefaultsInSet(Dataset.class, s);
+	}
+	
 }

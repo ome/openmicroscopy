@@ -15,6 +15,7 @@ import java.util.Set;
 
 // Application-internal dependencies
 import ome.annotations.NotNull;
+import ome.annotations.Validate;
 import ome.model.display.RenderingDef;
 
 
@@ -46,7 +47,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if the image qualified by 
 	 * <code>pixelsId</code> is unlocatable.
      */
-	void resetDefaultsToImage(@NotNull long imageId);
+	void resetDefaultsInImage(@NotNull long imageId);
 	
 	/**
      * Resets a category's rendering settings back to those that are specified
@@ -55,7 +56,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if the image qualified by 
 	 * <code>categoryId</code> is unlocatable.
      */
-	void resetDefaultsToCategory(@NotNull long categoryId);
+	void resetDefaultsInCategory(@NotNull long categoryId);
 	
 	/**
      * Resets a dataset's rendering settings back to those that are specified
@@ -64,7 +65,16 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if the image qualified by 
 	 * <code>dataSetId</code> is unlocatable.
      */
-	void resetDefaultsToDataSet(@NotNull long dataSetId);
+	void resetDefaultsInDataset(@NotNull long dataSetId);
+	
+	/**
+     * Resets a rendering settings back to one or many containers that are 
+     * specified by the rendering engine intelligent <i>pretty good image
+     * (PG)</i> logic.
+     * @param nodeIds Ids of the node type.
+	 * @throws ValidationException if the image qualified by 
+     */
+	<T> void resetDefaultsInSet(Class<T> type, @NotNull @Validate(Long.class) Set<Long> noteIds);
 	
 	/**
 	 * Applies rendering settings to one or many containers. If a container such 
@@ -82,7 +92,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if an illegal <code>toType</code> is
 	 * passed in or the rendering settings <code>from</code> is unlocatable.
 	 */
-	<T> void applySettingsToSet(@NotNull long from, Class<T> toType, Set<T> to);
+	<T> void applySettingsToSet(@NotNull long from, Class<T> toType,@NotNull Set<T> to);
 	
 	/**
 	 * Applies rendering settings to all images in all <code>Datasets</code> 
