@@ -915,7 +915,7 @@ class MeasurementViewerUI
 	/**
 	 * Sets ready message in the status bar.
 	 */
-	void setReadyStatus() { setStatus(""); }
+	void setReadyStatus() { setStatus(DEFAULT_MSG); }
 	
 	/** Builds the graphs and displays them in the results pane. */
 	void displayAnalysisResults()

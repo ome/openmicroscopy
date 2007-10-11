@@ -385,6 +385,22 @@ class MeasurementResults
 	}
 	
 	/**
+	 * Writes the header information for the file, image, projects, dataset.
+	 * 
+	 * @param out	The buffer to write data into.
+	 * @throws IOException Thrown if the data cannot be written.
+	 */
+	private void writeHeader(BufferedWriter out) 
+		throws IOException
+	{
+		//out.write("Project , "+model.getProjectName());
+		//out.newLine();
+		//out.write("Dataset , "+model.getDatasetName());
+		//out.newLine();
+		out.write("Image , "+model.getImageName());
+		out.newLine();
+	}
+	/**
 	 * Converts the passed element into a String depending on the specified
 	 * index.
 	 * 
@@ -567,6 +583,7 @@ class MeasurementResults
 			file = new File(fileName);
 		}
 		BufferedWriter out = new BufferedWriter(new FileWriter(file));
+		writeHeader(out);
 		writeColumns(out);
 		writeData(out);
 		out.close();

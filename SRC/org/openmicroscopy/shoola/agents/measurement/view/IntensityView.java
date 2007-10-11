@@ -774,6 +774,7 @@ class IntensityView
 		try
 		{
 			out=new BufferedWriter(new FileWriter(file));
+			writeHeader(out);
 			for( int i = 0 ; i < userChannelSelection.size() ; i++)
 			{
 				writeTitle(out, "Channel Number : " + 
@@ -792,6 +793,23 @@ class IntensityView
 		{
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Writes the header information for the file, image, projects, dataset.
+	 * 
+	 * @param out	The buffer to write data into.
+	 * @throws IOException Thrown if the data cannot be written.
+	 */
+	private void writeHeader(BufferedWriter out) 
+		throws IOException
+	{
+		//out.write("Project , "+model.getProjectName());
+		//out.newLine();
+		//out.write("Dataset , "+model.getDatasetName());
+		//out.newLine();
+		out.write("Image , "+model.getImageName());
+		out.newLine();
 	}
 	
 	/** 
