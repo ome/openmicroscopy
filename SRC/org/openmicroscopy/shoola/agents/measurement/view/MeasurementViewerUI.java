@@ -94,9 +94,12 @@ class MeasurementViewerUI
 	
 	/** The message displayed when a ROI cannot be created. */
 	static final String					CREATE_MSG = "Cannot create the ROI";
-	
+
 	/** The message displayed when a ROI cannot be deleted. */
 	static final String					DELETE_MSG = "Cannot delete the ROI";
+	
+	/** The message displayed when a an ROI exception occured but cause unknown. */
+	static final String					UNKNOWN_MSG = "An unknown, unexpected error occurred in ";
 	
 	/** The default message. */
 	static final String					DEFAULT_MSG = "";
@@ -382,8 +385,12 @@ class MeasurementViewerUI
 		}
 		catch (Exception e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if(e instanceof ROICreationException)
+				handleROIException(e, CREATE_MSG);
+			else if(e instanceof NoSuchROIException)
+				handleROIException(e, RETRIEVE_MSG);
+			else 
+				handleROIException(e, UNKNOWN_MSG+"Merging ROI");
 		}
 		
 	}
@@ -423,8 +430,12 @@ class MeasurementViewerUI
 		}
 		catch (Exception e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if(e instanceof ROICreationException)
+				handleROIException(e, CREATE_MSG);
+			else if(e instanceof NoSuchROIException)
+				handleROIException(e, RETRIEVE_MSG);
+			else 
+				handleROIException(e, UNKNOWN_MSG+"Splitting ROI.");
 		}
 			
 	}
@@ -456,8 +467,7 @@ class MeasurementViewerUI
 		}
 		catch (Exception e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			handleROIException(e, CREATE_MSG);
 		}
 	}
 	
@@ -484,8 +494,7 @@ class MeasurementViewerUI
 		}
 		catch (Exception e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			handleROIException(e, DELETE_MSG);
 		}
 	}
 	
@@ -681,19 +690,19 @@ class MeasurementViewerUI
 		if (figures == null) return;
 		Iterator i = figures.iterator();
 		ROIFigure figure;
-		List roiList = new ArrayList();
+		ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
 		ROI roi;
 		try {
 			while (i.hasNext()) {
 				figure = (ROIFigure) i.next();
-				roi = model.getROI(figure.getROI().getID());
-				if (roi != null) roiList.add(roi);
+				ROIShape shape = figure.getROIShape();
+				if (shape != null) shapeList.add(shape);
 			}
 		} catch (Exception e) {
 			handleROIException(e, RETRIEVE_MSG);
 		}
-		roiInspector.setSelectedFigures(roiList);
-		roiManager.setSelectedFigures(roiList, true);
+		roiInspector.setSelectedFigures(shapeList);
+		roiManager.setSelectedFigures(shapeList, true);
 	}
     
     /**
@@ -859,13 +868,11 @@ class MeasurementViewerUI
 		}
 		catch (ROICreationException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			handleROIException(e, CREATE_MSG);
 		}
 		catch (NoSuchROIException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			handleROIException(e, RETRIEVE_MSG);
 		}
 		setStatus(DEFAULT_MSG);
 	}
@@ -895,6 +902,12 @@ class MeasurementViewerUI
 	 * @param text The text to display.
 	 */
 	void setStatus(String text) { statusBar.setStatus(text); }
+	
+	/**
+	 * Sets ready message in the status bar.
+	 * 
+	 */
+	void setReadyStatus() { setStatus("");}
 	
 	/** Builds the graphs and displays them in the results pane. */
 	void displayAnalysisResults()

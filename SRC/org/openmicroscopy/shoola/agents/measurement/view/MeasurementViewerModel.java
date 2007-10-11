@@ -38,7 +38,6 @@ import java.util.TreeMap;
 
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingEditor;

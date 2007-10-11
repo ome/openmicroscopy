@@ -68,18 +68,23 @@ public class ROIAction
 			case DUPLICATE:
 				this.
 				setName("Duplicate");
+				setToolTip("Duplicate the selected ROI, ROIShapes, creating new ROI.");
 				break;
 			case DELETE:
 				setName("Delete");
+				setToolTip("Delete selected ROI and ROIShapes.");
 				break;
 			case MERGE:
 				setName("Merge");
+				setToolTip("Merge the selected ROIShapes into a new ROI.");
 				break;
 			case SPLIT:
 				setName("Split");
+				setToolTip("Split the selected ROIShapes from parent ROI into a new ROI.");
 				break;
 			case PROPAGATE:
 				setName("Propagate");
+				setToolTip("Propagate the selected ROI through Time and Z Sections.");
 				break;
 		}
 	}
@@ -94,6 +99,15 @@ public class ROIAction
 		putValue(Action.SHORT_DESCRIPTION, name);
 	}
 
+	/**
+	 * Set the anem of the aciton.
+	 * @param name see above.
+	 */
+	public void setToolTip(String name)
+	{
+		putValue(Action.LONG_DESCRIPTION, name);
+	}
+	
 	/**
 	 * Returns the name of the action.
 	 * 

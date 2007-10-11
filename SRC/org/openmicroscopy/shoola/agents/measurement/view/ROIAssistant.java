@@ -128,6 +128,9 @@ class ROIAssistant
 	/** The initial shape selected when lauching the ROIAssistant. */
 	private 	ROIShape 				initialShape;
 	
+	/** The panel showing the corner z\t graphic. */
+	private 	JPanel					cornerPane;
+	
 	/**
 	 * Maps the coordinate to a cell in the table.
 	 * 
@@ -151,7 +154,7 @@ class ROIAssistant
 		JPanel infoPanel = createInfoPanel();
 		JPanel shapePanel = createShapePanel();
 		createAcceptButton();
-		
+		createCornerPane();
 		scrollPane = new JScrollPane(table);
 		scrollPane.setVerticalScrollBar(scrollPane.createVerticalScrollBar());
 		scrollPane.setHorizontalScrollBar(
@@ -272,6 +275,18 @@ class ROIAssistant
 			}
 		});
    
+	}
+	
+	/**
+	 * Create the corner pane. 
+	 */
+	private void createCornerPane()
+	{
+		cornerPane = new JPanel();
+		cornerPane.setLayout(new BorderLayout());
+		JLabel icon = new JLabel();
+		icon.setIcon(IconManager.getInstance().getIcon(IconManager.CORNERICON));
+		cornerPane.add(icon, BorderLayout.CENTER);
 	}
 	
 	/**
@@ -417,11 +432,12 @@ class ROIAssistant
 
 		JList rowHeader = new JList(new HeaderListModel(table.getRowCount()));
 		//table.setDefaultRenderer(JComponent.class, new TableComponentCellRenderer());
+
 		rowHeader.setFixedCellHeight(table.getRowHeight());
 		rowHeader.setFixedCellWidth(table.getColumnWidth());
         rowHeader.setCellRenderer(new RowHeaderRenderer(table));
         scrollPane.setRowHeaderView(rowHeader);
-        
+        scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, cornerPane);
         JViewport viewPort = scrollPane.getViewport();
         Point point = mapCoordToCell(currentPlane);
 		int x = (int) Math.max((point.getX()-6*table.getColumnWidth()), 0);

@@ -135,15 +135,23 @@ public class ROITable
 			return;
 		expandROIRow(parent);
 		ROINode child = parent.findChild(shape);
-		ROINode pathList[] = new ROINode[3];
-		pathList[0] = root;
-		pathList[1] = parent;
-		pathList[2] = child;
-		TreePath path = new TreePath(pathList);
 		
-		int row = this.getRowForPath(path);
+		int row = this.getRowForPath(child.getPath());
 		this.selectionModel.addSelectionInterval(row, row);
-		this.scrollCellToVisible(row, 0);
+	}
+	
+	/**
+	 * Scroll to the selected ROIShape. 
+	 * @param shape see above.
+	 */
+	public void scrollToROIShape(ROIShape shape)
+	{
+		ROINode parent = findParent(shape.getROI());
+		if(parent == null)
+			return;
+		expandROIRow(parent);
+		ROINode child = parent.findChild(shape);
+		this.scrollPathToVisible(child.getPath());
 	}
 	
 	/**
@@ -325,7 +333,6 @@ public class ROITable
 				if (node.isExpanded()) 
 					expandPath(node.getPath());
 		}
-		this.scrollCellToVisible(addedNodeIndex+parent.getChildCount(), 0);
 	}
 	
 	/** 
@@ -355,7 +362,7 @@ public class ROITable
 		ROINode selectedNode = findParent(roi);
 		int selectedNodeIndex = root.getIndex(selectedNode);
 		this.expandROIRow(selectedNode);
-		this.scrollCellToVisible(selectedNodeIndex, 0);
+	//	this.scrollCellToVisible(selectedNodeIndex, 0);
 	}
 	
 	/**
@@ -628,6 +635,7 @@ public class ROITable
 	 */
 	public void duplicateROI()
 	{
+		manager.showReadyMessage();
 		ArrayList<ROIShape> selectedObjects = getSelectedROIShapes();
 		if(onSeparatePlanes(selectedObjects) && haveSameID(selectedObjects))
 			manager.duplicateROI(getSameID(selectedObjects), selectedObjects );
@@ -641,6 +649,7 @@ public class ROITable
 	 */
 	public void mergeROI()
 	{
+		manager.showReadyMessage();
 		ArrayList<ROIShape> selectedObjects = getSelectedROIShapes();
 		if(onSeparatePlanes(selectedObjects) && selectedObjects.size() > 1)
 		{
@@ -656,6 +665,7 @@ public class ROITable
 	 */
 	public void propagateROI()
 	{
+		manager.showReadyMessage();
 		if(this.getSelectedRows().length!=1)
 		{
 			manager.showMessage("Propagate: Only one ROI may be propagated at a time.");
@@ -674,6 +684,7 @@ public class ROITable
 	 */
 	public void splitROI()
 	{
+		manager.showReadyMessage();
 		ArrayList<ROIShape> selectedObjects = getSelectedROIShapes();
 		Coord3D coord = new Coord3D(10,2);
 		if(onSeparatePlanes(selectedObjects) && haveSameID(selectedObjects))
@@ -688,6 +699,7 @@ public class ROITable
 	 */
 	public void calculateStats()
 	{
+		manager.showReadyMessage();
 		ArrayList<ROIShape> selectedObjects = getSelectedROIShapes();
 		if(onSeparatePlanes(selectedObjects) && haveSameID(selectedObjects))
 			manager.calculateStats(getSameID(selectedObjects), selectedObjects );

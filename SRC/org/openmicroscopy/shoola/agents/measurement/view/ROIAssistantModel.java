@@ -104,6 +104,7 @@ class ROIAssistantModel
 		this.setRowCount(numRow);
 		this.columnNames = new ArrayList<String>();
 		currentROI = roi;
+		
 		shapeMap = new TreeMap<Coord3D, String>(new Coord3D());
 		for (int i = 0 ; i < numCol ; i++)
 			columnNames.add(i+"");

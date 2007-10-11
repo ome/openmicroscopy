@@ -168,12 +168,15 @@ public class IconManager
 
     /** The <code>Question</code> icon. */
     public static int          QUESTION = 37;
+
+    /** The <code>CornerIcon</code> icon. */
+    public static int          CORNERICON = 38;
         
 	/** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 37;
+    private static final int    MAX_ID = 38;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -221,6 +224,7 @@ public class IconManager
         relPaths[POINT16] = "point16.png";
         relPaths[TEXT16] = "text16.png";
         relPaths[QUESTION] = "nuvola_filetype32.png";
+        relPaths[CORNERICON] = "cornericon.png";
     }
     
     /** 

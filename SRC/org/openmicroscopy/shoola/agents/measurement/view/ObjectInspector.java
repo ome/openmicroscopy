@@ -269,17 +269,17 @@ class ObjectInspector
 	 * 
 	 * @param l The collection to handle.
 	 */
-	void setSelectedFigures(Collection l)
+	void setSelectedFigures(List<ROIShape> l)
 	{
 		FigureTableModel tableModel = (FigureTableModel) fieldTable.getModel();
-		Iterator i = l.iterator();
+		Iterator<ROIShape> i = l.iterator();
 		//Register error and notify user.
 		ROI roi;
 		ROIShape shape;
 		try {
 			while (i.hasNext()) {
-				roi = (ROI) i.next();
-				shape = roi.getShape(model.getCurrentView());
+				
+				shape = i.next();
 				tableModel.setData(shape.getFigure());
 				fieldTable.setModel(tableModel);
 				fieldTable.repaint();

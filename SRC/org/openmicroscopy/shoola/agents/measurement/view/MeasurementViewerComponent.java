@@ -36,7 +36,6 @@ import java.util.TreeMap;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries

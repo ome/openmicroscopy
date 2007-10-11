@@ -47,11 +47,11 @@ public interface ROIActionController
 	/** List of actions possible to be performed by ROIActionController.*/
 	public enum CreationActionType
 	{
-		DELETE,
+		DUPLICATE,
 		MERGE,
 		SPLIT,
 		PROPAGATE,
-		DUPLICATE
+		DELETE
 	};
 	
 	public enum StatsActionType

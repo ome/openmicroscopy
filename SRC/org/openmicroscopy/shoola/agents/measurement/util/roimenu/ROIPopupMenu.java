@@ -131,7 +131,7 @@ public class ROIPopupMenu
 		popupMenu.add(topOption);
 		popupMenu.addSeparator();
 		popupMenu.add(createROICreationOptions());
-		popupMenu.add(createROIStatsOptions());
+	//	popupMenu.add(createROIStatsOptions());
 	}
 
 	/**

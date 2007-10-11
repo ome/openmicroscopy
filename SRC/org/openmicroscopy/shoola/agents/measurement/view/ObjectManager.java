@@ -321,26 +321,32 @@ class ObjectManager
 	 *            Pass <code>true</code> to clear the selection
 	 *            <code>false</code> otherwise.
 	 */
-	void setSelectedFigures(Collection l, boolean clear)
+	void setSelectedFigures(List<ROIShape> l, boolean clear)
 	{
-		Iterator i = l.iterator();
-		ROI roi;
-		ROIFigure figure;
+		Iterator<ROIShape> i = l.iterator();
 		TreeSelectionModel tsm = objectsTable.getTreeSelectionModel();
+		ROIFigure figure = null;
+		ROIShape shape;
 		if (clear) tsm.clearSelection();
 		objectsTable.removeTreeSelectionListener(treeSelectionListener);
 	
-		try {
-			while (i.hasNext()) {
-				roi = (ROI) i.next();
-				figure = roi.getFigure(model.getCurrentView());
+		try 
+		{
+			while (i.hasNext()) 
+			{
+				shape = i.next();
+				figure = shape.getFigure();
 				objectsTable.selectROIShape(figure.getROIShape());
 			}
 			objectsTable.repaint();
-		} catch (Exception e) {
+			if(figure != null)
+				objectsTable.scrollToROIShape(figure.getROIShape());
+		} 
+		catch (Exception e) {
 			MeasurementAgent.getRegistry().getLogger().info(this, 
 					"Figure selection "+e);
 		}
+		
 		objectsTable.addTreeSelectionListener(treeSelectionListener);
 	}
 	
@@ -440,6 +446,15 @@ class ObjectManager
 	void showMessage(String messageString)
 	{
 		view.setStatus(messageString);
+	}
+	
+	/**
+	 * Display Ready message in status bar. 
+	 * @param messageString see above.
+	 */
+	void showReadyMessage()
+	{
+		view.setReadyStatus();
 	}
 	
 }
