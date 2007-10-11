@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.util.roi.model;
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.TreeMap;
 
 //Third-party libraries
@@ -241,13 +242,13 @@ public class ROICollection
 	 * between [start,end].
 	 * @throws NoSuchROIException Thrown if ROI does not exist.
 	 */
-	public void propagateShape(long id, Coord3D selectedShape, Coord3D start, 
+	public ArrayList<ROIShape> propagateShape(long id, Coord3D selectedShape, Coord3D start, 
 				   Coord3D end) 
 												throws ROICreationException, 
 												       NoSuchROIException
 												       
 	{
-		roiMap.propagateShape(id, selectedShape, start, end);
+		return roiMap.propagateShape(id, selectedShape, start, end);
 	}
 
 	

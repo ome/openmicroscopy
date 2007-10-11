@@ -224,21 +224,51 @@ public class ROITable
 	 */
 	public void addROIShape(ROIShape shape)
 	{
-		ROINode parent = findParent(shape.getROI());
-		if(parent == null)
-		{
-			parent = new ROINode(shape.getROI());
-			parent.setExpanded(true);
-			ROIMap.put(shape.getROI(), parent);
-			int childCount = root.getChildCount();
-			root.insert(parent,childCount);
-		}
-		ROINode newNode = new ROINode(shape);
-		newNode.setExpanded(true);
-		parent.insert(newNode, parent.getChildCount());
-		this.setTreeTableModel(new ROITableModel(root, columnNames));
-		expandROIRow(parent);
+		ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+		shapeList.add(shape);
+		addROIShapeList(shapeList);
 	}
+	
+
+	/**
+	 * Add the ROIShapes in the shapeList to the table, placing it under the 
+	 * ROI the ROIShape belongs to. This method will create the ROI if it does 
+	 * not exist already. This method will also collapse all the ROI in the 
+	 * treetable  and expand the ROI of the ROIShape, moving the viewport to 
+	 * the ROIShape. 
+	 * @param shapeList see above.
+	 */
+	public void addROIShapeList(ArrayList<ROIShape> shapeList)
+	{
+		ROINode parent=null;
+		for(ROIShape shape : shapeList)
+		{
+			parent = findParent(shape.getROI());
+			if(parent == null)
+			{
+				parent = new ROINode(shape.getROI());
+				parent.setExpanded(true);
+				ROIMap.put(shape.getROI(), parent);
+				int childCount = root.getChildCount();
+				root.insert(parent,childCount);
+			}
+			ROINode roiShapeNode = parent.findChild(shape.getCoord3D());
+			ROINode newNode = new ROINode(shape);
+			newNode.setExpanded(true);
+			if(roiShapeNode != null)
+			{
+				int index = parent.getIndex(roiShapeNode);
+				parent.remove(shape.getCoord3D());
+				parent.insert(newNode, index);
+			}
+			else
+				parent.insert(newNode, parent.getInsertionPoint(shape.getCoord3D()));
+		}
+		this.setTreeTableModel(new ROITableModel(root, columnNames));
+		if(parent!=null)
+			expandROIRow(parent);
+	}
+	
 	
 	/** 
 	 * Expand the row of the node 
@@ -398,8 +428,7 @@ public class ROITable
 	public void deleteROI()
 	{
 		ArrayList<ROIShape> selectionList = getSelectedROIShapes();
-		for(ROIShape shape : selectionList)
-			manager.deleteROIShape(shape);
+		manager.deleteROIShapes(selectionList);
 	}
 	
 	/**

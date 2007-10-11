@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 //Java imports
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.TreeMap;
 
 //Third-party libraries
 
@@ -36,6 +37,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
 
 /**
@@ -76,6 +78,9 @@ public class ROINode
 	
 	/** The map of the children, ROIShapes belonging to the ROINode. */
 	HashMap<ROIShape, ROINode>				childMap;
+
+	/** The map of the children, ROIShapes belonging to the ROINode. */
+	TreeMap<Coord3D, ROINode>				childCoordMap;
 		
 	/**
 	 * Constructor for parent node. 
@@ -84,7 +89,7 @@ public class ROINode
 	public ROINode(String str)
 	{
 		super(str);
-		childMap = new HashMap<ROIShape, ROINode>();
+		initMaps();
 	}
 	
 	/**
@@ -94,7 +99,7 @@ public class ROINode
 	public ROINode(ROI nodeName)
 	{
 		super(nodeName);
-		childMap = new HashMap<ROIShape, ROINode>();
+		initMaps();
 	}
 	
 	/**
@@ -104,7 +109,36 @@ public class ROINode
 	public ROINode(ROIShape nodeName)
 	{
 		super(nodeName);
+		initMaps();
+	}
+
+	/**
+	 * Get the point in the parent where a child with coord should be inserted.
+	 * @param coord see above.
+	 * @return see above.
+	 */
+	public int getInsertionPoint(Coord3D coord)
+	{
+		Iterator<Coord3D> i = childCoordMap.keySet().iterator();
+		int index = 0;
+		while(i.hasNext())
+		{
+			Coord3D nodeCoord = i.next();
+			if(nodeCoord.compare(nodeCoord, coord)!=-1)
+				return index;
+			index++;
+		}
+		return index;
+	}
+	
+	/** 
+	 * Initialise the maps for the child nodes. 
+	 *
+	 */
+	private void initMaps()
+	{
 		childMap = new HashMap<ROIShape, ROINode>();
+		childCoordMap = new TreeMap<Coord3D, ROINode>(new Coord3D());
 	}
 	
 	/**
@@ -116,6 +150,18 @@ public class ROINode
 	{
 		if(childMap.containsKey(shape))
 			return childMap.get(shape);
+		return null;
+	}
+
+	/**
+	 * Find the shape belonging to the shapeCoord.
+	 * @param shapeCoord see above.
+	 * @return see above.
+	 */
+	public ROINode findChild(Coord3D shapeCoord)
+	{
+		if(childCoordMap.containsKey(shapeCoord))
+			return childCoordMap.get(shapeCoord);
 		return null;
 	}
 	
@@ -150,9 +196,44 @@ public class ROINode
 			 ROIShape shape = (ROIShape)userObject;
 			 child.setExpanded(true);
 			 childMap.put(shape, (ROINode)child);
+			 childCoordMap.put(shape.getCoord3D(), (ROINode)child);
 		 }
 	 }
-	
+
+	 /**
+	 * Remove a child to the current node.
+	 * @param child see above.
+	 */
+	 public void remove(ROINode child) 
+	 {
+		 super.remove(child);
+		 Object userObject = child.getUserObject();
+		 if(userObject instanceof ROIShape)
+		 {
+			 ROIShape shape = (ROIShape)userObject;
+			 childMap.remove(shape);
+			 childCoordMap.remove(shape.getCoord3D());
+		 }
+	 }
+	 
+	 /**
+	 * Remove a child to the current node.
+	 * @param child see above.
+	 */
+	 public void remove(Coord3D childCoord) 
+	 {
+		 ROINode childNode = childCoordMap.get(childCoord);
+		 
+		 super.remove(childNode);
+		 Object userObject = childNode.getUserObject();
+		 if(userObject instanceof ROIShape)
+		 {
+			 ROIShape shape = (ROIShape)userObject;
+			 childMap.remove(shape);
+			 childCoordMap.remove(shape.getCoord3D());
+		 }
+	 }
+	 
 	/**
 	 * Get the value for the node at column
 	 * @param column return the value of the element at column.

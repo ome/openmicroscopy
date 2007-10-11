@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -526,11 +527,11 @@ public class ROIComponent
 	 * @throws NoSuchROIException	Thrown if ROI with id does not exist.
 	 * @throws ROICreationException	Thrown if the ROI cannot be created.
 	 */
-	public void propagateShape(long id, Coord3D selectedShape, Coord3D start, 
+	public ArrayList<ROIShape> propagateShape(long id, Coord3D selectedShape, Coord3D start, 
 			Coord3D end) 
 		throws  ROICreationException, NoSuchROIException
 	{
-		roiCollection.propagateShape(id, selectedShape, start, end);
+		return roiCollection.propagateShape(id, selectedShape, start, end);
 	}
 
 	/**

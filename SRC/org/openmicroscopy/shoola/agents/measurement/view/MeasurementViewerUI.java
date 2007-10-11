@@ -232,7 +232,7 @@ class MeasurementViewerUI
         menu.add(subMenu);
         
         ButtonGroup createFigureGroup = new ButtonGroup();
-    	JMenu creationMenu = new JMenu("Figure Creation");
+    	JMenu creationMenu = new JMenu("ROI Creation");
         a = controller.getAction(
     			MeasurementViewerControl.CREATESINGLEFIGURE);
         JCheckBoxMenuItem createSingleFigure = new JCheckBoxMenuItem(a);
@@ -346,7 +346,149 @@ class MeasurementViewerUI
         initComponents();
         buildGUI();
     }
-    
+
+	/**
+	 * Merge the ROIShapes with ids in the idList and the ROIShapes selected 
+	 * in the shapeList from those ROI.
+	 * @param idList see above.
+	 * @param shapeList see above.
+	 */
+	public void mergeROI(ArrayList<Long> idList, ArrayList<ROIShape> shapeList)
+	{
+		try
+		{
+			model.setDataChanged();
+			ROI newROI = model.cloneROI(idList.get(0));
+			for(ROIShape shape : shapeList)
+			{
+				ROIShape newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
+				if(getDrawing().contains(shape.getFigure()))
+				{
+					shape.getFigure().removeFigureListener(controller);
+					getDrawing().removeDrawingListener(controller);
+					getDrawing().remove(shape.getFigure());
+					getDrawing().addDrawingListener(controller);
+				}
+				model.deleteShape(shape.getID(), shape.getCoord3D());
+				if(newShape.getCoord3D().equals(model.getCurrentView()))
+				{
+					getDrawing().removeDrawingListener(controller);
+					this.getDrawing().add(newShape.getFigure());
+					newShape.getFigure().addFigureListener(controller);
+					getDrawing().addDrawingListener(controller);
+				}
+				model.addShape(newROI.getID(), newShape.getCoord3D(), newShape);
+			}
+		}
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	/**
+	 * split the ROIShapes from the ROI with id and the ROIShapes selected in the shapeList 
+	 * from that ROI.
+	 * @param id see above.
+	 * @param shapeList see above.
+	 */
+	void splitROI(long id, ArrayList<ROIShape> shapeList)
+	{
+		try
+		{
+			model.setDataChanged();
+			ROI newROI = model.cloneROI(id);
+			for(ROIShape shape : shapeList)
+			{
+				ROIShape newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
+				if(getDrawing().contains(shape.getFigure()))
+				{
+					shape.getFigure().removeFigureListener(controller);
+					getDrawing().removeDrawingListener(controller);
+					getDrawing().remove(shape.getFigure());
+					getDrawing().addDrawingListener(controller);
+				}
+				model.deleteShape(shape.getID(), shape.getCoord3D());
+				if(newShape.getCoord3D().equals(model.getCurrentView()))
+				{
+					getDrawing().removeDrawingListener(controller);
+					this.getDrawing().add(newShape.getFigure());
+					newShape.getFigure().addFigureListener(controller);
+					getDrawing().addDrawingListener(controller);
+				}
+				model.addShape(newROI.getID(), newShape.getCoord3D(), newShape);
+			}
+		}
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+			
+	}
+	
+	/**
+	 * Duplicate the ROI with id and the ROIShapes selected in the shapeList 
+	 * from that ROI.
+	 * @param id see above.
+	 * @param shapeList see above.
+	 */
+	void duplicateROI(long id, ArrayList<ROIShape> shapeList)
+	{
+		try
+		{
+			model.setDataChanged();
+			ROI newROI = model.cloneROI(id);
+			for(ROIShape shape : shapeList)
+			{
+				ROIShape newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
+				if(newShape.getCoord3D().equals(model.getCurrentView()))
+				{
+					getDrawing().removeDrawingListener(controller);
+					this.getDrawing().add(newShape.getFigure());
+					newShape.getFigure().addFigureListener(controller);
+					getDrawing().addDrawingListener(controller);
+				}
+				model.addShape(newROI.getID(), newShape.getCoord3D(), newShape);
+			}
+		}
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Delete the ROI with id and the ROIShapes selected in the shapeList 
+	 * @param shapeList see above.
+	 */
+	void deleteROIShapes( ArrayList<ROIShape> shapeList)
+	{
+		try
+		{
+			model.setDataChanged();
+			for(ROIShape shape : shapeList)
+			{
+				if(getDrawing().contains(shape.getFigure()))
+				{
+					shape.getFigure().removeFigureListener(controller);
+					getDrawing().removeDrawingListener(controller);
+					getDrawing().remove(shape.getFigure());
+					getDrawing().addDrawingListener(controller);
+				}
+				model.deleteShape(shape.getID(), shape.getCoord3D());
+			}
+		}
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
     /**
 	 * Returns <code>true</code> if in the graph or intensity view,
 	 * <code>false</code> otherwise.
@@ -699,13 +841,15 @@ class MeasurementViewerUI
 	 */
 	void propagateShape(ROIShape shape, int timePoint, int zSection) 
 	{
+		ArrayList<ROIShape> addedShapes;
 		try {
-			model.propagateShape(shape, timePoint, zSection);
+			addedShapes = model.propagateShape(shape, timePoint, zSection);
+			roiManager.addROIShapes(addedShapes);
 		} catch (Exception e) {
 			handleROIException(e, RETRIEVE_MSG);
 		}
 		setStatus(DEFAULT_MSG);
-		rebuildManagerTable();
+		//rebuildManagerTable();
 	}
 	
 	/**

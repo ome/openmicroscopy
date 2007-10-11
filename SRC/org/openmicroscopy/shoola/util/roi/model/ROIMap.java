@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util.roi.model;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.TreeMap;
 
 //Third-party libraries
@@ -195,12 +196,12 @@ public class ROIMap
 	 * @throws ROICreationException
 	 * @throws NoSuchROIException
 	 */
-	public void propagateShape(long id, Coord3D selectedShape, Coord3D start, 
-															   Coord3D end) 
+	public ArrayList<ROIShape> propagateShape(long id, Coord3D selectedShape, 
+												Coord3D start, Coord3D end) 
 												throws ROICreationException, 
 													   NoSuchROIException
 	{
-	
+		ArrayList<ROIShape> addedList = new ArrayList<ROIShape>();
 		if(!roiIDMap.containsKey(id))
 			throw new NoSuchROIException("No ROI with id : "+ id);
 		ROI roi = roiIDMap.getROI(id);
@@ -222,7 +223,10 @@ public class ROIMap
 						deleteShape(id, newCoord);
 					addShape(id, newCoord, new ROIShape(roi, newCoord, 
 						shape));					
+					ROIShape newShape = getShape(id, newCoord);
+					addedList.add(newShape);
 				}
+			return addedList;
 	}
 
 	/** 

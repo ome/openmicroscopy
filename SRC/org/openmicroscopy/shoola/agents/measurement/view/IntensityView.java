@@ -152,6 +152,9 @@ class IntensityView
 	/** Max intensity label. */
 	private JLabel						maxLabel;
 	
+	/** Sum  intensity label. */
+	private JLabel						sumLabel;
+	
 	/** Mean intensity label. */
 	private JLabel						meanLabel;
 	
@@ -181,6 +184,9 @@ class IntensityView
 	
 	/** Max intensity textfield. */
 	private JTextField					maxValue;
+	
+	/** Sum intensity textfield. */
+	private JTextField					sumValue;
 	
 	/** Mean intensity textfield. */
 	private JTextField					meanValue;
@@ -225,6 +231,9 @@ class IntensityView
 	/** List of the channel colours. */
 	private Map<Integer, Color> channelColour = new TreeMap<Integer, Color>();
 	
+	/** Map of the channel sums, for each selected channel. */
+	private Map<Integer, Double> channelSum = new TreeMap<Integer, Double>();
+	
 	/** Map of the channel mins, for each selected channel. */
 	private Map<Integer, Double> channelMin = new TreeMap<Integer, Double>();
 	
@@ -261,6 +270,7 @@ class IntensityView
 		table = new IntensityTable(tableModel);
 		minLabel = new JLabel("Min");
 		maxLabel = new JLabel("Max");
+		sumLabel = new JLabel("Sum");
 		meanLabel = new JLabel("Mean");
 		stdDevLabel = new JLabel("Std Dev.");
 		XCoordLabel = new JLabel("X Coord");
@@ -272,6 +282,7 @@ class IntensityView
 		minValue = new JTextField();
 		maxValue = new JTextField();
 		meanValue = new JTextField();
+		sumValue = new JTextField();
 		stdDevValue = new JTextField();
 		XCoordValue = new JTextField();
 		YCoordValue = new JTextField();
@@ -336,6 +347,9 @@ class IntensityView
 		panel.add(fields);
 		panel.add(Box.createVerticalStrut(5));
 		fields = createLabelText(meanLabel, meanValue);
+		panel.add(fields);
+		panel.add(Box.createVerticalStrut(5));
+		fields = createLabelText(sumLabel, sumValue);
 		panel.add(fields);
 		panel.add(Box.createVerticalStrut(5));
 		fields = createLabelText(stdDevLabel, stdDevValue);
@@ -425,6 +439,7 @@ class IntensityView
 		nameMap = new HashMap<String, Integer>();
 		channelColour =  new TreeMap<Integer, Color>();
 		channelMin = new TreeMap<Integer, Double>();
+		channelSum = new TreeMap<Integer, Double>();
 		channelMax = new TreeMap<Integer, Double>();
 		channelMean = new TreeMap<Integer, Double>();
 		channelStdDev = new TreeMap<Integer, Double>();
@@ -444,6 +459,7 @@ class IntensityView
 			{
 				channel = (Integer) channelIterator.next();
 				stats = (ROIShapeStats) shapeStats.get(channel);
+				channelSum.put(channel, stats.getSum());
 				channelMin.put(channel, stats.getMin());
 				channelMax.put(channel, stats.getMax());
 				channelMean.put(channel, stats.getMean());
@@ -473,6 +489,7 @@ class IntensityView
 		channelName.clear();
 		channelColour.clear();
 		channelMin.clear();
+		channelSum.clear();
 		channelMax.clear();
 		channelMean.clear();
 		channelStdDev.clear();
@@ -578,6 +595,7 @@ class IntensityView
 	{
 		minValue.setText(FormatString(channelMin.get(channel)));
 		maxValue.setText(FormatString(channelMax.get(channel)));
+		sumValue.setText(FormatString(channelSum.get(channel)));
 		meanValue.setText(FormatString(channelMean.get(channel)));
 		stdDevValue.setText(FormatString(channelStdDev.get(channel)));
 		ROIFigure fig = shape.getFigure();
@@ -857,6 +875,19 @@ class IntensityView
 		out.write("Mean Intensity, ");
 		out.write(channelMean.get(channel)+"");
 	}
+
+	/**
+	 * Write the sum stat to file.
+	 * @param out The output stream.
+	 * @param channel The channel.
+	 * @throws IOException Any io error. 
+	 */
+	private void writeSumStat(BufferedWriter out, int channel)
+															throws IOException
+	{
+		out.write("Sum Intensity, ");
+		out.write(channelSum.get(channel)+"");
+	}
 	
 	/**
 	 * Write the stdDev stat to file.
@@ -962,6 +993,8 @@ class IntensityView
 		writeMinStat(out, channel);
 		out.newLine();
 		writeMaxStat(out, channel);
+		out.newLine();
+		writeSumStat(out, channel);
 		out.newLine();
 		writeMeanStat(out, channel);
 		out.newLine();

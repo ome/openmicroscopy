@@ -23,9 +23,6 @@
 package org.openmicroscopy.shoola.agents.measurement.util.roimenu;
 
 //Java imports
-import java.util.HashMap;
-
-import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -60,7 +57,7 @@ public class ROIPopupMenu
 	 * Text for the ROI options -- parent of Split, merge, delete, propagate, 
 	 * duplicate. 
 	 * */
-	final static String ROI_CREATION_OPTIONS = "ROI Creation Options";
+	final static String ROI_CREATION_OPTIONS = "ROI Management Options";
 	
 	/** 
 	 * Text for the ROI stats options, the ability to call the roi stats:

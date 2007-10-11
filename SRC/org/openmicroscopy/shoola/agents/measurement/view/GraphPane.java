@@ -45,12 +45,10 @@ import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
-import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
@@ -206,14 +204,18 @@ class GraphPane
 		zSlider = new OneKnobSlider();
 		zSlider.setOrientation(JSlider.VERTICAL);
 		zSlider.setPaintTicks(true);
+		zSlider.setPaintLabels(true);
 		zSlider.setMajorTickSpacing(1);
 		zSlider.addChangeListener(this);
+		zSlider.setShowArrows(false);
 
 		tSlider = new OneKnobSlider();
 		tSlider.setPaintTicks(true);
+		tSlider.setPaintLabels(true);
 		tSlider.setMajorTickSpacing(1);
 		tSlider.setSnapToTicks(true);
 		tSlider.addChangeListener(this);
+		tSlider.setShowArrows(false);
 		mainPanel = new JPanel();
 		
 	}
@@ -312,12 +314,16 @@ class GraphPane
 			data = shapeStats.get(StatsType.PIXELDATA);
 			pixelStats.put(shape.getCoord3D(), data);
 		}
+		maxZ = maxZ+1;
+		minZ = minZ+1;
 		zSlider.setMaximum(maxZ);
 		zSlider.setMinimum(minZ);
 		tSlider.setMaximum(maxT);
 		tSlider.setMinimum(minT);
+		zSlider.setVisible((maxZ!=minZ));
+		tSlider.setVisible((maxT!=minT));
 		tSlider.setValue(model.getCurrentView().getTimePoint());
-		zSlider.setValue(model.getCurrentView().getZSection());
+		zSlider.setValue(model.getCurrentView().getZSection()+1);
 
 	
 		buildGraphsAndDisplay();
@@ -332,7 +338,7 @@ class GraphPane
 	 */
 	private void buildGraphsAndDisplay()
 	{
-		coord = new Coord3D(zSlider.getValue(), tSlider.getValue());
+		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue());
 		Map<Integer, double[]> data = pixelStats.get(coord);
 		if(data==null)
 			return;
@@ -460,12 +466,14 @@ class GraphPane
 	 */
 	public void stateChanged(ChangeEvent e)
 	{
-		Coord3D thisCoord = new Coord3D(zSlider.getValue(), tSlider.getValue());
+		if(zSlider == null || tSlider == null )
+			return;
 		if(coord==null)
 			return;
-		if(coord.equals(thisCoord))
-			return;
 		if(state==ANALYSING)
+			return;
+		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, tSlider.getValue());
+		if(coord.equals(thisCoord))
 			return;
 		state = ANALYSING;
 		this.buildGraphsAndDisplay();

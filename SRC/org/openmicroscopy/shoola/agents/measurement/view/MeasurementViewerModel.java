@@ -715,12 +715,13 @@ class MeasurementViewerModel
 	 * @throws NoSuchROIException	Thrown if ROI with id does not exist.
 	 * @throws ROICreationException	Thrown if the ROI cannot be created.
 	 */
-	void propagateShape(ROIShape shape, int timePoint, int zSection) 
+	ArrayList<ROIShape> propagateShape(ROIShape shape, int timePoint, int zSection) 
 		throws ROICreationException, NoSuchROIException
 	{
+		ArrayList<ROIShape> addedList;
 		setDataChanged();
 		Coord3D coord = new Coord3D(zSection, timePoint);
-		roiComponent.propagateShape(shape.getID(), shape.getCoord3D(), 
+		addedList = roiComponent.propagateShape(shape.getID(), shape.getCoord3D(), 
 			shape.getCoord3D(),coord);
 		if(coord.equals(getCurrentView()))
 		{
@@ -729,6 +730,7 @@ class MeasurementViewerModel
 			getDrawing().add(createdShape.getFigure());
 			state = MeasurementViewer.READY;
 		}
+		return addedList;
 	}
 	
 	/**
@@ -992,7 +994,7 @@ class MeasurementViewerModel
 	 * @param id see above.
 	 * @param shapeList see above.
 	 */
-	void duplicateROI(long id, ArrayList<ROIShape> shapeList)
+	/*void duplicateROI(long id, ArrayList<ROIShape> shapeList)
 	{
 		try
 		{
@@ -1014,7 +1016,7 @@ class MeasurementViewerModel
 			e.printStackTrace();
 		}
 		
-	}
+	}*/
 	
 	/**
 	 * split the ROIShapes from the ROI with id and the ROIShapes selected in the shapeList 
@@ -1022,7 +1024,7 @@ class MeasurementViewerModel
 	 * @param id see above.
 	 * @param shapeList see above.
 	 */
-	void splitROI(long id, ArrayList<ROIShape> shapeList)
+	/*void splitROI(long id, ArrayList<ROIShape> shapeList)
 	{
 		try
 		{
@@ -1047,41 +1049,55 @@ class MeasurementViewerModel
 			e.printStackTrace();
 		}
 			
-	}
-	
-	/**
-	 * Merge the ROIShapes with ids in the idList and the ROIShapes selected 
-	 * in the shapeList from those ROI.
-	 * @param idList see above.
-	 * @param shapeList see above.
-	 */
-	void mergeROI(ArrayList<Long> idList, ArrayList<ROIShape> shapeList)
+	}*/
+//	
+//	/**
+//	 * Merge the ROIShapes with ids in the idList and the ROIShapes selected 
+//	 * in the shapeList from those ROI.
+//	 * @param idList see above.
+//	 * @param shapeList see above.
+//	 */
+//	void mergeROI(ArrayList<Long> idList, ArrayList<ROIShape> shapeList)
+//	{
+//		try
+//		{
+//			setDataChanged();
+//			System.err.println("ShapeList.size() : " + shapeList.size());
+//			ROI newROI = roiComponent.cloneROI(idList.get(0));
+//			for(ROIShape shape : shapeList)
+//			{
+//				ROIShape newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
+//				state = MeasurementViewer.VALUE_ADJUSTING;
+//				
+//				roiComponent.deleteShape(shape.getID(), shape.getCoord3D());
+//				if(newShape.getCoord3D().equals(getCurrentView()))
+//					this.getDrawing().add(newShape.getFigure());
+//				roiComponent.addShape(newROI.getID(), newShape.getCoord3D(), newShape);
+//				state = MeasurementViewer.READY;
+//			}
+//		}
+//		catch (Exception e)
+//		{
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//	}
+//	
+	public ROI cloneROI(long id) throws ROICreationException, NoSuchROIException
 	{
-		try
-		{
-			setDataChanged();
-			ROI newROI = roiComponent.cloneROI(idList.get(0));
-			for(ROIShape shape : shapeList)
-			{
-				ROIShape newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
-				state = MeasurementViewer.VALUE_ADJUSTING;
-				if(getDrawing().contains(shape.getFigure()))
-					this.getDrawing().remove(shape.getFigure());
-				if(newShape.getCoord3D().equals(getCurrentView()))
-					this.getDrawing().add(newShape.getFigure());
-				roiComponent.deleteShape(shape.getID(), shape.getCoord3D());
-				roiComponent.addShape(newShape.getID(), newShape.getCoord3D(), newShape);
-				state = MeasurementViewer.READY;
-			}
-		}
-		catch (Exception e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+		return roiComponent.cloneROI(id);
 	}
 	
+	public void deleteShape(long id, Coord3D coord) throws NoSuchROIException
+	{
+		roiComponent.deleteShape(id, coord);
+	}
+	
+	public void addShape(long id, Coord3D coord, ROIShape shape) throws ROICreationException, NoSuchROIException
+	{
+		roiComponent.addShape(id, coord, shape);
+	}
 	
 	
 }	

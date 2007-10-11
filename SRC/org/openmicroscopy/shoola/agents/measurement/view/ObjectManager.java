@@ -255,7 +255,10 @@ class ObjectManager
 			shapeList = roi.getShapes();
 			shapeIterator = shapeList.values().iterator();
 			while (shapeIterator.hasNext())
-				objectsTable.addROIShape(shapeIterator.next());		
+			{
+				ROIShape shape = shapeIterator.next();
+				objectsTable.addROIShape(shape);
+			}
 		}
 
 	}
@@ -297,6 +300,16 @@ class ObjectManager
 				objectsTable.addROIShape(j.next());
 			}
 		}
+	}
+
+	/**
+	 * Adds the collection of ROIShapes to the display.
+	 * 
+	 * @param shapeList The collection of ROIShapes to add.
+	 */
+	public void addROIShapes(ArrayList<ROIShape> shapeList)
+	{
+		objectsTable.addROIShapeList(shapeList);
 	}
 	
 	/**
@@ -344,41 +357,15 @@ class ObjectManager
 	}
 	
 	/**
-	 * Delete ROI from model. 
-	 * @param roi the roi to delete.
+	 * Delete the ROI shapes in the shapelist and belonging 
+	 * @param shapeList see above.
 	 */
-	public void deleteROI(ROI roi)
+	public void deleteROIShapes(ArrayList<ROIShape> shapeList)
 	{
-		try
-		{
-			model.removeROI(roi.getID());
-			this.rebuildTable();
-		}
-		catch (NoSuchROIException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		view.deleteROIShapes(shapeList);
+		this.rebuildTable();
 	}
-	
-	/**
-	 * Delete the ROIShape shape from the system.
-	 * @param shape see above.
-	 */
-	public void deleteROIShape(ROIShape shape)
-	{
-		try
-		{
-			model.removeROIShape(shape.getID(), shape.getCoord3D());
-			this.rebuildTable();
-		}
-		catch (NoSuchROIException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
+		
 	/**
 	 * Duplicate the ROI shapes in the shapelist and belonging to the ROI with
 	 * id.
@@ -387,7 +374,7 @@ class ObjectManager
 	 */
 	public void duplicateROI(long id, ArrayList<ROIShape> shapeList)
 	{
-		model.duplicateROI(id, shapeList);
+		view.duplicateROI(id, shapeList);
 		this.rebuildTable();
 	}
 	
@@ -410,7 +397,7 @@ class ObjectManager
 	 */
 	public void mergeROI(ArrayList<Long> idList, ArrayList<ROIShape> shapeList)
 	{
-		model.mergeROI(idList, shapeList);
+		view.mergeROI(idList, shapeList);
 		this.rebuildTable();
 	}
 	
@@ -423,7 +410,7 @@ class ObjectManager
 	 */
 	public void splitROI(long id, ArrayList<ROIShape> shapeList)
 	{
-			model.splitROI(id, shapeList);
+			view.splitROI(id, shapeList);
 			this.rebuildTable();
 		
 	}
