@@ -511,6 +511,7 @@ class ROIAssistant
 				setOpaque(true);
 				setBorder(UIManager.getBorder("TableHeader.cellBorder"));
 				setHorizontalAlignment(CENTER);
+				setHorizontalTextPosition(CENTER);
 				setForeground(header.getForeground());
 				setBackground(header.getBackground());
 				setFont(header.getFont());

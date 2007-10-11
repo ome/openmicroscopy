@@ -712,25 +712,17 @@ class MeasurementViewerModel
 	 * @param shape 	The ROIShape to propagate.
 	 * @param timePoint The timepoint to propagate to.
 	 * @param zSection 	The z-section to propagate to.
+	 * @return arraylist A list of the newly added shapes.
 	 * @throws NoSuchROIException	Thrown if ROI with id does not exist.
 	 * @throws ROICreationException	Thrown if the ROI cannot be created.
 	 */
 	ArrayList<ROIShape> propagateShape(ROIShape shape, int timePoint, int zSection) 
 		throws ROICreationException, NoSuchROIException
 	{
-		ArrayList<ROIShape> addedList;
 		setDataChanged();
 		Coord3D coord = new Coord3D(zSection, timePoint);
-		addedList = roiComponent.propagateShape(shape.getID(), shape.getCoord3D(), 
+		return roiComponent.propagateShape(shape.getID(), shape.getCoord3D(), 
 			shape.getCoord3D(),coord);
-		if(coord.equals(getCurrentView()))
-		{
-			state = MeasurementViewer.VALUE_ADJUSTING;
-			ROIShape createdShape = roiComponent.getShape(shape.getID(), coord);
-			getDrawing().add(createdShape.getFigure());
-			state = MeasurementViewer.READY;
-		}
-		return addedList;
 	}
 	
 	/**

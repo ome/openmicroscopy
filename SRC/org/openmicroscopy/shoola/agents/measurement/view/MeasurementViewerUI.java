@@ -842,14 +842,32 @@ class MeasurementViewerUI
 	void propagateShape(ROIShape shape, int timePoint, int zSection) 
 	{
 		ArrayList<ROIShape> addedShapes;
-		try {
+		try
+		{
 			addedShapes = model.propagateShape(shape, timePoint, zSection);
+			for(ROIShape newShape : addedShapes)
+			{
+				if(newShape.getCoord3D().equals(model.getCurrentView()))
+				{
+					getDrawing().removeDrawingListener(controller);
+					this.getDrawing().add(newShape.getFigure());
+					newShape.getFigure().addFigureListener(controller);
+					getDrawing().addDrawingListener(controller);
+				}
+			}
 			roiManager.addROIShapes(addedShapes);
-		} catch (Exception e) {
-			handleROIException(e, RETRIEVE_MSG);
+		}
+		catch (ROICreationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (NoSuchROIException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		setStatus(DEFAULT_MSG);
-		//rebuildManagerTable();
 	}
 	
 	/**
