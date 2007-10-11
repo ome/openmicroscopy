@@ -442,6 +442,8 @@ class GraphPane
 	{
 		LinePlot plot = new LinePlot(title, channelNames, data, 
 			channelColours, channelMinValue(), channelMaxValue());
+		plot.setYAxisName("Intensity");
+		plot.setXAxisName("Pixel");
 		return plot;
 	}
 	
@@ -460,6 +462,8 @@ class GraphPane
 	{
 		HistogramPlot plot = new HistogramPlot(title, channelNames, data, 
 			channelColours, bins, channelMinValue(), channelMaxValue());
+		plot.setXAxisName("Intensity");
+		plot.setYAxisName("Frequency");
 		return plot;
 	}
 

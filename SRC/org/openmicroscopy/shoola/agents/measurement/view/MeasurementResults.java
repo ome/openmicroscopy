@@ -574,7 +574,7 @@ class MeasurementResults
 	}
 
 	/** Refreshes the result table. */
-	void refreshResults() { populate(); }
+	public void refreshResults() { populate(); }
 	
 	/**
 	 * Shows the results wizard and updates the fields based on the users 

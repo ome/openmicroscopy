@@ -29,6 +29,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.HashMap;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -77,7 +79,8 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
  * @since OME3.0
  */
 class ToolBar 
-	extends JPanel
+	extends JPanel 
+	implements MouseListener
 {
 
 	/** The defaults attributes of the line connection figure. */
@@ -114,10 +117,13 @@ class ToolBar
     
 	/** Tool bar hosting the control defined by <code>JHotDraw</code>. */
 	private JToolBar					toolBar;
-	
+
 	/** Reference to the Control. */
     private MeasurementViewerControl	controller;
-	
+
+	/** Reference to the Control. */
+    private MeasurementViewerUI			view;
+    
     /** Reference to the Model. */
     private MeasurementViewerModel		model;
     
@@ -160,28 +166,56 @@ class ToolBar
 	    polygonTool = new DrawingBezierTool(new MeasureBezierFigure(true));
 	    polylineTool = new DrawingBezierTool(new MeasureBezierFigure(false));
 	    
+	    Component component;
+	    
 		toolBar = DrawingToolBarButtonFactory.createDefaultBar();
 		DrawingEditor editor = model.getDrawingEditor();
 		DrawingToolBarButtonFactory.addSelectionToolTo(toolBar, editor);
+		component = toolBar.getComponent(toolBar.getComponentCount()-1);
+		if (component instanceof JToggleButton)
+		{
+			JToggleButton button = (JToggleButton) component;
+			button.addMouseListener(this);
+		}
+
 		toolBar.add(new JSeparator());
 		toolBar.add(Box.createRigidArea(HGLUE));
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, rectTool, 
 				CREATE_KEY+FigureUtil.RECTANGLE_TYPE);
+		component = toolBar.getComponent(toolBar.getComponentCount()-1);
+		if (component instanceof JToggleButton)
+		{
+			JToggleButton button = (JToggleButton) component;
+			button.addMouseListener(this);
+		}
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, ellipseTool, 
 				CREATE_KEY+FigureUtil.ELLIPSE_TYPE);
+		component = toolBar.getComponent(toolBar.getComponentCount()-1);
+		if (component instanceof JToggleButton)
+		{
+			JToggleButton button = (JToggleButton) component;
+			button.addMouseListener(this);
+		}
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, pointTool, 
 				CREATE_KEY+FigureUtil.ELLIPSE_TYPE);
-		Component component = toolBar.getComponent(
+		component = toolBar.getComponent(
 							toolBar.getComponentCount()-1);
 		if (component instanceof JToggleButton)
 		{
 			JToggleButton button = (JToggleButton) component;
+			button.addMouseListener(this);
 			IconManager icons = IconManager.getInstance();
 			button.setIcon(icons.getIcon(IconManager.POINTICON));
 			button.setToolTipText(FigureUtil.POINT_TYPE);
 		}
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, lineTool, 
 					CREATE_KEY+FigureUtil.LINE_TYPE);
+		component = toolBar.getComponent(toolBar.getComponentCount()-1);
+		if (component instanceof JToggleButton)
+		{
+			JToggleButton button = (JToggleButton) component;
+			button.addMouseListener(this);
+		}
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, connectionTool, 
 	    			CREATE_KEY+FigureUtil.LINE_CONNECTION_TYPE);
 		 component = toolBar.getComponent(
@@ -194,11 +228,29 @@ class ToolBar
 		 }
 		 DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polylineTool, 
 				  CREATE_KEY+FigureUtil.SCRIBBLE_TYPE);
+		 component = toolBar.getComponent(toolBar.getComponentCount()-1);
+		if (component instanceof JToggleButton)
+		{
+			JToggleButton button = (JToggleButton) component;
+			button.addMouseListener(this);
+		}
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polygonTool, 
-	    		  CREATE_KEY+FigureUtil.POLYGON_TYPE);
+	    	  CREATE_KEY+FigureUtil.POLYGON_TYPE);
+		component = toolBar.getComponent(toolBar.getComponentCount()-1);
+		if (component instanceof JToggleButton)
+		{
+			JToggleButton button = (JToggleButton) component;
+			button.addMouseListener(this);
+		}
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, textTool, 
-				CREATE_KEY+FigureUtil.TEXT_TYPE);
-		createSingleFigure(false);
+			CREATE_KEY+FigureUtil.TEXT_TYPE);
+		component = toolBar.getComponent(toolBar.getComponentCount()-1);
+		if (component instanceof JToggleButton)
+		{
+			JToggleButton button = (JToggleButton) component;
+			button.addMouseListener(this);
+		}
+
 	}
 	
 	/**
@@ -243,17 +295,20 @@ class ToolBar
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param controller	Reference to the control. 
+		 * @param controller	Reference to the control. 
 	 * 						Mustn't be <code>null</code>.
 	 * @param model			Reference to the View. Mustn't be <code>null</code>.
 	 */
-	ToolBar(MeasurementViewerControl controller,
+	ToolBar(MeasurementViewerUI view, MeasurementViewerControl controller,
 			MeasurementViewerModel model)
 	{
+		if (view == null) 
+			throw new IllegalArgumentException("No view.");
 		if (controller == null) 
 			throw new IllegalArgumentException("No control.");
 		if (model == null) 
 			throw new IllegalArgumentException("No model.");
+		this.view = view;
 		this.controller = controller;
 		this.model = model;
 		initComponents();
@@ -276,6 +331,70 @@ class ToolBar
 		pointTool.setResetToSelect(option);
 	    polygonTool.setResetToSelect(option);
 	    polylineTool.setResetToSelect(option); 
+	}
+	/**
+	 * Return true if the right button was clicked or left button was clicked with
+	 * control held down.
+	 * @param e mouse event.
+	 * @return see above.
+	 */
+	protected boolean rightClick(MouseEvent e)
+	{
+		if(e.getButton() == MouseEvent.BUTTON3 || 
+				(e.getButton() == MouseEvent.BUTTON1 && e.isControlDown()))
+			return true;
+		return false;
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+	 */
+	public void mouseClicked(MouseEvent e)
+	{
+		if(rightClick(e))
+		{
+			view.createSingleFigure(false);
+			JToggleButton button = (JToggleButton)e.getSource();
+			button.setSelected(true);
+		}
+		else
+			view.createSingleFigure(true);
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+	 */
+	public void mouseEntered(MouseEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+	 */
+	public void mouseExited(MouseEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+	 */
+	public void mousePressed(MouseEvent e)
+	{
+
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+	 */
+	public void mouseReleased(MouseEvent e)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

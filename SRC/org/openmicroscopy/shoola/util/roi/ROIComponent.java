@@ -39,6 +39,7 @@ import org.jhotdraw.draw.AttributeKeys;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.io.IOConstants;
@@ -132,7 +133,10 @@ public class ROIComponent
     	AttributeKeys.FONT_SIZE.set(fig, FONT_SIZE);
 		AttributeKeys.TEXT_COLOR.set(fig, TEXT_COLOR);
 		AttributeKeys.STROKE_WIDTH.set(fig, STROKE_WIDTH);
-		MeasurementAttributes.SHOWMEASUREMENT.set(fig, false);
+		if(fig instanceof MeasureLineFigure)
+			MeasurementAttributes.SHOWMEASUREMENT.set(fig, true);
+		else
+			MeasurementAttributes.SHOWMEASUREMENT.set(fig, false);
 		MeasurementAttributes.MEASUREMENTTEXT_COLOUR.set(fig, MEASUREMENT_COLOR);
 		DrawingAttributes.SHOWTEXT.set(fig, false);
     	if (fig instanceof MeasurePointFigure) {

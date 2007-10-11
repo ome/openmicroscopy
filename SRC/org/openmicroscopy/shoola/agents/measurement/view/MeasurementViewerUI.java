@@ -166,6 +166,12 @@ class MeasurementViewerUI
  
     /** The status bar. */
     private StatusBar					statusBar;
+
+    /** the creation option to create multiple figures in the UI. */
+    private JCheckBoxMenuItem createMultipleFigure;
+    
+    /** the creation option to create single figures in the UI. */
+    private JCheckBoxMenuItem createSingleFigure;
     
     /** 
      * Creates the menu bar.
@@ -238,14 +244,14 @@ class MeasurementViewerUI
     	JMenu creationMenu = new JMenu("ROI Creation");
         a = controller.getAction(
     			MeasurementViewerControl.CREATESINGLEFIGURE);
-        JCheckBoxMenuItem createSingleFigure = new JCheckBoxMenuItem(a);
+        createSingleFigure = new JCheckBoxMenuItem(a);
         createSingleFigure.setText(a.getName());
         createFigureGroup.add(createSingleFigure);
         creationMenu.add(createSingleFigure);
         
         a = controller.getAction(
         		MeasurementViewerControl.CREATEMULTIPLEFIGURE);
-        JCheckBoxMenuItem createMultipleFigure = new JCheckBoxMenuItem(a);
+        createMultipleFigure = new JCheckBoxMenuItem(a);
         createMultipleFigure.setText(a.getName());
         createFigureGroup.add(createMultipleFigure);
         creationMenu.add(createMultipleFigure);
@@ -261,7 +267,7 @@ class MeasurementViewerUI
 	private void initComponents()
 	{
 		statusBar = new StatusBar();
-		toolBar = new ToolBar(controller, model);
+		toolBar = new ToolBar(this, controller, model);
 		roiManager = new ObjectManager(this, model);
 		roiInspector = new ObjectInspector(controller, model);
 		roiResults = new MeasurementResults(controller, model, this);
@@ -716,6 +722,7 @@ class MeasurementViewerUI
     	try {
     		model.removeROIShape(figure.getROI().getID());
     	    roiManager.removeFigure(figure);
+        	roiResults.refreshResults();
 		} catch (Exception e) {
 			handleROIException(e, DELETE_MSG);
 		}
@@ -739,6 +746,7 @@ class MeasurementViewerUI
     	List<ROI> roiList = new ArrayList<ROI>();
     	roiList.add(roi);
     	roiManager.addFigures(roiList);
+    	roiResults.refreshResults();
     }
     
     /**
@@ -752,6 +760,7 @@ class MeasurementViewerUI
     	if (figure == null) return;
     	roiInspector.setModelData(figure);
     	roiManager.update();
+    	roiResults.refreshResults();
     }
     
     /**
@@ -905,9 +914,8 @@ class MeasurementViewerUI
 	
 	/**
 	 * Sets ready message in the status bar.
-	 * 
 	 */
-	void setReadyStatus() { setStatus("");}
+	void setReadyStatus() { setStatus(""); }
 	
 	/** Builds the graphs and displays them in the results pane. */
 	void displayAnalysisResults()
@@ -923,7 +931,18 @@ class MeasurementViewerUI
      */
     void createSingleFigure(boolean createSingleFig)
     {
+    	if(createSingleFig)
+    	{
+    		createSingleFigure.setSelected(true);
+    		createMultipleFigure.setSelected(false);
+    	}
+    	else
+    	{
+    		createSingleFigure.setSelected(false);
+    		createMultipleFigure.setSelected(true);
+    	}
     	toolBar.createSingleFigure(createSingleFig);
+    	
     }
     
     /** 
