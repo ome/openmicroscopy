@@ -36,7 +36,6 @@ import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 
 //Application-internal dependencies
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
 
 /** 
  * 
@@ -65,7 +64,7 @@ public class ROIStats
      * </code> tuple identifying a plane onto the stats calculated for the
      * 2D-selection contained in that plane. 
      */
-    private Map                 arrayMap;
+    private Map<Integer, ROIShapeStats>                 arrayMap;
 
     /**
      * Transforms 3D coords into linear coords.
@@ -123,7 +122,7 @@ public class ROIStats
     public ROIShapeStats getPlaneStats(int z, int w, int t)
     {
         Integer index = linearize(z, w, t);
-        return (ROIShapeStats) arrayMap.get(index);
+        return arrayMap.get(index);
     }
     
     /**
