@@ -130,7 +130,6 @@ class IntensityView
 	/** The cannel selection action command. */
 	private static final String			CHANNELSELECTION = "CHANNELSELECTION";
 	
-
 	/** Reference to the model. */
 	private MeasurementViewerModel		model;
 	
@@ -221,8 +220,8 @@ class IntensityView
 	private int 						selectedChannel;
 
 	/** The name of the channel selected in the combo box. */
-	private String 						selectedChannelName	
-	;
+	private String 						selectedChannelName;
+	
 	/** Select to choose the channel to show values for . */
 	private JComboBox 					channelSelection;
 	
@@ -718,17 +717,11 @@ class IntensityView
 		stdDevValue.setText(FormatString(channelStdDev.get(channel)));
 		ROIFigure fig = shape.getFigure();
 		if(areaFigure(fig))
-		{
 			setValuesForAreaFigure(fig);
-		}
 		else if(lineFigure(fig))
-		{
 			setValuesForLineFigure(fig);
-		}
 		else if (pointFigure(fig))
-		{
 			setValuesForPointFigure(fig);
-		}
 	}
 
 	/**
@@ -853,9 +846,12 @@ class IntensityView
 	 */
 	private String FormatString(double value)
 	{
-		try {
+		try 
+		{
 			return String.format("%.2f",value);
-		} catch (Exception e) {
+		} 
+		catch (Exception e) 
+		{
 			return "";
 		}
 	}
@@ -868,9 +864,9 @@ class IntensityView
 		filterList.add(filter);
 		FileChooser chooser=
 				new FileChooser(
-					 view, FileChooser.SAVE, "Save the Results",
-					"Save the Results data to a file which can be loaded by a spreadsheet.",
-					filterList);
+					 view, FileChooser.SAVE, "Save the Results", "Save the " +
+				"Results data to a file which can be loaded by a spreadsheet.",
+				filterList);
 		File f=UIUtilities.getDefaultFolder();
 	    if (f != null) chooser.setCurrentDirectory(f);
 		int results = chooser.showDialog();
@@ -897,19 +893,24 @@ class IntensityView
 			{
 				Coord3D currentCoord = coordMapIterator.next();
 		
-			writeHeader(out, currentCoord);
-			for( int i = 0 ; i < userChannelSelection.size() ; i++)
-			{
-				writeTitle(out, "Channel Number : " + 
+			
+				writeHeader(out, currentCoord);
+			
+				for( int i = 0 ; i < userChannelSelection.size() ; i++)
+			
+				{
+				
+					writeTitle(out, "Channel Number : " + 
 					channelName.get(userChannelSelection.get(i)));
-				if(!nameMap.containsKey(
-					channelName.get(userChannelSelection.get(i))))
-					continue;
-				int channel = nameMap.get(
-					channelName.get(userChannelSelection.get(i)));
+				
+					if(!nameMap.containsKey(
+								channelName.get(userChannelSelection.get(i))))
+						continue;
+					int channel = nameMap.get(
+								channelName.get(userChannelSelection.get(i)));
 		
-				writeData(out, currentCoord, channel);
-			}
+					writeData(out, currentCoord, channel);
+				}
 			}
 			out.close();
 			
@@ -1208,7 +1209,6 @@ class IntensityView
 		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, tSlider.getValue());
 		if(coord.equals(thisCoord))
 			return;
-		state = State.ANALYSING;
 		Object[] nameColour = (Object[])channelSelection.getSelectedItem();
 		String string = (String)nameColour[1];
 		if(!nameMap.containsKey(string))
@@ -1218,15 +1218,13 @@ class IntensityView
 		
 		if(channel!=-1)
 		{
+			state = State.ANALYSING;
 			populateData(thisCoord, channel);
 			repaint();
 			if(shape!=null)
-			{
 				view.selectFigure(shape.getFigure());
-			}
+			state=State.READY;
 		}
-		state=State.READY;
-		
 	}
 	 
 }

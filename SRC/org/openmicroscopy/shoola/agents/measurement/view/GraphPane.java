@@ -74,35 +74,32 @@ class GraphPane
 	implements TabPaneInterface, ChangeListener
 {
 	/** Ready state. */
-	final static int READY = 1;
+	final static int 						READY = 1;
 	
 	/** Analysing state. */
-	final static int ANALYSING = 0;
+	final static int 						ANALYSING = 0;
 	
 	/** Index to identify tab */
-	public final static int		INDEX = MeasurementViewerUI.GRAPH_INDEX;
+	public final static int					INDEX = MeasurementViewerUI.GRAPH_INDEX;
 	
 	/** The name of the panel. */
-	private static final String			NAME = "Graph Pane";
+	private static final String				NAME = "Graph Pane";
 	
 	/** Reference to the model. */
-	private MeasurementViewerModel		model;
+	private MeasurementViewerModel			model;
 
 	/** The map of <ROIShape, ROIStats> .*/
-	private Map							ROIStats;
+	private Map								ROIStats;
 
 	/** The slider controlling the movement of the analysis through Z. */
-	private OneKnobSlider 				zSlider;
+	private OneKnobSlider 					zSlider;
 
 	/** The slider controlling the movement of the analysis through T. */
-	private OneKnobSlider 				tSlider;
+	private OneKnobSlider 					tSlider;
 	
 	/** The main panel holding the graphs. */
-	private JPanel 						mainPanel;
-		
-	/** Map of the active channels in the viewer. */
-	private Map activeChannels;
-	
+	private JPanel 							mainPanel;
+			
 	/** The map of the shape stats to coord. */
 	private HashMap<Coord3D, Map<StatsType, Map>> shapeStatsList;
 	
@@ -110,34 +107,35 @@ class GraphPane
 	HashMap<Coord3D, Map<Integer, double[]>> pixelStats;
 	
 	/** Map of the coord to a shape. */
-	HashMap<Coord3D, ROIShape> shapeMap;
+	HashMap<Coord3D, ROIShape> 				shapeMap;
 	
 	/** List of channel Names. */
-	List<String> channelName ;
+	List<String> 							channelName ;
 	
 	/** List of channel colours. */
-	List<Color> channelColour;
+	List<Color> 							channelColour;
 	
 	/** The current coord of the ROI being depicted in the slider. */
-	Coord3D coord;
+	Coord3D 								coord;
 		
 	/** The line profile charts. */
-	LinePlot lineProfileChart;
+	LinePlot 								lineProfileChart;
 	
 	/** The histogram chart. */
-	HistogramPlot histogramChart;
+	HistogramPlot 							histogramChart;
 	
 	/** The state of the Graph pane. */
-	int state= READY;
+	int 									state= READY;
 	
 	/** Reference to the view.*/
-	MeasurementViewerUI 				view;
+	MeasurementViewerUI 					view;
 	
 	/** Current shape. */
-	ROIShape 						shape;
+	ROIShape 								shape;
 	
 	/**
 	 * overridded version of {@line TabPaneInterface#getIndex()}
+	 * @return the index of the tab.
 	 */
 	public int getIndex() {return INDEX; }
 		
@@ -327,7 +325,6 @@ class GraphPane
 		tSlider.setValue(model.getCurrentView().getTimePoint());
 		zSlider.setValue(model.getCurrentView().getZSection()+1);
 
-	
 		buildGraphsAndDisplay();
 	}
 
@@ -359,7 +356,8 @@ class GraphPane
 		while (channelIterator.hasNext())
 		{
 			channel = channelIterator.next();
-			if (model.isChannelActive(channel)) {
+			if (model.isChannelActive(channel)) 
+			{
 				channelName.add(
 					model.getMetadata(channel).getEmissionWavelength()+"");
 				c = model.getActiveChannelColor(channel);
@@ -485,9 +483,7 @@ class GraphPane
 		this.buildGraphsAndDisplay();
 		state=READY;
 		if(shape!=null)
-		{
 			view.selectFigure(shape.getFigure());
-		}
 	}
 	
 }
