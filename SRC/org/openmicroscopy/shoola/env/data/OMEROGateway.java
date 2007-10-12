@@ -1646,18 +1646,23 @@ class OMEROGateway
 		Set<Long> failure = new HashSet<Long>();
 		try {
 			IRenderingSettings service = getRenderingSettingsService();
-
 			Class klass = convertPojos(rootNodeType);
 			Iterator i = nodes.iterator();
 			long id;
 			boolean b = false;
+			if (klass.equals(Image.class) || klass.equals(Dataset.class) ||
+					klass.equals(Category.class))
+				service.resetDefaultsInSet(klass, nodes);
+			/*
 			if (klass.equals(Image.class)) {
+			} else if (klass.equals(Dataset.class)) {
+				Map m;
+				List l;
+				Iterator k;
 				while (i.hasNext()) {
 					id = (Long) i.next();
-					service.resetDefaultsToImage(id);
-					b = true; //TODO modify 
-					if (b) success.add(id);
-					else failure.add(id);
+					service.resetDefaultsInDataset(id);
+
 				}
 			} else if (klass.equals(Dataset.class)) {
 				Map m;
@@ -1665,50 +1670,10 @@ class OMEROGateway
 				Iterator k;
 				while (i.hasNext()) {
 					id = (Long) i.next();
-					service.resetDefaultsToDataSet(id);
-					//m = service.applySettingsToDataset(rndID, id);
-					/*
-					l = (List) m.get(Boolean.TRUE);
-					if (l != null && l.size() > 0) {
-						k = l.iterator();
-						while (k.hasNext()) {
-							success.add((Long) k.next());
-						}
-					}
-					l = (List) m.get(Boolean.FALSE);
-					if (l != null && l.size() > 0) {
-						k = l.iterator();
-						while (k.hasNext()) {
-							failure.add((Long) k.next());
-						}
-					}
-					*/
-				}
-			} else if (klass.equals(Dataset.class)) {
-				Map m;
-				List l;
-				Iterator k;
-				while (i.hasNext()) {
-					id = (Long) i.next();
-					service.resetDefaultsToCategory(id);
-					/*
-					m = service.applySettingsToCategory(rndID, id);
-					l = (List) m.get(Boolean.TRUE);
-					if (l != null && l.size() > 0) {
-						k = l.iterator();
-						while (k.hasNext()) {
-							success.add((Long) k.next());
-						}
-					}
-					l = (List) m.get(Boolean.FALSE);
-					if (l != null && l.size() > 0) {
-						k = l.iterator();
-						while (k.hasNext()) {
-							failure.add((Long) k.next());
-						}
-					}*/
+					service.resetDefaultsInCategory(id);
 				}
 			}
+			*/
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
 		}
@@ -1750,7 +1715,6 @@ class OMEROGateway
 			if (klass.equals(Image.class)) {
 				while (i.hasNext()) {
 					id = (Long) i.next();
-					System.err.println("ImageID "+id);
 					b = service.applySettingsToImage(pixelsID, id);
 					if (b) success.add(id);
 					else failure.add(id);

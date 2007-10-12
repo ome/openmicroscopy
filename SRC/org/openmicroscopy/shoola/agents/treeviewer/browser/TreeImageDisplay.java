@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Java imports
 import java.awt.Color;
 import java.awt.Font;
+import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -158,17 +159,20 @@ public abstract class TreeImageDisplay
      */
     private String getPartialName(String originalName)
     {
-        if (Pattern.compile("/").matcher(originalName).find()) {
-            String[] l = originalName.split("/", 0);
+    	String sep = File.separator; 
+        if (Pattern.compile(sep).matcher(originalName).find()) {
+            String[] l = originalName.split(sep, 0);
             int n = l.length;
             if (n == 1) return l[0];
-            return UIUtilities.DOTS+l[n-2]+"/"+l[n-1]; 
-        } else if (Pattern.compile("\\\\").matcher(originalName).find()) {
+            return UIUtilities.DOTS+l[n-2]+sep+l[n-1]; 
+        } 
+        /*
+        else if (Pattern.compile("\\\\").matcher(originalName).find()) {
             String[] l = originalName.split("\\\\", 0);
             int n = l.length;
             if (n == 1) return l[0];
             return UIUtilities.DOTS+l[n-2]+"\\"+l[n-1];
-        } 
+        }*/ 
         return originalName;
     }
 

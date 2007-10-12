@@ -24,13 +24,15 @@ package org.openmicroscopy.shoola.agents.measurement;
 
 
 //Java imports
+import java.awt.Frame;
+import java.util.Map;
+import java.util.Set;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Map;
-import java.util.Set;
-
+import org.openmicroscopy.shoola.agents.events.FocusGainedEvent;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
@@ -120,9 +122,29 @@ public class MeasurementAgent
 					break;
 				case ViewerState.DEICONIFIED:
 					viewer.iconified(true);
-					break;
 			}
     	}
+    }
+    
+    /**
+     * Indicates to bring up the window if a related window gained focus
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleFocusGainedEvent(FocusGainedEvent evt)
+    {
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+				evt.getPixelsID());
+    	if (viewer == null) return;
+    	if (viewer.getState() != MeasurementViewer.DISCARDED ||
+    		evt.getIndex() != FocusGainedEvent.MEASUREMENT_TOOL_FOCUS) {
+			JFrame view = viewer.getUI();
+			if (view.getExtendedState() == Frame.NORMAL) {
+				//view.setVisible(true);
+				view.toFront();
+			}
+			
+		}
     }
     
     /**
@@ -194,6 +216,7 @@ public class MeasurementAgent
 		bus.register(this, ViewerState.class);
 		bus.register(this, ChannelSelection.class);
 		bus.register(this, SaveData.class);
+		bus.register(this, FocusGainedEvent.class);
 	}
 
 	/**
@@ -227,6 +250,8 @@ public class MeasurementAgent
 			handleChannelSelectionEvent((ChannelSelection) e);
 		else if (e instanceof SaveData)
 			handleSaveData((SaveData) e);
+		else if (e instanceof FocusGainedEvent)
+			handleFocusGainedEvent((FocusGainedEvent) e);
 	}
 	
 }

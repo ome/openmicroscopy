@@ -53,7 +53,7 @@ public class ViewerState
 	/** Indicates that the viewer is iconified. */
 	public static final int ICONIFIED = 1;
 	
-	/** Indicates that the viewer is iconified. */
+	/** Indicates that the viewer is deiconified. */
 	public static final int DEICONIFIED = 2;
 	
 	/** The ID of the pixels set. */
@@ -74,7 +74,6 @@ public class ViewerState
 			case ICONIFIED:
 			case DEICONIFIED:
 				return;
-	
 			default:
 				throw new IllegalArgumentException("Index not supported.");
 		}

@@ -110,8 +110,10 @@ class ImViewerComponent
 	implements ImViewer
 {
 
+	/** The message if rendering setting to save. */
 	static final String						RND = "The rendering settings";
 	
+	/** The message if rendering setting to annotation. */
 	static final String						ANNOTATION = "The annotations";
 	
 	/** The Model sub-component. */
@@ -244,13 +246,14 @@ class ImViewerComponent
 		SaveEventBox box;
 		Iterator j;
 		if (events != null) {
-			showBox = true;
+			
 			boxes = new ArrayList<SaveEventBox>(events.size());
 			j = events.keySet().iterator();
 			SaveRelatedData value;
 			while (j.hasNext()) {
 				value = events.get(j.next());
 				if (value.isToSave()) {
+					showBox = true;
 					box = new SaveEventBox(value);
 					boxes.add(box);
 					p.add(box);

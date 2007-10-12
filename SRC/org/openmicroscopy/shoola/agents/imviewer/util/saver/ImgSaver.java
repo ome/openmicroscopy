@@ -274,6 +274,36 @@ public class ImgSaver
     }
     
     /**
+     * Returns the name of the image.
+     * 
+     * @return See above.
+     */
+    String getPartialImageName()
+    { 
+    	String originalName = model.getImageName();
+    	String sep = File.separator;
+    	String name = originalName;
+    	String[] l;
+    	if (Pattern.compile(sep).matcher(originalName).find()) {
+            l = originalName.split(sep, 0);
+            int n = l.length;
+            if (n >= 1) name = l[n-1]; 
+        }
+    	if (Pattern.compile(".").matcher(name).find()) {
+    		l = name.split("\\.");
+    		if (l.length >= 1) {
+    			name = "";
+    			int n = l.length-1;
+        		for (int i = 0; i < n; i++) {
+    				name += l[i];
+    				if (i < (n-1)) name += ".";
+    			}
+    		}
+    	}
+        return name;
+    }
+    
+    /**
      * Returns the type of options available.
      * 
      * @return See above.

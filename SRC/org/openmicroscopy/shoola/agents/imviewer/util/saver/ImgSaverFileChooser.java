@@ -82,8 +82,10 @@ class ImgSaverFileChooser
     {
     	nameArea = (JTextField) UIUtilities.findComponent(this, 
     											JTextField.class);
-    	if (nameArea != null) 
+    	if (nameArea != null) {
+    		nameArea.setText(model.getPartialImageName());
     		nameArea.getDocument().addDocumentListener(this);
+    	}
     }
 
     /** Builds and lays out the GUI. */
@@ -197,6 +199,18 @@ class ImgSaverFileChooser
     	if (b == null) return;
     	if (b.booleanValue()) model.setSelection(ImgSaver.PREVIEW);
     	else model.previewImage();
+    }
+    
+    /**
+     * Creates a new folder.
+     * 
+     * @param name The name of the folder.
+     */
+    void createFolder(String name)
+    {
+    	File dir = getCurrentDirectory();
+    	String n = dir.getAbsolutePath()+File.separator+name;
+    	new File(n).mkdir();
     }
     
     /**

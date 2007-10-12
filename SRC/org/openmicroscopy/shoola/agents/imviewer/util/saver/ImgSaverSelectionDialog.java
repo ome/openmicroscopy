@@ -55,8 +55,9 @@ class ImgSaverSelectionDialog
 {
     
     /** The message when an image with the name and extension aleady exists. */
-    private static final String MESSAGE = "A file with the same name and " +
-                                "extension already exists in this directory. " +
+    private static final String MESSAGE = "A file with the same name and \n" +
+                                "extension already exists in this " +
+                                "directory.\n " +
                                 "Do you really want to save the image?";
     
     /** Reference to the {@link ImgSaver}. */

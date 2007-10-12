@@ -32,6 +32,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
+import javax.swing.BorderFactory;
 
 //Third-party libraries
 
@@ -189,6 +190,17 @@ public class ChannelButton
      * @return See above.
      */
     public int getChannelIndex() { return index; }
+    
+    /**
+     * Overridden to set the border of the button.
+     * @see ColouredButton#setSelected(boolean)
+     */
+    public void setSelected(boolean selected)
+    {
+    	 super.setSelected(selected);
+         if (selected) setBorder(BorderFactory.createLoweredBevelBorder());
+         else setBorder(BorderFactory.createRaisedBevelBorder());
+    }
     
 	/**
      * Handles click performed on the channel button.

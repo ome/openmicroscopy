@@ -72,8 +72,7 @@ public class RendererFactory
 	public static void initSlider(TwoKnobsSlider slider, int absMin, int absMax, 
 			int min, int max, int s, int e)
 	{
-        double range = max-min;
-        range = range*RATIO;
+        double range = (max-min)*RATIO;
         int lowestBound = (int) (min-range);
         if (lowestBound < absMin) lowestBound = absMin;
         int highestBound = (int) (max+range);

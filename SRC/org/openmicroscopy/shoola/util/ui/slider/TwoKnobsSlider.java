@@ -205,28 +205,28 @@ public class TwoKnobsSlider
 		if (model.getOrientation() == TwoKnobsSlider.HORIZONTAL) {
 			handleMouseEventForHorizSlider((int) me.getPoint().getX());
 			switch (knobControl) {
-			case LEFT:
-				if (oldStart != getStartValue())
-					firePropertyChange(LEFT_MOVED_PROPERTY, oldStart,
-							getStartValue());
-				break;
-			case RIGHT:
-				if (oldEnd != getEndValue())
-					firePropertyChange(RIGHT_MOVED_PROPERTY, oldEnd, 
-							getEndValue());
+				case LEFT:
+					if (oldStart != getStartValue())
+						firePropertyChange(LEFT_MOVED_PROPERTY, oldStart,
+								getStartValue());
+					break;
+				case RIGHT:
+					if (oldEnd != getEndValue())
+						firePropertyChange(RIGHT_MOVED_PROPERTY, oldEnd, 
+								getEndValue());
 			} 
 		} else {
 			handleMouseEventForVertSlider((int) me.getPoint().getY());
 			switch (knobControl) {
-			case LEFT:
-				if (oldEnd != getEndValue())
-					firePropertyChange(LEFT_MOVED_PROPERTY, oldEnd, 
-							getEndValue());
-				break;
-			case RIGHT:
-				if (oldStart != getStartValue())
-					firePropertyChange(RIGHT_MOVED_PROPERTY, oldStart,
-							getStartValue());
+				case LEFT:
+					if (oldEnd != getEndValue())
+						firePropertyChange(LEFT_MOVED_PROPERTY, oldEnd, 
+								getEndValue());
+					break;
+				case RIGHT:
+					if (oldStart != getStartValue())
+						firePropertyChange(RIGHT_MOVED_PROPERTY, oldStart,
+								getStartValue());
 			} 
 		} 
 	}

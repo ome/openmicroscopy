@@ -40,7 +40,9 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractButton;
@@ -178,6 +180,22 @@ public class UIUtilities
 		window.setVisible(true);
 	}
     
+	/**
+	 * Centers the specified component on the parent and then makes it visible.
+	 * This method is mainly useful for windows, frames and dialogs. 
+	 * 
+	 * @param parent    The visible parent.
+     * @param child     The child to display.
+	 */
+	public static void centerAndShow(Component parent, Component child)
+	{
+		Rectangle bounds = parent.getBounds();
+		Rectangle ed = child.getBounds();
+		child.setLocation(bounds.x+(bounds.width-ed.width)/2, 
+						bounds.y+(bounds.height-ed.height)/2);
+		child.setVisible(true);
+	}
+	
     /**
      * Sets the location of the specified child relative to the location
      * of the specified parent and then makes it visible.
@@ -702,10 +720,34 @@ public class UIUtilities
 		if (comp instanceof Container) {
 			Component[] comps = ((Container)comp).getComponents();
 			Component child;
-			for(int i = 0; i < comps.length; i++) {
+			for (int i = 0; i < comps.length; i++) {
 				child = findComponent(comps[i], c);
 				if (child != null) return child;
 			}
+		}
+		return null;
+    }
+    
+    public static List findComponents(Component comp, Class c)
+    {
+    	List<Component> l = null;
+    	if (c == null || comp == null)
+    		throw new IllegalArgumentException("The parameters cannot be " +
+    				"null");
+    	if (c.isAssignableFrom(comp.getClass())) {
+    		l = new ArrayList<Component>(1);
+    		l.add(comp);
+    		return l;
+    	}
+    	if (comp instanceof Container) {
+			Component[] comps = ((Container)comp).getComponents();
+			Component child;
+			l = new ArrayList<Component>(comps.length);
+			for (int i = 0; i < comps.length; i++) {
+				child = findComponent(comps[i], c);
+				if (child != null) l.add(child);
+			}
+			return l;
 		}
 		return null;
     }

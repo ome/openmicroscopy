@@ -33,6 +33,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -53,6 +54,7 @@ import javax.swing.event.MenuListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.FocusGainedEvent;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ArchivedAction;
@@ -86,6 +88,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.InfoDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -364,6 +367,8 @@ class ImViewerControl
 	 */
 	private void attachListeners()
 	{
+		model.addChangeListener(this);   
+		model.addPropertyChangeListener(this);
 		JMenu menu = ImViewerFactory.getWindowMenu();
 		menu.addMenuListener(new MenuListener() {
 
@@ -430,6 +435,24 @@ class ImViewerControl
 		});
 		view.getLoadingWindow().addPropertyChangeListener(
 				LoadingWindow.CLOSED_PROPERTY, this);
+		view.addWindowFocusListener(new WindowFocusListener() {
+		
+			/**
+			 * Required by the I/F but no-op implementation in our case.
+			 * @see WindowFocusListener#windowLostFocus(WindowEvent)
+			 */
+			public void windowLostFocus(WindowEvent e) {}
+		
+			/**
+			 * Posts an event to bring the related window to the front.
+			 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
+			 */
+			public void windowGainedFocus(WindowEvent e) {
+				EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+				bus.post(new FocusGainedEvent(view.getPixelsID(), 
+						FocusGainedEvent.VIEWER_FOCUS));
+			}
+		});
 	}
 
 	/** 
@@ -472,8 +495,7 @@ class ImViewerControl
 		colorPickerIndex = -1;
 		actionsMap = new HashMap<Integer, ViewerAction>();
 		createActions();
-		model.addChangeListener(this);   
-		model.addPropertyChangeListener(this);
+		
 		attachListeners();
 		ImViewerFactory.attachWindowMenuToTaskBar();
 	}
@@ -742,6 +764,8 @@ class ImViewerControl
 	 * in our case.
 	 * @see ComponentListener#componentMoved(ComponentEvent)
 	 */
-	public void componentMoved(ComponentEvent e) {}
-
+	public void componentMoved(ComponentEvent e) {
+		
+	}
+	
 }

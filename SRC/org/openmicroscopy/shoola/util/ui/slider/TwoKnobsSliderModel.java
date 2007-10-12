@@ -265,10 +265,13 @@ class TwoKnobsSliderModel
 	 */
 	int getPartialMinimum()
 	{
+		/*
 		if (absoluteMin == minimum && absoluteMax == maximum)
 			return minimum;
 		if (partialMin < absoluteMin) return absoluteMin;
 		return partialMin;
+		*/
+		return absoluteMin;
 	}
 
 	/**
@@ -278,10 +281,13 @@ class TwoKnobsSliderModel
 	 */
 	int getPartialMaximum()
 	{
+		return absoluteMax;
+		/*
 		if (absoluteMin == minimum && absoluteMax == maximum)
 			return maximum;
 		if (partialMax > absoluteMax) return absoluteMax;
 		return partialMax;
+		*/
 	}
 
 	/**

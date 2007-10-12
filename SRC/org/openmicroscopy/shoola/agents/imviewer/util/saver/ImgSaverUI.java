@@ -32,6 +32,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -50,6 +52,7 @@ import javax.swing.UIManager;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.CreateFolderDialog;
 
 /** 
  * The UI delegate.
@@ -67,6 +70,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 class ImgSaverUI
+	implements ActionListener, PropertyChangeListener
 {
     
 	 /** The tool tip of the <code>Approve</code> button. */
@@ -111,17 +115,27 @@ class ImgSaverUI
     private static final String     NOTE = "Save the currrent image in " +
     										"one of the following formats:" +
     										" TIFF, JPEG, PNG or BMP.";
-    
-    
-    
+
     /** The tool tip of the <code>Preview</code> button. */
-    private static final String		PREVIEW = "Preview the image to save.";
+    private static final String		PREVIEW_TEXT = "Preview the image to save.";
     
     /** 
      * The size of the invisible components used to separate buttons
      * horizontally.
      */
     private static final Dimension	H_SPACER_SIZE = new Dimension(3, 10);
+    
+    /** Action ID for the {@link #cancelButton}. */
+    private static final int		CANCEL = 0;
+    
+    /** Action ID for the {@link #saveButton}. */
+    private static final int		SAVE = 1;
+    
+    /** Action ID for the {@link #newFolderButton}. */
+    private static final int		NEWFOLDER = 2;
+    
+    /** Action ID for the {@link #previewButton}. */
+    private static final int		PREVIEW = 3;
     
     /** Description of the type of images we can save. */
     private static final String[]       selections;
@@ -149,6 +163,12 @@ class ImgSaverUI
      * {@link JFileChooser} class. 
      */
     private JButton						cancelButton;
+    
+    /** 
+     * Replaces the <code>New Folder</code> provided by the 
+     * {@link JFileChooser} class. 
+     */
+    private JButton						newFolderButton;
     
     /** 
      * Replaces the <code>ApproveButton</code> provided by the 
@@ -203,26 +223,24 @@ class ImgSaverUI
         settings.setText("Set the current directory as default.");
         settings.setSelected(true);
         cancelButton = new JButton("Cancel");
-    	cancelButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { 
-				chooser.cancelSelection(); }
-		});
+        cancelButton.addActionListener(this);
+        cancelButton.setActionCommand(""+CANCEL);
     	saveButton = new JButton("Save as");
     	saveButton.setToolTipText(UIUtilities.formatToolTipText(SAVE_AS));
-    	
-    	saveButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { 
-				chooser.approveSelection(); 
-			}
-		});
-    	saveButton.setEnabled(false);
+    	saveButton.addActionListener(this);
+    	saveButton.setActionCommand(""+SAVE);
+    	//saveButton.setEnabled(false);
     	previewButton = new JButton("Preview");
-    	previewButton.setToolTipText(UIUtilities.formatToolTipText(PREVIEW));
-    	previewButton.addActionListener(new ActionListener() {
-    		public void actionPerformed(ActionEvent e) { 
-    			chooser.previewSelection(); }
-		});
-    	previewButton.setEnabled(false);
+    	previewButton.addActionListener(this);
+    	previewButton.setActionCommand(""+PREVIEW);
+    	previewButton.setToolTipText(
+    			UIUtilities.formatToolTipText(PREVIEW_TEXT));
+    	//previewButton.setEnabled(false);
+    	newFolderButton = new JButton("New Folder");
+    	newFolderButton.addActionListener(this);
+    	newFolderButton.setActionCommand(""+NEWFOLDER);
+    	newFolderButton.setToolTipText(
+    			UIUtilities.formatToolTipText("Create a new folder"));
     	model.getRootPane().setDefaultButton(saveButton);
     }
     
@@ -240,9 +258,14 @@ class ImgSaverUI
     	bar.add(previewButton);
     	bar.add(Box.createRigidArea(H_SPACER_SIZE));
     	bar.add(saveButton);
+    	JPanel controls = new JPanel();
+    	controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
+    	controls.add(Box.createRigidArea(new Dimension(20, 5)));
+    	controls.add(newFolderButton);
     	JPanel p = UIUtilities.buildComponentPanelRight(bar);
         p.setOpaque(true);
-        return p;
+        controls.add(p);
+        return controls;
     }
     
     /**
@@ -343,6 +366,43 @@ class ImgSaverUI
 	{
 		saveButton.setEnabled(b);
     	previewButton.setEnabled(b);
+	}
+
+	/** 
+	 * Reacts to click on the button replacing the ones usually provided by the
+	 * file chooser.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case CANCEL:
+				chooser.cancelSelection();
+				break;
+			case SAVE:
+				chooser.approveSelection();
+				break;
+			case PREVIEW:
+				chooser.previewSelection();
+				break;
+			case NEWFOLDER:
+				CreateFolderDialog d = new CreateFolderDialog(model);
+				d.addPropertyChangeListener(
+						CreateFolderDialog.CREATE_FOLDER_PROPERTY, this);
+				d.pack();
+				UIUtilities.centerAndShow(model, d);
+		}
+	}
+
+	/**
+	 * Listens to the property fired by the folder dialog.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = (String) evt.getNewValue();
+		chooser.createFolder(name);
 	}
 
 }

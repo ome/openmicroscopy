@@ -67,17 +67,17 @@ class GraphicsPane
 {
 
 	/** Text of the preview check box. */
-	private static final String		PREVIEW = "Immediate Update";
+	private static final String	PREVIEW = "Immediate Update";
 	
 	/** The description of the preview check box. */
-	private static final String		PREVIEW_DESCRIPTION = "Update the " +
+	private static final String	PREVIEW_DESCRIPTION = "Update the " +
 			"rendering settings without releasing the mouse.";
 		
     /** Action command ID to indicate that the start value is modified.*/
-    private static final int        START_SELECTED = 0;
+    private static final int	START_SELECTED = 0;
     
     /** Action command ID to indicate that the start value is modified.*/
-    private static final int        END_SELECTED = 1;
+    private static final int	END_SELECTED = 1;
     
     /** Slider to select a sub-interval of [0, 255]. */
     private TwoKnobsSlider      codomainSlider;
@@ -300,7 +300,7 @@ class GraphicsPane
     		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
     		un.notifyInfo("Invalid pixels intensity interval", 
     				" The value must be in the interval ["+
-    				(int) model.getWindowStart()+","+(int) e+"]");
+    				(int) model.getLowestValue()+","+(int) e+"]");
     		return;
     	}
     	
@@ -334,7 +334,7 @@ class GraphicsPane
     		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
     		un.notifyInfo("Invalid pixels intensity interval", 
     				"The value must be in the interval ["+
-    				(int) s+","+(int) model.getWindowEnd()+"]");
+    				(int) s+","+(int) model.getHighestValue()+"]");
     		return;
     	}
         if (val == model.getWindowEnd()) return;

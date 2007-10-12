@@ -26,13 +26,15 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 
 //Java imports
+import java.awt.Frame;
+import java.util.Map;
+import java.util.Set;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Map;
-import java.util.Set;
-
+import org.openmicroscopy.shoola.agents.events.FocusGainedEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
@@ -155,6 +157,27 @@ public class ImViewerAgent
     								evt.getRndSettings());
     }
     
+    /**
+     * Indicates to bring up the window if a related window gained focus
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleFocusGainedEvent(FocusGainedEvent evt)
+    {
+    	ImViewer viewer = ImViewerFactory.getImageViewer(
+				evt.getPixelsID());
+    	if (viewer == null) return;
+    	if (viewer.getState() != ImViewer.DISCARDED ||
+    		evt.getIndex() != FocusGainedEvent.VIEWER_FOCUS) {
+			JFrame view = viewer.getUI();
+			if (view.getExtendedState() == Frame.NORMAL) {
+				//view.setVisible(true);
+				//view.toFront();
+			}
+			
+		}
+    }
+    
     /** Creates a new instance. */
     public ImViewerAgent() {}
     
@@ -183,6 +206,7 @@ public class ImViewerAgent
         bus.register(this, SelectPlane.class);
         bus.register(this, CopyRndSettings.class);
         bus.register(this, SaveRelatedData.class);
+        bus.register(this, FocusGainedEvent.class);
     }
 
     /**
@@ -221,6 +245,8 @@ public class ImViewerAgent
         	handleCopyRndSettings((CopyRndSettings) e);
         else if (e instanceof SaveRelatedData)
         	handleSaveRelatedData((SaveRelatedData) e);
+        else if (e instanceof FocusGainedEvent)
+			handleFocusGainedEvent((FocusGainedEvent) e);
     }
 
 }

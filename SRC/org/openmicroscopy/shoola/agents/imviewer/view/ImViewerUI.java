@@ -41,8 +41,6 @@ import java.awt.event.HierarchyBoundsAdapter;
 import java.awt.event.HierarchyBoundsListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -61,8 +59,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.plaf.basic.BasicSplitPaneDivider;
-import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 //Third-party libraries
 import layout.TableLayout;
@@ -272,7 +268,6 @@ class ImViewerUI
 		if (historyUI == null) historyUI = new HistoryUI(this, model);
 		historySplit = new SplitPanel(SplitPanel.HORIZONTAL);
 		rendererSplit = initSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		
 	}
     
 	/** 
@@ -1493,6 +1488,8 @@ class ImViewerUI
 		layoutComponents();
 	}
 	
+	long getPixelsID() { return model.getPixelsID(); }
+
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 
