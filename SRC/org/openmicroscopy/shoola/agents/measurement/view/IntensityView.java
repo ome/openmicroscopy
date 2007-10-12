@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.view.GraphPane 
+ * org.openmicroscopy.shoola.agents.measurement.view.IntensityView 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -48,7 +49,10 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -56,7 +60,6 @@ import javax.swing.filechooser.FileFilter;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
-import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStats;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
@@ -69,9 +72,13 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
+import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
+import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ColourListRenderer;
 
 /** 
@@ -89,7 +96,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.ui.ColourListRenderer;
  */
 class IntensityView
 	extends JPanel 
-	implements ActionListener, TabPaneInterface
+	implements ActionListener, TabPaneInterface, ChangeListener
 {
 	/** Index to identify tab */
 	public final static int		INDEX = MeasurementViewerUI.INTENSITY_INDEX;
@@ -120,11 +127,9 @@ class IntensityView
 	/** The save button action command. */
 	private static final String			SAVEACTION = "SAVEACTION";
 	
-	/** The name of the panel. */
+	/** The cannel selection action command. */
 	private static final String			CHANNELSELECTION = "CHANNELSELECTION";
 	
-	/** Reference to the control. */
-	private MeasurementViewerControl	controller;
 
 	/** Reference to the model. */
 	private MeasurementViewerModel		model;
@@ -223,8 +228,14 @@ class IntensityView
 	
 	/** The save button. */
 	private JButton 					saveButton; 
+
+	/** The slider controlling the movement of the analysis through Z. */
+	private OneKnobSlider 				zSlider;
+
+	/** The slider controlling the movement of the analysis through T. */
+	private OneKnobSlider 				tSlider;
 	
-	 
+	
 	/** list of the channel names. */
 	private Map<Integer, String> channelName = new TreeMap<Integer, String>();
 	
@@ -253,6 +264,32 @@ class IntensityView
 	/** Map of the channel name to channel number .*/
 	Map<String, Integer> nameMap = new HashMap<String, Integer>();
 	
+	/** The map of the shape stats to coord. */
+	private HashMap<Coord3D, Map<StatsType, Map>> shapeStatsList;
+
+	/** Map of the pixel intensity values to coord. */
+	HashMap<Coord3D, Map<Integer, Map<PlanePoint2D, Double>>> pixelStats;
+	
+	/** Map of the min channel intensity values to coord. */
+	HashMap<Coord3D, Map<Integer, Double>> minStats;
+
+	/** Map of the max channel intensity values to coord. */
+	HashMap<Coord3D, Map<Integer, Double>> maxStats;
+
+	/** Map of the mean channel intensity values to coord. */
+	HashMap<Coord3D, Map<Integer, Double>> meanStats;
+	
+	/** Map of the std dev channel intensity values to coord. */
+	HashMap<Coord3D, Map<Integer, Double>> stdDevStats;
+	
+	/** Map of the sum channel intensity values to coord. */
+	HashMap<Coord3D, Map<Integer, Double>> sumStats;
+	
+	/** Map of the coord to a shape. */
+	HashMap<Coord3D, ROIShape> shapeMap;
+	
+	/** The current coord of the ROI being depicted in the slider. */
+	Coord3D coord;
 	
 	/** Current ROIShape. */
 	private 	ROIShape shape;
@@ -297,18 +334,47 @@ class IntensityView
 		saveButton.addActionListener(this);
 		saveButton.setActionCommand(SAVEACTION);
 		state = State.READY;
-	}
+
+		zSlider = new OneKnobSlider();
+		zSlider.setOrientation(JSlider.VERTICAL);
+		zSlider.setPaintTicks(true);
+		zSlider.setPaintLabels(true);
+		zSlider.setMajorTickSpacing(1);
+		zSlider.addChangeListener(this);
+		zSlider.setShowArrows(true);
+		zSlider.setVisible(false);
+
+		tSlider = new OneKnobSlider();
+		tSlider.setPaintTicks(true);
+		tSlider.setPaintLabels(true);
+		tSlider.setMajorTickSpacing(1);
+		tSlider.setSnapToTicks(true);
+		tSlider.addChangeListener(this);
+		tSlider.setShowArrows(true);
+		tSlider.setVisible(false);	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+		JPanel scrollPanel = new JPanel();
+		JPanel containerPanel = new JPanel();
+		containerPanel.setLayout(new BoxLayout(containerPanel, BoxLayout.X_AXIS));
 		JPanel tPanel = tablePanel();
 		tPanel.setAlignmentY(JPanel.TOP_ALIGNMENT);
-		add(tPanel);
+		containerPanel.add(zSlider);
+		containerPanel.add(tPanel);
 		JPanel fPanel = fieldPanel();
 		fPanel.setAlignmentY(JPanel.TOP_ALIGNMENT);
-		add(fPanel);
+		containerPanel.add(fPanel);
+		scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
+		scrollPanel.add(containerPanel);
+		scrollPanel.add(tSlider);
+		JScrollPane scrollPane = new JScrollPane(scrollPanel);
+		scrollPane.setVerticalScrollBar(scrollPane.createVerticalScrollBar());
+		scrollPane.setHorizontalScrollBar(
+				scrollPane.createHorizontalScrollBar());
+		this.setLayout(new BorderLayout());
+		this.add(scrollPane, BorderLayout.CENTER);
 	}
 	
 	/**
@@ -383,20 +449,15 @@ class IntensityView
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param controller Reference to the Control. Mustn't be <code>null</code>.
 	 * @param model		 Reference to the Model. Mustn't be <code>null</code>.
 	 */
-	IntensityView(MeasurementViewerUI view, MeasurementViewerControl controller, 
-		MeasurementViewerModel model)
+	IntensityView(MeasurementViewerUI view, MeasurementViewerModel model)
 	{
 		if (view == null)
 			throw new IllegalArgumentException("No view.");
-		if (controller == null)
-			throw new IllegalArgumentException("No control.");
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
 		this.view = view;
-		this.controller = controller;
 		this.model = model;
 		selectedChannelName = "";
 		initComponents();
@@ -432,54 +493,98 @@ class IntensityView
 			return;
 		state = state.ANALYSING;
 		this.ROIStats = model.getAnalysisResults();
-		if(ROIStats==null || ROIStats.size() == 0)
-			return;
-		Iterator shapeIterator  = ROIStats.keySet().iterator();
+		if (ROIStats == null || ROIStats.size() == 0) return;
+		
+		shapeStatsList = new HashMap<Coord3D, Map<StatsType, Map>>();
+		pixelStats = new HashMap<Coord3D, Map<Integer, Map<PlanePoint2D, Double>>>();
+		shapeMap = new HashMap<Coord3D, ROIShape>();
+		minStats = new HashMap<Coord3D, Map<Integer, Double>>();
+		maxStats = new HashMap<Coord3D, Map<Integer, Double>>();
+		meanStats = new HashMap<Coord3D, Map<Integer, Double>>();
+		sumStats = new HashMap<Coord3D, Map<Integer, Double>>();
+		stdDevStats = new HashMap<Coord3D, Map<Integer, Double>>();
+		
+		
+		Iterator<ROIShape> shapeIterator  = ROIStats.keySet().iterator();
 		channelName =  new TreeMap<Integer, String>();
 		nameMap = new HashMap<String, Integer>();
-		channelColour =  new TreeMap<Integer, Color>();
-		channelMin = new TreeMap<Integer, Double>();
-		channelSum = new TreeMap<Integer, Double>();
-		channelMax = new TreeMap<Integer, Double>();
-		channelMean = new TreeMap<Integer, Double>();
-		channelStdDev = new TreeMap<Integer, Double>();
-		planePixels = new TreeMap<Integer, Map<PlanePoint2D, Double>>();
-		int channel;
-		ROIShapeStats stats;
+
+		int minZ=Integer.MAX_VALUE, maxZ=Integer.MIN_VALUE;
+		int minT=Integer.MAX_VALUE, maxT=Integer.MIN_VALUE;
+		clearAllValues();
 		while(shapeIterator.hasNext())
 		{
 			shape = (ROIShape) shapeIterator.next();
-			if(shape.getFigure() instanceof MeasureTextFigure)
-				return;
-			Map shapeStats = (Map) ROIStats.get(shape);
-			Iterator channelIterator = shapeStats.keySet().iterator();
-			clearAllVariables();
-			clearAllValues();
-			while (channelIterator.hasNext())
+			minT = Math.min(minT, shape.getCoord3D().getTimePoint());
+			maxT = Math.max(maxT, shape.getCoord3D().getTimePoint());
+			minZ = Math.min(minZ, shape.getCoord3D().getZSection());
+			maxZ = Math.max(maxZ, shape.getCoord3D().getZSection());
+			Map<StatsType, Map> shapeStats;
+		
+			shapeMap.put(shape.getCoord3D(), shape);
+			if (shape.getFigure() instanceof MeasureTextFigure)
 			{
-				channel = (Integer) channelIterator.next();
-				stats = (ROIShapeStats) shapeStats.get(channel);
-				channelSum.put(channel, stats.getSum());
-				channelMin.put(channel, stats.getMin());
-				channelMax.put(channel, stats.getMax());
-				channelMean.put(channel, stats.getMean());
-				channelStdDev.put(channel, stats.getStandardDeviation());
-				planePixels.put(channel, stats.getPixelsValue());
-				channelName.put(channel,
-					model.getMetadata(channel).getEmissionWavelength()+"");
-				nameMap.put(channelName.get(channel), channel);
-				channelColour.put(channel, 
-					(Color)model.getActiveChannels().get(channel));
+				state = State.READY;
+				return;
 			}
+	
+			shapeStats = AnalysisStatsWrapper.convertStats(
+										(Map) ROIStats.get(shape));
+			shapeStatsList.put(shape.getCoord3D(), shapeStats);
+
+			minStats.put(shape.getCoord3D(), shapeStats.get(StatsType.MIN));
+			maxStats.put(shape.getCoord3D(), shapeStats.get(StatsType.MAX));
+			meanStats.put(shape.getCoord3D(), shapeStats.get(StatsType.MEAN));
+			sumStats.put(shape.getCoord3D(), shapeStats.get(StatsType.SUM));
+			stdDevStats.put(shape.getCoord3D(), shapeStats.get(StatsType.STDDEV));
+			pixelStats.put(shape.getCoord3D(), shapeStats.get(StatsType.PIXEL_PLANEPOINT2D));
+			
+			/* really inefficient but hey.... quick hack just now till refactor */
+			Iterator<Integer> channelIterator = shapeStats.get(StatsType.MIN).keySet().iterator();
+			channelName.clear();
+			nameMap.clear();
+			channelColour.clear();
+			while(channelIterator.hasNext())
+			{
+				int channel = channelIterator.next();
+				if (model.isChannelActive(channel)) 
+				{
+					channelName.put(channel,
+						model.getMetadata(channel).getEmissionWavelength()+"");
+					nameMap.put(channelName.get(channel), channel);
+					channelColour.put(channel, 
+						(Color)model.getActiveChannels().get(channel));
+				}
+			}
+			
 		}
+		if(channelName.size()==0 || nameMap.size() ==0 || channelColour.size() == 0)
+		{
+			state = State.READY;
+			return;
+		}
+		maxZ = maxZ+1;
+		minZ = minZ+1;
 		
 		createComboBox();
 		Object[] nameColour = (Object[])channelSelection.getSelectedItem();
 		String string = (String)nameColour[1];
 		int selectedChannel = nameMap.get(string);
-		populateData(selectedChannel);
+			
+		zSlider.setMaximum(maxZ);
+		zSlider.setMinimum(minZ);
+		tSlider.setMaximum(maxT);
+		tSlider.setMinimum(minT);
+		zSlider.setVisible((maxZ!=minZ));
+		tSlider.setVisible((maxT!=minT));
+		tSlider.setValue(model.getCurrentView().getTimePoint());
+		zSlider.setValue(model.getCurrentView().getZSection()+1);
+		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue());
+		shape = shapeMap.get(coord);
+		populateData(coord, selectedChannel);	
+		state = State.READY;
 	}
-	
+
 	/**
 	 * Clear all the variables to start a new analysis.
 	 *
@@ -496,7 +601,7 @@ class IntensityView
 		planePixels.clear();
 		nameMap.clear();
 	}
-	
+
 	/** Clear the combo box. */
 	private void clearAllValues()
 	{
@@ -532,18 +637,17 @@ class IntensityView
 	}
 	
 	/** Populate the table and fields with the data. */
-	private void populateData(int channel)
+	private void populateData(Coord3D coord, int channel)
 	{
-		populateTable(channel);
+		populateTable(coord, channel);
 		populateFields(channel);
-		state=State.READY;
 	}
 
 	/** Populate the table with the data. */
-	private void populateTable(int channel)
+	private void populateTable(Coord3D coord, int channel)
 	{
 		Map<PlanePoint2D, Double> pixels = 
-							planePixels.get(channel);
+							pixelStats.get(coord).get(channel);
 	
 		if(pixels==null)
 			return;
@@ -584,7 +688,13 @@ class IntensityView
 				value = new Double(0);
 			data[x][y] = value;
 		}
+		channelMin = minStats.get(coord);
+		channelMax = maxStats.get(coord);
+		channelMean = meanStats.get(coord);
+		channelStdDev = stdDevStats.get(coord);
+		channelSum = sumStats.get(coord);
 		tableModel = new IntensityModel(data);
+		shape = shapeMap.get(coord);
 		table.setModel(tableModel);
 	}
 	
@@ -774,7 +884,12 @@ class IntensityView
 		try
 		{
 			out=new BufferedWriter(new FileWriter(file));
-			writeHeader(out);
+			Iterator<Coord3D> coordMapIterator = shapeMap.keySet().iterator();
+			while(coordMapIterator.hasNext())
+			{
+				Coord3D currentCoord = coordMapIterator.next();
+		
+			writeHeader(out, currentCoord);
 			for( int i = 0 ; i < userChannelSelection.size() ; i++)
 			{
 				writeTitle(out, "Channel Number : " + 
@@ -785,9 +900,11 @@ class IntensityView
 				int channel = nameMap.get(
 					channelName.get(userChannelSelection.get(i)));
 		
-				writeData(out, channel);
+				writeData(out, currentCoord, channel);
+			}
 			}
 			out.close();
+			
 		}
 		catch (IOException e)
 		{
@@ -801,7 +918,7 @@ class IntensityView
 	 * @param out	The buffer to write data into.
 	 * @throws IOException Thrown if the data cannot be written.
 	 */
-	private void writeHeader(BufferedWriter out) 
+	private void writeHeader(BufferedWriter out, Coord3D currentCoord) 
 		throws IOException
 	{
 		//out.write("Project , "+model.getProjectName());
@@ -809,6 +926,10 @@ class IntensityView
 		//out.write("Dataset , "+model.getDatasetName());
 		//out.newLine();
 		out.write("Image , "+model.getImageName());
+		out.newLine();
+		out.write("Z ,"  + currentCoord.getZSection()+1);
+		out.newLine();
+		out.write("T ,"  + currentCoord.getTimePoint());
 		out.newLine();
 	}
 	
@@ -831,9 +952,9 @@ class IntensityView
 	 * @param channel The channel to output.
 	 * @throws IOException Any IO Error.
 	 */
-	private void writeData(BufferedWriter out, int channel) throws IOException
+	private void writeData(BufferedWriter out, Coord3D coord, int channel) throws IOException
 	{
-		populateData(channel);
+		populateData(coord, channel);
 		Double value;
 		addFields(out, channel);
 		for(int y = 0 ; y < tableModel.getRowCount() ; y++)
@@ -1051,8 +1172,8 @@ class IntensityView
 			int channel = nameMap.get(string);
 			if(channel!=-1)
 			{
-				populateData(channel);
-				populateFields(channel);
+				Coord3D newCoord = new Coord3D(zSlider.getValue()-1, tSlider.getValue());
+				populateData(newCoord, channel);
 				repaint();
 			}
 		 }
@@ -1060,6 +1181,37 @@ class IntensityView
 		 {
 			 saveResults();
 		 }
+	
 	 }
+
+	/* (non-Javadoc)
+	 * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
+	 */
+	public void stateChanged(ChangeEvent e)
+	{
+		if(zSlider == null || tSlider == null )
+			return;
+		if(coord==null)
+			return;
+		if(state!=State.READY)
+			return;
+		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, tSlider.getValue());
+		if(coord.equals(thisCoord))
+			return;
+		state = State.ANALYSING;
+		Object[] nameColour = (Object[])channelSelection.getSelectedItem();
+		String string = (String)nameColour[1];
+		if(!nameMap.containsKey(string))
+			return;
+		selectedChannelName = string;
+		int channel = nameMap.get(string);
+		if(channel!=-1)
+		{
+			populateData(thisCoord, channel);
+			repaint();
+		}
+		state=State.READY;
+		
+	}
 	 
 }

@@ -272,7 +272,7 @@ class MeasurementViewerUI
 		roiInspector = new ObjectInspector(controller, model);
 		roiResults = new MeasurementResults(controller, model, this);
 		graphPane = new GraphPane(this, controller, model);
-		intensityView = new IntensityView(this, controller, model);
+		intensityView = new IntensityView(this, model);
 		calcWizard = new CalculationWizard(controller, model);
 		tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
 		DrawingCanvasView canvasView = model.getDrawingView();

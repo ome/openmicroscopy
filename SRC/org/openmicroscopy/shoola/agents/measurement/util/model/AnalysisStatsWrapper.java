@@ -57,6 +57,8 @@ public class AnalysisStatsWrapper
 		MEAN,
 		STDDEV,
 		PIXELDATA,
+		SUM,
+		PIXEL_PLANEPOINT2D
 	};
 
 	
@@ -66,12 +68,15 @@ public class AnalysisStatsWrapper
 			return null;
 		ROIShapeStats 		stats;
 		Map<Integer, Double>   channelMin = new TreeMap<Integer, Double>();
+		Map<Integer, Double>   channelSum = new TreeMap<Integer, Double>();
 		Map<Integer, Double>   channelMax = new TreeMap<Integer, Double>();
 		Map<Integer, Double>   channelMean = new TreeMap<Integer, Double>();
 		Map<Integer, Double>   channelStdDev = new TreeMap<Integer, Double>();
 		Map<Integer, double[]>	channelData = new TreeMap<Integer, double[]>();
+		Map<Integer, Map<PlanePoint2D, Double>>	channelPixel = new TreeMap<Integer, Map<PlanePoint2D, Double>>();
 		Iterator<Double> 	pixelIterator;
 		Map<PlanePoint2D,Double> pixels;
+		
 		double[] pixelData;
 		int cnt;
 		int channel;
@@ -80,12 +85,14 @@ public class AnalysisStatsWrapper
 		{
 			channel = (Integer) channelIterator.next();
 			stats = (ROIShapeStats) shapeStats.get(channel);
+			channelSum.put(channel, stats.getSum());
 			channelMin.put(channel, stats.getMin());
 			channelMax.put(channel, stats.getMax());
 			channelMean.put(channel, stats.getMean());
 			channelStdDev.put(channel, stats.getStandardDeviation());
 			pixels = stats.getPixelsValue();
-			
+				
+			channelPixel.put(channel, pixels);
 			pixelIterator = pixels.values().iterator();
 			pixelData = new double[pixels.size()];
 			cnt = 0;
@@ -100,11 +107,13 @@ public class AnalysisStatsWrapper
 		}
 		Map<StatsType, Map> 
 			statsMap = new HashMap<StatsType, Map>(StatsType.values().length);
+		statsMap.put(StatsType.SUM, channelSum);
 		statsMap.put(StatsType.MIN, channelMin);
 		statsMap.put(StatsType.MAX, channelMax);
 		statsMap.put(StatsType.MEAN, channelMean);
 		statsMap.put(StatsType.STDDEV, channelStdDev);
 		statsMap.put(StatsType.PIXELDATA, channelData);
+		statsMap.put(StatsType.PIXEL_PLANEPOINT2D, channelPixel);
 		return statsMap;
 	}
 	
