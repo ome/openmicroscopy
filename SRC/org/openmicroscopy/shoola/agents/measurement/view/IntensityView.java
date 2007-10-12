@@ -102,7 +102,7 @@ class IntensityView
 	public final static int		INDEX = MeasurementViewerUI.INTENSITY_INDEX;
 	
 	/** The state of the Intensity View. */
-	enum State 
+	static enum State 
 	{
 		/**
 		 * Analysing data.
@@ -296,6 +296,7 @@ class IntensityView
 	
 	/**
 	 * overridden version of {@line TabPaneInterface#getIndex()}
+	 * @return the index.
 	 */
 	public int getIndex() {return INDEX; }
 	
@@ -449,6 +450,7 @@ class IntensityView
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param view		 Reference to the View. Mustn't be <code>null</code>.
 	 * @param model		 Reference to the Model. Mustn't be <code>null</code>.
 	 */
 	IntensityView(MeasurementViewerUI view, MeasurementViewerModel model)
@@ -485,13 +487,13 @@ class IntensityView
 	/**
 	 * Get the analysis results from the model and convert to the 
 	 * necessary array. data types using the ROIStats wrapper then
-	 * create the approriate graph and plot.  
+	 * create the approriate table data and summary statistics.  
 	 */
 	public void displayAnalysisResults()
 	{
 		if(state==State.ANALYSING)
 			return;
-		state = state.ANALYSING;
+		state = State.ANALYSING;
 		this.ROIStats = model.getAnalysisResults();
 		if (ROIStats == null || ROIStats.size() == 0) return;
 		
@@ -636,14 +638,20 @@ class IntensityView
 		channelSelection.setSelectedIndex(selectedChannel);
 	}
 	
-	/** Populate the table and fields with the data. */
+	/** Populate the table and fields with the data. 
+	 * @param coord the coordinate of the shape being analysed.
+	 * @param channel the channel to be analysed. 
+	 */
 	private void populateData(Coord3D coord, int channel)
 	{
 		populateTable(coord, channel);
 		populateFields(channel);
 	}
 
-	/** Populate the table with the data. */
+	/** Populate the table with the data. 
+	 * @param coord the coordinate of the shape being analysed.
+	 * @param channel the channel to be analysed. 
+	 */
 	private void populateTable(Coord3D coord, int channel)
 	{
 		Map<PlanePoint2D, Double> pixels = 
@@ -916,6 +924,7 @@ class IntensityView
 	 * Writes the header information for the file, image, projects, dataset.
 	 * 
 	 * @param out	The buffer to write data into.
+	 * @param currentCoord the coord of the shape being written.
 	 * @throws IOException Thrown if the data cannot be written.
 	 */
 	private void writeHeader(BufferedWriter out, Coord3D currentCoord) 
@@ -949,6 +958,7 @@ class IntensityView
 	/** 
 	 * Write the channel intensities and stats to the files.
 	 * @param out The output stream.
+	 * @param coord the coord of the channel being written.
 	 * @param channel The channel to output.
 	 * @throws IOException Any IO Error.
 	 */
@@ -1205,10 +1215,15 @@ class IntensityView
 			return;
 		selectedChannelName = string;
 		int channel = nameMap.get(string);
+		
 		if(channel!=-1)
 		{
 			populateData(thisCoord, channel);
 			repaint();
+			if(shape!=null)
+			{
+				view.selectFigure(shape.getFigure());
+			}
 		}
 		state=State.READY;
 		
