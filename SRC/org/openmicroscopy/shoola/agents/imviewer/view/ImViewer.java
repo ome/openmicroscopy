@@ -791,4 +791,7 @@ public interface ImViewer
      */
     public boolean isReverse();
     
+    /** Moves the window to the front. */
+    public void toFront();
+    
 }

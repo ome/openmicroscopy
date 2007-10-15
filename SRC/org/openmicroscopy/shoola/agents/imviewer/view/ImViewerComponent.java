@@ -2065,6 +2065,16 @@ class ImViewerComponent
 		}
     }
     
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#saveRndSettings()
+     */
+    public void toFront()
+    {
+    	if (model.getState() == DISCARDED) return;
+    	controller.toFront();
+    }
+    
     public boolean isReverse()
     {
     	return model.isReverse();

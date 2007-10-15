@@ -45,6 +45,7 @@ import org.jhotdraw.draw.Drawing;
 //Application-internal dependencies
 import ome.model.core.Pixels;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -344,8 +345,8 @@ class MeasurementViewerComponent
      */
 	public void loadROI()
 	{
-		ArrayList<FileFilter> filterList=new ArrayList<FileFilter>();
-		FileFilter filter=new XMLFilter();
+		List<FileFilter> filterList = new ArrayList<FileFilter>();
+		FileFilter filter = new XMLFilter();
 		filterList.add(filter);
 		FileChooser chooser=
 				new FileChooser(
@@ -803,4 +804,14 @@ class MeasurementViewerComponent
 		discard();
 	}
 	
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see ImViewer#saveRndSettings()
+     */
+    public void toFront()
+    {
+    	if (model.getState() == DISCARDED) return;
+    	controller.toFront();
+    }
+    
 }

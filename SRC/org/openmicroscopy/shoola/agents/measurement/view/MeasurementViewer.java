@@ -281,4 +281,7 @@ public interface MeasurementViewer
 	/** Saves the roi data and discards. */
 	public void saveAndDiscard();
 	
+	/** Moves the window to the front. */
+    public void toFront();
+	
 }

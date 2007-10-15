@@ -24,8 +24,10 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -49,6 +51,8 @@ import org.jhotdraw.draw.FigureEvent;
 import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.draw.FigureSelectionEvent;
 import org.jhotdraw.draw.FigureSelectionListener;
+import org.openmicroscopy.shoola.agents.events.FocusGainedEvent;
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.CreateFigureAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.LoadROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
@@ -58,6 +62,7 @@ import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -81,7 +86,8 @@ import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
  */
 class MeasurementViewerControl 
 	implements ChangeListener, DrawingListener, FigureListener, 
-	FigureSelectionListener, PropertyChangeListener
+				FigureSelectionListener, PropertyChangeListener,
+				WindowFocusListener
 {
 
 	/** Identifies the <code>SAVE</code> action in the menu. */
@@ -150,7 +156,8 @@ class MeasurementViewerControl
     	actionsMap.put(IN_MICRONS, new UnitsAction(model, true));
     	actionsMap.put(IN_PIXELS, new UnitsAction(model, false));
     	actionsMap.put(CREATESINGLEFIGURE, new CreateFigureAction(model, true));
-    	actionsMap.put(CREATEMULTIPLEFIGURE, new CreateFigureAction(model, false));
+    	actionsMap.put(CREATEMULTIPLEFIGURE, new CreateFigureAction(model, 
+    												false));
     }
 
     /**
@@ -194,8 +201,27 @@ class MeasurementViewerControl
     	 view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
     	 view.addWindowListener(new WindowAdapter() {
              public void windowClosing(WindowEvent e) { model.close(); }
+             public void windowOpened(WindowEvent e) { 
+            	 view.addWindowFocusListener(this); }
          });
     }
+    
+    /** 
+	 * Moves the view to the front, to avoid loops, first removes the 
+	 * WindowFocusListener.
+	 */
+	void toFront()
+	{
+		if (view.getExtendedState() != Frame.NORMAL) return;
+		if (!view.isFocused()) {
+			view.removeWindowFocusListener(this);
+			//view.toFront();
+			if (view.isVisible())
+				view.setVisible(true);
+			view.addWindowFocusListener(this);
+		}
+	}
+	
     /**
      * Returns the action corresponding to the specified id.
      * 
@@ -396,7 +422,24 @@ class MeasurementViewerControl
 			}
 		}
 	}
+	
+	/**
+	 * Posts an event to bring the related window to the front.
+	 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
+	 */
+	public void windowGainedFocus(WindowEvent e)
+	{
+		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+		bus.post(new FocusGainedEvent(view.getPixelsID(), 
+				FocusGainedEvent.MEASUREMENT_TOOL_FOCUS));
+	}
 
+	/**
+	 * Required by the I/F but no-op implementation in our case.
+	 * @see WindowFocusListener#windowLostFocus(WindowEvent)
+	 */
+	public void windowLostFocus(WindowEvent e) {}
+	
 	/**
 	 * Required by the {@link DrawingListener} I/F but no-op implementation
 	 * in our case.

@@ -22,16 +22,16 @@
  */
 package org.openmicroscopy.shoola.agents.events;
 
-import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
- * 
+ * Event posted when a window gained focus.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,22 +47,61 @@ public class FocusGainedEvent
 	extends RequestEvent
 {
 
+	/** Indicate that the viewer gained focus. */
 	public static final int VIEWER_FOCUS = 0;
 	
+	/** Indicate that the measurement tool gained focus. */
 	public static final int MEASUREMENT_TOOL_FOCUS = 1;
 	
+	/** The id of the pixels set the windows are for. */
 	private long	pixelsID;
 	
+	/** One of the constants defined by this class. */
 	private int		index;
 	
+	/**
+	 * Controls if the index is supported.
+	 * 
+	 * @param i The index to handle.
+	 */
+	private void checkIndex(int i) 
+	{
+		switch (i) {
+			case VIEWER_FOCUS:
+			case MEASUREMENT_TOOL_FOCUS:
+				return;
+			default:
+				throw new IllegalArgumentException("Index not supported.");
+		}
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param pixelsID The Id of the pixels set.
+	 * @param index		The index. 
+	 */
 	public FocusGainedEvent(long pixelsID, int index)
 	{
+		if (pixelsID < 0)
+			throw new IllegalArgumentException("Pixels ID not valid.");
+		checkIndex(index);
 		this.pixelsID = pixelsID;
 		this.index = index;
 	}
 	
+	/**
+	 * Returns the id of the pixels set.
+	 * 
+	 * @return See above.
+	 */
 	public long getPixelsID() { return pixelsID; }
 	
+	/**
+	 * Returns the index of the event.
+	 * 
+	 * @return See above.
+	 */
 	public int getIndex() { return index; }
 	
 }

@@ -24,10 +24,8 @@ package org.openmicroscopy.shoola.agents.measurement;
 
 
 //Java imports
-import java.awt.Frame;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -138,12 +136,7 @@ public class MeasurementAgent
     	if (viewer == null) return;
     	if (viewer.getState() != MeasurementViewer.DISCARDED ||
     		evt.getIndex() != FocusGainedEvent.MEASUREMENT_TOOL_FOCUS) {
-			JFrame view = viewer.getUI();
-			if (view.getExtendedState() == Frame.NORMAL) {
-				//view.setVisible(true);
-				view.toFront();
-			}
-			
+			//viewer.toFront();
 		}
     }
     

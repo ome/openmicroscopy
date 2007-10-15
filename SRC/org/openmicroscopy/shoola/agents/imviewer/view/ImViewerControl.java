@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Frame;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -114,7 +115,7 @@ import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 */
 class ImViewerControl
   	implements ActionListener, ChangeListener, ComponentListener,
-  		PropertyChangeListener
+  		PropertyChangeListener, WindowFocusListener
 {
 
 	/** Identifies the <code>Close</code> action in the menu. */
@@ -293,7 +294,7 @@ class ImViewerControl
 
 	/** Reference to the movie player. */
 	private MoviePlayerDialog			moviePlayer;
-
+	
 	/** Helper method to create all the UI actions. */
 	private void createActions()
 	{
@@ -432,27 +433,11 @@ class ImViewerControl
 			{ 
 				model.iconified(true); 
 			}
+			//public void windowOpened(WindowEvent e) { view.addWindowFocusListener(this); }
 		});
 		view.getLoadingWindow().addPropertyChangeListener(
 				LoadingWindow.CLOSED_PROPERTY, this);
-		view.addWindowFocusListener(new WindowFocusListener() {
-		
-			/**
-			 * Required by the I/F but no-op implementation in our case.
-			 * @see WindowFocusListener#windowLostFocus(WindowEvent)
-			 */
-			public void windowLostFocus(WindowEvent e) {}
-		
-			/**
-			 * Posts an event to bring the related window to the front.
-			 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
-			 */
-			public void windowGainedFocus(WindowEvent e) {
-				EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-				bus.post(new FocusGainedEvent(view.getPixelsID(), 
-						FocusGainedEvent.VIEWER_FOCUS));
-			}
-		});
+		view.addWindowFocusListener(this);
 	}
 
 	/** 
@@ -495,7 +480,6 @@ class ImViewerControl
 		colorPickerIndex = -1;
 		actionsMap = new HashMap<Integer, ViewerAction>();
 		createActions();
-		
 		attachListeners();
 		ImViewerFactory.attachWindowMenuToTaskBar();
 	}
@@ -579,6 +563,20 @@ class ImViewerControl
 		model.setZoomFactor(f, zoomIndex);
 	}
 
+	/** 
+	 * Moves the view to the front, to avoid loops, first removes the 
+	 * WindowFocusListener.
+	 */
+	void toFront()
+	{
+		if (view.getExtendedState() != Frame.NORMAL) return;
+		if (!view.isFocused()) {
+			view.removeWindowFocusListener(this);
+			view.setVisible(true);
+			view.addWindowFocusListener(this);
+		}
+	}
+	
 	/**
 	 * Reacts to change fired by buttons used to select the color
 	 * models.
@@ -744,6 +742,23 @@ class ImViewerControl
 			model.setZoomFactor(-1, ZoomAction.ZOOM_FIT_TO_WINDOW); 
 		view.maximizeWindow();
 	}
+
+	/**
+	 * Posts an event to bring the related window to the front.
+	 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
+	 */
+	public void windowGainedFocus(WindowEvent e)
+	{
+		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+		bus.post(new FocusGainedEvent(view.getPixelsID(), 
+				FocusGainedEvent.VIEWER_FOCUS));
+	}
+	
+	/**
+	 * Required by the I/F but no-op implementation in our case.
+	 * @see WindowFocusListener#windowLostFocus(WindowEvent)
+	 */
+	public void windowLostFocus(WindowEvent e) {}
 
 	/**
 	 * Required by the {@link ComponentListener} I/F but no-op implemenation 

@@ -26,10 +26,8 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 
 //Java imports
-import java.awt.Frame;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -169,12 +167,7 @@ public class ImViewerAgent
     	if (viewer == null) return;
     	if (viewer.getState() != ImViewer.DISCARDED ||
     		evt.getIndex() != FocusGainedEvent.VIEWER_FOCUS) {
-			JFrame view = viewer.getUI();
-			if (view.getExtendedState() == Frame.NORMAL) {
-				//view.setVisible(true);
-				//view.toFront();
-			}
-			
+			//viewer.toFront();
 		}
     }
     

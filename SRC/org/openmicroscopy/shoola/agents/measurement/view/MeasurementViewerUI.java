@@ -85,7 +85,8 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
  * @since OME3.0
  */
 class MeasurementViewerUI 
-	extends TopWindow implements MouseListener
+	extends TopWindow 
+	implements MouseListener
 {
 
 	/** The message displayed when a ROI cannot be retrieved. */
@@ -98,8 +99,12 @@ class MeasurementViewerUI
 	/** The message displayed when a ROI cannot be deleted. */
 	static final String					DELETE_MSG = "Cannot delete the ROI";
 	
-	/** The message displayed when a an ROI exception occured but cause unknown. */
-	static final String					UNKNOWN_MSG = "An unknown, unexpected error occurred in ";
+	/** 
+	 * The message displayed when a an ROI exception occured but cause 
+	 * is unknown. 
+	 */
+	static final String					UNKNOWN_MSG = "An unknown, " +
+										"unexpected error occurred in ";
 	
 	/** The default message. */
 	static final String					DEFAULT_MSG = "";
@@ -114,22 +119,22 @@ class MeasurementViewerUI
 	private static final String			WINDOW_TITLE = "Measurement Tool ";
 	
 	/** index to identify inspector tab. */
-	public static final int			INSPECTOR_INDEX = 0;
+	public static final int				INSPECTOR_INDEX = 0;
 
 	/** index to identify manager tab. */
-	public static final int			MANAGER_INDEX = 1;
+	public static final int				MANAGER_INDEX = 1;
 	
 	/** index to identify results tab. */
-	public static final int			RESULTS_INDEX = 2;
+	public static final int				RESULTS_INDEX = 2;
 	
 	/** index to identify graph tab. */
-	public static final int			GRAPH_INDEX = 3;
+	public static final int				GRAPH_INDEX = 3;
 
 	/** index to identify intensity tab. */
-	public static final int			INTENSITY_INDEX = 4;
+	public static final int				INTENSITY_INDEX = 4;
 	
 	/** index to identify calculation tab. */
-	public static final int			CALCWIZARD_INDEX = 5;
+	public static final int				CALCWIZARD_INDEX = 5;
 	
 	/** Reference to the Model. */
 	private MeasurementViewerModel 		model;
@@ -931,7 +936,7 @@ class MeasurementViewerUI
      */
     void createSingleFigure(boolean createSingleFig)
     {
-    	if(createSingleFig)
+    	if (createSingleFig)
     	{
     		createSingleFigure.setSelected(true);
     		createMultipleFigure.setSelected(false);
@@ -944,6 +949,13 @@ class MeasurementViewerUI
     	toolBar.createSingleFigure(createSingleFig);
     	
     }
+    
+    /**
+     * Returns the id of the pixels set this tool is for.
+     * 
+     * @return See above.
+     */
+    long getPixelsID() { return model.getPixelsID(); }
     
     /** 
      * Overridden to the set the location of the {@link MeasurementViewer}.

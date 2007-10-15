@@ -152,8 +152,8 @@ class GraphicsPane
         domainSlider.addPropertyChangeListener(this);
         double min = model.getGlobalMin();
         double max = model.getGlobalMax();
+        int length = (""+model.getHighestValue()).length()-2; 
         startField = new JTextField();
-        int length = (""+max).length()-2; 
         startField.setColumns(length);
         endField = new JTextField();
         endField.setColumns(length);
