@@ -49,9 +49,8 @@
     <dependency org="webadmin" name="struts" rev="${versions.struts}"/>
     <dependency org="webadmin" name="tomahawk" rev="${versions.tomahawk}" />
     <dependency org="webadmin" name="tomahawk-sandbox" rev="${versions.tomahawk-sandbox}" />
-    <dependency org="commons-io" name="commons-io" rev="1.3" conf="build->default"/>
+    <dependency org="commons-io" name="commons-io" rev="1.1" conf="build->default"/>
     <dependency org="webadmin" name="nekohtml" rev="${versions.nekohtml}" />
-    <dependency org="webadmin" name="commons-io" rev="${versions.commons-io}" />
     <dependency org="webadmin" name="jdom" rev="${versions.jdom}" />
     <dependency org="webadmin" name="htmlunit" rev="${versions.htmlunit}" />
     <dependency org="webadmin" name="xom" rev="${versions.xom}" />
