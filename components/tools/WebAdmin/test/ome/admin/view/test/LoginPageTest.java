@@ -10,9 +10,6 @@ public class LoginPageTest extends WebTestCase {
 		getTestContext().setBaseUrl("http://localhost:8080/WebAdmin");
 	}
 
-	/**
-	 * test login form
-	 */
 	public void testLoginForm() {
 		beginAt("/login.jsf");
 		assertFormPresent("loginForm");
@@ -26,10 +23,8 @@ public class LoginPageTest extends WebTestCase {
 		submit("loginForm:submit");
 	}
 	
-	/**
-	 * test login form for wrong login param
-	 */
 	public void testLoginForm1() {
+		//wrong login param
 		beginAt("/login.jsf");
 		assertFormPresent("loginForm");
 		assertSubmitButtonPresent("loginForm:submit");

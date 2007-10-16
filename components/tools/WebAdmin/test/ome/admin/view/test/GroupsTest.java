@@ -37,22 +37,25 @@ public class GroupsTest extends WebTestCase {
 		assertKeyPresent("groupsListGroup");
 		assertKeyPresent("groupsActions");
 		
-		assertImagePresent("/WebAdmin/images/editing.png", "Scientist in group");
-		assertImagePresent("/WebAdmin/images/edit.png", "Edit");
+		assertImagePresent("/WebAdmin/images/editing.png", "Scientists in group");
+		assertImagePresent("/WebAdmin/images/edit.png", "Edit group");
 	}
 
 	public void testGroupAdd() {
 		beginAt("/groupForm.jsf");
 		login();
 
+		//checks bundles
 		assertKeyPresent("groupsAddNewGroup");
-		assertKeyPresent("groupsName");
+		assertKeyPresent("groupsGroupName");
 		assertKeyPresent("groupsDescription");
 		assertKeyPresent("groupsSave");
 
+		//checks the form
 		assertFormPresent("groupForm");
 		assertFormElementPresent("groupForm:name");
 		assertFormElementPresent("groupForm:description");
+		assertSubmitButtonPresent("groupForm:submitAdd");
 
 	}
 

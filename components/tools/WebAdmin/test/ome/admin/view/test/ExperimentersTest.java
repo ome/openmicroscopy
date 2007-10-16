@@ -38,22 +38,25 @@ public class ExperimentersTest extends WebTestCase {
 		assertKeyPresent("experimentersList");
 		assertKeyPresent("experimentersActions");
 		assertKeyPresent("experimentersRole");
-		assertKeyPresent("experimentersLastName");
+		assertKeyPresent("experimentersName");
 		assertKeyPresent("experimentersOmeName");
 		assertKeyPresent("experimentersInstitution");
 		assertImagePresent("/WebAdmin/images/admin.png", "Administrator");
 		assertImagePresent("/WebAdmin/images/active.png", "Active");
 		assertImagePresent("/WebAdmin/images/active.png", "Active");
-		assertImagePresent("/WebAdmin/images/del.png", "Delete scientist");
-		assertImagePresent("/WebAdmin/images/edit.png", "Edit");
+		assertImagePresent("/WebAdmin/images/del.png", "Delete Scientist");
+		assertImagePresent("/WebAdmin/images/edit.png", "Edit Scientist");
+		
+		clickLinkWithImage("/WebAdmin/images/edit.png");
 	}
 
 	public void testExperimenterAdd() {
 		beginAt("/experimenterForm.jsf");
 		login();
 
+		//checks bundles
 		assertKeyPresent("experimentersAddNew");
-		assertKeyPresent("experimentersName");
+		assertKeyPresent("experimentersOmeName");
 		assertKeyPresent("experimentersFirstName");
 		assertKeyPresent("experimentersMiddleName");
 		assertKeyPresent("experimentersLastName");
@@ -66,6 +69,7 @@ public class ExperimentersTest extends WebTestCase {
 		assertKeyPresent("experimentersUserRole");
 		assertKeyPresent("experimentersSave");
 
+		//checks the form
 		assertFormPresent("experimenterForm");
 		assertFormElementPresent("experimenterForm:omeName");
 		assertFormElementPresent("experimenterForm:firstName");
@@ -78,7 +82,21 @@ public class ExperimentersTest extends WebTestCase {
 		String[] values = { "system", "default" };
 		assertSelectOptionsEqual("experimenterForm:defaultGroup", values);
 		assertSelectOptionsEqual("experimenterForm:otherGroup", values);
+		assertSubmitButtonPresent("experimenterForm:submitAdd");
 
+		//add the new user
+		assertFormPresent("experimenterForm");
+        assertSubmitButtonPresent("experimenterForm:submitAdd");
+        setTextField("experimenterForm:omeName", "user1");
+        setTextField("experimenterForm:firstName", "User");
+        setTextField("experimenterForm:middleName", "T");
+        setTextField("experimenterForm:lastName", "Test");
+        setTextField("experimenterForm:email", "user@email.com");
+        setTextField("experimenterForm:institution", "Lab");
+        checkCheckbox("experimenterForm:_idJsp13");
+        submit("experimenterForm:submitAdd");
+        
+        
 	}
 
 }
