@@ -49,5 +49,22 @@
     <dependency org="webadmin" name="struts" rev="${versions.struts}"/>
     <dependency org="webadmin" name="tomahawk" rev="${versions.tomahawk}" />
     <dependency org="webadmin" name="tomahawk-sandbox" rev="${versions.tomahawk-sandbox}" />
+    <dependency org="commons-io" name="commons-io" rev="1.3" conf="build->default"/>
+    <dependency org="webadmin" name="nekohtml" rev="${versions.nekohtml}" />
+    <dependency org="webadmin" name="commons-io" rev="${versions.commons-io}" />
+    <dependency org="webadmin" name="jdom" rev="${versions.jdom}" />
+    <dependency org="webadmin" name="htmlunit" rev="${versions.htmlunit}" />
+    <dependency org="webadmin" name="xom" rev="${versions.xom}" />
+    <dependency org="webadmin" name="xmlParserAPIs" rev="${versions.xmlParserAPIs}" />
+    <dependency org="webadmin" name="xml-apis" rev="${versions.xml-apis}" />
+    <dependency org="webadmin" name="xercesImpl" rev="${versions.xercesImpl}" />
+    <dependency org="webadmin" name="servlet-api" rev="${versions.servlet-api}" />
+    <dependency org="webadmin" name="regexp" rev="${versions.regexp}" />
+    <dependency org="webadmin" name="nekohtml" rev="${versions.nekohtml}" />
+    <dependency org="webadmin" name="jwebunit-htmlunit-plugin" rev="${versions.jwebunit-htmlunit-plugin}" />
+    <dependency org="webadmin" name="jwebunit-core" rev="${versions.jwebunit-core}" />
+    <dependency org="webadmin" name="js" rev="${versions.js}" />
+    <dependency org="webadmin" name="jaxen" rev="${versions.jaxen}" />
+    
   </dependencies>
 </ivy-module>

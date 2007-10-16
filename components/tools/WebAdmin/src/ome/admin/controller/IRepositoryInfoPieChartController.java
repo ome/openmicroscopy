@@ -100,8 +100,7 @@ public class IRepositoryInfoPieChartController implements java.io.Serializable {
 		try {
 			this.pieDataSet.setValue("Free space", iRepository
 					.getSpaceInKilobytes("free"));
-			this.pieDataSet.setValue("Used space", iRepository
-					.getSpaceInKilobytes("used"));
+			//this.pieDataSet.setValue("Used space", iRepository.getSpaceInKilobytes("used"));
 			HashMap map = iRepository.getTopTenUserSpace();
 			for (Object expid : map.keySet()) {
 				this.pieDataSet.setValue(((String) expid), ((Long) map
