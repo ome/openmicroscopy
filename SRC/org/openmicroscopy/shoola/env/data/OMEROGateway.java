@@ -161,29 +161,29 @@ class OMEROGateway
 	 * @throws DSAccessException    A server-side error.
 	 */
 	private void handleException(Throwable t, String message) 
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		Throwable cause = t.getCause();
 		t.printStackTrace();
 		if (cause instanceof SecurityException) {
 			String s = "Cannot access data for security reasons \n"; 
 			throw new DSAccessException(s+message+"\n\n"+
-					printErrorText((Exception) cause));
+					printErrorText(cause));
 		} else if (cause instanceof EJBAccessException) {
 			String s = "Cannot access data for security reasons \n"; 
 			throw new DSAccessException(s+message+"\n\n"+
-					printErrorText((Exception) cause));
+					printErrorText(cause));
 		} else if (cause instanceof ApiUsageException) {
 			String s = "Cannot access data, specified parameters not valid \n"; 
 			throw new DSAccessException(s+message+"\n\n"+
-					printErrorText((Exception) cause));
+					printErrorText(cause));
 		} else if (cause instanceof ValidationException) {
 			String s = "Cannot access data, specified parameters not valid \n"; 
 			throw new DSAccessException(s+message+"\n\n"+
-					printErrorText((Exception) cause));
+					printErrorText(cause));
 		} else 
 			throw new DSOutOfServiceException(message+"\n\n"+
-					printErrorText((Exception) cause));
+					printErrorText(cause));
 	}
 
 	/**
@@ -192,7 +192,7 @@ class OMEROGateway
 	 * @param e The exception to handle.
 	 * @return  See above.
 	 */
-	private String printErrorText(Exception e) 
+	private String printErrorText(Throwable e) 
 	{
 		if (e == null) return "";
 		StringWriter sw = new StringWriter();

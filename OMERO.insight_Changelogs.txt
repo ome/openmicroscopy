@@ -7,6 +7,14 @@
   maintained at an OMERO server site. OMERO.insight is completely written in 
   Java.
  --------------------------------------------------------------------------------
+ Last update: 15/10/2007 (revision 5069)
+ Version: Beta 2.2 rc4
+ 
+  - Measurement tool: Add Intensity view across time and z-sections.
+  - Measurement tool: Fixed remaining bugs.
+  - DataManager and HiViewer: Add option to resets defaults across collection
+  	of images.
+ --------------------------------------------------------------------------------
  Last update: 09/10/2007 (revision 5046)
  Version: Beta 2.2 rc3
  

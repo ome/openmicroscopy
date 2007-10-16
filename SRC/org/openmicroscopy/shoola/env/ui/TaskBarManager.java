@@ -35,14 +35,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import javax.swing.BoxLayout;
-import javax.swing.JPanel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -52,7 +46,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
@@ -63,7 +56,7 @@ import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.event.RequestEvent;
+import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.w3c.dom.Document;
@@ -89,6 +82,12 @@ class TaskBarManager
 	implements AgentEventListener, PropertyChangeListener
 {
 
+	/** 
+	 * Identifies the mac platform to modify the behaviour of the
+	 * <code>About</code> and <code>Quit</code> menu items.
+	 */
+	private static final String		MRJ = "mrj.version";
+	
 	/** The name of the about file in the config directory. */
 	private static final String		ABOUT_FILE = "about.xml";
 	
@@ -501,19 +500,23 @@ class TaskBarManager
 		bus.register(this, ServiceActivationResponse.class);
         bus.register(this, ExitApplication.class);
         bus.register(this, SaveEventResponse.class);
-	}
+        String osName = System.getProperty("os.name");
+		if (osName.startsWith("Mac OS")) {
+        	new MacOSMenuHandler(view);
+	    	view.addPropertyChangeListener(this);
+        }
+     }
 	
 	/**
 	 * Creates this controller along with its view and registers the necessary
 	 * listeners with the view.
 	 *  
-	 * @param c		Reference to the container.
+	 * @param c	Reference to the container.
 	 */
 	TaskBarManager(Container c) 
 	{
 		container = c;
-		view = new TaskBarView(IconManager.getInstance(
-													container.getRegistry()));
+		view = new TaskBarView(IconManager.getInstance(c.getRegistry()));
 		attachListeners();												
 	}
 	
@@ -542,10 +545,18 @@ class TaskBarManager
 	 * Reacts to property change fired by the <code>SoftwareUpdateDialog</code>.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
-	public void propertyChange(PropertyChangeEvent evt) {
+	public void propertyChange(PropertyChangeEvent evt)
+	{
 		String name = evt.getPropertyName();
 		if (SoftwareUpdateDialog.OPEN_URL_PROPERTY.equals(name)) {
 			openURL(parse());
+		} else if (MacOSMenuHandler.ABOUT_APPLICATION_PROPERTY.equals(name)) {
+			softWareUpdates();
+		} else if (MacOSMenuHandler.QUIT_APPLICATION_PROPERTY.equals(name)) {
+			Registry reg = container.getRegistry();;
+			Object exp = reg.lookup(LookupNames.CURRENT_USER_DETAILS);
+			if (exp == null) container.exit(); //not connected
+			else doExit();
 		}
 	}
 

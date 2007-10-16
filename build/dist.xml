@@ -54,7 +54,7 @@
   <property name="dist.dir" location="${build.dir}/dist"/>
   <property name="dist.jar.file" value="omero.insight.jar"/>
   <property name="dist.bundle.name" value="omero.insight"/> 
-  <property name="dist.bundle.version" value="3_Beta2_2_rc3"/>
+  <property name="dist.bundle.version" value="3_Beta2_2_rc4"/>
   <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
     <include name="*.sh"/>
     <include name="*.bat"/> 
@@ -158,7 +158,7 @@
                 mainclass="${app.mainclass}"
                 version="${dist.bundle.version}"
                 infostring="OMERO.insight Java Client, ${dist.bundle.version}"
-                aboutmenuname="OMERO.insight Java Client"
+                aboutmenuname="OMERO.insight"
                 screenmenu="true" 
                 icon="${dist.osx.icon}"
                 stubfile="${dist.osx.stub}" 

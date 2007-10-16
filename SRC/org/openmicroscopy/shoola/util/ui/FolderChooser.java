@@ -60,6 +60,7 @@ class FolderChooser
 	private void initialize()
 	{
 		JLabel label = (JLabel) UIUtilities.findComponent(this, JLabel.class);
+		System.err.println(label.getText());
 		if (label != null) {
 			label.setText("Selected Folder:");
 		}

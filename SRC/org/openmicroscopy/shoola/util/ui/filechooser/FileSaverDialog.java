@@ -29,11 +29,10 @@ import javax.swing.Icon;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.util.saver.ImgSaver;
 import org.openmicroscopy.shoola.util.ui.OptionsDialog;
 
 /** 
- * 
+ * Dialog used to ask a question.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,7 +44,7 @@ import org.openmicroscopy.shoola.util.ui.OptionsDialog;
  * </small>
  * @since OME3.0
  */
-public class FileSaverDialog
+class FileSaverDialog
     extends OptionsDialog
 {
     

@@ -76,10 +76,10 @@ class SplashScreenManager
 {
     
 	/** The title of the splash screens. */
-	static final String				TITLE = "Open Microscopy Environment";
+	static final String	TITLE = "Open Microscopy Environment";
 	
     /** The client's version. */
-    static final String     		VERSION = "3.0_Beta2.2_rc3";
+    static final String	VERSION = "3.0_Beta2.2_rc4";
     
 	/** The component's UI. */
 	private ScreenLogin			view;
@@ -339,6 +339,6 @@ class SplashScreenManager
 	 * in our case.
 	 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
 	 */
-	public void windowGainedFocus(WindowEvent e) { }
+	public void windowGainedFocus(WindowEvent e) {}
 
 }

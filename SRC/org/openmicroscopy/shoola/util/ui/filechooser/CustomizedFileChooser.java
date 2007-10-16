@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.filechooser.FileChooser 
+ * org.openmicroscopy.shoola.util.ui.filechooser.CustomizedFileChooser 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -25,7 +25,7 @@ package org.openmicroscopy.shoola.util.ui.filechooser;
 
 //Java imports
 import java.io.File;
-
+import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -36,11 +36,10 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.util.saver.ImgSaver;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * A customized file chooser.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,20 +51,17 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public class OMEFileChooser
+class CustomizedFileChooser
 	extends JFileChooser 
 	implements DocumentListener
 {
 	
 	/** This is the default text for the file name when loading a file. */
-	private final static String loadLabel	= "Load :";
+	private final static String LOAD_LABEL	= "Load:";
 		
 	/** Reference to the model. */
 	private FileChooser			model;
-	
-	/** is this a save dialog. */
-	private boolean 			save;
-	
+
 	/** Reference to the View. */
 	private FileSaverUI			view;
 	
@@ -75,44 +71,35 @@ public class OMEFileChooser
 	/** Initiliazes the components composing the display. */
 	private void initComponents()
 	{
-		nameArea=(JTextField) UIUtilities.findComponent(this, JTextField.class);
-		if (nameArea!=null) nameArea.getDocument().addDocumentListener(this);
+		nameArea = (JTextField) 
+					UIUtilities.findComponent(this, JTextField.class);
+		if (nameArea != null) nameArea.getDocument().addDocumentListener(this);
 	}
 		
 	/** Builds and lays out the GUI. */
 	private void buildGUI()
 	{
 		setAcceptAllFileFilterUsed(false);
-		if(save)
-			setDialogType(SAVE_DIALOG);
-		else
-		{	
-			setDialogType(SAVE_DIALOG);
-			JLabel label=(JLabel) UIUtilities.findComponent(this, JLabel.class);
-			label.setText(loadLabel);
+		setDialogType(SAVE_DIALOG);
+		if (model.getDialogType() == FileChooser.LOAD) {
+			JLabel label = (JLabel) 
+			UIUtilities.findComponent(this, JLabel.class);
+			if (label != null)
+				label.setText(LOAD_LABEL);
 		}
-		setFileSelectionMode(FILES_ONLY);
-		for(FileFilter filter : model.getFilterList())
-			addChoosableFileFilter(filter);
-		setFileFilter(model.getFilterList().get(0));
 		
-		File f=UIUtilities.getDefaultFolder();
-		if (f!=null) setCurrentDirectory(f);
-		if (nameArea!=null) setControlButtonsAreShown(false);
-		else
-		{
-			if(save)
-			{
-				setApproveButtonToolTipText(UIUtilities
-				.formatToolTipText(FileSaverUI.SAVE_AS));
-				setApproveButtonText("Save as");
-			}
-			else
-			{
-				setApproveButtonToolTipText(UIUtilities
-				.formatToolTipText(FileSaverUI.LOAD));
-				setApproveButtonText("Load");
-			}
+		setFileSelectionMode(FILES_ONLY);
+		List<FileFilter> filters = model.getFilterList();
+		if (filters != null) {
+			for (FileFilter filter : filters)
+				addChoosableFileFilter(filter);
+			setFileFilter(filters.get(0));
+		}
+		File f = UIUtilities.getDefaultFolder();
+		if (f != null) setCurrentDirectory(f);
+		if (nameArea != null) {
+			setControlButtonsAreShown(false);
+			return;
 		}
 	}
 	
@@ -124,16 +111,16 @@ public class OMEFileChooser
 	 */
 	private String getFormat(FileFilter selectedFilter)
 	{
-		for(FileFilter filter : model.getFilterList())
+		List<FileFilter> filters = model.getFilterList();
+		if (filters == null) return "";
+		for (FileFilter filter : filters)
 		{
-			if(selectedFilter.equals(filter))
+			if (selectedFilter.equals(filter))
 				return filter.getDescription();
 		}
 		return "";
 	}
-	
-	
-	
+
 	/**
 	 * Sets the <code>enabled</code> flag of not the <code>Save</code> and
 	 * <code>Preview</code> options depending on the lenght of the text entered
@@ -141,9 +128,9 @@ public class OMEFileChooser
 	 */
 	private void handleTextUpdate()
 	{
-		if (nameArea==null) return; //should happen
-		String text=nameArea.getText();
-		boolean b=(text==null||text.trim().length()==0);
+		if (nameArea == null) return; //should happen
+		String text = nameArea.getText();
+		boolean b = (text == null || text.trim().length() == 0);
 		view.setControlsEnabled(!b);
 	}
 	
@@ -158,22 +145,22 @@ public class OMEFileChooser
 	private Boolean setSelection()
 	{
 		// Build the file .
-		File f=getSelectedFile();
+		File f = getSelectedFile();
 		
-		if (f!=null)
+		if (f != null)
 		{
-			String format=getFormat(getFileFilter());
-			String fileName=f.getAbsolutePath();
+			String format = getFormat(getFileFilter());
+			String fileName = f.getAbsolutePath();
 			model.setSelectedFile(fileName);
 			
-			File[] l=getCurrentDirectory().listFiles();
-			String n=model.getExtendedName(fileName, format);
-			boolean exist=false;
-			for (int i=0; i<l.length; i++)
+			File[] l = getCurrentDirectory().listFiles();
+			String n = model.getExtendedName(fileName, format);
+			boolean exist = false;
+			for (int i = 0; i < l.length; i++)
 			{
 				if ((l[i].getAbsolutePath()).equals(n))
 				{
-					exist=true;
+					exist = true;
 					break;
 				}
 			}
@@ -183,26 +170,43 @@ public class OMEFileChooser
 		}
 		return null;
 	}
-	
-	
-	
+
 	/**
 	 * Creates a new instance.
-	 * @param saveDialog is this a save dialog.
+	 * 
 	 * @param model Reference to the model. Mustn't be <code>null</code>.
 	 * @param view 	Reference to the view. Mustn't be <code>null</code>.
 	 */
-	OMEFileChooser(boolean saveDialog, FileChooser model, FileSaverUI view)
+	CustomizedFileChooser(FileChooser model, FileSaverUI view)
 	{
-		if (model==null) throw new IllegalArgumentException("No model.");
-		if (view==null) throw new IllegalArgumentException("No view.");
-		this.model=model;
-		this.view=view;
-		this.save = saveDialog;
+		if (model == null) throw new IllegalArgumentException("No model.");
+		if (view == null) throw new IllegalArgumentException("No view.");
+		this.model = model;
+		this.view = view;
 		initComponents();
 		buildGUI();
 	}
 		
+	/**
+	 * Returns <code>true</code> if the control buttons are shown,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean areControlButtonsShown() { return (nameArea == null); }
+	
+	/**
+     * Creates a new folder.
+     * 
+     * @param name The name of the folder.
+     */
+    void createFolder(String name)
+    {
+    	File dir = getCurrentDirectory();
+    	String n = dir.getAbsolutePath()+File.separator+name;
+    	new File(n).mkdir();
+    }
+    
 	/**
 	 * Enables or not the <code>Save</code> and <code>Preview</code> options
 	 * depending on the text entered in the {@link #nameArea}.
@@ -213,7 +217,7 @@ public class OMEFileChooser
 		handleTextUpdate();
 	}
 	
-		/**
+	/**
 	 * Enables or not the <code>Save</code> and <code>Preview</code> options
 	 * depending on the text entered in the {@link #nameArea}.
 	 * @see DocumentListener#removeUpdate(DocumentEvent)
@@ -222,14 +226,6 @@ public class OMEFileChooser
 	{
 		handleTextUpdate();
 	}
-	
-	/**
-	 * Required by the {@link DocumentListener} I/F but no-op implementation
-	 * in our case.
-	 * @see DocumentListener#changedUpdate(DocumentEvent)
-	 */
-	public void changedUpdate(DocumentEvent e)
-	{}
 	
 	/**
 	 * Overridden to close the {@link ImgSaver} when the selection is cancelled.
@@ -247,8 +243,8 @@ public class OMEFileChooser
 	 */
 	public void approveSelection()
 	{
-		Boolean exist=setSelection();
-		if (exist==null)
+		Boolean exist = setSelection();
+		if (exist == null)
 		// No file selected, or file can be written - let OK action continue
 		super.approveSelection();
 		else
@@ -268,8 +264,15 @@ public class OMEFileChooser
 	 */
 	public File getSelectedFile()
 	{
-		if (nameArea==null) return super.getSelectedFile();
+		if (nameArea == null) return super.getSelectedFile();
 		return new File(getCurrentDirectory().toString(), nameArea.getText());
 	}
+	
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-op implementation
+	 * in our case.
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
 	
 }
