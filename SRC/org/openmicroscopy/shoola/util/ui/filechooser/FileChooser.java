@@ -57,6 +57,13 @@ public class FileChooser
     extends JDialog
 {
 
+	
+	/** Bound property indicating that the cancel button is pressed. */
+	public static final String	APPROVE_SELECTION_PROPERTY = "approveSelection";
+	
+	/** Bound property indicating that the cancel button is pressed. */
+	public static final String	CANCEL_SELECTION_PROPERTY = "cancelSelection";
+	
 	/** 
 	 * Bound property indicating the directory where to save the original files.
 	 */
@@ -247,6 +254,8 @@ public class FileChooser
     /** Closes the window and disposes. */
     void cancelSelection()
     {
+    	firePropertyChange(CANCEL_SELECTION_PROPERTY, Boolean.FALSE, 
+    						Boolean.TRUE);
     	option = JFileChooser.CANCEL_OPTION;
     	setVisible(false);
     	dispose();
@@ -255,6 +264,8 @@ public class FileChooser
     /** Saves the file. */
     void acceptSelection()
     {
+    	firePropertyChange(APPROVE_SELECTION_PROPERTY, Boolean.FALSE, 
+							Boolean.TRUE);
         if (uiDelegate.isSetDefaultFolder())
         	UIUtilities.setDefaultFolder(
         			uiDelegate.getCurrentDirectory().toString());

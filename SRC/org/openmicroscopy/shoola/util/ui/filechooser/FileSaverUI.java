@@ -259,7 +259,7 @@ class FileSaverUI
 		p.add(chooser, BorderLayout.CENTER);
 		p.add(controlsPanel, BorderLayout.SOUTH);
 		IconManager im = IconManager.getInstance();
-		Icon icon = im.getIcon(IconManager.SAVE);
+		Icon icon = im.getIcon(IconManager.SAVE_48);
 		if (model.getDialogType() == FileChooser.FOLDER_CHOOSER)
 			icon = im.getIcon(IconManager.DOWNLOAD_48);
 		Container c = model.getContentPane();
