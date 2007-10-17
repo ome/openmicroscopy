@@ -154,14 +154,12 @@ public class FileChooser
      */
     private String getPartialName(String originalName)
     { 
-    	String sep = File.separator;
     	String name = originalName;
-    	String[] l;
-    	if (Pattern.compile(sep).matcher(originalName).find()) {
-            l = originalName.split(sep, 0);
-            int n = l.length;
-            if (n >= 1) name = l[n-1]; 
-        }
+    	String[] l = UIUtilities.splitString(originalName);
+    	if (l != null) {
+    		 int n = l.length;
+             if (n >= 1) name = l[n-1]; 
+    	}
     	if (Pattern.compile(".").matcher(name).find()) {
     		l = name.split("\\.");
     		if (l.length >= 1) {
@@ -324,7 +322,6 @@ public class FileChooser
     { 
     	if (name == null)
     		throw new IllegalArgumentException("File cannot be null.");
-    	System.err.println(name);
     	uiDelegate.setSelectedFile(name);
     }
     

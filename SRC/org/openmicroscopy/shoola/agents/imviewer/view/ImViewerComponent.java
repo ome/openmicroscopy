@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImageDetailsDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.archived.view.Downloader;
 import org.openmicroscopy.shoola.agents.util.archived.view.DownloaderFactory;
@@ -73,6 +74,7 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+import org.openmicroscopy.shoola.env.rnd.events.FreeCacheEvent;
 import org.openmicroscopy.shoola.env.ui.SaveEventBox;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
@@ -425,6 +427,9 @@ class ImViewerComponent
 			saveOnClose();
 			model.discard();
 			fireStateChange();
+			EventBus bus = MeasurementAgent.getRegistry().getEventBus();
+			bus.post(new FreeCacheEvent(model.getPixelsID(), 
+					FreeCacheEvent.XY_IMAGE_DATA));
 		}
 	}
 

@@ -30,24 +30,19 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.regex.Pattern;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 
 /** 
  * Represents a component in the composite structure used to visualize an
@@ -138,17 +133,15 @@ public abstract class TreeViewNode
      */
     private String getPartialName(String originalName)
     {
-        if (Pattern.compile("/").matcher(originalName).find()) {
-            String[] l = originalName.split("/", 0);
-            int n = l.length;
-            if (n == 1) return l[0];
-            return UIUtilities.DOTS+l[n-2]+"/"+l[n-1]; 
-        } else if (Pattern.compile("\\\\").matcher(originalName).find()) {
-            String[] l = originalName.split("\\\\", 0);
-            int n = l.length;
-            if (n == 1) return l[0];
-            return UIUtilities.DOTS+l[n-2]+"\\"+l[n-1];
-        } 
+    	String[] l = UIUtilities.splitString(originalName);
+    	if (l != null) {
+    		int n = l.length;
+    		switch (n) {
+				case 0: return originalName;
+				case 1: return l[0];
+				default: return UIUtilities.DOTS+l[n-2]+"/"+l[n-1]; 
+			}
+    	}
         return originalName;
     }
     

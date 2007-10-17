@@ -26,19 +26,16 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 //Java imports
 import java.awt.Cursor;
-import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
-
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
@@ -150,13 +147,15 @@ public abstract class ImageDisplay
      */
     protected String getPartialName(String originalName)
     {
-    	String sep = File.separator;
-        if (Pattern.compile(sep).matcher(originalName).find()) {
-            String[] l = originalName.split(sep, 0);
-            int n = l.length;
-            if (n == 1) return l[0];
-            return UIUtilities.DOTS+l[n-2]+sep+l[n-1]; 
-        } 
+    	String[] l = UIUtilities.splitString(originalName);
+    	if (l != null) {
+    		int n = l.length;
+    		switch (n) {
+				case 0: return originalName;
+				case 1: return l[0];
+				default: return UIUtilities.DOTS+l[n-2]+"/"+l[n-1]; 
+			}
+    	}
         return originalName;
     }
     

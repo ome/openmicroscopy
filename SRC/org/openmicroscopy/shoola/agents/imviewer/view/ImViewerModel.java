@@ -1005,7 +1005,8 @@ class ImViewerModel
 	void resetMappingSettings(RndProxyDef settings) 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		rndControl.resetMappingSettings(settings);
+		//rndControl.resetMappingSettings(settings);
+		rndControl.resetSettings(settings);
 		renderer.resetRndSettings();
 	}
 

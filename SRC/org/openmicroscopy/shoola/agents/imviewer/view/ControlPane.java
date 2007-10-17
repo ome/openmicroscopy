@@ -163,11 +163,17 @@ class ControlPane
     /** Button to paint some textual information on top of the grid image. */
     private JToggleButton			textVisibleButton;
     
-    /** Button to play movie. */
-    private JButton					playMovie;
+    /** Button to play movie across T. */
+    private JButton					playTMovie;
     
-    /** Button to play movie displayed in the split view. */
-    private JButton					playMovieGrid;
+    /** Button to play movie across T displayed in the split view. */
+    private JButton					playTMovieGrid;
+    
+    /** Button to play movie across T. */
+    private JButton					playZMovie;
+    
+    /** Button to play movie across T displayed in the split view. */
+    private JButton					playZMovieGrid;
     
     /** Helper reference. */
     private IconManager     		icons;
@@ -318,12 +324,18 @@ class ControlPane
         textVisibleButton.setSelected(model.isTextVisible());
         textVisibleButton.setAction(
         		controller.getAction(ImViewerControl.TEXT_VISIBLE));
-        playMovie = new JButton(
+        playTMovie = new JButton(
         			controller.getAction(ImViewerControl.PLAY_MOVIE));
-        UIUtilities.unifiedButtonLookAndFeel(playMovie);
-        playMovieGrid = new JButton(
+        UIUtilities.unifiedButtonLookAndFeel(playTMovie);
+        playTMovieGrid = new JButton(
     			controller.getAction(ImViewerControl.PLAY_MOVIE));
-        UIUtilities.unifiedButtonLookAndFeel(playMovieGrid);
+        UIUtilities.unifiedButtonLookAndFeel(playTMovieGrid);
+        playZMovie = new JButton(
+    			controller.getAction(ImViewerControl.PLAY_MOVIE));
+	    UIUtilities.unifiedButtonLookAndFeel(playZMovie);
+	    playZMovieGrid = new JButton(
+				controller.getAction(ImViewerControl.PLAY_MOVIE));
+	    UIUtilities.unifiedButtonLookAndFeel(playZMovieGrid);
     }
     
     /**
@@ -391,8 +403,8 @@ class ControlPane
         gridRatioSlider.addChangeListener(this);
         ratioSlider.addChangeListener(this);
         
-        playMovie.setVisible(maxT != 0);
-        playMovieGrid.setVisible(maxT != 0);
+        playTMovie.setVisible(maxT != 0);
+        playTMovieGrid.setVisible(maxT != 0);
         
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
         colorModelButton.setToolTipText(
@@ -817,7 +829,7 @@ class ControlPane
 			case ImViewer.GRID_INDEX:
 				JPanel p = new JPanel();
 	        	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-	        	p.add(playMovieGrid);
+	        	p.add(playTMovieGrid);
 	        	p.add(tSliderGrid);
 	        	return p;
 				//return createSliderPane(tSliderGrid);
@@ -825,7 +837,7 @@ class ControlPane
 			default:
 				JPanel pane = new JPanel();
 	        	pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
-	        	pane.add(playMovie);
+	        	pane.add(playTMovie);
 	        	pane.add(tSlider);
 	        	return pane;
 				//return createSliderPane(tSlider);

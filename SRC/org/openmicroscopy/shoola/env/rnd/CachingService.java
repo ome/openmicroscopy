@@ -37,7 +37,11 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.event.AgentEvent;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.data.PixelsCache;
+import org.openmicroscopy.shoola.env.rnd.events.FreeCacheEvent;
 
 /** 
 * Initializes and keeps track of all caches.
@@ -53,6 +57,7 @@ import org.openmicroscopy.shoola.env.rnd.data.PixelsCache;
 * @since OME3.0
 */
 public class CachingService
+	implements AgentEventListener
 {
 	
 	/** The sole instance. */
@@ -120,6 +125,7 @@ public class CachingService
 	{
 		//Shouldn't happen
 		PixelsCache cache = singleton.pixelsCache.get(pixelsID);
+		System.err.println("cache: "+cache);
 		if (cache != null) return cache;
 		int cacheSize = getCacheSize();
 		if (cacheSize <= 0) return null;
@@ -202,6 +208,38 @@ public class CachingService
 		maxSize = (int) (0.6*usage.getMax())/(1024*1024); 
 		pixelsCache = new HashMap<Long, PixelsCache>();
 		imageCache = new HashMap<Long, XYCache>();
+		EventBus bus = registry.getEventBus();
+		bus.register(this, FreeCacheEvent.class);
+	}
+	
+	/**
+	 * Frees the memory.
+	 * 
+	 * @param evt The event to handle.
+	 */
+	private void handleFreeCacheEvent(FreeCacheEvent evt)
+	{
+		long pixelsID = evt.getPixelsID();
+		switch (evt.getIndex()) {
+			case FreeCacheEvent.RAW_DATA:
+				singleton.pixelsCache.remove(pixelsID);
+				break;
+			case FreeCacheEvent.XY_IMAGE_DATA:
+				singleton.imageCache.remove(pixelsID);
+				break;
+			default:
+				break;
+		}
+	}
+	
+	/**
+	 * Listens to events.
+	 * @see AgentEventListener#eventFired(AgentEvent)
+	 */
+	public void eventFired(AgentEvent e)
+	{
+		if (e instanceof FreeCacheEvent)
+			handleFreeCacheEvent((FreeCacheEvent) e);
 	}
 
 }

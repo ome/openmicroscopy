@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.rnd.events.FreeCacheEvent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -116,9 +117,7 @@ class MeasurementViewerComponent
 		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
 		bus.post(response);
     }
-    
-    
-	
+
 	/**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straigh 
@@ -184,6 +183,9 @@ class MeasurementViewerComponent
 	public void discard()
 	{
 		if (model.getState() != DISCARDED) {
+			EventBus bus = MeasurementAgent.getRegistry().getEventBus();
+			bus.post(new FreeCacheEvent(model.getPixelsID(), 
+					FreeCacheEvent.RAW_DATA));
 			model.discard();
 			fireStateChange();
 		}
@@ -313,6 +315,7 @@ class MeasurementViewerComponent
 		if (model.getState() == DISCARDED) 
 			throw new IllegalStateException("This method shouldn't be " +
 					"invoked in the DISCARDED state:"+model.getState());
+		/*
 		if (!model.isDataSaved()) { 
 			String title = "Discard Changes";
 		    String message = "Do you want to exit and discard changes?";
@@ -322,6 +325,7 @@ class MeasurementViewerComponent
 			if (dialog.showMsgBox() == MessageBox.NO_OPTION) return;
 		}
 		model.setDataDiscarded();
+		*/
 		//Post event indicating that we don't care about saving.
 		postEvent(MeasurementToolLoaded.REMOVE);
 		view.setVisible(false);

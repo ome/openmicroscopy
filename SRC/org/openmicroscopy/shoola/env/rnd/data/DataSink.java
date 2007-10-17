@@ -183,7 +183,7 @@ public class DataSink
 	 *                              plane data from the pixels source.
 	 */
 	private Plane2D createPlane(int z, int t, int w, BytesConverter strategy)
-	throws DataSourceException
+		throws DataSourceException
 	{
 		//Retrieve data
 		Integer planeIndex = linearize(z, w, t);
@@ -195,7 +195,7 @@ public class DataSink
 			data = service.getPlane(source.getId(), z, t, w);
 		} catch (Exception e) {
 			String p = "("+z+", "+t+", "+w+")";
-			new DataSourceException("Cannot retrieve the plane "+p, e);
+			throw new DataSourceException("Cannot retrieve the plane "+p, e);
 		}
 		ReadOnlyByteArray array = new ReadOnlyByteArray(data, 0, data.length);
 		plane = new Plane2D(array, source.getSizeX().intValue(), bytesPerPixels, 
@@ -215,7 +215,7 @@ public class DataSink
 	 *                              plane data from the pixels source.
 	 */
 	public Plane2D getPlane(int z, int t, int w)
-	throws DataSourceException
+		throws DataSourceException
 	{
 		return createPlane(z, t, w, strategy);
 	}

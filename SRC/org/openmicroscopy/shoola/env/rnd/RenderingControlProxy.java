@@ -998,7 +998,6 @@ class RenderingControlProxy
 			throw new IllegalArgumentException("Rendering settings not " +
 					"compatible.");
 		setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
-		
 		setQuantumStrategy(rndDef.getBitResolution());
 		ChannelBindingsProxy c;
 		for (int i = 0; i < getPixelsDimensionsC(); i++) {
