@@ -8,8 +8,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableColumnModel;
 
-import table.ArrayColumnModel;
 import table.InteractiveTableModel;
 
 public class FormFieldTable extends FormField {
@@ -44,7 +44,7 @@ public class FormFieldTable extends FormField {
         table = new JTable();
         table.addFocusListener(new FocusLostUpdatDataFieldListener());
         table.setModel(tableModel);
-        table.setColumnModel(new ArrayColumnModel());
+        table.setColumnModel(new DefaultTableColumnModel());
         table.setSurrendersFocusOnKeystroke(true);
         
         // need to update table with all the columns of the table model
