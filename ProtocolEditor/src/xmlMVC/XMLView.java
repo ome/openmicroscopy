@@ -34,7 +34,7 @@ import java.util.Iterator;
 
 // the main View class. 
 // defines the app window and lays out all components
-// processes all user commands from buttons etc. 
+// processes all user commands from buttons etc..
 
 public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionListener {
 	
