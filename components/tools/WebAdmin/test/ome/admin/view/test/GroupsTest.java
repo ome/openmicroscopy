@@ -42,8 +42,9 @@ public class GroupsTest extends WebTestCase {
 	}
 
 	public void testGroupAdd() {
-		beginAt("/groupForm.jsf");
+		beginAt("/groups.jsf");
 		login();
+		clickLink("groups:_idJsp0");
 
 		//checks bundles
 		assertKeyPresent("groupsAddNewGroup");
@@ -57,6 +58,36 @@ public class GroupsTest extends WebTestCase {
 		assertFormElementPresent("groupForm:description");
 		assertSubmitButtonPresent("groupForm:submitAdd");
 
+		// add the new user
+		assertFormPresent("groupForm");
+        setTextField("groupForm:name", "group1");
+        setTextField("groupForm:description", "description for group1");
+        submit("groupForm:submitAdd");
+	}
+	
+ 	public void testGroupEdit() {
+ 		beginAt("/groups.jsf");
+		login();
+		clickLink("groups:data:1:_idJsp17");
+		
+		//checks bundle
+		assertKeyPresent("groupsEditGroup");
+		assertKeyPresent("groupsGroupName");
+		assertKeyPresent("groupsDescription");
+		assertKeyPresent("groupsSave");
+		
+		//checks form
+		assertFormPresent("groupForm");
+		assertFormElementPresent("groupForm:name");
+		assertFormElementEquals("groupForm:name", "group1");
+		assertFormElementPresent("groupForm:description");
+		assertFormElementEquals("groupForm:description", "description for group1");
+		assertSubmitButtonPresent("groupForm:submitUpdate");
+
+		assertFormPresent("groupForm");
+		setTextField("groupForm:name", "group1");
+        setTextField("groupForm:description", "description for group1");
+        submit("groupForm:submitUpdate");
 	}
 
 }

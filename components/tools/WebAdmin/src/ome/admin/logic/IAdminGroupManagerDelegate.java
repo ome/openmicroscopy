@@ -298,5 +298,17 @@ public class IAdminGroupManagerDelegate implements java.io.Serializable {
 	private void sort(Comparator comparator) {
 		Collections.sort(groups, comparator);
 	}
+	
+	/**
+	 * Checks existing {@link ome.model.meta.ExperimenterGroup#getName()} on the
+	 * database.
+	 * 
+	 * @param name
+	 *            {@link ome.model.meta.ExperimenterGroup#getName()}
+	 * @return boolean
+	 */
+	public boolean checkExperimenterGroup(String name) {
+		return db.checkExperimenterGroup(name);
+	}
 
 }

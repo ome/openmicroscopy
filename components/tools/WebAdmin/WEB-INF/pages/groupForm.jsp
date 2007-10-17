@@ -24,8 +24,9 @@
 				<h:outputText value="#{msg.groupsGroupName}*" />
 
 				<h:inputText id="name" value="#{IAGManagerBean.group.name}"
-					required="true" maxlength="255" size="30">
-					<f:validateLength minimum="1" />
+					validator="#{IAGManagerBean.validateGroupName}" required="true"
+					maxlength="255" size="30">
+					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
 				<h:message styleClass="errorText" id="nameError" for="name" />

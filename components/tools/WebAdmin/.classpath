@@ -40,6 +40,7 @@
 	<classpathentry kind="lib" path="WEB-INF/lib/struts-el.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/tomahawk.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/tomahawk-sandbox.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/ajax4jsf.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/commons-io.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/dom4j.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/jdom.jar"/>

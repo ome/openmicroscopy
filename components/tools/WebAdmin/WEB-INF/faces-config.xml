@@ -15,8 +15,7 @@
 			<supported-locale>pl</supported-locale>
 		</locale-config>
 	</application>
-	
-	
+
 	<render-kit>
 		<render-kit-id>HTML_BASIC</render-kit-id>
 		<renderer>
@@ -26,13 +25,23 @@
 				org.apache.myfaces.renderkit.html.jsf.ExtendedHtmlButtonRenderer
 			</renderer-class>
 		</renderer>
-
+		<renderer>
+			<component-family>javax.faces.Form</component-family>
+			<renderer-type>javax.faces.Form</renderer-type>
+			<!-- <renderer-class>
+				org.ajax4jsf.renderkit.html.AjaxFormRenderer
+			</renderer-class>-->
+			<renderer-class>org.apache.myfaces.renderkit.html.HtmlFormRenderer</renderer-class>
+		</renderer>
 		<renderer>
 			<component-family>javax.faces.Command</component-family>
 			<renderer-type>javax.faces.Link</renderer-type>
 			<renderer-class>
 				org.apache.myfaces.renderkit.html.jsf.ExtendedHtmlLinkRenderer
-			</renderer-class>
+				</renderer-class>
+			<!-- <renderer-class>
+				org.ajax4jsf.renderkit.html.HtmlCommandLinkRenderer
+			</renderer-class>-->
 		</renderer>
 	</render-kit>
 

@@ -572,6 +572,25 @@ public class ConnectionDB {
 	}
 
 	/**
+	 * Checks existing {@link ome.model.meta.ExperimenterGroup#getName()} on the
+	 * database.
+	 * 
+	 * @param name
+	 *            {@link ome.model.meta.ExperimenterGroup#getName()}
+	 * @return boolean
+	 */
+	public boolean checkExperimenterGroup(String name) {
+		logger.info("checkExperimenterGroup by String '" + name
+				+ "' by user ID: '" + userid + "'");
+		if (queryService.findByString(ExperimenterGroup.class, "name", name) != null) {
+			logger.info("ExperimenterGroup '" + name + "' exist");
+			return true;
+		}
+		logger.info("ExperimenterGroup '" + name + "' doesn't exist");
+		return false;
+	}
+	
+	/**
 	 * Checks existing {@link ome.model.meta.Experimenter#getEmail()} in the
 	 * database.
 	 * 

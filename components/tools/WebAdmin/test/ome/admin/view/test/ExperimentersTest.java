@@ -51,8 +51,9 @@ public class ExperimentersTest extends WebTestCase {
 	}
 
 	public void testExperimenterAdd() {
-		beginAt("/experimenterForm.jsf");
+		beginAt("/experimenters.jsf");
 		login();
+		clickLink("experimenters:_idJsp0");
 
 		//checks bundles
 		assertKeyPresent("experimentersAddNew");
@@ -96,7 +97,51 @@ public class ExperimentersTest extends WebTestCase {
         checkCheckbox("experimenterForm:_idJsp13");
         submit("experimenterForm:submitAdd");
         
-        
 	}
+	
+	public void testExperimenterEdit() {
+		beginAt("/experimenters.jsf");
+		login();
+		clickLinkWithImage("/WebAdmin/images/edit.png");
+		
+		//checks bundle
+		assertKeyPresent("experimentersEdit");
+		assertKeyPresent("experimentersOmeName");
+		assertKeyPresent("experimentersFirstName");
+		assertKeyPresent("experimentersMiddleName");
+		assertKeyPresent("experimentersLastName");
+		assertKeyPresent("experimentersOmeName");
+		assertKeyPresent("experimentersEmail");
+		assertKeyPresent("experimentersInstitution");
+		assertKeyPresent("experimentersDefaultGroup");
+		assertKeyPresent("experimentersOtherGroups");
+		assertKeyPresent("experimentersAdminRole");
+		assertKeyPresent("experimentersUserRole");
+		assertKeyPresent("experimentersSave");
+		
+		//checks form
+		assertFormPresent("experimenterForm");
+		assertFormElementPresent("experimenterForm:omeName");
+		assertFormElementEquals("experimenterForm:omeName", "root");
+		assertFormElementPresent("experimenterForm:firstName");
+		assertFormElementEquals("experimenterForm:firstName", "root");
+		assertFormElementPresent("experimenterForm:middleName");
+		assertFormElementPresent("experimenterForm:lastName");
+		assertFormElementEquals("experimenterForm:lastName", "root");
+		assertFormElementPresent("experimenterForm:email");
+		assertFormElementPresent("experimenterForm:institution");
+		assertCheckboxPresent("experimenterForm:_idJsp10");
+		assertFormElementEquals("experimenterForm:_idJsp10", "true");
+		assertCheckboxPresent("experimenterForm:_idJsp13");
+		assertFormElementEquals("experimenterForm:_idJsp13", "true");
+		String[] values = { "system", "default" };
+		String[] values1 = { "", "system", "default" };
+		assertSelectOptionsEqual("experimenterForm:defaultGroup", values);
+		assertSelectedOptionEquals("experimenterForm:defaultGroup", values[0]);
+		assertSelectOptionsEqual("experimenterForm:otherGroup", values1);
+		assertSelectedOptionEquals("experimenterForm:otherGroup", values1[1]);
+		assertSubmitButtonPresent("experimenterForm:submitUpdate");
 
+	}
+	
 }

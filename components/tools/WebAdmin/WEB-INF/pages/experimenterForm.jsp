@@ -36,7 +36,8 @@
 				<h:outputText value="#{msg.experimentersFirstName}*" />
 
 				<h:inputText id="firstName" maxlength="255"
-					value="#{IAEManagerBean.user.experimenter.firstName}" required="true">
+					value="#{IAEManagerBean.user.experimenter.firstName}"
+					required="true">
 					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
@@ -56,7 +57,8 @@
 				<h:outputText value="#{msg.experimentersLastName}*" />
 
 				<h:inputText id="lastName" maxlength="255"
-					value="#{IAEManagerBean.user.experimenter.lastName}" required="true">
+					value="#{IAEManagerBean.user.experimenter.lastName}"
+					required="true">
 					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
@@ -100,7 +102,7 @@
 
 				<h:outputText value="#{msg.experimentersDefaultGroup}*" />
 
-				<h:selectOneMenu id="defaultGroup" 
+				<h:selectOneMenu id="defaultGroup"
 					value="#{IAEManagerBean.user.defaultGroup}" required="true">
 					<f:selectItems value="#{IAEManagerBean.defaultGroups}" />
 				</h:selectOneMenu>
@@ -132,11 +134,9 @@
 				value="#{msg.experimentersSave}"
 				rendered="#{IAEManagerBean.editMode}" />
 
-		</h:form> 
-		
-		<c:if test="${empty sessionScope.IAEManagerBean.user.dn}">
+		</h:form> <c:if test="${empty sessionScope.IAEManagerBean.user.dn}">
 			<h:form id="passwd">
-		
+
 				<br />
 				<h:graphicImage url="/images/add.png"
 					rendered="#{IAEManagerBean.editMode}" />
@@ -145,12 +145,10 @@
 					<h:outputText value="#{msg.experimentersChangePassword}" />
 				</h:commandLink>
 			</h:form>
-		</c:if>
-		
-		<br/>
+		</c:if> <br />
 		<c:if test="${not empty sessionScope.IAEManagerBean.user.dn}">
-			<h:outputText value="#{msg.experimentersLdapInfo}"/>
+			<h:outputText value="#{msg.experimentersLdapInfo}" />
 		</c:if></div>
-		
+
 	</f:view>
 </c:if>

@@ -13,6 +13,8 @@ import java.util.List;
 
 //Third-party libraries
 import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.DataModel;
@@ -469,5 +471,27 @@ public class IAdminGroupController implements java.io.Serializable {
 		logger.info("scrollerAction: facet: "
 				+ scrollerEvent.getScrollerfacet() + ", pageindex: "
 				+ scrollerEvent.getPageIndex());
+	}
+	
+	/**
+	 * Provides validaton for {@link ome.model.meta.ExperimenterGroup#getName()}.
+	 * Cannot exist the same group names.
+	 * 
+	 * @param context
+	 *            {@link javax.faces.context.FacesContext}
+	 * @param toValidate
+	 *            {@link javax.faces.component.UIComponent}
+	 * @param value
+	 *            {@link java.lang.Object}
+	 */
+	public void validateGroupName(FacesContext context, UIComponent toValidate,
+			Object value) {
+		String name = (String) value;
+		if (iadmin.checkExperimenterGroup(name)
+				&& !name.equals(this.group.getName())) {
+			((UIInput) toValidate).setValid(false);
+			FacesMessage message = new FacesMessage("Groupname already exist");
+			context.addMessage(toValidate.getClientId(context), message);
+		}
 	}
 }
