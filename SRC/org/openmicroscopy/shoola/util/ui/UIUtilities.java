@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.prefs.Preferences;
+import java.util.regex.Pattern;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -728,7 +729,16 @@ public class UIUtilities
 		return null;
     }
     
-    public static List findComponents(Component comp, Class c)
+    /**
+     * Finds the components identified by the specified class contained in the 
+     * passed component. Returns a collection of found component or 
+     * <code>null</code> if none found.
+     * 
+     * @param comp	The component to visit. Mustn't be <code>null</code>.
+     * @param c		The class identifying the component to find.
+     * @return See above.
+     */
+    public static List<Component> findComponents(Component comp, Class c)
     {
     	List<Component> l = null;
     	if (c == null || comp == null)
@@ -810,6 +820,23 @@ public class UIUtilities
     	if (time == null) return "";
     	return DateFormat.getDateTimeInstance(
     			DateFormat.SHORT, DateFormat.SHORT).format(time);  
+    }
+    
+    /**
+     * Returns the partial name of the image's name
+     * 
+     * @param originalName The original name.
+     * @return See above.
+     */
+    public static String[] splitString(String originalName)
+    {
+    	String[] l = null;
+        if (Pattern.compile("/").matcher(originalName).find()) {
+            l = originalName.split("/", 0);
+        } else if (Pattern.compile("\\\\").matcher(originalName).find()) {
+            l = originalName.split("\\\\", 0);
+        } 
+        return l;
     }
     
 }

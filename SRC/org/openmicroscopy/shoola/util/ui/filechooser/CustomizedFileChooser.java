@@ -59,6 +59,9 @@ class CustomizedFileChooser
 	/** This is the default text for the file name when loading a file. */
 	private final static String LOAD_LABEL	= "Load:";
 		
+	/** This is the default text for the file name when selecting a folder. */
+	private final static String FOLDER_LABEL	= "Save in:";
+	
 	/** Reference to the model. */
 	private FileChooser			model;
 
@@ -81,14 +84,8 @@ class CustomizedFileChooser
 	{
 		setAcceptAllFileFilterUsed(false);
 		setDialogType(SAVE_DIALOG);
-		if (model.getDialogType() == FileChooser.LOAD) {
-			JLabel label = (JLabel) 
-			UIUtilities.findComponent(this, JLabel.class);
-			if (label != null)
-				label.setText(LOAD_LABEL);
-		}
-		
-		setFileSelectionMode(FILES_ONLY);
+		setControlButtonsAreShown(nameArea == null);
+		JLabel label;
 		List<FileFilter> filters = model.getFilterList();
 		if (filters != null) {
 			for (FileFilter filter : filters)
@@ -97,9 +94,35 @@ class CustomizedFileChooser
 		}
 		File f = UIUtilities.getDefaultFolder();
 		if (f != null) setCurrentDirectory(f);
-		if (nameArea != null) {
-			setControlButtonsAreShown(false);
-			return;
+		switch (model.getDialogType()) {
+			case FileChooser.SAVE:
+				setFileSelectionMode(FILES_ONLY);
+				break;
+			case FileChooser.LOAD:
+				label = (JLabel) UIUtilities.findComponent(this, JLabel.class);
+				if (label != null)
+					label.setText(LOAD_LABEL);
+				setFileSelectionMode(FILES_ONLY);
+				break;
+			case FileChooser.FOLDER_CHOOSER:
+				/*
+				List boxes = UIUtilities.findComponents(this, JComboBox.class);
+				if (boxes != null) {
+					JComboBox box = (JComboBox) boxes.get(boxes.size()-1);
+					if (box.getParent() != null) 
+						box.getParent().setVisible(false);
+				}
+				*/
+				label = (JLabel) UIUtilities.findComponent(this, JLabel.class);
+				if (label != null)
+					label.setText(FOLDER_LABEL);
+				setFileSelectionMode(DIRECTORIES_ONLY);
+				String s = UIUtilities.getDefaultFolderAsString();
+		        if (s == null) return;
+		        if (s == null || s.equals("") || !(new File(s).exists()))
+		            setCurrentDirectory(getFileSystemView().getHomeDirectory());
+		        else setCurrentDirectory(new File(s));  
+		       	return;
 		}
 	}
 	
@@ -113,8 +136,7 @@ class CustomizedFileChooser
 	{
 		List<FileFilter> filters = model.getFilterList();
 		if (filters == null) return "";
-		for (FileFilter filter : filters)
-		{
+		for (FileFilter filter : filters) {
 			if (selectedFilter.equals(filter))
 				return filter.getDescription();
 		}
@@ -243,14 +265,15 @@ class CustomizedFileChooser
 	 */
 	public void approveSelection()
 	{
-		Boolean exist = setSelection();
-		if (exist == null)
-		// No file selected, or file can be written - let OK action continue
-		super.approveSelection();
-		else
-		{
-			model.acceptSelection();
-			super.approveSelection();
+		if (model.getDialogType() == FileChooser.FOLDER_CHOOSER) {
+			File file = getSelectedFile();
+	        if (file != null) model.setFolderPath(file.getAbsolutePath()); 
+		} else {
+			Boolean exist = setSelection();
+			//No file selected, or file can be written - let OK action continue	
+			if (exist != null)  //super.approveSelection();
+				model.acceptSelection();
+			//super.approveSelection();
 		}
 		//previewSelection();
 		super.approveSelection();

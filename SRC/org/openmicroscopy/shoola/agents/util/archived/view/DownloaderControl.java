@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.util.archived.view;
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.JDialog;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -35,8 +36,8 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.FolderChooserDialog;
 import org.openmicroscopy.shoola.util.ui.TinyLoadingWin;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
 /** 
  * The Downloader's Controller.
@@ -85,11 +86,11 @@ class DownloaderControl
      * 
      * @param view   Reference to the View. Mustn't be <code>null</code>.
      */
-    void initialize(FolderChooserDialog view)
+    void initialize(JDialog view)
     {
        if (view == null)
     	   throw new NullPointerException("No view.");
-       view.addPropertyChangeListener(FolderChooserDialog.LOCATION_PROPERTY, 
+       view.addPropertyChangeListener(FileChooser.LOCATION_PROPERTY, 
 				this);
        loadinWindow = new TinyLoadingWin(DownloaderFactory.getOwner(),
     		   "Downloading...");
@@ -103,7 +104,7 @@ class DownloaderControl
 	public void propertyChange(PropertyChangeEvent evt) 
 	{
 		String name = evt.getPropertyName();
-		if (FolderChooserDialog.LOCATION_PROPERTY.equals(name)) {
+		if (FileChooser.LOCATION_PROPERTY.equals(name)) {
 			String dir = (String) evt.getNewValue();
 			model.download(dir);
 		}
@@ -119,7 +120,6 @@ class DownloaderControl
 			case Downloader.LOADING:
 				loadinWindow.setOnScreen();
 				break;
-	
 			default:
 				loadinWindow.setVisible(false);
 				break;

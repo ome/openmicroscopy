@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -41,6 +42,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
@@ -433,7 +436,8 @@ class ImViewerControl
 			{ 
 				model.iconified(true); 
 			}
-			//public void windowOpened(WindowEvent e) { view.addWindowFocusListener(this); }
+			//public void windowOpened(WindowEvent e) 
+			//{ view.addWindowFocusListener(this); }
 		});
 		view.getLoadingWindow().addPropertyChangeListener(
 				LoadingWindow.CLOSED_PROPERTY, this);
@@ -573,7 +577,7 @@ class ImViewerControl
 		if (!view.isFocused()) {
 			view.removeWindowFocusListener(this);
 			view.setVisible(true);
-			view.addWindowFocusListener(this);
+			//view.addWindowFocusListener(this);
 		}
 	}
 	
@@ -749,16 +753,21 @@ class ImViewerControl
 	 */
 	public void windowGainedFocus(WindowEvent e)
 	{
+		/*
+		System.err.println(e.getOppositeWindow());
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
 		bus.post(new FocusGainedEvent(view.getPixelsID(), 
 				FocusGainedEvent.VIEWER_FOCUS));
+				*/
 	}
 	
 	/**
 	 * Required by the I/F but no-op implementation in our case.
 	 * @see WindowFocusListener#windowLostFocus(WindowEvent)
 	 */
-	public void windowLostFocus(WindowEvent e) {}
+	public void windowLostFocus(WindowEvent e)
+	{
+	}
 
 	/**
 	 * Required by the {@link ComponentListener} I/F but no-op implemenation 

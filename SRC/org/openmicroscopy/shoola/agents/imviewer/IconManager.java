@@ -219,7 +219,7 @@ public class IconManager
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 51;
+    private static int          MAX_ID = 52;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];

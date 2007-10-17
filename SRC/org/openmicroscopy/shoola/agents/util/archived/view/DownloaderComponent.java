@@ -33,12 +33,13 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.FolderChooserDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
 /** 
- * 
+ * Implements the {@link Downloader} interface. Provided functionality to 
+ * download archived files.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,7 +63,7 @@ class DownloaderComponent
     private DownloaderControl	controller;
 	
     /** The view. */
-    private FolderChooserDialog view;
+    private FileChooser			view;
     
     /**
      * Creates a new instance.
@@ -81,7 +82,11 @@ class DownloaderComponent
 	/** Links up the MVC triad. */
     void initialize()
     {
-    	view = new FolderChooserDialog(DownloaderFactory.getOwner());
+    	view = new FileChooser(DownloaderFactory.getOwner(), 
+    			FileChooser.FOLDER_CHOOSER, "Download archived files",
+    			"Select a directory to download the files into.");
+    	
+    	//view = new FolderChooserDialog(DownloaderFactory.getOwner());
     	controller.initialize(view);
     }
     

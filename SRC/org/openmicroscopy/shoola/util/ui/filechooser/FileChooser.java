@@ -26,8 +26,8 @@ package org.openmicroscopy.shoola.util.ui.filechooser;
 import java.io.File;
 import java.util.List;
 import java.util.regex.Pattern;
-
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -56,12 +56,20 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class FileChooser
     extends JDialog
 {
+
+	/** 
+	 * Bound property indicating the directory where to save the original files.
+	 */
+	public static final String	LOCATION_PROPERTY = "location";
+	
+	/** The user has selected to see the load dialog. */
+	public static final int 	LOAD = 0;
 	
 	/** The user has selected to see the save dialog. */
 	public static final int 	SAVE = 1;
-
+	
 	/** The user has selected to see the load dialog. */
-	public static final int 	LOAD = 0;
+	public static final int 	FOLDER_CHOOSER = 2;
 	
 	/** Indicates to add the button to the left of the controls. */
 	public static final int 	LEFT = 100;
@@ -111,6 +119,7 @@ public class FileChooser
     	switch (v) {
 			case SAVE:
 			case LOAD:
+			case FOLDER_CHOOSER:
 				return;
 			default:
 				throw new IllegalArgumentException("Type not supported");
@@ -171,6 +180,28 @@ public class FileChooser
     }
     
     /**
+     * Creates a new instance.
+     * 
+     * @param owner 		The owner of this dialog.
+     * @param dialogType	One of the constants defined by this class.
+     * @param title 		Title of the dialog.
+     * @param message 		Message of the dialog.
+     */
+    public FileChooser(JFrame owner, int dialogType, String title, 
+    					String message)
+    {
+        super(owner);
+        checkType(dialogType);
+        this.dialogType = dialogType;
+        this.title = title;
+        this.message = message;
+        this.filterList = null;
+        setProperties();
+       	uiDelegate = new FileSaverUI(this);
+        pack();
+    }
+    
+    /**
      * Returns the type.
      * 
      * @return See above.
@@ -218,6 +249,7 @@ public class FileChooser
     {
     	option = JFileChooser.CANCEL_OPTION;
     	setVisible(false);
+    	dispose();
     }
     
     /** Saves the file. */
@@ -230,6 +262,22 @@ public class FileChooser
     	setVisible(false);
     }
     
+    /**
+	 * Fires a property indicating where to save the archived files.
+	 * 
+	 * @param path	The path to the directory.
+	 */
+	void setFolderPath(String path)
+	{
+		if (path == null) return;
+		char separator = File.separatorChar;
+		firePropertyChange(LOCATION_PROPERTY, null, path+separator);
+		if (uiDelegate.isSetDefaultFolder()) 
+			UIUtilities.setDefaultFolder(path);
+		setVisible(false);
+    	dispose();	
+	}
+	
     /** Brings up on screen the dialog asking a <code>Yes/No</code>. */
     void setSelection()
     {
@@ -350,6 +398,18 @@ public class FileChooser
 				throw new IllegalArgumentException("Location not supported.");
 		}
     	uiDelegate.addControlButton(button, location);
+    }
+    
+    /**
+     * Adds the passed component to add to the control.
+     * 
+     * @param component	The component to add.
+     */
+    public void addComponentToControls(JComponent component)
+    {
+    	if (component == null) 
+    		throw new IllegalArgumentException("The component cannot be null.");
+    	uiDelegate.addComponentToControls(component);
     }
     
 }

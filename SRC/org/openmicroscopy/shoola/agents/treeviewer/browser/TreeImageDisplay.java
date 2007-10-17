@@ -29,21 +29,17 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Java imports
 import java.awt.Color;
 import java.awt.Font;
-import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 import javax.swing.tree.DefaultMutableTreeNode;
-
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -150,7 +146,7 @@ public abstract class TreeImageDisplay
     
     /** The number of items. */
     protected int					numberItems;
-    
+
     /**
      * Returns the partial name of the image's name
      * 
@@ -159,23 +155,18 @@ public abstract class TreeImageDisplay
      */
     private String getPartialName(String originalName)
     {
-    	String sep = File.separator; 
-        if (Pattern.compile(sep).matcher(originalName).find()) {
-            String[] l = originalName.split(sep, 0);
-            int n = l.length;
-            if (n == 1) return l[0];
-            return UIUtilities.DOTS+l[n-2]+sep+l[n-1]; 
-        } 
-        /*
-        else if (Pattern.compile("\\\\").matcher(originalName).find()) {
-            String[] l = originalName.split("\\\\", 0);
-            int n = l.length;
-            if (n == 1) return l[0];
-            return UIUtilities.DOTS+l[n-2]+"\\"+l[n-1];
-        }*/ 
+    	String[] l = UIUtilities.splitString(originalName);
+    	if (l != null) {
+    		int n = l.length;
+    		switch (n) {
+				case 0: return originalName;
+				case 1: return l[0];
+				default: return UIUtilities.DOTS+l[n-2]+"/"+l[n-1]; 
+			}
+    	}
         return originalName;
     }
-
+    
     /**
      * Checks if the algorithm to visit the tree is one of the constants
      * defined by {@link TreeImageDisplayVisitor}.

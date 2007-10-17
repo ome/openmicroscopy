@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.Color;
 import java.awt.Frame;
+import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
@@ -37,6 +38,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -215,10 +217,10 @@ class MeasurementViewerControl
 		if (view.getExtendedState() != Frame.NORMAL) return;
 		if (!view.isFocused()) {
 			view.removeWindowFocusListener(this);
-			//view.toFront();
+			//view.requestFocus();
 			if (view.isVisible())
 				view.setVisible(true);
-			view.addWindowFocusListener(this);
+			//view.addWindowFocusListener(this);
 		}
 	}
 	
@@ -429,16 +431,21 @@ class MeasurementViewerControl
 	 */
 	public void windowGainedFocus(WindowEvent e)
 	{
+		/*
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
 		bus.post(new FocusGainedEvent(view.getPixelsID(), 
 				FocusGainedEvent.MEASUREMENT_TOOL_FOCUS));
+				*/
 	}
 
 	/**
 	 * Required by the I/F but no-op implementation in our case.
 	 * @see WindowFocusListener#windowLostFocus(WindowEvent)
 	 */
-	public void windowLostFocus(WindowEvent e) {}
+	public void windowLostFocus(WindowEvent e)
+	{
+		
+	}
 	
 	/**
 	 * Required by the {@link DrawingListener} I/F but no-op implementation

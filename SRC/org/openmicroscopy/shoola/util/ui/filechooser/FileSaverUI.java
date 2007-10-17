@@ -36,8 +36,10 @@ import java.io.File;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
@@ -47,8 +49,7 @@ import javax.swing.UIManager;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.agents.imviewer.util.saver.ImgSaver;
+import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -75,7 +76,11 @@ class FileSaverUI
 	
 	/** The tool tip of the <code>Approve</code> button. */
 	static final String 			LOAD = "Load the current file in" +
-											" the specified format.";  
+											" the specified format."; 
+	
+	/** The tool tip of the <code>Approve</code> button. */
+	static final String 			DOWNLOAD = "Download the current file in" +
+											" the selected folder."; 
 	
 	/** 
 	 * The size of the invisible components used to separate buttons
@@ -122,6 +127,9 @@ class FileSaverUI
 	/** The panel hosting the buttons. */
 	private JPanel						buttonPanel;
 	
+	/** The panel hosting the additions. */
+	private JPanel						controlsPanel;
+	
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
@@ -137,17 +145,22 @@ class FileSaverUI
     			UIUtilities.formatToolTipText("Create a new folder"));
 		newFolderButton.addActionListener(this);
 		newFolderButton.setActionCommand(""+NEW_FOLDER);
-		
+		approveButton = new JButton();
 		switch (model.getDialogType()) {
 			case FileChooser.SAVE:
-				approveButton = new JButton("Save as");
+				approveButton.setText("Save as");
 				approveButton.setToolTipText(
 						UIUtilities.formatToolTipText(SAVE_AS));
 				break;
 			case FileChooser.LOAD:
-				approveButton = new JButton("Load");
+				approveButton.setText("Load");
 				approveButton.setToolTipText(
 						UIUtilities.formatToolTipText(LOAD));
+				break;
+			case FileChooser.FOLDER_CHOOSER:
+				approveButton.setText("Download");
+				approveButton.setToolTipText(
+						UIUtilities.formatToolTipText(DOWNLOAD));
 		}
 		chooser.setApproveButtonText(approveButton.getText());
 		chooser.setApproveButtonToolTipText(approveButton.getToolTipText());
@@ -236,20 +249,22 @@ class FileSaverUI
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		JPanel controls = new JPanel();
-		controls.setLayout(new BorderLayout(0, 0));
+		controlsPanel = new JPanel();
+		controlsPanel.setLayout(new BorderLayout(0, 0));
 		if (!chooser.areControlButtonsShown())
-			controls.add(buildToolbar(), BorderLayout.CENTER);
-		controls.add(buildSelectionPane(), BorderLayout.SOUTH);
+			controlsPanel.add(buildToolbar(), BorderLayout.CENTER);
+		controlsPanel.add(buildSelectionPane(), BorderLayout.SOUTH);
 		JPanel p = new JPanel();
 		p.setLayout(new BorderLayout(0, 0));
 		p.add(chooser, BorderLayout.CENTER);
-		p.add(controls, BorderLayout.SOUTH);
+		p.add(controlsPanel, BorderLayout.SOUTH);
 		IconManager im = IconManager.getInstance();
+		Icon icon = im.getIcon(IconManager.SAVE);
+		if (model.getDialogType() == FileChooser.FOLDER_CHOOSER)
+			icon = im.getIcon(IconManager.DOWNLOAD_48);
 		Container c = model.getContentPane();
 		c.setLayout(new BorderLayout(0, 0));
-		TitlePanel tp = new TitlePanel(model.getTitle(), model.getNote(), 
-				im.getIcon(IconManager.SAVE_BIG));
+		TitlePanel tp = new TitlePanel(model.getTitle(), model.getNote(), icon);
 
 		c.add(tp, BorderLayout.NORTH);
 		c.add(p, BorderLayout.CENTER);
@@ -330,7 +345,8 @@ class FileSaverUI
 	 */
 	void setControlsEnabled(boolean b)
 	{
-		approveButton.setEnabled(b);
+		if (approveButton != null)
+			approveButton.setEnabled(b);
 	}
 
 	/**
@@ -340,7 +356,8 @@ class FileSaverUI
      */
 	void setApproveButtonText(String text)
 	{
-		approveButton.setText(text);
+		if (approveButton != null)
+			approveButton.setText(text);
 		chooser.setApproveButtonText(text);
 	}
 	
@@ -351,7 +368,8 @@ class FileSaverUI
      */
 	void setApproveButtonToolTipText(String text)
 	{
-		approveButton.setToolTipText(text);
+		if (approveButton != null)
+			approveButton.setToolTipText(text);
 		chooser.setToolTipText(text);
 	}
 	
@@ -375,6 +393,16 @@ class FileSaverUI
 		}
     	fillControlButtonsPanel(button, location);
     	buttonPanel.repaint();
+    }
+    
+    /**
+     * Adds the passed component to the {@link #controlsPanel}.
+     * 
+     * @param component The component to add.
+     */
+    void addComponentToControls(JComponent component)
+    {
+    	controlsPanel.add(component, BorderLayout.NORTH);
     }
     
 	/**

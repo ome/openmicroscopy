@@ -957,6 +957,19 @@ class MeasurementViewerUI
      */
     long getPixelsID() { return model.getPixelsID(); }
     
+    /**
+	 * Calculate the stats for the roi in the shapelist with id. This method
+	 * will call the graphView.
+	 * 
+	 * @param id see above.
+	 * @param shapeList see above.
+	 */
+	void calculateStats(long id, ArrayList<ROIShape> shapeList)
+	{
+		if (model.getState() != MeasurementViewer.READY) return;
+		model.calculateStats(id, shapeList);
+	}
+	
     /** 
      * Overridden to the set the location of the {@link MeasurementViewer}.
      * @see TopWindow#setOnScreen() 
@@ -975,65 +988,46 @@ class MeasurementViewerUI
     }
 
     /**
-	 * Calculate the stats for the roi in the shapelist with id. This method
-	 * will call the graphView.
-	 * @param id see above.
-	 * @param shapeList see above.
-	 */
-	public void calculateStats(long id, ArrayList<ROIShape> shapeList)
-	{
-		if(model.getState() != MeasurementViewer.READY)
-			return;
-		model.calculateStats(id, shapeList);
-	}
-
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-	 */
-	public void mouseClicked(MouseEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+     * Sets the cursor.
+	 * @see MouseListener#mouseEntered(java.awt.event.MouseEvent)
 	 */
 	public void mouseEntered(MouseEvent e)
 	{
 		Cursor cursor;
-		if(model.getDrawingEditor().getTool() instanceof DelegationSelectionTool)
-			cursor = new Cursor(Cursor.DEFAULT_CURSOR);
+		if (model.getDrawingEditor().getTool() instanceof 
+			DelegationSelectionTool)
+			cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
 		else
-			cursor = new Cursor(Cursor.CROSSHAIR_CURSOR);
+			cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
 		getDrawingView().setCursor(cursor);
 	}
-
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+	
+	/**
+	 * Required by the {@link MouseListener} I/F but no-op implementation 
+	 * in our case.
+	 * @see MouseListener#mouseClicked(MouseEvent)
 	 */
-	public void mouseExited(MouseEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseClicked(MouseEvent e) {}
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+	/**
+	 * Required by the {@link MouseListener} I/F but no-op implementation 
+	 * in our case.
+	 * @see MouseListener#mouseExited(MouseEvent)
 	 */
-	public void mousePressed(MouseEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseExited(MouseEvent e) {}
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+	/**
+	 * Required by the {@link MouseListener} I/F but no-op implementation 
+	 * in our case.
+	 * @see MouseListener#mousePressed(MouseEvent)
 	 */
-	public void mouseReleased(MouseEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+	public void mousePressed(MouseEvent e) {}
+
+	/**
+	 * Required by the {@link MouseListener} I/F but no-op implementation 
+	 * in our case.
+	 * @see MouseListener#mouseReleased(MouseEvent)
+	 */
+	public void mouseReleased(MouseEvent e) {}
     
 }
