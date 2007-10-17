@@ -23,6 +23,8 @@
 package org.openmicroscopy.shoola.util.ui.filechooser;
 
 //Java imports
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -114,6 +116,17 @@ public class FileChooser
     {
     	setTitle(title);
         setModal(true);
+        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+		
+			/** 
+			 * Cancels the selection.
+			 * @see WindowAdapter#windowClosing(WindowEvent)
+			 */
+			public void windowClosing(WindowEvent e) {
+				cancelSelection();
+			}
+		});
     }
     
     /**
@@ -197,15 +210,7 @@ public class FileChooser
     public FileChooser(JFrame owner, int dialogType, String title, 
     					String message)
     {
-        super(owner);
-        checkType(dialogType);
-        this.dialogType = dialogType;
-        this.title = title;
-        this.message = message;
-        this.filterList = null;
-        setProperties();
-       	uiDelegate = new FileSaverUI(this);
-        pack();
+        this(owner, dialogType, title, message, null);
     }
     
     /**
