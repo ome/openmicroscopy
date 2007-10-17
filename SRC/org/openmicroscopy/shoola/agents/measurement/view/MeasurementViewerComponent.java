@@ -139,7 +139,7 @@ class MeasurementViewerComponent
     {
         model.initialize(this);
         controller.initialize(this, view);
-        view.initialize(controller, model);
+        view.initialize(this, controller, model);
     }
     
     /**

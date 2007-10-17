@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.model.util.FigureType 
+ * org.openmicroscopy.shoola.agents.measurement.actions.DrawingAction 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,13 +20,21 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.roi.model.util;
+package org.openmicroscopy.shoola.agents.measurement.actions;
+
+
 
 //Java imports
+import java.awt.event.ActionEvent;
+
+import javax.swing.Action;
+import javax.swing.JToggleButton;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -41,9 +49,34 @@ package org.openmicroscopy.shoola.util.roi.model.util;
  * </small>
  * @since OME3.0
  */
-public enum FigureType
-{	
-	Ellipse, Rectangle, Point, Line, LineConnection, Scribble, Polygon, Text;
+public class DrawingAction
+	extends MeasurementViewerAction
+{
+
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param model The model. Mustn't be <code>null</code>.
+	 * @param button	the button the action will be applied to.
+	 */
+	public DrawingAction(MeasurementViewer model, JToggleButton button)
+	{
+		super(model);
+		putValue(Action.NAME, button.getName());
+		putValue(Action.SHORT_DESCRIPTION, 
+                UIUtilities.formatToolTipText(button.getToolTipText()));
+		putValue(Action.SMALL_ICON, button.getIcon());
+	}
+	
+	/** 
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+ 
+    }
+    
 }
+
 
 

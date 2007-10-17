@@ -41,6 +41,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -111,10 +112,10 @@ class ROIAssistant
 	private 	JTextField 				description;
 	
 	/** Checkbox which is selected if the user has selected to add an ROI. */
-	private 	JCheckBox 				addButton;
+	private 	JRadioButton 			addButton;
 	
 	/** Checkbox which is selected if the user has selected to remove an ROI. */
-	private 	JCheckBox				removeButton;
+	private 	JRadioButton			removeButton;
 		
 	/** The scroll pane of the Table. */
 	private 	JScrollPane				scrollPane;
@@ -298,8 +299,8 @@ class ROIAssistant
 	private JPanel createActionPanel()
 	{
 		JPanel actionPanel = new JPanel();
-		addButton = new JCheckBox("Add ROI");
-		removeButton = new JCheckBox("Remove ROI");
+		addButton = new JRadioButton("Add ROI");
+		removeButton = new JRadioButton("Remove ROI");
 		ButtonGroup group = new ButtonGroup();
 		addButton.setSelected(true);
 		group.add(addButton);

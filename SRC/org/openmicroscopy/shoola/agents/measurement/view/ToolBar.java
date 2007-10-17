@@ -46,6 +46,7 @@ import org.jhotdraw.draw.DrawingEditor;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.actions.DrawingAction;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
@@ -126,6 +127,9 @@ class ToolBar
     
     /** Reference to the Model. */
     private MeasurementViewerModel		model;
+
+    /** Reference to the Component. */
+    private MeasurementViewer			measurementcomponent;
     
     /** The ellipse creation tool. */
     private DrawingObjectCreationTool	ellipseTool;
@@ -175,6 +179,7 @@ class ToolBar
 		if (component instanceof JToggleButton)
 		{
 			JToggleButton button = (JToggleButton) component;
+			button.setAction(new DrawingAction(measurementcomponent, button));	
 			button.addMouseListener(this);
 		}
 
@@ -186,6 +191,7 @@ class ToolBar
 		if (component instanceof JToggleButton)
 		{
 			JToggleButton button = (JToggleButton) component;
+			button.setAction(new DrawingAction(measurementcomponent, button));	
 			button.addMouseListener(this);
 		}
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, ellipseTool, 
@@ -194,6 +200,7 @@ class ToolBar
 		if (component instanceof JToggleButton)
 		{
 			JToggleButton button = (JToggleButton) component;
+			button.setAction(new DrawingAction(measurementcomponent, button));	
 			button.addMouseListener(this);
 		}
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, pointTool, 
@@ -207,6 +214,7 @@ class ToolBar
 			IconManager icons = IconManager.getInstance();
 			button.setIcon(icons.getIcon(IconManager.POINTICON));
 			button.setToolTipText(FigureUtil.POINT_TYPE);
+			button.setAction(new DrawingAction(measurementcomponent, button));	
 		}
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, lineTool, 
 					CREATE_KEY+FigureUtil.LINE_TYPE);
@@ -214,6 +222,7 @@ class ToolBar
 		if (component instanceof JToggleButton)
 		{
 			JToggleButton button = (JToggleButton) component;
+			button.setAction(new DrawingAction(measurementcomponent, button));	
 			button.addMouseListener(this);
 		}
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, connectionTool, 
@@ -225,6 +234,7 @@ class ToolBar
 			 JToggleButton button = (JToggleButton) component;
 			 IconManager icons = IconManager.getInstance();
 			 button.setToolTipText(FigureUtil.LINE_CONNECTION_TYPE);
+			 button.setAction(new DrawingAction(measurementcomponent, button));	
 		 }
 		 DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polylineTool, 
 				  CREATE_KEY+FigureUtil.SCRIBBLE_TYPE);
@@ -232,6 +242,7 @@ class ToolBar
 		if (component instanceof JToggleButton)
 		{
 			JToggleButton button = (JToggleButton) component;
+			button.setAction(new DrawingAction(measurementcomponent, button));	
 			button.addMouseListener(this);
 		}
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polygonTool, 
@@ -240,6 +251,7 @@ class ToolBar
 		if (component instanceof JToggleButton)
 		{
 			JToggleButton button = (JToggleButton) component;
+			button.setAction(new DrawingAction(measurementcomponent, button));	
 			button.addMouseListener(this);
 		}
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, textTool, 
@@ -248,6 +260,7 @@ class ToolBar
 		if (component instanceof JToggleButton)
 		{
 			JToggleButton button = (JToggleButton) component;
+			button.setAction(new DrawingAction(measurementcomponent, button));	
 			button.addMouseListener(this);
 		}
 
@@ -295,19 +308,26 @@ class ToolBar
 	/**
 	 * Creates a new instance.
 	 * 
-		 * @param controller	Reference to the control. 
+	 * @param component		Reference to the component. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param view			Reference to the view. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param controller	Reference to the controller. 
 	 * 						Mustn't be <code>null</code>.
 	 * @param model			Reference to the View. Mustn't be <code>null</code>.
 	 */
-	ToolBar(MeasurementViewerUI view, MeasurementViewerControl controller,
+	ToolBar(MeasurementViewer component, MeasurementViewerUI view, MeasurementViewerControl controller,
 			MeasurementViewerModel model)
 	{
+		if (component == null) 
+			throw new IllegalArgumentException("No component.");
 		if (view == null) 
 			throw new IllegalArgumentException("No view.");
 		if (controller == null) 
 			throw new IllegalArgumentException("No control.");
 		if (model == null) 
 			throw new IllegalArgumentException("No model.");
+		measurementcomponent = component;
 		this.view = view;
 		this.controller = controller;
 		this.model = model;

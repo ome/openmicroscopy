@@ -142,6 +142,9 @@ class MeasurementViewerUI
 	/** Reference to the Control. */
 	private MeasurementViewerControl	controller;
 	
+	/** Reference to the Component. */
+	private MeasurementViewer			component;
+	
 	 /** The loading window. */
     private LoadingWindow   			loadingWindow;
     
@@ -272,7 +275,7 @@ class MeasurementViewerUI
 	private void initComponents()
 	{
 		statusBar = new StatusBar();
-		toolBar = new ToolBar(this, controller, model);
+		toolBar = new ToolBar(component, this, controller, model);
 		roiManager = new ObjectManager(this, model);
 		roiInspector = new ObjectInspector(controller, model);
 		roiResults = new MeasurementResults(controller, model, this);
@@ -344,16 +347,21 @@ class MeasurementViewerUI
 	/**
 	 * Links this View to its Controller and Model.
 	 * 
+	 * @param component    Reference to the Component.
+	 *                      Mustn't be <code>null</code>.
 	 * @param controller    Reference to the Control.
 	 *                      Mustn't be <code>null</code>.
 	 * @param model         Reference to the Model.
 	 *                      Mustn't be <code>null</code>.
 	 */
-    void initialize(MeasurementViewerControl controller, 
+    void initialize(MeasurementViewer component, 
+    			MeasurementViewerControl controller, 
     			MeasurementViewerModel model)
     {
+        if (component == null) throw new NullPointerException("No control.");
         if (controller == null) throw new NullPointerException("No control.");
         if (model == null) throw new NullPointerException("No model.");
+        this.component = component;
         this.model = model;
         this.controller = controller;
         controller.attachListeners();

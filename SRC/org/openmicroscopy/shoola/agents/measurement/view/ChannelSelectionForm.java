@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -56,39 +57,14 @@ import javax.swing.JPanel;
  * @since OME3.0
  */
 public class ChannelSelectionForm
-		extends JDialog
-		implements ActionListener
-{	
-	
-	/** The accept action posted when the user clicks the accept button.*/
-	private final static String		ACCEPTACTION = "ACCEPT";
-	
-	/** The cancel action posted when the user clicks the cancel button.*/
-	private final static String		CANCELACTION = "CANCEL";
-	
-	/** Current State of the form. */
-	private State 					state;
-	
+		extends JPanel
+{		
 	/** The map of channel number to name. */
 	Map<Integer, String>		 	channelNames;
 	
 	/** The list of checkboxes referring to channels.*/
 	private List<JCheckBox> 		checkBox;
-	
-	/** The accept button.*/
-	private JButton					acceptButton;
-	
-	/** The cancel button. */
-	private JButton 				cancelButton;
-	
-	/** the State of the channel selection, the user selection state. */
-	public enum State
-	{
-		INVALID,
-		ACCEPTED,
-		CANCELLED
-	}
-	
+
 	/**
 	 * Create the channel selection form from the map provided.
 	 * @param channelNames The Map, see above.
@@ -96,11 +72,7 @@ public class ChannelSelectionForm
 	ChannelSelectionForm(Map<Integer, String> channelNames)
 	{
 		super();
-		setSize(300,200);
-		setModal(true);
-		setTitle("Select Channels to Save");
 		this.channelNames = channelNames;
-		state = State.INVALID;
 		buildComponents();
 		buildUI();
 	}
@@ -108,13 +80,6 @@ public class ChannelSelectionForm
 	/** Build the components for the UI. */
 	private void buildComponents()
 	{
-		acceptButton = new JButton("Accept");
-		acceptButton.setActionCommand(ACCEPTACTION);
-		acceptButton.addActionListener(this);
-		cancelButton = new JButton("Cancel");
-		cancelButton.setActionCommand(CANCELACTION);
-		cancelButton.addActionListener(this);
-		
 		checkBox = new ArrayList<JCheckBox>(channelNames.size());
 		Iterator<Integer> nameIterator = channelNames.keySet().iterator();
 		while(nameIterator.hasNext())
@@ -131,15 +96,14 @@ public class ChannelSelectionForm
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.add(new JLabel("Select Channels to Save"));
-		for(int i = 0 ; i < checkBox.size(); i++)
-			mainPanel.add(checkBox.get(i));
 		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-		panel.add(acceptButton);
-		panel.add(cancelButton);
+
+		panel.setLayout(new FlowLayout());
+		for(int i = 0 ; i < checkBox.size(); i++)
+			panel.add(checkBox.get(i));
 		mainPanel.add(panel);
-		this.getContentPane().setLayout(new BorderLayout());
-		this.getContentPane().add(mainPanel, BorderLayout.CENTER);
+		this.setLayout(new BorderLayout());
+		this.add(mainPanel, BorderLayout.CENTER);
 	}
 	
 	/**
@@ -183,31 +147,6 @@ public class ChannelSelectionForm
 		return -1;
 	}
 	
-	/**
-	 * Get the state of the user selection.
-	 * @return See above.
-	 */
-	public State getState()
-	{
-		return state;
-	}
-	
-	/* (non-Javadoc)
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
-	public void actionPerformed(ActionEvent actionEvent)
-	{
-		if(actionEvent.getActionCommand().equals(ACCEPTACTION))
-		{
-			state = State.ACCEPTED;
-			setVisible(false);
-		}
-		if(actionEvent.getActionCommand().equals(CANCELACTION))
-		{
-			state = State.CANCELLED;
-			setVisible(false);
-		}
-	}
 }
 
 

@@ -100,6 +100,18 @@ class IntensityView
 {
 	/** Index to identify tab */
 	public final static int		INDEX = MeasurementViewerUI.INTENSITY_INDEX;
+
+	/** width of textfield components. */
+	public final static int		TEXTWIDTH = 100;
+
+	/** width of textfield components. */
+	public final static int		TEXTHEIGHT = 26;
+
+	/** width of textfield components. */
+	public final static int		LABELWIDTH = 60;
+
+	/** width of textfield components. */
+	public final static int		LABELHEIGHT = 26;
 	
 	/** The state of the Intensity View. */
 	static enum State 
@@ -320,6 +332,7 @@ class IntensityView
 		maxValue = new JTextField();
 		meanValue = new JTextField();
 		sumValue = new JTextField();
+		sumValue.setHorizontalAlignment(JTextField.LEFT);
 		stdDevValue = new JTextField();
 		XCoordValue = new JTextField();
 		YCoordValue = new JTextField();
@@ -351,7 +364,9 @@ class IntensityView
 		tSlider.setSnapToTicks(true);
 		tSlider.addChangeListener(this);
 		tSlider.setShowArrows(true);
-		tSlider.setVisible(false);	}
+		tSlider.setVisible(false);	
+		table.setVisible(false);
+	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
@@ -559,7 +574,8 @@ class IntensityView
 			}
 			
 		}
-		if(channelName.size()==0 || nameMap.size() ==0 || channelColour.size() == 0)
+		if(channelName.size()==0 || nameMap.size() ==0 || 
+				channelColour.size() == 0)
 		{
 			state = State.READY;
 			return;
@@ -703,6 +719,7 @@ class IntensityView
 		tableModel = new IntensityModel(data);
 		shape = shapeMap.get(coord);
 		table.setModel(tableModel);
+		table.setVisible(true);
 	}
 	
 	/** Populate the fields with the data.
@@ -830,8 +847,8 @@ class IntensityView
 	 */
 	private JPanel createLabelText(JLabel label, JTextField text)
 	{
-		UIUtilities.setDefaultSize(label, new Dimension(80, 26));
-		UIUtilities.setDefaultSize(text, new Dimension(80, 26));
+		UIUtilities.setDefaultSize(label, new Dimension(LABELWIDTH, LABELHEIGHT));
+		UIUtilities.setDefaultSize(text, new Dimension(TEXTWIDTH, TEXTHEIGHT));
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		panel.add(label);
@@ -859,6 +876,7 @@ class IntensityView
 	/** Save the results to a csv File. */
 	private void saveResults() 
 	{
+		channelsSelectionForm = new ChannelSelectionForm(channelName);
 		ArrayList<FileFilter> filterList=new ArrayList<FileFilter>();
 		FileFilter filter=new CSVFilter();
 		filterList.add(filter);
@@ -867,6 +885,7 @@ class IntensityView
 					 view, FileChooser.SAVE, "Save the Results", "Save the " +
 				"Results data to a file which can be loaded by a spreadsheet.",
 				filterList);
+		chooser.addComponentToControls(channelsSelectionForm);
 		File f=UIUtilities.getDefaultFolder();
 	    if (f != null) chooser.setCurrentDirectory(f);
 		int results = chooser.showDialog();
@@ -877,13 +896,13 @@ class IntensityView
 			String fileName = file.getAbsolutePath()+"."+CSVFilter.CSV;
 			file = new File(fileName);
 		}
-		channelsSelectionForm = new ChannelSelectionForm(channelName);
-		UIUtilities.setLocationRelativeToAndShow(this, channelsSelectionForm);
-		if(channelsSelectionForm.getState()!= 
-											ChannelSelectionForm.State.ACCEPTED)
-			return;
+		
 		List<Integer> userChannelSelection = channelsSelectionForm.
 															getUserSelection();
+		if(userChannelSelection.size()==0)
+		{
+			view.setStatus("No Channel selected to output.");
+		}
 		BufferedWriter out;
 		try
 		{
@@ -892,28 +911,20 @@ class IntensityView
 			while(coordMapIterator.hasNext())
 			{
 				Coord3D currentCoord = coordMapIterator.next();
-		
-			
 				writeHeader(out, currentCoord);
-			
 				for( int i = 0 ; i < userChannelSelection.size() ; i++)
-			
 				{
-				
 					writeTitle(out, "Channel Number : " + 
 					channelName.get(userChannelSelection.get(i)));
-				
 					if(!nameMap.containsKey(
 								channelName.get(userChannelSelection.get(i))))
 						continue;
 					int channel = nameMap.get(
 								channelName.get(userChannelSelection.get(i)));
-		
 					writeData(out, currentCoord, channel);
 				}
 			}
 			out.close();
-			
 		}
 		catch (IOException e)
 		{
