@@ -82,7 +82,7 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
  * </small>
  * @since OME3.0
  */
-class MeasurementResults 
+class MeasurementResults
 	extends JPanel
 	implements TabPaneInterface
 {

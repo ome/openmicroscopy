@@ -410,6 +410,7 @@ class MeasurementViewerControl
 		{
 			ROIFigure roiFigure = (ROIFigure) f;
 			roiFigure.calculateMeasurements();
+			view.refreshResultsTable();
 			model.setDataChanged();
 			if (view.inDataView())
 			{
