@@ -18,6 +18,7 @@ public class DataField {
 	public static final String ELEMENT_NAME = "elementName";
 	public static final String DESCRIPTION = "description";
 	public static final String VALUE = "value";
+	public static final String TEXT_NODE_VALUE ="textNodeValue";
 	public static final String DEFAULT = "default";
 	// public static final String DERIVED_FROM = "derived_from";
 	public static final String PROTOCOL_FILE_NAME = "protocolFileName";
@@ -49,12 +50,12 @@ public class DataField {
 	public static final String CUSTOM = "Custom";
 	public static final String[] INPUT_TYPES = 
 	{FIXED_PROTOCOL_STEP, TEXT_ENTRY_STEP,
-	MEMO_ENTRY_STEP, DROPDOWN_MENU_STEP, NUMBER_ENTRY_STEP, DATE, TABLE, CUSTOM};
+	MEMO_ENTRY_STEP, DROPDOWN_MENU_STEP, NUMBER_ENTRY_STEP, DATE, TABLE};
 	
 //	 the names used for the UI - MUST be in SAME ORDER as INPUT_TYPES they correspond to 
 	// this means you can change the UI names without changing INPUT_TYPES.
 	public static final String[] UI_INPUT_TYPES = 	
-	{ "Fixed", "Text", "Text Box", "Drop-down Menu", "Number", "Date", "Table", "Custom"};
+	{ "Fixed", "Text", "Text Box", "Drop-down Menu", "Number", "Date", "Table"};
 	
 	// Datafield has attributes stored in LinkedHashMap
 	LinkedHashMap<String, String> allAttributesMap;

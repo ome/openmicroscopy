@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.border.EtchedBorder;
 
-import xmlMVC.FieldEditor.AttributeEditor;
-
 public class FieldEditorProtocol extends FieldEditor {
 	
 	private AttributeEditor keywordsFieldEditor;
@@ -22,7 +20,7 @@ public class FieldEditorProtocol extends FieldEditor {
 		inputTypeSelector.setEnabled(false);
 		
 		keywordsFieldEditor = new AttributeEditor
-			("Keywords: ", keywords);
+			("Keywords: ", keywords,  textChangedListener, focusChangedListener);
 		keywordsFieldEditor.setToolTipText("Add keywords, separated by commas");
 		attributeFieldsPanel.add(keywordsFieldEditor);
 		

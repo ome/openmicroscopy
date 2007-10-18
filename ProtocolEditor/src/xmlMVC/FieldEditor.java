@@ -29,10 +29,14 @@ public class FieldEditor extends JPanel{
 	public static final Dimension MINIMUM_SIZE = new Dimension(290,300);
 	
 	JPanel attributeFieldsPanel;
+	JPanel inputTypePanel;
 	JComboBox inputTypeSelector;
 	AttributeEditor nameFieldEditor;
 	AttributeMemoEditor descriptionFieldEditor;
 	AttributeEditor urlFieldEditor;
+	
+	FocusChangedListener focusChangedListener;
+	TextChangedListener textChangedListener;
 
 	boolean textChanged;
 	
@@ -56,11 +60,14 @@ public class FieldEditor extends JPanel{
 		attributeFieldsPanel.setLayout(new BoxLayout(attributeFieldsPanel, BoxLayout.Y_AXIS));
 		attributeFieldsPanel.setBorder(new EmptyBorder(5, 5, 5,5));
 		
-		nameFieldEditor = new AttributeEditor("Field Name: ", dataField.getName());
+		textChangedListener = new TextChangedListener();
+		focusChangedListener = new FocusChangedListener();
+		
+		nameFieldEditor = new AttributeEditor("Field Name: ", dataField.getName(), textChangedListener, focusChangedListener);
 		attributeFieldsPanel.add(nameFieldEditor);
 		
 		// Drop-down selector of input-type. 
-		JPanel inputTypePanel = new JPanel();
+		inputTypePanel = new JPanel();
 		inputTypePanel.setBorder(new EmptyBorder(3,3,3,3));
 		inputTypePanel.setLayout(new BoxLayout(inputTypePanel, BoxLayout.X_AXIS));
 		
@@ -81,7 +88,7 @@ public class FieldEditor extends JPanel{
 		descriptionFieldEditor = new AttributeMemoEditor("Description: ", dataField.getDescription());
 		attributeFieldsPanel.add(descriptionFieldEditor);
 		
-		urlFieldEditor = new AttributeEditor("Url: ", dataField.getURL());
+		urlFieldEditor = new AttributeEditor("Url: ", dataField.getURL(), textChangedListener, focusChangedListener);
 		attributeFieldsPanel.add(urlFieldEditor);
 		
 		this.setLayout(new BorderLayout());
@@ -116,37 +123,7 @@ public class FieldEditor extends JPanel{
 	//	called when focus lost. Overridden by subclasses if they have other attribute fields
 	public void updateModelsOtherAttributes() {	}
 	
-	public class AttributeEditor extends JPanel {
-			
-		JTextField attributeTextField;
-		JLabel attributeName;
-		// constructor creates a new panel and adds a name and text field to it.
-		public AttributeEditor(String Label, String Value) {
-			this.setBorder(new EmptyBorder(3,3,3,3));
-			attributeName = new JLabel(Label);
-			attributeTextField = new JTextField(Value);
-			attributeTextField.setColumns(15);
-			this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-			attributeTextField.addKeyListener(new textChangedListener());
-			attributeTextField.addFocusListener(new focusChangedListener());
-			this.add(attributeName);
-			this.add(attributeTextField);
-		}
-			
-		public String getTextFieldText() {
-				return attributeTextField.getText();
-		}
-		public String getAttributeName() {
-			return attributeName.getText();
-		}
-		public void setTextFieldText(String text) {
-			attributeTextField.setText(text);
-		}
-		// to allow more precise manipulation of this field
-		public JTextField getTextField() {
-			return attributeTextField;
-		}
-	}
+	
 		
 	public class AttributeMemoEditor extends JPanel{
 		JTextArea attributeTextField;
@@ -160,8 +137,8 @@ public class FieldEditor extends JPanel{
 			attributeTextField.setWrapStyleWord(true);
 			attributeTextField.setMargin(new Insets(3,3,3,3));
 			this.setLayout(new BorderLayout());
-			attributeTextField.addKeyListener(new textChangedListener());
-			attributeTextField.addFocusListener(new focusChangedListener());
+			attributeTextField.addKeyListener(new TextChangedListener());
+			attributeTextField.addFocusListener(new FocusChangedListener());
 			this.add(attributeName, BorderLayout.NORTH);
 			this.add(attributeTextField, BorderLayout.CENTER);
 		}
@@ -176,7 +153,7 @@ public class FieldEditor extends JPanel{
 		}
 	}
 	
-	public class textChangedListener implements KeyListener {
+	public class TextChangedListener implements KeyListener {
 		
 		public void keyTyped(KeyEvent event) {
 			textChanged = true;
@@ -196,7 +173,7 @@ public class FieldEditor extends JPanel{
 	
 	}
 	
-	public class focusChangedListener implements FocusListener {
+	public class FocusChangedListener implements FocusListener {
 		
 		public void focusLost(FocusEvent event) {
 			if (textChanged) {

@@ -129,7 +129,7 @@ public class Tree {
 			 if (node != null && (node.getNodeType() == Node.TEXT_NODE)) {
 				 String textValue = node.getTextContent().trim();
 				 if (textValue.length() > 0){
-					 dfNode.getDataField().setAttribute(DataField.VALUE, node.getTextContent(), false);
+					 dfNode.getDataField().setAttribute(DataField.TEXT_NODE_VALUE, node.getTextContent(), false);
 					 // dfNode.getDataField().changeDataFieldInputType(DataField.TEXT_ENTRY_STEP);
 					 // System.out.println("Tree.buildTreeFromDom: Text Node value is " + node.getTextContent());
 				 }
@@ -406,10 +406,17 @@ public class Tree {
 		try {
 			// DocumentBuilder db = dbf.newDocumentBuilder();
 			//document = db.newDocument();
-			Element element = document.createElement(ELEMENT);  
-			
 			DataField rootField = rootNode.getDataField();
-	
+			
+			String elementName = ELEMENT;
+			
+			boolean customElement = rootField.getInputType().equals(DataField.CUSTOM);
+			// if custom XML element, use the elementName attribute as the element Name
+			if (customElement) elementName = rootField.getName();
+			if (elementName == null) elementName = ELEMENT; 	// just in case!
+			
+			Element element = document.createElement(elementName);  
+			
 			// get all attributes of the datafiel
 			LinkedHashMap<String, String> allAttributes = rootField.getAllAttributes();
 			parseAttributesMapToElement(allAttributes, element);
@@ -436,7 +443,15 @@ public class Tree {
 		for (DataFieldNode child: childNodes) {
 			
 			DataField dataField = child.getDataField();
-			Element element = document.createElement(ELEMENT);
+			
+			boolean customElement = dataField.getInputType().equals(DataField.CUSTOM);
+			String elementName = ELEMENT;
+			
+			// if custom XML element, use the elementName attribute as the element Name
+			if (customElement) elementName = dataField.getName();
+			if (elementName == null) elementName = ELEMENT; 	// just in case!
+			
+			Element element = document.createElement(elementName);
 			
 			LinkedHashMap<String, String> allAttributes = dataField.getAllAttributes();
 			parseAttributesMapToElement(allAttributes, element);
@@ -448,6 +463,13 @@ public class Tree {
 				}
 			}
 			
+			// if custom xml Element that has a text node value, save it! 
+			if (customElement) {
+				String text = dataField.getAttribute(DataField.TEXT_NODE_VALUE);
+				if (text != null)
+					element.setTextContent(text);
+			}
+			
 			rootElement.appendChild(element);
 			
 			buildDOMchildrenFromTree(document, child, element, saveExpValues);
@@ -457,11 +479,21 @@ public class Tree {
 	// copies each dataField's attribute Hash Map into element's attributes
 	private void parseAttributesMapToElement(LinkedHashMap<String, String> allAttributes, Element element) {
 		
+		boolean customElement = false;
+		if ((allAttributes.get(DataField.INPUT_TYPE) != null) && (allAttributes.get(DataField.INPUT_TYPE).equals(DataField.CUSTOM)))
+				customElement = true;
+		
 		Iterator keyIterator = allAttributes.keySet().iterator();
 		
 		while (keyIterator.hasNext()) {
 			String key = (String)keyIterator.next();
 			String value = allAttributes.get(key);
+			
+			// if you want to recreate original xml, don't include "extra" attributes
+			if (customElement) {
+				if (key.equals(DataField.ELEMENT_NAME) || key.equals(DataField.SUBSTEPS_COLLAPSED) || key.equals(DataField.VALUE))
+					continue;
+			}
 			
 			if ((value != null) && (value.length() > 0)) {
 				element.setAttribute(key, value);

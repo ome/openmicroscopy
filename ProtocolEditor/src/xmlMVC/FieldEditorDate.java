@@ -3,8 +3,6 @@ package xmlMVC;
 import java.text.DateFormat;
 import java.util.Date;
 
-import xmlMVC.FieldEditor.AttributeEditor;
-
 public class FieldEditorDate extends FieldEditor {
 	
 	AttributeEditor defaultFieldEditor;
@@ -22,7 +20,7 @@ public class FieldEditorDate extends FieldEditor {
 	    
 	    dataField.setAttribute(DataField.DEFAULT, defaultDate, false);
 		
-		defaultFieldEditor = new AttributeEditor("Default: ", defaultDate);
+		defaultFieldEditor = new AttributeEditor("Default: ", defaultDate,  textChangedListener, focusChangedListener);
 		// don't allow users to set any other default data!
 		defaultFieldEditor.setEnabled(false);
 		attributeFieldsPanel.add(defaultFieldEditor);

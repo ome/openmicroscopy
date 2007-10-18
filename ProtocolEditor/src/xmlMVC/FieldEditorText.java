@@ -16,7 +16,7 @@ public class FieldEditorText extends FieldEditor {
 		String defaultValue = dataField.getAttribute(DataField.DEFAULT);
 		
 		defaultFieldEditor = new AttributeEditor
-			("Default Value: ", defaultValue);
+			("Default Value: ", defaultValue,  textChangedListener, focusChangedListener);
 		attributeFieldsPanel.add(defaultFieldEditor);
 	}
 	

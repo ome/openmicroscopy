@@ -21,11 +21,11 @@ public class FieldEditorNumber extends FieldEditor {
 		String defaultValueString = dataField.getAttribute(DataField.DEFAULT);
 		String units = dataField.getAttribute(DataField.UNITS);
 		
-		defaultFieldEditor = new AttributeEditor("Default: ", defaultValueString);
+		defaultFieldEditor = new AttributeEditor("Default: ", defaultValueString,  textChangedListener, focusChangedListener);
 		defaultFieldEditor.getTextField().addFocusListener(new NumberCheckerListener());
 		attributeFieldsPanel.add(defaultFieldEditor);
 		
-		unitsFieldEditor = new AttributeEditor("Units: ", units);
+		unitsFieldEditor = new AttributeEditor("Units: ", units,  textChangedListener, focusChangedListener);
 		attributeFieldsPanel.add(unitsFieldEditor);
 	}
 	

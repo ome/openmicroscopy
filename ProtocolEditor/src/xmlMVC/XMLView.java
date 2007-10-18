@@ -6,6 +6,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -497,6 +498,10 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		if (n == 0) newProtocolFile();
 		else if (n == 1) openFile();
 		else if (n == 2) {
+			JDialog testDialog = new JDialog(XMLFrame);
+			testDialog.setUndecorated(true);
+			testDialog.setVisible(true);
+			
 			xmlModel.openDemoProtocolFile();
 			XMLTabbedPane.setSelectedIndex(1); 	// goto edit protocol tab
 		}

@@ -10,7 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import xmlMVC.FieldEditor.focusChangedListener;
+import xmlMVC.FieldEditor.FocusChangedListener;
 import xmlMVC.FieldEditor.inputTypeSelectorListener;
 
 public class FieldEditorDropDown extends FieldEditor {
