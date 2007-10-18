@@ -266,7 +266,7 @@ class XmlReport(object):
 	def loadChoosenSchema(self):
 		# choose the schema source
 		# assume the new schema
-		theSchemaFile = "ome-2007-07.xsd"
+		theSchemaFile = "ome-2007-07-V2.xsd"
 		# if old schema
 		if self.theNamespace == "http://www.openmicroscopy.org/XMLschemas/OME/FC/ome.xsd":
 			# check if used by tiff
