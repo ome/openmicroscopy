@@ -379,14 +379,6 @@ class BrowserModel
         gridImages.clear();
     }
     
-    /**
-     * Returns <code>true</code> if we need to flip along the X-axis the image,
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    boolean isReverse() { return parent.isReverse(); }
-    
     /** Sets the images composing the grid. */
     void setGridImages()
     {

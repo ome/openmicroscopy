@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Rectangle;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -42,8 +41,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
@@ -271,11 +268,14 @@ class ImViewerControl
 	/** Identifies the <code>Zooming fit</code> action. */
 	static final Integer     ZOOM_FIT = new Integer(43);
 
-	/** Identifies the <code>Zooming fit</code> action. */
-	static final Integer     PLAY_MOVIE = new Integer(44);
+	/** Identifies the <code>Play movie across T</code> action. */
+	static final Integer     PLAY_MOVIE_T = new Integer(44);
 
+	/** Identifies the <code>Play movie across Z</code> action. */
+	static final Integer     PLAY_MOVIE_Z = new Integer(45);
+	
 	/** Identifies the <code>Category</code> action. */
-	static final Integer     CATEGORY = new Integer(45);
+	static final Integer     CATEGORY = new Integer(46);
 
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
@@ -361,7 +361,10 @@ class ImViewerControl
 		actionsMap.put(ZOOM_IN, new ZoomInAction(model));
 		actionsMap.put(ZOOM_OUT, new ZoomOutAction(model));
 		actionsMap.put(ZOOM_FIT, new ZoomFitAction(model));
-		actionsMap.put(PLAY_MOVIE, new PlayMovieAction(model));
+		actionsMap.put(PLAY_MOVIE_T, 
+				new PlayMovieAction(model, PlayMovieAction.ACROSS_T));
+		actionsMap.put(PLAY_MOVIE_Z, 
+				new PlayMovieAction(model, PlayMovieAction.ACROSS_Z));
 		actionsMap.put(CATEGORY, new ClassifyAction(model));
 	}
 
@@ -712,17 +715,21 @@ class ImViewerControl
 			//TODO: implement method
 		} else if (ImViewer.ICONIFIED_PROPERTY.equals(propName)) {
 			if (moviePlayer != null)
-				model.playMovie(false, false);
+				model.playMovie(false, false, -1);
 			view.onIconified();
 		} else if (LensComponent.LENS_LOCATION_PROPERTY.equals(propName)) {
 			view.scrollToNode((Rectangle) pce.getNewValue());
 		} else if (MoviePlayerDialog.CLOSE_PROPERTY.equals(propName)) {
-			model.playMovie(false, false);
+			model.playMovie(false, false, -1);
 		} else if (MoviePlayerDialog.STATE_CHANGED_PROPERTY.equals(propName)) {
 			boolean b = ((Boolean) pce.getNewValue()).booleanValue();
 			if (!b && !getMoviePlayer().isVisible()) {
-				((PlayMovieAction) getAction(PLAY_MOVIE)).setActionIcon(true);
-				model.playMovie(false, false);
+				PlayMovieAction action = 
+					(PlayMovieAction) getAction(PLAY_MOVIE_T);
+				action.setActionIcon(true);
+				action = (PlayMovieAction) getAction(PLAY_MOVIE_Z);
+				action.setActionIcon(true);
+				model.playMovie(false, false, -1);
 			}
 		} else if (TinyPane.CLOSED_PROPERTY.equals(propName)) {
 			Object node = pce.getNewValue();

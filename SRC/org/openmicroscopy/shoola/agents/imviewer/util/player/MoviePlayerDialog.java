@@ -191,6 +191,13 @@ public class MoviePlayerDialog
     	player.setMovieIndex(index);
     }
 
+    /**
+     * Returns the movie index.
+     * 
+     * @return See above.
+     */
+    public int getMovieIndex() { return player.getMovieIndex(); }
+    
     /** 
      * Sets the start and end timepoint.
      * 

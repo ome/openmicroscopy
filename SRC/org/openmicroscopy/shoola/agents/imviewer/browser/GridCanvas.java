@@ -70,7 +70,6 @@ class GridCanvas
      */
     private void paintImage(Graphics2D g2D, int w, int h, boolean bar)
 	{
-    	boolean reverse = model.isReverse();
 		List images = model.getSplitImages();
     	if (images == null) return; 
     	SplitImage combined = null;
@@ -104,15 +103,8 @@ class GridCanvas
                 image = channel.getImage();
                 x = j*(w+BrowserModel.GAP);
                 if (image != null) {
-                	if (reverse) {
-                		imageW = image.getWidth();
-                		imageH = image.getHeight();
-                        g2D.drawImage(image, 0, 0, imageW, imageH, 
-                        				imageW, imageH, 0, 0, null); 
-                	} else {
-                		g2D.drawImage(image, null, x, y);
-                	}
-                	
+                	g2D.drawImage(image, null, x, y);
+   
                 	//draw string.
                 	if (text) {
                 		name = channel.getName();
@@ -150,14 +142,8 @@ class GridCanvas
         	y = 0;
         	x = n*(w+BrowserModel.GAP);
         	if (image != null) {
-        		if (reverse) {
-            		imageW = image.getWidth();
-            		imageH = image.getHeight();
-                    g2D.drawImage(image, 0, 0, imageW, imageH, 
-                    				imageW, imageH, 0, 0, null); 
-            	} else {
-            		g2D.drawImage(image, null, x, y);
-            	}
+        		g2D.drawImage(image, null, x, y);
+            	
         		//g2D.drawImage(image, null, x, y);
             	//draw string.
             	if (text) {

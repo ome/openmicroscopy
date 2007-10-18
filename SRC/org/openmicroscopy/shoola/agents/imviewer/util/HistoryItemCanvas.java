@@ -53,24 +53,18 @@ class HistoryItemCanvas
 
 	/** The node for which we're painting the image. */
 	private HistoryItem node;
-	
-	/** Flag indicating to flip the image along the X-axis. */
-	private boolean 	reverse;
-	
+
 	/**
      * Creates a new instance.
      * 
      * @param node  	The node on which the image is painted.
      *              	Mustn't be <code>null</code>.
-     * @param reverse	Pass <code>true</code> to indicate to flip the image
-     * 					along the X-axis, <code>false</code> otherwise.
      */
-	HistoryItemCanvas(HistoryItem node, boolean reverse)
+	HistoryItemCanvas(HistoryItem node)
     {
         if (node == null) throw new NullPointerException("No image node.");
         this.node = node;
         setDoubleBuffered(true);
-        this.reverse = reverse;
     }
     
     /** 
@@ -83,13 +77,7 @@ class HistoryItemCanvas
         BufferedImage img = node.getThumbnail();
         if (img == null) return;
         Graphics2D g2D = (Graphics2D) g;
-        if (reverse) {
-        	int w = img.getWidth();
-        	int h = img.getHeight();
-        	g2D.drawImage(img, 0, 0, w, h, w, h, 0, 0, null); 
-        } else {
-        	g2D.drawImage(img, null, 0, 0);
-        }
+        g2D.drawImage(img, null, 0, 0);
     }
     
 }

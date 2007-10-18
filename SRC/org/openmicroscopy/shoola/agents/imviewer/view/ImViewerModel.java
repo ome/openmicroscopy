@@ -200,8 +200,12 @@ class ImViewerModel
 	/** The pixels set to copy the rendering settings from. */
 	private Pixels 				pixels;
 
-	private boolean				reverse;
-	
+	/** 
+	 * The index of the movie, not that we set to <code>-1</code>
+	 * when the movie player is launched.
+	 */
+	private int 				movieIndex;
+
 	/** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
 	private void computeSizes()
 	{
@@ -238,13 +242,7 @@ class ImViewerModel
 		zoomFitToWindow = false; 
 		tabbedIndex = ImViewer.VIEW_INDEX;
 		textVisible = true;
-		reverse = false;
-		/*
-		if (name != null) {
-			if (name.endsWith(".dv") || name.endsWith(".DV"))
-				reverse = true;
-		}
-		*/
+		movieIndex = -1;
 	}
 
 	/**
@@ -258,15 +256,6 @@ class ImViewerModel
 		this.component = component;
 		browser = BrowserFactory.createBrowser(component, imageID);
 	}
-
-	/**
-	 * Returns <code>true</code> if we need to flip along the X-axis the image,
-     * <code>false</code> otherwise.
-	 * This is only valid for dv file.
-	 * 
-	 * @return See above.
-	 */
-	boolean isReverse() { return reverse; }
 	
 	/**
 	 * Returns the current user's details.
@@ -846,9 +835,14 @@ class ImViewerModel
 	 * Sets to <code>true</code> when the movie is played, to <code>false</code>
 	 * otherwise.
 	 * 
-	 * @param b The value to set.
+	 * @param play  The value to set.
+	 * @param index The movie index.
 	 */
-	void setPlayingMovie(boolean b) { playingMovie = b; }
+	void setPlayingMovie(boolean play, int index)
+	{ 
+		playingMovie = play; 
+		movieIndex = index;
+	}
 
 	/**
 	 * Returns <code>true</code> if a movie is played, to <code>false</code>
@@ -933,7 +927,7 @@ class ImViewerModel
 		}
 		BufferedImage thumb = Factory.magnifyImage(ratio, img);
 		HistoryItem i = new HistoryItem(rndControl.getRndSettingsCopy(), 
-										thumb, reverse);
+										thumb);
 		if (historyItems == null) historyItems = new ArrayList<HistoryItem>();
 		historyItems.add(i);
 		return i;
@@ -1204,5 +1198,12 @@ class ImViewerModel
 				toUpdate);
 		currentLoader.load();
 	}
+
+	/**
+	 * Returns the movie index.
+	 * 
+	 * @return See above.
+	 */
+	int getMovieIndex() { return movieIndex; }
 	
 }

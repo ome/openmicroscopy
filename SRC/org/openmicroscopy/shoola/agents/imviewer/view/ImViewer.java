@@ -570,14 +570,15 @@ public interface ImViewer
 	 * Indicates that the movie player is visible if the passed value is
 	 * <code>true</code>, is hidden if the passed value is <code>false</code>.
 	 * 
-	 * @param b 		Pass <code>true</code> if to play the movie, 
+	 * @param play 		Pass <code>true</code> to play the movie, 
 	 * 					<code>false</code> to stop.
 	 * @param visible 	Pass <code>true</code> to display the movie player,
 	 * 					<code>false</code> to hide it. If the movie player
 	 * 					was visible, the movie stops regardless of the 
 	 * 					first specified parameter.
+	 * @param index		
 	 */
-	public void playMovie(boolean b, boolean visible);
+	public void playMovie(boolean play, boolean visible, int index);
 
 	/**
 	 * Returns the collection of images used to build the grid.
@@ -662,7 +663,7 @@ public interface ImViewer
 	 * 
 	 * @return See above.
 	 */
-	public boolean isMoviePlaying();
+	public boolean isPlayingMovie();
 
 	/**
 	 * Returns <code>true</code> if the channel is mapped
@@ -782,16 +783,15 @@ public interface ImViewer
     
     /** Saves the rendering settings. */
     public void saveRndSettings();
-	
-    /**
-     * Returns <code>true</code> if we need to flip along the X-axis the image,
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    public boolean isReverse();
     
     /** Moves the window to the front. */
     public void toFront();
+    
+    /**
+     * Returns the index if the movie is playing.
+     * 
+     * @return See above.
+     */
+    public int getMovieIndex();
     
 }

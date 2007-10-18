@@ -74,9 +74,11 @@ public class MovieAction
 				break;
 			case ImViewer.RENDERING_CONTROL_LOADED:
 			case ImViewer.READY:
-				int max = Math.max(model.getMaxZ(), model.getMaxT());
-				setEnabled(max != 0);
-				break;
+				if (model.isPlayingMovie()) setEnabled(false);
+				else {
+					int max = Math.max(model.getMaxZ(), model.getMaxT());
+					setEnabled(max != 0);
+				}
 			}
     }
     
@@ -100,7 +102,7 @@ public class MovieAction
      */
     public void actionPerformed(ActionEvent e)
     {
-    	if (!model.isMoviePlaying()) model.playMovie(true, true);
+    	if (!model.isPlayingMovie()) model.playMovie(true, true, -1);
     }
 
 }

@@ -325,16 +325,16 @@ class ControlPane
         textVisibleButton.setAction(
         		controller.getAction(ImViewerControl.TEXT_VISIBLE));
         playTMovie = new JButton(
-        			controller.getAction(ImViewerControl.PLAY_MOVIE));
+        			controller.getAction(ImViewerControl.PLAY_MOVIE_T));
         UIUtilities.unifiedButtonLookAndFeel(playTMovie);
         playTMovieGrid = new JButton(
-    			controller.getAction(ImViewerControl.PLAY_MOVIE));
+    			controller.getAction(ImViewerControl.PLAY_MOVIE_T));
         UIUtilities.unifiedButtonLookAndFeel(playTMovieGrid);
         playZMovie = new JButton(
-    			controller.getAction(ImViewerControl.PLAY_MOVIE));
+    			controller.getAction(ImViewerControl.PLAY_MOVIE_Z));
 	    UIUtilities.unifiedButtonLookAndFeel(playZMovie);
 	    playZMovieGrid = new JButton(
-				controller.getAction(ImViewerControl.PLAY_MOVIE));
+				controller.getAction(ImViewerControl.PLAY_MOVIE_Z));
 	    UIUtilities.unifiedButtonLookAndFeel(playZMovieGrid);
     }
     
@@ -405,7 +405,8 @@ class ControlPane
         
         playTMovie.setVisible(maxT != 0);
         playTMovieGrid.setVisible(maxT != 0);
-        
+        playZMovie.setVisible(maxZ != 0);
+        playZMovieGrid.setVisible(maxZ != 0);
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
         colorModelButton.setToolTipText(
         				getColorModelDescription(model.getColorModel()));
@@ -420,7 +421,7 @@ class ControlPane
      * @param slider    The slider to host.
      * @return See above.
      */
-    private JPanel createSliderPane(JSlider slider)
+    private JPanel layoutSlider(JSlider slider)
     {
         JPanel pane = new JPanel();
         pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
@@ -433,14 +434,39 @@ class ControlPane
      * 
      * @return See above.
      */
-    private JPanel createSliderPanes()
+    private JPanel createZSliderPane()
     {
+    	JPanel pane = new JPanel();
+    	double[][] tl = {{TableLayout.FILL}, 
+				{TableLayout.FILL, TableLayout.PREFERRED}};
+    	pane.setLayout(new TableLayout(tl));
+    	pane.add(zSlider, "0, 0");
+    	pane.add(playZMovie, "0, 1");
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(createSliderPane(zSlider));
+        p.add(pane);
         return p;
     }
 
+    /**
+     * Helper method to create a panel hosting the passed slider.
+     * 
+     * @return See above.
+     */
+    private JPanel createZGridSliderPane()
+    {
+    	JPanel pane = new JPanel();
+    	double[][] tl = {{TableLayout.FILL}, 
+				{TableLayout.FILL, TableLayout.PREFERRED}};
+    	pane.setLayout(new TableLayout(tl));
+    	pane.add(zSliderGrid, "0, 0");
+    	pane.add(playZMovieGrid, "0, 1");
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(pane);
+        return p;
+    }
+    
     /** 
      * Builds the tool bar displayed on the left side of the image.
      * 
@@ -503,18 +529,11 @@ class ControlPane
             p.add(Box.createRigidArea(VBOX));
         }
         
-        /*
-        controls.setLayout(new BoxLayout(controls,BoxLayout.Y_AXIS));
-        controls.add(Box.createVerticalStrut(20));
-        controls.add(buildGridBar());
-        controls.add(buttons);
-        */
         JPanel controls = new JPanel();
         double size[][] = {{TableLayout.PREFERRED}, 
         				{TableLayout.PREFERRED, TableLayout.PREFERRED,
         				TableLayout.PREFERRED, SLIDER_HEIGHT}};
         controls.setLayout(new TableLayout(size));
-        //controls.setLayout(new BoxLayout(controls,BoxLayout.Y_AXIS));
         controls.add(Box.createVerticalStrut(20), "0, 0");
         controls.add(buildToolBar(), "0, 1, c, c");
         controls.add(p, "0, 2");
@@ -527,7 +546,7 @@ class ControlPane
     {
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         add(createChannelsPane());
-        add(createSliderPanes());
+        add(createZSliderPane());
     }
     
     /**
@@ -543,35 +562,7 @@ class ControlPane
         slider.setValue(v);
         slider.addChangeListener(this);
     }
-    
-    /**
-     * Builds the panel hosting the passed slider.
-     * 
-     * @param slider The slider to lay out.
-     * @return See above.
-     */
-    /*
-    private JPanel buildMagnificationPanel(OneKnobSlider slider)
-    {
-    	JPanel p = new JPanel();
-        IconManager icons = IconManager.getInstance();
-        Icon top = icons.getIcon(IconManager.RATIO_MAX);
-        Icon bottom = icons.getIcon(IconManager.RATIO_MIN);
-        double s[][] = {{TableLayout.PREFERRED}, 
-        		{top.getIconHeight(), 80, bottom.getIconHeight()}};
-        p.setLayout(new TableLayout(s));
-        JLabel l =  new JLabel();
-        l.setIcon(top);
-        p.add(l, "0, 0, c, c");
-        p.add(slider, "0, 1");
-        l =  new JLabel();
-        l.setIcon(bottom);
-        l.setBackground(Color.RED);
-        p.add(l, "0, 2, c, c");
-        return p;
-    }
-    */
-    
+  
     /**
      * Creates a new instance.
      * 
@@ -613,7 +604,7 @@ class ControlPane
      */
     JPanel buildAnnotatorComponent()
     {
-    	return createSliderPane(zSliderAnnotator);
+    	return layoutSlider(zSliderAnnotator);
     }
     
     /**
@@ -623,10 +614,7 @@ class ControlPane
      */
     JPanel buildGridComponent()
     {
-    	JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(createSliderPane(zSliderGrid));
-        p.add(createSliderPane(tSliderGrid));
+    	JPanel p = createZGridSliderPane();
         JPanel buttons = new JPanel();
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
         ChannelMetadata[] data = model.getChannelData();
@@ -792,7 +780,7 @@ class ControlPane
     {
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(createSliderPane(zSliderGrid));
+        p.add(layoutSlider(zSliderGrid));
         //p.add(createSliderPane(tSliderGrid));
         return p;
     }
@@ -825,14 +813,13 @@ class ControlPane
     {
     	switch (index) {
 			case ImViewer.ANNOTATOR_INDEX:
-				return createSliderPane(tSliderAnnotator);
+				return layoutSlider(tSliderAnnotator);
 			case ImViewer.GRID_INDEX:
 				JPanel p = new JPanel();
 	        	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 	        	p.add(playTMovieGrid);
 	        	p.add(tSliderGrid);
 	        	return p;
-				//return createSliderPane(tSliderGrid);
 			case ImViewer.VIEW_INDEX:
 			default:
 				JPanel pane = new JPanel();
@@ -840,7 +827,6 @@ class ControlPane
 	        	pane.add(playTMovie);
 	        	pane.add(tSlider);
 	        	return pane;
-				//return createSliderPane(tSlider);
 		}
     }
     

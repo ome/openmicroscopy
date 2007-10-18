@@ -33,6 +33,7 @@ import javax.swing.event.ChangeEvent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -53,11 +54,37 @@ public class PlayMovieAction
 	extends ViewerAction
 {
 
+	
+	/** Indicates to play the movie across Z. */
+	public static final int		ACROSS_Z = MoviePlayerDialog.ACROSS_Z;
+	
+	/** Indicates to play the movie across Z. */
+	public static final int		ACROSS_T = MoviePlayerDialog.ACROSS_T;
+	
 	/** The description of the action. */
     private static final String DESCRIPTION = "Play movie.";
     
 	/** Helper reference to the icon manager. */
     private IconManager icons;
+    
+    /** One of the constants defined by this class. */
+    private int			index;
+    
+    /**
+     * Checks if the passed index is valid.
+     * 
+     * @param index The value to handle.
+     */
+    private void checkIndex(int index)
+    {
+    	switch (index) {
+			case ACROSS_Z:
+			case ACROSS_T:
+				break;
+			default:
+				throw new IllegalArgumentException("Index not valid.");
+		}
+    }
     
     /** 
      * Overriden to make sure that the movie player is not enabled when 
@@ -74,8 +101,14 @@ public class PlayMovieAction
 				break;
 			case ImViewer.RENDERING_CONTROL_LOADED:
 			case ImViewer.READY:
-				setEnabled(model.getMaxT() != 0);
-				break;
+				if (model.isPlayingMovie()) {
+					setEnabled(model.getMovieIndex() == index);
+				} else {
+					if (index == ACROSS_T)
+						setEnabled(model.getMaxT() != 0);
+					else if (index == ACROSS_Z)
+						setEnabled(model.getMaxZ() != 0);
+				}
 		}
     }
     
@@ -83,10 +116,13 @@ public class PlayMovieAction
      * Creates a new instance.
      * 
      * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param index	One fo the constants defined by this class.
      */
-	public PlayMovieAction(ImViewer model)
+	public PlayMovieAction(ImViewer model, int index)
     {
         super(model);
+        checkIndex(index);
+        this.index = index;
         icons = IconManager.getInstance();
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -108,18 +144,15 @@ public class PlayMovieAction
 	}
 	
 	/** 
-     * Plays movie.
+     * Plays movie across z-sections or timepoints.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
-       if (model.isMoviePlaying()) {
-    	   setActionIcon(true);
-    	   model.playMovie(false, false);
-       } else {
-    	   setActionIcon(false);
-    	   model.playMovie(true, false);
-       } 
+    	boolean b = true;
+    	if (model.isPlayingMovie()) b = false;
+    	setActionIcon(!b);
+    	model.playMovie(b, false, index);
     }
 	
 }

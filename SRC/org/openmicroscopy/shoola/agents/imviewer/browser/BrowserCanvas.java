@@ -85,11 +85,7 @@ class BrowserCanvas
         Graphics2D g2D = (Graphics2D) g;
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
        
-        if (model.isReverse()) {
-        	 int w = img.getWidth();
-             int h = img.getHeight();
-             g2D.drawImage(img, 0, 0, w, h, w, h, 0, 0, null); 
-        } else g2D.drawImage(img, null, 0, 0); 
+        g2D.drawImage(img, null, 0, 0); 
         
         //g2D.drawImage(img, 0, 0, w, h, w, h, 0, 0, null); 
         if (!(model.isUnitBar())) return;

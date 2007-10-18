@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.CategorySaverDef;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
@@ -567,12 +568,12 @@ class ImViewerComponent
 	public void setSelectedXYPlane(int z, int t)
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED, NEW " +
+						"or LOADING_RENDERING_CONTROL state.");
 		}
 		int defaultZ = model.getDefaultZ();
 		int defaultT = model.getDefaultT();
@@ -1560,9 +1561,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#playMovie(boolean, boolean)
+	 * @see ImViewer#playMovie(boolean, boolean, int)
 	 */
-	public void playMovie(boolean b, boolean visible)
+	public void playMovie(boolean play, boolean visible, int index)
 	{
 		switch (model.getState()) {
 			case NEW:
@@ -1575,26 +1576,49 @@ class ImViewerComponent
 		boolean doClick = false;
 		boolean wasVisible = false;
 		if (visible) { // we have to play the movie
-			b = true;
+			controller.getAction(
+					ImViewerControl.PLAY_MOVIE_T).setEnabled(false);
+			controller.getAction(
+					ImViewerControl.PLAY_MOVIE_Z).setEnabled(false);
+			play = true;
 			UIUtilities.setLocationRelativeToAndShow(view, d);
 		} else {
 			if (d.isVisible()) {
-				b = false;
+				controller.getAction(
+						ImViewerControl.PLAY_MOVIE_T).setEnabled(true);
+				controller.getAction(
+						ImViewerControl.PLAY_MOVIE_Z).setEnabled(true);
+				play = false;
 				wasVisible = true;
 				d.setVisible(false);
 			} else {
+				switch (index) {
+					case PlayMovieAction.ACROSS_Z:
+						controller.getAction(
+								ImViewerControl.PLAY_MOVIE_T).setEnabled(!play);
+						break;
+					case PlayMovieAction.ACROSS_T:
+						controller.getAction(
+								ImViewerControl.PLAY_MOVIE_Z).setEnabled(!play);
+						break;
+					default:
+						controller.getAction(
+								ImViewerControl.PLAY_MOVIE_T).setEnabled(true);
+						controller.getAction(
+								ImViewerControl.PLAY_MOVIE_Z).setEnabled(true);
+						
+				}
 				doClick = true;
-				d.setMovieIndex(MoviePlayerDialog.ACROSS_T);
+				if (index != -1) d.setMovieIndex(index);
 				d.setTimeRange(model.getDefaultT(), model.getMaxT());
 			}
 		}
-
-		model.setPlayingMovie(b);
-		view.enableSliders(!b);
-		controller.getAction(ImViewerControl.CHANNEL_MOVIE).setEnabled(!b);
+		
+		model.setPlayingMovie(play, index);
+		view.enableSliders(!play);
+		controller.getAction(ImViewerControl.CHANNEL_MOVIE).setEnabled(!play);
 		if (doClick) {
-
-			if (b) {
+			if (play) {
 				d.addPropertyChangeListener(
 						MoviePlayerDialog.STATE_CHANGED_PROPERTY,
 						controller);
@@ -1610,9 +1634,18 @@ class ImViewerComponent
 					MoviePlayerDialog.STATE_CHANGED_PROPERTY,
 					controller);
 		}
-		controller.getAction(ImViewerControl.PLAY_MOVIE).setEnabled(doClick);
+		if (!play) {
+			model.setState(READY);
+			fireStateChange();
+		}
+			
+			
+		/*
+		controller.getAction(ImViewerControl.PLAY_MOVIE_Z).setEnabled(doClick);
+		controller.getAction(ImViewerControl.PLAY_MOVIE_T).setEnabled(doClick);
 		if (wasVisible)
-			controller.getAction(ImViewerControl.PLAY_MOVIE).setEnabled(true);
+			controller.getAction(ImViewerControl.PLAY_MOVIE_T).setEnabled(true);
+			*/
 	}
 
 	/** 
@@ -1771,9 +1804,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#isMoviePlaying()
+	 * @see ImViewer#isPlayingMovie()
 	 */
-	public boolean isMoviePlaying() { return model.isPlayingMovie(); }
+	public boolean isPlayingMovie() { return model.isPlayingMovie(); }
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
@@ -2080,9 +2113,15 @@ class ImViewerComponent
     	controller.toFront();
     }
     
-    public boolean isReverse()
-    {
-    	return model.isReverse();
-    }
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getMovieIndex()
+     */
+	public int getMovieIndex()
+	{
+		if (model.getState() == DISCARDED || !model.isPlayingMovie() ||
+			model.isPlayingChannelMovie()) return -1;
+		return model.getMovieIndex();
+	}
     
 }
