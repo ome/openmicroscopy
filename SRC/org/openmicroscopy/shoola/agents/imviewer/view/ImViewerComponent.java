@@ -1574,7 +1574,6 @@ class ImViewerComponent
 		}
 		MoviePlayerDialog d = controller.getMoviePlayer();
 		boolean doClick = false;
-		boolean wasVisible = false;
 		if (visible) { // we have to play the movie
 			controller.getAction(
 					ImViewerControl.PLAY_MOVIE_T).setEnabled(false);
@@ -1589,7 +1588,6 @@ class ImViewerComponent
 				controller.getAction(
 						ImViewerControl.PLAY_MOVIE_Z).setEnabled(true);
 				play = false;
-				wasVisible = true;
 				d.setVisible(false);
 			} else {
 				switch (index) {

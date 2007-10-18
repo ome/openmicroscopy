@@ -60,6 +60,7 @@ import javax.swing.filechooser.FileFilter;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
@@ -80,6 +81,8 @@ import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ColourListRenderer;
+import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * Displays stats computed on the pixels intensity value of a given ROI shape.
@@ -722,16 +725,19 @@ class IntensityView
 		table.setVisible(true);
 	}
 	
-	/** Populate the fields with the data.
+	/** 
+	 * Populates the fields with the data.
+	 * 
 	 * @param channel The channel for the stats.
 	 */
 	private void populateFields(int channel)
 	{
-		minValue.setText(FormatString(channelMin.get(channel)));
-		maxValue.setText(FormatString(channelMax.get(channel)));
-		sumValue.setText(FormatString(channelSum.get(channel)));
-		meanValue.setText(FormatString(channelMean.get(channel)));
-		stdDevValue.setText(FormatString(channelStdDev.get(channel)));
+		minValue.setText(UIUtilities.FormatToDecimal(channelMin.get(channel)));
+		maxValue.setText(UIUtilities.FormatToDecimal(channelMax.get(channel)));
+		sumValue.setText(UIUtilities.FormatToDecimal(channelSum.get(channel)));
+		meanValue.setText(UIUtilities.FormatToDecimal(channelMean.get(channel)));
+		stdDevValue.setText(UIUtilities.FormatToDecimal(
+				channelStdDev.get(channel)));
 		ROIFigure fig = shape.getFigure();
 		if(areaFigure(fig))
 			setValuesForAreaFigure(fig);
@@ -753,12 +759,15 @@ class IntensityView
 		heightLabel.setText("Height");
 		widthValue.setText(AnnotationKeys.WIDTH.get(shape)+"");
 		heightValue.setText(AnnotationKeys.HEIGHT.get(shape)+"");
-		XCentreValue.setText(FormatString(AnnotationKeys.CENTREX.get(shape)));
-		YCentreValue.setText(FormatString(AnnotationKeys.CENTREY.get(shape)));
+		XCentreValue.setText(UIUtilities.FormatToDecimal
+				(AnnotationKeys.CENTREX.get(shape)));
+		YCentreValue.setText(UIUtilities.FormatToDecimal(
+				AnnotationKeys.CENTREY.get(shape)));
 	}
 
 	/**
-	 * Set the values of the labels and textfield for line figures. 
+	 * Sets the values of the labels and textfield for line figures. 
+	 * 
 	 * @param fig The figure.
 	 */
 	private void setValuesForLineFigure(ROIFigure fig)
@@ -769,12 +778,15 @@ class IntensityView
 		heightLabel.setText("End Y");
 		widthValue.setText(AnnotationKeys.ENDPOINTX.get(shape)+"");
 		heightValue.setText(AnnotationKeys.ENDPOINTY.get(shape)+"");
-		XCentreValue.setText(FormatString(AnnotationKeys.CENTREX.get(shape)));
-		YCentreValue.setText(FormatString(AnnotationKeys.CENTREY.get(shape)));
+		XCentreValue.setText(UIUtilities.FormatToDecimal(
+				AnnotationKeys.CENTREX.get(shape)));
+		YCentreValue.setText(UIUtilities.FormatToDecimal(
+				AnnotationKeys.CENTREY.get(shape)));
 	}
 	
 	/**
-	 * Set the values of the labels and textfield for point figures. 
+	 * Sets the values of the labels and textfield for point figures. 
+	 * 
 	 * @param fig The figure.
 	 */
 	private void setValuesForPointFigure(ROIFigure fig)
@@ -785,70 +797,79 @@ class IntensityView
 		heightLabel.setText("Height");
 		widthValue.setText("1");
 		heightValue.setText("1");
-		XCentreValue.setText(FormatString(AnnotationKeys.CENTREX.get(shape)));
-		YCentreValue.setText(FormatString(AnnotationKeys.CENTREY.get(shape)));
+		XCentreValue.setText(UIUtilities.FormatToDecimal(
+				AnnotationKeys.CENTREX.get(shape)));
+		YCentreValue.setText(UIUtilities.FormatToDecimal(
+				AnnotationKeys.CENTREY.get(shape)));
 	}
 	
 	/**
-	 * Is the param an area figure. 
+	 * Returns <code>true</code> if the passed figure is an area figure,
+	 * <code>false</code> otherwise.
+	 * 
 	 * @param fig The param. 
 	 * @return See above.
 	 */
 	private boolean areaFigure(ROIFigure fig)
 	{
-		if(fig instanceof MeasureEllipseFigure ||
+		if (fig instanceof MeasureEllipseFigure ||
 			fig instanceof MeasureRectangleFigure)
 			return true;
-		if(	fig instanceof MeasureBezierFigure)
+		if (fig instanceof MeasureBezierFigure)
 		{
-			MeasureBezierFigure bFig = (MeasureBezierFigure)fig;
-			if(bFig.isClosed())
+			MeasureBezierFigure bFig = (MeasureBezierFigure) fig;
+			if (bFig.isClosed())
 				return true;
 		}
 		return false;
 	}
 	
 	/**
-	 * Is the param an line figure. 
+	 * Returns <code>true</code> if the passed figure is a line figure,
+	 * <code>false</code> otherwise.
+	 * 
 	 * @param fig The param. 
 	 * @return See above.
 	 */
 	private boolean lineFigure(ROIFigure fig)
 	{
-		if(fig instanceof MeasureLineFigure ||
+		if (fig instanceof MeasureLineFigure ||
 			fig instanceof MeasureLineConnectionFigure)
 			return true;
-		if(	fig instanceof MeasureBezierFigure)
+		if (fig instanceof MeasureBezierFigure)
 		{
 			MeasureBezierFigure bFig = (MeasureBezierFigure)fig;
-			if(!bFig.isClosed())
+			if (!bFig.isClosed())
 				return true;
 		}
 		return false;
 	}
 	
 	/**
-	 * Is the param an point figure. 
+	 * Returns <code>true</code> if the passed figure is a Point figure,
+	 * <code>false</code> otherwise.
+	 *  
 	 * @param fig The param. 
 	 * @return See above.
 	 */
 	private boolean pointFigure(ROIFigure fig)
 	{
-		if(fig instanceof MeasurePointFigure)
-			return true;
-		return false;
+		return (fig instanceof MeasurePointFigure);
 	}
 	
 	/**
-	 * Create jpanel with Jlabel and JTextField.
+	 * Creates jpanel with Jlabel and JTextField.
+	 * 
 	 * @param label See above.
 	 * @param text See above.
 	 * @return The jpanel with the label and textfield.
 	 */
 	private JPanel createLabelText(JLabel label, JTextField text)
 	{
-		UIUtilities.setDefaultSize(label, new Dimension(LABELWIDTH, LABELHEIGHT));
-		UIUtilities.setDefaultSize(text, new Dimension(TEXTWIDTH, TEXTHEIGHT));
+		UIUtilities.setDefaultSize(label, 
+					new Dimension(LABELWIDTH, LABELHEIGHT));
+		UIUtilities.setDefaultSize(text, 
+				new Dimension(TEXTWIDTH, TEXTHEIGHT));
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		panel.add(label);
@@ -856,23 +877,7 @@ class IntensityView
 		panel.add(text);
 		return panel;
 	}
-	
-	/** Format the string to be 2 decimal places. 
-	 * @param value the vale to be formatted. 
-	 * @return formatted string.
-	 */
-	private String FormatString(double value)
-	{
-		try 
-		{
-			return String.format("%.2f",value);
-		} 
-		catch (Exception e) 
-		{
-			return "";
-		}
-	}
-	
+
 	/** Save the results to a csv File. */
 	private void saveResults() 
 	{
@@ -886,49 +891,62 @@ class IntensityView
 				"Results data to a file which can be loaded by a spreadsheet.",
 				filterList);
 		chooser.addComponentToControls(channelsSelectionForm);
-		File f=UIUtilities.getDefaultFolder();
+		File f = UIUtilities.getDefaultFolder();
 	    if (f != null) chooser.setCurrentDirectory(f);
 		int results = chooser.showDialog();
 		if (results != JFileChooser.APPROVE_OPTION) return;
-		File file = chooser.getSelectedFile();
+		File  file = chooser.getFormattedSelectedFile();
+		//TODO: Modify that code when we have various writer.
+		/*
 		if (!file.getAbsolutePath().endsWith(CSVFilter.CSV))
 		{
 			String fileName = file.getAbsolutePath()+"."+CSVFilter.CSV;
 			file = new File(fileName);
 		}
-		
-		List<Integer> userChannelSelection = channelsSelectionForm.
-															getUserSelection();
-		if(userChannelSelection.size()==0)
-		{
+		*/
+		List<Integer> channels = channelsSelectionForm.getUserSelection();
+		if (channels == null || channels.size() == 0) {
+			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Save Results", " Please select at least a channel.");
 			view.setStatus("No Channel selected to output.");
+			
+			return;
 		}
+		
 		BufferedWriter out;
 		try
 		{
-			out=new BufferedWriter(new FileWriter(file));
+			out = new BufferedWriter(new FileWriter(file));
 			Iterator<Coord3D> coordMapIterator = shapeMap.keySet().iterator();
-			while(coordMapIterator.hasNext())
+			Coord3D currentCoord;
+			int n = channels.size();
+			Integer channel;
+			while (coordMapIterator.hasNext())
 			{
-				Coord3D currentCoord = coordMapIterator.next();
+				currentCoord = coordMapIterator.next();
 				writeHeader(out, currentCoord);
-				for( int i = 0 ; i < userChannelSelection.size() ; i++)
+				for (int i = 0 ; i < n ; i++)
 				{
-					writeTitle(out, "Channel Number : " + 
-					channelName.get(userChannelSelection.get(i)));
-					if(!nameMap.containsKey(
-								channelName.get(userChannelSelection.get(i))))
+					channel = channels.get(i);
+					writeTitle(out, 
+							"Channel Number : "+channelName.get(channel));
+					if (!nameMap.containsKey(channelName.get(channel)))
 						continue;
-					int channel = nameMap.get(
-								channelName.get(userChannelSelection.get(i)));
-					writeData(out, currentCoord, channel);
+					channel = nameMap.get(channelName.get(channel));
+					writeData(out, currentCoord, channel.intValue());
 				}
 			}
 			out.close();
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			Logger logger = MeasurementAgent.getRegistry().getLogger();
+			logger.error(this, "Cannot save ROI results: "+e.toString());
+			
+			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Save Results", "An error occured while trying to" +
+					" save the data.\n" +
+					"Please try again.");
 		}
 	}
 
@@ -974,7 +992,8 @@ class IntensityView
 	 * @param channel The channel to output.
 	 * @throws IOException Any IO Error.
 	 */
-	private void writeData(BufferedWriter out, Coord3D coord, int channel) throws IOException
+	private void writeData(BufferedWriter out, Coord3D coord, int channel) 
+		throws IOException
 	{
 		populateData(coord, channel);
 		Double value;
@@ -1005,7 +1024,7 @@ class IntensityView
 	 * @throws IOException Any io error. 
 	 */
 	private void writeMinStat(BufferedWriter out, int channel)
-															throws IOException
+		throws IOException
 	{
 		out.write("Minimum Intensity, ");
 		out.write(channelMin.get(channel)+"");
@@ -1018,7 +1037,7 @@ class IntensityView
 	 * @throws IOException Any io error. 
 	 */
 	private void writeMaxStat(BufferedWriter out, int channel)
-															throws IOException
+		throws IOException
 	{
 		out.write("Maximum Intensity, ");
 		out.write(channelMax.get(channel)+"");
@@ -1031,7 +1050,7 @@ class IntensityView
 	 * @throws IOException Any io error. 
 	 */
 	private void writeMeanStat(BufferedWriter out, int channel)
-															throws IOException
+		throws IOException
 	{
 		out.write("Mean Intensity, ");
 		out.write(channelMean.get(channel)+"");
@@ -1044,7 +1063,7 @@ class IntensityView
 	 * @throws IOException Any io error. 
 	 */
 	private void writeSumStat(BufferedWriter out, int channel)
-															throws IOException
+		throws IOException
 	{
 		out.write("Sum Intensity, ");
 		out.write(channelSum.get(channel)+"");
@@ -1057,11 +1076,12 @@ class IntensityView
 	 * @throws IOException Any io error. 
 	 */
 	private void writeStdDevStat(BufferedWriter out, int channel)
-															throws IOException
+		throws IOException
 	{
 		out.write("StdDev , ");
 		out.write(channelStdDev.get(channel)+"");
 	}
+	
 	/**
 	 * Write the XCoord stat to file.
 	 * @param out The output stream.
@@ -1069,7 +1089,7 @@ class IntensityView
 	 * @throws IOException Any io error. 
 	 */
 	private void writeXCoordStat(BufferedWriter out, int channel)
-															throws IOException
+		throws IOException
 	{
 		out.write(XCoordLabel.getText()+",");
 		out.write(XCoordValue.getText());
@@ -1082,7 +1102,7 @@ class IntensityView
 	 * @throws IOException Any io error. 
 	 */
 	private void writeYCoordStat(BufferedWriter out, int channel)
-															throws IOException
+		throws IOException
 	{
 		out.write(YCoordLabel.getText()+",");
 		out.write(YCoordValue.getText());
@@ -1095,7 +1115,7 @@ class IntensityView
 	 * @throws IOException Any io error. 
 	 */
 	private void writeWidthStat(BufferedWriter out, int channel)
-	throws IOException
+		throws IOException
 	{
 		out.write(widthLabel.getText()+",");
 		out.write(widthValue.getText());
@@ -1108,7 +1128,7 @@ class IntensityView
 	 * @throws IOException Any io error. 
 	 */
 	private void writeHeightStat(BufferedWriter out, int channel)
-															throws IOException
+		throws IOException
 	{
 		out.write(heightLabel.getText()+",");
 		out.write(heightValue.getText());
@@ -1121,7 +1141,7 @@ class IntensityView
 	 * @throws IOException Any io error. 
 	 */
 	private void writeXCentreStat(BufferedWriter out, int channel)
-															throws IOException
+		throws IOException
 	{
 		out.write(XCentreLabel.getText()+",");
 		out.write(XCentreValue.getText());
@@ -1134,7 +1154,7 @@ class IntensityView
 	 * @throws IOException Any io error. 
 	 */
 	private void writeYCentreStat(BufferedWriter out, int channel)
-															throws IOException
+		throws IOException
 	{
 		out.write(YCentreLabel.getText()+",");
 		out.write(YCentreValue.getText());
@@ -1149,7 +1169,7 @@ class IntensityView
 	 * @throws IOException Any io error.
 	 */
 	private void addFields(BufferedWriter out, int channel) 
-															throws IOException
+		throws IOException
 	{
 		writeMinStat(out, channel);
 		out.newLine();
@@ -1181,9 +1201,9 @@ class IntensityView
 	 **/
 	 public void actionPerformed(ActionEvent e) 
 	 {
-		if(state==State.ANALYSING)
+		if (state==State.ANALYSING)
 			return;
-		if(e.getActionCommand().equals(CHANNELSELECTION))
+		if (e.getActionCommand().equals(CHANNELSELECTION))
 		{
 			JComboBox cb = (JComboBox)e.getSource();
 			Object[] nameColour = (Object[])cb.getSelectedItem();
@@ -1192,14 +1212,15 @@ class IntensityView
 				return;
 			selectedChannelName = string;
 			int channel = nameMap.get(string);
-			if(channel!=-1)
+			if (channel!=-1)
 			{
-				Coord3D newCoord = new Coord3D(zSlider.getValue()-1, tSlider.getValue());
+				Coord3D newCoord = new Coord3D(zSlider.getValue()-1, 
+						tSlider.getValue());
 				populateData(newCoord, channel);
 				repaint();
 			}
 		 }
-		 if(e.getActionCommand().equals(SAVEACTION))
+		 if (e.getActionCommand().equals(SAVEACTION))
 		 {
 			 saveResults();
 		 }

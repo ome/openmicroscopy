@@ -48,21 +48,29 @@ import javax.swing.filechooser.FileFilter;
  */
 public class CSVFilter 
 	extends FileFilter
+	implements Filter
 {
 
 	/** Possible file extension. */
 	public static final String  CSV = "csv";
 
 	/**
-	* 	Overriden to return the description of the filter.
-	* 	@see FileFilter#getDescription()
-	*/
+	 * Returns the default extension of the file.
+	 * 
+	 * @return See above.
+	 */
+	public String getExtension() { return CSV; }
+	
+	/**
+	 * 	Overriden to return the description of the filter.
+	 * 	@see FileFilter#getDescription()
+	 */
 	public String getDescription() { return "Comma separated values"; }
     
 	/**
-	* 	Overriden to accept file with the declared file extensions.
-	* @see FileFilter#accept(File)
-	*/
+	 * 	Overriden to accept file with the declared file extensions.
+	 * @see FileFilter#accept(File)
+	 */
 	public boolean accept(File f)
 	{
 		if (f.isDirectory()) return true;

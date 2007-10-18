@@ -823,6 +823,20 @@ public class UIUtilities
     }
     
     /**
+     * Format the string to be 2 decimal places. 
+     * 
+	 * @param value the vale to be formatted. 
+     * @return Returns the stringified version of the passed v.
+     */
+    public static String FormatToDecimal(double value) 
+    {
+    	try { 
+    		return String.format("%.2f",value);
+		} catch (Exception e) { return ""; }
+    }
+    
+    
+    /**
      * Returns the partial name of the image's name
      * 
      * @param originalName The original name.

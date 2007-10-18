@@ -25,26 +25,23 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Panel hosting check boxes containing the channels to save.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,79 +53,19 @@ import javax.swing.JPanel;
  * </small>
  * @since OME3.0
  */
-public class ChannelSelectionForm
-		extends JPanel
-{		
+class ChannelSelectionForm
+	extends JPanel
+{	
+	
 	/** The map of channel number to name. */
 	Map<Integer, String>		 	channelNames;
 	
 	/** The list of checkboxes referring to channels.*/
 	private List<JCheckBox> 		checkBox;
 
-	/**
-	 * Create the channel selection form from the map provided.
-	 * @param channelNames The Map, see above.
-	 */
-	ChannelSelectionForm(Map<Integer, String> channelNames)
-	{
-		super();
-		this.channelNames = channelNames;
-		buildComponents();
-		buildUI();
-	}
-	
-	/** Build the components for the UI. */
-	private void buildComponents()
-	{
-		checkBox = new ArrayList<JCheckBox>(channelNames.size());
-		Iterator<Integer> nameIterator = channelNames.keySet().iterator();
-		while(nameIterator.hasNext())
-		{
-			JCheckBox cBox = new JCheckBox(channelNames.get(
-														nameIterator.next()));
-			checkBox.add(cBox);
-		}
-	}
-	
-	/** Build the UI. */
-	private void buildUI()
-	{
-		JPanel mainPanel = new JPanel();
-		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-		mainPanel.add(new JLabel("Select Channels to Save"));
-		JPanel panel = new JPanel();
-
-		panel.setLayout(new FlowLayout());
-		for(int i = 0 ; i < checkBox.size(); i++)
-			panel.add(checkBox.get(i));
-		mainPanel.add(panel);
-		this.setLayout(new BorderLayout());
-		this.add(mainPanel, BorderLayout.CENTER);
-	}
-	
-	/**
-	 * Get the user selection of the list of channels to output to the file.
-	 * @return See above.
-	 */
-	public List<Integer> getUserSelection()
-	{
-		List<Integer> selection = new ArrayList<Integer>();
-		for(int i = 0 ; i < checkBox.size(); i++)
-		{
-			if(checkBox.get(i).isSelected())
-			{
-				int index = getSelectedChannel(checkBox.get(i).getText());
-				if(index==-1)
-					continue;
-				selection.add(index);
-			}
-						
-		}
-		return selection;
-	}
-
 	/** 
-	 * Find the channel number in the channelNames Map based on name. 
+	 * Finds the channel number in the channelNames Map based on name. 
+	 * 
 	 * @param comboBoxName The name of the combo box selected.
 	 * @return See above.
 	 */
@@ -146,6 +83,73 @@ public class ChannelSelectionForm
 		}
 		return -1;
 	}
+	
+	/** Builds the components for the UI. */
+	private void buildComponents()
+	{
+		checkBox = new ArrayList<JCheckBox>(channelNames.size());
+		Iterator<Integer> nameIterator = channelNames.keySet().iterator();
+		JCheckBox cBox;
+		while (nameIterator.hasNext())
+		{
+			cBox = new JCheckBox(channelNames.get(nameIterator.next()));
+			cBox.setSelected(true);
+			checkBox.add(cBox);
+		}
+	}
+	
+	/** Builds and lays out the UI. */
+	private void buildUI()
+	{
+		JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+		JLabel l = new JLabel("Select Channels to Save: ");
+		mainPanel.add(UIUtilities.buildComponentPanel(l));
+		JPanel panel = new JPanel();
+
+		panel.setLayout(new FlowLayout());
+		for (int i = 0 ; i < checkBox.size(); i++)
+			panel.add(checkBox.get(i));
+		mainPanel.add(UIUtilities.buildComponentPanel(panel));
+		setLayout(new BorderLayout());
+		add(UIUtilities.buildComponentPanel(mainPanel), BorderLayout.CENTER);
+	}
+	
+	/**
+	 * Creates the channel selection form from the map provided.
+	 * 
+	 * @param channelNames The Map to handle.
+	 */
+	ChannelSelectionForm(Map<Integer, String> channelNames)
+	{
+		super();
+		this.channelNames = channelNames;
+		buildComponents();
+		buildUI();
+	}
+	
+	/**
+	 * Returns the user selection of the list of channels to output to the file.
+	 * 
+	 * @return See above.
+	 */
+	List<Integer> getUserSelection()
+	{
+		List<Integer> selection = new ArrayList<Integer>();
+		int index;
+		for (int i = 0 ; i < checkBox.size(); i++)
+		{
+			if (checkBox.get(i).isSelected()) {
+				index = getSelectedChannel(checkBox.get(i).getText());
+				if (index==-1)
+					continue;
+				selection.add(index);
+			}		
+		}
+		return selection;
+	}
+
+	
 	
 }
 

@@ -36,6 +36,7 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.filter.file.Filter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -144,6 +145,23 @@ class CustomizedFileChooser
 	}
 
 	/**
+	 * Returns the extension corresponding to the specified filter.
+	 * 
+	 * @param selectedFilter The filter specified.
+	 * @return See above.
+	 */
+	private String getExtension(FileFilter selectedFilter)
+	{
+		List<FileFilter> filters = model.getFilterList();
+		if (filters == null) return "";
+		for (FileFilter filter : filters) {
+			if (selectedFilter.equals(filter) && filter instanceof Filter)
+				return ((Filter) filter).getExtension();
+		}
+		return "";
+	}
+		
+	/**
 	 * Sets the <code>enabled</code> flag of not the <code>Save</code> and
 	 * <code>Preview</code> options depending on the lenght of the text entered
 	 * in the {@link #nameArea}.
@@ -168,20 +186,17 @@ class CustomizedFileChooser
 	{
 		// Build the file .
 		File f = getSelectedFile();
-		
 		if (f != null)
 		{
-			String format = getFormat(getFileFilter());
+			String format = getExtension(getFileFilter());
 			String fileName = f.getAbsolutePath();
-			model.setSelectedFile(fileName);
+			//model.setSelectedFile(fileName);
 			
 			File[] l = getCurrentDirectory().listFiles();
 			String n = model.getExtendedName(fileName, format);
 			boolean exist = false;
-			for (int i = 0; i < l.length; i++)
-			{
-				if ((l[i].getAbsolutePath()).equals(n))
-				{
+			for (int i = 0; i < l.length; i++) {
+				if ((l[i].getAbsolutePath()).equals(n)) {
 					exist = true;
 					break;
 				}
@@ -229,6 +244,25 @@ class CustomizedFileChooser
     	new File(n).mkdir();
     }
     
+    /**
+	 * Returns the pathname of the current file.
+	 *
+	 * @return  The file path.
+	 */
+	File getFormattedSelectedFile()
+	{ 
+		File f = getSelectedFile();
+		if (f != null) {
+			String format = getExtension(getFileFilter());
+			if (format == null || format.trim().length() == 0)
+				return f;
+			
+			String fileName = f.getAbsolutePath();
+			return new File(fileName+"."+format);
+		}
+		return f;
+	}
+	
 	/**
 	 * Enables or not the <code>Save</code> and <code>Preview</code> options
 	 * depending on the text entered in the {@link #nameArea}.
@@ -269,10 +303,18 @@ class CustomizedFileChooser
 			File file = getSelectedFile();
 	        if (file != null) model.setFolderPath(file.getAbsolutePath()); 
 		} else {
+			
+			
 			Boolean exist = setSelection();
 			//No file selected, or file can be written - let OK action continue	
-			if (exist != null)  //super.approveSelection();
+			if (exist != null) {
+				
 				model.acceptSelection();
+				//super.approveSelection();
+			} else {
+				//super.approveSelection();
+			}
+			//model.acceptSelection();
 			//super.approveSelection();
 		}
 		//previewSelection();

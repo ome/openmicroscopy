@@ -75,6 +75,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.SplitPanel;
+import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -1010,7 +1011,11 @@ class ImViewerUI
 	 * @param b Pass <code>true</code> to enable the UI components, 
 	 *          <code>false</code> otherwise.
 	 */
-	void onStateChange(boolean b) { controlPane.onStateChange(b); }
+	void onStateChange(boolean b)
+	{ 
+		enableSliders(b);
+		controlPane.onStateChange(b); 
+	}
 
 	/**
 	 * Updates status bar.
@@ -1336,11 +1341,30 @@ class ImViewerUI
 	 * Sets the <code>enable</code> flag of the slider used to select
 	 * the current z-section and timepoint.
 	 * 
-	 * @param b Pass <code>true</code> to enable the sliders,
+	 * @param enable Pass <code>true</code> to enable the sliders,
 	 * 			<code>false</code> otherwise.
 	 */
-	void enableSliders(boolean b) { controlPane.enableSliders(b); }
-
+	void enableSliders(boolean enable)
+	{ 
+		if (model.isPlayingMovie()) {
+			switch (controller.getMoviePlayer().getMovieIndex()) {
+				case MoviePlayerDialog.ACROSS_Z:
+					controlPane.enableZSliders(false);
+					controlPane.enableTSliders(true);
+					break;
+				case MoviePlayerDialog.ACROSS_T:
+					controlPane.enableZSliders(true);
+					controlPane.enableTSliders(false);
+					break;
+				case MoviePlayerDialog.ACROSS_ZT:
+					controlPane.enableSliders(false);
+					break;
+			}
+		} else {
+			controlPane.enableSliders(enable);
+		}
+	}
+	
 	/**
 	 * Returns <code>true</code> if the rendering settings are 
 	 * saved before closing the viewer, <code>false</code> otherwise.
@@ -1488,8 +1512,6 @@ class ImViewerUI
 		layoutComponents();
 	}
 	
-	long getPixelsID() { return model.getPixelsID(); }
-
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

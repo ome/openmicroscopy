@@ -793,8 +793,8 @@ class ControlPane
      */
     void onStateChange(boolean b)
     {
-        if (model.isPlayingMovie()) enableSliders(!b);
-        else enableSliders(b);
+        //if (model.isPlayingMovie()) enableSliders(!b);
+        //else enableSliders(b);
         ratingBox.setEnabled(b);
         Iterator i = channelButtons.iterator();
         while (i.hasNext())
@@ -839,19 +839,46 @@ class ControlPane
      */
     void enableSliders(boolean b)
     {
+    	enableZSliders(b);
+    	enableTSliders(b);
+	}
+    
+    /**
+     * Sets the <code>enable</code> flag of the slider used to select
+     * the current z-section and timepoint.
+     * 
+     * @param b Pass <code>true</code> to enable the sliders,
+     * 			<code>false</code> otherwise.
+     */
+    void enableZSliders(boolean b)
+    {
     	if (b) {
             zSlider.setEnabled(model.getMaxZ() != 0);
-            tSlider.setEnabled(model.getMaxT() != 0);
             zSliderGrid.setEnabled(model.getMaxZ() != 0);
-            tSliderGrid.setEnabled(model.getMaxT() != 0);
             zSliderAnnotator.setEnabled(model.getMaxZ() != 0);
-            tSliderAnnotator.setEnabled(model.getMaxT() != 0);
         } else {
             zSlider.setEnabled(b);
-            tSlider.setEnabled(b);
             zSliderGrid.setEnabled(b);
-            tSliderGrid.setEnabled(b);
             zSliderAnnotator.setEnabled(b);
+        } 
+	}
+    
+    /**
+     * Sets the <code>enable</code> flag of the slider used to select
+     * the current z-section and timepoint.
+     * 
+     * @param b Pass <code>true</code> to enable the sliders,
+     * 			<code>false</code> otherwise.
+     */
+    void enableTSliders(boolean b)
+    {
+    	if (b) {
+            tSlider.setEnabled(model.getMaxT() != 0);
+            tSliderGrid.setEnabled(model.getMaxT() != 0);
+            tSliderAnnotator.setEnabled(model.getMaxT() != 0);
+        } else {
+            tSlider.setEnabled(b);
+            tSliderGrid.setEnabled(b);
             tSliderAnnotator.setEnabled(b);
         } 
 	}

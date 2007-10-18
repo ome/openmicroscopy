@@ -301,7 +301,8 @@ class FileSaverUI
 	}
 
 	/**
-	 * Set the current file of the file chooser. 
+	 * Sets the current file of the file chooser. 
+	 * 
 	 * @param file see above.
 	 */
 	void setSelectedFile(File file)
@@ -329,6 +330,16 @@ class FileSaverUI
 		return chooser.getSelectedFile(); 
 	}
 
+	/**
+	 * Returns the pathname of the current file.
+	 *
+	 * @return  The file path.
+	 */
+	File getFormattedSelectedFile()
+	{ 
+		return chooser.getFormattedSelectedFile(); 
+	}
+	
 	/**
 	 * Returns <code>true</code> if the default folder is set when
 	 * saving the file, <code>false</code> toherwise.

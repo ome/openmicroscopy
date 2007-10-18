@@ -125,7 +125,6 @@ public class CachingService
 	{
 		//Shouldn't happen
 		PixelsCache cache = singleton.pixelsCache.get(pixelsID);
-		System.err.println("cache: "+cache);
 		if (cache != null) return cache;
 		int cacheSize = getCacheSize();
 		if (cacheSize <= 0) return null;

@@ -110,7 +110,6 @@ public class FileChooser
      */
     private List<FileFilter>	filterList;
     
-    
     /** Sets the properties of the dialog. */
     private void setProperties()
     {
@@ -274,6 +273,7 @@ public class FileChooser
         			uiDelegate.getCurrentDirectory().toString());
     	option = JFileChooser.APPROVE_OPTION;
     	setVisible(false);
+    	dispose();
     }
     
     /**
@@ -359,6 +359,19 @@ public class FileChooser
     	return uiDelegate.getSelectedFile();
     }
 
+    /**
+     * Returns the selected file with the file format extension added 
+     * to it e.g. myfile.csv if the CVS filter is selected.
+     * If no filter selected, the method returns the selected file
+     * 
+     * @return See above.
+     * @see #getSelectedFile()
+     */
+    public File getFormattedSelectedFile()
+    {
+    	return uiDelegate.getFormattedSelectedFile();
+    }
+    
     /**
      * Shows the chooser dialog. 
      * 

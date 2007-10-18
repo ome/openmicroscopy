@@ -62,7 +62,10 @@ public class PlayMovieAction
 	public static final int		ACROSS_T = MoviePlayerDialog.ACROSS_T;
 	
 	/** The description of the action. */
-    private static final String DESCRIPTION = "Play movie.";
+    private static final String DESCRIPTION_ACROSS_Z = "Play movie across Z.";
+    
+    /** The description of the action. */
+    private static final String DESCRIPTION_ACROSS_T = "Play movie across T.";
     
 	/** Helper reference to the icon manager. */
     private IconManager icons;
@@ -124,8 +127,17 @@ public class PlayMovieAction
         checkIndex(index);
         this.index = index;
         icons = IconManager.getInstance();
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
+        switch (index) {
+			case ACROSS_T:
+				putValue(Action.SHORT_DESCRIPTION, 
+		                UIUtilities.formatToolTipText(DESCRIPTION_ACROSS_T));
+			break;
+			case ACROSS_Z:
+				putValue(Action.SHORT_DESCRIPTION, 
+		                UIUtilities.formatToolTipText(DESCRIPTION_ACROSS_Z));
+			break;
+		}
+        
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PLAY));
     }
 	

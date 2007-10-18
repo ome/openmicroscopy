@@ -570,7 +570,8 @@ class MeasurementResults
 		FileChooser chooser=
 				new FileChooser(
 					view, FileChooser.SAVE, "Save the Results",
-					"Save the Results data to a file which can be loaded by a spreadsheet.",
+					"Save the Results data to a file which can be loaded " +
+					"by a spreadsheet.",
 					filterList);
 		File f=UIUtilities.getDefaultFolder();
 	    if (f != null) chooser.setCurrentDirectory(f);
