@@ -138,6 +138,11 @@ class XmlReport(object):
 	theNamespace = None
 	
 	"""
+	The namespace define in the OME element of the OME-XML document
+	"""
+	thePrefix = None
+	
+	"""
 	Create the message lists for this instance of the report object
 	"""
 	errorList = None
@@ -261,7 +266,7 @@ class XmlReport(object):
 	def loadChoosenSchema(self):
 		# choose the schema source
 		# assume the new schema
-		theSchemaFile = "ome-2007-07.xsd"
+		theSchemaFile = "ome-2007-07-V2.xsd"
 		# if old schema
 		if self.theNamespace == "http://www.openmicroscopy.org/XMLschemas/OME/FC/ome.xsd":
 			# check if used by tiff
@@ -522,7 +527,6 @@ class ElementAggregator(sax.ContentHandler):
 			if name[-4:] == ":OME":
 				# a prefex is being used
 				self.thePrefix = name[:-4]
-				print "Prefix : %s" % self.thePrefix
 				try:
 					self.theNamespace = attribs.getValue("xmlns" + ':' + self.thePrefix)
 				except KeyError:
@@ -631,6 +635,15 @@ class ElementAggregator(sax.ContentHandler):
 		if name[-5:] == "Plane":
 			self.omePlanesCount = self.omePlanesCount + 1
 		
+		if name[-12:] == "ManufactSpec":
+			try:
+				# look for the serial number
+				theSerial = int(attribs.getValue("SerialNumber"))
+			except KeyValue:
+				pass
+			if theSerial is None or len(theSerial) == 0:
+				self.warningList.append(ParseMessage(None, None, None, "OME","", "Missing or empty SerialNumber in ManufactSpec"))
+		
 		self.domify(name, attribs)
 			
 	def endElement(self, name):
@@ -678,7 +691,6 @@ class NamespaceSearcher(sax.ContentHandler):
 			if name[-4:] == ":OME":
 				# a prefex is being used
 				self.thePrefix = name[:-4]
-				print "Prefix : %s" % self.thePrefix
 				try:
 					# pull the namespace for prefix out of the OME element
 					self.theNamespace = attribs.getValue("xmlns" + ':' + self.thePrefix)
@@ -710,7 +722,7 @@ if __name__ == '__main__':
 	
 	for aFilename in ["samples/4d2wOME.tif", "samples/4d2wOME-fixed.tif",
 	 	"samples/4d2wOME-fixed-updated.tif", "samples/blank.tif",
-		"samples/ome.xsd"]:
+		"samples/ome.xsd", "samples/4d2wOME-EdExtra.tif"]:
 		print "============ XML file %s ============ " % aFilename
 		print XmlReport.validateTiff(aFilename)
 	
