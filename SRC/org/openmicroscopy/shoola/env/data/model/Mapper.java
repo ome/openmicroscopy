@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.model;
 //Java imports
 import ome.model.core.Channel;
 import ome.model.core.LogicalChannel;
+import ome.model.stats.StatsInfo;
 
 //Third-party libraries
 
@@ -57,8 +58,13 @@ public class Mapper
 	 */
 	public static ChannelMetadata mapChannel(int index, Channel channel)
 	{
-		double min = channel.getStatsInfo().getGlobalMin().doubleValue();
-		double max = channel.getStatsInfo().getGlobalMax().doubleValue();
+		StatsInfo stats = channel.getStatsInfo();
+		double min = 0;
+		double max = 1;
+		if (stats != null) {
+			min = stats.getGlobalMin().doubleValue();
+			max = stats.getGlobalMax().doubleValue();
+		}
 		ChannelMetadata cm = new ChannelMetadata(index, min, max);
 		LogicalChannel lc = channel.getLogicalChannel();
 		Integer w = lc.getEmissionWave();

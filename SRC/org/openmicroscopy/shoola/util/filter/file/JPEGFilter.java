@@ -48,7 +48,7 @@ import javax.swing.filechooser.FileFilter;
  * @since OME2.2
  */
 public class JPEGFilter
-	extends FileFilter
+	extends CustomizedFileFilter
 {
 	
 	/** Possible file extension. */
@@ -60,6 +60,12 @@ public class JPEGFilter
     /** Possible file extension. */
 	public static final String 	JPE = "jpe";
 		
+	/**
+	 * 	Overriden to return the extension of the filter.
+	 * 	@see CustomizedFileFilter#getExtension()
+	 */
+	public String getExtension() { return JPEG; }
+	
     /**
      * Overriden to return the description of the filter.
      * @see FileFilter#getDescription()

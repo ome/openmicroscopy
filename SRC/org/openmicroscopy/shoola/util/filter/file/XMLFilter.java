@@ -47,12 +47,18 @@ import javax.swing.filechooser.FileFilter;
  * @since OME2.2
  */
 public class XMLFilter
-    extends FileFilter
+    extends CustomizedFileFilter
 {
     
     /** Possible file extension. */
     public static final String  XML = "xml";
     
+    /**
+	 * 	Overriden to return the extension of the filter.
+	 * 	@see CustomizedFileFilter#getExtension()
+	 */
+	public String getExtension() { return XML; }
+	
     /**
      * Overriden to return the description of the filter.
      * @see FileFilter#getDescription()

@@ -669,8 +669,7 @@ abstract class HiViewerModel
 	 */
 	void fireResetRenderingSettings(Class klass, Set<Long> nodesID)
 	{
-		currentLoader = new RndSettingsSaver(component, klass, nodesID, 
-											HiViewerFactory.getRefPixelsID());
+		currentLoader = new RndSettingsSaver(component, klass, nodesID);
 		currentLoader.load();
 	}
 	

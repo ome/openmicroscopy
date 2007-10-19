@@ -47,17 +47,15 @@ import javax.swing.filechooser.FileFilter;
  * @since OME3.0
  */
 public class CSVFilter 
-	extends FileFilter
-	implements Filter
+	extends CustomizedFileFilter
 {
 
 	/** Possible file extension. */
 	public static final String  CSV = "csv";
 
 	/**
-	 * Returns the default extension of the file.
-	 * 
-	 * @return See above.
+	 * 	Overriden to return the extension of the filter.
+	 * 	@see CustomizedFileFilter#getExtension()
 	 */
 	public String getExtension() { return CSV; }
 	

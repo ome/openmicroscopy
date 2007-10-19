@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.filter.file.Filter 
+ * org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -22,14 +22,16 @@
  */
 package org.openmicroscopy.shoola.util.filter.file;
 
+
 //Java imports
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Customized version of a file filter that each filter should extend.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -41,7 +43,8 @@ package org.openmicroscopy.shoola.util.filter.file;
  * </small>
  * @since OME3.0
  */
-public interface Filter
+public abstract class CustomizedFileFilter 
+	extends FileFilter
 {
 
 	/**
@@ -49,6 +52,6 @@ public interface Filter
 	 * 
 	 * @return See above.
 	 */
-	public String getExtension();
+	public abstract String getExtension();
 	
 }

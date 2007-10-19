@@ -36,7 +36,7 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.filter.file.Filter;
+import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -155,8 +155,9 @@ class CustomizedFileChooser
 		List<FileFilter> filters = model.getFilterList();
 		if (filters == null) return "";
 		for (FileFilter filter : filters) {
-			if (selectedFilter.equals(filter) && filter instanceof Filter)
-				return ((Filter) filter).getExtension();
+			if (selectedFilter.equals(filter) && 
+					filter instanceof CustomizedFileFilter)
+				return ((CustomizedFileFilter) filter).getExtension();
 		}
 		return "";
 	}

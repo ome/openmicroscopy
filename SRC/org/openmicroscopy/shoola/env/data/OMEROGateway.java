@@ -995,7 +995,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 */
 	List getChannelsData(long pixelsID)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			IQuery service = getQueryService();
@@ -1012,7 +1012,7 @@ class OMEROGateway
 			handleException(t, "Cannot retrieve the channelsData for "+
 					"the pixels set "+pixelsID);
 		}
-		return null;
+		return new ArrayList();
 	}
 
 	/**

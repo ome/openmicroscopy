@@ -39,12 +39,10 @@ import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
-import pojos.ExperimenterData;
 
 
 /** 
@@ -117,7 +115,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#loadRenderingControl(long)
 	 */
 	public RenderingControl loadRenderingControl(long pixelsID)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		RenderingControl proxy = 
 			PixelsServicesFactory.getRenderingControl(context, 
@@ -137,7 +135,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#renderImage(long, PlaneDef)
 	 */
 	public BufferedImage renderImage(long pixelsID, PlaneDef pDef)
-	throws RenderingServiceException
+		throws RenderingServiceException
 	{
 		try {
 			return PixelsServicesFactory.render(context, new Long(pixelsID), 
@@ -152,7 +150,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#renderImage(long)
 	 */
 	public BufferedImage renderImage(long pixelsID)
-	throws RenderingServiceException
+		throws RenderingServiceException
 	{
 		return renderImage(pixelsID, null);
 	}
@@ -171,7 +169,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#getThumbnail(long, int, int)
 	 */
 	public BufferedImage getThumbnail(long pixID, int sizeX, int sizeY)
-	throws RenderingServiceException
+		throws RenderingServiceException
 	{
 		try {
 			return createImage(gateway.getThumbnail(pixID, sizeX, sizeY));
@@ -189,7 +187,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#reloadRenderingService(long)
 	 */
 	public RenderingControl reloadRenderingService(long pixelsID)
-	throws RenderingServiceException
+		throws RenderingServiceException
 	{
 		RenderingControl proxy = 
 			PixelsServicesFactory.getRenderingControl(context, 
@@ -211,7 +209,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#loadPixelsDimensions(long)
 	 */
 	public PixelsDimensions loadPixelsDimensions(long pixelsID) 
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		return gateway.getPixelsDimensions(pixelsID);
 	}
@@ -221,7 +219,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#loadPixels(long)
 	 */
 	public Pixels loadPixels(long pixelsID)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		return gateway.getPixels(pixelsID);
 	}
@@ -231,7 +229,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#getThumbnailByLongestSide(long, int)
 	 */
 	public BufferedImage getThumbnailByLongestSide(long pixelsID, int maxLength) 
-	throws RenderingServiceException 
+		throws RenderingServiceException 
 	{
 		try {
 			return createImage(gateway.getThumbnailByLongestSide(pixelsID, 

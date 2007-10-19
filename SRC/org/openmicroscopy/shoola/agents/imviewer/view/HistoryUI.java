@@ -36,6 +36,8 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 
 
 //Third-party libraries
@@ -179,7 +181,8 @@ class HistoryUI
 	
 	/**
 	 * Adds a new node to the history
-	 * @param node
+	 * 
+	 * @param node the node to add.
 	 */
 	void addHistoryItem(HistoryItem node)
 	{ 
@@ -188,10 +191,10 @@ class HistoryUI
 		desktop.add(node);
 		Rectangle r = getBounds();
 		canvas.doGridLayout(r.width);
-		//Rectangle bounds = canvas.getContentsBounds();
-       // Dimension d = new Dimension(r.width, bounds.height);
-       // desktop.setSize(d);
-        //desktop.setPreferredSize(d);
+		JScrollPane dskDecorator = canvas.getDeskDecorator();
+		Rectangle bounds = node.getBounds();
+		JScrollBar hbar = dskDecorator.getHorizontalScrollBar();
+		hbar.setValue(hbar.getMaximum()+bounds.width);
 	}
 	
 	/** 

@@ -56,7 +56,10 @@ public class Plane2D
 	private ReadOnlyByteArray	data;
 	
 	/** Strategy used to transform original data. */
-	private BytesConverter	strategy;
+	private BytesConverter		strategy;
+	
+	/** The converted raw data. */
+	private double[][]			mappedData;
 	
 	/** 
 	 * Determines the offset value.
@@ -71,20 +74,40 @@ public class Plane2D
 	}
 	
 	/**
+	 * Converts the raw data.
+	 * 
+	 * @param sizeY The number of pixels along the y-axis.
+	 */
+	private void mappedData(int sizeY)
+	{
+		mappedData = new double[sizeX][sizeY];
+		int offset;
+		for (int x = 0; x < sizeX; x++) {
+			for (int y = 0; y < sizeY; y++) {
+				offset = calculateOffset(x, y);
+				mappedData[x][y] = strategy.pack(data, offset, bytesPerPixel);
+			}
+		}
+	}
+	
+	/**
 	 * Creates a new intance.
 	 * 
 	 * @param data			The array of byte.
 	 * @param sizeX			The number of pixels along the x-axis.
+	 * @param sizeY			The number of pixels along the y-axis.
 	 * @param bytesPerPixel	The number of bytes per pixel.
 	 * @param strategy		Strategy to transform pixel.
 	 */
-	public Plane2D(ReadOnlyByteArray data, int sizeX, int bytesPerPixel,
+	public Plane2D(ReadOnlyByteArray data, int sizeX, int sizeY, 
+						int bytesPerPixel,
 						BytesConverter strategy)
 	{
 		this.bytesPerPixel = bytesPerPixel;
 		this.data = data;
 		this.strategy = strategy;
 		this.sizeX = sizeX;
+		mappedData(sizeY);
 	}
 	
 	/**
@@ -97,8 +120,9 @@ public class Plane2D
 	 */
 	public double getPixelValue(int x, int y)
 	{
-		int offset = calculateOffset(x, y);
-		return strategy.pack(data, offset, bytesPerPixel);
+		//int offset = calculateOffset(x, y);
+		//return strategy.pack(data, offset, bytesPerPixel);
+		return mappedData[x][y];
 	}
 	
 }

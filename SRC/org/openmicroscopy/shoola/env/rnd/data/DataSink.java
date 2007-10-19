@@ -198,8 +198,9 @@ public class DataSink
 			throw new DataSourceException("Cannot retrieve the plane "+p, e);
 		}
 		ReadOnlyByteArray array = new ReadOnlyByteArray(data, 0, data.length);
-		plane = new Plane2D(array, source.getSizeX().intValue(), bytesPerPixels, 
-				strategy);
+		plane = new Plane2D(array, source.getSizeX().intValue(), 
+							source.getSizeY().intValue(), bytesPerPixels, 
+							strategy);
 		cache.add(planeIndex, plane);
 		return plane;
 	}

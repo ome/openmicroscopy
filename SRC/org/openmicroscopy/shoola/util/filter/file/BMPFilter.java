@@ -48,7 +48,7 @@ import javax.swing.filechooser.FileFilter;
  * @since OME2.2
  */
 public class BMPFilter
-	extends FileFilter
+	extends CustomizedFileFilter
 {
 	
 	/** Possible file extensions. */
@@ -57,6 +57,12 @@ public class BMPFilter
     /** Possible file extensions. */
 	public static final String 	DIB = "dib";
 		
+	/**
+	 * 	Overriden to return the extension of the filter.
+	 * 	@see CustomizedFileFilter#getExtension()
+	 */
+	public String getExtension() { return BMP; }
+	
     /**
      * Overriden to return the description of the filter.
      * @see FileFilter#getDescription()

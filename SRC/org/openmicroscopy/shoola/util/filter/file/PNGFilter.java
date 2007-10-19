@@ -47,11 +47,17 @@ import javax.swing.filechooser.FileFilter;
  * @since OME2.2
  */
 public class PNGFilter
-	extends FileFilter
+	extends CustomizedFileFilter
 {
 	
 	/** Possible file extension. */
 	public static final String 	PNG = "png";
+	
+	/**
+	 * 	Overriden to return the extension of the filter.
+	 * 	@see CustomizedFileFilter#getExtension()
+	 */
+	public String getExtension() { return PNG; }
 	
     /**
      * Overriden to return the description of the filter.

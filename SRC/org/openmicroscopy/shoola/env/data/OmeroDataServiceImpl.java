@@ -725,14 +725,13 @@ class OmeroDataServiceImpl
 	{
 		List l = gateway.getChannelsData(pixelsID);
 		Iterator i = l.iterator();
-		List<ChannelMetadata> 
-		metadata = new ArrayList<ChannelMetadata>(l.size());
+		List<ChannelMetadata> m = new ArrayList<ChannelMetadata>(l.size());
 		int index = 0;
 		while (i.hasNext()) {
-			metadata.add(Mapper.mapChannel(index, (Channel) i.next()));
+			m.add(Mapper.mapChannel(index, (Channel) i.next()));
 			index++;
 		}
-		return metadata;
+		return m;
 	}
 
 	/**

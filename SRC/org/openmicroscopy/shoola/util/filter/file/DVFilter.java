@@ -47,11 +47,17 @@ import javax.swing.filechooser.FileFilter;
  * @since OME2.2
  */
 public class DVFilter
-	extends FileFilter
+	extends CustomizedFileFilter
 {
 	
 	/** File extension. */
 	public static final String 	DV = "dv";
+	
+	/**
+	 * 	Overriden to return the extension of the filter.
+	 * 	@see CustomizedFileFilter#getExtension()
+	 */
+	public String getExtension() { return DV; }
 	
     /**
      * Overriden to return the description of the filter.

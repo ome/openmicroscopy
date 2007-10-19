@@ -494,62 +494,63 @@ class ImViewerComponent
 	public void setColorModel(int key)
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED, " +
+						"NEW or LOADING_RENDERING_CONTROL state.");
 		}
 		try {
+			rndToSave = true;
 			Iterator i;
 			List channels = model.getActiveChannels();
 			switch (key) {
-			case ColorModelAction.GREY_SCALE_MODEL:
-				historyActiveChannels = model.getActiveChannels();
-				model.setColorModel(GREY_SCALE_MODEL);
-				if (channels != null && channels.size() > 1) {
-					i = channels.iterator();
-					int index;
-					int j = 0;
-					while (i.hasNext()) {
-						index = ((Integer) i.next()).intValue();
-						setChannelActive(index, j == 0);
-						j++;
-					}
-				} else if (channels == null || channels.size() == 0) {
-					//no channel so one will be active.
-					setChannelActive(0, true);
-				}
-				break;
-			case ColorModelAction.RGB_MODEL:
-			case ColorModelAction.HSB_MODEL:
-				model.setColorModel(HSB_MODEL);
-				int index;
-				if (historyActiveChannels != null && 
-						historyActiveChannels.size() != 0) {
-					i = historyActiveChannels.iterator();
-					while (i.hasNext()) {
-						index = ((Integer) i.next()).intValue();
-						setChannelActive(index, true);
-					}
-
-				} else {
-					if (channels == null || channels.size() == 0) {
+				case ColorModelAction.GREY_SCALE_MODEL:
+					historyActiveChannels = model.getActiveChannels();
+					model.setColorModel(GREY_SCALE_MODEL);
+					if (channels != null && channels.size() > 1) {
+						i = channels.iterator();
+						int index;
+						int j = 0;
+						while (i.hasNext()) {
+							index = ((Integer) i.next()).intValue();
+							setChannelActive(index, j == 0);
+							j++;
+						}
+					} else if (channels == null || channels.size() == 0) {
 						//no channel so one will be active.
 						setChannelActive(0, true);
-					} else {
-						i = channels.iterator();
+					}
+					break;
+				case ColorModelAction.RGB_MODEL:
+				case ColorModelAction.HSB_MODEL:
+					model.setColorModel(HSB_MODEL);
+					int index;
+					if (historyActiveChannels != null && 
+							historyActiveChannels.size() != 0) {
+						i = historyActiveChannels.iterator();
 						while (i.hasNext()) {
 							index = ((Integer) i.next()).intValue();
 							setChannelActive(index, true);
 						}
+	
+					} else {
+						if (channels == null || channels.size() == 0) {
+							//no channel so one will be active.
+							setChannelActive(0, true);
+						} else {
+							i = channels.iterator();
+							while (i.hasNext()) {
+								index = ((Integer) i.next()).intValue();
+								setChannelActive(index, true);
+							}
+						}
 					}
-				}
-				break;
-			default:
-				throw new IllegalArgumentException("Color model not " +
-				"supported");
+					break;
+				default:
+					throw new IllegalArgumentException("Color model not " +
+					"supported");
 			}
 			//need
 			firePropertyChange(COLOR_MODEL_CHANGE_PROPERTY, new Integer(1), 
@@ -660,14 +661,15 @@ class ImViewerComponent
 	public void setChannelColor(int index, Color c)
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED, " +
+						"NEW or LOADING_RENDERING_CONTROL state.");
 		}
 		try {
+			rndToSave = true;
 			model.setChannelColor(index, c);
 			view.setChannelColor(index, c);
 			if (!model.isChannelActive(index)) {
@@ -800,6 +802,7 @@ class ImViewerComponent
 		//    if (model.getActiveChannels().size() == MAX_CHANNELS_RGB);
 		//   return;
 		//}
+		rndToSave = true;
 		try {
 			model.setChannelActive(index, b);
 			if (b)
