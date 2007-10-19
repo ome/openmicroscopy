@@ -30,8 +30,8 @@ public class LdapTest extends AbstractManagedContextTest {
 	@Test
 	public void testSearchDnInGroups() throws Exception {
 		if (iLdap.getSetting()) {
-			List<String> l = iLdap.searchDnInGroups("jGroup1",
-					"cn=atarkowska, ou=edir, ou=people, ou=lifesci, o=dundee");
+			List<String> l = iLdap.searchDnInGroups("group1",
+					"cn=jsmith, ou=people, ou=example, o=com");
 			System.err.println(l.size());
 		}
 	}
@@ -40,7 +40,7 @@ public class LdapTest extends AbstractManagedContextTest {
 	public void testSearchByAttribute() throws Exception {
 		if (iLdap.getSetting()) {
 			List<Experimenter> exps = iLdap
-					.searchByAttribute("", "sn", "Tarkowska");
+					.searchByAttribute("", "sn", "Smith");
 			System.err.println(exps.size());
 		}
 	}
@@ -54,7 +54,7 @@ public class LdapTest extends AbstractManagedContextTest {
 			List<Experimenter> exps = iLdap.searchByAttributes("", attrs, vals);
 			System.out.println("size " + exps.size());
 
-			String dn = "cn=atarkowska,ou=edir,ou=people"; //DN without base
+			String dn = "cn=jsmith, ou=people"; //DN without base
 			List<Experimenter> exps1 = iLdap
 					.searchByAttributes(dn, attrs, vals);
 			System.out.println("size " + exps1.size());
@@ -65,7 +65,7 @@ public class LdapTest extends AbstractManagedContextTest {
 	@Test
 	public void testSearchByDN() throws Exception {
 		if (iLdap.getSetting()) {
-			String dn = "cn=atarkowska,ou=edir,ou=people"; //DN without base
+			String dn = "cn=jsmith, ou=people"; //DN without base
 			Experimenter exp = iLdap.searchByDN(dn);
 			System.out.println("Experimenter: " + exp.getFirstName() + " "
 					+ exp.getLastName() + ", " + exp.getOmeName() + " "
@@ -76,13 +76,13 @@ public class LdapTest extends AbstractManagedContextTest {
 	@Test
 	public void testFindDN() throws Exception {
 		if (iLdap.getSetting()) {
-			String dn = iLdap.findDN("atarkowska");
+			String dn = iLdap.findDN("jsmith");
 			System.out.println("DN: " + dn.toString());
 
 			// should be created 2 the same cns on the subtree.
 			// should catch an exception
 			try {
-				iLdap.findDN("atarkowska");
+				iLdap.findDN("jsmith");
 			} catch (Exception e) {
 				System.err.println("Subtree should not contains two the same CNs");
 				e.printStackTrace();
@@ -102,7 +102,7 @@ public class LdapTest extends AbstractManagedContextTest {
 	public void testValidatePassword() throws Exception {
 		if (iLdap.getSetting()) {
 			System.err.println(iLdap.validatePassword(
-					"cn=atarkowska,ou=edir,ou=people,ou=lifesci,o=dundee", "ome123"));
+					"cn=jsmith, ou=people, ou=example, o=com", "passwd"));
 		}
 	}
 
@@ -111,9 +111,9 @@ public class LdapTest extends AbstractManagedContextTest {
 		if(iLdap.getSetting()) {
 			Experimenter exp = null;
 			try {
-				exp = iAdmin.lookupExperimenter("dzmacdonald");
+				exp = iAdmin.lookupExperimenter("jsmith");
 			} catch (ApiUsageException e) {
-				iLdap.createUserFromLdap("dzmacdonald", "ome123");
+				iLdap.createUserFromLdap("jsmith", "passwd");
 			}
 			
 			if(exp!=null) 
