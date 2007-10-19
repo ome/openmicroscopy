@@ -1,37 +1,19 @@
 package ome.server.itests;
 
-import java.io.IOException;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import ome.api.IPixels;
-import ome.api.IQuery;
 import ome.api.IRenderingSettings;
-import ome.conditions.ValidationException;
-import ome.io.nio.PixelBuffer;
-import ome.io.nio.PixelsService;
-import ome.model.containers.Category;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
-import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
 import ome.model.display.ChannelBinding;
 import ome.model.display.CodomainMapContext;
-import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
-import ome.model.enums.Family;
-import ome.model.enums.RenderingModel;
 import ome.testing.ObjectFactory;
-import ome.util.PathUtil;
-import omeis.providers.re.Renderer;
-import omeis.providers.re.RenderingEngine;
-import omeis.providers.re.quantum.QuantumFactory;
 
 import org.testng.annotations.Test;
 
