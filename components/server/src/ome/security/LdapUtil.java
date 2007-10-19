@@ -40,8 +40,7 @@ public class LdapUtil {
 			SimpleJdbcOperations jdbc) {
 		return jdbc
 				.queryForList(
-						"select dn, experimenter_id from password where dn is not null ",
-						null);
+						"select dn, experimenter_id from password where dn is not null ");
 	}
 
 	public static String lookupLdapAuthExperimenter(SimpleJdbcOperations jdbc,

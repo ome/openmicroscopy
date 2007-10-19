@@ -7,7 +7,8 @@
 package ome.server.itests.sec;
 
 import java.util.List;
-import net.sf.ldaptemplate.support.DistinguishedName;
+
+import ome.conditions.ApiUsageException;
 import ome.model.meta.Experimenter;
 import ome.server.itests.AbstractManagedContextTest;
 
@@ -20,125 +21,115 @@ public class LdapTest extends AbstractManagedContextTest {
 
 	@Test
 	public void testSearchAll() throws Exception {
-		loginRoot();
-		List<Experimenter> l = iLdap.searchAll();
-		System.out.println(l.size());
-
+		if (iLdap.getSetting()) {
+			List<Experimenter> l = iLdap.searchAll();
+			System.err.println(l.size());
+		}
 	}
 
 	@Test
 	public void testSearchDnInGroups() throws Exception {
-		loginRoot();
-
-		List<String> l = iLdap.searchDnInGroups("member",
-				"cn=jsmith, ou=example, ou=domain, o=com");
-		for (String s : l) {
-			System.out.println(s);
+		if (iLdap.getSetting()) {
+			List<String> l = iLdap.searchDnInGroups("jGroup1",
+					"cn=atarkowska, ou=edir, ou=people, ou=lifesci, o=dundee");
+			System.err.println(l.size());
 		}
-
 	}
 
 	@Test
 	public void testSearchByAttribute() throws Exception {
-		loginRoot();
-
-		List<Experimenter> exps = iLdap.searchByAttribute(
-				"", "sn", "Smith");
-		for (Experimenter e : exps) {
-			System.out.println(e.getOmeName());
+		if (iLdap.getSetting()) {
+			List<Experimenter> exps = iLdap
+					.searchByAttribute("", "sn", "Tarkowska");
+			System.err.println(exps.size());
 		}
-
 	}
 
 	@Test
 	public void testSearchByAttributes() throws Exception {
-		loginRoot();
+		if (iLdap.getSetting()) {
+			String[] attrs = iLdap.getReqAttributes();
+			String[] vals = iLdap.getReqValues();
 
-		String[] attrs = new String[2];
-		attrs[0] = "objectClass";
-		attrs[1] = "gidNumber";
-		String[] vals = new String[2];
-		vals[0] = "person";
-		vals[1] = "1111";
+			List<Experimenter> exps = iLdap.searchByAttributes("", attrs, vals);
+			System.out.println("size " + exps.size());
 
-		List<Experimenter> exps = iLdap.searchByAttributes(
-				"", attrs, vals);
-		System.out.println("size " + exps.size());
-		for (Experimenter e : exps) {
-			System.out.println(e.getOmeName());
+			String dn = "cn=atarkowska,ou=edir,ou=people"; //DN without base
+			List<Experimenter> exps1 = iLdap
+					.searchByAttributes(dn, attrs, vals);
+			System.out.println("size " + exps1.size());
+
 		}
-
-		String dn = "cn=jsmith,ou=example";
-		List<Experimenter> exps1 = iLdap.searchByAttributes(dn, attrs, vals);
-		System.out.println("size " + exps1.size());
-		for (Experimenter e : exps1) {
-			System.out.println(e.getOmeName());
-		}
-
 	}
 
 	@Test
 	public void testSearchByDN() throws Exception {
-		loginRoot();
-
-		String dn = "cn=atarkowska,ou=example";
-		Experimenter exp = iLdap.searchByDN(dn);
-		System.out.println("Experimenter: " + exp.getFirstName() + " "
-				+ exp.getLastName() + ", " + exp.getOmeName() + " "
-				+ exp.getEmail());
-
-	}
-
-	@Test
-	public void testFindDN() throws Exception {
-		loginRoot();
-
-		String dn = iLdap.findDN("jsmith");
-		System.out.println("DN: " + dn.toString());
-
-		// should be created 2 the same cns on the subtree.
-		// should catch an exception
-		try {
-			iLdap.findDN("jsmith");
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (iLdap.getSetting()) {
+			String dn = "cn=atarkowska,ou=edir,ou=people"; //DN without base
+			Experimenter exp = iLdap.searchByDN(dn);
+			System.out.println("Experimenter: " + exp.getFirstName() + " "
+					+ exp.getLastName() + ", " + exp.getOmeName() + " "
+					+ exp.getEmail());
 		}
 	}
 
 	@Test
-	public void testSearchGroups() throws Exception {
-		loginRoot();
+	public void testFindDN() throws Exception {
+		if (iLdap.getSetting()) {
+			String dn = iLdap.findDN("atarkowska");
+			System.out.println("DN: " + dn.toString());
 
+			// should be created 2 the same cns on the subtree.
+			// should catch an exception
+			try {
+				iLdap.findDN("atarkowska");
+			} catch (Exception e) {
+				System.err.println("Subtree should not contains two the same CNs");
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Test
 	public void testSearchAttributes() throws Exception {
-		loginRoot();
+		if (iLdap.getSetting()) {
+			iLdap.getReqAttributes();
+		}
 
 	}
 
 	@Test
 	public void testValidatePassword() throws Exception {
-		loginRoot();
-		System.out.println(iLdap.validatePassword("cn=jsmith,ou=example,ou=domain,o=com", "passwod"));
-		
+		if (iLdap.getSetting()) {
+			System.err.println(iLdap.validatePassword(
+					"cn=atarkowska,ou=edir,ou=people,ou=lifesci,o=dundee", "ome123"));
+		}
 	}
 
 	@Test
 	public void testCreateUserFromLdap() throws Exception {
-		loginRoot();
-		System.out.println(iLdap.createUserFromLdap("jsmith", "passwd"));
-		
+		if(iLdap.getSetting()) {
+			Experimenter exp = null;
+			try {
+				exp = iAdmin.lookupExperimenter("dzmacdonald");
+			} catch (ApiUsageException e) {
+				iLdap.createUserFromLdap("dzmacdonald", "ome123");
+			}
+			
+			if(exp!=null) 
+				System.err.println("Experimenter exist, for test please try set another one.");
+			
+		}
 	}
 
-	
 	@Test
 	public void testGetReq() throws Exception {
-		loginRoot();
-		iLdap.getSetting();
-		iLdap.getReqAttributes();
-		iLdap.getReqGroups();
-		iLdap.getReqValues();
+		if(iLdap.getSetting()) {
+			iLdap.getSetting();
+			iLdap.getReqAttributes();
+			iLdap.getReqGroups();
+			iLdap.getReqValues();
+		}
 	}
-	
+
 }
