@@ -22,16 +22,16 @@
  */
 package org.openmicroscopy.shoola.env.rnd.data;
 
-import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 /** 
- * 
+ * Holds structure used to mapped the raw pixels data.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -84,7 +84,7 @@ public class ChannelButton
     /** Fires an event to select the channel. */
     private final void setChannelSelected()
     {
-        Boolean value =  Boolean.TRUE;
+        Boolean value = Boolean.TRUE;
         if (isSelected()) value = Boolean.FALSE;
         HashMap<Integer, Boolean> map = new HashMap<Integer, Boolean>(1);
         map.put(new Integer(index), value);

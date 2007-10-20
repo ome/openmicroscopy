@@ -45,6 +45,7 @@ import java.awt.image.BufferedImage;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
@@ -105,6 +106,18 @@ class ImViewerUI
  	extends TopWindow
 {
 
+	/** Indicates to update the channel buttons composing the grid view. */
+	static final int GRID_ONLY = 0;
+	
+	/** Indicates to update the channel buttons composing the main view. */
+	static final int VIEW_ONLY = 1;
+	
+	/**
+	 *  Indicates to update the channel buttons composing the grid view
+	 * and the main view. 
+	 */
+	static final int GRID_AND_VIEW = 2;
+	
 	/** Number of pixels added to the height of an icon. */
 	private static final int	ICON_EXTRA = 4;
 
@@ -1026,13 +1039,28 @@ class ImViewerUI
 	{
 		statusBar.setLeftStatus(description);
 	}
-
+	
 	/**
 	 * Updates the buttons' selection when a new button is selected or 
 	 * deselected.
+	 * 
+	 * @param index One of the following constants {@link #GRID_ONLY},
+	 * 				{@link #VIEW_ONLY} and {@link #GRID_AND_VIEW}.
 	 */
-	void setChannelsSelection() { controlPane.setChannelsSelection(); }
+	void setChannelsSelection(int index)
+	{ 
+		controlPane.setChannelsSelection(index); 
+	}
 
+	/**
+	 * Sets the active channels in the grid view.
+	 * 
+	 * @param channels The collection of channel indexes.
+	 */
+	void setChannelsSelection(List channels)
+	{
+		controlPane.setChannelsSelection(channels); 
+	}
 	/** 
 	 * Sets whether or not the tabbed pane is enabled.
 	 * 
@@ -1376,13 +1404,26 @@ class ImViewerUI
 	/**
 	 * Sets the specified channel to active.
 	 * 
-	 * @param index The channel's index.
+	 * @param index   The channel's index.
+	 * @param uiIndex One of the following constants 
+     * 				  {@link ImViewerUI#GRID_ONLY} and 
+	 * 				  {@link ImViewerUI#GRID_AND_VIEW}.
 	 */
-	void setChannelActive(int index)
+	void setChannelActive(int index, int uiIndex)
 	{
-		controlPane.setChannelActive(index);
+		controlPane.setChannelActive(index, uiIndex);
 	}
-
+	
+	/**
+	 * Returns the collection of the acive channels in the grid view.
+	 * 
+	 * @return See above.
+	 */
+	List getActiveChannelsInGrid()
+	{
+		return controlPane.getActiveChannelsInGrid();
+	}
+	
 	/** 
 	 * Adds a new item to the history. 
 	 * 

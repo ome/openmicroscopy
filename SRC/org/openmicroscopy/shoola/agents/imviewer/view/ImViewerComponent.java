@@ -505,13 +505,14 @@ class ImViewerComponent
 			rndToSave = true;
 			Iterator i;
 			List channels = model.getActiveChannels();
+			int index;
 			switch (key) {
 				case ColorModelAction.GREY_SCALE_MODEL:
 					historyActiveChannels = model.getActiveChannels();
 					model.setColorModel(GREY_SCALE_MODEL);
+					
 					if (channels != null && channels.size() > 1) {
 						i = channels.iterator();
-						int index;
 						int j = 0;
 						while (i.hasNext()) {
 							index = ((Integer) i.next()).intValue();
@@ -522,11 +523,17 @@ class ImViewerComponent
 						//no channel so one will be active.
 						setChannelActive(0, true);
 					}
+					if (channels != null) {
+						i = channels.iterator();
+						while (i.hasNext()) {
+							index = ((Integer) i.next()).intValue();
+							//view.setChannelActiveGridView(index);
+						}
+					}
 					break;
 				case ColorModelAction.RGB_MODEL:
 				case ColorModelAction.HSB_MODEL:
 					model.setColorModel(HSB_MODEL);
-					int index;
 					if (historyActiveChannels != null && 
 							historyActiveChannels.size() != 0) {
 						i = historyActiveChannels.iterator();
@@ -674,7 +681,7 @@ class ImViewerComponent
 			view.setChannelColor(index, c);
 			if (!model.isChannelActive(index)) {
 				setChannelActive(index, true);
-				view.setChannelActive(index);
+				view.setChannelActive(index, ImViewerUI.GRID_AND_VIEW);
 			}
 
 			if (GREY_SCALE_MODEL.equals(model.getColorModel()))
@@ -713,23 +720,52 @@ class ImViewerComponent
 		}
 		//depends on model
 		try {
+			int uiIndex = -1;
 			if (model.getColorModel().equals(GREY_SCALE_MODEL)) {
-				if (model.isChannelActive(index)) return;
-				boolean c;
-				for (int i = 0; i < model.getMaxC(); i++) {
-					c = i == index;
-					model.setChannelActive(i, c);  
-					if (c) 
+				if (model.getTabbedIndex() == ImViewer.GRID_INDEX) {
+					//if (view.getActiveChannelsInGrid().size() == 1) b = true;
+					/*
+					model.setChannelActive(index, b); 
+					if (b) 
 						firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
 								new Integer(index-1), new Integer(index));
+								*/
+					//view.setChannelsSelectionGridView();
+					//uiIndex = ImViewerUI.GRID_ONLY;
+					List<Integer> l = new ArrayList<Integer>();
+					List selectedChannels = view.getActiveChannelsInGrid();
+					for (int i = 0; i < model.getMaxC(); i++) {
+						if (i == index) {
+							if (b) l.add(i);
+						} else {
+							if (selectedChannels.contains(i))
+								l.add(i);
+						}
+					}
+					historyActiveChannels = l;
+					view.setChannelsSelection(l);
+				} else {
+					if (model.isChannelActive(index)) return;
+					boolean c;
+					for (int i = 0; i < model.getMaxC(); i++) {
+						c = i == index;
+						model.setChannelActive(i, c);  
+						if (c) 
+							firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
+									new Integer(index-1), new Integer(index));
+					}
+					uiIndex = ImViewerUI.VIEW_ONLY;
+					//view.setChannelsSelection();
 				}
 			} else {
+				uiIndex = ImViewerUI.GRID_AND_VIEW;
 				model.setChannelActive(index, b);
 				firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
 						new Integer(index-1), new Integer(index));
+				//view.setChannelsSelection();
 			}
-
-			view.setChannelsSelection();
+			view.setChannelsSelection(uiIndex);
+			//view.setChannelsSelection();
 			renderXYPlane();
 			postActiveChannelSelection(ChannelSelection.CHANNEL_SELECTION);
 		} catch (Exception ex) {
@@ -798,10 +834,6 @@ class ImViewerComponent
 						"This method can't be invoked in the DISCARDED, NEW or" +
 				"LOADING_RENDERING_CONTROL state.");
 		}
-		//if (model.getColorModel().equals(RGB_MODEL)) {
-		//    if (model.getActiveChannels().size() == MAX_CHANNELS_RGB);
-		//   return;
-		//}
 		rndToSave = true;
 		try {
 			model.setChannelActive(index, b);
@@ -827,7 +859,7 @@ class ImViewerComponent
 						"This method can't be invoked in the DISCARDED, NEW or" +
 				"LOADING_RENDERING_CONTROL state.");
 		}
-		view.setChannelsSelection();
+		view.setChannelsSelection(ImViewerUI.GRID_AND_VIEW);
 		renderXYPlane();
 	}
 
@@ -1070,6 +1102,40 @@ class ImViewerComponent
 
 		try {
 			if (model.getColorModel().equals(GREY_SCALE_MODEL)) {
+				active = view.getActiveChannelsInGrid();
+				//Iterator i = active.iterator();
+				for (int k = 0; k < maxC; k++) {
+					if (active.contains(k)) {
+						model.setChannelActive(k, true);
+						for (int j = 0; j < maxC; j++) {
+							if (j != k) model.setChannelActive(j, false);
+						}
+						images.add(model.getSplitComponentImage());
+					} else {
+						images.add(null);
+					}
+				}
+				Iterator i = active.iterator();
+
+				while (i.hasNext()) { //reset values.
+					index = ((Integer) i.next()).intValue();
+					model.setChannelActive(index, true);
+				}
+				model.setColorModel(HSB_MODEL);
+				images.add(model.getSplitComponentImage());
+				model.setColorModel(GREY_SCALE_MODEL);
+				/*
+				while (i.hasNext()) { //reset values.
+					index = ((Integer) i.next()).intValue();
+					model.setChannelActive(index, false);
+				}
+				*/
+				active = model.getActiveChannels();
+				while (i.hasNext()) { //reset values.
+					index = ((Integer) i.next()).intValue();
+					model.setChannelActive(index, true);
+				}
+				/*
 				for (int k = 0; k < maxC; k++) {
 					model.setChannelActive(k, true);
 					for (int i = 0; i < maxC; i++) {
@@ -1094,7 +1160,8 @@ class ImViewerComponent
 					index = ((Integer) i.next()).intValue();
 					model.setChannelActive(index, true);
 				}
-
+				 */
+				
 			} else {
 				Iterator i;
 				for (int j = 0; j < maxC; j++) {

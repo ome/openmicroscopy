@@ -30,8 +30,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -146,8 +150,11 @@ class ControlPane
     private OneKnobSlider			ratioSlider;
     
     /** One  {@link ChannelButton} per channel. */
-    private HashSet<ChannelButton>	channelButtons;
+    private Set<ChannelButton>		channelButtons;
 
+    /** One  {@link ChannelButton} per channel. */
+    private Set<ChannelButton>		channelButtonsGrid;
+   
     /** Button to play movie across channel. */
     private JButton         		channelMovieButton;
     
@@ -263,6 +270,8 @@ class ControlPane
     /** Initializes the components composing the display. */
     private void initComponents()
     {
+    	channelButtons = new HashSet<ChannelButton>();
+    	channelButtonsGrid = new HashSet<ChannelButton>();
         ViewerAction[] ratingActions = new ViewerAction[5];
         ratingActions[0] = controller.getAction(ImViewerControl.RATING_ONE);
         ratingActions[1] = controller.getAction(ImViewerControl.RATING_TWO);
@@ -582,7 +591,6 @@ class ControlPane
         this.controller = controller;
         this.model = model;
         this.view = view;
-        channelButtons = new HashSet<ChannelButton>();
         icons = IconManager.getInstance();
         initComponents();
     }
@@ -629,7 +637,7 @@ class ControlPane
             if (gs) button.setGrayedOut(gs);
             button.addPropertyChangeListener(controller);
             button.setPreferredSize(ChannelButton.DEFAULT_MIN_SIZE);
-            channelButtons.add(button);
+            channelButtonsGrid.add(button);
             buttons.add(button);
             buttons.add(Box.createRigidArea(VBOX));
         }
@@ -638,19 +646,13 @@ class ControlPane
         double size[][] = {{TableLayout.PREFERRED}, 
         				{TableLayout.PREFERRED, TableLayout.PREFERRED,
         				TableLayout.PREFERRED, SLIDER_HEIGHT}};
-        /*
-        controls.setLayout(new BoxLayout(controls,BoxLayout.Y_AXIS));
-        controls.add(Box.createVerticalStrut(20));
-        controls.add(buildGridBar());
-        controls.add(buttons);
-        */
+        
         controls.setLayout(new TableLayout(size));
         controls.add(Box.createVerticalStrut(20), "0, 0");
         controls.add(buildGridBar(), "0, 1, c, c");
         controls.add(buttons, "0, 2");
         controls.add(gridRatioSlider, "0, 3, c, c");
-        //controls.add(gridPanel);
-        //
+        
         JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.X_AXIS));
         content.add(UIUtilities.buildComponentPanel(controls));
@@ -707,6 +709,15 @@ class ControlPane
                     model.isChannelActive(button.getChannelIndex()));
             button.setGrayedOut(gs);
         }
+        i = channelButtonsGrid.iterator();
+        while (i.hasNext()) {
+            button = (ChannelButton) i.next();
+            if (!gs) 
+            	button.setSelected(
+                   model.isChannelActive(button.getChannelIndex()));
+            button.setGrayedOut(gs);
+        }
+        
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
         colorModelButton.setToolTipText(getColorModelDescription(
 				model.getColorModel()));
@@ -715,19 +726,61 @@ class ControlPane
 				model.getColorModel()));
     }
     
+    void setChannelsSelection(List channels)
+    {
+    	Iterator i = channelButtonsGrid.iterator();
+        ChannelButton button;
+        int index;
+		while (i.hasNext()) {
+            button = (ChannelButton) i.next();
+            index = button.getChannelIndex();
+            button.setSelected(channels.contains(index));
+        }
+    }
+    
     /** 
      * Updates the {@link ChannelButton}s when a new one is selected or 
      * deselected.
+     * 
+     * @param index One of the following constants {@link ImViewerUI#GRID_ONLY},
+	 * 				{@link ImViewerUI#VIEW_ONLY} and 
+	 * 				{@link ImViewerUI#GRID_AND_VIEW}.
      */
-    void setChannelsSelection()
+    void setChannelsSelection(int index)
     {
-        Iterator i = channelButtons.iterator();
+        Iterator i;
         ChannelButton button;
-        while (i.hasNext()) {
-            button = (ChannelButton) i.next();
-            button.setSelected(
-                    model.isChannelActive(button.getChannelIndex()));
-        }
+        switch (index) {
+			case ImViewerUI.GRID_ONLY:
+				i = channelButtonsGrid.iterator();
+				while (i.hasNext()) {
+		            button = (ChannelButton) i.next();
+		            button.setSelected(
+		                    model.isChannelActive(button.getChannelIndex()));
+		        }
+				break;
+			case ImViewerUI.VIEW_ONLY:
+				i = channelButtons.iterator();
+				while (i.hasNext()) {
+		            button = (ChannelButton) i.next();
+		            button.setSelected(
+		                    model.isChannelActive(button.getChannelIndex()));
+		        }
+				break;
+			case ImViewerUI.GRID_AND_VIEW:
+				i = channelButtons.iterator();
+				while (i.hasNext()) {
+		            button = (ChannelButton) i.next();
+		            button.setSelected(
+		                    model.isChannelActive(button.getChannelIndex()));
+		        }
+				i = channelButtonsGrid.iterator();
+				while (i.hasNext()) {
+		            button = (ChannelButton) i.next();
+		            button.setSelected(
+		                    model.isChannelActive(button.getChannelIndex()));
+		        }
+		}
     }
     
     /**
@@ -745,6 +798,12 @@ class ControlPane
             if (index == button.getChannelIndex()) 
                 button.setColor(c);
         }
+        i = channelButtonsGrid.iterator();
+        while (i.hasNext()) {
+            button = (ChannelButton) i.next();
+            if (index == button.getChannelIndex()) 
+                button.setColor(c);
+        }
     }
     
     /** Resets the default. */
@@ -754,6 +813,14 @@ class ControlPane
         Iterator i = channelButtons.iterator();
         ChannelButton button;
         int index;
+        while (i.hasNext()) {
+            button = (ChannelButton) i.next();
+            index = button.getChannelIndex();
+            button.setSelected(model.isChannelActive(index));
+            button.setColor(model.getChannelColor(index)); 
+            button.setGrayedOut(gs);
+        }
+        i = channelButtonsGrid.iterator();
         while (i.hasNext()) {
             button = (ChannelButton) i.next();
             index = button.getChannelIndex();
@@ -886,18 +953,51 @@ class ControlPane
     /**
      * Sets the specified channel to active.
      * 
-     * @param index The channel's index.
+     * @param index   The channel's index.
+     * @param uiIndex One of the following constants 
+     * 				  {@link ImViewerUI#GRID_ONLY} and 
+	 * 				  {@link ImViewerUI#GRID_AND_VIEW}.
      */
-    void setChannelActive(int index)
+    void setChannelActive(int index, int uiIndex)
     {
-    	Iterator i = channelButtons.iterator();
+    	Iterator i;
         ChannelButton button;
+        switch (uiIndex) {
+			case ImViewerUI.GRID_ONLY:
+				 i = channelButtonsGrid.iterator();
+			        while (i.hasNext()) {
+			            button = (ChannelButton) i.next();
+			            if (index == button.getChannelIndex()) 
+			                button.setSelected(true);
+			        }
+				break;
+			case ImViewerUI.GRID_AND_VIEW:
+				i = channelButtons.iterator();
+				while (i.hasNext()) {
+					button = (ChannelButton) i.next();
+					if (index == button.getChannelIndex()) 
+						button.setSelected(true);
+				}
+				i = channelButtonsGrid.iterator();
+				while (i.hasNext()) {
+					button = (ChannelButton) i.next();
+					if (index == button.getChannelIndex()) 
+						button.setSelected(true);
+				}
+		}       
+	}
+    
+    List getActiveChannelsInGrid()
+    {
+    	List<Integer> active = new ArrayList<Integer>();
+    	Iterator i = channelButtonsGrid.iterator();
+    	ChannelButton button;
         while (i.hasNext()) {
             button = (ChannelButton) i.next();
-            if (index == button.getChannelIndex()) 
-                button.setSelected(true);
+            if (button.isSelected()) active.add(button.getChannelIndex());
         }
-	}
+        return active;
+    }
     
     /**
      * Updates UI components when a zooming factor is selected.

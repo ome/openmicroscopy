@@ -95,7 +95,6 @@ class GridCanvas
         int textWidth;
         boolean text = model.isTextVisible();
         String name;
-        int imageW, imageH;
         for (int i = 0; i < n; ++i) {
             for (int j = 0; j < n; ++j) {
                 if (!channels.hasNext()) return; //Done

@@ -241,8 +241,30 @@ class BrowserModel
     	List<BufferedImage> images = new ArrayList<BufferedImage>(maxC);
     	int n = l.size();
     	if (parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
+    		/*
     		for (int i = 0; i < maxC; i++) 
 				gridImages.add(null);
+				*/
+    		images = parent.getGridImages();
+	    	if (images != null) {
+	    		int last = images.size()-1;
+	    		combinedImage = Factory.magnifyImage(gridRatio, 
+									images.get(last));
+	    		images.remove(last);
+	    		Iterator i = images.iterator();
+	        	while (i.hasNext()) {
+	        		gridImages.add(Factory.magnifyImage(gridRatio, 
+	        					(BufferedImage) i.next()));
+	    		}
+	        	if (originalGridImages.size() == 0 && !isImageRGB()) {
+	        		i = images.iterator();
+    	        	while (i.hasNext()) {
+    	        		originalGridImages.add((BufferedImage) i.next());
+    	    		}
+	        	}
+	        	//combinedImage = Factory.magnifyImage(gridRatio, 
+				//		renderedImage);
+	    	}
     		return;
     	}
     	switch (n) {
@@ -689,16 +711,10 @@ class BrowserModel
     { 
     	if (splitImages == null) splitImages = new ArrayList<SplitImage>();
     	else splitImages.clear();
-    	boolean grey = parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
     	BufferedImage combined;
     	String n;
     	combined = combinedImage;//annotateImage;
-    	int length = gridImages.size();
-    	if (grey) {
-    		length = length-1;
-    		combined = gridImages.get(length);
-    	}
-    	for (int j = 0; j < length; j++) {
+    	for (int j = 0; j < gridImages.size(); j++) {
     		n = PREFIX+
 				parent.getChannelMetadata(j).getEmissionWavelength();
     		splitImages.add(new SplitImage(gridImages.get(j), n));
