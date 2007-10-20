@@ -115,7 +115,6 @@ class GridCanvas
                             g2D.drawString(name, x+2, y+height);
                 		}
                 	}
-                	
                     if (bar && v != null) {
                     	textWidth = fm.stringWidth(v)+4;
                     	if (textWidth < w/2)
@@ -123,14 +122,14 @@ class GridCanvas
                     									y+h-5, s, v, c);
                     }
                 } else { //just paint rectangle.
-                	if (text) {
-                		name = channel.getName();
-                		g2D.setColor(BACKGROUND);
-                    	g2D.drawRect(x, y, w-1, h-1);
-                    	textWidth = fm.stringWidth(name)+4;
-                    	if (textWidth < w) 
-                    		g2D.drawString(name, x+2, y+height);
-                	}
+                	//if (text) {
+                	name = channel.getName();
+                	g2D.setColor(BACKGROUND);
+                	g2D.drawRect(x, y, w-1, h-1);
+                	textWidth = fm.stringWidth(name)+4;
+                	if (textWidth < w && text) 
+                		g2D.drawString(name, x+2, y+height);
+                	//}
                 }
             }
             x = 0;
@@ -161,6 +160,13 @@ class GridCanvas
                 		ImagePaintingFactory.paintScaleBar(g2D, x+w-s-5, 
                 									y+h-5, s, v, c);
                 }
+        	} else {
+        		name = combined.getName();
+            	g2D.setColor(BACKGROUND);
+            	g2D.drawRect(x, y, w-1, h-1);
+            	textWidth = fm.stringWidth(name)+4;
+            	if (textWidth < w && text) 
+            		g2D.drawString(name, x+2, y+height);
         	}
         }
 	}

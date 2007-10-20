@@ -1121,9 +1121,12 @@ class ImViewerComponent
 					index = ((Integer) i.next()).intValue();
 					model.setChannelActive(index, true);
 				}
-				model.setColorModel(HSB_MODEL);
-				images.add(model.getSplitComponentImage());
-				model.setColorModel(GREY_SCALE_MODEL);
+				if (active.size() != 0) {
+					model.setColorModel(HSB_MODEL);
+					images.add(model.getSplitComponentImage());
+					model.setColorModel(GREY_SCALE_MODEL);
+				}
+				
 				/*
 				while (i.hasNext()) { //reset values.
 					index = ((Integer) i.next()).intValue();
