@@ -486,7 +486,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		Icon bigProtocolIcon = ImageFactory.getInstance().getIcon(ImageFactory.BIG_PROTOCOL_ICON);
 		Object[] options = {"Start blank protocol",
 		                    "Open existing file",
-		                    "Open demo protocol"};
+		                    "Cancel"};
 		int n = JOptionPane.showOptionDialog(XMLFrame, "<html>Welcome to the Protocol Editor. <br>"
 		    + "Please choose an option to get you started.</html>", "Welcome",
 		    JOptionPane.YES_NO_CANCEL_OPTION,
@@ -497,14 +497,6 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		
 		if (n == 0) newProtocolFile();
 		else if (n == 1) openFile();
-		else if (n == 2) {
-			JDialog testDialog = new JDialog(XMLFrame);
-			testDialog.setUndecorated(true);
-			testDialog.setVisible(true);
-			
-			xmlModel.openDemoProtocolFile();
-			XMLTabbedPane.setSelectedIndex(1); 	// goto edit protocol tab
-		}
 	}
 	
 	// turn on/off the controls for editing protocols
@@ -599,24 +591,24 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	}
 	
 	public void promoteDataFields() {
-		xmlModel.promoteDataFields();
+		xmlModel.editCurrentTree(Tree.PROMOTE_FIELDS);
 	}
 	
 	public void demoteDataFields() {
-		xmlModel.demoteDataFields();
+		xmlModel.editCurrentTree(Tree.DEMOTE_FIELDS);
 	}
 	
 	public void moveFieldsUp() {
-		// if the highlighted fields have a preceeding sister, move it below the highlighted fields
-		xmlModel.moveFieldsUp();
+		// if the highlighted fields have a preceding sister, move it below the highlighted fields
+		xmlModel.editCurrentTree(Tree.MOVE_FIELDS_UP);
 		}
 	public void moveFieldsDown() {
-		xmlModel.moveFieldsDown();
+		xmlModel.editCurrentTree(Tree.MOVE_FIELDS_DOWN);
 	}
 	
 	public void addDataField() {
 		// add dataField after last selected one
-		xmlModel.addDataField();
+		xmlModel.editCurrentTree(Tree.ADD_NEW_FIELD);
 	}
 	
 	public void closeCurrentFile() {
@@ -699,8 +691,8 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	public void actionPerformed(ActionEvent event) {
 		String command = event.getActionCommand();
 		System.out.println(command);
-		if (command.equals(COPY)) xmlModel.copyHighlightedFieldsToClipboard();
-		else if (command.equals(PASTE)) xmlModel.pasteClipboardFields();
+		if (command.equals(COPY)) xmlModel.editCurrentTree(Tree.COPY_FIELDS);
+		else if (command.equals(PASTE)) xmlModel.editCurrentTree(Tree.PASTE_FIELDS);
 	}
 	
 	public void mainWindowClosing() {
@@ -1225,7 +1217,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	
 	public void duplicateFields() {
 		// get selected Fields, duplicate and add after last selected one
-		xmlModel.duplicateDataFields();
+		xmlModel.editCurrentTree(Tree.DUPLICATE_FIELDS);
 			
 		// refresh UI after adding all (not after each time)
 		xmlModel.notifyXMLObservers();

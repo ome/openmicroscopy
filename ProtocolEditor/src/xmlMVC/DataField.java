@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 // the in-memory form of an xml element
 // has hash map of attributes, plus FormField and FieldEditor panels to display them
 
-public class DataField {
+public class DataField implements Visitable{
 	
 	// attribute types
 	// changes to the attributes are reflected in XML element saving.
@@ -226,6 +226,13 @@ public class DataField {
 		boolean hasChildren = (!(getNode().children.isEmpty()));
 		return hasChildren;
 	}
+	// if there are any children, set their collapsed (visible) state
+	public void collapseChildren(boolean collapsed) {
+		if (hasChildren()) {
+			setAttribute(SUBSTEPS_COLLAPSED, (new Boolean(collapsed)).toString(), false);
+			refreshTitleCollapsed();
+		}
+	}
 
 	public void refreshTitleCollapsed() {
 		formField.refreshTitleCollapsed();
@@ -241,6 +248,11 @@ public class DataField {
 	}
 	public void hideChildren(boolean hidden) {
 		node.hideChildren(hidden);
+	}
+
+	// allows algorithms to perform tasks on all visited dataFields (this)
+	public void acceptVistor(DataFieldVisitor visitor) {
+		visitor.visit(this);
 	}
 
 }

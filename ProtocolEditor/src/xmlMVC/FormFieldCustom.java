@@ -11,7 +11,7 @@ public class FormFieldCustom extends FormField {
 		// System.out.println("FormFieldCustom Constructor..");
 		
 		// if dataField is created from an imported XML-element, need to initialise input_type
-		dataField.setAttribute(DataField.INPUT_TYPE, DataField.CUSTOM, false);
+		// dataField.setAttribute(DataField.INPUT_TYPE, DataField.CUSTOM, false);
 		
 	}
 

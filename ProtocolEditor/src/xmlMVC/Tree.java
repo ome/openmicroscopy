@@ -16,7 +16,18 @@ import org.w3c.dom.NodeList;
 // Tree manages the tree data structure
 // also knows which fields are currently selected (applies actions to these)
 
-public class Tree {
+public class Tree implements Visitable{
+	
+	public static final int MOVE_FIELDS_UP = 0;
+	public static final int MOVE_FIELDS_DOWN = 1;
+	public static final int DELTE_FIELDS = 3;
+	public static final int DELETE_FIELDS_SAVE_CHILDREN = 4;
+	public static final int ADD_NEW_FIELD = 5;
+	public static final int DEMOTE_FIELDS = 6;
+	public static final int PROMOTE_FIELDS = 7;
+	public static final int DUPLICATE_FIELDS = 8;
+	public static final int COPY_FIELDS = 9;
+	public static final int PASTE_FIELDS = 10;
 	
 	private DataFieldNode rootNode;		// the root of the dataField tree. 
 	
@@ -85,27 +96,6 @@ public class Tree {
 		rootNode.addChild(newNode);
 	}
 	
-//	 example with different field types
-	public void openDemoProtocolFile() {
-		
-//		 the root of the dataField tree
-		rootNode = new DataFieldNode(this);
-		DataField protocolField = rootNode.getDataField();
-		
-		protocolField.changeDataFieldInputType(DataField.PROTOCOL_TITLE);
-		protocolField.setAttribute(DataField.ELEMENT_NAME, "Protocol Title - click to edit", false);
-		
-		DataFieldNode newNode;
-		
-		for (int i=0; i < DataField.INPUT_TYPES.length ;i++) {
-			newNode = new DataFieldNode(this);
-			newNode.setParent(rootNode);
-			newNode.getDataField().changeDataFieldInputType(DataField.INPUT_TYPES[i]);
-			newNode.getDataField().setName(DataField.INPUT_TYPES[i] + " Example", true);
-			rootNode.addChild(newNode);
-		}
-	}
-	
 	private void buildTreeFromDOM(DataFieldNode dfNode, Element inputElement) {
 		
 		NodeList children = inputElement.getChildNodes();
@@ -138,10 +128,12 @@ public class Tree {
 		
 	}
 	
-	public void copyHighlightedFieldsToClipboard() {
+	// make a copy of the currently highlighted fields
+	private void copyHighlightedFieldsToClipboard() {
 		copiedToClipboardFields = new ArrayList<DataFieldNode>(highlightedFields);
 		}
-	public void pasteClipboardFields() {
+	// paste the clipboard fields (after the last currently selected field)
+	private void pasteClipboardFields() {
 		copyAndInsertDataFields(copiedToClipboardFields);
 	}
 	
@@ -182,7 +174,7 @@ public class Tree {
 
 
 //	 duplicate a dataField and add it at specified index
-	public void duplicateAndInsertDataFields() {
+	private void duplicateAndInsertDataFields() {
 		
 		if (highlightedFields.isEmpty()) return;
 		
@@ -208,9 +200,56 @@ public class Tree {
 				duplicateDataFieldTree(child, newChild);
 			}
 	}
+	
+	public void editTree(int treeCommand) {
+		
+		switch (treeCommand) {
+		
+			case ADD_NEW_FIELD: {
+				addDataField();
+				return;
+			}
+			case DELTE_FIELDS: {
+				deleteDataFields(false);
+				return;
+			}
+			case DELETE_FIELDS_SAVE_CHILDREN: {
+				deleteDataFields(true);
+				return;
+			}
+			case MOVE_FIELDS_UP: {
+				moveFieldsUp();
+				return;
+			}
+			case MOVE_FIELDS_DOWN: {
+				moveFieldsDown();
+				return;
+			}
+			case PROMOTE_FIELDS: {
+				promoteDataFields();
+				return;
+			}
+			case DEMOTE_FIELDS: {
+				demoteDataFields();
+				return;
+			}
+			case DUPLICATE_FIELDS: {
+				duplicateAndInsertDataFields();
+				return;
+			}
+			case COPY_FIELDS: {
+				copyHighlightedFieldsToClipboard();
+				return;
+			}
+			case PASTE_FIELDS: {
+				pasteClipboardFields();
+				return;
+			}
+		}
+	}
 
 	// add a blank dataField
-	public void addDataField() {
+	private void addDataField() {
 		DataFieldNode newNode = new DataFieldNode(this);// make a new default-type field
 		addDataField(newNode);
 		
@@ -275,7 +314,7 @@ public class Tree {
 	}
 	
 	
-	public void demoteDataFields() {
+	private void demoteDataFields() {
 		
 		if (highlightedFields.isEmpty()) return;
 		
@@ -302,7 +341,7 @@ public class Tree {
 		setTreeEdited(true);
 	}
 	
-	public void promoteDataFields() {
+	private void promoteDataFields() {
 		
 		if (highlightedFields.isEmpty()) return;
 		
@@ -356,7 +395,7 @@ public class Tree {
 	}
 	
 //	 if the highlighted fields have a preceeding sister, move it below the highlighted fields
-	public void moveFieldsUp() {
+	private void moveFieldsUp() {
 		
 		if (highlightedFields.size() == 0) return;
 		
@@ -376,7 +415,7 @@ public class Tree {
 	}
 	
 //	 if the highlighted fields have a preceeding sister, move it below the highlighted fields
-	public void moveFieldsDown() {
+	private void moveFieldsDown() {
 		
 		if (highlightedFields.size() == 0) return;
 		
@@ -389,7 +428,7 @@ public class Tree {
 		if (lastNodeIndex == parentNode.getChildren().size() - 1) return;	// can't move fields down.
 	
 		DataFieldNode succeedingNode = parentNode.getChild(lastNodeIndex + 1);
-		// add the succceeding node before the first node
+		// add the succeeding node before the first node
 		int indexToMoveTo = lastNodeIndex - numFields + 1;
 		parentNode.addChild(indexToMoveTo, succeedingNode);
 		// remove the succeeding node (now 1 more position down the list - after inserting above)
@@ -409,8 +448,12 @@ public class Tree {
 			DataField rootField = rootNode.getDataField();
 			
 			String elementName = ELEMENT;
+		
 			
-			boolean customElement = rootField.getInputType().equals(DataField.CUSTOM);
+			boolean customElement = false;
+			if ((rootField.getInputType() == null)) customElement = true;
+			else if (rootField.getInputType().equals(DataField.CUSTOM)) customElement = true;
+			
 			// if custom XML element, use the elementName attribute as the element Name
 			if (customElement) elementName = rootField.getName();
 			if (elementName == null) elementName = ELEMENT; 	// just in case!
@@ -444,7 +487,10 @@ public class Tree {
 			
 			DataField dataField = child.getDataField();
 			
-			boolean customElement = dataField.getInputType().equals(DataField.CUSTOM);
+			boolean customElement = false;
+			if ((dataField.getInputType() == null)) customElement = true;
+			else if (dataField.getInputType().equals(DataField.CUSTOM)) customElement = true;
+					
 			String elementName = ELEMENT;
 			
 			// if custom XML element, use the elementName attribute as the element Name
@@ -480,9 +526,9 @@ public class Tree {
 	private void parseAttributesMapToElement(LinkedHashMap<String, String> allAttributes, Element element) {
 		
 		boolean customElement = false;
-		if ((allAttributes.get(DataField.INPUT_TYPE) != null) && (allAttributes.get(DataField.INPUT_TYPE).equals(DataField.CUSTOM)))
-				customElement = true;
-		
+		if ((allAttributes.get(DataField.INPUT_TYPE) == null)) customElement = true;
+		else if (allAttributes.get(DataField.INPUT_TYPE).equals(DataField.CUSTOM)) customElement = true;
+				
 		Iterator keyIterator = allAttributes.keySet().iterator();
 		
 		while (keyIterator.hasNext()) {
@@ -491,7 +537,7 @@ public class Tree {
 			
 			// if you want to recreate original xml, don't include "extra" attributes
 			if (customElement) {
-				if (key.equals(DataField.ELEMENT_NAME) || key.equals(DataField.SUBSTEPS_COLLAPSED) || key.equals(DataField.VALUE))
+				if (key.equals(DataField.ELEMENT_NAME) || key.equals(DataField.SUBSTEPS_COLLAPSED) || key.equals(DataField.TEXT_NODE_VALUE))
 					continue;
 			}
 			
@@ -585,7 +631,7 @@ public class Tree {
 		else {
 			int siblingIndex = dataFieldNode.getMyIndexWithinSiblings();
 			
-			// get the max and min indexes of highlighted fields
+			// get the max and minimum indexes of highlighted fields
 			int highlightedIndexMax = highlightedFields.get(0).getMyIndexWithinSiblings();
 			int highlightedIndexMin = highlightedFields.get(0).getMyIndexWithinSiblings();
 			for (DataFieldNode highlightedField: highlightedFields) {
@@ -618,14 +664,22 @@ public class Tree {
 	// called by button on Edit Experiment tab
 	public void copyDefaultValuesToInputFields() {
 		
-		Iterator iterator = rootNode.createIterator();
-			
-		while (iterator.hasNext()) {
-			DataFieldNode node = (DataFieldNode)iterator.next();
-			node.getDataField().copyDefaultValueToInputField();
+		class vis implements DataFieldVisitor {
+			public void visit(DataField dataField) {
+				dataField.copyDefaultValueToInputField();
+			}
 		}
+		this.acceptVistor(new vis());
 	}
 	
+	public void collapseAllChildren(boolean collapsed) {
+		Iterator<DataFieldNode> iterator = rootNode.createIterator();
+		
+		while (iterator.hasNext()) {
+			DataFieldNode node = (DataFieldNode)iterator.next();
+			node.getDataField().collapseChildren(collapsed);
+		}
+	}
 
 	public DataFieldNode getRootNode() {
 		return rootNode;
@@ -674,5 +728,15 @@ public class Tree {
 	
 	public boolean isTreeEdited() {
 		return treeEdited;
+	}
+
+	// used for visiting all dataFields (via Nodes) to call some method
+	public void acceptVistor(DataFieldVisitor visitor) {
+		Iterator<DataFieldNode> iterator = rootNode.createIterator();
+		
+		while (iterator.hasNext()) {
+			DataFieldNode node = (DataFieldNode)iterator.next();
+			node.acceptVistor(visitor);
+		}
 	}
 }

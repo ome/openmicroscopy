@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 
 import org.w3c.dom.Element;
 
-public class DataFieldNode {
+public class DataFieldNode implements Visitable {
 	
 	DataField dataField;
 	
@@ -63,7 +63,8 @@ public class DataFieldNode {
 		this.parent = parent;
 	}
 
-	public Iterator createIterator() {
+	@SuppressWarnings("unchecked")
+	public Iterator<DataFieldNode> createIterator() {
 		return new DataFieldIterator(children.iterator());
 	}
 	
@@ -124,5 +125,12 @@ public class DataFieldNode {
 	}
 	public void hideChildren(boolean hidden) {
 		childBox.setVisible(!hidden);
+	}
+
+	public void acceptVistor(DataFieldVisitor visitor) {
+		dataField.acceptVistor(visitor);
+	}
+	public void collapseAllChildren(boolean collapse) {
+		tree.collapseAllChildren(collapse);
 	}
 }

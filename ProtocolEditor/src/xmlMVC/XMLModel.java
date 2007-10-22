@@ -3,8 +3,11 @@ package xmlMVC;
 
 import java.util.ArrayList;
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.swing.JPanel;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,10 +20,15 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+
+import validation.SAXValidator;
 
 // import test.TreeCompare;
 
@@ -97,9 +105,12 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	}
 	
 	public void notifyXMLObservers() {
+		
 		for (XMLUpdateObserver xmlObserver: xmlObservers) {
 			xmlObserver.xmlUpdated();
 		}
+		
+		saxValidateCurrentXmlFile();
 	}
 	public void xmlUpdated() {
 		notifyXMLObservers();
@@ -235,6 +246,18 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		// opens the HTML in a browser window
 		XmlTransform.transformXMLtoHTML(outputXmlFile);
 	}
+	
+	
+	public void saxValidateCurrentXmlFile() {
+		// first save current Tree
+		writeTreeToDOM(false);
+		
+		try {
+			SAXValidator.validate(outputDocument);
+		} catch (SAXException e) {
+			System.out.println("The current file is not valid XML");
+		}
+	}
 
 	public void saveTreeToXmlFile(File outputFile, boolean saveExpValues) {
 		
@@ -319,14 +342,10 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		tree.copyDefaultValuesToInputFields();
 	}
 	
-	public void copyHighlightedFieldsToClipboard() {
+	public void editCurrentTree(int editCommand) {
 		Tree tree = getCurrentTree();
-		tree.copyHighlightedFieldsToClipboard();
-	}
-	public void pasteClipboardFields() {
-		Tree tree = getCurrentTree();
-		tree.pasteClipboardFields();
-		xmlUpdated();
+		tree.editTree(editCommand);
+		notifyXMLObservers();
 	}
 	
 	public void multiplyValueOfSelectedFields(float factor) {
@@ -342,62 +361,10 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		notifyXMLObservers();
 	}
 	
-	// example with different field types
-	public void openDemoProtocolFile() {
-		currentTree = new Tree(this, this);
-		openFiles.add(currentTree);
-		currentTree.openDemoProtocolFile();
-		setCurrentFile(new File("demo"));	// no current file
-		notifyXMLObservers();	
-	}
-
-	
-	// add a new dataField after the specified dataField
-	public void addDataField() {
-		Tree tree = getCurrentTree();
-		tree.addDataField();
-		notifyXMLObservers();
-	}
-	
-	// duplicate a dataField and add it at specified index
-	public void duplicateDataFields() {
-		Tree tree = getCurrentTree();
-		tree.duplicateAndInsertDataFields();
-		notifyXMLObservers();
-	}
-	
-	
-	
 	// delete the highlighted dataFields
 	public void deleteDataFields(boolean saveChildren) {
 		Tree tree = getCurrentTree();
 		tree.deleteDataFields(saveChildren);
-		notifyXMLObservers();
-	}
-	
-	public void demoteDataFields() {
-		Tree tree = getCurrentTree();
-		tree.demoteDataFields();
-		notifyXMLObservers();
-	}
-	
-	public void promoteDataFields() {
-		Tree tree = getCurrentTree();
-		tree.promoteDataFields();
-		notifyXMLObservers();
-	}
-	
-//	 if the highlighted fields have a preceeding sister, move it below the highlighted fields
-	public void moveFieldsUp() {
-		Tree tree = getCurrentTree();
-		tree.moveFieldsUp();
-		notifyXMLObservers();
-	}
-	
-//	 if the highlighted fields have a preceeding sister, move it below the highlighted fields
-	public void moveFieldsDown() {
-		Tree tree = getCurrentTree();
-		tree.moveFieldsDown();
 		notifyXMLObservers();
 	}
 	

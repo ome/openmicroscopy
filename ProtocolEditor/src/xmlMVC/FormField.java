@@ -92,6 +92,8 @@ public class FormField extends JPanel {
 		urlButton.setBorder(eb);
 		urlButton.setVisible(false);	// only made visible if url exists.
 		
+		
+		
 		descriptionLabel = new JLabel();
 		visibleAttributes.add(descriptionLabel);
 		infoIcon = ImageFactory.getInstance().getIcon(ImageFactory.INFO_ICON);
@@ -242,16 +244,24 @@ public class FormField extends JPanel {
 	
 	public class CollapseListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
+			
 			String collapsed = dataField.getAttribute(DataField.SUBSTEPS_COLLAPSED);
-			if ((collapsed != null) && (collapsed.equals(DataField.TRUE))) {
+			boolean coll = (collapsed != null) && (collapsed.equals(DataField.TRUE));
+			
+			// toggle collapsed state
+			if (coll) {
 				dataField.setAttribute(DataField.SUBSTEPS_COLLAPSED, DataField.FALSE, false);
-				collapseButton.setIcon(notCollapsedIcon);
 			} else {
 				dataField.setAttribute(DataField.SUBSTEPS_COLLAPSED, DataField.TRUE, false);
-				collapseButton.setIcon(collapsedIcon);
 			}
-			refreshTitleCollapsed();
-		
+			
+			// if root node, collapse children
+			if (dataField.getNode().getParentNode() == null) {
+				dataField.getNode().collapseAllChildren(!coll);
+				collapseButton.setIcon(coll ? notCollapsedIcon :collapsedIcon);
+			} else
+				// otherwise just do this
+				refreshTitleCollapsed();
 		}
 	}
 	
@@ -260,11 +270,15 @@ public class FormField extends JPanel {
 	public void refreshTitleCollapsed() {
 		String collapsed = dataField.getAttribute(DataField.SUBSTEPS_COLLAPSED);
 		boolean subStepsCollapsed = false;
-		if ((collapsed != null) && (collapsed.equals(DataField.TRUE))) 
+		if ((collapsed != null) && (collapsed.equals(DataField.TRUE))) {
 			subStepsCollapsed = true;
+			collapseButton.setIcon(collapsedIcon);
+		} else 
+			collapseButton.setIcon(notCollapsedIcon);
 		// tells node whether to hide the childBox containing child panels
 		dataField.hideChildren(subStepsCollapsed);
 		
+		// this is only needed when building UI (superfluous when simply collapsing)
 		refreshHasChildren(dataField.hasChildren());
 	}
 	
