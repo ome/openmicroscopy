@@ -9,14 +9,23 @@
     <property name="make.CXX"         value="ccache g++"/>
     <property name="make.J"           value="1"/>
 
+    <condition property="make.MAC_UNIVERSAL" value="-arch i386 -arch ppc" else="">
+        <and><os family="mac"/><os family="unix"/></and>
+    </condition>
+
+    <condition property="make.MAC_TRACKING" value="--disable-dependency-tracking" else="">
+        <and><os family="mac"/><os family="unix"/></and>
+    </condition>
+
     <macrodef name="autogen">
         <attribute name="file" default="${basedir}/../autogen.sh"/>
         <sequential>
         <exec executable="@{file}" failonerror="true">
             <arg value="--with-ice=${make.ICE_HOME}"/>
             <arg value="--prefix=${make.DESTDIR}"/>
-            <arg value="LDFLAGS=${make.LDFLAGS}"/>
-            <arg value="CXXFLAGS=${make.CXXFLAGS}"/>
+            <arg value="LDFLAGS=${make.LDFLAGS} ${make.MAC_UNIVERSAL}"/>
+            <arg value="CXXFLAGS=${make.CXXFLAGS} ${make.MAC_UNIVERSAL}"/>
+            <arg line="${make.MAC_TRACKING}"/>
             <arg value="CXX=${make.CXX}"/>
         </exec>
         </sequential>
