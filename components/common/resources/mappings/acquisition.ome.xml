@@ -483,6 +483,10 @@
 		<entry name="DV"/>
 		<entry name="STK"/>
 		<entry name="TIFF"/>
+		<entry name="text/csv"/>
+		<entry name="text/plain"/>
+		<entry name="text/xml"/>
+		<entry name="text/x-python"/>
 	</enum>
 
   <!-- Pixels Entity -->
