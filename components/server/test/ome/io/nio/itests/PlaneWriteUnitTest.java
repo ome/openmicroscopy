@@ -8,16 +8,16 @@ package ome.io.nio.itests;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.MappedByteBuffer;
-
-import org.testng.annotations.Test;
 
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
+import ome.io.nio.PixelData;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.util.PathUtil;
+
+import org.testng.annotations.Test;
 
 /**
  * @author callan
@@ -36,8 +36,8 @@ public class PlaneWriteUnitTest extends AbstractManagedContextTest {
 
     private String originalDigest;
 
-    private String ROOT = PathUtil.getInstance().getDataFilePath();
-    
+    private final String ROOT = PathUtil.getInstance().getDataFilePath();
+
     private byte[] getTestPlane() {
         if (testPlane == null) {
             Integer planeSize = pixbuf.getPlaneSize();
@@ -48,7 +48,7 @@ public class PlaneWriteUnitTest extends AbstractManagedContextTest {
                     testPlane[i] = -128;
                 } else {
                     testPlane[i] = 126; // Changed to not match
-                                        // PixelService.nullPlane -j.m
+                    // PixelService.nullPlane -j.m
                 }
             }
 
@@ -66,9 +66,9 @@ public class PlaneWriteUnitTest extends AbstractManagedContextTest {
         pixbuf.setPlane(testPlane, 0, 0, 0);
 
         pixbuf = service.getPixelBuffer(pixels);
-        MappedByteBuffer plane = pixbuf.getPlane(0, 0, 0);
+        PixelData plane = pixbuf.getPlane(0, 0, 0);
         assertNotNull(plane);
-        byte[] newMD = Helper.calculateMessageDigest(plane);
+        byte[] newMD = Helper.calculateMessageDigest(plane.getData());
 
         assertEquals(originalDigest, Helper.bytesToHex(newMD));
     }
@@ -84,9 +84,9 @@ public class PlaneWriteUnitTest extends AbstractManagedContextTest {
         pixbuf.setPlane(testPlane, z, c, t);
 
         pixbuf = service.getPixelBuffer(pixels);
-        MappedByteBuffer plane = pixbuf.getPlane(z, c, t);
+        PixelData plane = pixbuf.getPlane(z, c, t);
         assertNotNull(plane);
-        byte[] newMD = Helper.calculateMessageDigest(plane);
+        byte[] newMD = Helper.calculateMessageDigest(plane.getData());
 
         assertEquals(originalDigest, Helper.bytesToHex(newMD));
     }

@@ -9,9 +9,9 @@ package ome.server.utests.sec;
 import java.util.concurrent.Callable;
 
 import junit.framework.TestCase;
-
 import ome.security.JBossLoginModule;
 
+import org.jboss.logging.Logger;
 import org.testng.annotations.Test;
 
 public class LoginModuleTest extends TestCase {
@@ -20,9 +20,11 @@ public class LoginModuleTest extends TestCase {
     public void testNullPasswords() throws Exception {
 
         class Test extends JBossLoginModule implements Callable<Boolean> {
+
             public String password;
 
             public Test() {
+                this.log = Logger.getLogger(this.getClass());
             }
 
             public Test(String password) {

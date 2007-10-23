@@ -7,7 +7,8 @@
       <run>
         <exclude name="broken"/>
         <exclude name="ignore"/>
-      </run>        
+        <exclude name="manual"/>
+      </run>
     </groups>
     <packages>
       <package name="ome.*"/>

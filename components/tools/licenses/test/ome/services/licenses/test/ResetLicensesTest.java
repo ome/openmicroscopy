@@ -20,28 +20,28 @@ import org.testng.annotations.Test;
 @Test
 public class ResetLicensesTest extends TestCase {
 
-    @Test(groups = "integration")
+    @Test(groups = { "client", "blitz", "integration" })
     public void testUseBlitzDecision() {
         Run.main(new String[] { "blitz=true",
                 "task=ome.services.licenses.test.ResetLicensesTest$TaskTest" });
     }
 
     public static class TaskTest extends BlitzTask {
-        
+
         public TaskTest(ServiceFactory serviceFactory, Properties properties) {
             super(serviceFactory, properties);
         }
-        
+
         public TaskTest(IceServiceFactory serviceFactory, Properties properties) {
             super(serviceFactory, properties);
             // TODO Auto-generated constructor stub
         }
-        
+
         @Override
         public void doTask() {
             super.doTask();
             assert useBlitz;
         }
-        
+
     }
 }

@@ -8,17 +8,16 @@ package ome.io.nio.itests;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-
-import org.testng.annotations.Test;
 
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
+import ome.io.nio.PixelData;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.util.PathUtil;
 
+import org.testng.annotations.Test;
 
 /**
  * @author callan
@@ -29,7 +28,7 @@ public class PixbufCreationUnitTest extends AbstractManagedContextTest {
 
     PixbufIOFixture baseFixture;
     String ROOT = PathUtil.getInstance().getDataFilePath();
-    
+
     PixelBuffer pixbuf;
 
     @Test
@@ -46,8 +45,8 @@ public class PixbufCreationUnitTest extends AbstractManagedContextTest {
         for (int t = 0; t < pixels.getSizeT(); t++) {
             for (int c = 0; c < pixels.getSizeC(); c++) {
                 for (int z = 0; z < pixels.getSizeZ(); z++) {
-                    ByteBuffer buf = pixbuf.getPlane(z, c, t);
-                    assertNull(buf);
+                    PixelData pd = pixbuf.getPlane(z, c, t);
+                    assertNull(pd);
                 }
             }
         }

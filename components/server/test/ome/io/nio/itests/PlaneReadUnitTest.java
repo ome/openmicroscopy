@@ -9,16 +9,16 @@ package ome.io.nio.itests;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.MappedByteBuffer;
-
-import org.testng.annotations.Test;
 
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
+import ome.io.nio.PixelData;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.util.PathUtil;
+
+import org.testng.annotations.Test;
 
 /**
  * @author callan
@@ -36,8 +36,8 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
     private Pixels pixels;
 
     private PixbufIOFixture baseFixture;
-    
-    private String ROOT = PathUtil.getInstance().getDataFilePath();
+
+    private final String ROOT = PathUtil.getInstance().getDataFilePath();
 
     private int getDigestOffset(int z, int c, int t) {
         int planeCountT = pixels.getSizeZ().intValue()
@@ -75,8 +75,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
         int byteWidth = PixelsService.getBitDepth(pixels.getPixelsType()) / 8;
         planeCount = pixels.getSizeZ() * pixels.getSizeC() * pixels.getSizeT();
         planeSize = pixels.getSizeX() * pixels.getSizeY() * byteWidth;
-        path = new PixelsService(ROOT)
-                .getPixelsPath(pixels.getId());
+        path = new PixelsService(ROOT).getPixelsPath(pixels.getId());
         originalDigests = new byte[planeCount][];
 
         FileOutputStream stream = new FileOutputStream(path);
@@ -105,9 +104,9 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
             DimensionsOutOfBoundsException {
         PixelsService service = new PixelsService(ROOT);
         PixelBuffer pixbuf = service.getPixelBuffer(pixels);
-        MappedByteBuffer plane = pixbuf.getPlane(0, 0, 0);
+        PixelData plane = pixbuf.getPlane(0, 0, 0);
 
-        byte[] messageDigest = Helper.calculateMessageDigest(plane);
+        byte[] messageDigest = Helper.calculateMessageDigest(plane.getData());
 
         assertEquals(Helper.bytesToHex(originalDigests[0]), Helper
                 .bytesToHex(messageDigest));
@@ -118,12 +117,12 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
             DimensionsOutOfBoundsException {
         PixelsService service = new PixelsService(ROOT);
         PixelBuffer pixbuf = service.getPixelBuffer(pixels);
-        MappedByteBuffer plane = pixbuf.getPlane(pixels.getSizeZ() - 1, pixels
+        PixelData plane = pixbuf.getPlane(pixels.getSizeZ() - 1, pixels
                 .getSizeC() - 1, pixels.getSizeT() - 1);
         int digestOffset = getDigestOffset(pixels.getSizeZ() - 1, pixels
                 .getSizeC() - 1, pixels.getSizeT() - 1);
 
-        byte[] messageDigest = Helper.calculateMessageDigest(plane);
+        byte[] messageDigest = Helper.calculateMessageDigest(plane.getData());
 
         assertEquals(Helper.bytesToHex(originalDigests[digestOffset]), Helper
                 .bytesToHex(messageDigest));
@@ -142,9 +141,9 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
             for (int c = 0; c < pixels.getSizeC(); c++) {
                 for (int z = 0; z < pixels.getSizeZ(); z++) {
                     digestOffset = getDigestOffset(z, c, t);
-                    MappedByteBuffer plane = pixbuf.getPlane(z, c, t);
+                    PixelData plane = pixbuf.getPlane(z, c, t);
                     newMessageDigest = Helper.bytesToHex(Helper
-                            .calculateMessageDigest(plane));
+                            .calculateMessageDigest(plane.getData()));
                     oldMessageDigest = Helper
                             .bytesToHex(originalDigests[digestOffset]);
 
