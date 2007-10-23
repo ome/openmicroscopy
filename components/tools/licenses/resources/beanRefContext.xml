@@ -29,8 +29,9 @@
     Copied from client/resources/beanRefContext.xml See that file for more info.
     </description>
     <constructor-arg>
-    	<list>
+      <list>
         <value>ome/services/licenses/spring.xml</value>
+        <value>ome/services/client-*.xml</value>
       </list>
     </constructor-arg>      
     <constructor-arg index="1" value="false"/>
