@@ -40,6 +40,12 @@
       </filesystem>
     </chain>
 
+    <chain name="tools-resolver">
+      <filesystem name="tools-client">
+        <artifact pattern="${ivy.settings.dir}/../components/tools/target/client/[artifact]-[revision].[type]" />
+      </filesystem>
+    </chain>
+
   </resolvers>
 
   <!-- The loci modules can be fetched from another path by changing the "loci.resolver" 

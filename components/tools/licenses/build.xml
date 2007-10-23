@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="licenses" default="install" basedir=".">
+<project name="licenses" default="install" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -84,9 +84,12 @@
     directory so that they can be bundled together for the final products.
     This is necessary since otherwise the jar listed here would have to
     be manually added to app/resources/application.xml -->
-    <target name="tools-dist" depends="tools-build,python-install" description="Copied artifacts to tools/target" unless="skip.compile">
+    <target name="tools-dist" depends="deps-resolve,tools-build,python-install" description="Copied artifacts to tools/target" unless="skip.compile">
         <mkdir dir="${tools.classes}"/>
         <unjar src="${target.dir}/${ivy.module}.jar" dest="${tools.classes}"/>
+        <ivy:publish artifactspattern="${target.dir}/[module].[ext]" 
+            resolver="tools-resolver" pubrevision="${omero.version}" 
+            publishivy="false" overwrite="true"/>
         <copy todir="../target/include">
             <fileset dir="${resrc.dir}" includes="**/*.ice,**/*.h"/>
             <fileset dir="src/slice_generated" includes="**/*.h"/>
