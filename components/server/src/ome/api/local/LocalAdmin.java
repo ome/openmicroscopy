@@ -9,7 +9,9 @@ package ome.api.local;
 
 // Java imports
 import java.util.List;
+import java.util.Map;
 
+import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -24,8 +26,7 @@ import ome.model.meta.ExperimenterGroup;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
- *          </small>
+ * @version 1.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
  * @since OMERO3.0
  */
 public interface LocalAdmin extends ome.api.IAdmin {
@@ -79,9 +80,18 @@ public interface LocalAdmin extends ome.api.IAdmin {
      * @see Details#getOwner()
      */
     List<Long> getMemberOfGroupIds(Experimenter e);
-    
+
     /**
      * Checks password for given user.
      */
     boolean checkPassword(String user, String password);
+
+    /**
+     * Returns a map from {@link Class} (as string) to a count for all entities
+     * which point to the given {@link IObject}. The String "*" is mapped to
+     * the sum of all the locks.
+     * 
+     * TODO This will eventually return a list of ids
+     */
+    Map<String, Long> getLockingIds(IObject object);
 }

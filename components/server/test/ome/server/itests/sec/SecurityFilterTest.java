@@ -6,30 +6,56 @@
  */
 package ome.server.itests.sec;
 
+import static ome.model.internal.Permissions.Right.READ;
+import static ome.model.internal.Permissions.Role.GROUP;
+import static ome.model.internal.Permissions.Role.USER;
+import static ome.model.internal.Permissions.Role.WORLD;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.security.Identity;
+import java.security.Principal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 
-import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
-import org.testng.annotations.Configuration;
-import org.testng.annotations.Test;
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.EJBHome;
+import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBLocalObject;
+import javax.ejb.EJBObject;
+import javax.ejb.SessionContext;
+import javax.ejb.TimerService;
+import javax.interceptor.InvocationContext;
+import javax.transaction.UserTransaction;
+import javax.xml.rpc.handler.MessageContext;
 
+import ome.logic.QueryImpl;
+import ome.model.IObject;
+import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
+import ome.security.AdminAction;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.Definitions;
 import ome.services.query.Query;
 import ome.services.query.QueryParameterDef;
-import static ome.model.internal.Permissions.Role.*;
-import static ome.model.internal.Permissions.Right.*;
+import ome.services.util.OmeroAroundInvoke;
+
+import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 @Test(groups = { "ticket:117", "security", "filter" })
 public class SecurityFilterTest extends AbstractManagedContextTest {
@@ -48,9 +74,12 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 
     List<String> names = new ArrayList<String>();
 
+    ome.api.local.LocalQuery wrappedQuery;
+
     @Configuration(beforeTestClass = true)
     public void createData() throws Exception {
         setUp();
+        wrappedQuery = this.iQuery;
 
         String gname = uuid();
         ExperimenterGroup g = new ExperimenterGroup();
@@ -69,6 +98,15 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 
         }
         tearDown();
+    }
+
+    /**
+     * Below we are resetting the iQuery value for use with {@link Backdoor},
+     * so we will need to make sure this is valid for all other tests.
+     */
+    @BeforeMethod
+    public void fixQuery() throws Exception {
+        this.iQuery = wrappedQuery;
     }
 
     @Test
@@ -100,6 +138,38 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 
         loginRoot();
         assertCanReadImage(i);
+    }
+
+    @Test
+    public void testRunAsAdminCanReadAll() throws Exception {
+
+        final Image i;
+        final Dataset d;
+
+        loginUser(names.get(0));
+        d = createDataset(userReadableOnly);
+        i = createImage(userReadableOnly);
+
+        loginUser(names.get(1));
+        assertCannotReadImage(d, i);
+
+        final SecurityFilterTest test = this;
+        new Wrap(names.get(1), new Backdoor() {
+            @Override
+            @RolesAllowed("user")
+            public void run() {
+                test.iQuery = this; // Use this (unwrapped) instance for call
+                securitySystem.runAsAdmin(new AdminAction() {
+                    public void runAsAdmin() {
+                        assertCanReadImage(d, i);
+                    }
+                });
+            }
+        });
+        this.iQuery = wrappedQuery;
+
+        loginUser(names.get(0));
+        assertCanReadImage(d, i);
     }
 
     @Test
@@ -195,56 +265,235 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
     private Image createImage(Permissions p) {
         Image img = new Image();
         img.setName(ticket117 + ":" + UUID.randomUUID().toString());
-        img.getDetails().setPermissions(p);
-        img = factory.getUpdateService().saveAndReturnObject(img);
-        return img;
+        return createObject(img, p);
     }
 
-    private void assertCannotReadImage(Image img) {
-        Image image;
+    private Dataset createDataset(Permissions p) {
+        Dataset ds = new Dataset();
+        ds.setName(ticket117 + ":" + UUID.randomUUID().toString());
+        return createObject(ds, p);
+    }
 
-        image = getImageAsString(img);
-        assertNull(image);
+    private <T extends IObject> T createObject(T obj, Permissions p) {
+        obj.getDetails().setPermissions(p);
+        obj = factory.getUpdateService().saveAndReturnObject(obj);
+        return obj;
+    }
 
-        image = getImageByCriteria(img);
-        assertNull(image);
+    private <T extends IObject> void assertCannotReadImage(T... ts) {
+
+        T test;
+        for (T t : ts) {
+            test = getAsString(t);
+            assertNull(t + "==null", test);
+
+            test = getByCriteria(t);
+            assertNull(t + "==null", test);
+        }
 
     }
 
-    private void assertCanReadImage(Image img) {
-        Image image;
+    private <T extends IObject> void assertCanReadImage(T... ts) {
 
-        image = getImageAsString(img);
-        assertNotNull(image);
+        T test;
+        for (T t : ts) {
+            test = getAsString(t);
+            assertNotNull(t + "!=null", test);
 
-        image = getImageByCriteria(img);
-        assertNotNull(image);
+            test = getByCriteria(t);
+            assertNotNull(t + "!=null", test);
+        }
+
     }
 
-    private Image getImageAsString(Image img) {
-        return iQuery.findByString(Image.class, "name", img.getName());
+    private <T extends IObject> T getAsString(T obj) {
+        return (T) iQuery.findByString(obj.getClass(), "name", ByNameQuery
+                .name(obj));
     }
 
-    private Image getImageByCriteria(Image img) {
-        return iQuery.execute(new ImageQuery(img));
+    private <T extends IObject> T getByCriteria(T obj) {
+        return (T) iQuery.execute(new ByNameQuery(obj));
     }
 }
 
-class ImageQuery extends Query<Image> {
+class ByNameQuery extends Query {
 
     static Definitions defs = new Definitions(new QueryParameterDef("name",
             String.class, false));
 
-    public ImageQuery(Image img) {
-        super(defs, new Parameters(new Filter().unique()).addString("name", img
-                .getName()));
+    Object obj;
+
+    public <T extends IObject> ByNameQuery(T obj) {
+        super(defs, new Parameters(new Filter().unique()).addString("name",
+                name(obj)));
+        this.obj = obj;
     }
 
     @Override
     protected void buildQuery(Session session) throws HibernateException,
             SQLException {
-        Criteria c = session.createCriteria(Image.class);
+        Criteria c = session.createCriteria(obj.getClass());
         c.add(Restrictions.eq("name", value("name")));
         setCriteria(c);
     }
+
+    static String name(Object object) {
+        try {
+            Field f = object.getClass().getDeclaredField("name");
+            f.setAccessible(true);
+            return (String) f.get(object);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+class Wrap extends OmeroAroundInvoke {
+
+    final String user;
+
+    public Wrap(final String user, final Backdoor backdoor) throws Exception {
+        this.user = user;
+        sessionContext();
+        InvocationContext ic = new InvocationContext() {
+            public Object getBean() {
+                return backdoor;
+            }
+
+            public Map getContextData() {
+                return null;
+            }
+
+            public Method getMethod() {
+                try {
+                    return backdoor.getClass().getMethod("run");
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+
+            public Object[] getParameters() {
+                return new Object[] {};
+            }
+
+            public Object proceed() throws Exception {
+                backdoor.run();
+                return null;
+            }
+
+            public void setParameters(Object[] arg0) {
+            }
+        };
+        backdoor.selfConfigure();
+        loginAndSpringWrap(ic);
+    }
+
+    void sessionContext() throws Exception {
+        Field sessionContext = this.getClass().getSuperclass()
+                .getDeclaredField("sessionContext");
+        sessionContext.setAccessible(true);
+        sessionContext.set(this, new SessionContext() {
+
+            public Object getBusinessObject(Class arg0)
+                    throws IllegalStateException {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public EJBLocalObject getEJBLocalObject()
+                    throws IllegalStateException {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public EJBObject getEJBObject() throws IllegalStateException {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public Object getInvokedBusinessInterface()
+                    throws IllegalStateException {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public MessageContext getMessageContext()
+                    throws IllegalStateException {
+                return null;
+            }
+
+            public Identity getCallerIdentity() {
+                return null;
+            }
+
+            public Principal getCallerPrincipal() {
+                return new ome.system.Principal(user, "user", "Test");
+            }
+
+            public EJBHome getEJBHome() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public EJBLocalHome getEJBLocalHome() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public Properties getEnvironment() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public boolean getRollbackOnly() throws IllegalStateException {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public TimerService getTimerService() throws IllegalStateException {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public UserTransaction getUserTransaction()
+                    throws IllegalStateException {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public boolean isCallerInRole(Identity arg0) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean isCallerInRole(String arg0) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public Object lookup(String arg0) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public void setRollbackOnly() throws IllegalStateException {
+                // TODO Auto-generated method stub
+
+            }
+        });
+    }
+
+}
+
+/**
+ * This class can be used in combination with {@link Wrap} to simulate running
+ * arbitrary code within the server.
+ * 
+ * @author Josh Moore, josh at glencoesoftware.com
+ */
+abstract class Backdoor extends QueryImpl implements Runnable {
+
+    @RolesAllowed("user")
+    public abstract void run();
+
 }

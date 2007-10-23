@@ -10,6 +10,7 @@ package ome.logic;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -770,35 +771,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
                         continue;
                     }
 
-                    // since it's a managed entity it's class.getName() might
-                    // contain
-                    // some byte-code generation string
-                    final Class<? extends IObject> klass = Utils
-                            .trueClass(object.getClass());
-
-                    final long id = object.getId().longValue();
-
-                    // the values that could possibly link to this instance.
-                    String[][] checks = metadata.getLockChecks(klass);
-
-                    // reporting
-                    long total = 0L;
-                    Map<String, Long> counts = new HashMap<String, Long>();
-
-                    // run the individual queries
-                    for (String[] check : checks) {
-                        final String hql = String.format(
-                                "select count(*) from %s where %s%s = :id ",
-                                check[0], check[1], ".id");
-                        org.hibernate.Query q = s.createQuery(hql);
-                        q.setLong("id", id);
-                        Long count = (Long) q.iterate().next();
-
-                        if (count != null && count.longValue() > 0) {
-                            total += count.longValue();
-                            counts.put(hql, count);
-                        }
-                    }
+                    Map<String, Long> counts = getLockingIds(object);
+                    long total = counts.get("*");
 
                     // reporting
                     if (getBeanHelper().getLogger().isDebugEnabled()) {
@@ -828,6 +802,62 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         } finally {
             getSecuritySystem().enable(UpdateEventListener.UPDATE_EVENT);
         }
+
+    }
+
+    public Map<String, Long> getLockingIds(IObject object) {
+
+        // since it's a managed entity it's class.getName() might
+        // contain
+        // some byte-code generation string
+        final Class<? extends IObject> klass = Utils.trueClass(object
+                .getClass());
+
+        final long id = object.getId().longValue();
+
+        // the values that could possibly link to this instance.
+        final String[][] checks = metadata.getLockChecks(klass);
+
+        // reporting
+        final long total[] = new long[] { 0L };
+        final Map<String, Long> counts = new HashMap<String, Long>();
+
+        // run the individual queries
+        for (final String[] check : checks) {
+            final String hql = String.format(
+                    "select id from %s where %s%s = :id ", check[0], check[1],
+                    ".id");
+            this.iQuery.execute(new HibernateCallback() {
+
+                public Object doInHibernate(Session session)
+                        throws HibernateException, SQLException {
+
+                    org.hibernate.Query q = session.createQuery(hql);
+                    q.setLong("id", id);
+
+                    long count = 0L;
+                    Iterator<Long> it = q.iterate();
+
+                    // This is a slower implementation with the intent
+                    // that the actual ids will be returned soon.
+                    while (it.hasNext()) {
+                        Long countedId = it.next();
+                        count++;
+
+                    }
+
+                    if (count > 0) {
+                        total[0] += count;
+                        counts.put(check[0], count);
+                    }
+                    counts.put("*", total[0]);
+                    return null;
+                }
+
+            });
+        }
+
+        return counts;
 
     }
 

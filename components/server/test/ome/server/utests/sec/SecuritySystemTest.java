@@ -6,7 +6,12 @@
  */
 package ome.server.utests.sec;
 
+import static ome.model.internal.Permissions.Right.READ;
+import static ome.model.internal.Permissions.Role.GROUP;
+import static ome.model.internal.Permissions.Role.WORLD;
+
 import java.util.List;
+
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.model.IEnum;
@@ -23,12 +28,13 @@ import ome.security.SecureAction;
 import ome.tools.hibernate.SecurityFilter;
 import ome.util.IdBlock;
 
-import static ome.model.internal.Permissions.Right.*;
-import static ome.model.internal.Permissions.Role.*;
-
 import org.hibernate.Filter;
 import org.hibernate.Session;
 import org.jmock.Mock;
+import org.jmock.core.Invocation;
+import org.jmock.core.Stub;
+import org.jmock.core.stub.DefaultResultStub;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.testng.annotations.Test;
 
 @Test
@@ -754,6 +760,25 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
         assertFalse(sec.currentUserIsAdmin());
 
+        Mock mockFilter = mock(Filter.class);
+        final Filter filter = (Filter) mockFilter.proxy();
+        mockFilter.setDefaultStub(new DefaultResultStub());
+        Mock mockSession = mock(Session.class);
+        final Session session = (Session) mockSession.proxy();
+        mockSession.expects(atLeastOnce()).method("enableFilter").will(
+                returnValue(filter));
+        sf.mockQuery.expects(once()).method("execute").will(new Stub() {
+            public Object invoke(Invocation arg0) throws Throwable {
+                ((HibernateCallback) arg0.parameterValues.get(0))
+                        .doInHibernate(session);
+                return null;
+            }
+
+            public StringBuffer describeTo(StringBuffer arg0) {
+                return arg0.append("call doInHibernate");
+            }
+
+        });
         AdminAction action = new AdminAction() {
             public void runAsAdmin() {
                 assertTrue(sec.currentUserIsAdmin());

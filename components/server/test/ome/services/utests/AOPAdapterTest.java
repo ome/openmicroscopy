@@ -25,7 +25,8 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.support.StaticApplicationContext;
-import org.testng.annotations.*;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 @Test(groups = { "unit", "aop", "ejb" })
 public class AOPAdapterTest extends MockObjectTestCase {
@@ -88,7 +89,7 @@ public class AOPAdapterTest extends MockObjectTestCase {
         context.refresh();
 
         // setup mock expectations
-        mockInvocation.expects(atLeastOnce()).method("getTarget").will(
+        mockInvocation.expects(atLeastOnce()).method("getBean").will(
                 returnValue(null));
         Method method = Bean.class.getMethod("call");
         mockInvocation.expects(atLeastOnce()).method("getMethod").will(

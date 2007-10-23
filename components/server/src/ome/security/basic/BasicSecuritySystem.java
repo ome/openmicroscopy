@@ -13,6 +13,7 @@ import static ome.model.internal.Permissions.Role.GROUP;
 import static ome.model.internal.Permissions.Role.USER;
 import static ome.model.internal.Permissions.Role.WORLD;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -60,7 +61,9 @@ import ome.tools.spring.PostProcessInjector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.util.Assert;
 
 /**
@@ -1279,17 +1282,29 @@ public class BasicSecuritySystem implements SecuritySystem {
      * passing detached (client-side) entities to this method is particularly
      * dangerous.
      */
-    public void runAsAdmin(AdminAction action) {
+    public void runAsAdmin(final AdminAction action) {
         Assert.notNull(action);
-        disable(MergeEventListener.MERGE_EVENT);
-        boolean wasAdmin = cd.isAdmin();
-        cd.setAdmin(true);
-        try {
-            action.runAsAdmin();
-        } finally {
-            cd.setAdmin(wasAdmin);
-            enable(MergeEventListener.MERGE_EVENT);
-        }
+
+        LocalQuery q = (LocalQuery) sf.getQueryService();
+        q.execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException, SQLException {
+
+                boolean wasAdmin = cd.isAdmin();
+
+                try {
+                    cd.setAdmin(true);
+                    disable(MergeEventListener.MERGE_EVENT);
+                    enableReadFilter(session);
+                    action.runAsAdmin();
+                } finally {
+                    cd.setAdmin(wasAdmin);
+                    enable(MergeEventListener.MERGE_EVENT);
+                    enableReadFilter(session); // Now as non-admin
+                }
+                return null;
+            }
+        });
     }
 
     /**
