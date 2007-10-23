@@ -44,16 +44,24 @@ from twisted.internet import protocol, reactor, process
 from twisted.runner.procmon import ProcessMonitor, LoggingProtocol
 from twisted.application import service, internet
 
+def makeVar(key):
+	if os.environ.has_key(key):
+		return [key+"="+os.environ[key]]
+	else:
+		return []	
+
 java = ["java"]
 if os.environ.has_key("JAVA_OPTS"):
 	java += os.environ["JAVA_OPTS"].split()
 if os.environ.has_key("DEBUG"):
 	java += ['-Xrunjdwp:server=y,transport=dt_socket,address=9777,suspend=n']
 
-PATH = "PATH="+os.environ["PATH"]
-LIBS = "LD_LIBRARY_PATH="+os.environ["LD_LIBRARY_PATH"]
-blitz  = ['env',PATH,LIBS]+java+['-jar','blitz.jar']
-router = ['env',PATH,LIBS,'glacier2router','--Ice.Config=../etc/glacier2.config']
+env = ['env']
+PATH = makeVar("PATH")
+LIBS = makeVar("LIBS")
+LIBM = makeVar("LIBM")
+blitz  = env+PATH+LIBS+LIBM+java+['-jar','blitz.jar']
+router = env+PATH+LIBS+LIBM+['glacier2router','--Ice.Config=../etc/glacier2.config']
 
 print """
   Blitz:  %(blitz)s

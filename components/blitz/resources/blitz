@@ -128,15 +128,21 @@ while [ $# -gt 0 ]; do
            fi
 	;;
      restart)
-      	   $0 stop
-	   $0 start
+      	   $BLITZEXE stop
+	   $BLITZEXE start
        ;;
      tail) tail -f $LOG_FILE ;;
      less) less $LOG_FILE ;;
      grep) ps auxww | grep -E "(blitz|glacier)" ;;
-     console) $0 start tail stop ;;
+     wait) 
+         while ! $BLITZEXE status; do
+             echo .
+             sleep 1
+         done
+     ;;
+     console) $BLITZEXE start tail stop ;;
      *)
-       echo "Usage: $0 {start|stop|status|restart}"
+       echo "Usage: $BLITZEXE {start|stop|status|restart}"
        false
    esac
 done
