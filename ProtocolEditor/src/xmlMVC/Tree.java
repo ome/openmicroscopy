@@ -33,6 +33,7 @@ public class Tree implements Visitable{
 	
 	private File file;		// the file that this tree is built from
 	private boolean treeEdited = false;
+	private boolean xmlValidationOn = false;
 	
 	private ArrayList<DataFieldNode> highlightedFields;
 	private ArrayList<DataFieldNode> copiedToClipboardFields = new ArrayList<DataFieldNode>();
@@ -487,9 +488,7 @@ public class Tree implements Visitable{
 			
 			DataField dataField = child.getDataField();
 			
-			boolean customElement = false;
-			if ((dataField.getInputType() == null)) customElement = true;
-			else if (dataField.getInputType().equals(DataField.CUSTOM)) customElement = true;
+			boolean customElement = dataField.isCustomInputType();
 					
 			String elementName = ELEMENT;
 			
@@ -720,6 +719,14 @@ public class Tree implements Visitable{
 	}
 	public File getFile () {
 		return file;
+	}
+	
+	// turn on/off xmlValidation
+	public void setXmlValidation(boolean validationOn) {
+		this.xmlValidationOn = validationOn;
+	}
+	public boolean getXmlValidation() {
+		return xmlValidationOn;
 	}
 	
 	// when the data structure changes, edited = true. When saved, edited = false

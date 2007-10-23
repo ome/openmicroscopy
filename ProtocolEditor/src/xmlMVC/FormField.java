@@ -34,6 +34,9 @@ public class FormField extends JPanel {
 	Icon wwwIcon;
 	JButton descriptionButton;
 	JButton urlButton;	// used (if url) to open browser 
+	JButton collapseAllChildrenButton;
+	
+	boolean childrenCollapsed = false; 	// used for root field only - to toggle all collapsed
 	
 	Icon collapsedIcon;
 	Icon notCollapsedIcon;
@@ -104,10 +107,16 @@ public class FormField extends JPanel {
 		descriptionButton.setVisible(false);	// only made visible if description exists.
 		setDescriptionText(dataField.getAttribute(DataField.DESCRIPTION)); 	// will update description label
 		
+		collapseAllChildrenButton = new JButton("Collapse/Expand All", notCollapsedIcon);
+		collapseAllChildrenButton.setBackground(null);
+		collapseAllChildrenButton.addActionListener(new CollapseChildrenListener());
+		collapseAllChildrenButton.setVisible(dataField.getNode().getParentNode() == null);
+		
 		horizontalBox.add(leftIndent);
 		horizontalBox.add(nameLabel, BorderLayout.WEST);
 		horizontalBox.add(descriptionButton);
 		horizontalBox.add(urlButton);
+		horizontalBox.add(collapseAllChildrenButton);
 		horizontalBox.add(Box.createHorizontalStrut(10));
 
 		setDescriptionText(dataField.getDescription());
@@ -243,22 +252,16 @@ public class FormField extends JPanel {
 	public class CollapseListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			
-			boolean coll = dataField.isAttributeTrue(DataField.SUBSTEPS_COLLAPSED); 
+			boolean collapsed = dataField.isAttributeTrue(DataField.SUBSTEPS_COLLAPSED); 
 			
 			// toggle collapsed state
-			if (coll) {
+			if (collapsed) {
 				dataField.setAttribute(DataField.SUBSTEPS_COLLAPSED, DataField.FALSE, false);
 			} else {
 				dataField.setAttribute(DataField.SUBSTEPS_COLLAPSED, DataField.TRUE, false);
 			}
 			
-			// if root node, collapse children
-			if (dataField.getNode().getParentNode() == null) {
-				dataField.getNode().collapseAllChildren(!coll);
-				collapseButton.setIcon(coll ? notCollapsedIcon :collapsedIcon);
-			} else
-				// otherwise just do this
-				refreshTitleCollapsed();
+			refreshTitleCollapsed();
 		}
 	}
 	
@@ -267,13 +270,30 @@ public class FormField extends JPanel {
 	public void refreshTitleCollapsed() {
 		
 		boolean collapsed = dataField.isAttributeTrue(DataField.SUBSTEPS_COLLAPSED);
-			collapseButton.setIcon(collapsed ? collapsedIcon : notCollapsedIcon);
-		// tells node whether to hide the childBox containing child panels
+		collapseButton.setIcon(collapsed ? collapsedIcon : notCollapsedIcon);
+		
 		dataField.hideChildren(collapsed);
 		
 		// this is only needed when building UI (superfluous when simply collapsing)
 		refreshHasChildren(dataField.hasChildren());
+		collapseAllChildrenButton.setVisible(dataField.getNode().getParentNode() == null);
+		
 	}
+	
+	
+	public class CollapseChildrenListener implements ActionListener {
+
+		public void actionPerformed(ActionEvent arg0) {
+			
+			// toggle collapsed state of node and it's children
+			childrenCollapsed = !childrenCollapsed;
+			dataField.getNode().collapseAllChildren(childrenCollapsed);
+			
+			collapseAllChildrenButton.setIcon(childrenCollapsed ? collapsedIcon : notCollapsedIcon);
+		}
+		
+	}
+	
 	
 	// overridden by subclasses that have input components, 
 	// .. to disable them when in template-edit mode

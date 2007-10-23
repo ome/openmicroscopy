@@ -3,11 +3,8 @@ package xmlMVC;
 
 import java.util.ArrayList;
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import javax.swing.JPanel;
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -20,9 +17,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -47,6 +41,8 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	
 	private ArrayList<Tree> openFiles = new ArrayList<Tree>();
 	private Tree currentTree;			// tree being currently edited and displayed
+	
+	ArrayList<String> errorMessages = new ArrayList<String>();	// xmlValidation messages
 	
 	private Tree importTree;	// tree of a file used for importing fields
 	
@@ -109,8 +105,8 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		for (XMLUpdateObserver xmlObserver: xmlObservers) {
 			xmlObserver.xmlUpdated();
 		}
-		
-		saxValidateCurrentXmlFile();
+		if (getXmlValidation())
+			saxValidateCurrentXmlFile();
 	}
 	public void xmlUpdated() {
 		notifyXMLObservers();
@@ -252,11 +248,22 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		// first save current Tree
 		writeTreeToDOM(false);
 		
+		errorMessages.clear();
+		
 		try {
-			SAXValidator.validate(outputDocument);
+			errorMessages = SAXValidator.validate(outputDocument);
 		} catch (SAXException e) {
-			System.out.println("The current file is not valid XML");
+			errorMessages.add("The current file is not valid XML");
 		}
+		
+		if (errorMessages.isEmpty()) {
+			System.out.println("Current XML is valid");
+		}
+		// now update the display of messages...
+		selectionChanged();
+	}
+	public ArrayList<String> getErrorMessages() {
+		return errorMessages;
 	}
 
 	public void saveTreeToXmlFile(File outputFile, boolean saveExpValues) {
@@ -277,10 +284,13 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 				saveToXmlFile(getCurrentFile(), false);
 			}			
 		} else {
-			// saving protocol, so first include the name into the file.. 
-			getRootNode().getDataField().setAttribute(DataField.PROTOCOL_FILE_NAME, outputFile.getName(), true);
-			// saving protocol means that there are no .exp children of the .pro file..
-			getRootNode().getDataField().setAttribute(DataField.PRO_HAS_EXP_CHILDREN, DataField.FALSE, false);
+			// don't add these attributes if custom element (don't want to change native xml)
+			if (!getRootNode().getDataField().isCustomInputType()) {
+				// saving protocol, so first include the name into the file.. 
+				getRootNode().getDataField().setAttribute(DataField.PROTOCOL_FILE_NAME, outputFile.getName(), true);
+				// saving protocol means that there are no .exp children of the .pro file..
+				getRootNode().getDataField().setAttribute(DataField.PRO_HAS_EXP_CHILDREN, DataField.FALSE, false);
+			}
 		}
 		
 		saveToXmlFile(outputFile, saveExpValues);
@@ -289,8 +299,9 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	}
 	
 	private void saveToXmlFile(File outputFile, boolean saveExpValues) {
-//		 always note the xml version
-		getRootNode().getDataField().setAttribute(VERSION, XML_VERSION_NUMBER, false);
+//		 always note the xml version (unless this is custom element)
+		if (!getRootNode().getDataField().isCustomInputType())
+			getRootNode().getDataField().setAttribute(VERSION, XML_VERSION_NUMBER, false);
 		
 		// now you can save
 		
@@ -386,8 +397,19 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 			return getCurrentTree().getFile();
 		else return null;
 	}
+	
+	// for each file, can turn on/off xmlValidation
+	public void setXmlValidation(boolean validationOn) {
+		if (getCurrentTree() != null)
+			getCurrentTree().setXmlValidation(validationOn);
+	}
+	public boolean getXmlValidation() {
+		if (getCurrentTree() != null)
+			return getCurrentTree().getXmlValidation();
+		else return false;
+	}
+	
 	public boolean hasProtocolGotExpChildren() {
-		
 		String proHasExp = getRootNode().getDataField().getAttribute(DataField.PRO_HAS_EXP_CHILDREN);
 		if ((proHasExp != null) && (proHasExp.equals("true"))) 
 			return true;

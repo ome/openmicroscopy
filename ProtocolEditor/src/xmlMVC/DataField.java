@@ -132,6 +132,13 @@ public class DataField implements Visitable{
 		if (value == null) return false;
 		return (value.equals(equalTo));
 	}
+	// returns true if no InputType has been set, or if it is CUSTOM
+	public boolean isCustomInputType() {
+		boolean customElement = false;
+		if ((getAttribute(DataField.INPUT_TYPE) == null)) customElement = true;
+		else if (getAttribute(DataField.INPUT_TYPE).equals(DataField.CUSTOM)) customElement = true;
+		return customElement;
+	}
 	
 	public void changeDataFieldInputType(String newInputType) {
 		

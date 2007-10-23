@@ -30,7 +30,7 @@ public class SAXValidator {
 	
 	private static ArrayList<String> errorMessages = new ArrayList<String>();
 	
-	static public void validate(Document document) throws SAXException {
+	static public ArrayList<String> validate(Document document) throws SAXException {
 		Transformer transformer;
 		File tempFile = new File("temp");
 		try {
@@ -46,6 +46,7 @@ public class SAXValidator {
 		} catch (TransformerException e) {
 			e.printStackTrace();
 		}
+		return errorMessages;
 	}
 	
 	static public void validate(String filePath) throws SAXException {
@@ -76,9 +77,6 @@ public class SAXValidator {
 			e.printStackTrace();
 		}
 		
-		for (String errorMessage: errorMessages) {
-			System.out.println(errorMessage);
-		}
 	}
 	
 

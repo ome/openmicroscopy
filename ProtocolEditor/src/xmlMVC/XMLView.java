@@ -3,6 +3,7 @@ package xmlMVC;
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -106,6 +107,9 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	JMenuItem copyFieldsMenuItem;
 	JMenuItem pasteFieldsMenuItem;
 	
+	JButton xmlValidationButton;
+	JCheckBox xmlValidationCheckbox;
+	
 	JComboBox currentlyOpenedFiles;
 	FileListSelectionListener fileListSelectionListener;
 	
@@ -141,6 +145,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		// icons
 		Icon newFileIcon = ImageFactory.getInstance().getIcon(ImageFactory.NEW_FILE_ICON);
 		Icon openFileIcon = ImageFactory.getInstance().getIcon(ImageFactory.OPEN_FILE_ICON);
+		Icon validationIcon = ImageFactory.getInstance().getIcon(ImageFactory.VALIDATION_ICON);
 		Icon saveIcon = ImageFactory.getInstance().getIcon(ImageFactory.SAVE_ICON);
 		Icon printIcon = ImageFactory.getInstance().getIcon(ImageFactory.PRINT_ICON);
 		Icon loadDefaultsIcon = ImageFactory.getInstance().getIcon(ImageFactory.LOAD_DEFAULTS_ICON);
@@ -282,6 +287,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		openFileButton.addActionListener(new openFileListener());
 		openFileButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING));
 		
+		
 		JButton moreLikeThisButton = new JButton("More Files Like This >", searchIcon);
 		moreLikeThisButton.addActionListener(new MoreLikeThisListener());
 		
@@ -405,6 +411,26 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		importElemetsButton.addActionListener(new InsertElementsFromFileListener());
 		importElemetsButton.setBorder(eb);
 		
+		// XML validation
+		JPanel xmlValidationPanel = new JPanel(new BorderLayout());
+		Box xmlValidationBox = Box.createHorizontalBox();
+		XmlValidationListener xmlValidationListener = new XmlValidationListener();
+		
+		xmlValidationButton = new JButton(validationIcon);
+		xmlValidationButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,0));
+		xmlValidationButton.setToolTipText("Turn on XML validation");
+		xmlValidationButton.addActionListener(xmlValidationListener);
+		
+		xmlValidationCheckbox = new JCheckBox();
+		xmlValidationCheckbox.setBorder(new EmptyBorder(2,0,2,0));
+		xmlValidationCheckbox.setToolTipText("Turn on XML validation");
+		xmlValidationCheckbox.addActionListener(xmlValidationListener);
+		
+		xmlValidationBox.add(xmlValidationButton);
+		xmlValidationBox.add(xmlValidationCheckbox);
+		xmlValidationPanel.add(xmlValidationBox, BorderLayout.EAST);
+		
+		
 		Box expTabToolBar = Box.createHorizontalBox();
 		expTabToolBar.add(saveExperiment);
 		expTabToolBar.add(printExperimentButton);
@@ -426,6 +452,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		proTabToolBar.add(duplicateField);
 		proTabToolBar.add(importElemetsButton);
 		proTabToolBar.add(Box.createHorizontalGlue());
+		proTabToolBar.add(xmlValidationPanel);
 		
 		fieldEditor = new FieldEditor();
 		//splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, XMLScrollPane, fieldEditor);
@@ -530,6 +557,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		xmlFormDisplay.refreshForm();		// refresh the form
 		updateFileList();
 		refreshFileEdited();
+		xmlValidationCheckbox.setSelected(xmlModel.getXmlValidation());
 		
 		if (editingState == EDITING_FIELDS) {  // ie. not showing import tree
 			updateFieldEditor();
@@ -750,6 +778,29 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	
 	public void findMoreLikeThis() {
 		searchFiles(xmlModel.getCurrentFile());
+	}
+	
+	// turn on and off the validation of the current xml tree. 
+	public void enableXmlValidation(boolean validationOn) {
+		xmlModel.setXmlValidation(validationOn);
+		if (validationOn) xmlModel.saxValidateCurrentXmlFile();
+		else updateXmlValidationPanel();	// already called when turning validation on. 
+	}
+	
+	public class XmlValidationListener implements ActionListener {
+
+		public void actionPerformed(ActionEvent event) {
+			boolean validationOn = xmlValidationCheckbox.isSelected();
+			
+			// toggle validation if source is not checkbox (if source is checkbox, done automatically!)
+			if (event.getSource() != xmlValidationCheckbox) {
+				validationOn = !validationOn;
+				xmlValidationCheckbox.setSelected(validationOn);
+			}
+			
+			enableXmlValidation(validationOn);
+		}
+		
 	}
 	
 	public class MoreLikeThisListener implements ActionListener {
@@ -1147,6 +1198,35 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 			refreshFileEdited();
 		}
 		updateFileList();
+		updateXmlValidationPanel();
+	}
+	
+	// this is called (via selectionChanged) xmlModel after validating xml
+	public void updateXmlValidationPanel() {
+		// if validation is turned on
+		if (xmlModel.getXmlValidation()) {
+			
+			// if there are some error messages...
+			if (!(xmlModel.getErrorMessages().isEmpty())) {
+				String message = "<html>";
+				for (String m : xmlModel.getErrorMessages()) {
+					message = message + m + "<br>";
+				}
+				message = message + "</html>";
+				
+				xmlValidationButton.setText("XML is not valid");
+				xmlValidationButton.setToolTipText(message);
+			}
+			else {
+			// no error messages, all OK
+				xmlValidationButton.setText("XML valid");
+				xmlValidationButton.setToolTipText(null);
+			}
+		} else {
+		// validation not turned on
+			xmlValidationButton.setText(null);
+			xmlValidationButton.setToolTipText(null);
+		}
 	}
 	
 //	 refresh the right panel with details of a new dataField.

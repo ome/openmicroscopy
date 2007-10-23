@@ -19,6 +19,7 @@ public class FormFieldCustom extends FormField {
 		showAttributesButton = new JButton(ImageFactory.getInstance().getIcon(ImageFactory.NOTE_PAD));
 		//showAttributesButton.addMouseListener(new FormPanelMouseListener());
 		showAttributesButton.addActionListener(new ShowAttributesListener());
+		showAttributesButton.setToolTipText("Display attributes");
 		showAttributesButton.setBorder(null);
 		horizontalBox.add(showAttributesButton);
 	}

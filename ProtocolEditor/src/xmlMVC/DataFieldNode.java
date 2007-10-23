@@ -22,19 +22,18 @@ public class DataFieldNode implements Visitable {
 	
 	// constructor 
 	public DataFieldNode(LinkedHashMap<String, String> allAttributesMap, DataFieldNode parent, Tree tree) {
-		
-		children = new ArrayList<DataFieldNode>();
-		dataField = new DataField(allAttributesMap, this);
 		this.parent = parent;
 		this.tree = tree;
+		children = new ArrayList<DataFieldNode>();
+		dataField = new DataField(allAttributesMap, this);
 	}
 	
 	// this constructor used for root node (no parent)
 	public DataFieldNode(LinkedHashMap<String, String> allAttributesMap,  Tree tree) {
-		children = new ArrayList<DataFieldNode>();
-		dataField = new DataField(allAttributesMap, this);
 		this.parent = null;
 		this.tree = tree;
+		children = new ArrayList<DataFieldNode>();
+		dataField = new DataField(allAttributesMap, this);
 	}
 	// this constructor used for blank root node (no parent)
 	public DataFieldNode( Tree tree) {
@@ -124,7 +123,8 @@ public class DataFieldNode implements Visitable {
 		tree.dataFieldUpdated();
 	}
 	public void hideChildren(boolean hidden) {
-		childBox.setVisible(!hidden);
+		if (childBox != null)	// sometimes visibility of children is set before UI is fully built
+			childBox.setVisible(!hidden);
 	}
 
 	public void acceptVistor(DataFieldVisitor visitor) {
