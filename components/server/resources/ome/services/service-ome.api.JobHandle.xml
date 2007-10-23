@@ -25,6 +25,12 @@
     <property name="typesService" ref="internal:ome.api.ITypes"/>
     <property name="updateService" ref="internal:ome.api.IUpdate"/>
     <property name="processManager" ref="processManager"/>
+    <property name="jobNotification" ref="jobNotification"/>
+  </bean>
+  
+  <bean id="jobNotification" class="ome.services.procs.JobNotification">
+    <property name="trigger" ref="processJobsOnceTrigger"/>
+    <property name="scheduler" ref="scheduler"/>
   </bean>
 
   <bean id="managed:ome.api.JobHandle" parent="managedStatefulService" singleton="false">
@@ -38,6 +44,9 @@
         <bean class="ome.services.procs.ImportProcessor"/>
       </list>
     </constructor-arg>
+    <property name="queryService" ref="internal:ome.api.IQuery"/>
+    <property name="typesService" ref="internal:ome.api.ITypes"/>
+    <property name="updateService" ref="internal:ome.api.IUpdate"/>
   </bean>
 
   <bean id="processJobsDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
@@ -48,11 +57,10 @@
 
   <bean id="processJobsTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
     <property name="jobDetail" ref="processJobsDetail" />
-    <!-- run every morning at 6 AM -->
     <property name="cronExpression" value="0,30 * * * * ?" />
   </bean>
 
-  <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+  <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
     <property name="triggers">
       <list>
         <ref bean="processJobsTrigger" />

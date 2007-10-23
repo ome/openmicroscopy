@@ -6,48 +6,32 @@
  */
 package ome.server.utests;
 
-// Java imports
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Timestamp;
 
-// Third-party libraries
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.jmock.Mock;
-import org.jmock.MockObjectTestCase;
-import org.jmock.core.stub.DefaultResultStub;
-import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.testng.annotations.*;
-
-// Application-internal dependencies
-import ome.api.IQuery;
 import ome.api.ITypes;
 import ome.api.IUpdate;
 import ome.api.JobHandle;
 import ome.api.local.LocalQuery;
 import ome.conditions.ApiUsageException;
-import ome.logic.QueryImpl;
-import ome.model.IObject;
-import ome.model.jobs.Job;
-import ome.model.jobs.JobStatus;
 import ome.model.jobs.ImportJob;
-import ome.parameters.Filter;
+import ome.model.jobs.JobStatus;
 import ome.security.SecuritySystem;
 import ome.services.JobBean;
+import ome.services.JobNotification;
+import ome.services.procs.IProcessManager;
 import ome.services.procs.Process;
-import ome.services.procs.Processor;
-import ome.services.procs.ProcessManager;
-import ome.services.util.ServiceHandler;
 import ome.system.EventContext;
-import ome.tools.hibernate.SessionHandler;
+
+import org.jmock.Mock;
+import org.jmock.MockObjectTestCase;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 /**
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  */
-@Test( groups = "jobs" )
+@Test(groups = "jobs")
 public class JobHandleMockTest extends MockObjectTestCase {
 
     protected JobHandle jh;
@@ -57,94 +41,150 @@ public class JobHandleMockTest extends MockObjectTestCase {
     protected ITypes iTypes;
     protected SecuritySystem sec;
     protected EventContext ec;
-    protected Processor processor;
+    protected IProcessManager pm;
     protected Process process;
 
-    protected Mock mockQuery, mockUpdate, mockTypes, mockSec, mockEc, mockProcessor, mockProcess;
+    protected Mock mockQuery, mockUpdate, mockTypes, mockSec, mockEc, mockPm,
+            mockProcess;
 
-    protected ProcessManager pm;
+    protected JobNotification jn;
 
     @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         super.setUp();
-	mockQuery = mock(LocalQuery.class);
-	mockUpdate = mock(IUpdate.class);
-	mockTypes = mock(ITypes.class);
-	mockSec = mock(SecuritySystem.class);
-	mockEc = mock(EventContext.class);
-	mockProcessor = mock(Processor.class);
-	mockProcess = mock(Process.class);
-	iQuery = (LocalQuery) mockQuery.proxy();
-	iTypes = (ITypes) mockTypes.proxy();
-	iUpdate = (IUpdate) mockUpdate.proxy();
-	sec = (SecuritySystem) mockSec.proxy();
-	processor = (Processor) mockProcessor.proxy();
-	process = (Process) mockProcess.proxy();
-	ec = (EventContext) mockEc.proxy();
-	org.jmock.core.Stub stub = new org.jmock.core.stub.DefaultResultStub();
+        mockQuery = mock(LocalQuery.class);
+        mockUpdate = mock(IUpdate.class);
+        mockTypes = mock(ITypes.class);
+        mockSec = mock(SecuritySystem.class);
+        mockEc = mock(EventContext.class);
+        mockPm = mock(IProcessManager.class);
+        mockProcess = mock(Process.class);
+        iQuery = (LocalQuery) mockQuery.proxy();
+        iTypes = (ITypes) mockTypes.proxy();
+        iUpdate = (IUpdate) mockUpdate.proxy();
+        sec = (SecuritySystem) mockSec.proxy();
+        pm = (IProcessManager) mockPm.proxy();
+        process = (Process) mockProcess.proxy();
+        ec = (EventContext) mockEc.proxy();
+        org.jmock.core.Stub stub = new org.jmock.core.stub.DefaultResultStub();
         mockEc.setDefaultStub(stub);
-	mockProcessor.setDefaultStub(stub);
 
-	pm = new ProcessManager(processor);
+        jn = new JobNotification() {
+            @Override
+            public void notice(long jobId) {
+                pm.process();
+            }
+        };
 
-	JobBean jb = new JobBean();
-	jb.setUpdateService(iUpdate);
-	jb.setQueryService(iQuery);
-	jb.setTypesService(iTypes);
-	jb.setSecuritySystem(sec);
+        JobBean jb = new JobBean();
+        jb.setUpdateService(iUpdate);
+        jb.setQueryService(iQuery);
+        jb.setTypesService(iTypes);
+        jb.setSecuritySystem(sec);
         jb.setProcessManager(pm);
-	jh = jb;
-	
+        jb.setJobNotification(jn);
+        jh = jb;
+
     }
 
     void cleanup() throws Exception {
-	try {
-	    verify();
-	} finally {
-	    mockProcessor = null;
-	    tearDown();
-	}
+        try {
+            verify();
+        } finally {
+            tearDown();
+        }
     }
 
     @Test
     public void testSubmit() throws Exception {
-	mockSec.expects(atLeastOnce()).method("getEventContext").will(returnValue(ec));
-        mockUpdate.expects(once()).method("saveAndReturnObject").will(returnValue(new ImportJob(1L,true)));
-	jh.submit(new ImportJob());
-	cleanup();
+        mockSec.expects(atLeastOnce()).method("getEventContext").will(
+                returnValue(ec));
+        mockUpdate.expects(once()).method("saveAndReturnObject").will(
+                returnValue(new ImportJob(1L, true)));
+        mockPm.expects(once()).method("process");
+        jh.submit(new ImportJob());
+        cleanup();
     }
 
-    @Test
+    @Test(expectedExceptions = ApiUsageException.class)
     public void testAttachUnknown() throws Exception {
         mockQuery.expects(once()).method("get").will(returnValue(null));
-	assertNull( jh.attach(1L) );
-	cleanup();
+        jh.attach(1L);
+        cleanup();
     }
 
     @Test
     public void testAttachKnown() throws Exception {
-	ImportJob job = jobWithStatus();
+        ImportJob job = jobWithStatus("Submitted");
         mockQuery.expects(once()).method("get").will(returnValue(job));
-	JobStatus rv = jh.attach(1L);
-	assertTrue(rv == job.getStatus());
-	cleanup();
+        register();
+        JobStatus rv = jh.attach(1L);
+        assertTrue(rv == job.getStatus());
+        cleanup();
     }
 
-    @Test(groups = "broken")
-    public void testRegisterCallback() throws Exception {
-	ImportJob job = jobWithStatus();
-        mockQuery.expects(once()).method("get").will(returnValue(job));
-	mockProcessor.expects(once()).method("process").will(returnValue(process));
-	mockProcess.expects(once()).method("registerCallback");
-	jh.attach(1L);
-	cleanup();
+    @Test
+    public void testJobFinished() throws Exception {
+        ImportJob job = jobWithStatus("Finished");
+        job.setFinished(new Timestamp(0L));
+        willGetJob(job);
+        register();
+        jh.attach(1L);
+        assertTrue(jh.jobFinished() != null);
+        cleanup();
     }
 
-    ImportJob jobWithStatus() {
-	JobStatus status = new JobStatus("mock");
-	ImportJob job = new ImportJob();
-	job.setStatus(status);
-	return job;
+    @Test
+    public void testJobNotFinished() throws Exception {
+        ImportJob job = jobWithStatus("NotFinished");
+        willGetJob(job);
+        register();
+        jh.attach(1L);
+        assertTrue(jh.jobFinished() == null);
+        cleanup();
+
     }
+
+    @Test
+    public void testJobDies() throws Exception {
+        fail("NYI");
+    }
+
+    @Test
+    public void testCallbackGetsUnregistered() throws Exception {
+        fail("NYI");
+    }
+
+    @Test
+    public void testNotificationReturnsAlmostImmediately() throws Exception {
+        fail("NYI");
+    }
+
+    @Test(expectedExceptions = ApiUsageException.class)
+    public void testNoAttachOrSubmit() throws Exception {
+        jh.jobFinished();
+    }
+
+    // Helpers ~
+    // =========================================================================
+
+    ImportJob jobWithStatus(String statusStr) {
+        JobStatus status = new JobStatus(statusStr);
+        ImportJob job = new ImportJob();
+        job.setStatus(status);
+        return job;
+    }
+
+    private void willGetJob(ImportJob job) {
+        mockQuery.expects(once()).method("get").will(returnValue(job));
+    }
+
+    private void register() {
+        mockPm.expects(once()).method("runningProcess").will(
+                returnValue(process));
+        mockProcess.expects(once()).method("isActive").will(returnValue(true));
+        mockProcess.expects(once()).method("registerCallback");
+    }
+
 }

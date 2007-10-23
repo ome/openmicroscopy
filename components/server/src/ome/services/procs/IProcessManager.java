@@ -10,20 +10,14 @@ package ome.services.procs;
 /**
  * 
  * @author Josh Moore, josh at glencoesoftware.com
- * @since 3.0-Beta2
+ * @since 3.0-Beta3
  */
-public interface Process {
+public interface IProcessManager {
 
-    Processor processor();
+    public void process();
 
-    boolean isActive();
+    public void startProcess(long jobId);
 
-    void finish();
-
-    void cancel();
-
-    void registerCallback(ProcessCallback cb);
-
-    void unregisterCallback(ProcessCallback cb);
+    public Process runningProcess(long jobId);
 
 }

@@ -22,28 +22,25 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
-import org.springframework.transaction.annotation.Transactional;
+import ome.api.ITypes;
+import ome.api.IUpdate;
+import ome.api.JobHandle;
+import ome.api.ServiceInterface;
+import ome.conditions.ApiUsageException;
+import ome.model.jobs.Job;
+import ome.model.jobs.JobStatus;
+import ome.services.procs.IProcessManager;
+import ome.services.procs.Process;
+import ome.services.procs.ProcessCallback;
+import ome.services.util.OmeroAroundInvoke;
+import ome.system.EventContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
-
-import ome.api.ITypes;
-import ome.api.IUpdate;
-import ome.api.JobHandle;
-import ome.api.ServiceInterface;
-import ome.conditions.ApiUsageException;
-import ome.logic.AbstractLevel2Service;
-import ome.logic.SimpleLifecycle;
-import ome.model.jobs.Job;
-import ome.model.jobs.JobStatus;
-import ome.services.procs.Process;
-import ome.services.procs.ProcessManager;
-import ome.services.util.OmeroAroundInvoke;
-import ome.system.EventContext;
-import ome.system.SimpleEventContext;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Provides methods for submitting asynchronous tasks.
@@ -61,8 +58,8 @@ import ome.system.SimpleEventContext;
 @LocalBinding(jndiBinding = "omero/local/ome.api.JobHandle")
 @Interceptors( { OmeroAroundInvoke.class })
 @SecurityDomain("OmeroSecurity")
-public class JobBean extends AbstractStatefulBean implements
-        JobHandle {
+public class JobBean extends AbstractStatefulBean implements JobHandle,
+        ProcessCallback {
     /**
      * 
      */
@@ -72,17 +69,16 @@ public class JobBean extends AbstractStatefulBean implements
     private transient static Log log = LogFactory.getLog(JobBean.class);
 
     private Long jobId, resetId;
-    private Job job;
-    private transient Boolean   finished;
-    private transient String    message;
-    private transient JobStatus status;
-    private transient ITypes    iTypes;
-    private transient IUpdate   iUpdate;
-    private transient ProcessManager pm;
+    private transient Job job;
+    private transient ITypes iTypes;
+    private transient IUpdate iUpdate;
+    private transient IProcessManager pm;
+    private transient JobNotification notification;
 
     /** default constructor */
-    public JobBean() {}
-    
+    public JobBean() {
+    }
+
     public Class<? extends ServiceInterface> getServiceInterface() {
         return JobHandle.class;
     }
@@ -91,10 +87,10 @@ public class JobBean extends AbstractStatefulBean implements
     // ===================================================
 
     /**
-     * Configures a new or re-activated {@link JobBean}. If the 
-     * {@link #jobId} is non-null, then this instance will need to handle
-     * re-loading on first access. (It cannot be done here, because
-     * the security system is not configured.)
+     * Configures a new or re-activated {@link JobBean}. If the {@link #jobId}
+     * is non-null, then this instance will need to handle re-loading on first
+     * access. (It cannot be done here, because the security system is not
+     * configured.)
      */
     @PostConstruct
     @PostActivate
@@ -119,8 +115,8 @@ public class JobBean extends AbstractStatefulBean implements
      */
     @Remove
     public void close() {
-	// FIXME do we need to check on the process here?
-	// or callbacks? probably.
+        // FIXME do we need to check on the process here?
+        // or callbacks? probably.
     }
 
     /*
@@ -131,31 +127,35 @@ public class JobBean extends AbstractStatefulBean implements
     @Transactional(readOnly = false)
     @RolesAllowed("user")
     public long submit(Job job) {
-	reset(); // or do we want to just checkState
-	// and throw an exception if this is a stale handle.
+        reset(); // TODO or do we want to just checkState
+        // and throw an exception if this is a stale handle.
 
-	EventContext ec = getCurrentEventContext();
-	long ms = System.currentTimeMillis();
-	Timestamp now = new Timestamp(ms);
+        EventContext ec = getCurrentEventContext();
+        long ms = System.currentTimeMillis();
+        Timestamp now = new Timestamp(ms);
 
-	// Values that can't be set by the user
-	job.setUsername(ec.getCurrentUserName());
-	job.setGroupname(ec.getCurrentGroupName());
-	job.setType(ec.getCurrentEventType());
-	job.setMessage(""); // TODO Should the user be able to set a message as a check??
-	job.setStatus(new JobStatus("Submitted"));
-	job.setStarted(null);
-	job.setFinished(null);
-	job.setSubmitted(now);
+        // Values that can't be set by the user
+        job.setUsername(ec.getCurrentUserName());
+        job.setGroupname(ec.getCurrentGroupName());
+        job.setType(ec.getCurrentEventType());
+        job.setMessage(""); // TODO Should the user be able to set a message as
+        // a
+        // check??
+        job.setStatus(new JobStatus("Submitted"));
+        job.setStarted(null);
+        job.setFinished(null);
+        job.setSubmitted(now);
 
-	// Values that the user can optionally set
-	Timestamp t = job.getScheduledFor();
-	if (t == null || t.getTime() < now.getTime()) {
-	    job.setScheduledFor(now);
-	}
+        // Values that the user can optionally set
+        Timestamp t = job.getScheduledFor();
+        if (t == null || t.getTime() < now.getTime()) {
+            job.setScheduledFor(now);
+        }
 
-	job = iUpdate.saveAndReturnObject(job);
-	jobId = job.getId();
+        job = iUpdate.saveAndReturnObject(job);
+        jobId = job.getId();
+
+        notification.notice(jobId);
 
         return jobId;
     }
@@ -169,23 +169,18 @@ public class JobBean extends AbstractStatefulBean implements
     public JobStatus attach(long id) {
         if (jobId == null || jobId.longValue() != id) {
             reset();
-	    jobId = Long.valueOf(id);
-	    job = iQuery.get(Job.class, id);
-
-            if (job == null) {
-		return null;
-            }
-
+            jobId = Long.valueOf(id);
         }
-	checkAndRegister();
+        checkAndRegister();
         return job.getStatus();
     }
 
     private void reset() {
-	resetId = null;
-	jobId = null;
+        resetId = null;
+        jobId = null;
+        job = null;
     }
-			  
+
     /**
      * Types service Bean injector.
      * 
@@ -194,7 +189,7 @@ public class JobBean extends AbstractStatefulBean implements
      */
     public void setTypesService(ITypes typesService) {
         getBeanHelper().throwIfAlreadySet(this.iTypes, typesService);
-	this.iTypes = typesService;
+        this.iTypes = typesService;
     }
 
     /**
@@ -205,7 +200,7 @@ public class JobBean extends AbstractStatefulBean implements
      */
     public void setUpdateService(IUpdate updateService) {
         getBeanHelper().throwIfAlreadySet(this.iUpdate, updateService);
-	this.iUpdate = updateService;
+        this.iUpdate = updateService;
     }
 
     /**
@@ -214,14 +209,21 @@ public class JobBean extends AbstractStatefulBean implements
      * @param processManager
      *            a <code>ProcessManager</code>.
      */
-    public void setProcessManager(ProcessManager procMgr) {
+    public void setProcessManager(IProcessManager procMgr) {
         getBeanHelper().throwIfAlreadySet(this.pm, procMgr);
-	this.pm = procMgr;
+        this.pm = procMgr;
+    }
+
+    /**
+     * job notification injector.
+     */
+    public void setJobNotification(JobNotification notify) {
+        getBeanHelper().throwIfAlreadySet(this.notification, notify);
+        this.notification = notify;
     }
 
     // Usage methods
     // ===================================================
-
 
     protected void errorIfInvalidState() {
         if (resetId != null) {
@@ -235,60 +237,69 @@ public class JobBean extends AbstractStatefulBean implements
 
     protected void checkAndRegister() {
 
-	if (job == null) {
-	    Job job = iQuery.get(Job.class, jobId);
-	    if (job == null) {
-		throw new ApiUsageException("Unknown job:"+jobId);
-	    }
-	}
-
-	Process p = pm.runningProcess(jobId);
-	if (p != null ) {
-	    p.registerCallback(null);
-	}
+        if (job == null) {
+            job = iQuery.get(Job.class, jobId);
+            if (job == null) {
+                throw new ApiUsageException("Unknown job:" + jobId);
+            }
+            Process p = pm.runningProcess(jobId);
+            if (p.isActive()) {
+                p.registerCallback(this);
+            }
+        }
     }
-    
+
     @RolesAllowed("user")
     public Timestamp jobFinished() {
-	errorIfInvalidState();
-	checkAndRegister();
-	return job.getFinished();
+        errorIfInvalidState();
+        checkAndRegister();
+        return job.getFinished();
     }
 
     @RolesAllowed("user")
     public JobStatus jobStatus() {
-	errorIfInvalidState();
-	checkAndRegister();
-	return job.getStatus();
+        errorIfInvalidState();
+        checkAndRegister();
+        return job.getStatus();
     }
 
     @RolesAllowed("user")
     public String jobMessage() {
-	errorIfInvalidState();
-	checkAndRegister();
-	return job.getMessage();
+        errorIfInvalidState();
+        checkAndRegister();
+        return job.getMessage();
     }
 
     @RolesAllowed("user")
     public boolean jobRunning() {
-	errorIfInvalidState();
-	checkAndRegister();
-	return job.getStatus().equals("Running"); // FIXME
+        errorIfInvalidState();
+        checkAndRegister();
+        return job.getStatus().equals("Running"); // FIXME
     }
 
     @RolesAllowed("user")
     public boolean jobError() {
-	errorIfInvalidState();
-	checkAndRegister();
-	return job.getStatus().getValue().equals("Error"); // FIXME
+        errorIfInvalidState();
+        checkAndRegister();
+        return job.getStatus().getValue().equals("Error"); // FIXME
     }
 
     @Transactional(readOnly = false)
     @RolesAllowed("user")
     public void cancelJob() {
-	errorIfInvalidState();
-	checkAndRegister();
-	throw new UnsupportedOperationException();
+        errorIfInvalidState();
+        checkAndRegister();
+        throw new UnsupportedOperationException();
     }
 
+    // ProcessCallback ~
+    // =========================================================================
+
+    public void processCancelled(Process proc) {
+        throw new UnsupportedOperationException("NYI");
+    }
+
+    public void processFinished(Process proc) {
+        throw new UnsupportedOperationException("NYI");
+    }
 }
