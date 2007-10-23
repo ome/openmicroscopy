@@ -23,12 +23,14 @@ import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
 import ome.api.ITypes;
-import ome.api.IUpdate;
 import ome.api.JobHandle;
 import ome.api.ServiceInterface;
+import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
+import ome.model.IObject;
 import ome.model.jobs.Job;
 import ome.model.jobs.JobStatus;
+import ome.security.SecureAction;
 import ome.services.procs.IProcessManager;
 import ome.services.procs.Process;
 import ome.services.procs.ProcessCallback;
@@ -69,9 +71,8 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
     private transient static Log log = LogFactory.getLog(JobBean.class);
 
     private Long jobId, resetId;
-    private transient Job job;
     private transient ITypes iTypes;
-    private transient IUpdate iUpdate;
+    private transient LocalUpdate iUpdate;
     private transient IProcessManager pm;
     private transient JobNotification notification;
 
@@ -126,7 +127,7 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
      */
     @Transactional(readOnly = false)
     @RolesAllowed("user")
-    public long submit(Job job) {
+    public long submit(Job newJob) {
         reset(); // TODO or do we want to just checkState
         // and throw an exception if this is a stale handle.
 
@@ -135,26 +136,30 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
         Timestamp now = new Timestamp(ms);
 
         // Values that can't be set by the user
-        job.setUsername(ec.getCurrentUserName());
-        job.setGroupname(ec.getCurrentGroupName());
-        job.setType(ec.getCurrentEventType());
-        job.setMessage(""); // TODO Should the user be able to set a message as
+        newJob.setUsername(ec.getCurrentUserName());
+        newJob.setGroupname(ec.getCurrentGroupName());
+        newJob.setType(ec.getCurrentEventType());
+        newJob.setMessage(""); // TODO Should the user be able to set a message
+        // as
         // a
         // check??
-        job.setStatus(new JobStatus("Submitted"));
-        job.setStarted(null);
-        job.setFinished(null);
-        job.setSubmitted(now);
+        newJob.setStatus(new JobStatus(JobHandle.SUBMITTED));
+        newJob.setStarted(null);
+        newJob.setFinished(null);
+        newJob.setSubmitted(now);
 
         // Values that the user can optionally set
-        Timestamp t = job.getScheduledFor();
+        Timestamp t = newJob.getScheduledFor();
         if (t == null || t.getTime() < now.getTime()) {
-            job.setScheduledFor(now);
+            newJob.setScheduledFor(now);
         }
 
-        job = iUpdate.saveAndReturnObject(job);
-        jobId = job.getId();
+        // Here it is necessary to perform a {@link SecureAction} since
+        // SecuritySystem#isSystemType() returns true for all Jobs
+        newJob.setDetails(sec.newTransientDetails(newJob));
+        newJob = secureSave(newJob);
 
+        jobId = newJob.getId();
         notification.notice(jobId);
 
         return jobId;
@@ -172,13 +177,12 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
             jobId = Long.valueOf(id);
         }
         checkAndRegister();
-        return job.getStatus();
+        return getJob().getStatus();
     }
 
     private void reset() {
         resetId = null;
         jobId = null;
-        job = null;
     }
 
     /**
@@ -198,7 +202,7 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
      * @param updateService
      *            a <code>IUpdate</code>.
      */
-    public void setUpdateService(IUpdate updateService) {
+    public void setUpdateService(LocalUpdate updateService) {
         getBeanHelper().throwIfAlreadySet(this.iUpdate, updateService);
         this.iUpdate = updateService;
     }
@@ -236,60 +240,59 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
     }
 
     protected void checkAndRegister() {
-
-        if (job == null) {
-            job = iQuery.get(Job.class, jobId);
-            if (job == null) {
-                throw new ApiUsageException("Unknown job:" + jobId);
-            }
-            Process p = pm.runningProcess(jobId);
-            if (p.isActive()) {
-                p.registerCallback(this);
-            }
+        Process p = pm.runningProcess(jobId);
+        if (p != null && p.isActive()) {
+            p.registerCallback(this);
         }
     }
 
     @RolesAllowed("user")
-    public Timestamp jobFinished() {
+    public Job getJob() {
         errorIfInvalidState();
         checkAndRegister();
-        return job.getFinished();
+        Job job = iQuery.find(Job.class, jobId);
+        if (job == null) {
+            throw new ApiUsageException("Unknown job:" + jobId);
+        }
+        return job;
+    }
+
+    @RolesAllowed("user")
+    public Timestamp jobFinished() {
+        return getJob().getFinished();
     }
 
     @RolesAllowed("user")
     public JobStatus jobStatus() {
-        errorIfInvalidState();
-        checkAndRegister();
-        return job.getStatus();
+        return getJob().getStatus();
     }
 
     @RolesAllowed("user")
     public String jobMessage() {
-        errorIfInvalidState();
-        checkAndRegister();
-        return job.getMessage();
+        return getJob().getMessage();
     }
 
     @RolesAllowed("user")
     public boolean jobRunning() {
-        errorIfInvalidState();
-        checkAndRegister();
-        return job.getStatus().equals("Running"); // FIXME
+        return getJob().getStatus().equals("Running"); // FIXME
     }
 
     @RolesAllowed("user")
     public boolean jobError() {
-        errorIfInvalidState();
-        checkAndRegister();
-        return job.getStatus().getValue().equals("Error"); // FIXME
+        return getJob().getStatus().getValue().equals("Error"); // FIXME
     }
 
     @Transactional(readOnly = false)
     @RolesAllowed("user")
     public void cancelJob() {
         errorIfInvalidState();
-        checkAndRegister();
-        throw new UnsupportedOperationException();
+        Job job = getJob();
+        job.setStatus(new JobStatus(JobHandle.CANCELLED));
+        secureSave(job);
+        Process p = pm.runningProcess(jobId);
+        if (p != null) {
+            p.cancel();
+        }
     }
 
     // ProcessCallback ~
@@ -302,4 +305,20 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
     public void processFinished(Process proc) {
         throw new UnsupportedOperationException("NYI");
     }
+
+    // Helpers ~
+    // =========================================================================
+
+    private Job secureSave(Job job) {
+        job = sec.doAction(job, new SecureAction() {
+            public <T extends IObject> T updateObject(T obj) {
+                T result = iUpdate.saveAndReturnObject(obj);
+                iUpdate.commit();
+                return result;
+            }
+
+        });
+        return job;
+    }
+
 }

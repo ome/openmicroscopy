@@ -21,6 +21,7 @@
      <entry name="Error"/>
      <entry name="Waiting"/>
      <entry name="Finished"/>
+     <entry name="Cancelled"/>
   </enum>
 
   <type id="ome.model.jobs.Job" abstract="true">

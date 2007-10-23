@@ -8,11 +8,13 @@
 package ome.services;
 
 import ome.model.jobs.Job;
+import ome.services.procs.ProcessManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import org.quartz.Scheduler;
-import org.quartz.Trigger;
 
 /**
  * Temporary replacement for the central notification system that will be added
@@ -27,17 +29,12 @@ import org.quartz.Trigger;
 public class JobNotification {
 
     /** The logger for this class. */
-    private transient static Log log = LogFactory.getLog(JobNotification.class);
+    private static Log log = LogFactory.getLog(JobNotification.class);
 
-    private transient Trigger trigger;
-    private transient Scheduler scheduler;
+    private Scheduler scheduler;
 
     /** default constructor */
     public JobNotification() {
-    }
-
-    public void setTrigger(Trigger trigget) {
-        this.trigger = trigger;
     }
 
     public void setScheduler(Scheduler scheduler) {
@@ -45,7 +42,21 @@ public class JobNotification {
     }
 
     public void notice(long jobId) {
+        try {
+            scheduler
+                    .triggerJob("process-jobs-manual", Scheduler.DEFAULT_GROUP);
+        } catch (Exception e) {
+            log.error("Could not trigger process-jobs-manual", e);
+        }
 
     }
 
+    public static class Go implements org.quartz.Job {
+        public void execute(JobExecutionContext arg0)
+                throws JobExecutionException {
+            ProcessManager pm = (ProcessManager) arg0.getJobDetail()
+                    .getJobDataMap().get("processManager");
+            pm.process();
+        }
+    }
 }

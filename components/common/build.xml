@@ -90,9 +90,14 @@
 	</target>
 
 	<target name="generate-schema" depends="generate" description="Generates SQL based on Hibernate mappings">
-		<mkdir dir="${sql.dir}" />
+		<mkdir dir="${sql.dir}/${omero.dbversion}__${omero.dbpatch}" />
 		<copy file="${resrc.dest}/ddl.sql" tofile="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__schema.sql"/>
 		<copy file="${resrc.dest}/data.sql" tofile="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__data.sql"/>
+		<copy todir="${sql.dir}/${omero.dbversion}__${omero.dbpatch}">
+			<fileset dir="${src.dest}" includes="**/*.hbm.xml"/>
+			<fileset dir="${resrc.dest}" includes="**/*.hbm.xml"/>
+		</copy>
+
 	</target>
 
     <!-- = = = = = = = = = = = = = = = = =

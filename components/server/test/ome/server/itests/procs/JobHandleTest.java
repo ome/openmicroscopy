@@ -6,13 +6,29 @@
  */
 package ome.server.itests.procs;
 
-import junit.framework.TestCase;
-import ome.api.JobHandle;
-import ome.security.SecuritySystem;
-import ome.system.Principal;
-import ome.system.ServiceFactory;
-import ome.tools.spring.ManagedServiceFactory;
+import java.lang.reflect.Field;
+import java.sql.Timestamp;
+import java.util.UUID;
 
+import junit.framework.TestCase;
+import ome.api.IQuery;
+import ome.api.ITypes;
+import ome.api.JobHandle;
+import ome.api.local.LocalQuery;
+import ome.api.local.LocalUpdate;
+import ome.conditions.SecurityViolation;
+import ome.model.jobs.Job;
+import ome.model.jobs.JobStatus;
+import ome.model.jobs.ScriptJob;
+import ome.security.SecuritySystem;
+import ome.server.itests.ManagedContextFixture;
+import ome.services.JobBean;
+import ome.services.procs.ProcessManager;
+import ome.services.procs.ProcessorSkeleton;
+import ome.system.ServiceFactory;
+
+import org.quartz.JobDetail;
+import org.quartz.Scheduler;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
@@ -23,16 +39,191 @@ import org.testng.annotations.Test;
 @Test(groups = { "jobs", "integration" })
 public class JobHandleTest extends TestCase {
 
+    protected ManagedContextFixture fixture;
+    protected ServiceFactory sf;
+    protected long id;
     protected JobHandle jh;
-    protected ServiceFactory sf = new ManagedServiceFactory();
-    protected SecuritySystem sec;
+    protected PManager mgr;
 
     @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         super.setUp();
-        sec = (SecuritySystem) sf.getContext().getBean("securitySystem");
-        sec.login(new Principal());
+        fixture = new ManagedContextFixture();
+        sf = fixture.sf;
+        mgr = new PManager(new P(sf.getQueryService()), fixture.sec,
+                (LocalUpdate) sf.getUpdateService(), (LocalQuery) sf
+                        .getQueryService(), sf.getTypesService());
+        JobBean bean = (JobBean) fixture.ctx
+                .getBean("internal:ome.api.JobHandle");
+        Field pm = bean.getClass().getDeclaredField("pm");
+        pm.setAccessible(true);
+        pm.set(bean, mgr);
+        // Fixing notifications
+        Scheduler sched = (Scheduler) fixture.ctx.getBean("scheduler");
+        JobDetail manual = (JobDetail) fixture.ctx
+                .getBean("process-jobs-manual");
+        manual.getJobDataMap().put("processManager", mgr);
+        sched.addJob(manual, true);
     }
 
+    @Override
+    @Configuration(afterTestMethod = true)
+    protected void tearDown() throws Exception {
+        super.tearDown();
+
+    }
+
+    @Test
+    public void testJobIsSavedToDatabase() throws Exception {
+        ScriptJob job = new ScriptJob();
+        String uuid = UUID.randomUUID().toString();
+        job.setMessage(uuid);
+        jh = sf.createJobHandle();
+        id = jh.submit(job);
+        assertTrue(id > 0L);
+    }
+
+    @Test(expectedExceptions = SecurityViolation.class)
+    public void testJobCannotBeCreatedViaIUpdate() throws Exception {
+        ScriptJob job = new ScriptJob();
+        job.setSubmitted(new Timestamp(System.currentTimeMillis()));
+        job.setType("user");
+        job.setGroupname("default");
+        job.setMessage("test of override via iupdate");
+        job.setStatus(new JobStatus("Submitted"));
+        job.setUsername("root");
+        job.setScheduledFor(new Timestamp(System.currentTimeMillis() + 100L));
+        sf.getUpdateService().saveObject(job);
+    }
+
+    @Test
+    public void testUserCanReattach() throws Exception {
+        testJobIsSavedToDatabase();
+        JobHandle attach = sf.createJobHandle();
+        JobStatus status = attach.attach(id);
+        assertTrue(status != null && status.getValue() != null);
+    }
+
+    @Test
+    public void testUserCanRetrieveJob() throws Exception {
+        testJobIsSavedToDatabase();
+        Job job = jh.getJob();
+        assertTrue(job != null && job.isLoaded());
+    }
+
+    @Test
+    public void testMultipleUsersCanAttach() throws Exception {
+        testJobIsSavedToDatabase();
+        JobHandle attach1 = sf.createJobHandle();
+        JobHandle attach2 = sf.createJobHandle();
+
+        String user1 = fixture.getCurrentUser();
+        String user2 = fixture.newUser();
+
+        attach1.attach(id);
+
+        fixture.setCurrentUser(user2);
+        attach2.attach(id);
+        attach2.cancelJob();
+
+        fixture.setCurrentUser(user1);
+        JobStatus cancelled = attach1.jobStatus();
+        assertEquals(JobHandle.CANCELLED, cancelled.getValue());
+    }
+
+    @Test
+    public void testProcessManagerIsNotified() throws Exception {
+        testJobIsSavedToDatabase();
+        assertTrue(mgr.called);
+    }
+
+    @Test
+    public void testJobSwitchedToWaitingIfNoProcessorTakesIt() throws Exception {
+        testJobIsSavedToDatabase();
+        assertEquals(JobHandle.WAITING, jh.jobStatus().getValue());
+    }
+
+    @Test
+    public void testPassiviationWorksProperly() throws Exception {
+        fail("NYI");
+    }
+
+    @Test
+    public void testCancelJobWorks() throws Exception {
+        fail("NYI");
+    }
+
+    @Test
+    public void testProcessCancelsJobWorks() throws Exception {
+        fail("NYI");
+    }
+
+    @Test
+    public void testServiceNotifiedOfServiceCompletionByProcess()
+            throws Exception {
+        fail("NYI");
+    }
+
+    @Test
+    public void testUserForgetsToUploadScript() throws Exception {
+        fail("NYI");
+    }
+
+    @Test
+    public void testCheckAndRegisterNoticesFinishedProcesses() throws Exception {
+        fail("NYI");
+    }
+
+    @Test
+    public void testJobRunAsOwner() throws Exception {
+        fail("NYI");
+    }
+
+    @Test
+    public void testJobRetrievalCanBeSpecifiedViaQuery() throws Exception {
+        fail("NYI");
+        // Job job = iQuery.findByQuery("job.query."+job.getClass(),idParams);
+    }
+
+}
+
+class P extends ProcessorSkeleton {
+    public P(IQuery query) {
+        this.setQueryService(query);
+    }
+
+}
+
+class PManager extends ProcessManager {
+    public PManager(P p, SecuritySystem sec, LocalUpdate update,
+            LocalQuery query, ITypes types) {
+        super(p);
+        if (sec == null || update == null || query == null || types == null) {
+            throw new RuntimeException("Null argument");
+        }
+        setSecuritySystem(sec);
+        setUpdateService(update);
+        setTypesService(types);
+        setQueryService(query);
+    }
+
+    public volatile boolean called = false;
+
+    @Override
+    public void process() {
+        called = true;
+        super.process();
+    }
+
+    public void waitFor(long timeout) {
+        long stop = System.currentTimeMillis() + timeout;
+        while (System.currentTimeMillis() < stop) {
+            try {
+                Thread.sleep(500L);
+            } catch (InterruptedException ie) {
+                // ok
+            }
+        }
+    }
 }

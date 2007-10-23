@@ -8,18 +8,16 @@
 package ome.security.basic;
 
 // Java imports
+import static ome.model.internal.Permissions.Right.READ;
+import static ome.model.internal.Permissions.Role.GROUP;
+import static ome.model.internal.Permissions.Role.USER;
+import static ome.model.internal.Permissions.Role.WORLD;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-// Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.springframework.util.Assert;
-
-// Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.api.ITypes;
@@ -37,10 +35,9 @@ import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.GraphHolder;
 import ome.model.internal.Permissions;
-import static ome.model.internal.Permissions.Right.*;
-import static ome.model.internal.Permissions.Role.*;
 import ome.model.internal.Token;
 import ome.model.internal.Permissions.Flag;
+import ome.model.jobs.Job;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
@@ -52,7 +49,6 @@ import ome.security.ACLVoter;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
-import ome.security.basic.BasicACLVoter;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -62,11 +58,16 @@ import ome.tools.hibernate.HibernateUtils;
 import ome.tools.hibernate.SecurityFilter;
 import ome.tools.spring.PostProcessInjector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.util.Assert;
+
 /**
  * simplest implementation of {@link SecuritySystem}. Uses an ctor-injected
  * {@link EventContext} and the {@link ThreadLocal ThreadLocal-}based
  * {@link CurrentDetails} to provide the security infrastructure.
- *
+ * 
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
  * @see Token
@@ -82,14 +83,14 @@ public class BasicSecuritySystem implements SecuritySystem {
 
     /**
      * private token for identifying loose "ownership" of certain objects.
-     *
+     * 
      * @see IObject#getGraphHolder()
      * @see GraphHolder#hasToken()
      */
-    private Token token = new Token();
+    private final Token token = new Token();
 
     /** {@link ServiceFactory} for accessing all available services */
-    private ServiceFactory sf;
+    private final ServiceFactory sf;
 
     /** metadata for calculating certain walks */
     protected ExtendedMetadata em;
@@ -107,7 +108,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 
     /**
      * only public constructor for this {@link SecuritySystem} implementation.
-     *
+     * 
      * @param factory
      *            Not null.
      */
@@ -177,7 +178,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 
     /**
      * classes which cannot be created by regular users.
-     *
+     * 
      * @see <a
      *      href="https://trac.openmicroscopy.org.uk/omero/ticket/156">ticket156</a>
      */
@@ -203,13 +204,16 @@ public class BasicSecuritySystem implements SecuritySystem {
         if (IEnum.class.isAssignableFrom(klass)) {
             return true;
         }
+        if (Job.class.isAssignableFrom(klass)) {
+            return true;
+        }
         return false;
     }
 
     /**
      * tests whether or not the current user is either the owner of this entity,
      * or the superivsor of this entity, for example as root or as group owner.
-     *
+     * 
      * @param iObject
      *            Non-null managed entity.
      * @return true if the current user is owner or supervisor of this entity
@@ -240,12 +244,12 @@ public class BasicSecuritySystem implements SecuritySystem {
      * not</em>
      * apply to single value loads from the database. See
      * {@link #allowLoad(Class, Details)} for more.
-     *
+     * 
      * Note: this filter must be disabled on logout, otherwise the necessary
      * parameters (current user, current group, etc.) for building the filters
      * will not be available. Similarly, while enabling this filter, no calls
      * should be made on the given session object.
-     *
+     * 
      * @param session
      *            a generic session object which can be used to enable this
      *            filter. Each {@link SecuritySystem} implementation will
@@ -275,7 +279,7 @@ public class BasicSecuritySystem implements SecuritySystem {
     /**
      * disable this filer. All future queries will have no security context
      * associated with them and all items will be visible.
-     *
+     * 
      * @param session
      *            a generic session object which can be used to disable this
      *            filter. Each {@link SecuritySystem} implementation will
@@ -320,7 +324,7 @@ public class BasicSecuritySystem implements SecuritySystem {
      * checks, and if necessary, stores argument and entities attached to the
      * argument entity in the current context for later modification (see
      * {@link #lockMarked()}
-     *
+     * 
      * These modifications cannot be done during save and update because not
      * just the entity itself but entities 1-step down the graph are to be
      * edited, and it cannot be guaranteed that the graph walk will not
@@ -328,13 +332,13 @@ public class BasicSecuritySystem implements SecuritySystem {
      * the flush procedure of {@link FlushEntityEventListener}. This also
      * prevents accidental changes by administrative users by making the locking
      * of an element the very last action.
-     *
+     * 
      * This method is called during
      * {@link OmeroInterceptor#onSave(Object, java.io.Serializable, Object[], String[], org.hibernate.type.Type[]) save}
      * and
      * {@link OmeroInterceptor#onFlushDirty(Object, java.io.Serializable, Object[], Object[], String[], org.hibernate.type.Type[]) update}
      * since this is the only time that new entity references can be created.
-     *
+     * 
      * @param iObject
      *            new or updated entity which may reference other entities which
      *            then require locking. Nulls are tolerated but do nothing.
@@ -482,11 +486,11 @@ public class BasicSecuritySystem implements SecuritySystem {
             Integer version = ((IMutable) iobj).getVersion();
             if (version == null || version.intValue() < 0) {
                 ;
-            // throw new ValidationException(
-            // "Version must properly be set on managed objects :\n"+
-            // obj.toString()
-            // );
-            // TODO
+                // throw new ValidationException(
+                // "Version must properly be set on managed objects :\n"+
+                // obj.toString()
+                // );
+                // TODO
             }
         }
 
@@ -546,7 +550,7 @@ public class BasicSecuritySystem implements SecuritySystem {
                     previousDetails, currentDetails, newDetails);
 
             if (!isGlobal(iobj.getClass())) // implies that Permissions dosn't
-                                            // matter
+            // matter
             {
                 altered |= managedPermissions(locked, privileged, iobj,
                         previousDetails, currentDetails, newDetails);
@@ -582,7 +586,7 @@ public class BasicSecuritySystem implements SecuritySystem {
     /**
      * responsible for guaranteeing that external info is not modified by any
      * users, including rot.
-     *
+     * 
      * @param locked
      * @param privileged
      * @param obj
@@ -632,7 +636,7 @@ public class BasicSecuritySystem implements SecuritySystem {
      * account the {@link Flag#LOCKED} status. This method does not need to
      * (like {@link #newTransientDetails(IObject)} take into account the session
      * umask available from {@link CurrentDetails#createDetails()}
-     *
+     * 
      * @param locked
      * @param privileged
      * @param obj
@@ -735,12 +739,12 @@ public class BasicSecuritySystem implements SecuritySystem {
                     altered = true;
                 }
 
-                if (previousP.isGranted(USER, READ) && !calculatedP.isGranted(
-                        USER, READ)
-                        || previousP.isGranted(GROUP, READ) && !calculatedP
-                                .isGranted(GROUP, READ)
-                        || previousP.isGranted(WORLD, READ) && !calculatedP
-                                .isGranted(WORLD, READ)) {
+                if (previousP.isGranted(USER, READ)
+                        && !calculatedP.isGranted(USER, READ)
+                        || previousP.isGranted(GROUP, READ)
+                        && !calculatedP.isGranted(GROUP, READ)
+                        || previousP.isGranted(WORLD, READ)
+                        && !calculatedP.isGranted(WORLD, READ)) {
                     throw new SecurityViolation(
                             "Cannot remove READ from locked entity:" + obj);
                 }
@@ -977,8 +981,8 @@ public class BasicSecuritySystem implements SecuritySystem {
         ExperimenterGroup grp = localAdmin.groupProxy(p.getGroup());
         if (!memberOfGroupsIds.contains(grp.getId())) {
             throw new SecurityViolation(String.format(
-                    "User %s is not a member of group %s",
-                    p.getName(), p.getGroup()));
+                    "User %s is not a member of group %s", p.getName(), p
+                            .getGroup()));
         }
         grp.getGraphHolder().setToken(token, token);
         cd.setGroup(grp);
@@ -996,28 +1000,29 @@ public class BasicSecuritySystem implements SecuritySystem {
         type.getGraphHolder().setToken(token, token);
         cd.newEvent(type, token);
 
-        if (!isReadOnly) {   
+        if (!isReadOnly) {
             saveEventIfWriteMethod();
         }
-        
+
     }
 
-    /** During {@link #loadEventContext(boolean) loading} and 
-     * {@link #setEventContext(EventContext) setting} of the {@link EventContext}
-     * it is necessary to save the {@link Event} to prevent "null or transient
-     * value exceptions" later. This is done also done for {@link Event events}
-     * of stateful services, in which the {@link EventContext#isReadOnly()} flag
-     * changes from true to false.
+    /**
+     * During {@link #loadEventContext(boolean) loading} and
+     * {@link #setEventContext(EventContext) setting} of the
+     * {@link EventContext} it is necessary to save the {@link Event} to prevent
+     * "null or transient value exceptions" later. This is done also done for
+     * {@link Event events} of stateful services, in which the
+     * {@link EventContext#isReadOnly()} flag changes from true to false.
      * 
      * @see EventHandler
      * @see #loadEventContext(boolean)
      * @see #setEventContext(EventContext)
      */
     private void saveEventIfWriteMethod() {
-            IUpdate iUpdate = sf.getUpdateService();
-            Event event = getCurrentEvent();
-            event.getGraphHolder().setToken(token, token);
-            setCurrentEvent(iUpdate.saveAndReturnObject(event));
+        IUpdate iUpdate = sf.getUpdateService();
+        Event event = getCurrentEvent();
+        event.getGraphHolder().setToken(token, token);
+        setCurrentEvent(iUpdate.saveAndReturnObject(event));
     }
 
     /**
@@ -1231,13 +1236,13 @@ public class BasicSecuritySystem implements SecuritySystem {
     // =========================================================================
 
     /**
-     *
+     * 
      * It would be better to catch the
      * {@link SecureAction#updateObject(IObject)} method in a try/finally block,
      * but since flush can be so poorly controlled that's not possible. instead,
      * we use the one time token which is removed this Object is checked for
      * {@link #hasPrivilegedToken(IObject) privileges}.
-     *
+     * 
      * @param obj
      *            A managed (non-detached) entity. Not null.
      * @param action

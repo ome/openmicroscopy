@@ -9,9 +9,9 @@ package ome.server.utests;
 import java.sql.Timestamp;
 
 import ome.api.ITypes;
-import ome.api.IUpdate;
 import ome.api.JobHandle;
 import ome.api.local.LocalQuery;
+import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.model.jobs.ImportJob;
 import ome.model.jobs.JobStatus;
@@ -37,7 +37,7 @@ public class JobHandleMockTest extends MockObjectTestCase {
     protected JobHandle jh;
 
     protected LocalQuery iQuery;
-    protected IUpdate iUpdate;
+    protected LocalUpdate iUpdate;
     protected ITypes iTypes;
     protected SecuritySystem sec;
     protected EventContext ec;
@@ -54,7 +54,7 @@ public class JobHandleMockTest extends MockObjectTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         mockQuery = mock(LocalQuery.class);
-        mockUpdate = mock(IUpdate.class);
+        mockUpdate = mock(LocalUpdate.class);
         mockTypes = mock(ITypes.class);
         mockSec = mock(SecuritySystem.class);
         mockEc = mock(EventContext.class);
@@ -62,7 +62,7 @@ public class JobHandleMockTest extends MockObjectTestCase {
         mockProcess = mock(Process.class);
         iQuery = (LocalQuery) mockQuery.proxy();
         iTypes = (ITypes) mockTypes.proxy();
-        iUpdate = (IUpdate) mockUpdate.proxy();
+        iUpdate = (LocalUpdate) mockUpdate.proxy();
         sec = (SecuritySystem) mockSec.proxy();
         pm = (IProcessManager) mockPm.proxy();
         process = (Process) mockProcess.proxy();
@@ -164,6 +164,19 @@ public class JobHandleMockTest extends MockObjectTestCase {
     @Test(expectedExceptions = ApiUsageException.class)
     public void testNoAttachOrSubmit() throws Exception {
         jh.jobFinished();
+    }
+
+    @Test
+    public void testConstantsHaventChanged() {
+        assertEquals(JobHandle.SUBMITTED, "Submitted");
+        assertEquals(JobHandle.RESUBMITTED, "Resubmitted");
+        assertEquals(JobHandle.QUEUED, "Queued");
+        assertEquals(JobHandle.REQUEUED, "Requeued");
+        assertEquals(JobHandle.WAITING, "Waiting");
+        assertEquals(JobHandle.FINISHED, "Finished");
+        assertEquals(JobHandle.ERROR, "Error");
+        assertEquals(JobHandle.RUNNING, "Running");
+
     }
 
     // Helpers ~

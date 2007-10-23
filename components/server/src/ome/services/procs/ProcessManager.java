@@ -16,10 +16,15 @@ import java.util.Map;
 import ome.api.IQuery;
 import ome.api.ITypes;
 import ome.api.IUpdate;
+import ome.api.JobHandle;
 import ome.conditions.ApiUsageException;
+import ome.model.IObject;
 import ome.model.jobs.Job;
 import ome.model.jobs.JobStatus;
 import ome.parameters.Parameters;
+import ome.security.SecureAction;
+import ome.security.SecuritySystem;
+import ome.system.Principal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,6 +38,8 @@ public class ProcessManager implements IProcessManager {
 
     private static Log log = LogFactory.getLog(ProcessManager.class);
 
+    // TODO this should probably be replaced by a DAO
+    private SecuritySystem sec;
     private IQuery query;
     private ITypes types;
     private IUpdate update;
@@ -77,6 +84,10 @@ public class ProcessManager implements IProcessManager {
         this.update = updateService;
     }
 
+    public void setSecuritySystem(SecuritySystem securitySystem) {
+        this.sec = securitySystem;
+    }
+
     // Main methods ~
     // =========================================================================
 
@@ -86,12 +97,21 @@ public class ProcessManager implements IProcessManager {
             log.debug("Starting processing...");
         }
 
-        List<Job> jobs = query.findAllByQuery(
-                "select j from Job j where status.id = :id", new Parameters()
-                        .addId(getSubmittedStatus().getId()));
+        try {
+            sec.login(new Principal("root", "user", "Processing"));
+            List<Job> jobs = query.findAllByQuery(
+                    "select j from Job j where status.id = :id",
+                    new Parameters().addId(getSubmittedStatus().getId()));
 
-        for (Job job : jobs) {
-            startProcess(job.getId());
+            for (Job job : jobs) {
+                startProcess(job.getId());
+            }
+        } catch (Exception e) {
+            if (log.isErrorEnabled()) {
+                log.error("Error while processing", e);
+            }
+        } finally {
+            sec.logout();
         }
 
         if (log.isDebugEnabled()) {
@@ -121,7 +141,12 @@ public class ProcessManager implements IProcessManager {
             Job job = job(jobId);
             job.setStatus(getWaitingStatus());
             job.setMessage("No processor found for job.");
-            update.saveObject(job);
+            sec.doAction(job, new SecureAction() {
+                public <T extends IObject> T updateObject(T obj) {
+                    return update.saveAndReturnObject(obj);
+                }
+
+            });
         } else {
             procMap.put(jobId, p);
         }
@@ -141,20 +166,21 @@ public class ProcessManager implements IProcessManager {
         return job;
     }
 
+    private JobStatus getStatus(String status) {
+        JobStatus statusObj = types.getEnumeration(JobStatus.class, status);
+        return statusObj;
+    }
+
     private JobStatus getSubmittedStatus() {
-        JobStatus submitted = types
-                .getEnumeration(JobStatus.class, "Submitted");
-        return submitted;
+        return getStatus(JobHandle.SUBMITTED);
     }
 
     private JobStatus getRunningStatus() {
-        JobStatus running = types.getEnumeration(JobStatus.class, "Running");
-        return running;
+        return getStatus(JobHandle.RUNNING);
     }
 
     private JobStatus getWaitingStatus() {
-        JobStatus waiting = types.getEnumeration(JobStatus.class, "Waiting");
-        return waiting;
+        return getStatus(JobHandle.WAITING);
     }
 
 }
