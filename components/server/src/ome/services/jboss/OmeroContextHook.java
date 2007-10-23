@@ -7,27 +7,22 @@
 
 package ome.services.jboss;
 
-// Java imports
+import java.util.ResourceBundle;
 
-// Third-party libraries
-import org.hibernate.SessionFactory;
-import org.jboss.annotation.ejb.Service;
-import org.jboss.annotation.ejb.Management;
-
-// Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.system.OmeroContext;
-import ome.system.Version;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jboss.annotation.ejb.Management;
+import org.jboss.annotation.ejb.Service;
 
 /**
  * Hook run after all the application has been deployed to the server. At that
- * point, it can be guaranteed that the Omero classes are available and so
- * attempting to connect to the database "internally" should work.
- *
+ * point, it can be guaranteed that the Omero classes are available.
+ * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date: 2006-12-15 11:39:34 +0100 (Fri, 15 Dec
- *          2006) $
  * @since 3.0-Beta1
  * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/444">ticket:444</a>
  */
@@ -37,40 +32,31 @@ import ome.system.Version;
 @Management(StartupAndShutdown.class)
 public class OmeroContextHook implements StartupAndShutdown {
 
-    OmeroContext ctx = OmeroContext.getManagedServerContext();
+    public static Log log = LogFactory.getLog(OmeroContextHook.class);
 
-    SessionFactory sf = (SessionFactory) ctx.getBean("sessionFactory");
+    ResourceBundle bundle = ResourceBundle.getBundle("omero");
+
+    OmeroContext ctx;
 
     /**
-     * Attempts twice to connect to the server to overcome any initial
-     * difficulties.
-     *
+     * Creates the {@link OmeroContext} and prints out a banner on succes.
+     * 
      * @see <a
      *      href="https://trac.openmicroscopy.org.uk/omero/ticket/444">ticket:444</a>
      */
     public void start() throws Exception {
 
-        try {
-            connect();
-        } catch (Exception e) {
-            // ok
-        }
-
-        connect();
-        printBanner("OMERO Version: %s (Rev: %s) Ready.",
-                Version.OMERO, Version.getRevision(Version.class));
+        ctx = OmeroContext.getManagedServerContext();
 
     }
 
     /**
-     * Closes the {@link OmeroContext} instance. This should shut down
-     * all asynchronous resources.
+     * Closes the {@link OmeroContext} instance. This should shut down all
+     * asynchronous resources.
      */
     public void stop() throws Exception {
 
-        printBanner("Stoping OMERO...");
-
-        if (ctx!=null) {
+        if (ctx != null) {
             try {
                 ctx.close();
             } finally {
@@ -80,19 +66,5 @@ public class OmeroContextHook implements StartupAndShutdown {
             }
         }
     }
-
-    /**
-     * Attempts a simple database query.
-     */
-    protected void connect() {
-        sf.openSession().createQuery("select count(*) from Experimenter");
-    }
-
-    private void printBanner(String format, Object...objs) {
-        System.out.println("-------------------------------------------------");
-        System.out.println(String.format(format, objs));
-        System.out.println("-------------------------------------------------");
-    }
-
 
 }

@@ -68,6 +68,7 @@
 			<include name="local.properties.example"/>
 			<include name="omero.properties"/>
 			<include name="hibernate.properties"/>
+			<include name="log4j.properties"/>
 		</patternset>
 
 		<!-- Touching the etc files to force update in the case that 

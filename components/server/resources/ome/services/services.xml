@@ -27,6 +27,20 @@
 
 <beans>
 
+<!-- 
+  HOOKS : These beans are used to 
+-->
+
+  <bean id="dbPatchCheck"
+     class="ome.services.util.DBPatchCheck"
+     init-method="start" lazy-init="false">
+     <property name="simpleJdbcTemplate" ref="simpleJdbcTemplate"/>
+  </bean>
+
+  <bean id="serverVersionCheck"
+     class="ome.services.util.ServerVersionCheck"
+     init-method="start" destroy-method="stop" lazy-init="false"/>
+
 <!--
   Aspects/Interceptors which catch "managed:" calls to our service methods
   =======================================================================

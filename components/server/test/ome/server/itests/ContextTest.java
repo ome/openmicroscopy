@@ -6,21 +6,21 @@
  */
 package ome.server.itests;
 
-import org.testng.annotations.*;
-
 import java.util.Arrays;
 
-import org.springframework.aop.framework.Advised;
-import org.springframework.beans.factory.BeanFactoryUtils;
-
 import junit.framework.TestCase;
-
 import ome.api.IPixels;
 import ome.api.IQuery;
 import ome.services.RenderingBean;
+import ome.services.jboss.OmeroContextHook;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 import omeis.providers.re.RenderingEngine;
+
+import org.springframework.aop.framework.Advised;
+import org.springframework.beans.factory.BeanFactoryUtils;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 @Test(groups = "integration")
 public class ContextTest extends TestCase {
@@ -87,6 +87,12 @@ public class ContextTest extends TestCase {
         re.selfConfigure();
         assertTrue(re.pdCalled);
         assertTrue(re.pmCalled);
+    }
+
+    @Test
+    public void testStartupHook() throws Exception {
+        OmeroContextHook hook = new OmeroContextHook();
+        hook.start();
     }
 
 }
