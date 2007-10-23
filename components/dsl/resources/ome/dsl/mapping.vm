@@ -389,10 +389,8 @@
     <!-- 
         Simple field ${type.id}.${prop.name} (${prop.type}) 
     -->
-    <property name="${prop.name}" type="${prop.type}"
-        not-null="${prop.required}" unique="${prop.unique}"
-        update="${prop.update}">
-        <column name="${prop.name}"
+    <property name="${prop.name}" type="${prop.type}" update="${prop.update}">
+        <column name="${prop.name}" not-null="${prop.required}" unique="${prop.unique}"
 ##
 ## ticket:803 We are catching all floats and mapping them in the datasbase to
 ## double precision columns to prevent underflows. 
