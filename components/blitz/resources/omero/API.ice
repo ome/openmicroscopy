@@ -219,6 +219,7 @@ module omero {
 	idempotent long getFreeSpaceInKilobytes() throws ServerError;
 	idempotent double getUsageFraction() throws ServerError;
 	void sanityCheckRepository() throws ServerError;
+	void removeUnusedFiles() throws ServerError;
       };
 	
     interface RawFileStore extends StatefulServiceInterface
