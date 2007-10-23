@@ -525,6 +525,7 @@ public class Tree implements Visitable{
 	// copies each dataField's attribute Hash Map into element's attributes
 	private void parseAttributesMapToElement(LinkedHashMap<String, String> allAttributes, Element element) {
 		
+		String inputType = allAttributes.get(DataField.INPUT_TYPE);
 		boolean customElement = false;
 		if ((allAttributes.get(DataField.INPUT_TYPE) == null)) customElement = true;
 		else if (allAttributes.get(DataField.INPUT_TYPE).equals(DataField.CUSTOM)) customElement = true;

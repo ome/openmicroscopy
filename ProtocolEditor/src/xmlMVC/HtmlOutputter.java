@@ -79,8 +79,8 @@ public class HtmlOutputter {
 			DataField dataField = child.getDataField();
 			printDataField(dataField, outStream, showDescriptions);
 			
-			String hideChildren = dataField.getAttribute(DataField.SUBSTEPS_COLLAPSED);
-			if ((hideChildren == null) || (hideChildren.equals("false"))) {
+			
+			if (!dataField.isAttributeTrue(DataField.SUBSTEPS_COLLAPSED)) {
 				printDataFieldTree(outStream, child, showDescriptions);
 			}
 		}
@@ -93,13 +93,11 @@ public class HtmlOutputter {
 	
 	public static void printDataField (DataField dataField, PrintWriter outputStream, boolean showDescriptions) {
 		
-		boolean subStepsCollapsed = false;
-		String collapsed = dataField.getAttribute(DataField.SUBSTEPS_COLLAPSED);
-		if ((collapsed != null) && (collapsed.equals(DataField.TRUE))) subStepsCollapsed = true;
+		boolean subStepsCollapsed = dataField.isAttributeTrue(DataField.SUBSTEPS_COLLAPSED);
 			
 		LinkedHashMap<String, String> allAttributes = dataField.getAllAttributes();
         	
-        	if (allAttributes.get(DataField.INPUT_TYPE).equals(DataField.PROTOCOL_TITLE))
+        	if (dataField.isAttributeEqualTo(DataField.INPUT_TYPE,DataField.PROTOCOL_TITLE))
         		outputStream.println("<div class='protocol'>");
         	else outputStream.println("<div>");
         	

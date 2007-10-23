@@ -49,12 +49,6 @@ public class AttributesDialog extends JDialog{
 		System.out.println("AttributesDialog Constructor..");
 	}
 	
-	
-	public void closeAttributeDialog() {
-		// save attributes back to parent FormFieldCustom, then...
-		dispose();
-	}
-	
 	public void showAttributesDialog() {
 		setLocationRelativeTo(parent);
 		setVisible(true);

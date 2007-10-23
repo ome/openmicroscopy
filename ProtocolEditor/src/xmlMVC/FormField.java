@@ -58,9 +58,7 @@ public class FormField extends JPanel {
 		
 		horizontalBox = Box.createHorizontalBox();
 		
-		boolean subStepsCollapsed = false;
-		String collapsed = dataField.getAttribute(DataField.SUBSTEPS_COLLAPSED);
-		if ((collapsed != null) && (collapsed.equals(DataField.TRUE))) subStepsCollapsed = true;
+		boolean subStepsCollapsed = dataField.isAttributeTrue(DataField.SUBSTEPS_COLLAPSED);
 		
 		collapseButton = new JButton();
 		collapseButton.setFocusable(false);
@@ -245,8 +243,7 @@ public class FormField extends JPanel {
 	public class CollapseListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			
-			String collapsed = dataField.getAttribute(DataField.SUBSTEPS_COLLAPSED);
-			boolean coll = (collapsed != null) && (collapsed.equals(DataField.TRUE));
+			boolean coll = dataField.isAttributeTrue(DataField.SUBSTEPS_COLLAPSED); 
 			
 			// toggle collapsed state
 			if (coll) {
@@ -268,15 +265,11 @@ public class FormField extends JPanel {
 	// called when formField panel is loaded into UI, so that it is displayed correctly
 	// also called when user collapses or expands sub-steps
 	public void refreshTitleCollapsed() {
-		String collapsed = dataField.getAttribute(DataField.SUBSTEPS_COLLAPSED);
-		boolean subStepsCollapsed = false;
-		if ((collapsed != null) && (collapsed.equals(DataField.TRUE))) {
-			subStepsCollapsed = true;
-			collapseButton.setIcon(collapsedIcon);
-		} else 
-			collapseButton.setIcon(notCollapsedIcon);
+		
+		boolean collapsed = dataField.isAttributeTrue(DataField.SUBSTEPS_COLLAPSED);
+			collapseButton.setIcon(collapsed ? collapsedIcon : notCollapsedIcon);
 		// tells node whether to hide the childBox containing child panels
-		dataField.hideChildren(subStepsCollapsed);
+		dataField.hideChildren(collapsed);
 		
 		// this is only needed when building UI (superfluous when simply collapsing)
 		refreshHasChildren(dataField.hasChildren());

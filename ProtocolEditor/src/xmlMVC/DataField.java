@@ -120,6 +120,18 @@ public class DataField implements Visitable{
 	public String getAttribute(String name) {
 		return allAttributesMap.get(name);
 	}
+	// used to access boolean attributes, eg SUBSTEPS_COLLAPSED
+	public boolean isAttributeTrue(String attributeName) {
+		String value = getAttribute(attributeName);
+		if (value == null) return false;
+		return (value.equals(TRUE));
+	}
+	// returns false if attribute is null
+	public boolean isAttributeEqualTo(String attribute, String equalTo) {
+		String value = getAttribute(attribute);
+		if (value == null) return false;
+		return (value.equals(equalTo));
+	}
 	
 	public void changeDataFieldInputType(String newInputType) {
 		

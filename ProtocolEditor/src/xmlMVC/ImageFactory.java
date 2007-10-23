@@ -44,6 +44,7 @@ public class ImageFactory {
 	public static final String TWO_LEFT_ARROW = ACTION_ICONS_FILE + "2leftarrow.png";
 	public static final String N0 = ACTION_ICONS_FILE + "no.png";
 	public static final String EDU_MATHS = ICONS_FILE + "apps/edu_mathematics.png";
+	public static final String NOTE_PAD = ICONS_FILE + "apps/kwrite.png";
 	
 	public Icon getIcon(String iconPathName) {
 		try {
