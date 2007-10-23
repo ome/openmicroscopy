@@ -76,11 +76,12 @@
         <ref bean="process-job-manual" />
       </list>
     </property>
-    <property name="triggers">
+    <!--Disabling trigger, since context is not properly initialized
+     property name="triggers">
       <list>
         <ref bean="process-jobs-every-30-seconds" />
       </list>
-    </property>
+    </property-->
   </bean>
 
 
