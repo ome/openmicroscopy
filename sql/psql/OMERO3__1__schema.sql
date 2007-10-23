@@ -1,3 +1,9 @@
+-- 
+-- Copyright 2007 Glencoe Software, Inc. All rights reserved.
+-- Use is subject to license terms supplied in LICENSE.txt
+--
+
+BEGIN;
 
     create table aberrationcorrection (
         id int8 not null,
@@ -5656,3 +5662,5 @@
     create sequence seq_xyzttoxytlink;
 
     create sequence seq_xyzttoxyzlink;
+
+COMMIT;

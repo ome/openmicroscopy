@@ -29,7 +29,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record. 
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message) 
-             values ('OMERO3',       5,            'OMERO3',        0,             'Initializing');
+             values ('OMERO3',       6,            'OMERO3',        0,             'Initializing');
 
 --
 -- Here we will create the root account and the necessary groups
@@ -445,7 +445,7 @@ insert into password values (0,'@ROOTPASS@');
 -- Here we have finished initializing this database. 
 update dbpatch set message = 'Database ready.', finished = now() 
   where currentVersion  = 'OMERO3' and 
-        currentPatch    = 5        and  
+        currentPatch    = 6        and  
         previousVersion = 'OMERO3' and      
         previousPatch = 0;
 

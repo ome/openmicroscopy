@@ -89,7 +89,7 @@
 		</copy>
 	</target>
 
-	<target name="generate-schema" depends="generate">
+	<target name="generate-schema" depends="generate" description="Generates SQL based on Hibernate mappings">
 		<mkdir dir="${sql.dir}" />
 		<copy file="${resrc.dest}/ddl.sql" tofile="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__schema.sql"/>
 		<copy file="${resrc.dest}/data.sql" tofile="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__data.sql"/>

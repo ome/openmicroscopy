@@ -1,3 +1,8 @@
+-- 
+-- Copyright 2007 Glencoe Software, Inc. All rights reserved.
+-- Use is subject to license terms supplied in LICENSE.txt
+--
+
 begin;
 
     create sequence seq_dbpatch;
@@ -25,6 +30,6 @@ begin;
         unique (currentVersion, currentPatch, previousVersion, previousPatch);
 
     insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message,        finished)
-                 values ('OMERO3',       0,            'OMERO3',        1,             'Bootstrapped', now());
+                 values ('OMERO3',       0,            'OMERO3',        0,             'Bootstrapped', now());
 
 commit;

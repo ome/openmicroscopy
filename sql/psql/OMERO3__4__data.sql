@@ -1,3 +1,8 @@
+-- 
+-- Copyright 2007 Glencoe Software, Inc. All rights reserved.
+-- Use is subject to license terms supplied in LICENSE.txt
+--
+
 begin;
 set constraints all deferred;
 
@@ -20,7 +25,7 @@ alter table dbpatch alter id set default nextval('seq_dbpatch'),
 -- running so that if anything goes wrong, we'll have some record. 
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message) 
-             values ('OMERO3',       @DBPATCH@,    'OMERO3',        0,             'Initializing');
+             values ('OMERO3',       4,            'OMERO3',        0,             'Initializing');
 
 --
 -- Here we will create the root account and the necessary groups
@@ -436,7 +441,7 @@ insert into password values (0,'@ROOTPASS@');
 -- Here we have finished initializing this database. 
 update dbpatch set message = 'Database ready.', finished = now() 
   where currentVersion  = 'OMERO3'    and
-        currentPatch    = @DBPATCH@   and
+        currentPatch    = 4           and
         previousVersion = 'OMERO3'    and
         previousPatch   = 0;
 

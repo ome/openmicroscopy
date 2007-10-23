@@ -391,8 +391,17 @@
     -->
     <property name="${prop.name}" type="${prop.type}"
         not-null="${prop.required}" unique="${prop.unique}"
-        update="${prop.update}"
-     />
+        update="${prop.update}">
+        <column name="${prop.name}"
+##
+## ticket:803 We are catching all floats and mapping them in the datasbase to
+## double precision columns to prevent underflows. 
+##
+#if($prop.type.equals("java.lang.Float"))
+            sql-type="double precision"
+#end
+        />
+     </property>
 
 #end
 #end #######################################################################EACH

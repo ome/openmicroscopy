@@ -263,8 +263,8 @@ BEGIN;
         renderingDef int8 not null,
         family int8 not null,
         coefficient float8 not null,
-        inputStart float4 not null,
-        inputEnd float4 not null,
+        inputStart double precision not null,
+        inputEnd double precision not null,
         active bool not null,
         noiseReduction bool not null,
         color int8 not null,
@@ -419,9 +419,9 @@ BEGIN;
         manufacturer varchar(255) not null,
         model varchar(255) not null,
         serialNumber varchar(255),
-        voltage float4,
-        gain float4,
-        offsetValue float4,
+        voltage double precision,
+        gain double precision,
+        offsetValue double precision,
         type int8 not null,
         instrument int8 not null,
         primary key (id)
@@ -436,12 +436,12 @@ BEGIN;
         permissions int8 not null,
         external_id int8 unique,
         version int4 default 0,
-        voltage float4,
-        gain float4,
-        offsetValue float4,
-        readOutRate float4,
+        voltage double precision,
+        gain double precision,
+        offsetValue double precision,
+        readOutRate double precision,
         binning int8,
-        amplification float4,
+        amplification double precision,
         detector int8 not null,
         primary key (id)
     );
@@ -482,7 +482,7 @@ BEGIN;
 
     create table dummystatistics (
         metadata_id int8 not null,
-        example float4 not null,
+        example double precision not null,
         primary key (metadata_id)
     );
 
@@ -802,10 +802,10 @@ BEGIN;
         permissions int8 not null,
         external_id int8 unique,
         version int4 default 0,
-        temperature float4,
-        airPressure float4,
-        humidity float4,
-        co2percent float4,
+        temperature double precision,
+        airPressure double precision,
+        humidity double precision,
+        co2percent double precision,
         primary key (id)
     );
 
@@ -941,7 +941,7 @@ BEGIN;
         permissions int8 not null,
         external_id int8 unique,
         version int4 default 0,
-        power float4,
+        power double precision,
         technique varchar(255),
         lightSource int8 not null,
         primary key (id)
@@ -958,7 +958,7 @@ BEGIN;
         version int4 default 0,
         manufacturer varchar(255) not null,
         model varchar(255) not null,
-        power float4 not null,
+        power double precision not null,
         serialNumber varchar(255),
         instrument int8 not null,
         primary key (id)
@@ -992,7 +992,7 @@ BEGIN;
         excitationWave int4,
         emissionWave int4,
         fluor varchar(255),
-        ndFilter float4,
+        ndFilter double precision,
         otf int8,
         detectorSettings int8,
         lightSource int8,
@@ -1173,7 +1173,7 @@ BEGIN;
         model varchar(255) not null,
         serialNumber varchar(255),
         magnificiation float8 not null,
-        lensNA float4 not null,
+        lensNA double precision not null,
         immersion int8,
         coating int8,
         instrument int8 not null,
@@ -1189,9 +1189,9 @@ BEGIN;
         permissions int8 not null,
         external_id int8 unique,
         version int4 default 0,
-        correctionCollar float4,
+        correctionCollar double precision,
         medium int8,
-        refractiveIndex float4,
+        refractiveIndex double precision,
         objective int8 not null,
         primary key (id)
     );
@@ -1300,9 +1300,9 @@ BEGIN;
         permissions int8 not null,
         external_id int8 unique,
         version int4 default 0,
-        sizeX float4 not null,
-        sizeY float4 not null,
-        sizeZ float4 not null,
+        sizeX double precision not null,
+        sizeY double precision not null,
+        sizeZ double precision not null,
         primary key (id)
     );
 
@@ -1344,11 +1344,11 @@ BEGIN;
         theZ int4 not null,
         theC int4 not null,
         theT int4 not null,
-        timestamp float4 not null,
-        positionX float4,
-        positionY float4,
-        positionZ float4,
-        exposureTime float4,
+        timestamp double precision not null,
+        positionX double precision,
+        positionY double precision,
+        positionZ double precision,
+        exposureTime double precision,
         primary key (id)
     );
 
@@ -1595,9 +1595,9 @@ BEGIN;
         external_id int8 unique,
         version int4 default 0,
         name varchar(255) not null,
-        positionX float4 not null,
-        positionY float4 not null,
-        positionZ float4 not null,
+        positionX double precision not null,
+        positionY double precision not null,
+        positionZ double precision not null,
         primary key (id)
     );
 
@@ -1645,7 +1645,7 @@ BEGIN;
         cutOut int4 not null,
         cutInTolerance int4,
         cutOutTolerance int4,
-        transmittance float4 not null,
+        transmittance double precision not null,
         primary key (id)
     );
 
@@ -5832,4 +5832,4 @@ BEGIN;
 
     create sequence seq_xyzttoxyzlink;
 
-END;
+COMMIT;
