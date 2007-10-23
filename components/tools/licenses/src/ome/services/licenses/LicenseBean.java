@@ -81,8 +81,8 @@ public class LicenseBean extends AbstractLevel2Service implements LicenseStore {
             Class storeClass = Class.forName(STORE_CLASS);
             STORE = (LicenseStore) storeClass.newInstance();
         } catch (Exception e) {
-            throw new InternalException("Failed to create license store:"
-                    + STORE_CLASS);
+            throw new RuntimeException("Failed to create license store:"
+				       + STORE_CLASS,e);
         }
     }
 
