@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 
 public class AttributesDialog extends JDialog{
 	
@@ -42,11 +43,7 @@ public class AttributesDialog extends JDialog{
 		getContentPane().add(customAttributesBox, BorderLayout.CENTER);
 		
 		pack();
-		//setLocationRelativeTo(parent);
 		
-		//setVisible(true);
-		
-		System.out.println("AttributesDialog Constructor..");
 	}
 	
 	public void showAttributesDialog() {
@@ -68,16 +65,20 @@ public class AttributesDialog extends JDialog{
 					|| (name.equals(DataField.SUBSTEPS_COLLAPSED))) continue;
 			
 			AttributeEditor attributeEditor = new AttributeEditor(name, value, textChangedListener, focusChangedListener);
+			
 			// keep a list of fields
 			customAttributesFields.add(attributeEditor);
 			customAttributesBox.add(attributeEditor);
 		}
 	}
 	
+	// copy all attributes to dataField
 	public void updateDataField() {
 		for (AttributeEditor field: customAttributesFields) {
 			dataField.setAttribute(field.getAttributeName(), field.getTextFieldText(), false);
 		}
+		// this forces the xml to be validated
+		dataField.notifyDataFieldObservers();
 	}
 
 	public class TextChangedListener implements KeyListener {

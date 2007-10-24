@@ -2,6 +2,7 @@ package validation;
 
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -30,14 +31,20 @@ public class SAXValidator {
 	
 	private static ArrayList<String> errorMessages = new ArrayList<String>();
 	
+	
+	// validate a DOM document. 
+	// need to convert to SAX first....
 	static public ArrayList<String> validate(Document document) throws SAXException {
 		Transformer transformer;
 		File tempFile = new File("temp");
 		try {
+			// transform to SAX by outputting to temp file...
 			transformer = TransformerFactory.newInstance().newTransformer();
 			Source source = new DOMSource(document);
 			Result output = new StreamResult(tempFile);
 			transformer.transform(source, output);
+			
+			// now validate file via SAX
 			validate(tempFile.getAbsolutePath());
 		} catch (TransformerConfigurationException e) {
 			e.printStackTrace();
@@ -83,44 +90,44 @@ public class SAXValidator {
 	public static class MyXmlHandler extends DefaultHandler{
 
 			public void startDocument() {
-				System.out.println("STARTING");
-				System.out.println();
+				// System.out.println("STARTING");
+				// System.out.println();
 			}
 			
 			public void startElement(String uri, String localName, String qualName, Attributes attribs) {
-				System.out.println("Start tag: " + qualName);
+				// System.out.println("Start tag: " + qualName);
 			}
 			
 			public void endDocument() {
-				System.out.println();
-				System.out.println("ENDING NORMALLY!");
+				// System.out.println();
+				// System.out.println("ENDING NORMALLY!");
 			}
 			
-			
 			public void warning(SAXParseException e) {
-				System.out.println("Warning:");
-				showSpecifics(e);
-				System.out.println();
+				// System.out.println("Warning:");
+				if (e.getMessage().startsWith("schema_reference.4:")) {
+					// don't want to add this message from every element, when no internet connection
+				}
+				else
+					showSpecifics(e);
 			}
 			
 			public void error(SAXParseException e) {
-				System.out.println("Error:");
+				// System.out.println("Error:");
 				showSpecifics(e);
-				System.out.println();
 			}
 			
 			public void fatalError(SAXParseException e) {
-				System.out.println("Fatal Error:");
+				// System.out.println("Fatal Error:");
 				showSpecifics(e);
-				System.out.println();
 			}
 			
 			public void showSpecifics(SAXParseException e) {
-				System.out.println(e.getMessage());
-				System.out.println(" Line " + e.getLineNumber());
-				System.out.println(" Column " + e.getColumnNumber());
-				System.out.println(" Document " + e.getSystemId());
-				
+				// System.out.println(e.getMessage());
+				// System.out.println(" Line " + e.getLineNumber());
+				// System.out.println(" Column " + e.getColumnNumber());
+				// System.out.println(" Document " + e.getSystemId());
+				// System.out.println();
 				errorMessages.add(e.getMessage());
 			}
 

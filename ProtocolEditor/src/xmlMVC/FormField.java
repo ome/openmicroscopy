@@ -108,6 +108,7 @@ public class FormField extends JPanel {
 		setDescriptionText(dataField.getAttribute(DataField.DESCRIPTION)); 	// will update description label
 		
 		collapseAllChildrenButton = new JButton("Collapse/Expand All", notCollapsedIcon);
+		collapseAllChildrenButton.setToolTipText("Collapse or Expand every field in this document");
 		collapseAllChildrenButton.setBackground(null);
 		collapseAllChildrenButton.addActionListener(new CollapseChildrenListener());
 		collapseAllChildrenButton.setVisible(dataField.getNode().getParentNode() == null);

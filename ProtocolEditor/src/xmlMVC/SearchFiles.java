@@ -119,13 +119,18 @@ public class SearchFiles {
 	  
 	  MoreLikeThis mlt = new MoreLikeThis(reader);
 	//  Reader target = new FileReader(findMoreLikeThis);  // orig source of doc you want to find similarities to
-	  Query query = mlt.like(findMoreLikeThis);
-	  
-	  hits = searcher.search(query);
-	  // now the usual iteration thru 'hits' - the only thing to watch for is to make sure
-	 // you ignore the doc if it matches your 'target' document, as it should be similar to itself 
+	  Query query = null;
+	  try {
+		  query = mlt.like(findMoreLikeThis);
+		  hits = searcher.search(query);
+		// now the usual iteration thru 'hits' - the only thing to watch for is to make sure
+		// you ignore the doc if it matches your 'target' document, as it should be similar to itself 
 
-	  addHitsToList(hits, results, findMoreLikeThis.getName());
+		  addHitsToList(hits, results, findMoreLikeThis.getName());
+	  } catch (FileNotFoundException ex) {
+		  // findMoreLikeThis file not found
+		  ex.printStackTrace();
+	  }
 	  
 	  reader.close();
   }

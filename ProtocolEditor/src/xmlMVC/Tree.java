@@ -117,12 +117,12 @@ public class Tree implements Visitable{
 				 buildTreeFromDOM(newNode, element);
 			 }
 			 
+			 // if there is a text node (a string of text between element tags), apply is to the PARENT node
 			 if (node != null && (node.getNodeType() == Node.TEXT_NODE)) {
 				 String textValue = node.getTextContent().trim();
 				 if (textValue.length() > 0){
-					 dfNode.getDataField().setAttribute(DataField.TEXT_NODE_VALUE, node.getTextContent(), false);
-					 // dfNode.getDataField().changeDataFieldInputType(DataField.TEXT_ENTRY_STEP);
-					 // System.out.println("Tree.buildTreeFromDom: Text Node value is " + node.getTextContent());
+					 // set this attribute of the parent node, true: nodify observers to update formField
+					 dfNode.getDataField().setAttribute(DataField.TEXT_NODE_VALUE, node.getTextContent(), true);
 				 }
 			 }
 		}

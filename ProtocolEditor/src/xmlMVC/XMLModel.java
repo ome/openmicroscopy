@@ -253,11 +253,12 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		try {
 			errorMessages = SAXValidator.validate(outputDocument);
 		} catch (SAXException e) {
-			errorMessages.add("The current file is not valid XML");
+			//e.printStackTrace();
+			errorMessages.add(e.getMessage());
 		}
 		
 		if (errorMessages.isEmpty()) {
-			System.out.println("Current XML is valid");
+			//System.out.println("Current XML is valid");
 		}
 		// now update the display of messages...
 		selectionChanged();

@@ -109,6 +109,10 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	
 	JButton xmlValidationButton;
 	JCheckBox xmlValidationCheckbox;
+	JPanel xmlValidationPanel;
+	
+	Box expTabToolBar;
+	Box proTabToolBar;
 	
 	JComboBox currentlyOpenedFiles;
 	FileListSelectionListener fileListSelectionListener;
@@ -412,18 +416,18 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		importElemetsButton.setBorder(eb);
 		
 		// XML validation
-		JPanel xmlValidationPanel = new JPanel(new BorderLayout());
+		xmlValidationPanel = new JPanel(new BorderLayout());
 		Box xmlValidationBox = Box.createHorizontalBox();
 		XmlValidationListener xmlValidationListener = new XmlValidationListener();
 		
 		xmlValidationButton = new JButton(validationIcon);
 		xmlValidationButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,0));
-		xmlValidationButton.setToolTipText("Turn on XML validation");
+		xmlValidationButton.setToolTipText("Turn XML validation On / Off");
 		xmlValidationButton.addActionListener(xmlValidationListener);
 		
 		xmlValidationCheckbox = new JCheckBox();
 		xmlValidationCheckbox.setBorder(new EmptyBorder(2,0,2,0));
-		xmlValidationCheckbox.setToolTipText("Turn on XML validation");
+		xmlValidationCheckbox.setToolTipText("Turn XML validation On /Off");
 		xmlValidationCheckbox.addActionListener(xmlValidationListener);
 		
 		xmlValidationBox.add(xmlValidationButton);
@@ -431,15 +435,16 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		xmlValidationPanel.add(xmlValidationBox, BorderLayout.EAST);
 		
 		
-		Box expTabToolBar = Box.createHorizontalBox();
+		expTabToolBar = Box.createHorizontalBox();
 		expTabToolBar.add(saveExperiment);
 		expTabToolBar.add(printExperimentButton);
 		expTabToolBar.add(loadDefaults);
 		expTabToolBar.add(multiplyValueOfSelectedFieldsButton);
 		// expTabToolBar.add(compareFilesButton);
 		expTabToolBar.add(Box.createHorizontalGlue());
+		expTabToolBar.add(xmlValidationPanel);
 		
-		Box proTabToolBar = Box.createHorizontalBox();
+		proTabToolBar = Box.createHorizontalBox();
 		proTabToolBar.add(saveProtocolButton);
 		proTabToolBar.add(saveProtocolAsButton);
 		proTabToolBar.add(printProtocolButton);
@@ -452,7 +457,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		proTabToolBar.add(duplicateField);
 		proTabToolBar.add(importElemetsButton);
 		proTabToolBar.add(Box.createHorizontalGlue());
-		proTabToolBar.add(xmlValidationPanel);
+		
 		
 		fieldEditor = new FieldEditor();
 		//splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, XMLScrollPane, fieldEditor);
@@ -555,15 +560,23 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	public void xmlUpdated() {
 		protocolRootNode = xmlModel.getRootNode();
 		xmlFormDisplay.refreshForm();		// refresh the form
-		updateFileList();
 		refreshFileEdited();
 		xmlValidationCheckbox.setSelected(xmlModel.getXmlValidation());
 		
-		if (editingState == EDITING_FIELDS) {  // ie. not showing import tree
-			updateFieldEditor();
-		}
+		selectionChanged();	// to take account of any other changes
 	}
 	
+	// selection observer method, fired when tree changes selection
+	// this method called when UI needs updating, but xml not changed.
+	public void selectionChanged() {
+		if (editingState == EDITING_FIELDS) {
+			updateFieldEditor();
+			refreshFileEdited();
+		}
+		updateFileList();
+		updateXmlValidationPanel();
+	}
+
 	public void updateFileList() {
 		currentlyOpenedFiles.removeActionListener(fileListSelectionListener);
 		
@@ -668,30 +681,13 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		
 		// Create a file chooser
 		final JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new OpenProExpFileFilter());
+		fc.setFileFilter(new OpenProExpXmlFileFilter());
 		
 		fc.setCurrentDirectory(xmlModel.getCurrentFile());
 		int returnVal = fc.showOpenDialog(XMLFrame);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
             File xmlFile = fc.getSelectedFile();
             openThisFile(xmlFile);
-            
-            
-            if (xmlFile.getName().endsWith(".pro")) {
-            	Object[] options = {"Yes",
-                "No"};
-            	int n = JOptionPane.showOptionDialog(XMLFrame,
-            		    "Would you like to load default values?",
-            		    "Load Default Values?",
-            		    JOptionPane.YES_NO_OPTION,
-            		    JOptionPane.QUESTION_MESSAGE,
-            		    null,     //don't use a custom Icon
-            		    options,  //the titles of buttons
-            		    options[0]); //default button title
-            	if (n == 0) {
-            		copyDefaultValuesToInputFields();
-            	}
-            }
 		}
 	}
 	
@@ -777,7 +773,17 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	}
 	
 	public void findMoreLikeThis() {
-		searchFiles(xmlModel.getCurrentFile());
+		File file = xmlModel.getCurrentFile();
+		
+		if (file == null) return;
+		
+		// if file has not been saved yet...
+		if (file.getName().equals("untitled")) {
+			// this would over-write any old "untitled" file in this location
+			xmlModel.saveTreeToXmlFile(file, false);
+		}
+		
+		searchFiles(file);
 	}
 	
 	// turn on and off the validation of the current xml tree. 
@@ -896,10 +902,12 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 			
 			if (index == 0) { // Edit Experiment Tab
 				xmlFormDisplay.setBackground(backgroundColor);
+				expTabToolBar.add(xmlValidationPanel);
 				enableProtocolEditing(false);
 			}
 			else { 
 				xmlFormDisplay.setBackground(null);
+				proTabToolBar.add(xmlValidationPanel);
 				enableProtocolEditing(true);
 			}
 		}
@@ -1190,17 +1198,6 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		saveExpAs.setEnabled(!protocolEdited);
 	}
 	
-	// selection observer method, fired when tree changes selection
-	// this method called when UI needs updating, but xml not changed.
-	public void selectionChanged() {
-		if (editingState == EDITING_FIELDS) {
-			updateFieldEditor();
-			refreshFileEdited();
-		}
-		updateFileList();
-		updateXmlValidationPanel();
-	}
-	
 	// this is called (via selectionChanged) xmlModel after validating xml
 	public void updateXmlValidationPanel() {
 		// if validation is turned on
@@ -1214,7 +1211,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 				}
 				message = message + "</html>";
 				
-				xmlValidationButton.setText("XML is not valid");
+				xmlValidationButton.setText("XML is not valid...");
 				xmlValidationButton.setToolTipText(message);
 			}
 			else {
