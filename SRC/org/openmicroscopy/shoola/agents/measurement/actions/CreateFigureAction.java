@@ -53,7 +53,7 @@ public class CreateFigureAction
 		private static final String NAME_CREATE_SINGLE = "Create Single ROI";
 		
 		/** Show the pixels in create multiple. */
-		private static final String NAME_CREATE_MULTIPLE = "Create Multiple ROI";
+		private static final String NAME_CREATE_MULTIPLE = "Create Multiple ROIs";
 		
 		/** The description of the action for create single. */
 		private static final String DESCRIPTION_CREATE_SINGLE = 

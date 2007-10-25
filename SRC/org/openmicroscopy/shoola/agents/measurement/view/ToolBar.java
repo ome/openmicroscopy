@@ -233,7 +233,7 @@ class ToolBar
 		 {
 			 JToggleButton button = (JToggleButton) component;
 			 IconManager icons = IconManager.getInstance();
-			 button.setToolTipText(FigureUtil.LINE_CONNECTION_TYPE);
+			 button.setToolTipText("Connector");
 			 button.setAction(new DrawingAction(measurementcomponent, button));	
 		 }
 		 DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polylineTool, 

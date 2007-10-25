@@ -30,6 +30,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JToolBar;
 
 //Third-party libraries
+import org.jhotdraw.app.action.DeleteAction;
 import org.jhotdraw.app.action.DuplicateAction;
 import org.jhotdraw.app.action.SelectAllAction;
 import org.jhotdraw.draw.DrawingEditor;
@@ -72,6 +73,7 @@ public class DrawingToolBarButtonFactory
         LinkedList<Action> a = new LinkedList<Action>();
         a.add(new SelectAllAction());
         a.add(new SelectSameAction(edit));
+        a.add(new DeleteAction());
         return a;
     }
     

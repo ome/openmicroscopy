@@ -207,6 +207,9 @@ class GraphPane
 		zSlider.addChangeListener(this);
 		zSlider.setShowArrows(true);
 		zSlider.setVisible(false);
+		zSlider.setEndLabel("Z");		
+		zSlider.setShowEndLabel(true);
+
 
 		tSlider = new OneKnobSlider();
 		tSlider.setPaintTicks(true);
@@ -216,6 +219,8 @@ class GraphPane
 		tSlider.addChangeListener(this);
 		tSlider.setShowArrows(true);
 		tSlider.setVisible(false);
+		tSlider.setEndLabel("T");
+		tSlider.setShowEndLabel(true);
 		mainPanel = new JPanel();
 		
 	}

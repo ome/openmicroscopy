@@ -518,6 +518,10 @@ class ImViewerUI
 		item = new JMenuItem(action);
 		item.setText(action.getName());
 		menu.add(item);
+		action = controller.getAction(ImViewerControl.MEASUREMENT_TOOL);
+		item = new JMenuItem(action);
+		item.setText(action.getName());
+		menu.add(item);
 		//Color model
 		colorModelGroup = new ButtonGroup();
 		action = controller.getAction(ImViewerControl.GREY_SCALE_MODEL);

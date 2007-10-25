@@ -100,6 +100,9 @@ public class UIUtilities
 	/** Unicode for the squared symbol. */
 	public final static String  SQUARED_SYMBOL =  "\u00B2";
 	
+	/** Unicode for the squared symbol. */
+	public final static String  DELTA_SYMBOL =  "\u0394";
+	
 	/** Pixels string. */
 	public final static String  PIXELS_SYMBOL = "px";
 	
