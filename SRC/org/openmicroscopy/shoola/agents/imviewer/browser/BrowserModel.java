@@ -211,18 +211,18 @@ class BrowserModel
      * <code>false</code> otherwise or if the number of active channels is 0
      * or greater than 3.
      * 
+     * @param channels The collection of channels to handle.
      * @return See above.
      */
-    private boolean isImageRGB()
+    private boolean isImageRGB(List channels)
     {
-    	List l = parent.getActiveChannels();
-    	if (l == null) return false;
-    	int n = l.size();
+    	if (channels == null) return false;
+    	int n = channels.size();
     	if (n == 0 || n > 3) return false;
     	List<Boolean> rgb = new ArrayList<Boolean>();
     	int index;
     	Iterator i;
-    	i = l.iterator();
+    	i = channels.iterator();
 		while (i.hasNext()) {
 			index = (Integer) i.next();
 			if (isChannelRGB(index)) rgb.add(true);
@@ -230,44 +230,135 @@ class BrowserModel
 		return (n == rgb.size());
     }
     
+    /** 
+     * Creates the images composing the grid when the color model
+     * is <code>GreyScale</code>.
+     */
+    private void createGridImagesForGreyScale()
+    {
+    	int maxC = parent.getMaxC();
+    	List l = parent.getActiveChannelsInGrid();
+		int n = l.size();	
+		
+		switch (n) {
+			case 0:
+				for (int i = 0; i < maxC; i++) 
+					gridImages.add(null);
+				combinedImage = null;
+				break;
+			case 1:
+			case 2:
+			case 3:
+				if (isImageRGB(l)) {
+					BufferedImage  image = parent.getCombinedGridImage();
+					if (image == null) {
+						for (int i = 0; i < maxC; i++) 
+							gridImages.add(null);
+						break;
+					}
+					combinedImage = Factory.magnifyImage(gridRatio, image);
+					
+					int w = combinedImage.getWidth();
+		        	int h = combinedImage.getHeight();
+		        	DataBuffer buf = 
+		        		combinedImage.getRaster().getDataBuffer();
+		    		for (int i = 0; i < maxC; i++) {
+						if (l.contains(i)) {
+							if (parent.isChannelRed(i)) { 
+								gridImages.add(createBandImage(buf, w, h, 
+								RED_MASK, RED_MASK, RED_MASK));
+							} else if (parent.isChannelGreen(i)) {
+								gridImages.add(createBandImage(buf, w, h,
+										GREEN_MASK, GREEN_MASK, GREEN_MASK));
+							} else if (parent.isChannelBlue(i)) {
+								gridImages.add(createBandImage(buf, w, h, 
+										BLUE_MASK, BLUE_MASK, BLUE_MASK));
+							}
+						} else {
+							gridImages.add(null);
+						}
+					}
+				} else {
+					retrieveGridImagesForGreyScale(l);
+				}
+				break;
+				
+			default:
+				retrieveGridImagesForGreyScale(l);
+		}
+    }
+    
+    /**
+     * Retrieves the images composing the grid when the color model
+     * is <code>GreyScale</code> and when the channels are not mapped to
+     * red, green or blue i.e. a channel mapped to yellow.
+     * 
+     * @param channels Collection of active channels in the grid.
+     */
+    private void retrieveGridImagesForGreyScale(List channels)
+    {
+    	List<BufferedImage> images = parent.getGridImages();
+    	if (images != null) {
+    		int last = images.size()-1;
+    		combinedImage = Factory.magnifyImage(gridRatio, 
+								images.get(last));
+    		images.remove(last);
+    		Iterator i = images.iterator();
+        	while (i.hasNext()) {
+        		gridImages.add(Factory.magnifyImage(gridRatio, 
+        					(BufferedImage) i.next()));
+    		}
+        	if (originalGridImages.size() == 0 && !isImageRGB(channels)) {
+        		i = images.iterator();
+	        	while (i.hasNext()) {
+	        		originalGridImages.add((BufferedImage) i.next());
+	    		}
+        	}
+    	}
+    }
+    
+    /**
+     * Retrieves the images composing the grid when the color model
+     * is <code>RBG</code> and when the channels are not mapped to
+     * red, green or blue i.e. a channel mapped to yellow.
+     */
+    private void retrieveGridImages()
+    {
+    	List<BufferedImage> images = parent.getGridImages();
+    	if (images != null) {
+    		Iterator i = images.iterator();
+        	while (i.hasNext()) {
+        		gridImages.add(Factory.magnifyImage(gridRatio, 
+        					(BufferedImage) i.next()));
+    		}
+        	if (originalGridImages.size() == 0) {
+        		i = images.iterator();
+	        	while (i.hasNext()) {
+	        		originalGridImages.add(
+	        					(BufferedImage) i.next());
+	    		}
+        	}
+        	combinedImage = Factory.magnifyImage(gridRatio, 
+					renderedImage);
+    	}
+    }
+    
+    
     /** Creates the images composing the grid. */
     private void createGridImages()
     {
     	if (originalGridImages == null)
     		originalGridImages = new ArrayList<BufferedImage>();
     	gridImages.clear();
-    	List l = parent.getActiveChannels();
-    	int maxC = parent.getMaxC();
-    	List<BufferedImage> images = new ArrayList<BufferedImage>(maxC);
-    	int n = l.size();
+    	
     	if (parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
-    		/*
-    		for (int i = 0; i < maxC; i++) 
-				gridImages.add(null);
-				*/
-    		images = parent.getGridImages();
-	    	if (images != null) {
-	    		int last = images.size()-1;
-	    		combinedImage = Factory.magnifyImage(gridRatio, 
-									images.get(last));
-	    		images.remove(last);
-	    		Iterator i = images.iterator();
-	        	while (i.hasNext()) {
-	        		gridImages.add(Factory.magnifyImage(gridRatio, 
-	        					(BufferedImage) i.next()));
-	    		}
-	        	if (originalGridImages.size() == 0 && !isImageRGB()) {
-	        		i = images.iterator();
-    	        	while (i.hasNext()) {
-    	        		originalGridImages.add((BufferedImage) i.next());
-    	    		}
-	        	}
-	        	//combinedImage = Factory.magnifyImage(gridRatio, 
-				//		renderedImage);
-	    	}
+    		createGridImagesForGreyScale();
+	    	
     		return;
     	}
-    	switch (n) {
+    	List l = parent.getActiveChannels();
+    	int maxC = parent.getMaxC();
+    	switch (l.size()) {
 			case 0:
 				for (int i = 0; i < maxC; i++) 
 					gridImages.add(null);
@@ -275,7 +366,7 @@ class BrowserModel
 			case 1:
 			case 2:
 			case 3:
-				if (isImageRGB()) {
+				if (isImageRGB(l)) {
 					if (gridRatio == ratio) 
 						combinedImage = annotateImage;
 					else {
@@ -290,9 +381,9 @@ class BrowserModel
 						if (parent.isChannelActive(i)) {
 							if (parent.isChannelRed(i)) { 
 								gridImages.add(createBandImage(buf, w, h, 
-									RED_MASK, BLANK_MASK, BLANK_MASK));
+								RED_MASK, BLANK_MASK, BLANK_MASK));
 							} else if (parent.isChannelGreen(i)) {
-								gridImages.add(createBandImage(buf, w, h, 
+								gridImages.add(createBandImage(buf, w, h,
 									BLANK_MASK, GREEN_MASK, BLANK_MASK));
 							} else if (parent.isChannelBlue(i)) {
 								gridImages.add(createBandImage(buf, w, h, 
@@ -304,43 +395,11 @@ class BrowserModel
 					}
 		    		
 				} else {
-					images = parent.getGridImages();
-	    	    	if (images != null) {
-	    	    		Iterator i = images.iterator();
-	    	        	while (i.hasNext()) {
-	    	        		gridImages.add(Factory.magnifyImage(gridRatio, 
-	    	        					(BufferedImage) i.next()));
-	    	    		}
-	    	        	if (originalGridImages.size() == 0) {
-	    	        		i = images.iterator();
-		    	        	while (i.hasNext()) {
-		    	        		originalGridImages.add(
-		    	        					(BufferedImage) i.next());
-		    	    		}
-	    	        	}
-	    	        	combinedImage = Factory.magnifyImage(gridRatio, 
-								renderedImage);
-	    	    	}
+					retrieveGridImages();
 				}
 				break;
 			default:
-				images = parent.getGridImages();
-	    		if (images != null) {
-		    		Iterator i = images.iterator();
-		    		while (i.hasNext()) {
-    	        		gridImages.add(Factory.magnifyImage(gridRatio, 
-    	        					(BufferedImage) i.next()));
-    	    		}
-		        	if (originalGridImages.size() == 0) {
-		        		i = images.iterator();
-	    	        	while (i.hasNext()) {
-	    	        		originalGridImages.add(
-	    	        					(BufferedImage) i.next());
-	    	    		}
-		        	}
-		        	combinedImage = Factory.magnifyImage(gridRatio, 
-							renderedImage);
-	    		}
+				retrieveGridImages();
     	}
     }
     
@@ -779,7 +838,8 @@ class BrowserModel
 			case 1:
 			case 2:
 			case 3:
-				if (isImageRGB()) {
+				//TODO: Review that code.
+				if (isImageRGB(parent.getActiveChannels())) {
 					createGridImages(); 
 				} else {
 					combinedImage = Factory.magnifyImage(gridRatio, 

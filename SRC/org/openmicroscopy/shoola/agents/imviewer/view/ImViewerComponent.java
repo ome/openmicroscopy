@@ -527,7 +527,7 @@ class ImViewerComponent
 						i = channels.iterator();
 						while (i.hasNext()) {
 							index = ((Integer) i.next()).intValue();
-							//view.setChannelActiveGridView(index);
+							view.setChannelActive(index, ImViewerUI.GRID_ONLY);
 						}
 					}
 					break;
@@ -1138,33 +1138,6 @@ class ImViewerComponent
 					index = ((Integer) i.next()).intValue();
 					model.setChannelActive(index, true);
 				}
-				/*
-				for (int k = 0; k < maxC; k++) {
-					model.setChannelActive(k, true);
-					for (int i = 0; i < maxC; i++) {
-						if (i != k) model.setChannelActive(i, false);
-					}
-					images.add(model.getSplitComponentImage());
-				}
-
-				for (int k = 0; k < maxC; k++) {
-					model.setChannelActive(k, true);
-				}
-				model.setColorModel(HSB_MODEL);
-				images.add(model.getSplitComponentImage());
-				model.setColorModel(GREY_SCALE_MODEL);
-
-				for (int k = 0; k < maxC; k++) {
-					model.setChannelActive(k, false);
-				}
-				Iterator i = active.iterator();
-
-				while (i.hasNext()) { //reset values.
-					index = ((Integer) i.next()).intValue();
-					model.setChannelActive(index, true);
-				}
-				 */
-				
 			} else {
 				Iterator i;
 				for (int j = 0; j < maxC; j++) {
@@ -1191,6 +1164,53 @@ class ImViewerComponent
 		return images;
 	}
 
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getCombinedGridImage()
+	 */
+	public BufferedImage getCombinedGridImage()
+	{
+		switch (model.getState()) {
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED, " +
+						"NEW or LOADING_RENDERING_CONTROL state.");
+		}
+		//view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		if (!model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
+		int index;
+		List active = view.getActiveChannelsInGrid();
+		BufferedImage image = null;
+		try {
+			Iterator i = active.iterator();
+			for (int k = 0; k < model.getMaxC(); k++) {
+				model.setChannelActive(k, false);
+			}
+			while (i.hasNext()) { //reset values.
+				index = ((Integer) i.next()).intValue();
+				model.setChannelActive(index, true);
+			}
+			if (active.size() != 0) {
+				model.setColorModel(HSB_MODEL);
+				image = model.getSplitComponentImage();
+				model.setColorModel(GREY_SCALE_MODEL);
+			}
+			
+			active = model.getActiveChannels();
+			while (i.hasNext()) { //reset values.
+				index = ((Integer) i.next()).intValue();
+				model.setChannelActive(index, true);
+			}
+		} catch (Exception e) {
+			reload(e);
+		}
+		//view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		
+		return image;
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getImageForGrid(int)
@@ -2193,6 +2213,17 @@ class ImViewerComponent
 		if (model.getState() == DISCARDED || !model.isPlayingMovie() ||
 			model.isPlayingChannelMovie()) return -1;
 		return model.getMovieIndex();
+	}
+
+	 /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getActiveChannelsInGrid()
+     */
+	public List getActiveChannelsInGrid()
+	{
+		if (model.getState() == DISCARDED) return null;
+		
+		return view.getActiveChannelsInGrid();
 	}
     
 }

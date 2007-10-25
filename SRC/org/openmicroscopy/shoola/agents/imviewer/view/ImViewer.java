@@ -581,14 +581,23 @@ public interface ImViewer
 	public void playMovie(boolean play, boolean visible, int index);
 
 	/**
-	 * Returns the collection of images used to build the grid.
+	 * Returns the collection of images composing the grid.
 	 * 
 	 * @return See above.
 	 */
 	public List getGridImages();
+	
+	/**
+	 * Returns the image in color when the cannels are in grey scale.
+	 * This method should only be invoked when the color model 
+	 * is <code>GreyScale</code>.
+	 * 
+	 * @return See above.
+	 */
+	public BufferedImage getCombinedGridImage();
 
 	/**
-	 * Returns the grid image.
+	 * Returns the image displayed in the Grid Panel.
 	 * 
 	 * @return See above.
 	 */
@@ -793,5 +802,7 @@ public interface ImViewer
      * @return See above.
      */
     public int getMovieIndex();
+    
+    public List getActiveChannelsInGrid();
     
 }
