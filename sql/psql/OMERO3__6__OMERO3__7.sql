@@ -43,7 +43,7 @@ BEGIN;
     insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_format'),-35,0,0,0,'text/x-python';
     insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_format'),-35,0,0,0,'Cancelled';
+    select nextval('seq_jobstatus'),-35,0,0,0,'Cancelled';
     insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_format'),-35,0,0,0,'Processing';
 
