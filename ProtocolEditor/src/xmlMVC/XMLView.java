@@ -624,10 +624,10 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 
 		
 		if (result == 0) {	// delete all
-			xmlModel.deleteDataFields(false);
+			xmlModel.editCurrentTree(Tree.DELTE_FIELDS);
 		}
 		if (result == 1) {	// shift children to be siblings, then delete
-			xmlModel.deleteDataFields(true);
+			xmlModel.editCurrentTree(Tree.DELETE_FIELDS_SAVE_CHILDREN);
 		}
 	}
 	

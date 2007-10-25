@@ -76,14 +76,64 @@ public class Tree implements Visitable{
 	}
 	
 	public Tree(SelectionObserver selectionObserver, XMLUpdateObserver xmlObserver) {
-		rootNode = new DataFieldNode(this);
+		//rootNode = new DataFieldNode(this);
 		this.selectionObserver = selectionObserver;
 		this.xmlUpdateObserver = xmlObserver;
 		highlightedFields = new ArrayList<DataFieldNode>();
+		
+		openBlankProtocolFile();
 	}
 	
-//	 start a blank protocol
-	public void openBlankProtocolFile() {
+// use this entry point to access as many of the tree manipulation and data-structure commands as possible
+	public void editTree(int treeCommand) {
+		
+		switch (treeCommand) {
+		
+			case ADD_NEW_FIELD: {
+				addDataField();
+				return;
+			}
+			case DELTE_FIELDS: {
+				deleteDataFields(false);
+				return;
+			}
+			case DELETE_FIELDS_SAVE_CHILDREN: {
+				deleteDataFields(true);
+				return;
+			}
+			case MOVE_FIELDS_UP: {
+				moveFieldsUp();
+				return;
+			}
+			case MOVE_FIELDS_DOWN: {
+				moveFieldsDown();
+				return;
+			}
+			case PROMOTE_FIELDS: {
+				promoteDataFields();
+				return;
+			}
+			case DEMOTE_FIELDS: {
+				demoteDataFields();
+				return;
+			}
+			case DUPLICATE_FIELDS: {
+				duplicateAndInsertDataFields();
+				return;
+			}
+			case COPY_FIELDS: {
+				copyHighlightedFieldsToClipboard();
+				return;
+			}
+			case PASTE_FIELDS: {
+				pasteClipboardFields();
+				return;
+			}
+		}
+	}
+
+	//	 start a blank protocol - used by "default" Tree constructor
+	private void openBlankProtocolFile() {
 		
 		// the root of the dataField tree
 		rootNode = new DataFieldNode(this);
@@ -202,53 +252,6 @@ public class Tree implements Visitable{
 			}
 	}
 	
-	public void editTree(int treeCommand) {
-		
-		switch (treeCommand) {
-		
-			case ADD_NEW_FIELD: {
-				addDataField();
-				return;
-			}
-			case DELTE_FIELDS: {
-				deleteDataFields(false);
-				return;
-			}
-			case DELETE_FIELDS_SAVE_CHILDREN: {
-				deleteDataFields(true);
-				return;
-			}
-			case MOVE_FIELDS_UP: {
-				moveFieldsUp();
-				return;
-			}
-			case MOVE_FIELDS_DOWN: {
-				moveFieldsDown();
-				return;
-			}
-			case PROMOTE_FIELDS: {
-				promoteDataFields();
-				return;
-			}
-			case DEMOTE_FIELDS: {
-				demoteDataFields();
-				return;
-			}
-			case DUPLICATE_FIELDS: {
-				duplicateAndInsertDataFields();
-				return;
-			}
-			case COPY_FIELDS: {
-				copyHighlightedFieldsToClipboard();
-				return;
-			}
-			case PASTE_FIELDS: {
-				pasteClipboardFields();
-				return;
-			}
-		}
-	}
-
 	// add a blank dataField
 	private void addDataField() {
 		DataFieldNode newNode = new DataFieldNode(this);// make a new default-type field
@@ -549,7 +552,7 @@ public class Tree implements Visitable{
 	}
 	
 //	 delete the highlighted dataFields (option to save children by promoting them first)
-	public void deleteDataFields(boolean saveChildren) {
+	private void deleteDataFields(boolean saveChildren) {
 		for (DataFieldNode node: highlightedFields) {
 			
 			if (saveChildren) promoteAllChildrenToSiblings(node);

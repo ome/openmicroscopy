@@ -368,15 +368,7 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	public void openBlankProtocolFile() {
 		currentTree = new Tree(this, this);
 		openFiles.add(currentTree);
-		currentTree.openBlankProtocolFile();
 		setCurrentFile(new File("untitled"));	// no current file
-		notifyXMLObservers();
-	}
-	
-	// delete the highlighted dataFields
-	public void deleteDataFields(boolean saveChildren) {
-		Tree tree = getCurrentTree();
-		tree.deleteDataFields(saveChildren);
 		notifyXMLObservers();
 	}
 	
