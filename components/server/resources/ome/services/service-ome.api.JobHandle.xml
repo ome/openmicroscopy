@@ -28,7 +28,7 @@
     <property name="jobNotification" ref="jobNotification"/>
   </bean>
   
-  <bean id="jobNotification" class="ome.services.JobNotification" init-method="init">
+  <bean id="jobNotification" class="ome.services.JobNotification">
     <property name="scheduler" ref="scheduler"/>
   </bean>
 

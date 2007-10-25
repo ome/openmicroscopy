@@ -22,24 +22,33 @@ import ome.testing.FileUploader;
 import ome.tools.spring.ManagedServiceFactory;
 
 import org.springframework.util.ResourceUtils;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-@Test(groups = { "integration" })
+@Test(groups = { "integration", "broken" })
 public class FileUploaderTest extends TestCase {
 
-    OmeroContext ctx = OmeroContext.getManagedServerContext();
-    ManagedServiceFactory sf = new ManagedServiceFactory();
-    SecuritySystem sec = (SecuritySystem) ctx.getBean("securitySystem");
-    {
-        sf.setApplicationContext(ctx);
-        sec.login(new ome.system.Principal("root", "user", "Test"));
-    }
+    OmeroContext ctx;
+    ManagedServiceFactory sf;
+    SecuritySystem sec;
     FileUploader f;
     OriginalFile of;
+
+    @BeforeClass
+    public void setup() {
+        ctx = OmeroContext.getManagedServerContext();
+        sf = new ManagedServiceFactory();
+        sec = (SecuritySystem) ctx.getBean("securitySystem");
+        {
+            sf.setApplicationContext(ctx);
+            sec.login(new ome.system.Principal("root", "user", "Test"));
+        }
+
+    }
 
     @Test
     public void testUploadingFromClasspath() throws Exception {

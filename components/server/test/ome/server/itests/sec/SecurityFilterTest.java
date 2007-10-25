@@ -13,25 +13,15 @@ import static ome.model.internal.Permissions.Role.WORLD;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.security.Identity;
-import java.security.Principal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.UUID;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ejb.EJBHome;
-import javax.ejb.EJBLocalHome;
-import javax.ejb.EJBLocalObject;
-import javax.ejb.EJBObject;
 import javax.ejb.SessionContext;
-import javax.ejb.TimerService;
 import javax.interceptor.InvocationContext;
-import javax.transaction.UserTransaction;
-import javax.xml.rpc.handler.MessageContext;
 
 import ome.logic.QueryImpl;
 import ome.model.IObject;
@@ -53,6 +43,8 @@ import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.jmock.core.matcher.InvokeAtLeastOnceMatcher;
+import org.jmock.core.stub.ReturnStub;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
@@ -356,7 +348,7 @@ class Wrap extends OmeroAroundInvoke {
         this.user = user;
         sessionContext();
         InvocationContext ic = new InvocationContext() {
-            public Object getBean() {
+            public Object getTarget() {
                 return backdoor;
             }
 
@@ -392,95 +384,12 @@ class Wrap extends OmeroAroundInvoke {
         Field sessionContext = this.getClass().getSuperclass()
                 .getDeclaredField("sessionContext");
         sessionContext.setAccessible(true);
-        sessionContext.set(this, new SessionContext() {
-
-            public Object getBusinessObject(Class arg0)
-                    throws IllegalStateException {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public EJBLocalObject getEJBLocalObject()
-                    throws IllegalStateException {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public EJBObject getEJBObject() throws IllegalStateException {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public Object getInvokedBusinessInterface()
-                    throws IllegalStateException {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public MessageContext getMessageContext()
-                    throws IllegalStateException {
-                return null;
-            }
-
-            public Identity getCallerIdentity() {
-                return null;
-            }
-
-            public Principal getCallerPrincipal() {
-                return new ome.system.Principal(user, "user", "Test");
-            }
-
-            public EJBHome getEJBHome() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public EJBLocalHome getEJBLocalHome() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public Properties getEnvironment() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public boolean getRollbackOnly() throws IllegalStateException {
-                // TODO Auto-generated method stub
-                return false;
-            }
-
-            public TimerService getTimerService() throws IllegalStateException {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public UserTransaction getUserTransaction()
-                    throws IllegalStateException {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public boolean isCallerInRole(Identity arg0) {
-                // TODO Auto-generated method stub
-                return false;
-            }
-
-            public boolean isCallerInRole(String arg0) {
-                // TODO Auto-generated method stub
-                return false;
-            }
-
-            public Object lookup(String arg0) {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public void setRollbackOnly() throws IllegalStateException {
-                // TODO Auto-generated method stub
-
-            }
-        });
+        org.jmock.Mock mockContext = new org.jmock.Mock(SessionContext.class);
+        SessionContext sc = (SessionContext) mockContext.proxy();
+        mockContext.expects(new InvokeAtLeastOnceMatcher()).method(
+                "getCallerPrincipal").will(
+                new ReturnStub(new ome.system.Principal(user, "user", "Test")));
+        sessionContext.set(this, sc);
     }
 
 }
