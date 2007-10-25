@@ -360,7 +360,7 @@ public class FileQueueChooser
         @Override
         public String getDescription()
         {
-            return "Deltavision Files - Raw (*.r3d)";
+            return "Deltavision Files - Raw (.r3d)";
         }  
     }
     
@@ -375,7 +375,7 @@ public class FileQueueChooser
         @Override
         public String getDescription()
         {
-            return "Deltavision Files - Decon'd (*.r3d_d3d)";
+            return "Deltavision Files - Decon'd (.r3d_d3d)";
         }  
     }
     

@@ -224,7 +224,8 @@ public class LoginDialog extends JDialog
         style = context.getStyle(StyleContext.DEFAULT_STYLE);
         StyleConstants.setAlignment(style, StyleConstants.ALIGN_LEFT);;
         StyleConstants.setForeground(style, textColor);
-        StyleConstants.setFontSize(style, 10);
+        StyleConstants.setFontSize(style, 12);
+        StyleConstants.setBold(style, true);
         
         versionInfo = gui.addTextPane(mainPanel, Main.versionText, "0, 1, l, b", 
                 context, style, debug);

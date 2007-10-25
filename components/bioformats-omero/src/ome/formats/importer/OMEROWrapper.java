@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import loci.formats.ChannelFiller;
 import loci.formats.ChannelSeparator;
 import loci.formats.ClassList;
 import loci.formats.FormatException;
@@ -20,6 +21,7 @@ import ome.model.core.Pixels;
 public class OMEROWrapper extends MinMaxCalculator
 {
     private ChannelSeparator separator;
+    private ChannelFiller filler;
     public Boolean minMaxSet = null; 
     private ImageReader iReader;
     /**
@@ -29,18 +31,21 @@ public class OMEROWrapper extends MinMaxCalculator
 	 * @param separator 
 	 */
     
-    public OMEROWrapper() 
+    public OMEROWrapper()
     {
         try
         {
             iReader = new ImageReader(
                     new ClassList("readers.txt", 
                             IFormatReader.class));
+            
+            filler = new ChannelFiller(iReader);
         } catch (IOException e)
         {
             throw new RuntimeException("Unable to load readers.txt.");
         }
-        reader = separator = new ChannelSeparator(iReader);
+        reader = separator  = new ChannelSeparator(filler);
+        //reader = separator = new ChannelSeparator(iReader);
     };
 	/**
 	 * Obtains an object which represents a given plane within the file.
@@ -61,7 +66,7 @@ public class OMEROWrapper extends MinMaxCalculator
 		// all of the plane data (all three channels) from the file if the file
 		// is RGB.
 		ByteBuffer plane;
-		if (separator.getReader().isRGB() || isLeicaReader())
+		if (iReader.isRGB() || isLeicaReader())
         {
             //System.err.println("RGB, not using cached buffer.");
             byte[] bytePlane = openBytes(planeNumber);
@@ -144,7 +149,7 @@ public class OMEROWrapper extends MinMaxCalculator
         if (minMaxSet == null)
         {
             OMEROMetadataStore store = 
-                (OMEROMetadataStore) separator.getMetadataStore();
+                (OMEROMetadataStore) reader.getMetadataStore();
             List<Pixels> p = (ArrayList<Pixels>) store.getRoot();
             int series = reader.getSeries();
             List<Channel> channels = p.get(series).getChannels();
@@ -177,7 +182,7 @@ public class OMEROWrapper extends MinMaxCalculator
          if (isMinMaxSet() == false)
          {
              OMEROMetadataStore store = 
-                 (OMEROMetadataStore) separator.getMetadataStore();
+                 (OMEROMetadataStore) reader.getMetadataStore();
              store.populateMinMax(id, i);
          }
      }
@@ -186,5 +191,14 @@ public class OMEROWrapper extends MinMaxCalculator
      {
          minMaxSet = null;
          super.close();
+     }
+     
+    /**
+     * Return the base image reader
+     * @return
+     */
+    public ImageReader getImageReader()
+     {
+         return iReader;
      }
 }

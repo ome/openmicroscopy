@@ -191,6 +191,40 @@ public class GuiCommonElements
         return result;
     }
     
+    public DecimalNumberField addDecimalNumberField(Container container, String prefexStr,
+            String initialValue, String suffexStr, int mnemonic, String tooltip,
+            int maxChars, int fieldWidth, String placement, boolean debug)
+    {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        
+        double table[][] = 
+            {{TableLayout.PREFERRED, fieldWidth, 5, TableLayout.PREFERRED}, // columns
+            {TableLayout.PREFERRED}}; // rows 
+        
+        TableLayout layout = new TableLayout(table);
+        panel.setLayout(layout);  
+
+        JLabel prefex = new JLabel(prefexStr);
+        prefex.setDisplayedMnemonic(mnemonic);
+        panel.add(prefex,"0,0");
+
+        DecimalNumberField result = new DecimalNumberField(0.0f, maxChars);
+        result.setHorizontalAlignment(JTextField.CENTER);
+        prefex.setLabelFor(result);
+        result.setToolTipText(tooltip);
+        if (initialValue != null) result.setText(initialValue);
+
+        panel.add(result,"1,0");
+
+        JLabel suffex = new JLabel(suffexStr);
+        panel.add(suffex,"3,0");
+        
+        container.add(panel, placement);
+        
+        return result;
+    }
+
     public JTextPane addTextPane(Container container, String text, 
             String placement, boolean debug)
     {
@@ -570,6 +604,7 @@ public class GuiCommonElements
         result.setToolTipText(tooltip);
         panel.add(result, "1,0,f,c");
         container.add(panel, placement);
+        result.setOpaque(false);
         return result;
     }
 
@@ -577,7 +612,8 @@ public class GuiCommonElements
             int mnemonic, String tooltip, String placement, boolean debug)
     {
         JRadioButton button = new JRadioButton(label);
-        container.add(button, placement);        
+        container.add(button, placement);  
+        button.setOpaque(false);
         return button;
         
     }
@@ -587,6 +623,7 @@ public class GuiCommonElements
     {
         JCheckBox checkBox = new JCheckBox(string);
         container.add(checkBox, placement);
+        checkBox.setOpaque(false);
         return checkBox;
     }
 
@@ -675,6 +712,68 @@ public class GuiCommonElements
         }
 
     }
+    
+    public class DecimalNumberField extends JTextField {
+
+        private Toolkit toolkit;
+        private NumberFormat floatFormatter;
+
+        public DecimalNumberField(float avaluelue, int columns) {
+            super(columns);
+            toolkit = Toolkit.getDefaultToolkit();
+            floatFormatter = NumberFormat.getNumberInstance(Locale.US);
+            floatFormatter.setParseIntegerOnly(false);
+            setValue(avaluelue);
+        }
+
+        public float getValue() {
+            float retVal = 0;
+            try {
+                retVal = floatFormatter.parse(getText()).floatValue();
+            } catch (ParseException e) {
+                // This should never happen because insertString allows
+                // only properly formatted data to get in the field.
+                toolkit.beep();
+            }
+            return retVal;
+        }
+
+        public void setValue(float value) {
+            setText(floatFormatter.format(value));
+        }
+
+        protected Document createDefaultModel() {
+            return new DecimalNumberDocument();
+        }
+
+        protected class DecimalNumberDocument extends PlainDocument {
+
+            public void insertString(int offs, String str, AttributeSet a) 
+            throws BadLocationException {
+
+                char[] source = str.toCharArray();
+                char[] result = new char[source.length];
+                int j = 0;
+
+                for (int i = 0; i < result.length; i++) {
+                    if (Character.isDigit(source[i]) || Character.toString(source[i]).equals("."))
+                    {
+                        result[j++] = source[i];
+                    }
+                    else {
+                        toolkit.beep();
+                        //System.err.println("insertString: " + source[i]);
+                    }
+                }
+                super.insertString(offs, new String(result, 0, j), a);
+
+
+            }
+
+        }
+
+    }
+
 }
 
 

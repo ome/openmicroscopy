@@ -81,7 +81,7 @@ public class DebugMessenger extends JDialog implements ActionListener
     StyledDocument          debugDocument;
     Style                   debugStyle;
     
-    DebugMessenger(JFrame owner, String title, Boolean modal, Exception e)
+    DebugMessenger(JFrame owner, String title, Boolean modal, Throwable e)
     {
         
         gui = new GuiCommonElements();

@@ -29,9 +29,6 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
-import loci.formats.ChannelSeparator;
-import loci.formats.ImageReader;
-
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.util.Actions;
 import ome.model.containers.Dataset;
@@ -51,8 +48,6 @@ public class FileQueueHandler
     private ImportHandler       importHandler;
     private OMEROMetadataStore  store;
  
-    public ImageReader iReader;
-    public ChannelSeparator separator;
     private OMEROWrapper    reader;
     
     private Main          viewer;

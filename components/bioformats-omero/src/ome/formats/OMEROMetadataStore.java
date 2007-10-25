@@ -38,7 +38,7 @@ import java.util.List;
 
 import loci.formats.FormatTools;
 import loci.formats.MetadataStore;
-import loci.formats.MetadataStoreException;
+//import loci.formats.MetadataStoreException;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
@@ -121,7 +121,7 @@ public class OMEROMetadataStore implements MetadataStore
      *             services.
      */
     public OMEROMetadataStore(String username, String password, String host,
-            String port) throws MetadataStoreException
+            String port) throws Exception
     {
         // Mask the password information for display in the debug window
         String maskedPswd = "";
@@ -149,7 +149,7 @@ public class OMEROMetadataStore implements MetadataStore
             exp = iQuery.findByString(Experimenter.class, "omeName", username);
         } catch (Throwable t)
         {
-            throw new MetadataStoreException(t);
+            throw new Exception(t);
         }
     }
     
@@ -161,10 +161,10 @@ public class OMEROMetadataStore implements MetadataStore
      *             is another error instantiating required services.
      */
     public OMEROMetadataStore(ServiceFactory factory)
-            throws MetadataStoreException
+            throws Exception
     {
         if (factory == null)
-            throw new MetadataStoreException(
+            throw new Exception(
                     "Factory argument cannot be null.");
 
         sf = factory;
@@ -177,7 +177,7 @@ public class OMEROMetadataStore implements MetadataStore
             pservice = sf.createRawPixelsStore();
         } catch (Throwable t)
         {
-            throw new MetadataStoreException(t);
+            throw new Exception(t);
         }
     }
 
@@ -326,21 +326,21 @@ public class OMEROMetadataStore implements MetadataStore
                 pixelSizeX, pixelSizeY, pixelSizeZ, pixelSizeC, pixelSizeT));
         PixelsDimensions dimensions = new PixelsDimensions();
         
-        if (pixelSizeX == null || pixelSizeX <= 0)
+        if (pixelSizeX == null || pixelSizeX <= 0.000001)
         {
-            log.warn("pixelSizeX is <= 0.0f, setting to 1.0f");
+            log.warn("pixelSizeX is <= 0.000001f, setting to 1.0f");
             pixelSizeX = 1.0f;
         }
 
-        if (pixelSizeY == null || pixelSizeY <= 0)
+        if (pixelSizeY == null || pixelSizeY <= 0.000001)
         {
-            log.warn("pixelSizeY is <= 0.0f, setting to 1.0f");
+            log.warn("pixelSizeY is <= 0.000001f, setting to 1.0f");
             pixelSizeY = 1.0f;
         }
         
-        if (pixelSizeZ == null || pixelSizeZ <= 0)
+        if (pixelSizeZ == null || pixelSizeZ <= 0.000001)
         {
-            log.warn("pixelSizeZ is <= 0.0f, setting to 1.0f");
+            log.warn("pixelSizeZ is <= 0.000001f, setting to 1.0f");
             pixelSizeZ = 1.0f;
         }
 
@@ -735,11 +735,14 @@ public class OMEROMetadataStore implements MetadataStore
         IUpdate update = sf.getUpdateService();
         Pixels[] pixelsArray = pixelsList.toArray(new Pixels[pixelsList.size()]);
         IObject[] o = update.saveAndReturnArray(pixelsArray);
+        //update.saveArray(pixelsArray);
+        ///throw new RuntimeException("blarg");
         for (int i = 0; i < o.length; i++)
         {
             pixelsList.set(i, (Pixels) o[i]);
         }
         return pixelsList;
+        
     }
     
     public ServiceFactory getSF()

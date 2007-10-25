@@ -99,7 +99,7 @@ public class AddProjectDialog extends JDialog implements ActionListener
                 gui.addTextPane(internalPanel, message, "0,0,1,0", debug);
 
         nameField = gui.addTextField(internalPanel, "Project Name: ", "", 'E',
-        "Input tyour email address here.", "", TableLayout.PREFERRED, "0, 1, 1, 1", debug);
+        "Input your project name here.", "", TableLayout.PREFERRED, "0, 1, 1, 1", debug);
         
         descriptionArea = gui.addTextArea(internalPanel, "Description: (optional)", 
                 "", 'W', "0, 2, 1, 2", debug);

@@ -71,6 +71,7 @@ public abstract class About
                         }
                         in.close();
                         msg = sb.toString();
+                        msg = msg + "\n\n Version: " + Main.versionText;
                     }
                 } catch (IOException exc)
                 {

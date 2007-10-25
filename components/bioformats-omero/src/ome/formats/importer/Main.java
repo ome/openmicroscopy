@@ -54,11 +54,11 @@ public class Main extends JFrame implements ActionListener, WindowListener
 {
     private static final long   serialVersionUID = 1228000122345370913L;
 
-    public static String        versionText = "Beta 2.1";
+    public static String        versionText = "Beta 2.2 RC3";
     
     /** The data of the last release date. */
     public static String        releaseDate      
-         = "2007-06-06 15:18:13 +0100 (Wed, 06 Jun 2007)";
+         = "2007-06-06 15:18:13 +0100 (Wed, 04 Oct 2007)";
 
     /** The repository revision. */
     public static String        revision  = "$LastChangedRevision$";

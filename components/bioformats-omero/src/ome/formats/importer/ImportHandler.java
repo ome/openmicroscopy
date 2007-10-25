@@ -52,6 +52,9 @@ public class ImportHandler
     private static Log      log = LogFactory.getLog(ImportHandler.class);
     
     private OMEROMetadataStore store;
+    
+    private int numOfPendings = 0;
+    private int numOfDone = 0;
 
     public ImportHandler(Main viewer, FileQueueTable qTable, OMEROMetadataStore store,
             OMEROWrapper reader, ImportContainer[] fads)
@@ -78,7 +81,7 @@ public class ImportHandler
                     {
                         importImages();
                     }
-                    catch (Exception e)
+                    catch (Throwable e)
                     {
                         new DebugMessenger(null, "Error Dialog", true, e);
                     }
@@ -112,23 +115,27 @@ public class ImportHandler
 
         viewer.appendToOutputLn("> Starting import at: " + myDate + "\n");
         viewer.statusBar.setStatusIcon("gfx/import_icon_16.png", "Now importing.");
-
-        viewer.statusBar.setProgressMaximum(library.getFilesAndDatasets().length);
         
         ImportContainer[] fads = library.getFilesAndDatasets();
         qTable.importBtn.setText("Cancel");
         qTable.importing = true;
         
+        numOfPendings = 0;
         for(int i = 0; i < fads.length; i++)
-        {
-           	qTable.setProgressPending(i);
+        {                
+           	if (qTable.setProgressPending(i))
+                numOfPendings++;
         }
         
+        viewer.statusBar.setProgressMaximum(numOfPendings);
+        
+        numOfDone = 0;
         for (int j = 0; j < fads.length; j++)
         {
             if (qTable.table.getValueAt(j, 2).equals("pending") 
                     && qTable.cancel == false)
             {
+                numOfDone++;
                 String filename = fads[j].file.getAbsolutePath();
                 
                 viewer.appendToOutputLn("> [" + j + "] Importing \"" + filename
@@ -139,7 +146,7 @@ public class ImportHandler
                 try
                 {
                 	importImage(fads[j].file, j,
-                			    library.getFilesAndDatasets().length,
+                			    numOfPendings,
                 			    fads[j].imageName,
                 			    fads[j].archive);
                 }
@@ -207,19 +214,25 @@ public class ImportHandler
         viewer.appendToOutput("> [" + index + "] Loading image \"" + shortName
                 + "\"...");
 
+        qTable.setProgressPrepping(index);
+        viewer.statusBar.setStatusIcon("gfx/import_icon_16.png", "Prepping file \"" + shortName + "\"");
+
         library.open(file.getAbsolutePath());
         
         viewer.appendToOutput(" Succesfully loaded.\n");
 
         viewer.statusBar.setProgress(true, 0, "Importing file " + 
-                (index +1) + " of " + total);
-        viewer.statusBar.setProgressValue(index);
+                numOfDone + " of " + total);
+        viewer.statusBar.setProgressValue(numOfDone - 1);
 
         viewer.appendToOutput("> [" + index + "] Importing metadata for "
                 + "image \"" + shortName + "\"... ");
 
-        qTable.setProgressPrepping(index);
-
+        qTable.setProgressAnalyzing(index);
+        //System.err.println("index:" + index);
+        viewer.statusBar.setStatusIcon("gfx/import_icon_16.png", 
+                "Analyzing the metadata for file \"" + shortName + "\"");
+        
         String[] fileNameList = reader.getUsedFiles();
         File[] files = new File[fileNameList.length];
         for (int i = 0; i < fileNameList.length; i++) 
@@ -231,7 +244,7 @@ public class ImportHandler
             store.setOriginalFiles(files); 
         }
         reader.getUsedFiles();
-
+        
         List<Pixels> pixList = library.importMetadata(imageName);
 
         int seriesCount = reader.getSeriesCount();
@@ -252,6 +265,8 @@ public class ImportHandler
             viewer.appendToOutputLn("> [" + index + "] Importing pixel data for "
                     + "image \"" + shortName + "\"... ");
 
+            viewer.statusBar.setStatusIcon("gfx/import_icon_16.png", "Importing the plane data for file \"" + shortName + "\"");
+            
             qTable.setProgressInfo(index, count);
             
             //viewer.appendToOutput("> Importing plane: ");
@@ -282,11 +297,10 @@ public class ImportHandler
                     store.writeFilesToFileStore(files, pixId);   
                 }
             }
-}
-        
+        }
         qTable.setProgressDone(index);
-        
-//        System.err.println(iInfo.getFreeSpaceInKilobytes());
+
+        //System.err.println(iInfo.getFreeSpaceInKilobytes());
         
         return pixList;
         

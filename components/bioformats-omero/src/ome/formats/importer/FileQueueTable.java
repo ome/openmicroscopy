@@ -212,12 +212,14 @@ public class FileQueueTable
         this.maxPlanes = maxPlanes;
     }
  
-    public void setProgressPending(int row)
+    public boolean setProgressPending(int row)
     {
         if (table.getValueAt(row, 2).equals("added"))
         {
-            table.setValueAt("pending", row, 2);  
+            table.setValueAt("pending", row, 2); 
+            return true;
         }
+        return false;
             
     }
     
@@ -253,7 +255,7 @@ public class FileQueueTable
         
     public void setProgressPrepping(int row)
     {
-        table.setValueAt("importing", row, 2); 
+        table.setValueAt("prepping", row, 2); 
     }
 
     public void setProgressDone(int row)
@@ -266,6 +268,12 @@ public class FileQueueTable
     public void setProgressArchiving(int row)
     {
         table.setValueAt("archiving", row, 2);       
+    }
+    
+
+    public void setProgressAnalyzing(int row)
+    {
+        table.setValueAt("analyzing", row, 2); 
     }
     
     public int getMaximum()

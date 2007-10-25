@@ -29,7 +29,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JTextPane;
+import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
 import org.apache.commons.logging.Log;
@@ -37,6 +37,7 @@ import org.apache.commons.logging.LogFactory;
 
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.util.GuiCommonElements;
+import ome.formats.importer.util.GuiCommonElements.DecimalNumberField;
 import ome.formats.importer.util.GuiCommonElements.WholeNumberField;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
@@ -53,26 +54,28 @@ public class ImportDialog extends JDialog implements ActionListener
 
     private GuiCommonElements       gui;
 
-    private Integer                 dialogHeight = 350;
+    private Integer                 dialogHeight = 360;
     private Integer                 dialogWidth = 400;
 
-    private JPanel  mainPanel;
+    private JTabbedPane tabbedPane;
+    
+    private JPanel  importPanel;
     private JPanel  pdPanel;
     private JPanel  namedPanel;
-    private JPanel  numOfDirPanel;
-
-    private JTextPane instructions;
+    
+    private JPanel  metadataPanel;
+    private JPanel  pixelPanel;
+    private JPanel  channelPanel;
 
     // Add graphic for add button
     String addIcon = "gfx/add_text.png";
-
-    // Size of the add/remove/refresh buttons (which are square).
-    private int buttonSize = 34;
 
     private JRadioButton fullPathButton;
     private JRadioButton partPathButton;
 
     private WholeNumberField numOfDirectoriesField;
+    private DecimalNumberField xPixelSize, yPixelSize, zPixelSize;
+    private WholeNumberField rChannel, gChannel, bChannel;
 
     public JCheckBox archiveImage;
 
@@ -86,6 +89,9 @@ public class ImportDialog extends JDialog implements ActionListener
 
     public  Dataset dataset;
     public  Project project;
+    
+    public  float pixelSizeX, pixelSizeY, pixelSizeZ;
+    public  int redChannel, greenChannel, blueChannel;
     
     public  Project newProject;
     
@@ -127,18 +133,25 @@ public class ImportDialog extends JDialog implements ActionListener
         setSize(new Dimension(dialogWidth, dialogHeight));
         setLocationRelativeTo(owner);
 
+        tabbedPane = new JTabbedPane();
+        tabbedPane.setOpaque(false); // content panes must be opaque
+
         gui = new GuiCommonElements();
 
-        // Set up the main panel for tPane, quit, and send buttons
+        
+        /////////////////////// START IMPORT PANEL ////////////////////////
+        
+        // Set up the import panel for tPane, quit, and send buttons
+        
         double mainTable[][] =
-            {{TableLayout.FILL, 100, 5, 100, TableLayout.FILL}, // columns
+            {{TableLayout.FILL, 120, 5, 120, TableLayout.FILL}, // columns
             {TableLayout.PREFERRED, 10, TableLayout.PREFERRED, 
                 TableLayout.FILL, 40, 30}}; // rows
 
-        mainPanel = gui.addMainPanel(this, mainTable, 10,20,10,20, debug);
+        importPanel = gui.addMainPanel(tabbedPane, mainTable, 0,10,0,10, debug);
 
         String message = "Import these images into which dataset?";
-        instructions = gui.addTextPane(mainPanel, message, "0, 0, 4, 0", debug);
+        gui.addTextPane(importPanel, message, "0, 0, 4, 0", debug);
 
         // Set up the project/dataset table
         double pdTable[][] =
@@ -147,7 +160,7 @@ public class ImportDialog extends JDialog implements ActionListener
 
         // Panel containing the project / dataset layout
 
-        pdPanel = gui.addMainPanel(mainPanel, pdTable, 0, 0, 0, 0, debug);
+        pdPanel = gui.addMainPanel(importPanel, pdTable, 0, 0, 0, 0, debug);
 
         pbox = gui.addComboBox(pdPanel, "Project: ", projectItems, 'P', 
                 "Select dataset to use for this import.", 60, "0,0,f,c", debug);
@@ -169,7 +182,7 @@ public class ImportDialog extends JDialog implements ActionListener
         
         addDatasetBtn.setEnabled(false);
         
-        mainPanel.add(pdPanel, "0, 2, 4, 2");
+        importPanel.add(pdPanel, "0, 2, 4, 2");
 
         // File naming section
 
@@ -178,10 +191,10 @@ public class ImportDialog extends JDialog implements ActionListener
                 {24, TableLayout.PREFERRED, 
             TableLayout.PREFERRED, TableLayout.FILL}}; // rows      
 
-        namedPanel = gui.addBorderedPanel(mainPanel, namedTable, "File Naming", debug);
+        namedPanel = gui.addBorderedPanel(importPanel, namedTable, "File Naming", debug);
 
         message = "The imported file name on the server should include:";
-        instructions = gui.addTextPane(namedPanel, message, "0, 0", debug);
+        gui.addTextPane(namedPanel, message, "0, 0", debug);
 
         String fullPathTooltip = "This will use the full path and file name for " +
         "the file. For example: \"c:/myfolder/mysubfolder/myfile.dv\"";
@@ -223,27 +236,83 @@ public class ImportDialog extends JDialog implements ActionListener
         else
             group.setSelected(partPathButton.getModel(), true);
 
-        mainPanel.add(namedPanel, "0, 3, 4, 2");
+        importPanel.add(namedPanel, "0, 3, 4, 2");
 
         // Buttons at the bottom of the form
 
-        cancelBtn = gui.addButton(mainPanel, "Cancel", 'L',
+        cancelBtn = gui.addButton(importPanel, "Cancel", 'L',
                 "Cancel", "1, 5, f, c", debug);
         cancelBtn.addActionListener(this);
 
-        importBtn = gui.addButton(mainPanel, "Add to Q", 'Q',
+        importBtn = gui.addButton(importPanel, "Add to Queue", 'Q',
                 "Import", "3, 5, f, c", debug);
         importBtn.addActionListener(this);
 
         this.getRootPane().setDefaultButton(importBtn);
         gui.enterPressesWhenFocused(importBtn);
 
-        archiveImage = gui.addCheckBox(mainPanel, 
+        archiveImage = gui.addCheckBox(importPanel, 
                 "Archive the original imported file(s) to the server.", "0,4,4,t", debug);
         archiveImage.setSelected(false);
         archiveImage.setVisible(true);
+
+        /////////////////////// START METADATA PANEL ////////////////////////
         
-        this.add(mainPanel);
+        double metadataTable[][] =
+        {{TableLayout.FILL}, // columns
+        {TableLayout.FILL, 10, TableLayout.FILL}}; // rows
+        
+        metadataPanel = gui.addMainPanel(tabbedPane, metadataTable, 0,10,0,10, debug);
+        
+        double pixelTable[][] =
+            {{10,TableLayout.FILL, 10,TableLayout.FILL, 10, TableLayout.FILL,10}, // columns
+             {68, TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.FILL}}; // rows      
+
+        pixelPanel = gui.addBorderedPanel(metadataPanel, pixelTable, "Pixel Size Defaults", debug);
+        
+        message = "These X, Y & Z pixel size values (typically measured in microns) " +
+        		"will be used if no values are included in the image file metadata:";
+        gui.addTextPane(pixelPanel, message, "1, 0, 6, 0", debug);
+        
+        xPixelSize = gui.addDecimalNumberField(pixelPanel, 
+                "X: " , "1.0", "", 0, "", 8, 80, "1,1,l,c", debug);
+
+        yPixelSize = gui.addDecimalNumberField(pixelPanel, 
+                "Y: " , "1.0", "", 0, "", 8, 80, "3,1,l,c", debug);
+
+        zPixelSize = gui.addDecimalNumberField(pixelPanel, 
+                "Z: " , "1.0", "", 0, "", 8, 80, "5,1,l,c", debug);
+        
+        metadataPanel.add(pixelPanel, "0, 0");
+
+        double channelTable[][] =
+        {{10,TableLayout.FILL, 10,TableLayout.FILL, 10, TableLayout.FILL,10}, // columns
+         {68, TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.FILL}}; // rows      
+
+        channelPanel = gui.addBorderedPanel(metadataPanel, channelTable, "Channel Defaults", debug);
+        
+        rChannel = gui.addWholeNumberField(channelPanel, 
+                "R: " , "0", "", 0, "", 8, 80, "1,1,l,c", debug);
+
+        gChannel = gui.addWholeNumberField(channelPanel, 
+                "G: " , "1", "", 0, "", 8, 80, "3,1,l,c", debug);
+
+        bChannel = gui.addWholeNumberField(channelPanel, 
+                "B: " , "2", "", 0, "", 8, 80, "5,1,l,c", debug);
+        
+        message = "These RGB channel wavelengths (typically measured in nanometers)" +
+        		" will be used if no channel values are included in the image file metadata:";
+        gui.addTextPane(channelPanel, message, "1, 0, 6, 0", debug);
+        
+        metadataPanel.add(channelPanel, "0, 2");
+
+    
+        /////////////////////// START TABBED PANE ////////////////////////
+        
+        this.add(tabbedPane);
+        tabbedPane.addTab("Import Settings", null, importPanel, "Import Settings");
+        tabbedPane.addTab("Metadata Defaults", null, metadataPanel, "Metadata Defaults");
+        //this.add(mainPanel);
 
         importBtn.setEnabled(false);
         this.getRootPane().setDefaultButton(importBtn);
@@ -389,7 +458,15 @@ public class ImportDialog extends JDialog implements ActionListener
             else 
                 userPrefs.putBoolean("savedFileNaming", false);
             userPrefs.putInt("savedNumOfDirs", numOfDirectoriesField.getValue());
-
+            
+            pixelSizeX = xPixelSize.getValue();
+            pixelSizeY = yPixelSize.getValue();
+            pixelSizeZ = zPixelSize.getValue();
+            
+            redChannel = rChannel.getValue();
+            greenChannel = gChannel.getValue();
+            blueChannel = bChannel.getValue();
+            
             this.dispose();
         }
         if (e.getSource() == pbox)

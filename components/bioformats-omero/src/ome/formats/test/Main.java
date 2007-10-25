@@ -10,6 +10,7 @@ import java.nio.ShortBuffer;
 import ome.formats.OMEROMetadataStore;
 import ome.model.core.Pixels;
 
+import loci.formats.ChannelFiller;
 import loci.formats.ChannelSeparator;
 import loci.formats.ClassList;
 import loci.formats.DataTools;
@@ -22,9 +23,12 @@ import loci.formats.MinMaxCalculator;
 public class Main
 {
 
-    private String filename = "/workspace/Test Images/Leicas (.lei)/050627-leica/050628-leica.lei";
+    //private String filename = "/workspace/Test Images/CT-MONO2-16-ort.dcm";
+    //private String filename = "/workspace/Test Images/image6.dicom";
+    private String filename = "/workspace/Test Images/Zeiss (.lsm)/FRAP12.lsm";
     
     private ImageReader iReader;
+    private ChannelFiller filler;
     private ChannelSeparator separator;
     private MinMaxCalculator    reader;
     
@@ -45,7 +49,8 @@ public class Main
     {
         try {
             iReader = (ImageReader) new ImageReader(new ClassList("readers.txt", IFormatReader.class));
-            separator = new ChannelSeparator(iReader);
+            filler = new ChannelFiller(iReader);
+            separator = new ChannelSeparator(filler);
             reader = new MinMaxCalculator(separator);   
 
             //store = new OMEROMetadataStore("root", "omero", "localhost", "1099");
@@ -53,8 +58,17 @@ public class Main
             reader.close();
             //reader.setMetadataStore(store);
             reader.setId(filename);
-            System.err.println("Series count: " + reader.getSeriesCount() + "\n");
             
+            sizeX = reader.getSizeX();
+            sizeY = reader.getSizeY();
+            sizeZ = reader.getSizeZ();
+            sizeT = reader.getSizeT();
+            sizeC = reader.getSizeC();
+            
+            System.err.println("Series count: " + reader.getSeriesCount());
+            System.err.println("SizeT: " + reader.getSizeT());
+            System.err.println("SizeC: " + reader.getSizeC());
+            System.err.println("SizeZ: " + reader.getSizeZ());            
             //pixels = (Pixels) store.getRoot();
             
             //calculateCTXYZ();
@@ -100,7 +114,6 @@ public class Main
 
                     System.err.println("preKnownMin: " + preKnownMin[c]);
                     System.err.println("preKnownMax: " + preKnownMax[c]);              
-
                 }
             } catch (FormatException e)
             {
@@ -112,7 +125,7 @@ public class Main
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
                 e.printStackTrace(pw);
-            }     
+            }
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -212,7 +225,7 @@ public class Main
         throws FormatException, IOException
     {
         ByteBuffer plane;
-        if (separator.getReader().isRGB())
+        if (iReader.isRGB())
             plane = ByteBuffer.wrap(reader.openBytes(no));
         else
             plane = ByteBuffer.wrap(reader.openBytes(no, buf));
@@ -311,5 +324,13 @@ public class Main
     public static void main(String[] args) throws Exception
     {
         new Main();
+        
+        /*
+        byte[] buf = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xF0 };
+        int value = DataTools.bytesToInt(buf, 0, 4, false);
+        System.err.println("DataTools value: " + value);
+        int value2 = ByteBuffer.wrap(buf).getInt();
+        System.err.println("Java NIO value: " + value2);
+        */
     }
 }

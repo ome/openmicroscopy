@@ -29,8 +29,10 @@ import loci.formats.DataTools;
 import ome.conditions.ApiUsageException;
 import ome.formats.OMEROMetadataStore;
 import ome.model.containers.Dataset;
+import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
+import ome.model.display.Color;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -217,6 +219,36 @@ public class ImportLibrary
             String name = imageName;
             String seriesName = reader.getImageName(series);
             
+            if (reader.getImageReader().isRGB())
+            {
+                log.debug("Setting color channels to RGB format.");
+                List<Channel> c = pix.getChannels();
+                if (c.size() == 3)
+                {
+                    Color red = new Color();
+                    red.setRed(255);
+                    red.setGreen(0);
+                    red.setBlue(0);
+                    red.setAlpha(255);
+                    
+                    Color green = new Color();
+                    green.setGreen(255);
+                    green.setRed(0);
+                    green.setBlue(0);
+                    green.setAlpha(255); 
+                    
+                    Color blue = new Color();
+                    blue.setBlue(255);
+                    blue.setGreen(0);
+                    blue.setRed(0);
+                    blue.setAlpha(255);            
+                    
+                    c.get(0).setColorComponent(red);
+                    c.get(1).setColorComponent(green);
+                    c.get(2).setColorComponent(blue);
+                }
+                
+            }
 
             if (seriesName != null)
                 name += " [" + seriesName + "]";
@@ -231,6 +263,7 @@ public class ImportLibrary
                 pix.setPixelsDimensions(pixDims);
             }
             series++;
+            
         }
         
         pixelsArray = store.saveToDB();
