@@ -9,6 +9,11 @@ cherrypy.lowercase_api = True
 from os.path import *
 import sys
 
+import datetime
+from datetime import timedelta
+import os, glob, time
+
+
 LOCAL_DIR = os.path.dirname(os.path.join(os.getcwd(),"uploads/"))
 SESSION_PREFIX = 'session-'
 LOCK = 'Store'
@@ -17,6 +22,16 @@ def Delete_dirs(data):
 	sessionfiles = [fname for fname in os.listdir(LOCAL_DIR)
 			if (fname.startswith(SESSION_PREFIX) and not fname.endswith(LOCK))]
 			
+	now = datetime.datetime.now()
+	now.timetuple()
+	for sfile in sessionfiles:
+		for file in glob.glob(LOCAL_DIR+"/"+sfile):
+			stats = os.stat(file) 
+			dtfile = datetime.datetime.fromtimestamp(stats[8])
+			t = now-timedelta(days=2)
+			if t > dtfile:
+				os.remove(os.path.join((LOCAL_DIR), sfile))
+						
 	for fname in os.listdir(LOCAL_DIR):
 		if (not fname.startswith(SESSION_PREFIX) and not fname.endswith(LOCK)):
 			for sname in sessionfiles:
@@ -37,6 +52,11 @@ elif exists(join(dirname(__file__), "setup.py")):
 else:
     update_config(configfile="prod.cfg",modulename="validator.config")
 
+if not os.path.isdir(LOCAL_DIR):
+	try:
+		os.mkdir(LOCAL_DIR)
+	except IOError:
+		print "IOError: %s could not be created" % LOCAL_DIR
 
 from validator.controllers import Root
 from cherrypy.filters import sessionfilter
