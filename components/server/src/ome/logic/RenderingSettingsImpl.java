@@ -194,17 +194,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 	}
 
 	/**
-	 * Returns the rendering settings specified by the passed id.
-	 * 
-	 * @param id
-	 *            The rendering settings id.
-	 * @return See above.
-	 */
-	protected RenderingDef getRenderingDef(long id) {
-		return iQuery.get(RenderingDef.class, id);
-	}
-
-	/**
 	 * Sets injector. For use during configuration. Can only be called once.
 	 * 
 	 * @param metaService
@@ -320,7 +309,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		if (!b)
 			return false;
 		// get rendering settings from RenderingDef to PixelId
-		RenderingDef rdFrom = getRenderingDef(from);
+		RenderingDef rdFrom = pixelsMetadata.retrieveRndSettings(from);
 		RenderingDef rdTo = pixelsMetadata.retrieveRndSettings(to);
 
 		if (rdFrom == null)
