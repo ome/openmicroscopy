@@ -536,6 +536,28 @@ public class TwoKnobsSlider
 	}
 
 	/**
+	 * Sets the input interval.
+	 * 
+	 * @param start	The value of the start knob.
+	 * @param end	The value of the end knob.
+	 */
+	public void setInterval(int start, int end)
+	{
+		if (start > end) return;
+		int max = model.getAbsoluteMaximum();
+		if (end > max) return;
+			//throw new IllegalArgumentException("End cannot be > "+max);
+		int oldEnd = model.getEndValue();
+		int oldStart = model.getStartValue();
+		model.setInterval(start, end);
+		firePropertyChange(START_VALUE_PROPERTY, new Integer(oldStart), 
+				new Integer(start));
+		firePropertyChange(END_VALUE_PROPERTY, new Integer(oldEnd), 
+				new Integer(end));
+		repaint();
+	}
+	
+	/**
 	 * Paints the labels if the passed flag is <code>true</code>.
 	 * 
 	 * @param paintLabel Passed <code>true</code> to paint the labels.

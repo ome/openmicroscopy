@@ -349,8 +349,8 @@ abstract class HiViewerModel
     /** Creates a new {@link TreeView}. */
     void createTreeView()
     {
-        if (treeView == null) 
-            treeView = new TreeView((ImageDisplay) browser.getUI());
+        //if (treeView == null) 
+        treeView = new TreeView((ImageDisplay) browser.getUI());
     }
     
     /**

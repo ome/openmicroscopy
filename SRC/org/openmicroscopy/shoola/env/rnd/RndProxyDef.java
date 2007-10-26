@@ -92,7 +92,7 @@ public class RndProxyDef
 	 * 
 	 * @return See above.
 	 */
-	int getNumberofChannels() { return channels.size(); }
+	int getNumberOfChannels() { return channels.size(); }
 
 	/**
 	 * Sets the bindings corresponding to the specified channel.

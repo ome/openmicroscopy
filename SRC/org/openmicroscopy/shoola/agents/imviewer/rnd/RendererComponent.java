@@ -132,7 +132,7 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
-        	 model.getParentModel().createHistoryItem();
+        	 model.getParentModel().addHistoryItem();
         	 model.updateCodomainMap(ctx);
              firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
             		 Boolean.TRUE);
@@ -150,7 +150,7 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
-        	if (released) model.getParentModel().createHistoryItem();
+        	if (released) model.getParentModel().addHistoryItem();
         	model.setInputInterval(s, e);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
             					Boolean.TRUE);
@@ -170,7 +170,7 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
-        	if (released) model.getParentModel().createHistoryItem();
+        	if (released) model.getParentModel().addHistoryItem();
         	 model.setCodomainInterval(s, e);
              firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
             		 			Boolean.TRUE);
@@ -188,7 +188,7 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
-        	model.getParentModel().createHistoryItem();
+        	model.getParentModel().addHistoryItem();
         	model.setBitResolution(v);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
            		 			Boolean.TRUE);
@@ -261,7 +261,7 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
-        	model.getParentModel().createHistoryItem();
+        	model.getParentModel().addHistoryItem();
         	model.setFamily(family);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
            		 			Boolean.TRUE);
@@ -279,7 +279,7 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
-        	model.getParentModel().createHistoryItem();
+        	model.getParentModel().addHistoryItem();
         	model.setCurveCoefficient(k);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
            		 			Boolean.TRUE);
@@ -297,7 +297,7 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
-        	model.getParentModel().createHistoryItem();
+        	model.getParentModel().addHistoryItem();
         	model.setNoiseReduction(b);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
            		 			Boolean.TRUE);
@@ -336,7 +336,7 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         try {
-        	model.getParentModel().createHistoryItem();
+        	model.getParentModel().addHistoryItem();
         	model.removeCodomainMap(mapType);
             view.removeCodomainMap(mapType);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
@@ -356,7 +356,7 @@ class RendererComponent
             return;
         if (model.getCodomainMap(mapType) != null) return; //already
         try {
-        	model.getParentModel().createHistoryItem();
+        	model.getParentModel().addHistoryItem();
         	model.addCodomainMap(mapType);
         	view.addCodomainMap(mapType);
         	firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
@@ -421,18 +421,12 @@ class RendererComponent
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getHighestValue()
      */
-	public double getHighestValue()
-	{
-		return model.getHighestValue();
-	}
+	public double getHighestValue() { return model.getHighestValue(); }
 
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getLowestValue()
      */
-	public double getLowestValue()
-	{
-		return model.getLowestValue();
-	}
+	public double getLowestValue() { return model.getLowestValue(); }
     
 }

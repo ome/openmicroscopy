@@ -724,7 +724,7 @@ public interface ImViewer
 	 * Creates a new history item and adds it to the collection.
 	 * If the history is displayed, updates the view.
 	 */
-	public void createHistoryItem();
+	public void addHistoryItem();
 
 	/** Copies the rendering settings. */
 	public void copyRenderingSettings();

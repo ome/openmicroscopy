@@ -968,7 +968,7 @@ class RenderingControlProxy
 		if (rndDef == null)
 			throw new IllegalArgumentException("No rendering settings to " +
 					"set");
-		if (rndDef.getNumberofChannels() != getPixelsDimensionsC())
+		if (rndDef.getNumberOfChannels() != getPixelsDimensionsC())
 			throw new IllegalArgumentException("Rendering settings not " +
 					"compatible.");
 		setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
@@ -994,9 +994,10 @@ class RenderingControlProxy
 		if (rndDef == null)
 			throw new IllegalArgumentException("No rendering settings to " +
 					"set");
-		if (rndDef.getNumberofChannels() != getPixelsDimensionsC())
+		if (rndDef.getNumberOfChannels() != getPixelsDimensionsC())
 			throw new IllegalArgumentException("Rendering settings not " +
 					"compatible.");
+		setModel(rndDef.getColorModel());
 		setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
 		setQuantumStrategy(rndDef.getBitResolution());
 		ChannelBindingsProxy c;

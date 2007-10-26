@@ -150,6 +150,60 @@ class ImViewerComponent
 	private boolean							rndToSave;
 	
 	/** 
+	 * Flag indicating that the rendering settings have been saved
+	 * before copying the 
+	 */
+	private boolean							saveBeforeCopy;
+	
+	/** Flag indicating create an history item. */
+	//private boolean							addHistoryItem;
+	
+	/** Creates an history item. */
+	private void createHistoryItem()
+	{
+		//if (!addHistoryItem) return;
+		if (model.isHistoryItemReplacement()) {
+			model.setHistoryItemReplacement(false);
+			return;
+		}
+		rndToSave = true;
+		HistoryItem node = model.createHistoryItem();
+		node.addPropertyChangeListener(controller);
+		//add Listener to node.
+		model.setHistoryItemReplacement(false);
+		if (nodeListener == null) {
+			nodeListener = new MouseAdapter() {
+
+				public void mousePressed(MouseEvent evt) {
+					HistoryItem item = findParentDisplay(evt.getSource());
+					try {
+						if (!model.isHistoryItemReplacement()) {
+							HistoryItem node = model.createHistoryItem();
+							node.addPropertyChangeListener(controller);
+							view.addHistoryItem(node);
+							node.addMouseListenerToComponents(nodeListener);
+							model.setHistoryItemReplacement(true);
+						}
+						List nodes = model.getHistory();
+						Iterator i = nodes.iterator();
+						while (i.hasNext()) {
+							((HistoryItem) i.next()).setHighlight(null);
+						}
+						model.resetMappingSettings(item.getRndSettings(), true);
+						item.setHighlight(Color.BLUE);
+						renderXYPlane();
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+
+				}
+			};
+		}
+		node.addMouseListenerToComponents(nodeListener);
+		view.addHistoryItem(node);
+	}
+	
+	/** 
 	 * Returns the description displayed in the status bar.
 	 * 
 	 * @return See above
@@ -221,9 +275,27 @@ class ImViewerComponent
 		return null;
 	}
 
-	/** Displays message bebofe closing the viewer. */
-	private void saveOnClose()
+	/** 
+	 * Displays message bebofe closing the viewer. 
+	 * Returns <code>true</code> if we need to close the viewer,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	private boolean saveOnClose()
 	{
+		if (saveBeforeCopy) {
+			HistoryItem item = model.getFirstHistoryItem();
+			try {
+				model.resetMappingSettings(item.getRndSettings(), false);
+				model.saveRndSettings();
+			} catch (Exception e) {
+				LogMessage logMsg = new LogMessage();
+				logMsg.println("Cannot save rendering settings. ");
+				logMsg.print(e);
+				ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
+			}
+		}
 		boolean showBox = false;
 		MessageBox msg = new MessageBox(view, "Save Data", 
 						"Before closing the viewer, do you want to save: ");
@@ -249,7 +321,6 @@ class ImViewerComponent
 		SaveEventBox box;
 		Iterator j;
 		if (events != null) {
-			
 			boxes = new ArrayList<SaveEventBox>(events.size());
 			j = events.keySet().iterator();
 			SaveRelatedData value;
@@ -263,11 +334,9 @@ class ImViewerComponent
 				}
 			}
 		}
-		if (!showBox) {
-			postViewerState(ViewerState.CLOSE);
-			return;
-		}
-		if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
+		if (!showBox) return true;
+		int option = msg.centerMsgBox();
+		if (option == MessageBox.YES_OPTION) {
 			if (rndBox != null && rndBox.isSelected()) {
 				try {
 					if (view.saveSettingsOnClose()) model.saveRndSettings();
@@ -294,8 +363,9 @@ class ImViewerComponent
 					}
 				}
 			}
-		}
-		postViewerState(ViewerState.CLOSE);
+			return true;
+		} else if (option == MessageBox.CANCEL) return false;
+		return true;
 	}
 	
 	/**
@@ -425,7 +495,8 @@ class ImViewerComponent
 	public void discard()
 	{
 		if (model.getState() != DISCARDED) {
-			saveOnClose();
+			if (!saveOnClose()) return;
+			postViewerState(ViewerState.CLOSE);
 			model.discard();
 			fireStateChange();
 			EventBus bus = MeasurementAgent.getRegistry().getEventBus();
@@ -628,7 +699,7 @@ class ImViewerComponent
 			HistoryItem node = (HistoryItem) model.getHistory().get(0);
 			node.allowClose(false);
 			rndToSave = false;
-		}
+		} //else createHistoryItem();
 		fireStateChange();
 	}
 
@@ -1938,46 +2009,12 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#createHistoryItem()
+	 * @see ImViewer#addHistoryItem()
 	 */
-	public void createHistoryItem()
+	public void addHistoryItem()
 	{
-		rndToSave = true;
-		HistoryItem node = model.createHistoryItem();
-		node.addPropertyChangeListener(controller);
-		//add Listener to node.
-		model.setHistoryItemReplacement(false);
-		if (nodeListener == null) {
-			nodeListener = new MouseAdapter() {
-
-				public void mousePressed(MouseEvent evt) {
-					HistoryItem item = findParentDisplay(evt.getSource());
-					try {
-						if (!model.isHistoryItemReplacement()) {
-							HistoryItem node = model.createHistoryItem();
-							node.addPropertyChangeListener(controller);
-							view.addHistoryItem(node);
-							node.addMouseListenerToComponents(nodeListener);
-
-							model.setHistoryItemReplacement(true);
-						}
-						List nodes = model.getHistory();
-						Iterator i = nodes.iterator();
-						while (i.hasNext()) {
-							((HistoryItem) i.next()).setHighlight(null);
-						}
-						model.resetMappingSettings(item.getRndSettings());
-						item.setHighlight(Color.BLUE);
-						renderXYPlane();
-					} catch (Exception e) {
-						// TODO: handle exception
-					}
-
-				}
-			};
-		}
-		node.addMouseListenerToComponents(nodeListener);
-		view.addHistoryItem(node);
+		createHistoryItem();
+		
 	}
 
 	/** 
@@ -1993,7 +2030,18 @@ class ImViewerComponent
 				//"This method can't be invoked in the DISCARDED, NEW state.");
 				return;
 		}
-		model.copyRenderingSettings();
+		try {
+			model.saveRndSettings();
+			model.copyRenderingSettings();
+			saveBeforeCopy = true;
+		} catch (Exception e) {
+			Logger logger = ImViewerAgent.getRegistry().getLogger();
+			LogMessage logMsg = new LogMessage();
+			logMsg.print("Rendering Exception:");
+			logMsg.println(e.getMessage());
+			logMsg.print(e);
+			logger.error(this, logMsg);
+		}
 	}
 
 	/** 
@@ -2018,7 +2066,7 @@ class ImViewerComponent
 
 		try {
 			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			createHistoryItem();
+			addHistoryItem();
 			boolean b = model.resetSettings();
 			if (b) {
 				view.resetDefaults();
@@ -2169,7 +2217,7 @@ class ImViewerComponent
     public void resetDefaultRndSettings()
     {
     	try {
-    		createHistoryItem();
+    		addHistoryItem();
     		model.resetDefaultRndSettings();
     		view.resetDefaults();
     		model.getRenderer().resetRndSettings();

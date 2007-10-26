@@ -78,33 +78,31 @@ class RendererUI
 	 * Text display in the {@link #historyButton} when the local history
 	 * is hidden.
 	 */
-	private static final String 			SHOW_HISTORY = "Show Local " +
-															"History...";
+	private static final String	SHOW_HISTORY = "Show Local History...";
 
 	/** 
 	 * Text display in the {@link #historyButton} when the local history 
 	 * is shown.
 	 */
-	private static final String 			HIDE_HISTORY = "Hide Local " +
-														"History...";
+	private static final String 	HIDE_HISTORY = "Hide Local History...";
 	
 	/** Action ID to copy the rendering settings. */
-	private static final int				COPY = 0;
+	private static final int		COPY = 0;
 
 	/** Action ID to paste the rendering settings. */
-	private static final int				PASTE = 1;
+	private static final int		PASTE = 1;
 	
 	/** Action ID to show or hide the history. */
-	private static final int				HISTORY = 2;
+	private static final int		HISTORY = 2;
 	
 	/** Action ID to reset the original rendering settings. */
-	private static final int				RESET_DEFAULT = 3;
+	private static final int		RESET_DEFAULT = 3;
 	
 	/** Action ID to save the  the rendering settings. */
-	private static final int				SAVE = 4;
+	private static final int		SAVE = 4;
 
 	/** Horizontal space between the buttons. */
-	private static final Dimension			H_SPACE = new Dimension(5, 5);
+	private static final Dimension	H_SPACE = new Dimension(5, 5);
 	
 	/** Reference to the control. */
 	private RendererControl     			controller;

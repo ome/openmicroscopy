@@ -243,16 +243,6 @@ class TreeViewUI
         DefaultMutableTreeNode last = (DefaultMutableTreeNode) 
         						tree.getLastSelectedPathComponent();
         model.setSelectedDisplays(nodes, (TreeViewNode) last);
-    	/*
-        DefaultMutableTreeNode n = (DefaultMutableTreeNode) 
-        tree.getLastSelectedPathComponent();
-        if (n == null) return;
-        model.setSelectedDisplay((TreeViewNode) n);
-
-        tree.getCellRenderer().getTreeCellRendererComponent(tree, n, 
-                tree.isPathSelected(new TreePath(n.getPath())),
-                false, true, 0, false); 
-                */
     }
     
     /**
@@ -366,6 +356,14 @@ class TreeViewUI
     {
         DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel();
         return (TreeViewNode) dtm.getRoot();
+    }
+    
+    /** Expands the tree. */
+    void expandTree()
+    {
+    	DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel();
+        tree.expandPath(new TreePath(getRoot().getPath()));
+        dtm.reload();
     }
     
 }

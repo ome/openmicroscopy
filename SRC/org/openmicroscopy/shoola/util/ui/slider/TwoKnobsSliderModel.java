@@ -321,6 +321,22 @@ class TwoKnobsSliderModel
 	}
 
 	/**
+	 * Sets the start and end values of the slider.
+	 * 
+	 * @param start	The value to set.
+	 * @param end	The value to set.
+	 */
+	void setInterval(int start, int end)
+	{
+		if (end > absoluteMax) end = absoluteMax;
+		if (end >= partialMax) partialMax = end;
+		if (start < absoluteMin) start = absoluteMin;
+		if (start <= partialMin) partialMin = start;
+		this.startValue = start;
+		this.endValue = end;
+	}
+	
+	/**
 	 * Paints the labels if the passed flag is <code>true</code>.
 	 * 
 	 * @param paintLabels Passed <code>true</code> to paint the labels.

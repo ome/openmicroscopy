@@ -395,16 +395,19 @@ class GraphicsPane
         int e = (int) model.getWindowEnd();
         endField.setText(""+e);
         startField.setText(""+s);
-        domainSlider.setStartValue(s);
-        domainSlider.setEndValue(e);
+        domainSlider.setInterval(s, e);
+        //domainSlider.setStartValue(s);
+        //domainSlider.setEndValue(e);
         onCurveChange();
     }
     
     /** Sets the value of the codomain interval. */
     void setCodomainInterval()
     {
-        codomainSlider.setStartValue(model.getCodomainStart());
-        codomainSlider.setEndValue(model.getCodomainEnd());
+    	codomainSlider.setInterval(model.getCodomainStart(), 
+    			model.getCodomainEnd());
+        //codomainSlider.setStartValue(model.getCodomainStart());
+        //codomainSlider.setEndValue(model.getCodomainEnd());
         onCurveChange();
     }
     

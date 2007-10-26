@@ -1566,7 +1566,7 @@ class OMEROGateway
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List getImagesDuring(Timestamp lowerTime, Timestamp time, long userID)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			String sql = "from Image as i where i.details.owner.id = :userID " +

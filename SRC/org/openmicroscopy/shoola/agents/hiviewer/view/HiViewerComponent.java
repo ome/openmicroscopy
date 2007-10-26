@@ -209,6 +209,12 @@ class HiViewerComponent
             model.fireThumbnailLoading();
             //b/c fireThumbnailLoading() sets the state to READY if there is no
             //image.
+            TreeView tv = model.getTreeView();
+            if (tv != null) {
+        		model.createTreeView();
+        		if (tv.isDisplay()) tv.expandTree();
+        		view.showTreeView(tv.isDisplay());
+        	}
             if (model.getBrowser().getImages().size() == 0) 
             	setStatus("Done", -1);
             else setStatus(HiViewer.PAINTING_TEXT, -1);

@@ -934,6 +934,17 @@ class ImViewerModel
 	}
 
 	/**
+	 * Returns the first history item.
+	 * 
+	 * @return See above.
+	 */
+	HistoryItem getFirstHistoryItem()
+	{
+		if (historyItems == null) return null;
+		return historyItems.get(0);
+	}
+	
+	/**
 	 * Removes the item from the list.
 	 * 
 	 * @param node The node to remove.
@@ -991,17 +1002,19 @@ class ImViewerModel
 	/**
 	 * Partially resets the rendering settings.
 	 * 
-	 * @param settings The value to set.
+	 * @param settings  The value to set.
+	 * @param reset		Pass <code>true</code> to reset the controls, 
+	 * 					<code>false</code> otherwise.
 	 * @throws RenderingServiceException 	If an error occured while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	void resetMappingSettings(RndProxyDef settings) 
+	void resetMappingSettings(RndProxyDef settings, boolean reset) 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		//rndControl.resetMappingSettings(settings);
 		rndControl.resetSettings(settings);
-		renderer.resetRndSettings();
+		if (reset) renderer.resetRndSettings();
 	}
 
 	/**

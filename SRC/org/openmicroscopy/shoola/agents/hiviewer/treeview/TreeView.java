@@ -298,4 +298,7 @@ public class TreeView
         uiDelegate.sortNodes(index, rootNode);
     }
     
+    /** Expands the tree. */
+    public void expandTree() { uiDelegate.expandTree(); }
+    
 }
