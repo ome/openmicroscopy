@@ -21,7 +21,7 @@ public class DataField implements Visitable{
 	public static final String TEXT_NODE_VALUE ="textNodeValue";
 	public static final String DEFAULT = "default";
 	// public static final String DERIVED_FROM = "derived_from";
-	public static final String PROTOCOL_FILE_NAME = "protocolFileName";
+	// public static final String PROTOCOL_FILE_NAME = "protocolFileName";
 	public static final String INPUT_TYPE = "inputType";
 	public static final String DROPDOWN_OPTIONS = "dropdownOptions";
 	public static final String TABLE_COLUMN_NAMES = "tableColumnNames";
@@ -29,7 +29,7 @@ public class DataField implements Visitable{
 	public static final String KEYWORDS = "keywords";
 	public static final String SUBSTEPS_COLLAPSED ="substepsCollapsed"; // "true" or "false"
 	public static final String URL = "url";
-	public static final String PRO_HAS_EXP_CHILDREN = "protocolHasExpChildren";
+	// public static final String PRO_HAS_EXP_CHILDREN = "protocolHasExpChildren";
 	//public static final String[] ALL_ATTRIBUTES = 
 	//{NAME, DESCRIPTION, VALUE, DEFAULT, PROTOCOL_FILE_NAME, INPUT_TYPE, DROPDOWN_OPTIONS,
 	//	UNITS, KEYWORDS, SUBSTEPS_COLLAPSED, URL, PRO_HAS_EXP_CHILDREN};
@@ -79,8 +79,6 @@ public class DataField implements Visitable{
 		// default type
 		setAttribute(DataField.INPUT_TYPE, DataField.FIXED_PROTOCOL_STEP, false);
 
-		// blank formField and fieldEditor (not used factory)
-		formField = new FormField(this);
 	}
 	
 	public DataField(LinkedHashMap<String, String> allAttributesMap, DataFieldNode node) {
@@ -88,10 +86,6 @@ public class DataField implements Visitable{
 		this.node = node;
 		
 		this.allAttributesMap = allAttributesMap;
-		
-		//factory passes (this) dataField to these constructors
-		factory = FieldEditorFormFieldFactory.getInstance();
-		formField = factory.getFormField(this);
 	}
 	
 	// returns a duplicate dataField
@@ -102,10 +96,6 @@ public class DataField implements Visitable{
 //		 get all attributes of the original datafield, make a copy
 		LinkedHashMap<String, String> allAttributes = dataFieldToCopy.getAllAttributes();
 		this.allAttributesMap = new LinkedHashMap<String, String>(allAttributes);
-
-		//factory passes (this) dataField to these constructors
-		factory = FieldEditorFormFieldFactory.getInstance();
-		formField = factory.getFormField(this);
 	}
 	
 	public void setAttribute(String name, String value, boolean notifyObservers) {
@@ -164,9 +154,9 @@ public class DataField implements Visitable{
 		
 		setAttribute(DataField.INPUT_TYPE, newInputType, false);
 		
-		// factory makes new subclasses of formField and fieldEditor based on inputType
-		fieldEditor = factory.getFieldEditor(this);
-		formField = factory.getFormField(this);
+		// new subclasses of formField and fieldEditor will get made when needed
+		fieldEditor = null;
+		formField = null;
 		
 		// reset the blue colour
 		node.nodeClicked(true);
@@ -189,6 +179,8 @@ public class DataField implements Visitable{
 	}
 	
 	public void setHighlighted(boolean highlighted) {
+		if (formField == null) getFormField();	// make sure there is one
+		
 		formField.setHighlighted(highlighted);
 	}
 	
@@ -200,6 +192,9 @@ public class DataField implements Visitable{
 	}
 	
 	public JPanel getFormField() {
+		if (formField == null) {
+			formField = factory.getFormField(this);
+		}
 		return formField;
 	}
 	
@@ -230,6 +225,7 @@ public class DataField implements Visitable{
 	}
 	
 	public void copyDefaultValueToInputField() {
+		if (formField == null) getFormField();	// make sure there is one
 		formField.setValue(getAttribute(DataField.DEFAULT));
 	}
 	
@@ -254,12 +250,15 @@ public class DataField implements Visitable{
 	}
 
 	public void refreshTitleCollapsed() {
+		if (formField == null) getFormField();	// make sure there is one
 		formField.refreshTitleCollapsed();
 	}
 	public void setExperimentalEditing(boolean enabled) {
+		if (formField == null) getFormField();	// make sure there is one
 		formField.setExperimentalEditing(enabled);
 	}
 	public ArrayList<JComponent> getVisibleAttributes() {
+		if (formField == null) getFormField();	// make sure there is one
 		return formField.getVisibleAttributes();
 	}
 	public void formFieldClicked(boolean clearOthers) {

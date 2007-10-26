@@ -79,7 +79,8 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	Color backgroundColor;
 	
 	
-	JButton saveExperiment;
+	JButton saveFileButton;
+	JButton saveFileAsButton;
 	JButton addAnInput;
 	JButton deleteAnInput;
 	JButton promoteField;
@@ -87,15 +88,14 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	JButton duplicateField;
 	JTextField searchField;
 	
-	JMenuItem saveExp;
-	JMenuItem saveExpAs;
+	JMenuItem saveFileMenuItem;
+	JMenuItem saveFileAsMenuItem;
 	
 	JMenuItem loadDefaultsMenuItem;
 	JMenuItem multiplyValueOfSelectedFieldsMenuItem;
 	JCheckBoxMenuItem editExperimentMenuItem;
 	
 	JCheckBoxMenuItem editProtocolMenuItem;
-	JMenuItem saveProtocolMenuItem;
 	JMenuItem addFieldMenuItem;
 	JMenuItem deleteFieldMenuItem;
 	JMenuItem moveStepUpMenuItem;
@@ -110,11 +110,14 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	JButton xmlValidationButton;
 	JCheckBox xmlValidationCheckbox;
 	JPanel xmlValidationPanel;
+	Icon closeIcon;
+	Icon redBallIcon;
 	
 	Box expTabToolBar;
 	Box proTabToolBar;
 	
 	JComboBox currentlyOpenedFiles;
+	JButton closeFileButton;
 	FileListSelectionListener fileListSelectionListener;
 	
 	JPanel protocolTab;
@@ -163,31 +166,30 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		Icon duplicateIcon = ImageFactory.getInstance().getIcon(ImageFactory.DUPLICATE_ICON);
 		Icon importElementsIcon = ImageFactory.getInstance().getIcon(ImageFactory.IMPORT_ICON);
 		Icon mathsIcon = ImageFactory.getInstance().getIcon(ImageFactory.EDU_MATHS);
+		closeIcon = ImageFactory.getInstance().getIcon(ImageFactory.N0);
+		redBallIcon = ImageFactory.getInstance().getIcon(ImageFactory.RED_BALL_ICON);
 		
 		// File menu
 		JMenu fileMenu = new JMenu("File");
 		fileMenu.setBorder(menuItemBorder);
 		JMenuItem openFile = new JMenuItem("Open File..", openFileIcon);
 		JMenuItem newBlankProtocolMenuItem = new JMenuItem("New Blank Protocol", newFileIcon);
-		JMenuItem saveProtocol = new JMenuItem("Save Protocol As...", saveFileAsIcon);
-		saveExp = new JMenuItem("Save Experiment", saveIcon);
-		saveExpAs = new JMenuItem("Save Experiment As...", saveFileAsIcon);
+		saveFileMenuItem = new JMenuItem("Save File", saveIcon);
+		saveFileAsMenuItem = new JMenuItem("Save File As...", saveFileAsIcon);
 		JMenuItem printExp= new JMenuItem("Print Experiment", printIcon);
 		JMenuItem indexFilesMenuItem = new JMenuItem("Index files for searching");
 		
 		openFile.addActionListener(new openFileListener());
 		newBlankProtocolMenuItem.addActionListener(new newProtocolFileListener());
-		saveProtocol.addActionListener(new saveProtocolListener());
-		saveExp.addActionListener(new SaveCurrentExperimentListener());
-		saveExpAs.addActionListener(new SaveExperimentAsListener());
+		saveFileMenuItem.addActionListener(new SaveCurrentFileListener());
+		saveFileAsMenuItem.addActionListener(new SaveFileAsListener());
 		printExp.addActionListener(new PrintExperimentListener());
 		indexFilesMenuItem.addActionListener(new IndexFilesListener());
 		
 		fileMenu.add(openFile);
 		fileMenu.add(newBlankProtocolMenuItem);
-		fileMenu.add(saveProtocol);
-		fileMenu.add(saveExp);
-		fileMenu.add(saveExpAs);
+		fileMenu.add(saveFileMenuItem);
+		fileMenu.add(saveFileAsMenuItem);
 		fileMenu.add(printExp);
 		fileMenu.add(indexFilesMenuItem);
 		menuBar.add(fileMenu);
@@ -212,7 +214,6 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		protocolMenu.setBorder(menuItemBorder);
 		
 		editProtocolMenuItem= new JCheckBoxMenuItem("Edit Protocol...");
-		saveProtocolMenuItem = new JMenuItem("Save Protocol", saveIcon);
 		JMenuItem printProtocolMenuItem = new JMenuItem("Print Protocol", printIcon);
 		addFieldMenuItem = new JMenuItem("Add Step", addIcon);
 		deleteFieldMenuItem = new JMenuItem("Delete Step", deleteIcon);
@@ -228,7 +229,6 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		pasteFieldsMenuItem.setActionCommand(PASTE);
 		
 		editProtocolMenuItem.addActionListener(new ToggleProtocolEditingListener());
-		saveProtocolMenuItem.addActionListener(new saveProtocolListener());
 		printProtocolMenuItem.addActionListener(new PrintProtocolListener());
 		addFieldMenuItem.addActionListener(new addDataFieldListener());
 		deleteFieldMenuItem.addActionListener(new deleteDataFieldListener());
@@ -242,7 +242,6 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		pasteFieldsMenuItem.addActionListener(this);
 		
 		protocolMenu.add(editProtocolMenuItem);
-		protocolMenu.add(saveProtocolMenuItem);
 		protocolMenu.add(printProtocolMenuItem);
 		protocolMenu.add(addFieldMenuItem);
 		protocolMenu.add(deleteFieldMenuItem);
@@ -291,12 +290,22 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		openFileButton.addActionListener(new openFileListener());
 		openFileButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING));
 		
+		saveFileAsButton = new JButton(saveFileAsIcon);
+		saveFileAsButton.setToolTipText("Save Protocol As..");
+		saveFileAsButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING));
+		saveFileAsButton.addActionListener(new saveProtocolListener());
+		
+		saveFileButton = new JButton(saveIcon);
+		saveFileButton.addActionListener(new SaveCurrentFileListener());
+		saveFileButton.setToolTipText("Save experimental details");
+		saveFileButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING));
+		
 		
 		JButton moreLikeThisButton = new JButton("More Files Like This >", searchIcon);
 		moreLikeThisButton.addActionListener(new MoreLikeThisListener());
 		
-		Icon closeIcon = ImageFactory.getInstance().getIcon(ImageFactory.N0);
-		JButton closeFileButton = new JButton(closeIcon);
+		
+		closeFileButton = new JButton(closeIcon);
 		closeFileButton.setBorder(new EmptyBorder(0,2,0,4));
 		closeFileButton.addActionListener(new CloseFileListener());
 		
@@ -307,13 +316,15 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		
 		fileManagerWestToolBar.add(newFileButton);
 		fileManagerWestToolBar.add(openFileButton);
+		fileManagerWestToolBar.add(saveFileButton);
+		fileManagerWestToolBar.add(saveFileAsButton);
 		fileManagerPanel.add(fileManagerWestToolBar, BorderLayout.WEST);
 		
 		fileManagerEastToolBar.add(moreLikeThisButton);
 		fileManagerEastToolBar.add(currentlyOpenedFiles);
 		fileManagerEastToolBar.add(closeFileButton);
 		fileManagerPanel.add(fileManagerEastToolBar, BorderLayout.EAST);
-		
+	
 		
 		// Build left side with form UI
 
@@ -333,11 +344,6 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		EmptyBorder noRightPadding = new EmptyBorder (0, BUTTON_SPACING, BUTTON_SPACING, 2);
 	
 		// buttons
-		
-		saveExperiment = new JButton(saveIcon);
-		saveExperiment.addActionListener(new SaveCurrentExperimentListener());
-		saveExperiment.setToolTipText("Save experimental details");
-		saveExperiment.setBorder(eb);
 		
 		JButton printExperimentButton = new JButton(printIcon);
 		printExperimentButton.addActionListener(new PrintExperimentListener());
@@ -359,16 +365,6 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		// compareFilesButton.addActionListener(new CompareFileListener());
 		
 		// Protocol edit buttons
-		
-		JButton saveProtocolButton = new JButton(saveIcon);
-		saveProtocolButton.setToolTipText("Save Protocol");
-		saveProtocolButton.setBorder(eb);
-		saveProtocolButton.addActionListener(new SaveCurrentProtocolListener());
-		
-		JButton saveProtocolAsButton = new JButton(saveFileAsIcon);
-		saveProtocolAsButton.setToolTipText("Save Protocol As..");
-		saveProtocolAsButton.setBorder(eb);
-		saveProtocolAsButton.addActionListener(new saveProtocolListener());
 		
 		JButton printProtocolButton = new JButton(printIcon);
 		printProtocolButton.setToolTipText("Print the Protocol");
@@ -436,7 +432,6 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		
 		
 		expTabToolBar = Box.createHorizontalBox();
-		expTabToolBar.add(saveExperiment);
 		expTabToolBar.add(printExperimentButton);
 		expTabToolBar.add(loadDefaults);
 		expTabToolBar.add(multiplyValueOfSelectedFieldsButton);
@@ -445,8 +440,6 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		expTabToolBar.add(xmlValidationPanel);
 		
 		proTabToolBar = Box.createHorizontalBox();
-		proTabToolBar.add(saveProtocolButton);
-		proTabToolBar.add(saveProtocolAsButton);
 		proTabToolBar.add(printProtocolButton);
 		proTabToolBar.add(addAnInput);
 		proTabToolBar.add(deleteAnInput);
@@ -487,6 +480,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		XMLUIPanel.setRightComponent(null);
 		
 		enableProtocolEditing(false);	// turn off controls
+		noFilesOpen(true);		// disable save etc.
 		
 		// set up copy and paste listeners
 		KeyStroke copy = KeyStroke.getKeyStroke(KeyEvent.VK_C,ActionEvent.CTRL_MASK,false);
@@ -560,7 +554,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	public void xmlUpdated() {
 		protocolRootNode = xmlModel.getRootNode();
 		xmlFormDisplay.refreshForm();		// refresh the form
-		refreshFileEdited();
+		
 		xmlValidationCheckbox.setSelected(xmlModel.getXmlValidation());
 		
 		selectionChanged();	// to take account of any other changes
@@ -571,8 +565,8 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	public void selectionChanged() {
 		if (editingState == EDITING_FIELDS) {
 			updateFieldEditor();
-			refreshFileEdited();
 		}
+		refreshFileEdited();
 		updateFileList();
 		updateXmlValidationPanel();
 	}
@@ -602,7 +596,12 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	// if no files open, hide the tabbed pane
 	public void noFilesOpen(boolean noFiles) {
 		
-		enableProtocolEditing(noFiles);
+		enableProtocolEditing(noFiles); // disables menu items
+		
+		saveFileButton.setEnabled(!noFiles);
+		saveFileAsButton.setEnabled(!noFiles);
+		saveFileMenuItem.setEnabled(!noFiles);
+		saveFileAsMenuItem.setEnabled(!noFiles);
 		
 		XMLTabbedPane.setVisible(!noFiles);
 	}
@@ -657,10 +656,10 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 //		 check whether you want to save edited file (Protocol is edited. No check for experiment edit / save)
 		if (xmlModel.isCurrentFileEdited()) {
 			int result = JOptionPane.showConfirmDialog
-				(XMLUIPanel, "Save the current protocol before closing?");
+				(XMLUIPanel, "Save the current file before closing?");
 			if (result == JOptionPane.YES_OPTION) {
 				// save Protocol (no exp details)	Experiment must be saved by user manually
-				saveFileAs(false);
+				saveFileAs();
 			} else if (result == JOptionPane.CANCEL_OPTION) {
 				return;
 			}
@@ -780,7 +779,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		// if file has not been saved yet...
 		if (file.getName().equals("untitled")) {
 			// this would over-write any old "untitled" file in this location
-			xmlModel.saveTreeToXmlFile(file, false);
+			xmlModel.saveTreeToXmlFile(file);
 		}
 		
 		searchFiles(file);
@@ -1006,73 +1005,40 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		}
 	}
 	
-	
-	public class SaveCurrentExperimentListener implements ActionListener {
-		
+	// saves updates to the current file - or calls saveAs
+	public class SaveCurrentFileListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
+			// if the current file is not saved (still called "untitled")
+			if (xmlModel.getCurrentFile() == null) return;
 			
-			// check that protocol is saved
-			if (xmlModel.isCurrentFileEdited()) return;	
-			
-			// if the current file is an .exp file
-			if (xmlModel.getCurrentFile().getName().endsWith(".exp")) {
-				xmlModel.saveTreeToXmlFile(xmlModel.getCurrentFile(), true);
+			if (xmlModel.getCurrentFile().getName().equals("untitled")) {
+				saveFileAs();
+			}
+			else {
+				xmlModel.saveTreeToXmlFile(xmlModel.getCurrentFile());
 				JOptionPane.showMessageDialog(XMLFrame, "Experiment saved.");
 			}
-			else
-				saveFileAs(true);
 		}
 	}
 	
-	public class SaveCurrentProtocolListener implements ActionListener {
-		
-		public void actionPerformed(ActionEvent event) {
-			
-			String errorMessage = "This Protocol has been used as a template for\n"
-				+ "at least one Experiment file. Therefore it cannont be edited or overwritten.\n"
-				+ "Please 'Save As...' using a different name";
-			
-			// check that protocol has no exp children
-			if (xmlModel.hasProtocolGotExpChildren()) {
-			    JOptionPane.showMessageDialog
-			    	(XMLFrame, errorMessage);
-			    return;	
-			}
-			
-			// if the current file is an .exp file, then it's protocol must have exp children
-			if (xmlModel.getCurrentFile().getName().endsWith(".exp")) {
-				JOptionPane.showMessageDialog
-	    			(XMLFrame, errorMessage);
-				return;
-			}
-			
-			else if (xmlModel.getCurrentFile().getName().endsWith(".pro")) {
-				xmlModel.saveTreeToXmlFile(xmlModel.getCurrentFile(), false);
-				JOptionPane.showMessageDialog
-    				(XMLFrame, "Protocol saved.");
-				refreshFileEdited();
-			}
-			
-			else saveFileAs(false);
-		}
-	}
+	
 	
 	public class saveProtocolListener implements ActionListener {
 		
 		public void actionPerformed(ActionEvent event) {
 			
-			saveFileAs(false);	// false: Don't save experiment details
+			saveFileAs();	// false: Don't save experiment details
 	        
 		}
 	}
 	
-	public class SaveExperimentAsListener implements ActionListener {
+	public class SaveFileAsListener implements ActionListener {
 		
 		public void actionPerformed(ActionEvent event) {
 			
 			if (xmlModel.isCurrentFileEdited()) return;	
 			
-			saveFileAs(true);	//true: saveExpDetails
+			saveFileAs();	//true: saveExpDetails
 		}
 	}
 	
@@ -1101,14 +1067,12 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	}
 	
 	
-	public void saveFileAs(boolean saveExpDetails) {
-		// if saveExpDetails is true, saving .exp, otherwise saving .pro
+	public void saveFileAs() {
 		
 		final JFileChooser fc = new JFileChooser();
 		fc.setFileFilter(new OpenProExpFileFilter());
 		fc.setCurrentDirectory(xmlModel.getCurrentFile());
-		if (!saveExpDetails)	// if saving protocol, can't choose file to overwrite
-			fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
 		int returnVal = fc.showSaveDialog(XMLFrame);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
             File xmlFile = fc.getSelectedFile();  // this may be a directory! 
@@ -1116,43 +1080,26 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
             if (xmlFile.isDirectory()) {
                 JOptionPane.showMessageDialog(XMLFrame, "Please choose a file name (not a directory)");
                 // try again! 
-                saveFileAs(saveExpDetails);
+                saveFileAs();
                 return;
             }
 
-            // first, make sure the filename ends .pro or .exp
+            // first, make sure the filename ends .exp.xml
             String filePathAndName = xmlFile.getAbsolutePath();
-            if (!saveExpDetails) { // filename must end .pro
-            	if (!(filePathAndName.endsWith(".pro"))) {	// if not..
-            		filePathAndName = filePathAndName + ".pro";
-            		xmlFile = new File(filePathAndName);
-            	}
+            if (!(filePathAndName.endsWith(".pro.xml"))) {	// if not..
+            	filePathAndName = filePathAndName + ".pro.xml";
+            	xmlFile = new File(filePathAndName);
             }
-            else {	// saving experiment, filename must end .exp
-            	if (!(filePathAndName.endsWith(".exp"))) {	// if not..
-            		filePathAndName = filePathAndName + ".exp";
-            		xmlFile = new File(filePathAndName);
-            	}
-            }
-            
             
             // now check if the file exists. If so, take appropriate action
             if (xmlFile.exists()) {
-            	if (saveExpDetails)	{	// saving exp. Check if OK to overwrite
-            		int result = JOptionPane.showConfirmDialog(XMLUIPanel, "File exists. Overwrite it?");
-            		if (!(result == JOptionPane.YES_OPTION)) {	// if not yes, then forget it!
-            			return;
-            		}
-        		}
-            	else {		// saving protocol. Can't overwrite
-            		JOptionPane.showMessageDialog(XMLUIPanel,
-            			    "Can't overwrite an existing protocol",
-            			    "Save error",JOptionPane.ERROR_MESSAGE);
+            	int result = JOptionPane.showConfirmDialog(XMLUIPanel, "File exists. Overwrite it?");
+            	if (!(result == JOptionPane.YES_OPTION)) {	// if not yes, then forget it!
             		return;
             	}
-            }
+        	}
             
-            xmlModel.saveTreeToXmlFile(xmlFile, saveExpDetails);
+            xmlModel.saveTreeToXmlFile(xmlFile);
             
             refreshFileEdited();
 		}
@@ -1180,22 +1127,9 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	public void refreshFileEdited() {
 		
 		boolean protocolEdited = xmlModel.isCurrentFileEdited();
-		
-		if (protocolEdited) {
-			saveExperiment.setToolTipText("You must save the protocol before saving the experimental details");
-			saveExp.setToolTipText("You must save the protocol before saving the experimental details");
-			saveExpAs.setToolTipText("You must save the protocol before saving the experimental details");
-		}
-		else {
-			saveExperiment.setToolTipText("Save experimental details");
-			saveExp.setToolTipText("Save experimental details");
-			saveExpAs.setToolTipText("Save experimental details");
-		}
 			
-		// if protocol edited, saveExp button and menus are disabled 
-		saveExperiment.setEnabled(!protocolEdited);
-		saveExp.setEnabled(!protocolEdited);
-		saveExpAs.setEnabled(!protocolEdited);
+		// if file edited, the close button looks different
+		closeFileButton.setIcon(protocolEdited ? redBallIcon : closeIcon);
 	}
 	
 	// this is called (via selectionChanged) xmlModel after validating xml
@@ -1295,9 +1229,6 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	public void duplicateFields() {
 		// get selected Fields, duplicate and add after last selected one
 		xmlModel.editCurrentTree(Tree.DUPLICATE_FIELDS);
-			
-		// refresh UI after adding all (not after each time)
-		xmlModel.notifyXMLObservers();
 	}
 
 	

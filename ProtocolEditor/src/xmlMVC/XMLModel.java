@@ -65,11 +65,10 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		new XMLView(this);
 	}	
 	
+	// return true if all OK - even if file is open already. (false if failed to open)
 	public boolean openXMLFile(File xmlFile) {
 		
 		// need to check if the file is already open 
-		System.out.println("XMLModel openXMLFile xmlFile.getAbsolutePath() = " + xmlFile.getAbsolutePath() );
-		
 		for (Tree tree: openFiles) {
 			System.out.println("XMLModel openXMLFile tree.getFile().getAbsolutePath() = " + tree.getFile().getAbsolutePath() );
 			if (tree.getFile().getAbsolutePath().equals(xmlFile.getAbsolutePath())) {
@@ -100,17 +99,20 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		return true;
 	}
 	
+	// any change in xml that needs the display of xml to be re-drawn
 	public void notifyXMLObservers() {
 		
 		for (XMLUpdateObserver xmlObserver: xmlObservers) {
 			xmlObserver.xmlUpdated();
 		}
+		// when xml validation is switched on, validate every change in xml
 		if (getXmlValidation())
 			saxValidateCurrentXmlFile();
 	}
 	public void xmlUpdated() {
 		notifyXMLObservers();
 	}
+	// display needs updating but no change in xml (don't need to re-draw xml display)
 	public void selectionChanged() {
 		notifySelectionObservers();
 	}
@@ -213,13 +215,10 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 			tree.copyAndInsertDataFields(rootNodeList); 
 		}
 		notifyXMLObservers();
-		}
+	}
 	
-	public void writeTreeToDOM(boolean saveExpValues) {
-		
-		// don't save experiment if protocol has been edited
-		if ((saveExpValues) && (isCurrentFileEdited()))
-			return;
+	// convert the tree data-structure to it's xml representation as a DOM document
+	public void writeTreeToDOM() {
 		
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		
@@ -230,14 +229,16 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 			ex.printStackTrace();
 		}
 		Tree tree = getCurrentTree();
-		tree.buildDOMfromTree(outputDocument, saveExpValues);
+		tree.buildDOMfromTree(outputDocument);
 	} 
 	
+	
+	// not used currently due to problems packaging the xsl into .jar
 	public void transformXmlToHtml() {
 		
 		File outputXmlFile = new File("file");
 		
-		saveTreeToXmlFile(outputXmlFile, true);
+		saveTreeToXmlFile(outputXmlFile);
 		
 		// opens the HTML in a browser window
 		XmlTransform.transformXMLtoHTML(outputXmlFile);
@@ -246,7 +247,7 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	
 	public void saxValidateCurrentXmlFile() {
 		// first save current Tree
-		writeTreeToDOM(false);
+		writeTreeToDOM();
 		
 		errorMessages.clear();
 		
@@ -267,85 +268,36 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		return errorMessages;
 	}
 
-	public void saveTreeToXmlFile(File outputFile, boolean saveExpValues) {
-		
-		// if you are saving experiment
-		if (saveExpValues) {
-			// and currentProtocol is edited
-			if (isCurrentFileEdited())
-				return; 	// forget about it! - shouldn't get here. - save protocol first
-			
-			// System.out.println("saveExpValues = true");
-			// if you are currently editing the protocol (and have it saved already),
-			// and now you are deriving an experiment from it....
-			if (getCurrentFile().getName().endsWith(".pro")) {
-				// protocol will have .exp derived from it, so make note of that in the current .pro file
-				getRootNode().getDataField().setAttribute(DataField.PRO_HAS_EXP_CHILDREN, DataField.TRUE, false);
-				// and save that change (before going on to save the .exp file, see below).
-				saveToXmlFile(getCurrentFile(), false);
-			}			
-		} else {
-			// don't add these attributes if custom element (don't want to change native xml)
-			if (!getRootNode().getDataField().isCustomInputType()) {
-				// saving protocol, so first include the name into the file.. 
-				getRootNode().getDataField().setAttribute(DataField.PROTOCOL_FILE_NAME, outputFile.getName(), true);
-				// saving protocol means that there are no .exp children of the .pro file..
-				getRootNode().getDataField().setAttribute(DataField.PRO_HAS_EXP_CHILDREN, DataField.FALSE, false);
-			}
-		}
-		
-		saveToXmlFile(outputFile, saveExpValues);
-		
+	public void saveTreeToXmlFile(File outputFile) {
+		saveToXmlFile(outputFile);
 		selectionChanged();		// updates View with any changes in file names
 	}
 	
-	private void saveToXmlFile(File outputFile, boolean saveExpValues) {
+	private void saveToXmlFile(File outputFile) {
 //		 always note the xml version (unless this is custom element)
 		if (!getRootNode().getDataField().isCustomInputType())
 			getRootNode().getDataField().setAttribute(VERSION, XML_VERSION_NUMBER, false);
 		
 		// now you can save
-		
-		writeTreeToDOM(saveExpValues);
-		
-		//try {
+		writeTreeToDOM();
 			
-			Transformer transformer;
-			try {
-				transformer = TransformerFactory.newInstance().newTransformer();
-				Source source = new DOMSource(outputDocument);
-				Result output = new StreamResult(outputFile);
-				transformer.transform(source, output);
-			
-				// if you have saved the protocol..
-				// if (!saveExpValues) {
-				// 	currentProtocolEdited = false;
-				// }
-			
-				setCurrentFile(outputFile);	// remember the current file. 
-				getCurrentTree().setTreeEdited(false);
-			
-			} catch (TransformerConfigurationException e) {
-				e.printStackTrace();
-			} catch (TransformerFactoryConfigurationError e) {
-				e.printStackTrace();
-			} catch (TransformerException e) {
-				e.printStackTrace();
-			}
-	}
-	
-	public void printDOM( Document docToPrint) {
+		Transformer transformer;
 		try {
-			
-			Transformer transformer = TransformerFactory.newInstance().newTransformer();
-			Source source = new DOMSource( docToPrint );
-			Result output = new StreamResult( System.out );
+			transformer = TransformerFactory.newInstance().newTransformer();
+			Source source = new DOMSource(outputDocument);
+			Result output = new StreamResult(outputFile);
 			transformer.transform(source, output);
 			
-		} catch (Exception ex) {
-			ex.printStackTrace();
+			setCurrentFile(outputFile);	// remember the current file. 
+			getCurrentTree().setTreeEdited(false);
+			
+		} catch (TransformerConfigurationException e) {
+			e.printStackTrace();
+		} catch (TransformerFactoryConfigurationError e) {
+			e.printStackTrace();
+		} catch (TransformerException e) {
+			e.printStackTrace();
 		}
-		System.out.println("");
 	}
 	
 	// calls method in each dataField, to setValue to default and display
@@ -354,12 +306,14 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		tree.copyDefaultValuesToInputFields();
 	}
 	
+	// delegates commands from xmlView to Tree. int Tree.editCommand is a list of known commands
 	public void editCurrentTree(int editCommand) {
 		Tree tree = getCurrentTree();
 		tree.editTree(editCommand);
 		notifyXMLObservers();
 	}
 	
+	// works on numerical fields only
 	public void multiplyValueOfSelectedFields(float factor) {
 		getCurrentTree().multiplyValueOfSelectedFields(factor);
 	}
@@ -372,19 +326,23 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		notifyXMLObservers();
 	}
 	
-	//public void setProtocolEdited(boolean protocolEdited) {
-	//	currentProtocolEdited = protocolEdited;
-	//}
+	// used to tell if there are any changes to the current file that need saving
 	public boolean isCurrentFileEdited() {
-		if ((getCurrentTree() != null) && (getCurrentTree().isTreeEdited()))
+		if ((getCurrentTree() != null) && (getCurrentTree().isTreeEdited())) {
+			System.out.println("XMLModel isCurrentFileEdited = true");
 			return true;
-		else return false;
+		}
+		else {
+			System.out.println("XMLModel isCurrentFileEdited = false");
+			return false;
+		}
 	}
 
-	// called when saving, then used to set protocolFileName attribute
+	// called when saving
 	public void setCurrentFile(File file) {
 		getCurrentTree().setFile(file);
 	}
+	// used to display list of open files
 	public File getCurrentFile() {
 		if (getCurrentTree() != null)
 			return getCurrentTree().getFile();
@@ -402,13 +360,6 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		else return false;
 	}
 	
-	public boolean hasProtocolGotExpChildren() {
-		String proHasExp = getRootNode().getDataField().getAttribute(DataField.PRO_HAS_EXP_CHILDREN);
-		if ((proHasExp != null) && (proHasExp.equals("true"))) 
-			return true;
-		
-		else return false;
-	}
 	
 	public DataFieldNode getRootNode() {
 		Tree tree = getCurrentTree();

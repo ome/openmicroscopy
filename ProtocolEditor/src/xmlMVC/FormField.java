@@ -53,6 +53,8 @@ public class FormField extends JPanel {
 		
 		this.dataField = dataField;
 		
+		//System.out.println("FormField Constructor: name is " + dataField.getName());
+		
 		// build the formField panel
 		Border eb = BorderFactory.createEmptyBorder(3, 3, 3, 3);
 		this.setBorder(eb);

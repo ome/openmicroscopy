@@ -172,7 +172,7 @@ public class Tree implements Visitable{
 				 String textValue = node.getTextContent().trim();
 				 if (textValue.length() > 0){
 					 // set this attribute of the parent node, true: nodify observers to update formField
-					 dfNode.getDataField().setAttribute(DataField.TEXT_NODE_VALUE, node.getTextContent(), true);
+					 dfNode.getDataField().setAttribute(DataField.TEXT_NODE_VALUE, node.getTextContent(), false);
 				 }
 			 }
 		}
@@ -442,7 +442,7 @@ public class Tree implements Visitable{
 	}
 	
 	// used to export the tree to DOM document
-	public void buildDOMfromTree(Document document, boolean saveExpValues) {
+	public void buildDOMfromTree(Document document) {
 
 		//DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		
@@ -471,7 +471,7 @@ public class Tree implements Visitable{
 			document.appendChild(element);
 			// System.out.println("Tree.buildDOMfromTree appendedChild: " + element.getNodeName());
 			
-			buildDOMchildrenFromTree(document, rootNode, element, saveExpValues);
+			buildDOMchildrenFromTree(document, rootNode, element);
 			
 			
 		} catch (Exception ex) {
@@ -481,7 +481,7 @@ public class Tree implements Visitable{
 	}
 	
 	// recursive function to build DOM from tree
-	private void buildDOMchildrenFromTree(Document document, DataFieldNode rootNode, Element rootElement, boolean saveExpValues) {
+	private void buildDOMchildrenFromTree(Document document, DataFieldNode rootNode, Element rootElement) {
 		
 		ArrayList<DataFieldNode> childNodes = rootNode.getChildren();
 		if (childNodes.size() == 0) return;
@@ -504,13 +504,6 @@ public class Tree implements Visitable{
 			LinkedHashMap<String, String> allAttributes = dataField.getAllAttributes();
 			parseAttributesMapToElement(allAttributes, element);
 			
-			// if saving Protocol, don't save exp values. 
-			if(!saveExpValues) {
-				if (allAttributes.get(DataField.VALUE) != null) {  // if there is a Value attribute
-					element.setAttribute(DataField.VALUE, "");		// clear exp value
-				}
-			}
-			
 			// if custom xml Element that has a text node value, save it! 
 			if (customElement) {
 				String text = dataField.getAttribute(DataField.TEXT_NODE_VALUE);
@@ -520,7 +513,7 @@ public class Tree implements Visitable{
 			
 			rootElement.appendChild(element);
 			
-			buildDOMchildrenFromTree(document, child, element, saveExpValues);
+			buildDOMchildrenFromTree(document, child, element);
 		}  // end for
 	}
 	
@@ -529,8 +522,8 @@ public class Tree implements Visitable{
 		
 		String inputType = allAttributes.get(DataField.INPUT_TYPE);
 		boolean customElement = false;
-		if ((allAttributes.get(DataField.INPUT_TYPE) == null)) customElement = true;
-		else if (allAttributes.get(DataField.INPUT_TYPE).equals(DataField.CUSTOM)) customElement = true;
+		if ((inputType == null)) customElement = true;
+		else if (inputType.equals(DataField.CUSTOM)) customElement = true;
 				
 		Iterator keyIterator = allAttributes.keySet().iterator();
 		
