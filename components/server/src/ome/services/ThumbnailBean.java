@@ -394,16 +394,26 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      *            the X-width of the requested, scaled image.
      * @param sizeY
      *            the Y-width of the requested, scaled image.
+     * @param theZ the optical section (offset across the Z-axis) requested. 
+     * <pre>null</pre> signifies the rendering engine default.
+     * @param theT the timepoint (offset across the T-axis) requested. 
+     * <pre>null</pre> signifies the rendering engine default.
      * @return a scaled buffered image.
      */
-    private BufferedImage createScaledImage(Integer sizeX, Integer sizeY) {
+    private BufferedImage createScaledImage(Integer sizeX, Integer sizeY,
+                                            Integer theZ, Integer theT)
+    {
         // Original sizes and thumbnail metadata
         int origSizeX = pixels.getSizeX();
         int origSizeY = pixels.getSizeY();
 
         // Retrieve our rendered data and translate to a buffered image
-        PlaneDef pd = new PlaneDef(PlaneDef.XY, re.getDefaultT());
-        pd.setZ(re.getDefaultZ());
+        if (theZ == null)
+        	theZ = re.getDefaultZ();
+        if (theT == null)
+        	theT = re.getDefaultT();
+        PlaneDef pd = new PlaneDef(PlaneDef.XY, theT);
+        pd.setZ(theZ);
         int[] buf = re.renderAsPackedInt(pd);
         BufferedImage image = 
         	ImageUtil.createBufferedImage(buf, origSizeX, origSizeY);
@@ -456,7 +466,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
             metadata = createThumbnailMetadata(sizeX, sizeY);
         }
 
-        BufferedImage image = createScaledImage(sizeX, sizeY);
+        BufferedImage image = createScaledImage(sizeX, sizeY, null, null);
         try {
             compressThumbnailToDisk(metadata, image);
         } catch (IOException e) {
@@ -505,7 +515,8 @@ public class ThumbnailBean extends AbstractLevel2Service implements
             Thumbnail metadata = getThumbnailMetadata(sizeX, sizeY);
             if (metadata == null) {
                 // First create a scaled buffered image
-                BufferedImage image = createScaledImage(sizeX, sizeY);
+                BufferedImage image = 
+                	createScaledImage(sizeX, sizeY, null, null);
 
                 // Now write it to the disk cache and return what we've written
                 metadata = createThumbnailMetadata(sizeX, sizeY);
@@ -545,16 +556,11 @@ public class ThumbnailBean extends AbstractLevel2Service implements
             return getThumbnail((int) (sizeX * ratio), size);
         }
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ome.api.ThumbnailStore#getThumbnailDirect(ome.model.core.Pixels,
-     *      ome.model.display.RenderingDef, java.lang.Integer,
-     *      java.lang.Integer)
-     */
-    @RolesAllowed("user")
-    public byte[] getThumbnailDirect(Integer sizeX, Integer sizeY) {
+    
+    /** Actually does the work specified by {@link getThumbnailDirect()}.*/
+    public byte[] _getThumbnailDirect(Integer sizeX, Integer sizeY,
+                                      Integer theZ, Integer theT)
+    {
         // Set defaults and sanity check thumbnail sizes
         errorIfInvalidState();
         if (sizeX == null) {
@@ -565,7 +571,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         }
         sanityCheckThumbnailSizes(sizeX, sizeY);
 
-        BufferedImage image = createScaledImage(sizeX, sizeY);
+        BufferedImage image = createScaledImage(sizeX, sizeY, theZ, theT);
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try {
             compressionService.compressToStream(image, byteStream);
@@ -587,11 +593,30 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     /*
      * (non-Javadoc)
      * 
-     * @see ome.api.ThumbnailStore#getThumbnailByLongestSideDirect(ome.model.core.Pixels,
-     *      ome.model.display.RenderingDef, java.lang.Integer)
+     * @see ome.api.ThumbnailStore#getThumbnailDirect(ome.model.core.Pixels,
+     *      ome.model.display.RenderingDef, java.lang.Integer,
+     *      java.lang.Integer)
      */
     @RolesAllowed("user")
-    public byte[] getThumbnailByLongestSideDirect(Integer size) {
+    public byte[] getThumbnailDirect(Integer sizeX, Integer sizeY)
+    {
+    	return _getThumbnailDirect(sizeX, sizeY, null, null);
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.api.ThumbnailStore#getThumbnailForSectionDirect(int, int, java.lang.Integer, java.lang.Integer)
+     */
+    @RolesAllowed("user")
+    public byte[] getThumbnailForSectionDirect(int theZ, int theT,
+                                               Integer sizeX, Integer sizeY)
+    {
+    	return _getThumbnailDirect(sizeX, sizeY, theZ, theT);
+    }
+    
+    /** Actually does the work specified by {@link getThumbnailByLongestSideDirect()}.*/
+    public byte[] _getThumbnailByLongestSideDirect(Integer size, Integer theZ, 
+                                                   Integer theT)
+    {
         // Set defaults and sanity check thumbnail sizes
         errorIfInvalidState();
         if (size == null) {
@@ -603,13 +628,34 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         int sizeY = pixels.getSizeY();
         if (sizeX > sizeY) {
             float ratio = (float) size / sizeX;
-            return getThumbnailDirect(size, (int) (sizeY * ratio));
+            return _getThumbnailDirect(size, (int) (sizeY * ratio), theZ, theT);
         } else {
             float ratio = (float) size / sizeY;
-            return getThumbnailDirect((int) (sizeX * ratio), size);
+            return _getThumbnailDirect((int) (sizeX * ratio), size, theZ, theT);
         }
     }
-
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see ome.api.ThumbnailStore#getThumbnailByLongestSideDirect(ome.model.core.Pixels,
+     *      ome.model.display.RenderingDef, java.lang.Integer)
+     */
+    @RolesAllowed("user")
+    public byte[] getThumbnailByLongestSideDirect(Integer size) {
+    	return _getThumbnailByLongestSideDirect(size, null, null);
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.api.ThumbnailStore#getThumbnailForSectionByLongestSideDirect(int, int, java.lang.Integer)
+     */
+    @RolesAllowed("user")
+    public byte[] getThumbnailForSectionByLongestSideDirect(int theZ, int theT,
+                                                            Integer size)
+    {
+    	return _getThumbnailByLongestSideDirect(size, theZ, theT);
+    }
+    
     /*
      * (non-Javadoc)
      * 

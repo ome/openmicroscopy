@@ -306,7 +306,8 @@ module omero {
 	Ice::ByteSeq getThumbnail(int sizeX, int sizeY) throws ServerError;
 	Ice::ByteSeq getThumbnailByLongsetSide(int size) throws ServerError;
 	Ice::ByteSeq getThumbnailDirect(int sizeX, int sizeY) throws ServerError;
-	Ice::ByteSeq getThumbnailByLongestSideDirect(int size) throws ServerError;
+	Ice::ByteSeq getThumbnailForSectionDirect(int theZ, int theT, int sizeX, int sizeY) throws ServerError;
+	Ice::ByteSeq getThumbnailForSectionByLongestSideDirect(int theZ, int theT, int size) throws ServerError;
 	void createThumbnails() throws ServerError;
 	bool thumbnailExist(int sizeX, int sizeY) throws ServerError;
 	void resetDefaults() throws ServerError;

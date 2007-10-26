@@ -27,7 +27,7 @@ public interface ThumbnailStore extends StatefulServiceInterface {
     /**
      * This method manages the state of the service; it must be invoked before
      * using any other methods. As the <pre>ThumbnailStore</pre> relies on the
-     * <pre>RenderingEngine</pre> a valid rendering definition must be available
+     * <pre>RenderingEngine</pre>, a valid rendering definition must be available
      * for it to work. 
      * 
      * @param pixelsId
@@ -58,7 +58,7 @@ public interface ThumbnailStore extends StatefulServiceInterface {
     public void setRenderingDefId(Long renderingDefId);
 
     /**
-     * Retrieves the a thumbnail for a pixels set using a given set of rendering
+     * Retrieves a thumbnail for a pixels set using a given set of rendering
      * settings (RenderingDef). If the thumbnail exists on-disk cache it will be
      * returned directly, otherwise it will be created directly as in {@link
      * #getThumbDirect()}.
@@ -72,7 +72,7 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      * @throws ApiUsageException
      *             if:
      *             <ul>
-     *             <li><i>sizeX</i> pixels.sizeX</li>
+     *             <li><i>sizeX</i> > pixels.sizeX</li>
      *             <li><i>sizeX</i> is negative</li>
      *             <li><i>sizeY</i> > pixels.sizeY</li>
      *             <li><i>sizeY</i> is negative</li>
@@ -84,7 +84,7 @@ public interface ThumbnailStore extends StatefulServiceInterface {
     public byte[] getThumbnail(Integer sizeX, Integer sizeY);
 
     /**
-     * Retrieves the a thumbnail for a pixels set using a given set of rendering
+     * Retrieves a thumbnail for a pixels set using a given set of rendering
      * settings (RenderingDef). If the thumbnail exists on-disk cache it will be
      * returned directly, otherwise it will be created directly as in {@link
      * #getThumbDirect()}. The longest side of the image will be used to
@@ -106,7 +106,7 @@ public interface ThumbnailStore extends StatefulServiceInterface {
     public byte[] getThumbnailByLongestSide(Integer size);
 
     /**
-     * Retrieves the a thumbnail for a pixels set using a given set of rendering
+     * Retrieves a thumbnail for a pixels set using a given set of rendering
      * settings (RenderingDef). The Thumbnail will always be created directly,
      * ignoring the on-disk cache.
      * 
@@ -119,7 +119,7 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      * @throws ApiUsageException
      *             if:
      *             <ul>
-     *             <li><i>sizeX</i> pixels.sizeX</li>
+     *             <li><i>sizeX</i> > pixels.sizeX</li>
      *             <li><i>sizeX</i> is negative</li>
      *             <li><i>sizeY</i> > pixels.sizeY</li>
      *             <li><i>sizeY</i> is negative</li>
@@ -129,9 +129,39 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      * @see getThumbnail()
      */
     public byte[] getThumbnailDirect(Integer sizeX, Integer sizeY);
+    
+    /**
+     * Retrieves a thumbnail for a pixels set using a given set of rendering
+     * settings (RenderingDef) for a particular section. The Thumbnail will 
+     * always be created directly, ignoring the on-disk cache.
+     * 
+     * @param theZ the optical section (offset across the Z-axis) to use.
+     * @param theT the timepoint (offset across the T-axis) to use.
+     * @param sizeX
+     *            the X-axis width of the thumbnail. <code>null</code>
+     *            specifies the default size of 48.
+     * @param sizeY
+     *            the Y-axis width of the thumbnail. <code>null</code>
+     *            specifies the default size of 48.
+     * @throws ApiUsageException
+     *             if:
+     *             <ul>
+     *             <li><i>sizeX</i> > pixels.sizeX</li>
+     *             <li><i>sizeX</i> is negative</li>
+     *             <li><i>sizeY</i> > pixels.sizeY</li>
+     *             <li><i>sizeY</i> is negative</li>
+     *             <li><i>theZ</i> is out of range</li>
+     *             <li><i>theT</i> is out of range</li>
+     *             <li>{@link setPixelsId()} has not yet been called</li>
+     *             </ul>
+     * @return a JPEG thumbnail byte buffer.
+     * @see getThumbnail()
+     */
+    public byte[] getThumbnailForSectionDirect(int theZ, int theT,
+                                               Integer sizeX, Integer sizeY);
 
     /**
-     * Retrieves the a thumbnail for a pixels set using a given set of rendering
+     * Retrieves a thumbnail for a pixels set using a given set of rendering
      * settings (RenderingDef). The Thumbnail will always be created directly,
      * ignoring the on-disk cache. The longest side of the image will be used to
      * calculate the size for the smaller side in order to keep the aspect ratio
@@ -150,6 +180,30 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      * @see getThumbnailDirect()
      */
     public byte[] getThumbnailByLongestSideDirect(Integer size);
+    
+    /**
+     * Retrieves a thumbnail for a pixels set using a given set of rendering
+     * settings (RenderingDef) for a particular section. The Thumbnail will 
+     * always be created directly, ignoring the on-disk cache. The longest side 
+     * of the image will be used to calculate the size for the smaller side in 
+     * order to keep the aspect ratio of the original image.
+     * 
+     * @param theZ the optical section (offset across the Z-axis) to use.
+     * @param theT the timepoint (offset across the T-axis) to use.
+     * @param size
+     *            the size of the longest side of the thumbnail requested.
+     *            <code>null</code> specifies the default size of 48.
+     * @throws ApiUsageException
+     *             if:
+     *             <ul>
+     *             <li><i>size</i> > pixels.sizeX and pixels.sizeY</li>
+     *             <li>{@link setPixelsId()} has not yet been called</li>
+     *             </ul>
+     * @return a JPEG thumbnail byte buffer.
+     * @see getThumbnailDirect()
+     */
+    public byte[] getThumbnailForSectionByLongestSideDirect(int theZ, int theT,
+                                                            Integer size);
 
     /**
      * Creates a thumbnail for a pixels set using a given set of rendering
@@ -164,7 +218,7 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      * @throws ApiUsageException
      *             if:
      *             <ul>
-     *             <li><i>sizeX</i> pixels.sizeX</li>
+     *             <li><i>sizeX</i> > pixels.sizeX</li>
      *             <li><i>sizeX</i> is negative</li>
      *             <li><i>sizeY</i> > pixels.sizeY</li>
      *             <li><i>sizeY</i> is negative</li>

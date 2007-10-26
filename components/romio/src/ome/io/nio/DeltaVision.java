@@ -10,7 +10,6 @@ package ome.io.nio;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -24,7 +23,6 @@ import java.security.NoSuchAlgorithmException;
 import ome.conditions.ApiUsageException;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.model.core.OriginalFile;
-import ome.model.core.Pixels;
 
 /**
  * Class implementation of the PixelBuffer interface for a DeltaVision specific
