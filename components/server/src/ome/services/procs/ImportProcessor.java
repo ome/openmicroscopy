@@ -51,9 +51,10 @@ public class ImportProcessor implements ApplicationContextAware, Processor {
 		library.setDataset(c.dataset);
 		String filename = c.file.getAbsolutePath();
 		library.open(filename);
-		library.calculateImageCount(filename);
-		long pixId = library.importMetadata(filename);
-		library.importData(pixId, filename, null);//step);
+		// Needs synchronization with importer library
+		//library.calculateImageCount(filename);
+		//long pixId = library.importMetadata(filename);
+		//library.importData(pixId, filename, null);//step);
 	    }
 	} catch (Exception e) {
 	    System.err.println("XXXXXXXXXXXXX << WRITE TO MSG >> XXXXXXXXXXXXXXX");

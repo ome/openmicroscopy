@@ -34,6 +34,7 @@ package ome.formats;
  */
 public class EnumerationException extends RuntimeException
 {
+    private static final long serialVersionUID = 1L;
 
     /** The enumeration class that was used in a failed enumeration lookup. */
     private Class  failureClass;

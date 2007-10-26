@@ -15,12 +15,14 @@ package ome.formats.importer;
 // Java imports
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import loci.formats.FormatReader;
 import ome.conditions.ApiUsageException;
 import ome.formats.OMEROMetadataStore;
 import ome.model.containers.Dataset;
+import ome.model.core.Pixels;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -134,9 +136,9 @@ public class ImportFixture
             String fileName = file.getAbsolutePath();
             library.setDataset(fads.get(file));
             library.open(fileName);
-            library.calculateImageCount(fileName);
-            long pixId = library.importMetadata(file.getAbsolutePath());
-            library.importData(pixId, fileName, step);
+            library.calculateImageCount(fileName, 0);
+            List<Pixels> pixId = library.importMetadata(file.getAbsolutePath());
+            library.importData(pixId.get(0).getId(), fileName, 0, step);
         }
     }
 
@@ -153,7 +155,7 @@ public class ImportFixture
         {
 
             @Override
-            public void step(int n)
+            public void step(int series, int n)
             {}
         });
     }
