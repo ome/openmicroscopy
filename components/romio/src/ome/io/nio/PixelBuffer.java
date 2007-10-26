@@ -10,7 +10,6 @@ package ome.io.nio;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
 
 /**
  * 

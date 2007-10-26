@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.BufferOverflowException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -306,12 +307,12 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     }
 
     public void setRegion(Integer size, Long offset, byte[] buffer)
-            throws IOException, BufferOverflowException {
+            throws IOException {
     	setRegion(size, offset, MappedByteBuffer.wrap(buffer));
     }
 
     public void setRegion(Integer size, Long offset, ByteBuffer buffer)
-            throws IOException, BufferOverflowException {
+            throws IOException {
         FileChannel fileChannel = getFileChannel();
 
         /*
@@ -322,8 +323,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     }
 
     public void setRow(ByteBuffer buffer, Integer y, Integer z, Integer c,
-            Integer t) throws IOException, DimensionsOutOfBoundsException,
-            BufferOverflowException {
+            Integer t) throws IOException, DimensionsOutOfBoundsException {
         Long offset = getRowOffset(y, z, c, t);
         Integer size = getRowSize();
 
@@ -331,51 +331,62 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     }
 
     public void setPlane(ByteBuffer buffer, Integer z, Integer c, Integer t)
-            throws IOException, DimensionsOutOfBoundsException,
-            BufferOverflowException {
+            throws IOException, DimensionsOutOfBoundsException {
         Long offset = getPlaneOffset(z, c, t);
         Integer size = getPlaneSize();
         if (buffer.limit() != size)
+        {
+        	// Handle the size mismatch.
+        	if (buffer.limit() < size)
+        		throw new BufferUnderflowException();
         	throw new BufferOverflowException();
+        }
 
         setRegion(size, offset, buffer);
     }
 
     public void setPlane(byte[] buffer, Integer z, Integer c, Integer t)
-            throws IOException, DimensionsOutOfBoundsException,
-            BufferOverflowException {
+            throws IOException, DimensionsOutOfBoundsException {
     	setPlane(MappedByteBuffer.wrap(buffer), z, c, t);
     }
 
     public void setStack(ByteBuffer buffer, Integer z, Integer c, Integer t)
-            throws IOException, DimensionsOutOfBoundsException,
-            BufferOverflowException {
+            throws IOException, DimensionsOutOfBoundsException {
         Long offset = getStackOffset(c, t);
         Integer size = getStackSize();
         if (buffer.limit() != size)
+        {
+        	// Handle the size mismatch.
+        	if (buffer.limit() < size)
+        		throw new BufferUnderflowException();
         	throw new BufferOverflowException();
+        }
 
         setRegion(size, offset, buffer);
     }
 
     public void setStack(byte[] buffer, Integer z, Integer c, Integer t)
-            throws IOException, DimensionsOutOfBoundsException,
-            BufferOverflowException {
+            throws IOException, DimensionsOutOfBoundsException {
     	setStack(MappedByteBuffer.wrap(buffer), z, c, t);
     }
 
     public void setTimepoint(ByteBuffer buffer, Integer t) throws IOException,
-            DimensionsOutOfBoundsException, BufferOverflowException {
+            DimensionsOutOfBoundsException {
         Long offset = getTimepointOffset(t);
         Integer size = getTimepointSize();
         if (buffer.limit() != size)
+        {
+        	// Handle the size mismatch.
+        	if (buffer.limit() < size)
+        		throw new BufferUnderflowException();
         	throw new BufferOverflowException();
+        }
 
         setRegion(size, offset, buffer);
     }
 
     public void setTimepoint(byte[] buffer, Integer t) throws IOException,
-            DimensionsOutOfBoundsException, BufferOverflowException {
+            DimensionsOutOfBoundsException {
     	setTimepoint(MappedByteBuffer.wrap(buffer), t);
     }
 

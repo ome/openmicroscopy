@@ -491,7 +491,7 @@ public class DeltaVision implements PixelBuffer {
 	 * not implemented
 	 */
 	public void setRegion(Integer size, Long offset, byte[] buffer)
-			throws IOException, BufferOverflowException {
+			throws IOException {
 		throw new UnsupportedOperationException("This method is not supported");
 	}
 
@@ -499,7 +499,7 @@ public class DeltaVision implements PixelBuffer {
 	 * not implemented
 	 */
 	public void setRegion(Integer size, Long offset, ByteBuffer buffer)
-			throws IOException, BufferOverflowException {
+			throws IOException {
 		throw new UnsupportedOperationException("This method is not supported");
 	}
 
@@ -507,8 +507,7 @@ public class DeltaVision implements PixelBuffer {
 	 * not implemented
 	 */
 	public void setPlane(ByteBuffer buffer, Integer z, Integer c, Integer t)
-			throws IOException, DimensionsOutOfBoundsException,
-			BufferOverflowException {
+			throws IOException, DimensionsOutOfBoundsException {
 		throw new UnsupportedOperationException("This method is not supported");
 	}
 
@@ -516,8 +515,7 @@ public class DeltaVision implements PixelBuffer {
 	 * not implemented
 	 */
 	public void setPlane(byte[] buffer, Integer z, Integer c, Integer t)
-			throws IOException, DimensionsOutOfBoundsException,
-			BufferOverflowException {
+			throws IOException, DimensionsOutOfBoundsException {
 		throw new UnsupportedOperationException("This method is not supported");
 	}
 
@@ -525,8 +523,7 @@ public class DeltaVision implements PixelBuffer {
 	 * not implemented
 	 */
 	public void setRow(ByteBuffer buffer, Integer y, Integer z, Integer c,
-			Integer t) throws IOException, DimensionsOutOfBoundsException,
-			BufferOverflowException {
+			Integer t) throws IOException, DimensionsOutOfBoundsException {
 		throw new UnsupportedOperationException("This method is not supported");
 	}
 
@@ -534,8 +531,7 @@ public class DeltaVision implements PixelBuffer {
 	 * not implemented
 	 */
 	public void setStack(ByteBuffer buffer, Integer z, Integer c, Integer t)
-			throws IOException, DimensionsOutOfBoundsException,
-			BufferOverflowException {
+			throws IOException, DimensionsOutOfBoundsException {
 		throw new UnsupportedOperationException("This method is not supported");
 	}
 
@@ -543,8 +539,7 @@ public class DeltaVision implements PixelBuffer {
 	 * not implemented
 	 */
 	public void setStack(byte[] buffer, Integer z, Integer c, Integer t)
-			throws IOException, DimensionsOutOfBoundsException,
-			BufferOverflowException {
+			throws IOException, DimensionsOutOfBoundsException {
 		throw new UnsupportedOperationException("This method is not supported");
 	}
 
@@ -552,7 +547,7 @@ public class DeltaVision implements PixelBuffer {
 	 * not implemented
 	 */
 	public void setTimepoint(ByteBuffer buffer, Integer t) throws IOException,
-			DimensionsOutOfBoundsException, BufferOverflowException {
+			DimensionsOutOfBoundsException {
 		throw new UnsupportedOperationException("This method is not supported");
 	}
 
@@ -560,7 +555,7 @@ public class DeltaVision implements PixelBuffer {
 	 * not implemented
 	 */
 	public void setTimepoint(byte[] buffer, Integer t) throws IOException,
-			DimensionsOutOfBoundsException, BufferOverflowException {
+			DimensionsOutOfBoundsException {
 		throw new UnsupportedOperationException("This method is not supported");
 	}
 

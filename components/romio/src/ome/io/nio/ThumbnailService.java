@@ -17,6 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ome.conditions.InternalException;
+import ome.conditions.ResourceError;
 import ome.model.display.Thumbnail;
 
 /**
@@ -119,25 +120,27 @@ public class ThumbnailService extends AbstractFileSystemService {
 		File file;
 		boolean success = false;
 
-		for (Iterator iter = thumbnailIds.iterator(); iter.hasNext();) {
-			Long id = (Long) iter.next();
-
+		for (Long id : thumbnailIds)
+		{
 			String thumbnailPath = getThumbnailPath(id);
 			file = new File(thumbnailPath);
-			if (file.exists()) {
+			if (file.exists())
+			{
 				success = file.delete();
-				if (!success) {
-					throw new InternalException("Thumbnail " + file.getName()
+				if (!success)
+				{
+					throw new ResourceError("Thumbnail " + file.getName()
 							+ " deletion failed");
-				} else {
-					if (log.isInfoEnabled()) {
+				}
+				else
+				{
+					if (log.isInfoEnabled())
+					{
 						log.info("INFO: Thumbnail " + file.getName()
 								+ " deleted.");
 					}
 				}
 			}
-
 		}
-
 	}
 }
