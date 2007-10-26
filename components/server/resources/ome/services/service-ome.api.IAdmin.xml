@@ -41,4 +41,28 @@
     <property name="target" ref="internal:ome.api.IAdmin"/>
   </bean>  
   
+  <bean id="flushAuthenticationCachesMethod" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="internal:ome.api.IAdmin" />
+    <property name="targetMethod" value="synchronizeLoginCache" />
+    <property name="concurrent" value="false" />
+  </bean>
+
+  <bean id="flushAuthenticationCachesTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    <property name="jobDetail" ref="flushAuthenticationCachesMethod" />
+    <property name="cronExpression" value="* 0,30 * * * ?" />
+  </bean>
+
+  <bean id="ticket813WorkaroundScheduler" lazy-init="false" 
+     class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+     <property name="triggers">
+      <list>
+        <ref bean="flushAuthenticationCachesTrigger"/>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="dummy" class="java.lang.ref.WeakReference" lazy-init="false">
+     <constructor-arg ref="ticket813WorkaroundScheduler"/>
+  </bean>
+  
 </beans>
