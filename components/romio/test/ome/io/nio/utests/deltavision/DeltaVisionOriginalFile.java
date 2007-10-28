@@ -6,6 +6,6 @@ class DeltaVisionOriginalFile extends OriginalFile
 {
 	public String getPath()
 	{
-		return "/Users/callan/testimages/Muscle_Matrix2_R3D.dv";
+		return "/Users/callan/testimages/01_R3D.dv";
 	}
 }
