@@ -10,21 +10,15 @@ package omeis.providers.re;
 // Java imports
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;// j.m
-import java.util.concurrent.Executors;// j.m
-import java.util.concurrent.Future;// j.m
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 // Third-party libraries
-
-// Application-internal dependencies
-// j.mimport ome.util.concur.tasks.CmdProcessor;
-// j.mimport ome.util.concur.tasks.Future;
-
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.Color;
-// j.mimport omeis.env.Env;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.Plane2D;

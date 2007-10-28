@@ -25,16 +25,12 @@ import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
 
-// j.mimport ome.util.concur.tasks.CmdProcessor;
-// j.mimport ome.util.concur.tasks.Future;
-
 import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.Color;
 
-// j.mimport omeis.env.Env;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.Plane2D;

@@ -307,7 +307,7 @@ public class PlaneDef implements Serializable {
                 buf.append("y=" + y);
                 break;
         }
-        buf.append(", timepoint: " + t);
+        buf.append(", t=" + t);
         return buf.toString();
     }
 

@@ -479,7 +479,7 @@ public class DeltaVision implements PixelBuffer {
 	 * Sets the sequence of the file. <b>Should be used for testing ONLY.</b>
 	 * @param sequence
 	 */
-	public void setSequence(int sequence)
+	public void setSequence(short sequence)
 	{
 		header.setSequence(sequence);
 	}

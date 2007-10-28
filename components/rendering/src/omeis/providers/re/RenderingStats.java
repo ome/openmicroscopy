@@ -15,7 +15,6 @@ import java.util.Map;
 // Third-party libraries
 
 // Application-internal dependencies
-// j.m import omeis.env.log.LogMessage;
 import omeis.providers.re.data.PlaneDef;
 
 /**
@@ -198,13 +197,11 @@ public class RenderingStats
      */
     public String getStats()
     {
-//CONTEXT-------OMEIS Pixels ID: 1Plane: Type: XY, z=38, timepoint: 0Plane Data: 512x512 PixelsType:Id_5Channels: 3Rendered Image: 786432 bytesColor Model: hsbCodomain maps: IdentityMap.
-//TIMES (ms)----------Memory Allocation: 0I/O: 2 -> c=2:0 c=1:2 c=0:0 Rendering: 47Total: 49
-		String a = "--------------- RENDERING STATS ---------------\n";
+	String a = "--------------- RENDERING STATS ---------------\n";
     	a += String.format(
     			"CONTEXT ---- OMEIS Pixels ID: %d Plane: %s Type: %s " +
     			"PlaneData: %s Channels: %d Renderered Image: %s " +
-    			"Color Model: %s Maps: %s",
+    			"Color Model: %s Maps: %s\n",
     				context.getMetadata().getId(),
     				plane,
     				context.getPlaneDimsAsString(plane),
@@ -213,10 +210,9 @@ public class RenderingStats
     				context.getImageSize(plane),
     				context.getRenderingDef().getModel().getValue(),
     				context.getCodomainChain());
-    	a += "\n";
     	a += String.format(
     			"TIMES (ms) ---- Memory Allocation: %d I/O: %s " +
-    			"Rendering: %d Total: %d",
+    			"Rendering: %d Total: %d\n",
     				mallocTime,
     				getIoTimeString(),
     				renderingTime,
