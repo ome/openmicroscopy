@@ -19,14 +19,18 @@
 
     <macrodef name="autogen">
         <attribute name="file" default="${basedir}/../autogen.sh"/>
+        <attribute name="icehome" default="${make.ICE_HOME}"/>
+        <attribute name="ldflags" default="${make.LDFLAGS} ${make.MAC_UNIVERSAL}"/>
+        <attribute name="cxxflags" default="${make.CXXFLAGS} ${make.MAC_UNIVERSAL}"/>
+        <attribute name="other" default="${make.MAC_TRACKING}"/>
         <sequential>
         <exec executable="@{file}" failonerror="true">
             <arg value="--with-ice=${make.ICE_HOME}"/>
             <arg value="--prefix=${make.DESTDIR}"/>
-            <arg value="LDFLAGS=${make.LDFLAGS} ${make.MAC_UNIVERSAL}"/>
-            <arg value="CXXFLAGS=${make.CXXFLAGS} ${make.MAC_UNIVERSAL}"/>
-            <arg line="${make.MAC_TRACKING}"/>
             <arg value="CXX=${make.CXX}"/>
+            <arg value="CXXFLAGS=@{ldflags}"/>
+            <arg value="LDFLAGS=@{ldflags}"/>
+            <arg line="@{other}"/>
         </exec>
         </sequential>
     </macrodef>
@@ -41,6 +45,10 @@
         </exec>
         </sequential>
     </macrodef>
+
+    <target name="make-autogen" unless="make.NOMAKE">
+        <autogen/>
+    </target>
 
     <target name="make-build" unless="make.NOMAKE">
         <autogen/>
