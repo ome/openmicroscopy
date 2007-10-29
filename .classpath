@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" output="target/eclipse-server" path="components/server/src"/>
+	<classpathentry kind="src" path="components/rendering/target/generated/src"/>
+	<classpathentry kind="src" path="components/rendering/src"/>
+	<classpathentry kind="src" path="components/rendering/resources"/>
+	<classpathentry kind="src" path="components/rendering/target/generated/resources"/>
 	<classpathentry kind="src" path="components/tools/licenses/target/generated/src"/>
 	<classpathentry kind="src" path="components/tools/licenses/test"/>
 	<classpathentry kind="src" path="components/tools/licenses/resources"/>
@@ -65,7 +69,6 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/postgresql.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/qdox.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/quartz.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/rendering.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/romio.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/spring.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/spring-mock.jar"/>

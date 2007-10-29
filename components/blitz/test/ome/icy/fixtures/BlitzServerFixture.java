@@ -8,18 +8,16 @@ package ome.icy.fixtures;
 import java.util.HashMap;
 import java.util.Map;
 
+import ome.api.IAdmin;
+import ome.api.IQuery;
+import ome.api.IUpdate;
 import ome.api.RawPixelsStore;
-import ome.api.local.LocalAdmin;
-import ome.api.local.LocalQuery;
-import ome.api.local.LocalUpdate;
-import ome.security.MethodSecurity;
-import ome.security.SecuritySystem;
 import ome.services.blitz.Main;
 import ome.services.blitz.Router;
 import ome.services.blitz.client.IceServiceFactory;
 import ome.system.OmeroContext;
 import ome.system.Roles;
-import ome.tools.spring.StubBeanPostProcessor;
+import ome.tools.spring.ManagedServiceFactory;
 import omeis.providers.re.RenderingEngine;
 import omero.api.ServiceFactoryPrx;
 
@@ -36,22 +34,9 @@ public class BlitzServerFixture extends MockObjectTestCase {
 
     private static final Log log = LogFactory.getLog(BlitzServerFixture.class);
 
-    private static final Map<String, Object> STUBS = StubBeanPostProcessor.stubs;
+    private final Map<String, Object> STUBS = new HashMap<String, Object>();
 
-    private static final Map<String, Mock> MOCKS = new HashMap<String, Mock>();
-
-    public void addMock(String name, Class iface) {
-        MOCKS.put(name, mock(iface));
-        STUBS.put(name, MOCKS.get(name).proxy());
-    }
-
-    public Mock getMock(String name) {
-        return MOCKS.get(name);
-    }
-
-    public Object getStub(String name) {
-        return STUBS.get(name);
-    }
+    private final Map<String, Mock> MOCKS = new HashMap<String, Mock>();
 
     // Name used to look up the test context.
     static String DEFAULT = "OMERO.blitz.test";
@@ -60,70 +45,85 @@ public class BlitzServerFixture extends MockObjectTestCase {
     Main m;
     Router r;
     IceServiceFactory ice;
+    OmeroContext ctx;
 
-    int sessionTimeout = 30, serviceTimeout = 10;
+    int sessionTimeout;
+    int serviceTimeout;
 
     // Keys for the mocks that are known to be needed
-    String adm = "internal:ome.api.IAdmin", qu = "internal:ome.api.IQuery",
-            up = "internal:ome.api.IUpdate", ss = "securitySystem",
+    final static String adm = "internal:ome.api.IAdmin",
+            qu = "internal:ome.api.IQuery", up = "internal:ome.api.IUpdate",
+            ss = "securitySystem",
             re = "managed:omeis.providers.re.RenderingEngine",
             px = "internal:ome.api.RawPixelsStore", ms = "methodSecurity";
 
-    public Mock getAdmin() {
-        return MOCKS.get(adm);
-    }
-
-    public Mock getQuery() {
-        return MOCKS.get(qu);
-    }
-
-    public Mock getUpdate() {
-        return MOCKS.get(up);
-    }
-
-    public Mock getSecSystem() {
-        return MOCKS.get(ss);
-    }
-
-    public Mock getRndEngine() {
-        return MOCKS.get(re);
-    }
-
-    public Mock getPixelsStore() {
-        return MOCKS.get(px);
-    }
-
-    public Mock getMethodSecurity() {
-        return MOCKS.get(ms);
-    }
-
-    public void setSessionTimeout(int st) {
-        sessionTimeout = st;
-    }
-
-    public void setServiceTimeout(int st) {
-        serviceTimeout = st;
-    }
-
     public BlitzServerFixture() {
-        this(DEFAULT);
+        this(DEFAULT, 30, 10);
+    }
+
+    public BlitzServerFixture(int sessionTimeout, int serviceTimeout) {
+        this(DEFAULT, sessionTimeout, serviceTimeout);
+
     }
 
     public BlitzServerFixture(String contextName) {
-        this.name = contextName;
-        // Stubs will be replaced by the bean post processor
-        addMock(adm, LocalAdmin.class);
-        addMock(qu, LocalQuery.class);
-        addMock(up, LocalUpdate.class);
-        addMock(ss, SecuritySystem.class);
-        addMock(re, RenderingEngine.class);
-        addMock(ms, MethodSecurity.class);
-        addMock(px, RawPixelsStore.class);
+        this(contextName, 30, 10);
     }
 
-    public void startServer() {
+    /** It is important to have the timeouts set before context creation */
+    public BlitzServerFixture(String contextName, int sessionTimeout,
+            int serviceTimeout) {
+
+        this.name = contextName;
+        this.serviceTimeout = serviceTimeout;
+        this.sessionTimeout = sessionTimeout;
+
         // Set property before the OmeroContext is created
         System.setProperty("omero.blitz.cache.timeToIdle", "" + serviceTimeout);
+
+        ctx = OmeroContext.getInstance(name);
+        ctx.close();
+        startServer();
+
+        ManagedServiceFactory stubs = new ManagedServiceFactory();
+        stubs.setApplicationContext(ctx);
+        MockServiceFactory mocks = new MockServiceFactory();
+        mocks.setApplicationContext(ctx);
+
+        Mock mock;
+        Object stub;
+
+        mock = mocks.getMockByClass(IAdmin.class);
+        stub = stubs.getAdminService();
+        addMock(adm, mock, stub);
+
+        mock = mocks.getMockByClass(IQuery.class);
+        stub = stubs.getQueryService();
+        addMock(qu, mock, stub);
+
+        mock = mocks.getMockByClass(IUpdate.class);
+        stub = stubs.getUpdateService();
+        addMock(up, mock, stub);
+
+        mock = mocks.getMockByClass(RenderingEngine.class);
+        stub = stubs.createRenderingEngine();
+        addMock(re, mock, stub);
+
+        mock = mocks.getMockByClass(RawPixelsStore.class);
+        stub = stubs.createRawPixelsStore();
+        addMock(px, mock, stub);
+
+        mock = (Mock) ctx.getBean("methodMock");
+        stub = ctx.getBean("methodSecurity");
+        addMock(ms, mock, stub);
+
+        mock = (Mock) ctx.getBean("securityMock");
+        stub = ctx.getBean("securitySystem");
+        addMock(ss, mock, stub);
+
+    }
+
+    private void startServer() {
 
         m = new Main(name);
         t = new Thread(m);
@@ -173,13 +173,75 @@ public class BlitzServerFixture extends MockObjectTestCase {
         try {
             super.tearDown();
         } finally {
-            Ice.Communicator ic = (Ice.Communicator) OmeroContext.getInstance(
-                    name).getBean("Ice.Communicator");
-            m.stop();
+            m.setStop();
+            try {
+                Thread.sleep(2L);
+            } catch (InterruptedException ie) {
+                // ok
+            }
+            m.shutdown();
         }
     }
 
     public OmeroContext getContext() {
-        return OmeroContext.getInstance(name);
+        return ctx;
+    }
+
+    // MOCK MANAGEMENT
+
+    private void addMock(String name, Mock mock, Object proxy) {
+        if (MOCKS.containsKey(name)) {
+            throw new RuntimeException(name + " already exists.");
+        }
+        MOCKS.put(name, mock);
+        STUBS.put(name, proxy);
+    }
+
+    public Mock getMock(String name) {
+        return MOCKS.get(name);
+    }
+
+    public Object getStub(String name) {
+        return STUBS.get(name);
+    }
+
+    public Mock getAdmin() {
+        return MOCKS.get(adm);
+    }
+
+    public Mock getQuery() {
+        return MOCKS.get(qu);
+    }
+
+    public Mock getUpdate() {
+        return MOCKS.get(up);
+    }
+
+    public Mock getSecSystem() {
+        return MOCKS.get(ss);
+    }
+
+    public Mock getRndEngine() {
+        return MOCKS.get(re);
+    }
+
+    public Mock getPixelsStore() {
+        return MOCKS.get(px);
+    }
+
+    public Mock getMethodSecurity() {
+        return MOCKS.get(ms);
+    }
+}
+
+class MockServiceFactory extends ManagedServiceFactory {
+
+    @Override
+    protected String getPrefix() {
+        return "mock:";
+    }
+
+    public Mock getMockByClass(Class klass) {
+        return (Mock) ctx.getBean(getPrefix() + klass.getName());
     }
 }

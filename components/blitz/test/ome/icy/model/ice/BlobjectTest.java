@@ -15,7 +15,6 @@ import omero.ResourceError;
 import omero.api.IQueryPrx;
 import omero.api.IQueryPrxHelper;
 import omero.model.IObject;
-import omero.model.Image;
 import omero.model.ImageI;
 import omero.util.ObjectFactoryRegistrar;
 
@@ -72,7 +71,7 @@ public class BlobjectTest extends IceTest {
                 Ice.OutputStream out = Ice.Util
                         .createOutputStream(communicator);
                 try {
-                    if (false /*exceptional case*/) {
+                    if (false /* exceptional case */) {
                         ResourceError re = new ResourceError();
                         out.writeException(re);
                         outParams.value = out.finished();
@@ -109,14 +108,14 @@ public class BlobjectTest extends IceTest {
             out.writeObject(new ImageI());
             out.writePendingObjects();
             cb.ice_response(true, out.finished());
-            //out.writeException(new ResourceError());
-            //cb.ice_response(false, out.finished());
+            // out.writeException(new ResourceError());
+            // cb.ice_response(false, out.finished());
             out.destroy();
         }
 
     }
 
-    public synchronized S s(Ice.Object obj) throws Exception {
+    protected synchronized S s(Ice.Object obj) throws Exception {
 
         S s = new S();
         s.port = S.PORT++;
@@ -132,8 +131,9 @@ public class BlobjectTest extends IceTest {
         id.properties.setProperty("OA.EndPoints", endpoint);
         id.properties.setProperty("Ice.ImplicitContext", "Shared");
         s.ic = Ice.Util.initialize(id);
-        s.ic.getImplicitContext().setContext( context );
-        ObjectFactoryRegistrar.registerObjectFactory(s.ic, ObjectFactoryRegistrar.INSTANCE);
+        s.ic.getImplicitContext().setContext(context);
+        ObjectFactoryRegistrar.registerObjectFactory(s.ic,
+                ObjectFactoryRegistrar.INSTANCE);
         s.oa = s.ic.createObjectAdapterWithEndpoints("OA", endpoint);
         s.oa.add(obj, Util.stringToIdentity("B"));
         s.oa.activate();
@@ -144,6 +144,7 @@ public class BlobjectTest extends IceTest {
     S s1, s2;
     IQueryPrx query, aQuery;
 
+    @Override
     @BeforeMethod
     public void setUp() throws Exception {
         s1 = s(new BA());
@@ -170,6 +171,7 @@ public class BlobjectTest extends IceTest {
         aQuery.find("Image", 1L);
     }
 
+    @Override
     @AfterMethod
     public void tearDown() throws Exception {
         s1.shutdown();

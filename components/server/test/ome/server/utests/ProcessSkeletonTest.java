@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  */
-@Test(groups = "jobs")
+@Test(groups = {"jobs","ignore"})
 public class ProcessSkeletonTest extends MockObjectTestCase {
 
     private Process process;

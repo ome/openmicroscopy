@@ -7,30 +7,23 @@
 package ome.icy.model.itests.manual;
 
 import ome.icy.fixtures.BlitzServerFixture;
-import ome.services.blitz.Status;
 
+import org.jmock.MockObjectTestCase;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
-public class StatusTest extends MockedBlitzTest {
+@Test(groups = { "integration", "manual" })
+public class MockedBlitzTest extends MockObjectTestCase {
 
-    BlitzServerFixture fixture;
+    public BlitzServerFixture fixture;
 
     @Override
     @AfterMethod
     public void tearDown() throws Exception {
-        fixture.tearDown();
-        fixture = null;
-    }
-
-    @Test
-    public void testStatus() throws Exception {
-
-        fixture = new BlitzServerFixture();
-
-        String[] args = new String[] {};
-        Status status = new Status(args);
-        status.run();
+        if (fixture != null) {
+            fixture.tearDown();
+            fixture = null;
+        }
     }
 
 }

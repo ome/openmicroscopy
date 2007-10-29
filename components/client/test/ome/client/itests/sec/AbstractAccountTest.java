@@ -6,10 +6,6 @@
  */
 package ome.client.itests.sec;
 
-import org.jboss.util.id.GUID;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.testng.annotations.*;
-
 import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IUpdate;
@@ -18,6 +14,11 @@ import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 import ome.system.Login;
 import ome.system.ServiceFactory;
+
+import org.jboss.util.id.GUID;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 @Test(groups = { "client", "integration", "security", "ticket:181",
         "ticket:199", "password" })
@@ -44,6 +45,7 @@ public class AbstractAccountTest extends AbstractSecurityTest {
         sudo_name = sudo.getOmeName();
         resetPasswordTo_ome(sudo);
         assertCanLogin(sudo_name, "ome");
+        assertCannotLogin(sudo_name, "bob");
     }
 
     // ~ Helpers
@@ -95,8 +97,8 @@ public class AbstractAccountTest extends AbstractSecurityTest {
             return jdbc.queryForObject(
                     "select hash from password " + "where experimenter_id = ?",
                     String.class, e.getId()).trim(); // TODO remove trim in
-                                                        // sync with
-                                                        // JBossLoginModule
+            // sync with
+            // JBossLoginModule
         } catch (EmptyResultDataAccessException ex) {
             return null;
         }
@@ -151,6 +153,10 @@ public class AbstractAccountTest extends AbstractSecurityTest {
         }
         dataSource.getConnection().commit();
         rootAdmin.synchronizeLoginCache();
+
+        if (count < 1) {
+            throw new RuntimeException("No row inserted during null entry.");
+        }
     }
 
     protected void assertCanLogin(String name, String password) {
@@ -162,6 +168,7 @@ public class AbstractAccountTest extends AbstractSecurityTest {
     }
 
     protected void assertLogin(String name, String password, boolean works) {
+        rootAdmin.synchronizeLoginCache();
         try {
             new ServiceFactory(new Login(name, password)).getQueryService()
                     .get(Experimenter.class, 0L);

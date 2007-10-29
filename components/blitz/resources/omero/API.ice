@@ -295,6 +295,7 @@ module omero {
 	void removeCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
 	void saveCurrentSettings() throws ServerError;
 	void resetDefaults() throws ServerError;      
+	void resetDefaultsNoSave() throws ServerError;      
 	void setCompressionLevel(float percentage) throws ServerError;
 	float getCompressionLevel() throws ServerError;
       };

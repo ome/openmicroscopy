@@ -36,7 +36,7 @@ import org.testng.annotations.Test;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-@Test(groups = { "jobs", "integration" })
+@Test(groups = { "jobs", "integration", "ignore"} )
 public class JobHandleTest extends TestCase {
 
     protected ManagedContextFixture fixture;

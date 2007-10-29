@@ -28,7 +28,7 @@ import org.springframework.context.support.StaticApplicationContext;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
-@Test(groups = { "unit", "aop", "ejb" })
+@Test(groups = { "unit", "aop", "ejb", "broken" })
 public class AOPAdapterTest extends MockObjectTestCase {
 
     // This overrides the ejb/resources/ejb.properties settings

@@ -12,48 +12,30 @@ import ome.icy.fixtures.BlitzServerFixture;
 import omero.api.RenderingEnginePrx;
 import omero.api.ServiceFactoryPrx;
 
-import org.jmock.MockObjectTestCase;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-@Test( groups = {"integration","manual"})
-public class RegisteredServicesTest extends MockObjectTestCase {
+public class RegisteredServicesTest extends MockedBlitzTest {
 
-	BlitzServerFixture fixture;
-
-	@BeforeTest
-	public void setUp() throws Exception {
-		fixture = new BlitzServerFixture();
-	}
-	
-	@AfterTest
-	public void tearDown() throws Exception {
-		fixture.tearDown();
-	}
-    
     @Test
     public void testkeepAllAliveAndkeepAliveWorkAfterPause() throws Exception {
-    	fixture.setServiceTimeout(2);
-    	fixture.setSessionTimeout(200); // this is not what we're testing
 
-    	fixture.methodCall();
-    	fixture.startServer();
+        fixture = new BlitzServerFixture(200 /* not under test */, 2);
+        fixture.methodCall();
 
-    	ServiceFactoryPrx session = fixture.createSession();
-    	
+        ServiceFactoryPrx session = fixture.createSession();
+
         RenderingEnginePrx prx1 = session.createRenderingEngine();
         RenderingEnginePrx prx2 = session.createRenderingEngine();
-        
+
         List<String> idsA = session.activeServices();
-        
+
         prx1.close();
-        
+
         List<String> idsB = session.activeServices();
-        
+
         assertTrue(idsA.size() == 2);
         assertTrue(idsB.size() == 1);
 
     }
-        
+
 }

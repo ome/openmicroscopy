@@ -8,8 +8,6 @@
 package ome.adapters.pojos.itests;
 
 // Java imports
-import org.testng.annotations.*;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,21 +17,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
-
-// Application-internal dependencies
 import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IUpdate;
-import ome.parameters.Parameters;
-import ome.system.Login;
-import ome.system.ServiceFactory;
 import ome.conditions.ApiUsageException;
 import ome.conditions.OptimisticLockException;
 import ome.model.ILink;
@@ -50,15 +39,22 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.parameters.Parameters;
+import ome.system.Login;
+import ome.system.ServiceFactory;
 import ome.testing.CreatePojosFixture;
 import ome.testing.OMEData;
 import ome.testing.Paths;
 import ome.util.CBlock;
 import ome.util.IdBlock;
 import ome.util.builders.PojoOptions;
-
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -100,6 +96,7 @@ public class PojosServiceTest extends TestCase {
 
     DatasetData dsData;
 
+    @Override
     @Configuration(beforeTestClass = true)
     protected void setUp() throws Exception {
         data = (OMEData) factory.getContext().getBean("data");
@@ -146,11 +143,11 @@ public class PojosServiceTest extends TestCase {
         imgData = simpleImageData();
         img = (Image) imgData.asIObject();
 
-        img = (Image) iPojos.createDataObject(img, null);
+        img = iPojos.createDataObject(img, null);
         assertNotNull("We should get something back", img);
         assertNotNull("Should have an id", img.getId());
 
-        Image img2 = (Image) iQuery.get(Image.class, img.getId().longValue());
+        Image img2 = iQuery.get(Image.class, img.getId().longValue());
         assertNotNull("And we should be able to find it again.", img2);
 
     }
@@ -177,13 +174,13 @@ public class PojosServiceTest extends TestCase {
     public void testButWeHaveToHandleTheVersions() throws Exception {
         Image img = new Image();
         img.setName("version handling");
-        Image sent = (Image) iUpdate.saveAndReturnObject(img);
+        Image sent = iUpdate.saveAndReturnObject(img);
 
         sent.setDescription(" veresion handling update");
         Integer version = sent.getVersion();
 
         // Version incremented
-        Image sent2 = (Image) iUpdate.saveAndReturnObject(sent);
+        Image sent2 = iUpdate.saveAndReturnObject(sent);
         Integer version2 = sent2.getVersion();
         assertTrue(!version.equals(version2));
 
@@ -213,11 +210,11 @@ public class PojosServiceTest extends TestCase {
         img = (Image) imgData.asIObject();
 
         assertNull("Image doesn't have an id.", img.getId());
-        img = (Image) iPojos.createDataObject(img, null);
+        img = iPojos.createDataObject(img, null);
         assertNotNull("Presto change-o, now it does.", img.getId());
         iPojos.deleteDataObject(img, null);
 
-        img = (Image) iQuery.find(Image.class, img.getId().longValue());
+        img = iQuery.find(Image.class, img.getId().longValue());
         assertNull("we should have deleted it ", img);
 
     }
@@ -269,9 +266,9 @@ public class PojosServiceTest extends TestCase {
                 target).iterator().next();
 
         img.unlinkDataset(target);
-        img = (Image) iPojos.updateDataObject(img, null);
+        img = iPojos.updateDataObject(img, null);
 
-        ILink test = (ILink) iQuery.find(DatasetImageLink.class, dslink.getId()
+        ILink test = iQuery.find(DatasetImageLink.class, dslink.getId()
                 .longValue());
         assertNull(test);
 
@@ -280,8 +277,8 @@ public class PojosServiceTest extends TestCase {
         d.setName("unlinking");
         Project p = new Project();
         p.setName("unlinking");
-        p = (Project) iPojos.createDataObject(p, null);
-        d = (Dataset) iPojos.createDataObject(d, null);
+        p = iPojos.createDataObject(p, null);
+        d = iPojos.createDataObject(d, null);
 
         ProjectDatasetLink link = new ProjectDatasetLink();
         link.setParent(p);
@@ -297,8 +294,8 @@ public class PojosServiceTest extends TestCase {
 
         iPojos.updateDataObject(img, null);
 
-        DatasetImageLink test = (DatasetImageLink) iQuery.find(
-                DatasetImageLink.class, link.getId().longValue());
+        DatasetImageLink test = iQuery.find(DatasetImageLink.class, link
+                .getId().longValue());
 
         assertNull(test);
 
@@ -308,7 +305,7 @@ public class PojosServiceTest extends TestCase {
         imgData = simpleImageDataWithDatasets();
         img = (Image) imgData.asIObject();
 
-        img = (Image) iUpdate.saveAndReturnObject(img);
+        img = iUpdate.saveAndReturnObject(img);
         assertTrue("It better have a dataset link",
                 img.sizeOfDatasetLinks() > 0);
     }
@@ -378,7 +375,7 @@ public class PojosServiceTest extends TestCase {
 
     @Test
     public void test_retrieveCollection() throws Exception {
-        Image i = (Image) iQuery.get(Image.class, fixture.iu5551.getId());
+        Image i = iQuery.get(Image.class, fixture.iu5551.getId());
         i.unload();
         Set annotations = (Set) iPojos.retrieveCollection(i, Image.ANNOTATIONS,
                 null);
@@ -393,7 +390,7 @@ public class PojosServiceTest extends TestCase {
         results = iPojos.findCGCPaths(ids, IPojos.DECLASSIFICATION, null);
     }
 
-    @Test
+    @Test(groups = "broken")
     public void test_findCGCPaths_declass() throws Exception {
         Paths paths = new Paths(data.get("CGCPaths.all"));
         Set de = iPojos.findCGCPaths(paths.uniqueImages(),
@@ -447,8 +444,7 @@ public class PojosServiceTest extends TestCase {
             }
         }
 
-        assert targetPath != null :     
-            "No valid category group found for classification test.";
+        assert targetPath != null : "No valid category group found for classification test.";
 
         Set single = Collections.singleton(targetPath[Paths.I.intValue()]);
         Set me = iPojos.findCGCPaths(single, IPojos.CLASSIFICATION_ME, null);
@@ -608,7 +604,7 @@ public class PojosServiceTest extends TestCase {
     @Test(groups = { "broken", "ticket:334" })
     public void testAndForTheFunOfItLetsGetTheREWorking() throws Exception {
 
-        Pixels pix = (Pixels) iQuery.findAll(Pixels.class, null).get(0);
+        Pixels pix = iQuery.findAll(Pixels.class, null).get(0);
         IPixels pixDB = factory.getPixelsService();
         RenderingEngine re = factory.createRenderingEngine();
         re.lookupPixels(pix.getId());
@@ -630,9 +626,9 @@ public class PojosServiceTest extends TestCase {
     public void test_version_doesnt_increase_on_non_change() throws Exception {
         Image img = new Image();
         img.setName(" no vers. increment ");
-        img = (Image) iUpdate.saveAndReturnObject(img);
+        img = iUpdate.saveAndReturnObject(img);
 
-        Image test = (Image) iUpdate.saveAndReturnObject(img);
+        Image test = iUpdate.saveAndReturnObject(img);
 
         fail("must move details correction to the merge event listener "
                 + "or version will always be incremented. ");
@@ -651,7 +647,7 @@ public class PojosServiceTest extends TestCase {
         ann.setContent("version_test");
         img.addImageAnnotation(ann);
 
-        img = (Image) iUpdate.saveAndReturnObject(img);
+        img = iUpdate.saveAndReturnObject(img);
         ann = (ImageAnnotation) img.iterateAnnotations().next();
 
         assertNotNull(img.getId());
@@ -662,7 +658,7 @@ public class PojosServiceTest extends TestCase {
 
         ann.setContent("updated version_test");
 
-        ann = (ImageAnnotation) iUpdate.saveAndReturnObject(ann);
+        ann = iUpdate.saveAndReturnObject(ann);
         img = ann.getImage();
 
         int new_ann_version = ann.getVersion().intValue();
@@ -688,13 +684,14 @@ public class PojosServiceTest extends TestCase {
 
         PojoOptions po = new PojoOptions().leaves();
         counts = getCounts(Dataset.class, fixture.du7770.getId(), po.map());
-        assertTrue(counts == null || null == counts.get(Image.ANNOTATIONS));
-        assertTrue(counts == null || null == counts.get(Dataset.ANNOTATIONS));
+        assertTrue(counts == null || null == counts.get(ImageAnnotation.IMAGE));
+        assertTrue(counts == null
+                || null == counts.get(DatasetAnnotation.DATASET));
 
         counts = getCounts(Dataset.class, fixture.du7771.getId(), null);
-        assertNull(counts.get(Image.ANNOTATIONS));
-        assertTrue(counts.containsKey(Dataset.ANNOTATIONS));
-        assertTrue(((Long) counts.get(Dataset.ANNOTATIONS)).intValue() == 1);
+        assertNull(counts.get(ImageAnnotation.IMAGE));
+        assertTrue(counts.containsKey(DatasetAnnotation.DATASET));
+        assertTrue(((Long) counts.get(DatasetAnnotation.DATASET)).intValue() == 1);
 
     }
 
@@ -718,7 +715,7 @@ public class PojosServiceTest extends TestCase {
         // Save Project.
         Project p = new Project();
         p.setName(name);
-        p = (Project) iUpdate.saveAndReturnObject(p);
+        p = iUpdate.saveAndReturnObject(p);
 
         // Check only one
         List list = iQuery.findAllByString(Project.class, "name", name, true,
@@ -733,7 +730,7 @@ public class PojosServiceTest extends TestCase {
         assertEquals(p.getId().intValue(), pd.getId());
         assertEquals(send.getId().intValue(), pd.getId());
 
-        Project result = (Project) iPojos.updateDataObject(send, null);
+        Project result = iPojos.updateDataObject(send, null);
         ProjectData test = new ProjectData(result);
         assertEquals(test.getId(), p.getId().intValue());
 
@@ -756,7 +753,7 @@ public class PojosServiceTest extends TestCase {
 
         img.linkDataset(ds);
 
-        img = (Image) iUpdate.saveAndReturnObject(img);
+        img = iUpdate.saveAndReturnObject(img);
         ds = (Dataset) img.linkedDatasetIterator().next();
 
         List imgLinks = iQuery.findAllByQuery(DatasetImageLink.class.getName(),
@@ -808,7 +805,7 @@ public class PojosServiceTest extends TestCase {
         // Setup: original is our in-memory, used every where object.
         Dataset original = new Dataset();
         original.setName(" two rows ");
-        original = (Dataset) iPojos.createDataObject(original, null);
+        original = iPojos.createDataObject(original, null);
         DatasetData annotatedObject = new DatasetData(original);
         Dataset annotated = (Dataset) iPojos.updateDataObject(annotatedObject
                 .asIObject(), null);
@@ -818,8 +815,7 @@ public class PojosServiceTest extends TestCase {
         annotation.setDataset(annotated);
 
         // CGLIB
-        DatasetAnnotation object = (DatasetAnnotation) iPojos.createDataObject(
-                annotation, null);
+        DatasetAnnotation object = iPojos.createDataObject(annotation, null);
         DataObject returnedToUser = new AnnotationData(object);
 
         // Now working but iPojos is still returning a CGLIB class.
@@ -837,7 +833,7 @@ public class PojosServiceTest extends TestCase {
         // Setup: original is our in-memory, used every where object.
         Dataset original = new Dataset();
         original.setName(name);
-        original = (Dataset) iPojos.createDataObject(original, null);
+        original = iPojos.createDataObject(original, null);
 
         assertTrue(original.getDetails().getCounts() == null
                 || original.getDetails().getCounts().get(Dataset.ANNOTATIONS) == null);
@@ -848,22 +844,20 @@ public class PojosServiceTest extends TestCase {
         annotation.setContent(text);
         annotation.setDataset(original);
 
-        annotation = (DatasetAnnotation) iPojos.createDataObject(annotation,
-                null);
+        annotation = iPojos.createDataObject(annotation, null);
         original = annotation.getDataset(); // TODO is this okay?
 
         assertUniqueAnnotationCreation(name, text);
 
-        Dataset test = (Dataset) iQuery.get(Dataset.class, original.getId()
-                .longValue());
+        Dataset test = iQuery.get(Dataset.class, original.getId().longValue());
 
         assertTrue(desc.equals(test.getDescription()));
 
         assertNotNull(original.getDetails().getCounts());
-        assertNotNull(original.getDetails().getCounts()
-                .get(Dataset.ANNOTATIONS));
+        assertNotNull(original.getDetails().getCounts().get(
+                DatasetAnnotation.DATASET));
         assertTrue(((Long) original.getDetails().getCounts().get(
-                Dataset.ANNOTATIONS)).intValue() > 0);
+                DatasetAnnotation.DATASET)).intValue() > 0);
 
         if (log.isDebugEnabled()) {
             log.debug(original.getDetails().getCounts());
@@ -877,15 +871,15 @@ public class PojosServiceTest extends TestCase {
         Project p = new Project();
         p.setName(name);
 
-        p = (Project) iPojos.createDataObject(p, null);
+        p = iPojos.createDataObject(p, null);
 
         Dataset d1 = new Dataset();
         d1.setName(name);
-        d1 = (Dataset) iPojos.createDataObject(d1, null);
+        d1 = iPojos.createDataObject(d1, null);
 
         Dataset d2 = new Dataset();
         d2.setName(name);
-        d2 = (Dataset) iPojos.createDataObject(d2, null);
+        d2 = iPojos.createDataObject(d2, null);
 
         ProjectDatasetLink l1 = new ProjectDatasetLink();
         ProjectDatasetLink l2 = new ProjectDatasetLink();
@@ -899,7 +893,7 @@ public class PojosServiceTest extends TestCase {
         p.addProjectDatasetLink(l1, true);
         p.addProjectDatasetLink(l2, true);
 
-        p = (Project) iPojos.updateDataObject(p, null);
+        p = iPojos.updateDataObject(p, null);
 
         Iterator it = p.iterateDatasetLinks();
         while (it.hasNext()) {
@@ -918,17 +912,17 @@ public class PojosServiceTest extends TestCase {
 
         d1.setDescription(name);
 
-        Dataset test = (Dataset) iPojos.updateDataObject(d1, null);
+        Dataset test = iPojos.updateDataObject(d1, null);
 
-        ProjectDatasetLink link1 = (ProjectDatasetLink) iQuery.get(
-                ProjectDatasetLink.class, l1.getId().longValue());
+        ProjectDatasetLink link1 = iQuery.get(ProjectDatasetLink.class, l1
+                .getId().longValue());
 
         assertNotNull(link1);
         assertTrue(link1.parent().getId().equals(p.getId()));
         assertTrue(link1.child().getId().equals(d1.getId()));
 
-        ProjectDatasetLink link2 = (ProjectDatasetLink) iQuery.get(
-                ProjectDatasetLink.class, l2.getId().longValue());
+        ProjectDatasetLink link2 = iQuery.get(ProjectDatasetLink.class, l2
+                .getId().longValue());
 
         assertNotNull(link2);
         assertTrue(link2.parent().getId().equals(p.getId()));
@@ -947,7 +941,7 @@ public class PojosServiceTest extends TestCase {
         a.setDataset(d);
         a.setContent(string);
 
-        a = (DatasetAnnotation) iPojos.createDataObject(a, null);
+        a = iPojos.createDataObject(a, null);
 
         iPojos.deleteDataObject(a, null);
 
@@ -968,13 +962,13 @@ public class PojosServiceTest extends TestCase {
         p.setName(string);
 
         d.linkProject(p);
-        d = (Dataset) iPojos.createDataObject(d, null);
+        d = iPojos.createDataObject(d, null);
         Set orig_ids = new HashSet(d.collectProjectLinks(new IdBlock()));
 
         DatasetData dd = new DatasetData(d);
         Dataset toSend = dd.asDataset();
 
-        Dataset updated = (Dataset) iPojos.updateDataObject(toSend, null);
+        Dataset updated = iPojos.updateDataObject(toSend, null);
 
         Set updt_ids = new HashSet(updated.collectProjectLinks(new IdBlock()));
 
@@ -995,7 +989,7 @@ public class PojosServiceTest extends TestCase {
 
         Dataset d = new Dataset();
         d.setName(" update_annotation");
-        d = (Dataset) iPojos.createDataObject(d, null);
+        d = iPojos.createDataObject(d, null);
         annotatedObject = new DatasetData(d);
 
         data = new AnnotationData(AnnotationData.DATASET_ANNOTATION);
@@ -1025,10 +1019,9 @@ public class PojosServiceTest extends TestCase {
 
         p = iPojos.createDataObject(p, null);
 
-        ProjectData pd_test = new ProjectData((Project) iPojos
-                .loadContainerHierarchy(Project.class,
-                        Collections.singleton(p.getId()), null).iterator()
-                .next());
+        ProjectData pd_test = new ProjectData(iPojos.loadContainerHierarchy(
+                Project.class, Collections.singleton(p.getId()), null)
+                .iterator().next());
         DatasetData dd_test = (DatasetData) pd_test.getDatasets().iterator()
                 .next();
         pd_test.setDescription("new value:ui");

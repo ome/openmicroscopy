@@ -6,13 +6,13 @@
  */
 package ome.client.itests.sec;
 
-import org.jboss.util.id.GUID;
-import org.testng.annotations.*;
-
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.system.Login;
 import ome.system.ServiceFactory;
+
+import org.jboss.util.id.GUID;
+import org.testng.annotations.Test;
 
 @Test(groups = { "client", "integration", "security", "ticket:181",
         "ticket:199", "password" })
@@ -21,7 +21,11 @@ public class AccountCreationTest extends AbstractAccountTest {
     @Test
     public void testSudoCreatesAccountThroughIUpdate() throws Exception {
         Experimenter e = createNewUser(getSudoUpdate("ome"));
+
+        // passwords are no longer null by default
+        removePasswordEntry(e);
         assertNull(getPasswordFromDb(e));
+
         assertCannotLogin(e.getOmeName(), "ome");
         assertCannotLogin(e.getOmeName(), "");
 
