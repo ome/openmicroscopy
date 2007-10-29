@@ -10,9 +10,6 @@ package ome.system;
 // Java imports
 import java.util.Properties;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.api.IAdmin;
 import ome.api.IAnalysis;
 import ome.api.IConfig;
@@ -20,18 +17,16 @@ import ome.api.ILdap;
 import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
+import ome.api.IRenderingSettings;
 import ome.api.IRepositoryInfo;
-import ome.api.ThumbnailStore;
 import ome.api.ITypes;
 import ome.api.IUpdate;
 import ome.api.JobHandle;
 import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
-import ome.api.IRenderingSettings;
 import ome.api.ServiceInterface;
+import ome.api.ThumbnailStore;
 import ome.model.internal.Permissions;
-import ome.system.OmeroContext;
-
 import omeis.providers.re.RenderingEngine;
 
 /**
@@ -170,7 +165,7 @@ public class ServiceFactory {
 
     // ~ Stateless services
     // =========================================================================
-    
+
     public IAdmin getAdminService() {
         return getServiceByClass(IAdmin.class);
     }
@@ -178,11 +173,11 @@ public class ServiceFactory {
     public IAnalysis getAnalysisService() {
         return getServiceByClass(IAnalysis.class);
     }
-    
+
     public IConfig getConfigService() {
         return getServiceByClass(IConfig.class);
     }
-    
+
     public ILdap getLdapService() {
         return getServiceByClass(ILdap.class);
     }
@@ -210,17 +205,17 @@ public class ServiceFactory {
     public IRenderingSettings getRenderingSettingsService() {
         return getServiceByClass(IRenderingSettings.class);
     }
-    
+
     public IRepositoryInfo getRepositoryInfoService() {
         return getServiceByClass(IRepositoryInfo.class);
     }
-    
+
     // ~ Stateful services
     // =========================================================================
 
     /**
      * create a new {@link JobHandle} proxy. This proxy will have to be
-     * initialized using {@link JobHandle#attach(long)} or 
+     * initialized using {@link JobHandle#attach(long)} or
      * {@link JobHandle#submit(ome.model.jobs.Job)}.
      */
     public JobHandle createJobHandle() {
@@ -267,7 +262,7 @@ public class ServiceFactory {
      * looks up services based on the current {@link #getPrefix() prefix} and
      * the class name of the service type.
      */
-    protected <T extends ServiceInterface> T getServiceByClass(Class<T> klass) {
+    public <T extends ServiceInterface> T getServiceByClass(Class<T> klass) {
         return klass.cast(this.ctx.getBean(getPrefix() + klass.getName()));
     }
 
