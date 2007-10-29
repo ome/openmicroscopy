@@ -82,8 +82,7 @@ public class MacOSMenuHandler
 	}
 
 	/** 
-	 * Handles the selection of the <code>About</code> 
-	 * menu item.
+	 * Handles the selection of the <code>About</code> menu item.
 	 * @see ApplicationListener#handleAbout(ApplicationEvent)
 	 */
 	public void handleAbout(ApplicationEvent ae) 
@@ -95,14 +94,13 @@ public class MacOSMenuHandler
 	}
 
 	/** 
-	 * Handles the selection of the <code>About</code> 
-	 * menu item.
+	 * Handles the selection of the <code>Quit</code> menu item.
 	 * @see ApplicationListener#handleQuit(ApplicationEvent)
 	 */
 	public void handleQuit(ApplicationEvent ae)
 	{
 		if (parent != null) {
-			ae.setHandled(true);
+			ae.setHandled(false);
 			parent.firePropertyChange(QUIT_APPLICATION_PROPERTY, 0, 1);
 		}
 	}

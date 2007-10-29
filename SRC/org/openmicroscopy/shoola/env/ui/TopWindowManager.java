@@ -230,12 +230,13 @@ public class TopWindowManager
 		if (window == null)	throw new NullPointerException("No window.");
 		this.window = window;
 		if (displayButtons != null) {
-			ArrayList actualButtons = new ArrayList(displayButtons.length);
+			ArrayList<AbstractButton> 
+				buttons = new ArrayList<AbstractButton>(displayButtons.length);
 			for (int i = 0; i < displayButtons.length; ++i)
 				if (displayButtons[i] != null)
-					actualButtons.add(displayButtons[i]);
-			this.displayButtons = new AbstractButton[actualButtons.size()];
-			actualButtons.toArray(this.displayButtons);		
+					buttons.add(displayButtons[i]);
+			this.displayButtons = new AbstractButton[buttons.size()];
+			buttons.toArray(this.displayButtons);		
 		} else this.displayButtons = new AbstractButton[0];
 		setInitialState();
 		attachWindowListeners();

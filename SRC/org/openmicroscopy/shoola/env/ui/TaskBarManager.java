@@ -82,12 +82,6 @@ class TaskBarManager
 	implements AgentEventListener, PropertyChangeListener
 {
 
-	/** 
-	 * Identifies the mac platform to modify the behaviour of the
-	 * <code>About</code> and <code>Quit</code> menu items.
-	 */
-	private static final String		MRJ = "mrj.version";
-	
 	/** The name of the about file in the config directory. */
 	private static final String		ABOUT_FILE = "about.xml";
 	
@@ -480,9 +474,11 @@ class TaskBarManager
 				synchConnectionButtons();
 			}
 		});
+		/*
 		ActionListener exit = new ActionListener() {		
 			public void actionPerformed(ActionEvent ae) { doExit(); }
 		};
+		*/
 		//view.getButton(TaskBarView.EXIT_MI).addActionListener(exit);
 		//view.getButton(TaskBarView.EXIT_BTN).addActionListener(exit);
 	}
