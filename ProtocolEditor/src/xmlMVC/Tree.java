@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Stack;
 
 import javax.swing.JPanel;
 
@@ -18,16 +19,19 @@ import org.w3c.dom.NodeList;
 
 public class Tree implements Visitable{
 	
-	public static final int MOVE_FIELDS_UP = 0;
-	public static final int MOVE_FIELDS_DOWN = 1;
-	public static final int DELTE_FIELDS = 3;
-	public static final int DELETE_FIELDS_SAVE_CHILDREN = 4;
-	public static final int ADD_NEW_FIELD = 5;
-	public static final int DEMOTE_FIELDS = 6;
-	public static final int PROMOTE_FIELDS = 7;
-	public static final int DUPLICATE_FIELDS = 8;
-	public static final int COPY_FIELDS = 9;
-	public static final int PASTE_FIELDS = 10;
+	// this enum specifies a constructor that takes a String name, returned by toString();
+	public enum Actions {MOVE_FIELDS_UP("Move Fields Up"), MOVE_FIELDS_DOWN("Move Fields Down"), 
+		DELTE_FIELDS("Delete Fields"), ADD_NEW_FIELD("Add New Field"), DEMOTE_FIELDS("Demote Fields"), 
+		PROMOTE_FIELDS("Promote Fields"), DUPLICATE_FIELDS("Duplicate Fields"), COPY_FIELDS("Copy Fields"),
+		PASTE_FIELDS("Paste Fields"), UNDO_LAST_ACTION("Undo Last Action"), IMPORT_FIELDS("Import Fields");
+		private Actions(String name){
+			this.name = name;
+		}
+		private String name;
+		public String toString() {
+			return name;
+		}
+	}
 	
 	private DataFieldNode rootNode;		// the root of the dataField tree. 
 	
@@ -42,6 +46,8 @@ public class Tree implements Visitable{
 	
 	private SelectionObserver selectionObserver;
 	private XMLUpdateObserver xmlUpdateObserver;
+	
+	private Stack<TreeAction> undoActions = new Stack<TreeAction>();
 	
 	
 	public Tree(Document document, SelectionObserver selectionObserver, XMLUpdateObserver xmlObserver) {
@@ -84,52 +90,62 @@ public class Tree implements Visitable{
 		openBlankProtocolFile();
 	}
 	
+	public void undoEditTree() {
+		if (undoActions.isEmpty()) return;
+		undoActions.pop().undo();
+		setTreeEdited(true);
+	}
+	
 // use this entry point to access as many of the tree manipulation and data-structure commands as possible
-	public void editTree(int treeCommand) {
+	public void editTree(Actions action) {
 		
-		switch (treeCommand) {
+		if (action.equals(Actions.UNDO_LAST_ACTION)) {
+			System.out.println("Tree.editTree: Undo");
+			undoEditTree();
+			return;
+		}
+		
+		
+		switch (action) {
 		
 			case ADD_NEW_FIELD: {
 				addDataField();
-				return;
+				break;
 			}
 			case DELTE_FIELDS: {
-				deleteDataFields(false);
-				return;
-			}
-			case DELETE_FIELDS_SAVE_CHILDREN: {
-				deleteDataFields(true);
-				return;
+				deleteDataFields();
+				break;
 			}
 			case MOVE_FIELDS_UP: {
 				moveFieldsUp();
-				return;
+				break;
 			}
 			case MOVE_FIELDS_DOWN: {
 				moveFieldsDown();
-				return;
+				break;
 			}
 			case PROMOTE_FIELDS: {
 				promoteDataFields();
-				return;
+				break;
 			}
 			case DEMOTE_FIELDS: {
 				demoteDataFields();
-				return;
+				break;
 			}
 			case DUPLICATE_FIELDS: {
 				duplicateAndInsertDataFields();
-				return;
+				break;
 			}
 			case COPY_FIELDS: {
 				copyHighlightedFieldsToClipboard();
-				return;
+				break;
 			}
 			case PASTE_FIELDS: {
 				pasteClipboardFields();
-				return;
+				break;
 			}
 		}
+		
 	}
 
 	//	 start a blank protocol - used by "default" Tree constructor
@@ -140,7 +156,7 @@ public class Tree implements Visitable{
 		DataField rootField = rootNode.getDataField();
 		
 		rootField.changeDataFieldInputType(DataField.PROTOCOL_TITLE);
-		rootField.setName("Title - click to edit", true);
+		rootField.setName("Title - click to edit", false);
 		
 		DataFieldNode newNode = new DataFieldNode(this);// make a new default-type field
 		newNode.setParent(rootNode);
@@ -183,9 +199,15 @@ public class Tree implements Visitable{
 	private void copyHighlightedFieldsToClipboard() {
 		copiedToClipboardFields = new ArrayList<DataFieldNode>(highlightedFields);
 		}
-	// paste the clipboard fields (after the last currently selected field)
+	// paste the clipboard fields (after the last highlighted field)
 	private void pasteClipboardFields() {
-		copyAndInsertDataFields(copiedToClipboardFields);
+		if (copiedToClipboardFields.isEmpty()) return;
+		
+		copyAndInsertDataFields(copiedToClipboardFields, highlightedFields);
+		
+		// add the undo action 	// highlightedFields will now be the newly added fields
+		undoActions.push(new TreeAction(Actions.PASTE_FIELDS, highlightedFields));
+		setTreeEdited(true);
 	}
 	
 	public void multiplyValueOfSelectedFields(float factor) {
@@ -232,132 +254,221 @@ public class Tree implements Visitable{
 		// highlighted fields change while adding. Make a copy first
 		ArrayList<DataFieldNode> tempArray = new ArrayList<DataFieldNode>(highlightedFields);
 		
-		copyAndInsertDataFields(tempArray);
+		// add a copy of tempArray after highlightedFields
+		copyAndInsertDataFields(tempArray, highlightedFields);
+		
+		// add the undo action 	// highlightedFields will now be the newly added fields
+		undoActions.push(new TreeAction(Actions.DUPLICATE_FIELDS, highlightedFields));
+		setTreeEdited(true);
 	}
 
 	// duplicates all branches below oldNode, adding them to newNode
-	private void duplicateDataFieldTree(DataFieldNode oldNode, DataFieldNode newNode) {
+	private static void duplicateDataFieldTree(DataFieldNode oldNode, DataFieldNode newNode) {
 		
 		ArrayList<DataFieldNode> children = oldNode.getChildren();
 		if (children.size() == 0) return;
 			
-			for (DataFieldNode child: children){
+			for (DataFieldNode copyThisChild: children){
 			 
-				DataFieldNode newChild = new DataFieldNode(child, this);
-				newChild.setParent(newNode);
+				DataFieldNode newChild = new DataFieldNode(copyThisChild);
+				newChild.setParent(newNode);	// this will give newChild a ref to tree
 				
 				newNode.addChild(newChild);
 				
-				duplicateDataFieldTree(child, newChild);
+				duplicateDataFieldTree(copyThisChild, newChild);
 			}
 	}
 	
 	// add a blank dataField
 	private void addDataField() {
-		DataFieldNode newNode = new DataFieldNode(this);// make a new default-type field
-		addDataField(newNode);
-		
+		// add the undo action (include rootNode reference, in case no highlighted fields)
+		undoActions.push(new TreeAction(Actions.ADD_NEW_FIELD, highlightedFields, rootNode));
 		setTreeEdited(true);
+		
+		DataFieldNode newNode = new DataFieldNode(this);// make a new default-type field
+		addDataField(newNode);	// adds after last highlighted field, or last child of root
+		
 	}
 
+	// add the newNode as a child of parentNode at the specified index
+	public static void addDataField(DataFieldNode newNode, DataFieldNode parentNode, int indexToInsert) {
+		newNode.setParent(parentNode);
+		parentNode.addChild(indexToInsert, newNode);
+		System.out.println("Tree.addDataField(newNode, parentNode, indexToInsert): parent has " 
+				+ parentNode.getChildren().size() + " children");
+		System.out.println("Tree.addDataField newNode is at index " + newNode.getMyIndexWithinSiblings());
+	}
+	
 	//	 add a new dataField after the last highlighted dataField
 	private void addDataField(DataFieldNode newNode) {
 		
-		// get selected Fields and add dataField after last seleted one
+		// get selected Fields and add dataField after last selected one
 	
-		DataFieldNode lastDataField = null;
+		DataFieldNode parentNode = null;
+		int indexToInsert = 0;
 		
 		if (highlightedFields.size() > 0) {
-			lastDataField = highlightedFields.get(highlightedFields.size()-1);
+			indexToInsert = highlightedFields.get(highlightedFields.size()-1).getMyIndexWithinSiblings() + 1;
+			parentNode = highlightedFields.get(0).getParentNode();
 		} else {
 			// add after last child of protocol (if there are any!)
-			int numChildren = getRootNode().getChildren().size();
-			if (numChildren > 0) 
-				lastDataField = rootNode.getChild(numChildren - 1);
-			// otherwise, lastDataField is null, and new dataField will be 1st child of protocol
+			indexToInsert = getRootNode().getChildren().size();
+			parentNode = rootNode;
 		}
 		
-		// if no dataField selected (none exist!), add at top (1st child of protocol)
-		if (lastDataField == null) {
-			newNode.setParent(rootNode);
-			rootNode.addChild(newNode);
-		}
-		else {
-		// otherwise, add after the dataField.
-			DataFieldNode parentNode = lastDataField.getParentNode();
-			int indexToInsert = lastDataField.getMyIndexWithinSiblings() + 1;
-	
-			newNode.setParent(parentNode);
-			parentNode.addChild(indexToInsert, newNode);
-		}
+		addDataField(newNode, parentNode, indexToInsert);
+		
 		nodeSelected(newNode, true); // select the new node
 	}
 
+	public void copyAndInsertDataFields(ArrayList<DataFieldNode> dataFieldNodes) {
+		copyAndInsertDataFields(dataFieldNodes, highlightedFields);
+		
+		// add the undo action 	// highlightedFields will now be the newly added fields
+		undoActions.push(new TreeAction(Actions.IMPORT_FIELDS, highlightedFields));
+		setTreeEdited(true);
+	}
+	
+	public void copyAndInsertDataFields(ArrayList<DataFieldNode> dataFieldNodes, ArrayList<DataFieldNode> selectedFields) {
+		
+		int indexToInsert = 0;
+		DataFieldNode parentNode = null;
+		//get the parent and index to start adding
+		if (selectedFields.isEmpty()) {
+			indexToInsert = rootNode.getChildren().size();	// will add after last one
+			parentNode = rootNode;
+		} else {
+			DataFieldNode lastHighlightedField = selectedFields.get(selectedFields.size() -1);
+			parentNode = lastHighlightedField.getParentNode();
+			indexToInsert = lastHighlightedField.getMyIndexWithinSiblings() + 1;
+		}
+		copyAndInsertDataFields(dataFieldNodes, parentNode, indexToInsert);
+		
+	}
 	
 	// copy and add new dataFields
 	// used by import, paste, and duplicate functions
-	public void copyAndInsertDataFields(ArrayList<DataFieldNode> dataFieldNodes) {
+	public static void copyAndInsertDataFields(ArrayList<DataFieldNode> dataFieldNodes,DataFieldNode parentNode, int indexToInsert) {
+		
+		if (dataFieldNodes.isEmpty()) return;
+		
+		
+		//remember the first node added, so all new nodes can be selected when done
+		DataFieldNode firstNewNode = null;
+		DataFieldNode newNode = null;
+		
+		for (int i=0; i< dataFieldNodes.size(); i++){
+			
+			newNode = new DataFieldNode(dataFieldNodes.get(i));
+			duplicateDataFieldTree(dataFieldNodes.get(i), newNode);
+			
+			addDataField(newNode, parentNode, indexToInsert);	
+			indexToInsert++;
+			
+			if (i == 0) firstNewNode = newNode;
+		}
+		
+		newNode.nodeClicked(true);
+		firstNewNode.nodeClicked(false);   // will select the range 
+	}
+	
+	// don't copy DataFields, just insert the same ones
+	public static void insertTheseDataFields(ArrayList<DataFieldNode> dataFieldNodes,DataFieldNode parentNode, int indexToInsert) {
 		
 		if (dataFieldNodes.isEmpty()) return;
 		
 		//remember the first node added, so all new nodes can be selected when done
 		DataFieldNode firstNewNode = null;
+		DataFieldNode newNode = null;
 		
 		for (int i=0; i< dataFieldNodes.size(); i++){
 			
-			DataFieldNode newNode = new DataFieldNode(dataFieldNodes.get(i), this);
-			duplicateDataFieldTree(dataFieldNodes.get(i), newNode);
+			newNode = dataFieldNodes.get(i);
 			
-			addDataField(newNode);	// adds after last selected field.
+			addDataField(newNode, parentNode, indexToInsert);	
+			indexToInsert++;
 			
 			if (i == 0) firstNewNode = newNode;
 		}
 		
-		setTreeEdited(true);
-		nodeSelected(firstNewNode, false);   // will select the range 
+		newNode.nodeClicked(true);
+		firstNewNode.nodeClicked(false);   // will select the range 
 	}
 	
-	
 	private void demoteDataFields() {
-		
 		if (highlightedFields.isEmpty()) return;
 		
-		// fields need to become children of their preceeding sibling (if they have one)
-		DataFieldNode firstNode = highlightedFields.get(0);
+		try {
+			demoteDataFields(highlightedFields);
+			
+			// add the undo action 
+			undoActions.push(new TreeAction(Actions.DEMOTE_FIELDS, highlightedFields));
+			setTreeEdited(true);
+		} catch (Exception ex) {
+			System.out.println("Tree. demoteDataFields Exception: " + ex.getMessage());
+		}
+	}
+	
+	public static void demoteDataFields(ArrayList<DataFieldNode> fields) {
+		
+		if (fields.isEmpty()) return;
+		
+		// fields need to become children of their preceding sibling (if they have one)
+		DataFieldNode firstNode = fields.get(0);
 		int indexOfFirstSibling = firstNode.getMyIndexWithinSiblings();
 		
-		// if no preceeding sibling, can't demote
-		if (indexOfFirstSibling == 0) return;
+		// if no preceding sibling, can't demote
+		if (indexOfFirstSibling == 0) {
+			throw (new NullPointerException("Can't demote because no preceding sibling"));
+		}
 		
 		DataFieldNode parentNode = firstNode.getParentNode();
 		DataFieldNode preceedingSiblingNode = parentNode.getChild(indexOfFirstSibling-1);
 		
 		// move nodes
-		for (DataFieldNode highlightedField: highlightedFields) {
+		for (DataFieldNode highlightedField: fields) {
 			preceedingSiblingNode.addChild(highlightedField);
 			highlightedField.setParent(preceedingSiblingNode);
 		}
 //		 delete them from the end (reverse order)
-		for (int i=highlightedFields.size()-1; i>=0; i--) {
-			parentNode.removeChild(highlightedFields.get(i));
+		for (int i=fields.size()-1; i>=0; i--) {
+			parentNode.removeChild(fields.get(i));
 		}
-		
-		setTreeEdited(true);
 	}
 	
+	
 	private void promoteDataFields() {
-		
 		if (highlightedFields.isEmpty()) return;
 		
-		DataFieldNode node = highlightedFields.get(0);
+		try {
+			// create an undo Action based on the currently highlighted fields, their children etc.
+			TreeAction undoAction = new TreeAction(Actions.PROMOTE_FIELDS, highlightedFields);
+			
+			promoteDataFields(highlightedFields);
+			
+			// if promoting went OK, add the undo action 
+			undoActions.push(undoAction);
+			setTreeEdited(true);
+		} catch (Exception ex) {
+			System.out.println("Tree. promoteDataFields Exception: " + ex.getMessage());
+		}
+	}
+	
+	public static void promoteDataFields(ArrayList<DataFieldNode> fields) {
+		
+		if (fields.isEmpty()) return;
+		
+		DataFieldNode node = fields.get(0);
 		DataFieldNode parentNode = node.getParentNode();
 		DataFieldNode grandParentNode = parentNode.getParentNode();
 		// if parent is root (grandparent null) then can't promote
-		if (grandParentNode == null) return;
+		if (grandParentNode == null) {
+			throw (new NullPointerException("Can't promote because grandparent is null"));
+		}
 		
 		// any fields that are children of the last to be promoted, 
 		// must first become children of that node. 
-		DataFieldNode lastNode = highlightedFields.get(highlightedFields.size()-1);
+		DataFieldNode lastNode = fields.get(fields.size()-1);
 		DataFieldNode lastNodeParent = lastNode.getParentNode();
 		
 		int indexOfLast = lastNodeParent.indexOfChild(lastNode);
@@ -375,21 +486,20 @@ public class Tree implements Visitable{
 		}
 		
 		// loop backwards so that the top field is last added, next to parent
-		for (int i=highlightedFields.size()-1; i >=0; i--) {
-			promoteDataField(highlightedFields.get(i));
+		for (int i=fields.size()-1; i >=0; i--) {
+			promoteDataField(fields.get(i));
 		}
 		
-		setTreeEdited(true);
 	}
 	
 	// promotes a dataField to become a sibling of it's parent
-	private void promoteDataField(DataFieldNode node) {
+	public static void promoteDataField(DataFieldNode node) {
 		
 		DataFieldNode parentNode = node.getParentNode();
 		DataFieldNode grandParentNode = parentNode.getParentNode();
 		
 		// if parent is root (grandparent null) then can't promote
-		if (grandParentNode == null) return;
+		// if (grandParentNode == null) return; 	catch any null pointer exception later
 		
 		int indexOfParent = grandParentNode.indexOfChild(parentNode);
 		
@@ -398,39 +508,62 @@ public class Tree implements Visitable{
 		parentNode.removeChild(node);
 	}
 	
-//	 if the highlighted fields have a preceeding sister, move it below the highlighted fields
+//	 if the highlighted fields have a preceding sister, move it below the highlighted fields
 	private void moveFieldsUp() {
 		
 		if (highlightedFields.size() == 0) return;
 		
-		int numFields = highlightedFields.size();
+		try {
+			TreeAction undoAction = new TreeAction(Actions.MOVE_FIELDS_UP , highlightedFields);
+			
+			moveFieldsUp(highlightedFields);
+			
+			undoActions.push(undoAction);
+			setTreeEdited(true);
+		} catch (IndexOutOfBoundsException ex) {
+			// System.out.println("Tree.moveFieldsUp() indexOutOfBounds exception");
+		}
+	}
+	
+	public static void moveFieldsUp(ArrayList<DataFieldNode> fields) throws IndexOutOfBoundsException {
+		int numFields = fields.size();
 
-		DataFieldNode firstNode = highlightedFields.get(0);
+		DataFieldNode firstNode = fields.get(0);
 		int firstNodeIndex = firstNode.getMyIndexWithinSiblings();
-		if (firstNodeIndex < 1) return;		// can't move fields up.
 		
 		DataFieldNode parentNode = firstNode.getParentNode();
 		DataFieldNode preceedingNode = parentNode.getChild(firstNodeIndex - 1);
-		// add the preceeding node after the last node
+		// add the preceding node after the last node
 		parentNode.addChild(firstNodeIndex + numFields, preceedingNode);
 		parentNode.removeChild(preceedingNode);
-		
-		setTreeEdited(true);
 	}
 	
-//	 if the highlighted fields have a preceeding sister, move it below the highlighted fields
+//	 if the highlighted fields have a preceding sister, move it below the highlighted fields
 	private void moveFieldsDown() {
 		
 		if (highlightedFields.size() == 0) return;
 		
-		int numFields = highlightedFields.size();
+		try {
+			TreeAction undoAction = new TreeAction(Actions.MOVE_FIELDS_DOWN , highlightedFields);
+			
+			moveFieldsDown(highlightedFields);
+			
+			undoActions.push(undoAction);
+			setTreeEdited(true);
+		} catch (IndexOutOfBoundsException ex) {
+			// ignore
+		}
+	}
+	
+	public static void moveFieldsDown(ArrayList<DataFieldNode> fields) throws IndexOutOfBoundsException {
+		
+		int numFields = fields.size();
 
-		DataFieldNode lastNode = highlightedFields.get(numFields-1);
+		DataFieldNode lastNode = fields.get(numFields-1);
 		DataFieldNode parentNode = lastNode.getParentNode();
 		
 		int lastNodeIndex = lastNode.getMyIndexWithinSiblings();
-		if (lastNodeIndex == parentNode.getChildren().size() - 1) return;	// can't move fields down.
-	
+
 		DataFieldNode succeedingNode = parentNode.getChild(lastNodeIndex + 1);
 		// add the succeeding node before the first node
 		int indexToMoveTo = lastNodeIndex - numFields + 1;
@@ -438,7 +571,6 @@ public class Tree implements Visitable{
 		// remove the succeeding node (now 1 more position down the list - after inserting above)
 		parentNode.removeChild(lastNodeIndex + 2);
 		
-		setTreeEdited(true);
 	}
 	
 	// used to export the tree to DOM document
@@ -544,32 +676,29 @@ public class Tree implements Visitable{
 		}
 	}
 	
-//	 delete the highlighted dataFields (option to save children by promoting them first)
-	private void deleteDataFields(boolean saveChildren) {
-		for (DataFieldNode node: highlightedFields) {
-			
-			if (saveChildren) promoteAllChildrenToSiblings(node);
-
-			DataFieldNode parentNode = node.getParentNode();
-			parentNode.removeChild(node);
-		}
-		highlightedFields.clear();
+//	 delete the highlighted dataFields 
+	private void deleteDataFields() {
+		if (highlightedFields.isEmpty()) return;
+		
+		// add the undo action 
+		undoActions.push(new TreeAction(Actions.DELTE_FIELDS, highlightedFields));
 		setTreeEdited(true);
+		
+		deleteDataFields(highlightedFields);
+		highlightedFields.clear();
+		
+	}
+//	 delete the highlighted dataFields 
+	public static void deleteDataFields(ArrayList<DataFieldNode> fields) {
+		for (DataFieldNode node: fields) {
+			deleteDataField(node);
+		}
+	}
+	public static void deleteDataField(DataFieldNode node) {
+		DataFieldNode parentNode = node.getParentNode();
+		parentNode.removeChild(node);
 	}
 	
-	private void promoteAllChildrenToSiblings(DataFieldNode node) {
-		
-		ArrayList<DataFieldNode> children = node.getChildren();
-		DataFieldNode parentNode = node.getParentNode();
-		int nodeIndex = node.getMyIndexWithinSiblings();
-		
-		for (int i=children.size() -1; i >=0; i--) {
-			parentNode.addChild(nodeIndex + 1, children.get(i));
-			children.get(i).setParent(parentNode);
-			node.removeChild(children.get(i));
-		}
-		
-	}
 	
 	// called (via dataField) by clicking on FormField to highlight it
 	public void nodeSelected(DataFieldNode selectedNode, boolean clearOthers) {
@@ -732,6 +861,13 @@ public class Tree implements Visitable{
 	
 	public boolean isTreeEdited() {
 		return treeEdited;
+	}
+	
+	public String getUndoCommand() {
+		if (undoActions.isEmpty()) {
+			return "Cannot Undo";
+		}
+		else return "Undo " + undoActions.peek().getCommand().toString();
 	}
 
 	// used for visiting all dataFields (via Nodes) to call some method

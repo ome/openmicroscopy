@@ -53,13 +53,26 @@ public class DataFieldNode implements Visitable {
 		dataField = new DataField(copyThisNode.getDataField(), this);
 	}
 	
+	// constructor to make a copy of existing Node
+	// retuns duplicate node with no parent
+	public DataFieldNode(DataFieldNode copyThisNode) {
+		
+		children = new ArrayList<DataFieldNode>();
+		// get ref to tree from parent (when setParent is called)
+	
+		dataField = new DataField(copyThisNode.getDataField(), this);
+	}
+	
 	public int getMyIndexWithinSiblings() {
-		int index = parent.indexOfChild(this);
-		return index;
+		if (parent == null)
+			throw (new NullPointerException("Can't getMyIndexWithinSiblings because parent == null"));
+			
+		return parent.indexOfChild(this);
 	}
 	
 	public void setParent(DataFieldNode parent) {
 		this.parent = parent;
+		if (tree == null) tree = parent.getTree();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -117,10 +130,10 @@ public class DataFieldNode implements Visitable {
 		return highlighted;
 	}
 	public void nodeClicked(boolean clearOthers) {
-		tree.nodeSelected(this, clearOthers);
+		getTree().nodeSelected(this, clearOthers);
 	}
 	public void dataFieldUpdated() {
-		tree.dataFieldUpdated();
+		getTree().dataFieldUpdated();
 	}
 	public void hideChildren(boolean hidden) {
 		if (childBox != null)	// sometimes visibility of children is set before UI is fully built
@@ -131,6 +144,10 @@ public class DataFieldNode implements Visitable {
 		dataField.acceptVistor(visitor);
 	}
 	public void collapseAllChildren(boolean collapse) {
-		tree.collapseAllChildren(collapse);
+		getTree().collapseAllChildren(collapse);
+	}
+	public Tree getTree() {
+		if ((tree == null) && (parent != null)) tree = parent.getTree();
+		return tree;
 	}
 }

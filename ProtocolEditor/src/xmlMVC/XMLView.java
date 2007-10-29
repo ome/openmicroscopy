@@ -16,6 +16,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -32,6 +33,8 @@ import java.awt.Font;
 import java.awt.event.*;
 import java.io.File;
 import java.util.Iterator;
+
+import xmlMVC.Tree.Actions;
 
 
 // the main View class. 
@@ -90,6 +93,8 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	
 	JMenuItem saveFileMenuItem;
 	JMenuItem saveFileAsMenuItem;
+	
+	JButton undoButton;
 	
 	JMenuItem loadDefaultsMenuItem;
 	JMenuItem multiplyValueOfSelectedFieldsMenuItem;
@@ -168,6 +173,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		Icon mathsIcon = ImageFactory.getInstance().getIcon(ImageFactory.EDU_MATHS);
 		closeIcon = ImageFactory.getInstance().getIcon(ImageFactory.N0);
 		redBallIcon = ImageFactory.getInstance().getIcon(ImageFactory.RED_BALL_ICON);
+		Icon undoIcon = ImageFactory.getInstance().getIcon(ImageFactory.UNDO_ICON);
 		
 		// File menu
 		JMenu fileMenu = new JMenu("File");
@@ -300,6 +306,10 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		saveFileButton.setToolTipText("Save experimental details");
 		saveFileButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING));
 		
+		undoButton = new JButton(undoIcon);
+		undoButton.setToolTipText("Undo last action");
+		undoButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING));
+		undoButton.addActionListener(new UndoActionListener());
 		
 		JButton moreLikeThisButton = new JButton("More Files Like This >", searchIcon);
 		moreLikeThisButton.addActionListener(new MoreLikeThisListener());
@@ -318,6 +328,8 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		fileManagerWestToolBar.add(openFileButton);
 		fileManagerWestToolBar.add(saveFileButton);
 		fileManagerWestToolBar.add(saveFileAsButton);
+		fileManagerWestToolBar.add(new JSeparator(JSeparator.VERTICAL));
+		fileManagerWestToolBar.add(undoButton);
 		fileManagerPanel.add(fileManagerWestToolBar, BorderLayout.WEST);
 		
 		fileManagerEastToolBar.add(moreLikeThisButton);
@@ -556,6 +568,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		xmlFormDisplay.refreshForm();		// refresh the form
 		
 		xmlValidationCheckbox.setSelected(xmlModel.getXmlValidation());
+		undoButton.setToolTipText(xmlModel.getUndoCommand());
 		
 		selectionChanged();	// to take account of any other changes
 	}
@@ -608,47 +621,35 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	
 	public void deleteDataFields() {
 		
-		Object[] options = {"Delete all substeps",
-                "Move substeps up",
-                "Cancel"};
-		int result = JOptionPane.showOptionDialog(XMLFrame, 
-				"<html>The steps you wish to delete may contain<br>"
-				+ "substeps. Do you wish to delete them or move<br>"
-				+ "them to a higher level in the hierarchy?</html>", "Delete Options",
-		JOptionPane.YES_NO_CANCEL_OPTION,
- 	    JOptionPane.QUESTION_MESSAGE,
- 	    null,
- 	    options,
- 	    options[0]);
+		int result = JOptionPane.showConfirmDialog(XMLFrame, 
+				"Delete highlighted fields?", "Delete?",
+		JOptionPane.YES_NO_OPTION,
+ 	    JOptionPane.QUESTION_MESSAGE);
 
-		
 		if (result == 0) {	// delete all
-			xmlModel.editCurrentTree(Tree.DELTE_FIELDS);
-		}
-		if (result == 1) {	// shift children to be siblings, then delete
-			xmlModel.editCurrentTree(Tree.DELETE_FIELDS_SAVE_CHILDREN);
+			xmlModel.editCurrentTree(Actions.DELTE_FIELDS);
 		}
 	}
 	
 	public void promoteDataFields() {
-		xmlModel.editCurrentTree(Tree.PROMOTE_FIELDS);
+		xmlModel.editCurrentTree(Actions.PROMOTE_FIELDS);
 	}
 	
 	public void demoteDataFields() {
-		xmlModel.editCurrentTree(Tree.DEMOTE_FIELDS);
+		xmlModel.editCurrentTree(Actions.DEMOTE_FIELDS);
 	}
 	
 	public void moveFieldsUp() {
 		// if the highlighted fields have a preceding sister, move it below the highlighted fields
-		xmlModel.editCurrentTree(Tree.MOVE_FIELDS_UP);
+		xmlModel.editCurrentTree(Actions.MOVE_FIELDS_UP);
 		}
 	public void moveFieldsDown() {
-		xmlModel.editCurrentTree(Tree.MOVE_FIELDS_DOWN);
+		xmlModel.editCurrentTree(Actions.MOVE_FIELDS_DOWN);
 	}
 	
 	public void addDataField() {
 		// add dataField after last selected one
-		xmlModel.editCurrentTree(Tree.ADD_NEW_FIELD);
+		xmlModel.editCurrentTree(Actions.ADD_NEW_FIELD);
 	}
 	
 	public void closeCurrentFile() {
@@ -714,8 +715,8 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	public void actionPerformed(ActionEvent event) {
 		String command = event.getActionCommand();
 		System.out.println(command);
-		if (command.equals(COPY)) xmlModel.editCurrentTree(Tree.COPY_FIELDS);
-		else if (command.equals(PASTE)) xmlModel.editCurrentTree(Tree.PASTE_FIELDS);
+		if (command.equals(COPY)) xmlModel.editCurrentTree(Actions.COPY_FIELDS);
+		else if (command.equals(PASTE)) xmlModel.editCurrentTree(Actions.PASTE_FIELDS);
 	}
 	
 	public void mainWindowClosing() {
@@ -806,6 +807,12 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 			enableXmlValidation(validationOn);
 		}
 		
+	}
+	
+	public class UndoActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent arg0) {
+			xmlModel.editCurrentTree(Actions.UNDO_LAST_ACTION);
+		}
 	}
 	
 	public class MoreLikeThisListener implements ActionListener {
@@ -1228,7 +1235,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	
 	public void duplicateFields() {
 		// get selected Fields, duplicate and add after last selected one
-		xmlModel.editCurrentTree(Tree.DUPLICATE_FIELDS);
+		xmlModel.editCurrentTree(Actions.DUPLICATE_FIELDS);
 	}
 
 	

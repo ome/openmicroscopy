@@ -23,6 +23,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import validation.SAXValidator;
+import xmlMVC.Tree.Actions;
 
 // import test.TreeCompare;
 
@@ -307,10 +308,16 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	}
 	
 	// delegates commands from xmlView to Tree. int Tree.editCommand is a list of known commands
-	public void editCurrentTree(int editCommand) {
+	public void editCurrentTree(Actions editCommand) {
 		Tree tree = getCurrentTree();
 		tree.editTree(editCommand);
 		notifyXMLObservers();
+	}
+	
+	// used for undo button tool tip etc
+	public String getUndoCommand() {
+		if (getCurrentTree() == null) return "";
+		return getCurrentTree().getUndoCommand();
 	}
 	
 	// works on numerical fields only
@@ -329,11 +336,9 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	// used to tell if there are any changes to the current file that need saving
 	public boolean isCurrentFileEdited() {
 		if ((getCurrentTree() != null) && (getCurrentTree().isTreeEdited())) {
-			System.out.println("XMLModel isCurrentFileEdited = true");
 			return true;
 		}
 		else {
-			System.out.println("XMLModel isCurrentFileEdited = false");
 			return false;
 		}
 	}
