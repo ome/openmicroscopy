@@ -8,7 +8,6 @@
 package ome.services.blitz;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,100 +25,102 @@ import org.apache.commons.logging.LogFactory;
  */
 public class Router {
 
-	private final static String LOCALHOST = "127.0.0.1";
+    private final static String LOCALHOST = "127.0.0.1";
 
-	private final static Log log = LogFactory.getLog("OMERO.router");
+    private final static Log log = LogFactory.getLog("OMERO.router");
 
-	Process p = null;
+    Process p = null;
 
-	private final Map<String, String> map = new HashMap<String, String>();
-	{
-		map.put("Glacier2.InstanceName", "OMEROGlacier2");
-		setClientEndpoints(LOCALHOST, 9998);
-		setSessionManager(LOCALHOST, 9999);
-		setPermissionsVerifier(LOCALHOST, 9999);
-		setTimeout(600);
-	}
+    private final Map<String, String> map = new HashMap<String, String>();
+    {
+        map.put("Glacier2.InstanceName", "OMEROGlacier2");
+        setClientEndpoints(LOCALHOST, 9998);
+        setSessionManager(LOCALHOST, 9999);
+        setPermissionsVerifier(LOCALHOST, 9999);
+        setTimeout(600);
+    }
 
-	public void allowAdministration() {
-		map.put("Glacier2.Admin.Endpoints",  "tcp -p 9997 -h 127.0.0.1");
-	}
-	
-	public void setClientEndpoints(String host, int port) {
-		map.put("Glacier2.Client.Endpoints", "tcp -p " + port + " -h " + host);
-	}
+    public void allowAdministration() {
+        map.put("Glacier2.Admin.Endpoints", "tcp -p 9997 -h 127.0.0.1");
+    }
 
-	public void setServerEndpoints(String host, int port) {
-		map.put("Glacier2.Server.Endpoints", "tcp -h " + host + " -p " + port);
-	}
+    public void setClientEndpoints(String host, int port) {
+        map.put("Glacier2.Client.Endpoints", "tcp -p " + port + " -h " + host);
+    }
 
-	public void setSessionManager(String host, int port) {
-		map.put("Glacier2.SessionManager", "Manager:tcp -h " + host + " -p "
-				+ port);
-	}
+    public void setServerEndpoints(String host, int port) {
+        map.put("Glacier2.Server.Endpoints", "tcp -h " + host + " -p " + port);
+    }
 
-	public void setPermissionsVerifier(String host, int port) {
-		map.put("Glacier2.PermissionsVerifier", "Verifier:tcp -h " + host
-				+ " -p " + port);
-	}
+    public void setSessionManager(String host, int port) {
+        map.put("Glacier2.SessionManager", "Manager:tcp -h " + host + " -p "
+                + port);
+    }
 
-	public void setTimeout(int timeout) {
-		map.put("Glacier2.SessionTimeout", "" + timeout);
-	}
+    public void setPermissionsVerifier(String host, int port) {
+        map.put("Glacier2.PermissionsVerifier", "Verifier:tcp -h " + host
+                + " -p " + port);
+    }
 
-	public int start() {
-		List<String> list = new ArrayList<String>();
-		list.add(getBashPath());
-		list.add("--daemon");
-		for (String string : map.keySet()) {
-			list.add("--" + string + "=" + map.get(string));
-		}
-		log.info(list);
-		ProcessBuilder pb = new ProcessBuilder((String[]) list
-				.toArray(new String[list.size()]));
-		try {
-			p = pb.start();
-			p.waitFor();
-			return p.exitValue();
-		} catch (Exception e) {
-			log.info("Failed to start", e);
-			return Integer.MIN_VALUE;
-		}
-	}
+    public void setTimeout(int timeout) {
+        map.put("Glacier2.SessionTimeout", "" + timeout);
+    }
 
-	/**
-	 * Uses the administrative interface for the Glacier2 router to
-	 * call {@link Glacier2.AdminPrx#shutdown()}.
-	 */
-	public boolean shutdown(Ice.Communicator ic) {
-    	Ice.ObjectPrx prx = ic.stringToProxy(map.get("Glacier2.InstanceName")+"/admin:tcp -p 9997 -h 127.0.0.1");
-    	Glacier2.AdminPrx rtr = Glacier2.AdminPrxHelper.checkedCast(prx);
-    	try {
-    		rtr.shutdown();
-    	} catch (Exception e) {
-    		log.error("Error while calling router.shutdown.",e);
-    		return false;
-    	}
-    	return true;
-	}
+    public int start() {
+        List<String> list = new ArrayList<String>();
+        list.add(getBashPath());
+        list.add("--daemon");
+        for (String string : map.keySet()) {
+            list.add("--" + string + "=" + map.get(string));
+        }
+        log.info(list);
+        ProcessBuilder pb = new ProcessBuilder(list.toArray(new String[list
+                .size()]));
+        try {
+            p = pb.start();
+            p.waitFor();
+            return p.exitValue();
+        } catch (Exception e) {
+            log.info("Failed to start", e);
+            return Integer.MIN_VALUE;
+        }
+    }
 
-	String getBashPath() {
-		ProcessBuilder pb = new ProcessBuilder("bash", "-l","-c", 
-				"which glacier2router");
-		String path;
-		try {
-			Process p = pb.start();
-			StringBuilder sb = new StringBuilder();
-			InputStream is = p.getInputStream();
-			int c;
-			while ((c = is.read()) != -1) {
-				sb.append((char) c);
-			}
-			path = sb.toString().trim();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		return path;
-	}
+    /**
+     * Uses the administrative interface for the Glacier2 router to call
+     * {@link Glacier2.AdminPrx#shutdown()}. This method should not throw an
+     * exception under any circumstances.
+     */
+    public boolean shutdown(Ice.Communicator ic) {
+        Ice.ObjectPrx prx = ic.stringToProxy(map.get("Glacier2.InstanceName")
+                + "/admin:tcp -p 9997 -h 127.0.0.1");
+        try {
+            Glacier2.AdminPrx rtr = Glacier2.AdminPrxHelper.checkedCast(prx);
+            rtr.shutdown();
+        } catch (Exception e) {
+            log.error("Error while calling router.shutdown.", e);
+            return false;
+        }
+        return true;
+    }
+
+    String getBashPath() {
+        ProcessBuilder pb = new ProcessBuilder("bash", "-l", "-c",
+                "which glacier2router");
+        String path;
+        try {
+            Process p = pb.start();
+            StringBuilder sb = new StringBuilder();
+            InputStream is = p.getInputStream();
+            int c;
+            while ((c = is.read()) != -1) {
+                sb.append((char) c);
+            }
+            path = sb.toString().trim();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return path;
+    }
 
 }
