@@ -396,7 +396,7 @@
 ## double precision columns to prevent underflows. 
 ##
 #if($prop.type.equals("java.lang.Float"))
-            sql-type="double precision"
+            sql-type="float4"
 #end
         />
      </property>
