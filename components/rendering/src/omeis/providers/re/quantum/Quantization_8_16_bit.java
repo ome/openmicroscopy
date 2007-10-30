@@ -160,14 +160,23 @@ public class Quantization_8_16_bit extends QuantumStrategy {
         cdStart = qDef.getCdStart().intValue();
         cdEnd = qDef.getCdEnd().intValue();
         double denum = dEnd - dStart, num = MAX;
-        double decile = (double) (max - min) / DECILE;
+        
         double v = 0, b = dStart;
         int e = 0;
+        double startMin = min;
+        double startMax = max;
         Q1 = min;
         Q9 = max;
+        
+        if (dStart <= startMin) {
+        	Q1 = dStart;
+        }
+        if (dEnd >= startMax) Q9 = dEnd;
+        if (startMin == startMax) v = 1;
+        double decile = (startMax - startMin) / DECILE;
         if (getNoiseReduction()) {
-            Q1 = min + decile;
-            Q9 = max - decile;
+        	Q1 += decile;
+            Q9 -= decile;
             denum = Q9 - Q1;
             v = DECILE;
             e = DECILE;
@@ -191,6 +200,7 @@ public class Quantization_8_16_bit extends QuantumStrategy {
         }
         aDecile = num / denum;
         bDecile = aDecile * b - e;
+        
         return v;
     }
 
@@ -227,39 +237,14 @@ public class Quantization_8_16_bit extends QuantumStrategy {
         
 
         // Build the LUT
-        /*
-        int x = min;
-        for (; x < dStart; ++x) {
-            LUT[x - min] = (byte) cdStart;
-        }
-
-        for (; x < dEnd; ++x) {
-            if (x > Q1) {
-                if (x <= Q9) {
-                    v = aDecile * normalize.transform(x, 1) - bDecile;
-                } else {
-                    v = cdEnd;
-                }
-            } else {
-                v = cdStart;
-            }
-            v = aNormalized * (valueMapper.transform(v, k) - ysNormalized);
-            v = Math.round(v);
-            v = Math.round(a1 * v + cdStart);
-            LUT[x - min] = (byte) v;
-        }
-
-        for (; x <= max; ++x) {
-            LUT[x - min] = (byte) cdEnd;
-        }
-        */
+        
         int x = lutMin;
         for (; x < dStart; ++x) {
             LUT[x - lutMin] = (byte) cdStart;
         }
 
         for (; x < dEnd; ++x) {
-            if (x > Q1) {
+        	if (x > Q1) {
                 if (x <= Q9) {
                     v = aDecile * normalize.transform(x, 1) - bDecile;
                 } else {
@@ -268,6 +253,7 @@ public class Quantization_8_16_bit extends QuantumStrategy {
             } else {
                 v = cdStart;
             }
+        	
             v = aNormalized * (valueMapper.transform(v, k) - ysNormalized);
             v = Math.round(v);
             v = Math.round(a1 * v + cdStart);
