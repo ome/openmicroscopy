@@ -22,8 +22,14 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import tree.DataFieldNode;
+import tree.Tree;
+import tree.Tree.Actions;
+import ui.SelectionObserver;
+import ui.XMLUpdateObserver;
+import ui.XMLView;
+import util.XmlTransform;
 import validation.SAXValidator;
-import xmlMVC.Tree.Actions;
 
 // import test.TreeCompare;
 
