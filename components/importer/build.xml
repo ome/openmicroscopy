@@ -39,9 +39,7 @@
 		>
 			<src path="${src.dir}"/>
 			<include name="ome/**/*"/>
-			<include name="**/loci/formats/**/*"/>
-			<exclude name="**/loci/formats/gui/**/*"/>
-			<exclude name="**/loci/**/*Test*"/>
+			<exclude name="**/loci/**/*"/>
 		</javac>
 		<!-- END COPY-->
 	</target>
