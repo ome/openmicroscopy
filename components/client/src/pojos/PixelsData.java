@@ -267,7 +267,7 @@ public class PixelsData extends DataObject {
      */
     public double getPixelSizeY() {
         PixelsDimensions dims = asPixels().getPixelsDimensions();
-        return dims == null ? 1.0 : nullSafe(dims.getSizeX());
+        return dims == null ? 1.0 : nullSafe(dims.getSizeY());
     }
 
     /**
@@ -292,7 +292,7 @@ public class PixelsData extends DataObject {
      */
     public double getPixelSizeZ() {
         PixelsDimensions dims = asPixels().getPixelsDimensions();
-        return dims == null ? 1.0 : nullSafe(dims.getSizeX());
+        return dims == null ? 1.0 : nullSafe(dims.getSizeZ());
     }
 
     /**
