@@ -153,7 +153,7 @@ public class DeltaVision implements PixelBuffer {
 				ShortBuffer swapBuf = plane.asShortBuffer();
 				ShortBuffer copyBuf = buf.asShortBuffer();
 				int actualOffset;
-				for (int i = 0; i < count; i++)
+				for (int i = 0; i < count / 2; i++)
 				{
 					actualOffset = ReorderedPixelData.getReorderedPixelOffset(
 							planeSize, (i + offset) * 2, rowSize) / 2;
@@ -166,7 +166,7 @@ public class DeltaVision implements PixelBuffer {
 				ShortBuffer swapBuf = plane.asShortBuffer();
 				ShortBuffer copyBuf = buf.asShortBuffer();
 				int actualOffset;
-				for (int i = 0; i < count; i++)
+				for (int i = 0; i < count / 2; i++)
 				{
 					actualOffset = ReorderedPixelData.getReorderedPixelOffset(
 							planeSize, (i + offset) * 4, rowSize) / 4;
@@ -256,7 +256,7 @@ public class DeltaVision implements PixelBuffer {
 			throw new ApiUsageException("Buffer size incorrect.");
 		MappedByteBuffer b = getRegion(size, offset).getData();
 		b.get(buffer);
-		swapIfRequired((MappedByteBuffer) MappedByteBuffer.wrap(buffer));
+		swapIfRequired(ByteBuffer.wrap(buffer));
 		return buffer;
 	}
 
@@ -281,7 +281,7 @@ public class DeltaVision implements PixelBuffer {
 			throw new ApiUsageException("Buffer size incorrect.");
 		MappedByteBuffer b = getRow(y, z, c, t).getData();
 		b.get(buffer);
-		swapIfRequired((MappedByteBuffer) MappedByteBuffer.wrap(buffer));
+		swapIfRequired(ByteBuffer.wrap(buffer));
 		return buffer;
 	}
 
@@ -721,16 +721,12 @@ public class DeltaVision implements PixelBuffer {
 		// We only need to re-order the rows if the pixels are 8-bits wide.
 		switch (pixelType)
 		{
+			case DeltaVisionHeader.PIXEL_TYPE_BYTE:
 			case DeltaVisionHeader.PIXEL_TYPE_FLOAT:
 			case DeltaVisionHeader.PIXEL_TYPE_2BYTE_COMPLEX:
 			case DeltaVisionHeader.PIXEL_TYPE_4BYTE_COMPLEX:
 				reorderRows(buffer);
 				return buffer;
-		}
-		if (bytesPerPixel == 1)
-		{
-			reorderRows(buffer);
-			return buffer;
 		}
 		
 		if (!header.isNative())  // DeltaVision file is little endian.
@@ -741,12 +737,16 @@ public class DeltaVision implements PixelBuffer {
 			if (bytesPerPixel == 2)  // Short.
 			{
 				ShortBuffer swapBuf = buffer.asShortBuffer();
+				short val;
+				// Since we're swapping rows the actual number of pixels
+				// that we need to work with is the capacity / 4 rather
+				// than the capacity / 2.
 				for (int i = 0; i < (buffer.capacity() / 4); i++)
 				{
 					reorderedOffset =
 						ReorderedPixelData.getReorderedPixelOffset(
 								size, i * 2, rowSize) / 2;
-					short val = swap(swapBuf.get(i));
+					val = swap(swapBuf.get(i));
 					swapBuf.put(i, swap(swapBuf.get(reorderedOffset)));
 					swapBuf.put(reorderedOffset, val);
 				}
@@ -755,12 +755,18 @@ public class DeltaVision implements PixelBuffer {
 			else if (bytesPerPixel == 4)  // Integer or unsigned integer.
 			{
 				IntBuffer swapBuf = buffer.asIntBuffer();
-				for (int i = 0; i < (buffer.capacity() / 4); i++)
+				int val;
+				// Since we're swapping rows the actual number of pixels
+				// that we need to work with is the capacity / 8 rather
+				// than the capacity / 4.
+				for (int i = 0; i < (buffer.capacity() / 8); i++)
 				{
 					reorderedOffset = 
 						ReorderedPixelData.getReorderedPixelOffset(
 								size, i, rowSize) / 4;
+					val = swap(swapBuf.get(i));
 					swapBuf.put(i, swap(swapBuf.get(reorderedOffset)));
+					swapBuf.put(reorderedOffset, val);
 				}
 				return buffer;
 			}
@@ -794,19 +800,25 @@ public class DeltaVision implements PixelBuffer {
 		}
 	}
 	/**
-	 * Re-orders the rows in a given buffer.
+	 * Re-orders the rows in byte buffer. NOTE: It is assumed that the pixels in the
+	 * byte buffer are 8-bit.
 	 * @param buffer The buffer to re-order.
-     */
+	 */
 	private void reorderRows(ByteBuffer buffer)
 	{
 		int size = buffer.capacity();
 		int rowSize = getRowSize();
 		int reorderedOffset;
-		for (int i = 0; i < size; i++)
+		byte val;
+		// Since we're swapping rows the actual number of pixels that we need to 
+		// work with is the size / 2 rather than the just the size.
+		for (int i = 0; i < size / 2; i++)
 		{
 			reorderedOffset = 
 				ReorderedPixelData.getReorderedPixelOffset(size, i, rowSize);
+			val = buffer.get(i);
 			buffer.put(i, buffer.get(reorderedOffset));
+			buffer.put(reorderedOffset, val);
 		}
 	}
 	

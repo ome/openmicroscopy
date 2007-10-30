@@ -257,7 +257,7 @@ public class DeltaVisionHeader {
 		PixelsType t = new PixelsType();
 		switch (pixelType) {
 			case PIXEL_TYPE_BYTE:
-				t.setValue("int8");
+				t.setValue("uint8");
 				break;
 			case PIXEL_TYPE_UNSIGNED_SHORT:
 				t.setValue("uint16");
