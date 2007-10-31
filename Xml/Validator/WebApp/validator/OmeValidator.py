@@ -255,13 +255,18 @@ class XmlReport(object):
 		
 		# validating the documnet tree against the loaded schema
 		# this should not throw an exception
-		schema.validate(document)
-		err = schema.error_log.last_error
-		if err:
+		try:
+			schema.validate(document)
+			err = schema.error_log.last_error
+			if err:
+				self.isXsdValid = False
+				self.errorList.append(ParseMessage(None, err.line, None, "XSD", None, err.message))
+			else:
+				self.isXsdValid = True
+		except XMLSchemaValidateError:
 			self.isXsdValid = False
-			self.errorList.append(ParseMessage(None, err.line, None, "XSD", None, err.message))
-		else:
-			self.isXsdValid = True
+			self.errorList.append(ParseMessage(None, None, None, "XML", None, "Internal error in the system XML Schema validation module"))
+			
 	
 	def loadChoosenSchema(self):
 		# choose the schema source
