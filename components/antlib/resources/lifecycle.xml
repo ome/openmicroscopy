@@ -265,6 +265,35 @@
 		</jar>
 	</target>
 
+	<target name="load-findbugs" depends="prepare">
+		<property name="findbugs.path"   value="omero.classpath"/>
+		<property name="findbugs.type"   value="jar"/>
+		<property name="findbugs.target" value="${target.dir}/${ivy.module}.${findbugs.type}"/>
+		<property name="findbugs.home"   value="${omero.home}/lib/findbugs-${versions.findbugs}"/>
+		<taskdef name="find-bugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpathref="omero.classpath"/>
+		<condition property="no.findbugs"><not><available file="${findbugs.target}"/></not></condition>
+		<macrodef name="do-find-bugs">
+			<sequential>
+			<find-bugs home="${findbugs.home}" output="xml" outputFile="${target.dir}/findbugs.xml">
+				<class location="${findbugs.target}" />
+				<auxClasspath>
+					<path refid="${findbugs.path}"/>
+				</auxClasspath>
+				<sourcePath>
+					<path>
+						<pathelement location="${src.dir}"/>
+						<pathelement location="${src.dest}"/>
+					</path>
+				</sourcePath> 
+			</find-bugs>
+			</sequential>
+		</macrodef>
+	</target>
+
+	<target name="findbugs" description="Run findbugs on components' jar" depends="load-findbugs" unless="no.findbugs">
+		<do-find-bugs/>
+	</target>
+
 	<target name="install" depends="package,deps-publish-local"/>
 
 	<target name="integration" depends="install" unless="test.skip">

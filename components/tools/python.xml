@@ -54,4 +54,8 @@
         <delete dir="${basedir}/ez_setup.pyc"/>
     </target>
 
+    <target name="findbugs">
+        <echo>Not yet implemented</echo>
+    </target>
+
 </project>

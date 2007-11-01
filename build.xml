@@ -172,4 +172,10 @@
 		<property name="deps.build.dir" value="${omero.home}"/>
 		<antcall target="deps-retrieve" inheritAll="true" inheritRefs="true"/>
 	</target>
+
+	 <target name="findbugs" depends="multiproject" description="Generates findbugs.xml for all components">
+		<iterate target="findbugs"/>
+		<iterate buildpathref="tools.buildpath" target="findbugs"/>
+	 </target>
+
 </project>

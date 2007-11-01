@@ -71,4 +71,8 @@
         <delete dir="${basedir}/src/slice_generated"/>
     </target>
 
+    <target name="findbugs">
+        <echo>Not yet implemented</echo>
+    </target>
+
 </project>

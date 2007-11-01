@@ -18,10 +18,18 @@
 	<property name="jboss.home" value="/Users/Ola/J2EP/software/jboss-4.0.4.GA" />
 	<property name="deploy.dir" value="${jboss.home}/server/default/deploy" />
 
-	<path id="project.class.path">
+	<!-- findbugs overrides -->
+	<property name="findbugs.path"   value="project.jars"/>
+	<property name="findbugs.target" value="${basedir}/WebAdmin.war"/>
+
+	<path id="project.jars">
 		<fileset dir="${basedir}/WEB-INF/lib/">
 			<include name="**/*.jar" />
 		</fileset>
+	</path>
+
+	<path id="project.class.path">
+		<path refid="project.jars"/>
 		<fileset dir="${basedir}/WEB-INF">
 			<include name="**/*.properties" />
 		</fileset>

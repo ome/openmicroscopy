@@ -15,6 +15,7 @@
     <dependency org="ant" name="ant" rev="1.6.5" conf="build->default"/>
     <dependency org="commons-collections" name="commons-collections" rev="3.1" conf="build->default"/>
     <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}" conf="build->default"/>
+    <dependency org="findbugs" name="findbugs-ant" rev="${versions.findbugs}" conf="build->default"/>
     <dependency org="groovy" name="groovy" rev="${versions.groovy}" conf="build->default"/>
     <dependency org="jmock" name="jmock" rev="1.0.1" conf="build->default"/>
     <dependency org="junit" name="junit" rev="3.8.1" conf="build->default"/>

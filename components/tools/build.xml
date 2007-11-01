@@ -7,6 +7,7 @@
    <property name="deps.buildlist.dir" value="${omero.home}/components/tools/"/>
    <import file="${import.dir}/dependencies.xml"/>
    <import file="${import.dir}/multiproject.xml"/>
+   <import file="${import.dir}/lifecycle.xml"/>
    
 	<target name="help" description="This help message">
 		<echo>
@@ -38,6 +39,11 @@
 		description="Calls 'tools-clean' on all components.">
 	  	<iterate target="tools-clean"/>
 		<delete dir="${tools.dest}"/>
+	</target>
+
+	<target name="findbugs"
+		depends="deps-buildlist">
+	  	<iterate target="findbugs"/>
 	</target>
 
 </project>
