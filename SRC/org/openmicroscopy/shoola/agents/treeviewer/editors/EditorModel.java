@@ -534,6 +534,7 @@ class EditorModel
      */
     void retrieveChannelsData()
     {
+    	if (hierarchyObject == null) return;
         state = Editor.LOADING_CHANNEL_DATA;
         ImageData img = (ImageData) hierarchyObject;
         long pixelsID = img.getDefaultPixels().getId();

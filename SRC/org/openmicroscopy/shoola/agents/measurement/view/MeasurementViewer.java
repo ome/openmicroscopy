@@ -200,7 +200,7 @@ public interface MeasurementViewer
 	 * Shows the measurements in the figures in Microns. 
 	 * 
 	 * @param show 	Sets the units to <code>microns</code> if <code>true</code>,
-	 * 				to <code>pixels</code> otherwise.§
+	 * 				to <code>pixels</code> otherwise.
 	 */
 	public void showMeasurementsInMicrons(boolean show);
 	

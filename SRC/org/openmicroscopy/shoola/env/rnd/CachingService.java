@@ -106,7 +106,6 @@ public class CachingService
 		XYCache cache = singleton.imageCache.get(pixelsID);
 		if (cache != null) return cache;
 		int cacheSize = getCacheSize();
-		System.err.println("cacheSize image: "+cacheSize);
 		if (cacheSize <= 0) return null;
 		NavigationHistory nh = new NavigationHistory(cacheSize/imageSize, 
 				sizeZ, sizeT);
