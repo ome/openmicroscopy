@@ -70,7 +70,7 @@
 				classpathref="omero.classpath">
 			</sql>
 		</presetdef>
-		 <taskdef resource="emma_ant.properties" classpathref="omero.classpath" />
+		<taskdef resource="emma_ant.properties" classpathref="omero.classpath" />
 	</target>
 
 
