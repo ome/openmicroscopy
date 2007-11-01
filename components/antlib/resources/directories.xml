@@ -73,6 +73,7 @@
 	<property name="target.rel"    value="target"/>
 	<property name="classes.rel"   value="${target.rel}/classes"/>
 	<property name="generated.rel" value="${target.rel}/generated"/>	
+	<property name="emmaclasses.rel" value="${target.rel}/emma-classes"/>
 	<property name="testclasses.rel" value="${target.rel}/test-classes"/>
 	<property name="testreports.rel" value="${target.rel}/reports"/>
 		
@@ -85,6 +86,7 @@
 	<property name="target.dir"      value="${basedir}/${target.rel}" />
 	<property name="generated.dir"   value="${basedir}/${generated.rel}"/>
 	<property name="classes.dir"     value="${basedir}/${classes.rel}"/>
+	<property name="emmaclasses.dir" value="${basedir}/${emmaclasses.rel}"/>
 	<property name="testclasses.dir" value="${basedir}/${testclasses.rel}"/>
 	<property name="testreports.dir" value="${basedir}/${testreports.rel}"/>
 	<property name="src.dest"        value="${generated.dir}/src" />
