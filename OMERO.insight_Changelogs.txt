@@ -7,7 +7,7 @@
   maintained at an OMERO server site. OMERO.insight is completely written in 
   Java.
 --------------------------------------------------------------------------------
- Last update: 24/10/2007 (revision 5069)
+ Last update: 25/10/2007 (revision 5106)
  Version: Beta 2.2 rc5
  
   - Viewer: Fixed problem in grid view when the color model is grey scale.

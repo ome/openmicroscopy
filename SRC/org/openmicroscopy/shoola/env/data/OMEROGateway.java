@@ -1434,8 +1434,8 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	byte[] getPlane(long pixelsID, int z, int t, int c)
-	throws DSOutOfServiceException, DSAccessException
+	synchronized byte[] getPlane(long pixelsID, int z, int t, int c)
+		throws DSOutOfServiceException, DSAccessException
 	{
 		RawPixelsStore service = getPixelsStore();
 		try {
@@ -1647,9 +1647,6 @@ class OMEROGateway
 		try {
 			IRenderingSettings service = getRenderingSettingsService();
 			Class klass = convertPojos(rootNodeType);
-			Iterator i = nodes.iterator();
-			long id;
-			boolean b = false;
 			if (klass.equals(Image.class) || klass.equals(Dataset.class) ||
 					klass.equals(Category.class))
 				service.resetDefaultsInSet(klass, nodes);

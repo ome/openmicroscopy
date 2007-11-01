@@ -53,6 +53,9 @@ public class TreeImageTimeSet
 	extends TreeImageSet
 {
 
+	/** Identifies a node hosting the images imported today. */
+	public static final int	TODAY = 99;
+	
 	/** Identifies a node hosting the images imported in the last 7 days. */
 	public static final int	WEEK = 100;
 	
@@ -113,6 +116,12 @@ public class TreeImageTimeSet
 	/** Identifies the month of december. */
 	static final int DECEMBER = Calendar.DECEMBER;
 	
+	 /** 
+	 * Text of the dummy TreeImageSet containing the images 
+	 * imported today.
+	 */
+	private static final String 	TODAY_OLD = "Today";
+	
     /** 
 	 * Text of the dummy TreeImageSet containing the images 
 	 * imported less than a week ago.
@@ -131,6 +140,10 @@ public class TreeImageTimeSet
 	 * .
 	 */
 	private static final String 	PRIOR_TO = "Before ";
+	
+	/** Node tooltip if the index is {@link #TODAY}. */
+	private static final String		TODAY_TOOLTIP = "Contains the " +
+									"data imported today.";
 	
 	/** Node tooltip if the index is {@link #WEEK}. */
 	private static final String		WEEK_TOOLTIP = "Contains the " +
@@ -271,6 +284,14 @@ public class TreeImageTimeSet
 		GregorianCalendar gc = new GregorianCalendar();
 		int year;
 		switch (type) {
+			case TODAY:
+				setUserObject(TODAY_OLD);
+				setToolTip(TODAY_TOOLTIP);
+				gc = new GregorianCalendar(gc.get(Calendar.YEAR), 
+						gc.get(Calendar.MONTH), 
+						gc.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
+				time = new Timestamp(gc.getTime().getTime());
+				break;
 			case WEEK:
 				setUserObject(WEEK_OLD);
 				setToolTip(WEEK_TOOLTIP);
@@ -372,11 +393,10 @@ public class TreeImageTimeSet
 	{
 		if (times == null) return -1;
 		Iterator i = times.iterator();
-		Timestamp t;
 		int number = 0;
 		while (i.hasNext()) {
-			t = (Timestamp) i.next();
-			if (containTime(t)) number++;
+			if (containTime((Timestamp) i.next())) 
+				number++;
 		}
 		return number;
 	}

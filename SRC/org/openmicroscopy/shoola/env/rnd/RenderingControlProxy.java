@@ -181,11 +181,13 @@ class RenderingControlProxy
                 //likely to call getPixelsDims() before an image is ever 
                 //rendered and until an XY plane is not requested it's pointless
                 //to have a cache.
+            	/*
                 if (xyImgSize != 0) {
                    xyCache = CachingService.createXYCache(pixs.getId(), 
                 		   				xyImgSize, getPixelsDimensionsZ(), 
                 		   				getPixelsDimensionsT());
                 }
+                */
             }
         }
         return img;
@@ -421,7 +423,22 @@ class RenderingControlProxy
             default:
                 sizeX1 = pixs.getSizeX().intValue();
                 sizeX2 = pixs.getSizeY().intValue();
-                if (xyImgSize == 0) xyImgSize = 3*buf.length;
+                if (xyCache == null) {
+                	//Okay, let's see if we can activate the xyCache. 
+                	//In order to 
+                    //do that, the dimensions of the pixels array and the xyImgSize
+                    //have to be available. 
+                    //This happens if at least one XY plane has been rendered.  
+                    //Note that doing remote calls upfront to eagerly instantiate 
+                    //the xyCache is in most cases a total waste: the client is 
+                    //likely to call getPixelsDims() before an image is ever 
+                    //rendered and until an XY plane is not requested it's pointless
+                    //to have a cache.
+                		
+                	xyCache = CachingService.createXYCache(pixs.getId(), 
+                 		   3*buf.length, getPixelsDimensionsZ(), 
+                 		   				getPixelsDimensionsT());
+                }
                 break;
         }
         img = createImage(sizeX1, sizeX2, buf);

@@ -6,7 +6,7 @@
   <author name="Xinyi Jiang" email="comments@openmicroscopy.org.uk" />
   <author name="Jean-Marie Burel" email="comments@openmicroscopy.org.uk" />
   <version number="3.0-Beta"/>
-  <last-modified date="2007-06-11"/>
+  <last-modified date="2007-10-30"/>
 </xdoc-info>
 
  <toc name="Table of Contents" href="index.htm">
@@ -79,6 +79,53 @@
            <section href="section_2_9_4_3.html" name="Additional Movie Player options for z-section and timepoint viewing"/>
        </section>
        <section href="section_2_9_5.html" name="Image Rendering options"/>  
+     </section>
+     <section href="section_2_13.html" name="Introduction to the Measurement Tool">
+       <section href="section_2_13_1.html" name="Accessing the Measurement Tool"/> 
+       <section href="section_2_13_2.html" name="The Measurement Tool interface"/> 
+       <section href="section_2_13_3.html" name="Creating ROIs"> 
+          <section href="section_2_13_3_1.html" name="What is an ROI?"/> 
+          <section href="section_2_13_3_2.html" name="Creating a single shape"/> 
+          <section href="section_2_13_3_3.html" name="Adding multiple ROI shapes on one plane"/>
+          <section href="section_2_13_3_4.html" name="Creating an ROI across z-sections and timepoints"/>  
+        </section>
+        <section href="section_2_13_4.html" name="Saving and loading ROIs"> 
+          <section href="section_2_13_4_1.html" name="Saving ROIs"/> 
+          <section href="section_2_13_4_2.html" name="Loading ROIs"/> 
+        </section>
+        <section href="section_2_13_5.html" name="Editing ROIs"> 
+          <section href="section_2_13_5_1.html" name="Selecting ROIs"/> 
+          <section href="section_2_13_5_2.html" name="Annotation and labelling"> 
+            <section href="section_2_13_5_2_1.html" name="Annotating an existing ROI shape"/> 
+            <section href="section_2_13_5_2_2.html" name="Labelling Images"/> 
+          </section>
+          <section href="section_2_13_5_3.html" name="Moving or resizing a single ROI"> 
+            <section href="section_2_13_5_3_1.html" name="Moving a single ROI shape"/> 
+            <section href="section_2_13_5_3_2.html" name="Resizing a single ROI shape"/> 
+          </section>
+          <section href="section_2_13_5_4.html" name="Changing the appearance of an ROI shape"> 
+            <section href="section_2_13_5_4_1.html" name="Adjusting display of annotation text"/> 
+            <section href="section_2_13_5_4_2.html" name="Adjusting display of the ROI shape"/>  
+            <section href="section_2_13_5_4_3.html" name="Hiding ROI shapes"/> 
+          </section>
+          <section href="section_2_13_5_5.html" name="Deleting a single ROI shape"/> 
+          <section href="section_2_13_5_6.html" name="Editing multiple ROI shapes and ROIs"/> 
+        </section>
+        <section href="section_2_13_6.html" name="Viewing ROI information"> 
+            <section href="section_2_13_6_1.html" name="Viewing summary ROI information"/> 
+            <section href="section_2_13_6_2.html" name="Measurement results">
+              <section href="section_2_13_6_2_1.html" name="Showing summary results"/>
+              <section href="section_2_13_6_2_2.html" name="Refreshing summary data"/>
+              <section href="section_2_13_6_2_3.html" name="Saving summary data"/>
+            </section>
+            <section href="section_2_13_6_3.html" name="Viewing pixel intensity values">
+              <section href="section_2_13_6_3_1.html" name="Graphical view">
+                <section href="section_2_13_6_3_1_1.html" name="Configuring the Graph view"/>
+                <section href="section_2_13_6_3_1_2.html" name="Saving graphical views"/>
+              </section>
+              <section href="section_2_13_6_3_2.html" name="Intensity View"/>
+            </section>
+        </section>
      </section>
      <section href="section_2_10.html" name="The Hierarchy Viewer: viewing multiple images">
          <section href="section_2_10_1.html" name="Viewing an image from the Hierarchy Viewer"/> 

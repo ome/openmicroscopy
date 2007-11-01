@@ -106,6 +106,7 @@ public class CachingService
 		XYCache cache = singleton.imageCache.get(pixelsID);
 		if (cache != null) return cache;
 		int cacheSize = getCacheSize();
+		System.err.println("cacheSize image: "+cacheSize);
 		if (cacheSize <= 0) return null;
 		NavigationHistory nh = new NavigationHistory(cacheSize/imageSize, 
 				sizeZ, sizeT);
@@ -146,7 +147,7 @@ public class CachingService
 		int sizeCache = 0;
 		if (n == 0 && m == 0) return maxSize*1024*1024;
 		else if (n == 0 && m > 0) {
-			sizeCache = (maxSize/m)*1024*1024;
+			sizeCache = (maxSize/(m+1))*1024*1024;
 			//reset all the image caches.
 			Iterator i = singleton.imageCache.keySet().iterator();
 			XYCache cache;
@@ -156,7 +157,7 @@ public class CachingService
 			}
 			return sizeCache;
 		} else if (m == 0 && n > 0) {
-			sizeCache = (maxSize/n)*1024*1024;
+			sizeCache = (maxSize/(n+1))*1024*1024;
 			//reset all the image caches.
 			Iterator i = singleton.pixelsCache.keySet().iterator();
 			PixelsCache cache;
@@ -166,7 +167,7 @@ public class CachingService
 			}
 			return sizeCache;
 		}
-		sizeCache = (maxSize/(m+n))*1024*1024;
+		sizeCache = (maxSize/(m+n+1))*1024*1024;
 		//reset all the image caches.
 		Iterator i = singleton.pixelsCache.keySet().iterator();
 		PixelsCache cache;

@@ -65,7 +65,7 @@ class CategoriesPopupMenu
 {
 
 	/** Text indicating to create a new category. */
-	private static final String CREATION = "Add category";
+	private static final String CREATION = "Add category to image";
 	
 	/** Text indicating to browse a given category. */
 	private static final String BROWSE = "Browse category";

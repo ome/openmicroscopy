@@ -110,7 +110,7 @@ public class CategoryEditor
 			"existing categories from the menu.";
 	
 	/** Text displayed in the title. */
-	private static final String		TEXT = "Add image to categories.";
+	private static final String		TEXT = "Add category to image.";
 	
 	/** Action command indicating to cancel the operation. */
 	private static final int 		CANCEL = 0;
