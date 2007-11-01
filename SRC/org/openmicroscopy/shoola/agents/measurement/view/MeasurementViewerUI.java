@@ -332,7 +332,8 @@ class MeasurementViewerUI
 	/**
      * Creates a new instance.
      * The 
-     * {@link #initialize(MeasurementViewerControl, MeasurementViewerModel) initialize}
+     * {@link #initialize(MeasurementViewer, MeasurementViewerControl,
+     *  MeasurementViewerModel) initialize}
      * method should be called straight 
      * after to link this View to the Controller.
      * 
@@ -881,6 +882,15 @@ class MeasurementViewerUI
 				if(newShape.getCoord3D().equals(model.getCurrentView()))
 				{
 					getDrawing().removeDrawingListener(controller);
+					ROIFigure figToDelete = null;
+					for(Figure f : getDrawing().getFigures())
+					{
+						ROIFigure roiFig = (ROIFigure)f;
+						if(roiFig.getROI().getID()==newShape.getID())
+								figToDelete = roiFig;
+					}
+					if(figToDelete!=null)
+						getDrawing().remove(figToDelete);
 					this.getDrawing().add(newShape.getFigure());
 					newShape.getFigure().addFigureListener(controller);
 					getDrawing().addDrawingListener(controller);
