@@ -39,6 +39,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Vector;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -659,6 +663,9 @@ class IntensityView
 			selectedChannel = nameMap.get(selectedChannelName);
 		else
 			selectedChannel = 0;
+		Object[] nameColour = (Object[])channelSelection.getSelectedItem();
+		selectedChannelName = (String)nameColour[1];
+		
 		channelSelection.setSelectedIndex(selectedChannel);
 	}
 	
@@ -753,6 +760,28 @@ class IntensityView
 			setValuesForPointFigure(fig);
 	}
 
+	/**
+	 * Method to get a list of all the results in the view. 
+	 * @return see above.
+	 */
+	public Vector getResults()
+	{
+		if(state != State.READY)
+			return null;
+		Vector resultVector = new Vector();
+		resultVector.add(shape.getID());
+		resultVector.add(shape.getCoord3D().getZSection());
+		resultVector.add(shape.getCoord3D().getTimePoint());
+		resultVector.add(selectedChannelName);
+		resultVector.add(AnnotationKeys.TEXT.get(shape));
+		resultVector.add(minValue.getText());
+		resultVector.add(maxValue.getText());
+		resultVector.add(sumValue.getText());
+		resultVector.add(meanValue.getText());
+		resultVector.add(stdDevValue.getText());
+		return resultVector;
+	}
+	
 	/**
 	 * Set the values of the labels and textfield for area figures. 
 	 * @param fig The figure.
@@ -1264,5 +1293,4 @@ class IntensityView
 			state=State.READY;
 		}
 	}
-	 
 }

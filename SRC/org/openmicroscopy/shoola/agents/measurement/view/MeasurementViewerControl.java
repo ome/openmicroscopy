@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Window;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
@@ -35,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -46,6 +49,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingEvent;
 import org.jhotdraw.draw.DrawingListener;
 import org.jhotdraw.draw.Figure;
@@ -89,7 +93,7 @@ import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 class MeasurementViewerControl 
 	implements ChangeListener, DrawingListener, FigureListener, 
 				FigureSelectionListener, PropertyChangeListener,
-				WindowFocusListener
+				WindowFocusListener, KeyListener
 {
 
 	/** Identifies the <code>SAVE</code> action in the menu. */
@@ -200,6 +204,7 @@ class MeasurementViewerControl
                  LoadingWindow.CLOSED_PROPERTY, this);
     	 view.getDrawing().addDrawingListener(this);
     	 view.getDrawingView().addFigureSelectionListener(this);
+         view.getDrawingView().addKeyListener(this);
     	 view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
     	 view.addWindowListener(new WindowAdapter() {
              public void windowClosing(WindowEvent e) { model.close(); }
@@ -482,5 +487,42 @@ class MeasurementViewerControl
 	 * @see FigureListener#figureRequestRemove(FigureEvent)
 	 */
 	public void figureRequestRemove(FigureEvent e) {}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
+	 */
+	public void keyPressed(KeyEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
+	 */
+	public void keyReleased(KeyEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
+	 */
+	public void keyTyped(KeyEvent e)
+	{
+		char ANALYSECHAR='a';
+		if(e.getKeyChar() == ANALYSECHAR)
+		{
+			Collection<Figure> selectedFigures = view.getDrawingView().getSelectedFigures(); 
+			if(selectedFigures.size()!=1)
+				return;
+			Iterator<Figure> iterator =  selectedFigures.iterator();
+			ROIFigure fig = (ROIFigure)iterator.next();
+			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+			shapeList.add(fig.getROIShape());
+			view.calculateStats(fig.getROIShape().getID(), shapeList);
+		}
+	}
 
 }

@@ -132,9 +132,12 @@ class MeasurementViewerUI
 
 	/** index to identify intensity tab. */
 	public static final int				INTENSITY_INDEX = 4;
-	
+		
 	/** index to identify calculation tab. */
 	public static final int				CALCWIZARD_INDEX = 5;
+	
+	/** index to identify intensity results view tab. */
+	public static final int				INTENSITYRESULTVIEW_INDEX = 6;
 	
 	/** Reference to the Model. */
 	private MeasurementViewerModel 		model;
@@ -165,6 +168,9 @@ class MeasurementViewerUI
 	
 	/** The graphing component. */
 	private IntensityView				intensityView;
+
+	/** The graphing component. */
+	private IntensityResultsView	 	intensityResultsView;
 	
 	/** The calculation Wizard component. */
 	private CalculationWizard			calcWizard;
@@ -281,6 +287,7 @@ class MeasurementViewerUI
 		roiResults = new MeasurementResults(controller, model, this);
 		graphPane = new GraphPane(this, controller, model);
 		intensityView = new IntensityView(this, model);
+		intensityResultsView = new IntensityResultsView(this, model);
 		calcWizard = new CalculationWizard(controller, model);
 		tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
 		DrawingCanvasView canvasView = model.getDrawingView();
@@ -322,6 +329,8 @@ class MeasurementViewerUI
 			graphPane.getComponentIcon(), graphPane);
 		tabs.addTab(intensityView.getComponentName(), 
 			intensityView.getComponentIcon(), intensityView);
+		tabs.addTab(intensityResultsView.getComponentName(), 
+			intensityResultsView.getComponentIcon(), intensityResultsView);
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout(0, 0));
 		container.add(toolBar, BorderLayout.NORTH);
@@ -563,6 +572,19 @@ class MeasurementViewerUI
 	{
 		return (tabs.getTitleAt(tabs.getSelectedIndex()).
 				equals(intensityView.getComponentName()));
+	}
+	
+
+	/**
+	 * Returns <code>true</code> if in the intensity Results view,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean inIntensityResultsView()
+	{
+		return (tabs.getTitleAt(tabs.getSelectedIndex()).
+				equals(intensityResultsView.getComponentName()));
 	}
 	
     /**
@@ -945,6 +967,7 @@ class MeasurementViewerUI
 	{
 		if (inGraphView()) graphPane.displayAnalysisResults();
 		if (inIntensityView()) intensityView.displayAnalysisResults();
+		if (inIntensityResultsView()) intensityResultsView.displayAnalysisResults();
 	}
 	
 	/**

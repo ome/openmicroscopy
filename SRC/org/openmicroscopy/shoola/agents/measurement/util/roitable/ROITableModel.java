@@ -117,12 +117,9 @@ public class ROITableModel
 	 */
 	public Object getValueAt(Object nodeObject, int column)
 	{
-		Object value=null;
-
 		if (nodeObject instanceof ROINode)
 		{
 			ROINode roiNode=(ROINode)nodeObject;
-			Object object =roiNode.getUserObject();
 			return roiNode.getValueAt(column);
 		}
 		return null;
