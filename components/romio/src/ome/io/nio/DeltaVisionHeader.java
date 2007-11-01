@@ -29,7 +29,7 @@ public class DeltaVisionHeader {
 	public static final short ZTW_SEQUENCE = 0;
 	
 	/**
-	 * The most common sequence of images aquired from a microscope. Sometimes 
+	 * The most common sequence of images acquired from a microscope. Sometimes 
 	 * referred to as "non-interleaved" since the wavelengths are interleaved 
 	 * with the Z sections.
 	 */

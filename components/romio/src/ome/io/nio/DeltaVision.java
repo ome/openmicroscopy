@@ -10,6 +10,7 @@ package ome.io.nio;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -128,59 +129,10 @@ public class DeltaVision implements PixelBuffer {
 			Integer count, Integer offset, byte[] buffer)
 		throws IOException, DimensionsOutOfBoundsException
 	{
-		int bytesPerPixel = header.getBytesPerPixel();
-		int planeSize = getPlaneSize();
-		int pixelType = header.getPixelType();
-		int rowSize = getRowSize();
+		if (buffer.length != count * header.getBytesPerPixel())
+			throw new ApiUsageException("Buffer size incorrect.");
 		MappedByteBuffer plane = getPlane(z, c, t).getData();
-		ByteBuffer buf = ByteBuffer.wrap(buffer);
-		
-		// We only need to re-order if the pixels are 8-bits wide.
-		switch (pixelType)
-		{
-			case DeltaVisionHeader.PIXEL_TYPE_BYTE:
-			case DeltaVisionHeader.PIXEL_TYPE_FLOAT:
-			case DeltaVisionHeader.PIXEL_TYPE_2BYTE_COMPLEX:
-			case DeltaVisionHeader.PIXEL_TYPE_4BYTE_COMPLEX:
-				reorderPixels(plane, buffer, count, offset);
-				return buffer;
-		}
-		
-		if (!header.isNative())  // DeltaVision file is little endian.
-		{
-			if (bytesPerPixel == 2)  // Short.
-			{
-				ShortBuffer swapBuf = plane.asShortBuffer();
-				ShortBuffer copyBuf = buf.asShortBuffer();
-				int actualOffset;
-				for (int i = 0; i < count / 2; i++)
-				{
-					actualOffset = ReorderedPixelData.getReorderedPixelOffset(
-							planeSize, (i + offset) * 2, rowSize) / 2;
-					copyBuf.put(i, swapBuf.get(actualOffset));
-				}
-				return buffer;
-			}
-			else if (bytesPerPixel == 4)  // Integer or unsigned integer.
-			{
-				ShortBuffer swapBuf = plane.asShortBuffer();
-				ShortBuffer copyBuf = buf.asShortBuffer();
-				int actualOffset;
-				for (int i = 0; i < count / 2; i++)
-				{
-					actualOffset = ReorderedPixelData.getReorderedPixelOffset(
-							planeSize, (i + offset) * 4, rowSize) / 4;
-					copyBuf.put(i, swapBuf.get(actualOffset));
-				}
-				return buffer;
-			}
-			else
-			{
-				throw new RuntimeException(
-					"Unsupported sample bit width: '" + bytesPerPixel + "'");
-			}
-		}
-		reorderPixels(plane, buffer, count, offset);
+		swapAndReorderIfRequired(plane, ByteBuffer.wrap(buffer), offset, count);
 		return buffer;
 	}
 	
@@ -193,8 +145,6 @@ public class DeltaVision implements PixelBuffer {
 		Long offset = getPlaneOffset(z, c, t);
 		Integer size = getPlaneSize();
 		PixelData d = getRegion(size, offset);
-		if (!header.isNative())
-			d.setOrder(ByteOrder.LITTLE_ENDIAN);
 		return d;
 	}
 	
@@ -207,8 +157,8 @@ public class DeltaVision implements PixelBuffer {
 		if (buffer.length != getPlaneSize())
 			throw new ApiUsageException("Buffer size incorrect.");
 		MappedByteBuffer b = getPlane(z, c, t).getData();
-		b.get(buffer);
-		swapIfRequired(ByteBuffer.wrap(buffer));
+		swapAndReorderIfRequired(b, ByteBuffer.wrap(buffer), 
+		                         0, getSizeX() * getSizeY());
 		return buffer;
 	}
 
@@ -242,8 +192,9 @@ public class DeltaVision implements PixelBuffer {
 			throws IOException {
 		FileChannel fileChannel = getFileChannel();
 		MappedByteBuffer buf = fileChannel.map(MapMode.READ_ONLY, offset, size);
-		int rowSize = getRowSize();
-		return new ReorderedPixelData(header.getOmeroPixelType(), buf, rowSize);
+		if (!header.isNative())
+			buf.order(ByteOrder.LITTLE_ENDIAN);
+		return new PixelData(header.getOmeroPixelType(), buf);
 	}
 	
 	/* (non-Javadoc)
@@ -256,7 +207,6 @@ public class DeltaVision implements PixelBuffer {
 			throw new ApiUsageException("Buffer size incorrect.");
 		MappedByteBuffer b = getRegion(size, offset).getData();
 		b.get(buffer);
-		swapIfRequired(ByteBuffer.wrap(buffer));
 		return buffer;
 	}
 
@@ -280,8 +230,7 @@ public class DeltaVision implements PixelBuffer {
 		if (buffer.length != getRowSize())
 			throw new ApiUsageException("Buffer size incorrect.");
 		MappedByteBuffer b = getRow(y, z, c, t).getData();
-		b.get(buffer);
-		swapIfRequired(ByteBuffer.wrap(buffer));
+		swapAndReorderIfRequired(b, ByteBuffer.wrap(buffer), 0, getSizeX());
 		return buffer;
 	}
 
@@ -707,128 +656,102 @@ public class DeltaVision implements PixelBuffer {
     /**
      * Examines a byte array to see if it needs to be byte swapped. It also 
 	 * handles the re-ordering of the origin from top-left to bottom-left.
-     * @param buffer The byte buffer to check and re-order.
-     * @return <code>buffer</code> with byte swapped pixel values if required.
+     * @param from The byte buffer to swap and re-order from.
+     * @param to The byte buffer to swap and re-order into.
+     * @param offset The pixel offset to start from.
+     * @param count The number of pixels to process.
      * @throws IOException if there is an error read from the file.
-     * @throws FormatException if there is an error during metadata parsing.
      */
-	private ByteBuffer swapIfRequired(ByteBuffer buffer)
+	private void swapAndReorderIfRequired(ByteBuffer from, ByteBuffer to, 
+	                                      int offset, int count)
 		throws IOException
 	{
 		int pixelType = header.getPixelType();
 		int bytesPerPixel = header.getBytesPerPixel();
-				
-		// We only need to re-order the rows if the pixels are 8-bits wide.
+		int rowSize = getSizeX();
+		int reorderedOffset;
+		int size;
+		
+		// NOTE: The various byte buffers that are created and used for
+		// re-ordering have already had the correct byte order set through the
+		// order() method so we do not have to swap pixel values by hand.
 		switch (pixelType)
 		{
 			case DeltaVisionHeader.PIXEL_TYPE_BYTE:
-			case DeltaVisionHeader.PIXEL_TYPE_FLOAT:
-			case DeltaVisionHeader.PIXEL_TYPE_2BYTE_COMPLEX:
-			case DeltaVisionHeader.PIXEL_TYPE_4BYTE_COMPLEX:
-				reorderRows(buffer);
-				return buffer;
-		}
-		
-		if (!header.isNative())  // DeltaVision file is little endian.
-		{
-			int size = buffer.capacity();
-			int rowSize = getRowSize();
-			int reorderedOffset;
-			if (bytesPerPixel == 2)  // Short.
 			{
-				ShortBuffer swapBuf = buffer.asShortBuffer();
-				short val;
-				// Since we're swapping rows the actual number of pixels
-				// that we need to work with is the capacity / 4 rather
-				// than the capacity / 2.
-				for (int i = 0; i < (buffer.capacity() / 4); i++)
-				{
-					reorderedOffset =
-						ReorderedPixelData.getReorderedPixelOffset(
-								size, i * 2, rowSize) / 2;
-					val = swap(swapBuf.get(i));
-					swapBuf.put(i, swap(swapBuf.get(reorderedOffset)));
-					swapBuf.put(reorderedOffset, val);
-				}
-				return buffer;
-			}
-			else if (bytesPerPixel == 4)  // Integer or unsigned integer.
-			{
-				IntBuffer swapBuf = buffer.asIntBuffer();
-				int val;
-				// Since we're swapping rows the actual number of pixels
-				// that we need to work with is the capacity / 8 rather
-				// than the capacity / 4.
-				for (int i = 0; i < (buffer.capacity() / 8); i++)
+				size = from.capacity();
+				for (int i = 0; i < count; i++)
 				{
 					reorderedOffset = 
 						ReorderedPixelData.getReorderedPixelOffset(
-								size, i, rowSize) / 4;
-					val = swap(swapBuf.get(i));
-					swapBuf.put(i, swap(swapBuf.get(reorderedOffset)));
-					swapBuf.put(reorderedOffset, val);
+								size, i + offset, rowSize);
+					to.put(i, from.get(reorderedOffset));
 				}
-				return buffer;
+				break;
 			}
-			else
+			case DeltaVisionHeader.PIXEL_TYPE_SIGNED_SHORT:
 			{
+				ShortBuffer swapBuf = from.asShortBuffer();
+				ShortBuffer copyBuf = to.asShortBuffer();
+				size = from.capacity() / 2;
+				for (int i = 0; i < count; i++)
+				{
+					reorderedOffset =
+						ReorderedPixelData.getReorderedPixelOffset(
+								size, i + offset, rowSize);
+					copyBuf.put(i, swapBuf.get(reorderedOffset));
+				}
+				break;
+			}
+			case DeltaVisionHeader.PIXEL_TYPE_FLOAT:
+			{
+				IntBuffer swapBuf = from.asIntBuffer();
+				IntBuffer copyBuf = to.asIntBuffer();
+				size = from.capacity() / 4;
+				for (int i = 0; i < count; i++)
+				{
+					reorderedOffset = 
+						ReorderedPixelData.getReorderedPixelOffset(
+								size, i + offset, rowSize);
+					copyBuf.put(i, swapBuf.get(reorderedOffset));
+				}
+				break;
+			}
+			// This particular pixel type is basically just double the number
+			// of shorts, so we'll just handle that.
+			case DeltaVisionHeader.PIXEL_TYPE_2BYTE_COMPLEX:
+			{
+				ShortBuffer swapBuf = from.asShortBuffer();
+				ShortBuffer copyBuf = to.asShortBuffer();
+				size = from.capacity() / 2;
+				for (int i = 0; i < count * 2; i++)
+				{
+					reorderedOffset =
+						ReorderedPixelData.getReorderedPixelOffset(
+								size, i + offset, rowSize * 2);
+					copyBuf.put(i, swapBuf.get(reorderedOffset));
+				}
+				break;
+			}
+			// This particular pixel type is basically just double the number
+			// of 4-byte floating point values, so we'll just handle that.
+			case DeltaVisionHeader.PIXEL_TYPE_4BYTE_COMPLEX:
+			{
+				IntBuffer swapBuf = from.asIntBuffer();
+				IntBuffer copyBuf = to.asIntBuffer();
+				size = from.capacity() / 4;
+				for (int i = 0; i < count * 2; i++)
+				{
+					reorderedOffset = 
+						ReorderedPixelData.getReorderedPixelOffset(
+								size, i + offset, rowSize * 2);
+					copyBuf.put(i, swapBuf.get(reorderedOffset));
+				}
+				break;
+			}
+			default:
 				throw new RuntimeException(
 					"Unsupported sample bit width: '" + bytesPerPixel + "'");
-			}
 		}
-		reorderRows(buffer);
-		return buffer;
-	}
-	
-	/**
-	 * Copies and re-orders a given set of pixels from a plane in a new buffer.
-	 * @param plane The plane.
-	 * @param buffer The buffer.
-	 * @param count The number of pixels to copy and re-order.
-	 * @param offset The offset to start copying and re-ordering <code>count
-	 * </code> pixels from.
-	 */
-	private void reorderPixels(ByteBuffer plane, byte[] buffer,
-	                           int count, int offset)
-	{
-		int actualOffset;
-		for (int i = 0; i < count; i++)
-		{
-			actualOffset = ReorderedPixelData.getReorderedPixelOffset(
-					planeSize, i + offset, rowSize);
-			buffer[i] = plane.get(actualOffset);
-		}
-	}
-	/**
-	 * Re-orders the rows in byte buffer. NOTE: It is assumed that the pixels in the
-	 * byte buffer are 8-bit.
-	 * @param buffer The buffer to re-order.
-	 */
-	private void reorderRows(ByteBuffer buffer)
-	{
-		int size = buffer.capacity();
-		int rowSize = getRowSize();
-		int reorderedOffset;
-		byte val;
-		// Since we're swapping rows the actual number of pixels that we need to 
-		// work with is the size / 2 rather than the just the size.
-		for (int i = 0; i < size / 2; i++)
-		{
-			reorderedOffset = 
-				ReorderedPixelData.getReorderedPixelOffset(size, i, rowSize);
-			val = buffer.get(i);
-			buffer.put(i, buffer.get(reorderedOffset));
-			buffer.put(reorderedOffset, val);
-		}
-	}
-	
-	/** Byte swaps one short value. */
-	public static short swap(short x) {
-		return (short) ((x << 8) | ((x >> 8) & 0xFF));
-	}
-
-	/** Byte swaps one integer value. */
-	public static int swap(int x) {
-		return (int) ((swap((short) x) << 16) | (swap((short) (x >> 16)) & 0xFFFF));
 	}
 }

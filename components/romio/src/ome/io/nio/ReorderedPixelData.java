@@ -48,12 +48,12 @@ public class ReorderedPixelData extends PixelData
 	}
 	
 	/**
-	 * Returns the re-ordered pixels offset.
-	 * @param size The size of the array of rows.
+	 * Returns the re-ordered pixel offset.
+	 * @param size The number of rows in the array.
 	 * @param offset The offset within the array of rows assuming a top left
 	 * origin.
 	 * @param rowSize The size of each pixels row in bytes.
-	 * @return
+	 * @return See above.
 	 */
 	public static int getReorderedPixelOffset(int size, int offset, int rowSize)
 	{

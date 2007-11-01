@@ -158,7 +158,8 @@ public interface PixelBuffer
      * @param offset offset within the pixel buffer.
      * @return buffer containing the data. It is guaranteed that this buffer 
      * will have its <code>order</code> set correctly but <b>not</b> that the
-     * backing buffer will have been byte swapped.
+     * backing buffer will have been byte swapped. <b>The buffer is essentially 
+     * directly from disk.</b>
      * @throws IOException if there is a problem reading from the pixel buffer.
      * @see getRegionDirect()
      */
@@ -172,7 +173,7 @@ public interface PixelBuffer
      * @param buffer pre-allocated buffer of the row's size.
      * @return <code>buffer</code> containing the data which comprises this 
      * region. It is guaranteed that this buffer will have been byte 
-     * swapped.
+     * swapped. <b>The buffer is essentially directly from disk.</b>
      * @throws IOException if there is a problem reading from the pixel buffer.
      * @see getRegion()
      */
