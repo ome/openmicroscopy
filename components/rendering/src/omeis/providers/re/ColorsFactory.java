@@ -114,6 +114,7 @@ public class ColorsFactory {
      */
     private static Color getColor(Channel channel) {
     	LogicalChannel lc = channel.getLogicalChannel();
+    	if (lc == null) return null;
         Integer emWave = lc.getEmissionWave();
         Color explicitColor = channel.getColorComponent();
         String pi = null;
