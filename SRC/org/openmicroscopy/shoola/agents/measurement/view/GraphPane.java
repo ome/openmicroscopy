@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JPanel;
@@ -233,6 +234,7 @@ class GraphPane
 		centrePanel.setLayout(new BoxLayout(centrePanel, BoxLayout.X_AXIS));
 		
 		centrePanel.add(zSlider);
+		centrePanel.add(Box.createHorizontalStrut(5));
 		centrePanel.add(mainPanel);
 		this.add(centrePanel);
 		this.add(tSlider);
@@ -387,7 +389,8 @@ class GraphPane
 				}
 			}
 		}
-		
+		lineProfileChart = null;
+		histogramChart = null;
 		if (lineProfileFigure(shape))
 			lineProfileChart = drawLineplot("Line Profile", 
 					channelName, channelXYData, channelColour);
