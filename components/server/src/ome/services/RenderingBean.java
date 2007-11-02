@@ -537,6 +537,7 @@ public class RenderingBean extends AbstractLevel2Service implements
      * 
      * @see RenderingEngine#setCompressionLevel()
      */
+	@RolesAllowed("user")
 	public void setCompressionLevel(float percentage)
 	{
 		compressionSrv.setCompressionLevel(percentage);
@@ -547,6 +548,7 @@ public class RenderingBean extends AbstractLevel2Service implements
      * 
      * @see RenderingEngine#getCompressionLevel()
      */
+	@RolesAllowed("user")
 	public float getCompressionLevel()
 	{
 		return compressionSrv.getCompressionLevel();
