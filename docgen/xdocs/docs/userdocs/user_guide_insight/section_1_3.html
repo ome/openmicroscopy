@@ -6,15 +6,79 @@
 <p>
 OMERO currently allows you to import the following file formats:
 <ul>
-<li>Bio-Rad PIC (*.pic)</li>
+<li>Bio-Rad PIC (*.pic)
+ <br/>Excluding
+<ul>
+<li>multi-plane "stitched" files; </li>
+<li>annotated ROI images.</li>
+</ul>
+</li>
+<li>Bitmap (*.bmp)
+<br/>Excluding
+<ul>
+<li>Compressed images; </li>
+<li>Mutli-plane Color images.</li>
+</ul>
+</li>
 <li>Deltavision (*.dv, *.r3d, *.r3d_d3d)</li>
-<li>Digital Imaging and Communications in Medicine (*.dcm, *.dicom)</li>
-<li>Leica (*.lei, *.tif, *.tiff)</li>
+<li>Digital Imaging and Communications in Medicine (*.dcm, *.dicom, *.dic)
+<br/>Excluding
+<ul>
+<li>Compressed images.</li>
+</ul>
+</li>
+<li>Graphics Interchange Format (*.gif)</li>
+<li>Imaris Raw Images (*.ims): 5.0 format and 5.5 format.</li>
+<li>Improvision Tiff (*.tif)</li>
+<li>Joint Photographic Experts Group (*.jpeg, *.jpg)
+<br/>Excluding
+<ul>
+<li>JPEG2000 images.</li>
+</ul>
+</li>
+<li>Leica "lei" Format (*.lei)</li>
+<li>Leica Image Format (*.lif)</li>
 <li>Metamorph STK (*.stk)</li>
-<li>Tagged Image File Format (*.tif, *.tiff)</li>
+<li>Openlab Raw (*.raw)</li>
+<li>Portable Gray Map (*.pgm)</li>
+<li>Portable Network Graphic (*.png)</li>
+<li>Tagged Image File Format (*.tif, *.tiff)
+
+
+</li>
+<li>Visitech XYS (*.xys)
+
+</li>
 <li>Zeiss Laser-Scanning Microscopy (*.lsm)</li>
 </ul>
 </p>
+<div class="noteFrame">
+  <div class="noteLabel">NB: Tagged Image File Format</div>
+  <div class="noteContent">
+ This is a very open standard, so expect a few variant types to be unsupported. 
+ We do however do extensive tiff testing so the format is
+ generally well supported.
+ </div>
+</div> 
+
+<div class="noteFrame">
+  <div class="noteLabel">NB: Visitech XYS</div>
+  <div class="noteContent">
+The Visitech importer does not fully support all Visitech metadata 
+included in the accompanying html file.
+ </div>
+</div>
+
+<div class="noteFrame">
+  <div class="noteLabel">NB</div>
+  <div class="noteContent">
+Since the following formats: <b>bmp</b>, <b>gif</b>, <b>jpeg</b>, <b>pgm</b>,
+<b>png</b>, 
+<b>tiff</b>, do not contain metadata, 
+the importer will 
+use default values for the pixel size and channel meta data. 
+ </div>
+</div> 
 <p>
 You can use OMERO.importer to select images from a storage disk and 
 import them into the OMERO system.
