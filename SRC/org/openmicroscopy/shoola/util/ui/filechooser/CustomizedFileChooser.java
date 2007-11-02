@@ -28,8 +28,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.List;
-import java.util.regex.Pattern;
-
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -77,17 +75,20 @@ class CustomizedFileChooser
 	/** The text area where to enter the name of the file to save. */
 	private JTextField			nameArea;
 	
+	/** User defined file filter. */
+	private 	RegExFileFilter filter;
+	
 	/** Initiliazes the components composing the display. */
 	private void initComponents()
 	{
 		nameArea = (JTextField) 
 					UIUtilities.findComponent(this, JTextField.class);
 		if (nameArea != null)
-			{
+		{
 			nameArea.setVisible(true);
 			nameArea.getDocument().addDocumentListener(this);
 			nameArea.addKeyListener(this);
-			}
+		}
 	}
 		
 	/** Builds and lays out the GUI. */
@@ -96,6 +97,7 @@ class CustomizedFileChooser
 		setAcceptAllFileFilterUsed(false);
 		setDialogType(CUSTOM_DIALOG);
 		setControlButtonsAreShown(nameArea == null);
+		
 		JLabel label;
 		List<FileFilter> filters = model.getFilterList();
 		if (filters != null) {
@@ -368,8 +370,14 @@ class CustomizedFileChooser
 		String filterString = nameArea.getText();
 		try
 		{
-			RegExFileFilter filter = new RegExFileFilter(filterString, true);
-			setFileFilter(filter);
+			if(filter== null)
+			{
+				filter = new RegExFileFilter(filterString, true);
+				setFileHidingEnabled(true);
+				setFileFilter(filter);
+			}
+			else
+				filter.setFilter(filterString, true);
 			view.setStatusBarMessage("");
 		}
 		catch(Exception exception)

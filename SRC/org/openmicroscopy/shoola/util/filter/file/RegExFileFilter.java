@@ -72,14 +72,28 @@ public class RegExFileFilter
     {
     	String newString = new String();
     	
-    	for(int i = 0 ; i < ex.length(); i++)
+    	for (int i = 0 ; i < ex.length(); i++)	
     	{
-    		if(ex.charAt(i)=='*')
+    		if (ex.charAt(i) == '*')
     			newString = newString + ".*";
-    		else if(ex.charAt(i)=='.')
+    		else if(ex.charAt(i) == '.')
     			newString = newString +"[.]";
-    		else if(ex.charAt(i)=='?')
+    		else if (ex.charAt(i) == '?')
     			newString = newString + ".";
+    		else if (ex.charAt(i) == '{')
+    			newString = newString + "[{]";
+    		else if (ex.charAt(i) == '}')
+    			newString = newString + "[}]";
+    		else if (ex.charAt(i) == '(')
+    			newString = newString + "[(]";
+    		else if (ex.charAt(i) == ')')
+    			newString = newString + "[)]";
+    		else if (ex.charAt(i) == '_')
+    			newString = newString + "[_]";
+    		else if (ex.charAt(i) == '+')
+    			newString = newString + "[+]";
+    		else if (ex.charAt(i) == '-')
+    			newString = newString + "[-]";
     		else
     			newString = newString + ex.charAt(i);
     	}
@@ -88,14 +102,17 @@ public class RegExFileFilter
     
     /**
      * Instantiate the Regular expression file filter. 
+     * 
      * @param regEx the expression
      * @param wildCardFilter is this a wildCard expression to be converted
      * to RegEx by filter.
      */
     public RegExFileFilter(String regEx, boolean wildCardFilter) 
     {
+    	if (regEx == null)
+    		throw new IllegalArgumentException("RegEx cannot be null.");
     	originalEx = regEx;
-    	if(wildCardFilter)
+    	if (wildCardFilter)
     		this.regEx = parse(regEx);
     	else
     		this.regEx = regEx;
@@ -131,7 +148,7 @@ public class RegExFileFilter
      * Overriden to return the description of the filter.
      * @see FileFilter#getDescription()
      */
-	public String getDescription() { return "UserExpression"; }
+	public String getDescription() { return originalEx; }
 		
 	/**
 	 * Return the regular expression of the method.
@@ -140,6 +157,23 @@ public class RegExFileFilter
 	public String getRegExpression() 
 	{
 		return this.pattern.pattern();
+	}
+	
+	/**
+	 * Set the file filter of the regEx to the new RegEx. 
+	 * @param filter see above.
+	 * @param wildCardFilter convert to wildcard.
+	 */
+	public void setFilter(String filter, boolean wildCardFilter)
+	{
+	 	if (regEx == null)
+    		throw new IllegalArgumentException("RegEx cannot be null.");
+    	originalEx = filter;
+    	if (wildCardFilter)
+    		this.regEx = parse(filter);
+    	else
+    		this.regEx = filter;
+        this.pattern = Pattern.compile(this.regEx);
 	}
 }
 
