@@ -27,9 +27,6 @@ package org.openmicroscopy.shoola.util.ui;
 import javax.swing.JFrame;
 
 //Third-party libraries
-import com.apple.eawt.Application;
-import com.apple.eawt.ApplicationEvent;
-import com.apple.eawt.ApplicationListener;
 
 //Application-internal dependencies
 
@@ -48,10 +45,8 @@ import com.apple.eawt.ApplicationListener;
  * @since OME3.0
  */
 public class MacOSMenuHandler
-	extends Application
-	implements ApplicationListener
 {
-	
+
 	/** 
 	 * Bound property indicating that the <code>About</code>
 	 * menu item is selected.
@@ -64,80 +59,51 @@ public class MacOSMenuHandler
 	 */
 	public static final String QUIT_APPLICATION_PROPERTY = "quitpplication";
 	
-	
-	/** The parent of this class. */
+	/** Helper reference to the parent. */
 	private JFrame parent;
 	
-	/** 
-	 * Creates a new instance. 
+	/**
+	 * Creates a new instance.
 	 * 
-	 * @param parent The parent of this class. Mustn't be <code>null</code>.
+	 * @param parent Reference to the parent. Mustn't be <code>null</code>.
 	 */
 	public MacOSMenuHandler(JFrame parent)
 	{
-		if (parent == null) 
-			throw new IllegalArgumentException("No parent specified.");
+		if (parent == null)
+			throw new IllegalArgumentException("No manager specified.");
 		this.parent = parent;
-		addApplicationListener(this);
+		
 	}
-
-	/** 
-	 * Handles the selection of the <code>About</code> menu item.
-	 * @see ApplicationListener#handleAbout(ApplicationEvent)
+	
+	/**
+	 * Sets the method we want to handle.
+	 * @throws Throwable If the adapter cannot be created.
 	 */
-	public void handleAbout(ApplicationEvent ae) 
+	public void initialize()
+		throws Throwable
 	{
-		if (parent != null) {
-			ae.setHandled(true);
-			parent.firePropertyChange(ABOUT_APPLICATION_PROPERTY, 0, 1);
-		}
+		OSMenuAdapter.setQuitHandler(this, getClass().getDeclaredMethod("quit",
+									(Class[]) null));
+		OSMenuAdapter.setAboutHandler(this, getClass().getDeclaredMethod(
+									"about", (Class[]) null));
 	}
-
+	
 	/** 
-	 * Handles the selection of the <code>Quit</code> menu item.
-	 * @see ApplicationListener#handleQuit(ApplicationEvent)
+	 * Handles the action fired by the <code>About</code> menu item provided
+	 * by the Mac menu item.
 	 */
-	public void handleQuit(ApplicationEvent ae)
-	{
-		if (parent != null) {
-			ae.setHandled(false);
-			parent.firePropertyChange(QUIT_APPLICATION_PROPERTY, 0, 1);
-		}
+	public void about()
+	{ 
+		parent.firePropertyChange(ABOUT_APPLICATION_PROPERTY, 0, 1);
 	}
-
-	/**
-	 * Required by the {@linkApplicationListener} I/F but no-op implementation
-	 * in our case.
-	 * @see ApplicationListener#handleOpenApplication(ApplicationEvent)
+	
+	/** 
+	 * Handles the action fired by the <code>Quit</code> menu item provided
+	 * by the Mac menu item.
 	 */
-	public void handleOpenApplication(ApplicationEvent ae) {}
-
-	/**
-	 * Required by the {@linkApplicationListener} I/F but no-op implementation
-	 * in our case.
-	 * @see ApplicationListener#handleOpenFile(ApplicationEvent)
-	 */
-	public void handleOpenFile(ApplicationEvent ae) {}
-
-	/**
-	 * Required by the {@linkApplicationListener} I/F but no-op implementation
-	 * in our case.
-	 * @see ApplicationListener#handlePreferences(ApplicationEvent)
-	 */
-	public void handlePreferences(ApplicationEvent ae) {}
-
-	/**
-	 * Required by the {@linkApplicationListener} I/F but no-op implementation
-	 * in our case.
-	 * @see ApplicationListener#handlePrintFile(ApplicationEvent)
-	 */
-	public void handlePrintFile(ApplicationEvent ae) {}
-
-	/**
-	 * Required by the {@linkApplicationListener} I/F but no-op implementation
-	 * in our case.
-	 * @see ApplicationListener#handleReOpenApplication(ApplicationEvent)
-	 */
-	public void handleReOpenApplication(ApplicationEvent ae) {}
+	public void quit() 
+	{ 
+		parent.firePropertyChange(QUIT_APPLICATION_PROPERTY, 0, 1);
+	}
 	
 }

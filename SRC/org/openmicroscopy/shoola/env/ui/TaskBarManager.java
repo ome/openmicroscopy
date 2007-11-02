@@ -37,6 +37,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Map;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -56,8 +57,11 @@ import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
+import org.openmicroscopy.shoola.util.ui.OSMenuAdapter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -78,7 +82,7 @@ import org.w3c.dom.NodeList;
  * </small>
  * @since OME2.2
  */
-class TaskBarManager
+public class TaskBarManager
 	implements AgentEventListener, PropertyChangeListener
 {
 
@@ -273,12 +277,33 @@ class TaskBarManager
 		if (exitResponses.size() == 0) container.exit();
 	}
 	
+	
+	
+	/**
+	 * Temporary action to notify the user that the action associated to a
+	 * given button hasn't been implemented yet.
+	 */
+	private void notAvailable()
+	{
+		UserNotifier un = container.getRegistry().getUserNotifier();
+		un.notifyInfo("Not Available", 
+						"Sorry, this functionality is not yet available.");
+	}
+	
+	/** Brings up on screen a dialog to send comment. */
+	private void sendComment()
+	{
+		Registry reg = container.getRegistry();
+		UserNotifier un = reg.getUserNotifier();
+		un.submitMessage("");
+	}
+	
 	/**
 	 * The exit action.
 	 * Just forwards to the container.
 	 */
 	private void doExit()
-    { 
+    {
         IconManager icons = IconManager.getInstance(container.getRegistry());
         /*
         JPanel p = new JPanel();
@@ -374,31 +399,12 @@ class TaskBarManager
         msg = new MessageBox(view, "Exit application", 
     			"Do you really want to close the application?", 
     			icons.getIcon(IconManager.QUESTION));
-		if (msg.centerMsgBox() == MessageBox.YES_OPTION)
+        int option = msg.centerMsgBox();
+		if (option == MessageBox.YES_OPTION)
 			container.exit();
-		
     }
-	
-	/**
-	 * Temporary action to notify the user that the action associated to a
-	 * given button hasn't been implemented yet.
-	 */
-	private void notAvailable()
-	{
-		UserNotifier un = container.getRegistry().getUserNotifier();
-		un.notifyInfo("Not Available", 
-						"Sorry, this functionality is not yet available.");
-	}
-	
-	/** Brings up on screen a dialog to send comment. */
-	private void sendComment()
-	{
-		Registry reg = container.getRegistry();
-		UserNotifier un = reg.getUserNotifier();
-		un.submitMessage("");
-	}
-	
-    /**  Displays information about software. */
+
+	/**  Displays information about software. */
     private void softWareUpdates()
     {
     	//READ content of the about file.
@@ -496,13 +502,23 @@ class TaskBarManager
 		bus.register(this, ServiceActivationResponse.class);
         bus.register(this, ExitApplication.class);
         bus.register(this, SaveEventResponse.class);
-        String osName = System.getProperty("os.name");
-		if (osName.startsWith("Mac OS")) {
-        	new MacOSMenuHandler(view);
-	    	view.addPropertyChangeListener(this);
+        String osName = System.getProperty("os.name").toLowerCase();
+		if (osName.startsWith("mac os")) {
+        	//new MacOSMenuHandler(view);
+	    	//view.addPropertyChangeListener(this);
+			try {
+				MacOSMenuHandler handler = new MacOSMenuHandler(view);
+				handler.initialize();
+				view.addPropertyChangeListener(this);
+			} catch (Throwable e) {
+				Logger logger = container.getRegistry().getLogger();
+				LogMessage message = new LogMessage();
+				message.print(e);
+				logger.info(this, message);
+			}
         }
      }
-	
+
 	/**
 	 * Creates this controller along with its view and registers the necessary
 	 * listeners with the view.
