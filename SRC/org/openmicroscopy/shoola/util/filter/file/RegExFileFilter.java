@@ -78,6 +78,8 @@ public class RegExFileFilter
     			newString = newString + ".*";
     		else if(ex.charAt(i)=='.')
     			newString = newString +"[.]";
+    		else if(ex.charAt(i)=='?')
+    			newString = newString + ".";
     		else
     			newString = newString + ex.charAt(i);
     	}
