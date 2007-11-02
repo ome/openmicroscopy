@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 
 //Third-party libraries
+import java.awt.HeadlessException;
+
 import junit.framework.TestCase;
 
 //Application-internal dependencies
@@ -113,7 +115,13 @@ public class TestTaskBarStartup
         //Test.  Note that we don't start the container with the same
         //method invoked in main (startup method).  This avoids threads
         //headaches.
-        Container.startupInTestMode("");  //Root directory taken as home.
+        try {
+        	Container.startupInTestMode("");  //Root directory taken as home.
+		} catch (HeadlessException e) {
+			//Ignore in test mode.
+			return;
+		}
+        
         
         //Make sure all expected calls were performed.
         taskBar.verify();
