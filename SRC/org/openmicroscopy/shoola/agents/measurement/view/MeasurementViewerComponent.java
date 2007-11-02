@@ -53,7 +53,6 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.events.FreeCacheEvent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
@@ -204,7 +203,7 @@ class MeasurementViewerComponent
 	public void cancel()
 	{
 		model.cancel();
-		view.setStatus("");
+		view.setReadyStatus();
 		fireStateChange();
 	}
 	
@@ -240,9 +239,9 @@ class MeasurementViewerComponent
 			
 			return;
 		}
-
 		view.rebuildManagerTable();
 		view.updateDrawingArea();
+		view.setReadyStatus();
 		fireStateChange();
 		//Now we are ready to go. We can post an event to add component to
 		//Viewer

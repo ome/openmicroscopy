@@ -211,15 +211,18 @@ public class IconManager
 
     /** ID of <code>information message</code> icon. */
     public static final int	QUESTION = 52;
-    
+
     /** ID of <code>Save 48</code> icon. */
     public static final int	SAVE_48 = 53;
+    
+    /** ID of <code>Load 48</code> icon. */
+    public static final int	LOAD_48 = 54;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 53;
+    private static int      MAX_ID = 54;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -281,6 +284,7 @@ public class IconManager
         relPaths[INFORMATION_MESSAGE] = "nuvola_messagebox_info48.png";
         relPaths[QUESTION] = "nuvola_filetypes32.png";
         relPaths[SAVE_48] = "nuvola_filesaveas48.png";
+        relPaths[LOAD_48] = "nuvola_revert48.png";
     }
     
     /** 

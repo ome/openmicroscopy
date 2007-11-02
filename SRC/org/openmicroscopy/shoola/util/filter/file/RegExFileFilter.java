@@ -113,7 +113,7 @@ public class RegExFileFilter
     		throw new IllegalArgumentException("RegEx cannot be null.");
     	originalEx = regEx;
     	if (wildCardFilter)
-    		this.regEx = parse(regEx);
+    		this.regEx = parse(regEx.toLowerCase());
     	else
     		this.regEx = regEx;
         this.pattern = Pattern.compile(this.regEx);
@@ -135,7 +135,7 @@ public class RegExFileFilter
     public boolean accept(File fileName) 
     {
         String name = fileName.getName();
-        return this.pattern.matcher(name).matches();
+        return this.pattern.matcher(name.toLowerCase()).matches();
     }
 
     /**

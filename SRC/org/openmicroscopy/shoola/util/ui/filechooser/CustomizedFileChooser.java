@@ -378,11 +378,11 @@ class CustomizedFileChooser
 			}
 			else
 				filter.setFilter(filterString, true);
-			view.setStatusBarMessage("");
 		}
 		catch(Exception exception)
 		{
-			view.setStatusBarMessage(exception.getMessage());
+			// Eat the exception as this is just the user part way through the
+			// RegEx expression and it being malformed.
 		}
 		this.repaint();
 		

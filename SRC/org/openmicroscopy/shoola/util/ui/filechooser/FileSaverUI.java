@@ -131,8 +131,6 @@ class FileSaverUI
 	/** The panel hosting the additions. */
 	private JPanel						controlsPanel;
 	
-	private JStatusBar					statusBar; 
-	
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
@@ -171,7 +169,6 @@ class FileSaverUI
 		approveButton.setActionCommand(""+APPROVE);
 		approveButton.setEnabled(false);
 		model.getRootPane().setDefaultButton(approveButton);
-		statusBar = new JStatusBar();
 	}
 
 	/**
@@ -263,9 +260,18 @@ class FileSaverUI
 		p.add(chooser, BorderLayout.CENTER);
 		p.add(controlsPanel, BorderLayout.SOUTH);
 		IconManager im = IconManager.getInstance();
-		Icon icon = im.getIcon(IconManager.SAVE_48);
-		if (model.getDialogType() == FileChooser.FOLDER_CHOOSER)
-			icon = im.getIcon(IconManager.DOWNLOAD_48);
+		Icon icon;
+		switch(model.getDialogType())
+		{
+			case FileChooser.SAVE:
+				icon = im.getIcon(IconManager.SAVE_48);
+			case FileChooser.LOAD:
+				icon = im.getIcon(IconManager.LOAD_48);
+			case FileChooser.FOLDER_CHOOSER:
+				icon = im.getIcon(IconManager.DOWNLOAD_48);
+			default:
+				icon = im.getIcon(IconManager.SAVE_48);
+		}
 		Container c = model.getContentPane();
 		c.setLayout(new BorderLayout(0, 0));
 		TitlePanel tp = new TitlePanel(model.getTitle(), model.getNote(), icon);
@@ -279,7 +285,6 @@ class FileSaverUI
 				model.getRootPane().setWindowDecorationStyle(
 						JRootPane.FILE_CHOOSER_DIALOG);
 		}
-		c.add(statusBar, BorderLayout.SOUTH);
 	}
 
 	/**
@@ -443,15 +448,6 @@ class FileSaverUI
 				UIUtilities.centerAndShow(model, d);
 				break;
 		}
-	}
-
-	/**
-	 * Set the text of the status bar to the message.
-	 * @param message see above.
-	 */
-	public void setStatusBarMessage(String message)
-	{
-		statusBar.setMessage(message);
 	}
 	
 	/**
