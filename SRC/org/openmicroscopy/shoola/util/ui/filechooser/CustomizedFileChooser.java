@@ -368,12 +368,9 @@ class CustomizedFileChooser
 		String filterString = nameArea.getText();
 		try
 		{
-		RegExFileFilter filter = new RegExFileFilter(filterString, true);
-
-		addChoosableFileFilter(filter);
-		setFileFilter(filter);
-		this.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		view.setStatusBarMessage("");
+			RegExFileFilter filter = new RegExFileFilter(filterString, true);
+			setFileFilter(filter);
+			view.setStatusBarMessage("");
 		}
 		catch(Exception exception)
 		{

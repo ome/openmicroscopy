@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.util.filter.file;
 import java.io.File;
 import java.util.regex.Pattern;
 
+import javax.swing.filechooser.FileFilter;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -117,25 +119,18 @@ public class RegExFileFilter
         return this.pattern.matcher(name).matches();
     }
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter#getExtension()
+    /**
+	 * 	Overriden to return the extension of the filter.
+	 * 	@see CustomizedFileFilter#getExtension()
 	 */
-	@Override
-	public String getExtension()
-	{
-		return getRegExpression();
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.filechooser.FileFilter#getDescription()
-	 */
-	@Override
-	public String getDescription()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public String getExtension() { return originalEx; }
 	
+    /**
+     * Overriden to return the description of the filter.
+     * @see FileFilter#getDescription()
+     */
+	public String getDescription() { return "UserExpression"; }
+		
 	/**
 	 * Return the regular expression of the method.
 	 * @return see above.
