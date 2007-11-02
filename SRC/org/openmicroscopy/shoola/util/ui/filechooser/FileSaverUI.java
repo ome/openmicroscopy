@@ -50,6 +50,7 @@ import javax.swing.UIManager;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.JStatusBar;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -130,6 +131,8 @@ class FileSaverUI
 	/** The panel hosting the additions. */
 	private JPanel						controlsPanel;
 	
+	private JStatusBar					statusBar; 
+	
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
@@ -168,6 +171,7 @@ class FileSaverUI
 		approveButton.setActionCommand(""+APPROVE);
 		approveButton.setEnabled(false);
 		model.getRootPane().setDefaultButton(approveButton);
+		statusBar = new JStatusBar();
 	}
 
 	/**
@@ -275,6 +279,7 @@ class FileSaverUI
 				model.getRootPane().setWindowDecorationStyle(
 						JRootPane.FILE_CHOOSER_DIALOG);
 		}
+		c.add(statusBar, BorderLayout.SOUTH);
 	}
 
 	/**
@@ -441,6 +446,15 @@ class FileSaverUI
 	}
 
 	/**
+	 * Set the text of the status bar to the message.
+	 * @param message see above.
+	 */
+	public void setStatusBarMessage(String message)
+	{
+		statusBar.setMessage(message);
+	}
+	
+	/**
 	 * Listens to the property fired by the folder dialog.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
@@ -450,6 +464,7 @@ class FileSaverUI
 		chooser.createFolder(name);
 	}
 
+	
 }
 
 

@@ -24,8 +24,12 @@ package org.openmicroscopy.shoola.util.ui.filechooser;
 
 
 //Java imports
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.List;
+import java.util.regex.Pattern;
+
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -37,6 +41,7 @@ import javax.swing.filechooser.FileFilter;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
+import org.openmicroscopy.shoola.util.filter.file.RegExFileFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -54,7 +59,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class CustomizedFileChooser
 	extends JFileChooser 
-	implements DocumentListener
+	implements DocumentListener, KeyListener
 {
 	
 	/** This is the default text for the file name when loading a file. */
@@ -77,14 +82,19 @@ class CustomizedFileChooser
 	{
 		nameArea = (JTextField) 
 					UIUtilities.findComponent(this, JTextField.class);
-		if (nameArea != null) nameArea.getDocument().addDocumentListener(this);
+		if (nameArea != null)
+			{
+			nameArea.setVisible(true);
+			nameArea.getDocument().addDocumentListener(this);
+			nameArea.addKeyListener(this);
+			}
 	}
 		
 	/** Builds and lays out the GUI. */
 	private void buildGUI()
 	{
 		setAcceptAllFileFilterUsed(false);
-		setDialogType(SAVE_DIALOG);
+		setDialogType(CUSTOM_DIALOG);
 		setControlButtonsAreShown(nameArea == null);
 		JLabel label;
 		List<FileFilter> filters = model.getFilterList();
@@ -106,14 +116,14 @@ class CustomizedFileChooser
 				setFileSelectionMode(FILES_ONLY);
 				break;
 			case FileChooser.FOLDER_CHOOSER:
-				/*
-				List boxes = UIUtilities.findComponents(this, JComboBox.class);
+				
+				/*List boxes = UIUtilities.findComponents(this, JComboBox.class);
 				if (boxes != null) {
 					JComboBox box = (JComboBox) boxes.get(boxes.size()-1);
 					if (box.getParent() != null) 
 						box.getParent().setVisible(false);
-				}
-				*/
+				}*/
+				
 				label = (JLabel) UIUtilities.findComponent(this, JLabel.class);
 				if (label != null)
 					label.setText(FOLDER_LABEL);
@@ -339,6 +349,45 @@ class CustomizedFileChooser
 	 * in our case.
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
-	public void changedUpdate(DocumentEvent e) {}
+	public void changedUpdate(DocumentEvent e){}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
+	 */
+	public void keyPressed(KeyEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
+	 */
+	public void keyReleased(KeyEvent e)
+	{
+		String filterString = nameArea.getText();
+		try
+		{
+		RegExFileFilter filter = new RegExFileFilter(filterString, true);
+
+		addChoosableFileFilter(filter);
+		setFileFilter(filter);
+		this.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		view.setStatusBarMessage("");
+		}
+		catch(Exception exception)
+		{
+			view.setStatusBarMessage(exception.getMessage());
+		}
+		this.repaint();
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
+	 */
+	public void keyTyped(KeyEvent e)
+	{
+	}
 	
 }

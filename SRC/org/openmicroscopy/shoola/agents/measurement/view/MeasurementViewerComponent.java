@@ -353,10 +353,10 @@ class MeasurementViewerComponent
 		FileFilter filter = new XMLFilter();
 		filterList.add(filter);
 		FileChooser chooser=
-				new FileChooser(
-					view, FileChooser.LOAD, "Load the ROI File",
-					"Load the ROI data in the file associate with this image.",
-					filterList);
+			new FileChooser(
+				view, FileChooser.LOAD, "Load the ROI File",
+				"Load the ROI data in the file associate with this image.",
+				filterList);
 		File f=UIUtilities.getDefaultFolder();
 		if (f!=null) chooser.setCurrentDirectory(f);
 		try
