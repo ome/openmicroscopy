@@ -10,13 +10,13 @@
 	<f:view>
 		<h2><h:outputText value="#{msg.uploadFile}" /></h2>
 
-		<p><h:outputText value="#{msg.uploadFileName} " /><h:outputText
-			value="#{UploadBean.uploadedNewFile.name}" /></p>
+		<c:if test="${not empty requestScope.UploadBean.uploadedNewFile.name}"><p><h:outputText value="#{msg.uploadFileName} " /><h:outputText
+			value="#{UploadBean.uploadedNewFile.name}" /></p></c:if>
 
 		<div><h:form enctype="multipart/form-data"
 			id="uploadedNewFileForm" rendered="#{UploadBean.directory}">
-			<h:message styleClass="errorText" id="uploadedNewFileFormError"
-				for="uploadedNewFileForm" />
+			<p><h:message styleClass="errorText" id="uploadedNewFileFormError"
+				for="uploadedNewFileForm" /></p>
 			<br />
 
 			<h:outputText value="#{msg.uploadFile}" />
@@ -30,7 +30,7 @@
 		</h:form></div>
 
 		<c:if test="${!requestScope.UploadBean.editMode}">
-			<h:outputText value="#{msg.uploadDirError}" />
+			<p><h:outputText value="#{msg.uploadDirError}" /></p>
 		</c:if>
 
 	</f:view>
