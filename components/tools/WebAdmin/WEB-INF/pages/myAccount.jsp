@@ -14,6 +14,8 @@
 			<h:inputHidden id="userid" 
 				value="#{IAMAManagerBean.user.experimenter.id}" />
 
+			<p><h:outputText value="#{msg.generalMandatoryFields}"/></p>
+			
 			<h:message styleClass="errorText" id="experimenterFormError"
 				for="experimenterForm" />
 			<br />
@@ -59,7 +61,7 @@
 
 				<h:inputText id="email" maxlength="255"
 					value="#{IAMAManagerBean.user.experimenter.email}"
-					validator="#{IAMAManagerBean.validateEmail}">
+					validator="#{IAMAManagerBean.validateEmail}" required="true">
 					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
@@ -93,7 +95,7 @@
 				
 		</h:form>
 		 
-		<c:if test="${empty sessionScope.IAMAManagerBean.user.dn}">
+		<c:if test="${empty requestScope.IAMAManagerBean.user.dn}">
 			<h:form id="passwd">
 				<br />
 				<h:graphicImage url="/images/add.png" />
@@ -103,7 +105,7 @@
 			</h:form>
 		</c:if>
 		<br/>
-		<c:if test="${not empty sessionScope.IAMAManagerBean.user.dn}">
+		<c:if test="${not empty requestnScope.IAMAManagerBean.user.dn}">
 			<h:outputText value="#{msg.myaccountLdapInfo}"/>
 		</c:if></div>
 

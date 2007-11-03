@@ -27,6 +27,8 @@ import org.apache.myfaces.custom.datascroller.ScrollerActionEvent;
 
 // Application-internal dependencies
 import ome.model.meta.ExperimenterGroup;
+import ome.utils.NavigationResults;
+import ome.utils.Utils;
 import ome.admin.logic.IAdminExperimenterManagerDelegate;
 import ome.admin.model.User;
 
@@ -279,6 +281,8 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	 * Provides the scroller action.
 	 * 
 	 * @param event
+	 *            {@link javax.faces.event.ActionEvent} object from the
+	 *            specified source component and action command.
 	 */
 	public void scrollerAction(ActionEvent event) {
 		ScrollerActionEvent scrollerEvent = (ScrollerActionEvent) event;

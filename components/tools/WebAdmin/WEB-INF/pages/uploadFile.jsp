@@ -13,7 +13,8 @@
 		<p><h:outputText value="#{msg.uploadFileName} " /><h:outputText
 			value="#{UploadBean.uploadedNewFile.name}" /></p>
 
-		<div><h:form enctype="multipart/form-data" id="uploadedNewFileForm">
+		<div><h:form enctype="multipart/form-data"
+			id="uploadedNewFileForm" rendered="#{UploadBean.directory}">
 			<h:message styleClass="errorText" id="uploadedNewFileFormError"
 				for="uploadedNewFileForm" />
 			<br />
@@ -27,6 +28,10 @@
 			<h:commandButton id="submitUpdate" action="#{UploadBean.uploadFile}"
 				value="#{msg.uploadSave}" />
 		</h:form></div>
+
+		<c:if test="${!requestScope.UploadBean.editMode}">
+			<h:outputText value="#{msg.uploadDirError}" />
+		</c:if>
 
 	</f:view>
 </c:if>

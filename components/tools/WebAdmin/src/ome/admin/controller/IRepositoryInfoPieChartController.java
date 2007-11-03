@@ -26,12 +26,7 @@ import ome.admin.logic.IRepositoryInfoManagerDelegator;
  * @version 1.0 <small> (<b>Internal version:</b> $Revision$Date: $)</small>
  * @since OME3.0
  */
-public class IRepositoryInfoPieChartController implements java.io.Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public class IRepositoryInfoPieChartController {
 
 	/**
 	 * {@link org.jfree.data.general.DefaultPieDataset}

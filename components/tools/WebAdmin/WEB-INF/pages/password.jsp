@@ -11,6 +11,8 @@
 		<h2><h:outputText
 				value="#{msg.experimentersChangePassword}" /></h2>
 		
+		<p><h:outputText value="#{msg.generalMandatoryFields}"/></p>
+		
 		<h:form id="changePassword">
 
 			<h:message styleClass="errorText" id="changePasswordError"

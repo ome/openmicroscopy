@@ -10,6 +10,8 @@
 		<div id="addform">
 		<h1><h:outputText value="#{msg.myaccountChangePassword}" /></h1>
 
+		<p><h:outputText value="#{msg.generalMandatoryFields}"/></p>
+		
 		<h:form id="changePassword">
 
 			<h:message styleClass="errorText" id="changePasswordError"

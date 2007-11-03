@@ -25,6 +25,7 @@ import ome.system.EventContext;
 import ome.system.Login;
 import ome.system.Server;
 import ome.system.ServiceFactory;
+import ome.utils.NavigationResults;
 
 /**
  * It's the Java bean with attributes and setter/getter and actions methods. The
@@ -252,7 +253,6 @@ public class LoginBean implements java.io.Serializable{
      * @return {@link java.lang.String} "success" or "false"
      */
 	public String login() {
-
 		logger.info("User " + this.username + " has started to log in to app.");
 
 		this.mode = false;

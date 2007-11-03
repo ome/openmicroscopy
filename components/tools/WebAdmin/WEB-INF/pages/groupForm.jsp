@@ -14,6 +14,8 @@
 			<h2><h:outputText value="#{msg.groupsEditGroup}"
 				rendered="#{IAGManagerBean.editMode}" /></h2>
 
+			<p><h:outputText value="#{msg.generalMandatoryFields}"/></p>
+
 			<h:inputHidden id="groupid" value="#{IAGManagerBean.group.id}" />
 
 			<h:message styleClass="errorText" id="groupFormError" for="groupForm" />

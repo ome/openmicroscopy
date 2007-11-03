@@ -28,6 +28,8 @@ import org.apache.myfaces.custom.datascroller.ScrollerActionEvent;
 import ome.admin.logic.IAdminGroupManagerDelegate;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.utils.NavigationResults;
+import ome.utils.Utils;
 
 /**
  * It's the Java bean with six attributes and setter/getter and actions methods.

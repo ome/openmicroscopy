@@ -284,7 +284,7 @@
 		<managed-bean-class>
 			ome.admin.controller.IAdminMyAccountController
 		</managed-bean-class>
-		<managed-bean-scope>session</managed-bean-scope>
+		<managed-bean-scope>request</managed-bean-scope>
 	</managed-bean>
 
 	<!-- LoginBean -->

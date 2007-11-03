@@ -31,6 +31,7 @@ import ome.admin.logic.ImportManagerDelegate;
 import ome.admin.logic.UpdateManagerDelegate;
 import ome.admin.model.User;
 import ome.conditions.ApiUsageException;
+import ome.utils.NavigationResults;
 
 /**
  * It's the Java bean with attributes and setter/getter and actions methods. The

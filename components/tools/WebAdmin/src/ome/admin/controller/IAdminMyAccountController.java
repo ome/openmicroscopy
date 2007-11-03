@@ -25,6 +25,8 @@ import org.apache.log4j.Logger;
 import ome.admin.logic.IAdminExperimenterManagerDelegate;
 import ome.admin.model.User;
 import ome.model.meta.ExperimenterGroup;
+import ome.utils.NavigationResults;
+import ome.utils.Utils;
 
 /**
  * It's the Java bean with fife attributes and setter/getter and actions methods. The bean captures login params entered by a user after the user clicks the submit button. This way the bean provides a bridge between the JSP page and the application logic.
@@ -32,12 +34,7 @@ import ome.model.meta.ExperimenterGroup;
  * @version 1.0 <small> (<b>Internal version:</b> $Revision$Date: $)</small>
  * @since OME3.0
  */
-public class IAdminMyAccountController implements java.io.Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public class IAdminMyAccountController {
 
 	/**
 	 * log4j logger

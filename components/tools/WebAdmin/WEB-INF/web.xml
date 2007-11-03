@@ -24,7 +24,7 @@
 	<!-- StoreRepositoryPath params -->
 	<context-param>
 		<param-name>usersListsDir</param-name>
-		<param-value>/Users/tmp/UsersLists</param-value>
+		<param-value>/OMERO/UsersLists</param-value>
 	</context-param>
 	<!-- END Users configuration -->
 
@@ -190,7 +190,7 @@
 		</init-param>
 		<init-param>
 			<param-name>uploadRepositoryPath</param-name>
-			<param-value>/Users/tmp</param-value>
+			<param-value>/OMERO/UsersLists</param-value>
 			<description>
 				Set the path where the intermediary files will be
 				stored.
@@ -303,6 +303,6 @@
 	</welcome-file-list>
 
 	<session-config>
-		<session-timeout>15</session-timeout>
+		<session-timeout>30</session-timeout>
 	</session-config>
 </web-app>

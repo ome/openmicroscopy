@@ -14,6 +14,8 @@
 			<h2><h:outputText value="#{msg.experimentersEdit}"
 				rendered="#{IAEManagerBean.editMode}" /></h2>
 
+			<p><h:outputText value="#{msg.generalMandatoryFields}" /></p>
+
 			<h:inputHidden id="userid"
 				value="#{IAEManagerBean.user.experimenter.id}" />
 
@@ -68,7 +70,7 @@
 
 				<h:inputText id="email" maxlength="255"
 					value="#{IAEManagerBean.user.experimenter.email}"
-					validator="#{IAEManagerBean.validateEmail}">
+					validator="#{IAEManagerBean.validateEmail}" required="true">
 					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
