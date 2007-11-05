@@ -18,13 +18,13 @@
 	<!-- TopTen params -->
 	<context-param>
 		<param-name>topTenValue</param-name>
-		<param-value>5</param-value>
+		<param-value>10</param-value>
 	</context-param>
 
 	<!-- StoreRepositoryPath params -->
 	<context-param>
 		<param-name>usersListsDir</param-name>
-		<param-value>/OMERO/UsersLists</param-value>
+		<param-value>/OMERO/WebAdmin</param-value>
 	</context-param>
 	<!-- END Users configuration -->
 
@@ -190,7 +190,7 @@
 		</init-param>
 		<init-param>
 			<param-name>uploadRepositoryPath</param-name>
-			<param-value>/OMERO/UsersLists</param-value>
+			<param-value>/OMERO/WebAdmin</param-value>
 			<description>
 				Set the path where the intermediary files will be
 				stored.

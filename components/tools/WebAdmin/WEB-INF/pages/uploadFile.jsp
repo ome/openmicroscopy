@@ -30,7 +30,7 @@
 		</h:form></div>
 
 		<c:if test="${!requestScope.UploadBean.editMode}">
-			<p><h:outputText value="#{msg.uploadDirError}" /></p>
+			<p><h:outputText styleClass="errorText" value="#{msg.uploadDirError}" /></p>
 		</c:if>
 
 	</f:view>
