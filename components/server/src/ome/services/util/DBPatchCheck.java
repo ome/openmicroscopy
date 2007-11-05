@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
 
-import javax.ejb.EJBException;
+import ome.conditions.InternalException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,7 +37,20 @@ public class DBPatchCheck {
         this.jdbc = template;
     }
 
-    public static String msg = "Database version mismatch. Please apply a db upgrade.";
+    private final static String line = "***************************************************************************************\n";
+    private final static String see = "See https://trac.openmicroscopy.org.uk/wiki/DbUpgrade\n";
+    private final static String no_table = mk("Error connecting to database table dbpatch. You may need to bootstrap.\n");
+    private final static String wrong_version = mk("DB version (%s) does not match omero.properties (%s). Please apply a db upgrade.\n");
+
+    private static String mk(String msg) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n");
+        sb.append(line);
+        sb.append(msg);
+        sb.append(see);
+        sb.append(line);
+        return sb.toString();
+    }
 
     /**
      * Attempts twice to connect to the server to overcome any initial
@@ -55,20 +68,26 @@ public class DBPatchCheck {
             // which will be logged but does not prevent execution.
         }
 
+        String patch = null;
         try {
-            String patch = patchLevel();
-            checkPatch(patch);
-            log.info(String.format("Verified database patch: %s", patch));
+            patch = patchLevel();
         } catch (Exception e) {
-            log.error(msg, e);
-            RuntimeException re = new EJBException(msg) {
-                @Override
-                public synchronized Throwable fillInStackTrace() {
-                    return null;
-                }
-            };
-            throw re;
+            log.fatal(no_table, e);
+            InternalException ie = new InternalException(no_table);
+            throw ie;
         }
+
+        String version = bundle.getString("omero.dbversion");
+        String dbpatch = bundle.getString("omero.dbpatch");
+        String omero = version + "__" + dbpatch;
+        if (patch == null || !patch.equals(omero)) {
+            String str = String.format(wrong_version, patch, omero);
+            log.fatal(str);
+            InternalException ie = new InternalException(str);
+            throw ie;
+        }
+
+        log.info(String.format("Verified database patch: %s", patch));
     }
 
     /**
@@ -87,17 +106,6 @@ public class DBPatchCheck {
                     }
 
                 }).get(0);
-    }
-
-    protected void checkPatch(String patch) {
-        String version = bundle.getString("omero.dbversion");
-        String dbpatch = bundle.getString("omero.dbpatch");
-        String omero = version + "__" + dbpatch;
-        if (patch == null || !patch.equals(omero)) {
-            throw new RuntimeException(String.format(
-                    "DB patch level (%s) does not match omero.properties (%s)",
-                    patch, omero));
-        }
     }
 
 }
