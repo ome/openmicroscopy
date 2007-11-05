@@ -22,15 +22,10 @@ public class FieldEditorProtocol extends FieldEditor {
 		inputTypeSelector.setEnabled(false);
 		
 		keywordsFieldEditor = new AttributeEditor
-			("Keywords: ", keywords,  textChangedListener, focusChangedListener);
+			("Keywords: ", DataField.KEYWORDS, keywords);
 		keywordsFieldEditor.setToolTipText("Add keywords, separated by commas");
 		attributeFieldsPanel.add(keywordsFieldEditor);
 		
 	}
-	
-//	 subclasses override these if they have attributes other than name, desc, inputType.
-	//	 called when focus lost
-	public void updateModelsOtherAttributes() {	
-		dataField.setAttribute(DataField.KEYWORDS, keywordsFieldEditor.getTextFieldText(), false);
-	}
+
 }

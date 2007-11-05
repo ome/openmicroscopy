@@ -22,7 +22,7 @@ public class FieldEditorDate extends FieldEditor {
 	    
 	    dataField.setAttribute(DataField.DEFAULT, defaultDate, false);
 		
-		defaultFieldEditor = new AttributeEditor("Default: ", defaultDate,  textChangedListener, focusChangedListener);
+		defaultFieldEditor = new AttributeEditor("Default: ", DataField.DATE, defaultDate);
 		// don't allow users to set any other default data!
 		defaultFieldEditor.setEnabled(false);
 		attributeFieldsPanel.add(defaultFieldEditor);

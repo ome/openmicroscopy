@@ -1,16 +1,18 @@
 package ui;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JComboBox;
 
 import tree.DataField;
-import ui.FormField.FocusLostUpdatDataFieldListener;
 import ui.FormField.FormPanelMouseListener;
 
 public class FormFieldDropDown extends FormField {
 	
+	ActionListener valueSelectionListener = new ValueSelectionListener();
 	
 	String[] ddOptions = {" "};
 	
@@ -24,7 +26,9 @@ public class FormFieldDropDown extends FormField {
 		String value = dataField.getAttribute(DataField.VALUE);
 		
 		comboBox = new JComboBox();
-		comboBox.addFocusListener(new FocusLostUpdatDataFieldListener());
+		
+		comboBox.addActionListener(valueSelectionListener);
+		// comboBox.addFocusListener(new FocusLostUpdatDataFieldListener());
 		
 		setDropDownOptions(dropDownOptions);
 		
@@ -42,6 +46,8 @@ public class FormFieldDropDown extends FormField {
 			for(int i=0; i<ddOptions.length; i++) {
 				ddOptions[i] = ddOptions[i].trim();
 			}
+			
+			comboBox.removeActionListener(valueSelectionListener);
 		
 			comboBox.removeAllItems();
 			for(int i=0; i<ddOptions.length; i++) {
@@ -55,6 +61,8 @@ public class FormFieldDropDown extends FormField {
 					if (value.equals(ddOptions[i]))
 						comboBox.setSelectedIndex(i);
 			}
+			
+			comboBox.addActionListener(valueSelectionListener);
 			
 			//need to update value (in case it wasn't in the new ddOptions)
 			updateDataField();
@@ -79,9 +87,13 @@ public class FormFieldDropDown extends FormField {
 	public void setValue(String newValue) {
 		if (newValue == null) return;
 		
+		comboBox.removeActionListener(valueSelectionListener);
+		
 		for (int i=0; i<ddOptions.length; i++)
 			if (newValue.equals(ddOptions[i]))
 				comboBox.setSelectedIndex(i);
+		
+		comboBox.addActionListener(valueSelectionListener);
 		
 		updateDataField();
 	}
@@ -94,6 +106,12 @@ public class FormFieldDropDown extends FormField {
 		if (enabled) comboBox.setForeground(Color.BLACK);
 		else comboBox.setForeground(comboBox.getBackground());
 		
+	}
+	
+	public class ValueSelectionListener implements ActionListener {
+		public void actionPerformed (ActionEvent event) {
+			dataField.setAttribute(DataField.VALUE, comboBox.getSelectedItem().toString(), true);
+		}
 	}
 	
 }

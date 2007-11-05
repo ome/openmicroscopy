@@ -48,6 +48,8 @@ public class ImageFactory {
 	public static final String VALIDATION_ICON = ICONS_FILE + "apps/spellcheck.png";
 	public static final String RED_BALL_ICON = ACTION_ICONS_FILE + "krec_record.png";
 	public static final String UNDO_ICON = ACTION_ICONS_FILE + "undo.png";
+	public static final String REDO_ICON = ACTION_ICONS_FILE + "redo.png";
+	
 	
 	public Icon getIcon(String iconPathName) {
 		try {

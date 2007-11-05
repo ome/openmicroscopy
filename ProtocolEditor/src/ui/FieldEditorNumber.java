@@ -22,20 +22,14 @@ public class FieldEditorNumber extends FieldEditor {
 		String defaultValueString = dataField.getAttribute(DataField.DEFAULT);
 		String units = dataField.getAttribute(DataField.UNITS);
 		
-		defaultFieldEditor = new AttributeEditor("Default: ", defaultValueString,  textChangedListener, focusChangedListener);
+		defaultFieldEditor = new AttributeEditor("Default: ", DataField.DEFAULT, defaultValueString);
 		defaultFieldEditor.getTextField().addFocusListener(new NumberCheckerListener());
 		attributeFieldsPanel.add(defaultFieldEditor);
 		
-		unitsFieldEditor = new AttributeEditor("Units: ", units,  textChangedListener, focusChangedListener);
+		unitsFieldEditor = new AttributeEditor("Units: ", DataField.UNITS, units);
 		attributeFieldsPanel.add(unitsFieldEditor);
 	}
-	
-	//	 subclasses override these if they have attributes other than name, desc, inputType.
-	//	 called when focus lost
-	public void updateModelsOtherAttributes() {	
-		dataField.setAttribute(DataField.DEFAULT, defaultFieldEditor.getTextFieldText(), false);
-		dataField.setAttribute(DataField.UNITS, unitsFieldEditor.getTextFieldText(), false);
-	}
+
 	
 	public class NumberCheckerListener implements FocusListener {
 		public void focusLost(FocusEvent event){	

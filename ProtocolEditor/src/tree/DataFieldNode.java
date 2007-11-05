@@ -6,11 +6,13 @@ import java.util.LinkedHashMap;
 
 import javax.swing.Box;
 import javax.swing.JPanel;
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.undo.UndoableEdit;
 
 import org.w3c.dom.Element;
 
 
-public class DataFieldNode implements Visitable {
+public class DataFieldNode {
 	
 	DataField dataField;
 	
@@ -133,17 +135,19 @@ public class DataFieldNode implements Visitable {
 	public void nodeClicked(boolean clearOthers) {
 		getTree().nodeSelected(this, clearOthers);
 	}
-	public void dataFieldUpdated() {
-		getTree().dataFieldUpdated();
+	// let the tree know that a dataField has changed - and pass reference for undo() action
+	public void dataFieldUpdated(AbstractUndoableEdit  undoDataFieldAction) {
+		getTree().dataFieldUpdated(undoDataFieldAction);
+	}
+	// notification that UI needs updating. eg. due to dataField inputType change
+	public void xmlUpdated() {
+		getTree().xmlUpdated();
 	}
 	public void hideChildren(boolean hidden) {
 		if (childBox != null)	// sometimes visibility of children is set before UI is fully built
 			childBox.setVisible(!hidden);
 	}
 
-	public void acceptVistor(DataFieldVisitor visitor) {
-		dataField.acceptVistor(visitor);
-	}
 	public void collapseAllChildren(boolean collapse) {
 		getTree().collapseAllChildren(collapse);
 	}

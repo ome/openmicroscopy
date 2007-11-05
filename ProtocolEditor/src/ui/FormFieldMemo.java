@@ -11,7 +11,6 @@ import javax.swing.JTextArea;
 import org.w3c.dom.Element;
 
 import tree.DataField;
-import ui.FormField.FocusLostUpdatDataFieldListener;
 
 public class FormFieldMemo extends FormField {
 	
@@ -31,7 +30,9 @@ public class FormFieldMemo extends FormField {
 		textInput.setMargin(new Insets(3,3,3,3));
 		textInput.setPreferredSize(new Dimension(300, 100));
 		textInput.addMouseListener(new FormPanelMouseListener());
-		textInput.addFocusListener(new FocusLostUpdatDataFieldListener());
+		textInput.setName(DataField.VALUE);
+		textInput.addFocusListener(focusChangedListener);
+		textInput.addKeyListener(textChangedListener);
 		horizontalBox.add(textScroller);
 		
 		setExperimentalEditing(false);	// default created as uneditable
@@ -39,7 +40,7 @@ public class FormFieldMemo extends FormField {
 	
 	// overridden by subclasses (when focus lost) if they have values that need saving 
 	public void updateDataField() {
-		dataField.setAttribute(DataField.VALUE, textInput.getText(), false);
+		dataField.setAttribute(DataField.VALUE, textInput.getText(), true);
 	}
 	
 //	 overridden by subclasses if they have a value and text field

@@ -20,7 +20,9 @@ public class FormFieldDate extends FormField {
 		textInput = new JTextField(date);
 		visibleAttributes.add(textInput);
 		textInput.addMouseListener(new FormPanelMouseListener());
-		textInput.addFocusListener(new FocusLostUpdatDataFieldListener());
+		textInput.setName(DataField.VALUE);
+		textInput.addFocusListener(focusChangedListener);
+		textInput.addKeyListener(textChangedListener);
 		horizontalBox.add(textInput);
 		
 		setExperimentalEditing(false);	// default created as uneditable
@@ -28,7 +30,7 @@ public class FormFieldDate extends FormField {
 	
 	// overridden by subclasses (when focus lost) if they have values that need saving 
 	public void updateDataField() {
-		dataField.setAttribute(DataField.VALUE, textInput.getText(), false);
+		dataField.setAttribute(DataField.VALUE, textInput.getText(), true);
 	}
 	
 //	 overridden by subclasses if they have a value and text field

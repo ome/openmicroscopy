@@ -7,6 +7,12 @@ import java.util.LinkedHashMap;
 import java.util.Stack;
 
 import javax.swing.JPanel;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.undo.UndoManager;
+import javax.swing.undo.UndoableEdit;
+import javax.swing.undo.UndoableEditSupport;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -22,13 +28,13 @@ import ui.XMLUpdateObserver;
 // Tree manages the tree data structure
 // also knows which fields are currently selected (applies actions to these)
 
-public class Tree implements Visitable{
+public class Tree {
 	
 	// this enum specifies a constructor that takes a String name, returned by toString();
 	public enum Actions {MOVE_FIELDS_UP("Move Fields Up"), MOVE_FIELDS_DOWN("Move Fields Down"), 
 		DELTE_FIELDS("Delete Fields"), ADD_NEW_FIELD("Add New Field"), DEMOTE_FIELDS("Demote Fields"), 
 		PROMOTE_FIELDS("Promote Fields"), DUPLICATE_FIELDS("Duplicate Fields"), COPY_FIELDS("Copy Fields"),
-		PASTE_FIELDS("Paste Fields"), UNDO_LAST_ACTION("Undo Last Action"), IMPORT_FIELDS("Import Fields");
+		PASTE_FIELDS("Paste Fields"), UNDO_LAST_ACTION("Undo Last Action"), REDO_ACTION("Redo"), IMPORT_FIELDS("Import Fields");
 		private Actions(String name){
 			this.name = name;
 		}
@@ -52,14 +58,15 @@ public class Tree implements Visitable{
 	private SelectionObserver selectionObserver;
 	private XMLUpdateObserver xmlUpdateObserver;
 	
-	private Stack<TreeAction> undoActions = new Stack<TreeAction>();
+	UndoManager undoManager;         // history list
+	UndoableEditSupport undoSupport; // event support
+	
 	
 	
 	public Tree(Document document, SelectionObserver selectionObserver, XMLUpdateObserver xmlObserver) {
 		
 		this.selectionObserver = selectionObserver;
 		this.xmlUpdateObserver = xmlObserver;
-		highlightedFields = new ArrayList<DataFieldNode>();
 		
 		Element rootElement = document.getDocumentElement();
 			
@@ -68,12 +75,13 @@ public class Tree implements Visitable{
 		parseElementToMap(rootElement, allAttributes);
 			 
 		rootNode = new DataFieldNode(allAttributes, this);
+		
+		initialise();
 			
 		buildTreeFromDOM(rootNode, rootElement);
 	}
 	
 	public Tree(Document document) {
-		highlightedFields = new ArrayList<DataFieldNode>();
 		
 		Element rootElement = document.getDocumentElement();
 			
@@ -82,6 +90,8 @@ public class Tree implements Visitable{
 		parseElementToMap(rootElement, allAttributes);
 			 
 		rootNode = new DataFieldNode(allAttributes, this);
+		
+		initialise();
 			
 		buildTreeFromDOM(rootNode, rootElement);
 	}
@@ -90,28 +100,37 @@ public class Tree implements Visitable{
 		//rootNode = new DataFieldNode(this);
 		this.selectionObserver = selectionObserver;
 		this.xmlUpdateObserver = xmlObserver;
-		highlightedFields = new ArrayList<DataFieldNode>();
+		
+		initialise();
 		
 		openBlankProtocolFile();
 	}
 	
-	public void undoEditTree() {
-		if (undoActions.isEmpty()) return;
-		undoActions.pop().undo();
-		setTreeEdited(true);
+	private void initialise() {
+		
+		highlightedFields = new ArrayList<DataFieldNode>();
+		
+		// initialize the undo.redo system
+	      undoManager = new UndoManager();
+	      undoSupport = new UndoableEditSupport();
+	      undoSupport.addUndoableEditListener(new UndoAdapter());
 	}
 	
 // use this entry point to access as many of the tree manipulation and data-structure commands as possible
 	public void editTree(Actions action) {
 		
-		if (action.equals(Actions.UNDO_LAST_ACTION)) {
-			System.out.println("Tree.editTree: Undo");
-			undoEditTree();
-			return;
-		}
-		
-		
 		switch (action) {
+		
+			case UNDO_LAST_ACTION: {
+				if (undoManager.canUndo())
+					undoManager.undo();
+				break;
+			}
+			case REDO_ACTION: {
+				if (undoManager.canRedo())
+					undoManager.redo();
+				break;
+			}
 		
 			case ADD_NEW_FIELD: {
 				addDataField();
@@ -153,6 +172,7 @@ public class Tree implements Visitable{
 		
 	}
 
+
 	//	 start a blank protocol - used by "default" Tree constructor
 	private void openBlankProtocolFile() {
 		
@@ -161,7 +181,7 @@ public class Tree implements Visitable{
 		DataField rootField = rootNode.getDataField();
 		
 		rootField.changeDataFieldInputType(DataField.PROTOCOL_TITLE);
-		rootField.setName("Title - click to edit", false);
+		rootField.setAttribute(DataField.ELEMENT_NAME, "Title - click to edit", false);
 		
 		DataFieldNode newNode = new DataFieldNode(this);// make a new default-type field
 		newNode.setParent(rootNode);
@@ -192,7 +212,7 @@ public class Tree implements Visitable{
 			 if (node != null && (node.getNodeType() == Node.TEXT_NODE)) {
 				 String textValue = node.getTextContent().trim();
 				 if (textValue.length() > 0){
-					 // set this attribute of the parent node, true: nodify observers to update formField
+					 // set this attribute of the parent node, true: notify observers to update formField
 					 dfNode.getDataField().setAttribute(DataField.TEXT_NODE_VALUE, node.getTextContent(), false);
 				 }
 			 }
@@ -211,22 +231,27 @@ public class Tree implements Visitable{
 		copyAndInsertDataFields(copiedToClipboardFields, highlightedFields);
 		
 		// add the undo action 	// highlightedFields will now be the newly added fields
-		undoActions.push(new TreeAction(Actions.PASTE_FIELDS, highlightedFields));
+		UndoableEdit edit = new EditPasteFields(highlightedFields);
+		undoSupport.postEdit(edit);
+		
 		setTreeEdited(true);
 	}
 	
+	// called by button on Edit Experiment tab
+	public void copyDefaultValuesToInputFields() {
+		
+		UndoableEdit edit = new EditCopyDefaultValues(rootNode);
+		undoSupport.postEdit(edit);
+		
+		selectionChanged();		// to update undo button
+	}
+
 	public void multiplyValueOfSelectedFields(float factor) {
 		
-		for (DataFieldNode numberField: highlightedFields) {
-			DataField dataField = numberField.getDataField();
-			
-			try {
-				FormFieldNumber formFieldNumber = (FormFieldNumber)dataField.getFormField();
-				formFieldNumber.multiplyCurrentValue(factor);
-			} catch (Exception ex) {
-				// cast failed: formField is not a Number field
-			}
-		}
+		UndoableEdit edit = new EditMultiplyValues(highlightedFields, factor);
+		undoSupport.postEdit(edit);
+		
+		selectionChanged();		// to update undo button
 	}
 	
 	private void parseElementToMap(Element element, LinkedHashMap<String, String> allAttributes) {
@@ -263,7 +288,9 @@ public class Tree implements Visitable{
 		copyAndInsertDataFields(tempArray, highlightedFields);
 		
 		// add the undo action 	// highlightedFields will now be the newly added fields
-		undoActions.push(new TreeAction(Actions.DUPLICATE_FIELDS, highlightedFields));
+		UndoableEdit edit = new EditDuplicateFields(highlightedFields);
+		undoSupport.postEdit(edit);
+		
 		setTreeEdited(true);
 	}
 
@@ -287,12 +314,14 @@ public class Tree implements Visitable{
 	// add a blank dataField
 	private void addDataField() {
 		// add the undo action (include rootNode reference, in case no highlighted fields)
-		undoActions.push(new TreeAction(Actions.ADD_NEW_FIELD, highlightedFields, rootNode));
+		// undoActions.push(new TreeAction(Actions.ADD_NEW_FIELD, highlightedFields, rootNode));
 		setTreeEdited(true);
 		
 		DataFieldNode newNode = new DataFieldNode(this);// make a new default-type field
 		addDataField(newNode);	// adds after last highlighted field, or last child of root
 		
+		UndoableEdit edit = new EditAddField(newNode);
+		undoSupport.postEdit(edit);
 	}
 
 	// add the newNode as a child of parentNode at the specified index
@@ -330,7 +359,8 @@ public class Tree implements Visitable{
 		copyAndInsertDataFields(dataFieldNodes, highlightedFields);
 		
 		// add the undo action 	// highlightedFields will now be the newly added fields
-		undoActions.push(new TreeAction(Actions.IMPORT_FIELDS, highlightedFields));
+		UndoableEdit edit = new EditImportFields(highlightedFields);
+		undoSupport.postEdit(edit);
 		setTreeEdited(true);
 	}
 	
@@ -407,7 +437,9 @@ public class Tree implements Visitable{
 			demoteDataFields(highlightedFields);
 			
 			// add the undo action 
-			undoActions.push(new TreeAction(Actions.DEMOTE_FIELDS, highlightedFields));
+			UndoableEdit edit = new EditDemoteFields(highlightedFields);
+			undoSupport.postEdit(edit);
+
 			setTreeEdited(true);
 		} catch (Exception ex) {
 			System.out.println("Tree. demoteDataFields Exception: " + ex.getMessage());
@@ -447,12 +479,14 @@ public class Tree implements Visitable{
 		
 		try {
 			// create an undo Action based on the currently highlighted fields, their children etc.
-			TreeAction undoAction = new TreeAction(Actions.PROMOTE_FIELDS, highlightedFields);
+			UndoableEdit edit = new EditPromoteFields(highlightedFields);
 			
 			promoteDataFields(highlightedFields);
 			
 			// if promoting went OK, add the undo action 
-			undoActions.push(undoAction);
+			// add the undo action 
+			undoSupport.postEdit(edit);
+			
 			setTreeEdited(true);
 		} catch (Exception ex) {
 			System.out.println("Tree. promoteDataFields Exception: " + ex.getMessage());
@@ -519,11 +553,11 @@ public class Tree implements Visitable{
 		if (highlightedFields.size() == 0) return;
 		
 		try {
-			TreeAction undoAction = new TreeAction(Actions.MOVE_FIELDS_UP , highlightedFields);
+			UndoableEdit edit = new EditMoveFieldsUp(highlightedFields);
 			
 			moveFieldsUp(highlightedFields);
 			
-			undoActions.push(undoAction);
+			undoSupport.postEdit(edit);
 			setTreeEdited(true);
 		} catch (IndexOutOfBoundsException ex) {
 			// System.out.println("Tree.moveFieldsUp() indexOutOfBounds exception");
@@ -549,11 +583,11 @@ public class Tree implements Visitable{
 		if (highlightedFields.size() == 0) return;
 		
 		try {
-			TreeAction undoAction = new TreeAction(Actions.MOVE_FIELDS_DOWN , highlightedFields);
+			UndoableEdit edit = new EditMoveFieldsDown(highlightedFields);
 			
 			moveFieldsDown(highlightedFields);
 			
-			undoActions.push(undoAction);
+			undoSupport.postEdit(edit);
 			setTreeEdited(true);
 		} catch (IndexOutOfBoundsException ex) {
 			// ignore
@@ -686,7 +720,10 @@ public class Tree implements Visitable{
 		if (highlightedFields.isEmpty()) return;
 		
 		// add the undo action 
-		undoActions.push(new TreeAction(Actions.DELTE_FIELDS, highlightedFields));
+		// undoActions.push(new TreeAction(Actions.DELTE_FIELDS, highlightedFields));
+		UndoableEdit edit = new EditDeleteField(highlightedFields);
+		undoSupport.postEdit(edit);
+		
 		setTreeEdited(true);
 		
 		deleteDataFields(highlightedFields);
@@ -744,7 +781,7 @@ public class Tree implements Visitable{
 		if (selectedNode.getParentNode() != null) 
 			addToHighlightedFields(selectedNode);
 		
-		if (selectionObserver != null) selectionObserver.selectionChanged();
+		selectionChanged();
 	}
 	
 //	 need to make sure that highlighted fields (siblings) are sorted in their sibling order
@@ -791,17 +828,6 @@ public class Tree implements Visitable{
 		
 	}
 	
-	// called by button on Edit Experiment tab
-	public void copyDefaultValuesToInputFields() {
-		
-		class vis implements DataFieldVisitor {
-			public void visit(DataField dataField) {
-				dataField.copyDefaultValueToInputField();
-			}
-		}
-		this.acceptVistor(new vis());
-	}
-	
 	public void collapseAllChildren(boolean collapsed) {
 		Iterator<DataFieldNode> iterator = rootNode.createIterator();
 		
@@ -833,10 +859,29 @@ public class Tree implements Visitable{
 		return currentFieldEditor;
 	}
 	
-	// called by dataField (via Node) to notify UI of changes
-	public void dataFieldUpdated() {
+	// called by dataField (via Node) to notify of changes for history (NOT requiring UI update)
+	public void dataFieldUpdated(AbstractUndoableEdit undoDataFieldAction) {
+		
+		undoSupport.postEdit(undoDataFieldAction);
+		
+		setTreeEdited(true);
+		selectionChanged();	// xml will be validated etc.
+		
+		// add dataField ref to new undo action
+		
+	}
+	
+	// called by dataField to notify of changes that require re-drawing of UI. eg datField inputType change
+	public void xmlUpdated() {
 		setTreeEdited(true);
 		if (xmlUpdateObserver != null) xmlUpdateObserver.xmlUpdated();
+	}
+	
+	public void selectionChanged() {
+		if (selectionObserver != null) {
+			System.out.println("Tree.selectionChanged");
+			selectionObserver.selectionChanged();
+		}
 	}
 	
 	public ArrayList<DataFieldNode> getHighlightedFields() {
@@ -869,19 +914,31 @@ public class Tree implements Visitable{
 	}
 	
 	public String getUndoCommand() {
-		if (undoActions.isEmpty()) {
-			return "Cannot Undo";
-		}
-		else return "Undo " + undoActions.peek().getCommand().toString();
+		return undoManager.getUndoPresentationName();
 	}
+	public String getRedoCommand() {
+		return undoManager.getRedoPresentationName();
+	}
+	public boolean canUndo() {
+		return undoManager.canUndo();
+	}
+	public boolean canRedo() {
+		return undoManager.canRedo();
+	}
+	
+	  /**
+	  * An undo/redo adpater. The adpater is notified when
+	  * an undo edit occur(e.g. add or remove from the list)
+	  * The adptor extract the edit from the event, add it
+	  * to the UndoManager, and refresh the GUI
+	  * http://www.javaworld.com/javaworld/jw-06-1998/jw-06-undoredo.html
+	  */
+	private class UndoAdapter implements UndoableEditListener {
+	     public void undoableEditHappened (UndoableEditEvent evt) {
+	     	UndoableEdit edit = evt.getEdit();
+	     	undoManager.addEdit( edit );
+	     	//refreshUndoRedo();
+	     }
+	  }
 
-	// used for visiting all dataFields (via Nodes) to call some method
-	public void acceptVistor(DataFieldVisitor visitor) {
-		Iterator<DataFieldNode> iterator = rootNode.createIterator();
-		
-		while (iterator.hasNext()) {
-			DataFieldNode node = (DataFieldNode)iterator.next();
-			node.acceptVistor(visitor);
-		}
-	}
 }

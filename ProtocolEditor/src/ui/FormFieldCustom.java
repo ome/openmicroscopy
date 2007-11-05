@@ -8,8 +8,6 @@ import javax.swing.JButton;
 import javax.swing.JTextField;
 
 import tree.DataField;
-import ui.FormField.FocusLostUpdatDataFieldListener;
-import ui.FormField.FormPanelMouseListener;
 import util.ImageFactory;
 
 public class FormFieldCustom extends FormField {
@@ -34,7 +32,9 @@ public class FormFieldCustom extends FormField {
 		
 		textInput = new JTextField();
 		textInput.addMouseListener(new FormPanelMouseListener());
-		textInput.addFocusListener(new FocusLostUpdatDataFieldListener());
+		textInput.setName(DataField.TEXT_NODE_VALUE);
+		textInput.addFocusListener(focusChangedListener);
+		textInput.addKeyListener(textChangedListener);
 		checkForTextNodeValue();
 		
 	}
@@ -50,8 +50,8 @@ public class FormFieldCustom extends FormField {
 	
 	// overridden by subclasses (when focus lost) if they have values that need saving 
 	public void updateDataField() {
-		if (textInput != null)
-			dataField.setAttribute(DataField.TEXT_NODE_VALUE, textInput.getText(), false);
+		if (textInput != null)	
+			dataField.setAttribute(DataField.TEXT_NODE_VALUE, textInput.getText(), true);
 	}
 	
 	// overridden by subclasses if they have other attributes to retrieve from dataField

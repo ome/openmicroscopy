@@ -112,9 +112,6 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		for (XMLUpdateObserver xmlObserver: xmlObservers) {
 			xmlObserver.xmlUpdated();
 		}
-		// when xml validation is switched on, validate every change in xml
-		if (getXmlValidation())
-			saxValidateCurrentXmlFile();
 	}
 	public void xmlUpdated() {
 		notifyXMLObservers();
@@ -252,7 +249,7 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	}
 	
 	
-	public void saxValidateCurrentXmlFile() {
+	public void validateCurrentXmlFile() {
 		// first save current Tree
 		writeTreeToDOM();
 		
@@ -268,8 +265,6 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		if (errorMessages.isEmpty()) {
 			//System.out.println("Current XML is valid");
 		}
-		// now update the display of messages...
-		selectionChanged();
 	}
 	public ArrayList<String> getErrorMessages() {
 		return errorMessages;
@@ -315,6 +310,7 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	
 	// delegates commands from xmlView to Tree. int Tree.editCommand is a list of known commands
 	public void editCurrentTree(Actions editCommand) {
+		System.out.println("XMLModel editCurrentTree: " + editCommand.toString());
 		Tree tree = getCurrentTree();
 		tree.editTree(editCommand);
 		notifyXMLObservers();
@@ -324,6 +320,18 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	public String getUndoCommand() {
 		if (getCurrentTree() == null) return "";
 		return getCurrentTree().getUndoCommand();
+	}
+	public String getRedoCommand() {
+		if (getCurrentTree() == null) return "";
+		return getCurrentTree().getRedoCommand();
+	}
+	public boolean canUndo() {
+		if (getCurrentTree() == null) return false;
+		return getCurrentTree().canUndo();
+	}
+	public boolean canRedo() {
+		if (getCurrentTree() == null) return false;
+		return getCurrentTree().canRedo();
 	}
 	
 	// works on numerical fields only

@@ -2,7 +2,6 @@ package ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
@@ -11,8 +10,6 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import tree.DataField;
-import ui.FieldEditor.FocusChangedListener;
-import ui.FieldEditor.inputTypeSelectorListener;
 
 public class FieldEditorDropDown extends FieldEditor {
 	
@@ -31,7 +28,7 @@ public class FieldEditorDropDown extends FieldEditor {
 		String[] ddOptions = {" "};
 		
 		optionsFieldEditor = new AttributeMemoEditor
-			("Drop-down options: (separate with commas)", dropDownOptions);
+			("Drop-down options: (separate with commas)", DataField.DROPDOWN_OPTIONS, dropDownOptions);
 		optionsFieldEditor.setToolTipText("Add keywords, separated by commas");
 		optionsFieldEditor.setTextAreaRows(4);
 		attributeFieldsPanel.add(optionsFieldEditor);
@@ -88,20 +85,16 @@ public class FieldEditorDropDown extends FieldEditor {
 		}
 	}
 	
-//	 subclasses override these if they have attributes other than name, desc, inputType.
-	//	 called when focus lost
-	public void updateModelsOtherAttributes() {	
-		String dropDownOptions = optionsFieldEditor.getTextAreaText();
-
-		dataField.setAttribute(DataField.DROPDOWN_OPTIONS, dropDownOptions, false);
-		
+	// called by dataField when something changes, eg. ddOptions have been set 
+	public void dataFieldUpdated() {
+		String dropDownOptions = dataField.getAttribute(DataField.DROPDOWN_OPTIONS);
 		if (dropDownOptions != null)
 			setDropDownOptions(dropDownOptions);
 	}
 	
 	public class DefaultValueSelectionListener implements ActionListener {
 		public void actionPerformed (ActionEvent event) {
-			dataField.setAttribute(DataField.DEFAULT, defaultValueComboBox.getSelectedItem().toString(), false);
+			dataField.setAttribute(DataField.DEFAULT, defaultValueComboBox.getSelectedItem().toString(), true);
 		}
 	}
 

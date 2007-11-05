@@ -18,14 +18,8 @@ public class FieldEditorText extends FieldEditor {
 		String defaultValue = dataField.getAttribute(DataField.DEFAULT);
 		
 		defaultFieldEditor = new AttributeEditor
-			("Default Value: ", defaultValue,  textChangedListener, focusChangedListener);
+			("Default Value: ", DataField.DEFAULT, defaultValue);
 		attributeFieldsPanel.add(defaultFieldEditor);
-	}
-	
-	//	 subclasses override these if they have attributes other than name, desc, inputType.
-	//	 called when focus lost
-	public void updateModelsOtherAttributes() {	
-		dataField.setAttribute(DataField.DEFAULT, defaultFieldEditor.getTextFieldText(), false);
 	}
 
 }

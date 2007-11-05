@@ -27,7 +27,9 @@ public class FormFieldNumber extends FormField {
 		visibleAttributes.add(numberTextBox);
 		numberTextBox.addMouseListener(new FormPanelMouseListener());
 		numberTextBox.addFocusListener(new NumberCheckerListener());
-		numberTextBox.addFocusListener(new FocusLostUpdatDataFieldListener());
+		numberTextBox.setName(DataField.VALUE);
+		numberTextBox.addFocusListener(focusChangedListener);
+		numberTextBox.addKeyListener(textChangedListener);
 		numberTextBox.setToolTipText("Must enter a number");
 		
 		unitsLabel = new JLabel(units);
@@ -46,7 +48,7 @@ public class FormFieldNumber extends FormField {
 	//used to load default values etc. Have to update dataField. 
 	public void setValue(String newValue) {
 		numberTextBox.setText(newValue);
-		updateDataField();
+		//updateDataField();
 	}
 	
 	
@@ -64,12 +66,6 @@ public class FormFieldNumber extends FormField {
 			}
 		}
 		public void focusGained(FocusEvent event){	}
-	}
-	
-	// overridden by subclasses (when focus lost) if they have values that need saving 
-	public void updateDataField() {
-		//System.out.println("FormFieldNumber.updateDataField");
-		dataField.setAttribute(DataField.VALUE, numberTextBox.getText(), false);
 	}
 	
 //	 overridden by subclasses that have input components
@@ -96,8 +92,8 @@ public class FormFieldNumber extends FormField {
 				currentValue = currentValue * factor;
 				number = Float.toString(currentValue);
 				numberTextBox.setText(number);
+				dataField.setAttribute(DataField.VALUE, number, false);
 				
-				updateDataField();
 				numberTextBox.setBackground(Color.WHITE);
 			}
 		}catch (Exception ex) {

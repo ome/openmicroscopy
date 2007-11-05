@@ -19,6 +19,7 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 import tree.DataField;
+import tree.DataFieldObserver;
 import util.BareBonesBrowserLaunch;
 import util.ImageFactory;
 
@@ -26,7 +27,7 @@ import util.ImageFactory;
 // This FormField superclass merely arranges Name and Description (as a toolTip)
 // Subclasses have eg TextFields etc
 
-public class FormField extends JPanel {
+public class FormField extends AbstractDataFieldPanel implements DataFieldObserver{
 	
 	// swing components
 	Box horizontalBox;
@@ -51,11 +52,10 @@ public class FormField extends JPanel {
 	
 	boolean showDescription = false;	// not saved, just used to toggle
 	
-	DataField dataField;
-	
 	public FormField(DataField dataField) {
 		
 		this.dataField = dataField;
+		dataField.addDataFieldObserver(this);
 		
 		//System.out.println("FormField Constructor: name is " + dataField.getName());
 		
@@ -134,7 +134,7 @@ public class FormField extends JPanel {
 		this.add(descriptionLabel, BorderLayout.CENTER);
 	}
 	
-	// called by dataField to notfiy observers that something has changed.
+	// called by dataField to notify observers that something has changed.
 	public void dataFieldUpdated() {
 		setNameText(dataField.getName());
 		setDescriptionText(dataField.getAttribute(DataField.DESCRIPTION));
@@ -145,9 +145,6 @@ public class FormField extends JPanel {
 	
 	// overridden by subclasses if they have other attributes to retrieve from dataField
 	public void dataFieldUpdatedOtherAttributes() {};
-	
-	// overridden by subclasses if they have a value and text field
-	public void setValue(String newValue) {}
 	
 	// these methods called when user updates the fieldEditor panel
 	public void setNameText(String name) {
@@ -211,19 +208,6 @@ public class FormField extends JPanel {
 				panelClicked(true);
 		}
 	}	
-	
-	public class FocusLostUpdatDataFieldListener implements FocusListener {
-		public void focusLost(FocusEvent event) {
-			updateDataField();
-		}
-		public void focusGained(FocusEvent event) {
-			panelClicked(true);
-		}
-	}
-	
-	// overridden by subclasses (when focus lost) if they have values that need saving 
-	public void updateDataField() {
-	}
 	
 	public class URLclickListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {

@@ -2,18 +2,21 @@ package tree;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Stack;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.undo.UndoableEdit;
 
 import ui.FieldEditor;
 import ui.FieldEditorFormFieldFactory;
 import ui.FormField;
 
+
 // the in-memory form of an xml element
 // has hash map of attributes, plus FormField and FieldEditor panels to display them
 
-public class DataField implements Visitable{
+public class DataField {
 	
 	// attribute types
 	// changes to the attributes are reflected in XML element saving.
@@ -24,8 +27,6 @@ public class DataField implements Visitable{
 	public static final String VALUE = "value";
 	public static final String TEXT_NODE_VALUE ="textNodeValue";
 	public static final String DEFAULT = "default";
-	// public static final String DERIVED_FROM = "derived_from";
-	// public static final String PROTOCOL_FILE_NAME = "protocolFileName";
 	public static final String INPUT_TYPE = "inputType";
 	public static final String DROPDOWN_OPTIONS = "dropdownOptions";
 	public static final String TABLE_COLUMN_NAMES = "tableColumnNames";
@@ -33,10 +34,6 @@ public class DataField implements Visitable{
 	public static final String KEYWORDS = "keywords";
 	public static final String SUBSTEPS_COLLAPSED ="substepsCollapsed"; // "true" or "false"
 	public static final String URL = "url";
-	// public static final String PRO_HAS_EXP_CHILDREN = "protocolHasExpChildren";
-	//public static final String[] ALL_ATTRIBUTES = 
-	//{NAME, DESCRIPTION, VALUE, DEFAULT, PROTOCOL_FILE_NAME, INPUT_TYPE, DROPDOWN_OPTIONS,
-	//	UNITS, KEYWORDS, SUBSTEPS_COLLAPSED, URL, PRO_HAS_EXP_CHILDREN};
 	
 	// attribute values
 	public static final String TRUE = "true";
@@ -63,10 +60,12 @@ public class DataField implements Visitable{
 	
 	// Datafield has attributes stored in LinkedHashMap
 	LinkedHashMap<String, String> allAttributesMap;
-	
+
 	// the two JPanels that display the dataField, and hold optional attributes
 	FormField formField;
 	FieldEditor fieldEditor;
+	
+	ArrayList<DataFieldObserver> dataFieldObservers = new ArrayList<DataFieldObserver>();
 	
 	// the node of the dataField tree structure that holds this datafield
 	DataFieldNode node;
@@ -77,7 +76,7 @@ public class DataField implements Visitable{
 	
 	public DataField(DataFieldNode node) {
 		this.node = node;
-
+		
 		allAttributesMap = new LinkedHashMap<String, String>();
 		
 		// default type
@@ -86,7 +85,6 @@ public class DataField implements Visitable{
 	}
 	
 	public DataField(LinkedHashMap<String, String> allAttributesMap, DataFieldNode node) {
-		
 		this.node = node;
 		
 		this.allAttributesMap = allAttributesMap;
@@ -102,14 +100,20 @@ public class DataField implements Visitable{
 		this.allAttributesMap = new LinkedHashMap<String, String>(allAttributes);
 	}
 	
-	public void setAttribute(String name, String value, boolean notifyObservers) {
-		// System.out.println("DataField.setAttribute(notifyObservers="+ notifyObservers +"): " + name + "=" + value);
+	public void setAttribute(String name, String value, boolean notifyDataFieldObservers) {
+	
+		String oldValue = allAttributesMap.get(name);
 		
 		allAttributesMap.put(name, value);
-		if (notifyObservers) notifyDataFieldObservers();
+		
+		if (notifyDataFieldObservers) {
+			System.out.println("DataField.setAttribute(notifyObservers="+ notifyDataFieldObservers +"): " + name + "=" + value);
+			// remember what change was made - add it to undo() history
+			node.dataFieldUpdated(new EditDataFieldAttribute(this, name, oldValue, value));
+			
+			notifyDataFieldObservers();
+		}
 	}
-	
-	
 	
 	public String getAttribute(String name) {
 		return allAttributesMap.get(name);
@@ -136,15 +140,12 @@ public class DataField implements Visitable{
 	
 	public void changeDataFieldInputType(String newInputType) {
 		
-		// don't allow changing to "Custom" from another Input type
-		// only allowed to change new dataFields to "custom" when importing
-		if((newInputType.equals(DataField.CUSTOM)) && (getAttribute(DataField.INPUT_TYPE)!= null)
-				&& (!getAttribute(DataField.INPUT_TYPE).equals(DataField.CUSTOM))) return;
-		
-		
-		// delete all attributes other than name & desc. (not relevant to new input type - probably)
-		// unless external element ("Custom" field), which may have many attrbutes
+		// delete all attributes other than name & description. (not relevant to new input type - probably)
+		// unless initializing to "Custom" field (from null), since Custom may have many attributes
 		if (!newInputType.equals(DataField.CUSTOM)) {
+			
+			// remember undo 
+			node.dataFieldUpdated(new EditDataFieldType(this, getAllAttributes()));
 			
 //			 keep the original name & description (may be null)
 			String copyName = allAttributesMap.get(DataField.ELEMENT_NAME);
@@ -169,17 +170,33 @@ public class DataField implements Visitable{
 		// notifyDataFieldObservers(); 
 	}
 	
+	public void resetFieldEditorFormField() {
+		fieldEditor = null;
+		formField = null;
+	}
+	public void setAllAttributes(LinkedHashMap<String, String> attributes) {
+		allAttributesMap = attributes;
+	}
+	
 	// export method. return a LinkedHashMap with all name-value 
 	public LinkedHashMap<String, String> getAllAttributes() {
 
 		return allAttributesMap;
 	}
 
-	// called when changes are made to allAttributesMap
+	// called when changes are made to allAttributesMap (except trivial changes like substepsCollapsed=true)
 	public void notifyDataFieldObservers() {
-		formField.dataFieldUpdated();
-		if (fieldEditor != null) fieldEditor.dataFieldUpdated();
-		node.dataFieldUpdated();
+		// typically observers are formField, fieldEditor. 
+		for (DataFieldObserver observer: dataFieldObservers) {
+			observer.dataFieldUpdated();
+		}
+	}
+	public void notifyXmlObservers() {
+		node.xmlUpdated();
+	}
+	
+	public void addDataFieldObserver(DataFieldObserver observer) {
+		dataFieldObservers.add(observer);
 	}
 	
 	public void setHighlighted(boolean highlighted) {
@@ -208,29 +225,13 @@ public class DataField implements Visitable{
 		else return "Name";		// have to return SOME text or formField panel may be v.v.small!
 	}
 	//	 used to update dataField etc when fieldEditor panel is edited
-	public void setName(String newName, boolean notifyObservers) {
-		setAttribute(DataField.ELEMENT_NAME, newName, notifyObservers);
-	}
 	
 	public String getDescription() {
 		return getAttribute(DataField.DESCRIPTION);
 	}
-	// used to update dataField etc when fieldEditor panel is edited
-	public void setDescription(String newDescription) {
-		setAttribute(DataField.DESCRIPTION, newDescription, true);
-	}
 	
 	public String getURL() {
 		return getAttribute(DataField.URL);
-	}
-	
-	public void setURL(String url) {
-		setAttribute(DataField.URL, url, false);
-	}
-	
-	public void copyDefaultValueToInputField() {
-		if (formField == null) getFormField();	// make sure there is one
-		formField.setValue(getAttribute(DataField.DEFAULT));
 	}
 	
 	public String getInputType() {
@@ -270,11 +271,6 @@ public class DataField implements Visitable{
 	}
 	public void hideChildren(boolean hidden) {
 		node.hideChildren(hidden);
-	}
-
-	// allows algorithms to perform tasks on all visited dataFields (this)
-	public void acceptVistor(DataFieldVisitor visitor) {
-		visitor.visit(this);
 	}
 
 }

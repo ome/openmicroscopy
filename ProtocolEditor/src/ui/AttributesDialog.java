@@ -15,34 +15,25 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 
 import tree.DataField;
+import tree.DataFieldObserver;
 
-public class AttributesDialog extends JDialog{
+public class AttributesDialog extends JDialog implements DataFieldObserver{
 	
 	JComponent parent;
-	DataField dataField;
-	
-	Box customAttributesBox;
-	Boolean textChanged = false;
-	
-	TextChangedListener textChangedListener = new TextChangedListener();
-	FocusChangedListener focusChangedListener = new FocusChangedListener();
-	
-	ArrayList<AttributeEditor> customAttributesFields = new ArrayList<AttributeEditor>();
+	AttributesPanel attributesPanel;
 	
 	
 	public AttributesDialog(JComponent parent, DataField dataField) {
 		
 		this.parent = parent;
-		this.dataField = dataField;
+		dataField.addDataFieldObserver(this);
 		
 		setModal(false);
 		setUndecorated(true);
 		
-		customAttributesBox = Box.createVerticalBox();
+		attributesPanel = new AttributesPanel(dataField);
 		
-		displayAllAttributes();
-		
-		getContentPane().add(customAttributesBox, BorderLayout.CENTER);
+		getContentPane().add(attributesPanel, BorderLayout.CENTER);
 		
 		pack();
 		
@@ -53,53 +44,53 @@ public class AttributesDialog extends JDialog{
 		setVisible(true);
 	}
 	
-	public void displayAllAttributes() {
-		LinkedHashMap<String, String> allAttributes = dataField.getAllAttributes();
-		
-		Iterator keyIterator = allAttributes.keySet().iterator();
-		
-		while (keyIterator.hasNext()) {
-			String name = (String)keyIterator.next();
-			String value = allAttributes.get(name);
-			
-			// don't display these attributes
-			if ((name.equals(DataField.ELEMENT_NAME )) || (name.equals(DataField.INPUT_TYPE))
-					|| (name.equals(DataField.SUBSTEPS_COLLAPSED))) continue;
-			
-			AttributeEditor attributeEditor = new AttributeEditor(name, value, textChangedListener, focusChangedListener);
-			
-			// keep a list of fields
-			customAttributesFields.add(attributeEditor);
-			customAttributesBox.add(attributeEditor);
-		}
+	public void dataFieldUpdated() {
+		attributesPanel.updateValues();
+		showAttributesDialog();
 	}
 	
-	// copy all attributes to dataField
-	public void updateDataField() {
-		for (AttributeEditor field: customAttributesFields) {
-			dataField.setAttribute(field.getAttributeName(), field.getTextFieldText(), false);
-		}
-		// this forces the xml to be validated
-		dataField.notifyDataFieldObservers();
-	}
-
-	public class TextChangedListener implements KeyListener {
-		public void keyTyped(KeyEvent event) {
-			textChanged = true;
-		}
-		public void keyPressed(KeyEvent event) {}
-		public void keyReleased(KeyEvent event) {}
-	}
 	
-	public class FocusChangedListener implements FocusListener {
+	public class AttributesPanel extends AbstractDataFieldPanel {
 		
-		public void focusLost(FocusEvent event) {
-			if (textChanged) {
-				updateDataField();
-				textChanged = false;
+		Box customAttributesBox;
+		ArrayList<AttributeEditor> customAttributesFields = new ArrayList<AttributeEditor>();
+		
+		
+		public AttributesPanel(DataField dataField) {
+			this.dataField = dataField;
+			customAttributesBox = Box.createVerticalBox();
+			displayAllAttributes();
+			this.add(customAttributesBox);
+		}
+	
+		public void displayAllAttributes() {
+			LinkedHashMap<String, String> allAttributes = dataField.getAllAttributes();
+		
+			Iterator keyIterator = allAttributes.keySet().iterator();
+		
+			while (keyIterator.hasNext()) {
+				String name = (String)keyIterator.next();
+				String value = allAttributes.get(name);
+			
+				// don't display these attributes
+				if ((name.equals(DataField.ELEMENT_NAME )) || (name.equals(DataField.INPUT_TYPE))
+						|| (name.equals(DataField.SUBSTEPS_COLLAPSED))) continue;
+			
+				AttributeEditor attributeEditor = new AttributeEditor(name, value);
+			
+				// keep a list of fields
+				customAttributesFields.add(attributeEditor);
+				customAttributesBox.add(attributeEditor);
 			}
 		}
-		public void focusGained(FocusEvent event) {}
+		
+		public void updateValues() {
+			for (AttributeEditor field: customAttributesFields) {
+				String attribute = field.getTextField().getName();
+				String value = dataField.getAttribute(attribute);
+				field.getTextField().setText(value);
+			}
+		}
 	}
-
+	
 }

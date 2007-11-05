@@ -102,6 +102,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	JMenuItem saveFileAsMenuItem;
 	
 	JButton undoButton;
+	JButton redoButton;
 	
 	JMenuItem loadDefaultsMenuItem;
 	JMenuItem multiplyValueOfSelectedFieldsMenuItem;
@@ -181,6 +182,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		closeIcon = ImageFactory.getInstance().getIcon(ImageFactory.N0);
 		redBallIcon = ImageFactory.getInstance().getIcon(ImageFactory.RED_BALL_ICON);
 		Icon undoIcon = ImageFactory.getInstance().getIcon(ImageFactory.UNDO_ICON);
+		Icon redoIcon = ImageFactory.getInstance().getIcon(ImageFactory.REDO_ICON);
 		
 		// File menu
 		JMenu fileMenu = new JMenu("File");
@@ -318,6 +320,12 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		undoButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING));
 		undoButton.addActionListener(new UndoActionListener());
 		
+		redoButton = new JButton(redoIcon);
+		redoButton.setToolTipText("Redo last action");
+		redoButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING));
+		redoButton.addActionListener(new RedoActionListener());
+		
+		
 		JButton moreLikeThisButton = new JButton("More Files Like This >", searchIcon);
 		moreLikeThisButton.addActionListener(new MoreLikeThisListener());
 		
@@ -337,6 +345,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		fileManagerWestToolBar.add(saveFileAsButton);
 		fileManagerWestToolBar.add(new JSeparator(JSeparator.VERTICAL));
 		fileManagerWestToolBar.add(undoButton);
+		fileManagerWestToolBar.add(redoButton);
 		fileManagerPanel.add(fileManagerWestToolBar, BorderLayout.WEST);
 		
 		fileManagerEastToolBar.add(moreLikeThisButton);
@@ -431,7 +440,10 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		importElemetsButton.setBorder(eb);
 		
 		// XML validation
+		Dimension xmlValidDim = new Dimension(150, 22);
 		xmlValidationPanel = new JPanel(new BorderLayout());
+		xmlValidationPanel.setMaximumSize(xmlValidDim);		// to stop this expanding when window enlarges
+		xmlValidationPanel.setPreferredSize(xmlValidDim);
 		Box xmlValidationBox = Box.createHorizontalBox();
 		XmlValidationListener xmlValidationListener = new XmlValidationListener();
 		
@@ -448,6 +460,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		xmlValidationBox.add(xmlValidationButton);
 		xmlValidationBox.add(xmlValidationCheckbox);
 		xmlValidationPanel.add(xmlValidationBox, BorderLayout.EAST);
+		//xmlValidationPanel.setMaximumSize(new Dimension(100, 22));
 		
 		
 		expTabToolBar = Box.createHorizontalBox();
@@ -504,6 +517,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		// set up copy and paste listeners
 		KeyStroke copy = KeyStroke.getKeyStroke(KeyEvent.VK_C,ActionEvent.CTRL_MASK,false);
 	    KeyStroke paste = KeyStroke.getKeyStroke(KeyEvent.VK_V,ActionEvent.CTRL_MASK,false);
+	    KeyStroke quit = KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK, false);
 	    protocolTab.registerKeyboardAction(this, COPY,copy,JComponent.WHEN_IN_FOCUSED_WINDOW);
 	    protocolTab.registerKeyboardAction(this,PASTE,paste,JComponent.WHEN_IN_FOCUSED_WINDOW);
 		
@@ -519,9 +533,10 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
                 mainWindowClosing();
             }
         });
+		//new TaskBarManager(XMLFrame);	// should handle exit 
+		
 		XMLFrame.setLocation(200, 100);
 		XMLFrame.setVisible(true);
-		
 		
 //		 not visible till a file is opened
 		XMLTabbedPane.setVisible(false);
@@ -575,7 +590,6 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		xmlFormDisplay.refreshForm();		// refresh the form
 		
 		xmlValidationCheckbox.setSelected(xmlModel.getXmlValidation());
-		undoButton.setToolTipText(xmlModel.getUndoCommand());
 		
 		selectionChanged();	// to take account of any other changes
 	}
@@ -583,12 +597,21 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	// selection observer method, fired when tree changes selection
 	// this method called when UI needs updating, but xml not changed.
 	public void selectionChanged() {
+		System.out.println("XMLView.selectionChanged");
 		if (editingState == EDITING_FIELDS) {
 			updateFieldEditor();
 		}
+		updateUndoRedo();
 		refreshFileEdited();
 		updateFileList();
 		updateXmlValidationPanel();
+	}
+	
+	public void updateUndoRedo() {
+		undoButton.setEnabled(xmlModel.canUndo());
+		undoButton.setToolTipText(xmlModel.getUndoCommand());
+		redoButton.setEnabled(xmlModel.canRedo());
+		redoButton.setToolTipText(xmlModel.getRedoCommand());
 	}
 
 	public void updateFileList() {
@@ -796,8 +819,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	// turn on and off the validation of the current xml tree. 
 	public void enableXmlValidation(boolean validationOn) {
 		xmlModel.setXmlValidation(validationOn);
-		if (validationOn) xmlModel.saxValidateCurrentXmlFile();
-		else updateXmlValidationPanel();	// already called when turning validation on. 
+		updateXmlValidationPanel();	
 	}
 	
 	public class XmlValidationListener implements ActionListener {
@@ -819,6 +841,11 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	public class UndoActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent arg0) {
 			xmlModel.editCurrentTree(Actions.UNDO_LAST_ACTION);
+		}
+	}
+	public class RedoActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent arg0) {
+			xmlModel.editCurrentTree(Actions.REDO_ACTION);
 		}
 	}
 	
@@ -1150,6 +1177,8 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	public void updateXmlValidationPanel() {
 		// if validation is turned on
 		if (xmlModel.getXmlValidation()) {
+			
+			xmlModel.validateCurrentXmlFile();
 			
 			// if there are some error messages...
 			if (!(xmlModel.getErrorMessages().isEmpty())) {

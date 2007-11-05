@@ -43,7 +43,7 @@ public class FormFieldTable extends FormField {
         // tableModelListener tells the table how to respond to changes in Model
         tableModel.addTableModelListener(new InteractiveTableModelListener());
         table = new JTable();
-        table.addFocusListener(new FocusLostUpdatDataFieldListener());
+       // table.addFocusListener(new FocusLostUpdatDataFieldListener());
         table.setModel(tableModel);
         table.setColumnModel(new DefaultTableColumnModel());
         table.setSurrendersFocusOnKeystroke(true);
@@ -137,7 +137,7 @@ public class FormFieldTable extends FormField {
 		}
 		System.out.println("FormFieldTable updateDatafield: " + TABLE_COL_NAMES + " = " + columnNames);
 		
-		dataField.setAttribute(TABLE_COL_NAMES, columnNames, false);
+		dataField.setAttribute(TABLE_COL_NAMES, columnNames, true);
 		
 		// now update data
 		ArrayList<ArrayList<String>> data = tableModel.getData();

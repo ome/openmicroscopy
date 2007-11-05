@@ -21,12 +21,14 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.JTextComponent;
 
 import org.w3c.dom.*;
 
 import tree.DataField;
+import tree.DataFieldObserver;
 
-public class FieldEditor extends JPanel{
+public class FieldEditor extends AbstractDataFieldPanel implements DataFieldObserver {
 	
 	public static final Dimension MINIMUM_SIZE = new Dimension(290,300);
 	
@@ -39,12 +41,8 @@ public class FieldEditor extends JPanel{
 	
 	FocusChangedListener focusChangedListener;
 	TextChangedListener textChangedListener;
-
-	boolean textChanged;
 	
 	//XMLView xmlView; 	// the UI container for displaying this panel
-	
-	DataField dataField;
 	
 	public FieldEditor() {	// a blank 
 		this.setPreferredSize(MINIMUM_SIZE);
@@ -53,6 +51,7 @@ public class FieldEditor extends JPanel{
 	
 	public FieldEditor(DataField dataField) {
 		this.dataField = dataField;
+		dataField.addDataFieldObserver(this);
 		buildPanel();
 	}
 	
@@ -65,7 +64,7 @@ public class FieldEditor extends JPanel{
 		textChangedListener = new TextChangedListener();
 		focusChangedListener = new FocusChangedListener();
 		
-		nameFieldEditor = new AttributeEditor("Field Name: ", dataField.getName(), textChangedListener, focusChangedListener);
+		nameFieldEditor = new AttributeEditor("Field Name: ", DataField.ELEMENT_NAME, dataField.getName());
 		attributeFieldsPanel.add(nameFieldEditor);
 		
 		// Drop-down selector of input-type. 
@@ -87,10 +86,10 @@ public class FieldEditor extends JPanel{
 		inputTypeSelector.addActionListener(new inputTypeSelectorListener());
 		attributeFieldsPanel.add(inputTypePanel);
 		
-		descriptionFieldEditor = new AttributeMemoEditor("Description: ", dataField.getDescription());
+		descriptionFieldEditor = new AttributeMemoEditor("Description: ", DataField.DESCRIPTION, dataField.getDescription());
 		attributeFieldsPanel.add(descriptionFieldEditor);
 		
-		urlFieldEditor = new AttributeEditor("Url: ", dataField.getURL(), textChangedListener, focusChangedListener);
+		urlFieldEditor = new AttributeEditor("Url: ", DataField.URL, dataField.getURL());
 		attributeFieldsPanel.add(urlFieldEditor);
 		
 		this.setLayout(new BorderLayout());
@@ -101,7 +100,7 @@ public class FieldEditor extends JPanel{
 		this.validate();
 	}
 	
-	// called by dataField when something changes. 
+	// called by dataField when something changes, eg undo() previous editing
 	public void dataFieldUpdated() {
 		nameFieldEditor.setTextFieldText(dataField.getAttribute(DataField.ELEMENT_NAME));
 		descriptionFieldEditor.setTextAreaText(dataField.getAttribute(DataField.DESCRIPTION));
@@ -110,81 +109,18 @@ public class FieldEditor extends JPanel{
 	
 	// called when focus lost
 	public void updateDataField() {
-		dataField.setName(nameFieldEditor.getTextFieldText(), false);
-		dataField.setAttribute(DataField.DESCRIPTION, descriptionFieldEditor.getTextAreaText(), false);
+		dataField.setAttribute(DataField.ELEMENT_NAME, nameFieldEditor.getTextFieldText(), true);
+		// dataField.setAttribute(DataField.DESCRIPTION, descriptionFieldEditor.getTextAreaText());
 
 		String url = urlFieldEditor.getTextFieldText();
 		if ((url.length() > 0) && !(url.startsWith("http"))) url = "http://" + url;
-		dataField.setAttribute(DataField.URL, url, false);
+		// dataField.setAttribute(DataField.URL, url);
 		
-		updateModelsOtherAttributes();	// takes care of other attributes
+
 		
 		dataField.notifyDataFieldObservers();
 	}
 	
-	//	called when focus lost. Overridden by subclasses if they have other attribute fields
-	public void updateModelsOtherAttributes() {	}
-	
-	
-		
-	public class AttributeMemoEditor extends JPanel{
-		JTextArea attributeTextField;
-		// constructor creates a new panel and adds a name and text area to it.
-		public AttributeMemoEditor(String Label, String Value) {
-			this.setBorder(new EmptyBorder(3,3,3,3));
-			JLabel attributeName = new JLabel(Label);
-			attributeTextField = new JTextArea(Value);
-			attributeTextField.setRows(5);
-			attributeTextField.setLineWrap(true);
-			attributeTextField.setWrapStyleWord(true);
-			attributeTextField.setMargin(new Insets(3,3,3,3));
-			this.setLayout(new BorderLayout());
-			attributeTextField.addKeyListener(new TextChangedListener());
-			attributeTextField.addFocusListener(new FocusChangedListener());
-			this.add(attributeName, BorderLayout.NORTH);
-			this.add(attributeTextField, BorderLayout.CENTER);
-		}
-		public String getTextAreaText() {
-			return attributeTextField.getText();
-		}
-		public void setTextAreaText(String text) {
-			attributeTextField.setText(text);
-		}
-		public void setTextAreaRows(int rows) {
-			attributeTextField.setRows(rows);
-		}
-	}
-	
-	public class TextChangedListener implements KeyListener {
-		
-		public void keyTyped(KeyEvent event) {
-			textChanged = true;
-
-			char keyChar = event.getKeyChar();
-			int keyCharacter = (int)keyChar;
-			if (keyCharacter == 10) {	// == "Enter"
-				updateDataField();
-				// need to stop focus going elsewhere. Get it back to source of event
-				JComponent source = (JComponent)event.getSource();
-				source.requestFocus();
-			}
-
-		}
-		public void keyPressed(KeyEvent event) {}
-		public void keyReleased(KeyEvent event) {}
-	
-	}
-	
-	public class FocusChangedListener implements FocusListener {
-		
-		public void focusLost(FocusEvent event) {
-			if (textChanged) {
-				updateDataField();
-				textChanged = false;
-			}
-		}
-		public void focusGained(FocusEvent event) {}
-	}
 	
 	public class inputTypeSelectorListener implements ActionListener {
 		
@@ -199,7 +135,7 @@ public class FieldEditor extends JPanel{
 	public void inputTypeSelectorChanged(String newType) {
 		dataField.changeDataFieldInputType(newType);
 		// the above call doesn't notify others (mostly don't want to)
-		dataField.notifyDataFieldObservers();
+		dataField.notifyXmlObservers();		// updates UI with new formField & fieldEditor
 	}
 
 }
