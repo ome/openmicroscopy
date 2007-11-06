@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>currentDocument</key>
+	<string>OmeValidator.py</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -20,13 +22,13 @@
 			<key>filename</key>
 			<string>RunAndCheck.py</string>
 			<key>lastUsed</key>
-			<date>2007-10-16T18:37:26Z</date>
+			<date>2007-10-31T12:11:23Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>OmeValidator.py</string>
 			<key>lastUsed</key>
-			<date>2007-10-26T16:09:53Z</date>
+			<date>2007-11-06T09:05:31Z</date>
 			<key>selected</key>
 			<true/>
 		</dict>
@@ -85,6 +87,34 @@
 	<integer>200</integer>
 	<key>metaData</key>
 	<dict>
+		<key>OmeValidator.py</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>3</integer>
+				<key>line</key>
+				<integer>245</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>230</integer>
+		</dict>
+		<key>RunAndCheck.py</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>8</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
 		<key>samples/completesamplenoenc.xml</key>
 		<dict>
 			<key>caret</key>
@@ -142,9 +172,14 @@
 			<integer>10</integer>
 		</dict>
 	</dict>
+	<key>openDocuments</key>
+	<array>
+		<string>RunAndCheck.py</string>
+		<string>OmeValidator.py</string>
+	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{10, 50}, {1139, 828}}</string>
+	<string>{{478, 212}, {785, 905}}</string>
 </dict>
 </plist>
