@@ -180,7 +180,7 @@ public class Tree {
 		rootNode = new DataFieldNode(this);
 		DataField rootField = rootNode.getDataField();
 		
-		rootField.changeDataFieldInputType(DataField.PROTOCOL_TITLE);
+		rootField.setAttribute(DataField.INPUT_TYPE, DataField.PROTOCOL_TITLE, false);
 		rootField.setAttribute(DataField.ELEMENT_NAME, "Title - click to edit", false);
 		
 		DataFieldNode newNode = new DataFieldNode(this);// make a new default-type field
@@ -254,6 +254,8 @@ public class Tree {
 		selectionChanged();		// to update undo button
 	}
 	
+	
+	// used to read XML element and populate a hash-map to use for dataField creation
 	private void parseElementToMap(Element element, LinkedHashMap<String, String> allAttributes) {
 		 String attributeValue;
 		 String attribute;
@@ -269,6 +271,19 @@ public class Tree {
 		 }
 		 
 		 String elementName = element.getNodeName();
+		 // the 'old' version-1 xml used "inputType" attribute.
+		 // if this attribute exists, need to convert it to the new type 
+		 // eg. "Fixed Step" becomes "FixedStep"
+		 // otherwise, need to use the NodeName as the inputType (as in the new version)
+		 if (allAttributes.get(DataField.INPUT_TYPE) != null) {
+			 String oldInputType = allAttributes.get(DataField.INPUT_TYPE);
+			 allAttributes.put(DataField.INPUT_TYPE, DataField.getNewInputTypeFromOldInputType(oldInputType));
+		 } else {
+			 // inputType is null, this is the new xml version: Use NodeName for inputType
+			 // if this is not recognised later (ie reading custom xml) it will get set to CUSTOM 
+			 allAttributes.put(DataField.INPUT_TYPE, elementName);
+		 }
+		 
 		 // if the xml file's elements don't have "elementName" attribute, use the <tagName>
 		 if (allAttributes.get(DataField.ELEMENT_NAME) == null) {
 			 allAttributes.put(DataField.ELEMENT_NAME, elementName);
@@ -622,7 +637,7 @@ public class Tree {
 			//document = db.newDocument();
 			DataField rootField = rootNode.getDataField();
 			
-			String elementName = ELEMENT;
+			String elementName = rootField.getInputType();
 		
 			
 			boolean customElement = false;
@@ -635,7 +650,7 @@ public class Tree {
 			
 			Element element = document.createElement(elementName);  
 			
-			// get all attributes of the datafiel
+			// get all attributes of the dataField
 			LinkedHashMap<String, String> allAttributes = rootField.getAllAttributes();
 			parseAttributesMapToElement(allAttributes, element);
 			
@@ -664,7 +679,7 @@ public class Tree {
 			
 			boolean customElement = dataField.isCustomInputType();
 					
-			String elementName = ELEMENT;
+			String elementName = dataField.getInputType();
 			
 			// if custom XML element, use the elementName attribute as the element Name
 			if (customElement) elementName = dataField.getName();
@@ -704,10 +719,15 @@ public class Tree {
 			
 			// if you want to recreate original xml, don't include "extra" attributes
 			if (customElement) {
-				if (key.equals(DataField.ELEMENT_NAME) || key.equals(DataField.SUBSTEPS_COLLAPSED) || key.equals(DataField.TEXT_NODE_VALUE))
+				if (key.equals(DataField.ELEMENT_NAME) || key.equals(DataField.SUBSTEPS_COLLAPSED)
+						|| key.equals(DataField.TEXT_NODE_VALUE) || key.equals(DataField.INPUT_TYPE))
 					continue;
 			}
 			
+			// for all new - versions of xml, don't save inputType attribute (this is now the tag name)
+			if (key.equals(DataField.INPUT_TYPE)) continue;
+			
+			// only save non-null values (and don't save "")
 			if ((value != null) && (value.length() > 0)) {
 				element.setAttribute(key, value);
 				// System.out.println("Tree.parseAttributesMapToElement key = " + key + ", value = " + value);

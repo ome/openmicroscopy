@@ -152,7 +152,7 @@ public class FormField extends AbstractDataFieldPanel implements DataFieldObserv
 	}
 	public void setDescriptionText(String description) {
 		if (description == null) return;
-		if (description.length() > 0) {
+		if (description.trim().length() > 0) {
 		//	nameLabel.setIcon(infoIcon);
 			nameLabel.setToolTipText(description);
 			descriptionButton.setVisible(true);

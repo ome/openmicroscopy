@@ -533,7 +533,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
                 mainWindowClosing();
             }
         });
-		//new TaskBarManager(XMLFrame);	// should handle exit 
+		new TaskBarManager(XMLFrame);	// should handle exit 
 		
 		XMLFrame.setLocation(200, 100);
 		XMLFrame.setVisible(true);

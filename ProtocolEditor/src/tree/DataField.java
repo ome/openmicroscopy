@@ -39,16 +39,29 @@ public class DataField {
 	public static final String TRUE = "true";
 	public static final String FALSE = "false";
 	
+	// old input types
+	// need to be able to read elements that use attribute: inputType="Fixed Step" 
+	// but should be saved as elements named  <FixedStep elementName="etc">  see input types below
+	public static final String OLD_PROTOCOL_TITLE = "Protocol Title";
+	public static final String OLD_FIXED_PROTOCOL_STEP = "Fixed Step";
+	public static final String OLD_TEXT_ENTRY_STEP = "Text";
+	public static final String OLD_MEMO_ENTRY_STEP = "Text Box";
+	public static final String OLD_NUMBER_ENTRY_STEP = "Number";
+	public static final String OLD_DROPDOWN_MENU_STEP = "Drop-down Menu";
+	public static final String OLD_DATE = "Date";
+	public static final String OLD_TABLE = "Table";
+	public static final String OLD_CUSTOM = "Custom";
+	
 	// input types
-	public static final String PROTOCOL_TITLE = "Protocol Title";
-	public static final String FIXED_PROTOCOL_STEP = "Fixed Step";
-	public static final String TEXT_ENTRY_STEP = "Text";
-	public static final String MEMO_ENTRY_STEP = "Text Box";
-	public static final String NUMBER_ENTRY_STEP = "Number";
-	public static final String DROPDOWN_MENU_STEP = "Drop-down Menu";
-	public static final String DATE = "Date";
-	public static final String TABLE = "Table";
-	public static final String CUSTOM = "Custom";
+	public static final String PROTOCOL_TITLE = "ProtocolTitle";
+	public static final String FIXED_PROTOCOL_STEP = "FixedStep";
+	public static final String TEXT_ENTRY_STEP = "TextField";
+	public static final String MEMO_ENTRY_STEP = "TextBox";
+	public static final String NUMBER_ENTRY_STEP = "NumberField";
+	public static final String DROPDOWN_MENU_STEP = "DropDownMenu";
+	public static final String DATE = "DateField";
+	public static final String TABLE = "TableField";
+	public static final String CUSTOM = "CustomField";
 	public static final String[] INPUT_TYPES = 
 	{FIXED_PROTOCOL_STEP, TEXT_ENTRY_STEP,
 	MEMO_ENTRY_STEP, DROPDOWN_MENU_STEP, NUMBER_ENTRY_STEP, DATE, TABLE};
@@ -273,4 +286,18 @@ public class DataField {
 		node.hideChildren(hidden);
 	}
 
+	// a method used by the Tree class to convert from old xml version to new
+	public static String getNewInputTypeFromOldInputType(String oldInputType) {
+		if (oldInputType.equals(OLD_PROTOCOL_TITLE)) return PROTOCOL_TITLE;
+		if (oldInputType.equals(OLD_FIXED_PROTOCOL_STEP)) return FIXED_PROTOCOL_STEP;
+		if (oldInputType.equals(OLD_TEXT_ENTRY_STEP)) return TEXT_ENTRY_STEP;
+		if (oldInputType.equals(OLD_MEMO_ENTRY_STEP)) return MEMO_ENTRY_STEP;
+		if (oldInputType.equals(OLD_NUMBER_ENTRY_STEP)) return NUMBER_ENTRY_STEP;
+		if (oldInputType.equals(OLD_DROPDOWN_MENU_STEP)) return DROPDOWN_MENU_STEP;
+		if (oldInputType.equals(OLD_DATE)) return DATE;
+		if (oldInputType.equals(OLD_TABLE)) return TABLE;
+		if (oldInputType.equals(OLD_CUSTOM)) return OLD_CUSTOM;
+		
+		return oldInputType;
+	}
 }
