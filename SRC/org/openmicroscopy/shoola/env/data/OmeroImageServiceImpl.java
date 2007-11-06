@@ -39,7 +39,10 @@ import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
+
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
@@ -76,7 +79,7 @@ class OmeroImageServiceImpl
 	 * @throws RenderingServiceException If we cannot create an image.
 	 */
 	private BufferedImage createImage(byte[] values) 
-	throws RenderingServiceException
+		throws RenderingServiceException
 	{
 		try {
 			ByteArrayInputStream stream = new ByteArrayInputStream(values);
@@ -121,11 +124,14 @@ class OmeroImageServiceImpl
 			PixelsServicesFactory.getRenderingControl(context, 
 					new Long(pixelsID));
 		if (proxy == null) {
+			UserCredentials uc = 
+				(UserCredentials) context.lookup(LookupNames.USER_CREDENTIALS);
+			boolean compressed = (uc.getSpeedLevel() != UserCredentials.HIGH);
 			RenderingEngine re = gateway.createRenderingEngine(pixelsID);
 			PixelsDimensions pixDims = gateway.getPixelsDimensions(pixelsID);
 			List l = context.getDataService().getChannelsMetadata(pixelsID);
 			proxy = PixelsServicesFactory.createRenderingControl(context, re,
-					pixDims, l);
+					pixDims, l, compressed);
 		}
 		return proxy;
 	}
@@ -143,16 +149,6 @@ class OmeroImageServiceImpl
 		} catch (Exception e) {
 			throw new RenderingServiceException("RenderImage", e);
 		}
-	}
-
-	/** 
-	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#renderImage(long)
-	 */
-	public BufferedImage renderImage(long pixelsID)
-		throws RenderingServiceException
-	{
-		return renderImage(pixelsID, null);
 	}
 
 	/** 

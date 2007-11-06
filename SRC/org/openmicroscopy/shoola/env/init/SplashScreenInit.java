@@ -147,18 +147,17 @@ public final class SplashScreenInit
                 //needed b/c need to retrieve user's details later.
                 reg.bind(LookupNames.USER_CREDENTIALS, uc);
                 break;
-            } else {
-            	if (max != 0) {
-            		splashScreen.notifyLoginFailure();
-            	} else if (max == 0) {
-            		//Exit if we couldn't manage to log in.
-            		 un.notifyError("Login Failure", 
-            				 "A valid connection to the OMERO \n"+
-                             "server could not be established. \n" +
-                             "The application will exit.");
-                     container.exit();
-             	}
             }
+            if (max != 0) {
+        		splashScreen.notifyLoginFailure();
+        	} else if (max == 0) {
+        		//Exit if we couldn't manage to log in.
+        		 un.notifyError("Login Failure", 
+        				 "A valid connection to the OMERO \n"+
+                         "server could not be established. \n" +
+                         "The application will exit.");
+                 container.exit();
+         	}
         }
         //Now get rid of the Splash Screen.
         splashScreen.close();

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 
@@ -33,6 +34,8 @@ import java.util.List;
 //Application-internal dependencies
 import ome.model.core.Pixels;
 import ome.model.display.CodomainMapContext;
+import omeis.providers.re.data.PlaneDef;
+
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 
@@ -592,5 +595,34 @@ public interface RenderingControl
 	 * @return See above.
 	 */
 	public boolean validatePixels(Pixels pixels);
+	
+	/**
+	 * Sets to <code>true</code> if the compression is turned on, 
+	 * to <code>false</code> otherwise.
+	 * 
+	 * @param compressed 	Pass <code>true</code> to turn the compression
+	 * 						on, <code>false</code> to turn it off.
+	 */
+	public void setCompressed(boolean compressed);
+	
+	/**
+	 * Returns <code>true</code> if the compression is turned on,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isCompressed();
+	
+	/**
+	 * Renders the specified {@link PlaneDef 2D-plane}.
+	 * 
+	 * @param pDef      The plane to render.
+	 * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+	 * @return See above.
+	 */
+	public BufferedImage renderPlane(PlaneDef pDef)
+		throws RenderingServiceException, DSOutOfServiceException;
 
 }

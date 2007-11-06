@@ -79,18 +79,7 @@ public interface OmeroImageService
 	 * @throws RenderingServiceException If the server cannot render the image.
 	 */
 	public BufferedImage renderImage(long pixelsID, PlaneDef pd)
-	throws RenderingServiceException;    
-
-	/**
-	 * Renders the specified 2D-plane. In that case, the plane is set 
-	 * to the default z-section and default timepoint.
-	 * 
-	 * @param pixelsID  The ID of the pixels set.
-	 * @return          The buffered image representing the 2D-plane.
-	 * @throws RenderingServiceException If the server cannot render the image.
-	 */
-	public BufferedImage renderImage(long pixelsID)
-	throws RenderingServiceException; 
+		throws RenderingServiceException;    
 
 	/**
 	 * Shuts downs the rendering service attached to the specified 

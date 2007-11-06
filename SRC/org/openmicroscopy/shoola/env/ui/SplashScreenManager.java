@@ -79,7 +79,7 @@ class SplashScreenManager
 	static final String	TITLE = "Open Microscopy Environment";
 	
     /** The client's version. */
-    static final String	VERSION = "3.0_Beta2.2_testing";
+    static final String	VERSION = "3.0_Beta 3";
     
 	/** The component's UI. */
 	private ScreenLogin			view;
@@ -115,7 +115,7 @@ class SplashScreenManager
 		try {
 			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			UserCredentials uc = new UserCredentials(lc.getUserName(), 
-					lc.getPassword(), lc.getHostName());
+					lc.getPassword(), lc.getHostName(), lc.getSpeedLevel());
 			userCredentials.set(uc);
 		} catch (Exception e) {
 			UserNotifier un = UIFactory.makeUserNotifier(container);
@@ -161,8 +161,8 @@ class SplashScreenManager
 		Image img = IconManager.getOMEImageIcon();
 		view = new ScreenLogin(TITLE, IconManager.getLoginBackground(), img,
 								VERSION);
+		view.showConnectionSpeed(true);
 		viewTop = new ScreenLogo(TITLE, IconManager.getSplashScreen(), img);
-		//viewTop = new SplashScreenLogo();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension d = viewTop.getExtendedSize();
 		Dimension dlogin = view.getPreferredSize();

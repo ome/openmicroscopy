@@ -111,6 +111,25 @@ public class DataServicesFactory
         DataViewsFactory.initialize(c);
 	}
 	
+	/**
+	 * Determines the quality of the compression depending on the
+	 * connection speed.
+	 * 
+	 * @param connectionSpeed The connection speed.
+	 * @return See above.
+	 */
+	private float determineCompression(int connectionSpeed)
+	{
+		switch (connectionSpeed) {
+			case UserCredentials.MEDIUM:
+			case UserCredentials.HIGH:
+				return OMEROGateway.DEFAULT_COMPRESSION_QUALITY;
+			case UserCredentials.LOW:
+			default:
+				return OMEROGateway.LOW_COMPRESSION_QUALITY;
+		}
+	}
+	
     /**
      * Returns the {@link OmeroDataService}.
      * 
@@ -149,7 +168,9 @@ public class DataServicesFactory
             throw new NullPointerException("No user credentials.");
         ExperimenterData exp = omeroGateway.login(uc.getUserName(), 
                 									uc.getPassword(),
-                                                    uc.getHostName());
+                                                    uc.getHostName(),
+                                                    determineCompression(
+                                                    	uc.getSpeedLevel()));
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
         //Bind user details to all agents' registry.
         List agents = (List) registry.lookup(LookupNames.AGENTS);

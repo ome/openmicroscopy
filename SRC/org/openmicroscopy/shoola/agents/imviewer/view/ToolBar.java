@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.FlowLayout;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -57,20 +59,17 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class ToolBar
     extends JPanel
+    implements ItemListener
 {
     
-    /** 
-     * Default text indicating to save the rendering settings before
-     * closing the window.
-     */
-    private static final String		SAVE_ON_CLOSE = "Save settings on close";
+    /** Default text indicating that the image is compressed. */
+    private static final String		COMPRESSED = "Compressed";
     
-    /** 
-     * Default text indicating to save the rendering settings before
-     * closing the window.
-     */
-    private static final String		SAVE_ON_CLOSE_DESCRIPTION = 
-    				"Save the rendering settings before closing the viewer.";
+    /** Default text describing the compression check box.  */
+    private static final String		COMPRESSED_DESCRIPTION = 
+    				"The image is compressed depending on the connection \n" +
+    				" speed. To view an uncompressed image, deselect the \n" +
+    				"check box.";
     
     /** Reference to the Control. */
     private ImViewerControl controller;
@@ -81,8 +80,8 @@ class ToolBar
     /** The tool bar hosting the controls. */
     private JToolBar        bar;
     
-    /** Save rendering settings when closing the viewer. */
-    private JCheckBox		saveOnClose;
+    /** Selected if the image is compressed by default. */
+    private JCheckBox		compressedBox;
     
     /** Button used to show or hide the renderer. */
     private JToggleButton	rndButton;
@@ -135,16 +134,14 @@ class ToolBar
         button = new JButton(controller.getAction(ImViewerControl.DOWNLOAD));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);  
-        //bar.add(new JSeparator(JSeparator.VERTICAL));
-        //bar.add(saveOnClose);
     }
     
     /** Initializes the components composing this tool bar. */
     private void initComponents()
     {
-    	saveOnClose = new JCheckBox(SAVE_ON_CLOSE);
-        saveOnClose.setToolTipText(SAVE_ON_CLOSE_DESCRIPTION);
-        saveOnClose.setSelected(true);
+    	compressedBox = new JCheckBox(COMPRESSED);
+    	compressedBox.setToolTipText(COMPRESSED_DESCRIPTION);
+        //compressedBoxsaveOnClose.setSelected(true);
         ClassifyAction a = 
 			(ClassifyAction) controller.getAction(ImViewerControl.CATEGORY);
         categoryButton = new JButton(a);
@@ -185,17 +182,29 @@ class ToolBar
      * This method should be called straight after the metadata and the
      * rendering settings are loaded.
      */
-    void buildComponent() { buildGUI(); }
-    
-    /**
-     * Returns <code>true</code> if the rendering settings are 
-     * saved before closing the viewer, <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    boolean saveSettingsOnClose() { return saveOnClose.isSelected(); }
+    void buildComponent()
+    { 
+    	
+    	boolean b = view.isImageCompressed();
+    	if (b) {
+    		bar.add(new JSeparator(JSeparator.VERTICAL));
+            bar.add(compressedBox);
+        	compressedBox.setSelected(b);
+        	compressedBox.addItemListener(this);
+    	}
+    	buildGUI(); 
+    }
     
     /** Selects or deselects the {@link #rndButton}. */
     void displayRenderer() { rndButton.setSelected(view.isRendererShown()); }
+
+    /**
+     * Reacts to the selection of the {@link #compressedBox}.
+     * @see ItemListener#itemStateChanged(ItemEvent)
+     */
+	public void itemStateChanged(ItemEvent e)
+	{
+		view.setImageCompressed(compressedBox.isSelected());
+	}
     
 }

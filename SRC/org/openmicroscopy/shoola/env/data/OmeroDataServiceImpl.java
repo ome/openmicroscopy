@@ -102,10 +102,10 @@ class OmeroDataServiceImpl
 	private boolean checkAlgorithm(int algorithm)
 	{
 		switch (algorithm) {
-		case OmeroDataService.DECLASSIFICATION:
-		case OmeroDataService.CLASSIFICATION_ME:
-		case OmeroDataService.CLASSIFICATION_NME:    
-			return true;
+			case OmeroDataService.DECLASSIFICATION:
+			case OmeroDataService.CLASSIFICATION_ME:
+			case OmeroDataService.CLASSIFICATION_NME:    
+				return true;
 		}
 		return false;
 	}

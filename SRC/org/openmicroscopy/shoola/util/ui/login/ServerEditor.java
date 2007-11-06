@@ -450,9 +450,9 @@ public class ServerEditor
 	String getSelectedServer()
 	{
 		int row = table.getSelectedRow();
-		if (row == -1) return "";
+		if (row == -1) return null;
 		String v = (String) table.getValueAt(row, 1);
-		if (v == null) return "";
+		if (v == null) return null;
 		return v.trim();
 	}
 	

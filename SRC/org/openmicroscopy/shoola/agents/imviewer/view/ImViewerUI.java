@@ -1398,14 +1398,6 @@ class ImViewerUI
 	}
 	
 	/**
-	 * Returns <code>true</code> if the rendering settings are 
-	 * saved before closing the viewer, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean saveSettingsOnClose() { return toolBar.saveSettingsOnClose(); }
-
-	/**
 	 * Sets the specified channel to active.
 	 * 
 	 * @param index   The channel's index.
@@ -1556,6 +1548,19 @@ class ImViewerUI
 		}
 		layoutComponents();
 	}
+	
+	void setImageCompressed(boolean compressed)
+	{
+		model.setImageCompressed(compressed);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the image is compressed, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isImageCompressed() { return model.isImageCompressed(); }
 	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.

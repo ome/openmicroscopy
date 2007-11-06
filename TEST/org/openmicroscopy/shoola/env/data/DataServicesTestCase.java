@@ -183,7 +183,8 @@ public abstract class DataServicesTestCase
         //Now we're ready to log onto OMEDS for the first time.
         UserCredentials uc = new UserCredentials(Env.getOmeroUser(), 
                                                  Env.getOmeroPass(),
-                                                 Env.getOmeroHost());
+                                                 Env.getOmeroHost(),
+                                                 UserCredentials.HIGH);
         Registry reg = container.getRegistry();
         LoginService loginSvc = (LoginService) reg.lookup(LookupNames.LOGIN);
         loginSvc.login(uc);

@@ -434,9 +434,10 @@ class ImViewerModel
 		PlaneDef pDef = new PlaneDef(PlaneDef.XY, getDefaultT());
 		pDef.setZ(getDefaultZ());
 		state = ImViewer.LOADING_IMAGE;
-		OmeroImageService os = ImViewerAgent.getRegistry().getImageService();
+		//OmeroImageService os = ImViewerAgent.getRegistry().getImageService();
 		try {
-			component.setImage(os.renderImage(pixelsID, pDef));
+			//component.setImage(os.renderImage(pixelsID, pDef));
+			component.setImage(rndControl.renderPlane(pDef));
 		} catch (Exception e) {
 			component.reload(e);
 		}
@@ -456,8 +457,15 @@ class ImViewerModel
 		PlaneDef pDef = new PlaneDef(PlaneDef.XY, getDefaultT());
 		pDef.setZ(getDefaultZ());
 		//state = ImViewer.LOADING_IMAGE;
-		OmeroImageService os = ImViewerAgent.getRegistry().getImageService();
-		return os.renderImage(pixelsID, pDef);
+		try {
+			//component.setImage(os.renderImage(pixelsID, pDef));
+			return rndControl.renderPlane(pDef);
+		} catch (Exception e) {
+			component.reload(e);
+		}
+		return null;
+		//OmeroImageService os = ImViewerAgent.getRegistry().getImageService();
+		//return os.renderImage(pixelsID, pDef);
 	}
 
 	/**
@@ -1218,5 +1226,19 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	int getMovieIndex() { return movieIndex; }
+	
+	/**
+	 * Returns <code>true</code> if the image is compressed, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isImageCompressed() { return rndControl.isCompressed(); }
+	
+	void setImageCompressed(boolean compressed)
+	{
+		rndControl.setCompressed(compressed);
+		component.renderXYPlane();
+	}
 	
 }

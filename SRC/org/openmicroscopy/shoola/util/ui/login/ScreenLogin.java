@@ -141,12 +141,21 @@ public class ScreenLogin
 	/** Field hosting the server text. */
 	private JTextPane 			serverText;
 
+	/** Field hosting the server text. */
+	private JLabel 				connectionSpeedText;
+	
 	/** UI component hosting the version of the sotfware. */
 	private JTextPane 			versionInfo;
 
 	/** Reference to the editor hosting the table. */
 	private ServerEditor		editor;
 
+	/** The selected connection speed. */
+	private int					speedIndex;
+	
+	/** Indicates to show or hide the connection speed option. */
+	private boolean				connectionSpeed;
+	
 	/** Quits the application. */
 	private void quit()
 	{
@@ -158,13 +167,12 @@ public class ScreenLogin
 	{
 		firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 		requestFocusOnField();
-
 		StringBuffer buf = new StringBuffer();
 		buf.append(pass.getPassword());
 		String usr = user.getText().trim(), psw = buf.toString();
 		String s = serverText.getText().trim();
 		setControlsEnabled(false);
-		LoginCredentials lc = new LoginCredentials(usr, psw, s);
+		LoginCredentials lc = new LoginCredentials(usr, psw, s, speedIndex);
 		setUserName(usr);
 		firePropertyChange(LOGIN_PROPERTY, null, lc);
 	}
@@ -176,6 +184,8 @@ public class ScreenLogin
 	private void config()
 	{
 		ServerDialog d = new ServerDialog(this, editor);
+		if (connectionSpeed) 
+			d.showConnectionSpeed(speedIndex);
 		d.addPropertyChangeListener(this);
 		UIUtilities.centerAndShow(d);
 	}
@@ -291,9 +301,11 @@ public class ScreenLogin
 		pass = new JPasswordField();
 		pass.setToolTipText("Enter your password.");
 		List<String> servers = editor.getServers();
-		if (servers == null || servers.size() == 0)
-			serverName = DEFAULT_SERVER;
+		if (servers == null || servers.size() == 0) serverName = DEFAULT_SERVER;
 		else serverName = servers.get(servers.size()-1);
+		connectionSpeedText = new JLabel(getConnectionSpeed());
+		connectionSpeedText.setForeground(TEXT_COLOR);
+		
 		serverText = UIUtilities.buildTextPane(serverName, TEXT_COLOR);
 	}
 
@@ -333,11 +345,12 @@ public class ScreenLogin
 	 */
 	private JPanel buildTopPanel()
 	{
-		double topTable[][] =  {{245, 18, 220, 28}, // columns
+		double topTable[][] =  {{200, 10, 230, 45, 28}, // columns
 				{32, TableLayout.FILL}}; // rows
 		JPanel topPanel = new JPanel();
 		topPanel.setOpaque(false);
-		topPanel.setLayout(new TableLayout(topTable));   
+		TableLayout layout = new TableLayout(topTable);
+		topPanel.setLayout(layout);   
 		topPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
 		JTextPane pleaseLogIn = UIUtilities.buildTextPane(TEXT_LOGIN, 
@@ -346,11 +359,12 @@ public class ScreenLogin
 		Font newFont = f.deriveFont(Font.BOLD, TEXT_FONT_SIZE);
 		pleaseLogIn.setFont(newFont);
 		topPanel.add(pleaseLogIn, "0, 0, l, c"); //Add to panel.
-
 		topPanel.add(serverText, "2, 0, r, c"); //Add to panel.
-		topPanel.add(configButton, "3, 0, c, c");
+		topPanel.add(connectionSpeedText, "3, 0, r, c"); //Add to panel.
+		topPanel.add(configButton, "4, 0, c, c");
+		
 		topPanel.add(buildTextPanel(user, 'U', USER_TEXT), "0, 1, 0, 1");
-		topPanel.add(buildTextPanel(pass, 'P', PASSWORD_TEXT), "2, 1, 3, 1");
+		topPanel.add(buildTextPanel(pass, 'P', PASSWORD_TEXT), "2, 1, 4, 1");
 		return topPanel;
 	}
 
@@ -417,6 +431,24 @@ public class ScreenLogin
 		return s.trim();
 	}
 
+	/** 
+	 * Adds the connection speed to the passed string.
+	 * 
+	 * @return The value of the connection speed.
+	 */
+	private String getConnectionSpeed()
+	{
+		switch (speedIndex) {
+			case LoginCredentials.HIGH:
+				return " [LAN]";
+			case LoginCredentials.MEDIUM:
+				return " [H]";
+			case LoginCredentials.LOW:
+				return " [L]";
+		}
+		return null;
+	}
+	
 	/** 
 	 * Sets the value of the new server
 	 * 
@@ -487,6 +519,8 @@ public class ScreenLogin
 		setPreferredSize(d);
 		editor = new ServerEditor();
 		editor.addPropertyChangeListener(ServerEditor.REMOVE_PROPERTY, this);
+		speedIndex = LoginCredentials.HIGH; //Default
+		connectionSpeed = false;
 		initFields(getUserName());
 		initButtons();
 		initListeners();
@@ -544,6 +578,20 @@ public class ScreenLogin
 		this(null, logo, frameIcon, null);
 	}
 
+	/** 
+	 * Indicates to show or hide the connection speed selection. 
+	 * By default the speed is hidden.
+	 * 
+	 * @param connectionSpeed Pass <code>true</code> to show the 
+	 * 						  connection speed option, <code>false</code>
+	 * 						  otherwise. 						
+	 */
+	public void showConnectionSpeed(boolean connectionSpeed)
+	{
+		this.connectionSpeed = connectionSpeed;
+		connectionSpeedText.setVisible(connectionSpeed);
+	}
+	
 	/**
 	 * Sets whether or not the buttons composing the display areenabled.
 	 * 
@@ -640,7 +688,10 @@ public class ScreenLogin
 			String oldValue = (String) evt.getOldValue();
 			if (v.equals(oldValue)) 
 				setNewServer((String) evt.getNewValue());
-		} 
+		} else if (ServerDialog.CONNECTION_SPEED_PROPERTY.endsWith(name)) {
+			speedIndex = ((Integer) evt.getNewValue()).intValue();
+			connectionSpeedText.setText(getConnectionSpeed());
+		}
 	}
 
 	/** 

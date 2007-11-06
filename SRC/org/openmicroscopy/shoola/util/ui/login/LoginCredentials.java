@@ -44,6 +44,15 @@ package org.openmicroscopy.shoola.util.ui.login;
 public class LoginCredentials
 {
 	
+	/** Identifies a high speed connection. */
+	public static final int HIGH = 0;
+	
+	/** Identifies a medium speed connection. */
+	public static final int MEDIUM = 1;
+	
+	/** Identifies a low speed connection. */
+	public static final int LOW = 2;
+	
 	/**
      * The <i>OMERO</i> login name of the user.
      * This is the <code>OME Name</code> that was assinged to the user when
@@ -61,21 +70,46 @@ public class LoginCredentials
     /** The name of the <i>OMERO</i> server. */
     private String  hostName;
     
+    /** The connection speed level. */
+    private int 	speedLevel;
+    
+    /** 
+     * Controls if the passed speed index is supported.
+     * 
+     * @param level The value to handle.
+     */
+    private void checkSpeedLevel(int level)
+    {
+    	switch (level) {
+			case HIGH:
+			case MEDIUM:
+			case LOW:
+				return;
+	
+			default:
+				throw new IllegalArgumentException("Speed level not valid.");
+		}
+    }
+    
     /**
      * Creates a new instance.
      * 
-     * @param userName The <i>OMERO</i> login name of the user.
-     *                 This is the <code>OME Name</code> that was assinged to 
-     *                 the user when it was created in the DB.
-     * @param password The <i>OMERO</i> login password of the user.
-     *                 This is the password that was chosen for the user when
-     *                 it was created in the DB.
-     * @param hostName
+     * @param userName   The <i>OMERO</i> login name of the user.
+     *                   This is the <code>OME Name</code> that was assinged to 
+     *                   the user when it was created in the DB.
+     * @param password   The <i>OMERO</i> login password of the user.
+     *                   This is the password that was chosen for the user when
+     *                   it was created in the DB.
+     * @param hostName 	 The name of the selected server.
+     * @param speedLevel The connection speed.
      * @throws IllegalArgumentException If the user name and/or the password is
      *                 <code>null</code> or has <code>0</code>-length.
      */
-    public LoginCredentials(String userName, String password, String hostName)
+    public LoginCredentials(String userName, String password, String hostName,
+    						int speedLevel)
     {
+    	checkSpeedLevel(speedLevel);
+    	this.speedLevel = speedLevel;
         this.userName = userName;
         this.password = password;
         this.hostName = hostName;
@@ -111,10 +145,16 @@ public class LoginCredentials
     public String getPassword() { return password; }
     
     /**
+     * Returns the selected connection speed.
+     * 
+     * @return See above.
+     */
+    public int getSpeedLevel() { return speedLevel; }
+    
+    /**
      * Formats user name and password.
      * Each character of the password is replaced by a star.
-     * 
-     * @return The formatted string.
+     * @see Object#toString()
      */
     public String toString()
     {

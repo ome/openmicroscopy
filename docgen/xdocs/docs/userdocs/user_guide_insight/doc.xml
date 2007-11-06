@@ -5,8 +5,10 @@
   <author name="David Sloan" email="comments@openmicroscopy.org.uk" />
   <author name="Xinyi Jiang" email="comments@openmicroscopy.org.uk" />
   <author name="Jean-Marie Burel" email="comments@openmicroscopy.org.uk" />
-  <version number="3.0-Beta"/>
-  <last-modified date="2007-10-30"/>
+  <author name="Donald MacDonald" email="comments@openmicroscopy.org.uk" />
+  <author name="Brian Loranger" email="comments@openmicroscopy.org.uk" />
+  <version number="3.0-Beta 2.2"/>
+  <last-modified date="2007-11-05"/>
 </xdoc-info>
 
  <toc name="Table of Contents" href="index.htm">

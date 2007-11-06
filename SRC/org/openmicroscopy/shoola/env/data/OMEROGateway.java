@@ -100,6 +100,12 @@ import pojos.ProjectData;
 */
 class OMEROGateway
 {
+	
+	/** The default compression quality. */
+	static final float 				DEFAULT_COMPRESSION_QUALITY = 0.85f;
+	
+	/** The low compression quality. */
+	static final float 				LOW_COMPRESSION_QUALITY = 0.5f;
 
 	/** Maximum size of pixels read at once. */
 	private static final int		INC = 256000;
@@ -148,6 +154,9 @@ class OMEROGateway
 	/** The port to use in order to connect. */
 	private int                     port;
 
+	/** The compression level. */
+	private float					compression;
+	
 	/**
 	 * Helper method to handle exceptions thrown by the connection library.
 	 * Methods in this class are required to fill in a meaningful context
@@ -360,8 +369,10 @@ class OMEROGateway
 			if (thumbnailService != null) thumbnailService.close();
 			thumbnailService = null;
 		}
-		if (thumbnailService == null) 
+		if (thumbnailService == null) {
 			thumbnailService = entry.createThumbnailService();
+		}
+			
 		thumbRetrieval++;
 		return thumbnailService; 
 	}
@@ -385,7 +396,9 @@ class OMEROGateway
 	 */
 	private RenderingEngine getRenderingService()
 	{
-		return entry.createRenderingEngine();
+		RenderingEngine engine = entry.createRenderingEngine();
+		engine.setCompressionLevel(compression);
+		return engine;
 	}
 
 	/**
@@ -512,18 +525,22 @@ class OMEROGateway
 	 * Tries to connect to <i>OMERO</i> and log in by using the supplied
 	 * credentials.
 	 * 
-	 * @param userName  The user name to be used for login.
-	 * @param password  The password to be used for login.
-	 * @param hostName  The name of the server.
+	 * @param userName  		The user name to be used for login.
+	 * @param password  		The password to be used for login.
+	 * @param hostName  		The name of the server.
+	 * @param compressionLevel  The compression level used for images and 
+	 * 							thumbnails depending on the connection speed.
 	 * @return The user's details.
 	 * @throws DSOutOfServiceException If the connection can't be established
 	 *                                  or the credentials are invalid.
 	 * @see #getUserDetails(String)
 	 */
-	ExperimenterData login(String userName, String password, String hostName)
-	throws DSOutOfServiceException
+	ExperimenterData login(String userName, String password, String hostName,
+							float compressionLevel)
+		throws DSOutOfServiceException
 	{
 		try {
+			compression = compressionLevel;
 			server = new Server(hostName, port);
 			entry = new ServiceFactory(server, new Login(userName, password)); 
 			connected = true;
@@ -1031,7 +1048,7 @@ class OMEROGateway
 	{
 		try {
 			ThumbnailStore service = getThumbService();
-
+			
 			needDefault(pixelsID, null);
 			return service.getThumbnailDirect(new Integer(sizeX), 
 					new Integer(sizeY));
@@ -1042,7 +1059,7 @@ class OMEROGateway
 					t.getCause() instanceof IllegalStateException) {
 				throw new DSOutOfServiceException(
 						"Thumbnail service null for pixelsID: "+pixelsID+"\n\n"+
-						printErrorText((Exception) t));
+						printErrorText(t));
 			}
 			throw new RenderingServiceException("Cannot get thumbnail", t);
 		}
@@ -1060,7 +1077,7 @@ class OMEROGateway
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	synchronized byte[] getThumbnailByLongestSide(long pixelsID, int maxLength)
-	throws RenderingServiceException, DSOutOfServiceException
+		throws RenderingServiceException, DSOutOfServiceException
 	{
 		try {
 			ThumbnailStore service = getThumbService();
@@ -1073,7 +1090,7 @@ class OMEROGateway
 					t.getCause() instanceof IllegalStateException) {
 				throw new DSOutOfServiceException(
 						"Thumbnail service null for pixelsID: "+pixelsID+"\n\n"+
-						printErrorText((Exception) t));
+						printErrorText(t));
 			}
 			throw new RenderingServiceException("Cannot get thumbnail", t);
 		}

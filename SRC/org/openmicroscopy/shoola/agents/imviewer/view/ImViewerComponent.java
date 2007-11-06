@@ -339,7 +339,7 @@ class ImViewerComponent
 		if (option == MessageBox.YES_OPTION) {
 			if (rndBox != null && rndBox.isSelected()) {
 				try {
-					if (view.saveSettingsOnClose()) model.saveRndSettings();
+					model.saveRndSettings();
 				} catch (Exception e) {
 					LogMessage logMsg = new LogMessage();
 					logMsg.println("Cannot save rendering settings. ");

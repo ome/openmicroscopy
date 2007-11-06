@@ -37,13 +37,19 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Enumeration;
+
+import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.WindowConstants;
 
 //Third-party libraries
@@ -68,9 +74,13 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class ServerDialog 
 	extends JDialog
-	implements ComponentListener, PropertyChangeListener
+	implements ActionListener, ComponentListener, PropertyChangeListener
 {
 
+	/** Bound property indicating the selected connection speed is selected. */
+	static final String 				CONNECTION_SPEED_PROPERTY = 
+											"connectionSpeed";
+	
 	/** Bound property indicating that a new server is selected. */
 	static final String 				SERVER_PROPERTY = "server";
 
@@ -80,6 +90,21 @@ class ServerDialog
 	/** Bound property indicating that the window is closed. */
 	static final String 				REMOVE_PROPERTY = "remove";
     
+	/** ID identifying the close action. */
+	private static final int			CLOSE = 0;
+	
+	/** ID identifying the apply action. */
+	private static final int			APPLY = 1;
+	
+	/** ID identifying the selection of an high speed connection. */
+	private static final int			HIGH_SPEED = 2;
+	
+	/** ID identifying the selection of an medium speed connection. */
+	private static final int			MEDIUM_SPEED = 3;
+	
+	/** ID identifying the selection of a low speed connection. */
+	private static final int			LOW_SPEED = 4;
+	
 	/** The default size of the window. */
 	private static final Dimension		WINDOW_DIM = new Dimension(400, 450);
 	
@@ -117,6 +142,12 @@ class ServerDialog
     /** The UI component hosting the title. */
     private TitlePanel      titlePanel;
     
+    /** The panel hosting the center component. */
+    private JPanel			mainPanel;
+    
+    /** Group hosting the connection speed level. */
+    private ButtonGroup 	buttonsGroup;
+    
 	/** Closes and disposes. */
 	private void close()
 	{
@@ -130,8 +161,35 @@ class ServerDialog
 	{
 		editor.stopEdition();
 		String server = editor.getSelectedServer();
-		if (server != null) editor.handleServers(server);
-		firePropertyChange(SERVER_PROPERTY, null, server);
+		if (server != null) {
+			editor.handleServers(server);
+			firePropertyChange(SERVER_PROPERTY, null, server);
+		}
+		if (buttonsGroup != null) {
+			Enumeration en = buttonsGroup.getElements();
+			JRadioButton button;
+			int index;
+			while (en.hasMoreElements()) {
+				button = (JRadioButton) en.nextElement();
+				if (button.isSelected()) {
+					index = Integer.parseInt(button.getActionCommand());
+					switch (index) {
+						case HIGH_SPEED:
+							firePropertyChange(CONNECTION_SPEED_PROPERTY, null, 
+										new Integer(LoginCredentials.HIGH));
+							break;
+						case MEDIUM_SPEED:
+							firePropertyChange(CONNECTION_SPEED_PROPERTY, null, 
+										new Integer(LoginCredentials.MEDIUM));
+							break;
+						case LOW_SPEED:
+							firePropertyChange(CONNECTION_SPEED_PROPERTY, null, 
+											new Integer(LoginCredentials.LOW));
+					}
+				}
+				
+			}
+		}
 		close();
 	}
 	
@@ -146,14 +204,10 @@ class ServerDialog
 	/** Attaches the various listeners. */
 	private void initListeners()
 	{
-		cancelButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { close(); }
-		
-		});
-		finishButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { apply(); }
-
-		});
+		cancelButton.addActionListener(this);
+		cancelButton.setActionCommand(""+CLOSE);
+		finishButton.addActionListener(this);
+		finishButton.setActionCommand(""+APPLY);
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter()
         {
@@ -201,10 +255,13 @@ class ServerDialog
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
+		mainPanel = new JPanel();
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.add(editor);
         Container c = getContentPane();
         setLayout(new BorderLayout(0, 0));
         c.add(titleLayer, BorderLayout.NORTH);
-        c.add(editor, BorderLayout.CENTER);
+        c.add(mainPanel, BorderLayout.CENTER);
         c.add(buildToolBar(), BorderLayout.SOUTH);
 	}
 	
@@ -247,6 +304,43 @@ class ServerDialog
 	}
 
 	/** 
+	 * Adds the connection speed options to the display. 
+	 * 
+	 * @param index The default index.
+	 */
+	void showConnectionSpeed(int index)
+	{
+		JPanel p = new JPanel();
+		p.setBorder(BorderFactory.createTitledBorder("Connection Speed"));
+		buttonsGroup = new ButtonGroup();
+		
+		JRadioButton button = new JRadioButton();
+		button.setText("LAN");
+		button.setActionCommand(""+HIGH_SPEED);
+		button.addActionListener(this);
+		button.setSelected(index == LoginCredentials.HIGH);
+		buttonsGroup.add(button);
+		p.add(button);
+		button = new JRadioButton();
+		button.setText("High");
+		button.setActionCommand(""+MEDIUM_SPEED);
+		button.setSelected(index == LoginCredentials.MEDIUM);
+		button.addActionListener(this);
+		buttonsGroup.add(button);
+		p.add(button);
+		button = new JRadioButton();
+		button.setText("Low");
+		button.setActionCommand(""+LOW_SPEED);
+		button.setSelected(index == LoginCredentials.LOW);
+		button.addActionListener(this);
+		buttonsGroup.add(button);
+		p.add(button);
+		mainPanel.removeAll();
+		mainPanel.add(editor);
+		mainPanel.add(UIUtilities.buildComponentPanel(p));
+	}
+	
+	/** 
      * Resizes the layered pane hosting the title when the window is resized.
      * @see ComponentListener#componentResized(ComponentEvent)
      */
@@ -281,6 +375,41 @@ class ServerDialog
 	}
 	
 	/** 
+	 * Reacts to the selection of the button.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case CLOSE:
+				close();
+				break;
+			case APPLY:
+				apply();
+				break;
+			case HIGH_SPEED:
+			case MEDIUM_SPEED:
+			case LOW_SPEED:
+				finishButton.setEnabled(true);
+				/*
+			case HIGH_SPEED:
+				firePropertyChange(CONNECTION_SPEED_PROPERTY, null, 
+									new Integer(LoginCredentials.HIGH));
+				break;
+			case MEDIUM_SPEED:
+				firePropertyChange(CONNECTION_SPEED_PROPERTY, null, 
+									new Integer(LoginCredentials.MEDIUM));
+				break;
+			case LOW_SPEED:
+				firePropertyChange(CONNECTION_SPEED_PROPERTY, null, 
+									new Integer(LoginCredentials.LOW));
+				break;
+				*/
+		}
+	}
+	
+	/** 
      * Required by {@link ComponentListener} interface but no-op implementation 
      * in our case. 
      * @see ComponentListener#componentShown(ComponentEvent)
@@ -300,5 +429,7 @@ class ServerDialog
      * @see ComponentListener#componentMoved(ComponentEvent)
      */
 	public void componentMoved(ComponentEvent e) {}
+
+	
     
 }

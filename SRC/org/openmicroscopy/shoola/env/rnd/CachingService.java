@@ -74,15 +74,6 @@ public class CachingService
 
 	/** The maximum amount of memory in bytes used for caching. */
 	private static int				maxSize;
-
-	/** Determines the value of the maximum size. */
-	private static void setMaxSize()
-	{
-		MemoryUsage usage = 
-			ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-		//percentage of memory used for caching.
-		maxSize = (int) (RATIO*(usage.getMax()-usage.getUsed()))/FACTOR; 	
-	}
 	
 	/**
 	 * Creates a new instance. This can't be called outside of container b/c 
@@ -108,14 +99,27 @@ public class CachingService
 	/**
 	 * Creates a {@link XYCache}.
 	 * 
+	 * @param pixelsID	The id of the pixels set.
+	 */
+	static void eraseXYCache(long pixelsID)
+	{
+		XYCache cache = singleton.imageCache.get(pixelsID);
+		if (cache == null) return;
+		singleton.imageCache.remove(pixelsID);
+		getCacheSize();
+	}
+	
+	/**
+	 * Creates a {@link XYCache}.
+	 * 
 	 * @param pixelsID	The id of the pixels set.	
 	 * @param imageSize	The size of the rendered image to cache.
 	 * @param sizeZ		The number of z-section.
 	 * @param sizeT		The number of timepoints.
 	 * @return See above.
 	 */
-	public static XYCache createXYCache(long pixelsID, int imageSize, int sizeZ,
-			int sizeT)
+	static XYCache createXYCache(long pixelsID, int imageSize, int sizeZ,
+								int sizeT)
 	{
 		//Shouldn't happen
 		XYCache cache = singleton.imageCache.get(pixelsID);
@@ -149,6 +153,16 @@ public class CachingService
 		return cache;
 	}
 
+
+	/** Determines the value of the maximum size. */
+	private static void setMaxSize()
+	{
+		MemoryUsage usage = 
+			ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+		//percentage of memory used for caching.
+		maxSize = (int) (RATIO*(usage.getMax()-usage.getUsed()))/FACTOR; 	
+	}
+	
 	/**
 	 * Returns the size of the cache.
 	 * 

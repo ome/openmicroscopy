@@ -32,10 +32,13 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.DirectColorModel;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.ejb.EJBException;
+import javax.imageio.ImageIO;
+
 import sun.awt.image.IntegerInterleavedRaster;
 
 //Third-party libraries
@@ -91,9 +94,6 @@ class RenderingControlProxy
     /** Reference to service to render pixels set. */
     private RenderingEngine         servant;
     
-    /** The size of an XY image. */
-    private int                     xyImgSize;
-    
     /** The cache containing XY images. */
     private XYCache                 xyCache;
     
@@ -102,6 +102,9 @@ class RenderingControlProxy
     
     /** Local copy of the rendering used to speed-up the UI painting. */
     private RndProxyDef             rndDef;
+    
+    /** Indicates if the compression is turned on/off. */
+    private boolean					compressed;
     
     /**
      * Helper method to handle exceptions thrown by the connection library.
@@ -155,7 +158,7 @@ class RenderingControlProxy
                                        );
         return new BufferedImage(colorModel, raster, false, null);
     }
-
+	
     /**
      * Retrieves from the cache the buffered image representing the specified
      * plane definition. Note that only the images corresponding to an XY-plane
@@ -166,31 +169,11 @@ class RenderingControlProxy
      */
     private BufferedImage getFromCache(PlaneDef pd)
     {
-        BufferedImage img = null;
-        if (pd.getSlice() == PlaneDef.XY) {  //We only cache XY images.
-            
-            if (xyCache != null) {
-                img = xyCache.extract(pd);
-            } else {
-                //Okay, let's see if we can activate the xyCache. In order to 
-                //do that, the dimensions of the pixels array and the xyImgSize
-                //have to be available. 
-                //This happens if at least one XY plane has been rendered.  
-                //Note that doing remote calls upfront to eagerly instantiate 
-                //the xyCache is in most cases a total waste: the client is 
-                //likely to call getPixelsDims() before an image is ever 
-                //rendered and until an XY plane is not requested it's pointless
-                //to have a cache.
-            	/*
-                if (xyImgSize != 0) {
-                   xyCache = CachingService.createXYCache(pixs.getId(), 
-                		   				xyImgSize, getPixelsDimensionsZ(), 
-                		   				getPixelsDimensionsT());
-                }
-                */
-            }
+        // We only cache XY images.
+        if (pd.getSlice() == PlaneDef.XY && xyCache != null) {  
+        	return xyCache.extract(pd);
         }
-        return img;
+        return null;
     }
     
     /**
@@ -213,6 +196,40 @@ class RenderingControlProxy
         if (xyCache != null) xyCache.clear();
     }
     
+    /** Clears the cache and releases memory. */
+    private void eraseCache()
+    {
+    	if (xyCache == null) return;
+    	invalidateCache();
+    	CachingService.eraseXYCache(pixs.getId()); 
+    	xyCache = null;
+    }
+    
+    /**
+     * Initializes the cache for the specified plane.
+     * 
+     * @param pDef		The plane of reference.
+     * @param length	The length of the data.
+     */
+    private void initializeCache(PlaneDef pDef, int length)
+    {
+    	if (xyCache != null) return;
+    	if (pDef.getSlice() == PlaneDef.XY) {
+    		//    		Okay, let's see if we can activate the xyCache. 
+            //In order to 
+            //do that, the dimensions of the pixels array and the 
+            //xyImgSize have to be available. 
+            //This happens if at least one XY plane has been rendered.  
+            //Note that doing remote calls upfront to eagerly 
+            //instantiate the xyCache is in most cases a total waste: 
+            //the client is  likely to call getPixelsDims() before an 
+            //image is ever  rendered and until an XY plane is 
+            //not requested it's pointless to have a cache.
+            xyCache = CachingService.createXYCache(pixs.getId(), length, 
+            				getPixelsDimensionsZ(), getPixelsDimensionsT());
+    	}
+    }
+  
     /**
      * Checks if the passed bit resolution is supported.
      * 
@@ -302,7 +319,116 @@ class RenderingControlProxy
 			handleException(e, ERROR+"color for: "+w+".");
 		}
     }
-    
+
+    /**
+	 * Renders the compressed image.
+	 * 
+	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
+     *            or <i>Z</i> axes.
+	 * @return See above.
+	 * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	private BufferedImage renderPlaneCompressed(PlaneDef pDef)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		//Need to adjust the cache.
+		BufferedImage img = getFromCache(pDef);
+		if (img != null) return img;
+		try {
+			byte[] values = servant.renderCompressed(pDef);
+			ByteArrayInputStream stream = new ByteArrayInputStream(values);
+			img = ImageIO.read(stream);
+			initializeCache(pDef, values.length);
+			cache(pDef, img);
+		} catch (Exception e) {
+			handleException(e, ERROR+"cannot render the compressed image.");
+		}
+		return img;
+	}
+	
+	/**
+	 * Renders the image without compression.
+	 * 
+	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
+     *            or <i>Z</i> axes.
+	 * @return See above.
+	 * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	private BufferedImage renderPlaneUncompressed(PlaneDef pDef)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		//See if the requested image is in cache.
+        BufferedImage img = getFromCache(pDef);
+        if (img != null) return img;
+        try {
+            int[] buf = servant.renderAsPackedInt(pDef);
+            int sizeX1, sizeX2;
+            switch (pDef.getSlice()) {
+                case PlaneDef.XZ:
+                    sizeX1 = pixs.getSizeX().intValue();
+                    sizeX2 = pixs.getSizeZ().intValue();
+                    break;
+                case PlaneDef.ZY:
+                    sizeX1 = pixs.getSizeZ().intValue();
+                    sizeX2 = pixs.getSizeY().intValue();
+                    break;
+                case PlaneDef.XY:
+                default:
+                    sizeX1 = pixs.getSizeX().intValue();
+                    sizeX2 = pixs.getSizeY().intValue();
+                    break;
+            }
+            initializeCache(pDef, 3*buf.length);
+            img = createImage(sizeX1, sizeX2, buf);
+            cache(pDef, img);
+		} catch (Exception e) {
+			handleException(e, ERROR+"cannot render the plane.");
+		}
+        
+        return img;
+	}
+	
+    /**
+     * Creates a new instance.
+     * 
+     * @param re   		The service to render a pixels set.
+     *                  Mustn't be <code>null</code>.
+     * @param pixDims   The dimensions in microns of the pixels set.
+     *                  Mustn't be <code>null</code>.
+     * @param m         The channel metadata. 
+     * @param pixelsID	The pixels ID, this proxy is for.
+     * @param compressed Pass <code>true</code> to display by default 
+	 * 					 compressed images, <code>false</code> otherwise.
+     */
+    RenderingControlProxy(RenderingEngine re, PixelsDimensions pixDims, List m,
+    					boolean compressed)
+    {
+        if (re == null)
+            throw new NullPointerException("No rendering engine.");
+        if (pixDims == null)
+            throw new NullPointerException("No pixels dimensions.");
+        servant = re;
+        this.pixDims = pixDims;
+        pixs = servant.getPixels();
+        families = servant.getAvailableFamilies(); 
+        models = servant.getAvailableModels();
+        rndDef = new RndProxyDef();
+        setCompressed(compressed); 
+        initialize();
+        tmpSolutionForNoiseReduction();
+        metadata = new ChannelMetadata[m.size()];
+        Iterator i = m.iterator();
+        ChannelMetadata cm;
+        while (i.hasNext()) {
+        	cm = (ChannelMetadata) i.next();
+            metadata[cm.getIndex()] = cm;
+        }
+    }
+
     /**
      * Resets the rendering engine.
      * 
@@ -351,39 +477,6 @@ class RenderingControlProxy
         }
     }
     
-    /**
-     * Creates a new instance.
-     * 
-     * @param re   		The service to render a pixels set.
-     *                  Mustn't be <code>null</code>.
-     * @param pixDims   The dimensions in microns of the pixels set.
-     *                  Mustn't be <code>null</code>.
-     * @param m         The channel metadata. 
-     * @param pixelsID	The pixels ID, this proxy is for.
-     */
-    RenderingControlProxy(RenderingEngine re, PixelsDimensions pixDims, List m)
-    {
-        if (re == null)
-            throw new NullPointerException("No rendering engine.");
-        if (pixDims == null)
-            throw new NullPointerException("No pixels dimensions.");
-        servant = re;
-        this.pixDims = pixDims;
-        pixs = servant.getPixels();
-        families = servant.getAvailableFamilies(); 
-        models = servant.getAvailableModels();
-        rndDef = new RndProxyDef();
-        initialize();
-        tmpSolutionForNoiseReduction();
-        metadata = new ChannelMetadata[m.size()];
-        Iterator i = m.iterator();
-        ChannelMetadata cm;
-        while (i.hasNext()) {
-        	cm = (ChannelMetadata) i.next();
-            metadata[cm.getIndex()] = cm;
-        }
-    }
-
     /** 
      * Resets the size of the cache.
      * 
@@ -393,59 +486,7 @@ class RenderingControlProxy
     {
         if (xyCache != null) xyCache.resetCacheSize(size);
     }
-    
-    /**
-     * Renders the specified {@link PlaneDef plane}.
-     * 
-     * @param pDef The plane to render
-     * @return The rendered image.
-     */
-    synchronized BufferedImage render(PlaneDef pDef)
-    {
-        if (pDef == null) 
-            throw new IllegalArgumentException("Plane def cannot be null.");
-        //See if the requested image is in cache.
         
-        BufferedImage img = getFromCache(pDef);
-        if (img != null) return img;
-        int[] buf = servant.renderAsPackedInt(pDef);
-        int sizeX1, sizeX2;
-        switch (pDef.getSlice()) {
-            case PlaneDef.XZ:
-                sizeX1 = pixs.getSizeX().intValue();
-                sizeX2 = pixs.getSizeZ().intValue();
-                break;
-            case PlaneDef.ZY:
-                sizeX1 = pixs.getSizeZ().intValue();
-                sizeX2 = pixs.getSizeY().intValue();
-                break;
-            case PlaneDef.XY:
-            default:
-                sizeX1 = pixs.getSizeX().intValue();
-                sizeX2 = pixs.getSizeY().intValue();
-                if (xyCache == null) {
-                	//Okay, let's see if we can activate the xyCache. 
-                	//In order to 
-                    //do that, the dimensions of the pixels array and the xyImgSize
-                    //have to be available. 
-                    //This happens if at least one XY plane has been rendered.  
-                    //Note that doing remote calls upfront to eagerly instantiate 
-                    //the xyCache is in most cases a total waste: the client is 
-                    //likely to call getPixelsDims() before an image is ever 
-                    //rendered and until an XY plane is not requested it's pointless
-                    //to have a cache.
-                		
-                	xyCache = CachingService.createXYCache(pixs.getId(), 
-                 		   3*buf.length, getPixelsDimensionsZ(), 
-                 		   				getPixelsDimensionsT());
-                }
-                break;
-        }
-        img = createImage(sizeX1, sizeX2, buf);
-        cache(pDef, img);
-        return img;
-    }
-    
     /** Shuts down the service. */
     void shutDown()
     { 
@@ -1066,16 +1107,39 @@ class RenderingControlProxy
 			return false;
 		if (getPixelsDimensionsX() != pixels.getSizeX().intValue())
 			return false;
-		/*
-		if (getPixelsDimensionsZ() != pixels.getSizeZ().intValue())
-			return false;
-		if (getPixelsDimensionsT() != pixels.getSizeT().intValue())
-			return false;
-		*/
 		String s = pixels.getPixelsType().getValue();
 		String value = pixs.getPixelsType().getValue();
 		if (!value.equals(s)) return false;
 		return true;
 	}
 	
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#renderPlane(PlaneDef)
+	 */
+    public BufferedImage renderPlane(PlaneDef pDef)
+    	throws RenderingServiceException, DSOutOfServiceException
+    {
+        if (pDef == null) 
+            throw new IllegalArgumentException("Plane def cannot be null.");
+        if (compressed) return renderPlaneCompressed(pDef);
+        return renderPlaneUncompressed(pDef);
+    }
+    
+    /** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#setCompressed(boolean)
+	 */
+	public void setCompressed(boolean compressed)
+	{
+		this.compressed = compressed;
+		eraseCache();
+	}
+
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#isCompressed()
+	 */
+	public boolean isCompressed() { return compressed; }
+    
 }

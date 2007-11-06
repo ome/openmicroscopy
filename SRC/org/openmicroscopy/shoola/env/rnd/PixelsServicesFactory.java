@@ -102,16 +102,18 @@ public class PixelsServicesFactory
 	 * @param re        The {@link RenderingEngine rendering service}.        
 	 * @param pixDims   The dimension of the pixels set.
 	 * @param metadata  The channel metadata.
+	 * @param compressed Pass <code>true</code> to display by default 
+	 * 					 compressed images, <code>false</code> otherwise.
 	 * @return See above.
 	 * @throws IllegalArgumentException If an Agent try to access the method.
 	 */
 	public static RenderingControl createRenderingControl(Registry context, 
 			RenderingEngine re, PixelsDimensions pixDims,
-			List metadata)
+			List metadata, boolean compressed)
 	{
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
-		return singleton.makeNew(re, pixDims, metadata);
+		return singleton.makeNew(re, pixDims, metadata, compressed);
 	}
 
 	/**
@@ -229,7 +231,12 @@ public class PixelsServicesFactory
 		if (proxy == null) 
 			throw new RuntimeException("No rendering service " +
 			"initialized for the specified pixels set.");
-		return proxy.render(pDef);
+		try {
+			return proxy.renderPlane(pDef);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return null;
 	}
 
 	/** Keep track of all the rendering service already initialized. */
@@ -250,17 +257,19 @@ public class PixelsServicesFactory
 	 * @param re        The rendering control.
 	 * @param pixDims   The dimensions of the pixels array.
 	 * @param rdefID	The id of the rendering settings.
+	 * @param compressed Pass <code>true</code> to display by default 
+	 * 					 compressed images, <code>false</code> otherwise.
 	 * @return See above.
 	 */
 	private RenderingControl makeNew(RenderingEngine re,
-			PixelsDimensions pixDims, List metadata)
+			PixelsDimensions pixDims, List metadata, boolean compressed)
 	{
 		if (singleton == null) throw new NullPointerException();
 		Long id = re.getPixels().getId();
 		RenderingControl rnd = getRenderingControl(registry, id);
 		if (rnd != null) return rnd;
 		int l = singleton.rndSvcProxies.size();
-		rnd = new RenderingControlProxy(re, pixDims, metadata);
+		rnd = new RenderingControlProxy(re, pixDims, metadata, compressed);
 		//reset the size of the caches.
 		Iterator i = singleton.rndSvcProxies.keySet().iterator();
 		RenderingControlProxy proxy;
