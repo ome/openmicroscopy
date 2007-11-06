@@ -42,7 +42,7 @@
             <span py:if="result.hasCustomAttributes is False">No custom attributes were found. </span>
           </li>
         </ul>
-		<div id="debug-block" style="background-color:#DDDDFF;">
+		<div id="debug-block" style="display:none;background-color:#DDDDFF;" >
 	        <p>--debug-begin-------------------</p>
 	        <p py:if="result.hasParsedXml">hasParsedXml: ${result.hasParsedXml}</p>
 	        <p py:if="result.isOmeXml">isOmeXml: ${result.isOmeXml}</p>
