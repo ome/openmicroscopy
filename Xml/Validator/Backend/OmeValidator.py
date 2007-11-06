@@ -263,7 +263,7 @@ class XmlReport(object):
 				self.errorList.append(ParseMessage(None, err.line, None, "XSD", None, err.message))
 			else:
 				self.isXsdValid = True
-		except XMLSchemaValidateError:
+		except etree.XMLSchemaValidateError:
 			self.isXsdValid = False
 			self.errorList.append(ParseMessage(None, None, None, "XML", None, "Internal error in the system XML Schema validation module"))
 			
