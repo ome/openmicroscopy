@@ -240,6 +240,21 @@ public class Renderer {
 	}
 
 	/**
+	 * Returns <code>true</code> if the color is black or white, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param color The array representing an RGB color.
+	 * @return See above.
+	 */
+	private boolean isEndColor(int[] color)
+	{
+		if (color[0] == 255 && color[1] == 255 && color[2] == 255)
+			return true;
+		if (color[0] == 0 && color[1] == 0 && color[2] == 0) return true;
+		return false;
+	}
+	
+	/**
      * Checks to see if we can enable specific optimizations for "primary" color
      * rendering and alphaless rendering.
      * 
@@ -290,6 +305,10 @@ public class Renderer {
 			Color channelColor = channelBinding.getColor();
 			boolean isPrimary = false;
 			int[] colorArray = getColorArray(channelColor);
+			if (isEndColor(colorArray)) {
+				optimizations.setPrimaryColorEnabled(false);
+				return;
+			}
 			for (int value : colorArray)
 			{
 				if (value != 0 && value != 255)
