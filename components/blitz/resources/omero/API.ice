@@ -168,8 +168,8 @@ module omero {
 	idempotent IObjectList findContainerHierarchies(string rootType, omero::sys::LongList imageIds, omero::sys::ParamMap options) throws ServerError;
 	idempotent AnnotationMap findAnnotations(string rootType, omero::sys::LongList rootIds, omero::sys::LongList annotatorIds, omero::sys::ParamMap options) throws ServerError;
 	idempotent IObjectList findCGCPaths(omero::sys::LongList imageIds, string algo, omero::sys::ParamMap options) throws ServerError;
-	idempotent ImageList findImages(string rootType, omero::sys::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
-	idempotent ImageList findUserImages(omero::sys::ParamMap options) throws ServerError;
+	idempotent ImageList getImages(string rootType, omero::sys::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
+	idempotent ImageList getUserImages(omero::sys::ParamMap options) throws ServerError;
 	idempotent UserMap getUserDetails(StringSet names, omero::sys::ParamMap options) throws ServerError;
 	idempotent CountMap getCollectionCount(string type, string property, omero::sys::LongList ids, omero::sys::ParamMap options) throws ServerError;
 	idempotent IObjectList retrieveCollection(omero::model::IObject obj, string collectionName, omero::sys::ParamMap options) throws ServerError;
