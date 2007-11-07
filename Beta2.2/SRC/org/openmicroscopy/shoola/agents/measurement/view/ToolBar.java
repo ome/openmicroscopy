@@ -373,12 +373,14 @@ class ToolBar
 	{
 		if(rightClick(e))
 		{
-			view.createSingleFigure(false);
+			this.createSingleFigure(false);
 			JToggleButton button = (JToggleButton)e.getSource();
 			button.setSelected(true);
 		}
 		else
-			view.createSingleFigure(true);
+		{
+			this.createSingleFigure(view.isCreateSingleFigure());
+		}
 		
 	}
 

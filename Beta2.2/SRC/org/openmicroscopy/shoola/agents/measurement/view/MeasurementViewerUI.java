@@ -89,6 +89,9 @@ class MeasurementViewerUI
 	implements MouseListener
 {
 
+	/** The message displayed when a ROI's cannot be loaded. */
+	static final String					LOAD_MSG = "Cannot load ROIs";
+
 	/** The message displayed when a ROI cannot be retrieved. */
 	static final String					RETRIEVE_MSG = "Cannot retrieve the " +
 															"ROI";
@@ -967,6 +970,17 @@ class MeasurementViewerUI
     	toolBar.createSingleFigure(createSingleFig);
     	
     }
+    
+	/**
+     * is the user menu set to create single figures
+     * 
+     * @return see above.
+     */
+    boolean isCreateSingleFigure()
+    {
+    	return createSingleFigure.isSelected();
+    }
+
     
     /**
      * Returns the id of the pixels set this tool is for.
