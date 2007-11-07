@@ -5,6 +5,7 @@
    <property name="import.dir" value="${up-one}/antlib/resources"/>
    <import file="${import.dir}/global.xml"/>
    <property name="deps.buildlist.dir" value="${omero.home}/components/tools/"/>
+   <property name="services.dir" value="${basedir}/target/services-classes"/>
    <import file="${import.dir}/dependencies.xml"/>
    <import file="${import.dir}/multiproject.xml"/>
    <import file="${import.dir}/lifecycle.xml"/>
@@ -21,7 +22,7 @@
 	<target name="build"
 		description="Calls 'tools-build' on all components to fill target"
 		depends="deps-buildlist">
-		<mkdir dir="${basedir}/target/service-classes"/>
+		<mkdir dir="${services.dir}"/>
 		<iterate target="tools-dist"/>
 	</target>
 
@@ -29,7 +30,14 @@
 		<copy todir="../../dist" overwrite="true">
 			<fileset dir="target" includes="*.war,lib/**/*,client/**/*,include/**/*" followsymlinks="false"/>
 		</copy>
-		<jar update="true" destfile="${dist.dir}/blitz/services.jar" basedir="${basedir}/target/service-classes" includes="**/*"/>
+		<mkdir dir="${services.dir}/META-INF"/>
+		<echo file="${services.dir}/META-INF/README.txt">
+			This jar was created by the tools/build.xml script's dist target
+			and contains non-core classes, including both server and client
+			side code for use with OMERO.
+		</echo>
+		<mkdir dir="${dist.dir}/blitz/"/>
+		<jar update="true" destfile="${dist.dir}/blitz/services.jar" basedir="${services.dir}" includes="**/*"/>
 		<!-- This must be reworked upstream -->
 		<jar update="true" destfile="${dist.dir}/${product.final.name}" basedir="${dist.dir}/blitz" includes="services.jar"/>
 	</target>
