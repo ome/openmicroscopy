@@ -991,6 +991,16 @@ class MeasurementViewerUI
     	
     }
     
+	/**
+     * is the user menu set to create single figures
+     * 
+     * @return see above.
+     */
+    boolean isCreateSingleFigure()
+    {
+    	return createSingleFigure.isSelected();
+    }
+    
     /**
      * Returns the id of the pixels set this tool is for.
      * 

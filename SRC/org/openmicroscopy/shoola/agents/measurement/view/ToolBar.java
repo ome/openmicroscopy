@@ -334,7 +334,21 @@ class ToolBar
 		initComponents();
 		buildGUI();
 	}
-
+	
+	/**
+	 * Return true if the right button was clicked or left button was clicked with
+	 * control held down.
+	 * @param e mouse event.
+	 * @return see above.
+	 */
+	protected boolean rightClick(MouseEvent e)
+	{
+		if(e.getButton() == MouseEvent.BUTTON3 || 
+				(e.getButton() == MouseEvent.BUTTON1 && e.isControlDown()))
+			return true;
+		return false;
+	}
+	
 	/**
 	 * Creates a single figure and moves the tool in the menu back to the 
 	 * selection tool, if the passed parameter is <code>true</code>. 
@@ -352,19 +366,6 @@ class ToolBar
 	    polygonTool.setResetToSelect(option);
 	    polylineTool.setResetToSelect(option); 
 	}
-	/**
-	 * Return true if the right button was clicked or left button was clicked with
-	 * control held down.
-	 * @param e mouse event.
-	 * @return see above.
-	 */
-	protected boolean rightClick(MouseEvent e)
-	{
-		if(e.getButton() == MouseEvent.BUTTON3 || 
-				(e.getButton() == MouseEvent.BUTTON1 && e.isControlDown()))
-			return true;
-		return false;
-	}
 	
 	/* (non-Javadoc)
 	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
@@ -373,12 +374,14 @@ class ToolBar
 	{
 		if(rightClick(e))
 		{
-			view.createSingleFigure(false);
+			this.createSingleFigure(false);
 			JToggleButton button = (JToggleButton)e.getSource();
 			button.setSelected(true);
 		}
 		else
-			view.createSingleFigure(true);
+		{
+			this.createSingleFigure(view.isCreateSingleFigure());
+		}
 		
 	}
 
