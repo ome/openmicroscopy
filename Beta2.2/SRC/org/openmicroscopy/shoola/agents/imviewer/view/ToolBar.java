@@ -149,8 +149,7 @@ class ToolBar
 			(ClassifyAction) controller.getAction(ImViewerControl.CATEGORY);
         categoryButton = new JButton(a);
         //UIUtilities.unifiedButtonLookAndFeel(categoryButton);
-        //categoryButton.setVisible(true);
-        categoryButton.addMouseListener(a);
+        //categoryButton.addMouseListener(a);
         createControlsBar();
     }
 
@@ -162,7 +161,7 @@ class ToolBar
         p.setLayout(new FlowLayout(FlowLayout.LEFT));
         p.add(bar);
         add(p);
-        add(UIUtilities.buildComponentPanelRight(categoryButton));
+        //add(UIUtilities.buildComponentPanelRight(categoryButton));
     }
     
     /**

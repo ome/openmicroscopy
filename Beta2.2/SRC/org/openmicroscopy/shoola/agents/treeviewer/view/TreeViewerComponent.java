@@ -968,6 +968,8 @@ class TreeViewerComponent
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		if (b) {
+			
+			//TODO Check Why Editor can be null.
 			model.getEditor().saveData();
 			model.setEditor(null);
 			//onSelectedDisplay();
@@ -1119,12 +1121,12 @@ class TreeViewerComponent
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		Browser b = model.getSelectedBrowser();
+		ExperimenterData exp = model.getExperimenter();
 		if (b != null) {
 			TreeImageDisplay node = b.getLastSelectedDisplay();
-			if (node != null)
-				return b.getNodeOwner(node);
+			if (node != null) exp = b.getNodeOwner(node);
 		}
-		return model.getExperimenter();
+		return exp;
 	}
 
 	/**

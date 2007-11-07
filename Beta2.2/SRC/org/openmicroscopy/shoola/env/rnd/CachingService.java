@@ -60,6 +60,12 @@ public class CachingService
 	implements AgentEventListener
 {
 	
+	/** The percentage of memory used for caching. */
+	private static final double		RATIO = 0.6;
+	
+	/** Values used to determine the size of a cache. */
+	private static final int		FACTOR = 1024*1024;
+	
 	/** The sole instance. */
 	private static CachingService	singleton;
 
@@ -69,6 +75,15 @@ public class CachingService
 	/** The maximum amount of memory in bytes used for caching. */
 	private static int				maxSize;
 
+	/** Determines the value of the maximum size. */
+	private static void setMaxSize()
+	{
+		MemoryUsage usage = 
+			ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+		//percentage of memory used for caching.
+		maxSize = (int) (RATIO*(usage.getMax()-usage.getUsed()))/FACTOR; 	
+	}
+	
 	/**
 	 * Creates a new instance. This can't be called outside of container b/c 
 	 * agents have no refs to the singleton container. So we can be sure this
@@ -141,12 +156,13 @@ public class CachingService
 	 */
 	private static int getCacheSize()
 	{
+		setMaxSize();
 		int n = singleton.pixelsCache.size();
 		int m = singleton.imageCache.size();
 		int sizeCache = 0;
-		if (n == 0 && m == 0) return maxSize*1024*1024;
+		if (n == 0 && m == 0) return maxSize*FACTOR;
 		else if (n == 0 && m > 0) {
-			sizeCache = (maxSize/(m+1))*1024*1024;
+			sizeCache = (maxSize/(m+1))*FACTOR;
 			//reset all the image caches.
 			Iterator i = singleton.imageCache.keySet().iterator();
 			XYCache cache;
@@ -156,7 +172,7 @@ public class CachingService
 			}
 			return sizeCache;
 		} else if (m == 0 && n > 0) {
-			sizeCache = (maxSize/(n+1))*1024*1024;
+			sizeCache = (maxSize/(n+1))*FACTOR;
 			//reset all the image caches.
 			Iterator i = singleton.pixelsCache.keySet().iterator();
 			PixelsCache cache;
@@ -166,7 +182,7 @@ public class CachingService
 			}
 			return sizeCache;
 		}
-		sizeCache = (maxSize/(m+n+1))*1024*1024;
+		sizeCache = (maxSize/(m+n+1))*FACTOR;
 		//reset all the image caches.
 		Iterator i = singleton.pixelsCache.keySet().iterator();
 		PixelsCache cache;
@@ -204,7 +220,7 @@ public class CachingService
 		String message = "Heap memory usage: max "+usage.getMax();
 		registry.getLogger().info(this, message);
 		//percentage of memory used for caching.
-		maxSize = (int) (0.6*usage.getMax())/(1024*1024); 
+		maxSize = (int) (RATIO*usage.getMax())/FACTOR; 
 		pixelsCache = new HashMap<Long, PixelsCache>();
 		imageCache = new HashMap<Long, XYCache>();
 		EventBus bus = registry.getEventBus();

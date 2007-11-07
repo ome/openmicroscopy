@@ -134,6 +134,7 @@ public class EditorSaverDialog
         buttonPanel = new JPanel();
         noButton = new JButton("No");
         yesButton = new JButton("Yes");
+        getRootPane().setDefaultButton(yesButton);
     }
     
     /**

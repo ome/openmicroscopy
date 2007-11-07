@@ -957,7 +957,7 @@ class ImViewerModel
 	/** Removes the last item from the list. */
 	void removeLastHistoryItem()
 	{
-		if (historyItems != null || historyItems.size() > 1) {
+		if (historyItems != null && historyItems.size() > 1) {
 			//historyItems.remove(historyItems.size()-1);
 		}
 	}

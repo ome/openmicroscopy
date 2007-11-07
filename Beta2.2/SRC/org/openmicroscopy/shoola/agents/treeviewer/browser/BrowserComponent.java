@@ -136,14 +136,17 @@ class BrowserComponent
      * Controls if the passed node has to be saved before selecting a new node.
      * 
      * @param node The node to check.
+     * @return <code>true</code> if we need to save data, <code>false</code>
+     * 			otherwise.
      */
-    private void hasDataToSave(TreeImageDisplay node)
+    private boolean hasDataToSave(TreeImageDisplay node)
     {
         if (model.getParentModel().hasDataToSave()) {
         	toSelectAfterSave = node;
         	model.getParentModel().showPreSavingDialog();
-        	return;
+        	return true;
         }
+        return false;
     }
     
     /** Selects the node after saving. */
@@ -328,7 +331,7 @@ class BrowserComponent
                         "This method cannot be invoked in the LOADING_DATA, "+
                         " LOADING_LEAVES or DISCARDED state.");
         }
-        hasDataToSave(display);
+        if (hasDataToSave(display)) return;
         TreeImageDisplay oldDisplay = model.getLastSelectedDisplay();
         //if (oldDisplay != null && oldDisplay.equals(display)) return; 
         if (display != null) {
@@ -731,7 +734,7 @@ class BrowserComponent
         if (nodes.length == 0) return;
         TreeImageDisplay oldDisplay = model.getLastSelectedDisplay();
         TreeImageDisplay display = nodes[nodes.length-1];
-        hasDataToSave(display);
+        if (hasDataToSave(display)) return;
         if (oldDisplay != null && oldDisplay.equals(display)) return;
         model.setSelectedDisplays(nodes);
         firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldDisplay, display);
@@ -1109,6 +1112,7 @@ class BrowserComponent
 		if (node == null) 
 			throw new IllegalArgumentException("No node specified.");
 		TreeImageDisplay n = controller.getDataOwner(node);
+		if (n == null) return null;
 		return (ExperimenterData) n.getUserObject();
 	}
 

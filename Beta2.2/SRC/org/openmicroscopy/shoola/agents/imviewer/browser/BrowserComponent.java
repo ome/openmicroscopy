@@ -418,6 +418,9 @@ class BrowserComponent
      */
 	public BufferedImage getGridImage()
 	{
+		if (model.getCombinedImage() != null)
+		return gridView.getGridImage();
+		model.setGridImages();
 		return gridView.getGridImage();
 	}
 
