@@ -13,15 +13,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
-import ome.model.core.Image;
 import ome.model.containers.Project;
+import ome.model.core.Image;
 import ome.util.CBlock;
 
 public class HierarchyTransformations {
@@ -41,6 +38,7 @@ public class HierarchyTransformations {
         Iterator<Image> i = imagesAll.iterator();
         while (i.hasNext()) {
             Image img = (Image) block.call(i.next());
+            block.call(img.getDefaultPixels()); // ticket:735
 
             // Copy needed to prevent ConcurrentModificationExceptions
             List<Dataset> d_list = img.linkedDatasetList();
@@ -92,6 +90,7 @@ public class HierarchyTransformations {
         Iterator<Image> i = imagesAll.iterator();
         while (i.hasNext()) {
             Image img = (Image) block.call(i.next());
+            block.call(img.getDefaultPixels()); // ticket:735
 
             // Copy needed to prevent ConcurrentModificationExceptions
             List<Category> c_list = img.linkedCategoryList();
