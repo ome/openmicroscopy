@@ -205,7 +205,7 @@ public class ConnectionDB {
 			logger.info("rest of space is: '" + rest + "'");
 			if (rest > 0) {
 				rest = rest/1024;
-				map.put("Rest of used space", new Long(rest));
+				map.put("Rest of used space", Long.valueOf(rest));
 			}
 			return map;
 
