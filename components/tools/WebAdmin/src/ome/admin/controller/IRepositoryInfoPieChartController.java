@@ -9,11 +9,14 @@ package ome.admin.controller;
 
 // Java imports
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
-//Third-party libraries
+// Third-party libraries
 import org.jfree.data.general.DefaultPieDataset;
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.admin.logic.IRepositoryInfoManagerDelegator;
 
 /**
@@ -95,14 +98,18 @@ public class IRepositoryInfoPieChartController {
 		try {
 			this.pieDataSet.setValue("Free space", iRepository
 					.getSpaceInKilobytes("free"));
-			//this.pieDataSet.setValue("Used space", iRepository.getSpaceInKilobytes("used"));
+			// this.pieDataSet.setValue("Used space",iRepository.getSpaceInKilobytes("used"));
 			HashMap map = iRepository.getTopTenUserSpace();
-			for (Object expid : map.keySet()) {
-				this.pieDataSet.setValue(((String) expid), ((Long) map
-						.get(expid)) / 1024);
+			Set entries = map.entrySet();
+			Iterator it = entries.iterator();
+			while (it.hasNext()) {
+				Map.Entry entry = (Map.Entry) it.next();
+				this.pieDataSet.setValue((String) entry.getKey(), (Long) entry
+						.getValue());
 			}
+
 		} catch (Exception e) {
-			this.pieDataSet.setValue("No data set", 0L);
+			this.pieDataSet.setValue("Data could not be read.", 0L);
 		}
 		return this.pieDataSet;
 	}

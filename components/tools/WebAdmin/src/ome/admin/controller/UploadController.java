@@ -89,7 +89,7 @@ public class UploadController {
 			if (FileValidator.validFileType(uploadedNewFile)) {
 				logger.info("Filename: " + uploadedNewFile.getName()
 						+ " ContentType: " + uploadedNewFile.getContentType()
-						+ " Byte: " + uploadedNewFile.getBytes());
+						+ " Byte: " + uploadedNewFile.getBytes().toString());
 				return NavigationResults.SUCCESS;
 			} else {
 				FacesContext context = FacesContext.getCurrentInstance();

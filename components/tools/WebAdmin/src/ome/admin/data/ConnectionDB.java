@@ -164,7 +164,7 @@ public class ConnectionDB {
 				usage.put(expid, bytesUsed);
 			}
 
-			HashMap<String, Object> map = new LinkedHashMap();
+			HashMap<String, Long> map = new LinkedHashMap<String, Long>();
 
 			List mapKeys = new ArrayList(usage.keySet());
 			List mapValues = new ArrayList(usage.values());
@@ -184,11 +184,12 @@ public class ConnectionDB {
 			}
 
 			for (int i = size; i > (size - topTenVal);) {
+				Long val = (Long) sortedArray[--i]/1024;
 				map.put(adminService
 						.getExperimenter(
 								(Long) mapKeys.get(mapValues
-										.indexOf(sortedArray[--i])))
-						.getOmeName(), sortedArray[i]);
+										.indexOf(sortedArray[i])))
+						.getOmeName(), val);
 				logger.info("topTenVal '"
 						+ i
 						+ "': '"
@@ -197,17 +198,19 @@ public class ConnectionDB {
 						+ "' '" + sortedArray[i] + "'");
 			}
 
-			Long rest = 0L;
+			long rest = 0;
 			for (int i = (size - topTenVal); i > 0;)
 				rest += (Long) sortedArray[--i];
-			logger.info("rest of space is: '" + rest + "'");
 
-			if (rest > 0L)
-				map.put("Rest of used space", rest);
+			logger.info("rest of space is: '" + rest + "'");
+			if (rest > 0) {
+				rest = rest/1024;
+				map.put("Rest of used space", new Long(rest));
+			}
 			return map;
 
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error("getTopTen: "+e.getMessage());
 			return null;
 		}
 
