@@ -596,20 +596,20 @@ class TreeViewerComponent
 			throw new IllegalStateException("This method can only be " +
 			"invoked in the SAVE state");
 		switch (state) {
-		case DISCARDED:
-			throw new IllegalStateException("This method cannot be " +
-			"invoked in the DISCARDED state");
+			case DISCARDED:
+				throw new IllegalStateException("This method cannot be " +
+				"invoked in the DISCARDED state");
 		}
 		if (data == null) 
 			throw new IllegalArgumentException("No data object. ");
 		switch (operation) {
-		case CREATE_OBJECT:
-		case UPDATE_OBJECT: 
-		case REMOVE_OBJECT:  
-			break;
-		default:
-			throw new IllegalArgumentException("Save operation not " +
-					"supported.");
+			case CREATE_OBJECT:
+			case UPDATE_OBJECT: 
+			case REMOVE_OBJECT:  
+				break;
+			default:
+				throw new IllegalArgumentException("Save operation not " +
+						"supported.");
 		}  
 		model.setEditor(null);
 		//int editor = model.getEditorType();
@@ -1119,12 +1119,12 @@ class TreeViewerComponent
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		Browser b = model.getSelectedBrowser();
+		ExperimenterData exp = model.getExperimenter();
 		if (b != null) {
 			TreeImageDisplay node = b.getLastSelectedDisplay();
-			if (node != null)
-				return b.getNodeOwner(node);
+			if (node != null) exp = b.getNodeOwner(node);
 		}
-		return model.getExperimenter();
+		return exp;
 	}
 
 	/**

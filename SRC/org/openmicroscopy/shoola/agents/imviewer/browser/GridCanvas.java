@@ -59,7 +59,7 @@ class GridCanvas
 	extends ImageCanvas
 {
  
-    /** 
+	/** 
      * Paints the image.
      * 
      * @param g2D	The graphics context.
@@ -76,13 +76,19 @@ class GridCanvas
 		g2D.setColor(model.getBackgroundColor());
     	Dimension d = getSize();
         g2D.fillRect(0, 0, d.width, d.height);
-    	int n = model.getMaxC()+1;
-    	if (n <= 3) n = 4;
-    	if (n > 4 && n%2 != 0) {
+        int row = model.getGridRow();
+        int colum = model.getGridColumn();
+    	int n = model.getMaxC();
+    	if (n <= 3) row = 2;
+    	if (n >= 4) {// && n%2 != 0) {
+    		//if (n%2 == 0) n = n+1;
+    		
     		combined = (SplitImage) images.get(images.size()-1);
     		images.remove(images.size()-1);
     	}
-    	n = (int) Math.floor(Math.sqrt(n));
+    	
+    	//n = (int) Math.floor(Math.sqrt(n));
+    	//if (b) n +=1;
         Iterator channels = images.iterator();
         BufferedImage image;
         int x = 0, y = 0;
@@ -95,42 +101,45 @@ class GridCanvas
         int textWidth;
         boolean text = model.isTextVisible();
         String name;
-        for (int i = 0; i < n; ++i) {
-            for (int j = 0; j < n; ++j) {
-                if (!channels.hasNext()) return; //Done
-                channel = (SplitImage) channels.next();
-                image = channel.getImage();
-                x = j*(w+BrowserModel.GAP);
-                if (image != null) {
-                	g2D.drawImage(image, null, x, y);
-   
-                	//draw string.
-                	if (text) {
-                		name = channel.getName();
-                		textWidth = fm.stringWidth(name)+4;
-                		if (textWidth < w) {
-                			g2D.setColor(BACKGROUND);
-                        	g2D.fillRect(x, y, textWidth, 3*height/2);
-                        	g2D.setColor(getBackground());
-                            g2D.drawString(name, x+2, y+height);
-                		}
-                	}
-                    if (bar && v != null) {
-                    	textWidth = fm.stringWidth(v)+4;
-                    	if (textWidth < w/2)
-                    		ImagePaintingFactory.paintScaleBar(g2D, x+w-s-5, 
-                    									y+h-5, s, v, c);
+        
+        for (int i = 0; i < row; ++i) {
+            for (int j = 0; j < colum; ++j) {
+                if (channels.hasNext()) {
+                	channel = (SplitImage) channels.next();
+                    image = channel.getImage();
+                    x = j*(w+BrowserModel.GAP);
+                    if (image != null) {
+                    	g2D.drawImage(image, null, x, y);
+       
+                    	//draw string.
+                    	if (text) {
+                    		name = channel.getName();
+                    		textWidth = fm.stringWidth(name)+4;
+                    		if (textWidth < w) {
+                    			g2D.setColor(BACKGROUND);
+                            	g2D.fillRect(x, y, textWidth, 3*height/2);
+                            	g2D.setColor(getBackground());
+                                g2D.drawString(name, x+2, y+height);
+                    		}
+                    	}
+                        if (bar && v != null) {
+                        	textWidth = fm.stringWidth(v)+4;
+                        	if (textWidth < w/2)
+                        		ImagePaintingFactory.paintScaleBar(g2D, x+w-s-5, 
+                        									y+h-5, s, v, c);
+                        }
+                    } else { //just paint rectangle.
+                    	//if (text) {
+                    	name = channel.getName();
+                    	g2D.setColor(BACKGROUND);
+                    	g2D.drawRect(x, y, w-1, h-1);
+                    	textWidth = fm.stringWidth(name)+4;
+                    	if (textWidth < w && text) 
+                    		g2D.drawString(name, x+2, y+height);
+                    	//}
                     }
-                } else { //just paint rectangle.
-                	//if (text) {
-                	name = channel.getName();
-                	g2D.setColor(BACKGROUND);
-                	g2D.drawRect(x, y, w-1, h-1);
-                	textWidth = fm.stringWidth(name)+4;
-                	if (textWidth < w && text) 
-                		g2D.drawString(name, x+2, y+height);
-                	//}
                 }
+                
             }
             x = 0;
             y = (i+1)*(h+BrowserModel.GAP);
@@ -138,7 +147,7 @@ class GridCanvas
         if (combined != null) {
         	image = combined.getImage();
         	y = 0;
-        	x = n*(w+BrowserModel.GAP);
+        	x = colum*(w+BrowserModel.GAP);
         	if (image != null) {
         		g2D.drawImage(image, null, x, y);
             	

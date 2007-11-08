@@ -735,6 +735,27 @@ class BrowserModel
      */
     float getPixelsSizeZ() { return parent.getPixelsSizeZ(); }
    
+    /** 
+     * Returns the number of column for the grid.
+     * 
+     * @return See above.
+     */
+    int getGridColumn() { return 2; }
+    
+    /** 
+     * Returns the number of row for the grid.
+     * 
+     * @return See above.
+     */
+    int getGridRow()
+    {
+    	int n = parent.getMaxC();
+    	if (n <= 3) return 2;
+    	int row = n/2;
+    	if (n%2 != 0) row += 1; 
+    	return row;
+    }
+    
     /**
      * Returns the size of the grid.
      * 
@@ -744,12 +765,26 @@ class BrowserModel
     {
     	int w = (int) (getMaxX()*gridRatio);
     	int h = (int) (getMaxY()*gridRatio);
-    	int n = parent.getMaxC()+1; //add one for combined image.
+    	int n = parent.getMaxC();
+    	int row = 0;
+    	int col = 0;
+    	if (n <= 3) {
+    		row = 2;
+    		col = 2;
+    	} else {
+    		col = 3;
+    		row = n/2;
+    		if (n%2 != 0) row += 1; 
+    	}
+    	/*
+    	 * int n = parent.getMaxC()+1; //add one for combined image.
     	if (n <= 3) n = 4;
     	int index = 0;
     	if (n%2 != 0) index = 1;
     	int col = (int) Math.floor(Math.sqrt(n))+index; 
     	int row = n/col+index;
+    	*/
+
     	return new Dimension(col*w+(col-1)*GAP, row*h+(row-1)*GAP);
     }
     

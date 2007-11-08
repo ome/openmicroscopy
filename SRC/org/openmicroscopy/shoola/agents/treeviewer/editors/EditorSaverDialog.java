@@ -150,6 +150,7 @@ public class EditorSaverDialog
         yesButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) { yesSelection(); }
         });
+        getRootPane().setDefaultButton(yesButton);
     }
     
     /**
