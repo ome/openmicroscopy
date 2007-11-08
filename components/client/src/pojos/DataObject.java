@@ -95,7 +95,7 @@ public abstract class DataObject {
             converted = new ImageData((Image) obj);
         } else if (obj instanceof ImageAnnotation) {
             converted = new AnnotationData((ImageAnnotation) obj);
-        } else if (obj instanceof Image) {
+        } else if (obj instanceof CategoryGroup) {
             converted = new CategoryGroupData((CategoryGroup) obj);
         } else if (obj instanceof Category) {
             converted = new CategoryData((Category) obj);

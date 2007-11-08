@@ -27,7 +27,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
  */
 public class DBPatchCheck {
 
-    public static Log log = LogFactory.getLog(DBPatchCheck.class);
+    public final static Log log = LogFactory.getLog(DBPatchCheck.class);
 
     ResourceBundle bundle = ResourceBundle.getBundle("omero");
 

@@ -33,7 +33,7 @@ public abstract class ObjectFactoryRegistrar {
 
   }
     
-  public static Instance INSTANCE = new Instance();
+  public final static Instance INSTANCE = new Instance();
 
   public static void conditionalAdd(String name, Ice.Communicator ic, Ice.ObjectFactory _factory) {
 

@@ -274,7 +274,7 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
 
     @RolesAllowed("user")
     public boolean jobRunning() {
-        return getJob().getStatus().equals("Running"); // FIXME
+        return getJob().getStatus().getValue().equals("Running"); // FIXME
     }
 
     @RolesAllowed("user")

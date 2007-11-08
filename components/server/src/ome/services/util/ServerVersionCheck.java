@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ServerVersionCheck {
 
-    public static Log log = LogFactory.getLog(ServerVersionCheck.class);
+    public final static Log log = LogFactory.getLog(ServerVersionCheck.class);
 
     ResourceBundle bundle = ResourceBundle.getBundle("omero");
 
