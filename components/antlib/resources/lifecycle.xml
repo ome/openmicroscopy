@@ -292,6 +292,7 @@
 		<property name="findbugs.target" value="${target.dir}/${ivy.module}.${findbugs.type}"/>
 		<property name="findbugs.home"   value="${omero.home}/lib/findbugs-${versions.findbugs}"/>
 		<taskdef name="find-bugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpathref="omero.classpath"/>
+		<taskdef resource="checkstyletask.properties" classpathref="omero.classpath"/>
 		<condition property="no.findbugs"><not><available file="${findbugs.target}"/></not></condition>
 		<macrodef name="do-find-bugs">
 			<sequential>
@@ -309,10 +310,19 @@
 			</find-bugs>
 			</sequential>
 		</macrodef>
+		<macrodef name="do-checkstyle">
+			<sequential>
+			<checkstyle config="${omero.home}/docs/styles/checkstyle.xml" failOnViolation="false">
+				<fileset dir="${basedir}" includes="**/*.java"/>
+				<formatter type="xml" toFile="${target.dir}/checkstyle.xml"/>
+			</checkstyle>
+			</sequential>
+		</macrodef>
 	</target>
 
 	<target name="findbugs" description="Run findbugs on components' jar" depends="load-findbugs" unless="no.findbugs">
 		<do-find-bugs/>
+		<do-checkstyle/>
 	</target>
 
 	<target name="install" depends="package,deps-publish-local"/>
