@@ -13,7 +13,7 @@
   </publications>
   <dependencies>
     <dependency org="ant" name="ant" rev="1.6.5" conf="build->default"/>
-    <dependency org="commons-collections" name="commons-collections" rev="3.1" conf="build->default"/>
+    <dependency org="commons-collections" name="commons-collections" rev="${versions.commons-collections}" conf="build->default"/>
     <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}" conf="build->default"/>
     <dependency org="groovy" name="groovy" rev="${versions.groovy}" conf="build->default"/>
     <dependency org="jmock" name="jmock" rev="1.0.1" conf="build->default"/>
@@ -30,5 +30,8 @@
     <dependency org="findbugs" name="findbugs-ant" rev="${versions.findbugs}" conf="test->default"/>
     <dependency org="emma" name="emma" rev="${versions.emma}" conf="test->default"/>
     <dependency org="emma" name="emma_ant" rev="${versions.emma}" conf="test->default"/>
+    <dependency org="checkstyle" name="checkstyle" rev="${versions.checkstyle}" conf="test->default"/>
+    <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}" conf="test->default"/>
+    <dependency org="antlr" name="antlr" rev="2.7.6" conf="test->default"/>
   </dependencies>
 </ivy-module>

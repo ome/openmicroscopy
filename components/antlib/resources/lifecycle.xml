@@ -295,7 +295,7 @@
 		<condition property="no.findbugs"><not><available file="${findbugs.target}"/></not></condition>
 		<macrodef name="do-find-bugs">
 			<sequential>
-			<find-bugs home="${findbugs.home}" output="xml" outputFile="${target.dir}/findbugs.xml">
+			<find-bugs home="${findbugs.home}" output="xml:withMessages" outputFile="${target.dir}/findbugs.xml">
 				<class location="${findbugs.target}" />
 				<auxClasspath>
 					<path refid="${findbugs.path}"/>

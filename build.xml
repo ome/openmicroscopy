@@ -173,7 +173,7 @@
 		<antcall target="deps-retrieve" inheritAll="true" inheritRefs="true"/>
 	</target>
 
-	 <target name="findbugs" depends="multiproject" description="Generates findbugs.xml for all components">
+	 <target name="findbugs" depends="multiproject" description="Generates findbugs.xml and checkstyle.xml for all components">
 		<iterate target="findbugs"/>
 		<iterate buildpathref="tools.buildpath" target="findbugs"/>
 	 </target>
