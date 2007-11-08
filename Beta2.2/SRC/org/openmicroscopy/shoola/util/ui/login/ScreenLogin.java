@@ -333,7 +333,7 @@ public class ScreenLogin
 	 */
 	private JPanel buildTopPanel()
 	{
-		double topTable[][] =  {{245, 18, 220, 28}, // columns
+		double topTable[][] =  {{245, 15, 230, 25}, // columns
 				{32, TableLayout.FILL}}; // rows
 		JPanel topPanel = new JPanel();
 		topPanel.setOpaque(false);
