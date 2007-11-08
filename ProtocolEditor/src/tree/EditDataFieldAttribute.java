@@ -20,16 +20,35 @@ public class EditDataFieldAttribute extends AbstractUndoableEdit {
 		dataField.setAttribute(attribute, oldValue, false);
 		// need to display changes without adding this change to the undoActions history in Tree
 		dataField.notifyDataFieldObservers();
+		dataField.formFieldClicked(true);	// highlight this field
 	}
 	
 	public void redo() {
 		dataField.setAttribute(attribute, newValue, false);
 		// need to display changes without adding this change to the undoActions history in Tree
 		dataField.notifyDataFieldObservers();
+		dataField.formFieldClicked(true);	// highlight this field
+	}
+	
+	public void undoNoHighlight() {
+		dataField.setAttribute(attribute, oldValue, false);
+		// need to display changes without adding this change to the undoActions history in Tree
+		dataField.notifyDataFieldObservers();
+	}
+	
+	public void redoNoHighlight() {
+		dataField.setAttribute(attribute, newValue, false);
+		// need to display changes without adding this change to the undoActions history in Tree
+		dataField.notifyDataFieldObservers();
+	}
+	
+	// used to highlight a range of fields, when this is the first field in a range
+	public void selectField() {
+		dataField.formFieldClicked(false);
 	}
 	
 	public String getPresentationName() {
-		return "Edit Field";
+		return "Edit " + attribute;
 	}
 
 	public boolean canUndo() {

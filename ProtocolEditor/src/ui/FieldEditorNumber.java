@@ -30,20 +30,31 @@ public class FieldEditorNumber extends FieldEditor {
 		attributeFieldsPanel.add(unitsFieldEditor);
 	}
 
+	// called when dataField changes attributes
+	public void dataFieldUpdated() {
+		super.dataFieldUpdated();
+		defaultFieldEditor.setTextFieldText(dataField.getAttribute(DataField.DEFAULT));
+		checkForNumber();
+		unitsFieldEditor.setTextFieldText(dataField.getAttribute(DataField.UNITS));
+	}
 	
 	public class NumberCheckerListener implements FocusListener {
 		public void focusLost(FocusEvent event){	
-			String number = defaultFieldEditor.getTextFieldText();
-			try {
-				if (number.length() > 0) {
-					float value = Float.parseFloat(number);
-					defaultFieldEditor.getTextField().setBackground(Color.WHITE);
-				}
-			}catch (Exception ex) {
-				defaultFieldEditor.getTextField().setBackground(Color.RED);
-			}
+			checkForNumber();
 		}
 		public void focusGained(FocusEvent event){	}
+	}
+	
+	private void checkForNumber() {
+		String number = defaultFieldEditor.getTextFieldText();
+		try {
+			if (number.length() > 0) {
+				float value = Float.parseFloat(number);
+				defaultFieldEditor.getTextField().setBackground(Color.WHITE);
+			}
+		}catch (Exception ex) {
+			defaultFieldEditor.getTextField().setBackground(Color.RED);
+		}
 	}
 
 }

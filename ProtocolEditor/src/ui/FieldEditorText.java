@@ -21,5 +21,11 @@ public class FieldEditorText extends FieldEditor {
 			("Default Value: ", DataField.DEFAULT, defaultValue);
 		attributeFieldsPanel.add(defaultFieldEditor);
 	}
+	
+	// called when dataField changes attributes
+	public void dataFieldUpdated() {
+		super.dataFieldUpdated();
+		defaultFieldEditor.setTextFieldText(dataField.getAttribute(DataField.DEFAULT));
+	}
 
 }

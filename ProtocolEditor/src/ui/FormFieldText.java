@@ -26,11 +26,12 @@ public class FormFieldText extends FormField {
 		textInput.addKeyListener(textChangedListener);
 		horizontalBox.add(textInput);
 		
-		setExperimentalEditing(false);	// default created as uneditable
+		//setExperimentalEditing(false);	// default created as uneditable
 	}
 	
 	// overridden by subclasses if they have other attributes to retrieve from dataField
-	public void dataFieldUpdatedOtherAttributes() {
+	public void dataFieldUpdated() {
+		super.dataFieldUpdated();
 		textInput.setText(dataField.getAttribute(DataField.VALUE));
 	}
 

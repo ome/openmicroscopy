@@ -32,6 +32,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.*;
 import java.io.File;
+import java.net.MalformedURLException;
 import java.util.Iterator;
 
 import search.IndexFiles;
@@ -39,6 +40,7 @@ import search.SearchPanel;
 import tree.DataFieldNode;
 import tree.Tree;
 import tree.Tree.Actions;
+import util.FileDownload;
 import util.HtmlOutputter;
 import util.ImageFactory;
 import xmlMVC.XMLModel;
@@ -101,6 +103,8 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	JMenuItem saveFileMenuItem;
 	JMenuItem saveFileAsMenuItem;
 	
+	JMenuItem undoMenuItem;
+	JMenuItem redoMenuItem;
 	JButton undoButton;
 	JButton redoButton;
 	
@@ -169,6 +173,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		Icon saveIcon = ImageFactory.getInstance().getIcon(ImageFactory.SAVE_ICON);
 		Icon printIcon = ImageFactory.getInstance().getIcon(ImageFactory.PRINT_ICON);
 		Icon loadDefaultsIcon = ImageFactory.getInstance().getIcon(ImageFactory.LOAD_DEFAULTS_ICON);
+		Icon clearFieldsIcon = ImageFactory.getInstance().getIcon(ImageFactory.CLEAR_FIELDS_ICON);
 		Icon saveFileAsIcon= ImageFactory.getInstance().getIcon(ImageFactory.SAVE_FILE_AS_ICON);
 		Icon addIcon = ImageFactory.getInstance().getIcon(ImageFactory.ADD_ICON);
 		Icon deleteIcon = ImageFactory.getInstance().getIcon(ImageFactory.DELETE_ICON);
@@ -183,6 +188,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		redBallIcon = ImageFactory.getInstance().getIcon(ImageFactory.RED_BALL_ICON);
 		Icon undoIcon = ImageFactory.getInstance().getIcon(ImageFactory.UNDO_ICON);
 		Icon redoIcon = ImageFactory.getInstance().getIcon(ImageFactory.REDO_ICON);
+		Icon wwwFileIcon = ImageFactory.getInstance().getIcon(ImageFactory.WWW_FILE_ICON);
 		
 		// File menu
 		JMenu fileMenu = new JMenu("File");
@@ -208,6 +214,21 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		fileMenu.add(printExp);
 		fileMenu.add(indexFilesMenuItem);
 		menuBar.add(fileMenu);
+		
+		
+		// "Edit" menu
+		JMenu editMenu = new JMenu("Edit");
+		editMenu.setBorder(menuItemBorder);
+		
+		undoMenuItem = new JMenuItem("Undo", undoIcon);
+		undoMenuItem.addActionListener(new UndoActionListener());
+		editMenu.add(undoMenuItem);
+		
+		redoMenuItem = new JMenuItem("Redo", redoIcon);
+		redoMenuItem.addActionListener(new RedoActionListener());
+		editMenu.add(redoMenuItem);
+		
+		menuBar.add(editMenu);
 		
 		// experiment menu
 		JMenu experimentMenu = new JMenu("Experiment");
@@ -305,6 +326,11 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		openFileButton.addActionListener(new openFileListener());
 		openFileButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING));
 		
+		JButton openWwwFileButton = new JButton(wwwFileIcon);
+		openWwwFileButton.setToolTipText("Open file from URL");
+		openWwwFileButton.addActionListener(new OpenWwwFileListener());
+		openWwwFileButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING));
+		
 		saveFileAsButton = new JButton(saveFileAsIcon);
 		saveFileAsButton.setToolTipText("Save Protocol As..");
 		saveFileAsButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING));
@@ -341,6 +367,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		
 		fileManagerWestToolBar.add(newFileButton);
 		fileManagerWestToolBar.add(openFileButton);
+		//fileManagerWestToolBar.add(openWwwFileButton);	// not working yet!
 		fileManagerWestToolBar.add(saveFileButton);
 		fileManagerWestToolBar.add(saveFileAsButton);
 		fileManagerWestToolBar.add(new JSeparator(JSeparator.VERTICAL));
@@ -371,7 +398,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		EmptyBorder noLeftPadding = new EmptyBorder (0, 2, BUTTON_SPACING, BUTTON_SPACING);
 		EmptyBorder noRightPadding = new EmptyBorder (0, BUTTON_SPACING, BUTTON_SPACING, 2);
 	
-		// buttons
+		// experiment tool-bar buttons
 		
 		JButton printExperimentButton = new JButton(printIcon);
 		printExperimentButton.addActionListener(new PrintExperimentListener());
@@ -379,9 +406,14 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		printExperimentButton.setBorder(eb);
 		
 		JButton loadDefaults = new JButton(loadDefaultsIcon);
-		loadDefaults.setToolTipText("Load default values");
+		loadDefaults.setToolTipText("Load Default Values to All Fields");
 		loadDefaults.addActionListener(new LoadDefaultsListener());
 		loadDefaults.setBorder(eb);
+		
+		JButton clearFieldsButton = new JButton(clearFieldsIcon);
+		clearFieldsButton.setToolTipText("Clear All Fields");
+		clearFieldsButton.addActionListener(new ClearFieldsListener());
+		clearFieldsButton.setBorder(eb);
 		
 		JButton multiplyValueOfSelectedFieldsButton = new JButton(mathsIcon);
 		multiplyValueOfSelectedFieldsButton.setToolTipText("Multiply the selected numerical values by a factor of...");
@@ -466,6 +498,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		expTabToolBar = Box.createHorizontalBox();
 		expTabToolBar.add(printExperimentButton);
 		expTabToolBar.add(loadDefaults);
+		expTabToolBar.add(clearFieldsButton);
 		expTabToolBar.add(multiplyValueOfSelectedFieldsButton);
 		// expTabToolBar.add(compareFilesButton);
 		expTabToolBar.add(Box.createHorizontalGlue());
@@ -513,6 +546,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		
 		enableProtocolEditing(false);	// turn off controls
 		noFilesOpen(true);		// disable save etc.
+		updateUndoRedo();
 		
 		// set up copy and paste listeners
 		KeyStroke copy = KeyStroke.getKeyStroke(KeyEvent.VK_C,ActionEvent.CTRL_MASK,false);
@@ -528,12 +562,14 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		XMLFrame.getContentPane().add("Center", XMLUIPanel);
 		XMLFrame.getContentPane().add("North", fileManagerPanel);
 		XMLFrame.pack();
-		XMLFrame.addWindowListener(new WindowAdapter() {
+		
+		// check to see if any files open before quitting when window closes
+		/* XMLFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent evt) {
                 mainWindowClosing();
             }
-        });
-		new TaskBarManager(XMLFrame);	// should handle exit 
+        }); */ 
+		new TaskBarManager(XMLFrame);	// handles system quit command for Macs 
 		
 		XMLFrame.setLocation(200, 100);
 		XMLFrame.setVisible(true);
@@ -560,6 +596,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	}
 	
 	// turn on/off the controls for editing protocols
+	// these are turned off when no files open
 	public void enableProtocolEditing(boolean enabled){
 		
 		addFieldMenuItem.setEnabled(enabled);
@@ -571,16 +608,14 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		duplicateFieldMenuItem.setEnabled(enabled);
 		importFieldsMenuItem.setEnabled(enabled);
 		
-		editProtocolMenuItem.setEnabled(!enabled);
 		editProtocolMenuItem.setSelected(enabled);
 		
 		loadDefaultsMenuItem.setEnabled(!enabled);
 		multiplyValueOfSelectedFieldsMenuItem.setEnabled(!enabled);
 		
-		editExperimentMenuItem.setEnabled(enabled);
 		editExperimentMenuItem.setSelected(!enabled);
 		
-		setEditingOfExperimentalValues(!enabled);
+		//setEditingOfExperimentalValues(!enabled);
 	}
 
 	
@@ -597,7 +632,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	// selection observer method, fired when tree changes selection
 	// this method called when UI needs updating, but xml not changed.
 	public void selectionChanged() {
-		System.out.println("XMLView.selectionChanged");
+		// System.out.println("XMLView.selectionChanged");
 		if (editingState == EDITING_FIELDS) {
 			updateFieldEditor();
 		}
@@ -612,6 +647,11 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		undoButton.setToolTipText(xmlModel.getUndoCommand());
 		redoButton.setEnabled(xmlModel.canRedo());
 		redoButton.setToolTipText(xmlModel.getRedoCommand());
+		
+		undoMenuItem.setText(xmlModel.getUndoCommand());
+		undoMenuItem.setEnabled(xmlModel.canUndo());
+		redoMenuItem.setText(xmlModel.getRedoCommand());
+		redoMenuItem.setEnabled(xmlModel.canRedo());
 	}
 
 	public void updateFileList() {
@@ -736,7 +776,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		 
 		 // logical to view experiment file in Experiment tab.
 		 if(file.getName().endsWith(".exp")) {
-			 setEditingOfExperimentalValues(true);	// if already in exp-tab, need to do this	
+			// setEditingOfExperimentalValues(true);	// if already in exp-tab, need to do this	
 			 XMLTabbedPane.setSelectedIndex(EXPERIMENT_TAB);	
 		 }
 	}
@@ -794,6 +834,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 				if (division) xmlModel.multiplyValueOfSelectedFields(1/factor);
 				else xmlModel.multiplyValueOfSelectedFields(factor);
 			} catch (Exception ex) {
+				ex.printStackTrace();
 				JOptionPane.showMessageDialog(XMLFrame, 
 						"You didn't enter a valid number", 
 						"Invalid multiplication factor", 
@@ -820,6 +861,40 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	public void enableXmlValidation(boolean validationOn) {
 		xmlModel.setXmlValidation(validationOn);
 		updateXmlValidationPanel();	
+	}
+	
+	public void openWwwFile() {
+		Object[] possibilities = {"http://cvs.openmicroscopy.org.uk/svn/specification/Xml/Working/completesample.xml",
+				"http://trac.openmicroscopy.org.uk/~will/protocolFiles/experiments/AuroraB%20fix-stain.exp", 
+				"http://trac.openmicroscopy.org.uk/~will/protocolFiles/experiments/arwen_slice_1.exp"};
+		String url = (String)JOptionPane.showInputDialog(
+                XMLFrame,
+                "Enter a url for an XML file to open:",
+                "Open a www file",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                possibilities,
+                "");
+		
+		try {
+			File downloadedFile = FileDownload.downloadFile(url);
+			this.openThisFile(downloadedFile);
+		} catch (MalformedURLException ex) {
+			JOptionPane.showMessageDialog(XMLFrame, "invalid URL, please try again");
+		}
+
+	}
+	
+	public class OpenWwwFileListener implements ActionListener {
+		public void actionPerformed(ActionEvent arg0) {
+			openWwwFile();
+		}
+	}
+	
+	public class ClearFieldsListener implements ActionListener {
+		public void actionPerformed(ActionEvent arg0) {
+			xmlModel.editCurrentTree(Actions.CLEAR_FIELDS);
+		}
 	}
 	
 	public class XmlValidationListener implements ActionListener {
@@ -985,7 +1060,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	
 	public class LoadDefaultsListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			copyDefaultValuesToInputFields();
+			xmlModel.editCurrentTree(Actions.LOAD_DEFAULTS);
 		}
 	}
 	
@@ -1146,14 +1221,9 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		}
 	}
 	
-	public void copyDefaultValuesToInputFields() {
-		
-		xmlModel.copyDefaultValuesToInputFields();
-	}
-	
 	
 	// called when user changes to Editing Protocol. 
-	public void setEditingOfExperimentalValues(boolean enabled) {
+	/*public void setEditingOfExperimentalValues(boolean enabled) {
 		
 		if (protocolRootNode == null) return;
 		
@@ -1163,7 +1233,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 				DataFieldNode node = (DataFieldNode)iterator.next();
 				node.getDataField().setExperimentalEditing(enabled);
 			}
-	}
+	}*/
 	
 	public void refreshFileEdited() {
 		

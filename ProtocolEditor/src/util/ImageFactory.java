@@ -49,6 +49,8 @@ public class ImageFactory {
 	public static final String RED_BALL_ICON = ACTION_ICONS_FILE + "krec_record.png";
 	public static final String UNDO_ICON = ACTION_ICONS_FILE + "undo.png";
 	public static final String REDO_ICON = ACTION_ICONS_FILE + "redo.png";
+	public static final String CLEAR_FIELDS_ICON = ACTION_ICONS_FILE + "news_unsubscribe.png";
+	public static final String WWW_FILE_ICON = ICONS_FILE + "filesystems/folder_http.png";
 	
 	
 	public Icon getIcon(String iconPathName) {

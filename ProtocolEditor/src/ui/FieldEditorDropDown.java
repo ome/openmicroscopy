@@ -83,13 +83,22 @@ public class FieldEditorDropDown extends FieldEditor {
 			
 			defaultValueComboBox.addActionListener(defaultValueSelectionListener);
 		}
+		else {	// options == null, remove all
+			defaultValueComboBox.removeActionListener(defaultValueSelectionListener);
+			defaultValueComboBox.removeAllItems();
+			defaultValueComboBox.addActionListener(defaultValueSelectionListener);
+		}
 	}
 	
 	// called by dataField when something changes, eg. ddOptions have been set 
 	public void dataFieldUpdated() {
+		super.dataFieldUpdated();
+		
 		String dropDownOptions = dataField.getAttribute(DataField.DROPDOWN_OPTIONS);
-		if (dropDownOptions != null)
-			setDropDownOptions(dropDownOptions);
+		
+		setDropDownOptions(dropDownOptions);	// also takes care of default
+		optionsFieldEditor.setTextAreaText(dropDownOptions);
+		
 	}
 	
 	public class DefaultValueSelectionListener implements ActionListener {

@@ -22,6 +22,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import tree.DataField;
 import tree.DataFieldNode;
 import tree.Tree;
 import tree.Tree.Actions;
@@ -77,7 +78,6 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		
 		// need to check if the file is already open 
 		for (Tree tree: openFiles) {
-			System.out.println("XMLModel openXMLFile tree.getFile().getAbsolutePath() = " + tree.getFile().getAbsolutePath() );
 			if (tree.getFile().getAbsolutePath().equals(xmlFile.getAbsolutePath())) {
 				currentTree = tree;
 				notifyXMLObservers();
@@ -277,8 +277,10 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	
 	private void saveToXmlFile(File outputFile) {
 //		 always note the xml version (unless this is custom element)
-		if (!getRootNode().getDataField().isCustomInputType())
+		if (!getRootNode().getDataField().isCustomInputType()) {
 			getRootNode().getDataField().setAttribute(VERSION, XML_VERSION_NUMBER, false);
+			getRootNode().getDataField().setAttribute(DataField.PROTOCOL_FILE_NAME, outputFile.getName(), true);
+		}
 		
 		// now you can save
 		writeTreeToDOM();
@@ -302,17 +304,11 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		}
 	}
 	
-	// calls method in each dataField, to setValue to default and display
-	public void copyDefaultValuesToInputFields() {
-		Tree tree = getCurrentTree();
-		tree.copyDefaultValuesToInputFields();
-	}
-	
 	// delegates commands from xmlView to Tree. int Tree.editCommand is a list of known commands
 	public void editCurrentTree(Actions editCommand) {
 		System.out.println("XMLModel editCurrentTree: " + editCommand.toString());
 		Tree tree = getCurrentTree();
-		tree.editTree(editCommand);
+		if (tree != null )tree.editTree(editCommand);
 		notifyXMLObservers();
 	}
 	

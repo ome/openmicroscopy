@@ -27,5 +27,11 @@ public class FieldEditorProtocol extends FieldEditor {
 		attributeFieldsPanel.add(keywordsFieldEditor);
 		
 	}
+	
+	// called when dataField changes attributes
+	public void dataFieldUpdated() {
+		super.dataFieldUpdated();
+		keywordsFieldEditor.setTextFieldText(dataField.getAttribute(DataField.KEYWORDS));
+	}
 
 }

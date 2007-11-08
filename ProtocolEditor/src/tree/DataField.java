@@ -25,6 +25,7 @@ public class DataField {
 	public static final String ELEMENT_NAME = "elementName";
 	public static final String DESCRIPTION = "description";
 	public static final String VALUE = "value";
+	public static final String PROTOCOL_FILE_NAME = "protocolFileName";
 	public static final String TEXT_NODE_VALUE ="textNodeValue";
 	public static final String DEFAULT = "default";
 	public static final String INPUT_TYPE = "inputType";
@@ -92,8 +93,9 @@ public class DataField {
 		
 		allAttributesMap = new LinkedHashMap<String, String>();
 		
-		// default type
+		// default type and name
 		setAttribute(DataField.INPUT_TYPE, DataField.FIXED_PROTOCOL_STEP, false);
+		setAttribute(DataField.ELEMENT_NAME, "untitled", false);
 
 	}
 	
@@ -235,7 +237,7 @@ public class DataField {
 	public String getName() {
 		if ((getAttribute(DataField.ELEMENT_NAME) != null) && (getAttribute(DataField.ELEMENT_NAME).length() > 0))
 			return getAttribute(DataField.ELEMENT_NAME);
-		else return "Name";		// have to return SOME text or formField panel may be v.v.small!
+		else return "untitled";		// have to return SOME text or formField panel may be v.v.small!
 	}
 	//	 used to update dataField etc when fieldEditor panel is edited
 	

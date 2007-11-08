@@ -35,18 +35,14 @@ public class FormFieldMemo extends FormField {
 		textInput.addKeyListener(textChangedListener);
 		horizontalBox.add(textScroller);
 		
-		setExperimentalEditing(false);	// default created as uneditable
+		//setExperimentalEditing(false);	// default created as uneditable
 	}
 	
-	// overridden by subclasses (when focus lost) if they have values that need saving 
-	public void updateDataField() {
-		dataField.setAttribute(DataField.VALUE, textInput.getText(), true);
-	}
 	
-//	 overridden by subclasses if they have a value and text field
-	public void setValue(String newValue) {
-		textInput.setText(newValue);
-		updateDataField();
+	// overridden by subclasses if they have other attributes to retrieve from dataField
+	public void dataFieldUpdated() {
+		super.dataFieldUpdated();
+		textInput.setText(dataField.getAttribute(DataField.VALUE));
 	}
 	
 //	 overridden by subclasses that have input components

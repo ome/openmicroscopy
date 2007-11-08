@@ -19,5 +19,11 @@ private AttributeMemoEditor defaultFieldEditor;
 		defaultFieldEditor.setTextAreaRows(3);
 		attributeFieldsPanel.add(defaultFieldEditor);
 	}
+	
+	// called when dataField changes attributes
+	public void dataFieldUpdated() {
+		super.dataFieldUpdated();
+		defaultFieldEditor.setTextAreaText(dataField.getAttribute(DataField.DEFAULT));
+	}
 
 }

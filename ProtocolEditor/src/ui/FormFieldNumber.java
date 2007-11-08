@@ -39,7 +39,7 @@ public class FormFieldNumber extends FormField {
 		horizontalBox.add(Box.createHorizontalStrut(10));
 		horizontalBox.add(unitsLabel);
 		
-		setExperimentalEditing(false);	// default created as uneditable
+		//setExperimentalEditing(false);	// default created as uneditable
 	}
 	
 	public void setUnits(String units) {
@@ -54,18 +54,22 @@ public class FormFieldNumber extends FormField {
 	
 	public class NumberCheckerListener implements FocusListener {
 		public void focusLost(FocusEvent event){	
-			String number = numberTextBox.getText();
-			float value;
-			try {
-				if (number.length() > 0) {
-					value = Float.parseFloat(number);
-					numberTextBox.setBackground(Color.WHITE);
-				}
-			}catch (Exception ex) {
-				numberTextBox.setBackground(Color.RED);
-			}
+			checkForNumber();
 		}
 		public void focusGained(FocusEvent event){	}
+	}
+	
+	private void checkForNumber() {
+		String number = numberTextBox.getText();
+		float value;
+		try {
+			if (number.length() > 0) {
+				value = Float.parseFloat(number);
+				numberTextBox.setBackground(Color.WHITE);
+			}
+		}catch (Exception ex) {
+			numberTextBox.setBackground(Color.RED);
+		}
 	}
 	
 //	 overridden by subclasses that have input components
@@ -77,9 +81,11 @@ public class FormFieldNumber extends FormField {
 		numberTextBox.setEditable(enabled);
 	}
 	
-//	 overridden by subclasses if they have other attributes to retrieve from dataField
-	public void dataFieldUpdatedOtherAttributes() {
+	// overridden by subclasses if they have other attributes to retrieve from dataField
+	public void dataFieldUpdated() {
+		super.dataFieldUpdated();
 		numberTextBox.setText(dataField.getAttribute(DataField.VALUE));
+		checkForNumber();
 		setUnits(dataField.getAttribute(DataField.UNITS));
 	}
 	

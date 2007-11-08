@@ -90,17 +90,17 @@ public class SAXValidator {
 	public static class MyXmlHandler extends DefaultHandler{
 
 			public void startDocument() {
-				// System.out.println("STARTING");
-				// System.out.println();
+				 System.out.println("STARTING");
+				 System.out.println();
 			}
 			
 			public void startElement(String uri, String localName, String qualName, Attributes attribs) {
-				// System.out.println("Start tag: " + qualName);
+				 System.out.println("Start tag: " + qualName);
 			}
 			
 			public void endDocument() {
-				// System.out.println();
-				// System.out.println("ENDING NORMALLY!");
+				 System.out.println();
+				 System.out.println("ENDING NORMALLY!");
 			}
 			
 			public void warning(SAXParseException e) {
@@ -113,21 +113,21 @@ public class SAXValidator {
 			}
 			
 			public void error(SAXParseException e) {
-				// System.out.println("Error:");
+				 System.out.println("Error:");
 				showSpecifics(e);
 			}
 			
 			public void fatalError(SAXParseException e) {
-				// System.out.println("Fatal Error:");
+				 System.out.println("Fatal Error:");
 				showSpecifics(e);
 			}
 			
 			public void showSpecifics(SAXParseException e) {
-				// System.out.println(e.getMessage());
-				// System.out.println(" Line " + e.getLineNumber());
-				// System.out.println(" Column " + e.getColumnNumber());
-				// System.out.println(" Document " + e.getSystemId());
-				// System.out.println();
+				 System.out.println(e.getMessage());
+				 System.out.println(" Line " + e.getLineNumber());
+				 System.out.println(" Column " + e.getColumnNumber());
+				 System.out.println(" Document " + e.getSystemId());
+				 System.out.println();
 				errorMessages.add(e.getMessage());
 			}
 

@@ -24,6 +24,7 @@ import ui.FieldEditor;
 import ui.FormFieldNumber;
 import ui.SelectionObserver;
 import ui.XMLUpdateObserver;
+import validation.XMLSchema;
 
 // Tree manages the tree data structure
 // also knows which fields are currently selected (applies actions to these)
@@ -34,7 +35,8 @@ public class Tree {
 	public enum Actions {MOVE_FIELDS_UP("Move Fields Up"), MOVE_FIELDS_DOWN("Move Fields Down"), 
 		DELTE_FIELDS("Delete Fields"), ADD_NEW_FIELD("Add New Field"), DEMOTE_FIELDS("Demote Fields"), 
 		PROMOTE_FIELDS("Promote Fields"), DUPLICATE_FIELDS("Duplicate Fields"), COPY_FIELDS("Copy Fields"),
-		PASTE_FIELDS("Paste Fields"), UNDO_LAST_ACTION("Undo Last Action"), REDO_ACTION("Redo"), IMPORT_FIELDS("Import Fields");
+		PASTE_FIELDS("Paste Fields"), UNDO_LAST_ACTION("Undo Last Action"), REDO_ACTION("Redo"), 
+		IMPORT_FIELDS("Import Fields"), LOAD_DEFAULTS("Load Default Values"), CLEAR_FIELDS("Clear Fields");
 		private Actions(String name){
 			this.name = name;
 		}
@@ -168,6 +170,14 @@ public class Tree {
 				pasteClipboardFields();
 				break;
 			}
+			case LOAD_DEFAULTS: {
+				copyDefaultValuesToInputFields();
+				break;
+			}
+			case CLEAR_FIELDS: {
+				clearFields();
+				break;
+			}
 		}
 		
 	}
@@ -238,9 +248,18 @@ public class Tree {
 	}
 	
 	// called by button on Edit Experiment tab
-	public void copyDefaultValuesToInputFields() {
+	private void copyDefaultValuesToInputFields() {
 		
 		UndoableEdit edit = new EditCopyDefaultValues(rootNode);
+		undoSupport.postEdit(edit);
+		
+		selectionChanged();		// to update undo button
+	}
+	
+	// called by button on Edit Experiment tab
+	private void clearFields() {
+		
+		UndoableEdit edit = new EditClearFields(rootNode);
 		undoSupport.postEdit(edit);
 		
 		selectionChanged();		// to update undo button
@@ -652,6 +671,12 @@ public class Tree {
 			
 			// get all attributes of the dataField
 			LinkedHashMap<String, String> allAttributes = rootField.getAllAttributes();
+			// also get attributes required for Protocol Editor xsd schema (unless custom)
+			if (!customElement) {
+				LinkedHashMap<String, String> schemaAttributes = XMLSchema.getRootAttributes();
+				allAttributes.putAll(schemaAttributes);
+			}
+			
 			parseAttributesMapToElement(allAttributes, element);
 			
 			document.appendChild(element);
@@ -899,7 +924,7 @@ public class Tree {
 	
 	public void selectionChanged() {
 		if (selectionObserver != null) {
-			System.out.println("Tree.selectionChanged");
+			// System.out.println("Tree.selectionChanged");
 			selectionObserver.selectionChanged();
 		}
 	}

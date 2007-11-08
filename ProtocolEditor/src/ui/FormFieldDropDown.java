@@ -36,7 +36,7 @@ public class FormFieldDropDown extends FormField {
 		comboBox.addMouseListener(new FormPanelMouseListener());
 		horizontalBox.add(comboBox);
 	
-		setExperimentalEditing(false);	// default created as uneditable
+		//setExperimentalEditing(false);	// default created as uneditable
 	}
 	
 	public void setDropDownOptions(String options) {
@@ -66,13 +66,20 @@ public class FormFieldDropDown extends FormField {
 			
 			//need to update value (in case it wasn't in the new ddOptions)
 			updateDataField();
+		} else {
+			// options == null, remove all
+			comboBox.removeActionListener(valueSelectionListener);
+			comboBox.removeAllItems();
+			comboBox.addActionListener(valueSelectionListener);
 		}
 	}
 	
 //	 overridden by subclasses if they have other attributes to retrieve from dataField
-	public void dataFieldUpdatedOtherAttributes() {
+	public void dataFieldUpdated() {
+		super.dataFieldUpdated();
 		setDropDownOptions(dataField.getAttribute(DataField.DROPDOWN_OPTIONS));
-	};
+	}
+
 	
 	// overridden by subclasses (when focus lost) if they have values that need saving 
 	public void updateDataField() {

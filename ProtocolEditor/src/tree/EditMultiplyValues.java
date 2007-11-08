@@ -17,7 +17,7 @@ public class EditMultiplyValues extends AbstractUndoableEdit {
 		
 		for (DataFieldNode node: highlightedFields) {
 			DataField dataField = node.getDataField();
-			String oldValue = new String(dataField.getAttribute(DataField.VALUE));
+			String oldValue = dataField.getAttribute(DataField.VALUE);
 			
 			try {
 				FormFieldNumber formFieldNumber = (FormFieldNumber)dataField.getFormField();
@@ -36,12 +36,15 @@ public class EditMultiplyValues extends AbstractUndoableEdit {
 		for (EditDataFieldAttribute field: editedFields) {
 			field.undo();
 		}
+		// will select the first field, highlighting the whole range (last is already highlighted)
+		editedFields.get(0).selectField();
 	}
 	
 	public void redo() {
 		for (EditDataFieldAttribute field: editedFields) {
 			field.redo();
 		}
+		editedFields.get(0).selectField();
 	}
 
 	public String getPresentationName() {

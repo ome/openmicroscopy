@@ -25,7 +25,7 @@ public class FormFieldDate extends FormField {
 		textInput.addKeyListener(textChangedListener);
 		horizontalBox.add(textInput);
 		
-		setExperimentalEditing(false);	// default created as uneditable
+		//setExperimentalEditing(false);	// default created as uneditable
 	}
 	
 	// overridden by subclasses (when focus lost) if they have values that need saving 
