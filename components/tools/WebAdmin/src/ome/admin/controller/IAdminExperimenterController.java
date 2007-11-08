@@ -357,6 +357,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	public String addNewExperimenter() {
 		this.editMode = false;
 		this.user = new User();
+		this.user.setDefaultGroup("2");
 		return NavigationResults.SUCCESS;
 	}
 

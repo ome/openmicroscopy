@@ -27,6 +27,10 @@
 			<c:if test="${sessionScope.LoginBean.page == 'myAccount.jsf'}" >class="menu"</c:if>>${msg.headerMyAccount}</a></li>
 		<li><a href="./logout">${msg.headerLogout}</a></li>
 	</c:if>
+	<c:if
+		test="${sessionScope.LoginBean.role && sessionScope.LoginBean.mode}">
+		<li><a href="javascript:openHelp()">Help</a></li>
+	</c:if>
 
 </ul>
 

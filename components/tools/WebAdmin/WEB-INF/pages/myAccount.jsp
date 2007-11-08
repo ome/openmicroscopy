@@ -105,7 +105,7 @@
 			</h:form>
 		</c:if>
 		<br/>
-		<c:if test="${not empty requestnScope.IAMAManagerBean.user.dn}">
+		<c:if test="${not empty requestScope.IAMAManagerBean.user.dn}">
 			<h:outputText value="#{msg.myaccountLdapInfo}"/>
 		</c:if></div>
 

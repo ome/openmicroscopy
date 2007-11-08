@@ -14,6 +14,16 @@
 	type="text/css">
 <link rel="shortcut icon" href="<c:url value='images/ome.ico' />"
 	type="image/x-icon" />
+	
+	<script type="text/javascript" language="JavaScript">
+    <!--
+    function openHelp() {
+        owindow = window.open('./help/index.htm', 'window', config='height=650,width=600,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
+        if(!owindow.closed) owindow.focus();
+}
+    // -->
+   </script>
+   
 </head>
 
 <body>

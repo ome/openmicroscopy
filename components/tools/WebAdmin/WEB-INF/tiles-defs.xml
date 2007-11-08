@@ -18,11 +18,7 @@
 		<put name="content" value="/WEB-INF/layout/center.jsp" />
 		<put name="footer" value="/WEB-INF/layout/footer.jsp" />
 	</definition>
-
-	<definition name="header" extends=".login">
-		<put name="title" value="OME Admin Panel" />
-	</definition>
-
+	
 	<definition name=".space" extends=".mainLayout">
 		<put name="title" value="Drive Space" />
 		<put name="content" type="page"
