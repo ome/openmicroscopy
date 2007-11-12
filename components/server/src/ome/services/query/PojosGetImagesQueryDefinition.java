@@ -7,7 +7,9 @@
 package ome.services.query;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Map;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -16,6 +18,7 @@ import org.hibernate.criterion.Restrictions;
 
 import ome.model.core.Image;
 import ome.parameters.Parameters;
+import ome.util.builders.PojoOptions;
 import static ome.parameters.Parameters.*;
 
 public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery {
@@ -36,6 +39,17 @@ public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery 
         pix.createCriteria("pixelsType", LEFT_JOIN);
         pix.createCriteria("pixelsDimensions", LEFT_JOIN);
 
+        // if PojoOptions sets START_TIME and/or END_TIME
+        if (check(OPTIONS)) {
+        	PojoOptions po = new PojoOptions((Map) value(OPTIONS));
+        	
+			if (po.getStartTime() != null) {
+				c.add(Restrictions.gt("create.time", (Timestamp) po.getStartTime()));
+			}
+			if (po.getEndTime() != null)
+				c.add(Restrictions.lt("create.time", (Timestamp) po.getEndTime()));
+        }
+        
         Class klass = (Class) value(CLASS);
         Collection ids = (Collection) value(IDS);
 

@@ -159,6 +159,7 @@ public abstract class Query<T> implements HibernateCallback {
         Set<String> missing = new HashSet<String>();
         for (String name : defs.keySet()) {
             if (!defs.get(name).optional && !params.keySet().contains(name)) {
+            	System.err.println("name: "+name);
                 missing.add(name);
             }
         }

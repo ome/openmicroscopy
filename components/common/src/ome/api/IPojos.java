@@ -8,9 +8,11 @@
 package ome.api;
 
 // Java imports
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -315,6 +317,8 @@ public interface IPojos extends ServiceInterface {
      * @param options
      *            Map as above. No notion of <code>leaves</code>.
      *            <code>experimenter|group</code> apply at the Image level.
+     *            OPTIONS:
+     *             - startTime and/or endTime should be Timestamp.valueOf("YYYY-MM-DD hh:mm:ss.ms");
      * @return A set of images.
      */
     public <T extends IObject> Set<Image> getImages(@NotNull

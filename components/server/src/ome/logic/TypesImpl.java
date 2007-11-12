@@ -82,6 +82,16 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
             }
         });
     }
+    
+    @RolesAllowed("system")
+    public <T extends IEnum> T updateEnumeration(T oenum) {
+        return iUpdate.saveAndReturnObject(oenum);
+    }
+    
+    @RolesAllowed("system")
+    public <T> void deleteEnumeration(T oenum) {
+        iUpdate.deleteObject((IObject) oenum);
+    }
 
     @RolesAllowed("user")
     public <T extends IEnum> List<T> allEnumerations(Class<T> k) {

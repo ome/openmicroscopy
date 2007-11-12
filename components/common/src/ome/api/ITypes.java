@@ -58,6 +58,24 @@ public interface ITypes extends ServiceInterface {
      *             if {@link IEnum} is not found.
      */
     <T extends IEnum> T getEnumeration(Class<T> k, String string);
+    
+    /**
+     * lookup an enumeration value. As with the get-methods of {@link IQuery}
+     * queries returning no results will through an exception.
+     * 
+     * @param <T>
+     *            The type of the enumeration. Must extend {@link IEnum}
+     * @param k
+     *            An enumeration class which should be searched.
+     * @param string
+     *            The value for which an enumeration should be found.
+     * @return A managed enumeration. Never null.
+     * @throws ApiUsageException
+     *             if {@link IEnum} is not found.
+     */
+    <T extends IEnum> T updateEnumeration(T newEnum);
+
+    <T> void deleteEnumeration(T newEnum);
 
     <T extends IObject> Permissions permissions(Class<T> k);
 

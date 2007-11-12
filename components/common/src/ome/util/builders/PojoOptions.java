@@ -7,6 +7,7 @@
 
 package ome.util.builders;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,7 +47,11 @@ public class PojoOptions
     public static final String EXPERIMENTER = "experimenter";
 
     public static final String GROUP = "group";
+    
+    public static final String START_TIME = "startTime";
 
+    public static final String END_TIME = "endTime";
+    
     private final Map options = new HashMap();
 
     public PojoOptions() {
@@ -71,7 +76,7 @@ public class PojoOptions
     }
 
     protected void copy(Map map) {
-        String[] s = new String[] { FIELDS, COUNTS, LEAF, EXPERIMENTER, GROUP };
+        String[] s = new String[] { FIELDS, COUNTS, LEAF, EXPERIMENTER, GROUP, START_TIME, END_TIME };
         for (int i = 0; i < s.length; i++) {
             if (map.containsKey(s[i])) {
                 this.options.put(s[i], map.get(s[i]));
@@ -175,6 +180,44 @@ public class PojoOptions
         return (Long) options.get(EXPERIMENTER);
     }
 
+    /*
+     * ============================== Filtered by Start/End Time
+     * ==============================
+     */
+
+    public PojoOptions startTime(Timestamp startTime) {
+        options.put(START_TIME, startTime);
+        return this;
+    }
+
+    public PojoOptions endTime(Timestamp endTime) {
+        options.put(END_TIME, endTime);
+        return this;
+    }
+    
+    public PojoOptions allTimes() {
+        remove(START_TIME);
+        remove(END_TIME);
+        return this;
+    }
+
+    public boolean isStartTime() {
+        return options.containsKey(START_TIME);
+    }
+
+    public boolean isEndTime() {
+        return options.containsKey(END_TIME);
+    }
+
+    public Timestamp getStartTime() {
+        return (Timestamp) options.get(START_TIME);
+    }
+
+    public Timestamp getEndTime() {
+        return (Timestamp) options.get(END_TIME);
+    }
+
+    
     /*
      * ============================== Filtered by Group
      * ==============================
