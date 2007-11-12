@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -81,21 +82,21 @@ public class ExperimenterImagesCounter
 			List l;
 			result = new HashMap<Integer, Object>(1);
 			switch (ref.getConstrain()) {
-			case ImagesLoader.BEFORE:
-				l = os.getImagesBeforeIObject(ref.getTime(), userID);
-				if (l != null) number = l.size();
-				result.put(index, number);
-				break;
-			case ImagesLoader.AFTER:
-				l = os.getImagesAfterIObject(ref.getTime(), userID);
-				if (l != null) number = l.size();
-				result.put(index, number);
-				break;
-			case ImagesLoader.PERIOD:
-				l = os.getImagesAllPeriodCount(ref.getLowerTime(), 
-						ref.getTime(), userID);
-				result.put(index, l);
-				break;
+				case ImagesLoader.BEFORE:
+					l = os.getImagesPeriodIObject(null, ref.getTime(), userID);
+					if (l != null) number = l.size();
+					result.put(index, number);
+					break;
+				case ImagesLoader.AFTER:
+					l = os.getImagesPeriodIObject(ref.getTime(), null, userID);
+					if (l != null) number = l.size();
+					result.put(index, number);
+					break;
+				case ImagesLoader.PERIOD:
+					l = os.getImagesAllPeriodCount(ref.getLowerTime(), 
+							ref.getTime(), userID);
+					result.put(index, l);
+					break;
 			}
 		} catch (Exception e) {
 			context.getLogger().error(this, 

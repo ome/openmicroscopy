@@ -81,24 +81,6 @@ public class TreeViewerTranslator
 	/** Text of the dummy TreeImageSet containing the orphaned categories.*/
 	public static final String ORPHANED_CATEGORIES = "Ungrouped Categories";
 	
-	/** 
-	 * Text of the dummy TreeImageSet containing the images 
-	 * imported less than a week ago.
-	 */
-	public static final String MONTH_OLD = "Month";
-	
-	/** 
-	 * Text of the dummy TreeImageSet containing the images 
-	 * imported less than a week ago.
-	 */
-	public static final String YEAR_OLD = "Year";
-	
-	/** 
-	 * Text of the dummy TreeImageSet containing the images 
-	 * imported less than a week ago.
-	 */
-	public static final String OLDER = "Older";
-	
     /**
      * Formats the toolTip of the specified {@link TreeImageDisplay} node.
      * 

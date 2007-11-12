@@ -442,9 +442,9 @@ public class ScreenLogin
 			case LoginCredentials.HIGH:
 				return " [LAN]";
 			case LoginCredentials.MEDIUM:
-				return " [H]";
+				return " [High]";
 			case LoginCredentials.LOW:
-				return " [L]";
+				return " [Low]";
 		}
 		return null;
 	}

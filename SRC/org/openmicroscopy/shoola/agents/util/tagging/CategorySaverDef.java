@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.util.CategoryCellRenderer 
+ * org.openmicroscopy.shoola.agents.util.tagging.CategorySaverDef 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,26 +20,19 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.imviewer.util;
-
+package org.openmicroscopy.shoola.agents.util.tagging;
 
 
 //Java imports
-import java.awt.Component;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JList;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import pojos.CategoryData;
-import pojos.CategoryGroupData;
-import pojos.DataObject;
 
 /** 
- * Basic renderer used to display the icon corresponding to a category 
- * of a category group.
+ * Helper class used to store information while sending property changes.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -51,42 +44,47 @@ import pojos.DataObject;
  * </small>
  * @since OME3.0
  */
-class CategoryCellRenderer 
-	extends DefaultListCellRenderer
+public class CategorySaverDef
 {
 
-	/** Helper reference to the icons manager. */
-	private IconManager icons;
+	/** Collection of categories to create. */
+	private Set<CategoryData>	categoriesToCreate;
 	
-	/** Creates a new instance. */
-	CategoryCellRenderer()
+	/** Collection of categories to add the image(s) to. */
+	private Set<CategoryData>	categoriesToUpdate;
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param categoriesToCreate 	The collection of categories to create.
+	 * @param categoriesToUpdate 	The collection of categories to add the 
+	 * 								image(s) to.
+	 */
+	public CategorySaverDef(Set<CategoryData> categoriesToCreate, 
+			Set<CategoryData> categoriesToUpdate)
 	{
-		icons = IconManager.getInstance();
+		this.categoriesToCreate = categoriesToCreate;
+		this.categoriesToUpdate = categoriesToUpdate;
 	}
 	
 	/**
-	 * Overridden to set the icon corresponding to a category or a
-	 * category group.
-	 * @see DefaultListCellRenderer#getListCellRendererComponent(JList, Object, 
-	 * 													int, boolean, boolean)
+	 * Returns the collection of categories to create.
+	 * 
+	 * @return See above.
 	 */
-	public Component getListCellRendererComponent(JList list, Object value, 
-			int index, boolean isSelected, boolean cellHasFocus)
+	public Set<CategoryData> getCategoriesToCreate()
 	{
-		
-		super.getListCellRendererComponent(list, value, index, isSelected, 
-										cellHasFocus);
-		if (value instanceof CategoryItem) {
-			CategoryItem v = (CategoryItem) value;
-			DataObject ho =  v.getDataObject();
-			setText(v.getObjectName());
-			if (ho instanceof CategoryData)
-				setIcon(icons.getIcon(IconManager.CATEGORY));
-			else if (ho instanceof CategoryGroupData)
-				setIcon(icons.getIcon(IconManager.CATEGORY_GROUP));
-		}
-		
-		return this;
+		return categoriesToCreate;
+	}
+	
+	/**
+	 * Returns collection of categories to add the image(s) to.
+	 * 
+	 * @return See above.
+	 */
+	public Set<CategoryData> getCategoriesToUpdate()
+	{
+		return categoriesToUpdate;
 	}
 	
 }

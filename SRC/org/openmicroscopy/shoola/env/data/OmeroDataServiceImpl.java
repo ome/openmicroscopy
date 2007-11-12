@@ -1043,59 +1043,22 @@ class OmeroDataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getImagesBefore(Timestamp, long)
-	 */
-	public Set getImagesBefore(Timestamp time, long userID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		if (time == null)
-			throw new NullPointerException("Time not specified.");
-		List imgs = gateway.getImagesBefore(time, userID);
-		if (imgs == null || imgs.size() == 0) return new HashSet(0);
-		Set<Long> ids = new HashSet<Long>(imgs.size());
-		Iterator i = imgs.iterator();
-		while (i.hasNext()) {
-			ids.add(((IObject) i.next()).getId()) ;
-		}
-		return getImages(ImageData.class, ids, userID);
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getImagesAfter(Timestamp, long)
-	 */
-	public Set getImagesAfter(Timestamp time, long userID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		if (time == null)
-			throw new NullPointerException("Time not specified.");
-		List imgs = gateway.getImagesAfter(time, userID);
-		if (imgs == null || imgs.size() == 0) return new HashSet(0);
-		Set<Long> ids = new HashSet<Long>(imgs.size());
-		Iterator i = imgs.iterator();
-		while (i.hasNext()) {
-			ids.add(((IObject) i.next()).getId()) ;
-		}
-		return getImages(ImageData.class, ids, userID);
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#getImagesPeriod(Timestamp, Timestamp, long)
 	 */
 	public Set getImagesPeriod(Timestamp lowerTime, Timestamp time, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (time == null || lowerTime == null)
+		if (time == null && lowerTime == null)
 			throw new NullPointerException("Time not specified.");
-		List imgs = gateway.getImagesDuring(lowerTime, time, userID);
-		if (imgs == null || imgs.size() == 0) return new HashSet(0);
-		Set<Long> ids = new HashSet<Long>(imgs.size());
-		Iterator i = imgs.iterator();
-		while (i.hasNext()) {
-			ids.add(((IObject) i.next()).getId()) ;
-		}
-		return getImages(ImageData.class, ids, userID);
+		
+		PojoOptions po = new PojoOptions();
+		po.leaves();
+		po.exp(new Long(userID));
+		po.countsFor(new Long(userID));
+		po.allCounts();
+		po.startTime(lowerTime);
+		po.endTime(time);
+		return gateway.getImages(po.map());
 	}
 
 	/**
@@ -1106,9 +1069,13 @@ class OmeroDataServiceImpl
 			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (time == null || lowerTime == null)
+		if (time == null && lowerTime == null)
 			throw new NullPointerException("Time not specified.");
-		return gateway.getImagesDuring(lowerTime, time, userID);
+		if (lowerTime != null && time != null)
+			return gateway.getImagesDuring(lowerTime, time, userID);
+		if (lowerTime != null)
+			return gateway.getImagesAfter(lowerTime, userID);
+		return gateway.getImagesBefore(time, userID);
 	}
 
 	/**
@@ -1133,30 +1100,6 @@ class OmeroDataServiceImpl
 			times.add(evt.getTime());
 		}
 		return times;
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getImagesAfterIObject(Timestamp, long)
-	 */
-	public List getImagesAfterIObject(Timestamp time, long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		if (time == null)
-			throw new NullPointerException("Time not specified.");
-		return gateway.getImagesAfter(time, userID);
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getImagesBeforeIObject(Timestamp, long)
-	 */
-	public List getImagesBeforeIObject(Timestamp time, long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		if (time == null)
-			throw new NullPointerException("Time not specified.");
-		return gateway.getImagesBefore(time, userID);
 	}
 
 	/**

@@ -87,7 +87,7 @@ public class AnnotateChildrenAction
               return;
           }
           if (selectedDisplay instanceof TreeImageTimeSet) {
-          	TreeImageTimeSet timeNode = (TreeImageTimeSet) selectedDisplay;
+          	  TreeImageTimeSet timeNode = (TreeImageTimeSet) selectedDisplay;
               setEnabled(timeNode.getNumberItems() > 0);
               return;
           }

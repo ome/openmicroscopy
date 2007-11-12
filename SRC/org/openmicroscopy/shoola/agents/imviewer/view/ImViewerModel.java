@@ -448,11 +448,8 @@ class ImViewerModel
 	 * and split its components.
 	 * 
 	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occured while setting 
-	 * 										the value.
 	 */
 	BufferedImage getSplitComponentImage()
-		throws RenderingServiceException
 	{
 		PlaneDef pDef = new PlaneDef(PlaneDef.XY, getDefaultT());
 		pDef.setZ(getDefaultZ());
@@ -1146,7 +1143,7 @@ class ImViewerModel
 	 */
 	List getPopulatedCategoryGroups()
 	{
-		List groups = new ArrayList();
+		List<CategoryGroupData> groups = new ArrayList<CategoryGroupData>();
 		if (categoryGroups == null || categoryGroups.size() == 0)
 			return groups;
 		Iterator i = categoryGroups.iterator();
@@ -1235,6 +1232,12 @@ class ImViewerModel
 	 */
 	boolean isImageCompressed() { return rndControl.isCompressed(); }
 	
+	/**
+	 * Sets the compressiong flag.
+	 * 
+	 * @param compressed 	Pass <code>true</code> to compresse the image,
+	 * 						<code>false</code> otherwise.
+	 */
 	void setImageCompressed(boolean compressed)
 	{
 		rndControl.setCompressed(compressed);

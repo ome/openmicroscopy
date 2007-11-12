@@ -43,7 +43,6 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.SaveData;
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -52,7 +51,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PropertiesCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
-import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorSaverDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditor;
@@ -64,6 +62,7 @@ import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
@@ -111,12 +110,6 @@ class TreeViewerComponent
 	/** The dialog used to display the form when a new node is created. */
 	private EditorDialog        editorDialog;
 
-	/** 
-	 * The dialog used to ask a question to user when selecting a new node
-	 * and some have been modified.
-	 */
-	private  EditorSaverDialog	saverDialog;
-
 	/** The dialog presenting the list of available users. */
 	private UserManagerDialog	switchUserDialog;
 
@@ -140,6 +133,30 @@ class TreeViewerComponent
 		UIUtilities.centerAndShow(switchUserDialog);
 	}
 
+	/**
+	 * Saves the data and replaces the view
+	 * or only replaces the view depending on the passed flag.
+	 * 
+	 * @param b Pass <code>true</code> to save and replace, <code>false</code>
+	 * 			to replace.
+	 */
+	private void saveInEditor(boolean b)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		if (b) {
+			model.getEditor().saveData();
+			model.setEditor(null);
+			//onSelectedDisplay();
+		} else {
+			model.setEditor(null);
+			//removeEditor();
+			Browser browser = model.getSelectedBrowser();
+			if (browser != null) browser.setSelectedNode();
+		}
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * The {@link #initialize() initialize} method should be called straight 
@@ -209,6 +226,11 @@ class TreeViewerComponent
 		return editor.hasAnnotationToSave();
 	}
 	
+	/**
+	 * Saves the data before closing.
+	 * 
+	 * @param evt The event to handle.
+	 */
 	void saveOnClose(SaveData evt)
 	{
 		Editor editor = model.getEditor();
@@ -572,10 +594,10 @@ class TreeViewerComponent
 	public void onSelectedDisplay()
 	{
 		switch (model.getState()) {
-		case DISCARDED:
-		case SAVE:  
-			throw new IllegalStateException("This method cannot be " +
-			"invoked in the DISCARDED, SAVE state.");
+			case DISCARDED:
+			case SAVE:  
+				throw new IllegalStateException("This method cannot be " +
+				"invoked in the DISCARDED, SAVE state.");
 		}
 		int editor = model.getEditorType();
 		removeEditor();
@@ -631,11 +653,8 @@ class TreeViewerComponent
 					browser.refreshEdition(data, operation);
 			}
 		}
-		onSelectedDisplay();
-		if (saverDialog != null) {
-			saverDialog.close();
-			saverDialog = null;
-		}
+		//onSelectedDisplay();
+		
 		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
@@ -958,28 +977,7 @@ class TreeViewerComponent
 		} else fireStateChange();
 	}
 
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#saveInEditor(boolean)
-	 */
-	public void saveInEditor(boolean b)
-	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException(
-					"This method cannot be invoked in the DISCARDED state.");
-		if (b) {
-			model.getEditor().saveData();
-			model.setEditor(null);
-			//onSelectedDisplay();
-		} else {
-			if (saverDialog != null) {
-				saverDialog.close();
-				saverDialog = null;
-			}
-			model.setEditor(null);
-			removeEditor();
-		}
-	}
+	
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
@@ -1048,13 +1046,10 @@ class TreeViewerComponent
 		Editor editor = model.getEditor();
 		if (editor == null) return;
 		if (!(editor.hasDataToSave())) return;
-		IconManager icons = IconManager.getInstance();
-		saverDialog  = new EditorSaverDialog(view, 
-				icons.getIcon(IconManager.QUESTION));
-		saverDialog.addPropertyChangeListener(
-				EditorSaverDialog.SAVING_DATA_EDITOR_PROPERTY, 
-				controller);
-		UIUtilities.centerAndShow(saverDialog);
+		MessageBox dialog = new MessageBox(view, "Save Edited data", 
+				"Do you want to save the modified \n" +
+				"data before selecting a new item?");
+		saveInEditor(dialog.centerMsgBox() == MessageBox.YES_OPTION);
 	}
 
 	/**

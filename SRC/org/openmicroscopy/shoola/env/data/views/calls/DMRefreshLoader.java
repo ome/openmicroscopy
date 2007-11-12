@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -176,27 +177,29 @@ public class DMRefreshLoader
                 List containers;
                 Iterator j ;
                 TimeRefObject ref;
+                Timestamp lowerTime, upperTime;
                 while (users.hasNext()) {
                 	userID = (Long) users.next();
                 	containers = nodes.get(userID);
                 	j = containers.iterator();
                 	while (j.hasNext()) {
                 		ref = (TimeRefObject) j.next();
-						switch (ref.getConstrain()) {
-							case ImagesLoader.BEFORE:
-								ref.setResults(os.getImagesBefore(ref.getTime(), 
-											userID));
-								break;
-							case ImagesLoader.AFTER:
-								ref.setResults(os.getImagesAfter(ref.getTime(), 
-												userID));
-								break;
-							case ImagesLoader.PERIOD:
-								ref.setResults(os.getImagesPeriod(
-										ref.getLowerTime(), ref.getTime(), 
-										userID));
-								break;
-						}
+                		lowerTime = null;
+        				upperTime = null;
+        				switch (ref.getConstrain()) {
+        					case ImagesLoader.AFTER:
+        						lowerTime = ref.getTime();
+        						break;
+        					case ImagesLoader.BEFORE:
+        						upperTime = ref.getTime();
+        						break;
+        					case ImagesLoader.PERIOD:
+        						lowerTime = ref.getLowerTime();
+        						upperTime = ref.getTime();
+        						break;
+        				}
+        				ref.setResults(os.getImagesPeriod(lowerTime, upperTime, 
+									userID));
 					}
                 }
                 results = nodes;

@@ -164,6 +164,7 @@ class BrowserUI
         if (model.getRenderedImage() == null) return;
         model.createDisplayedImage();
         BufferedImage img = model.getDisplayedImage();
+        if (img == null) return;
         canvasListener.setAreaSize(img.getWidth(), img.getHeight());
         browserCanvas.repaint();
     }
@@ -174,6 +175,7 @@ class BrowserUI
         if (model.getRenderedImage() == null) return;
         model.createDisplayedImage();
         BufferedImage img = model.getDisplayedImage();
+        if (img == null) return;
         setComponentsSize(img.getWidth(), img.getHeight());
         canvasListener.setAreaSize(img.getWidth(), img.getHeight());
         /*

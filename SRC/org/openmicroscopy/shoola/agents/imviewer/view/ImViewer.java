@@ -37,7 +37,7 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.util.CategorySaverDef;
+import org.openmicroscopy.shoola.agents.util.tagging.CategorySaverDef;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -803,6 +803,11 @@ public interface ImViewer
      */
     public int getMovieIndex();
     
+    /**
+     * Returns the list of channels turned on in the <code>GridView</code>.
+     * 
+     * @return See above.
+     */
     public List getActiveChannelsInGrid();
     
 }

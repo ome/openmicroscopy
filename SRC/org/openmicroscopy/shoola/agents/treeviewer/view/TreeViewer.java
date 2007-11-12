@@ -479,14 +479,6 @@ public interface TreeViewer
 	public void paste(TreeImageDisplay[] parents);
 
 	/**
-	 * Sets the data displayed in the editor
-	 * 
-	 * @param b Pass <code>true</code> to save the data, <code>false</code> to
-	 *          remove the editor.
-	 */
-	public void saveInEditor(boolean b);
-
-	/**
 	 * Returns the {@link TreeViewer} view.
 	 * 
 	 * @return See above.

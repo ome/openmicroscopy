@@ -110,6 +110,9 @@ public class ZoomAction
     /** The maximum value of zooming index. */
     public static final int  	MAX_ZOOM_INDEX = ZOOM_300;
     
+    /** The maximum value of zooming index. */
+    public static final String  ZOOM_FIT_NAME = "Zoom to Fit";
+    
     /** The number of supported ids. */
     private static final int    MAX = 12;
     
@@ -151,7 +154,7 @@ public class ZoomAction
         names[ZOOM_250] = (int) (factors[ZOOM_250]*100)+"%";
         names[ZOOM_275] = (int) (factors[ZOOM_275]*100)+"%";
         names[ZOOM_300] = (int) (factors[ZOOM_300]*100)+"%";
-        names[ZOOM_FIT_TO_WINDOW] = "Fit to Window";
+        names[ZOOM_FIT_TO_WINDOW] = ZOOM_FIT_NAME;
     }
     
     /** 
@@ -232,7 +235,6 @@ public class ZoomAction
         putValue(Action.NAME, names[zoomingIndex]);
         name = names[zoomingIndex];
     }
-    
     
     /**
      * Returns the zoom index associated to this action.

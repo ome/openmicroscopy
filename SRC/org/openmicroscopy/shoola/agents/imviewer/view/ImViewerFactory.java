@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -245,7 +246,14 @@ public class ImViewerFactory
 	 * @return See above.
 	 */
 	static long getRefPixelsID() { return singleton.refPixelsID; }
+	
+	static ViewerPreferences getPreferences() { return null;}//singleton.pref; }
 
+	static void setPreferences(ViewerPreferences pref)
+	{
+		singleton.pref = pref;
+	}
+	
 	/** All the tracked components. */
 	private Set<ImViewer>     	viewers;
 
@@ -264,12 +272,19 @@ public class ImViewerFactory
 	/** The id of the pixels set to copy. */
 	private long				refPixelsID;
 
+	/** The user preferences for the viewer. */
+	private ViewerPreferences	pref;
+	
 	/** Creates a new instance. */
 	private ImViewerFactory()
 	{
 		viewers = new HashSet<ImViewer>();
 		isAttached = false;
 		windowMenu = new JMenu("Viewers");
+		pref = new ViewerPreferences();
+		pref.setRenderer(true);
+		pref.setZoomIndex(ZoomAction.ZOOM_FIT_TO_WINDOW);
+		pref.setViewerBounds(new Rectangle(0, 22, 1400, 800));
 	}
 
 	/**

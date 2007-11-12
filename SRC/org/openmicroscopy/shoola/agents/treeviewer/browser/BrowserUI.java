@@ -993,18 +993,21 @@ class BrowserUI
 		List<TreeImageTimeSet> toRemove = new ArrayList<TreeImageTimeSet>();
 		List<TreeImageTimeSet> toKeep = new ArrayList<TreeImageTimeSet>();
 		int number;
+		int total;
 		for (int j = 0; j < n; j++) {
 			node = (TreeImageTimeSet) expNode.getChildAt(j);
 			if (node.getType() == index) {
-				if (value instanceof Integer)
+				if (value instanceof Integer) 
 					node.setNumberItems((Integer) value);
 				else if (value instanceof List) {
 					l = (List) value;
-					node.setNumberItems(l.size());
+					total = 0;
 					i = node.getChildrenDisplay().iterator();
 					while (i.hasNext()) {
 						child = (TreeImageTimeSet) i.next();
 						number = child.countTime(l);
+						//System.err.println(child+" "+number);
+						total += number;
 						if (number > 0) {
 							child.setNumberItems(number);
 							toKeep.add(child);
@@ -1015,6 +1018,7 @@ class BrowserUI
 					//test
 					node.removeAllChildren();
 					node.removeChildrenDisplay(toRemove);
+					node.setNumberItems(total);
 					k = toKeep.iterator();
 					while (k.hasNext()) {
 						dtm.insertNodeInto((TreeImageTimeSet) k.next(), node, 

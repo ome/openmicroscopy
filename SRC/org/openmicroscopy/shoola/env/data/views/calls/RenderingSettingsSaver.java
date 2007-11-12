@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -148,22 +149,24 @@ public class RenderingSettingsSaver
 		return new BatchCall("Paste the rendering settings: ") {
 			public void doCall() throws Exception
 			{
-				List l = null;
 				long userID = ((ExperimenterData) context.lookup(
 						LookupNames.CURRENT_USER_DETAILS)).getId();
 				OmeroDataService os = context.getDataService();
+				Timestamp lowerTime = null;
+				Timestamp upperTime = null;
 				switch (ref.getConstrain()) {
-				case ImagesLoader.BEFORE:
-					l = os.getImagesBeforeIObject(ref.getTime(), userID);
-					break;
-				case ImagesLoader.AFTER:
-					l = os.getImagesAfterIObject(ref.getTime(), userID);
-					break;
-				case ImagesLoader.PERIOD:
-					l = os.getImagesPeriodIObject(ref.getLowerTime(), 
-							ref.getTime(), userID);
-					break;
+					case ImagesLoader.BEFORE:
+						upperTime = ref.getTime();
+						break;
+					case ImagesLoader.AFTER:
+						lowerTime = ref.getTime();
+						break;
+					case ImagesLoader.PERIOD:
+						lowerTime = ref.getLowerTime();
+						upperTime = ref.getTime();
 				}
+				List l = os.getImagesPeriodIObject(lowerTime, upperTime, 
+													userID); 
 				if (l != null) {
 					Iterator i = l.iterator();
 					IObject element;
@@ -253,7 +256,6 @@ public class RenderingSettingsSaver
 			throw new IllegalArgumentException("Pixels ID not valid.");
 		if (ref == null)
 			throw new IllegalArgumentException("Period not valid.");
-		
 		loadCall = makeBatchCall(pixelsID, ref, PASTE);
 	}
 	

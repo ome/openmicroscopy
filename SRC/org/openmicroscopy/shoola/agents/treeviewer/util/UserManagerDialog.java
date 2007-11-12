@@ -31,6 +31,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.BorderFactory;
@@ -221,7 +222,7 @@ public class UserManagerDialog
 	private void initComponents(Map map)
 	{
 		sorter = new ViewerSorter();
-		orderedMap = new HashMap<GroupData, Object[]>();
+		orderedMap = new LinkedHashMap<GroupData, Object[]>();
 		cancel = new JButton("Cancel");
 		cancel.setToolTipText(
 				UIUtilities.formatToolTipText(CANCEL_DESCRIPTION));
@@ -233,7 +234,7 @@ public class UserManagerDialog
 		GroupData defaultGroup = loggedUser.getDefaultGroup();
 		long groupID = defaultGroup.getId();
 		//Build the array for box.
-		Iterator i = map.keySet().iterator();
+		//Iterator i = map.keySet().iterator();
 		//Remove not visible group
 		GroupData g;
 		GroupData[] objects = new GroupData[map.size()];
@@ -241,6 +242,10 @@ public class UserManagerDialog
 		int index = 0;
 		Object[] children;
 		GroupData selectedGroup = defaultGroup;
+		//sort
+		
+		Iterator i = sorter.sort(map.keySet()).iterator();
+	
 		while (i.hasNext()) {
 			g = (GroupData) i.next();
 			objects[index] = g;
@@ -252,6 +257,7 @@ public class UserManagerDialog
 			orderedMap.put(g, children);
 			index++;
 		}
+		
 		//sort by name
 		groups = new JComboBox(objects);
 		groups.setRenderer(new GroupsRenderer());

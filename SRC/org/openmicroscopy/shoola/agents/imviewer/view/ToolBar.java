@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.FlowLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+
+import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -184,6 +186,14 @@ class ToolBar
      */
     void buildComponent()
     { 
+//    	Retrieve the preferences.
+		ViewerPreferences pref = ImViewerFactory.getPreferences();
+		if (pref != null) {
+			Action a = controller.getAction(ImViewerControl.RENDERER);
+			//rndButton.removeActionListener(a);
+	        rndButton.setSelected(pref.isRenderer());
+	        //rndButton.setAction(a);
+		}
     	
     	boolean b = view.isImageCompressed();
     	if (b) {

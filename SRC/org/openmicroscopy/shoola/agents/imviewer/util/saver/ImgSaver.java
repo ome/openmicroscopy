@@ -42,7 +42,6 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
@@ -52,6 +51,7 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.Encoder;
 import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -75,28 +75,34 @@ public class ImgSaver
 {
     
 	/** Indicates to display all possible save options. */
-	public static final int FULL = 0;
+	public static final int 	FULL = 0;
 	
 	/** Indicates to display save options without lens saving options. */
-	public static final int PARTIAL = 1;
+	public static final int 	PARTIAL = 1;
 	
 	/** Indicates to display save options without lens saving options. */
-	public static final int BASIC = 2;
+	public static final int 	BASIC = 2;
 	
     /** The window's title. */
-    static final String 	TITLE = "Save Image";
+    static final String 		TITLE = "Save Image";
     
     /** The title of the preview window. */
-    static final String 	PREVIEW_TITLE =  "Preview image to save.";
+    static final String 		PREVIEW_TITLE =  "Preview image to save.";
     
     /** 
      * Indicates that the question dialog is for the <code>Preview</code>
      * dialog.
      */
-    static final int		PREVIEW = 0;
+    static final int			PREVIEW = 0;
     
     /** Indicates that the question dialog will save the image directly. */
-    static final int		DIRECT = 1;
+    static final int			DIRECT = 1;
+    
+    /** The message when an image with the name and extension aleady exists. */
+    private static final String	MESSAGE = "A file with the same name and \n" +
+                                "extension already exists in this " +
+                                "directory.\n " +
+                                "Do you really want to save the image?";
     
     /** Reference to the model. */
     private ImViewer        model;
@@ -188,7 +194,6 @@ public class ImgSaver
      */
     private void writeImage(BufferedImage image, String n)
     {
-        UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
         //n += "."+format;
         String extendedName = getExtendedName(n, format);
         File f = new File(extendedName);
@@ -198,9 +203,10 @@ public class ImgSaver
                         new DataOutputStream(new FileOutputStream(f)));
                 WriterImage.saveImage(encoder);
             } else WriterImage.saveImage(f, image, format);
-            un.notifyInfo("Image Saved", saveMessage);
+            
             close();
         } catch (Exception e) {
+        	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
         	ImViewerAgent.getRegistry().getLogger().error(this, e.getMessage());
             f.delete();
             un.notifyError("Save image failure", "Unable to save the image", e);
@@ -355,10 +361,18 @@ public class ImgSaver
      */
     void setSelection(int index)
     {
-    	IconManager im = IconManager.getInstance();
-        ImgSaverSelectionDialog d = new ImgSaverSelectionDialog(this, 
-                im.getIcon(IconManager.QUESTION), index);
-        UIUtilities.centerAndShow(d);
+    	MessageBox dialog = new MessageBox(this, "Save Image", MESSAGE);
+    	if (dialog.centerMsgBox() == MessageBox.YES_OPTION) {
+    		dialog.setVisible(false);
+        	switch (index) {
+    			case DIRECT:
+    				saveImage(true);
+    				break;
+    			case PREVIEW:
+    				previewImage(); 
+    		}
+        	dialog.dispose();
+    	}
     }
     
     /** Closes the window and disposes. */
@@ -366,6 +380,33 @@ public class ImgSaver
     {
     	setVisible(false);
         dispose();
+    }
+    
+    /**
+     * Creates a single image.
+     * 
+     * @param image		The image to create.
+     * @param constrain	The constrain indicating to add the scale bar.
+     * @param name		The name of the image.
+     */
+    private void writeSingleImage(BufferedImage image, boolean constrain, 
+    							String name)
+    {
+    	int width = image.getWidth();
+        int h = image.getHeight();
+        String v = model.getUnitBarValue(); 
+        int s = (int) model.getUnitBarSize();
+        
+        BufferedImage newImage = new BufferedImage(width, h, 
+                					BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2 = (Graphics2D) newImage.getGraphics();
+        ImagePaintingFactory.setGraphicRenderingSettings(g2);
+        //Paint the original image.
+        g2.drawImage(image, null, 0, 0); 
+        
+        if (constrain)
+            ImagePaintingFactory.paintScaleBar(g2, width-s-10, h-10, s, v);
+        writeImage(newImage, name);
     }
     
     /** 
@@ -381,54 +422,66 @@ public class ImgSaver
         boolean unitBar = model.isUnitBar();
         String v = model.getUnitBarValue(); 
         int s = (int) model.getUnitBarSize();
+        boolean constrain;
         if (imageComponents == null) {
-            int width = mainImage.getWidth();
-            int h = mainImage.getHeight();
-
-            BufferedImage newImage = new BufferedImage(width, h, 
-                    BufferedImage.TYPE_INT_RGB);
-            Graphics2D g2 = (Graphics2D) newImage.getGraphics();
-            g2.setColor(Color.WHITE);
-            ImagePaintingFactory.setGraphicRenderingSettings(g2);
-            //Paint the original image.
-            g2.drawImage(mainImage, null, 0, 0); 
-            
-            if (unitBar && v != null && s <width && type == ImgSaverUI.IMAGE)
-                ImagePaintingFactory.paintScaleBar(g2, width-s-10, h-10, s, v);
-            writeImage(newImage, name);
+        	constrain = unitBar && v != null && s < mainImage.getWidth() 
+        				&& type == ImgSaverUI.IMAGE;
+        	writeSingleImage(mainImage, constrain, name);
         } else {
         	if (mainImage == null) return;
-            int width = mainImage.getWidth();
-            int h = mainImage.getHeight();
-            int n = imageComponents.size();
-            int w = width*(n+1)+ImgSaverPreviewer.SPACE*(n-1);
+        	Iterator i;
+        	int h, w;
+        	BufferedImage newImage;
+        	Graphics2D g2;
+        	if (uiDelegate.isSaveImagesInSeparatedFiles()) {
+        		constrain = unitBar && v != null && s < mainImage.getWidth() 
+							&& type == ImgSaverUI.IMAGE;
+        		writeSingleImage(mainImage, constrain, name);
+        		i = imageComponents.iterator();
+        		int j = 0;
+        		while (i.hasNext()) {
+        			constrain = unitBar && v != null && 
+                				type != ImgSaverUI.LENS_IMAGE_AND_COMPONENTS;
+        			writeSingleImage((BufferedImage) i.next(), constrain, 
+        							name+"_"+j);
+        			j++;
+                }
+        		
+        	} else {
+        		int width = mainImage.getWidth();
+                h = mainImage.getHeight();
+                int n = imageComponents.size();
+                w = width*(n+1)+ImgSaverPreviewer.SPACE*(n-1);
 
-            BufferedImage newImage = new BufferedImage(w, h, 
-                    						BufferedImage.TYPE_INT_RGB);
-            Graphics2D g2 = (Graphics2D) newImage.getGraphics();
-            g2.setColor(Color.WHITE);
-            ImagePaintingFactory.setGraphicRenderingSettings(g2);
-            //Paint the original image.
-            Iterator i = imageComponents.iterator();
-            int x = 0;
-            while (i.hasNext()) {
-                g2.drawImage((BufferedImage) i.next(), null, x, 0); 
+                newImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+                g2 = (Graphics2D) newImage.getGraphics();
+                g2.setColor(Color.WHITE);
+                ImagePaintingFactory.setGraphicRenderingSettings(g2);
+                //Paint the original image.
+                i = imageComponents.iterator();
+                int x = 0;
+                while (i.hasNext()) {
+                    g2.drawImage((BufferedImage) i.next(), null, x, 0); 
+                    if (unitBar && v != null && 
+                        	type != ImgSaverUI.LENS_IMAGE_AND_COMPONENTS)
+                        ImagePaintingFactory.paintScaleBar(g2, x+width-s-10, 
+                        								h-10, s, v);
+                    x += width;
+                    g2.fillRect(x, 0, ImgSaverPreviewer.SPACE, h);
+                    x += ImgSaverPreviewer.SPACE;
+                }
+                g2.drawImage(mainImage, null, x, 0); 
                 if (unitBar && v != null && 
-                    	type != ImgSaverUI.LENS_IMAGE_AND_COMPONENTS)
+                	!(type == ImgSaverUI.LENS_IMAGE_AND_COMPONENTS ||
+                	 type == ImgSaverUI.LENS_IMAGE))
                     ImagePaintingFactory.paintScaleBar(g2, x+width-s-10, h-10, 
                     									s, v);
-                x += width;
-                g2.fillRect(x, 0, ImgSaverPreviewer.SPACE, h);
-                x += ImgSaverPreviewer.SPACE;
-            }
-            g2.drawImage(mainImage, null, x, 0); 
-            if (unitBar && v != null && 
-            	!(type == ImgSaverUI.LENS_IMAGE_AND_COMPONENTS ||
-            	 type == ImgSaverUI.LENS_IMAGE))
-                ImagePaintingFactory.paintScaleBar(g2, x+width-s-10, h-10, s, 
-                									v);
-            writeImage(newImage, name);
+                writeImage(newImage, name);
+        	}
+            
         }
+        UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+        un.notifyInfo("Image Saved", saveMessage);
         if (uiDelegate.isSetDefaultFolder())
         	UIUtilities.setDefaultFolder(uiDelegate.getCurrentDirectory());
     }

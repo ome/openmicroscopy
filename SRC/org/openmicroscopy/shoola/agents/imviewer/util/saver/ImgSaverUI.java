@@ -75,7 +75,7 @@ class ImgSaverUI
     
 	 /** The tool tip of the <code>Approve</code> button. */
     static final String 			SAVE_AS = "Save the current image in" +
-    												"the specified format.";
+    											" the specified format.";
     
     /** Save the main image. */
     static final int				IMAGE = 0;
@@ -179,6 +179,9 @@ class ImgSaverUI
     /** Button to launch the preview window. */
     private JButton						previewButton;
     
+    /** Check box indicating to the save each channel in a separated file. */
+    private JCheckBox					separateFiles;
+    
     /** Initializes the static fields. */
     static {
         selections = new String[MAX+1];
@@ -215,9 +218,11 @@ class ImgSaverUI
 	    	case ImgSaver.FULL:
 			default:
 				savingTypes = new JComboBox(selections);
-				break;
 		}
-    	
+    	savingTypes.addActionListener(this);
+    	separateFiles = new JCheckBox("Save each channel in a file.");
+    	separateFiles.setSelected(true);
+    	separateFiles.setVisible(false);
         chooser = new ImgSaverFileChooser(model, this);
         settings = new JCheckBox();
         settings.setText("Set the current directory as default.");
@@ -284,7 +289,11 @@ class ImgSaverUI
         //p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         //p.add(result);
         //p.add(UIUtilities.buildComponentPanelRight(settings));
-        return UIUtilities.buildComponentPanelCenter(result);
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.add(UIUtilities.buildComponentPanelCenter(result));
+        p.add(UIUtilities.buildComponentPanel(separateFiles));
+        return UIUtilities.buildComponentPanelCenter(p);
     }
      
     /** Builds and lays out the UI. */
@@ -316,6 +325,26 @@ class ImgSaverUI
                             JRootPane.FILE_CHOOSER_DIALOG);
         }
     }
+    
+    /** 
+     * Sets the {@link #separateFiles} check box visible or not
+     * depending on the selected saving types.
+     */
+    private void handleSavingTypesSelection()
+	{
+		switch (savingTypes.getSelectedIndex()) {
+			case IMAGE_AND_COMPONENTS:
+			case IMAGE_AND_COMPONENTS_GREY:
+			case LENS_IMAGE_AND_COMPONENTS:
+			case LENS_IMAGE_AND_COMPONENTS_GREY:
+				separateFiles.setVisible(true);
+				break;
+	
+			default:
+				separateFiles.setVisible(false);
+				break;
+		}
+	}
     
     /**
      * Creates a new instance.
@@ -355,7 +384,6 @@ class ImgSaverUI
      */
     boolean isSetDefaultFolder() { return settings.isSelected(); }
     
-
     /**
      * Sets the <code>enabled</code> flag of not the <code>Save</code> and
      * <code>Preview</code> options.
@@ -368,6 +396,18 @@ class ImgSaverUI
     	previewButton.setEnabled(b);
 	}
 
+	/**
+	 * Returns <code>true</code> if each image composing the 
+	 * display has to be save in a separated file, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isSaveImagesInSeparatedFiles()
+	{
+		return (separateFiles.isSelected() && separateFiles.isVisible());
+	}
+	
 	/** 
 	 * Reacts to click on the button replacing the ones usually provided by the
 	 * file chooser.
@@ -375,6 +415,10 @@ class ImgSaverUI
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
+		if (e.getSource() instanceof JComboBox) {
+			handleSavingTypesSelection();
+			return;
+		}
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case CANCEL:

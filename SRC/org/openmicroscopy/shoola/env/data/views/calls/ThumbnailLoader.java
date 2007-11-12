@@ -103,8 +103,8 @@ public class ThumbnailLoader
         	int sizeX = maxWidth, sizeY = maxHeight;
         	double pixSizeX = pxd.getSizeX();
         	double pixSizeY = pxd.getSizeY();
-        	if (pixSizeX < maxWidth) sizeX = (int) pixSizeX;
-        	if (pixSizeY < maxHeight) sizeY = (int) pixSizeY;
+        	//if (pixSizeX < maxWidth) sizeX = (int) pixSizeX;
+        	//if (pixSizeY < maxHeight) sizeY = (int) pixSizeY;
             double ratio = pixSizeX/pixSizeY;
             if (ratio < 1) sizeX *= ratio;
             else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;

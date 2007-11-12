@@ -156,6 +156,11 @@ public class ContainersManager
         } 
     }
     
+    /**
+     * Sets the item corresponding to the specified index.
+     * 
+     * @param index The index to handle.
+     */
     public void setItem(int index)
     {
     	Integer i = (Integer) providers.get(index);

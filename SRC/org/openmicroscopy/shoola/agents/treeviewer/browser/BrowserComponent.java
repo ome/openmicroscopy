@@ -149,14 +149,6 @@ class BrowserComponent
         return false;
     }
     
-    /** Selects the node after saving. */
-    private void setSelectedNode()
-    {
-    	if (toSelectAfterSave == null) return;
-    	setSelectedDisplay(toSelectAfterSave);
-    	toSelectAfterSave = null;
-    }
-    
     /**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straight 
@@ -570,7 +562,7 @@ class BrowserComponent
             view.getTreeDisplay().repaint();
             return;
         }
-        ArrayList list = new ArrayList(nodes.size());
+        List<Object> list = new ArrayList<Object>(nodes.size());
         Iterator i = nodes.iterator();
         
         final JTree tree = view.getTreeDisplay();
@@ -1127,5 +1119,16 @@ class BrowserComponent
 					"in the DISCARDED state.");
 		return view.getTreeDisplay();
 	}
+	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setSelected(boolean)
+	 */
+    public void setSelectedNode()
+    {
+    	if (toSelectAfterSave == null) return;
+    	setSelectedDisplay(toSelectAfterSave);
+    	toSelectAfterSave = null;
+    }
     
 }

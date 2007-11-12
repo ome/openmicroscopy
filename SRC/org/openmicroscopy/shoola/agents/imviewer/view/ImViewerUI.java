@@ -71,12 +71,12 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.imviewer.util.CategoryEditor;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.SplitPanel;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
+import org.openmicroscopy.shoola.agents.util.tagging.CategoryEditor;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -287,14 +287,15 @@ class ImViewerUI
 	/** 
 	 * Creates the menu bar.
 	 * 
+	 * @param pref The user preferences.
 	 * @return The menu bar. 
 	 */
-	private JMenuBar createMenuBar()
+	private JMenuBar createMenuBar(ViewerPreferences pref)
 	{
 		JMenuBar menuBar = new JMenuBar(); 
-		menuBar.add(createControlsMenu());
+		menuBar.add(createControlsMenu(pref));
 		menuBar.add(createViewMenu());
-		menuBar.add(createZoomMenu());
+		menuBar.add(createZoomMenu(pref));
 		createRatingMenu();
 		TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
 		menuBar.add(tb.getWindowsMenu());
@@ -496,9 +497,10 @@ class ImViewerUI
 	/**
 	 * Helper method to create the controls menu.
 	 * 
+	 * @param pref The user preferences.
 	 * @return The controls submenu.
 	 */
-	private JMenu createControlsMenu()
+	private JMenu createControlsMenu(ViewerPreferences pref)
 	{
 		JMenu menu = new JMenu("Controls");
 		menu.setMnemonic(KeyEvent.VK_C);
@@ -508,6 +510,7 @@ class ImViewerUI
 		rndItem.setSelected(isRendererShown());
 		rndItem.setAction(action);
 		rndItem.setText(action.getName());
+		if (pref != null) rndItem.setSelected(pref.isRenderer());
 		menu.add(rndItem);
 
 		action = controller.getAction(ImViewerControl.MOVIE);
@@ -555,9 +558,10 @@ class ImViewerUI
 	/**
 	 * Helper methods to create the Zoom menu. 
 	 * 
+	 * @param pref The user preferences.
 	 * @return The zoom submenu;
 	 */
-	private JMenu createZoomMenu()
+	private JMenu createZoomMenu(ViewerPreferences pref)
 	{
 		JMenu menu = new JMenu("Zoom");
 		menu.setMnemonic(KeyEvent.VK_Z);
@@ -615,7 +619,10 @@ class ImViewerUI
 		item = new JCheckBoxMenuItem(action);
 		menu.add(item);
 		zoomingGroup.add(item);
-		setZoomFactor(ZoomAction.DEFAULT_ZOOM_FACTOR, 
+		if (pref != null) {
+			controller.setZoomFactor(pref.getZoomIndex());
+		} else 
+			setZoomFactor(ZoomAction.DEFAULT_ZOOM_FACTOR, 
 						ZoomAction.DEFAULT_ZOOM_INDEX);
 		return menu;
 	}
@@ -928,7 +935,9 @@ class ImViewerUI
 	 */
 	void buildComponents()
 	{
-		setJMenuBar(createMenuBar());
+		//Retrieve the preferences.
+		ViewerPreferences pref = ImViewerFactory.getPreferences();
+		setJMenuBar(createMenuBar(pref));
 		toolBar.buildComponent();
 		controlPane.buildComponent();
 		buildGUI();
@@ -942,7 +951,9 @@ class ImViewerUI
 	 */
 	void setZoomFactor(double factor, int zoomIndex)
 	{
-		statusBar.setRigthStatus("x"+factor);
+		if (factor != -1)
+			statusBar.setRigthStatus("x"+factor);
+		else statusBar.setRigthStatus(ZoomAction.ZOOM_FIT_NAME);
 		JCheckBoxMenuItem b;
 		Enumeration e;
 		Action a;
@@ -1519,9 +1530,9 @@ class ImViewerUI
 	void createCategory()
 	{
 		CategoryEditor editor = new CategoryEditor(this, 
-				model.getAvailableCategories(), 
-				model.getCategories(),
-				model.getPopulatedCategoryGroups());
+									model.getAvailableCategories(), 
+									model.getCategories(),
+									model.getPopulatedCategoryGroups());
 		editor.addPropertyChangeListener(controller);
 		UIUtilities.centerAndShow(editor);
 	}
@@ -1549,6 +1560,12 @@ class ImViewerUI
 		layoutComponents();
 	}
 	
+	/**
+	 * Sets the compression flag.
+	 * 
+	 * @param compressed 	Pass <code>true</code> to compresse the image,
+	 * 						<code>false</code> otherwise.
+	 */
 	void setImageCompressed(boolean compressed)
 	{
 		model.setImageCompressed(compressed);
@@ -1561,6 +1578,18 @@ class ImViewerUI
 	 * @return See above.
 	 */
 	boolean isImageCompressed() { return model.isImageCompressed(); }
+	
+	/**
+	 * Sets the restore dimension.
+	 * 
+	 * @param width  The width to set.
+	 * @param height The height to set.
+	 */
+	void setRestoreSize(int width, int height)
+	{
+		restoreSize = new Dimension(width, height);
+		//
+	}
 	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
@@ -1579,12 +1608,12 @@ class ImViewerUI
 					setSize(width, height);
 				} else pack();
 			} else pack();
-			UIUtilities.incrementRelativeToAndShow(model.getRequesterBounds(), 
-					this);
+			UIUtilities.incrementRelativeToAndShow(
+							model.getRequesterBounds(), this);
 		} else {
 			pack();
 			UIUtilities.incrementRelativeToAndShow(null, this);
 		}
 	}
-
+	
 }

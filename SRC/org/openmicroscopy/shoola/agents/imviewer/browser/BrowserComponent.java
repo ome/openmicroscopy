@@ -209,14 +209,16 @@ class BrowserComponent
 	                    ZoomAction.MAX_ZOOM_FACTOR);
     	} else {
     		BufferedImage img = model.getRenderedImage();
-    		int width = img.getWidth();
-    		int height = img.getHeight();
-    		Dimension viewport = view.getCurrentViewport();
-    		double zoomFactorX = 0;
-    		if (width > 0) zoomFactorX = viewport.getWidth()/width;
-    		double zoomFactorY = 0;
-    		if (height > 0) zoomFactorY = viewport.getHeight()/height;
-    		factor = Math.min(zoomFactorX, zoomFactorY); 
+    		if (img != null) {
+    			int width = img.getWidth();
+        		int height = img.getHeight();
+        		Dimension viewport = view.getCurrentViewport();
+        		double zoomFactorX = 0;
+        		if (width > 0) zoomFactorX = viewport.getWidth()/width;
+        		double zoomFactorY = 0;
+        		if (height > 0) zoomFactorY = viewport.getHeight()/height;
+        		factor = Math.min(zoomFactorX, zoomFactorY); 
+    		}
     	}
         model.setZoomFactor(factor);
         view.zoomImage();  

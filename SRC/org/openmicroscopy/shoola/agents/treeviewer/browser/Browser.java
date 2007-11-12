@@ -503,4 +503,10 @@ public interface Browser
 	 */
 	ExperimenterData getNodeOwner(TreeImageDisplay node);
 	
+	/** 
+	 * Sets the node the used wished to save before being prompt with
+	 * the Save data message box.
+	 */
+    public void setSelectedNode();
+    
 }

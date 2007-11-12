@@ -423,11 +423,12 @@ class OMEROGateway
 		if (re == null) {
 			ThumbnailStore service = getThumbService();
 			if (!(service.setPixelsId(pixelsID))) {
-				service.resetDefaults();
+				re.resetDefaults();
 				service.setPixelsId(pixelsID);
 			}
 		} else {
 			if (!(re.lookupRenderingDef(pixelsID))) {
+				//re.resetDefaultsNoSave();
 				re.resetDefaults();
 				re.lookupRenderingDef(pixelsID);
 			}
@@ -1048,7 +1049,6 @@ class OMEROGateway
 	{
 		try {
 			ThumbnailStore service = getThumbService();
-			
 			needDefault(pixelsID, null);
 			return service.getThumbnailDirect(new Integer(sizeX), 
 					new Integer(sizeY));
@@ -1585,6 +1585,7 @@ class OMEROGateway
 	List getImagesDuring(Timestamp lowerTime, Timestamp time, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
+
 		try {
 			String sql = "from Image as i where i.details.owner.id = :userID " +
 			"and i.details.creationEvent.time < :time and "+
@@ -1604,6 +1605,30 @@ class OMEROGateway
 	}
 
 	/**
+	 * Retrieves the images specified by a set of parameters
+	 * e.g. imported during a given period of time by a given user.
+	 * 
+	 * @param map The options. 
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Set getImages(Map map)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			IPojos service = getPojosService();
+			return PojoMapper.asDataObjects(service.getImagesByOptions(map));
+		} catch (Exception e) {
+			handleException(e, "Cannot retrieve the images imported " +
+							"the specified period.");
+		}
+		return null;
+	}
+	
+	/**
 	 * Returns a collection of images imported after the specified time
 	 * by the specified user.
 	 * 
@@ -1617,7 +1642,7 @@ class OMEROGateway
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List getImagesFilledDuring(Timestamp lowerTime, Timestamp time, long userID)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			String sql = "select i from Image as i left outer join fetch " +

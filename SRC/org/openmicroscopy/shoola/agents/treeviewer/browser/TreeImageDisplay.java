@@ -161,7 +161,9 @@ public abstract class TreeImageDisplay
     		switch (n) {
 				case 0: return originalName;
 				case 1: return l[0];
-				default: return UIUtilities.DOTS+l[n-2]+"/"+l[n-1]; 
+				case 2: return l[n-2]+"/"+l[n-1];
+				default: 
+					return UIUtilities.DOTS+l[n-2]+"/"+l[n-1]; 
 			}
     	}
         return originalName;

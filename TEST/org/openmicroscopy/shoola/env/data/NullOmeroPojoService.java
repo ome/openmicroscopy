@@ -369,26 +369,6 @@ public class NullOmeroPojoService
 
 	/**
 	 * No-op implementation
-	 * @see OmeroDataService#getImagesAfter(Timestamp, long)
-	 */
-	public Set getImagesAfter(Timestamp time, long rootID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	/**
-	 * No-op implementation
-	 * @see OmeroDataService#getImagesBefore(Timestamp, long)
-	 */
-	public Set getImagesBefore(Timestamp time, long rootID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	/**
-	 * No-op implementation
 	 * @see OmeroDataService#getImagesPeriod(Timestamp, Timestamp, long)
 	 */
 	public Set getImagesPeriod(Timestamp lowerTime, Timestamp time, long userID)
@@ -441,26 +421,6 @@ public class NullOmeroPojoService
 
 	/**
 	 * No-op implementation
-	 * @see OmeroDataService#getImagesAfterIObject(Timestamp, long)
-	 */
-	public List getImagesAfterIObject(Timestamp time, long userID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	/**
-	 * No-op implementation
-	 * @see OmeroDataService#getImagesBeforeIObject(Timestamp, long)
-	 */
-	public List getImagesBeforeIObject(Timestamp time, long userID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	/**
-	 * No-op implementation
 	 * @see OmeroDataService#getImagesPeriodIObject(Timestamp, Timestamp, long)
 	 */
 	public List getImagesPeriodIObject(Timestamp lowerTime, Timestamp time, 
@@ -474,9 +434,6 @@ public class NullOmeroPojoService
 	 * No-op implementation
 	 * @see OmeroDataService#getLoggingName()
 	 */
-	public String getLoggingName()
-	{
-		return null;
-	}
+	public String getLoggingName() { return null; }
 
 }

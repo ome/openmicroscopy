@@ -133,30 +133,34 @@ public class ImagesLoader
      * a given date depending on the passed parameter.
      * 
      * @param constrain	One of constants defined by this class.
-     * @param lowerTime The timestamp identifying the lower bound.
+     * @param lt 		The timestamp identifying the lower bound.
      * @param time		The timestamp identifying the date.
      * @param userID	The Id of the user.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final int constrain, 
-    			final Timestamp lowerTime, final Timestamp time,
+    			final Timestamp lt, final Timestamp time,
                 final long userID)
     {
         return new BatchCall("Loading images: ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                switch (constrain) {
-					case BEFORE:
-						results = os.getImagesBefore(time, userID);
+                Timestamp lowerTime = null;
+				Timestamp upperTime = null;
+				switch (constrain) {
+					case ImagesLoader.AFTER:
+						lowerTime = time;
 						break;
-					case AFTER:
-						results = os.getImagesAfter(time, userID);
+					case ImagesLoader.BEFORE:
+						upperTime = time;
 						break;
-					case PERIOD:
-						results = os.getImagesPeriod(lowerTime, time, userID);
+					case ImagesLoader.PERIOD:
+						lowerTime = lt;
+						upperTime = time;
 						break;
 				}
+				results =  os.getImagesPeriod(lowerTime, upperTime, userID);
             }
         };
     }

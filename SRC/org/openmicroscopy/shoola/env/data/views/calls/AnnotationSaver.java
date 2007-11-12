@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -256,19 +257,21 @@ public class AnnotationSaver
 				OmeroDataService os = context.getDataService();
 				long userID = ((ExperimenterData) context.lookup(
 						LookupNames.CURRENT_USER_DETAILS)).getId();
-				Set images = null;
+				Timestamp lowerTime = null;
+				Timestamp upperTime = null;
 				switch (ref.getConstrain()) {
-				case ImagesLoader.BEFORE:
-					images = os.getImagesBefore(ref.getTime(), userID);
-					break;
-				case ImagesLoader.AFTER:
-					images = os.getImagesAfter(ref.getTime(), userID);
-					break;
-				case ImagesLoader.PERIOD:
-					images = os.getImagesPeriod(ref.getLowerTime(), 
-							ref.getTime(), userID);
-					break;
+					case ImagesLoader.AFTER:
+						lowerTime = ref.getTime();
+						break;
+					case ImagesLoader.BEFORE:
+						upperTime = ref.getTime();
+						break;
+					case ImagesLoader.PERIOD:
+						lowerTime = ref.getLowerTime();
+						upperTime = ref.getTime();
+						break;
 				}
+				Set images =  os.getImagesPeriod(lowerTime, upperTime, userID);
 				if (images != null) {
 					result = os.createAnnotationFor(images, data);
 				} else result = new ArrayList();

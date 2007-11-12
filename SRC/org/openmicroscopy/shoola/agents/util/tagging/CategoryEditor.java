@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.util.CategoryEditor 
+ * org.openmicroscopy.shoola.agents.util.tagging.CategoryEditor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.imviewer.util;
+package org.openmicroscopy.shoola.agents.util.tagging;
 
 
 //Java imports

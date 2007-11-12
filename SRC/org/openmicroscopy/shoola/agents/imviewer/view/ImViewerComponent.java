@@ -58,7 +58,6 @@ import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
-import org.openmicroscopy.shoola.agents.imviewer.util.CategorySaverDef;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImageDetailsDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
@@ -67,6 +66,7 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.archived.view.Downloader;
 import org.openmicroscopy.shoola.agents.util.archived.view.DownloaderFactory;
+import org.openmicroscopy.shoola.agents.util.tagging.CategorySaverDef;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
@@ -155,8 +155,8 @@ class ImViewerComponent
 	 */
 	private boolean							saveBeforeCopy;
 	
-	/** Flag indicating create an history item. */
-	//private boolean							addHistoryItem;
+	/** Flag indicating that the user preferences have been set. */
+	private boolean							prefSet;
 	
 	/** Creates an history item. */
 	private void createHistoryItem()
@@ -700,6 +700,17 @@ class ImViewerComponent
 			node.allowClose(false);
 			rndToSave = false;
 		} //else createHistoryItem();
+		ViewerPreferences pref = ImViewerFactory.getPreferences();
+		if (!prefSet && pref != null) {
+			if (pref.isRenderer()) {
+				if (image != null)
+					view.setRestoreSize(image.getWidth(), image.getHeight());
+				showRenderer();
+			}
+			view.setBounds(pref.getViewerBounds());
+			prefSet = true;
+		}
+			
 		fireStateChange();
 	}
 
@@ -861,8 +872,10 @@ class ImViewerComponent
 		LoadingWindow window = view.getLoadingWindow();
 		window.setStatus("rendering settings. Loading: metadata");
 		window.setProgress(50);
+		//User prefrerence
 		view.buildComponents();
 		view.setOnScreen();
+		//User pr
 		//view.setStatus(RENDERING_MSG);
 		view.setStatus(getStatusText());
 		renderXYPlane();

@@ -33,7 +33,7 @@ import javax.swing.JFrame;
 
 /** 
  * This is a messageBox dialog which will as the user a question and return 
- * a yes/no answer. 
+ * a Yes, No or Cancel answer. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,17 +62,20 @@ public class MessageBox
 	private int option; 
 	
 	/**
-     * Overridden to perform the action as the user has selected the yes option.
+     * Overridden to perform the action as the user has selected the 
+     * <code>Yes</code> option.
      */
     protected void onYesSelection() { option = YES_OPTION; }
     
     /**
-     * Overridden to perform the action as the user has selected the no option.
+     * Overridden to perform the action as the user has selected the 
+     * <code>No</code> option.
      */
     protected void onNoSelection() { option = NO_OPTION; }
     
     /**
-     * Overridden to perform the action as the user has selected the no option.
+     * Overridden to perform the action as the user has selected the 
+     * <code>Cancel</code> option.
      */
     protected void onCancel() { option = CANCEL; }
     
@@ -140,19 +143,19 @@ public class MessageBox
     /**
      * Shows the message box and returns the option selected by the user. 
      * 
-     * @return Options selected by the user. 
+     * @return The option selected by the user. 
      */
     public int showMsgBox()
     {
-    	this.setLocation(this.getParent().getLocation());
-    	this.setVisible(true);
+    	setLocation(this.getParent().getLocation());
+    	setVisible(true);
     	return option;	
     }
    
     /**
      * Shows the message box and returns the option selected by the user. 
      * 
-     * @return Options selected by the user. 
+     * @return The option selected by the user. 
      */
     public int centerMsgBox()
     {

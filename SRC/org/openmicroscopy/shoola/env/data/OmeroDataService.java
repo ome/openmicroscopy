@@ -660,34 +660,6 @@ public interface OmeroDataService
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
-	 * Retrieves the images before a given date.
-	 * 
-	 * @param time		The timestamp identifying the date.
-	 * @param userID	The Id of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public Set getImagesBefore(Timestamp time, long userID)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Retrieves the images after a given date.
-	 * 
-	 * @param time		The timestamp identifying the date.
-	 * @param userID	The Id of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public Set getImagesAfter(Timestamp time, long userID)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
 	 * Retrieves the images after a given date.
 	 * 
 	 * @param lowerTime	The timestamp identifying the start of the period.
@@ -732,34 +704,6 @@ public interface OmeroDataService
 	 */
 	public List getImagesAllPeriodCount(Timestamp lowerTime, Timestamp time, 
 			long userID)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Retrieves the number of images imported after a given date.
-	 * 
-	 * @param time		The timestamp identifying the date.
-	 * @param userID	The Id of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public List getImagesAfterIObject(Timestamp time, long userID)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Retrieves the number of images imported before a given date.
-	 * 
-	 * @param time		The timestamp identifying the date.
-	 * @param userID	The Id of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public List getImagesBeforeIObject(Timestamp time, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/** 
