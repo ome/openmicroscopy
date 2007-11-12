@@ -87,7 +87,8 @@ class CustomizedFileChooser
 		{
 			nameArea.setVisible(true);
 			nameArea.getDocument().addDocumentListener(this);
-			nameArea.addKeyListener(this);
+			if(model.getDialogType()==FileChooser.LOAD)
+				nameArea.addKeyListener(this);
 		}
 	}
 		

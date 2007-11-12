@@ -63,7 +63,7 @@ public class CSVFilter
 	 * 	Overriden to return the description of the filter.
 	 * 	@see FileFilter#getDescription()
 	 */
-	public String getDescription() { return "Comma separated values"; }
+	public String getDescription() { return "CSV File"; }
     
 	/**
 	 * 	Overriden to accept file with the declared file extensions.
