@@ -47,6 +47,7 @@ import ome.parameters.Parameters;
 import ome.services.query.PojosCGCPathsQueryDefinition;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
+import ome.services.query.PojosGetImagesByOptionsQueryDefinition;
 import ome.services.query.PojosGetImagesQueryDefinition;
 import ome.services.query.PojosGetUserImagesQueryDefinition;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
@@ -321,6 +322,27 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
 	}
 
+	@RolesAllowed("user")
+	@Transactional(readOnly = true)
+	public Set getImagesByOptions(Map options) {
+
+		PojoOptions po = new PojoOptions(options);
+
+		if (!po.isStartTime() && !po.isEndTime()) {
+			throw new IllegalArgumentException("start or end time option "
+					+ "is required for getImagesByOptions().");
+		}
+		
+		Query<List<IObject>> q = getQueryFactory().lookup(
+				PojosGetImagesByOptionsQueryDefinition.class.getName(),
+				new Parameters().addOptions(options));
+
+		List<IObject> l = iQuery.execute(q);
+		collectCounts(l, po);
+		return new HashSet<IObject>(l);
+
+	}
+	
 	@RolesAllowed("user")
 	@Transactional(readOnly = true)
 	public Set getUserImages(Map options) {

@@ -9,7 +9,11 @@ package ome.server.itests;
 // Java imports
 
 // Third-party libraries
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -112,10 +116,42 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         assertEquals(i.getDetails().getCounts().get(ImageAnnotation.IMAGE), 1L);
 
     }
+    
+    // ticket 651
+    public void testIntervalInPojoOptions() {
+    	Long userID = factory.getAdminService().getEventContext().getCurrentUserId();
+		Timestamp startTime = getDate("before");
+		Timestamp endTime = getDate("after");
+
+		PojoOptions options = new PojoOptions();
+		options.exp(userID);
+		options.allCounts();
+		options.countsFor(new Long(userID));
+		options.startTime(startTime);
+		options.endTime(endTime);
+
+		Dataset d = iQuery.get(Dataset.class, 1);
+		
+		iPojos.getImagesByOptions(options.map());
+		iPojos.getImages(Dataset.class,Collections
+                .singleton(d.getId()), options.map());
+    }
 
     // ~ Helpers
     // =========================================================================
 
+    private Timestamp getDate(String arg) {
+    		Calendar cal = Calendar.getInstance();
+    		cal.setLenient( true );
+    		cal.setTime( new Date() );
+    		if(arg.equals("after")) cal.add(Calendar.DATE, +1);
+    		if(arg.equals("before")) cal.add(Calendar.DATE, -1);
+    		Date yesterday = cal.getTime();
+    		SimpleDateFormat  currentDate = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
+    		Timestamp time = Timestamp.valueOf(currentDate.format(yesterday));
+    		return(time);
+    }
+    
     private Project reloadProject(DatasetAnnotation da) {
         Dataset ds;
         Project p;

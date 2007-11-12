@@ -327,6 +327,19 @@ public interface IPojos extends ServiceInterface {
     Set<Long> rootNodeIds, Map options);
 
     /**
+     * Retrieve images by options.
+     * 
+     * @param options
+     *            Map as above. No notion of <code>leaves</code>.
+     *            <code>experimenter|group</code> apply at the Image level and
+     *            <b>must be present</b>.
+     *            OPTIONS:
+     *             - startTime and/or endTime should be Timestamp.valueOf("YYYY-MM-DD hh:mm:ss.ms");
+     * @return A set of images.
+     */
+    public Set<Image> getImagesByOptions(Map options);
+    
+    /**
      * Retrieve a user's images.
      * 
      * @param options
