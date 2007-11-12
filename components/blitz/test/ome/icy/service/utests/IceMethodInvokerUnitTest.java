@@ -567,6 +567,13 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         ServantHelper.throwIfNecessary(rv);
         assertTrue(1 == ((byte[]) rv)[0]);
 
+        init(RawPixelsStore.class, "getTimepointSize");
+        method().will(returnValue(Integer.valueOf(1)));
+
+        rv = invoke();
+        ServantHelper.throwIfNecessary(rv);
+        assertTrue(1 == (Integer) rv);
+
     }
 
     // RenderingEngine

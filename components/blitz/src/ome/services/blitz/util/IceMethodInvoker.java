@@ -42,22 +42,24 @@ import org.apache.commons.logging.LogFactory;
  * or with a {@link Class} with generic type {@link ServiceInterface}. Actual
  * invocation happens via
  * {@link #invoke(Object, Ice.Current, IceMapper, Object[])}
- *
+ * 
  * No reference is held to the initial priming argument.
- *
+ * 
  * MAPPING RULES:
  * <ul>
- *  <li>Method names exact</li>
- *  <li>Collections of the same type only (no arrays)</li>
- *  <li>Primitivies use Ice primitives (long, int, bool,...)</li>
- *  <li>Primitive wrapeprs all use RTypes (RLong, RInt, RBool,...)</li>
+ * <li>Method names exact</li>
+ * <li>Collections of the same type only (no arrays)</li>
+ * <li>Primitivies use Ice primitives (long, int, bool,...)</li>
+ * <li>Primitive wrapeprs all use RTypes (RLong, RInt, RBool,...)</li>
  * </ul>
- *
+ * 
  * Future:
  * <ul>
- *  <li>Currently ignoring @NotNull</li>
- * </ul>
- *
+ * <li>Currently ignoring
+ * 
+ * @NotNull</li>
+ *          </ul>
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  */
@@ -78,16 +80,16 @@ public class IceMethodInvoker {
     private final Map<String, Info> map = new HashMap<String, Info>();
 
     private OmeroContext ctx;
-    
+
     /**
      * Create an {@link IceMethodInvoker} instance using the {@link Class} of
      * the passed argument to call
      * {@link IceMethodInvoker#IceMethodInvoker(Class)}.
-     *
+     * 
      * @param srv
      *            A Non-null {@link ServiceInterface} instance.
      * @param context
-     *            The active {@link OmeroContext} instance.	 
+     *            The active {@link OmeroContext} instance.
      */
     public IceMethodInvoker(ServiceInterface srv, OmeroContext context) {
         this(srv.getClass(), context);
@@ -96,13 +98,14 @@ public class IceMethodInvoker {
     /**
      * Creates an {@link IceMethodInvoker} instance by using reflection on the
      * {@link Class} argument. All information is cached internally.
-     *
+     * 
      * @param <S>
      *            A type which subclasses {@link ServiceInterface}
      * @param c
      *            A non-null {@link ServiceInterface} {@link Class}
      */
-    public <S extends ServiceInterface> IceMethodInvoker(Class<S> c, OmeroContext context) {
+    public <S extends ServiceInterface> IceMethodInvoker(Class<S> c,
+            OmeroContext context) {
         Method[] ms = c.getMethods();
         for (Method m : ms) {
             Info i = new Info();
@@ -122,7 +125,7 @@ public class IceMethodInvoker {
      * {@link ServantHelper#throwIfNecessary(Object)} does just this, but is
      * also called internally by {@link ServantHelper#checkVoid(Object)} and
      * {@link ServantHelper#returnValue(Class, Object)}.
-     *
+     * 
      * @param obj
      *            Instance for the call to
      *            {@link Method#invoke(Object, Object[])}. Can be null if this
@@ -163,46 +166,47 @@ public class IceMethodInvoker {
             Class p = params[i];
             Object arg = args[i];
             objs[i] = handleInput(mapper, p, arg);
-// This check duplicates what should be in handleInput
-//            if (null != objs[i] && !isPrimitive(p) && // FIXME need way to check autoboxing.
-//                    !p.isAssignableFrom(objs[i].getClass())) {
-//                throw new IllegalStateException(String.format(
-//                        "Cannot assign %s to %s",objs[i],p));
-//            }
+            // This check duplicates what should be in handleInput
+            // if (null != objs[i] && !isPrimitive(p) && // FIXME need way to
+            // check autoboxing.
+            // !p.isAssignableFrom(objs[i].getClass())) {
+            // throw new IllegalStateException(String.format(
+            // "Cannot assign %s to %s",objs[i],p));
+            // }
         }
 
         Class retType = info.retType;
         Object retVal;
         try {
-        	
-        	// To replicate the lifecycle logic of the application server,
-        	// it's necessary to catch all calls to "close()" (which is also
-        	// done within the Hibernate SessionHandler), and ALSO call the 
-        	// "destroy()" method if present. TODO This could be much better 
-        	// placed, but this location is sufficient, since no call will
-        	// be made on the delegation targets without going through this
-        	// method.
-        	//
-        	// Unfortunately, however, the destroy method is not on the
-        	// interface and so must be checked directly.
-        	if ("close".equals(info.method.getName())) {
-        		Method destroy = null; 
-        		try {
-					destroy = obj.getClass().getMethod("destroy");
-				} catch (Exception e) {
-					// No problems. Can't call method then.
-				}
-				if (destroy != null) {
-					try {
-						destroy.invoke(obj);
-					} catch (Exception ex) {
-						log.error("Exception on service.destroy()",ex);
-					}
-        		}
-				UnregisterServantMessage usm = new UnregisterServantMessage(
-						this,Ice.Util.identityToString(current.id),current);
-				ctx.publishMessage(usm);
-        	}
+
+            // To replicate the lifecycle logic of the application server,
+            // it's necessary to catch all calls to "close()" (which is also
+            // done within the Hibernate SessionHandler), and ALSO call the
+            // "destroy()" method if present. TODO This could be much better
+            // placed, but this location is sufficient, since no call will
+            // be made on the delegation targets without going through this
+            // method.
+            //
+            // Unfortunately, however, the destroy method is not on the
+            // interface and so must be checked directly.
+            if ("close".equals(info.method.getName())) {
+                Method destroy = null;
+                try {
+                    destroy = obj.getClass().getMethod("destroy");
+                } catch (Exception e) {
+                    // No problems. Can't call method then.
+                }
+                if (destroy != null) {
+                    try {
+                        destroy.invoke(obj);
+                    } catch (Exception ex) {
+                        log.error("Exception on service.destroy()", ex);
+                    }
+                }
+                UnregisterServantMessage usm = new UnregisterServantMessage(
+                        this, Ice.Util.identityToString(current.id), current);
+                ctx.publishMessage(usm);
+            }
             retVal = info.method.invoke(obj, objs);
         } catch (Throwable t) {
             return handleException(t);
@@ -219,34 +223,27 @@ public class IceMethodInvoker {
     // ~ Helpers
     // =========================================================================
 
-    protected boolean isPrimitive(Class p) {
+    protected boolean isPrimitive(Class<?> p) {
         if (p.equals(byte.class) || p.equals(byte[].class)
                 || p.equals(int.class) || p.equals(int[].class)
                 || p.equals(long.class) || p.equals(long[].class)
                 || p.equals(double.class) || p.equals(double[].class)
                 || p.equals(float.class) || p.equals(float[].class)
-                || p.equals(boolean.class) || p.equals(boolean[].class)) {
+                || p.equals(boolean.class) || p.equals(boolean[].class)
+                || p.equals(Integer.class) || p.equals(Long.class)
+                || p.equals(Double.class) || p.equals(Float.class)
+                || p.equals(String.class)) {
             return true;
         }
         return false;
     }
 
-    public Object handleInput(IceMapper mapper, Class p, Object arg)
-    throws ServerError {
+    public Object handleInput(IceMapper mapper, Class<?> p, Object arg)
+            throws ServerError {
         if (arg instanceof RType) {
             RType rt = (RType) arg;
             return mapper.convert(rt);
         } else if (isPrimitive(p)) { // FIXME use findTarget for Immutable.
-            return arg;
-        } else if (p.equals(Long.class)) {
-            return arg;
-        } else if (p.equals(Integer.class)) {
-            return arg;
-        } else if (p.equals(Double.class)) {
-            return arg;
-        } else if (p.equals(Float.class)) {
-            return arg;
-        } else if (p.equals(String.class)) {
             return arg;
         } else if (p.equals(Class.class)) {
             return mapper.omeroClass((String) arg, true);
@@ -259,13 +256,17 @@ public class IceMethodInvoker {
         } else if (List.class.isAssignableFrom(p)) {
             return mapper.reverse((Collection) arg);
         } else if (Set.class.isAssignableFrom(p)) {
-            return mapper.reverse(new HashSet((Collection) arg)); // Necessary since Ice doesn't support Sets.
+            return mapper.reverse(new HashSet((Collection) arg)); // Necessary
+            // since Ice
+            // doesn't
+            // support
+            // Sets.
         } else if (Map.class.isAssignableFrom(p)) {
             return mapper.reverse((Map) arg);
         } else if (PlaneDef.class.isAssignableFrom(p)) {
             return mapper.convert((omero.romio.PlaneDef) arg);
         } else if (Filterable[].class.isAssignableFrom(p)) {
-        	return mapper.reverseArray((List) arg, p);
+            return mapper.reverseArray((List) arg, p);
         } else {
             throw new IllegalStateException("Can't handle input " + p);
         }
@@ -274,19 +275,20 @@ public class IceMethodInvoker {
     public Object handleOutput(IceMapper mapper, Class type, Object o) {
         if (void.class.isAssignableFrom(type)) {
             assert o == null;
-            return o;
+            return null;
         } else if (isPrimitive(type)) {
             return o;
         } else if (RGBBuffer.class.isAssignableFrom(type)) {
-            return mapper.convert((RGBBuffer)o);
+            return mapper.convert((RGBBuffer) o);
         } else if (Roles.class.isAssignableFrom(type)) {
-            return mapper.convert((Roles)o);
+            return mapper.convert((Roles) o);
         } else if (Date.class.isAssignableFrom(type)) {
-            return mapper.convert((Date)o);
+            return mapper.convert((Date) o);
         } else if (EventContext.class.isAssignableFrom(type)) {
-            return mapper.convert((EventContext)o);
+            return mapper.convert((EventContext) o);
         } else if (Set.class.isAssignableFrom(type)) {
-            return mapper.map(new ArrayList((Set)o)); // Necessary since Ice doesn't support Sets.
+            return mapper.map(new ArrayList((Set) o)); // Necessary since Ice
+            // doesn't support Sets.
         } else if (Collection.class.isAssignableFrom(type)) {
             return mapper.map((Collection) o);
         } else if (IObject.class.isAssignableFrom(type)) {
@@ -294,7 +296,7 @@ public class IceMethodInvoker {
         } else if (Map.class.isAssignableFrom(type)) {
             return mapper.map((Map) o);
         } else if (Filterable[].class.isAssignableFrom(type)) {
-        	return mapper.map((Filterable[]) o);
+            return mapper.map((Filterable[]) o);
         } else {
             throw new IllegalStateException("Can't handle output " + type);
         }
@@ -312,23 +314,24 @@ public class IceMethodInvoker {
         }
 
         // First we give registered handlers a chance to convert the message,
-        // if that doesn't succeed, then we try either manually, or just 
+        // if that doesn't succeed, then we try either manually, or just
         // wrap the exception in an InternalException
         try {
-        	ConvertToBlitzExceptionMessage ctbem = new ConvertToBlitzExceptionMessage(this, t);
-        	ctx.publishMessage(ctbem);
-        	if (ctbem.to != null) {
-        		t = ctbem.to;
-        	}
+            ConvertToBlitzExceptionMessage ctbem = new ConvertToBlitzExceptionMessage(
+                    this, t);
+            ctx.publishMessage(ctbem);
+            if (ctbem.to != null) {
+                t = ctbem.to;
+            }
         } catch (Throwable handlerT) {
-        	// Logging the output, but we shouldn't worry the user
-        	// with a failing handler
-        	log.error("Exception handler failure",handlerT);
+            // Logging the output, but we shouldn't worry the user
+            // with a failing handler
+            log.error("Exception handler failure", handlerT);
         }
-        
+
         Class c = t.getClass();
         if (Ice.UserException.class.isAssignableFrom(c)) {
-        	return (Ice.UserException) t;
+            return (Ice.UserException) t;
         } else if (ome.conditions.ValidationException.class.isAssignableFrom(c)) {
             omero.ValidationException ve = new omero.ValidationException();
             return IceMapper.fillServerError(ve, t);
@@ -346,8 +349,8 @@ public class IceMethodInvoker {
             omero.ResourceError re = new omero.ResourceError();
             return IceMapper.fillServerError(re, t);
         } else {
-        	omero.InternalException ie = new omero.InternalException();
-        	return IceMapper.fillServerError(ie, t);
+            omero.InternalException ie = new omero.InternalException();
+            return IceMapper.fillServerError(ie, t);
         }
     }
 
