@@ -596,7 +596,12 @@ class IntensityView
 		maxZ = maxZ+1;
 		minZ = minZ+1;
 		
+		if(channelName.size()!=channelColour.size())
+			return;
 		createComboBox();
+		if(selectedChannel >= channelSelection.getItemCount())
+			return;
+
 		Object[] nameColour = (Object[])channelSelection.getSelectedItem();
 		String string = (String)nameColour[1];
 		int selectedChannel = nameMap.get(string);
@@ -665,7 +670,8 @@ class IntensityView
 			selectedChannel = 0;
 		Object[] nameColour = (Object[])channelSelection.getSelectedItem();
 		selectedChannelName = (String)nameColour[1];
-		
+		if(selectedChannel > channelSelection.getItemCount())
+			return;
 		channelSelection.setSelectedIndex(selectedChannel);
 	}
 	
