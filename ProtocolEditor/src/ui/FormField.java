@@ -117,7 +117,7 @@ public class FormField extends AbstractDataFieldPanel implements DataFieldObserv
 		collapseAllChildrenButton.setToolTipText("Collapse or Expand every field in this document");
 		collapseAllChildrenButton.setBackground(null);
 		collapseAllChildrenButton.addActionListener(new CollapseChildrenListener());
-		collapseAllChildrenButton.setVisible(dataField.getNode().getParentNode() == null);
+		collapseAllChildrenButton.setVisible(isThisRootField());
 		
 		horizontalBox.add(leftIndent);
 		horizontalBox.add(nameLabel, BorderLayout.WEST);
@@ -295,6 +295,24 @@ public class FormField extends AbstractDataFieldPanel implements DataFieldObserv
         b.setBorderPainted(false);
         b.setFocusPainted(false);
     }
+	
+	
+	// position of this panel-bottom within the FormDisplay.
+	public int getHeightOfPanelBottom() {
+		if (isThisRootField()) {
+			return this.getHeight();
+		// if panel has a parent, this panel will be within a box, below the parent
+		} else {
+			int y = this.getHeight() + this.getY();		// get position within the box...
+			// then add parent's position - will call recursively 'till root.
+			y = y + ((FormField)dataField.getNode().getParentNode().getDataField().getFormField()).getHeightOfPanelBottom();
+			return y;
+		}
+	}
+	
+	private boolean isThisRootField() {
+		return (dataField.getNode().getParentNode() == null);
+	}
 
 	public ArrayList<JComponent> getVisibleAttributes() {
 		return visibleAttributes;

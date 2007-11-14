@@ -74,7 +74,7 @@ public class AttributesDialog extends JDialog implements DataFieldObserver{
 			
 				// don't display these attributes
 				if ((name.equals(DataField.ELEMENT_NAME )) || (name.equals(DataField.INPUT_TYPE))
-						|| (name.equals(DataField.SUBSTEPS_COLLAPSED))) continue;
+						|| (name.equals(DataField.SUBSTEPS_COLLAPSED)) || (name.equals(DataField.TEXT_NODE_VALUE))) continue;
 			
 				AttributeEditor attributeEditor = new AttributeEditor(name, value);
 			

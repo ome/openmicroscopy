@@ -1,6 +1,7 @@
 package tree;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Stack;
 
@@ -286,6 +287,22 @@ public class DataField {
 	}
 	public void hideChildren(boolean hidden) {
 		node.hideChildren(hidden);
+	}
+	
+	// used for finding words within an open document, eg to display
+	public boolean attributesContainSearchWord(String searchWord) {
+		Iterator keyIterator = allAttributesMap.keySet().iterator();
+		
+		while (keyIterator.hasNext()) {
+			String name = (String)keyIterator.next();
+			String value = allAttributesMap.get(name);
+			if (value.contains(searchWord)) return true;
+		}
+		return false;
+	}
+	// used for positioning this field in the view-port of the scroll window
+	public int getHeightOfFieldBottom() {
+		return formField.getHeightOfPanelBottom();
 	}
 
 	// a method used by the Tree class to convert from old xml version to new

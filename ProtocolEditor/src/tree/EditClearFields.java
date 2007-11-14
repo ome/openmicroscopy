@@ -12,7 +12,7 @@ public class EditClearFields extends AbstractUndoableEdit {
 	
 	public EditClearFields (DataFieldNode rootNode) {
 		
-		iterator = rootNode.createIterator();
+		iterator = rootNode.iterator();
 		editedFields = new ArrayList<EditDataFieldAttribute>();
 
 		

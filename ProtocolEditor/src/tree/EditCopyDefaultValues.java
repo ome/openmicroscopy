@@ -12,7 +12,7 @@ public class EditCopyDefaultValues extends AbstractUndoableEdit {
 	
 	public EditCopyDefaultValues (DataFieldNode rootNode) {
 		
-		iterator = rootNode.createIterator();
+		iterator = rootNode.iterator();
 		editedFields = new ArrayList<EditDataFieldAttribute>();
 
 		

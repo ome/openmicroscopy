@@ -10,6 +10,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -21,7 +22,10 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
@@ -30,13 +34,16 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.*;
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import search.IndexFiles;
 import search.SearchPanel;
+import tree.DataField;
 import tree.DataFieldNode;
 import tree.Tree;
 import tree.Tree.Actions;
@@ -58,6 +65,9 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	
 	DataFieldNode rootOfImportTree;
 	
+	ArrayList<DataField> findTextSearchHits = new ArrayList<DataField>();
+	int findTextHitIndex; 	// the current hit
+	
 	// state changes 
 	int editingState = EDITING_FIELDS;
 	public static final int EDITING_FIELDS = 0;
@@ -66,6 +76,9 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	// commands 
 	public static final String COPY = "copy";
 	public static final String PASTE = "paste";
+	public static final String HIDE_FIND_BOX = "HideFindBox";
+	public static final String NEXT_FIND_HIT = "NextFindHit";
+	public static final String PREV_FIND_HIT = "PrevFindHit";
 	
 	// tab positions 
 	public static final int EXPERIMENT_TAB = 0;
@@ -107,6 +120,13 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	JMenuItem redoMenuItem;
 	JButton undoButton;
 	JButton redoButton;
+	
+	Box findBox;
+	JButton findButton;
+	JTextField findTextField;
+	JButton findNextButton;
+	JButton findPrevButton;
+	JLabel hitsCountLabel;
 	
 	JMenuItem loadDefaultsMenuItem;
 	JMenuItem multiplyValueOfSelectedFieldsMenuItem;
@@ -189,6 +209,10 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		Icon undoIcon = ImageFactory.getInstance().getIcon(ImageFactory.UNDO_ICON);
 		Icon redoIcon = ImageFactory.getInstance().getIcon(ImageFactory.REDO_ICON);
 		Icon wwwFileIcon = ImageFactory.getInstance().getIcon(ImageFactory.WWW_FILE_ICON);
+		Icon findIcon = ImageFactory.getInstance().getIcon(ImageFactory.FIND_ICON);
+		Icon fileCloseIcon = ImageFactory.getInstance().getIcon(ImageFactory.FILE_CLOSE_ICON);
+		Icon previousUpIcon = ImageFactory.getInstance().getIcon(ImageFactory.PREVIOUS_UP_ICON);
+		Icon nextDownIcon = ImageFactory.getInstance().getIcon(ImageFactory.NEXT_DOWN_ICON);
 		
 		// File menu
 		JMenu fileMenu = new JMenu("File");
@@ -293,7 +317,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		
 		
 		// search Field and button
-		searchField = new JTextField("Search", 20);
+		searchField = new JTextField("Search Files", 20);
 		searchField.addActionListener(new SearchFieldListener());	
 		JPanel searchPanel = new JPanel();
 		searchPanel.setBorder(new EmptyBorder(1, 1, 1, 1));
@@ -315,6 +339,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		fileManagerPanel.setLayout(new BorderLayout());
 		Box fileManagerEastToolBar = Box.createHorizontalBox();
 		Box fileManagerWestToolBar = Box.createHorizontalBox();
+		Border fileManagerToolBarBorder = new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING);
 		
 		JButton newFileButton = new JButton(newFileIcon);
 		newFileButton.setToolTipText("New Protocol");
@@ -324,33 +349,79 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		JButton openFileButton = new JButton(openFileIcon);
 		openFileButton.setToolTipText("Open Protocol or Experiment");
 		openFileButton.addActionListener(new openFileListener());
-		openFileButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING));
+		openFileButton.setBorder(fileManagerToolBarBorder);
 		
 		JButton openWwwFileButton = new JButton(wwwFileIcon);
 		openWwwFileButton.setToolTipText("Open file from URL");
 		openWwwFileButton.addActionListener(new OpenWwwFileListener());
-		openWwwFileButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING));
+		openWwwFileButton.setBorder(fileManagerToolBarBorder);
 		
 		saveFileAsButton = new JButton(saveFileAsIcon);
 		saveFileAsButton.setToolTipText("Save Protocol As..");
-		saveFileAsButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING));
+		saveFileAsButton.setBorder(fileManagerToolBarBorder);
 		saveFileAsButton.addActionListener(new saveProtocolListener());
 		
 		saveFileButton = new JButton(saveIcon);
 		saveFileButton.addActionListener(new SaveCurrentFileListener());
 		saveFileButton.setToolTipText("Save experimental details");
-		saveFileButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING));
+		saveFileButton.setBorder(fileManagerToolBarBorder);
 		
 		undoButton = new JButton(undoIcon);
 		undoButton.setToolTipText("Undo last action");
-		undoButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING));
+		undoButton.setBorder(fileManagerToolBarBorder);
 		undoButton.addActionListener(new UndoActionListener());
 		
 		redoButton = new JButton(redoIcon);
 		redoButton.setToolTipText("Redo last action");
-		redoButton.setBorder(new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING));
+		redoButton.setBorder(fileManagerToolBarBorder);
 		redoButton.addActionListener(new RedoActionListener());
 		
+		// "Find" controls
+		ActionListener findTextListener = new FindTextListener();
+		findButton = new JButton(findIcon);
+		findButton.setToolTipText("Find a word in the current file");
+		findButton.setBorder(fileManagerToolBarBorder);
+		findButton.addActionListener(findTextListener);
+		
+		findBox = Box.createHorizontalBox();
+		findTextField = new JTextField();
+		findTextField.setColumns(10);
+		Dimension findTextFieldDim = new Dimension(200, 22);
+		findTextField.addCaretListener(new FindTextCharacterListener());
+		findTextField.setMinimumSize(findTextFieldDim);
+		findTextField.setMaximumSize(findTextFieldDim);
+		findTextField.setPreferredSize(findTextFieldDim);
+		findTextField.addActionListener(findTextListener);
+		
+		JButton hideFindBoxButton = new JButton(fileCloseIcon);
+		hideFindBoxButton.setToolTipText("Hide the 'Find' text field");
+		hideFindBoxButton.setActionCommand(HIDE_FIND_BOX);
+		hideFindBoxButton.addActionListener(findTextListener);
+		hideFindBoxButton.setBorder(new EmptyBorder(1,1,1,1));
+		
+		findNextButton = new JButton(nextDownIcon);
+		findNextButton.setToolTipText("Find next occurrence of search word");
+		findNextButton.setActionCommand(NEXT_FIND_HIT);
+		findNextButton.addActionListener(findTextListener);
+		findNextButton.setBorder(new EmptyBorder(1,1,1,1));
+		findNextButton.setBackground(null);
+		
+		findPrevButton = new JButton(previousUpIcon);
+		findPrevButton.setToolTipText("Find previous occurrence of search word");
+		findPrevButton.setActionCommand(PREV_FIND_HIT);
+		findPrevButton.addActionListener(findTextListener);
+		findPrevButton.setBackground(null);
+		findPrevButton.setBorder(new EmptyBorder(1,1,1,1));
+		
+		hitsCountLabel = new JLabel("");
+		hitsCountLabel.setBorder(new EmptyBorder(1,1,1,1));
+		
+		findBox.add(hideFindBoxButton);
+		findBox.add(findTextField);
+		findBox.add(findPrevButton);
+		findBox.add(findNextButton);
+		findBox.add(hitsCountLabel);
+		findBox.setBorder(new EmptyBorder(1,1,1,1));
 		
 		JButton moreLikeThisButton = new JButton("More Files Like This >", searchIcon);
 		moreLikeThisButton.addActionListener(new MoreLikeThisListener());
@@ -373,6 +444,9 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		fileManagerWestToolBar.add(new JSeparator(JSeparator.VERTICAL));
 		fileManagerWestToolBar.add(undoButton);
 		fileManagerWestToolBar.add(redoButton);
+		fileManagerWestToolBar.add(new JSeparator(JSeparator.VERTICAL));
+		fileManagerWestToolBar.add(findButton);
+		fileManagerWestToolBar.add(findBox);
 		fileManagerPanel.add(fileManagerWestToolBar, BorderLayout.WEST);
 		
 		fileManagerEastToolBar.add(moreLikeThisButton);
@@ -546,7 +620,8 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		
 		enableProtocolEditing(false);	// turn off controls
 		noFilesOpen(true);		// disable save etc.
-		updateUndoRedo();
+		updateUndoRedo();	// disable undo redo 
+		findBox.setVisible(false); 	// not visible until findButton clicked
 		
 		// set up copy and paste listeners
 		KeyStroke copy = KeyStroke.getKeyStroke(KeyEvent.VK_C,ActionEvent.CTRL_MASK,false);
@@ -625,6 +700,8 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		xmlFormDisplay.refreshForm();		// refresh the form
 		
 		xmlValidationCheckbox.setSelected(xmlModel.getXmlValidation());
+		// clear the Find-Text search hits: don't want to keep ref to deleted fields etc
+		clearFindTextHits();
 		
 		selectionChanged();	// to take account of any other changes
 	}
@@ -883,6 +960,118 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 			JOptionPane.showMessageDialog(XMLFrame, "invalid URL, please try again");
 		}
 
+	}
+	
+	/*
+	 * "Find" function to highlight fields containing a search-word. 
+	 */
+	public void findTextInOpenFile() {
+
+		String searchWord = findTextField.getText().trim();
+		if (searchWord.length() == 0) {
+			findTextSearchHits.clear();
+			// update the findNext and findPrev buttons
+			updateFindNextPrev();
+			return;
+		}
+		
+		findTextSearchHits = xmlModel.getSearchResults(searchWord);
+		findTextHitIndex = 0;
+		
+		// if you have at least one result, display it
+		if (findTextSearchHits != null && !findTextSearchHits.isEmpty()) {
+
+			DataField field = findTextSearchHits.get(findTextHitIndex);
+			displayThisDataField(field);
+		}
+		// update the findNext and findPrev buttons
+		updateFindNextPrev();
+	}
+	
+	// display the DataField in the XMLScrollPane
+	public void displayThisDataField(DataField field) {
+		
+		// make sure field is not hidden under a collapsed parent
+		field.getNode().expandAllAncestors();
+		// highlight the field (clear others)
+		field.formFieldClicked(true);	
+		
+		// if necessary, scroll to show field
+		int bottomOfPanel = field.getHeightOfFieldBottom();
+		int heightOfScrollPane = XMLScrollPane.getHeight();
+		
+		int xCoord = 0;
+		int yCoord = 0;
+		
+		if (bottomOfPanel > heightOfScrollPane) {
+			yCoord = bottomOfPanel - heightOfScrollPane + 20;
+		}
+		
+		Point newPoint = new Point(xCoord, yCoord);
+		XMLScrollPane.getViewport().setViewPosition(newPoint);
+		XMLScrollPane.repaint();
+		
+	}
+	
+	public void updateFindNextPrev() {
+		hitsCountLabel.setText(findTextSearchHits.size() + " hits");
+		if (findTextSearchHits.isEmpty()) {
+			findNextButton.setEnabled(false);
+			findPrevButton.setEnabled(false);
+			return;
+		}
+		
+		findNextButton.setEnabled(findTextSearchHits.size() > findTextHitIndex+1);
+		findPrevButton.setEnabled(findTextHitIndex > 0);	
+	}
+	
+	/* hide the findTextControlls - eg when user closes panel */
+	public void hideFindTextControls() {
+		findBox.setVisible(false);
+	}
+	
+	/* clear the search results - eg when user edits file */
+	public void clearFindTextHits() {
+		findTextSearchHits.clear();
+		updateFindNextPrev();
+	}
+	
+	/* takes all events from the find text functionality */
+	public class FindTextListener implements ActionListener {
+		public void actionPerformed(ActionEvent event) {
+		
+			// first use of this function is to display textField if hidden - 
+			// search is also performed (see below) in case the file was edited 
+			if (!findBox.isVisible()) {
+				findBox.setVisible(true);
+				XMLFrame.validate();
+				findTextField.requestFocusInWindow();
+			}
+			String actionCommand = event.getActionCommand();
+			// actionEvent from hide button, hide 
+			if (actionCommand.equals(HIDE_FIND_BOX)) {
+				hideFindTextControls();
+			} else if (actionCommand.equals(NEXT_FIND_HIT)) {
+				findTextHitIndex++;
+				DataField field = findTextSearchHits.get(findTextHitIndex);
+				displayThisDataField(field);
+				updateFindNextPrev();
+			} else if (actionCommand.equals(PREV_FIND_HIT)) {
+				findTextHitIndex--;
+				DataField field = findTextSearchHits.get(findTextHitIndex);
+				displayThisDataField(field);
+				updateFindNextPrev();
+			}
+			// otherwise, do search
+			else findTextInOpenFile();
+		}
+	}
+	
+	// "Find" performed each time a character is typed
+	public class FindTextCharacterListener implements CaretListener {
+		public void caretUpdate(CaretEvent arg0) {
+			//findTextInOpenFile();
+		}	
 	}
 	
 	public class OpenWwwFileListener implements ActionListener {

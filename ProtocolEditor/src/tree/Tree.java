@@ -247,9 +247,14 @@ public class Tree {
 		setTreeEdited(true);
 	}
 	
-	// called by button on Edit Experiment tab
+	/* copyDefaultValuesToInputFields()
+	 * iterates through every node...
+	 * takes the "default" attribute value for each dataField, and loads it into the "value" attribute.
+	 * each fields' panel is then updated.
+	 */
 	private void copyDefaultValuesToInputFields() {
 		
+		// the constructor of this edit command also carries out the command
 		UndoableEdit edit = new EditCopyDefaultValues(rootNode);
 		undoSupport.postEdit(edit);
 		
@@ -873,17 +878,40 @@ public class Tree {
 		
 	}
 	
+	// collapse all children, but not root node
 	public void collapseAllChildren(boolean collapsed) {
-		Iterator<DataFieldNode> iterator = rootNode.createIterator();
+		Iterator<DataFieldNode> iterator = rootNode.iterator();
 		
 		while (iterator.hasNext()) {
 			DataFieldNode node = (DataFieldNode)iterator.next();
 			node.getDataField().collapseChildren(collapsed);
 		}
+		// expand root again!
+		rootNode.getDataField().collapseChildren(false);
 	}
 
 	public DataFieldNode getRootNode() {
 		return rootNode;
+	}
+	
+	/*
+	 *  getSearchResults(searchWord)
+	 *  returns an ArrayList of DataField objects that contain the seachWord
+	 */
+	public ArrayList<DataField> getSearchResults(String searchWord) {
+		
+		ArrayList<DataField> searchResults = new ArrayList<DataField>();
+		
+		Iterator <DataFieldNode>iterator = rootNode.iterator();
+
+		while (iterator.hasNext()) {
+			DataFieldNode node = iterator.next();
+			DataField field = node.getDataField();
+			if (field.attributesContainSearchWord(searchWord)) {
+				searchResults.add(field);
+			}
+		}
+		return searchResults;
 	}
 	
 	// called when the UI needs to display the FieldEditor
@@ -959,10 +987,16 @@ public class Tree {
 	}
 	
 	public String getUndoCommand() {
-		return undoManager.getUndoPresentationName();
+		if (undoManager.canUndo()) 
+			return undoManager.getUndoPresentationName();
+		else 
+			return "Cannot Undo";
 	}
 	public String getRedoCommand() {
-		return undoManager.getRedoPresentationName();
+		if (undoManager.canRedo())
+			return undoManager.getRedoPresentationName();
+		else 
+			return "Cannot Redo";
 	}
 	public boolean canUndo() {
 		return undoManager.canUndo();

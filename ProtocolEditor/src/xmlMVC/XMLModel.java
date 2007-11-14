@@ -394,6 +394,12 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		return currentTree;
 	}
 	
+	// getSearchResults() used to find text within current doc
+	public ArrayList<DataField> getSearchResults(String searchWord) {
+		if (getCurrentTree() == null)	return null;
+		return getCurrentTree().getSearchResults(searchWord);
+	}
+	
 	// close all files that are saved, leave others open.
 	// return true if all were closed.
 	public boolean tryClosingAllFiles() {

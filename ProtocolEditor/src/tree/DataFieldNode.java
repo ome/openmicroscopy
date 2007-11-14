@@ -77,10 +77,13 @@ public class DataFieldNode {
 		this.parent = parent;
 		if (tree == null) tree = parent.getTree();
 	}
-
-	@SuppressWarnings("unchecked")
-	public Iterator<DataFieldNode> createIterator() {
-		return new DataFieldIterator(children.iterator());
+	
+	// iterator code, from http://www.cs.bc.edu/~sciore/courses/cs353/coverage.html  chapter 23
+	public Iterator<DataFieldNode> childIterator() {
+		return children.iterator();
+	}
+	public Iterator<DataFieldNode> iterator() {
+		return new TreeIterator(this);
 	}
 	
 	public void addChild(DataFieldNode dataFieldNode) {
@@ -151,6 +154,15 @@ public class DataFieldNode {
 	public void collapseAllChildren(boolean collapse) {
 		getTree().collapseAllChildren(collapse);
 	}
+	
+	// expandAllAncestors() 	used to show a field that may be hidden
+	public void expandAllAncestors() {
+		dataField.collapseChildren(false);
+		if (parent != null) {
+			parent.expandAllAncestors();
+		}
+	}
+	
 	public Tree getTree() {
 		if ((tree == null) && (parent != null)) tree = parent.getTree();
 		return tree;

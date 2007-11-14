@@ -17,7 +17,7 @@ public class ImageFactory {
 		return uniqueInstance;
 	}
 	
-	public static final String ICONS_FILE = "/16x16/";
+	public static final String ICONS_FILE = "../16x16/";
 	public static final String ACTION_ICONS_FILE = ICONS_FILE + "actions/";
 	
 	public static final String OPEN_FILE_ICON = ICONS_FILE + "filesystems/folder_open.png";
@@ -51,6 +51,10 @@ public class ImageFactory {
 	public static final String REDO_ICON = ACTION_ICONS_FILE + "redo.png";
 	public static final String CLEAR_FIELDS_ICON = ACTION_ICONS_FILE + "news_unsubscribe.png";
 	public static final String WWW_FILE_ICON = ICONS_FILE + "filesystems/folder_http.png";
+	public static final String FIND_ICON = ACTION_ICONS_FILE + "find.png";
+	public static final String FILE_CLOSE_ICON = ACTION_ICONS_FILE + "fileclose.png";
+	public static final String PREVIOUS_UP_ICON = ACTION_ICONS_FILE + "previousUp.png";
+	public static final String NEXT_DOWN_ICON = ACTION_ICONS_FILE + "nextDown.png";
 	
 	
 	public Icon getIcon(String iconPathName) {
