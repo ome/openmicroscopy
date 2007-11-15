@@ -98,6 +98,8 @@
          Don't modify this unless you know what you're doing. -->
     <entry name="/services/RE/stackBlockSz" type="integer">4096</entry> 
           
+    <entry name="/services/RE/compressionMedium" type="float">0.85</entry>
+    <entry name="/services/RE/compressionLow" type="float">0.50</entry>
     <!-- Debugger configuration.
          This entry specifies the name of the server and 
          and e-mail address to submit comment.

@@ -24,7 +24,10 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Rectangle;
+import java.util.HashMap;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -46,12 +49,81 @@ import java.awt.Rectangle;
 public class ViewerPreferences
 {
 
-	private boolean 	renderer;
+	/** Field identifying the renderer. */
+	public static final String RENDERER = "Renderer";
 	
-	private Rectangle 	viewerBounds;
+	/** Field identifying the window bounds. */
+	public static final String WINDOWS_BOUNDS = "Viewer Bounds";
 	
-	private int			zoomIndex;
+	/** Field identifying the history. */
+	public static final String HISTORY = "History";
+	
+	/** Field identifying the zoom factor. */
+	public static final String ZOOM_FACTOR = "Zoom factor";
+	
+	/** Field identifying the scale bar. */
+	public static final String SCALE_BAR = "Scale bar settings";
+	
+	/** Field identifying the background color. */
+	public static final String BG_COLOR = "Background color";
+	
+	/** Flag indicating if the renderer is turned on/off. */
+	private boolean 				renderer;
+	
+	/** Flag indicating if the history is turned on/off. */
+	private boolean 				history;
+	
+	/** The bounds of the viewer. */
+	private Rectangle 				viewerBounds;
+	
+	/** The background color. */
+	private Color					bgColor;
 
+	/** The selected zoom index. */
+	private int						zoomIndex;
+
+	/** The index the scale bar. */
+	private int						scaleBarIndex;
+	
+	/** The color the scale bar. */
+	private Color					scaleBarColor;
+	
+	/** The fields to set. */
+	private Map<String, Boolean> 	fields;
+	
+	/** Creates a new instance. */
+	public ViewerPreferences()
+	{
+		zoomIndex = -2;
+		scaleBarIndex = -1;
+		fields = new HashMap<String, Boolean>(5);
+		fields.put(RENDERER, true);
+		fields.put(HISTORY, true);
+		fields.put(SCALE_BAR, true);
+		fields.put(BG_COLOR, true);
+		fields.put(ZOOM_FACTOR, true);
+	}
+	
+	/**
+	 * Sets the selected fields.
+	 * 
+	 * @param fields The fields to set.
+	 */
+	void setSelectedFields(Map<String, Boolean> fields)
+	{
+		if (fields == null)
+			return;
+		this.fields = fields;
+	}
+
+	/**
+	 * Returns <code>true</code> if the history is visible,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isHistory() { return history; }
+	
 	/**
 	 * Returns <code>true</code> if the renderer is visible,
 	 * <code>false</code> otherwise.
@@ -66,32 +138,126 @@ public class ViewerPreferences
 	 * @param renderer Pass <code>true</code> to have the renderer visible,
 	 * 				   <code>false</code> otherwise.
 	 */
-	public void setRenderer(boolean renderer) { this.renderer = renderer; }
+	public void setRenderer(boolean renderer)
+	{ 
+		if (isFieldSelected(RENDERER))
+			this.renderer = renderer; 
+	}
 
 	/**
+	 * Sets the passed flag.
 	 * 
-	 * @return
+	 * @param history Pass <code>true</code> to have the history visible,
+	 * 				   <code>false</code> otherwise.
+	 */
+	public void setHistory(boolean history)
+	{ 
+		if (isFieldSelected(HISTORY))
+			this.history = history; 
+	}
+	
+	/**
+	 * Returns the bounds of the viewer.
+	 * 
+	 * @return See above.
 	 */
 	public Rectangle getViewerBounds() { return viewerBounds; }
 
-	public void setViewerBounds(Rectangle viewerBounds) {
+	/**
+	 * Sets the bounds of the viewer.
+	 * 
+	 * @param viewerBounds The valur to set.
+	 */
+	public void setViewerBounds(Rectangle viewerBounds)
+	{
 		this.viewerBounds = viewerBounds;
 	}
-
+	
 	/** 
 	 * Returns the selected zoom index.
 	 * 
 	 * @return See above.
 	 */
-	public int getZoomIndex() {
-		return zoomIndex;
-	}
+	public int getZoomIndex() { return zoomIndex; }
 
 	/**
 	 * Sets the preferred zooming index.
 	 * 
 	 * @param zoomIndex The value to set.
 	 */
-	public void setZoomIndex(int zoomIndex) { this.zoomIndex = zoomIndex; }
+	public void setZoomIndex(int zoomIndex)
+	{ 
+		if (isFieldSelected(ZOOM_FACTOR))
+			this.zoomIndex = zoomIndex; 
+	}
+	
+	/**
+	 * Returns the background color.
+	 * 
+	 * @return See above.
+	 */
+	public Color getBackgroundColor() { return bgColor; }
+	
+	/**
+	 * Sets the background color.
+	 * 
+	 * @param bgColor The color to set.
+	 */
+	public void setBackgroundColor(Color bgColor)
+	{ 
+		if (isFieldSelected(BG_COLOR))
+			this.bgColor = bgColor; 
+	}
+	
+	/**
+	 * Sets the index of the scale bar.
+	 * 
+	 * @param index The value to set.
+	 */
+	public void setScaleBarIndex(int index)
+	{ 
+		if (isFieldSelected(SCALE_BAR))
+			scaleBarIndex = index; 
+	}
+	
+	/**
+	 * Sets the color of the scale bar.
+	 * 
+	 * @param color The value to set.
+	 */
+	public void setScaleBarColor(Color color)
+	{ 
+		if (isFieldSelected(SCALE_BAR))
+			scaleBarColor = color; 
+	}
+	
+	/**
+	 * Returns the index of the scale bar.
+	 * 
+	 * @return See above.
+	 */
+	public int getScaleBarIndex() { return scaleBarIndex; }
+	
+	/**
+	 * Returns the color of the scale bar.
+	 * 
+	 * @return See above.
+	 */
+	public Color getScaleBarColor() { return scaleBarColor; }
+	
+	/**
+	 * Returns <code>true</code> if field is selected,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param field The field to handle
+	 * @return See above.
+	 */
+	public boolean isFieldSelected(String field)
+	{
+		if (fields == null) return false;
+		Boolean value = fields.get(field);
+		if (value == null) return false;
+		return value.booleanValue();
+	}
 	
 }

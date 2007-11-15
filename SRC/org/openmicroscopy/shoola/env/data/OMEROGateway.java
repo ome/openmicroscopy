@@ -66,6 +66,7 @@ import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
+import ome.model.display.RenderingDef;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
@@ -101,12 +102,6 @@ import pojos.ProjectData;
 class OMEROGateway
 {
 	
-	/** The default compression quality. */
-	static final float 				DEFAULT_COMPRESSION_QUALITY = 0.85f;
-	
-	/** The low compression quality. */
-	static final float 				LOW_COMPRESSION_QUALITY = 0.5f;
-
 	/** Maximum size of pixels read at once. */
 	private static final int		INC = 256000;
 	
@@ -423,7 +418,7 @@ class OMEROGateway
 		if (re == null) {
 			ThumbnailStore service = getThumbService();
 			if (!(service.setPixelsId(pixelsID))) {
-				re.resetDefaults();
+				service.resetDefaults();
 				service.setPixelsId(pixelsID);
 			}
 		} else {
@@ -502,7 +497,7 @@ class OMEROGateway
 	 * @see IPojos#getUserDetails(Set, Map)
 	 */
 	ExperimenterData getUserDetails(String name)
-	throws DSOutOfServiceException
+		throws DSOutOfServiceException
 	{
 		try {
 			IPojos service = getPojosService();
@@ -1106,7 +1101,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 */
 	synchronized RenderingEngine createRenderingEngine(long pixelsID)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			RenderingEngine service = getRenderingService();
@@ -1810,6 +1805,55 @@ class OMEROGateway
 		result.put(Boolean.TRUE, success);
 		result.put(Boolean.FALSE, failure);
 		return result;
+	}
+	
+	/**
+	 * Retrieves all the rendering settings linked to the specified set
+	 * of pixels.
+	 * 
+	 * @param pixelsID	The pixels ID.
+	 * @return Map whose key is the experimenter who set the settings,
+	 * 		  and the value is the rendering settings itself.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Map getRenderingSettings(long pixelsID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Map map = new HashMap();
+		try {
+			String sql =  "select rdef from RenderingDef as rdef "
+                + "left outer join fetch rdef.quantization "
+                + "left outer join fetch rdef.model "
+                + "left outer join fetch rdef.waveRendering as cb "
+                + "left outer join fetch cb.color "
+                + "left outer join fetch cb.family "
+                + "left outer join fetch rdef.spatialDomainEnhancement " 
+                + "left outer join fetch rdef.details.owner "
+                + "where rdef.pixels.id = :pixid";
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			param.addLong("pixid", pixelsID);
+			List results = service.findAllByQuery(sql, param);
+			if (results == null || results.size() == 0) return map;
+			Iterator i = results.iterator();
+			RenderingDef rndDef;
+			Experimenter exp;
+			while (i.hasNext()) {
+				rndDef = (RenderingDef) i.next();
+				exp = rndDef.getDetails().getOwner();
+				//if (exp.getId() != userID) {
+				map.put(PojoMapper.asDataObject(exp), rndDef);
+				//}
+			}
+			return map;
+		} catch (Exception e) {
+			handleException(e, "Cannot retrieve the rendering settings " +
+								"for.");
+		}
+		return map;
 	}
 	
 }

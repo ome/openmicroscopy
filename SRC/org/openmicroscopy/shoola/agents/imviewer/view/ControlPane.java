@@ -726,6 +726,11 @@ class ControlPane
 				model.getColorModel()));
     }
     
+    /**
+     * Sets the selected channels in the grid view.
+     * 
+     * @param channels Collection of channels to set.
+     */
     void setChannelsSelection(List channels)
     {
     	Iterator i = channelButtonsGrid.iterator();
@@ -987,6 +992,11 @@ class ControlPane
 		}       
 	}
     
+    /**
+     * Returns the collection of active channels in the grid view.
+     * 
+     * @return See above.
+     */
     List getActiveChannelsInGrid()
     {
     	List<Integer> active = new ArrayList<Integer>();
@@ -1015,6 +1025,22 @@ class ControlPane
     }
     
     /**
+     * Updates UI components when a zooming factor for the grid
+     * is selected.
+     * 
+     * @param zoomIndex The index of the selected zoomFactor.
+     */
+    void setGridMagnificationFactor(int zoomIndex)
+    {
+    	if (gridRatioSlider.getMinimum() > zoomIndex || 
+    			gridRatioSlider.getMaximum() < zoomIndex)
+    		return;
+    	gridRatioSlider.removeChangeListener(this);
+    	gridRatioSlider.setValue(zoomIndex);
+    	gridRatioSlider.addChangeListener(this);
+    }
+    
+    /**
      * Reacts to the selection of an item in the {@link #zoomingBox} or
      * {@link #ratingBox}.
      * @see ActionListener#actionPerformed(ActionEvent)
@@ -1036,7 +1062,7 @@ class ControlPane
         if (object instanceof JSlider) {
         	if (object == gridRatioSlider) {
         		double r = (double) gridRatioSlider.getValue()/10;
-        		model.getBrowser().setGridRatio(r);
+        		controller.setGridMagnificationFactor(r);
         		return;
         	} else if (object == ratioSlider) {
         		controller.setZoomFactor(ratioSlider.getValue());

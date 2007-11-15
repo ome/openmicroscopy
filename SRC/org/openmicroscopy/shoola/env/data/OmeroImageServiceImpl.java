@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.env.data;
 //Java import
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,9 +39,9 @@ import javax.imageio.ImageIO;
 //Application-internal dependencies
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
+import ome.model.display.RenderingDef;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
-
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -126,12 +128,21 @@ class OmeroImageServiceImpl
 		if (proxy == null) {
 			UserCredentials uc = 
 				(UserCredentials) context.lookup(LookupNames.USER_CREDENTIALS);
-			boolean compressed = (uc.getSpeedLevel() != UserCredentials.HIGH);
+			int compressionLevel;
+			switch (uc.getSpeedLevel()) {
+				case UserCredentials.MEDIUM:
+					compressionLevel = RenderingControl.MEDIUM;
+					break;
+				case UserCredentials.LOW:
+					compressionLevel = RenderingControl.LOW;
+				default:
+					compressionLevel = 0;
+			}
 			RenderingEngine re = gateway.createRenderingEngine(pixelsID);
 			PixelsDimensions pixDims = gateway.getPixelsDimensions(pixelsID);
 			List l = context.getDataService().getChannelsMetadata(pixelsID);
 			proxy = PixelsServicesFactory.createRenderingControl(context, re,
-					pixDims, l, compressed);
+					pixDims, l, compressionLevel);
 		}
 		return proxy;
 	}
@@ -273,5 +284,26 @@ class OmeroImageServiceImpl
 			throw new IllegalArgumentException("No nodes specified.");
 		return gateway.resetRenderingSettings(rootNodeType, nodesID);
 	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#getRenderingSettings(long)
+	 */
+	public Map getRenderingSettings(long pixelsID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Map m = gateway.getRenderingSettings(pixelsID);
+		if (m == null) return null;
+		Iterator i = m.keySet().iterator();
+		Object key;
+		Map results = new HashMap(m.size());
+		while (i.hasNext()) {
+			key = i.next();
+			results.put(key, 
+					PixelsServicesFactory.convert((RenderingDef) m.get(key)));
+		}
+		return results;
+	}
+
 	
 }

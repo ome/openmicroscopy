@@ -94,7 +94,7 @@ class GridCanvas
         int x = 0, y = 0;
         SplitImage channel;
         String v = model.getUnitBarValue(); 
-        int s = (int) (model.getUnitBarSize()*model.getGridRatio());
+        int s = (int) (model.getGridBarSize()*model.getGridRatio());
         Color c = model.getUnitBarColor();
         Font font = getFont();;
         FontMetrics fm = getFontMetrics(font);

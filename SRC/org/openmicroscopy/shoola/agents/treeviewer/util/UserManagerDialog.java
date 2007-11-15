@@ -113,11 +113,11 @@ public class UserManagerDialog
 	/** Action command ID indicating to display content of a group. */
 	private static final int		GROUPS = 2;
 	
-  /** 
-   * The size of the invisible components used to separate buttons
-   * horizontally.
-   */
-  private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
+	/** 
+	 * The size of the invisible components used to separate buttons
+	 * horizontally.
+	 */
+	private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
   
 	/** Button to close without applying the selection. */
 	private JButton 					cancel;
@@ -284,29 +284,29 @@ public class UserManagerDialog
 	{
 		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, 5,
-			 	TableLayout.PREFERRED, TableLayout.FILL}}; //rows
+			TableLayout.PREFERRED, TableLayout.FILL}}; //rows
 		JPanel content = new JPanel();
 		content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-      content.setLayout(new TableLayout(tl));
+		content.setLayout(new TableLayout(tl));
 		//content.add(currentUser, "1, 0");
-      JLabel label = UIUtilities.setTextFont("Groups");
-      label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		JLabel label = UIUtilities.setTextFont("Groups");
+		label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		content.add(label, "0, 0, l, c");
 		content.add(groups, "1, 0, f, c");
 		content.add(new JLabel(), "0, 1, 1, 1");
 		label = UIUtilities.setTextFont("Users");
-      label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		content.add(label, "0, 2, l, c");
 		content.add(new JScrollPane(users), "1, 2, 1, 3");
 		return content;
 	}
 	
-  /**
-   * Builds the tool bar hosting the {@link #cancel} and {@link #apply}
-   * buttons.
-   * 
-   * @return See above;
-   */
+	/**
+	 * Builds the tool bar hosting the {@link #cancel} and {@link #apply}
+	 * buttons.
+	 * 
+	 * @return See above;
+	 */
 	private JPanel buildToolBar()
 	{
 		JPanel bar = new JPanel();
@@ -324,12 +324,12 @@ public class UserManagerDialog
 	{
 		IconManager im = IconManager.getInstance();
 		TitlePanel titlePanel = new TitlePanel(TITLE, TEXT, 
-              im.getIcon(IconManager.OWNER_48));
+				im.getIcon(IconManager.OWNER_48));
 		Container c = getContentPane();
-      c.setLayout(new BorderLayout(0, 0));
-      c.add(titlePanel, BorderLayout.NORTH);
-      c.add(buildContent(), BorderLayout.CENTER);
-      c.add(buildToolBar(), BorderLayout.SOUTH);
+		c.setLayout(new BorderLayout(0, 0));
+		c.add(titlePanel, BorderLayout.NORTH);
+		c.add(buildContent(), BorderLayout.CENTER);
+		c.add(buildToolBar(), BorderLayout.SOUTH);
 	}
 	
 	/**

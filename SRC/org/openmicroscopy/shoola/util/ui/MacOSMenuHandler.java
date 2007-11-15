@@ -70,9 +70,8 @@ public class MacOSMenuHandler
 	public MacOSMenuHandler(JFrame parent)
 	{
 		if (parent == null)
-			throw new IllegalArgumentException("No manager specified.");
+			throw new IllegalArgumentException("No parent specified.");
 		this.parent = parent;
-		
 	}
 	
 	/**

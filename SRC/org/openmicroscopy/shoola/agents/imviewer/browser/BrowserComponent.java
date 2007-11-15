@@ -384,9 +384,8 @@ class BrowserComponent
 				annotator.activateEditor();
 				break;
 			case ImViewer.GRID_INDEX:
-				if (model.hasNoGridImages()) {
+				if (model.hasNoGridImages())
 					model.setGridImages();
-				}
 				gridView.paintImage();
 		}
 	}
@@ -483,5 +482,11 @@ class BrowserComponent
 		model.setGridRatio(r);
 		gridView.setGridRatio();
 	}
+	
+	/** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getGridRatio()
+     */
+	public double getGridRatio() { return model.getGridRatio(); }
 
 }

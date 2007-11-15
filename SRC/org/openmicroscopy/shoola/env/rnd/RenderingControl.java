@@ -34,6 +34,7 @@ import java.util.List;
 //Application-internal dependencies
 import ome.model.core.Pixels;
 import ome.model.display.CodomainMapContext;
+import ome.model.display.RenderingDef;
 import omeis.providers.re.data.PlaneDef;
 
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -59,6 +60,21 @@ import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 public interface RenderingControl
 {
 
+	/** Flag to indicate that the image is not compressed. */
+	public static final int		UNCOMPRESSED = 0;
+	
+	/** 
+	 * Flag to indicate that the image is not compressed using a
+	 * medium Level of compression. 
+	 */
+	public static final int		MEDIUM = 1;
+	
+	/** 
+	 * Flag to indicate that the image is not compressed using a
+	 * low Level of compression. 
+	 */
+	public static final int		LOW = 2;
+	
     /** Flag to select a 1-bit depth (<i>=2^1-1</i>) output interval. */
     public static final int     DEPTH_1BIT = 1;
 
@@ -597,13 +613,11 @@ public interface RenderingControl
 	public boolean validatePixels(Pixels pixels);
 	
 	/**
-	 * Sets to <code>true</code> if the compression is turned on, 
-	 * to <code>false</code> otherwise.
+	 * Sets the compression level.
 	 * 
-	 * @param compressed 	Pass <code>true</code> to turn the compression
-	 * 						on, <code>false</code> to turn it off.
+	 * @param compression One of constants defined by this class.
 	 */
-	public void setCompressed(boolean compressed);
+	public void setCompression(int compression);
 	
 	/**
 	 * Returns <code>true</code> if the compression is turned on,
@@ -625,4 +639,11 @@ public interface RenderingControl
 	public BufferedImage renderPlane(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException;
 
+	/**
+	 * Returns one of the compression level defined by this class.
+	 * 
+	 * @return See above.
+	 */
+	public int getCompressionLevel();
+	
 }

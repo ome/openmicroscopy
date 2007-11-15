@@ -149,7 +149,7 @@ class RendererUI
 		pasteButton.addActionListener(this);
 		//UIUtilities.unifiedButtonLookAndFeel(pasteButton);
 		historyButton = new JButton();
-		updateHistory(!model.getParentModel().isHistoryShown());
+		updateHistory(model.getParentModel().isHistoryShown());
 		historyButton.setActionCommand(""+HISTORY);
 		historyButton.addActionListener(this);
 		resetButton = new JButton(icons.getIcon(IconManager.RESET_SETTINGS));

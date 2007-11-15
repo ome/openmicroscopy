@@ -46,8 +46,10 @@ import sun.awt.image.IntegerInterleavedRaster;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.agents.imviewer.view.ViewerPreferences;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
@@ -409,8 +411,9 @@ class BrowserModel
      * @param parent    The parent of this component.
      *                  Mustn't be <code>null</code>.
      * @param imageID	The id of the image.
+     * @param pref		The preferences for the viewer.
      */
-    BrowserModel(ImViewer parent, long imageID)
+    BrowserModel(ImViewer parent, long imageID, ViewerPreferences pref)
     {
         if (parent == null) throw new IllegalArgumentException("No parent.");
         //unloaded image data
@@ -418,14 +421,22 @@ class BrowserModel
         data.setId(imageID);
         this.parent = parent;
         unitBar = true;
-        ratio = (double) Browser.RATIO/10;
-        gridRatio = (double) Browser.RATIO/10;
+        ratio = ZoomGridAction.DEFAULT_ZOOM_FACTOR;
+        gridRatio = ZoomGridAction.DEFAULT_ZOOM_FACTOR;
         init = true;
         unitInMicrons = UnitBarSizeAction.getDefaultValue(); // size microns.
         unitBarColor = ImagePaintingFactory.UNIT_BAR_COLOR;
         backgroundColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
         gridImages = new ArrayList<BufferedImage>();
         zoomFactor = ZoomAction.DEFAULT_ZOOM_FACTOR;
+        if (pref != null) {
+        	if (pref.getBackgroundColor() != null)
+        		backgroundColor = pref.getBackgroundColor();
+        	if (pref.getScaleBarColor() != null)
+        		unitBarColor = pref.getScaleBarColor();
+        	if (pref.isFieldSelected(ViewerPreferences.ZOOM_FACTOR))
+        		zoomFactor = ZoomAction.getZoomFactor(pref.getZoomIndex());
+        }
     }
     
     /**
@@ -589,6 +600,19 @@ class BrowserModel
         double v = unitInMicrons;
         if (getPixelsSizeX() > 0) v = unitInMicrons/getPixelsSizeX();
         v *= zoomFactor;
+        return v;
+    }
+    
+    /**
+     * Returns the size of the unit bar for an image composing the grid.
+     * 
+     * @return See above.
+     */
+    double getGridBarSize()
+    {
+    	double v = unitInMicrons;
+        if (getPixelsSizeX() > 0) v = unitInMicrons/getPixelsSizeX();
+        v *= gridRatio;
         return v;
     }
     
@@ -854,7 +878,7 @@ class BrowserModel
 	void setGridRatio(double gridRatio)
 	{ 
 		//if (ratio == 1) return; //We don't want to be too small.
-		double max = (double) Browser.MAX_RATIO/10;
+		double max = ZoomGridAction.MAX_ZOOM_FACTOR;
 		if (gridRatio > max) return;
 		this.gridRatio = gridRatio; 
 		int n = originalGridImages.size();

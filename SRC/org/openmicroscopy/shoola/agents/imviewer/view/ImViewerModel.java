@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.imviewer.CategorySaver;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
+import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
@@ -92,6 +93,21 @@ import pojos.ExperimenterData;
 class ImViewerModel
 {
 
+	/** Flag to indicate that the image is not compressed. */
+	static final int 			UNCOMPRESSED = RenderingControl.UNCOMPRESSED;
+	
+	/** 
+	 * Flag to indicate that the image is not compressed using a
+	 * medium Level of compression. 
+	 */
+	static final int 			MEDIUM = RenderingControl.MEDIUM;
+	
+	/** 
+	 * Flag to indicate that the image is not compressed using a
+	 * low Level of compression. 
+	 */
+	static final int 			LOW = RenderingControl.LOW;
+	
 	/** Indicates the displayed image has one star. */
 	static final int     		RATING_ONE = 3;
 
@@ -205,7 +221,10 @@ class ImViewerModel
 	 * when the movie player is launched.
 	 */
 	private int 				movieIndex;
-
+	
+	/** The rendering setting related to a given set of pixels. */
+	private Map					renderingSettings;
+	
 	/** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
 	private void computeSizes()
 	{
@@ -254,7 +273,8 @@ class ImViewerModel
 	void initialize(ImViewer component)
 	{ 
 		this.component = component;
-		browser = BrowserFactory.createBrowser(component, imageID);
+		browser = BrowserFactory.createBrowser(component, imageID, 
+										ImViewerFactory.getPreferences());
 	}
 	
 	/**
@@ -1233,15 +1253,69 @@ class ImViewerModel
 	boolean isImageCompressed() { return rndControl.isCompressed(); }
 	
 	/**
-	 * Sets the compressiong flag.
+	 * Sets the compressiong level.
 	 * 
-	 * @param compressed 	Pass <code>true</code> to compresse the image,
-	 * 						<code>false</code> otherwise.
+	 * @param compressionLevel 	One of the compression level defined by 
+	 * 							{@link RenderingControl} I/F.
 	 */
-	void setImageCompressed(boolean compressed)
+	void setCompressionLevel(int compressionLevel)
 	{
-		rndControl.setCompressed(compressed);
+		rndControl.setCompression(compressionLevel);
 		component.renderXYPlane();
+	}
+
+	/**
+	 * Returns the compression level.
+	 * 
+	 * @return See above.
+	 */
+	int getCompressionLevel()
+	{
+		return rndControl.getCompressionLevel();
+	}
+	
+	/**
+	 * Fires an asynchronous retrieval of the rendering settings 
+	 * linked to the currently viewed set of pixels.
+	 */
+	void fireRenderingSettingsRetrieval()
+	{
+		currentLoader = new RenderingSettingsLoader(component, pixelsID);
+		currentLoader.load();
+	}
+	
+	/**
+	 * Returns the rendering settings linked to the currently viewed set
+	 * of pixels.
+	 * 
+	 * @return See above.
+	 */
+	Map getRenderingSettings() { return renderingSettings; }
+	
+	/** 
+	 * Sets the rendering settings linked to the currently viewed set
+	 * of pixels.
+	 * 
+	 * @param map The map to set.
+	 */
+	void setRenderingSettings(Map map)
+	{
+		renderingSettings = map;
+	}
+
+	/**
+	 * Applies the settings set by the selected user.
+	 * 
+	 * @param exp	The user to handle.
+	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * 										the value.
+	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	void setUserSettings(ExperimenterData exp)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		RndProxyDef rndDef = (RndProxyDef) renderingSettings.get(exp);
+		rndControl.resetSettings(rndDef);
 	}
 	
 }

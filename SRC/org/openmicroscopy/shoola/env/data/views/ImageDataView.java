@@ -133,4 +133,14 @@ public interface ImageDataView
     public CallHandle analyseShapes(Pixels pixels, List channels, List shapes, 
     								AgentEventListener observer);
     
+    /**
+     * Retrieves all the rendering settings associated to a given set of pixels.
+     * 
+     * @param pixelsID The id of the pixels set.
+     * @param observer	Callback handler.
+     * @return See above.
+     */
+    public CallHandle getRenderingSettings(long pixelsID, 
+    									AgentEventListener observer);
+    
 }

@@ -26,13 +26,11 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.FlowLayout;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-
-import javax.swing.Action;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
@@ -42,6 +40,7 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.actions.ClassifyAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -61,17 +60,38 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class ToolBar
     extends JPanel
-    implements ItemListener
+    implements ActionListener
 {
     
-    /** Default text indicating that the image is compressed. */
-    private static final String		COMPRESSED = "Compressed";
-    
+	/** Flag to indicate that the image is not compressed. */
+	static final int	UNCOMPRESSED = 0;
+	
+	/** 
+	 * Flag to indicate that the image is not compressed using a
+	 * medium Level of compression. 
+	 */
+	static final int	MEDIUM = 1;
+	
+	/** 
+	 * Flag to indicate that the image is not compressed using a
+	 * low Level of compression. 
+	 */
+	static final int	LOW = 2;
+	
     /** Default text describing the compression check box.  */
     private static final String		COMPRESSED_DESCRIPTION = 
-    				"The image is compressed depending on the connection \n" +
-    				" speed. To view an uncompressed image, deselect the \n" +
-    				"check box.";
+    				"View your image has umcompressed or select " +
+    				"the desired compression quality.";
+    
+    /** The compression option. */
+    private static final String[] compression;
+    
+    static {
+    	compression = new String[3];
+    	compression[UNCOMPRESSED] = "Uncompressed";
+    	compression[MEDIUM] = "Medium quality";
+    	compression[LOW] = "Low quality";
+    }
     
     /** Reference to the Control. */
     private ImViewerControl controller;
@@ -83,13 +103,16 @@ class ToolBar
     private JToolBar        bar;
     
     /** Selected if the image is compressed by default. */
-    private JCheckBox		compressedBox;
+    //private JCheckBox		compressedBox;
     
     /** Button used to show or hide the renderer. */
     private JToggleButton	rndButton;
     
     /** Button displaying the category. */
     private JButton			categoryButton;
+
+    /** Box used to present the compression selected. */
+    private JComboBox		compressionBox;
     
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
@@ -136,13 +159,18 @@ class ToolBar
         button = new JButton(controller.getAction(ImViewerControl.DOWNLOAD));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);  
+        UserAction a = (UserAction) controller.getAction(ImViewerControl.USER);
+        button = new JButton(a);
+        button.addMouseListener(a);
+        UIUtilities.unifiedButtonLookAndFeel(button);
+        bar.add(button);  
     }
     
     /** Initializes the components composing this tool bar. */
     private void initComponents()
     {
-    	compressedBox = new JCheckBox(COMPRESSED);
-    	compressedBox.setToolTipText(COMPRESSED_DESCRIPTION);
+    	compressionBox = new JComboBox(compression);
+    	compressionBox.setToolTipText(COMPRESSED_DESCRIPTION);
         //compressedBoxsaveOnClose.setSelected(true);
         ClassifyAction a = 
 			(ClassifyAction) controller.getAction(ImViewerControl.CATEGORY);
@@ -150,6 +178,8 @@ class ToolBar
         //UIUtilities.unifiedButtonLookAndFeel(categoryButton);
         //categoryButton.setVisible(true);
         categoryButton.addMouseListener(a);
+        //categoryButton.setVisible(true);
+       // userButton.addMouseListener(a);
         createControlsBar();
     }
 
@@ -189,19 +219,19 @@ class ToolBar
 //    	Retrieve the preferences.
 		ViewerPreferences pref = ImViewerFactory.getPreferences();
 		if (pref != null) {
-			Action a = controller.getAction(ImViewerControl.RENDERER);
+			//Action a = controller.getAction(ImViewerControl.RENDERER);
 			//rndButton.removeActionListener(a);
 	        rndButton.setSelected(pref.isRenderer());
 	        //rndButton.setAction(a);
 		}
     	
-    	boolean b = view.isImageCompressed();
-    	if (b) {
+    	//boolean b = view.isImageCompressed();
+    	//if (b) {
     		bar.add(new JSeparator(JSeparator.VERTICAL));
-            bar.add(compressedBox);
-        	compressedBox.setSelected(b);
-        	compressedBox.addItemListener(this);
-    	}
+            bar.add(compressionBox);
+            compressionBox.setSelectedIndex(view.getCompressionLevel());
+            compressionBox.addActionListener(this);
+    	//}
     	buildGUI(); 
     }
     
@@ -209,12 +239,13 @@ class ToolBar
     void displayRenderer() { rndButton.setSelected(view.isRendererShown()); }
 
     /**
-     * Reacts to the selection of the {@link #compressedBox}.
-     * @see ItemListener#itemStateChanged(ItemEvent)
+     * Reacts to the selection of the {@link #compressionBox}.
+     * @see ActionListener#actionPerformed(ActionEvent)
      */
-	public void itemStateChanged(ItemEvent e)
+	public void actionPerformed(ActionEvent e)
 	{
-		view.setImageCompressed(compressedBox.isSelected());
+		int index = compressionBox.getSelectedIndex();
+		view.setCompressionLevel(index);
 	}
     
 }

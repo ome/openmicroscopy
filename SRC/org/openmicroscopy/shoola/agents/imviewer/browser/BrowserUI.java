@@ -285,7 +285,6 @@ class BrowserUI
 		Dimension d = layeredPane.getPreferredSize();
 		int xLoc = ((r.width-d.width)/2);
 		int yLoc = ((r.height-d.height)/2);
-		
 		if (sibling != null && 
 				model.getSelectedIndex() == ImViewer.GRID_INDEX) 
 			sibling.setBounds(sibling.getBounds());

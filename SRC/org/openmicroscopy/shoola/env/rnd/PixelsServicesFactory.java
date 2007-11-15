@@ -35,9 +35,14 @@ import java.util.List;
 //Application-internal dependencies
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
+import ome.model.display.ChannelBinding;
+import ome.model.display.Color;
+import ome.model.display.QuantumDef;
+import ome.model.display.RenderingDef;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 
@@ -72,6 +77,59 @@ public class PixelsServicesFactory
 	private static Registry                 registry;
 
 	/**
+	 * Converts the {@link RenderingDef} into a {@link RndProxyDef}.
+	 * 
+	 * @param rndDef The object to convert.
+	 * @return See above.
+	 */
+	public static RndProxyDef convert(RenderingDef rndDef)
+	{
+		RndProxyDef proxy = new RndProxyDef();
+		proxy.setDefaultZ(rndDef.getDefaultZ());
+		proxy.setDefaultT(rndDef.getDefaultT());
+		proxy.setColorModel(rndDef.getModel().getValue());
+		
+		QuantumDef def = rndDef.getQuantization();
+		proxy.setCodomain(def.getCdStart(), def.getCdEnd());
+		proxy.setBitResolution(def.getBitResolution());
+		
+		ChannelBinding c;
+		List bindings = rndDef.getWaveRendering();
+		
+		Color color;
+		Iterator k = bindings.iterator();
+		int i = 0;
+		int[] rgba;
+		ChannelBindingsProxy cb;
+		while (k.hasNext()) {
+			c = (ChannelBinding) k.next();
+			cb = proxy.getChannel(i);
+			if (cb == null) {
+				cb = new ChannelBindingsProxy();
+				proxy.setChannel(i, cb);
+			}
+			if (c != null) {
+				rgba = new int[4];
+				color = c.getColor();
+				rgba[0] = color.getRed();
+				rgba[1] = color.getGreen();
+				rgba[2] = color.getBlue();
+				rgba[3] = color.getAlpha();
+				
+				
+				cb.setActive(c.getActive());
+				cb.setInterval(c.getInputStart(), c.getInputEnd());
+				cb.setRGBA(rgba);
+				cb.setQuantization(c.getFamily().toString(), 
+						c.getCoefficient().doubleValue(), 
+						c.getNoiseReduction().booleanValue());
+			}		
+			i++;
+		}
+		return proxy;
+	}
+	
+	/**
 	 * Creates a new instance. This can't be called outside of container b/c 
 	 * agents have no refs to the singleton container. So we can be sure this
 	 * method is going to create services just once.
@@ -96,24 +154,25 @@ public class PixelsServicesFactory
 	 * Creates a new {@link RenderingControl}. We pass a reference to the 
 	 * the registry to ensure that agents don't call the method.
 	 * 
-	 * @param context   Reference to the registry. To ensure that agents cannot
-	 *                  call the method. It must be a reference to the
-	 *                  container's registry.
-	 * @param re        The {@link RenderingEngine rendering service}.        
-	 * @param pixDims   The dimension of the pixels set.
-	 * @param metadata  The channel metadata.
-	 * @param compressed Pass <code>true</code> to display by default 
-	 * 					 compressed images, <code>false</code> otherwise.
+	 * @param context   	Reference to the registry. To ensure that agents
+	 * 						cannot call the method. 
+	 * 						It must be a reference to the
+	 *                  	container's registry.
+	 * @param re        	The {@link RenderingEngine rendering service}.        
+	 * @param pixDims   	The dimension of the pixels set.
+	 * @param metadata  	The channel metadata.
+	 * @param compression  	Pass <code>0</code> if no compression otherwise 
+	 * 						pass the compression used.
 	 * @return See above.
 	 * @throws IllegalArgumentException If an Agent try to access the method.
 	 */
 	public static RenderingControl createRenderingControl(Registry context, 
 			RenderingEngine re, PixelsDimensions pixDims,
-			List metadata, boolean compressed)
+			List metadata, int compression)
 	{
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
-		return singleton.makeNew(re, pixDims, metadata, compressed);
+		return singleton.makeNew(re, pixDims, metadata, compression);
 	}
 
 	/**
@@ -239,6 +298,29 @@ public class PixelsServicesFactory
 		return null;
 	}
 
+	/**
+	 * Returns the compression quality related to the passed level.
+	 * 
+	 * @param compressionLevel The level to handle.
+	 * @return See above.
+	 */
+	static final float getCompressionQuality(int compressionLevel)
+	{
+		Float value;
+		switch (compressionLevel) {
+			default:
+			case RenderingControl.UNCOMPRESSED:
+			case RenderingControl.MEDIUM:
+				value = (Float) registry.lookup(
+						LookupNames.COMPRESSIOM_MEDIUM_QUALITY);
+				return value.floatValue();
+			case RenderingControl.LOW:
+				value = (Float) registry.lookup(
+						LookupNames.COMPRESSIOM_LOW_QUALITY);
+				return value.floatValue();
+		}
+	}
+	
 	/** Keep track of all the rendering service already initialized. */
 	private HashMap                 rndSvcProxies;
 
@@ -254,22 +336,22 @@ public class PixelsServicesFactory
 	/**
 	 * Makes a new {@link RenderingControl}.
 	 * 
-	 * @param re        The rendering control.
-	 * @param pixDims   The dimensions of the pixels array.
-	 * @param rdefID	The id of the rendering settings.
-	 * @param compressed Pass <code>true</code> to display by default 
-	 * 					 compressed images, <code>false</code> otherwise.
+	 * @param re        	The rendering control.
+	 * @param pixDims   	The dimensions of the pixels array.
+	 * @param rdefID		The id of the rendering settings.
+	 * @param compression  	Pass <code>0</code> if no compression otherwise 
+	 * 						pass the compression used.
 	 * @return See above.
 	 */
 	private RenderingControl makeNew(RenderingEngine re,
-			PixelsDimensions pixDims, List metadata, boolean compressed)
+			PixelsDimensions pixDims, List metadata, int compression)
 	{
 		if (singleton == null) throw new NullPointerException();
 		Long id = re.getPixels().getId();
 		RenderingControl rnd = getRenderingControl(registry, id);
 		if (rnd != null) return rnd;
 		int l = singleton.rndSvcProxies.size();
-		rnd = new RenderingControlProxy(re, pixDims, metadata, compressed);
+		rnd = new RenderingControlProxy(re, pixDims, metadata, compression);
 		//reset the size of the caches.
 		Iterator i = singleton.rndSvcProxies.keySet().iterator();
 		RenderingControlProxy proxy;

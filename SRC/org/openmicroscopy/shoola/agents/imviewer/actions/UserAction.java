@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.actions.ClassifyAction 
+ * org.openmicroscopy.shoola.agents.imviewer.actions.UserAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -23,10 +23,13 @@
 package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 
+
 //Java imports
 import java.awt.Component;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+
 import javax.swing.Action;
 
 //Third-party libraries
@@ -36,9 +39,8 @@ import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-
 /** 
- * Brings up the <code>Category</code> menu.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -50,32 +52,40 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public class ClassifyAction 
+public class UserAction 
 	extends ViewerAction
 	implements MouseListener
 {
 
-	/** The name of the action. */
-    private static final String NAME = "Categorise";
+	/** The description of the action. */
+    private static final String DESCRIPTION = "Shows image" +
+    		"with the rendering settings set by the selected user.";
     
-    /** The description of the action. */
-    private static final String DESCRIPTION = "Display categories.";
-    
-    /**
+	/**
      * Creates a new instance.
      * 
-     * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param model     Reference to the model. Mustn't be <code>null</code>.
+     * @param index     One of the constant defined by this class.
      */
-	public ClassifyAction(ImViewer model)
-	{
-		super(model, NAME);
-		putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
+    public UserAction(ImViewer model)
+    {
+        super(model);
         IconManager icons = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.CATEGORY));
-	}
-
-	/** 
+        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.USER));
+        putValue(Action.SHORT_DESCRIPTION, 
+                UIUtilities.formatToolTipText(DESCRIPTION));
+    }
+    
+    /** 
+     * Retrieves the rendering settings set by other users.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+        
+    }
+    
+    /** 
 	 * Brings up the menu displaying categories.
 	 * @see MouseListener#mousePressed(MouseEvent)
 	 */
@@ -83,8 +93,7 @@ public class ClassifyAction
 	{
 		Object source = me.getSource();
 		if (source instanceof Component) 
-			model.showMenu(ImViewer.CATEGORY_MENU, (Component) source, 
-							me.getPoint());
+			model.retrieveRelatedSettings((Component) source, me.getPoint());
 	}
 	
 	/**
@@ -114,5 +123,5 @@ public class ClassifyAction
 	 * @see MouseListener#mouseReleased(MouseEvent)
 	 */
 	public void mouseReleased(MouseEvent me) {}
-	
+    
 }

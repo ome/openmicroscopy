@@ -223,5 +223,19 @@ public interface OmeroImageService
 	public Map resetRenderingSettings(Class rootNodeType, Set<Long> nodeIDs)
 		throws DSOutOfServiceException, DSAccessException;
 	
+	/**
+	 * Retrieves the rendering setting related to a given set of pixels.
+	 * Returns a Map whose keys are the experimenter who created the rnd 
+	 * settings and the value the settings itself.
+	 * 
+	 * @param pixelsID The id of the pixels set.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Map getRenderingSettings(long pixelsID)
+		throws DSOutOfServiceException, DSAccessException;
 
 }

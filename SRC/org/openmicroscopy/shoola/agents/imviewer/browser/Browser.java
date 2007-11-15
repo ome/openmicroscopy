@@ -58,18 +58,11 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 public interface Browser
     extends ObservableComponent
 {
-
 	/** 
 	 * Factor use to determine the size of the annotate image
 	 * w.r.t the rendered image.
 	 */
-	public static final int	RATIO = 5;
-	
-	/** 
-	 * Factor use to determine the size of the annotate image
-	 * w.r.t the rendered image.
-	 */
-	public static final int	MAX_RATIO = 10;
+	//public static final int	MAX_RATIO = 10;
 	
     /**
      * Returns the widget that displays the image.
@@ -341,5 +334,12 @@ public interface Browser
 	 * @param r The value to set.
 	 */
 	public void setGridRatio(double r);
+
+	/**
+	 * Returns the magnification factor used to render a grid image.
+	 * 
+	 * @return See above.
+	 */
+	public double getGridRatio();
 	
 }

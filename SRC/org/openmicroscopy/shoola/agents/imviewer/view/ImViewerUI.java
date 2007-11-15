@@ -30,6 +30,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.Point;
@@ -70,6 +71,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
@@ -80,10 +82,12 @@ import org.openmicroscopy.shoola.agents.util.tagging.CategoryEditor;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
+import pojos.ExperimenterData;
 
 /** 
 * The {@link ImViewer} view.
@@ -107,40 +111,40 @@ class ImViewerUI
 {
 
 	/** Indicates to update the channel buttons composing the grid view. */
-	static final int GRID_ONLY = 0;
+	static final int 			GRID_ONLY = 0;
 	
 	/** Indicates to update the channel buttons composing the main view. */
-	static final int VIEW_ONLY = 1;
+	static final int 			VIEW_ONLY = 1;
 	
 	/**
 	 *  Indicates to update the channel buttons composing the grid view
 	 * and the main view. 
 	 */
-	static final int GRID_AND_VIEW = 2;
+	static final int 			GRID_AND_VIEW = 2;
 	
+	/** Indicates that only the image is displayed. */
+	static final int			NEUTRAL = 0;
+
+	/** Indicates that the image and the history are displayed. */
+	static final int			HISTORY = 1;
+
+	/** Indicates that the image and the renderer are displayed. */
+	static final int			RENDERER = 2;
+
+	/** Indicates that the image, the history and the renderer are displayed. */
+	static final int			HISTORY_AND_RENDERER = 3;
+
 	/** Number of pixels added to the height of an icon. */
 	private static final int	ICON_EXTRA = 4;
 
 	/** Indicates the percentage of the screen to use to display the viewer. */
 	private static final double SCREEN_RATIO = 0.9;
 
-	/** Indicates that only the image is displayed. */
-	private static final int	NEUTRAL = 0;
-
-	/** Indicates that the image and the history are displayed. */
-	private static final int	HISTORY = 1;
-
-	/** Indicates that the image and the renderer are displayed. */
-	private static final int	RENDERER = 2;
-
-	/** Indicates that the image, the history and the renderer are displayed. */
-	private static final int	HISTORY_AND_RENDERER = 3;
-
 	/** Identifies the <code>Indigo</code> color. */
-	private static final Color INDIGO = new Color(75, 0, 130);
+	private static final Color  INDIGO = new Color(75, 0, 130);
 
 	/** Identifies the <code>Violet</code> color. */
-	private static final Color VIOLET = new Color(238, 130, 238);
+	private static final Color  VIOLET = new Color(238, 130, 238);
 
 	/** The available colors for the unit bar. */
 	private static Map<Color, String>	colors;
@@ -241,6 +245,9 @@ class ImViewerUI
 	/** The menu displaying the categories the image is categorised into. */
 	private CategoriesPopupMenu		categoriesMenu;
 
+	/** The menu displaying the users who viewed the image. */
+	private UsersPopupMenu			usersMenu;
+	
 	/** The default insets of a split pane. */
 	private Insets					refInsets;
 	
@@ -250,6 +257,27 @@ class ImViewerUI
 	/** The number of pixels added between the top and bottom components. */
 	private int						heightAdded;
 
+	/** Group hosting the possible background colors. */
+	private ButtonGroup 			bgColorGroup;
+	
+	/** Group hosting the possible scale bar length. */
+	private ButtonGroup 			scaleBarGroup;
+	
+	/** The source invoking the {@link #usersMenu}. */
+	private Component				source;
+	
+	/** The location where to pop up the {@link #usersMenu}. */
+	private Point					location;
+	
+	/** The zoom menu. */
+	private JMenu					zoomMenu;
+	
+	/** The zoom grid menu. */
+	private JMenu					zoomGridMenu;
+	
+	/** Group hosting the items of the <code>ZoomGrid</code> menu. */
+	private ButtonGroup     		zoomingGridGroup;
+	
 	/**
 	 * Initializes and returns a split pane, either verical or horizontal 
 	 * depending on the passed parameter.
@@ -294,7 +322,7 @@ class ImViewerUI
 	{
 		JMenuBar menuBar = new JMenuBar(); 
 		menuBar.add(createControlsMenu(pref));
-		menuBar.add(createViewMenu());
+		menuBar.add(createViewMenu(pref));
 		menuBar.add(createZoomMenu(pref));
 		createRatingMenu();
 		TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
@@ -306,29 +334,38 @@ class ImViewerUI
 	/**
 	 * Helper method to create the background color sub-menu.
 	 * 
+	 * @param pref The user preferences.
 	 * @return See above.
 	 */
-	private JMenuItem createBackgroundColorSubMenu()
+	private JMenuItem createBackgroundColorSubMenu(ViewerPreferences pref)
 	{
 		JMenu menu = new JMenu("Background color");
-		ButtonGroup group = new ButtonGroup();
+		bgColorGroup = new ButtonGroup();
 		Iterator i = backgrounds.keySet().iterator();
 		ColorCheckBoxMenuItem item;
 		Color c;
+		Color refColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
+		if (pref != null) 
+			refColor = pref.getBackgroundColor();
+		if (refColor == null) 
+			refColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
 		while (i.hasNext()) {
 			c = (Color) i.next();
 			item = new ColorCheckBoxMenuItem(c);
 			item.setText(backgrounds.get(c)); 
-			item.setSelected(c.equals(ImagePaintingFactory.DEFAULT_BACKGROUND));
-			group.add(item);
+			item.setSelected(c.equals(refColor));
+			bgColorGroup.add(item);
 			menu.add(item);
 			item.addActionListener(new ActionListener() {
 
 				public void actionPerformed(ActionEvent e) {
 					ColorCheckBoxMenuItem src = 
 						(ColorCheckBoxMenuItem) e.getSource();
-					if (src.isSelected())
+					if (src.isSelected()) {
+						controller.setPreferences();
 						model.getBrowser().setBackgroundColor(src.getColor());
+					}
+						
 				}
 			});
 		}
@@ -338,20 +375,25 @@ class ImViewerUI
 	/**
 	 * Helper method to create the unit bar color sub-menu.
 	 * 
+	 * @param pref The user preferences.
 	 * @return See above.
 	 */
-	private JMenuItem createScaleBarColorSubMenu()
+	private JMenuItem createScaleBarColorSubMenu(ViewerPreferences pref)
 	{
 		JMenu menu = new JMenu("Scale bar color");
 		ButtonGroup group = new ButtonGroup();
 		Iterator i = colors.keySet().iterator();
 		ColorCheckBoxMenuItem item;
 		Color c;
+		Color refColor = ImagePaintingFactory.UNIT_BAR_COLOR;
+		if (pref != null) refColor = pref.getScaleBarColor();
+		if (refColor == null)
+			refColor = ImagePaintingFactory.UNIT_BAR_COLOR;
 		while (i.hasNext()) {
 			c = (Color) i.next();
 			item = new ColorCheckBoxMenuItem(c);
 			item.setText(colors.get(c)); 
-			item.setSelected(c.equals(ImagePaintingFactory.UNIT_BAR_COLOR));
+			item.setSelected(c.equals(refColor));
 			group.add(item);
 			menu.add(item);
 			item.addActionListener(new ActionListener() {
@@ -371,66 +413,70 @@ class ImViewerUI
 	/**
 	 * Helper method to create the unit bar sub-menu.
 	 * 
+	 * @param pref The user preferences.
 	 * @return See above.
 	 */
-	private JMenu createScaleBarLenghtSubMenu()
+	private JMenu createScaleBarLengthSubMenu(ViewerPreferences pref)
 	{
 		JMenu menu = new JMenu("Scale bar length " +
 				"(in "+UIUtilities.NANOMETER+")");
-		ButtonGroup group = new ButtonGroup();
+		scaleBarGroup = new ButtonGroup();
+		int index = UnitBarSizeAction.DEFAULT_UNIT_INDEX;
+		if (pref != null && pref.getScaleBarIndex() > 0)
+			index = pref.getScaleBarIndex();
 		UnitBarSizeAction a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_ONE);
 		JCheckBoxMenuItem item = new JCheckBoxMenuItem(a);
-		item.setSelected(a.isDefaultIndex());
-		group.add(item);
+		item.setSelected(a.getIndex() == index);
+		scaleBarGroup.add(item);
 		menu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_TWO);
 		item = new JCheckBoxMenuItem(a);
-		item.setSelected(a.isDefaultIndex());
-		group.add(item);
+		item.setSelected(a.getIndex() == index);
+		scaleBarGroup.add(item);
 		menu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_FIVE);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_FIVE));
-		group.add(item);
-		item.setSelected(a.isDefaultIndex());
+		scaleBarGroup.add(item);
+		item.setSelected(a.getIndex() == index);
 		menu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_TEN);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_TEN));
-		group.add(item);
-		item.setSelected(a.isDefaultIndex());
+		scaleBarGroup.add(item);
+		item.setSelected(a.getIndex() == index);
 		menu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_TWENTY);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_TWENTY));
-		group.add(item);
-		item.setSelected(a.isDefaultIndex());
+		scaleBarGroup.add(item);
+		item.setSelected(a.getIndex() == index);
 		menu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_FIFTY);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_FIFTY));
-		group.add(item);
-		item.setSelected(a.isDefaultIndex());
+		scaleBarGroup.add(item);
+		item.setSelected(a.getIndex() == index);
 		menu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_HUNDRED);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_HUNDRED));
-		group.add(item);
-		item.setSelected(a.isDefaultIndex());
+		scaleBarGroup.add(item);
+		item.setSelected(a.getIndex() == index);
 		menu.add(item);
 		a = (UnitBarSizeAction) 
 		controller.getAction(ImViewerControl.UNIT_BAR_CUSTOM);
 		item = new JCheckBoxMenuItem(
 				controller.getAction(ImViewerControl.UNIT_BAR_CUSTOM));
-		group.add(item);
-		item.setSelected(a.isDefaultIndex());
+		scaleBarGroup.add(item);
+		item.setSelected(a.getIndex() == index);
 		menu.add(item);
 		return menu;
 	}
@@ -438,9 +484,10 @@ class ImViewerUI
 	/**
 	 * Helper method to create the view menu.
 	 * 
+	 * @param pref The user preferences.
 	 * @return The controls submenu.
 	 */
-	private JMenu createViewMenu()
+	private JMenu createViewMenu(ViewerPreferences pref)
 	{
 		JMenu menu = new JMenu("View");
 		menu.setMnemonic(KeyEvent.VK_V);
@@ -448,10 +495,10 @@ class ImViewerUI
 		item.setSelected(model.isUnitBar());
 		item.setAction(controller.getAction(ImViewerControl.UNIT_BAR));
 		menu.add(item);
-		menu.add(createScaleBarLenghtSubMenu());
-		menu.add(createScaleBarColorSubMenu());
+		menu.add(createScaleBarLengthSubMenu(pref));
+		menu.add(createScaleBarColorSubMenu(pref));
 		menu.add(new JSeparator(JSeparator.HORIZONTAL));
-		menu.add(createBackgroundColorSubMenu());
+		menu.add(createBackgroundColorSubMenu(pref));
 		menu.add(new JSeparator(JSeparator.HORIZONTAL));
 		/*
 		JMenuItem historyItem = new JMenuItem();
@@ -552,6 +599,11 @@ class ImViewerUI
 		item = new JMenuItem(action);
 		item.setText(action.getName());
 		//menu.add(item);
+		
+		action = controller.getAction(ImViewerControl.PREFERENCES);
+		item = new JMenuItem(action);
+		item.setText(action.getName());
+		menu.add(item);
 		return menu;
 	}
 
@@ -563,68 +615,94 @@ class ImViewerUI
 	 */
 	private JMenu createZoomMenu(ViewerPreferences pref)
 	{
-		JMenu menu = new JMenu("Zoom");
-		menu.setMnemonic(KeyEvent.VK_Z);
+		zoomMenu = new JMenu("Zoom");
+		zoomMenu.setMnemonic(KeyEvent.VK_Z);
 		zoomingGroup = new ButtonGroup();
 		ViewerAction action = controller.getAction(ImViewerControl.ZOOM_25);
 		JCheckBoxMenuItem item = new JCheckBoxMenuItem(action);
-		menu.add(item);
+		zoomMenu.add(item);
 		zoomingGroup.add(item);
 		action = controller.getAction(ImViewerControl.ZOOM_50);
 		item = new JCheckBoxMenuItem(action);
-		menu.add(item);
+		zoomMenu.add(item);
 		zoomingGroup.add(item);
 		action = controller.getAction(ImViewerControl.ZOOM_75);
 		item = new JCheckBoxMenuItem(action);
-		menu.add(item);
+		zoomMenu.add(item);
 		zoomingGroup.add(item);
 		action = controller.getAction(ImViewerControl.ZOOM_100);
 		item = new JCheckBoxMenuItem();
 		item.setAction(action); 
-		menu.add(item);
+		zoomMenu.add(item);
 		zoomingGroup.add(item);
 		action = controller.getAction(ImViewerControl.ZOOM_125);
 		item = new JCheckBoxMenuItem(action);
-		menu.add(item);
+		zoomMenu.add(item);
 		zoomingGroup.add(item);
 		action = controller.getAction(ImViewerControl.ZOOM_150);
 		item = new JCheckBoxMenuItem(action);
-		menu.add(item);
+		zoomMenu.add(item);
 		zoomingGroup.add(item);
 		action = controller.getAction(ImViewerControl.ZOOM_175);
 		item = new JCheckBoxMenuItem(action);
-		menu.add(item);
+		zoomMenu.add(item);
 		zoomingGroup.add(item);
 		action = controller.getAction(ImViewerControl.ZOOM_200);
 		item = new JCheckBoxMenuItem(action);
-		menu.add(item);
+		zoomMenu.add(item);
 		zoomingGroup.add(item);
 		action = controller.getAction(ImViewerControl.ZOOM_225);
 		item = new JCheckBoxMenuItem(action);
-		menu.add(item);
+		zoomMenu.add(item);
 		zoomingGroup.add(item);
 		action = controller.getAction(ImViewerControl.ZOOM_250);
 		item = new JCheckBoxMenuItem(action);
-		menu.add(item);
+		zoomMenu.add(item);
 		zoomingGroup.add(item);
 		action = controller.getAction(ImViewerControl.ZOOM_275);
 		item = new JCheckBoxMenuItem(action);
-		menu.add(item);
+		zoomMenu.add(item);
 		zoomingGroup.add(item);
 		action = controller.getAction(ImViewerControl.ZOOM_300);
 		item = new JCheckBoxMenuItem(action);
-		menu.add(item);
+		zoomMenu.add(item);
 		zoomingGroup.add(item);
 		action = controller.getAction(ImViewerControl.ZOOM_FIT_TO_WINDOW);
 		item = new JCheckBoxMenuItem(action);
-		menu.add(item);
+		zoomMenu.add(item);
 		zoomingGroup.add(item);
+		int index = ZoomAction.DEFAULT_ZOOM_INDEX;
+		double factor = ZoomAction.DEFAULT_ZOOM_FACTOR;
 		if (pref != null) {
-			controller.setZoomFactor(pref.getZoomIndex());
-		} else 
-			setZoomFactor(ZoomAction.DEFAULT_ZOOM_FACTOR, 
-						ZoomAction.DEFAULT_ZOOM_INDEX);
-		return menu;
+			if (pref.isFieldSelected(ViewerPreferences.ZOOM_FACTOR)) {
+				index = pref.getZoomIndex();
+				factor = ZoomAction.getZoomFactor(index);
+			}
+		}
+		setZoomFactor(factor, index);
+		//Create zoom grid menu
+		zoomGridMenu = new JMenu("Zoom");
+		//zoomGridMenu.setMnemonic(KeyEvent.VK_Z);
+		zoomingGridGroup = new ButtonGroup();
+		
+		item = new JCheckBoxMenuItem(
+				controller.getAction(ImViewerControl.ZOOM_GRID_25));
+		zoomGridMenu.add(item);
+		zoomingGridGroup.add(item);
+		item = new JCheckBoxMenuItem(
+				controller.getAction(ImViewerControl.ZOOM_GRID_50));
+		zoomGridMenu.add(item);
+		zoomingGridGroup.add(item);
+		item = new JCheckBoxMenuItem(
+				controller.getAction(ImViewerControl.ZOOM_GRID_75));
+		zoomGridMenu.add(item);
+		zoomingGridGroup.add(item);
+		item = new JCheckBoxMenuItem(
+				controller.getAction(ImViewerControl.ZOOM_GRID_100));
+		zoomGridMenu.add(item);
+		zoomingGridGroup.add(item);
+		setGridMagnificationFactor(ZoomGridAction.DEFAULT_ZOOM_FACTOR);
+		return zoomMenu;
 	}
 
 	/**
@@ -770,8 +848,13 @@ class ImViewerUI
 		pane.setRightComponent(right);
 	}
 	
-	/** Lays out the components composing main panel. */
-	private void layoutComponents()
+	/** Lays out the components composing main panel. 
+	 * 
+	 * @param fromPreferences	Pass <code>true</code> to indicate that the 
+	 * 							method is invoked while setting the user 
+	 * 							preferences, <code>false</code> otherwise.
+	 */
+	private void layoutComponents(boolean fromPreferences)
 	{
 		//initSplitPanes();
 		Dimension d;
@@ -796,13 +879,7 @@ class ImViewerUI
 								(refInsets.top+refInsets.bottom);
 				height += historySplit.getDividerSize()+
 							2*(refInsets.top+refInsets.bottom);
-				//divider += heightAdded;
 				historyUI.setPreferredSize(new Dimension(width, d.height));
-				//addComponents(historySplit, tabs, historyUI);
-				//if (historyMove == -1) 
-				//historyMove = (height-divider);
-				//historySplit.setDividerLocation(historyMove);
-				
 				container.add(historySplit, BorderLayout.CENTER);
 				break;
 			case RENDERER:
@@ -811,21 +888,15 @@ class ImViewerUI
 				height = restoreSize.height;
 				diff = d.height-restoreSize.height;
 				if (diff > 0) height += diff;
-				//heightAdded = (refInsets.top+refInsets.bottom);
 				height += 2*heightAdded;
+				heightAdded += historySplit.getDividerSize();
+				height += historySplit.getDividerSize()+
+							(refInsets.top+refInsets.bottom);
 				width = restoreSize.width+d.width;
 				widthAdded = rendererSplit.getDividerSize();
 				width += rendererSplit.getDividerSize()+
 							2*(refInsets.left+refInsets.right);
 				addComponents(rendererSplit, tabs, rightComponent);
-				/*
-				if (rendererMove != -1 && rendererMove < width)
-					rendererSplit.setDividerLocation(rendererMove);
-				else {
-					rendererMove = -1;
-					rendererSplit.setDividerLocation(-1);
-				}
-				*/
 				container.add(rendererSplit, BorderLayout.CENTER);
 				break;
 			case HISTORY_AND_RENDERER:
@@ -879,14 +950,15 @@ class ImViewerUI
 				heightAdded = 0;
 				break;
 		}
-		//setSize(getIdealSize(width, height));
-		d = getIdealSize(width, height);
-		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-		int w = (int) (screen.width*SCREEN_RATIO);
-		int h = (int) (screen.height*SCREEN_RATIO);
-		if (d.width > w || d.height > h) {
-			setSize(width, height);
-		} else setSize(d);
+		if (!fromPreferences) {
+			d = getIdealSize(width, height);
+			Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+			int w = (int) (screen.width*SCREEN_RATIO);
+			int h = (int) (screen.height*SCREEN_RATIO);
+			if (d.width > w || d.height > h) {
+				setSize(width, height);
+			} else setSize(d);
+		}
 		container.addHierarchyBoundsListener(boundsAdapter);
 	}
 
@@ -951,9 +1023,7 @@ class ImViewerUI
 	 */
 	void setZoomFactor(double factor, int zoomIndex)
 	{
-		if (factor != -1)
-			statusBar.setRigthStatus("x"+factor);
-		else statusBar.setRigthStatus(ZoomAction.ZOOM_FIT_NAME);
+		setMagnificationStatus(factor);
 		JCheckBoxMenuItem b;
 		Enumeration e;
 		Action a;
@@ -969,6 +1039,38 @@ class ImViewerUI
 		controlPane.setZoomFactor(zoomIndex);
 	}
 
+	/**
+	 * Sets the magnification value in the status bar depending on the
+	 * selected tabbedPane.
+	 * 
+	 * @param factor The value to set.
+	 */
+	void setMagnificationStatus(double factor)
+	{
+		if (factor != -1)
+			statusBar.setRigthStatus("x"+factor);
+		else statusBar.setRigthStatus(ZoomAction.ZOOM_FIT_NAME);
+	}
+	
+	/**
+	 * Returns the index associated to the zoom factor.
+	 * 
+	 * @return See above.
+	 */
+	int getZoomIndex()
+	{
+		JCheckBoxMenuItem b;
+		Enumeration e;
+		Action a;
+		for (e = zoomingGroup.getElements(); e.hasMoreElements();) {
+			b = (JCheckBoxMenuItem) e.nextElement();
+			a = b.getAction();
+			if (b.isSelected())
+				return ((ZoomAction) a).getIndex();
+		}
+		return -2;
+	}
+	
 	/**
 	 * Updates UI components when a rating factor is selected.
 	 * 
@@ -1106,15 +1208,14 @@ class ImViewerUI
 	{
 		if (lens == null) return;
 		switch (model.getTabbedIndex()) {
-		case ImViewer.VIEW_INDEX:
-			lens.setPlaneImage(model.getOriginalImage());
-			break;
-		case ImViewer.GRID_INDEX:
-			lens.setPlaneImage(model.getGridImage());
-			break;
-		case ImViewer.ANNOTATOR_INDEX:
-			lens.setPlaneImage(model.getAnnotateImage());
-			break;
+			case ImViewer.VIEW_INDEX:
+				lens.setPlaneImage(model.getOriginalImage());
+				break;
+			case ImViewer.GRID_INDEX:
+				lens.setPlaneImage(model.getGridImage());
+				break;
+			case ImViewer.ANNOTATOR_INDEX:
+				lens.setPlaneImage(model.getAnnotateImage());
 		}
 	}
 
@@ -1367,6 +1468,26 @@ class ImViewerUI
 	 */
 	void setSelectedPane(int index)
 	{
+		JMenuBar menuBar = getJMenuBar();
+		Component[] items = menuBar.getComponents();
+		Component item;
+		int j = -1;
+		for (int i = 0; i < items.length; i++) {
+			item = items[i];
+			if (item == zoomGridMenu || item == zoomMenu)
+				j = i;
+		}
+		if (j != -1) menuBar.remove(j);
+		switch (index) {
+			case ImViewer.GRID_INDEX:
+				if (j != -1) menuBar.add(zoomGridMenu, j);
+				setMagnificationStatus(model.getBrowser().getGridRatio());
+				break;
+			case ImViewer.VIEW_INDEX:
+				default:
+				if (j != -1) menuBar.add(zoomMenu, j);
+				setMagnificationStatus(model.getZoomFactor());
+		}
 		int oldIndex = model.getTabbedIndex();
 		model.setTabbedIndex(index);
 		model.getBrowser().setSelectedPane(index);
@@ -1455,26 +1576,6 @@ class ImViewerUI
 		historyUI.doGridLayout();
 	}
 
-	/** Shows or hides the renderer. */
-	void showRenderer()
-	{
-		boolean show = !isRendererShown();
-		//boolean b = isHistoryShown();
-		if (show) {
-			//if (b) displayMode = HISTORY_AND_RENDERER;
-			//else displayMode = RENDERER;
-			displayMode = HISTORY_AND_RENDERER; 
-		} else {
-			//if (b) displayMode = HISTORY;
-			//else displayMode = NEUTRAL;
-			displayMode = NEUTRAL;
-			//rendererMove = rendererSplit.getDividerLocation();
-		}
-		rndItem.setSelected(isRendererShown());
-		toolBar.displayRenderer();
-		layoutComponents();
-	}
-
 	/**
 	 * Returns <code>true</code> if the renderer is shown, <code>false</code>
 	 * otherwise.
@@ -1550,25 +1651,72 @@ class ImViewerUI
 			if (rnd) displayMode = HISTORY_AND_RENDERER;
 			else displayMode = HISTORY;
 		} else {
-			//historyMove = historySplit.getDividerLocation();
-			if (rnd) {
-				displayMode = RENDERER;
-				//rendererMove = rendererSplit.getDividerLocation();
-			}
+			if (rnd) displayMode = RENDERER;
 			else displayMode = NEUTRAL;
 		}
-		layoutComponents();
+		layoutComponents(false);
+	}
+	
+	/** Shows or hides the renderer. 
+	 * 
+	 * @param fromPreferences	Pass <code>true</code> to indicate that the 
+	 * 							method is invoked while setting the user 
+	 * 							preferences, <code>false</code> otherwise.
+	 */
+	void showRenderer(boolean fromPreferences)
+	{
+		boolean show = !isRendererShown();
+		boolean b = isHistoryShown();
+		if (show) {
+			if (b) displayMode = HISTORY_AND_RENDERER;
+			else displayMode = RENDERER;
+			//displayMode = HISTORY_AND_RENDERER; 
+		} else {
+			if (b) displayMode = HISTORY;
+			else displayMode = NEUTRAL;
+			//displayMode = NEUTRAL;
+			//rendererMove = rendererSplit.getDividerLocation();
+		}
+		rndItem.setSelected(isRendererShown());
+		toolBar.displayRenderer();
+		layoutComponents(fromPreferences);
 	}
 	
 	/**
 	 * Sets the compression flag.
 	 * 
-	 * @param compressed 	Pass <code>true</code> to compresse the image,
-	 * 						<code>false</code> otherwise.
+	 * @param compressionLevel 	One of the compression constants defined
+	 * 							by the model.
 	 */
-	void setImageCompressed(boolean compressed)
+	void setCompressionLevel(int compressionLevel)
 	{
-		model.setImageCompressed(compressed);
+		switch (model.getCompressionLevel()) {
+			case ToolBar.UNCOMPRESSED:
+				model.setCompressionLevel(ImViewerModel.UNCOMPRESSED);
+			case ToolBar.MEDIUM:
+				model.setCompressionLevel(ImViewerModel.MEDIUM);
+			case ToolBar.LOW:
+				model.setCompressionLevel(ImViewerModel.LOW);
+		}
+		model.setCompressionLevel(compressionLevel);
+	}
+	
+	/** 
+	 * Returns the compression level.
+	 * 
+	 * @return See above.
+	 */
+	int getCompressionLevel() 
+	{
+		switch (model.getCompressionLevel()) {
+			default:
+			case ImViewerModel.UNCOMPRESSED:
+				return ToolBar.UNCOMPRESSED;
+			case ImViewerModel.MEDIUM:
+				return ToolBar.MEDIUM;
+			case ImViewerModel.LOW:
+				return ToolBar.LOW;
+		}
 	}
 	
 	/**
@@ -1591,6 +1739,106 @@ class ImViewerUI
 		//
 	}
 	
+	/**
+	 * Returns the color of the image's background.
+	 * 
+	 * @return See above.
+	 */
+	Color getBackgroundColor()
+	{ 
+		ColorCheckBoxMenuItem b;
+		Enumeration e;
+		for (e = bgColorGroup.getElements(); e.hasMoreElements();) {
+			b = (ColorCheckBoxMenuItem) e.nextElement();
+			if (b.isSelected())return b.getColor();
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the index of the scale bar.
+	 * 
+	 * @return See above.
+	 */
+	int getScaleBarIndex()
+	{
+		JCheckBoxMenuItem item;
+		Enumeration e;
+		for (e = scaleBarGroup.getElements(); e.hasMoreElements();) {
+			item = (JCheckBoxMenuItem) e.nextElement();
+			if (item.isSelected())
+				 return ((UnitBarSizeAction) item.getAction()).getIndex();
+		}
+		return -1;
+	}
+	
+	/** Shows the list of users who viewed the image.  */
+	void showUsersList()
+	{
+		if (usersMenu == null) {
+			usersMenu = new UsersPopupMenu(this, model);
+			usersMenu.addPropertyChangeListener(controller);
+		}
+		usersMenu.show(source, location.x, location.y);
+		source = null;
+		location = null;
+	}
+	
+	/**
+	 * 
+	 * @param experimenter
+	 */
+	void setUserSettings(ExperimenterData experimenter)
+	{
+		try {
+			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			model.setUserSettings(experimenter);
+			resetDefaults();
+			controller.renderXYPlane();
+		} catch (Exception e) {
+			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Set User rendering settings", "Could not apply " +
+					"the settings set by "+experimenter.getFirstName()+
+					" "+experimenter.getLastName());
+		}
+	}
+	
+	/**
+	 * Sets the location and the source where to pop up the menu.
+	 * 
+	 * @param source	The source to set.
+	 * @param location	The location to set.
+	 */
+	void setLocationAndSource(Component source, Point location)
+	{
+		this.source = source;
+		this.location = location;
+	}
+	
+	/** 
+	 * Sets the magnification for the grid view.
+	 * 
+	 * @param factor The value to set.
+	 */
+	void setGridMagnificationFactor(double factor)
+	{
+		setMagnificationStatus(factor);
+		JCheckBoxMenuItem b;
+		Enumeration e;
+		Action a;
+		int zoomIndex = ZoomGridAction.getIndex(factor);
+		for (e = zoomingGridGroup.getElements(); e.hasMoreElements();) {
+			b = (JCheckBoxMenuItem) e.nextElement();
+			a = b.getAction();
+			if (a instanceof ZoomGridAction) {
+				b.removeActionListener(a);
+				b.setSelected(((ZoomGridAction) a).getIndex() == zoomIndex);
+				b.setAction(a);
+			}
+		}
+		controlPane.setGridMagnificationFactor((int) (factor*10));
+	}
+	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 
@@ -1599,13 +1847,26 @@ class ImViewerUI
 	{
 		if (model != null) {
 			Browser browser = model.getBrowser();
+			Rectangle r = null;
 			if (browser != null) {
-				Dimension size = browser.getUI().getPreferredSize();
-				Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-				int width = (int) (screen.width*SCREEN_RATIO);
-				int height = (int) (screen.height*SCREEN_RATIO);
-				if (size.width > width || size.height > height) {
-					setSize(width, height);
+				JComponent comp = browser.getUI();
+				Dimension size = comp.getPreferredSize();
+				int w = size.width;
+				int h = size.height;
+				//Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+				//int width = (int) (screen.width*SCREEN_RATIO);
+				//int height = (int) (screen.height*SCREEN_RATIO);
+				ViewerPreferences pref = ImViewerFactory.getPreferences();
+				if (pref != null) {
+					r = pref.getViewerBounds();
+					w = r.width;
+					h = r.height;
+					if (w <= 0) w = size.width;
+					if (h <= 0) h = size.height;
+				}
+				if (pref != null) {
+					setBounds(r.x, r.y, w, h);
+					setVisible(true);
 				} else pack();
 			} else pack();
 			UIUtilities.incrementRelativeToAndShow(
@@ -1615,5 +1876,5 @@ class ImViewerUI
 			UIUtilities.incrementRelativeToAndShow(null, this);
 		}
 	}
-	
+
 }

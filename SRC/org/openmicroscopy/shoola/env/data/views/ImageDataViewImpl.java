@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
 import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingControlLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
@@ -138,6 +139,17 @@ class ImageDataViewImpl
 									AgentEventListener observer)
 	{
 		BatchCallTree cmd = new Analyser(pixels, channels, shapes);
+		return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#getRenderingSettings(long, AgentEventListener)
+     */
+	public CallHandle getRenderingSettings(long pixelsID, 
+										AgentEventListener observer)
+	{
+		BatchCallTree cmd = new RenderingSettingsLoader(pixelsID);
 		return cmd.exec(observer);
 	}
 

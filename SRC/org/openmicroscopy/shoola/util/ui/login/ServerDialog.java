@@ -322,14 +322,14 @@ class ServerDialog
 		buttonsGroup.add(button);
 		p.add(button);
 		button = new JRadioButton();
-		button.setText("High");
+		button.setText("High (Broadband)");
 		button.setActionCommand(""+MEDIUM_SPEED);
 		button.setSelected(index == LoginCredentials.MEDIUM);
 		button.addActionListener(this);
 		buttonsGroup.add(button);
 		p.add(button);
 		button = new JRadioButton();
-		button.setText("Low");
+		button.setText("Low (Dial-up)");
 		button.setActionCommand(""+LOW_SPEED);
 		button.setSelected(index == LoginCredentials.LOW);
 		button.addActionListener(this);

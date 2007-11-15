@@ -30,6 +30,8 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -127,7 +129,7 @@ public interface ImViewer
 
 	/** Bound Property name indicating that the colour model has changed. */
 	public static final String  COLOR_MODEL_CHANGE_PROPERTY = 
-		"colorModelChanged";
+										"colorModelChanged";
 
 	/** Bound Property name indicating rendering settings are set. */
 	public static final String  RND_SETTINGS_PROPERTY = "rndSettings";
@@ -809,5 +811,31 @@ public interface ImViewer
      * @return See above.
      */
     public List getActiveChannelsInGrid();
+
+    /** Brings up the preferences widget. */
+	public void showPreferences();
+
+	/**
+	 * Sets the rendering settings set by other users.
+	 * 
+	 * @param map The map with the value to set.
+	 */
+	public void setRenderingSettings(Map map);
+
+	/** 
+	 * Retrieves the rendering settings set by other users. 
+	 * 
+	 * @param source	The component that requested the popup menu.
+	 * @param location	The point at which to display the menu, relative to the
+	 *                  <code>component</code>'s coordinates.
+	 */
+	public void retrieveRelatedSettings(Component source, Point location);
+	
+	/**
+	 * Sets the magnification factor of the grid image.
+	 * 
+	 * @param factor The value to set.
+	 */
+	public void setGridMagnificationFactor(double factor);
     
 }

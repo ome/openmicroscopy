@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.InfoAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.LensAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.MovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.PreferencesAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RateImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction;
@@ -73,15 +74,18 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.SaveAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.TextVisibleAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomFitAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomInAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomOutAction;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
+import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.InfoDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
@@ -274,7 +278,37 @@ class ImViewerControl
 	
 	/** Identifies the <code>Category</code> action. */
 	static final Integer     CATEGORY = new Integer(46);
+	
+	/** Identifies the <code>Preferences</code> action. */
+	static final Integer     PREFERENCES = new Integer(47);
+	
+	/** Identifies the <code>User</code> action. */
+	static final Integer     USER = new Integer(48);
 
+	/** 
+	 * Identifies the <code>Zooming 25%</code> action of the grid image
+	 * in the menu.
+	 */
+	static final Integer     ZOOM_GRID_25 = new Integer(49);
+	
+	/** 
+	 * Identifies the <code>Zooming 25%</code> action of the grid image
+	 * in the menu.
+	 */
+	static final Integer     ZOOM_GRID_50 = new Integer(50);
+	
+	/** 
+	 * Identifies the <code>Zooming 25%</code> action of the grid image
+	 * in the menu.
+	 */
+	static final Integer     ZOOM_GRID_75 = new Integer(51);
+	
+	/** 
+	 * Identifies the <code>Zooming 25%</code> action of the grid image
+	 * in the menu.
+	 */
+	static final Integer     ZOOM_GRID_100 = new Integer(52);
+	
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -364,6 +398,16 @@ class ImViewerControl
 		actionsMap.put(PLAY_MOVIE_Z, 
 				new PlayMovieAction(model, PlayMovieAction.ACROSS_Z));
 		actionsMap.put(CATEGORY, new ClassifyAction(model));
+		actionsMap.put(PREFERENCES, new PreferencesAction(model));
+		actionsMap.put(USER, new UserAction(model));
+		actionsMap.put(ZOOM_GRID_25, new ZoomGridAction(model, 
+									ZoomGridAction.ZOOM_25));
+		actionsMap.put(ZOOM_GRID_50, new ZoomGridAction(model, 
+				ZoomGridAction.ZOOM_50));
+		actionsMap.put(ZOOM_GRID_75, new ZoomGridAction(model, 
+				ZoomGridAction.ZOOM_75));
+		actionsMap.put(ZOOM_GRID_100, new ZoomGridAction(model, 
+				ZoomGridAction.ZOOM_100));
 	}
 
 	/** 
@@ -505,6 +549,8 @@ class ImViewerControl
 	 */
 	void setSelectedXYPlane(int z, int t) { model.setSelectedXYPlane(z, t); }
 
+	void renderXYPlane() { model.renderXYPlane(); }
+	
 	/**
 	 * Returns the previous state.
 	 * 
@@ -558,7 +604,7 @@ class ImViewerControl
 	void declassify(long categoryID) { model.declassify(categoryID); }
 
 	/** 
-	 * Sets the zoom actor corresponding to the passed index.
+	 * Sets the zoom factor corresponding to the passed index.
 	 * 
 	 * @param zoomIndex The index to handle.
 	 */
@@ -580,6 +626,31 @@ class ImViewerControl
 			view.setVisible(true);
 			//view.addWindowFocusListener(this);
 		}
+	}
+	
+	/** Sets the preferences before closing. */
+	void setPreferences()
+	{
+		ViewerPreferences pref = ImViewerFactory.getPreferences();
+		if (pref == null) 
+			pref = new ViewerPreferences();
+		pref.setViewerBounds(view.getBounds());
+		pref.setZoomIndex(view.getZoomIndex());
+		pref.setRenderer(view.isRendererShown());
+		pref.setHistory(view.isHistoryShown());
+		pref.setScaleBarColor(model.getUnitBarColor());
+		pref.setScaleBarIndex(view.getScaleBarIndex());
+		ImViewerFactory.setPreferences(pref);
+	}
+	
+	/** 
+	 * Sets the zoom factor for the grid view.
+	 * 
+	 * @param factor The value to set.
+	 */
+	void setGridMagnificationFactor(double factor)
+	{
+		model.setGridMagnificationFactor(factor);
 	}
 	
 	/**
@@ -736,6 +807,13 @@ class ImViewerControl
 		} else if (CategoryEditor.CREATE_CATEGORY_PROPERTY.equals(propName)) {
 			CategorySaverDef def = (CategorySaverDef) pce.getNewValue();
 			model.createAndClassify(def);
+		} else if (PreferencesDialog.VIEWER_PREF_PROPERTY.equals(propName)) {
+			Map  map = (Map) pce.getNewValue();
+			if (map == null) ImViewerFactory.setPreferences(null);
+			ViewerPreferences pref = ImViewerFactory.getPreferences();
+			if (pref == null) pref = new ViewerPreferences();
+			pref.setSelectedFields(map);
+			ImViewerFactory.setPreferences(pref);
 		}
 	}
 
@@ -750,6 +828,7 @@ class ImViewerControl
 		if (model.isZoomFitToWindow()) 
 			model.setZoomFactor(-1, ZoomAction.ZOOM_FIT_TO_WINDOW); 
 		view.maximizeWindow();
+		setPreferences();
 	}
 
 	/**

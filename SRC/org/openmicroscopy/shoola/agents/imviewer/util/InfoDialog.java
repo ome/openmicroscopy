@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class InfoDialog
     extends JDialog
+    implements ActionListener
 {
 
 	/** Bound property indicating that an update of the channel information. */ 
@@ -82,6 +83,12 @@ public class InfoDialog
     
     /** The horizontal space between the buttons. */
     private static final Dimension  H_BOX = new Dimension(10, 0);
+    
+    /** ID for the <code>Cancel</code> action. */
+    private static final int		CANCEL = 0;
+    
+    /** ID for the <code>Apply</code> action. */
+    private static final int		APPLY = 1;;
     
     /** Button to save the changes. */
     private JButton         finishButton;
@@ -104,14 +111,12 @@ public class InfoDialog
     private void initComponents()
     {
         cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) { close(); }
-        });
+        cancelButton.addActionListener(this);
+        cancelButton.setActionCommand(""+CANCEL);
         finishButton = new JButton("Save");
         finishButton.setEnabled(false);
-        finishButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) { save(); }
-        });
+        finishButton.addActionListener(this);
+        finishButton.setActionCommand(""+APPLY);
     }
     
     /** Closes and disposes. */
@@ -128,7 +133,7 @@ public class InfoDialog
     }
     
     /**
-     *  Buils and lays out the tool bar. 
+     *  Builds and lays out the tool bar. 
      *  
      * @return See above.
      */
@@ -213,5 +218,21 @@ public class InfoDialog
         buildGUI();
         pack();
     }
+
+    /** 
+     * Handles the <code>Cancel</code> or <code>Apply</code> action
+     * @see ActionListener#actionPerformed(ActionEvent)
+     */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case CANCEL:
+				close();
+				break;
+			case APPLY:
+				save();
+		}
+	}
     
 }

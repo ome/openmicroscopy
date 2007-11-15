@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImageDetailsDialog;
+import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
@@ -274,7 +275,7 @@ class ImViewerComponent
 		}
 		return null;
 	}
-
+	
 	/** 
 	 * Displays message bebofe closing the viewer. 
 	 * Returns <code>true</code> if we need to close the viewer,
@@ -495,6 +496,7 @@ class ImViewerComponent
 	public void discard()
 	{
 		if (model.getState() != DISCARDED) {
+			controller.setPreferences();
 			if (!saveOnClose()) return;
 			postViewerState(ViewerState.CLOSE);
 			model.discard();
@@ -540,6 +542,7 @@ class ImViewerComponent
 			view.setImageZoomFactor((float) model.getZoomFactor());
 			view.scrollLens();	
 		}
+		controller.setPreferences();
 		postMeasurePlane();
 	}
 
@@ -702,15 +705,32 @@ class ImViewerComponent
 		} //else createHistoryItem();
 		ViewerPreferences pref = ImViewerFactory.getPreferences();
 		if (!prefSet && pref != null) {
-			if (pref.isRenderer()) {
+			if (pref.isFieldSelected(ViewerPreferences.RENDERER) &&
+					pref.isRenderer()) {
 				if (image != null)
 					view.setRestoreSize(image.getWidth(), image.getHeight());
-				showRenderer();
+				//boolean oldValue = view.isHistoryShown();
+				view.showRenderer(true);
+				//firePropertyChange(HISTORY_VISIBLE_PROPERTY, oldValue, 
+				//					!oldValue);
 			}
-			view.setBounds(pref.getViewerBounds());
+			if (pref.isFieldSelected(ViewerPreferences.HISTORY) &&
+				pref.isHistory()) {
+				if (image != null)
+					view.setRestoreSize(image.getWidth(), image.getHeight());
+				//boolean oldValue = view.isHistoryShown();
+				view.showHistory(true);
+				//firePropertyChange(HISTORY_VISIBLE_PROPERTY, oldValue, 
+				//					!oldValue);
+			}
+			if (pref.isFieldSelected(ViewerPreferences.ZOOM_FACTOR)) {
+				int index = pref.getZoomIndex();
+				double f = ZoomAction.getZoomFactor(index);
+				setZoomFactor(f, index);
+			}
 			prefSet = true;
 		}
-			
+		view.setCursor(Cursor.getDefaultCursor());
 		fireStateChange();
 	}
 
@@ -1012,9 +1032,12 @@ class ImViewerComponent
 					"This method can't be invoked in the DISCARDED, NEW or" +
 					"LOADING_RENDERING_CONTROL state.");
 		}
-		boolean oldValue = view.isHistoryShown();
-		view.showRenderer();
-		firePropertyChange(HISTORY_VISIBLE_PROPERTY, oldValue, !oldValue);
+		//boolean oldValue = view.isHistoryShown();
+		view.showRenderer(false);
+		controller.setPreferences();
+		//view.setDisplayMode(ImViewerUI.RENDERER, false);
+		
+		//firePropertyChange(HISTORY_VISIBLE_PROPERTY, oldValue, !oldValue);
 		//JFrame f = model.getRenderer().getUI();
 		//UIUtilities.setLocationRelativeToAndShow(view, f);
 	}
@@ -1464,6 +1487,7 @@ class ImViewerComponent
 			throw new IllegalStateException(
 					"This method can't be invoked in the DISCARDED state.");
 		model.getBrowser().setUnitBar(b);
+		controller.setPreferences();
 	}
 
 	/** 
@@ -1495,6 +1519,7 @@ class ImViewerComponent
 			throw new IllegalStateException("The method cannot be invoked in " +
 			"the DISCARDED state.");
 		model.getBrowser().setUnitBarSize(size);
+		controller.setPreferences();
 	}
 
 	/** 
@@ -2221,6 +2246,7 @@ class ImViewerComponent
 			throw new IllegalStateException(
 			"This method can't be invoked in the DISCARDED state.");
 		view.showHistory(b);
+		controller.setPreferences();
 	}
 	
 	/** 
@@ -2283,8 +2309,62 @@ class ImViewerComponent
 	public List getActiveChannelsInGrid()
 	{
 		if (model.getState() == DISCARDED) return null;
-		
 		return view.getActiveChannelsInGrid();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#showPreferences()
+	 */
+	public void showPreferences()
+	{
+		ViewerPreferences pref = ImViewerFactory.getPreferences();
+		PreferencesDialog d = new PreferencesDialog(view, pref);
+		d.addPropertyChangeListener(controller);
+		UIUtilities.centerAndShow(d);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setRenderingSettings(Map)
+	 */
+	public void setRenderingSettings(Map map)
+	{
+		if (model.getState() == DISCARDED) return;
+		model.setRenderingSettings(map);
+		view.showUsersList();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#retrieveRelatedSettings(Component, Point)
+	 */
+	public void retrieveRelatedSettings(Component source, Point location)
+	{
+		//TODO: Check state
+		Map m = model.getRenderingSettings();
+		view.setLocationAndSource(source, location);
+		if (m == null)
+			model.fireRenderingSettingsRetrieval();
+		else {
+			view.showUsersList();
+		}
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setGridMagnificationFactor(double)
+	 */
+	public void setGridMagnificationFactor(double factor)
+	{
+		//TODO: Check state
+		view.setGridMagnificationFactor(factor);
+		model.getBrowser().setGridRatio(factor);
+		if (view.isLensVisible() && 
+				model.getTabbedIndex() == ImViewer.GRID_INDEX) {
+			view.setImageZoomFactor((float) model.getBrowser().getGridRatio());
+			view.scrollLens();	
+		}
 	}
     
 }

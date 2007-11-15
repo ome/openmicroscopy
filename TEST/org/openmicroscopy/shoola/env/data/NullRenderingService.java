@@ -177,4 +177,14 @@ public class NullRenderingService
 		return null;
 	}
 
+	/**
+     * No-op implementation
+     * @see OmeroImageService#getRenderingSettings(long)
+     */
+	public Map getRenderingSettings(long pixelsID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
 }

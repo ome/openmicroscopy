@@ -42,9 +42,7 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -109,7 +107,7 @@ public class ImViewerFactory
 	static void attachWindowMenuToTaskBar()
 	{
 		if (isWindowMenuAttachedToTaskBar()) return;
-		TaskBar tb = HiViewerAgent.getRegistry().getTaskBar();
+		TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
 		tb.addToMenu(TaskBar.WINDOW_MENU, singleton.windowMenu);
 		singleton.isAttached = true;
 	}
@@ -247,8 +245,18 @@ public class ImViewerFactory
 	 */
 	static long getRefPixelsID() { return singleton.refPixelsID; }
 	
-	static ViewerPreferences getPreferences() { return null;}//singleton.pref; }
+	/**
+	 * Returns the user preferences.
+	 * 
+	 * @return See above.
+	 */
+	static ViewerPreferences getPreferences() { return singleton.pref; }
 
+	/**
+	 * Sets the preferences.
+	 * 
+	 * @param pref The value to set.
+	 */
 	static void setPreferences(ViewerPreferences pref)
 	{
 		singleton.pref = pref;
@@ -281,10 +289,6 @@ public class ImViewerFactory
 		viewers = new HashSet<ImViewer>();
 		isAttached = false;
 		windowMenu = new JMenu("Viewers");
-		pref = new ViewerPreferences();
-		pref.setRenderer(true);
-		pref.setZoomIndex(ZoomAction.ZOOM_FIT_TO_WINDOW);
-		pref.setViewerBounds(new Rectangle(0, 22, 1400, 800));
 	}
 
 	/**

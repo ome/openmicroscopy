@@ -215,11 +215,17 @@ public class IconManager
     /** The <code>Paste</code> icon. */
     public static int           PASTE = 51;
     
+    /** The <code>Preferences</code> icon. */
+    public static int           PREFERENCES_48 = 52;
+    
+    /** The <code>User</code> icon. */
+    public static int           USER = 53;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 52;
+    private static int          MAX_ID = 53;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -278,6 +284,8 @@ public class IconManager
         relPaths[RATIO_MAX] = "image14.png";
         relPaths[COPY] = "eclipse_copy_edit16.png";
         relPaths[PASTE] = "eclipse_paste_edit16.png";
+        relPaths[PREFERENCES_48] = "nuvola_messagebox_info48.png";
+        relPaths[USER] = "nuvola_kdmconfig16.png";
     }
     
     /** The sole instance. */

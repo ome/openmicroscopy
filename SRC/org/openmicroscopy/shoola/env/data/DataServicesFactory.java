@@ -120,13 +120,18 @@ public class DataServicesFactory
 	 */
 	private float determineCompression(int connectionSpeed)
 	{
+		Float value;
 		switch (connectionSpeed) {
 			case UserCredentials.MEDIUM:
 			case UserCredentials.HIGH:
-				return OMEROGateway.DEFAULT_COMPRESSION_QUALITY;
+				value = (Float) registry.lookup(
+						LookupNames.COMPRESSIOM_MEDIUM_QUALITY);
+				return value.floatValue();
 			case UserCredentials.LOW:
 			default:
-				return OMEROGateway.LOW_COMPRESSION_QUALITY;
+				value = (Float) registry.lookup(
+						LookupNames.COMPRESSIOM_LOW_QUALITY);
+				return value.floatValue();
 		}
 	}
 	

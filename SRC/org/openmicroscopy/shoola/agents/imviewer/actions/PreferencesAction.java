@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.actions.ClassifyAction 
+ * org.openmicroscopy.shoola.agents.imviewer.actions.PreferencesAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -24,10 +24,10 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 
 //Java imports
-import java.awt.Component;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.ActionEvent;
+
 import javax.swing.Action;
+
 
 //Third-party libraries
 
@@ -36,9 +36,8 @@ import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-
 /** 
- * Brings up the <code>Category</code> menu.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -50,69 +49,38 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public class ClassifyAction 
+public class PreferencesAction 
 	extends ViewerAction
-	implements MouseListener
 {
 
 	/** The name of the action. */
-    private static final String NAME = "Categorise";
+    private static final String NAME = "Preferences...";
     
-    /** The description of the action. */
-    private static final String DESCRIPTION = "Display categories.";
+	/** The description of the action. */
+    private static final String DESCRIPTION = "Set the Viewer preferences.";
     
-    /**
+	/**
      * Creates a new instance.
      * 
-     * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param model	Reference to the model. Mustn't be <code>null</code>.
      */
-	public ClassifyAction(ImViewer model)
-	{
-		super(model, NAME);
-		putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
+    public PreferencesAction(ImViewer model)
+    {
+        super(model);
         IconManager icons = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.CATEGORY));
-	}
-
-	/** 
-	 * Brings up the menu displaying categories.
-	 * @see MouseListener#mousePressed(MouseEvent)
-	 */
-	public void mousePressed(MouseEvent me)
-	{
-		Object source = me.getSource();
-		if (source instanceof Component) 
-			model.showMenu(ImViewer.CATEGORY_MENU, (Component) source, 
-							me.getPoint());
-	}
-	
-	/**
-	 * Required by the {@link MouseListener} I/F but no-op implementation 
-	 * in our case.
-	 * @see MouseListener#mouseClicked(MouseEvent)
-	 */
-	public void mouseClicked(MouseEvent me) {}
-
-	/**
-	 * Required by the {@link MouseListener} I/F but no-op implementation 
-	 * in our case.
-	 * @see MouseListener#mouseEntered(MouseEvent)
-	 */
-	public void mouseEntered(MouseEvent me) {}
-
-	/**
-	 * Required by the {@link MouseListener} I/F but no-op implementation 
-	 * in our case.
-	 * @see MouseListener#mouseExited(MouseEvent)
-	 */
-	public void mouseExited(MouseEvent me) {}
-
-	/**
-	 * Required by the {@link MouseListener} I/F but no-op implementation 
-	 * in our case.
-	 * @see MouseListener#mouseReleased(MouseEvent)
-	 */
-	public void mouseReleased(MouseEvent me) {}
-	
+        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.TRANSPARENT));
+        putValue(Action.SHORT_DESCRIPTION, 
+                UIUtilities.formatToolTipText(DESCRIPTION));
+        putValue(Action.NAME, NAME);
+    }
+    
+    /** 
+     * Brings up the preferences widget.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+        model.showPreferences();
+    }
+    
 }

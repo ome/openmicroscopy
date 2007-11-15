@@ -53,34 +53,34 @@ public class UnitBarSizeAction
 {
     
     /** Identifies the scale bar of size <code>1</code>. */
-    public static final int ONE = 0;
+    public static final int 	ONE = 0;
     
     /** Identifies the scale bar of size <code>2</code>. */
-    public static final int TWO = 1;
+    public static final int 	TWO = 1;
     
     /** Identifies the scale bar of size <code>5</code>. */
-    public static final int FIVE = 2;
+    public static final int 	FIVE = 2;
     
     /** Identifies the scale bar of size <code>10</code>. */
-    public static final int TEN = 3;
+    public static final int 	TEN = 3;
     
     /** Identifies the scale bar of size <code>20</code>. */
-    public static final int TWENTY = 4;
+    public static final int 	TWENTY = 4;
     
     /** Identifies the scale bar of size <code>50</code>. */
-    public static final int FIFTY = 5;
+    public static final int 	FIFTY = 5;
     
     /** Identifies the scale bar of size <code>100</code>. */
-    public static final int HUNDRED = 6;
+    public static final int 	HUNDRED = 6;
     
     /** Identifies the scale bar of size customized. */
-    public static final int CUSTOMIZED = 7;
+    public static final int 	CUSTOMIZED = 7;
    
-    /** The number of supported ids. */
-    private static final int    MAX = 7;
-
     /** The default index. */
-    private static final int DEFAULT_UNIT_INDEX = FIVE;
+    public static final int 	DEFAULT_UNIT_INDEX = FIVE;
+    
+    /** The number of supported ids. */
+    private static final int	MAX = 7;
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Selects the size of " +
@@ -90,14 +90,14 @@ public class UnitBarSizeAction
      * Array of action names associated to the identifiers defined by this 
      * class.
      */
-    private static String[]     names;
+    private static String[]     		names;
     
     /** 
      * Array of values associated to the identifiers defined by this 
      * class.
      */
-    private static int[]        values;
-    
+    private static int[]        		values;
+
     static {
         values = new int[MAX+1];
         values[ONE] = 1;
@@ -165,14 +165,13 @@ public class UnitBarSizeAction
                 UIUtilities.formatToolTipText(DESCRIPTION));
         putValue(Action.NAME, names[index]);
     }
-    
+
     /**
-     * Returns <code>true</code> if the passed index is the default one,
-     * <code>false</code> otherwise.
+     * Returns the index of the action
      * 
      * @return See above.
      */
-    public boolean isDefaultIndex() { return (index == DEFAULT_UNIT_INDEX); }
+    public int getIndex() { return index; }
     
     /**
      * Sets the size of the unit bar.

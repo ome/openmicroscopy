@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction
+ * org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 
@@ -35,32 +34,30 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Sets the magnification factor.
+ * Sets the magnification factor for the grid view.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since OME3.0
  */
-public class ZoomAction
-    extends ViewerAction
+public class ZoomGridAction
+	extends ViewerAction
 {
     
     /** The maximun value of the zoom factor. */
-    public static final double  MAX_ZOOM_FACTOR = 12*ZoomCmd.INCREMENT;
+    public static final double  MAX_ZOOM_FACTOR = 4*ZoomCmd.INCREMENT;
     
     /** The minimun value of the zoom factor. */
     public static final double  MIN_ZOOM_FACTOR = ZoomCmd.INCREMENT;
     
     /** The default zooming factor. */
-    public static final double  DEFAULT_ZOOM_FACTOR = 1.0;
+    public static final double  DEFAULT_ZOOM_FACTOR = 2*ZoomCmd.INCREMENT;
     
     /** Identifies the <code>0.25</code> zooming factor. */
     public static final int     ZOOM_25 = 0;
@@ -73,51 +70,21 @@ public class ZoomAction
     
     /** Identifies the <code>1.0</code> zooming factor. */
     public static final int     ZOOM_100 = 3;
-    
-    /** Identifies the <code>1.25</code> zooming factor. */
-    public static final int     ZOOM_125 = 4;
-    
-    /** Identifies the <code>1.5</code> zooming factor. */
-    public static final int     ZOOM_150 = 5;
-    
-    /** Identifies the <code>1.75</code> zooming factor. */
-    public static final int     ZOOM_175 = 6;
-    
-    /** Identifies the <code>2.00</code> zooming factor. */
-    public static final int     ZOOM_200 = 7;
-    
-    /** Identifies the <code>2.25</code> zooming factor. */
-    public static final int     ZOOM_225 = 8;
-    
-    /** Identifies the <code>2.50</code> zooming factor. */
-    public static final int     ZOOM_250 = 9;
-    
-    /** Identifies the <code>2.75</code> zooming factor. */
-    public static final int     ZOOM_275 = 10;
-    
-    /** Identifies the <code>3.00</code> zooming factor. */
-    public static final int     ZOOM_300 = 11;
-    
-    /** Indicates to zoom the image to fit to window size. */
-    public static final int     ZOOM_FIT_TO_WINDOW = 12;
      
     /** The default zooming index. */
-    public static final int  	DEFAULT_ZOOM_INDEX = ZOOM_100;
+    public static final int  	DEFAULT_ZOOM_INDEX = ZOOM_50;
     
     /** The minimum value of zooming index. */
     public static final int  	MIN_ZOOM_INDEX = ZOOM_25;
     
     /** The maximum value of zooming index. */
-    public static final int  	MAX_ZOOM_INDEX = ZOOM_300;
-    
-    /** The maximum value of zooming index. */
-    public static final String  ZOOM_FIT_NAME = "Zoom to Fit";
+    public static final int  	MAX_ZOOM_INDEX = ZOOM_100;
     
     /** The number of supported ids. */
-    private static final int    MAX = 12;
+    private static final int    MAX = 4;
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Zoom in or out.";
+    private static final String DESCRIPTION = "Zoom in or out the grid image.";
 
     /** The array containing the actions' name. */
     private static String[]     names;
@@ -132,29 +99,11 @@ public class ZoomAction
         factors[ZOOM_50] = factors[ZOOM_25]+ZoomCmd.INCREMENT;
         factors[ZOOM_75] = factors[ZOOM_50]+ZoomCmd.INCREMENT;
         factors[ZOOM_100] = factors[ZOOM_75]+ZoomCmd.INCREMENT;
-        factors[ZOOM_125] = factors[ZOOM_100]+ZoomCmd.INCREMENT;
-        factors[ZOOM_150] = factors[ZOOM_125]+ZoomCmd.INCREMENT;
-        factors[ZOOM_175] = factors[ZOOM_150]+ZoomCmd.INCREMENT;
-        factors[ZOOM_200] = factors[ZOOM_175]+ZoomCmd.INCREMENT;
-        factors[ZOOM_225] = factors[ZOOM_200]+ZoomCmd.INCREMENT;
-        factors[ZOOM_250] = factors[ZOOM_225]+ZoomCmd.INCREMENT;
-        factors[ZOOM_275] = factors[ZOOM_250]+ZoomCmd.INCREMENT;
-        factors[ZOOM_300] = factors[ZOOM_275]+ZoomCmd.INCREMENT;
-        factors[ZOOM_FIT_TO_WINDOW] = -1;
         names = new String[MAX+1];
         names[ZOOM_25] = (int) (factors[ZOOM_25]*100)+"%";
         names[ZOOM_50] = (int) (factors[ZOOM_50]*100)+"%";
         names[ZOOM_75] = (int) (factors[ZOOM_75]*100)+"%";
         names[ZOOM_100] = (int) (factors[ZOOM_100]*100)+"%";
-        names[ZOOM_125] = (int) (factors[ZOOM_125]*100)+"%";
-        names[ZOOM_150] = (int) (factors[ZOOM_150]*100)+"%";
-        names[ZOOM_175] = (int) (factors[ZOOM_175]*100)+"%";
-        names[ZOOM_200] = (int) (factors[ZOOM_200]*100)+"%";
-        names[ZOOM_225] = (int) (factors[ZOOM_225]*100)+"%";
-        names[ZOOM_250] = (int) (factors[ZOOM_250]*100)+"%";
-        names[ZOOM_275] = (int) (factors[ZOOM_275]*100)+"%";
-        names[ZOOM_300] = (int) (factors[ZOOM_300]*100)+"%";
-        names[ZOOM_FIT_TO_WINDOW] = ZOOM_FIT_NAME;
     }
     
     /** 
@@ -175,15 +124,6 @@ public class ZoomAction
             case ZOOM_50:
             case ZOOM_75:
             case ZOOM_100:
-            case ZOOM_125:
-            case ZOOM_150:
-            case ZOOM_175:
-            case ZOOM_200:
-            case ZOOM_225:
-            case ZOOM_250:
-            case ZOOM_275:
-            case ZOOM_300:
-            case ZOOM_FIT_TO_WINDOW:
                     return;
             default:
                 throw new IllegalArgumentException("Zoom index not supported.");
@@ -196,11 +136,11 @@ public class ZoomAction
      * @param f The factor used to retrieve the index.
      * @return See above.
      */
-    static int getIndex(double f)
+    public static int getIndex(double f)
     {
     	for (int i = 0; i < factors.length; i++)
 			if (factors[i] == f) return i;
-    	return ZOOM_FIT_TO_WINDOW;
+    	return -1;
     }
 
     /**
@@ -224,7 +164,7 @@ public class ZoomAction
      * @param zoomingIndex  The index of the zooming action.
      *                      One of the constants defined by this class.
      */
-    public ZoomAction(ImViewer model, int zoomingIndex)
+    public ZoomGridAction(ImViewer model, int zoomingIndex)
     {
         super(model);
         controlsIndex(zoomingIndex);
@@ -248,7 +188,8 @@ public class ZoomAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        model.setZoomFactor(factors[zoomingIndex], zoomingIndex);
+        model.setGridMagnificationFactor(factors[zoomingIndex]);
     }
     
+
 }

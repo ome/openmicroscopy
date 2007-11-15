@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader
+ * org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,46 +20,40 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.imviewer;
 
 
-
 //Java imports
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 
 /** 
- * Loads the rendering control proxy for the specified pixels' set.
- * This class calls the <code>loadRenderingControl</code> method in the
+ * Retrieves all the rendering settings related to the specified set 
+ * of pixels.
+ * This class calls the <code>getRenderingSettings</code> method in the
  * <code>ImageDataView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since OME3.0
  */
-public class RenderingControlLoader
-    extends DataLoader
+public class RenderingSettingsLoader     
+	extends DataLoader
 {
 
     /** The ID of the pixels set. */
     private long        pixelsID;
-    
-    /** Flag indicating if the rendering engine has to be reloaded. */
-    private boolean		reload;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -70,24 +64,20 @@ public class RenderingControlLoader
      * @param viewer    The view this loader is for.
      *                  Mustn't be <code>null</code>.
      * @param pixelsID  The id of the pixels set.
-     * @param reload	Pass <code>true</code> to reload the rendering engine,
-     * 					<code>false</code> otherwise.
      */
-    public RenderingControlLoader(ImViewer viewer, long pixelsID, 
-    								boolean reload)
+    public RenderingSettingsLoader(ImViewer viewer, long pixelsID)
     {
         super(viewer);
         this.pixelsID = pixelsID;
-        this.reload = reload;
     }
 
     /**
-     * Retrieves the rendering control proxy for the selected pixels set.
+     * Retrieves the rendering settings for the selected pixels set.
      * @see DataLoader#load()
      */
     public void load()
     {
-        handle = ivView.loadRenderingControl(pixelsID, reload, this);
+        handle = ivView.getRenderingSettings(pixelsID, this);
     }
 
     /**
@@ -103,8 +93,7 @@ public class RenderingControlLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-        if (!reload) viewer.setRenderingControl((RenderingControl) result);
-        else viewer.setReloaded((RenderingControl) result);
+        viewer.setRenderingSettings((Map) result);
     }
     
 }

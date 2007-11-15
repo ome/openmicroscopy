@@ -97,6 +97,14 @@ public class LookupNames
     public static final String MONITOR_FACTORY = 
                                           "/services/data/views/MonitorFactory";
     
+    /** Field to access the <code>medium compression quality</code>. */
+    public static final String COMPRESSIOM_MEDIUM_QUALITY = 
+    								"/services/RE/compressionMedium";
+    
+    /** Field to access the <code>low compression quality</code>. */
+    public static final String COMPRESSIOM_LOW_QUALITY = 
+    								"/services/RE/compressionLow";
+    
     /** Field to access the <code>Log service</code> information. */
     public static final String LOGIN = "/services/Login";
     

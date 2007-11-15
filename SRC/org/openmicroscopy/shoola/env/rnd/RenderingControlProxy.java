@@ -46,8 +46,10 @@ import sun.awt.image.IntegerInterleavedRaster;
 //Application-internal dependencies
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
+import ome.model.display.ChannelBinding;
 import ome.model.display.CodomainMapContext;
 import ome.model.display.QuantumDef;
+import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import omeis.providers.re.RenderingEngine;
@@ -103,8 +105,8 @@ class RenderingControlProxy
     /** Local copy of the rendering used to speed-up the UI painting. */
     private RndProxyDef             rndDef;
     
-    /** Indicates if the compression is turned on/off. */
-    private boolean					compressed;
+    /** Indicates if the compression level. */
+    private int						compression;
     
     /**
      * Helper method to handle exceptions thrown by the connection library.
@@ -342,6 +344,7 @@ class RenderingControlProxy
 			img = ImageIO.read(stream);
 			initializeCache(pDef, values.length);
 			cache(pDef, img);
+			stream.close();
 		} catch (Exception e) {
 			handleException(e, ERROR+"cannot render the compressed image.");
 		}
@@ -401,11 +404,11 @@ class RenderingControlProxy
      *                  Mustn't be <code>null</code>.
      * @param m         The channel metadata. 
      * @param pixelsID	The pixels ID, this proxy is for.
-     * @param compressed Pass <code>true</code> to display by default 
-	 * 					 compressed images, <code>false</code> otherwise.
+     * @param compression  	Pass <code>0</code> if no compression otherwise 
+	 * 						pass the compression used.
      */
     RenderingControlProxy(RenderingEngine re, PixelsDimensions pixDims, List m,
-    					boolean compressed)
+    					int compression)
     {
         if (re == null)
             throw new NullPointerException("No rendering engine.");
@@ -417,7 +420,7 @@ class RenderingControlProxy
         families = servant.getAvailableFamilies(); 
         models = servant.getAvailableModels();
         rndDef = new RndProxyDef();
-        setCompressed(compressed); 
+        this.compression = compression;
         initialize();
         tmpSolutionForNoiseReduction();
         metadata = new ChannelMetadata[m.size()];
@@ -1066,6 +1069,7 @@ class RenderingControlProxy
 				setChannelWindow(i, c.getInputStart(), c.getInputEnd());
 				setQuantizationMap(i, c.getFamily(), c.getCurveCoefficient(), 
 									c.isNoiseReduction());
+				setActive(i, c.isActive());
 			}		
 		}
 	}
@@ -1122,17 +1126,19 @@ class RenderingControlProxy
     {
         if (pDef == null) 
             throw new IllegalArgumentException("Plane def cannot be null.");
-        if (compressed) return renderPlaneCompressed(pDef);
+        if (isCompressed()) return renderPlaneCompressed(pDef);
         return renderPlaneUncompressed(pDef);
     }
     
     /** 
 	 * Implemented as specified by {@link RenderingControl}. 
-	 * @see RenderingControl#setCompressed(boolean)
+	 * @see RenderingControl#setCompression(int)
 	 */
-	public void setCompressed(boolean compressed)
+	public void setCompression(int compression)
 	{
-		this.compressed = compressed;
+		this.compression = compression;
+		float f = PixelsServicesFactory.getCompressionQuality(compression);
+		servant.setCompressionLevel(f);
 		eraseCache();
 	}
 
@@ -1140,6 +1146,15 @@ class RenderingControlProxy
 	 * Implemented as specified by {@link RenderingControl}. 
 	 * @see RenderingControl#isCompressed()
 	 */
-	public boolean isCompressed() { return compressed; }
+	public boolean isCompressed()
+	{ 
+		return (compression != RenderingControl.UNCOMPRESSED);
+	}
+	
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#getCompressionLevel()
+	 */
+	public int getCompressionLevel() { return compression; }
     
 }
