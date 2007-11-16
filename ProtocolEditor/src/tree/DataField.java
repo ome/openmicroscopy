@@ -116,6 +116,11 @@ public class DataField {
 		this.allAttributesMap = new LinkedHashMap<String, String>(allAttributes);
 	}
 	
+	/* setAttribute(name, value)
+	 * the key method for setting values of the attribute Map.
+	 * notifyObservers is true if the edit corresponds to a single undo() action. 
+	 * This is passed to the tree (via node) to be added to the undoManager. 
+	 */
 	public void setAttribute(String name, String value, boolean notifyDataFieldObservers) {
 	
 		String oldValue = allAttributesMap.get(name);
@@ -123,7 +128,7 @@ public class DataField {
 		allAttributesMap.put(name, value);
 		
 		if (notifyDataFieldObservers) {
-			System.out.println("DataField.setAttribute(notifyObservers="+ notifyDataFieldObservers +"): " + name + "=" + value);
+			// System.out.println("DataField.setAttribute(notifyObservers="+ notifyDataFieldObservers +"): " + name + "=" + value);
 			// remember what change was made - add it to undo() history
 			node.dataFieldUpdated(new EditDataFieldAttribute(this, name, oldValue, value));
 			
@@ -296,7 +301,7 @@ public class DataField {
 		while (keyIterator.hasNext()) {
 			String name = (String)keyIterator.next();
 			String value = allAttributesMap.get(name);
-			if (value.contains(searchWord)) return true;
+			if ((value != null) && (value.contains(searchWord))) return true;
 		}
 		return false;
 	}

@@ -52,6 +52,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import util.MacOSMenuHandler;
+
 /** 
  * Creates and manages the {@link TaskBarView}.
  * It acts as a controller.
@@ -273,8 +275,13 @@ class TaskBarManager
 		attachOpenExitListeners();
         String osName = System.getProperty("os.name");
 		if (osName.startsWith("Mac OS")) {
-        	new MacOSMenuHandler(view);
-	    	view.addPropertyChangeListener(this);
+			try {
+				MacOSMenuHandler handler = new MacOSMenuHandler(view);
+				handler.initialize();
+		    	view.addPropertyChangeListener(this);
+			} catch (Throwable t) {
+				// TODO: handle exception
+			}
         }
      }
 	

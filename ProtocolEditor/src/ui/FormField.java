@@ -46,6 +46,7 @@ public class FormField extends AbstractDataFieldPanel implements DataFieldObserv
 	Icon collapsedIcon;
 	Icon notCollapsedIcon;
 	
+	// used in Diff (comparing two trees), to get a ref to all components, to colour red if different!
 	ArrayList<JComponent> visibleAttributes = new ArrayList<JComponent>();
 	
 	public static final Dimension MINSIZE = new Dimension(30, 25);
@@ -63,6 +64,7 @@ public class FormField extends AbstractDataFieldPanel implements DataFieldObserv
 		Border eb = BorderFactory.createEmptyBorder(3, 3, 3, 3);
 		this.setBorder(eb);
 		this.setLayout(new BorderLayout());
+		//this.setFocusable(true);
 		this.addMouseListener(new FormPanelMouseListener());
 		
 		horizontalBox = Box.createHorizontalBox();
@@ -297,7 +299,10 @@ public class FormField extends AbstractDataFieldPanel implements DataFieldObserv
     }
 	
 	
-	// position of this panel-bottom within the FormDisplay.
+	/*
+	 * returns the pixel-distance this panel-bottom from the top of FormDisplay.
+	 * used to control scrolling to display this field within the ScrollPanel that contains FormDisplay
+	 */ 
 	public int getHeightOfPanelBottom() {
 		if (isThisRootField()) {
 			return this.getHeight();

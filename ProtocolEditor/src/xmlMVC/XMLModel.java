@@ -57,6 +57,9 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	private ArrayList<XMLUpdateObserver> xmlObservers;
 	private ArrayList<SelectionObserver> selectionObservers = new ArrayList<SelectionObserver>();;
 	
+	/* clipboard of fields, for copy and paste functionality (between files) */
+	private ArrayList<DataFieldNode> copiedToClipboardFields = new ArrayList<DataFieldNode>();
+	
 	
 	public static void main(String args[]) {
 		new XMLModel();
@@ -306,9 +309,21 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	
 	// delegates commands from xmlView to Tree. int Tree.editCommand is a list of known commands
 	public void editCurrentTree(Actions editCommand) {
-		System.out.println("XMLModel editCurrentTree: " + editCommand.toString());
+		// System.out.println("XMLModel editCurrentTree: " + editCommand.toString());
 		Tree tree = getCurrentTree();
 		if (tree != null )tree.editTree(editCommand);
+		notifyXMLObservers();
+	}
+	
+	// make a copy of the currently highlighted fields
+	public void copyHighlightedFieldsToClipboard() {
+		if (getCurrentTree() == null) return;
+		copiedToClipboardFields = new ArrayList<DataFieldNode>(getCurrentTree().getHighlightedFields());
+	}
+	/* paste the clipboard fields into the current Tree */
+	public void pasteHighlightedFieldsFromClipboard() {
+		if ((getCurrentTree() == null) || (copiedToClipboardFields.isEmpty())) return;
+		getCurrentTree().copyAndInsertDataFields(copiedToClipboardFields);
 		notifyXMLObservers();
 	}
 	
@@ -396,7 +411,7 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	
 	// getSearchResults() used to find text within current doc
 	public ArrayList<DataField> getSearchResults(String searchWord) {
-		if (getCurrentTree() == null)	return null;
+		if (getCurrentTree() == null)	return new ArrayList<DataField>();
 		return getCurrentTree().getSearchResults(searchWord);
 	}
 	

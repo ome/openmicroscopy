@@ -76,6 +76,8 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	// commands 
 	public static final String COPY = "copy";
 	public static final String PASTE = "paste";
+	public static final String FIND = "find";
+	public static final String WINDOW = "window";
 	public static final String HIDE_FIND_BOX = "HideFindBox";
 	public static final String NEXT_FIND_HIT = "NextFindHit";
 	public static final String PREV_FIND_HIT = "PrevFindHit";
@@ -202,6 +204,8 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		Icon promoteIcon = ImageFactory.getInstance().getIcon(ImageFactory.PROMOTE_ICON);
 		Icon demoteIcon = ImageFactory.getInstance().getIcon(ImageFactory.DEMOTE_ICON);
 		Icon duplicateIcon = ImageFactory.getInstance().getIcon(ImageFactory.DUPLICATE_ICON);
+		Icon copyIcon = ImageFactory.getInstance().getIcon(ImageFactory.COPY_ICON);
+		Icon pasteIcon = ImageFactory.getInstance().getIcon(ImageFactory.PASTE_ICON);
 		Icon importElementsIcon = ImageFactory.getInstance().getIcon(ImageFactory.IMPORT_ICON);
 		Icon mathsIcon = ImageFactory.getInstance().getIcon(ImageFactory.EDU_MATHS);
 		closeIcon = ImageFactory.getInstance().getIcon(ImageFactory.N0);
@@ -217,22 +221,37 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		// File menu
 		JMenu fileMenu = new JMenu("File");
 		fileMenu.setBorder(menuItemBorder);
-		JMenuItem openFile = new JMenuItem("Open File..", openFileIcon);
-		JMenuItem newBlankProtocolMenuItem = new JMenuItem("New Blank Protocol", newFileIcon);
-		saveFileMenuItem = new JMenuItem("Save File", saveIcon);
-		saveFileAsMenuItem = new JMenuItem("Save File As...", saveFileAsIcon);
-		JMenuItem printExp= new JMenuItem("Print Experiment", printIcon);
-		JMenuItem indexFilesMenuItem = new JMenuItem("Index files for searching");
 		
+		JMenuItem openFile = new JMenuItem("Open File..", openFileIcon);
+		setMenuItemAccelerator(openFile, KeyEvent.VK_O);
 		openFile.addActionListener(new openFileListener());
+		
+		JMenuItem newBlankProtocolMenuItem = new JMenuItem("New Blank Protocol", newFileIcon);
+		setMenuItemAccelerator(newBlankProtocolMenuItem, KeyEvent.VK_N);
 		newBlankProtocolMenuItem.addActionListener(new newProtocolFileListener());
+		
+		JMenuItem closeFileMenuItem = new JMenuItem("Close File", closeIcon);
+		closeFileMenuItem.addActionListener(new CloseFileListener());
+		setMenuItemAccelerator(closeFileMenuItem, KeyEvent.VK_W);
+		
+		saveFileMenuItem = new JMenuItem("Save File", saveIcon);
+		setMenuItemAccelerator(saveFileMenuItem, KeyEvent.VK_S);
 		saveFileMenuItem.addActionListener(new SaveCurrentFileListener());
+		
+		saveFileAsMenuItem = new JMenuItem("Save File As...", saveFileAsIcon);
 		saveFileAsMenuItem.addActionListener(new SaveFileAsListener());
+		
+		JMenuItem printExp= new JMenuItem("Print Experiment", printIcon);
+		setMenuItemAccelerator(printExp, KeyEvent.VK_P);
 		printExp.addActionListener(new PrintExperimentListener());
+		
+		JMenuItem indexFilesMenuItem = new JMenuItem("Index files for searching");
 		indexFilesMenuItem.addActionListener(new IndexFilesListener());
+		
 		
 		fileMenu.add(openFile);
 		fileMenu.add(newBlankProtocolMenuItem);
+		fileMenu.add(closeFileMenuItem);
 		fileMenu.add(saveFileMenuItem);
 		fileMenu.add(saveFileAsMenuItem);
 		fileMenu.add(printExp);
@@ -246,11 +265,19 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		
 		undoMenuItem = new JMenuItem("Undo", undoIcon);
 		undoMenuItem.addActionListener(new UndoActionListener());
+		setMenuItemAccelerator(undoMenuItem, KeyEvent.VK_Z);
 		editMenu.add(undoMenuItem);
 		
 		redoMenuItem = new JMenuItem("Redo", redoIcon);
 		redoMenuItem.addActionListener(new RedoActionListener());
+		setMenuItemAccelerator(redoMenuItem, KeyEvent.VK_Y);
 		editMenu.add(redoMenuItem);
+		
+		JMenuItem findMenuItem = new JMenuItem("Find", findIcon);
+		findMenuItem.addActionListener(new FindTextListener());
+		setMenuItemAccelerator(findMenuItem, KeyEvent.VK_F);
+		editMenu.add(findMenuItem);
+		
 		
 		menuBar.add(editMenu);
 		
@@ -283,10 +310,12 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		demoteStepMenuItem = new JMenuItem("Demote Step (indent to right)", demoteIcon);
 		duplicateFieldMenuItem = new JMenuItem("Duplicate Step", duplicateIcon);
 		importFieldsMenuItem = new JMenuItem("Import Steps", importElementsIcon);
-		copyFieldsMenuItem = new JMenuItem("Cntrl-C Copy Steps");
+		copyFieldsMenuItem = new JMenuItem("Copy Steps", copyIcon);
 		copyFieldsMenuItem.setActionCommand(COPY);
-		pasteFieldsMenuItem = new JMenuItem("Cntrl-V Paste Steps");
+		setMenuItemAccelerator(copyFieldsMenuItem, KeyEvent.VK_C);
+		pasteFieldsMenuItem = new JMenuItem("Paste Steps", pasteIcon);
 		pasteFieldsMenuItem.setActionCommand(PASTE);
+		setMenuItemAccelerator(pasteFieldsMenuItem, KeyEvent.VK_V);
 		
 		editProtocolMenuItem.addActionListener(new ToggleProtocolEditingListener());
 		printProtocolMenuItem.addActionListener(new PrintProtocolListener());
@@ -470,7 +499,8 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 //		 Make a nice border
 		EmptyBorder eb = new EmptyBorder(0,BUTTON_SPACING,BUTTON_SPACING,BUTTON_SPACING);
 		EmptyBorder noLeftPadding = new EmptyBorder (0, 2, BUTTON_SPACING, BUTTON_SPACING);
-		EmptyBorder noRightPadding = new EmptyBorder (0, BUTTON_SPACING, BUTTON_SPACING, 2);
+		EmptyBorder noRightPadding = new EmptyBorder (0, BUTTON_SPACING, BUTTON_SPACING, 1);
+		EmptyBorder thinLeftRightPadding = new EmptyBorder (0, 4, BUTTON_SPACING, 3);
 	
 		// experiment tool-bar buttons
 		
@@ -508,12 +538,17 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		addAnInput = new JButton(addIcon);
 		addAnInput.setToolTipText("Add a step to the protocol");
 		addAnInput.addActionListener(new addDataFieldListener());
-		addAnInput.setBorder(eb);
+		addAnInput.setBorder(noRightPadding);
+		
+		duplicateField = new JButton(duplicateIcon);
+		duplicateField.setToolTipText("Duplicate the selected step. To select multiple steps use Shift-Click");
+		duplicateField.addActionListener(new DuplicateFieldListener());
+		duplicateField.setBorder(thinLeftRightPadding);
 		
 		deleteAnInput = new JButton(deleteIcon);
 		deleteAnInput.setToolTipText("Delete the highlighted steps from the protocol");
 		deleteAnInput.addActionListener(new deleteDataFieldListener());
-		deleteAnInput.setBorder(eb);
+		deleteAnInput.setBorder(noLeftPadding);
 		
 		JButton moveUpButton = new JButton(moveUpIcon);
 		moveUpButton.setToolTipText("Move the step up");
@@ -535,22 +570,29 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		demoteField.addActionListener(new DemoteFieldListener());
 		demoteField.setBorder(noLeftPadding);
 		
-		duplicateField = new JButton(duplicateIcon);
-		duplicateField.setToolTipText("Duplicate the selected step. To select multiple steps use Shift-Click");
-		duplicateField.addActionListener(new DuplicateFieldListener());
-		duplicateField.setBorder(eb);
-		
 		JButton importElemetsButton = new JButton(importElementsIcon);
 		importElemetsButton.setToolTipText("Import steps from another document");
 		importElemetsButton.addActionListener(new InsertElementsFromFileListener());
 		importElemetsButton.setBorder(eb);
 		
+		JButton copyButton = new JButton(copyIcon);
+		copyButton.setToolTipText("Copy fields to clipboard");
+		copyButton.setActionCommand(COPY);
+		copyButton.addActionListener(this);
+		copyButton.setBorder(noRightPadding);
+		
+		JButton pasteButton = new JButton(pasteIcon);
+		pasteButton.setToolTipText("Paste fields from clipboard");
+		pasteButton.setActionCommand(PASTE);
+		pasteButton.addActionListener(this);
+		pasteButton.setBorder(noLeftPadding);
+		
 		// XML validation
 		Dimension xmlValidDim = new Dimension(150, 22);
 		xmlValidationPanel = new JPanel(new BorderLayout());
+		Box xmlValidationBox = Box.createHorizontalBox();
 		xmlValidationPanel.setMaximumSize(xmlValidDim);		// to stop this expanding when window enlarges
 		xmlValidationPanel.setPreferredSize(xmlValidDim);
-		Box xmlValidationBox = Box.createHorizontalBox();
 		XmlValidationListener xmlValidationListener = new XmlValidationListener();
 		
 		xmlValidationButton = new JButton(validationIcon);
@@ -579,15 +621,17 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		expTabToolBar.add(xmlValidationPanel);
 		
 		proTabToolBar = Box.createHorizontalBox();
-		proTabToolBar.add(printProtocolButton);
 		proTabToolBar.add(addAnInput);
+		proTabToolBar.add(duplicateField);
 		proTabToolBar.add(deleteAnInput);
 		proTabToolBar.add(moveUpButton);
 		proTabToolBar.add(moveDownButton);
 		proTabToolBar.add(promoteField);
 		proTabToolBar.add(demoteField);
-		proTabToolBar.add(duplicateField);
+		proTabToolBar.add(copyButton);
+		proTabToolBar.add(pasteButton);
 		proTabToolBar.add(importElemetsButton);
+		proTabToolBar.add(printProtocolButton);
 		proTabToolBar.add(Box.createHorizontalGlue());
 		
 		
@@ -622,14 +666,6 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		noFilesOpen(true);		// disable save etc.
 		updateUndoRedo();	// disable undo redo 
 		findBox.setVisible(false); 	// not visible until findButton clicked
-		
-		// set up copy and paste listeners
-		KeyStroke copy = KeyStroke.getKeyStroke(KeyEvent.VK_C,ActionEvent.CTRL_MASK,false);
-	    KeyStroke paste = KeyStroke.getKeyStroke(KeyEvent.VK_V,ActionEvent.CTRL_MASK,false);
-	    KeyStroke quit = KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK, false);
-	    protocolTab.registerKeyboardAction(this, COPY,copy,JComponent.WHEN_IN_FOCUSED_WINDOW);
-	    protocolTab.registerKeyboardAction(this,PASTE,paste,JComponent.WHEN_IN_FOCUSED_WINDOW);
-		
 	    
 	    // set up frame
 		XMLFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -862,8 +898,10 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	public void actionPerformed(ActionEvent event) {
 		String command = event.getActionCommand();
 		System.out.println(command);
-		if (command.equals(COPY)) xmlModel.editCurrentTree(Actions.COPY_FIELDS);
-		else if (command.equals(PASTE)) xmlModel.editCurrentTree(Actions.PASTE_FIELDS);
+		if (command.equals(COPY)) xmlModel.copyHighlightedFieldsToClipboard();
+		else if (command.equals(PASTE)) xmlModel.pasteHighlightedFieldsFromClipboard();
+		else if (command.equals(FIND)) showFindTextControls();
+		else if (command.equals(WINDOW)) closeCurrentFile();
 	}
 	
 	public void mainWindowClosing() {
@@ -975,7 +1013,9 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 			return;
 		}
 		
+		
 		findTextSearchHits = xmlModel.getSearchResults(searchWord);
+			
 		findTextHitIndex = 0;
 		
 		// if you have at least one result, display it
@@ -1014,7 +1054,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	}
 	
 	public void updateFindNextPrev() {
-		hitsCountLabel.setText(findTextSearchHits.size() + " hits");
+		hitsCountLabel.setText(findTextSearchHits.size() + ((findTextSearchHits.size()==1) ? " hit": " hits" ));
 		if (findTextSearchHits.isEmpty()) {
 			findNextButton.setEnabled(false);
 			findPrevButton.setEnabled(false);
@@ -1028,6 +1068,12 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	/* hide the findTextControlls - eg when user closes panel */
 	public void hideFindTextControls() {
 		findBox.setVisible(false);
+	}
+	/* show the findTextControls */
+	public void showFindTextControls() {
+		findBox.setVisible(true);
+		XMLFrame.validate();
+		findTextField.requestFocusInWindow();
 	}
 	
 	/* clear the search results - eg when user edits file */
@@ -1043,9 +1089,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 			// first use of this function is to display textField if hidden - 
 			// search is also performed (see below) in case the file was edited 
 			if (!findBox.isVisible()) {
-				findBox.setVisible(true);
-				XMLFrame.validate();
-				findTextField.requestFocusInWindow();
+				showFindTextControls();
 			}
 			String actionCommand = event.getActionCommand();
 			// actionEvent from hide button, hide 
@@ -1547,6 +1591,24 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		public void mouseClicked(MouseEvent event) {
 			XMLScrollPane.requestFocusInWindow();
 		}
+	}
+	
+	/* 
+	 * used for setting the power-user shortcuts to menu items 
+	 * @param character  eg. KeyEvent.VK_C
+	 */
+	public static void setMenuItemAccelerator(JMenuItem menuItem, int character) {
+		if (isMacOs()) {
+			menuItem.setAccelerator(KeyStroke.getKeyStroke(character, ActionEvent.META_MASK));
+		} else {
+			menuItem.setAccelerator(KeyStroke.getKeyStroke(character, KeyEvent.CTRL_DOWN_MASK));
+		}
+	}
+	
+	/* method used for OS-specific UI settings */
+	public static boolean isMacOs() {
+		String osName = System.getProperty("os.name");
+		return (osName.contains("Mac OS"));
 	}
 	
 }

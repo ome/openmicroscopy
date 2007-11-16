@@ -104,7 +104,7 @@ public abstract class AbstractDataFieldPanel extends JPanel{
 	public class TextChangedListener implements KeyListener {
 		
 		public void keyTyped(KeyEvent event) {
-
+			
 			char keyChar = event.getKeyChar();
 			int keyCharacter = (int)keyChar;
 			if (keyCharacter == 10) {	// == "Enter"

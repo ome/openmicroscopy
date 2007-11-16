@@ -34,8 +34,7 @@ public class Tree {
 	// this enum specifies a constructor that takes a String name, returned by toString();
 	public enum Actions {MOVE_FIELDS_UP("Move Fields Up"), MOVE_FIELDS_DOWN("Move Fields Down"), 
 		DELTE_FIELDS("Delete Fields"), ADD_NEW_FIELD("Add New Field"), DEMOTE_FIELDS("Demote Fields"), 
-		PROMOTE_FIELDS("Promote Fields"), DUPLICATE_FIELDS("Duplicate Fields"), COPY_FIELDS("Copy Fields"),
-		PASTE_FIELDS("Paste Fields"), UNDO_LAST_ACTION("Undo Last Action"), REDO_ACTION("Redo"), 
+		PROMOTE_FIELDS("Promote Fields"), DUPLICATE_FIELDS("Duplicate Fields"), UNDO_LAST_ACTION("Undo Last Action"), REDO_ACTION("Redo"), 
 		IMPORT_FIELDS("Import Fields"), LOAD_DEFAULTS("Load Default Values"), CLEAR_FIELDS("Clear Fields");
 		private Actions(String name){
 			this.name = name;
@@ -53,7 +52,6 @@ public class Tree {
 	private boolean xmlValidationOn = false;
 	
 	private ArrayList<DataFieldNode> highlightedFields;
-	private ArrayList<DataFieldNode> copiedToClipboardFields = new ArrayList<DataFieldNode>();
 	
 	public final static String ELEMENT = "element";
 	
@@ -162,14 +160,6 @@ public class Tree {
 				duplicateAndInsertDataFields();
 				break;
 			}
-			case COPY_FIELDS: {
-				copyHighlightedFieldsToClipboard();
-				break;
-			}
-			case PASTE_FIELDS: {
-				pasteClipboardFields();
-				break;
-			}
 			case LOAD_DEFAULTS: {
 				copyDefaultValuesToInputFields();
 				break;
@@ -228,23 +218,6 @@ public class Tree {
 			 }
 		}
 		
-	}
-	
-	// make a copy of the currently highlighted fields
-	private void copyHighlightedFieldsToClipboard() {
-		copiedToClipboardFields = new ArrayList<DataFieldNode>(highlightedFields);
-		}
-	// paste the clipboard fields (after the last highlighted field)
-	private void pasteClipboardFields() {
-		if (copiedToClipboardFields.isEmpty()) return;
-		
-		copyAndInsertDataFields(copiedToClipboardFields, highlightedFields);
-		
-		// add the undo action 	// highlightedFields will now be the newly added fields
-		UndoableEdit edit = new EditPasteFields(highlightedFields);
-		undoSupport.postEdit(edit);
-		
-		setTreeEdited(true);
 	}
 	
 	/* copyDefaultValuesToInputFields()
@@ -367,9 +340,6 @@ public class Tree {
 	public static void addDataField(DataFieldNode newNode, DataFieldNode parentNode, int indexToInsert) {
 		newNode.setParent(parentNode);
 		parentNode.addChild(indexToInsert, newNode);
-		System.out.println("Tree.addDataField(newNode, parentNode, indexToInsert): parent has " 
-				+ parentNode.getChildren().size() + " children");
-		System.out.println("Tree.addDataField newNode is at index " + newNode.getMyIndexWithinSiblings());
 	}
 	
 	//	 add a new dataField after the last highlighted dataField

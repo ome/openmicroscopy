@@ -102,7 +102,7 @@ public class FormFieldCustom extends FormField {
 			String name = (String)keyIterator.next();
 			// don't count these attributes
 			if ((name.equals(DataField.ELEMENT_NAME )) || (name.equals(DataField.INPUT_TYPE))
-					|| (name.equals(DataField.SUBSTEPS_COLLAPSED))) continue;
+					|| (name.equals(DataField.SUBSTEPS_COLLAPSED)) || (name.equals(DataField.TEXT_NODE_VALUE))) continue;
 			return true;
 		}
 		return false;
