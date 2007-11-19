@@ -22,6 +22,7 @@
  */
 
 package org.openmicroscopy.shoola.env.rnd;
+
 //Java imports
 import java.awt.Color;
 import java.awt.Point;
@@ -38,7 +39,6 @@ import java.util.Iterator;
 import java.util.List;
 import javax.ejb.EJBException;
 import javax.imageio.ImageIO;
-
 import sun.awt.image.IntegerInterleavedRaster;
 
 //Third-party libraries
@@ -46,10 +46,8 @@ import sun.awt.image.IntegerInterleavedRaster;
 //Application-internal dependencies
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
-import ome.model.display.ChannelBinding;
 import ome.model.display.CodomainMapContext;
 import ome.model.display.QuantumDef;
-import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import omeis.providers.re.RenderingEngine;
@@ -102,7 +100,7 @@ class RenderingControlProxy
     /** The channel metadata. */
     private ChannelMetadata[]       metadata;
     
-    /** Local copy of the rendering used to speed-up the UI painting. */
+    /** Local copy of the rendering settings used to speed-up the client. */
     private RndProxyDef             rndDef;
     
     /** Indicates if the compression level. */
@@ -160,7 +158,7 @@ class RenderingControlProxy
                                        );
         return new BufferedImage(colorModel, raster, false, null);
     }
-	
+
     /**
      * Retrieves from the cache the buffered image representing the specified
      * plane definition. Note that only the images corresponding to an XY-plane
@@ -169,7 +167,7 @@ class RenderingControlProxy
      * @param pd    The specified {@link PlaneDef plane definition}.
      * @return The corresponding bufferedImage.
      */
-    private BufferedImage getFromCache(PlaneDef pd)
+    private Object getFromCache(PlaneDef pd)
     {
         // We only cache XY images.
         if (pd.getSlice() == PlaneDef.XY && xyCache != null) {  
@@ -181,14 +179,14 @@ class RenderingControlProxy
     /**
      * Caches the specified image if it corresponds to an XYPlane.
      * 
-     * @param pd    The plane definition.
-     * @param img   The buffered image to cache.
+     * @param pd    	The plane definition.
+     * @param object	The buffered image to cache or the bytes array.
      */
-    private void cache(PlaneDef pd, BufferedImage img)
+    private void cache(PlaneDef pd, Object object)
     {
         if (pd.getSlice() == PlaneDef.XY) {
             //We only cache XY images.
-            if (xyCache != null) xyCache.add(pd, img);
+            if (xyCache != null) xyCache.add(pd, object);
         }
     }
     
@@ -203,8 +201,8 @@ class RenderingControlProxy
     {
     	if (xyCache == null) return;
     	invalidateCache();
-    	CachingService.eraseXYCache(pixs.getId()); 
     	xyCache = null;
+    	CachingService.eraseXYCache(pixs.getId()); 
     }
     
     /**
@@ -216,7 +214,7 @@ class RenderingControlProxy
     private void initializeCache(PlaneDef pDef, int length)
     {
     	if (xyCache != null) return;
-    	if (pDef.getSlice() == PlaneDef.XY) {
+    	if (pDef.getSlice() == PlaneDef.XY && xyCache == null) {
     		//    		Okay, let's see if we can activate the xyCache. 
             //In order to 
             //do that, the dimensions of the pixels array and the 
@@ -336,19 +334,20 @@ class RenderingControlProxy
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		//Need to adjust the cache.
-		BufferedImage img = getFromCache(pDef);
-		if (img != null) return img;
+		Object array = getFromCache(pDef);
 		try {
+			if (array != null) {
+				return ImageIO.read(new ByteArrayInputStream((byte[]) array));
+			}
 			byte[] values = servant.renderCompressed(pDef);
-			ByteArrayInputStream stream = new ByteArrayInputStream(values);
-			img = ImageIO.read(stream);
 			initializeCache(pDef, values.length);
-			cache(pDef, img);
-			stream.close();
+			cache(pDef, values);
+			return ImageIO.read(new ByteArrayInputStream(values));
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleException(e, ERROR+"cannot render the compressed image.");
 		}
-		return img;
+		return null;
 	}
 	
 	/**
@@ -365,7 +364,7 @@ class RenderingControlProxy
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		//See if the requested image is in cache.
-        BufferedImage img = getFromCache(pDef);
+        BufferedImage img = (BufferedImage) getFromCache(pDef);
         if (img != null) return img;
         try {
             int[] buf = servant.renderAsPackedInt(pDef);
@@ -398,17 +397,19 @@ class RenderingControlProxy
     /**
      * Creates a new instance.
      * 
-     * @param re   		The service to render a pixels set.
-     *                  Mustn't be <code>null</code>.
-     * @param pixDims   The dimensions in microns of the pixels set.
-     *                  Mustn't be <code>null</code>.
-     * @param m         The channel metadata. 
-     * @param pixelsID	The pixels ID, this proxy is for.
+     * @param re   			The service to render a pixels set.
+     *                  	Mustn't be <code>null</code>.
+     * @param pixDims   	The dimensions in microns of the pixels set.
+     *                  	Mustn't be <code>null</code>.
+     * @param m         	The channel metadata. 
+     * @param pixelsID		The pixels ID, this proxy is for.
      * @param compression  	Pass <code>0</code> if no compression otherwise 
 	 * 						pass the compression used.
+	 * @param rndDef		Local copy of the rendering settings used to 
+	 * 						speed-up the client.
      */
     RenderingControlProxy(RenderingEngine re, PixelsDimensions pixDims, List m,
-    					int compression)
+    					int compression, RndProxyDef rndDef)
     {
         if (re == null)
             throw new NullPointerException("No rendering engine.");
@@ -419,9 +420,21 @@ class RenderingControlProxy
         pixs = servant.getPixels();
         families = servant.getAvailableFamilies(); 
         models = servant.getAvailableModels();
-        rndDef = new RndProxyDef();
+        
         this.compression = compression;
-        initialize();
+        if (rndDef == null) {
+        	this.rndDef = new RndProxyDef();
+        	initialize();
+        } else {
+        	this.rndDef = rndDef;
+        	ChannelBindingsProxy cb;
+        	for (int i = 0; i < pixs.getSizeC().intValue(); i++) {
+                cb = rndDef.getChannel(i);
+                cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
+                cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
+            }
+        }
+       
         tmpSolutionForNoiseReduction();
         metadata = new ChannelMetadata[m.size()];
         Iterator i = m.iterator();

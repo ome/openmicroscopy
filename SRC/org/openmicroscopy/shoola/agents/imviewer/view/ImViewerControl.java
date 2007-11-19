@@ -549,6 +549,7 @@ class ImViewerControl
 	 */
 	void setSelectedXYPlane(int z, int t) { model.setSelectedXYPlane(z, t); }
 
+	/** Renders the currently selected XY-plane. */
 	void renderXYPlane() { model.renderXYPlane(); }
 	
 	/**
@@ -634,12 +635,18 @@ class ImViewerControl
 		ViewerPreferences pref = ImViewerFactory.getPreferences();
 		if (pref == null) 
 			pref = new ViewerPreferences();
-		pref.setViewerBounds(view.getBounds());
-		pref.setZoomIndex(view.getZoomIndex());
+		Rectangle bounds = view.getBounds();
+		if (bounds != null)
+			pref.setViewerBounds(bounds);
+		int index = view.getZoomIndex();
+		if (index > 0) pref.setZoomIndex(index);
 		pref.setRenderer(view.isRendererShown());
 		pref.setHistory(view.isHistoryShown());
-		pref.setScaleBarColor(model.getUnitBarColor());
-		pref.setScaleBarIndex(view.getScaleBarIndex());
+		Color c = model.getUnitBarColor();
+		if (c == null)
+			pref.setScaleBarColor(c);
+		index = view.getScaleBarIndex();
+		if (index > 0) pref.setScaleBarIndex(index);
 		ImViewerFactory.setPreferences(pref);
 	}
 	

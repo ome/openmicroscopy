@@ -495,16 +495,23 @@ class ImViewerComponent
 	 */
 	public void discard()
 	{
-		if (model.getState() != DISCARDED) {
-			controller.setPreferences();
-			if (!saveOnClose()) return;
-			postViewerState(ViewerState.CLOSE);
-			model.discard();
-			fireStateChange();
-			EventBus bus = MeasurementAgent.getRegistry().getEventBus();
-			bus.post(new FreeCacheEvent(model.getPixelsID(), 
-					FreeCacheEvent.XY_IMAGE_DATA));
+		switch (model.getState()) {
+			case DISCARDED:
+			case LOADING_RENDERING_CONTROL:
+				model.discard();
+				fireStateChange();
+				break;
+			default:
+				controller.setPreferences();
+				if (!saveOnClose()) return;
+				postViewerState(ViewerState.CLOSE);
+				model.discard();
+				fireStateChange();
+				EventBus bus = MeasurementAgent.getRegistry().getEventBus();
+				bus.post(new FreeCacheEvent(model.getPixelsID(), 
+						FreeCacheEvent.XY_IMAGE_DATA));
 		}
+	
 	}
 
 	/** 
@@ -1582,6 +1589,7 @@ class ImViewerComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException("The method cannot be invoked in " +
 			"the DISCARDED state.");
+		if (model.getBrowser() == null) return null;
 		return model.getBrowser().getUnitBarColor();
 	}
 

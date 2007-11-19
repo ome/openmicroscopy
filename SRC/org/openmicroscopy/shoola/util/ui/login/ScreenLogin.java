@@ -96,20 +96,24 @@ public class ScreenLogin
 	/** Default text if no server. */
 	public static final String		DEFAULT_SERVER = "Add a new server ->";
 
-	/** The property name for the user who connects to <i>OMERO</i>. */
-	private static final String  	OMERO_USER= "omeroUser";
-
 	/** The font color for text. */
-	static final Color      		TEXT_COLOR   = Color.WHITE;
+	static final Color      		TEXT_COLOR = Color.WHITE;
 
+	/** The property name for the user who connects to <i>OMERO</i>. */
+	private static final String  	OMERO_USER = "omeroUser";
+
+	/** The property name for the connection speed used to connect to server. */
+	private static final String  	OMERO_CONNECTION_SPEED = 
+													"omeroConnecionSpeed";
+	
 	/** The size of the font for the version. */
-	private static final float		VERSION_FONT_SIZE   = 14;
+	private static final float		VERSION_FONT_SIZE = 14;
 
 	/** The style of the font for the version. */
-	private static final int		VERSION_FONT_STYLE  = Font.BOLD;
+	private static final int		VERSION_FONT_STYLE = Font.BOLD;
 
 	/** The size of the font for the text. */
-	private static final int      	TEXT_FONT_SIZE   = 18;
+	private static final int      	TEXT_FONT_SIZE = 18;
 
 	/** The login text. */
 	private static final String		TEXT_LOGIN = "Please Log In";
@@ -463,6 +467,32 @@ public class ScreenLogin
 	}
 
 	/**
+	 * Sets the connection speed used to connect to the server.
+	 * 
+	 * @param speed The connection speed.
+	 */
+	private void setConnectionSpeed(int speed)
+	{
+		speedIndex = speed;
+		Preferences prefs = Preferences.userNodeForPackage(ScreenLogin.class);
+		prefs.put(OMERO_CONNECTION_SPEED, ""+speedIndex);
+	}
+	
+	/**
+	 * Retrieves the connection speed used to connect to the server.
+	 * 
+	 * @return See above.
+	 */
+	private int retrieveConnectionSpeed()
+	{
+		Preferences prefs = Preferences.userNodeForPackage(ScreenLogin.class);
+		String s = prefs.get(OMERO_CONNECTION_SPEED, null);
+		if (s == null || s.trim().length() == 0)
+			return LoginCredentials.HIGH;
+		return Integer.parseInt(s);
+	}
+	
+	/**
 	 * Sets the name of the user in the preferences.
 	 * 
 	 * @param name The name to set.
@@ -519,8 +549,8 @@ public class ScreenLogin
 		setPreferredSize(d);
 		editor = new ServerEditor();
 		editor.addPropertyChangeListener(ServerEditor.REMOVE_PROPERTY, this);
-		speedIndex = LoginCredentials.HIGH; //Default
 		connectionSpeed = false;
+		speedIndex = retrieveConnectionSpeed();
 		initFields(getUserName());
 		initButtons();
 		initListeners();
@@ -636,15 +666,6 @@ public class ScreenLogin
 				cleanFields();	
 		}
 	}
-
-	/** 
-	 * Fires a property to move the window to the front and 
-	 * requests the focus on the field.
-	 */
-	public void updateView()
-	{
-		
-	}
 	
 	/** Closes and disposes. */
 	public void close()
@@ -689,7 +710,7 @@ public class ScreenLogin
 			if (v.equals(oldValue)) 
 				setNewServer((String) evt.getNewValue());
 		} else if (ServerDialog.CONNECTION_SPEED_PROPERTY.endsWith(name)) {
-			speedIndex = ((Integer) evt.getNewValue()).intValue();
+			setConnectionSpeed(((Integer) evt.getNewValue()).intValue());
 			connectionSpeedText.setText(getConnectionSpeed());
 		}
 	}

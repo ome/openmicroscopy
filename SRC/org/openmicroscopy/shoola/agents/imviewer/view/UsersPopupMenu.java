@@ -32,12 +32,9 @@ import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
-import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 //Third-party libraries
@@ -45,7 +42,6 @@ import javax.swing.JPopupMenu;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-
 import pojos.ExperimenterData;
 
 /** 

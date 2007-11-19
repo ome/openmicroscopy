@@ -84,6 +84,7 @@ public class PixelsServicesFactory
 	 */
 	public static RndProxyDef convert(RenderingDef rndDef)
 	{
+		if (rndDef == null) return null;
 		RndProxyDef proxy = new RndProxyDef();
 		proxy.setDefaultZ(rndDef.getDefaultZ());
 		proxy.setDefaultT(rndDef.getDefaultT());
@@ -163,16 +164,19 @@ public class PixelsServicesFactory
 	 * @param metadata  	The channel metadata.
 	 * @param compression  	Pass <code>0</code> if no compression otherwise 
 	 * 						pass the compression used.
+	 * @param def			The rendering def linked to the rendering engine.
+	 * 						This is passed to speed up the initialization 
+	 * 						sequence.
 	 * @return See above.
 	 * @throws IllegalArgumentException If an Agent try to access the method.
 	 */
 	public static RenderingControl createRenderingControl(Registry context, 
 			RenderingEngine re, PixelsDimensions pixDims,
-			List metadata, int compression)
+			List metadata, int compression, RenderingDef def)
 	{
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
-		return singleton.makeNew(re, pixDims, metadata, compression);
+		return singleton.makeNew(re, pixDims, metadata, compression, def);
 	}
 
 	/**
@@ -338,20 +342,26 @@ public class PixelsServicesFactory
 	 * 
 	 * @param re        	The rendering control.
 	 * @param pixDims   	The dimensions of the pixels array.
-	 * @param rdefID		The id of the rendering settings.
+	 * @param metadata		The related metadata.
 	 * @param compression  	Pass <code>0</code> if no compression otherwise 
 	 * 						pass the compression used.
+	 * @param def			The rendering def linked to the rendering engine.
+	 * 						This is passed to speed up the initialization 
+	 * 						sequence.
 	 * @return See above.
 	 */
 	private RenderingControl makeNew(RenderingEngine re,
-			PixelsDimensions pixDims, List metadata, int compression)
+			PixelsDimensions pixDims, List metadata, int compression, 
+			RenderingDef def)
 	{
 		if (singleton == null) throw new NullPointerException();
 		Long id = re.getPixels().getId();
 		RenderingControl rnd = getRenderingControl(registry, id);
 		if (rnd != null) return rnd;
 		int l = singleton.rndSvcProxies.size();
-		rnd = new RenderingControlProxy(re, pixDims, metadata, compression);
+		RndProxyDef proxyDef = convert(def);
+		rnd = new RenderingControlProxy(re, pixDims, metadata, compression,
+										proxyDef);
 		//reset the size of the caches.
 		Iterator i = singleton.rndSvcProxies.keySet().iterator();
 		RenderingControlProxy proxy;

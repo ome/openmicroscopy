@@ -49,6 +49,8 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 
+import pojos.ExperimenterData;
+
 
 /** 
 * Implementation of the {@link OmeroImageService} I/F.
@@ -138,11 +140,14 @@ class OmeroImageServiceImpl
 				default:
 					compressionLevel = 0;
 			}
+			ExperimenterData exp = (ExperimenterData) context.lookup(
+					LookupNames.CURRENT_USER_DETAILS);
 			RenderingEngine re = gateway.createRenderingEngine(pixelsID);
 			PixelsDimensions pixDims = gateway.getPixelsDimensions(pixelsID);
+			RenderingDef def = gateway.getRenderingDef(pixelsID, exp.getId());
 			List l = context.getDataService().getChannelsMetadata(pixelsID);
 			proxy = PixelsServicesFactory.createRenderingControl(context, re,
-					pixDims, l, compressionLevel);
+					pixDims, l, compressionLevel, def);
 		}
 		return proxy;
 	}

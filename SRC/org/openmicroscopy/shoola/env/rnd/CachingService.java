@@ -1,4 +1,4 @@
-/*
+ /*
  * org.openmicroscopy.shoola.env.rnd.CachingService 
  *
  *------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ public class CachingService
 {
 	
 	/** The percentage of memory used for caching. */
-	private static final double		RATIO = 0.6;
+	private static final double		RATIO = 0.10;
 	
 	/** Values used to determine the size of a cache. */
 	private static final int		FACTOR = 1024*1024;

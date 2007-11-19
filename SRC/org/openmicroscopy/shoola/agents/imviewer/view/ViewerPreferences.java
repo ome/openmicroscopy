@@ -103,7 +103,7 @@ public class ViewerPreferences
 		fields.put(BG_COLOR, true);
 		fields.put(ZOOM_FACTOR, true);
 	}
-	
+
 	/**
 	 * Sets the selected fields.
 	 * 

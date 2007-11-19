@@ -47,6 +47,7 @@ import javax.ejb.EJBException;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import ome.api.IAdmin;
+import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IRenderingSettings;
@@ -349,7 +350,7 @@ class OMEROGateway
 	 * 
 	 * @return See above.
 	 */
-	private IAdmin getAdmin() { return entry.getAdminService(); }
+	private IAdmin getAdminService() { return entry.getAdminService(); }
 
 	/**
 	 * Returns the {@link ThumbnailStore} service.
@@ -1297,7 +1298,7 @@ class OMEROGateway
 	throws DSOutOfServiceException, DSAccessException
 	{
 		try {
-			IAdmin service = getAdmin();
+			IAdmin service = getAdminService();
 			List<ExperimenterGroup> groups = service.lookupGroups();
 			Iterator i = groups.iterator();
 			ExperimenterGroup group;
@@ -1404,7 +1405,7 @@ class OMEROGateway
 	void changePassword(String userName, String password)
 	throws DSOutOfServiceException, DSAccessException
 	{
-		IAdmin service = getAdmin();
+		IAdmin service = getAdminService();
 		try {
 			service.changePassword(password);
 			resetFactory(userName, password);
@@ -1424,7 +1425,7 @@ class OMEROGateway
 	void updateExperimenter(Experimenter exp) 
 	throws DSOutOfServiceException, DSAccessException
 	{
-		IAdmin service = getAdmin();
+		IAdmin service = getAdminService();
 		try {
 			service.updateSelf(exp);
 		} catch (Throwable t) {
@@ -1856,4 +1857,40 @@ class OMEROGateway
 		return map;
 	}
 	
+	/**
+	 * Retrieves the rendering settings for the specified pixels set.
+	 * 
+	 * @param pixelsID  The pixels ID.
+	 * @param userID	The id of the user who set the rendering settings.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	RenderingDef getRenderingDef(long pixelsID, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			String sql =  "select rdef from RenderingDef as rdef "
+                + "left outer join fetch rdef.quantization "
+                + "left outer join fetch rdef.model "
+                + "left outer join fetch rdef.waveRendering as cb "
+                + "left outer join fetch cb.color "
+                + "left outer join fetch cb.family "
+                + "left outer join fetch rdef.spatialDomainEnhancement " 
+                + "left outer join fetch rdef.details.owner "
+                + "where rdef.pixels.id = :pixid and " +
+                	"rdef.details.owner.id = :userid";
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			param.addLong("pixid", pixelsID);
+			param.addLong("userid", userID);
+			return service.findByQuery(sql, param);
+		} catch (Exception e) {
+			handleException(e, "Cannot retrieve the rendering settings");
+		}
+		
+		return null;
+	}
 }

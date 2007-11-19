@@ -870,6 +870,9 @@ class ImViewerUI
 		switch (displayMode) {
 			case HISTORY:
 				historyUI.doGridLayout();
+				historySplit.removeAll();
+				historySplit.setLeftComponent(tabs);
+				historySplit.setRightComponent(historyUI);
 				height = restoreSize.height;
 				width = restoreSize.width;
 				d = historyUI.getIdealSize();
@@ -1027,6 +1030,7 @@ class ImViewerUI
 		JCheckBoxMenuItem b;
 		Enumeration e;
 		Action a;
+		if (zoomingGroup == null) return;
 		for (e = zoomingGroup.getElements(); e.hasMoreElements();) {
 			b = (JCheckBoxMenuItem) e.nextElement();
 			a = b.getAction();
@@ -1047,6 +1051,7 @@ class ImViewerUI
 	 */
 	void setMagnificationStatus(double factor)
 	{
+		if (statusBar == null) return;
 		if (factor != -1)
 			statusBar.setRigthStatus("x"+factor);
 		else statusBar.setRigthStatus(ZoomAction.ZOOM_FIT_NAME);
@@ -1059,6 +1064,7 @@ class ImViewerUI
 	 */
 	int getZoomIndex()
 	{
+		if (zoomingGroup == null) return -1;
 		JCheckBoxMenuItem b;
 		Enumeration e;
 		Action a;
@@ -1690,15 +1696,16 @@ class ImViewerUI
 	 */
 	void setCompressionLevel(int compressionLevel)
 	{
-		switch (model.getCompressionLevel()) {
+		switch (compressionLevel) {
 			case ToolBar.UNCOMPRESSED:
 				model.setCompressionLevel(ImViewerModel.UNCOMPRESSED);
+				break;
 			case ToolBar.MEDIUM:
 				model.setCompressionLevel(ImViewerModel.MEDIUM);
+				break;
 			case ToolBar.LOW:
 				model.setCompressionLevel(ImViewerModel.LOW);
 		}
-		model.setCompressionLevel(compressionLevel);
 	}
 	
 	/** 
@@ -1762,6 +1769,7 @@ class ImViewerUI
 	 */
 	int getScaleBarIndex()
 	{
+		if (scaleBarGroup == null) return -1;
 		JCheckBoxMenuItem item;
 		Enumeration e;
 		for (e = scaleBarGroup.getElements(); e.hasMoreElements();) {

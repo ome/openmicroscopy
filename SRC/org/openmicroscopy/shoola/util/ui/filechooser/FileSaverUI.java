@@ -33,7 +33,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -50,7 +49,6 @@ import javax.swing.UIManager;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
-import org.openmicroscopy.shoola.util.ui.JStatusBar;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 

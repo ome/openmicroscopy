@@ -1,4 +1,4 @@
-/*
+ /*
  * org.openmicroscopy.shoola.env.rnd.XYCache
  *
  *------------------------------------------------------------------------------
@@ -117,12 +117,13 @@ public class XYCache
     private int                 			max_entries;
     
     /**
-     * Maps {@link PlanePoint}s onto {@link BufferedImage}s.
+     * Maps {@link PlanePoint}s onto {@link BufferedImage}s or 
+     * <code>byte</code> array.
      * The <code>add</code> method identifies a {@link PlaneDef} object with
      * a point in the <i>zOt</i> cartesian plane, hence with an instance of
      * {@link PlanePoint}. 
      */
-    private Map<PlanePoint, BufferedImage>	cache;
+    private Map<PlanePoint, Object>			cache;
     
     /**
      * Refers to the {@link NavigationHistory} serving the pixels set this 
@@ -216,18 +217,19 @@ public class XYCache
         cache_size = cacheSize;
         image_size = imageSize;
         max_entries = cache_size/image_size;
-        cache = new HashMap<PlanePoint, BufferedImage>(max_entries);
+        cache = new HashMap<PlanePoint, Object>(max_entries);
         navigHistory = nh;
     }
     
     /**
      * Adds the specified entry to the cache.
      * 
-     * @param pd    The key. Mustn't be <code>null</code> and must define
-     *              an XY plane.
-     * @param img   An XY image. Mustn't be <code>null</code>.
+     * @param pd    	The key. Mustn't be <code>null</code> and must define
+     *              	an XY plane.
+     * @param object  	An XY image or a byte array.
+     * 					Mustn't be <code>null</code>.
      */
-    void add(PlaneDef pd, BufferedImage img)
+    void add(PlaneDef pd, Object object)
     {
         if (max_entries == 0) return;  //Caching disabled.
         
@@ -237,7 +239,7 @@ public class XYCache
         if (pd.getSlice() != PlaneDef.XY)
             throw new IllegalArgumentException(
                     "Can only accept XY planes: "+pd.getSlice()+".");
-        if (img == null)
+        if (object == null)
             throw new NullPointerException("No image.");
         
         //Will the next entry fit into the cache?
@@ -246,7 +248,7 @@ public class XYCache
             ensureCapacity(key);
         
         //Once we're here we have enough room for the new element.
-        cache.put(key, img);
+        cache.put(key, object);
     }
    
     /**
@@ -254,10 +256,11 @@ public class XYCache
      * 
      * @param pd    The key. Mustn't be <code>null</code> and must define
      *              an XY plane.
-     * @return The image associated to <code>pd</code> or <code>null</code>
-     *         if the cache doesn't contain such an entry.
+     * @return 		The image or byte array associated to <code>pd</code> or 
+     * 				<code>null</code> if the cache doesn't contain such an
+     * 				entry.
      */
-    BufferedImage extract(PlaneDef pd)
+    Object extract(PlaneDef pd)
     {
         if (pd == null)
             throw new NullPointerException("No plane def.");
@@ -288,7 +291,7 @@ public class XYCache
     void clear()
     {
         int oldSize = cache.size();
-        cache = new HashMap<PlanePoint, BufferedImage>(oldSize);
+        cache = new HashMap<PlanePoint, Object>(oldSize);
     }
     
     /**
@@ -303,7 +306,7 @@ public class XYCache
                     "Cache size must be positive: "+size+".");
         cache_size = size;
         max_entries = cache_size/image_size;
-        cache = new HashMap<PlanePoint, BufferedImage>(max_entries);
+        cache = new HashMap<PlanePoint, Object>(max_entries);
     }
     
 /* 

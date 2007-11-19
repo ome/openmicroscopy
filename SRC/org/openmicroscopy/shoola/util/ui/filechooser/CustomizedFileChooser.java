@@ -298,6 +298,29 @@ class CustomizedFileChooser
 	}
 	
 	/**
+	 * Creates a Regex filter.
+	 * @see KeyListener#keyReleased(KeyEvent)
+	 */
+	public void keyReleased(KeyEvent e)
+	{
+		String filterString = nameArea.getText();
+		try {
+			if (filter == null) {
+				filter = new RegExFileFilter(filterString, true);
+				setFileHidingEnabled(true);
+				setFileFilter(filter);
+			} else
+				filter.setFilter(filterString, true);
+		}
+		catch(Exception exception)
+		{
+			// Eat the exception as this is just the user part way through the
+			// RegEx expression and it being malformed.
+		}
+		repaint();
+	}
+
+	/**
 	 * Overridden to close the {@link ImgSaver} when the selection is cancelled.
 	 * @see JFileChooser#cancelSelection()
 	 */
@@ -352,48 +375,20 @@ class CustomizedFileChooser
 	 * in our case.
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
-	public void changedUpdate(DocumentEvent e){}
+	public void changedUpdate(DocumentEvent e) {}
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
+	/**
+	 * Required by the {@link KeyListener} I/F but no-op implementation
+	 * in our case.
+	 * @see KeyListener#keyPressed(KeyEvent)
 	 */
-	public void keyPressed(KeyEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+	public void keyPressed(KeyEvent e) {}
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
+	/**
+	 * Required by the {@link KeyListener} I/F but no-op implementation
+	 * in our case.
+	 * @see KeyListener#keyTyped(KeyEvent)
 	 */
-	public void keyReleased(KeyEvent e)
-	{
-		String filterString = nameArea.getText();
-		try
-		{
-			if(filter== null)
-			{
-				filter = new RegExFileFilter(filterString, true);
-				setFileHidingEnabled(true);
-				setFileFilter(filter);
-			}
-			else
-				filter.setFilter(filterString, true);
-		}
-		catch(Exception exception)
-		{
-			// Eat the exception as this is just the user part way through the
-			// RegEx expression and it being malformed.
-		}
-		this.repaint();
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
-	 */
-	public void keyTyped(KeyEvent e)
-	{
-	}
+	public void keyTyped(KeyEvent e) {}
 	
 }
