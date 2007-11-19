@@ -342,6 +342,23 @@ public class Tree {
 		parentNode.addChild(indexToInsert, newNode);
 	}
 	
+	/* add a blank dataField, by name
+	 * This is used for adding new OME-XML fields, therefore "inputType"=custom
+	 */
+	public void addDataField(String fieldName) {
+		// add the undo action (include rootNode reference, in case no highlighted fields)
+		// undoActions.push(new TreeAction(Actions.ADD_NEW_FIELD, highlightedFields, rootNode));
+		setTreeEdited(true);
+		
+		DataFieldNode newNode = new DataFieldNode(this);// make a new default-type field
+		newNode.getDataField().setAttribute(DataField.ELEMENT_NAME, fieldName, false);
+		newNode.getDataField().setAttribute(DataField.INPUT_TYPE, DataField.CUSTOM, false);
+		addDataField(newNode);	// adds after last highlighted field, or last child of root
+		
+		UndoableEdit edit = new EditAddField(newNode);
+		undoSupport.postEdit(edit);
+	}
+	
 	//	 add a new dataField after the last highlighted dataField
 	private void addDataField(DataFieldNode newNode) {
 		
@@ -900,6 +917,18 @@ public class Tree {
 			currentFieldEditor = new FieldEditor();
 		
 		return currentFieldEditor;
+	}
+	
+	/* getNameOfCurrnentField()
+	 * returns name of current field if one is highlighted
+	 * otherwise, returns the name of the parent field
+	 */
+	public String getNameOfCurrentFieldsParent() {
+		if (highlightedFields.isEmpty()) {
+			return rootNode.getName();
+		} else {
+			return (highlightedFields.get(0).getParentNode().getName());
+		}
 	}
 	
 	// called by dataField (via Node) to notify of changes for history (NOT requiring UI update)

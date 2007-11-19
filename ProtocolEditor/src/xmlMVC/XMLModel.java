@@ -29,6 +29,7 @@ import tree.Tree.Actions;
 import ui.SelectionObserver;
 import ui.XMLUpdateObserver;
 import ui.XMLView;
+import util.XMLMethods;
 import util.XmlTransform;
 import validation.SAXValidator;
 
@@ -136,55 +137,9 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		selectionObservers.add(newSelectionObserver);
 	}
 	
-	
+	/* convert from an XML file into a DOM document */
 	public void readXMLtoDOM(File xmlFile) throws SAXException{
-		DocumentBuilderFactory factory =
-            DocumentBuilderFactory.newInstance();
-        //factory.setValidating(true);   
-        //factory.setNamespaceAware(true);
-        
-        try {
-           DocumentBuilder builder = factory.newDocumentBuilder();
-
-           builder.setErrorHandler(
-                   new org.xml.sax.ErrorHandler() {
-                       // ignore fatal errors (an exception is guaranteed)
-                       public void fatalError(SAXParseException exception)
-                       throws SAXException {
-                       }
-
-                       // treat validation errors as fatal
-                       public void error(SAXParseException e)
-                       throws SAXParseException
-                       {
-                         throw e;
-                       }
-
-                       // dump warnings too
-                       public void warning(SAXParseException err)
-                       throws SAXParseException
-                       {
-                         System.out.println("** Warning"
-                            + ", line " + err.getLineNumber()
-                            + ", uri " + err.getSystemId());
-                         System.out.println("   " + err.getMessage());
-                       }
-                   }
-                 ); 
-
-           document = builder.parse( xmlFile );
-           
-        } catch (SAXException sxe) {
-            throw sxe;
-
-         } catch (ParserConfigurationException pce) {
-             // Parser with specified options can't be built
-             pce.printStackTrace();
-
-         } catch (IOException ioe) {
-            // I/O error
-            ioe.printStackTrace();
-         }
+		document = XMLMethods.readXMLtoDOM(xmlFile);
 	}
 	
 	public Tree getTreeFromNewFile(File xmlFile) {
@@ -403,6 +358,17 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		if (tree == null) return new JPanel();
 		else
 			return tree.getFieldEditorToDisplay();
+	}
+	
+	// used to find potential child names for OME elements
+	public String getNameOfCurrentFieldsParent() {
+		return getCurrentTree().getNameOfCurrentFieldsParent();
+	}
+	// used to add a child of defined name
+	public void addNewChildToTree(String childName) {
+		if (getCurrentTree() == null) return;
+		getCurrentTree().addDataField(childName);
+		notifyXMLObservers();
 	}
 	
 	public Tree getCurrentTree() {

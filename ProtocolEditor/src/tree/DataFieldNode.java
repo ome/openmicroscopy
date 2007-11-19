@@ -114,6 +114,10 @@ public class DataFieldNode {
 	public JPanel getFormField() {
 		return dataField.getFormField();
 	}
+	public String getName() {
+		if (dataField == null) return "No field";
+		return dataField.getName();
+	}
 	public DataFieldNode getParentNode() {
 		return parent;
 	}

@@ -8,10 +8,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.w3c.dom.Document;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -88,6 +91,58 @@ public ArrayList<HashMap> getAllXmlFileAttributes(File file) throws FileNotFound
 				elementPath = elementPath.substring(0, lastSlashIndex);
 		}
 		
+	}
+	
+	public static Document readXMLtoDOM(File xmlFile) throws SAXException{
+		DocumentBuilderFactory factory =
+            DocumentBuilderFactory.newInstance();
+        //factory.setValidating(true);   
+        //factory.setNamespaceAware(true);
+        Document document = null;
+		
+        try {
+           DocumentBuilder builder = factory.newDocumentBuilder();
+
+           builder.setErrorHandler(
+                   new org.xml.sax.ErrorHandler() {
+                       // ignore fatal errors (an exception is guaranteed)
+                       public void fatalError(SAXParseException exception)
+                       throws SAXException {
+                       }
+
+                       // treat validation errors as fatal
+                       public void error(SAXParseException e)
+                       throws SAXParseException
+                       {
+                         throw e;
+                       }
+
+                       // dump warnings too
+                       public void warning(SAXParseException err)
+                       throws SAXParseException
+                       {
+                         System.out.println("** Warning"
+                            + ", line " + err.getLineNumber()
+                            + ", uri " + err.getSystemId());
+                         System.out.println("   " + err.getMessage());
+                       }
+                   }
+                 ); 
+
+           document = builder.parse( xmlFile );
+           
+        } catch (SAXException sxe) {
+            throw sxe;
+
+         } catch (ParserConfigurationException pce) {
+             // Parser with specified options can't be built
+             pce.printStackTrace();
+
+         } catch (IOException ioe) {
+            // I/O error
+            ioe.printStackTrace();
+         }
+         return document;
 	}
 
 }

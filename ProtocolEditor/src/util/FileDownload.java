@@ -1,11 +1,15 @@
 package util;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -30,17 +34,27 @@ public class FileDownload {
 		try {
 			URL url = new URL (fileUrl);
 			InputStream in = url.openStream();
-			byte[] buffer = new byte[8 * 1024];
+			byte[] buffer = new byte[128];
 			
 			OutputStream out = new BufferedOutputStream(
 					new FileOutputStream(outputFile));
 			
-			int inputByte;
-			while ((inputByte = in.read(buffer)) != -1) {
-				out.write(buffer, 0, inputByte);
-				System.out.println(inputByte);
-			}
-			System.out.println("FileDownload file downloaded to " + outputFile.getAbsolutePath());
+			 FileWriter fw = new FileWriter(outputFile);
+			
+			 Reader reader = new InputStreamReader(in);
+	         BufferedReader bufferedReader = new BufferedReader(reader);
+	         String strLine = "";
+
+	         strLine = bufferedReader.readLine();
+	         while(strLine != null)
+	          {
+	               // System.out.println(strLine);
+	                fw.write(strLine);
+	               // fw.write("\n");
+	               
+	                strLine = bufferedReader.readLine();
+	          }
+	         fw.close();
 			
 		} catch (MalformedURLException e) {
 			throw e;

@@ -30,6 +30,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
+import omeXml.OmeXmlQueryer;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -57,7 +59,9 @@ import xmlMVC.XMLModel;
 // defines the app window and lays out all components
 // processes all user commands from buttons etc..
 
-public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionListener {
+public class XMLView 
+	implements XMLUpdateObserver, SelectionObserver, ActionListener 
+	{
 	
 	XMLModel xmlModel;
 
@@ -345,6 +349,16 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		menuBar.add(protocolMenu);
 		
 		
+		// OME menu
+		JMenu omeMenu = new JMenu("OME-XML");
+		omeMenu.setBorder(menuItemBorder);
+		
+		JMenuItem addOmeChild = new JMenuItem("Add child ome:Element");
+		addOmeChild.addActionListener(new AddOmeChildListener());
+		
+		omeMenu.add(addOmeChild);
+		menuBar.add(omeMenu);
+		
 		// search Field and button
 		searchField = new JTextField("Search Files", 20);
 		searchField.addActionListener(new SearchFieldListener());	
@@ -467,7 +481,7 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 		
 		fileManagerWestToolBar.add(newFileButton);
 		fileManagerWestToolBar.add(openFileButton);
-		//fileManagerWestToolBar.add(openWwwFileButton);	// not working yet!
+		fileManagerWestToolBar.add(openWwwFileButton);
 		fileManagerWestToolBar.add(saveFileButton);
 		fileManagerWestToolBar.add(saveFileAsButton);
 		fileManagerWestToolBar.add(new JSeparator(JSeparator.VERTICAL));
@@ -897,11 +911,8 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	
 	public void actionPerformed(ActionEvent event) {
 		String command = event.getActionCommand();
-		System.out.println(command);
 		if (command.equals(COPY)) xmlModel.copyHighlightedFieldsToClipboard();
 		else if (command.equals(PASTE)) xmlModel.pasteHighlightedFieldsFromClipboard();
-		else if (command.equals(FIND)) showFindTextControls();
-		else if (command.equals(WINDOW)) closeCurrentFile();
 	}
 	
 	public void mainWindowClosing() {
@@ -1080,6 +1091,33 @@ public class XMLView implements XMLUpdateObserver, SelectionObserver, ActionList
 	public void clearFindTextHits() {
 		findTextSearchHits.clear();
 		updateFindNextPrev();
+	}
+	
+	
+	/* uses an instance of ome-xml to find possible child names 
+	 */
+	public class AddOmeChildListener implements ActionListener {
+		public void actionPerformed(ActionEvent arg0) {
+			String currentParentName = xmlModel.getNameOfCurrentFieldsParent();
+			ArrayList<String> childNames = OmeXmlQueryer.getInstance().getPossibleChildElementNames(currentParentName);
+			
+			Object[] possibleNames = new String[childNames.size()];
+			for (int i=0; i<childNames.size(); i++) {
+				possibleNames[i] = childNames.get(i);
+			}
+			
+			
+			String newChildName = (String)JOptionPane.showInputDialog(
+	                XMLFrame,
+	                "Choose a child to add from this list:",
+	                "Add an OME element",
+	                JOptionPane.PLAIN_MESSAGE,
+	                null,
+	                possibleNames,
+	                "");
+			
+			xmlModel.addNewChildToTree(newChildName);
+		}
 	}
 	
 	/* takes all events from the find text functionality */
