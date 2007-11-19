@@ -452,6 +452,7 @@
 		<entry name="WaterDipping"/>
 		<entry name="Air"/>
 		<entry name="Multi"/>
+		<entry name="Glycerol"/>
 		<entry name="Other"/>
 	</enum>
 
@@ -467,16 +468,6 @@
 		<entry name="Iris"/>
 		<entry name="W/Iris"/>
 	</enum>
-
-	<enum id="ome.model.enums.Immersion">
-		<entry name="Oil"/>
-		<entry name="Oel"/>
-		<entry name="Water"/>
-		<entry name="Wasser"/>
-		<entry name="Hl"/>
-		<entry name="Gly"/>
-		<entry name="Wl"/>    
-  </enum>
   
   <!-- OriginalFile Entity -->
 	<enum id="ome.model.enums.Format">
