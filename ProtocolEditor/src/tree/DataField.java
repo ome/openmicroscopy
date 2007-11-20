@@ -36,6 +36,7 @@ public class DataField {
 	public static final String KEYWORDS = "keywords";
 	public static final String SUBSTEPS_COLLAPSED ="substepsCollapsed"; // "true" or "false"
 	public static final String URL = "url";
+	public static final String ONTOLOGY_ID = "ontologyId";
 	
 	// attribute values
 	public static final String TRUE = "true";
@@ -63,15 +64,18 @@ public class DataField {
 	public static final String DROPDOWN_MENU_STEP = "DropDownMenu";
 	public static final String DATE = "DateField";
 	public static final String TABLE = "TableField";
+	
 	public static final String CUSTOM = "CustomField";
+	public static final String OLS_FIELD = "OntologyLookupServiceField";
+	
 	public static final String[] INPUT_TYPES = 
 	{FIXED_PROTOCOL_STEP, TEXT_ENTRY_STEP,
-	MEMO_ENTRY_STEP, DROPDOWN_MENU_STEP, NUMBER_ENTRY_STEP, DATE, TABLE};
+	MEMO_ENTRY_STEP, DROPDOWN_MENU_STEP, NUMBER_ENTRY_STEP, DATE, TABLE, OLS_FIELD};
 	
 //	 the names used for the UI - MUST be in SAME ORDER as INPUT_TYPES they correspond to 
 	// this means you can change the UI names without changing INPUT_TYPES.
 	public static final String[] UI_INPUT_TYPES = 	
-	{ "Fixed", "Text", "Text Box", "Drop-down Menu", "Number", "Date", "Table"};
+	{ "Fixed", "Text", "Text Box", "Drop-down Menu", "Number", "Date", "Table", "Ontology"};
 	
 	// Datafield has attributes stored in LinkedHashMap
 	LinkedHashMap<String, String> allAttributesMap;
@@ -122,13 +126,13 @@ public class DataField {
 	 * This is passed to the tree (via node) to be added to the undoManager. 
 	 */
 	public void setAttribute(String name, String value, boolean notifyDataFieldObservers) {
-	
+		System.out.println("DataField.setAttribute(notifyObservers="+ notifyDataFieldObservers +"): " + name + "=" + value);
+		
 		String oldValue = allAttributesMap.get(name);
 		
 		allAttributesMap.put(name, value);
 		
 		if (notifyDataFieldObservers) {
-			// System.out.println("DataField.setAttribute(notifyObservers="+ notifyDataFieldObservers +"): " + name + "=" + value);
 			// remember what change was made - add it to undo() history
 			node.dataFieldUpdated(new EditDataFieldAttribute(this, name, oldValue, value));
 			

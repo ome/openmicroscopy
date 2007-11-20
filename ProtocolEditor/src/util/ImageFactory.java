@@ -34,8 +34,8 @@ public class ImageFactory {
 	public static final String DEMOTE_ICON = ACTION_ICONS_FILE + "demote.png";
 	public static final String PROMOTE_ICON = ACTION_ICONS_FILE + "promote.png";
 	public static final String DUPLICATE_ICON = ICONS_FILE + "apps/window_list.png";
-	public static final String COPY_ICON = ACTION_ICONS_FILE + "editcopy.png";
-	public static final String PASTE_ICON = ACTION_ICONS_FILE + "editpaste.png";
+	public static final String COPY_ICON = ACTION_ICONS_FILE + "eclipse_copy_edit.png";
+	public static final String PASTE_ICON = ACTION_ICONS_FILE + "eclipse_paste_edit.png";
 	public static final String IMPORT_ICON = ACTION_ICONS_FILE + "compfile.png";
 	public static final String BIG_PROTOCOL_ICON = ACTION_ICONS_FILE + "edu_science.png";
 	public static final String COLLAPSED_ICON = ACTION_ICONS_FILE + "1rightarrow.png";

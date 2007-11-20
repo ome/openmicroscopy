@@ -56,6 +56,9 @@ public class FieldEditorFormFieldFactory {
 		else if (inputType.equals(DataField.FIXED_PROTOCOL_STEP)) {
 			fieldEditor = new FieldEditorFixed(dataField);
 		}
+		else if (inputType.equals(DataField.OLS_FIELD)) {
+			fieldEditor = new FieldEditorOLS(dataField);
+		}
 		else {
 			fieldEditor = new FieldEditorCustom(dataField);
 			dataField.setAttribute(DataField.INPUT_TYPE, DataField.CUSTOM, false);
@@ -101,7 +104,11 @@ public class FieldEditorFormFieldFactory {
 		}
 		else if (inputType.equals(DataField.FIXED_PROTOCOL_STEP)) {
 			formField = new FormFieldFixed(dataField);
-		} else {
+		} 
+		else if (inputType.equals(DataField.OLS_FIELD)) {
+			formField = new FormFieldOLS(dataField);
+		}
+		else {
 			formField = new FormFieldCustom(dataField);
 			dataField.setAttribute(DataField.INPUT_TYPE, DataField.CUSTOM, false);
 		}
