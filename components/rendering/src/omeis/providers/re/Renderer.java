@@ -768,7 +768,8 @@ public class Renderer {
             mapCtx = (CodomainMapContext) i.next();
             mapCtx.setCodomain(start, end);
         }
-
+        //need to rebuild the look up table
+        updateQuantumManager();
     }
 
     /**
