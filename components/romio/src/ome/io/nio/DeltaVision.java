@@ -689,6 +689,7 @@ public class DeltaVision implements PixelBuffer {
 				}
 				break;
 			}
+			case DeltaVisionHeader.PIXEL_TYPE_UNSIGNED_SHORT:
 			case DeltaVisionHeader.PIXEL_TYPE_SIGNED_SHORT:
 			{
 				ShortBuffer swapBuf = from.asShortBuffer();
@@ -751,7 +752,7 @@ public class DeltaVision implements PixelBuffer {
 			}
 			default:
 				throw new RuntimeException(
-					"Unsupported sample bit width: '" + bytesPerPixel + "'");
+					"Unsupported DeltaVision pixel type: "+ pixelType);
 		}
 	}
 }
