@@ -67,10 +67,9 @@ class StatusBar
     /** Displays the status message displayed on the rigth side. */
     private JLabel              rigthStatus;
     
-    
     /** Button to display plane info. */
     private JButton				statusButton;
-    
+
     /** Initializes the components. */
     private void initComponents()
     {

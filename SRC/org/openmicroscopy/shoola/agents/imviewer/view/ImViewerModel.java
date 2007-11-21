@@ -582,8 +582,8 @@ class ImViewerModel
 	void setSelectedXYPlane(int z, int t)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		rndControl.setDefaultT(t);
-		rndControl.setDefaultZ(z);
+		if (t >= 0 && t != getDefaultT()) rndControl.setDefaultT(t);
+		if (z >= 0 && z != getDefaultZ()) rndControl.setDefaultZ(z);
 	}
 
 	/**
@@ -1119,6 +1119,18 @@ class ImViewerModel
 		currentLoader.load();
 	}
 
+	/** 
+	 * Searches for the passed values.
+	 * 
+	 * @param values The value to search for.
+	 */
+	void fireCategoriesRetrieval(List values)
+	{
+		currentLoader = new CategoryLoader(component, getUserDetails().getId(),
+											values);
+		currentLoader.load();
+	}
+	
 	/**
 	 * Sets the categories the images is categorised into.
 	 * 

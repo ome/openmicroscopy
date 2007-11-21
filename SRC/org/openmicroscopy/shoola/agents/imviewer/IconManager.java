@@ -221,11 +221,14 @@ public class IconManager
     /** The <code>User</code> icon. */
     public static int           USER = 53;
     
+    /** The <code>Search</code> icon. */
+    public static int           SEARCH = 54;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 53;
+    private static int          MAX_ID = 54;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -286,6 +289,7 @@ public class IconManager
         relPaths[PASTE] = "eclipse_paste_edit16.png";
         relPaths[PREFERENCES_48] = "nuvola_messagebox_info48.png";
         relPaths[USER] = "nuvola_kdmconfig16.png";
+        relPaths[SEARCH] = "nuvola_find16.png";
     }
     
     /** The sole instance. */

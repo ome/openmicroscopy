@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ObjectFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
@@ -391,6 +392,19 @@ public class DataHandlerViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ClassificationSaver(timeRef, categories);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataHandlerView#searchForClassifications(long, List, 
+	 * 												AgentEventListener)
+	 */
+	public CallHandle searchForClassifications(long userID, List values, 
+					AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ObjectFinder(userID, 
+									ObjectFinder.CATEGORIES, values);
 		return cmd.exec(observer);
 	}
 

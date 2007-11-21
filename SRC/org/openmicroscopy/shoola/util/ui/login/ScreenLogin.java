@@ -42,6 +42,7 @@ import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.prefs.Preferences;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -349,8 +350,9 @@ public class ScreenLogin
 	 */
 	private JPanel buildTopPanel()
 	{
-		double topTable[][] =  {{200, 10, 230, 45, 28}, // columns
-				{32, TableLayout.FILL}}; // rows
+		double topTable[][] =  {{200, 5, TableLayout.FILL, TableLayout.FILL, 
+								TableLayout.PREFERRED}, // columns
+				{TableLayout.PREFERRED, TableLayout.FILL}}; // rows
 		JPanel topPanel = new JPanel();
 		topPanel.setOpaque(false);
 		TableLayout layout = new TableLayout(topTable);
@@ -363,8 +365,17 @@ public class ScreenLogin
 		Font newFont = f.deriveFont(Font.BOLD, TEXT_FONT_SIZE);
 		pleaseLogIn.setFont(newFont);
 		topPanel.add(pleaseLogIn, "0, 0, l, c"); //Add to panel.
-		topPanel.add(serverText, "2, 0, r, c"); //Add to panel.
-		topPanel.add(connectionSpeedText, "3, 0, r, c"); //Add to panel.
+		JPanel p = new JPanel();
+		p.setOpaque(false);
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.add(serverText);
+		p.add(connectionSpeedText);
+		//p.add(configButton);
+		//topPanel.add(serverText, "2, 0, r, c"); //Add to panel.
+		//topPanel.add(connectionSpeedText, "3, 0, r, c"); //Add to panel.
+		JPanel panel = UIUtilities.buildComponentPanelRight(p);
+		panel.setOpaque(false);
+		topPanel.add(panel, "1, 0, 3, 0");
 		topPanel.add(configButton, "4, 0, c, c");
 		
 		topPanel.add(buildTextPanel(user, 'U', USER_TEXT), "0, 1, 0, 1");

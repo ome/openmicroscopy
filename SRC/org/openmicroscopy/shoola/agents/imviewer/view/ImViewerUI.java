@@ -1696,14 +1696,20 @@ class ImViewerUI
 	 */
 	void setCompressionLevel(int compressionLevel)
 	{
+		int oldCompression = getCompressionLevel();
 		switch (compressionLevel) {
 			case ToolBar.UNCOMPRESSED:
 				model.setCompressionLevel(ImViewerModel.UNCOMPRESSED);
+				if (lens != null) lens.resetDataBuffered();
 				break;
 			case ToolBar.MEDIUM:
+				if (lens != null && oldCompression == ToolBar.UNCOMPRESSED) 
+					lens.resetDataBuffered();
 				model.setCompressionLevel(ImViewerModel.MEDIUM);
 				break;
 			case ToolBar.LOW:
+				if (lens != null && oldCompression == ToolBar.UNCOMPRESSED) 
+					lens.resetDataBuffered();
 				model.setCompressionLevel(ImViewerModel.LOW);
 		}
 	}
@@ -1830,7 +1836,8 @@ class ImViewerUI
 	 */
 	void setGridMagnificationFactor(double factor)
 	{
-		setMagnificationStatus(factor);
+		if (model.getTabbedIndex() == ImViewer.GRID_INDEX)
+			setMagnificationStatus(factor);
 		JCheckBoxMenuItem b;
 		Enumeration e;
 		Action a;
@@ -1845,6 +1852,11 @@ class ImViewerUI
 			}
 		}
 		controlPane.setGridMagnificationFactor((int) (factor*10));
+	}
+
+	void searchForCategories(List values)
+	{
+		model.fireCategoriesRetrieval(values);
 	}
 	
 	/** 

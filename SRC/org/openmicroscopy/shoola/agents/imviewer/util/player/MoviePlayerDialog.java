@@ -155,18 +155,18 @@ public class MoviePlayerDialog
         int t = -1;
         switch (player.getMovieIndex()) {
             case ACROSS_T:
-                z = model.getDefaultZ();
+                //z = model.getDefaultZ();
                 t = player.getFrameNumberT();
                 break;
             case ACROSS_Z:
-                t = model.getDefaultT();
+                //t = model.getDefaultT();
                 z = player.getFrameNumberZ();
                 break;
             case ACROSS_ZT:
                 z = player.getFrameNumberZ();
                 t = player.getFrameNumberT();
         }
-        if (z == -1 || t == -1) return;
+        //if (z == -1 || t == -1) return;
         model.setSelectedXYPlane(z, t);
     }
     

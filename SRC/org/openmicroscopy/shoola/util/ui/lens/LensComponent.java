@@ -392,7 +392,12 @@ public class LensComponent
 		lensController.setLensLocation(x, y);
 		zoomWindow.setZoomImage(lensModel.getZoomedImage());
 		zoomWindow.repaint();
-		
+	}
+	
+	/** Indicates to reset the zoomed buffer to <code>null</code>*/
+	public void resetDataBuffered()
+	{
+		lensModel.resetDataBuffer();
 	}
 	
 }

@@ -446,4 +446,15 @@ public interface DataHandlerView
 	public CallHandle annotateChildren(TimeRefObject timeRef, 
 			AnnotationData annotation, AgentEventListener observer);
 	
+	/**
+	 * Retrieves the categories identified by the passed values.
+	 * 
+	 * @param userID	The user's id.
+	 * @param values	The terms to find.
+	 * @param observer	Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle searchForClassifications(long userID, List values, 
+												AgentEventListener observer);
+	
 }

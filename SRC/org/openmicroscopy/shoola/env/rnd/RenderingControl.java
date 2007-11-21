@@ -34,9 +34,7 @@ import java.util.List;
 //Application-internal dependencies
 import ome.model.core.Pixels;
 import ome.model.display.CodomainMapContext;
-import ome.model.display.RenderingDef;
 import omeis.providers.re.data.PlaneDef;
-
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 

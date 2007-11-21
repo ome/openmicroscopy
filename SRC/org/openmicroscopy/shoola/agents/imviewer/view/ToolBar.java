@@ -42,6 +42,7 @@ import javax.swing.JToolBar;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ClassifyAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.search.TagSearch;
 
 /** 
  * Presents the variable drawing controls.
@@ -114,6 +115,9 @@ class ToolBar
     /** Box used to present the compression selected. */
     private JComboBox		compressionBox;
     
+    /** Component used to search the tags. */
+    private TagSearch		search;
+    
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
     {
@@ -164,18 +168,23 @@ class ToolBar
         button.addMouseListener(a);
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);  
+        button = new JButton(controller.getAction(ImViewerControl.SEARCH));
+        UIUtilities.unifiedButtonLookAndFeel(button);
+        bar.add(button);  
     }
     
     /** Initializes the components composing this tool bar. */
     private void initComponents()
     {
+    	search = new TagSearch();
+    	search.addPropertyChangeListener(controller);
     	compressionBox = new JComboBox(compression);
     	compressionBox.setToolTipText(COMPRESSED_DESCRIPTION);
         //compressedBoxsaveOnClose.setSelected(true);
         ClassifyAction a = 
 			(ClassifyAction) controller.getAction(ImViewerControl.CATEGORY);
         categoryButton = new JButton(a);
-        //UIUtilities.unifiedButtonLookAndFeel(categoryButton);
+        UIUtilities.unifiedButtonLookAndFeel(categoryButton);
         //categoryButton.setVisible(true);
         categoryButton.addMouseListener(a);
         //categoryButton.setVisible(true);
@@ -191,7 +200,12 @@ class ToolBar
         p.setLayout(new FlowLayout(FlowLayout.LEFT));
         p.add(bar);
         add(p);
-        add(UIUtilities.buildComponentPanelRight(categoryButton));
+        JPanel right = new JPanel();
+        right.setLayout(new BoxLayout(right, BoxLayout.X_AXIS));
+        right.add(UIUtilities.buildComponentPanelRight(search));
+        right.add(categoryButton);
+        right.setOpaque(true);
+        add(UIUtilities.buildComponentPanelRight(right));
     }
     
     /**

@@ -739,4 +739,19 @@ public interface OmeroDataService
 			long userID)
 		throws DSOutOfServiceException, DSAccessException; 
 	
+	/** 
+	 * Finds the categories whose name contains the passed terms.
+	 * Returns a collection of categories ID.
+	 * 
+	 * @param userID	The Id of the user.
+	 * @param terms		The values to search for.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Set searchForCategories(long userID, List terms)
+		throws DSOutOfServiceException, DSAccessException;
+	
 }

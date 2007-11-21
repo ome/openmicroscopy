@@ -712,8 +712,8 @@ class BrowserModel
      */
     void setSelectedXYPlane(int z, int t)
     {
-    	if (z < 0) z = parent.getDefaultZ();
-    	if (t < 0) t = parent.getDefaultT();
+    	//if (z < 0) z = parent.getDefaultZ();
+    	//if (t < 0) t = parent.getDefaultT();
     	parent.setSelectedXYPlane(z, t);
     }
     

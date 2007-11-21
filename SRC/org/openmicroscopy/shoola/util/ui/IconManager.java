@@ -218,11 +218,23 @@ public class IconManager
     /** ID of <code>Load 48</code> icon. */
     public static final int	LOAD_48 = 54;
     
+    /** ID of <code>Search 48</code> icon. */
+    public static final int	SEARCH_48 = 55;
+    
+    /** ID of <code>Search</code> icon. */
+    public static final int	SEARCH = 56;
+    
+    /** The <code>Filter menu</code> icon. */
+    public static final int	FILTER_MENU = 57;
+    
+    /** The <code>Clear disabled</code> icon. */
+    public static final int	CLEAR_DISABLED = 58;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 54;
+    private static int      MAX_ID = 58;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -285,6 +297,10 @@ public class IconManager
         relPaths[QUESTION] = "nuvola_filetypes32.png";
         relPaths[SAVE_48] = "nuvola_filesaveas48.png";
         relPaths[LOAD_48] = "nuvola_revert48.png";
+        relPaths[SEARCH_48] = "nuvola_find48.png";
+        relPaths[SEARCH] = "eclipse_view_menu16.png";
+        relPaths[FILTER_MENU] = "eclipse_view_menu16.png"; 
+        relPaths[CLEAR_DISABLED] = "eclipse_view_menu16.png"; 
     }
     
     /** 

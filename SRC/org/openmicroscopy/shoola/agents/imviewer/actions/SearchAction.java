@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.actions.UserAction 
+ * org.openmicroscopy.shoola.agents.imviewer.actions.SearchAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -25,9 +25,8 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 
 //Java imports
-import java.awt.Component;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.ActionEvent;
+
 import javax.swing.Action;
 
 //Third-party libraries
@@ -36,9 +35,11 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
+
 
 /** 
- * Action to retrieve the user who viewed the image.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -50,66 +51,39 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public class UserAction 
+public class SearchAction
 	extends ViewerAction
-	implements MouseListener
 {
 
+	/** The description of the action. */
+    private static final String NAME = "Search ";
+    
 	/** The description of the action. */
     private static final String DESCRIPTION = "Shows image" +
     		"with the rendering settings set by the selected user.";
     
-	/**
+    /**
      * Creates a new instance.
      * 
      * @param model     Reference to the model. Mustn't be <code>null</code>.
      */
-    public UserAction(ImViewer model)
+    public SearchAction(ImViewer model)
     {
-        super(model);
-        IconManager icons = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.USER));
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
+    	super(model);
+    	name = NAME;
+    	IconManager icons = IconManager.getInstance();
+    	putValue(Action.SMALL_ICON, icons.getIcon(IconManager.SEARCH));
+    	putValue(Action.SHORT_DESCRIPTION, 
+    			UIUtilities.formatToolTipText(DESCRIPTION));
     }
-
-    /** 
-	 * Brings up the menu displaying categories.
-	 * @see MouseListener#mousePressed(MouseEvent)
-	 */
-	public void mousePressed(MouseEvent me)
-	{
-		Object source = me.getSource();
-		if (source instanceof Component) 
-			model.retrieveRelatedSettings((Component) source, me.getPoint());
-	}
-	
-	/**
-	 * Required by the {@link MouseListener} I/F but no-op implementation 
-	 * in our case.
-	 * @see MouseListener#mouseClicked(MouseEvent)
-	 */
-	public void mouseClicked(MouseEvent me) {}
-
-	/**
-	 * Required by the {@link MouseListener} I/F but no-op implementation 
-	 * in our case.
-	 * @see MouseListener#mouseEntered(MouseEvent)
-	 */
-	public void mouseEntered(MouseEvent me) {}
-
-	/**
-	 * Required by the {@link MouseListener} I/F but no-op implementation 
-	 * in our case.
-	 * @see MouseListener#mouseExited(MouseEvent)
-	 */
-	public void mouseExited(MouseEvent me) {}
-
-	/**
-	 * Required by the {@link MouseListener} I/F but no-op implementation 
-	 * in our case.
-	 * @see MouseListener#mouseReleased(MouseEvent)
-	 */
-	public void mouseReleased(MouseEvent me) {}
+	/** 
+     * Retrieves the rendering settings set by other users.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+        SearchComponent dialog = new SearchComponent(model.getUI());
+        UIUtilities.centerAndShow(dialog);
+    }
     
 }

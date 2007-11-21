@@ -49,6 +49,7 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
@@ -155,10 +156,7 @@ class ImViewerComponent
 	 * before copying the 
 	 */
 	private boolean							saveBeforeCopy;
-	
-	/** Flag indicating that the user preferences have been set. */
-	private boolean							prefSet;
-	
+
 	/** Creates an history item. */
 	private void createHistoryItem()
 	{
@@ -709,34 +707,34 @@ class ImViewerComponent
 			HistoryItem node = (HistoryItem) model.getHistory().get(0);
 			node.allowClose(false);
 			rndToSave = false;
+			ViewerPreferences pref = ImViewerFactory.getPreferences();
+			if (pref != null) {
+				if (pref.isFieldSelected(ViewerPreferences.RENDERER) &&
+						pref.isRenderer()) {
+					if (image != null)
+						view.setRestoreSize(image.getWidth(), image.getHeight());
+					//boolean oldValue = view.isHistoryShown();
+					view.showRenderer(true);
+					//firePropertyChange(HISTORY_VISIBLE_PROPERTY, oldValue, 
+					//					!oldValue);
+				}
+				if (pref.isFieldSelected(ViewerPreferences.HISTORY) &&
+					pref.isHistory()) {
+					if (image != null)
+						view.setRestoreSize(image.getWidth(), image.getHeight());
+					//boolean oldValue = view.isHistoryShown();
+					view.showHistory(true);
+					//firePropertyChange(HISTORY_VISIBLE_PROPERTY, oldValue, 
+					//					!oldValue);
+				}
+				if (pref.isFieldSelected(ViewerPreferences.ZOOM_FACTOR)) {
+					int index = pref.getZoomIndex();
+					double f = ZoomAction.getZoomFactor(index);
+					setZoomFactor(f, index);
+				}
+			}
 		} //else createHistoryItem();
-		ViewerPreferences pref = ImViewerFactory.getPreferences();
-		if (!prefSet && pref != null) {
-			if (pref.isFieldSelected(ViewerPreferences.RENDERER) &&
-					pref.isRenderer()) {
-				if (image != null)
-					view.setRestoreSize(image.getWidth(), image.getHeight());
-				//boolean oldValue = view.isHistoryShown();
-				view.showRenderer(true);
-				//firePropertyChange(HISTORY_VISIBLE_PROPERTY, oldValue, 
-				//					!oldValue);
-			}
-			if (pref.isFieldSelected(ViewerPreferences.HISTORY) &&
-				pref.isHistory()) {
-				if (image != null)
-					view.setRestoreSize(image.getWidth(), image.getHeight());
-				//boolean oldValue = view.isHistoryShown();
-				view.showHistory(true);
-				//firePropertyChange(HISTORY_VISIBLE_PROPERTY, oldValue, 
-				//					!oldValue);
-			}
-			if (pref.isFieldSelected(ViewerPreferences.ZOOM_FACTOR)) {
-				int index = pref.getZoomIndex();
-				double f = ZoomAction.getZoomFactor(index);
-				setZoomFactor(f, index);
-			}
-			prefSet = true;
-		}
+		
 		view.setCursor(Cursor.getDefaultCursor());
 		fireStateChange();
 	}
@@ -2225,9 +2223,11 @@ class ImViewerComponent
 	 */
 	public void setImageClassified()
 	{
+		/*
 		if (model.getState() != CLASSIFICATION)
 			throw new IllegalStateException(
 			"This method can't be invoked in the CLASSIFICATION state.");
+			*/
 		model.fireCategoriesLoading();
 		fireStateChange();
 	}
@@ -2373,6 +2373,13 @@ class ImViewerComponent
 			view.setImageZoomFactor((float) model.getBrowser().getGridRatio());
 			view.scrollLens();	
 		}
+	}
+
+	public void browse(Set<Long> categoriesID)
+	{
+		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+    	bus.post(new Browse(categoriesID, Browse.CATEGORIES, 
+    			model.getUserDetails(), view.getBounds()));  
 	}
     
 }

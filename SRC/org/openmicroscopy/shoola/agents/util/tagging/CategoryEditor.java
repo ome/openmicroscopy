@@ -64,11 +64,8 @@ import javax.swing.event.DocumentListener;
 import layout.TableLayout;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.HistoryDialog;
+import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -128,7 +125,7 @@ public class CategoryEditor
     private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
     
     /** The default size of the dialog. */
-    private static final Dimension WIN_DIM = new Dimension(600, 350);
+    private static final Dimension  WIN_DIM = new Dimension(600, 350);
     
     /** The maximum length of the name. */
     private static final int		MAX_NAME = 255;
@@ -573,9 +570,11 @@ public class CategoryEditor
 	private void checkName(String name)
 	{
 		if (name.length() > MAX_NAME) {
+			/*
         	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
         	un.notifyInfo("Editor", "The name is too long. Cannot be more " +
         			"than "+MAX_NAME+" characters long.");
+        			*/
         	setNameAreaValue("");
         	finishButton.setEnabled(false);
         	return;
@@ -818,7 +817,7 @@ public class CategoryEditor
 		JPanel editor = new JPanel();
 		IconManager im = IconManager.getInstance();
         TitlePanel tp = new TitlePanel(TEXT, NOTE, 
-    					im.getIcon(IconManager.CREATE_BIG));
+    					im.getIcon(IconManager.CLASSIFICATION_48));
         editor.setLayout(new BorderLayout(0, 0));
         editor.setOpaque(true);
         editor.add(tp, BorderLayout.NORTH);

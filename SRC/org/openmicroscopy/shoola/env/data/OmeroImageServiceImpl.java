@@ -137,8 +137,9 @@ class OmeroImageServiceImpl
 					break;
 				case UserCredentials.LOW:
 					compressionLevel = RenderingControl.LOW;
+					break;
 				default:
-					compressionLevel = 0;
+					compressionLevel = RenderingControl.UNCOMPRESSED;
 			}
 			ExperimenterData exp = (ExperimenterData) context.lookup(
 					LookupNames.CURRENT_USER_DETAILS);

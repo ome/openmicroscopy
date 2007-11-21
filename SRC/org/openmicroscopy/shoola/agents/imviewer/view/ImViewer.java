@@ -31,6 +31,7 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -838,4 +839,11 @@ public interface ImViewer
 	 */
 	public void setGridMagnificationFactor(double factor);
     
+	/**
+	 * Browses the specified categories.
+	 * 
+	 * @param categoriesID Collection of categories id.
+	 */
+	public void browse(Set<Long> categoriesID);
+	
 }

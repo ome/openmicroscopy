@@ -25,12 +25,15 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 //Java imports
 import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.event.EventBus;
 
 /** 
  * Retrieves the categories the image is categorised into.
@@ -51,11 +54,23 @@ public class CategoryLoader
 	extends DataLoader
 {
 
+	/** Indicates to load categories to work with them. */
+	public static final int LOAD = 0;
+	
+	/** Indicates to retrieve the categories with the specified tags. */
+	public static final int SEARCH = 1;
+	
 	/** The id of the image to handle. */
 	private long 		imageID;
 	
 	/** The id of the experimenter. */
 	private long		expID;
+	
+	/** One of the constants defined by this class.  */
+	private int			index;
+	
+	/** Collection of terms to search for. */
+	private List		values;
 	
 	/** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -67,12 +82,32 @@ public class CategoryLoader
      *                  Mustn't be <code>null</code>.
      * @param imageID	The id of the image.
      * @param expID		The id of the experimenter.
+     * @param index		One of the constants defined by this class. 
      */
     public CategoryLoader(ImViewer viewer, long imageID, long expID)
     {
     	super(viewer);
     	this.imageID = imageID;
     	this.expID = expID;
+    	this.index = LOAD;
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer    The view this loader is for.
+     *                  Mustn't be <code>null</code>.
+     * @param expID		The id of the experimenter.
+     * @param index		One of the constants defined by this class. 
+     * @param values	Collection of terms to search for.
+     */
+    public CategoryLoader(ImViewer viewer, long expID, List values)
+    {
+    	super(viewer);
+    	if (values == null || values.size() == 0) return;
+    	this.expID = expID;
+    	this.index = SEARCH;
+    	this.values = values;
     }
     
     /**
@@ -81,7 +116,13 @@ public class CategoryLoader
      */
     public void load()
     {
-    	handle = dhView.loadAllClassifications(imageID, expID, this);
+    	switch (index) {
+			case LOAD:
+				handle = dhView.loadAllClassifications(imageID, expID, this);
+				break;
+			case SEARCH:
+				handle = dhView.searchForClassifications(expID, values, this);
+		}
     }
 
     /**
@@ -97,11 +138,19 @@ public class CategoryLoader
     public void handleResult(Object result)
     {
        if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-       List set = (List) result;
-       if (set == null || set.size() != 3)
-    	   viewer.setClassification(null, null, null);
-       else viewer.setClassification((List) set.get(0), (List) set.get(1), 
-    		   						(List) set.get(2));
+       switch (index) {
+			case LOAD:
+				 List set = (List) result;
+			       if (set == null || set.size() != 3)
+			    	   viewer.setClassification(null, null, null);
+			       else viewer.setClassification((List) set.get(0),
+			    		   						(List) set.get(1), 
+			    		   						(List) set.get(2));
+				break;
+			case SEARCH:
+				viewer.browse((Set) result);
+				break;
+       }
     }
     
 }

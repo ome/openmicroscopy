@@ -121,7 +121,7 @@ public class PixelsServicesFactory
 				cb.setActive(c.getActive());
 				cb.setInterval(c.getInputStart(), c.getInputEnd());
 				cb.setRGBA(rgba);
-				cb.setQuantization(c.getFamily().toString(), 
+				cb.setQuantization(c.getFamily().getValue(), 
 						c.getCoefficient().doubleValue(), 
 						c.getNoiseReduction().booleanValue());
 			}		

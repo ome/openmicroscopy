@@ -31,6 +31,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
@@ -100,11 +101,11 @@ class LensModel
 	/** plane image. */
 	private BufferedImage  planeImage;
 	
-	/** pre-allocated buffer storing image data */
-	private DataBuffer     zoomedDataBuffer = 
-									new DataBufferInt(DEFAULT_SIZE, 1);
+	/** Pre-allocated buffer storing image data */
+	private DataBuffer     zoomedDataBuffer;
 	
-	/** Size of the zoomedDatabuffer, used to see if a new Buffer 
+	/** 
+	 * Size of the zoomedDatabuffer, used to see if a new Buffer 
 	 * will exceed the size of the current buffer. 
 	 */
 	private int            zoomedDataBufferSize = DEFAULT_SIZE;
@@ -114,16 +115,36 @@ class LensModel
 	 * This method will allocate a new databuffer only if the new raster is
 	 * larger than the pre-allocated one. 
 	 * 
-	 * @param colorModel	The color model. 
-	 * @param w 			The width of new image.
-	 * @param h 			The height of new image
+	 * @param dataBufferType	The type of the data buffer.
+	 * @param colorModel		The color model. 
+	 * @param w 				The width of new image.
+	 * @param h 				The height of new image
 	 * @return See above.
 	 */
-	private WritableRaster getZoomedRaster(ColorModel colorModel, int w, int h)
+	private WritableRaster getZoomedRaster(int dataBufferType, 
+										ColorModel colorModel, int w, int h)
 	{
-		if (zoomedDataBufferSize < height*zoomFactor*width*zoomFactor)
-			zoomedDataBuffer = 
-				new DataBufferInt((int)(150*150*zoomFactor*zoomFactor), 1);
+		double f = zoomFactor*zoomFactor;
+		if (zoomedDataBufferSize < height*width*f) {
+			switch (dataBufferType) {
+				case DataBuffer.TYPE_INT:
+					zoomedDataBuffer = new DataBufferInt((int)(150*150*f), 1);
+					break;
+				case DataBuffer.TYPE_BYTE:
+					zoomedDataBuffer = new DataBufferByte((int)(150*150*f), 1);
+					break;
+			}
+		}
+		if (zoomedDataBuffer == null) {
+    		switch (dataBufferType) {
+			case DataBuffer.TYPE_INT:
+				zoomedDataBuffer =  new DataBufferInt(DEFAULT_SIZE, 1);
+				break;
+			case DataBuffer.TYPE_BYTE:
+				zoomedDataBuffer =  new DataBufferByte(DEFAULT_SIZE, 1);
+				break;
+    		}
+    	}
 		SampleModel sm = colorModel.createCompatibleSampleModel(w, h);
         return Raster.createWritableRaster(sm, zoomedDataBuffer, null);			
  	}
@@ -146,7 +167,9 @@ class LensModel
     	// Create the required compatible (thumbnail) buffered image to  
     	// avoid potential errors from Java's ImagingLib.
     	ColorModel cm = image.getColorModel();
-    	WritableRaster r = getZoomedRaster(cm, thumbWidth, thumbHeight);
+    	int type = image.getData().getDataBuffer().getDataType();
+    	
+    	WritableRaster r = getZoomedRaster(type, cm, thumbWidth, thumbHeight);
     	BufferedImage thumbImage = new BufferedImage(cm, r, false, null);
  
     	// Do the actual scaling and return the result
@@ -478,4 +501,11 @@ class LensModel
     	return null;
     }
 	    
+    /** Resets the data buffer. */
+    void resetDataBuffer()
+    { 
+    	zoomedDataBuffer = null; 
+    	zoomedDataBufferSize = DEFAULT_SIZE;
+    }
+    
 }

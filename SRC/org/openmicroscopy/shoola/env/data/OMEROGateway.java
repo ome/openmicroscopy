@@ -47,7 +47,6 @@ import javax.ejb.EJBException;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import ome.api.IAdmin;
-import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IRenderingSettings;
@@ -223,6 +222,22 @@ class OMEROGateway
 		return table;
 	}
 
+	/**
+	 * Determines the table name corresponding to the specified class.
+	 * 
+	 * @param klass The class to analyze.
+	 * @return See above.
+	 */
+	private String getTableForClass(Class klass)
+	{
+		String table = null;
+		if (klass.equals(Category.class)) table = "Category";
+		else if (klass.equals(Dataset.class)) table = "Dataset";
+		else if (klass.equals(Project.class)) table = "Project";
+		else if (klass.equals(CategoryGroup.class)) table = "CategoryGroup";
+		return table;
+	}
+	
 	/**
 	 * Maps the constant defined by {@link OmeroDataService}
 	 * to the corresponding value defined by {@link IPojos}.
@@ -1893,4 +1908,35 @@ class OMEROGateway
 		
 		return null;
 	}
+	
+	/**
+	 * Searches for the categories whose name contains the passed term.
+	 * Returns a collection of objects.
+	 * 
+	 * @param klass The class identify the object to search for.
+	 * @param term
+	 * @return See above.
+	 *  @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List searchFor(Class klass, String term)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			term = term.toLowerCase();
+			String table = getTableForClass(klass);
+			String sql =  "select obj from "+table+" as obj " 
+                + "where lower(obj.name) like :name";
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			param.addString("name", "%"+term+"%");
+			return service.findAllByQuery(sql, param);
+		} catch (Exception e) {
+			handleException(e, "Cannot retrieve the rendering settings");
+		}
+		return null;
+	}
+	
 }

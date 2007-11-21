@@ -1141,4 +1141,32 @@ class OmeroDataServiceImpl
 		return loadContainerHierarchy(CategoryData.class, ids, leaves, userID);
 	}
 
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#searchForCategories(long, List)
+	 */
+	public Set searchForCategories(long userID, List terms) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Set<Long> ids = new HashSet<Long>();
+		if (terms == null) return ids;
+		Iterator i = terms.iterator();
+		List l;
+		Iterator j;
+		while (i.hasNext()) {
+			l = gateway.searchFor(Category.class, (String) i.next());
+			System.err.println(l.size());
+			if (l != null) {
+				j = l.iterator();
+				IObject object;
+				while (j.hasNext()) {
+					object = (IObject) j.next();
+					System.err.println(object.getId());
+					ids.add(object.getId());
+				}
+			}
+		}
+		return ids;
+	}
+
 }
