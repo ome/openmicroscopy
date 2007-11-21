@@ -123,7 +123,7 @@ public class PixelsService extends AbstractFileSystemService {
 	{
 		for (OriginalFile file : files)
 		{
-			if (file.getFormat().getValue().equals(DV_FORMAT))
+			if (file.getFormat().getValue().startsWith(DV_FORMAT))
 				return file;
 		}
 		return null;
