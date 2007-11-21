@@ -94,6 +94,12 @@ public class ConnectionDB {
 		}
 	}
 
+	// -----------------------------------------------------------------------
+
+	/**
+	 * IRepositoryInfo interface
+	 */
+
 	/**
 	 * This method returns the total space in bytes for this file system
 	 * including nested subdirectories. The Java 6 J2SE provides this
@@ -184,11 +190,9 @@ public class ConnectionDB {
 			}
 
 			for (int i = size; i > (size - topTenVal);) {
-				Long val = (Long) sortedArray[--i]/1024;
-				map.put(adminService
-						.getExperimenter(
-								(Long) mapKeys.get(mapValues
-										.indexOf(sortedArray[i])))
+				Long val = (Long) sortedArray[--i] / 1024;
+				map.put(adminService.getExperimenter(
+						(Long) mapKeys.get(mapValues.indexOf(sortedArray[i])))
 						.getOmeName(), val);
 				logger.info("topTenVal '"
 						+ i
@@ -204,17 +208,19 @@ public class ConnectionDB {
 
 			logger.info("rest of space is: '" + rest + "'");
 			if (rest > 0) {
-				rest = rest/1024;
+				rest = rest / 1024;
 				map.put("Rest of used space", Long.valueOf(rest));
 			}
 			return map;
 
 		} catch (Exception e) {
-			logger.error("getTopTen: "+e.getMessage());
+			logger.error("getTopTen: " + e.getMessage());
 			return null;
 		}
 
 	}
+
+	// -----------------------------------------------------------------------
 
 	/**
 	 * A static helper method to check if a type is one of the elements in an
@@ -258,6 +264,12 @@ public class ConnectionDB {
 		}
 	}
 
+	// -----------------------------------------------------------------------
+
+	/**
+	 * IAdmin interface
+	 */
+	
 	/**
 	 * Changs the password for current {@link ome.model.meta.Experimenter}.
 	 * 
@@ -294,8 +306,7 @@ public class ConnectionDB {
 	 */
 	public List<ExperimenterGroup> lookupGroupsAdd() {
 		logger.info("lookupGroupsAdd by user ID: " + userid + "'");
-		List<ExperimenterGroup> exgs = Collections.EMPTY_LIST;
-		exgs = filterAdd(adminService.lookupGroups());
+		List<ExperimenterGroup> exgs = filterAdd(adminService.lookupGroups());
 		for (ExperimenterGroup exg : exgs) {
 			logger.info("Group details [id: '" + exg.getId() + "', name: '"
 					+ exg.getName() + "'");
@@ -311,8 +322,7 @@ public class ConnectionDB {
 	 */
 	public List<ExperimenterGroup> lookupGroups() {
 		logger.info("lookupGroups by user ID: " + userid + "'");
-		List<ExperimenterGroup> exgs = Collections.EMPTY_LIST;
-		exgs = filter(adminService.lookupGroups());
+		List<ExperimenterGroup> exgs = filter(adminService.lookupGroups());
 		for (ExperimenterGroup exg : exgs) {
 			logger.info("Group details [id: '" + exg.getId() + "', name: '"
 					+ exg.getName() + "'");
@@ -327,8 +337,7 @@ public class ConnectionDB {
 	 */
 	public List<Experimenter> lookupExperimenters() {
 		logger.info("lookupExperimenters by user ID: " + userid + "'");
-		List<Experimenter> exps = Collections.EMPTY_LIST;
-		exps = adminService.lookupExperimenters();
+		List<Experimenter> exps = adminService.lookupExperimenters();
 		for (Experimenter exp : exps) {
 			logger.info("Experimenter details [id: '" + exp.getId()
 					+ "', Ome name: '" + exp.getOmeName() + "', email: '"
@@ -592,7 +601,7 @@ public class ConnectionDB {
 		logger.info("ExperimenterGroup '" + name + "' doesn't exist");
 		return false;
 	}
-	
+
 	/**
 	 * Checks existing {@link ome.model.meta.Experimenter#getEmail()} in the
 	 * database.
@@ -869,6 +878,8 @@ public class ConnectionDB {
 			logger.info("No ExperimenterGroup to remove");
 		}
 	}
+
+	// -----------------------------------------------------------------------
 
 	/**
 	 * 

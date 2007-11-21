@@ -95,7 +95,7 @@ public interface IAdmin extends ServiceInterface {
      * 
      * @return Experimenter. Never null.
      */
-    String lookupLdapAuthExperimenter(Long id);
+    String lookupLdapAuthExperimenter(@NotNull Long id);
     
     /**
      * fetch an {@link ExperimenterGroup} and all contained

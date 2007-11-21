@@ -15,9 +15,10 @@
 	<property name="src.dir" value="${basedir}/src" />
 	<property name="war.file" value="WebAdmin" />
 	<property name="war.file.name" value="${war.file}.war" />
-	<property name="jboss.home" value="/Users/Ola/J2EP/software/jboss-4.0.4.GA" />
-	<property name="deploy.dir" value="${jboss.home}/server/default/deploy" />
-
+	<property name="jboss.home" value="${env.JBOSS_HOME}" />   
+	<property name="jboss.server.config" value="default" />
+	<property name="jboss.deploy.dir" value="${jboss.home}/server/${jboss.server.config}/deploy" />
+	
 	<!-- findbugs overrides -->
 	<property name="findbugs.path"   value="project.jars"/>
 	<property name="findbugs.target" value="${basedir}/WebAdmin.war"/>
@@ -62,8 +63,8 @@
 	</target>
 
 	<target name="cleanWebApp">
-		<delete file="${deploy.dir}/${war.file.name}" />
-		<delete dir="${deploy.dir}/${war.file}" includeEmptyDirs="true" />
+		<delete file="${jboss.deploy.dir}/${war.file.name}" />
+		<delete dir="${jboss.deploy.dir}/${war.file}" includeEmptyDirs="true" />
 	</target>
 
 	<target name="war" depends="clean, compile">
@@ -76,7 +77,7 @@
 	</target>
 
 	<target name="deploy">
-		<copy todir="${deploy.dir}">
+		<copy todir="${jboss.deploy.dir}">
 			<fileset dir="${basedir}" includes="${war.file.name}" />
 		</copy>
 	</target>

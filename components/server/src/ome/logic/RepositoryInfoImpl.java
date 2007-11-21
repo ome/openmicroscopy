@@ -61,9 +61,6 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 	private transient static Log log = LogFactory
 			.getLog(RepositoryInfoImpl.class);
 
-	/* root of the repository mount */
-	private transient String rootdir;
-
 	/* repository filesystem */
 	private transient String datadir;
 
@@ -119,9 +116,9 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 
 		try {
 			f = new FileSystem(datadir);
-			result = f.free(rootdir);
+			result = f.free(datadir);
 			if (log.isInfoEnabled()) {
-				log.info("Total kilobytes free: " + f.free(rootdir));
+				log.info("Total kilobytes free: " + f.free(datadir));
 			}
 		} catch (RuntimeException rtex) {
 			throw new InternalException(rtex.getMessage());
@@ -192,15 +189,6 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 	 */
 	public void setDatadir(String datadir) {
 		this.datadir = datadir;
-	}
-
-	/**
-	 * Bean injection setter for the root directory or mount of data repository
-	 * 
-	 * @param rootdir
-	 */
-	public void setRootdir(String rootdir) {
-		this.rootdir = rootdir;
 	}
 
 	/*

@@ -8,11 +8,14 @@
 package ome.api;
 
 // Java imports
+import java.util.Collection;
 import java.util.List;
 
 // Third-party libraries
 
 // Application-internal dependencies
+import ome.annotations.NotNull;
+import ome.annotations.Validate;
 import ome.model.IEnum;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
@@ -60,22 +63,57 @@ public interface ITypes extends ServiceInterface {
     <T extends IEnum> T getEnumeration(Class<T> k, String string);
     
     /**
-     * lookup an enumeration value. As with the get-methods of {@link IQuery}
-     * queries returning no results will through an exception.
-     * 
-     * @param <T>
+     * updates enumeration value specified by object
+     * @param <T> 
      *            The type of the enumeration. Must extend {@link IEnum}
-     * @param k
-     *            An enumeration class which should be searched.
-     * @param string
-     *            The value for which an enumeration should be found.
+     * @param 
+     *            oEnum An enumeration object which should be searched.
      * @return A managed enumeration. Never null.
+     */
+    <T extends IEnum> T updateEnumeration(@NotNull T oEnum);
+
+    /**
+     * updates enumeration value specified by object
+     * @param <T> 
+     *            The type of the enumeration. Must extend {@link IEnum}
+     * @param listEnum 
+     *            An enumeration collection of objects which should be searched.
+     * @return A managed enumeration. Never null.
+     */
+    <T extends IEnum> void updateEnumerations(@NotNull @Validate(IEnum.class) List<T> listEnum);
+    
+    /**
+     * deletes enumeration value specified by object
+     * @param <T> 
+     *            The type of the enumeration. Must extend {@link IEnum}
+     * @param oEnum 
+     *            An enumeration object which should be searched.
+     */
+    <T extends IEnum> void deleteEnumeration(@NotNull T oEnum);
+    
+    /**
+     * Parses files CLASS_PATH/lib/common.jar!/mappings/*.ome.xml and 
+     * looks for values for specyfied class of <code><enum></code> tag. 
+     * @param <T> 
+     *            The type of the enumeration. Must extend {@link IEnum}
+     * @param klass 
+     *            An enumeration class which should be searched.
+     * @return A list of managed enumerations.
      * @throws ApiUsageException
      *             if {@link IEnum} is not found.
      */
-    <T extends IEnum> T updateEnumeration(T newEnum);
-
-    <T> void deleteEnumeration(T newEnum);
+    <T extends IEnum> List<T> allOryginalEnumerations(Class<T> klass);
+    
+    /**
+     * Parses files CLASS_PATH/lib/common.jar!/mappings/*.ome.xml and 
+     * looks for <code><enum></code> tag. 
+     * @param <T> 
+     *            The type of the enumeration. Must extend {@link IEnum}
+     * @return list of Class of T extends IEnum
+     * @throws ApiUsageException
+     *             if {@link IEnum} is not found.
+     */
+    <T extends IEnum> List<Class<? extends IEnum>> getAllEnumerationTypes();
 
     <T extends IObject> Permissions permissions(Class<T> k);
 

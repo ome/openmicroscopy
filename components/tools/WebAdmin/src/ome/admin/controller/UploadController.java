@@ -105,6 +105,12 @@ public class UploadController {
 					+ e.getMessage());
 			context.addMessage("uploadedNewFileForm", message);
 			return NavigationResults.FALSE;
+		} catch (Exception e) {
+			FacesContext context = FacesContext.getCurrentInstance();
+			FacesMessage message = new FacesMessage("Exception: "
+					+ e.getMessage());
+			context.addMessage("uploadedNewFileForm", message);
+			return NavigationResults.FALSE;
 		}
 
 	}

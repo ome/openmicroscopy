@@ -40,6 +40,8 @@ public class FileValidator {
 	}
 
 	public static boolean validFileType(UploadedFile uploadedFile) {
+		if(uploadedFile == null) 
+			throw new RuntimeException("Uploaded file does not exist.");
 		if (uploadedFile.getContentType().equals("application/octet-stream")
 				|| uploadedFile.getContentType().equals("text/plain")
 				//|| uploadedFile.getContentType().equals("text/xml")

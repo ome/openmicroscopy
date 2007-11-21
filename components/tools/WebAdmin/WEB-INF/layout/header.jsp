@@ -28,7 +28,7 @@
 		<li><a href="./logout">${msg.headerLogout}</a></li>
 	</c:if>
 	<c:if
-		test="${sessionScope.LoginBean.role && sessionScope.LoginBean.mode}">
+		test="${sessionScope.LoginBean.mode}">
 		<li><a href="javascript:openHelp()">Help</a></li>
 	</c:if>
 

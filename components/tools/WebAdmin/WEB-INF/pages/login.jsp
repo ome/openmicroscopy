@@ -64,6 +64,7 @@
 			<div id="button"><h:commandButton id="submit"
 				action="#{LoginBean.login}" value="#{msg.mainOk}" /></div>
 
+			<div id="button"><a href="javascript:openHelp()">Help</a></div>
 		</h:form>
 
 	</f:view>

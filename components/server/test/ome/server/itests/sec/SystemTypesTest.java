@@ -7,15 +7,22 @@
 package ome.server.itests.sec;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 import org.testng.annotations.Configuration;
 import org.testng.annotations.ExpectedExceptions;
 import org.testng.annotations.Test;
 
+import ome.api.ITypes;
 import ome.conditions.SecurityViolation;
+import ome.model.IObject;
 import ome.model.enums.AcquisitionMode;
 import ome.model.enums.EventType;
+import ome.model.enums.Family;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
@@ -143,5 +150,57 @@ public class SystemTypesTest extends AbstractManagedContextTest {
         test.setValue("ticket:157/" + uuid());
         factory.getTypesService().createEnumeration(test);
     }
+    
+    @Test
+    public void testEnumsWithITypes() throws Exception {
 
+    	loginRoot();
+    	ITypes it = factory.getTypesService();
+
+    	AcquisitionMode testc = new AcquisitionMode();
+    	testc.setValue("ticket:446-840");
+    	it.createEnumeration(testc);
+    	
+        AcquisitionMode testu = it.getEnumeration(AcquisitionMode.class,"ticket:446-840");
+        testu.setValue("ticket:446-840/test");
+        factory.getTypesService().updateEnumeration(testu);
+        
+        AcquisitionMode testd = iQuery.findByString(AcquisitionMode.class,"value", "ticket:446-840/test");
+        factory.getTypesService().deleteEnumeration(testd);
+        
+    }
+
+    @Test
+    public void testEnumsWithITypes2() throws Exception {
+
+    	loginRoot();
+    	ITypes it = factory.getTypesService();
+
+    	String uid = uuid();
+    	List<AcquisitionMode> list = new ArrayList<AcquisitionMode>();
+    	for(int i=0; i<4; i++) {
+    		AcquisitionMode testc = new AcquisitionMode();
+    		testc.setValue("ticket:840/" + uid);
+    		AcquisitionMode val = it.createEnumeration(testc);
+        	list.add((AcquisitionMode) val);
+    	}
+
+    	Iterator iter = list.iterator();
+    	while(iter.hasNext()) {
+    		((AcquisitionMode) iter.next()).setValue("ticket:840-1/" + uid);
+    	}
+        
+        factory.getTypesService().updateEnumerations(list);
+  
+    }
+    
+    @Test
+    public void testOryginalAllEnumerationTypes() {
+    	loginRoot();
+    	ITypes it = factory.getTypesService();
+    	it.getAllEnumerationTypes();
+    	it.allOryginalEnumerations(ome.model.enums.EventType.class);
+
+    }
+    
 }

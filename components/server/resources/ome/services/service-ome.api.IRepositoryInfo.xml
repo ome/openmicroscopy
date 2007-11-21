@@ -21,7 +21,6 @@
 
   <bean id="internal:ome.api.IRepositoryInfo" class="ome.logic.RepositoryInfoImpl">
     <property name="datadir" value="${omero.data.dir}"/>
-    <property name="rootdir" value="${omero.root.dir}"/>
     <property name="thumbnailService" ref="/OMERO/Thumbs"/>
     <property name="pixelsService" ref="/OMERO/Pixels"/>
     <property name="fileService" ref="/OMERO/Files"/>
