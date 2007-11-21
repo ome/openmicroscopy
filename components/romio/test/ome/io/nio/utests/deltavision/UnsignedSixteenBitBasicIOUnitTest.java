@@ -9,10 +9,10 @@ import junit.framework.TestCase;
 import ome.io.nio.DeltaVision;
 import ome.model.core.OriginalFile;
 
-public class EightBitBasicIOUnitTest extends TestCase
+public class UnsignedSixteenBitBasicIOUnitTest extends TestCase
 {
 	private static final String path = 
-		"/Users/callan/testimages/22jul05_rhum_start01_02_R3D_D3D_VOL.dv";
+		"/Users/callan/testimages/off_by_1_b.dv";
 	
 	public DeltaVision getDeltaVisionPixelBuffer()
 	{
@@ -26,7 +26,7 @@ public class EightBitBasicIOUnitTest extends TestCase
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
     	long offset = dv.getPlaneOffset(0, 0, 0);
-    	assertEquals(2048, offset);
+    	assertEquals(39936, offset);
     }
     
     @Test(groups={"manual"})
@@ -34,7 +34,7 @@ public class EightBitBasicIOUnitTest extends TestCase
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
     	MappedByteBuffer buf = dv.getPlane(0, 0, 0).getData();
-    	assertEquals(541696, buf.capacity());
+    	assertEquals(460800, buf.capacity());
     }
     
     @Test(groups={"manual"})
@@ -43,38 +43,36 @@ public class EightBitBasicIOUnitTest extends TestCase
     	DeltaVision dv = getDeltaVisionPixelBuffer();
     	MappedByteBuffer buf = dv.getPlane(0, 0, 0).getData();
     	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
-    	assertEquals("860dc15d50bfa08fe27f84e3a5ed937a", md);
+    	assertEquals("b495cb7c7dda3930fbf923cfbcb8c8e2", md);
     }
     
     @Test(groups={"manual"})
     public void testFirstPlaneReorderedMd5() throws Exception
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
-    	byte[] buf = new byte[541696];
+    	byte[] buf = new byte[460800];
     	buf = dv.getPlaneDirect(0, 0, 0, buf);
     	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
-    	assertEquals("c52bc92efc138533fbf9b4f7469ffad0", md);
+    	assertEquals("acc7c7a4992acd61572cbaca0bbe4d6c", md);
     }
     
     @Test(groups={"manual"})
     public void testFirstPlaneRegionMd5() throws Exception
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
-    	byte[] buf = new byte[8];
+    	byte[] buf = new byte[16];
     	buf = dv.getPlaneRegionDirect(0, 0, 0, 8, 32, buf);
     	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
-    	assertEquals("7dea362b3fac8e00956a4952a3d4f474", md);
+    	assertEquals("6b1145ec4d898da29b36bcd1ea22c702", md);
     }
     
     @Test(groups={"manual"})
     public void testSecondPlaneRegionMd5() throws Exception
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
-    	byte[] buf = new byte[8];
+    	byte[] buf = new byte[16];
     	buf = dv.getPlaneRegionDirect(0, 0, 0, 8, 128, buf);
     	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
-    	// Identical to testFirstPlaneRegionMd5() because of the large number
-    	// of padding zeros at the top and bottom of the image.
-    	assertEquals("7dea362b3fac8e00956a4952a3d4f474", md);
+    	assertEquals("c8aff9dc50866023bed7137b2fdd602d", md);
     }
 }
