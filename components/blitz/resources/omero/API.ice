@@ -305,7 +305,7 @@ module omero {
 	bool setPixelsId(long pixelsId) throws ServerError;
 	void setRenderingDefId(long renderingDefId) throws ServerError;
 	Ice::ByteSeq getThumbnail(int sizeX, int sizeY) throws ServerError;
-	Ice::ByteSeq getThumbnailByLongsetSide(int size) throws ServerError;
+	Ice::ByteSeq getThumbnailByLongestSide(int size) throws ServerError;
 	Ice::ByteSeq getThumbnailDirect(int sizeX, int sizeY) throws ServerError;
 	Ice::ByteSeq getThumbnailForSectionDirect(int theZ, int theT, int sizeX, int sizeY) throws ServerError;
 	Ice::ByteSeq getThumbnailForSectionByLongestSideDirect(int theZ, int theT, int size) throws ServerError;
