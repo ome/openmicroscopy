@@ -17,11 +17,14 @@ package ome.logic;
 // Java imports
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -35,6 +38,7 @@ import javax.interceptor.Interceptors;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import ome.annotations.AnnotationUtils;
 import ome.api.ITypes;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalUpdate;
@@ -45,10 +49,17 @@ import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.security.SecureAction;
 import ome.services.util.OmeroAroundInvoke;
+import ome.system.OmeroContext;
+import ome.system.ServiceFactory;
+import ome.tools.hibernate.ExtendedMetadata;
 
+import org.hibernate.SessionFactory;
+import org.hibernate.metadata.ClassMetadata;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
+import org.jboss.mx.loading.RepositoryClassLoader;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -74,6 +85,14 @@ import org.xml.sax.SAXParseException;
 @SecurityDomain("OmeroSecurity")
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class TypesImpl extends AbstractLevel2Service implements ITypes {
+
+	protected transient SessionFactory sf;
+	
+	/** injector for usage by the container. Not for general use */
+    public final void setSessionFactory(SessionFactory sessions) {
+        getBeanHelper().throwIfAlreadySet(this.sf, sessions);
+        sf = sessions;
+    }
 
     public final Class<? extends ServiceInterface> getServiceInterface() {
         return ITypes.class;
@@ -137,157 +156,41 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
     }
     
     @RolesAllowed("system")
-    private List<String> getEnumerationSources(URLClassLoader sysloader) throws IOException {
-    	List<String> list = new ArrayList<String>();
-    	JarFile jarFile = null;
-
-    	for(int i=0; i<sysloader.getURLs().length; i++){
-    		if(sysloader.getURLs()[i].getPath().contains("common.jar")) { 
-    			jarFile = new JarFile(sysloader.getURLs()[i].getPath());
-    			break;
-    		}
+    public <T extends IEnum> List<Class<? extends IEnum>> getEnumerationTypes()  {
+    	
+    	List<Class<? extends IEnum>> list = new ArrayList<Class<? extends IEnum>>();
+    	
+    	Map<String, ClassMetadata> m = sf.getAllClassMetadata();
+    	for (String key : m.keySet()) {    		
+    		try {
+    			Class klass = Class.forName(m.get(key).getEntityName());
+				boolean r = IEnum.class.isAssignableFrom(klass);
+				if(r) {
+					list.add(klass);
+				}
+			} catch (ClassNotFoundException e) {
+				throw new RuntimeException("Class not found. Exception: "+e.getMessage());
+			}
     	}
-    	Enumeration en = jarFile.entries();
- 		
- 		while (en.hasMoreElements()) {
- 			JarEntry entry = (JarEntry) en.nextElement();
- 			if(entry.getName().contains(".ome.xml")) 
- 				list.add(entry.getName());
- 		}
-	    return list;
-
+    	return list;
     }
     
     @RolesAllowed("system")
-    public <T extends IEnum> List<Class<? extends IEnum>> getAllEnumerationTypes()  {
+    public <T extends IEnum> Map<Class<T>, List<T>> getEnumerationsWithEntries()  {
     	
-    	List<Class<? extends IEnum>> list = new ArrayList<Class<? extends IEnum>>();
-    	URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-	    	
-		List<String> en = null;
-		try {
-			// gets list of files *.ome.xml from common.jar
-			en = getEnumerationSources(sysloader);
-
-			for(String e:en){
-	 			InputStream in = sysloader.getResourceAsStream(e);
-	 			list.addAll(parseTypes(in));
-	 			in.close();
-	 		}
-		} catch (IOException e) {
-			throw new RuntimeException("IOException: "+e.getMessage());
-		}
-
-    	return list;
+    	Map<Class<T>, List<T>> map = new HashMap<Class<T>, List<T>>();
+    	for(Class klass : getEnumerationTypes()) {
+    		List<T> entryList = allEnumerations(klass);
+    		map.put(klass, entryList);
+    	}
+    	return map;
     }
     
     @RolesAllowed("system")
     public <T extends IEnum> List<T> allOryginalEnumerations(Class<T> klass) {
-    	List<T> list = new ArrayList<T>();
-    	
-    	URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-    	List<String> en = null;
-    	try {
-			// gets list of files *.ome.xml from common.jar
-			en = getEnumerationSources(sysloader);
-
-			for(String e:en){
-	 			InputStream in = sysloader.getResourceAsStream(e);
-	 			list = parseValues(klass, in);
-	 			in.close();
-	 			if(list.size()>0) break;
-	 		}
-		} catch (IOException e) {
-			throw new RuntimeException("IOException: "+e.getMessage());
-		}
-		
-    	return list;
+    	throw new RuntimeException("Not implemented yet.");
     }
-    
-    private <T extends IEnum> List<Class<T>> parseTypes(InputStream filename) {
-    	List<Class<T>> list = new ArrayList<Class<T>>();
-		try {
-			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory
-					.newInstance();
-			DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-			Document doc = docBuilder.parse(filename);
-			// normalize text representation
-			doc.getDocumentElement().normalize();
 
-			NodeList listOfEnums = doc.getElementsByTagName("enum");
-
-			for (int s = 0; s < listOfEnums.getLength(); s++) {
-
-				Node firstEnumNode = listOfEnums.item(s);
-				String enumType = firstEnumNode.getAttributes().getNamedItem("id")
-						.toString().split("\"")[1]; 
-				Class enumClass = Class.forName(enumType);
-				list.add(enumClass);
-			}
-
-		} catch (SAXParseException err) {
-			throw new RuntimeException("SAXParseException: line " +err.getLineNumber()
-					+ ", uri " + err.getSystemId() + " " + err.getMessage());
-		} catch (SAXException e) {
-			Exception x = e.getException();
-			throw new RuntimeException("SAXException: line " 
-					+ ((x == null) ? e : x).getMessage());
-		} catch (Throwable t) {
-			throw new RuntimeException(t.getMessage());
-		}
-		return list;
-
-	}
-      
-	private <T extends IEnum> List<T> parseValues(Class<T> k,
-			InputStream filename) {
-		List<T> list = new ArrayList<T>();
-		try {
-			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory
-					.newInstance();
-			DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-			Document doc = docBuilder.parse(filename);
-			// normalize text representation
-			doc.getDocumentElement().normalize();
-
-			NodeList listOfEnums = doc.getElementsByTagName("enum");
-
-			for (int s = 0; s < listOfEnums.getLength(); s++) {
-
-				Node firstEnumNode = listOfEnums.item(s);
-				String enumType = firstEnumNode.getAttributes().getNamedItem(
-						"id").toString().split("\"")[1];
-				
-				if (enumType.equals(k.getName())
-						&& firstEnumNode.getNodeType() == Node.ELEMENT_NODE) {
-
-					Element firstPersonElement = (Element) firstEnumNode;
-					NodeList firstNameList = firstPersonElement
-							.getElementsByTagName("entry");
-					for (int i = 0; i < firstNameList.getLength(); i++) {
-						Element firstNameElement = (Element) firstNameList
-								.item(i);
-						list.add(getEnumeration(k, firstNameElement
-								.getAttribute("name")));
-					}
-					break;
-				}
-			}
-
-		} catch (SAXParseException err) {
-			throw new RuntimeException("SAXParseException: line " +err.getLineNumber()
-					+ ", uri " + err.getSystemId() + " " + err.getMessage());
-		} catch (SAXException e) {
-			Exception x = e.getException();
-			throw new RuntimeException("SAXException: line " 
-					+ ((x == null) ? e : x).getMessage());
-		} catch (Throwable t) {
-			throw new RuntimeException(t.getMessage());
-		}
-
-		return list;
-
-	}
     
     @RolesAllowed("user")
     public <T extends IObject> List<Class<T>> getResultTypes() {

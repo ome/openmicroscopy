@@ -25,6 +25,8 @@ import org.apache.log4j.Logger;
 import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IRepositoryInfo;
+import ome.api.ITypes;
+import ome.model.IEnum;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 import ome.model.internal.Details;
@@ -56,6 +58,11 @@ public class ConnectionDB {
 	private IAdmin adminService;
 
 	/**
+	 * IAdmin
+	 */
+	private ITypes typesService;
+	
+	/**
 	 * IQuery
 	 */
 	private IQuery queryService;
@@ -86,6 +93,7 @@ public class ConnectionDB {
 
 		try {
 			adminService = lb.getAdminServices();
+			typesService = lb.getTypesServices();
 			queryService = lb.getQueryServices();
 			repService = lb.getRepServices();
 		} catch (Exception e) {
@@ -94,6 +102,22 @@ public class ConnectionDB {
 		}
 	}
 
+	// -----------------------------------------------------------------------
+
+	/**
+	 * ITypes interface
+	 */
+	
+	/**
+	 * Gets Enumerations' classes
+	 * @return Map of enumerations classes with values.
+	 */
+	public Map<Class<IEnum>, List<IEnum>> getEnumerations() {
+		return typesService.getEnumerationsWithEntries();
+	}
+	
+	
+	
 	// -----------------------------------------------------------------------
 
 	/**

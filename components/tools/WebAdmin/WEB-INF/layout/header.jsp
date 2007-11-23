@@ -21,6 +21,9 @@
 			<c:if test="${sessionScope.LoginBean.page == 'experimenters.jsf' || sessionScope.LoginBean.page == 'experimenterForm.jsf'}" >class="menu"</c:if>>${msg.headerExperimenters}</a></li>
 		<li><a href="./groups.jsf"
 			<c:if test="${sessionScope.LoginBean.page == 'groups.jsf' || sessionScope.LoginBean.page == 'groupsForm.jsf' || sessionScope.LoginBean.page == 'editInGroup.jsf'}" >class="menu"</c:if>>${msg.headerGroups}</a></li>
+		<li><a href="./enumerations.jsf"
+			<c:if test="${sessionScope.LoginBean.page == 'enumerations.jsf'}" >class="menu"</c:if>>${msg.headerEnumerations}</a></li>
+		
 	</c:if>
 	<c:if test="${sessionScope.LoginBean.mode}">
 		<li><a href="./myAccount.jsf"

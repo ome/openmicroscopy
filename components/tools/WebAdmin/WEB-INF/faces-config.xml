@@ -250,6 +250,19 @@
 			<to-view-id>/myPassword.jsp</to-view-id>
 		</navigation-case>
 	</navigation-rule>
+	
+	
+	<!-- ITEManagerBean -->
+	<managed-bean>
+		<description>
+			The "backing file" bean that backs up the application
+		</description>
+		<managed-bean-name>ITEManagerBean</managed-bean-name>
+		<managed-bean-class>
+			ome.admin.controller.ITypesEnumController
+		</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
 
 	<!-- IAGManagerBean -->
 	<managed-bean>

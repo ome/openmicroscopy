@@ -102,6 +102,10 @@ public class IAdminGroupManagerDelegate implements java.io.Serializable {
 		getGroups();
 	}
 
+	/**
+	 * Allowes scroller to appear.
+	 * @return boolean
+	 */
 	public boolean setScroller() {
 
 		if (this.groups.size() > scrollerSize)

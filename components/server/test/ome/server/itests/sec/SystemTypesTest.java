@@ -198,9 +198,9 @@ public class SystemTypesTest extends AbstractManagedContextTest {
     public void testOryginalAllEnumerationTypes() {
     	loginRoot();
     	ITypes it = factory.getTypesService();
-    	it.getAllEnumerationTypes();
-    	it.allOryginalEnumerations(ome.model.enums.EventType.class);
-
+    	it.getEnumerationTypes();
+    	//it.allOryginalEnumerations(ome.model.enums.EventType.class);
+    	it.getEnumerationsWithEntries();
     }
     
 }

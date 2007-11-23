@@ -97,4 +97,10 @@
 			value="/WEB-INF/pages/experimenters.jsp" />
 	</definition>
 
+	<definition name=".enumerations" extends=".mainLayout">
+		<put name="title" value="Enumeration Listing" />
+		<put name="content" type="page"
+			value="/WEB-INF/pages/enumerations.jsp" />
+	</definition>
+	
 </tiles-definitions>

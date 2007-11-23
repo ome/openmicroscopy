@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IRepositoryInfo;
+import ome.api.ITypes;
 import ome.system.EventContext;
 import ome.system.Login;
 import ome.system.Server;
@@ -84,6 +85,11 @@ public class LoginBean implements java.io.Serializable{
      * IAdmin
      */
 	private IAdmin adminService;
+
+    /**
+     * ITypes
+     */
+	private ITypes typesService;
 	
     /**
      * IAdmin
@@ -231,6 +237,14 @@ public class LoginBean implements java.io.Serializable{
 	public IAdmin getAdminServices() {
 		return this.adminService;
 	}
+
+	/**
+     * Get {@link ome.api.IAdmin}
+     * @return {@link ome.admin.controller.LoginBean#adminService}
+     */
+	public ITypes getTypesServices() {
+		return this.typesService;
+	}
 	
 	/**
      * Get {@link ome.api.IQuery}
@@ -268,6 +282,7 @@ public class LoginBean implements java.io.Serializable{
 				Server s = new Server(server, port);
 				ServiceFactory sf = new ServiceFactory(s, l);
 				this.adminService = sf.getAdminService();
+				this.typesService = sf.getTypesService();
 				this.queryService = sf.getQueryService();
 				this.repService = sf.getRepositoryInfoService();
 				jsfnav = NavigationResults.SUCCESS;

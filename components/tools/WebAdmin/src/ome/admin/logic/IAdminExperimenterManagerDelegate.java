@@ -113,6 +113,10 @@ public class IAdminExperimenterManagerDelegate implements java.io.Serializable {
 		getExperimenters();
 	}
 
+	/**
+	 * Allowes scroller to appear.
+	 * @return boolean
+	 */
 	public boolean setScroller() {
 		if (this.experimenters.size() > scrollerSize)
 			return true;

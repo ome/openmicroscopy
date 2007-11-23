@@ -10,6 +10,7 @@ package ome.api;
 // Java imports
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 // Third-party libraries
 
@@ -99,8 +100,8 @@ public interface ITypes extends ServiceInterface {
      * @param klass 
      *            An enumeration class which should be searched.
      * @return A list of managed enumerations.
-     * @throws ApiUsageException
-     *             if {@link IEnum} is not found.
+     * @throws RuntimeException
+     *             if xml parsing failure.
      */
     <T extends IEnum> List<T> allOryginalEnumerations(Class<T> klass);
     
@@ -110,10 +111,21 @@ public interface ITypes extends ServiceInterface {
      * @param <T> 
      *            The type of the enumeration. Must extend {@link IEnum}
      * @return list of Class of T extends IEnum
-     * @throws ApiUsageException
-     *             if {@link IEnum} is not found.
+     * @throws RuntimeException
+     *             if xml parsing failure.
      */
-    <T extends IEnum> List<Class<? extends IEnum>> getAllEnumerationTypes();
+    <T extends IEnum> List<Class<? extends IEnum>> getEnumerationTypes();
+    
+    /**
+     * Parses files CLASS_PATH/lib/common.jar!/mappings/*.ome.xml and 
+     * looks for <code><enum></code> tag and entries value. 
+     * @param <T> 
+     *            The type of the enumeration. Must extend {@link IEnum}
+     * @return list of Class of T extends IEnum
+     * @throws RuntimeException
+     *             if xml parsing failure.
+     */
+    <T extends IEnum> Map<Class<T>, List<T>> getEnumerationsWithEntries();
 
     <T extends IObject> Permissions permissions(Class<T> k);
 
