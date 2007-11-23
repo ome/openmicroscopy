@@ -43,11 +43,11 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.SaveData;
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PropertiesCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
@@ -726,10 +726,12 @@ class TreeViewerComponent
 			throw new IllegalArgumentException("No image.");
 		if (images.length == 0)
 			throw new IllegalArgumentException("No image.");
+		/*
 		if (mode != Classifier.CLASSIFY_MODE && 
 				mode != Classifier.DECLASSIFY_MODE)
 			throw new IllegalArgumentException("Classification mode not " +
 			"supported.");
+			*/
 		TreeImageDisplay d = getSelectedBrowser().getLastSelectedDisplay();
 		Map browsers = model.getBrowsers();
 		Iterator b = browsers.keySet().iterator();
@@ -1299,6 +1301,9 @@ class TreeViewerComponent
 	{
 		if (map == null || map.size() != 2) return;
 		Collection failure = (Collection) map.get(Boolean.FALSE);
+		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+		bus.post(new RndSettingsCopied((Collection) map.get(Boolean.TRUE)));
+		
 		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 		if (failure.size() == 0) {
 			un.notifyInfo("Paste settings", "Rendering settings have been " +

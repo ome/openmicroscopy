@@ -53,11 +53,11 @@ public class ClassifiedButton
 {
 
     /** Description of the button. */
-    private final String DESCRIPTION = "Categorised image.";
+    private final String DESCRIPTION = "Tagged image.";
     
     /** Description of the button. */
-    private final String DESCRIPTION_FULL = "Categorised image. Click to " +
-            "display the categorization. ";
+    private final String DESCRIPTION_FULL = "Tagged image. Click to " +
+            "display the tag. ";
     
     /** The node hosting this button. */
     private final ImageNode parentNode;

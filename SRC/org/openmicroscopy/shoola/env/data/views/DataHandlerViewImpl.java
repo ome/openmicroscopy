@@ -397,14 +397,12 @@ public class DataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#searchForClassifications(long, List, 
-	 * 												AgentEventListener)
+	 * @see DataHandlerView#searchFor(Class, long, List, AgentEventListener)
 	 */
-	public CallHandle searchForClassifications(long userID, List values, 
+	public CallHandle searchFor(Class type, long userID, List values, 
 					AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ObjectFinder(userID, 
-									ObjectFinder.CATEGORIES, values);
+		BatchCallTree cmd = new ObjectFinder(type, userID, values);
 		return cmd.exec(observer);
 	}
 

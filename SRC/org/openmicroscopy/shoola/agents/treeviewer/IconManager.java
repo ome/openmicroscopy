@@ -268,8 +268,8 @@ public class IconManager
         relPaths[PROJECT] = "nuvola_document16.png";
         relPaths[DATASET] = "nuvola_folder_image16.png";
         relPaths[IMAGE] = "nuvola_image16.png";
-        relPaths[CATEGORY] = "category16.png";
-        relPaths[CATEGORY_GROUP] = "category_group16.png";
+        relPaths[CATEGORY] = "nuvola_knotes16.png";
+        relPaths[CATEGORY_GROUP] = "tag_folder16.png";//"category_group16.png";
         relPaths[ROOT] = "nuvola_trashcan_empty16.png";
         relPaths[PROPERTIES] = "nuvola_kate16.png";
         relPaths[VIEWER] = "viewer16.png";
@@ -298,11 +298,11 @@ public class IconManager
         relPaths[WARNING] = "eclipse_showwarn_tsk16.png";
         relPaths[TRANSPARENT] = "eclipse_transparent16.png";
         relPaths[ANNOTATION] = "nuvola_kwrite16.png";
-        relPaths[CLASSIFY] = "category16.png";
+        relPaths[CLASSIFY] = "nuvola_knotes16.png";
         relPaths[CATEGORY_BIG] = "nuvola_filenew48.png";
         relPaths[ANNOTATED_CLASSIFIED_IMAGE] = 
-                                    "annotated_classified_image16.png";
-        relPaths[CLASSIFIED_IMAGE] = "classified_image16.png";
+                                    "annotated_tagged_image16.png";
+        relPaths[CLASSIFIED_IMAGE] = "tagged_image16.png";
         relPaths[EXIT_APPLICATION] = "nuvola_exit16.png";
         relPaths[FILTER_BIG] = "nuvola_find48.png";
         relPaths[FORWARD_NAV] = "eclipse_forward_nav16.png";
@@ -310,11 +310,11 @@ public class IconManager
         relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
         relPaths[CANCEL] = "nuvola_cancel16.png";
         relPaths[DATA_MANAGER] = "eclipse_external_tools16.png";
-        relPaths[CLASSIFIER] = "eclipse_sroot_obj16.png";
+        relPaths[CLASSIFIER] = "tag_folder_open16.png";//"eclipse_sroot_obj16.png";
         relPaths[ADD_CONTAINER] = "eclipse_newpack_wiz16.png";
         relPaths[ADD_EXISTING] = "eclipse_newdatapool_wiz16.png";
         relPaths[PROGRESS] = "eclipse_progress_none16.png";
-        relPaths[DECLASSIFY] = "declassify16.png";
+        relPaths[DECLASSIFY] = "delete_knotes16.png";
         relPaths[CUT] = "nuvola_editcut16.png";
         relPaths[QUESTION] = "nuvola_filetypes32.png";
         relPaths[MANAGER_48] = "nuvola_file-manager48.png";

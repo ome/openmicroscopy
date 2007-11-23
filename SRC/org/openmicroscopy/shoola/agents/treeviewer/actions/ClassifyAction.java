@@ -62,18 +62,18 @@ public class ClassifyAction
     public static final int     DECLASSIFY = ClassifyCmd.DECLASSIFY;
     
     /** The name of the action. */
-    private static final String NAME_CLASSIFY = "Categorise";
+    private static final String NAME_CLASSIFY = "Add Tag";
     
     /** The description of the action. */
-    private static final String DESCRIPTION_CLASSIFY = "Categorise the " +
-                                            "selected image.";
+    private static final String DESCRIPTION_CLASSIFY = "Add Tag to the " +
+    		"selected image.";
     
     /** The name of the action. */
-    private static final String NAME_DECLASSIFY = "Decategorise";
+    private static final String NAME_DECLASSIFY = "Remove Tag";
     
     /** The description of the action. */
-    private static final String DESCRIPTION_DECLASSIFY = "Decategorise the " +
-                                            "selected image.";
+    private static final String DESCRIPTION_DECLASSIFY = "Remove the tag " +
+    		"from the selected image.";
     
     /** One of the constants defined by this class. */
     private final int index;

@@ -58,6 +58,7 @@ import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
+import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
@@ -230,12 +231,13 @@ class OMEROGateway
 	 */
 	private String getTableForClass(Class klass)
 	{
-		String table = null;
-		if (klass.equals(Category.class)) table = "Category";
-		else if (klass.equals(Dataset.class)) table = "Dataset";
-		else if (klass.equals(Project.class)) table = "Project";
-		else if (klass.equals(CategoryGroup.class)) table = "CategoryGroup";
-		return table;
+		if (klass.equals(CategoryData.class)) return "Category";
+		else if (klass.equals(DatasetData.class)) return "Dataset";
+		else if (klass.equals(ProjectData.class)) return "Project";
+		else if (klass.equals(CategoryGroupData.class)) return "CategoryGroup";
+		else if (klass.equals(ImageData.class)) return "Image";
+		else if (klass.equals(ImageAnnotation.class)) return "ImageAnnotation";
+		return null;
 	}
 	
 	/**
@@ -278,7 +280,7 @@ class OMEROGateway
 			return CategoryGroup.class.getName();
 		throw new IllegalArgumentException("NodeType not supported");
 	}
-
+	
 	/**
 	 * Transforms the specified <code>property</code> into the 
 	 * corresponding server value.
@@ -1925,16 +1927,23 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
-			term = term.toLowerCase();
-			String table = getTableForClass(klass);
-			String sql =  "select obj from "+table+" as obj " 
-                + "where lower(obj.name) like :name";
 			IQuery service = getQueryService();
 			Parameters param = new Parameters();
-			param.addString("name", "%"+term+"%");
+			param.addString("name", "%"+term.toLowerCase()+"%");
+			String sql;
+			if (ImageAnnotation.class.equals(klass)) {
+				sql =  "select obj from ImageAnnotation as obj " 
+                + "where lower(obj.content) like :name";
+				return service.findAllByQuery(sql, param);
+			}
+			String table = getTableForClass(klass);
+			sql =  "select obj from "+table+" as obj " 
+                	+ "where lower(obj.name) like :name or " +
+                		"lower(obj.description) like :name";
+			
 			return service.findAllByQuery(sql, param);
 		} catch (Exception e) {
-			handleException(e, "Cannot retrieve the rendering settings");
+			handleException(e, "Search not valid");
 		}
 		return null;
 	}

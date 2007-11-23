@@ -149,7 +149,7 @@ public interface Browser
     /** 
      * The browser's title corresponding to {@link #CATEGORY_EXPLORER} type.
      */
-    public static final String     CATEGORY_TITLE = "Categories";
+    public static final String     CATEGORY_TITLE = "Tags";
     
     /** 
      * The browser's title corresponding to {@link #IMAGES_EXPLORER} type.

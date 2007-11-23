@@ -110,8 +110,8 @@ public class ClassificationPane
     {
         if (nodes == null || nodes.size() == 0) {
             UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo("Classification", "You first need to " +
-                    "remove the categories to remove the image from.");
+            un.notifyInfo("Tagging", "You first need to " +
+                    "remove the tags.");
             return;
         }
         if (image == null) return;
@@ -140,7 +140,7 @@ public class ClassificationPane
      * Overridden to return the name of this UI component.
      * @see ClipBoardPane#getPaneName()
      */
-    public String getPaneName() { return "Categorisation"; }
+    public String getPaneName() { return "Tagging"; }
 
     /**
      * Overridden to return the icon related to this UI component.
@@ -161,8 +161,8 @@ public class ClassificationPane
      * Overridden to return the description of this UI component.
      * @see ClipBoardPane#getPaneDescription()
      */
-    public String getPaneDescription() { return "Display the categories " +
-            "containing the image."; }
+    public String getPaneDescription() { return "Display the tags " +
+            "linked to the image."; }
     
     /**
      * Overridden to return the icon related to this UI component.

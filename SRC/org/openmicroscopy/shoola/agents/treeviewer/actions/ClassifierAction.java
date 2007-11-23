@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.Action;
@@ -40,7 +39,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ImageData;
 
 /** 
@@ -62,8 +60,8 @@ public class ClassifierAction
 {
 
     /** The description of the action. */
-    private static final String DESCRIPTION = "Categorise or Decategorise the" +
-            " selected images.\n Press (Shift) to keep the menu on screen " +
+    private static final String DESCRIPTION = "Add Tags or removes Tags." +
+            "\n Press (Shift) to keep the menu on screen " +
             "when making selection.";
     
     /** The location of the mouse pressed. */
@@ -96,15 +94,6 @@ public class ClassifierAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.CLASSIFIER));
     }
 
-    /** 
-     * Brings ups the classify menu.
-     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-     */
-    public void actionPerformed(ActionEvent e)
-    {
-        //model.
-    }
-    
     /** 
      * Sets the location of the point where the <code>mousePressed</code>
      * event occured. 

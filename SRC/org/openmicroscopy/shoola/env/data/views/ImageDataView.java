@@ -54,6 +54,15 @@ public interface ImageDataView
     extends DataServicesView
 {
 
+	/** Indicates to load the rendering engine. */
+	public static final int LOAD = 0;
+	
+	/** Indicates to reload the rendering engine. */
+	public static final int RELOAD = 1;
+	
+	/** Indicates to reload the rendering engine. */
+	public static final int RESET = 2;
+	
     /**
      * Retrieves the metadata.
      * 
@@ -68,12 +77,11 @@ public interface ImageDataView
      * Loads the rendering proxy associated to the pixels set.
      * 
      * @param pixelsID  The id of the pixels set.
-     * @param reload	Pass <code>true</code> to reload the rendering engine,
-     * 					<code>false</code> otherwise.
+     * @param index		One of the constants defined by this class.
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadRenderingControl(long pixelsID, boolean reload,
+    public CallHandle loadRenderingControl(long pixelsID, int index,
                         AgentEventListener observer);
     
     /**

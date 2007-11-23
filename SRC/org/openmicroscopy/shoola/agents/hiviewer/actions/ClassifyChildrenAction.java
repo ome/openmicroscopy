@@ -58,10 +58,10 @@ public class ClassifyChildrenAction
 {
 
 	/** The name of the action. */
-    private static final String NAME = "Categorise Images";
+    private static final String NAME = "Add Tag to Images";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Categorise the " +
+    private static final String DESCRIPTION = "Add Tag the " +
                                  "images contained in the selected folder.";
     
     /**

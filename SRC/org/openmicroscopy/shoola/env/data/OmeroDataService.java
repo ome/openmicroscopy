@@ -743,6 +743,7 @@ public interface OmeroDataService
 	 * Finds the categories whose name contains the passed terms.
 	 * Returns a collection of categories ID.
 	 * 
+	 * @param type		The type of object to search for.
 	 * @param userID	The Id of the user.
 	 * @param terms		The values to search for.
 	 * @return See above.
@@ -751,7 +752,7 @@ public interface OmeroDataService
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Set searchForCategories(long userID, List terms)
+	public Set searchFor(Class type, long userID, List terms)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

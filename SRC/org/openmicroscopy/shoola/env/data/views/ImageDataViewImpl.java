@@ -74,13 +74,25 @@ class ImageDataViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#loadRenderingControl(long, boolean, 
+     * @see ImageDataView#loadRenderingControl(long, int, 
      * 											AgentEventListener)
      */
-    public CallHandle loadRenderingControl(long pixelsID, boolean reload,
+    public CallHandle loadRenderingControl(long pixelsID, int index,
                                         AgentEventListener observer)
     {
-        BatchCallTree cmd = new RenderingControlLoader(pixelsID, reload);
+    	int i = -1;
+    	switch (index) {
+    		default:
+			case LOAD:
+				i = RenderingControlLoader.LOAD;
+				break;
+			case RELOAD:
+				i = RenderingControlLoader.RELOAD;
+				break;
+			case RESET:
+				i = RenderingControlLoader.RESET;
+		}
+        BatchCallTree cmd = new RenderingControlLoader(pixelsID, i);
         return cmd.exec(observer);
     }
 

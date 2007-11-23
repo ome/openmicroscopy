@@ -230,11 +230,20 @@ public class IconManager
     /** The <code>Clear disabled</code> icon. */
     public static final int	CLEAR_DISABLED = 58;
     
+    /** The <code>Search Tag</code> icon. */
+    public static final int	SEARCH_TAG = 59;
+    
+    /** The <code>Search Tag</code> icon. */
+    public static final int	SEARCH_IMAGE = 60;
+    
+    /** The <code>Search Tag</code> icon. */
+    public static final int	SEARCH_ANNOTATION = 61;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 58;
+    private static int      MAX_ID = 61;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -264,7 +273,7 @@ public class IconManager
     	relPaths[PROGRESS] = "eclipse_progress_none16";
     	relPaths[CLASSIFICATION_48] = "nuvola_filenew48.png";
     	relPaths[ERROR_ICON_64] = "nuvola_error64.png";
-    	relPaths[COMMENT_ICON_64] = "nuvola_knotes64.png";
+    	relPaths[COMMENT_ICON_64] = "nuvola_mail_send64.png";
     	relPaths[SERVER] = "nuvola_server22.png";
     	relPaths[CONFIG] = "config.png";
     	relPaths[CONFIG_PRESSED] = "config_pressed.png";
@@ -300,7 +309,10 @@ public class IconManager
         relPaths[SEARCH_48] = "nuvola_find48.png";
         relPaths[SEARCH] = "eclipse_view_menu16.png";
         relPaths[FILTER_MENU] = "eclipse_view_menu16.png"; 
-        relPaths[CLEAR_DISABLED] = "eclipse_view_menu16.png"; 
+        relPaths[CLEAR_DISABLED] = "eclipse_remove_att16.png"; 
+        relPaths[SEARCH_TAG] = "search_knotes16.png";
+        relPaths[SEARCH_IMAGE] = "search_image16.png";
+        relPaths[SEARCH_ANNOTATION] = "search_annotation16.png";
     }
     
     /** 

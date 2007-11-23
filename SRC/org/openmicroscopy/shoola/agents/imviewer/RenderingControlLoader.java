@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.imviewer;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 
 /** 
@@ -55,14 +56,40 @@ public class RenderingControlLoader
     extends DataLoader
 {
 
+	/** Indicates to load the rendering engine. */
+	public static final int LOAD = ImageDataView.LOAD;
+	
+	/** Indicates to reload the rendering engine. */
+	public static final int RELOAD = ImageDataView.RELOAD;
+	
+	/** Indicates to reload the rendering engine. */
+	public static final int RESET = ImageDataView.RESET;
+	
     /** The ID of the pixels set. */
     private long        pixelsID;
-    
-    /** Flag indicating if the rendering engine has to be reloaded. */
-    private boolean		reload;
+  
+    /** One of the constants defined by this class. */
+    private int			index;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
+    
+    /** 
+     * Controls if the passed value is supported.
+     * 
+     * @param value The value to check.
+     */
+    private void checkIndex(int value)
+    {
+    	switch (value) {
+			case LOAD:
+			case RELOAD:
+			case RESET:
+				return;
+			default:
+				throw new IllegalArgumentException("Index not supported.");
+		}
+    }
     
     /**
      * Creates a new instance
@@ -70,15 +97,14 @@ public class RenderingControlLoader
      * @param viewer    The view this loader is for.
      *                  Mustn't be <code>null</code>.
      * @param pixelsID  The id of the pixels set.
-     * @param reload	Pass <code>true</code> to reload the rendering engine,
-     * 					<code>false</code> otherwise.
+     * @param index		One of the constants defined by this class.
      */
-    public RenderingControlLoader(ImViewer viewer, long pixelsID, 
-    								boolean reload)
+    public RenderingControlLoader(ImViewer viewer, long pixelsID, int index)
     {
         super(viewer);
+        checkIndex(index);
         this.pixelsID = pixelsID;
-        this.reload = reload;
+        this.index = index;
     }
 
     /**
@@ -87,7 +113,7 @@ public class RenderingControlLoader
      */
     public void load()
     {
-        handle = ivView.loadRenderingControl(pixelsID, reload, this);
+        handle = ivView.loadRenderingControl(pixelsID, index, this);
     }
 
     /**
@@ -103,8 +129,16 @@ public class RenderingControlLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-        if (!reload) viewer.setRenderingControl((RenderingControl) result);
-        else viewer.setReloaded((RenderingControl) result);
+        switch (index) {
+			case LOAD:
+				viewer.setRenderingControl((RenderingControl) result);
+				break;
+			case RELOAD:
+				viewer.setRenderingControlReloaded(false);
+				break;
+			case RESET:
+				viewer.setRenderingControlReloaded(true);
+		}
     }
     
 }

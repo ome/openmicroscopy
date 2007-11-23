@@ -436,8 +436,13 @@ public class NullOmeroPojoService
 	 */
 	public String getLoggingName() { return null; }
 
-	public Set searchForCategories(long userID, List terms) throws DSOutOfServiceException, DSAccessException {
-		// TODO Auto-generated method stub
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#searchFor(Class, long, List)
+	 */
+	public Set searchFor(Class type, long userID, List terms) 
+		throws DSOutOfServiceException, DSAccessException
+	{
 		return null;
 	}
 

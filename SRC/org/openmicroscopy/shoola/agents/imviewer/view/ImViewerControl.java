@@ -39,7 +39,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JMenu;
@@ -99,8 +98,11 @@ import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
-import org.openmicroscopy.shoola.util.ui.search.TagSearch;
+import org.openmicroscopy.shoola.util.ui.search.SearchObject;
+import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
+
+import pojos.ExperimenterData;
 
 
 /** 
@@ -556,9 +558,6 @@ class ImViewerControl
 	 */
 	void setSelectedXYPlane(int z, int t) { model.setSelectedXYPlane(z, t); }
 
-	/** Renders the currently selected XY-plane. */
-	void renderXYPlane() { model.renderXYPlane(); }
-	
 	/**
 	 * Returns the previous state.
 	 * 
@@ -828,10 +827,13 @@ class ImViewerControl
 			if (pref == null) pref = new ViewerPreferences();
 			pref.setSelectedFields(map);
 			ImViewerFactory.setPreferences(pref);
-		} else if (TagSearch.TAG_SEARCH_PROPERTY.equals(propName)) {
-			List values = (List) pce.getNewValue();
-			if (values == null || values.size() == 0) return;
-			view.searchForCategories(values);
+		} else if (QuickSearch.TAG_SEARCH_PROPERTY.equals(propName)) {
+			SearchObject node = (SearchObject) pce.getNewValue();
+			if (node == null) return;
+			view.searchFor(node);
+		} else if (UsersPopupMenu.USER_RNDSETTINGS_PROPERTY.equals(propName)) {
+			ExperimenterData exp = (ExperimenterData) pce.getNewValue();
+			model.setUserRndSettings(exp);
 		}
 	}
 

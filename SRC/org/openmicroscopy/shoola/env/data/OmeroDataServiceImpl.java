@@ -38,6 +38,7 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.ILink;
 import ome.model.IObject;
+import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Category;
 import ome.model.core.Channel;
 import ome.model.core.Image;
@@ -1143,9 +1144,9 @@ class OmeroDataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#searchForCategories(long, List)
+	 * @see OmeroDataService#searchFor(Class, long, List)
 	 */
-	public Set searchForCategories(long userID, List terms) 
+	public Set searchFor(Class type, long userID, List terms) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Set<Long> ids = new HashSet<Long>();
@@ -1153,16 +1154,18 @@ class OmeroDataServiceImpl
 		Iterator i = terms.iterator();
 		List l;
 		Iterator j;
+		IObject object;
+		if (AnnotationData.class.equals(type)) type = ImageAnnotation.class;
 		while (i.hasNext()) {
-			l = gateway.searchFor(Category.class, (String) i.next());
-			System.err.println(l.size());
+			l = gateway.searchFor(type, (String) i.next());
 			if (l != null) {
 				j = l.iterator();
-				IObject object;
 				while (j.hasNext()) {
 					object = (IObject) j.next();
-					System.err.println(object.getId());
-					ids.add(object.getId());
+					if (object instanceof ImageAnnotation)
+						ids.add(((ImageAnnotation) object).getImage().getId());
+					else
+						ids.add(object.getId());
 				}
 			}
 		}

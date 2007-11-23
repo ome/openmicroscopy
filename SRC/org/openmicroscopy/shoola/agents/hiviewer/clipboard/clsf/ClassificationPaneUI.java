@@ -73,15 +73,15 @@ class ClassificationPaneUI
 {
 
     /** The text displayed in the note panel. */
-    private static final String     PANEL_NOTE = "Categorisation for: ";
+    private static final String     PANEL_NOTE = "Tag for: ";
     
     /** The text displayed in the note panel. */
     private static final String     PANEL_SUBNOTE = "Double click on the " +
-            "name to browse the group or the category.";
+            "name to browse the Tag Set or the Tag.";
     
     /** The text displayed when the image has been annotated. */
-    private static final String     NO_CLASSIFICATION_TEXT = "The selected " +
-            "item has not been categorised. ";
+    private static final String     NO_CLASSIFICATION_TEXT = "No Tags linked" +
+            " to the selected image. ";
     
     /** Reference to the Model. */
     private ClassificationPane  model;

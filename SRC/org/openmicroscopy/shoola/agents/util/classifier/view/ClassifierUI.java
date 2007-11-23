@@ -66,12 +66,12 @@ class ClassifierUI
 {
 
     /** Message displayed if the image is unclassified. */
-    private static final String     ADD_UNCLASSIFIED_TEXT = "The image " +
-            "cannot be categorised. Please create a category first.";
+    private static final String     ADD_UNCLASSIFIED_TEXT = "A tag cannot " +
+            "be added. Please first create a tag.";
 
     /** Message displayed if the image is unclassified. */
-    private static final String     REMOVE_UNCLASSIFIED_TEXT = "The selected " +
-                                    "image hasn't been categorised.";
+    private static final String     REMOVE_UNCLASSIFIED_TEXT = "No tags" +
+    		" attached to the selected image.";
     
     /** Reference to the <code>Model</code>. */
     private ClassifierModel 		model;

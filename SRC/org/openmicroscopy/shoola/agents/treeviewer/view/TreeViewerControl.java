@@ -80,13 +80,14 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.UserManagerDialog;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
+import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
+import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -555,10 +556,10 @@ class TreeViewerControl
 			model.onComponentStateChange(true);
 			if (editorType == TreeViewer.CREATE_EDITOR) 
 				resetSelectedDisplay(d);
-		} else if (name.equals(Classifier.CLOSE_CLASSIFIER_PROPERTY)) {
-			Browser b = model.getSelectedBrowser(); 
-			if (b != null) resetSelectedDisplay(b.getLastSelectedDisplay());
-			model.onComponentStateChange(true);
+		//} else if (name.equals(Classifier.CLOSE_CLASSIFIER_PROPERTY)) {
+		//	Browser b = model.getSelectedBrowser(); 
+		//	if (b != null) resetSelectedDisplay(b.getLastSelectedDisplay());
+		//	model.onComponentStateChange(true);
 		} else if (name.equals(TreeViewer.FINDER_VISIBLE_PROPERTY)) {
 			Boolean b = (Boolean) pce.getNewValue();
 			if (!b.booleanValue()) {
@@ -616,6 +617,10 @@ class TreeViewerControl
 				model.setHierarchyRoot(groupID, d);
 				break;
 			}
+		} else if (QuickSearch.TAG_SEARCH_PROPERTY.equals(name)) {
+			SearchObject node = (SearchObject) pce.getNewValue();
+			if (node == null) return;
+			view.searchFor(node);
 		}
 	}
 

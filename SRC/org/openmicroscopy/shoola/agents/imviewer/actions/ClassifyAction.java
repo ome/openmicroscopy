@@ -88,6 +88,18 @@ public class ClassifyAction
 	}
 	
 	/**
+	 * Brings up the menu displaying categories.
+	 * @see MouseListener#mouseReleased(MouseEvent)
+	 */
+	public void mouseReleased(MouseEvent me)
+	{
+		Object source = me.getSource();
+		if (source instanceof Component) 
+			model.showMenu(ImViewer.CATEGORY_MENU, (Component) source, 
+							me.getPoint());
+	}
+	
+	/**
 	 * Required by the {@link MouseListener} I/F but no-op implementation 
 	 * in our case.
 	 * @see MouseListener#mouseClicked(MouseEvent)
@@ -108,11 +120,6 @@ public class ClassifyAction
 	 */
 	public void mouseExited(MouseEvent me) {}
 
-	/**
-	 * Required by the {@link MouseListener} I/F but no-op implementation 
-	 * in our case.
-	 * @see MouseListener#mouseReleased(MouseEvent)
-	 */
-	public void mouseReleased(MouseEvent me) {}
+	
 	
 }

@@ -291,7 +291,7 @@ public class IconManager
         relPaths[EXIT] = "nuvola_fileclose16.png";
         relPaths[SAVE] = "nuvola_save_all16.png";
         relPaths[CLEAR] = "nuvola_history_clear16.png";//"eclipse_clear_co16.png";
-        relPaths[CLASSIFY] = "category16.png";
+        relPaths[CLASSIFY] = "nuvola_knotes16.png";//"category16.png";
         relPaths[FILTER_W_ANNOTATION] = "eclipse_filter_ps16.png";
         relPaths[FILTER_W_TITLE] = "eclipse_filter_ps16.png";
         relPaths[SQUARY_LAYOUT] = "nuvola_view_multicolumn16.png";
@@ -300,10 +300,10 @@ public class IconManager
         relPaths[ROOT] = "nuvola_trashcan_empty16.png";
         relPaths[PROJECT] = "nuvola_document16.png";
         relPaths[DATASET] = "nuvola_folder_image16.png";
-        relPaths[CATEGORY_GROUP] = "category_group16.png";
-        relPaths[CATEGORY] = "category16.png";
+        relPaths[CATEGORY_GROUP] = "tag_folder16.png";//"category_group16.png";
+        relPaths[CATEGORY] = "nuvola_knotes16.png";//"category16.png";
         relPaths[IMAGE] = "nuvola_image16.png";
-        relPaths[CATEGORY_BIG] = "category48.png";
+        relPaths[CATEGORY_BIG] = "nuvola_knotes48.png";//"category48.png";
         relPaths[REFRESH] = "nuvola_reload16.png";
         relPaths[SAVE_AS_BIG] = "nuvola_filesaveas48.png";
         relPaths[QUESTION] = "nuvola_filetypes32.png";
@@ -314,13 +314,13 @@ public class IconManager
         relPaths[FIND] = "eclipse_searchrecord16.png";
         relPaths[ANNOTATED_DATASET] = "annotated_dataset16.png";
         relPaths[ANNOTATED_IMAGE] = "annotated_image16.png";
-        relPaths[CLASSIFIED_IMAGE] = "classified_image16.png";
-        relPaths[ANNOTATED_CLASSIFIED_IMAGE] = 
-                                    "annotated_classified_image16.png";
+        relPaths[CLASSIFIED_IMAGE] = "tagged_image16.png";//"classified_image16.png";
+        relPaths[ANNOTATED_CLASSIFIED_IMAGE] = "annotated_tagged_image16.png";
+                                    //"annotated_classified_image16.png";
         relPaths[ANNOTATED_SMALL] = "kwrite8.png";
         relPaths[ANNOTATED_SMALL_OVER] = "kwrite_over8.png";
-        relPaths[CLASSIFIED_SMALL] = "category8.png";
-        relPaths[CLASSIFIED_SMALL_OVER] = "category_over8.png";
+        relPaths[CLASSIFIED_SMALL] = "knotes8.png";//"category8.png";
+        relPaths[CLASSIFIED_SMALL_OVER] = "knotes8.png";//"category_over8.png";
         relPaths[FILTER_MENU] = "eclipse_view_menu16.png";  
         relPaths[HIGHLIGHT] = "eclipse_default_log_co16.png";
         relPaths[WARNING] = "eclipse_showwarn_tsk16.png";
@@ -335,7 +335,7 @@ public class IconManager
         relPaths[VIEWER_48] =  "nuvola_file-manager48.png";
         relPaths[PIN_SMALL] =  "attach8.png";
         relPaths[PIN_SMALL_OVER] = "attach8.png";
-        relPaths[DECATEGORISE] = "declassify16.png";
+        relPaths[DECATEGORISE] = "delete_knotes16.png";//"declassify16.png";
         relPaths[FIND_NEXT] = "eclipse_SelectNextBottomMappedObject16.png";
         relPaths[FIND_PREVIOUS] = 
             		"eclipse_SelectPreviousBottomMappedObject16.png";

@@ -60,11 +60,11 @@ public class BrowseImageCategoriesAction
 {
 
 	/** The name of the action. */
-  private static final String NAME = "Browe Categories";
+  private static final String NAME = "Browe Tags";
   
   /** The description of the action. */
-  private static final String DESCRIPTION= "Browse the categories " +
-  										"containing the image.";
+  private static final String DESCRIPTION= "Browse the Tags " +
+  										"attached to the image.";
 
   /**
    * Callback to notify of a change in the currently selected display

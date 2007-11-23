@@ -448,6 +448,31 @@ class RenderingControlProxy
     /**
      * Resets the rendering engine.
      * 
+     * @param servant	The value to set.
+     * @param rndDef	Local copy of the rendering settings used to 
+	 * 					speed-up the client.
+     */
+    void resetRenderingEngine(RenderingEngine servant, RndProxyDef rndDef)
+    {
+    	if (servant == null) return;
+    	invalidateCache();
+    	this.servant = servant;
+    	if (rndDef == null) {
+        	initialize();
+        } else {
+        	this.rndDef = rndDef;
+        	ChannelBindingsProxy cb;
+        	for (int i = 0; i < pixs.getSizeC().intValue(); i++) {
+                cb = rndDef.getChannel(i);
+                cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
+                cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
+            }
+        }
+    }
+    
+    /**
+     * Reloads the rendering engine.
+     * 
      * @param servant The value to set.
      */
     void setRenderingEngine(RenderingEngine servant)
@@ -489,7 +514,7 @@ class RenderingControlProxy
                 }
             }
             rgba = cb.getRGBA();
-            servant.setRGBA(rgba[0], rgba[1], rgba[2], rgba[3], rgba[4]);
+            servant.setRGBA(i, rgba[0], rgba[1], rgba[2], rgba[3]);
         }
     }
     

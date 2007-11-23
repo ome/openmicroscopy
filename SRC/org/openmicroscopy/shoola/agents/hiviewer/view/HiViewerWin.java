@@ -486,12 +486,15 @@ class HiViewerWin
         String title = "";
         while (i.hasNext()) {
             title += ((ImageDisplay) i.next()).getTitle();
+            
             if (title.length() > TITLE_MAX_LENGTH) {
                 title.substring(0, 47);
                 title += "...";
                 break;
             }
+            title += ", ";
         }
+        if (title.endsWith(", ")) title = title.substring(0, title.length()-2);
         buf.insert(0, title);
         return buf.toString();
     }

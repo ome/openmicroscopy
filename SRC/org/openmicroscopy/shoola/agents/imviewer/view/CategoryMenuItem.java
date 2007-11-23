@@ -78,13 +78,13 @@ class CategoryMenuItem
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		IconManager icons = IconManager.getInstance();
 		JButton b = new JButton(icons.getIcon(IconManager.BROWSE));
-		b.setToolTipText("Browse the category.");
+		b.setToolTipText("Browse the images with the tag.");
 		UIUtilities.unifiedButtonLookAndFeel(b);
 		b.setActionCommand(""+BROWSE);
 		b.addActionListener(this);
 		add(b);
 		b = new JButton(icons.getIcon(IconManager.CANCEL));
-		b.setToolTipText("Remove the image from the category.");
+		b.setToolTipText("Remove the tag.");
 		UIUtilities.unifiedButtonLookAndFeel(b);
 		b.setActionCommand(""+REMOVE);
 		b.addActionListener(this);

@@ -30,7 +30,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.Point;
@@ -82,12 +81,12 @@ import org.openmicroscopy.shoola.agents.util.tagging.CategoryEditor;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
-import pojos.ExperimenterData;
+import org.openmicroscopy.shoola.util.ui.search.SearchObject;
+import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 
 /** 
 * The {@link ImViewer} view.
@@ -1797,26 +1796,7 @@ class ImViewerUI
 		source = null;
 		location = null;
 	}
-	
-	/**
-	 * 
-	 * @param experimenter
-	 */
-	void setUserSettings(ExperimenterData experimenter)
-	{
-		try {
-			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			model.setUserSettings(experimenter);
-			resetDefaults();
-			controller.renderXYPlane();
-		} catch (Exception e) {
-			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Set User rendering settings", "Could not apply " +
-					"the settings set by "+experimenter.getFirstName()+
-					" "+experimenter.getLastName());
-		}
-	}
-	
+
 	/**
 	 * Sets the location and the source where to pop up the menu.
 	 * 
@@ -1854,9 +1834,24 @@ class ImViewerUI
 		controlPane.setGridMagnificationFactor((int) (factor*10));
 	}
 
-	void searchForCategories(List values)
+	/**
+	 * Searches for the passed values for the context defined by the
+	 * passed node.
+	 * 
+	 * @param node The node to handle.
+	 */
+	void searchFor(SearchObject node)
 	{
-		model.fireCategoriesRetrieval(values);
+		switch (node.getIndex()) {
+			case QuickSearch.TAGS:
+				model.fireTagsRetrieval(node.getResult());
+				break;
+			case QuickSearch.IMAGES:
+				model.fireImagesRetrieval(node.getResult());
+				break;
+			case QuickSearch.ANNOTATIONS:
+				model.fireAnnotationsRetrieval(node.getResult());
+		}
 	}
 	
 	/** 

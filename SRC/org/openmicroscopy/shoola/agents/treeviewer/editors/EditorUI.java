@@ -86,6 +86,7 @@ import pojos.ProjectData;
  */
 class EditorUI
     extends JPanel
+    implements ActionListener
 {
     
     /** The default height of the <code>TitlePanel</code>. */
@@ -95,8 +96,7 @@ class EditorUI
      * A reduced size for the invisible components used to separate widgets
      * vertically.
      */
-    static final Dimension          SMALL_V_SPACER_SIZE = 
-                                                new Dimension(1, 6);
+    static final Dimension          SMALL_V_SPACER_SIZE = new Dimension(1, 6);
     
     /** The maximum number of UI indexes for the tabbed panes. */
     static final int				MAX_INDEX = 3;
@@ -118,7 +118,7 @@ class EditorUI
     
     /** The text indicating where the new <code>Category</code> will be added. */
     private static final String     CATEGORY_GROUP_PARENT_MSG = 
-                                            " to category group: ";
+                                            " to the tag set: ";
     
     /** The text indicating where the new <code>Image</code> will be added. */
     private static final String     CATEGORY_PARENT_MSG = " to category : ";
@@ -133,10 +133,10 @@ class EditorUI
      * The text corresponding to the creation of a
      * <code>Category Group</code>.
      */
-    private static final String     CATEGORY_GROUP_MSG = "Category group";
+    private static final String     CATEGORY_GROUP_MSG = "Tag Set";
     
     /** The text corresponding to the creation of a <code>Category</code>. */
-    private static final String     CATEGORY_MSG = "Category";
+    private static final String     CATEGORY_MSG = "Tag";
     
     /** The text corresponding to the creation of a <code>Image</code>. */
     private static final String     IMAGE_MSG = "Image";
@@ -152,15 +152,15 @@ class EditorUI
      * is edited.
      */
     private static final String     PROPERTIES_TITLE = "Properties";
-    
-    /** 
-     * The title of the tabbed pane hosting the details of the owner of the
-     * edited <code>DataObject</code>.
-     */
-    //private static final String     OWNER_TITLE = "Permissions";
-    
+
     /** The title of the tabbed pane hosting the details on the image. */
     private static final String     INFO_TITLE = "Info";
+    
+    /** Action command id to close the editor. */
+    private static final int		CANCEL = 0;
+    
+    /** Action command id to save the edited data. */
+    private static final int		FINISH = 1;
     
     /** Button to finish the operation e.g. create, edit, etc. */
     private JButton         finishButton;
@@ -223,20 +223,17 @@ class EditorUI
         titleLayer = new JLayeredPane();
         
         cancelButton = new JButton("Close");
-        cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {  
-                controller.close(true);
-            }
-        });
+        cancelButton.setToolTipText("Close the editor. ");
+        cancelButton.addActionListener(this);
+        cancelButton.setActionCommand(""+CANCEL);
+        
         finishButton = new JButton("Save");
+        finishButton.addActionListener(this);
+        finishButton.setActionCommand(""+FINISH);
         finishButton.setEnabled(false);
-        finishButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {  finish(); }
-        });
+       
         doBasic = new DOBasic(this, model, controller); 
         if (model.isAnnotatable()) {	
-            //annotator = new DOAnnotation(view, model);
         	annotator = model.createAnnotator();
         	annotator.addPropertyChangeListener(controller);
         }
@@ -507,8 +504,6 @@ class EditorUI
            //Create a default Thumbnail.
         	IconManager icons = IconManager.getInstance();
         	JLabel label = new JLabel(icons.getImageIcon(IconManager.IMAGE_48));
-        			//new ImageIcon(Factory.createDefaultThumbnail()));
-            
             titlePanel.setIconComponent(label);
         }   
     }
@@ -789,6 +784,23 @@ class EditorUI
 		if (annotator != null) annotator.addSelectedNodes(nodes);
 	}
 	
+	/**
+	 * Closes or saves.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case CANCEL:
+				 controller.close(true);
+				 break;
+			case FINISH:
+				finish();
+		}
+		
+	}
+	
     /**
      * Overridden to set the size of the title panel.
      * @see JPanel#setSize(int, int)
@@ -808,5 +820,7 @@ class EditorUI
      * @see JPanel#setSize(Dimension)
      */
     public void setSize(Dimension d) { setSize(d.width, d.height); }
+
+	
 
 }

@@ -52,18 +52,12 @@ public class ObjectFinder
 	extends BatchCallTree
 {
 
-	/** Indicates to search for categories. */
-	public static final int CATEGORIES = 0;
-	
 	 /** The root nodes of the found trees. */
     private Object		result;
     
     /** The search call. */
     private BatchCall   loadCall;
-    
-    /** The type of object to search for. */
-	private int 		type;
-	
+
 	/** The id of the experimenter. */
 	private long		expID;
 	
@@ -71,50 +65,20 @@ public class ObjectFinder
      * Creates a {@link BatchCall} to retrieve the categories whose name
      * contains the passed values.
      * 
+     * @param type	 The type of objects to search for.
      * @param values The values to handle.
      * @return The {@link BatchCall}.
      */
-    private BatchCall searchForCategories(final List values)
+    private BatchCall searchFor(final Class type, final List values)
     {
-        return new BatchCall("Retrieving categories") {
+        return new BatchCall("Retrieving objects") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.searchForCategories(expID, values);
+                result = os.searchFor(type, expID, values);
             }
         };
     }
-	
-	/**
-	 * Makes the bacth call corresponding to the specified types.
-	 * 
-	 * @param values The values to search for.
-	 */
-	private void makeCall(List values)
-	{
-		switch (type) {
-			case CATEGORIES:
-				loadCall = searchForCategories(values);
-				break;
-			default:
-				break;
-		}
-	}
-	
-	/**
-	 * Controls if the passed index is supported.
-	 * 
-	 * @param value The value to handle.
-	 */
-	private void checkType(int value)
-	{
-		switch (value) {
-			case CATEGORIES:
-				return;
-			default:
-				throw new IllegalArgumentException("Type not supported.");
-		}
-	}
 	
 	/**
      * Adds the {@link #loadCall} to the computation tree.
@@ -131,16 +95,14 @@ public class ObjectFinder
     /**
      * Creates a new instance.
      * 
-     * @param expID
+     * @param expID	
      * @param type
      * @param values
      */
-    public ObjectFinder(long expID, int type, List values)
+    public ObjectFinder(Class type, long expID, List values)
     {
-    	checkType(type);
     	this.expID = expID;
-    	this.type = type;
-    	makeCall(values);
+    	loadCall = searchFor(type, values);
     }
 
 }

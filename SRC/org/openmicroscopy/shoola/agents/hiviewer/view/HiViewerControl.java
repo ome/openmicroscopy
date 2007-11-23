@@ -63,7 +63,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.CopyRndSettingsAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.DeclassifyAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ExitAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindAction;
-import org.openmicroscopy.shoola.agents.hiviewer.actions.FindwSTAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FlatLayoutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.MouseOverAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.PasteRndSettingsAction;
@@ -243,7 +242,6 @@ class HiViewerControl
         actionsMap.put(ZOOM_IN, new ZoomInAction(model));
         actionsMap.put(ZOOM_OUT, new ZoomOutAction(model));
         actionsMap.put(ZOOM_FIT, new ZoomFitAction(model));
-        actionsMap.put(FIND_W_ST, new FindwSTAction(model));
         actionsMap.put(SAVE_THUMB, new SaveThumbnailsAction(model));
         actionsMap.put(TREE_VIEW, new TreeViewAction(model));
         actionsMap.put(FIND, new FindAction(model));

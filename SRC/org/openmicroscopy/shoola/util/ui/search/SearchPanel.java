@@ -27,20 +27,18 @@ package org.openmicroscopy.shoola.util.ui.search;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
-
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import layout.TableLayout;
 
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 

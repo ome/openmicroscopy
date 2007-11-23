@@ -66,7 +66,7 @@ public class CreateAction
     private static final String NAME_DATASET = "New Dataset...";
     
     /** The name of the action for the creation of a <code>Category</code>. */
-    private static final String NAME_CATEGORY = "New Category...";
+    private static final String NAME_CATEGORY = "New Tag...";
     
     /** The name of the action for the creation of a <code>Image</code>. */
     private static final String NAME_IMAGE = "Import Image...";
@@ -81,8 +81,8 @@ public class CreateAction
      * Description of the action if the selected node is a 
      * <code>Category</code>.
      */
-    private static final String DESCRIPTION_CATEGORY = "Create a new category" +
-    							" and add it to the selected category group.";
+    private static final String DESCRIPTION_CATEGORY = "Create a new Tag" +
+    							" and add it to the selected Tag Set.";
     
     /** 
      * Description of the action if the selected node is a <code>Image</code>.

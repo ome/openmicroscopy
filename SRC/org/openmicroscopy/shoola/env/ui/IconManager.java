@@ -227,7 +227,7 @@ public class IconManager
 		relPaths[HOW_TO] = "nuvola_artscontrol16.png";
 		relPaths[SW_UPDATES] = "nuvola_download_manager16.png";
         relPaths[QUESTION] = "nuvola_filetypes48.png";
-        relPaths[COMMENT] = "nuvola_knotes16.png";
+        relPaths[COMMENT] = "nuvola_mail_send16.png";
 	}
 	
 	/** The sole instance. */

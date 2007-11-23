@@ -447,14 +447,16 @@ public interface DataHandlerView
 			AnnotationData annotation, AgentEventListener observer);
 	
 	/**
-	 * Retrieves the categories identified by the passed values.
+	 * Retrieves the objects identified by the passed values and type.
 	 * 
+	 * @param type		One of the following types: AnnotationData, CategoryData
+	 * 					or ImageData.
 	 * @param userID	The user's id.
 	 * @param values	The terms to find.
 	 * @param observer	Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle searchForClassifications(long userID, List values, 
+	public CallHandle searchFor(Class type, long userID, List values, 
 												AgentEventListener observer);
 	
 }

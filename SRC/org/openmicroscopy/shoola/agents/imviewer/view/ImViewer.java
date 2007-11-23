@@ -31,8 +31,6 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -44,6 +42,7 @@ import org.openmicroscopy.shoola.agents.util.tagging.CategorySaverDef;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+import pojos.ExperimenterData;
 
 /** 
 * Defines the interface provided by the viewer component. 
@@ -526,9 +525,10 @@ public interface ImViewer
 	/**
 	 * Invokes only when the rendering engine was reloaded after time out.
 	 *
-	 * @param rndControl The {@link RenderingControl} to set.
+	 * @param updateView	Pass <code>true</code> to update the view,
+	 * 						<code>false</code> otherwise.
 	 */
-	public void setReloaded(RenderingControl rndControl);
+	public void setRenderingControlReloaded(boolean updateView);
 
 	/**
 	 * Notifies the user than an error occured while trying to modify the 
@@ -840,10 +840,18 @@ public interface ImViewer
 	public void setGridMagnificationFactor(double factor);
     
 	/**
-	 * Browses the specified categories.
+	 * Convenience method returning details about the currently logged in
+	 * user.
 	 * 
-	 * @param categoriesID Collection of categories id.
+	 * @return See above.
 	 */
-	public void browse(Set<Long> categoriesID);
+	public ExperimenterData getUserDetails();
+
+	/**
+	 * Sets the rendering settings set by the passed user.
+	 * 
+	 * @param exp The user to handle.
+	 */
+	public void setUserRndSettings(ExperimenterData exp);
 	
 }

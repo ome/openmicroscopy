@@ -129,6 +129,19 @@ public interface OmeroImageService
 	 */
 	public RenderingControl reloadRenderingService(long pixelsID)
 		throws DSAccessException, RenderingServiceException;
+	
+	/**
+	 * Reloads the rendering engine for the passed set of pixels.
+	 * 
+	 * @param pixelsID The id of the pixels set.
+	 * @return See above.
+	 * @throws RenderingServiceException If the rendering engine cannot be 
+	 * 									 started.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public RenderingControl resetRenderingService(long pixelsID)
+		throws DSAccessException, RenderingServiceException;
 
 	/**
 	 * Loads the dimensions in microns of the pixels set.

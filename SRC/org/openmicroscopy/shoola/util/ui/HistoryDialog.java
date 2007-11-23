@@ -131,27 +131,6 @@ public class HistoryDialog
     private void initComponents()
     {
         history = new JList(data);
-        /*
-        listener = new ListSelectionListener() {
-        
-            public void valueChanged(ListSelectionEvent e)
-            {
-                ListSelectionModel model = (ListSelectionModel) e.getSource();
-                System.err.println(e);
-                if (!model.isSelectionEmpty() && e.getValueIsAdjusting()) {
-                    int minIndex = model.getMinSelectionIndex(),
-                    maxIndex = model.getMaxSelectionIndex();
-                    for (int i = minIndex; i <= maxIndex; i++)
-                    if (model.isSelectedIndex(i)) {
-                        firePropertyChange(SELECTION_PROPERTY, null, data[i]);
-                        setVisible(false);
-                    }
-                }
-            }
-        };
-        
-        history.getSelectionModel().addListSelectionListener(listener);
-        */
         history.addMouseListener(new MouseAdapter() {
 		
 			/**
@@ -247,7 +226,6 @@ public class HistoryDialog
     /**
      * Returns the selected object or <code>null</code>
      * and hides the menu.
-     * 
      * 
      * @return See above.
      */

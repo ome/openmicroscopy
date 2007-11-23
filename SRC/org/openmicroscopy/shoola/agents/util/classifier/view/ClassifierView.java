@@ -64,35 +64,36 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class ClassifierView
 	extends JDialog
+	implements ActionListener
 {
 
 	/** The title of the window. */
-	private static final String 	TITLE = "Categorise";
+	private static final String 	TITLE = "Tag";
 	
     /** Text displayed in the title panel. */
-    private static final String     ADD_PANEL_TITLE = "Categorise";
+    private static final String     ADD_PANEL_TITLE = "Add tags";
     
     /** The default note. */
     private static final String     PANEL_NOTE = "Expand list to select the " +
-    		"categories to add the images to.";
+    		"tags to add to the images.";
     
     /** Text displayed in the note panel. */
-    private static final String     REMOVE_PANEL_NOTE = "The image is " +
-            "currently classified under the following categories. ";
+    private static final String     REMOVE_PANEL_NOTE = "The image" +
+    		" has the following tags. ";
     
     /** Text displayed in the text panel. */
-    private static final String     ADD_PANEL_TEXT = "Categorise the " +
-    										"selected images."; 
+    private static final String     ADD_PANEL_TEXT = "Add tags to the " +
+    		"selected images."; 
     
     /** Text displayed in the title panel. */
-    private static final String     REMOVE_PANEL_TITLE = "Decategorise";
+    private static final String     REMOVE_PANEL_TITLE = "Remove tags";
     
     /** Text displayed in the text panel. */
-    private static final String     REMOVE_PANEL_TEXT = "Decategorise the " +
-                                                        "following image: ";
+    private static final String     REMOVE_PANEL_TEXT = "Remove the tags" +
+    		" from the following image: ";
     
     /** Text displayed in the text panel. */
-    private static final String     BULK_PANEL_TEXT = "Categorise the " +
+    private static final String     BULK_PANEL_TEXT = "Add tags to the " +
     									"images  contained in the selected " +
     										"folders."; 
     
@@ -104,6 +105,12 @@ class ClassifierView
      * horizontally.
      */
     private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
+    
+    /** Action command to select all. */
+    private static final int		SELECT_ALL = 0;
+    
+    /** Action command to deselect all. */
+    private static final int		DESELECT_ALL = 1;
     
 	/** The Controller. */
     private ClassifierControl	controller;
@@ -133,24 +140,15 @@ class ClassifierView
     private void initComponents()
     {
     	selectAll = new JButton("Select All");
-    	selectAll.setToolTipText("Select all categories");
-    	selectAll.addActionListener(new ActionListener() {
-		
-			public void actionPerformed(ActionEvent e) {
-				classifierUI.selectAll();
-			}
-		
-		});
+    	selectAll.setToolTipText("Select all tags");
+    	selectAll.addActionListener(this);
+    	selectAll.setActionCommand(""+SELECT_ALL);
+    	
     	selectAll.setEnabled(false);
     	deselectAll = new JButton("Deselect All");
-    	deselectAll.setToolTipText("Deselect all categories");
-    	deselectAll.addActionListener(new ActionListener() {
-		
-			public void actionPerformed(ActionEvent e) {
-				classifierUI.deselectAll();
-			}
-		
-		});
+    	deselectAll.setToolTipText("Deselect all tags");
+    	deselectAll.addActionListener(this);
+    	deselectAll.setActionCommand(""+DESELECT_ALL);
     	deselectAll.setEnabled(false);
     }
     
@@ -354,6 +352,22 @@ class ClassifierView
 		if (pack) pack();
 		else setSize(DEFAULT_SIZE);
 		UIUtilities.centerAndShow(this);
+	}
+
+	/**
+	 * Selects or deselects all items.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case SELECT_ALL:
+				classifierUI.selectAll();
+				break;
+			case DESELECT_ALL:
+				classifierUI.deselectAll();
+		}
 	}
 	
 }

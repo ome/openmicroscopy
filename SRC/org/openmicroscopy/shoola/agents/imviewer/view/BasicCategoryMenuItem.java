@@ -79,7 +79,6 @@ class BasicCategoryMenuItem
 			case REMOVE:
 			case BROWSE:
 				return;
-	
 			default:
 				throw new IllegalArgumentException("ID not valid.");
 		}

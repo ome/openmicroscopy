@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.agents.imviewer.CategoryLoader;
 import org.openmicroscopy.shoola.agents.imviewer.CategorySaver;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.imviewer.ObjectFinder;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
@@ -435,19 +436,30 @@ class ImViewerModel
 	/** Fires an asynchronous retrieval of the rendering control. */
 	void fireRenderingControlLoading()
 	{
-		currentLoader = new RenderingControlLoader(component, pixelsID, false);
+		currentLoader = new RenderingControlLoader(component, pixelsID, 
+												RenderingControlLoader.LOAD);
 		currentLoader.load();
 		state = ImViewer.LOADING_RENDERING_CONTROL;
 	}
 
 	/** Fires an asynchronous retrieval of the rendering control. */
-	void reloadRenderingControl()
+	void fireRenderingControlReloading()
 	{
-		currentLoader = new RenderingControlLoader(component, pixelsID, true);
+		currentLoader = new RenderingControlLoader(component, pixelsID, 
+										RenderingControlLoader.RELOAD);
 		currentLoader.load();
 		state = ImViewer.LOADING_RENDERING_CONTROL;
 	}
 
+	/** Fires an asynchronous retrieval of the rendering control. */
+	void fireRenderingControlResetting()
+	{
+		currentLoader = new RenderingControlLoader(component, pixelsID, 
+										RenderingControlLoader.RESET);
+		currentLoader.load();
+		state = ImViewer.LOADING_RENDERING_CONTROL;
+	}
+	
 	/** Fires an asynchronous retrieval of the rendered image. */
 	void fireImageRetrieval()
 	{
@@ -1124,11 +1136,38 @@ class ImViewerModel
 	 * 
 	 * @param values The value to search for.
 	 */
-	void fireCategoriesRetrieval(List values)
+	void fireTagsRetrieval(List values)
 	{
-		currentLoader = new CategoryLoader(component, getUserDetails().getId(),
-											values);
-		currentLoader.load();
+		ObjectFinder loader = new ObjectFinder(component, 
+										getUserDetails().getId(),
+										values, ObjectFinder.TAGS);
+		loader.load();
+	}
+	
+	/** 
+	 * Searches for the passed values.
+	 * 
+	 * @param values The value to search for.
+	 */
+	void fireImagesRetrieval(List values)
+	{
+		ObjectFinder loader = new ObjectFinder(component, 
+										getUserDetails().getId(),
+										values, ObjectFinder.IMAGES);
+		loader.load();
+	}
+	
+	/** 
+	 * Searches for the passed values.
+	 * 
+	 * @param values The value to search for.
+	 */
+	void fireAnnotationsRetrieval(List values)
+	{
+		ObjectFinder loader = new ObjectFinder(component, 
+											getUserDetails().getId(),
+											values, ObjectFinder.ANNOTATIONS);
+		loader.load();
 	}
 	
 	/**

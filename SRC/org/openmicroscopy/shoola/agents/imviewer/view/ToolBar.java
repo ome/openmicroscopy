@@ -31,6 +31,7 @@ import java.awt.event.ActionListener;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
@@ -42,7 +43,7 @@ import javax.swing.JToolBar;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ClassifyAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.search.TagSearch;
+import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 
 /** 
  * Presents the variable drawing controls.
@@ -63,21 +64,21 @@ class ToolBar
     extends JPanel
     implements ActionListener
 {
-    
+
 	/** Flag to indicate that the image is not compressed. */
-	static final int	UNCOMPRESSED = 0;
+	static final int				UNCOMPRESSED = 0;
 	
 	/** 
 	 * Flag to indicate that the image is not compressed using a
 	 * medium Level of compression. 
 	 */
-	static final int	MEDIUM = 1;
+	static final int				MEDIUM = 1;
 	
 	/** 
 	 * Flag to indicate that the image is not compressed using a
 	 * low Level of compression. 
 	 */
-	static final int	LOW = 2;
+	static final int				LOW = 2;
 	
     /** Default text describing the compression check box.  */
     private static final String		COMPRESSED_DESCRIPTION = 
@@ -103,9 +104,6 @@ class ToolBar
     /** The tool bar hosting the controls. */
     private JToolBar        bar;
     
-    /** Selected if the image is compressed by default. */
-    //private JCheckBox		compressedBox;
-    
     /** Button used to show or hide the renderer. */
     private JToggleButton	rndButton;
     
@@ -114,9 +112,6 @@ class ToolBar
 
     /** Box used to present the compression selected. */
     private JComboBox		compressionBox;
-    
-    /** Component used to search the tags. */
-    private TagSearch		search;
     
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
@@ -176,8 +171,6 @@ class ToolBar
     /** Initializes the components composing this tool bar. */
     private void initComponents()
     {
-    	search = new TagSearch();
-    	search.addPropertyChangeListener(controller);
     	compressionBox = new JComboBox(compression);
     	compressionBox.setToolTipText(COMPRESSED_DESCRIPTION);
         //compressedBoxsaveOnClose.setSelected(true);
@@ -185,24 +178,31 @@ class ToolBar
 			(ClassifyAction) controller.getAction(ImViewerControl.CATEGORY);
         categoryButton = new JButton(a);
         UIUtilities.unifiedButtonLookAndFeel(categoryButton);
-        //categoryButton.setVisible(true);
         categoryButton.addMouseListener(a);
-        //categoryButton.setVisible(true);
-       // userButton.addMouseListener(a);
         createControlsBar();
     }
 
+    /** 
+     * Builds the quick search component.
+     * 
+     * @return See above.
+     */
+    private JComponent createQuickSearch()
+    {
+    	QuickSearch search = new QuickSearch();
+    	search.setDefaultSearchContext();
+    	search.addPropertyChangeListener(controller);
+    	return search;
+    }
+    
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
     	setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-    	JPanel p = new JPanel();
-        p.setLayout(new FlowLayout(FlowLayout.LEFT));
-        p.add(bar);
-        add(p);
+        add(UIUtilities.buildComponentPanel(bar));
         JPanel right = new JPanel();
         right.setLayout(new BoxLayout(right, BoxLayout.X_AXIS));
-        right.add(UIUtilities.buildComponentPanelRight(search));
+        right.add(UIUtilities.buildComponentPanelRight(createQuickSearch()));
         right.add(categoryButton);
         right.setOpaque(true);
         add(UIUtilities.buildComponentPanelRight(right));

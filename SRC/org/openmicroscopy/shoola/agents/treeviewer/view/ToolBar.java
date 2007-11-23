@@ -34,6 +34,7 @@ import java.awt.Point;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
@@ -45,6 +46,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifierAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 
 /** 
  * The tool bar of {@link TreeViewer}.
@@ -136,6 +138,19 @@ class ToolBar
         return bar;
     }
     
+    /** 
+     * Builds the quick search component.
+     * 
+     * @return See above.
+     */
+    private JComponent createQuickSearch()
+    {
+    	QuickSearch search = new QuickSearch();
+    	search.setDefaultSearchContext();
+    	search.addPropertyChangeListener(controller);
+    	return search;
+    }
+    
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
@@ -149,8 +164,11 @@ class ToolBar
         outerPanel.add(bars);
         outerPanel.add(Box.createRigidArea(HBOX));
         outerPanel.add(Box.createHorizontalGlue());  
-        setLayout(new FlowLayout(FlowLayout.LEFT));
-        add(outerPanel);
+        
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+       
+        add(UIUtilities.buildComponentPanel(outerPanel));
+        add(UIUtilities.buildComponentPanelRight(createQuickSearch()));
     }
 
     /**

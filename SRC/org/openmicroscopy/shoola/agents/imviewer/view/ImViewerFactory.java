@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Rectangle;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -229,6 +230,24 @@ public class ImViewerFactory
 				m.put(NAME+comp.getTitle(), events);
 		}
 		return m;
+	}
+	
+	/**
+	 * Resets the rendering engine if necessary.
+	 * 
+	 * @param pixelsIDs The collection of pixels set whose rendering settings 
+	 * 					have been updated.
+	 */
+	public static void reloadRenderingEngine(Collection pixelsIDs)
+	{
+		if (pixelsIDs == null || pixelsIDs.size() == 0) return;
+		Iterator i = singleton.viewers.iterator();
+		ImViewerComponent comp;
+		while (i.hasNext()) {
+			comp = (ImViewerComponent) i.next();
+			if (pixelsIDs.contains(comp.getPixelsID()))
+				comp.reset();
+		}
 	}
 	
 	/** 

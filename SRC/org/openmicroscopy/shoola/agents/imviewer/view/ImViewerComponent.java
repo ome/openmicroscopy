@@ -49,7 +49,6 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
@@ -85,6 +84,7 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.CategoryData;
+import pojos.ExperimenterData;
 
 /** 
 * Implements the {@link ImViewer} interface to provide the functionality
@@ -368,49 +368,6 @@ class ImViewerComponent
 	}
 	
 	/**
-	 * Returns a map with events to save.
-	 * 
-	 * @return See above.
-	 */
-	Map<String, SaveRelatedData> getSaveEvents() 
-	{
-		return events;
-	}
-	
-	/**
-	 * Returns <code>true</code> if there are annotations to save,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean hasAnnotationToSave() 
-	{ 
-		return model.getBrowser().hasAnnotationToSave();
-	}
-	
-	/**
-	 * Returns <code>true</code> if there are rendering settings to save,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean hasRndToSave() { return rndToSave; }
-	
-	/**
-	 * Returns the id of the pixels set thie viewer is for.
-	 * 
-	 * @return See above.
-	 */
-	long getPixelsID() { return model.getPixelsID(); }
-	
-	/**
-	 * Returns the title associated to the viewer.
-	 * 
-	 * @return See above.
-	 */
-	String getTitle() { return view.getTitle(); }
-	
-	/**
 	 * Creates a new instance.
 	 * The {@link #initialize() initialize} method should be called straigh 
 	 * after to complete the MVC set up.
@@ -463,6 +420,58 @@ class ImViewerComponent
 	{
 		if (events == null) events = new HashMap<String, SaveRelatedData>();
  		events.put(evt.toString(), evt);
+	}
+	
+	
+	/**
+	 * Returns a map with events to save.
+	 * 
+	 * @return See above.
+	 */
+	Map<String, SaveRelatedData> getSaveEvents() 
+	{
+		return events;
+	}
+	
+	/**
+	 * Returns <code>true</code> if there are annotations to save,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasAnnotationToSave() 
+	{ 
+		return model.getBrowser().hasAnnotationToSave();
+	}
+	
+	/**
+	 * Returns <code>true</code> if there are rendering settings to save,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasRndToSave() { return rndToSave; }
+	
+	/**
+	 * Returns the id of the pixels set thie viewer is for.
+	 * 
+	 * @return See above.
+	 */
+	long getPixelsID() { return model.getPixelsID(); }
+	
+	/**
+	 * Returns the title associated to the viewer.
+	 * 
+	 * @return See above.
+	 */
+	String getTitle() { return view.getTitle(); }
+	
+	/** Resets the rendering engine. */
+	void reset()
+	{
+		//TODO: check state.
+		model.fireRenderingControlResetting();
+		fireStateChange();
 	}
 	
 	/** 
@@ -871,6 +880,7 @@ class ImViewerComponent
 						new Integer(index-1), new Integer(index));
 				//view.setChannelsSelection();
 			}
+			rndToSave = true;
 			view.setChannelsSelection(uiIndex);
 			//view.setChannelsSelection();
 			renderXYPlane();
@@ -888,7 +898,8 @@ class ImViewerComponent
 	{
 		if (model.getState() != LOADING_RENDERING_CONTROL)
 			throw new IllegalStateException(
-					"This method can't be invoked in the LOADING_RENDERING_CONTROL.");
+					"This method can't be invoked in the " +
+					"LOADING_RENDERING_CONTROL.");
 		model.setRenderingControl(result);
 
 		fireStateChange();
@@ -922,7 +933,7 @@ class ImViewerComponent
 			case DISCARDED:
 				throw new IllegalStateException(
 				"This method can't be invoked in the DISCARDED, NEW or" +
-				"LOADING_RENDERING_CONTROL state.");
+				" state.");
 		} 
 		model.fireImageRetrieval();
 		newPlane = false;
@@ -1662,15 +1673,19 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setReloaded(RenderingControl)
+	 * @see ImViewer#setRenderingControlReloaded(RenderingControl, boolean)
 	 */
-	public void setReloaded(RenderingControl rndControl)
+	public void setRenderingControlReloaded(boolean updateView)
 	{
 		if (model.getState() != LOADING_RENDERING_CONTROL)
 			throw new IllegalStateException("The method can only be invoked " +
 			"in the LOADING_RENDERING_CONTROL state.");
 		//model.setState(READY);
-		model.setRenderingControl(rndControl);
+		//model.setRenderingControl(rndControl);
+		if (updateView) {
+			model.getRenderer().resetRndSettings();
+			view.resetDefaults();
+		}
 		renderXYPlane();
 	}
 
@@ -1707,7 +1722,7 @@ class ImViewerComponent
 			"Do you want to restart it?");
 			if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
 				logger.debug(this, "Reload rendering Engine.");
-				model.reloadRenderingControl();
+				model.fireRenderingControlReloading();
 				fireStateChange();
 			} else {
 				logger.debug(this, e.getMessage());
@@ -2375,11 +2390,39 @@ class ImViewerComponent
 		}
 	}
 
-	public void browse(Set<Long> categoriesID)
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setUserRndSettings(ExperimenterData)
+	 */
+	public void setUserRndSettings(ExperimenterData exp)
 	{
-		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-    	bus.post(new Browse(categoriesID, Browse.CATEGORIES, 
-    			model.getUserDetails(), view.getBounds()));  
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be invoked" +
+					" in the DISCARDED state.");
+		try {
+			rndToSave = true;
+			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			model.setUserSettings(exp);
+			view.resetDefaults();
+			renderXYPlane();
+		} catch (Exception e) {
+			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Set User rendering settings", "Could not apply " +
+					"the settings set by "+exp.getFirstName()+
+					" "+exp.getLastName());
+		}
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getUserDetails()
+	 */
+	public ExperimenterData getUserDetails()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be invoked" +
+					" in the DISCARDED state.");
+		return model.getUserDetails();
 	}
     
 }

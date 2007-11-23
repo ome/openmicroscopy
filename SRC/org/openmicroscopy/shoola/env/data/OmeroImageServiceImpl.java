@@ -207,11 +207,35 @@ class OmeroImageServiceImpl
 					new Long(pixelsID));
 		if (proxy == null) return null;
 		try {
-			PixelsServicesFactory.shutDownRenderingControl(context, pixelsID);
 			RenderingEngine re = gateway.createRenderingEngine(pixelsID);
-			return PixelsServicesFactory.resetRenderingControl(context, 
+			return PixelsServicesFactory.reloadRenderingControl(context, 
 					pixelsID, re);
 		} catch (Exception e) {
+			throw new RenderingServiceException("Cannot restart the " +
+					"rendering engine for : "+pixelsID, e);
+		}
+	}
+	
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#resetRenderingService(long)
+	 */
+	public RenderingControl resetRenderingService(long pixelsID)
+		throws RenderingServiceException
+	{
+		RenderingControl proxy = 
+			PixelsServicesFactory.getRenderingControl(context, 
+					new Long(pixelsID));
+		if (proxy == null) return null;
+		try {
+			RenderingEngine re = gateway.createRenderingEngine(pixelsID);
+			ExperimenterData exp = (ExperimenterData) context.lookup(
+					LookupNames.CURRENT_USER_DETAILS);
+			RenderingDef def = gateway.getRenderingDef(pixelsID, exp.getId());
+			return PixelsServicesFactory.resetRenderingControl(context, 
+					pixelsID, re, def);
+		} catch (Exception e) {
+			e.printStackTrace();
 			throw new RenderingServiceException("Cannot restart the " +
 					"rendering engine for : "+pixelsID, e);
 		}

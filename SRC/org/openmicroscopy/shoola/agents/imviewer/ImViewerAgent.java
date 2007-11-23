@@ -35,6 +35,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.events.FocusGainedEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
@@ -171,6 +172,18 @@ public class ImViewerAgent
 		}
     }
     
+    /**
+     * Reloads the rendering engine if the settings of an active viewer
+     * have been updated.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleRndSettingsCopiedEvent(RndSettingsCopied evt)
+    {
+    	if (evt == null) return;
+    	ImViewerFactory.reloadRenderingEngine(evt.getPixelsIDs());
+    }
+    
     /** Creates a new instance. */
     public ImViewerAgent() {}
     
@@ -200,6 +213,7 @@ public class ImViewerAgent
         bus.register(this, CopyRndSettings.class);
         bus.register(this, SaveRelatedData.class);
         bus.register(this, FocusGainedEvent.class);
+        bus.register(this, RndSettingsCopied.class);
     }
 
     /**
@@ -240,6 +254,8 @@ public class ImViewerAgent
         	handleSaveRelatedData((SaveRelatedData) e);
         else if (e instanceof FocusGainedEvent)
 			handleFocusGainedEvent((FocusGainedEvent) e);
+        else if (e instanceof RndSettingsCopied)
+			handleRndSettingsCopiedEvent((RndSettingsCopied) e);
     }
 
 }

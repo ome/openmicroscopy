@@ -180,7 +180,7 @@ public class PixelsServicesFactory
 	}
 
 	/**
-	 * Resets the rendering engine.
+	 * Reloads the rendering engine.
 	 * 
 	 * @param context	Reference to the registry. To ensure that agents cannot
 	 *                  call the method. It must be a reference to the
@@ -189,18 +189,48 @@ public class PixelsServicesFactory
 	 * @param re		The {@link RenderingEngine rendering service}.
 	 * @return See above.
 	 */
-	public static RenderingControlProxy resetRenderingControl(Registry context, 
+	public static RenderingControlProxy reloadRenderingControl(Registry context, 
 			long pixelsID, RenderingEngine re)
 	{
 		if (!(registry.equals(context)))
 			throw new IllegalArgumentException("Not allow to access method.");
 		RenderingControlProxy proxy = (RenderingControlProxy) 
 		singleton.rndSvcProxies.get(new Long(pixelsID));
-		if (proxy != null)
+		if (proxy != null) {
+			proxy.shutDown();
 			proxy.setRenderingEngine(re);
+		}
+			
 		return proxy;
 	}
 
+	/**
+	 * Resets the rendering engine.
+	 * 
+	 * @param context	Reference to the registry. To ensure that agents cannot
+	 *                  call the method. It must be a reference to the
+	 *                  container's registry.
+	 * @param pixelsID	The ID of the pixels set.
+	 * @param re		The {@link RenderingEngine rendering service}.
+	 * @param def		The rendering def linked to the rendering engine.
+	 * 					This is passed to speed up the initialization 
+	 * 					sequence.
+	 * @return See above.
+	 */
+	public static RenderingControlProxy resetRenderingControl(Registry context, 
+			long pixelsID, RenderingEngine re, RenderingDef def)
+	{
+		if (!(registry.equals(context)))
+			throw new IllegalArgumentException("Not allow to access method.");
+		RenderingControlProxy proxy = (RenderingControlProxy) 
+		singleton.rndSvcProxies.get(new Long(pixelsID));
+		if (proxy != null) {
+			proxy.shutDown();
+			proxy.resetRenderingEngine(re, convert(def));
+		}
+			
+		return proxy;
+	}
 	/**
 	 * Shuts downs the rendering service attached to the specified 
 	 * pixels set.
@@ -214,10 +244,12 @@ public class PixelsServicesFactory
 	{
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
-		RenderingControl proxy = (RenderingControl) 
-		singleton.rndSvcProxies.get(new Long(pixelsID));
-		if (proxy != null)
+		RenderingControlProxy proxy = (RenderingControlProxy) 
+			singleton.rndSvcProxies.get(new Long(pixelsID));
+		if (proxy != null) {
+			proxy.shutDown();
 			singleton.rndSvcProxies.remove(new Long(pixelsID));
+		}
 	}
 
 	/** 

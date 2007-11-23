@@ -228,7 +228,7 @@ public class IconManager
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 54;
+    private static int          MAX_ID = 57;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -277,7 +277,7 @@ public class IconManager
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
         relPaths[ZOOM_FIT] = "nuvola_viewmagfit16.png";
         relPaths[CLEAR] = "nuvola_history_clear16.png";
-        relPaths[CATEGORY] = "category16.png";
+        relPaths[CATEGORY] = "nuvola_knotes16.png";
         relPaths[CREATE_BIG] = "nuvola_filenew48.png"; 
         relPaths[FILTER_MENU] = "eclipse_view_menu16.png"; 
         relPaths[CATEGORY_GROUP] = "category_group16.png"; 

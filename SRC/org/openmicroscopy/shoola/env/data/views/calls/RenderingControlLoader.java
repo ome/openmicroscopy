@@ -54,7 +54,16 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 public class RenderingControlLoader
   	extends BatchCallTree
 {
-
+	
+	/** Indicates to load the rendering engine. */
+	public static final int LOAD = 0;
+	
+	/** Indicates to reload the rendering engine. */
+	public static final int RELOAD = 1;
+	
+	/** Indicates to reload the rendering engine. */
+	public static final int RESET = 2;
+	
 	/** Result of the call. */
 	private Object    	result;
 
@@ -65,20 +74,28 @@ public class RenderingControlLoader
 	 * Creates a {@link BatchCall} to retrieve rendering control.
 	 * 
 	 * @param pixelsID  The id of the pixels set the rendering control is for.
-	 * @param reload	Pass <code>true</code> to reload the rendering engine,
+	 * @param index		Pass <code>true</code> to reload the rendering engine,
 	 * 					<code>false</code> otherwise.
 	 * @return          The {@link BatchCall}.
 	 */
-	private BatchCall makeBatchCall(final long pixelsID, final boolean reload)
+	private BatchCall makeBatchCall(final long pixelsID, final int index)
 	{
 		return new BatchCall("Loading rendering control: ") {
 			public void doCall() throws Exception
 			{
 				try {
 					OmeroImageService rds = context.getImageService();
-					if (reload) {
-						result = rds.reloadRenderingService(pixelsID);
-					} else result = rds.loadRenderingControl(pixelsID);
+					switch (index) {
+						default:
+						case LOAD:
+							result = rds.loadRenderingControl(pixelsID);
+							break;
+						case RELOAD:
+							result = rds.reloadRenderingService(pixelsID);
+							break;
+						case RESET:
+							result = rds.resetRenderingService(pixelsID);
+					}
 					if (result == null) {
 						throw new DSOutOfServiceException("Cannot start the " +
 								"rendering engine for pixelsID "+pixelsID);
@@ -111,14 +128,13 @@ public class RenderingControlLoader
 	 * early and in the caller's thread.
 	 * 
 	 * @param pixelsID  The id of the pixels set the rendering control is for.
-	 * @param reload	Pass <code>true</code> to reload the rendering engine,
-	 * 					<code>false</code> otherwise.
+	 * @param index		One of the constants defined by this class.
 	 */
-	public RenderingControlLoader(long pixelsID, boolean reload)
+	public RenderingControlLoader(long pixelsID, int index)
 	{
 		if (pixelsID < 0)
 			throw new IllegalArgumentException("ID not valid.");
-		loadCall = makeBatchCall(pixelsID, reload);
+		loadCall = makeBatchCall(pixelsID, index);
 	}
 
 }

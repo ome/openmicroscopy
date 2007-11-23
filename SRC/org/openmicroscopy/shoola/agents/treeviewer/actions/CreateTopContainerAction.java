@@ -66,14 +66,14 @@ public class CreateTopContainerAction
     /** 
      * The name of the action for the creation of a <code>CategoryGroup</code>.
      */
-    private static final String NAME_CATEGORY_GROUP = "New Category Group...";
+    private static final String NAME_CATEGORY_GROUP = "New Tag Set...";
     
     /** Description of the action for a <code>Project</code> . */
     private static final String DESCRIPTION_PROJECT = "Create a new Project.";
     
     /** Description of the action for a <code>CategoryGroup</code> . */
     private static final String DESCRIPTION_CATEGORY_GROUP = 
-                                "Create a new Category Group.";
+                                "Create a new Tag Set.";
     
     /** The type of node to create. */
     private int nodeType;

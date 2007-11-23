@@ -65,13 +65,13 @@ class CategoriesPopupMenu
 {
 
 	/** Text indicating to create a new category. */
-	private static final String CREATION = "Add category to image";
+	private static final String CREATION = "Add tag to image";
 	
 	/** Text indicating to browse a given category. */
-	private static final String BROWSE = "Browse category";
+	private static final String BROWSE = "Browse tag";
 	
 	/** Text indicating to remove from a given category. */
-	private static final String REMOVE = "Remove category";
+	private static final String REMOVE = "Remove tag";
 	
 	/** Action command identifying the creation of a new category. */
 	private static final int	CREATION_ID = 1;

@@ -29,17 +29,19 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 
 /** 
  * Hosts the UI components displaying the rendered image.
@@ -59,6 +61,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
  */
 class BrowserUI
     extends JScrollPane
+    implements MouseMotionListener
 {
     
     /**
@@ -82,6 +85,9 @@ class BrowserUI
     /** Component related to the view while settings the bounds. */
     private JComponent			sibling;
     
+    /** Flag indicating if the experimenter uses the scrollbars. */
+    private boolean				adjusting;
+    
     /** Initializes the components composing the display. */
     private void initComponents()
     {
@@ -90,6 +96,8 @@ class BrowserUI
         //The image canvas is always at the bottom of the pile.
         layeredPane.add(browserCanvas, new Integer(0));
         canvasListener = new ImageCanvasListener(model, browserCanvas);
+        getVerticalScrollBar().addMouseMotionListener(this);
+        getHorizontalScrollBar().addMouseMotionListener(this);
     }
     
     /** Builds and lays out the GUI. */
@@ -266,6 +274,28 @@ class BrowserUI
 	}
 	
 	/**
+	 * Returns <code>true</code> if the scrollbars are visible,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean scrollbarsVisible()
+	{
+		JScrollBar hBar = getHorizontalScrollBar();
+		JScrollBar vBar = getVerticalScrollBar();
+		if (hBar.isVisible()) return true;
+		if (vBar.isVisible()) return true;
+		return false;
+	}
+	
+	/**
+	 * Sets the <code>adjusting</code> flag when the experimenter uses 
+	 * the scrollbars..
+	 * @see MouseMotionListener#mouseDragged(MouseEvent)
+	 */
+	public void mouseDragged(MouseEvent e) { adjusting = true; }
+	
+	/**
 	 * Overridden to center the image.
 	 * @see JComponent#setBounds(Rectangle)
 	 */
@@ -281,6 +311,8 @@ class BrowserUI
 	public void setBounds(int x, int y, int width, int height)
 	{
 		super.setBounds(x, y, width, height);
+		if (!scrollbarsVisible() && adjusting) adjusting = false;
+		if (adjusting) return;
 		Rectangle r = getViewport().getViewRect();
 		Dimension d = layeredPane.getPreferredSize();
 		int xLoc = ((r.width-d.width)/2);
@@ -291,4 +323,11 @@ class BrowserUI
 		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
 	}
 	
+	/**
+	 * Required by the {@link MouseMotionListener} I/F but no-op implementation
+	 * in our case.
+	 * @see MouseMotionListener#mouseMoved(MouseEvent)
+	 */
+	public void mouseMoved(MouseEvent e) {}
+
 }

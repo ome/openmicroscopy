@@ -62,6 +62,9 @@ class UsersPopupMenu
 	implements ActionListener
 {
 
+	/** Bound property indicating to set the rnd settings for a given user. */
+	static final String USER_RNDSETTINGS_PROPERTY = "userRndSettings";
+	
 	/** Reference to the model. */
 	private ImViewerModel	model;
 	
@@ -118,7 +121,8 @@ class UsersPopupMenu
 		Object src = e.getSource();
 		if (src instanceof UserItem) {
 			UserItem item = (UserItem) src;
-			view.setUserSettings(item.getExperimenter());
+			firePropertyChange(USER_RNDSETTINGS_PROPERTY, null, 
+								item.getExperimenter());
 		}
 	}
 	

@@ -82,16 +82,6 @@ public class NullRenderingService
 
     /**
      * No-op implementation
-     * @see OmeroImageService#renderImage(long)
-     */
-    public BufferedImage renderImage(long pixelsID)
-            throws RenderingServiceException
-    {
-        return null;
-    }
-
-    /**
-     * No-op implementation
      * @see OmeroImageService#shutDown(long)
      */
     public void shutDown(long pixelsID) {}
@@ -183,6 +173,16 @@ public class NullRenderingService
      */
 	public Map getRenderingSettings(long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#resetRenderingService(long)
+     */
+	public RenderingControl resetRenderingService(long pixelsID) 
+		throws DSAccessException, RenderingServiceException
 	{
 		return null;
 	}
