@@ -29,27 +29,40 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 
 import ols.Ontologies;
 
 import tree.DataField;
+import util.BareBonesBrowserLaunch;
+import util.ImageFactory;
 
 public class FieldEditorOLS extends FieldEditor {
+	
+	String ontologyId;
 	
 	String[] ontologyIds;
 	String[] ontologyNames;
 	JComboBox ontologySelector;
+	ActionListener ontologySelectionListener = new OntologySelectionListener();
 	
 	public FieldEditorOLS (DataField dataField) {
 		
 		super(dataField);
 		
+		/* need a String[] of ontology Id-Name pairs
+		 * get a map of these from my Ontologies class
+		 * then convert to String array. 
+		 */
 		LinkedHashMap<String, String> allOntologies = Ontologies.getInstance().getSupportedOntologies();
 		
 		ontologyIds = new String[allOntologies.size()];
 		ontologyNames = new String[allOntologies.size()];
 		
+		// copy map to array
 		int index=0;
 		for (Iterator i = allOntologies.keySet().iterator(); i.hasNext();){
 			String key = (String) i.next();
@@ -59,10 +72,44 @@ public class FieldEditorOLS extends FieldEditor {
 			index++;
 		}
 		
+		// make a new comboBox with the ontology Names
 		ontologySelector = new JComboBox(ontologyNames);
-		ontologySelector.addActionListener(new OntologySelectionListener());
+		ontologySelector.addActionListener(ontologySelectionListener);
 		ontologySelector.setMaximumRowCount(25);
 		attributeFieldsPanel.add(ontologySelector);
+		
+		// a link to the Ontology-Lookup-Service website
+		Icon olsIcon = ImageFactory.getInstance().getIcon(ImageFactory.OLS_LOGO_SMALL);
+		JLabel olsLabel = new JLabel("Uses the EBI OLS");
+		JButton olsButton = new JButton(olsIcon);
+		olsButton.addActionListener(new OlsLinkListener());
+		attributeFieldsPanel.add(olsLabel);
+		attributeFieldsPanel.add(olsButton);
+		
+		// if ontology ID has been set already, set the right selector
+		ontologyId = dataField.getAttribute(DataField.ONTOLOGY_ID);
+		refreshOntologySelector();
+	}
+	
+	public void refreshOntologySelector() {
+		ontologySelector.removeActionListener(ontologySelectionListener);
+		
+		if (ontologyId == null) {
+			ontologySelector.setSelectedIndex(0);
+		} else {
+			
+			for (int i=0; i<ontologyIds.length; i++)
+				if (ontologyId.equals(ontologyIds[i]))
+					ontologySelector.setSelectedIndex(i);
+			
+		}
+		ontologySelector.addActionListener(ontologySelectionListener);
+	}
+	
+	public class OlsLinkListener implements ActionListener {
+		public void actionPerformed(ActionEvent arg0) {
+			BareBonesBrowserLaunch.openURL("http://www.ebi.ac.uk/ontology-lookup");
+		}
 		
 	}
 	

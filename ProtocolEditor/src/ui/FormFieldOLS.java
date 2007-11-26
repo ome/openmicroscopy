@@ -40,10 +40,16 @@ import ols.OntologyLookUp;
 import tree.DataField;
 
 public class FormFieldOLS extends FormField {
+	 
+	public final static String ID_NAME_SEPARATOR = "    ";
 	
+	// variables
 	String ontologyId;
+	String termId;
+	String termName;
+	
 	JLabel ontologyIdLabel;
-	JComboBox ontologyTermField;
+	JComboBox ontologyTermSelector;
 	JLabel termDescriptionLabel;
 	
 	ActionListener termSelectionListener;
@@ -53,20 +59,30 @@ public class FormFieldOLS extends FormField {
 		super(dataField);
 		
 		ontologyId = dataField.getAttribute(DataField.ONTOLOGY_ID);
+		termId = dataField.getAttribute(DataField.ONTOLOGY_TERM_ID);
+		termName = dataField.getAttribute(DataField.ONTOLOGY_TERM_NAME);
+		
 		ontologyIdLabel = new JLabel(ontologyId);
 		
 		horizontalBox.add(ontologyIdLabel);
 		
-		ontologyTermField = new JComboBox();
-		ontologyTermField.setEditable(true);
-		ontologyTermField.getEditor().getEditorComponent().addKeyListener(new OntologyTermListener());
+		ontologyTermSelector = new JComboBox();
+		ontologyTermSelector.setEditable(true);
+		if (termId != null) {
+			String idAndName = termId + ID_NAME_SEPARATOR + termName;
+			ontologyTermSelector.addItem(idAndName);
+		}
+		
+		ontologyTermSelector.getEditor().getEditorComponent().addKeyListener(new OntologyTermListener());
 		termSelectionListener = new TermSelectionListener();
-		ontologyTermField.addActionListener(termSelectionListener);
+		ontologyTermSelector.addActionListener(termSelectionListener);
 		
 		termDescriptionLabel = new JLabel();
 		
-		horizontalBox.add(ontologyTermField);
+		horizontalBox.add(ontologyTermSelector);
 		this.add(termDescriptionLabel, BorderLayout.SOUTH);
+		
+		refreshTermDetails();
 	}
 	
 	
@@ -80,19 +96,19 @@ public class FormFieldOLS extends FormField {
 			
 			if (input.length() < 3) return;
 			
-			ontologyTermField.removeActionListener(termSelectionListener);
-			ontologyTermField.removeAllItems();
+			ontologyTermSelector.removeActionListener(termSelectionListener);
+			ontologyTermSelector.removeAllItems();
 			
 			Map autoCompleteOptions = OntologyLookUp.getTermsByName(input, ontologyId);
 			
 			for (Iterator i = autoCompleteOptions.keySet().iterator(); i.hasNext();){
 				String key = (String) i.next();
-				String name = key + ", " + autoCompleteOptions.get(key).toString();
-				ontologyTermField.addItem(name);
+				String name = key + ID_NAME_SEPARATOR + autoCompleteOptions.get(key).toString();
+				ontologyTermSelector.addItem(name);
 			}
-			ontologyTermField.setPopupVisible(true);
+			ontologyTermSelector.setPopupVisible(true);
 			source.setText(input);
-			ontologyTermField.addActionListener(termSelectionListener);
+			ontologyTermSelector.addActionListener(termSelectionListener);
 		}
 		public void keyPressed(KeyEvent arg0) {}
 		public void keyTyped(KeyEvent event) {}
@@ -101,28 +117,47 @@ public class FormFieldOLS extends FormField {
 	
 	public class TermSelectionListener implements ActionListener {
 		public void actionPerformed (ActionEvent event) {
-			String selection = ontologyTermField.getSelectedItem().toString();
-			int firstCommaIndex = selection.indexOf(",");
-			String termId = selection.substring(0, firstCommaIndex);
+			String selection = ontologyTermSelector.getSelectedItem().toString();
+			int separatorIndex = selection.indexOf(ID_NAME_SEPARATOR);
+			termId = selection.substring(0, separatorIndex);
+			termName = selection.substring(separatorIndex + ID_NAME_SEPARATOR.length());
+				
+			dataField.setAttribute(DataField.ONTOLOGY_TERM_ID, termId, true);
+			dataField.setAttribute(DataField.ONTOLOGY_TERM_NAME, termName, false);
 			
-			System.out.println(termId);
-			Map termMetaData = OntologyLookUp.getTermMetadata(termId, ontologyId);
+			System.out.println("FormFieldOLS SelectionListener termId = " + termId + " termName = '" + termName +"'");
 			
-			String htmlMetaDataLabelText = "<html>";
-			String definitionLabel = "";
-			for (Iterator i = termMetaData.keySet().iterator(); i.hasNext();){
-				String key = (String) i.next();
-				String name = key + ", " + termMetaData.get(key).toString();
-				if (key.equals("definition")) 
-					definitionLabel = name;
-				else
-					htmlMetaDataLabelText = htmlMetaDataLabelText + name + "<br>";
-			}
-			htmlMetaDataLabelText = htmlMetaDataLabelText + "</html>";
-			
-			termDescriptionLabel.setText(definitionLabel);
-			termDescriptionLabel.setToolTipText(htmlMetaDataLabelText);
+			refreshTermDetails();
 		}
+	}
+	
+	private void refreshTermDetails() {
+		if (termId == null || ontologyId == null) {
+			termDescriptionLabel.setText("");
+			termDescriptionLabel.setToolTipText("");
+			return;
+		}
+		
+		Map termMetaData = OntologyLookUp.getTermMetadata(termId, ontologyId);
+		
+		String htmlMetaDataLabelText = "<html>";
+		String definitionLabel = "";
+		for (Iterator i = termMetaData.keySet().iterator(); i.hasNext();){
+			String key = (String) i.next();
+			Object name = termMetaData.get(key);
+			System.out.println("FormFieldOLS refreshTermDetails  key=" + key);
+			String keyAndName = key + ", " + (name == null ? "" : termMetaData.get(key).toString());
+			if (key.equals("definition")) 
+				definitionLabel = keyAndName;
+			else
+				htmlMetaDataLabelText = htmlMetaDataLabelText + keyAndName + "<br>";
+		}
+		htmlMetaDataLabelText = htmlMetaDataLabelText + "</html>";
+		
+		termDescriptionLabel.setText(definitionLabel);
+		termDescriptionLabel.setToolTipText(htmlMetaDataLabelText);
+		
+		this.validate();
 	}
 	
 //	 overridden by subclasses if they have other attributes to retrieve from dataField

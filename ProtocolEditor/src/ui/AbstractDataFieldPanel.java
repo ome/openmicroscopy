@@ -120,6 +120,12 @@ public abstract class AbstractDataFieldPanel extends JPanel{
 		public void setTextAreaRows(int rows) {
 			attributeTextField.setRows(rows);
 		}
+		public JTextArea getTextArea() {
+			return attributeTextField;
+		}
+		public void removeFocusListener() {
+			attributeTextField.removeFocusListener(focusChangedListener);
+		}
 	}
 
 	
@@ -135,7 +141,7 @@ public abstract class AbstractDataFieldPanel extends JPanel{
 				
 				JTextComponent source = (JTextComponent)event.getSource();
 				
-				dataField.setAttribute(source.getName(), source.getText(), true);
+				setDataFieldAttribute(source.getName(), source.getText(), true);
 				
 				// need to stop focus going elsewhere. Get it back to source of event
 				source.requestFocus();
@@ -155,11 +161,16 @@ public abstract class AbstractDataFieldPanel extends JPanel{
 			if (textChanged) {
 				JTextComponent source = (JTextComponent)event.getSource();
 				
-				dataField.setAttribute(source.getName(), source.getText(), true);
+				setDataFieldAttribute(source.getName(), source.getText(), true);
 				
 				textChanged = false;
 			}
 		}
 		public void focusGained(FocusEvent event) {}
+	}
+	
+	// called to update dataField with attribute
+	protected void setDataFieldAttribute(String attributeName, String value, boolean notifyUndoRedo) {
+		dataField.setAttribute(attributeName, value, notifyUndoRedo);
 	}
 }

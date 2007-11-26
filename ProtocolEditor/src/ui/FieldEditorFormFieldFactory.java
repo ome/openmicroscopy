@@ -66,6 +66,9 @@ public class FieldEditorFormFieldFactory {
 		else if (inputType.equals(DataField.DATE)) {
 			fieldEditor = new FieldEditorDate(dataField);
 		}
+		else if (inputType.equals(DataField.TIME_FIELD)) {
+			fieldEditor = new FieldEditorTime(dataField);
+		}
 		else if (inputType.equals(DataField.DROPDOWN_MENU_STEP)) {
 			fieldEditor = new FieldEditorDropDown(dataField);
 		}
@@ -75,6 +78,9 @@ public class FieldEditorFormFieldFactory {
 		else if (inputType.equals(DataField.TABLE)) {
 			fieldEditor = new FieldEditorTable(dataField);
 		} 
+		else if (inputType.equals(DataField.CHECKBOX_STEP)) {
+			fieldEditor = new FieldEditorCheckBox(dataField);
+		}
 		else if (inputType.equals(DataField.FIXED_PROTOCOL_STEP)) {
 			fieldEditor = new FieldEditorFixed(dataField);
 		}
@@ -115,6 +121,9 @@ public class FieldEditorFormFieldFactory {
 		else if (inputType.equals(DataField.DATE)) {
 			formField = new FormFieldDate(dataField);
 		}
+		else if (inputType.equals(DataField.TIME_FIELD)) {
+			formField = new FormFieldTime(dataField);
+		}
 		else if (inputType.equals(DataField.DROPDOWN_MENU_STEP)) {
 			formField = new FormFieldDropDown(dataField);
 		}
@@ -126,6 +135,9 @@ public class FieldEditorFormFieldFactory {
 		}
 		else if (inputType.equals(DataField.FIXED_PROTOCOL_STEP)) {
 			formField = new FormFieldFixed(dataField);
+		} 
+		else if (inputType.equals(DataField.CHECKBOX_STEP)) {
+			formField = new FormFieldCheckBox(dataField);
 		} 
 		else if (inputType.equals(DataField.OLS_FIELD)) {
 			formField = new FormFieldOLS(dataField);

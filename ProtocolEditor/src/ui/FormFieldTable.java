@@ -24,34 +24,43 @@ package ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
 
 import table.InteractiveTableModel;
 import tree.DataField;
+import util.ImageFactory;
 
 public class FormFieldTable extends FormField {
-	
-	public final static String TABLE_COL_NAMES = "tableColNames";
-	public final static String TABLE_ROW_COUNT = "tableRowCount";
-	public final static String ROW_DATA_NUMBER = "rowNumber";
 	
 	private String[] columnNames = new String[0];
 
     protected JTable table;
-    protected JScrollPane scroller;
+    protected JScrollPane tableScroller;
     protected InteractiveTableModel tableModel;
-
+    JLabel warningMessage;
+    public static final String EDIT_COLS_MESSAGE ="<html>Start by editing column names<br> in the right-hand panel</html>";
 	
+    JButton addRowButton;
+    JButton removeRowsButton;
+    
 	public FormFieldTable(DataField dataField) {
 		super(dataField);
 		
 		String columns = dataField.getAttribute(DataField.TABLE_COLUMN_NAMES);
+		table = new JTable();
 		
 		if (columns != null) {
 			columnNames = columns.split(",");
@@ -62,9 +71,6 @@ public class FormFieldTable extends FormField {
 		}
 		
 		tableModel = new InteractiveTableModel(columnNames);
-        // tableModelListener tells the table how to respond to changes in Model
-        tableModel.addTableModelListener(new InteractiveTableModelListener());
-        table = new JTable();
        // table.addFocusListener(new FocusLostUpdatDataFieldListener());
         table.setModel(tableModel);
         table.setColumnModel(new DefaultTableColumnModel());
@@ -74,17 +80,18 @@ public class FormFieldTable extends FormField {
         tableModel.fireTableStructureChanged();
         
         // add data, creating a new row each time
-        String numberOfRows = dataField.getAttribute(TABLE_ROW_COUNT);
+        String numberOfRows = dataField.getAttribute(DataField.TABLE_ROW_COUNT);
         int rowCount;
         if (numberOfRows == null) rowCount = 0;
         else rowCount = Integer.valueOf(numberOfRows).intValue();
         for (int row=0; row<rowCount; row++) {
         	
-        	String rowDataString = dataField.getAttribute(ROW_DATA_NUMBER + row);
+        	String rowDataString = dataField.getAttribute(DataField.ROW_DATA_NUMBER + row);
+        	// System.out.println("FormFieldTable constructor row " + row + " data = " + rowDataString);
         	if (rowDataString != null) {
         		tableModel.addEmptyRow();
         		String[] rowData = rowDataString.split(",");
-        		for (int col=0; col<rowData.length; col++) {
+        		for (int col=0; col<columnNames.length && col<rowData.length ; col++) {
         			tableModel.setValueAt(rowData[col].trim(), row, col);
         		}
         	}
@@ -94,16 +101,73 @@ public class FormFieldTable extends FormField {
             tableModel.addEmptyRow();
         }
         
+     // tableModelListener tells the table how to respond to changes in Model
+        tableModel.addTableModelListener(new InteractiveTableModelListener());
         
-        scroller = new JScrollPane(table);
+        tableScroller = new JScrollPane(table);
         table.setPreferredScrollableViewportSize(new Dimension(450, 100));
 		
-		horizontalBox.add(scroller, BorderLayout.SOUTH);
+        Icon addRowIcon = ImageFactory.getInstance().getIcon(ImageFactory.NEW_ROW_ICON);
+        Icon clearRowIcon = ImageFactory.getInstance().getIcon(ImageFactory.CLEAR_ROW_ICON);
+        addRowButton = new JButton("Add New Row", addRowIcon);
+        addRowButton.addActionListener(new AddRowListener());
+        addRowButton.setBorder(new EmptyBorder(0,2,2,2));
+        addRowButton.setBackground(null);
+        addRowButton.setEnabled(false);		// enabled when field is highlighted
+        removeRowsButton = new JButton("Remove Selected Rows", clearRowIcon);
+        removeRowsButton.addActionListener(new RemoveRowsListener());
+        removeRowsButton.setBorder(new EmptyBorder(0,2,2,2));
+        removeRowsButton.setBackground(null);
+        removeRowsButton.setEnabled(false);		// enabled when field is highlighted
+        
+        horizontalBox.add(addRowButton);
+        horizontalBox.add(removeRowsButton);
+        
+        warningMessage = new JLabel();
+        if (columns == null) {
+        	warningMessage.setText(EDIT_COLS_MESSAGE);
+        }
+        horizontalBox.add(warningMessage);
+        
+		this.add(tableScroller, BorderLayout.SOUTH);
 		
 		// update new rows etc.
 		tableModel.fireTableStructureChanged();
 		
 		setExperimentalEditing(false);	// default created as uneditable
+	}
+	
+	public class RemoveRowsListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			int delete = JOptionPane.showConfirmDialog(table, "Are you sure you want to delete rows?\n" +
+					"This cannot be undone.", "Really delete rows?", JOptionPane.OK_CANCEL_OPTION);
+			if (delete == JOptionPane.OK_OPTION) {
+				removeSelectedRows();
+			}
+		}
+	}
+	
+	public void removeSelectedRows() {
+		int[] highlightedRows = table.getSelectedRows();
+		tableModel.removeRows(highlightedRows);
+		// update datafield with changes.
+		copyTableModelToDataField();
+	}
+	
+	public class AddRowListener implements ActionListener {
+		public void actionPerformed(ActionEvent event) {
+			addRow();
+		}
+	}
+	// inserts an empty row at the specified index
+	public void addRow() {
+		int index = table.getSelectedRow();
+		if (index < 0)
+			index = 0;
+		tableModel.addEmptyRow(index);
+		table.setRowSelectionInterval(index, index);
+		// update datafield with changes.
+		copyTableModelToDataField();
 	}
 	
 	public void highlightLastRow(int row) {
@@ -129,15 +193,30 @@ public class FormFieldTable extends FormField {
                 if (row < 0) return;
                 
                 //System.out.println("TableChanged event: row: " + row + " column: " + column);
+                
+                copyTableModelToDataField();
+                
                // System.out.println("TableChanged event: rowCount: " + table.getRowCount() + " columnCount: " + table.getColumnCount());
+                /*
+                String rowDataString = "";
+                for (int col=0; col<tableModel.getColumnCount(); col++) {
+                	if (col > 0) rowDataString = rowDataString + ", ";
+        			rowDataString = rowDataString + tableModel.getValueAt(row, col);
+        		}
+                
+                dataField.setAttribute(ROW_DATA_NUMBER + row, rowDataString, false);
+                */
                 
                 
+                // if you can, move one column to the right
                 if (column < table.getColumnCount()-1) {
                 	table.setColumnSelectionInterval(column + 1, column + 1);
                 	table.setRowSelectionInterval(row, row);
+                // or make a new row (if the last one isn't empty)
                 } else if (!tableModel.hasEmptyRow()) {
                 	tableModel.addEmptyRow();
                 	highlightLastRow(row);
+                // or simply move to the start of the next row
                 } else {
                 	table.setRowSelectionInterval(row + 1, row + 1);
                 	table.setColumnSelectionInterval(0, 0);
@@ -148,7 +227,7 @@ public class FormFieldTable extends FormField {
     }
     
 //  overridden by subclasses (when focus lost) if they have values that need saving 
-	public void updateDataField() {
+	public void copyTableModelToDataField() {
 		
 		// first update col names
 		
@@ -157,46 +236,51 @@ public class FormFieldTable extends FormField {
 			if (col > 0) columnNames = columnNames + ", ";
 			columnNames = columnNames + table.getColumnModel().getColumn(col).getHeaderValue();
 		}
-		System.out.println("FormFieldTable updateDatafield: " + TABLE_COL_NAMES + " = " + columnNames);
 		
-		dataField.setAttribute(TABLE_COL_NAMES, columnNames, true);
+		dataField.setAttribute(DataField.TABLE_COLUMN_NAMES, columnNames, false);
 		
 		// now update data
 		ArrayList<ArrayList<String>> data = tableModel.getData();
-		
 		int outputRowNumber = 0;	// count each saved row (don't save empty rows)
 		for (int row=0; row<data.size(); row++) {
-			if (tableModel.isRowEmpty(row)) continue; // ignore empty rows
+			//if (tableModel.isRowEmpty(row)) continue; // ignore empty rows
 			
 			ArrayList<String> rowDataArray = data.get(row);
 			String rowData = "";
-			for (int col=0; col<rowDataArray.size(); col++) {
+			for (int col=0; col<table.getColumnCount(); col++) {
 				if (col > 0) rowData = rowData + ", ";
 				rowData = rowData + rowDataArray.get(col).trim();
 			}
-			String rowId = ROW_DATA_NUMBER + outputRowNumber;
+			String rowId = DataField.ROW_DATA_NUMBER + outputRowNumber;
 			dataField.setAttribute(rowId, rowData, false);
 			//System.out.println("FormFieldTable updateDatafield: " + rowId + " = " + rowData);
 			outputRowNumber++;
 		}
 		
 		// delete extra un-needed rows from dataField
-		for (int i=outputRowNumber; i<data.size(); i++) {
-			String rowId = ROW_DATA_NUMBER + i;
+		while (dataField.getAttribute(DataField.ROW_DATA_NUMBER + outputRowNumber) != null) {
+			String rowId = DataField.ROW_DATA_NUMBER + outputRowNumber;
 			dataField.setAttribute(rowId, null, false);
+			outputRowNumber++;
 		}
 		
-		dataField.setAttribute(TABLE_ROW_COUNT, Integer.toString(outputRowNumber), false);
+		dataField.setAttribute(DataField.TABLE_ROW_COUNT, Integer.toString(outputRowNumber), false);
 	}
 	
 	
 //	 overridden by subclasses if they have other attributes to retrieve from dataField
-	public void dataFieldUpdatedOtherAttributes() {
+	public void dataFieldUpdated() {
+		super.dataFieldUpdated();	// takes care of name etc.
 		
 		String columns = dataField.getAttribute(DataField.TABLE_COLUMN_NAMES);
 		
 		// refresh column names....
-		if (columns != null) columnNames = columns.split(",");
+		if (columns != null) { 
+			columnNames = columns.split(",");
+			warningMessage.setText("");
+		} else {
+			warningMessage.setText(EDIT_COLS_MESSAGE);
+		}
 		
 		for (int i=0; i<columnNames.length; i++) {
 			columnNames[i] = columnNames[i].trim();
@@ -222,6 +306,16 @@ public class FormFieldTable extends FormField {
 			
 			table.getColumnModel().getColumn(i).setHeaderValue(columnNames[i]);
 		}
+		
+		copyTableModelToDataField();
+	}
+	
+	public void setHighlighted(boolean highlight) {
+		super.setHighlighted(highlight);
+		
+		addRowButton.setEnabled(highlight);
+		removeRowsButton.setEnabled(highlight);
+		table.setEnabled(highlight);
 	}
 
 

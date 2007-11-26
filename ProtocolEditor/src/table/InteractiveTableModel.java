@@ -84,7 +84,6 @@ public class InteractiveTableModel extends AbstractTableModel {
         for(int i=0; i<data.get(lastRow).size(); i++) {
         	String value = (String)getValueAt(lastRow, i);
         	
-        	System.out.println("LastRowEmpty value = " + value + ", row = " + lastRow + ", col = " + i);
         	if (!value.trim().equals("")) return false;
         }
         return true;
@@ -111,6 +110,20 @@ public class InteractiveTableModel extends AbstractTableModel {
            getRowCount() - 1,
            getRowCount() - 1);
     }
+    public void addEmptyRow(int addAtThisRow) {
+    	ArrayList<String> newRow = new ArrayList<String>();
+    	for (int i=0; i<getColumnCount(); i++) {
+    		newRow.add(" ");
+    	}
+    	int newRowIndex = addAtThisRow;
+    	if (newRowIndex > data.size()) {
+    		data.add(newRow);
+    		newRowIndex = getRowCount() -1;
+    	} else {
+    		data.add(newRowIndex, newRow);
+    	}
+        fireTableRowsInserted(newRowIndex, newRowIndex);
+    }
     
     public void addEmptyColumn() {
     	
@@ -129,11 +142,33 @@ public class InteractiveTableModel extends AbstractTableModel {
     	
     	columnNames.remove(columnNames.size()-1);
     	
+    	// getColumnCount is now one smaller
     	int colCount = getColumnCount();
     	for(ArrayList<String> row: data) {
-    		row.remove(colCount-1);
+    		row.remove(colCount);
     	}
     	this.fireTableStructureChanged();
+    }
+    
+    public void removeAllEmptyRows() {
+    	for (int row=0; row<getRowCount(); row++) {
+    		if (isRowEmpty(row)) {
+    			data.remove(row);
+    		}
+    	}
+    	this.fireTableDataChanged();
+    }
+    
+    // remove rows. 
+    // rows in array must be in increasing order eg 1,2,5
+    public void removeRows(int[] rowIndecies) {
+    	// remove rows, starting at the highest!
+    	for (int i=rowIndecies.length-1; i>-1; i--) {
+    		int rowToRemove = rowIndecies[i];
+    		System.out.println("InteractiveTableModel Removing row " + rowToRemove);
+    		data.remove(rowToRemove);
+    		this.fireTableRowsDeleted(rowToRemove, rowToRemove);
+    	}
     }
     
     public ArrayList<ArrayList<String>> getData() {

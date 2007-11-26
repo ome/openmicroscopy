@@ -40,11 +40,53 @@ public class HtmlOutputter {
 	static FileWriter fileWriter;
 	static String outputFileName;
 	
-	public static final String BROWSER_TOOL_TIP = "title='Please return to Protocol Editor to expand or collapse, then print again'";
-	public static final String RIGHT_ARROW = "<img src='http://morstonmud.com/omero/arrow_right.gif' width='15' height='13'" + BROWSER_TOOL_TIP + ">";
-	public static final String DOWN_ARROW = "<img src='http://morstonmud.com/omero/arrow_down.gif' width='13' height='15'" + BROWSER_TOOL_TIP + ">";
+	public static String HEADER = "<html><head> \n" +
+		"<style type='text/css'> \n" +
+		"div {padding: 2px 0px 2px 30px; margin: 0px; font-family: Arial;} \n" +
+		".protocol {background: #dddddd; padding: 5px; font-size: 120%; border: 1px #390d61 solid;} \n" +
+		".elementName {font-size: 110%;} \n" +
+		".attribute {font-size: 80%;} \n" +
+		".title {background: #dddddd; padding: 5px; font-size: 110%; border-bottom: 1px #390d61 solid;} \n" +
+		"h3 {padding: 0px; margin:0px; font-size: 110%;} \n" +
+		"</style> \n" +
+		"</head><body>";
+	public static String FOOTER = "</body></html>";
 	
-	public static void outputHTML (DataFieldNode parentRootNode, boolean showDescriptions) {
+	public static String DIV = "<div>";
+	public static String DIV_CLASS_PROTOCOL = "<div class='protocol'>";
+	public static String DIV_CLASS_ATTRIBUTE = "<div class='attribute'>";
+	public static String DIV_END = "</div>";
+	
+	public static String SPAN_CLASS_ELEMENT_NAME = "<span class='elementName'>";
+	public static String SPAN_END = "</span>";
+	
+	public static String UNDERLINE = "<u>";
+	public static String UNDERLINE_END = "</u>";
+	
+	public static final String BROWSER_TOOL_TIP = "title='Please return to Protocol Editor to expand or collapse, then print again'";
+	public static String RIGHT_ARROW = "<img src='http://morstonmud.com/omero/arrow_right.gif' width='15' height='13'" + BROWSER_TOOL_TIP + ">";
+	public static String DOWN_ARROW = "<img src='http://morstonmud.com/omero/arrow_down.gif' width='13' height='15'" + BROWSER_TOOL_TIP + ">";
+	
+	public static String TABLE = "<table cellspacing='1' cellpadding='5' bgcolor='black'>";
+	public static String TABLE_END = "</table>";
+	public static String TABLE_ROW = "<tr>";
+	public static String TABLE_ROW_END = "</tr>";
+	public static String TABLE_DATA = "<td bgcolor='#eeeeee'>";
+	public static String TABLE_DATA_END = "</td>";
+	
+	
+	/**
+	 * Output the tree file as an html document. 
+	 * @param parentRootNode	the root of the tree
+	 * @param showEveryField	if false, only show children of non-collapsed nodes. If true, show all
+	 * @param showDescriptions	if true, show the description attribute
+	 * @param showDefaultValues	if true, show the default value attribute
+	 * @param showUrl			if true, show the url attribute
+	 * @param showAllOtherAttributes	if true, show any other additional attributes
+	 */
+	public static void outputHTML (DataFieldNode parentRootNode, boolean showEveryField, 
+			boolean showDescriptions, boolean showDefaultValues, 
+			boolean showUrl, boolean showAllOtherAttributes, boolean printTableData) {
 		
 		PrintWriter outputStream = null;
 		fileWriter = null;
@@ -55,22 +97,16 @@ public class HtmlOutputter {
         	
             outputStream = new PrintWriter(fileWriter);
             
-            outputStream.println("<html><head>");
-            outputStream.println("<style type='text/css'>");
-            outputStream.println("div {padding: 2px 0px 2px 30px; margin: 0px; font-family: Arial;}");
-            outputStream.println(".protocol {background: #dddddd; padding: 5px; font-size: 120%; border: 1px #390d61 solid;}"); 
-            outputStream.println(".elementName {font-size: 110%;}"); 
-            outputStream.println(".title {background: #dddddd; padding: 5px; font-size: 110%; border-bottom: 1px #390d61 solid;}");
-            outputStream.println("h3 {padding: 0px; margin:0px; font-size: 110%;}");
-            outputStream.println("</style>");
-            outputStream.println("</head><body>");
+            outputStream.print(HEADER);
             
             DataField protocolField = parentRootNode.getDataField();
-            printDataField(protocolField, outputStream, showDescriptions);
+            printDataField(protocolField, outputStream, showEveryField, showDescriptions, showDefaultValues, 
+					 showUrl,  showAllOtherAttributes, printTableData);
             	
-            printDataFieldTree(outputStream, parentRootNode, showDescriptions);
+            printDataFieldTree(outputStream, parentRootNode, showEveryField, showDescriptions, showDefaultValues, 
+					 showUrl,  showAllOtherAttributes, printTableData);
             
-            outputStream.println("</body></html>");
+            outputStream.println(FOOTER);
             
             
         } catch (Exception ex) {
@@ -93,43 +129,53 @@ public class HtmlOutputter {
 		
 	}
 	
-	public static void printDataFieldTree(PrintWriter outStream, DataFieldNode parentNode, boolean showDescriptions) {
+	public static void printDataFieldTree(PrintWriter outStream, DataFieldNode parentNode, boolean showEveryField, 
+			boolean showDescriptions, boolean showDefaultValues, 
+			boolean showUrl, boolean showAllOtherAttributes, boolean printTableData) {
 		
 		ArrayList<DataFieldNode> children = parentNode.getChildren();
 		if (children.size() == 0) return;
 		
-		outStream.println("<div>");
+		outStream.println(DIV);
 		
 		for (DataFieldNode child: children) {
 			DataField dataField = child.getDataField();
-			printDataField(dataField, outStream, showDescriptions);
+			printDataField(dataField, outStream, showEveryField, showDescriptions, showDefaultValues, 
+					 showUrl,  showAllOtherAttributes, printTableData);
 			
 			
-			if (!dataField.isAttributeTrue(DataField.SUBSTEPS_COLLAPSED)) {
-				printDataFieldTree(outStream, child, showDescriptions);
+			if (!dataField.isAttributeTrue(DataField.SUBSTEPS_COLLAPSED) || 
+					(showEveryField)) {
+				printDataFieldTree(outStream, child, showEveryField, showDescriptions, showDefaultValues, 
+						 showUrl,  showAllOtherAttributes, printTableData);
 			}
 		}
 		
 		
-		outStream.println("</div>");
+		outStream.println(DIV_END);
 	}
 	
 	
 	
-	public static void printDataField (DataField dataField, PrintWriter outputStream, boolean showDescriptions) {
+	public static void printDataField (DataField dataField, PrintWriter outputStream, 
+			boolean showEveryField, 
+			boolean showDescriptions, boolean showDefaultValues, 
+			boolean showUrl, boolean showAllOtherAttributes, boolean printTableData) {
 		
 		boolean subStepsCollapsed = dataField.isAttributeTrue(DataField.SUBSTEPS_COLLAPSED);
+		if (showEveryField)
+			subStepsCollapsed = false;
 			
 		LinkedHashMap<String, String> allAttributes = dataField.getAllAttributes();
         	
         	if (dataField.isAttributeEqualTo(DataField.INPUT_TYPE,DataField.PROTOCOL_TITLE))
-        		outputStream.println("<div class='protocol'>");
-        	else outputStream.println("<div>");
+        		outputStream.println(DIV_CLASS_PROTOCOL);
+        	else outputStream.println(DIV);
         	
         	String value = allAttributes.get(DataField.VALUE);
         	String units = allAttributes.get(DataField.UNITS);
         	
-        	outputStream.print("<span class='elementName'>");
+        	outputStream.print(SPAN_CLASS_ELEMENT_NAME);
         	
         	if (dataField.hasChildren()) {
         		if (subStepsCollapsed) {
@@ -140,16 +186,30 @@ public class HtmlOutputter {
         	}
         	outputStream.print(allAttributes.get(DataField.ELEMENT_NAME));
         	
-        	if (value != null) outputStream.print(": <u>" + value + "</u>");
+        	if (value != null) outputStream.print(": " + UNDERLINE + value + UNDERLINE_END);
         	if (units != null) outputStream.print(" " + units);
-        	outputStream.println("</span>");
+        	outputStream.println(SPAN_END);
         	
+        	if ((showDefaultValues) && (allAttributes.get(DataField.DEFAULT) != null)) {
+        		outputStream.print(DIV_CLASS_ATTRIBUTE + "Default Value = " +
+        				allAttributes.get(DataField.DEFAULT) + DIV_END);
+        	}
         	if ((showDescriptions) && (allAttributes.get(DataField.DESCRIPTION) != null)) {
-        		outputStream.print("<div class='description'>" + 
-        				allAttributes.get(DataField.DESCRIPTION) + "</div>");
+        		outputStream.print(DIV_CLASS_ATTRIBUTE + 
+        				allAttributes.get(DataField.DESCRIPTION) + DIV_END);
+        	}
+        	if ((showUrl) && (allAttributes.get(DataField.URL) != null)) {
+        		outputStream.print(DIV_CLASS_ATTRIBUTE + "URL = " +
+        				allAttributes.get(DataField.URL) + DIV_END);
+        	}
+        	if (showAllOtherAttributes) {
+        		printAllAttributes(allAttributes, outputStream);
+        	}
+        	if (printTableData) {
+        		printTableData(allAttributes, outputStream);
         	}
         	
-        	outputStream.println("</div>");
+        	outputStream.println(DIV_END);
 
 	}
 	
@@ -165,18 +225,47 @@ public class HtmlOutputter {
     		if (value == null) value="";
     		if (name == null) name = "";
     		
-    		if ((name.equals(DataField.INPUT_TYPE)) || (name.equals(DataField.ELEMENT_NAME))) continue;
-
-    		if (name.equals(DataField.DESCRIPTION) || (name.equals(DataField.VALUE)))
-    			name = "";
+    		if ((name.equals(DataField.INPUT_TYPE)) || (name.equals(DataField.ELEMENT_NAME))||
+    				(name.equals(DataField.DESCRIPTION)) || (name.equals(DataField.VALUE)) ||
+    				(name.equals(DataField.URL)) || (name.equals(DataField.SUBSTEPS_COLLAPSED)) ||
+    				(name.equals(DataField.DEFAULT)))
+    				continue;
     		else name = name + ": ";
     		
-    		if ((value.length() > 0) &&
-    				!(name.equals(DataField.SUBSTEPS_COLLAPSED + ": "))) {
-    			outputStream.println(name + value);
-    			outputStream.println("<br>");
-    		}
+    		outputStream.println(DIV_CLASS_ATTRIBUTE + name + value + DIV_END);
     	}
+	}
+	
+	public static void printTableData(LinkedHashMap<String, String> allAttributes, PrintWriter outputStream) {
+		
+		String colNames = allAttributes.get(DataField.TABLE_COLUMN_NAMES);
+		if (colNames == null) return;
+		
+		outputStream.println(TABLE);
+		outputStream.println(TABLE_ROW);
+		String[] colHeaders = colNames.split(",");
+		for (int col=0; col<colHeaders.length; col++){
+			outputStream.print("<th bgcolor='#eeeeee'>" + colHeaders[col] + "</th>");
+		}
+		outputStream.println(TABLE_ROW_END);
+		
+		String rowNumberData = DataField.ROW_DATA_NUMBER;
+		int rowIndex = 0;
+		String rowData = allAttributes.get(rowNumberData + rowIndex);
+		
+		while(rowData != null) {
+			outputStream.println(TABLE_ROW);
+			String[] cellData = rowData.split(",");
+			for (int col=0; col<cellData.length; col++){
+				outputStream.print(TABLE_DATA + cellData[col] + TABLE_DATA_END);
+			}
+			outputStream.println(TABLE_ROW_END);
+			
+			rowIndex++;
+			rowData = allAttributes.get(rowNumberData + rowIndex);
+		}
+		
+		outputStream.println(TABLE_END);
 	}
 
 }

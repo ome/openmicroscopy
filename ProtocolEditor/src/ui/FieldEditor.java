@@ -95,6 +95,7 @@ public class FieldEditor extends AbstractDataFieldPanel implements DataFieldObse
 		inputTypePanel.setLayout(new BoxLayout(inputTypePanel, BoxLayout.X_AXIS));
 		
 		inputTypeSelector = new JComboBox(DataField.UI_INPUT_TYPES);
+		inputTypeSelector.setMaximumRowCount(12);
 		// Set it to the current input type
 		if (dataField.getInputType() != null) {
 			for (int i=0; i<DataField.UI_INPUT_TYPES.length; i++)

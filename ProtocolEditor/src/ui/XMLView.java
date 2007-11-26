@@ -64,6 +64,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 import search.IndexFiles;
 import search.SearchPanel;
@@ -131,9 +132,12 @@ public class XMLView
 	JTabbedPane XMLTabbedPane;
 	Color backgroundColor;
 	
+	JPanel fileManagerPanel; 	// tool bar for open/close/print etc. 
 	
 	JButton saveFileButton;
 	JButton saveFileAsButton;
+	JButton printButton;
+	
 	JButton addAnInput;
 	JButton deleteAnInput;
 	JButton promoteField;
@@ -267,9 +271,9 @@ public class XMLView
 		saveFileAsMenuItem = new JMenuItem("Save File As...", saveFileAsIcon);
 		saveFileAsMenuItem.addActionListener(new SaveFileAsListener());
 		
-		JMenuItem printExp= new JMenuItem("Print Experiment", printIcon);
+		JMenuItem printExp= new JMenuItem("Print / Export...", printIcon);
 		setMenuItemAccelerator(printExp, KeyEvent.VK_P);
-		printExp.addActionListener(new PrintExperimentListener());
+		printExp.addActionListener(new PrintListener());
 		
 		JMenuItem indexFilesMenuItem = new JMenuItem("Index files for searching");
 		indexFilesMenuItem.addActionListener(new IndexFilesListener());
@@ -327,7 +331,6 @@ public class XMLView
 		protocolMenu.setBorder(menuItemBorder);
 		
 		editProtocolMenuItem= new JCheckBoxMenuItem("Edit Protocol...");
-		JMenuItem printProtocolMenuItem = new JMenuItem("Print Protocol", printIcon);
 		addFieldMenuItem = new JMenuItem("Add Step", addIcon);
 		deleteFieldMenuItem = new JMenuItem("Delete Step", deleteIcon);
 		moveStepUpMenuItem = new JMenuItem("Move Step Up", moveUpIcon);
@@ -344,7 +347,6 @@ public class XMLView
 		setMenuItemAccelerator(pasteFieldsMenuItem, KeyEvent.VK_V);
 		
 		editProtocolMenuItem.addActionListener(new ToggleProtocolEditingListener());
-		printProtocolMenuItem.addActionListener(new PrintProtocolListener());
 		addFieldMenuItem.addActionListener(new addDataFieldListener());
 		deleteFieldMenuItem.addActionListener(new deleteDataFieldListener());
 		moveStepUpMenuItem.addActionListener(new MoveFieldUpListener());
@@ -357,7 +359,6 @@ public class XMLView
 		pasteFieldsMenuItem.addActionListener(this);
 		
 		protocolMenu.add(editProtocolMenuItem);
-		protocolMenu.add(printProtocolMenuItem);
 		protocolMenu.add(addFieldMenuItem);
 		protocolMenu.add(deleteFieldMenuItem);
 		protocolMenu.add(moveStepUpMenuItem);
@@ -370,16 +371,6 @@ public class XMLView
 		protocolMenu.add(pasteFieldsMenuItem);
 		menuBar.add(protocolMenu);
 		
-		
-		// OME menu
-		JMenu omeMenu = new JMenu("OME-XML");
-		omeMenu.setBorder(menuItemBorder);
-		
-		JMenuItem addOmeChild = new JMenuItem("Add child ome:Element");
-		addOmeChild.addActionListener(new AddOmeChildListener());
-		
-		omeMenu.add(addOmeChild);
-		menuBar.add(omeMenu);
 		
 		// search Field and button
 		searchField = new JTextField("Search Files", 20);
@@ -400,7 +391,7 @@ public class XMLView
 		
 		
 //		 controls for changing currently opened file, and closing current file
-		JPanel fileManagerPanel = new JPanel();
+		fileManagerPanel = new JPanel();
 		fileManagerPanel.setLayout(new BorderLayout());
 		Box fileManagerEastToolBar = Box.createHorizontalBox();
 		Box fileManagerWestToolBar = Box.createHorizontalBox();
@@ -430,6 +421,11 @@ public class XMLView
 		saveFileButton.addActionListener(new SaveCurrentFileListener());
 		saveFileButton.setToolTipText("Save experimental details");
 		saveFileButton.setBorder(fileManagerToolBarBorder);
+		
+		printButton = new JButton(printIcon);
+		printButton.addActionListener(new PrintListener());
+		printButton.setToolTipText("Print / Export the current file..."); 
+		printButton.setBorder(fileManagerToolBarBorder);
 		
 		undoButton = new JButton(undoIcon);
 		undoButton.setToolTipText("Undo last action");
@@ -506,6 +502,7 @@ public class XMLView
 		fileManagerWestToolBar.add(openWwwFileButton);
 		fileManagerWestToolBar.add(saveFileButton);
 		fileManagerWestToolBar.add(saveFileAsButton);
+		fileManagerWestToolBar.add(printButton);
 		fileManagerWestToolBar.add(new JSeparator(JSeparator.VERTICAL));
 		fileManagerWestToolBar.add(undoButton);
 		fileManagerWestToolBar.add(redoButton);
@@ -540,11 +537,6 @@ public class XMLView
 	
 		// experiment tool-bar buttons
 		
-		JButton printExperimentButton = new JButton(printIcon);
-		printExperimentButton.addActionListener(new PrintExperimentListener());
-		printExperimentButton.setToolTipText("Print the protocol with experimental details");
-		printExperimentButton.setBorder(eb);
-		
 		JButton loadDefaults = new JButton(loadDefaultsIcon);
 		loadDefaults.setToolTipText("Load Default Values to All Fields");
 		loadDefaults.addActionListener(new LoadDefaultsListener());
@@ -565,11 +557,6 @@ public class XMLView
 		// compareFilesButton.addActionListener(new CompareFileListener());
 		
 		// Protocol edit buttons
-		
-		JButton printProtocolButton = new JButton(printIcon);
-		printProtocolButton.setToolTipText("Print the Protocol");
-		printProtocolButton.setBorder(eb);
-		printProtocolButton.addActionListener(new PrintProtocolListener());
 		
 		addAnInput = new JButton(addIcon);
 		addAnInput.setToolTipText("Add a step to the protocol");
@@ -648,7 +635,6 @@ public class XMLView
 		
 		
 		expTabToolBar = Box.createHorizontalBox();
-		expTabToolBar.add(printExperimentButton);
 		expTabToolBar.add(loadDefaults);
 		expTabToolBar.add(clearFieldsButton);
 		expTabToolBar.add(multiplyValueOfSelectedFieldsButton);
@@ -667,7 +653,6 @@ public class XMLView
 		proTabToolBar.add(copyButton);
 		proTabToolBar.add(pasteButton);
 		proTabToolBar.add(importElemetsButton);
-		proTabToolBar.add(printProtocolButton);
 		proTabToolBar.add(Box.createHorizontalGlue());
 		
 		
@@ -1116,32 +1101,6 @@ public class XMLView
 	}
 	
 	
-	/* uses an instance of ome-xml to find possible child names 
-	 */
-	public class AddOmeChildListener implements ActionListener {
-		public void actionPerformed(ActionEvent arg0) {
-			String currentParentName = xmlModel.getNameOfCurrentFieldsParent();
-			ArrayList<String> childNames = OmeXmlQueryer.getInstance().getPossibleChildElementNames(currentParentName);
-			
-			Object[] possibleNames = new String[childNames.size()];
-			for (int i=0; i<childNames.size(); i++) {
-				possibleNames[i] = childNames.get(i);
-			}
-			
-			
-			String newChildName = (String)JOptionPane.showInputDialog(
-	                XMLFrame,
-	                "Choose a child to add from this list:",
-	                "Add an OME element",
-	                JOptionPane.PLAIN_MESSAGE,
-	                null,
-	                possibleNames,
-	                "");
-			
-			xmlModel.addNewChildToTree(newChildName);
-		}
-	}
-	
 	/* takes all events from the find text functionality */
 	public class FindTextListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
@@ -1334,22 +1293,44 @@ public class XMLView
 		}
 	}
 	
-	public class PrintExperimentListener implements ActionListener {
+	public class PrintListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			
 			// Can't work out how to export xsl file into .jar
 			// xmlModel.transformXmlToHtml();
 			
 			// use this method for now
-			HtmlOutputter.outputHTML(protocolRootNode, false);
+			
+			LinkedHashMap<String,Boolean> booleanMap = new LinkedHashMap<String,Boolean>();
+			booleanMap.put("Show every field", false);
+			booleanMap.put("Show descriptions", false);
+			booleanMap.put("Show default values", false);
+			booleanMap.put("Show Url", false);
+			booleanMap.put("Show Table Data", false);
+			booleanMap.put("Show all other attributes", false);
+		
+			
+			ExportDialog printDialog = new ExportDialog(XMLFrame, printButton, "Print Options", booleanMap);
+			printDialog.pack();
+			printDialog.setVisible(true);
+			
+			if (printDialog.getValue().equals(JOptionPane.OK_OPTION)) {
+			
+			booleanMap = printDialog.getBooleanMap();
+			boolean showEveryField = booleanMap.get("Show every field");
+			boolean	showDescriptions = booleanMap.get("Show descriptions");
+			boolean	showDefaultValues = booleanMap.get("Show default values");
+			boolean	showUrl = booleanMap.get("Show Url");
+			boolean	showAllOtherAttributes = booleanMap.get("Show all other attributes");
+			boolean printTableData = booleanMap.get("Show Table Data");
+			
+				HtmlOutputter.outputHTML(protocolRootNode, showEveryField, 
+						showDescriptions, showDefaultValues, 
+						showUrl, showAllOtherAttributes, printTableData);
+			}
 		}
 	}
-	
-	public class PrintProtocolListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			HtmlOutputter.outputHTML(protocolRootNode, true);
-		}
-	}
+
 	
 	public class LoadDefaultsListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
