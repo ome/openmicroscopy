@@ -6,6 +6,10 @@
 	<t:insert definition=".login" />
 </c:if>
 <c:if
+	test="${sessionScope.LoginBean.mode && !sessionScope.LoginBean.role}">
+	<jsp:forward page="/accessdenied.jsf" />
+</c:if>
+<c:if
 	test="${sessionScope.LoginBean.mode and sessionScope.LoginBean.mode}">
 	<t:insert definition=".space" />
 </c:if>

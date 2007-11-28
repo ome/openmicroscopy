@@ -32,7 +32,7 @@
 	</c:if>
 	<c:if
 		test="${sessionScope.LoginBean.mode}">
-		<li><a href="javascript:openHelp()">Help</a></li>
+		<li><a href="javascript:openHelp()">${msg.headerHelp}</a></li>
 	</c:if>
 
 </ul>
