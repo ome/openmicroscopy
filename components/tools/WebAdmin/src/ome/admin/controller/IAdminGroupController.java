@@ -11,7 +11,7 @@ package ome.admin.controller;
 import java.util.Collections;
 import java.util.List;
 
-//Third-party libraries
+// Third-party libraries
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
@@ -24,7 +24,7 @@ import javax.faces.model.SelectItem;
 import org.apache.log4j.Logger;
 import org.apache.myfaces.custom.datascroller.ScrollerActionEvent;
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.admin.logic.IAdminGroupManagerDelegate;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -91,7 +91,7 @@ public class IAdminGroupController implements java.io.Serializable {
 	private boolean editMode = false;
 
 	/**
-	 * boolean value for providing Add/Edit form in one JSP.
+	 * boolean value for providing scroller on the data table.
 	 */
 	private boolean scrollerMode = true;
 
@@ -235,9 +235,10 @@ public class IAdminGroupController implements java.io.Serializable {
 	public String editGroup() {
 		FacesContext context = FacesContext.getCurrentInstance();
 		try {
-			this.group = (ExperimenterGroup) iadmin
-					.getGroupById(((ExperimenterGroup) groupModel.getRowData())
-							.getId());
+			this.group = (ExperimenterGroup) groupModel.getRowData();
+			// this.group = (ExperimenterGroup)
+			// iadmin.getGroupById(((ExperimenterGroup)
+			// groupModel.getRowData()).getId());
 			if (!checkGroup(this.group.getName())) {
 				this.editMode = true;
 				return NavigationResults.SUCCESS;
@@ -474,7 +475,7 @@ public class IAdminGroupController implements java.io.Serializable {
 				+ scrollerEvent.getScrollerfacet() + ", pageindex: "
 				+ scrollerEvent.getPageIndex());
 	}
-	
+
 	/**
 	 * Provides validaton for {@link ome.model.meta.ExperimenterGroup#getName()}.
 	 * Cannot exist the same group names.

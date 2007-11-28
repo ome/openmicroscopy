@@ -113,6 +113,10 @@ select {
     width: 175px;
 }
 
+select.enum {
+    width: 350px;
+}
+
 select.manypick {
 	width: 250px;
 }
@@ -198,6 +202,9 @@ p {
 #list {
 	min-height: 370px;
 }
+#entryList {
+	width: 300px;
+}
 
 table {
 	text-align: center;
@@ -210,7 +217,9 @@ table {
 .list {
 	width: 99%;
 }
-
+.entryList {
+	width: 300px;	
+}
 td {
 	text-align: left;
 	padding: 0px;

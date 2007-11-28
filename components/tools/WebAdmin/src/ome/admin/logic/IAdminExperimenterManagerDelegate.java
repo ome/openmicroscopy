@@ -17,9 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.faces.context.FacesContext;
-
 // Third-party libraries
+import javax.faces.context.FacesContext;
 import org.apache.commons.beanutils.BeanUtils;
 
 // Application-internal dependencies

@@ -17,7 +17,8 @@
 			<p><h:outputText value="#{msg.generalMandatoryFields}" /></p>
 
 			<h:inputHidden id="userid"
-				value="#{IAEManagerBean.user.experimenter.id}" />
+				value="#{IAEManagerBean.user.experimenter.id}"
+				rendered="#{IAEManagerBean.editMode}" />
 
 			<h:message styleClass="errorText" id="experimenterFormError"
 				for="experimenterForm" />

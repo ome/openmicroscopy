@@ -82,6 +82,46 @@
 		</navigation-case>
 	</navigation-rule>
 
+	<!-- enumerationAddForm.jsp navigation -->
+	<navigation-rule>
+		<from-view-id>/enumerationEditForm.jsp</from-view-id>
+		<navigation-case>
+			<from-action>#{ITEManagerBean.updateEnumeration}</from-action>
+			<from-outcome>success</from-outcome>
+			<to-view-id>/enumerations.jsp</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-action>#{ITEManagerBean.delEnumeration}</from-action>
+			<from-outcome>success</from-outcome>
+			<to-view-id>/enumerationEditForm.jsp</to-view-id>
+		</navigation-case>
+	</navigation-rule>
+	
+		<!-- enumerationAddForm.jsp navigation -->
+	<navigation-rule>
+		<from-view-id>/enumerationAddForm.jsp</from-view-id>
+		<navigation-case>
+			<from-action>#{ITEManagerBean.addEnumeration}</from-action>
+			<from-outcome>success</from-outcome>
+			<to-view-id>/enumerations.jsp</to-view-id>
+		</navigation-case>
+	</navigation-rule>
+	
+	<!-- enumerations.jsp navigation -->
+	<navigation-rule>
+		<from-view-id>/enumerations.jsp</from-view-id>
+		<navigation-case>
+			<from-action>#{ITEManagerBean.editEnumeration}</from-action>
+			<from-outcome>success</from-outcome>
+			<to-view-id>/enumerationEditForm.jsp</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-action>#{ITEManagerBean.addNewEnumeration}</from-action>
+			<from-outcome>success</from-outcome>
+			<to-view-id>/enumerationAddForm.jsp</to-view-id>
+		</navigation-case>
+	</navigation-rule>
+	
 	<!-- groupForm.jsp navigation -->
 	<navigation-rule>
 		<from-view-id>/groupForm.jsp</from-view-id>
@@ -250,7 +290,6 @@
 			<to-view-id>/myPassword.jsp</to-view-id>
 		</navigation-case>
 	</navigation-rule>
-	
 	
 	<!-- ITEManagerBean -->
 	<managed-bean>

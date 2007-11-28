@@ -10,30 +10,29 @@ package ome.admin.data;
 // Java imports
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+
 import javax.faces.context.FacesContext;
 
-// Third-party libraries
-import org.apache.log4j.Logger;
-
-// Application-internal dependencies
+import ome.admin.controller.LoginBean;
 import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IRepositoryInfo;
 import ome.api.ITypes;
+import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
 import ome.model.IEnum;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.admin.controller.LoginBean;
-import ome.conditions.InternalException;
+
+import org.apache.log4j.Logger;
 
 /**
  * ConnectionDB providing access to user/admin-only functionality based server
@@ -61,7 +60,7 @@ public class ConnectionDB {
 	 * IAdmin
 	 */
 	private ITypes typesService;
-	
+
 	/**
 	 * IQuery
 	 */
@@ -107,17 +106,96 @@ public class ConnectionDB {
 	/**
 	 * ITypes interface
 	 */
-	
+
 	/**
 	 * Gets Enumerations' classes
-	 * @return Map of enumerations classes with values.
+	 * 
+	 * @return {@link java.util.Map} of enumerations classes with values.
 	 */
-	public Map<Class<IEnum>, List<IEnum>> getEnumerations() {
+	public Map<Class<IEnum>, List<IEnum>> getEnumerationsWithEntries() {
+		logger.info("getEnumerationsWithEntries by user ID: '" + userid + "'");
 		return typesService.getEnumerationsWithEntries();
 	}
+
+	/**
+	 * Gets Enumerations' classes
+	 * 
+	 * @return {@link java.lang.String} of enumerations classes with values.
+	 */
+	public List<Class<IEnum>> getEnumerations() {
+		logger.info("getEnumerations by user ID: '" + userid + "'");
+		List<Class<IEnum>> list = typesService.getEnumerationTypes();
+		logger.info("getEnumerations list: " + list);
+		return list;
+	}
+
+	/**
+	 * Gets entries for enumeration class
+	 * 
+	 * @param klass Class
+	 * @return {@link java.util.List} of objects extend IEnum
+	 */
+	public List<? extends IEnum> getEntries(Class klass) {
+		logger.info("getEntries by user ID: '" + userid + "'");
+		List<? extends IEnum> list = typesService.allEnumerations(klass);
+		logger.info("getEntries list: " + list);
+		return list;
+	}
+
+	/**
+	 * Create enumeration
+	 * @param en
+	 *            Object of class extends IEnum
+	 */
+	public void createEnumeration(IEnum en) {
+		logger.info("createEnumeration by user ID: '" + userid + "'");
+		typesService.createEnumeration(en);
+		logger.info("createEnumeration [Object: '" + en.getClass()
+				+ "', value: '" + en.getValue() + "']");
+	}
+
+	/**
+	 * Deletes enumeration
+	 * @param en Object of class extends IEnum
+	 */
+	public void deleteEnumeration(IEnum en) {
+		logger.info("deleteEnumeration by user ID: '" + userid + "'");
+		typesService.deleteEnumeration(en);
+	}
 	
-	
-	
+	/**
+	 * Updates enumerations
+	 * @param list {@link java.util.list} of Objects extends IEnum
+	 */
+	public void updateEnumerations(List<? extends IEnum> list) {
+		for(IEnum o : list) {
+			System.out.println("entry "+o.getId()+" "+o.getValue());
+		}
+		typesService.updateEnumerations(list);
+	}
+
+	/**
+	 * Checks that enumeration exists.
+	 * @param klass Class
+	 * @param value {@link java.lang.String} checking value
+	 * @return boolean
+	 * @throws Exception when object exists
+	 */
+	public boolean checkEnumeration(Class klass, String value) throws Exception {
+		logger.info("checkEnumeration by user ID: '" + userid + "'");
+		try {
+			typesService.getEnumeration(klass, value);
+			logger.error("checkEnumeration: An " + klass.getName()
+						+ " enum does not exist with the value '" + value+"'");
+			throw new Exception("An '" + klass.getName()
+						+ "' enum exists with the value '" + value + "'");
+		} catch (ApiUsageException e ) {
+			logger.info("checkEnumeration can be added. "+e.getMessage());
+		}
+		return true;
+
+	}
+
 	// -----------------------------------------------------------------------
 
 	/**
@@ -293,7 +371,7 @@ public class ConnectionDB {
 	/**
 	 * IAdmin interface
 	 */
-	
+
 	/**
 	 * Changs the password for current {@link ome.model.meta.Experimenter}.
 	 * 

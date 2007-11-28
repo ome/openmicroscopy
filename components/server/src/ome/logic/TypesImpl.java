@@ -135,7 +135,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
     
     @RolesAllowed("system")
     public <T extends IEnum> void deleteEnumeration(T oEnum) {
-        iUpdate.deleteObject((IObject) oEnum);
+        iUpdate.deleteObject(oEnum);
     }
 
     @RolesAllowed("user")
@@ -156,9 +156,9 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
     }
     
     @RolesAllowed("system")
-    public <T extends IEnum> List<Class<? extends IEnum>> getEnumerationTypes()  {
+    public <T extends IEnum> List<Class<T>> getEnumerationTypes()  {
     	
-    	List<Class<? extends IEnum>> list = new ArrayList<Class<? extends IEnum>>();
+    	List<Class<T>> list = new ArrayList<Class<T>>();
     	
     	Map<String, ClassMetadata> m = sf.getAllClassMetadata();
     	for (String key : m.keySet()) {    		

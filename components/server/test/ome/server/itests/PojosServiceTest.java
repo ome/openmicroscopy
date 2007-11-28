@@ -15,6 +15,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -26,7 +27,9 @@ import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
+import ome.model.core.Pixels;
 import ome.testing.OMEData;
+import ome.testing.ObjectFactory;
 import ome.util.builders.PojoOptions;
 
 import org.testng.annotations.Test;
@@ -120,7 +123,19 @@ public class PojosServiceTest extends AbstractManagedContextTest {
     // ticket 651
     public void testIntervalInPojoOptions() {
     	Long userID = factory.getAdminService().getEventContext().getCurrentUserId();
-		Timestamp startTime = getDate("before");
+    	// create
+    	Dataset ds = new Dataset();
+        ds.setName("ticket:651");
+        Image im = new Image();
+        im.setName("ticket:651");
+        Pixels pi = ObjectFactory.createPixelGraph(null);
+        pi.setDefaultPixels(Boolean.TRUE);
+        im.addPixels(pi);
+        ds.linkImage(im);
+        ds = iUpdate.saveAndReturnObject(ds);
+    	
+        // test        
+    	Timestamp startTime = getDate("before");
 		Timestamp endTime = getDate("after");
 
 		PojoOptions options = new PojoOptions();
@@ -130,13 +145,11 @@ public class PojosServiceTest extends AbstractManagedContextTest {
 		options.startTime(startTime);
 		options.endTime(endTime);
 
-		Dataset d = iQuery.get(Dataset.class, 1);
-		
 		iPojos.getImagesByOptions(options.map());
 		iPojos.getImages(Dataset.class,Collections
-                .singleton(d.getId()), options.map());
+                .singleton(ds.getId()), options.map());
     }
-
+    
     // ~ Helpers
     // =========================================================================
 

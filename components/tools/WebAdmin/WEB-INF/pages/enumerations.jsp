@@ -10,10 +10,11 @@
 	<f:view>
 		<h:form id="enumerations">
 
-			
+			<h:commandLink action="#{ITEManagerBean.addNewEnumeration}"
+				title="#{msg.enumsAddNewEnum}">
 				<h:graphicImage url="/images/add.png" />
 				<h:outputText value=" #{msg.enumsAddNewEnum}" />
-			
+			</h:commandLink>
 
 			<br />
 
@@ -32,10 +33,11 @@
 						<h:outputText value=" #{msg.enumsActions} " />
 					</f:facet>
 
-					
+					<h:commandLink action="#{ITEManagerBean.editEnumeration}"
+						title="#{msg.enumsEditEnum}">
 						<h:graphicImage url="/images/edit.png"
 							alt="#{msg.enumsEditEnum}" styleClass="action" />
-					
+					</h:commandLink>
 
 				</h:column>
 
@@ -64,9 +66,10 @@
 						</h:panelGroup>
 					</f:facet>
 
-					
+					<h:commandLink action="#{ITEManagerBean.editEnumeration}"
+						title="#{msg.enumsEditEnum}">
 						<h:outputText value="#{enumeration.className}" />
-					
+					</h:commandLink>
 				</h:column>
 
 			</t:dataTable></div>

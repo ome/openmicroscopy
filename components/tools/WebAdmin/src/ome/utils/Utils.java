@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.faces.model.SelectItem;
 
+import ome.model.IEnum;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 
@@ -26,6 +27,25 @@ public class Utils {
 	 *            {@link java.util.List}
 	 * @return {@link java.util.ArrayList}<{@link javax.faces.model.SelectItem}>
 	 */
+	public static synchronized List wrapExperimenterClassAsGUIList(
+			List<Class<IEnum>> originalList) {
+		ArrayList<SelectItem> items = new ArrayList<SelectItem>(originalList
+				.size());
+		for (Class klass : originalList) {
+			SelectItem item = new SelectItem(klass.getName(), klass.getName());
+			items.add(item);
+		}
+		return items;
+	}
+
+	/**
+	 * Wraps original {@link java.util.List} as GUI List
+	 * {@link javax.faces.model.SelectItem}
+	 * 
+	 * @param originalList
+	 *            {@link java.util.List}
+	 * @return {@link java.util.ArrayList}<{@link javax.faces.model.SelectItem}>
+	 */
 	public static synchronized List wrapExperimenterGroupAsGUIList(
 			List<ExperimenterGroup> originalList) {
 		ArrayList<SelectItem> items = new ArrayList<SelectItem>(originalList
@@ -37,7 +57,7 @@ public class Utils {
 		}
 		return items;
 	}
-	
+
 	/**
 	 * Wraps original {@link java.util.List} as GUI List
 	 * {@link javax.faces.model.SelectItem}

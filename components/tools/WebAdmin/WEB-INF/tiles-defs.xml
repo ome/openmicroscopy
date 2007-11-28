@@ -67,6 +67,18 @@
 			value="/WEB-INF/pages/password.jsp" />
 	</definition>
 
+	<definition name=".enumerationAddForm" extends=".mainLayout">
+		<put name="title" value="Enumeration Form" />
+		<put name="content" type="page"
+			value="/WEB-INF/pages/enumerationAddForm.jsp" />
+	</definition>
+
+	<definition name=".enumerationEditForm" extends=".mainLayout">
+		<put name="title" value="Enumeration Form" />
+		<put name="content" type="page"
+			value="/WEB-INF/pages/enumerationEditForm.jsp" />
+	</definition>
+		
 	<definition name=".groupForm" extends=".mainLayout">
 		<put name="title" value="Group Form" />
 		<put name="content" type="page"

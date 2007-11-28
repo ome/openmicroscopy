@@ -78,7 +78,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	private boolean editMode = false;
 
 	/**
-	 * boolean value for providing Add/Edit form in one JSP.
+	 * boolean value for providing scroller on the data table.
 	 */
 	private boolean scrollerMode = true;
 
@@ -396,6 +396,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	public String editExperimenter() {
 		try {
 			this.editMode = true;
+			// this.user = (User) userModel.getRowData();
 			this.user = (User) iadmin.getExperimenterById(((User) userModel
 					.getRowData()).getExperimenter().getId());
 			return NavigationResults.SUCCESS;

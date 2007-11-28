@@ -93,8 +93,7 @@ public interface ITypes extends ServiceInterface {
     <T extends IEnum> void deleteEnumeration(@NotNull T oEnum);
     
     /**
-     * Parses files CLASS_PATH/lib/common.jar!/mappings/*.ome.xml and 
-     * looks for values for specyfied class of <code><enum></code> tag. 
+     * Gets all oryginal values of specified class. 
      * @param <T> 
      *            The type of the enumeration. Must extend {@link IEnum}
      * @param klass 
@@ -106,19 +105,17 @@ public interface ITypes extends ServiceInterface {
     <T extends IEnum> List<T> allOryginalEnumerations(Class<T> klass);
     
     /**
-     * Parses files CLASS_PATH/lib/common.jar!/mappings/*.ome.xml and 
-     * looks for <code><enum></code> tag. 
+     * Gets all metadata classes which are IEnum type. 
      * @param <T> 
      *            The type of the enumeration. Must extend {@link IEnum}
      * @return list of Class of T extends IEnum
      * @throws RuntimeException
-     *             if xml parsing failure.
+     *             if Class not found.
      */
-    <T extends IEnum> List<Class<? extends IEnum>> getEnumerationTypes();
+    <T extends IEnum> List<Class<T>> getEnumerationTypes();
     
     /**
-     * Parses files CLASS_PATH/lib/common.jar!/mappings/*.ome.xml and 
-     * looks for <code><enum></code> tag and entries value. 
+     * Gets all metadata classes which are IEnum type with contained objects.  
      * @param <T> 
      *            The type of the enumeration. Must extend {@link IEnum}
      * @return list of Class of T extends IEnum
