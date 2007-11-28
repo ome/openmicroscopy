@@ -8,6 +8,7 @@
 package ome.admin.logic;
 
 // Java imports
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,15 +16,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
+// Third-party libraries
 import javax.faces.context.FacesContext;
 import org.apache.commons.beanutils.BeanUtils;
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.admin.data.ConnectionDB;
 import ome.admin.model.Enumeration;
 import ome.model.IEnum;
-
 
 /**
  * Delegate of enumeration mangement.
@@ -161,32 +161,40 @@ public class ITypesEnumManagerDelegate implements java.io.Serializable {
 	/**
 	 * Adds new object extends IEnum.
 	 * 
-	 * @param en {@link ome.admin.model.Enumeration}
+	 * @param en
+	 *            {@link ome.admin.model.Enumeration}
 	 * @throws ClassNotFoundException
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
+	 * @throws NoSuchMethodException
+	 * @throws InvocationTargetException
+	 * @throws SecurityException
+	 * @throws IllegalArgumentException
 	 */
 	public void addEnumeration(Enumeration en) throws ClassNotFoundException,
-			InstantiationException, IllegalAccessException {
+			InstantiationException, IllegalAccessException,
+			IllegalArgumentException, SecurityException,
+			InvocationTargetException, NoSuchMethodException {
 		Class klass = Class.forName(en.getClassName());
-		IEnum eno = (IEnum) klass.newInstance();
-		eno.setValue(en.getEvent());
-		db.createEnumeration(eno);
+		db.createEnumeration((IEnum) klass.getConstructor(String.class)
+				.newInstance(en.getEvent()));
 	}
 
 	/**
 	 * Deletes object extends IEnum
 	 * 
-	 * @param en Object extends IEnum
+	 * @param en
+	 *            Object extends IEnum
 	 */
 	public void delEnumeration(IEnum en) {
 		db.deleteEnumeration(en);
 	}
-	
+
 	/**
 	 * Updates list of objects extend IEnum
 	 * 
-	 * @param list {@link java.util.List} of objects extend IEnum
+	 * @param list
+	 *            {@link java.util.List} of objects extend IEnum
 	 */
 	public void updateEnumerations(List<? extends IEnum> list) {
 		db.updateEnumerations(list);
@@ -242,9 +250,9 @@ public class ITypesEnumManagerDelegate implements java.io.Serializable {
 			List<? extends IEnum> list, Class klass) {
 		if (list == null)
 			this.entrys = getEntries(klass);
-		else if(klass == null)
+		else if (klass == null)
 			this.entrys = list;
-		
+
 		sortByProperty = sortItem;
 		if (sort.equals("asc"))
 			sort(propertyAscendingComparator);
@@ -262,7 +270,7 @@ public class ITypesEnumManagerDelegate implements java.io.Serializable {
 	private void sort(Comparator comparator) {
 		Collections.sort(enums, comparator);
 	}
-	
+
 	public boolean checkEnumeration(Class klass, String value) throws Exception {
 		return db.checkEnumeration(klass, value);
 	}

@@ -86,14 +86,14 @@
 	<navigation-rule>
 		<from-view-id>/enumerationEditForm.jsp</from-view-id>
 		<navigation-case>
-			<from-action>#{ITEManagerBean.updateEnumeration}</from-action>
+			<from-action>#{ITEManagerBean.updateEnumerations}</from-action>
 			<from-outcome>success</from-outcome>
 			<to-view-id>/enumerations.jsp</to-view-id>
 		</navigation-case>
 		<navigation-case>
 			<from-action>#{ITEManagerBean.delEnumeration}</from-action>
 			<from-outcome>success</from-outcome>
-			<to-view-id>/enumerationEditForm.jsp</to-view-id>
+			<to-view-id>/enumerations.jsp</to-view-id>
 		</navigation-case>
 	</navigation-rule>
 	

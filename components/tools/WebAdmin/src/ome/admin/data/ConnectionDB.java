@@ -132,7 +132,8 @@ public class ConnectionDB {
 	/**
 	 * Gets entries for enumeration class
 	 * 
-	 * @param klass Class
+	 * @param klass
+	 *            Class
 	 * @return {@link java.util.List} of objects extend IEnum
 	 */
 	public List<? extends IEnum> getEntries(Class klass) {
@@ -144,6 +145,7 @@ public class ConnectionDB {
 
 	/**
 	 * Create enumeration
+	 * 
 	 * @param en
 	 *            Object of class extends IEnum
 	 */
@@ -156,41 +158,51 @@ public class ConnectionDB {
 
 	/**
 	 * Deletes enumeration
-	 * @param en Object of class extends IEnum
+	 * 
+	 * @param en
+	 *            Object of class extends IEnum
 	 */
 	public void deleteEnumeration(IEnum en) {
 		logger.info("deleteEnumeration by user ID: '" + userid + "'");
 		typesService.deleteEnumeration(en);
 	}
-	
+
 	/**
 	 * Updates enumerations
-	 * @param list {@link java.util.list} of Objects extends IEnum
+	 * 
+	 * @param list
+	 *            {@link java.util.list} of Objects extends IEnum
 	 */
 	public void updateEnumerations(List<? extends IEnum> list) {
-		for(IEnum o : list) {
-			System.out.println("entry "+o.getId()+" "+o.getValue());
+		logger.info("updateEnumerations by user ID: '" + userid + "'");
+		for (IEnum o : list) {
+			logger.info("updateEnumerations: Entry[id: '" + o.getId()
+					+ "', value: '" + o.getValue() + "']");
 		}
 		typesService.updateEnumerations(list);
 	}
 
 	/**
 	 * Checks that enumeration exists.
-	 * @param klass Class
-	 * @param value {@link java.lang.String} checking value
+	 * 
+	 * @param klass
+	 *            Class
+	 * @param value
+	 *            {@link java.lang.String} checking value
 	 * @return boolean
-	 * @throws Exception when object exists
+	 * @throws Exception
+	 *             when object exists
 	 */
 	public boolean checkEnumeration(Class klass, String value) throws Exception {
 		logger.info("checkEnumeration by user ID: '" + userid + "'");
 		try {
 			typesService.getEnumeration(klass, value);
 			logger.error("checkEnumeration: An " + klass.getName()
-						+ " enum does not exist with the value '" + value+"'");
+					+ " enum does not exist with the value '" + value + "'");
 			throw new Exception("An '" + klass.getName()
-						+ "' enum exists with the value '" + value + "'");
-		} catch (ApiUsageException e ) {
-			logger.info("checkEnumeration can be added. "+e.getMessage());
+					+ "' enum exists with the value '" + value + "'");
+		} catch (ApiUsageException e) {
+			logger.info("checkEnumeration can be added. " + e.getMessage());
 		}
 		return true;
 

@@ -11,52 +11,56 @@
 			rendered="#{ITEManagerBean.editMode}">
 
 			<h2><h:outputText value="#{msg.enumsEditEnum}"
-				rendered="#{ITEManagerBean.editMode}" /></h2>
+				rendered="#{ITEManagerBean.editMode}" /> <h:outputText
+				value="#{ITEManagerBean.enumeration.className}" /></h2>
 
 			<p><h:outputText value="#{msg.generalMandatoryFields}" /></p>
 
 			<h:inputHidden id="enumerationClassName"
 				value="#{ITEManagerBean.enumeration.className}" />
 
-			<h:message styleClass="errorText" id="enumerationEditFormError" for="enumerationEditForm" />
+			<h:message styleClass="errorText" id="enumerationEditFormError"
+				for="enumerationEditForm" />
 
-			<p><h:outputText value="#{ITEManagerBean.enumeration.className}" /></p>
+			<div id="entryList"><h:dataTable
+				value="#{ITEManagerBean.entrys}" var="entry" styleClass="entryList"
+				columnClasses="desc,desc,action">
 
-			<div id="entryList"><h:dataTable value="#{ITEManagerBean.entrys}" 
-				var="entry" styleClass="entryList" columnClasses="desc">
-				
+				<h:column>
+					<h:outputText value="*" />
+				</h:column>
+
 				<h:column>
 					<f:facet name="header">
-					<h:panelGroup>
-					
-						<h:outputText value="#{msg.enumsListEnum}" />
-						
-					</h:panelGroup>
+						<h:panelGroup>
+							<h:outputText value="#{msg.enumsListEnum}" />
+						</h:panelGroup>
 					</f:facet>
-		
-					<h:inputText id="value" value="#{entry.value}" required="true" 
+
+					<h:inputText id="value" value="#{entry.value}" required="true"
 						maxlength="255" size="30">
 						<f:validateLength minimum="1" maximum="255" />
 					</h:inputText>
-		
+
 				</h:column>
-				
+
 				<h:column>
 					<f:facet name="header">
 						<h:outputText value="#{msg.enumsActions}" />
 					</f:facet>
-					
+
 					<h:commandLink action="#{ITEManagerBean.delEnumeration}"
 						onclick="if (!confirm('#{msg.enumsConfirmation}')) return false"
 						title="#{msg.enumsDeleteEnum}">
-						<h:graphicImage url="/images/del.png"
-							alt="#{msg.enumsDeleteEnum}" styleClass="action" />
+						<h:graphicImage url="/images/del.png" alt="#{msg.enumsDeleteEnum}"
+							styleClass="action" />
 					</h:commandLink>
-					
+
 				</h:column>
 
 			</h:dataTable></div>
 
+			<br />
 			<h:commandButton id="submitUpdate"
 				action="#{ITEManagerBean.updateEnumerations}"
 				value="#{msg.enumsSave}" rendered="#{ITEManagerBean.editMode}" />

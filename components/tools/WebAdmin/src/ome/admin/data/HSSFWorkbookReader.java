@@ -118,7 +118,7 @@ public class HSSFWorkbookReader {
 		return mexp;
 	}
 
-	public String getCellValue(HSSFCell cell) {
+	public String getCellValue(HSSFCell cell) throws IOException {
 		String str;
 		if (cell == null) {
 			return "";
@@ -142,9 +142,9 @@ public class HSSFWorkbookReader {
 			str = cell.getCellFormula();
 			break;
 		default:
-			System.out.println("Not a supported cell type");
 			str = null;
-			break;
+			throw new IOException("IOException: Not a supported cell type");
+
 		}
 		return str;
 	}

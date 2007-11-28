@@ -303,7 +303,6 @@ public class ITypesEnumController implements java.io.Serializable {
 					sort, this.enumeration.getEntryList(), null));
 			return NavigationResults.SUCCESS;
 		} catch (Exception e) {
-			e.printStackTrace();
 			logger.error("editEnumeration: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Enumeration: [class: "
@@ -323,14 +322,13 @@ public class ITypesEnumController implements java.io.Serializable {
 	public String delEnumeration() {
 		try {
 			itype.delEnumeration((IEnum) entryModel.getRowData());
+			this.enumerationModel.setWrappedData(itype.getAndSortItems(
+					sortItem, sort));
 			Class klass = entryModel.getRowData().getClass();
 			this.entryModel.setWrappedData(itype.getAndSortEntrys(sortEntry,
 					sort, null, klass));
-			this.enumerationModel.setWrappedData(itype.getAndSortItems(
-					sortItem, sort));
 			return NavigationResults.SUCCESS;
 		} catch (Exception e) {
-			e.printStackTrace();
 			logger.error("deleteEnumeration: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Enumeration: [id: "
@@ -352,11 +350,12 @@ public class ITypesEnumController implements java.io.Serializable {
 			this.editMode = false;
 			Class klass = Class.forName(this.enumeration.getClassName());
 			itype.updateEnumerations(this.enumeration.getEntryList());
+			this.enumerationModel.setWrappedData(itype.getAndSortItems(
+					sortItem, sort));
 			this.entryModel.setWrappedData(itype.getAndSortEntrys(sortEntry,
 					sort, null, klass));
 			return NavigationResults.SUCCESS;
 		} catch (Exception e) {
-			e.printStackTrace();
 			logger.error("updateEnumeration: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Enumeration: [id: "

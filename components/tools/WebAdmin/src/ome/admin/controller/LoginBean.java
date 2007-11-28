@@ -316,7 +316,6 @@ public class LoginBean implements java.io.Serializable{
 			return NavigationResults.FALSE;
 		} catch (Exception e) {
 			logger.info("Authentication not succesfule - connection failure: "+e.getMessage());
-			e.printStackTrace();
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Connection failure: "+e.getMessage());
 			context.addMessage("loginForm", message);
