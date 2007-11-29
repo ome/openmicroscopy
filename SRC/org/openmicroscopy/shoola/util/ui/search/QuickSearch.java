@@ -79,11 +79,14 @@ public class QuickSearch
 	/** Indicates to search for annotations. */
 	public static final int 	ANNOTATIONS = 2;
 	
-	/** Bound property indicating to search for a given tag. */
-	public static final String	TAG_SEARCH_PROPERTY = "tagSearch";
+	/** Bound property indicating to search for given terms. */
+	public static final String	QUICK_SEARCH_PROPERTY = "quickSearch";
 	
 	/** Removes the text from the text field. */
 	private static final int 	CLEAR = 0;
+	
+	/** The selected node. */
+	protected SearchObject		selectedNode;
 	
 	/** Area where to enter the tags to search. */
 	private JTextField			searchArea;
@@ -108,13 +111,10 @@ public class QuickSearch
 	
 	/** The possible options. */
 	private List<SearchObject> 	nodes;
-	
-	/** The selected node. */
-	private SearchObject		selectedNode;
-	
+
 	/** Label if any. */
 	private String				label;
-	
+
 	/** Shows the menu. */
 	private void showMenu()
 	{
@@ -158,7 +158,6 @@ public class QuickSearch
 						break;
 					
 				}
-                
             }
         });
 	}
@@ -225,7 +224,7 @@ public class QuickSearch
 	{
 		double w = 0;
 		if (menuButton != null) w = TableLayout.PREFERRED;
-		double[][] pl = {{TableLayout.PREFERRED, w, TableLayout.FILL, 0}, //columns
+		double[][] pl = {{TableLayout.PREFERRED, w, TableLayout.FILL, 0}, 
 				{TableLayout.PREFERRED} }; //rows\
 		layoutManager = new TableLayout(pl);
 		
@@ -248,18 +247,19 @@ public class QuickSearch
 		add(searchPanel);
 	}
 	
-	/** 
-	 * Fires a property change to search for some tags
-	 */
+	/** Fires a property change to search for some tags. */
 	private void handleKeyEnter()
 	{
 		String text = searchArea.getText();
 		if (text != null) text = text.trim();
+		String[] r = text.split(" ");
 		List<String> l = new ArrayList<String>();
-		l.add(text);
+		for (int i = 0; i < r.length; i++)
+			l.add(r[i].trim());
+		
 		if (selectedNode == null) selectedNode = new SearchObject();
 		selectedNode.setResult(l);
-		firePropertyChange(TAG_SEARCH_PROPERTY, null, selectedNode);
+		firePropertyChange(QUICK_SEARCH_PROPERTY, null, selectedNode);
 	}
 	
 	/** Removes the text from the display. */
@@ -345,16 +345,17 @@ public class QuickSearch
 	public void setDefaultSearchContext()
 	{
 		IconManager icons = IconManager.getInstance();
-		List<SearchObject> nodes = new ArrayList<SearchObject>(2);
+		List<SearchObject> nodes = new ArrayList<SearchObject>();
     	SearchObject node = new SearchObject(TAGS, 
-    							icons.getIcon(IconManager.SEARCH_TAG), 
+    							icons.getImageIcon(IconManager.SEARCH_TAG), 
     								"Search for Tags");
     	nodes.add(node);
-    	node = new SearchObject(IMAGES, icons.getIcon(IconManager.SEARCH_IMAGE), 
+    	node = new SearchObject(IMAGES, 
+    							icons.getImageIcon(IconManager.SEARCH_IMAGE), 
 									"Search for Images");
     	nodes.add(node);
     	node = new SearchObject(ANNOTATIONS, 
-    							icons.getIcon(IconManager.SEARCH_ANNOTATION), 
+    						icons.getImageIcon(IconManager.SEARCH_ANNOTATION), 
 								"Search for Annotations");
     	nodes.add(node);
     	initSearchComponents(nodes);
@@ -383,6 +384,9 @@ public class QuickSearch
 		if (e.getOffset() == 0) clear();
 	}
 	
+	/** Subclasses should override this method to handle the search. */
+	public void search() {}
+	
 	/**
 	 * Clears the text from the display.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -403,13 +407,15 @@ public class QuickSearch
 	 */
 	public void propertyChange(PropertyChangeEvent evt)
 	{
-		SearchObject node = (SearchObject) evt.getNewValue();
-		if (node != null) selectedNode = node;
-		searchButton.setIcon(node.getIcon());
-		UIUtilities.setTextAreaDefault(searchButton);
-		searchButton.setBorder(null);
-		
-		searchArea.setToolTipText(node.getDescription());
+		String name = evt.getPropertyName();
+		if (SearchContextMenu.SEARCH_CONTEXT_PROPERTY.equals(name)) {
+			SearchObject node = (SearchObject) evt.getNewValue();
+			if (node != null) selectedNode = node;
+			searchButton.setIcon(node.getIcon());
+			UIUtilities.setTextAreaDefault(searchButton);
+			searchButton.setBorder(null);
+			searchArea.setToolTipText(node.getDescription());
+		} else if (QUICK_SEARCH_PROPERTY.equals(name)) search();
 	}
 	
 	/** 
@@ -417,7 +423,5 @@ public class QuickSearch
      * @see DocumentListener#changedUpdate(DocumentEvent)
      */
 	public void changedUpdate(DocumentEvent e) {}
-
-	
 
 }

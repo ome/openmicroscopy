@@ -513,12 +513,12 @@ class ImViewerComponent
 				if (!saveOnClose()) return;
 				postViewerState(ViewerState.CLOSE);
 				model.discard();
+				view.discard();
 				fireStateChange();
 				EventBus bus = MeasurementAgent.getRegistry().getEventBus();
 				bus.post(new FreeCacheEvent(model.getPixelsID(), 
 						FreeCacheEvent.XY_IMAGE_DATA));
 		}
-	
 	}
 
 	/** 

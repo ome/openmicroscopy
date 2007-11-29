@@ -524,5 +524,12 @@ public interface HiViewer
 	 * @param map The value to set.
 	 */
 	public void rndSettingsPasted(Map map);
+	
+	/**
+     * Sets the context of the search if any.
+     * 
+     * @param searchContext The value to set.
+     */
+	public void setSearchResult(String searchContext);
     
 }

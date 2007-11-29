@@ -24,6 +24,9 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import javax.swing.Icon;
 import javax.swing.JFrame;
 
@@ -78,6 +81,21 @@ public class UserNotifierImpl
     /** Reference to the manager. */
     private UserNotifierManager		manager;
     
+    /**
+	 * Utility method to print the error message
+	 * 
+	 * @param e The exception to handle.
+	 * @return  See above.
+	 */
+	private String printErrorText(Throwable e) 
+	{
+		if (e == null) return "";
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		return sw.toString();
+	}
+	
     /**
      * Brings up a notification dialog.
      * 
@@ -166,8 +184,9 @@ public class UserNotifierImpl
      */       
     public void notifyError(String title, String summary, Throwable detail)
     {
+    	
 		notifyError(title, summary, 
-						detail == null ? null : detail.getMessage());
+						detail == null ? null : printErrorText(detail));
     }
     
 	/** 
@@ -178,9 +197,6 @@ public class UserNotifierImpl
 	{
 		if (title == null || title.length() == 0) title = DEFAULT_ERROR_TITLE;
 		showErrorDialog(title, summary, detail);
-		//showDetailedNotificationDialog(title, summary, 
-		//								IconManager.getDefaultErrorIcon(),
-		//								detail);
 	}
     
 	/**
@@ -204,9 +220,6 @@ public class UserNotifierImpl
 		if (title == null || title.length() == 0)
 			title = DEFAULT_WARNING_TITLE;
 		showErrorDialog(title, summary, detail);
-		//showDetailedNotificationDialog(title, summary, 
-		//								IconManager.getDefaultWarnIcon(),
-		//								detail);
 	}
 
 	/** 

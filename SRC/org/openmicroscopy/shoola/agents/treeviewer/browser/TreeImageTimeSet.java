@@ -32,6 +32,8 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -170,7 +172,7 @@ public class TreeImageTimeSet
 									"data imported in selected month.";
 	
 	/** A day in milliseconds. */
-	private static final long		DAY = 86400000;
+	private static final long		DAY = UIUtilities.DAY;
 	
 	/** The node's index. One of the constants defined by this class. */
 	private int 		type;

@@ -1833,27 +1833,10 @@ class ImViewerUI
 		}
 		controlPane.setGridMagnificationFactor((int) (factor*10));
 	}
-
-	/**
-	 * Searches for the passed values for the context defined by the
-	 * passed node.
-	 * 
-	 * @param node The node to handle.
-	 */
-	void searchFor(SearchObject node)
-	{
-		switch (node.getIndex()) {
-			case QuickSearch.TAGS:
-				model.fireTagsRetrieval(node.getResult());
-				break;
-			case QuickSearch.IMAGES:
-				model.fireImagesRetrieval(node.getResult());
-				break;
-			case QuickSearch.ANNOTATIONS:
-				model.fireAnnotationsRetrieval(node.getResult());
-		}
-	}
 	
+	/** Cancels any ongoing search. */
+    void discard() { toolBar.discard(); }
+    
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

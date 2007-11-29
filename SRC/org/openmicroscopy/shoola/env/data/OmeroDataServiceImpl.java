@@ -162,8 +162,7 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		PojoOptions po = new PojoOptions();
-		
-		po.exp(new Long(userID));
+		if (rootNodeIDs == null) po.exp(new Long(userID));
 		if (withLeaves) po.leaves();
 		else po.noLeaves();
 		po.countsFor(new Long(userID));
@@ -292,9 +291,12 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		PojoOptions po = new PojoOptions();
-		po.allCounts();
-		po.exp(new Long(userID));
-		po.countsFor(new Long(userID));
+		po.leaves();
+		if (userID != -1) {
+			//po.exp(new Long(userID));
+			//po.countsFor(new Long(userID));
+		}
+		
 		return gateway.getContainerImages(nodeType, nodeIDs, po.map());
 	}
 
@@ -1056,7 +1058,7 @@ class OmeroDataServiceImpl
 		po.leaves();
 		po.exp(new Long(userID));
 		po.countsFor(new Long(userID));
-		po.allCounts();
+		//po.allCounts();
 		po.startTime(lowerTime);
 		po.endTime(time);
 		return gateway.getImages(po.map());
@@ -1151,24 +1153,69 @@ class OmeroDataServiceImpl
 	{
 		Set<Long> ids = new HashSet<Long>();
 		if (terms == null) return ids;
-		Iterator i = terms.iterator();
 		List l;
 		Iterator j;
 		IObject object;
-		if (AnnotationData.class.equals(type)) type = ImageAnnotation.class;
-		while (i.hasNext()) {
-			l = gateway.searchFor(type, (String) i.next());
-			if (l != null) {
-				j = l.iterator();
-				while (j.hasNext()) {
-					object = (IObject) j.next();
-					if (object instanceof ImageAnnotation)
-						ids.add(((ImageAnnotation) object).getImage().getId());
-					else
-						ids.add(object.getId());
-				}
+		if (AnnotationData.class.equals(type)) 
+			type = ImageAnnotation.class;
+		l = gateway.searchFor(type, terms, null, null);
+		if (l != null) {
+			j = l.iterator();
+			while (j.hasNext()) {
+				object = (IObject) j.next();
+				if (object instanceof ImageAnnotation)
+					ids.add(((ImageAnnotation) object).getImage().getId());
+				else if (object instanceof ILink) 
+					ids.add(((ILink) object).getChild().getId());
+				else 
+					ids.add(object.getId());
 			}
 		}
+		if (ids.size() == 0 && CategoryData.class.equals(type))
+			return searchFor(CategoryGroupData.class, userID, terms);
+		return ids;
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#advancedSearchFor(List, List, List, Timestamp, 
+	 * 											Timestamp)
+	 */
+	public Set advancedSearchFor(List<Class> scope, List<String> terms, 
+			List<ExperimenterData> users, Timestamp start, Timestamp end) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Set<Long> ids = new HashSet<Long>();
+		if (terms == null) return ids;
+		Iterator i = scope.iterator();
+		List l = new ArrayList();
+		Iterator j;
+		IObject object;
+		Class type;
+		if ((users == null || users.size() == 0)) {
+			while (i.hasNext()) {
+				type = (Class) i.next();
+				l.addAll(gateway.searchFor(type, terms, start, end));
+			}
+		} else {
+			while (i.hasNext()) {
+				type = (Class) i.next();
+				l.addAll(gateway.searchFor(type, terms, start, end, users));
+			}
+		}
+		if (l != null) {
+			j = l.iterator();
+			while (j.hasNext()) {
+				object = (IObject) j.next();
+				if (object instanceof ImageAnnotation)
+					ids.add(((ImageAnnotation) object).getImage().getId());
+				else if (object instanceof ILink) 
+					ids.add(((ILink) object).getChild().getId());
+				else 
+					ids.add(object.getId());
+			}
+		}
+		
 		return ids;
 	}
 

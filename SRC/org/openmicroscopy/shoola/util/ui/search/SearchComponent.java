@@ -29,6 +29,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -61,7 +63,7 @@ public class SearchComponent
 	extends JDialog
 	implements ActionListener
 {
-	
+
 	/** Bound property indicating to search. */
 	public static final String 		SEARCH_PROPERTY = "search";
 	
@@ -82,15 +84,21 @@ public class SearchComponent
 	
 	/** Action command ID indicating to search. */
 	private static final int 		SEARCH = 1;
+
+	/** Action command ID indicating to search. */
+	static final int 				DATE = 3;
 	
 	/** The UI with all the search fields. */
-	private SearchPanel uiDelegate;
+	private SearchPanel 		uiDelegate;
 	
 	/** Button to close the dialog. */
-	private JButton		cancelButton;
+	private JButton				cancelButton;
 	
 	/** Button to close the dialog. */
-	private JButton		searchButton;
+	private JButton				searchButton;
+	
+	/** The available nodes. */
+	private List<SearchObject>	nodes;
 	
 	/** Sets the window properties. */
 	private void setProperties()
@@ -102,7 +110,7 @@ public class SearchComponent
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
-		uiDelegate = new SearchPanel();
+		uiDelegate = new SearchPanel(this);
 		cancelButton = new JButton("Cancel");
 		cancelButton.setToolTipText("Cancels the search");
 		cancelButton.setActionCommand(""+CANCEL);
@@ -137,7 +145,7 @@ public class SearchComponent
 		TitlePanel titlePanel = new TitlePanel(TITLE, TEXT, 
 				icons.getIcon(IconManager.SEARCH_48));
 		c.add(titlePanel, BorderLayout.NORTH);
-		c.add(uiDelegate, BorderLayout.CENTER);
+		c.add(UIUtilities.buildComponentPanel(uiDelegate), BorderLayout.CENTER);
 		c.add(buildToolBar(), BorderLayout.SOUTH);
 	}
 	
@@ -151,17 +159,75 @@ public class SearchComponent
 	/** Fires a property change to search. */
 	private void search()
 	{
+		//Terms cannot be null
+		List<String> terms = uiDelegate.getTerms();
+		//Determine the context.
+		List<Integer> l = uiDelegate.getScope();
 		
+		//Determine the time
+		SearchContext ctx = new SearchContext(terms, l);
+		int index = uiDelegate.getSelectedDate();
+		switch (index) {
+			case SearchContext.RANGE:
+				ctx.setTime(uiDelegate.getFromDate(), uiDelegate.getToDate());
+				break;
+			default:
+				ctx.setTime(index);
+		}
+		ctx.setUsers(uiDelegate.getUsers());
+		firePropertyChange(SEARCH_PROPERTY, null, ctx);
 	}
 	
+	/** Sets the default contexts. */
+	private void setDefaultContext()
+	{
+		IconManager icons = IconManager.getInstance();
+		nodes = new ArrayList<SearchObject>();
+    	SearchObject node = new SearchObject(SearchContext.TAGS, 
+				icons.getImageIcon(IconManager.SEARCH_TAG), "Tags");
+    	nodes.add(node);
+    	node = new SearchObject(SearchContext.ANNOTATIONS, 
+				icons.getImageIcon(IconManager.SEARCH_ANNOTATION), 
+					"Annotations");
+    	nodes.add(node);
+    	node = new SearchObject(SearchContext.IMAGES, 
+				icons.getImageIcon(IconManager.SEARCH_IMAGE), 
+					"Images");
+    	
+    	nodes.add(node);
+    	/*
+    	node = new SearchObject(SearchContext.DATASETS, icons.getImageIcon(
+    							IconManager.SEARCH_DATASET), "Datasets");
+    	nodes.add(node);
+    	node = new SearchObject(SearchContext.PROJECTS, 
+    							icons.getImageIcon(IconManager.SEARCH_PROJECT), 
+								"Projects");
+    	nodes.add(node);
+    	*/
+    	
+	}
+	
+	/**
+	 * Creates a new component.
+	 * 
+	 * @param owner The owner of this dialog.
+	 */
 	public SearchComponent(JFrame owner)
 	{
 		super(owner);
+		setDefaultContext();
 		setProperties();
 		initComponents();
 		buildGUI();
 		pack();
 	}
+	
+	/**
+	 * Returns the collection of possible context.
+	 * 
+	 * @return See above.
+	 */
+	List<SearchObject> getNodes() { return nodes; }
 	
 	/**
 	 * Cancels or searches.
@@ -176,8 +242,10 @@ public class SearchComponent
 				break;
 			case SEARCH:
 				search();
+				break;
+			case DATE:
+				uiDelegate.setDateIndex();
 		}
-		
 	}
-
+	
 }

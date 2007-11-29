@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.util.archived.DownloaderLoader 
+ * org.openmicroscopy.shoola.agents.util.finder.FinderLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.util.archived;
+package org.openmicroscopy.shoola.agents.util.finder;
 
 
 //Java imports
@@ -28,15 +28,25 @@ package org.openmicroscopy.shoola.agents.util.archived;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.util.archived.view.Downloader;
-import org.openmicroscopy.shoola.agents.util.archived.view.DownloaderFactory;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
+import pojos.AnnotationData;
+import pojos.CategoryData;
+import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.ImageData;
+import pojos.ProjectData;
+
 /** 
- * 
+ * Parent of all classes that load data asynchronously for a {@link Finder}.
+ * All these classes invoke methods of the {@link DataHandlerView},
+ * which this class makes available through a <code>protected</code> field.
+ * Also, this class extends {@link DSCallAdapter} so that subclasses
+ * automatically become observers to an asynchronous call.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,37 +58,87 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
  * </small>
  * @since OME3.0
  */
-public abstract class DownloaderLoader 
+public abstract class FinderLoader 
 	extends DSCallAdapter
 {
 
-	/** The Downloader this data loader is for. */
-    protected final Downloader			viewer;
-    
-	 /** Convenience reference for subclasses. */
+	/** Indicates to search for tags. */
+	public static final int TAGS = 0;
+	
+	/** Indicates to search for images. */
+	public static final int IMAGES = 1;
+	
+	/** Indicates to search for annotations. */
+	public static final int ANNOTATIONS = 2;
+	
+	/** Indicates to search for projects. */
+	public static final int PROJECTS = 3;
+	
+	/** Indicates to search for datasets. */
+	public static final int DATASETS = 4;
+	
+	/** The viewer this data loader is for. */
+	protected Finder					viewer;
+	
+	/** Convenience reference for subclasses. */
     protected final Registry            registry;
     
-    /** Convenience reference for subclasses. */
+	/** Convenience reference for subclasses. */
     protected final DataHandlerView		dhView;
-
+    
+    /** 
+     * Checks if the passed type is supported and returns the 
+     * class corresponding to the passed value.
+     * 
+     * @param value The value to handle.
+     * @return See above.
+     */
+    protected Class checkType(int value)
+    {
+    	switch (value) {
+			case TAGS:
+				return CategoryData.class;
+			case IMAGES:
+				return ImageData.class;
+			case ANNOTATIONS:
+				return AnnotationData.class;
+			case PROJECTS:
+				return ProjectData.class;
+			case DATASETS:
+				return DatasetData.class;
+			default:
+				throw new IllegalArgumentException("Type not supported.");
+		}
+    }
+    
     /**
      * Creates a new instance.
      * 
-     * @param viewer The Downloader this data loader is for.
-     *               Mustn't be <code>null</code>.
+     * @param viewer 	The viewer this data loader is for.
+     *               	Mustn't be <code>null</code>.
+     * @param registry 	Convenience reference for subclasses.
+     *               	Mustn't be <code>null</code>.
      */
-    protected DownloaderLoader(Downloader viewer)
+    protected FinderLoader(Finder viewer, Registry registry)
     {
+        if (registry == null) throw new NullPointerException("No registry.");
         if (viewer == null) throw new NullPointerException("No viewer.");
+        this.registry = registry;
         this.viewer = viewer;
-        registry = DownloaderFactory.getRegistry();
         dhView = (DataHandlerView) 
-        		registry.getDataServicesView(DataHandlerView.class);
+					registry.getDataServicesView(DataHandlerView.class);
     }
     
-    /** Notifies the {@link #viewer} that the data retrieval is finished. */
-    public void onEnd() {}
-    
+    /**
+	 * Returns the current user's details.
+	 * 
+	 * @return See above.
+	 */
+    protected ExperimenterData getUserDetails()
+    {
+    	return (ExperimenterData) registry.lookup(
+    					LookupNames.CURRENT_USER_DETAILS);
+    }
     /**
      * Notifies the user that it wasn't possible to retrieve the data and
      * and discards the {@link #viewer}.
@@ -88,7 +148,9 @@ public abstract class DownloaderLoader
         handleException(new Exception("No data available."));
     }
     
-    /** Notifies the user that the data retrieval has been cancelled. */
+    /**
+     * Notifies the user that the data retrieval has been cancelled.
+     */
     public void handleCancellation() 
     {
         String info = "The data retrieval has been cancelled.";
@@ -100,7 +162,7 @@ public abstract class DownloaderLoader
     /**
      * Notifies the user that an error has occurred and discards the 
      * {@link #viewer}.
-     * @see DSCallAdapter#handleException(Throwable) 
+     * @see DSCallAdapter#handleException(Throwable)
      */
     public void handleException(Throwable exc) 
     {
@@ -111,13 +173,12 @@ public abstract class DownloaderLoader
         registry.getLogger().error(this, msg);
         registry.getUserNotifier().notifyError("Data Retrieval Failure", 
                                                s, exc);
-        viewer.cancel();
     }
     
     /** Fires an asynchronous data loading. */
     public abstract void load();
     
     /** Cancels any ongoing data loading. */
-    public abstract void cancel(); 
+    public abstract void cancel();
     
 }

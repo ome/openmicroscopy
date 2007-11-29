@@ -79,7 +79,7 @@ public class TreeViewerTranslator
 	public static final String ORPHANED_DATASETS = "Orphaned Datasets";
 	
 	/** Text of the dummy TreeImageSet containing the orphaned categories.*/
-	public static final String ORPHANED_CATEGORIES = "Ungrouped Categories";
+	public static final String ORPHANED_CATEGORIES = "Ungrouped Tags";
 	
     /**
      * Formats the toolTip of the specified {@link TreeImageDisplay} node.

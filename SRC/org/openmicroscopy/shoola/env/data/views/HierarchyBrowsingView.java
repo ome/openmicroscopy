@@ -255,10 +255,7 @@ public interface HierarchyBrowsingView
      * <p>An Image will be represented by <code>ImageData</code> objects. </p>
      * 
      * @param imagesID      The id of the images nodes.
-     * @param rootLevel     The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID   The Id of the root.
+     * @param userID		The user's id.
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */

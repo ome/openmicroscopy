@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.ObjectFinder 
+ * org.openmicroscopy.shoola.agents.util.finder.QuickFinderLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,31 +20,29 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.imviewer;
-
-import java.util.List;
-import java.util.Set;
+package org.openmicroscopy.shoola.agents.util.finder;
 
 
 
 //Java imports
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.ImageData;
 
 /** 
- * Searches for tags, images etc.
+ * Searches for tags, images, etc.
  * This class calls <code>searchFor</code> method in the
  * <code>DataHandlerView</code>.
  *
@@ -58,120 +56,85 @@ import pojos.ImageData;
  * </small>
  * @since OME3.0
  */
-public class ObjectFinder 
-	extends DataLoader
+public class QuickFinderLoader
+	extends FinderLoader
 {
-	
-	/** Indicates to search for tags. */
-	public static final int TAGS = 0;
-	
-	/** Indicates to search for images. */
-	public static final int IMAGES = 1;
-	
-	/** Indicates to search for annotations. */
-	public static final int ANNOTATIONS = 2;
 
-	/** The id of the experimenter. */
-	private long		expID;
-	
-	/** One of the constants defined by this class.  */
-	private int			type;
+	/** The scope of the search.  */
+	private Class			type;
 	
 	/** Collection of terms to search for. */
-	private List		values;
+	private List			values;
 	
 	/** Handle to the async call so that we can cancel it. */
-    private CallHandle  handle;
-    
-    /** 
-     * Checks if the passed type is supported.
-     * 
-     * @param value The value to handle.
-     */
-    private void checkType(int value)
-    {
-    	switch (value) {
-			case TAGS:
-			case IMAGES:
-			case ANNOTATIONS:
-				return;
-			default:
-				throw new IllegalArgumentException("Type not supported.");
-		}
-    }
-    
+    private CallHandle  	handle;
+
     /**
      * Creates a new instance.
      * 
-     * @param viewer    The view this loader is for.
+     * @param viewer 	The viewer this data loader is for.
+     *               	Mustn't be <code>null</code>.
+     * @param registry  Convenience reference for subclasses.
      *                  Mustn't be <code>null</code>.
-     * @param expID		The id of the experimenter.
      * @param index		One of the constants defined by this class. 
      * @param values	Collection of terms to search for.
      * @param type		The type of data to search, One of the constants 
      * 					defined by this class.
      */
-    public ObjectFinder(ImViewer viewer, long expID, List values, int type)
+    public QuickFinderLoader(QuickFinder viewer, Registry registry, List values, 
+    						int type)
     {
-    	super(viewer);
-    	checkType(type);
-    	if (values == null || values.size() == 0) return;
-    	this.expID = expID;
-    	this.type = type;
+    	super(viewer, registry);
+    	this.type = checkType(type);
+    	if (values == null || values.size() == 0) 
+    		throw new IllegalArgumentException("No terms to search for.");
     	this.values = values;
     }
     
     /**
      * Searches for values.
-     * @see DataLoader#load()
+     * @see FinderLoader#load()
      */
     public void load()
     {
-    	Class klass = null;
-    	switch (type) {
-	    	case TAGS:
-	    		klass = CategoryData.class;
-	    		break;
-			case IMAGES:
-				klass = ImageData.class;
-	    		break;
-			case ANNOTATIONS:
-				klass = AnnotationData.class;
-		}
-    	handle = dhView.searchFor(klass, expID, values, this);
+    	handle = dhView.searchFor(type, getUserDetails().getId(), values, this);
     }
 
     /**
      * Cancels the ongoing data retrieval.
-     * @see DataLoader#cancel()
+     * @see FinderLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
     
     /** 
      * Feeds the result back to the viewer. 
-     * @see DataLoader#handleResult(Object)
+     * @see FinderLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
-       if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-       EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-       Set set = (Set) result;
-       if (set == null || set.size() == 0) {
-	       	UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-	       	un.notifyInfo("Search", "No results matching your criteria.");
-	       	return;
-       }
-       switch (type) {
-	       	case TAGS:
-	       		bus.post(new Browse(set, Browse.CATEGORIES, 
-	   			viewer.getUserDetails(), viewer.getUI().getBounds()));  
-	       		break;
-	       	case IMAGES:
-	    	case ANNOTATIONS:
-	       		bus.post(new Browse(set, Browse.IMAGES, 
-	   			viewer.getUserDetails(), viewer.getUI().getBounds()));  
-	       		break;
-       }
+    	if (viewer.getState() == Finder.DISCARDED) return;  //Async cancel.
+        EventBus bus = registry.getEventBus();
+        Set set = (Set) result;
+        if (set == null || set.size() == 0) {
+        	UserNotifier un = registry.getUserNotifier();
+        	un.notifyInfo("Search", "No results matching your criteria.");
+        	return;
+        }
+        Browse event = new Browse(set, Browse.IMAGES, getUserDetails(), null); 
+        Iterator i = values.iterator();
+        String s = " for \"";
+        while (i.hasNext()) {
+			s += (String) i.next();
+			s += " ";
+		}
+        s = s.substring(0, s.length()-1);
+        s += "\" in ";
+        if (CategoryData.class.equals(type)) s += "Tags";
+        else if (ImageData.class.equals(type)) s += "Images";
+        else if (AnnotationData.class.equals(type)) s += "Annotations";
+        
+        event.setSearchContext(s);
+		bus.post(event); 
     }
-    
+
 }

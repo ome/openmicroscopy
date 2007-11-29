@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
 //Java imports
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BoxLayout;
@@ -40,10 +39,11 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ClassifyAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
+import org.openmicroscopy.shoola.agents.util.finder.QuickFinder;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 
 /** 
  * Presents the variable drawing controls.
@@ -112,6 +112,10 @@ class ToolBar
 
     /** Box used to present the compression selected. */
     private JComboBox		compressionBox;
+    
+    /** Reference to the finder. */
+    private QuickFinder		finder;
+    
     
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
@@ -189,10 +193,8 @@ class ToolBar
      */
     private JComponent createQuickSearch()
     {
-    	QuickSearch search = new QuickSearch();
-    	search.setDefaultSearchContext();
-    	search.addPropertyChangeListener(controller);
-    	return search;
+    	finder = new QuickFinder(ImViewerAgent.getRegistry());
+    	return finder;
     }
     
     /** Builds and lays out the GUI. */
@@ -241,12 +243,18 @@ class ToolBar
     	
     	//boolean b = view.isImageCompressed();
     	//if (b) {
-    		bar.add(new JSeparator(JSeparator.VERTICAL));
-            bar.add(compressionBox);
-            compressionBox.setSelectedIndex(view.getCompressionLevel());
-            compressionBox.addActionListener(this);
+		bar.add(new JSeparator(JSeparator.VERTICAL));
+		bar.add(compressionBox);
+		compressionBox.setSelectedIndex(view.getCompressionLevel());
+		compressionBox.addActionListener(this);
     	//}
     	buildGUI(); 
+    }
+    
+    /** Cancels any ongoing search. */
+    void discard()
+    {
+    	if (finder != null) finder.cancel();
     }
     
     /** Selects or deselects the {@link #rndButton}. */

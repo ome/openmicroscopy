@@ -33,6 +33,7 @@ import org.openmicroscopy.shoola.agents.util.classifier.view.ClassifierFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 
 /** 
  * Parent of all classes that load data asynchronously for a {@link Classifier}.
@@ -128,8 +129,11 @@ public abstract class ClassifierLoader
      */
     public void handleException(Throwable exc) 
     {
-        String s = "Data Retrieval Failure: ";
-        registry.getLogger().error(this, s+exc);
+    	String s = "Data Retrieval Failure: ";
+        LogMessage msg = new LogMessage();
+        msg.print(s);
+        msg.print(exc);
+        registry.getLogger().error(this, msg);
         registry.getUserNotifier().notifyError("Data Retrieval Failure", 
                                                s, exc);
         viewer.cancel();

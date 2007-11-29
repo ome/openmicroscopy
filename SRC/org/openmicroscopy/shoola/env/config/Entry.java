@@ -213,20 +213,19 @@ abstract class Entry
 		//Store the values of name and type attributes into ntp.
 		for (int i = 0; i < attrList.getLength(); ++i) {
 			attribute = attrList.item(i);
-			if (attribute.getNodeName() == NAME) 
+			if (NAME.equals(attribute.getNodeName())) 
 				ntp.name = attribute.getNodeValue();
-			else if (attribute.getNodeName() == TYPE)  
+			else if (TYPE.equals(attribute.getNodeName()))  
 				ntp.type = attribute.getNodeValue();
 		}
-		
 		//Complain if no name attribute was provided.
 		//TODO: remove this check when we have a proper schema.
 		if (ntp.name == null || ntp.name.length() == 0)
-			throw new ConfigException("Missing name attribute.");
+			throw new ConfigException("Missing name attribute");
 		
 		//Set appropriate default for type if no value was provided.
 		if (ntp.type == null)
-			ntp.type = (tag.getNodeName() == ENTRY ? DEFAULT_ENTRY : 
+			ntp.type = (ENTRY.equals(tag.getNodeName()) ? DEFAULT_ENTRY : 
 						//if not entry tag then must be structuredEntry tag
 							DEFAULT_STRUCT_ENTRY);
 		

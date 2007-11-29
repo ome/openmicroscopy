@@ -37,6 +37,8 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+
 import pojos.ExperimenterData;
 
 /** 
@@ -126,10 +128,12 @@ public abstract class DataTreeViewerLoader
 	public void handleException(Throwable exc) 
 	{
 		String s = "Data Retrieval Failure: ";
-		registry.getLogger().error(this, s+exc);
-		registry.getUserNotifier().notifyError("Data Retrieval Failure", 
-				s, exc);
-		//viewer.setStatus(true);
+        LogMessage msg = new LogMessage();
+        msg.print(s);
+        msg.print(exc);
+        registry.getLogger().error(this, msg);
+        registry.getUserNotifier().notifyError("Data Retrieval Failure", 
+                                               s, exc);
 		viewer.cancel();
 	}
 

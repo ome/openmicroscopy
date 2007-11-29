@@ -233,17 +233,23 @@ public class IconManager
     /** The <code>Search Tag</code> icon. */
     public static final int	SEARCH_TAG = 59;
     
-    /** The <code>Search Tag</code> icon. */
+    /** The <code>Search Image</code> icon. */
     public static final int	SEARCH_IMAGE = 60;
     
-    /** The <code>Search Tag</code> icon. */
+    /** The <code>Search Annotation</code> icon. */
     public static final int	SEARCH_ANNOTATION = 61;
+    
+    /** The <code>Search Dataset</code> icon. */
+    public static final int	SEARCH_DATASET = 62;
+    
+    /** The <code>Search Project</code> icon. */
+    public static final int	SEARCH_PROJECT = 63;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 61;
+    private static int      MAX_ID = 63;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -313,6 +319,8 @@ public class IconManager
         relPaths[SEARCH_TAG] = "search_knotes16.png";
         relPaths[SEARCH_IMAGE] = "search_image16.png";
         relPaths[SEARCH_ANNOTATION] = "search_annotation16.png";
+        relPaths[SEARCH_DATASET] = "search_folder_image16.png";
+        relPaths[SEARCH_PROJECT] = "search_document16.png";
     }
     
     /** 

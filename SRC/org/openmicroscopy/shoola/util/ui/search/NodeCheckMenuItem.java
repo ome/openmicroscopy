@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.search.SearchObject 
+ * org.openmicroscopy.shoola.util.ui.search.NodeCheckMenuItem 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -23,17 +23,15 @@
 package org.openmicroscopy.shoola.util.ui.search;
 
 
-
 //Java imports
-import java.util.List;
-import javax.swing.ImageIcon;
+import javax.swing.JCheckBoxMenuItem;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * Helper class holding information needed for searching.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,74 +43,32 @@ import javax.swing.ImageIcon;
  * </small>
  * @since OME3.0
  */
-public class SearchObject
+class NodeCheckMenuItem	
+	extends JCheckBoxMenuItem
 {
-
-	/** The index associated to this object. */
-	private int 		index;
 	
-	/** The icon associated to this object. */
-	private ImageIcon	icon;
-	
-	/** The description associated to this object. */
-	private String 		description;
-	
-	/** The result if any. */
-	private List		result;
-	
-	/** Creates a new instance when no context defined. */
-	SearchObject()
-	{
-		index = -1;
-	}
+	/** The node to host. */
+	private SearchObject node;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param index			The index associated to this object.
-	 * @param icon			The icon associated to this object.
-	 * @param description	The description associated to this object.
+	 * @param node	The node to host. Mustn't be <code>null</code>.
 	 */
-	public SearchObject(int index, ImageIcon icon, String description)
+	NodeCheckMenuItem(SearchObject node) 
 	{
-		this.index = index;
-		this.icon = icon;
-		this.description = description;
+		if (node == null)
+			throw new IllegalArgumentException("No experimenter.");
+		this.node = node;
+		setIcon(node.getIcon());
+		setText(node.getDescription());
 	}
 	
 	/**
-	 * Sets the result.
-	 * 
-	 * @param result The value to set.
-	 */
-	void setResult(List result) { this.result = result; }
-	
-	/**
-	 * Returns the description.
+	 * Returns the node.
 	 * 
 	 * @return See above.
 	 */
-	String getDescription() { return description; }
-	
-	/**
-	 * Returns the icon.
-	 * 
-	 * @return See above.
-	 */
-	ImageIcon getIcon() { return icon; }
-	
-	/**
-	 * Returns the index.
-	 * 
-	 * @return See above.
-	 */
-	public int getIndex() { return index; }
-	
-	/**
-	 * Returns the result.
-	 * 
-	 * @return See above.
-	 */
-	public List getResult() { return result; }
-	
+	SearchObject getSearchObject() { return node; }
+
 }

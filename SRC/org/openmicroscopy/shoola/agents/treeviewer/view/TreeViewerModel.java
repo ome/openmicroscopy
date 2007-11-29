@@ -42,7 +42,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataObjectUpdater;
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsSaver;
-import org.openmicroscopy.shoola.agents.treeviewer.ObjectFinder;
 import org.openmicroscopy.shoola.agents.treeviewer.RndSettingsSaver;
 import org.openmicroscopy.shoola.agents.treeviewer.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -857,43 +856,4 @@ class TreeViewerModel
 		currentLoader.load();
 	}
 
-	/** 
-	 * Searches for the passed values.
-	 * 
-	 * @param values The value to search for.
-	 */
-	void fireTagsRetrieval(List values)
-	{
-		ObjectFinder loader = new ObjectFinder(component, 
-										getUserDetails().getId(),
-										values, ObjectFinder.TAGS);
-		loader.load();
-	}
-	
-	/** 
-	 * Searches for the passed values.
-	 * 
-	 * @param values The value to search for.
-	 */
-	void fireImagesRetrieval(List values)
-	{
-		ObjectFinder loader = new ObjectFinder(component, 
-										getUserDetails().getId(),
-										values, ObjectFinder.IMAGES);
-		loader.load();
-	}
-	
-	/** 
-	 * Searches for the passed values.
-	 * 
-	 * @param values The value to search for.
-	 */
-	void fireAnnotationsRetrieval(List values)
-	{
-		ObjectFinder loader = new ObjectFinder(component, 
-										getUserDetails().getId(),
-										values, ObjectFinder.ANNOTATIONS);
-		loader.load();
-	}
-	
 }

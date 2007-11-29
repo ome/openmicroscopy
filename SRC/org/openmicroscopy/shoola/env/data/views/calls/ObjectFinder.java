@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.sql.Timestamp;
 import java.util.List;
 
 //Third-party libraries
@@ -34,6 +35,8 @@ import java.util.List;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+
+import pojos.ExperimenterData;
 
 /** 
  * Searches for objects.
@@ -79,6 +82,31 @@ public class ObjectFinder
             }
         };
     }
+    
+    /**
+     * Creates a {@link BatchCall} to retrieve the data
+     * 
+     * @param scope		The scope of the search.
+     * @param values	The terms to search for.
+     * @param users		The users' name.
+     * @param start		The start of a time interval.
+     * @param end		The end of a time interval.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall searchFor(final List<Class> scope, 
+    							final List<String> values, 
+    							final List<ExperimenterData> users, 
+    							final Timestamp start,
+    							final Timestamp end)
+    {
+        return new BatchCall("Retrieving objects") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                result = os.advancedSearchFor(scope, values, users, start, end);
+            }
+        };
+    }
 	
 	/**
      * Adds the {@link #loadCall} to the computation tree.
@@ -95,9 +123,9 @@ public class ObjectFinder
     /**
      * Creates a new instance.
      * 
-     * @param expID	
-     * @param type
-     * @param values
+     * @param type		The scope of the search.
+     * @param expID		The id of the user.
+     * @param values	The terms to search for.
      */
     public ObjectFinder(Class type, long expID, List values)
     {
@@ -105,4 +133,20 @@ public class ObjectFinder
     	loadCall = searchFor(type, values);
     }
 
+    /**
+     * Creates a new instance.
+     * 
+     * @param scope		The scope of the search.
+     * @param values	The terms to search for.
+     * @param users		The users' data.
+     * @param start		The start of a time interval.
+     * @param end		The end of a time interval.
+     */
+    public ObjectFinder(List<Class> scope, List<String> values, 
+    					List<ExperimenterData> users, Timestamp start, 
+    					Timestamp end)
+    {
+    	loadCall = searchFor(scope, values, users, start, end);
+    }
+    
 }

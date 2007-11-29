@@ -41,6 +41,7 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SortByAction;
@@ -56,6 +57,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.saver.ContainerSaver;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -951,6 +953,9 @@ class HiViewerComponent
 	{
 		if (map == null || map.size() != 2) return;
 		Collection failure = (Collection) map.get(Boolean.FALSE);
+		EventBus bus = HiViewerAgent.getRegistry().getEventBus();
+		bus.post(new RndSettingsCopied((Collection) map.get(Boolean.TRUE)));
+		
 		UserNotifier un = HiViewerAgent.getRegistry().getUserNotifier();
 		if (failure.size() == 0) {
 			un.notifyInfo("Paste settings", "Rendering settings have been " +
@@ -973,6 +978,16 @@ class HiViewerComponent
 			un.notifyInfo("Paste settings", "Rendering settings couldn't be " +
 							"applied to the following images: \n"+s);
 		}
+	}
+
+	/**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#setSearchResult(String)
+     */
+	public void setSearchResult(String searchContext)
+	{
+		model.setSearchResult(searchContext);
+		
 	}
 	
 }

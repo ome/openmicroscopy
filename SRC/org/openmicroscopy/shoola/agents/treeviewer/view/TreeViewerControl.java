@@ -86,9 +86,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.UserManagerDialog;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
-import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
-import org.openmicroscopy.shoola.util.ui.search.SearchObject;
-
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -617,10 +614,6 @@ class TreeViewerControl
 				model.setHierarchyRoot(groupID, d);
 				break;
 			}
-		} else if (QuickSearch.TAG_SEARCH_PROPERTY.equals(name)) {
-			SearchObject node = (SearchObject) pce.getNewValue();
-			if (node == null) return;
-			view.searchFor(node);
 		}
 	}
 

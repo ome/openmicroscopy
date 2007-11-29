@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 
 /** 
 * Implementation of the {@link DataHandlerView} implementation.
@@ -403,6 +404,19 @@ public class DataHandlerViewImpl
 					AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ObjectFinder(type, userID, values);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataHandlerView#advancedSearchFor(List, List, List, Timestamp, 
+	 * 									Timestamp, AgentEventListener)
+	 */
+	public CallHandle advancedSearchFor(List<Class> scope, List<String> values, 
+			List<ExperimenterData> users, Timestamp start, Timestamp end,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ObjectFinder(scope, values, users, start, end);
 		return cmd.exec(observer);
 	}
 

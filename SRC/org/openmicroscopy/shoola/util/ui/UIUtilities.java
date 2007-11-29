@@ -90,21 +90,24 @@ import javax.swing.text.StyledDocument;
 public class UIUtilities
 {
 	
+	/** A day in milliseconds. */
+	public static final long				DAY = 86400000;
+	
 	/** Unicode for the degrees symbol. */
-	public final static String 	DEGREES_SYMBOL = "\u00B0";
+	public final static String 				DEGREES_SYMBOL = "\u00B0";
 	
 	
 	/** Unicode for the microns symbol. */
-	public final static String  MICRONS_SYMBOL = "\u00B5m";
+	public final static String  			MICRONS_SYMBOL = "\u00B5m";
 
 	/** Unicode for the squared symbol. */
-	public final static String  SQUARED_SYMBOL =  "\u00B2";
+	public final static String  			SQUARED_SYMBOL =  "\u00B2";
 	
 	/** Unicode for the squared symbol. */
-	public final static String  DELTA_SYMBOL =  "\u0394";
+	public final static String  			DELTA_SYMBOL =  "\u0394";
 	
 	/** Pixels string. */
-	public final static String  PIXELS_SYMBOL = "px";
+	public final static String  			PIXELS_SYMBOL = "px";
 	
     /** String to representing the nanometer symbol. */
     public static final String              NANOMETER = " \u00B5m";

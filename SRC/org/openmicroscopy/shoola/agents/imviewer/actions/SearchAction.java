@@ -26,16 +26,16 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-
 import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 
 
 /** 
@@ -82,7 +82,8 @@ public class SearchAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        SearchComponent dialog = new SearchComponent(model.getUI());
+    	AdvancedFinder dialog = new AdvancedFinder(model.getUI(),
+    			ImViewerAgent.getRegistry());
         UIUtilities.centerAndShow(dialog);
     }
     

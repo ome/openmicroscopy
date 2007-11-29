@@ -86,38 +86,37 @@ public class HiViewerAgent
 			case Browse.IMAGES:
 	            viewer = HiViewerFactory.getImagesViewer(evt.getObjectIDs(), 
 	                evt.getExperimenter());
-	            if (viewer != null) viewer.activate(evt.getRequesterBounds());
+	           
 				break;
 			case Browse.DATASETS:
 				viewer = HiViewerFactory.getDatasetsViewer(evt.getObjectIDs(), 
 						evt.getExperimenter());
-		        if (viewer != null) viewer.activate(evt.getRequesterBounds());
 				break;
 			case Browse.CATEGORIES:
 				viewer = HiViewerFactory.getCategoriesViewer(evt.getObjectIDs(), 
 						evt.getExperimenter());
-		        if (viewer != null) viewer.activate(evt.getRequesterBounds());
 				break;
 			case Browse.PROJECTS:
 				viewer = HiViewerFactory.getProjectsViewer(evt.getObjectIDs(), 
 						evt.getExperimenter());
-		        if (viewer != null) viewer.activate(evt.getRequesterBounds());
 				break;
 			case Browse.CATEGORY_GROUPS:
 				viewer = HiViewerFactory.getCategoryGroupsViewer(
 									evt.getObjectIDs(), evt.getExperimenter());
-		        if (viewer != null) viewer.activate(evt.getRequesterBounds());
 				break;
 			case Browse.IMAGE_PER_DATE:
 				viewer = HiViewerFactory.getImagePerDateViewer(
 						evt.getTimeRefObject(), evt.getExperimenter());
-				if (viewer != null) viewer.activate(evt.getRequesterBounds());
 				break;
 			default:
 				browse(evt.getEventIndex(), evt.getHierarchyObjectID(),
 						evt.getExperimenter(), evt.getRequesterBounds());
 				break;
 		}
+        if (viewer != null) {
+        	viewer.setSearchResult(evt.getSearchContext());
+        	viewer.activate(evt.getRequesterBounds());
+        }
     }
     
     /**
@@ -211,6 +210,7 @@ public class HiViewerAgent
                 break;
             case Browse.CATEGORY:
                 viewer = HiViewerFactory.getCategoryViewer(id, exp);  
+                break;
             case Browse.IMAGE_TO_CATEGORIES:
             	viewer = HiViewerFactory.getImageToCategoriesViewer(id, exp);  
         }

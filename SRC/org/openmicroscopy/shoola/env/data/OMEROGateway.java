@@ -57,7 +57,9 @@ import ome.api.RawPixelsStore;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
+import ome.model.ILink;
 import ome.model.IObject;
+import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
@@ -169,26 +171,20 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Throwable cause = t.getCause();
-		t.printStackTrace();
 		if (cause instanceof SecurityException) {
 			String s = "Cannot access data for security reasons \n"; 
-			throw new DSAccessException(s+message+"\n\n"+
-					printErrorText(cause));
+			throw new DSAccessException(s+message, t);
 		} else if (cause instanceof EJBAccessException) {
 			String s = "Cannot access data for security reasons \n"; 
-			throw new DSAccessException(s+message+"\n\n"+
-					printErrorText(cause));
+			throw new DSAccessException(s+message, t);
 		} else if (cause instanceof ApiUsageException) {
 			String s = "Cannot access data, specified parameters not valid \n"; 
-			throw new DSAccessException(s+message+"\n\n"+
-					printErrorText(cause));
+			throw new DSAccessException(s+message, t);
 		} else if (cause instanceof ValidationException) {
 			String s = "Cannot access data, specified parameters not valid \n"; 
-			throw new DSAccessException(s+message+"\n\n"+
-					printErrorText(cause));
+			throw new DSAccessException(s+message, t);
 		} else 
-			throw new DSOutOfServiceException(message+"\n\n"+
-					printErrorText(cause));
+			throw new DSOutOfServiceException(message, t);
 	}
 
 	/**
@@ -250,12 +246,12 @@ class OMEROGateway
 	private String mapAlgorithmToString(int algorithm)
 	{
 		switch (algorithm) {
-		case OmeroDataService.CLASSIFICATION_ME:
-			return IPojos.CLASSIFICATION_ME;
-		case OmeroDataService.CLASSIFICATION_NME:
-			return IPojos.CLASSIFICATION_NME;
-		case OmeroDataService.DECLASSIFICATION:
-			return IPojos.DECLASSIFICATION;
+			case OmeroDataService.CLASSIFICATION_ME:
+				return IPojos.CLASSIFICATION_ME;
+			case OmeroDataService.CLASSIFICATION_NME:
+				return IPojos.CLASSIFICATION_NME;
+			case OmeroDataService.DECLASSIFICATION:
+				return IPojos.DECLASSIFICATION;
 		}
 		throw new IllegalArgumentException("Algorithm not valid.");
 	}
@@ -531,7 +527,7 @@ class OMEROGateway
 			return data;
 		} catch (Exception e) {
 			throw new DSOutOfServiceException("Cannot retrieve user's data " +
-					printErrorText(e));
+					printErrorText(e), e);
 		}
 	}
 
@@ -559,7 +555,7 @@ class OMEROGateway
 			entry = new ServiceFactory(server, new Login(userName, password)); 
 			connected = true;
 			return getUserDetails(userName);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			connected = false;
 			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
 			s += printErrorText(e);
@@ -725,7 +721,7 @@ class OMEROGateway
 	 * @see IPojos#findCGCPaths(Set, String, Map)
 	 */
 	Set findCGCPaths(Set imgIDs, int algorithm, Map options)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			IPojos service = getPojosService();
@@ -756,12 +752,12 @@ class OMEROGateway
 	 * @see IPojos#getImages(Class, Set, Map)
 	 */
 	Set getContainerImages(Class nodeType, Set nodeIDs, Map options)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			IPojos service = getPojosService();
 			return PojoMapper.asDataObjects(
-					service.getImages(convertPojos(nodeType), nodeIDs, options));
+				 service.getImages(convertPojos(nodeType), nodeIDs, options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot find images for "+nodeType+".");
 		}
@@ -781,7 +777,7 @@ class OMEROGateway
 	 * @see IPojos#getUserImages(Map)
 	 */
 	Set getUserImages(Map options)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			IPojos service = getPojosService();
@@ -811,7 +807,7 @@ class OMEROGateway
 	 */
 	Map getCollectionCount(Class rootNodeType, String property, Set rootNodeIDs,
 			Map options)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			IPojos service = getPojosService();
@@ -838,7 +834,7 @@ class OMEROGateway
 	 * @see IPojos#createDataObject(IObject, Map)
 	 */
 	IObject createObject(IObject object, Map options)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			IPojos service = getPojosService();
@@ -861,7 +857,7 @@ class OMEROGateway
 	 * @see IPojos#createDataObjects(IObject[], Map)
 	 */
 	IObject[] createObjects(IObject[] objects, Map options)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			IPojos service = getPojosService();
@@ -883,7 +879,7 @@ class OMEROGateway
 	 * @see IUpdate#deleteObject(IObject)
 	 */
 	void deleteObject(IObject object)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			IUpdate service = getUpdateService();
@@ -903,7 +899,7 @@ class OMEROGateway
 	 * @see IUpdate#deleteObject(IObject) 
 	 */
 	void deleteObjects(IObject[] objects)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			//IPojos service = getIPojosService();
@@ -928,7 +924,7 @@ class OMEROGateway
 	 * @see IPojos#updateDataObject(IObject, Map)
 	 */
 	IObject updateObject(IObject object, Map options)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			IPojos service = getPojosService();
@@ -952,7 +948,7 @@ class OMEROGateway
 	 * @see IPojos#updateDataObjects(IObject[], Map) 
 	 */
 	IObject[] updateObjects(IObject[] objects, Map options)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			IPojos service = getPojosService();
@@ -973,7 +969,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 */
 	PixelsDimensions getPixelsDimensions(long pixelsID)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			IQuery service = getQueryService();
@@ -997,7 +993,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 */
 	Pixels getPixels(long pixelsID)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			IQuery service = getQueryService();
@@ -1058,7 +1054,7 @@ class OMEROGateway
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	synchronized byte[] getThumbnail(long pixelsID, int sizeX, int sizeY)
-	throws RenderingServiceException, DSOutOfServiceException
+		throws RenderingServiceException, DSOutOfServiceException
 	{
 		try {
 			ThumbnailStore service = getThumbService();
@@ -1071,8 +1067,7 @@ class OMEROGateway
 			if (t instanceof EJBException || 
 					t.getCause() instanceof IllegalStateException) {
 				throw new DSOutOfServiceException(
-						"Thumbnail service null for pixelsID: "+pixelsID+"\n\n"+
-						printErrorText(t));
+						"Thumbnail service null for pixelsID: "+pixelsID, t);
 			}
 			throw new RenderingServiceException("Cannot get thumbnail", t);
 		}
@@ -1102,8 +1097,7 @@ class OMEROGateway
 			if (t instanceof EJBException || 
 					t.getCause() instanceof IllegalStateException) {
 				throw new DSOutOfServiceException(
-						"Thumbnail service null for pixelsID: "+pixelsID+"\n\n"+
-						printErrorText(t));
+						"Thumbnail service null for pixelsID: "+pixelsID, t);
 			}
 			throw new RenderingServiceException("Cannot get thumbnail", t);
 		}
@@ -1144,7 +1138,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 */
 	IObject findLink(IObject parent, IObject child)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			String table = getTableForLink(parent.getClass());
@@ -1269,7 +1263,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 */
 	IObject findIObject(IObject o)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			IQuery service = getQueryService();
@@ -1312,7 +1306,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 */
 	Map<GroupData, Set> getAvailableGroups()
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			IAdmin service = getAdminService();
@@ -1331,7 +1325,6 @@ class OMEROGateway
 					pojos.put((GroupData) pojoGroup, 
 							PojoMapper.asDataObjects(experimenters));
 				}
-
 			}
 			return pojos;
 		} catch (Throwable t) {
@@ -1351,7 +1344,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 */
 	Map<Integer, List> getArchivedFiles(String path, long pixelsID) 
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 
 		IQuery service = getQueryService();
@@ -1377,11 +1370,12 @@ class OMEROGateway
 		int offset = 0;
 		File f;
 		List<String> notDownloaded = new ArrayList<String>();
+		String fullPath;
 		while (i.hasNext()) {
 			of = (OriginalFile) i.next();
 			store.setFileId(of.getId()); 
-			f = new File(path+of.getName());
-			//TODO: review that code
+			fullPath = path+of.getName();
+			f = new File(fullPath);
 			try {
 				stream = new FileOutputStream(f);
 				size = of.getSize().intValue(); 
@@ -1403,7 +1397,8 @@ class OMEROGateway
 			} catch (IOException e) {
 				if (f != null) f.delete();
 				notDownloaded.add(of.getName());
-				throw new DSAccessException("Cannot create the file", e);
+				throw new DSAccessException("Cannot create file with " +
+						"file path: "+fullPath, e);
 			}
 		}
 		result.put(files.size(), notDownloaded);
@@ -1420,7 +1415,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 */
 	void changePassword(String userName, String password)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		IAdmin service = getAdminService();
 		try {
@@ -1440,7 +1435,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 */
 	void updateExperimenter(Experimenter exp) 
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		IAdmin service = getAdminService();
 		try {
@@ -1489,7 +1484,7 @@ class OMEROGateway
 	 *                                  retrieve data from OMEDS service.
 	 */
 	long getFreeSpace()
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		IRepositoryInfo service = getRepositoryService();
 		try {
@@ -1511,7 +1506,7 @@ class OMEROGateway
 	 *                                  retrieve data from OMEDS service.
 	 */
 	long getUsedSpace()
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		IRepositoryInfo service = getRepositoryService();
 		try {
@@ -1535,7 +1530,7 @@ class OMEROGateway
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List getImagesBefore(Timestamp time, long userID)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			String sql = "from Image as i where i.details.owner.id = :userID " +
@@ -1660,9 +1655,7 @@ class OMEROGateway
 		try {
 			String sql = "select i from Image as i left outer join fetch " +
 			"i.details.creationEvent as c "+
-			"where i.details.owner.id = :userID " +
-			"and i.details.creationEvent.time < :time and "+
-			"i.details.creationEvent.time > :lowerTime";
+			"where c.id = :userID and c.time < :time and c.time > :lowerTime";
 			IQuery service = getQueryService();
 			Parameters param = new Parameters();
 			param.addLong("userID", userID);
@@ -1927,25 +1920,312 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			//TODO modify the call 
 			IQuery service = getQueryService();
 			Parameters param = new Parameters();
 			param.addString("name", "%"+term.toLowerCase()+"%");
 			String sql;
+			String table;
 			if (ImageAnnotation.class.equals(klass)) {
-				sql =  "select obj from ImageAnnotation as obj " 
+				sql = "select obj from ImageAnnotation as obj " 
                 + "where lower(obj.content) like :name";
 				return service.findAllByQuery(sql, param);
+			} else if (DatasetAnnotation.class.equals(klass)) {
+				sql = "select obj from DatasetAnnotation as obj " 
+	                + "where lower(obj.content) like :name";
+					return service.findAllByQuery(sql, param);
+			} else if (CategoryData.class.equals(klass)) {
+				table = getTableForLink(Category.class);
+				sql = "select link from "+table+" as link where " +
+				"lower(link.parent.name) like :name or " +
+	             "lower(link.parent.description) like :name";
+				return service.findAllByQuery(sql, param);
+			} else if (ImageData.class.equals(klass)) {
+				sql =  "select obj from Image as obj " 
+            	+ "where lower(obj.name) like :name or " +
+            		"lower(obj.description) like :name";
+				return service.findAllByQuery(sql, param);
+			} else if (CategoryGroupData.class.equals(klass)) {
+				table = getTableForLink(CategoryGroup.class);
+				sql = "select link from "+table+" as link " +
+						"where lower(link.parent.name) like :name or " +
+						"lower(link.parent.description) like :name";
+				List l = service.findAllByQuery(sql, param);
+				if (l != null && l.size() > 0) {
+					Iterator i = l.iterator();
+					Set ids = new HashSet();
+					while (i.hasNext()) {
+						ids.add(((ILink) i.next()).getChild().getId());
+					}
+					table = getTableForLink(Category.class);
+					sql = "select link from "+table+" as link where " +
+					"link.parent.id in (:parentIDs)";
+					param = new Parameters();
+					param.addSet("parentIDs", ids);
+					return service.findAllByQuery(sql, param);
+				}
 			}
-			String table = getTableForClass(klass);
-			sql =  "select obj from "+table+" as obj " 
-                	+ "where lower(obj.name) like :name or " +
-                		"lower(obj.description) like :name";
-			
-			return service.findAllByQuery(sql, param);
+			return null;
 		} catch (Exception e) {
 			handleException(e, "Search not valid");
 		}
 		return null;
+	}
+
+	/**
+	 * Searches for the categories whose name contains the passed term.
+	 * Returns a collection of objects.
+	 * 
+	 * @param type 	The class identify the object to search for.
+	 * @param terms	The terms to search for.
+	 * @param start	The start value of a time interval.
+	 * @param end	The end value of a time interval.
+	 * @return See above.
+	 *  @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List searchFor(Class type, List<String> terms, Timestamp start, 
+					Timestamp end)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		IQuery service = getQueryService();
+		Parameters param = new Parameters();
+		Iterator i = terms.iterator();
+		String term;
+		String[] names = new String[terms.size()];
+		int index = 0;
+		while (i.hasNext()) {
+			term = (String)  i.next();
+			if (term != null) {
+				names[index] = "name"+index;
+				if (CategoryData.class.equals(type) ||
+						CategoryGroupData.class.equals(type)) {
+					param.addString(names[index], term.toLowerCase());
+				} else
+					param.addString(names[index], "%"+term.toLowerCase()+"%");
+				index++;
+			}
+		}
+		try {
+			String sql = createSearchQuery(type, names);
+			if (start != null && end != null) {
+				sql += " and d.time > :startTime and d.time < :endTime";
+				param.add(new QueryParameter("startTime", Timestamp.class, 
+						start));
+				param.add(new QueryParameter("endTime", Timestamp.class, end));
+			} else if (start == null && end != null) {
+				sql += " and (d.time < :endTime)";
+				param.add(new QueryParameter("endTime", Timestamp.class, end));
+			} else if (start != null && end == null) {
+				sql += " and d.time > :startTime";
+				param.add(new QueryParameter("startTime", Timestamp.class, 
+						start));
+			}
+			
+			String table;
+			if (sql == null) return null;
+			if (CategoryGroupData.class.equals(type)) {
+				List l = service.findAllByQuery(sql, param);
+				if (l != null && l.size() > 0) {
+					i = l.iterator();
+					Set ids = new HashSet();
+					while (i.hasNext()) {
+						ids.add(((ILink) i.next()).getChild().getId());
+					}
+					table = getTableForLink(Category.class);
+					sql = "select link from "+table+" as link where " +
+					"link.parent.id in (:parentIDs)";
+					param = new Parameters();
+					param.addSet("parentIDs", ids);
+					return service.findAllByQuery(sql, param);
+				}
+			}
+			return service.findAllByQuery(sql, param);
+			
+		} catch (Exception e) {
+			handleException(e, "Search not valid");
+		}
+		return null;
+	}
+	
+	/**
+	 * Searches for the categories whose name contains the passed term.
+	 * Returns a collection of objects.
+	 * 
+	 * @param type The class identify the object to search for.
+	 * @param terms	The terms to search for.
+	 * @return See above.
+	 *  @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List searchFor(Class type, List<String> terms, Timestamp start, 
+					Timestamp end, List<ExperimenterData> users)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		IQuery service = getQueryService();
+		Parameters param = new Parameters();
+		Iterator i = terms.iterator();
+		String term;
+		String[] names = new String[terms.size()];
+		int index = 0;
+		while (i.hasNext()) {
+			term = (String)  i.next();
+			if (term != null) {
+				names[index] = "name"+index;
+				if (CategoryData.class.equals(type)) {
+					param.addString(names[index], term.toLowerCase()
+							);
+				} else
+				param.addString(names[index], "%"+term.toLowerCase()+"%");
+				index++;
+			}
+		}
+		
+		try {
+			String sql = createSearchQuery(type, names);
+			if (start != null && end != null) {
+				sql += " and d.time > :startTime and d.time < :endTime";
+				param.add(new QueryParameter("startTime", Timestamp.class, 
+						start));
+				param.add(new QueryParameter("endTime", Timestamp.class, end));
+			} else if (start == null && end != null) {
+				sql += " and d.time < :endTime";
+				param.add(new QueryParameter("endTime", Timestamp.class, end));
+			} else if (start != null && end == null) {
+				sql += " and d.time > :startTime";
+				param.add(new QueryParameter("startTime", Timestamp.class, 
+						start));
+			}
+			Set<Long> ids = null;
+			if (users != null && users.size() > 0) {
+				//retrieve users
+				Parameters p = new Parameters();
+				i = users.iterator();
+				String query = "select e from Experimenter e where ";
+				index = 0;
+				ExperimenterData exp;
+				String firstName, lastName;
+				boolean added = false;
+				while (i.hasNext()) {
+					exp = (ExperimenterData) i.next();
+					firstName = exp.getFirstName();
+					lastName = exp.getLastName();
+					if (index != 0) query += " or ";
+					if (firstName != null && firstName.length() != 0) {
+						added = true;
+						p.addString("userFirstName"+index, 
+								firstName.toLowerCase());
+						query +=  "lower(e.firstName) = :userFirstName"+index;
+					}
+					if (lastName != null && lastName.length() != 0) {
+						p.addString("userLastName"+index, 
+								lastName.toLowerCase());
+						if (added) query += " and ";
+						query +=  "lower(e.lastName) = :userLastName"+index;
+					}	
+					added = false;
+					index++;
+				}
+				List r = service.findAllByQuery(query, p);
+				if (r != null) {
+					ids = new HashSet<Long>();
+					i = r.iterator();
+					long id;
+					while (i.hasNext()) {
+						id = ((IObject) i.next()).getId();
+						ids.add(id);
+					}
+				}
+			}
+			if (ids != null) {
+				param.addSet("userids", ids);
+				sql += " and obj.details.owner.id in (:userids)";
+			}
+			String table;
+			if (sql == null) return null;
+			if (CategoryGroupData.class.equals(type)) {
+				List l = service.findAllByQuery(sql, param);
+				if (l != null && l.size() > 0) {
+					i = l.iterator();
+					ids = new HashSet<Long>();
+					while (i.hasNext()) {
+						ids.add(((ILink) i.next()).getChild().getId());
+					}
+					table = getTableForLink(Category.class);
+					sql = "select object from "+table+" as object where " +
+					"object.parent.id in (:parentIDs)";
+					param = new Parameters();
+					param.addSet("parentIDs", ids);
+					return service.findAllByQuery(sql, param);
+				}
+			}
+			return service.findAllByQuery(sql, param);
+			
+		} catch (Exception e) {
+			handleException(e, "Search not valid");
+		}
+		return null;
+	}
+	
+	private String createSearchQuery(Class type, String[] names)
+	{
+		String sql = null;
+		String table;
+		if (ImageAnnotation.class.equals(type)) {
+			sql = "select obj from ImageAnnotation as obj " +
+					"left outer join fetch obj.details.creationEvent as d" +
+					"where ";
+			for (int j = 0; j < names.length; j++) {
+				if (j != 0) sql += " or ";
+				sql += "lower(obj.content) like :"+names[j];
+			}
+		} else if (DatasetAnnotation.class.equals(type)) {
+			sql = "select obj from DatasetAnnotation as obj " +
+			"left outer join fetch obj.details.creationEvent as d" +
+			"where ";
+			for (int j = 0; j < names.length; j++) {
+				if (j != 0) sql += " or ";
+				sql += "lower(obj.content) like :"+names[j];
+			}
+		} else if (CategoryData.class.equals(type)) {
+			table = getTableForLink(Category.class);
+			sql = "select obj from "+table+" as obj " +
+					"left outer join fetch obj.details.creationEvent " +
+					"as d " +
+					"where ";
+			//"lower(link.parent.name) like :name or " +
+            // "lower(link.parent.description) like :name";
+			for (int j = 0; j < names.length; j++) {
+				if (j != 0) sql += " or ";
+				sql += "lower(obj.parent.name) = :"+names[j];
+			}
+		} else if (ImageData.class.equals(type)) {
+			sql =  "select obj from Image as obj left outer join fetch " +
+					"obj.details.creationEvent as d where ";
+        	//+ "where lower(obj.name) like :name or " +
+        	//	"lower(obj.description) like :name";
+			for (int j = 0; j < names.length; j++) {
+				if (j != 0) sql += " or ";
+				sql += "lower(obj.name) like :"+names[j];
+			}
+		} else if (CategoryGroupData.class.equals(type)) {
+			table = getTableForLink(CategoryGroup.class);
+			sql = "select obj from "+table+" as obj left outer join fetch " +
+					"obj.details.creationEvent " +
+					"as d where ";
+					//"where lower(link.parent.name) like :name or " +
+					//"lower(link.parent.description) like :name";
+			for (int j = 0; j < names.length; j++) {
+				if (j != 0) sql += " or ";
+				sql += "lower(obj.parent.name) like :"+names[j];
+			}
+		}
+		//sql += ")";
+		return sql;
 	}
 	
 }

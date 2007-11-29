@@ -47,7 +47,6 @@ import org.openmicroscopy.shoola.agents.imviewer.CategoryLoader;
 import org.openmicroscopy.shoola.agents.imviewer.CategorySaver;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-import org.openmicroscopy.shoola.agents.imviewer.ObjectFinder;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
@@ -1129,45 +1128,6 @@ class ImViewerModel
 		currentLoader = new CategoryLoader(component, imageID, 
 				getUserDetails().getId());
 		currentLoader.load();
-	}
-
-	/** 
-	 * Searches for the passed values.
-	 * 
-	 * @param values The value to search for.
-	 */
-	void fireTagsRetrieval(List values)
-	{
-		ObjectFinder loader = new ObjectFinder(component, 
-										getUserDetails().getId(),
-										values, ObjectFinder.TAGS);
-		loader.load();
-	}
-	
-	/** 
-	 * Searches for the passed values.
-	 * 
-	 * @param values The value to search for.
-	 */
-	void fireImagesRetrieval(List values)
-	{
-		ObjectFinder loader = new ObjectFinder(component, 
-										getUserDetails().getId(),
-										values, ObjectFinder.IMAGES);
-		loader.load();
-	}
-	
-	/** 
-	 * Searches for the passed values.
-	 * 
-	 * @param values The value to search for.
-	 */
-	void fireAnnotationsRetrieval(List values)
-	{
-		ObjectFinder loader = new ObjectFinder(component, 
-											getUserDetails().getId(),
-											values, ObjectFinder.ANNOTATIONS);
-		loader.load();
 	}
 	
 	/**

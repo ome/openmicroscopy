@@ -35,6 +35,7 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -481,7 +482,17 @@ class HiViewerWin
     String getViewTitle()
     {
         Set roots = model.getBrowser().getRootNodes();
-        Iterator i = roots.iterator();
+        if (model.isSearchResult()) {
+        	int n = roots.size();
+        	String s = n+" occurence";
+        	if (n > 1)
+        		s += "s found";
+        	else s +=" found";
+        	s += model.getSearchResult();
+        	return s;
+        }
+        List r = model.getSorter().sort(roots);
+        Iterator i = r.iterator();
         StringBuffer buf = new StringBuffer();
         String title = "";
         while (i.hasNext()) {

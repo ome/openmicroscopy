@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 
 /** 
 * Provides methods to support annotation.
@@ -449,14 +450,29 @@ public interface DataHandlerView
 	/**
 	 * Retrieves the objects identified by the passed values and type.
 	 * 
-	 * @param type		One of the following types: AnnotationData, CategoryData
+	 * @param scope		One of the following types: AnnotationData, CategoryData
 	 * 					or ImageData.
 	 * @param userID	The user's id.
 	 * @param values	The terms to find.
 	 * @param observer	Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle searchFor(Class type, long userID, List values, 
+	public CallHandle searchFor(Class scope, long userID, List values, 
 												AgentEventListener observer);
+	
+	/**
+	 * Retrieves the objects specified by the context of the search.
+	 * 
+	 * @param scope		The scope of the search.
+	 * @param values	The terms to find.
+	 * @param users		The users' data.
+	 * @param start		The start of the time interval.
+	 * @param end		The end of the time interval.
+	 * @param observer	Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle advancedSearchFor(List<Class> scope, List<String> values, 
+			List<ExperimenterData> users, Timestamp start, Timestamp end,
+			AgentEventListener observer);
 	
 }

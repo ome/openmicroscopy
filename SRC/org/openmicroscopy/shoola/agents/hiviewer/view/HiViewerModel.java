@@ -130,6 +130,9 @@ abstract class HiViewerModel
     /** Reference to the component handling data. */
     private DataHandler			dataHandler;
     
+    /** The context of the search if any. */
+    private String				searchResult;
+    
     /** Reference to the component that embeds this model. */
     protected HiViewer          component;
     
@@ -238,9 +241,11 @@ abstract class HiViewerModel
     	long userID = getUserDetails().getId();
     	if (flat) 
     		visTrees = HiTranslator.transformImages(roots, userID, userGroupID);
-    	else 
+    	else
     		visTrees = HiTranslator.transformHierarchy(roots, userID, 
-    					userGroupID);
+    								userGroupID);
+
+    		
     	int layoutIndex = browser.getSelectedLayout();
     	//TODO: Identifies the location of the nodes and pass it to 
     	Layout layout = LayoutFactory.createLayout(layoutIndex, sorter);
@@ -302,7 +307,8 @@ abstract class HiViewerModel
         	visTrees = HiTranslator.transformImages(roots, userID, userGroupID);
         else 
         	visTrees = HiTranslator.transformHierarchy(roots, userID, 
-        											userGroupID);
+					userGroupID);
+        	
         //Make the browser.
         browser = BrowserFactory.createBrowser(visTrees);
         
@@ -671,6 +677,33 @@ abstract class HiViewerModel
 	{
 		currentLoader = new RndSettingsSaver(component, klass, nodesID);
 		currentLoader.load();
+	}
+	
+	/**
+     * Sets the context of the search if any.
+     * 
+     * @param searchResult The value to set.
+     */
+	void setSearchResult(String searchResult)
+	{
+		this.searchResult = searchResult;
+	}
+	
+	/** 
+	 * Returns the context of th search.
+	 * 
+	 * @return See above.
+	 */
+	String getSearchResult() { return searchResult; }
+	
+	/**
+     * Returns the context of the search if any.
+     * 
+     * @return See above.
+     */
+	boolean isSearchResult()
+	{ 
+		return (searchResult != null && searchResult.length() > 0); 
 	}
 	
     /**

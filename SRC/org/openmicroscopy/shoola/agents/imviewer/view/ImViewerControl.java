@@ -98,10 +98,7 @@ import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
-import org.openmicroscopy.shoola.util.ui.search.SearchObject;
-import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
-
 import pojos.ExperimenterData;
 
 
@@ -827,10 +824,6 @@ class ImViewerControl
 			if (pref == null) pref = new ViewerPreferences();
 			pref.setSelectedFields(map);
 			ImViewerFactory.setPreferences(pref);
-		} else if (QuickSearch.TAG_SEARCH_PROPERTY.equals(propName)) {
-			SearchObject node = (SearchObject) pce.getNewValue();
-			if (node == null) return;
-			view.searchFor(node);
 		} else if (UsersPopupMenu.USER_RNDSETTINGS_PROPERTY.equals(propName)) {
 			ExperimenterData exp = (ExperimenterData) pce.getNewValue();
 			model.setUserRndSettings(exp);

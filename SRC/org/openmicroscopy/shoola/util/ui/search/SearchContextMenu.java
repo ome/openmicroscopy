@@ -29,9 +29,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.Icon;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
 
@@ -40,7 +37,7 @@ import javax.swing.JPopupMenu;
 //Application-internal dependencies
 
 /** 
- * 
+ * Popup menu displaying the possible context of a search.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,37 +54,82 @@ class SearchContextMenu
 	implements ActionListener
 {
 
+	/** Bound property indicating that a new item is selected. */
 	static final String SEARCH_CONTEXT_PROPERTY = "searchContext";
 	
 	/** The width of the component. */
-    private int	width;
+    private int			width;
 
-    private void buildGUI(List<SearchObject> nodes)
+    /** The type of node to create. */
+    private Class 		type;
+    
+    /**
+     * Builds and lays out the UI.
+     * 
+     * @param nodes 		The context nodes to lay out.
+     * @param selectedNode 	The default selected node.
+     */
+    private void buildGUI(List<SearchObject> nodes, SearchObject selectedNode)
     {
     	Iterator i = nodes.iterator();
-		JMenuItem uiNode;
-    	SearchObject node;
-		Icon icon = null;
-		int j = 0;
-		JPanel menu = new JPanel();
-		menu.setOpaque(!menu.isOpaque());
-		while (i.hasNext()) {
-			node = (SearchObject) i.next();
-			uiNode = new NodeMenuItem(node);
-			uiNode.addActionListener(this);
-			add(uiNode);
+		
+		SearchObject node;
+		if (type.equals(NodeCheckMenuItem.class)) {
+			NodeCheckMenuItem uiNode;
+			int index = -1;
+			if (selectedNode != null) index = selectedNode.getIndex();
+			while (i.hasNext()) {
+				node = (SearchObject) i.next();
+				uiNode = new NodeCheckMenuItem(node);
+				if (node.getIndex() == index)
+					uiNode.setSelected(true);
+				uiNode.addActionListener(this);
+				add(uiNode);
+			}
+		} else {
+			NodeMenuItem uiNode;
+			while (i.hasNext()) {
+				node = (SearchObject) i.next();
+				uiNode = new NodeMenuItem(node);
+				uiNode.addActionListener(this);
+				add(uiNode);
+			}
 		}
 		int  height =  getFontMetrics(getFont()).getHeight()*nodes.size()+10;
         setPopupSize(new Dimension(width, height));
     }
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param nodes The context nodes.
+     * @param width	The popup width.
+     */
     SearchContextMenu(List<SearchObject> nodes, int width)
     {
-    	this.width = width;
-    	buildGUI(nodes);
+    	this(nodes, width, NodeMenuItem.class, null);
     }
 
-	
+    /**
+     * Creates a new instance.
+     * 
+     * @param nodes 		The context nodes.
+     * @param width			The popup width.
+     * @param type			The type of item to create.
+     * @param selectedNode 	The default selected node.
+     */
+    SearchContextMenu(List<SearchObject> nodes, int width, Class type,
+    		SearchObject selectedNode)
+    {
+    	this.type = type;
+    	this.width = width;
+    	buildGUI(nodes, selectedNode);
+    }
+    
+	/**
+	 * Fires a property change when a new menu item is selected.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
 	public void actionPerformed(ActionEvent e)
 	{
 		Object src = e.getSource();
@@ -95,38 +137,11 @@ class SearchContextMenu
 			NodeMenuItem item = (NodeMenuItem) src;
 			firePropertyChange(SEARCH_CONTEXT_PROPERTY, null, 
 								item.getSearchObject());
+		} else if (src instanceof NodeCheckMenuItem) {
+			NodeCheckMenuItem item = (NodeCheckMenuItem) src;
+			firePropertyChange(SEARCH_CONTEXT_PROPERTY, null, 
+								item.getSearchObject());
 		}
-	}
-
-	/** Helper inner class displaying the Search object. */
-	class NodeMenuItem 
-		extends JMenuItem
-	{
-		
-		/** The node to host. */
-		private SearchObject node;
-		
-		/**
-		 * Creates a new instance.
-		 * 
-		 * @param node	The node to host. Mustn't be <code>null</code>.
-		 */
-		NodeMenuItem(SearchObject node) 
-		{
-			if (node == null)
-				throw new IllegalArgumentException("No experimenter.");
-			this.node = node;
-			setIcon(node.getIcon());
-			setText(node.getDescription());
-		}
-		
-		/**
-		 * Returns the node.
-		 * 
-		 * @return See above.
-		 */
-		SearchObject getSearchObject() { return node; }
-		
 	}
     
 }

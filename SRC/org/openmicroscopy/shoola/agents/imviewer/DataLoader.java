@@ -35,6 +35,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 
 /** 
  * 
@@ -118,7 +119,10 @@ public abstract class DataLoader
     public void handleException(Throwable exc) 
     {
         String s = "Data Retrieval Failure: ";
-        registry.getLogger().error(this, s+exc);
+        LogMessage msg = new LogMessage();
+        msg.print(s);
+        msg.print(exc);
+        registry.getLogger().error(this, msg);
         registry.getUserNotifier().notifyError("Data Retrieval Failure", 
                                                s, exc);
         viewer.discard();

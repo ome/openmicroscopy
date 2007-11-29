@@ -34,6 +34,8 @@ import java.awt.image.DirectColorModel;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -117,16 +119,34 @@ class RenderingControlProxy
      * @throws RenderingServiceException A rendering problem
      * @throws DSOutOfServiceException A connection problem.
      */
-    private void handleException(Exception e, String message)
+    private void handleException(Throwable e, String message)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	if (e instanceof EJBException | 
-    			e.getCause() instanceof IllegalStateException) {
+    	Throwable cause = e.getCause();
+    	if (e instanceof EJBException || 
+    			cause instanceof IllegalStateException) {
     		shutDown();
-    		throw new DSOutOfServiceException(message, e);
+    		throw new DSOutOfServiceException(message+"\n\n"+
+					printErrorText(e), e);
     	}
-    	throw new RenderingServiceException(message, e);
+    	throw new RenderingServiceException(message+"\n\n"+
+				printErrorText(e), e);
     }
+    
+    /**
+	 * Utility method to print the error message
+	 * 
+	 * @param e The exception to handle.
+	 * @return  See above.
+	 */
+	private String printErrorText(Throwable e) 
+	{
+		if (e == null) return "";
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		return sw.toString();
+	}
     
     /**
      * Creates a new {@link BufferedImage} from the specified array of 
@@ -343,8 +363,7 @@ class RenderingControlProxy
 			initializeCache(pDef, values.length);
 			cache(pDef, values);
 			return ImageIO.read(new ByteArrayInputStream(values));
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render the compressed image.");
 		}
 		return null;
@@ -387,7 +406,7 @@ class RenderingControlProxy
             initializeCache(pDef, 3*buf.length);
             img = createImage(sizeX1, sizeX2, buf);
             cache(pDef, img);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render the plane.");
 		}
         
@@ -843,7 +862,7 @@ class RenderingControlProxy
     { 
     	try {
     		servant.saveCurrentSettings();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			handleException(e, ERROR+"save current settings.");
 		}
     }
@@ -859,7 +878,7 @@ class RenderingControlProxy
     		 servant.resetDefaultsNoSave();
     		 initialize();
     		 tmpSolutionForNoiseReduction();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			handleException(e, ERROR+"default settings.");
 		}
     }

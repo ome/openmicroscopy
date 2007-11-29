@@ -740,8 +740,8 @@ public interface OmeroDataService
 		throws DSOutOfServiceException, DSAccessException; 
 	
 	/** 
-	 * Finds the categories whose name contains the passed terms.
-	 * Returns a collection of categories ID.
+	 * Finds the images depending on the passed context.
+	 * Returns a collection of images ID.
 	 * 
 	 * @param type		The type of object to search for.
 	 * @param userID	The Id of the user.
@@ -753,6 +753,25 @@ public interface OmeroDataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Set searchFor(Class type, long userID, List terms)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Retrieves the objects specified by the context of the search.
+	 * 
+	 * @param scope		The scope of the search.
+	 * @param values	The terms to find.
+	 * @param users		The users' name.
+	 * @param start		The start of the time interval.
+	 * @param end		The end of the time interval.
+	 * @param observer	Callback handler.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Set advancedSearchFor(List<Class> scope, List<String> values, 
+			List<ExperimenterData> users, Timestamp start, Timestamp end)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

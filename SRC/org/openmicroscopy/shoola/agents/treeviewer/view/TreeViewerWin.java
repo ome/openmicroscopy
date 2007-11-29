@@ -59,8 +59,6 @@ import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
-import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 
 /**
  * The {@link TreeViewer}'s View. Embeds the different <code>Browser</code>'s UI
@@ -360,6 +358,9 @@ class TreeViewerWin
         setTitle(title+TITLE);
     }
 
+    /** Cancels any ongoing search. */
+    void discard() { toolBar.discard(); }
+    
     /** Closes and disposes of the window. */
     void closeViewer()
     {
@@ -580,26 +581,6 @@ class TreeViewerWin
 			item.setToolTipText(a.getActionDescription());
 		}
     }
-	
-    /**
-	 * Searches for the passed values for the context defined by the
-	 * passed node.
-	 * 
-	 * @param node The node to handle.
-	 */
-	void searchFor(SearchObject node)
-	{
-		switch (node.getIndex()) {
-			case QuickSearch.TAGS:
-				model.fireTagsRetrieval(node.getResult());
-				break;
-			case QuickSearch.IMAGES:
-				model.fireImagesRetrieval(node.getResult());
-				break;
-			case QuickSearch.ANNOTATIONS:
-				model.fireAnnotationsRetrieval(node.getResult());
-		}
-	}
 	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()

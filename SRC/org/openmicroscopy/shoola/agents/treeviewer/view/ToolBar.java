@@ -29,7 +29,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Point;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -42,11 +41,12 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifierAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
+import org.openmicroscopy.shoola.agents.util.finder.QuickFinder;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 
 /** 
  * The tool bar of {@link TreeViewer}.
@@ -70,6 +70,9 @@ class ToolBar
     
     /** Reference to the control. */
     private TreeViewerControl   controller;
+    
+    /** Reference to the finder. */
+    private QuickFinder			finder;
     
     /**
      * Helper method to create the tool bar hosting the management items.
@@ -145,10 +148,8 @@ class ToolBar
      */
     private JComponent createQuickSearch()
     {
-    	QuickSearch search = new QuickSearch();
-    	search.setDefaultSearchContext();
-    	search.addPropertyChangeListener(controller);
-    	return search;
+    	finder = new QuickFinder(TreeViewerAgent.getRegistry());
+    	return finder;
     }
     
     /** Builds and lays out the UI. */
@@ -183,6 +184,12 @@ class ToolBar
             throw new NullPointerException("No controller.");
         this.controller = controller;
         buildGUI();
+    }
+    
+    /** Cancels any ongoing search. */
+    void discard()
+    {
+    	if (finder != null) finder.cancel();
     }
     
     /**

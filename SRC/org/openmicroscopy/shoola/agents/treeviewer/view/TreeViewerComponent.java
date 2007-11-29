@@ -288,6 +288,7 @@ class TreeViewerComponent
 		while (i.hasNext())
 			((Browser) i.next()).discard();
 		model.discard();
+		view.discard();
 		fireStateChange();
 	}
 

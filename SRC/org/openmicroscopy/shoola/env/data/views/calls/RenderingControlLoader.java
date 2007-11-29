@@ -83,7 +83,7 @@ public class RenderingControlLoader
 		return new BatchCall("Loading rendering control: ") {
 			public void doCall() throws Exception
 			{
-				try {
+				//try {
 					OmeroImageService rds = context.getImageService();
 					switch (index) {
 						default:
@@ -100,10 +100,10 @@ public class RenderingControlLoader
 						throw new DSOutOfServiceException("Cannot start the " +
 								"rendering engine for pixelsID "+pixelsID);
 					}
-				} catch (Exception e) {
-					throw new DSOutOfServiceException("Cannot start the " +
-							"rendering engine for pixelsID "+pixelsID, e);
-				}
+				//} catch (Exception e) {
+				//	throw new DSOutOfServiceException("Cannot start the " +
+				//			"rendering engine for pixelsID "+pixelsID, e);
+				//}
 			}
 		};
 	} 
