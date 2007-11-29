@@ -69,7 +69,6 @@ public class FieldEditorTime extends FieldEditor {
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
 		timeValue = dataField.getAttribute(DataField.DEFAULT);
-		System.out.println("FieldEditorTime dataFieldUpdated timeValue = " + timeValue);
 		convertTimeStringToInts();
 		
 		updateTimeSpinners();

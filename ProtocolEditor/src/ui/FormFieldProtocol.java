@@ -39,7 +39,6 @@ public class FormFieldProtocol extends FormField {
 		super(dataField);
 		
 		nameLabel.setFont(XMLView.FONT_H1);
-		leftIndent.setVisible(false);
 		
 		horizontalBox.add(horizontalBox.createGlue());
 		

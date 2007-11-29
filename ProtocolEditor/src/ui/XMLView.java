@@ -398,12 +398,12 @@ public class XMLView
 		Border fileManagerToolBarBorder = new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING);
 		
 		JButton newFileButton = new JButton(newFileIcon);
-		newFileButton.setToolTipText("New Protocol");
+		newFileButton.setToolTipText("New Blank File");
 		newFileButton.addActionListener(new newProtocolFileListener());
 		newFileButton.setBorder(new EmptyBorder(2,BUTTON_SPACING + 3,2,BUTTON_SPACING));
 		
 		JButton openFileButton = new JButton(openFileIcon);
-		openFileButton.setToolTipText("Open Protocol or Experiment");
+		openFileButton.setToolTipText("Open File..");
 		openFileButton.addActionListener(new openFileListener());
 		openFileButton.setBorder(fileManagerToolBarBorder);
 		
@@ -413,13 +413,13 @@ public class XMLView
 		openWwwFileButton.setBorder(fileManagerToolBarBorder);
 		
 		saveFileAsButton = new JButton(saveFileAsIcon);
-		saveFileAsButton.setToolTipText("Save Protocol As..");
+		saveFileAsButton.setToolTipText("Save File As..");
 		saveFileAsButton.setBorder(fileManagerToolBarBorder);
-		saveFileAsButton.addActionListener(new saveProtocolListener());
+		saveFileAsButton.addActionListener(new SaveFileAsListener());
 		
 		saveFileButton = new JButton(saveIcon);
 		saveFileButton.addActionListener(new SaveCurrentFileListener());
-		saveFileButton.setToolTipText("Save experimental details");
+		saveFileButton.setToolTipText("Save File");
 		saveFileButton.setBorder(fileManagerToolBarBorder);
 		
 		printButton = new JButton(printIcon);
@@ -1405,30 +1405,20 @@ public class XMLView
 				saveFileAs();
 			}
 			else {
-				xmlModel.saveTreeToXmlFile(xmlModel.getCurrentFile());
-				JOptionPane.showMessageDialog(XMLFrame, "Experiment saved.");
+				int option = JOptionPane.showConfirmDialog(XMLFrame, "Save changes? " + 
+						"\n This will over-write the original file",
+						"Save Changes?", JOptionPane.OK_CANCEL_OPTION);
+				if (option == JOptionPane.OK_OPTION) {
+					xmlModel.saveTreeToXmlFile(xmlModel.getCurrentFile());
+					JOptionPane.showMessageDialog(XMLFrame, "Experiment saved.");
+				}
 			}
 		}
 	}
 	
-	
-	
-	public class saveProtocolListener implements ActionListener {
-		
-		public void actionPerformed(ActionEvent event) {
-			
-			saveFileAs();	// false: Don't save experiment details
-	        
-		}
-	}
-	
 	public class SaveFileAsListener implements ActionListener {
-		
 		public void actionPerformed(ActionEvent event) {
-			
-			if (xmlModel.isCurrentFileEdited()) return;	
-			
-			saveFileAs();	//true: saveExpDetails
+			saveFileAs();
 		}
 	}
 	

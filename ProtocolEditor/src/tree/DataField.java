@@ -59,6 +59,7 @@ public class DataField {
 	public static final String UNITS = "units";
 	public static final String KEYWORDS = "keywords";
 	public static final String SUBSTEPS_COLLAPSED ="substepsCollapsed"; // "true" or "false"
+	public static final String BACKGROUND_COLOUR = "backgroundColour";
 	public static final String URL = "url";
 	
 	public static final String ONTOLOGY_ID = "ontologyId";
@@ -100,13 +101,13 @@ public class DataField {
 	
 	public static final String[] INPUT_TYPES = 
 	{FIXED_PROTOCOL_STEP, TEXT_ENTRY_STEP,
-	MEMO_ENTRY_STEP, DROPDOWN_MENU_STEP, CHECKBOX_STEP, NUMBER_ENTRY_STEP, DATE, TIME_FIELD, TABLE //, OLS_FIELD
+	MEMO_ENTRY_STEP, DROPDOWN_MENU_STEP, CHECKBOX_STEP, NUMBER_ENTRY_STEP, DATE, TIME_FIELD, TABLE, OLS_FIELD
 	};
 	
 //	 the names used for the UI - MUST be in SAME ORDER as INPUT_TYPES they correspond to 
 	// this means you can change the UI names without changing INPUT_TYPES.
 	public static final String[] UI_INPUT_TYPES = 	
-	{ "Fixed", "Text", "Text Box", "Drop-down Menu", "Check-Box", "Number", "Date", "Time", "Table" //, "Ontology"
+	{ "Fixed", "Text", "Text Box", "Drop-down Menu", "Check-Box", "Number", "Date", "Time", "Table", "Ontology"
 		};
 	
 	// Datafield has attributes stored in LinkedHashMap
@@ -205,14 +206,16 @@ public class DataField {
 			// remember undo 
 			node.dataFieldUpdated(new EditDataFieldType(this, getAllAttributes()));
 			
-//			 keep the original name & description (may be null)
+//			 keep the original name & description & colour (may be null)
 			String copyName = allAttributesMap.get(DataField.ELEMENT_NAME);
 			String copyDescription = allAttributesMap.get(DataField.DESCRIPTION);
+			String copyColour = getAttribute(DataField.BACKGROUND_COLOUR);
 			
 			allAttributesMap.clear();
 			
 			setAttribute(DataField.ELEMENT_NAME, copyName, false);
 			setAttribute(DataField.DESCRIPTION, copyDescription, false);
+			setAttribute(DataField.BACKGROUND_COLOUR, copyColour, false);
 		}
 		
 		setAttribute(DataField.INPUT_TYPE, newInputType, false);

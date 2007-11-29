@@ -23,32 +23,27 @@
 package ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.ArrayList;
 
+import javax.swing.Action;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
-import javax.swing.text.JTextComponent;
-
-import org.w3c.dom.*;
 
 import tree.DataField;
 import tree.DataFieldObserver;
+import util.ImageFactory;
 
 public class FieldEditor extends AbstractDataFieldPanel implements DataFieldObserver {
 	
@@ -57,12 +52,15 @@ public class FieldEditor extends AbstractDataFieldPanel implements DataFieldObse
 	JPanel attributeFieldsPanel;
 	JPanel inputTypePanel;
 	JComboBox inputTypeSelector;
-	AttributeEditor nameFieldEditor;
-	AttributeMemoEditor descriptionFieldEditor;
+	AttributeMemoFormatEditor nameFieldEditor;
+	AttributeMemoFormatEditor descriptionFieldEditor;
 	AttributeEditor urlFieldEditor;
 	
-	FocusChangedListener focusChangedListener;
-	TextChangedListener textChangedListener;
+	JPopupMenu colourPopupMenu;
+
+	SimpleHTMLEditorPane editorPane;
+
+	private Action boldFontAction;
 	
 	//XMLView xmlView; 	// the UI container for displaying this panel
 	
@@ -83,10 +81,7 @@ public class FieldEditor extends AbstractDataFieldPanel implements DataFieldObse
 		attributeFieldsPanel.setLayout(new BoxLayout(attributeFieldsPanel, BoxLayout.Y_AXIS));
 		attributeFieldsPanel.setBorder(new EmptyBorder(5, 5, 5,5));
 		
-		textChangedListener = new TextChangedListener();
-		focusChangedListener = new FocusChangedListener();
-		
-		nameFieldEditor = new AttributeEditor("Field Name: ", DataField.ELEMENT_NAME, dataField.getName());
+		nameFieldEditor = new AttributeMemoFormatEditor("Field Name: ", DataField.ELEMENT_NAME, dataField.getName());
 		attributeFieldsPanel.add(nameFieldEditor);
 		
 		// Drop-down selector of input-type. 
@@ -109,12 +104,32 @@ public class FieldEditor extends AbstractDataFieldPanel implements DataFieldObse
 		inputTypeSelector.addActionListener(new inputTypeSelectorListener());
 		attributeFieldsPanel.add(inputTypePanel);
 		
-		descriptionFieldEditor = new AttributeMemoEditor("Description: ", DataField.DESCRIPTION, dataField.getDescription());
+		descriptionFieldEditor = new AttributeMemoFormatEditor("Description: ", DataField.DESCRIPTION, dataField.getDescription());
 		attributeFieldsPanel.add(descriptionFieldEditor);
 		
 		urlFieldEditor = new AttributeEditor("Url: ", DataField.URL, dataField.getURL());
 		attributeFieldsPanel.add(urlFieldEditor);
 		
+		/* colour-picker */
+		// make some colours
+		Color[] colours = {Color.RED, new Color(255,153,153),new Color(204,153,51), 
+				Color.YELLOW, Color.GREEN, new Color(153,255,153), Color.BLUE, 
+				 new Color(51,153,204), new Color(153,153,255)};
+		
+		// display them in a custom popup menu, using a colourListener to get colour
+		ColourSelectorListener colourListener = new ColourSelectorListener();
+		colourPopupMenu = new ColourPopupMenu(colours, colourListener);
+		
+		//...which is displayed from a button..
+		Icon colourSelectIcon = ImageFactory.getInstance().getIcon(ImageFactory.COLOUR_SELECTION_ICON);
+		JButton colourSelectButton = new JButton(colourSelectIcon);
+		colourSelectButton.addMouseListener(new PopupListener());
+		
+		//...add to tool bar at top of panel
+		nameFieldEditor.addToToolBar(colourSelectButton);
+		
+		
+			
 		this.setLayout(new BorderLayout());
 		this.add(attributeFieldsPanel, BorderLayout.NORTH);
 		
@@ -123,16 +138,33 @@ public class FieldEditor extends AbstractDataFieldPanel implements DataFieldObse
 		this.validate();
 	}
 	
+	class PopupListener extends MouseAdapter {
+	    public void mousePressed(MouseEvent e) {
+	        maybeShowPopup(e);
+	    }
+
+	    public void mouseReleased(MouseEvent e) {
+	        maybeShowPopup(e);
+	    }
+
+	    private void maybeShowPopup(MouseEvent e) {
+	        
+	    	colourPopupMenu.show(e.getComponent(),
+	                       e.getX(), e.getY());
+	        
+	    }
+	}
+	
 	// called by dataField when something changes, eg undo() previous editing
 	public void dataFieldUpdated() {
-		nameFieldEditor.setTextFieldText(dataField.getAttribute(DataField.ELEMENT_NAME));
+		nameFieldEditor.setTextAreaText(dataField.getAttribute(DataField.ELEMENT_NAME));
 		descriptionFieldEditor.setTextAreaText(dataField.getAttribute(DataField.DESCRIPTION));
 		urlFieldEditor.setTextFieldText(dataField.getAttribute(DataField.URL));
 	}
 	
 	// called when focus lost
 	public void updateDataField() {
-		dataField.setAttribute(DataField.ELEMENT_NAME, nameFieldEditor.getTextFieldText(), true);
+		dataField.setAttribute(DataField.ELEMENT_NAME, nameFieldEditor.getTextAreaText(), true);
 		// dataField.setAttribute(DataField.DESCRIPTION, descriptionFieldEditor.getTextAreaText());
 
 		String url = urlFieldEditor.getTextFieldText();
@@ -144,7 +176,29 @@ public class FieldEditor extends AbstractDataFieldPanel implements DataFieldObse
 		dataField.notifyDataFieldObservers();
 	}
 	
+	/*
+	 * used to process colour selection from the Colour JPopupMenu. 
+	 */
+	public class ColourSelectorListener implements ActionListener {
+		
+		public void actionPerformed (ActionEvent event) {
+			JMenuItem source = (JMenuItem)event.getSource();
+			// if not an instance of ColourMenuItem, then no colour selected
+			if (!(source instanceof ColourMenuItem)) {
+				dataField.setAttribute(DataField.BACKGROUND_COLOUR, null, true);
+				return;
+			}
+			// otherwise, get the background colour and set the colour attribute of dataField
+			Color newColour = source.getBackground();
+			String colour = newColour.getRed() + ":" + newColour.getGreen() + ":" + newColour.getBlue();
+			dataField.setAttribute(DataField.BACKGROUND_COLOUR, colour, true);
+		}
+	}	
 	
+	/*
+	 * takes the input-type of the field and sets the inputType attribute of dataField
+	 * This causes new FieldEditor and FormField subclasses to be created for this inputType
+	 */
 	public class inputTypeSelectorListener implements ActionListener {
 		
 		public void actionPerformed (ActionEvent event) {
@@ -158,7 +212,7 @@ public class FieldEditor extends AbstractDataFieldPanel implements DataFieldObse
 	public void inputTypeSelectorChanged(String newType) {
 		dataField.changeDataFieldInputType(newType);
 		// the above call doesn't notify others (mostly don't want to)
-		dataField.notifyXmlObservers();		// updates UI with new formField & fieldEditor
+		dataField.notifyXmlObservers();		// updates UI with new formField & fieldEd
 	}
 
 }

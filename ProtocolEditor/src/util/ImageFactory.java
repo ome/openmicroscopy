@@ -82,6 +82,10 @@ public class ImageFactory {
 	public static final String OLS_LOGO_SMALL = ACTION_ICONS_FILE + "ols-logo-small.jpg";
 	public static final String NEW_ROW_ICON = ACTION_ICONS_FILE + "view_bottom.png";
 	public static final String CLEAR_ROW_ICON = ACTION_ICONS_FILE + "view_clear.png";
+	public static final String COLOUR_SELECTION_ICON = ACTION_ICONS_FILE + "colorize.png";
+	public static final String BOLD_ICON = ACTION_ICONS_FILE + "bold.png";
+	public static final String UNDERLINE_ICON = ACTION_ICONS_FILE + "underline.png";
+	public static final String ENTER_ICON = ACTION_ICONS_FILE + "enter.png";
 	
 	public Icon getIcon(String iconPathName) {
 		try {

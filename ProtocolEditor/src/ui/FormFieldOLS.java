@@ -145,7 +145,7 @@ public class FormFieldOLS extends FormField {
 		for (Iterator i = termMetaData.keySet().iterator(); i.hasNext();){
 			String key = (String) i.next();
 			Object name = termMetaData.get(key);
-			System.out.println("FormFieldOLS refreshTermDetails  key=" + key);
+			//System.out.println("FormFieldOLS refreshTermDetails  key=" + key);
 			String keyAndName = key + ", " + (name == null ? "" : termMetaData.get(key).toString());
 			if (key.equals("definition")) 
 				definitionLabel = keyAndName;

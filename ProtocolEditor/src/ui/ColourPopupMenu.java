@@ -1,3 +1,4 @@
+
 /*
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,26 +21,33 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
+
 package ui;
 
-import tree.DataField;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.ActionListener;
 
-// all dataField attributes are displayed in panel
-// used for displaying imported XML elements that may have other attributes
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
-public class FieldEditorCustom extends FieldEditor {
+public class ColourPopupMenu extends JPopupMenu {
 
-	public FieldEditorCustom(DataField dataField) {
+	public ColourPopupMenu(Color[] colours, ActionListener colourListener) {
 		
-		super(dataField);
+		JMenuItem noColourItem = new JMenuItem("No colour");
+		noColourItem.setBackground(null);
+		noColourItem.addActionListener(colourListener);
+		this.add(noColourItem);
 		
-		// can't edit custom fields
-		nameFieldEditor.getTextArea().setEnabled(false);
-		
-		attributeFieldsPanel.remove(inputTypePanel);
-		attributeFieldsPanel.remove(descriptionFieldEditor);
-		attributeFieldsPanel.remove(urlFieldEditor);
+		for (int i=0; i<colours.length; i++) {
+			
+			JMenuItem menuItem = new ColourMenuItem(" ");
+			menuItem.setBackground(colours[i]);
+			menuItem.setPreferredSize(new Dimension(40,20));
+			menuItem.addActionListener(colourListener);
+			this.add(menuItem);
+			
+		}
 	}
-
-	
 }

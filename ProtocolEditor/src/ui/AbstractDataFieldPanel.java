@@ -23,21 +23,31 @@
 package ui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 
 import tree.DataField;
+import util.ImageFactory;
 
 // this class is extended by FormField, FieldEditor and AttributesDialog.
 // It defines panels of label + text-field, and listeners that update dataField with attributes entered
@@ -127,6 +137,72 @@ public abstract class AbstractDataFieldPanel extends JPanel{
 			attributeTextField.removeFocusListener(focusChangedListener);
 		}
 	}
+	
+	
+	public class AttributeMemoFormatEditor extends JPanel{
+		SimpleHTMLEditorPane editorPane;
+		Box toolBarBox;
+		Border toolBarButtonBorder;
+		// constructor creates a new panel and adds a name and text area to it.
+		public AttributeMemoFormatEditor(String attribute, String value) {
+			this(attribute, attribute, value);
+		}
+		public AttributeMemoFormatEditor(String label, String attribute, String value) {
+			this.setBorder(new EmptyBorder(3,3,3,3));
+			JLabel attributeName = new JLabel(label);
+			
+			editorPane = new SimpleHTMLEditorPane();
+			editorPane.addHtmlTagsAndSetText(value);
+			editorPane.setName(attribute);
+			editorPane.addKeyListener(textChangedListener);
+			editorPane.addFocusListener(focusChangedListener);
+			
+			int spacing = 2;
+			toolBarButtonBorder = new EmptyBorder(spacing,spacing,spacing,spacing);
+			toolBarBox = Box.createHorizontalBox();
+			
+			Icon boldIcon = ImageFactory.getInstance().getIcon(ImageFactory.BOLD_ICON); 
+			JButton boldButton = new JButton(editorPane.getBoldAction());
+			boldButton.setIcon(boldIcon);
+			boldButton.setText("");
+			boldButton.setBorder(toolBarButtonBorder);
+			toolBarBox.add(boldButton);
+			
+			Icon underlineIcon = ImageFactory.getInstance().getIcon(ImageFactory.UNDERLINE_ICON); 
+			JButton underlineButton = new JButton(editorPane.getUnderlineAciton());
+			underlineButton.setIcon(underlineIcon);
+			underlineButton.setText("");
+			underlineButton.setBorder(toolBarButtonBorder);
+			toolBarBox.add(underlineButton);
+			
+			JPanel topPanel = new JPanel(new BorderLayout());
+			topPanel.add(attributeName, BorderLayout.WEST);
+			topPanel.add(toolBarBox, BorderLayout.EAST);
+			
+			this.setLayout(new BorderLayout());
+			this.add(topPanel, BorderLayout.NORTH);
+			this.add(editorPane, BorderLayout.CENTER);
+		}
+		public String getTextAreaText() {
+			return editorPane.getText();
+		}
+		public void setTextAreaText(String text) {
+			editorPane.addHtmlTagsAndSetText(text);
+		}
+		public JEditorPane getTextArea() {
+			return editorPane;
+		}
+		public void addToToolBar(JComponent component) {
+			component.setBorder(toolBarButtonBorder);
+			toolBarBox.add(component);
+		}
+		
+		public void removeFocusListener() {
+			editorPane.removeFocusListener(focusChangedListener);
+		}
+		
+		
+	}
 
 	
 	public class TextChangedListener implements KeyListener {
@@ -135,7 +211,7 @@ public abstract class AbstractDataFieldPanel extends JPanel{
 			
 			char keyChar = event.getKeyChar();
 			int keyCharacter = (int)keyChar;
-			if (keyCharacter == 10) {	// == "Enter"
+			/*if (keyCharacter == 10) {	// == "Enter"
 				
 				textChanged = false;	// stops FocusChangedListener from updating dataField
 				
@@ -147,7 +223,8 @@ public abstract class AbstractDataFieldPanel extends JPanel{
 				source.requestFocus();
 			} else {
 				textChanged = true;		// some character was typed, so set this flag
-			}
+			}*/
+			textChanged = true;		// some character was typed, so set this flag
 
 		}
 		public void keyPressed(KeyEvent event) {}

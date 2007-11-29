@@ -52,8 +52,8 @@ import util.ImageFactory;
 public class FormField extends AbstractDataFieldPanel implements DataFieldObserver{
 	
 	// swing components
+	Box horizontalFrameBox;
 	Box horizontalBox;
-	Component leftIndent = Box.createHorizontalStrut(0);
 	JButton collapseButton;	
 	JLabel nameLabel;
 	JLabel descriptionLabel;
@@ -64,6 +64,9 @@ public class FormField extends AbstractDataFieldPanel implements DataFieldObserv
 	JButton collapseAllChildrenButton;
 	
 	boolean childrenCollapsed = false; 	// used for root field only - to toggle all collapsed
+	
+	boolean highlighted = false;
+	Color backgroundColour;
 	
 	Icon collapsedIcon;
 	Icon notCollapsedIcon;
@@ -106,11 +109,9 @@ public class FormField extends AbstractDataFieldPanel implements DataFieldObserv
 		collapseButton.setBorder(new EmptyBorder(2,2,2,2));
 		collapseButton.addActionListener(new CollapseListener());
 		collapseButton.addMouseListener(new FormPanelMouseListener());
-		horizontalBox.add(collapseButton);
 		
-		nameLabel = new JLabel(dataField.getName());
+		nameLabel = new JLabel();
 		nameLabel.addMouseListener(new FormPanelMouseListener());
-		visibleAttributes.add(nameLabel);
 		
 		wwwIcon = ImageFactory.getInstance().getIcon(ImageFactory.WWW_ICON);
 		urlButton = new JButton(wwwIcon);
@@ -143,26 +144,43 @@ public class FormField extends AbstractDataFieldPanel implements DataFieldObserv
 		collapseAllChildrenButton.addActionListener(new CollapseChildrenListener());
 		collapseAllChildrenButton.setVisible(isThisRootField());
 		
-		horizontalBox.add(leftIndent);
-		horizontalBox.add(nameLabel, BorderLayout.WEST);
+		/*
+		 * complex layout required to limit the size of nameLabel (expands with html content)
+		 * horizontalFrameBox holds collapseButton and then the BorderLayout JPanel
+		 * nameLabel is in the WEST of this, then the horizontalBox for all other items is in the CENTER
+		 */
+		horizontalFrameBox = Box.createHorizontalBox();
+		horizontalFrameBox.add(collapseButton);
+		
+		JPanel contentsNorthPanel = new JPanel(new BorderLayout());
+		contentsNorthPanel.setBackground(null);
+		contentsNorthPanel.add(nameLabel, BorderLayout.WEST);
+		
 		horizontalBox.add(descriptionButton);
 		horizontalBox.add(urlButton);
 		horizontalBox.add(collapseAllChildrenButton);
 		horizontalBox.add(Box.createHorizontalStrut(10));
+		contentsNorthPanel.add(horizontalBox, BorderLayout.CENTER);
+		horizontalFrameBox.add(contentsNorthPanel);
 
+
+		nameLabel.setText(addHtmlTagsForNameLabel(dataField.getName()));
 		setDescriptionText(dataField.getDescription());
 		setURL(dataField.getURL());
+		refreshBackgroundColour();
 		
-		this.setBackground(null);
-		this.add(horizontalBox, BorderLayout.NORTH);
+		this.add(horizontalFrameBox, BorderLayout.NORTH);
 		this.add(descriptionLabel, BorderLayout.CENTER);
+		
 	}
 	
 	// called by dataField to notify observers that something has changed.
 	public void dataFieldUpdated() {
-		setNameText(dataField.getName());
+		setNameText(addHtmlTagsForNameLabel(dataField.getName()));
 		setDescriptionText(dataField.getAttribute(DataField.DESCRIPTION));
 		setURL(dataField.getAttribute(DataField.URL));
+		
+		refreshBackgroundColour();
 		
 		dataFieldUpdatedOtherAttributes();
 	}
@@ -176,11 +194,12 @@ public class FormField extends AbstractDataFieldPanel implements DataFieldObserv
 	}
 	public void setDescriptionText(String description) {
 		if ((description != null) && (description.trim().length() > 0)) {
-			nameLabel.setToolTipText(description);
+			String htmlDescription = "<html><div style='width:200px; padding-left:30px;'>" + description + "</div></html>";
+			nameLabel.setToolTipText(htmlDescription);
 			descriptionButton.setVisible(true);
 			descriptionLabel.setVisible(showDescription);
 			descriptionLabel.setFont(XMLView.FONT_TINY);
-			descriptionLabel.setText("<html><div style='width:200px; padding-left:30px;'>" + description + "</div></html>");
+			descriptionLabel.setText(htmlDescription);
 		}
 		else
 		{
@@ -207,11 +226,15 @@ public class FormField extends AbstractDataFieldPanel implements DataFieldObserv
 	
 	// called when user clicks on panel
 	public void setHighlighted(boolean highlight) {
-		if (highlight) { 
+		highlighted = highlight;
+		refreshHighlighted();
+	}
+	private void refreshHighlighted() {
+		if (highlighted) { 
 			this.setBackground(XMLView.BLUE_HIGHLIGHT);
 		}
 		else {
-			this.setBackground(null);
+			this.setBackground(backgroundColour);
 		}
 	}
 	
@@ -320,6 +343,27 @@ public class FormField extends AbstractDataFieldPanel implements DataFieldObserv
         b.setFocusPainted(false);
     }
 	
+	private void refreshBackgroundColour() {
+		backgroundColour = getColorFromString(dataField.getAttribute(DataField.BACKGROUND_COLOUR));
+		horizontalFrameBox.setBackground(backgroundColour);
+	}
+	
+	// used to convert a stored string Colour attribute to a Color
+	public static Color getColorFromString(String colourAttribute) {
+		if (colourAttribute == null) 
+			return null;
+		
+		try{
+			String[] rgb = colourAttribute.split(":");
+			int red = Integer.parseInt(rgb[0]);
+			int green = Integer.parseInt(rgb[1]);
+			int blue = Integer.parseInt(rgb[2]);
+			return new Color(red,green,blue);
+		} catch (Exception ex) {
+			return null;
+		}
+	}
+	
 	
 	/*
 	 * returns the pixel-distance this panel-bottom from the top of FormDisplay.
@@ -343,6 +387,11 @@ public class FormField extends AbstractDataFieldPanel implements DataFieldObserv
 
 	public ArrayList<JComponent> getVisibleAttributes() {
 		return visibleAttributes;
+	}
+	
+	private String addHtmlTagsForNameLabel(String text) {
+		text = "<html>" + text + "</html>";
+		return text;
 	}
 
 }
