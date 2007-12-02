@@ -31,87 +31,88 @@ import ome.admin.logic.IRepositoryInfoManagerDelegator;
  */
 public class IRepositoryInfoPieChartController {
 
-	/**
-	 * {@link org.jfree.data.general.DefaultPieDataset}
-	 */
-	private DefaultPieDataset pieDataSet = new DefaultPieDataset();
+    /**
+     * {@link org.jfree.data.general.DefaultPieDataset}
+     */
+    private DefaultPieDataset pieDataSet = new DefaultPieDataset();
 
-	/**
-	 * {@link ome.admin.logic.IRepositoryInfoManagerDelegator}
-	 */
-	private IRepositoryInfoManagerDelegator iRepository = new IRepositoryInfoManagerDelegator();
+    /**
+     * {@link ome.admin.logic.IRepositoryInfoManagerDelegator}
+     */
+    private IRepositoryInfoManagerDelegator iRepository = new IRepositoryInfoManagerDelegator();
 
-	private Long freeSpace = 0L;
+    private Long freeSpace = 0L;
 
-	private Long usedSpace = 0L;
+    private Long usedSpace = 0L;
 
-	/**
-	 * Creates a new instance of IRepositoryInfoPieChartController.
-	 */
-	public IRepositoryInfoPieChartController() {
-		this.freeSpace = iRepository.getSpaceInKilobytes("free");
-		this.usedSpace = iRepository.getSpaceInKilobytes("used");
-	}
+    /**
+     * Creates a new instance of IRepositoryInfoPieChartController.
+     */
+    public IRepositoryInfoPieChartController() {
+        this.freeSpace = iRepository.getSpaceInKilobytes("free");
+        this.usedSpace = iRepository.getSpaceInKilobytes("used");
+    }
 
-	/**
-	 * Gets value of free space
-	 * 
-	 * @return long freeSpace
-	 */
-	public Long getFreeSpace() {
-		return freeSpace;
-	}
+    /**
+     * Gets value of free space
+     * 
+     * @return long freeSpace
+     */
+    public Long getFreeSpace() {
+        return freeSpace;
+    }
 
-	/**
-	 * Sets value of free space
-	 * 
-	 * @param freeSpace
-	 */
-	public void setFreeSpace(Long freeSpace) {
-		this.freeSpace = freeSpace;
-	}
+    /**
+     * Sets value of free space
+     * 
+     * @param freeSpace
+     */
+    public void setFreeSpace(Long freeSpace) {
+        this.freeSpace = freeSpace;
+    }
 
-	/**
-	 * Gets value of used space
-	 * 
-	 * @return long usedSpace
-	 */
-	public Long getUsedSpace() {
-		return usedSpace;
-	}
+    /**
+     * Gets value of used space
+     * 
+     * @return long usedSpace
+     */
+    public Long getUsedSpace() {
+        return usedSpace;
+    }
 
-	/**
-	 * Sets value of used space
-	 * 
-	 * @param usedSpace
-	 */
-	public void setUsedSpace(Long usedSpace) {
-		this.usedSpace = usedSpace;
-	}
+    /**
+     * Sets value of used space
+     * 
+     * @param usedSpace
+     */
+    public void setUsedSpace(Long usedSpace) {
+        this.usedSpace = usedSpace;
+    }
 
-	/**
-	 * Gets data for Pie Chart
-	 * 
-	 * @return {@link ome.admin.logic.IRepositoryInfoManagerDelegator}
-	 */
-	public DefaultPieDataset getPieDataSet() {
-		try {
-			this.pieDataSet.setValue("Free space", iRepository
-					.getSpaceInKilobytes("free"));
-			// this.pieDataSet.setValue("Used space",iRepository.getSpaceInKilobytes("used"));
-			HashMap map = iRepository.getTopTenUserSpace();
-			Set entries = map.entrySet();
-			Iterator it = entries.iterator();
-			while (it.hasNext()) {
-				Map.Entry entry = (Map.Entry) it.next();
-				this.pieDataSet.setValue((String) entry.getKey(), (Long) entry
-						.getValue());
-			}
+    /**
+     * Gets data for Pie Chart
+     * 
+     * @return {@link ome.admin.logic.IRepositoryInfoManagerDelegator}
+     */
+    public DefaultPieDataset getPieDataSet() {
+        try {
+            this.pieDataSet.setValue("Free space", iRepository
+                    .getSpaceInKilobytes("free"));
+            // this.pieDataSet.setValue("Used
+            // space",iRepository.getSpaceInKilobytes("used"));
+            HashMap map = iRepository.getTopTenUserSpace();
+            Set entries = map.entrySet();
+            Iterator it = entries.iterator();
+            while (it.hasNext()) {
+                Map.Entry entry = (Map.Entry) it.next();
+                this.pieDataSet.setValue((String) entry.getKey(), (Long) entry
+                        .getValue());
+            }
 
-		} catch (Exception e) {
-			this.pieDataSet.setValue("Data could not be read.", 0L);
-		}
-		return this.pieDataSet;
-	}
+        } catch (Exception e) {
+            this.pieDataSet.setValue("Data could not be read.", 0L);
+        }
+        return this.pieDataSet;
+    }
 
 }

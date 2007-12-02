@@ -17,19 +17,19 @@ package ome.utils;
  */
 public interface NavigationResults {
 
-	/**
-	 * Sucsess
-	 */
-	public static final String SUCCESS = "success";
+    /**
+     * Sucsess
+     */
+    public static final String SUCCESS = "success";
 
-	/**
-	 * False
-	 */
+    /**
+     * False
+     */
     public static final String FALSE = "false";
-    
+
     /**
      * Account
      */
     public static final String ACCOUNT = "account";
-    
+
 }

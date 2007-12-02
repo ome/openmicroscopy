@@ -7,13 +7,13 @@
 
 package ome.admin.model;
 
-//Java imports
+// Java imports
 import java.util.Collections;
 import java.util.List;
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.model.meta.Experimenter;
 
 /**
@@ -27,153 +27,166 @@ import ome.model.meta.Experimenter;
 
 public class User {
 
-	/**
-	 * {@link ome.model.meta.Experimenter}
-	 */
-	private Experimenter experimenter = new Experimenter();
-	
-	/**
-	 * String provides defult group
-	 */
-	private String defaultGroup = "-1";
-	
-	/**
-	 * List of Strings provides groups where user belonges to.
-	 */
-	private List<String> selectedGroups = Collections.EMPTY_LIST;
-	
-	/**
-	 * String provides distinguished name from Ldap.
-	 */
-	private String dn;
-	
-	/**
-	 * boolean Provides Admin role in database, which gives admin permission.
-	 */
-	private boolean adminRole = false;
+    /**
+     * {@link ome.model.meta.Experimenter}
+     */
+    private Experimenter experimenter = new Experimenter();
 
-	/**
-	 * boolean Provides User role in database, which gives login permission.
-	 */
-	private boolean userRole = false;
+    /**
+     * String provides defult group
+     */
+    private String defaultGroup = "-1";
 
-	/**
-	 * Optional field for lists. Used on:
-	 *  -importing users from file
-	 */
-	private boolean selectBooleanCheckboxValue;
-	
-	/**
-	 * Checks Admin role
-	 * @return boolean
-	 */
-	public boolean isAdminRole() {
-		return adminRole;
-	}
+    /**
+     * List of Strings provides groups where user belonges to.
+     */
+    private List<String> selectedGroups = Collections.EMPTY_LIST;
 
-	/**
-	 * Sets Admin role
-	 * @param adminRole
-	 */
-	public void setAdminRole(boolean adminRole) {
-		this.adminRole = adminRole;
-	}
+    /**
+     * String provides distinguished name from Ldap.
+     */
+    private String dn;
 
-	/**
-	 * Gets default group
-	 * @return String
-	 */
-	public String getDefaultGroup() {
-		return defaultGroup;
-	}
+    /**
+     * boolean Provides Admin role in database, which gives admin permission.
+     */
+    private boolean adminRole = false;
 
-	/**
-	 * Sets default group
-	 * @param defaultGroup {@link ome.model.meta.ExperimenterGroup}
-	 */
-	public void setDefaultGroup(String defaultGroup) {
-		this.defaultGroup = defaultGroup;
-	}
+    /**
+     * boolean Provides User role in database, which gives login permission.
+     */
+    private boolean userRole = false;
 
-	/**
-	 * Gets object {@link ome.model.meta.Experimenter}
-	 * @return {@link ome.model.meta.Experimenter}
-	 */
-	public Experimenter getExperimenter() {
-		return experimenter;
-	}
+    /**
+     * Optional field for lists. Used on: -importing users from file
+     */
+    private boolean selectBooleanCheckboxValue;
 
-	/**
-	 * Sets object {@link ome.model.meta.Experimenter}
-	 * @param experimenter {@link ome.model.meta.Experimenter}
-	 */
-	public void setExperimenter(Experimenter experimenter) {
-		this.experimenter = experimenter;
-	}
+    /**
+     * Checks Admin role
+     * 
+     * @return boolean
+     */
+    public boolean isAdminRole() {
+        return adminRole;
+    }
 
-	/**
-	 * 
-	 * @return boolean
-	 */
-	public boolean isSelectBooleanCheckboxValue() {
-		return selectBooleanCheckboxValue;
-	}
+    /**
+     * Sets Admin role
+     * 
+     * @param adminRole
+     */
+    public void setAdminRole(boolean adminRole) {
+        this.adminRole = adminRole;
+    }
 
-	/**
-	 * 
-	 * @param selectBooleanCheckboxValue
-	 */
-	public void setSelectBooleanCheckboxValue(boolean selectBooleanCheckboxValue) {
-		this.selectBooleanCheckboxValue = selectBooleanCheckboxValue;
-	}
+    /**
+     * Gets default group
+     * 
+     * @return String
+     */
+    public String getDefaultGroup() {
+        return defaultGroup;
+    }
 
-	/**
-	 * Gets selected groups
-	 * @return List<String>
-	 */
-	public List<String> getSelectedGroups() {
-		return selectedGroups;
-	}
+    /**
+     * Sets default group
+     * 
+     * @param defaultGroup
+     *            {@link ome.model.meta.ExperimenterGroup}
+     */
+    public void setDefaultGroup(String defaultGroup) {
+        this.defaultGroup = defaultGroup;
+    }
 
-	/**
-	 * Sets selected groups
-	 * @param selectedGroups List<String>
-	 */
-	public void setSelectedGroups(List<String> selectedGroups) {
-		this.selectedGroups = selectedGroups;
-	}
+    /**
+     * Gets object {@link ome.model.meta.Experimenter}
+     * 
+     * @return {@link ome.model.meta.Experimenter}
+     */
+    public Experimenter getExperimenter() {
+        return experimenter;
+    }
 
-	/**
-	 * Checks User role
-	 * @return boolean
-	 */
-	public boolean isUserRole() {
-		return userRole;
-	}
+    /**
+     * Sets object {@link ome.model.meta.Experimenter}
+     * 
+     * @param experimenter
+     *            {@link ome.model.meta.Experimenter}
+     */
+    public void setExperimenter(Experimenter experimenter) {
+        this.experimenter = experimenter;
+    }
 
-	/**
-	 * Sets user role
-	 * @param userRole
-	 */
-	public void setUserRole(boolean userRole) {
-		this.userRole = userRole;
-	}
+    /**
+     * 
+     * @return boolean
+     */
+    public boolean isSelectBooleanCheckboxValue() {
+        return selectBooleanCheckboxValue;
+    }
 
-	/**
-	 * Gets distinguished name
-	 * @return {@link java.lang.String}
-	 */
-	public String getDn() {
-		return dn;
-	}
+    /**
+     * 
+     * @param selectBooleanCheckboxValue
+     */
+    public void setSelectBooleanCheckboxValue(boolean selectBooleanCheckboxValue) {
+        this.selectBooleanCheckboxValue = selectBooleanCheckboxValue;
+    }
 
-	/**
-	 * Sets distinguished name
-	 * @param dn
-	 */
-	public void setDn(String dn) {
-		this.dn = dn;
-	}
+    /**
+     * Gets selected groups
+     * 
+     * @return List<String>
+     */
+    public List<String> getSelectedGroups() {
+        return selectedGroups;
+    }
 
+    /**
+     * Sets selected groups
+     * 
+     * @param selectedGroups
+     *            List<String>
+     */
+    public void setSelectedGroups(List<String> selectedGroups) {
+        this.selectedGroups = selectedGroups;
+    }
+
+    /**
+     * Checks User role
+     * 
+     * @return boolean
+     */
+    public boolean isUserRole() {
+        return userRole;
+    }
+
+    /**
+     * Sets user role
+     * 
+     * @param userRole
+     */
+    public void setUserRole(boolean userRole) {
+        this.userRole = userRole;
+    }
+
+    /**
+     * Gets distinguished name
+     * 
+     * @return {@link java.lang.String}
+     */
+    public String getDn() {
+        return dn;
+    }
+
+    /**
+     * Sets distinguished name
+     * 
+     * @param dn
+     */
+    public void setDn(String dn) {
+        this.dn = dn;
+    }
 
 }

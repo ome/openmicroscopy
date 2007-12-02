@@ -25,76 +25,80 @@ import org.apache.log4j.Logger;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
 public class UploadListener implements ValueChangeListener {
-	
-	/**
-	 * log4j logger
-	 */
-	static Logger logger = Logger.getLogger(HSSFWorkbookReader.class.getName());
-	
-	public void processValueChange(ValueChangeEvent event)
-			throws AbortProcessingException {
 
-		UploadedFile uploadedFile = (UploadedFile) event.getNewValue();
+    /**
+     * log4j logger
+     */
+    static Logger logger = Logger.getLogger(HSSFWorkbookReader.class.getName());
 
-		// Check type of file, only: XML, XLS, CSV
-		if (FileValidator.validFileType(uploadedFile)) {
-			
-			FacesContext facesContext = FacesContext.getCurrentInstance();
-			// Write file to archiv
-			String usersListsDir = facesContext
-					.getExternalContext().getInitParameter(
-							"usersListsDir");
+    public void processValueChange(ValueChangeEvent event)
+            throws AbortProcessingException {
 
-			LoginBean lb = ((LoginBean) facesContext.getApplication()
-			.getVariableResolver().resolveVariable(facesContext,
-					"LoginBean"));
-			
-			logger.info("ImportedFile : '" + uploadedFile.getName() + "' by user ID: "+lb.getId());
-			
-			// Change name of the File
-			String fileName = FileValidator.changeNameOfFile(uploadedFile.getName());
+        UploadedFile uploadedFile = (UploadedFile) event.getNewValue();
 
-			File out = null;
-			FileOutputStream fo = null;
-			InputStream in = null;
-			try {
-				if (FileValidator.checkDirectory(new File(usersListsDir+"/"+lb.getUsername()))) {
-					
-					in = new BufferedInputStream(uploadedFile
-							.getInputStream());
+        // Check type of file, only: XML, XLS, CSV
+        if (FileValidator.validFileType(uploadedFile)) {
 
-					ByteArrayOutputStream bos = new ByteArrayOutputStream();
-					byte[] buf = new byte[1024];
-					int len;
-					while ((len = in.read(buf)) > 0) {
-						bos.write(buf, 0, len);
-					}
-					byte[] data = bos.toByteArray();
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            // Write file to archiv
+            String usersListsDir = facesContext.getExternalContext()
+                    .getInitParameter("usersListsDir");
 
-					out = new File(usersListsDir+"/" + lb.getUsername()+"/" + fileName);
-					fo = new FileOutputStream(out, false);
-					fo.write(data);
+            LoginBean lb = ((LoginBean) facesContext.getApplication()
+                    .getVariableResolver().resolveVariable(facesContext,
+                            "LoginBean"));
 
+            logger.info("ImportedFile : '" + uploadedFile.getName()
+                    + "' by user ID: " + lb.getId());
 
-					logger.info("File saved on : '" + usersListsDir+"/" + lb.getUsername()+"/" + fileName + "' by user ID: "+lb.getId());
-				}
-			} catch (FileNotFoundException e) {
-				logger.error("File was not found exception : "+e.getMessage());
-			} catch (IOException e) {
-				logger.error("IO Exception : "+e.getMessage());
-			} finally {
-				try {
-					fo.flush();
-					fo.close();
-					in.close();
-				} catch (IOException e) {
-					logger.error("IO Exception : "+e.getMessage());
-				}
-			
-			}
-				
-			
-		} 
-	}
+            // Change name of the File
+            String fileName = FileValidator.changeNameOfFile(uploadedFile
+                    .getName());
+
+            File out = null;
+            FileOutputStream fo = null;
+            InputStream in = null;
+            try {
+                if (FileValidator.checkDirectory(new File(usersListsDir + "/"
+                        + lb.getUsername()))) {
+
+                    in = new BufferedInputStream(uploadedFile.getInputStream());
+
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    byte[] buf = new byte[1024];
+                    int len;
+                    while ((len = in.read(buf)) > 0) {
+                        bos.write(buf, 0, len);
+                    }
+                    byte[] data = bos.toByteArray();
+
+                    out = new File(usersListsDir + "/" + lb.getUsername() + "/"
+                            + fileName);
+                    fo = new FileOutputStream(out, false);
+                    fo.write(data);
+
+                    logger.info("File saved on : '" + usersListsDir + "/"
+                            + lb.getUsername() + "/" + fileName
+                            + "' by user ID: " + lb.getId());
+                }
+            } catch (FileNotFoundException e) {
+                logger
+                        .error("File was not found exception : "
+                                + e.getMessage());
+            } catch (IOException e) {
+                logger.error("IO Exception : " + e.getMessage());
+            } finally {
+                try {
+                    fo.flush();
+                    fo.close();
+                    in.close();
+                } catch (IOException e) {
+                    logger.error("IO Exception : " + e.getMessage());
+                }
+
+            }
+
+        }
+    }
 
 }

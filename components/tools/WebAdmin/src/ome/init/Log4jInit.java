@@ -16,19 +16,19 @@ import javax.servlet.http.HttpServletResponse;
 
 public class Log4jInit extends HttpServlet {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 
-	public void init() {
-		String prefix = getServletContext().getRealPath("/");
-		String file = getInitParameter("log4j-init-file");
-		if (file != null) {
-			PropertyConfigurator.configure(prefix + file);
-		}
-	}
+    public void init() {
+        String prefix = getServletContext().getRealPath("/");
+        String file = getInitParameter("log4j-init-file");
+        if (file != null) {
+            PropertyConfigurator.configure(prefix + file);
+        }
+    }
 
-	public void doGet(HttpServletRequest req, HttpServletResponse res) {
-	}
+    public void doGet(HttpServletRequest req, HttpServletResponse res) {
+    }
 }

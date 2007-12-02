@@ -35,244 +35,244 @@ import ome.model.IEnum;
  */
 public class ITypesEnumManagerDelegate implements java.io.Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * {@link java.util.List} of {@link ome.admin.model.Enumeration}
-	 */
-	private List<Enumeration> enums = new ArrayList<Enumeration>();
+    /**
+     * {@link java.util.List} of {@link ome.admin.model.Enumeration}
+     */
+    private List<Enumeration> enums = new ArrayList<Enumeration>();
 
-	/**
-	 * {@link java.util.List} of {@link ome.admin.model.Enumeration}
-	 */
-	private List<? extends IEnum> entrys = new ArrayList();
+    /**
+     * {@link java.util.List} of {@link ome.admin.model.Enumeration}
+     */
+    private List<? extends IEnum> entrys = new ArrayList();
 
-	/**
-	 * {@link java.lang.String} set by "className";
-	 */
-	private String sortByProperty = "className";
+    /**
+     * {@link java.lang.String} set by "className";
+     */
+    private String sortByProperty = "className";
 
-	private final static int scrollerSize = Integer.parseInt(FacesContext
-			.getCurrentInstance().getExternalContext().getInitParameter(
-					"scrollerSize"));
+    private final static int scrollerSize = Integer.parseInt(FacesContext
+            .getCurrentInstance().getExternalContext().getInitParameter(
+                    "scrollerSize"));
 
-	/**
-	 * {@link java.util.Comparator}
-	 */
-	private transient final Comparator propertyAscendingComparator = new Comparator() {
-		public int compare(Object object1, Object object2) {
-			try {
-				String property1 = BeanUtils.getProperty(object1,
-						ITypesEnumManagerDelegate.this.sortByProperty);
-				String property2 = BeanUtils.getProperty(object2,
-						ITypesEnumManagerDelegate.this.sortByProperty);
+    /**
+     * {@link java.util.Comparator}
+     */
+    private transient final Comparator propertyAscendingComparator = new Comparator() {
+        public int compare(Object object1, Object object2) {
+            try {
+                String property1 = BeanUtils.getProperty(object1,
+                        ITypesEnumManagerDelegate.this.sortByProperty);
+                String property2 = BeanUtils.getProperty(object2,
+                        ITypesEnumManagerDelegate.this.sortByProperty);
 
-				return property1.toLowerCase().compareTo(
-						property2.toLowerCase());
-			} catch (Exception e) {
-				return 0;
-			}
-		}
-	};
+                return property1.toLowerCase().compareTo(
+                        property2.toLowerCase());
+            } catch (Exception e) {
+                return 0;
+            }
+        }
+    };
 
-	/**
-	 * {@link java.util.Comparator}
-	 */
-	private transient final Comparator propertyDescendingComparator = new Comparator() {
-		public int compare(Object object1, Object object2) {
-			try {
-				String property1 = BeanUtils.getProperty(object1,
-						ITypesEnumManagerDelegate.this.sortByProperty);
-				String property2 = BeanUtils.getProperty(object2,
-						ITypesEnumManagerDelegate.this.sortByProperty);
+    /**
+     * {@link java.util.Comparator}
+     */
+    private transient final Comparator propertyDescendingComparator = new Comparator() {
+        public int compare(Object object1, Object object2) {
+            try {
+                String property1 = BeanUtils.getProperty(object1,
+                        ITypesEnumManagerDelegate.this.sortByProperty);
+                String property2 = BeanUtils.getProperty(object2,
+                        ITypesEnumManagerDelegate.this.sortByProperty);
 
-				return property2.toLowerCase().compareTo(
-						property1.toLowerCase());
-			} catch (Exception e) {
-				return 0;
-			}
-		}
-	};
+                return property2.toLowerCase().compareTo(
+                        property1.toLowerCase());
+            } catch (Exception e) {
+                return 0;
+            }
+        }
+    };
 
-	/**
-	 * {@link ome.admin.data.ConnectionDB}
-	 */
-	private ConnectionDB db;
+    /**
+     * {@link ome.admin.data.ConnectionDB}
+     */
+    private ConnectionDB db;
 
-	/**
-	 * Creates a new instance of ITypesEnumManagerDelegate.
-	 */
-	public ITypesEnumManagerDelegate() {
-		db = new ConnectionDB();
-		getEnumerationsWithEntries();
-	}
+    /**
+     * Creates a new instance of ITypesEnumManagerDelegate.
+     */
+    public ITypesEnumManagerDelegate() {
+        db = new ConnectionDB();
+        getEnumerationsWithEntries();
+    }
 
-	/**
-	 * Allowes scroller to appear.
-	 * 
-	 * @return boolean
-	 */
-	public boolean setScroller() {
-		if (this.enums.size() > scrollerSize)
-			return true;
-		else
-			return false;
-	}
+    /**
+     * Allowes scroller to appear.
+     * 
+     * @return boolean
+     */
+    public boolean setScroller() {
+        if (this.enums.size() > scrollerSize)
+            return true;
+        else
+            return false;
+    }
 
-	/**
-	 * Gets {@link java.util.List} of {@link ome.admin.model.Enumeration}.
-	 * 
-	 * @return {@link java.util.List}<{@link ome.admin.model.Enumeration}>.
-	 */
-	public List<Enumeration> getEnumerationsWithEntries() {
-		List<Enumeration> list = new ArrayList<Enumeration>();
-		Map map = db.getEnumerationsWithEntries();
-		for (Iterator iter = map.keySet().iterator(); iter.hasNext();) {
-			Class klass = (Class) iter.next();
-			List<? extends IEnum> entries = (List<? extends IEnum>) map
-					.get(klass);
+    /**
+     * Gets {@link java.util.List} of {@link ome.admin.model.Enumeration}.
+     * 
+     * @return {@link java.util.List}<{@link ome.admin.model.Enumeration}>.
+     */
+    public List<Enumeration> getEnumerationsWithEntries() {
+        List<Enumeration> list = new ArrayList<Enumeration>();
+        Map map = db.getEnumerationsWithEntries();
+        for (Iterator iter = map.keySet().iterator(); iter.hasNext();) {
+            Class klass = (Class) iter.next();
+            List<? extends IEnum> entries = (List<? extends IEnum>) map
+                    .get(klass);
 
-			Enumeration en = new Enumeration();
-			en.setClassName(klass.getName());
-			en.setEntryList(entries);
-			list.add(en);
-		}
-		this.enums = list;
-		return this.enums;
-	}
+            Enumeration en = new Enumeration();
+            en.setClassName(klass.getName());
+            en.setEntryList(entries);
+            list.add(en);
+        }
+        this.enums = list;
+        return this.enums;
+    }
 
-	/**
-	 * Gets {@link java.util.List} of {@link ome.model.meta.ExperimenterGroup}
-	 * which was add for select default group list.
-	 * 
-	 * @return {@link java.util.List}<{@link ome.model.meta.ExperimenterGroup}>.
-	 */
-	public List<Class<IEnum>> getEnumerations() {
-		return db.getEnumerations();
-	}
+    /**
+     * Gets {@link java.util.List} of {@link ome.model.meta.ExperimenterGroup}
+     * which was add for select default group list.
+     * 
+     * @return {@link java.util.List}<{@link ome.model.meta.ExperimenterGroup}>.
+     */
+    public List<Class<IEnum>> getEnumerations() {
+        return db.getEnumerations();
+    }
 
-	public List<? extends IEnum> getEntries(Class klass) {
-		return (List<? extends IEnum>) db.getEntries(klass);
-	}
+    public List<? extends IEnum> getEntries(Class klass) {
+        return (List<? extends IEnum>) db.getEntries(klass);
+    }
 
-	/**
-	 * Adds new object extends IEnum.
-	 * 
-	 * @param en
-	 *            {@link ome.admin.model.Enumeration}
-	 * @throws ClassNotFoundException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 * @throws NoSuchMethodException
-	 * @throws InvocationTargetException
-	 * @throws SecurityException
-	 * @throws IllegalArgumentException
-	 */
-	public void addEnumeration(Enumeration en) throws ClassNotFoundException,
-			InstantiationException, IllegalAccessException,
-			IllegalArgumentException, SecurityException,
-			InvocationTargetException, NoSuchMethodException {
-		Class klass = Class.forName(en.getClassName());
-		db.createEnumeration((IEnum) klass.getConstructor(String.class)
-				.newInstance(en.getEvent()));
-	}
+    /**
+     * Adds new object extends IEnum.
+     * 
+     * @param en
+     *            {@link ome.admin.model.Enumeration}
+     * @throws ClassNotFoundException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     * @throws SecurityException
+     * @throws IllegalArgumentException
+     */
+    public void addEnumeration(Enumeration en) throws ClassNotFoundException,
+            InstantiationException, IllegalAccessException,
+            IllegalArgumentException, SecurityException,
+            InvocationTargetException, NoSuchMethodException {
+        Class klass = Class.forName(en.getClassName());
+        db.createEnumeration((IEnum) klass.getConstructor(String.class)
+                .newInstance(en.getEvent()));
+    }
 
-	/**
-	 * Deletes object extends IEnum
-	 * 
-	 * @param en
-	 *            Object extends IEnum
-	 */
-	public void delEnumeration(IEnum en) {
-		db.deleteEnumeration(en);
-	}
+    /**
+     * Deletes object extends IEnum
+     * 
+     * @param en
+     *            Object extends IEnum
+     */
+    public void delEnumeration(IEnum en) {
+        db.deleteEnumeration(en);
+    }
 
-	/**
-	 * Updates list of objects extend IEnum
-	 * 
-	 * @param list
-	 *            {@link java.util.List} of objects extend IEnum
-	 */
-	public void updateEnumerations(List<? extends IEnum> list) {
-		db.updateEnumerations(list);
-	}
+    /**
+     * Updates list of objects extend IEnum
+     * 
+     * @param list
+     *            {@link java.util.List} of objects extend IEnum
+     */
+    public void updateEnumerations(List<? extends IEnum> list) {
+        db.updateEnumerations(list);
+    }
 
-	/**
-	 * {@link java.util.List}<{@link ome.admin.model.Enumeration}>.
-	 * 
-	 * @param sortItem
-	 *            {@link java.lang.String}.
-	 * @param sort
-	 *            {@link java.lang.String}.
-	 * @return {@link java.util.List}<{@link ome.admin.model.Enumeration}>.
-	 */
-	public List<Enumeration> sortItems(String sortItem, String sort) {
-		sortByProperty = sortItem;
-		if (sort.equals("asc"))
-			sort(propertyAscendingComparator);
-		else if (sort.equals("dsc"))
-			sort(propertyDescendingComparator);
-		return enums;
-	}
+    /**
+     * {@link java.util.List}<{@link ome.admin.model.Enumeration}>.
+     * 
+     * @param sortItem
+     *            {@link java.lang.String}.
+     * @param sort
+     *            {@link java.lang.String}.
+     * @return {@link java.util.List}<{@link ome.admin.model.Enumeration}>.
+     */
+    public List<Enumeration> sortItems(String sortItem, String sort) {
+        sortByProperty = sortItem;
+        if (sort.equals("asc"))
+            sort(propertyAscendingComparator);
+        else if (sort.equals("dsc"))
+            sort(propertyDescendingComparator);
+        return enums;
+    }
 
-	/**
-	 * {@link java.util.List}<{@link ome.admin.model.Enumeration}>.
-	 * 
-	 * @param sortItem
-	 *            {@link java.lang.String}.
-	 * @param sort
-	 *            {@link java.lang.String}.
-	 * @return {@link java.util.List}<{@link ome.admin.model.Enumeration}>.
-	 */
-	public List<Enumeration> getAndSortItems(String sortItem, String sort) {
-		this.enums = getEnumerationsWithEntries();
-		sortByProperty = sortItem;
-		if (sort.equals("asc"))
-			sort(propertyAscendingComparator);
-		else if (sort.equals("dsc"))
-			sort(propertyDescendingComparator);
-		return enums;
-	}
+    /**
+     * {@link java.util.List}<{@link ome.admin.model.Enumeration}>.
+     * 
+     * @param sortItem
+     *            {@link java.lang.String}.
+     * @param sort
+     *            {@link java.lang.String}.
+     * @return {@link java.util.List}<{@link ome.admin.model.Enumeration}>.
+     */
+    public List<Enumeration> getAndSortItems(String sortItem, String sort) {
+        this.enums = getEnumerationsWithEntries();
+        sortByProperty = sortItem;
+        if (sort.equals("asc"))
+            sort(propertyAscendingComparator);
+        else if (sort.equals("dsc"))
+            sort(propertyDescendingComparator);
+        return enums;
+    }
 
-	/**
-	 * {@link java.util.List}<{@link ome.admin.model.Enumeration}>.
-	 * 
-	 * @param sortItem
-	 *            {@link java.lang.String}.
-	 * @param sort
-	 *            {@link java.lang.String}.
-	 * @return {@link java.util.List}<{@link ome.admin.model.Enumeration}>.
-	 */
-	public List<? extends IEnum> getAndSortEntrys(String sortItem, String sort,
-			List<? extends IEnum> list, Class klass) {
-		if (list == null)
-			this.entrys = getEntries(klass);
-		else if (klass == null)
-			this.entrys = list;
+    /**
+     * {@link java.util.List}<{@link ome.admin.model.Enumeration}>.
+     * 
+     * @param sortItem
+     *            {@link java.lang.String}.
+     * @param sort
+     *            {@link java.lang.String}.
+     * @return {@link java.util.List}<{@link ome.admin.model.Enumeration}>.
+     */
+    public List<? extends IEnum> getAndSortEntrys(String sortItem, String sort,
+            List<? extends IEnum> list, Class klass) {
+        if (list == null)
+            this.entrys = getEntries(klass);
+        else if (klass == null)
+            this.entrys = list;
 
-		sortByProperty = sortItem;
-		if (sort.equals("asc"))
-			sort(propertyAscendingComparator);
-		else if (sort.equals("dsc"))
-			sort(propertyDescendingComparator);
-		return entrys;
-	}
+        sortByProperty = sortItem;
+        if (sort.equals("asc"))
+            sort(propertyAscendingComparator);
+        else if (sort.equals("dsc"))
+            sort(propertyDescendingComparator);
+        return entrys;
+    }
 
-	/**
-	 * Sort {@link ome.admin.model.Enumeration} by {@link java.util.Comparator}
-	 * 
-	 * @param comparator
-	 *            {@link java.util.Comparator}.
-	 */
-	private void sort(Comparator comparator) {
-		Collections.sort(enums, comparator);
-	}
+    /**
+     * Sort {@link ome.admin.model.Enumeration} by {@link java.util.Comparator}
+     * 
+     * @param comparator
+     *            {@link java.util.Comparator}.
+     */
+    private void sort(Comparator comparator) {
+        Collections.sort(enums, comparator);
+    }
 
-	public boolean checkEnumeration(Class klass, String value) throws Exception {
-		return db.checkEnumeration(klass, value);
-	}
+    public boolean checkEnumeration(Class klass, String value) throws Exception {
+        return db.checkEnumeration(klass, value);
+    }
 
 }

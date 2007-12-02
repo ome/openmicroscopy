@@ -37,77 +37,77 @@ import org.apache.log4j.Logger;
  */
 public class Logout extends HttpServlet {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * log4j logger
-	 */
-	static Logger logger = Logger.getLogger(Logout.class.getName());
+    /**
+     * log4j logger
+     */
+    static Logger logger = Logger.getLogger(Logout.class.getName());
 
-	/**
-	 * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-	 * methods.
-	 * 
-	 * @param request
-	 *            servlet request
-	 * @param response
-	 *            servlet response
-	 */
-	protected void processRequest(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		logger.info("Logout");
-		HttpSession session = request.getSession(true);
-		FacesContext facesContext = FacesContext.getCurrentInstance();
-		if (facesContext == null) {
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     * 
+     * @param request
+     *            servlet request
+     * @param response
+     *            servlet response
+     */
+    protected void processRequest(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
+        logger.info("Logout");
+        HttpSession session = request.getSession(true);
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        if (facesContext == null) {
 
-			FacesContextFactory contextFactory = (FacesContextFactory) FactoryFinder
-					.getFactory(FactoryFinder.FACES_CONTEXT_FACTORY);
-			LifecycleFactory lifecycleFactory = (LifecycleFactory) FactoryFinder
-					.getFactory(FactoryFinder.LIFECYCLE_FACTORY);
-			Lifecycle lifecycle = lifecycleFactory
-					.getLifecycle(LifecycleFactory.DEFAULT_LIFECYCLE);
+            FacesContextFactory contextFactory = (FacesContextFactory) FactoryFinder
+                    .getFactory(FactoryFinder.FACES_CONTEXT_FACTORY);
+            LifecycleFactory lifecycleFactory = (LifecycleFactory) FactoryFinder
+                    .getFactory(FactoryFinder.LIFECYCLE_FACTORY);
+            Lifecycle lifecycle = lifecycleFactory
+                    .getLifecycle(LifecycleFactory.DEFAULT_LIFECYCLE);
 
-			facesContext = contextFactory.getFacesContext(request.getSession()
-					.getServletContext(), request, response, lifecycle);
+            facesContext = contextFactory.getFacesContext(request.getSession()
+                    .getServletContext(), request, response, lifecycle);
 
-			// set a new viewRoot, otherwise context.getViewRoot returns null
-			UIViewRoot view = facesContext.getApplication().getViewHandler()
-					.createView(facesContext, "");
-			facesContext.setViewRoot(view);
-		}
-		session = (HttpSession) facesContext.getExternalContext().getSession(
-				false);
-		session.invalidate();
-		response.sendRedirect("./index.jsp");
-	}
+            // set a new viewRoot, otherwise context.getViewRoot returns null
+            UIViewRoot view = facesContext.getApplication().getViewHandler()
+                    .createView(facesContext, "");
+            facesContext.setViewRoot(view);
+        }
+        session = (HttpSession) facesContext.getExternalContext().getSession(
+                false);
+        session.invalidate();
+        response.sendRedirect("./index.jsp");
+    }
 
-	/**
-	 * Handles the HTTP <code>GET</code> method.
-	 * 
-	 * @param request
-	 *            servlet request
-	 * @param response
-	 *            servlet response
-	 */
-	protected void doGet(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		processRequest(request, response);
-	}
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     * 
+     * @param request
+     *            servlet request
+     * @param response
+     *            servlet response
+     */
+    protected void doGet(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
+        processRequest(request, response);
+    }
 
-	/**
-	 * Handles the HTTP <code>POST</code> method.
-	 * 
-	 * @param request
-	 *            servlet request
-	 * @param response
-	 *            servlet response
-	 */
-	protected void doPost(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		processRequest(request, response);
-	}
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     * 
+     * @param request
+     *            servlet request
+     * @param response
+     *            servlet response
+     */
+    protected void doPost(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
+        processRequest(request, response);
+    }
 
 }

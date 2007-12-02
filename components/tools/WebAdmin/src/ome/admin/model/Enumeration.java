@@ -7,17 +7,17 @@
 
 package ome.admin.model;
 
-//Java imports
+// Java imports
 import java.util.Collections;
 import java.util.List;
 
-//Third-party libraries
+// Third-party libraries
 
 // Application-internal dependencies
 import ome.model.IEnum;
 
 /**
- * It's model for {@link ome.admin.controller.ITypeEnumController}
+ * It's model for {@link ome.admin.controller.ITypesEnumController}
  * 
  * @author Aleksandra Tarkowska &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:A.Tarkowska@dundee.ac.uk">A.Tarkowska@dundee.ac.uk</a>
@@ -26,68 +26,77 @@ import ome.model.IEnum;
  */
 
 public class Enumeration {
-	
-	/**
-	 * List provides objects extends IEnum
-	 */
-	private List<? extends IEnum> enumList = Collections.EMPTY_LIST;
-	
-	/**
-	 * String provides name of class
-	 */
-	private String className = null;
-	
-	/**
-	 * String provides value
-	 */
-	private String event = null;
-	
-	/**
-	 * Gets event
-	 * @return {@link java.lang.String}
-	 */
-	public String getEvent() {
-		return event;
-	}
 
-	/**
-	 * Sets event
-	 * @param event {@link java.lang.String}
-	 */
-	public void setEvent(String event) {
-		this.event = event;
-	}
+    /**
+     * List provides objects extends IEnum
+     */
+    private List<? extends IEnum> enumList = Collections.EMPTY_LIST;
 
-	/**
-	 * Gets list of objects extends IEnum
-	 * @return {@link java.util.List}
-	 */
-	public List<? extends IEnum> getEntryList() {
-		return enumList;
-	}
+    /**
+     * String provides name of class
+     */
+    private String className = null;
 
-	/**
-	 * Sets list of objects extends IEnum
-	 * @param enumList {@link java.util.List}
-	 */
-	public void setEntryList(List<? extends IEnum> enumList) {
-		this.enumList = enumList;
-	}
-	
-	/**
-	 * Gets class name
-	 * @return {@link java.lang.String}
-	 */
-	public String getClassName() {
-		return className;
-	}
+    /**
+     * String provides value
+     */
+    private String event = null;
 
-	/**
-	 * Sets class name
-	 * @param className {@link java.lang.String}
-	 */
-	public void setClassName(String className) {
-		this.className = className;
-	}
-	
+    /**
+     * Gets event
+     * 
+     * @return {@link java.lang.String}
+     */
+    public String getEvent() {
+        return event;
+    }
+
+    /**
+     * Sets event
+     * 
+     * @param event
+     *            {@link java.lang.String}
+     */
+    public void setEvent(String event) {
+        this.event = event;
+    }
+
+    /**
+     * Gets list of objects extends IEnum
+     * 
+     * @return {@link java.util.List}
+     */
+    public List<? extends IEnum> getEntryList() {
+        return enumList;
+    }
+
+    /**
+     * Sets list of objects extends IEnum
+     * 
+     * @param enumList
+     *            {@link java.util.List}
+     */
+    public void setEntryList(List<? extends IEnum> enumList) {
+        this.enumList = enumList;
+    }
+
+    /**
+     * Gets class name
+     * 
+     * @return {@link java.lang.String}
+     */
+    public String getClassName() {
+        return className;
+    }
+
+    /**
+     * Sets class name
+     * 
+     * @param className
+     *            {@link java.lang.String}
+     */
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
 }

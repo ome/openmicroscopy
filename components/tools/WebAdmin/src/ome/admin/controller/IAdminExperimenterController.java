@@ -45,561 +45,561 @@ import ome.admin.model.User;
  */
 public class IAdminExperimenterController implements java.io.Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * log4j logger
-	 */
-	static Logger logger = Logger.getLogger(IAdminExperimenterController.class
-			.getName());
+    /**
+     * log4j logger
+     */
+    static Logger logger = Logger.getLogger(IAdminExperimenterController.class
+            .getName());
 
-	/**
-	 * {@link ome.admin.model.User}.
-	 */
-	private User user = new User();
+    /**
+     * {@link ome.admin.model.User}.
+     */
+    private User user = new User();
 
-	/**
-	 * {@link javax.faces.model.ListDataModel} The data collection wrapped by
-	 * this {@link javax.faces.model.DataModel}.
-	 */
-	private DataModel userModel = new ListDataModel();
+    /**
+     * {@link javax.faces.model.ListDataModel} The data collection wrapped by
+     * this {@link javax.faces.model.DataModel}.
+     */
+    private DataModel userModel = new ListDataModel();
 
-	/**
-	 * {@link ome.admin.logic.IAdminExperimenterManagerDelegate}.
-	 */
-	private IAdminExperimenterManagerDelegate iadmin = new IAdminExperimenterManagerDelegate();
+    /**
+     * {@link ome.admin.logic.IAdminExperimenterManagerDelegate}.
+     */
+    private IAdminExperimenterManagerDelegate iadmin = new IAdminExperimenterManagerDelegate();
 
-	/**
-	 * boolean value for providing Add/Edit form in one JSP.
-	 */
-	private boolean editMode = false;
+    /**
+     * boolean value for providing Add/Edit form in one JSP.
+     */
+    private boolean editMode = false;
 
-	/**
-	 * boolean value for providing scroller on the data table.
-	 */
-	private boolean scrollerMode = true;
+    /**
+     * boolean value for providing scroller on the data table.
+     */
+    private boolean scrollerMode = true;
 
-	/**
-	 * Sort item default value "lastName".
-	 */
-	private String sortItem = "lastName";
+    /**
+     * Sort item default value "lastName".
+     */
+    private String sortItem = "lastName";
 
-	/**
-	 * Sort attribute default value is "asc".
-	 */
-	private String sort = "asc";
+    /**
+     * Sort attribute default value is "asc".
+     */
+    private String sort = "asc";
 
-	/**
-	 * String not-null. Might must pass validation in the security sub-system.
-	 */
-	private String password;
+    /**
+     * String not-null. Might must pass validation in the security sub-system.
+     */
+    private String password;
 
-	/**
-	 * String not-null. Might must pass validation in the security sub-system.
-	 * Confirmation of password.
-	 */
-	private String password2;
+    /**
+     * String not-null. Might must pass validation in the security sub-system.
+     * Confirmation of password.
+     */
+    private String password2;
 
-	/**
-	 * Creates a new instance of IAdminExperimenterController.
-	 */
-	public IAdminExperimenterController() {
-		this.userModel.setWrappedData(iadmin.getAndSortItems(sortItem, sort));
-		this.scrollerMode = iadmin.setScroller();
-	}
+    /**
+     * Creates a new instance of IAdminExperimenterController.
+     */
+    public IAdminExperimenterController() {
+        this.userModel.setWrappedData(iadmin.getAndSortItems(sortItem, sort));
+        this.scrollerMode = iadmin.setScroller();
+    }
 
-	/**
-	 * Sets {@link ome.admin.controller.IAdminExperimenterController#password}.
-	 * 
-	 * @param password
-	 *            String not-null. Might must pass validation in the security
-	 *            sub-system.
-	 */
-	public void setPassword(String password) {
-		if (password != null)
-			this.password = password;
-		else
-			this.password = "";
-	}
+    /**
+     * Sets {@link ome.admin.controller.IAdminExperimenterController#password}.
+     * 
+     * @param password
+     *            String not-null. Might must pass validation in the security
+     *            sub-system.
+     */
+    public void setPassword(String password) {
+        if (password != null)
+            this.password = password;
+        else
+            this.password = "";
+    }
 
-	/**
-	 * Gets {@link ome.admin.controller.IAdminExperimenterController#password}.
-	 * 
-	 * @return String not-null. Might must pass validation in the security
-	 *         sub-system.
-	 */
-	public String getPassword() {
-		return this.password;
-	}
+    /**
+     * Gets {@link ome.admin.controller.IAdminExperimenterController#password}.
+     * 
+     * @return String not-null. Might must pass validation in the security
+     *         sub-system.
+     */
+    public String getPassword() {
+        return this.password;
+    }
 
-	/**
-	 * Sets confirmation of password
-	 * {@link ome.admin.controller.IAdminExperimenterController#password2}
-	 * 
-	 * @param password2
-	 *            String not-null. Might must pass validation in the security
-	 *            sub-system. Confirmation of password.
-	 */
-	public void setPassword2(String password2) {
-		if (password2 != null)
-			this.password2 = password2;
-		else
-			this.password2 = "";
-	}
+    /**
+     * Sets confirmation of password
+     * {@link ome.admin.controller.IAdminExperimenterController#password2}
+     * 
+     * @param password2
+     *            String not-null. Might must pass validation in the security
+     *            sub-system. Confirmation of password.
+     */
+    public void setPassword2(String password2) {
+        if (password2 != null)
+            this.password2 = password2;
+        else
+            this.password2 = "";
+    }
 
-	/**
-	 * Gets confirmation of password
-	 * {@link ome.admin.controller.IAdminExperimenterController#password2}
-	 * 
-	 * @return String not-null. Might must pass validation in the security
-	 *         sub-system. Confirmation of password.
-	 */
-	public String getPassword2() {
-		return this.password2;
-	}
+    /**
+     * Gets confirmation of password
+     * {@link ome.admin.controller.IAdminExperimenterController#password2}
+     * 
+     * @return String not-null. Might must pass validation in the security
+     *         sub-system. Confirmation of password.
+     */
+    public String getPassword2() {
+        return this.password2;
+    }
 
-	/**
-	 * Gets size the data collection wrapped by this
-	 * {@link javax.faces.model.DataModel}
-	 * 
-	 * @return int
-	 */
-	public int getSize() {
-		return this.userModel.getRowCount();
-	}
+    /**
+     * Gets size the data collection wrapped by this
+     * {@link javax.faces.model.DataModel}
+     * 
+     * @return int
+     */
+    public int getSize() {
+        return this.userModel.getRowCount();
+    }
 
-	/**
-	 * Checks
-	 * {@link ome.admin.controller.IAdminExperimenterController#scrollerMode}
-	 * 
-	 * @return boolean
-	 */
-	public boolean isScrollerMode() {
-		return this.scrollerMode;
-	}
+    /**
+     * Checks
+     * {@link ome.admin.controller.IAdminExperimenterController#scrollerMode}
+     * 
+     * @return boolean
+     */
+    public boolean isScrollerMode() {
+        return this.scrollerMode;
+    }
 
-	/**
-	 * Sets
-	 * {@link ome.admin.controller.IAdminExperimenterController#scrollerMode}
-	 * 
-	 * @param scrollerMode
-	 *            boolean
-	 */
-	public void setScrollerMode(boolean scrollerMode) {
-		this.scrollerMode = scrollerMode;
-	}
+    /**
+     * Sets
+     * {@link ome.admin.controller.IAdminExperimenterController#scrollerMode}
+     * 
+     * @param scrollerMode
+     *            boolean
+     */
+    public void setScrollerMode(boolean scrollerMode) {
+        this.scrollerMode = scrollerMode;
+    }
 
-	/**
-	 * Sets {@link ome.admin.controller.IAdminExperimenterController#user}
-	 * 
-	 * @param u
-	 *            {@link ome.admin.model.User}
-	 */
-	public void setUser(User u) {
-		this.user = u;
-	}
+    /**
+     * Sets {@link ome.admin.controller.IAdminExperimenterController#user}
+     * 
+     * @param u
+     *            {@link ome.admin.model.User}
+     */
+    public void setUser(User u) {
+        this.user = u;
+    }
 
-	/**
-	 * Gets {@link ome.admin.model.User}
-	 * 
-	 * @return {@link ome.admin.controller.IAdminExperimenterController#user}
-	 */
-	public User getUser() {
-		return this.user;
-	}
+    /**
+     * Gets {@link ome.admin.model.User}
+     * 
+     * @return {@link ome.admin.controller.IAdminExperimenterController#user}
+     */
+    public User getUser() {
+        return this.user;
+    }
 
-	/**
-	 * Gets default wrapped {@link java.util.List} of
-	 * {@link ome.model.meta.Experimenter}
-	 * 
-	 * @return {@link java.util.List}
-	 */
-	public DataModel getUsers() {
-		if (this.editMode) {
-			this.userModel.setWrappedData(iadmin
-					.getAndSortItems(sortItem, sort));
-			this.scrollerMode = iadmin.setScroller();
-		}
-		return this.userModel;
-	}
+    /**
+     * Gets default wrapped {@link java.util.List} of
+     * {@link ome.model.meta.Experimenter}
+     * 
+     * @return {@link java.util.List}
+     */
+    public DataModel getUsers() {
+        if (this.editMode) {
+            this.userModel.setWrappedData(iadmin
+                    .getAndSortItems(sortItem, sort));
+            this.scrollerMode = iadmin.setScroller();
+        }
+        return this.userModel;
+    }
 
-	/**
-	 * Sets {@link ome.admin.controller.IAdminExperimenterController#editMode}
-	 * 
-	 * @param em
-	 *            boolean
-	 */
-	public void setEditMode(boolean em) {
-		this.editMode = em;
-	}
+    /**
+     * Sets {@link ome.admin.controller.IAdminExperimenterController#editMode}
+     * 
+     * @param em
+     *            boolean
+     */
+    public void setEditMode(boolean em) {
+        this.editMode = em;
+    }
 
-	/**
-	 * Checks {@link ome.admin.controller.IAdminExperimenterController#editMode}
-	 * 
-	 * @return boolean
-	 */
-	public boolean isEditMode() {
-		return editMode;
-	}
+    /**
+     * Checks {@link ome.admin.controller.IAdminExperimenterController#editMode}
+     * 
+     * @return boolean
+     */
+    public boolean isEditMode() {
+        return editMode;
+    }
 
-	/**
-	 * Gets attribute from {@link javax.faces.component.UIComponent}.
-	 * 
-	 * @param event
-	 *            {@link javax.faces.event.ActionEvent} object from the
-	 *            specified source component and action command.
-	 * @param name
-	 *            name of attribute as {@link java.lang.String}.
-	 * @return {@link java.lang.String}
-	 */
-	private static String getAttribute(ActionEvent event, String name) {
-		return (String) event.getComponent().getAttributes().get(name);
-	}
+    /**
+     * Gets attribute from {@link javax.faces.component.UIComponent}.
+     * 
+     * @param event
+     *            {@link javax.faces.event.ActionEvent} object from the
+     *            specified source component and action command.
+     * @param name
+     *            name of attribute as {@link java.lang.String}.
+     * @return {@link java.lang.String}
+     */
+    private static String getAttribute(ActionEvent event, String name) {
+        return (String) event.getComponent().getAttributes().get(name);
+    }
 
-	/**
-	 * Sorts items on the data collection of
-	 * {@link ome.model.meta.ExperimenterGroup} wrapped by this
-	 * {@link javax.faces.model.DataModel}.
-	 * 
-	 * @param event
-	 *            {@link javax.faces.event.ActionEvent} object from the
-	 *            specified source component and action command.
-	 * @return {@link ome.admin.controller.IAdminExperimenterController#sort}
-	 */
-	public String sortItems(ActionEvent event) {
-		this.sortItem = getAttribute(event, "sortItem");
-		this.sort = getAttribute(event, "sort");
-		this.userModel.setWrappedData(iadmin.sortItems(sortItem, sort));
-		this.editMode = false;
-		return this.sort;
-	}
+    /**
+     * Sorts items on the data collection of
+     * {@link ome.model.meta.ExperimenterGroup} wrapped by this
+     * {@link javax.faces.model.DataModel}.
+     * 
+     * @param event
+     *            {@link javax.faces.event.ActionEvent} object from the
+     *            specified source component and action command.
+     * @return {@link ome.admin.controller.IAdminExperimenterController#sort}
+     */
+    public String sortItems(ActionEvent event) {
+        this.sortItem = getAttribute(event, "sortItem");
+        this.sort = getAttribute(event, "sort");
+        this.userModel.setWrappedData(iadmin.sortItems(sortItem, sort));
+        this.editMode = false;
+        return this.sort;
+    }
 
-	/**
-	 * Provides the scroller action.
-	 * 
-	 * @param event
-	 *            {@link javax.faces.event.ActionEvent} object from the
-	 *            specified source component and action command.
-	 */
-	public void scrollerAction(ActionEvent event) {
-		ScrollerActionEvent scrollerEvent = (ScrollerActionEvent) event;
-		logger.info("scrollerAction: facet: "
-				+ scrollerEvent.getScrollerfacet() + ", pageindex: "
-				+ scrollerEvent.getPageIndex());
-	}
+    /**
+     * Provides the scroller action.
+     * 
+     * @param event
+     *            {@link javax.faces.event.ActionEvent} object from the
+     *            specified source component and action command.
+     */
+    public void scrollerAction(ActionEvent event) {
+        ScrollerActionEvent scrollerEvent = (ScrollerActionEvent) event;
+        logger.info("scrollerAction: facet: "
+                + scrollerEvent.getScrollerfacet() + ", pageindex: "
+                + scrollerEvent.getPageIndex());
+    }
 
-	/**
-	 * Provides action for navigation rule "changePassword" what is described in
-	 * the faces-config.xml file. Changes the password for
-	 * {@link ome.model.meta.Experimenter}.
-	 * 
-	 * @return String "success" or "false".
-	 */
-	public String changePassword() {
-		try {
-			this.user = (User) this.iadmin.getExperimenterById(this.user
-					.getExperimenter().getId());
-			this.editMode = true;
-			return NavigationResults.SUCCESS;
-		} catch (Exception e) {
-			logger.error("changePassword: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.user.getExperimenter().getId() + ", '"
-					+ this.user.getExperimenter().getOmeName() + "'] : "
-					+ e.getMessage());
-			context.addMessage("changePassword", message);
-			return NavigationResults.FALSE;
-		}
-	}
+    /**
+     * Provides action for navigation rule "changePassword" what is described in
+     * the faces-config.xml file. Changes the password for
+     * {@link ome.model.meta.Experimenter}.
+     * 
+     * @return String "success" or "false".
+     */
+    public String changePassword() {
+        try {
+            this.user = (User) this.iadmin.getExperimenterById(this.user
+                    .getExperimenter().getId());
+            this.editMode = true;
+            return NavigationResults.SUCCESS;
+        } catch (Exception e) {
+            logger.error("changePassword: " + e.getMessage());
+            FacesContext context = FacesContext.getCurrentInstance();
+            FacesMessage message = new FacesMessage("Experimenter: [id: "
+                    + this.user.getExperimenter().getId() + ", '"
+                    + this.user.getExperimenter().getOmeName() + "'] : "
+                    + e.getMessage());
+            context.addMessage("changePassword", message);
+            return NavigationResults.FALSE;
+        }
+    }
 
-	/**
-	 * Provides action for navigation rule "updatePassword" what is described in
-	 * the faces-config.xml file. Updates the password for
-	 * {@link ome.model.meta.Experimenter}.
-	 * 
-	 * @return String "success" or "false".
-	 */
-	public String updatePassword() {
-		try {
-			if (!password2.equals(this.password)) {
-				FacesContext context = FacesContext.getCurrentInstance();
-				FacesMessage message = new FacesMessage(
-						"Confirmation has to be the same as password.");
-				context.addMessage("changePassword", message);
-				return NavigationResults.FALSE;
-			} else {
-				iadmin.changePassword(this.user.getExperimenter().getOmeName(),
-						this.password);
-				return NavigationResults.SUCCESS;
-			}
-		} catch (Exception e) {
-			logger.error("updatePassword: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.user.getExperimenter().getId() + ", '"
-					+ this.user.getExperimenter().getOmeName() + "'] : "
-					+ e.getMessage());
-			context.addMessage("changePassword", message);
-			return NavigationResults.FALSE;
-		}
-	}
+    /**
+     * Provides action for navigation rule "updatePassword" what is described in
+     * the faces-config.xml file. Updates the password for
+     * {@link ome.model.meta.Experimenter}.
+     * 
+     * @return String "success" or "false".
+     */
+    public String updatePassword() {
+        try {
+            if (!password2.equals(this.password)) {
+                FacesContext context = FacesContext.getCurrentInstance();
+                FacesMessage message = new FacesMessage(
+                        "Confirmation has to be the same as password.");
+                context.addMessage("changePassword", message);
+                return NavigationResults.FALSE;
+            } else {
+                iadmin.changePassword(this.user.getExperimenter().getOmeName(),
+                        this.password);
+                return NavigationResults.SUCCESS;
+            }
+        } catch (Exception e) {
+            logger.error("updatePassword: " + e.getMessage());
+            FacesContext context = FacesContext.getCurrentInstance();
+            FacesMessage message = new FacesMessage("Experimenter: [id: "
+                    + this.user.getExperimenter().getId() + ", '"
+                    + this.user.getExperimenter().getOmeName() + "'] : "
+                    + e.getMessage());
+            context.addMessage("changePassword", message);
+            return NavigationResults.FALSE;
+        }
+    }
 
-	/**
-	 * Provides action for navigation rule "addNewExperimenter" what is
-	 * described in the faces-config.xml file.
-	 * 
-	 * @return {@link java.lang.String} "success" or "false"
-	 */
-	public String addNewExperimenter() {
-		this.editMode = false;
-		this.user = new User();
-		this.user.setDefaultGroup("2");
-		return NavigationResults.SUCCESS;
-	}
+    /**
+     * Provides action for navigation rule "addNewExperimenter" what is
+     * described in the faces-config.xml file.
+     * 
+     * @return {@link java.lang.String} "success" or "false"
+     */
+    public String addNewExperimenter() {
+        this.editMode = false;
+        this.user = new User();
+        this.user.setDefaultGroup("2");
+        return NavigationResults.SUCCESS;
+    }
 
-	/**
-	 * Provides action for navigation rule "addExperimenter" what is described
-	 * in the faces-config.xml file.
-	 * 
-	 * @return {@link java.lang.String} "success" or "false"
-	 */
-	public String addExperimenter() {
-		try {
-			if (this.user.getSelectedGroups() == null)
-				this.user.setSelectedGroups(Collections.EMPTY_LIST);
-			iadmin.createExperimenter(this.user);
-			this.userModel.setWrappedData(iadmin
-					.getAndSortItems(sortItem, sort));
-			return NavigationResults.SUCCESS;
-		} catch (Exception e) {
-			logger.error("createExperimenter: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.user.getExperimenter().getId() + ", '"
-					+ this.user.getExperimenter().getOmeName() + "'] : "
-					+ e.getMessage());
-			context.addMessage("experimenters", message);
-			return NavigationResults.FALSE;
-		}
-	}
+    /**
+     * Provides action for navigation rule "addExperimenter" what is described
+     * in the faces-config.xml file.
+     * 
+     * @return {@link java.lang.String} "success" or "false"
+     */
+    public String addExperimenter() {
+        try {
+            if (this.user.getSelectedGroups() == null)
+                this.user.setSelectedGroups(Collections.EMPTY_LIST);
+            iadmin.createExperimenter(this.user);
+            this.userModel.setWrappedData(iadmin
+                    .getAndSortItems(sortItem, sort));
+            return NavigationResults.SUCCESS;
+        } catch (Exception e) {
+            logger.error("createExperimenter: " + e.getMessage());
+            FacesContext context = FacesContext.getCurrentInstance();
+            FacesMessage message = new FacesMessage("Experimenter: [id: "
+                    + this.user.getExperimenter().getId() + ", '"
+                    + this.user.getExperimenter().getOmeName() + "'] : "
+                    + e.getMessage());
+            context.addMessage("experimenters", message);
+            return NavigationResults.FALSE;
+        }
+    }
 
-	/**
-	 * Provides action for navigation rule "editExperimenter" what is described
-	 * in the faces-config.xml file.
-	 * 
-	 * @return {@link java.lang.String} "success" or "false"
-	 */
-	public String editExperimenter() {
-		try {
-			this.editMode = true;
-			// this.user = (User) userModel.getRowData();
-			this.user = (User) iadmin.getExperimenterById(((User) userModel
-					.getRowData()).getExperimenter().getId());
-			return NavigationResults.SUCCESS;
-		} catch (Exception e) {
-			logger.error("editExperimenter: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.user.getExperimenter().getId() + ", '"
-					+ this.user.getExperimenter().getOmeName() + "'] : "
-					+ e.getMessage());
-			context.addMessage("experimenters", message);
-			return NavigationResults.FALSE;
-		}
-	}
+    /**
+     * Provides action for navigation rule "editExperimenter" what is described
+     * in the faces-config.xml file.
+     * 
+     * @return {@link java.lang.String} "success" or "false"
+     */
+    public String editExperimenter() {
+        try {
+            this.editMode = true;
+            // this.user = (User) userModel.getRowData();
+            this.user = (User) iadmin.getExperimenterById(((User) userModel
+                    .getRowData()).getExperimenter().getId());
+            return NavigationResults.SUCCESS;
+        } catch (Exception e) {
+            logger.error("editExperimenter: " + e.getMessage());
+            FacesContext context = FacesContext.getCurrentInstance();
+            FacesMessage message = new FacesMessage("Experimenter: [id: "
+                    + this.user.getExperimenter().getId() + ", '"
+                    + this.user.getExperimenter().getOmeName() + "'] : "
+                    + e.getMessage());
+            context.addMessage("experimenters", message);
+            return NavigationResults.FALSE;
+        }
+    }
 
-	/**
-	 * Provides action for navigation rule "deleteExperimenter" what is
-	 * described in the faces-config.xml file.
-	 * 
-	 * @return {@link java.lang.String} "success" or "false"
-	 */
-	public String delExperimenter() {
-		try {
-			this.user = (User) userModel.getRowData();
-			iadmin.deleteExperimenter(this.user.getExperimenter().getId());
-			this.userModel.setWrappedData(iadmin
-					.getAndSortItems(sortItem, sort));
-			this.scrollerMode = iadmin.setScroller();
-			return NavigationResults.SUCCESS;
-		} catch (Exception e) {
-			logger.error("deleteExperimenter: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.user.getExperimenter().getId() + ", '"
-					+ this.user.getExperimenter().getOmeName() + "'] : "
-					+ e.getMessage());
-			context.addMessage("experimenters", message);
-			return NavigationResults.FALSE;
-		}
+    /**
+     * Provides action for navigation rule "deleteExperimenter" what is
+     * described in the faces-config.xml file.
+     * 
+     * @return {@link java.lang.String} "success" or "false"
+     */
+    public String delExperimenter() {
+        try {
+            this.user = (User) userModel.getRowData();
+            iadmin.deleteExperimenter(this.user.getExperimenter().getId());
+            this.userModel.setWrappedData(iadmin
+                    .getAndSortItems(sortItem, sort));
+            this.scrollerMode = iadmin.setScroller();
+            return NavigationResults.SUCCESS;
+        } catch (Exception e) {
+            logger.error("deleteExperimenter: " + e.getMessage());
+            FacesContext context = FacesContext.getCurrentInstance();
+            FacesMessage message = new FacesMessage("Experimenter: [id: "
+                    + this.user.getExperimenter().getId() + ", '"
+                    + this.user.getExperimenter().getOmeName() + "'] : "
+                    + e.getMessage());
+            context.addMessage("experimenters", message);
+            return NavigationResults.FALSE;
+        }
 
-	}
+    }
 
-	/**
-	 * Provides action for navigation rule "updateExperimenter" what is
-	 * described in the faces-config.xml file.
-	 * 
-	 * @return {@link java.lang.String} "success" or "false"
-	 */
-	public String updateExperimenter() {
-		try {
-			iadmin.updateExperimenter(this.user);
-			this.userModel.setWrappedData(iadmin
-					.getAndSortItems(sortItem, sort));
-			return NavigationResults.SUCCESS;
-		} catch (Exception e) {
-			logger.error("updateExperimenter: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.user.getExperimenter().getId() + ", '"
-					+ this.user.getExperimenter().getOmeName() + "'] : "
-					+ e.getMessage());
-			context.addMessage("experimenterForm", message);
-			return NavigationResults.FALSE;
-		}
+    /**
+     * Provides action for navigation rule "updateExperimenter" what is
+     * described in the faces-config.xml file.
+     * 
+     * @return {@link java.lang.String} "success" or "false"
+     */
+    public String updateExperimenter() {
+        try {
+            iadmin.updateExperimenter(this.user);
+            this.userModel.setWrappedData(iadmin
+                    .getAndSortItems(sortItem, sort));
+            return NavigationResults.SUCCESS;
+        } catch (Exception e) {
+            logger.error("updateExperimenter: " + e.getMessage());
+            FacesContext context = FacesContext.getCurrentInstance();
+            FacesMessage message = new FacesMessage("Experimenter: [id: "
+                    + this.user.getExperimenter().getId() + ", '"
+                    + this.user.getExperimenter().getOmeName() + "'] : "
+                    + e.getMessage());
+            context.addMessage("experimenterForm", message);
+            return NavigationResults.FALSE;
+        }
 
-	}
+    }
 
-	/**
-	 * Gets default wrapped {@link java.util.List} of
-	 * {@link ome.model.meta.ExperimenterGroup}
-	 * 
-	 * @return {@link java.util.List} never-null.
-	 */
-	public List<SelectItem> getDefaultGroups() {
-		List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
-		try {
-			groups = iadmin.getGroupsAdd();
-		} catch (Exception e) {
-			logger.error("getDefaultGroups: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.user.getExperimenter().getId() + ", '"
-					+ this.user.getExperimenter().getOmeName() + "'] : "
-					+ e.getMessage());
-			context.addMessage("experimenterForm", message);
-		}
-		return Utils.wrapExperimenterGroupAsGUIList(groups);
-	}
+    /**
+     * Gets default wrapped {@link java.util.List} of
+     * {@link ome.model.meta.ExperimenterGroup}
+     * 
+     * @return {@link java.util.List} never-null.
+     */
+    public List<SelectItem> getDefaultGroups() {
+        List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
+        try {
+            groups = iadmin.getGroupsAdd();
+        } catch (Exception e) {
+            logger.error("getDefaultGroups: " + e.getMessage());
+            FacesContext context = FacesContext.getCurrentInstance();
+            FacesMessage message = new FacesMessage("Experimenter: [id: "
+                    + this.user.getExperimenter().getId() + ", '"
+                    + this.user.getExperimenter().getOmeName() + "'] : "
+                    + e.getMessage());
+            context.addMessage("experimenterForm", message);
+        }
+        return Utils.wrapExperimenterGroupAsGUIList(groups);
+    }
 
-	/**
-	 * Create empty {@link ome.model.meta.ExperimenterGroup}
-	 * 
-	 * @return {@link ome.model.meta.ExperimenterGroup} never-null.
-	 */
-	private ExperimenterGroup emptyGroup() {
-		ExperimenterGroup empty = new ExperimenterGroup();
-		empty.setId(-1L);
-		empty.setName(" ");
-		return empty;
-	}
+    /**
+     * Create empty {@link ome.model.meta.ExperimenterGroup}
+     * 
+     * @return {@link ome.model.meta.ExperimenterGroup} never-null.
+     */
+    private ExperimenterGroup emptyGroup() {
+        ExperimenterGroup empty = new ExperimenterGroup();
+        empty.setId(-1L);
+        empty.setName(" ");
+        return empty;
+    }
 
-	/**
-	 * Gets wrapped {@link java.util.List} of
-	 * {@link ome.model.meta.ExperimenterGroup}
-	 * 
-	 * @return {@link java.util.List}
-	 */
-	public List<SelectItem> getOtherGroups() {
-		List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
-		try {
-			if (this.editMode)
-				groups.add(emptyGroup());
-			groups.addAll(iadmin.getGroups());
-		} catch (Exception e) {
-			logger.error("getOtherGroups: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.user.getExperimenter().getId() + ", '"
-					+ this.user.getExperimenter().getOmeName() + "'] : "
-					+ e.getMessage());
-			context.addMessage("experimenterForm", message);
-		}
-		return Utils.wrapExperimenterGroupAsGUIList(groups);
-	}
+    /**
+     * Gets wrapped {@link java.util.List} of
+     * {@link ome.model.meta.ExperimenterGroup}
+     * 
+     * @return {@link java.util.List}
+     */
+    public List<SelectItem> getOtherGroups() {
+        List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
+        try {
+            if (this.editMode)
+                groups.add(emptyGroup());
+            groups.addAll(iadmin.getGroups());
+        } catch (Exception e) {
+            logger.error("getOtherGroups: " + e.getMessage());
+            FacesContext context = FacesContext.getCurrentInstance();
+            FacesMessage message = new FacesMessage("Experimenter: [id: "
+                    + this.user.getExperimenter().getId() + ", '"
+                    + this.user.getExperimenter().getOmeName() + "'] : "
+                    + e.getMessage());
+            context.addMessage("experimenterForm", message);
+        }
+        return Utils.wrapExperimenterGroupAsGUIList(groups);
+    }
 
-	/**
-	 * Provides validaton for email
-	 * 
-	 * @param context
-	 *            {@link javax.faces.context.FacesContext}
-	 * @param toValidate
-	 *            {@link javax.faces.component.UIComponent}
-	 * @param value
-	 *            {@link java.lang.Object}
-	 */
-	public void validateEmail(FacesContext context, UIComponent toValidate,
-			Object value) {
-		try {
-			String email = (String) value;
+    /**
+     * Provides validaton for email
+     * 
+     * @param context
+     *            {@link javax.faces.context.FacesContext}
+     * @param toValidate
+     *            {@link javax.faces.component.UIComponent}
+     * @param value
+     *            {@link java.lang.Object}
+     */
+    public void validateEmail(FacesContext context, UIComponent toValidate,
+            Object value) {
+        try {
+            String email = (String) value;
 
-			if (email.indexOf('@') == -1) {
-				((UIInput) toValidate).setValid(false);
-				FacesMessage message = new FacesMessage("Invalid Email");
-				context.addMessage(toValidate.getClientId(context), message);
-			}
-			if (iadmin.checkEmail(email)
-					&& !email.equals(this.user.getExperimenter().getEmail())) {
-				((UIInput) toValidate).setValid(false);
-				FacesMessage message = new FacesMessage("Email exist");
-				context.addMessage(toValidate.getClientId(context), message);
-			}
-		} catch (Exception e) {
-			logger.error("validateEmail: " + e.getMessage());
-			FacesMessage message = new FacesMessage("Experimenter: [id: "
-					+ this.user.getExperimenter().getId() + ", '"
-					+ this.user.getExperimenter().getOmeName() + "'] : "
-					+ e.getMessage());
-			context.addMessage("experimenterForm", message);
-		}
-	}
+            if (email.indexOf('@') == -1) {
+                ((UIInput) toValidate).setValid(false);
+                FacesMessage message = new FacesMessage("Invalid Email");
+                context.addMessage(toValidate.getClientId(context), message);
+            }
+            if (iadmin.checkEmail(email)
+                    && !email.equals(this.user.getExperimenter().getEmail())) {
+                ((UIInput) toValidate).setValid(false);
+                FacesMessage message = new FacesMessage("Email exist");
+                context.addMessage(toValidate.getClientId(context), message);
+            }
+        } catch (Exception e) {
+            logger.error("validateEmail: " + e.getMessage());
+            FacesMessage message = new FacesMessage("Experimenter: [id: "
+                    + this.user.getExperimenter().getId() + ", '"
+                    + this.user.getExperimenter().getOmeName() + "'] : "
+                    + e.getMessage());
+            context.addMessage("experimenterForm", message);
+        }
+    }
 
-	/**
-	 * Provides validaton for {@link ome.model.meta.Experimenter#getOmeName()}.
-	 * Cannot exist the same omeNames.
-	 * 
-	 * @param context
-	 *            {@link javax.faces.context.FacesContext}
-	 * @param toValidate
-	 *            {@link javax.faces.component.UIComponent}
-	 * @param value
-	 *            {@link java.lang.Object}
-	 */
-	public void validateOmeName(FacesContext context, UIComponent toValidate,
-			Object value) {
-		String omeName = (String) value;
-		if (iadmin.checkExperimenter(omeName)
-				&& !omeName.equals(this.user.getExperimenter().getOmeName())) {
-			((UIInput) toValidate).setValid(false);
-			FacesMessage message = new FacesMessage("Username already exist");
-			context.addMessage(toValidate.getClientId(context), message);
-		}
-	}
+    /**
+     * Provides validaton for {@link ome.model.meta.Experimenter#getOmeName()}.
+     * Cannot exist the same omeNames.
+     * 
+     * @param context
+     *            {@link javax.faces.context.FacesContext}
+     * @param toValidate
+     *            {@link javax.faces.component.UIComponent}
+     * @param value
+     *            {@link java.lang.Object}
+     */
+    public void validateOmeName(FacesContext context, UIComponent toValidate,
+            Object value) {
+        String omeName = (String) value;
+        if (iadmin.checkExperimenter(omeName)
+                && !omeName.equals(this.user.getExperimenter().getOmeName())) {
+            ((UIInput) toValidate).setValid(false);
+            FacesMessage message = new FacesMessage("Username already exist");
+            context.addMessage(toValidate.getClientId(context), message);
+        }
+    }
 
-	/**
-	 * Provides validaton for {@link ome.model.meta.Experimenter#getOmeName()}.
-	 * Cannot exist the same omeNames.
-	 * 
-	 * @param context
-	 *            {@link javax.faces.context.FacesContext}
-	 * @param toValidate
-	 *            {@link javax.faces.component.UIComponent}
-	 * @param value
-	 *            {@link java.lang.Object}
-	 */
-	public void validateUserType(FacesContext context, UIComponent toValidate,
-			Object value) {
-		String omeName = (String) value;
-		if (iadmin.checkExperimenter(omeName)
-				&& !omeName.equals(this.user.getExperimenter().getOmeName())) {
-			((UIInput) toValidate).setValid(false);
-			FacesMessage message = new FacesMessage("Username already exist");
-			context.addMessage(toValidate.getClientId(context), message);
-		}
-	}
+    /**
+     * Provides validaton for {@link ome.model.meta.Experimenter#getOmeName()}.
+     * Cannot exist the same omeNames.
+     * 
+     * @param context
+     *            {@link javax.faces.context.FacesContext}
+     * @param toValidate
+     *            {@link javax.faces.component.UIComponent}
+     * @param value
+     *            {@link java.lang.Object}
+     */
+    public void validateUserType(FacesContext context, UIComponent toValidate,
+            Object value) {
+        String omeName = (String) value;
+        if (iadmin.checkExperimenter(omeName)
+                && !omeName.equals(this.user.getExperimenter().getOmeName())) {
+            ((UIInput) toValidate).setValid(false);
+            FacesMessage message = new FacesMessage("Username already exist");
+            context.addMessage(toValidate.getClientId(context), message);
+        }
+    }
 
 }

@@ -7,14 +7,14 @@
 
 package ome.admin.model;
 
-//Java imports
+// Java imports
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
+// Application-internal dependencies
 
 /**
- * It's model for {@link ome.admin.controller.ITypeEnumController}
+ * It's model for {@link ome.admin.controller.ITypesEnumController}
  * 
  * @author Aleksandra Tarkowska &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:A.Tarkowska@dundee.ac.uk">A.Tarkowska@dundee.ac.uk</a>
@@ -24,25 +24,24 @@ package ome.admin.model;
 
 public class Entry {
 
-	private Long id;
+    private Long id;
 
-	private String value;
+    private String value;
 
+    public Long getId() {
+        return this.id;
+    }
 
-	public Long getId() {
-		return this.id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public String getValue() {
+        return this.value;
+    }
 
-	public String getValue() {
-		return this.value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
+    public void setValue(String value) {
+        this.value = value;
+    }
 
 }
