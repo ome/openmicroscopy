@@ -29,24 +29,31 @@ namespace omero {
     Ice::ObjectPtr ObjectFactory::create(const std::string& type) {
     if (0==type.compare("::omero::model::Permissions")) {
         return new omero::model::PermissionsI();  
+    }
+    if (0==type.compare("::omero::model::Details")) {
+        return new omero::model::PermissionsI();  
+    }
 #foreach($pojo in $c2j.getPOJOIterator( $cfg.getClassMappings() ))
 #if(!$pojo.classModifiers.contains("abstract"))
-    } else if (0==type.compare("::omero::model::${pojo.declarationName}")) {
+    if (0==type.compare("::omero::model::${pojo.declarationName}")) {
       return new omero::model::${pojo.declarationName}I();
+    }
 #end
 #foreach($property in $pojo.allPropertiesIterator)
 #if($c2j.isComponent($property))
 #set($component = $c2j.getPOJOClass($property.getValue()))
 #if(!$component.classModifiers.contains("abstract"))
-    } else if (0==type.compare("::omero::model::${component.declarationName}")) {
+#if(!$component.declarationName.equals("Details"))
+    if (0==type.compare("::omero::model::${component.declarationName}")) {
       return new omero::model::${component.declarationName}I();
-#end
-#end
-#end
-#end
-    } else {
-      throw "Unknown type" + type;
     }
+#end
+#end
+#end
+#end
+#end
+    throw "Unknown type" + type;
+
   }
 
   void ObjectFactory::destroy() {}
