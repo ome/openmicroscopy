@@ -103,11 +103,10 @@ public class EventHandler implements MethodInterceptor {
                 }
 
                 else {
-                    secSys.loadEventContext(readOnly);
-                    objCtxMap.put(arg0.getThis(), secSys.getEventContext());
-                    prevCtx = secSys.getEventContext();
-                    objSeen.put(arg0.getThis(), objSeen); // Actualy a HashSet
+                    prevCtx = reloadContext(arg0, readOnly);
                 }
+            } else if (isContextUnloaded(prevCtx)){
+                prevCtx = reloadContext(arg0, readOnly);
             }
             // Need to update the read-ability
             ((BasicEventContext) prevCtx).isReadOnly = readOnly;
@@ -194,6 +193,37 @@ public class EventHandler implements MethodInterceptor {
 
     }
 
+    /**
+     * Loads a new {@link EventContext} into the {@link SecuritySystem}
+     * and replaces the proper values in {@link #objCtxMap} and {@link #objSeen}.
+     */
+    protected EventContext reloadContext(MethodInvocation arg0, boolean readOnly) {
+        EventContext ctx = null;
+        secSys.loadEventContext(readOnly);
+        ctx = secSys.getEventContext();
+        objCtxMap.put(arg0.getThis(), ctx);
+        objSeen.put(arg0.getThis(), objSeen); // Actualy a HashSet
+        return ctx;
+    }
+    
+    /**
+     * Attempts to access non-id state in each of the members of the 
+     * {@link EventContext}. Any {@link IllegalStateException} thrown
+     * will indicate an unloaded status.
+     */
+    protected boolean isContextUnloaded(EventContext ec) {
+        try {
+            ec.getCurrentUserName();
+            ec.getCurrentGroupName();
+            ec.getCurrentEventType();
+        } catch (IllegalStateException ise) {
+            // Then this can't be loaded.
+            return true;
+        }
+        
+        return false;
+    }
+    
     void saveLogs() {
         final SessionFactory sf = this.ht.getSessionFactory();
         this.ht.execute(new HibernateCallback() {
