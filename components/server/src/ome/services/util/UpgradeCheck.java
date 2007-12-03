@@ -51,7 +51,7 @@ public class UpgradeCheck {
      * 
      * This method should <em>never</em> throw an exception.
      */
-    public void init() {
+    public void start() {
         if (url == null || url.length() == 0) {
             return; // EARLY EXIT!
         }

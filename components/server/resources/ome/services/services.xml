@@ -43,9 +43,9 @@
 
   <bean id="upgradeCheck"
      class="ome.services.util.UpgradeCheck"
-     init-method="start" destroy-method="stop" lazy-init="false">
+     init-method="start" lazy-init="false">
      <property name="url" value="${omero.upgrades.url}"/>
-     <property name="poll" value="${omero.upgrade.poll}"/>
+     <property name="poll" value="${omero.upgrades.poll}"/>
      <property name="version" value="${omero.version}"/>
   </bean>
 

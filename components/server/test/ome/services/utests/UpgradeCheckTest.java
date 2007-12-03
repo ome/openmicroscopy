@@ -27,7 +27,7 @@ public class UpgradeCheckTest extends TestCase {
         check.setPoll(1);
         check.setVersion(bundle.getString("omero.version"));
         check.setUrl(null);
-        check.init();
+        check.start();
     }
 
     @Test
@@ -35,7 +35,7 @@ public class UpgradeCheckTest extends TestCase {
         check.setPoll(1);
         check.setVersion(bundle.getString("omero.version"));
         check.setUrl("");
-        check.init();
+        check.start();
     }
 
     @Test
@@ -43,7 +43,7 @@ public class UpgradeCheckTest extends TestCase {
         check.setPoll(1);
         check.setVersion(bundle.getString("omero.version"));
         check.setUrl(bundle.getString("omero.upgrades.url"));
-        check.init();
+        check.start();
     }
 
     @Test
@@ -51,7 +51,7 @@ public class UpgradeCheckTest extends TestCase {
         check.setPoll(1);
         check.setVersion("XXX" + bundle.getString("omero.version"));
         check.setUrl(bundle.getString("omero.upgrades.url"));
-        check.init();
+        check.start();
     }
 
     @Test
@@ -59,7 +59,7 @@ public class UpgradeCheckTest extends TestCase {
         check.setPoll(1);
         check.setVersion("XXX" + bundle.getString("omero.version"));
         check.setUrl("http://foo");
-        check.init();
+        check.start();
     }
 
     @Test
@@ -67,7 +67,7 @@ public class UpgradeCheckTest extends TestCase {
         check.setPoll(1);
         check.setVersion("XXX" + bundle.getString("omero.version"));
         check.setUrl("file:///dev/null"); // probably returns an ok.
-        check.init();
+        check.start();
     }
 
     @Test
@@ -75,7 +75,7 @@ public class UpgradeCheckTest extends TestCase {
         check.setPoll(1);
         check.setVersion("XXX" + bundle.getString("omero.version"));
         check.setUrl("abcp");
-        check.init();
+        check.start();
     }
 
     @Test
@@ -83,7 +83,7 @@ public class UpgradeCheckTest extends TestCase {
         check.setPoll(1);
         check.setVersion("XXX" + bundle.getString("omero.version"));
         check.setUrl("abc://bar");
-        check.init();
+        check.start();
     }
 
 }
