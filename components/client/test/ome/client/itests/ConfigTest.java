@@ -9,7 +9,6 @@ package ome.client.itests;
 import java.util.UUID;
 
 import junit.framework.TestCase;
-
 import ome.api.IAdmin;
 import ome.api.IConfig;
 import ome.model.meta.Experimenter;
@@ -17,7 +16,8 @@ import ome.model.meta.ExperimenterGroup;
 import ome.system.Login;
 import ome.system.ServiceFactory;
 
-import org.testng.annotations.*;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 /**
  * simple client-side test of the ome.api.IConfig service.
@@ -116,10 +116,8 @@ public class ConfigTest extends TestCase {
      */
     @Test
     public void testAsOtherUsers() throws Exception {
-        ServiceFactory sf = new ServiceFactory("ome.client.test"); // get
-                                                                    // default
-                                                                    // service
-                                                                    // factory
+        // get default service factory
+        ServiceFactory sf = new ServiceFactory("ome.client.test");
         Login rootLogin = (Login) sf.getContext().getBean("rootLogin");
 
         ServiceFactory rootSf = new ServiceFactory(rootLogin);
@@ -138,6 +136,7 @@ public class ConfigTest extends TestCase {
         e.setLastName("Test");
         rootAdmin.createUser(e, g.getName()); // Not an admin or system user
         rootAdmin.changeUserPassword(e.getOmeName(), "bar");
+        rootAdmin.synchronizeLoginCache();
 
         // And use it to login
         Login l = new Login(e.getOmeName(), "bar");
