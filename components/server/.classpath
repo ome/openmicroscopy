@@ -58,5 +58,13 @@
 	<classpathentry kind="lib" path="target/libs/velocity-tools-generic.jar"/>
 	<classpathentry kind="lib" path="target/libs/xerces.jar"/>
 	<classpathentry kind="lib" path="target/libs/xml-apis.jar"/>
+	<classpathentry kind="lib" path="target/libs/checkstyle.jar"/>
+	<classpathentry kind="lib" path="target/libs/commons-beanutils.jar"/>
+	<classpathentry kind="lib" path="target/libs/emma_ant.jar"/>
+	<classpathentry kind="lib" path="target/libs/emma.jar"/>
+	<classpathentry kind="lib" path="target/libs/findbugs-ant.jar"/>
+	<classpathentry kind="lib" path="target/libs/jboss-j2ee.jar"/>
+	<classpathentry kind="lib" path="target/libs/jboss-jaxrpc.jar"/>
+	<classpathentry kind="lib" path="target/libs/ome-java.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
