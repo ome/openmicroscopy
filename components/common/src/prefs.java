@@ -14,7 +14,10 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -72,7 +75,7 @@ public class prefs {
     /**
      * Cache the root node at start up
      */
-    private final static Preferences prefs = Preferences.userRoot().node(ROOT);
+    private static Preferences prefs = Preferences.userRoot().node(ROOT);
 
     /**
      * Entry point to the prefs command line too. Uses the
@@ -127,6 +130,7 @@ public class prefs {
                 "  load [FILE...]        :  read into current profile from a file or standard in (error on conflict)",
                 "  load_nowarn [FILE...] :  read current profile from a file or standard in",
                 "  set KEY=VALUE         :  set value on current profile",
+                "  sys COMMANDS          :  applies commands as above to system preferences",
                 "                                                                  ",
                 "Note: profiles are created on demand. Later properties override earlier ones." };
     }
@@ -151,7 +155,9 @@ public class prefs {
      */
     public static String[] print(String[] args) {
         for (String string : args) {
-            System.out.println(string);
+            if (string != null) {
+                System.out.println(string);
+            }
         }
         return new String[] {};
     }
@@ -161,7 +167,9 @@ public class prefs {
      */
     public static String[] printErr(String[] args) {
         for (String string : args) {
-            System.err.println(string);
+            if (string != null) {
+                System.err.println(string);
+            }
         }
         return args;
     }
@@ -215,6 +223,15 @@ public class prefs {
             throw ite.getCause();
         }
 
+    }
+
+    /**
+     * Replaces the user {@link Preferences} instance with the system
+     * {@link Preferences} and continues dispatching.
+     */
+    public static String[] sys(String[] args) throws Throwable {
+        prefs = Preferences.systemRoot().node(ROOT);
+        return dispatch(args);
     }
 
     /**
@@ -287,26 +304,33 @@ public class prefs {
     public static String[] get(String[] args) throws BackingStoreException {
         args = notNull(args);
 
+        String[] keys = _node().keys();
         if (args.length == 0) {
-            String[] keys = _node().keys();
             if (keys.length == 0) {
                 return args;
+            } else if (keys.length == 1) {
+                return get(args(keys[0], "UNKNOWNKEYJUSTTOFORCELENGTH2"));
+            } else {
+                return get(keys);
             }
-            return get(keys);
+        } else if (args.length == 1) {
+            String key = args[0] == null ? "" : args[0];
+            String value = _node().get(key, "");
+            return args(value);
         }
 
+        Set<String> availableKeys = new HashSet<String>(Arrays.asList(_node()
+                .keys()));
         String[] rv = new String[args.length];
         for (int i = 0; i < rv.length; i++) {
             String key = args[i] == null ? "" : args[i];
-            String value = _node().get(key, "");
-            if (rv.length == 1) {
-                rv[i] = value;
-            } else {
+            if (availableKeys.contains(key)) {
+                String value = _node().get(key, "");
                 rv[i] = key + "=" + value;
             }
-
         }
         return rv;
+
     }
 
     /**
