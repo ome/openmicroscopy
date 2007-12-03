@@ -41,6 +41,14 @@
      class="ome.services.util.ServerVersionCheck"
      init-method="start" destroy-method="stop" lazy-init="false"/>
 
+  <bean id="upgradeCheck"
+     class="ome.services.util.UpgradeCheck"
+     init-method="start" destroy-method="stop" lazy-init="false">
+     <property name="url" value="${omero.upgrades.url}"/>
+     <property name="poll" value="${omero.upgrade.poll}"/>
+     <property name="version" value="${omero.version}"/>
+  </bean>
+
 <!--
   Aspects/Interceptors which catch "managed:" calls to our service methods
   =======================================================================
