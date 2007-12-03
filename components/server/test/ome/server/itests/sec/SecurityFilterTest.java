@@ -12,18 +12,13 @@ import static ome.model.internal.Permissions.Role.USER;
 import static ome.model.internal.Permissions.Role.WORLD;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ejb.SessionContext;
-import javax.interceptor.InvocationContext;
 
-import ome.logic.QueryImpl;
 import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
@@ -34,17 +29,16 @@ import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.server.itests.Wrap;
+import ome.server.itests.Wrap.Backdoor;
 import ome.services.query.Definitions;
 import ome.services.query.Query;
 import ome.services.query.QueryParameterDef;
-import ome.services.util.OmeroAroundInvoke;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
-import org.jmock.core.matcher.InvokeAtLeastOnceMatcher;
-import org.jmock.core.stub.ReturnStub;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
@@ -132,7 +126,8 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
         assertCanReadImage(i);
     }
 
-    @Test( groups = "broken" ) // Must add the xml-rpc jar for this to work
+    @Test(groups = "broken")
+    // Must add the xml-rpc jar for this to work
     public void testRunAsAdminCanReadAll() throws Exception {
 
         final Image i;
@@ -146,8 +141,7 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
         assertCannotReadImage(d, i);
 
         final SecurityFilterTest test = this;
-        new Wrap(names.get(1), new Backdoor() {
-            @Override
+        new Wrap(names.get(1), new Wrap.QueryBackdoor() {
             @RolesAllowed("user")
             public void run() {
                 test.iQuery = this; // Use this (unwrapped) instance for call
@@ -338,71 +332,4 @@ class ByNameQuery extends Query {
             throw new RuntimeException(e);
         }
     }
-}
-
-class Wrap extends OmeroAroundInvoke {
-
-    final String user;
-
-    public Wrap(final String user, final Backdoor backdoor) throws Exception {
-        this.user = user;
-        sessionContext();
-        InvocationContext ic = new InvocationContext() {
-            public Object getTarget() {
-                return backdoor;
-            }
-
-            public Map getContextData() {
-                return null;
-            }
-
-            public Method getMethod() {
-                try {
-                    return backdoor.getClass().getMethod("run");
-                } catch (Exception e) {
-                    return null;
-                }
-            }
-
-            public Object[] getParameters() {
-                return new Object[] {};
-            }
-
-            public Object proceed() throws Exception {
-                backdoor.run();
-                return null;
-            }
-
-            public void setParameters(Object[] arg0) {
-            }
-        };
-        backdoor.selfConfigure();
-        loginAndSpringWrap(ic);
-    }
-
-    void sessionContext() throws Exception {
-        Field sessionContext = this.getClass().getSuperclass()
-                .getDeclaredField("sessionContext");
-        sessionContext.setAccessible(true);
-        org.jmock.Mock mockContext = new org.jmock.Mock(SessionContext.class);
-        SessionContext sc = (SessionContext) mockContext.proxy();
-        mockContext.expects(new InvokeAtLeastOnceMatcher()).method(
-                "getCallerPrincipal").will(
-                new ReturnStub(new ome.system.Principal(user, "user", "Test")));
-        sessionContext.set(this, sc);
-    }
-
-}
-
-/**
- * This class can be used in combination with {@link Wrap} to simulate running
- * arbitrary code within the server.
- * 
- * @author Josh Moore, josh at glencoesoftware.com
- */
-abstract class Backdoor extends QueryImpl implements Runnable {
-
-    @RolesAllowed("user")
-    public abstract void run();
-
 }

@@ -35,6 +35,7 @@
     <dependency org="omero" name="jbosssx" rev="${versions.jboss}" conf="build->default"/>
     <dependency org="omero" name="jboss-ejb3x" rev="${versions.jboss}" conf="build->default"/>
     <dependency org="omero" name="jboss-annotations-ejb3" rev="${versions.jboss}" conf="build->default"/>
+    <dependency org="omero" name="jboss-jaxrpc" rev="${versions.jboss}" conf="build->default"/>
     <dependency org="org/acegisecurity" name="acegi-security" rev="1.0.0-RC1" conf="build->default"/>
     <dependency org="quartz" name="quartz" rev="1.5.2" conf="build->default"/>
     <dependency org="xerces" name="xerces" rev="2.0.2" conf="build->default"/>
