@@ -1,5 +1,5 @@
-export PYTHONPATH ?= /tmp/geoip/lib/python2.4/site-packages/
-export LD_LIBRARY_PATH ?= /tmp/geoip/lib/
+export PYTHONPATH ?= $(HOME)/root/lib/python2.4/site-packages/
+export LD_LIBRARY_PATH ?= $(HOME)/root/lib/
 
 restart: stop start
 

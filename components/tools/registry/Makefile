@@ -1,3 +1,6 @@
+
+#export PYTHONPATH ?= "$(HOME)/root/lib/python2.4/site-packages"
+
 restart: stop start
 
 start:

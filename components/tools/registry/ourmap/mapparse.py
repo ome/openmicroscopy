@@ -17,7 +17,7 @@ lon_re = re.compile("^Longitude:\s(\S*)")
 def GeoIp(ipaddr):
     import GeoIP
     if not hasattr(GeoIP,"gi"):
-        GeoIP.gi = GeoIP.open("//tmp/geoip/share/GeoIP/GeoIPCity.dat",GeoIP.GEOIP_STANDARD)
+        GeoIP.gi = GeoIP.open("GeoIPCity.dat",GeoIP.GEOIP_STANDARD)
 
     gir = GeoIP.gi.record_by_addr(ipaddr)
     lat = gir["latitude"]

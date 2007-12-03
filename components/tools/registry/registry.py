@@ -5,10 +5,10 @@
 # should do all comparisons by stripping slashes
 
 config = {
-    'port':9090,
+    'port':9998,
     'version':'3.0-TRUNK',
     'agentprefix':'OMERO',
-    'redirect':'http://trac.openmicroscopy.org.uk/omero/wiki/UpdateChecks',
+    'redirect':'http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeChecks',
     'upgrade':'Please upgrade to 3.0-Beta2.3 See http://trac.openmicroscopy.org.uk/omero for the latest version'
     }
 
