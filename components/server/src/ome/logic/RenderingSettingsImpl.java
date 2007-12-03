@@ -47,6 +47,7 @@ import omeis.providers.re.quantum.QuantumFactory;
 
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.RemoteBindings;
 import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,7 +64,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RevisionNumber("$Revision: 1792 $")
 @Stateless
 @Remote(IRenderingSettings.class)
-@RemoteBinding(jndiBinding = "omero/remote/ome.api.IRenderingSettings")
+@RemoteBindings({
+    @RemoteBinding(jndiBinding = "omero/remote/ome.api.IRenderingSettings"),
+    @RemoteBinding(jndiBinding = "omero/secure/ome.api.IRenderingSettings",
+		   clientBindUrl="sslsocket://0.0.0.0:3843")
+})
 @Local(IRenderingSettings.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.IRenderingSettings")
 @SecurityDomain("OmeroSecurity")

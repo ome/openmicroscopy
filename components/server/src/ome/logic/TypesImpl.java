@@ -38,6 +38,7 @@ import javax.interceptor.Interceptors;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+// Application-internal dependencies
 import ome.annotations.AnnotationUtils;
 import ome.api.ITypes;
 import ome.api.ServiceInterface;
@@ -57,6 +58,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.metadata.ClassMetadata;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.RemoteBindings;
 import org.jboss.annotation.security.SecurityDomain;
 import org.jboss.mx.loading.RepositoryClassLoader;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -79,7 +81,11 @@ import org.xml.sax.SAXParseException;
 @Transactional
 @Stateless
 @Remote(ITypes.class)
-@RemoteBinding(jndiBinding = "omero/remote/ome.api.ITypes")
+@RemoteBindings({
+    @RemoteBinding(jndiBinding = "omero/remote/ome.api.ITypes"),
+    @RemoteBinding(jndiBinding = "omero/secure/ome.api.ITypes",
+		   clientBindUrl="sslsocket://0.0.0.0:3843")
+})
 @Local(ITypes.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.ITypes")
 @SecurityDomain("OmeroSecurity")

@@ -32,6 +32,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.RemoteBindings;
 import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,7 +59,11 @@ import ome.util.Utils;
 @Transactional(readOnly = false)
 @Stateless
 @Remote(IUpdate.class)
-@RemoteBinding(jndiBinding = "omero/remote/ome.api.IUpdate")
+@RemoteBindings({
+    @RemoteBinding(jndiBinding = "omero/remote/ome.api.IUpdate"),
+    @RemoteBinding(jndiBinding = "omero/secure/ome.api.IUpdate",
+		   clientBindUrl="sslsocket://0.0.0.0:3843")
+})
 @Local(LocalUpdate.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.local.LocalUpdate")
 @SecurityDomain("OmeroSecurity")

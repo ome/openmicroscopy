@@ -28,6 +28,7 @@ import javax.interceptor.Interceptors;
 // Third-party libraries
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.RemoteBindings;
 import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -111,8 +112,18 @@ import ome.system.Version;
  * changing and so it was easier to define our own. This is also somewhat
  * memorable in comparison to "[earFile]/[ejbName]/remote", however, this
  * doesn't allow Omero to be deployed multiple times in a single server.
+ *
+ * The second remote binding annotation permits transport over a secure
+ * protocol. For more information on enabling this transport, see
+ *
+ *   https://trac.openmicroscopy.org.uk/omero/wiki/OmeroSecurity
+ *
  */
-@RemoteBinding(jndiBinding = "omero/remote/ome.api.IConfig")
+@RemoteBindings({
+    @RemoteBinding(jndiBinding = "omero/remote/ome.api.IConfig"),
+    @RemoteBinding(jndiBinding = "omero/secure/ome.api.IConfig",
+		   clientBindUrl="sslsocket://0.0.0.0:3843")
+})
 /*
  * Source: EJB3 Specification Purpose: Defines which interface will be
  * represented to remote clients of this service. There need be no relationship

@@ -36,6 +36,7 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.metadata.ClassMetadata;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.RemoteBindings;
 import org.jboss.annotation.security.SecurityDomain;
 
 // Application-internal dependencies
@@ -64,7 +65,11 @@ import ome.services.util.OmeroAroundInvoke;
 @Transactional(readOnly = true)
 @Stateless
 @Remote(IQuery.class)
-@RemoteBinding(jndiBinding = "omero/remote/ome.api.IQuery")
+@RemoteBindings({
+    @RemoteBinding(jndiBinding = "omero/remote/ome.api.IQuery"),
+    @RemoteBinding(jndiBinding = "omero/secure/ome.api.IQuery",
+		   clientBindUrl="sslsocket://0.0.0.0:3843")
+})
 @Local(LocalQuery.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.local.LocalQuery")
 @SecurityDomain("OmeroSecurity")

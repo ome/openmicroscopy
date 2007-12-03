@@ -63,6 +63,7 @@ import ome.util.builders.PojoOptions;
 import org.hibernate.Session;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.RemoteBindings;
 import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,7 +80,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Stateless
 @Remote(IPojos.class)
-@RemoteBinding(jndiBinding = "omero/remote/ome.api.IPojos")
+@RemoteBindings({
+    @RemoteBinding(jndiBinding = "omero/remote/ome.api.IPojos"),
+    @RemoteBinding(jndiBinding = "omero/secure/ome.api.IPojos",
+		   clientBindUrl="sslsocket://0.0.0.0:3843")
+})
 @Local(IPojos.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.IPojos")
 @SecurityDomain("OmeroSecurity")

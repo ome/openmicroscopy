@@ -59,6 +59,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.RemoteBindings;
 import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,7 +80,11 @@ import sun.awt.image.IntegerInterleavedRaster;
 @Transactional(readOnly = true)
 @Stateful
 @Remote(ThumbnailStore.class)
-@RemoteBinding(jndiBinding = "omero/remote/ome.api.ThumbnailStore")
+@RemoteBindings({
+    @RemoteBinding(jndiBinding = "omero/remote/ome.api.ThumbnailStore"),
+    @RemoteBinding(jndiBinding = "omero/secure/ome.api.ThumbnailStore",
+                   clientBindUrl="sslsocket://0.0.0.0:3843")
+})
 @Local(ThumbnailStore.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.ThumbnailStore")
 @Interceptors( { OmeroAroundInvoke.class })

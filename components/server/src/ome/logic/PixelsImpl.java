@@ -21,6 +21,7 @@ import javax.interceptor.Interceptors;
 // Third-party libraries
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.RemoteBindings;
 import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,7 +53,11 @@ import ome.services.util.OmeroAroundInvoke;
 @Transactional(readOnly = true)
 @Stateless
 @Remote(IPixels.class)
-@RemoteBinding(jndiBinding = "omero/remote/ome.api.IPixels")
+@RemoteBindings({
+    @RemoteBinding(jndiBinding = "omero/remote/ome.api.IPixels"),
+    @RemoteBinding(jndiBinding = "omero/secure/ome.api.IPixels",
+		   clientBindUrl="sslsocket://0.0.0.0:3843")
+})
 @Local(IPixels.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.IPixels")
 @SecurityDomain("OmeroSecurity")

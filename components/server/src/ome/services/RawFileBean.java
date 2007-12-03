@@ -42,6 +42,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.RemoteBindings;
 import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,7 +59,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = false)
 @Stateful
 @Remote(RawFileStore.class)
-@RemoteBinding(jndiBinding = "omero/remote/ome.api.RawFileStore")
+@RemoteBindings({
+    @RemoteBinding(jndiBinding = "omero/remote/ome.api.RawFileStore"),
+    @RemoteBinding(jndiBinding = "omero/secure/ome.api.RawFileStore",
+		   clientBindUrl="sslsocket://0.0.0.0:3843")
+})
 @Local(RawFileStore.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.RawFileStore")
 @Interceptors( { OmeroAroundInvoke.class })

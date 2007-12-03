@@ -37,6 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.RemoteBindings;
 import org.jboss.annotation.ejb.cache.Cache;
 import org.jboss.annotation.security.SecurityDomain;
 import org.jboss.ejb3.cache.NoPassivationCache;
@@ -108,7 +109,11 @@ import omeis.providers.re.quantum.QuantumFactory;
 @RevisionNumber("$Revision$")
 @Stateful
 @Remote(RenderingEngine.class)
-@RemoteBinding(jndiBinding = "omero/remote/omeis.providers.re.RenderingEngine")
+@RemoteBindings({
+    @RemoteBinding(jndiBinding = "omero/remote/omeis.providers.re.RenderingEngine"),
+    @RemoteBinding(jndiBinding = "omero/secure/omeis.providers.re.RenderingEngine",
+		   clientBindUrl="sslsocket://0.0.0.0:3843")
+})
 @Local(RenderingEngine.class)
 @LocalBinding(jndiBinding = "omero/local/omeis.providers.re.RenderingEngine")
 @SecurityDomain("OmeroSecurity")

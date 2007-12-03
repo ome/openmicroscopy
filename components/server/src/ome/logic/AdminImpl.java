@@ -70,6 +70,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.RemoteBindings;
 import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jmx.support.JmxUtils;
@@ -98,7 +99,11 @@ import org.springframework.util.Assert;
 @RevisionNumber("$Revision:1754 $")
 @Stateless
 @Remote(IAdmin.class)
-@RemoteBinding(jndiBinding = "omero/remote/ome.api.IAdmin")
+@RemoteBindings({
+    @RemoteBinding(jndiBinding = "omero/remote/ome.api.IAdmin"),
+    @RemoteBinding(jndiBinding = "omero/secure/ome.api.IAdmin",
+		   clientBindUrl="sslsocket://0.0.0.0:3843")
+})
 @Local(IAdmin.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.IAdmin")
 @SecurityDomain("OmeroSecurity")

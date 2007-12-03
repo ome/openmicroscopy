@@ -26,6 +26,7 @@ import javax.interceptor.Interceptors;
 // Third-party libraries
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.RemoteBindings;
 import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +56,11 @@ import ome.services.util.OmeroAroundInvoke;
 @Transactional
 @Stateless
 @Remote(ILicense.class)
-@RemoteBinding(jndiBinding = "omero/remote/ome.services.licenses.ILicense")
+@RemoteBindings({
+    @RemoteBinding(jndiBinding = "omero/remote/ome.services.licenses.ILicense"),
+    @RemoteBinding(jndiBinding = "omero/secure/ome.services.licenses.ILicense",
+        clientBindUrl = "sslsocket://0.0.0.0:3843")
+})
 @Local(ILicense.class)
 @LocalBinding(jndiBinding = "omero/local/ome.services.licenses.ILicense")
 @SecurityDomain("OmeroSecurity")

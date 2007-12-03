@@ -61,6 +61,7 @@ import ome.system.OmeroContext;
 
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.RemoteBindings;
 import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jmx.support.JmxUtils;
@@ -87,7 +88,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RevisionNumber("$Revision: 1552 $")
 @Stateless
 @Remote(ILdap.class)
-@RemoteBinding(jndiBinding = "omero/remote/ome.api.ILdap")
+@RemoteBindings({
+    @RemoteBinding(jndiBinding = "omero/remote/ome.api.ILdap"),
+    @RemoteBinding(jndiBinding = "omero/secure/ome.api.ILdap",
+		   clientBindUrl="sslsocket://0.0.0.0:3843")
+})
 @Local(ILdap.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.local.LocalLdap")
 @SecurityDomain("OmeroSecurity")
