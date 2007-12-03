@@ -60,7 +60,7 @@
 	</bean>
 	
   <!-- properly configured principal for login -->
-	<bean id="principal" class="ome.system.Principal">
+	<bean id="principal" class="${ome.principal_class}">
 		<constructor-arg index="0" value="${omero.user}"/>
 		<constructor-arg index="1" value="${omero.group}"/>    
 		<constructor-arg index="2" value="${omero.event}"/>        
@@ -78,7 +78,7 @@
       </map>
     </constructor-arg>
   </bean>
-    
+
   <!-- jndi parent class -->
   <bean id="statelessJndi" abstract="true"
     class="ome.client.ConfigurableJndiObjectFactoryBean">
@@ -96,57 +96,57 @@
       STATELESS SERVICES
   -->
   <bean id="managed:ome.api.IAdmin" parent="statelessJndi">
-    <property name="jndiName" value="omero/remote/ome.api.IAdmin"/>
+    <property name="jndiName" value="omero/${server.transport}/ome.api.IAdmin"/>
     <property name="proxyInterface" value="ome.api.IAdmin"/>
   </bean>    
     
   <bean id="managed:ome.api.IAnalysis" parent="statelessJndi">
-    <property name="jndiName" value="omero/remote/ome.api.IAnalysis"/>
+    <property name="jndiName" value="omero/${server.transport}/ome.api.IAnalysis"/>
     <property name="proxyInterface" value="ome.api.IAnalysis"/>
   </bean>
 
   <bean id="managed:ome.api.IConfig" parent="statelessJndi">
-    <property name="jndiName" value="omero/remote/ome.api.IConfig"/>
+    <property name="jndiName" value="omero/${server.transport}/ome.api.IConfig"/>
     <property name="proxyInterface" value="ome.api.IConfig"/>
   </bean>
   
   <bean id="managed:ome.api.ILdap" parent="statelessJndi">
-    <property name="jndiName" value="omero/remote/ome.api.ILdap"/>
+    <property name="jndiName" value="omero/${server.transport}/ome.api.ILdap"/>
     <property name="proxyInterface" value="ome.api.ILdap"/>
   </bean>    
 
   <bean id="managed:ome.api.IPixels" parent="statelessJndi">
-    <property name="jndiName" value="omero/remote/ome.api.IPixels"/>
+    <property name="jndiName" value="omero/${server.transport}/ome.api.IPixels"/>
     <property name="proxyInterface" value="ome.api.IPixels"/>
   </bean>
 
   <bean id="managed:ome.api.IPojos" parent="statelessJndi">
-    <property name="jndiName" value="omero/remote/ome.api.IPojos"/>
+    <property name="jndiName" value="omero/${server.transport}/ome.api.IPojos"/>
     <property name="proxyInterface" value="ome.api.IPojos"/>
   </bean>
 
   <bean id="managed:ome.api.IQuery" parent="statelessJndi">
-    <property name="jndiName" value="omero/remote/ome.api.IQuery"/>
+    <property name="jndiName" value="omero/${server.transport}/ome.api.IQuery"/>
     <property name="proxyInterface" value="ome.api.IQuery"/>
   </bean>
 
   <bean id="managed:ome.api.ITypes" parent="statelessJndi">
-    <property name="jndiName" value="omero/remote/ome.api.ITypes"/>
+    <property name="jndiName" value="omero/${server.transport}/ome.api.ITypes"/>
     <property name="proxyInterface" value="ome.api.ITypes"/>
   </bean>
 
   <bean id="managed:ome.api.IUpdate" parent="statelessJndi">
-    <property name="jndiName" value="omero/remote/ome.api.IUpdate"/>
+    <property name="jndiName" value="omero/${server.transport}/ome.api.IUpdate"/>
     <property name="proxyInterface" value="ome.api.IUpdate"/>
   </bean>
 
   <bean id="managed:ome.api.IRenderingSettings" parent="statelessJndi">
-    <property name="jndiName" value="omero/remote/ome.api.IRenderingSettings"/>
+    <property name="jndiName" value="omero/${server.transport}/ome.api.IRenderingSettings"/>
     <property name="proxyInterface" value="ome.api.IRenderingSettings"/>
   </bean>
   
   <bean id="managed:ome.api.IRepositoryInfo" parent="statelessJndi">
-    <property name="jndiName" value="omero/remote/ome.api.IRepositoryInfo"/>
+    <property name="jndiName" value="omero/${server.transport}/ome.api.IRepositoryInfo"/>
     <property name="proxyInterface" value="ome.api.IRepositoryInfo"/>
   </bean>
 
@@ -155,27 +155,27 @@
   -->
 
   <bean id="managed:ome.api.RawFileStore" parent="statefulJndi">
-    <property name="jndiName" value="omero/remote/ome.api.RawFileStore"/>
+    <property name="jndiName" value="omero/${server.transport}/ome.api.RawFileStore"/>
     <property name="proxyInterface" value="ome.api.RawFileStore"/>
   </bean>
   
   <bean id="managed:ome.api.RawPixelsStore" parent="statefulJndi">
-    <property name="jndiName" value="omero/remote/ome.api.RawPixelsStore"/>
+    <property name="jndiName" value="omero/${server.transport}/ome.api.RawPixelsStore"/>
     <property name="proxyInterface" value="ome.api.RawPixelsStore"/>
   </bean>
     
   <bean id="managed:omeis.providers.re.RenderingEngine" parent="statefulJndi">
-    <property name="jndiName" value="omero/remote/omeis.providers.re.RenderingEngine"/>
+    <property name="jndiName" value="omero/${server.transport}/omeis.providers.re.RenderingEngine"/>
     <property name="proxyInterface" value="omeis.providers.re.RenderingEngine"/>
   </bean>
 
   <bean id="managed:ome.api.ThumbnailStore" parent="statefulJndi">
-    <property name="jndiName" value="omero/remote/ome.api.ThumbnailStore"/>
+    <property name="jndiName" value="omero/${server.transport}/ome.api.ThumbnailStore"/>
     <property name="proxyInterface" value="ome.api.ThumbnailStore"/>
   </bean>
 
   <bean id="managed:ome.api.JobHandle" parent="statefulJndi">
-    <property name="jndiName" value="omero/remote/ome.api.JobHandle"/>
+    <property name="jndiName" value="omero/${server.transport}/ome.api.JobHandle"/>
     <property name="proxyInterface" value="ome.api.JobHandle"/>
   </bean>
 

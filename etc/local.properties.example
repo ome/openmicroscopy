@@ -46,6 +46,10 @@ omero.hard-wired.interceptors="ome.security.basic.BasicSecurityWiring"
 # ome.services.licenses.LicenseBean
 ome.services.licenses.Store_class="ome.services.licenses.Store"
 
+# Can specify a Principal subclass for
+# JBoss login.
+omero.principal_class=ome.system.Principal
+
 ############################################
 # client connection
 ############################################

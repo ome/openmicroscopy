@@ -11,24 +11,28 @@
 	<classpathentry kind="lib" path="target/libs/asm.jar"/>
 	<classpathentry kind="lib" path="target/libs/asm-attrs.jar"/>
 	<classpathentry kind="lib" path="target/libs/cglib.jar"/>
+	<classpathentry kind="lib" path="target/libs/checkstyle.jar"/>
 	<classpathentry kind="lib" path="target/libs/common.jar"/>
+	<classpathentry kind="lib" path="target/libs/commons-beanutils.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-collections.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-logging.jar"/>
 	<classpathentry kind="lib" path="target/libs/dom4j.jar"/>
 	<classpathentry kind="lib" path="target/libs/dsl.jar"/>
 	<classpathentry kind="lib" path="target/libs/ehcache.jar"/>
+	<classpathentry kind="lib" path="target/libs/emma_ant.jar"/>
+	<classpathentry kind="lib" path="target/libs/emma.jar"/>
+	<classpathentry kind="lib" path="target/libs/findbugs-ant.jar"/>
 	<classpathentry kind="lib" path="target/libs/geronimo-spec-jta.jar"/>
 	<classpathentry kind="lib" path="target/libs/groovy.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate-tools.jar"/>
 	<classpathentry kind="lib" path="target/libs/jbossall-client.jar"/>
-	<classpathentry kind="lib" path="target/libs/jboss-aop-jdk50-client.jar"/>
-	<classpathentry kind="lib" path="target/libs/jboss-aspect-library-jdk50.jar"/>
-	<classpathentry kind="lib" path="target/libs/jboss-ejb3.jar"/>
 	<classpathentry kind="lib" path="target/libs/jboss-ejb3x.jar"/>
+	<classpathentry kind="lib" path="target/libs/jboss-j2ee.jar"/>
 	<classpathentry kind="lib" path="target/libs/jmock.jar"/>
 	<classpathentry kind="lib" path="target/libs/jtidy.jar"/>
 	<classpathentry kind="lib" path="target/libs/junit.jar"/>
+	<classpathentry kind="lib" path="target/libs/ldaptemplate.jar"/>
 	<classpathentry kind="lib" path="target/libs/log4j.jar"/>
 	<classpathentry kind="lib" path="target/libs/postgresql.jar"/>
 	<classpathentry kind="lib" path="target/libs/qdox.jar"/>
