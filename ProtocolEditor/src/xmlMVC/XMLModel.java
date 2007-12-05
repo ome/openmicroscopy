@@ -291,6 +291,12 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		notifyXMLObservers();
 	}
 	
+	// get a reference to the highlighted fields of the current tree
+	public ArrayList<DataFieldNode> getHighlightedFields() {
+		if (getCurrentTree() == null) return new ArrayList<DataFieldNode>();
+		return new ArrayList<DataFieldNode>(getCurrentTree().getHighlightedFields());
+	}
+	
 	// make a copy of the currently highlighted fields
 	public void copyHighlightedFieldsToClipboard() {
 		if (getCurrentTree() == null) return;

@@ -87,6 +87,27 @@ public class HtmlOutputter {
 	public static void outputHTML (DataFieldNode parentRootNode, boolean showEveryField, 
 			boolean showDescriptions, boolean showDefaultValues, 
 			boolean showUrl, boolean showAllOtherAttributes, boolean printTableData) {
+
+		ArrayList<DataFieldNode> nodes = new ArrayList<DataFieldNode>();
+		nodes.add(parentRootNode);
+		
+		outputHTML (nodes, showEveryField, showDescriptions, showDefaultValues, 
+				showUrl, showAllOtherAttributes, printTableData);
+	}
+	
+	
+	/**
+	 * Output the tree file as an html document. 
+	 * @param rootNodes			the a list of nodes you want to print
+	 * @param showEveryField	if false, only show children of non-collapsed nodes. If true, show all
+	 * @param showDescriptions	if true, show the description attribute
+	 * @param showDefaultValues	if true, show the default value attribute
+	 * @param showUrl			if true, show the url attribute
+	 * @param showAllOtherAttributes	if true, show any other additional attributes
+	 */
+	public static void outputHTML (ArrayList<DataFieldNode> rootNodes, boolean showEveryField, 
+			boolean showDescriptions, boolean showDefaultValues, 
+			boolean showUrl, boolean showAllOtherAttributes, boolean printTableData) {
 		
 		PrintWriter outputStream = null;
 		fileWriter = null;
@@ -99,12 +120,17 @@ public class HtmlOutputter {
             
             outputStream.print(HEADER);
             
-            DataField protocolField = parentRootNode.getDataField();
-            printDataField(protocolField, outputStream, showEveryField, showDescriptions, showDefaultValues, 
+            for (DataFieldNode parentRootNode: rootNodes) {
+            	DataField protocolField = parentRootNode.getDataField();
+            	printDataField(protocolField, outputStream, showEveryField, showDescriptions, showDefaultValues, 
 					 showUrl,  showAllOtherAttributes, printTableData);
             	
-            printDataFieldTree(outputStream, parentRootNode, showEveryField, showDescriptions, showDefaultValues, 
-					 showUrl,  showAllOtherAttributes, printTableData);
+            	if (!protocolField.isAttributeTrue(DataField.SUBSTEPS_COLLAPSED) || 
+    					(showEveryField)) {
+            		printDataFieldTree(outputStream, parentRootNode, showEveryField, showDescriptions, showDefaultValues, 
+            				showUrl,  showAllOtherAttributes, printTableData);
+            	}
+            }
             
             outputStream.println(FOOTER);
             

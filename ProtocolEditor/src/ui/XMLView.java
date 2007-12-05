@@ -38,6 +38,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
@@ -108,6 +109,8 @@ public class XMLView
 	public static final String HIDE_FIND_BOX = "HideFindBox";
 	public static final String NEXT_FIND_HIT = "NextFindHit";
 	public static final String PREV_FIND_HIT = "PrevFindHit";
+	public static final String LOAD_DEFAULTS = "LoadDefaults";
+	public static final String LOAD_DEFAULTS_HIGHLIGHTED_FIELDS = "LoadDefaultsHighlightedFields";
 	
 	// tab positions 
 	public static final int EXPERIMENT_TAB = 0;
@@ -193,6 +196,10 @@ public class XMLView
 	
 	static final int windowHeight = 460;
     static final int panelWidth = 950;
+
+	private JPopupMenu printPopupMenu;
+
+	private JPopupMenu loadDefaultsPopupMenu;
     
 	
     public XMLView(XMLModel xmlModel) {
@@ -270,10 +277,16 @@ public class XMLView
 		
 		saveFileAsMenuItem = new JMenuItem("Save File As...", saveFileAsIcon);
 		saveFileAsMenuItem.addActionListener(new SaveFileAsListener());
+
+		JMenu printsubMenu = new JMenu("Print / Export...");
+		JMenuItem printWholeFileMenuItem = new JMenuItem("Print the whole document", printIcon);
+		printWholeFileMenuItem.addActionListener(new PrintWholeFileListener());
+		setMenuItemAccelerator(printWholeFileMenuItem, KeyEvent.VK_P);
+		printsubMenu.add(printWholeFileMenuItem);
 		
-		JMenuItem printExp= new JMenuItem("Print / Export...", printIcon);
-		setMenuItemAccelerator(printExp, KeyEvent.VK_P);
-		printExp.addActionListener(new PrintListener());
+		JMenuItem printSelectedFieldsMenuItem = new JMenuItem("Print highlighted fields");
+		printSelectedFieldsMenuItem.addActionListener(new PrintSelectedFieldsListener());
+		printsubMenu.add(printSelectedFieldsMenuItem);
 		
 		JMenuItem indexFilesMenuItem = new JMenuItem("Index files for searching");
 		indexFilesMenuItem.addActionListener(new IndexFilesListener());
@@ -284,7 +297,7 @@ public class XMLView
 		fileMenu.add(closeFileMenuItem);
 		fileMenu.add(saveFileMenuItem);
 		fileMenu.add(saveFileAsMenuItem);
-		fileMenu.add(printExp);
+		fileMenu.add(printsubMenu);
 		fileMenu.add(indexFilesMenuItem);
 		menuBar.add(fileMenu);
 		
@@ -422,9 +435,31 @@ public class XMLView
 		saveFileButton.setToolTipText("Save File");
 		saveFileButton.setBorder(fileManagerToolBarBorder);
 		
+		JMenuItem printWholeFile = new JMenuItem("Print the whole document");
+		printWholeFile.addActionListener(new PrintWholeFileListener());
+		JMenuItem printSelectedFields = new JMenuItem("Print highlighted fields");
+		printSelectedFields.addActionListener(new PrintSelectedFieldsListener());
+		printPopupMenu = new JPopupMenu("Print Options");
+		printPopupMenu.add(printWholeFile);
+		printPopupMenu.add(printSelectedFields);
+		
 		printButton = new JButton(printIcon);
-		printButton.addActionListener(new PrintListener());
-		printButton.setToolTipText("Print / Export the current file..."); 
+		printButton.addMouseListener(new MouseListener() {
+			public void mousePressed(MouseEvent e) {
+				maybeShowPopup(e);
+			}
+			public void mouseReleased(MouseEvent e) {
+				maybeShowPopup(e);
+			}
+			private void maybeShowPopup(MouseEvent e) {
+				printPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+			}
+			public void mouseClicked(MouseEvent e) {}
+			public void mouseEntered(MouseEvent e) {}
+			public void mouseExited(MouseEvent e) {}
+		});
+		//printButton.addActionListener(new PrintWholeFileListener());
+		printButton.setToolTipText("Print the current file / fields..."); 
 		printButton.setBorder(fileManagerToolBarBorder);
 		
 		undoButton = new JButton(undoIcon);
@@ -537,10 +572,34 @@ public class XMLView
 	
 		// experiment tool-bar buttons
 		
-		JButton loadDefaults = new JButton(loadDefaultsIcon);
-		loadDefaults.setToolTipText("Load Default Values to All Fields");
+		loadDefaultsPopupMenu = new JPopupMenu("Load Defaults");
+		JMenuItem loadDefaults = new JMenuItem("Load Defaults for All fields");
+		loadDefaults.setActionCommand(LOAD_DEFAULTS);
 		loadDefaults.addActionListener(new LoadDefaultsListener());
-		loadDefaults.setBorder(eb);
+		loadDefaultsPopupMenu.add(loadDefaults);
+		
+		JMenuItem loadDefaultsHighLtFields = new JMenuItem("Load Defaults for Highlighted Fields (and all child fields)");
+		loadDefaultsHighLtFields.setActionCommand(LOAD_DEFAULTS_HIGHLIGHTED_FIELDS);
+		loadDefaultsHighLtFields.addActionListener(new LoadDefaultsListener());
+		loadDefaultsPopupMenu.add(loadDefaultsHighLtFields);
+		
+		JButton loadDefaultsButton = new JButton(loadDefaultsIcon);
+		loadDefaultsButton.setToolTipText("Load Default Values");
+		loadDefaultsButton.setBorder(eb);
+		loadDefaultsButton.addMouseListener(new MouseListener() {
+			public void mousePressed(MouseEvent e) {
+				maybeShowPopup(e);
+			}
+			public void mouseReleased(MouseEvent e) {
+				maybeShowPopup(e);
+			}
+			private void maybeShowPopup(MouseEvent e) {
+				loadDefaultsPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+			}
+			public void mouseClicked(MouseEvent e) {}
+			public void mouseEntered(MouseEvent e) {}
+			public void mouseExited(MouseEvent e) {}
+		});
 		
 		JButton clearFieldsButton = new JButton(clearFieldsIcon);
 		clearFieldsButton.setToolTipText("Clear All Fields");
@@ -635,7 +694,7 @@ public class XMLView
 		
 		
 		expTabToolBar = Box.createHorizontalBox();
-		expTabToolBar.add(loadDefaults);
+		expTabToolBar.add(loadDefaultsButton);
 		expTabToolBar.add(clearFieldsButton);
 		expTabToolBar.add(multiplyValueOfSelectedFieldsButton);
 		// expTabToolBar.add(compareFilesButton);
@@ -1293,48 +1352,66 @@ public class XMLView
 		}
 	}
 	
-	public class PrintListener implements ActionListener {
+	public class PrintWholeFileListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
+			ArrayList<DataFieldNode> rootNode = new ArrayList<DataFieldNode>();
+			rootNode.add(protocolRootNode); 
 			
-			// Can't work out how to export xsl file into .jar
-			// xmlModel.transformXmlToHtml();
-			
-			// use this method for now
-			
-			LinkedHashMap<String,Boolean> booleanMap = new LinkedHashMap<String,Boolean>();
-			booleanMap.put("Show every field", false);
-			booleanMap.put("Show descriptions", false);
-			booleanMap.put("Show default values", false);
-			booleanMap.put("Show Url", false);
-			booleanMap.put("Show Table Data", false);
-			booleanMap.put("Show all other attributes", false);
+			printToHtml(rootNode);
+		}
+	}
+	public class PrintSelectedFieldsListener implements ActionListener {
+		public void actionPerformed(ActionEvent event) {
+			printToHtml(xmlModel.getHighlightedFields());
+		}
+	}
+	
+	
+	public void printToHtml(ArrayList<DataFieldNode> rootNodes) {
 		
-			
-			ExportDialog printDialog = new ExportDialog(XMLFrame, printButton, "Print Options", booleanMap);
-			printDialog.pack();
-			printDialog.setVisible(true);
-			
-			if (printDialog.getValue().equals(JOptionPane.OK_OPTION)) {
-			
+		// Can't work out how to export xsl file into .jar
+		// xmlModel.transformXmlToHtml();
+		
+		// use this method for now
+		
+		LinkedHashMap<String,Boolean> booleanMap = new LinkedHashMap<String,Boolean>();
+		booleanMap.put("Show every field (include collapsed fields)", false);
+		booleanMap.put("Show descriptions", false);
+		booleanMap.put("Show default values", false);
+		booleanMap.put("Show Url", false);
+		booleanMap.put("Show Table Data", false);
+		booleanMap.put("Show all other attributes", false);
+	
+		
+		ExportDialog printDialog = new ExportDialog(XMLFrame, printButton, "Print Options", booleanMap);
+		printDialog.pack();
+		printDialog.setVisible(true);
+		
+		if (printDialog.getValue().equals(JOptionPane.OK_OPTION)) {
+		
 			booleanMap = printDialog.getBooleanMap();
-			boolean showEveryField = booleanMap.get("Show every field");
+			boolean showEveryField = booleanMap.get("Show every field (include collapsed fields)");
 			boolean	showDescriptions = booleanMap.get("Show descriptions");
 			boolean	showDefaultValues = booleanMap.get("Show default values");
 			boolean	showUrl = booleanMap.get("Show Url");
 			boolean	showAllOtherAttributes = booleanMap.get("Show all other attributes");
 			boolean printTableData = booleanMap.get("Show Table Data");
-			
-				HtmlOutputter.outputHTML(protocolRootNode, showEveryField, 
-						showDescriptions, showDefaultValues, 
-						showUrl, showAllOtherAttributes, printTableData);
-			}
+		
+			HtmlOutputter.outputHTML(rootNodes, showEveryField, 
+					showDescriptions, showDefaultValues, 
+					showUrl, showAllOtherAttributes, printTableData);
 		}
 	}
 
 	
 	public class LoadDefaultsListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			xmlModel.editCurrentTree(Actions.LOAD_DEFAULTS);
+			String command = event.getActionCommand();
+			if (command.equals(LOAD_DEFAULTS)) {
+				xmlModel.editCurrentTree(Actions.LOAD_DEFAULTS);
+			} else if (command.equals(LOAD_DEFAULTS_HIGHLIGHTED_FIELDS)) {
+				xmlModel.editCurrentTree(Actions.LOAD_DEFAULTS_HIGHLIGHTED_FIELDS);
+			}
 		}
 	}
 	

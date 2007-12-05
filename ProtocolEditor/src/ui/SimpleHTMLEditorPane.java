@@ -43,7 +43,11 @@ import javax.swing.text.html.HTMLEditorKit;
 
 public class SimpleHTMLEditorPane extends JEditorPane {
 	
+	public static final String FONT_BOLD = "font-bold";
+	public static final String FONT_UNDERLINE = "font-underline";
+	
 	Action[] actionsArray;
+	HashMap <Object, Action> actions;
 	
 	Action boldFontAction;
 	Action underlineAction;
@@ -62,17 +66,17 @@ public class SimpleHTMLEditorPane extends JEditorPane {
 		
 		
 		actionsArray = getActions();
-		HashMap <Object, Action> actions = new HashMap<Object, Action>();
+		actions = new HashMap<Object, Action>();
 	    for (int i = 0; i < actionsArray.length; i++) {
 	        Action a = actionsArray[i];
 	        actions.put(a.getValue(Action.NAME), a);
 	       // System.out.println(a.getValue(Action.NAME));
 	    }
 	    
-		boldFontAction = actions.get("font-bold");
+		boldFontAction = actions.get(FONT_BOLD);
 		//boldFontAction.putValue(Action.NAME, "Bold");
 		
-		underlineAction = actions.get("font-underline");
+		underlineAction = actions.get(FONT_UNDERLINE);
 		//underlineAction.putValue(Action.NAME, "U");
 
 
@@ -100,8 +104,12 @@ public class SimpleHTMLEditorPane extends JEditorPane {
 	public Action getBoldAction() {
 		return boldFontAction;
 	}
-	public Action getUnderlineAciton() {
+	public Action getUnderlineAction() {
 		return underlineAction;
+	}
+	
+	public Action getHtmlEditorKitAction(String actionName) {
+		return actions.get(actionName);
 	}
 	
 	/*

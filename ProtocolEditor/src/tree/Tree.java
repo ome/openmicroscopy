@@ -57,7 +57,8 @@ public class Tree {
 	public enum Actions {MOVE_FIELDS_UP("Move Fields Up"), MOVE_FIELDS_DOWN("Move Fields Down"), 
 		DELTE_FIELDS("Delete Fields"), ADD_NEW_FIELD("Add New Field"), DEMOTE_FIELDS("Demote Fields"), 
 		PROMOTE_FIELDS("Promote Fields"), DUPLICATE_FIELDS("Duplicate Fields"), UNDO_LAST_ACTION("Undo Last Action"), REDO_ACTION("Redo"), 
-		IMPORT_FIELDS("Import Fields"), LOAD_DEFAULTS("Load Default Values"), CLEAR_FIELDS("Clear Fields");
+		IMPORT_FIELDS("Import Fields"), LOAD_DEFAULTS("Load Default Values"), 
+		LOAD_DEFAULTS_HIGHLIGHTED_FIELDS("Load Defaults for Highlighted Fields"), CLEAR_FIELDS("Clear Fields");
 		private Actions(String name){
 			this.name = name;
 		}
@@ -186,6 +187,10 @@ public class Tree {
 				copyDefaultValuesToInputFields();
 				break;
 			}
+			case LOAD_DEFAULTS_HIGHLIGHTED_FIELDS: {
+				copyDefaultValuesToInputForHighlightedFields();
+				break;
+			}
 			case CLEAR_FIELDS: {
 				clearFields();
 				break;
@@ -251,6 +256,14 @@ public class Tree {
 		
 		// the constructor of this edit command also carries out the command
 		UndoableEdit edit = new EditCopyDefaultValues(rootNode);
+		undoSupport.postEdit(edit);
+		
+		selectionChanged();		// to update undo button
+	}
+	
+	private void copyDefaultValuesToInputForHighlightedFields() {
+		// the constructor of this edit command also carries out the command
+		UndoableEdit edit = new EditCopyDefaultValues(getHighlightedFields());
 		undoSupport.postEdit(edit);
 		
 		selectionChanged();		// to update undo button

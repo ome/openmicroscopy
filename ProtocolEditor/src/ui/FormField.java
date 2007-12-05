@@ -66,7 +66,7 @@ public class FormField extends AbstractDataFieldPanel implements DataFieldObserv
 	boolean childrenCollapsed = false; 	// used for root field only - to toggle all collapsed
 	
 	boolean highlighted = false;
-	Color backgroundColour;
+	Color backgroundColour = null;
 	
 	Icon collapsedIcon;
 	Icon notCollapsedIcon;
@@ -163,11 +163,12 @@ public class FormField extends AbstractDataFieldPanel implements DataFieldObserv
 		contentsNorthPanel.add(horizontalBox, BorderLayout.CENTER);
 		horizontalFrameBox.add(contentsNorthPanel);
 
-
+		// refresh the current state
 		nameLabel.setText(addHtmlTagsForNameLabel(dataField.getName()));
 		setDescriptionText(dataField.getDescription());
 		setURL(dataField.getURL());
 		refreshBackgroundColour();
+		refreshHighlighted();
 		
 		this.add(horizontalFrameBox, BorderLayout.NORTH);
 		this.add(descriptionLabel, BorderLayout.CENTER);

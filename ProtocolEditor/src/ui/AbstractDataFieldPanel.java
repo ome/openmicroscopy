@@ -162,16 +162,18 @@ public abstract class AbstractDataFieldPanel extends JPanel{
 			toolBarBox = Box.createHorizontalBox();
 			
 			Icon boldIcon = ImageFactory.getInstance().getIcon(ImageFactory.BOLD_ICON); 
-			JButton boldButton = new JButton(editorPane.getBoldAction());
-			boldButton.setIcon(boldIcon);
-			boldButton.setText("");
+			JButton boldButton = new JButton(boldIcon);
+			boldButton.setFocusable(false);		// don't want to lose focus from the editorPane when clicked
+			boldButton.setActionCommand(SimpleHTMLEditorPane.FONT_BOLD);
+			boldButton.addActionListener(new FontFormattingChangedListener());
 			boldButton.setBorder(toolBarButtonBorder);
 			toolBarBox.add(boldButton);
 			
 			Icon underlineIcon = ImageFactory.getInstance().getIcon(ImageFactory.UNDERLINE_ICON); 
-			JButton underlineButton = new JButton(editorPane.getUnderlineAciton());
-			underlineButton.setIcon(underlineIcon);
-			underlineButton.setText("");
+			JButton underlineButton = new JButton(underlineIcon);
+			underlineButton.setFocusable(false);		// don't want to lose focus from the editorPane when clicked
+			underlineButton.setActionCommand(SimpleHTMLEditorPane.FONT_UNDERLINE);
+			underlineButton.addActionListener(new FontFormattingChangedListener());
 			underlineButton.setBorder(toolBarButtonBorder);
 			toolBarBox.add(underlineButton);
 			
@@ -201,31 +203,33 @@ public abstract class AbstractDataFieldPanel extends JPanel{
 			editorPane.removeFocusListener(focusChangedListener);
 		}
 		
-		
+		/*
+		 * Listens to buttons for changing the editorPane formatting eg Underline, bold.
+		 * First carries out the appropriate Action
+		 * Then updates the dataField with newly modified text from the editorPane
+		 */
+		public class FontFormattingChangedListener implements ActionListener {
+			public void actionPerformed(ActionEvent e) {
+				
+				// the ActionCommand of the button corresponds to the name of the Action to be 
+				// carried out by the editorPane. 
+				String actionCommand = e.getActionCommand();
+				
+				// change the formatting of the text in the editorPane
+				editorPane.getHtmlEditorKitAction(actionCommand).actionPerformed(e);
+				
+				// update the changes to the dataField
+				setDataFieldAttribute(editorPane.getName(), editorPane.getText(), true);
+				textChanged = false;
+			}
+		}
 	}
 
 	
 	public class TextChangedListener implements KeyListener {
 		
 		public void keyTyped(KeyEvent event) {
-			
-			char keyChar = event.getKeyChar();
-			int keyCharacter = (int)keyChar;
-			/*if (keyCharacter == 10) {	// == "Enter"
-				
-				textChanged = false;	// stops FocusChangedListener from updating dataField
-				
-				JTextComponent source = (JTextComponent)event.getSource();
-				
-				setDataFieldAttribute(source.getName(), source.getText(), true);
-				
-				// need to stop focus going elsewhere. Get it back to source of event
-				source.requestFocus();
-			} else {
-				textChanged = true;		// some character was typed, so set this flag
-			}*/
 			textChanged = true;		// some character was typed, so set this flag
-
 		}
 		public void keyPressed(KeyEvent event) {}
 		public void keyReleased(KeyEvent event) {}

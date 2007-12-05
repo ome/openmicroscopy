@@ -32,11 +32,30 @@ public class EditCopyDefaultValues extends AbstractUndoableEdit {
 	Iterator<DataFieldNode> iterator;
 	ArrayList<EditDataFieldAttribute> editedFields;
 	
+	/**
+	 * @param rootNode 	the root of the Tree, containing nodes to which the CopyDefault action will be applied.
+	 * This tree will be iterated through, and nodes that have default values will be added to the editedFields list.
+	 */
 	public EditCopyDefaultValues (DataFieldNode rootNode) {
-		
-		iterator = rootNode.iterator();
 		editedFields = new ArrayList<EditDataFieldAttribute>();
-
+		
+		populateEditedFields(rootNode);
+		
+		redo();		// this sets value to newValue for all fields in the list
+	}
+	
+	public EditCopyDefaultValues (ArrayList<DataFieldNode> nodes) {
+		editedFields = new ArrayList<EditDataFieldAttribute>();
+		
+		for (DataFieldNode node: nodes) {
+			populateEditedFields(node);
+		}
+		
+		redo();		// this sets value to newValue for all fields in the list
+	}
+	
+	private void populateEditedFields(DataFieldNode rootNode) {
+		iterator = rootNode.iterator();
 		
 		while (iterator.hasNext()) {
 			DataField field = (DataField)iterator.next().getDataField();
@@ -48,9 +67,7 @@ public class EditCopyDefaultValues extends AbstractUndoableEdit {
 			}
 			
 		}
-		redo();		// this sets value to newValue for all fields in the list
 	}
-	
 	
 	public void undo() {
 		for (EditDataFieldAttribute field: editedFields) {
