@@ -101,6 +101,12 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public void clear() {
+        getHibernateTemplate().clear();
+    }
+
+    @RolesAllowed("user")
     public void initialize(Object obj) {
         Hibernate.initialize(obj);
     }

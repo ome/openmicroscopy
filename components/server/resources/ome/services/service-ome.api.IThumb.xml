@@ -24,8 +24,8 @@
   	class="ome.services.ThumbnailBean">
   	<constructor-arg><value>true</value></constructor-arg>
     <property name="ioService" ref="/OMERO/Thumbs"/>
-    <property name="renderingEngine"
-    	ref="internal:omeis.providers.re.RenderingEngine"/>
+    <property name="IPixels" ref="internal:ome.api.IPixels"/>
+    <property name="pixelDataService" ref="/OMERO/Pixels"/>
     <property name="scaleService" ref="internal:ome.api.IScale"/>
     <property name="compressionService" ref="internal:ome.api.ICompress"/>
     <property name="IRepositoryInfo" ref="internal:ome.api.IRepositoryInfo"/>

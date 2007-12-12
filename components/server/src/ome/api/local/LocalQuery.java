@@ -72,6 +72,8 @@ public interface LocalQuery extends ome.api.IQuery {
      */
     void evict(Object object);
 
+	void clear();
+
     /**
      * Uses the Hibernate static method <code>initialize</code> to prepare an
      * object for shipping over the wire.

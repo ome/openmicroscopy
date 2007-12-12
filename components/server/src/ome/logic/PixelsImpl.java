@@ -120,7 +120,7 @@ class PixelsImpl extends AbstractLevel2Service implements IPixels {
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void saveRndSettings(RenderingDef rndSettings) {
-        iUpdate.saveObject(rndSettings);
+        iUpdate.saveAndReturnObject(rndSettings);
     }
 
     @RolesAllowed("user")

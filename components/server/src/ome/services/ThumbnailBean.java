@@ -8,14 +8,7 @@
 package ome.services;
 
 // Java imports
-import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferInt;
-import java.awt.image.DirectColorModel;
-import java.awt.image.SinglePixelPackedSampleModel;
-import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -35,35 +28,44 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
-import ome.api.ICompress;
+import ome.api.IPixels;
 import ome.api.IRepositoryInfo;
 import ome.api.IScale;
 import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
 import ome.api.local.LocalCompress;
 import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
+import ome.conditions.ValidationException;
+import ome.io.nio.PixelBuffer;
+import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
 import ome.logic.AbstractLevel2Service;
+import ome.model.IObject;
 import ome.model.core.Pixels;
+import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
+import ome.model.enums.Family;
+import ome.model.enums.RenderingModel;
 import ome.parameters.Parameters;
 import ome.services.util.OmeroAroundInvoke;
 import ome.system.EventContext;
 import ome.system.SimpleEventContext;
 import ome.util.ImageUtil;
-import omeis.providers.re.RenderingEngine;
+import omeis.providers.re.Renderer;
 import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.quantum.QuantizationException;
+import omeis.providers.re.quantum.QuantumFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
+import org.jboss.annotation.ejb.cache.tree.CacheConfig;
 import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
-
-import sun.awt.image.IntegerInterleavedRaster;
 
 /**
  * Provides methods for directly querying object graphs. The service is entirely
@@ -99,11 +101,17 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     /** The logger for this class. */
     private transient static Log log = LogFactory.getLog(ThumbnailBean.class);
 
-    /** The rendering engine that this service uses for thumbnail creation. */
-    private transient RenderingEngine re;
+    /** The renderer that this service uses for thumbnail creation. */
+    private transient Renderer renderer;
 
-    /** The scaling service that will be used to scale buffered images. */
+    /** The scaling service will be used to scale buffered images. */
     private transient IScale iScale;
+    
+    /** The pixels service, will be used to load pixels and settings. */
+    private transient IPixels iPixels;
+    
+    /** The service used to retrieve the pixels data. */
+    private transient PixelsService pixelDataService;
 
     /** The ROMIO thumbnail service. */
     private transient ThumbnailService ioService;
@@ -119,18 +127,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
 
     /** The pixels instance that the service is currently working on. */
     private Pixels pixels;
-
-    /** The id of the pixels instance. */
-    private Long pixelsId;
     
-    /** Only set after a passivated bean is activated. */
-    private transient Long resetPix = null;
-
-    /** Currently unused. */
-    private transient Long resetRE = null;
-    
-    /** The id of the rendering definition instance. */
-    private Long renderingDefId;
+    /** The rendering settings that the service is currently working with. */
+    private RenderingDef settings;
 
     /** The default X-width for a thumbnail. */
     public static final int DEFAULT_X_WIDTH = 48;
@@ -144,6 +143,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     /** The default MIME type. */
     public static final String DEFAULT_MIME_TYPE = "image/jpeg";
 
+    /** Notification that the bean has just returned from passivation. */
+    private transient boolean wasPassivated = false;
+    
     /** default constructor */
     public ThumbnailBean() {}
     
@@ -160,25 +162,39 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     }
 
     @PostConstruct
-    @PostActivate
     public void create() {
         selfConfigure();
-        if (pixelsId != null) {
-            resetPix = pixelsId;
-            pixelsId = null;
-        }
-        // FIXME resetRE will need to be managed here too.
+    }
+    
+    /** lifecycle method -- {@link PostPassivate}. */
+    @PostActivate
+    public void postPassivate() {
+    	log.info("***** Returning from passivation... ******");
+    	create();
+    	wasPassivated = true;
     }
 
+    /** lifecycle method -- {@link PrePassivate}. */
     @PrePassivate
+    public void passivate() {
+    	log.info("***** Passivating... *****");
+    	if (renderer != null)
+    	{
+    		renderer.close();
+    	}
+    	renderer = null;
+    }
+    
     @PreDestroy
     public void destroy() {
-        // id is the only thing passivated.
-   		re.close();
-        re = null;
-        iScale = null;
-        ioService = null;
-        pixels = null;
+    	// Both the pixels and rendering settings objects are being passivated.
+    	if (renderer != null)
+    	{
+    		renderer.close();
+    	}
+    	renderer = null;
+    	iScale = null;
+    	ioService = null;
     }
 
     /*
@@ -207,47 +223,95 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      * @see ome.api.ThumbnailStore#setPixelsId(long)
      */
     @RolesAllowed("user")
-    public boolean setPixelsId(long id) {
-        if (pixelsId == null || pixelsId.longValue() != id) {
-            pixelsId = new Long(id);
-            resetPix = null;
-            // FIXME resetRE will need to be managed here too.
-            pixels = iQuery.get(Pixels.class, pixelsId);
+    @Transactional(readOnly = false)
+    public boolean setPixelsId(long id)
+    {
+    	// If we've had a pixels set change, reset our stateful objects.
+    	if (pixels != null && pixels.getId() != id)
+    	{
+    		pixels = null;
+    		settings = null;
+    	}
 
-            if (pixels == null) {
-                throw new ApiUsageException(
-                        "Unable to locate pixels set with ID: " + id);
-            }
+    	// Handle lookup of pixels object
+    	if (pixels == null)
+    	{
+    		pixels = iPixels.retrievePixDescription(id);
+    		if (pixels == null)
+    		{
+    			throw new ValidationException(
+    					"Pixels object with id '" + id + "' not found.");
+    		}
+    	}
 
-            re.lookupPixels(id);
-            if (re.lookupRenderingDef(id) == false) {
-            	pixelsId = null;
-            	return false;
-            }
-            re.load();
-        }
-        return true;
+    	// Handle lookup of rendering settings
+    	if (settings == null)
+    	{
+    		settings = iPixels.retrieveRndSettings(id);
+    		if (settings == null)
+    		{
+    			return false;
+    		}
+    	}
+
+    	// Ensure that we do not have "dirty" pixels or rendering settings left
+    	// around in the Hibernate session cache.
+    	iQuery.clear();
+
+    	// Rebuild the renderer.
+    	load();
+    	return true;
+    }
+    
+    /**
+     * Creates a renderer for the active pixels set and rendering settings.
+     */
+    private void load()
+    {
+    	errorIfNullPixels();
+    	if (renderer != null)
+    	{
+    		renderer.close();
+    	}
+    	PixelBuffer buffer = pixelDataService.getPixelBuffer(pixels);
+    	List<Family> families =
+    		iPixels.getAllEnumerations(Family.class);
+    	List<RenderingModel> renderingModels =
+    		iPixels.getAllEnumerations(RenderingModel.class);
+    	QuantumFactory quantumFactory = new QuantumFactory(families);
+    	renderer = new Renderer(quantumFactory, renderingModels, pixels,
+    	                        settings, buffer);
     }
 
     @RolesAllowed("user")
     public void setRenderingDefId(Long id) {
         // FIXME: This currently is useless as the rendering engine does
         // not accept arbitrary rendering definitions.
-        // FIXME resetRE will need to be managed here too.
         return;
     }
 
     /**
-     * Rendering Engine Bean injector.
+     * Pixels service Bean injector.
      * 
-     * @param re
-     *            a <code>RenderingEngine</code>.
+     * @param iPixels
+     *            an <code>IPixels</code>.
      */
-    public void setRenderingEngine(RenderingEngine re) {
-        getBeanHelper().throwIfAlreadySet(this.re, re);
-        this.re = re;
+    public void setPixelDataService(PixelsService pixelDataService) {
+        getBeanHelper().throwIfAlreadySet(this.pixelDataService, pixelDataService);
+        this.pixelDataService = pixelDataService;
     }
-
+    
+    /**
+     * Pixels service Bean injector.
+     * 
+     * @param iPixels
+     *            an <code>IPixels</code>.
+     */
+    public void setIPixels(IPixels iPixels) {
+        getBeanHelper().throwIfAlreadySet(this.iPixels, iPixels);
+        this.iPixels = iPixels;
+    }
+    
     /**
      * Scale service Bean injector.
      * 
@@ -327,7 +391,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      */
     private Thumbnail getThumbnailMetadata(int sizeX, int sizeY) {
         Parameters param = new Parameters();
-        param.addId(pixelsId);
+        param.addId(pixels.getId());
         param.addInteger("x", sizeX);
         param.addInteger("y", sizeY);
 
@@ -347,7 +411,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     private List<Thumbnail> getThumbnailMetadata() {
         List<Thumbnail> thumbs = iQuery.findAllByQuery(
                 "select t from Thumbnail as t where t.pixels.id = :id",
-                new Parameters().addId(pixelsId));
+                new Parameters().addId(pixels.getId()));
         return thumbs;
     }
 
@@ -408,42 +472,74 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     private BufferedImage createScaledImage(Integer sizeX, Integer sizeY,
                                             Integer theZ, Integer theT)
     {
-        // Original sizes and thumbnail metadata
-        int origSizeX = pixels.getSizeX();
-        int origSizeY = pixels.getSizeY();
+    	// Original sizes and thumbnail metadata
+    	int origSizeX = pixels.getSizeX();
+    	int origSizeY = pixels.getSizeY();
 
-        // Retrieve our rendered data and translate to a buffered image
-        if (theZ == null)
-        	theZ = re.getDefaultZ();
-        if (theT == null)
-        	theT = re.getDefaultT();
-        PlaneDef pd = new PlaneDef(PlaneDef.XY, theT);
-        pd.setZ(theZ);
-        int[] buf = re.renderAsPackedInt(pd);
-        BufferedImage image = 
-        	ImageUtil.createBufferedImage(buf, origSizeX, origSizeY);
+    	// Retrieve our rendered data
+    	if (theZ == null)
+    		theZ = settings.getDefaultZ();
+    	if (theT == null)
+    		theT = settings.getDefaultT();
+    	PlaneDef pd = new PlaneDef(PlaneDef.XY, theT);
+    	pd.setZ(theZ);
 
-        // Finally, scale our image using scaling factors (percentage).
-        log.info("Setting xScale factor: " + sizeX + "/" + origSizeX);
-        float xScale = (float) sizeX / origSizeX;
-        log.info("Setting yScale factor: " + sizeX + "/" + origSizeX);
-        float yScale = (float) sizeY / origSizeY;
-        return iScale.scaleBufferedImage(image, xScale, yScale);
+    	// Render the planes and translate to a buffered image
+    	BufferedImage image;
+    	try
+    	{
+    		int[] buf = renderer.renderAsPackedInt(pd);
+    		image = ImageUtil.createBufferedImage(buf, origSizeX, origSizeY);
+    	} 
+    	catch (IOException e)
+    	{
+    		ResourceError re = new ResourceError(
+    				"IO error while rendering: " + e.getMessage());
+    		re.initCause(e);
+    		throw re;
+    	}
+    	catch (QuantizationException e)
+    	{
+    		InternalException ie = new InternalException(
+    				"QuantizationException while rendering: " + e.getMessage());
+    		ie.initCause(e);
+    		throw ie;
+    	}
+
+    	// Finally, scale our image using scaling factors (percentage).
+    	log.info("Setting xScale factor: " + sizeX + "/" + origSizeX);
+    	float xScale = (float) sizeX / origSizeX;
+    	log.info("Setting yScale factor: " + sizeX + "/" + origSizeX);
+    	float yScale = (float) sizeY / origSizeY;
+    	return iScale.scaleBufferedImage(image, xScale, yScale);
+    }
+    
+    protected void errorIfInvalidState()
+    {
+    	errorIfNullPixels();
+    	if (renderer == null && wasPassivated)
+    	{
+    		load();
+    	}
+    	else if (renderer == null)
+    	{
+    		throw new InternalException(
+    			"Thumbnail service state corruption: Renderer missing.");
+    	}
     }
 
-    protected void errorIfInvalidState() {
-        errorIfNullPixels();
-        // FIXME resetRE will need to be managed here too.
-    }
-
-    protected void errorIfNullPixels() {
-        if (resetPix != null) {
-            long reset = resetPix.longValue();
-            setPixelsId(reset);
-        } else if (pixelsId == null) {
-            throw new ApiUsageException(
-                    "Thumbnail service not ready: Pixels object not set.");
-        }
+    protected void errorIfNullPixels()
+    {
+    	if (pixels == null)
+    	{
+    		throw new ApiUsageException(
+    			"Thumbnail service not ready: Pixels not set.");
+    	}
+    	else if (settings == null)
+    	{
+    		throw new InternalException(
+    			"Thumbnail service state corruption: RenderingDef missing.");
+    	}
     }
 
     /*
@@ -566,33 +662,33 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public byte[] _getThumbnailDirect(Integer sizeX, Integer sizeY,
                                       Integer theZ, Integer theT)
     {
-        // Set defaults and sanity check thumbnail sizes
-        errorIfInvalidState();
-        if (sizeX == null) {
-            sizeX = DEFAULT_X_WIDTH;
-        }
-        if (sizeY == null) {
-            sizeY = DEFAULT_Y_WIDTH;
-        }
-        sanityCheckThumbnailSizes(sizeX, sizeY);
+    	// Set defaults and sanity check thumbnail sizes
+    	errorIfInvalidState();
+    	if (sizeX == null) {
+    		sizeX = DEFAULT_X_WIDTH;
+    	}
+    	if (sizeY == null) {
+    		sizeY = DEFAULT_Y_WIDTH;
+    	}
+    	sanityCheckThumbnailSizes(sizeX, sizeY);
 
-        BufferedImage image = createScaledImage(sizeX, sizeY, theZ, theT);
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        try {
-            compressionService.compressToStream(image, byteStream);
-            byte[] thumbnail = byteStream.toByteArray();
-            return thumbnail;
-        } catch (IOException e) {
-            log.error("Could not obtain thumbnail direct.", e);
-            throw new ResourceError(e.getMessage());
-        } finally {
-        	try {
-        		byteStream.close();
-        	} catch (IOException e) {
-                log.error("Could not close byte stream.", e);
-        		throw new ResourceError(e.getMessage());
-        	}
-        }
+    	BufferedImage image = createScaledImage(sizeX, sizeY, theZ, theT);
+    	ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+    	try {
+    		compressionService.compressToStream(image, byteStream);
+    		byte[] thumbnail = byteStream.toByteArray();
+    		return thumbnail;
+    	} catch (IOException e) {
+    		log.error("Could not obtain thumbnail direct.", e);
+    		throw new ResourceError(e.getMessage());
+    	} finally {
+    		try {
+    			byteStream.close();
+    		} catch (IOException e) {
+    			log.error("Could not close byte stream.", e);
+    			throw new ResourceError(e.getMessage());
+    		}
+    	}
     }
 
     /*
@@ -689,7 +785,45 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void resetDefaults() {
-    	re.resetDefaults();
+        if (settings != null)
+        {
+        	throw new ApiUsageException(
+        		"Thumbnail service only resets **empty** rendering settings. " +
+        		"Resetting of existing settings from outside the rendering " +
+        		"engine should be performed using the the rendering settings " +
+        		"service.");
+        }
+        // Ensure that we haven't just been called before 
+        // setPixelsId().
+        RenderingDef def = iPixels.retrieveRndSettings(pixels.getId()); 
+        if (def != null)
+        {
+        	errorIfInvalidState();
+        }
+
+        // Lookup associated metadata and reset the settings.
+        List<Family> families = iPixels.getAllEnumerations(Family.class);
+        List<RenderingModel> renderingModels =
+        	iPixels.getAllEnumerations(RenderingModel.class);
+        QuantumFactory quantumFactory = new QuantumFactory(families);
+        PixelBuffer buffer = pixelDataService.getPixelBuffer(pixels);
+        def = Renderer.createNewRenderingDef(pixels);
+        Renderer.resetDefaults(def, pixels, quantumFactory,
+                               renderingModels, buffer);
+
+        // Cleanup and save
+        try
+        {
+        	buffer.close();
+        }
+        catch (IOException e)
+        {
+        	ResourceError re = new ResourceError(
+        			"IO error while resetting defaults: " + e.getMessage());
+        	re.initCause(e);
+        	throw re;
+        }
+        iPixels.saveRndSettings(def);
     }
 
 	public boolean isDiskSpaceChecking() {

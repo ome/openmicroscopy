@@ -533,9 +533,8 @@ public class Renderer {
                 + "' rendering strategy.");
         RGBBuffer img = renderingStrategy.render(this, pd);
         stats.stop();
-        log.info(stats.getStats());
-        // TODO: is this the right place to log??? We want to have as little
-        // impact on performance as possible.
+        // TODO: Commenting this out for now. -- callan
+        //log.info(stats.getStats());
         return img;
     }
 
@@ -568,9 +567,8 @@ public class Renderer {
                 + "' rendering strategy.");
         RGBIntBuffer img = renderingStrategy.renderAsPackedInt(this, pd);
         stats.stop();
-        log.info(stats.getStats());
-        // TODO: is this the right place to log??? We want to have as little
-        // impact on performance as possible.
+        // TODO: Commenting this out for now. -- callan
+        //log.info(stats.getStats());
         return img.getDataBuffer();
     }
 
@@ -917,15 +915,20 @@ public class Renderer {
 	    	throw new IllegalArgumentException(
 	    		"Unable to find default rendering model in enumerated list.");
 	    }
-	    def.setModel(defaultModel);
-	
+	    
+	    // Unload the rendering model to avoid transactional headaches
+	    RenderingModel unloadedModel = new RenderingModel();
+	    unloadedModel.setId(defaultModel.getId());
+	    unloadedModel.unload();
+	    def.setModel(unloadedModel);
+
 	    // Quantization settings
 	    QuantumDef quantumDef = def.getQuantization();
 	    quantumDef.setCdStart(0);
 	    quantumDef.setCdEnd(QuantumFactory.DEPTH_8BIT);
 	    quantumDef.setBitResolution(QuantumFactory.DEPTH_8BIT);
 	    def.setQuantization(quantumDef);
-	
+
 	    // Reset the channel bindings
 	    resetChannelBindings(def, pixels, quantumFactory, buffer);
 	}
@@ -963,7 +966,12 @@ public class Renderer {
 	    r.setDefaultT(0);
         r.setQuantization(new QuantumDef());
         r.setWaveRendering(createNewChannelBindings(p));
-        r.setPixels(p);
+        
+        // Unload the pixels object to avoid transactional headaches
+        Pixels unloadedPixels = new Pixels();
+        unloadedPixels.setId(p.getId());
+        unloadedPixels.unload();
+        r.setPixels(unloadedPixels);
         return r;
     }
 
