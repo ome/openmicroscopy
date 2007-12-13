@@ -37,7 +37,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /** 
-* Implements the {@link Classifier} interface to provide the functionality
+ * Implements the {@link Classifier} interface to provide the functionality
  * required of the classifier component.
  * This class is the component hub and embeds the component's MVC triad.
  * It manages the component's state machine and fires state change 

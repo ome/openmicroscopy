@@ -509,4 +509,6 @@ public interface Browser
 	 */
     public void setSelectedNode();
     
+    public void refreshExperimenter();
+    
 }

@@ -82,7 +82,7 @@ public class CategoryLoader
      */
     public void load()
     {
-    	handle = dhView.loadAllClassifications(imageID, expID, this);
+    	//handle = dhView.loadAllClassifications(imageID, expID, this);
     }
 
     /**

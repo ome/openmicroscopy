@@ -73,8 +73,8 @@ public class QuickFinder
 	private void fireTagsRetrieval(List values)
 	{
 		state = SEARCH;
-		QuickFinderLoader handler = new QuickFinderLoader(this, registry, 
-										values, QuickFinderLoader.TAGS);
+		QuickFinderLoader handler = new QuickFinderLoader(this, values, 
+													QuickFinderLoader.TAGS);
 		handler.load();
 		finderHandlers.add(handler);
 	}
@@ -87,8 +87,8 @@ public class QuickFinder
 	private void fireImagesRetrieval(List values)
 	{
 		state = SEARCH;
-		QuickFinderLoader handler = new QuickFinderLoader(this, registry, 
-										values, QuickFinderLoader.IMAGES);
+		QuickFinderLoader handler = new QuickFinderLoader(this, values, 
+										QuickFinderLoader.IMAGES);
 		handler.load();
 		finderHandlers.add(handler);
 	}
@@ -101,8 +101,8 @@ public class QuickFinder
 	private void fireAnnotationsRetrieval(List values)
 	{
 		state = SEARCH;
-		QuickFinderLoader handler = new QuickFinderLoader(this, registry, 
-										values, QuickFinderLoader.ANNOTATIONS);
+		QuickFinderLoader handler = new QuickFinderLoader(this, values, 
+										QuickFinderLoader.ANNOTATIONS);
 		handler.load();
 		finderHandlers.add(handler);
 	}

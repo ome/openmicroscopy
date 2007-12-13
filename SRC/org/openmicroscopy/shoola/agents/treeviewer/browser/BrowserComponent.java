@@ -1130,5 +1130,15 @@ class BrowserComponent
     	setSelectedDisplay(toSelectAfterSave);
     	toSelectAfterSave = null;
     }
+
+    /**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#refreshExperimenter()
+	 */
+	public void refreshExperimenter()
+	{
+		if (model.getState() == DISCARDED) return;
+		view.refreshExperimenter();
+	}
     
 }

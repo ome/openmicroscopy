@@ -88,9 +88,9 @@ public class ImagePerDateLoader
      */
     public void load()
     {
-    	handle = dhView.loadImages(timeRefObject.getConstrain(), 
-    				timeRefObject.getLowerTime(),
-    				timeRefObject.getTime(), timeRefObject.getUserID(), this);	
+    	handle = dhView.loadImages(timeRefObject.getStartTime(),
+    				timeRefObject.getEndTime(), timeRefObject.getUserID(), 
+    				this);	
     }
     
     /** 

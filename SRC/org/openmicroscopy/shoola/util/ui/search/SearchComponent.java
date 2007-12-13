@@ -29,6 +29,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.Box;
@@ -47,7 +49,7 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Dialog with advanced search options.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -105,6 +107,12 @@ public class SearchComponent
 	{
 		setModal(true);
 		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		addWindowListener(new WindowAdapter()
+        {
+        	public void windowOpened(WindowEvent e) {
+        		uiDelegate.setFocusOnSearch();
+        	} 
+        });
 	}
 	
 	/** Initializes the components composing the display. */
@@ -153,7 +161,7 @@ public class SearchComponent
 	private void cancel()
 	{
 		setVisible(false);
-		dispose();
+		//dispose();
 	}
 	
 	/** Fires a property change to search. */

@@ -56,10 +56,10 @@ public class ClassifyAction
 {
 
 	/** The name of the action. */
-    private static final String NAME = "Categorise";
+    private static final String NAME = "Tag";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Display categories.";
+    private static final String DESCRIPTION = "Display tags.";
     
     /**
      * Creates a new instance.
@@ -82,9 +82,8 @@ public class ClassifyAction
 	public void mousePressed(MouseEvent me)
 	{
 		Object source = me.getSource();
-		if (source instanceof Component) 
-			model.showMenu(ImViewer.CATEGORY_MENU, (Component) source, 
-							me.getPoint());
+		if (source instanceof Component)
+			model.retrieveTags((Component) source, me.getPoint());
 	}
 	
 	/**

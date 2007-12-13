@@ -74,17 +74,14 @@ public class QuickFinderLoader
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
-     * @param registry  Convenience reference for subclasses.
-     *                  Mustn't be <code>null</code>.
      * @param index		One of the constants defined by this class. 
      * @param values	Collection of terms to search for.
      * @param type		The type of data to search, One of the constants 
      * 					defined by this class.
      */
-    public QuickFinderLoader(QuickFinder viewer, Registry registry, List values, 
-    						int type)
+    public QuickFinderLoader(QuickFinder viewer, List values, int type)
     {
-    	super(viewer, registry);
+    	super(viewer);
     	this.type = checkType(type);
     	if (values == null || values.size() == 0) 
     		throw new IllegalArgumentException("No terms to search for.");

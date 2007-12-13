@@ -43,7 +43,6 @@ import java.util.Set;
 import ome.model.core.Pixels;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
-import org.openmicroscopy.shoola.agents.imviewer.CategoryLoader;
 import org.openmicroscopy.shoola.agents.imviewer.CategorySaver;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
@@ -56,6 +55,8 @@ import org.openmicroscopy.shoola.agents.imviewer.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.ChannelPlayer;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.Player;
+import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
+import org.openmicroscopy.shoola.agents.util.tagging.view.TaggerFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -224,6 +225,9 @@ class ImViewerModel
 	
 	/** The rendering setting related to a given set of pixels. */
 	private Map					renderingSettings;
+	
+	/** Reference to the tagger. */
+	private Tagger				tagger;
 	
 	/** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
 	private void computeSizes()
@@ -1124,10 +1128,17 @@ class ImViewerModel
 	 */
 	void fireCategoriesLoading()
 	{
-		state = ImViewer.LOADING_METADATA;
+		//state = ImViewer.LOADING_METADATA;
+		if (tagger == null) {
+			tagger = TaggerFactory.getImageTagger(ImViewerAgent.getRegistry(), 
+													imageID);
+			tagger.activate();
+		}
+		/*
 		currentLoader = new CategoryLoader(component, imageID, 
 				getUserDetails().getId());
 		currentLoader.load();
+		*/
 	}
 	
 	/**
@@ -1151,7 +1162,12 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	List getCategories() { return categories; }
+	List getCategories()
+	{ 
+		if (tagger == null) return new ArrayList();
+		return tagger.getTags();
+		//return categories; 
+	}
 
 	/**
 	 * Returns the categories the image can be categorised into.
@@ -1328,5 +1344,12 @@ class ImViewerModel
 		RndProxyDef rndDef = (RndProxyDef) renderingSettings.get(exp);
 		rndControl.resetSettings(rndDef);
 	}
+
+	/**
+	 * Returns the tagger.
+	 * 
+	 * @return See above.
+	 */
+	Tagger getTagger() { return tagger; }
 	
 }

@@ -457,7 +457,6 @@ class FileSaverUI
 		String name = (String) evt.getNewValue();
 		chooser.createFolder(name);
 	}
-
 	
 }
 

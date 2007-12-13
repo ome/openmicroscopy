@@ -77,7 +77,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.SplitPanel;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
-import org.openmicroscopy.shoola.agents.util.tagging.CategoryEditor;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -85,26 +84,24 @@ import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
-import org.openmicroscopy.shoola.util.ui.search.SearchObject;
-import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 
 /** 
-* The {@link ImViewer} view.
-* Embeds the {@link Browser}. Also provides a menu bar, a status bar and a 
-* panel hosting various controls.
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
-* @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-* @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $ $Date: $)
-* </small>
-* @since OME2.2
-*/
+ * The {@link ImViewer} view.
+ * Embeds the {@link Browser}. Also provides a menu bar, a status bar and a 
+ * panel hosting various controls.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * </small>
+ * @since OME2.2
+ */
 class ImViewerUI
  	extends TopWindow
 {
@@ -1393,7 +1390,19 @@ class ImViewerUI
 	}
 
 	/**
-	 * Creates the color picker menu and brings it on screen.
+	 * Creates the menus corresponding to the passed id and brings it on screen.
+	 * 
+	 * @param menuID    The id of the menu. One out of the following constants:
+	 *                  {@link ImViewer#COLOR_PICKER_MENU},
+	 *                  {@link ImViewer#CATEGORY_MENU}.
+	 */
+	void showMenu(int menuID)
+	{
+		showMenu(menuID, source, location);
+	}
+	
+	/**
+	 * Creates the menus corresponding to the passed id and brings it on screen.
 	 * 
 	 * @param menuID    The id of the menu. One out of the following constants:
 	 *                  {@link ImViewer#COLOR_PICKER_MENU},
@@ -1635,12 +1644,15 @@ class ImViewerUI
 	/** Creates a new category and adds the image to the category. */
 	void createCategory()
 	{
+		/**
 		CategoryEditor editor = new CategoryEditor(this, 
 									model.getAvailableCategories(), 
 									model.getCategories(),
 									model.getPopulatedCategoryGroups());
 		editor.addPropertyChangeListener(controller);
 		UIUtilities.centerAndShow(editor);
+		*/
+		UIUtilities.centerAndShow(model.getTagger().getUI());
 	}
 
 	/** 

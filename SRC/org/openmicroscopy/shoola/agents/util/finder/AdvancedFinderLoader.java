@@ -33,7 +33,6 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -97,21 +96,18 @@ public class AdvancedFinderLoader
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
-     * @param registry  Convenience reference for subclasses.
-     *                  Mustn't be <code>null</code>.
      * @param values	Collection of terms to search for.
      * @param users		Collection of users' data.
      * @param context	Collection of constants defined by this class.
      * @param start		The start of a time interval.
      * @param end		The end of a time interval.
      */
-    public AdvancedFinderLoader(Finder viewer, Registry registry,
-    							List<String> values,
+    public AdvancedFinderLoader(Finder viewer, List<String> values,
     							List<ExperimenterData> users,
     							List<Integer> context, Timestamp start,
     							Timestamp end)
     {
-    	super(viewer, registry);
+    	super(viewer);
     	if (values == null || values.size() == 0) 
     		throw new IllegalArgumentException("No terms to search for.");
     	if (context == null || context.size() == 0) 

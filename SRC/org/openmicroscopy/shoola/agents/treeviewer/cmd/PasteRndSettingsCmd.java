@@ -127,10 +127,9 @@ public class PasteRndSettingsCmd
 						ids.add((Long) j.next());
 				} else {
 					time = (TreeImageTimeSet) node;
-            		int c = ViewCmd.getTimeConstrain(time.getType());
             		exp = model.getUserDetails();
             		ref = new TimeRefObject(exp.getId(), 
-            				time.getLowerTime(), time.getTime(), c);
+            				time.getStartTime(), time.getEndTime());
 				}
 			} else {
 				ho = node.getUserObject();

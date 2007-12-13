@@ -74,7 +74,7 @@ import pojos.CategoryGroupData;
 import pojos.DataObject;
 
 /** 
- * A modal dialog used to create or edit category.
+ * A modal dialog used to create or edit tag.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -93,21 +93,21 @@ public class CategoryEditor
 {
 
 	/** Bounds property indicating to create a category. */
-	public static final String		CREATE_CATEGORY_PROPERTY = "createCategory";
+	public static final String		CREATE_TAG_PROPERTY = "createTag";
 	
 	/** The title of the dialog. */
-	private static final String 	TITLE = "Category editor";
+	private static final String 	TITLE = "Tagging editor";
 	
 	/** Separator between words. */
 	private static final String		SEPARATOR =",";
 	
 	/** Note explaining how to create more than one. */
-	private static final String		NOTE = "To add more than one category, " +
-			"separate each category with a comma.\n Or select one or more " +
-			"existing categories from the menu.";
+	private static final String		NOTE = "To add more than one tag, " +
+			"separate each tag with a comma.\n Or select one or more " +
+			"existing tags from the menu.";
 	
 	/** Text displayed in the title. */
-	private static final String		TEXT = "Add category to image.";
+	private static final String		TEXT = "Add tag to image.";
 	
 	/** Action command indicating to cancel the operation. */
 	private static final int 		CANCEL = 0;
@@ -149,7 +149,7 @@ public class CategoryEditor
     private DocumentListener	nameAreaListener;
     
     /** A {@link DocumentListener} for the {@link #descriptionArea}. */
-    private DocumentListener	descriptionAreaListener;
+    //private DocumentListener	descriptionAreaListener;
     
     /** The dialog displaying the available categories. */
     private HistoryDialog		historyDialog;
@@ -226,8 +226,7 @@ public class CategoryEditor
             
         };
         
-        descriptionArea.getDocument().addDocumentListener(
-        							descriptionAreaListener);
+        
         nameArea.getDocument().addDocumentListener(nameAreaListener);
         nameArea.addKeyListener(new KeyAdapter() {
 
@@ -693,7 +692,7 @@ public class CategoryEditor
 			}
 			*/
 		}
-		firePropertyChange(CREATE_CATEGORY_PROPERTY, null, def);
+		firePropertyChange(CREATE_TAG_PROPERTY, null, def);
 		close();
 	}
 	
@@ -709,7 +708,7 @@ public class CategoryEditor
 		if (categories == null) return;
 		Iterator i = categories.iterator();
 		while (i.hasNext())
-			handleCategorySelection((CategoryData) i.next());
+			handleTagSelection((CategoryData) i.next());
 	}
 	
 	/**
@@ -717,7 +716,7 @@ public class CategoryEditor
 	 * 
 	 * @param item The item to handle.
 	 */
-	private void handleCategorySelection(CategoryData item) 
+	private void handleTagSelection(CategoryData item) 
 	{
 		if (item == null) return;
 		String itemName = item.getName();
@@ -849,7 +848,7 @@ public class CategoryEditor
 		buildGUI();
 		setSize(WIN_DIM);
 	}
-
+	
 	/**
 	 * Cancels or saves the data.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -882,7 +881,7 @@ public class CategoryEditor
 		if (!(item instanceof CategoryItem)) return;
 		DataObject ho = ((CategoryItem) item).getDataObject();
 		if (ho instanceof CategoryData) 
-			handleCategorySelection((CategoryData) ho);
+			handleTagSelection((CategoryData) ho);
 		else if (ho instanceof CategoryGroupData)
 			handleCategoryGroupSelection((CategoryGroupData) ho);
 	}

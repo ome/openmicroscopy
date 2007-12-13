@@ -288,16 +288,17 @@ class DOInfo
         //setBorder(new EtchedBorder());
         if (model.getObjectPermissions() != null && permission) {
         	double[][] tl = {{TableLayout.FILL}, //columns
-        					{TableLayout.PREFERRED, TableLayout.PREFERRED} }; //rows
+        					{TableLayout.PREFERRED, TableLayout.PREFERRED}}; //rows
         	setLayout(new TableLayout(tl));
             JPanel p = new JPanel();
             p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
             p.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
             p.add(new JSeparator());
             p.add(Box.createRigidArea(EditorUI.SMALL_V_SPACER_SIZE));
-            p.add(buildPermissions(model.getObjectPermissions()));
-            p.add(Box.createVerticalGlue());
-            
+            if (model.isPermissionsShowable()) {
+            	 p.add(buildPermissions(model.getObjectPermissions()));
+                 p.add(Box.createVerticalGlue());
+            }
             add(contentPanel, "0, 0, f, t");
             add(p, "0, 1, f, t");
         } else {

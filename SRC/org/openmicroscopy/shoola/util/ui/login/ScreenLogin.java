@@ -105,7 +105,7 @@ public class ScreenLogin
 
 	/** The property name for the connection speed used to connect to server. */
 	private static final String  	OMERO_CONNECTION_SPEED = 
-													"omeroConnecionSpeed";
+													"omeroConnectionSpeed";
 	
 	/** The size of the font for the version. */
 	private static final float		VERSION_FONT_SIZE = 14;
@@ -175,7 +175,9 @@ public class ScreenLogin
 		StringBuffer buf = new StringBuffer();
 		buf.append(pass.getPassword());
 		String usr = user.getText().trim(), psw = buf.toString();
-		String s = serverText.getText().trim();
+		if (usr != null) usr = usr.trim();
+		String s = serverText.getText();
+		if (s != null) s = s.trim();
 		setControlsEnabled(false);
 		LoginCredentials lc = new LoginCredentials(usr, psw, s, speedIndex);
 		setUserName(usr);
@@ -300,7 +302,7 @@ public class ScreenLogin
 	 */
 	private void initFields(String userName)
 	{
-		user = new JTextField(20);
+		user = new JTextField();
 		user.setText(userName);
 		user.setToolTipText("Enter your username.");
 		pass = new JPasswordField();
@@ -324,8 +326,7 @@ public class ScreenLogin
 	 */
 	private JPanel buildTextPanel(JTextField field, int mnemonic, String s)
 	{
-		double[][] size = new double[][]{{TableLayout.PREFERRED, 
-			TableLayout.FILL}, {30}};
+		double[][] size = new double[][]{{TableLayout.PREFERRED, 150}, {30}};
 
 		JPanel panel = new JPanel();
 		panel.setOpaque(false);
@@ -350,8 +351,8 @@ public class ScreenLogin
 	 */
 	private JPanel buildTopPanel()
 	{
-		double topTable[][] =  {{200, 5, TableLayout.FILL, TableLayout.FILL, 
-								TableLayout.PREFERRED}, // columns
+		double topTable[][] =  {{TableLayout.FILL, 5, TableLayout.FILL, 
+								TableLayout.FILL, TableLayout.PREFERRED}, // columns
 				{TableLayout.PREFERRED, TableLayout.FILL}}; // rows
 		JPanel topPanel = new JPanel();
 		topPanel.setOpaque(false);
@@ -378,8 +379,8 @@ public class ScreenLogin
 		topPanel.add(panel, "1, 0, 3, 0");
 		topPanel.add(configButton, "4, 0, c, c");
 		
-		topPanel.add(buildTextPanel(user, 'U', USER_TEXT), "0, 1, 0, 1");
-		topPanel.add(buildTextPanel(pass, 'P', PASSWORD_TEXT), "2, 1, 4, 1");
+		topPanel.add(buildTextPanel(user, 'U', USER_TEXT), "0, 1, 2, 1");
+		topPanel.add(buildTextPanel(pass, 'P', PASSWORD_TEXT), "3, 1, 4, 1");
 		return topPanel;
 	}
 

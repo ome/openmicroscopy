@@ -90,8 +90,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.InfoDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
-import org.openmicroscopy.shoola.agents.util.tagging.CategoryEditor;
-import org.openmicroscopy.shoola.agents.util.tagging.CategorySaverDef;
+import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
@@ -814,9 +813,6 @@ class ImViewerControl
 			Object node = pce.getNewValue();
 			if (node instanceof HistoryItem)
 				view.removeHistoryItem((HistoryItem) node);
-		} else if (CategoryEditor.CREATE_CATEGORY_PROPERTY.equals(propName)) {
-			CategorySaverDef def = (CategorySaverDef) pce.getNewValue();
-			model.createAndClassify(def);
 		} else if (PreferencesDialog.VIEWER_PREF_PROPERTY.equals(propName)) {
 			Map  map = (Map) pce.getNewValue();
 			if (map == null) ImViewerFactory.setPreferences(null);
@@ -827,6 +823,8 @@ class ImViewerControl
 		} else if (UsersPopupMenu.USER_RNDSETTINGS_PROPERTY.equals(propName)) {
 			ExperimenterData exp = (ExperimenterData) pce.getNewValue();
 			model.setUserRndSettings(exp);
+		} else if (Tagger.TAG_LOADED_PROPERTY.equals(propName)) {
+			view.showMenu(ImViewer.CATEGORY_MENU);
 		}
 	}
 

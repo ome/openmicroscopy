@@ -101,7 +101,7 @@ class HiViewerWin
     private static final int    TITLE_MAX_LENGTH = 50;
     
     /** The default title of the window. */
-    private static final String DEFAULT_TITLE = "Hierarchy Viewer";
+    private static final String DEFAULT_TITLE = "Browser";
     
     /** The status bar. */
     private StatusBar           statusBar;

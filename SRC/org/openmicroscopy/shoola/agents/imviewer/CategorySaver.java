@@ -154,7 +154,7 @@ public class CategorySaver
     {
     	switch (index) {
 			case CREATE:
-				handle = dhView.createAndClassify(imageID, data, this);
+				//handle = dhView.createAndClassify(imageID, data, this);
 				break;
 			case CLASSIFY:
 				Set<ImageData> toClassify = new HashSet<ImageData>(1);
@@ -171,8 +171,8 @@ public class CategorySaver
 				handle = dhView.declassify(images, data, this);
 				break;
 			case CREATE_AND_CLASSIFY:
-				handle = dhView.createAndClassify(imageID, data, toUpdate, 
-													this);
+				//handle = dhView.createAndClassify(imageID, data, toUpdate, 
+				//									this);
 		}
     }
 

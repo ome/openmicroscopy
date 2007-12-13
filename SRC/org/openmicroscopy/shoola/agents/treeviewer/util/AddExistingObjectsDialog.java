@@ -107,7 +107,7 @@ public class AddExistingObjectsDialog
     
     /** Message displayed when no node to be added. */
     private static final String     EMPTY_NOTE = "No existing objects.";
-    
+  
     /** Button to finish the operation. */
     private JButton             finishButton;
     
@@ -322,5 +322,10 @@ public class AddExistingObjectsDialog
         buildGUI(nodes);
         pack();
     }
+
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
     
 }

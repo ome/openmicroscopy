@@ -458,4 +458,15 @@ public class NullOmeroPojoService
 		return null;
 	}
 
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#tagImagesIncontainers(Set, Class, Set)
+	 */
+	public Set tagImagesIncontainers(Set<Long> ids, Class rootType, 
+			Set<CategoryData> tags) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
 }

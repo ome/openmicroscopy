@@ -285,11 +285,23 @@ class EditorModel
     	if (hierarchyObject == null) return null;
     	ExperimenterData exp =  hierarchyObject.getOwner();
     	if (exp == null) return null;
-;    	if (exp.isLoaded()) return exp;
+    	if (exp.isLoaded()) return exp;
     	ExperimenterData selectedExp = parentModel.getSelectedExperimenter();
     	if (exp.getId() == selectedExp.getId()) return selectedExp;
     	return exp;
-     }
+    }
+    
+    /**
+     * Returns <code>true</code> if the permissions can be shown,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isPermissionsShowable()
+    {
+    	if (hierarchyObject == null) return false;
+    	return (!(hierarchyObject instanceof ImageData));
+    }
     
     /** 
      * Returns the name of the currenlty edited <code>DataObject</code>.

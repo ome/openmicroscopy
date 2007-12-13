@@ -47,23 +47,22 @@ import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.data.events.SaveEventResponse;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.event.RequestEvent;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import pojos.ExperimenterData;
 
 /** 
-* Factory to create {@link TreeViewer} component.
-* This class keeps track of the {@link TreeViewer} instance that has been 
-* created and is not yet in the {@link TreeViewer#DISCARDED} state.
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @version 2.2
-* <small>
-* (<b>Internal version:</b> $Revision$ $Date$)
-* </small>
-* @since OME2.2
-*/
+ * Factory to create {@link TreeViewer} component.
+ * This class keeps track of the {@link TreeViewer} instance that has been 
+ * created and is not yet in the {@link TreeViewer#DISCARDED} state.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @version 2.2
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
+ * @since OME2.2
+ */
 public class TreeViewerFactory
   	implements ChangeListener
 {

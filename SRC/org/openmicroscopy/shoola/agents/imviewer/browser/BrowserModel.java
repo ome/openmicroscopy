@@ -27,20 +27,15 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
-import java.awt.image.DirectColorModel;
-import java.awt.image.SinglePixelPackedSampleModel;
-import java.awt.image.WritableRaster;
+import java.awt.image.DataBufferByte;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.Icon;
 
 //Third-party libraries
-import sun.awt.image.IntegerInterleavedRaster;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
@@ -71,18 +66,6 @@ import pojos.ImageData;
  */
 class BrowserModel
 {
-	
-	/** The red mask. */
-	private static final int	RED_MASK = 0x00ff0000;
-	
-	/** The green mask. */
-	private static final int	GREEN_MASK = 0x0000ff00;
-	
-	/** The blue mask. */
-	private static final int	BLUE_MASK = 0x000000ff;
-	
-	/** The blank mask. */
-	private static final int	BLANK_MASK = 0x00000000;
 	
 	/** The text above the combined image. */
 	private static final String	COMBINED = "Combined";
@@ -176,20 +159,23 @@ class BrowserModel
     private BufferedImage createBandImage(DataBuffer buf, int sizeX, int sizeY, 
     							int redMask, int greenMask, int blueMask)
     {
-    	SinglePixelPackedSampleModel sampleModel =
-            new SinglePixelPackedSampleModel(
-                      DataBuffer.TYPE_INT, sizeX, sizeY, sizeX,                                                                                                      
-                      new int[] {
-                    		  redMask,    // Red
-                    		  greenMask, //Green
-                    		  blueMask //Blue
-                      });
-        WritableRaster raster = 
-            new IntegerInterleavedRaster(sampleModel, buf, new Point(0, 0));
-      
-        ColorModel colorModel = new DirectColorModel(32, redMask, greenMask, 
-        											blueMask);
-        return new BufferedImage(colorModel, raster, false, null);
+    	int[] masks = {redMask, greenMask, blueMask};
+    	
+    	switch (buf.getDataType()) {
+			case DataBuffer.TYPE_BYTE:
+				DataBufferByte bufferByte = (DataBufferByte) buf;
+	            byte[] values = bufferByte.getData();
+	            int i = 0, j = 0, l = values.length/3;
+	    		int[] buffer = new int[l];
+	    		while (i<l)
+	        		buffer[i++] = (values[j++]) | (values[j++]<<8) | 
+	        						(values[j++]<<16);
+				return Factory.createImage(buffer, 24, masks, sizeX, sizeY);
+			case DataBuffer.TYPE_INT:
+				return Factory.createImage(buf, 32, masks, sizeX, sizeY);
+				 
+		}
+    	return null;
     }
     
     
@@ -262,19 +248,23 @@ class BrowserModel
 					
 					int w = combinedImage.getWidth();
 		        	int h = combinedImage.getHeight();
+		        	
 		        	DataBuffer buf = 
 		        		combinedImage.getRaster().getDataBuffer();
 		    		for (int i = 0; i < maxC; i++) {
 						if (l.contains(i)) {
 							if (parent.isChannelRed(i)) { 
 								gridImages.add(createBandImage(buf, w, h, 
-								RED_MASK, RED_MASK, RED_MASK));
+										Factory.RED_MASK, Factory.RED_MASK, 
+										Factory.RED_MASK));
 							} else if (parent.isChannelGreen(i)) {
 								gridImages.add(createBandImage(buf, w, h,
-										GREEN_MASK, GREEN_MASK, GREEN_MASK));
+										Factory.GREEN_MASK, Factory.GREEN_MASK, 
+										Factory.GREEN_MASK));
 							} else if (parent.isChannelBlue(i)) {
 								gridImages.add(createBandImage(buf, w, h, 
-										BLUE_MASK, BLUE_MASK, BLUE_MASK));
+										Factory.BLUE_MASK, Factory.BLUE_MASK,
+										Factory.BLUE_MASK));
 							}
 						} else {
 							gridImages.add(null);
@@ -383,13 +373,16 @@ class BrowserModel
 						if (parent.isChannelActive(i)) {
 							if (parent.isChannelRed(i)) { 
 								gridImages.add(createBandImage(buf, w, h, 
-								RED_MASK, BLANK_MASK, BLANK_MASK));
+										Factory.RED_MASK, Factory.BLANK_MASK,
+										Factory.BLANK_MASK));
 							} else if (parent.isChannelGreen(i)) {
 								gridImages.add(createBandImage(buf, w, h,
-									BLANK_MASK, GREEN_MASK, BLANK_MASK));
+										Factory.BLANK_MASK, Factory.GREEN_MASK, 
+										Factory.BLANK_MASK));
 							} else if (parent.isChannelBlue(i)) {
 								gridImages.add(createBandImage(buf, w, h, 
-									BLANK_MASK, BLANK_MASK, BLUE_MASK));
+										Factory.BLANK_MASK, Factory.BLANK_MASK, 
+										Factory.BLUE_MASK));
 							}
 						} else {
 							gridImages.add(null);

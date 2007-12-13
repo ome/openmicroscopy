@@ -196,6 +196,8 @@ class ProfileEditorComponent
 	{
 		if (model.getState() != SAVE_EDITION) return;
 		model.setExperimenter(exp);
+		firePropertyChange(EXPERIMENTER_CHANGED_PROPERTY, Boolean.FALSE, 
+							Boolean.TRUE);
 		fireStateChange();
 	}
 

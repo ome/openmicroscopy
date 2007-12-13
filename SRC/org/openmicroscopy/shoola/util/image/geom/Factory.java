@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
@@ -41,11 +42,16 @@ import java.awt.image.ComponentColorModel;
 import java.awt.image.ConvolveOp;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferInt;
+import java.awt.image.DirectColorModel;
 import java.awt.image.Kernel;
 import java.awt.image.Raster;
 import java.awt.image.RescaleOp;
+import java.awt.image.SinglePixelPackedSampleModel;
+import java.awt.image.WritableRaster;
 
 //Third-party libraries
+import sun.awt.image.IntegerInterleavedRaster;
 
 //Application-internal dependencies
 
@@ -66,30 +72,45 @@ import java.awt.image.RescaleOp;
  */
 public class Factory
 {
-        
+    
+	/** The red mask. */
+	public static final int		RED_MASK = 0x00ff0000;
+	
+	/** The green mask. */
+	public static final int		GREEN_MASK = 0x0000ff00;
+	
+	/** The blue mask. */
+	public static final int		BLUE_MASK = 0x000000ff;
+	
+	/** The blank mask. */
+	public static final int		BLANK_MASK = 0x00000000;
+	
 	/** Indicates that the text will be added in the top-left corner. */ 
-	public static final int             LOC_TOP_LEFT = 0;
+	public static final int		LOC_TOP_LEFT = 0;
 
 	/** Indicates that the text will be added in the top-right corner. */ 
-	public static final int             LOC_TOP_RIGHT = 1;
+	public static final int		LOC_TOP_RIGHT = 1;
 
 	/** Indicates that the text will be added in the bottom-left corner. */ 
-	public static final int             LOC_BOTTOM_LEFT = 2;
+	public static final int		LOC_BOTTOM_LEFT = 2;
 
 	/** Indicates that the text will be added in the bottom-right corner. */ 
-	public static final int             LOC_BOTTOM_RIGHT = 3;
+	public static final int     LOC_BOTTOM_RIGHT = 3;
 
 	/** The default width and height of a thumbnail. */
-	public static final int				DEFAULT_THUMB = 96;
+	public static final int		DEFAULT_THUMB = 96;
 
 	/** Border added to the text. */
-	private static final int            BORDER = 2;
+	private static final int	BORDER = 2;
 
 	/** The default message for the default thumbnail. */
-	private static final String         DEFAULT_TEXT = "No thumbnail";
+	private static final String	DEFAULT_TEXT = "No thumbnail";
     
 	/** Default text drawn on thumbnail before retrieval. */
-	private static final String			LOADING_TEXT = "Loading...";
+	private static final String	LOADING_TEXT = "Loading...";
+	
+	/** The RGB masks. */
+	public static final int[]	RGB = {RED_MASK, GREEN_MASK, BLUE_MASK};
 	
     /** Sharpen filter. */
     public static final float[] SHARPEN = {
@@ -101,7 +122,8 @@ public class Factory
     public static final float[] LOW_PASS = {
             0.1f, 0.1f, 0.1f,   
             0.1f, 0.2f, 0.1f,
-            0.1f, 0.1f, 0.1f};
+            0.1f, 0.1f, 0.1f
+            };
 
     /**
      * Creates a default thumbnail image.
@@ -329,6 +351,89 @@ public class Factory
                 sizeX, sizeY, 3);
         return new BufferedImage(ccm, 
                 Raster.createWritableRaster(csm, buffer, null), false, null);
+    }
+    
+    /**
+     * Creates a buffer image from the specified <code>DataBuffer</code>.
+     * 
+     * @param buf	The buffer to handle.
+     * @param bits	The number of bits in the pixel values.
+     * @param sizeX	The width (in pixels) of the region of image data described.
+     * @param sizeY	The height (in pixels) of the region of image data 
+     * 				described.
+     * @return See above.
+     */
+    public static BufferedImage createImage(DataBuffer buf, int bits, int sizeX, 
+    										int sizeY)
+    {
+    	return createImage(buf, bits, RGB, sizeX, sizeY);
+    }
+    
+    /**
+     * Creates a buffer image from the specified <code>DataBuffer</code>.
+     * 
+     * @param buf	The buffer to handle.
+     * @param bits	The number of bits in the pixel values.
+     * @param masks The bit masks for all bands.
+     * @param sizeX	The width (in pixels) of the region of image data described.
+     * @param sizeY	The height (in pixels) of the region of image data 
+     * 				described.
+     * @return See above.
+     */
+    public static BufferedImage createImage(DataBuffer buf, int bits, 
+    								int[] masks, int sizeX,  int sizeY)
+	{
+		if (buf instanceof DataBufferInt) {
+			DataBufferInt j2DBuf = (DataBufferInt) buf;
+			SinglePixelPackedSampleModel sampleModel =
+						new SinglePixelPackedSampleModel(
+							DataBuffer.TYPE_INT, sizeX, sizeY, sizeX, masks);
+			WritableRaster raster = 
+			new IntegerInterleavedRaster(sampleModel, j2DBuf, 
+						new Point(0, 0));
+			
+			ColorModel colorModel = new DirectColorModel(bits, masks[0],   
+													masks[1], masks[2]);
+			return new BufferedImage(colorModel, raster, false, null);
+		}
+		return null;
+	}
+    
+    /**
+     * Creates a buffer image from the specified <code>array</code> of 
+     * integers.
+     * 
+     * @param buf	The array to handle.
+     * @param bits	The number of bits in the pixel values.
+     * @param sizeX	The width (in pixels) of the region of image data described.
+     * @param sizeY	The height (in pixels) of the region of image data 
+     * 				described.
+     * @return See above.
+     */
+    public static BufferedImage createImage(int[] buf, int bits, int sizeX, 
+			int sizeY)
+    {
+    	DataBuffer j2DBuf = new DataBufferInt(buf, sizeX*sizeY); 
+		return createImage(j2DBuf, bits, sizeX, sizeY);
+    }
+    
+    /**
+     * Creates a buffer image from the specified <code>array</code> of 
+     * integers.
+     * 
+     * @param buf	The array to handle.
+     * @param bits	The number of bits in the pixel values.
+     * @param masks The bit masks for all bands.
+     * @param sizeX	The width (in pixels) of the region of image data described.
+     * @param sizeY	The height (in pixels) of the region of image data 
+     * 				described.
+     * @return See above.
+     */
+    public static BufferedImage createImage(int[] buf, int bits, int[] masks,
+    									int sizeX, int sizeY)
+    {
+    	DataBuffer j2DBuf = new DataBufferInt(buf, sizeX*sizeY); 
+		return createImage(j2DBuf, bits, masks, sizeX, sizeY);
     }
     
 }

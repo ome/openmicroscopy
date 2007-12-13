@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 
 //Java imports
-import javax.swing.AbstractButton;
 import javax.swing.JMenuItem;
 
 //Third-party libraries

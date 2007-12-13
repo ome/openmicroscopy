@@ -155,11 +155,11 @@ public class MoviePlayerDialog
         int t = -1;
         switch (player.getMovieIndex()) {
             case ACROSS_T:
-                //z = model.getDefaultZ();
+                z = model.getDefaultZ();
                 t = player.getFrameNumberT();
                 break;
             case ACROSS_Z:
-                //t = model.getDefaultT();
+                t = model.getDefaultT();
                 z = player.getFrameNumberZ();
                 break;
             case ACROSS_ZT:

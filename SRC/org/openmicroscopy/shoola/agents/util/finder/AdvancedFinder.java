@@ -35,15 +35,13 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchContext;
-
 import pojos.ExperimenterData;
 
 /** 
- * 
+ * The class actually managing the search.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,15 +61,18 @@ public class AdvancedFinder
 	/** The default title of the notification message. */
 	private static final String TITLE = "Search";
 	
-	/** Reference to the registry. */
-	private Registry 			registry;
-	
 	/** Reference to the component handling data. */ 
 	private List<FinderLoader>	finderHandlers;
 	
 	/** One of the constants defined by this class. */
 	private int					state;
 	
+	/**
+	 * Determines the scope of the search.
+	 * 
+	 * @param value The value to convert.
+	 * @return See above.
+	 */
 	private int convertScope(int value)
 	{
 		switch (value) {
@@ -89,10 +90,15 @@ public class AdvancedFinder
 		}
 	}
 	
+	/**
+	 * Converts the UI context into a searchable context.
+	 * 
+	 * @param ctx The value to convert.
+	 */
 	private void handleSearchContext(SearchContext ctx)
 	{
 		List<String> terms = ctx.getTerms();
-		UserNotifier un = registry.getUserNotifier();
+		UserNotifier un = FinderFactory.getRegistry().getUserNotifier();
 		if (terms == null || terms.size() == 0) {
 			un.notifyInfo(TITLE, "Please enter a term to search for.");
 			return;
@@ -125,8 +131,8 @@ public class AdvancedFinder
 				}
 			}
 		}
-		AdvancedFinderLoader loader = new AdvancedFinderLoader(this, registry,
-				terms, exps, scope, ctx.getStartTime(),
+		AdvancedFinderLoader loader = new AdvancedFinderLoader(this, terms,
+											exps, scope, ctx.getStartTime(),
 				ctx.getEndTime());
 		loader.load();
 		finderHandlers.add(loader);
@@ -140,12 +146,9 @@ public class AdvancedFinder
 	 * @param registry 	Helper reference to the registry. Mustn't be 
 	 * 					<code>null</code>.
 	 */
-	public AdvancedFinder(JFrame owner, Registry registry)
+	public AdvancedFinder(JFrame owner)
 	{
 		super(owner);
-		if (registry == null)
-			throw new IllegalArgumentException("No registry.");
-		this.registry = registry;
 		finderHandlers = new ArrayList<FinderLoader>();
 		addPropertyChangeListener(SEARCH_PROPERTY, this);
 		//setModal(true);

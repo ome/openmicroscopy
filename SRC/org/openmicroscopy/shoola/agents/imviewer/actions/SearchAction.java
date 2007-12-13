@@ -35,11 +35,12 @@ import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
+import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 /** 
- * 
+ * Brings up the widget to perform and advanced search.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,8 +60,7 @@ public class SearchAction
     private static final String NAME = "Search ";
     
 	/** The description of the action. */
-    private static final String DESCRIPTION = "Shows image" +
-    		"with the rendering settings set by the selected user.";
+    private static final String DESCRIPTION = "Advanced search.";
     
     /**
      * Creates a new instance.
@@ -82,7 +82,7 @@ public class SearchAction
      */
     public void actionPerformed(ActionEvent e)
     {
-    	AdvancedFinder dialog = new AdvancedFinder(model.getUI(),
+    	AdvancedFinder dialog = FinderFactory.getAdvancedFinder(model.getUI(),
     			ImViewerAgent.getRegistry());
         UIUtilities.centerAndShow(dialog);
     }

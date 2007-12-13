@@ -142,12 +142,15 @@ public class ClassificationLoader
                 if (algorithm == CLASSIFICATION_NME)
                     rootNodes = os.loadContainerHierarchy(
                             CategoryGroupData.class, null, false, userID);
-                else 
-                    rootNodes = os.findCGCPaths(imageIDs, algorithm, userID);
+                else {
+                	rootNodes = os.findCategoryPaths(imageIDs, false, userID);
+                	//rootNodes = os.findCGCPaths(imageIDs, algorithm, userID);
+                }
+                    
             }
         };
     }
-    
+  
     /**
      * Creates a {@link BatchCall} to load all Category Group/Category paths
      * that don't end with the specified Image.
@@ -158,31 +161,33 @@ public class ClassificationLoader
      * @param userID	The Id of the user.                  
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadAllClassification(final long imageID, 
+    private BatchCall loadAllClassification(final Set<Long> imageIDs, 
     										final long userID)
     {
         return new BatchCall("Loading CGC paths. ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                Set<Long> images = new HashSet<Long>(1);
-                images.add(imageID);
-                Set nodes = os.findCategoryPaths(imageID, false, userID);
-                Iterator i = nodes.iterator();
-                List<Long> ids = new ArrayList<Long>();
                 List<CategoryData> r = new ArrayList<CategoryData>();
+                Set nodes;
+                Iterator i;
                 CategoryData category;
-                while (i.hasNext()) {
-                	category = (CategoryData) i.next();
-         			if (!ids.contains(category.getId())) {
-         				r.add(category);
-         				ids.add(category.getId());
-         			}
-	         	}
+                List<Long> ids = new ArrayList<Long>();
+                if (imageIDs != null) {
+                	nodes = os.findCategoryPaths(imageIDs, false, userID);
+                    i = nodes.iterator();
+                    while (i.hasNext()) {
+                    	category = (CategoryData) i.next();
+             			if (!ids.contains(category.getId())) {
+             				r.add(category);
+             				ids.add(category.getId());
+             			}
+    	         	}
+                }
+                
 
 	         	List<List> results = new ArrayList<List>(3);
 	         	results.add(r);
-	         	//r.s
 	         	nodes = os.loadContainerHierarchy(
                         CategoryData.class, null, false, userID);
 	         	i = nodes.iterator();
@@ -316,9 +321,7 @@ public class ClassificationLoader
      * @param imageID       The id of the Image to classify or declassifiy
      *                      depending on the algorithm.
      * @param algorithm     One out of the following constants:
-     *                      {@link #DECLASSIFICATION},
-     *                      {@link #CLASSIFICATION_ME},
-     *                      {@link #CLASSIFICATION_NME}.
+     *                      {@link #ALL} or {@link #PARTIAL}.
      * @param userID   		The Id of the user.                    
      */
     public ClassificationLoader(long imageID, int algorithm, long userID)
@@ -327,9 +330,11 @@ public class ClassificationLoader
             throw new IllegalArgumentException("image ID not valid ");
         if (!checkAlgorithmIndex(algorithm))
             throw new IllegalArgumentException("Algorithm not supported.");
+        Set<Long> images = new HashSet<Long>(1);
         switch (algorithm) {
 			case ALL:
-				loadCall = loadAllClassification(imageID, userID);
+				images.add(imageID);
+				loadCall = loadAllClassification(images, userID);
 				break;
 			case PARTIAL:
 				loadCall = loadPartialClassification(imageID, false, userID);
@@ -340,7 +345,7 @@ public class ClassificationLoader
 	        	loadCall  = loadCGCPaths(set, algorithm, userID);
 		}
     }
-    
+   
     /**
      * Creates a new instance to find the Category Group/Category paths that 
      * end or don't end with the specified Image.
@@ -348,10 +353,7 @@ public class ClassificationLoader
      * early and in the caller's thread.
      * 
      * @param imageIDs      The collection of image's ids.
-     * @param algorithm     One of the following constants:
-     *                      {@link #DECLASSIFICATION},
-     *                      {@link #CLASSIFICATION_ME},
-     *                      {@link #CLASSIFICATION_NME}.
+     * @param algorithm     One of the constants defined by this class.
      * @param userID   		The Id of the user.                
      */
     public ClassificationLoader(Set imageIDs, int algorithm, long userID)
@@ -362,7 +364,17 @@ public class ClassificationLoader
                     "cannot be null or of size 0.");
         if (!checkAlgorithmIndex(algorithm))
             throw new IllegalArgumentException("Algorithm not supported.");
-        loadCall  = loadCGCPaths(imageIDs, algorithm, userID);
+        switch (algorithm) {
+			case ALL:
+				loadCall = loadAllClassification(imageIDs, userID);
+				break;
+			case PARTIAL:
+				loadCall = loadPartialClassification(imageIDs, false, userID);
+				break;
+			default:
+	        	loadCall  = loadCGCPaths(imageIDs, algorithm, userID);
+        }
+        //loadCall  = loadCGCPaths(imageIDs, algorithm, userID);
     }
     
 }

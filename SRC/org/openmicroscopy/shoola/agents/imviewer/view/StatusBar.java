@@ -61,7 +61,7 @@ class StatusBar
 	/** Dimension of the horizontal space between UI components. */
 	private static final		Dimension HBOX = new Dimension(5, 5);
 	
-    /** Displays the status message displayed on the rigth side. */
+    /** Displays the status message displayed on the left hand side. */
     private JLabel              leftStatus;
     
     /** Displays the status message displayed on the rigth side. */

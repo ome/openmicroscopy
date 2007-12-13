@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.Font;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -52,7 +53,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 /** 
- * 
+ * The Componnent hosting the various fields used to collect the 
+ * context of the search.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -69,13 +71,17 @@ class SearchPanel
 {
 
 	/** Font for progress bar label. */
-	private static final Font	FONT = new Font("SansSerif", Font.ITALIC, 10);
+	private static final Font		FONT = new Font("SansSerif", Font.ITALIC, 
+													10);
 
 	/** Example of authors. */
-	private static final String	AUTHORS_EXAMPLE = "e.g. Swedlow";
+	private static final String		AUTHORS_EXAMPLE = "e.g. Swedlow";
+	
+	/** The preferred size of the calendar popup. */
+	private static final Dimension	CALENDAR_SIZE = new Dimension(250, 200);
 	
 	/** The selected date format. */
-	private static final String	DATE_FORMAT = "MM/dd/yy";
+	private static final String		DATE_FORMAT = "MM/dd/yy";
 	
 	/** Possible time options. */
 	private static String[]		dateOptions;
@@ -120,9 +126,11 @@ class SearchPanel
 		fromDate = new JDateChooser();
 		fromDate.setIcon(icons.getImageIcon(IconManager.CALENDAR));
 		fromDate.setDateFormatString(DATE_FORMAT);
+		fromDate.getJCalendar().setPreferredSize(CALENDAR_SIZE);
 		toDate = new JDateChooser();
 		toDate.setDateFormatString(DATE_FORMAT);
 		toDate.setIcon(icons.getImageIcon(IconManager.CALENDAR));
+		toDate.getJCalendar().setPreferredSize(CALENDAR_SIZE);
 		fromDate.setEnabled(false);
 		toDate.setEnabled(false);
 		termsArea = new JTextField(20);
@@ -331,9 +339,15 @@ class SearchPanel
 		String text = termsArea.getText();
 		if (text == null) return l;
 		text = text.trim();
+		String value;
 		String[] r = text.split(" ");
-		for (int i = 0; i < r.length; i++)
-			l.add(r[i].trim());
+		for (int i = 0; i < r.length; i++) {
+			value = r[i];
+			if (value != null) {
+				value.trim();
+				if ( value.length() != 0) l.add(value);
+			}
+		}
 		return l;
 	}
 	
@@ -358,6 +372,12 @@ class SearchPanel
 			}
 		}
 		return l;
+	}
+	
+	/** Indicates to set the focus on the search area. */
+	void setFocusOnSearch()
+	{
+		if (termsArea != null) termsArea.requestFocus();
 	}
 	
 }

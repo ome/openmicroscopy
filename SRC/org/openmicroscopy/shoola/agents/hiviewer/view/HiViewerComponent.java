@@ -56,12 +56,19 @@ import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.saver.ContainerSaver;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
+import org.openmicroscopy.shoola.agents.util.classifier.view.Classifier;
+import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
+import org.openmicroscopy.shoola.agents.util.tagging.view.TaggerFactory;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
+import pojos.CategoryData;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -714,9 +721,25 @@ class HiViewerComponent
                     "in the DISCARDED state.");
 		if (images == null || images.length == 0)
 			throw new IllegalArgumentException("No image to classify.");
-		DataHandler dh = model.classifyImageObjects(view, images, mode);
-		dh.addPropertyChangeListener(controller);
-		dh.activate();
+		if (mode == Classifier.CLASSIFY_MODE) {
+			
+			Set<Long> ids = new HashSet<Long>(images.length);
+			for (int j = 0; j < images.length; j++) {
+				ids.add(images[j].getId());
+			}
+			Tagger tagger = TaggerFactory.getImageTagger(
+								TreeViewerAgent.getRegistry(), ids);
+			if (tagger != null) {
+				tagger.addPropertyChangeListener(controller);
+				
+				tagger.activate();
+				UIUtilities.centerAndShow(tagger.getUI());
+			}
+		} else {
+			DataHandler dh = model.classifyImageObjects(view, images, mode);
+			dh.addPropertyChangeListener(controller);
+			dh.activate();
+		}
 	}
 
     /**
@@ -831,10 +854,26 @@ class HiViewerComponent
                     "in the DISCARDED state.");
 		if (node == null)
 			throw new IllegalArgumentException("No specified container.");
-		DataHandler dh = model.classifyChildren(view, node);
-		dh.addPropertyChangeListener(controller);
-		dh.activate();
+
+		Object object = node.getHierarchyObject();
+		Class klass = null;
+		Set<Long> ids = null;
+		if (object instanceof DatasetData || object instanceof CategoryData) {
+			klass = object.getClass();
+			ids = new HashSet<Long>(1);
+			ids.add(((DataObject) object).getId());
+		}
+		if (klass == null) return;
 		
+		Tagger tagger = TaggerFactory.getContainerTagger(
+							TreeViewerAgent.getRegistry(), ids, klass, 
+								Tagger.BULK_TAGGING_MODE);
+		if (tagger != null) {
+			tagger.addPropertyChangeListener(controller);
+			
+			tagger.activate();
+			UIUtilities.centerAndShow(tagger.getUI());
+		}
 	}
 
     /**

@@ -75,6 +75,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshTreeAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveExperimenterNode;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ResetRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RollOverAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.SearchAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewAction;
@@ -86,22 +87,24 @@ import org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.UserManagerDialog;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
+import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
+
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
 
 /** 
-* The {@link TreeViewer}'s controller. 
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @version 2.2
-* <small>
-* (<b>Internal version:</b> $Revision$ $Date$)
-* </small>
-* @since OME2.2
-*/
+ * The {@link TreeViewer}'s controller. 
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @version 2.2
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
+ * @since OME2.2
+ */
 class TreeViewerControl
  	implements ChangeListener, PropertyChangeListener
 {
@@ -227,6 +230,9 @@ class TreeViewerControl
 	/** Identifies the <code>Reset rendering settings action</code>. */
 	static final Integer    RESET_RND_SETTINGS = new Integer(33);
 	
+	/** Identifies the <code>Search action</code>. */
+	static final Integer    SEARCH = new Integer(34);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -285,6 +291,7 @@ class TreeViewerControl
 		actionsMap.put(PASTE_RND_SETTINGS, new PasteRndSettingsAction(model));
 		actionsMap.put(COPY_RND_SETTINGS, new CopyRndSettingsAction(model));
 		actionsMap.put(RESET_RND_SETTINGS, new ResetRndSettingsAction(model));
+		actionsMap.put(SEARCH, new SearchAction(model));
 	}
 
 	/** 
@@ -593,8 +600,14 @@ class TreeViewerControl
 		} else if (name.equals(
 				AddExistingObjectsDialog.EXISTING_ADD_PROPERTY)) {
 			model.addExistingObjects((Set) pce.getNewValue());
+		} else if (name.equals(Tagger.TAGGED_PROPERTY)) {
+			Map browsers = model.getBrowsers();
+			Iterator i = browsers.values().iterator();
+
+			while (i.hasNext()) 
+				((Browser) i.next()).refreshTree();
 		} else if (name.equals(DataHandler.ANNOTATED_PROPERTY) ||
-				name.equals(DataHandler.CLASSIFIED_PROPERTY)) {
+				name.equals(DataHandler.CLASSIFIED_PROPERTY) ) {
 			if (view.getDataHandler() == null) return;
 			view.discardDataHandler();
 			Map browsers = model.getBrowsers();
@@ -614,6 +627,12 @@ class TreeViewerControl
 				model.setHierarchyRoot(groupID, d);
 				break;
 			}
+		} else if (ProfileEditor.EXPERIMENTER_CHANGED_PROPERTY.equals(name)) {
+			Map browsers = model.getBrowsers();
+			Iterator i = browsers.values().iterator();
+
+			while (i.hasNext()) 
+				((Browser) i.next()).refreshExperimenter();
 		}
 	}
 

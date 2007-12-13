@@ -914,6 +914,30 @@ class OmeroDataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#tagImagesIncontainers(Set, Class, Set)
+	 */
+	public Set tagImagesIncontainers(Set<Long> ids, Class rootType, 
+									Set<CategoryData> tags)
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		ExperimenterData exp = getUserDetails();
+		Iterator i = ids.iterator();
+		Set images = null;
+		Set<Long> nodes;
+		Set<DataObject> results = new HashSet<DataObject>();
+		while (i.hasNext()) {
+			nodes = new HashSet<Long>(1);
+			nodes.add((Long) i.next());
+			images = getImages(rootType, ids, exp.getId());
+			if (images != null) {
+				results.addAll(classify(images, tags));
+			}
+		}
+		return results;
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#annotateChildren(Set, AnnotationData)
 	 */
 	public List annotateChildren(Set folders, AnnotationData data) 
@@ -1048,10 +1072,11 @@ class OmeroDataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#getImagesPeriod(Timestamp, Timestamp, long)
 	 */
-	public Set getImagesPeriod(Timestamp lowerTime, Timestamp time, long userID)
+	public Set getImagesPeriod(Timestamp startTime, Timestamp endTime, 
+								long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (time == null && lowerTime == null)
+		if (startTime == null && endTime == null)
 			throw new NullPointerException("Time not specified.");
 		
 		PojoOptions po = new PojoOptions();
@@ -1059,8 +1084,8 @@ class OmeroDataServiceImpl
 		po.exp(new Long(userID));
 		po.countsFor(new Long(userID));
 		//po.allCounts();
-		po.startTime(lowerTime);
-		po.endTime(time);
+		po.startTime(startTime);
+		po.endTime(endTime);
 		return gateway.getImages(po.map());
 	}
 
@@ -1068,31 +1093,26 @@ class OmeroDataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#getImagesPeriodIObject(Timestamp, Timestamp, long)
 	 */
-	public List getImagesPeriodIObject(Timestamp lowerTime, Timestamp time, 
+	public List getImagesPeriodIObject(Timestamp startTime, Timestamp endTime, 
 			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (time == null && lowerTime == null)
+		if (startTime == null && endTime == null)
 			throw new NullPointerException("Time not specified.");
-		if (lowerTime != null && time != null)
-			return gateway.getImagesDuring(lowerTime, time, userID);
-		if (lowerTime != null)
-			return gateway.getImagesAfter(lowerTime, userID);
-		return gateway.getImagesBefore(time, userID);
+		return gateway.getImagesDuring(startTime, endTime, userID);
 	}
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#getImagesAllPeriodCount(Timestamp, Timestamp, long)
 	 */
-	public List getImagesAllPeriodCount(Timestamp lowerTime, 
-			Timestamp time, long userID) 
+	public List getImagesAllPeriodCount(Timestamp startTime, 
+			Timestamp endTime, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (time == null || lowerTime == null)
+		if (startTime == null || endTime == null)
 			throw new NullPointerException("Time not specified.");
-		List imgs = gateway.getImagesFilledDuring(lowerTime, time, userID);
-		if (imgs == null || imgs.size() == 0) return new ArrayList(0);
+		List imgs = gateway.getImagesDuring(startTime, endTime, userID);
 		Iterator i = imgs.iterator();
 		Image object;
 		List<Timestamp> times = new ArrayList<Timestamp>(imgs.size());

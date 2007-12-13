@@ -33,6 +33,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,9 @@ import org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditorFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.UserManagerDialog;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
+import org.openmicroscopy.shoola.agents.util.classifier.view.Classifier;
+import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
+import org.openmicroscopy.shoola.agents.util.tagging.view.TaggerFactory;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -554,9 +558,25 @@ class TreeViewerComponent
 		if (images.size() == 0)
 			throw new IllegalArgumentException("No images to classify or " +
 			"declassify.");
-		DataHandler dh = model.classifyImageObjects(view, images, mode);
-		dh.addPropertyChangeListener(controller);
-		dh.activate();
+		if (mode == Classifier.CLASSIFY_MODE) {
+			Iterator i = images.iterator();
+			Set<Long> ids = new HashSet<Long>(images.size());
+			while (i.hasNext()) 
+				ids.add(((ImageData) i.next()).getId());
+			
+			Tagger tagger = TaggerFactory.getImageTagger(
+								TreeViewerAgent.getRegistry(), ids);
+			if (tagger != null) {
+				tagger.addPropertyChangeListener(controller);
+				
+				tagger.activate();
+				UIUtilities.centerAndShow(tagger.getUI());
+			}
+		} else {
+			DataHandler dh = model.classifyImageObjects(view, images, mode);
+			dh.addPropertyChangeListener(controller);
+			dh.activate();
+		}
 	}
 
 	/**
@@ -1157,11 +1177,21 @@ class TreeViewerComponent
 			throw new IllegalArgumentException("No specified container.");
 		if (DatasetData.class.equals(klass) ||
 				CategoryData.class.equals(klass)) {
-			DataHandler dh = model.classifyChildren(view, nodes);
-			dh.addPropertyChangeListener(controller);
-			dh.activate();
+			Iterator i = nodes.iterator();
+			Set<Long> ids = new HashSet<Long>(nodes.size());
+			while (i.hasNext()) 
+				ids.add(((DataObject) i.next()).getId());
+			
+			Tagger tagger = TaggerFactory.getContainerTagger(
+								TreeViewerAgent.getRegistry(), ids, klass, 
+									Tagger.BULK_TAGGING_MODE);
+			if (tagger != null) {
+				tagger.addPropertyChangeListener(controller);
+				
+				tagger.activate();
+				UIUtilities.centerAndShow(tagger.getUI());
+			}
 		}
-
 	}
 
 	/**
@@ -1352,10 +1382,14 @@ class TreeViewerComponent
 	{
 		if (ref == null)
 			throw new IllegalArgumentException("No time object");
-		//TODO: check state
-		DataHandler dh = model.classifyDataObjects(view, ref);
-		dh.addPropertyChangeListener(controller);
-		dh.activate();
+		Tagger tagger = TaggerFactory.getImageTagger(
+				TreeViewerAgent.getRegistry(), ref);
+		if (tagger != null) {
+			tagger.addPropertyChangeListener(controller);
+		
+			tagger.activate();
+			UIUtilities.centerAndShow(tagger.getUI());
+		}
 	}
 
 	/**

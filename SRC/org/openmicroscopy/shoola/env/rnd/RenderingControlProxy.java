@@ -25,14 +25,7 @@ package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferInt;
-import java.awt.image.DirectColorModel;
-import java.awt.image.SinglePixelPackedSampleModel;
-import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -41,7 +34,6 @@ import java.util.Iterator;
 import java.util.List;
 import javax.ejb.EJBException;
 import javax.imageio.ImageIO;
-import sun.awt.image.IntegerInterleavedRaster;
 
 //Third-party libraries
 
@@ -56,6 +48,7 @@ import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 
 /** 
@@ -147,37 +140,6 @@ class RenderingControlProxy
 		e.printStackTrace(pw);
 		return sw.toString();
 	}
-    
-    /**
-     * Creates a new {@link BufferedImage} from the specified array of 
-     * packed integers.
-     * 
-     * @param sizeX The size along the X-axis. 
-     * @param sizeY The size along the Y-axis.
-     * @param buf   The array of packed integers.
-     * @return See above.
-     */
-    private BufferedImage createImage(int sizeX, int sizeY, int[] buf)
-    {
-        DataBuffer j2DBuf = new DataBufferInt(buf, sizeX*sizeY); 
-        SinglePixelPackedSampleModel sampleModel =
-            new SinglePixelPackedSampleModel(
-                      DataBuffer.TYPE_INT, sizeX, sizeY, sizeX,                                                                                                      
-                      new int[] {
-                          0x00ff0000,    // Red
-                          0x0000ff00,    // Green
-                          0x000000ff    // Blue
-                      });
-        WritableRaster raster = 
-            new IntegerInterleavedRaster(sampleModel, j2DBuf, new Point(0, 0));
-      
-        ColorModel colorModel = new DirectColorModel(32,
-                                        0x00ff0000,    // Red
-                                        0x0000ff00,    // Green
-                                        0x000000ff     // Blue
-                                       );
-        return new BufferedImage(colorModel, raster, false, null);
-    }
 
     /**
      * Retrieves from the cache the buffered image representing the specified
@@ -404,7 +366,8 @@ class RenderingControlProxy
                     break;
             }
             initializeCache(pDef, 3*buf.length);
-            img = createImage(sizeX1, sizeX2, buf);
+            img = Factory.createImage(buf, 32, sizeX1, sizeX2);
+            //img = createImage(sizeX1, sizeX2, buf);
             cache(pDef, img);
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render the plane.");

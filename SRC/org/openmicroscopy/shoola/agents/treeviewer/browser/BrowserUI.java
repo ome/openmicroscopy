@@ -567,11 +567,9 @@ class BrowserUI
 		TreeImageDisplay child;
 		while (k.hasNext()) {
 			child = (TreeImageDisplay) k.next();
-			System.err.println("Child: "+child);
 			node.addChildDisplay(child);
 		}
-			
-		
+
 		buildTreeNode(node, sorter.sort(elements), 
                 (DefaultTreeModel) treeDisplay.getModel());
 		node.setExpanded(true);
@@ -858,19 +856,18 @@ class BrowserUI
 				}	       
 				break;
 			default:
-	        	
-	        	for (int i = 0; i < n; i++) {
+				for (int i = 0; i < n; i++) {
 					node = (TreeImageDisplay) root.getChildAt(i);
 					children = node.getChildrenDisplay();
 					node.removeAllChildren();
-		        	dtm.reload(node);
-		        	if (children.size() != 0) {
-		        		buildTreeNode(node, sorter.sort(children), dtm);
-		        	} else buildEmptyNode(node);
-		        	j = nodesToReset.iterator();
-		        	while (j.hasNext()) {
-		        		setExpandedParent((TreeImageDisplay) j.next(), true);
-		        	}
+					dtm.reload(node);
+					if (children.size() != 0) {
+						buildTreeNode(node, sorter.sort(children), dtm);
+					} else buildEmptyNode(node);
+					j = nodesToReset.iterator();
+					while (j.hasNext()) {
+						setExpandedParent((TreeImageDisplay) j.next(), true);
+					}
 				}	        	
 		}
     }
@@ -1006,7 +1003,6 @@ class BrowserUI
 					while (i.hasNext()) {
 						child = (TreeImageTimeSet) i.next();
 						number = child.countTime(l);
-						//System.err.println(child+" "+number);
 						total += number;
 						if (number > 0) {
 							child.setNumberItems(number);
@@ -1149,6 +1145,19 @@ class BrowserUI
 	{
 		TreeImageDisplay root = getTreeRoot();
 		return (TreeImageDisplay) root.getChildAt(0);
+	}
+
+	/** Refreshes the experimenter data. */
+	void refreshExperimenter()
+	{
+		TreeImageDisplay root = getTreeRoot();
+		TreeImageDisplay element = (TreeImageDisplay) root.getChildAt(0);
+		Object ho = element.getUserObject();
+		if (ho instanceof ExperimenterData) {
+			element.setUserObject(model.getUserDetails());
+			DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+			tm.reload(element);
+		}
 	}
     
 }

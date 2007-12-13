@@ -41,19 +41,19 @@ import org.openmicroscopy.shoola.agents.util.classifier.view.Classifier;
 import pojos.ImageData;
 
 /** 
-* Classifies or declassifies the selected nodes depending on the specified
-* mode.
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @version 2.2
-* <small>
-* (<b>Internal version:</b> $Revision$ $Date$)
-* </small>
-* @since OME2.2
-*/
+ * Classifies or declassifies the selected nodes depending on the specified
+ * mode.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @version 2.2
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
+ * @since OME2.2
+ */
 public class ClassifyCmd
-  implements ActionCmd
+	implements ActionCmd
 {
 
 	/** Identifies the <code>Classify</code> mode. */

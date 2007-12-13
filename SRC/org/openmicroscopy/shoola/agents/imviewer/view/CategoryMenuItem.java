@@ -57,16 +57,16 @@ class CategoryMenuItem
 	implements ActionListener
 {
 
-	/** Bounds property indicating to remove the image from the category. */
+	/** Bounds property indicating to remove the tag from the image. */
 	static final String 		REMOVE_PROPERTY = "remove";
 	
-	/** Bounds property indicating to browse the category. */
+	/** Bounds property indicating to browse the tag. */
 	static final String 		BROWSE_PROPERTY = "browse";
 	
 	/** Action Id indicating to browse the category. */
 	private static final int 	BROWSE = 0;
 	
-	/** Action Id indicating to remove the image from the category. */
+	/** Action Id indicating to remove the tag from the image. */
 	private static final int 	REMOVE = 1;
 	
 	/** The category hosted by this node. */
@@ -102,7 +102,7 @@ class CategoryMenuItem
 	CategoryMenuItem(CategoryData data)
 	{
 		if (data == null)
-			throw new IllegalArgumentException("No category specified.");
+			throw new IllegalArgumentException("No tag specified.");
 		this.data = data;
 		buildComponents();
 	}

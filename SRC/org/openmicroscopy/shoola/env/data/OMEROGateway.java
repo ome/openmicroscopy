@@ -1518,40 +1518,11 @@ class OMEROGateway
 	}
 
 	/**
-	 * Returns a collection of images imported before the specified time
-	 * by the specified user.
-	 * 
-	 * @param time		The reference time.
-	 * @param userID	The user's id.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	List getImagesBefore(Timestamp time, long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		try {
-			String sql = "from Image as i where i.details.owner.id = :userID " +
-			"and i.details.creationEvent.time < :time";
-			IQuery service = getQueryService();
-			Parameters param = new Parameters();
-			param.addLong("userID", userID);
-			param.add(new QueryParameter("time", Timestamp.class, time));
-			return service.findAllByQuery(sql, param);
-		} catch (Throwable e) {
-			handleException(e, "Cannot retrieve the images before " +
-			"the passed time.");
-		}
-		return null;
-	}
-
-	/**
 	 * Returns a collection of images imported after the specified time
 	 * by the specified user.
 	 * 
-	 * @param time		The reference time.
+	 * @param startTime	The reference time.
+	 * @param endTime	The reference time.
 	 * @param userID	The user's id.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -1559,51 +1530,33 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	List getImagesAfter(Timestamp time, long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		try {
-			String sql = "from Image as i where i.details.owner.id = :userID " +
-			"and i.details.creationEvent.time > :time";
-			IQuery service = getQueryService();
-			Parameters param = new Parameters();
-			param.addLong("userID", userID);
-			param.add(new QueryParameter("time", Timestamp.class, time));
-			return service.findAllByQuery(sql, param);
-		} catch (Throwable e) {
-			handleException(e, "Cannot retrieve the images after " +
-			"the passed time.");
-		}
-		return null;
-	}
-
-	/**
-	 * Returns a collection of images imported after the specified time
-	 * by the specified user.
-	 * 
-	 * @param lowerTime	The reference time.
-	 * @param time		The reference time.
-	 * @param userID	The user's id.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	List getImagesDuring(Timestamp lowerTime, Timestamp time, long userID)
+	List getImagesDuring(Timestamp startTime, Timestamp endTime, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 
 		try {
-			String sql = "from Image as i where i.details.owner.id = :userID " +
-			"and i.details.creationEvent.time < :time and "+
-			"i.details.creationEvent.time > :lowerTime";
+			String  sql = "select i from Image as i left outer join fetch " +
+			"i.details.creationEvent as c where " +
+			"i.details.owner.id = :userID and ";
 			IQuery service = getQueryService();
 			Parameters param = new Parameters();
 			param.addLong("userID", userID);
-			param.add(new QueryParameter("time", Timestamp.class, time));
-			param.add(new QueryParameter("lowerTime", Timestamp.class, 
-					lowerTime));
+			if (startTime != null && endTime != null) {
+				sql += "c.time < :endTime and c.time > :startTime";
+				param.add(new QueryParameter("startTime", Timestamp.class, 
+						startTime));
+				param.add(new QueryParameter("endTime", Timestamp.class, 
+						endTime));
+			} else if (startTime == null && endTime != null) {
+				sql += "c.time < :endTime";
+				param.add(new QueryParameter("endTime", Timestamp.class, 
+					endTime));
+			} else if (startTime != null && endTime == null) {
+				sql += "c.time  > :startTime";
+				param.add(new QueryParameter("startTime", Timestamp.class, 
+						startTime));
+			} 
+			
 			return service.findAllByQuery(sql, param);
 		} catch (Throwable e) {
 			handleException(e, "Cannot retrieve the images imported during " +
@@ -1632,40 +1585,6 @@ class OMEROGateway
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the images imported " +
 							"the specified period.");
-		}
-		return null;
-	}
-	
-	/**
-	 * Returns a collection of images imported after the specified time
-	 * by the specified user.
-	 * 
-	 * @param lowerTime	The reference time.
-	 * @param time		The reference time.
-	 * @param userID	The user's id.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	List getImagesFilledDuring(Timestamp lowerTime, Timestamp time, long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		try {
-			String sql = "select i from Image as i left outer join fetch " +
-			"i.details.creationEvent as c "+
-			"where c.id = :userID and c.time < :time and c.time > :lowerTime";
-			IQuery service = getQueryService();
-			Parameters param = new Parameters();
-			param.addLong("userID", userID);
-			param.add(new QueryParameter("time", Timestamp.class, time));
-			param.add(new QueryParameter("lowerTime", Timestamp.class, 
-					lowerTime));
-			return service.findAllByQuery(sql, param);
-		} catch (Throwable e) {
-			handleException(e, "Cannot retrieve the images imported during " +
-			"the selected period.");
 		}
 		return null;
 	}

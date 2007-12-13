@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 
 /** 
 * Retrieves the images imported by the specified user during various
@@ -81,27 +82,23 @@ public class ExperimenterImagesCounter
 			int number = -1;
 			List l;
 			result = new HashMap<Integer, Object>(1);
-			switch (ref.getConstrain()) {
-				case ImagesLoader.BEFORE:
-					l = os.getImagesPeriodIObject(null, ref.getTime(), userID);
-					if (l != null) number = l.size();
-					result.put(index, number);
-					break;
-				case ImagesLoader.AFTER:
-					l = os.getImagesPeriodIObject(ref.getTime(), null, userID);
-					if (l != null) number = l.size();
-					result.put(index, number);
-					break;
-				case ImagesLoader.PERIOD:
-					l = os.getImagesAllPeriodCount(ref.getLowerTime(), 
-							ref.getTime(), userID);
-					result.put(index, l);
-					break;
+			Timestamp start, end;
+			start = ref.getStartTime();
+			end = ref.getEndTime();
+			if (start == null || end == null) {
+				l = os.getImagesPeriodIObject(start, end, userID);
+				if (l != null) number = l.size();
+				result.put(index, number);
+			} else {
+				l = os.getImagesAllPeriodCount(start, end, userID);
+				result.put(index, l);
 			}
 		} catch (Exception e) {
-			context.getLogger().error(this, 
-					"Cannot count the number of items imported during the" +
-					"specified period: "+e.getMessage());
+			LogMessage msg = new LogMessage();
+			msg.print("Cannot count the number of items imported during the " +
+					"specified period");
+			msg.print(e);
+			context.getLogger().error(this, msg);
 		}
 	}
 

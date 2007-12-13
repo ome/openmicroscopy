@@ -34,7 +34,6 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -57,15 +56,6 @@ import pojos.ImageData;
 public interface DataManagerView
   extends DataServicesView
 {
-
-	/** Indicates to retrieve data before a specified date. */
-	public static final int BEFORE = ImagesLoader.BEFORE;
-
-	/** Indicates to retrieve data after a specified date. */
-	public static final int AFTER = ImagesLoader.AFTER;
-
-	/** Indicates to retrieve data during a period of time. */
-	public static final int PERIOD = ImagesLoader.PERIOD;
 
 	/** Identifies the <code>Declassification</code> algorithm. */
 	public static final int DECLASSIFICATION = 

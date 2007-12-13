@@ -51,14 +51,11 @@ public class TimeRefObject
 	/** User's id. */
 	private long 		userID;
 	
-	/** Indicate to search before or after the time of reference. */
-	private int 		constrain;
+	/** Time of reference. */
+	private Timestamp 	endTime;
 	
 	/** Time of reference. */
-	private Timestamp 	time;
-	
-	/** Time of reference. */
-	private Timestamp 	lowerTime;
+	private Timestamp 	startTime;
 	
 	/** The result of the call. */
 	private Set			results;
@@ -67,20 +64,18 @@ public class TimeRefObject
 	 * Creates a new instance.
 	 * 
 	 * @param userID	The user's id.
-	 * @param lowerTime	The time of reference. Mustn't be <code>null</code>.
-	 * @param time		The time of reference. Mustn't be <code>null</code>.
+	 * @param startTime	The time of reference. 
+	 * @param endTime	The time of reference.
 	 * @param constrain	Value indicating to retrieve the value before or
 	 * 					after the time of reference 
 	 */
-	public TimeRefObject(long userID, Timestamp lowerTime, Timestamp time, 
-						int constrain)
+	public TimeRefObject(long userID, Timestamp startTime, Timestamp endTime)
 	{
-		if (time == null)
-			throw new IllegalArgumentException("Time not valid.");
+		if (startTime == null && endTime == null)
+			throw new IllegalArgumentException("Time interval not valid.");
 		this.userID = userID;
-		this.time = time;
-		this.lowerTime = lowerTime;
-		this.constrain = constrain;
+		this.endTime = endTime;
+		this.startTime = startTime;
 	}
 
 	/**
@@ -88,14 +83,14 @@ public class TimeRefObject
 	 * 
 	 * @return See above.
 	 */
-	public Timestamp getLowerTime() { return lowerTime; }
+	public Timestamp getStartTime() { return startTime; }
 	
 	/**
 	 * Returns the time of reference.
 	 * 
 	 * @return See above.
 	 */
-	public Timestamp getTime() { return time; }
+	public Timestamp getEndTime() { return endTime; }
 	
 	/**
 	 * Returns the user's id.
@@ -103,14 +98,7 @@ public class TimeRefObject
 	 * @return See above.
 	 */
 	public long getUserID() { return userID; }
-	
-	/**
-	 * Returns the constrain.
-	 * 
-	 * @return See above.
-	 */
-	public int getConstrain() { return constrain; }
-	
+
 	/**
 	 * Sets the results of the call.
 	 * 

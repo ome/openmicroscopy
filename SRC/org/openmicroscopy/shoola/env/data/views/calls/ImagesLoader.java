@@ -56,15 +56,6 @@ import pojos.ImageData;
 public class ImagesLoader
     extends BatchCallTree
 {
-
-	/** Indicates to retrieve data before a specified date. */
-	public static final int BEFORE = 0;
-	
-	/** Indicates to retrieve data after a specified date. */
-	public static final int AFTER = 1;
-	
-	/** Indicates to retrieve data after a specified date. */
-	public static final int PERIOD = 2;
 	
     /** The results of the call. */
     private Set         results;
@@ -72,23 +63,6 @@ public class ImagesLoader
     /** Loads the specified tree. */
     private BatchCall   loadCall;
 
-    /**
-     * Checks if the specified constrain is supported.
-     * 
-     * @param c The constrain to control.
-     */
-    private void checkConstrain(int c)
-    {
-        switch (c) {
-			case BEFORE:
-			case AFTER:
-			case PERIOD:
-				return;
-			default:
-				 throw new IllegalArgumentException("Constrain not supported");
-		}       
-    }
-    
     /**
      * Creates a {@link BatchCall} to retrieve the user images.
      * 
@@ -132,35 +106,19 @@ public class ImagesLoader
      * Creates a a {@link BatchCall} to retrieve images before or after
      * a given date depending on the passed parameter.
      * 
-     * @param constrain	One of constants defined by this class.
-     * @param lt 		The timestamp identifying the lower bound.
-     * @param time		The timestamp identifying the date.
+     * @param startTime The timestamp identifying the lower bound.
+     * @param endTime	The timestamp identifying the date.
      * @param userID	The Id of the user.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final int constrain, 
-    			final Timestamp lt, final Timestamp time,
-                final long userID)
+    private BatchCall makeBatchCall(final Timestamp startTime, 
+    						final Timestamp endTime, final long userID)
     {
         return new BatchCall("Loading images: ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                Timestamp lowerTime = null;
-				Timestamp upperTime = null;
-				switch (constrain) {
-					case ImagesLoader.AFTER:
-						lowerTime = time;
-						break;
-					case ImagesLoader.BEFORE:
-						upperTime = time;
-						break;
-					case ImagesLoader.PERIOD:
-						lowerTime = lt;
-						upperTime = time;
-						break;
-				}
-				results =  os.getImagesPeriod(lowerTime, upperTime, userID);
+				results =  os.getImagesPeriod(startTime, endTime, userID);
             }
         };
     }
@@ -219,17 +177,13 @@ public class ImagesLoader
      * Creates a new instance. If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the call.
 	 * 
-     * @param constrain	One of constants defined by this class.
-     * @param lowerTime The timestamp identifying the start of a period.
-     * @param time		The timestamp identifying the date.
+     * @param startTime The timestamp identifying the start of a period.
+     * @param endTime	The timestamp identifying the date.
      * @param userID	The Id of the user.
      */
-    public ImagesLoader(int constrain, Timestamp lowerTime, Timestamp time, 
-    					long userID)
+    public ImagesLoader(Timestamp startTime, Timestamp endTime, long userID)
     {
-    	
-    	checkConstrain(constrain);
-    	loadCall = makeBatchCall(constrain, lowerTime, time, userID);
+    	loadCall = makeBatchCall(startTime, endTime, userID);
     }
     
 }

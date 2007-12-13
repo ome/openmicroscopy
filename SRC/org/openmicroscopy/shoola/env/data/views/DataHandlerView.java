@@ -35,6 +35,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.TagSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.CategoryData;
@@ -58,6 +59,12 @@ public interface DataHandlerView
 	extends DataServicesView
 {
 
+	/** Indicates to tag the selected objects. */
+	public static final int TAG_LEVEL_ZERO = TagSaver.TAG_LEVEL_ZERO;
+	
+	/** Indicates to tag the children of the selected objects. */
+	public static final int TAG_LEVEL_ONE = TagSaver.TAG_LEVEL_ONE;
+	
 	/** Identifies the <code>Declassification</code> algorithm. */
 	public static final int DECLASSIFICATION = 
 		ClassificationLoader.DECLASSIFICATION;
@@ -280,12 +287,12 @@ public interface DataHandlerView
 	 * first the categories containing the image, then the categories
 	 * the image can be added to.
 	 * 
-	 * @param imageID	The id of the image to handle.
+	 * @param imageIDs	The id of the images to handle.
 	 * @param userID	The user's id.
 	 * @param observer	Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadAllClassifications(long imageID, long userID, 
+	public CallHandle loadAllClassifications(Set<Long> imageIDs, long userID, 
 			AgentEventListener observer);
 
 	/**
@@ -319,48 +326,50 @@ public interface DataHandlerView
 			AgentEventListener observer);
 
 	/**
-	 * Creates new categories and classifies the specified image.
+	 * Creates new tags and adds the tags to the specified objects
+	 * and updates the collection o
 	 * 
-	 * @param imageID		The id of the image to classify.
-	 * @param categories	The categories to create.
-	 * @param observer		Callback handler.
+	 * @param ids		The id of the objects to tags.
+	 * @param rootType
+	 * @param tagLevel
+	 * @param toCreate	The tags to create.			
+	 * @param toUpdate	The tags to update.
+	 * @param observer	Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle createAndClassify(long imageID, 
-			Set<CategoryData> categories,
+	public CallHandle tag(Set<Long> ids, Class rootType, int tagLevel, 
+			Set<CategoryData> toCreate, Set<CategoryData> toUpdate,
 			AgentEventListener observer);
 
 	/**
-	 * Creates new categories and classifies the specified image into
-	 * the newly created categories and the updated ones.
+	 * Creates new tags and adds the tags to the specified objects
+	 * and updates the collection o
 	 * 
-	 * @param imageID				The id of the image to classify.
-	 * @param categories			The categories to create.			
-	 * @param categoriesToUpdate	The categories to update.
-	 * @param observer				Callback handler.
+	 * @param ids		The id of the objects to tags.
+	 * @param rootType
+	 * @param tagLevel
+	 * @param toCreate	The tags to create.			
+	 * @param toUpdate	The tags to update.
+	 * @param observer	Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle createAndClassify(long imageID, 
-			Set<CategoryData> categories, Set<CategoryData> categoriesToUpdate,
+	public CallHandle tag(TimeRefObject time, Class rootType, int tagLevel, 
+			Set<CategoryData> toCreate, Set<CategoryData> toUpdate,
 			AgentEventListener observer);
-
+	
 	/**
 	 * Loads the images imported during the passed period.
 	 * 
 	 * @param constrain		One of the following constants: {@link #BEFORE},
 	 * 						{@link #AFTER} or {@link #PERIOD}
-	 * @param lowerTime		The lower bound of the period interval. 
-	 * 						Pass <code>null</code> if the constrain is either
-	 * 						{@link #BEFORE} or {@link #AFTER}
-	 * @param time			The upper bound of the interval. 
-	 * 						Mustn't be <code>null</code>.
+	 * @param startTime		The lower bound of the period interval. 
+	 * @param endTime		The upper bound of the interval. 
 	 * @param userID		The id of the user the images belonged to.
 	 * @param observer		Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadImages(int constrain, Timestamp lowerTime, 
-			Timestamp time, long userID, 
-			AgentEventListener observer);
+	public CallHandle loadImages(Timestamp startTime, Timestamp endTime, 
+								long userID, AgentEventListener observer);
 
 	/**
 	 * Applies the rendering settings associated to the passed pixels set 

@@ -192,10 +192,25 @@ public class SearchContext
 		this.endTime = endTime;
 	}
 
+	/** 
+	 * Returns the collection of users' details.
+	 * 
+	 * @return See above.
+	 */
 	public List<String> getUsers() { return users; }
 	
+	/**
+	 * Returns the start of time interval.
+	 * 
+	 * @return See above.
+	 */
 	public Timestamp getStartTime() { return startTime; }
 	
+	/**
+	 * Returns the end of time interval.
+	 * 
+	 * @return See above.
+	 */
 	public Timestamp getEndTime() { return endTime; }
 	
 }

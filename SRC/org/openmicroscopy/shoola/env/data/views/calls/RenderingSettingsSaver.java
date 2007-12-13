@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -75,22 +74,6 @@ public class RenderingSettingsSaver
 	/** Loads the specified tree. */
 	private BatchCall	loadCall;
 
-	/**
-	 * Controls if the passed index is supported.
-	 * 
-	 * @param i The value to check.
-	 */
-    private void checkIndex(int i)
-    {
-    	switch (i) {
-			case PASTE:
-			case RESET:
-				break;
-			default:
-				throw new IllegalArgumentException("Index not supported.");
-		}
-    }
-    
 	/** 
 	 * Controls if the passed type is supported.
 	 * 
@@ -152,21 +135,8 @@ public class RenderingSettingsSaver
 				long userID = ((ExperimenterData) context.lookup(
 						LookupNames.CURRENT_USER_DETAILS)).getId();
 				OmeroDataService os = context.getDataService();
-				Timestamp lowerTime = null;
-				Timestamp upperTime = null;
-				switch (ref.getConstrain()) {
-					case ImagesLoader.BEFORE:
-						upperTime = ref.getTime();
-						break;
-					case ImagesLoader.AFTER:
-						lowerTime = ref.getTime();
-						break;
-					case ImagesLoader.PERIOD:
-						lowerTime = ref.getLowerTime();
-						upperTime = ref.getTime();
-				}
-				List l = os.getImagesPeriodIObject(lowerTime, upperTime, 
-													userID); 
+				List l = os.getImagesPeriodIObject(ref.getStartTime(), 
+												ref.getEndTime(), userID); 
 				if (l != null) {
 					Iterator i = l.iterator();
 					IObject element;

@@ -99,7 +99,8 @@ public class ClassifyAction
         }
         setEnabled(selectedDisplay.getUserObject() instanceof ImageData);
         */
-        if (!(selectedDisplay.getUserObject() instanceof ImageData)) {
+        Object o = selectedDisplay.getUserObject();
+        if (!(o instanceof ImageData)) {
         	setEnabled(false);
         	return;
         }
@@ -108,7 +109,15 @@ public class ClassifyAction
         	int n = browser.getSelectedDisplays().length;
         	if (n > 1) {
         		 setEnabled(!(index == DECLASSIFY));
-        	} else setEnabled(true);
+        	} else {
+        		if (index == DECLASSIFY) {
+        			ImageData img = (ImageData) o;
+            		Long v = img.getClassificationCount();
+            		setEnabled(v != null && v.longValue() > 0);
+        		} else
+        		
+        		setEnabled(true);
+        	}
         }
     }
     

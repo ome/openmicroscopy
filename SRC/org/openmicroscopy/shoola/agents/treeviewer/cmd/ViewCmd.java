@@ -39,7 +39,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.CategoryData;
@@ -100,27 +99,6 @@ public class ViewCmd
 	}
 
 	/**
-	 * Returns the constrain indicating to retrieve the values after
-	 * or before the time of reference.
-	 * 
-	 * @param index The index to control.
-	 * @return See above.
-	 */
-	static int getTimeConstrain(int index)
-	{
-		switch (index) {
-			case TreeImageTimeSet.OTHER:
-				return DataManagerView.BEFORE;
-			case TreeImageTimeSet.MONTH:
-			case TreeImageTimeSet.YEAR_BEFORE:
-				//case TreeImageTimeSet.YEAR:
-				return DataManagerView.PERIOD;
-			default:
-				return DataManagerView.AFTER;
-		}
-	}
-
-	/**
 	 * Creates a new instance.
 	 * 
 	 * @param model Reference to the model. Mustn't be <code>null</code>.
@@ -173,10 +151,9 @@ public class ViewCmd
 									Browse.IMAGES, exp, bounds));   
 						} else {
 							TreeImageTimeSet time = (TreeImageTimeSet) display;
-							int c = getTimeConstrain(time.getType());
 							exp = browser.getNodeOwner(time);
 							TimeRefObject ref = new TimeRefObject(exp.getId(), 
-									time.getLowerTime(), time.getTime(), c);
+									time.getStartTime(), time.getEndTime());
 
 							bus.post(new Browse(ref, exp, bounds));   
 						}

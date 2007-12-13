@@ -81,10 +81,9 @@ public class AnnotateChildrenCmd
     	Set<DataObject> s;
     	if (node instanceof TreeImageTimeSet) {
     		TreeImageTimeSet time = (TreeImageTimeSet) node;
-    		int c = ViewCmd.getTimeConstrain(time.getType());
     		ExperimenterData exp = model.getUserDetails();
     		TimeRefObject ref = new TimeRefObject(exp.getId(), 
-    				time.getLowerTime(), time.getTime(), c);
+    				time.getStartTime(), time.getEndTime());
     		model.annotate(ref);
     	} else {
     		Object ho = node.getUserObject();

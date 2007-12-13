@@ -90,9 +90,9 @@ class ToolBar
     
     static {
     	compression = new String[3];
-    	compression[UNCOMPRESSED] = "Uncompressed";
-    	compression[MEDIUM] = "Medium quality";
-    	compression[LOW] = "Low quality";
+    	compression[UNCOMPRESSED] = "No compression";
+    	compression[MEDIUM] = "Medium compression";
+    	compression[LOW] = "High compression";
     }
     
     /** Reference to the Control. */
@@ -115,7 +115,6 @@ class ToolBar
     
     /** Reference to the finder. */
     private QuickFinder		finder;
-    
     
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()

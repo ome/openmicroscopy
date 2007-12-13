@@ -43,12 +43,16 @@ import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImageLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImagesCounter;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.LookupNames;
+
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -442,6 +446,17 @@ class BrowserModel
      * @return See above.
      */
     long getUserGroupID() { return parent.getUserGroupID(); }
+    
+    /**
+     * Returns the details of the user currently logged in.
+     * 
+     * @return See above.
+     */
+    ExperimenterData getUserDetails()
+    { 
+    	return (ExperimenterData) TreeViewerAgent.getRegistry().lookup(
+				LookupNames.CURRENT_USER_DETAILS);
+    }
     
     /**
      * Brings up the viewer if the last selected data object 

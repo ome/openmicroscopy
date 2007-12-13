@@ -184,21 +184,8 @@ public class DMRefreshLoader
                 	j = containers.iterator();
                 	while (j.hasNext()) {
                 		ref = (TimeRefObject) j.next();
-                		lowerTime = null;
-        				upperTime = null;
-        				switch (ref.getConstrain()) {
-        					case ImagesLoader.AFTER:
-        						lowerTime = ref.getTime();
-        						break;
-        					case ImagesLoader.BEFORE:
-        						upperTime = ref.getTime();
-        						break;
-        					case ImagesLoader.PERIOD:
-        						lowerTime = ref.getLowerTime();
-        						upperTime = ref.getTime();
-        						break;
-        				}
-        				ref.setResults(os.getImagesPeriod(lowerTime, upperTime, 
+    
+        				ref.setResults(os.getImagesPeriod(ref.getStartTime(), ref.getEndTime(), 
 									userID));
 					}
                 }

@@ -763,14 +763,6 @@ public interface ImViewer
 	 */
 	public void declassify(long categoryID);
 
-	/**
-	 * Creates categories and adds the image to the categories
-	 * and/or classifies the image.
-	 * 
-	 * @param data	The object to handle.
-	 */
-	public void createAndClassify(CategorySaverDef data);
-
 	/** Invoked when the image classification is finished. */
 	public void setImageClassified();
 
@@ -853,5 +845,14 @@ public interface ImViewer
 	 * @param exp The user to handle.
 	 */
 	public void setUserRndSettings(ExperimenterData exp);
+
+	/**
+	 * Retrieves the tags linked to the image.
+	 * 
+	 * @param component	The component that requested the popup menu.
+	 * @param point		The point at which to display the menu, relative to the
+	 *                  <code>component</code>'s coordinates.
+	 */
+	public void retrieveTags(Component component, Point point);
 	
 }

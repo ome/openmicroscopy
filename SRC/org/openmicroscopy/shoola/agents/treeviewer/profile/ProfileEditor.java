@@ -55,6 +55,10 @@ public interface ProfileEditor
     public static final String      CLOSE_PROFILE_EDITOR_PROPERTY = 
     									"closeProfileEditor";
     
+    /** Bounds property to indicate that the user details have changed. */
+    public static final String		EXPERIMENTER_CHANGED_PROPERTY =
+    									"experimenterChanged";
+    
 	/** Flag to denote the <i>New</i> state. */
     public static final int         NEW = 1;
     

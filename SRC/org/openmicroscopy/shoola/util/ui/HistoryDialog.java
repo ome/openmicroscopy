@@ -67,7 +67,7 @@ public class HistoryDialog
     public static final String SELECTION_PROPERTY ="selection";
     
     /** The maximum height of the menu. */
-    private static final int	MAX_HEIGHT = 100;
+    private static final int	MAX_HEIGHT = 200;
     
     /** The list hosting the data. */
     private JList       			history;

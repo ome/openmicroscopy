@@ -193,9 +193,8 @@ public class RefreshExperimenterDataLoader
         		times = new ArrayList<TimeRefObject>(nodes.size());
         		while (j.hasNext()) {
         			node = (TreeImageTimeSet) j.next();
-					ref = new TimeRefObject(userID, node.getLowerTime(),
-							node.getTime(), 
-							getTimeConstrain(node.getType()));
+					ref = new TimeRefObject(userID, node.getStartTime(),
+							node.getEndTime());
 					times.add(ref);
 				}
     			m.put(userID, times);

@@ -96,7 +96,7 @@ class BasicCategoryMenuItem
 						CategoryData data)
 	{
 		if (data == null)
-			throw new IllegalArgumentException("No category specified.");
+			throw new IllegalArgumentException("No tag specified.");
 		if (parent == null)
 			throw new IllegalArgumentException("No parent specified.");
 		checkActionID(actionID);

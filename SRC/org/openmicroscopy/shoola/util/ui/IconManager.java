@@ -245,11 +245,29 @@ public class IconManager
     /** The <code>Search Project</code> icon. */
     public static final int	SEARCH_PROJECT = 63;
     
+    /** The <code>Tag</code> icon. */
+    public static final int	TAG = 64;
+    
+    /** The <code>Tag group</code> icon. */
+    public static final int	TAG_GROUP = 65;
+    
+    /** The <code>Tag big</code> icon. */
+    public static final int	TAG_BIG = 66;
+    
+    /** The <code>Tag used</code> icon. */
+    public static final int	TAG_USED = 67;
+    
+    /** The <code>Tag used</code> icon. */
+    public static final int	BROWSE = 68;
+    
+    /** The <code>Transparent</code> icon. */
+    public static final int	TRANSPARENT = 69;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 63;
+    private static int      MAX_ID = 69;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -321,6 +339,12 @@ public class IconManager
         relPaths[SEARCH_ANNOTATION] = "search_annotation16.png";
         relPaths[SEARCH_DATASET] = "search_folder_image16.png";
         relPaths[SEARCH_PROJECT] = "search_document16.png";
+        relPaths[TAG] = "nuvola_knotes16.png";
+        relPaths[TAG_GROUP] = "tag_folder16.png";
+        relPaths[TAG_BIG] = "nuvola_knotes48.png";
+        relPaths[TAG_USED] = "tag_used16.png";
+        relPaths[BROWSE] = "zoom16.png";
+        relPaths[TRANSPARENT] = "zoom16.png";
     }
     
     /** 

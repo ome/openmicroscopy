@@ -56,67 +56,67 @@ public class TreeImageTimeSet
 {
 
 	/** Identifies a node hosting the images imported today. */
-	public static final int	TODAY = 99;
+	public static final int			TODAY = 99;
 	
 	/** Identifies a node hosting the images imported in the last 7 days. */
-	public static final int	WEEK = 100;
+	public static final int			WEEK = 100;
 	
 	/** Identifies a node hosting the images imported in the last 2 weeks. */
-	public static final int	TWO_WEEK = 101;
+	public static final int			TWO_WEEK = 101;
 
 	/** Identifies a node hosting the images imported before current year. */
-	public static final int	OTHER = 102;
+	public static final int			OTHER = 102;
 	
 	/** Identifies a node hosting the images imported in the current year. */
-	public static final int	YEAR = 103;
+	public static final int			YEAR = 103;
 	
 	/** 
 	 * Identifies a node hosting the images imported during the year 
 	 * before the current year. 
 	 */
-	public static final int	YEAR_BEFORE = 104;
+	public static final int			YEAR_BEFORE = 104;
 	
 	/** 
 	 * Identifies a node hosting the images imported during the year 
 	 * before the current year. 
 	 */
-	public static final int	MONTH = 105;
+	public static final int			MONTH = 105;
 	
 	/** Identifies the month of january. */
-	static final int JANUARY = Calendar.JANUARY;
+	static final int 				JANUARY = Calendar.JANUARY;
 	
 	/** Identifies the month of february. */
-	static final int FEBRUARY = Calendar.FEBRUARY;
+	static final int 				FEBRUARY = Calendar.FEBRUARY;
 	
 	/** Identifies the month of march. */
-	static final int MARCH = Calendar.MARCH;
+	static final int 				MARCH = Calendar.MARCH;
 	
 	/** Identifies the month of april. */
-	static final int APRIL = Calendar.APRIL;
+	static final int 				APRIL = Calendar.APRIL;
 	
 	/** Identifies the month of may. */
-	static final int MAY = Calendar.MAY;
+	static final int 				MAY = Calendar.MAY;
 	
 	/** Identifies the month of june. */
-	static final int JUNE = Calendar.JUNE;
+	static final int 				JUNE = Calendar.JUNE;
 	
 	/** Identifies the month of july. */
-	static final int JULY = Calendar.JULY;
+	static final int 				JULY = Calendar.JULY;
 	
 	/** Identifies the month of august. */
-	static final int AUGUST = Calendar.AUGUST;
+	static final int 				AUGUST = Calendar.AUGUST;
 	
 	/** Identifies the month of september. */
-	static final int SEPTEMBER = Calendar.SEPTEMBER;
+	static final int 				SEPTEMBER = Calendar.SEPTEMBER;
 	
 	/** Identifies the month of october. */
-	static final int OCTOBER = Calendar.OCTOBER;
+	static final int 				OCTOBER = Calendar.OCTOBER;
 	
 	/** Identifies the month of november. */
-	static final int NOVEMBER = Calendar.NOVEMBER;
+	static final int 				NOVEMBER = Calendar.NOVEMBER;
 	
 	/** Identifies the month of december. */
-	static final int DECEMBER = Calendar.DECEMBER;
+	static final int 				DECEMBER = Calendar.DECEMBER;
 	
 	 /** 
 	 * Text of the dummy TreeImageSet containing the images 
@@ -182,10 +182,10 @@ public class TreeImageTimeSet
 	 * {@link #YEAR} or 7 days before the actual day if the index is 
 	 * {@link #WEEK}.
 	 */
-	private Timestamp 	time;
+	private Timestamp 	endTime;
 	
 	/** Value only set if the index is {@link #YEAR_BEFORE}. */
-	private Timestamp	lowerTime;
+	private Timestamp	startTime;
 	
 	/** The index. */
 	private int			index;
@@ -228,9 +228,9 @@ public class TreeImageTimeSet
 		switch (month) {
 			case JANUARY: return 31;
 			case FEBRUARY: 
-				if (year % 4 == 0) return 29;
-				if (year % 100 == 0) return 28;
-				if (year % 400 == 0) return 29;
+				if (year%4 == 0) return 29;
+				if (year%100 == 0) return 28;
+				if (year%400 == 0) return 29;
 				return 28;
 			case MARCH: return 31;
 			case APRIL: return 30;
@@ -250,7 +250,7 @@ public class TreeImageTimeSet
 	
 	/**
 	 * Returns <code>true</code> if the passed time is contained in the time
-	 * interval defined by {@link #lowerTime} and {@link #time},
+	 * interval defined by {@link #startTime} and {@link #endTime},
 	 * <code>false</code> otherwise.
 	 * 
 	 * @param t	The value to handle.
@@ -258,8 +258,13 @@ public class TreeImageTimeSet
 	 */
 	private boolean containTime(Timestamp t)
 	{
-		if (t == null || lowerTime == null) return false;
-		return (t.after(lowerTime) && t.before(time));
+		if (t == null) return false;
+		if (startTime == null && endTime == null) return false;
+		if (startTime == null && endTime != null)
+			return t.before(endTime);
+		if (startTime != null && endTime == null)
+			return t.after(startTime);
+		return (t.after(startTime) && t.before(endTime));
 	}
 	
 	/**
@@ -285,6 +290,8 @@ public class TreeImageTimeSet
 		index = type;
 		GregorianCalendar gc = new GregorianCalendar();
 		int year;
+		//endTime = UIUtilities.getDefaultTimestamp();
+		endTime = null;
 		switch (type) {
 			case TODAY:
 				setUserObject(TODAY_OLD);
@@ -292,7 +299,7 @@ public class TreeImageTimeSet
 				gc = new GregorianCalendar(gc.get(Calendar.YEAR), 
 						gc.get(Calendar.MONTH), 
 						gc.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
-				time = new Timestamp(gc.getTime().getTime());
+				startTime = new Timestamp(gc.getTime().getTime());
 				break;
 			case WEEK:
 				setUserObject(WEEK_OLD);
@@ -300,7 +307,7 @@ public class TreeImageTimeSet
 				gc = new GregorianCalendar(gc.get(Calendar.YEAR), 
 						gc.get(Calendar.MONTH), 
 						gc.get(Calendar.DAY_OF_MONTH), 23, 59, 0);
-				time = new Timestamp(gc.getTime().getTime()-7*DAY);
+				startTime = new Timestamp(gc.getTime().getTime()-7*DAY);
 				break;
 			case TWO_WEEK:
 				setUserObject(TWO_WEEK_OLD);
@@ -308,30 +315,32 @@ public class TreeImageTimeSet
 				gc = new GregorianCalendar(gc.get(Calendar.YEAR), 
 						gc.get(Calendar.MONTH), 
 						gc.get(Calendar.DAY_OF_MONTH), 23, 59, 0);
-				time = new Timestamp(gc.getTime().getTime()-14*DAY);
+				startTime = new Timestamp(gc.getTime().getTime()-14*DAY);
 				break;
 			case YEAR:
 				setToolTip(YEAR_TOOLTIP);
 				year = gc.get(Calendar.YEAR);
 				setUserObject(""+year);
 				gc = new GregorianCalendar(year, 0, 1, 0, 0, 0);
-			    time = new Timestamp(gc.getTime().getTime());
+				startTime = new Timestamp(gc.getTime().getTime());
+				endTime = UIUtilities.getDefaultTimestamp();
 				break;
 			case YEAR_BEFORE:
 				setToolTip(YEAR_BEFORE_TOOLTIP);
 				year = gc.get(Calendar.YEAR);
 				setUserObject(""+(year-1));
 				gc = new GregorianCalendar(year, 0, 1, 0, 0, 0);
-			    time = new Timestamp(gc.getTime().getTime());
+			    endTime = new Timestamp(gc.getTime().getTime());
 			    gc = new GregorianCalendar(year-1, 0, 1, 0, 0, 0);
-			    lowerTime = new Timestamp(gc.getTime().getTime());
+			    startTime = new Timestamp(gc.getTime().getTime());
 				break;
 			case OTHER:
 				setToolTip(OTHER_TOOLTIP);
 				year = gc.get(Calendar.YEAR)-1;
 				setUserObject(PRIOR_TO+year);
 				gc = new GregorianCalendar(year, 0, 1, 0, 0, 0);
-			    time = new Timestamp(gc.getTime().getTime());
+				startTime = null;
+				endTime = new Timestamp(gc.getTime().getTime());
 				break;
 			default: 
 				throw new IllegalArgumentException("Node index not valid.");
@@ -364,10 +373,11 @@ public class TreeImageTimeSet
 				} else {
 					lastDay = getLastDayOfMonth(monthIndex, year);
 				}
-				gc = new GregorianCalendar(year, monthIndex, lastDay, 23, 59, 0);
-				time = new Timestamp(gc.getTime().getTime());
+				gc = new GregorianCalendar(year, monthIndex, lastDay, 23, 59, 
+											0);
+				endTime = new Timestamp(gc.getTime().getTime());
 				gc = new GregorianCalendar(year, monthIndex, 1, 0, 0, 0);
-				lowerTime = new Timestamp(gc.getTime().getTime());
+				startTime = new Timestamp(gc.getTime().getTime());
 				break;
 			case YEAR_BEFORE:
 				setToolTip(MONTH_TOOLTIP);
@@ -375,9 +385,9 @@ public class TreeImageTimeSet
 				setUserObject(""+getMonth(monthIndex));
 				gc = new GregorianCalendar(year, monthIndex, 
 								getLastDayOfMonth(monthIndex, year), 23, 59, 0);
-				time = new Timestamp(gc.getTime().getTime());
+				endTime = new Timestamp(gc.getTime().getTime());
 				gc = new GregorianCalendar(year, monthIndex, 1, 0, 0, 0);
-				lowerTime = new Timestamp(gc.getTime().getTime());
+				startTime = new Timestamp(gc.getTime().getTime());
 				break;
 			default: 
 				throw new IllegalArgumentException("Node index not valid.");
@@ -422,13 +432,13 @@ public class TreeImageTimeSet
 	 * 
 	 * @return See above.
 	 */
-	public Timestamp getTime() { return time; }
+	public Timestamp getEndTime() { return endTime; }
 	
 	/**
 	 * Returns the time of reference.
 	 * 
 	 * @return See above.
 	 */
-	public Timestamp getLowerTime() { return lowerTime; }
+	public Timestamp getStartTime() { return startTime; }
 	
 }

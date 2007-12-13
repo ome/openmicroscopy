@@ -38,7 +38,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
@@ -67,7 +66,6 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.archived.view.Downloader;
 import org.openmicroscopy.shoola.agents.util.archived.view.DownloaderFactory;
-import org.openmicroscopy.shoola.agents.util.tagging.CategorySaverDef;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
@@ -83,7 +81,6 @@ import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-import pojos.CategoryData;
 import pojos.ExperimenterData;
 
 /** 
@@ -116,7 +113,7 @@ class ImViewerComponent
 {
 
 	/** The message if rendering setting to save. */
-	static final String						RND = "The rendering settings";
+	static final String						RND = "The last rendering settings";
 	
 	/** The message if rendering setting to annotation. */
 	static final String						ANNOTATION = "The annotations";
@@ -211,7 +208,7 @@ class ImViewerComponent
 	{
 		String text = "";
 		text += "Z="+(model.getDefaultZ()+1)+"/"+(model.getMaxZ()+1);
-		text += " T="+model.getDefaultT()+"/"+model.getMaxT();
+		text += " T="+(model.getDefaultT()+1)+"/"+(model.getMaxT()+1);
 		return text;
 	}
 
@@ -421,7 +418,6 @@ class ImViewerComponent
 		if (events == null) events = new HashMap<String, SaveRelatedData>();
  		events.put(evt.toString(), evt);
 	}
-	
 	
 	/**
 	 * Returns a map with events to save.
@@ -915,10 +911,8 @@ class ImViewerComponent
 		//view.setStatus(RENDERING_MSG);
 		view.setStatus(getStatusText());
 		renderXYPlane();
-		model.fireCategoriesLoading();
+		//model.fireCategoriesLoading();
 		fireStateChange();
-		//model.fireChannelMetadataLoading();
-		//fireStateChange();
 	}
 
 	/** 
@@ -1659,15 +1653,15 @@ class ImViewerComponent
 		if (source == null) throw new IllegalArgumentException("No component.");
 		if (location == null) throw new IllegalArgumentException("No point.");
 		switch (menuID) {
-		case COLOR_PICKER_MENU:
-			if (model.getMaxC() == 1) controller.showColorPicker(0);
-			else view.showMenu(menuID, source, location);
-			break;
-		case CATEGORY_MENU:
-			view.showMenu(menuID, source, location);
-			break;
-		default:
-			throw new IllegalArgumentException("Menu not supported.");
+			case COLOR_PICKER_MENU:
+				if (model.getMaxC() == 1) controller.showColorPicker(0);
+				else view.showMenu(menuID, source, location);
+				break;
+			case CATEGORY_MENU:
+				view.showMenu(menuID, source, location);
+				break;
+			default:
+				throw new IllegalArgumentException("Menu not supported.");
 		}
 	}
 
@@ -2210,30 +2204,6 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#createAndClassify(CategorySaverDef)
-	 */
-	public void createAndClassify(CategorySaverDef data)
-	{
-		switch (model.getState()) {
-			case DISCARDED:
-				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED state.");
-		}
-		if (data == null) 
-			throw new IllegalArgumentException("No category specified.");
-		Set<CategoryData> toCreate = data.getCategoriesToCreate();
-		Set<CategoryData> toUpdate = data.getCategoriesToUpdate();
-		if (toCreate.size() == 0 && toUpdate.size() > 0)
-			model.classify(toUpdate);
-		else if (toCreate.size() > 0 && toUpdate.size() == 0)
-			model.createAndClassify(toCreate);
-		else if (toCreate.size() > 0 && toUpdate.size() > 0)
-			model.createAndClassify(toCreate, toUpdate);
-		fireStateChange();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#setImageClassified()
 	 */
 	public void setImageClassified()
@@ -2423,6 +2393,21 @@ class ImViewerComponent
 			throw new IllegalArgumentException("This method cannot be invoked" +
 					" in the DISCARDED state.");
 		return model.getUserDetails();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#retrieveTags(Component, Point)
+	 */
+	public void retrieveTags(Component component, Point point)
+	{
+		view.setLocationAndSource(component, point);
+		if (model.getTagger() == null) {
+			model.fireCategoriesLoading();
+			model.getTagger().addPropertyChangeListener(controller);
+		} else {
+			view.showMenu(CATEGORY_MENU);
+		}
 	}
     
 }

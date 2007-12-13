@@ -427,7 +427,7 @@ public interface OmeroDataService
 	 * retrieve data from OMEDS service. 
 	 */
 	public Set classify(Set<ImageData> images, Set<CategoryData> categories)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Removes the images from the specified categories.
@@ -586,6 +586,18 @@ public interface OmeroDataService
 	public Set classifyChildren(Set containers, Set categories)
 	throws DSOutOfServiceException, DSAccessException;
 
+	/**
+	 * 
+	 * @param ids
+	 * @param rootType
+	 * @param tags
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public Set tagImagesIncontainers(Set<Long> ids, Class rootType, 
+			Set<CategoryData> tags)
+	throws DSOutOfServiceException, DSAccessException;
+	
 	/**
 	 * Annotates the images contained in the passed folders i.e. 
 	 * datasets categories.

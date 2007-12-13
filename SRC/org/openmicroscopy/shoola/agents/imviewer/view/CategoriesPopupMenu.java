@@ -238,10 +238,7 @@ class CategoriesPopupMenu
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
-		int id = -1;
-		try {
-			id = Integer.parseInt(e.getActionCommand());
-		} catch (Exception ex) {}
+		int id = Integer.parseInt(e.getActionCommand());
 		
 		switch (id) {
 			case CREATION_ID:

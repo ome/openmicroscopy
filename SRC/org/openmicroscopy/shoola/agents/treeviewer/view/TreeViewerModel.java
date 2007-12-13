@@ -65,22 +65,22 @@ import pojos.ProjectData;
 
 
 /** 
-* The Model component in the <code>TreeViewer</code> MVC triad.
-* This class tracks the <code>TreeViewer</code>'s state and knows how to
-* initiate data retrievals. It also knows how to store and manipulate
-* the results. This class  provide  a suitable data loader. 
-* The {@link TreeViewerComponent} intercepts the 
-* results of data loadings, feeds them back to this class and fires state
-* transitions as appropriate.
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @version 2.2
-* <small>
-* (<b>Internal version:</b> $Revision$ $Date$)
-* </small>
-* @since OME2.2
-*/
+ * The Model component in the <code>TreeViewer</code> MVC triad.
+ * This class tracks the <code>TreeViewer</code>'s state and knows how to
+ * initiate data retrievals. It also knows how to store and manipulate
+ * the results. This class  provide  a suitable data loader. 
+ * The {@link TreeViewerComponent} intercepts the 
+ * results of data loadings, feeds them back to this class and fires state
+ * transitions as appropriate.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @version 2.2
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
+ * @since OME2.2
+ */
 class TreeViewerModel
 {
 
@@ -604,24 +604,6 @@ class TreeViewerModel
 	}
 
 	/**
-	 * Creates the <code>DataHandler</code> to classify the images imported
-	 * during a given period of time.
-	 * 
-	 * @param owner	The parent of the frame.
-	 * @param ref 	The time reference.
-	 * @return See above.
-	 */
-	DataHandler classifyDataObjects(JFrame owner, TimeRefObject ref)
-	{
-		/*
-  		dataHandler = AnnotatorFactory.getAnnotator(owner, nodes, 
-  							TreeViewerAgent.getRegistry(), type);
-  		return dataHandler;
-		 */
-		return null;
-	}
-
-	/**
 	 * Creates the <code>DataHandler</code> to annotate the images imported
 	 * during a given period of time.
 	 * 
@@ -684,21 +666,6 @@ class TreeViewerModel
 	{
 		dataHandler = ClassifierFactory.getClassifier(owner, nodes, rootID, m,
 				TreeViewerAgent.getRegistry());
-		return dataHandler;
-	}
-
-	/**
-	 * Creates the <code>DataHandler</code> to classify the images contained
-	 * in the passed container.
-	 * 
-	 * @param owner	The parent of the frame.
-	 * @param nodes The nodes containing the images to classify.
-	 * @return See above.
-	 */
-	DataHandler classifyChildren(JFrame owner, Set<DataObject> nodes)
-	{
-		dataHandler = ClassifierFactory.getChildrenClassifier(owner, nodes,
-				rootID, TreeViewerAgent.getRegistry());
 		return dataHandler;
 	}
 

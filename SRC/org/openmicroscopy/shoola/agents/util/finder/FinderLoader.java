@@ -119,11 +119,10 @@ public abstract class FinderLoader
      * @param registry 	Convenience reference for subclasses.
      *               	Mustn't be <code>null</code>.
      */
-    protected FinderLoader(Finder viewer, Registry registry)
+    protected FinderLoader(Finder viewer)
     {
-        if (registry == null) throw new NullPointerException("No registry.");
         if (viewer == null) throw new NullPointerException("No viewer.");
-        this.registry = registry;
+        this.registry = FinderFactory.getRegistry();
         this.viewer = viewer;
         dhView = (DataHandlerView) 
 					registry.getDataServicesView(DataHandlerView.class);
