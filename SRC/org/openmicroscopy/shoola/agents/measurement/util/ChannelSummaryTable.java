@@ -22,6 +22,7 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.util;
 
+import java.awt.Color;
 import java.awt.FontMetrics;
 
 import javax.swing.JTable;
@@ -50,11 +51,16 @@ import javax.swing.table.TableModel;
 public class ChannelSummaryTable
 	extends JTable
 {	
+	/** The colour of the grid in the table. */
+	private final static Color 	GRIDCOLOUR = new Color(180, 213, 255);
+	
 	public ChannelSummaryTable(TableModel model)
 	{
 		this.setModel(model);
 		setColumnSelectionAllowed(true);
 		setRowSelectionAllowed(true);
+		getTableHeader().setReorderingAllowed(false);
+		setGridColor(GRIDCOLOUR);
 		getTableHeader().setReorderingAllowed(false);
 		setShowGrid(true);	
 	}

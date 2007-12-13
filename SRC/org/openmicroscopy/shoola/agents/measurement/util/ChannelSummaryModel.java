@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.measurement.util;
 import java.util.ArrayList;
 import javax.swing.table.AbstractTableModel;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -137,7 +139,10 @@ public class ChannelSummaryModel
 		if(col==0)
 			return(rowNames.get(row));
 		else
-			return data[col-1][row];
+			if(data[col-1][row]!=null)
+				return UIUtilities.FormatToDecimal(data[col-1][row]);
+			else
+				return null;
 	}
 	
 	/**

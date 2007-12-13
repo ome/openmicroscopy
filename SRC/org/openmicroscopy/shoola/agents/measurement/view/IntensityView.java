@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,6 +43,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import javax.swing.AbstractListModel;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -51,13 +53,18 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListCellRenderer;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.table.JTableHeader;
 
 //Third-party libraries
 
@@ -87,6 +94,8 @@ import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ColourListRenderer;
+import org.openmicroscopy.shoola.agents.measurement.view.ROIAssistant.HeaderListModel;
+import org.openmicroscopy.shoola.agents.measurement.view.ROIAssistant.RowHeaderRenderer;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -263,7 +272,8 @@ class IntensityView
 	private 	ROIShape shape;
 	
 	private JDialog intensityDialog;
-	
+	private JScrollPane intensityTableScrollPane;
+	private JList intensityTableRowHeader;
 	/**
 	 * overridden version of {@line TabPaneInterface#getIndex()}
 	 * @return the index.
@@ -349,16 +359,26 @@ class IntensityView
 		this.setLayout(new BorderLayout());
 		this.add(scrollPanel, BorderLayout.CENTER);
 		intensityDialog.getContentPane().setLayout(new BorderLayout());
-		intensityDialog.getContentPane().add(new JScrollPane(table), BorderLayout.CENTER);
+		intensityTableScrollPane = new JScrollPane(table);
+
+		intensityTableRowHeader = new JList(new HeaderListModel(table.getRowCount()));
+		//table.setDefaultRenderer(JComponent.class, new TableComponentCellRenderer());
+
+		intensityTableRowHeader.setFixedCellHeight(table.getRowHeight());
+		intensityTableRowHeader.setFixedCellWidth(table.getColumnWidth());
+		intensityTableRowHeader.setCellRenderer(new RowHeaderRenderer(table));
+        intensityTableScrollPane.setRowHeaderView(intensityTableRowHeader);
+        //scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, cornerPane);
+		intensityDialog.getContentPane().add(intensityTableScrollPane, BorderLayout.CENTER);
 	}
 	
 	private JPanel createButtonPanel()
 	{
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		panel.add(channelSelection);
-		panel.add(showIntensityTable);
-		panel.add(saveButton);
+		panel.add(UIUtilities.buildComponentPanel(channelSelection));
+		panel.add(UIUtilities.buildComponentPanel(showIntensityTable));
+		panel.add(UIUtilities.buildComponentPanel(saveButton));
 		return panel;
 	}
 	
@@ -661,20 +681,20 @@ class IntensityView
 	{
 		data[count][5] = fig.getBounds().getX();
 		data[count][6] = fig.getBounds().getY();
-		data[count][7] = 	AnnotationKeys.WIDTH.get(shape);
-		data[count][8] = 	AnnotationKeys.HEIGHT.get(shape);
-		data[count][9] = 	AnnotationKeys.CENTREX.get(shape);
-		data[count][10] = 	AnnotationKeys.CENTREY.get(shape);
+		data[count][7] = AnnotationKeys.WIDTH.get(shape);
+		data[count][8] = AnnotationKeys.HEIGHT.get(shape);
+		data[count][9] = AnnotationKeys.CENTREX.get(shape);
+		data[count][10] = AnnotationKeys.CENTREY.get(shape);
 	}
 	
 	private void addValuesForLineFigure(ROIFigure fig, Double data[][], int channel, int count)
 	{
 		data[count][5] = AnnotationKeys.STARTPOINTX.get(shape);
 		data[count][6] = AnnotationKeys.STARTPOINTY.get(shape);
-		data[count][7] = 	AnnotationKeys.ENDPOINTX.get(shape);
-		data[count][8] = 	AnnotationKeys.ENDPOINTY.get(shape);
-		data[count][9] = 	AnnotationKeys.CENTREX.get(shape);
-		data[count][10] = 	AnnotationKeys.CENTREY.get(shape);
+		data[count][7] = AnnotationKeys.ENDPOINTX.get(shape);
+		data[count][8] = AnnotationKeys.ENDPOINTY.get(shape);
+		data[count][9] = AnnotationKeys.CENTREX.get(shape);
+		data[count][10] = AnnotationKeys.CENTREY.get(shape);
 	}
 	
 
@@ -685,8 +705,8 @@ class IntensityView
 	}
 	
 	/**
-	 * Set the values of the labels and textfield for area figures. 
-	 * @param fig The figure.
+	 * Sets the rows describing the stats being displayed in the summary table. 
+	 * @param statNames The list of stats being displayed in the summary table.
 	 */
 	private void addAreaStats(ArrayList<String> statNames)
 	{
@@ -699,9 +719,8 @@ class IntensityView
 	}
 
 	/**
-	 * Sets the values of the labels and textfield for line figures. 
-	 * 
-	 * @param fig The figure.
+	 * Sets the rows describing the stats being displayed in the summary table. 
+	 * @param statNames The list of stats being displayed in the summary table.
 	 */
 	private void addLineStats(ArrayList<String> statNames)
 	{
@@ -714,9 +733,8 @@ class IntensityView
 	}
 	
 	/**
-	 * Sets the values of the labels and textfield for point figures. 
-	 * 
-	 * @param fig The figure.
+	 * Sets the rows describing the stats being displayed in the summary table. 
+	 * @param statNames The list of stats being displayed in the summary table.
 	 */
 	private void addPointStats(ArrayList<String> statNames)
 	{
@@ -724,7 +742,13 @@ class IntensityView
 		statNames.add("X Centre");
 		statNames.add("Y Centre");
 	}
-	
+
+	/**
+	 * Called by the display analysis results method to build the results into
+	 * datastructures used by the intensityView.
+	 * @param coord
+	 * @param channel
+	 */
 	private void interpretResults(Coord3D coord, int channel)
 	{
 		Map<PlanePoint2D, Double> pixels=pixelStats.get(coord).get(channel);
@@ -770,6 +794,12 @@ class IntensityView
 		tableModel=new IntensityModel(data);
 		shape=shapeMap.get(coord);
 		table.setModel(tableModel); 
+		intensityTableRowHeader = new JList(new HeaderListModel(table.getRowCount()));
+		intensityTableRowHeader.setFixedCellHeight(table.getRowHeight());
+		intensityTableRowHeader.setFixedCellWidth(table.getColumnWidth());
+		intensityTableRowHeader.setCellRenderer(new RowHeaderRenderer(table));
+        intensityTableScrollPane.setRowHeaderView(intensityTableRowHeader);
+        
 	}
 		
 	/**
@@ -1082,4 +1112,86 @@ class IntensityView
 			state=State.READY;
 		}
 	}
+	
+	/**
+	 * Class to define the row header data, this is the Z section 
+	 * count in the ROIAssistant.
+	 */
+	class HeaderListModel
+		extends AbstractListModel
+	{
+
+		/** The header values. */
+		private String[] headers;
+    
+		/**
+		 * Instantiate the header values with a count from n to 1. 
+		 * @param n see above.
+		 */
+		public HeaderListModel(int n)
+		{
+			headers = new String[n];
+			for (int i = 0; i<n; i++) 
+				headers[i] = ""+(n-i);
+		}
+    
+		/** 
+		 * Get the size of the header. 
+		 * @return see above.
+		 */
+		public int getSize(){ return headers.length; }
+    
+		/** 
+		 * Get the header object at index.
+		 * @param index see above. 
+		 * @return see above.
+		 */
+		public Object getElementAt(int index) { return headers[index]; }
+    
+	}
+
+	/**
+	 * The renderer for the row header. 
+	 */
+	class RowHeaderRenderer
+    	extends JLabel 
+    	implements ListCellRenderer
+    {
+    
+		/** 
+		 * Instantiate row renderer for table.
+		 * @param table see above.
+		 */
+		public RowHeaderRenderer(JTable table)
+		{
+			if (table != null) 
+			{
+				JTableHeader header = table.getTableHeader();
+				setOpaque(true);
+				setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+				setHorizontalAlignment(CENTER);
+				setHorizontalTextPosition(CENTER);
+				setForeground(header.getForeground());
+				setBackground(header.getBackground());
+				setFont(header.getFont());
+			}
+		}
+    
+		/**
+		 * Return the component for the renderer.
+		 * @param list the list containing the headers render context.
+		 * @param value the value to be rendered.
+		 * @param index the index of the rendered object. 
+		 * @param isSelected is the  current header selected.
+		 * @param cellHasFocus has the cell focus.
+		 * @return the render component. 
+		 */
+		public Component getListCellRendererComponent(JList list, Object value, 
+            int index, boolean isSelected, boolean cellHasFocus)
+		{
+			setText((value == null) ? "" : value.toString());
+			return this;
+		}
+    
+    }
 }

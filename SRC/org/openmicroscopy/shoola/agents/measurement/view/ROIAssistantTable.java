@@ -25,16 +25,9 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.FontMetrics;
 
-import javax.swing.AbstractListModel;
-import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JTable;
-import javax.swing.ListCellRenderer;
-import javax.swing.UIManager;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
