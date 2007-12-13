@@ -817,4 +817,9 @@ class MeasurementViewerComponent
     	controller.toFront();
     }
     
+    
+    public Boolean isPixelDataAvailable()
+    {
+    	return model.isPixelDataAvailable();
+    }
 }

@@ -283,5 +283,7 @@ public interface MeasurementViewer
 	
 	/** Moves the window to the front. */
     public void toFront();
+    
+    public Boolean isPixelDataAvailable();
 	
 }

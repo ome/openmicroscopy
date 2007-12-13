@@ -154,6 +154,8 @@ class MeasurementViewerModel
     /** Has the data been saved since last update. 			*/
     private Boolean					hasBeenSaved;
     
+    private Boolean 				pixelDataAvailable;
+    
     /** 
      * Reference to the event posted to save the data when closing the
      * viewer.
@@ -200,6 +202,7 @@ class MeasurementViewerModel
 		roiComponent = new ROIComponent();
 		roiFileName = imageID+".xml";
 		hasBeenSaved = true;
+		pixelDataAvailable = false;
 	}
 	
 	/**
@@ -209,6 +212,16 @@ class MeasurementViewerModel
 	public ROIComponent getROIComponent()
 	{
 		return roiComponent;
+	}
+	
+	public Boolean isPixelDataAvailable()
+	{
+		return pixelDataAvailable;
+	}
+	
+	private void setPixelDataAvailable(Boolean value)
+	{
+		pixelDataAvailable = value;
 	}
 	
 	/**
@@ -228,7 +241,11 @@ class MeasurementViewerModel
 	 * @param z	The selected z-section.
 	 * @param t	The selected timepoint.
 	 */
-	void setPlane(int z, int t) { currentPlane = new Coord3D(z, t); }
+	void setPlane(int z, int t) 
+	{ 
+		currentPlane = new Coord3D(z, t);
+		setPixelDataAvailable(false);
+	}
 	
 	/**
      * Compares another model to this one to tell if they would result in
@@ -631,6 +648,7 @@ class MeasurementViewerModel
 		roiComponent.setMicronsPixelX(getPixelSizeX());
 		roiComponent.setMicronsPixelY(getPixelSizeY());
 		roiComponent.setMicronsPixelZ(getPixelSizeZ());
+		setPixelDataAvailable(false);
 	}
 	
 	
@@ -764,6 +782,7 @@ class MeasurementViewerModel
 	void setActiveChannels(Map activeChannels)
 	{
 		this.activeChannels = activeChannels;
+		setPixelDataAvailable(false);
 	}
 	
 	/**
@@ -877,6 +896,7 @@ class MeasurementViewerModel
 	void setAnalysisResults(Map analysisResults)
 	{
 		this.analysisResults = analysisResults;
+		this.setPixelDataAvailable(true);
 		state = MeasurementViewer.READY;
 	}
 	
@@ -1090,5 +1110,9 @@ class MeasurementViewerModel
 		roiComponent.addShape(id, coord, shape);
 	}
 	
+	public Double getPixelValue(int channel, int x, int y)
+	{
+		return null;
+	}
 	
 }	

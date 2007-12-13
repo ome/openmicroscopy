@@ -32,11 +32,14 @@ import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -86,7 +89,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
  */
 class MeasurementViewerUI 
 	extends TopWindow 
-	implements MouseListener
+	implements MouseListener, MouseMotionListener
 {
 
 	/** The message displayed when a ROI cannot be retrieved. */
@@ -292,6 +295,7 @@ class MeasurementViewerUI
 		tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
 		DrawingCanvasView canvasView = model.getDrawingView();
 		canvasView.addMouseListener(this);
+		canvasView.addMouseMotionListener(this);
 		addTabbedPaneListener();
         tabs.setAlignmentX(LEFT_ALIGNMENT);
 	}
@@ -1080,5 +1084,40 @@ class MeasurementViewerUI
 	 * @see MouseListener#mouseReleased(MouseEvent)
 	 */
 	public void mouseReleased(MouseEvent e) {}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
+	 */
+	public void mouseDragged(MouseEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
+	 */
+	public void mouseMoved(MouseEvent e)
+	{
+		/*if(model.isPixelDataAvailable())
+		{
+			Map activeChannels = model.getActiveChannels();
+			Iterator channelIterator = activeChannels.keySet().iterator();
+			TreeMap channelPixel = new TreeMap<Integer, Double>();
+			while(channelIterator.hasNext())
+			{
+				Integer index = (Integer)channelIterator.next();
+				channelPixel.put(index, model.getPixelValue(index, e.getX(), e.getY()));
+			}
+			String statusString = "";
+			channelIterator = channelPixel.keySet().iterator();
+			while(channelIterator.hasNext())
+			{
+				Integer index = (Integer)channelIterator.next();
+				statusString = statusString +
+				activeChannels.get(index) + " " + channelPixel.get(index);
+			}
+		}*/
+	}
     
 }
