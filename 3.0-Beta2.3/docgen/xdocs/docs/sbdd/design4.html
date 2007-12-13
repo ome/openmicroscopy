@@ -1,0 +1,47 @@
+<html>
+<head>
+  <title>Rationale</title>
+</head>
+<body>
+<p>This section provides a brief discussion and justification of the design choices 
+  underpinning the build system.</p>
+<p>First off, we chose Ant to implement the build system because of its excellent 
+  support for Java projects and its ubiquity among Java developers. We decided for 
+  version 1.6 (the latest stable release at the time of writing) because of the new 
+  features to support large projects, like <i>antlibs</i> and <i>imports</i>. In fact, 
+  this easily allowed us to split the build process in different categories of tasks 
+  and arrange the corresponding targets into separate files according to the category 
+  they belong to, thus making for improved understandability and ease of maintenance. 
+  Moreover, the definition of custom tasks could be factored out in a library file 
+  and shared among all build files. Some of those tasks were defined through scripts. 
+  The reason for that as opposed to a custom Ant task in Java is the reduced overhead 
+  and time required to write and integrate the code. Of course, this is feasible only 
+  in the case of tasks of moderate complexity.</p>
+<p>The little extra work required for the build tool was justified by the fact that 
+  this tool:</p>
+<ul>
+  <li><i>Simplifies the build configuration</i>. In fact, a prerequisite to running 
+    the build system under Ant is that all the external libraries are properly configured 
+    and linked to the Ant runtime. On top of that, extra work could be needed if different 
+    versions of the libraries required by the build system have already been configured 
+    on the machine where the build is run. (Recall that some of those libraries depend 
+    on specific versions of other libraries and newer versions wouldn't work.)</li>
+  <li><i>Avoids upgrading to Ant 1.6</i>. If you have an earlier version of Ant, you 
+    can still run a build with the build tool without having to upgrade.</li>
+  <li><i>Avoids keeping up with build system updates</i>. If you're using Ant to run 
+    the build system, then every time a new custom task and external library is added 
+    you'll have to update your local Ant configuration.</li>
+  <li><i>Allows to replicate a build on different machines</i>. In fact, when the 
+    build tool is used, the only thing that might change across machines is the JDK. 
+    In practice, this results in a likelihood close to 100% of reproducing a build.</li>
+  <li><i>Avoids potential problems in the future</i>. Even if a future version of 
+    Ant would break our build, we can still run it with the build tool.</li>
+</ul>
+<p>&#160;</p>
+<p>A final remark. All the libraries required by the build system are kept under the 
+  <i>build/tools</i> directory. We didn't put them under the <i>LIB</i> directory, 
+  because they have nothing to do with the application and test code. For the sake 
+  of clarity it's better to keep different things in different places.</p>
+</body>
+</html>
+
