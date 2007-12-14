@@ -23,7 +23,7 @@
 			<h:message styleClass="errorText" id="groupsError" for="groups" />
 
 			<div id="main"><div id="list"><t:dataTable id="data" styleClass="list" 
-				columnClasses="action,link,desc" var="group" 
+				columnClasses="action,link,link,desc" var="group" 
 				value="#{IAGManagerBean.groups}" preserveDataModel="false" rows="15">
 
 				<h:column>
@@ -71,6 +71,15 @@
 					<h:commandLink action="#{IAGManagerBean.editGroup}" title="#{msg.groupsEditGroup}">
 						<h:outputText value="#{group.name}" />
 					</h:commandLink>
+				</h:column>
+				
+				<h:column>
+					<f:facet name="header">
+						<h:panelGroup>
+							<h:outputText value=" #{msg.groupsOwner} " />
+						</h:panelGroup>
+					</f:facet>
+					<h:outputText value="#{group.details.owner.omeName}" />
 				</h:column>
 
 				<h:column>

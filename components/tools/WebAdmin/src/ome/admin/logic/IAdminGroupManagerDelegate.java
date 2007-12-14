@@ -232,8 +232,7 @@ public class IAdminGroupManagerDelegate implements java.io.Serializable {
      *            {@link ome.model.meta.ExperimenterGroup}.
      */
     public void addGroup(ExperimenterGroup group, Long ownerId) {
-        group.getDetails().setOwner(db.getExperimenter(ownerId));
-        db.createGroup(group);
+        db.createGroup(group, ownerId);
     }
 
     /**
@@ -281,8 +280,7 @@ public class IAdminGroupManagerDelegate implements java.io.Serializable {
      *            {@link ome.model.meta.ExperimenterGroup}.
      */
     public void updateGroup(ExperimenterGroup group, Long ownerId) {
-        group.getDetails().setOwner(db.getExperimenter(ownerId));
-        db.updateGroup(group);
+        db.updateGroup(group, ownerId);
     }
 
     /**

@@ -116,9 +116,13 @@ public class ConnectionDB {
 
     /**
      * Finds experimenters by one ldap attribute under the base
-     * @param base String (converted to {@link DistinguishedName})
-     * @param attribute String
-     * @param omeName String
+     * 
+     * @param base
+     *            String (converted to {@link DistinguishedName})
+     * @param attribute
+     *            String
+     * @param omeName
+     *            String
      * @return {@link java.util.List}<{@link ome.model.meta.Experimenter}>.
      */
     public List<Experimenter> findExperimenters(String base, String attribute,
@@ -128,9 +132,13 @@ public class ConnectionDB {
 
     /**
      * Finds experimenters by many ldap attributes under the base
-     * @param base String (converted to {@link DistinguishedName})
-     * @param attributes String
-     * @param values String
+     * 
+     * @param base
+     *            String (converted to {@link DistinguishedName})
+     * @param attributes
+     *            String
+     * @param values
+     *            String
      * @return {@link java.util.List}<{@link ome.model.meta.Experimenter}>.
      */
     public List<Experimenter> findExperimentersByAttributes(String base,
@@ -140,8 +148,11 @@ public class ConnectionDB {
 
     /**
      * Sets Dn for experimenter.
-     * @param id {@link Experimenter#ID}
-     * @param dn String
+     * 
+     * @param id
+     *            {@link Experimenter#ID}
+     * @param dn
+     *            String
      */
     public void setDn(Long id, String dn) {
         ldapService.setDN(id, dn);
@@ -580,13 +591,16 @@ public class ConnectionDB {
      * @param experimenterGroup
      *            {@link ome.model.meta.ExperimenterGroup}
      */
-    public void updateGroup(ExperimenterGroup experimenterGroup) {
+    public void updateGroup(ExperimenterGroup experimenterGroup, Long ownerId) {
         logger.info("updateGroup by user ID: " + userid);
         logger.info("ExperimenterGroup details [id: '"
                 + experimenterGroup.getId() + "', name: '"
                 + experimenterGroup.getName() + "', desc: '"
-                + experimenterGroup.getDescription() + "']");
+                + experimenterGroup.getDescription() + "', owner: '"
+                + ownerId + "']");
+        Experimenter exp = adminService.getExperimenter(ownerId);
         adminService.updateGroup(experimenterGroup);
+        adminService.setGroupOwner(experimenterGroup, exp);
     }
 
     /**
@@ -678,13 +692,16 @@ public class ConnectionDB {
      *            {@link ome.model.meta.ExperimenterGroup}
      * @return {@link ome.model.meta.ExperimenterGroup#getId()}
      */
-    public Long createGroup(ExperimenterGroup group) {
+    public Long createGroup(ExperimenterGroup group, Long ownerId) {
         logger.info("createGroup by user ID: '" + userid + "'");
         Long id = 0L;
         logger.info("ExperimenterGroup details [name: '" + group.getName()
                 + "', desc: '" + group.getDescription() + "', owner: '"
-                + group.getDetails().getOwner().getId() + "']");
+                + ownerId + "']");
+        Experimenter exp = adminService.getExperimenter(ownerId);
         id = adminService.createGroup(group);
+        ExperimenterGroup exgp = adminService.getGroup(id);
+        adminService.setGroupOwner(exgp, exp);
         logger.info("ExperimenterGroup created with ID: '" + id + "'");
         return id;
     }
