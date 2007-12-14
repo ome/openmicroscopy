@@ -29,7 +29,7 @@ package org.openmicroscopy.shoola.agents.util.finder;
 //Application-internal dependencies
 
 /** 
- * Interface that each finder should implement
+ * Interface that every finder should implement
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,5 +62,13 @@ public interface Finder
 	
 	/** Disposes of the finder when the results are found. */
 	public void dispose();
+	
+	/**
+	 * Sets the status.
+	 * 
+	 * @param status 	Pass <code>true</code> to hide the progess bar,
+	 * 					<code>false</code> otherwise.
+	 */
+	public void setStatus(boolean status);
 
 }

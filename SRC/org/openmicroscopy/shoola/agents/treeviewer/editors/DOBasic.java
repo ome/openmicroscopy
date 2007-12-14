@@ -129,7 +129,7 @@ class DOBasic
     void download()
     { 
     	Downloader dl = DownloaderFactory.getDownloader(
-				model.getParentModel().getUI(), TreeViewerAgent.getRegistry(), 
+				TreeViewerAgent.getRegistry(), 
 				model.getPixelsID());
 		dl.activate();
     }

@@ -485,7 +485,7 @@ class OMEROGateway
 		String table;
 		if (ImageAnnotation.class.equals(type)) {
 			sql = "select obj from ImageAnnotation as obj " +
-					"left outer join fetch obj.details.creationEvent as d" +
+					"left outer join fetch obj.details.creationEvent as d " +
 					"where ";
 			for (int j = 0; j < names.length; j++) {
 				if (j != 0) sql += " or ";
@@ -493,8 +493,7 @@ class OMEROGateway
 			}
 		} else if (DatasetAnnotation.class.equals(type)) {
 			sql = "select obj from DatasetAnnotation as obj " +
-			"left outer join fetch obj.details.creationEvent as d" +
-			"where ";
+			"left outer join fetch obj.details.creationEvent as d where ";
 			for (int j = 0; j < names.length; j++) {
 				if (j != 0) sql += " or ";
 				sql += "lower(obj.content) like :"+names[j];
@@ -503,13 +502,12 @@ class OMEROGateway
 			table = getTableForLink(Category.class);
 			sql = "select obj from "+table+" as obj " +
 					"left outer join fetch obj.details.creationEvent " +
-					"as d " +
-					"where ";
+					"as d where ";
 			//"lower(link.parent.name) like :name or " +
             // "lower(link.parent.description) like :name";
 			for (int j = 0; j < names.length; j++) {
 				if (j != 0) sql += " or ";
-				sql += "lower(obj.parent.name) = :"+names[j];
+				sql += "lower(obj.parent.name) like :"+names[j];
 			}
 		} else if (ImageData.class.equals(type)) {
 			sql =  "select obj from Image as obj left outer join fetch " +
@@ -519,7 +517,7 @@ class OMEROGateway
 			for (int j = 0; j < names.length; j++) {
 				if (j != 0) sql += " or ";
 				sql += "lower(obj.name) like :"+names[j];
-				sql += "or lower(obj.description) like :"+names[j];
+				sql += " or lower(obj.description) like :"+names[j];
 			}
 		} else if (CategoryGroupData.class.equals(type)) {
 			table = getTableForLink(CategoryGroup.class);
@@ -1404,14 +1402,12 @@ class OMEROGateway
 	 * @param path		The location where to save the files.
 	 * @param pixelsID 	The ID of the pixels set.
 	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	Map<Integer, List> getArchivedFiles(String path, long pixelsID) 
-		throws DSOutOfServiceException, DSAccessException
+		throws DSAccessException
 	{
-
 		IQuery service = getQueryService();
 		List files = null;
 		try {
@@ -1887,74 +1883,6 @@ class OMEROGateway
 		
 		return null;
 	}
-	
-	/**
-	 * Searches for the categories whose name contains the passed term.
-	 * Returns a collection of objects.
-	 * 
-	 * @param klass The class identify the object to search for.
-	 * @param term
-	 * @return See above.
-	 *  @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	List searchFor(Class klass, String term)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		try {
-			//TODO modify the call 
-			IQuery service = getQueryService();
-			Parameters param = new Parameters();
-			param.addString("name", "%"+term.toLowerCase()+"%");
-			String sql;
-			String table;
-			if (ImageAnnotation.class.equals(klass)) {
-				sql = "select obj from ImageAnnotation as obj " 
-                + "where lower(obj.content) like :name";
-				return service.findAllByQuery(sql, param);
-			} else if (DatasetAnnotation.class.equals(klass)) {
-				sql = "select obj from DatasetAnnotation as obj " 
-	                + "where lower(obj.content) like :name";
-					return service.findAllByQuery(sql, param);
-			} else if (CategoryData.class.equals(klass)) {
-				table = getTableForLink(Category.class);
-				sql = "select link from "+table+" as link where " +
-				"lower(link.parent.name) like :name or " +
-	             "lower(link.parent.description) like :name";
-				return service.findAllByQuery(sql, param);
-			} else if (ImageData.class.equals(klass)) {
-				sql =  "select obj from Image as obj " 
-            	+ "where lower(obj.name) like :name or " +
-            		"lower(obj.description) like :name";
-				return service.findAllByQuery(sql, param);
-			} else if (CategoryGroupData.class.equals(klass)) {
-				table = getTableForLink(CategoryGroup.class);
-				sql = "select link from "+table+" as link " +
-						"where lower(link.parent.name) like :name or " +
-						"lower(link.parent.description) like :name";
-				List l = service.findAllByQuery(sql, param);
-				if (l != null && l.size() > 0) {
-					Iterator i = l.iterator();
-					Set ids = new HashSet();
-					while (i.hasNext()) {
-						ids.add(((ILink) i.next()).getChild().getId());
-					}
-					table = getTableForLink(Category.class);
-					sql = "select link from "+table+" as link where " +
-					"link.parent.id in (:parentIDs)";
-					param = new Parameters();
-					param.addSet("parentIDs", ids);
-					return service.findAllByQuery(sql, param);
-				}
-			}
-			return null;
-		} catch (Exception e) {
-			handleException(e, "Search not valid");
-		}
-		return null;
-	}
 
 	/**
 	 * Searches for the categories whose name contains the passed term.
@@ -1984,10 +1912,12 @@ class OMEROGateway
 			term = (String)  i.next();
 			if (term != null) {
 				names[index] = "name"+index;
+				/*
 				if (CategoryData.class.equals(type) ||
 						CategoryGroupData.class.equals(type)) {
 					param.addString(names[index], term.toLowerCase());
 				} else
+				*/
 					param.addString(names[index], "%"+term.toLowerCase()+"%");
 				index++;
 			}
@@ -2014,7 +1944,7 @@ class OMEROGateway
 				List l = service.findAllByQuery(sql, param);
 				if (l != null && l.size() > 0) {
 					i = l.iterator();
-					Set ids = new HashSet();
+					Set<Long> ids = new HashSet<Long>();
 					while (i.hasNext()) {
 						ids.add(((ILink) i.next()).getChild().getId());
 					}
@@ -2031,7 +1961,7 @@ class OMEROGateway
 		} catch (Exception e) {
 			handleException(e, "Search not valid");
 		}
-		return null;
+		return new ArrayList();
 	}
 	
 	/**
@@ -2063,10 +1993,12 @@ class OMEROGateway
 			term = (String)  i.next();
 			if (term != null) {
 				names[index] = "name"+index;
+				/*
 				if (CategoryData.class.equals(type)) {
 					param.addString(names[index], term.toLowerCase()
 							);
 				} else
+				*/
 				param.addString(names[index], "%"+term.toLowerCase()+"%");
 				index++;
 			}
@@ -2156,7 +2088,7 @@ class OMEROGateway
 		} catch (Exception e) {
 			handleException(e, "Search not valid");
 		}
-		return null;
+		return new ArrayList();
 	}
 	
 	

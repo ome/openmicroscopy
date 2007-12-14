@@ -125,6 +125,14 @@ public class FileChooser
 			public void windowClosing(WindowEvent e) {
 				cancelSelection();
 			}
+			
+			/**
+			 * Requests focus on name to enable the <code>Approve button</code>.
+			 * @see WindowAdapter#windowOpened(WindowEvent)
+			 */
+			public void windowOpened(WindowEvent e) {
+				uiDelegate.requestFocusOnName();
+			}
 		});
     }
     

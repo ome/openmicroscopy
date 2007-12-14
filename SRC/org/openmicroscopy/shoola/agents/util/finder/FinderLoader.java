@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.agents.util.finder;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.annotations.ImageAnnotation;
+
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
@@ -100,7 +102,7 @@ public abstract class FinderLoader
 			case IMAGES:
 				return ImageData.class;
 			case ANNOTATIONS:
-				return AnnotationData.class;
+				return ImageAnnotation.class;
 			case PROJECTS:
 				return ProjectData.class;
 			case DATASETS:
@@ -155,6 +157,7 @@ public abstract class FinderLoader
         registry.getLogger().info(this, info);
         registry.getUserNotifier().notifyInfo("Data Retrieval Cancellation", 
                                               info);
+        viewer.setStatus(false);
     }
     
     /**
@@ -171,6 +174,7 @@ public abstract class FinderLoader
         registry.getLogger().error(this, msg);
         registry.getUserNotifier().notifyError("Data Retrieval Failure", 
                                                s, exc);
+        viewer.setStatus(false);
     }
     
     /** Fires an asynchronous data loading. */

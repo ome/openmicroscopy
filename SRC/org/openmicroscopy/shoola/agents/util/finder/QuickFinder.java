@@ -153,4 +153,13 @@ public class QuickFinder
 		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 	
+	/** 
+	 * Implemented as specified by {@link Finder} I/F
+	 * @see Finder#setStatus(boolean)
+	 */
+	public void setStatus(boolean status)
+	{
+		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+	
 }

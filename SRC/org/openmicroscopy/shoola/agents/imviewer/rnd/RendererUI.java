@@ -159,7 +159,7 @@ class RendererUI
 		resetButton.addActionListener(this);
 		saveButton = new JButton(icons.getIcon(IconManager.SAVE_SETTINGS));
 		saveButton.setToolTipText(
-				UIUtilities.formatToolTipText("Save the current settings."));
+				UIUtilities.formatToolTipText("Saves the current settings."));
 		saveButton.setActionCommand(""+SAVE);
 		saveButton.addActionListener(this);
 		//UIUtilities.unifiedButtonLookAndFeel(resetButton);

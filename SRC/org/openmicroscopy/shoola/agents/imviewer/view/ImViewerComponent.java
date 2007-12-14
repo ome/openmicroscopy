@@ -1701,10 +1701,23 @@ class ImViewerComponent
 			if (newPlane) {
 				MessageBox msg = new MessageBox(view, "Invalid Plane", 
 						"The selected plane contains invalid value. " +
-				"Do you want to close the viewer?");
+				"Do you want to reload it?");
+				if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
+					logger.debug(this, "Reload rendering Engine.");
+					model.fireRenderingControlReloading();
+					fireStateChange();
+				} else {
+					logger.debug(this, e.getMessage());
+					discard();
+				}
+				/*
 				if (msg.centerMsgBox() == MessageBox.YES_OPTION) 
 					discard();
-				else setImage(null);
+				else {
+					//TODO: reset to previous history item.
+					setImage(null);
+				}
+				*/
 			} else {
 				un.notifyError(ImViewerAgent.ERROR, logMsg.toString(), 
 						e.getCause());
@@ -1731,7 +1744,7 @@ class ImViewerComponent
 	 */
 	public void download()
 	{
-		Downloader dl = DownloaderFactory.getDownloader(view, 
+		Downloader dl = DownloaderFactory.getDownloader(
 				ImViewerAgent.getRegistry(), model.getPixelsID());
 		dl.activate();
 	}

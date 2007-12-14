@@ -148,7 +148,7 @@ public class AdvancedFinderLoader
         	
         	UserNotifier un = registry.getUserNotifier();
         	un.notifyInfo("Search", "No results matching your criteria.");
-        	((AdvancedFinder) viewer).setSearchEnabled(false);
+        	viewer.setStatus(false);
         	return;
         }
        

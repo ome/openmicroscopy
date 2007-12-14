@@ -83,11 +83,10 @@ class CustomizedFileChooser
 	{
 		nameArea = (JTextField) 
 					UIUtilities.findComponent(this, JTextField.class);
-		if (nameArea != null)
-		{
+		if (nameArea != null) {
 			nameArea.setVisible(true);
 			nameArea.getDocument().addDocumentListener(this);
-			if(model.getDialogType()==FileChooser.LOAD)
+			if (model.getDialogType() == FileChooser.LOAD)
 				nameArea.addKeyListener(this);
 		}
 	}
@@ -135,7 +134,13 @@ class CustomizedFileChooser
 		        if (s == null) return;
 		        if (s == null || s.equals("") || !(new File(s).exists()))
 		            setCurrentDirectory(getFileSystemView().getHomeDirectory());
-		        else setCurrentDirectory(new File(s));  
+		        else {
+		        	setSelectedFile(new File(s));
+		        	if (nameArea != null) {
+		        		String[] n = UIUtilities.splitString(s);
+		        		if (n.length > 0) nameArea.setText(n[n.length-1]);
+		        	}
+		        }
 		       	return;
 		}
 	}
@@ -390,5 +395,19 @@ class CustomizedFileChooser
 	 * @see KeyListener#keyTyped(KeyEvent)
 	 */
 	public void keyTyped(KeyEvent e) {}
+
+	/** 
+	 * Enables the <code>ApproveButton</code> if there is text
+	 * entered in the {@link #nameArea}.
+	 */
+	void requestFocusOnName()
+	{
+		if (nameArea != null) {
+			String text = nameArea.getText();
+			text = text.trim();
+			view.setControlsEnabled(text.length() > 0);
+		}
+		
+	}
 	
 }

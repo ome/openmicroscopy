@@ -50,6 +50,9 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGImageDecoder;
+
 
 /** 
  * UI-side implementation of the {@link RenderingControl} interface.
@@ -324,7 +327,9 @@ class RenderingControlProxy
 			byte[] values = servant.renderCompressed(pDef);
 			initializeCache(pDef, values.length);
 			cache(pDef, values);
-			return ImageIO.read(new ByteArrayInputStream(values));
+			JPEGImageDecoder decoder = 
+				JPEGCodec.createJPEGDecoder(new ByteArrayInputStream(values));
+			return decoder.decodeAsBufferedImage();
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render the compressed image.");
 		}

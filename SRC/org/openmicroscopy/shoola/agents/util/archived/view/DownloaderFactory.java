@@ -55,16 +55,13 @@ public class DownloaderFactory
     /**
      * Returns the {@link Downloader}.
      * 
-     * @param parent	The owner of the dialog.
      * @param ctx 		A reference to the {@link Registry}.
      * @param pixelsID	The pixels set ID.
      * @return See above.
      */
-    public static Downloader getDownloader(JFrame parent, Registry ctx, 
-    										long pixelsID)
+    public static Downloader getDownloader(Registry ctx, long pixelsID)
     {
-    	if (registry == null) registry = ctx;
-    	if (owner == null) owner = parent;
+    	if (singleton.registry == null) singleton.registry = ctx;
     	return singleton.createDownloader(pixelsID);
     }
     
@@ -73,20 +70,20 @@ public class DownloaderFactory
      * 
      * @return A reference to the {@link Registry}.
      */
-    public static Registry getRegistry() { return registry; }
+    public static Registry getRegistry() { return singleton.registry; }
     
     /**
      * Helper method. 
      * 
      * @return A reference to the {@link JFrame owner}.
      */
-    public static JFrame getOwner() { return owner; }
+    public static JFrame getOwner()
+    { 
+    	return getRegistry().getTaskBar().getFrame(); 
+    }
     
     /** Reference to the registry. */
-    private static Registry         registry;
-    
-    /** The owner of the dialog. */
-    private static JFrame			owner;
+    private Registry         registry;
     
     /** Creates a new instance.*/
     private DownloaderFactory() {}

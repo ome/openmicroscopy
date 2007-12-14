@@ -234,6 +234,15 @@ public class AdvancedFinder
 		cancel();
 	}
 
+	/** 
+	 * Implemented as specified by {@link Finder} I/F
+	 * @see Finder#setStatus(boolean)
+	 */
+	public void setStatus(boolean status)
+	{
+		setSearchEnabled(status);
+	}
+	
 	/**
 	 * Reacts to the property fired by the <code>SearchComponent</code>
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

@@ -164,7 +164,7 @@ class DomainPane
     private GraphicsPane    			graphicsPane;
     
     /** The button will display the advanced mapping options when clicked. */
-    private JButton						advancedOptionsButton;
+    //private JButton						advancedOptionsButton;
     
     /** A flag denoting whether the advanced options are showing. */
     private boolean 					isAdvancedSettingsShowing;
@@ -229,10 +229,12 @@ class DomainPane
         channelList = new ArrayList<ChannelToggleButton>();
         channelButtonPanel = createChannelButtons();
         isAdvancedSettingsShowing = false;
+        /**
         advancedOptionsButton = new JButton(SHOW_ADVANCED_OPTIONS);
         advancedOptionsButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { handleClick(); }
 		});
+		*/
     }
     
     /** Resets the value of the bit resolution. */
@@ -255,6 +257,7 @@ class DomainPane
 	 */
 	private void handleClick()
 	{
+		/*
 		if (isAdvancedSettingsShowing) {
 			advancedOptionsButton.setText(SHOW_ADVANCED_OPTIONS);
 			remove(advancedPanel);
@@ -262,6 +265,7 @@ class DomainPane
 			advancedOptionsButton.setText(HIDE_ADVANCED_OPTIONS);
 			add(advancedPanel);
 		}
+		*/
 		controller.resizeRenderUI();
 		isAdvancedSettingsShowing = !isAdvancedSettingsShowing;
 	}

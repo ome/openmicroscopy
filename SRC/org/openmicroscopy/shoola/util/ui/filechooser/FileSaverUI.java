@@ -259,8 +259,7 @@ class FileSaverUI
 		p.add(controlsPanel, BorderLayout.SOUTH);
 		IconManager im = IconManager.getInstance();
 		Icon icon;
-		switch(model.getDialogType())
-		{
+		switch(model.getDialogType()) {
 			case FileChooser.SAVE:
 				icon = im.getIcon(IconManager.SAVE_48);
 			case FileChooser.LOAD:
@@ -424,6 +423,12 @@ class FileSaverUI
     	controlsPanel.add(component, BorderLayout.NORTH);
     }
     
+    /** 
+	 * Enables the <code>ApproveButton</code> if there is text
+	 * entered in the <code>Name area</code>.
+	 */
+    void requestFocusOnName() { chooser.requestFocusOnName(); }
+    
 	/**
 	 * Reacts to click on buttons.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -457,6 +462,8 @@ class FileSaverUI
 		String name = (String) evt.getNewValue();
 		chooser.createFolder(name);
 	}
+
+	
 	
 }
 
