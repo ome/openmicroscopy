@@ -45,6 +45,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -57,11 +58,11 @@ import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditorFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
-import org.openmicroscopy.shoola.agents.treeviewer.util.UserManagerDialog;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.classifier.view.Classifier;
 import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
 import org.openmicroscopy.shoola.agents.util.tagging.view.TaggerFactory;
+import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -128,8 +129,10 @@ class TreeViewerComponent
 	{
 		if (switchUserDialog == null) {
 			JFrame f = (JFrame) TreeViewerAgent.getRegistry().getTaskBar();
+			IconManager icons = IconManager.getInstance();
 			switchUserDialog = new UserManagerDialog(f, model.getUserDetails(), 
-					map);
+					map, icons.getIcon(IconManager.OWNER), 
+					icons.getIcon(IconManager.OWNER_48));
 			switchUserDialog.addPropertyChangeListener(controller);
 			//switchUserDialog.pack();
 			switchUserDialog.setDefaultSize();
@@ -1089,18 +1092,6 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setAvailableGroups(Map)
-	 */
-	public void setAvailableGroups(Map map)
-	{
-		if (model.getState() != LOADING_DATA) return;
-		model.setUserGroups(map);
-		displayUserGroups(map);
-		fireStateChange();
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#retrieveUserGroups()
 	 */
 	public void retrieveUserGroups()
@@ -1108,11 +1099,7 @@ class TreeViewerComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
-		Map m = model.getAvailableUserGroups();
-		if (m == null) {
-			model.fireUserGroupsRetrieval();
-			fireStateChange();
-		} else displayUserGroups(m);
+		displayUserGroups(model.getAvailableUserGroups());
 	}
 
 	/**

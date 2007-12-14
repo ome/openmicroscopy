@@ -82,8 +82,8 @@ public class SearchAction
      */
     public void actionPerformed(ActionEvent e)
     {
-    	AdvancedFinder dialog = FinderFactory.getAdvancedFinder(model.getUI(),
-    			ImViewerAgent.getRegistry());
+    	AdvancedFinder dialog = FinderFactory.getAdvancedFinder(
+    									ImViewerAgent.getRegistry());
         UIUtilities.centerAndShow(dialog);
     }
     

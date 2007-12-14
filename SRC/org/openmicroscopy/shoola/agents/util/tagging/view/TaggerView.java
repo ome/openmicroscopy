@@ -61,9 +61,6 @@ import pojos.ExperimenterData;
 class TaggerView
 	extends JDialog
 {
-
-	/** Separator between words. */
-	static final String				SEPARATOR =",";
 	
 	/** The title of the dialog. */
 	private static final String 	TITLE = "Tagging editor";

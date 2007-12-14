@@ -25,8 +25,7 @@ package org.openmicroscopy.shoola.agents.util.finder;
 
 
 //Java imports
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.awt.Cursor;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -34,12 +33,10 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
-import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 
 /** 
- * 
+ * Class used to perform quick search.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -55,15 +52,12 @@ public class QuickFinder
 	extends QuickSearch
 	implements Finder
 {
-	
-	/** Reference to the registry. */
-	private Registry 				registry;
-	
+
 	/** Reference to the component handling data. */ 
 	private List<FinderLoader>	finderHandlers;
 	
 	/** One of the constants defined by this class. */
-	private int						state;
+	private int					state;
 	
 	/** 
 	 * Searches for the passed values.
@@ -107,17 +101,9 @@ public class QuickFinder
 		finderHandlers.add(handler);
 	}
 	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param registry Helper reference to the registry. Mustn't be 
-	 * 					<code>null</code>.
-	 */
-	public QuickFinder(Registry registry)
+	/** Creates a new instance. */
+	public QuickFinder()
 	{
-		if (registry == null)
-			throw new IllegalArgumentException("No registry.");
-		this.registry = registry;
 		finderHandlers = new ArrayList<FinderLoader>();
 		setDefaultSearchContext();
 		addPropertyChangeListener(QUICK_SEARCH_PROPERTY, this);
@@ -138,6 +124,7 @@ public class QuickFinder
 			case ANNOTATIONS:
 				fireAnnotationsRetrieval(selectedNode.getResult());
 		}
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	}
 	/** 
 	 * Implemented as specified by {@link Finder} I/F
@@ -156,5 +143,14 @@ public class QuickFinder
 	 * @see Finder#getState()
 	 */
 	public int getState() { return state; }
+
+	/** 
+	 * Implemented as specified by {@link Finder} I/F
+	 * @see Finder#dispose()
+	 */
+	public void dispose()
+	{
+		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
 	
 }

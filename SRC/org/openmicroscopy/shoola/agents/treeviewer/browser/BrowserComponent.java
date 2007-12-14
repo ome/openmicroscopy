@@ -1105,6 +1105,7 @@ class BrowserComponent
 		if (node == null) 
 			throw new IllegalArgumentException("No node specified.");
 		TreeImageDisplay n = controller.getDataOwner(node);
+		if (n == null) return model.getUserDetails();
 		return (ExperimenterData) n.getUserObject();
 	}
 

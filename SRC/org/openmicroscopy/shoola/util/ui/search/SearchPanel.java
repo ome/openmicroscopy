@@ -33,12 +33,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
 
 
 
@@ -97,6 +98,9 @@ class SearchPanel
 											"("+DATE_FORMAT+")";
 	}
 
+	/** The button used to display the available users. */
+	private JButton					userButton;
+	
 	/** Fields with the possible users. */
 	private JTextField 				authors;
 	
@@ -138,6 +142,11 @@ class SearchPanel
 		dates = new JComboBox(dateOptions);
 		dates.addActionListener(model);
 		dates.setActionCommand(""+SearchComponent.DATE);
+		userButton = new JButton(icons.getIcon(IconManager.OWNER));
+		userButton.setToolTipText("Selects an user");
+		UIUtilities.unifiedButtonLookAndFeel(userButton);
+		userButton.addActionListener(model);
+		userButton.setActionCommand(""+SearchComponent.OWNER);
 	}
 	
 	/** 
@@ -169,8 +178,6 @@ class SearchPanel
 		
 		List<SearchObject> nodes = model.getNodes();
 		SearchObject n;
-		
-		
 		int j = 0;
 		int m = nodes.size();
 		double[] rows;
@@ -198,7 +205,10 @@ class SearchPanel
 			p.add(box, j+", "+row+", l, c");
 			scopes.put(n.getIndex(), box);
 		}
-		p.setBorder(BorderFactory.createEtchedBorder());
+		TitledBorder border = new TitledBorder("Scope");
+		Font f = p.getFont();
+		border.setTitleFont(f.deriveFont(Font.BOLD));
+		p.setBorder(border);
 		return p;
 	}
 	
@@ -211,7 +221,8 @@ class SearchPanel
 	{
 		//TODO: review layout
 		JPanel searchPanel= new JPanel();
-		double[][] tl = {{TableLayout.PREFERRED, 10, TableLayout.FILL}, //columns
+		double[][] tl = {{TableLayout.PREFERRED, 10, TableLayout.FILL, 
+						TableLayout.PREFERRED}, //columns
 				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5,
 			     TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
 			     TableLayout.PREFERRED, 5, 
@@ -225,6 +236,8 @@ class SearchPanel
 		//Author
 		searchPanel.add(UIUtilities.setTextFont("Users"), "0, 2, l, c");
 		searchPanel.add(authors, "2, 2, l, c");
+		searchPanel.add(userButton, "3, 2, l, c");
+		
 		JLabel label = new JLabel(AUTHORS_EXAMPLE);
 		label.setFont(FONT);
 		searchPanel.add(label, "2, 4, l, c");
@@ -236,7 +249,7 @@ class SearchPanel
 		//From
 		searchPanel.add(buildTimeRangePanel(), "0, 8, 2, 8");
 		//Context
-		searchPanel.add(UIUtilities.setTextFont("Scope"), "0, 10, l, c");
+		//searchPanel.add(UIUtilities.setTextFont("Scope"), "0, 10, l, c");
 		searchPanel.add(buildScopePanel(), "0, 11, 2, 11");
 		
 		return UIUtilities.buildComponentPanel(searchPanel);
@@ -335,6 +348,9 @@ class SearchPanel
 	 */
 	List<String> getTerms() 
 	{
+		return SearchUtil.splitTerms(termsArea.getText(), 
+				SearchUtil.SEARCH_SEPARATOR);
+		/*
 		List<String> l = new ArrayList<String>();
 		String text = termsArea.getText();
 		if (text == null) return l;
@@ -349,6 +365,7 @@ class SearchPanel
 			}
 		}
 		return l;
+		*/
 	}
 	
 	/**
@@ -358,26 +375,62 @@ class SearchPanel
 	 */
 	List<String> getUsers()
 	{
+		return SearchUtil.splitTerms(authors.getText(), 
+									SearchUtil.SEARCH_SEPARATOR);
+		/*
 		List<String> l = new ArrayList<String>();
 		String text = authors.getText();
 		if (text == null) return l;
 		text = text.trim();
-		String[] r = text.split(" ");
+		String[] r = text.split(SearchUtil.SEARCH_SEPARATOR);
 		String value; 
 		for (int i = 0; i < r.length; i++) {
 			value = r[i];
 			if (value != null) {
-				value.trim();
-				if ( value.length() != 0) l.add(value);
+				value = value.trim();
+				if (value.length() != 0) l.add(value);
 			}
 		}
 		return l;
+		*/
 	}
 	
 	/** Indicates to set the focus on the search area. */
 	void setFocusOnSearch()
 	{
 		if (termsArea != null) termsArea.requestFocus();
+	}
+	
+	/**
+	 * Sets the name of the selected user.
+	 * 
+	 * @param name The string to set.
+	 */
+	void setUserString(String name)
+	{
+		String text = authors.getText();
+		String[] values = text.split(SearchUtil.SEARCH_SEPARATOR);
+		String n;
+		String v = "";
+		boolean exist = false;
+		//System.err.println(values.);
+		int l = values.length;
+		for (int i = 0; i < l; i++) {
+			n = values[i].trim();
+			if (n.length() >0) {
+				v += n;
+				if (name.equals(n)) {
+					if (i != (l-1))
+						v += SearchUtil.SEARCH_SEPARATOR
+								+SearchUtil.NAME_SEPARATOR;
+					exist = true;
+				} else v += SearchUtil.SEARCH_SEPARATOR
+							+SearchUtil.NAME_SEPARATOR;
+			}
+		}
+		if (!exist) v += name;
+		else v = v.substring(0, text.length()-1);
+		authors.setText(v);
 	}
 	
 }

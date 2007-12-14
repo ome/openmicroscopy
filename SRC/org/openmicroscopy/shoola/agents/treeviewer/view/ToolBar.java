@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifierAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
+import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.agents.util.finder.QuickFinder;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -151,7 +152,7 @@ class ToolBar
      */
     private JComponent createQuickSearch()
     {
-    	finder = new QuickFinder(TreeViewerAgent.getRegistry());
+    	finder = FinderFactory.getQuickFinder(TreeViewerAgent.getRegistry());
     	return finder;
     }
     

@@ -54,13 +54,14 @@ public class LookupNames
     public static final String USER_CREDENTIALS = "/user/credentials";
     
     /**
-     * Field to access the user credentials. To remove when we have no
-     * dependencies to OME-JAVA.
+     * Field to access the user's details.
      */
     public static final String CURRENT_USER_DETAILS = "/current_user/details";
     
-    /** Field to access the user's details.*/
-	public static final String USER_DETAILS = "/user/details";
+    /**
+     * Field to access the users' groups credentials.
+     */
+    public static final String USER_GROUP_DETAILS = "/userGroup/details";
     
     /** Field to access the <code>agents</code> package. */
 	public static final String AGENTS = "/agents";

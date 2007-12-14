@@ -25,14 +25,14 @@ package org.openmicroscopy.shoola.agents.util.finder;
 
 //Java imports
 import javax.swing.JFrame;
-import org.openmicroscopy.shoola.env.config.Registry;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
- * 
+ * Factory to create {@link Finder}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -53,50 +53,85 @@ public class FinderFactory
 	/**
 	 * Creates or recycles an advanced search.
 	 * 
-	 * @param owner		The owner of the frame.
 	 * @param ctx	Reference to the registry. Mustn't be <code>null</code>.
 	 * @return See above.
 	 */
-	public static AdvancedFinder getAdvancedFinder(JFrame owner, Registry ctx)
+	public static AdvancedFinder getAdvancedFinder(Registry ctx)
 	{
-		if (registry == null) registry = ctx;
-		return singleton.createFinder(owner);
+		if (singleton.registry == null) singleton.registry = ctx;
+		return (AdvancedFinder) singleton.createFinder();
 	}
 	
+	/**
+	 * Creates or recycles an advanced search.
+	 * 
+	 * @param ctx	Reference to the registry. Mustn't be <code>null</code>.
+	 * @return See above.
+	 */
+	public static QuickFinder getQuickFinder(Registry ctx)
+	{
+		if (singleton.registry == null) singleton.registry = ctx;
+		return (QuickFinder) singleton.createQuickFinder();
+	}
 	 /**
      * Helper method. 
      * 
      * @return A reference to the {@link Registry}.
      */
-    public static Registry getRegistry() { return registry; }
+    public static Registry getRegistry() { return singleton.registry; }
     
+    /**
+	 * Returns the task bar frame.
+	 * 
+	 * @return See above.
+	 */
+	public static JFrame getRefFrame()
+	{
+		return singleton.registry.getTaskBar().getFrame();
+	}
+	
 	 /** Reference to the registry. */
-    private static Registry         registry;
+    private Registry	registry;
     
     /** The tracked component. */
-    private AdvancedFinder			advancedFinder;
+    private Finder		finder;
     
     /** Creates a new instance. */
 	private FinderFactory()
 	{
-		advancedFinder = null;
+		finder = null;
 	}
 	
 	/**
 	 * Creates or recycles the finder.
 	 * 
-	 * @param owner The owner of the frame.
 	 * @return See above.
 	 */
-	private AdvancedFinder createFinder(JFrame owner)
+	private Finder createFinder()
 	{
 		//if (advancedFinder != null) {
 			//advancedFinder.setFocusOnSearch();
 			//advancedFinder.set
 		//	return advancedFinder;
 		//}
-		advancedFinder = new AdvancedFinder(owner);
-		return advancedFinder;
+		finder = new AdvancedFinder();
+		return finder;
+	}
+	
+	/**
+	 * Creates the finder.
+	 * 
+	 * @return See above.
+	 */
+	private Finder createQuickFinder()
+	{
+		//if (advancedFinder != null) {
+			//advancedFinder.setFocusOnSearch();
+			//advancedFinder.set
+		//	return advancedFinder;
+		//}
+		finder = new QuickFinder();
+		return finder;
 	}
 	
 }

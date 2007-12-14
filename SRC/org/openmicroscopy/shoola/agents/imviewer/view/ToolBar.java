@@ -42,6 +42,7 @@ import javax.swing.JToolBar;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ClassifyAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
+import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.agents.util.finder.QuickFinder;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -192,7 +193,7 @@ class ToolBar
      */
     private JComponent createQuickSearch()
     {
-    	finder = new QuickFinder(ImViewerAgent.getRegistry());
+    	finder = FinderFactory.getQuickFinder(ImViewerAgent.getRegistry());
     	return finder;
     }
     

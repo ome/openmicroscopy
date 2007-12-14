@@ -48,6 +48,7 @@ import javax.swing.event.MenuListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AnnotateAction;
@@ -85,9 +86,10 @@ import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
-import org.openmicroscopy.shoola.agents.treeviewer.util.UserManagerDialog;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
+import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -616,7 +618,7 @@ class TreeViewerControl
 			while (i.hasNext()) 
 				((Browser) i.next()).refreshTree();
 
-		} else if (name.equals(UserManagerDialog.USER_SWITCH_PROPERTY)) {
+		} else if (UserManagerDialog.USER_SWITCH_PROPERTY.equals(name)) {
 			Map m = (Map) pce.getNewValue();
 			Iterator i = m.keySet().iterator();
 			Long groupID;
@@ -627,6 +629,9 @@ class TreeViewerControl
 				model.setHierarchyRoot(groupID, d);
 				break;
 			}
+		} else if (UserManagerDialog.NO_USER_SWITCH_PROPERTY.equals(name)) {
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("User Selection", "Please select a user first.");
 		} else if (ProfileEditor.EXPERIMENTER_CHANGED_PROPERTY.equals(name)) {
 			Map browsers = model.getBrowsers();
 			Iterator i = browsers.values().iterator();

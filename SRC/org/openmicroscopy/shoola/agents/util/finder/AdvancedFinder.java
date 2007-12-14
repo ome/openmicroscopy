@@ -30,14 +30,20 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.JFrame;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchContext;
+import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
+
 import pojos.ExperimenterData;
 
 /** 
@@ -126,7 +132,15 @@ public class AdvancedFinder
 				user = (String) i.next();
 				if (user != null) {
 					exp = new ExperimenterData();
-					exp.setLastName(user);
+					String[] names = user.split(SearchUtil.NAME_SEPARATOR);
+					switch (names.length) {
+						case 2:
+							exp.setFirstName(names[0]);
+							exp.setLastName(names[1]);
+							break;
+						case 1:
+							exp.setLastName(names[1]);
+					}
 					exps.add(exp);
 				}
 			}
@@ -137,20 +151,57 @@ public class AdvancedFinder
 		loader.load();
 		finderHandlers.add(loader);
 		state = SEARCH;
+		setSearchEnabled(true);
+	}
+	
+	/**
+	 * Returns the current user's details.
+	 * 
+	 * @return See above.
+	 */
+	private ExperimenterData getUserDetails()
+	{ 
+		return (ExperimenterData) FinderFactory.getRegistry().lookup(
+				LookupNames.CURRENT_USER_DETAILS);
+	}
+	
+	/**
+	 * Returns the available groups.
+	 * 
+	 * @return See above.
+	 */
+	private Map getAvailableGroups()
+	{
+		return (Map) FinderFactory.getRegistry().lookup(
+				LookupNames.USER_GROUP_DETAILS);
+	}
+	
+	/** Displays the widget allowing the select users. */
+	private void showUserSelection()
+	{
+		IconManager icons = IconManager.getInstance();
+		UserManagerDialog dialog = new UserManagerDialog(
+				FinderFactory.getRefFrame(), getUserDetails(), 
+				getAvailableGroups(), icons.getIcon(IconManager.OWNER), 
+				icons.getIcon(IconManager.OWNER_48));
+		dialog.addPropertyChangeListener(this);
+		dialog.setDefaultSize();
+		UIUtilities.centerAndShow(dialog);
 	}
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param owner 	The owner of the frame.
 	 * @param registry 	Helper reference to the registry. Mustn't be 
 	 * 					<code>null</code>.
 	 */
-	public AdvancedFinder(JFrame owner)
+	public AdvancedFinder()
 	{
-		super(owner);
+		super(FinderFactory.getRefFrame());
 		finderHandlers = new ArrayList<FinderLoader>();
 		addPropertyChangeListener(SEARCH_PROPERTY, this);
+		addPropertyChangeListener(CANCEL_SEARCH_PROPERTY, this);
+		addPropertyChangeListener(OWNER_PROPERTY, this);
 		//setModal(true);
 	}
 
@@ -172,15 +223,43 @@ public class AdvancedFinder
 	 */
 	public int getState() { return state; }
 
+	/** 
+	 * Implemented as specified by {@link Finder} I/F
+	 * @see Finder#dispose()
+	 */
+	public void dispose() 
+	{
+		setSearchEnabled(false);
+		setVisible(false);
+		cancel();
+	}
+
 	/**
 	 * Reacts to the property fired by the <code>SearchComponent</code>
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
 	public void propertyChange(PropertyChangeEvent evt)
 	{
-		SearchContext ctx = (SearchContext) evt.getNewValue();
-		if (ctx == null) return;
-		handleSearchContext(ctx);
+		String name = evt.getPropertyName();
+		if (SEARCH_PROPERTY.equals(name)) {
+			SearchContext ctx = (SearchContext) evt.getNewValue();
+			if (ctx == null) return;
+			handleSearchContext(ctx);
+		} else if (CANCEL_SEARCH_PROPERTY.equals(name)) {
+			cancel();
+		} else if (OWNER_PROPERTY.equals(name)) {
+			showUserSelection();
+		} else if (UserManagerDialog.USER_SWITCH_PROPERTY.equals(name)) {
+			Map m = (Map) evt.getNewValue();
+			if (m == null) return;
+			Iterator i = m.keySet().iterator();
+			ExperimenterData exp;
+			while (i.hasNext()) {
+				exp = (ExperimenterData) m.get(i.next());
+				setUserString(exp.getFirstName()+SearchUtil.NAME_SEPARATOR+
+							exp.getLastName());
+			}
+		}
 	}
 
 }

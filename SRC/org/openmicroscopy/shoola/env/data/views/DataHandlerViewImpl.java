@@ -33,6 +33,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.views.calls.AdminLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
@@ -420,4 +421,14 @@ public class DataHandlerViewImpl
 		return cmd.exec(observer);
 	}
 
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataHandlerView#loadAvailableGroups(AgentEventListener)
+	 */
+	public CallHandle loadAvailableGroups(AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AdminLoader(AdminLoader.GROUP);
+		return cmd.exec(observer);
+	}
+		
 }

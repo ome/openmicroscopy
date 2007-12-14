@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.util.tagging.util.TagSaverDef;
 import org.openmicroscopy.shoola.util.ui.HistoryDialog;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -234,7 +235,7 @@ class TaggerUI
 	{
 		String name = nameArea.getText();
 		if (name == null || name.length() == 0) return;
-		String[] names = name.split(TaggerView.SEPARATOR);
+		String[] names = name.split(SearchUtil.SEARCH_SEPARATOR);
 		Rectangle2D r;
 		Graphics context = nameArea.getGraphics();
 		int l = 0;
@@ -308,7 +309,7 @@ class TaggerUI
 	private void handleTagSetEnter(CategoryGroupData data)
 	{
 		String name = nameArea.getText();
-		String[] names = name.split(TaggerView.SEPARATOR);
+		String[] names = name.split(SearchUtil.SEARCH_SEPARATOR);
 		Set categories = data.getCategories();
 		Iterator j = categories.iterator();
 		CategoryData category;
@@ -320,7 +321,7 @@ class TaggerUI
 		for (int i = 0; i < l; i++) {
 			n = names[i].trim();
 			text += n;
-			text += TaggerView.SEPARATOR+" ";
+			text += SearchUtil.SEARCH_SEPARATOR+SearchUtil.NAME_SEPARATOR;
 		}
 		while (j.hasNext()) {
 			category = (CategoryData) j.next();
@@ -332,7 +333,7 @@ class TaggerUI
 				}
 			}
 			if (!exist) {
-				text += s+TaggerView.SEPARATOR+" ";
+				text += s+SearchUtil.SEARCH_SEPARATOR+SearchUtil.NAME_SEPARATOR;
 				descriptionArea.setText(category.getDescription());
 			}
 		}
@@ -349,20 +350,23 @@ class TaggerUI
 	private void handleTagEnter(CategoryData data)
 	{
 		String name = nameArea.getText();
-		String[] names = name.split(TaggerView.SEPARATOR);
+		String[] names = name.split(SearchUtil.SEARCH_SEPARATOR);
 		String s = data.getName();
 		String n;
 		String text = "";
 		boolean exist = false;
+		
 		int l = names.length-1;
 		for (int i = 0; i < l; i++) {
 			n = names[i].trim();
 			text += n;
 			if (s.equals(n)) {
 				if (i != (l-1))
-					text += TaggerView.SEPARATOR+" ";
+					text += SearchUtil.SEARCH_SEPARATOR
+							+SearchUtil.NAME_SEPARATOR;
 				exist = true;
-			} else text += TaggerView.SEPARATOR+" ";
+			} else text += SearchUtil.SEARCH_SEPARATOR
+							+SearchUtil.NAME_SEPARATOR;
 		}
 		if (!exist) {
 			descriptionArea.setText(data.getDescription());
@@ -371,7 +375,7 @@ class TaggerUI
 		} else text = text.substring(0, text.length()-2);
 		setNameAreaValue(text);
 	}
-	
+
 	/** Initializes the {@link historyDialog}. */
 	private void initDialog()
 	{
@@ -454,7 +458,7 @@ class TaggerUI
     	typing = true;
     	finishButton.setEnabled(length != 0);
     	String name = nameArea.getText();
-    	String[] names = name.split(TaggerView.SEPARATOR);
+    	String[] names = name.split(SearchUtil.SEARCH_SEPARATOR);
     	if (length == 0 && historyDialog != null)
     		historyDialog.setVisible(false);
     	else 
@@ -522,7 +526,7 @@ class TaggerUI
     	typing = true;
         finishButton.setEnabled(true);
         String name = nameArea.getText();
-        String[] names = name.split(TaggerView.SEPARATOR);
+        String[] names = name.split(SearchUtil.SEARCH_SEPARATOR);
         setSelectedTextValue(names);
     }
     
@@ -656,14 +660,13 @@ class TaggerUI
 		if (item == null) return;
 		List linked = model.getTags();
 		if (linked != null && linked.contains(item)) return;
-		String itemName = item.getName();
 		String name = nameArea.getText();
-		String text = "";
-		boolean exist = false;
-		
 		int length = name.length();
+		String itemName = item.getName();
+		String text = "";
 		if (length >= 1) {
-			String[] names = name.split(TaggerView.SEPARATOR);
+			boolean exist = false;
+			String[] names = name.split(SearchUtil.SEARCH_SEPARATOR);
 			String n;
 			int l = names.length;
 			if (typing) l = l-1;
@@ -673,14 +676,18 @@ class TaggerUI
 					text += n;
 					if (itemName.equals(n)) {
 						if (i != (l-1))
-							text += TaggerView.SEPARATOR+" ";
+							text += SearchUtil.SEARCH_SEPARATOR
+									+SearchUtil.NAME_SEPARATOR;
 						exist = true;
-					} else text += TaggerView.SEPARATOR+" ";
+					} else text += SearchUtil.SEARCH_SEPARATOR
+									+SearchUtil.NAME_SEPARATOR;
 				}
 			}
-		}
-		if (!exist) text += itemName;
-		else text = text.substring(0, text.length()-2);
+			if (!exist) {
+				text += itemName;
+			} else text = text.substring(0, text.length()-2);
+		} else text += itemName;
+		
 		
 		descriptionArea.setText(item.getDescription());
 		setNameAreaValue(text);
@@ -702,7 +709,7 @@ class TaggerUI
 		String name = nameArea.getText();
 		CategoryData item;
 		if (name == null) return null;
-		String[] names = name.split(TaggerView.SEPARATOR);
+		String[] names = name.split(SearchUtil.SEARCH_SEPARATOR);
 		int l = names.length;
 		if (names != null && l > 0) {
 			String v; 

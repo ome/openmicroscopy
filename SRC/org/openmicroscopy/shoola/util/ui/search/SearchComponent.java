@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.ui.search;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,12 +35,13 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-
-
+import javax.swing.JProgressBar;
 
 //Third-party libraries
 
@@ -65,9 +67,15 @@ public class SearchComponent
 	extends JDialog
 	implements ActionListener
 {
-
+	
 	/** Bound property indicating to search. */
 	public static final String 		SEARCH_PROPERTY = "search";
+	
+	/** Bound property indicating to cancel the search. */
+	public static final String 		CANCEL_SEARCH_PROPERTY = "cancelSearch";
+	
+	/** Bound property indicating to select the owner. */
+	public static final String 		OWNER_PROPERTY = "owner";
 	
 	 /** 
      * The size of the invisible components used to separate buttons
@@ -87,8 +95,11 @@ public class SearchComponent
 	/** Action command ID indicating to search. */
 	private static final int 		SEARCH = 1;
 
-	/** Action command ID indicating to search. */
+	/** Action command ID indicating to set the date. */
 	static final int 				DATE = 3;
+	
+	/** Action command ID indicating to search. */
+	static final int 				OWNER = 4;
 	
 	/** The UI with all the search fields. */
 	private SearchPanel 		uiDelegate;
@@ -98,6 +109,12 @@ public class SearchComponent
 	
 	/** Button to close the dialog. */
 	private JButton				searchButton;
+	
+	/** Progress bar visible while searching. */
+	private JProgressBar		progressBar;
+	
+	/** Displays the search message. */
+	private JLabel				progressLabel;
 	
 	/** The available nodes. */
 	private List<SearchObject>	nodes;
@@ -112,6 +129,10 @@ public class SearchComponent
         	public void windowOpened(WindowEvent e) {
         		uiDelegate.setFocusOnSearch();
         	} 
+        	
+        	public void windowClosing(WindowEvent e) {
+        		cancel();
+        	}
         });
 	}
 	
@@ -127,6 +148,11 @@ public class SearchComponent
 		searchButton.setToolTipText("Searches");
 		searchButton.setActionCommand(""+SEARCH);
 		searchButton.addActionListener(this);
+		progressBar = new JProgressBar();
+		progressBar.setIndeterminate(true);
+		progressBar.setVisible(false);
+		progressLabel = new JLabel("");
+		progressLabel.setEnabled(false);
 		getRootPane().setDefaultButton(searchButton);
 	}
 	
@@ -145,6 +171,22 @@ public class SearchComponent
         return UIUtilities.buildComponentPanelRight(bar);
 	}
 	
+	/**
+	 * Builds and lays out the progress bar and the message.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildStatusPanel()
+	{
+		JPanel progressPanel = new JPanel();
+        progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.X_AXIS));  
+        progressPanel.add(progressLabel);
+        progressPanel.add(Box.createRigidArea(H_SPACER_SIZE));
+        progressPanel.add(progressBar);
+        progressPanel.add(Box.createRigidArea(H_SPACER_SIZE));
+        return UIUtilities.buildComponentPanel(progressPanel);
+	}
+	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
@@ -153,14 +195,20 @@ public class SearchComponent
 		TitlePanel titlePanel = new TitlePanel(TITLE, TEXT, 
 				icons.getIcon(IconManager.SEARCH_48));
 		c.add(titlePanel, BorderLayout.NORTH);
-		c.add(UIUtilities.buildComponentPanel(uiDelegate), BorderLayout.CENTER);
-		c.add(buildToolBar(), BorderLayout.SOUTH);
+		JPanel controls = new JPanel();
+        controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
+        controls.add(UIUtilities.buildComponentPanel(uiDelegate));
+        controls.add(buildToolBar());
+		c.add(controls, BorderLayout.CENTER);
+		c.add(buildStatusPanel(), 
+				BorderLayout.SOUTH);
 	}
 	
 	/** Closes and disposes of the window. */
 	private void cancel()
 	{
 		setVisible(false);
+		firePropertyChange(CANCEL_SEARCH_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 		//dispose();
 	}
 	
@@ -216,7 +264,7 @@ public class SearchComponent
 	}
 	
 	/**
-	 * Creates a new component.
+	 * Creates a new instance.
 	 * 
 	 * @param owner The owner of this dialog.
 	 */
@@ -229,13 +277,46 @@ public class SearchComponent
 		buildGUI();
 		pack();
 	}
-	
+
 	/**
 	 * Returns the collection of possible context.
 	 * 
 	 * @return See above.
 	 */
 	List<SearchObject> getNodes() { return nodes; }
+	
+	/**
+	 * Sets the buttons enabled when performing  search.
+	 * 
+	 * @param b Pass <code>true</code> to enable the {@link #searchButton}, 
+	 * 			<code>false</code>otherwise, and modifies the cursor.
+	 */
+	public void setSearchEnabled(boolean b)
+	{
+		searchButton.setEnabled(!b);
+		progressBar.setVisible(b);
+		if (b) {
+			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			progressLabel.setText("Searching");
+		}
+		else {
+			setCursor(Cursor.getDefaultCursor());
+			progressLabel.setText("");
+		}
+	}
+	
+	/**
+	 * Sets the name of the selected user.
+	 * 
+	 * @param name The string to set.
+	 */
+	public void setUserString(String name)
+	{
+		if (name == null) return;
+		name = name.trim();
+		if (name.length() == 0) return;
+		uiDelegate.setUserString(name);
+	}
 	
 	/**
 	 * Cancels or searches.
@@ -253,6 +334,9 @@ public class SearchComponent
 				break;
 			case DATE:
 				uiDelegate.setDateIndex();
+				break;
+			case OWNER:
+				firePropertyChange(OWNER_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 		}
 	}
 	

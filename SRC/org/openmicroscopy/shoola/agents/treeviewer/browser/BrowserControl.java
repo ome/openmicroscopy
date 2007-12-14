@@ -140,8 +140,14 @@ class BrowserControl
     {
     	if (node == null) return null;
     	TreeImageDisplay parent = node.getParentDisplay();
-    	if (parent == null) return null;
-    	Object ho = parent.getUserObject();
+    	Object ho;
+    	if (parent == null) {
+    		ho = node.getUserObject();
+    		if (ho instanceof ExperimenterData)
+    			return node;
+    		return null;
+    	}
+    	ho = parent.getUserObject();
     	if (ho instanceof ExperimenterData) 
     		return parent;
     	return getDataOwner(parent);

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.AdminLoader 
+ * org.openmicroscopy.shoola.util.ui.search.SearchUtil 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,23 +20,19 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer;
+package org.openmicroscopy.shoola.util.ui.search;
 
 
 //Java imports
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 /** 
- * Retrieves the available groups.
- * This class calls the <code>loadAvailableGroups</code> in the
- * <code>DataManagerView</code>.
+ * Helper class used to handle the search components.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,47 +44,38 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * </small>
  * @since OME3.0
  */
-public class AdminLoader
-	extends DataTreeViewerLoader
+public class SearchUtil
 {
 
-	/** Handle to the async call so that we can cancel it. */
-    private CallHandle  handle;
-    
-    /**
-     * Creates a new instance.
-     * 
-     * @param viewer The TreeViewer this data loader is for.
-     *               Mustn't be <code>null</code>.
-     */
-	public AdminLoader(TreeViewer viewer)
+	/** Separator between words. */
+	public static final String		SEARCH_SEPARATOR =",";
+	
+	/** The separator between the first name and the last name. */
+	public static final String		NAME_SEPARATOR = " ";
+	
+	/**
+	 * Splits the passed string around matches of the given pattern.
+	 * Returns a list of elements
+	 * 
+	 * @param text		The string to split.
+	 * @param pattern	The delimiting regular expression.
+	 * @return See above.
+	 */
+	public static List<String> splitTerms(String text, String pattern)
 	{
-		super(viewer);
+		List<String> l = new ArrayList<String>();
+		if (text == null) return l;
+		text = text.trim();
+		String[] r = text.split(pattern);
+		String value; 
+		for (int i = 0; i < r.length; i++) {
+			value = r[i];
+			if (value != null) {
+				value = value.trim();
+				if (value.length() != 0) l.add(value);
+			}
+		}
+		return l;
 	}
 	
-    /** 
-     * Retrieves the available experimenter groups. 
-     * @see DataTreeViewerLoader#load()
-     */
-	public void load()
-	{
-		handle = dmView.loadAvailableGroups(this);
-	}
-	
-	/** 
-     * Cancels the data loading. 
-     * @see DataTreeViewerLoader#cancel()
-     */
-    public void cancel() { handle.cancel(); }
-    
-    /** 
-     * Feeds the result back to the viewer. 
-     * @see DataTreeViewerLoader#handleResult(Object)
-     */
-    public void handleResult(Object result)
-    {
-        if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.setAvailableGroups((Map) result);
-    }
-
 }

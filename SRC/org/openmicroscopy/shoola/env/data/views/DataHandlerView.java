@@ -484,4 +484,12 @@ public interface DataHandlerView
 			List<ExperimenterData> users, Timestamp start, Timestamp end,
 			AgentEventListener observer);
 	
+	/**
+	 * Loads the experimenter groups.
+	 * 
+	 * @param observer Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadAvailableGroups(AgentEventListener observer);
+	
 }

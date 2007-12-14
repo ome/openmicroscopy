@@ -250,12 +250,8 @@ public class QuickSearch
 	/** Fires a property change to search for some tags. */
 	private void handleKeyEnter()
 	{
-		String text = searchArea.getText();
-		if (text != null) text = text.trim();
-		String[] r = text.split(" ");
-		List<String> l = new ArrayList<String>();
-		for (int i = 0; i < r.length; i++)
-			l.add(r[i].trim());
+		List<String> l = SearchUtil.splitTerms(searchArea.getText(), 
+											SearchUtil.SEARCH_SEPARATOR);
 		
 		if (selectedNode == null) selectedNode = new SearchObject();
 		selectedNode.setResult(l);

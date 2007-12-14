@@ -145,8 +145,10 @@ public class AdvancedFinderLoader
         EventBus bus = registry.getEventBus();
         Set set = (Set) result;
         if (set == null || set.size() == 0) {
+        	
         	UserNotifier un = registry.getUserNotifier();
         	un.notifyInfo("Search", "No results matching your criteria.");
+        	((AdvancedFinder) viewer).setSearchEnabled(false);
         	return;
         }
        
@@ -165,6 +167,7 @@ public class AdvancedFinderLoader
         
         event.setSearchContext(s);
 		bus.post(event); 
+		viewer.dispose();
     }
 
 }

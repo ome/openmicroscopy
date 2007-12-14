@@ -473,6 +473,71 @@ class OMEROGateway
 	}
 
 	/**
+	 * Creates a query.
+	 * 
+	 * @param type	Identifies the table to search on.
+	 * @param names	The terms to search for.
+	 * @return The query.
+	 */
+	private String createSearchQuery(Class type, String[] names)
+	{
+		String sql = null;
+		String table;
+		if (ImageAnnotation.class.equals(type)) {
+			sql = "select obj from ImageAnnotation as obj " +
+					"left outer join fetch obj.details.creationEvent as d" +
+					"where ";
+			for (int j = 0; j < names.length; j++) {
+				if (j != 0) sql += " or ";
+				sql += "lower(obj.content) like :"+names[j];
+			}
+		} else if (DatasetAnnotation.class.equals(type)) {
+			sql = "select obj from DatasetAnnotation as obj " +
+			"left outer join fetch obj.details.creationEvent as d" +
+			"where ";
+			for (int j = 0; j < names.length; j++) {
+				if (j != 0) sql += " or ";
+				sql += "lower(obj.content) like :"+names[j];
+			}
+		} else if (CategoryData.class.equals(type)) {
+			table = getTableForLink(Category.class);
+			sql = "select obj from "+table+" as obj " +
+					"left outer join fetch obj.details.creationEvent " +
+					"as d " +
+					"where ";
+			//"lower(link.parent.name) like :name or " +
+            // "lower(link.parent.description) like :name";
+			for (int j = 0; j < names.length; j++) {
+				if (j != 0) sql += " or ";
+				sql += "lower(obj.parent.name) = :"+names[j];
+			}
+		} else if (ImageData.class.equals(type)) {
+			sql =  "select obj from Image as obj left outer join fetch " +
+					"obj.details.creationEvent as d where ";
+        	//+ "where lower(obj.name) like :name or " +
+        	//	"lower(obj.description) like :name";
+			for (int j = 0; j < names.length; j++) {
+				if (j != 0) sql += " or ";
+				sql += "lower(obj.name) like :"+names[j];
+				sql += "or lower(obj.description) like :"+names[j];
+			}
+		} else if (CategoryGroupData.class.equals(type)) {
+			table = getTableForLink(CategoryGroup.class);
+			sql = "select obj from "+table+" as obj left outer join fetch " +
+					"obj.details.creationEvent " +
+					"as d where ";
+					//"where lower(link.parent.name) like :name or " +
+					//"lower(link.parent.description) like :name";
+			for (int j = 0; j < names.length; j++) {
+				if (j != 0) sql += " or ";
+				sql += "lower(obj.parent.name) like :"+names[j];
+			}
+		}
+		//sql += ")";
+		return sql;
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param port      The value of the port.
@@ -1973,10 +2038,13 @@ class OMEROGateway
 	 * Searches for the categories whose name contains the passed term.
 	 * Returns a collection of objects.
 	 * 
-	 * @param type The class identify the object to search for.
+	 * @param type 	The class identify the object to search for.
 	 * @param terms	The terms to search for.
+	 * @param start	The lower bound of the time interval.
+	 * @param end	The upper bound of the time interval.
+	 * @param users	The collection of potential users.
 	 * @return See above.
-	 *  @throws DSOutOfServiceException  If the connection is broken, or logged
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
@@ -2082,6 +2150,7 @@ class OMEROGateway
 					return service.findAllByQuery(sql, param);
 				}
 			}
+			//param.add
 			return service.findAllByQuery(sql, param);
 			
 		} catch (Exception e) {
@@ -2090,61 +2159,6 @@ class OMEROGateway
 		return null;
 	}
 	
-	private String createSearchQuery(Class type, String[] names)
-	{
-		String sql = null;
-		String table;
-		if (ImageAnnotation.class.equals(type)) {
-			sql = "select obj from ImageAnnotation as obj " +
-					"left outer join fetch obj.details.creationEvent as d" +
-					"where ";
-			for (int j = 0; j < names.length; j++) {
-				if (j != 0) sql += " or ";
-				sql += "lower(obj.content) like :"+names[j];
-			}
-		} else if (DatasetAnnotation.class.equals(type)) {
-			sql = "select obj from DatasetAnnotation as obj " +
-			"left outer join fetch obj.details.creationEvent as d" +
-			"where ";
-			for (int j = 0; j < names.length; j++) {
-				if (j != 0) sql += " or ";
-				sql += "lower(obj.content) like :"+names[j];
-			}
-		} else if (CategoryData.class.equals(type)) {
-			table = getTableForLink(Category.class);
-			sql = "select obj from "+table+" as obj " +
-					"left outer join fetch obj.details.creationEvent " +
-					"as d " +
-					"where ";
-			//"lower(link.parent.name) like :name or " +
-            // "lower(link.parent.description) like :name";
-			for (int j = 0; j < names.length; j++) {
-				if (j != 0) sql += " or ";
-				sql += "lower(obj.parent.name) = :"+names[j];
-			}
-		} else if (ImageData.class.equals(type)) {
-			sql =  "select obj from Image as obj left outer join fetch " +
-					"obj.details.creationEvent as d where ";
-        	//+ "where lower(obj.name) like :name or " +
-        	//	"lower(obj.description) like :name";
-			for (int j = 0; j < names.length; j++) {
-				if (j != 0) sql += " or ";
-				sql += "lower(obj.name) like :"+names[j];
-			}
-		} else if (CategoryGroupData.class.equals(type)) {
-			table = getTableForLink(CategoryGroup.class);
-			sql = "select obj from "+table+" as obj left outer join fetch " +
-					"obj.details.creationEvent " +
-					"as d where ";
-					//"where lower(link.parent.name) like :name or " +
-					//"lower(link.parent.description) like :name";
-			for (int j = 0; j < names.length; j++) {
-				if (j != 0) sql += " or ";
-				sql += "lower(obj.parent.name) like :"+names[j];
-			}
-		}
-		//sql += ")";
-		return sql;
-	}
+	
 	
 }

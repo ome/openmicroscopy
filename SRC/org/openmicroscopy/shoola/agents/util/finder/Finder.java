@@ -29,7 +29,7 @@ package org.openmicroscopy.shoola.agents.util.finder;
 //Application-internal dependencies
 
 /** 
- * 
+ * Interface that each finder should implement
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,4 +60,7 @@ public interface Finder
 	 */
 	public int getState();
 	
+	/** Disposes of the finder when the results are found. */
+	public void dispose();
+
 }

@@ -207,27 +207,6 @@ public class TreeViewerFactory
 		return null;
 	}
 	
-	/**
-	 * Returns the available user groups.
-	 * 
-	 * @return See above.
-	 */
-	static final Map getAvailableUserGroups()
-	{ 
-		return singleton.availableUserGroups; 
-	}
-
-	/**
-	 * Sets the available user groups.
-	 * 
-	 * @param groups The value to set.
-	 */
-	static final void setUserGroups(Map groups)
-	{ 
-		if (singleton.availableUserGroups == null)
-			singleton.availableUserGroups = groups; 
-	}
-
 	/** The tracked component. */
 	//private TreeViewer  	viewer;
 
@@ -236,12 +215,6 @@ public class TreeViewerFactory
 
 	/** The windows menu. */
 	private JMenu   		windowMenu;
-
-	/** 
-	 * The available user groups, we store this information
-	 * b/c not likely to change during session.
-	 */
-	private Map				availableUserGroups;
 
 	/** 
 	 * Indicates if the {@link #windowMenu} is attached to the 

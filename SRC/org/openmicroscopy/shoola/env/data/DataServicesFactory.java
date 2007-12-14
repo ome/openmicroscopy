@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.env.data;
 //Java imports
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -39,6 +41,7 @@ import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * A factory for the {@link OmeroDataService} and the {@link OmeroImageService}.
@@ -177,6 +180,14 @@ public class DataServicesFactory
                                                     determineCompression(
                                                     	uc.getSpeedLevel()));
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
+        Map<GroupData, Set> groups;
+        try {
+        	 groups = omeroGateway.getAvailableGroups();
+        	 registry.bind(LookupNames.USER_GROUP_DETAILS, groups);
+		} catch (DSAccessException e) {
+			throw new DSOutOfServiceException("Cannot retrieve groups", e);
+		}
+       
         //Bind user details to all agents' registry.
         List agents = (List) registry.lookup(LookupNames.AGENTS);
 		Iterator i = agents.iterator();
@@ -185,6 +196,8 @@ public class DataServicesFactory
 			agentInfo = (AgentInfo) i.next();
 			agentInfo.getRegistry().bind(
 			        LookupNames.CURRENT_USER_DETAILS, exp);
+			agentInfo.getRegistry().bind(LookupNames.USER_GROUP_DETAILS, 
+									groups);
 		}
 	}
 	

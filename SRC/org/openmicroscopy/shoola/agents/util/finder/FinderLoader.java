@@ -33,7 +33,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
-
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.DatasetData;
@@ -85,7 +84,7 @@ public abstract class FinderLoader
     
 	/** Convenience reference for subclasses. */
     protected final DataHandlerView		dhView;
-    
+	
     /** 
      * Checks if the passed type is supported and returns the 
      * class corresponding to the passed value.

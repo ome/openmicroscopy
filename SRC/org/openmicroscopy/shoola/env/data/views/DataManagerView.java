@@ -322,14 +322,6 @@ public interface DataManagerView
 			AgentEventListener observer);
 
 	/**
-	 * Loads the experimenter groups.
-	 * 
-	 * @param observer Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadAvailableGroups(AgentEventListener observer);
-
-	/**
 	 * Modifies the password of the user currently logged in
 	 * 
 	 * @param oldPassword 	The password used to log in.  

@@ -272,15 +272,7 @@ class DataManagerViewImpl
       return cmd.exec(observer);
   }
 
-  /**
-   * Implemented as specified by the view interface.
-   * @see DataManagerView#loadAvailableGroups(AgentEventListener)
-   */
-	public CallHandle loadAvailableGroups(AgentEventListener observer)
-	{
-		 BatchCallTree cmd = new AdminLoader(AdminLoader.GROUP);
-	     return cmd.exec(observer);
-	}
+ 
 
   /**
    * Implemented as specified by the view interface.

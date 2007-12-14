@@ -36,7 +36,6 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.AdminLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectRemover;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectUpdater;
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
@@ -685,25 +684,6 @@ class TreeViewerModel
 	 */
 	DataHandler getDataHandler() { return dataHandler; }
 
-	/** Fires an asynchronous call to retrieve the user groups. */
-	void fireUserGroupsRetrieval()
-	{
-		state = TreeViewer.LOADING_DATA;
-		currentLoader = new AdminLoader(component);
-		currentLoader.load();
-	}
-
-	/**
-	 * Sets the available user groups.
-	 * 
-	 * @param groups The value to set.
-	 */
-	void setUserGroups(Map groups)
-	{ 
-		state = TreeViewer.READY;
-		TreeViewerFactory.setUserGroups(groups);
-	}
-
 	/**
 	 * Returns the available user groups.
 	 * 
@@ -711,7 +691,8 @@ class TreeViewerModel
 	 */
 	Map getAvailableUserGroups()
 	{
-		return TreeViewerFactory.getAvailableUserGroups();
+		return (Map) TreeViewerAgent.getRegistry().lookup(
+				LookupNames.USER_GROUP_DETAILS);
 	}
 
 	/**

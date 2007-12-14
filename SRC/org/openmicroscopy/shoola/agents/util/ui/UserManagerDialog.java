@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.util;
+package org.openmicroscopy.shoola.agents.util.ui;
 
 
 //Java imports
@@ -37,6 +37,7 @@ import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultListModel;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -55,10 +56,7 @@ import layout.TableLayout;
 
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
@@ -87,15 +85,17 @@ public class UserManagerDialog
 	/** Bounds property indicating that a new user has been selected. */
 	public static final String		USER_SWITCH_PROPERTY = "userSwitch";
 	
+	/** Bounds property indicating that no user selected. */
+	public static final String		NO_USER_SWITCH_PROPERTY = "noUserSwitch";
+	
 	/** The default size of the window. */
 	private static final Dimension	DEFAULT_SIZE = new Dimension(350, 400);
 	
 	/** The window's title. */
-	private static final String		TITLE = "Switch user";
+	private static final String		TITLE = "Experimenter selection";
 	
 	/** The window's description. */
-	private static final String		TEXT = "Select a user.";// and " +
-											//"view his/her data.";
+	private static final String		TEXT = "Select an experimenter.";
 	
 	/** The description of the {@link #cancel} button. */
 	private static final String		CANCEL_DESCRIPTION = "Close the window.";
@@ -139,7 +139,7 @@ public class UserManagerDialog
 	
 	/** Map of ordered elements. */
 	private Map<GroupData, Object[]>	orderedMap;
-	
+
 	/** Closes and disposes. */
 	private void cancel()
 	{
@@ -155,8 +155,8 @@ public class UserManagerDialog
 		GroupData g = (GroupData) groups.getSelectedItem();
 		Object user = users.getSelectedValue();
 		if (user == null) {
-			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo(TITLE, "Please select a user first.");
+			firePropertyChange(NO_USER_SWITCH_PROPERTY, Boolean.FALSE, 
+								Boolean.TRUE);
 			return;
 		}
 		r.put(new Long(g.getId()), (ExperimenterData) user);
@@ -218,8 +218,9 @@ public class UserManagerDialog
 	 * @param map		Map whose keys are the experimenter group and
 	 * 					the values the collection of users in the
 	 * 					corresponding experimenter groups.
+	 * @param userIcon	The icon used to represent an user.
 	 */
-	private void initComponents(Map map)
+	private void initComponents(Map map, Icon userIcon)
 	{
 		sorter = new ViewerSorter();
 		orderedMap = new LinkedHashMap<GroupData, Object[]>();
@@ -268,7 +269,7 @@ public class UserManagerDialog
 		fillList(orderedMap.get(selectedGroup));
 		users.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		users.setLayoutOrientation(JList.VERTICAL);
-		users.setCellRenderer(new UserListRenderer());	
+		users.setCellRenderer(new UserListRenderer(userIcon));	
 		attachListeners();
 		if (objects.length != 0)
 			groups.setSelectedIndex(selectedIndex);
@@ -319,12 +320,14 @@ public class UserManagerDialog
 		return UIUtilities.buildComponentPanelRight(bar);
 	}
 	
-	/** Builds and lays out the UI. */
-	private void buildGUI()
+	/** 
+	 * Builds and lays out the UI. 
+	 * 
+	 * @param icon		The icon displayed in the title panel.
+	 */
+	private void buildGUI(Icon icon)
 	{
-		IconManager im = IconManager.getInstance();
-		TitlePanel titlePanel = new TitlePanel(TITLE, TEXT, 
-				im.getIcon(IconManager.OWNER_48));
+		TitlePanel titlePanel = new TitlePanel(TITLE, TEXT, icon);
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(0, 0));
 		c.add(titlePanel, BorderLayout.NORTH);
@@ -340,17 +343,20 @@ public class UserManagerDialog
 	 * @param groups		Map whose keys are the experimenter group and
 	 * 						the values the collection of users in the
 	 * 						corresponding experimenter groups.
+	 * @param userIcon 		The icon representing an user.
+	 * @param icon			The icon displayed in the title panel.
 	 */
 	public UserManagerDialog(JFrame parent, ExperimenterData loggedUser, 
-							Map groups)
+							Map groups, Icon userIcon, Icon icon)
 	{
 		super(parent);
 		setProperties();
 		this.loggedUser = loggedUser;
-		initComponents(groups);
-		buildGUI();
+		initComponents(groups, userIcon);
+		buildGUI(icon);
 	}
 
+	
 	/** Sets the default size of window. */
 	public void setDefaultSize()
 	{

@@ -33,7 +33,6 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -132,6 +131,7 @@ public class QuickFinderLoader
         
         event.setSearchContext(s);
 		bus.post(event); 
+		viewer.dispose();
     }
 
 }

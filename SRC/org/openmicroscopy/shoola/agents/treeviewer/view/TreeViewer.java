@@ -523,13 +523,6 @@ public interface TreeViewer
 	 */
 	public long getUserGroupID();
 
-	/**
-	 * Sets the available experimenter groups.
-	 * 
-	 * @param map The value to set.
-	 */
-	public void setAvailableGroups(Map map);
-
 	/** Retrieves the user groups. */
 	public void retrieveUserGroups();
 
