@@ -286,15 +286,18 @@ public class RenderingBean extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    public boolean lookupRenderingDef(long pixelsId) {
+    public boolean lookupRenderingDef(long pixelsId)
+    {
     	rwl.writeLock().lock();
 
-    	try {
+    	try
+    	{
     		rendDefObj = pixMetaSrv.retrieveRndSettings(pixelsId);
     		closeRenderer();
     		renderer = null;
 
-    		if (rendDefObj == null) {
+    		if (rendDefObj == null)
+    		{
     			// We've been initialized on a pixels set that has no rendering
     			// definition for the given user. In order to maintain the
     			// proper state and ensure that we avoid transactional problems
@@ -303,11 +306,24 @@ public class RenderingBean extends AbstractLevel2Service implements
     			// *** Ticket #564 -- Chris Allan <callan@blackcat.ca> ***
     			return false;
     		}
-    	} finally {
+    		
+    		// Ensure that the pixels object is unloaded to avoid transactional
+    		// headaches later due to Hibernate object caching techniques. If
+    		// this is not performed, rendDefObj.pixels will be the same
+    		// instance as pixelsObj; which if passed to IUpdate will be
+    		// set unloaded by the service. We *really* don't want this.
+    		// *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
+    		Pixels unloadedPixels = new Pixels(pixelsId);
+    		unloadedPixels.unload();
+    		rendDefObj.setPixels(unloadedPixels);
+    	}
+    	finally
+    	{
     		rwl.writeLock().unlock();
     	}
 
-    	if (log.isDebugEnabled()) {
+    	if (log.isDebugEnabled())
+    	{
     		log.debug("lookupRenderingDef for Pixels=" + pixelsId
     				+ " succeeded: " + this.rendDefObj);
     	}
@@ -322,7 +338,6 @@ public class RenderingBean extends AbstractLevel2Service implements
     @RolesAllowed("user")
     public void load() {
         rwl.writeLock().lock();
-
         
         try {
             errorIfNullPixels();
@@ -514,7 +529,24 @@ public class RenderingBean extends AbstractLevel2Service implements
             {
             	errorIfInvalidState();
             	renderer.resetDefaults();
-            	pixMetaSrv.saveRndSettings(rendDefObj);
+            	
+            	// Increment the version of the rendering settings so that we 
+            	// can have some notification that either the RenderingDef 
+            	// object itself or one of its children in the object graph has 
+            	// been updated. FIXME: This should be implemented using 
+            	// IUpdate.touch() or similar once that functionality exists.
+                rendDefObj.setVersion(rendDefObj.getVersion() + 1);
+                
+                // Actually save the rendering settings
+                pixMetaSrv.saveRndSettings(rendDefObj);
+                rendDefObj = reload(rendDefObj);
+            	
+            	// The above save step sets the rendDefObj instance (for which 
+            	// the renderer hold a reference) unloaded, which *will* cause 
+            	// IllegalStateExceptions if we're not careful. To compensate
+            	// we will now reload the renderer.
+            	// *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
+                load();
             }
         }
         catch (IOException e)
@@ -585,9 +617,24 @@ public class RenderingBean extends AbstractLevel2Service implements
 
         try {
             errorIfNullRenderingDef();
+            
+            // Increment the version of the rendering settings so that we can
+            // have some notification that either the RenderingDef object
+            // itself or one of its children in the object graph has been
+            // updated. FIXME: This should be implemented using IUpdate.touch()
+            // or similar once that functionality exists.
+            rendDefObj.setVersion(rendDefObj.getVersion() + 1);
+            
+            // Actually save and reload the rendering settings
             pixMetaSrv.saveRndSettings(rendDefObj);
             rendDefObj = reload(rendDefObj);
-            iQuery.clear();
+            
+            // The above save and reload step sets the rendDefObj instance
+            // (for which the renderer hold a reference) unloaded, which *will* 
+            // cause IllegalStateExceptions if we're not careful. To compensate
+            // we will now reload the renderer.
+            // *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
+            load();
         } finally {
             rwl.writeLock().unlock();
         }

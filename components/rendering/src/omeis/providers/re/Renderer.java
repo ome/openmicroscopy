@@ -391,7 +391,7 @@ public class Renderer {
      * @throws NullPointerException If <code>null</code> parameters are passed.
      */
     public Renderer(QuantumFactory quantumFactory,
-    		List<RenderingModel> renderingModels,Pixels pixelsObj,
+    		List<RenderingModel> renderingModels, Pixels pixelsObj,
             RenderingDef renderingDefObj, PixelBuffer bufferObj) {
         metadata = pixelsObj;
         rndDef = renderingDefObj;
@@ -915,12 +915,7 @@ public class Renderer {
 	    	throw new IllegalArgumentException(
 	    		"Unable to find default rendering model in enumerated list.");
 	    }
-	    
-	    // Unload the rendering model to avoid transactional headaches
-	    RenderingModel unloadedModel = new RenderingModel();
-	    unloadedModel.setId(defaultModel.getId());
-	    unloadedModel.unload();
-	    def.setModel(unloadedModel);
+	    def.setModel(defaultModel);
 
 	    // Quantization settings
 	    QuantumDef quantumDef = def.getQuantization();

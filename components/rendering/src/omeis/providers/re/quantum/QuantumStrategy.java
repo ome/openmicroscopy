@@ -169,7 +169,8 @@ public abstract class QuantumStrategy {
             }
         }
         if (!b) {
-            throw new IllegalArgumentException("Pixel interval not supported");
+            throw new IllegalArgumentException(
+            	"Min: " + min + " Max: " + max + " Interval not supported");
         }
     }
 
