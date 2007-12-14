@@ -41,7 +41,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.Vector;
 
 import javax.swing.AbstractListModel;
 import javax.swing.Box;
@@ -85,6 +84,7 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
@@ -94,8 +94,6 @@ import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ColourListRenderer;
-import org.openmicroscopy.shoola.agents.measurement.view.ROIAssistant.HeaderListModel;
-import org.openmicroscopy.shoola.agents.measurement.view.ROIAssistant.RowHeaderRenderer;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -131,6 +129,7 @@ class IntensityView
 	/** width of textfield components. */
 	public final static int		LABELHEIGHT = 26;
 	
+	/** The intial size of the intensity table dialog. */
 	private Dimension intensityTableSize = new Dimension(300,300);
 	
 	
@@ -271,9 +270,15 @@ class IntensityView
 	/** Current ROIShape. */
 	private 	ROIShape shape;
 	
+	/** Dialog showing the intensity values for the selected channel. */
 	private JDialog intensityDialog;
+	
+	/** The scroll pane for the intensityDialog. */
 	private JScrollPane intensityTableScrollPane;
+	
+	/** The Row header for the intensityTableScrollPane. */
 	private JList intensityTableRowHeader;
+	
 	/**
 	 * overridden version of {@line TabPaneInterface#getIndex()}
 	 * @return the index.
@@ -318,7 +323,6 @@ class IntensityView
 		zSlider.setEndLabel("Z");
 		zSlider.setShowEndLabel(true);
 
-
 		tSlider = new OneKnobSlider();
 		tSlider.setPaintTicks(true);
 		tSlider.setPaintLabels(true);
@@ -347,45 +351,78 @@ class IntensityView
 		cPanel.setLayout(new BoxLayout(cPanel, BoxLayout.Y_AXIS));
 		cPanel.add(containerPanel);
 		cPanel.add(tSlider);
-		//JPanel fPanel = fieldPanel();
-		//fPanel.setAlignmentY(JPanel.TOP_ALIGNMENT);
-		//containerPanel.add(fPanel);
 		JPanel buttonPanel = createButtonPanel();
-
 		
 		scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.X_AXIS));
 		scrollPanel.add(cPanel);
 		scrollPanel.add(buttonPanel);
+		scrollPanel.add(Box.createGlue());
+		
 		this.setLayout(new BorderLayout());
 		this.add(scrollPanel, BorderLayout.CENTER);
+		
 		intensityDialog.getContentPane().setLayout(new BorderLayout());
+		intensityDialog.getContentPane().add(createInfoPanel(), BorderLayout.NORTH);
+
 		intensityTableScrollPane = new JScrollPane(table);
-
+		intensityTableScrollPane.setVerticalScrollBar(intensityTableScrollPane.createVerticalScrollBar());
+		intensityTableScrollPane.setHorizontalScrollBar(
+			intensityTableScrollPane.createHorizontalScrollBar());
 		intensityTableRowHeader = new JList(new HeaderListModel(table.getRowCount()));
-		//table.setDefaultRenderer(JComponent.class, new TableComponentCellRenderer());
-
+		
 		intensityTableRowHeader.setFixedCellHeight(table.getRowHeight());
 		intensityTableRowHeader.setFixedCellWidth(table.getColumnWidth());
 		intensityTableRowHeader.setCellRenderer(new RowHeaderRenderer(table));
         intensityTableScrollPane.setRowHeaderView(intensityTableRowHeader);
-        //scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, cornerPane);
 		intensityDialog.getContentPane().add(intensityTableScrollPane, BorderLayout.CENTER);
 	}
 	
+	/**
+	 * Create the button panel to the right of the summary table.
+	 * @return see above.
+	 */
 	private JPanel createButtonPanel()
 	{
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		panel.add(UIUtilities.buildComponentPanel(channelSelection));
-		panel.add(UIUtilities.buildComponentPanel(showIntensityTable));
-		panel.add(UIUtilities.buildComponentPanel(saveButton));
+		panel.add(Box.createRigidArea(new Dimension(0,10)));
+		JPanel channelPanel = UIUtilities.buildComponentPanel(channelSelection);
+		UIUtilities.setDefaultSize(channelPanel, new Dimension(175, 32));
+		panel.add(channelPanel);
+		panel.add(Box.createRigidArea(new Dimension(0,10)));
+		JPanel intensityPanel = UIUtilities.buildComponentPanel(showIntensityTable);
+		UIUtilities.setDefaultSize(intensityPanel, new Dimension(175, 32));
+		panel.add(intensityPanel);
+		panel.add(Box.createRigidArea(new Dimension(0,10)));
+		JPanel savePanel = UIUtilities.buildComponentPanel(saveButton);
+		UIUtilities.setDefaultSize(savePanel, new Dimension(175, 32));
+		panel.add(savePanel);
+		panel.add(Box.createVerticalGlue());
 		return panel;
 	}
 	
+	/**
+	 * Show the intensity values table. 
+	 */
 	private void showIntensityTable()
 	{
 		if(!intensityDialog.isVisible())
 			UIUtilities.setLocationRelativeToAndShow(this, intensityDialog);
+	}
+	
+	/**
+	 * Creates the info panel at the top the the dialog, 
+	 * showing a little text about the Intensity Pane. 
+	 * 
+	 * @return See above.
+	 */
+	private JPanel createInfoPanel()
+	{
+		JPanel infoPanel = new TitlePanel("Intensity Values", 
+				"This table shows the Intensity values for the selected channel" +
+				"of the selected ROI.",
+				IconManager.getInstance().getIcon(IconManager.WIZARD));
+		return infoPanel;
 	}
 	
 	/**
@@ -465,7 +502,6 @@ class IntensityView
 		meanStats = new HashMap<Coord3D, Map<Integer, Double>>();
 		sumStats = new HashMap<Coord3D, Map<Integer, Double>>();
 		stdDevStats = new HashMap<Coord3D, Map<Integer, Double>>();
-		
 		
 		Iterator<ROIShape> shapeIterator  = ROIStats.keySet().iterator();
 		channelName =  new TreeMap<Integer, String>();
@@ -559,22 +595,6 @@ class IntensityView
 		state = State.READY;
 	}
 
-	/**
-	 * Clear all the variables to start a new analysis.
-	 *
-	 */
-	private void clearAllVariables()
-	{
-		channelName.clear();
-		channelColour.clear();
-		channelMin.clear();
-		channelSum.clear();
-		channelMax.clear();
-		channelMean.clear();
-		channelStdDev.clear();
-		planePixels.clear();
-		nameMap.clear();
-	}
 
 	/** Clear the combo box. */
 	private void clearAllValues()
@@ -599,7 +619,9 @@ class IntensityView
 											channelName.get(channel)};
 			i++;
 		}
-	
+		if(channelCols.length==0)
+			return;
+		
 		channelSelection.setModel(new DefaultComboBoxModel(channelCols));	
 		ColourListRenderer renderer =  new ColourListRenderer();
 		channelSelection.setRenderer(renderer);
@@ -609,7 +631,7 @@ class IntensityView
 			selectedChannel = 0;
 		Object[] nameColour = (Object[])channelSelection.getSelectedItem();
 		selectedChannelName = (String)nameColour[1];
-		if(selectedChannel > channelSelection.getItemCount())
+		if(selectedChannel >= channelSelection.getItemCount() || selectedChannel < 0)
 			return;
 		channelSelection.setSelectedIndex(selectedChannel);
 	}
@@ -622,9 +644,13 @@ class IntensityView
 	{
 		interpretResults(coord, channel);
 		populateChannelSummaryTable(coord);
-		//populateFields(channel);
 	}
 
+	/**
+	 * Populate the summary table with the list of values for the ROI at 
+	 * coord.
+	 * @param coord see above.
+	 */
 	private void populateChannelSummaryTable(Coord3D coord)
 	{
 		ArrayList<String> statNames = new ArrayList<String>();
@@ -661,6 +687,14 @@ class IntensityView
 		channelSummaryTable.setModel(channelSummaryModel);
 	}
 	
+	/**
+	 * Populate the data for use in the summary table for the figure fig,
+	 * and for channel. 
+	 * @param fig see above.
+	 * @param data see above.
+	 * @param channel see above.
+	 * @param count the column the data is being placed in.
+	 */
 	private void populateSummaryColumn(ROIFigure fig, Double data[][], int channel, int count)
 	{
 		data[count][0] = channelMin.get(channel);
@@ -677,6 +711,13 @@ class IntensityView
 			addValuesForPointFigure(fig, data, channel, count);
 	}
 	
+	/**
+	 * Add stats in the column for area figures.
+	 * @param fig the figure where the stats come from. 
+	 * @param data the data being populated.
+	 * @param channel the channel where the stats come from/.
+	 * @param count the column in the table being populated.
+	 */
 	private void addValuesForAreaFigure(ROIFigure fig, Double data[][], int channel, int count)
 	{
 		data[count][5] = fig.getBounds().getX();
@@ -687,6 +728,13 @@ class IntensityView
 		data[count][10] = AnnotationKeys.CENTREY.get(shape);
 	}
 	
+	/**
+	 * Add stats in the column for line figures.
+	 * @param fig the figure where the stats come from. 
+	 * @param data the data being populated.
+	 * @param channel the channel where the stats come from/.
+	 * @param count the column in the table being populated.
+	 */
 	private void addValuesForLineFigure(ROIFigure fig, Double data[][], int channel, int count)
 	{
 		data[count][5] = AnnotationKeys.STARTPOINTX.get(shape);
@@ -698,6 +746,13 @@ class IntensityView
 	}
 	
 
+	/**
+	 * Add stats in the column for point figures.
+	 * @param fig the figure where the stats come from. 
+	 * @param data the data being populated.
+	 * @param channel the channel where the stats come from/.
+	 * @param count the column in the table being populated.
+	 */
 	private void addValuesForPointFigure(ROIFigure fig, Double data[][], int channel, int count)
 	{
 		data[count][5] = AnnotationKeys.CENTREX.get(shape);
@@ -794,12 +849,15 @@ class IntensityView
 		tableModel=new IntensityModel(data);
 		shape=shapeMap.get(coord);
 		table.setModel(tableModel); 
+        intensityDialog.remove(intensityTableScrollPane);
 		intensityTableRowHeader = new JList(new HeaderListModel(table.getRowCount()));
 		intensityTableRowHeader.setFixedCellHeight(table.getRowHeight());
 		intensityTableRowHeader.setFixedCellWidth(table.getColumnWidth());
 		intensityTableRowHeader.setCellRenderer(new RowHeaderRenderer(table));
+		intensityTableScrollPane = new JScrollPane(table);
         intensityTableScrollPane.setRowHeaderView(intensityTableRowHeader);
-        
+        intensityTableScrollPane.setVisible(true);
+        intensityDialog.add(intensityTableScrollPane, BorderLayout.CENTER);
 	}
 		
 	/**
@@ -927,10 +985,15 @@ class IntensityView
 				for (int i = 0 ; i < n ; i++)
 				{
 					channel = channels.get(i);
-					writeTitle(out, 
-							"Channel Number : "+channelName.get(channel));
+					if(channel==ChannelSelectionForm.SUMMARYVALUE)
+					{
+						addSummaryTable(out);
+						continue;
+					}
 					if (!nameMap.containsKey(channelName.get(channel)))
 						continue;
+					writeTitle(out, 
+							"Channel Number : "+channelName.get(channel));
 					channel = nameMap.get(channelName.get(channel));
 					writeData(out, currentCoord, channel.intValue());
 				}
@@ -963,7 +1026,7 @@ class IntensityView
 		out.newLine();
 		out.write("Z ,"  + currentCoord.getZSection()+1);
 		out.newLine();
-		out.write("T ,"  + currentCoord.getTimePoint());
+		out.write("T ,"  + currentCoord.getTimePoint()+1);
 		out.newLine();
 	}
 	
@@ -992,7 +1055,6 @@ class IntensityView
 	{
 		populateData(coord, channel);
 		Double value;
-		addFields(out, channel);
 		for(int y = 0 ; y < tableModel.getRowCount() ; y++)
 		{
 			for(int x = 0 ; x < tableModel.getColumnCount()-1; x++)
@@ -1017,25 +1079,18 @@ class IntensityView
 	 * saved. 
 	 * 
 	 * @param out The output stream
-	 * @param channel The channel
 	 * @throws IOException Any io error.
 	 */
-	private void addFields(BufferedWriter out, int channel) 
+	private void addSummaryTable(BufferedWriter out) 
 		throws IOException
 	{
 		for(int x = 0 ; x < channelSummaryTable.getColumnCount(); x++)
-			if(x==0)
-				out.write(",");
-			else
 				out.write(channelSummaryTable.getColumnName(x)+",");
+		out.newLine();
 		for(int y = 0 ; y < channelSummaryTable.getRowCount() ; y++)
 		{
 			for(int x = 0 ; x < channelSummaryTable.getColumnCount(); x++)
-			{
-				if(x == 0)
-					out.write(",");
 				out.write(channelSummaryTable.getValueAt(y, x)+",");
-			}
 			out.newLine();
 		}
 	}
@@ -1076,6 +1131,9 @@ class IntensityView
 	
 	 }
 	 
+	 /**
+	  * Show the intensity results dialog.
+	  */
 	 private void showIntensityResults()
 	 {
 		 UIUtilities.setLocationRelativeToAndSizeToWindow(this, intensityDialog, intensityTableSize);
@@ -1190,6 +1248,7 @@ class IntensityView
             int index, boolean isSelected, boolean cellHasFocus)
 		{
 			setText((value == null) ? "" : value.toString());
+			System.err.println("Set Text : " + this.getText());
 			return this;
 		}
     

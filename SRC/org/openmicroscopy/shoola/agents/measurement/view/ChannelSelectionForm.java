@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class ChannelSelectionForm
 	extends JPanel
 {	
+	public static int SUMMARYVALUE = -10;
 	
 	/** The map of channel number to name. */
 	Map<Integer, String>		 	channelNames;
@@ -87,9 +88,12 @@ class ChannelSelectionForm
 	/** Builds the components for the UI. */
 	private void buildComponents()
 	{
-		checkBox = new ArrayList<JCheckBox>(channelNames.size());
+		checkBox = new ArrayList<JCheckBox>(channelNames.size()+1);
 		Iterator<Integer> nameIterator = channelNames.keySet().iterator();
 		JCheckBox cBox;
+		cBox = new JCheckBox("Channel Summary");
+		cBox.setSelected(true);
+		checkBox.add(cBox);
 		while (nameIterator.hasNext())
 		{
 			cBox = new JCheckBox(channelNames.get(nameIterator.next()));
@@ -137,7 +141,11 @@ class ChannelSelectionForm
 	{
 		List<Integer> selection = new ArrayList<Integer>();
 		int index;
-		for (int i = 0 ; i < checkBox.size(); i++)
+		if(checkBox.get(0).isSelected())
+		{
+			selection.add(SUMMARYVALUE);
+		}
+		for (int i = 1 ; i < checkBox.size(); i++)
 		{
 			if (checkBox.get(i).isSelected()) {
 				index = getSelectedChannel(checkBox.get(i).getText());
