@@ -57,6 +57,25 @@ public class Utils {
         }
         return items;
     }
+    
+    /**
+     * Wraps original {@link java.util.List} as GUI List
+     * {@link javax.faces.model.SelectItem}
+     * 
+     * @param originalList
+     *            {@link java.util.List}
+     * @return {@link java.util.ArrayList}<{@link javax.faces.model.SelectItem}>
+     */
+    public static synchronized List wrapAttrsAsGUIList(
+            String [] originalList) {
+        ArrayList<SelectItem> items = new ArrayList<SelectItem>(originalList
+                .length);
+        for (String attr : originalList) {
+            SelectItem item = new SelectItem(attr, attr);
+            items.add(item);
+        }
+        return items;
+    }
 
     /**
      * Wraps original {@link java.util.List} as GUI List

@@ -123,6 +123,14 @@
 				<h:message styleClass="errorText" id="otherGroupError"
 					for="otherGroup" />
 
+				<c:if test="${not empty sessionScope.IAEManagerBean.user.dn}">
+					<h:outputText value="#{msg.experimentersDn}" />
+
+					<h:outputText id="dn" value="#{IAEManagerBean.user.dn}" />
+
+					<h:message styleClass="errorText" id="dnError" for="dn" />
+				</c:if>
+
 			</h:panelGrid>
 
 			<br />
@@ -150,6 +158,8 @@
 			</h:form>
 		</c:if> <br />
 		<c:if test="${not empty sessionScope.IAEManagerBean.user.dn}">
+			<h:graphicImage url="/images/ldap.png" alt="#{msg.experimentersLdap}"
+				rendered="#{not empty user.dn}" />
 			<h:outputText value="#{msg.experimentersLdapInfo}" />
 		</c:if></div>
 

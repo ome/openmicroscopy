@@ -13,13 +13,13 @@ package ome.admin.controller;
 import javax.ejb.EJBAccessException;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
-import javax.security.auth.login.FailedLoginException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 
 // Application-internal dependencies
 import ome.api.IAdmin;
+import ome.api.ILdap;
 import ome.api.IQuery;
 import ome.api.IRepositoryInfo;
 import ome.api.ITypes;
@@ -102,6 +102,11 @@ public class LoginBean implements java.io.Serializable {
      */
     private IRepositoryInfo repService;
 
+    /**
+     * ILdap
+     */
+    private ILdap ldapService;
+    
     /**
      * log4j logger
      */
@@ -290,6 +295,15 @@ public class LoginBean implements java.io.Serializable {
     public IRepositoryInfo getRepServices() {
         return this.repService;
     }
+    
+    /**
+     * Get {@link ome.api.ILdap}
+     * 
+     * @return {@link ome.admin.controller.LoginBean#ldapService}
+     */
+    public ILdap getLdapServices() {
+        return this.ldapService;
+    }
 
     /**
      * Provides action for navigation rule "login" what is described in the
@@ -297,7 +311,7 @@ public class LoginBean implements java.io.Serializable {
      * 
      * @return {@link java.lang.String} "success" or "false"
      */
-    public String login() throws FailedLoginException {
+    public String login() {
         logger.info("User " + this.username + " has started to log in to app.");
 
         this.mode = false;
@@ -316,6 +330,8 @@ public class LoginBean implements java.io.Serializable {
                 this.typesService = sf.getTypesService();
                 this.queryService = sf.getQueryService();
                 this.repService = sf.getRepositoryInfoService();
+                this.ldapService = sf.getLdapService();
+                                    
                 jsfnav = NavigationResults.SUCCESS;
                 logger.info("Admin role for user "
                         + adminService.getEventContext().getCurrentUserId());
@@ -336,6 +352,8 @@ public class LoginBean implements java.io.Serializable {
             this.id = ctx.getCurrentUserId().toString();
             this.role = ctx.isCurrentUserAdmin();
             this.mode = true;
+            if(!ldapService.getSetting())
+                ldapService = null;
             logger.info("Authentication succesfule");
             return jsfnav;
         } catch (EJBAccessException e) {
@@ -348,6 +366,7 @@ public class LoginBean implements java.io.Serializable {
             this.mode = false;
             return NavigationResults.FALSE;
         } catch (Exception e) {
+            e.printStackTrace();
             logger.info("Authentication not succesfule - connection failure: "
                     + e.getMessage());
             FacesContext context = FacesContext.getCurrentInstance();

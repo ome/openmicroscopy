@@ -11,11 +11,11 @@
 
 			<h2><h:outputText value="#{msg.myaccountEdit}" /></h2>
 
-			<h:inputHidden id="userid" 
+			<h:inputHidden id="userid"
 				value="#{IAMAManagerBean.user.experimenter.id}" />
 
-			<p><h:outputText value="#{msg.generalMandatoryFields}"/></p>
-			
+			<p><h:outputText value="#{msg.generalMandatoryFields}" /></p>
+
 			<h:message styleClass="errorText" id="experimenterFormError"
 				for="experimenterForm" />
 			<br />
@@ -31,7 +31,8 @@
 				<h:outputText value="#{msg.myaccountFirstName}*" />
 
 				<h:inputText id="firstName" maxlength="255"
-					value="#{IAMAManagerBean.user.experimenter.firstName}" required="true">
+					value="#{IAMAManagerBean.user.experimenter.firstName}"
+					required="true">
 					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
@@ -51,7 +52,8 @@
 				<h:outputText value="#{msg.myaccountLastName}*" />
 
 				<h:inputText id="lastName" maxlength="255"
-					value="#{IAMAManagerBean.user.experimenter.lastName}" required="true">
+					value="#{IAMAManagerBean.user.experimenter.lastName}"
+					required="true">
 					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
@@ -87,15 +89,22 @@
 				<h:message styleClass="errorText" id="defaultError"
 					for="defaultGroup" />
 
+				<c:if test="${not empty requestScope.IAMAManagerBean.user.dn}">
+					<h:outputText value="#{msg.myaccountDn}" />
+
+					<h:outputText id="dn" value="#{IAMAManagerBean.user.dn}" />
+
+					<h:message styleClass="errorText" id="dnError"
+						for="dn" />
+				</c:if>
+
 			</h:panelGrid>
-			<br/>
+			<br />
 			<h:commandButton id="submitUpdate"
 				action="#{IAMAManagerBean.updateExperimenter}"
 				value="#{msg.myaccountSave}" />
-				
-		</h:form>
-		 
-		<c:if test="${empty requestScope.IAMAManagerBean.user.dn}">
+
+		</h:form> <c:if test="${empty requestScope.IAMAManagerBean.user.dn}">
 			<h:form id="passwd">
 				<br />
 				<h:graphicImage url="/images/add.png" />
@@ -103,10 +112,10 @@
 					<h:outputText value="#{msg.myaccountChangePassword}" />
 				</h:commandLink>
 			</h:form>
-		</c:if>
-		<br/>
+		</c:if> 
+		<br />
 		<c:if test="${not empty requestScope.IAMAManagerBean.user.dn}">
-			<h:outputText value="#{msg.myaccountLdapInfo}"/>
+			<h:outputText value="#{msg.myaccountLdapInfo}" />
 		</c:if></div>
 
 	</f:view>

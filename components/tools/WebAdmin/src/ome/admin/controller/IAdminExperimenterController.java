@@ -59,7 +59,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
     /**
      * {@link ome.admin.model.User}.
      */
-    private User user = new User();
+    private User user;
 
     /**
      * {@link javax.faces.model.ListDataModel} The data collection wrapped by
@@ -450,6 +450,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
             iadmin.updateExperimenter(this.user);
             this.userModel.setWrappedData(iadmin
                     .getAndSortItems(sortItem, sort));
+            this.editMode = false;
             return NavigationResults.SUCCESS;
         } catch (Exception e) {
             logger.error("updateExperimenter: " + e.getMessage());

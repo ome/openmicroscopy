@@ -119,13 +119,27 @@ public interface ILdap extends ServiceInterface {
 	 * 
 	 * @param username
 	 *            Name of the Experimenter equals CommonName.
-	 * @return an Experimenter. Never null.
+	 * @return an String Distinguished Name. Never null.
 	 * @throws ome.conditions.ApiUsageException
 	 *             if more then one 'cn' under the specified base.
 	 */
 	String findDN(@NotNull
 	String username);
 
+    /**
+     * Searchs Experimenter by unique Distinguished Name - {@link java.lang.String} in
+     * LDAP for Common Name equals username. Common Name should be unique under
+     * the specified base. If list of cn's contains more then one DN will return
+     * exception.
+     * 
+     * @param username
+     *            Name of the Experimenter equals CommonName.
+     * @return an Experimenter. Never null.
+     * @throws ome.conditions.ApiUsageException
+     *             if more then one 'cn' under the specified base.
+     */
+    Experimenter findExperimenter(@NotNull String username);
+    
 	/**
 	 * Searchs all {@link ome.model.meta.Experimenter} in LDAP for objectClass =
 	 * person

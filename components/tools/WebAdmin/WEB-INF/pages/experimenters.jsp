@@ -156,6 +156,9 @@
 					<h:graphicImage url="/images/notactive.png"
 						alt="#{msg.experimentersUserRole}" styleClass="action"
 						rendered="#{not user.userRole}"  />
+					<h:graphicImage url="/images/ldap.png"
+						alt="#{msg.experimentersLdap}" styleClass="action"
+						rendered="#{not empty user.dn}"  />
 
 				</h:column>
 

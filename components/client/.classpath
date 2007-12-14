@@ -32,7 +32,6 @@
 	<classpathentry kind="lib" path="target/libs/jmock.jar"/>
 	<classpathentry kind="lib" path="target/libs/jtidy.jar"/>
 	<classpathentry kind="lib" path="target/libs/junit.jar"/>
-	<classpathentry kind="lib" path="target/libs/ldaptemplate.jar"/>
 	<classpathentry kind="lib" path="target/libs/log4j.jar"/>
 	<classpathentry kind="lib" path="target/libs/postgresql.jar"/>
 	<classpathentry kind="lib" path="target/libs/qdox.jar"/>

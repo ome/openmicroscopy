@@ -78,7 +78,18 @@
 		<navigation-case>
 			<from-action>#{TreeBean.saveItems}</from-action>
 			<from-outcome>success</from-outcome>
-			<to-view-id>/imports.jsp</to-view-id>
+			<to-view-id>/experimenters.jsp</to-view-id>
+		</navigation-case>
+	</navigation-rule>
+	
+	
+	<!-- searchInLdap.jsp navigation -->
+	<navigation-rule>
+		<from-view-id>/searchInLdap.jsp</from-view-id>
+		<navigation-case>
+			<from-action>#{ISILManagerBean.saveItems}</from-action>
+			<from-outcome>success</from-outcome>
+			<to-view-id>/experimenters.jsp</to-view-id>
 		</navigation-case>
 	</navigation-rule>
 
@@ -299,6 +310,18 @@
 		<managed-bean-name>ITEManagerBean</managed-bean-name>
 		<managed-bean-class>
 			ome.admin.controller.ITypesEnumController
+		</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+	
+	<!-- ISILManagerBean -->
+	<managed-bean>
+		<description>
+			The "backing file" bean that backs up the application
+		</description>
+		<managed-bean-name>ISILManagerBean</managed-bean-name>
+		<managed-bean-class>
+			ome.admin.controller.ILdapController
 		</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
 	</managed-bean>

@@ -18,8 +18,10 @@ import java.util.TreeSet;
 
 import javax.faces.context.FacesContext;
 
+import net.sf.ldaptemplate.support.DistinguishedName;
 import ome.admin.controller.LoginBean;
 import ome.api.IAdmin;
+import ome.api.ILdap;
 import ome.api.IQuery;
 import ome.api.IRepositoryInfo;
 import ome.api.ITypes;
@@ -72,6 +74,11 @@ public class ConnectionDB {
     private IRepositoryInfo repService;
 
     /**
+     * IRepositoryInfo
+     */
+    private ILdap ldapService;
+
+    /**
      * Current {@link ome.model.meta.Experimenter#getId()} as
      * {@link java.lang.String}
      */
@@ -95,10 +102,50 @@ public class ConnectionDB {
             typesService = lb.getTypesServices();
             queryService = lb.getQueryServices();
             repService = lb.getRepServices();
+            ldapService = lb.getLdapServices();
         } catch (Exception e) {
             logger.error("ConnectionDB exception: " + e.getMessage());
 
         }
+    }
+
+    // -----------------------------------------------------------------------
+
+    /**
+     * ILdap interface
+     */
+
+    /**
+     * Finds experimenters by one ldap attribute under the base
+     * @param base String (converted to {@link DistinguishedName})
+     * @param attribute String
+     * @param omeName String
+     * @return {@link java.util.List}<{@link ome.model.meta.Experimenter}>.
+     */
+    public List<Experimenter> findExperimenters(String base, String attribute,
+            String omeName) {
+        return ldapService.searchByAttribute(base, attribute, omeName);
+    }
+
+    /**
+     * Finds experimenters by many ldap attributes under the base
+     * @param base String (converted to {@link DistinguishedName})
+     * @param attributes String
+     * @param values String
+     * @return {@link java.util.List}<{@link ome.model.meta.Experimenter}>.
+     */
+    public List<Experimenter> findExperimentersByAttributes(String base,
+            String[] attributes, String[] values) {
+        return ldapService.searchByAttributes(base, attributes, values);
+    }
+
+    /**
+     * Sets Dn for experimenter.
+     * @param id {@link Experimenter#ID}
+     * @param dn String
+     */
+    public void setDn(Long id, String dn) {
+        ldapService.setDN(id, dn);
     }
 
     // -----------------------------------------------------------------------
@@ -636,7 +683,8 @@ public class ConnectionDB {
         logger.info("createGroup by user ID: '" + userid + "'");
         Long id = 0L;
         logger.info("ExperimenterGroup details [name: '" + group.getName()
-                + "', desc: '" + group.getDescription() + "']");
+                + "', desc: '" + group.getDescription() + "', owner: '"
+                + group.getDetails().getOwner().getId() + "']");
         id = adminService.createGroup(group);
         logger.info("ExperimenterGroup created with ID: '" + id + "'");
         return id;

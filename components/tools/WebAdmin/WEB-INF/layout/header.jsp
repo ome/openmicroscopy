@@ -15,6 +15,8 @@
 		test="${sessionScope.LoginBean.role && sessionScope.LoginBean.mode}">
 		<li><a href="./space.jsf"
 			<c:if test="${sessionScope.LoginBean.page == 'space.jsf'}" >class="menu"</c:if>>${msg.headerSpace}</a></li>
+		<li><a href="./searchInLdap.jsf"
+			<c:if test="${sessionScope.LoginBean.page == 'searchInLdap.jsf'}" >class="menu"</c:if>>${msg.headerSearch}</a></li>
 		<li><a href="./imports.jsf"
 			<c:if test="${sessionScope.LoginBean.page == 'imports.jsf' || sessionScope.LoginBean.page == 'uploadFile.jsf' || sessionScope.LoginBean.page == 'importForm.jsf'}" >class="menu"</c:if>>${msg.headerUpload}</a></li>
 		<li><a href="./experimenters.jsf"

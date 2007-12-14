@@ -15,19 +15,13 @@
 package ome.logic;
 
 // Java imports
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
+//Third-party libraries
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -35,11 +29,16 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
-// Application-internal dependencies
-import ome.annotations.AnnotationUtils;
+import org.hibernate.SessionFactory;
+import org.hibernate.metadata.ClassMetadata;
+import org.jboss.annotation.ejb.LocalBinding;
+import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.RemoteBindings;
+import org.jboss.annotation.security.SecurityDomain;
+import org.springframework.transaction.annotation.Transactional;
+
+//Application-internal dependencies
 import ome.api.ITypes;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalUpdate;
@@ -50,25 +49,7 @@ import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.security.SecureAction;
 import ome.services.util.OmeroAroundInvoke;
-import ome.system.OmeroContext;
-import ome.system.ServiceFactory;
-import ome.tools.hibernate.ExtendedMetadata;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.metadata.ClassMetadata;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
-import org.jboss.annotation.security.SecurityDomain;
-import org.jboss.mx.loading.RepositoryClassLoader;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 /**
  * implementation of the ITypes service interface.

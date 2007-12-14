@@ -12,26 +12,23 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
-// Third-party libraries
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.DataModel;
 import javax.faces.model.ListDataModel;
-import javax.faces.validator.ValidatorException;
 
-import org.apache.log4j.Logger;
-import org.apache.myfaces.custom.tree2.HtmlTree;
-import org.apache.myfaces.custom.tree2.TreeNode;
-import org.apache.myfaces.custom.tree2.TreeNodeBase;
-
-// Application-internal dependencies
 import ome.admin.logic.ImportManagerDelegate;
 import ome.admin.logic.UpdateManagerDelegate;
 import ome.admin.model.User;
 import ome.conditions.ApiUsageException;
 import ome.utils.NavigationResults;
+
+import org.apache.log4j.Logger;
+import org.apache.myfaces.custom.tree2.HtmlTree;
+import org.apache.myfaces.custom.tree2.TreeNode;
+import org.apache.myfaces.custom.tree2.TreeNodeBase;
 
 /**
  * It's the Java bean with attributes and setter/getter and actions methods. The
@@ -210,7 +207,11 @@ public class ImportController implements java.io.Serializable {
             try {
                 this.tree.setNodeId(nodeId);
             } catch (Exception e) {
-                throw new ValidatorException(message, e);
+                message = new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "ValidatorException: " + e.getMessage() + nodeId,
+                        "ValidatorException: " + e.getMessage() + nodeId);
+
+                context.addMessage("clientTreeForm", message);
             }
 
             if (this.tree.getNode().isLeaf()) {
@@ -247,9 +248,8 @@ public class ImportController implements java.io.Serializable {
             return NavigationResults.SUCCESS;
         } catch (ApiUsageException e) {
             FacesContext context = FacesContext.getCurrentInstance();
-            FacesMessage message = new FacesMessage(
-                    FacesMessage.SEVERITY_ERROR, "IO exception: "
-                            + e.getMessage(), "IO exception: " + e.getMessage());
+            FacesMessage message = new FacesMessage("IO exception: "
+                    + e.getMessage(), "IO exception: " + e.getMessage());
             context.addMessage("clientTree", message);
             return NavigationResults.FALSE;
         } catch (FileNotFoundException e) {
@@ -289,10 +289,7 @@ public class ImportController implements java.io.Serializable {
                     .getApplication().getVariableResolver().resolveVariable(
                             context, "IAEManagerBean");
             ia.setEditMode(true);
-
-            FacesMessage message = new FacesMessage(
-                    "Imported succesful. Go to Scientist.");
-            context.addMessage("clientTree", message);
+           
         } catch (Exception e) {
             FacesMessage message = new FacesMessage("Exception: "
                     + e.getMessage());

@@ -44,7 +44,6 @@
 	<classpathentry kind="lib" path="target/libs/jtidy.jar"/>
 	<classpathentry kind="lib" path="target/libs/junit.jar"/>
 	<classpathentry kind="lib" path="target/libs/log4j.jar"/>
-	<classpathentry kind="lib" path="target/libs/ldaptemplate.jar"/>
 	<classpathentry kind="lib" path="target/libs/lucene.jar"/>
 	<classpathentry kind="lib" path="target/libs/postgresql.jar"/>
 	<classpathentry kind="lib" path="target/libs/qdox.jar"/>
@@ -66,5 +65,7 @@
 	<classpathentry kind="lib" path="target/libs/jboss-j2ee.jar"/>
 	<classpathentry kind="lib" path="target/libs/jboss-jaxrpc.jar"/>
 	<classpathentry kind="lib" path="target/libs/ome-java.jar"/>
+	<classpathentry kind="lib" path="target/libs/client.jar"/>
+	<classpathentry kind="lib" path="target/libs/spring-ldap.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

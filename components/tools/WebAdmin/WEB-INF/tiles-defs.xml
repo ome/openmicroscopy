@@ -49,6 +49,12 @@
 		<put name="content" type="page"
 			value="/WEB-INF/pages/importForm.jsp" />
 	</definition>
+
+	<definition name=".searchInLdap" extends=".mainLayout">
+		<put name="title" value="Search In Ldap" />
+		<put name="content" type="page"
+			value="/WEB-INF/pages/searchInLdap.jsp" />
+	</definition>
 	
 	<definition name=".editInGroup" extends=".mainLayout">
 		<put name="title" value="Add to Group" />

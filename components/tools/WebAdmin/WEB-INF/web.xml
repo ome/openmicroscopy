@@ -26,8 +26,15 @@
 		<param-name>usersListsDir</param-name>
 		<param-value>/OMERO/WebAdmin</param-value>
 	</context-param>
+	
+	<!-- LdapAttr params -->
+	<context-param>
+		<param-name>ldapAttributes</param-name>
+		<param-value>sn,givenName,cn,mail,employeeNumber,uidNumber,gidNumber</param-value>
+	</context-param>
+	
 	<!-- END Users configuration -->
-
+	
 
 	<!-- Scroller Size -->
 	<context-param>
@@ -297,12 +304,14 @@
 		<url-pattern>*.chart</url-pattern>
 	</servlet-mapping>
 
+	<display-name>WebAdmin</display-name>
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
-		<welcome-file>index.html</welcome-file>
+		<welcome-file>login.jsp</welcome-file>
 	</welcome-file-list>
 
 	<session-config>
 		<session-timeout>30</session-timeout>
 	</session-config>
+	
 </web-app>

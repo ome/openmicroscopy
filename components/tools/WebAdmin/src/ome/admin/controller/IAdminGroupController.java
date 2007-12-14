@@ -59,6 +59,8 @@ public class IAdminGroupController implements java.io.Serializable {
      * {@link ome.model.meta.ExperimenterGroup}
      */
     private ExperimenterGroup group;
+    
+    private String owner = "0";
 
     /**
      * {@link javax.faces.model.ListDataModel} The data collection wrapped by
@@ -152,6 +154,14 @@ public class IAdminGroupController implements java.io.Serializable {
         this.scrollerMode = iadmin.setScroller();
         return this.groupModel;
     }
+    
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
 
     /**
      * Sets editMode
@@ -199,6 +209,7 @@ public class IAdminGroupController implements java.io.Serializable {
      */
     public String addNewGroup() {
         this.editMode = false;
+        this.owner = "0";
         this.group = new ExperimenterGroup();
         return NavigationResults.SUCCESS;
     }
@@ -211,7 +222,7 @@ public class IAdminGroupController implements java.io.Serializable {
      */
     public String addGroup() {
         try {
-            iadmin.addGroup(this.group);
+            iadmin.addGroup(this.group, Long.valueOf(this.owner));
             this.groupModel.setWrappedData(iadmin.getAndSortItems(sortItem,
                     sort));
             return NavigationResults.SUCCESS;
@@ -234,11 +245,9 @@ public class IAdminGroupController implements java.io.Serializable {
      */
     public String editGroup() {
         FacesContext context = FacesContext.getCurrentInstance();
-        try {
+        try {            
             this.group = (ExperimenterGroup) groupModel.getRowData();
-            // this.group = (ExperimenterGroup)
-            // iadmin.getGroupById(((ExperimenterGroup)
-            // groupModel.getRowData()).getId());
+            this.owner = this.group.getDetails().getOwner().getId().toString();
             if (!checkGroup(this.group.getName())) {
                 this.editMode = true;
                 return NavigationResults.SUCCESS;
@@ -314,11 +323,11 @@ public class IAdminGroupController implements java.io.Serializable {
      * @return {@link java.lang.String} "success" or "false"
      */
     public String updateGroup() {
-        try {
-            this.editMode = false;
-            iadmin.updateGroup(this.group);
+        try {            
+            iadmin.updateGroup(this.group, Long.valueOf(this.owner));
             this.groupModel.setWrappedData(iadmin.getAndSortItems(sortItem,
                     sort));
+            this.editMode = false;
             return NavigationResults.SUCCESS;
         } catch (Exception e) {
             logger.error("updateGroup: " + e.getMessage());

@@ -32,14 +32,16 @@
 
 				<h:outputText value="#{msg.mainServer}" />
 
-				<h:inputText id="server" value="#{LoginBean.server}" required="true" size="30">
+				<h:inputText id="server" value="#{LoginBean.server}" required="true"
+					size="30">
 				</h:inputText>
 
 				<h:message styleClass="errorText" id="serverError" for="server" />
 
 				<h:outputText value="#{msg.mainPort}" />
 
-				<h:inputText id="port" value="#{LoginBean.port}" required="true" size="10">
+				<h:inputText id="port" value="#{LoginBean.port}" required="true"
+					size="10">
 				</h:inputText>
 
 				<h:message styleClass="errorText" id="portError" for="port" />
@@ -64,7 +66,7 @@
 			<div id="button"><h:commandButton id="submit"
 				action="#{LoginBean.login}" value="#{msg.mainOk}" /></div>
 
-			<div id="button"><a href="javascript:openHelp()">Help</a></div>
+			<div id="button"><a href="javascript:openHelp()">${msg.mainHelp}</a></div>
 		</h:form>
 
 	</f:view>

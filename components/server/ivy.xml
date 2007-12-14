@@ -44,6 +44,9 @@
     <dependency org="omero" name="jbossall-client" rev="${versions.jboss}" conf="build->default"/>
     <dependency org="omero" name="jboss-ejb3x" rev="${versions.jboss}" conf="build->default"/>
     <dependency org="omero" name="jboss-ejb3" rev="${versions.jboss}" conf="build->default"/>
+    <dependency org="spring" name="spring-ldap" rev="1.2.1" conf="build->default"/>
+    <dependency org="spring" name="spring-ldap-tiger" rev="1.2.1" conf="build->default"/>
+    
   </dependencies>
 </ivy-module>
 

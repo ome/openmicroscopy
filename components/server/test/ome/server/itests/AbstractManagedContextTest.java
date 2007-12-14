@@ -10,7 +10,6 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import net.sf.ldaptemplate.LdapTemplate;
 import ome.api.IAnalysis;
 import ome.api.IConfig;
 import ome.api.IPixels;
@@ -30,6 +29,7 @@ import ome.testing.OMEData;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 import org.testng.annotations.Configuration;

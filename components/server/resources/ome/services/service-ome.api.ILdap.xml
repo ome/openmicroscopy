@@ -46,18 +46,18 @@
 		<property name="target" ref="internal:ome.api.ILdap" />
 	</bean>
 
-	<bean id="ldapTemplate" class="net.sf.ldaptemplate.LdapTemplate">
+	<bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">
 		<constructor-arg ref="contextSource" />
 	</bean>
 
 	<bean id="contextSource"
-		class="net.sf.ldaptemplate.support.LdapContextSource">
+		class="org.springframework.ldap.core.support.LdapContextSource">
 		<property name="urls" value="${omero.ldap.urls}" />
 		<property name="userName" value="${omero.ldap.username}" />
 		<property name="password" value="${omero.ldap.password}" />
 		<property name="base" value="${omero.ldap.base}" />
 		<property name="dirObjectFactory"
-			value="net.sf.ldaptemplate.support.DefaultDirObjectFactory" />
+			value="org.springframework.ldap.core.support.DefaultDirObjectFactory" />
 	</bean>
 
 </beans>

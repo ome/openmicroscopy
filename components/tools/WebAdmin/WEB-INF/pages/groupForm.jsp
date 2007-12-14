@@ -42,6 +42,17 @@
 				<h:message styleClass="errorText" id="descriptionError"
 					for="description" />
 
+				<h:outputText value="#{msg.groupsOwner}*" />
+
+				<h:selectOneMenu id="owner"
+					value="#{IAGManagerBean.owner}" required="true">
+					<f:selectItems value="#{IAGManagerBean.experimenters}" />
+				</h:selectOneMenu>
+
+				<h:message styleClass="errorText" id="ownerError"
+					for="owner" />
+
+
 			</h:panelGrid>
 
 			<br />

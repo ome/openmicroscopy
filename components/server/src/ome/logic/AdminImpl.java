@@ -253,6 +253,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
                 + "left outer join fetch m.parent g", null);
     }
 
+    @Transactional(readOnly = true)
     @RolesAllowed("user")
     public List<Map<String, Object>> lookupLdapAuthExperimenters() {
         return LdapUtil.lookupLdapAuthExperimenters(jdbc);

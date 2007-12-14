@@ -1,7 +1,7 @@
 /*
- *   $Id: AdminTest.java 1395 2007-04-04 13:18:22Z jmoore $
+ *   $Id: LdapTest.java 1395 2007-04-04 13:18:22Z atarkowska $
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2007 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests.sec;
@@ -22,9 +22,9 @@ public class LdapTest extends AbstractManagedContextTest {
 	@Test
 	public void testSearchAll() throws Exception {
 		if (iLdap.getSetting()) {
-			List<Experimenter> l = iLdap.searchAll();
-			System.err.println(l.size());
+            List<Experimenter> l = iLdap.searchAll();
 		}
+        
 	}
 
 	@Test
@@ -32,7 +32,6 @@ public class LdapTest extends AbstractManagedContextTest {
 		if (iLdap.getSetting()) {
 			List<String> l = iLdap.searchDnInGroups("group1",
 					"cn=jsmith, ou=people, ou=example, o=com");
-			System.err.println(l.size());
 		}
 	}
 
@@ -41,7 +40,6 @@ public class LdapTest extends AbstractManagedContextTest {
 		if (iLdap.getSetting()) {
 			List<Experimenter> exps = iLdap
 					.searchByAttribute("", "sn", "Smith");
-			System.err.println(exps.size());
 		}
 	}
 
@@ -52,12 +50,10 @@ public class LdapTest extends AbstractManagedContextTest {
 			String[] vals = iLdap.getReqValues();
 
 			List<Experimenter> exps = iLdap.searchByAttributes("", attrs, vals);
-			System.out.println("size " + exps.size());
 
 			String dn = "cn=jsmith, ou=people"; //DN without base
 			List<Experimenter> exps1 = iLdap
 					.searchByAttributes(dn, attrs, vals);
-			System.out.println("size " + exps1.size());
 
 		}
 	}
@@ -77,8 +73,7 @@ public class LdapTest extends AbstractManagedContextTest {
 	public void testFindDN() throws Exception {
 		if (iLdap.getSetting()) {
 			String dn = iLdap.findDN("jsmith");
-			System.out.println("DN: " + dn.toString());
-
+			
 			// should be created 2 the same cns on the subtree.
 			// should catch an exception
 			try {
@@ -89,6 +84,22 @@ public class LdapTest extends AbstractManagedContextTest {
 			}
 		}
 	}
+    
+    @Test
+    public void testFindExp() throws Exception {
+        if (iLdap.getSetting()) {
+            Experimenter exp = iLdap.findExperimenter("jsmith");
+            
+            // should be created 2 the same cns on the subtree.
+            // should catch an exception
+            try {
+                iLdap.findDN("jsmith");
+            } catch (Exception e) {
+                System.err.println("Subtree should not contains two the same CNs");
+                e.printStackTrace();
+            }
+        }
+    }
 
 	@Test
 	public void testSearchAttributes() throws Exception {

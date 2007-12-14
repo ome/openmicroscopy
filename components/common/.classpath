@@ -32,6 +32,5 @@
 	<classpathentry kind="lib" path="target/libs/testng.jar"/>
 	<classpathentry kind="lib" path="target/libs/velocity.jar"/>
 	<classpathentry kind="lib" path="target/libs/velocity-tools-generic.jar"/>
-	<classpathentry kind="lib" path="target/libs/ldaptemplate.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
