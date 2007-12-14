@@ -18,7 +18,6 @@ import java.util.TreeSet;
 
 import javax.faces.context.FacesContext;
 
-import net.sf.ldaptemplate.support.DistinguishedName;
 import ome.admin.controller.LoginBean;
 import ome.api.IAdmin;
 import ome.api.ILdap;
