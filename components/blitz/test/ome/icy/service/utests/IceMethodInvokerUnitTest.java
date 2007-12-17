@@ -148,6 +148,10 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
             return null;
         }
 
+        public Map<Long, byte[]> getThumbnailSet(Integer sizeX, Integer sizeY, Set<Long> pixelsIds) {
+            return null;
+        }
+
         public void resetDefaults() {
         }
 
