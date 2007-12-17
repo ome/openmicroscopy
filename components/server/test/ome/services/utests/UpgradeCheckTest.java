@@ -47,6 +47,22 @@ public class UpgradeCheckTest extends TestCase {
     }
 
     @Test
+    public void testSlowResponse() throws Exception {
+        check.setPoll(1);
+        check.setVersion(bundle.getString("omero.version"));
+        check.setUrl("http://127.0.0.1:8000");
+        check.start();
+    }
+
+    @Test
+    public void testBadIp() throws Exception {
+        check.setPoll(1);
+        check.setVersion(bundle.getString("omero.version"));
+        check.setUrl("200.200.200.200");
+        check.start();
+    }
+
+    @Test
     public void testWrongVersion() throws Exception {
         check.setPoll(1);
         check.setVersion("XXX" + bundle.getString("omero.version"));

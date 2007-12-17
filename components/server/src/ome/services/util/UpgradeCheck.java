@@ -31,6 +31,7 @@ public class UpgradeCheck {
     int poll;
     String url;
     String version;
+    int timeout = 10 * 1000;
 
     public void setPoll(int poll) {
         this.poll = poll;
@@ -44,6 +45,10 @@ public class UpgradeCheck {
         this.version = version;
     }
 
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
     /**
      * If the {@link #url} has been set to null or the empty string, then no
      * upgrade check will be performed (silently). If however the string is an
@@ -52,6 +57,8 @@ public class UpgradeCheck {
      * This method should <em>never</em> throw an exception.
      */
     public void start() {
+
+        // If null or empty, the upgrade check is disabled.
         if (url == null || url.length() == 0) {
             return; // EARLY EXIT!
         }
@@ -61,15 +68,19 @@ public class UpgradeCheck {
         try {
             _url = new URL(query);
         } catch (Exception e) {
-            log.warn("Could not connect to " + query + ":" + e.getMessage());
+            log.error("Invalid URL: " + query);
             return;
         }
 
         try {
             URLConnection conn = _url.openConnection();
             conn.setUseCaches(false);
-            conn.addRequestProperty("User-Agent", "OMERO.upgrades");
+            conn.addRequestProperty("User-Agent", "OMERO.upgrade_check");
+            conn.setConnectTimeout(timeout);
+            conn.setReadTimeout(timeout);
             conn.connect();
+
+            log.debug("Attempting to conncet to " + query);
 
             InputStream in = conn.getInputStream();
             BufferedInputStream bufIn = new BufferedInputStream(in);
@@ -92,8 +103,10 @@ public class UpgradeCheck {
         } catch (UnknownHostException uhe) {
             log.error("Unknown host:" + url);
         } catch (IOException ioe) {
-            log.error("I/O Error on UpgradeCheck", ioe);
+            log.error(String.format("Error reading from url: %s \"%s\"", query,
+                    ioe.getMessage()));
+        } catch (Exception ex) {
+            log.error("Unknown exception thrown on UpgradeCheck", ex);
         }
     }
-
 }
