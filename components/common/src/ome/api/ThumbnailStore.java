@@ -6,6 +6,12 @@
  */
 package ome.api;
 
+import java.util.Map;
+import java.util.Set;
+
+import ome.annotations.NotNull;
+import ome.annotations.Validate;
+
 /**
  * Provides methods for dealing with thumbnails. Provision is provided to
  * retrieve thumbnails using the on-disk cache (provided by <i>ROMIO</i>) or on
@@ -59,9 +65,9 @@ public interface ThumbnailStore extends StatefulServiceInterface {
 
     /**
      * Retrieves a thumbnail for a pixels set using a given set of rendering
-     * settings (RenderingDef). If the thumbnail exists on-disk cache it will be
-     * returned directly, otherwise it will be created directly as in {@link
-     * #getThumbDirect()}.
+     * settings (RenderingDef). If the thumbnail exists in the on-disk cache 
+     * it will be returned directly, otherwise it will be created as in {@link
+     * #getThumbDirect()}, placed in the on-disk cache and returned.
      * 
      * @param sizeX
      *            the X-axis width of the thumbnail. <code>null</code>
@@ -82,14 +88,45 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      * @see getThumbnailDirect()
      */
     public byte[] getThumbnail(Integer sizeX, Integer sizeY);
+    
+    /**
+     * Retrieves a number of thumbnails for pixels sets using given sets of 
+     * rendering settings (RenderingDef). If the thumbnails exist in the 
+     * on-disk cache they will be returned directly, otherwise they will be 
+     * created as in {@link #getThumbDirect()}, placed in the on-disk cache and 
+     * returned. Unlike the other thumbnail retrieval methods, this method 
+     * <b>may</b> be called without first calling {@link #setPixelsId()}.
+     * 
+     * @param sizeX
+     *            the X-axis width of the thumbnail. <code>null</code>
+     *            specifies the default size of 48.
+     * @param sizeY
+     *            the Y-axis width of the thumbnail. <code>null</code>
+     *            specifies the default size of 48.
+     * @param
+     * @throws ApiUsageException
+     *             if:
+     *             <ul>
+     *             <li><i>sizeX</i> > pixels.sizeX</li>
+     *             <li><i>sizeX</i> is negative</li>
+     *             <li><i>sizeY</i> > pixels.sizeY</li>
+     *             <li><i>sizeY</i> is negative</li>
+     *             <li>{@link setPixelsId()} has not yet been called</li>
+     *             </ul>
+     * @return a {@link Map} whose keys are pixels ids and values are JPEG 
+     * thumbnail byte buffers.
+     * @see getThumbnail()
+     */
+    public Map<Long, byte[]> getThumbnailSet(Integer sizeX, Integer sizeY, 
+    		@NotNull @Validate(Long.class) Set<Long> pixelsIds);
 
     /**
      * Retrieves a thumbnail for a pixels set using a given set of rendering
-     * settings (RenderingDef). If the thumbnail exists on-disk cache it will be
-     * returned directly, otherwise it will be created directly as in {@link
-     * #getThumbDirect()}. The longest side of the image will be used to
-     * calculate the size for the smaller side in order to keep the aspect ratio
-     * of the original image.
+     * settings (RenderingDef). If the thumbnail exists in the on-disk cache it 
+     * will bereturned directly, otherwise it will be created as in {@link
+     * #getThumbDirect()}, placed in the on-disk cache and returned. The 
+     * longest side of the image will be used to calculate the size for the 
+     * smaller side in order to keep the aspect ratio of the original image.
      * 
      * @param size
      *            the size of the longest side of the thumbnail requested.

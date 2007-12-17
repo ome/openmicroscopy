@@ -14,7 +14,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -605,6 +608,28 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	// around in the Hibernate session cache.
     	iQuery.clear();
     }
+    
+    /* (non-Javadoc)
+     * @see ome.api.ThumbnailStore#getThumbnailSet(java.lang.Integer, java.lang.Integer, java.util.Set)
+     */
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public Map<Long, byte[]> getThumbnailSet(Integer sizeX, Integer sizeY,
+                                             Set<Long> pixelsIds)
+    {
+    	Map<Long, byte[]> toReturn = new HashMap<Long, byte[]>();
+    	for (Long pixelsId : pixelsIds)
+    	{
+    		if (!setPixelsId(pixelsId))
+    		{
+    			resetDefaults();
+    			setPixelsId(pixelsId);
+    		}
+    		byte[] thumbnail = getThumbnail(sizeX, sizeY);
+    		toReturn.put(pixelsId, thumbnail);
+    	}
+    	return toReturn;
+    }
 
     /*
      * (non-Javadoc)
@@ -694,6 +719,10 @@ public class ThumbnailBean extends AbstractLevel2Service implements
             size = DEFAULT_X_WIDTH;
         }
         sanityCheckThumbnailSizes(size, size);
+        
+        // Ensure that we do not have "dirty" pixels or rendering settings 
+        // left around in the Hibernate session cache.
+        iQuery.clear();
 
         int sizeX = pixels.getSizeX();
         int sizeY = pixels.getSizeY();
@@ -749,6 +778,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     @RolesAllowed("user")
     public byte[] getThumbnailDirect(Integer sizeX, Integer sizeY)
     {
+    	// Ensure that we do not have "dirty" pixels or rendering settings 
+    	// left around in the Hibernate session cache.
+    	iQuery.clear();
     	return _getThumbnailDirect(sizeX, sizeY, null, null);
     }
     
@@ -759,6 +791,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public byte[] getThumbnailForSectionDirect(int theZ, int theT,
                                                Integer sizeX, Integer sizeY)
     {
+    	// Ensure that we do not have "dirty" pixels or rendering settings 
+    	// left around in the Hibernate session cache.
+    	iQuery.clear();
     	return _getThumbnailDirect(sizeX, sizeY, theZ, theT);
     }
     
@@ -792,6 +827,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public byte[] getThumbnailByLongestSideDirect(Integer size) {
+    	// Ensure that we do not have "dirty" pixels or rendering settings 
+    	// left around in the Hibernate session cache.
+    	iQuery.clear();
     	return _getThumbnailByLongestSideDirect(size, null, null);
     }
     
@@ -802,6 +840,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public byte[] getThumbnailForSectionByLongestSideDirect(int theZ, int theT,
                                                             Integer size)
     {
+    	// Ensure that we do not have "dirty" pixels or rendering settings 
+    	// left around in the Hibernate session cache.
+    	iQuery.clear();
     	return _getThumbnailByLongestSideDirect(size, theZ, theT);
     }
     
@@ -824,9 +865,13 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         sanityCheckThumbnailSizes(sizeX, sizeY);
 
         Thumbnail thumb = getThumbnailMetadata(sizeX, sizeY);
+        // Ensure that we do not have "dirty" pixels or rendering settings 
+        // left around in the Hibernate session cache.
+        iQuery.clear();
         if (thumb == null) {
             return false;
         }
+        
         return true;
     }
     
