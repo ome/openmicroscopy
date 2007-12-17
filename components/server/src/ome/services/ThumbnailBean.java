@@ -247,14 +247,14 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	}
 
     	// Handle lookup of rendering settings
-    	//if (settings == null)
-    	//{
+    	if (settings == null)
+    	{
     		settings = iPixels.retrieveRndSettings(id);
     		if (settings == null)
     		{
     			return false;
     		}
-    	//}
+    	}
     	
     	// Rebuild the renderer.
     	load();
