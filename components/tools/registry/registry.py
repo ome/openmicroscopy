@@ -6,9 +6,9 @@
 
 config = {
     'port':9998,
-    'version':'3.0-TRUNK',
+    'version':'3.0-Beta2.3',
     'agentprefix':'OMERO',
-    'redirect':'http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeChecks',
+    'redirect':'http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeCheck',
     'upgrade':'Please upgrade to 3.0-Beta2.3 See http://trac.openmicroscopy.org.uk/omero for the latest version'
     }
 
