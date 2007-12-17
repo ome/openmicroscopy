@@ -331,7 +331,9 @@ public class LoginBean implements java.io.Serializable {
                 this.queryService = sf.getQueryService();
                 this.repService = sf.getRepositoryInfoService();
                 this.ldapService = sf.getLdapService();
-                                    
+                if(!ldapService.getSetting())
+                    ldapService = null;
+                
                 jsfnav = NavigationResults.SUCCESS;
                 logger.info("Admin role for user "
                         + adminService.getEventContext().getCurrentUserId());
@@ -351,9 +353,7 @@ public class LoginBean implements java.io.Serializable {
             EventContext ctx = this.adminService.getEventContext();
             this.id = ctx.getCurrentUserId().toString();
             this.role = ctx.isCurrentUserAdmin();
-            this.mode = true;
-            if(!ldapService.getSetting())
-                ldapService = null;
+            this.mode = true;            
             logger.info("Authentication succesfule");
             return jsfnav;
         } catch (EJBAccessException e) {
