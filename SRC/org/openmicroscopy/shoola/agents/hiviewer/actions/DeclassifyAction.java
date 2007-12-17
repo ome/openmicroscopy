@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.util.Set;
+
 import javax.swing.Action;
 
 //Third-party libraries
@@ -79,7 +81,19 @@ public class DeclassifyAction
         	setEnabled(false);
         	return;
         }
-        setEnabled(selectedDisplay.getHierarchyObject() instanceof ImageData);
+        Set nodes = model.getBrowser().getSelectedDisplays();
+        if (nodes.size() > 1) {
+        	setEnabled(false);
+        	return;
+        }
+        Object ho = selectedDisplay.getHierarchyObject();
+        if (!(ho instanceof ImageData)) {
+        	setEnabled(false);
+        	return;
+        }
+        ImageData img = (ImageData) ho;
+        Long count = img.getClassificationCount();
+        setEnabled(count != null && count.longValue() > 0);
     }
     
     /**

@@ -464,7 +464,7 @@ class BrowserUI
                         tm.reload(display);
                     } else {
                     	if (display.isExpanded()) {
-                    		setExpandedParent(display, false);
+                    		setExpandedParent(display, true);
                         	nodesToReset.add(display);
                     	}
                     	buildTreeNode(display, sorter.sort(children), tm);
@@ -1093,14 +1093,17 @@ class BrowserUI
 	/**
 	 * Adds a new experimenter to the tree.
 	 * 
-	 * @param experimenter The experimenter to add.
+	 * @param experimenter  The experimenter to add.
+	 * @param load			Pass <code>true</code> to load the data,
+	 * 						<code>false</code> otherwise.
 	 */
-	void addExperimenter(ExperimenterData experimenter)
+	void addExperimenter(ExperimenterData experimenter, boolean load)
 	{
-		createExperimenterNode(experimenter);
-		//treeDisplay.expandPath(new TreePath(node.getPath()));
+		TreeImageSet node = createExperimenterNode(experimenter);
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
 		dtm.reload();
+		if (load)
+			treeDisplay.expandPath(new TreePath(node.getPath()));
 	}
 
 	/**

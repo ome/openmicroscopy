@@ -51,6 +51,13 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class SearchContext
 {
 
+	public static final int			JUST_CURRENT_USER = 0;
+	
+	
+	public static final int			CURRENT_USER_AND_OTHERS = 1;
+	
+	public static final int			JUST_OTHERS = 2;
+	
 	/** Identifying the <code>Image</code> context. */
 	public static final int			IMAGES = 0;
 	
@@ -65,6 +72,9 @@ public class SearchContext
 	
 	/** Identifying the <code>Tag</code> context. */
 	public static final int			TAGS = 4;
+	
+	/** Identifying the <code>Tag set</code> context. */
+	public static final int			TAG_SETS = 5;
 	
 	/** Indicates not to take into account the time criteria. */
 	static final int				ANY_DATE = 0;
@@ -105,6 +115,13 @@ public class SearchContext
 	/** The end time of the interval. */
 	private Timestamp		endTime;
 	
+	/** 
+	 * One out of the following indexes: 
+	 * {@link #JUST_CURRENT_USER}, {@link #JUST_OTHERS} or 
+	 * {@link #CURRENT_USER_AND_OTHERS}.
+	 */
+	private int				userSearchContext;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -118,25 +135,33 @@ public class SearchContext
 	}
 	
 	/**
-	 * Returns the collection of terms to search for. 
+	 * Sets the context of the search for users.
 	 * 
-	 * @return See above.
+	 * @param index The value to set.
 	 */
-	public List<String> getTerms() { return terms; }
+	void setUserSearchContext(int index)
+	{
+		userSearchContext = index;
+	}
 	
 	/**
-	 * Returns the collection of context.
+	 * Sets the start and end times.
 	 * 
-	 * @return See above.
+	 * @param startTime	The start time.
+	 * @param endTime	The end time.
 	 */
-	public List<Integer> getContext() { return context; }
-	
+	void setTime(Timestamp startTime, Timestamp endTime)
+	{
+		this.startTime = startTime;
+		this.endTime = endTime;
+	}
+
 	/**
 	 * Returns the collection of selected users if any.
 	 * 
 	 * @param users The value to set.
 	 */
-	public void setUsers(List<String> users) { this.users = users; }
+	void setUsers(List<String> users) { this.users = users; }
 	
 	/**
 	 * Sets the {@link #startTime} and {@link #endTime} depending on the
@@ -144,7 +169,7 @@ public class SearchContext
 	 * 
 	 * @param index One of the constants defined by this class.
 	 */
-	public void setTime(int index)
+	void setTime(int index)
 	{
 		GregorianCalendar gc = new GregorianCalendar();
 		endTime = UIUtilities.getDefaultTimestamp();
@@ -181,16 +206,18 @@ public class SearchContext
 	}
 	
 	/**
-	 * Sets the start and end times.
+	 * Returns the collection of terms to search for. 
 	 * 
-	 * @param startTime	The start time.
-	 * @param endTime	The end time.
+	 * @return See above.
 	 */
-	public void setTime(Timestamp startTime, Timestamp endTime)
-	{
-		this.startTime = startTime;
-		this.endTime = endTime;
-	}
+	public List<String> getTerms() { return terms; }
+	
+	/**
+	 * Returns the collection of context.
+	 * 
+	 * @return See above.
+	 */
+	public List<Integer> getContext() { return context; }
 
 	/** 
 	 * Returns the collection of users' details.
@@ -212,5 +239,13 @@ public class SearchContext
 	 * @return See above.
 	 */
 	public Timestamp getEndTime() { return endTime; }
+	
+	/**
+	 * Returns the context of the search for users.
+	 * 
+	 * @return See above.
+	 */
+	public int getUserSearchContext() { return userSearchContext; }
+	
 	
 }

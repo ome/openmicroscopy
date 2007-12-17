@@ -37,7 +37,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.RemoveCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -70,7 +69,7 @@ public class RemoveAction
     
     /** Name of the action if the selected items are Datasets. */
     private static final String NAME_CATEGORYGROUP = 
-            "Remove from current category group";
+    										"Remove from current Tag Set";
     
     /** 
      * Name of the action if the selected items are images and 
@@ -82,12 +81,12 @@ public class RemoveAction
      * Name of the action if the selected items are images and
      * the parent is a dataset. 
      */
-    private static final String NAME_CATEGORY = "Remove from current category";
+    private static final String NAME_CATEGORY = "Remove current Tag";
     
     
     /** Description of the action. */
-    private static final String DESCRIPTION = "Remove the selected element " +
-            "from the current container.";
+    //private static final String DESCRIPTION = "Remove the selected element " +
+    //        "from the current container.";
     
     /**
      * Sets the action enabled depending on the currently selected display
@@ -161,8 +160,8 @@ public class RemoveAction
     {
         super(model);
         putValue(Action.NAME, NAME);
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
+       // putValue(Action.SHORT_DESCRIPTION, 
+        //        UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager icons = IconManager.getInstance();
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.DELETE));
     }

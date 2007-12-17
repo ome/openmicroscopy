@@ -33,6 +33,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 
 /** 
@@ -78,6 +79,20 @@ public class QuickFinder
 	 * 
 	 * @param values The value to search for.
 	 */
+	private void fireTagSetsRetrieval(List values)
+	{
+		state = SEARCH;
+		QuickFinderLoader handler = new QuickFinderLoader(this, values, 
+													QuickFinderLoader.TAG_SETS);
+		handler.load();
+		finderHandlers.add(handler);
+	}
+	
+	/** 
+	 * Searches for the passed values.
+	 * 
+	 * @param values The value to search for.
+	 */
 	private void fireImagesRetrieval(List values)
 	{
 		state = SEARCH;
@@ -114,15 +129,24 @@ public class QuickFinder
 	{
 		//SearchObject node = (SearchObject) evt.getNewValue();
 		if (selectedNode == null) return;
+		List values = selectedNode.getResult();
+		if (values == null || values.size() == 0) {
+			UserNotifier un = FinderFactory.getRegistry().getUserNotifier();
+			un.notifyInfo("Quick Search", "Please enter a term to search for.");
+			return;
+		}
 		switch (selectedNode.getIndex()) {
 			case TAGS:
-				fireTagsRetrieval(selectedNode.getResult());
+				fireTagsRetrieval(values);
 				break;
 			case IMAGES:
-				fireImagesRetrieval(selectedNode.getResult());
+				fireImagesRetrieval(values);
 				break;
 			case ANNOTATIONS:
-				fireAnnotationsRetrieval(selectedNode.getResult());
+				fireAnnotationsRetrieval(values);
+				break;
+			case TAG_SETS:
+				fireTagSetsRetrieval(values);
 		}
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	}

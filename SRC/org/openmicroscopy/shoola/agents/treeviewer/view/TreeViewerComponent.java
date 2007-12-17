@@ -820,9 +820,10 @@ class TreeViewerComponent
 		Map browsers = model.getBrowsers();
 		Iterator i = browsers.keySet().iterator();
 		Browser browser;
+		Browser selected = model.getSelectedBrowser();
 		while (i.hasNext()) {
 			browser = (Browser) browsers.get(i.next());
-			browser.addExperimenter(experimenter);
+			browser.addExperimenter(experimenter, browser == selected);
 		}
 		//Creates a new 
 		/*

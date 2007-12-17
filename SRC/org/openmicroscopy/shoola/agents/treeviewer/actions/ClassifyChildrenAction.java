@@ -64,8 +64,8 @@ public class ClassifyChildrenAction
 	private static final String NAME = "Add Tag to Images";
 
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Adds Tag to the " +
-	"images contained in the selected folder.";
+	private static final String DESCRIPTION = "Add Tag to the selected " +
+												"images.";
 
 	/**
 	 * Sets the action enabled depending on the selected type.

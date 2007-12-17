@@ -60,7 +60,7 @@ public class SearchAction
     private static final String NAME = "Search ";
     
 	/** The description of the action. */
-    private static final String DESCRIPTION = "Advanced search.";
+    private static final String DESCRIPTION = "Bring up the Advanced search.";
     
 	/**
 	 * Creates a new instance.

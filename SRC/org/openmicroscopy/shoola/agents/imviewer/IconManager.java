@@ -283,8 +283,8 @@ public class IconManager
         relPaths[CATEGORY_GROUP] = "category_group16.png"; 
         relPaths[BROWSE] = "zoom16.png";
         relPaths[TRANSPARENT] = "eclipse_transparent16.png";
-        relPaths[RATIO_MIN] = "image8.png";
-        relPaths[RATIO_MAX] = "image14.png";
+        relPaths[RATIO_MIN] = relPaths[ZOOM_OUT];//"image8.png";
+        relPaths[RATIO_MAX] = relPaths[ZOOM_IN];//"image14.png";
         relPaths[COPY] = "eclipse_copy_edit16.png";
         relPaths[PASTE] = "eclipse_paste_edit16.png";
         relPaths[PREFERENCES_48] = "nuvola_messagebox_info48.png";

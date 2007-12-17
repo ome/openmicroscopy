@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -376,6 +377,39 @@ abstract class HiViewerModel
         currentLoader.load();
     }
     
+    /**
+     * Starts the asynchronous retrieval of the thumbnails needed for the
+     * images in the display this model is for and sets the state to 
+     * {@link HiViewer#LOADING_THUMBNAILS}. 
+     * 
+     * @param imagesID
+     */
+    void fireThumbnailLoading(Collection imagesID)
+    {
+        if (imagesID == null || imagesID.size() == 0) {
+            state = HiViewer.READY;
+            return;
+        }
+        Set images = browser.getImages();
+        state = HiViewer.LOADING_THUMBNAILS;
+        Iterator i = images.iterator();
+        Map<Long, ImageData> nodes = new HashMap<Long, ImageData>();
+        ImageData node;
+        while (i.hasNext()) {
+        	node = (ImageData) i.next();
+			nodes.put(node.getId(), node);
+		} 
+        Set<ImageData> toRefresh = new HashSet<ImageData>();
+        i = imagesID.iterator();
+        long id;
+        while (i.hasNext()) {
+			id = ((Long) i.next()).longValue();
+			node = nodes.get(id);
+			if (node != null) toRefresh.add(node);
+		}
+        currentLoader = new ThumbnailLoader(component, toRefresh);
+        currentLoader.load();
+    }
     /**
      * Starts the asynchronous update of the specified object.
      * 

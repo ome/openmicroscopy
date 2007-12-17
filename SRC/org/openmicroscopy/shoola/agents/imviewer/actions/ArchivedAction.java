@@ -58,7 +58,7 @@ public class ArchivedAction
     private static final String NAME = "Download";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Downloads the archived files.";
+    private static final String DESCRIPTION = "Download the archived files.";
     
     /**
      * Creates a new instance.

@@ -56,7 +56,7 @@ public class InfoAction
     private static final String NAME = "Details";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Bring up the image details";
+    private static final String DESCRIPTION = "Bring up the image's details";
 
     /**
      * Creates a new instance.

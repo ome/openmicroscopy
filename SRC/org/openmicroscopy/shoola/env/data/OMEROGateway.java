@@ -1458,8 +1458,8 @@ class OMEROGateway
 			} catch (IOException e) {
 				if (f != null) f.delete();
 				notDownloaded.add(of.getName());
-				throw new DSAccessException("Cannot create file with " +
-						"file path: "+fullPath, e);
+				throw new DSAccessException("Cannot create file with path " +
+											fullPath, e);
 			}
 		}
 		result.put(files.size(), notDownloaded);
@@ -1918,7 +1918,7 @@ class OMEROGateway
 					param.addString(names[index], term.toLowerCase());
 				} else
 				*/
-					param.addString(names[index], "%"+term.toLowerCase()+"%");
+				param.addString(names[index], "%"+term.toLowerCase()+"%");
 				index++;
 			}
 		}
@@ -2075,8 +2075,8 @@ class OMEROGateway
 						ids.add(((ILink) i.next()).getChild().getId());
 					}
 					table = getTableForLink(Category.class);
-					sql = "select object from "+table+" as object where " +
-					"object.parent.id in (:parentIDs)";
+					sql = "select o from "+table+" as o where " +
+					"o.parent.id in (:parentIDs)";
 					param = new Parameters();
 					param.addSet("parentIDs", ids);
 					return service.findAllByQuery(sql, param);

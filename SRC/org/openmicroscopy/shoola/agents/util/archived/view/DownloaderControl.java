@@ -38,6 +38,7 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.TinyLoadingWin;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+import org.openmicroscopy.shoola.util.ui.filechooser.FolderChooserDialog;
 
 /** 
  * The Downloader's Controller.
@@ -90,8 +91,10 @@ class DownloaderControl
     {
        if (view == null)
     	   throw new NullPointerException("No view.");
-       view.addPropertyChangeListener(FileChooser.LOCATION_PROPERTY, 
+       view.addPropertyChangeListener(FolderChooserDialog.LOCATION_PROPERTY, 
 				this);
+       //view.addPropertyChangeListener(FileChooser.LOCATION_PROPERTY, 
+		//		this);
        loadinWindow = new TinyLoadingWin(DownloaderFactory.getOwner(),
     		   "Downloading...");
        model.addChangeListener(this);
@@ -104,7 +107,14 @@ class DownloaderControl
 	public void propertyChange(PropertyChangeEvent evt) 
 	{
 		String name = evt.getPropertyName();
+		/*
 		if (FileChooser.LOCATION_PROPERTY.equals(name)) {
+			String dir = (String) evt.getNewValue();
+			model.download(dir);
+		}
+		*/
+		
+		if (FolderChooserDialog.LOCATION_PROPERTY.equals(name)) {
 			String dir = (String) evt.getNewValue();
 			model.download(dir);
 		}

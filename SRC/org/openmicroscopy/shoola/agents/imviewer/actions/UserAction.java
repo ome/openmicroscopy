@@ -56,7 +56,7 @@ public class UserAction
 {
 
 	/** The description of the action. */
-    private static final String DESCRIPTION = "Shows image " +
+    private static final String DESCRIPTION = "Show image " +
     		"with the rendering settings set by the selected user.";
     
 	/**

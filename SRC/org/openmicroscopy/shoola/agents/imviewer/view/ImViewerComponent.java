@@ -2415,12 +2415,16 @@ class ImViewerComponent
 	public void retrieveTags(Component component, Point point)
 	{
 		view.setLocationAndSource(component, point);
+		model.fireCategoriesLoading();
+		model.getTagger().addPropertyChangeListener(controller);
+		/*
 		if (model.getTagger() == null) {
 			model.fireCategoriesLoading();
 			model.getTagger().addPropertyChangeListener(controller);
 		} else {
 			view.showMenu(CATEGORY_MENU);
 		}
+		*/
 	}
     
 }

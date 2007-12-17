@@ -89,7 +89,6 @@ class ThumbWinManager
 				w = (ThumbWin) windows.get(new Long(ho.getId()));
 				if (w != null) w.setDataObject(ho);
 			}
-			
 		}
     }
     

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.actions.ResultsWizardAction 
+ * org.openmicroscopy.shoola.env.data.model.SearchDataContext 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,23 +20,21 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.measurement.actions;
+package org.openmicroscopy.shoola.env.data.model;
 
+import java.sql.Timestamp;
+import java.util.List;
 
-
+import pojos.ExperimenterData;
 
 //Java imports
-import java.awt.event.ActionEvent;
-import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Brings up the results wizard.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,34 +46,18 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public class ResultsWizardAction
-	extends MeasurementViewerAction
+public class SearchDataContext
 {
 
-	/** The name of the action. */
-	private static final String NAME = "Results Wizard.. ";
+	private List<Class> scope;
 	
-	/** The description of the action. */
-	private static final String DESCRIPTION = "Bring up the results wizard.";
-
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param model The model. Mustn't be <code>null</code>.
-	 */
-	public ResultsWizardAction(MeasurementViewer model)
-	{
-		super(model);
-		name = NAME;
-		putValue(Action.NAME, NAME);
-		putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
-	}
+	private List<String> terms;
 	
-	/** 
-     * Brings up the results wizard.
-     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-     */
-    public void actionPerformed(ActionEvent e) { model.showResultsWizard(); }
-    
+	private List<ExperimenterData> users;
+	
+	private Timestamp start;
+	
+	private Timestamp end;
+	
+	
 }

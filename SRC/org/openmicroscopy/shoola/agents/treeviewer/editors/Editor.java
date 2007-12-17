@@ -64,7 +64,7 @@ public interface Editor
     public static final int         DISCARDED = 2;
     
     /** Flag to denote the <i>Loading Classification</i> state. */
-    public static final int         LOADING_CLASSIFICATION = 4;
+    public static final int         LOADING_TAGS = 4;
     
     /** Flag to denote the <i>Loading CHANNEL DATA</i> state. */
     public static final int         LOADING_CHANNEL_DATA = 5;
@@ -121,7 +121,7 @@ public interface Editor
     void saveObject(DataObject object, int operation);
 
     /** Reloads the classifications. */
-    void loadClassifications();
+    void loadTags();
     
     /** Retrieves the emission wavelengths for the set of pixels. */
     void retrieveChannelsData();   
@@ -153,13 +153,6 @@ public interface Editor
      * @param thumbnail The thumbnail to set.
      */
     public void setThumbnail(BufferedImage thumbnail);
-    
-    /**
-     * Sets the retrieved classfication paths.
-     * 
-     * @param paths The paths to set.
-     */
-    public void setRetrievedClassification(Set paths);
 
     /** Cancels any ongoing data loading. */
     public void cancel();
@@ -249,5 +242,7 @@ public interface Editor
 	 * @return See above.
 	 */
 	public boolean hasAnnotationToSave();
+	
+	public void setTags(List linkedTags, List tagSets);
 	
 }

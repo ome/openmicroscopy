@@ -127,22 +127,25 @@ class ClassificationPaneUI
     
     /** 
      * Handles the mouse click event. 
-     * Browses the selected <code>CategoryGroup</code> or <code>Category</code>.
+     * Browses the selected <code>Tag Set</code> or <code>Tag</code>.
      * 
-     * @param me The mouse event.
+     * @param me 		The mouse event.
+     * @param released 	Pass <code>true</code> if the method is invoked when
+     *                  the mouse is released, <code>false</code> otherwise. 
      */
-    private void onClick(MouseEvent me)
+    private void onClick(MouseEvent me, boolean released)
     {
         Point p = me.getPoint();
         int row = treeDisplay.getRowForLocation(p.x, p.y);
         if (row != -1) {
             treeDisplay.setSelectionRow(row);
-            if (me.getClickCount() != 2) return;
-            Object node = treeDisplay.getLastSelectedPathComponent();
-            if (!(node instanceof TreeCheckNode)) return;
-            Object userObject = ((TreeCheckNode) node).getUserObject();
-            if (userObject instanceof DataObject) 
-                model.browse((DataObject) userObject);
+            if (me.getClickCount() == 2 && released) {
+            	 Object node = treeDisplay.getLastSelectedPathComponent();
+                 if (!(node instanceof TreeCheckNode)) return;
+                 Object userObject = ((TreeCheckNode) node).getUserObject();
+                 if (userObject instanceof DataObject) 
+                     model.browse((DataObject) userObject);
+            }
         }
     }
     
@@ -173,8 +176,8 @@ class ClassificationPaneUI
                 TreeSelectionModel.SINGLE_TREE_SELECTION);
         //Add Listeners
         treeDisplay.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) { onClick(e); }
-            public void mouseReleased(MouseEvent e) { onClick(e); }
+            public void mousePressed(MouseEvent e) { onClick(e, false); }
+            public void mouseReleased(MouseEvent e) { onClick(e, true); }
         });
     }
     
@@ -245,7 +248,6 @@ class ClassificationPaneUI
         while (i.hasNext())
             root.addChildDisplay((TreeCheckNode) i.next()) ;
         buildTreeNode(root, sorter.sort(nodes));
-        dtm.reload();
         dtm.reload();
     }
     

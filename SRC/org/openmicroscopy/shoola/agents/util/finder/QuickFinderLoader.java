@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.util.finder;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +39,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.AnnotationData;
 import pojos.CategoryData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
@@ -93,7 +95,12 @@ public class QuickFinderLoader
      */
     public void load()
     {
-    	handle = dhView.searchFor(type, getUserDetails().getId(), values, this);
+    	List<Class> scope = new ArrayList<Class>(1);
+    	scope.add(type);
+    	List<ExperimenterData> users = new ArrayList<ExperimenterData>(1);
+    	users.add(getUserDetails());
+    	handle = dhView.advancedSearchFor(scope, values, users, null, null,
+    										this);
     }
 
     /**

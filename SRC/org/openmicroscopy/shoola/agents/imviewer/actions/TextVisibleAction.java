@@ -54,8 +54,8 @@ public class TextVisibleAction
 {
 
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Paints some textual " +
-			"information on the grid image." ;
+	private static final String DESCRIPTION = "Paint some textual " +
+			"information on top of the grid image." ;
 	
 	/**
      * Creates a new instance.

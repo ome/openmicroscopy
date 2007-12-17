@@ -929,14 +929,14 @@ class HiViewerComponent
 	{
 		if (!hasRndSettings()) {
 			UserNotifier un = HiViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Paste settings", "No rendering settings to" +
+			un.notifyInfo("Paste settings", "No rendering settings to " +
 					"paste. Please first copy settings.");
 			return;
 		}
 		Set nodes = model.getBrowser().getSelectedDisplays();
 		if (nodes == null || nodes.size() == 0){
 			UserNotifier un = HiViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Paste settings", "Please select the nodes" +
+			un.notifyInfo("Paste settings", "Please select the nodes " +
 					"you wish to apply the settings to.");
 			return;
 		}
@@ -992,9 +992,15 @@ class HiViewerComponent
 	{
 		if (map == null || map.size() != 2) return;
 		Collection failure = (Collection) map.get(Boolean.FALSE);
+		Collection success = (Collection) map.get(Boolean.TRUE);
 		EventBus bus = HiViewerAgent.getRegistry().getEventBus();
-		bus.post(new RndSettingsCopied((Collection) map.get(Boolean.TRUE)));
-		
+		bus.post(new RndSettingsCopied(success));
+		if (success != null && success.size() > 0) {
+			model.fireThumbnailLoading(success);
+			fireStateChange();
+			//refresh();
+		} else refresh();
+			
 		UserNotifier un = HiViewerAgent.getRegistry().getUserNotifier();
 		if (failure.size() == 0) {
 			un.notifyInfo("Paste settings", "Rendering settings have been " +

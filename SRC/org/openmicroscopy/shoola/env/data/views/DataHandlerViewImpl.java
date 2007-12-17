@@ -251,10 +251,10 @@ public class DataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#loadAllClassifications(long, long, 
+	 * @see DataHandlerView#loadAllTags(long, long, 
 	 * 											AgentEventListener)
 	 */
-	public CallHandle loadAllClassifications(Set<Long> imageIDs, long userID, 
+	public CallHandle loadAllTags(Set<Long> imageIDs, long userID, 
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ClassificationLoader(imageIDs,
@@ -262,6 +262,18 @@ public class DataHandlerViewImpl
 		return cmd.exec(observer);
 	}
 
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataHandlerView#loadLinkedTags(long, long, 
+	 * 											AgentEventListener)
+	 */
+	public CallHandle loadLinkedTags(Set<Long> imageIDs, long userID, 
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ClassificationLoader(imageIDs,
+				ClassificationLoader.PARTIAL, userID);
+		return cmd.exec(observer);
+	}
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see DataHandlerView#findCategoryPaths(long, boolean, long, 
@@ -367,17 +379,6 @@ public class DataHandlerViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ClassificationSaver(timeRef, categories);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#searchFor(Class, long, List, AgentEventListener)
-	 */
-	public CallHandle searchFor(Class type, long userID, List values, 
-					AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ObjectFinder(type, userID, values);
 		return cmd.exec(observer);
 	}
 

@@ -68,7 +68,7 @@ public class AddAction
     private static final String NAME_DATASET = "Add existing Dataset...";
     
     /** The name of the action to add existing <code>Categories</code>. */
-    private static final String NAME_CATEGORY = "Add existing Category...";
+    private static final String NAME_CATEGORY = "Add existing Tag...";
     
     /** The name of the action to add existing <code>Images</code>. */
     private static final String NAME_IMAGE = "Add existing Image...";

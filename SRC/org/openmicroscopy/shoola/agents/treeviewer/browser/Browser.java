@@ -452,8 +452,10 @@ public interface Browser
 	 * 
 	 * @param experimenter 	The experimenter to add. 
 	 * 						Mustn't be <code>null</code>.
+	 * @param load			Pass <code>true</code> to load the data,
+	 * 						<code>false</code> otherwise.
 	 */
-	public void addExperimenter(ExperimenterData experimenter);
+	public void addExperimenter(ExperimenterData experimenter, boolean load);
 
 	/**
 	 * Removes the experimenter's data from the display.

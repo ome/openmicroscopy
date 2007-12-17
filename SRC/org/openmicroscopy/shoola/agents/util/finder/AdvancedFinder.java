@@ -90,9 +90,36 @@ public class AdvancedFinder
 				return FinderLoader.DATASETS;
 			case SearchContext.PROJECTS:
 				return FinderLoader.PROJECTS;
+			case SearchContext.TAG_SETS:
+				return FinderLoader.TAG_SETS;
 			default:
 			case SearchContext.IMAGES:
 				return FinderLoader.IMAGES;
+		}
+	}
+	
+	private void addExperimenter(List<String> users, 
+								List<ExperimenterData> exps)
+	{
+		if (users == null) return;
+		Iterator i = users.iterator();
+		String user;
+		ExperimenterData exp;
+		while (i.hasNext()) {
+			user = (String) i.next();
+			if (user != null) {
+				exp = new ExperimenterData();
+				String[] names = user.split(SearchUtil.NAME_SEPARATOR);
+				switch (names.length) {
+					case 2:
+						exp.setFirstName(names[0]);
+						exp.setLastName(names[1]);
+						break;
+					case 1:
+						exp.setLastName(names[1]);
+				}
+				exps.add(exp);
+			}
 		}
 	}
 	
@@ -122,29 +149,19 @@ public class AdvancedFinder
 			scope.add(convertScope(index));
 		}
 		List<String> users = ctx.getUsers();
-		List<ExperimenterData> exps = null;
-		if (users != null) {
-			exps = new ArrayList<ExperimenterData>();
-			i = users.iterator();
-			String user;
-			ExperimenterData exp;
-			while (i.hasNext()) {
-				user = (String) i.next();
-				if (user != null) {
-					exp = new ExperimenterData();
-					String[] names = user.split(SearchUtil.NAME_SEPARATOR);
-					switch (names.length) {
-						case 2:
-							exp.setFirstName(names[0]);
-							exp.setLastName(names[1]);
-							break;
-						case 1:
-							exp.setLastName(names[1]);
-					}
-					exps.add(exp);
-				}
-			}
+		List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
+		switch (ctx.getUserSearchContext()) {
+			case SearchContext.JUST_CURRENT_USER:
+				exps.add(getUserDetails());
+				break;
+			case SearchContext.JUST_OTHERS:
+				addExperimenter(users, exps);
+				break;
+			case SearchContext.CURRENT_USER_AND_OTHERS:
+				exps.add(getUserDetails());
+				addExperimenter(users, exps);
 		}
+		
 		AdvancedFinderLoader loader = new AdvancedFinderLoader(this, terms,
 											exps, scope, ctx.getStartTime(),
 				ctx.getEndTime());

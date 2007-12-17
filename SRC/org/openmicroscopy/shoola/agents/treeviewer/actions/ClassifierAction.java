@@ -60,7 +60,7 @@ public class ClassifierAction
 {
 
     /** The description of the action. */
-    private static final String DESCRIPTION = "Add Tags or removes Tags." +
+    private static final String DESCRIPTION = "Add or remove Tags." +
             "\n Press (Shift) to keep the menu on screen " +
             "when making selection.";
     

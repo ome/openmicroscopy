@@ -63,12 +63,14 @@ public class ColorModelAction
      * The description of the action if the index is {@link #RGB_MODEL}
      * or  {@link #HSB_MODEL}.
      */
-    public static final String 	DESCRIPTION_RGB = "Colour model.";
+	public static final String 	DESCRIPTION_RGB = "Switch between color " +
+    										"and monochrome.";
     
     /** 
      * The description of the action if the index is {@link #GREY_SCALE_MODEL}.
      */
-    public static final String 	DESCRIPTION_GREY_SCALE = "Greyscale model.";
+    public static final String 	DESCRIPTION_GREY_SCALE = 
+    						"Switch between color and monochrome.";
     
     /** Identifies the <code>Grey Scale</code>. */
     public static final int     GREY_SCALE_MODEL = 0;

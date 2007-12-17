@@ -34,6 +34,7 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -77,7 +78,7 @@ class DOBasic
     static final String     ANNOTATION = "Annotation";
     
     /** Title of the classification pane. */
-    static final String     CLASSIFICATION = "Categorisation";   
+    static final String     CLASSIFICATION = "Tag";   
     
     /** Text of the {@link #download} button. */
     private final String	DOWNLOAD = "Download";
@@ -110,8 +111,13 @@ class DOBasic
      */
     //private DOClassification    classifier;
     
-    /** Component hosting the object permissions. */
-    private DOInfo				permissionsInfo;
+    /** Component hosting the additional information. */
+    private JComponent			informationPanel;
+    
+    private JComponent			tagsPanel;
+    
+    private JComponent			contentPanel;
+    
     
     /** A {@link DocumentListener} for the {@link #nameArea}. */
     private DocumentListener    nameAreaListener;
@@ -216,7 +222,7 @@ class DOBasic
             ExperimenterData exp = model.getDataObjectOwner();
         	
             Map details = EditorUtil.transformExperimenterData(exp);
-            permissionsInfo = new DOInfo(view, model, details, true, 
+            informationPanel = new DOInfo(view, model, details, true, 
                                 DOInfo.OWNER_TYPE);
             
         } //end if editor type
@@ -340,12 +346,17 @@ class DOBasic
     private void buildGUI()
     {
         setLayout(new BorderLayout());
-        if (permissionsInfo != null) {
-        	JPanel p = new JPanel();
-            p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-            p.add(buildContentPanel());
-            p.add(permissionsInfo);
-            add(p, BorderLayout.NORTH);
+        //contentPanel = buildContentPanel();
+        //toolBar = view.buildBasicToolBar(download);
+        if (informationPanel != null) {
+        	contentPanel = new JPanel();
+        	contentPanel.setLayout(new BoxLayout(contentPanel, 
+        								BoxLayout.Y_AXIS));
+        	contentPanel.add(buildContentPanel());
+        	contentPanel.add(informationPanel);
+            tagsPanel = new JPanel();
+            contentPanel.add(tagsPanel);
+            add(contentPanel, BorderLayout.NORTH);
         } else add(buildContentPanel(), BorderLayout.NORTH);
         add(view.buildBasicToolBar(download), BorderLayout.SOUTH);
     }
@@ -400,11 +411,13 @@ class DOBasic
         nameArea.getDocument().addDocumentListener(nameAreaListener);
     }
 
-    /** Shows the classifications. */
-    void showClassifications()
+    /** Shows the tags. */
+    void showTags()
     {
-        //if (classifier == null) return;
-        //classifier.showClassifications();
+    	tagsPanel = new DOTag(view, model);
+    	contentPanel.add(UIUtilities.buildComponentPanel(tagsPanel));
+    	validate();
+        repaint();
     }
 
     /** 
@@ -449,4 +462,5 @@ class DOBasic
 		//if (annotator != null) annotator.addSelectedNodes(nodes);
 	}
     
+	
 }

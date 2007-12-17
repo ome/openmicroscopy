@@ -152,19 +152,19 @@ public class ClassificationLoader
     }
   
     /**
-     * Creates a {@link BatchCall} to load all Category Group/Category paths
-     * that don't end with the specified Image.
+     * Creates a {@link BatchCall} to load all tags, the one linked to
+     * the images and the available ones.
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
      * 
-     * @param imageID	The id of the image.
+     * @param imageIDs	The id of the images.
      * @param userID	The Id of the user.                  
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadAllClassification(final Set<Long> imageIDs, 
+    private BatchCall loadAllTags(final Set<Long> imageIDs, 
     										final long userID)
     {
-        return new BatchCall("Loading CGC paths. ") {
+        return new BatchCall("Loading tags. ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
@@ -214,26 +214,68 @@ public class ClassificationLoader
     }
     
     /**
-     * Creates a {@link BatchCall} to load all Categories containing the image.
+     * Creates a {@link BatchCall} to load all tags linked to the images.
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
      * 
      * @param imageID	The id of the image.
-     * @param leaves	Passed <code>true</code> to retrieve the images
-     * 					<code>false</code> otherwise.
-     * 
      * @param userID	The Id of the user.                  
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadPartialClassification(final long imageID, 
-    										final boolean leaves,
-    										final long userID)
+    private BatchCall loadLinkedTags(final Set<Long> imageIDs, 
+    								final long userID)
     {
         return new BatchCall("Loading CGC paths. ") {
             public void doCall() throws Exception
             {
-                OmeroDataService os = context.getDataService();
-                rootNodes = os.findCategoryPaths(imageID, leaves, userID);
+            	OmeroDataService os = context.getDataService();
+                List<CategoryData> r = new ArrayList<CategoryData>();
+                Set nodes;
+                Iterator i;
+                CategoryData category;
+                List<Long> ids = new ArrayList<Long>();
+                if (imageIDs != null) {
+                	nodes = os.findCategoryPaths(imageIDs, false, userID);
+                    i = nodes.iterator();
+                    while (i.hasNext()) {
+                    	category = (CategoryData) i.next();
+             			if (!ids.contains(category.getId())) {
+             				r.add(category);
+             				ids.add(category.getId());
+             			}
+    	         	}
+                }
+                
+
+	         	List<List> results = new ArrayList<List>(2);
+	         	results.add(r);
+	         	/*
+	         	nodes = os.loadContainerHierarchy(
+                        CategoryData.class, null, false, userID);
+	         	i = nodes.iterator();
+	         	r = new ArrayList<CategoryData>();
+	         	while (i.hasNext()) {
+	         		category = (CategoryData) i.next();
+	         		if (!ids.contains(category.getId())) {
+         				r.add(category);
+         			}
+				}
+	         	results.add(r);
+	         	*/
+	         	//Need 
+	         	/*
+	         	nodes = os.loadTopContainerHierarchy(CategoryGroupData.class, 
+	         											userID);
+	         											*/
+	         	nodes = os.findCGCPaths(imageIDs, 
+	         				OmeroDataService.DECLASSIFICATION, userID);
+	         	i = nodes.iterator();
+	         	List rg = new ArrayList();
+	         	while (i.hasNext()) {
+	         		rg.add(i.next());
+				}
+	         	results.add(rg);
+	         	rootNodes = results;
             }
         };
     }
@@ -290,7 +332,9 @@ public class ClassificationLoader
     {
         if (imageID < 0) 
             throw new IllegalArgumentException("image ID not valid ");
-        loadCall = loadPartialClassification(imageID, leaves, userID);
+        Set<Long> images = new HashSet<Long>(1);
+        images.add(imageID);
+        loadCall = loadLinkedTags(images, userID);
     }
     
     /**
@@ -309,7 +353,7 @@ public class ClassificationLoader
     {
         if (imagesID == null || imagesID.size() == 0) 
             throw new IllegalArgumentException("image ID not valid ");
-        loadCall = loadPartialClassification(imagesID, leaves, userID);
+        loadCall = loadLinkedTags(imagesID, userID);
     }
     
     /**
@@ -331,18 +375,16 @@ public class ClassificationLoader
         if (!checkAlgorithmIndex(algorithm))
             throw new IllegalArgumentException("Algorithm not supported.");
         Set<Long> images = new HashSet<Long>(1);
+        images.add(imageID);
         switch (algorithm) {
 			case ALL:
-				images.add(imageID);
-				loadCall = loadAllClassification(images, userID);
+				loadCall = loadAllTags(images, userID);
 				break;
 			case PARTIAL:
-				loadCall = loadPartialClassification(imageID, false, userID);
+				loadCall = loadLinkedTags(images, userID);
 				break;
 			default:
-				Set<Long> set = new HashSet<Long>(1);
-	        	set.add(new Long(imageID));
-	        	loadCall  = loadCGCPaths(set, algorithm, userID);
+	        	loadCall  = loadCGCPaths(images, algorithm, userID);
 		}
     }
    
@@ -366,10 +408,10 @@ public class ClassificationLoader
             throw new IllegalArgumentException("Algorithm not supported.");
         switch (algorithm) {
 			case ALL:
-				loadCall = loadAllClassification(imageIDs, userID);
+				loadCall = loadAllTags(imageIDs, userID);
 				break;
 			case PARTIAL:
-				loadCall = loadPartialClassification(imageIDs, false, userID);
+				loadCall = loadLinkedTags(imageIDs, userID);
 				break;
 			default:
 	        	loadCall  = loadCGCPaths(imageIDs, algorithm, userID);

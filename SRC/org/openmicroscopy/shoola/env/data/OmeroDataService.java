@@ -750,23 +750,7 @@ public interface OmeroDataService
 	public Set findCategoryPaths(Set<Long> imagesID, boolean leaves, 
 			long userID)
 		throws DSOutOfServiceException, DSAccessException; 
-	
-	/** 
-	 * Finds the images depending on the passed context.
-	 * Returns a collection of images ID.
-	 * 
-	 * @param type		The type of object to search for.
-	 * @param userID	The Id of the user.
-	 * @param terms		The values to search for.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public Set searchFor(Class type, long userID, List terms)
-		throws DSOutOfServiceException, DSAccessException;
-	
+
 	/**
 	 * Retrieves the objects specified by the context of the search.
 	 * 

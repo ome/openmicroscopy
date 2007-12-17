@@ -26,23 +26,23 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 
 //Java imports
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.ChannelDataLoader;
-import org.openmicroscopy.shoola.agents.treeviewer.ClassificationPathsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectCreator;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.EditorLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.TagLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
 import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorFactory;
 import pojos.CategoryData;
@@ -74,47 +74,53 @@ class EditorModel
 {
     
     /** Holds one of the state flags defined by {@link Editor}. */
-    private int                 state;
+    private int                 	state;
     
     /** The currently edited {@link DataObject}. */
-    private DataObject          hierarchyObject;
+    private DataObject          	hierarchyObject;
     
     /** 
      * Identifies the type of editor, either {@link Editor#CREATE_EDITOR}
      * or {@link Editor#PROPERTIES_EDITOR}.
      */
-    private int                 editorType;
+    private int                 	editorType;
     
     /** 
      * The parent of the object to create.
      * The value is taken into account only if the
      * the editor type is {@link Editor#CREATE_EDITOR}
      */
-    private TreeImageDisplay    parent;
+    private TreeImageDisplay    	parent;
     
     /** Back pointer to the {@link TreeViewer}.*/
-    private TreeViewer          parentModel;
+    private TreeViewer          	parentModel;
     
     /** 
      * Will either be a data loader or
      * <code>null</code> depending on the current state. 
      */
-    private EditorLoader        currentLoader;
+    private EditorLoader        	currentLoader;
+
+    /** Collection of tags linked to the image. */
+    private List<CategoryData>		tags;
     
-    /** The set of retrieved classifications */
-    private Set                 classifications;
+    /** Collection of tag sets linked to the image. */
+    private List<CategoryGroupData> tagSets;
     
     /** The emissions wavelengths for the edited image. */
-    private List               	emissionWaves;
+    private List               		emissionWaves;
     
     /** Flag indicating if the thumbnail is loade or not */
-    private boolean				thumbnailLoaded;
+    private boolean					thumbnailLoaded;
     
     /** Reference to the annotator. */
-    private AnnotatorEditor		annotator;
+    private AnnotatorEditor			annotator;
     
+	/** Helper reference used to sort tags. */
+	private ViewerSorter			sorter;
+
     /** Reference to the component that embeds this model. */
-    protected Editor            component;
+    protected Editor            	component;
     
     /**
      * Creates a new instance and sets the state to {@link Editor#NEW}.
@@ -263,16 +269,16 @@ class EditorModel
     
     /**
      * Returns <code>true</code> if the <code>DataObject</code> has been 
-     * classified, <code>false</code> otherwise.
+     * tagged, <code>false</code> otherwise.
      * 
      * @return See above.
      */
-    boolean isClassified()
+    boolean isTagged()
     {
         if (hierarchyObject == null || !(hierarchyObject instanceof ImageData))
                 return false;
         Long i = ((ImageData) hierarchyObject).getClassificationCount();
-        return (!(i == null || i.longValue() == 0));
+        return (i != null && i.longValue() >0);
     }
     
     /**
@@ -402,31 +408,13 @@ class EditorModel
     ExperimenterData getUserDetails() { return parentModel.getUserDetails(); }
 
     /**
-     * Indicates if the classification has already been loaded.
+     * Indicates if the tags have already been loaded.
+     * 
      * @return  <code>true</code> if the data has been loaded,
      *          <code>false</code> otherwise.
      */
-    boolean isClassificationLoaded() { return (classifications != null); }
-    
-    /**
-     * Sets the retrieved classifications.
-     * 
-     * @param classifications The collection to set.
-     */
-    void setClassifications(Set classifications)
-    { 
-        state = Editor.READY;
-        this.classifications = classifications;
-    }
-    
-    /**
-     * Returns the retrieved classifications, <code>null</code> if not
-     * retrieved yet.
-     * 
-     * @return See above.
-     */
-    Set getClassifications() { return classifications; }
-
+    boolean isTagsLoaded() { return (tags != null); }
+   
     /**
      * Fires an asynchronous annotation retrieval for the currently edited 
      * <code>DataObject</code>.
@@ -441,18 +429,22 @@ class EditorModel
     }
     
     /**
-     * Fires an asynchronous retrieval of the CategoryGroup/Category paths 
-     * containing the currently edited image.
+     * Fires an asynchronous retrieval of the Tags/tag sets linked to the image.
      */
-    void fireClassificationLoading()
+    void fireTagLoading()
     {
-        state = Editor.LOADING_CLASSIFICATION;
+        state = Editor.LOADING_TAGS;
         long imageID = ((ImageData) hierarchyObject).getId();
+        currentLoader = new TagLoader(component, imageID, 
+        					parentModel.getUserDetails().getId());
+        currentLoader.load();
+        /*
         Set<Long> ids = new HashSet<Long>(1);
         ids.add(new Long(imageID));
         currentLoader = new ClassificationPathsLoader(component, ids,
                 						parentModel.getUserDetails().getId());
         currentLoader.load();
+        */
     }
 
     /**
@@ -637,10 +629,45 @@ class EditorModel
      * 
      * @return See above.
      */
-	public boolean isReadable()
+	boolean isReadable()
 	{
 		return parentModel.isReadable(hierarchyObject);
 	}
     
+	/**
+	 * Sorts and sets the linked tags and tag sets.
+	 * 
+	 * @param linkedTags Collection of tags linked to the edited image.
+	 * @param tagSets	 Collection of tag sets linked to the edited image.
+	 */
+	void setTags(List<CategoryData> linkedTags, List<CategoryGroupData> tagSets)
+	{
+		if (sorter == null) sorter = new ViewerSorter();
+		List l, groups;
+		if (linkedTags == null || linkedTags.size() == 0)
+			l = new ArrayList();
+		else l = sorter.sort(linkedTags);
+		if (tagSets == null || tagSets.size() == 0)
+			groups = new ArrayList();
+		else groups = sorter.sort(tagSets);
+		this.tags = l;
+		this.tagSets = groups;
+		state = Editor.READY;
+	}
+	
+	/**
+	 * Returns the collection of tags linked to the image.
+	 * 
+	 * @return See above.
+	 */
+	List<CategoryData> getTags() { return tags; }
+	
+	/**
+	 * Returns the collection of tag sets linked to the image.
+	 * 
+	 * @return See above.
+	 */
+	List<CategoryGroupData> getTagSets() { return tagSets; }
+	
 }
  

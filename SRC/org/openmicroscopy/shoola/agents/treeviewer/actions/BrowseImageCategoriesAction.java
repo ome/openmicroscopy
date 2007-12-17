@@ -60,7 +60,7 @@ public class BrowseImageCategoriesAction
 {
 
 	/** The name of the action. */
-  private static final String NAME = "Browe Tags";
+  private static final String NAME = "Browse Tags";
   
   /** The description of the action. */
   private static final String DESCRIPTION= "Browse the Tags " +

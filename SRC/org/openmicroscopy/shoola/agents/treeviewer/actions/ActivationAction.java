@@ -59,7 +59,7 @@ public class ActivationAction
     //private static final String NAME = "DataManager";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Brings up the DataManager for" +
+    private static final String DESCRIPTION = "Bring up the DataManager for" +
     		" the selected user.";
     
     /**

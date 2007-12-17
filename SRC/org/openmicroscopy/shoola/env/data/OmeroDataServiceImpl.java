@@ -872,6 +872,7 @@ class OmeroDataServiceImpl
 	public Map<Integer, List> getArchivedFiles(String path, long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
+		context.getLogger().debug(this, path);
 		return gateway.getArchivedFiles(path, pixelsID);
 	}
 
@@ -1162,38 +1163,6 @@ class OmeroDataServiceImpl
 			ids.add(((ILink) i.next()).getParent().getId());
 		}
 		return loadContainerHierarchy(CategoryData.class, ids, leaves, userID);
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#searchFor(Class, long, List)
-	 */
-	public Set searchFor(Class type, long userID, List terms) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		Set<Long> ids = new HashSet<Long>();
-		if (terms == null) return ids;
-		List l;
-		Iterator j;
-		IObject object;
-		if (AnnotationData.class.equals(type)) 
-			type = ImageAnnotation.class;
-		l = gateway.searchFor(type, terms, null, null);
-		if (l != null) {
-			j = l.iterator();
-			while (j.hasNext()) {
-				object = (IObject) j.next();
-				if (object instanceof ImageAnnotation)
-					ids.add(((ImageAnnotation) object).getImage().getId());
-				else if (object instanceof ILink) 
-					ids.add(((ILink) object).getChild().getId());
-				else 
-					ids.add(object.getId());
-			}
-		}
-		if (ids.size() == 0 && CategoryData.class.equals(type))
-			return searchFor(CategoryGroupData.class, userID, terms);
-		return ids;
 	}
 	
 	/**

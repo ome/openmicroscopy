@@ -56,7 +56,7 @@ public class ActivationAction
 {
 
     /** Description of the action. */
-    private static final String DESCRIPTION = "Brings up the selected " +
+    private static final String DESCRIPTION = "Bring up the selected " +
                                                 "image viewer.";
     
     /**

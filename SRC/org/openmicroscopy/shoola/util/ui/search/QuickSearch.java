@@ -79,6 +79,9 @@ public class QuickSearch
 	/** Indicates to search for annotations. */
 	public static final int 	ANNOTATIONS = 2;
 	
+	/** Indicates to search for tag sets. */
+	public static final int 	TAG_SETS = 3;
+	
 	/** Bound property indicating to search for given terms. */
 	public static final String	QUICK_SEARCH_PROPERTY = "quickSearch";
 	
@@ -203,7 +206,7 @@ public class QuickSearch
 			 * Displays a menu with the available context.
 			 * @see MouseAdapter#mousePressed(MouseEvent)
 			 */
-			public void mouseReleased(MouseEvent e) { showMenu(); }
+			//public void mouseReleased(MouseEvent e) { showMenu(); }
 		
 		});
 		selectedNode = nodes.get(0);
@@ -345,6 +348,10 @@ public class QuickSearch
     	SearchObject node = new SearchObject(TAGS, 
     							icons.getImageIcon(IconManager.SEARCH_TAG), 
     								"Search for Tags");
+    	nodes.add(node);
+    	node = new SearchObject(TAG_SETS, 
+				icons.getImageIcon(IconManager.SEARCH_TAG_SET), 
+					"Search for Tag Sets");
     	nodes.add(node);
     	node = new SearchObject(IMAGES, 
     							icons.getImageIcon(IconManager.SEARCH_IMAGE), 

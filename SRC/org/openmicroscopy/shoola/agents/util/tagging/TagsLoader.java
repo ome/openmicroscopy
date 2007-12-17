@@ -94,7 +94,7 @@ public class TagsLoader
 	 */
 	public void load()
 	{
-		handle = dhView.loadAllClassifications(ids, expID, this);
+		handle = dhView.loadAllTags(ids, expID, this);
 	}
 	
 	/**

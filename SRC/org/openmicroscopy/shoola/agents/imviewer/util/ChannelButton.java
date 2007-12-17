@@ -75,6 +75,9 @@ public class ChannelButton
      */
     public static final String  	CHANNEL_COLOR_PROPERTY = "channelColor";
     
+    /** The description associated to this channel. */
+	private static final String		DESCRIPTION= "Toggle this channel on/off.";
+	
     /** The index of the channel. */
     private final int               index;
     
@@ -154,6 +157,7 @@ public class ChannelButton
             public void mousePressed(MouseEvent e) { onClick(e); }
             public void mouseReleased(MouseEvent e) { onReleased(e); }
         });
+        setToolTipText(DESCRIPTION);
         //timer = new Timer(DOUBLE_CLICK_THRESHOLD, this);
         //timer.setCoalesce(true);
     }

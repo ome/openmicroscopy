@@ -845,15 +845,15 @@ class BrowserComponent
 	
 	/**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#addExperimenter(ExperimenterData)
+     * @see Browser#addExperimenter(ExperimenterData, boolean)
      */
-	public void addExperimenter(ExperimenterData experimenter)
+	public void addExperimenter(ExperimenterData experimenter, boolean load)
 	{
 		//TODO check state
 		if (experimenter == null)
 			throw new IllegalArgumentException("Experimenter cannot be null.");
 		setSelectedDisplay(null);
-		view.addExperimenter(experimenter);
+		view.addExperimenter(experimenter, load);
 	}
 
 	/**

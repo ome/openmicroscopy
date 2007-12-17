@@ -617,10 +617,10 @@ class EditorUI
     	finishButton.setEnabled(b);
     }
     
-    /** Displays the classifications. */ 
-    void showClassifications()
+    /** Displays the tags. */ 
+    void showTags()
     { 
-        if (doBasic != null) doBasic.showClassifications();
+        if (doBasic != null) doBasic.showTags();
     }
     
     /** 

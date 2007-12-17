@@ -63,8 +63,7 @@ public class AnnotateChildrenAction
   private static final String NAME = "Annotate Images";
   
   /** The description of the action. */
-  private static final String DESCRIPTION= "Annotate the images " +
-  		"contained in the selected folder.";
+  private static final String DESCRIPTION= "Annotate the images.";
   
   /**
    * Callback to notify of a change in the currently selected display

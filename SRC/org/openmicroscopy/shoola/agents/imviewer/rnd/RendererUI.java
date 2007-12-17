@@ -136,7 +136,7 @@ class RendererUI
 		//copyButton = new JButton("Copy");
 		copyButton = new JButton(icons.getIcon(IconManager.COPY));
 		copyButton.setToolTipText(
-			UIUtilities.formatToolTipText("Copies the rendering settings."));
+			UIUtilities.formatToolTipText("Copy the rendering settings."));
 		copyButton.setActionCommand(""+COPY);
 		copyButton.addActionListener(this);
 		//UIUtilities.unifiedButtonLookAndFeel(copyButton);
@@ -144,7 +144,7 @@ class RendererUI
 		pasteButton = new JButton(icons.getIcon(IconManager.PASTE));
 		pasteButton.setEnabled(model.getParentModel().hasSettingsToPaste());
 		pasteButton.setToolTipText(
-			UIUtilities.formatToolTipText("Pastes the rendering settings."));
+			UIUtilities.formatToolTipText("Paste the rendering settings."));
 		pasteButton.setActionCommand(""+PASTE);
 		pasteButton.addActionListener(this);
 		//UIUtilities.unifiedButtonLookAndFeel(pasteButton);
@@ -154,12 +154,13 @@ class RendererUI
 		historyButton.addActionListener(this);
 		resetButton = new JButton(icons.getIcon(IconManager.RESET_SETTINGS));
 		resetButton.setToolTipText(
-				UIUtilities.formatToolTipText("Reverts to Original Settings."));
+				UIUtilities.formatToolTipText("Revert to the " +
+						"Original Settings."));
 		resetButton.setActionCommand(""+RESET_DEFAULT);
 		resetButton.addActionListener(this);
 		saveButton = new JButton(icons.getIcon(IconManager.SAVE_SETTINGS));
 		saveButton.setToolTipText(
-				UIUtilities.formatToolTipText("Saves the current settings."));
+				UIUtilities.formatToolTipText("Save the current settings."));
 		saveButton.setActionCommand(""+SAVE);
 		saveButton.addActionListener(this);
 		//UIUtilities.unifiedButtonLookAndFeel(resetButton);

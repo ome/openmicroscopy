@@ -64,7 +64,7 @@ class EditorUtil
     static final String         WAVELENGTHS = "Emissions wavelengths";
     
     /** String to represent the micron symbol. */
-    private static final String MICRONS = "(in \u00B5)";
+    private static final String MICRONS = "(in \u00B5m)";
     
     /** Identifies the <code>SizeX</code> field. */
     private static final String SIZE_X = "Size X";

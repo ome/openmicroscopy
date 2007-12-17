@@ -136,6 +136,7 @@ class EditorComponent
 	                			subIndex == Editor.CLASSIFICATION_INDEX)
 	                			loadClassifications();
 	                			*/
+							loadTags();
 							retrieveThumbnail();
 							break;
 						case Editor.ANNOTATIONS_INDEX:
@@ -191,15 +192,15 @@ class EditorComponent
      */
     public void setRetrievedClassification(Set paths)
     {
-        if (model.getState() != LOADING_CLASSIFICATION) return;
+        if (model.getState() != LOADING_TAGS) return;
         if (paths == null)
             throw new IllegalArgumentException("No paths to set.");
         long userID = model.getUserDetails().getId();
         //long groupID = model.getParentModel().getRootGroupID();
         Set set = TreeViewerTranslator.transformHierarchy(paths, userID,
                                                         -1);
-        model.setClassifications(set);
-        view.showClassifications();
+       // model.setClassifications(set);
+        view.showTags();
         retrieveThumbnail();
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
@@ -263,7 +264,7 @@ class EditorComponent
     {
         switch (model.getState()) {
             case DISCARDED:  
-            case LOADING_CLASSIFICATION:  
+            case LOADING_TAGS:  
                 throw new IllegalStateException(
                 "This method cannot be invoked in the DISCARDED, " +
                 "LOADING_ANNOTATION or LOADING_CLASSIFICATION state.");
@@ -285,18 +286,18 @@ class EditorComponent
 
     /**
      * Implemented as specified by the {@link Editor} interface.
-     * @see Editor#loadClassifications()
+     * @see Editor#loadTags()
      */
-    public void loadClassifications()
+    public void loadTags()
     {
         switch (model.getState()) {
             case DISCARDED:
             	//return;
         }
-        if (!(model.isClassified())) return;
-        if (model.isClassificationLoaded()) return;
+        if (!(model.isTagged())) return;
+        if (model.isTagsLoaded()) return;
         //model.setClassifications(null);
-        model.fireClassificationLoading();
+        model.fireTagLoading();
         model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
         fireStateChange();
     }
@@ -439,14 +440,25 @@ class EditorComponent
 		view.setDefaultButton(rootPane);
 	}
 
-	 /**
-     * Implemented as specified by the {@link Editor} interface.
-     * @see Editor#addSiblings(List)
-     */
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#addSiblings(List)
+	 */
 	public void addSiblings(List nodes)
 	{
 		// TODO ADD CONTROL
 		view.addSelectedNodes(nodes);
+	}
+
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#setTags(List, List)
+	 */
+	public void setTags(List linkedTags, List tagSets)
+	{
+		if (model.getState() == DISCARDED) return;
+		model.setTags(linkedTags, tagSets);
+		view.showTags();
 	}
 	
 }

@@ -60,28 +60,6 @@ public class ObjectFinder
     
     /** The search call. */
     private BatchCall   loadCall;
-
-	/** The id of the experimenter. */
-	private long		expID;
-	
-	/**
-     * Creates a {@link BatchCall} to retrieve the categories whose name
-     * contains the passed values.
-     * 
-     * @param type	 The type of objects to search for.
-     * @param values The values to handle.
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall searchFor(final Class type, final List values)
-    {
-        return new BatchCall("Retrieving objects") {
-            public void doCall() throws Exception
-            {
-                OmeroDataService os = context.getDataService();
-                result = os.searchFor(type, expID, values);
-            }
-        };
-    }
     
     /**
      * Creates a {@link BatchCall} to retrieve the data
@@ -120,19 +98,6 @@ public class ObjectFinder
      */
     protected Object getResult() { return result; }
     
-    /**
-     * Creates a new instance.
-     * 
-     * @param type		The scope of the search.
-     * @param expID		The id of the user.
-     * @param values	The terms to search for.
-     */
-    public ObjectFinder(Class type, long expID, List values)
-    {
-    	this.expID = expID;
-    	loadCall = searchFor(type, values);
-    }
-
     /**
      * Creates a new instance.
      * 

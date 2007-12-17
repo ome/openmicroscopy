@@ -64,7 +64,7 @@ class CustomizedFileChooser
 	private final static String LOAD_LABEL	= "Load:";
 		
 	/** This is the default text for the file name when selecting a folder. */
-	private final static String FOLDER_LABEL	= "Save in:";
+	private final static String FOLDER_LABEL = "Save in:";
 	
 	/** Reference to the model. */
 	private FileChooser			model;
@@ -135,7 +135,7 @@ class CustomizedFileChooser
 		        if (s == null || s.equals("") || !(new File(s).exists()))
 		            setCurrentDirectory(getFileSystemView().getHomeDirectory());
 		        else {
-		        	setSelectedFile(new File(s));
+		        	//setSelectedFile(new File(s));
 		        	if (nameArea != null) {
 		        		String[] n = UIUtilities.splitString(s);
 		        		if (n.length > 0) nameArea.setText(n[n.length-1]);
@@ -342,14 +342,23 @@ class CustomizedFileChooser
 	public void approveSelection()
 	{
 		if (model.getDialogType() == FileChooser.FOLDER_CHOOSER) {
-			File file = getSelectedFile();
-	        if (file != null) model.setFolderPath(file.getAbsolutePath()); 
+			//if (nameArea != null) {
+				//String name = nameArea.getText();
+				File f = getSelectedFile();
+				//if (name != null) name = name.trim();
+				if (f != null) {
+					setSelectedFile(null);
+					//model.setFolderPath(f.getAbsolutePath()+File.separatorChar+name);
+					model.setFolderPath(f.getAbsolutePath());
+				}
+			//}
+			//File file = getSelectedFile();
+	        //if (file != null) model.setFolderPath(file.getAbsolutePath()); 
 		} else {
-			
-			
-			Boolean exist = setSelection();
+
+			//Boolean exist = setSelection();
 			//No file selected, or file can be written - let OK action continue	
-			if (exist != null) {
+			if (setSelection() != null) {
 				
 				model.acceptSelection();
 				//super.approveSelection();
@@ -359,8 +368,9 @@ class CustomizedFileChooser
 			//model.acceptSelection();
 			//super.approveSelection();
 		}
-		//previewSelection();
 		super.approveSelection();
+		//previewSelection();
+		
 	}
 	
 	/**

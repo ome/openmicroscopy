@@ -230,6 +230,7 @@ public class SearchComponent
 			default:
 				ctx.setTime(index);
 		}
+		ctx.setUserSearchContext(uiDelegate.getUserSearchContext());
 		ctx.setUsers(uiDelegate.getUsers());
 		firePropertyChange(SEARCH_PROPERTY, null, ctx);
 	}
@@ -241,6 +242,9 @@ public class SearchComponent
 		nodes = new ArrayList<SearchObject>();
     	SearchObject node = new SearchObject(SearchContext.TAGS, 
 				icons.getImageIcon(IconManager.SEARCH_TAG), "Tags");
+    	nodes.add(node);
+    	node = new SearchObject(SearchContext.TAG_SETS, 
+				icons.getImageIcon(IconManager.SEARCH_TAG_SET), "Tag Sets");
     	nodes.add(node);
     	node = new SearchObject(SearchContext.ANNOTATIONS, 
 				icons.getImageIcon(IconManager.SEARCH_ANNOTATION), 

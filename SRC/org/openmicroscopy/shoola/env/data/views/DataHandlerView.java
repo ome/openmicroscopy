@@ -283,16 +283,25 @@ public interface DataHandlerView
 			AnnotationData annotation, AgentEventListener observer);
 
 	/**
-	 * Loads all classifications for a given image i.e. 
-	 * first the categories containing the image, then the categories
-	 * the image can be added to.
+	 * Loads all tags for a given collection of images.
 	 * 
 	 * @param imageIDs	The id of the images to handle.
 	 * @param userID	The user's id.
 	 * @param observer	Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadAllClassifications(Set<Long> imageIDs, long userID, 
+	public CallHandle loadAllTags(Set<Long> imageIDs, long userID, 
+			AgentEventListener observer);
+	
+	/**
+	 * Loads the tags and tag sets linked to a given collection of images.
+	 * 
+	 * @param imageIDs	The id of the images to handle.
+	 * @param userID	The user's id.
+	 * @param observer	Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadLinkedTags(Set<Long> imageIDs, long userID, 
 			AgentEventListener observer);
 
 	/**
@@ -327,11 +336,12 @@ public interface DataHandlerView
 
 	/**
 	 * Creates new tags and adds the tags to the specified objects
-	 * and updates the collection o
+	 * and updates the collection of tags.
 	 * 
 	 * @param ids		The id of the objects to tags.
-	 * @param rootType
-	 * @param tagLevel
+	 * @param rootType	The type of node to create.
+	 * @param tagLevel	One out of the following constants:
+	 * 					{@link #TAG_LEVEL_ONE} or {@link #TAG_LEVEL_ZERO}.
 	 * @param toCreate	The tags to create.			
 	 * @param toUpdate	The tags to update.
 	 * @param observer	Callback handler.
@@ -343,11 +353,12 @@ public interface DataHandlerView
 
 	/**
 	 * Creates new tags and adds the tags to the specified objects
-	 * and updates the collection o
+	 * and updates the collection of tags.
 	 * 
-	 * @param ids		The id of the objects to tags.
-	 * @param rootType
-	 * @param tagLevel
+	 * @param time		The object indicating the time interval.
+	 * @param rootType  The type of node to create.
+	 * @param tagLevel	One out of the following constants:
+	 * 					{@link #TAG_LEVEL_ONE} or {@link #TAG_LEVEL_ZERO}.s
 	 * @param toCreate	The tags to create.			
 	 * @param toUpdate	The tags to update.
 	 * @param observer	Callback handler.
@@ -455,19 +466,6 @@ public interface DataHandlerView
 	 */
 	public CallHandle annotateChildren(TimeRefObject timeRef, 
 			AnnotationData annotation, AgentEventListener observer);
-	
-	/**
-	 * Retrieves the objects identified by the passed values and type.
-	 * 
-	 * @param scope		One of the following types: AnnotationData, CategoryData
-	 * 					or ImageData.
-	 * @param userID	The user's id.
-	 * @param values	The terms to find.
-	 * @param observer	Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle searchFor(Class scope, long userID, List values, 
-												AgentEventListener observer);
 	
 	/**
 	 * Retrieves the objects specified by the context of the search.

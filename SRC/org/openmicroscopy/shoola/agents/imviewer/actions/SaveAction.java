@@ -60,7 +60,7 @@ public class SaveAction
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Save the image as TIFF, " +
-                                                "JPEG, PNG...";
+                                                "JPEG, PNG, etc.";
 
     /**
      * Creates a new instance.

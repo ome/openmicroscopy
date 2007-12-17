@@ -33,11 +33,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
@@ -75,9 +79,6 @@ class SearchPanel
 	private static final Font		FONT = new Font("SansSerif", Font.ITALIC, 
 													10);
 
-	/** Example of authors. */
-	private static final String		AUTHORS_EXAMPLE = "e.g. Swedlow";
-	
 	/** The preferred size of the calendar popup. */
 	private static final Dimension	CALENDAR_SIZE = new Dimension(250, 200);
 	
@@ -122,6 +123,15 @@ class SearchPanel
 	/** Items used to defined the scope of the search. */
 	private Map<Integer, JCheckBox>	scopes;
 	
+	/** Button to only retrieve the current user's data. */
+	private JRadioButton			currentUser;
+	
+	/** Button to only retrieve the current user and selected users' data. */
+	private JRadioButton			currentUserAndOthers;
+	
+	/** Button to only retrieve the current user and selected users' data. */
+	private JRadioButton			others;
+	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
@@ -139,6 +149,7 @@ class SearchPanel
 		toDate.setEnabled(false);
 		termsArea = new JTextField(20);
 		authors = new JTextField(20);
+		authors.setEditable(false);
 		dates = new JComboBox(dateOptions);
 		dates.addActionListener(model);
 		dates.setActionCommand(""+SearchComponent.DATE);
@@ -147,10 +158,19 @@ class SearchPanel
 		UIUtilities.unifiedButtonLookAndFeel(userButton);
 		userButton.addActionListener(model);
 		userButton.setActionCommand(""+SearchComponent.OWNER);
+		
+		currentUser = new JRadioButton("just me");
+		currentUser.setSelected(true);
+		currentUserAndOthers = new JRadioButton("me and others");
+		others = new JRadioButton("just others");
+		ButtonGroup group = new ButtonGroup();
+		group.add(currentUser);
+		group.add(currentUserAndOthers);
+		group.add(others);
 	}
 	
 	/** 
-	 * Builds the panel hosting the time fields
+	 * Builds the panel hosting the time fields.
 	 * 
 	 * @return See above;
 	 */
@@ -161,6 +181,21 @@ class SearchPanel
 		p.add(fromDate);
 		p.add(UIUtilities.setTextFont("To"));
 		p.add(toDate);
+		return  UIUtilities.buildComponentPanel(p);
+	}
+	
+	/** 
+	 * Builds the panel hosting the user selection.
+	 * 
+	 * @return See above.
+	 */
+	public JPanel buildUserSelectionPanel()
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.add(currentUser);
+		p.add(currentUserAndOthers);
+		p.add(others);
 		return  UIUtilities.buildComponentPanel(p);
 	}
 	
@@ -238,9 +273,8 @@ class SearchPanel
 		searchPanel.add(authors, "2, 2, l, c");
 		searchPanel.add(userButton, "3, 2, l, c");
 		
-		JLabel label = new JLabel(AUTHORS_EXAMPLE);
-		label.setFont(FONT);
-		searchPanel.add(label, "2, 4, l, c");
+		
+		searchPanel.add(buildUserSelectionPanel(), "2, 4, l, c");
 		
 		//Date
 		searchPanel.add(UIUtilities.setTextFont("Date"), "0, 6, l, c");
@@ -320,7 +354,7 @@ class SearchPanel
 		if (d == null) return null;
 		return new Timestamp(d.getTime());
 	}
-	
+
 	/** 
 	 * Returns the scope of the search.
 	 * 
@@ -369,12 +403,27 @@ class SearchPanel
 	}
 	
 	/**
+	 * Returns the context of the search for users.
+	 * 
+	 * @return See above.
+	 */
+	int getUserSearchContext()
+	{
+		if (currentUser.isSelected()) return SearchContext.JUST_CURRENT_USER;
+		if (currentUserAndOthers.isSelected()) 
+			return SearchContext.CURRENT_USER_AND_OTHERS;
+		return SearchContext.JUST_OTHERS;
+	}
+	
+	/**
 	 * Returns the collection of the possible users.
 	 * 
 	 * @return See above.
 	 */
 	List<String> getUsers()
 	{
+		if (getUserSearchContext() == SearchContext.JUST_CURRENT_USER)
+			return new ArrayList<String>();
 		return SearchUtil.splitTerms(authors.getText(), 
 									SearchUtil.SEARCH_SEPARATOR);
 		/*

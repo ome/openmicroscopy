@@ -70,14 +70,14 @@ public class DeleteAction
      * Name of the action if the selected items are 
      * <code>CategoryGroup</code>s. 
      */
-    private static final String NAME_ROOT_CG = "Remove categoryGroups";
+    private static final String NAME_ROOT_CG = "Remove Tag sets";
     
     /** Name of the action if the selected items are <code>Dataset</code>s. */
     private static final String NAME_PROJECT = "Remove from current project";
     
     /** Name of the action if the selected items are <code>Categorie</code>s.*/
     private static final String NAME_CATEGORYGROUP = "Remove from current " +
-    												"category group";
+    												"Tag set";
     
     /** 
      * Name of the action if the selected items are <code>Image</code>s and 
@@ -89,7 +89,7 @@ public class DeleteAction
      * Name of the action if the selected items are <code>Image</code>s and 
      * the parent is a <code>Category</code>.
      */
-    private static final String NAME_CATEGORY = "Remove from current category";
+    private static final String NAME_CATEGORY = "Remove current Tag";
     
     
     /** 
@@ -109,7 +109,7 @@ public class DeleteAction
      * <code>CategoryGroup</code>s. 
      */
     private static final String DESCRIPTION_ROOT_CG = "Remove the selected " +
-    													"categoryGroup.";
+    													"Tag Set.";
     
     /** 
      * Description of the action if the selected items are 
@@ -123,7 +123,7 @@ public class DeleteAction
      * <code>Categorie</code>s. 
      */
     private static final String DESCRIPTION_CATEGORYGROUP = "Remove the " +
-    		"selected categories from the categoryGroup.";
+    		"selected tags from the Tag set.";
     
     /** 
      * Description of the action if the selected items are <code>Image</code>s 
@@ -136,8 +136,8 @@ public class DeleteAction
      * Description of the action if the selected items are <code>Image</code>s 
      * and  the parent is a <code>Category</code>.
      */
-    private static final String DESCRIPTION_CATEGORY = "Remove the selected " +
-    		"images from the category.";
+    private static final String DESCRIPTION_CATEGORY = "Remove the Tag " +
+    		"from the selected images.";
     
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.

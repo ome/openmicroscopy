@@ -1129,11 +1129,11 @@ class ImViewerModel
 	void fireCategoriesLoading()
 	{
 		//state = ImViewer.LOADING_METADATA;
-		if (tagger == null) {
+		//if (tagger == null) {
 			tagger = TaggerFactory.getImageTagger(ImViewerAgent.getRegistry(), 
 													imageID);
 			tagger.activate();
-		}
+		//}
 		/*
 		currentLoader = new CategoryLoader(component, imageID, 
 				getUserDetails().getId());

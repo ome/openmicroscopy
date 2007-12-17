@@ -135,8 +135,8 @@ public class EditorControl
         model.saveObject(object, TreeViewer.UPDATE_OBJECT);
     }
     
-    /** Reloads the classifications. */
-    void loadClassifications() { model.loadClassifications(); }
+    /** Loads the tags */
+    void loadTags() { model.loadTags(); }
     
     /** Retrieves the annotations. */
     void retrieveAnnotations() { model.retrieveAnnotations(); }

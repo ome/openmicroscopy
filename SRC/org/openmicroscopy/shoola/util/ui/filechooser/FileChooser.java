@@ -59,7 +59,6 @@ public class FileChooser
     extends JDialog
 {
 
-	
 	/** Bound property indicating that the cancel button is pressed. */
 	public static final String	APPROVE_SELECTION_PROPERTY = "approveSelection";
 	
@@ -292,6 +291,7 @@ public class FileChooser
 	void setFolderPath(String path)
 	{
 		if (path == null) return;
+		char separator = File.separatorChar;
     	String n = path+File.separatorChar;
     	//If folder does not exist, create it.
     	File[] l = uiDelegate.getCurrentDirectory().listFiles();
@@ -303,9 +303,8 @@ public class FileChooser
                 break;
             }
         }
-    	if (!exist) new File(n).mkdir();
-    	
-		firePropertyChange(LOCATION_PROPERTY, null, n);
+    	if (!exist) new File(path).mkdir();
+		firePropertyChange(LOCATION_PROPERTY, null, path+separator);
 		if (uiDelegate.isSetDefaultFolder()) 
 			UIUtilities.setDefaultFolder(path);
 		setVisible(false);

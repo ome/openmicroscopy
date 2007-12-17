@@ -174,11 +174,18 @@ class TaggerView
 		uiDelegate.handleTagSelection(item);
 	}
 	
+	/**
+	 * Returns the object with the tags to save.
+	 * 
+	 * @return See above.
+	 */
 	TagSaverDef saveTags() { return uiDelegate.saveTags(); }
 
-	ExperimenterData getExperimenter() {
-		// TODO Auto-generated method stub
-		return model.getExperimenter();
-	}
+	/**
+	 * Returns the currently logged in experimener.
+	 * 
+	 * @return See above.
+	 */
+	ExperimenterData getExperimenter() { return model.getExperimenter(); }
 	
 }
