@@ -229,7 +229,17 @@ public class Renderer {
 	            channelBinding.setActive(false);
 	        }
 	
-	        channelBinding.setColor(ColorsFactory.getColor(i, channel));
+	        // Handle updating or recreating a color for this channel.
+	        Color defaultColor = ColorsFactory.getColor(i, channel);
+	        if (channelBinding.getColor() == null) {
+	        	channelBinding.setColor(ColorsFactory.getColor(i, channel));
+	        } else {
+	        	Color color = channelBinding.getColor();
+	        	color.setRed(defaultColor.getRed());
+	        	color.setGreen(defaultColor.getGreen());
+	        	color.setBlue(defaultColor.getBlue());
+	        	color.setAlpha(defaultColor.getAlpha());
+	        }
 	        channelBinding.setNoiseReduction(false);
 	        i++;
 	    }

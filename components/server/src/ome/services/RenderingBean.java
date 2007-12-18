@@ -625,6 +625,22 @@ public class RenderingBean extends AbstractLevel2Service implements
             // or similar once that functionality exists.
             rendDefObj.setVersion(rendDefObj.getVersion() + 1);
             
+    	    // Unload the model object to avoid transactional headaches
+    	    RenderingModel unloadedModel = 
+    	    	new RenderingModel(rendDefObj.getModel().getId());
+    	    unloadedModel.unload();
+    	    rendDefObj.setModel(unloadedModel);
+            
+    	    // Unload the family of each channel binding to avoid transactional 
+    	    // headaches.
+    	    for (Object object : rendDefObj.getWaveRendering())
+    	    {
+    	    	ChannelBinding binding = (ChannelBinding) object;
+    	    	Family unloadedFamily = new Family(binding.getFamily().getId());
+    	    	unloadedFamily.unload();
+    	    	binding.setFamily(unloadedFamily);
+    	    }
+            
             // Actually save and reload the rendering settings
             pixMetaSrv.saveRndSettings(rendDefObj);
             rendDefObj = reload(rendDefObj);
