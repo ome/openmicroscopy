@@ -256,7 +256,6 @@ public class RenderingBean extends AbstractLevel2Service implements
      * @see RenderingEngine#lookupPixels(long)
      */
     @RolesAllowed("user")
-    @Transactional(readOnly = false)
     public void lookupPixels(long pixelsId) {
     	rwl.writeLock().lock();
 
@@ -285,7 +284,6 @@ public class RenderingBean extends AbstractLevel2Service implements
      * @see RenderingEngine#lookupRenderingDef(long)
      */
     @RolesAllowed("user")
-    @Transactional(readOnly = false)
     public boolean lookupRenderingDef(long pixelsId)
     {
     	rwl.writeLock().lock();
@@ -316,6 +314,10 @@ public class RenderingBean extends AbstractLevel2Service implements
     		Pixels unloadedPixels = new Pixels(pixelsId);
     		unloadedPixels.unload();
     		rendDefObj.setPixels(unloadedPixels);
+    		
+    		// Ensure that we do not have "dirty" pixels or rendering settings
+    		// left around in the Hibernate session cache.
+    		iQuery.clear();
     	}
     	finally
     	{
@@ -341,11 +343,6 @@ public class RenderingBean extends AbstractLevel2Service implements
         
         try {
             errorIfNullPixels();
-            
-        	// Ensure that we do not have "dirty" pixels or rendering settings
-            // left around in the Hibernate session cache.
-        	iQuery.clear();
-
             /*
              * TODO we could also allow for setting of the buffer! perhaps
              * better caching, etc.
