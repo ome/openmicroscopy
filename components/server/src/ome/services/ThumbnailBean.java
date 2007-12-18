@@ -900,10 +900,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         def = Renderer.createNewRenderingDef(pixels);
         Renderer.resetDefaults(def, pixels, quantumFactory,
                                renderingModels, buffer);
-        
-        // Ensure that we do not have "dirty" pixels or rendering settings 
-        // left around in the Hibernate session cache.
-        iQuery.clear();
 
         // Cleanup and save
         try
