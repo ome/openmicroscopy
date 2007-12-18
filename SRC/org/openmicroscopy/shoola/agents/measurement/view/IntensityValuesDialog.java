@@ -1,0 +1,231 @@
+/*
+ * org.openmicroscopy.shoola.agents.measurement.view.IntensityValuesDialog 
+ *
+  *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *
+ *
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+package org.openmicroscopy.shoola.agents.measurement.view;
+
+//Java imports
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Point;
+import java.util.Vector;
+
+import javax.swing.AbstractListModel;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JViewport;
+import javax.swing.ListCellRenderer;
+import javax.swing.UIManager;
+import javax.swing.table.JTableHeader;
+
+//Third-party libraries
+
+//Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
+
+/** 
+ * 
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since OME3.0
+ */
+public class IntensityValuesDialog
+	extends JDialog
+{	
+	/** Table Model. */
+	private IntensityModel				tableModel;
+	
+	/** Table view. */
+	private IntensityTable 				table;
+	
+	/** The scroll pane for the intensityDialog. */
+	private JScrollPane intensityTableScrollPane;
+	
+	/** The Row header for the intensityTableScrollPane. */
+	private JList intensityTableRowHeader;
+	
+	/** 
+	 * Create the intial dialog.
+	 * @param model the table model of the first dialog.
+	 */
+	IntensityValuesDialog(IntensityModel model)
+	{
+		this.tableModel = model;
+		table = new IntensityTable(tableModel);
+		buildUI();
+	}
+	
+	/**
+	 * Build the UI of the dialog.
+	 *
+	 */
+	private void buildUI()
+	{
+		getContentPane().add(createInfoPanel(), BorderLayout.NORTH);
+
+		table.setColumnSelectionAllowed(true);
+		table.setRowSelectionAllowed(true);
+		table.getTableHeader().setReorderingAllowed(false);
+		table.setShowGrid(true);
+		intensityTableScrollPane = new JScrollPane(table);
+		intensityTableScrollPane.setVerticalScrollBar(intensityTableScrollPane.createVerticalScrollBar());
+		intensityTableScrollPane.setHorizontalScrollBar(
+			intensityTableScrollPane.createHorizontalScrollBar());
+		intensityTableRowHeader = new JList(new HeaderListModel(table.getRowCount()));
+		intensityTableRowHeader.setFixedCellHeight(table.getRowHeight());
+		intensityTableRowHeader.setFixedCellWidth(table.getColumnWidth());
+		intensityTableRowHeader.setCellRenderer(new RowHeaderRenderer(table));
+	    intensityTableScrollPane.setRowHeaderView(intensityTableRowHeader);
+	    intensityTableScrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, new JPanel());
+		getContentPane().add(intensityTableScrollPane, BorderLayout.CENTER);
+		JViewport viewPort = intensityTableScrollPane.getViewport();
+  		viewPort.setViewPosition(new Point(1,1)); 
+	}
+	
+	/**
+	 * Set the model of the table to a new Model.
+	 * @param model see above.
+	 */
+	public void setModel(IntensityModel model)
+	{
+		table.setModel(model);
+		Vector<Integer> listData = new Vector<Integer>();
+		for(int i = 0 ; i < model.getRowCount(); i++)
+			listData.add(i);
+		intensityTableRowHeader.setListData(listData);
+		intensityTableScrollPane.setRowHeaderView(intensityTableRowHeader);
+		intensityTableScrollPane.validate();
+	}
+	
+
+	/**
+	 * Creates the info panel at the top the the dialog, 
+	 * showing a little text about the Intensity Pane. 
+	 * 
+	 * @return See above.
+	 */
+	private JPanel createInfoPanel()
+	{
+		JPanel infoPanel = new TitlePanel("Intensity Values", 
+				"This table shows the Intensity values for the selected channel" +
+				"of the selected ROI.",
+				IconManager.getInstance().getIcon(IconManager.WIZARD));
+		return infoPanel;
+	}
+	
+
+	/**
+	 * Class to define the row header data, this is the Z section 
+	 * count in the ROIAssistant.
+	 */
+	class HeaderListModel
+		extends AbstractListModel
+	{
+
+		/** The header values. */
+		private String[] headers;
+    
+		/**
+		 * Instantiate the header values with a count from n to 1. 
+		 * @param n see above.
+		 */
+		public HeaderListModel(int n)
+		{
+			headers = new String[n];
+			for (int i = 0; i<n; i++) 
+				headers[i] = ""+(n-i);
+		}
+    
+		/** 
+		 * Get the size of the header. 
+		 * @return see above.
+		 */
+		public int getSize(){ return headers.length; }
+    
+		/** 
+		 * Get the header object at index.
+		 * @param index see above. 
+		 * @return see above.
+		 */
+		public Object getElementAt(int index) { return headers[index]; }
+    
+	}
+
+	/**
+	 * The renderer for the row header. 
+	 */
+	class RowHeaderRenderer
+    	extends JLabel 
+    	implements ListCellRenderer
+    {
+    
+		/** 
+		 * Instantiate row renderer for table.
+		 * @param table see above.
+		 */
+		public RowHeaderRenderer(JTable table)
+		{
+			if (table != null) 
+			{
+				JTableHeader header = table.getTableHeader();
+				setOpaque(true);
+				setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+				setHorizontalAlignment(CENTER);
+				setHorizontalTextPosition(CENTER);
+				setForeground(header.getForeground());
+				setBackground(header.getBackground());
+				setFont(header.getFont());
+			}
+		}
+    
+		/**
+		 * Return the component for the renderer.
+		 * @param list the list containing the headers render context.
+		 * @param value the value to be rendered.
+		 * @param index the index of the rendered object. 
+		 * @param isSelected is the  current header selected.
+		 * @param cellHasFocus has the cell focus.
+		 * @return the render component. 
+		 */
+		public Component getListCellRendererComponent(JList list, Object value, 
+            int index, boolean isSelected, boolean cellHasFocus)
+		{
+			setText((value == null) ? "" : value.toString());
+			return this;
+		}
+    
+    }
+	
+}
+
+

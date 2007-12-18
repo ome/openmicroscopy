@@ -26,9 +26,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
@@ -42,32 +40,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.Vector;
-
-import javax.swing.AbstractListModel;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
-import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.JViewport;
-import javax.swing.ListCellRenderer;
-import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.table.JTableHeader;
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -87,7 +75,6 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
-import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
@@ -182,12 +169,6 @@ class IntensityView
 	/** The map of <ROIShape, ROIStats> .*/
 	private Map							ROIStats;
 	
-	/** Table Model. */
-	private IntensityModel				tableModel;
-	
-	/** Table view. */
-	private IntensityTable 				table;
-	
 	/** Table for summary of measurement values. */
 	private ChannelSummaryTable			channelSummaryTable;
 
@@ -233,10 +214,6 @@ class IntensityView
 	/** Map of the channel std. dev., for each selected channel. */
 	private Map<Integer, Double> channelStdDev = new TreeMap<Integer, Double>();
 	
-	/** Map of the channel Intensities, for each selected channel. */
-	private Map<Integer, Map<PlanePoint2D, Double>> planePixels = 
-						new TreeMap<Integer, Map<PlanePoint2D, Double>>();
-
 	/** Map of the channel name to channel number .*/
 	Map<String, Integer> nameMap = new LinkedHashMap<String, Integer>();
 	
@@ -274,14 +251,11 @@ class IntensityView
 	private 	ROIShape shape;
 	
 	/** Dialog showing the intensity values for the selected channel. */
-	private JDialog intensityDialog;
+	private IntensityValuesDialog intensityDialog;
 	
-	/** The scroll pane for the intensityDialog. */
-	private JScrollPane intensityTableScrollPane;
-	
-	/** The Row header for the intensityTableScrollPane. */
-	private JList intensityTableRowHeader;
-	
+	/** Table Model. */
+	private IntensityModel				tableModel;
+
 	/**
 	 * overridden version of {@line TabPaneInterface#getIndex()}
 	 * @return the index.
@@ -299,7 +273,6 @@ class IntensityView
 		rowNames.add("");
 		columnNames.add("");
 		tableModel = new IntensityModel(data);
-		table = new IntensityTable(tableModel);
 		channelSummaryModel = new ChannelSummaryModel(rowNames, columnNames, 
 														summaryData);
 		channelSummaryTable = new ChannelSummaryTable(channelSummaryModel);
@@ -336,9 +309,6 @@ class IntensityView
 		tSlider.setVisible(false);	
 		tSlider.setEndLabel("T");
 		tSlider.setShowEndLabel(true);
-
- 		intensityDialog = new JDialog(view,"Intensity Values");
-		table.setVisible(true);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -363,27 +333,7 @@ class IntensityView
 		
 		this.setLayout(new BorderLayout());
 		this.add(scrollPanel, BorderLayout.CENTER);
-		
-		intensityDialog.getContentPane().setLayout(new BorderLayout());
-		intensityDialog.getContentPane().add(createInfoPanel(), BorderLayout.NORTH);
-
-		table.setColumnSelectionAllowed(true);
-		table.setRowSelectionAllowed(true);
-		table.getTableHeader().setReorderingAllowed(false);
-		table.setShowGrid(true);
-		intensityTableScrollPane = new JScrollPane(table);
-		intensityTableScrollPane.setVerticalScrollBar(intensityTableScrollPane.createVerticalScrollBar());
-		intensityTableScrollPane.setHorizontalScrollBar(
-			intensityTableScrollPane.createHorizontalScrollBar());
-		intensityTableRowHeader = new JList(new HeaderListModel(table.getRowCount()));
-		intensityTableRowHeader.setFixedCellHeight(table.getRowHeight());
-		intensityTableRowHeader.setFixedCellWidth(table.getColumnWidth());
-		intensityTableRowHeader.setCellRenderer(new RowHeaderRenderer(table));
-	    intensityTableScrollPane.setRowHeaderView(intensityTableRowHeader);
-	    intensityTableScrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, new JPanel());
-		intensityDialog.getContentPane().add(intensityTableScrollPane, BorderLayout.CENTER);
-		JViewport viewPort = intensityTableScrollPane.getViewport();
-  		viewPort.setViewPosition(new Point(1,1)); 
+		intensityDialog = new IntensityValuesDialog(tableModel);	
 		}
 	
 	/**
@@ -409,31 +359,7 @@ class IntensityView
 		panel.add(Box.createVerticalGlue());
 		return panel;
 	}
-	
-	/**
-	 * Show the intensity values table. 
-	 */
-	private void showIntensityTable()
-	{
-		if(!intensityDialog.isVisible())
-			UIUtilities.setLocationRelativeToAndShow(this, intensityDialog);
-	}
-	
-	/**
-	 * Creates the info panel at the top the the dialog, 
-	 * showing a little text about the Intensity Pane. 
-	 * 
-	 * @return See above.
-	 */
-	private JPanel createInfoPanel()
-	{
-		JPanel infoPanel = new TitlePanel("Intensity Values", 
-				"This table shows the Intensity values for the selected channel" +
-				"of the selected ROI.",
-				IconManager.getInstance().getIcon(IconManager.WIZARD));
-		return infoPanel;
-	}
-	
+		
 	/**
 	 * Create the table panel which holds all the intensities for the selected
 	 * channel in the table.
@@ -857,12 +783,7 @@ class IntensityView
 		channelSum=sumStats.get(coord);
 		tableModel=new IntensityModel(data);
 		shape=shapeMap.get(coord);
-		table.setModel(tableModel); 
-		Vector<Integer> newData = new Vector<Integer>();
-		for(int i = 1 ; i < table.getRowCount()+1 ; i++)
-			newData.add(i);
-		intensityTableRowHeader.setListData(newData);
-		
+		intensityDialog.setModel(tableModel);
 	}
 		
 	/**
@@ -919,27 +840,6 @@ class IntensityView
 		return (fig instanceof MeasurePointFigure);
 	}
 	
-	/**
-	 * Creates jpanel with Jlabel and JTextField.
-	 * 
-	 * @param label See above.
-	 * @param text See above.
-	 * @return The jpanel with the label and textfield.
-	 */
-	private JPanel createLabelText(JLabel label, JTextField text)
-	{
-		UIUtilities.setDefaultSize(label, 
-					new Dimension(LABELWIDTH, LABELHEIGHT));
-		UIUtilities.setDefaultSize(text, 
-				new Dimension(TEXTWIDTH, TEXTHEIGHT));
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-		panel.add(label);
-		panel.add(Box.createHorizontalStrut(10));
-		panel.add(text);
-		return panel;
-	}
-
 	/** Save the results to a csv File. */
 	private void saveResults() 
 	{
@@ -1176,86 +1076,4 @@ class IntensityView
 		}
 	}
 	
-	/**
-	 * Class to define the row header data, this is the Z section 
-	 * count in the ROIAssistant.
-	 */
-	class HeaderListModel
-		extends AbstractListModel
-	{
-
-		/** The header values. */
-		private String[] headers;
-    
-		/**
-		 * Instantiate the header values with a count from n to 1. 
-		 * @param n see above.
-		 */
-		public HeaderListModel(int n)
-		{
-			headers = new String[n];
-			for (int i = 0; i<n; i++) 
-				headers[i] = ""+(n-i);
-		}
-    
-		/** 
-		 * Get the size of the header. 
-		 * @return see above.
-		 */
-		public int getSize(){ return headers.length; }
-    
-		/** 
-		 * Get the header object at index.
-		 * @param index see above. 
-		 * @return see above.
-		 */
-		public Object getElementAt(int index) { return headers[index]; }
-    
-	}
-
-	/**
-	 * The renderer for the row header. 
-	 */
-	class RowHeaderRenderer
-    	extends JLabel 
-    	implements ListCellRenderer
-    {
-    
-		/** 
-		 * Instantiate row renderer for table.
-		 * @param table see above.
-		 */
-		public RowHeaderRenderer(JTable table)
-		{
-			if (table != null) 
-			{
-				JTableHeader header = table.getTableHeader();
-				setOpaque(true);
-				setBorder(UIManager.getBorder("TableHeader.cellBorder"));
-				setHorizontalAlignment(CENTER);
-				setHorizontalTextPosition(CENTER);
-				setForeground(header.getForeground());
-				setBackground(header.getBackground());
-				setFont(header.getFont());
-			}
-		}
-    
-		/**
-		 * Return the component for the renderer.
-		 * @param list the list containing the headers render context.
-		 * @param value the value to be rendered.
-		 * @param index the index of the rendered object. 
-		 * @param isSelected is the  current header selected.
-		 * @param cellHasFocus has the cell focus.
-		 * @return the render component. 
-		 */
-		public Component getListCellRendererComponent(JList list, Object value, 
-            int index, boolean isSelected, boolean cellHasFocus)
-		{
-			setText((value == null) ? "" : value.toString());
-			System.err.println("Set Text : " + this.getText());
-			return this;
-		}
-    
-    }
 }
