@@ -323,13 +323,15 @@ class GraphPane
 		}
 		maxZ = maxZ+1;
 		minZ = minZ+1;
+		minT = minT+1;
+		maxT = maxT+1;
 		zSlider.setMaximum(maxZ);
 		zSlider.setMinimum(minZ);
 		tSlider.setMaximum(maxT);
 		tSlider.setMinimum(minT);
 		zSlider.setVisible((maxZ!=minZ));
 		tSlider.setVisible((maxT!=minT));
-		tSlider.setValue(model.getCurrentView().getTimePoint());
+		tSlider.setValue(model.getCurrentView().getTimePoint()+1);
 		zSlider.setValue(model.getCurrentView().getZSection()+1);
 
 		buildGraphsAndDisplay();
@@ -344,7 +346,7 @@ class GraphPane
 	 */
 	private void buildGraphsAndDisplay()
 	{
-		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue());
+		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
 		Map<Integer, double[]> data = pixelStats.get(coord);
 		if(data==null)
 			return;
@@ -484,7 +486,7 @@ class GraphPane
 			return;
 		if(state==ANALYSING)
 			return;
-		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, tSlider.getValue());
+		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
 		if(coord.equals(thisCoord))
 			return;
 		state = ANALYSING;

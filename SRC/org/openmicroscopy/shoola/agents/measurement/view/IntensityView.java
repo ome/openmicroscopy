@@ -499,6 +499,8 @@ class IntensityView
 		}
 		maxZ = maxZ+1;
 		minZ = minZ+1;
+		maxT = maxT+1;
+		minT = minT+1;
 		
 		if(channelName.size()!=channelColour.size())
 		{
@@ -522,9 +524,9 @@ class IntensityView
 		tSlider.setMinimum(minT);
 		zSlider.setVisible((maxZ!=minZ));
 		tSlider.setVisible((maxT!=minT));
-		tSlider.setValue(model.getCurrentView().getTimePoint());
+		tSlider.setValue(model.getCurrentView().getTimePoint()+1);
 		zSlider.setValue(model.getCurrentView().getZSection()+1);
-		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue());
+		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
 		shape = shapeMap.get(coord);
 		populateData(coord, selectedChannel);	
 		state = State.READY;
@@ -1020,7 +1022,7 @@ class IntensityView
 			if (channel!=-1)
 			{
 				Coord3D newCoord = new Coord3D(zSlider.getValue()-1, 
-						tSlider.getValue());
+						tSlider.getValue()-1);
 				populateData(newCoord, channel);
 				repaint();
 			}
@@ -1055,7 +1057,7 @@ class IntensityView
 			return;
 		if(state!=State.READY)
 			return;
-		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, tSlider.getValue());
+		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
 		if(coord.equals(thisCoord))
 			return;
 		Object[] nameColour = (Object[])channelSelection.getSelectedItem();

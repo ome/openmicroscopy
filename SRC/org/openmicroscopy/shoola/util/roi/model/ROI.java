@@ -157,7 +157,7 @@ public class ROI
 	{
 		Coord3D low = roiShapes.firstKey();
 		Coord3D high = roiShapes.lastKey();
-		return new String("["+low.getTimePoint()+","+high.getTimePoint()+"]");
+		return new String("["+(low.getTimePoint()+1)+","+(high.getTimePoint()+1)+"]");
 	}
 	
 	/** Get the range of the timepoints this ROI spans. 

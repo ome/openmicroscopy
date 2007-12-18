@@ -407,8 +407,8 @@ implements TabPaneInterface
 			int channel = nameMap.get(cName);
 			Vector rowData = new Vector();
 			rowData.add(shape.getID());
-			rowData.add(shape.getCoord3D().getZSection());
-			rowData.add(shape.getCoord3D().getTimePoint());
+			rowData.add(shape.getCoord3D().getZSection()+1);
+			rowData.add(shape.getCoord3D().getTimePoint()+1);
 			rowData.add(cName);
 			rowData.add(AnnotationKeys.TEXT.get(shape));
 			rowData.add(channelMin.get(channel));

@@ -274,7 +274,7 @@ public class ROINode
 				case ROIID_COLUMN+1:
 					return ((Long)roiShape.getID()).toString();
 				case TIME_COLUMN+1:
-					return ((Integer)roiShape.getT()).toString();
+					return ((Integer)(roiShape.getT()+1)).toString();
 				case Z_COLUMN+1:
 					Integer z = (Integer)roiShape.getZ()+1;
 					return z.toString();

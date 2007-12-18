@@ -97,6 +97,7 @@ public class IntensityValuesDialog
 		table.setRowSelectionAllowed(true);
 		table.getTableHeader().setReorderingAllowed(false);
 		table.setShowGrid(true);
+		
 		intensityTableScrollPane = new JScrollPane(table);
 		intensityTableScrollPane.setVerticalScrollBar(intensityTableScrollPane.createVerticalScrollBar());
 		intensityTableScrollPane.setHorizontalScrollBar(
@@ -124,7 +125,6 @@ public class IntensityValuesDialog
 			listData.add(i);
 		intensityTableRowHeader.setListData(listData);
 		intensityTableScrollPane.setRowHeaderView(intensityTableRowHeader);
-		intensityTableScrollPane.validate();
 	}
 	
 

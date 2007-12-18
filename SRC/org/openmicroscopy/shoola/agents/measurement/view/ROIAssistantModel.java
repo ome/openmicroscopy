@@ -106,7 +106,7 @@ class ROIAssistantModel
 		currentROI = roi;
 		
 		shapeMap = new TreeMap<Coord3D, String>(new Coord3D());
-		for (int i = 0 ; i < numCol ; i++)
+		for (int i = 1 ; i < numCol+1 ; i++)
 			columnNames.add(i+"");
 		populateShapeMap();
 	}

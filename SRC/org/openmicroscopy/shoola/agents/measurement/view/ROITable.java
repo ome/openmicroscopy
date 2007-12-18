@@ -686,7 +686,6 @@ public class ROITable
 	{
 		manager.showReadyMessage();
 		ArrayList<ROIShape> selectedObjects = getSelectedROIShapes();
-		Coord3D coord = new Coord3D(10,2);
 		if(onSeparatePlanes(selectedObjects) && haveSameID(selectedObjects))
 			manager.splitROI(getSameID(selectedObjects), selectedObjects);
 		else
