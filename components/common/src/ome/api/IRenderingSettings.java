@@ -8,6 +8,7 @@ package ome.api;
 
 
 //Java imports
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ import java.util.Set;
 // Application-internal dependencies
 import ome.annotations.NotNull;
 import ome.annotations.Validate;
+import ome.model.IObject;
 import ome.model.display.RenderingDef;
 
 
@@ -40,41 +42,47 @@ public interface IRenderingSettings extends ServiceInterface {
 	 */
 	RenderingDef getRenderingSettings(@NotNull long pixelsId);
 	
-    /**
-     * Resets a image's rendering settings back to those that are specified
-     * by the rendering engine intelligent <i>pretty good image (PG)</i> logic.
-     * @param imageId The Id of the <code>Image</code>.
+	/**
+	 * Resets a image's rendering settings back to those that are specified
+	 * by the rendering engine intelligent <i>pretty good image (PG)</i> logic.
+	 * @param imageId The Id of the <code>Image</code>.
 	 * @throws ValidationException if the image qualified by 
 	 * <code>pixelsId</code> is unlocatable.
-     */
+	 */
 	void resetDefaultsInImage(@NotNull long imageId);
 	
 	/**
-     * Resets a category's rendering settings back to those that are specified
-     * by the rendering engine intelligent <i>pretty good image (PG)</i> logic.
-     * @param categoriesId The Id of the <code>Category</code>.
+	 * Resets a category's rendering settings back to those that are specified
+	 * by the rendering engine intelligent <i>pretty good image (PG)</i> logic.
+	 * @param categoriesId The Id of the <code>Category</code>.
+	 * @return A {@link java.util.Set} of image IDs that have had their 
+	 * rendering settings reset. 
 	 * @throws ValidationException if the image qualified by 
 	 * <code>categoryId</code> is unlocatable.
-     */
-	void resetDefaultsInCategory(@NotNull long categoryId);
+	 */
+	Set<Long> resetDefaultsInCategory(@NotNull long categoryId);
 	
 	/**
-     * Resets a dataset's rendering settings back to those that are specified
-     * by the rendering engine intelligent <i>pretty good image (PG)</i> logic.
-     * @param dataSetId The Id of the <code>DataSet</code>.
+	 * Resets a dataset's rendering settings back to those that are specified
+	 * by the rendering engine intelligent <i>pretty good image (PG)</i> logic.
+	 * @param dataSetId The Id of the <code>DataSet</code>.
+	 * @return A {@link java.util.Set} of image IDs that have had their 
+	 * rendering settings reset. 
 	 * @throws ValidationException if the image qualified by 
 	 * <code>dataSetId</code> is unlocatable.
-     */
-	void resetDefaultsInDataset(@NotNull long dataSetId);
+	 */
+	Set<Long> resetDefaultsInDataset(@NotNull long dataSetId);
 	
 	/**
-     * Resets a rendering settings back to one or many containers that are 
-     * specified by the rendering engine intelligent <i>pretty good image
-     * (PG)</i> logic.
-     * @param nodeIds Ids of the node type.
+	 * Resets a rendering settings back to one or many containers that are 
+	 * specified by the rendering engine intelligent <i>pretty good image
+	 * (PG)</i> logic.
+	 * @param nodeIds Ids of the node type.
+	 * @return A {@link java.util.Set} of image IDs that have had their 
+	 * rendering settings reset. 
 	 * @throws ValidationException if the image qualified by 
-     */
-	<T> void resetDefaultsInSet(Class<T> type, @NotNull @Validate(Long.class) Set<Long> noteIds);
+	 */
+	Set<Long> resetDefaultsInSet(Class<IObject> type, @NotNull @Validate(Long.class) Set<Long> noteIds);
 	
 	/**
 	 * Applies rendering settings to one or many containers. If a container such 
@@ -92,7 +100,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if an illegal <code>toType</code> is
 	 * passed in or the rendering settings <code>from</code> is unlocatable.
 	 */
-	<T> void applySettingsToSet(@NotNull long from, Class<T> toType,@NotNull Set<T> to);
+	<T extends IObject> void applySettingsToSet(@NotNull long from, Class<T> toType, @NotNull Set<T> to);
 	
 	/**
 	 * Applies rendering settings to all images in all <code>Datasets</code> 
@@ -110,7 +118,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the project <code>to</code> is unlocatable.
 	 */
-	Map applySettingsToProject(@NotNull long from, @NotNull long to);
+	Map<Boolean, List<Long>> applySettingsToProject(@NotNull long from, @NotNull long to);
 	
 	/**
 	 * Applies rendering settings to all images in a given <code>Dataset</code>. 
@@ -126,7 +134,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the dataset <code>to</code> is unlocatable.
 	 */
-	Map applySettingsToDataset(@NotNull long from, @NotNull long to);
+	Map<Boolean, List<Long>> applySettingsToDataset(@NotNull long from, @NotNull long to);
 	
 	/**
 	 * Applies rendering settings to all images in all <code>Categories</code>.
@@ -142,7 +150,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if the rendering settings <code>from</code> 
 	 * is unlocatable or the project <code>to</code> is unlocatable.
 	 */
-	Map applySettingsToCategory(@NotNull long from, @NotNull long to);
+	Map<Boolean, List<Long>> applySettingsToCategory(@NotNull long from, @NotNull long to);
 	
 	/**
 	 * Applies rendering settings to a given <code>Image</code>. 

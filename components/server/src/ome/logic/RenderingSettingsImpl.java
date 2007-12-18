@@ -44,6 +44,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
+import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.Dataset;
 import ome.model.core.Channel;
@@ -247,7 +248,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @see IRenderingSettings#applySettingsToSet(long, Class, Set)
      */
     @RolesAllowed("user")
-    public <T> void applySettingsToSet(long from, Class<T> toType, Set<T> to) {
+    public <T extends IObject> void applySettingsToSet(long from, Class<T> toType, Set<T> to) {
         // TODO Auto-generated method stub
 
     }
@@ -263,10 +264,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         String sql = "select i from Image i "
                 + " left outer join fetch i.categoryLinks cil "
                 + " left outer join fetch cil.parent c " + " where c.id = :id";
-        Set<Image> images = new HashSet(iQuery.findAllByQuery(sql,
-                new Parameters().addId(to)));
-
-        return applySettings(from, images);
+        List<Image> images =
+        	iQuery.findAllByQuery(sql, new Parameters().addId(to));
+        return applySettings(from, new HashSet<Image>(images));
     }
 
     /**
@@ -283,10 +283,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                 + " left outer join fetch d.projectLinks pdl "
                 + " left outer join fetch pdl.parent pr "
                 + " where pr.id = :id";
-        Set<Image> images = new HashSet(iQuery.findAllByQuery(sql,
-                new Parameters().addId(to)));
-
-        return applySettings(from, images);
+        List<Image> images =
+        	iQuery.findAllByQuery(sql, new Parameters().addId(to));
+        return applySettings(from, new HashSet<Image>(images));
     }
 
     /**
@@ -299,11 +298,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         String sql = "select i from Image i "
                 + " left outer join fetch i.datasetLinks dil "
                 + " left outer join fetch dil.parent d where d.id = :id";
-
-        Set<Image> images = new HashSet(iQuery.findAllByQuery(sql,
-                new Parameters().addId(to)));
-
-        return applySettings(from, images);
+        List<Image> images = 
+        	iQuery.findAllByQuery(sql, new Parameters().addId(to));
+        return applySettings(from, new HashSet<Image>(images));
     }
 
     /**
@@ -398,45 +395,14 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     }
 
     /**
-     * Resets a pixel's rendering settings back to those that are specified by
-     * the rendering engine intelligent <i>pretty good image (PG)</i> logic.
-     * 
-     * @param pixelsId
-     *            Pixel id.
-     */
-    private void resetDefaults(long pixelsId) {
-
-        Pixels pixelsObj = pixelsMetadata.retrievePixDescription(pixelsId);
-
-        // Ensure that we haven't just been called before
-        // lookupRenderingDef().
-        List<Family> families = pixelsMetadata.getAllEnumerations(Family.class);
-        List<RenderingModel> renderingModels = pixelsMetadata
-                .getAllEnumerations(RenderingModel.class);
-        QuantumFactory quantumFactory = new QuantumFactory(families);
-        try {
-            PixelBuffer buffer = pixelsData.getPixelBuffer(pixelsObj);
-            RenderingDef def = getRenderingSettings(pixelsId);
-            Renderer.resetDefaults(def, pixelsObj, quantumFactory,
-                    renderingModels, buffer);
-            buffer.close();
-            pixelsMetadata.saveRndSettings(def);
-        } catch (IOException e) {
-            throw new ValidationException(e.getMessage());
-        }
-
-    }
-
-    /**
      * Implemented as specified by the {@link IRenderingSettings} I/F
      * 
      * @see IRenderingSettings#resetDefaultsInImage(long)
      */
     @RolesAllowed("user")
     public void resetDefaultsInImage(long to) {
-        Image img = iQuery.get(Image.class, to);
-        resetDefaults(img.getDefaultPixels().getId());
-
+        Image image = iQuery.get(Image.class, to);
+        resetDefaults(image);
     }
 
     /**
@@ -445,16 +411,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @see IRenderingSettings#resetDefaultsInDataset(long)
      */
     @RolesAllowed("user")
-    public void resetDefaultsInDataset(long dataSetId) {
-        String sql = "select i from Image i "
-                + " left outer join fetch i.datasetLinks dil "
-                + " left outer join fetch dil.parent d where d.id = :id";
-
-        Set<Image> images = new HashSet(iQuery.findAllByQuery(sql,
-                new Parameters().addId(dataSetId)));
-
-        resetDefaults(images);
-
+    public Set<Long> resetDefaultsInDataset(long dataSetId) {
+    	Dataset dataset = iQuery.get(Dataset.class, dataSetId);
+    	return resetDefaults(dataset);
     }
 
     /**
@@ -463,75 +422,147 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @see IRenderingSettings#resetDefaultsInCategory(long)
      */
     @RolesAllowed("user")
-    public void resetDefaultsInCategory(long categoriesId) {
-        String sql = "select i from Image i "
-                + " left outer join fetch i.categoryLinks cil "
-                + " left outer join fetch cil.parent c " + " where c.id = :id";
-        Set<Image> images = new HashSet(iQuery.findAllByQuery(sql,
-                new Parameters().addId(categoriesId)));
-
-        resetDefaults(images);
-
+    public Set<Long> resetDefaultsInCategory(long categoryId) {
+    	Category category = iQuery.get(Category.class, categoryId);
+    	return resetDefaults(category);
     }
 
     /**
+     * Performs the logic specified by {@link resetDefaultsInImage()}.
+     */
+    private void resetDefaults(Image image)
+    {
+    	resetDefaults(image.getDefaultPixels());
+    }
+    
+    /**
+     * Resets a pixel's rendering settings back to those that are specified by
+     * the rendering engine intelligent <i>pretty good image (PG)</i> logic.
+     * 
+     * @param pixels The pixels object whose rendering settings are to be reset.
+     */
+    private void resetDefaults(Pixels pixels) {
+	
+	    Pixels pixelsObj = 
+	    	pixelsMetadata.retrievePixDescription(pixels.getId());
+	
+	    // Ensure that we haven't just been called before
+	    // lookupRenderingDef().
+	    List<Family> families = pixelsMetadata.getAllEnumerations(Family.class);
+	    List<RenderingModel> renderingModels = pixelsMetadata
+	            .getAllEnumerations(RenderingModel.class);
+	    QuantumFactory quantumFactory = new QuantumFactory(families);
+	    try {
+	        PixelBuffer buffer = pixelsData.getPixelBuffer(pixelsObj);
+	        RenderingDef def = getRenderingSettings(pixels.getId());
+	        Renderer.resetDefaults(def, pixelsObj, quantumFactory,
+	                renderingModels, buffer);
+	        buffer.close();
+	        pixelsMetadata.saveRndSettings(def);
+	    } catch (IOException e) {
+	        throw new ValidationException(e.getMessage());
+	    }
+	
+	}
+
+	/**
+	 * Performs the logic specified by {@link resetDefaultsInCategory()}.
+	 */
+	private Set<Long> resetDefaults(Category category)
+	{
+		String sql = "select i from Image i "
+			+ " left outer join fetch i.categoryLinks cil "
+			+ " left outer join fetch cil.parent c where c.id = :id";
+		List<Image> images = 
+			iQuery.findAllByQuery(sql, new Parameters().addId(category.getId()));
+		return resetDefaults(new HashSet<Image>(images));
+	}
+
+	/**
+	 * Performs the logic specified by {@link resetDefaultsInDataset()}.
+	 */
+	private Set<Long> resetDefaults(Dataset dataset)
+	{
+		String sql = "select i from Image i "
+			+ " left outer join fetch i.datasetLinks dil "
+			+ " left outer join fetch dil.parent d where d.id = :id";
+		List<Image> images = 
+			iQuery.findAllByQuery(sql, new Parameters().addId(dataset.getId()));
+		return resetDefaults(new HashSet<Image>(images));
+	}
+
+	/**
      * Resets a rendering settings back to one or many <code>Images</code>
      * that are specified by the rendering engine intelligent <i>pretty good
      * image (PG)</i> logic.
      * 
-     * @param images
-     *            Set<Image>.
+     * @param images A {@link java.util.Set} of images to reset the rendering
+     * settings.
+     * @return A {@link java.util.Set} of image IDs that have had their
+     * rendering settings reset.
      */
-    private void resetDefaults(Set<Image> images) {
-
-        if (images.isEmpty())
-            throw new ValidationException("Target does not contain any Images.");
-
-        try {
-            Iterator<Image> i = images.iterator();
-            Image image;
-            while (i.hasNext()) {
-                image = i.next();
-                resetDefaultsInImage(image.getId());
-            }
-        } catch (NoSuchElementException expected) {
-            throw new ApiUsageException(
-                    "There are no elements assigned to the Dataset");
-        }
-
+	private Set<Long> resetDefaults(Set<Image> images) {
+		if (images.isEmpty())
+			throw new ValidationException("Target does not contain any Images.");
+		Set<Long> imageIds = new HashSet<Long>();
+		for (Image image : images) {
+			resetDefaultsInImage(image.getId());
+		}
+		return imageIds;
+	}
+    
+    /**
+     * Loads objects from the Hibernate store in a list context.
+     * @param klass The type of object to load.
+     * @param nodeIds The object IDs to load.
+     * @return A typed {@link java.util.List} of objects retrieved from the
+     * Hibernate store.
+     */
+    private <T extends IObject> List<T> loadObjects(Class<T> klass, Set<Long> nodeIds)
+    {
+    	List<T> toReturn = new ArrayList<T>();
+    	for (Long nodeId : nodeIds)
+    	{
+    		toReturn.add(iQuery.get(klass, nodeId));
+    	}
+    	return toReturn;
     }
-
+    
     /**
      * Implemented as specified by the {@link IRenderingSettings} I/F
      * 
      * @see IRenderingSettings#resetDefaultsInSet(Class, Set)
      */
     @RolesAllowed("user")
-    public <T> void resetDefaultsInSet(Class<T> klass, Set<Long> noteIds) {
-
+    public Set<Long> resetDefaultsInSet(Class<IObject> klass, Set<Long> nodeIds)
+    {
         if (!Dataset.class.equals(klass) && !Category.class.equals(klass)
-                && !Image.class.equals(klass)) {
+            && !Image.class.equals(klass))
+        {
             throw new IllegalArgumentException(
                     "Class parameter for resetDefaultsInSet() must be in "
                             + "{Dataset, Category, Image}, not " + klass);
         }
 
-        Iterator i = noteIds.iterator();
-        while (i.hasNext()) {
-            Long id = (Long) i.next();
-            if (klass.equals(Image.class))
-                resetDefaultsInImage(id);
-            else if (klass.equals(Category.class))
-                resetDefaultsInCategory(id);
-            else if (klass.equals(Dataset.class))
-                resetDefaultsInDataset(id);
-            else {
-                throw new IllegalArgumentException(
-                        "Class parameter for resetDefaultsInSet() must be in "
-                                + "{Dataset, Category, Image}, not " + klass);
-            }
+        List<IObject> objects = loadObjects(klass, nodeIds);
+        Set<Long> imageIds = new HashSet<Long>();
+        for (IObject object : objects)
+        {
+        	if (object instanceof Dataset)
+        	{
+        		imageIds.addAll(resetDefaults((Dataset) object));
+        	}
+        	if (object instanceof Category)
+        	{
+        		imageIds.addAll(resetDefaults((Category) object));
+        	}
+        	if (object instanceof Image)
+        	{
+        		Image image = (Image) object;
+        		resetDefaults(image);
+        		imageIds.add(image.getId());
+        	}
         }
-
+        return imageIds;
     }
-
 }
