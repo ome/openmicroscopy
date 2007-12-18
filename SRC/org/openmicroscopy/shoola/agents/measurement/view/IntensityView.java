@@ -28,6 +28,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
@@ -41,6 +42,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Vector;
 
 import javax.swing.AbstractListModel;
 import javax.swing.Box;
@@ -58,6 +60,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JViewport;
 import javax.swing.ListCellRenderer;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
@@ -364,18 +367,24 @@ class IntensityView
 		intensityDialog.getContentPane().setLayout(new BorderLayout());
 		intensityDialog.getContentPane().add(createInfoPanel(), BorderLayout.NORTH);
 
+		table.setColumnSelectionAllowed(true);
+		table.setRowSelectionAllowed(true);
+		table.getTableHeader().setReorderingAllowed(false);
+		table.setShowGrid(true);
 		intensityTableScrollPane = new JScrollPane(table);
 		intensityTableScrollPane.setVerticalScrollBar(intensityTableScrollPane.createVerticalScrollBar());
 		intensityTableScrollPane.setHorizontalScrollBar(
 			intensityTableScrollPane.createHorizontalScrollBar());
 		intensityTableRowHeader = new JList(new HeaderListModel(table.getRowCount()));
-		
 		intensityTableRowHeader.setFixedCellHeight(table.getRowHeight());
 		intensityTableRowHeader.setFixedCellWidth(table.getColumnWidth());
 		intensityTableRowHeader.setCellRenderer(new RowHeaderRenderer(table));
-        intensityTableScrollPane.setRowHeaderView(intensityTableRowHeader);
+	    intensityTableScrollPane.setRowHeaderView(intensityTableRowHeader);
+	    intensityTableScrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, new JPanel());
 		intensityDialog.getContentPane().add(intensityTableScrollPane, BorderLayout.CENTER);
-	}
+		JViewport viewPort = intensityTableScrollPane.getViewport();
+  		viewPort.setViewPosition(new Point(1,1)); 
+		}
 	
 	/**
 	 * Create the button panel to the right of the summary table.
@@ -849,15 +858,11 @@ class IntensityView
 		tableModel=new IntensityModel(data);
 		shape=shapeMap.get(coord);
 		table.setModel(tableModel); 
-        intensityDialog.remove(intensityTableScrollPane);
-		intensityTableRowHeader = new JList(new HeaderListModel(table.getRowCount()));
-		intensityTableRowHeader.setFixedCellHeight(table.getRowHeight());
-		intensityTableRowHeader.setFixedCellWidth(table.getColumnWidth());
-		intensityTableRowHeader.setCellRenderer(new RowHeaderRenderer(table));
-		intensityTableScrollPane = new JScrollPane(table);
-        intensityTableScrollPane.setRowHeaderView(intensityTableRowHeader);
-        intensityTableScrollPane.setVisible(true);
-        intensityDialog.add(intensityTableScrollPane, BorderLayout.CENTER);
+		Vector<Integer> newData = new Vector<Integer>();
+		for(int i = 1 ; i < table.getRowCount()+1 ; i++)
+			newData.add(i);
+		intensityTableRowHeader.setListData(newData);
+		
 	}
 		
 	/**

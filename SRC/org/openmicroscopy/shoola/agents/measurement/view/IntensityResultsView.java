@@ -512,6 +512,8 @@ implements TabPaneInterface
 			return;
 		Iterator<Figure> iterator =  selectedFigures.iterator();
 		ROIFigure fig = (ROIFigure)iterator.next();
+		if(fig instanceof MeasureTextFigure)
+			return;
 		ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
 		shapeList.add(fig.getROIShape());
 		view.calculateStats(fig.getROIShape().getID(), shapeList);

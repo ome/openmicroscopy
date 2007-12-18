@@ -72,6 +72,7 @@ import org.openmicroscopy.shoola.agents.measurement.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -520,8 +521,11 @@ class MeasurementViewerControl
 			Collection<Figure> selectedFigures = view.getDrawingView().getSelectedFigures(); 
 			if(selectedFigures.size()!=1)
 				return;
+			
 			Iterator<Figure> iterator =  selectedFigures.iterator();
 			ROIFigure fig = (ROIFigure)iterator.next();
+			if(fig instanceof MeasureTextFigure)
+				return;
 			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
 			shapeList.add(fig.getROIShape());
 			view.calculateStats(fig.getROIShape().getID(), shapeList);
