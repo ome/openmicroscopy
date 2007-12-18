@@ -509,7 +509,10 @@ class ImViewerModel
 	{
 		this.rndControl = rndControl;
 		if (renderer == null) {
-			renderer = RendererFactory.createRenderer(component, rndControl);
+			renderer = RendererFactory.createRenderer(component, rndControl,
+					ImViewerFactory.getPreferences());
+			
+				
 			state = ImViewer.RENDERING_CONTROL_LOADED;
 		} else {
 			renderer.setRenderingControl(rndControl);

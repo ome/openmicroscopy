@@ -1168,10 +1168,11 @@ class OmeroDataServiceImpl
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#advancedSearchFor(List, List, List, Timestamp, 
-	 * 											Timestamp)
+	 * 											Timestamp, String)
 	 */
 	public Set advancedSearchFor(List<Class> scope, List<String> terms, 
-			List<ExperimenterData> users, Timestamp start, Timestamp end) 
+			List<ExperimenterData> users, Timestamp start, Timestamp end, 
+			String separator) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Set<Long> ids = new HashSet<Long>();
@@ -1181,15 +1182,27 @@ class OmeroDataServiceImpl
 		Iterator j;
 		IObject object;
 		Class type;
+		String s = "";
+		if (separator == null) s = " or "; //default
+		else {
+			separator = separator.toLowerCase();
+			separator = separator.trim();
+			if (separator.equals("and") || separator.equals("or"))
+				s = " "+separator+" ";
+			else s = " or "; //default
+		}
+		
 		if ((users == null || users.size() == 0)) {
+			
 			while (i.hasNext()) {
 				type = (Class) i.next();
-				l.addAll(gateway.searchFor(type, terms, start, end));
+				l.addAll(gateway.searchFor(type, terms, start, end, 
+											getUserDetails(), s));
 			}
 		} else {
 			while (i.hasNext()) {
 				type = (Class) i.next();
-				l.addAll(gateway.searchFor(type, terms, start, end, users));
+				l.addAll(gateway.searchFor(type, terms, start, end, users, s));
 			}
 		}
 		if (l != null) {

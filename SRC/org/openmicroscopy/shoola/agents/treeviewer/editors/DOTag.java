@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -32,17 +34,17 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
-
-
 
 //Third-party libraries
 import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.ui.TagNode;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -72,24 +74,33 @@ class DOTag
 {
 	
 	/** The separator between the tags and tag sets. */
-	private static final String	SEPARATOR = "/";
+	private static final String	SEPARATOR = "|";
 
 	/** Text indicating the describing the component. */
 	private static final String TEXT = "The list of tags linked to the " +
 			"image. Click on the name to browse the tag " +
 			"or the tag set.";
 	
+	/** Text indicating the describing the component. */
+	private static final String TEXT_NO_TAG = "The image has no tags.";
+	
     /** Reference to the Model. */
     private EditorModel     model;
     
-    /** Reference to the Model. */
-    private EditorUI        view;
+    /** Reference to the control. */
+    private EditorControl	controller;
     
     /** Collection of nodes hosting the tag sets. */
     private List<TagNode>	tagSetNodes;
     
     /** Collection of nodes hosting the tags. */
     private List<TagNode>	tagNodes;
+    
+    /** Collection of nodes hosting the available tags. */
+    private List<TagNode>	availableTagNodes;
+    
+    /** Button to retrieve the available tags. */
+    private JButton			availableTag;
     
     /** 
      * Builds and lays out the panel hosting the tags. 
@@ -103,6 +114,27 @@ class DOTag
     		Iterator i = tagNodes.iterator();
     		int index = 0;
     		int l = tagNodes.size()-1;
+    		while (i.hasNext()) {
+    			p.add((TagNode) i.next());
+				if (index != l) p.add(new JLabel(SEPARATOR));
+				index++;
+			}
+    	}
+    	return p;
+    }
+    
+    /** 
+     * Builds and lays out the panel hosting the tags. 
+     * 
+     * @return See above.
+     */
+    private JPanel buildAvailableTagsPanel()
+    {
+    	JPanel p = new JPanel();
+    	if (availableTagNodes != null) {
+    		Iterator i = availableTagNodes.iterator();
+    		int index = 0;
+    		int l = availableTagNodes.size()-1;
     		while (i.hasNext()) {
     			p.add((TagNode) i.next());
 				if (index != l) p.add(new JLabel(SEPARATOR));
@@ -136,53 +168,91 @@ class DOTag
     /** Initializes the components. */
     private void initComponents()
     {
+    	availableTag = new JButton("Available Tags");
+    	availableTag.setToolTipText("Retrieve the available tags.");
+    	availableTag.addActionListener(new ActionListener() {
+		
+			public void actionPerformed(ActionEvent e) {
+				controller.loadAvailableTags();
+			}
+		
+		});
     	List<CategoryGroupData> tagSets = model.getTagSets();
     	Iterator i;
     	TagNode n;
-    	int l = tagSets.size();
-    	if (tagSets != null && l> 0) {
-    		tagSetNodes = new ArrayList<TagNode>(l);
+    	IconManager icons = IconManager.getInstance();
+    	Icon icon = icons.getIcon(IconManager.EDIT_REMOVE);
+    	if (tagSets != null && tagSets.size()> 0) {
+    		tagSetNodes = new ArrayList<TagNode>(tagSets.size());
     		i = tagSets.iterator();
     		CategoryGroupData data;
     		while (i.hasNext()) {
     			data = (CategoryGroupData) i.next();
-				n = new TagNode(data);
+				n = new TagNode(data, icon, TagNode.REMOVE_TYPE);
 				n.addPropertyChangeListener(this);
 				tagSetNodes.add(n);
 			}
     	}
     	List<CategoryData> tags = model.getTags();
-    	l = tags.size();
-    	if (tags != null && l > 0) {
-    		tagNodes = new ArrayList<TagNode>(l);
+    	if (tags != null && tags.size() > 0) {
+    		tagNodes = new ArrayList<TagNode>(tags.size());
     		i = tags.iterator();
     		CategoryData data;
     		while (i.hasNext()) {
     			data = (CategoryData) i.next();
-				n = new TagNode(data);
+				n = new TagNode(data, icon, TagNode.REMOVE_TYPE);
 				n.addPropertyChangeListener(this);
 				tagNodes.add(n);
 			}
     	}
+    	tags = model.getAvailableTags();
     	
+    	if (tags != null && tags.size() > 0) {
+    		availableTagNodes = new ArrayList<TagNode>(tags.size());
+    		i = tags.iterator();
+    		CategoryData data;
+    		icon = icons.getIcon(IconManager.ADD_12);
+    		while (i.hasNext()) {
+    			data = (CategoryData) i.next();
+				n = new TagNode(data, icon, TagNode.ADD_TYPE);
+				n.addPropertyChangeListener(this);
+				availableTagNodes.add(n);
+			}
+    	}
     }
     
     /** Builds and lays out the components. */
     void buildGUI()
     {
+    	String text = TEXT;
+    	if (tagNodes == null && tagSetNodes == null)
+    		text = TEXT_NO_TAG;
     	JPanel content = new JPanel();
         double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
-        				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED} }; //rows
+        				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5,
+        				TableLayout.PREFERRED, 5, TableLayout.PREFERRED} }; //rows
         TableLayout layout = new TableLayout(tl);
         content.setLayout(layout);
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        content.add(UIUtilities.setTextFont("Tags"), "0, 0, l, c");
-        content.add(buildTagsPanel(), "1, 0, l, c");
+        if (tagNodes != null) {
+        	content.add(UIUtilities.setTextFont("Tags"), "0, 0, l, c");
+            content.add(buildTagsPanel(), "1, 0, l, c");
+        }
+        
         content.add(new JLabel(), "0, 1, 1, 1");
-        content.add(UIUtilities.setTextFont("Tag sets"), "0, 2, l, c");
-        content.add(buildTagSetsPanel(), "1, 2, l, c");
+        if (tagSetNodes != null) {
+        	 content.add(UIUtilities.setTextFont("Tag sets"), "0, 2, l, c");
+             content.add(buildTagSetsPanel(), "1, 2, l, c");
+        }
+        content.add(UIUtilities.buildComponentPanel(availableTag), 
+        			"0, 4, l, c");
+        if (availableTagNodes != null) {
+        	content.add(UIUtilities.setTextFont("Available Tags"), "0, 6, l, " +
+        				"c");
+            content.add(buildAvailableTagsPanel(), "1, 6, l, c");
+        }
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(UIUtilities.buildComponentPanel(new JLabel(TEXT)), 
+        add(UIUtilities.buildComponentPanel(new JLabel(text)), 
         	BorderLayout.NORTH);
         add(content, BorderLayout.CENTER);
     }
@@ -190,16 +260,18 @@ class DOTag
     /**
      * Creates a new instance.
      * 
-     * @param view
-     * @param model
+     * @param controller	Reference to the control. 
+     * 						Mustn't be <code>null</code>.
+     * @param model			Reference to the model. 
+     * 						Mustn't be <code>null</code>.
      */
-	DOTag(EditorUI view, EditorModel model)
+	DOTag(EditorControl controller, EditorModel model)
 	{
-		if (view == null)
-            throw new IllegalArgumentException("No model.");
+		if (controller == null)
+            throw new IllegalArgumentException("No controller.");
         if (model == null)
             throw new IllegalArgumentException("No model.");
-        this.view = view;
+        this.controller = controller;
         this.model = model;
         initComponents();
         buildGUI();
@@ -248,6 +320,14 @@ class DOTag
 				index = Browse.CATEGORY_GROUP;
 			Browse event = new Browse(ho.getId(), index, exp, null);
 			reg.getEventBus().post(event);
+		} else if (TagNode.DELETE_PROPERTY.equals(name)) {
+			DataObject ho = (DataObject) evt.getNewValue();
+			if (ho == null) return;
+			controller.removeTag(ho);
+		} else if (TagNode.ADD_PROPERTY.equals(name)) {
+			DataObject ho = (DataObject) evt.getNewValue();
+			if (ho == null) return;
+			controller.addTagToImage(ho);
 		}
 	}
 	

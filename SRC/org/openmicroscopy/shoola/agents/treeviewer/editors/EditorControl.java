@@ -138,6 +138,24 @@ public class EditorControl
     /** Loads the tags */
     void loadTags() { model.loadTags(); }
     
+    /** Loads the tags not linked to the image. */
+    void loadAvailableTags() { model.loadAvailableTags(); }
+    
+    /**
+     * Removes the tag or tags if a tag set is specified from the 
+     * image.
+     * 
+     * @param object The object to handle.
+     */
+    void removeTag(DataObject object) { model.removeTag(object); }
+    
+    /**
+     * Adds the passed tag to the edited image.
+     * 
+     * @param object The object to handle.
+     */
+    void addTagToImage(DataObject object) { model.addTagToImage(object); }
+    
     /** Retrieves the annotations. */
     void retrieveAnnotations() { model.retrieveAnnotations(); }
     

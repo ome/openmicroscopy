@@ -294,7 +294,10 @@ class EditorComponent
             case DISCARDED:
             	//return;
         }
-        if (!(model.isTagged())) return;
+        if (!(model.isTagged())) {
+        	view.showTags();
+        	return;
+        }
         if (model.isTagsLoaded()) return;
         //model.setClassifications(null);
         model.fireTagLoading();
@@ -459,6 +462,58 @@ class EditorComponent
 		if (model.getState() == DISCARDED) return;
 		model.setTags(linkedTags, tagSets);
 		view.showTags();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#onTagsUpdate()
+	 */
+	public void onTagsUpdate()
+	{
+		model.fireTagLoading();
+		fireStateChange();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#loadAvailableTags()
+	 */
+	public void loadAvailableTags()
+	{
+		model.fireAvailableTagsLoading();
+		fireStateChange();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#setAvailableTags(List)
+	 */
+	public void setAvailableTags(List tags)
+	{
+		if (model.getState() == DISCARDED) return;
+		model.setAvailableTags(tags);
+		view.showTags();
+		fireStateChange();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#addTagToImage(DataObject)
+	 */
+	public void addTagToImage(DataObject object)
+	{
+		model.fireTagAddition(object);
+		fireStateChange();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#removeTag(DataObject)
+	 */
+	public void removeTag(DataObject object)
+	{
+		model.fireDataObjectDeletion(object);
+		fireStateChange();
 	}
 	
 }

@@ -65,7 +65,7 @@ class HistoryUI
 {
 
 	/** The Description of the {@link #clearButton}. */
-	private static final String CLEAR_DESCRIPTION = "Clears the history.";
+	private static final String CLEAR_DESCRIPTION = "Clear the history.";
 	
 	/** Reference to the Model. */
 	private ImViewerModel 	model;

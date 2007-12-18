@@ -51,11 +51,15 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class SearchContext
 {
 
+	/** Retrieves the data for the logged in user. */
 	public static final int			JUST_CURRENT_USER = 0;
 	
-	
+	/** Retrieves the data for the logged in user and the selected users. */
 	public static final int			CURRENT_USER_AND_OTHERS = 1;
 	
+	/** 
+	 * Retrieves the data for the selected users excluding the logged in users.
+	 */
 	public static final int			JUST_OTHERS = 2;
 	
 	/** Identifying the <code>Image</code> context. */
@@ -122,6 +126,9 @@ public class SearchContext
 	 */
 	private int				userSearchContext;
 	
+	/** Separator between terms to search for. */
+	private String			separator;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -132,6 +139,16 @@ public class SearchContext
 	{
 		this.terms = terms;
 		this.context = context;
+	}
+	
+	/**
+	 * Sets the separator used between the search term.
+	 * 
+	 * @param separator The value to set.
+	 */
+	void setSeparator(String separator)
+	{
+		this.separator = separator;
 	}
 	
 	/**
@@ -246,6 +263,13 @@ public class SearchContext
 	 * @return See above.
 	 */
 	public int getUserSearchContext() { return userSearchContext; }
+	
+	/**
+	 * Returns the separator used between the search term.
+	 * 
+	 * @return See above.
+	 */
+	public String getSeparator() { return separator; }
 	
 	
 }

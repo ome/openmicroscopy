@@ -477,9 +477,11 @@ class OMEROGateway
 	 * 
 	 * @param type	Identifies the table to search on.
 	 * @param names	The terms to search for.
+	 * @param separator
 	 * @return The query.
 	 */
-	private String createSearchQuery(Class type, String[] names)
+	private String createSearchQuery(Class type, String[] names, 
+									String separator)
 	{
 		String sql = null;
 		String table;
@@ -488,14 +490,14 @@ class OMEROGateway
 					"left outer join fetch obj.details.creationEvent as d " +
 					"where ";
 			for (int j = 0; j < names.length; j++) {
-				if (j != 0) sql += " or ";
+				if (j != 0) sql += separator;
 				sql += "lower(obj.content) like :"+names[j];
 			}
 		} else if (DatasetAnnotation.class.equals(type)) {
 			sql = "select obj from DatasetAnnotation as obj " +
 			"left outer join fetch obj.details.creationEvent as d where ";
 			for (int j = 0; j < names.length; j++) {
-				if (j != 0) sql += " or ";
+				if (j != 0) sql += separator;
 				sql += "lower(obj.content) like :"+names[j];
 			}
 		} else if (CategoryData.class.equals(type)) {
@@ -506,7 +508,7 @@ class OMEROGateway
 			//"lower(link.parent.name) like :name or " +
             // "lower(link.parent.description) like :name";
 			for (int j = 0; j < names.length; j++) {
-				if (j != 0) sql += " or ";
+				if (j != 0) sql += separator;
 				sql += "lower(obj.parent.name) like :"+names[j];
 			}
 		} else if (ImageData.class.equals(type)) {
@@ -515,7 +517,7 @@ class OMEROGateway
         	//+ "where lower(obj.name) like :name or " +
         	//	"lower(obj.description) like :name";
 			for (int j = 0; j < names.length; j++) {
-				if (j != 0) sql += " or ";
+				if (j != 0) sql += separator;
 				sql += "lower(obj.name) like :"+names[j];
 				sql += " or lower(obj.description) like :"+names[j];
 			}
@@ -527,7 +529,7 @@ class OMEROGateway
 					//"where lower(link.parent.name) like :name or " +
 					//"lower(link.parent.description) like :name";
 			for (int j = 0; j < names.length; j++) {
-				if (j != 0) sql += " or ";
+				if (j != 0) sql += separator;
 				sql += "lower(obj.parent.name) like :"+names[j];
 			}
 		}
@@ -1892,6 +1894,8 @@ class OMEROGateway
 	 * @param terms	The terms to search for.
 	 * @param start	The start value of a time interval.
 	 * @param end	The end value of a time interval.
+	 * @param user 	The user to exclude from the search.
+	 * @param separator
 	 * @return See above.
 	 *  @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
@@ -1899,7 +1903,7 @@ class OMEROGateway
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List searchFor(Class type, List<String> terms, Timestamp start, 
-					Timestamp end)
+					Timestamp end, ExperimenterData user, String separator)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		IQuery service = getQueryService();
@@ -1923,7 +1927,7 @@ class OMEROGateway
 			}
 		}
 		try {
-			String sql = createSearchQuery(type, names);
+			String sql = createSearchQuery(type, names, separator);
 			if (start != null && end != null) {
 				sql += " and d.time > :startTime and d.time < :endTime";
 				param.add(new QueryParameter("startTime", Timestamp.class, 
@@ -1938,6 +1942,17 @@ class OMEROGateway
 						start));
 			}
 			
+			//No users so retrieve the data of all members of a group.
+			param.addLong("userID", user.getId());
+			Set groups = user.getGroups();
+			Set<Long> groupIDs = new HashSet<Long>(groups.size());
+			i = groups.iterator();
+			while (i.hasNext()) {
+				groupIDs.add(((DataObject) i.next()).getId());
+				
+			}
+			param.addSet("groupIDs", groupIDs);
+			sql += " and obj.details.owner.id != :userID";
 			String table;
 			if (sql == null) return null;
 			if (CategoryGroupData.class.equals(type)) {
@@ -1973,6 +1988,7 @@ class OMEROGateway
 	 * @param start	The lower bound of the time interval.
 	 * @param end	The upper bound of the time interval.
 	 * @param users	The collection of potential users.
+	 * @param separator
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
@@ -1980,7 +1996,8 @@ class OMEROGateway
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List searchFor(Class type, List<String> terms, Timestamp start, 
-					Timestamp end, List<ExperimenterData> users)
+					Timestamp end, List<ExperimenterData> users, 
+					String separator)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		IQuery service = getQueryService();
@@ -2005,7 +2022,7 @@ class OMEROGateway
 		}
 		
 		try {
-			String sql = createSearchQuery(type, names);
+			String sql = createSearchQuery(type, names, separator);
 			if (start != null && end != null) {
 				sql += " and d.time > :startTime and d.time < :endTime";
 				param.add(new QueryParameter("startTime", Timestamp.class, 

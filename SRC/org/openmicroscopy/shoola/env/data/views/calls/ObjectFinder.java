@@ -69,19 +69,21 @@ public class ObjectFinder
      * @param users		The users' name.
      * @param start		The start of a time interval.
      * @param end		The end of a time interval.
+     * @param separator
      * @return The {@link BatchCall}.
      */
     private BatchCall searchFor(final List<Class> scope, 
     							final List<String> values, 
     							final List<ExperimenterData> users, 
     							final Timestamp start,
-    							final Timestamp end)
+    							final Timestamp end, final String separator)
     {
         return new BatchCall("Retrieving objects") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.advancedSearchFor(scope, values, users, start, end);
+                result = os.advancedSearchFor(scope, values, users, start, end,
+                								separator);
             }
         };
     }
@@ -106,12 +108,13 @@ public class ObjectFinder
      * @param users		The users' data.
      * @param start		The start of a time interval.
      * @param end		The end of a time interval.
+     * @param separator
      */
     public ObjectFinder(List<Class> scope, List<String> values, 
     					List<ExperimenterData> users, Timestamp start, 
-    					Timestamp end)
+    					Timestamp end, String separator)
     {
-    	loadCall = searchFor(scope, values, users, start, end);
+    	loadCall = searchFor(scope, values, users, start, end, separator);
     }
     
 }

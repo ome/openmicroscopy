@@ -68,11 +68,14 @@ public class ClassificationLoader
     extends BatchCallTree
 {
     
-	/** Identifies a full categories retrieval. */
-	public static final int ALL = 100;
+	/** Indicates to retrieve all the tags. */
+	public static final int ALL_TAGS = 100;
 	
-	/** Identifies a partial categories retrieval. */
-	public static final int PARTIAL = 101;
+	/** Indicates to retrieve the tags and tag sets linked to the images. */
+	public static final int TAGS_USED = 101;
+	
+	/** Indicates to retrieve the tags not linked to the images. */
+	public static final int TAGS_AVAILABLE = 102;
 	
     /** Identifies the <code>Declassification</code> algorithm. */
     public static final int DECLASSIFICATION = 
@@ -111,8 +114,9 @@ public class ClassificationLoader
             case DECLASSIFICATION:
             case CLASSIFICATION_ME:
             case CLASSIFICATION_NME: 
-            case ALL:
-            case PARTIAL:
+            case ALL_TAGS:
+            case TAGS_USED:
+            case TAGS_AVAILABLE:
                 return true;
             default: return false;
         }
@@ -164,7 +168,7 @@ public class ClassificationLoader
     private BatchCall loadAllTags(final Set<Long> imageIDs, 
     										final long userID)
     {
-        return new BatchCall("Loading tags. ") {
+        return new BatchCall("Loading all tags. ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
@@ -218,14 +222,62 @@ public class ClassificationLoader
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
      * 
-     * @param imageID	The id of the image.
+     * @param imageIDs	The id of the images.
+     * @param userID	The Id of the user.                  
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadUnlinkedTags(final Set<Long> imageIDs, 
+    								final long userID)
+    {
+        return new BatchCall("Loading linked tags. ") {
+            public void doCall() throws Exception
+            {
+            	OmeroDataService os = context.getDataService();
+                List<CategoryData> r = new ArrayList<CategoryData>();
+                Set nodes;
+                Iterator i;
+                CategoryData category;
+                List<Long> ids = new ArrayList<Long>();
+                if (imageIDs != null) {
+                	nodes = os.findCategoryPaths(imageIDs, false, userID);
+                    i = nodes.iterator();
+                    while (i.hasNext()) {
+                    	category = (CategoryData) i.next();
+             			if (!ids.contains(category.getId())) {
+             				r.add(category);
+             				ids.add(category.getId());
+             			}
+    	         	}
+                }
+                nodes = os.loadContainerHierarchy(
+                        CategoryData.class, null, false, userID);
+	         	i = nodes.iterator();
+	         	r = new ArrayList<CategoryData>();
+	         	while (i.hasNext()) {
+	         		category = (CategoryData) i.next();
+	         		if (!ids.contains(category.getId())) {
+         				r.add(category);
+         			}
+				}
+	         	
+	         	rootNodes = r;
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to load all tags not linked to the images.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
+     * 
+     * @param imageIDs	The id of the images.
      * @param userID	The Id of the user.                  
      * @return The {@link BatchCall}.
      */
     private BatchCall loadLinkedTags(final Set<Long> imageIDs, 
     								final long userID)
     {
-        return new BatchCall("Loading CGC paths. ") {
+        return new BatchCall("Loading unlinked tags. ") {
             public void doCall() throws Exception
             {
             	OmeroDataService os = context.getDataService();
@@ -249,24 +301,7 @@ public class ClassificationLoader
 
 	         	List<List> results = new ArrayList<List>(2);
 	         	results.add(r);
-	         	/*
-	         	nodes = os.loadContainerHierarchy(
-                        CategoryData.class, null, false, userID);
-	         	i = nodes.iterator();
-	         	r = new ArrayList<CategoryData>();
-	         	while (i.hasNext()) {
-	         		category = (CategoryData) i.next();
-	         		if (!ids.contains(category.getId())) {
-         				r.add(category);
-         			}
-				}
-	         	results.add(r);
-	         	*/
-	         	//Need 
-	         	/*
-	         	nodes = os.loadTopContainerHierarchy(CategoryGroupData.class, 
-	         											userID);
-	         											*/
+	        
 	         	nodes = os.findCGCPaths(imageIDs, 
 	         				OmeroDataService.DECLASSIFICATION, userID);
 	         	i = nodes.iterator();
@@ -365,7 +400,7 @@ public class ClassificationLoader
      * @param imageID       The id of the Image to classify or declassifiy
      *                      depending on the algorithm.
      * @param algorithm     One out of the following constants:
-     *                      {@link #ALL} or {@link #PARTIAL}.
+     *                      {@link #ALL_TAGS} or {@link #TAGS_USED}.
      * @param userID   		The Id of the user.                    
      */
     public ClassificationLoader(long imageID, int algorithm, long userID)
@@ -377,11 +412,14 @@ public class ClassificationLoader
         Set<Long> images = new HashSet<Long>(1);
         images.add(imageID);
         switch (algorithm) {
-			case ALL:
+			case ALL_TAGS:
 				loadCall = loadAllTags(images, userID);
 				break;
-			case PARTIAL:
+			case TAGS_USED:
 				loadCall = loadLinkedTags(images, userID);
+				break;
+			case TAGS_AVAILABLE:
+				loadCall = loadUnlinkedTags(images, userID);
 				break;
 			default:
 	        	loadCall  = loadCGCPaths(images, algorithm, userID);
@@ -407,11 +445,14 @@ public class ClassificationLoader
         if (!checkAlgorithmIndex(algorithm))
             throw new IllegalArgumentException("Algorithm not supported.");
         switch (algorithm) {
-			case ALL:
+			case ALL_TAGS:
 				loadCall = loadAllTags(imageIDs, userID);
 				break;
-			case PARTIAL:
+			case TAGS_USED:
 				loadCall = loadLinkedTags(imageIDs, userID);
+				break;
+			case TAGS_AVAILABLE:
+				loadCall = loadUnlinkedTags(imageIDs, userID);
 				break;
 			default:
 	        	loadCall  = loadCGCPaths(imageIDs, algorithm, userID);

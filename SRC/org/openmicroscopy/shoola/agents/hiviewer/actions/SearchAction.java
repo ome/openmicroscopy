@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction 
+ * org.openmicroscopy.shoola.agents.hiviewer.actions.SearchAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,7 +20,9 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.actions;
+package org.openmicroscopy.shoola.agents.hiviewer.actions;
+
+
 
 
 //Java imports
@@ -30,13 +32,15 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
+import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
+import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Action to bring up the Switch user dialog.
+ * Brings up the widget to perform and advanced search.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,49 +52,41 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public class SwitchUserAction 
-	extends TreeViewerAction
+public class SearchAction
+	extends HiViewerAction
 {
 
-	/** The name of the action. */
-	private static final String NAME = "Switch user";
-	
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Select another " +
-			"user and view his/her data";
-	
-    /** 
-     * Enables the action if the browser is not ready.
-     * @see TreeViewerAction#onBrowserStateChange(Browser)
-     */
-    protected void onBrowserStateChange(Browser browser)
-    {
-    	if (browser == null) return;
-    	setEnabled(browser.getState() == Browser.READY);
-    }
+    private static final String NAME = "Search ";
+    
+	/** The description of the action. */
+    private static final String DESCRIPTION = "Bring up the Advanced search.";
     
     /**
-     * Creates a new instance.
-     * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
-     */
-	public SwitchUserAction(TreeViewer model)
+	 * Creates a new instance.
+	 * 
+	 * @param model Reference to the Model. Mustn't be <code>null</code>.
+	 */
+	public SearchAction(HiViewer model)
 	{
 		super(model);
+		setEnabled(true);
 		name = NAME;
 		putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.OWNER));
+				UIUtilities.formatToolTipText(DESCRIPTION));
+		IconManager icons = IconManager.getInstance();
+		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.SEARCH));
 	}
 	
-    /**
-     * Brings up the swicth user dialog.
+	/** 
+     * Retrieves the rendering settings set by other users.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
-        model.retrieveUserGroups();
+    	AdvancedFinder dialog = FinderFactory.getAdvancedFinder(
+    								HiViewerAgent.getRegistry());
+        UIUtilities.centerAndShow(dialog);
     }
     
 }

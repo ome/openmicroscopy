@@ -72,6 +72,9 @@ public class AdvancedFinderLoader
 	/** The end of a time interval. */
 	private Timestamp 				end;
 	
+	/** The separator used between the terms. */
+	private String					separator;
+	
 	/** Handle to the async call so that we can cancel it. */
     private CallHandle  			handle;
 
@@ -101,11 +104,12 @@ public class AdvancedFinderLoader
      * @param context	Collection of constants defined by this class.
      * @param start		The start of a time interval.
      * @param end		The end of a time interval.
+     * @param separator	The term used between the terms to search.
      */
     public AdvancedFinderLoader(Finder viewer, List<String> values,
     							List<ExperimenterData> users,
     							List<Integer> context, Timestamp start,
-    							Timestamp end)
+    							Timestamp end, String separator)
     {
     	super(viewer);
     	if (values == null || values.size() == 0) 
@@ -117,6 +121,7 @@ public class AdvancedFinderLoader
     	this.users = users;
     	this.start = start;
     	this.end = end;
+    	this.separator = separator;
     }
     
     /**
@@ -126,7 +131,7 @@ public class AdvancedFinderLoader
     public void load()
     {
     	handle = dhView.advancedSearchFor(scope, values, users, start, end, 
-    										this);
+    									separator, this);
     }
 
     /**
@@ -160,10 +165,16 @@ public class AdvancedFinderLoader
 			s += " ";
 		}
         s = s.substring(0, s.length()-1);
-        s += "\"";
-        //if (CategoryData.class.equals(type)) s += "Tags";
-       // else if (ImageData.class.equals(type)) s += "Images";
-       // else if (AnnotationData.class.equals(type)) s += "Annotations";
+        s += "\" in ";
+        i = scope.iterator();
+        
+        int index = 0;
+        int l = scope.size()-1;
+        while (i.hasNext()) {
+        	s += convertType((Class) i.next());
+        	if (index != l) s +=", ";
+        	index++;
+		}
         
         event.setSearchContext(s);
 		bus.post(event); 

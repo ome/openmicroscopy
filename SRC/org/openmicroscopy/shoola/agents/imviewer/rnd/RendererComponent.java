@@ -104,12 +104,17 @@ class RendererComponent
         view = new RendererUI(getParentModel().getImageName());
     }
     
-    /** Links up the MVC triad. */
-    void initialize()
+    /** Links up the MVC triad. 
+     * 
+     * @param historyShown 	Pass <code>true</code> if the history is 
+     * 						is visible, <code>false</code> otherwise.
+     * */
+    void initialize(boolean historyShown)
     {
         model.initialize(this);
         controller.initialize(this, view);
         view.initialize(controller, model);
+        view.updateHistory(historyShown);
     }
     
     /** 

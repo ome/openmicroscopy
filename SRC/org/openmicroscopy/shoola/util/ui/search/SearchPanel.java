@@ -33,13 +33,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
@@ -75,15 +74,14 @@ class SearchPanel
 	extends JPanel
 {
 
-	/** Font for progress bar label. */
-	private static final Font		FONT = new Font("SansSerif", Font.ITALIC, 
-													10);
-
 	/** The preferred size of the calendar popup. */
 	private static final Dimension	CALENDAR_SIZE = new Dimension(250, 200);
 	
 	/** The selected date format. */
-	private static final String		DATE_FORMAT = "MM/dd/yy";
+	private static final String		DATE_FORMAT = "yy/mm/dd";
+	
+	/** The tooltip of the calendar button. */
+	private static final String		DATE_TOOLTIP = "Bring up a calendar.";
 	
 	/** Possible time options. */
 	private static String[]		dateOptions;
@@ -132,17 +130,30 @@ class SearchPanel
 	/** Button to only retrieve the current user and selected users' data. */
 	private JRadioButton			others;
 	
+	/** Button to put <code>AND</code> between terms. */
+	private JRadioButton			andBox;
+	
+	/** Button to put <code>OR</code> between terms. */
+	private JRadioButton			orBox;
+	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
 		scopes = new HashMap<Integer, JCheckBox>(model.getNodes().size());
 		IconManager icons = IconManager.getInstance();
 		fromDate = new JDateChooser();
+		JButton b = fromDate.getCalendarButton();
+		b.setToolTipText(DATE_TOOLTIP);
+		b.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		fromDate.setIcon(icons.getImageIcon(IconManager.CALENDAR));
 		fromDate.setDateFormatString(DATE_FORMAT);
 		fromDate.getJCalendar().setPreferredSize(CALENDAR_SIZE);
 		toDate = new JDateChooser();
+		toDate.getCalendarButton().setToolTipText(DATE_TOOLTIP);
 		toDate.setDateFormatString(DATE_FORMAT);
+		b = toDate.getCalendarButton();
+		b.setToolTipText(DATE_TOOLTIP);
+		b.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		toDate.setIcon(icons.getImageIcon(IconManager.CALENDAR));
 		toDate.getJCalendar().setPreferredSize(CALENDAR_SIZE);
 		fromDate.setEnabled(false);
@@ -154,7 +165,7 @@ class SearchPanel
 		dates.addActionListener(model);
 		dates.setActionCommand(""+SearchComponent.DATE);
 		userButton = new JButton(icons.getIcon(IconManager.OWNER));
-		userButton.setToolTipText("Selects an user");
+		userButton.setToolTipText("Select users");
 		UIUtilities.unifiedButtonLookAndFeel(userButton);
 		userButton.addActionListener(model);
 		userButton.setActionCommand(""+SearchComponent.OWNER);
@@ -167,6 +178,27 @@ class SearchPanel
 		group.add(currentUser);
 		group.add(currentUserAndOthers);
 		group.add(others);
+		group = new ButtonGroup();
+		andBox = new JRadioButton("Ands");
+		orBox = new JRadioButton("Ors");
+		orBox.setSelected(true);
+		group.add(andBox);
+		group.add(orBox);
+	}
+	
+	/** 
+	 * Displaying the term separator options.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildAndOrPanel()
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.add(andBox);
+		p.add(UIUtilities.setTextFont("Or"));
+		p.add(orBox);
+		return  UIUtilities.buildComponentPanel(p);
 	}
 	
 	/** 
@@ -259,6 +291,7 @@ class SearchPanel
 		double[][] tl = {{TableLayout.PREFERRED, 10, TableLayout.FILL, 
 						TableLayout.PREFERRED}, //columns
 				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5,
+				 TableLayout.PREFERRED, 5,
 			     TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
 			     TableLayout.PREFERRED, 5, 
 			     TableLayout.PREFERRED, TableLayout.PREFERRED} }; //rows
@@ -268,23 +301,28 @@ class SearchPanel
 		searchPanel.add(UIUtilities.setTextFont("Search For"), "0, 0, l, c");
 		searchPanel.add(termsArea, "2, 0, l, c");
 		
+		searchPanel.add(buildAndOrPanel(), "2, 2, l, c");
 		//Author
-		searchPanel.add(UIUtilities.setTextFont("Users"), "0, 2, l, c");
-		searchPanel.add(authors, "2, 2, l, c");
-		searchPanel.add(userButton, "3, 2, l, c");
+		searchPanel.add(UIUtilities.setTextFont("Users"), "0, 4, l, c");
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.add(authors);
+		p.add(userButton);
+		searchPanel.add(p, "2, 4, l, c");
+		//searchPanel.add(userButton, "3, 2, l, c");
 		
 		
-		searchPanel.add(buildUserSelectionPanel(), "2, 4, l, c");
+		searchPanel.add(buildUserSelectionPanel(), "2, 6, l, c");
 		
 		//Date
-		searchPanel.add(UIUtilities.setTextFont("Date"), "0, 6, l, c");
-		searchPanel.add(UIUtilities.buildComponentPanel(dates), "2, 6, l, c");
+		searchPanel.add(UIUtilities.setTextFont("Date"), "0, 8, l, c");
+		searchPanel.add(UIUtilities.buildComponentPanel(dates), "2, 8, l, c");
 		
 		//From
-		searchPanel.add(buildTimeRangePanel(), "0, 8, 2, 8");
+		searchPanel.add(buildTimeRangePanel(), "0, 10, 2, 10");
 		//Context
 		//searchPanel.add(UIUtilities.setTextFont("Scope"), "0, 10, l, c");
-		searchPanel.add(buildScopePanel(), "0, 11, 2, 11");
+		searchPanel.add(buildScopePanel(), "0, 12, 2, 12");
 		
 		return UIUtilities.buildComponentPanel(searchPanel);
 	}
@@ -426,22 +464,17 @@ class SearchPanel
 			return new ArrayList<String>();
 		return SearchUtil.splitTerms(authors.getText(), 
 									SearchUtil.SEARCH_SEPARATOR);
-		/*
-		List<String> l = new ArrayList<String>();
-		String text = authors.getText();
-		if (text == null) return l;
-		text = text.trim();
-		String[] r = text.split(SearchUtil.SEARCH_SEPARATOR);
-		String value; 
-		for (int i = 0; i < r.length; i++) {
-			value = r[i];
-			if (value != null) {
-				value = value.trim();
-				if (value.length() != 0) l.add(value);
-			}
-		}
-		return l;
-		*/
+	}
+	
+	/**
+	 * Returns either <code>and</code> or <code>or</code>.
+	 * 
+	 * @return See above.
+	 */
+	String getSeparator()
+	{
+		if (orBox.isSelected()) return "or";
+		return "and";
 	}
 	
 	/** Indicates to set the focus on the search area. */

@@ -141,11 +141,11 @@ public class SearchComponent
 	{
 		uiDelegate = new SearchPanel(this);
 		cancelButton = new JButton("Cancel");
-		cancelButton.setToolTipText("Cancels the search");
+		cancelButton.setToolTipText("Cancel the search");
 		cancelButton.setActionCommand(""+CANCEL);
 		cancelButton.addActionListener(this);
 		searchButton = new JButton("Search");
-		searchButton.setToolTipText("Searches");
+		searchButton.setToolTipText("Search");
 		searchButton.setActionCommand(""+SEARCH);
 		searchButton.addActionListener(this);
 		progressBar = new JProgressBar();
@@ -232,6 +232,7 @@ public class SearchComponent
 		}
 		ctx.setUserSearchContext(uiDelegate.getUserSearchContext());
 		ctx.setUsers(uiDelegate.getUsers());
+		ctx.setSeparator(uiDelegate.getSeparator());
 		firePropertyChange(SEARCH_PROPERTY, null, ctx);
 	}
 	

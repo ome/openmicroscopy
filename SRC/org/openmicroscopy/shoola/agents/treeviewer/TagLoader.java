@@ -51,11 +51,23 @@ public class TagLoader
 	extends EditorLoader
 {
 
+	/** Indicates to retrieve the tags attached to the image. */
+	public static final int TAGS_USED = 0;
+	
+	/** 
+	 * Indicates to retrieve the tags available and not yet linked to 
+	 * the image. 
+	 */
+	public static final int TAGS_AVAILABLE = 1;
+	
 	/** The id of the image to handle. */
 	private long 		imageID;
 	
 	/** The id of the experimenter currently logged in. */
 	private long		expID;
+	
+	/** One of the constants defined by this class. */
+	private int			index;
 	
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -67,12 +79,14 @@ public class TagLoader
      *                  Mustn't be <code>null</code>.
      * @param imageID  	The id of the image.
      * @param expID		The id of the experimenter currently logged in.
+     * @param index		One of the constants defined by this class.
      */
-	public TagLoader(Editor viewer, long imageID, long expID)
+	public TagLoader(Editor viewer, long imageID, long expID, int index)
 	{
 		super(viewer);
 		this.imageID = imageID;
 		this.expID = expID;
+		this.index = index;
 	}
 	 
     /** 
@@ -83,7 +97,14 @@ public class TagLoader
     {
     	Set<Long> images = new HashSet<Long>(1);
     	images.add(imageID);
-        handle = dhView.loadLinkedTags(images, expID, this);
+    	switch (index) {
+			case TAGS_USED:
+				handle = dhView.loadLinkedTags(images, expID, this);
+				break;
+			case TAGS_AVAILABLE:
+				handle = dhView.loadUnlinkedTags(images, expID, this);
+				break;
+		}
     }
     
 	 /** 
@@ -99,10 +120,16 @@ public class TagLoader
     public void handleResult(Object result) 
     {
         if (viewer.getState() == Editor.DISCARDED) return;  //Async cancel.
-        List set = (List) result;
-        if (set == null || set.size() != 2)
-     	   viewer.setTags(null, null);
-        else viewer.setTags((List) set.get(0), (List) set.get(1));
+        switch (index) {
+			case TAGS_USED:
+				List set = (List) result;
+		        if (set == null || set.size() != 2)
+		     	   viewer.setTags(null, null);
+		        else viewer.setTags((List) set.get(0), (List) set.get(1));
+				break;
+			case TAGS_AVAILABLE:
+				viewer.setAvailableTags((List) result);
+        }
     }
 
 }

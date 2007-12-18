@@ -82,7 +82,9 @@ class HiViewerToolBar
         bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
-        bar.add(new JButton(controller.getAction(HiViewerControl.REFRESH)));
+        JButton b = new JButton(controller.getAction(HiViewerControl.REFRESH));
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);
         bar.add(Box.createRigidArea(HGLUE));
         bar.add(new JSeparator(JSeparator.VERTICAL));
         bar.add(Box.createRigidArea(HGLUE));
@@ -161,6 +163,12 @@ class HiViewerToolBar
         button = new JButton(controller.getAction(HiViewerControl.ZOOM_FIT));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
+        bar.add(Box.createRigidArea(HGLUE));
+        bar.add(new JSeparator(JSeparator.VERTICAL));
+        bar.add(Box.createRigidArea(HGLUE));
+        button = new JButton(controller.getAction(HiViewerControl.SEARCH));
+        UIUtilities.unifiedButtonLookAndFeel(button);
+        bar.add(button);
         return bar;
     }
     
@@ -174,6 +182,7 @@ class HiViewerToolBar
         bars.add(buildGeneralBar());
         bars.add(buildViewBar());
         bars.add(buildManagementBar());
+       
         outerPanel.setBorder(null);
         outerPanel.setLayout(new BoxLayout(outerPanel, BoxLayout.X_AXIS));
         outerPanel.add(bars);

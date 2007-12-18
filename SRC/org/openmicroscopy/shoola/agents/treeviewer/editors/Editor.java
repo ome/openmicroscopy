@@ -30,7 +30,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.List;
-import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.JRootPane;
 
@@ -243,6 +242,40 @@ public interface Editor
 	 */
 	public boolean hasAnnotationToSave();
 	
+	/** 
+	 * Sets the tags linked to the image and the tag sets linked to the image.
+	 * 
+	 * @param linkedTags	Collection of tags linked to the image.
+	 * @param tagSets		Collection of tag sets linked to the image.
+	 */
 	public void setTags(List linkedTags, List tagSets);
+	
+	/** Updates the view when a tag is added or removed. */
+	public void onTagsUpdate();
+	
+	/** Retrieves the tags not linked to the image. */
+	public void loadAvailableTags();
+	
+	/**
+	 * Sets the collection of available tags.
+	 * 
+	 * @param tags The collection to set.
+	 */
+	public void setAvailableTags(List tags);
+
+	/**
+	 * Removes the tag or tags if a tag set is specified from the 
+	 * image.
+	 * 
+	 * @param object The object to handle.
+	 */
+	void removeTag(DataObject object);
+
+	/**
+	 * Adds the passed tag to the edited image.
+	 * 
+	 * @param object The object to handle.
+	 */
+	void addTagToImage(DataObject object);
 	
 }

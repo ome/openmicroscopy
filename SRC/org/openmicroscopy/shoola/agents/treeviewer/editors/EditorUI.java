@@ -623,6 +623,12 @@ class EditorUI
         if (doBasic != null) doBasic.showTags();
     }
     
+    /** Displays the available tags. */ 
+    void showAvailableTags()
+    { 
+        if (doBasic != null) doBasic.showTags();
+    }
+    
     /** 
      * Reacts to state change.
      * 
@@ -798,7 +804,6 @@ class EditorUI
 			case FINISH:
 				finish();
 		}
-		
 	}
 	
     /**
@@ -820,7 +825,5 @@ class EditorUI
      * @see JPanel#setSize(Dimension)
      */
     public void setSize(Dimension d) { setSize(d.width, d.height); }
-
-	
 
 }

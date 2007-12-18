@@ -303,6 +303,17 @@ public interface DataHandlerView
 	 */
 	public CallHandle loadLinkedTags(Set<Long> imageIDs, long userID, 
 			AgentEventListener observer);
+	
+	/**
+	 * Loads the tags available and not linked to a given collection of images.
+	 * 
+	 * @param imageIDs	The id of the images to handle.
+	 * @param userID	The user's id.
+	 * @param observer	Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadUnlinkedTags(Set<Long> imageIDs, long userID, 
+			AgentEventListener observer);
 
 	/**
 	 * Loads all classifications for a given image i.e. the categories
@@ -475,12 +486,13 @@ public interface DataHandlerView
 	 * @param users		The users' data.
 	 * @param start		The start of the time interval.
 	 * @param end		The end of the time interval.
+	 * @param separator	
 	 * @param observer	Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle advancedSearchFor(List<Class> scope, List<String> values, 
 			List<ExperimenterData> users, Timestamp start, Timestamp end,
-			AgentEventListener observer);
+			String separator, AgentEventListener observer);
 	
 	/**
 	 * Loads the experimenter groups.

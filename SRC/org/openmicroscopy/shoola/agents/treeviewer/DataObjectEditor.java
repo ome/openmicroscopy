@@ -33,10 +33,14 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jdesktop.swingx.auth.UserPermissions;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.CategoryData;
 import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * Updates or deletes the specified <code>DataObject</code>.
@@ -56,17 +60,28 @@ public class DataObjectEditor
     extends EditorLoader
 {
 
+	/** Indicates to update the data object. */
+	public static final int UPDATE = 0;
+	
+	/** Indicates to remove the data object. */
+	public static final int	REMOVE = 1;
+	
+	/** Indicates to tag the data object. */
+	public static final int	TAG = 2;
+	
     /** The {@link DataObject} to handle. */
-    private DataObject      userObject;
+    private DataObject      	userObject;
     
     /** The operation to perform on the data object. */
-    private int				operation;
+    private int					index;
     
     /** The parent of the {@link #userObject}. */
-    private DataObject      parent;
+    private DataObject      	parent;
+    
+    private Set<CategoryData> 	tags;
     
     /** Handle to the async call so that we can cancel it. */
-    private CallHandle  	handle;
+    private CallHandle  		handle;
     
     /**
      * Creates a new instance.
@@ -82,7 +97,7 @@ public class DataObjectEditor
             throw new IllegalArgumentException("No DataObject");
         this.userObject = userObject;
         parent = null;
-        operation = TreeViewer.UPDATE_OBJECT;
+        index = UPDATE;
     }
     
     /**
@@ -92,16 +107,39 @@ public class DataObjectEditor
      *               	    Mustn't be <code>null</code>.
      * @param userObject    The {@link DataObject} to handle. 
      * @param parent        The parent of the {@link DataObject} to handle.
+     * @param index			The operation to perform. One of the constants 
+     * 						defined by this class.
      */
     public DataObjectEditor(Editor viewer, DataObject userObject,
-                            DataObject parent)
+                            DataObject parent, int index)
     {
         super(viewer);
         if (userObject == null)
             throw new IllegalArgumentException("No DataObject.");
         this.userObject = userObject;
         this.parent = parent;
-        operation = TreeViewer.DELETE_OBJECT;
+        this.index = index;
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer        The Editor this data loader is for.
+     *               	    Mustn't be <code>null</code>.
+     * @param userObject   	The {@link DataObject} to handle. 
+     * @param tags        	The parent of the {@link DataObject} to handle.
+     * @param index			The operation to perform. One of the constants 
+     * 						defined by this class.
+     */
+    public DataObjectEditor(Editor viewer, DataObject userObject,
+                            Set<CategoryData> tags, int index)
+    {
+        super(viewer);
+        if (userObject == null)
+            throw new IllegalArgumentException("No DataObject.");
+        this.userObject = userObject;
+        this.tags = tags;
+        this.index = index;
     }
     
     /** 
@@ -110,13 +148,25 @@ public class DataObjectEditor
      */
     public void load()
     {
-        if (operation == TreeViewer.UPDATE_OBJECT)
-            handle = dmView.updateDataObject(userObject, this);
-        else if (operation == TreeViewer.DELETE_OBJECT) {
-            Set<DataObject> l = new HashSet<DataObject>(1);
-            l.add(userObject);
-            handle = dmView.removeDataObjects(l, parent, this);
-        }     
+    	Set<DataObject> l = new HashSet<DataObject>(1);
+        l.add(userObject);
+    	switch (index) {
+			case UPDATE:
+				handle = dmView.updateDataObject(userObject, this);
+				break;
+	
+			case REMOVE:
+	        	if (tags != null) handle = dhView.declassify(l, tags, this);
+	        	else handle = dmView.removeDataObjects(l, parent, this);
+				break;
+			case TAG:
+				if (tags == null) {
+					tags = new HashSet<CategoryData>(1);
+					tags.add((CategoryData) parent);
+				}
+				handle = dmView.classify(l, tags, this);
+		}
+       
     }
 
     /**
@@ -132,7 +182,8 @@ public class DataObjectEditor
     public void handleResult(Object result)
     {
         if (viewer.getState() == Editor.DISCARDED) return;  //Async cancel.
-        viewer.setSaveResult((DataObject) result, operation);
+        //viewer.setSaveResult((DataObject) result, operation);
+        viewer.onTagsUpdate();
     }
     
 }

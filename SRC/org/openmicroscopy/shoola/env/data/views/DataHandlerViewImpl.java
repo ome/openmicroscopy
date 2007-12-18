@@ -258,7 +258,7 @@ public class DataHandlerViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ClassificationLoader(imageIDs,
-				ClassificationLoader.ALL, userID);
+				ClassificationLoader.ALL_TAGS, userID);
 		return cmd.exec(observer);
 	}
 
@@ -271,7 +271,7 @@ public class DataHandlerViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ClassificationLoader(imageIDs,
-				ClassificationLoader.PARTIAL, userID);
+				ClassificationLoader.TAGS_USED, userID);
 		return cmd.exec(observer);
 	}
 	/**
@@ -385,13 +385,14 @@ public class DataHandlerViewImpl
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see DataHandlerView#advancedSearchFor(List, List, List, Timestamp, 
-	 * 									Timestamp, AgentEventListener)
+	 * 									Timestamp, String, AgentEventListener)
 	 */
 	public CallHandle advancedSearchFor(List<Class> scope, List<String> values, 
 			List<ExperimenterData> users, Timestamp start, Timestamp end,
-			AgentEventListener observer)
+			String separator, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ObjectFinder(scope, values, users, start, end);
+		BatchCallTree cmd = new ObjectFinder(scope, values, users, start, end,
+											separator);
 		return cmd.exec(observer);
 	}
 
@@ -429,6 +430,18 @@ public class DataHandlerViewImpl
 	public CallHandle loadAvailableGroups(AgentEventListener observer)
 	{
 		BatchCallTree cmd = new AdminLoader(AdminLoader.GROUP);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataHandlerView#loadUnlinkedTags(Set, long, AgentEventListener)
+	 */
+	public CallHandle loadUnlinkedTags(Set<Long> imageIDs, long userID, 
+						AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ClassificationLoader(imageIDs,
+				ClassificationLoader.TAGS_AVAILABLE, userID);
 		return cmd.exec(observer);
 	}
 		

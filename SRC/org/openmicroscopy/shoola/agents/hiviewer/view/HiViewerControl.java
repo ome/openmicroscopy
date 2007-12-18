@@ -74,6 +74,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.ResetRndSettingsAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveLayoutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveThumbnailsAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.SearchAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ShowTitleBarAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SortByAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SquaryLayoutAction;
@@ -208,6 +209,9 @@ class HiViewerControl
     
     /** Identifies the <code>Reset rendering settings</code> action. */
     static final Integer     RESET_RND_SETTINGS = new Integer(33);
+    
+    /** Identifies the <code>Search</code> action. */
+    static final Integer     SEARCH = new Integer(34);
        
     /** 
      * Reference to the {@link HiViewer} component, which, in this context,
@@ -260,6 +264,7 @@ class HiViewerControl
         actionsMap.put(PASTE_RND_SETTINGS, new PasteRndSettingsAction(model));
         actionsMap.put(COPY_RND_SETTINGS, new CopyRndSettingsAction(model));
         actionsMap.put(RESET_RND_SETTINGS, new ResetRndSettingsAction(model));
+        actionsMap.put(SEARCH, new SearchAction(model));
     }
   
     /** 

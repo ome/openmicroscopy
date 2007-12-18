@@ -254,11 +254,17 @@ public class IconManager
     /** The <code>Search</code> icon. */
     public static int           SEARCH = 66;
     
+    /** The <code>remove edit</code> icon. */
+    public static int           EDIT_REMOVE = 67;
+    
+    /** The <code>add_12</code> icon. */
+    public static int           ADD_12 = 68;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 66;
+    private static int          MAX_ID = 68;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -333,6 +339,8 @@ public class IconManager
         relPaths[DATE] = "nuvola_date16.png";
         relPaths[REDO] = "nuvola_redo16.png";
         relPaths[SEARCH] = "nuvola_find16.png";
+        relPaths[EDIT_REMOVE] = "remove12.png";
+        relPaths[ADD_12] = "add12.png";
     }
     
     /** The sole instance. */

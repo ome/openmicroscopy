@@ -64,12 +64,14 @@ public class QuickFinder
 	 * Searches for the passed values.
 	 * 
 	 * @param values The value to search for.
+	 * @param sep
 	 */
-	private void fireTagsRetrieval(List values)
+	private void fireTagsRetrieval(List values, String sep)
 	{
 		state = SEARCH;
 		QuickFinderLoader handler = new QuickFinderLoader(this, values, 
-													QuickFinderLoader.TAGS);
+													QuickFinderLoader.TAGS, 
+													sep);
 		handler.load();
 		finderHandlers.add(handler);
 	}
@@ -78,12 +80,14 @@ public class QuickFinder
 	 * Searches for the passed values.
 	 * 
 	 * @param values The value to search for.
+	 * @param sep
 	 */
-	private void fireTagSetsRetrieval(List values)
+	private void fireTagSetsRetrieval(List values, String sep)
 	{
 		state = SEARCH;
 		QuickFinderLoader handler = new QuickFinderLoader(this, values, 
-													QuickFinderLoader.TAG_SETS);
+													QuickFinderLoader.TAG_SETS,
+													sep);
 		handler.load();
 		finderHandlers.add(handler);
 	}
@@ -92,12 +96,13 @@ public class QuickFinder
 	 * Searches for the passed values.
 	 * 
 	 * @param values The value to search for.
+	 * @param sep
 	 */
-	private void fireImagesRetrieval(List values)
+	private void fireImagesRetrieval(List values, String sep)
 	{
 		state = SEARCH;
 		QuickFinderLoader handler = new QuickFinderLoader(this, values, 
-										QuickFinderLoader.IMAGES);
+										QuickFinderLoader.IMAGES, sep);
 		handler.load();
 		finderHandlers.add(handler);
 	}
@@ -106,12 +111,13 @@ public class QuickFinder
 	 * Searches for the passed values.
 	 * 
 	 * @param values The value to search for.
+	 * @param sep
 	 */
-	private void fireAnnotationsRetrieval(List values)
+	private void fireAnnotationsRetrieval(List values, String sep)
 	{
 		state = SEARCH;
 		QuickFinderLoader handler = new QuickFinderLoader(this, values, 
-										QuickFinderLoader.ANNOTATIONS);
+										QuickFinderLoader.ANNOTATIONS, sep);
 		handler.load();
 		finderHandlers.add(handler);
 	}
@@ -135,18 +141,43 @@ public class QuickFinder
 			un.notifyInfo("Quick Search", "Please enter a term to search for.");
 			return;
 		}
+		String sep = "or";
+		List terms = null;
+		if (values.size() == 1) {
+			String v = (String) values.get(0);
+			v = v.toLowerCase();
+			String[] array = v.split("and");
+			if (array.length > 1) {
+				sep = "and";
+				terms = new ArrayList();
+				for (int i = 0; i < array.length; i++) {
+					terms.add(array[i].trim());
+				}
+			}
+			if (terms == null) {
+				array = v.split("or");
+				if (array.length > 1) {
+					sep = "or";
+					terms = new ArrayList();
+					for (int i = 0; i < array.length; i++) {
+						terms.add(array[i].trim());
+					}
+				}
+			}
+		}
+		if (terms == null) terms = values;	
 		switch (selectedNode.getIndex()) {
 			case TAGS:
-				fireTagsRetrieval(values);
+				fireTagsRetrieval(terms, sep);
 				break;
 			case IMAGES:
-				fireImagesRetrieval(values);
+				fireImagesRetrieval(terms, sep);
 				break;
 			case ANNOTATIONS:
-				fireAnnotationsRetrieval(values);
+				fireAnnotationsRetrieval(terms, sep);
 				break;
 			case TAG_SETS:
-				fireTagSetsRetrieval(values);
+				fireTagSetsRetrieval(terms, sep);
 		}
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	}

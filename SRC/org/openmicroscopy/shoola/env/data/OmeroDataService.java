@@ -759,7 +759,7 @@ public interface OmeroDataService
 	 * @param users		The users' name.
 	 * @param start		The start of the time interval.
 	 * @param end		The end of the time interval.
-	 * @param observer	Callback handler.
+	 * @param separator	
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
@@ -767,7 +767,8 @@ public interface OmeroDataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Set advancedSearchFor(List<Class> scope, List<String> values, 
-			List<ExperimenterData> users, Timestamp start, Timestamp end)
+			List<ExperimenterData> users, Timestamp start, Timestamp end,
+			String separator)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

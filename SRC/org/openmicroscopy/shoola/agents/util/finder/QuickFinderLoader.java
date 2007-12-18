@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.AnnotationData;
 import pojos.CategoryData;
+import pojos.CategoryGroupData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -67,6 +68,8 @@ public class QuickFinderLoader
 	/** Collection of terms to search for. */
 	private List			values;
 	
+	private String 			separator;
+	
 	/** Handle to the async call so that we can cancel it. */
     private CallHandle  	handle;
 
@@ -79,14 +82,17 @@ public class QuickFinderLoader
      * @param values	Collection of terms to search for.
      * @param type		The type of data to search, One of the constants 
      * 					defined by this class.
+     * @param separator 
      */
-    public QuickFinderLoader(QuickFinder viewer, List values, int type)
+    public QuickFinderLoader(QuickFinder viewer, List values, int type, 
+    		String separator)
     {
     	super(viewer);
     	this.type = checkType(type);
     	if (values == null || values.size() == 0) 
     		throw new IllegalArgumentException("No terms to search for.");
     	this.values = values;
+    	this.separator = separator;
     }
     
     /**
@@ -99,8 +105,9 @@ public class QuickFinderLoader
     	scope.add(type);
     	List<ExperimenterData> users = new ArrayList<ExperimenterData>(1);
     	users.add(getUserDetails());
-    	handle = dhView.advancedSearchFor(scope, values, users, null, null,
-    										this);
+    	
+    	handle = dhView.advancedSearchFor(scope, values, users, null, null, 
+    									separator, this);
     }
 
     /**
@@ -132,9 +139,7 @@ public class QuickFinderLoader
 		}
         s = s.substring(0, s.length()-1);
         s += "\" in ";
-        if (CategoryData.class.equals(type)) s += "Tags";
-        else if (ImageData.class.equals(type)) s += "Images";
-        else if (AnnotationData.class.equals(type)) s += "Annotations";
+        s += convertType(type);
         
         event.setSearchContext(s);
 		bus.post(event); 

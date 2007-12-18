@@ -69,16 +69,16 @@ class RendererUI
 {
   
 	/** Identifies the {@link DomainPane}. */
-	static final Integer        DOMAIN = new Integer(0);
+	static final Integer        	DOMAIN = new Integer(0);
 
 	/** Identifies the {@link CodomainPane}. */
-	static final Integer        CODOMAIN = new Integer(1);
+	static final Integer        	CODOMAIN = new Integer(1);
 
 	/** 
 	 * Text display in the {@link #historyButton} when the local history
 	 * is hidden.
 	 */
-	private static final String	SHOW_HISTORY = "Show Local History...";
+	private static final String		SHOW_HISTORY = "Show Local History...";
 
 	/** 
 	 * Text display in the {@link #historyButton} when the local history 
@@ -132,22 +132,18 @@ class RendererUI
 	private void initComponents()
 	{
 		IconManager icons = IconManager.getInstance();
-		
-		//copyButton = new JButton("Copy");
+
 		copyButton = new JButton(icons.getIcon(IconManager.COPY));
 		copyButton.setToolTipText(
 			UIUtilities.formatToolTipText("Copy the rendering settings."));
 		copyButton.setActionCommand(""+COPY);
 		copyButton.addActionListener(this);
-		//UIUtilities.unifiedButtonLookAndFeel(copyButton);
-		//pasteButton = new JButton("Paste");
 		pasteButton = new JButton(icons.getIcon(IconManager.PASTE));
 		pasteButton.setEnabled(model.getParentModel().hasSettingsToPaste());
 		pasteButton.setToolTipText(
 			UIUtilities.formatToolTipText("Paste the rendering settings."));
 		pasteButton.setActionCommand(""+PASTE);
 		pasteButton.addActionListener(this);
-		//UIUtilities.unifiedButtonLookAndFeel(pasteButton);
 		historyButton = new JButton();
 		updateHistory(model.getParentModel().isHistoryShown());
 		historyButton.setActionCommand(""+HISTORY);
@@ -163,7 +159,6 @@ class RendererUI
 				UIUtilities.formatToolTipText("Save the current settings."));
 		saveButton.setActionCommand(""+SAVE);
 		saveButton.addActionListener(this);
-		//UIUtilities.unifiedButtonLookAndFeel(resetButton);
 	}
 
 	/** Creates the panels hosting the rendering controls. */

@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.agents.imviewer.view.ViewerPreferences;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 
@@ -87,14 +88,18 @@ public class RendererFactory
      *                      for. Mustn't be <code>null</code>.
      * @param rndControl    Reference to the component that controls the
      *                      rendering settings. Mustn't be <code>null</code>.
+     * @param pref			The user preferences.
      * @return See above.
      */
     public static Renderer createRenderer(ImViewer viewer,
-                                            RenderingControl rndControl)
+                                            RenderingControl rndControl, 
+                                            ViewerPreferences pref)
     {
         RendererModel model = new RendererModel(viewer, rndControl);
         RendererComponent rnd = new RendererComponent(model);
-        rnd.initialize();
+        boolean b = false;
+        if (pref != null) b = pref.isHistory();
+        rnd.initialize(b);
         return rnd;
     }
     

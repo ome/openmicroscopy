@@ -113,9 +113,8 @@ class DOBasic
     
     /** Component hosting the additional information. */
     private JComponent			informationPanel;
-    
-    private JComponent			tagsPanel;
-    
+
+    /** Panel hosting the main display. */
     private JComponent			contentPanel;
     
     
@@ -354,8 +353,7 @@ class DOBasic
         								BoxLayout.Y_AXIS));
         	contentPanel.add(buildContentPanel());
         	contentPanel.add(informationPanel);
-            tagsPanel = new JPanel();
-            contentPanel.add(tagsPanel);
+            contentPanel.add(new JPanel());
             add(contentPanel, BorderLayout.NORTH);
         } else add(buildContentPanel(), BorderLayout.NORTH);
         add(view.buildBasicToolBar(download), BorderLayout.SOUTH);
@@ -414,10 +412,11 @@ class DOBasic
     /** Shows the tags. */
     void showTags()
     {
-    	tagsPanel = new DOTag(view, model);
-    	contentPanel.add(UIUtilities.buildComponentPanel(tagsPanel));
+    	contentPanel.remove(contentPanel.getComponentCount()-1);
+    	contentPanel.add(UIUtilities.buildComponentPanel(new DOTag(controller, 
+						model)));
     	validate();
-        repaint();
+    	repaint();
     }
 
     /** 

@@ -438,21 +438,12 @@ public class NullOmeroPojoService
 
 	/**
 	 * No-op implementation
-	 * @see OmeroDataService#searchFor(Class, long, List)
-	 */
-	public Set searchFor(Class type, long userID, List terms) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	/**
-	 * No-op implementation
 	 * @see OmeroDataService#advancedSearchFor(List, List, List, Timestamp, 
-	 * 											Timestamp)
+	 * 											Timestamp, String)
 	 */
 	public Set advancedSearchFor(List<Class> scope, List<String> values, 
-			List<ExperimenterData> users, Timestamp start, Timestamp end)
+			List<ExperimenterData> users, Timestamp start, Timestamp end, String
+			separator)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

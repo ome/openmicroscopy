@@ -27,7 +27,10 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -101,6 +104,9 @@ class EditorModel
      */
     private EditorLoader        	currentLoader;
 
+    /** Collection of tags not linked to the image. */
+    private List<CategoryData>		availableTags;
+    
     /** Collection of tags linked to the image. */
     private List<CategoryData>		tags;
     
@@ -436,17 +442,21 @@ class EditorModel
         state = Editor.LOADING_TAGS;
         long imageID = ((ImageData) hierarchyObject).getId();
         currentLoader = new TagLoader(component, imageID, 
-        					parentModel.getUserDetails().getId());
+        					parentModel.getUserDetails().getId(), 
+        					TagLoader.TAGS_USED);
         currentLoader.load();
-        /*
-        Set<Long> ids = new HashSet<Long>(1);
-        ids.add(new Long(imageID));
-        currentLoader = new ClassificationPathsLoader(component, ids,
-                						parentModel.getUserDetails().getId());
-        currentLoader.load();
-        */
     }
 
+    void fireAvailableTagsLoading()
+    {
+    	state = Editor.LOADING_TAGS;
+        long imageID = ((ImageData) hierarchyObject).getId();
+        currentLoader = new TagLoader(component, imageID, 
+        					parentModel.getUserDetails().getId(), 
+        					TagLoader.TAGS_AVAILABLE);
+        currentLoader.load();
+    }
+    
     /**
      * Starts the asynchronous creation of the specified object.
      * 
@@ -468,6 +478,58 @@ class EditorModel
         }
         currentLoader = new DataObjectCreator(component, object, data);
         currentLoader.load();
+    }
+    
+    /**
+     * Removes the tags from the data object.
+     * 
+     * @param object The object to handle.
+     */
+    void fireDataObjectDeletion(DataObject object)
+    {
+    	state = Editor.SAVE_EDITION;
+    	if (object instanceof CategoryData) {
+    		currentLoader = new DataObjectEditor(component, hierarchyObject, 
+    											object, 
+    											DataObjectEditor.REMOVE);
+            currentLoader.load();
+            if (availableTags != null) {
+            	availableTags.add((CategoryData) object);
+            	availableTags = sorter.sort(availableTags);
+            }
+            	
+    	} else if (object instanceof CategoryGroupData) {
+    		Set tags = ((CategoryGroupData) object).getCategories();
+    		currentLoader = new DataObjectEditor(component, hierarchyObject, 
+									tags, DataObjectEditor.REMOVE);
+    		currentLoader.load();
+    		if (availableTags != null) {
+    			Iterator i = availableTags.iterator();
+    			Set<Long> ids = new HashSet<Long>(tags.size());
+    			while (i.hasNext()) {
+					ids.add(((DataObject) i.next()).getId());
+				}
+    			i = tags.iterator();
+    			CategoryData tag;
+    			while (i.hasNext()) {
+    				tag = (CategoryData) i.next();
+					if (!ids.contains(tag.getId()))
+						availableTags.add(tag);
+							
+				}
+    			availableTags = sorter.sort(availableTags);
+    		}
+    	}
+    }
+    
+    void fireTagAddition(DataObject object)
+    {
+    	if (!(object instanceof CategoryData)) return;
+    	state = Editor.SAVE_EDITION;
+    	currentLoader = new DataObjectEditor(component, hierarchyObject, 
+    							object, DataObjectEditor.TAG);
+		currentLoader.load();
+		availableTags.remove(object);
     }
     
     /**
@@ -643,15 +705,27 @@ class EditorModel
 	void setTags(List<CategoryData> linkedTags, List<CategoryGroupData> tagSets)
 	{
 		if (sorter == null) sorter = new ViewerSorter();
-		List l, groups;
 		if (linkedTags == null || linkedTags.size() == 0)
-			l = new ArrayList();
-		else l = sorter.sort(linkedTags);
+			this.tags = new ArrayList<CategoryData>();
+		else this.tags = sorter.sort(linkedTags);
 		if (tagSets == null || tagSets.size() == 0)
-			groups = new ArrayList();
-		else groups = sorter.sort(tagSets);
-		this.tags = l;
-		this.tagSets = groups;
+			this.tagSets = new ArrayList<CategoryGroupData>();
+		else this.tagSets = sorter.sort(tagSets);
+		state = Editor.READY;
+	}
+	
+	/**
+	 * Sorts and sets the collection of available tags.
+	 * 
+	 * @param unlinkedTags Collection of tags not linked to the edited image.
+	 */
+	void setAvailableTags(List<CategoryData> unlinkedTags)
+	{
+		if (sorter == null) sorter = new ViewerSorter();
+		List l;
+		if (unlinkedTags == null || unlinkedTags.size() == 0)
+			availableTags = new ArrayList<CategoryData>();
+		else availableTags = sorter.sort(unlinkedTags);
 		state = Editor.READY;
 	}
 	
@@ -668,6 +742,13 @@ class EditorModel
 	 * @return See above.
 	 */
 	List<CategoryGroupData> getTagSets() { return tagSets; }
+	
+	/**
+	 * Returns the collection of tags not linked to the image.
+	 * 
+	 * @return See above.
+	 */
+	List<CategoryData> getAvailableTags() { return availableTags; }
 	
 }
  

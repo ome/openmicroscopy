@@ -164,7 +164,7 @@ public class AdvancedFinder
 		
 		AdvancedFinderLoader loader = new AdvancedFinderLoader(this, terms,
 											exps, scope, ctx.getStartTime(),
-				ctx.getEndTime());
+				ctx.getEndTime(), ctx.getSeparator());
 		loader.load();
 		finderHandlers.add(loader);
 		state = SEARCH;
