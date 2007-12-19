@@ -882,7 +882,12 @@ class MeasurementViewerUI
 			ROIShape shape;
 			while (i.hasNext()) {
 				shape = (ROIShape) i.next();
-				if (shape != null) drawing.add(shape.getFigure());
+				if (shape != null) 
+				{
+					drawing.add(shape.getFigure());
+					shape.getFigure().removeFigureListener(controller);
+					shape.getFigure().addFigureListener(controller);
+				}
 			}
 		}
 		setStatus(DEFAULT_MSG);
