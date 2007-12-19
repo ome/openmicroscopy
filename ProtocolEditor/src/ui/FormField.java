@@ -171,7 +171,7 @@ public class FormField extends AbstractDataFieldPanel implements DataFieldObserv
 		refreshHighlighted();
 		
 		this.add(horizontalFrameBox, BorderLayout.NORTH);
-		this.add(descriptionLabel, BorderLayout.CENTER);
+		this.add(descriptionLabel, BorderLayout.WEST);
 		
 	}
 	

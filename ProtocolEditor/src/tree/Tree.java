@@ -394,6 +394,20 @@ public class Tree {
 		undoSupport.postEdit(edit);
 	}
 	
+	/*
+	 * Add a dataField of a defined inputType
+	 */
+	public void addDataFieldByType(String inputType) {
+		setTreeEdited(true);
+		
+		DataFieldNode newNode = new DataFieldNode(this);// make a new default-type field
+		newNode.getDataField().setAttribute(DataField.INPUT_TYPE, inputType, false);
+		addDataField(newNode);	// adds after last highlighted field, or last child of root
+		
+		UndoableEdit edit = new EditAddField(newNode);
+		undoSupport.postEdit(edit);
+	}
+	
 	//	 add a new dataField after the last highlighted dataField
 	private void addDataField(DataFieldNode newNode) {
 		
@@ -934,6 +948,24 @@ public class Tree {
 			}
 		}
 		return searchResults;
+	}
+	
+	/*
+	 * Goes through the Tree, adding the observation fields to a list
+	 */
+	public ArrayList<DataField> getObservationFields() {
+		ArrayList<DataField> observationFields = new ArrayList<DataField>();
+		
+		Iterator <DataFieldNode>iterator = rootNode.iterator();
+
+		while (iterator.hasNext()) {
+			DataFieldNode node = iterator.next();
+			DataField field = node.getDataField();
+			if (field.getAttribute(DataField.INPUT_TYPE).equals(DataField.OBSERVATION_DEFINITION)) {
+				observationFields.add(field);
+			}
+		}
+		return observationFields;
 	}
 	
 	// called when the UI needs to display the FieldEditor

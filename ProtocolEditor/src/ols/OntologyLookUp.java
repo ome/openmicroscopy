@@ -22,6 +22,7 @@
 
 package ols;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -33,22 +34,28 @@ public class OntologyLookUp {
 	
 	public static Map<String,String> getTermsByName (String name, String ontologyID) {
 	
+		boolean removeObsoleteTerms = false;
+		
 		Map<String, String> map = null;
 		try {
 			QueryService locator = new QueryServiceLocator();
 			Query qs = locator.getOntologyQuery();
 			map = qs.getTermsByName(name, ontologyID, false);
 			
-			/* for (Iterator i = map.keySet().iterator(); i.hasNext();){
-				String key = (String) i.next();
-				System.out.println(key + " - "+ map.get(key));
+			// This would be nice but is FAR TOO SLOW (have to make a SOAP call for every term!). 
+			if (removeObsoleteTerms) {
+				ArrayList<String> obsoleteTermIds = new ArrayList<String>();
+				for (Iterator i = map.keySet().iterator(); i.hasNext();){
+					String key = (String) i.next();
+					if(qs.isObsolete(key, ontologyID)) {
+						obsoleteTermIds.add(key);
+						//System.out.println("OLS term isObsolete " + key);
+					}
+				}
+				for(String termId: obsoleteTermIds) {
+					map.remove(termId);
+				}
 			}
-			
-			System.out.println(map.size() + " results found");
-			System.out.println();
-			
-			String termID = "GO:0032315";
-			String ontologyName = "GO"; */
 			
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -65,10 +72,62 @@ public class OntologyLookUp {
 			Query qs = locator.getOntologyQuery();
 			metaDataMap = qs.getTermMetadata(termID, ontologyID);
 			
+			/*
+			for (Iterator i = metaDataMap.keySet().iterator(); i.hasNext();){
+				String key = (String) i.next();
+				System.out.println(key + " - "+ metaDataMap.get(key));
+			} */
+			
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
 		return metaDataMap;
+	}
+	
+	
+	public static Map<String,String> getTermParents (String termID, String ontologyID) {
+		
+		Map<String, String> parentsMap = null;
+			
+		try {
+			QueryService locator = new QueryServiceLocator();
+			Query qs = locator.getOntologyQuery();
+			parentsMap = qs.getTermParents(termID, ontologyID);
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return parentsMap;
+	}
+	
+	
+	public static Map<String,String> getAllTermsFromOntology (String ontologyId) {
+		
+		Map<String, String> parentsMap = null;
+			
+		try {
+			QueryService locator = new QueryServiceLocator();
+			Query qs = locator.getOntologyQuery();
+			parentsMap = qs.getAllTermsFromOntology(ontologyId);
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return parentsMap;
+	}
+	
+	public static String getTermName(String termId) {
+		
+		String termName = "";
+		try {
+			QueryService locator = new QueryServiceLocator();
+			Query qs = locator.getOntologyQuery();
+			termName = qs.getTermById(termId, Ontologies.getOntologyIdFromTermId(termId));
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return termName;
 	}
 
 }

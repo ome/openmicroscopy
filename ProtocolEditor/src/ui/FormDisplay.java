@@ -42,9 +42,12 @@ public class FormDisplay extends JPanel {
 	
 	Box verticalFormBox;
 	
+	DataFieldNode rootNode;
+	
 	FormDisplay(XMLView parent) {
 		
 		parentXMLView = parent;
+		rootNode = parentXMLView.getRootNode();
 		
 		this.setLayout(new BorderLayout());
 		this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -52,7 +55,8 @@ public class FormDisplay extends JPanel {
 		this.add(verticalFormBox, BorderLayout.NORTH);
 				
 		// get the formField JPanel from the dataField
-		if (parentXMLView.getRootNode() != null) {
+		if (rootNode != null) {
+			
 			JPanel newFormField = parentXMLView.getRootNode().getFormField();
 			verticalFormBox.add(newFormField);
 			
@@ -63,6 +67,8 @@ public class FormDisplay extends JPanel {
 	}
 	
 	FormDisplay(DataFieldNode rootNode) {
+		
+		this.rootNode = rootNode;
 		
 		this.setLayout(new BorderLayout());
 		this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -106,9 +112,23 @@ public class FormDisplay extends JPanel {
 	
 	public void refreshForm() {
 		// update reference to the root
-		DataFieldNode protocolRootNode = parentXMLView.getRootNode();
+		rootNode = parentXMLView.getRootNode();
 		
-		if (protocolRootNode == null) return;
+		refreshUI();
+		
+	}
+	
+	public void refreshForm(DataFieldNode rootNode) {
+		
+		this.rootNode = rootNode;
+		
+		refreshUI();
+	}
+	
+	
+	public void refreshUI() {
+		
+		if (rootNode == null) return;
 		
 		verticalFormBox.setVisible(false);	// otherwise if the new form is smaller, old one still visible
 		
@@ -116,16 +136,15 @@ public class FormDisplay extends JPanel {
 		
 		verticalFormBox = Box.createVerticalBox();
 		
-		JPanel newFormField = protocolRootNode.getDataField().getFormField();
+		JPanel newFormField = rootNode.getDataField().getFormField();
 		verticalFormBox.add(newFormField);
 		
-		buildFormTree(protocolRootNode, verticalFormBox);
+		buildFormTree(rootNode, verticalFormBox);
 		
 		this.add(verticalFormBox, BorderLayout.NORTH);
 		this.getParent().getParent().validate();
 		this.invalidate();
-		this.repaint();
-		
+		this.repaint();		
 	}
 	
 }

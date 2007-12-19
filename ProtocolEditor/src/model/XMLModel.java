@@ -20,7 +20,7 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package xmlMVC;
+package model;
 
 import java.util.ArrayList;
 import java.io.*;
@@ -95,7 +95,7 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		
 		currentTree = null;
 
-		new XMLView(this);
+		//new XMLView(this);
 	}	
 	
 	// return true if all OK - even if file is open already. (false if failed to open)
@@ -338,6 +338,14 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		openFiles.add(currentTree);
 		setCurrentFile(new File("untitled"));	// no current file
 		notifyXMLObservers();
+	}
+	
+
+	
+	public ArrayList<DataField> getObservationFields() {
+		if(getCurrentTree() == null) 
+			return new ArrayList<DataField>();
+		return getCurrentTree().getObservationFields();
 	}
 	
 	// used to tell if there are any changes to the current file that need saving

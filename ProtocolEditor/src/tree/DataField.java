@@ -67,6 +67,11 @@ public class DataField {
 	public static final String ONTOLOGY_TERM_NAME = "ontologyTermName";
 	public static final String ONTOLOGY_TERM_DEF = "ontologyTermDef";
 	
+	public static final String OBSERVATION_ENTITY_TERM_ID = "observationEntityTermID";
+	public static final String OBSERVATION_ATTRIBUTE_TERM_ID = "observationAttributeTermID";
+	public static final String OBSERVATION_TYPE = "observationType";
+	public static final String OBSERVATION_UNITS_TERM_ID = "observationUnitsTermID";
+	
 	// attribute values
 	public static final String TRUE = "true";
 	public static final String FALSE = "false";
@@ -98,16 +103,19 @@ public class DataField {
 	
 	public static final String CUSTOM = "CustomField";
 	public static final String OLS_FIELD = "OntologyLookupServiceField";
+	public static final String OBSERVATION_DEFINITION = "ObservationDefinition";
 	
 	public static final String[] INPUT_TYPES = 
 	{FIXED_PROTOCOL_STEP, TEXT_ENTRY_STEP,
-	MEMO_ENTRY_STEP, DROPDOWN_MENU_STEP, CHECKBOX_STEP, NUMBER_ENTRY_STEP, DATE, TIME_FIELD, TABLE, OLS_FIELD
+	MEMO_ENTRY_STEP, DROPDOWN_MENU_STEP, CHECKBOX_STEP, NUMBER_ENTRY_STEP, DATE, TIME_FIELD, TABLE, 
+	OLS_FIELD, OBSERVATION_DEFINITION
 	};
 	
 //	 the names used for the UI - MUST be in SAME ORDER as INPUT_TYPES they correspond to 
 	// this means you can change the UI names without changing INPUT_TYPES.
 	public static final String[] UI_INPUT_TYPES = 	
-	{ "Fixed", "Text", "Text Box", "Drop-down Menu", "Check-Box", "Number", "Date", "Time", "Table", "Ontology"
+	{ "Fixed", "Text", "Text Box", "Drop-down Menu", "Check-Box", "Number", "Date", "Time", "Table", 
+		"Ontology Term", "Phenote Observation"
 		};
 	
 	// Datafield has attributes stored in LinkedHashMap
@@ -159,7 +167,7 @@ public class DataField {
 	 * This is passed to the tree (via node) to be added to the undoManager. 
 	 */
 	public void setAttribute(String name, String value, boolean notifyDataFieldObservers) {
-		//System.out.println("DataField.setAttribute(notifyObservers="+ notifyDataFieldObservers +"): " + name + "=" + value);
+		System.out.println("DataField.setAttribute(notifyObservers="+ notifyDataFieldObservers +"): " + name + "=" + value);
 		
 		String oldValue = allAttributesMap.get(name);
 		

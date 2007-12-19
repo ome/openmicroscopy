@@ -87,6 +87,9 @@ public class FieldEditorFormFieldFactory {
 		else if (inputType.equals(DataField.OLS_FIELD)) {
 			fieldEditor = new FieldEditorOLS(dataField);
 		}
+		else if (inputType.equals(DataField.OBSERVATION_DEFINITION)) {
+			fieldEditor = new FieldEditorObservation(dataField);
+		}
 		else {
 			fieldEditor = new FieldEditorCustom(dataField);
 			dataField.setAttribute(DataField.INPUT_TYPE, DataField.CUSTOM, false);
@@ -141,6 +144,9 @@ public class FieldEditorFormFieldFactory {
 		} 
 		else if (inputType.equals(DataField.OLS_FIELD)) {
 			formField = new FormFieldOLS(dataField);
+		}
+		else if (inputType.equals(DataField.OBSERVATION_DEFINITION)) {
+			formField = new FormFieldObservation(dataField);
 		}
 		else {
 			formField = new FormFieldCustom(dataField);

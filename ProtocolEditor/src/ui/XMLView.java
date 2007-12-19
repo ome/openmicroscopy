@@ -53,6 +53,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
+import model.XMLModel;
+
+import ols.ObservationCreator;
 import omeXml.OmeXmlQueryer;
 
 import java.awt.BorderLayout;
@@ -76,7 +79,6 @@ import tree.Tree.Actions;
 import util.FileDownload;
 import util.HtmlOutputter;
 import util.ImageFactory;
-import xmlMVC.XMLModel;
 
 
 // the main View class. 
@@ -127,6 +129,7 @@ public class XMLView
 	public static final int BUTTON_SPACING = 5;
 	
 	JFrame XMLFrame;
+	JPanel mainContentPane;		// this holds toolbar (North) and XMLUIPanel (Centre)
 	JSplitPane splitPane;
 	JScrollPane XMLScrollPane;	// contains the UI
 	FormDisplay xmlFormDisplay;			// this is the UI-form
@@ -163,7 +166,7 @@ public class XMLView
 	JButton findPrevButton;
 	JLabel hitsCountLabel;
 	
-	JMenuItem loadDefaultsMenuItem;
+	JMenu loadDefaultsSubMenu;
 	JMenuItem multiplyValueOfSelectedFieldsMenuItem;
 	JCheckBoxMenuItem editExperimentMenuItem;
 	
@@ -200,6 +203,35 @@ public class XMLView
 	private JPopupMenu printPopupMenu;
 
 	private JPopupMenu loadDefaultsPopupMenu;
+
+	private Icon newFileIcon;
+	private Icon openFileIcon;
+	private Icon validationIcon;
+	private Icon saveIcon;
+	private Icon printIcon;
+	private Icon loadDefaultsIcon;
+	private Icon clearFieldsIcon;
+	private Icon saveFileAsIcon;
+	private Icon addIcon;
+	private Icon deleteIcon;
+	private Icon moveUpIcon;
+	private Icon moveDownIcon;
+	private Icon promoteIcon;
+	private Icon demoteIcon;
+	private Icon duplicateIcon;
+	private Icon copyIcon;
+	private Icon pasteIcon;
+	private Icon importElementsIcon;
+	private Icon mathsIcon;
+	private Icon undoIcon;
+	private Icon redoIcon;
+	private Icon wwwFileIcon;
+	private Icon findIcon;
+	private Icon fileCloseIcon;
+	private Icon previousUpIcon;
+	private Icon nextDownIcon;
+
+	private Icon searchIcon;
     
 	
     public XMLView(XMLModel xmlModel) {
@@ -217,190 +249,38 @@ public class XMLView
     	
     }
     
-	public void buildUI() {
+    public void buildUI() {
 		
-	//	XMLPanel = new JPanel(); // parent panel fills all frame
-		XMLFrame = new JFrame("Protocol Editor");
-		// Build menus
-		JMenuBar menuBar = new JMenuBar();
-		EmptyBorder menuItemBorder = new EmptyBorder(0,5,0,5);
-		
-		// icons
-		Icon newFileIcon = ImageFactory.getInstance().getIcon(ImageFactory.NEW_FILE_ICON);
-		Icon openFileIcon = ImageFactory.getInstance().getIcon(ImageFactory.OPEN_FILE_ICON);
-		Icon validationIcon = ImageFactory.getInstance().getIcon(ImageFactory.VALIDATION_ICON);
-		Icon saveIcon = ImageFactory.getInstance().getIcon(ImageFactory.SAVE_ICON);
-		Icon printIcon = ImageFactory.getInstance().getIcon(ImageFactory.PRINT_ICON);
-		Icon loadDefaultsIcon = ImageFactory.getInstance().getIcon(ImageFactory.LOAD_DEFAULTS_ICON);
-		Icon clearFieldsIcon = ImageFactory.getInstance().getIcon(ImageFactory.CLEAR_FIELDS_ICON);
-		Icon saveFileAsIcon= ImageFactory.getInstance().getIcon(ImageFactory.SAVE_FILE_AS_ICON);
-		Icon addIcon = ImageFactory.getInstance().getIcon(ImageFactory.ADD_ICON);
-		Icon deleteIcon = ImageFactory.getInstance().getIcon(ImageFactory.DELETE_ICON);
-		Icon moveUpIcon = ImageFactory.getInstance().getIcon(ImageFactory.MOVE_UP_ICON);
-		Icon moveDownIcon = ImageFactory.getInstance().getIcon(ImageFactory.MOVE_DOWN_ICON);
-		Icon promoteIcon = ImageFactory.getInstance().getIcon(ImageFactory.PROMOTE_ICON);
-		Icon demoteIcon = ImageFactory.getInstance().getIcon(ImageFactory.DEMOTE_ICON);
-		Icon duplicateIcon = ImageFactory.getInstance().getIcon(ImageFactory.DUPLICATE_ICON);
-		Icon copyIcon = ImageFactory.getInstance().getIcon(ImageFactory.COPY_ICON);
-		Icon pasteIcon = ImageFactory.getInstance().getIcon(ImageFactory.PASTE_ICON);
-		Icon importElementsIcon = ImageFactory.getInstance().getIcon(ImageFactory.IMPORT_ICON);
-		Icon mathsIcon = ImageFactory.getInstance().getIcon(ImageFactory.EDU_MATHS);
+		searchIcon = ImageFactory.getInstance().getIcon(ImageFactory.SEARCH_ICON);
+		newFileIcon = ImageFactory.getInstance().getIcon(ImageFactory.NEW_FILE_ICON);
+		openFileIcon = ImageFactory.getInstance().getIcon(ImageFactory.OPEN_FILE_ICON);
+		validationIcon = ImageFactory.getInstance().getIcon(ImageFactory.VALIDATION_ICON);
+		saveIcon = ImageFactory.getInstance().getIcon(ImageFactory.SAVE_ICON);
+		printIcon = ImageFactory.getInstance().getIcon(ImageFactory.PRINT_ICON);
+		loadDefaultsIcon = ImageFactory.getInstance().getIcon(ImageFactory.LOAD_DEFAULTS_ICON);
+		clearFieldsIcon = ImageFactory.getInstance().getIcon(ImageFactory.CLEAR_FIELDS_ICON);
+		saveFileAsIcon = ImageFactory.getInstance().getIcon(ImageFactory.SAVE_FILE_AS_ICON);
+		addIcon = ImageFactory.getInstance().getIcon(ImageFactory.ADD_ICON);
+		deleteIcon = ImageFactory.getInstance().getIcon(ImageFactory.DELETE_ICON);
+		moveUpIcon = ImageFactory.getInstance().getIcon(ImageFactory.MOVE_UP_ICON);
+		moveDownIcon = ImageFactory.getInstance().getIcon(ImageFactory.MOVE_DOWN_ICON);
+		promoteIcon = ImageFactory.getInstance().getIcon(ImageFactory.PROMOTE_ICON);
+		demoteIcon = ImageFactory.getInstance().getIcon(ImageFactory.DEMOTE_ICON);
+		duplicateIcon = ImageFactory.getInstance().getIcon(ImageFactory.DUPLICATE_ICON);
+		copyIcon = ImageFactory.getInstance().getIcon(ImageFactory.COPY_ICON);
+		pasteIcon = ImageFactory.getInstance().getIcon(ImageFactory.PASTE_ICON);
+		importElementsIcon = ImageFactory.getInstance().getIcon(ImageFactory.IMPORT_ICON);
+		mathsIcon = ImageFactory.getInstance().getIcon(ImageFactory.EDU_MATHS);
 		closeIcon = ImageFactory.getInstance().getIcon(ImageFactory.N0);
 		redBallIcon = ImageFactory.getInstance().getIcon(ImageFactory.RED_BALL_ICON);
-		Icon undoIcon = ImageFactory.getInstance().getIcon(ImageFactory.UNDO_ICON);
-		Icon redoIcon = ImageFactory.getInstance().getIcon(ImageFactory.REDO_ICON);
-		Icon wwwFileIcon = ImageFactory.getInstance().getIcon(ImageFactory.WWW_FILE_ICON);
-		Icon findIcon = ImageFactory.getInstance().getIcon(ImageFactory.FIND_ICON);
-		Icon fileCloseIcon = ImageFactory.getInstance().getIcon(ImageFactory.FILE_CLOSE_ICON);
-		Icon previousUpIcon = ImageFactory.getInstance().getIcon(ImageFactory.PREVIOUS_UP_ICON);
-		Icon nextDownIcon = ImageFactory.getInstance().getIcon(ImageFactory.NEXT_DOWN_ICON);
-		
-		// File menu
-		JMenu fileMenu = new JMenu("File");
-		fileMenu.setBorder(menuItemBorder);
-		
-		JMenuItem openFile = new JMenuItem("Open File..", openFileIcon);
-		setMenuItemAccelerator(openFile, KeyEvent.VK_O);
-		openFile.addActionListener(new openFileListener());
-		
-		JMenuItem newBlankProtocolMenuItem = new JMenuItem("New Blank Protocol", newFileIcon);
-		setMenuItemAccelerator(newBlankProtocolMenuItem, KeyEvent.VK_N);
-		newBlankProtocolMenuItem.addActionListener(new newProtocolFileListener());
-		
-		JMenuItem closeFileMenuItem = new JMenuItem("Close File", closeIcon);
-		closeFileMenuItem.addActionListener(new CloseFileListener());
-		setMenuItemAccelerator(closeFileMenuItem, KeyEvent.VK_W);
-		
-		saveFileMenuItem = new JMenuItem("Save File", saveIcon);
-		setMenuItemAccelerator(saveFileMenuItem, KeyEvent.VK_S);
-		saveFileMenuItem.addActionListener(new SaveCurrentFileListener());
-		
-		saveFileAsMenuItem = new JMenuItem("Save File As...", saveFileAsIcon);
-		saveFileAsMenuItem.addActionListener(new SaveFileAsListener());
-
-		JMenu printsubMenu = new JMenu("Print / Export...");
-		JMenuItem printWholeFileMenuItem = new JMenuItem("Print the whole document", printIcon);
-		printWholeFileMenuItem.addActionListener(new PrintWholeFileListener());
-		setMenuItemAccelerator(printWholeFileMenuItem, KeyEvent.VK_P);
-		printsubMenu.add(printWholeFileMenuItem);
-		
-		JMenuItem printSelectedFieldsMenuItem = new JMenuItem("Print highlighted fields");
-		printSelectedFieldsMenuItem.addActionListener(new PrintSelectedFieldsListener());
-		printsubMenu.add(printSelectedFieldsMenuItem);
-		
-		JMenuItem indexFilesMenuItem = new JMenuItem("Index files for searching");
-		indexFilesMenuItem.addActionListener(new IndexFilesListener());
-		
-		
-		fileMenu.add(openFile);
-		fileMenu.add(newBlankProtocolMenuItem);
-		fileMenu.add(closeFileMenuItem);
-		fileMenu.add(saveFileMenuItem);
-		fileMenu.add(saveFileAsMenuItem);
-		fileMenu.add(printsubMenu);
-		fileMenu.add(indexFilesMenuItem);
-		menuBar.add(fileMenu);
-		
-		
-		// "Edit" menu
-		JMenu editMenu = new JMenu("Edit");
-		editMenu.setBorder(menuItemBorder);
-		
-		undoMenuItem = new JMenuItem("Undo", undoIcon);
-		undoMenuItem.addActionListener(new UndoActionListener());
-		setMenuItemAccelerator(undoMenuItem, KeyEvent.VK_Z);
-		editMenu.add(undoMenuItem);
-		
-		redoMenuItem = new JMenuItem("Redo", redoIcon);
-		redoMenuItem.addActionListener(new RedoActionListener());
-		setMenuItemAccelerator(redoMenuItem, KeyEvent.VK_Y);
-		editMenu.add(redoMenuItem);
-		
-		JMenuItem findMenuItem = new JMenuItem("Find", findIcon);
-		findMenuItem.addActionListener(new FindTextListener());
-		setMenuItemAccelerator(findMenuItem, KeyEvent.VK_F);
-		editMenu.add(findMenuItem);
-		
-		
-		menuBar.add(editMenu);
-		
-		// experiment menu
-		JMenu experimentMenu = new JMenu("Experiment");
-		experimentMenu.setBorder(menuItemBorder);
-		editExperimentMenuItem = new JCheckBoxMenuItem("Edit Experiment");
-		loadDefaultsMenuItem = new JMenuItem("Load Default Values", loadDefaultsIcon);
-		multiplyValueOfSelectedFieldsMenuItem = new JMenuItem("MultiplyValuesBy...", mathsIcon);
-		
-		editExperimentMenuItem.addActionListener(new EditExperimentListener());
-		loadDefaultsMenuItem.addActionListener(new LoadDefaultsListener());
-		multiplyValueOfSelectedFieldsMenuItem.addActionListener(new MultiplyValueOfSelectedFieldsListener());
-		experimentMenu.add(editExperimentMenuItem);
-		experimentMenu.add(loadDefaultsMenuItem);
-		experimentMenu.add(multiplyValueOfSelectedFieldsMenuItem);
-		menuBar.add(experimentMenu);
-		
-		// protocol menu
-		JMenu protocolMenu = new JMenu("Protocol");
-		protocolMenu.setBorder(menuItemBorder);
-		
-		editProtocolMenuItem= new JCheckBoxMenuItem("Edit Protocol...");
-		addFieldMenuItem = new JMenuItem("Add Step", addIcon);
-		deleteFieldMenuItem = new JMenuItem("Delete Step", deleteIcon);
-		moveStepUpMenuItem = new JMenuItem("Move Step Up", moveUpIcon);
-		moveStepDownMenuItem = new JMenuItem("Move Step Down", moveDownIcon);
-		promoteStepMenuItem = new JMenuItem("Promote Step (indent to left)", promoteIcon);
-		demoteStepMenuItem = new JMenuItem("Demote Step (indent to right)", demoteIcon);
-		duplicateFieldMenuItem = new JMenuItem("Duplicate Step", duplicateIcon);
-		importFieldsMenuItem = new JMenuItem("Import Steps", importElementsIcon);
-		copyFieldsMenuItem = new JMenuItem("Copy Steps", copyIcon);
-		copyFieldsMenuItem.setActionCommand(COPY);
-		setMenuItemAccelerator(copyFieldsMenuItem, KeyEvent.VK_C);
-		pasteFieldsMenuItem = new JMenuItem("Paste Steps", pasteIcon);
-		pasteFieldsMenuItem.setActionCommand(PASTE);
-		setMenuItemAccelerator(pasteFieldsMenuItem, KeyEvent.VK_V);
-		
-		editProtocolMenuItem.addActionListener(new ToggleProtocolEditingListener());
-		addFieldMenuItem.addActionListener(new addDataFieldListener());
-		deleteFieldMenuItem.addActionListener(new deleteDataFieldListener());
-		moveStepUpMenuItem.addActionListener(new MoveFieldUpListener());
-		moveStepDownMenuItem.addActionListener(new MoveFieldDownListener());
-		promoteStepMenuItem.addActionListener(new PromoteFieldListener());
-		demoteStepMenuItem.addActionListener(new DemoteFieldListener());
-		duplicateFieldMenuItem.addActionListener(new DuplicateFieldListener());
-		importFieldsMenuItem.addActionListener(new InsertElementsFromFileListener());
-		copyFieldsMenuItem.addActionListener(this);
-		pasteFieldsMenuItem.addActionListener(this);
-		
-		protocolMenu.add(editProtocolMenuItem);
-		protocolMenu.add(addFieldMenuItem);
-		protocolMenu.add(deleteFieldMenuItem);
-		protocolMenu.add(moveStepUpMenuItem);
-		protocolMenu.add(moveStepDownMenuItem);
-		protocolMenu.add(promoteStepMenuItem);
-		protocolMenu.add(demoteStepMenuItem);
-		protocolMenu.add(duplicateFieldMenuItem);
-		protocolMenu.add(importFieldsMenuItem);
-		protocolMenu.add(copyFieldsMenuItem);
-		protocolMenu.add(pasteFieldsMenuItem);
-		menuBar.add(protocolMenu);
-		
-		
-		// search Field and button
-		searchField = new JTextField("Search Files", 20);
-		searchField.addActionListener(new SearchFieldListener());	
-		JPanel searchPanel = new JPanel();
-		searchPanel.setBorder(new EmptyBorder(1, 1, 1, 1));
-		searchPanel.setLayout(new BorderLayout());
-		searchPanel.add(searchField, BorderLayout.EAST);
-		
-		Icon searchIcon = ImageFactory.getInstance().getIcon(ImageFactory.SEARCH_ICON);
-		JButton searchButton = new JButton(searchIcon);
-		searchButton.addActionListener(new SearchFieldListener());
-		searchButton.setBorder(new EmptyBorder(3,3,3,3));
-
-		menuBar.add(searchPanel);
-		menuBar.add(searchButton);
-		
+		undoIcon = ImageFactory.getInstance().getIcon(ImageFactory.UNDO_ICON);
+		redoIcon = ImageFactory.getInstance().getIcon(ImageFactory.REDO_ICON);
+		wwwFileIcon = ImageFactory.getInstance().getIcon(ImageFactory.WWW_FILE_ICON);
+		findIcon = ImageFactory.getInstance().getIcon(ImageFactory.FIND_ICON);
+		fileCloseIcon = ImageFactory.getInstance().getIcon(ImageFactory.FILE_CLOSE_ICON);
+		previousUpIcon = ImageFactory.getInstance().getIcon(ImageFactory.PREVIOUS_UP_ICON);
+		nextDownIcon = ImageFactory.getInstance().getIcon(ImageFactory.NEXT_DOWN_ICON);
+				
 		
 		
 //		 controls for changing currently opened file, and closing current file
@@ -519,9 +399,23 @@ public class XMLView
 		findBox.add(hitsCountLabel);
 		findBox.setBorder(new EmptyBorder(1,1,1,1));
 		
+		
+		// test button
+		JButton printObservationsButton = new JButton("print observations");
+		printObservationsButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ObservationCreator.testPrintAllObservations(xmlModel);
+			}
+		});
+		
+		
+		// more-like this button
+		
 		JButton moreLikeThisButton = new JButton("More Files Like This >", searchIcon);
 		moreLikeThisButton.addActionListener(new MoreLikeThisListener());
 		
+		// comboBox for switching between opened files 
+		// also, close file button
 		
 		closeFileButton = new JButton(closeIcon);
 		closeFileButton.setBorder(new EmptyBorder(0,2,0,4));
@@ -544,6 +438,7 @@ public class XMLView
 		fileManagerWestToolBar.add(new JSeparator(JSeparator.VERTICAL));
 		fileManagerWestToolBar.add(findButton);
 		fileManagerWestToolBar.add(findBox);
+		// fileManagerWestToolBar.add(printObservationsButton);
 		fileManagerPanel.add(fileManagerWestToolBar, BorderLayout.WEST);
 		
 		fileManagerEastToolBar.add(moreLikeThisButton);
@@ -619,7 +514,7 @@ public class XMLView
 		
 		addAnInput = new JButton(addIcon);
 		addAnInput.setToolTipText("Add a step to the protocol");
-		addAnInput.addActionListener(new addDataFieldListener());
+		addAnInput.addActionListener(new AddDataFieldListener());
 		addAnInput.setBorder(noRightPadding);
 		
 		duplicateField = new JButton(duplicateIcon);
@@ -729,6 +624,11 @@ public class XMLView
 		experimentTab.add(expTabToolBar);
 		experimentTab.add(XMLScrollPane);
 		
+		
+		/*
+		 * put the tabs in a tabbed pane
+		 */
+		
 		XMLTabbedPane = new JTabbedPane();
 		XMLTabbedPane.addTab("Edit Experiment", experimentTab);;
 		XMLTabbedPane.addTab("Edit Protocol", protocolTab);
@@ -742,69 +642,255 @@ public class XMLView
 		XMLUIPanel.setLeftComponent(XMLTabbedPane);
 		XMLUIPanel.setRightComponent(null);
 		
+		mainContentPane = new JPanel(new BorderLayout());
+		mainContentPane.add("Center", XMLUIPanel);
+		mainContentPane.add("North", fileManagerPanel);
+		
 		enableProtocolEditing(false);	// turn off controls
 		noFilesOpen(true);		// disable save etc.
 		updateUndoRedo();	// disable undo redo 
 		findBox.setVisible(false); 	// not visible until findButton clicked
 	    
-	    // set up frame
-		XMLFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		XMLFrame.setJMenuBar(menuBar);
-		XMLFrame.getContentPane().add("Center", XMLUIPanel);
-		XMLFrame.getContentPane().add("North", fileManagerPanel);
-		XMLFrame.pack();
-		
-		// check to see if any files open before quitting when window closes
-		/* XMLFrame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent evt) {
-                mainWindowClosing();
-            }
-        }); */ 
-		new TaskBarManager(XMLFrame);	// handles system quit command for Macs 
-		
-		XMLFrame.setLocation(200, 100);
-		XMLFrame.setVisible(true);
 		
 //		 not visible till a file is opened
 		XMLTabbedPane.setVisible(false);
 		
-		// an intro splash-screen to get users started
-//		Custom button text
-		Icon bigProtocolIcon = ImageFactory.getInstance().getIcon(ImageFactory.BIG_PROTOCOL_ICON);
-		Object[] options = {"Start blank protocol",
-		                    "Open existing file",
-		                    "Cancel"};
-		int n = JOptionPane.showOptionDialog(XMLFrame, "<html>Welcome to the Protocol Editor. <br>"
-		    + "Please choose an option to get you started.</html>", "Welcome",
-		    JOptionPane.YES_NO_CANCEL_OPTION,
-		    JOptionPane.QUESTION_MESSAGE,
-		    bigProtocolIcon,
-		    options,
-		    options[0]);
 		
-		if (n == 0) newProtocolFile();
-		else if (n == 1) openFile();
+		//showStartUpDialog();
+		
+		// buildFrame();	// do this from ProtocolEditor.main() now.
+	}
+	
+	public void buildFrame() {
+	    	XMLFrame = new JFrame("Protocol Editor");
+			// Build menus
+			JMenuBar menuBar = new JMenuBar();
+			EmptyBorder menuItemBorder = new EmptyBorder(0,5,0,5);
+			
+			// File menu
+			JMenu fileMenu = new JMenu("File");
+			fileMenu.setBorder(menuItemBorder);
+			
+			JMenuItem openFile = new JMenuItem("Open File..", openFileIcon);
+			setMenuItemAccelerator(openFile, KeyEvent.VK_O);
+			openFile.addActionListener(new openFileListener());
+			
+			JMenuItem newBlankProtocolMenuItem = new JMenuItem("New Blank Protocol", newFileIcon);
+			setMenuItemAccelerator(newBlankProtocolMenuItem, KeyEvent.VK_N);
+			newBlankProtocolMenuItem.addActionListener(new newProtocolFileListener());
+			
+			JMenuItem closeFileMenuItem = new JMenuItem("Close File", closeIcon);
+			closeFileMenuItem.addActionListener(new CloseFileListener());
+			setMenuItemAccelerator(closeFileMenuItem, KeyEvent.VK_W);
+			
+			saveFileMenuItem = new JMenuItem("Save File", saveIcon);
+			setMenuItemAccelerator(saveFileMenuItem, KeyEvent.VK_S);
+			saveFileMenuItem.addActionListener(new SaveCurrentFileListener());
+			
+			saveFileAsMenuItem = new JMenuItem("Save File As...", saveFileAsIcon);
+			saveFileAsMenuItem.addActionListener(new SaveFileAsListener());
+	
+			JMenu printsubMenu = new JMenu("Print / Export...");
+			printsubMenu.setIcon(printIcon);
+			JMenuItem printWholeFileMenuItem = new JMenuItem("Print the whole document");
+			printWholeFileMenuItem.addActionListener(new PrintWholeFileListener());
+			setMenuItemAccelerator(printWholeFileMenuItem, KeyEvent.VK_P);
+			printsubMenu.add(printWholeFileMenuItem);
+			
+			JMenuItem printSelectedFieldsMenuItem = new JMenuItem("Print highlighted fields");
+			printSelectedFieldsMenuItem.addActionListener(new PrintSelectedFieldsListener());
+			printsubMenu.add(printSelectedFieldsMenuItem);
+			
+			JMenuItem indexFilesMenuItem = new JMenuItem("Index files for searching");
+			indexFilesMenuItem.addActionListener(new IndexFilesListener());
+			
+			
+			fileMenu.add(openFile);
+			fileMenu.add(newBlankProtocolMenuItem);
+			fileMenu.add(closeFileMenuItem);
+			fileMenu.add(saveFileMenuItem);
+			fileMenu.add(saveFileAsMenuItem);
+			fileMenu.add(printsubMenu);
+			fileMenu.add(indexFilesMenuItem);
+			menuBar.add(fileMenu);
+			
+			
+			// "Edit" menu
+			JMenu editMenu = new JMenu("Edit");
+			editMenu.setBorder(menuItemBorder);
+			
+			undoMenuItem = new JMenuItem("Undo", undoIcon);
+			undoMenuItem.addActionListener(new UndoActionListener());
+			setMenuItemAccelerator(undoMenuItem, KeyEvent.VK_Z);
+			editMenu.add(undoMenuItem);
+			
+			redoMenuItem = new JMenuItem("Redo", redoIcon);
+			redoMenuItem.addActionListener(new RedoActionListener());
+			setMenuItemAccelerator(redoMenuItem, KeyEvent.VK_Y);
+			editMenu.add(redoMenuItem);
+			
+			JMenuItem findMenuItem = new JMenuItem("Find", findIcon);
+			findMenuItem.addActionListener(new FindTextListener());
+			setMenuItemAccelerator(findMenuItem, KeyEvent.VK_F);
+			editMenu.add(findMenuItem);
+			
+			
+			menuBar.add(editMenu);
+			
+			// experiment menu
+			JMenu experimentMenu = new JMenu("Experiment");
+			experimentMenu.setBorder(menuItemBorder);
+			editExperimentMenuItem = new JCheckBoxMenuItem("Edit Experiment");
+			editExperimentMenuItem.addActionListener(new EditExperimentListener());
+			
+			loadDefaultsSubMenu = new JMenu("Load Default Values");
+			loadDefaultsSubMenu.setIcon(loadDefaultsIcon);
+			
+			JMenuItem loadDefaultsMenuItem = new JMenuItem("Load Defaults for All Fields");
+			loadDefaultsMenuItem.setActionCommand(LOAD_DEFAULTS);
+			loadDefaultsMenuItem.addActionListener(new LoadDefaultsListener());
+			loadDefaultsSubMenu.add(loadDefaultsMenuItem);
+			JMenuItem loadDefaultsHighLtFieldsMenuItem = new JMenuItem("Load Defaults for Highlighted fields (and child fields)");
+			loadDefaultsHighLtFieldsMenuItem.setActionCommand(LOAD_DEFAULTS_HIGHLIGHTED_FIELDS);
+			loadDefaultsHighLtFieldsMenuItem.addActionListener(new LoadDefaultsListener());
+			loadDefaultsSubMenu.add(loadDefaultsHighLtFieldsMenuItem);
+			
+			multiplyValueOfSelectedFieldsMenuItem = new JMenuItem("MultiplyValuesBy...", mathsIcon);
+			multiplyValueOfSelectedFieldsMenuItem.addActionListener(new MultiplyValueOfSelectedFieldsListener());
+			
+			experimentMenu.add(editExperimentMenuItem);
+			experimentMenu.add(loadDefaultsSubMenu);
+			experimentMenu.add(multiplyValueOfSelectedFieldsMenuItem);
+			menuBar.add(experimentMenu);
+			
+			// protocol menu
+			JMenu protocolMenu = new JMenu("Protocol");
+			protocolMenu.setBorder(menuItemBorder);
+			
+			editProtocolMenuItem= new JCheckBoxMenuItem("Edit Protocol...");
+			addFieldMenuItem = new JMenuItem("Add Step", addIcon);
+			deleteFieldMenuItem = new JMenuItem("Delete Step", deleteIcon);
+			moveStepUpMenuItem = new JMenuItem("Move Step Up", moveUpIcon);
+			moveStepDownMenuItem = new JMenuItem("Move Step Down", moveDownIcon);
+			promoteStepMenuItem = new JMenuItem("Promote Step (indent to left)", promoteIcon);
+			demoteStepMenuItem = new JMenuItem("Demote Step (indent to right)", demoteIcon);
+			duplicateFieldMenuItem = new JMenuItem("Duplicate Step", duplicateIcon);
+			importFieldsMenuItem = new JMenuItem("Import Steps", importElementsIcon);
+			copyFieldsMenuItem = new JMenuItem("Copy Steps", copyIcon);
+			copyFieldsMenuItem.setActionCommand(COPY);
+			setMenuItemAccelerator(copyFieldsMenuItem, KeyEvent.VK_C);
+			pasteFieldsMenuItem = new JMenuItem("Paste Steps", pasteIcon);
+			pasteFieldsMenuItem.setActionCommand(PASTE);
+			setMenuItemAccelerator(pasteFieldsMenuItem, KeyEvent.VK_V);
+			
+			editProtocolMenuItem.addActionListener(new ToggleProtocolEditingListener());
+			addFieldMenuItem.addActionListener(new AddDataFieldListener());
+			deleteFieldMenuItem.addActionListener(new deleteDataFieldListener());
+			moveStepUpMenuItem.addActionListener(new MoveFieldUpListener());
+			moveStepDownMenuItem.addActionListener(new MoveFieldDownListener());
+			promoteStepMenuItem.addActionListener(new PromoteFieldListener());
+			demoteStepMenuItem.addActionListener(new DemoteFieldListener());
+			duplicateFieldMenuItem.addActionListener(new DuplicateFieldListener());
+			importFieldsMenuItem.addActionListener(new InsertElementsFromFileListener());
+			copyFieldsMenuItem.addActionListener(this);
+			pasteFieldsMenuItem.addActionListener(this);
+			
+			protocolMenu.add(editProtocolMenuItem);
+			protocolMenu.add(addFieldMenuItem);
+			protocolMenu.add(deleteFieldMenuItem);
+			protocolMenu.add(moveStepUpMenuItem);
+			protocolMenu.add(moveStepDownMenuItem);
+			protocolMenu.add(promoteStepMenuItem);
+			protocolMenu.add(demoteStepMenuItem);
+			protocolMenu.add(duplicateFieldMenuItem);
+			protocolMenu.add(importFieldsMenuItem);
+			protocolMenu.add(copyFieldsMenuItem);
+			protocolMenu.add(pasteFieldsMenuItem);
+			menuBar.add(protocolMenu);
+			
+			
+			// search Field and button
+			searchField = new JTextField("Search Files", 20);
+			searchField.addActionListener(new SearchFieldListener());	
+			JPanel searchPanel = new JPanel();
+			searchPanel.setBorder(new EmptyBorder(1, 1, 1, 1));
+			searchPanel.setLayout(new BorderLayout());
+			searchPanel.add(searchField, BorderLayout.EAST);
+			
+			
+			JButton searchButton = new JButton(searchIcon);
+			searchButton.addActionListener(new SearchFieldListener());
+			searchButton.setBorder(new EmptyBorder(3,3,3,3));
+	
+			menuBar.add(searchPanel);
+			menuBar.add(searchButton);
+	
+		    // set up frame
+			XMLFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+			XMLFrame.setJMenuBar(menuBar);
+			XMLFrame.getContentPane().add(mainContentPane, BorderLayout.CENTER);
+
+			XMLFrame.pack();
+			
+			// check to see if any files open before quitting when window closes
+			/* XMLFrame.addWindowListener(new WindowAdapter() {
+	            public void windowClosing(WindowEvent evt) {
+	                mainWindowClosing();
+	            }
+	        }); */ 
+			new TaskBarManager(XMLFrame);	// handles system quit command for Macs 
+			
+			XMLFrame.setLocation(200, 100);
+			XMLFrame.setVisible(true);
+			
+			showStartUpDialog();
+	    }
+
+	public JPanel getMainContentPanel() {
+		return mainContentPane;
+	}
+	
+	// an intro splash-screen to get users started
+	public void showStartUpDialog() {
+		//		Custom button text
+				Icon bigProtocolIcon = ImageFactory.getInstance().getIcon(ImageFactory.BIG_PROTOCOL_ICON);
+				Object[] options = {"Start blank protocol",
+				                    "Open existing file",
+				                    "Cancel"};
+				int n = JOptionPane.showOptionDialog(mainContentPane, "<html>Welcome to the Protocol Editor. <br>"
+				    + "Please choose an option to get you started.</html>", "Welcome",
+				    JOptionPane.YES_NO_CANCEL_OPTION,
+				    JOptionPane.QUESTION_MESSAGE,
+				    bigProtocolIcon,
+				    options,
+				    options[0]);
+				
+				if (n == 0) newProtocolFile();
+				else if (n == 1) openFile();
 	}
 	
 	// turn on/off the controls for editing protocols
 	// these are turned off when no files open
 	public void enableProtocolEditing(boolean enabled){
 		
-		addFieldMenuItem.setEnabled(enabled);
-		deleteFieldMenuItem.setEnabled(enabled);
-		moveStepUpMenuItem.setEnabled(enabled);
-		moveStepDownMenuItem.setEnabled(enabled);
-		promoteStepMenuItem.setEnabled(enabled);
-		demoteStepMenuItem.setEnabled(enabled);
-		duplicateFieldMenuItem.setEnabled(enabled);
-		importFieldsMenuItem.setEnabled(enabled);
+		// only modify menu items if the Frame has been built
+		if (XMLFrame != null) {
+			addFieldMenuItem.setEnabled(enabled);
+			deleteFieldMenuItem.setEnabled(enabled);
+			moveStepUpMenuItem.setEnabled(enabled);
+			moveStepDownMenuItem.setEnabled(enabled);
+			promoteStepMenuItem.setEnabled(enabled);
+			demoteStepMenuItem.setEnabled(enabled);
+			duplicateFieldMenuItem.setEnabled(enabled);
+			importFieldsMenuItem.setEnabled(enabled);
 		
-		editProtocolMenuItem.setSelected(enabled);
+			editProtocolMenuItem.setSelected(enabled);
 		
-		loadDefaultsMenuItem.setEnabled(!enabled);
-		multiplyValueOfSelectedFieldsMenuItem.setEnabled(!enabled);
+			loadDefaultsSubMenu.setEnabled(!enabled);
+			multiplyValueOfSelectedFieldsMenuItem.setEnabled(!enabled);
 		
-		editExperimentMenuItem.setSelected(!enabled);
+			editExperimentMenuItem.setSelected(!enabled);
+		}
 		
 		//setEditingOfExperimentalValues(!enabled);
 	}
@@ -841,10 +927,13 @@ public class XMLView
 		redoButton.setEnabled(xmlModel.canRedo());
 		redoButton.setToolTipText(xmlModel.getRedoCommand());
 		
-		undoMenuItem.setText(xmlModel.getUndoCommand());
-		undoMenuItem.setEnabled(xmlModel.canUndo());
-		redoMenuItem.setText(xmlModel.getRedoCommand());
-		redoMenuItem.setEnabled(xmlModel.canRedo());
+		// only modify menus if Frame has been built
+		if (XMLFrame != null) {
+			undoMenuItem.setText(xmlModel.getUndoCommand());
+			undoMenuItem.setEnabled(xmlModel.canUndo());
+			redoMenuItem.setText(xmlModel.getRedoCommand());
+			redoMenuItem.setEnabled(xmlModel.canRedo());
+		}
 	}
 
 	public void updateFileList() {
@@ -876,9 +965,12 @@ public class XMLView
 		
 		saveFileButton.setEnabled(!noFiles);
 		saveFileAsButton.setEnabled(!noFiles);
-		saveFileMenuItem.setEnabled(!noFiles);
-		saveFileAsMenuItem.setEnabled(!noFiles);
 		
+		// only modify menus if Frame has been built
+		if (XMLFrame != null) {
+			saveFileMenuItem.setEnabled(!noFiles);
+			saveFileAsMenuItem.setEnabled(!noFiles);
+		}
 		XMLTabbedPane.setVisible(!noFiles);
 	}
 	
@@ -1421,11 +1513,12 @@ public class XMLView
 		}
 	}
 	
-	public class addDataFieldListener implements ActionListener {
+	public class AddDataFieldListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			addDataField();
 		}
 	}
+	
 	public class DuplicateFieldListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			duplicateFields();

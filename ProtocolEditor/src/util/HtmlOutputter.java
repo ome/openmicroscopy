@@ -22,6 +22,7 @@
 
 package util;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -31,6 +32,7 @@ import java.util.LinkedHashMap;
 
 import tree.DataField;
 import tree.DataFieldNode;
+import ui.FormField;
 
 // crude attempt at getting html from tree of datafields etc. 
 // needs some more work to improve look of output!
@@ -194,48 +196,66 @@ public class HtmlOutputter {
 			
 		LinkedHashMap<String, String> allAttributes = dataField.getAllAttributes();
         	
-        	if (dataField.isAttributeEqualTo(DataField.INPUT_TYPE,DataField.PROTOCOL_TITLE))
-        		outputStream.println(DIV_CLASS_PROTOCOL);
-        	else outputStream.println(DIV);
+		String divHeader = "";
+			
+        if (dataField.isAttributeEqualTo(DataField.INPUT_TYPE,DataField.PROTOCOL_TITLE))
+        	divHeader = DIV_CLASS_PROTOCOL;
+        else divHeader = DIV;
+        
+        if (true) {
+        	String colour = dataField.getAttribute(DataField.BACKGROUND_COLOUR);
+        	Color bgColour = FormField.getColorFromString(colour);
+        	if (bgColour != null) {
+        		int r = bgColour.getRed();
+        		int g = bgColour.getGreen();
+        		int b = bgColour.getBlue();
         	
-        	String value = allAttributes.get(DataField.VALUE);
-        	String units = allAttributes.get(DataField.UNITS);
+        		String htmlColour = " style='background-color:" + "rgb("+
+        			r + "," + g + "," + b + ")'>";
+        		divHeader = divHeader.replace(">", htmlColour);
+        	}
+        }
+        
+        outputStream.print(divHeader);
         	
-        	outputStream.print(SPAN_CLASS_ELEMENT_NAME);
+        String value = allAttributes.get(DataField.VALUE);
+        String units = allAttributes.get(DataField.UNITS);
         	
-        	if (dataField.hasChildren()) {
-        		if (subStepsCollapsed) {
-        			outputStream.print(RIGHT_ARROW);
-        		} else {
-        			outputStream.print(DOWN_ARROW);
-        		}
-        	}
-        	outputStream.print(allAttributes.get(DataField.ELEMENT_NAME));
+        outputStream.print(SPAN_CLASS_ELEMENT_NAME);
         	
-        	if (value != null) outputStream.print(": " + UNDERLINE + value + UNDERLINE_END);
-        	if (units != null) outputStream.print(" " + units);
-        	outputStream.println(SPAN_END);
+        if (dataField.hasChildren()) {
+        	if (subStepsCollapsed) {
+        		outputStream.print(RIGHT_ARROW);
+        	} else {
+        		outputStream.print(DOWN_ARROW);
+        	}
+        }
+        outputStream.print(allAttributes.get(DataField.ELEMENT_NAME));
         	
-        	if ((showDefaultValues) && (allAttributes.get(DataField.DEFAULT) != null)) {
-        		outputStream.print(DIV_CLASS_ATTRIBUTE + "Default Value = " +
-        				allAttributes.get(DataField.DEFAULT) + DIV_END);
-        	}
-        	if ((showDescriptions) && (allAttributes.get(DataField.DESCRIPTION) != null)) {
-        		outputStream.print(DIV_CLASS_ATTRIBUTE + 
-        				allAttributes.get(DataField.DESCRIPTION) + DIV_END);
-        	}
-        	if ((showUrl) && (allAttributes.get(DataField.URL) != null)) {
-        		outputStream.print(DIV_CLASS_ATTRIBUTE + "URL = " +
-        				allAttributes.get(DataField.URL) + DIV_END);
-        	}
-        	if (showAllOtherAttributes) {
-        		printAllAttributes(allAttributes, outputStream);
-        	}
-        	if (printTableData) {
-        		printTableData(allAttributes, outputStream);
-        	}
+        if (value != null) outputStream.print(": " + UNDERLINE + value + UNDERLINE_END);
+        if (units != null) outputStream.print(" " + units);
+        outputStream.println(SPAN_END);
         	
-        	outputStream.println(DIV_END);
+        if ((showDefaultValues) && (allAttributes.get(DataField.DEFAULT) != null)) {
+        	outputStream.print(DIV_CLASS_ATTRIBUTE + "Default Value = " +
+        			allAttributes.get(DataField.DEFAULT) + DIV_END);
+        }
+        if ((showDescriptions) && (allAttributes.get(DataField.DESCRIPTION) != null)) {
+        	outputStream.print(DIV_CLASS_ATTRIBUTE + 
+        			allAttributes.get(DataField.DESCRIPTION) + DIV_END);
+        }
+        if ((showUrl) && (allAttributes.get(DataField.URL) != null)) {
+        	outputStream.print(DIV_CLASS_ATTRIBUTE + "URL = " +
+        			allAttributes.get(DataField.URL) + DIV_END);
+        }
+        if (showAllOtherAttributes) {
+        	printAllAttributes(allAttributes, outputStream);
+        }
+        if (printTableData) {
+        	printTableData(allAttributes, outputStream);
+        }
+        
+        outputStream.println(DIV_END);
 
 	}
 	
@@ -254,6 +274,7 @@ public class HtmlOutputter {
     		if ((name.equals(DataField.INPUT_TYPE)) || (name.equals(DataField.ELEMENT_NAME))||
     				(name.equals(DataField.DESCRIPTION)) || (name.equals(DataField.VALUE)) ||
     				(name.equals(DataField.URL)) || (name.equals(DataField.SUBSTEPS_COLLAPSED)) ||
+    				(name.equals(DataField.BACKGROUND_COLOUR)) ||
     				(name.equals(DataField.DEFAULT)))
     				continue;
     		else name = name + ": ";

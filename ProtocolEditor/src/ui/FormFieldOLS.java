@@ -26,136 +26,75 @@ package ui;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.Iterator;
-import java.util.Map;
 
+import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.text.JTextComponent;
-
-import ols.OntologyLookUp;
 
 import tree.DataField;
+import ui.components.OntologyTermSelector;
+import util.ImageFactory;
 
 public class FormFieldOLS extends FormField {
-	 
-	public final static String ID_NAME_SEPARATOR = "    ";
 	
 	// variables
-	String ontologyId;
 	String termId;
-	String termName;
 	
-	JLabel ontologyIdLabel;
-	JComboBox ontologyTermSelector;
-	JLabel termDescriptionLabel;
+	boolean metadataPanelVisible = false;
 	
-	ActionListener termSelectionListener;
+	OLSMetadataPanel olsMetadataPanel;
+	
+	JButton toggleMetadataButton;
 	
 	public FormFieldOLS(DataField dataField) {
 		
 		super(dataField);
 		
-		ontologyId = dataField.getAttribute(DataField.ONTOLOGY_ID);
 		termId = dataField.getAttribute(DataField.ONTOLOGY_TERM_ID);
-		termName = dataField.getAttribute(DataField.ONTOLOGY_TERM_NAME);
 		
-		ontologyIdLabel = new JLabel(ontologyId);
 		
-		horizontalBox.add(ontologyIdLabel);
+		Icon metadataIcon = ImageFactory.getInstance().getIcon(ImageFactory.ONTOLOGY_METADATA_ICON);
+		toggleMetadataButton = new JButton(metadataIcon);
+		toggleMetadataButton.setBackground(null);
+		toggleMetadataButton.setBorder(null);
+		toggleMetadataButton.addActionListener(new ToggleMetadataVisibilityListener());
+
+		OntologyTermSelector ontologyTermSelector = new OntologyTermSelector(dataField, DataField.ONTOLOGY_TERM_ID, "");
 		
-		ontologyTermSelector = new JComboBox();
-		ontologyTermSelector.setEditable(true);
-		if (termId != null) {
-			String idAndName = termId + ID_NAME_SEPARATOR + termName;
-			ontologyTermSelector.addItem(idAndName);
-		}
-		
-		ontologyTermSelector.getEditor().getEditorComponent().addKeyListener(new OntologyTermListener());
-		termSelectionListener = new TermSelectionListener();
-		ontologyTermSelector.addActionListener(termSelectionListener);
-		
-		termDescriptionLabel = new JLabel();
-		
+		horizontalBox.add(toggleMetadataButton);
 		horizontalBox.add(ontologyTermSelector);
-		this.add(termDescriptionLabel, BorderLayout.SOUTH);
 		
 		refreshTermDetails();
 	}
 	
 	
-	public class OntologyTermListener implements KeyListener {
-		
-		public void keyReleased(KeyEvent event) {
-
-			JTextComponent source = (JTextComponent)event.getSource();
-			String input = source.getText();
-			System.out.println("FormFieldOLS input: " + input);
-			
-			if (input.length() < 3) return;
-			
-			ontologyTermSelector.removeActionListener(termSelectionListener);
-			ontologyTermSelector.removeAllItems();
-			
-			Map autoCompleteOptions = OntologyLookUp.getTermsByName(input, ontologyId);
-			
-			for (Iterator i = autoCompleteOptions.keySet().iterator(); i.hasNext();){
-				String key = (String) i.next();
-				String name = key + ID_NAME_SEPARATOR + autoCompleteOptions.get(key).toString();
-				ontologyTermSelector.addItem(name);
-			}
-			ontologyTermSelector.setPopupVisible(true);
-			source.setText(input);
-			ontologyTermSelector.addActionListener(termSelectionListener);
-		}
-		public void keyPressed(KeyEvent arg0) {}
-		public void keyTyped(KeyEvent event) {}
-	}
 	
-	
-	public class TermSelectionListener implements ActionListener {
-		public void actionPerformed (ActionEvent event) {
-			String selection = ontologyTermSelector.getSelectedItem().toString();
-			int separatorIndex = selection.indexOf(ID_NAME_SEPARATOR);
-			termId = selection.substring(0, separatorIndex);
-			termName = selection.substring(separatorIndex + ID_NAME_SEPARATOR.length());
-				
-			dataField.setAttribute(DataField.ONTOLOGY_TERM_ID, termId, true);
-			dataField.setAttribute(DataField.ONTOLOGY_TERM_NAME, termName, false);
-			
-			System.out.println("FormFieldOLS SelectionListener termId = " + termId + " termName = '" + termName +"'");
-			
-			refreshTermDetails();
-		}
-	}
-	
+	// when a term is loaded (constructor) or selected from the drop-down options 
+	// this updates the olsMetadataPanel
 	private void refreshTermDetails() {
-		if (termId == null || ontologyId == null) {
-			termDescriptionLabel.setText("");
-			termDescriptionLabel.setToolTipText("");
-			return;
+		if ((metadataPanelVisible) && (olsMetadataPanel != null)) {
+			olsMetadataPanel.resetTerm(termId);
+			this.validate();
+		}
+	}
+	
+	
+	private void refreshOlsMetadataPanelVisible() {	
+		// this is null until it is set visible.
+		// Therefore, no calls need to be made to the OntologyLookupService till that time 
+		// (or until auto-complete is required). 
+
+		if (olsMetadataPanel == null) {
+			olsMetadataPanel = new OLSMetadataPanel(termId);
+			this.add(olsMetadataPanel, BorderLayout.SOUTH);
 		}
 		
-		Map termMetaData = OntologyLookUp.getTermMetadata(termId, ontologyId);
-		
-		String htmlMetaDataLabelText = "<html>";
-		String definitionLabel = "";
-		for (Iterator i = termMetaData.keySet().iterator(); i.hasNext();){
-			String key = (String) i.next();
-			Object name = termMetaData.get(key);
-			//System.out.println("FormFieldOLS refreshTermDetails  key=" + key);
-			String keyAndName = key + ", " + (name == null ? "" : termMetaData.get(key).toString());
-			if (key.equals("definition")) 
-				definitionLabel = keyAndName;
-			else
-				htmlMetaDataLabelText = htmlMetaDataLabelText + keyAndName + "<br>";
+		// if olsMetadataPanel hasn't just been instantiated, and is visible, it may need updating
+		else if (metadataPanelVisible) {
+				refreshTermDetails();
 		}
-		htmlMetaDataLabelText = htmlMetaDataLabelText + "</html>";
-		
-		termDescriptionLabel.setText(definitionLabel);
-		termDescriptionLabel.setToolTipText(htmlMetaDataLabelText);
+		olsMetadataPanel.setVisible(metadataPanelVisible);
 		
 		this.validate();
 	}
@@ -163,8 +102,17 @@ public class FormFieldOLS extends FormField {
 //	 overridden by subclasses if they have other attributes to retrieve from dataField
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		ontologyId = dataField.getAttribute(DataField.ONTOLOGY_ID);
-		ontologyIdLabel.setText(ontologyId);
+		termId = dataField.getAttribute(DataField.ONTOLOGY_TERM_ID);
+		refreshTermDetails();
 	}
 
+	/*
+	 * shows/hides the metadataPanel.
+	 */
+	public class ToggleMetadataVisibilityListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			metadataPanelVisible = !metadataPanelVisible;
+			refreshOlsMetadataPanelVisible();
+		}
+	}
 }

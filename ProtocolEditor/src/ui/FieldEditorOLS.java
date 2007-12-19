@@ -22,6 +22,7 @@
 
 package ui;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,10 +34,13 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import ols.Ontologies;
+import ols.OntologyLookUp;
 
 import tree.DataField;
+import ui.components.OLSLinkPanel;
 import util.BareBonesBrowserLaunch;
 import util.ImageFactory;
 
@@ -44,80 +48,26 @@ public class FieldEditorOLS extends FieldEditor {
 	
 	String ontologyId;
 	
-	String[] ontologyIds;
-	String[] ontologyNames;
-	JComboBox ontologySelector;
-	ActionListener ontologySelectionListener = new OntologySelectionListener();
+	JComboBox parentRelationshipComboBox;
 	
 	public FieldEditorOLS (DataField dataField) {
 		
 		super(dataField);
 		
-		/* need a String[] of ontology Id-Name pairs
-		 * get a map of these from my Ontologies class
-		 * then convert to String array. 
-		 */
-		LinkedHashMap<String, String> allOntologies = Ontologies.getInstance().getSupportedOntologies();
+		String parentFieldType = dataField.getNode().getParentNode().getDataField().getAttribute(DataField.INPUT_TYPE);
+		boolean parentFieldIsOLS = parentFieldType.equals(DataField.OLS_FIELD);
+		if (parentFieldIsOLS) {
+			JPanel parentRelationshipPanel = new JPanel(new BorderLayout());
+			parentRelationshipComboBox = new JComboBox(Ontologies.getOboRelationshipTerms());
+			parentRelationshipComboBox.setSelectedItem("PART_OF");
 		
-		ontologyIds = new String[allOntologies.size()];
-		ontologyNames = new String[allOntologies.size()];
-		
-		// copy map to array
-		int index=0;
-		for (Iterator i = allOntologies.keySet().iterator(); i.hasNext();){
-			String key = (String) i.next();
-			String name = allOntologies.get(key);
-			ontologyIds[index] = key;
-			ontologyNames[index] = key + "\t" + name;
-			index++;
+			parentRelationshipPanel.add(new JLabel("This is..:"), BorderLayout.WEST);
+			parentRelationshipPanel.add(parentRelationshipComboBox, BorderLayout.CENTER);
+			parentRelationshipPanel.add(new JLabel("...parent term"), BorderLayout.EAST);
+			attributeFieldsPanel.add(parentRelationshipPanel);
 		}
 		
-		// make a new comboBox with the ontology Names
-		ontologySelector = new JComboBox(ontologyNames);
-		ontologySelector.addActionListener(ontologySelectionListener);
-		ontologySelector.setMaximumRowCount(25);
-		attributeFieldsPanel.add(ontologySelector);
-		
-		// a link to the Ontology-Lookup-Service website
-		Icon olsIcon = ImageFactory.getInstance().getIcon(ImageFactory.OLS_LOGO_SMALL);
-		JLabel olsLabel = new JLabel("Uses the EBI OLS");
-		JButton olsButton = new JButton(olsIcon);
-		olsButton.addActionListener(new OlsLinkListener());
-		attributeFieldsPanel.add(olsLabel);
-		attributeFieldsPanel.add(olsButton);
-		
-		// if ontology ID has been set already, set the right selector
-		ontologyId = dataField.getAttribute(DataField.ONTOLOGY_ID);
-		refreshOntologySelector();
+		// link to the OLS web-site
+		attributeFieldsPanel.add(new OLSLinkPanel());
 	}
-	
-	public void refreshOntologySelector() {
-		ontologySelector.removeActionListener(ontologySelectionListener);
-		
-		if (ontologyId == null) {
-			ontologySelector.setSelectedIndex(0);
-		} else {
-			
-			for (int i=0; i<ontologyIds.length; i++)
-				if (ontologyId.equals(ontologyIds[i]))
-					ontologySelector.setSelectedIndex(i);
-			
-		}
-		ontologySelector.addActionListener(ontologySelectionListener);
-	}
-	
-	public class OlsLinkListener implements ActionListener {
-		public void actionPerformed(ActionEvent arg0) {
-			BareBonesBrowserLaunch.openURL("http://www.ebi.ac.uk/ontology-lookup");
-		}
-		
-	}
-	
-	public class OntologySelectionListener implements ActionListener {
-		public void actionPerformed (ActionEvent event) {
-			String ontologyID = ontologyIds[ontologySelector.getSelectedIndex()];
-			dataField.setAttribute(DataField.ONTOLOGY_ID, ontologyID, true);
-		}
-	}
-
 }

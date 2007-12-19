@@ -86,6 +86,7 @@ public class ImageFactory {
 	public static final String BOLD_ICON = ACTION_ICONS_FILE + "bold.png";
 	public static final String UNDERLINE_ICON = ACTION_ICONS_FILE + "underline.png";
 	public static final String ENTER_ICON = ACTION_ICONS_FILE + "enter.png";
+	public static final String ONTOLOGY_METADATA_ICON = ICONS_FILE + "apps/kdict.png";
 	
 	public Icon getIcon(String iconPathName) {
 		try {

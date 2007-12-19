@@ -30,6 +30,16 @@ public class Ontologies {
 	private static Ontologies uniqueInstance;
 	LinkedHashMap<String, String> supportedOntologies = new LinkedHashMap<String, String>();
 	
+	private static String[] OBO_REL_TERMS = {"DEVELOPS_FROM", 
+		"ALT_ID",
+		"BROAD",
+		"PART_OF",
+		"RELATED",
+		"NARROW",
+		"IS_A",
+		"EXACT",
+		"SYNONYM"};
+	
 	public static final String BS = "Biosapiens Annotations";
 	public static final String BSPO = "Spatial Reference Ontology";
 	public static final String BTO = "BRENDA tissue / enzyme source";
@@ -155,4 +165,20 @@ public class Ontologies {
 		return supportedOntologies;
 	}
 
+	public static String[] getOboRelationshipTerms() {
+		return OBO_REL_TERMS;
+	}
+	
+	public static String getOntologyIdFromTermId(String termId) {
+		
+		if (termId == null) {
+			return null;
+		}
+		
+		int colonIndex = termId.indexOf(":");
+		if (colonIndex < 1) {
+			throw new RuntimeException("Ontology term Id didn't contain : ");
+		} 
+		return termId.substring(0, colonIndex);
+	}
 }
