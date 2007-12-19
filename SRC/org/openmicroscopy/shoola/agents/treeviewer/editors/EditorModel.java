@@ -750,5 +750,15 @@ class EditorModel
 	 */
 	List<CategoryData> getAvailableTags() { return availableTags; }
 	
+	/**
+	 * Returns <code>true</code> if the edited object is an image, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isImage() 
+	{
+		return (hierarchyObject instanceof ImageData);
+	}
 }
  

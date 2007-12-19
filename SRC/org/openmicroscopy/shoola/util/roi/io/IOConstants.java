@@ -46,7 +46,7 @@ import java.awt.Color;
 public class IOConstants 
 {
 	/** The file which maps the pixelIDs to the file saved by the user. */
-	public static final String FILEMAP_XML = "fileMap.xml";
+	//public static final String FILEMAP_XML = "fileMap.xml";
 	/** The tag in the filemap listing all the server saved in the fileMap. */
 	public static final String SERVER_TAG = "server";
 	/** The attribute for the name of the server. */

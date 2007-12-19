@@ -6,12 +6,34 @@
   client for the visualization and manipulation of both image data and metadata
   maintained at an OMERO server site. OMERO.insight is completely written in 
   Java.
+--------------------------------------------------------------------------------
+ Last update: 15/12/2007 (revision 5176)
+ Version: For Beta 2.3 rc3
+
+  - MeasurementTool: Fixed bug in Intensity View
+  - Search: Improved UI to give better feedbacks.
+  - Search: Fixed bug when selecting image or annotation context.
+  - Compressed Image: Modified the way the compressed images are built to
+  	improve the quality of the images in the split view.
+  - General: Bug fixing.
+  - HiViewer: Fixed bug when double-clicking on a tag.
+--------------------------------------------------------------------------------
+ Last update: 13/12/2007 (revision 5167)
+ Version: For Beta 2.3 rc1
  
+  - Bug fixing
+  - General: Introduce tagging.
+  - General: Added Quick and Advanced Search 
+  - Viewer: Fixed Split View bug when viewing compressed image.
+  - Viewer: Improve initialization sequence.
+  - Viewer: Synchronize viewers when copy and pasting from DataManager or
+  			HiViewer
+  - General: Improve Error handling.
 --------------------------------------------------------------------------------
  Last update: 15/11/2007 (revision 5153)
- Version: For Beta 3
+ Version: For Beta 2.3
  
-  - Viewer: Introduce notion of Preferences. 
+  - Viewer: Introduce notion of Preferences (only valid during the session). 
   - Login and Viewer: Add compression
   - Viewer: Option to view images using other users settings
 --------------------------------------------------------------------------------

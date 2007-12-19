@@ -123,6 +123,11 @@ public final class AgentsInit
 		RegistryFactory.linkUserNotifier(containerReg.getUserNotifier(),
 											agentReg);
         RegistryFactory.linkOS(containerReg.getDataService(), agentReg);
+        
+        
+        String omeroDir = (String) 
+        	containerReg.lookup(LookupNames.USER_HOME_OMERO);
+        agentReg.bind(LookupNames.USER_HOME_OMERO, omeroDir);
 		return agentReg;
 	}
 	

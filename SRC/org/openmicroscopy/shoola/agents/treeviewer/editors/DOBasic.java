@@ -412,6 +412,7 @@ class DOBasic
     /** Shows the tags. */
     void showTags()
     {
+    	if (!model.isImage()) return;
     	contentPanel.remove(contentPanel.getComponentCount()-1);
     	contentPanel.add(UIUtilities.buildComponentPanel(new DOTag(controller, 
 						model)));

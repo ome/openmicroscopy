@@ -325,8 +325,9 @@ public interface TreeViewer
 	 * Sets the thumbnail associated to the currently edited Image.
 	 * 
 	 * @param thumbnail The thumbnail to set.
+	 * @param id		The id of the image.
 	 */
-	public void setThumbnail(BufferedImage thumbnail); 
+	public void setThumbnail(BufferedImage thumbnail, long imageID); 
 
 	/**
 	 * Reacts to a node selection in the currently selected {@link Browser}.

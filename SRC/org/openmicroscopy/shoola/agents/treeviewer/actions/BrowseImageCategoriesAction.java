@@ -91,8 +91,7 @@ public class BrowseImageCategoriesAction
           	Long l = img.getClassificationCount();
           	if (l != null) setEnabled(l.longValue() != 0);
           	else setEnabled(false);
-          }
-          return;
+          } else setEnabled(false);
       }
       setEnabled(false);
   }

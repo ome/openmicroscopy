@@ -76,6 +76,15 @@ public class LookupNames
 	public static final String ICONS_FACTORY = 
 											"/resources/icons/DefaultFactory";
 	
+	/** Field to access the <code>OMERO home</code> information. */
+	public static final String OMERO_HOME = "/services/OMERO/home";
+	
+	/** 
+	 * Field to access the location of the <code>OMERO folder</code>
+	 * on the user's machine. 
+	 */
+	public static final String USER_HOME_OMERO= "/user/home/omero";
+	
     /** Field to access the <code>Log on</code> information. */
 	public static final String LOG_ON = "/services/LOG/on";
     
@@ -134,5 +143,9 @@ public class LookupNames
     
     /** Field to access the e-mail address used to collect comments. */
     public static final String DEBUG_EMAIL = "/services/DEBUGGER/email";
+    
+    public static final String	ROI_MAIN_FILE = "/roi/mainFileName";
+    
+    
 	
 }

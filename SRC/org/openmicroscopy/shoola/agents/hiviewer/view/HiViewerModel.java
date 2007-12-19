@@ -159,18 +159,6 @@ abstract class HiViewerModel
     void initialize(HiViewer component) { this.component = component; }
     
     /**
-     * Sets the user's details.
-     * The details should, in theory be already binded to the agent's registry.
-     * 
-     * @param details The details to set.
-     */
-    void setUserDetails(ExperimenterData details)
-    {
-        HiViewerAgent.getRegistry().bind(LookupNames.CURRENT_USER_DETAILS,
-                						details);
-    }
-    
-    /**
      * Sets the root level and its id.
      * 
      * @param experimenter	The currently selected experimenter.

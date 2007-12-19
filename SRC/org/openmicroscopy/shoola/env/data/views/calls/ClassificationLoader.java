@@ -369,7 +369,7 @@ public class ClassificationLoader
             throw new IllegalArgumentException("image ID not valid ");
         Set<Long> images = new HashSet<Long>(1);
         images.add(imageID);
-        loadCall = loadLinkedTags(images, userID);
+        loadCall = loadPartialClassification(images, leaves, userID);
     }
     
     /**
@@ -378,17 +378,17 @@ public class ClassificationLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param imagesID       The id of the Image to classify or declassifiy
+     * @param images       The id of the Image to classify or declassifiy
      *                      depending on the algorithm.
      * @param leaves		Passed <code>true</code> to retrieve the images
      * 						<code>false</code> otherwise.
      * @param userID   		The Id of the user.                    
      */
-    public ClassificationLoader(Set<Long> imagesID, boolean leaves, long userID)
+    public ClassificationLoader(Set<Long> images, boolean leaves, long userID)
     {
-        if (imagesID == null || imagesID.size() == 0) 
+        if (images == null || images.size() == 0) 
             throw new IllegalArgumentException("image ID not valid ");
-        loadCall = loadLinkedTags(imagesID, userID);
+        loadCall = loadPartialClassification(images, leaves, userID);
     }
     
     /**

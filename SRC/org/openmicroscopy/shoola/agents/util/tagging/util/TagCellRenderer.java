@@ -83,8 +83,8 @@ public class TagCellRenderer
 			setText(v.getObjectName());
 			if (ho instanceof CategoryData) {
 				if (v.isAvailable())
-					setIcon(icons.getIcon(IconManager.TAG));
-				else setIcon(icons.getIcon(IconManager.TAG_USED));
+					setIcon(icons.getIcon(IconManager.TAG_USED));
+				else setIcon(icons.getIcon(IconManager.TAG));
 			} else if (ho instanceof CategoryGroupData)
 				setIcon(icons.getIcon(IconManager.TAG_GROUP));
 		}

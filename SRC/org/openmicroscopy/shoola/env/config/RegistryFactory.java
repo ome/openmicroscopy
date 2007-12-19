@@ -85,7 +85,7 @@ public class RegistryFactory
 	
 	/**
 	 * Fills up the specified {@link Registry} with the entries
-	 * in the specified cofiguration file.
+	 * in the specified configuration file.
 	 * 
 	 * @param file	Path to a configuration file.
 	 * @param reg	The {@link Registry} to fill.

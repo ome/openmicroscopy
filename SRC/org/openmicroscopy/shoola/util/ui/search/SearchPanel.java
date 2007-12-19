@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -179,8 +180,8 @@ class SearchPanel
 		group.add(currentUserAndOthers);
 		group.add(others);
 		group = new ButtonGroup();
-		andBox = new JRadioButton("Ands");
-		orBox = new JRadioButton("Ors");
+		andBox = new JRadioButton("And");
+		orBox = new JRadioButton("Or");
 		orBox.setSelected(true);
 		group.add(andBox);
 		group.add(orBox);
@@ -196,7 +197,7 @@ class SearchPanel
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		p.add(andBox);
-		p.add(UIUtilities.setTextFont("Or"));
+		p.add(Box.createRigidArea(SearchComponent.H_SPACER_SIZE));
 		p.add(orBox);
 		return  UIUtilities.buildComponentPanel(p);
 	}
@@ -239,7 +240,7 @@ class SearchPanel
 	private JPanel buildScopePanel()
 	{
 		JPanel p = new JPanel();
-		double[] tl = {TableLayout.PREFERRED, 10, TableLayout.PREFERRED}; //rows
+		double[] tl = {TableLayout.PREFERRED, 10, TableLayout.PREFERRED}; //columns
 		TableLayout layout = new TableLayout();
 		layout.setColumn(tl);
 		
@@ -273,8 +274,7 @@ class SearchPanel
 			scopes.put(n.getIndex(), box);
 		}
 		TitledBorder border = new TitledBorder("Scope");
-		Font f = p.getFont();
-		border.setTitleFont(f.deriveFont(Font.BOLD));
+		border.setTitleFont(p.getFont().deriveFont(Font.BOLD));
 		p.setBorder(border);
 		return p;
 	}
@@ -495,7 +495,6 @@ class SearchPanel
 		String n;
 		String v = "";
 		boolean exist = false;
-		//System.err.println(values.);
 		int l = values.length;
 		for (int i = 0; i < l; i++) {
 			n = values[i].trim();

@@ -51,6 +51,8 @@
     <entry name="/services/LOGIN/omeds/retry-interval"
            type="integer">500</entry>
            
+    <!-- Location of the omero folder. -->
+    <entry name="/services/OMERO/home">omero</entry>
     <!-- Log Service configuration.
     -->
     <!-- Enables/disables the Log Service. -->

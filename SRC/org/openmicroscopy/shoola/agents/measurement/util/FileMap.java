@@ -44,6 +44,9 @@ import net.n3.nanoxml.XMLElement;
 import net.n3.nanoxml.XMLParserFactory;
 import net.n3.nanoxml.XMLWriter;
 
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 
@@ -102,7 +105,7 @@ public class FileMap
 		try
 		{
 			in = new BufferedInputStream(
-	            new FileInputStream(IOConstants.FILEMAP_XML));
+	            new FileInputStream(createFileMap()));
 			IXMLReader reader=new StdXMLReader(in);
 			parser.setReader(reader);
 			document=(IXMLElement) parser.parse();
@@ -118,15 +121,30 @@ public class FileMap
 		return document;
 	}
 
+	/**
+	 * Returns <code>true</code> if the fileMap.xml file exists, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static boolean fileMapExists()
+	{
+		File f = createFileMap();
+		if (f == null) return false;
+		return f.exists();
+	}
 	
 	/**
-	 * Returns true if the fileMap.xml file exists.
-	 * @return see above.
+	 * Creates the file map.
+	 * 
+	 * @return See above.
 	 */
-	public static boolean  fileMapExists()
+	private static File createFileMap()
 	{
-		File xmlFile = new File(IOConstants.FILEMAP_XML);
-		return xmlFile.exists();
+		Registry reg = MeasurementAgent.getRegistry();
+		String omeroDir = (String) reg.lookup(LookupNames.USER_HOME_OMERO);
+		String fileName = (String) reg.lookup(LookupNames.ROI_MAIN_FILE);
+		return new File(omeroDir, fileName);
 	}
 	
 	/** 
@@ -135,7 +153,8 @@ public class FileMap
 	 * @return see above.
 	 * @throws ParsingException see above.
 	 */
-	public static String getSavedFile(String server, String user, Long pixelsID) throws ParsingException
+	public static String getSavedFile(String server, String user, Long pixelsID)
+		throws ParsingException
 	{
 		IXMLElement node;
 		if(!fileMapExists())
@@ -339,10 +358,11 @@ public class FileMap
 		try
 		{
 			out = new BufferedOutputStream(
-	            new FileOutputStream(IOConstants.FILEMAP_XML));
+						new FileOutputStream(createFileMap()));
 		}
 		catch (Exception ex)
 		{
+			ex.printStackTrace();
 			ParsingException e=new ParsingException(ex.getMessage());
 			e.initCause(ex);
 			throw e;

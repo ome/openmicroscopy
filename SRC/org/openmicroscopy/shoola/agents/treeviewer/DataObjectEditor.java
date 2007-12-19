@@ -33,14 +33,11 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.jdesktop.swingx.auth.UserPermissions;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 import pojos.CategoryData;
 import pojos.DataObject;
-import pojos.ImageData;
 
 /** 
  * Updates or deletes the specified <code>DataObject</code>.
@@ -166,7 +163,6 @@ public class DataObjectEditor
 				}
 				handle = dmView.classify(l, tags, this);
 		}
-       
     }
 
     /**
@@ -182,8 +178,9 @@ public class DataObjectEditor
     public void handleResult(Object result)
     {
         if (viewer.getState() == Editor.DISCARDED) return;  //Async cancel.
-        //viewer.setSaveResult((DataObject) result, operation);
-        viewer.onTagsUpdate();
+        if (index == UPDATE) {
+        	viewer.setSaveResult((DataObject) result, TreeViewer.UPDATE_OBJECT);
+        } else viewer.onTagsUpdate();
     }
     
 }

@@ -82,10 +82,28 @@ public class LoggerFactory
 		//We have a config file, set up log4j.
 		String logDirName = (String) reg.lookup(LookupNames.LOG_DIR),
 				logFileName = (String) reg.lookup(LookupNames.LOG_FILE);
+		String name = (String) reg.lookup(LookupNames.OMERO_HOME);
+		String omeroDir = System.getProperty("user.home")+File.separator+name;
+		File home = new File(omeroDir);
+		if (!home.exists()) home.mkdir();
+		File logFile, logDir;
+		if (home.isDirectory()) {
+			logDir = new File(home, logDirName);
+			logDir.mkdir();
+			if (logDir.isDirectory()) logFile = new File(logDir, logFileName);
+			else logFile = new File(home, logFileName);
+		} else {
+			logDir = new File(c.getHomeDir(), logDirName);
+			logDir.mkdir();
+			if (logDir.isDirectory()) logFile = new File(logDir, logFileName);
+			else logFile = new File(c.getHomeDir(), logFileName);
+		}
+		/*
 		File logDir = new File(c.getHomeDir(), logDirName), logFile;
 		logDir.mkdir();
 		if (logDir.isDirectory()) logFile = new File(logDir, logFileName);
 		else logFile = new File(c.getHomeDir(), logFileName);
+		*/
 		return new LoggerImpl(config, logFile.getAbsolutePath());
 	}
 	

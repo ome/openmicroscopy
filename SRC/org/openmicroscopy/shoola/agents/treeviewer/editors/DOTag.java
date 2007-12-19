@@ -72,9 +72,6 @@ class DOTag
 	extends JPanel
 	implements PropertyChangeListener
 {
-	
-	/** The separator between the tags and tag sets. */
-	private static final String	SEPARATOR = "|";
 
 	/** Text indicating the describing the component. */
 	private static final String TEXT = "The list of tags linked to the " +
@@ -103,72 +100,48 @@ class DOTag
     private JButton			availableTag;
     
     /** 
-     * Builds and lays out the panel hosting the tags. 
+     * Lays out the passed collection.
      * 
+     * @param nodes The collection of nodes to lay out.
      * @return See above.
      */
-    private JPanel buildTagsPanel()
+    private JPanel layoutCollection(List<TagNode> nodes)
     {
     	JPanel p = new JPanel();
-    	if (tagNodes != null) {
-    		Iterator i = tagNodes.iterator();
-    		int index = 0;
-    		int l = tagNodes.size()-1;
-    		while (i.hasNext()) {
-    			p.add((TagNode) i.next());
-				if (index != l) p.add(new JLabel(SEPARATOR));
-				index++;
-			}
-    	}
-    	return p;
-    }
-    
-    /** 
-     * Builds and lays out the panel hosting the tags. 
-     * 
-     * @return See above.
-     */
-    private JPanel buildAvailableTagsPanel()
-    {
-    	JPanel p = new JPanel();
-    	if (availableTagNodes != null) {
-    		Iterator i = availableTagNodes.iterator();
-    		int index = 0;
-    		int l = availableTagNodes.size()-1;
-    		while (i.hasNext()) {
-    			p.add((TagNode) i.next());
-				if (index != l) p.add(new JLabel(SEPARATOR));
-				index++;
-			}
-    	}
-    	return p;
-    }
-    
-    /** 
-     * Builds and lays out the panel hosting the tag sets. 
-     * 
-     * @return See above.
-     */
-    private JPanel buildTagSetsPanel()
-    {
-    	JPanel p = new JPanel();
-    	if (tagSetNodes != null) {
-    		Iterator i = tagSetNodes.iterator();
-    		int index = 0;
-    		int l = tagSetNodes.size()-1;
-    		while (i.hasNext()) {
-    			p.add((TagNode) i.next());
-    			if (index != l) p.add(new JLabel(SEPARATOR));
-				index++;
-			}
-    	}
-    	return p;
+    	if (nodes == null) return p;
+    	double[] tl = {TableLayout.PREFERRED, TableLayout.PREFERRED, 
+				TableLayout.PREFERRED, TableLayout.PREFERRED, 
+				TableLayout.PREFERRED}; //columns
+		TableLayout layout = new TableLayout();
+		layout.setColumn(tl);
+		int j = 0;
+		int m = nodes.size();
+		double[] rows;
+		int size = m/tl.length+1;
+		rows = new double[size];
+		for (int i = 0; i < rows.length; i++) 
+			rows[i] = TableLayout.PREFERRED;
+		
+		layout.setRow(rows);
+		p.setLayout(layout);
+		int row = -1;
+		TagNode node;
+		for (int i = 0; i < m; i++) {
+			node = nodes.get(i);
+			if (i%tl.length == 0) {
+				row++;
+				j = 0;
+			} else j++;
+			
+			p.add(node, j+", "+row+", l, c");
+		}
+		return p;
     }
     
     /** Initializes the components. */
     private void initComponents()
     {
-    	availableTag = new JButton("Available Tags");
+    	availableTag = new JButton("My Available Tags");
     	availableTag.setToolTipText("Retrieve the available tags.");
     	availableTag.addActionListener(new ActionListener() {
 		
@@ -224,10 +197,11 @@ class DOTag
     /** Builds and lays out the components. */
     void buildGUI()
     {
+    	JPanel content = new JPanel();
     	String text = TEXT;
     	if (tagNodes == null && tagSetNodes == null)
     		text = TEXT_NO_TAG;
-    	JPanel content = new JPanel();
+    	
         double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
         				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5,
         				TableLayout.PREFERRED, 5, TableLayout.PREFERRED} }; //rows
@@ -236,20 +210,20 @@ class DOTag
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         if (tagNodes != null) {
         	content.add(UIUtilities.setTextFont("Tags"), "0, 0, l, c");
-            content.add(buildTagsPanel(), "1, 0, l, c");
+            content.add(layoutCollection(tagNodes), "1, 0, l, c");
         }
         
         content.add(new JLabel(), "0, 1, 1, 1");
         if (tagSetNodes != null) {
         	 content.add(UIUtilities.setTextFont("Tag sets"), "0, 2, l, c");
-             content.add(buildTagSetsPanel(), "1, 2, l, c");
+             content.add(layoutCollection(tagSetNodes), "1, 2, l, c");
         }
         content.add(UIUtilities.buildComponentPanel(availableTag), 
         			"0, 4, l, c");
         if (availableTagNodes != null) {
         	content.add(UIUtilities.setTextFont("Available Tags"), "0, 6, l, " +
         				"c");
-            content.add(buildAvailableTagsPanel(), "1, 6, l, c");
+            content.add(layoutCollection(availableTagNodes), "1, 6, l, c");
         }
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(UIUtilities.buildComponentPanel(new JLabel(text)), 

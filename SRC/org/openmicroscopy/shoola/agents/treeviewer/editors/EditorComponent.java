@@ -28,14 +28,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.List;
-import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.JRootPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
@@ -172,38 +170,20 @@ class EditorComponent
 
     /**
      * Implemented as specified by the {@link Editor} interface.
-     * @see Editor#setThumbnail(BufferedImage)
+     * @see Editor#setThumbnail(BufferedImage, long)
      */
-    public void setThumbnail(BufferedImage thumbnail)
+    public void setThumbnail(BufferedImage thumbnail, long imageID)
     {
         if (model.getState() != DISCARDED) {
-            if (thumbnail == null)
-                return;//throw new IllegalArgumentException("No thumbnail.");
+        	if (!model.isImage()) return;
+            if (thumbnail == null || model.getDataObjectID() != imageID)
+            	//try to reload maybe??
+                return;
             model.setThumbnailLoaded(true);
             view.setThumbnail(thumbnail);
             model.setState(READY);
             fireStateChange();
         }
-    }
-
-    /**
-     * Implemented as specified by the {@link Editor} interface.
-     * @see Editor#setRetrievedClassification(Set)
-     */
-    public void setRetrievedClassification(Set paths)
-    {
-        if (model.getState() != LOADING_TAGS) return;
-        if (paths == null)
-            throw new IllegalArgumentException("No paths to set.");
-        long userID = model.getUserDetails().getId();
-        //long groupID = model.getParentModel().getRootGroupID();
-        Set set = TreeViewerTranslator.transformHierarchy(paths, userID,
-                                                        -1);
-       // model.setClassifications(set);
-        view.showTags();
-        retrieveThumbnail();
-        model.getParentModel().setStatus(false, "", true);
-        fireStateChange();
     }
 
     /**
@@ -470,8 +450,11 @@ class EditorComponent
 	 */
 	public void onTagsUpdate()
 	{
-		model.fireTagLoading();
-		fireStateChange();
+		if (model.getState() == DISCARDED) return;
+		if (model.isImage()) {
+			model.fireTagLoading();
+			fireStateChange();
+		}
 	}
 
 	/**
@@ -480,8 +463,11 @@ class EditorComponent
 	 */
 	public void loadAvailableTags()
 	{
-		model.fireAvailableTagsLoading();
-		fireStateChange();
+		if (model.getState() == DISCARDED) return;
+		if (model.isImage()) {
+			model.fireAvailableTagsLoading();
+			fireStateChange();
+		}
 	}
 
 	/**
@@ -491,9 +477,11 @@ class EditorComponent
 	public void setAvailableTags(List tags)
 	{
 		if (model.getState() == DISCARDED) return;
-		model.setAvailableTags(tags);
-		view.showTags();
-		fireStateChange();
+		if (model.isImage()) {
+			model.setAvailableTags(tags);
+			view.showTags();
+			fireStateChange();
+		}
 	}
 
 	/**
@@ -502,8 +490,11 @@ class EditorComponent
 	 */
 	public void addTagToImage(DataObject object)
 	{
-		model.fireTagAddition(object);
-		fireStateChange();
+		if (model.getState() == DISCARDED) return;
+		if (model.isImage()) {
+			model.fireTagAddition(object);
+			fireStateChange();
+		}
 	}
 
 	/**
@@ -512,8 +503,11 @@ class EditorComponent
 	 */
 	public void removeTag(DataObject object)
 	{
-		model.fireDataObjectDeletion(object);
-		fireStateChange();
+		if (model.getState() == DISCARDED) return;
+		if (model.isImage()) {
+			model.fireDataObjectDeletion(object);
+			fireStateChange();
+		}
 	}
 	
 }

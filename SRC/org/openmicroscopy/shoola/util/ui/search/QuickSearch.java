@@ -201,12 +201,6 @@ public class QuickSearch
 			 * @see MouseAdapter#mousePressed(MouseEvent)
 			 */
 			public void mousePressed(MouseEvent e) { showMenu(); }
-			
-			/** 
-			 * Displays a menu with the available context.
-			 * @see MouseAdapter#mousePressed(MouseEvent)
-			 */
-			//public void mouseReleased(MouseEvent e) { showMenu(); }
 		
 		});
 		selectedNode = nodes.get(0);
@@ -384,7 +378,7 @@ public class QuickSearch
      */
 	public void removeUpdate(DocumentEvent e)
 	{
-		if (e.getOffset() == 0) clear();
+		if (e.getDocument().getLength() == 0) clear();
 	}
 	
 	/** Subclasses should override this method to handle the search. */

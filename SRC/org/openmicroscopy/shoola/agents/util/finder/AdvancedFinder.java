@@ -28,9 +28,11 @@ package org.openmicroscopy.shoola.agents.util.finder;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -65,13 +67,16 @@ public class AdvancedFinder
 {
 
 	/** The default title of the notification message. */
-	private static final String TITLE = "Search";
+	private static final String 	TITLE = "Search";
 	
 	/** Reference to the component handling data. */ 
-	private List<FinderLoader>	finderHandlers;
+	private List<FinderLoader>		finderHandlers;
 	
 	/** One of the constants defined by this class. */
-	private int					state;
+	private int						state;
+	
+	/** Collection of selected users. */
+	private List<ExperimenterData>	users;
 	
 	/**
 	 * Determines the scope of the search.
@@ -95,31 +100,6 @@ public class AdvancedFinder
 			default:
 			case SearchContext.IMAGES:
 				return FinderLoader.IMAGES;
-		}
-	}
-	
-	private void addExperimenter(List<String> users, 
-								List<ExperimenterData> exps)
-	{
-		if (users == null) return;
-		Iterator i = users.iterator();
-		String user;
-		ExperimenterData exp;
-		while (i.hasNext()) {
-			user = (String) i.next();
-			if (user != null) {
-				exp = new ExperimenterData();
-				String[] names = user.split(SearchUtil.NAME_SEPARATOR);
-				switch (names.length) {
-					case 2:
-						exp.setFirstName(names[0]);
-						exp.setLastName(names[1]);
-						break;
-					case 1:
-						exp.setLastName(names[1]);
-				}
-				exps.add(exp);
-			}
 		}
 	}
 	
@@ -148,6 +128,7 @@ public class AdvancedFinder
 			index = (Integer) i.next();
 			scope.add(convertScope(index));
 		}
+		/*
 		List<String> users = ctx.getUsers();
 		List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
 		switch (ctx.getUserSearchContext()) {
@@ -161,9 +142,14 @@ public class AdvancedFinder
 				exps.add(getUserDetails());
 				addExperimenter(users, exps);
 		}
-		
+		*/
+		switch (ctx.getUserSearchContext()) {
+			case SearchContext.JUST_CURRENT_USER:
+			case SearchContext.CURRENT_USER_AND_OTHERS:
+				users.add(getUserDetails());
+		}
 		AdvancedFinderLoader loader = new AdvancedFinderLoader(this, terms,
-											exps, scope, ctx.getStartTime(),
+											users, scope, ctx.getStartTime(),
 				ctx.getEndTime(), ctx.getSeparator());
 		loader.load();
 		finderHandlers.add(loader);
@@ -220,6 +206,7 @@ public class AdvancedFinder
 		addPropertyChangeListener(CANCEL_SEARCH_PROPERTY, this);
 		addPropertyChangeListener(OWNER_PROPERTY, this);
 		//setModal(true);
+		users = new ArrayList<ExperimenterData>();
 	}
 
 	/** 
@@ -282,8 +269,11 @@ public class AdvancedFinder
 			ExperimenterData exp;
 			while (i.hasNext()) {
 				exp = (ExperimenterData) m.get(i.next());
-				setUserString(exp.getFirstName()+SearchUtil.NAME_SEPARATOR+
-							exp.getLastName());
+				if (!users.contains(exp)) {
+					users.add(exp);
+					setUserString(exp.getFirstName()+SearchUtil.NAME_SEPARATOR+
+								exp.getLastName());
+				}
 			}
 		}
 	}

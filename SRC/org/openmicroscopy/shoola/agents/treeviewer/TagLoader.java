@@ -107,11 +107,17 @@ public class TagLoader
 		}
     }
     
-	 /** 
+    /** 
      * Cancels the data loading. 
      * @see EditorLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
+    
+    /**
+     * Overridden so that we don't notify the user. 
+     * @see EditorLoader#handleCancellation()
+     */
+    public void handleCancellation() {}
     
     /**
      * Feeds the result back to the viewer.

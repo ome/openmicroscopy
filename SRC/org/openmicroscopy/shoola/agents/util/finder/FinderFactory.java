@@ -94,16 +94,16 @@ public class FinderFactory
     private Registry	registry;
     
     /** The tracked component. */
-    private Finder		finder;
+    //private Finder		finder;
     
     /** Creates a new instance. */
 	private FinderFactory()
 	{
-		finder = null;
+		//finder = null;
 	}
 	
 	/**
-	 * Creates or recycles the finder.
+	 * Creates the finder.
 	 * 
 	 * @return See above.
 	 */
@@ -114,8 +114,8 @@ public class FinderFactory
 			//advancedFinder.set
 		//	return advancedFinder;
 		//}
-		finder = new AdvancedFinder();
-		return finder;
+		//finder = new AdvancedFinder();
+		return new AdvancedFinder();
 	}
 	
 	/**
@@ -130,8 +130,8 @@ public class FinderFactory
 			//advancedFinder.set
 		//	return advancedFinder;
 		//}
-		finder = new QuickFinder();
-		return finder;
+		//finder = new 
+		return new QuickFinder();
 	}
 	
 }

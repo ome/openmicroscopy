@@ -586,13 +586,13 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setThumbnail(BufferedImage)
 	 */
-	public void setThumbnail(BufferedImage thumbnail)
+	public void setThumbnail(BufferedImage thumbnail, long imageID)
 	{
 		if (model.getState() == LOADING_THUMBNAIL) {
 			model.setState(READY);
 			Editor editor = model.getEditor();
 			if (thumbnail != null && editor != null) 
-				editor.setThumbnail(thumbnail);
+				editor.setThumbnail(thumbnail, imageID);
 			fireStateChange();
 		}
 	}

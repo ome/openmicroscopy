@@ -1183,26 +1183,120 @@ class OmeroDataServiceImpl
 		IObject object;
 		Class type;
 		String s = "";
-		if (separator == null) s = " or "; //default
+		if (separator == null) s = "or"; //default
 		else {
 			separator = separator.toLowerCase();
 			separator = separator.trim();
 			if (separator.equals("and") || separator.equals("or"))
-				s = " "+separator+" ";
-			else s = " or "; //default
+				s = separator;
+			else s = "or"; //default
 		}
 		
 		if ((users == null || users.size() == 0)) {
-			
-			while (i.hasNext()) {
-				type = (Class) i.next();
-				l.addAll(gateway.searchFor(type, terms, start, end, 
-											getUserDetails(), s));
+			ExperimenterData exp = getUserDetails();
+			if (s.equals("and")) {
+				List<List> nodes = new ArrayList();
+				Iterator k;
+				while (i.hasNext()) {
+					type = (Class) i.next();
+					if (type.equals(CategoryData.class) || 
+						type.equals(CategoryGroupData.class)) {
+						k = terms.iterator();
+						while (k.hasNext()) {
+							nodes.add(gateway.searchFor(type, (String) k.next(), 
+									start, end, exp, s ));
+						}
+						
+					} else {
+						l.addAll(gateway.searchFor(type, terms, start, end, 
+								exp, s));
+					}
+				}
+				
+				
+				if (nodes.size() != 0) {
+					List nodeIds = new ArrayList();
+					List n = nodes.remove(0);
+					k = n.iterator();
+					while (k.hasNext()) {
+						nodeIds.add(((ILink) k.next()).getChild().getId());
+					}
+					k = nodes.iterator();
+					Iterator link;
+					long id;
+					Set<Long> intersection = new HashSet<Long>();
+					while (k.hasNext()) {
+						n = (List) k.next();
+						link = n.iterator();
+						while (link.hasNext()) {
+							id = ((ILink) link.next()).getChild().getId();
+							if (nodeIds.contains(id))
+								intersection.add(id);
+							else nodeIds.remove(id);
+						}
+					}
+					
+					ids.addAll(intersection);
+				}
+			} else {
+				while (i.hasNext()) {
+					type = (Class) i.next();
+					l.addAll(gateway.searchFor(type, terms, start, end, 
+									exp, s));
+				}
 			}
+			
 		} else {
-			while (i.hasNext()) {
-				type = (Class) i.next();
-				l.addAll(gateway.searchFor(type, terms, start, end, users, s));
+			if (s.equals("and")) {
+				List<List> nodes = new ArrayList();
+				Iterator k;
+				while (i.hasNext()) {
+					type = (Class) i.next();
+					if (type.equals(CategoryData.class) || 
+						type.equals(CategoryGroupData.class)) {
+						k = terms.iterator();
+						while (k.hasNext()) {
+							nodes.add(gateway.searchFor(type, (String) k.next(), 
+									start, end, users, s ));
+						}
+						
+					} else {
+						l.addAll(gateway.searchFor(type, terms, start, end, 
+								users, s));
+					}
+				}
+				
+				
+				if (nodes.size() != 0) {
+					List nodeIds = new ArrayList();
+					List n = nodes.remove(0);
+					k = n.iterator();
+					while (k.hasNext()) {
+						nodeIds.add(((ILink) k.next()).getChild().getId());
+					}
+					k = nodes.iterator();
+					Iterator link;
+					long id;
+					Set<Long> intersection = new HashSet<Long>();
+					while (k.hasNext()) {
+						n = (List) k.next();
+						link = n.iterator();
+						while (link.hasNext()) {
+							id = ((ILink) link.next()).getChild().getId();
+							if (nodeIds.contains(id))
+								intersection.add(id);
+							else nodeIds.remove(id);
+						}
+					}
+					
+					ids.addAll(intersection);
+				}
+			} else {
+				while (i.hasNext()) {
+					type = (Class) i.next();
+					l.addAll(gateway.searchFor(type, terms, start, end, users, 
+							s));
+				}
 			}
 		}
 		if (l != null) {

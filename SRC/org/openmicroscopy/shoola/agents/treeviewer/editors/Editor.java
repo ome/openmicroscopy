@@ -150,8 +150,10 @@ public interface Editor
      * Sets the thumbnail associated to the currently edited Image.
      * 
      * @param thumbnail The thumbnail to set.
+     * @param imageID	The id of the image, to make sure that it matches the
+     * 					edited image.
      */
-    public void setThumbnail(BufferedImage thumbnail);
+    public void setThumbnail(BufferedImage thumbnail, long imageID);
 
     /** Cancels any ongoing data loading. */
     public void cancel();

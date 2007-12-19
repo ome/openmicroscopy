@@ -422,7 +422,7 @@ class RenderingControlProxy
             }
         }
        
-        tmpSolutionForNoiseReduction();
+        //tmpSolutionForNoiseReduction();
         metadata = new ChannelMetadata[m.size()];
         Iterator i = m.iterator();
         ChannelMetadata cm;
@@ -844,8 +844,9 @@ class RenderingControlProxy
     { 
     	try {
     		 servant.resetDefaultsNoSave();
+    		 invalidateCache();
     		 initialize();
-    		 tmpSolutionForNoiseReduction();
+    		 //tmpSolutionForNoiseReduction();
 		} catch (Throwable e) {
 			handleException(e, ERROR+"default settings.");
 		}

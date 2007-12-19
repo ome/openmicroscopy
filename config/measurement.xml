@@ -21,5 +21,7 @@
          <style>bold</style>
        </structuredEntry>
      </fonts>
+       <!-- ROI entries. -->
+    <entry name="/roi/mainFileName">roiFileMap.xml</entry>
 </resources>
 </agent>

@@ -76,18 +76,13 @@ public class SearchComponent
 	
 	/** Bound property indicating to select the owner. */
 	public static final String 		OWNER_PROPERTY = "owner";
-	
-	 /** 
-     * The size of the invisible components used to separate buttons
-     * horizontally.
-     */
-    private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
     
     /** The window's title. */
 	private static final String		TITLE = "Search";
 	
 	/** The textual decription of the window. */
-	private static final String 	TEXT = "Add text";
+	private static final String 	TEXT = "To search for several terms, " +
+			"separate each term with a comma.";
 	
 	/** Action command ID indicating to cancel. */
 	private static final int 		CANCEL = 0;
@@ -101,6 +96,12 @@ public class SearchComponent
 	/** Action command ID indicating to search. */
 	static final int 				OWNER = 4;
 	
+	/** 
+	 * The size of the invisible components used to separate buttons
+	 * horizontally.
+	 */
+    static final Dimension  		H_SPACER_SIZE = new Dimension(5, 10);
+    
 	/** The UI with all the search fields. */
 	private SearchPanel 		uiDelegate;
 	
@@ -280,7 +281,7 @@ public class SearchComponent
 		setProperties();
 		initComponents();
 		buildGUI();
-		pack();
+		setSize(450, 500);//pack();
 	}
 
 	/**

@@ -28,7 +28,10 @@ package org.openmicroscopy.shoola.env.init;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.io.File;
+
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.ConfigException;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
@@ -80,6 +83,10 @@ public final class ContainerConfigInit
 		Registry reg = container.getRegistry();
 		try {
 			RegistryFactory.fillFromFile(file, reg);
+            String name = (String) reg.lookup(LookupNames.OMERO_HOME);
+    		String omeroDir = System.getProperty("user.home")
+    							+File.separator+name;
+            reg.bind(LookupNames.USER_HOME_OMERO, omeroDir);
 		} catch (ConfigException ce) {
 			throw new StartupException("Unable to load Container configuration",
 										ce);

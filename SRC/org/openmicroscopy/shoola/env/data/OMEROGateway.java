@@ -485,17 +485,18 @@ class OMEROGateway
 	{
 		String sql = null;
 		String table;
+		separator = " "+separator+" ";
 		if (ImageAnnotation.class.equals(type)) {
 			sql = "select obj from ImageAnnotation as obj " +
 					"left outer join fetch obj.details.creationEvent as d " +
-					"where ";
+					"where (";
 			for (int j = 0; j < names.length; j++) {
 				if (j != 0) sql += separator;
 				sql += "lower(obj.content) like :"+names[j];
 			}
 		} else if (DatasetAnnotation.class.equals(type)) {
 			sql = "select obj from DatasetAnnotation as obj " +
-			"left outer join fetch obj.details.creationEvent as d where ";
+			"left outer join fetch obj.details.creationEvent as d where (";
 			for (int j = 0; j < names.length; j++) {
 				if (j != 0) sql += separator;
 				sql += "lower(obj.content) like :"+names[j];
@@ -504,36 +505,34 @@ class OMEROGateway
 			table = getTableForLink(Category.class);
 			sql = "select obj from "+table+" as obj " +
 					"left outer join fetch obj.details.creationEvent " +
-					"as d where ";
+					"as d where (";
 			//"lower(link.parent.name) like :name or " +
             // "lower(link.parent.description) like :name";
 			for (int j = 0; j < names.length; j++) {
 				if (j != 0) sql += separator;
-				sql += "lower(obj.parent.name) like :"+names[j];
+				sql += "lower(obj.parent.name)  =:"+names[j];
 			}
 		} else if (ImageData.class.equals(type)) {
 			sql =  "select obj from Image as obj left outer join fetch " +
-					"obj.details.creationEvent as d where ";
-        	//+ "where lower(obj.name) like :name or " +
-        	//	"lower(obj.description) like :name";
+					"obj.details.creationEvent as d where (";
 			for (int j = 0; j < names.length; j++) {
 				if (j != 0) sql += separator;
-				sql += "lower(obj.name) like :"+names[j];
-				sql += " or lower(obj.description) like :"+names[j];
+				sql += "(lower(obj.name) like :"+names[j];
+				sql += " or lower(obj.description) like :"+names[j]+")";
 			}
 		} else if (CategoryGroupData.class.equals(type)) {
 			table = getTableForLink(CategoryGroup.class);
 			sql = "select obj from "+table+" as obj left outer join fetch " +
 					"obj.details.creationEvent " +
-					"as d where ";
+					"as d where (";
 					//"where lower(link.parent.name) like :name or " +
 					//"lower(link.parent.description) like :name";
 			for (int j = 0; j < names.length; j++) {
 				if (j != 0) sql += separator;
-				sql += "lower(obj.parent.name) like :"+names[j];
+				sql += "lower(obj.parent.name) =:"+names[j];
 			}
 		}
-		//sql += ")";
+		sql += ")";
 		return sql;
 	}
 	
@@ -1679,28 +1678,7 @@ class OMEROGateway
 			Class klass = convertPojos(rootNodeType);
 			if (klass.equals(Image.class) || klass.equals(Dataset.class) ||
 					klass.equals(Category.class))
-				service.resetDefaultsInSet(klass, nodes);
-			/*
-			if (klass.equals(Image.class)) {
-			} else if (klass.equals(Dataset.class)) {
-				Map m;
-				List l;
-				Iterator k;
-				while (i.hasNext()) {
-					id = (Long) i.next();
-					service.resetDefaultsInDataset(id);
-
-				}
-			} else if (klass.equals(Dataset.class)) {
-				Map m;
-				List l;
-				Iterator k;
-				while (i.hasNext()) {
-					id = (Long) i.next();
-					service.resetDefaultsInCategory(id);
-				}
-			}
-			*/
+				success = service.resetDefaultsInSet(klass, nodes);
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
 		}
@@ -1916,13 +1894,11 @@ class OMEROGateway
 			term = (String)  i.next();
 			if (term != null) {
 				names[index] = "name"+index;
-				/*
-				if (CategoryData.class.equals(type) ||
-						CategoryGroupData.class.equals(type)) {
+				if (CategoryData.class.equals(type) || 
+						CategoryGroupData.class.equals(type)) 
 					param.addString(names[index], term.toLowerCase());
-				} else
-				*/
-				param.addString(names[index], "%"+term.toLowerCase()+"%");
+				else
+					param.addString(names[index], "%"+term.toLowerCase()+"%");
 				index++;
 			}
 		}
@@ -1947,6 +1923,90 @@ class OMEROGateway
 			Set groups = user.getGroups();
 			Set<Long> groupIDs = new HashSet<Long>(groups.size());
 			i = groups.iterator();
+			while (i.hasNext()) {
+				groupIDs.add(((DataObject) i.next()).getId());
+				
+			}
+			param.addSet("groupIDs", groupIDs);
+			sql += " and obj.details.owner.id != :userID";
+			String table;
+			if (sql == null) return null;
+			if (CategoryGroupData.class.equals(type)) {
+				List l = service.findAllByQuery(sql, param);
+				if (l != null && l.size() > 0) {
+					i = l.iterator();
+					Set<Long> ids = new HashSet<Long>();
+					while (i.hasNext()) {
+						ids.add(((ILink) i.next()).getChild().getId());
+					}
+					table = getTableForLink(Category.class);
+					sql = "select link from "+table+" as link where " +
+					"link.parent.id in (:parentIDs)";
+					param = new Parameters();
+					param.addSet("parentIDs", ids);
+					return service.findAllByQuery(sql, param);
+				}
+			}
+			return service.findAllByQuery(sql, param);
+			
+		} catch (Exception e) {
+			handleException(e, "Search not valid");
+		}
+		return new ArrayList();
+	}
+	
+	/**
+	 * Searches for the categories whose name contains the passed term.
+	 * Returns a collection of objects.
+	 * 
+	 * @param type 	The class identify the object to search for.
+	 * @param term	The term to search for.
+	 * @param start	The start value of a time interval.
+	 * @param end	The end value of a time interval.
+	 * @param user 	The user to exclude from the search.
+	 * @param separator
+	 * @return See above.
+	 *  @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List searchFor(Class type, String term, Timestamp start, 
+					Timestamp end, ExperimenterData user, String separator)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		IQuery service = getQueryService();
+		Parameters param = new Parameters();
+		
+		String[] names = new String[1];
+		int index = 0;
+		names[index] = "name"+index;
+		if (CategoryData.class.equals(type) || 
+				CategoryGroupData.class.equals(type)) 
+			param.addString(names[index], term.toLowerCase());
+		else
+			param.addString(names[index], "%"+term.toLowerCase()+"%");
+		try {
+			String sql = createSearchQuery(type, names, separator);
+			if (start != null && end != null) {
+				sql += " and d.time > :startTime and d.time < :endTime";
+				param.add(new QueryParameter("startTime", Timestamp.class, 
+						start));
+				param.add(new QueryParameter("endTime", Timestamp.class, end));
+			} else if (start == null && end != null) {
+				sql += " and (d.time < :endTime)";
+				param.add(new QueryParameter("endTime", Timestamp.class, end));
+			} else if (start != null && end == null) {
+				sql += " and d.time > :startTime";
+				param.add(new QueryParameter("startTime", Timestamp.class, 
+						start));
+			}
+			
+			//No users so retrieve the data of all members of a group.
+			param.addLong("userID", user.getId());
+			Set groups = user.getGroups();
+			Set<Long> groupIDs = new HashSet<Long>(groups.size());
+			Iterator i = groups.iterator();
 			while (i.hasNext()) {
 				groupIDs.add(((DataObject) i.next()).getId());
 				
@@ -2010,13 +2070,12 @@ class OMEROGateway
 			term = (String)  i.next();
 			if (term != null) {
 				names[index] = "name"+index;
-				/*
-				if (CategoryData.class.equals(type)) {
-					param.addString(names[index], term.toLowerCase()
-							);
-				} else
-				*/
-				param.addString(names[index], "%"+term.toLowerCase()+"%");
+				
+				if (CategoryData.class.equals(type) || 
+					CategoryGroupData.class.equals(type)) 
+					param.addString(names[index], term.toLowerCase());
+				else
+					param.addString(names[index], "%"+term.toLowerCase()+"%");
 				index++;
 			}
 		}
@@ -2037,6 +2096,135 @@ class OMEROGateway
 						start));
 			}
 			Set<Long> ids = null;
+			if (users != null && users.size() > 0) {
+				//retrieve users
+				/*
+				Parameters p = new Parameters();
+				i = users.iterator();
+				String query = "select e from Experimenter e where ";
+				index = 0;
+				ExperimenterData exp;
+				String firstName, lastName;
+				boolean added = false;
+				while (i.hasNext()) {
+					exp = (ExperimenterData) i.next();
+					firstName = exp.getFirstName();
+					lastName = exp.getLastName();
+					if (index != 0) query += " or ";
+					if (firstName != null && firstName.length() != 0) {
+						added = true;
+						p.addString("userFirstName"+index, 
+								firstName.toLowerCase());
+						query +=  "lower(e.firstName) = :userFirstName"+index;
+					}
+					if (lastName != null && lastName.length() != 0) {
+						p.addString("userLastName"+index, 
+								lastName.toLowerCase());
+						if (added) query += " and ";
+						query +=  "lower(e.lastName) = :userLastName"+index;
+					}	
+					added = false;
+					index++;
+				}
+				List r = service.findAllByQuery(query, p);
+				if (r != null) {
+					ids = new HashSet<Long>();
+					i = r.iterator();
+					long id;
+					while (i.hasNext()) {
+						id = ((IObject) i.next()).getId();
+						System.err.println("id: "+id);
+						ids.add(id);
+					}
+				}
+				*/
+				i = users.iterator();
+				ids = new HashSet<Long>(users.size());
+				while (i.hasNext()) 
+					ids.add(((ExperimenterData) i.next()).getId());
+				
+				param.addSet("userids", ids);
+				sql += " and obj.details.owner.id in (:userids)";
+			}
+			Project p = new Project();
+			p.getDetails().getOwner();
+			System.err.println(sql);
+			String table;
+			if (sql == null) return null;
+			if (CategoryGroupData.class.equals(type)) {
+				List l = service.findAllByQuery(sql, param);
+				if (l != null && l.size() > 0) {
+					i = l.iterator();
+					ids = new HashSet<Long>();
+					while (i.hasNext()) {
+						ids.add(((ILink) i.next()).getChild().getId());
+					}
+					table = getTableForLink(Category.class);
+					sql = "select o from "+table+" as o where " +
+					"o.parent.id in (:parentIDs)";
+					param = new Parameters();
+					param.addSet("parentIDs", ids);
+					return service.findAllByQuery(sql, param);
+				}
+			}
+			//param.add
+			return service.findAllByQuery(sql, param);
+			
+		} catch (Exception e) {
+			handleException(e, "Search not valid");
+		}
+		return new ArrayList();
+	}
+	
+	/**
+	 * Searches for the categories whose name contains the passed term.
+	 * Returns a collection of objects.
+	 * 
+	 * @param type 	The class identify the object to search for.
+	 * @param term	The term to search for.
+	 * @param start	The lower bound of the time interval.
+	 * @param end	The upper bound of the time interval.
+	 * @param users	The collection of potential users.
+	 * @param separator
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List searchFor(Class type, String term, Timestamp start, 
+					Timestamp end, List<ExperimenterData> users, 
+					String separator)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		IQuery service = getQueryService();
+		Parameters param = new Parameters();
+		
+		String[] names = new String[1];
+		names[0] = "name"+0;
+		if (type.equals(CategoryData.class) || 
+				type.equals(CategoryGroupData.class))
+			param.addString(names[0], term.toLowerCase());
+		else 
+			param.addString(names[0], "%"+term.toLowerCase()+"%");
+		try {
+			String sql = createSearchQuery(type, names, separator);
+			if (start != null && end != null) {
+				sql += " and d.time > :startTime and d.time < :endTime";
+				param.add(new QueryParameter("startTime", Timestamp.class, 
+						start));
+				param.add(new QueryParameter("endTime", Timestamp.class, end));
+			} else if (start == null && end != null) {
+				sql += " and d.time < :endTime";
+				param.add(new QueryParameter("endTime", Timestamp.class, end));
+			} else if (start != null && end == null) {
+				sql += " and d.time > :startTime";
+				param.add(new QueryParameter("startTime", Timestamp.class, 
+						start));
+			}
+			Set<Long> ids = null;
+			Iterator i;
+			int index;
 			if (users != null && users.size() > 0) {
 				//retrieve users
 				Parameters p = new Parameters();
@@ -2107,7 +2295,5 @@ class OMEROGateway
 		}
 		return new ArrayList();
 	}
-	
-	
 	
 }
