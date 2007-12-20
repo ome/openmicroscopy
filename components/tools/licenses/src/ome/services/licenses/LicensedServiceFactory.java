@@ -45,11 +45,6 @@ public class LicensedServiceFactory extends ome.system.ServiceFactory {
         this.ctx = OmeroContext.getContext(p,getDefaultContext());
     }
 
-    @Override
-    protected String getDefaultContext() {
-        return "ome.licensed_client";
-    }
-
     // ~ Accessors
     // =========================================================================
 
