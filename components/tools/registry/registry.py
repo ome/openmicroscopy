@@ -1,5 +1,4 @@
-#!/usr/bin/env twistd -y
-#
+#!/usr/bin/env python
 #
 # OMERO Registry
 # Copyright 2007 Glencoe Software, Inc.  All Rights Reserved.
@@ -43,6 +42,9 @@ class ReportResource(Resource):
         """
         Resource.__init__(self)
         self.db = db.accessdb("sqlite.db")
+
+    def __del__(self):
+        self.db.close()
 
     def render_GET(self, request):
         """

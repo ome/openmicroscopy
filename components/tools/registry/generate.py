@@ -4,6 +4,7 @@
 # Copyright 2007 Glencoe Software, Inc.  All Rights Reserved.
 #
 
+import os
 import re
 import db
 
@@ -13,11 +14,17 @@ template = """
       map.addOverlay(marker);
       """
 
-def gethits(accessdb):
+def gethits():
+    accessdb = db.accessdb()
     hits = []
-    for hit in accessdb:
-        if hit[0] != "unknown":
-            hits.append("new YGeoPoint(%s, %s)" % (lat, lon))
+    try:
+        for hit in accessdb:
+            if hit[0] != "unknown":
+                hits.append("new YGeoPoint(%s, %s)" % (hit[0], hit[1]))
+    finally:
+        accessdb.close()
+    return hits
+
 
 def yahoo(locations = ["Dundee, Scotland"]):
     # Corey Goldberg, April 2007 (corey@goldb.org)
@@ -28,7 +35,7 @@ def yahoo(locations = ["Dundee, Scotland"]):
     center = 'Dundee, Scotland'  # city or zip
     map_type = 'YAHOO_MAP_HYB'  # YAHOO_MAP_REG, YAHOO_MAP_SAT, YAHOO_MAP_HYB
 
-    fh = open('site/geomap.html', 'w')
+    fh = open('ourmap/site/geomap.html', 'w')
 
     fh.write("""\
 <html>
@@ -67,35 +74,17 @@ def yahoo(locations = ["Dundee, Scotland"]):
     </html>""")
 
 if __name__ == "__main__":
-    for line in mapparse():
+    for line in gethits():
         print line
 else:
 
     yahoo(gethits())
 
-    import os
-    dir = os.path.join(os.path.abspath('.'),"site")
-    html = os.path.join(dir, "ourmap.html")
-    dynamic = open(html,"w")
-    header = open("top.html","r")
-    footer = open("bottom.html","r")
-    try:
-        for line in header:
-            dynamic.write(line)
-        for line in mapparse():
-            dynamic.write(line)
-        for line in footer:
-            dynamic.write(line)
-    except e:
-        header.close()
-        footer.close()
-        dynamic.close()
-        raise e
-
     from twisted.application import internet, service
     from twisted.web import static, server
     from twisted.web.static import File
 
+    dir = os.path.join(os.path.abspath('.'),"ourmap","site")
     root = File(dir)
     application = service.Application('web')
     site = server.Site(root)

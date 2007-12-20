@@ -12,6 +12,9 @@ class accessdb:
     def __init__(self, dbname='sqlite.db'):
         self.conn = sqlite.connect(dbname)
 
+    def close(self):
+        self.conn.close()
+
     def hit(self, ip, version, poll, vmvendor, vmruntime, osname, osarch, osversion, other):
         c = self.conn.cursor()
         c.execute('SELECT id from ip where id = ?',(ip,))
