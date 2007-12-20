@@ -337,10 +337,14 @@ public class Main implements Runnable {
             } catch (InterruptedException e) {
                 // Continue with loop.
             }
-            String line = s.nextLine().toLowerCase();
-            if (line.startsWith("q")) {
-                s.close();
-                shutdown();
+            try {
+                String line = s.nextLine().toLowerCase();
+                if (line.startsWith("q")) {
+                    s.close();
+                    shutdown();
+                }
+            } catch (java.util.NoSuchElementException nsee) {
+                // ok. This means that there's no stdin.
             }
         }
     }
