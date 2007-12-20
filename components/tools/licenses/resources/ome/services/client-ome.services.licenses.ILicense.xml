@@ -19,7 +19,7 @@
 
 <beans>	
   <bean id="managed:ome.services.licenses.ILicense" parent="statelessJndi">
-    <property name="jndiName" value="omero/${ejb3.transport}/ome.services.licenses.ILicense"/>
+    <property name="jndiName" value="omero/${server.transport}/ome.services.licenses.ILicense"/>
     <property name="proxyInterface" value="ome.services.licenses.ILicense"/>
   </bean>
 </beans>

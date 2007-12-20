@@ -40,7 +40,7 @@
     <constructor-arg>
     	<list>
         <value>ome/client/spring.xml</value>
-        <value>ome/services/client-*.xml</value>
+        <value>classpath*:ome/services/client-*.xml</value>
       </list>
     </constructor-arg>      
     <constructor-arg index="1" value="false"/>
