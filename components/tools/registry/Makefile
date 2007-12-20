@@ -1,5 +1,7 @@
 
-#export PYTHONPATH ?= "$(HOME)/root/lib/python2.4/site-packages"
+export PYTHONPATH ?= "$(HOME)/root/lib/python2.4/site-packages"
+export LD_LIBRARY_PATH ?= "$(HOME)/root/lib/"
+export DYLD_LIBRARY_PATH ?= "$(HOME)/root/lib/"
 
 restart: stop start
 

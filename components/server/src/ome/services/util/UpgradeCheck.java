@@ -10,8 +10,10 @@ package ome.services.util;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 
 import org.apache.commons.logging.Log;
@@ -63,12 +65,38 @@ public class UpgradeCheck {
             return; // EARLY EXIT!
         }
 
-        String query = url + "?version=" + version + ";poll=" + poll;
+        StringBuilder query = new StringBuilder();
+        try {
+            query.append(url);
+            query.append("?version=");
+            query.append(URLEncoder.encode(version, "UTF-8"));
+            query.append(";poll=");
+            query.append(poll);
+            query.append(";os.name=");
+            query.append(URLEncoder.encode(System.getProperty("os.name"),
+                    "UTF-8"));
+            query.append(";os.arch=");
+            query.append(URLEncoder.encode(System.getProperty("os.arch"),
+                    "UTF-8"));
+            query.append(";os.version=");
+            query.append(URLEncoder.encode(System.getProperty("os.version"),
+                    "UTF-8"));
+            query.append(";java.runtime.version=");
+            query.append(URLEncoder.encode(System
+                    .getProperty("java.runtime.version"), "UTF-8"));
+            query.append(";java.vm.vendor=");
+            query.append(URLEncoder.encode(
+                    System.getProperty("java.vm.vendor"), "UTF-8"));
+        } catch (UnsupportedEncodingException uee) {
+            // Internal issue
+            return;
+        }
+
         URL _url;
         try {
-            _url = new URL(query);
+            _url = new URL(query.toString());
         } catch (Exception e) {
-            log.error("Invalid URL: " + query);
+            log.error("Invalid URL: " + query.toString());
             return;
         }
 

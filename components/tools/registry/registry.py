@@ -1,5 +1,9 @@
 #!/usr/bin/env twistd -y
 #
+#
+# OMERO Registry
+# Copyright 2007 Glencoe Software, Inc.  All Rights Reserved.
+#
 # NOTES:
 # 9090/test seems not to work. check with and without slash
 # should do all comparisons by stripping slashes
@@ -18,21 +22,10 @@ from twisted.web.resource import Resource
 from twisted.web.util import redirectTo
 
 import logging, types, re
+import db
 
 VALID = re.compile("^[\-\w.]+$")
 INVALID = re.compile("\s")
-
-#
-# Configure logging for the access items into
-# a file separate from the stdout/stderr logging
-# done by twistd
-#
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                    datefmt='%m-%d %H:%M',
-                    filename='access.log',
-                    filemode='a')
-access = logging.getLogger('OMERO.registry.access')
 
 # Timestamp to twistd.log to correlate with the access.log
 print "Starting OMERO.registry"
@@ -49,6 +42,7 @@ class ReportResource(Resource):
         Currently unused initialization.
         """
         Resource.__init__(self)
+        self.db = db.accessdb("sqlite.db")
 
     def render_GET(self, request):
         """
@@ -72,6 +66,7 @@ class ReportResource(Resource):
         #
 
         args = dict(request.args)
+        print args
         for key in args.keys():
             value = args[key]
             if isinstance(value, types.ListType):
@@ -86,6 +81,16 @@ class ReportResource(Resource):
             except ValueError:
                 args['poll'] = 'unknown'
 
+        if not args.has_key('java.vm.vendor'):
+            args['java.vm.vendor'] = 'unknown'
+        if not args.has_key('java.runtime.version'):
+            args['java.runtime.version'] = 'unknown'
+        if not args.has_key('os.name'):
+            args['os.name'] = 'unknown'
+        if not args.has_key('os.arch'):
+            args['os.arch'] = 'unknown'
+        if not args.has_key('os.version'):
+            args['os.version'] = 'unknown'
         #
         # Output
         #
@@ -102,8 +107,14 @@ class ReportResource(Resource):
         if not userAgent.startswith(config['agentprefix']):
             return self.redirect(args, request)
 
-        # Otherwise, return either an upgrade comment or blank
-        access.info("Check: %(ip)s %(poll)s %(version)s" % args)
+        # Otherwise, record successful hit
+        # def hit(self, ip, version, poll, vmvendor, vmruntime, osname, osarch, osversion, other):
+        self.db.hit(args["ip"], args["version"], args["poll"],\
+                args["java.vm.vendor"],args["java.runtime.version"],\
+                args["os.name"],args["os.arch"],args["os.version"],\
+                "")
+
+        # And, return either an upgrade comment or blank
         if args['version'] != config['version']:
                 output = config["upgrade"]
         else:
@@ -112,7 +123,7 @@ class ReportResource(Resource):
 
 
     def redirect(self, args, request):
-        access.info("Redirect: %(ip)s" % args)
+        print "Redirect: %(ip)s" % args
         return redirectTo(config['redirect'], request)
 
 

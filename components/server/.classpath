@@ -65,7 +65,6 @@
 	<classpathentry kind="lib" path="target/libs/jboss-j2ee.jar"/>
 	<classpathentry kind="lib" path="target/libs/jboss-jaxrpc.jar"/>
 	<classpathentry kind="lib" path="target/libs/ome-java.jar"/>
-	<classpathentry kind="lib" path="target/libs/client.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring-ldap.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
