@@ -10,7 +10,7 @@ import os, sys
 if len(sys.argv) > 1:
     dbname = sys.argv[1]
 else:
-    dbname = "access.db"
+    dbname = "sqlite.db"
 
 conn = sqlite.connect(dbname)
 try:
@@ -26,6 +26,7 @@ try:
         osname text not null,
         osarch text not null,
         osversion text not null,
+	headers text not null,
         other text not null)""")
     conn.commit()
 finally:

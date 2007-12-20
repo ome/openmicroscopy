@@ -1,6 +1,6 @@
 
 export PYTHONPATH ?= "$(HOME)/root/lib/python2.4/site-packages"
-export LD_LIBRARY_PATH ?= "$(HOME)/root/lib/"
+export LD_LIBRARY_PATH ?= "$(HOME)/root/lib/:$(HOME)/root/lib64/"
 export DYLD_LIBRARY_PATH ?= "$(HOME)/root/lib/"
 
 restart: regrestart webrestart
@@ -12,7 +12,7 @@ stop: regstop webstop
 regrestart: regstop regstart
 
 regstart:
-	twistd -l log.reg --pidfile=pid.reg -y registry.py
+	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) twistd -l log.reg --pidfile=pid.reg -y registry.py
 
 regstop:
 	ls pid.reg && cat pid.reg | xargs kill || echo "No pid.reg"

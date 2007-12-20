@@ -75,6 +75,10 @@ class ReportResource(Resource):
                 args[key] = value[0]
 
         args["ip"] = request.getClientIP()
+        headers = request.getAllHeaders()
+        if headers.has_key("x-forwarded-for"):
+            args["ip"] = headers["x-forwarded-for"]
+
         if not args.has_key('poll'):
             args['poll'] = 'unknown'
         else:
@@ -114,7 +118,7 @@ class ReportResource(Resource):
         self.db.hit(args["ip"], args["version"], args["poll"],\
                 args["java.vm.vendor"],args["java.runtime.version"],\
                 args["os.name"],args["os.arch"],args["os.version"],\
-                "")
+                str(headers), "")
 
         # And, return either an upgrade comment or blank
         if args['version'] != config['version']:
