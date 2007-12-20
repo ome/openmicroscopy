@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.Color;
 import java.awt.FontMetrics;
-
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
@@ -47,7 +46,7 @@ import javax.swing.table.TableModel;
  * </small>
  * @since OME3.0
  */
-public class IntensityTable
+class IntensityTable
 	extends JTable
 {
 	
@@ -69,16 +68,15 @@ public class IntensityTable
 	{
 		this.setModel(model);
 		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		int columnWidth = 0;
+		columnWidth = 0;
 		FontMetrics metrics = getFontMetrics(getFont());
 		int w;
-		for(int i = 0 ; i < getColumnCount(); i++)
-		{
-			w =  metrics.stringWidth(model.getColumnName(i));
+		for (int i = 0 ; i < getColumnCount(); i++) {
+			w = metrics.stringWidth(model.getColumnName(i));
 			columnWidth = Math.max(w, COLUMNWIDTH);
 		}
 		
-		w  =  metrics.stringWidth(model.getColumnName(0));
+		w = metrics.stringWidth(model.getColumnName(0));
 		TableColumn col;
 		int width;
 		for (int i = 0 ; i < getColumnCount(); i++)
@@ -98,7 +96,7 @@ public class IntensityTable
 	}
 	
 	/** 
-	 * Returns the width of the column, used in the ROIAssistant.
+	 * Returns the width of the column.
 	 * 
 	 * @return See above. 
 	 */

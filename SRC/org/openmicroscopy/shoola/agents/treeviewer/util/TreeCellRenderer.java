@@ -29,9 +29,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
-import java.util.Iterator;
-import java.util.Map;
-
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -77,10 +74,11 @@ public class TreeCellRenderer
      * Sets the icon and the text corresponding to the user's object.
      * If an icon is passed, the passed icon is set
      * 
-     * @param usrObject The user's object.
+     * @param node The node to handle.
      */
-    private void setIcon(Object usrObject)
+    private void setIcon(TreeImageDisplay node)
     {
+    	Object usrObject = node.getUserObject();
         Icon icon = icons.getIcon(IconManager.OWNER);
         if (usrObject instanceof ProjectData)
             icon = icons.getIcon(IconManager.PROJECT);
@@ -92,10 +90,9 @@ public class TreeCellRenderer
         } else if (usrObject instanceof ImageData) {
             ImageData img = (ImageData) usrObject;
             Long a = img.getAnnotationCount();
-            Long c = img.getClassificationCount();
             long n = 0, m = 0;
             if (a != null) n = a.longValue();
-            if (c != null) m = c.longValue();
+            if (node.hasTags()) m++;
             if (n == 0 && m == 0) icon = icons.getIcon(IconManager.IMAGE);
             else if (n == 0 && m != 0)
                 icon = icons.getIcon(IconManager.CLASSIFIED_IMAGE);
@@ -174,7 +171,7 @@ public class TreeCellRenderer
         //if (node instanceof TreeImageTimeSet)
         //	setIcon(icons.getIcon(IconManager.DATE));
         //else 
-        	setIcon(node.getUserObject());
+        setIcon(node);
         Color c = node.getHighLight();
         if (c == null) c = tree.getForeground();
         setForeground(c);

@@ -510,7 +510,7 @@ class OMEROGateway
             // "lower(link.parent.description) like :name";
 			for (int j = 0; j < names.length; j++) {
 				if (j != 0) sql += separator;
-				sql += "lower(obj.parent.name)  =:"+names[j];
+				sql += "lower(obj.parent.name)  = :"+names[j];
 			}
 		} else if (ImageData.class.equals(type)) {
 			sql =  "select obj from Image as obj left outer join fetch " +
@@ -529,7 +529,7 @@ class OMEROGateway
 					//"lower(link.parent.description) like :name";
 			for (int j = 0; j < names.length; j++) {
 				if (j != 0) sql += separator;
-				sql += "lower(obj.parent.name) =:"+names[j];
+				sql += "lower(obj.parent.name) = :"+names[j];
 			}
 		}
 		sql += ")";
@@ -820,8 +820,8 @@ class OMEROGateway
 	{
 		try {
 			IPojos service = getPojosService();
-			return PojoMapper.asDataObjects(
-				 service.getImages(convertPojos(nodeType), nodeIDs, options));
+			return PojoMapper.asDataObjects(service.getImages(
+					convertPojos(nodeType), nodeIDs, options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot find images for "+nodeType+".");
 		}
@@ -1894,10 +1894,12 @@ class OMEROGateway
 			term = (String)  i.next();
 			if (term != null) {
 				names[index] = "name"+index;
+				
 				if (CategoryData.class.equals(type) || 
 						CategoryGroupData.class.equals(type)) 
 					param.addString(names[index], term.toLowerCase());
 				else
+				
 					param.addString(names[index], "%"+term.toLowerCase()+"%");
 				index++;
 			}
@@ -1923,10 +1925,9 @@ class OMEROGateway
 			Set groups = user.getGroups();
 			Set<Long> groupIDs = new HashSet<Long>(groups.size());
 			i = groups.iterator();
-			while (i.hasNext()) {
+			while (i.hasNext()) 
 				groupIDs.add(((DataObject) i.next()).getId());
-				
-			}
+			
 			param.addSet("groupIDs", groupIDs);
 			sql += " and obj.details.owner.id != :userID";
 			String table;
@@ -1981,6 +1982,7 @@ class OMEROGateway
 		String[] names = new String[1];
 		int index = 0;
 		names[index] = "name"+index;
+		
 		if (CategoryData.class.equals(type) || 
 				CategoryGroupData.class.equals(type)) 
 			param.addString(names[index], term.toLowerCase());
@@ -2009,8 +2011,8 @@ class OMEROGateway
 			Iterator i = groups.iterator();
 			while (i.hasNext()) {
 				groupIDs.add(((DataObject) i.next()).getId());
-				
 			}
+			
 			param.addSet("groupIDs", groupIDs);
 			sql += " and obj.details.owner.id != :userID";
 			String table;
@@ -2097,47 +2099,6 @@ class OMEROGateway
 			}
 			Set<Long> ids = null;
 			if (users != null && users.size() > 0) {
-				//retrieve users
-				/*
-				Parameters p = new Parameters();
-				i = users.iterator();
-				String query = "select e from Experimenter e where ";
-				index = 0;
-				ExperimenterData exp;
-				String firstName, lastName;
-				boolean added = false;
-				while (i.hasNext()) {
-					exp = (ExperimenterData) i.next();
-					firstName = exp.getFirstName();
-					lastName = exp.getLastName();
-					if (index != 0) query += " or ";
-					if (firstName != null && firstName.length() != 0) {
-						added = true;
-						p.addString("userFirstName"+index, 
-								firstName.toLowerCase());
-						query +=  "lower(e.firstName) = :userFirstName"+index;
-					}
-					if (lastName != null && lastName.length() != 0) {
-						p.addString("userLastName"+index, 
-								lastName.toLowerCase());
-						if (added) query += " and ";
-						query +=  "lower(e.lastName) = :userLastName"+index;
-					}	
-					added = false;
-					index++;
-				}
-				List r = service.findAllByQuery(query, p);
-				if (r != null) {
-					ids = new HashSet<Long>();
-					i = r.iterator();
-					long id;
-					while (i.hasNext()) {
-						id = ((IObject) i.next()).getId();
-						System.err.println("id: "+id);
-						ids.add(id);
-					}
-				}
-				*/
 				i = users.iterator();
 				ids = new HashSet<Long>(users.size());
 				while (i.hasNext()) 
@@ -2148,7 +2109,6 @@ class OMEROGateway
 			}
 			Project p = new Project();
 			p.getDetails().getOwner();
-			System.err.println(sql);
 			String table;
 			if (sql == null) return null;
 			if (CategoryGroupData.class.equals(type)) {
@@ -2175,7 +2135,7 @@ class OMEROGateway
 		}
 		return new ArrayList();
 	}
-	
+
 	/**
 	 * Searches for the categories whose name contains the passed term.
 	 * Returns a collection of objects.
@@ -2224,46 +2184,14 @@ class OMEROGateway
 			}
 			Set<Long> ids = null;
 			Iterator i;
-			int index;
 			if (users != null && users.size() > 0) {
-				//retrieve users
-				Parameters p = new Parameters();
 				i = users.iterator();
-				String query = "select e from Experimenter e where ";
-				index = 0;
-				ExperimenterData exp;
-				String firstName, lastName;
-				boolean added = false;
-				while (i.hasNext()) {
-					exp = (ExperimenterData) i.next();
-					firstName = exp.getFirstName();
-					lastName = exp.getLastName();
-					if (index != 0) query += " or ";
-					if (firstName != null && firstName.length() != 0) {
-						added = true;
-						p.addString("userFirstName"+index, 
-								firstName.toLowerCase());
-						query +=  "lower(e.firstName) = :userFirstName"+index;
-					}
-					if (lastName != null && lastName.length() != 0) {
-						p.addString("userLastName"+index, 
-								lastName.toLowerCase());
-						if (added) query += " and ";
-						query +=  "lower(e.lastName) = :userLastName"+index;
-					}	
-					added = false;
-					index++;
-				}
-				List r = service.findAllByQuery(query, p);
-				if (r != null) {
-					ids = new HashSet<Long>();
-					i = r.iterator();
-					long id;
-					while (i.hasNext()) {
-						id = ((IObject) i.next()).getId();
-						ids.add(id);
-					}
-				}
+				ids = new HashSet<Long>(users.size());
+				while (i.hasNext()) 
+					ids.add(((ExperimenterData) i.next()).getId());
+				
+				param.addSet("userids", ids);
+				sql += " and obj.details.owner.id in (:userids)";
 			}
 			if (ids != null) {
 				param.addSet("userids", ids);

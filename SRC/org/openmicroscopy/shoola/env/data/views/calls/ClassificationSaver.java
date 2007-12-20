@@ -191,48 +191,6 @@ public class ClassificationSaver
 	}
 
 	/**
-	 * Creates a {@link BatchCall} to create categories and to add
-	 * the images to the newly created categories. The image is then 
-	 * added to the collection of category to update.
-	 * 
-	 * @param imageIDs      The images to classify.
-	 * @param categories    The categories to create.
-	 * @param toUpdate    	The categories to update.
-	 * @return The {@link BatchCall}.
-	 */
-	private BatchCall createAndUpdate(final Set<Long> imageIDs, 
-			final Set<CategoryData> categories,
-			final Set<CategoryData> toUpdate)
-	{
-		return new BatchCall("Classifying images.") {
-			public void doCall() throws Exception
-			{
-				OmeroDataService os = context.getDataService();
-				Iterator i = categories.iterator();
-				CategoryData cat;
-				Set<CategoryData> newOnes = 
-					new HashSet<CategoryData>(categories.size());
-				while (i.hasNext()) {
-					cat = (CategoryData) 
-					os.createDataObject((CategoryData) i.next(), null);
-					newOnes.add(cat);
-				}
-				toUpdate.addAll(newOnes);
-				//result = os.declassify(images, categories);
-				Set<ImageData> images = new HashSet<ImageData>(imageIDs.size());
-				i = imageIDs.iterator();
-				ImageData img;
-				while (i.hasNext()) {
-					img = new ImageData();
-					img.setId((Long) i.next());
-					images.add(img);
-				}
-				result = os.classify(images, toUpdate); 
-			}
-		};
-	}
-
-	/**
 	 * Adds the {@link #saveCall} to the computation tree.
 	 * @see BatchCallTree#buildTree()
 	 */
@@ -311,7 +269,5 @@ public class ClassificationSaver
 			"from.");
 		saveCall = classifyChildren(ref, categories);
 	}
-
-	
 
 }

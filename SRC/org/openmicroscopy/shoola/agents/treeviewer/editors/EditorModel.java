@@ -760,5 +760,17 @@ class EditorModel
 	{
 		return (hierarchyObject instanceof ImageData);
 	}
+	
+	/** Sets the number of tags linked to the selected node. */
+	void setTagOnNode()
+	{
+		//TODO: Will be better to visit the browser
+		TreeImageDisplay node = 
+			parentModel.getSelectedBrowser().getLastSelectedDisplay();
+		if (tags == null) return;
+		node.setTagNumber( tags.size());
+		parentModel.getSelectedBrowser().getUI().repaint();
+	}
+	
 }
  

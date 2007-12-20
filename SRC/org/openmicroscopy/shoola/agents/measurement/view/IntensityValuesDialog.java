@@ -27,7 +27,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Point;
 import java.util.Vector;
-
 import javax.swing.AbstractListModel;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -62,62 +61,60 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 public class IntensityValuesDialog
 	extends JDialog
 {	
+	
 	/** Table Model. */
-	private IntensityModel				tableModel;
+	private IntensityModel	tableModel;
 	
 	/** Table view. */
-	private IntensityTable 				table;
+	private IntensityTable	table;
 	
 	/** The scroll pane for the intensityDialog. */
-	private JScrollPane intensityTableScrollPane;
+	private JScrollPane 	intensityTableScrollPane;
 	
 	/** The Row header for the intensityTableScrollPane. */
-	private JList intensityTableRowHeader;
+	private JList 			intensityTableRowHeader;
 	
-	/** 
-	 * Create the intial dialog.
-	 * @param model the table model of the first dialog.
-	 */
-	IntensityValuesDialog(IntensityModel model)
-	{
-		this.tableModel = model;
-		table = new IntensityTable(tableModel);
-		buildUI();
-	}
-	
-	/**
-	 * Build the UI of the dialog.
-	 *
-	 */
+	/** Builds and lays out the UI. */
 	private void buildUI()
 	{
-		getContentPane().add(createInfoPanel(), BorderLayout.NORTH);
+		JPanel infoPanel = new TitlePanel("Intensity Values", 
+				"This table shows the Intensity values for the " +
+				"selected channel of the selected ROI.",
+				IconManager.getInstance().getIcon(IconManager.WIZARD));
+		getContentPane().add(infoPanel, BorderLayout.NORTH);
 
-		table.setColumnSelectionAllowed(true);
-		table.setRowSelectionAllowed(true);
-		table.getTableHeader().setReorderingAllowed(false);
-		table.setShowGrid(true);
-		
-		intensityTableScrollPane = new JScrollPane(table);
-		intensityTableScrollPane.setVerticalScrollBar(intensityTableScrollPane.createVerticalScrollBar());
-		intensityTableScrollPane.setHorizontalScrollBar(
-			intensityTableScrollPane.createHorizontalScrollBar());
-		intensityTableRowHeader = new JList(new HeaderListModel(table.getRowCount()));
+		intensityTableRowHeader = new JList(new HeaderListModel(
+				table.getRowCount()));
 		intensityTableRowHeader.setFixedCellHeight(table.getRowHeight());
+		
 		intensityTableRowHeader.setFixedCellWidth(table.getColumnWidth());
 		intensityTableRowHeader.setCellRenderer(new RowHeaderRenderer(table));
+		intensityTableScrollPane = new JScrollPane(table);
 	    intensityTableScrollPane.setRowHeaderView(intensityTableRowHeader);
-	    intensityTableScrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, new JPanel());
+	    intensityTableScrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, 
+	    									new JPanel());
 		getContentPane().add(intensityTableScrollPane, BorderLayout.CENTER);
 		JViewport viewPort = intensityTableScrollPane.getViewport();
   		viewPort.setViewPosition(new Point(1,1)); 
 	}
 	
+	/** 
+	 * Create the intial dialog.
+	 * 
+	 * @param model The table model of the first dialog.
+	 */
+	IntensityValuesDialog(IntensityModel model)
+	{
+		this.tableModel = model;
+		table = new IntensityTable(model);
+		buildUI();
+	}
+
 	/**
 	 * Set the model of the table to a new Model.
 	 * @param model see above.
 	 */
-	public void setModel(IntensityModel model)
+	void setModel(IntensityModel model)
 	{
 		table.setModel(model);
 		Vector<Integer> listData = new Vector<Integer>();
@@ -126,23 +123,6 @@ public class IntensityValuesDialog
 		intensityTableRowHeader.setListData(listData);
 		intensityTableScrollPane.setRowHeaderView(intensityTableRowHeader);
 	}
-	
-
-	/**
-	 * Creates the info panel at the top the the dialog, 
-	 * showing a little text about the Intensity Pane. 
-	 * 
-	 * @return See above.
-	 */
-	private JPanel createInfoPanel()
-	{
-		JPanel infoPanel = new TitlePanel("Intensity Values", 
-				"This table shows the Intensity values for the selected channel" +
-				"of the selected ROI.",
-				IconManager.getInstance().getIcon(IconManager.WIZARD));
-		return infoPanel;
-	}
-	
 
 	/**
 	 * Class to define the row header data, this is the Z section 
@@ -159,10 +139,10 @@ public class IntensityValuesDialog
 		 * Instantiate the header values with a count from n to 1. 
 		 * @param n see above.
 		 */
-		public HeaderListModel(int n)
+		HeaderListModel(int n)
 		{
 			headers = new String[n];
-			for (int i = 0; i<n; i++) 
+			for (int i = 0; i< n; i++) 
 				headers[i] = ""+(n-i);
 		}
     
@@ -170,7 +150,7 @@ public class IntensityValuesDialog
 		 * Get the size of the header. 
 		 * @return see above.
 		 */
-		public int getSize(){ return headers.length; }
+		public int getSize() { return headers.length; }
     
 		/** 
 		 * Get the header object at index.
@@ -191,9 +171,10 @@ public class IntensityValuesDialog
     
 		/** 
 		 * Instantiate row renderer for table.
+		 * 
 		 * @param table see above.
 		 */
-		public RowHeaderRenderer(JTable table)
+		RowHeaderRenderer(JTable table)
 		{
 			if (table != null) 
 			{
@@ -209,10 +190,11 @@ public class IntensityValuesDialog
 		}
     
 		/**
-		 * Return the component for the renderer.
-		 * @param list the list containing the headers render context.
-		 * @param value the value to be rendered.
-		 * @param index the index of the rendered object. 
+		 * Returns the component for the renderer.
+		 * 
+		 * @param list The list containing the headers render context.
+		 * @param value The value to be rendered.
+		 * @param index The index of the rendered object. 
 		 * @param isSelected is the  current header selected.
 		 * @param cellHasFocus has the cell focus.
 		 * @return the render component. 
@@ -223,7 +205,6 @@ public class IntensityValuesDialog
 			setText((value == null) ? "" : value.toString());
 			return this;
 		}
-    
     }
 	
 }

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -146,6 +147,8 @@ class DOTag
     	availableTag.addActionListener(new ActionListener() {
 		
 			public void actionPerformed(ActionEvent e) {
+				availableTag.setCursor(
+						Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				controller.loadAvailableTags();
 			}
 		
@@ -219,12 +222,13 @@ class DOTag
              content.add(layoutCollection(tagSetNodes), "1, 2, l, c");
         }
         content.add(UIUtilities.buildComponentPanel(availableTag), 
-        			"0, 4, l, c");
+        		"0, 4, l, c");
+        
         if (availableTagNodes != null) {
-        	content.add(UIUtilities.setTextFont("Available Tags"), "0, 6, l, " +
-        				"c");
-            content.add(layoutCollection(availableTagNodes), "1, 6, l, c");
-        }
+        	content.add(UIUtilities.setTextFont("Available Tags"), "0, 6, l, c");
+        	content.add(layoutCollection(availableTagNodes), "1, 6, l, c");
+        } 
+        
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(UIUtilities.buildComponentPanel(new JLabel(text)), 
         	BorderLayout.NORTH);

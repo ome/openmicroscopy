@@ -147,6 +147,9 @@ public abstract class TreeImageDisplay
     /** The number of items. */
     protected int					numberItems;
 
+    /** The number of tag attached to the object. */
+    protected int					tagNumber;
+    
     /**
      * Returns the partial name of the image's name
      * 
@@ -204,6 +207,7 @@ public abstract class TreeImageDisplay
         setUserObject(hierarchyObject);
         childrenDisplay = new HashSet<TreeImageDisplay>();
         numberItems = -1;
+        tagNumber = 0;
         partialName = true;
         fontStyle = FONT_PLAIN;
     }
@@ -514,6 +518,13 @@ public abstract class TreeImageDisplay
         return -1;
     }
     
+    /**
+     * Sets the number of tags attached to the object.
+     * 
+     * @param tagNumber The value to set.
+     */
+    public void setTagNumber(int tagNumber) { this.tagNumber = tagNumber; }
+    
     /** 
      * Overridden to return the name of the hierarchy object. 
      * @see Object#toString()
@@ -585,5 +596,13 @@ public abstract class TreeImageDisplay
      * @return See above.
      */
     public abstract TreeImageDisplay copy();
+    
+    /**
+     * Returns <code>true</code> if the object has a tag attached to it,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public abstract boolean hasTags(); 
     
 }

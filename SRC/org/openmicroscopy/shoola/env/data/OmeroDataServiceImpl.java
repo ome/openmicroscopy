@@ -38,8 +38,10 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.ILink;
 import ome.model.IObject;
+import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Category;
+import ome.model.containers.CategoryImageLink;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.meta.Event;
@@ -291,11 +293,13 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		PojoOptions po = new PojoOptions();
-		po.leaves();
-		if (userID != -1) {
-			//po.exp(new Long(userID));
-			//po.countsFor(new Long(userID));
-		}
+		//po.leaves();
+		//PojoOptions po = new PojoOptions();
+		//if (rootNodeIDs == null) po.exp(new Long(userID));
+		//if (withLeaves) po.leaves();
+		//else 
+		
+		//po.countsFor(new Long(userID));
 		
 		return gateway.getContainerImages(nodeType, nodeIDs, po.map());
 	}

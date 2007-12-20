@@ -23,6 +23,8 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
+import pojos.ImageData;
+
 
 //Java imports
 
@@ -68,6 +70,8 @@ public class TreeImageNode
     public TreeImageNode(Object hierarchyObject)
     {
         super(hierarchyObject);
+        Long c = ((ImageData) getUserObject()).getClassificationCount();
+		if (c != null) tagNumber = (int) c.longValue();
     }
     
     /**
@@ -116,5 +120,15 @@ public class TreeImageNode
         copy.setExpanded(this.isExpanded());
         return copy;
     }
+
+	/**
+	 * Returns <code>true</code> if the object has tagged, 
+	 * <code>false</code> otherwise.
+	 * @see TreeImageDisplay#hasTags()
+	 */
+	public boolean hasTags()
+	{
+		return (tagNumber > 0);
+	}
 
 }

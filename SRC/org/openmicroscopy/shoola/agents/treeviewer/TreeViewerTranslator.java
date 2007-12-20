@@ -99,7 +99,7 @@ public class TreeViewerTranslator
             if (time == null) title = DATE_NOT_AVAILABLE;//time = getDefaultTimestamp();
             else title = UIUtilities.formatTime(time); 
             toolTip = UIUtilities.formatToolTipText(title);
-            node.setToolTip(toolTip); 
+            //node.setToolTip(toolTip); 
         }
     }
     

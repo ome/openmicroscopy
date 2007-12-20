@@ -34,6 +34,7 @@ import javax.swing.JRootPane;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
@@ -442,6 +443,7 @@ class EditorComponent
 		if (model.getState() == DISCARDED) return;
 		model.setTags(linkedTags, tagSets);
 		view.showTags();
+		model.setTagOnNode();
 	}
 
 	/**

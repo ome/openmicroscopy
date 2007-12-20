@@ -79,7 +79,7 @@ class SearchPanel
 	private static final Dimension	CALENDAR_SIZE = new Dimension(250, 200);
 	
 	/** The selected date format. */
-	private static final String		DATE_FORMAT = "yy/mm/dd";
+	private static final String		DATE_FORMAT = "MM/dd/yy";
 	
 	/** The tooltip of the calendar button. */
 	private static final String		DATE_TOOLTIP = "Bring up a calendar.";

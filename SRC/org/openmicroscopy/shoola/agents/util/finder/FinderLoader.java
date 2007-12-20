@@ -128,7 +128,7 @@ public abstract class FinderLoader
     {
     	 if (CategoryData.class.equals(type)) return "Tags";
          else if (ImageData.class.equals(type)) return "Images";
-         else if (AnnotationData.class.equals(type)) return "Annotations";
+         else if (ImageAnnotation.class.equals(type)) return "Annotations";
          else if (CategoryGroupData.class.equals(type)) return "Tag sets";
     	 return "";
     }
