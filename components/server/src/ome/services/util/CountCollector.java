@@ -10,6 +10,7 @@ package ome.services.util;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
@@ -88,6 +89,13 @@ public class CountCollector extends ProxySafeFilter {
         Class<? extends IObject> k = o.getClass();
         Long id = o.getId();
 
+        Set<Class<? extends IObject>> keys = lookup.keySet();
+        for (Class<? extends IObject> key : keys) {
+        	if (key.isAssignableFrom(k)) {
+        		k = key;
+        		break;
+        	}
+        }
         Map<Long, Map<String, Long>> id_field_count = lookup.get(k);
         if (id_field_count == null) {
             return;
