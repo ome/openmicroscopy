@@ -6,6 +6,7 @@
 	<classpathentry excluding="**/.svn" kind="src" path="target/generated/src"/>
 	<classpathentry excluding="**/.svn" kind="src" path="target/generated/resources"/>
 	<classpathentry excluding="**/.svn" kind="src" output="target/test-classes" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="target/libs/acegi-security.jar"/>
 	<classpathentry kind="lib" path="target/libs/activemq-core.jar"/>
 	<classpathentry kind="lib" path="target/libs/ant.jar"/>
@@ -34,6 +35,7 @@
 	<classpathentry kind="lib" path="target/libs/emma_ant.jar"/>
 	<classpathentry kind="lib" path="target/libs/emma.jar"/>
 	<classpathentry kind="lib" path="target/libs/findbugs-ant.jar"/>
+	<classpathentry kind="lib" path="target/libs/geronimo-spec-j2ee.jar"/>
 	<classpathentry kind="lib" path="target/libs/geronimo-spec-jta.jar"/>
 	<classpathentry kind="lib" path="target/libs/groovy.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate.jar"/>
@@ -45,13 +47,12 @@
 	<classpathentry kind="lib" path="target/libs/jboss-annotations-ejb3.jar"/>
 	<classpathentry kind="lib" path="target/libs/jboss-ejb3.jar"/>
 	<classpathentry kind="lib" path="target/libs/jboss-ejb3x.jar"/>
-	<classpathentry kind="lib" path="target/libs/jboss-j2ee.jar"/>
+	<classpathentry kind="lib" path="target/libs/jboss-jaxrpc.jar"/>
 	<classpathentry kind="lib" path="target/libs/jbosssx.jar"/>
 	<classpathentry kind="lib" path="target/libs/jdtcore.jar"/>
 	<classpathentry kind="lib" path="target/libs/jmock.jar"/>
 	<classpathentry kind="lib" path="target/libs/jtidy.jar"/>
 	<classpathentry kind="lib" path="target/libs/junit.jar"/>
-	<classpathentry kind="lib" path="target/libs/ldaptemplate.jar"/>
 	<classpathentry kind="lib" path="target/libs/log4j.jar"/>
 	<classpathentry kind="lib" path="target/libs/lucene.jar"/>
 	<classpathentry kind="lib" path="target/libs/ome-java.jar"/>
@@ -61,7 +62,9 @@
 	<classpathentry kind="lib" path="target/libs/rendering.jar"/>
 	<classpathentry kind="lib" path="target/libs/romio.jar"/>
 	<classpathentry kind="lib" path="target/libs/server.jar"/>
-	<classpathentry kind="lib" path="target/libs/spring.jar"/>
+	<classpathentry kind="lib" path="target/libs/spring.jar" sourcepath="/omero.git/lib/repository/spring-sources-2.5.jar"/>
+	<classpathentry kind="lib" path="target/libs/spring-ldap.jar"/>
+	<classpathentry kind="lib" path="target/libs/spring-ldap-tiger.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring-mock.jar"/>
 	<classpathentry kind="lib" path="target/libs/testng.jar"/>
 	<classpathentry kind="lib" path="target/libs/velocity.jar"/>
