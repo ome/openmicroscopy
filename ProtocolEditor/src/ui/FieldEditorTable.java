@@ -42,8 +42,8 @@ public class FieldEditorTable extends FieldEditor {
 		String tableColumns = dataField.getAttribute(DataField.TABLE_COLUMN_NAMES);
 		
 		// attributeMemoEditor has listener to update dataField - and adds change to undo-redo.
-		tableColumnsEditor = new AttributeMemoEditor
-			("Columns: (separate with commas)", DataField.TABLE_COLUMN_NAMES, tableColumns);
+		tableColumnsEditor = new TableColumnsEditor
+			(dataField, "Columns: (separate with commas)", DataField.TABLE_COLUMN_NAMES, tableColumns);
 		//tableColumnsEditor.removeFocusListener();
 		//tableColumnsEditor.getTextArea().addFocusListener(new TableColumnsFocusListener());
 		
@@ -52,79 +52,52 @@ public class FieldEditorTable extends FieldEditor {
 		attributeFieldsPanel.add(tableColumnsEditor);	
 	}
 	
-	public class TableColumnsFocusListener implements FocusListener {
+	public class TableColumnsEditor extends AttributeMemoEditor {
 		
-		public void focusLost(FocusEvent event) {
-			if (textChanged) {
-				JTextComponent source = (JTextComponent)event.getSource();
-				
-				String newColumnNames = source.getText();
-				String[] newCols = newColumnNames.split(",");
-				
-				String oldColumnNames = dataField.getAttribute(DataField.TABLE_COLUMN_NAMES);
-				if (oldColumnNames != null) {
-					String[] oldCols = oldColumnNames.split(",");
-				
-					int deletedCols = oldCols.length - newCols.length;
-				
-					if (deletedCols > 0) {
-						int confirm = JOptionPane.showConfirmDialog(tableColumnsEditor, 
-								"You have removed " + deletedCols + (deletedCols == 1? " column":" columns" ) + " from the table.\n" +
-								"This will delete all the data in " + (deletedCols == 1? "this column":"these columns.") + "\n" +
-								"Are you sure you want to continue?", "Delete Columns?", JOptionPane.OK_CANCEL_OPTION);
-						if (confirm != JOptionPane.OK_OPTION) {
-							// user has canceled update, simple reset textBox
-							source.setText(oldColumnNames);
-							textChanged = false;
-							return;
-						}
-					} 
-				} 
-				// the user didn't get asked, or chose not to cancel, therefore update!
-				dataField.setAttribute(source.getName(), source.getText(), true);
-				
-				textChanged = false;
+		// constructor creates a new panel and adds a name and text area to it.
+		public TableColumnsEditor(DataField dataField, String attribute, String value) {
+			this(dataField, attribute, attribute, value);
+		}
+		public TableColumnsEditor(DataField dataField, String label, String attribute, String value) {
+			super(dataField, label, attribute, value);
+		}
+		
+		// called to update dataField with attribute
+		protected void setDataFieldAttribute(String attributeName, String newColumnNames, boolean notifyUndoRedo) {
+			
+			// if not planning to update TABLE_COLUMN_NAME attribute, just setAttribute (eg Name, Description..)
+			if (!attributeName.equals(DataField.TABLE_COLUMN_NAMES)) {
+				super.setDataFieldAttribute(attributeName, newColumnNames, true);
+				return;
 			}
-		}
-		public void focusGained(FocusEvent event) {}
-	}
-	
-	
-	// overrides this method in the AbstractDataFieldPanel,
-	// so as to ask for confirmation before updating dataField with fewer columns (lose data)!
-	protected void setDataFieldAttribute(String attributeName, String value, boolean notifyUndoRedo) {
-		
-		// if not planning to update TABLE_COLUMN_NAME attribute, just setAttribute (eg Name, Description..)
-		if (!attributeName.equals(DataField.TABLE_COLUMN_NAMES)) {
-			super.setDataFieldAttribute(attributeName, value, true);
-			return;
-		}
-		
-		String newColumnNames = value;
-		String[] newCols = newColumnNames.split(",");
-		
-		String oldColumnNames = dataField.getAttribute(DataField.TABLE_COLUMN_NAMES);
-		if (oldColumnNames != null) {
-			String[] oldCols = oldColumnNames.split(",");
-		
-			int deletedCols = oldCols.length - newCols.length;
-		
-			if (deletedCols > 0) {
-				int confirm = JOptionPane.showConfirmDialog(tableColumnsEditor, 
-						"You have removed " + deletedCols + (deletedCols == 1? " column":" columns" ) + " from the table.\n" +
-						"This will delete all the data in " + (deletedCols == 1? "this column":"these columns.") + "\n" +
-						"Are you sure you want to continue?", "Delete Columns?", JOptionPane.OK_CANCEL_OPTION);
-				if (confirm != JOptionPane.OK_OPTION) {
-					// user has canceled update, simply reset textBox
-					tableColumnsEditor.getTextArea().setText(oldColumnNames);
-					textChanged = false;
-					return;
-				}
+			
+			String[] newCols = newColumnNames.split(",");
+			
+			String oldColumnNames = dataField.getAttribute(DataField.TABLE_COLUMN_NAMES);
+			if (oldColumnNames != null) {
+				String[] oldCols = oldColumnNames.split(",");
+			
+				int deletedCols = oldCols.length - newCols.length;
+			
+				if (deletedCols > 0) {
+					int confirm = JOptionPane.showConfirmDialog(tableColumnsEditor, 
+							"You have removed " + deletedCols + (deletedCols == 1? " column":" columns" ) + " from the table.\n" +
+							"This will delete all the data in " + (deletedCols == 1? "this column":"these columns.") + "\n" +
+							"Are you sure you want to continue?", "Delete Columns?", JOptionPane.OK_CANCEL_OPTION);
+					if (confirm != JOptionPane.OK_OPTION) {
+						// user has canceled update, simple reset textBox
+						attributeTextField.setText(oldColumnNames);
+						textChanged = false;
+						return;
+					}
+				} 
 			} 
-		} 
-		// the user didn't get asked, or chose not to cancel, therefore update!
-		dataField.setAttribute(attributeName, value, true);
-		
+			// the user didn't get asked, or chose not to cancel, therefore update!
+			dataField.setAttribute(attributeName, newColumnNames, notifyUndoRedo);
+			
+			textChanged = false;
+		}
 	}
+	
 
 }

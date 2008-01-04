@@ -99,21 +99,38 @@ public class ProtocolEditor {
 	}
 
 	/**
-	 * 
+	 * Called by constructor. Instantiates a new <code>XMLModel</code> and passes it to a new <code>XMLView</code>
 	 */
 	public void init() {
 		model = new XMLModel();
 		view = new XMLView(model);
 	}
 	
+	/**
+	 * This causes the main content panel of the view to be placed inside a new JFrame (with menus etc).
+	 * If this method is not called, the main content pane can be used inside another UI.
+	 */
 	public void buildFrame() {
 		view.buildFrame();
 	}
 	
+	/**
+	 * Returns the main content panel of this application's UI (ie everything that goes inside the JFrame)
+	 * Allows another application to import the UI from this application.
+	 * 
+	 * @return	a JPanel containing the entire UI for this application.
+	 */
 	public JPanel getMainPanel() {
 		return view.getMainContentPanel();
 	}
 	
+	/**
+	 * Returns a list of <code>Observation</code> objects 
+	 * These are fields that the user chooses, to correspond to observations they intend to make from their results.
+	 * An external application, such as Phenote, will use these to create a results table, for collection of data.
+	 * 
+	 * @return	a list of Observation objects
+	 */
 	public List<Observation> getObservations() {
 		return ObservationCreator.getObservations(model);
 	}

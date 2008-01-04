@@ -44,7 +44,7 @@ public class FieldEditorProtocol extends FieldEditor {
 		inputTypeSelector.setEnabled(false);
 		
 		keywordsFieldEditor = new AttributeEditor
-			("Keywords: ", DataField.KEYWORDS, keywords);
+			(dataField, "Keywords: ", DataField.KEYWORDS, keywords);
 		keywordsFieldEditor.setToolTipText("Add keywords, separated by commas");
 		attributeFieldsPanel.add(keywordsFieldEditor);
 		

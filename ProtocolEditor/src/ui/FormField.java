@@ -32,6 +32,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -39,9 +41,12 @@ import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.JTextComponent;
 
 import tree.DataField;
 import tree.DataFieldObserver;
+import ui.AbstractDataFieldPanel.FocusChangedListener;
+import ui.AbstractDataFieldPanel.TextChangedListener;
 import util.BareBonesBrowserLaunch;
 import util.ImageFactory;
 
@@ -49,7 +54,13 @@ import util.ImageFactory;
 // This FormField superclass merely arranges Name and Description (as a toolTip)
 // Subclasses have eg TextFields etc
 
-public class FormField extends AbstractDataFieldPanel implements DataFieldObserver{
+public class FormField extends JPanel implements DataFieldObserver{
+	
+	DataField dataField;
+	
+	boolean textChanged = false;
+	TextChangedListener textChangedListener = new TextChangedListener();
+	FocusListener focusChangedListener = new FocusChangedListener();
 	
 	// swing components
 	Box horizontalFrameBox;
@@ -394,5 +405,37 @@ public class FormField extends AbstractDataFieldPanel implements DataFieldObserv
 		text = "<html>" + text + "</html>";
 		return text;
 	}
+	
+	
+	public class TextChangedListener implements KeyListener {
+		
+		public void keyTyped(KeyEvent event) {
+			textChanged = true;		// some character was typed, so set this flag
+		}
+		public void keyPressed(KeyEvent event) {}
+		public void keyReleased(KeyEvent event) {}
+	
+	}
+	
+	public class FocusChangedListener implements FocusListener {
+		
+		public void focusLost(FocusEvent event) {
+			if (textChanged) {
+				JTextComponent source = (JTextComponent)event.getSource();
+				
+				setDataFieldAttribute(source.getName(), source.getText(), true);
+				
+				textChanged = false;
+			}
+		}
+		public void focusGained(FocusEvent event) {}
+	}
+	
+
+	// called to update dataField with attribute
+	protected void setDataFieldAttribute(String attributeName, String value, boolean notifyUndoRedo) {
+		dataField.setAttribute(attributeName, value, notifyUndoRedo);
+	}
+	
 
 }

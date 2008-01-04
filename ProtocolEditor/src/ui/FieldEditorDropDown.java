@@ -50,7 +50,7 @@ public class FieldEditorDropDown extends FieldEditor {
 		String[] ddOptions = {" "};
 		
 		optionsFieldEditor = new AttributeMemoEditor
-			("Drop-down options: (separate with commas)", DataField.DROPDOWN_OPTIONS, dropDownOptions);
+			(dataField, "Drop-down options: (separate with commas)", DataField.DROPDOWN_OPTIONS, dropDownOptions);
 		optionsFieldEditor.setToolTipText("Add keywords, separated by commas");
 		optionsFieldEditor.setTextAreaRows(4);
 		attributeFieldsPanel.add(optionsFieldEditor);

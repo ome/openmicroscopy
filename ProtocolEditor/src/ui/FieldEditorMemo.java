@@ -37,7 +37,7 @@ private AttributeMemoEditor defaultFieldEditor;
 		if (defaultValue == null) defaultValue = "";
 		
 		defaultFieldEditor = new AttributeMemoEditor
-			("Default Text: ", DataField.DEFAULT, defaultValue);
+			(dataField, "Default Text: ", DataField.DEFAULT, defaultValue);
 		defaultFieldEditor.setTextAreaRows(3);
 		attributeFieldsPanel.add(defaultFieldEditor);
 	}

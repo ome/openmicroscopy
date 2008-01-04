@@ -54,21 +54,39 @@ import util.XMLMethods;
 import util.XmlTransform;
 import validation.SAXValidator;
 
-// import test.TreeCompare;
-
-// main class. 
-// first class to be instantiated 
-// responsible for opening and saving xml files 
-// and communication between Tree class and xmlView class
+/**
+ * principle class of the application model.
+ * Manages a list of open files, each represented by the <code>Tree</code> class.
+ * Carries out file opening by converting XML documents into DOM Document objects and 
+ * passing these to new <code>Tree</code> objects. 
+ * Also does file saving via opposite route.
+ * 
+ * @author will
+ *
+ */
 
 public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	
+	/**
+	 * These strings are used to add a "version" attribute to the XML documents saved by this application.
+	 * But this scheme has not been strictly adhered to yet (no breaking changes to XML schema yet).
+	 */
 	public static final String VERSION = "version";
 	public static final String XML_VERSION_NUMBER = "1.0";
 			
+	/**
+	 * DOM Document used to pass XML files between methods such as readXMLtoDOM() and openXMLFile()
+	 */
 	private Document document; 
+	
+	/**
+	 * DOM Document used to pass XML files between export/save methods
+	 */
 	private Document outputDocument;
 	
+	/**
+	 * A list of open files, each represented by a <code>Tree</code> class. 
+	 */
 	private ArrayList<Tree> openFiles = new ArrayList<Tree>();
 	private Tree currentTree;			// tree being currently edited and displayed
 	

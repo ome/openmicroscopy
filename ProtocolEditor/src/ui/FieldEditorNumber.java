@@ -44,11 +44,11 @@ public class FieldEditorNumber extends FieldEditor {
 		String defaultValueString = dataField.getAttribute(DataField.DEFAULT);
 		String units = dataField.getAttribute(DataField.UNITS);
 		
-		defaultFieldEditor = new AttributeEditor("Default: ", DataField.DEFAULT, defaultValueString);
+		defaultFieldEditor = new AttributeEditor(dataField, "Default: ", DataField.DEFAULT, defaultValueString);
 		defaultFieldEditor.getTextField().addFocusListener(new NumberCheckerListener());
 		attributeFieldsPanel.add(defaultFieldEditor);
 		
-		unitsFieldEditor = new AttributeEditor("Units: ", DataField.UNITS, units);
+		unitsFieldEditor = new AttributeEditor(dataField, "Units: ", DataField.UNITS, units);
 		attributeFieldsPanel.add(unitsFieldEditor);
 	}
 

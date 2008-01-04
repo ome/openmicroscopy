@@ -45,9 +45,11 @@ import tree.DataField;
 import tree.DataFieldObserver;
 import util.ImageFactory;
 
-public class FieldEditor extends AbstractDataFieldPanel implements DataFieldObserver {
+public class FieldEditor extends JPanel implements DataFieldObserver {
 	
 	public static final Dimension MINIMUM_SIZE = new Dimension(290,300);
+	
+	DataField dataField;
 	
 	JPanel attributeFieldsPanel;
 	JPanel inputTypePanel;
@@ -81,7 +83,7 @@ public class FieldEditor extends AbstractDataFieldPanel implements DataFieldObse
 		attributeFieldsPanel.setLayout(new BoxLayout(attributeFieldsPanel, BoxLayout.Y_AXIS));
 		attributeFieldsPanel.setBorder(new EmptyBorder(5, 5, 5,5));
 		
-		nameFieldEditor = new AttributeMemoFormatEditor("Field Name: ", DataField.ELEMENT_NAME, dataField.getName());
+		nameFieldEditor = new AttributeMemoFormatEditor(dataField, "Field Name: ", DataField.ELEMENT_NAME, dataField.getName());
 		attributeFieldsPanel.add(nameFieldEditor);
 		
 		// Drop-down selector of input-type. 
@@ -104,10 +106,10 @@ public class FieldEditor extends AbstractDataFieldPanel implements DataFieldObse
 		inputTypeSelector.addActionListener(new inputTypeSelectorListener());
 		attributeFieldsPanel.add(inputTypePanel);
 		
-		descriptionFieldEditor = new AttributeMemoFormatEditor("Description: ", DataField.DESCRIPTION, dataField.getDescription());
+		descriptionFieldEditor = new AttributeMemoFormatEditor(dataField, "Description: ", DataField.DESCRIPTION, dataField.getDescription());
 		attributeFieldsPanel.add(descriptionFieldEditor);
 		
-		urlFieldEditor = new AttributeEditor("Url: ", DataField.URL, dataField.getURL());
+		urlFieldEditor = new AttributeEditor(dataField, "Url: ", DataField.URL, dataField.getURL());
 		attributeFieldsPanel.add(urlFieldEditor);
 		
 		/* colour-picker */

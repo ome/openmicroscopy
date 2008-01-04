@@ -40,7 +40,7 @@ public class FieldEditorText extends FieldEditor {
 		String defaultValue = dataField.getAttribute(DataField.DEFAULT);
 		
 		defaultFieldEditor = new AttributeEditor
-			("Default Value: ", DataField.DEFAULT, defaultValue);
+			(dataField, "Default Value: ", DataField.DEFAULT, defaultValue);
 		attributeFieldsPanel.add(defaultFieldEditor);
 	}
 	
