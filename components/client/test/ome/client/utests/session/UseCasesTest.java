@@ -8,10 +8,10 @@ package ome.client.utests.session;
 
 import java.util.ConcurrentModificationException;
 
-import org.testng.annotations.Test;
-
 import ome.model.IObject;
 import ome.model.containers.Project;
+
+import org.testng.annotations.Test;
 
 public class UseCasesTest extends AbstractTest {
 
@@ -180,7 +180,7 @@ public class UseCasesTest extends AbstractTest {
     // ~ Helper methods
     // =========================================================================
     private Project agentGetsAndRegistersProject() {
-        Project p = new Project(new Long(1));
+        Project p = new Project(new Long(1), true);
         p.setVersion(new Integer(0));
         agent.objHolder = p;
         session.register(p);
@@ -188,7 +188,7 @@ public class UseCasesTest extends AbstractTest {
     }
 
     private IObject[] updatedProjectArray() {
-        updated = new Project(new Long(1));
+        updated = new Project(new Long(1), true);
         updated.setVersion(new Integer(1));
         return new IObject[] { updated };
 

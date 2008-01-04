@@ -54,7 +54,7 @@ public class LockingTest extends AbstractManagedContextTest {
 
         ExperimenterGroup g = new ExperimenterGroup();
         g.setName(gname);
-        g1 = new ExperimenterGroup(iAdmin.createGroup(g));
+        g1 = new ExperimenterGroup(iAdmin.createGroup(g), false);
 
         Experimenter e = new Experimenter();
         e.setFirstName("ticket:337");
@@ -92,7 +92,7 @@ public class LockingTest extends AbstractManagedContextTest {
         p.linkDataset(d);
 
         p = iUpdate.saveAndReturnObject(p);
-        d = (Dataset) p.linkedDatasetList().get(0);
+        d = p.linkedDatasetList().get(0);
 
         p = iQuery.find(p.getClass(), p.getId().longValue());
         d = iQuery.find(d.getClass(), d.getId().longValue());
@@ -206,7 +206,7 @@ public class LockingTest extends AbstractManagedContextTest {
         p.linkDataset(d);
 
         Permissions perms = Permissions.READ_ONLY; // relatively common
-                                                    // use-case
+        // use-case
         p.getDetails().setPermissions(perms);
 
         Project t = iUpdate.saveAndReturnObject(p);
@@ -223,7 +223,7 @@ public class LockingTest extends AbstractManagedContextTest {
         i.addPixels(p);
 
         i = iUpdate.saveAndReturnObject(i);
-        p = (Pixels) i.iteratePixels().next();
+        p = i.iteratePixels().next();
 
         assertTrue(p.getDetails().getPermissions().isSet(Flag.LOCKED));
 

@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  */
-@Test(groups = {"jobs","ignore"})
+@Test(groups = { "jobs", "ignore" })
 public class ProcessManagerMockTest extends MockObjectTestCase {
 
     private LocalQuery iQuery;
@@ -93,7 +93,7 @@ public class ProcessManagerMockTest extends MockObjectTestCase {
         // This method should simply give each processor the chance to
         // consume a process
         willGetSubmitted();
-        List<? extends Job> list = Arrays.asList(new ImportJob(1L));
+        List<? extends Job> list = Arrays.asList(new ImportJob(1L, true));
         mockQuery.expects(once()).method("findAllByQuery").will(
                 returnValue(list));
         mockProcessor.expects(once()).method("process").will(
@@ -133,7 +133,7 @@ public class ProcessManagerMockTest extends MockObjectTestCase {
     @Test
     public void testRunningProcess() throws Exception {
 
-        List<? extends Job> list = Arrays.asList(new ImportJob(1L));
+        List<? extends Job> list = Arrays.asList(new ImportJob(1L, true));
         mockQuery.expects(once()).method("findAllByQuery").will(
                 returnValue(list));
         mockProcessor.expects(once()).method("process").will(

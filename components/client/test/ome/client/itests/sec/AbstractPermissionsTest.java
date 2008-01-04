@@ -6,6 +6,12 @@
  */
 package ome.client.itests.sec;
 
+import static ome.model.internal.Permissions.Right.READ;
+import static ome.model.internal.Permissions.Right.WRITE;
+import static ome.model.internal.Permissions.Role.GROUP;
+import static ome.model.internal.Permissions.Role.USER;
+import static ome.model.internal.Permissions.Role.WORLD;
+
 import java.util.UUID;
 
 import ome.model.IObject;
@@ -25,9 +31,6 @@ import ome.model.meta.ExperimenterGroup;
 import ome.system.Login;
 import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
-
-import static ome.model.internal.Permissions.Right.*;
-import static ome.model.internal.Permissions.Role.*;
 
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
@@ -164,9 +167,9 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
 
         // create a third regular user not in that group
         Login worldLogin = new Login(UUID.randomUUID().toString(), "empty" /*
-                                                                             * not
-                                                                             * gname!
-                                                                             */);
+         * not
+         * gname!
+         */);
         w = new ServiceFactory(worldLogin);
         world.setOmeName(worldLogin.getName());
         world.setFirstName("read");
@@ -270,7 +273,6 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
         Details d = img.getDetails();
         d.setGroup(group);
         d.setPermissions(perms);
-        p.setDefaultPixels(Boolean.TRUE);
         img.addPixels(p);
         img = sf.getUpdateService().saveAndReturnObject(img);
     }

@@ -11,7 +11,6 @@ import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
 import ome.system.Login;
 import ome.system.ServiceFactory;
 
@@ -60,13 +59,8 @@ public class AbstractAccountTest extends AbstractSecurityTest {
         e.setOmeName(new GUID().asString());
         e.setFirstName("ticket:181");
         e.setLastName("ticket:181");
-        GroupExperimenterMap map = new GroupExperimenterMap();
-        map.link(userGrp, e);
-        GroupExperimenterMap def = new GroupExperimenterMap();
-        def.link(g, e);
-        def.setDefaultGroupLink(true);
-        e.addGroupExperimenterMap(map, false);
-        e.addGroupExperimenterMap(def, false);
+        e.linkExperimenterGroup(g);
+        e.linkExperimenterGroup(userGrp);
         return iUpdate.saveAndReturnObject(e);
     }
 

@@ -9,7 +9,6 @@ package ome.adapters.pojos.itests;
 
 // Java imports
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -27,8 +26,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.OptimisticLockException;
 import ome.model.ILink;
 import ome.model.IObject;
-import ome.model.annotations.Annotation;
-import ome.model.annotations.StringAnnotation;
+import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
@@ -186,8 +184,8 @@ public class PojosServiceTest extends TestCase {
 
         // Resetting; should get error
         sent2.setVersion(version);
-        StringAnnotation iann = new StringAnnotation();
-        iann.setStringValue(" version handling ");
+        TextAnnotation iann = new TextAnnotation();
+        iann.setTextValue(" version handling ");
         // iann.setImage(sent2);
 
         try {
@@ -376,8 +374,8 @@ public class PojosServiceTest extends TestCase {
     public void test_retrieveCollection() throws Exception {
         Image i = iQuery.get(Image.class, fixture.iu5551.getId());
         i.unload();
-        Set annotations = (Set) iPojos.retrieveCollection(i, Image.ANNOTATIONS,
-                null);
+        Set annotations = (Set) iPojos.retrieveCollection(i,
+                Image.ANNOTATIONLINKS, null);
         assertTrue(annotations.size() > 0);
     }
 
@@ -549,7 +547,7 @@ public class PojosServiceTest extends TestCase {
     public void test_getCollectionCount() throws Exception {
         Long id = fixture.iu5551.getId();
         Map m = iPojos.getCollectionCount(Image.class.getName(),
-                Image.ANNOTATIONS, Collections.singleton(id), null);
+                Image.ANNOTATIONLINKS, Collections.singleton(id), null);
         Integer count = (Integer) m.get(id);
         assertTrue(count.intValue() > 0);
 
@@ -638,31 +636,31 @@ public class PojosServiceTest extends TestCase {
     @Test(groups = { "versions", "broken", "ticket:118" })
     public void test_version_doesnt_increase_on_linked_update()
             throws Exception {
-        StringAnnotation ann = new StringAnnotation();
+        TextAnnotation ann = new TextAnnotation();
         Image img = new Image();
 
         img.setName("version_test");
-        ann.setStringValue("version_test");
-        img.getAnnotations().add(ann);
+        ann.setTextValue("version_test");
+        img.linkAnnotation(ann);
 
         img = iUpdate.saveAndReturnObject(img);
-        ann = (StringAnnotation) img.getAnnotations().iterator().next();
+        ann = (TextAnnotation) img.linkedAnnotationList().get(0);
 
         assertNotNull(img.getId());
         assertNotNull(ann.getId());
 
         int orig_img_version = img.getVersion().intValue();
-        int orig_ann_version = ann.getVersion().intValue();
+        // No longer exists int orig_ann_version = ann.getVersion().intValue();
 
-        ann.setStringValue("updated version_test");
+        ann.setTextValue("updated version_test");
 
         ann = iUpdate.saveAndReturnObject(ann);
         img = iQuery.get(Image.class, img.getId()); // ann.getImage();
 
-        int new_ann_version = ann.getVersion().intValue();
+        // No longer existsint new_ann_version = ann.getVersion().intValue();
         int new_img_version = img.getVersion().intValue();
 
-        assertTrue(orig_ann_version < new_ann_version);
+        assertFalse(ann.getTextValue().contains("updated"));
         assertTrue(orig_img_version == new_img_version);
 
     }
@@ -682,14 +680,14 @@ public class PojosServiceTest extends TestCase {
 
         PojoOptions po = new PojoOptions().leaves();
         counts = getCounts(Dataset.class, fixture.du7770.getId(), po.map());
-        assertTrue(counts == null || null == counts.get(ImageAnnotation.IMAGE));
+        assertTrue(counts == null || null == counts.get(Image.ANNOTATIONLINKS));
         assertTrue(counts == null
-                || null == counts.get(DatasetAnnotation.DATASET));
+                || null == counts.get(Dataset.ANNOTATIONLINKS));
 
         counts = getCounts(Dataset.class, fixture.du7771.getId(), null);
-        assertNull(counts.get(ImageAnnotation.IMAGE));
-        assertTrue(counts.containsKey(DatasetAnnotation.DATASET));
-        assertTrue(((Long) counts.get(DatasetAnnotation.DATASET)).intValue() == 1);
+        assertNull(counts.get(Image.ANNOTATIONLINKS));
+        assertTrue(counts.containsKey(Dataset.ANNOTATIONLINKS));
+        assertTrue(((Long) counts.get(Dataset.ANNOTATIONLINKS)).intValue() == 1);
 
     }
 
@@ -808,12 +806,11 @@ public class PojosServiceTest extends TestCase {
         Dataset annotated = (Dataset) iPojos.updateDataObject(annotatedObject
                 .asIObject(), null);
         // Dataset m = new Dataset( original.getId(), false);
-        DatasetAnnotation annotation = new DatasetAnnotation();
-        annotation.setContent(" two rows content ");
-        annotation.setDataset(annotated);
+        TextAnnotation annotation = new TextAnnotation();
+        annotation.setTextValue(" two rows content ");
 
         // CGLIB
-        DatasetAnnotation object = iPojos.createDataObject(annotation, null);
+        TextAnnotation object = iPojos.createDataObject(annotation, null);
         DataObject returnedToUser = new AnnotationData(object);
 
         // Now working but iPojos is still returning a CGLIB class.
@@ -834,16 +831,18 @@ public class PojosServiceTest extends TestCase {
         original = iPojos.createDataObject(original, null);
 
         assertTrue(original.getDetails().getCounts() == null
-                || original.getDetails().getCounts().get(Dataset.ANNOTATIONS) == null);
+                || original.getDetails().getCounts().get(
+                        Dataset.ANNOTATIONLINKS) == null);
 
         original.setDescription(desc);
 
-        DatasetAnnotation annotation = new DatasetAnnotation();
-        annotation.setContent(text);
-        annotation.setDataset(original);
+        TextAnnotation annotation = new TextAnnotation();
+        annotation.setTextValue(text);
+        original.linkAnnotation(annotation);
 
-        annotation = iPojos.createDataObject(annotation, null);
-        original = annotation.getDataset(); // TODO is this okay?
+        original = iPojos.createDataObject(original, null);
+        annotation = (TextAnnotation) original.linkedAnnotationIterator()
+                .next();
 
         assertUniqueAnnotationCreation(name, text);
 
@@ -853,9 +852,9 @@ public class PojosServiceTest extends TestCase {
 
         assertNotNull(original.getDetails().getCounts());
         assertNotNull(original.getDetails().getCounts().get(
-                DatasetAnnotation.DATASET));
+                Dataset.ANNOTATIONLINKS));
         assertTrue(((Long) original.getDetails().getCounts().get(
-                DatasetAnnotation.DATASET)).intValue() > 0);
+                Dataset.ANNOTATIONLINKS)).intValue() > 0);
 
         if (log.isDebugEnabled()) {
             log.debug(original.getDetails().getCounts());
@@ -935,15 +934,16 @@ public class PojosServiceTest extends TestCase {
         Dataset d = new Dataset();
         d.setName(string);
 
-        DatasetAnnotation a = new DatasetAnnotation();
-        a.setDataset(d);
-        a.setContent(string);
+        TextAnnotation a = new TextAnnotation();
+        a.setTextValue(string);
+        d.linkAnnotation(a);
 
-        a = iPojos.createDataObject(a, null);
+        d = iPojos.createDataObject(d, null);
+        a = (TextAnnotation) d.linkedAnnotationIterator().next();
 
         iPojos.deleteDataObject(a, null);
 
-        Object o = iQuery.find(DatasetAnnotation.class, a.getId().longValue());
+        Object o = iQuery.find(TextAnnotation.class, a.getId().longValue());
         assertNull(o);
 
     }
@@ -990,17 +990,17 @@ public class PojosServiceTest extends TestCase {
         d = iPojos.createDataObject(d, null);
         annotatedObject = new DatasetData(d);
 
-        data = new AnnotationData(StringAnnotation.class);
+        data = new AnnotationData(TextAnnotation.class);
         data.setContent(" update_annotation ");
 
         IObject updated = iPojos.updateDataObject(annotatedObject.asIObject(),
                 null);
 
-        IObject toUpdate = data.asIObject();
-        ((DatasetAnnotation) toUpdate).setDataset((Dataset) updated);
-        IObject result = iPojos.updateDataObject(toUpdate, null); /* boom */
+        ((Dataset) updated).linkAnnotation(data.asAnnotation());
+        IObject result = iPojos.updateDataObject(updated, null);
 
-        DataObject toReturn = new AnnotationData((Annotation) result);
+        fail("NYI - no good way to correlate added annotation with transient one");
+        // DataObject toReturn = new AnnotationData();
 
     }
 
@@ -1225,7 +1225,7 @@ public class PojosServiceTest extends TestCase {
         // Test
         List ds = iQuery.findAllByString(Dataset.class, "name", name, true,
                 null);
-        List as = iQuery.findAllByString(DatasetAnnotation.class, "content",
+        List as = iQuery.findAllByString(TextAnnotation.class, "textValue",
                 text, true, null);
 
         assertTrue(ds.size() == 1);

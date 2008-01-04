@@ -22,8 +22,8 @@ import javax.sql.DataSource;
 
 import ome.api.IPojos;
 import ome.conditions.ApiUsageException;
-import ome.model.annotations.DatasetAnnotation;
-import ome.model.annotations.ImageAnnotation;
+import ome.model.annotations.Annotation;
+import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -59,8 +59,8 @@ public class PojosServiceTest extends AbstractManagedContextTest {
 
     @Test
     public void test_unannotated_Event_version() throws Exception {
-        DatasetAnnotation da = createLinkedDatasetAnnotation();
-        DatasetAnnotation da_test = new DatasetAnnotation(da.getId(), false);
+        Annotation da = createLinkedTextAnnotation();
+        Annotation da_test = new TextAnnotation(da.getId(), false);
         iPojos.deleteDataObject(da_test, null);
 
     }
@@ -93,16 +93,15 @@ public class PojosServiceTest extends AbstractManagedContextTest {
     public void testAnnotationsStillCounted() throws Exception {
         Dataset d = new Dataset();
         d.setName("ticket:657");
-        DatasetAnnotation da = new DatasetAnnotation();
-        da.setContent("ticket:657");
-        d.addDatasetAnnotation(da);
+        TextAnnotation da = new TextAnnotation();
+        da.setTextValue("ticket:657");
+        d.linkAnnotation(da);
         Image i = new Image();
         i.setName("ticket:657");
         i.linkDataset(d);
-        ImageAnnotation ia = new ImageAnnotation();
-        ia.setContent("ticket:657");
-        ia.setImage(i);
-        i.addImageAnnotation(ia);
+        TextAnnotation ia = new TextAnnotation();
+        ia.setTextValue("ticket:657");
+        i.linkAnnotation(ia);
 
         d = iUpdate.saveAndReturnObject(d);
 
@@ -110,13 +109,13 @@ public class PojosServiceTest extends AbstractManagedContextTest {
                 .singleton(d.getId()), null);
 
         i = list.iterator().next();
-        d = (Dataset) i.linkedDatasetList().get(0);
+        d = i.linkedDatasetList().get(0);
 
         assertTrue(d.getDetails().getCounts() != null);
-        assertEquals(d.getDetails().getCounts().get(DatasetAnnotation.DATASET),
+        assertEquals(d.getDetails().getCounts().get(Dataset.ANNOTATIONLINKS),
                 1L);
         assertTrue(i.getDetails().getCounts() != null);
-        assertEquals(i.getDetails().getCounts().get(ImageAnnotation.IMAGE), 1L);
+        assertEquals(i.getDetails().getCounts().get(Image.ANNOTATIONLINKS), 1L);
 
     }
     
@@ -165,29 +164,18 @@ public class PojosServiceTest extends AbstractManagedContextTest {
     		return(time);
     }
     
-    private Project reloadProject(DatasetAnnotation da) {
-        Dataset ds;
-        Project p;
-        ds = da.getDataset();
-        p = (Project) ds.linkedProjectList().get(0);
-
-        Project p_test = iPojos.loadContainerHierarchy(Project.class,
-                Collections.singleton(p.getId()), null).iterator().next();
-        return p_test;
-    }
-
-    private DatasetAnnotation createLinkedDatasetAnnotation() {
-        DatasetAnnotation da = new DatasetAnnotation();
+    private Annotation createLinkedTextAnnotation() {
+        TextAnnotation da = new TextAnnotation();
         Dataset ds = new Dataset();
         Project p = new Project();
 
         p.setName("uEv");
         p.linkDataset(ds);
         ds.setName("uEv");
-        da.setContent("uEv");
-        da.setDataset(ds);
-        da = iPojos.createDataObject(da, null);
-        return da;
+        da.setTextValue("uEv");
+        ds.linkAnnotation(da);
+        ds = iPojos.createDataObject(ds, null);
+        return ds.linkedAnnotationIterator().next();
     }
 
 }

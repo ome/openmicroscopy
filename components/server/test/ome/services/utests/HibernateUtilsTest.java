@@ -44,13 +44,13 @@ public class HibernateUtilsTest extends MockObjectTestCase {
     @Test
     public void testIdEquals() throws Exception {
         assertTrue(HibernateUtils.idEqual(null, null));
-        assertTrue(HibernateUtils.idEqual(new Image(1L), new Image(1L)));
+        assertTrue(HibernateUtils.idEqual(new Image(1L, false), new Image(1L, false)));
         assertFalse(HibernateUtils.idEqual(new Image(), new Image()));
-        assertFalse(HibernateUtils.idEqual(new Image(1L), new Image(null)));
-        assertFalse(HibernateUtils.idEqual(new Image(null), new Image(1L)));
-        assertFalse(HibernateUtils.idEqual(new Image(null), new Image(null)));
-        assertFalse(HibernateUtils.idEqual(new Image(null), null));
-        assertFalse(HibernateUtils.idEqual(null, new Image(null)));
+        assertFalse(HibernateUtils.idEqual(new Image(1L, false), new Image(null, false)));
+        assertFalse(HibernateUtils.idEqual(new Image(null, false), new Image(1L, false)));
+        assertFalse(HibernateUtils.idEqual(new Image(null, false), new Image(null, false)));
+        assertFalse(HibernateUtils.idEqual(new Image(null, false), null));
+        assertFalse(HibernateUtils.idEqual(null, new Image(null, false)));
     }
 
     Mock mockPersister;

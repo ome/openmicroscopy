@@ -75,6 +75,7 @@ import ome.model.*;
 #if(!$type.discriminator)
 @javax.persistence.PrimaryKeyJoinColumn(name="${superId}_id") 
 @javax.persistence.Table(name = "${type.table}")
+@org.hibernate.annotations.ForeignKey(name="FK${type.table}_${superId}_id_${superId}")
 #else
 ## SINGLETABLE SUBCLASS
 @javax.persistence.DiscriminatorValue("${type.discriminator}") 
@@ -99,7 +100,6 @@ import ome.model.*;
     sequenceName="seq_${type.table}" 
 ) 
 #end############################################################
-@org.hibernate.annotations.ForeignKey(name="${type.table}_fk_class")
 @org.hibernate.search.annotations.Indexed(index="FullText")
 @org.hibernate.search.annotations.ClassBridge(
     name="details", 
@@ -328,29 +328,6 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
         this.description = description;
     }
 #end## type.described
-
-#if($type.annotated)
-    
-    public final static String ANNOTATIONS = "${type.id}_annotations";
-    
-    protected java.util.Set<? extends ome.model.annotations.Annotation> annotations
-        = new java.util.HashSet<ome.model.annotations.Annotation>();
-
-    // TODO NOINSERT ON JOIN COLUMN, CASCADE, LINKS LINKS LINKS
-    @javax.persistence.OneToMany(cascade = javax.persistence.CascadeType.ALL, targetEntity=ome.model.annotations.Annotation.class)
-    @javax.persistence.JoinTable(name = "${type.table}_annotation", 
-            joinColumns = @javax.persistence.JoinColumn(name = "${type.table}"), 
-            inverseJoinColumns = @javax.persistence.JoinColumn(name = "annotation_id"))
-    public <A extends ome.model.annotations.Annotation> java.util.Set<A> getAnnotations() {
-        preGetter( ANNOTATIONS );
-        return (java.util.Set<A>) this.annotations;
-    }
-
-    public <A extends ome.model.annotations.Annotation> void setAnnotations(java.util.Set<A> annotations) {
-        preSetter( ANNOTATIONS, annotations );
-        this.annotations = (java.util.Set<A>) annotations;
-    }
-#end##typeannotated
 
    /*
     *    PROPERTIES
@@ -894,8 +871,9 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
     ${prop.typeAnnotation}
 #if($prop.type == "java.lang.String")
     @org.hibernate.search.annotations.Fields({
-        @org.hibernate.search.annotations.Field(),
-        @org.hibernate.search.annotations.Field(name="combined_fields")
+        @org.hibernate.search.annotations.Field(index = org.hibernate.search.annotations.Index.TOKENIZED),
+        @org.hibernate.search.annotations.Field(index = org.hibernate.search.annotations.Index.TOKENIZED, 
+            name="combined_fields")
     })
 #elseif($prop.type == "java.sql.Timestamp")
     @org.hibernate.search.annotations.DateBridge(

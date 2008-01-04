@@ -6,14 +6,10 @@
  */
 package ome.client.itests;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.testng.annotations.*;
-
+import java.util.Collection;
 import java.util.List;
 
 import junit.framework.TestCase;
-
 import ome.api.IPixels;
 import ome.api.IUpdate;
 import ome.model.core.Channel;
@@ -27,13 +23,18 @@ import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
 import omeis.providers.re.RenderingEngine;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
+
 @Test(groups = { "client", "integration", "renderingengine", "broken" }
 // Needs an ImporterFixture
 )
 public class RenderingEngineTest extends TestCase {
 
     private static Log log = LogFactory.getLog(RenderingEngineTest.class);
-    
+
     /*
      * Pixels p = new Pixels(); AcquisitionContext ac = new
      * AcquisitionContext(); PhotometricInterpretation pi = new
@@ -48,7 +49,7 @@ public class RenderingEngineTest extends TestCase {
     RenderingEngine re2;
     IUpdate iUpdate;
 
-    @Configuration( beforeTestMethod = true )
+    @Configuration(beforeTestMethod = true)
     public void setup() {
         sf = new ServiceFactory();
         iUpdate = sf.getUpdateService();
@@ -152,12 +153,11 @@ public class RenderingEngineTest extends TestCase {
         assertNotNull(pd);
         assertNotNull(pd.getSizeX());
 
-        List c = t.getChannels();
+        Collection<Channel> c = t.unmodifiableChannels();
         assertNotNull(c);
         assertTrue(c.size() > 0);
 
-        for (Object object : c) {
-            Channel ch = (Channel) object;
+        for (Channel ch : c) {
             assertNotNull(ch.getLogicalChannel());
         }
     }

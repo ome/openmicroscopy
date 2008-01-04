@@ -10,7 +10,7 @@ package pojos;
 import java.sql.Timestamp;
 
 import ome.model.annotations.Annotation;
-import ome.model.annotations.StringAnnotation;
+import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 
@@ -127,8 +127,8 @@ public class AnnotationData extends DataObject {
     private void setWrapper(Annotation a) {
         if (a == null) {
             wrapper = null;
-        } else if (a instanceof StringAnnotation ) {
-            wrapper = new StringAnn((StringAnnotation)a);
+        } else if (a instanceof TextAnnotation ) {
+            wrapper = new StringAnn((TextAnnotation)a);
         } else {
             throw new IllegalArgumentException("Unknown annotation " + a);
         }
@@ -146,29 +146,29 @@ public class AnnotationData extends DataObject {
     
     public static class StringAnn implements Ann {
 
-        private StringAnnotation ann;
+        private TextAnnotation ann;
         
-        public StringAnn(StringAnnotation ann) {
+        public StringAnn(TextAnnotation ann) {
             this.ann = ann;
         }
         
         public Class<? extends Annotation> getType() {
-            return StringAnnotation.class;
+            return TextAnnotation.class;
         }
         
         public Object getContent() {
-            return ann.getStringValue();
+            return ann.getTextValue();
         }
 
         public String getContentAsString() {
-            return ann.getStringValue();
+            return ann.getTextValue();
         }
 
         public void setContent(Object o) {
             if (o == null) {
-                ann.setStringValue(null);
+                ann.setTextValue(null);
             } else if (o instanceof String) {
-                ann.setStringValue((String) o);
+                ann.setTextValue((String) o);
             } else {
                 throw new IllegalArgumentException(o + " is an incompatible type for "+ann);
             }

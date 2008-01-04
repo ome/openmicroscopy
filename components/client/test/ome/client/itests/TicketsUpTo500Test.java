@@ -6,8 +6,6 @@
  */
 package ome.client.itests;
 
-import org.testng.annotations.*;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -16,13 +14,13 @@ import java.util.Set;
 import java.util.UUID;
 
 import junit.framework.TestCase;
-
 import ome.api.IAdmin;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IUpdate;
-import ome.model.annotations.DatasetAnnotation;
-import ome.model.annotations.ImageAnnotation;
+import ome.model.annotations.DatasetAnnotationLink;
+import ome.model.annotations.ImageAnnotationLink;
+import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -36,6 +34,9 @@ import ome.system.Login;
 import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
 import ome.util.builders.PojoOptions;
+
+import org.testng.annotations.Test;
+
 import pojos.ImageData;
 
 @Test(groups = { "client", "integration" })
@@ -66,16 +67,16 @@ public class TicketsUpTo500Test extends TestCase {
         assertNull(test);
     }
 
-    @Test(groups = {"ticket:168","ticket:767"} )
+    @Test(groups = { "ticket:168", "ticket:767" })
     public void test_planeInfoSetPixelsSavePlaneInfo() throws Exception {
         Pixels pixels = ObjectFactory.createPixelGraph(null);
         pixels.clearPlaneInfo();
         PlaneInfo planeInfo = createPlaneInfo();
         planeInfo.setPixels(pixels);
         planeInfo = iUpdate.saveAndReturnObject(planeInfo);
-        Pixels test = (Pixels) iQuery.findByQuery("select pi.pixels from PlaneInfo pi " 
-                + "where pi.id = :id", new Parameters()
-                .addId(planeInfo.getId()));
+        Pixels test = (Pixels) iQuery.findByQuery(
+                "select pi.pixels from PlaneInfo pi " + "where pi.id = :id",
+                new Parameters().addId(planeInfo.getId()));
         assertNotNull(test);
     }
 
@@ -100,7 +101,6 @@ public class TicketsUpTo500Test extends TestCase {
         Image i = new Image();
         i.setName("ticket:221");
         Pixels p = ObjectFactory.createPixelGraph(null);
-        p.setDefaultPixels(Boolean.TRUE);
         i.addPixels(p);
         d.linkImage(i);
         d = iUpdate.saveAndReturnObject(d);
@@ -150,7 +150,7 @@ public class TicketsUpTo500Test extends TestCase {
         p.linkDataset(d);
         d.linkImage(i);
         p = iUpdate.saveAndReturnObject(p);
-        d = (Dataset) p.linkedDatasetList().get(0);
+        d = p.linkedDatasetList().get(0);
 
         boolean found = false;
 
@@ -162,7 +162,7 @@ public class TicketsUpTo500Test extends TestCase {
                 Project.class, ids, leaves.map());
 
         Project tP = set.iterator().next();
-        Dataset tD = (Dataset) tP.linkedDatasetList().get(0);
+        Dataset tD = tP.linkedDatasetList().get(0);
         assertTrue(tD.sizeOfImageLinks() > 0);
 
         // with ids & no leaves
@@ -170,7 +170,7 @@ public class TicketsUpTo500Test extends TestCase {
                 noleaves.map());
 
         tP = set.iterator().next();
-        tD = (Dataset) tP.linkedDatasetList().get(0);
+        tD = tP.linkedDatasetList().get(0);
         assertTrue(tD.sizeOfImageLinks() < 0);
 
         // with no ids & no leaves
@@ -183,7 +183,7 @@ public class TicketsUpTo500Test extends TestCase {
                 continue;
             }
             tP = project;
-            tD = (Dataset) tP.linkedDatasetList().get(0);
+            tD = tP.linkedDatasetList().get(0);
             assertTrue(tD.sizeOfImageLinks() < 0);
             found = true;
         }
@@ -201,7 +201,7 @@ public class TicketsUpTo500Test extends TestCase {
                 continue;
             }
             tP = project;
-            tD = (Dataset) tP.linkedDatasetList().get(0);
+            tD = tP.linkedDatasetList().get(0);
             assertTrue(tD.sizeOfImageLinks() > 0);
             found = true;
         }
@@ -282,20 +282,21 @@ public class TicketsUpTo500Test extends TestCase {
                 .iterator().next();
 
         // create annotation
-        DatasetAnnotation annotation = new DatasetAnnotation();
-        annotation.setContent("ticket:396");
-        annotation.setDataset(dataset);
-        pojosService.updateDataObject(annotation, null);
+        TextAnnotation annotation = new TextAnnotation();
+        annotation.setTextValue("ticket:396");
+        DatasetAnnotationLink link = dataset.linkAnnotation(annotation);
+        pojosService.updateDataObject(link, null);
 
         // load annotation via findAnnotations
-        annotation = ((Set<DatasetAnnotation>) pojosService.findAnnotations(
+        annotation = ((Set<TextAnnotation>) pojosService.findAnnotations(
                 Dataset.class,
                 new HashSet<Long>(Arrays.asList(dataset.getId())), null, null)
                 .get(dataset.getId())).iterator().next();
 
         // update annotation
-        annotation.setContent(annotation.getContent() + ":updated");
+        annotation.setTextValue(annotation.getTextValue() + ":updated");
         pojosService.updateDataObject(annotation, null);
+        fail("This shouldn't work");
 
     }
 
@@ -308,7 +309,6 @@ public class TicketsUpTo500Test extends TestCase {
         Image i = new Image();
         i.setName("ticket:401");
         Pixels p = ObjectFactory.createPixelGraph(null);
-        p.setDefaultPixels(Boolean.TRUE);
         d.linkImage(i);
         i.addPixels(p);
 
@@ -316,13 +316,12 @@ public class TicketsUpTo500Test extends TestCase {
 
         d = pj.updateDataObject(d, null);
 
-        Set<Dataset> ds = pj.loadContainerHierarchy(
-                Dataset.class, Collections.singleton(d.getId()), withLeaves
-                        .map());
+        Set<Dataset> ds = pj.loadContainerHierarchy(Dataset.class, Collections
+                .singleton(d.getId()), withLeaves.map());
 
         for (Dataset dataset : ds) {
-            Image image = (Image) dataset.linkedImageList().get(0);
-            assertNotNull(image.getDefaultPixels());
+            Image image = dataset.linkedImageList().get(0);
+            assertNotNull(image.getPrimaryPixels());
         }
     }
 
@@ -361,17 +360,16 @@ public class TicketsUpTo500Test extends TestCase {
 
         Image i = new Image();
         i.setName("ticket:435");
-        ImageAnnotation ann = new ImageAnnotation();
-        ann.setImage(i);
-        ann.setContent("ticket:435");
-
-        ann = sf1.getUpdateService().saveAndReturnObject(ann);
-        i = ann.getImage();
+        TextAnnotation ann = new TextAnnotation();
+        ann.setTextValue("ticket:435");
+        ImageAnnotationLink link = i.linkAnnotation(ann);
+        link = sf1.getUpdateService().saveAndReturnObject(link);
+        i = link.parent();
 
         PojoOptions po = new PojoOptions().noCounts().noLeaves();
         Map map = sf2.getPojosService().findAnnotations(Image.class,
                 Collections.singleton(i.getId()), null, po.map());
-        Set<ImageAnnotation> anns = (Set<ImageAnnotation>) map.values()
+        Set<TextAnnotation> anns = (Set<TextAnnotation>) map.values()
                 .iterator().next();
         ann = anns.iterator().next();
 

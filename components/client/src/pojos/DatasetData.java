@@ -49,8 +49,8 @@ public class DatasetData extends DataObject {
     /** Identifies the {@link Dataset#PROJECTLINKS} field. */
     public final static String PROJECT_LINKS = Dataset.PROJECTLINKS;
 
-    /** Identifies the {@link Dataset#ANNOTATIONS} field. */
-    public final static String ANNOTATIONS = Dataset.ANNOTATIONS;
+    /** Identifies the {@link Dataset#ANNOTATIONLINKS} field. */
+    public final static String ANNOTATIONS = Dataset.ANNOTATIONLINKS;
 
     /**
      * All the Images contained in this Dataset. The elements of this set are
@@ -242,10 +242,10 @@ public class DatasetData extends DataObject {
     public Set getAnnotations() {
 
         if (annotations == null) {
-            int size = asDataset().getAnnotations().size();
+            int size = asDataset().sizeOfAnnotationLinks();
             if (size >= 0) {
                 annotations = new HashSet(size);
-                for (Annotation a : asDataset().getAnnotations()) {
+                for (Annotation a : asDataset().linkedAnnotationList()) {
                     annotations.add(new AnnotationData(a));
                 }
             }
@@ -265,7 +265,7 @@ public class DatasetData extends DataObject {
 
         while (m.moreDeletions()) {
             setDirty(true);
-            asDataset().getAnnotations().remove(
+            asDataset().unlinkAnnotation(
                     m.nextDeletion().asAnnotation());
             annotationCount = annotationCount == null ? null : new Long(
                     annotationCount.longValue() - 1);
@@ -273,7 +273,7 @@ public class DatasetData extends DataObject {
 
         while (m.moreAdditions()) {
             setDirty(true);
-            asDataset().getAnnotations().remove(
+            asDataset().linkAnnotation(
                     m.nextAddition().asAnnotation());
             annotationCount = annotationCount == null ? null : new Long(
                     annotationCount.longValue() + 1);

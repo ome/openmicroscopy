@@ -32,7 +32,7 @@ public class CountCollectorTest extends TestCase {
         c = new CountCollector();
 
         Long id = next();
-        Project p = new Project(id);
+        Project p = new Project(id, true);
         c.addCounts(Project.class, ProjectDatasetLink.PARENT, Collections
                 .<Object[]> singletonList(new Object[] { id, 1000L }));
         c.collect(p);
@@ -44,7 +44,7 @@ public class CountCollectorTest extends TestCase {
     public void testNoCountGiven() throws Exception {
         c = new CountCollector();
 
-        Project p = new Project(next());
+        Project p = new Project(next(), true);
         c.addCounts(Project.class, ProjectDatasetLink.PARENT, queryResults(-1L,
                 499L));
         c.collect(p);
@@ -54,7 +54,7 @@ public class CountCollectorTest extends TestCase {
     public void testNegativeCountGiven() throws Exception {
         c = new CountCollector();
 
-        Project p = new Project(next());
+        Project p = new Project(next(), true);
         c.addCounts(Project.class, ProjectDatasetLink.PARENT, queryResults(1L,
                 -1L));
         c.collect(p);

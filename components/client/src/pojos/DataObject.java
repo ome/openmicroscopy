@@ -18,6 +18,7 @@ import java.util.Set;
 // Third-party libraries
 
 // Application-internal dependencies
+import ome.model.IAnnotated;
 import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
@@ -270,6 +271,16 @@ public abstract class DataObject {
         return value;
     }
 
+    /**
+     * not null; may through class-cast exception
+     * 
+     * @throws ClassCastException
+     * @return not null IObject
+     */
+    public IAnnotated asIAnnotated() {
+        return (IAnnotated) asIObject();
+    }
+    
     /**
      * not null; may through class-cast exception
      * 

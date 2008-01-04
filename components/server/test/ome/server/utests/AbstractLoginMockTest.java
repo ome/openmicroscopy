@@ -12,11 +12,6 @@ package ome.server.utests;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jmock.MockObjectTestCase;
-import org.jmock.core.Constraint;
-import org.testng.annotations.*;
-
-// Application-internal dependencies
 import ome.api.ITypes;
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
@@ -28,11 +23,16 @@ import ome.model.internal.Details;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.security.basic.BasicSecuritySystem;
 import ome.security.SecuritySystem;
+import ome.security.basic.BasicSecuritySystem;
 import ome.system.Principal;
 import ome.testing.MockServiceFactory;
 import ome.tools.hibernate.UpdateFilter;
+
+import org.jmock.MockObjectTestCase;
+import org.jmock.core.Constraint;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -92,17 +92,17 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
 
         filter = new UpdateFilter();
 
-        ROOT = new Experimenter(ROOT_OWNER_ID);
-        ROOT_GROUP = new ExperimenterGroup(SYS_GROUP_ID);
-        INITIAL_EVENT = new Event(INITIAL_EVENT_ID);
-        BOOTSTRAP = new EventType(INITIAL_EVENT_ID);
-        USEREVENT = new EventType(INITIAL_EVENT_ID + 1);
+        ROOT = new Experimenter(ROOT_OWNER_ID, true);
+        ROOT_GROUP = new ExperimenterGroup(SYS_GROUP_ID, true);
+        INITIAL_EVENT = new Event(INITIAL_EVENT_ID, true);
+        BOOTSTRAP = new EventType(INITIAL_EVENT_ID, true);
+        USEREVENT = new EventType(INITIAL_EVENT_ID + 1, true);
 
         BOOTSTRAP.setValue("Bootstrap");
         USEREVENT.setValue("User");
 
-        USER = new Experimenter(USER_OWNER_ID);
-        USER_GROUP = new ExperimenterGroup(USER_GROUP_ID);
+        USER = new Experimenter(USER_OWNER_ID, true);
+        USER_GROUP = new ExperimenterGroup(USER_GROUP_ID, true);
 
         rootLogin();
 
@@ -169,7 +169,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
     /** creates a "managed image" (has ID) to the currently logged in user. */
     protected Image managedImage() {
         checkSomeoneIsLoggedIn();
-        Image i = new Image(0L);
+        Image i = new Image(0L, true);
         Details managed = new Details();
         managed.setOwner(new Experimenter(sec.getEventContext()
                 .getCurrentUserId(), false));
@@ -223,23 +223,24 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
     protected void willLoadUser(Long id) {
         sf.mockQuery.expects(atLeastOnce()).method("get").with(
                 eq(Experimenter.class), eq(id)).will(
-                returnValue(new Experimenter(id)));
+                returnValue(new Experimenter(id, true)));
     }
 
     protected void willLoadEvent(Long id) {
         sf.mockQuery.expects(once()).method("get")
-                .with(eq(Event.class), eq(id)).will(returnValue(new Event(id)));
+                .with(eq(Event.class), eq(id)).will(
+                        returnValue(new Event(id, true)));
     }
 
     protected void willLoadEventType(Long id) {
         sf.mockQuery.expects(once()).method("get").with(eq(EventType.class),
-                eq(id)).will(returnValue(new EventType(id)));
+                eq(id)).will(returnValue(new EventType(id, true)));
     }
 
     protected void willLoadGroup(Long id) {
         sf.mockQuery.expects(atLeastOnce()).method("get").with(
                 eq(ExperimenterGroup.class), eq(id)).will(
-                returnValue(new ExperimenterGroup(id)));
+                returnValue(new ExperimenterGroup(id, true)));
     }
 
     protected void willCheckRootDetails() {
@@ -269,14 +270,14 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
     protected void chown(IObject i, Long userId) {
         Details myDetails = i.getDetails() == null ? new Details() : i
                 .getDetails();
-        myDetails.setOwner(new Experimenter(userId));
+        myDetails.setOwner(new Experimenter(userId, true));
         i.setDetails(myDetails);
     }
 
     protected void chgrp(IObject i, Long grpId) {
         Details myDetails = i.getDetails() == null ? new Details() : i
                 .getDetails();
-        myDetails.setGroup(new ExperimenterGroup(grpId));
+        myDetails.setGroup(new ExperimenterGroup(grpId, true));
         i.setDetails(myDetails);
     }
 
@@ -286,14 +287,14 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
 
     protected void setDetails(IObject i, Long rootId, Long groupId, Long eventId) {
         Details myDetails = new Details();
-        myDetails.setOwner(new Experimenter(1L));
+        myDetails.setOwner(new Experimenter(1L, true));
         myDetails.setGroup(ROOT_GROUP);
         myDetails.setCreationEvent(INITIAL_EVENT);
         i.setDetails(myDetails);
     }
 
     private static class Type implements Constraint {
-        private Class type;
+        private final Class type;
 
         public Type(Class type) {
             this.type = type;

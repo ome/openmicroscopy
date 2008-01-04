@@ -13,8 +13,8 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 import ome.model.IObject;
-import ome.model.annotations.DatasetAnnotation;
-import ome.model.annotations.ImageAnnotation;
+import ome.model.annotations.Annotation;
+import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
@@ -26,7 +26,6 @@ import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,9 +57,9 @@ public class PojosTest extends TestCase {
 
     Category c;
 
-    ImageAnnotation iann;
+    Annotation iann;
 
-    DatasetAnnotation dann;
+    Annotation dann;
 
     Experimenter e;
 
@@ -69,19 +68,19 @@ public class PojosTest extends TestCase {
     @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
-        p = new Project(new Long(1));
-        d1 = new Dataset(new Long(2));
-        d2 = new Dataset(new Long(3));
-        d3 = new Dataset(new Long(4));
-        i1 = new Image(new Long(5));
-        i2 = new Image(new Long(6));
-        i3 = new Image(new Long(7));
-        cg = new CategoryGroup(new Long(8));
-        c = new Category(new Long(9));
-        iann = new ImageAnnotation(new Long(10));
-        dann = new DatasetAnnotation(new Long(11));
-        e = new Experimenter(new Long(12));
-        g = new ExperimenterGroup(new Long(13));
+        p = new Project(new Long(1), true);
+        d1 = new Dataset(new Long(2), true);
+        d2 = new Dataset(new Long(3), true);
+        d3 = new Dataset(new Long(4), true);
+        i1 = new Image(new Long(5), true);
+        i2 = new Image(new Long(6), true);
+        i3 = new Image(new Long(7), true);
+        cg = new CategoryGroup(new Long(8), true);
+        c = new Category(new Long(9), true);
+        iann = new TextAnnotation(new Long(10), true);
+        dann = new TextAnnotation(new Long(11), true);
+        e = new Experimenter(new Long(12), true);
+        g = new ExperimenterGroup(new Long(13), true);
 
         all = new IObject[] { p, d1, d2, d3, i1, i2, i3, cg, c, iann, dann, e,
                 g };
@@ -96,8 +95,8 @@ public class PojosTest extends TestCase {
         d3.linkImage(i3);
         i2.linkCategory(c);
         c.linkCategoryGroup(cg);
-        i3.addImageAnnotation(iann);
-        d3.addDatasetAnnotation(dann);
+        i3.linkAnnotation(iann);
+        d3.linkAnnotation(dann);
 
         e.linkExperimenterGroup(g);
 
@@ -149,8 +148,7 @@ public class PojosTest extends TestCase {
 
         Project prj = (Project) pd.asIObject();
         assertTrue(prj.sizeOfDatasetLinks() > 0);
-        assertTrue(((Dataset) prj.linkedDatasetList().get(0))
-                .sizeOfProjectLinks() > 0);
+        assertTrue((prj.linkedDatasetList().get(0)).sizeOfProjectLinks() > 0);
     }
 
     @Test
@@ -320,41 +318,28 @@ public class PojosTest extends TestCase {
     public void testLongValuedCounts() throws Exception {
         Image i = new Image();
         i.getDetails().setCounts(new HashMap());
-        i.getDetails().getCounts().put(ImageAnnotation.IMAGE, new Long(1L));
+        i.getDetails().getCounts().put(Image.ANNOTATIONLINKS, new Long(1L));
         ImageData id = new ImageData(i);
-        assertNotNull(id.getAnnotationCount());
+        fail("NYI - need to reimplement the count method");
+        // assertNotNull(id.getAnnotationCount());
 
         // we check for a Long value. non-Long --> null.
         i.getDetails().setCounts(new HashMap());
-        i.getDetails().getCounts().put(ImageAnnotation.IMAGE, new Integer(1));
+        i.getDetails().getCounts().put(Image.ANNOTATIONLINKS, new Integer(1));
         id = new ImageData(i);
-        assertNull(id.getAnnotationCount());
+        fail("NYI - here too");
+        // assertNull(id.getAnnotationCount());
     }
 
     @Test(groups = "ticket:316")
     public void testDefaultGroupIsAvailable() throws Exception {
 
-        class MyExperimenter extends Experimenter {
-            /**
-             * 
-             */
-            private static final long serialVersionUID = 231310658359804476L;
-
-            void setDefLink(GroupExperimenterMap map) {
-                this.setDefaultGroupLink(map);
-            }
-        }
-
         ExperimenterGroup g1 = new ExperimenterGroup();
         ExperimenterGroup g2 = new ExperimenterGroup();
 
-        MyExperimenter exp = new MyExperimenter();
+        Experimenter exp = new Experimenter();
 
-        GroupExperimenterMap link = new GroupExperimenterMap();
-        link.setDefaultGroupLink(Boolean.TRUE);
-        link.link(g1, exp);
-        exp.setDefLink(link);
-
+        exp.linkExperimenterGroup(g1);
         exp.linkExperimenterGroup(g2);
 
         ExperimenterData ed = new ExperimenterData(exp);

@@ -10,12 +10,6 @@ package ome.server.itests.query.pojos;
 import java.util.Arrays;
 import java.util.List;
 
-// Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.testng.annotations.Test;
-
-// Application-internal dependencies
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.meta.Experimenter;
@@ -27,6 +21,10 @@ import ome.services.query.Query;
 import ome.services.query.StringQuerySource;
 import ome.tools.lsid.LsidUtils;
 import ome.util.RdfPrinter;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.testng.annotations.Test;
 
 /**
  * tests for a generic data access
@@ -114,8 +112,8 @@ public class QueryTest extends AbstractManagedContextTest {
 
     @Test
     public void testCounts() throws Exception {
-        String s_dataset = LsidUtils.parseType(Dataset.ANNOTATIONS);
-        String s_annotations = LsidUtils.parseField(Dataset.ANNOTATIONS);
+        String s_dataset = LsidUtils.parseType(Dataset.ANNOTATIONLINKS);
+        String s_annotations = LsidUtils.parseField(Dataset.ANNOTATIONLINKS);
         String works = String.format(
                 "select target.id, count(collection) from %s target "
                         + "join target.%s collection group by target.id",
@@ -131,8 +129,8 @@ public class QueryTest extends AbstractManagedContextTest {
     @Test
     public void testGetExperimenter() throws Exception {
         Experimenter e = iQuery.get(Experimenter.class, 0);
-        assertNotNull(e.getDefaultGroupLink());
-        assertNotNull(e.getDefaultGroupLink().parent());
+        assertNotNull(e.getPrimaryGroupExperimenterMap());
+        assertNotNull(e.getPrimaryGroupExperimenterMap().parent());
 
     }
 
@@ -144,7 +142,7 @@ public class QueryTest extends AbstractManagedContextTest {
      */
     @Test
     public void test_examplById() throws Exception {
-        Experimenter ex = new Experimenter(new Long(0));
+        Experimenter ex = new Experimenter(new Long(0), false);
         try {
             Experimenter e = iQuery.findByExample(ex);
         } catch (Exception e) {

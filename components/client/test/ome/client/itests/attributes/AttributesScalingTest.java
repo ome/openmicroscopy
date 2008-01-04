@@ -19,7 +19,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 import ome.api.IPojos;
 import ome.model.IObject;
-import ome.model.annotations.ImageAnnotation;
+import ome.model.annotations.TextAnnotation;
 import ome.model.core.Image;
 import ome.system.Login;
 import ome.system.ServiceFactory;
@@ -83,9 +83,9 @@ public class AttributesScalingTest extends TestCase {
 
                 for (int k = 0; k < random.nextInt(5); k++) {
 
-                    ImageAnnotation annotation = new ImageAnnotation();
-                    annotation.setContent(loop);
-                    image.addImageAnnotation(annotation);
+                    TextAnnotation annotation = new TextAnnotation();
+                    annotation.setTextValue(loop);
+                    image.linkAnnotation(annotation);
                 }
 
                 images.add(image);
@@ -128,7 +128,7 @@ public class AttributesScalingTest extends TestCase {
             IObject... rv) {
         for (IObject object : rv) {
             Image image = (Image) object;
-            int size = image.sizeOfAnnotations();
+            int size = image.sizeOfAnnotationLinks();
             if (size == 0) {
                 assertFalse(map.containsKey(image.getId()));
             } else {

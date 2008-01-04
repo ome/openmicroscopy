@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import junit.framework.TestCase;
 import ome.model.IObject;
-import ome.model.annotations.StringAnnotation;
+import ome.model.annotations.TextAnnotation;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.meta.Event;
@@ -92,39 +92,39 @@ public class HibernateTest extends TestCase {
 
     @Test
     public void testFirstAnnotationTests() throws Exception {
-        StringAnnotation ann = new StringAnnotation();
+        TextAnnotation ann = new TextAnnotation();
         ann.setName("ENVPROP");
-        ann.setStringValue("value");
+        ann.setTextValue("value");
 
         createEvent();
         setDetails(ann);
-        ann = (StringAnnotation) s.merge(ann);
+        ann = (TextAnnotation) s.merge(ann);
         s.flush();
 
-        root.getAnnotations().add(ann);
+        root.linkAnnotation(ann);
         s.flush();
 
         Query q = s
                 .createQuery("select e from Experimenter e join fetch e.annotations");
         q.setMaxResults(1);
         Experimenter test = (Experimenter) q.uniqueResult();
-        assertTrue(test.getAnnotations().size() >= 1);
+        assertTrue(test.sizeOfAnnotationLinks() >= 1);
     }
 
     @Test
     public void testAnnotatingAnnotations() throws Exception {
-        StringAnnotation tag = new StringAnnotation();
+        TextAnnotation tag = new TextAnnotation();
         tag.setName("tag");
-        tag.setStringValue("value");
-        StringAnnotation group = new StringAnnotation();
+        tag.setTextValue("value");
+        TextAnnotation group = new TextAnnotation();
         group.setName("taggroup");
-        tag.setStringValue("value");
+        tag.setTextValue("value");
 
         createEvent();
         setDetails(tag);
         setDetails(group);
-        tag.getAnnotations().add(group);
-        tag = (StringAnnotation) s.merge(tag);
+        tag.linkAnnotation(group);
+        tag = (TextAnnotation) s.merge(tag);
 
     }
 

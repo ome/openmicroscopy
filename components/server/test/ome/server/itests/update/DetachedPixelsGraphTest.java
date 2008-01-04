@@ -6,15 +6,13 @@
  */
 package ome.server.itests.update;
 
-import java.util.List;
-
-import org.testng.annotations.Test;
-
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.core.PlaneInfo;
 import ome.testing.ObjectFactory;
+
+import org.testng.annotations.Test;
 
 public class DetachedPixelsGraphTest extends AbstractUpdateTest {
 
@@ -120,7 +118,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
     @Test
     public void testNulledCollectionFieldOnDetachedPixels() throws Exception {
         // PREPARE -------------------------------------------------
-        p.setChannels(null);
+        p.putAt(Pixels.CHANNELS, null);
         p = iUpdate.saveAndReturnObject(p);
 
         // TEST -------------------------------------------------
@@ -132,8 +130,8 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
     @Test
     public void testFilteredCollectionFieldOnDetachedPixels() throws Exception {
         // PREPARE -------------------------------------------------
-        Channel first = (Channel) p.unmodifiableChannels().iterator().next();
-        p.getChannels().remove(first);
+        Channel first = p.unmodifiableChannels().iterator().next();
+        p.removeChannel(first);
         p.getDetails().addFiltered(Pixels.CHANNELS);
 
         // Save and it should be back
@@ -143,7 +141,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
         int channelsSizeAfter = p.sizeOfChannels();
         assertTrue("Filtered channels not refilled",
                 channelsSizeAfter == channelsSizeBefore);
-        for (Channel c : p.unmodifiableChannels())
+        for (Channel c : p.unmodifiableChannels()) {
             assertTrue("Channel missing a valid id.", c.getId().longValue() > 0);
         }
 

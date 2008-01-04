@@ -28,6 +28,10 @@
     <properties>
     </properties>
   </type>
+  <type id="ome.model.annotations.QueryAnnotation" discriminator="/text/query/" superclass="ome.model.annotations.TextAnnotation" immutable="true">
+    <properties>
+    </properties>
+  </type>
   <type id="ome.model.annotations.LongAnnotation" discriminator="/num/long/" superclass="ome.model.annotations.Annotation" immutable="true">
     <properties>
       <optional name="longValue" type="long" mutable="false"/>
@@ -36,6 +40,11 @@
   <type id="ome.model.annotations.DoubleAnnotation" discriminator="/num/double/" superclass="ome.model.annotations.Annotation" immutable="true">
     <properties>
       <optional name="doubleValue" type="double" mutable="false"/>
+    </properties>
+  </type>
+  <type id="ome.model.annotations.BooleanAnnotation" discriminator="/bool/" superclass="ome.model.annotations.Annotation" immutable="true">
+    <properties>
+      <optional name="boolValue" type="boolean" mutable="false"/>
     </properties>
   </type>
   <type id="ome.model.annotations.FileAnnotation" discriminator="/type/file" superclass="ome.model.annotations.Annotation" immutable="true">

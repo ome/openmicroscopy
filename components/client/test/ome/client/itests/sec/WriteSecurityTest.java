@@ -24,6 +24,7 @@ import ome.model.core.Pixels;
 import ome.model.display.Thumbnail;
 import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
+
 import org.testng.annotations.Test;
 
 @Test(groups = { "ticket:236", "security", "integration" })
@@ -828,7 +829,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         }
 
         assert tI != null;
-        
+
         try {
             // done for recursive delete.
             tI.setMicroscope(null);
@@ -1033,12 +1034,12 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         if (img_ok) {
             assertNotNull(test);
             if (pix_ok) {
-                assertNotNull(test.getDefaultPixels());
+                assertNotNull(test.getPrimaryPixels());
                 assertTrue(test.sizeOfPixels() > 0);
             } else {
-                assertNull(test.getDefaultPixels());
+                assertNull(test.getPrimaryPixels());
                 assertTrue(test.sizeOfPixels() == 0); // TODO should it be
-                                                        // null?
+                // null?
             }
 
         } else {

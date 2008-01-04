@@ -486,7 +486,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
                     assertTrue(test.sizeOfThumbnails() > 0);
                 } else {
                     assertTrue(test.sizeOfThumbnails() == 0); // TODO should
-                                                                // it be null?
+                    // it be null?
                 }
 
             } else {
@@ -651,7 +651,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
                         assertNotNull(test.getPixels());
                     } else {
                         assertNull(test.getPixels()); // TODO should it be
-                                                        // null?
+                        // null?
                     }
 
                 } else {
@@ -807,9 +807,9 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
                     assertNotNull(test.linkedDatasetList().size() == 1);
                 } else {
                     assertTrue(test.linkedDatasetList().size() == 0); // TODO
-                                                                        // should
-                                                                        // it be
-                                                                        // null?
+                    // should
+                    // it be
+                    // null?
                 }
 
             } else {
@@ -879,12 +879,12 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         if (img_ok) {
             assertNotNull(test);
             if (pix_ok) {
-                assertNotNull(test.getDefaultPixels());
+                assertNotNull(test.getPrimaryPixels());
                 assertTrue(test.sizeOfPixels() > 0);
             } else {
-                assertNull(test.getDefaultPixels());
+                assertNull(test.getPrimaryPixels());
                 assertTrue(test.sizeOfPixels() == 0); // TODO should it be
-                                                        // null?
+                // null?
             }
 
         } else {

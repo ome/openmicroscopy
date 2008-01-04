@@ -48,8 +48,8 @@ public class ImageData extends DataObject {
     /** Identifies the {@link Image#PIXELS} field. */
     public final static String PIXELS = Image.PIXELS;
 
-    /** Identifies the {@link Image#ANNOTATIONS} field. */
-    public final static String ANNOTATIONS = Image.ANNOTATIONS;
+    /** Identifies the {@link Image#ANNOTATIONLINKS} field. */
+    public final static String ANNOTATIONS = Image.ANNOTATIONLINKS;
 
     /** Identifies the {@link Image#DATASETLINKS} field. */
     public final static String DATASET_LINKS = Image.DATASETLINKS;
@@ -359,10 +359,10 @@ public class ImageData extends DataObject {
      */
     public Set getAnnotations() {
         if (annotations == null) {
-            int size = asImage().getAnnotations().size();
+            int size = asImage().sizeOfAnnotationLinks();
             if (size >= 0) {
                 annotations = new HashSet(size);
-                for (Annotation annotation : asImage().getAnnotations()) {
+                for (Annotation annotation : asImage().linkedAnnotationList()) {
                     annotations.add(annotation);
                 }
             }
@@ -382,7 +382,7 @@ public class ImageData extends DataObject {
 
         while (m.moreDeletions()) {
             setDirty(true);
-            asImage().getAnnotations().remove(
+            asImage().unlinkAnnotation(
                     m.nextDeletion().asAnnotation());
             annotationCount = annotationCount == null ? null : new Long(
                     annotationCount.longValue() - 1);
@@ -390,7 +390,7 @@ public class ImageData extends DataObject {
 
         while (m.moreAdditions()) {
             setDirty(true);
-            asImage().getAnnotations().add(m.nextAddition().asAnnotation());
+            asImage().linkAnnotation(m.nextAddition().asAnnotation());
             annotationCount = annotationCount == null ? null : new Long(
                     annotationCount.longValue() + 1);
         }

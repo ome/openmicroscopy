@@ -48,8 +48,8 @@ public class UpdateTest extends AbstractUpdateTest {
                 + " left outer join fetch p.channels " + "  where p.id = :id",
                 new Parameters().addId(p.getId()));
 
-        assertTrue("channel ids differ", equalCollections(p.getChannels(),
-                check.getChannels()));
+        assertTrue("channel ids differ", equalCollections(p.unmodifiableChannels(),
+                check.unmodifiableChannels()));
         assertTrue("pixels dims differ", p.getPixelsDimensions().getId().equals(
                 check.getPixelsDimensions().getId()));
     }
@@ -85,10 +85,10 @@ public class UpdateTest extends AbstractUpdateTest {
         image.setName("test");
 
         Pixels active = ObjectFactory.createPixelGraph(null);
-        active.setImage(image);
-        active.setDefaultPixels(true);
+        image.addPixels(active);
 
-        active = iUpdate.saveAndReturnObject(active);
+        image = iUpdate.saveAndReturnObject(image);
+        active = image.getPrimaryPixels();
         Pixels other = ObjectFactory.createPixelGraph(null);
         other.setImage(active.getImage());
 
@@ -105,11 +105,8 @@ public class UpdateTest extends AbstractUpdateTest {
         ChannelBinding binding = ObjectFactory.createChannelBinding();
 
         // What we're interested in
-        List enhancements = Collections.singletonList(enhancement);
-        List bindings = Collections.singletonList(binding);
-
-        def.setWaveRendering(bindings);
-        def.setSpatialDomainEnhancement(enhancements);
+        def.addChannelBinding(binding);
+        def.addCodomainMapContext(enhancement);
 
         def = iUpdate.saveAndReturnObject(def);
 
@@ -129,9 +126,9 @@ public class UpdateTest extends AbstractUpdateTest {
         ChannelBinding binding3 = ObjectFactory.createChannelBinding();
         binding3.setInputStart(new Float(3.0));
 
-        List bindings = Arrays.asList(binding1, binding2, binding3);
-
-        def.setWaveRendering(bindings);
+        def.addChannelBinding(binding1);
+        def.addChannelBinding(binding2);
+        def.addChannelBinding(binding3);
 
         def = iUpdate.saveAndReturnObject(def);
 
@@ -161,13 +158,13 @@ public class UpdateTest extends AbstractUpdateTest {
         g_1.unload();
         g_2.unload();
 
+        // Intended to be default
         GroupExperimenterMap defaultLink = new GroupExperimenterMap();
-        defaultLink.setDefaultGroupLink(true);
         defaultLink.link(g_1, e);
         defaultLink = iUpdate.saveAndReturnObject(defaultLink);
 
+        // Intended to be second, not default
         GroupExperimenterMap notDefaultLink = new GroupExperimenterMap();
-        notDefaultLink.setDefaultGroupLink(false);
         notDefaultLink.link(g_2, e);
         notDefaultLink = iUpdate.saveAndReturnObject(notDefaultLink);
 
@@ -176,8 +173,8 @@ public class UpdateTest extends AbstractUpdateTest {
                         + " join fetch e.defaultGroupLink l "
                         + " join fetch l.parent p " + " where e.id = :id ",
                 new Parameters().addId(defaultLink.child().getId()));
-        assertNotNull(test.getDefaultGroupLink());
-        assertTrue(test.getDefaultGroupLink().parent().getName().startsWith(
+        assertNotNull(test.getPrimaryGroupExperimenterMap());
+        assertTrue(test.getPrimaryGroupExperimenterMap().parent().getName().startsWith(
                 "DEFAULT"));
 
     }

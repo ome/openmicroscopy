@@ -10,7 +10,6 @@ import java.util.Arrays;
 
 import ome.model.ILink;
 import ome.model.IObject;
-import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.CategoryImageLink;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;

@@ -64,7 +64,7 @@
     <property name="allowCreate" value="false"/>
   </bean>
  
-  <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+  <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
     <description>
     Scope: private
     Note:  many of the references for the sessionFactory are defined in 

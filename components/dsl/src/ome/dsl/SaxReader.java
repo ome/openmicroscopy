@@ -208,7 +208,7 @@ class DSLHandler extends DefaultHandler {
         /*
          * Handles the various link ups for annotations. (Possibly temporary)
          * This creates new types and therefore should come first.
-         *
+         */
         Set<SemanticType> additions = new HashSet<SemanticType>();
         for (String id : types.keySet()) {
             SemanticType t = types.get(id);
@@ -219,6 +219,7 @@ class DSLHandler extends DefaultHandler {
                 SemanticType ann = types
                         .get("ome.model.annotations.Annotation");
 
+                // Create link
                 Properties linkP = new Properties();
                 linkP.setProperty("id", newId);
                 LinkType l = new LinkType(linkP);
@@ -228,7 +229,7 @@ class DSLHandler extends DefaultHandler {
                 LinkParent lp = new LinkParent(l, parentP);
 
                 Properties childP = new Properties();
-                childP.setProperty("type", "ome.model.annotations.Annotation");
+                childP.setProperty("type", ann.getId());
                 LinkChild lc = new LinkChild(l, childP);
 
                 l.getProperties().add(lc);
@@ -236,24 +237,17 @@ class DSLHandler extends DefaultHandler {
                 additions.add(l);
 
                 // And now create the links to the link
-                Properties plP = new Properties();
-                plP.setProperty("name", t.getTable() + "Links");
-                plP.setProperty("type", newId);
-                plP.setProperty("target", t.getId());
-                ParentLink pl = new ParentLink(ann, plP);
-                ann.getProperties().add(pl);
-
                 Properties clP = new Properties();
                 clP.setProperty("name", "annotationLinks");
                 clP.setProperty("type", newId);
-                clP.setProperty("target", t.getId());
+                clP.setProperty("target", ann.getId());
                 ChildLink cl = new ChildLink(t, clP);
                 t.getProperties().add(cl);
             }
         }
         for (SemanticType semanticType : additions) {
             types.put(semanticType.getId(), semanticType);
-        }*/
+        }
 
         /*
          * Example: Pixels: <zeromany name="thumbnails"

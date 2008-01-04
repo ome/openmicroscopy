@@ -9,14 +9,8 @@ package ome.server.itests;
 // Java imports
 
 // Third-party libraries
-import java.util.List;
+import java.util.Collection;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.testng.annotations.Configuration;
-import org.testng.annotations.Test;
-
-// Application-internal dependencies
 import ome.api.IPixels;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
@@ -28,6 +22,11 @@ import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.testing.ObjectFactory;
 import omeis.providers.re.RenderingEngine;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 ;
 
@@ -133,12 +132,11 @@ public class PixelsServiceTest extends AbstractManagedContextTest {
         assertNotNull(pd);
         assertNotNull(pd.getSizeX());
 
-        List c = t.getChannels();
+        Collection<Channel> c = t.unmodifiableChannels();
         assertNotNull(c);
         assertTrue(c.size() > 0);
 
-        for (Object object : c) {
-            Channel ch = (Channel) object;
+        for (Channel ch : c) {
             assertNotNull(ch.getLogicalChannel());
         }
     }

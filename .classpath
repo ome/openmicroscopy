@@ -38,6 +38,13 @@
 	<classpathentry kind="src" output="target/eclipse-common" path="components/common/target/generated/resources"/>
 	<classpathentry kind="src" output="target/eclipse-common" path="components/common/target/generated/src"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+        <!-- Adding above jboss-ejb3x -->
+	<classpathentry kind="lib" path="target/libs/hibernate-annotations.jar"/>
+	<classpathentry kind="lib" path="target/libs/hibernate-commons-annotations.jar"/>
+	<classpathentry kind="lib" path="target/libs/hibernate-search.jar"/>
+	<classpathentry kind="lib" path="target/libs/hibernate-validator.jar"/>
+	<classpathentry kind="lib" path="target/libs/lucene-core.jar"/>
+	<classpathentry kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/acegi-security.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/activemq-core.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/ant.jar"/>
@@ -59,7 +66,6 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/dom4j.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/drools-all-jdk5.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/ehcache.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/geronimo-spec-jta.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/groovy.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/hibernate.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/hibernate-tools.jar"/>
@@ -77,7 +83,6 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/junit.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/ldaptemplate.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/log4j.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/lucene.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/postgresql.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/qdox.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/quartz.jar"/>
@@ -93,11 +98,5 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/jboss-j2ee.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/client.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/ome-java.jar"/>
-	<classpathentry kind="lib" path="target/libs/hibernate-annotations.jar"/>
-	<classpathentry kind="lib" path="target/libs/hibernate-commons-annotations.jar"/>
-	<classpathentry kind="lib" path="target/libs/hibernate-search.jar"/>
-	<classpathentry kind="lib" path="target/libs/hibernate-validator.jar"/>
-	<classpathentry kind="lib" path="target/libs/lucene-core.jar"/>
-	<classpathentry kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
 </classpath>

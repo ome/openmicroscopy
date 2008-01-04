@@ -14,8 +14,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.testng.annotations.Configuration;
-import org.testng.annotations.Test;
 
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
@@ -33,6 +31,9 @@ import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosGetImagesQueryDefinition;
 import ome.testing.ObjectFactory;
 import ome.util.builders.PojoOptions;
+
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 @Test(groups = "integration")
 public class GetImagesQueryTest extends AbstractManagedContextTest {
@@ -373,14 +374,13 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
     @Test(groups = { "ticket:177", /* ? */"ticket:350" })
     public void testGetImagesReturnsDefaultPixels() throws Exception {
         Pixels p = ObjectFactory.createPixelGraph(null);
-        p.setDefaultPixels(Boolean.TRUE);
-        p = iUpdate.saveAndReturnObject(p);
+        Image i = iUpdate.saveAndReturnObject(p.getImage());
 
-        Image i = iQuery.findByQuery(
+        i = iQuery.findByQuery(
                 "select i from Image i left outer join i.defaultPixels "
                         + "where i.defaultPixels.id = :id", new Parameters()
                         .addId(p.getId()));
-        assertNotNull(i.getDefaultPixels());
+        assertNotNull(i.getPrimaryPixels());
 
         Dataset d = new Dataset();
         d.setName("ticket:177");
@@ -393,7 +393,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
                 .unique()).addClass(Dataset.class).addIds(
                 Collections.singleton(d.getId())));
         Image test = (Image) iQuery.execute(q);
-        assertNotNull(test.getDefaultPixels());
+        assertNotNull(test.getPrimaryPixels());
     }
 
     @Test(groups = { "ticket:221" })
@@ -403,7 +403,6 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
         Image i = new Image();
         i.setName("ticket:221");
         Pixels p = ObjectFactory.createPixelGraph(null);
-        p.setDefaultPixels(Boolean.TRUE);
         i.addPixels(p);
         d.linkImage(i);
         d = iUpdate.saveAndReturnObject(d);
@@ -413,9 +412,9 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
                 Collections.singleton(d.getId())));
         Image test = (Image) iQuery.execute(q);
         assertNotNull(test);
-        assertNotNull(test.getDefaultPixels());
-        assertNotNull(test.getDefaultPixels().getPixelsDimensions());
-        assertNotNull(test.getDefaultPixels().getPixelsType());
+        assertNotNull(test.getPrimaryPixels());
+        assertNotNull(test.getPrimaryPixels().getPixelsDimensions());
+        assertNotNull(test.getPrimaryPixels().getPixelsType());
     }
 
     @Test(groups = { "ticket:296" })
@@ -489,7 +488,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
     private class MAP {
         // TODO possibly simplfy in that this contains only one class
         // a la generics, since that seems to be the use case.
-        private Map<Class, Map<Long, Set<IObject>>> m = new HashMap<Class, Map<Long, Set<IObject>>>();
+        private final Map<Class, Map<Long, Set<IObject>>> m = new HashMap<Class, Map<Long, Set<IObject>>>();
 
         public void put(IObject source, IObject target) {
             assert source != null;

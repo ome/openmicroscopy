@@ -6,13 +6,14 @@
  */
 package ome.client.utests.session;
 
-import org.testng.annotations.*;
+import junit.framework.TestCase;
 import ome.client.Storage;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 
-import junit.framework.TestCase;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 public class StorageTest extends TestCase {
 
@@ -33,13 +34,13 @@ public class StorageTest extends TestCase {
             // good
         }
 
-        storage.storePersistent(new Project(new Long(1)));
+        storage.storePersistent(new Project(new Long(1), true));
         Project p = (Project) storage
                 .findPersistent(Project.class, new Long(1));
         assertNotNull(p);
         assertTrue(storage.isPersistent(Project.class, new Long(1)));
 
-        storage.storePersistent(new Image(new Long(2)));
+        storage.storePersistent(new Image(new Long(2), true));
         Image i = (Image) storage.findPersistent(Image.class, new Long(2));
         assertNotNull(i);
         assertTrue(storage.isPersistent(Image.class, new Long(2)));
@@ -63,7 +64,7 @@ public class StorageTest extends TestCase {
             // good;
         }
 
-        d = new Dataset(new Long(1));
+        d = new Dataset(new Long(1), true);
         storage.storeDirty(d);
         assertTrue(storage.isDirty(Dataset.class, new Long(1)));
     }
@@ -72,7 +73,7 @@ public class StorageTest extends TestCase {
     public void test_new_new() throws Exception {
         Image i;
 
-        i = new Image(new Long(1));
+        i = new Image(new Long(1), true);
         try {
             storage.storeTransient(i);
             fail("Should have thrown.");
@@ -98,7 +99,7 @@ public class StorageTest extends TestCase {
             // good;
         }
 
-        i = new Image(new Long(1));
+        i = new Image(new Long(1), true);
         storage.storeDeleted(i);
         assertTrue(storage.isDeleted(Image.class, new Long(1)));
 

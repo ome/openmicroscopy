@@ -6,12 +6,6 @@
  */
 package ome.client.itests.rois;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +15,6 @@ import java.util.Random;
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
-
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.core.Pixels;
@@ -39,6 +32,14 @@ import ome.model.uroi.XYZCT;
 import ome.model.uroi.XYZT;
 import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
+import ome.util.CBlock;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 @Test(
 // "ignored" because it should only be run manually
@@ -98,20 +99,20 @@ public class URoiTest extends TestCase {
             int j = rnd.nextInt(4);
             TESTLOG.info("Creating region with:" + j);
             switch (j) {
-                case 0:
-                    l.add(singlePlane(pix));
-                    break;
-                case 1:
-                    l.add(continuousPlanes(pix));
-                    break;
-                case 2:
-                    l.add(randomPlanes(pix));
-                    break;
-                case 3:
-                    l.add(cellLineage(pix));
-                    break;
-                default:
-                    throw new RuntimeException();
+            case 0:
+                l.add(singlePlane(pix));
+                break;
+            case 1:
+                l.add(continuousPlanes(pix));
+                break;
+            case 2:
+                l.add(randomPlanes(pix));
+                break;
+            case 3:
+                l.add(cellLineage(pix));
+                break;
+            default:
+                throw new RuntimeException();
             }
         }
 
@@ -274,9 +275,10 @@ public class URoiTest extends TestCase {
         int[] x = new int[] { -1, -1 }, y = new int[] { -1, -1 }, z = new int[] {
                 -1, -1 }, c = new int[] { -1, -1 }, t = new int[] { -1, -1 };
 
-        for (URoi roi : (List<URoi>) region.collectSpecs(null)) {
-            for (USlice slice : (List<USlice>) roi.collectSlices(null)) {
-                for (USquare square : (List<USquare>) slice.collectShapes(null)) {
+        for (URoi roi : region.collectSpecs((CBlock<URoi>) null)) {
+            for (USlice slice : roi.collectSlices((CBlock<USlice>) null)) {
+                for (USquare square : slice
+                        .collectShapes((CBlock<USquare>) null)) {
                     if (x[0] < 0 || square.getUpperLeftX() < x[0]) {
                         x[0] = square.getUpperLeftX();
                     }
@@ -405,7 +407,7 @@ public class URoiTest extends TestCase {
 
         for (Overlay overlay : list) {
             XY plane = overlay.getPlane();
-            XYZ vol = (XYZ) plane.linkedXYZList().get(0);
+            XYZ vol = plane.linkedXYZList().get(0);
             Integer time = vol.getT();
             assertNotNull(time);
 
@@ -413,7 +415,7 @@ public class URoiTest extends TestCase {
                 timePoints.put(time, vol);
             } else {
                 XYZ extant = timePoints.get(vol.getT());
-                extant.linkXY((XY) vol.linkedXYList().get(0));
+                extant.linkXY(vol.linkedXYList().get(0));
                 vol.clearXYLinks();
             }
         }

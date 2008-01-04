@@ -593,9 +593,9 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         sec.loadEventContext(false);
 
         // different owner but all permissions
-        i = new Image(2L);
-        i.getDetails().setOwner(new Experimenter(2L));
-        i.getDetails().setGroup(new ExperimenterGroup(2L));
+        i = new Image(2L, true);
+        i.getDetails().setOwner(new Experimenter(2L, false));
+        i.getDetails().setGroup(new ExperimenterGroup(2L, false));
         i.getDetails().setPermissions(new Permissions());
         assertTrue(sec.getACLVoter().allowUpdate(i, i.getDetails()));
 
@@ -644,9 +644,9 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         sec.loadEventContext(false);
 
         // different owner but all permissions
-        i = new Image(2L);
-        i.getDetails().setOwner(new Experimenter(2L));
-        i.getDetails().setGroup(new ExperimenterGroup(2L));
+        i = new Image(2L, true);
+        i.getDetails().setOwner(new Experimenter(2L, false));
+        i.getDetails().setGroup(new ExperimenterGroup(2L, false));
         i.getDetails().setPermissions(new Permissions());
         assertTrue(sec.getACLVoter().allowDelete(i, i.getDetails()));
 
@@ -665,8 +665,8 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         prepareMocksWithUserDetails(false);
 
         Details d = new Details();
-        d.setOwner(new Experimenter(2L));
-        d.setGroup(new ExperimenterGroup(2L));
+        d.setOwner(new Experimenter(2L, false));
+        d.setGroup(new ExperimenterGroup(2L, false));
         d.setPermissions(new Permissions());
 
         sec.loadEventContext(false);
@@ -722,7 +722,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         sec.loadEventContext(false);
 
         Permissions p = new Permissions();
-        Image i = new Image(1L);
+        Image i = new Image(1L, true);
 
         Details oldDetails = new Details();
         oldDetails.setOwner(user);

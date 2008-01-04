@@ -9,8 +9,6 @@ package ome.server.itests.query;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.testng.annotations.Test;
-
 import ome.api.IPojos;
 import ome.conditions.InternalException;
 import ome.model.IObject;
@@ -22,13 +20,14 @@ import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.CollectionCountQueryDefinition;
 import ome.services.query.IObjectClassQuery;
 import ome.services.query.PojosCGCPathsQueryDefinition;
-import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
 import ome.services.query.PojosGetImagesQueryDefinition;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
 import ome.services.query.Query;
 import ome.services.query.QueryFactory;
 import ome.services.query.StringQuery;
+
+import org.testng.annotations.Test;
 
 @Test(groups = { "query" })
 public class UniqueResultTest extends AbstractManagedContextTest {
@@ -193,23 +192,7 @@ public class UniqueResultTest extends AbstractManagedContextTest {
         iQuery.execute(q);
     }
 
-    @Test(groups = { TICKET_83 })
-    public void test_PojosFindAnnotations_unique() throws Exception {
-        p = new Parameters().addIds(getNewImages(2, TICKET_83)).addClass(
-                Image.class).addSet("annotatorIds", null);
-        p.getFilter().isUnique();
-        Query q = new PojosFindAnnotationsQueryDefinition(p);
-        iQuery.execute(q);
-    }
-
-    @Test(groups = { TICKET_83 })
-    public void test_PojosFindAnnotations_list() throws Exception {
-        p = new Parameters().addIds(getNewImages(2, TICKET_83)).addClass(
-                Image.class).addSet("annotatorIds", null);
-        assertFalse(p.getFilter().isUnique());
-        Query q = new PojosFindAnnotationsQueryDefinition(p);
-        iQuery.execute(q);
-    }
+    // Removed PojosFindAnnotationsQueryDefinition methods
 
     @Test(groups = { TICKET_83 })
     public void test_StringQuery_unique() throws Exception {
@@ -235,8 +218,8 @@ public class UniqueResultTest extends AbstractManagedContextTest {
     // ~ Private helpers
     // =========================================================================
     private Project getProject() {
-        Project p = iQuery.findAll(Project.class,
-                new Filter().page(0, 1)).get(0);
+        Project p = iQuery.findAll(Project.class, new Filter().page(0, 1)).get(
+                0);
         return p;
     }
 

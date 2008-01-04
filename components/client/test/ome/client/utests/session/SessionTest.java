@@ -6,12 +6,12 @@
  */
 package ome.client.utests.session;
 
-import org.jmock.Mock;
-import org.testng.annotations.Test;
-
 import ome.api.IUpdate;
 import ome.model.IObject;
 import ome.model.containers.Project;
+
+import org.jmock.Mock;
+import org.testng.annotations.Test;
 
 public class SessionTest extends AbstractTest {
 
@@ -36,7 +36,7 @@ public class SessionTest extends AbstractTest {
 
     @Test
     public void test_registeredObjectCanBeFound() throws Exception {
-        Project p = new Project(new Long(1L));
+        Project p = new Project(new Long(1L), true);
         p.setVersion(new Integer(1));
         session.register(p);
         Project p2 = (Project) session.find(Project.class, new Long(1L));
@@ -45,7 +45,7 @@ public class SessionTest extends AbstractTest {
 
     @Test
     public void test_mock_flush() throws Exception {
-        Project retVal = new Project(new Long(1L));
+        Project retVal = new Project(new Long(1L), true);
         Mock m = mock(IUpdate.class);
         serviceFactory.mockUpdate = m;
         m.expects(atLeastOnce()).method("saveAndReturnArray").will(
@@ -53,7 +53,7 @@ public class SessionTest extends AbstractTest {
         m.expects(atLeastOnce()).method("saveAndReturnArray").after("save")
                 .will(returnValue(new IObject[] { retVal })).id("update");
 
-        Project p = new Project(new Long(1L));
+        Project p = new Project(new Long(1L), true);
         p.setVersion(new Integer(1));
         session.markDirty(p);
         session.flush();
@@ -62,7 +62,7 @@ public class SessionTest extends AbstractTest {
     @Test
     public void test_newAndThenCheckOut() throws Exception {
         Project p_new = new Project();
-        Project p_old = new Project(new Long(1L));
+        Project p_old = new Project(new Long(1L), true);
         p_old.setVersion(new Integer(1));
         IObject[] arr = new IObject[] { p_old };
 

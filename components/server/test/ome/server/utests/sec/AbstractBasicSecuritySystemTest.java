@@ -62,10 +62,10 @@ public abstract class AbstractBasicSecuritySystemTest extends
         sec.login(p);
 
         // context
-        user = new Experimenter(1L);
-        group = new ExperimenterGroup(1L);
-        type = new EventType(1L);
-        event = new Event(1L);
+        user = new Experimenter(1L, true);
+        group = new ExperimenterGroup(1L, true);
+        type = new EventType(1L, true);
+        event = new Event(1L, true);
 
         user.linkExperimenterGroup(group);
         leaderOfGroups = Collections.singletonList(1L);
@@ -80,10 +80,10 @@ public abstract class AbstractBasicSecuritySystemTest extends
         sec.login(p);
 
         // context
-        user = new Experimenter(0L);
-        group = new ExperimenterGroup(0L);
-        type = new EventType(0L);
-        event = new Event(0L);
+        user = new Experimenter(0L, true);
+        group = new ExperimenterGroup(0L, true);
+        type = new EventType(0L, true);
+        event = new Event(0L, true);
 
         user.linkExperimenterGroup(group);
         leaderOfGroups = Collections.singletonList(0L);

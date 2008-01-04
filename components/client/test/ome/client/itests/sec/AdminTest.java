@@ -9,7 +9,6 @@ package ome.client.itests.sec;
 import ome.api.IAdmin;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
-import ome.model.IObject;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
@@ -20,7 +19,6 @@ import ome.model.meta.GroupExperimenterMap;
 import ome.system.Login;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
-import ome.util.CBlock;
 
 import org.testng.annotations.Test;
 
@@ -73,11 +71,10 @@ public class AdminTest extends AbstractAccountTest {
     // =========================================================================
 
     /**
-     * Here the only change made was to allow all users to get the default 
-     * group for another user. Since this is visible anyway, there's no
-     * major concern.
+     * Here the only change made was to allow all users to get the default group
+     * for another user. Since this is visible anyway, there's no major concern.
      */
-    @Test( groups = "ticket:688")
+    @Test(groups = "ticket:688")
     public void testGetDefaultGroup() throws Exception {
         ServiceFactory u = createUser();
         ome.api.IAdmin uAdmin = u.getAdminService();
@@ -85,31 +82,31 @@ public class AdminTest extends AbstractAccountTest {
         rootAdmin.getDefaultGroup(uid);
         uAdmin.getDefaultGroup(uid);
     }
-    
+
     /**
-     * Setting the default group, however, is more critical. If a user is
-     * not the admin, then we must be careful to not allow them to change
-     * other user's groups, nor to elevate their privileges
+     * Setting the default group, however, is more critical. If a user is not
+     * the admin, then we must be careful to not allow them to change other
+     * user's groups, nor to elevate their privileges
      */
-    @Test( groups = "ticket:688")
+    @Test(groups = "ticket:688")
     public void testSetDefaultGroup() throws Exception {
-        
+
         Roles roles = rootAdmin.getSecurityRoles();
-        
+
         // Creating our target user and group
         ExperimenterGroup newgrp = new ExperimenterGroup();
         newgrp.setName(java.util.UUID.randomUUID().toString());
         long gid = rootAdmin.createGroup(newgrp);
         newgrp.setId(gid);
-        
+
         Experimenter user = createNewUser(rootAdmin); // in default group
         Login ul = new Login(user.getOmeName(), "");
         ServiceFactory usf = new ServiceFactory(ul);
         IAdmin ua = usf.getAdminService();
-        
+
         ExperimenterGroup oldgrp = rootAdmin.getDefaultGroup(user.getId());
         rootAdmin.addGroups(user, newgrp);
-        
+
         // Let's make sure this still works properly
         Experimenter admin = createNewSystemUser(rootAdmin);
         Login al = new Login(admin.getOmeName(), "");
@@ -118,15 +115,16 @@ public class AdminTest extends AbstractAccountTest {
         ExperimenterGroup currgrp = aa.getDefaultGroup(user.getId());
         assertEquals(oldgrp.getName(), currgrp.getName());
         aa.setDefaultGroup(user, newgrp);
-        
+
         // And now let's see what a user can do
         try {
-            ExperimenterGroup sysGrp = ua.lookupGroup(roles.getSystemGroupName());
+            ExperimenterGroup sysGrp = ua.lookupGroup(roles
+                    .getSystemGroupName());
             ua.setDefaultGroup(user, sysGrp);
         } catch (ApiUsageException aue) {
             // good!
         }
-        
+
         try {
             ua.setDefaultGroup(admin, newgrp);
         } catch (SecurityViolation sv) {
@@ -135,30 +133,32 @@ public class AdminTest extends AbstractAccountTest {
 
         // Resetting; should work.
         ua.setDefaultGroup(user, oldgrp);
-        
+
     }
-    
-    @Test( groups = "ticket:688")
+
+    @Test(groups = "ticket:688")
     public void testUpdateUser() throws Exception {
-        
+
         // A new user
         ServiceFactory u = createUser();
         IAdmin ua = u.getAdminService();
         String name = ua.getEventContext().getCurrentUserName();
         Experimenter self = ua.lookupExperimenter(name);
-        
+
         // A new group which the user can attempt to add
         ExperimenterGroup grp = new ExperimenterGroup();
         grp.setName(java.util.UUID.randomUUID().toString());
         long gid = rootAdmin.createGroup(grp);
-        ExperimenterGroup grpPrx = new ExperimenterGroup(gid,false);
-        
+        ExperimenterGroup grpPrx = new ExperimenterGroup(gid, false);
+
         // Groups (non-changeable)
         ExperimenterGroup dfault = ua.getDefaultGroup(self.getId());
         ExperimenterGroup groups[] = ua.containedGroups(self.getId());
         java.util.Set<Long> s = new java.util.HashSet<Long>();
-        for( ExperimenterGroup g : groups) s.add(g.getId());
-        
+        for (ExperimenterGroup g : groups) {
+            s.add(g.getId());
+        }
+
         // Fields (changeable)
         Long id;
         String on, fn, mn, ln, em, in, uuid;
@@ -169,17 +169,9 @@ public class AdminTest extends AbstractAccountTest {
         ln = self.getLastName();
         em = self.getEmail();
         in = self.getInstitution();
-        
+
         uuid = java.util.UUID.randomUUID().toString();
-        
-        self.collectGroupExperimenterMap(new CBlock(){
-            public Object call(IObject object) {
-                GroupExperimenterMap map = (GroupExperimenterMap) object;
-                map.setDefaultGroupLink(false);
-                return null;
-            }
-            
-        });
+
         self.setId(-1L);
         self.setOmeName(uuid);
         self.setFirstName(uuid);
@@ -187,18 +179,17 @@ public class AdminTest extends AbstractAccountTest {
         self.setLastName(uuid);
         self.setEmail(uuid);
         self.setInstitution(uuid);
-        GroupExperimenterMap link = new GroupExperimenterMap();
-        link.link(grpPrx,self);
-        link.setDefaultGroupLink(true);
-        self.addGroupExperimenterMap(link,false);
-        
+
+        GroupExperimenterMap map = self.linkExperimenterGroup(grpPrx);
+        self.setPrimaryGroupExperimenterMap(map);
+
         // Update and reacquire
         ua.updateSelf(self);
         self = ua.getExperimenter(id);
-        
+
         // Should be changed
-        assertEquals(id,self.getId());
-        assertEquals(name,self.getOmeName());
+        assertEquals(id, self.getId());
+        assertEquals(name, self.getOmeName());
         assertFalse(fn.equals(self.getFirstName()));
         assertNull(mn);
         assertNotNull(self.getMiddleName());
@@ -207,15 +198,17 @@ public class AdminTest extends AbstractAccountTest {
         assertNotNull(self.getEmail());
         assertNull(in);
         assertNotNull(self.getInstitution());
-        
+
         // Should not be changed
         ExperimenterGroup check[] = rootAdmin.containedGroups(id);
         java.util.Set<Long> s2 = new java.util.HashSet<Long>();
-        for (ExperimenterGroup g : check) s2.add(g.getId());
-        assertEquals(s.size(),s2.size());
-        assertEquals(dfault.getId(),rootAdmin.getDefaultGroup(id).getId());
+        for (ExperimenterGroup g : check) {
+            s2.add(g.getId());
+        }
+        assertEquals(s.size(), s2.size());
+        assertEquals(dfault.getId(), rootAdmin.getDefaultGroup(id).getId());
     }
-    
+
     // ~ utilities
     // =========================================================================
 
@@ -225,5 +218,5 @@ public class AdminTest extends AbstractAccountTest {
         ServiceFactory u = new ServiceFactory(l);
         return u;
     }
-    
+
 }

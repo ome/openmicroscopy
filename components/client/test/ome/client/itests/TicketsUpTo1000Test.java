@@ -6,8 +6,6 @@
  */
 package ome.client.itests;
 
-import org.testng.annotations.*;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -15,13 +13,14 @@ import java.util.Set;
 import java.util.UUID;
 
 import junit.framework.TestCase;
-
 import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.model.IObject;
-import ome.model.annotations.DatasetAnnotation;
+import ome.model.annotations.Annotation;
+import ome.model.annotations.DatasetAnnotationLink;
+import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
@@ -35,6 +34,8 @@ import ome.system.ServiceFactory;
 import ome.util.Filter;
 import ome.util.Filterable;
 import ome.util.builders.PojoOptions;
+
+import org.testng.annotations.Test;
 
 @Test(groups = { "client", "integration" })
 public class TicketsUpTo1000Test extends TestCase {
@@ -122,8 +123,8 @@ public class TicketsUpTo1000Test extends TestCase {
         c.linkImage(i);
         i = sf.getUpdateService().saveAndReturnObject(i);
 
-        d = (Dataset) i.linkedDatasetList().get(0);
-        c = (Category) i.linkedCategoryList().get(0);
+        d = i.linkedDatasetList().get(0);
+        c = i.linkedCategoryList().get(0);
 
         Long user_id = sf.getAdminService().getEventContext()
                 .getCurrentUserId();
@@ -151,7 +152,7 @@ public class TicketsUpTo1000Test extends TestCase {
         dataset.setName("ticket:541");
         image.linkDataset(dataset);
         image = iUpdate.saveAndReturnObject(image);
-        dataset = (Dataset) image.linkedDatasetList().get(0);
+        dataset = image.linkedDatasetList().get(0);
         image.unlinkDataset(dataset);
         iUpdate.saveArray(new IObject[] { image, dataset });
     }
@@ -162,27 +163,28 @@ public class TicketsUpTo1000Test extends TestCase {
     @Test(groups = "ticket:546")
     public void test_createDataObjectsShouldLoadAnnotations() throws Exception {
         Dataset d = makeDataset();
-        DatasetAnnotation annotation = makeAnnotation(d);
+        Annotation annotation = makeAnnotation();
+        DatasetAnnotationLink link = d.linkAnnotation(annotation);
+        link = sf.getPojosService().createDataObject(link, null);
 
-        annotation = sf.getPojosService().createDataObject(annotation, null);
-        assertNotNull(annotation.getDataset());
-        assertTrue(annotation.getDataset().isLoaded());
+        annotation = link.child();
+        assertNotNull(link.parent());
+        assertTrue(link.parent().isLoaded());
 
         d = makeDataset();
-        annotation = makeAnnotation(d);
+        annotation = makeAnnotation();
+        link = d.linkAnnotation(annotation);
 
-        annotation = (DatasetAnnotation) sf
-                .getPojosService()
-                .createDataObjects(new DatasetAnnotation[] { annotation }, null)[0];
-        assertNotNull(annotation.getDataset());
-        assertTrue(annotation.getDataset().isLoaded());
+        link = (DatasetAnnotationLink) sf.getPojosService().createDataObjects(
+                new DatasetAnnotationLink[] { link }, null)[0];
+        assertNotNull(link.parent());
+        assertTrue(link.parent().isLoaded());
 
     }
 
-    private DatasetAnnotation makeAnnotation(Dataset d) {
-        DatasetAnnotation annotation = new DatasetAnnotation();
-        annotation.setContent("ticket:546");
-        annotation.setDataset(d);
+    private Annotation makeAnnotation() {
+        TextAnnotation annotation = new TextAnnotation();
+        annotation.setTextValue("ticket:546");
         return annotation;
     }
 
@@ -220,7 +222,7 @@ public class TicketsUpTo1000Test extends TestCase {
         assertEquals(email, test.getEmail());
         return name;
     }
-    
+
     // =========================================================================
 
     @Test(groups = "ticket:778")
@@ -232,23 +234,26 @@ public class TicketsUpTo1000Test extends TestCase {
         Project fromServer = sf.getQueryService().get(Project.class, p.getId());
         fromServer.setDescription("desc updated");
         fromServer.acceptFilter(new Filter() {
-			public Filterable filter(String fieldId, Filterable f) {
-				return f;
-			}
-			public Collection filter(String fieldId, Collection c) {
-				return null;
-			}
-			public Map filter(String fieldId, Map m) {
-				return m;
-			}
-			public Object filter(String fieldId, Object o) {
-				return o;
-			}
+            public Filterable filter(String fieldId, Filterable f) {
+                return f;
+            }
+
+            public Collection filter(String fieldId, Collection c) {
+                return null;
+            }
+
+            public Map filter(String fieldId, Map m) {
+                return m;
+            }
+
+            public Object filter(String fieldId, Object o) {
+                return o;
+            }
         });
-        
-        sf.getPojosService().updateDataObject(fromServer, 
+
+        sf.getPojosService().updateDataObject(fromServer,
                 new PojoOptions().map());
-       
+
     }
 
     // ~ Helpers
