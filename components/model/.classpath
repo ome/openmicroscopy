@@ -1,28 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="var" path="JRE_LIB" sourcepath="JRE_SRC"/>
 	<classpathentry excluding="**/.svn" kind="src" path="src"/>
 	<classpathentry excluding="**/.svn" kind="src" path="resources"/>
 	<classpathentry excluding="**/.svn" kind="src" path="target/generated/src"/>
 	<classpathentry excluding="**/.svn" kind="src" path="target/generated/resources"/>
 	<classpathentry excluding="**/.svn" kind="src" output="target/test-classes" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="target/libs/ant.jar"/>
 	<classpathentry kind="lib" path="target/libs/antlr.jar"/>
 	<classpathentry kind="lib" path="target/libs/asm.jar"/>
 	<classpathentry kind="lib" path="target/libs/asm-attrs.jar"/>
 	<classpathentry kind="lib" path="target/libs/cglib.jar"/>
+	<classpathentry kind="lib" path="target/libs/checkstyle.jar"/>
+	<classpathentry kind="lib" path="target/libs/commons-beanutils.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-collections.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-logging.jar"/>
 	<classpathentry kind="lib" path="target/libs/dom4j.jar"/>
 	<classpathentry kind="lib" path="target/libs/dsl.jar"/>
-	<classpathentry kind="lib" path="target/libs/ehcache.jar"/>
-	<classpathentry kind="lib" path="target/libs/geronimo-spec-jta.jar"/>
+	<classpathentry kind="lib" path="target/libs/emma_ant.jar"/>
+	<classpathentry kind="lib" path="target/libs/emma.jar"/>
+	<classpathentry kind="lib" path="target/libs/findbugs-ant.jar"/>
+	<classpathentry kind="lib" path="target/libs/freemarker.jar"/>
 	<classpathentry kind="lib" path="target/libs/groovy.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate.jar"/>
+	<classpathentry kind="lib" path="target/libs/hibernate-annotations.jar"/>
+	<classpathentry kind="lib" path="target/libs/hibernate-commons-annotations.jar"/>
+	<classpathentry kind="lib" path="target/libs/hibernate-search.jar"/>
+	<classpathentry kind="lib" path="target/libs/hibernate-tools.jar"/>
+	<classpathentry kind="lib" path="target/libs/hibernate-validator.jar"/>
 	<classpathentry kind="lib" path="target/libs/jboss-ejb3x.jar"/>
+	<classpathentry kind="lib" path="target/libs/jboss-j2ee.jar"/>
 	<classpathentry kind="lib" path="target/libs/jmock.jar"/>
+	<classpathentry kind="lib" path="target/libs/jtidy.jar"/>
 	<classpathentry kind="lib" path="target/libs/junit.jar"/>
 	<classpathentry kind="lib" path="target/libs/log4j.jar"/>
+	<classpathentry kind="lib" path="target/libs/lucene-core.jar"/>
+	<classpathentry kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry kind="lib" path="target/libs/postgresql.jar"/>
 	<classpathentry kind="lib" path="target/libs/qdox.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring.jar"/>
@@ -30,14 +43,5 @@
 	<classpathentry kind="lib" path="target/libs/testng.jar"/>
 	<classpathentry kind="lib" path="target/libs/velocity.jar"/>
 	<classpathentry kind="lib" path="target/libs/velocity-tools-generic.jar"/>
-	<classpathentry kind="lib" path="target/libs/ldaptemplate.jar"/>
-	<classpathentry kind="lib" path="target/libs/hibernate-annotations.jar"/>
-	<classpathentry kind="lib" path="target/libs/hibernate-commons-annotations.jar"/>
-	<classpathentry kind="lib" path="target/libs/hibernate-search.jar"/>
-	<classpathentry kind="lib" path="target/libs/hibernate-validator.jar"/>
-	<classpathentry kind="lib" path="target/libs/jamon.jar"/>
-	<classpathentry kind="lib" path="target/libs/jboss-j2ee.jar"/>
-	<classpathentry kind="lib" path="target/libs/lucene-core.jar"/>
-	<classpathentry kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
