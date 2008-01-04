@@ -103,7 +103,7 @@ class CurrentDetails {
         l.setEntityType(klass.getName()); // TODO could be id to Type entity
         l.setEntityId(id);
         l.setEvent(getCreationEvent());
-        Details d = new Details();
+        Details d = Details.create();
         d.setPermissions(new Permissions());
         l.getDetails().copy(d);
         list.add(l);
@@ -121,7 +121,7 @@ class CurrentDetails {
 
     // TODO move to BSS
     public Details createDetails() {
-        Details d = new Details();
+        Details d = Details.create();
         d.setCreationEvent(getCreationEvent());
         d.setUpdateEvent(getCreationEvent());
         d.setOwner(getOwner());

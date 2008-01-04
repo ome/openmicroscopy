@@ -6,10 +6,16 @@
  */
 package ome.services.query;
 
+import static ome.parameters.Parameters.CLASS;
+import static ome.parameters.Parameters.IDS;
+
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Map;
+
+import ome.model.core.Image;
+import ome.parameters.Parameters;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -35,7 +41,7 @@ public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery 
         c.createAlias("details.updateEvent", "update");
         c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
-        Criteria pix = c.createCriteria("defaultPixels", LEFT_JOIN);
+        Criteria pix = c.createCriteria("pixels", LEFT_JOIN);
         pix.createCriteria("pixelsType", LEFT_JOIN);
         pix.createCriteria("pixelsDimensions", LEFT_JOIN);
 

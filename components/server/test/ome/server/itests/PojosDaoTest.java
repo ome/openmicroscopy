@@ -47,17 +47,6 @@ public class PojosDaoTest extends AbstractDependencyInjectionSpringContextTests 
 
     private static Log log = LogFactory.getLog(PojosDaoTest.class);
 
-    @Override
-    protected String[] getConfigLocations() {
-        return new String[] {};
-    }
-
-    @Override
-    protected ConfigurableApplicationContext loadContextLocations(
-            String[] locations) {
-        return OmeroContext.getManagedServerContext();
-    }
-
     // =========================================================================
     // ~ Testng Adapter
     // =========================================================================
@@ -75,6 +64,7 @@ public class PojosDaoTest extends AbstractDependencyInjectionSpringContextTests 
 
     @Override
     protected void onSetUp() throws Exception {
+        this.applicationContext = OmeroContext.getManagedServerContext();
         _q = new ServiceFactory((OmeroContext) applicationContext)
                 .getQueryService();
         po = new PojoOptions().exp(1L);

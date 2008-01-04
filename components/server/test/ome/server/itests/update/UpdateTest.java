@@ -7,8 +7,6 @@
 package ome.server.itests.update;
 
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import ome.api.ITypes;
@@ -27,7 +25,6 @@ import ome.model.jobs.ImportJob;
 import ome.model.jobs.JobStatus;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
 import ome.parameters.Parameters;
 import ome.testing.ObjectFactory;
 
@@ -48,10 +45,10 @@ public class UpdateTest extends AbstractUpdateTest {
                 + " left outer join fetch p.channels " + "  where p.id = :id",
                 new Parameters().addId(p.getId()));
 
-        assertTrue("channel ids differ", equalCollections(p.unmodifiableChannels(),
-                check.unmodifiableChannels()));
-        assertTrue("pixels dims differ", p.getPixelsDimensions().getId().equals(
-                check.getPixelsDimensions().getId()));
+        assertTrue("channel ids differ", equalCollections(p
+                .unmodifiableChannels(), check.unmodifiableChannels()));
+        assertTrue("pixels dims differ", p.getPixelsDimensions().getId()
+                .equals(check.getPixelsDimensions().getId()));
     }
 
     @Test
@@ -61,8 +58,7 @@ public class UpdateTest extends AbstractUpdateTest {
         p.setName(name);
         p = iUpdate.saveAndReturnObject(p);
 
-        Project compare = iQuery.findByString(Project.class, "name",
-                name);
+        Project compare = iQuery.findByString(Project.class, "name", name);
 
         assertTrue(p.getId().equals(compare.getId()));
 
@@ -90,9 +86,9 @@ public class UpdateTest extends AbstractUpdateTest {
         image = iUpdate.saveAndReturnObject(image);
         active = image.getPrimaryPixels();
         Pixels other = ObjectFactory.createPixelGraph(null);
-        other.setImage(active.getImage());
+        image.addPixels(other);
 
-        iUpdate.saveAndReturnObject(other);
+        iUpdate.saveAndReturnObject(image);
 
     }
 
@@ -154,29 +150,57 @@ public class UpdateTest extends AbstractUpdateTest {
         e = iUpdate.saveAndReturnObject(e);
         g_1 = iUpdate.saveAndReturnObject(g_1);
         g_2 = iUpdate.saveAndReturnObject(g_2);
-        e.unload();
         g_1.unload();
         g_2.unload();
+        // No longer unloading the experimenter (3.0-Beta2.3) since
+        // it is necessary to set the index on the map
+        // e.unload();
 
-        // Intended to be default
-        GroupExperimenterMap defaultLink = new GroupExperimenterMap();
-        defaultLink.link(g_1, e);
-        defaultLink = iUpdate.saveAndReturnObject(defaultLink);
+        e.linkExperimenterGroup(g_1);
+        e.linkExperimenterGroup(g_2);
+        iUpdate.saveObject(e);
 
-        // Intended to be second, not default
-        GroupExperimenterMap notDefaultLink = new GroupExperimenterMap();
-        notDefaultLink.link(g_2, e);
-        notDefaultLink = iUpdate.saveAndReturnObject(notDefaultLink);
-
-        Experimenter test = (Experimenter) iQuery.findByQuery(
-                " select e from Experimenter e "
-                        + " join fetch e.defaultGroupLink l "
-                        + " join fetch l.parent p " + " where e.id = :id ",
-                new Parameters().addId(defaultLink.child().getId()));
+        Experimenter test = (Experimenter) iQuery
+                .findByQuery(" select e from Experimenter e "
+                        + " join fetch e.groupExperimenterMap m "
+                        + " join fetch m.parent p " + " where e.id = :id "
+                        + "and index(m) = 0", new Parameters().addId(e.getId()));
         assertNotNull(test.getPrimaryGroupExperimenterMap());
-        assertTrue(test.getPrimaryGroupExperimenterMap().parent().getName().startsWith(
-                "DEFAULT"));
+        assertTrue(test.getPrimaryGroupExperimenterMap().parent().getName()
+                .startsWith("DEFAULT"));
 
+    }
+
+    @Test(enabled = false, groups = "broken")
+    // This test copies the previous one, changing the relationship
+    // to image/pixels since they are not protected by the security
+    // system. The answer is NO. This cannot be done. A loaded
+    // Image with a loaded pixels collection must be used to save
+    // a new Pixels, otherwise it can not properly set the "index"
+    // field.
+    public void test_image_pixels() throws Exception {
+        Image img = new Image();
+        Pixels pix1 = new Pixels();
+        Pixels pix2 = new Pixels();
+
+        // The instances must be unloaded to prevent spurious deletes!
+        // Need versions. See:
+        // https://trac.openmicroscopy.org.uk/omero/ticket/118
+        // https://trac.openmicroscopy.org.uk/omero/ticket/346
+
+        img.setName("j.b." + System.currentTimeMillis());
+        img = iUpdate.saveAndReturnObject(img);
+        img.unload();
+
+        pix1 = ObjectFactory.createPixelGraph(null);
+        pix1.setImage(img);
+        pix1 = iUpdate.saveAndReturnObject(pix1);
+
+        pix2 = ObjectFactory.createPixelGraph(null);
+        pix2.setImage(img);
+        pix2 = iUpdate.saveAndReturnObject(pix2);
+
+        // Rest deleted. Trying only to handle _backRefs.
     }
 
     @Test
@@ -289,7 +313,7 @@ public class UpdateTest extends AbstractUpdateTest {
         assertLink(link);
     }
 
-    @Test(groups = {"jobs","ticket:667"} )
+    @Test(groups = { "jobs", "ticket:667" })
     public void testLinkingUnidirectionally() throws Exception {
         ITypes t = this.factory.getTypesService();
         ImportJob job = new ImportJob();
@@ -302,17 +326,17 @@ public class UpdateTest extends AbstractUpdateTest {
         job.linkOriginalFile(file);
         job.setImageDescription("test");
         job.setImageName("image name");
-	job.setUsername("root");
-	job.setGroupname("system");
-	job.setType("Test");
-	job.setMessage("foo");
+        job.setUsername("root");
+        job.setGroupname("system");
+        job.setType("Test");
+        job.setMessage("foo");
         job.setSubmitted(new Timestamp(System.currentTimeMillis()));
         job.setScheduledFor(new Timestamp(System.currentTimeMillis()));
         job.setStatus(t.getEnumeration(JobStatus.class, "Submitted"));
         iUpdate.saveObject(job);
 
     }
-    
+
     protected void assertLink(ProjectDatasetLink link) {
         ProjectDatasetLink test = iUpdate.saveAndReturnObject(link);
         ProjectDatasetLink copy = iQuery.get(test.getClass(), test.getId());

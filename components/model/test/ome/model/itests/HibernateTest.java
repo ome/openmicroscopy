@@ -8,6 +8,7 @@ import ome.model.IObject;
 import ome.model.annotations.TextAnnotation;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
+import ome.model.internal.Permissions;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -53,6 +54,7 @@ public class HibernateTest extends TestCase {
         sys = (ExperimenterGroup) s.load(ExperimenterGroup.class, 0L);
         EventType t = (EventType) s.load(EventType.class, 1L);
         ev = new Event();
+        ev.getDetails().setPermissions(Permissions.DEFAULT);
         ev.setExperimenter(root);
         ev.setExperimenterGroup(sys);
         ev.setTime(new Timestamp(System.currentTimeMillis()));
@@ -70,6 +72,7 @@ public class HibernateTest extends TestCase {
         e.setOmeName(UUID.randomUUID().toString());
         e.setFirstName("Model");
         e.setLastName("Test");
+        e.getDetails().setPermissions(Permissions.DEFAULT);
         e = (Experimenter) s.merge(e);
         ExperimenterGroup g = (ExperimenterGroup) s.get(
                 ExperimenterGroup.class, 0L);
@@ -101,11 +104,11 @@ public class HibernateTest extends TestCase {
         ann = (TextAnnotation) s.merge(ann);
         s.flush();
 
-        root.linkAnnotation(ann);
+        setDetails(root.linkAnnotation(ann));
         s.flush();
 
         Query q = s
-                .createQuery("select e from Experimenter e join fetch e.annotations");
+                .createQuery("select e from Experimenter e join fetch e.annotationLinks");
         q.setMaxResults(1);
         Experimenter test = (Experimenter) q.uniqueResult();
         assertTrue(test.sizeOfAnnotationLinks() >= 1);
@@ -123,15 +126,27 @@ public class HibernateTest extends TestCase {
         createEvent();
         setDetails(tag);
         setDetails(group);
-        tag.linkAnnotation(group);
+        setDetails(tag.linkAnnotation(group));
         tag = (TextAnnotation) s.merge(tag);
 
+    }
+
+    @Test
+    public void testExperimenterIndexQuery() throws Exception {
+
+        Query q = s
+                .createQuery("select g from ExperimenterGroup g, Experimenter e join e.groupExperimenterMap m "
+                        + "where e.id = 0 and g.name != user and m.parent = g.id "
+                        + "and m.child = e.id and index(m) = 0");
+        ExperimenterGroup test = (ExperimenterGroup) q.uniqueResult();
+        assertNotNull(test);
     }
 
     // ==============================================================
 
     private void setDetails(IObject o) throws Exception {
         Details details = o.getDetails();
+        details.setPermissions(Permissions.DEFAULT);
         details.setCreationEvent(ev);
         details.setOwner(root);
         details.setGroup(sys);

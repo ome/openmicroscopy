@@ -88,11 +88,11 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
         // TODO should this belong to root?
         Details d = getSecuritySystem().newTransientDetails(newEnum);
         newEnum.getDetails().copy(d);
-        return getSecuritySystem().doAction(newEnum, new SecureAction() {
-            public IObject updateObject(IObject iObject) {
-                return up.saveAndReturnObject(iObject);
+        return getSecuritySystem().doAction(new SecureAction() {
+            public IObject updateObject(IObject... iObjects) {
+                return up.saveAndReturnObject(iObjects[0]);
             }
-        });
+        }, newEnum);
     }
     
     @RolesAllowed("system")

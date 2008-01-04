@@ -14,9 +14,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.model.IObject;
@@ -33,7 +30,7 @@ import ome.system.EventContext;
  */
 class BasicEventContext implements EventContext {
     // this should never be null. Making private
-    private Details details = new Details();
+    private Details details = Details.create();
 
     Permissions umask;
 

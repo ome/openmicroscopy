@@ -21,7 +21,8 @@ import ome.logic.HardWiredInterceptor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.Advisor;
-import org.springframework.aop.framework.AdvisorChainFactoryUtils;
+import org.springframework.aop.framework.AdvisorChainFactory;
+import org.springframework.aop.framework.DefaultAdvisorChainFactory;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.framework.ReflectiveMethodInvocation;
 
@@ -105,12 +106,12 @@ public class AOPAdapter extends ReflectiveMethodInvocation {
         return factory.getObjectType();
     }
 
+    protected static final AdvisorChainFactory acf = new DefaultAdvisorChainFactory();
     protected static List interceptors(ProxyFactoryBean factory,
             InvocationContext context, List<HardWiredInterceptor> wired) {
         List first = new ArrayList(wired);
-        List append = AdvisorChainFactoryUtils
-                .calculateInterceptorsAndDynamicInterceptionAdvice(factory,
-                        proxy(factory), method(context), targetClass(factory));
+        List append = acf.getInterceptorsAndDynamicInterceptionAdvice(factory, 
+                        method(context), targetClass(factory));
         first.addAll(append);
         return first;
     }

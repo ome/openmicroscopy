@@ -10,7 +10,9 @@
 <target name="tmphib" depends="prepare">
   <taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="omero.classpath" />
   <hibernatetool destdir="${target.dir}/generated/ant">
-    <annotationconfiguration configurationfile="${resrc.dest}/hibernate.cfg.xml" propertyfile="${resrc.dest}/local.properties"/>
+    <annotationconfiguration configurationfile="${resrc.dest}/hibernate.cfg.xml" propertyfile="${resrc.dest}/local.properties">
+      <fileset dir="${resrc.dir}" includes="*.hbm.xml"/>
+    </annotationconfiguration>
     <hbm2ddl destdir="${resrc.dest}" outputfilename="ddl.sql" drop="false" console="false" format="true" export="false" />
   </hibernatetool>
   <taskdef name="schemavalidator" classname="org.hibernate.tool.hbm2ddl.SchemaValidatorTask" classpathref="omero.classpath"/>

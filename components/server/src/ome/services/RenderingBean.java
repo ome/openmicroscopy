@@ -1243,6 +1243,7 @@ public class RenderingBean extends AbstractLevel2Service implements
             return null;
         }
         Pixels newPixels = new ShallowCopy().copy(pixels);
+        newPixels.putAt(Pixels.CHANNELS, new ArrayList<Channel>());
         copyChannels(pixels, newPixels);
         newPixels.setPixelsDimensions(new ShallowCopy().copy(pixels
                 .getPixelsDimensions()));

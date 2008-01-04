@@ -588,8 +588,8 @@ abstract class AbstractLink extends ZeroManyField {
 class ChildLink extends AbstractLink {
     public ChildLink(SemanticType st, Properties attrs) {
         super(st, attrs);
-        setForeignKey("parent");
-        setInverse("child");
+        setForeignKey("child");
+        setInverse("parent");
     }
 
     @Override
@@ -602,8 +602,8 @@ class ChildLink extends AbstractLink {
 class ParentLink extends AbstractLink {
     public ParentLink(SemanticType st, Properties attrs) {
         super(st, attrs);
-        setForeignKey("child");
-        setInverse("parent");
+        setForeignKey("parent");
+        setInverse("child");
     }
 
     @Override

@@ -9,6 +9,17 @@
 #set($gfilter = "${type.table}_group_filter")
 #set($efilter = "${type.table}_event_filter")
 #set($pfilter = "${type.table}_perms_filter")
+#set($cascadeEjb = "javax.persistence.CascadeType.MERGE,")
+#set($cascadeEjb = "$cascadeEjb javax.persistence.CascadeType.PERSIST,")
+#set($cascadeEjb = "$cascadeEjb javax.persistence.CascadeType.REFRESH")
+#set($cascadeHib = "org.hibernate.annotations.CascadeType.LOCK,")
+#set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.MERGE,")
+#set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.PERSIST,")
+#set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.REPLICATE,")
+#set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.REFRESH,")
+#set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.SAVE_UPDATE,")
+#set($cascadeHib = "$cascadeHib org.hibernate.annotations.CascadeType.EVICT")
+##
 ##
 ##
 ##
@@ -60,7 +71,7 @@ import ome.model.*;
     @org.hibernate.annotations.Filter(name="${gfilter}", condition=":groupId = group_id"),
     @org.hibernate.annotations.Filter(name="${efilter}", condition=":eventId = event_id"),
     @org.hibernate.annotations.Filter(name="${pfilter}", condition=":permsStr = permissions"),
-    @org.hibernate.annotations.Filter(name="securityFilter", condition = "true")
+    @org.hibernate.annotations.Filter(name="securityFilter")
 })
 #end
 #end
@@ -100,7 +111,7 @@ import ome.model.*;
     sequenceName="seq_${type.table}" 
 ) 
 #end############################################################
-@org.hibernate.search.annotations.Indexed(index="FullText")
+//TODO@org.hibernate.search.annotations.Indexed(index="FullText")
 @org.hibernate.search.annotations.ClassBridge(
     name="details", 
     impl = ome.util.DetailsFieldBridge.class,
@@ -282,8 +293,8 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
     * This version number is controlled by the database for optimisitic
     * locking.
     */
-    @javax.persistence.Version 
     @javax.persistence.Column(name="version") 
+    // @javax.persistence.Version 
 //TODO mark off #118 if this succeeds, otherwise, completely remove versions and test updateEvent
     public Integer getVersion() {
         preGetter( VERSION );
@@ -345,26 +356,14 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
 ##  Now we iterate throug each of the properties and based on the type we 
 ##  generate the appropriate methods.
 ##
-
-    protected ${prop.fieldType} ${prop.name} = ${prop.fieldInitializer};
-
-#if($prop.class.name == "ome.dsl.EntryField")#############################TYPE
-##
-##  EntryFields are handled by ome/dsl/data.vm, since each of the entries isn't
-##  a real property but rather an enum value for the database. However, they 
-##  are not even returned by $type.classProperties only $type.properties
-##
-#elseif($prop.one2Many)###################################################TYPE
 ##
 ## SETUP
 ##
-## TODO IS this all_delete_orphan
-#set( $cascadeEjb = "javax.persistence.CascadeType.MERGE, javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.REFRESH" )
-#if($prop.isLink)
-#set( $cascadeHib = "org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN" )
-#else
-#set( $cascadeHib = "org.hibernate.annotations.CascadeType.LOCK, org.hibernate.annotations.CascadeType.MERGE, org.hibernate.annotations.CascadeType.PERSIST, org.hibernate.annotations.CascadeType.REPLICATE, org.hibernate.annotations.CascadeType.REFRESH, org.hibernate.annotations.CascadeType.SAVE_UPDATE" );
-#end
+## Property to be used only within the property loop which is guaranteed to be reset
+## This is used only for one-to-many (collection-valued) relationships
+## If this is a link, cascadeHibCollection will be reset to all-delete-orphan
+#set( $cascadeHibCollection = ${cascadeHib} )
+##
 #if( $prop.isLink )
 #set( $LinkType = ${prop.type} )
 #set( $Link = ${prop.shortType} )
@@ -375,12 +374,24 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
 #set( $order = "this, addition" )
 #set( $next = "parent" )
 #set( $other = "child" )
+#set( $cascadeHibCollection = "org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN" )
 #elseif($prop.class.name == "ome.dsl.ParentLink")
 #set( $order = "addition, this" )
 #set( $next = "child" )
 #set( $other = "parent" )
+#set( $cascadeHibCollection = "org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN" )
 #end
 #end##isLink
+##
+    protected ${prop.fieldType} ${prop.name} = ${prop.fieldInitializer};
+
+#if($prop.class.name == "ome.dsl.EntryField")#############################TYPE
+##
+##  EntryFields are handled by ome/dsl/data.vm, since each of the entries isn't
+##  a real property but rather an enum value for the database. However, they 
+##  are not even returned by $type.classProperties only $type.properties
+##
+#elseif($prop.one2Many)###################################################TYPE
 ##
 ##
 #if(!${type.global})
@@ -403,32 +414,27 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
     * one-to-many List ${type.id}.${prop.name} (${prop.type})
     * Values are indexed by the column "index" on ${prop.type}
     */
+    @javax.persistence.JoinColumn(name="${prop.inverse}", nullable=false)
     @javax.persistence.OneToMany(fetch=javax.persistence.FetchType.LAZY, cascade={${cascadeEjb}})
-    @javax.persistence.JoinColumn(name="${prop.foreignKey}", nullable=false)
-    /*
-    $prop
-    */
-    @org.hibernate.annotations.Cascade({$cascadeHib})
     @org.hibernate.annotations.IndexColumn(name="index", nullable=false)
 #else
     * one-to-many Set ${type.id}.${prop.name} (${prop.type})
     */
     @javax.persistence.OneToMany(mappedBy="${prop.inverse}", fetch=javax.persistence.FetchType.LAZY, cascade={${cascadeEjb}})
-    @org.hibernate.annotations.Cascade({$cascadeHib})
 #end
+    @org.hibernate.annotations.Cascade({${cascadeHibCollection}})
 ##
 ##
 #if(!$type.global)
 ## TODO Can these be set on list 
     @org.hibernate.annotations.Filters({
-        @org.hibernate.annotations.Filter(name="securityFilter", condition = "true"),
+        @org.hibernate.annotations.Filter(name="securityFilter"),
         @org.hibernate.annotations.Filter(name=OWNER_FILTER_${prop.nameUpper}, condition=":ownerId = owner_id"),
         @org.hibernate.annotations.Filter(name=GROUP_FILTER_${prop.nameUpper}, condition=":groupId = group_id"),
         @org.hibernate.annotations.Filter(name=EVENT_FILTER_${prop.nameUpper}, condition=":eventId = event_id"),
         @org.hibernate.annotations.Filter(name=PERMS_FILTER_${prop.nameUpper}, condition=":permsStr = permissions")
     })
 #end
-    @org.hibernate.annotations.ForeignKey(name="${type.table}_fk_one_to_many", inverseName="${prop.shortType}_fk_one_to_many_inverse")
     protected ${prop.fieldType} get${prop.nameCapped}() {
         preGetter( ${prop.nameUpper} );
         return this.${prop.name};
@@ -524,7 +530,11 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
             throwNullCollectionException("${prop.nameCapped}");
         }
         get${prop.nameCapped}().add( target );
-        target.set${prop.inverseCapped} ( this );
+        // If this relationship is not ordered, then we will 
+        // "attempt" the setting even if it is loaded.
+        if (target.isLoaded() || !${prop.ordered} ) {
+            target.set${prop.inverseCapped} ( this );
+       }
     }
 
     /**
@@ -539,7 +549,11 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
         java.util.Iterator<${prop.type}> it = targets.iterator();
         while ( it.hasNext() ) {
             ${prop.type} target = it.next();
-            target.set${prop.inverseCapped} ( this );
+            // If this relationship is not ordered, then we will 
+            // "attempt" the setting even if it is loaded.
+            if (target.isLoaded() || !${prop.ordered} ) {
+                target.set${prop.inverseCapped} ( this );
+            }
         }
     }
 
@@ -552,7 +566,9 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
             throwNullCollectionException("${prop.nameCapped}");
         }
         get${prop.nameCapped}().remove( target );
-        target.set${prop.inverseCapped} ( null );
+        if (target.isLoaded() || !${prop.ordered} ) {
+            target.set${prop.inverseCapped} ( null );
+        }
     }
 
     /**
@@ -567,7 +583,9 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
         java.util.Iterator<${prop.type}> it = targets.iterator();
         while ( it.hasNext() ) {
             ${prop.type} target = it.next();
-            target.set${prop.inverseCapped} ( null );
+            if (target.isLoaded() || !${prop.ordered} ) {
+                target.set${prop.inverseCapped} ( null );
+            }
         }
     }
 
@@ -628,7 +646,9 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
     /**
      * Gets the first element of ${prop.name} which can be interpreted as the
      * primary or default element in some situations. If there is not first
-     * element, an {@link IndexOutOfBoundsException} is throws.
+     * element, an {@link IndexOutOfBoundsException} is throws. This method
+     * will also throw an {@link ApiUsageException} if the collection is
+     * unloaded. See {@link #sizeOf${prop.nameCapped}()} for more information.
      */
     @javax.persistence.Transient
     public ${prop.type} getPrimary${prop.shortType}()
@@ -645,7 +665,9 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
      * Swaps the first element of ${prop.name} with the first instance of the 
      * given element. If the given element is not in the list, an 
      * {@link IndexOutBoundException} will be thrown. Returns the swapped 
-     * element.
+     * element. This method
+     * will also throw an {@link ApiUsageException} if the collection is
+     * unloaded. See {@link #sizeOf${prop.nameCapped}()} for more information.
      */
     public ${prop.type} setPrimary${prop.shortType}(${prop.type} element)
     throws IndexOutOfBoundsException {
@@ -852,7 +874,8 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
    /**
     * Many-to-one field ${type.id}.${prop.name} (${prop.type})
     */
-    @javax.persistence.ManyToOne( cascade = {}, targetEntity = ${prop.type}.class)
+    @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, cascade = {${cascadeEjb}}, targetEntity = ${prop.type}.class)
+    @org.hibernate.annotations.Cascade({${cascadeHib}})
     @javax.persistence.JoinColumn(name="${prop.name}", nullable=${prop.nullable}, 
         unique=${prop.unique}, insertable=${prop.insert}, updatable=${prop.update})
     @org.hibernate.annotations.ForeignKey(name="FK${type.shortname.toLowerCase()}_${prop.name}_${prop.shortType.toLowerCase()}")
@@ -1197,16 +1220,21 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
 #######################################################
 
 #if(!$type.superclass)
-    private static class Details extends ome.model.internal.Details {
+    public static class Details extends ome.model.internal.Details {
 
         private final static long serialVersionUID = 0000000030000020301L;
 
+        public ome.model.internal.Details newInstance() {
+            return new Details();
+        }
+        
         @javax.persistence.Embedded
         public ome.model.internal.Permissions getPermissions() {
             return super.getPermissions();
         }
 
-        @javax.persistence.ManyToOne
+        @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, cascade = {${cascadeEjb}})
+        @org.hibernate.annotations.Cascade({${cascadeHib}})
         @javax.persistence.JoinColumn(name = "external_id", nullable = true, unique = true, insertable = true, updatable = false)
         @org.hibernate.annotations.ForeignKey(name = "FK${type.table}_external_id_externalinfo")
         public ome.model.meta.ExternalInfo getExternalInfo() {
@@ -1215,7 +1243,8 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
 
 #if(!$type.global)
         @Override
-        @javax.persistence.ManyToOne(cascade = {})
+        @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, cascade = {${cascadeEjb}})
+        @org.hibernate.annotations.Cascade({${cascadeHib}})
         @javax.persistence.JoinColumn(name = "owner_id", nullable = false, unique = false, insertable = true, updatable = true)
         @org.hibernate.annotations.ForeignKey(name = "FK${type.table}_owner_id_experimenter")
         public ome.model.meta.Experimenter getOwner() {
@@ -1223,7 +1252,8 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
         }
 
         @Override
-        @javax.persistence.ManyToOne(cascade = {})
+        @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, cascade = {${cascadeEjb}})
+        @org.hibernate.annotations.Cascade({${cascadeHib}})
         @javax.persistence.JoinColumn(name = "creation_id", nullable = false, unique = false, insertable = true, updatable = false)
         @org.hibernate.annotations.ForeignKey(name = "FK${type.table}_creation_id_event")
         public ome.model.meta.Event getCreationEvent() {
@@ -1231,7 +1261,8 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
         }
 
         @Override
-        @javax.persistence.ManyToOne(cascade = {})
+        @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, cascade = {${cascadeEjb}})
+        @org.hibernate.annotations.Cascade({${cascadeHib}})
         @javax.persistence.JoinColumn(name = "group_id", nullable = false, unique = false, insertable = true, updatable = true)
         @org.hibernate.annotations.ForeignKey(name = "FK${type.table}_group_id_experimentergroup")
         public ome.model.meta.ExperimenterGroup getGroup() {
@@ -1240,12 +1271,33 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
 
 #if(!$type.immutable)
         @Override
-        @javax.persistence.ManyToOne
+        @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, cascade = {${cascadeEjb}})
+        @org.hibernate.annotations.Cascade({${cascadeHib}})
         @javax.persistence.JoinColumn(name = "update_id", nullable = false, unique = false, insertable = true, updatable = true)
         @org.hibernate.annotations.ForeignKey(name = "FK${type.table}_update_id_event")
         public ome.model.meta.Event getUpdateEvent() {
             return super.getUpdateEvent();
         }
+#else
+       /**
+        * Overrides {@link ome.model.internal.Details#getUpdateEvent()} to
+        * always return null.
+        */
+        @Override
+        @javax.persistence.Transient
+        public ome.model.meta.Event getUpdateEvent() {
+            return null;
+        }
+
+       /**
+        * Overrides {@link ome.model.internal.Details#setUpdateEvent(ome.model.meta.Event)} to
+        * do nothing.
+        */
+        @Override
+        public void setUpdateEvent(ome.model.meta.Event event) {
+            // do nothing
+        }
+       
 #end
 #end
 

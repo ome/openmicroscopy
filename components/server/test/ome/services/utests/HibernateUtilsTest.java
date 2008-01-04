@@ -71,12 +71,12 @@ public class HibernateUtilsTest extends MockObjectTestCase {
     public void testOnlyLockedChanged() throws Exception {
 
         Object[] state = { null, null, null };
-        Object[] current = { new Details(), null, null };
+        Object[] current = { Details.create(), null, null };
         setupMocks(current);
 
         assertOnlyLockedChanged(state, true);
 
-        Details d = new Details();
+        Details d = Details.create();
         d.setPermissions(Permissions.READ_ONLY);
         current = new Object[] { d, null, null };
         setupMocks(current);

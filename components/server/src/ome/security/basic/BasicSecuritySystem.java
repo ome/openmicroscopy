@@ -7,13 +7,13 @@
 
 package ome.security.basic;
 
-// Java imports
 import static ome.model.internal.Permissions.Right.READ;
 import static ome.model.internal.Permissions.Role.GROUP;
 import static ome.model.internal.Permissions.Role.USER;
 import static ome.model.internal.Permissions.Role.WORLD;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -45,7 +45,6 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.ExternalInfo;
 import ome.model.meta.GroupExperimenterMap;
-import ome.parameters.Parameters;
 import ome.security.ACLVoter;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
@@ -403,8 +402,9 @@ public class BasicSecuritySystem implements SecuritySystem {
             return obj.getDetails(); // EARLY EXIT
         }
 
-        Details source = obj.getDetails();
-        Details newDetails = cd.createDetails();
+        final Details source = obj.getDetails();
+        final Details newDetails = source.newInstance();
+        newDetails.copy(cd.createDetails());
 
         if (source != null) {
 
@@ -502,7 +502,8 @@ public class BasicSecuritySystem implements SecuritySystem {
         boolean altered = false;
 
         final Details currentDetails = iobj.getDetails();
-        /* not final! */Details newDetails = cd.createDetails();
+        /* not final! */Details newDetails = currentDetails.newInstance();
+        newDetails.copy(cd.createDetails());
 
         // This happens if all fields of details are null (which can't happen)
         // And is so uninteresting for all of our checks. The object can't be
@@ -521,7 +522,7 @@ public class BasicSecuritySystem implements SecuritySystem {
         // Also uninteresting. If the users say nothing, then the originals.
         // Probably common since users don't worry about this information.
         else if (currentDetails == null) {
-            newDetails = new Details(previousDetails);
+            newDetails = previousDetails.copy();
             altered = true;
             if (log.isDebugEnabled()) {
                 log.debug("Setting details on " + iobj
@@ -1088,31 +1089,24 @@ public class BasicSecuritySystem implements SecuritySystem {
 
         // ticket:404 -- preventing users from logging into "user" group
         if (roles.getUserGroupName().equals(p.getGroup())) {
-            List<ExperimenterGroup> groups = sf.getQueryService()
-                    .findAllByQuery(
-                            "select g from ExperimenterGroup g "
-                                    + "join g.groupExperimenterMap as m "
-                                    + "join m.child as u "
-                                    + "where g.name  != :userGroup and "
-                                    + "u.omeName = :userName and "
-                                    + "m.defaultGroupLink = true",
-                            new Parameters().addString("userGroup",
-                                    roles.getUserGroupName()).addString(
-                                    "userName", p.getName()));
-
-            if (groups.size() != 1) {
+            LocalAdmin admin = (LocalAdmin) sf.getAdminService();
+            ExperimenterGroup defaultGroup = null;
+            try {
+                Experimenter exp = admin.userProxy(p.getName());
+                defaultGroup = admin.getDefaultGroup(exp.getId());
+            } catch (ApiUsageException aue) {
+                // Will be handled by the null clause following.
+            }
+            if (defaultGroup == null) {
                 throw new SecurityViolation(
                         String
                                 .format(
                                         "User %s attempted to login to user group \"%s\". When "
-                                                + "doing so, there must be EXACTLY one default group for "
-                                                + "that user and not %d", p
-                                                .getName(), roles
-                                                .getUserGroupName(), groups
-                                                .size()));
+                                                + "doing so, user must be in at least one other group",
+                                        p.getName(), roles.getUserGroupName()));
             }
 
-            final Principal updated = new Principal(p.getName(), groups.get(0)
+            final Principal updated = new Principal(p.getName(), defaultGroup
                     .getName(), p.getEventType());
             principalHolder.set(p);
             return updated;
@@ -1252,27 +1246,42 @@ public class BasicSecuritySystem implements SecuritySystem {
      *            A code-block that will be given the entity argument with a
      *            {@link #hasPrivilegedToken(IObject)} privileged token}.
      */
-    public <T extends IObject> T doAction(T obj, SecureAction action) {
-        Assert.notNull(obj);
+    public <T extends IObject> T doAction(SecureAction action, T... objs) {
+        Assert.notNull(objs);
+        Assert.notEmpty(objs);
         Assert.notNull(action);
 
-        // TODO inject
-        if (obj.getId() != null
-                && !((LocalQuery) sf.getQueryService()).contains(obj)) {
-            throw new SecurityViolation("Services are not allowed to call "
-                    + "doAction() on non-Session-managed entities.");
+        List<GraphHolder> ghs = new ArrayList<GraphHolder>();
+
+        for (T obj : objs) {
+
+            // TODO inject
+            if (obj.getId() != null
+                    && !((LocalQuery) sf.getQueryService()).contains(obj)) {
+                throw new SecurityViolation("Services are not allowed to call "
+                        + "doAction() on non-Session-managed entities.");
+            }
+
+            // FIXME
+            // Token oneTimeToken = new Token();
+            // oneTimeTokens.put(oneTimeToken);
+            ghs.add(obj.getGraphHolder());
+
         }
 
-        // FIXME
-        // Token oneTimeToken = new Token();
-        // oneTimeTokens.put(oneTimeToken);
-        obj.getGraphHolder().setToken(token, token);// oneTimeToken);
+        // Holding onto the graph holders since they protect the access
+        // to their tokens
+        for (GraphHolder graphHolder : ghs) {
+            graphHolder.setToken(token, token); // oneTimeToken
+        }
 
         T retVal;
         try {
-            retVal = action.updateObject(obj);
+            retVal = action.updateObject(objs);
         } finally {
-            obj.getGraphHolder().setToken(token, null);
+            for (GraphHolder graphHolder : ghs) {
+                graphHolder.setToken(token, null);
+            }
         }
         return retVal;
     }

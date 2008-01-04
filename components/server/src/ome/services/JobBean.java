@@ -310,14 +310,13 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
     // =========================================================================
 
     private Job secureSave(Job job) {
-        job = sec.doAction(job, new SecureAction() {
-            public <T extends IObject> T updateObject(T obj) {
-                T result = iUpdate.saveAndReturnObject(obj);
+        job = sec.doAction(new SecureAction() {
+            public <T extends IObject> T updateObject(T... objs) {
+                T result = iUpdate.saveAndReturnObject(objs[0]);
                 iUpdate.commit();
                 return result;
             }
-
-        });
+        }, job);
         return job;
     }
 

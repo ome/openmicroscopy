@@ -8,7 +8,9 @@ package ome.io.nio.itests;
 
 import java.io.IOException;
 
+import ome.api.IPojos;
 import ome.api.local.LocalUpdate;
+import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.testing.ObjectFactory;
 
@@ -19,10 +21,12 @@ import ome.testing.ObjectFactory;
 public class PixbufIOFixture {
     private Pixels pixels;
 
-    private LocalUpdate updater;
+    private final IPojos pojos;
+    private final LocalUpdate updater;
 
-    public PixbufIOFixture(LocalUpdate updater) {
+    public PixbufIOFixture(IPojos pojos, LocalUpdate updater) {
         this.updater = updater;
+        this.pojos = pojos;
     }
 
     private void createPixels() {
@@ -36,7 +40,12 @@ public class PixbufIOFixture {
         // is a SHA1 of "pixels"
         p.setSha1("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356");
 
-        pixels = updater.saveAndReturnObject(p);
+        Image i = p.getImage();
+        i.addPixels(p);
+        i = updater.saveAndReturnObject(p.getImage());
+        // List<Pixels> plist = (List<Pixels>) pojos.retrieveCollection(image,
+        // Image.PIXELS, null);
+        pixels = i.getPrimaryPixels();
 
     }
 

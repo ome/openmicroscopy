@@ -25,7 +25,7 @@ import ome.model.IObject;
 public interface SecureAction {
     /**
      * executes with special privilegs within the {@link SecuritySystem}. These
-     * privileges will only be granted to the top-level object.
+     * privileges will only be granted to the top-level objects.
      */
-    <T extends IObject> T updateObject(T obj);
+    <T extends IObject> T updateObject(T... objs);
 }

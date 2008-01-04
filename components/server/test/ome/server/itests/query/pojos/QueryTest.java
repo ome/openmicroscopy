@@ -129,6 +129,13 @@ public class QueryTest extends AbstractManagedContextTest {
     @Test
     public void testGetExperimenter() throws Exception {
         Experimenter e = iQuery.get(Experimenter.class, 0);
+        // Previously with the default flag, the group
+        // was automatically loaded. That's no longer the
+        // case
+        assertTrue(e.sizeOfGroupExperimenterMap() < 0);
+        // Now to get the groups, we have to ask for them.
+        e = iQuery.findByQuery("select e from Experimenter e"
+                + " join fetch e.groupExperimenterMap m where e.id = 0", null);
         assertNotNull(e.getPrimaryGroupExperimenterMap());
         assertNotNull(e.getPrimaryGroupExperimenterMap().parent());
 

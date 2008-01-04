@@ -48,9 +48,9 @@ public class RenderingSettingsTest extends AbstractManagedContextTest {
         rdef.addCodomainMapContext(enhancement);
 
         p.addRenderingDef(rdef);
-        p = factory.getUpdateService().saveAndReturnObject(p);
-        return p;
 
+        Image i = factory.getUpdateService().saveAndReturnObject(p.getImage());
+        return i.getPrimaryPixels();
     }
 
     @Test
@@ -61,8 +61,7 @@ public class RenderingSettingsTest extends AbstractManagedContextTest {
 
         rsx.applySettingsToPixel(from, to);
 
-        Image img = iQuery.get(Image.class, to);
-        rsx.resetDefaultsInImage(img.getId());
+        rsx.resetDefaultsInImage(p2.getImage().getId());
     }
 
     @Test

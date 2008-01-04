@@ -88,6 +88,7 @@ public class AbstractManagedContextTest extends
      */
     @Override
     protected void onSetUp() throws Exception {
+        this.applicationContext = createApplicationContext(null);
         factory = new ServiceFactory((OmeroContext) applicationContext);
         iQuery = (LocalQuery) factory.getQueryService();
         iUpdate = (LocalUpdate) factory.getUpdateService();
@@ -148,12 +149,7 @@ public class AbstractManagedContextTest extends
     }
 
     @Override
-    protected String[] getConfigLocations() {
-        return new String[] {};
-    }
-
-    @Override
-    protected ConfigurableApplicationContext loadContextLocations(
+    protected ConfigurableApplicationContext createApplicationContext(
             String[] locations) {
         return OmeroContext.getManagedServerContext();
     }

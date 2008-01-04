@@ -13,9 +13,11 @@ import ome.conditions.ApiUsageException;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
+import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
+import ome.model.core.PlaneInfo;
 import ome.model.display.Thumbnail;
 import ome.model.jobs.ImportJob;
 import ome.model.jobs.JobOriginalFileLink;
@@ -161,6 +163,21 @@ public class SetsAndLinksTest extends TestCase {
         assertTrue(job.sizeOfOriginalFileLinks() == 1);
         job.clearOriginalFileLinks();
         assertTrue(job.sizeOfOriginalFileLinks() == 0);
+    }
+
+    @Test
+    public void testOrderedRelationshipsCanHaveUnloadedAdd() {
+        Pixels p = new Pixels();
+        Channel c = new Channel(1L, false);
+        p.addChannel(c);
+
+        PlaneInfo pi = new PlaneInfo(1L, false);
+        try {
+            p.addPlaneInfo(pi);
+            fail("This should not be accepted.");
+        } catch (IllegalStateException ise) {
+            // good.
+        }
     }
 
     // ~ Private helpers

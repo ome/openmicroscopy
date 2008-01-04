@@ -38,7 +38,7 @@
 
   <!-- Scope: private -->
 
-  <bean id="securityWiring" class="ome.services.icy.fire.BasicSecurityWiring"
+  <bean id="securityWiring" class="ome.security.basic.BasicSecurityWiring"
   	lazy-init="true">
   	<property name="securitySystem" ref="securitySystem"/>
   	<property name="methodSecurity" ref="methodSecurity"/>

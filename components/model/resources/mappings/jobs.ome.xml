@@ -35,6 +35,8 @@
       <required name="scheduledFor" type="timestamp"/>
       <optional name="started" type="timestamp"/>
       <optional name="finished" type="timestamp"/>
+      <child name="originalFileLinks" type="ome.model.jobs.JobOriginalFileLink"
+             target="ome.model.core.OriginalFile"/>
     </properties>
   </type>
   
@@ -42,16 +44,12 @@
     <properties>
       <required name="imageName" type="string"/>
       <required name="imageDescription" type="string"/>
-      <child name="originalFileLinks" type="ome.model.jobs.JobOriginalFileLink"
-             target="ome.model.core.OriginalFile"/>
     </properties>
   </type>
   
   <type id="ome.model.jobs.ScriptJob" superclass="ome.model.jobs.Job">
     <properties>
       <optional name="description" type="string"/>
-      <child name="originalFileLinks" type="ome.model.jobs.JobOriginalFileLink"
-             target="ome.model.core.OriginalFile"/>
     </properties>
   </type>
   

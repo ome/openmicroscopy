@@ -13,6 +13,7 @@ import java.util.Collection;
 
 import ome.api.IPixels;
 import ome.model.core.Channel;
+import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.display.QuantumDef;
@@ -113,7 +114,8 @@ public class PixelsServiceTest extends AbstractManagedContextTest {
     @Test(groups = "ticket:330")
     public void testPixelsIsFilled() throws Exception {
         Pixels p = ObjectFactory.createPixelGraph(null);
-        p = factory.getUpdateService().saveAndReturnObject(p);
+        Image i = factory.getUpdateService().saveAndReturnObject(p.getImage());
+        p = i.getPrimaryPixels();
 
         IPixels pix = factory.getPixelsService();
         Pixels t = pix.retrievePixDescription(p.getId());

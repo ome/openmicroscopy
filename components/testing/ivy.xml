@@ -1,0 +1,20 @@
+<ivy-module version="1.0">
+  <info
+      organisation="omero"
+      module="testing"
+      status="integration"/>
+  <configurations>
+    <conf name="core"/>
+    <conf name="build" extends="core"/>
+    <conf name="test"  extends="core"/>
+  </configurations>
+  <publications>
+    <artifact name="testing" type="jar" conf="core" />
+  </publications>
+  <dependencies>
+    <!-- Internal -->
+    <dependency name="common" rev="${omero.version}" changing="true" />
+    <!-- Testing -->
+    <dependency org="jamon" name="jamon" rev="${versions.jamon}" conf="test->default"/> 
+  </dependencies>
+</ivy-module>

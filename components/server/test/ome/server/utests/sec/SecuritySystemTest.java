@@ -55,18 +55,18 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         // don't need ready sec.sys.
         sec.isReady();
         sec.isSystemType(null);
-        sec.getACLVoter().allowLoad(user.getClass(), new Details());
+        sec.getACLVoter().allowLoad(user.getClass(), Details.create());
         sec.getACLVoter().allowCreation(user);
-        sec.getACLVoter().allowUpdate(user, new Details());
-        sec.getACLVoter().allowDelete(user, new Details());
+        sec.getACLVoter().allowUpdate(user, Details.create());
+        sec.getACLVoter().allowDelete(user, Details.create());
         sec.getSecurityRoles();
         sf.mockQuery.expects(atLeastOnce()).method("contains").will(
                 returnValue(true));
-        sec.doAction(user, new SecureAction() {
-            public <T extends IObject> T updateObject(T obj) {
+        sec.doAction(new SecureAction() {
+            public <T extends IObject> T updateObject(T... obj) {
                 return null;
             };
-        });
+        }, user);
         sec.copyToken(user, user);
         sec.loadEventContext(false);
         sec.clearEventContext();
@@ -534,13 +534,13 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
         // 2. is privileged
         SecureAction checkAllowCreate = new SecureAction() {
-            public <T extends IObject> T updateObject(T obj) {
-                assertTrue(sec.getACLVoter().allowCreation(obj));
+            public <T extends IObject> T updateObject(T... objs) {
+                assertTrue(sec.getACLVoter().allowCreation(objs[0]));
                 return null;
             }
         };
-        sec.doAction(e, checkAllowCreate);
-        sec.doAction(i, checkAllowCreate);
+        sec.doAction(checkAllowCreate, e);
+        sec.doAction(checkAllowCreate, i);
 
         // 3. user is admin.
         prepareMocksWithRootDetails(false);
@@ -558,7 +558,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
         Experimenter e = new Experimenter();
         Image i = new Image();
-        Details d = new Details();
+        Details d = Details.create();
         d.setPermissions(new Permissions());
 
         prepareMocksWithUserDetails(false);
@@ -573,13 +573,14 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
         // 2. is privileged
         SecureAction checkAllowCreate = new SecureAction() {
-            public <T extends IObject> T updateObject(T obj) {
-                assertTrue(sec.getACLVoter().allowUpdate(obj, obj.getDetails()));
+            public <T extends IObject> T updateObject(T... objs) {
+                assertTrue(sec.getACLVoter().allowUpdate(objs[0],
+                        objs[0].getDetails()));
                 return null;
             }
         };
-        sec.doAction(e, checkAllowCreate);
-        sec.doAction(i, checkAllowCreate);
+        sec.doAction(checkAllowCreate, e);
+        sec.doAction(checkAllowCreate, i);
 
         // 3. user is admin.
         prepareMocksWithRootDetails(false);
@@ -611,7 +612,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
     public void testAllowDelete() {
         Experimenter e = new Experimenter();
         Image i = new Image();
-        Details d = new Details();
+        Details d = Details.create();
         d.setPermissions(new Permissions());
 
         prepareMocksWithUserDetails(false);
@@ -624,13 +625,14 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
         // 2. is privileged
         SecureAction checkAllowCreate = new SecureAction() {
-            public <T extends IObject> T updateObject(T obj) {
-                assertTrue(sec.getACLVoter().allowDelete(obj, obj.getDetails()));
+            public <T extends IObject> T updateObject(T... objs) {
+                assertTrue(sec.getACLVoter().allowDelete(objs[0],
+                        objs[0].getDetails()));
                 return null;
             }
         };
-        sec.doAction(e, checkAllowCreate);
-        sec.doAction(i, checkAllowCreate);
+        sec.doAction(checkAllowCreate, e);
+        sec.doAction(checkAllowCreate, i);
 
         // 3. user is admin.
         prepareMocksWithRootDetails(false);
@@ -664,7 +666,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
         prepareMocksWithUserDetails(false);
 
-        Details d = new Details();
+        Details d = Details.create();
         d.setOwner(new Experimenter(2L, false));
         d.setGroup(new ExperimenterGroup(2L, false));
         d.setPermissions(new Permissions());
@@ -724,7 +726,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         Permissions p = new Permissions();
         Image i = new Image(1L, true);
 
-        Details oldDetails = new Details();
+        Details oldDetails = Details.create();
         oldDetails.setOwner(user);
         oldDetails.setGroup(group);
         oldDetails.setCreationEvent(event);
@@ -795,8 +797,8 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         prepareMocksWithUserDetails(false);
         sec.loadEventContext(false);
         try {
-            sec.doAction(null, new SecureAction() {
-                public <T extends IObject> T updateObject(T obj) {
+            sec.doAction(new SecureAction() {
+                public <T extends IObject> T updateObject(T... objs) {
                     fail("implement");
                     return null;
                 }
@@ -815,15 +817,15 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
         prepareMocksWithUserDetails(false);
         sec.loadEventContext(false);
-        sec.doAction(i, new SecureAction() {
-            public <T extends IObject> T updateObject(T obj) {
-                assertTrue(sec.hasPrivilegedToken(obj));
+        sec.doAction(new SecureAction() {
+            public <T extends IObject> T updateObject(T... objs) {
+                assertTrue(sec.hasPrivilegedToken(objs[0]));
                 Image test = new Image();
-                sec.copyToken(obj, test);
+                sec.copyToken(objs[0], test);
                 assertTrue(sec.hasPrivilegedToken(test));
                 return null;
             }
-        });
+        }, i);
 
     }
 

@@ -11,10 +11,10 @@
 -->
 <types>
   <!-- Structured Annotations -->
-  <abstract id="ome.model.annotations.Annotation" discriminator="/" named="true" annotated="true" immutable="true">
+  <type id="ome.model.annotations.Annotation" discriminator="/" named="true" annotated="true" immutable="true">
     <properties>
     </properties>
-  </abstract>
+  </type>
   <type id="ome.model.annotations.TextAnnotation" discriminator="/text/" superclass="ome.model.annotations.Annotation" immutable="true">
     <properties>
       <optional name="textValue" type="text" mutable="false"/>

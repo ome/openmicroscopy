@@ -92,7 +92,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
         super.onSetUp();
 
         // Create set up the base fixture which sets up the database for us
-        baseFixture = new PixbufIOFixture(this.iUpdate);
+        baseFixture = new PixbufIOFixture(this.iPojos, this.iUpdate);
         pixels = baseFixture.setUp();
 
         // "Our" fixture which creates the planes needed for this test case.

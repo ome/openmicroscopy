@@ -192,20 +192,21 @@ public interface SecuritySystem {
     // ~ Actions
     // =========================================================================
     /**
-     * Allows actions to be performed with the 
-     * {@link EventContext#isCurrentUserAdmin()} flag enabled but <em>without</em>
-     * changing the value of {@link EventContext#getCurrentUserId()}, so that
-     * ownerships are properly handled. The merging of detached entity graphs
-     * should be disabled for the extent of the execution.
+     * Allows actions to be performed with the
+     * {@link EventContext#isCurrentUserAdmin()} flag enabled but
+     * <em>without</em> changing the value of
+     * {@link EventContext#getCurrentUserId()}, so that ownerships are properly
+     * handled. The merging of detached entity graphs should be disabled for the
+     * extent of the execution.
      * 
-     * Note: the {@link ome.api.IUpdate} save methods should not be used, since they 
-     * also accept detached entities, which could pose security risks. Instead
-     * load an entity from the database via {@link ome.api.IQuery}, make changes,
-     * and save the changes with {@link ome.api.IUpdate#flush()}.
+     * Note: the {@link ome.api.IUpdate} save methods should not be used, since
+     * they also accept detached entities, which could pose security risks.
+     * Instead load an entity from the database via {@link ome.api.IQuery},
+     * make changes, and save the changes with {@link ome.api.IUpdate#flush()}.
      */
     void runAsAdmin(AdminAction action);
 
-    <T extends IObject> T doAction(T obj, SecureAction action);
+    <T extends IObject> T doAction(SecureAction action, T... objs);
 
     // TODO do these need checks to isReady()?
 

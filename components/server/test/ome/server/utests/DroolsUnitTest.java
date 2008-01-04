@@ -77,9 +77,9 @@ public class DroolsUnitTest extends
     @Test
     public void testWithGraph() throws Exception {
         Project p = new Project();
-        p.getDetails().copy(new Details());
+        p.getDetails().copy(Details.create());
         Experimenter e = new Experimenter();
-        e.getDetails().copy(new Details());
+        e.getDetails().copy(Details.create());
         Event ev = new Event();
         Date d = new Date(System.currentTimeMillis());
         String description = "blah blah";

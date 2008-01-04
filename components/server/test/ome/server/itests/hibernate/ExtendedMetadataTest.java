@@ -117,7 +117,7 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
     // see https://trac.openmicroscopy.org.uk/omero/ticket/357
     public void testImageCanBeUnlockedFromPixels() throws Exception {
         assertContains(metadata.getLockChecks(Image.class), Pixels.class
-                .getName(), "defaultPixelsTag.image");
+                .getName(), "image");
     }
 
     // ~ Updating

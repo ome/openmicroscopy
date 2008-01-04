@@ -72,7 +72,7 @@ public class ProxyCleanupFilter extends ContextFilter {
                 return unloaded;
             } else if (f instanceof Details) {
                 // Currently Details is only "known" non-IObject Filterable
-                return super.filter(fieldId, new Details((Details) f));
+                return super.filter(fieldId, ((Details) f).shallowCopy());
             } else {
                 // TODO Here there's not much we can do. copy constructor?
                 throw new RuntimeException(

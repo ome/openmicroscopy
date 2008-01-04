@@ -61,6 +61,7 @@ import ome.services.util.OmeroAroundInvoke;
 import ome.system.EventContext;
 import ome.system.Roles;
 import ome.system.SimpleEventContext;
+import ome.tools.hibernate.HibernateUtils;
 import ome.util.Utils;
 
 import org.hibernate.Criteria;
@@ -110,6 +111,41 @@ import org.springframework.util.Assert;
 @SecurityDomain("OmeroSecurity")
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
+
+    /**
+     * Action used by various methods to save objects with the blessing of the
+     * {@link SecuritySystem}.Only the first object will be saved and returned,
+     * but all of the varargs will be given a token.
+     * 
+     * @see SecuritySystem#doAction(IObject, SecureAction)
+     */
+    private static class SecureUpdate implements SecureAction {
+        protected final LocalUpdate iUpdate;
+
+        SecureUpdate(LocalUpdate iUpdate) {
+            this.iUpdate = iUpdate;
+        }
+
+        public <T extends IObject> T updateObject(final T... objs) {
+            return iUpdate.saveAndReturnObject(objs[0]);
+        }
+    };
+
+    /**
+     * Action used to flush already saved objects. The top-level objects will be
+     * given a token and so can be safely flushed.
+     */
+    private static class SecureFlush extends SecureUpdate {
+        SecureFlush(LocalUpdate iUpdate) {
+            super(iUpdate);
+        }
+
+        @Override
+        public <T extends IObject> T updateObject(T... objs) {
+            iUpdate.flush();
+            return null;
+        }
+    }
 
     protected transient SimpleJdbcTemplate jdbc;
 
@@ -392,39 +428,24 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     }
 
     @RolesAllowed("system")
+    @SuppressWarnings("unchecked")
     public long createExperimenter(Experimenter experimenter,
             ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups) {
-        // TODO check that no other group is default
+
+        SecureAction action = new SecureUpdate(iUpdate);
 
         Experimenter e = copyUser(experimenter);
+        e.getDetails().copy(getSecuritySystem().newTransientDetails(e));
+        e = getSecuritySystem().doAction(action, e);
+        iUpdate.flush();
 
-        if (defaultGroup == null || defaultGroup.getId() == null) {
-            throw new ApiUsageException("Default group may not be null.");
-        }
-
-        SecureAction action = new SecureAction() {
-            public <T extends IObject> T updateObject(T obj) {
-                return iUpdate.saveAndReturnObject(obj);
-            }
-        };
-
-        e = getSecuritySystem().doAction(e, action);
-
-        e.linkExperimenterGroup(defaultGroup);
+        GroupExperimenterMap link = linkGroupAndUser(defaultGroup, e);
         if (null != otherGroups) {
             for (ExperimenterGroup group : otherGroups) {
-                if (group == null) {
-                    continue;
-                }
-                if (group.getId() == null) {
-                    throw new ApiUsageException(
-                            "Groups must be previously saved during "
-                                    + "Experimenter creation.");
-                }
-                e.linkExperimenterGroup(groupProxy(group.getId()));
+                linkGroupAndUser(group, e);
             }
         }
-        getSecuritySystem().doAction(e, action);
+
         changeUserPassword(e.getOmeName(), " ");
 
         getBeanHelper().getLogger().info(
@@ -432,49 +453,58 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         return e.getId();
     }
 
+    private GroupExperimenterMap linkGroupAndUser(ExperimenterGroup group,
+            Experimenter e) {
+
+        if (group == null || group.getId() == null) {
+            throw new ApiUsageException("Group must be persistent.");
+        }
+
+        group = new ExperimenterGroup(group.getId(), false);
+
+        GroupExperimenterMap link = e.linkExperimenterGroup(group);
+        link.getDetails().copy(getSecuritySystem().newTransientDetails(link));
+        getSecuritySystem().doAction(new SecureUpdate(iUpdate),
+                userProxy(e.getId()), link);
+        iUpdate.flush();
+        return link;
+    }
+
     @RolesAllowed("system")
     public long createGroup(ExperimenterGroup group) {
         group = copyGroup(group);
-        ExperimenterGroup g = getSecuritySystem().doAction(group,
-                new SecureAction() {
-                    public <T extends IObject> T updateObject(T obj) {
-                        return iUpdate.saveAndReturnObject(obj);
-                    }
-                });
+        ExperimenterGroup g = getSecuritySystem().doAction(
+                new SecureUpdate(iUpdate), group);
 
         getBeanHelper().getLogger().info("Created group: " + g.getName());
         return g.getId();
     }
 
     @RolesAllowed("system")
-    public void addGroups(Experimenter user, ExperimenterGroup... groups) {
-        if (user == null) {
-            return; // Handled by annotations
-        }
-        if (groups == null) {
-            return;
-        }
+    public void addGroups(final Experimenter user,
+            final ExperimenterGroup... groups) {
+        assertManaged(user);
 
-        List<String> added = new ArrayList<String>();
+        final List<String> added = new ArrayList<String>();
 
         Experimenter foundUser = userProxy(user.getId());
         for (ExperimenterGroup group : groups) {
+            assertManaged(group);
             ExperimenterGroup foundGroup = groupProxy(group.getId());
-            GroupExperimenterMap map = new GroupExperimenterMap();
-            map.link(foundGroup, foundUser);
-            map.getDetails().copy(getSecuritySystem().newTransientDetails(map));
-            getSecuritySystem().doAction(map, new SecureAction() {
-                public <T extends IObject> T updateObject(T obj) {
-                    return iUpdate.saveAndReturnObject(obj);
-                }
-            });
-            added.add(foundGroup.getName());
+            boolean found = false;
+            for (ExperimenterGroup currentGroup : foundUser
+                    .linkedExperimenterGroupList()) {
+                found |= HibernateUtils.idEqual(foundGroup, currentGroup);
+            }
+            if (!found) {
+                linkGroupAndUser(foundGroup, foundUser);
+                added.add(foundGroup.getName());
+            }
         }
-        iUpdate.flush();
 
         getBeanHelper().getLogger().info(
-                String.format("Added user %s to groups %s", foundUser
-                        .getOmeName(), added));
+                String.format("Added user %s to groups %s", userProxy(
+                        user.getId()).getOmeName(), added));
     }
 
     @RolesAllowed("system")
@@ -503,12 +533,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
                 ExperimenterGroup p = iQuery.get(ExperimenterGroup.class, pId);
                 Experimenter c = iQuery.get(Experimenter.class, cId);
                 p.unlinkExperimenter(c);
-                getSecuritySystem().doAction(p, new SecureAction() {
-                    public <T extends IObject> T updateObject(T obj) {
-                        iUpdate.saveObject(obj);
-                        return null;
-                    }
-                });
+                getSecuritySystem().doAction(new SecureUpdate(iUpdate), p);
                 removed.add(p.getName());
             }
         }
@@ -565,12 +590,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
         // TODO: May want to move this outside the loop
         // and after the !newDefaultSet check.
-        getSecuritySystem().doAction(foundUser, new SecureAction() {
-            public <T extends IObject> T updateObject(T obj) {
-                iUpdate.saveObject(obj);
-                return null;
-            }
-        });
+        getSecuritySystem().doAction(new SecureUpdate(iUpdate), foundUser);
 
         getBeanHelper().getLogger().info(
                 String.format("Changing default group for %s to %s", foundUser
@@ -612,11 +632,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     public ExperimenterGroup getDefaultGroup(@NotNull
     Long experimenterId) {
         ExperimenterGroup g = iQuery.findByQuery(
-                "select g from ExperimenterGroup g "
-                        + "join fetch g.groupExperimenterMap m "
-                        + "join fetch m.child  e " + "where e.id = :id "
-                        + "and m.defaultGroupLink = true", new Parameters()
-                        .addId(experimenterId));
+                "select g from ExperimenterGroup g, Experimenter e "
+                        + "join e.groupExperimenterMap m "
+                        + "where e.id = :id and m.parent = g.id "
+                        + "and g.name != :userGroup and index(m) = 0",
+                new Parameters().addId(experimenterId).addString("userGroup",
+                        sec.getSecurityRoles().getUserGroupName()));
         if (g == null) {
             throw new ValidationException("The user " + experimenterId
                     + " has no default group set.");
@@ -668,12 +689,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
         // make change.
         copy.getDetails().setGroup(group);
-        getSecuritySystem().doAction(copy, new SecureAction() {
-            public IObject updateObject(IObject obj) {
-                update.flush();
-                return null;
-            }
-        });
+        getSecuritySystem().doAction(new SecureFlush(iUpdate), copy);
     }
 
     /**
@@ -943,6 +959,14 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         copy.getDetails().copy(getSecuritySystem().newTransientDetails(g));
         // TODO see shallow copy comment on copy user
         return copy;
+    }
+
+    protected void assertManaged(IObject o) {
+        if (o == null) {
+            throw new ApiUsageException("Argument may not be null.");
+        } else if (o.getId() == null) {
+            throw new ApiUsageException(o.getClass().getName() + " has no id.");
+        }
     }
 
     // ~ Password access

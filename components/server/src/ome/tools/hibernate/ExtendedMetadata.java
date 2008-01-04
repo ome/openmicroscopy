@@ -12,7 +12,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// Third-party libraries
+import ome.annotations.RevisionDate;
+import ome.annotations.RevisionNumber;
+import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
+import ome.model.IObject;
+import ome.model.internal.Permissions;
+
 import org.hibernate.EntityMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.metadata.ClassMetadata;
@@ -20,14 +26,6 @@ import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.type.ComponentType;
 import org.hibernate.type.EmbeddedComponentType;
 import org.hibernate.type.Type;
-
-// Application-internal dependencies
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
-import ome.conditions.ApiUsageException;
-import ome.conditions.InternalException;
-import ome.model.IObject;
-import ome.model.internal.Permissions;
 
 /**
  * extension of the model metadata provided by {@link SessionFactory}. During
@@ -254,20 +252,11 @@ public class ExtendedMetadata {
             String ltype = lockedBy[t][0];
             String lfield = lockedBy[t][1];
 
-            // The reduces the full class name to its UQN form, which is
-            // used in the code-generated fields.
-            int idx = ltype.lastIndexOf(".");
-            String stype = ltype.substring(idx + 1);
-
-            // It's also necessary to remove any component prefixes from the
-            // field names, e.g. Pixels_defaultPixelsTag.image
-            idx = lfield.lastIndexOf(".");
-            String sfield = lfield.substring(idx + 1);
-            String field_description = String.format("%s_%s", stype, sfield);
+            String field_description = String.format("%s_%s", ltype, lfield);
             queries.put(field_description, String.format(
                     "select target.%s.id, count(target) "
-                            + "from %s target group by target.%s.id", sfield,
-                    ltype, sfield));
+                            + "from %s target group by target.%s.id", lfield,
+                    ltype, lfield));
 
             try {
                 targetHolder.put(field_description, (Class<IObject>) Class

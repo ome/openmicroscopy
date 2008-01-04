@@ -170,7 +170,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
     protected Image managedImage() {
         checkSomeoneIsLoggedIn();
         Image i = new Image(0L, true);
-        Details managed = new Details();
+        Details managed = Details.create();
         managed.setOwner(new Experimenter(sec.getEventContext()
                 .getCurrentUserId(), false));
         managed.setGroup(new ExperimenterGroup(sec.getEventContext()
@@ -268,14 +268,14 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
     }
 
     protected void chown(IObject i, Long userId) {
-        Details myDetails = i.getDetails() == null ? new Details() : i
+        Details myDetails = i.getDetails() == null ? Details.create() : i
                 .getDetails();
         myDetails.setOwner(new Experimenter(userId, true));
         i.getDetails().copy(myDetails);
     }
 
     protected void chgrp(IObject i, Long grpId) {
-        Details myDetails = i.getDetails() == null ? new Details() : i
+        Details myDetails = i.getDetails() == null ? Details.create() : i
                 .getDetails();
         myDetails.setGroup(new ExperimenterGroup(grpId, true));
         i.getDetails().copy(myDetails);
@@ -286,7 +286,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
     }
 
     protected void setDetails(IObject i, Long rootId, Long groupId, Long eventId) {
-        Details myDetails = new Details();
+        Details myDetails = Details.create();
         myDetails.setOwner(new Experimenter(1L, true));
         myDetails.setGroup(ROOT_GROUP);
         myDetails.setCreationEvent(INITIAL_EVENT);

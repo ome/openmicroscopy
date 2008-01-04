@@ -25,8 +25,6 @@ import ome.model.meta.ExternalInfo;
 import ome.util.Filter;
 import ome.util.Filterable;
 
-import org.hibernate.annotations.Parent;
-
 /**
  * value type for low-level (row-level) details for all
  * {@link ome.model.IObject} objects. Details instances are given special
@@ -41,9 +39,26 @@ import org.hibernate.annotations.Parent;
  * @see ome.api.IUpdate
  */
 @MappedSuperclass
-public class Details implements Filterable, Serializable {
+public abstract class Details implements Filterable, Serializable {
 
     private static final long serialVersionUID = 1176546684904748977L;
+
+    /**
+     * Factory method which returns a {@link Details} implementation for passing
+     * in API calls, but cannot be stored within an {@link IObject} instance.
+     * Use {@link #copy(Details)} or {@link #shallowCopy(Details)} instead.
+     */
+    public final static Details create() {
+        return new Details() {
+            private static final long serialVersionUID = Details.serialVersionUID;
+
+            @Override
+            public Details newInstance() {
+                return Details.create();
+            }
+
+        };
+    }
 
     public final static String PERMISSIONS = "Details_permissions";
 
@@ -61,7 +76,7 @@ public class Details implements Filterable, Serializable {
 
     protected IObject _context;
 
-    protected Permissions _perms = new Permissions(Permissions.DEFAULT);
+    protected Permissions _perms;
 
     protected ExternalInfo _externalInfo;
 
@@ -90,9 +105,15 @@ public class Details implements Filterable, Serializable {
     }
 
     public Details shallowCopy() {
-        Details newDetails = new Details();
-        newDetails.shallowCopy(this);
-        return newDetails;
+        Details d = newInstance();
+        d.shallowCopy(this);
+        return d;
+    }
+
+    public Details copy() {
+        Details d = newInstance();
+        d.copy(this);
+        return d;
     }
 
     /**
@@ -224,8 +245,9 @@ public class Details implements Filterable, Serializable {
      * reference to the entity which this Details is contained in. This value is
      * <em>not</em> maintained by the backend but is an internal mechanism.
      */
-    @Parent
+    // @Parent
     // TODO
+    @Transient
     public IObject getContext() {
         return _context;
     }
@@ -241,9 +263,7 @@ public class Details implements Filterable, Serializable {
         _context = myContext;
     }
 
-    public Details newInstance() {
-        return new Details();
-    }
+    public abstract Details newInstance();
 
     /**
      * simple view of the Details. Accesses only the ids of the contained

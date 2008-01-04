@@ -748,7 +748,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     }
 
     protected Details d(IObject _i, Object _o) {
-        Details retVal = new Details(_i.getDetails());
+        Details retVal = _i.getDetails().copy();
         // prevent error on different update event versions.
         retVal.setCreationEvent(null);
         retVal.setUpdateEvent(null);

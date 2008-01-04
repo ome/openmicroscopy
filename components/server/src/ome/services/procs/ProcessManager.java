@@ -141,12 +141,12 @@ public class ProcessManager implements IProcessManager {
             Job job = job(jobId);
             job.setStatus(getWaitingStatus());
             job.setMessage("No processor found for job.");
-            sec.doAction(job, new SecureAction() {
-                public <T extends IObject> T updateObject(T obj) {
-                    return update.saveAndReturnObject(obj);
+            sec.doAction(new SecureAction() {
+                public <T extends IObject> T updateObject(T... objs) {
+                    return update.saveAndReturnObject(objs[0]);
                 }
 
-            });
+            }, job);
         } else {
             procMap.put(jobId, p);
         }
