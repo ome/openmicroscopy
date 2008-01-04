@@ -16,6 +16,7 @@ import ome.conditions.ApiUsageException;
 import ome.model.IAttribute;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
+import ome.model.internal.GlobalDetails;
 import ome.model.meta.ExternalInfo;
 
 public class Attribute implements IAttribute, java.io.Serializable {
@@ -47,14 +48,8 @@ public class Attribute implements IAttribute, java.io.Serializable {
         errorIfUnloaded();
     }
 
-    protected void postGetter(String field) {
-    }
-
     protected void preSetter(String field, Object value) {
         errorIfUnloaded();
-    }
-
-    protected void postSetter(String field, Object value) {
     }
 
     protected void throwNullCollectionException(String propertyName) {
@@ -93,60 +88,33 @@ public class Attribute implements IAttribute, java.io.Serializable {
      */
 
     public Details getDetails() {
-        try {
-            preGetter(DETAILS);
-            return this.details;
-        } finally {
-            postGetter(DETAILS);
-        }
-
+        preGetter(DETAILS);
+        return this.details;
     }
 
-    public void setDetails(Details details) {
-        try {
-            preSetter(DETAILS, details);
-            this.details = details;
-        } finally {
-            postSetter(DETAILS, details);
-        }
+    public void setDetails(GlobalDetails details) {
+        preSetter(DETAILS, details);
+        this.details = (Details) details;
     }
 
     public Integer getVersion() {
-        try {
-            preGetter(VERSION);
-            return this.version;
-        } finally {
-            postGetter(VERSION);
-        }
-
+        preGetter(VERSION);
+        return this.version;
     }
 
     public void setVersion(Integer version) {
-        try {
-            preSetter(VERSION, version);
-            this.version = version;
-        } finally {
-            postSetter(VERSION, version);
-        }
+        preSetter(VERSION, version);
+        this.version = version;
     }
 
     public ExternalInfo getReference() {
-        try {
-            preGetter(REFERENCE);
-            return this.reference;
-        } finally {
-            postGetter(REFERENCE);
-        }
-
+        preGetter(REFERENCE);
+        return this.reference;
     }
 
     public void setReference(ExternalInfo reference) {
-        try {
-            preSetter(REFERENCE, reference);
-            this.reference = reference;
-        } finally {
-            postSetter(REFERENCE, reference);
-        }
+        preSetter(REFERENCE, reference);
+        this.reference = reference;
     }
 
     public final static String OWNER_FILTER = "Attribute_owner_filter";
