@@ -29,6 +29,7 @@ import javax.interceptor.Interceptors;
 
 import ome.api.Search;
 import ome.api.ServiceInterface;
+import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.internal.Details;
@@ -65,7 +66,7 @@ import org.springframework.transaction.annotation.Transactional;
 @LocalBinding(jndiBinding = "omero/local/ome.api.Search")
 @Interceptors( { OmeroAroundInvoke.class })
 @SecurityDomain("OmeroSecurity")
-public abstract class SearchBean extends AbstractStatefulBean implements Search {
+public class SearchBean extends AbstractStatefulBean implements Search {
 
     private final static long serialVersionUID = 59809384038000069L;
 
@@ -174,6 +175,25 @@ public abstract class SearchBean extends AbstractStatefulBean implements Search 
         actions.add(byTags);
     }
 
+    @Transactional
+    @RolesAllowed("user")
+    public void ByGroupForTags(String group) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public void ByTagForGroups(String tag) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException();
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public void ByUUID(String[] uuids) {
+        throw new UnsupportedOperationException();
+    }
+
     //
     // FETCH METHODS
     //
@@ -181,13 +201,12 @@ public abstract class SearchBean extends AbstractStatefulBean implements Search 
     @Transactional
     @RolesAllowed("user")
     public boolean hasNext() {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Transactional
     @RolesAllowed("user")
-    public IObject next() {
+    public IObject next() throws ApiUsageException {
         // TODO Auto-generated method stub
         return null;
     }
@@ -335,6 +354,12 @@ public abstract class SearchBean extends AbstractStatefulBean implements Search 
 
     @Transactional
     @RolesAllowed("user")
+    public void allTypes() {
+        // TODO Auto-generated method stub
+    }
+
+    @Transactional
+    @RolesAllowed("user")
     @SuppressWarnings("all")
     public <T extends IObject> void onlyType(Class<T> klass) {
         onlyTypes(klass);
@@ -434,4 +459,16 @@ public abstract class SearchBean extends AbstractStatefulBean implements Search 
         }
     }
 
+    //
+    // LOCAL API (mostly for testing)
+    //
+
+    public void addAction(SearchAction action) {
+        synchronized (actions) {
+            if (action == null) {
+                throw new IllegalArgumentException("Action cannot be null");
+            }
+            actions.add(action);
+        }
+    }
 }

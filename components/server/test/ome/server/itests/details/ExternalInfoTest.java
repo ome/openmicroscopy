@@ -9,8 +9,6 @@ package ome.server.itests.details;
 // Java imports
 
 // Third-party libraries
-import org.testng.annotations.Test;
-
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.model.core.Image;
@@ -18,6 +16,8 @@ import ome.model.meta.ExternalInfo;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
+
+import org.testng.annotations.Test;
 
 @Test(groups = "ticket:371")
 public class ExternalInfoTest extends AbstractManagedContextTest {

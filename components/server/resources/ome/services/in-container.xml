@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
@@ -17,8 +20,6 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
-<beans>	
-
   <description>
     Configuration for in-container properties and general database access. 
     The beans in this configuration file should NOT be generally accessed. 
@@ -31,21 +32,17 @@
   	<constructor-arg value="false"/>
   </bean>
 
-  <bean id="hibernateProperties" class="java.util.Properties">
+  <bean id="hibernateProperties" parent="hibernateProperties-defaults">
     <description>
     Scope: private
     </description>
-    <constructor-arg>
-      <props>
-        <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+    <property name="properties">
+      <props merge="true">
         <prop key="hibernate.transaction.manager_lookup_class">
         org.hibernate.transaction.JBossTransactionManagerLookup
         </prop>
-        <prop key="hibernate.cache.provider_class">org.hibernate.cache.NoCacheProvider</prop>        
-        <prop key="cache.use_query_cache">false</prop>
-        <prop key="cache.use_minimal_puts">false</prop>
-      </props>      
-    </constructor-arg>
+      </props>
+    </property>
   </bean>  
   
   <bean id="transactionManager" lazy-init="true"

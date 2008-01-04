@@ -289,7 +289,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * @param fetches
      *            Can be empty, which removes previous fetch setting.
      */
-    <T extends IObject> void fetchAlso(String... fetches);
+    void fetchAlso(String... fetches);
 
     // Reset ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -340,6 +340,11 @@ public interface Search extends ome.api.StatefulServiceInterface,
      *            May not be null or of zero length.
      */
     void ByFullText(String query);
+
+    /*
+    TODO: An idea:
+    void ByWildcardSql();
+    */
 
     /**
      * Builds a Lucene query and passes it to {@link #ByFullText(String)}.
@@ -422,7 +427,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * @throws ApiUsageException
      *             if there are no active queries or if
      */
-    <T extends IObject> T next() throws ApiUsageException;
+    IObject next() throws ApiUsageException;
 
     /**
      * Provides access to the extra query information (for example Lucene score

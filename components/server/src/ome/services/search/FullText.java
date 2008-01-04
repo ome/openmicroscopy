@@ -7,8 +7,6 @@
 
 package ome.services.search;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import ome.conditions.ApiUsageException;
@@ -71,8 +69,8 @@ public class FullText extends SearchAction {
     }
 
     public synchronized List<IObject> getNext(int size) {
-        scroll.
-        
+        // scroll.
+
         return null;
     }
 }

@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="components/model/target/generated/src"/>
-	<classpathentry kind="src" path="components/romio/resources"/>
-	<classpathentry kind="src" path="components/romio/src"/>
-	<classpathentry kind="src" path="components/romio/test"/>
 	<classpathentry kind="src" path="components/model/target/generated/resources"/>
 	<classpathentry kind="src" path="components/model/src"/>
 	<classpathentry kind="src" path="components/model/test"/>
@@ -23,11 +20,14 @@
 	<classpathentry kind="src" path="components/rendering/src"/>
 	<classpathentry kind="src" path="components/rendering/resources"/>
 	<classpathentry kind="src" path="components/rendering/target/generated/resources"/>
+	<classpathentry kind="src" path="components/romio/resources"/>
+	<classpathentry kind="src" path="components/romio/src"/>
+	<classpathentry kind="src" path="components/romio/test"/>
 	<classpathentry kind="src" path="components/tools/licenses/target/generated/src"/>
 	<classpathentry kind="src" path="components/tools/licenses/test"/>
 	<classpathentry kind="src" path="components/tools/licenses/resources"/>
 	<classpathentry kind="src" path="components/tools/licenses/src"/>
-	<classpathentry kind="src" path="components/client/resources"/>
+	<classpathentry kind="src" output="target/eclipse-client" path="components/client/resources"/>
 	<classpathentry kind="src" output="target/eclipse-client" path="components/client/test"/>
 	<classpathentry kind="src" output="target/eclipse-client" path="components/client/src"/>
 	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/target/generated/resources"/>
@@ -90,7 +90,7 @@
 	<classpathentry kind="lib" path="target/libs/postgresql.jar"/>
 	<classpathentry kind="lib" path="target/libs/qdox.jar"/>
 	<classpathentry kind="lib" path="target/libs/quartz.jar"/>
-	<classpathentry kind="lib" path="target/libs/spring.jar"/>
+	<classpathentry kind="lib" path="target/libs/spring.jar" sourcepath="lib/repository/spring-sources-2.5.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring-mock.jar"/>
 	<classpathentry kind="lib" path="target/libs/testng.jar"/>
 	<classpathentry kind="lib" path="target/libs/velocity.jar"/>

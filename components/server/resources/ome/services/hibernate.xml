@@ -33,6 +33,27 @@
     <constructor-arg ref="sessionFactory"/>
   </bean>
 
+  <bean id="hibernateProperties-defaults" abstract="true"
+    class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    <description>
+    Scope: private
+    </description>
+    <property name="properties">
+      <props>
+        <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+        <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+        <prop key="hibernate.connection.driver_class">${hibernate.connection.driver_class}</prop>
+        <prop key="hibernate.connection.url">${hibernate.connection.url}</prop>
+        <prop key="hibernate.connection.username">${hibernate.connection.username}</prop>
+        <prop key="hibernate.connection.password">${hibernate.connection.password}</prop>
+        <prop key="hibernate.cache.provider_class">org.hibernate.cache.NoCacheProvider</prop>
+        <prop key="cache.use_query_cache">false</prop>
+        <prop key="cache.use_minimal_puts">false</prop>
+        <prop key="hibernate.search.autoregister_listeners">false</prop>
+      </props>
+    </property>
+  </bean>
+
   <!-- Scope: private -->
   
   <bean id="proxyHandler" class="ome.tools.hibernate.ProxyCleanupFilter$Interceptor">

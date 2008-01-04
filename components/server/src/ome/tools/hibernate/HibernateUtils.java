@@ -150,7 +150,7 @@ public abstract class HibernateUtils {
                 int idx = index(string, propertyNames);
                 Object previous = previousState[idx];
                 if (!(previous instanceof Collection)) // implies
-                                                                    // not null
+                // not null
                 {
                     throw new InternalException(String.format(
                             "Invalid collection found for filtered "
@@ -264,7 +264,7 @@ public abstract class HibernateUtils {
             }
 
         }
-        return false;
+        return true;
 
     }
 
@@ -366,11 +366,11 @@ public abstract class HibernateUtils {
     @SuppressWarnings("unchecked")
     protected static Collection copy(Collection c) {
         if (c instanceof Set) {
-            return new HashSet((Set) c);
+            return new HashSet(c);
         }
 
         else if (c instanceof List) {
-            return new ArrayList((List) c);
+            return new ArrayList(c);
         } else {
             throw new InternalException("Unsupported collection type:"
                     + c.getClass().getName());

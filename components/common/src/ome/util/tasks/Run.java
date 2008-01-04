@@ -102,6 +102,7 @@ public class Run {
         return props;
     }
     
+    // TODO This is now in prefs. Reuse that.
     protected static Properties readStdin() {
         Properties p = new Properties();
         int available = 0;
