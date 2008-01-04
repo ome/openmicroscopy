@@ -116,7 +116,9 @@ public class PojosTest extends TestCase {
         ProjectData pd = new ProjectData(p);
         assertNotNull(pd.getDatasets());
         assertFalse(pd.getDatasets().size() == 0);
-        assertFalse(pd.getDatasets().iterator().next().getClass() == Dataset.class);
+        // Can no longer check assertFalse(==) between classes.
+        // Compiler complains.
+        assertTrue(pd.getDatasets().iterator().next().getClass() == DatasetData.class);
         if (log.isDebugEnabled()) {
             log.debug(pd);
         }
@@ -160,7 +162,7 @@ public class PojosTest extends TestCase {
         d_2.linkImage(i_2);
 
         ProjectData pd = new ProjectData(p_2);
-        DatasetData dd = (DatasetData) pd.getDatasets().iterator().next();
+        DatasetData dd = pd.getDatasets().iterator().next();
         Dataset test = (Dataset) dd.asIObject();
 
         Set p_links = new HashSet(p_2.collectDatasetLinks(null));
