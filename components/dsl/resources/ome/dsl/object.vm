@@ -2,49 +2,6 @@
 ##  Copyright (c) 2007 Glencoe Software Inc. All rights reserved.
 ##  Use is subject to license terms supplied in LICENSE.txt
 ##
-#*
-
-
-classbridge ? maybe not needed
-Add filter to lucene searches
-How to handle counts
-look at notes for nov/15 on what's wanted @Field(name="text") String getRDF();
-@DiscriminatorValue for mapping discriminator into attributes
-possibly put new db "OMERO3x" into new schema and copy everything over. ==> SEARCH FOR "SCHEMA"""
-TODO things to implement on @Entity
-  indexes
-   batch size
-   where clauses (deleted)
-  optimistic lock
-  set cascade properly (no delete except links)
-
-is it possible to order the creation of the columns in the db?
-many2one / foreign key cascading ESPECIALLY in all non-generated files.
-subclassing is not working write. Lots of different details!
-make sure all non-${type.properties} properties (ID/DESCRIPTION/NAME/ETC show up))
-go through and check all semantics for couple of class, all details, and permissions
-Must have model-psql.jar
-setDefaultXYZ is a bit complicated if indexOf < 0 throw exception
-will need upgrade scripts. A bit tough. java -jar OMERO3__8/upgrade.jar
-Need static UUIDGenerator in some Spring context, if not, use UUID.random() directly
-Add to constraints page that fields can't be all upper
-Add BaseObject
-make sure that DSL properly computers nullable/insertable/updatable for lists
-integration testing for model (H2?) including filterSets, etc. (also needed in blitz)
-remove the bidirectionality of lists
-experimenter link needs to be a list/ordered for defaultness
-prop.type needs to return IObject for links (unless we're trying covariance again)
-remove all references to "tag" in the mapping files
-make sure that the arrays are properly supported (like sets)
-add unloaded
-considering putting everything directly into the context rather than as an element of type
-do we nee
-
-@org.hibernate.annotations.BatchSize allows you to define the batch size when fetching instances of this 
-entity ( eg. @BatchSize(size=4) ). When loading a given entity, Hibernate will then load all the uninitialized 
-entities of the same type in the persistence context up to the batch size. 
-@Immutable for performance optimization
-*#
 ##
 ##  SETUP
 ##
@@ -142,13 +99,17 @@ import ome.model.*;
     sequenceName="seq_${type.table}" 
 ) 
 #end############################################################
-## TODO this may have to be elsewhere when not using JOINED subclassing
 @org.hibernate.annotations.ForeignKey(name="${type.table}_fk_class")
-@org.hibernate.search.annotations.Indexed(index="bigindex")
+@org.hibernate.search.annotations.Indexed(index="FullText")
+@org.hibernate.search.annotations.ClassBridge(
+    name="details", 
+    impl = ome.util.DetailsFieldBridge.class,
+    index=org.hibernate.search.annotations.Index.UN_TOKENIZED, 
+    store=org.hibernate.search.annotations.Store.NO
+)
 public #if($type.abstract)abstract#end class ${type.shortname}
 #if($type.superclass)extends $type.superclass #end implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($type.isEnum), IEnum#end#if($type.isLink), ILink#end
-## TODO Could just have $type.interfaces here then $type.interfaces.contains("IEnum")
- {
+{
 
    /* These values are defined in dsl/resources/ome/dsl/mapping.vm:
     * -------------------------------------------------------------
@@ -178,8 +139,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
         this(null, true);
     }
 
-    // TODO explain that this leaves loaded. This actually shouldn't be public
-    public ${type.shortname} (Long id) {
+    protected ${type.shortname} (Long id) {
         this(id, true);
     }
 
@@ -192,7 +152,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
 #else
         setId(id);
         if (loaded) {
-            getDetails().setContext(this); // TODO Is this necessary? Use @Parent
+            getDetails().setContext(this);
         } else {
             if (this.id == null) {
                 throw new ApiUsageException("Id cannot be null for a proxy");
@@ -210,7 +170,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
 #end
 
 ##
-##TODO required ctor
+## TODO required ctor
 ## (1) Check if needed
 ###if($type.requiredSingleProperties.size() > 0)
 ##    public ${type.shortname}(
@@ -295,16 +255,6 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     * will fail. Experimenter has no owner, for obvious reasons.
     */
     @javax.persistence.Embedded
-    @javax.persistence.AttributeOverrides( { 
-#if($type.immutable)
-        @javax.persistence.AttributeOverride(name="updateEvent", column = @javax.persistence.Column(name="") )#if($type.global),#end
-#end
-#if($type.global)
-        @javax.persistence.AttributeOverride(name="owner", column = @javax.persistence.Column(name="") ), 
-        @javax.persistence.AttributeOverride(name="group", column = @javax.persistence.Column(name="") ), 
-        @javax.persistence.AttributeOverride(name="creationEvent", column = @javax.persistence.Column(name="") ) 
-#end
-    } ) 
     @org.hibernate.annotations.Target(Details.class)
     public ome.model.internal.Details getDetails() {
         preGetter( DETAILS );
@@ -384,35 +334,28 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     }
 #end## type.described
 
-#*
-TODO
-if($type.annotated)
+#if($type.annotated)
     
     public final static String ANNOTATIONS = "${type.id}_annotations";
     
-    protected java.util.Map<String, ? extends ome.model.annotations.Annotation> annotations
-        = new java.util.HashMap<String, ome.model.annotations.Annotation>();
+    protected java.util.Set<? extends ome.model.annotations.Annotation> annotations
+        = new java.util.HashSet<ome.model.annotations.Annotation>();
 
     // TODO NOINSERT ON JOIN COLUMN, CASCADE, LINKS LINKS LINKS
     @javax.persistence.OneToMany(cascade = javax.persistence.CascadeType.ALL, targetEntity=ome.model.annotations.Annotation.class)
     @javax.persistence.JoinTable(name = "${type.table}_annotation", 
             joinColumns = @javax.persistence.JoinColumn(name = "${type.table}"), 
             inverseJoinColumns = @javax.persistence.JoinColumn(name = "annotation_id"))
-    @org.hibernate.annotations.MapKey(columns = {
-        @javax.persistence.Column(table = "annotation", name = "discriminator")
-        @javax.persistence.Column(table = "annotation", name = "id")
-    })
-    public <A extends ome.model.annotations.Annotation> java.util.Map<String, A> getAnnotations() {
+    public <A extends ome.model.annotations.Annotation> java.util.Set<A> getAnnotations() {
         preGetter( ANNOTATIONS );
-        return (java.util.Map<String,A>) this.annotations;
+        return (java.util.Set<A>) this.annotations;
     }
 
-    public <A extends ome.model.annotations.Annotation> void setAnnotations(java.util.Map<String,A> annotations) {
+    public <A extends ome.model.annotations.Annotation> void setAnnotations(java.util.Set<A> annotations) {
         preSetter( ANNOTATIONS, annotations );
-        this.annotations = (java.util.Map<String, A>) annotations;
+        this.annotations = (java.util.Set<A>) annotations;
     }
-end typeannotated
-*#
+#end##typeannotated
 
    /*
     *    PROPERTIES
@@ -944,7 +887,22 @@ end typeannotated
     * Simple field ${type.id}.${prop.name} (${prop.type}) 
     */
     ${prop.typeAnnotation}
-    ${prop.indexAnnotation}
+#if($prop.type == "java.lang.String")
+    @org.hibernate.search.annotations.Fields({
+        @org.hibernate.search.annotations.Field(),
+        @org.hibernate.search.annotations.Field(name="combined_fields")
+    })
+#elseif($prop.type == "java.sql.Timestamp")
+    @org.hibernate.search.annotations.DateBridge(
+        resolution=org.hibernate.search.annotations.Resolution.MINUTE)
+    @org.hibernate.search.annotations.Fields({
+        @org.hibernate.search.annotations.Field(index = org.hibernate.search.annotations.Index.UN_TOKENIZED),
+        @org.hibernate.search.annotations.Field(index = org.hibernate.search.annotations.Index.UN_TOKENIZED,
+            name = "combined_fields")
+    })
+#else
+    // Not indexed
+#end
     @javax.persistence.Column(columnDefinition="${prop.def}", nullable=${prop.nullable}, unique=${prop.unique}, name="${prop.name}", updatable=${prop.update})
     public ${prop.fieldType} get${prop.nameCapped}() {
         preGetter( ${prop.nameUpper} );

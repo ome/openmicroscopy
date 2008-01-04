@@ -27,9 +27,6 @@
 			<parent name="groupExperimenterMap" ordered="true" 
 				type="ome.model.meta.GroupExperimenterMap"
 				target="ome.model.meta.ExperimenterGroup"/>
-			<child name="annotationLinks"
-				type="ome.model.annotations.ExperimenterAnnotationLink"
-				target="ome.model.annotations.Annotation"/>
 			<required name="omeName" type="string" unique="true"/>
 			<required name="firstName" type="string"/>
 			<optional name="middleName" type="string"/>

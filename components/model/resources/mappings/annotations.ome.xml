@@ -13,21 +13,6 @@
   <!-- Structured Annotations -->
   <abstract id="ome.model.annotations.Annotation" discriminator="/" named="true" annotated="true">
     <properties>
-      <parent name="experimenterLinks"
-        type="ome.model.annotations.ExperimenterAnnotationLink"
-        target="ome.model.meta.Experimenter"/>
-      <parent name="projectLinks"
-        type="ome.model.annotations.ProjectAnnotationLink"
-        target="ome.model.containers.Project"/>
-      <parent name="datasetLinks"
-        type="ome.model.annotations.DatasetAnnotationLink"
-        target="ome.model.containers.Dataset"/>
-      <parent name="imageLinks"
-        type="ome.model.annotations.ImageAnnotationLink"
-        target="ome.model.core.Image"/>
-      <child name="annotationLinks"
-        type="ome.model.annotations.AnnotationAnnotationLink"
-        target="ome.model.annotations.Annotation"/>
     </properties>
   </abstract>
   <type id="ome.model.annotations.StringAnnotation" discriminator="/string/" superclass="ome.model.annotations.Annotation">
@@ -55,36 +40,4 @@
       <optional name="file" type="ome.model.core.OriginalFile"/>
     </properties>
   </type>
-  <!-- Links -->
-  <link id="ome.model.annotations.AnnotationAnnotationLink">
-    <properties>
-      <from_parent type="ome.model.annotations.Annotation"/>
-      <to_child type="ome.model.annotations.Annotation"/>
-    </properties>
-  </link>
-  <link id="ome.model.annotations.ExperimenterAnnotationLink">
-    <properties>
-      <from_parent type="ome.model.meta.Experimenter"/>
-      <to_child type="ome.model.annotations.Annotation"/>
-    </properties>
-  </link>
-  <link id="ome.model.annotations.ProjectAnnotationLink">
-    <properties>
-      <from_parent type="ome.model.containers.Project"/>
-      <to_child type="ome.model.annotations.Annotation"/>
-    </properties>
-  </link>
-  <link id="ome.model.annotations.DatasetAnnotationLink">
-    <properties>
-      <from_parent type="ome.model.containers.Dataset"/>
-      <to_child type="ome.model.annotations.Annotation"/>
-    </properties>
-  </link>
-  <link id="ome.model.annotations.ImageAnnotationLink">
-    <properties>
-      <from_parent type="ome.model.core.Image"/>
-      <to_child type="ome.model.annotations.Annotation"/>
-    </properties>
-  </link>
-
 </types>

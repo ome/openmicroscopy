@@ -281,14 +281,6 @@ public abstract class Property { // TODO need to define equality so that two
         return "null";
     }
 
-    public String getIndexAnnotation() {
-        if (type.equals("string")) {
-            return "@org.hibernate.search.annotations.Field(name=\"text\")";
-        } else {
-            return "// Not indexed";
-        }
-    }
-
     // TODO remove
     public void setTag(String tag) {
         this.tag = tag;

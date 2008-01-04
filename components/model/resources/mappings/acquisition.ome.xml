@@ -33,10 +33,6 @@
 				target="ome.model.containers.Category"/>
 			<parent name="datasetLinks" type="ome.model.containers.DatasetImageLink"
 				target="ome.model.containers.Dataset"/>			
-			<child name="annotationLinks"
-				type="ome.model.annotations.ImageAnnotationLink"
-				target="ome.model.annotations.Annotation"/>
-
 		</properties>
 	</type>
 	

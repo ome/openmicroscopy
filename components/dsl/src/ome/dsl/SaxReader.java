@@ -13,9 +13,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.xml.parsers.SAXParserFactory;
 
@@ -200,14 +202,67 @@ class DSLHandler extends DefaultHandler {
     /**
      * Initial processing.
      * 
-     * Example: Pixels: <zeromany name="thumbnails"
-     * type="ome.model.display.Thumbnail" inverse="pixels"/> Thumnail: <required
-     * name="pixels" type="ome.model.core.Pixels"/>
-     * 
-     * We want Thumbail.pixels to be given the inverse "thumbnails"
-     * 
      */
     public List<SemanticType> process() {
+
+        /*
+         * Handles the various link ups for annotations. (Possibly temporary)
+         * This creates new types and therefore should come first.
+         *
+        Set<SemanticType> additions = new HashSet<SemanticType>();
+        for (String id : types.keySet()) {
+            SemanticType t = types.get(id);
+            if (t.getAnnotated() != null && t.getAnnotated()) {
+
+                String newId = "ome.model.annotations." + t.getShortname()
+                        + "AnnotationLink";
+                SemanticType ann = types
+                        .get("ome.model.annotations.Annotation");
+
+                Properties linkP = new Properties();
+                linkP.setProperty("id", newId);
+                LinkType l = new LinkType(linkP);
+
+                Properties parentP = new Properties();
+                parentP.setProperty("type", t.getId());
+                LinkParent lp = new LinkParent(l, parentP);
+
+                Properties childP = new Properties();
+                childP.setProperty("type", "ome.model.annotations.Annotation");
+                LinkChild lc = new LinkChild(l, childP);
+
+                l.getProperties().add(lc);
+                l.getProperties().add(lp);
+                additions.add(l);
+
+                // And now create the links to the link
+                Properties plP = new Properties();
+                plP.setProperty("name", t.getTable() + "Links");
+                plP.setProperty("type", newId);
+                plP.setProperty("target", t.getId());
+                ParentLink pl = new ParentLink(ann, plP);
+                ann.getProperties().add(pl);
+
+                Properties clP = new Properties();
+                clP.setProperty("name", "annotationLinks");
+                clP.setProperty("type", newId);
+                clP.setProperty("target", t.getId());
+                ChildLink cl = new ChildLink(t, clP);
+                t.getProperties().add(cl);
+            }
+        }
+        for (SemanticType semanticType : additions) {
+            types.put(semanticType.getId(), semanticType);
+        }*/
+
+        /*
+         * Example: Pixels: <zeromany name="thumbnails"
+         * type="ome.model.display.Thumbnail" inverse="pixels"/> Thumnail:
+         * <required name="pixels" type="ome.model.core.Pixels"/>
+         * 
+         * We want Thumbail.pixels to be given the inverse "thumbnails"
+         * 
+         */
         for (String id : types.keySet()) { // "ome...Pixels"
             SemanticType t = types.get(id); // Pixels
             for (Property p : t.getProperties()) { // thumbnails
@@ -225,8 +280,11 @@ class DSLHandler extends DefaultHandler {
                 }
             }
         }
-        // Another post-processing step, which checks links for
-        // bidirectionality.
+
+        /*
+         * Another post-processing step, which checks links for
+         * bidirectionality.
+         */
         for (String id : types.keySet()) {
             SemanticType t = types.get(id);
             for (Property p : t.getProperties()) { // thumbnails
@@ -251,6 +309,7 @@ class DSLHandler extends DefaultHandler {
                 }
             }
         }
+
         return new ArrayList<SemanticType>(types.values());
     }
 

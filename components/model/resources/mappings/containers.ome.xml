@@ -18,9 +18,6 @@
 	  <properties>
 		 <child name="datasetLinks" type="ome.model.containers.ProjectDatasetLink"
 			target="ome.model.containers.Dataset"/>
-		 <child name="annotationLinks"
-			type="ome.model.annotations.ProjectAnnotationLink"
-			target="ome.model.annotations.Annotation"/>
 	  </properties>
   </type>
   
@@ -30,9 +27,6 @@
 			target="ome.model.containers.Project"/>
 		  <child name="imageLinks" type="ome.model.containers.DatasetImageLink"
 			target="ome.model.core.Image"/>
-		  <child name="annotationLinks"
-			type="ome.model.annotations.DatasetAnnotationLink"
-			target="ome.model.annotations.Annotation"/>
 	  </properties>
   </type>
   

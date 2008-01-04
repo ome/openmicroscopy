@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 import java.util.UUID;
 
 import junit.framework.TestCase;
-import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.StringAnnotation;
 import ome.model.enums.EventType;
@@ -102,15 +101,31 @@ public class HibernateTest extends TestCase {
         ann = (StringAnnotation) s.merge(ann);
         s.flush();
 
-        ILink link = root.linkAnnotation(ann);
-        setDetails(link);
+        root.getAnnotations().add(ann);
         s.flush();
 
         Query q = s
                 .createQuery("select e from Experimenter e join fetch e.annotations");
         q.setMaxResults(1);
         Experimenter test = (Experimenter) q.uniqueResult();
-        assertTrue(test.linkedAnnotationList().size() == 1);
+        assertTrue(test.getAnnotations().size() >= 1);
+    }
+
+    @Test
+    public void testAnnotatingAnnotations() throws Exception {
+        StringAnnotation tag = new StringAnnotation();
+        tag.setName("tag");
+        tag.setStringValue("value");
+        StringAnnotation group = new StringAnnotation();
+        group.setName("taggroup");
+        tag.setStringValue("value");
+
+        createEvent();
+        setDetails(tag);
+        setDetails(group);
+        tag.getAnnotations().add(group);
+        tag = (StringAnnotation) s.merge(tag);
+
     }
 
     // ==============================================================
