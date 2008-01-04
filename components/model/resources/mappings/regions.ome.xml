@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+<types>
+
+    <type id="ome.model.display.Roi" discriminator="roi">
+        <properties>
+            <required name="pixels" type="ome.model.core.Pixels"/>
+            <required name="visible" type="boolean"/>
+            <optional name="xml" type="text"/>
+            <optional name="z" type="int"/>
+            <optional name="t" type="int"/>
+            <optional name="c" type="int"/>
+        </properties>
+    </type>
+
+    <link id="ome.model.display.RoiLink" annotated="true">
+        <properties>
+            <from_parent type="ome.model.display.Roi"/>
+            <to_child type="ome.model.display.Roi"/>
+        </properties>
+    </link>
+
+</types>
