@@ -103,7 +103,7 @@
     </type>
     <type id="list.Item">
         <properties>
-            <listitem name="holder" type="list.Holder"/>
+            <manyone name="holder" type="list.Holder" ordered="true"/>
         </properties>
     </type>
 
@@ -116,7 +116,7 @@
 
     <type id="ic.ChannelBinding">
         <properties>
-            <listitem name="renderingDef" type="ic.RenderingDef"/>
+            <manyone name="renderingDef" type="ic.RenderingDef" ordered="true"/>
         </properties>
     </type>
     

@@ -7,7 +7,6 @@
 package ome.model.utests;
 
 import java.util.List;
-import java.util.Set;
 
 import junit.framework.TestCase;
 import ome.conditions.ApiUsageException;
@@ -117,27 +116,15 @@ public class SetsAndLinksTest extends TestCase {
     public void test_one_way_to_default_link() throws Exception {
         Experimenter experimenter = new Experimenter();
         ExperimenterGroup defaultGroup = new ExperimenterGroup();
+        ExperimenterGroup defaultGroup2 = new ExperimenterGroup();
 
         experimenter.linkExperimenterGroup(defaultGroup);
-        experimenter.se
-        Set s = experimenter.findGroupExperimenterMap(defaultGroup);
+        testIsDefault(experimenter, defaultGroup);
 
-        for (Object o : s) {
-            GroupExperimenterMap map = (GroupExperimenterMap) o;
-            map.setDefaultGroupLink(true);
-        }
-        testIsDefault(experimenter);
-    }
-
-    @Test
-    public void test_easier_default_linking() throws Exception {
-        Experimenter experimenter = new Experimenter();
-        ExperimenterGroup defaultGroup = new ExperimenterGroup();
-        GroupExperimenterMap map = new GroupExperimenterMap();
-        map.link(defaultGroup, experimenter);
-        map.setDefaultGroupLink(true);
-        experimenter.addGroupExperimenterMap(map, true);
-        testIsDefault(experimenter);
+        GroupExperimenterMap map = experimenter
+                .linkExperimenterGroup(defaultGroup2);
+        experimenter.setPrimaryGroupExperimenterMap(map);
+        testIsDefault(experimenter, defaultGroup2);
     }
 
     @Test(groups = { "broken", "ticket:346" })
@@ -178,9 +165,9 @@ public class SetsAndLinksTest extends TestCase {
 
     // ~ Private helpers
     // ===========================================================================
-    private void testIsDefault(Experimenter experimenter) {
-        assert Boolean.TRUE.equals((experimenter.iterateGroupExperimenterMap()
-                .next()).getDefaultGroupLink());
+    private void testIsDefault(Experimenter user, ExperimenterGroup group) {
+        ExperimenterGroup t = user.getPrimaryGroupExperimenterMap().parent();
+        assertEquals(group, t);
     }
 
 }

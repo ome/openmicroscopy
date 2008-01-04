@@ -14,21 +14,25 @@
 	<type id="ome.model.internal.Link"/>
 
   <!-- PDI -->
-  <type id="ome.model.containers.Project" named="true" described="true">
+  <type id="ome.model.containers.Project" named="true" described="true" annotated="true">
 	  <properties>
-		  <child name="datasetLinks" type="ome.model.containers.ProjectDatasetLink"
-        target="ome.model.containers.Dataset"/>
-		  <zeromany name="annotations" type="ome.model.annotations.ProjectAnnotation" inverse="project"/>
+		 <child name="datasetLinks" type="ome.model.containers.ProjectDatasetLink"
+			target="ome.model.containers.Dataset"/>
+		 <child name="annotationLinks"
+			type="ome.model.annotations.ProjectAnnotationLink"
+			target="ome.model.annotations.Annotation"/>
 	  </properties>
   </type>
   
-  <type id="ome.model.containers.Dataset" named="true" described="true">
+  <type id="ome.model.containers.Dataset" named="true" described="true" annotated="true">
 	  <properties>
 		  <parent name="projectLinks" type="ome.model.containers.ProjectDatasetLink"
-        target="ome.model.containers.Project"/>
+			target="ome.model.containers.Project"/>
 		  <child name="imageLinks" type="ome.model.containers.DatasetImageLink"
-        target="ome.model.core.Image"/>
-		  <zeromany name="annotations" type="ome.model.annotations.DatasetAnnotation" inverse="dataset"/>
+			target="ome.model.core.Image"/>
+		  <child name="annotationLinks"
+			type="ome.model.annotations.DatasetAnnotationLink"
+			target="ome.model.annotations.Annotation"/>
 	  </properties>
   </type>
   

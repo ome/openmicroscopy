@@ -155,7 +155,6 @@ public class Permissions implements Serializable {
     /**
      * represents the lower 64-bits of permissions data.
      */
-    @Column(columnDefinition = "default -1", name = "permissions", nullable = false)
     private long perm1 = -1; // all bits turned on.
 
     // ~ Getters
@@ -403,6 +402,7 @@ public class Permissions implements Serializable {
     // ~ Property accessors : used primarily by Hibernate
     // =========================================================================
 
+    @Column(name = "permissions", nullable = false)
     protected long getPerm1() {
         return this.perm1;
     }

@@ -55,8 +55,6 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static String FROMPARENT = "from_parent";
 
-    public final static String LISTITEM = "listitem";
-
     public final static Set<String> FIELDS = new HashSet<String>();
     static {
         FIELDS.add(REQUIRED);
@@ -70,7 +68,6 @@ public abstract class Property { // TODO need to define equality so that two
         FIELDS.add(PARENT);
         FIELDS.add(FROMPARENT);
         FIELDS.add(TOCHILD);
-        FIELDS.add(LISTITEM);
     }
 
     public final static Map<String, Class<? extends Property>> FIELDS2CLASSES = new HashMap<String, Class<? extends Property>>();
@@ -86,7 +83,6 @@ public abstract class Property { // TODO need to define equality so that two
         FIELDS2CLASSES.put(CHILD, ChildLink.class);
         FIELDS2CLASSES.put(FROMPARENT, LinkParent.class);
         FIELDS2CLASSES.put(TOCHILD, LinkChild.class);
-        FIELDS2CLASSES.put(LISTITEM, ListItem.class);
     }
 
     // VALUE-Type identifiers
@@ -120,13 +116,7 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static Map<String, String> DBTYPES = new HashMap<String, String>();
     static {
-        DBTYPES.put(STRING, String.class.getName());
-        DBTYPES.put(BOOLEAN, Boolean.class.getName());
-        DBTYPES.put(INTEGER, Integer.class.getName());
-        DBTYPES.put(FLOAT, Float.class.getName());
-        DBTYPES.put(DOUBLE, Double.class.getName());
-        DBTYPES.put(LONG, Long.class.getName());
-        DBTYPES.put(TIMESTAMP, Timestamp.class.getName());
+        DBTYPES.putAll(JAVATYPES);
         DBTYPES.put(TEXT, TEXT);
     }
 
@@ -266,7 +256,7 @@ public abstract class Property { // TODO need to define equality so that two
         if (type.equals("text")) {
             return "@org.hibernate.annotations.Type(type=\"org.hibernate.type.TextType\")";
         } else {
-            return "// No annotation";
+            return "// No @Type annotation";
         }
     }
 
@@ -282,6 +272,21 @@ public abstract class Property { // TODO need to define equality so that two
      */
     public String getFieldType() {
         return getType();
+    }
+
+    /**
+     * Read-only value. Overwritten in subclasses
+     */
+    public String getFieldInitializer() {
+        return "null";
+    }
+
+    public String getIndexAnnotation() {
+        if (type.equals("string")) {
+            return "@org.hibernate.search.annotations.Field(name=\"text\")";
+        } else {
+            return "// Not indexed";
+        }
     }
 
     // TODO remove
@@ -446,7 +451,7 @@ public abstract class Property { // TODO need to define equality so that two
         setInsert(Boolean.TRUE);
         setUpdate(Boolean.valueOf(attrs.getProperty("mutable", "true")));
 
-        if (JAVATYPES.containsKey(getType())) {
+        if (JAVATYPES.containsKey(type)) {
             setForeignKey(null);
         } else {
             setForeignKey(SemanticType.typeToColumn(st.getId()));
@@ -510,6 +515,19 @@ class ZeroManyField extends Property {
         }
         sb.append(getType());
         sb.append(">");
+        return sb.toString();
+    }
+
+    @Override
+    public String getFieldInitializer() {
+        StringBuilder sb = new StringBuilder();
+        if (getOrdered()) {
+            sb.append("new java.util.ArrayList<");
+        } else {
+            sb.append("new java.util.HashSet<");
+        }
+        sb.append(getType());
+        sb.append(">()");
         return sb.toString();
     }
 
@@ -601,6 +619,10 @@ class ManyOneField extends ManyZeroField {
     public ManyOneField(SemanticType st, Properties attrs) {
         super(st, attrs);
         setRequired(Boolean.TRUE);
+        if (getOrdered()) {
+            setInsert(Boolean.FALSE);
+            setUpdate(Boolean.FALSE);
+        }
     }
 }
 
@@ -639,14 +661,6 @@ class LinkChild extends ManyOneField {
         return true;
     }
 
-}
-
-class ListItem extends ManyOneField {
-    public ListItem(SemanticType st, Properties attrs) {
-        super(st, attrs);
-        setInsert(Boolean.FALSE);
-        setUpdate(Boolean.FALSE);
-    }
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

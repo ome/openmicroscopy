@@ -76,8 +76,12 @@ public abstract class SemanticType {
     /** optional item */
     private String superclass;
 
+    private String discriminator;
+
     // possible interfaces
     private Boolean abstrakt;
+
+    private Boolean annotated;
 
     private Boolean described;
 
@@ -99,7 +103,9 @@ public abstract class SemanticType {
         }
 
         setSuperclass(attrs.getProperty("superclass"));
+        setDiscriminator(attrs.getProperty("discriminator"));
 
+        setAnnotated(Boolean.valueOf(attrs.getProperty("annotated", "false")));
         setAbstract(Boolean.valueOf(attrs.getProperty("abstract", "false")));
         setDescribed(Boolean.valueOf(attrs.getProperty("described", "false")));
         setGlobal(Boolean.valueOf(attrs.getProperty("global", "false")));
@@ -168,6 +174,14 @@ public abstract class SemanticType {
         return abstrakt;
     }
 
+    public void setAnnotated(Boolean annotated) {
+        this.annotated = annotated;
+    }
+
+    public Boolean getAnnotated() {
+        return annotated;
+    }
+
     public void setId(String id) {
         this.id = id;
     }
@@ -215,6 +229,14 @@ public abstract class SemanticType {
         return superclass;
     }
 
+    public void setDiscriminator(String discriminator) {
+        this.discriminator = discriminator;
+    }
+
+    public String getDiscriminator() {
+        return discriminator;
+    }
+
     public void setNamed(Boolean named) {
         this.named = named;
     }
@@ -256,6 +278,20 @@ public abstract class SemanticType {
         List<Property> rv = new ArrayList<Property>();
         for (Property property : getProperties()) {
             if (!(property instanceof EntryField)) {
+                rv.add(property);
+            }
+        }
+        return rv;
+    }
+
+    public List<Property> getRequiredSingleProperties() {
+        List<Property> rv = new ArrayList<Property>();
+        for (Property property : getClassProperties()) {
+            boolean req = property.getRequired() == null ? false : property
+                    .getRequired();
+            boolean col = property.getOne2Many() == null ? false : property
+                    .getOne2Many();
+            if (req && !col) {
                 rv.add(property);
             }
         }

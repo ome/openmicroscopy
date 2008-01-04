@@ -21,12 +21,15 @@
 		</properties>
 	</type>
 	
-	<type id="ome.model.meta.Experimenter" global="true">
+	<type id="ome.model.meta.Experimenter" global="true" annotated="true">
 		<!-- ## needs to be ome_name -->
 		<properties>
 			<parent name="groupExperimenterMap" ordered="true" 
-	           type="ome.model.meta.GroupExperimenterMap"
-               target="ome.model.meta.ExperimenterGroup"/>
+				type="ome.model.meta.GroupExperimenterMap"
+				target="ome.model.meta.ExperimenterGroup"/>
+			<child name="annotationLinks"
+				type="ome.model.annotations.ExperimenterAnnotationLink"
+				target="ome.model.annotations.Annotation"/>
 			<required name="omeName" type="string" unique="true"/>
 			<required name="firstName" type="string"/>
 			<optional name="middleName" type="string"/>
@@ -42,7 +45,7 @@
 	<link id="ome.model.meta.GroupExperimenterMap">
 		<properties>
 			<from_parent type="ome.model.meta.ExperimenterGroup"/>
-			<to_child type="ome.model.meta.Experimenter" listitem="true"/>
+			<to_child type="ome.model.meta.Experimenter" ordered="true"/>
 		</properties>
 	</link>
 	

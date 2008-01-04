@@ -4,6 +4,13 @@
 ##
 #*
 
+
+classbridge ? maybe not needed
+Add filter to lucene searches
+How to handle counts
+look at notes for nov/15 on what's wanted @Field(name="text") String getRDF();
+@DiscriminatorValue for mapping discriminator into attributes
+possibly put new db "OMERO3x" into new schema and copy everything over. ==> SEARCH FOR "SCHEMA"""
 TODO things to implement on @Entity
   indexes
    batch size
@@ -11,6 +18,9 @@ TODO things to implement on @Entity
   optimistic lock
   set cascade properly (no delete except links)
 
+is it possible to order the creation of the columns in the db?
+many2one / foreign key cascading ESPECIALLY in all non-generated files.
+subclassing is not working write. Lots of different details!
 make sure all non-${type.properties} properties (ID/DESCRIPTION/NAME/ETC show up))
 go through and check all semantics for couple of class, all details, and permissions
 Must have model-psql.jar
@@ -28,8 +38,12 @@ remove all references to "tag" in the mapping files
 make sure that the arrays are properly supported (like sets)
 add unloaded
 considering putting everything directly into the context rather than as an element of type
-do we need to reverse the "both sides" logic in case of a list?
+do we nee
 
+@org.hibernate.annotations.BatchSize allows you to define the batch size when fetching instances of this 
+entity ( eg. @BatchSize(size=4) ). When loading a given entity, Hibernate will then load all the uninitialized 
+entities of the same type in the persistence context up to the batch size. 
+@Immutable for performance optimization
 *#
 ##
 ##  SETUP
@@ -53,7 +67,6 @@ package ${type.package};
 
 import ome.conditions.*;
 import ome.model.*;
-import ome.model.internal.*;
 
 #if(!$type.superclass && !$type.global)
 /**
@@ -64,23 +77,21 @@ import ome.model.internal.*;
  */
 @org.hibernate.annotations.FilterDefs({
     @org.hibernate.annotations.FilterDef(name="${ofilter}", 
-	    parameters=@org.hibernate.annotations.ParamDef( name="ownerId", type="java.lang.Long" )),
+        parameters=@org.hibernate.annotations.ParamDef( name="ownerId", type="java.lang.Long" )),
     @org.hibernate.annotations.FilterDef(name="${gfilter}",
-	    parameters=@org.hibernate.annotations.ParamDef( name="groupId", type="java.lang.Long" )),
+        parameters=@org.hibernate.annotations.ParamDef( name="groupId", type="java.lang.Long" )),
     @org.hibernate.annotations.FilterDef(name="${efilter}",
-	    parameters=@org.hibernate.annotations.ParamDef( name="eventId", type="java.lang.Long" )),
+        parameters=@org.hibernate.annotations.ParamDef( name="eventId", type="java.lang.Long" )),
     @org.hibernate.annotations.FilterDef(name="${pfilter}",
-	    parameters=@org.hibernate.annotations.ParamDef( name="permsStr", type="java.lang.String" )),
-#foreach( $prop in $type.classProperties )
-#if($prop.one2Many)
+        parameters=@org.hibernate.annotations.ParamDef( name="permsStr", type="java.lang.String" ))#foreach( $prop in $type.classProperties )#if($prop.one2Many),
     @org.hibernate.annotations.FilterDef(name="${ofilter}_${prop.nameUpper}",
-	    parameters=@org.hibernate.annotations.ParamDef( name="ownerId", type="java.lang.Long" )),
+        parameters=@org.hibernate.annotations.ParamDef( name="ownerId", type="java.lang.Long" )),
     @org.hibernate.annotations.FilterDef(name="${gfilter}_${prop.nameUpper}",
-	    parameters=@org.hibernate.annotations.ParamDef( name="groupId", type="java.lang.Long" )),
+        parameters=@org.hibernate.annotations.ParamDef( name="groupId", type="java.lang.Long" )),
     @org.hibernate.annotations.FilterDef(name="${efilter}_${prop.nameUpper}",
-	    parameters=@org.hibernate.annotations.ParamDef( name="eventId", type="java.lang.Long" )),
+        parameters=@org.hibernate.annotations.ParamDef( name="eventId", type="java.lang.Long" )),
     @org.hibernate.annotations.FilterDef(name="${pfilter}_${prop.nameUpper}",
-	    parameters=@org.hibernate.annotations.ParamDef( name="permsStr", type="java.lang.String" )),
+        parameters=@org.hibernate.annotations.ParamDef( name="permsStr", type="java.lang.String" ))
 #end
 #end
 })
@@ -92,42 +103,48 @@ import ome.model.internal.*;
     @org.hibernate.annotations.Filter(name="${gfilter}", condition=":groupId = group_id"),
     @org.hibernate.annotations.Filter(name="${efilter}", condition=":eventId = event_id"),
     @org.hibernate.annotations.Filter(name="${pfilter}", condition=":permsStr = permissions"),
-    @org.hibernate.annotations.Filter(name="securityFilter")
+    @org.hibernate.annotations.Filter(name="securityFilter", condition = "true")
 })
 #end
 #end
 @javax.persistence.Entity
-@org.hibernate.annotations.Entity( selectBeforeUpdate = true )
-@javax.persistence.Table(name = "${type.table}")
 ##
 ## Determine inheritance type
 ##
+###############################################################
 #if($type.superclass)
-@javax.persistence.Inheritance(strategy=javax.persistence.InheritanceType.JOINED) 
+## JOINED SUBCLASS
 #set($superId = ${type.typeToColumn($type.superclass)} )
+#if(!$type.discriminator)
 @javax.persistence.PrimaryKeyJoinColumn(name="${superId}_id") 
+@javax.persistence.Table(name = "${type.table}")
 #else
+## SINGLETABLE SUBCLASS
+@javax.persistence.DiscriminatorValue("${type.discriminator}") 
+#end
+#else##########################################################
+## TOP OF HIERARCHY
+@javax.persistence.Table(name = "${type.table}")
+@org.hibernate.annotations.Entity( selectBeforeUpdate = true )
+#if(!$type.discriminator)
+## ...OF JOINED TABLES
+@javax.persistence.Inheritance(strategy=javax.persistence.InheritanceType.JOINED)
+#else
+## ... IN A SINGLE TABLE
+@javax.persistence.Inheritance(strategy=javax.persistence.InheritanceType.SINGLE_TABLE)
+@javax.persistence.DiscriminatorValue("${type.discriminator}") 
+@javax.persistence.DiscriminatorColumn( 
+    name="discriminator", discriminatorType=javax.persistence.DiscriminatorType.STRING 
+)
+#end
 @javax.persistence.SequenceGenerator( 
     name="seq_${type.table}", 
     sequenceName="seq_${type.table}" 
 ) 
-#end
-#* TODO ADD SUPPORT FOR SINGLE TABLE CLASS
- *
- * @Inheritance(strategy=InheritanceType.SINGLE_TABLE) 
- * @DiscriminatorColumn( 
- * name="planetype", 
- * discriminatorType=DiscriminatorType.STRING 
- * ) 
- * @DiscriminatorValue("Plane") 
- * public class Plane { ... } 
- * @Entity 
- * @DiscriminatorValue("A320") 
- * public class A320 extends Plane { ... } 
-*#
-##
-##
-##
+#end############################################################
+## TODO this may have to be elsewhere when not using JOINED subclassing
+@org.hibernate.annotations.ForeignKey(name="${type.table}_fk_class")
+@org.hibernate.search.annotations.Indexed(index="bigindex")
 public #if($type.abstract)abstract#end class ${type.shortname}
 #if($type.superclass)extends $type.superclass #end implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($type.isEnum), IEnum#end#if($type.isLink), ILink#end
 ## TODO Could just have $type.interfaces here then $type.interfaces.contains("IEnum")
@@ -145,7 +162,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     * 18-19 : increment per delta // any changes to the dsl or mapping files
     */
     private static final long serialVersionUID = 0000000030000020301L;
-	
+    
 #if(!$type.global)
    /*
     * Constants naming filters used by the OMERO
@@ -157,38 +174,66 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     public final static String PERMS_FILTER = "${pfilter}";
 #end
 
-	public ${type.shortname} () {        
+    public ${type.shortname} () {
+        this(null, true);
     }
 
     // TODO explain that this leaves loaded. This actually shouldn't be public
     public ${type.shortname} (Long id) {
-        setId(id);
-        getDetails().setContext(this); // TODO Is this necessary? Use @Parent
+        this(id, true);
     }
 
+    /**
+     * Main constructor.
+     */
     public ${type.shortname} (Long id, boolean loaded) {
-        this(id);
-        if (!loaded) {
+#if($type.superclass)
+        super(id, loaded);
+#else
+        setId(id);
+        if (loaded) {
+            getDetails().setContext(this); // TODO Is this necessary? Use @Parent
+        } else {
             if (this.id == null) {
                 throw new ApiUsageException("Id cannot be null for a proxy");
             }
             unload();
         }
+#end
     }
-
-    // TODO a ctor which takes all simple properties?
-
-    // TODO ctor with UUID Type(UUID uuid) { } // which will be persisted perhaps as LSID? or just in ExternalInfo
 
 #if($type.isEnum)
     public ${type.shortname} (String value) {
+        this(null, true);
         setValue(value);
     }
 #end
 
+##
+##TODO required ctor
+## (1) Check if needed
+###if($type.requiredSingleProperties.size() > 0)
+##    public ${type.shortname}(
+####
+#### Add ctor arguments, with a comma if not the first
+####
+###foreach($prop in $type.requiredSingleProperties)
+##        ${prop.fieldType} _${prop.name}#if($type.requiredSingleProperties.size() > 1),#end
+###end
+##    ) {
+##        this(null, true);
+###foreach($prop in $type.requiredSingleProperties)
+##        set${prop.nameCapped}(_${prop.name});
+###end
+##    }
+###end## END ctorWithRequiredNeeded
+##
+
+    // TODO ctor with UUID Type(UUID uuid) { } // which will be persisted perhaps as LSID? or just in ExternalInfo
+
 #if(!${type.superclass})
-	public final static String ID = "${type.id}_id";
-	
+    public final static String ID = "${type.id}_id";
+    
     protected Long id;
 
    /**
@@ -202,9 +247,10 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     * fields.
     */
     @javax.persistence.Id
-	@javax.persistence.GeneratedValue(
-	    strategy=javax.persistence.GenerationType.SEQUENCE,
-	    generator="seq_${type.table}") 
+    @javax.persistence.GeneratedValue(
+        strategy=javax.persistence.GenerationType.SEQUENCE,
+        generator="seq_${type.table}") 
+    @org.hibernate.search.annotations.DocumentId
     public Long getId() {
         return this.id;
     }
@@ -212,13 +258,14 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     public void setId(Long id) {
         this.id = id;
     }
-#end
+
+    public final static String DETAILS = "${type.id}_details";
 
    /**
     * Note: subclasses of this class can only return subclasses of 
-	* this {@link Details} type.
-	*/
-   protected ${type.details} details = new ${type.details}();
+    * this {@link Details} type.
+    */
+   protected ome.model.internal.Details details = new Details();
 
    /**
     * The details of this object correspond to low-level system
@@ -248,13 +295,28 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     * will fail. Experimenter has no owner, for obvious reasons.
     */
     @javax.persistence.Embedded
-    public ${type.details} getDetails() {
+    @javax.persistence.AttributeOverrides( { 
+#if($type.immutable)
+        @javax.persistence.AttributeOverride(name="updateEvent", column = @javax.persistence.Column(name="") )#if($type.global),#end
+#end
+#if($type.global)
+        @javax.persistence.AttributeOverride(name="owner", column = @javax.persistence.Column(name="") ), 
+        @javax.persistence.AttributeOverride(name="group", column = @javax.persistence.Column(name="") ), 
+        @javax.persistence.AttributeOverride(name="creationEvent", column = @javax.persistence.Column(name="") ) 
+#end
+    } ) 
+    @org.hibernate.annotations.Target(Details.class)
+    public ome.model.internal.Details getDetails() {
+        preGetter( DETAILS );
         return this.details;
     }
 
-    public void setDetails(GlobalDetails details) throws ClassCastException { // TODO rename BaseDetails
-        this.details = (MutableDetails) details;
+    public void setDetails(ome.model.internal.Details details) {
+        preSetter( DETAILS, details );
+        this.details = (Details) details;
     }
+
+#end
 
    /*
     *    INTERFACE-BASED
@@ -263,6 +325,8 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     */
 
 #if(!${type.immutable} && !${type.superclass})
+    public final static String VERSION = "${type.id}_version";
+
     protected Integer version = 0; // TODO?
 
    /**
@@ -273,19 +337,21 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     @javax.persistence.Column(name="version") 
 //TODO mark off #118 if this succeeds, otherwise, completely remove versions and test updateEvent
     public Integer getVersion() {
+        preGetter( VERSION );
         return this.version;
     }
 
     public void setVersion(Integer version) {
+        preSetter( VERSION, version );
         this.version = version;
     }
 
 #end
 
 #if($type.named)
-	
+    
     public final static String NAME = "${type.id}_name";
-	
+    
     protected String name;
  
     @javax.persistence.Column( nullable = false, length = 256, name = "name")
@@ -298,15 +364,15 @@ public #if($type.abstract)abstract#end class ${type.shortname}
         preSetter( NAME, name );
         this.name = name;
     }
-#end
+#end## type.named
 
 #if($type.described)
-	
+    
     public final static String DESCRIPTION = "${type.id}_description";
-	
+    
     protected String description;
  
-    @javax.persistence.Column( nullable = false, length = 256, name = "description")
+    @javax.persistence.Column( nullable = true, length = 256, name = "description")
     public String getDescription() {
         preGetter( DESCRIPTION );
         return this.description;
@@ -316,7 +382,37 @@ public #if($type.abstract)abstract#end class ${type.shortname}
         preSetter( DESCRIPTION, description );
         this.description = description;
     }
-#end
+#end## type.described
+
+#*
+TODO
+if($type.annotated)
+    
+    public final static String ANNOTATIONS = "${type.id}_annotations";
+    
+    protected java.util.Map<String, ? extends ome.model.annotations.Annotation> annotations
+        = new java.util.HashMap<String, ome.model.annotations.Annotation>();
+
+    // TODO NOINSERT ON JOIN COLUMN, CASCADE, LINKS LINKS LINKS
+    @javax.persistence.OneToMany(cascade = javax.persistence.CascadeType.ALL, targetEntity=ome.model.annotations.Annotation.class)
+    @javax.persistence.JoinTable(name = "${type.table}_annotation", 
+            joinColumns = @javax.persistence.JoinColumn(name = "${type.table}"), 
+            inverseJoinColumns = @javax.persistence.JoinColumn(name = "annotation_id"))
+    @org.hibernate.annotations.MapKey(columns = {
+        @javax.persistence.Column(table = "annotation", name = "discriminator")
+        @javax.persistence.Column(table = "annotation", name = "id")
+    })
+    public <A extends ome.model.annotations.Annotation> java.util.Map<String, A> getAnnotations() {
+        preGetter( ANNOTATIONS );
+        return (java.util.Map<String,A>) this.annotations;
+    }
+
+    public <A extends ome.model.annotations.Annotation> void setAnnotations(java.util.Map<String,A> annotations) {
+        preSetter( ANNOTATIONS, annotations );
+        this.annotations = (java.util.Map<String, A>) annotations;
+    }
+end typeannotated
+*#
 
    /*
     *    PROPERTIES
@@ -331,7 +427,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
 ##  generate the appropriate methods.
 ##
 
-    protected ${prop.fieldType} ${prop.name};
+    protected ${prop.fieldType} ${prop.name} = ${prop.fieldInitializer};
 
 #if($prop.class.name == "ome.dsl.EntryField")#############################TYPE
 ##
@@ -341,6 +437,8 @@ public #if($type.abstract)abstract#end class ${type.shortname}
 ##
 #elseif($prop.one2Many)###################################################TYPE
 ##
+## SETUP
+##
 ## TODO IS this all_delete_orphan
 #set( $cascadeEjb = "javax.persistence.CascadeType.MERGE, javax.persistence.CascadeType.PERSIST, javax.persistence.CascadeType.REFRESH" )
 #if($prop.isLink)
@@ -348,6 +446,23 @@ public #if($type.abstract)abstract#end class ${type.shortname}
 #else
 #set( $cascadeHib = "org.hibernate.annotations.CascadeType.LOCK, org.hibernate.annotations.CascadeType.MERGE, org.hibernate.annotations.CascadeType.PERSIST, org.hibernate.annotations.CascadeType.REPLICATE, org.hibernate.annotations.CascadeType.REFRESH, org.hibernate.annotations.CascadeType.SAVE_UPDATE" );
 #end
+#if( $prop.isLink )
+#set( $LinkType = ${prop.type} )
+#set( $Link = ${prop.shortType} )
+#set( $ElementType = ${prop.target})
+#set( $Element = ${prop.shortTarget})
+##
+#if($prop.class.name == "ome.dsl.ChildLink" )
+#set( $order = "this, addition" )
+#set( $next = "parent" )
+#set( $other = "child" )
+#elseif($prop.class.name == "ome.dsl.ParentLink")
+#set( $order = "addition, this" )
+#set( $next = "child" )
+#set( $other = "parent" )
+#end
+#end##isLink
+##
 ##
 #if(!${type.global})
    /*
@@ -370,12 +485,16 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     * Values are indexed by the column "index" on ${prop.type}
     */
     @javax.persistence.OneToMany(fetch=javax.persistence.FetchType.LAZY, cascade={${cascadeEjb}})
+    @javax.persistence.JoinColumn(name="${prop.foreignKey}", nullable=false)
+	/*
+	$prop
+	*/
     @org.hibernate.annotations.Cascade({$cascadeHib})
     @org.hibernate.annotations.IndexColumn(name="index", nullable=false)
 #else
     * one-to-many Set ${type.id}.${prop.name} (${prop.type})
     */
-    @javax.persistence.OneToMany(mappedBy="${prop.foreignKey}", fetch=javax.persistence.FetchType.LAZY, cascade={${cascadeEjb}})
+    @javax.persistence.OneToMany(mappedBy="${prop.inverse}", fetch=javax.persistence.FetchType.LAZY, cascade={${cascadeEjb}})
     @org.hibernate.annotations.Cascade({$cascadeHib})
 #end
 ##
@@ -383,14 +502,15 @@ public #if($type.abstract)abstract#end class ${type.shortname}
 #if(!$type.global)
 ## TODO Can these be set on list 
     @org.hibernate.annotations.Filters({
-        @org.hibernate.annotations.Filter(name="securityFilter"),
+        @org.hibernate.annotations.Filter(name="securityFilter", condition = "true"),
         @org.hibernate.annotations.Filter(name=OWNER_FILTER_${prop.nameUpper}, condition=":ownerId = owner_id"),
         @org.hibernate.annotations.Filter(name=GROUP_FILTER_${prop.nameUpper}, condition=":groupId = group_id"),
         @org.hibernate.annotations.Filter(name=EVENT_FILTER_${prop.nameUpper}, condition=":eventId = event_id"),
         @org.hibernate.annotations.Filter(name=PERMS_FILTER_${prop.nameUpper}, condition=":permsStr = permissions")
     })
 #end
-   protected ${prop.fieldType} get${prop.nameCapped}() {
+    @org.hibernate.annotations.ForeignKey(name="${type.table}_fk_one_to_many", inverseName="${prop.shortType}_fk_one_to_many_inverse")
+    protected ${prop.fieldType} get${prop.nameCapped}() {
         preGetter( ${prop.nameUpper} );
         return this.${prop.name};
     }
@@ -410,7 +530,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
 ##  To prevent users from making mistakes like not properly setting both 
 ##  sides of a relationship, these fields are hidden, and only accessible via
 ##  the following methods. Methods fall into several categories: 
-##    (A) general
+##    (A) general   
 ##    (B) list-only
 ##    (C) link-based
 ##
@@ -446,7 +566,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
      * {@link #iterate${prop.nameCapped}} internally and so will return a value
      * even if the underlying collection is null.
      */
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     public <E> java.util.List<E> collect${prop.nameCapped}(ome.util.CBlock<E> block) {
 
         preGetter( ${prop.nameUpper} );
@@ -521,7 +641,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
         }
     }
 
-##	
+##
 ## The following methods are overwritten separately by the link code (C) below
 ## and therefore are omitted here if this is a link property.
 ##
@@ -553,7 +673,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
      * Gets the ${prop.type} at the given index.
      */
     public ${prop.type} get${prop.shortType}(int index)
-	throws IndexOutOfBoundsException {
+    throws IndexOutOfBoundsException {
         preGetter( ${prop.nameUpper} );
         if (get${prop.nameCapped}() == null) {
             throwNullCollectionException("${prop.nameCapped}");
@@ -561,13 +681,13 @@ public #if($type.abstract)abstract#end class ${type.shortname}
         return get${prop.nameCapped}().get(index);
     }
 
-	/**
+    /**
      * Sets the ${prop.type} at the given index. Adheres to the {@link List\#set(int ,E))}
-	 * contract. To extend the list, use {@link #add${prop.shortType}()}.
-	 * @see java.util.List\#set(int, E)
+     * contract. To extend the list, use {@link #add${prop.shortType}()}.
+     * @see java.util.List\#set(int, E)
      */
     public void set${prop.shortType}(int index, ${prop.type} element) 
-	throws IndexOutOfBoundsException {
+    throws IndexOutOfBoundsException {
         preSetter( ${prop.nameUpper}, index );
         if (get${prop.nameCapped}() == null) {
             throwNullCollectionException("${prop.nameCapped}");
@@ -578,8 +698,9 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     /**
      * Gets the first element of ${prop.name} which can be interpreted as the
      * primary or default element in some situations. If there is not first
-	 * element, an {@link IndexOutOfBoundsException} is throws.
+     * element, an {@link IndexOutOfBoundsException} is throws.
      */
+    @javax.persistence.Transient
     public ${prop.type} getPrimary${prop.shortType}()
     throws IndexOutOfBoundsException {
         preGetter( ${prop.nameUpper} );
@@ -592,9 +713,9 @@ public #if($type.abstract)abstract#end class ${type.shortname}
 
     /**
      * Swaps the first element of ${prop.name} with the first instance of the 
-	 * given element. If the given element is not in the list, an 
-	 * {@link IndexOutBoundException} will be thrown. Returns the swapped 
-	 * element.
+     * given element. If the given element is not in the list, an 
+     * {@link IndexOutBoundException} will be thrown. Returns the swapped 
+     * element.
      */
     public ${prop.type} setPrimary${prop.shortType}(${prop.type} element)
     throws IndexOutOfBoundsException {
@@ -602,15 +723,15 @@ public #if($type.abstract)abstract#end class ${type.shortname}
         if (get${prop.nameCapped}() == null) {
             throwNullCollectionException("${prop.nameCapped}");
         }
-		${prop.fieldType} list = get${prop.nameCapped}();
-		int index = list.indexOf(element);
+        ${prop.fieldType} list = get${prop.nameCapped}();
+        int index = list.indexOf(element);
         ${prop.type} old = list.get(0);
-		list.set(index, old);
-		list.set(0, element);
-		return old;
+        list.set(index, old);
+        list.set(0, element);
+        return old;
     }
     
-	
+    
 ## TODO 
 ## ListIterator<${prop.type}> listIterator${prop.nameCapped}()
 ## public int indexOf(${prop.type} elt)
@@ -626,26 +747,12 @@ public #if($type.abstract)abstract#end class ${type.shortname}
 ##  hide the link implementations.
 ##
 #if( $prop.isLink )
-#set( $LinkType = ${prop.type} )
-#set( $Link = ${prop.shortType} )
-#set( $ElementType = ${prop.target})
-#set( $Element = ${prop.shortTarget})
-##
-#if($prop.class.name == "ome.dsl.ChildLink" )
-#set( $order = "this, addition" )
-#set( $next = "parent" )
-#set( $other = "child" )
-#elseif($prop.class.name == "ome.dsl.ParentLink")
-#set( $order = "addition, this" )
-#set( $next = "child" )
-#set( $other = "parent" )
-#end
-##
+
     /**
      * Adds a ${LinkType} to ${prop.name} . This entails changing our ${prop.name} Set,
      * creating a new ${LinkType} and calling link${Element} on the ${ElementType}.
      */
-    public void link${Element} (${ElementType} addition) {
+    public ${LinkType} link${Element} (${ElementType} addition) {
         preSetter( ${prop.nameUpper}, addition );
 
         // Setup link
@@ -654,7 +761,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
 
         // Add it to us and possibly the other side.
         add${Link}( link, true );
-
+        return link;
     }
 
     /**
@@ -749,7 +856,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
      * collecting the results. If <code>block == null</code>, then the
      * iterator values themselves are collected.
      */
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     public <E> java.util.List<E> eachLinked${Element}(ome.util.CBlock<E> block) {
         preGetter( ${prop.nameUpper} );
 
@@ -816,9 +923,13 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     * Many-to-one field ${type.id}.${prop.name} (${prop.type})
     */
     // TODO @OrderBy
-    @javax.persistence.ManyToOne( cascade = {} ) // TODO targetEntity = XYZImpl.class)
+    @javax.persistence.ManyToOne( cascade = {}, targetEntity = ${prop.type}.class)
     @javax.persistence.JoinColumn(name="${prop.name}", nullable=${prop.nullable}, 
         unique=${prop.unique}, insertable=${prop.insert}, updatable=${prop.update})
+    @org.hibernate.annotations.ForeignKey(name="${prop.shortType}_fk_many_to_one")
+#if($type.isLink)## Need to convert from IObject to an implementation class
+    @org.hibernate.annotations.Target(${prop.type}.class)
+#end
     public ${prop.fieldType} get${prop.nameCapped}() {
         preGetter( ${prop.nameUpper} );
         return this.${prop.name};
@@ -832,8 +943,8 @@ public #if($type.abstract)abstract#end class ${type.shortname}
    /**
     * Simple field ${type.id}.${prop.name} (${prop.type}) 
     */
-    protected ${prop.type} ${prop.name};
-    ${prop.typeAnnotation}}
+    ${prop.typeAnnotation}
+    ${prop.indexAnnotation}
     @javax.persistence.Column(columnDefinition="${prop.def}", nullable=${prop.nullable}, unique=${prop.unique}, name="${prop.name}", updatable=${prop.update})
     public ${prop.fieldType} get${prop.nameCapped}() {
         preGetter( ${prop.nameUpper} );
@@ -842,14 +953,12 @@ public #if($type.abstract)abstract#end class ${type.shortname}
 
     public void set${prop.nameCapped}(${prop.fieldType} ${prop.name}) {
         preSetter( ${prop.nameUpper}, ${prop.name});
-		if (!(${prop.name} instanceof ${prop.type}})) {
-		    throw new ApiUsageException("${type.shortname}.set${prop.nameCapped}() accepts only ${prop.type} arguments.")
-		}
         this.${prop.name} = (${prop.type}) ${prop.name};
     }
 #end######################################################################TYPE
 #end########################################################################EACH
 
+    @javax.persistence.Transient
     // TODO what does this look like with Validator
     public boolean isValid() {
         return ome.util.Validator.validate(this).isValid();
@@ -877,8 +986,21 @@ public #if($type.abstract)abstract#end class ${type.shortname}
 
     @SuppressWarnings("unchecked")
     public boolean acceptFilter(ome.util.Filter __filter){
+#if(!$type.superclass)
+        this.id = (Long) __filter.filter(ID, this.id);
+        this.details = (Details) __filter.filter(DETAILS, this.details);
+#end
+#if(!${type.immutable} && !${type.superclass})
+        this.version = (Integer) __filter.filter(VERSION, this.version);
+#end
+#if($type.named)
+        this.name = (String) __filter.filter(NAME, this.name);
+#end
+#if($type.described)
+        this.description = (String) __filter.filter(DESCRIPTION, this.description);
+#end
 #foreach($prop in $type.classProperties)
-        this.$prop.name = (${prop.fieldType}) __filter.filter(${prop.name.toUpperCase()}, ${prop.name} ); 
+        this.${prop.name} = (${prop.fieldType}) __filter.filter(${prop.name.toUpperCase()}, this.${prop.name} ); 
 #end
 #if($type.superclass)
         return super.acceptFilter(__filter);
@@ -915,6 +1037,19 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     public final static java.util.Set<String> FIELDS;
     static {
        java.util.Set<String> raw = new java.util.HashSet<String>();
+#if(!$type.superclass)
+       raw.add(ID);
+       raw.add(DETAILS);
+#end
+#if(!${type.immutable} && !${type.superclass})
+       raw.add(VERSION);
+#end
+#if($type.named)
+       raw.add(NAME);
+#end
+#if($type.described)
+       raw.add(DESCRIPTION);
+#end
 #foreach($prop in $type.classProperties)
        raw.add(${prop.nameUpper});
 #if($type.superclass)
@@ -929,12 +1064,30 @@ public #if($type.abstract)abstract#end class ${type.shortname}
 #if(!$type.superclass)
     // TODO is this searched for proxies?
     @javax.persistence.Transient
-	protected java.util.Map<String, Object> _dynamicFields; 
+    protected java.util.Map<String, Object> _dynamicFields; 
 
 #end
     public Object retrieve(String field) {
         if (field == null) {
             return null;
+#if(!$type.superclass)
+        } else if (field.equals(ID)) {
+             return getId();
+        } else if (field.equals(DETAILS)) {
+             return getDetails();
+#end
+#if(!${type.immutable} && !${type.superclass})
+        } else if (field.equals(VERSION)) {
+             return getVersion();
+#end
+#if($type.named)
+        } else if (field.equals(NAME)) {
+             return getName();
+#end
+#if($type.described)
+        } else if (field.equals(DESCRIPTION)) {
+             return getDescription();
+#end
 #foreach($prop in $type.classProperties)
         } else if (field.equals(${prop.nameUpper})) { // TODO use == here first??
             return get${prop.nameCapped}();
@@ -951,11 +1104,29 @@ public #if($type.abstract)abstract#end class ${type.shortname}
         }
     }
     
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     public void putAt(String field, Object value)
     {
         if (field == null) {
             return;
+#if(!$type.superclass)
+        } else if (field.equals(ID)) {
+             setId((Long) value);
+        } else if (field.equals(DETAILS)) {
+             setDetails((Details) value);
+#end
+#if(!${type.immutable} && !${type.superclass})
+        } else if (field.equals(VERSION)) {
+             setVersion((Integer) value);
+#end
+#if($type.named)
+        } else if (field.equals(NAME)) {
+             setName((String)value);
+#end
+#if($type.described)
+        } else if (field.equals(DESCRIPTION)) {
+             setDescription((String)value);
+#end
 #foreach($prop in $type.classProperties)
         } else if (field.equals(${prop.nameUpper})) {
             set${prop.nameCapped}((${prop.fieldType})value);
@@ -976,6 +1147,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     @javax.persistence.Transient
     protected boolean _loaded = true;
 
+	@javax.persistence.Transient
     public boolean isLoaded() {
         return _loaded;
     }
@@ -990,8 +1162,20 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     
     public void unload() {
         _loaded = false;
+#if(!$type.superclass)
+        this.details = null;
+#end
+#if(!${type.immutable} && !${type.superclass})
+        this.version = null;
+#end
+#if($type.named)
+        this.name = null;
+#end
+#if($type.described)
+        this.description = null;
+#end
 #foreach($prop in $type.classProperties)
-        this.$prop.name = null;
+        this.${prop.name} = null;
 #end
 #if($type.superclass)
         super.unload();
@@ -1002,6 +1186,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     @javax.persistence.Transient
     private transient ome.model.internal.GraphHolder _graphHolder;
     
+    @javax.persistence.Transient
     public final ome.model.internal.GraphHolder getGraphHolder()
     {
         if (_graphHolder == null)
@@ -1010,6 +1195,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     }
 #end
 
+#*
     // SERIALIZATION
     /** the serialVersionID constant is set by objects.vm */
     private void readObject(java.io.ObjectInputStream s)
@@ -1017,7 +1203,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     {
         s.defaultReadObject();  
     }
-
+*#
     protected void preGetter( String field ) {
         errorIfUnloaded();
     }
@@ -1060,9 +1246,64 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     public $child child() {
         return ($child) getChild();
     }
-	
+    
 #end
 ##
 #######################################################
 
+#if(!$type.superclass)
+    public static class Details extends ome.model.internal.Details {
+
+        private final static long serialVersionUID = 0000000030000020301L;
+
+        @javax.persistence.Embedded
+        public ome.model.internal.Permissions getPermissions() {
+            return super.getPermissions();
+        }
+
+        @javax.persistence.ManyToOne
+        @javax.persistence.JoinColumn(name = "external_id", nullable = true, unique = true, insertable = true, updatable = false)
+        @org.hibernate.annotations.ForeignKey(name = "${type.table}_externalinfo_fk")
+        public ome.model.meta.ExternalInfo getExternalInfo() {
+            return super.getExternalInfo();
+        }
+
+#if(!$type.global)
+        @Override
+        @javax.persistence.ManyToOne(cascade = {})
+        @javax.persistence.JoinColumn(name = "owner_id", nullable = false, unique = false, insertable = true, updatable = true)
+        @org.hibernate.annotations.ForeignKey(name = "${type.table}_owner_fk")
+        public ome.model.meta.Experimenter getOwner() {
+            return super.getOwner();
+        }
+
+        @Override
+        @javax.persistence.ManyToOne(cascade = {})
+        @javax.persistence.JoinColumn(name = "creation_id", nullable = false, unique = false, insertable = true, updatable = false)
+        @org.hibernate.annotations.ForeignKey(name = "${type.table}_creation_fk")
+        public ome.model.meta.Event getCreationEvent() {
+            return super.getCreationEvent();
+        }
+
+        @Override
+        @javax.persistence.ManyToOne(cascade = {})
+        @javax.persistence.JoinColumn(name = "group_id", nullable = false, unique = false, insertable = true, updatable = true)
+        @org.hibernate.annotations.ForeignKey(name = "${type.table}_group_fk")
+        public ome.model.meta.ExperimenterGroup getGroup() {
+            return super.getGroup();
+        }
+
+#if(!$type.immutable)
+        @Override
+        @javax.persistence.ManyToOne
+        @javax.persistence.JoinColumn(name = "update_id", nullable = false, unique = false, insertable = true, updatable = true)
+        @org.hibernate.annotations.ForeignKey(name = "${type.table}_update_fk")
+        public ome.model.meta.Event getUpdateEvent() {
+            return super.getUpdateEvent();
+        }
+#end
+#end
+
+    }
+#end
 }

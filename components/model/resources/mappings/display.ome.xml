@@ -55,7 +55,7 @@
   
 	<type id="ome.model.display.ChannelBinding">
 		<properties>
-			<listitem name="renderingDef" type="ome.model.display.RenderingDef"/>
+			<manyone name="renderingDef" type="ome.model.display.RenderingDef" ordered="true"/>
 			<required name="family" type="ome.model.enums.Family"/>
 			<required name="coefficient" type="double"/>
 			<required name="inputStart" type="float"/>
@@ -83,7 +83,7 @@
   
 	<abstract id="ome.model.display.CodomainMapContext">
     <properties>
-      <listitem name="renderingDef" type="ome.model.display.RenderingDef"/>
+      <manyone name="renderingDef" type="ome.model.display.RenderingDef" ordered="true"/>
     </properties>
   </abstract>
   

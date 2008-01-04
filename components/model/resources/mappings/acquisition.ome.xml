@@ -15,7 +15,7 @@
     		Acquisition Context 1 
        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
-	<type id="ome.model.core.Image" named="true" described="true"><!--TODO named/desc-->
+	<type id="ome.model.core.Image" named="true" described="true" annotated="true"><!--TODO named/desc-->
 		<properties>
 			<!-- Acquisition Context 1 -->      
 			<optional name="condition" type="ome.model.acquisition.ImagingEnvironment"/>
@@ -28,14 +28,15 @@
       <!-- TODO: name switch and active Pixels isn't really optional! -->      
 			<zeromany name="pixels" type="ome.model.core.Pixels" inverse="image" ordered="true"/>
 
-      <!-- Containers -->
+			<!-- Containers -->
 			<parent name="categoryLinks" type="ome.model.containers.CategoryImageLink"
 				target="ome.model.containers.Category"/>
 			<parent name="datasetLinks" type="ome.model.containers.DatasetImageLink"
 				target="ome.model.containers.Dataset"/>			
+			<child name="annotationLinks"
+				type="ome.model.annotations.ImageAnnotationLink"
+				target="ome.model.annotations.Annotation"/>
 
-      <!-- Annotations -->
-			<zeromany name="annotations" type="ome.model.annotations.ImageAnnotation" inverse="image"/>
 		</properties>
 	</type>
 	
@@ -51,7 +52,7 @@
 	<type id="ome.model.core.Pixels">
 		<properties>
       <!-- Acquisition Context 1 -->      
-			<listitem name="image" type="ome.model.core.Image"/>
+			<manyone name="image" type="ome.model.core.Image" ordered="true"/>
 			<optional name="relatedTo" type="ome.model.core.Pixels"/>
 			<!-- TODO: seems insufficient -->
  			<required name="pixelsType" type="ome.model.enums.PixelsType"/>		
@@ -170,7 +171,7 @@
           description="color must exist if PIType == RGB|ARGB|CMYK|HSV"/>
       </optional>
 			<optional name="logicalChannel" type="ome.model.core.LogicalChannel"/>
-			<listitem name="pixels" type="ome.model.core.Pixels"/>
+			<manyone name="pixels" type="ome.model.core.Pixels" ordered="true"/>
 		</properties>
 	</type>
   

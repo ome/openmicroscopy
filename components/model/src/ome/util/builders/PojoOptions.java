@@ -10,10 +10,6 @@ package ome.util.builders;
 import java.util.HashMap;
 import java.util.Map;
 
-import ome.model.annotations.DatasetAnnotation;
-import ome.model.annotations.ImageAnnotation;
-import ome.model.containers.CategoryImageLink;
-
 // Java imports
 
 // Third-party libraries
@@ -50,9 +46,7 @@ public class PojoOptions
     private final Map options = new HashMap();
 
     public PojoOptions() {
-        this.noLeaves().countsForUser().countFields(
-                new String[] { DatasetAnnotation.DATASET,
-                        ImageAnnotation.IMAGE, CategoryImageLink.CHILD });
+        this.noLeaves();
     }
 
     /**

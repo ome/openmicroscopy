@@ -92,14 +92,24 @@ public class DSLTask extends Task {
             }
         }
 
-        VelocityHelper vh = new VelocityHelper();
-        vh.put("types", types);
+        VelocityHelper vhData = new VelocityHelper();
+        vhData.put("types", types);
         try {
             String file = _outputDir + File.separator + "resources"
                     + File.separator + "data.sql";
-            writeToFile(vh, file, "ome/dsl/data.vm");
+            writeToFile(vhData, file, "ome/dsl/data.vm");
         } catch (Exception e) {
             throw new BuildException("Error while writing data:", e);
+        }
+
+        VelocityHelper vhCfg = new VelocityHelper();
+        vhCfg.put("types", types);
+        try {
+            String file = _outputDir + File.separator + "resources"
+                    + File.separator + "hibernate.cfg.xml";
+            writeToFile(vhCfg, file, "ome/dsl/cfg.vm");
+        } catch (Exception e) {
+            throw new BuildException("Error while writing cfg:", e);
         }
 
     }

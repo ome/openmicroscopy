@@ -10,7 +10,7 @@ package ome.model;
 import java.util.Set;
 
 import ome.conditions.ApiUsageException;
-import ome.model.internal.GlobalDetails;
+import ome.model.internal.Details;
 import ome.model.internal.GraphHolder;
 import ome.util.Filterable;
 import ome.util.Validation;
@@ -53,7 +53,7 @@ public interface IObject extends Filterable {
      * Low-level "details" such as security, ownership, auditing are managed
      * here.
      */
-    public GlobalDetails getDetails();
+    public Details getDetails();
 
     /**
      * when setting details, it is important to realize that most of the values
@@ -61,7 +61,7 @@ public interface IObject extends Filterable {
      * not have permission to change the owner of an object, not even when owned
      * by that user.
      */
-    public void setDetails(GlobalDetails details);
+    public void setDetails(Details details);
 
     // ~ Lifecycle
     // =========================================================================
