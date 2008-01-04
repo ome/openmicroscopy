@@ -8,7 +8,9 @@
 package pojos;
 
 // Java imports
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 // Third-party libraries
@@ -56,11 +58,8 @@ public class ExperimenterData extends DataObject {
     /** Identifies the {@link Experimenter#GROUPEXPERIMENTERMAP} field. */
     public final static String GROUP_EXPERIMENTER_MAP = Experimenter.GROUPEXPERIMENTERMAP;
 
-    /** The default Group this Experimenter belongs in. */
-    private GroupData defaultGroup;
-
     /** The other Groups this Experimenter belongs in. */
-    private Set groups;
+    private List<GroupData> groups;
 
     /** Creates a new instance. */
     public ExperimenterData() {
@@ -173,19 +172,19 @@ public class ExperimenterData extends DataObject {
      * 
      * @return See above.
      */
-    public Set getGroups() {
+    public List<GroupData> getGroups() {
 
         if (groups == null
                 && asExperimenter().sizeOfGroupExperimenterMap() >= 0) {
-            groups = new HashSet(asExperimenter().eachLinkedExperimenterGroup(
+            groups = asExperimenter().eachLinkedExperimenterGroup(
                     new CBlock() {
                         public Object call(IObject object) {
                             return new GroupData((ExperimenterGroup) object);
                         }
-                    }));
+                    });
         }
 
-        return groups == null ? null : new HashSet(groups);
+        return groups == null ? null : new ArrayList<GroupData>(groups);
     }
 
     // Link mutations
@@ -196,9 +195,9 @@ public class ExperimenterData extends DataObject {
      * @param newValue
      *            The set of groups.
      */
-    public void setGroups(Set newValue) {
-        Set currentValue = getGroups();
-        SetMutator m = new SetMutator(currentValue, newValue);
+    public void setGroups(List<GroupData> newValue) {
+        List<GroupData> currentValue = new ArrayList<GroupData>(getGroups());
+        SetMutator<GroupData> m = new SetMutator<GroupData>(currentValue, newValue);
 
         while (m.moreDeletions()) {
             setDirty(true);
@@ -220,31 +219,7 @@ public class ExperimenterData extends DataObject {
      * @return See above.
      */
     public GroupData getDefaultGroup() {
-        if (defaultGroup == null
-                && asExperimenter().getPrimaryGroupExperimenterMap() != null) {
-            defaultGroup = new GroupData(asExperimenter().getPrimaryGroupExperimenterMap()
-                    .parent());
-        }
-        return defaultGroup;
-    }
-
-    /**
-     * Sets the default Group.
-     */
-    public void setDefaultGroup(GroupData group) {
-        if (getDefaultGroup() == group) {
-            return;
-        }
-        setDirty(true);
-        this.defaultGroup = group;
-        if (this.defaultGroup != null) {
-            final ExperimenterGroup g = group.asGroup();
-            final Set<GroupExperimenterMap> grps = asExperimenter().findGroupExperimenterMap(g);
-            if (grps.size() == 0) {
-                throw new IllegalArgumentException(g + " not found for " + asExperimenter());
-            }
-            asExperimenter().setPrimaryGroupExperimenterMap(grps.iterator().next());
-        }
+        return getGroups().get(0);
     }
 
 }

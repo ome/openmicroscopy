@@ -9,7 +9,9 @@ package pojos;
 
 // Java imports
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 // Third-party libraries
@@ -55,47 +57,40 @@ public class ImageData extends DataObject {
     public final static String DATASET_LINKS = Image.DATASETLINKS;
 
     /**
-     * The default image data associated to this Image. An <i>OME</i> Image can
-     * be associated to more than one 5D pixels set (that is, the raw image
-     * data) if all those sets are derived from an initial image file. An
-     * example is a deconvolved image and the original file: those two pixels
-     * sets would be represented by the same <i>OME</i> Image. In the case
-     * there's more than one pixels set, this field identifies the pixels that
-     * are used by default for analysis and visualization. If the Image only has
-     * one pixels set, then this field just points to that set. This field may
-     * not be <code>null</code>.
-     */
-    private PixelsData defaultPixels;
-
-    /**
      * All the Pixels that belong to this Image. The elements of this set are
      * {@link PixelsData} objects. This field may not be <code>null</code> nor
      * empty. As a minimum, it will contain the {@link #defaultPixels default}
      * Pixels.
      * 
-     * @see #defaultPixels
+     * An <i>OME</i> Image can
+     * be associated to more than one 5D pixels set (that is, the raw image
+     * data) if all those sets are derived from an initial image file. An
+     * example is a deconvolved image and the original file: those two pixels
+     * sets would be represented by the same <i>OME</i> Image. In the case
+     * there's more than one pixels set, the first pixels identifies the pixels that
+     * are used by default for analysis and visualization. 
      */
-    private Set allPixels;
+    private List<PixelsData> allPixels;
 
     /**
      * All the Datasets that contain this Image. The elements of this set are
      * {@link DatasetData} objects. If this Image is not contained in any
      * Dataset, then this set will be empty &#151; but never <code>null</code>.
      */
-    private Set datasets;
+    private Set<DatasetData> datasets;
 
     /**
      * All the Categories that contain this Image. The elements of this set are
      * {@link CategoryData} objects.
      */
-    private Set categories;
+    private Set<CategoryData> categories;
 
     /**
      * All the annotations related to this Image. The elements of the set are
      * {@link AnnotationData} objetcs. If this Image hasn't been annotated, then
      * this set will be empty &#151; but never <code>null</code>.
      */
-    private Set<Annotation> annotations;
+    private Set<AnnotationData> annotations;
 
     /**
      * The number of annotations attached to this Image. This field may be
@@ -206,10 +201,7 @@ public class ImageData extends DataObject {
      * @return See above.
      */
     public PixelsData getDefaultPixels() {
-        if (defaultPixels == null && asImage().getPrimaryPixels() != null) {
-            defaultPixels = new PixelsData(asImage().getPrimaryPixels());
-        }
-        return defaultPixels;
+        return getAllPixels().get(0);
     }
 
     /**
@@ -223,10 +215,8 @@ public class ImageData extends DataObject {
             return;
         }
         setDirty(true);
-        this.defaultPixels = defaultPixels;
-        if (defaultPixels != null) {
-            asImage().setPrimaryPixels(defaultPixels.asPixels());
-        }
+        allPixels = null; // Invalidated
+        asImage().setPrimaryPixels(defaultPixels.asPixels());
     }
 
     // Sets
@@ -236,15 +226,16 @@ public class ImageData extends DataObject {
      * 
      * @return See above.
      */
-    public Set getAllPixels() {
+    @SuppressWarnings("unchecked")
+    public List<PixelsData> getAllPixels() {
         if (allPixels == null && asImage().sizeOfPixels() >= 0) {
-            allPixels = new HashSet(asImage().collectPixels(new CBlock() {
+            allPixels = asImage().collectPixels(new CBlock() {
                 public Object call(IObject object) {
                     return new PixelsData((Pixels) object);
                 }
-            }));
+            });
         }
-        return allPixels == null ? null : new HashSet(allPixels);
+        return allPixels == null ? null : new ArrayList<PixelsData>(allPixels);
     }
 
     /**
@@ -253,9 +244,9 @@ public class ImageData extends DataObject {
      * @param newValue
      *            The set of pixels' set.
      */
-    public void setAllPixels(Set newValue) {
-        Set currentValue = getAllPixels();
-        SetMutator m = new SetMutator(currentValue, newValue);
+    public void setAllPixels(List<PixelsData> newValue) {
+        List<PixelsData> currentValue = getAllPixels();
+        SetMutator<PixelsData> m = new SetMutator<PixelsData>(currentValue, newValue);
 
         while (m.moreDeletions()) {
             setDirty(true);
@@ -293,8 +284,8 @@ public class ImageData extends DataObject {
      *            The set of datasets.
      */
     public void setDatasets(Set newValue) {
-        Set currentValue = getDatasets();
-        SetMutator m = new SetMutator(currentValue, newValue);
+        Set<DatasetData> currentValue = getDatasets();
+        SetMutator<DatasetData> m = new SetMutator<DatasetData>(currentValue, newValue);
 
         while (m.moreDeletions()) {
             setDirty(true);
@@ -306,7 +297,7 @@ public class ImageData extends DataObject {
             asImage().linkDataset(m.nextAddition().asDataset());
         }
 
-        datasets = m.result();
+        datasets = new HashSet<DatasetData>(m.result());
     }
 
     /**
@@ -332,8 +323,8 @@ public class ImageData extends DataObject {
      *            The set of catories.
      */
     public void setCategories(Set newValue) {
-        Set currentValue = getCategories();
-        SetMutator m = new SetMutator(currentValue, newValue);
+        Set<CategoryData> currentValue = getCategories();
+        SetMutator<CategoryData> m = new SetMutator<CategoryData>(currentValue, newValue);
 
         while (m.moreDeletions()) {
             setDirty(true);
@@ -349,7 +340,7 @@ public class ImageData extends DataObject {
                     : new Long(classificationCount.longValue() + 1);
         }
 
-        categories = m.result();
+        categories = new HashSet<CategoryData>(m.result());
     }
 
     /**
@@ -361,13 +352,13 @@ public class ImageData extends DataObject {
         if (annotations == null) {
             int size = asImage().sizeOfAnnotationLinks();
             if (size >= 0) {
-                annotations = new HashSet(size);
+                annotations = new HashSet<AnnotationData>(size);
                 for (Annotation annotation : asImage().linkedAnnotationList()) {
-                    annotations.add(annotation);
+                    annotations.add(new AnnotationData(annotation));
                 }
             }
         }
-        return annotations == null ? null : new HashSet(annotations);
+        return annotations == null ? null : new HashSet<AnnotationData>(annotations);
     }
 
     /**
@@ -377,8 +368,8 @@ public class ImageData extends DataObject {
      *            The set of annotations.
      */
     public void setAnnotations(Set newValue) {
-        Set currentValue = getAnnotations();
-        SetMutator m = new SetMutator(currentValue, newValue);
+        Set<AnnotationData> currentValue = getAnnotations();
+        SetMutator<AnnotationData> m = new SetMutator<AnnotationData>(currentValue, newValue);
 
         while (m.moreDeletions()) {
             setDirty(true);
@@ -395,7 +386,7 @@ public class ImageData extends DataObject {
                     annotationCount.longValue() + 1);
         }
 
-        annotations = m.result();
+        annotations = new HashSet<AnnotationData>(m.result());
     }
 
 }

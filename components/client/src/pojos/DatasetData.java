@@ -192,9 +192,9 @@ public class DatasetData extends DataObject {
      * @param newValue
      *            The set of images.
      */
-    public void setImages(Set newValue) {
-        Set currentValue = getImages();
-        SetMutator m = new SetMutator(currentValue, newValue);
+    public void setImages(Set<ImageData> newValue) {
+        Set<ImageData> currentValue = getImages();
+        SetMutator<ImageData> m = new SetMutator<ImageData>(currentValue, newValue);
 
         while (m.moreDeletions()) {
             setDirty(true);
@@ -206,7 +206,7 @@ public class DatasetData extends DataObject {
             asDataset().linkImage(m.nextAddition().asImage());
         }
 
-        images = m.result();
+        images = new HashSet<ImageData>(m.result());
     }
 
     /**
@@ -215,9 +215,9 @@ public class DatasetData extends DataObject {
      * @param newValue
      *            The set of projects.
      */
-    public void setProjects(Set newValue) {
-        Set currentValue = getProjects();
-        SetMutator m = new SetMutator(currentValue, newValue);
+    public void setProjects(Set<ProjectData> newValue) {
+        Set<ProjectData> currentValue = getProjects();
+        SetMutator<ProjectData> m = new SetMutator<ProjectData>(currentValue, newValue);
 
         while (m.moreDeletions()) {
             setDirty(true);
@@ -229,7 +229,7 @@ public class DatasetData extends DataObject {
             asDataset().linkProject(m.nextAddition().asProject());
         }
 
-        projects = m.result();
+        projects = new HashSet<ProjectData>(m.result());
     }
 
     // SETS
@@ -260,8 +260,8 @@ public class DatasetData extends DataObject {
      *            The set of annotations.
      */
     public void setAnnotations(Set newValue) {
-        Set currentValue = getAnnotations();
-        SetMutator m = new SetMutator(currentValue, newValue);
+        Set<AnnotationData> currentValue = getAnnotations();
+        SetMutator<AnnotationData> m = new SetMutator<AnnotationData>(currentValue, newValue);
 
         while (m.moreDeletions()) {
             setDirty(true);
@@ -279,7 +279,7 @@ public class DatasetData extends DataObject {
                     annotationCount.longValue() + 1);
         }
 
-        annotations = m.result();
+        annotations = new HashSet<AnnotationData>(m.result());
     }
 
 

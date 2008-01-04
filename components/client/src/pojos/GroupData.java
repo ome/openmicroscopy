@@ -123,9 +123,9 @@ public class GroupData extends DataObject {
      * @param newValue
      *            The set of experimenters.
      */
-    public void setExperimenters(Set newValue) {
-        Set currentValue = getExperimenters();
-        SetMutator m = new SetMutator(currentValue, newValue);
+    public void setExperimenters(Set<ExperimenterData> newValue) {
+        Set<ExperimenterData> currentValue = getExperimenters();
+        SetMutator<ExperimenterData> m = new SetMutator<ExperimenterData>(currentValue, newValue);
 
         while (m.moreDeletions()) {
             setDirty(true);
@@ -137,7 +137,7 @@ public class GroupData extends DataObject {
             asGroup().linkExperimenter(m.nextAddition().asExperimenter());
         }
 
-        experimenters = m.result();
+        experimenters = new HashSet<ExperimenterData>(m.result());
     }
 
 }

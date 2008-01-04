@@ -123,15 +123,15 @@ public class ProjectData extends DataObject {
      * 
      * @return See above.
      */
-    public Set getDatasets() {
+    public Set<DatasetData> getDatasets() {
         if (datasets == null && asProject().sizeOfDatasetLinks() >= 0) {
-            datasets = new HashSet(asProject().eachLinkedDataset(new CBlock() {
-                public Object call(IObject object) {
+            datasets = new HashSet<DatasetData>(asProject().eachLinkedDataset(new CBlock<DatasetData>() {
+                public DatasetData call(IObject object) {
                     return new DatasetData((Dataset) object);
                 }
             }));
         }
-        return datasets == null ? null : new HashSet(datasets);
+        return datasets == null ? null : new HashSet<DatasetData>(datasets);
     }
 
     // Link mutations
@@ -142,9 +142,9 @@ public class ProjectData extends DataObject {
      * @param newValue
      *            The set of datasets.
      */
-    public void setDatasets(Set newValue) {
-        Set currentValue = getDatasets();
-        SetMutator m = new SetMutator(currentValue, newValue);
+    public void setDatasets(Set<DatasetData> newValue) {
+        Set<DatasetData> currentValue = getDatasets();
+        SetMutator<DatasetData> m = new SetMutator<DatasetData>(currentValue, newValue);
 
         while (m.moreDeletions()) {
             setDirty(true);
@@ -155,7 +155,7 @@ public class ProjectData extends DataObject {
             setDirty(true);
             asProject().linkDataset(m.nextAddition().asDataset());
         }
-        datasets = m.result();
+        datasets = new HashSet<DatasetData>(m.result());
     }
 
 }

@@ -9,9 +9,12 @@ package pojos;
 
 // Java imports
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -389,23 +392,23 @@ public abstract class DataObject {
  * return m.result();
  * </code>
  */
-class SetMutator {
+class SetMutator<E> {
 
-    private Set _old, _new, del, add;
+    private List<E> _old, _new, del, add;
 
-    private Iterator r, a;
+    private Iterator<E> r, a;
 
     /** null-safe constructor */
-    public SetMutator(Set originalSet, Set targetSet) {
+    public SetMutator(Collection<E> originalSet, Collection<E> targetSet) {
 
-        _old = originalSet == null ? new HashSet() : new HashSet(originalSet);
-        _new = targetSet == null ? new HashSet() : new HashSet(targetSet);
+        _old = originalSet == null ? new ArrayList<E>() : new ArrayList<E>(originalSet);
+        _new = targetSet == null ? new ArrayList<E>() : new ArrayList<E>(targetSet);
 
-        del = new HashSet(_old);
+        del = new ArrayList<E>(_old);
         del.removeAll(_new);
         r = del.iterator();
 
-        add = new HashSet(_new);
+        add = new ArrayList<E>(_new);
         add.removeAll(_old);
         a = add.iterator();
 
@@ -427,8 +430,8 @@ class SetMutator {
         return (DataObject) a.next();
     }
 
-    public Set result() {
-        return new HashSet(_new);
+    public List<E> result() {
+        return new ArrayList<E>(_new);
     }
 
 }

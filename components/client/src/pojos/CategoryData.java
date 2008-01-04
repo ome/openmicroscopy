@@ -12,9 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
@@ -32,8 +29,7 @@ import ome.util.CBlock;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date$)
- *          </small>
+ * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
  * @since OME2.2
  */
 public class CategoryData extends DataObject {
@@ -194,9 +190,10 @@ public class CategoryData extends DataObject {
      * @param newValue
      *            The set of images.
      */
-    public void setImages(Set newValue) {
-        Set currentValue = getImages();
-        SetMutator m = new SetMutator(currentValue, newValue);
+    public void setImages(Set<ImageData> newValue) {
+        Set<ImageData> currentValue = getImages();
+        SetMutator<ImageData> m = new SetMutator<ImageData>(currentValue,
+                newValue);
         ImageData imgData;
         Set categories;
         while (m.moreDeletions()) {
@@ -216,7 +213,7 @@ public class CategoryData extends DataObject {
             categories.add(this);
             imgData.setCategories(categories);
         }
-        images = m.result();
+        images = new HashSet<ImageData>(m.result());
     }
 
 }

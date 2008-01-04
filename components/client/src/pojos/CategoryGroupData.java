@@ -143,9 +143,9 @@ public class CategoryGroupData extends DataObject {
      * @param newValue
      *            The set of images.
      */
-    public void setCategories(Set newValue) {
-        Set currentValue = getCategories();
-        SetMutator m = new SetMutator(currentValue, newValue);
+    public void setCategories(Set<CategoryData> newValue) {
+        Set<CategoryData> currentValue = getCategories();
+        SetMutator<CategoryData> m = new SetMutator<CategoryData>(currentValue, newValue);
 
         while (m.moreDeletions()) {
             setDirty(true);
@@ -157,7 +157,7 @@ public class CategoryGroupData extends DataObject {
             asCategoryGroup().linkCategory(m.nextAddition().asCategory());
         }
 
-        categories = m.result();
+        categories = new HashSet<CategoryData>(m.result());
     }
 
 }
