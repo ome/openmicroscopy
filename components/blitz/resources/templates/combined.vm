@@ -315,10 +315,10 @@ Id acccesors copied from other accessors below.
 [$cpp]       omero::RLongPtr ${PojoI}::getId() {
 [$cpp]           return id;
 [$cpp]       }
-[$cpp]    
+[$cpp]
 [$cpp]       void ${PojoI}::setId(omero::RLongPtr _id) {
 [$cpp]           id = _id;
-[$cpp]       }  
+[$cpp]       }
 
 [$pyc]       def getId(self):
 [$pyc]           return self.id
@@ -375,7 +375,11 @@ in the [Ice] sections below, but not for all others.
 #set( $unloadedJava=" " )
 #set( $unloadedCpp=" " )
 #set( $unloadedPython="pass" )
-#set( $seqName = "${Pojo}${PropertyName.substring(0,1).toUpperCase()}${PropertyName.substring(1,$PropertyName.length())}Seq" )## seqName copied from ice_defs.vm
+## Here we are taking the pojo name from the ST of the property, rather than the
+## current ST in order to handle subclasses wrt. links. This may need to be done for
+## every property right after the foreach.
+#set( $truePojo = "${property.getST().shortname}" )
+#set( $seqName = "${truePojo}${PropertyName.substring(0,1).toUpperCase()}${PropertyName.substring(1,$PropertyName.length())}Seq" )## seqName copied from ice_defs.vm
 #set( $propLoaded = "${property.Name}Loaded" )
 
 ## TODO use empty List or null?
@@ -537,13 +541,13 @@ the special set methods are added.
 #if($access == "protected" )
 [$hdr]     protected:
 #end
-[$hdr]       virtual $cppType get${property.nameCapped};
+[$hdr]       virtual $cppType get${property.nameCapped}();
 [$hdr]       virtual void set${PropertyName}($cppType _$property.Name);
 #if($access == "protected" )
 [$hdr]     public:
 #end
 
-[$cpp]       $cppType ${PojoI}::${property.nameCapped}() {
+[$cpp]       $cppType ${PojoI}::get${property.nameCapped}() {
 [$cpp]           errorIfUnloaded();
 [$cpp]           return ${open}${property.name}${close};
 [$cpp]       }
@@ -928,7 +932,7 @@ FIND
 
 REMOVE
 
-#set( $removeLinkPredicate = "testRemove${property.shortType}From${PojoI}" )
+#set( $removeLinkPredicate = "testRemove${property.shortTarget}From${PojoI}" )
 [$cpp]
 [$cpp]       struct $removeLinkPredicate {
 [$cpp] 

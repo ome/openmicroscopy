@@ -24,8 +24,8 @@ Copyright notice added to all files:
 [jav] package omero.util;
 [jav] import java.util.Map;
 [jav] import java.util.concurrent.Callable;
-[cpp] \\\#include <string>
-[cpp] \\\#include <map>
+[cpp] \#include <string>
+[cpp] \#include <map>
 [cpp] namespace omero {
 
 [jav] public abstract class FactoryMap {
