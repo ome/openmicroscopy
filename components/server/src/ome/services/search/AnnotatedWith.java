@@ -16,13 +16,14 @@ import ome.services.SearchBean;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class AnnotatedWith extends QueryTemplate implements QueryBuilder {
+public class AnnotatedWith extends SearchAction {
 
     private static final long serialVersionUID = 1L;
 
     private final Annotation annotation;
 
-    public AnnotatedWith(Annotation annotation) {
+    public AnnotatedWith(SearchValues values, Annotation annotation) {
+        super(values);
         this.annotation = annotation;
     }
 

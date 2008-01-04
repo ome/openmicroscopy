@@ -15,7 +15,7 @@ import ome.services.SearchBean;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class SomeMustNone extends QueryTemplate implements QueryBuilder {
+public class SomeMustNone extends SearchAction {
 
     private static final long serialVersionUID = 1L;
 
@@ -23,7 +23,9 @@ public class SomeMustNone extends QueryTemplate implements QueryBuilder {
     private final String[] must;
     private final String[] none;
 
-    public SomeMustNone(String[] some, String[] must, String[] none) {
+    public SomeMustNone(SearchValues values, String[] some, String[] must,
+            String[] none) {
+        super(values);
         this.some = some;
         this.must = must;
         this.none = none;

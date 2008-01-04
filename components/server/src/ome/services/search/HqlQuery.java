@@ -16,14 +16,15 @@ import ome.services.SearchBean;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class HqlQuery extends QueryTemplate implements QueryBuilder {
+public class HqlQuery extends SearchAction {
 
     private static final long serialVersionUID = 1L;
 
     private final String query;
     private final Parameters p;
 
-    public HqlQuery(String query, Parameters p) {
+    public HqlQuery(SearchValues values, String query, Parameters p) {
+        super(values);
         if (query == null || query.length() < 1) {
             throw new IllegalArgumentException("Query string must be non-empty");
         }

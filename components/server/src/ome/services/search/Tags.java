@@ -15,13 +15,14 @@ import ome.services.SearchBean;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class Tags extends QueryTemplate implements QueryBuilder {
+public class Tags extends SearchAction {
 
     private static final long serialVersionUID = 1L;
 
     private final String[] tags;
 
-    public Tags(String[] tags) {
+    public Tags(SearchValues values, String[] tags) {
+        super(values);
         if (tags == null || tags.length < 1) {
             throw new IllegalArgumentException("Tags must be non-empty");
         }

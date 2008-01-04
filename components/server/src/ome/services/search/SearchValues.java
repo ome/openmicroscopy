@@ -17,12 +17,12 @@ import ome.model.internal.Details;
 import ome.services.SearchBean;
 
 /**
- * Query template used by {@link SearchBean} to store user requests.
+ * Values used by {@link SearchBean} to store user requests.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class QueryTemplate implements Serializable {
+public class SearchValues implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -45,25 +45,25 @@ public class QueryTemplate implements Serializable {
     public Details ownedBy = null;
     public Details annotatedBy = null;
 
-    public void copy(QueryTemplate template) {
-        this.caseSensitive = template.caseSensitive;
-        this.batchSize = template.batchSize;
-        this.mergedBatches = template.mergedBatches;
-        this.returnUnloaded = template.returnUnloaded;
-        this.useProjections = template.useProjections;
-        this.idOnly = template.idOnly;
-        this.fetches = new ArrayList<String>(template.fetches);
+    public void copy(SearchValues values) {
+        this.caseSensitive = values.caseSensitive;
+        this.batchSize = values.batchSize;
+        this.mergedBatches = values.mergedBatches;
+        this.returnUnloaded = values.returnUnloaded;
+        this.useProjections = values.useProjections;
+        this.idOnly = values.idOnly;
+        this.fetches = new ArrayList<String>(values.fetches);
         // Nulls mean all
-        this.createdStart = copyTimestamp(template.createdStart);
-        this.createdStop = copyTimestamp(template.createdStop);
-        this.modifiedStart = copyTimestamp(template.modifiedStart);
-        this.modifiedStop = copyTimestamp(template.modifiedStop);
-        this.annotatedStart = copyTimestamp(template.annotatedStart);
-        this.annotatedStop = copyTimestamp(template.annotatedStop);
-        this.onlyTypes = copyList(template.onlyTypes);
-        this.onlyAnnotations = copyList(template.onlyAnnotations);
-        this.ownedBy = copyDetails(template.ownedBy);
-        this.annotatedBy = copyDetails(template.annotatedBy);
+        this.createdStart = copyTimestamp(values.createdStart);
+        this.createdStop = copyTimestamp(values.createdStop);
+        this.modifiedStart = copyTimestamp(values.modifiedStart);
+        this.modifiedStop = copyTimestamp(values.modifiedStop);
+        this.annotatedStart = copyTimestamp(values.annotatedStart);
+        this.annotatedStop = copyTimestamp(values.annotatedStop);
+        this.onlyTypes = copyList(values.onlyTypes);
+        this.onlyAnnotations = copyList(values.onlyAnnotations);
+        this.ownedBy = copyDetails(values.ownedBy);
+        this.annotatedBy = copyDetails(values.annotatedBy);
     }
 
     public static <T> List<T> copyList(List<T> old) {
@@ -87,4 +87,11 @@ public class QueryTemplate implements Serializable {
         return t;
     }
 
+    public static Class<?>[] copyClassListToArray(List<Class<?>> old) {
+        if (old == null) {
+            return new Class<?>[] {};
+        } else {
+            return (Class<?>[]) old.toArray();
+        }
+    }
 }

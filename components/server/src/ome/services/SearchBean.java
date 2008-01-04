@@ -36,7 +36,8 @@ import ome.parameters.Parameters;
 import ome.services.search.AnnotatedWith;
 import ome.services.search.FullText;
 import ome.services.search.HqlQuery;
-import ome.services.search.QueryTemplate;
+import ome.services.search.SearchAction;
+import ome.services.search.SearchValues;
 import ome.services.search.SomeMustNone;
 import ome.services.search.Tags;
 import ome.services.util.OmeroAroundInvoke;
@@ -71,10 +72,10 @@ public abstract class SearchBean extends AbstractStatefulBean implements Search 
     /** The logger for this class. */
     private final static Log log = LogFactory.getLog(SearchBean.class);
 
-    private final List<QueryTemplate> queries = Collections
-            .synchronizedList(new ArrayList<QueryTemplate>());
+    private final List<SearchAction> actions = Collections
+            .synchronizedList(new ArrayList<SearchAction>());
 
-    private final QueryTemplate template = new QueryTemplate();
+    private final SearchValues values = new SearchValues();
 
     private List<IObject> lastResultsUnloaded;
 
@@ -125,52 +126,52 @@ public abstract class SearchBean extends AbstractStatefulBean implements Search 
     @Transactional
     @RolesAllowed("user")
     public void ByAnnotatedWith(Annotation example) {
-        QueryTemplate byAnnotatedWith = new AnnotatedWith(example);
-        synchronized (template) {
-            byAnnotatedWith.copy(template);
+        SearchAction byAnnotatedWith;
+        synchronized (values) {
+            byAnnotatedWith = new AnnotatedWith(values, example);
         }
-        queries.add(byAnnotatedWith);
+        actions.add(byAnnotatedWith);
     }
 
     @Transactional
     @RolesAllowed("user")
     public void ByFullText(String query) {
-        QueryTemplate byFullText = new FullText(query);
-        synchronized (template) {
-            byFullText.copy(template);
+        SearchAction byFullText;
+        synchronized (values) {
+            byFullText = new FullText(values, query);
         }
-        queries.add(byFullText);
+        actions.add(byFullText);
 
     }
 
     @Transactional
     @RolesAllowed("user")
     public void ByHqlQuery(String query, Parameters p) {
-        QueryTemplate byHqlQuery = new HqlQuery(query, p);
-        synchronized (template) {
-            byHqlQuery.copy(template);
+        SearchAction byHqlQuery;
+        synchronized (values) {
+            byHqlQuery = new HqlQuery(values, query, p);
         }
-        queries.add(byHqlQuery);
+        actions.add(byHqlQuery);
     }
 
     @Transactional
     @RolesAllowed("user")
     public void BySomeMustNone(String[] some, String[] must, String[] none) {
-        QueryTemplate bySomeMustNone = new SomeMustNone(some, must, none);
-        synchronized (template) {
-            bySomeMustNone.copy(template);
+        SearchAction bySomeMustNone;
+        synchronized (values) {
+            bySomeMustNone = new SomeMustNone(values, some, must, none);
         }
-        queries.add(bySomeMustNone);
+        actions.add(bySomeMustNone);
     }
 
     @Transactional
     @RolesAllowed("user")
     public void ByTags(String[] tags) {
-        QueryTemplate byTags = new Tags(tags);
-        synchronized (template) {
-            byTags.copy(template);
+        SearchAction byTags;
+        synchronized (values) {
+            byTags = new Tags(values, tags);
         }
-        queries.add(byTags);
+        actions.add(byTags);
     }
 
     //
@@ -226,13 +227,13 @@ public abstract class SearchBean extends AbstractStatefulBean implements Search 
     @Transactional
     @RolesAllowed("user")
     public int activeQueries() {
-        return queries.size();
+        return actions.size();
     }
 
     @Transactional
     @RolesAllowed("user")
     public void clearQueries() {
-        queries.clear();
+        actions.clear();
     }
 
     //
@@ -242,15 +243,15 @@ public abstract class SearchBean extends AbstractStatefulBean implements Search 
     @Transactional
     @RolesAllowed("user")
     public void resetDefaults() {
-        synchronized (template) {
-            template.copy(new QueryTemplate());
+        synchronized (values) {
+            values.copy(new SearchValues());
         }
     }
 
     @Transactional
     @RolesAllowed("user")
     public <T extends IObject> void fetchAlso(Map<T, String> fetches) {
-        synchronized (template) {
+        synchronized (values) {
             throw new UnsupportedOperationException();
         }
     }
@@ -258,7 +259,7 @@ public abstract class SearchBean extends AbstractStatefulBean implements Search 
     @Transactional
     @RolesAllowed("user")
     public <T extends IObject> void fetchAnnotations(Class<T>... classes) {
-        synchronized (template) {
+        synchronized (values) {
             throw new UnsupportedOperationException();
         }
     }
@@ -266,24 +267,24 @@ public abstract class SearchBean extends AbstractStatefulBean implements Search 
     @Transactional
     @RolesAllowed("user")
     public int getBatchSize() {
-        synchronized (template) {
-            return template.batchSize;
+        synchronized (values) {
+            return values.batchSize;
         }
     }
 
     @Transactional
     @RolesAllowed("user")
     public boolean isCaseSensitive() {
-        synchronized (template) {
-            return template.caseSensitive;
+        synchronized (values) {
+            return values.caseSensitive;
         }
     }
 
     @Transactional
     @RolesAllowed("user")
     public boolean isMergedBatches() {
-        synchronized (template) {
-            return template.mergedBatches;
+        synchronized (values) {
+            return values.mergedBatches;
         }
 
     }
@@ -291,35 +292,35 @@ public abstract class SearchBean extends AbstractStatefulBean implements Search 
     @Transactional
     @RolesAllowed("user")
     public void onlyAnnotatedBetween(Timestamp start, Timestamp stop) {
-        synchronized (template) {
-            template.annotatedStart = QueryTemplate.copyTimestamp(start);
-            template.annotatedStop = QueryTemplate.copyTimestamp(stop);
+        synchronized (values) {
+            values.annotatedStart = SearchValues.copyTimestamp(start);
+            values.annotatedStop = SearchValues.copyTimestamp(stop);
         }
     }
 
     @Transactional
     @RolesAllowed("user")
     public void onlyAnnotatedBy(Details d) {
-        synchronized (template) {
-            template.annotatedBy = QueryTemplate.copyDetails(d);
+        synchronized (values) {
+            values.annotatedBy = SearchValues.copyDetails(d);
         }
     }
 
     @Transactional
     @RolesAllowed("user")
     public <A extends Annotation> void onlyAnnotatedWith(Class<A>... classes) {
-        synchronized (template) {
+        synchronized (values) {
             List<Class<?>> list = Arrays.<Class<?>> asList(classes);
-            template.onlyAnnotations = QueryTemplate.copyList(list);
+            values.onlyAnnotations = SearchValues.copyList(list);
         }
     }
 
     @Transactional
     @RolesAllowed("user")
     public void onlyCreatedBetween(Timestamp start, Timestamp stop) {
-        synchronized (template) {
-            template.createdStart = QueryTemplate.copyTimestamp(start);
-            template.createdStop = QueryTemplate.copyTimestamp(stop);
+        synchronized (values) {
+            values.createdStart = SearchValues.copyTimestamp(start);
+            values.createdStop = SearchValues.copyTimestamp(stop);
             throw new IllegalArgumentException("What invariants");
         }
     }
@@ -327,8 +328,8 @@ public abstract class SearchBean extends AbstractStatefulBean implements Search 
     @Transactional
     @RolesAllowed("user")
     public void onlyOwnedBy(Details d) {
-        synchronized (template) {
-            template.ownedBy = QueryTemplate.copyDetails(d);
+        synchronized (values) {
+            values.ownedBy = SearchValues.copyDetails(d);
         }
     }
 
@@ -343,10 +344,10 @@ public abstract class SearchBean extends AbstractStatefulBean implements Search 
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
     public <T extends IObject> void onlyTypes(Class<T>... classes) {
-        synchronized (template) {
-            template.onlyTypes = new ArrayList();
+        synchronized (values) {
+            values.onlyTypes = new ArrayList();
             for (Class<T> k : classes) {
-                template.onlyTypes.add(k);
+                values.onlyTypes.add(k);
             }
         }
     }
@@ -354,57 +355,57 @@ public abstract class SearchBean extends AbstractStatefulBean implements Search 
     @Transactional
     @RolesAllowed("user")
     public void setBatchSize(int size) {
-        synchronized (template) {
-            template.batchSize = size;
+        synchronized (values) {
+            values.batchSize = size;
         }
     }
 
     @Transactional
     @RolesAllowed("user")
     public void setIdOnly() {
-        synchronized (template) {
-            template.idOnly = true;
+        synchronized (values) {
+            values.idOnly = true;
         }
     }
 
     @Transactional
     @RolesAllowed("user")
     public void setMergedBatches(boolean merge) {
-        synchronized (template) {
-            template.mergedBatches = merge;
+        synchronized (values) {
+            values.mergedBatches = merge;
         }
     }
 
     @Transactional
     @RolesAllowed("user")
     public void fetchAlso(String... fetches) {
-        synchronized (template) {
-            template.fetches = Arrays.asList(fetches);
+        synchronized (values) {
+            values.fetches = Arrays.asList(fetches);
         }
     }
 
     @Transactional
     @RolesAllowed("user")
     public boolean isReturnUnloaded() {
-        synchronized (template) {
-            return template.returnUnloaded;
+        synchronized (values) {
+            return values.returnUnloaded;
         }
     }
 
     @Transactional
     @RolesAllowed("user")
     public boolean isUseProjections() {
-        synchronized (template) {
-            return template.useProjections;
+        synchronized (values) {
+            return values.useProjections;
         }
     }
 
     @Transactional
     @RolesAllowed("user")
     public void onlyModifiedBetween(Timestamp start, Timestamp stop) {
-        synchronized (template) {
-            template.modifiedStart = QueryTemplate.copyTimestamp(start);
-            template.modifiedStop = QueryTemplate.copyTimestamp(stop);
+        synchronized (values) {
+            values.modifiedStart = SearchValues.copyTimestamp(start);
+            values.modifiedStop = SearchValues.copyTimestamp(stop);
             throw new RuntimeException("What checks need to be performed.");
         }
     }
@@ -412,24 +413,24 @@ public abstract class SearchBean extends AbstractStatefulBean implements Search 
     @Transactional
     @RolesAllowed("user")
     public void setCaseSentivice(boolean caseSensitive) {
-        synchronized (template) {
-            template.caseSensitive = caseSensitive;
+        synchronized (values) {
+            values.caseSensitive = caseSensitive;
         }
     }
 
     @Transactional
     @RolesAllowed("user")
     public void setReturnUnloaded(boolean returnUnloaded) {
-        synchronized (template) {
-            template.returnUnloaded = returnUnloaded;
+        synchronized (values) {
+            values.returnUnloaded = returnUnloaded;
         }
     }
 
     @Transactional
     @RolesAllowed("user")
     public void setUseProjections(boolean useProjections) {
-        synchronized (template) {
-            template.useProjections = useProjections;
+        synchronized (values) {
+            values.useProjections = useProjections;
         }
     }
 
