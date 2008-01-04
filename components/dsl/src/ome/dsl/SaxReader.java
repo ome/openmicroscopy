@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-// Third-party libraries
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.logging.Log;
@@ -101,7 +100,7 @@ class DSLHandler extends DefaultHandler {
     private String depth = "";
 
     // For handling
-    private Map<String, SemanticType> types = new HashMap<String, SemanticType>();
+    private final Map<String, SemanticType> types = new HashMap<String, SemanticType>();
 
     private SemanticType type;
 
@@ -200,13 +199,13 @@ class DSLHandler extends DefaultHandler {
 
     /**
      * Initial processing.
-     *
+     * 
      * Example: Pixels: <zeromany name="thumbnails"
      * type="ome.model.display.Thumbnail" inverse="pixels"/> Thumnail: <required
      * name="pixels" type="ome.model.core.Pixels"/>
-     *
+     * 
      * We want Thumbail.pixels to be given the inverse "thumbnails"
-     *
+     * 
      */
     public List<SemanticType> process() {
         for (String id : types.keySet()) { // "ome...Pixels"
@@ -226,7 +225,8 @@ class DSLHandler extends DefaultHandler {
                 }
             }
         }
-        // Another post-processing step, which checks links for bidirectionality.
+        // Another post-processing step, which checks links for
+        // bidirectionality.
         for (String id : types.keySet()) {
             SemanticType t = types.get(id);
             for (Property p : t.getProperties()) { // thumbnails
@@ -234,6 +234,10 @@ class DSLHandler extends DefaultHandler {
                     AbstractLink link = (AbstractLink) p;
                     String targetId = link.getTarget();
                     SemanticType target = types.get(targetId);
+                    if (target == null) {
+                        throw new RuntimeException("No type " + targetId
+                                + " found as target of " + link);
+                    }
                     boolean found = false;
                     for (Property p2 : target.getProperties()) {
                         if (id.equals(p2.getTarget())) {

@@ -23,12 +23,11 @@ import java.util.Set;
 
 /**
  * represents a SemanticType <b>definition</b>.
- *
+ * 
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
- *          </small>
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
  * @since OMERO-3.0
  */
 public abstract class SemanticType {
@@ -177,6 +176,29 @@ public abstract class SemanticType {
         return id;
     }
 
+    public int getLastDotInId() {
+        int idx = id.lastIndexOf(".");
+        if (idx < 0) {
+            throw new RuntimeException(id + " doesn't have a package. "
+                    + "Use of default package prohibited.");
+        }
+        return idx;
+    }
+
+    /**
+     * Read-only property
+     */
+    public String getPackage() {
+        return id.substring(0, getLastDotInId());
+    }
+
+    /**
+     * Read-only property
+     */
+    public String getShortname() {
+        return id.substring(getLastDotInId() + 1, id.length());
+    }
+
     public void setTable(String table) {
         this.table = table;
     }
@@ -225,6 +247,21 @@ public abstract class SemanticType {
         return properties;
     }
 
+    /**
+     * Read-only method which currently filters out {@link EntryField}
+     * 
+     * @return
+     */
+    public List<Property> getClassProperties() {
+        List<Property> rv = new ArrayList<Property>();
+        for (Property property : getProperties()) {
+            if (!(property instanceof EntryField)) {
+                rv.add(property);
+            }
+        }
+        return rv;
+    }
+
     public void setGlobal(Boolean global) {
         this.global = global;
     }
@@ -233,6 +270,47 @@ public abstract class SemanticType {
         return global;
     }
 
+    /**
+     * Read-only field
+     */
+    public String getDetails() {
+        if (!getGlobal()) {
+            if (!getImmutable()) {
+                return "MutableDetails";
+            }
+            return "Details";
+        }
+        return "GlobalDetails";
+    }
+
+    /**
+     * Read-only property to be overwritten by subclasses
+     */
+    public boolean getIsLink() {
+        return false;
+    }
+
+    /**
+     * Read-only property to be overwritten by subclasses
+     */
+    public boolean getIsEnum() {
+        return false;
+    }
+
+    /**
+     * Helper method
+     */
+    public static String unqualify(String klass) {
+        if (klass == null) {
+            return null;
+        }
+        int idx = klass.lastIndexOf(".");
+        if (idx < 0) {
+            return klass;
+        } else {
+            return klass.substring(idx + 1, klass.length());
+        }
+    }
 }
 
 //
@@ -266,6 +344,11 @@ class LinkType extends SemanticType {
     public LinkType(Properties attrs) {
         super(attrs);
     }
+
+    @Override
+    public boolean getIsLink() {
+        return true;
+    }
 }
 
 class ResultType extends SemanticType {
@@ -288,6 +371,10 @@ class EnumType extends SemanticType {
         setImmutable(Boolean.TRUE);
     }
 
+    @Override
+    public boolean getIsEnum() {
+        return true;
+    }
     // TODO: only value? at least value?
     // public void validate(){
     // for (Iterator it = getProperties().iterator(); it.hasNext();) {

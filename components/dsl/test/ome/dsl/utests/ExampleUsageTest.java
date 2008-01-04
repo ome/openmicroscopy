@@ -6,8 +6,6 @@
  */
 package ome.dsl.utests;
 
-import org.springframework.util.ResourceUtils;
-import org.testng.annotations.*;
 import java.io.File;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -17,16 +15,18 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import junit.framework.TestCase;
 import ome.dsl.Property;
 import ome.dsl.SaxReader;
 import ome.dsl.SemanticType;
 import ome.dsl.VelocityHelper;
-import junit.framework.TestCase;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.util.ResourceUtils;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 public class ExampleUsageTest extends TestCase {
 
@@ -100,14 +100,14 @@ public class ExampleUsageTest extends TestCase {
         sr.parse();
         List<SemanticType> list = sr.process();
         Map<String, SemanticType> map = toMap(list);
-        SemanticType job = map.get("Job");
+        SemanticType job = map.get("ome.Job");
         for (Property p : job.getProperties()) {
             if (p.getName().equals("jobThingLink")) {
                 assertFalse(p.getBidirectional());
             } else if (p.getName().equals("jobDoohickeyLink")) {
                 assertTrue(p.getBidirectional());
             } else {
-                fail("Unknown property:"+p);
+                fail("Unknown property:" + p);
             }
         }
     }
@@ -117,8 +117,9 @@ public class ExampleUsageTest extends TestCase {
         sr.parse();
         List<SemanticType> list = sr.process();
         Map<String, SemanticType> map = toMap(list);
-        SemanticType ot = map.get("ordertest");
-        List<String> order = new LinkedList<String>(Arrays.asList("pixels","cccccc","aaaaaa","bbbbbb","images"));
+        SemanticType ot = map.get("pkg.ordertest");
+        List<String> order = new LinkedList<String>(Arrays.asList("pixels",
+                "cccccc", "aaaaaa", "bbbbbb", "images"));
         for (Property p : ot.getProperties()) {
             if (p.getName().equals(order.get(0))) {
                 order.remove(0);

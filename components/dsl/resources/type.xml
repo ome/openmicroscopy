@@ -49,44 +49,44 @@
 		</properties>
 	</type>
 
-	<type id="Job">
+	<type id="ome.Job">
 		<properties>
 			<child name="jobThingLink"
-				type="JobThingLink"
-				target="Thing" />
+				type="ome.JobThingLink"
+				target="ome.Thing" />
 			<child name="jobDoohickeyLink"
-				type="JobDoohickeyLink"
-				target="Doohickey" />
+				type="ome.JobDoohickeyLink"
+				target="ome.Doohickey" />
 		</properties>
 	</type>
 
-	<type id="Thing">
+	<type id="ome.Thing">
 		<properties />
 	</type>
 
-	<type id="Doohickey">
+	<type id="ome.Doohickey">
 		<properties>
 			<parent name="dooHickeyLinks"
-				type="JobDoohickeyLink"
-				target="Job" />
+				type="ome.JobDoohickeyLink"
+				target="ome.Job" />
 		</properties>
 	</type>
 
-	<link id="JobThingLink">
+	<link id="ome.JobThingLink">
 		<properties>
-			<from_parent type="Job" />
-			<to_child type="Thing" />
+			<from_parent type="ome.Job" />
+			<to_child type="ome.Thing" />
 		</properties>
 	</link>
 
-	<link id="JobDoohickeyLink">
+	<link id="ome.JobDoohickeyLink">
 		<properties>
-			<from_parent type="Job" />
-			<to_child type="Doohickey" />
+			<from_parent type="ome.Job" />
+			<to_child type="ome.Doohickey" />
 		</properties>
 	</link>
 
-	<type id="ordertest">
+	<type id="pkg.ordertest">
 		<properties>
 			<required name="pixels" type="int" />
 			<required name="cccccc" type="int" />
@@ -96,6 +96,36 @@
 		</properties>
 	</type>
 
+    <type id="list.Holder">
+        <properties>
+            <onemany name="items" type="list.Item" ordered="true" inverse="holder"/>
+        </properties>
+    </type>
+    <type id="list.Item">
+        <properties>
+            <listitem name="holder" type="list.Holder"/>
+        </properties>
+    </type>
+
+    <!-- Testing inverse capped -->
+    <type id="ic.RenderingDef">
+        <properties>
+            <onemany name="waveRendering" type="ic.ChannelBinding" inverse="renderingDef" ordered="true"/>
+        </properties>
+    </type>
+
+    <type id="ic.ChannelBinding">
+        <properties>
+            <listitem name="renderingDef" type="ic.RenderingDef"/>
+        </properties>
+    </type>
+    
+    <enum id="ome.model.enums.FrequencyMultiplication">
+        <entry name="x1"/>
+        <entry name="x2"/>
+        <entry name="x3"/>
+        <entry name="x4"/>
+    </enum>
 
 	<!-- examples -->
 	<!--

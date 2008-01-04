@@ -6,6 +6,13 @@
  */
 package ome.dsl;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Project;
@@ -13,13 +20,6 @@ import org.apache.tools.ant.Target;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.taskdefs.Mkdir;
 import org.apache.tools.ant.types.FileSet;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * An ant task for generating artifacts from the dsl.
@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class DSLTask extends Task {
 
-    private List _fileSets = new ArrayList();
+    private final List _fileSets = new ArrayList();
 
     private File _outputDir;
 
@@ -82,10 +82,11 @@ public class DSLTask extends Task {
             VelocityHelper vh = new VelocityHelper();
             vh.put("type", st);
             try {
-                String file = _outputDir + File.separator
+                String file = _outputDir + File.separator + "src"
+                        + File.separator
                         + st.getId().replaceAll("[.]", "\\" + File.separator)
-                        + ".hbm.xml";
-                writeToFile(vh, file, "ome/dsl/mapping.vm");
+                        + ".java";
+                writeToFile(vh, file, "ome/dsl/object.vm");
             } catch (Exception e) {
                 throw new BuildException("Error while writing type:" + st, e);
             }
@@ -94,8 +95,8 @@ public class DSLTask extends Task {
         VelocityHelper vh = new VelocityHelper();
         vh.put("types", types);
         try {
-            String file = _outputDir + File.separator + File.separator
-                    + "data.sql";
+            String file = _outputDir + File.separator + "resources"
+                    + File.separator + "data.sql";
             writeToFile(vh, file, "ome/dsl/data.vm");
         } catch (Exception e) {
             throw new BuildException("Error while writing data:", e);

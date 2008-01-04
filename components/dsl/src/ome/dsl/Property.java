@@ -25,12 +25,11 @@ import java.util.Set;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
- *          </small>
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
  * @since OMERO-3.0
  */
 public abstract class Property { // TODO need to define equality so that two
-                                    // with the
+    // with the
     // same name isn't allowed within one type./
 
     // FIELD identifiers
@@ -58,7 +57,7 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static String LISTITEM = "listitem";
 
-    public final static Set FIELDS = new HashSet();
+    public final static Set<String> FIELDS = new HashSet<String>();
     static {
         FIELDS.add(REQUIRED);
         FIELDS.add(OPTIONAL);
@@ -74,7 +73,7 @@ public abstract class Property { // TODO need to define equality so that two
         FIELDS.add(LISTITEM);
     }
 
-    public final static Map FIELDS2CLASSES = new HashMap();
+    public final static Map<String, Class<? extends Property>> FIELDS2CLASSES = new HashMap<String, Class<? extends Property>>();
     static {
         FIELDS2CLASSES.put(REQUIRED, RequiredField.class);
         FIELDS2CLASSES.put(OPTIONAL, OptionalField.class);
@@ -107,16 +106,28 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static String TEXT = "text";
 
-    public final static Map VALUES = new HashMap();
+    public final static Map<String, String> JAVATYPES = new HashMap<String, String>();
     static {
-        VALUES.put(STRING, String.class.getName());
-        VALUES.put(BOOLEAN, Boolean.class.getName());
-        VALUES.put(INTEGER, Integer.class.getName());
-        VALUES.put(FLOAT, Float.class.getName());
-        VALUES.put(DOUBLE, Double.class.getName());
-        VALUES.put(LONG, Long.class.getName());
-        VALUES.put(TIMESTAMP, Timestamp.class.getName());
-        VALUES.put(TEXT, TEXT);
+        JAVATYPES.put(STRING, String.class.getName());
+        JAVATYPES.put(BOOLEAN, Boolean.class.getName());
+        JAVATYPES.put(INTEGER, Integer.class.getName());
+        JAVATYPES.put(FLOAT, Float.class.getName());
+        JAVATYPES.put(DOUBLE, Double.class.getName());
+        JAVATYPES.put(LONG, Long.class.getName());
+        JAVATYPES.put(TIMESTAMP, Timestamp.class.getName());
+        JAVATYPES.put(TEXT, String.class.getName());
+    }
+
+    public final static Map<String, String> DBTYPES = new HashMap<String, String>();
+    static {
+        DBTYPES.put(STRING, String.class.getName());
+        DBTYPES.put(BOOLEAN, Boolean.class.getName());
+        DBTYPES.put(INTEGER, Integer.class.getName());
+        DBTYPES.put(FLOAT, Float.class.getName());
+        DBTYPES.put(DOUBLE, Double.class.getName());
+        DBTYPES.put(LONG, Long.class.getName());
+        DBTYPES.put(TIMESTAMP, Timestamp.class.getName());
+        DBTYPES.put(TEXT, TEXT);
     }
 
     private SemanticType st;
@@ -149,9 +160,9 @@ public abstract class Property { // TODO need to define equality so that two
 
     // Mappings
     private Boolean one2Many;
-    
+
     private Boolean bidirectional;
-    
+
     public void validate() {
         if (null == getName() || null == getType()) {
             throw new IllegalStateException(
@@ -166,7 +177,7 @@ public abstract class Property { // TODO need to define equality so that two
     public static Property makeNew(String element, SemanticType st,
             Properties attributes) throws IllegalArgumentException,
             IllegalStateException {
-        Class klass = (Class) FIELDS2CLASSES.get(element);
+        Class<? extends Property> klass = FIELDS2CLASSES.get(element);
         if (null == klass) {
             throw new IllegalArgumentException(
                     "FIELDS2CLASSES does not contain type " + element);
@@ -175,7 +186,7 @@ public abstract class Property { // TODO need to define equality so that two
         Property p;
 
         try {
-            p = (Property) klass.getConstructor(
+            p = klass.getConstructor(
                     new Class[] { SemanticType.class, Properties.class })
                     .newInstance(new Object[] { st, attributes });
         } catch (Exception e) {
@@ -210,14 +221,70 @@ public abstract class Property { // TODO need to define equality so that two
         return name;
     }
 
+    /**
+     * Read-only property
+     */
+    public String getNameCapped() {
+        return name.substring(0, 1).toUpperCase()
+                + name.substring(1, name.length());
+    }
+
+    /**
+     * Read-only property
+     */
+    public String getNameUpper() {
+        return name.toUpperCase();
+    }
+
     public void setType(String type) {
         this.type = type;
     }
 
     public String getType() {
-        return type;
+        String t = JAVATYPES.get(type);
+        if (t == null) {
+            return type;
+        }
+        return t;
     }
 
+    /**
+     * Read-only variable
+     */
+    public String getDbType() {
+        String t = DBTYPES.get(type);
+        if (t == null) {
+            return type;
+        }
+        return t;
+    }
+
+    /**
+     * Read-only variable
+     */
+    public String getTypeAnnotation() {
+        if (type.equals("text")) {
+            return "@org.hibernate.annotations.Type(type=\"org.hibernate.type.TextType\")";
+        } else {
+            return "// No annotation";
+        }
+    }
+
+    /**
+     * Read-only variable
+     */
+    public String getShortType() {
+        return unqualify(type);
+    }
+
+    /**
+     * Read-only value. Overwritten in subclasses
+     */
+    public String getFieldType() {
+        return getType();
+    }
+
+    // TODO remove
     public void setTag(String tag) {
         this.tag = tag;
     }
@@ -234,6 +301,13 @@ public abstract class Property { // TODO need to define equality so that two
         return target;
     }
 
+    /**
+     * Read-only property
+     */
+    public String getShortTarget() {
+        return unqualify(target);
+    }
+
     public void setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
     }
@@ -248,6 +322,13 @@ public abstract class Property { // TODO need to define equality so that two
 
     public Boolean getRequired() {
         return required;
+    }
+
+    /**
+     * Read-only field
+     */
+    public Boolean getNullable() {
+        return !required;
     }
 
     public void setUnique(Boolean unique) {
@@ -272,6 +353,17 @@ public abstract class Property { // TODO need to define equality so that two
 
     public String getInverse() {
         return inverse;
+    }
+
+    /**
+     * Read-only variable
+     */
+    public String getInverseCapped() {
+        if (inverse == null) {
+            return null;
+        }
+        return inverse.substring(0, 1).toUpperCase()
+                + inverse.substring(1, inverse.length());
     }
 
     public void setInsert(Boolean insert) {
@@ -313,7 +405,19 @@ public abstract class Property { // TODO need to define equality so that two
     public Boolean getBidirectional() {
         return this.bidirectional;
     }
-    
+
+    public String getDef() {
+        return ""; // TODO this is to be used for overriding float4 for
+        // ticket:803
+    }
+
+    /**
+     * Read-only property, for subclassing
+     */
+    public boolean getIsLink() {
+        return false;
+    }
+
     /**
      * creates a Property and sets fields based on attributes USING DEFAULT
      * VALUES. Subclassees may override these values
@@ -323,30 +427,42 @@ public abstract class Property { // TODO need to define equality so that two
         setName(attrs.getProperty("name", null));
         setType(attrs.getProperty("type", null));
         setDefaultValue(attrs.getProperty("default", null));// TODO currently no
-                                                            // way to use this!!
+        // way to use this!!
         setTag(attrs.getProperty("tag", null));
         setTarget(attrs.getProperty("target", null));
-        setInverse(attrs.getProperty("inverse", null)); // see DslHandler.process()
-        setBidirectional(Boolean.TRUE);// will be handle by DslHandler.process()
+        setInverse(attrs.getProperty("inverse", null)); // see
+        // DslHandler.process()
+        setBidirectional(Boolean.TRUE);// will be handle by
+        // DslHandler.process()
         setRequired(Boolean.valueOf(attrs.getProperty("required", "false")));
         setUnique(Boolean.valueOf(attrs.getProperty("unique", "false"))); // TODO
-                                                                            // wanted
-                                                                            // to
-                                                                            // use
-                                                                            // KEYS.put(id,field)
-                                                                            // !!
+        // wanted
+        // to
+        // use
+        // KEYS.put(id,field)
+        // !!
         setOrdered(Boolean.valueOf(attrs.getProperty("ordered", "false")));
         // TODO Mutability
         setInsert(Boolean.TRUE);
         setUpdate(Boolean.valueOf(attrs.getProperty("mutable", "true")));
 
-        if (VALUES.containsKey(getType())) {
+        if (JAVATYPES.containsKey(getType())) {
             setForeignKey(null);
-            setType((String) VALUES.get(getType()));
         } else {
             setForeignKey(SemanticType.typeToColumn(st.getId()));
         }
 
+    }
+
+    private static String unqualify(String str) {
+        if (str == null) {
+            return null;
+        }
+        int idx = str.lastIndexOf(".");
+        if (idx < 0) {
+            return str;
+        }
+        return str.substring(idx + 1, str.length());
     }
 
 }
@@ -380,14 +496,27 @@ class ZeroManyField extends Property {
         /* see ch. 7 hibernate doc on association mappings */
         if (getOrdered().booleanValue()) {
             setRequired(Boolean.TRUE); // FIXME here we need to change the
-                                        // many2one!!
+            // many2one!!
         }
     }
 
     @Override
+    public String getFieldType() {
+        StringBuilder sb = new StringBuilder();
+        if (getOrdered()) {
+            sb.append("java.util.List<");
+        } else {
+            sb.append("java.util.Set<");
+        }
+        sb.append(getType());
+        sb.append(">");
+        return sb.toString();
+    }
+
+    @Override
     public void validate() {
-        if (getInverse() == null && !getOrdered().booleanValue()
-                && getTag() == null) {
+        super.validate();
+        if (getInverse() == null) {
             throw new IllegalArgumentException(
                     "\n"
                             + this.toString()
@@ -412,7 +541,7 @@ class OneManyField extends ZeroManyField {
 }
 
 abstract class AbstractLink extends ZeroManyField {
-    
+
     public AbstractLink(SemanticType st, Properties attrs) {
         super(st, attrs);
         setTarget(attrs.getProperty("target", null));
@@ -421,6 +550,7 @@ abstract class AbstractLink extends ZeroManyField {
 
     @Override
     public void validate() {
+        super.validate();
         if (getTarget() == null) {
             throw new IllegalArgumentException(
                     "Target must be set on all parent/child properties:" + this);
@@ -436,6 +566,11 @@ class ChildLink extends AbstractLink {
         setForeignKey("parent");
         setInverse("child");
     }
+
+    @Override
+    public boolean getIsLink() {
+        return true;
+    }
 }
 
 /** property from a parent iobject to a link */
@@ -444,6 +579,11 @@ class ParentLink extends AbstractLink {
         super(st, attrs);
         setForeignKey("child");
         setInverse("parent");
+    }
+
+    @Override
+    public boolean getIsLink() {
+        return true;
     }
 }
 
@@ -470,6 +610,16 @@ class LinkParent extends ManyOneField {
         super(st, attrs);
         setName("parent");
     }
+
+    @Override
+    public String getFieldType() {
+        return "IObject";
+    }
+
+    @Override
+    public boolean getIsLink() {
+        return true;
+    }
 }
 
 /** property from a link to a child iobject */
@@ -478,6 +628,17 @@ class LinkChild extends ManyOneField {
         super(st, attrs);
         setName("child");
     }
+
+    @Override
+    public String getFieldType() {
+        return "IObject";
+    }
+
+    @Override
+    public boolean getIsLink() {
+        return true;
+    }
+
 }
 
 class ListItem extends ManyOneField {
@@ -500,10 +661,11 @@ class EntryField extends Property {
 
     @Override
     public void validate() {
-        if (!"string".equals(getType())) {
-            throw new IllegalStateException(
-                    "Enum entries can only be of type \"string\"");
-        }
         super.validate();
+        if (!"java.lang.String".equals(getType())) {
+            throw new IllegalStateException(
+                    "Enum entries can only be of type \"java.lang.String\", not "
+                            + getType());
+        }
     }
 }
