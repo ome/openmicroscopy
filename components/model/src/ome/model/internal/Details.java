@@ -86,6 +86,25 @@ public class Details implements Filterable, Serializable {
 
     /** copy-constructor */
     public Details(Details copy) {
+        copy(copy);
+    }
+
+    public Details shallowCopy() {
+        Details newDetails = new Details();
+        newDetails.shallowCopy(this);
+        return newDetails;
+    }
+
+    /**
+     * Method which takes all field values from the given {@link Details}
+     * instance and copies them into the current instance.
+     * 
+     * @param copy
+     */
+    public void copy(Details copy) {
+        if (copy == null) {
+            throw new IllegalArgumentException("argument may not be null");
+        }
         setContext(copy.getContext());
         setPermissions(new Permissions().revokeAll(copy.getPermissions()));
         setCreationEvent(copy.getCreationEvent());
@@ -98,24 +117,30 @@ public class Details implements Filterable, Serializable {
                 .getCounts());
     }
 
-    public Details shallowCopy() {
-        Details newDetails = new Details();
-        newDetails.setOwner(this.getOwner() == null ? null : new Experimenter(
-                this.getOwner().getId(), false));
-        newDetails.setGroup(this.getGroup() == null ? null
-                : new ExperimenterGroup(this.getGroup().getId(), false));
-        newDetails.setCreationEvent(this.getCreationEvent() == null ? null
-                : new Event(this.getCreationEvent().getId(), false));
-        newDetails.setPermissions(this.getPermissions() == null ? null
-                : new Permissions().revokeAll(this.getPermissions()));
-        newDetails.setExternalInfo(this.getExternalInfo() == null ? null
-                : new ExternalInfo(this.getExternalInfo().getId(), false));
-        newDetails.setUpdateEvent(this.getUpdateEvent() == null ? null
-                : new Event(this.getUpdateEvent().getId(), false));
-        newDetails._filteredCollections = this.filteredSet();
-        newDetails.setCounts(this.getCounts() == null ? null : new HashMap(this
+    /**
+     * Method which takes all the fields of the given {@link Details} instance
+     * and sets unloaded proxies of them into the current instance.
+     */
+    public void shallowCopy(Details copy) {
+        if (copy == null) {
+            throw new IllegalArgumentException("argument may not be null");
+        }
+        setOwner(copy.getOwner() == null ? null : new Experimenter(copy
+                .getOwner().getId(), false));
+        setGroup(copy.getGroup() == null ? null : new ExperimenterGroup(copy
+                .getGroup().getId(), false));
+        setCreationEvent(copy.getCreationEvent() == null ? null : new Event(
+                copy.getCreationEvent().getId(), false));
+        setPermissions(copy.getPermissions() == null ? null : new Permissions()
+                .revokeAll(copy.getPermissions()));
+        setExternalInfo(copy.getExternalInfo() == null ? null
+                : new ExternalInfo(copy.getExternalInfo().getId(), false));
+        setUpdateEvent(copy.getUpdateEvent() == null ? null : new Event(copy
+                .getUpdateEvent().getId(), false));
+        _filteredCollections = copy.filteredSet();
+        setCounts(copy.getCounts() == null ? null : new HashMap(this
                 .getCounts()));
-        return newDetails;
+
     }
 
     // Loaded&Filtering methods

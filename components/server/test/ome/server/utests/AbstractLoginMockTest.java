@@ -177,7 +177,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
                 .getCurrentGroupId(), false));
         managed.setCreationEvent(new Event(sec.getEventContext()
                 .getCurrentEventId(), false));
-        i.setDetails(managed);
+        i.getDetails().copy(managed);
         return i;
     }
 
@@ -211,7 +211,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
      * One exception to this rule is the testing of unloaded status where the
      * use will resemble: <code>
      *  Image i = new Image(...).unload();
-     *  willLoadImage( new Image(...).setDetails(...);
+     *  willLoadImage( new Image(...).getDetails().copy(...);
      *  filter.filter(null,i);
      *  </code>
      */
@@ -271,14 +271,14 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
         Details myDetails = i.getDetails() == null ? new Details() : i
                 .getDetails();
         myDetails.setOwner(new Experimenter(userId, true));
-        i.setDetails(myDetails);
+        i.getDetails().copy(myDetails);
     }
 
     protected void chgrp(IObject i, Long grpId) {
         Details myDetails = i.getDetails() == null ? new Details() : i
                 .getDetails();
         myDetails.setGroup(new ExperimenterGroup(grpId, true));
-        i.setDetails(myDetails);
+        i.getDetails().copy(myDetails);
     }
 
     protected void setRootDetails(IObject i) {
@@ -290,7 +290,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
         myDetails.setOwner(new Experimenter(1L, true));
         myDetails.setGroup(ROOT_GROUP);
         myDetails.setCreationEvent(INITIAL_EVENT);
-        i.setDetails(myDetails);
+        i.getDetails().copy(myDetails);
     }
 
     private static class Type implements Constraint {

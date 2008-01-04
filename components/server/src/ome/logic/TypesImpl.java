@@ -14,14 +14,12 @@
 
 package ome.logic;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -30,15 +28,6 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.metadata.ClassMetadata;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
-import org.jboss.annotation.security.SecurityDomain;
-import org.springframework.transaction.annotation.Transactional;
-
-//Application-internal dependencies
 import ome.api.ITypes;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalUpdate;
@@ -50,6 +39,10 @@ import ome.model.internal.Permissions;
 import ome.security.SecureAction;
 import ome.services.util.OmeroAroundInvoke;
 
+import org.jboss.annotation.ejb.LocalBinding;
+import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.security.SecurityDomain;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * implementation of the ITypes service interface.
@@ -94,7 +87,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
 
         // TODO should this belong to root?
         Details d = getSecuritySystem().newTransientDetails(newEnum);
-        newEnum.setDetails(d);
+        newEnum.getDetails().copy(d);
         return getSecuritySystem().doAction(newEnum, new SecureAction() {
             public IObject updateObject(IObject iObject) {
                 return up.saveAndReturnObject(iObject);

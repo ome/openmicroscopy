@@ -8,13 +8,7 @@ package ome.server.utests;
 
 // Java imports
 import java.util.Date;
-// Third-party libraries
-import org.drools.spi.ConsequenceException;
-import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
-import org.testng.annotations.Configuration;
-import org.testng.annotations.Test;
 
-// Application-internal dependencies
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Project;
@@ -23,6 +17,11 @@ import ome.model.internal.Details;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.rules.RulesEngine;
+
+import org.drools.spi.ConsequenceException;
+import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 /**
  * basic tests for Drools system.
@@ -78,9 +77,9 @@ public class DroolsUnitTest extends
     @Test
     public void testWithGraph() throws Exception {
         Project p = new Project();
-        p.setDetails(new Details());
+        p.getDetails().copy(new Details());
         Experimenter e = new Experimenter();
-        e.setDetails(new Details());
+        e.getDetails().copy(new Details());
         Event ev = new Event();
         Date d = new Date(System.currentTimeMillis());
         String description = "blah blah";

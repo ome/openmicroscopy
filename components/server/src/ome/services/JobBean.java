@@ -156,7 +156,7 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
 
         // Here it is necessary to perform a {@link SecureAction} since
         // SecuritySystem#isSystemType() returns true for all Jobs
-        newJob.setDetails(sec.newTransientDetails(newJob));
+        newJob.getDetails().copy(sec.newTransientDetails(newJob));
         newJob = secureSave(newJob);
 
         jobId = newJob.getId();

@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" output="target/eclipse-server" path="components/server/src"/>
-	<classpathentry kind="src" path="components/importer/resources"/>
-	<classpathentry kind="src" path="components/importer/src"/>
-	<classpathentry kind="src" path="components/testing/target/generated/src"/>
-	<classpathentry kind="src" path="components/testing/resources"/>
-	<classpathentry kind="src" path="components/testing/src"/>
 	<classpathentry kind="src" path="components/model/target/generated/src"/>
 	<classpathentry kind="src" path="components/model/target/generated/resources"/>
 	<classpathentry kind="src" path="components/model/src"/>
 	<classpathentry kind="src" path="components/model/test"/>
 	<classpathentry kind="src" path="components/model/resources"/>
+	<classpathentry kind="src" output="target/eclipse-server" path="components/server/src"/>
+	<classpathentry kind="src" output="target/eclipse-server" path="components/server/test"/>
+	<classpathentry kind="src" output="target/eclipse-server" path="components/server/resources"/>
+	<classpathentry kind="src" path="components/importer/resources"/>
+	<classpathentry kind="src" path="components/importer/src"/>
+	<classpathentry kind="src" path="components/testing/target/generated/src"/>
+	<classpathentry kind="src" path="components/testing/resources"/>
+	<classpathentry kind="src" path="components/testing/src"/>
 	<classpathentry kind="src" path="components/dsl/test"/>
 	<classpathentry kind="src" path="components/dsl/resources"/>
 	<classpathentry kind="src" path="components/dsl/src"/>
@@ -23,8 +25,6 @@
 	<classpathentry kind="src" path="components/tools/licenses/resources"/>
 	<classpathentry kind="src" path="components/tools/licenses/src"/>
 	<classpathentry kind="src" path="components/client/resources"/>
-	<classpathentry kind="src" output="target/eclipse-server" path="components/server/test"/>
-	<classpathentry kind="src" output="target/eclipse-server" path="components/server/resources"/>
 	<classpathentry kind="src" output="target/eclipse-client" path="components/client/test"/>
 	<classpathentry kind="src" output="target/eclipse-client" path="components/client/src"/>
 	<classpathentry kind="src" output="target/eclipse-blitz" path="components/blitz/target/generated/resources"/>
@@ -38,7 +38,6 @@
 	<classpathentry kind="src" output="target/eclipse-common" path="components/common/target/generated/resources"/>
 	<classpathentry kind="src" output="target/eclipse-common" path="components/common/target/generated/src"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-        <!-- Adding above jboss-ejb3x -->
 	<classpathentry kind="lib" path="target/libs/hibernate-annotations.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate-commons-annotations.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate-search.jar"/>
@@ -87,7 +86,7 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/qdox.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/quartz.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/romio.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/spring.jar"/>
+	<classpathentry exported="true" kind="lib" path="target/libs/spring.jar" sourcepath="lib/repository/spring-sources-2.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/spring-mock.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/testng.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/velocity.jar"/>

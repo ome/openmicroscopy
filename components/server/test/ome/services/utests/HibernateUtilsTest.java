@@ -8,17 +8,17 @@ package ome.services.utests;
 
 // Java imports
 
-import org.hibernate.persister.entity.EntityPersister;
-import org.jmock.Mock;
-import org.jmock.MockObjectTestCase;
-import org.testng.annotations.*;
-
-// Application-internal dependencies
 import ome.model.core.Image;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.meta.Event;
 import ome.tools.hibernate.HibernateUtils;
+
+import org.hibernate.persister.entity.EntityPersister;
+import org.jmock.Mock;
+import org.jmock.MockObjectTestCase;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -44,13 +44,17 @@ public class HibernateUtilsTest extends MockObjectTestCase {
     @Test
     public void testIdEquals() throws Exception {
         assertTrue(HibernateUtils.idEqual(null, null));
-        assertTrue(HibernateUtils.idEqual(new Image(1L, false), new Image(1L, false)));
+        assertTrue(HibernateUtils.idEqual(new Image(1L, false), new Image(1L,
+                false)));
         assertFalse(HibernateUtils.idEqual(new Image(), new Image()));
-        assertFalse(HibernateUtils.idEqual(new Image(1L, false), new Image(null, false)));
-        assertFalse(HibernateUtils.idEqual(new Image(null, false), new Image(1L, false)));
-        assertFalse(HibernateUtils.idEqual(new Image(null, false), new Image(null, false)));
-        assertFalse(HibernateUtils.idEqual(new Image(null, false), null));
-        assertFalse(HibernateUtils.idEqual(null, new Image(null, false)));
+        assertFalse(HibernateUtils.idEqual(new Image(1L, true), new Image(null,
+                true)));
+        assertFalse(HibernateUtils.idEqual(new Image(null, true), new Image(1L,
+                false)));
+        assertFalse(HibernateUtils.idEqual(new Image(null, true), new Image(
+                null, true)));
+        assertFalse(HibernateUtils.idEqual(new Image(null, true), null));
+        assertFalse(HibernateUtils.idEqual(null, new Image(null, true)));
     }
 
     Mock mockPersister;

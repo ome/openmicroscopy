@@ -13,7 +13,6 @@ import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
-import ome.model.core.Pixels;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
@@ -24,6 +23,7 @@ import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
+
 import org.testng.annotations.Test;
 
 @Test(groups = { "ticket:337", "security", "integration" })
@@ -496,7 +496,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
 
         verifyLockStatus(img, will_lock);
         verifyLockStatus(pix, will_lock); // both locked. see
-                                            // https://trac.openmicroscopy.org.uk/omero/ticket/357
+        // https://trac.openmicroscopy.org.uk/omero/ticket/357
 
         for (Object object : details_changed) {
             verifyLocked(sf, img, d(img, object), can_change_img);
@@ -565,7 +565,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         prj.linkDataset(ds);
 
         prj = u.getUpdateService().saveAndReturnObject(prj);
-        ds = (Dataset) prj.linkedDatasetList().get(0);
+        ds = prj.linkedDatasetList().get(0);
 
         prj = u.getQueryService().find(prj.getClass(), prj.getId().longValue());
         ds = u.getQueryService().find(ds.getClass(), ds.getId().longValue());
@@ -657,7 +657,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         t = u.getUpdateService().saveAndReturnObject(prj); // cloning
         t.getDetails().getPermissions().set(Flag.LOCKED);
         t = u.getUpdateService().saveAndReturnObject(t); // save changes on
-                                                            // managed
+        // managed
         assertTrue(t.getDetails().getPermissions().isSet(Flag.LOCKED));
 
     }
@@ -672,7 +672,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         prj.linkDataset(ds);
 
         Permissions perms = Permissions.READ_ONLY; // relatively common
-                                                    // use-case
+        // use-case
         prj.getDetails().setPermissions(perms);
 
         Project t = u.getUpdateService().saveAndReturnObject(prj);
@@ -688,7 +688,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         img.addPixels(pix);
 
         img = u.getUpdateService().saveAndReturnObject(img);
-        pix = (Pixels) img.iteratePixels().next();
+        pix = img.iteratePixels().next();
 
         assertTrue(pix.getDetails().getPermissions().isSet(Flag.LOCKED));
 
@@ -735,7 +735,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
 
         // shouldn't be able to remove read
         try {
-            _i.setDetails(d);
+            _i.getDetails().copy(d);
             sf.getUpdateService().saveObject(_i);
             if (!can_change) {
                 fail("secvio!");

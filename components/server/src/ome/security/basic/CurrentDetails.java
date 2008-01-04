@@ -16,11 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-// Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-// Application-internal dependencies
 import ome.model.IObject;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
@@ -30,8 +25,10 @@ import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.security.basic.BasicEventContext;
 import ome.system.EventContext;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Stores information related to the security context of the current thread.
@@ -39,19 +36,19 @@ import ome.system.EventContext;
  * user must be set (the creation of a new user is only allowed if the current
  * user is set to root; root always exists. QED.) The event must also be set.
  * Umask is optional.
- *
+ * 
  * This information is stored in a Details object, but unlike Details which
  * assumes that an empty value signifies increased security levels, empty values
  * here signifiy reduced security levels. E.g.,
- *
+ * 
  * Details: user == null ==> object belongs to root CurrentDetails: user == null
  * ==> current user is "nobody" (anonymous)
- *
+ * 
  */
 class CurrentDetails {
     private static Log log = LogFactory.getLog(CurrentDetails.class);
 
-    private ThreadLocal<BasicEventContext> data = new InheritableThreadLocal<BasicEventContext>() {
+    private final ThreadLocal<BasicEventContext> data = new InheritableThreadLocal<BasicEventContext>() {
         @Override
         protected BasicEventContext initialValue() {
             return new BasicEventContext();
@@ -82,7 +79,7 @@ class CurrentDetails {
     // ~ Events and Details
     // =================================================================
     public void newEvent(EventType type, Token token) // TODO keep up with
-                                                        // stack here?
+    // stack here?
     {
         Event e = new Event();
         e.setType(type);
@@ -108,7 +105,7 @@ class CurrentDetails {
         l.setEvent(getCreationEvent());
         Details d = new Details();
         d.setPermissions(new Permissions());
-        l.setDetails(d);
+        l.getDetails().copy(d);
         list.add(l);
     }
 
@@ -232,7 +229,7 @@ class CurrentDetails {
         Collection<Long> c = data.get().memberOfGroups;
         if (c == null || c.size() == 0) {
             c = Collections.singletonList(Long.MIN_VALUE); // FIXME hack as
-                                                            // well.
+            // well.
         }
         return c;
     }
@@ -245,7 +242,7 @@ class CurrentDetails {
         Collection<Long> c = data.get().leaderOfGroups;
         if (c == null || c.size() == 0) {
             c = Collections.singletonList(Long.MIN_VALUE); // FIXME hack as
-                                                            // well.
+            // well.
         }
         return c;
     }

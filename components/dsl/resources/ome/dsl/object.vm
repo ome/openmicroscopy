@@ -220,7 +220,7 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
     * Note: subclasses of this class can only return subclasses of 
     * this {@link Details} type.
     */
-   protected ome.model.internal.Details details = new Details();
+   protected Details details = new Details();
 
    /**
     * The details of this object correspond to low-level system
@@ -256,7 +256,11 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
         return this.details;
     }
 
-    public void setDetails(ome.model.internal.Details details) {
+   /**
+    * Use the {@link Details\#copy(Details)} or {@link Details\#shallowCopy(Details)}
+    * methods to set the {@link Details} instance instead.
+    */
+    protected void setDetails(ome.model.internal.Details details) {
         preSetter( DETAILS, details );
         this.details = (Details) details;
     }
@@ -1193,7 +1197,7 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
 #######################################################
 
 #if(!$type.superclass)
-    public static class Details extends ome.model.internal.Details {
+    private static class Details extends ome.model.internal.Details {
 
         private final static long serialVersionUID = 0000000030000020301L;
 

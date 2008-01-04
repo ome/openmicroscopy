@@ -462,7 +462,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
             ExperimenterGroup foundGroup = groupProxy(group.getId());
             GroupExperimenterMap map = new GroupExperimenterMap();
             map.link(foundGroup, foundUser);
-            map.setDetails(getSecuritySystem().newTransientDetails(map));
+            map.getDetails().copy(getSecuritySystem().newTransientDetails(map));
             getSecuritySystem().doAction(map, new SecureAction() {
                 public <T extends IObject> T updateObject(T obj) {
                     return iUpdate.saveAndReturnObject(obj);
@@ -495,7 +495,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
                 toRemove.add(g.getId());
             }
         }
-        for (GroupExperimenterMap map : foundUser.<GroupExperimenterMap>collectGroupExperimenterMap(null)) {
+        for (GroupExperimenterMap map : foundUser
+                .<GroupExperimenterMap> collectGroupExperimenterMap(null)) {
             Long pId = map.parent().getId();
             Long cId = map.child().getId();
             if (toRemove.contains(pId)) {
@@ -547,18 +548,21 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
         Experimenter foundUser = getExperimenter(user.getId());
         ExperimenterGroup foundGroup = getGroup(group.getId());
-        Set<GroupExperimenterMap> foundMaps = foundUser.findGroupExperimenterMap(foundGroup);
+        Set<GroupExperimenterMap> foundMaps = foundUser
+                .findGroupExperimenterMap(foundGroup);
         if (foundMaps.size() < 1) {
             throw new ApiUsageException("Group " + group.getId() + " was not "
                     + "found for user " + user.getId());
         } else if (foundMaps.size() > 1) {
-            getBeanHelper().getLogger().warn(foundMaps.size()+ " copies of "+
-                    foundGroup + " found for " + foundUser);
+            getBeanHelper().getLogger().warn(
+                    foundMaps.size() + " copies of " + foundGroup
+                            + " found for " + foundUser);
         } else {
             // May throw an exception
-            foundUser.setPrimaryGroupExperimenterMap(foundMaps.iterator().next());
+            foundUser.setPrimaryGroupExperimenterMap(foundMaps.iterator()
+                    .next());
         }
-        
+
         // TODO: May want to move this outside the loop
         // and after the !newDefaultSet check.
         getSecuritySystem().doAction(foundUser, new SecureAction() {
@@ -936,7 +940,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         ExperimenterGroup copy = new ExperimenterGroup();
         copy.setDescription(g.getDescription());
         copy.setName(g.getName());
-        copy.setDetails(getSecuritySystem().newTransientDetails(g));
+        copy.getDetails().copy(getSecuritySystem().newTransientDetails(g));
         // TODO see shallow copy comment on copy user
         return copy;
     }

@@ -9,7 +9,6 @@ package ome.util.utests;
 import junit.framework.TestCase;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
-import ome.model.internal.Details;
 import ome.util.ShallowCopy;
 
 import org.testng.annotations.Test;
@@ -20,7 +19,6 @@ public class ShallowCopyTest extends TestCase {
     public void testNoNulls() throws Exception {
         Pixels pix = new Pixels();
         pix.setId(1L);
-        pix.setDetails(new Details());
         pix.setSizeC(1);
         pix.setImage(new Image());
 

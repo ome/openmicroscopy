@@ -29,8 +29,7 @@ public class DetailsFieldBridge implements FieldBridge {
     // TODO add combined_fields to constants
     public final static String COMBINED = "combined_fields";
 
-    public final static DateBridge dateBridge = new DateBridge(
-            Resolution.MINUTE);
+    public final static DateBridge dateBridge = new DateBridge(Resolution.DAY);
 
     public void set(String name, Object value, Document document,
             Field.Store store, Field.Index index, Float boost) {
@@ -38,27 +37,38 @@ public class DetailsFieldBridge implements FieldBridge {
         IObject object = (IObject) value;
         Details details = object.getDetails();
 
-        Experimenter e = details.getOwner();
-        String omename = e.getOmeName();
-        String firstName = e.getFirstName();
-        String lastName = e.getLastName();
+        if (details != null) {
+            Experimenter e = details.getOwner();
+            if (e != null && e.isLoaded()) {
+                String omename = e.getOmeName();
+                String firstName = e.getFirstName();
+                String lastName = e.getLastName();
+                add(document, "owner", omename, store, index, boost);
+                add(document, "firstname", firstName, store, index, boost);
+                add(document, "lastName", lastName, store, index, boost);
+            }
 
-        ExperimenterGroup g = details.getGroup();
-        String groupName = g.getName();
+            ExperimenterGroup g = details.getGroup();
+            if (g != null && g.isLoaded()) {
+                String groupName = g.getName();
+                add(document, "group", groupName, store, index, boost);
 
-        add(document, "owner", omename, store, index, boost);
-        add(document, "firstname", firstName, store, index, boost);
-        add(document, "lastName", lastName, store, index, boost);
-        add(document, "group", groupName, store, index, boost);
+            }
 
-        Event creationEvent = details.getCreationEvent();
-        Event updateEvent = details.getUpdateEvent();
+            Event creationEvent = details.getCreationEvent();
+            if (creationEvent != null && creationEvent.isLoaded()) {
+                String creation = dateBridge.objectToString(creationEvent
+                        .getTime());
+                add(document, "creation", creation, store, index, boost);
+            }
 
-        String creation = dateBridge.objectToString(creationEvent.getTime());
-        String update = dateBridge.objectToString(updateEvent.getTime());
-
-        add(document, "creation", creation, store, index, boost);
-        add(document, "update", update, store, index, boost);
+            Event updateEvent = details.getUpdateEvent();
+            if (updateEvent != null && updateEvent.isLoaded()) {
+                String update = dateBridge
+                        .objectToString(updateEvent.getTime());
+                add(document, "update", update, store, index, boost);
+            }
+        }
     }
 
     protected void add(Document d, String field, String value,

@@ -1272,8 +1272,9 @@ public class RenderingBean extends AbstractLevel2Service implements
         RenderingModel newModel = new RenderingModel();
         newModel.setId(model.getId());
         newModel.setValue(model.getValue());
-        newModel.setDetails(model.getDetails() == null ? null : model
-                .getDetails().shallowCopy());
+        newModel.getDetails().copy(
+                model.getDetails() == null ? null : model.getDetails()
+                        .shallowCopy());
         return newModel;
     }
 
@@ -1284,8 +1285,9 @@ public class RenderingBean extends AbstractLevel2Service implements
         Family newFamily = new Family();
         newFamily.setId(family.getId());
         newFamily.setValue(family.getValue());
-        newFamily.setDetails(family.getDetails() == null ? null : family
-                .getDetails().shallowCopy());
+        newFamily.getDetails().copy(
+                family.getDetails() == null ? null : family.getDetails()
+                        .shallowCopy());
         return newFamily;
     }
 

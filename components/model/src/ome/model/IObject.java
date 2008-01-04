@@ -49,19 +49,19 @@ public interface IObject extends Filterable {
     // ~ Security
     // =========================================================================
     /**
-     * value (i.e. not entity) which is available on all rows in the database.
+     * Value (i.e. not entity) which is available on all rows in the database.
      * Low-level "details" such as security, ownership, auditing are managed
      * here.
+     * 
+     * When setting values on {@link Details}, it is important to realize that
+     * most of the values are managed by the backend and may be replaced. For
+     * example, a user does not have permission to change the owner of an
+     * object, not even when owned by that user.
+     * 
+     * To replace all of the values from an existing {@link Details} instance,
+     * use {@link Details#copy(Details)} or {@link Details#shallowCopy(Details)}
      */
     public Details getDetails();
-
-    /**
-     * when setting details, it is important to realize that most of the values
-     * are managed by the backend and may be replaced. For example, a user does
-     * not have permission to change the owner of an object, not even when owned
-     * by that user.
-     */
-    public void setDetails(Details details);
 
     // ~ Lifecycle
     // =========================================================================

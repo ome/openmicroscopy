@@ -119,10 +119,6 @@ public class UpdateFilter extends ContextFilter {
 
             if (i.isLoaded()) {
 
-                if (i.getDetails() == null) {
-                    i.setDetails(new Details());
-                }
-
                 if (i.getDetails().getPermissions() == null) {
                     Permissions p = new Permissions(Permissions.DEFAULT);
                     p.set(Flag.SOFT);
