@@ -8,33 +8,24 @@
 package ome.util.tasks.admin;
 
 // Java imports
+import static ome.util.tasks.admin.ListUsersAndGroupsTask.Keys.groups;
+import static ome.util.tasks.admin.ListUsersAndGroupsTask.Keys.users;
+
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
-import ome.api.IAdmin;
 import ome.api.IQuery;
-import ome.model.IObject;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
 import ome.system.ServiceFactory;
-import ome.util.CBlock;
-import ome.util.tasks.Configuration;
 import ome.util.tasks.SimpleTask;
-
-import static ome.util.tasks.admin.ListUsersAndGroupsTask.Keys.*;
 
 /**
  * {@link SimpleTask} which prints {@link Experimenter} and
@@ -138,8 +129,9 @@ public class ListUsersAndGroupsTask extends SimpleTask {
 
     private PrintWriter getWriter(String name) {
 
-        if (null == name)
+        if (null == name) {
             return null;
+        }
 
         PrintWriter pw;
         if (OUT.equals(name)) {
@@ -161,28 +153,19 @@ public class ListUsersAndGroupsTask extends SimpleTask {
     }
 
     private List<String> userNames(ExperimenterGroup g) {
-        return g.collectGroupExperimenterMap(new CBlock<String>() {
-            public String call(IObject object) {
-                GroupExperimenterMap m = (GroupExperimenterMap) object;
-                StringBuilder name = new StringBuilder(m.child().getOmeName());
-                if (Boolean.TRUE.equals(m.getDefaultGroupLink())) {
-                    name.append(" (=default)");
-                }
-                return name.toString();
-            }
-        });
+        List<String> rv = new ArrayList<String>();
+        for (Experimenter e : g.linkedExperimenterList()) {
+            rv.add(e.getOmeName());
+        }
+        return rv;
     }
 
     private List<String> groupNames(Experimenter e) {
-        return e.collectGroupExperimenterMap(new CBlock<String>() {
-            public String call(IObject object) {
-                GroupExperimenterMap m = (GroupExperimenterMap) object;
-                StringBuilder name = new StringBuilder(m.parent().getName());
-                if (Boolean.TRUE.equals(m.getDefaultGroupLink())) {
-                    name.append(" (=default)");
-                }
-                return name.toString();
-            }
-        });
+        List<String> rv = new ArrayList<String>();
+        for (int i = 0; i < e.sizeOfGroupExperimenterMap(); i++) {
+            ExperimenterGroup g = e.getGroupExperimenterMap(0).parent();
+            rv.add(g.getName());
+        }
+        return rv;
     }
 }

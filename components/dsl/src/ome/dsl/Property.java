@@ -403,9 +403,24 @@ public abstract class Property { // TODO need to define equality so that two
         return this.bidirectional;
     }
 
+    /**
+     * @return
+     * @see ticket:813
+     */
     public String getDef() {
-        return ""; // TODO this is to be used for overriding float4 for
-        // ticket:803
+        if (type.equals(FLOAT)) {
+            StringBuilder sb = new StringBuilder(32);
+            sb.append("double precision");
+            if (!getNullable()) {
+                sb.append(" not null");
+            }
+            if (getUnique()) {
+                sb.append(" unique");
+            }
+            return sb.toString();
+        } else {
+            return "";
+        }
     }
 
     /**

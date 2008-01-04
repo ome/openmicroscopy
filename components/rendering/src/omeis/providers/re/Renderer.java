@@ -177,7 +177,7 @@ public class Renderer {
         StatsFactory sf = new StatsFactory();
 
         int w = 0;
-        List<Channel> channels = pixels.getChannels();
+        List<Channel> channels = pixels.<Channel>collectChannels(null);
         for (Channel channel : channels) {
             // FIXME: This is where we need to have the ChannelBinding -->
             // Channel linkage. Without it, we have to assume that the order in
@@ -207,14 +207,13 @@ public class Renderer {
 	private static void resetChannelBindings(RenderingDef def, Pixels pixels,
 	        QuantumFactory quantumFactory, PixelBuffer buffer) {
 	    // The actual channel bindings we are returning
-	    List<ChannelBinding> channelBindings = def.getWaveRendering();
+	    List<ChannelBinding> channelBindings = def.<ChannelBinding>collectWaveRendering(null);
 	
 	    // Default plane definition for our rendering definition
 	    PlaneDef planeDef = getDefaultPlaneDef(def);
 	
-	    List<Channel> channels = pixels.getChannels();
 	    int i = 0;
-	    for (Channel channel : channels) {
+	    for (Channel channel : pixels.<Channel>collectChannels(null)) {
 	        Family family = quantumFactory.getFamily(QuantumFactory.LINEAR);
 	
 	        ChannelBinding channelBinding = channelBindings.get(i);
@@ -426,7 +425,8 @@ public class Renderer {
 
         // Create and configure the codomain chain.
         codomainChain = new CodomainChain(qd.getCdStart().intValue(), qd
-                .getCdEnd().intValue(), rndDef.getSpatialDomainEnhancement());
+                .getCdEnd().intValue(), rndDef.<ome.model.display.CodomainMapContext>
+                collectSpatialDomainEnhancement(null));
 
         // Create an appropriate rendering strategy.
         renderingStrategy = RenderingStrategy.makeNew(rndDef.getModel());
@@ -636,7 +636,7 @@ public class Renderer {
      * @return See above.
      */
     public ChannelBinding[] getChannelBindings() {
-        List bindings = rndDef.getWaveRendering();
+        List<ChannelBinding> bindings = rndDef.collectWaveRendering(null);
         return (ChannelBinding[]) bindings.toArray(new ChannelBinding[bindings
                 .size()]);
     }
@@ -647,9 +647,8 @@ public class Renderer {
      * 
      * @return See above.
      */
-    @SuppressWarnings("unchecked")
 	public List<ChannelBinding> getChannelBindingsAsList() {
-        return rndDef.getWaveRendering();
+        return rndDef.collectWaveRendering(null);
     }
 
     /**
@@ -770,11 +769,12 @@ public class Renderer {
         QuantumDef qd = rd.getQuantization();
         qd.setCdStart(Integer.valueOf(start));
         qd.setCdEnd(Integer.valueOf(end));
-        CodomainMapContext mapCtx;
-        Iterator i = rd.getSpatialDomainEnhancement().iterator();
+        ome.model.display.CodomainMapContext mapCtx;
+        Iterator<ome.model.display.CodomainMapContext> i = rd.iterateSpatialDomainEnhancement();
         while (i.hasNext()) {
-            mapCtx = (CodomainMapContext) i.next();
-            mapCtx.setCodomain(start, end);
+            mapCtx = i.next();
+            throw new UnsupportedOperationException("BROKEN");
+            // XXX What is supposed to happen here? mapCtx.setCodomain(start, end);
         }
         //need to rebuild the look up table
         updateQuantumManager();
@@ -877,7 +877,7 @@ public class Renderer {
 
         // Keep up with the quantum manager state (Basically reset it).
         getQuantumManager().initStrategies(rndDef.getQuantization(),
-                metadata.getPixelsType(), rndDef.getWaveRendering());
+                metadata.getPixelsType(), rndDef.<ChannelBinding>collectWaveRendering(null));
 
         // Remove all the codomainMapCtx except the identity. (Also keeping up
         // with rendering engine state)
@@ -907,7 +907,7 @@ public class Renderer {
 	    // Set the rendering model to RGB if there is more than one channel,
 	    // otherwise set it to greyscale.
 	    RenderingModel defaultModel = null;
-	    if (pixels.getChannels().size() > 1) {
+	    if (pixels.sizeOfChannels() > 1) {
 	    	for (RenderingModel model : renderingModels)
 	    	{
 	    		if (model.getValue().equals(MODEL_HSB))
@@ -970,8 +970,12 @@ public class Renderer {
 	    r.setDefaultZ(p.getSizeZ() / 2);
 	    r.setDefaultT(0);
         r.setQuantization(new QuantumDef());
-        r.setWaveRendering(createNewChannelBindings(p));
-        
+
+        List<ChannelBinding> list = createNewChannelBindings(p);
+        r.clearWaveRendering();
+        for (ChannelBinding channelBinding : list) {
+            r.addChannelBinding(channelBinding);
+        }
         // Unload the pixels object to avoid transactional headaches
         Pixels unloadedPixels = new Pixels();
         unloadedPixels.setId(p.getId());

@@ -20,8 +20,7 @@ import java.util.Set;
 // Application-internal dependencies
 import ome.model.IMutable;
 import ome.model.IObject;
-import ome.model.annotations.DatasetAnnotation;
-import ome.model.annotations.ImageAnnotation;
+import ome.model.annotations.Annotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
@@ -89,12 +88,10 @@ public abstract class DataObject {
             converted = new ProjectData((Project) obj);
         } else if (obj instanceof Dataset) {
             converted = new DatasetData((Dataset) obj);
-        } else if (obj instanceof DatasetAnnotation) {
-            converted = new AnnotationData((DatasetAnnotation) obj);
+        } else if (obj instanceof Annotation) {
+            converted = new AnnotationData((Annotation) obj);
         } else if (obj instanceof Image) {
             converted = new ImageData((Image) obj);
-        } else if (obj instanceof ImageAnnotation) {
-            converted = new AnnotationData((ImageAnnotation) obj);
         } else if (obj instanceof CategoryGroup) {
             converted = new CategoryGroupData((CategoryGroup) obj);
         } else if (obj instanceof Category) {
@@ -299,18 +296,8 @@ public abstract class DataObject {
      * @throws ClassCastException
      * @return not null IObject
      */
-    public ImageAnnotation asImageAnnotation() {
-        return (ImageAnnotation) asIObject();
-    }
-
-    /**
-     * not null; may through class-cast exception
-     * 
-     * @throws ClassCastException
-     * @return not null IObject
-     */
-    public DatasetAnnotation asDatasetAnnotation() {
-        return (DatasetAnnotation) asIObject();
+    public Annotation asAnnotation() {
+        return (Annotation) asIObject();
     }
 
     /**

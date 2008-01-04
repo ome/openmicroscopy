@@ -40,8 +40,8 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
         example = iUpdate.saveAndReturnObject(example);
 
         p = ObjectFactory.createPixelGraph(example);
-        assertTrue("Starting off empty", p.getChannels() != null);
-        channelsSizeBefore = p.getChannels().size();
+        assertTrue("Starting off empty", p.sizeOfChannels() >= 0);
+        channelsSizeBefore = p.sizeOfChannels();
         assertTrue("Starting off empty", channelsSizeBefore > 0);
 
     }
@@ -106,8 +106,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
         // PREPARE -------------------------------------------------
         // TODO or bool flag?
         PixelsDimensions dims = new PixelsDimensions(example
-                .getPixelsDimensions().getId());
-        dims.unload();
+                .getPixelsDimensions().getId(), false);
 
         p.setPixelsDimensions(dims);
         p = iUpdate.saveAndReturnObject(p);
@@ -125,15 +124,15 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
         p = iUpdate.saveAndReturnObject(p);
 
         // TEST -------------------------------------------------
-        assertTrue("Didn't get re-filled", p.getChannels() != null);
+        assertTrue("Didn't get re-filled", p.sizeOfChannels() >= 0);
         assertTrue("channel ids aren't the same", equalCollections(example
-                .getChannels(), p.getChannels()));
+                .unmodifiableChannels(), p.unmodifiableChannels()));
     }
 
     @Test
     public void testFilteredCollectionFieldOnDetachedPixels() throws Exception {
         // PREPARE -------------------------------------------------
-        Channel first = (Channel) p.getChannels().iterator().next();
+        Channel first = (Channel) p.unmodifiableChannels().iterator().next();
         p.getChannels().remove(first);
         p.getDetails().addFiltered(Pixels.CHANNELS);
 
@@ -141,10 +140,10 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
         p = iUpdate.saveAndReturnObject(p);
 
         // TEST -------------------------------------------------
-        int channelsSizeAfter = p.getChannels().size();
+        int channelsSizeAfter = p.sizeOfChannels();
         assertTrue("Filtered channels not refilled",
                 channelsSizeAfter == channelsSizeBefore);
-        for (Channel c : (List<Channel>) p.getChannels()) {
+        for (Channel c : p.unmodifiableChannels())
             assertTrue("Channel missing a valid id.", c.getId().longValue() > 0);
         }
 
@@ -177,7 +176,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
         // ObjectFactory now creations PlaneInfos, so this p already has one.
         assertTrue("Need at least two pixInfos, please.", p.collectPlaneInfo(
                 null).size() >= 2);
-        for (PlaneInfo pi : (List<PlaneInfo>) p.collectPlaneInfo(null)) {
+        for (PlaneInfo pi : p.unmodifiablePlaneInfo()) {
             assertTrue("Need an id, please.", pi.getId().longValue() > 0);
         }
     }

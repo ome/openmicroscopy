@@ -221,8 +221,8 @@ public class ExperimenterData extends DataObject {
      */
     public GroupData getDefaultGroup() {
         if (defaultGroup == null
-                && asExperimenter().getDefaultGroupLink() != null) {
-            defaultGroup = new GroupData(asExperimenter().getDefaultGroupLink()
+                && asExperimenter().getPrimaryGroupExperimenterMap() != null) {
+            defaultGroup = new GroupData(asExperimenter().getPrimaryGroupExperimenterMap()
                     .parent());
         }
         return defaultGroup;
@@ -239,17 +239,11 @@ public class ExperimenterData extends DataObject {
         this.defaultGroup = group;
         if (this.defaultGroup != null) {
             final ExperimenterGroup g = group.asGroup();
-            asExperimenter().collectGroupExperimenterMap(new CBlock() {
-                public Object call(IObject object) {
-                    GroupExperimenterMap map = (GroupExperimenterMap) object;
-                    if (map.parent() == g) {
-                        map.setDefaultGroupLink(Boolean.TRUE);
-                    } else {
-                        map.setDefaultGroupLink(Boolean.FALSE);
-                    }
-                    return null;
-                }
-            });
+            final Set<GroupExperimenterMap> grps = asExperimenter().findGroupExperimenterMap(g);
+            if (grps.size() == 0) {
+                throw new IllegalArgumentException(g + " not found for " + asExperimenter());
+            }
+            asExperimenter().setPrimaryGroupExperimenterMap(grps.iterator().next());
         }
     }
 

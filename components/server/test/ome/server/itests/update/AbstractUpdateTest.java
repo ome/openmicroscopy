@@ -15,8 +15,8 @@ import ome.server.itests.AbstractManagedContextTest;
 
 public class AbstractUpdateTest extends AbstractManagedContextTest {
 
-    protected boolean equalCollections(Collection<IObject> before,
-            Collection<IObject> after) {
+    protected <T extends IObject> boolean equalCollections(
+            Collection<T> before, Collection<T> after) {
         Set<Long> beforeIds = new HashSet<Long>();
         for (IObject object : before) {
             beforeIds.add(object.getId());

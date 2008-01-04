@@ -27,8 +27,8 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.OptimisticLockException;
 import ome.model.ILink;
 import ome.model.IObject;
-import ome.model.annotations.DatasetAnnotation;
-import ome.model.annotations.ImageAnnotation;
+import ome.model.annotations.Annotation;
+import ome.model.annotations.StringAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
@@ -155,7 +155,7 @@ public class PojosServiceTest extends TestCase {
     @Test
     public void testAndSaveSomtheingWithParents() throws Exception {
         saveImage();
-        ds = (Dataset) img.linkedDatasetIterator().next();
+        ds = img.linkedDatasetIterator().next();
         Long id = ds.getId();
 
         // another copy
@@ -166,7 +166,7 @@ public class PojosServiceTest extends TestCase {
                 new Parameters().addId(img.getId())).get(0);
         assertTrue("It better have a dataset link too", img2
                 .sizeOfDatasetLinks() > 0);
-        Dataset ds2 = (Dataset) img2.linkedDatasetIterator().next();
+        Dataset ds2 = img2.linkedDatasetIterator().next();
         assertTrue("And the ids have to be the same", id.equals(ds2.getId()));
     }
 
@@ -186,12 +186,12 @@ public class PojosServiceTest extends TestCase {
 
         // Resetting; should get error
         sent2.setVersion(version);
-        ImageAnnotation iann = new ImageAnnotation();
-        iann.setContent(" version handling ");
-        iann.setImage(sent2);
+        StringAnnotation iann = new StringAnnotation();
+        iann.setStringValue(" version handling ");
+        // iann.setImage(sent2);
 
         try {
-            iUpdate.saveAndReturnObject(iann);
+            iUpdate.saveAndReturnObject(sent2);
             fail("Need optmistic lock exception.");
         } catch (OptimisticLockException e) {
             // ok.
@@ -260,10 +260,10 @@ public class PojosServiceTest extends TestCase {
 
         // Method 3:
         saveImage();
-        Dataset target = (Dataset) img.linkedDatasetIterator().next();
+        Dataset target = img.linkedDatasetIterator().next();
         // For querying
-        DatasetImageLink dslink = (DatasetImageLink) img.findDatasetImageLink(
-                target).iterator().next();
+        DatasetImageLink dslink = img.findDatasetImageLink(target).iterator()
+                .next();
 
         img.unlinkDataset(target);
         img = iPojos.updateDataObject(img, null);
@@ -288,8 +288,7 @@ public class PojosServiceTest extends TestCase {
     @Test(groups = { "broken", "ticket:541" })
     public void testHeresHowWeUnlinkFromJustOneSide() throws Exception {
         saveImage();
-        DatasetImageLink link = (DatasetImageLink) img.iterateDatasetLinks()
-                .next();
+        DatasetImageLink link = img.iterateDatasetLinks().next();
         img.removeDatasetImageLink(link, false);
 
         iPojos.updateDataObject(img, null);
@@ -574,10 +573,9 @@ public class PojosServiceTest extends TestCase {
                 null);
         Experimenter e = (Experimenter) m.get(fixture.TESTER);
         ExperimenterGroup g;
-        assertNotNull(g = e.getDefaultGroupLink().parent());
+        assertNotNull(g = e.getPrimaryGroupExperimenterMap().parent());
         assertNotNull(g.getName());
-        for (ExperimenterGroup gg : (Collection<ExperimenterGroup>) e
-                .linkedExperimenterGroupList()) {
+        for (ExperimenterGroup gg : e.linkedExperimenterGroupList()) {
             assertNotNull(gg.getName());
         }
     }
@@ -640,15 +638,15 @@ public class PojosServiceTest extends TestCase {
     @Test(groups = { "versions", "broken", "ticket:118" })
     public void test_version_doesnt_increase_on_linked_update()
             throws Exception {
-        ImageAnnotation ann = new ImageAnnotation();
+        StringAnnotation ann = new StringAnnotation();
         Image img = new Image();
 
         img.setName("version_test");
-        ann.setContent("version_test");
-        img.addImageAnnotation(ann);
+        ann.setStringValue("version_test");
+        img.getAnnotations().add(ann);
 
         img = iUpdate.saveAndReturnObject(img);
-        ann = (ImageAnnotation) img.iterateAnnotations().next();
+        ann = (StringAnnotation) img.getAnnotations().iterator().next();
 
         assertNotNull(img.getId());
         assertNotNull(ann.getId());
@@ -656,10 +654,10 @@ public class PojosServiceTest extends TestCase {
         int orig_img_version = img.getVersion().intValue();
         int orig_ann_version = ann.getVersion().intValue();
 
-        ann.setContent("updated version_test");
+        ann.setStringValue("updated version_test");
 
         ann = iUpdate.saveAndReturnObject(ann);
-        img = ann.getImage();
+        img = iQuery.get(Image.class, img.getId()); // ann.getImage();
 
         int new_ann_version = ann.getVersion().intValue();
         int new_img_version = img.getVersion().intValue();
@@ -754,7 +752,7 @@ public class PojosServiceTest extends TestCase {
         img.linkDataset(ds);
 
         img = iUpdate.saveAndReturnObject(img);
-        ds = (Dataset) img.linkedDatasetIterator().next();
+        ds = img.linkedDatasetIterator().next();
 
         List imgLinks = iQuery.findAllByQuery(DatasetImageLink.class.getName(),
                 new Parameters().addLong("child.id", img.getId()));
@@ -992,8 +990,8 @@ public class PojosServiceTest extends TestCase {
         d = iPojos.createDataObject(d, null);
         annotatedObject = new DatasetData(d);
 
-        data = new AnnotationData(AnnotationData.DATASET_ANNOTATION);
-        data.setText(" update_annotation ");
+        data = new AnnotationData(StringAnnotation.class);
+        data.setContent(" update_annotation ");
 
         IObject updated = iPojos.updateDataObject(annotatedObject.asIObject(),
                 null);
@@ -1002,7 +1000,7 @@ public class PojosServiceTest extends TestCase {
         ((DatasetAnnotation) toUpdate).setDataset((Dataset) updated);
         IObject result = iPojos.updateDataObject(toUpdate, null); /* boom */
 
-        DataObject toReturn = new AnnotationData((DatasetAnnotation) result);
+        DataObject toReturn = new AnnotationData((Annotation) result);
 
     }
 

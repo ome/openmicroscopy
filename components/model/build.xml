@@ -7,12 +7,29 @@
     <import file="${import.dir}/lifecycle.xml"/>
     <import file="${import.dir}/hibernate.xml"/>
 
+<target name="tmphib" depends="prepare">
+  <taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="omero.classpath" />
+  <hibernatetool destdir="${target.dir}/generated/ant">
+    <annotationconfiguration configurationfile="${resrc.dest}/hibernate.cfg.xml" propertyfile="${resrc.dest}/local.properties"/>
+    <hbm2ddl destdir="${resrc.dest}" outputfilename="ddl.sql" drop="false" console="false" format="true" export="false" />
+  </hibernatetool>
+  <taskdef name="schemavalidator" classname="org.hibernate.tool.hbm2ddl.SchemaValidatorTask" classpathref="omero.classpath"/>
+  <!--schemavalidator properties="${resrc.dest}/local.properties" config="${basedir}/test/test.cfg.xml"/-->
+</target>
+
     <!-- Class that will be called via "java -jar" on this artifact -->
     <property name="main.class" value="ome.util.tasks.Run"/>
 
 	
+	<target name="prepare" depends="lifecycle.prepare">
+		<copy todir="${classes.dir}">
+			<fileset dir="${resrc.dir}" includes="ome/extra/**"/>
+		</copy>
+	</target>
+
 	<!-- Lifecycle Overrides -->
 	<target name="generate" depends="prepare,dsl,lifecycle.generate" unless="generate.skip"/>
+
 	<!-- TODO generate.skip not working -->
 
     <!-- = = = = = = = = = = = = = = = = =
@@ -47,14 +64,11 @@
 	</target>
 
 	<target name="generate-schema" depends="generate" description="Generates SQL based on Hibernate mappings">
-		<mkdir dir="${sql.dir}/${omero.dbversion}__${omero.dbpatch}" />
-		<copy file="${resrc.dest}/ddl.sql" tofile="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__schema.sql"/>
-		<copy file="${resrc.dest}/data.sql" tofile="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__data.sql"/>
-		<copy todir="${sql.dir}/${omero.dbversion}__${omero.dbpatch}">
-			<fileset dir="${src.dest}" includes="**/*.hbm.xml"/>
-			<fileset dir="${resrc.dest}" includes="**/*.hbm.xml"/>
-		</copy>
-
+		<mkdir dir="${sql.dir}"/>
+		<copy file="${resrc.dest}/ddl.sql" tofile="${sql.dir}/schema.sql"/>
+		<copy file="${resrc.dest}/data.sql" tofile="${sql.dir}/data.sql"/>
+		<replace file="${sql.dir}/data.sql" token="@DBPATCH@" value="${omero.dbpatch}"/>
+		<replace file="${sql.dir}/data.sql" token="@DBVERSION@" value="${omero.dbversion}"/>
 	</target>
 
     <!-- = = = = = = = = = = = = = = = = =

@@ -45,7 +45,6 @@ import ome.model.core.Image;
 import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
 import ome.services.query.PojosCGCPathsQueryDefinition;
-import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
 import ome.services.query.PojosGetImagesByOptionsQueryDefinition;
 import ome.services.query.PojosGetImagesQueryDefinition;
@@ -54,7 +53,6 @@ import ome.services.query.PojosLoadHierarchyQueryDefinition;
 import ome.services.query.Query;
 import ome.services.util.CountCollector;
 import ome.services.util.OmeroAroundInvoke;
-import ome.tools.AnnotationTransformations;
 import ome.tools.HierarchyTransformations;
 import ome.tools.lsid.LsidUtils;
 import ome.util.CBlock;
@@ -198,47 +196,12 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 	}
 
 	@RolesAllowed("user")
+	@Deprecated
 	@Transactional(readOnly = true)
 	public <T extends IObject> Map<Long, Set<? extends IObject>> findAnnotations(
 			Class<T> rootNodeType, Set<Long> rootNodeIds,
 			Set<Long> annotatorIds, Map options) {
-
-		if (rootNodeIds.size() == 0) {
-			return new HashMap();
-		}
-
-		PojoOptions po = new PojoOptions(options);
-
-		Query<List<IObject>> q = getQueryFactory().lookup(
-				PojosFindAnnotationsQueryDefinition.class.getName(),
-				new Parameters().addIds(rootNodeIds).addClass(rootNodeType)
-						.addSet("annotatorIds", annotatorIds).addOptions(
-								po.map()));
-
-		List<IObject> l = iQuery.execute(q);
-		// no count collection
-
-		//
-		// Destructive changes below this point.
-		//
-		for (Object object : l) {
-			iQuery.evict(object);
-		}
-
-		// TODO these here or in Query Definition?
-		// Does it belong to API or to query?
-		if (Dataset.class.equals(rootNodeType)) {
-			return AnnotationTransformations
-					.sortDatasetAnnotatiosn(new HashSet<IObject>(l));
-		} else if (Image.class.equals(rootNodeType)) {
-			return AnnotationTransformations
-					.sortImageAnnotatiosn(new HashSet<IObject>(l));
-		} else {
-			throw new IllegalArgumentException(
-					"Class parameter for findAnnotation() must be in "
-							+ "{Dataset,Image}, not " + rootNodeType);
-		}
-
+		throw new UnsupportedOperationException("See ome.api.Search");
 	}
 
 	@RolesAllowed("user")
@@ -380,8 +343,6 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 		if (names.size() > 0) {
 			Parameters params = new Parameters().addSet("name_list", names);
 			results = iQuery.findAllByQuery("select e from Experimenter e "
-					+ "left outer join fetch e.defaultGroupLink dgl "
-					+ "left outer join fetch dgl.parent dg "
 					+ "left outer join fetch e.groupExperimenterMap gs "
 					+ "left outer join fetch gs.parent g "
 					+ "where e.omeName in ( :name_list )", params);

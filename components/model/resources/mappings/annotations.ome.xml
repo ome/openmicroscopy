@@ -11,33 +11,44 @@
 -->
 <types>
   <!-- Structured Annotations -->
-  <abstract id="ome.model.annotations.Annotation" discriminator="/" named="true" annotated="true">
+  <abstract id="ome.model.annotations.Annotation" discriminator="/" named="true" annotated="true" immutable="true">
     <properties>
     </properties>
   </abstract>
-  <type id="ome.model.annotations.StringAnnotation" discriminator="/string/" superclass="ome.model.annotations.Annotation">
+  <type id="ome.model.annotations.TextAnnotation" discriminator="/text/" superclass="ome.model.annotations.Annotation" immutable="true">
     <properties>
-      <optional name="stringValue" type="string"/>
+      <optional name="textValue" type="text" mutable="false"/>
     </properties>
   </type>
-  <type id="ome.model.annotations.TextAnnotation" discriminator="/text/" superclass="ome.model.annotations.Annotation">
+  <type id="ome.model.annotations.XmlAnnotation" discriminator="/text/xml/" superclass="ome.model.annotations.TextAnnotation" immutable="true">
     <properties>
-      <optional name="textValue" type="text"/>
     </properties>
   </type>
-  <type id="ome.model.annotations.LongAnnotation" discriminator="/num/long/" superclass="ome.model.annotations.Annotation">
+  <type id="ome.model.annotations.UrlAnnotation" discriminator="/text/url/" superclass="ome.model.annotations.TextAnnotation" immutable="true">
     <properties>
-      <optional name="longValue" type="long"/>
     </properties>
   </type>
-  <type id="ome.model.annotations.DoubleAnnotation" discriminator="/num/double/" superclass="ome.model.annotations.Annotation">
+  <type id="ome.model.annotations.LongAnnotation" discriminator="/num/long/" superclass="ome.model.annotations.Annotation" immutable="true">
     <properties>
-      <optional name="doubleValue" type="double"/>
+      <optional name="longValue" type="long" mutable="false"/>
     </properties>
   </type>
-  <type id="ome.model.annotations.FileAnnotation" discriminator="/type/file" superclass="ome.model.annotations.Annotation">
+  <type id="ome.model.annotations.DoubleAnnotation" discriminator="/num/double/" superclass="ome.model.annotations.Annotation" immutable="true">
     <properties>
-      <optional name="file" type="ome.model.core.OriginalFile"/>
+      <optional name="doubleValue" type="double" mutable="false"/>
+    </properties>
+  </type>
+  <type id="ome.model.annotations.FileAnnotation" discriminator="/type/file" superclass="ome.model.annotations.Annotation" immutable="true">
+    <properties>
+      <optional name="file" type="ome.model.core.OriginalFile" mutable="false"/>
+    </properties>
+  </type>
+  <type id="ome.model.annotations.XmlFileAnnotation" discriminator="/type/file/xml/" superclass="ome.model.annotations.FileAnnotation" immutable="true">
+    <properties>
+    </properties>
+  </type>
+  <type id="ome.model.annotations.PdfFileAnnotation" discriminator="/type/file/pdf/" superclass="ome.model.annotations.FileAnnotation" immutable="true">
+    <properties>
     </properties>
   </type>
 </types>

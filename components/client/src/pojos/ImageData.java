@@ -16,7 +16,7 @@ import java.util.Set;
 
 // Application-internal dependencies
 import ome.model.IObject;
-import ome.model.annotations.ImageAnnotation;
+import ome.model.annotations.Annotation;
 import ome.model.containers.CategoryImageLink;
 import ome.model.containers.Category;
 import ome.model.containers.Dataset;
@@ -95,7 +95,7 @@ public class ImageData extends DataObject {
      * {@link AnnotationData} objetcs. If this Image hasn't been annotated, then
      * this set will be empty &#151; but never <code>null</code>.
      */
-    private Set annotations;
+    private Set<Annotation> annotations;
 
     /**
      * The number of annotations attached to this Image. This field may be
@@ -206,8 +206,8 @@ public class ImageData extends DataObject {
      * @return See above.
      */
     public PixelsData getDefaultPixels() {
-        if (defaultPixels == null && asImage().getDefaultPixels() != null) {
-            defaultPixels = new PixelsData(asImage().getDefaultPixels());
+        if (defaultPixels == null && asImage().getPrimaryPixels() != null) {
+            defaultPixels = new PixelsData(asImage().getPrimaryPixels());
         }
         return defaultPixels;
     }
@@ -225,13 +225,7 @@ public class ImageData extends DataObject {
         setDirty(true);
         this.defaultPixels = defaultPixels;
         if (defaultPixels != null) {
-            asImage().collectPixels(new CBlock() {
-                public Object call(IObject object) {
-                    ((Pixels) object).setDefaultPixels(Boolean.FALSE);
-                    return null;
-                }
-            });
-            defaultPixels.asPixels().setDefaultPixels(Boolean.TRUE);
+            asImage().setPrimaryPixels(defaultPixels.asPixels());
         }
     }
 
@@ -364,13 +358,14 @@ public class ImageData extends DataObject {
      * @return See above.
      */
     public Set getAnnotations() {
-        if (annotations == null && asImage().sizeOfAnnotations() >= 0) {
-            annotations = new HashSet(asImage().collectAnnotations(
-                    new CBlock() {
-                        public Object call(IObject object) {
-                            return new AnnotationData((ImageAnnotation) object);
-                        };
-                    }));
+        if (annotations == null) {
+            int size = asImage().getAnnotations().size();
+            if (size >= 0) {
+                annotations = new HashSet(size);
+                for (Annotation annotation : asImage().getAnnotations()) {
+                    annotations.add(annotation);
+                }
+            }
         }
         return annotations == null ? null : new HashSet(annotations);
     }
@@ -387,46 +382,20 @@ public class ImageData extends DataObject {
 
         while (m.moreDeletions()) {
             setDirty(true);
-            asImage().removeImageAnnotation(
-                    m.nextDeletion().asImageAnnotation());
+            asImage().getAnnotations().remove(
+                    m.nextDeletion().asAnnotation());
             annotationCount = annotationCount == null ? null : new Long(
                     annotationCount.longValue() - 1);
         }
 
         while (m.moreAdditions()) {
             setDirty(true);
-            asImage().addImageAnnotation(m.nextAddition().asImageAnnotation());
+            asImage().getAnnotations().add(m.nextAddition().asAnnotation());
             annotationCount = annotationCount == null ? null : new Long(
                     annotationCount.longValue() + 1);
         }
 
         annotations = m.result();
-    }
-
-    // COUNTS
-
-    /**
-     * Returns the number of annotations related to this image.
-     * 
-     * @return See above.
-     */
-    public Long getAnnotationCount() {
-        if (annotationCount == null) {
-            annotationCount = getCount(ImageAnnotation.IMAGE);
-        }
-        return annotationCount;
-    }
-
-    /**
-     * Returns the number of categories containing this image.
-     * 
-     * @return See above.
-     */
-    public Long getClassificationCount() {
-        if (classificationCount == null) {
-            classificationCount = getCount(CategoryImageLink.CHILD);
-        }
-        return classificationCount;
     }
 
 }

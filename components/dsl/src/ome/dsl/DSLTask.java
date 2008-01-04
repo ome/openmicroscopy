@@ -6,13 +6,18 @@
  */
 package ome.dsl;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Project;
@@ -20,6 +25,7 @@ import org.apache.tools.ant.Target;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.taskdefs.Mkdir;
 import org.apache.tools.ant.types.FileSet;
+import org.springframework.util.ResourceUtils;
 
 /**
  * An ant task for generating artifacts from the dsl.
@@ -81,6 +87,27 @@ public class DSLTask extends Task {
             SemanticType st = (SemanticType) it.next();
             VelocityHelper vh = new VelocityHelper();
             vh.put("type", st);
+            List<String> extraLines = new ArrayList<String>();
+            Log log = LogFactory.getLog(this.getClass());
+            try {
+                try {
+                    log.info(System.getProperties().getProperty(
+                            "java.classpath"));
+                    File extra = ResourceUtils.getFile("classpath:ome/extra/"
+                            + st.getId());
+                    log.warn(extra.toString());
+                    if (extra.canRead()) {
+                        vh.put("extra", fileAsString(extra));
+                        log.warn(fileAsString(extra));
+                    }
+                    log.warn("XXX");
+                } catch (FileNotFoundException fnfe) {
+                    // ok
+                    log.warn(fnfe.toString());
+                }
+            } catch (Exception e) {
+                throw new BuildException("Error while loading extra code", e);
+            }
             try {
                 String file = _outputDir + File.separator + "src"
                         + File.separator
@@ -131,5 +158,31 @@ public class DSLTask extends Task {
                 .lastIndexOf(File.separator))));
         mkdir.execute();
 
+    }
+
+    static String fileAsString(File file) {
+        StringBuffer contents = new StringBuffer();
+        BufferedReader input = null;
+        try {
+            input = new BufferedReader(new FileReader(file));
+            String line = null;
+
+            while ((line = input.readLine()) != null) {
+                contents.append(line);
+                contents.append(System.getProperty("line.separator"));
+            }
+        } catch (Exception ex) {
+            throw new BuildException("Failed to get file contents", ex);
+        } finally {
+            try {
+                if (input != null) {
+
+                    input.close();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return contents.toString();
     }
 }

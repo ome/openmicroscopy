@@ -84,7 +84,8 @@
 		<properties>
 			<required name="entityId" type="long" mutable="false"/>
 			<required name="entityType" type="string" mutable="false"/>
-			<required name="lsid" type="string" mutable="false"/>
+			<optional name="lsid" type="string" mutable="false"/>
+			<optional name="uuid" type="string" mutable="false"/>
 		</properties>
 	</type>
 

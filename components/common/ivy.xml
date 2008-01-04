@@ -13,21 +13,9 @@
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency name="dsl" rev="${omero.version}" changing="true" />
+    <dependency name="model" rev="${omero.version}" changing="true" />
     <!-- Public -->
-    <dependency org="antlr" name="antlr" rev="2.7.6" conf="build->default"/>
-    <dependency org="asm" name="asm-attrs" rev="1.5.3" conf="build->default"/>
-    <dependency org="asm" name="asm" rev="1.5.3" conf="build->default"/>
-    <dependency org="cglib" name="cglib" rev="2.1_3" conf="build->default"/>
-    <dependency org="dom4j" name="dom4j" rev="1.6.1" conf="build->default"/>
-    <dependency org="geronimo-spec" name="geronimo-spec-jta" rev="1.0.1B-rc4" conf="build->default"/>
-    <dependency org="net/sf/ehcache" name="ehcache" rev="1.2" conf="build->default"/>
-    <dependency org="omero" name="jboss-j2ee" rev="${versions.jboss}" conf="build->default"/>
-    <dependency org="omero" name="jboss-ejb3x" rev="${versions.jboss}" conf="build->default"/> 
-    <dependency org="org/hibernate" name="hibernate-tools" rev="3.1.0.beta4" conf="build->default"/> 
-    <dependency org="org/hibernate" name="hibernate" rev="${versions.hibernate}" conf="build->default"/> 
-    <dependency org="org/hibernate" name="jtidy" rev="r8-21122004" conf="build->default"/> 
-    <!-- Testing -->
     <dependency org="jamon" name="jamon" rev="${versions.jamon}" conf="test->default"/> 
+    <dependency org="net/sf/ehcache" name="ehcache" rev="${versions.ehcache}" conf="build->default"/>
   </dependencies>
 </ivy-module>

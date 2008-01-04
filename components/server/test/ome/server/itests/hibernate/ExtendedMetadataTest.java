@@ -69,7 +69,6 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
     // see https://trac.openmicroscopy.org.uk/omero/ticket/357
     public void testPixelsLocksImage() throws Exception {
         Pixels p = ObjectFactory.createPixelGraph(null);
-        p.setDefaultPixels(Boolean.TRUE);
         Image i = new Image();
         i.setName("locking");
         i.addPixels(p);
@@ -136,11 +135,6 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
 
     @Test(groups = { "ticket:657" })
     public void testCountQueriesAreCorrect() throws Exception {
-        assertEquals(metadata.getCountQuery(ImageAnnotation.IMAGE), metadata
-                .getCountQuery(ImageAnnotation.IMAGE),
-                "select target.image.id, count(target) "
-                        + "from ome.model.annotations.ImageAnnotation target "
-                        + "group by target.image.id");
         assertEquals(metadata.getCountQuery(CategoryImageLink.CHILD), metadata
                 .getCountQuery(CategoryImageLink.CHILD),
                 "select target.child.id, count(target) "
@@ -156,7 +150,6 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
 
     @Test(groups = { "ticket:657" })
     public void testTargetTypes() throws Exception {
-        assertEquals(metadata.getTargetType(ImageAnnotation.IMAGE), Image.class);
         assertEquals(metadata.getTargetType(Pixels.IMAGE), Image.class);
         assertEquals(metadata.getTargetType(CategoryImageLink.CHILD),
                 Image.class);

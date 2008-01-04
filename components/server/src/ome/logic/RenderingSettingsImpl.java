@@ -132,23 +132,22 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             return false;
         // throw new ValidationException("The Pixels sets must have the " +
         // "same number of pixels along the Y-axis.");
-        List lFrom = pFrom.getChannels();
-        List lTo = pTo.getChannels();
-        Iterator i = lFrom.iterator();
+        Iterator<Channel> i = pFrom.iterateChannels();
         Channel c;
-        List<Integer> wavelengths = new ArrayList<Integer>(lFrom.size());
+        List<Integer> wavelengths = new ArrayList<Integer>(pFrom
+                .sizeOfChannels());
         // Problem no access to channel index.
         LogicalChannel lc;
         while (i.hasNext()) {
-            c = (Channel) i.next();
+            c = i.next();
             lc = c.getLogicalChannel();
             if (lc != null)
                 wavelengths.add(lc.getEmissionWave());
         }
-        i = lTo.iterator();
+        i = pTo.iterateChannels();
         int r = 0;
         while (i.hasNext()) {
-            c = (Channel) i.next();
+            c = i.next();
             lc = c.getLogicalChannel();
             if (lc != null && wavelengths.contains(lc.getEmissionWave()))
                 r++;
@@ -311,7 +310,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     @RolesAllowed("user")
     public boolean applySettingsToImage(long from, long to) {
         Image img = iQuery.get(Image.class, to);
-        return applySettingsToPixel(from, img.getDefaultPixels().getId());
+        return applySettingsToPixel(from, img.getPrimaryPixels().getId());
     }
 
     /**
@@ -349,15 +348,13 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         qDefTo.setCdEnd(qDefFrom.getCdEnd());
         qDefTo.setCdStart(qDefFrom.getCdStart());
 
-        List wavesFrom = rdFrom.getWaveRendering();
-        List wavesTo = rdTo.getWaveRendering();
-        Iterator i = wavesFrom.iterator();
-        Iterator iTo = wavesTo.iterator();
+        Iterator<ChannelBinding> i = rdFrom.iterateWaveRendering();
+        Iterator<ChannelBinding> iTo = rdTo.iterateWaveRendering();
         ChannelBinding binding, bindingTo;
         Color cFrom, cTo;
         while (i.hasNext()) {
-            binding = (ChannelBinding) i.next();
-            bindingTo = (ChannelBinding) iTo.next();
+            binding = i.next();
+            bindingTo = iTo.next();
 
             // channel on or off
             bindingTo.setActive(binding.getActive());
@@ -432,7 +429,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private void resetDefaults(Image image)
     {
-    	resetDefaults(image.getDefaultPixels());
+    	resetDefaults(image.getPrimaryPixels());
     }
     
     /**
@@ -527,7 +524,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	}
     	return toReturn;
     }
-    
+
     /**
      * Implemented as specified by the {@link IRenderingSettings} I/F
      * 

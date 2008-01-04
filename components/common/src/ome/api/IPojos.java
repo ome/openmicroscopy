@@ -91,8 +91,7 @@ import ome.model.core.Image;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
- *          </small>
+ * @version 1.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
  * @since OME1.0
  * @DEV.TODO possibly move optionBuilder to the common code. ome.common.utils
  * @DEV.TODO possibly move map description to marker interface with a see also
@@ -237,6 +236,7 @@ public interface IPojos extends ServiceInterface {
      * @return A map whose key is rootNodeId and value the <code>Set</code> of
      *         all annotations for that node or <code>null</code>.
      */
+    @Deprecated
     public <T extends IObject> Map<Long, Set<? extends IObject>> findAnnotations(
             @NotNull
             Class<T> rootNodeType, @NotNull
@@ -252,9 +252,9 @@ public interface IPojos extends ServiceInterface {
      * end with the specified leaves.
      * </p>
      * <p>
-     * We also want to retrieve the all Category Group/Category paths that don’t
-     * end with the specified leaves, note that in that case because of the
-     * mutually exclusive constraint the categories which don’t contain a
+     * We also want to retrieve the all Category Group/Category paths that
+     * don’t end with the specified leaves, note that in that case because of
+     * the mutually exclusive constraint the categories which don’t contain a
      * specified leaf but which is itself contained in a group which already has
      * a category ending with the specified leaf is excluded.
      * </p>
@@ -406,8 +406,8 @@ public interface IPojos extends ServiceInterface {
     /**
      * Creates the specified data object.
      * <p>
-     * A “placeholder” parent object is created if the data object is to be put
-     * in a collection.
+     * A “placeholder” parent object is created if the data object is to be
+     * put in a collection.
      * </p>
      * <p>
      * For example, if the object is a <code>Dataset</code>, we first create

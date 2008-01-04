@@ -29,16 +29,6 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
-// Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
-import org.jboss.annotation.security.SecurityDomain;
-import org.springframework.transaction.annotation.Transactional;
-
-// Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.api.IPixels;
@@ -64,7 +54,6 @@ import ome.system.EventContext;
 import ome.system.SimpleEventContext;
 import ome.util.ImageUtil;
 import ome.util.ShallowCopy;
-
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.RenderingEngine;
@@ -72,6 +61,16 @@ import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jboss.annotation.ejb.LocalBinding;
+import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.RemoteBindings;
+import org.jboss.annotation.ejb.cache.Cache;
+import org.jboss.annotation.security.SecurityDomain;
+import org.jboss.ejb3.cache.NoPassivationCache;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Provides the {@link RenderingEngine} service. This class is an Adapter to
@@ -153,7 +152,7 @@ public class RenderingBean extends AbstractLevel2Service implements
 
     /** Reference to the service used to retrieve the pixels metadata. */
     private transient IPixels pixMetaSrv;
-    
+
     /** Reference to the service used to compress pixel data. */
     private transient LocalCompress compressionSrv;
 
@@ -161,14 +160,14 @@ public class RenderingBean extends AbstractLevel2Service implements
      * read-write lock to prevent READ-calls during WRITE operations. Unneeded
      * for remote invocations (EJB synchronizes).
      */
-    private transient ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+    private transient final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 
     /** Notification that the bean has just returned from passivation. */
     private transient boolean wasPassivated = false;
-    
+
     /**
      * Compression service Bean injector.
-     * 
+     *
      * @param compressionService
      *            an <code>ICompress</code>.
      */
@@ -228,9 +227,9 @@ public class RenderingBean extends AbstractLevel2Service implements
         rwl.writeLock().lock();
 
         try {
-        	// Mark us unready. All other state is marked transient.
-        	closeRenderer();
-            renderer = null; 
+            // Mark us unready. All other state is marked transient.
+            closeRenderer();
+            renderer = null;
         } finally {
             rwl.writeLock().unlock();
         }
@@ -349,13 +348,12 @@ public class RenderingBean extends AbstractLevel2Service implements
              */
             PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
             closeRenderer();
-            List<Family> families =
-            	pixMetaSrv.getAllEnumerations(Family.class);
-            List<RenderingModel> renderingModels =
-            	pixMetaSrv.getAllEnumerations(RenderingModel.class);
+            List<Family> families = pixMetaSrv.getAllEnumerations(Family.class);
+            List<RenderingModel> renderingModels = pixMetaSrv
+                    .getAllEnumerations(RenderingModel.class);
             QuantumFactory quantumFactory = new QuantumFactory(families);
             renderer = new Renderer(quantumFactory, renderingModels, pixelsObj,
-                                    rendDefObj, buffer);
+                    rendDefObj, buffer);
         } finally {
             rwl.writeLock().unlock();
         }
@@ -444,42 +442,33 @@ public class RenderingBean extends AbstractLevel2Service implements
     		rwl.writeLock().unlock();
     	}
     }
-    
+
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
      * @see RenderingEngine#renderCompressed()
      */
     @RolesAllowed("user")
-    public byte[] renderCompressed(PlaneDef pd)
-    	throws ResourceError, ValidationException
-    {
-    	int[] buf = renderAsPackedInt(pd);
-    	int sizeX = pixelsObj.getSizeX();
-    	int sizeY = pixelsObj.getSizeY();
-    	BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX, sizeY);
+    public byte[] renderCompressed(PlaneDef pd) throws ResourceError,
+            ValidationException {
+        int[] buf = renderAsPackedInt(pd);
+        int sizeX = pixelsObj.getSizeX();
+        int sizeY = pixelsObj.getSizeY();
+        BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX, sizeY);
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        try
-        {
+        try {
             compressionSrv.compressToStream(image, byteStream);
             return byteStream.toByteArray();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             log.error("Could not compress rendered image.", e);
             throw new ResourceError(e.getMessage());
-        }
-        finally
-        {
-        	try
-        	{
-        		byteStream.close();
-        	}
-        	catch (IOException e)
-        	{
+        } finally {
+            try {
+                byteStream.close();
+            } catch (IOException e) {
                 log.error("Could not close byte stream.", e);
-        		throw new ResourceError(e.getMessage());
-        	}
+                throw new ResourceError(e.getMessage());
+            }
         }
     }
 
@@ -496,12 +485,11 @@ public class RenderingBean extends AbstractLevel2Service implements
     public void resetDefaults() {
         rwl.writeLock().lock();
 
-        try
-        {
+        try {
             errorIfNullPixels();
             long pixelsId = pixelsObj.getId();
-            
-            // Ensure that we haven't just been called before 
+
+            // Ensure that we haven't just been called before
             // lookupRenderingDef().
             if (rendDefObj == null)
             {
@@ -545,41 +533,33 @@ public class RenderingBean extends AbstractLevel2Service implements
             	// *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
                 load();
             }
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             if (log.isDebugEnabled()) {
                 log.debug("An I/O error occurred.", e);
             }
-			throw new ResourceError(
-					e.getMessage() + " Please check server log.");
-        }
-        finally
-        {
+            throw new ResourceError(e.getMessage()
+                    + " Please check server log.");
+        } finally {
             rwl.writeLock().unlock();
         }
     }
-    
+
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
      * @see RenderingEngine#resetDefaults()
      */
     @RolesAllowed("user")
-    public void resetDefaultsNoSave()
-    {
-    	rwl.writeLock().lock();
-        try
-        {
-        	errorIfInvalidState();
-        	renderer.resetDefaults();
-        }
-        finally
-        {
+    public void resetDefaultsNoSave() {
+        rwl.writeLock().lock();
+        try {
+            errorIfInvalidState();
+            renderer.resetDefaults();
+        } finally {
             rwl.writeLock().unlock();
         }
     }
-    
+
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
@@ -1142,66 +1122,63 @@ public class RenderingBean extends AbstractLevel2Service implements
             rwl.writeLock().unlock();
         }
     }
-    
+
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
      * @see RenderingEngine#isPixelsTypeSigned()
      */
     @RolesAllowed("user")
-    public boolean isPixelsTypeSigned()
-    {
-    	rwl.readLock().lock();
+    public boolean isPixelsTypeSigned() {
+        rwl.readLock().lock();
         try {
-        	errorIfInvalidState();
+            errorIfInvalidState();
             return renderer.isPixelsTypeSigned();
         } finally {
             rwl.readLock().unlock();
         }
     }
-    
+
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
      * @see RenderingEngine#getPixelsTypeLowerBound(int)
      */
     @RolesAllowed("user")
-    public double getPixelsTypeLowerBound(int w)
-    {
-    	rwl.readLock().lock();
+    public double getPixelsTypeLowerBound(int w) {
+        rwl.readLock().lock();
         try {
-        	errorIfInvalidState();
+            errorIfInvalidState();
             return renderer.getPixelsTypeLowerBound(w);
         } finally {
             rwl.readLock().unlock();
         }
     }
-    
+
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
      * @see RenderingEngine#getPixelsTypeUpperBound(int)
      */
     @RolesAllowed("user")
-    public double getPixelsTypeUpperBound(int w)
-    {
-    	rwl.readLock().lock();
+    public double getPixelsTypeUpperBound(int w) {
+        rwl.readLock().lock();
         try {
-        	errorIfInvalidState();
-        	 return renderer.getPixelsTypeUpperBound(w);
+            errorIfInvalidState();
+            return renderer.getPixelsTypeUpperBound(w);
         } finally {
             rwl.readLock().unlock();
         }
     }
-    
+
     /**
-     * Close the active renderer, cleaning up any potential messes left by
-     * the included pixel buffer.
+     * Close the active renderer, cleaning up any potential messes left by the
+     * included pixel buffer.
      */
-    private void closeRenderer()
-    {
-    	if (renderer != null)
-    		renderer.close();
+    private void closeRenderer() {
+        if (renderer != null) {
+            renderer.close();
+        }
     }
 
     // ~ Error checking methods
@@ -1266,19 +1243,18 @@ public class RenderingBean extends AbstractLevel2Service implements
             return null;
         }
         Pixels newPixels = new ShallowCopy().copy(pixels);
-        newPixels.setChannels(copyChannels(pixels.getChannels()));
+        copyChannels(pixels, newPixels);
         newPixels.setPixelsDimensions(new ShallowCopy().copy(pixels
                 .getPixelsDimensions()));
         newPixels.setPixelsType(new ShallowCopy().copy(pixels.getPixelsType()));
         return newPixels;
     }
 
-    private List<Channel> copyChannels(List<Channel> channels) {
-        List<Channel> newChannels = new ArrayList<Channel>();
-        for (Channel c : channels) {
-            newChannels.add(copyChannel(c));
+    private void copyChannels(Pixels from, Pixels to) {
+        java.util.Iterator<Channel> it = from.iterateChannels();
+        while (it.hasNext()) {
+            to.addChannel(it.next());
         }
-        return newChannels;
     }
 
     private Channel copyChannel(Channel channel) {

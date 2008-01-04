@@ -35,12 +35,6 @@ public class DetailsFieldBridge implements FieldBridge {
     public void set(String name, Object value, Document document,
             Field.Store store, Field.Index index, Float boost) {
 
-        System.out.println("X");
-        document.add(new Field(COMBINED, "X", store, index));
-        if (true) {
-            return;
-        }
-
         IObject object = (IObject) value;
         Details details = object.getDetails();
 

@@ -13,7 +13,7 @@
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency name="dsl" rev="${omero.version}" changing="true" />
+    <dependency name="dsl" rev="${omero.version}" changing="true" conf="build->build"/>
     <!-- Public -->
     <dependency org="jboss" name="jboss-j2ee" rev="${versions.jboss}" conf="build->default"/>
     <dependency org="jboss" name="jboss-ejb3x" rev="${versions.jboss}" conf="build->default"/> 
@@ -24,17 +24,14 @@
     <dependency org="cglib" name="cglib" rev="${versions.cglib}" conf="build->default"/>
     <dependency org="dom4j" name="dom4j" rev="${versions.dom4j}" conf="build->default"/>
     <dependency org="org/hibernate" name="hibernate" rev="${versions.hibernate}" conf="build->default"/> 
+    <dependency org="org/hibernate" name="hibernate-tools" rev="${versions.hibernate-tools}" conf="build->default"/> 
+    <dependency org="org/hibernate" name="freemarker" rev="${versions.hibernate-tools}" conf="build->default"/> 
+    <dependency org="org/hibernate" name="jtidy" rev="${versions.hibernate-tools}" conf="build->default"/> 
     <dependency org="hibernate" name="hibernate-annotations" rev="${versions.hibernate-annotations}" conf="build->default"/> 
     <dependency org="hibernate" name="hibernate-search" rev="${versions.hibernate-search}" conf="build->default"/> 
     <dependency org="hibernate" name="hibernate-validator" rev="${versions.hibernate-validator}" conf="build->default"/> 
     <dependency org="hibernate" name="hibernate-commons-annotations" rev="${versions.hibernate-commons-annotations}" conf="build->default"/> 
-    <!-- Other -->
-    <dependency org="ldap" name="ldaptemplate" rev="1.0.2" conf="build->default"/>
-    <dependency org="net/sf/ehcache" name="ehcache" rev="${versions.ehcache}" conf="build->default"/>
-    <dependency org="org/apache/lucene" name="lucene-core" rev="${versions.lucene}" conf="build->default"/>
-    <dependency org="geronimo-spec" name="geronimo-spec-jta" rev="1.0.1B-rc4" conf="build->default"/>
     <dependency org="javax/persistence" name="persistence-api" rev="${versions.persistence-api}" conf="build->default"/>
-    <!-- Testing -->
-    <dependency org="jamon" name="jamon" rev="${versions.jamon}" conf="test->default"/> 
+    <dependency org="org/apache/lucene" name="lucene-core" rev="${versions.lucene}" conf="build->default"/>
   </dependencies>
 </ivy-module>

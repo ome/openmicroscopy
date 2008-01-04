@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" output="target/eclipse-server" path="components/server/src"/>
+	<classpathentry kind="src" path="components/importer/resources"/>
+	<classpathentry kind="src" path="components/importer/src"/>
+	<classpathentry kind="src" path="components/testing/target/generated/src"/>
+	<classpathentry kind="src" path="components/testing/resources"/>
+	<classpathentry kind="src" path="components/testing/src"/>
+	<classpathentry kind="src" path="components/model/target/generated/src"/>
+	<classpathentry kind="src" path="components/model/target/generated/resources"/>
+	<classpathentry kind="src" path="components/model/src"/>
+	<classpathentry kind="src" path="components/model/test"/>
+	<classpathentry kind="src" path="components/model/resources"/>
 	<classpathentry kind="src" path="components/dsl/test"/>
 	<classpathentry kind="src" path="components/dsl/resources"/>
 	<classpathentry kind="src" path="components/dsl/src"/>
@@ -82,8 +92,12 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/commons-beanutils.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/jboss-j2ee.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/client.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/common.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/ome-java.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/server.jar"/>
+	<classpathentry kind="lib" path="target/libs/hibernate-annotations.jar"/>
+	<classpathentry kind="lib" path="target/libs/hibernate-commons-annotations.jar"/>
+	<classpathentry kind="lib" path="target/libs/hibernate-search.jar"/>
+	<classpathentry kind="lib" path="target/libs/hibernate-validator.jar"/>
+	<classpathentry kind="lib" path="target/libs/lucene-core.jar"/>
+	<classpathentry kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
 </classpath>

@@ -108,7 +108,8 @@ import ome.model.*;
     store=org.hibernate.search.annotations.Store.NO
 )
 public #if($type.abstract)abstract#end class ${type.shortname}
-#if($type.superclass)extends $type.superclass #end implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($type.isEnum), IEnum#end#if($type.isLink), ILink#end
+#if($type.superclass)extends $type.superclass #end
+implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($type.isEnum), IEnum#end#if($type.isLink), ILink#end#if($type.annotated), IAnnotated#end
 {
 
    /* These values are defined in dsl/resources/ome/dsl/mapping.vm:
@@ -169,27 +170,21 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     }
 #end
 
-##
-## TODO required ctor
 ## (1) Check if needed
-###if($type.requiredSingleProperties.size() > 0)
-##    public ${type.shortname}(
-####
-#### Add ctor arguments, with a comma if not the first
-####
-###foreach($prop in $type.requiredSingleProperties)
-##        ${prop.fieldType} _${prop.name}#if($type.requiredSingleProperties.size() > 1),#end
-###end
-##    ) {
-##        this(null, true);
-###foreach($prop in $type.requiredSingleProperties)
-##        set${prop.nameCapped}(_${prop.name});
-###end
-##    }
-###end## END ctorWithRequiredNeeded
+#if($type.requiredSingleProperties.size() > 0 && !$type.isEnum)
+    public ${type.shortname}(
 ##
-
-    // TODO ctor with UUID Type(UUID uuid) { } // which will be persisted perhaps as LSID? or just in ExternalInfo
+## Add ctor arguments, with a comma if not the first
+##
+#set($comma = "")
+#foreach($prop in $type.requiredSingleProperties)$comma${prop.fieldType} _${prop.name}#set($comma = ",")#end
+    ) {
+        this(null, true);
+#foreach($prop in $type.requiredSingleProperties)
+        set${prop.nameCapped}(_${prop.name});
+#end
+    }
+#end## END ctorWithRequiredNeeded
 
 #if(!${type.superclass})
     public final static String ID = "${type.id}_id";
@@ -429,9 +424,9 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     */
     @javax.persistence.OneToMany(fetch=javax.persistence.FetchType.LAZY, cascade={${cascadeEjb}})
     @javax.persistence.JoinColumn(name="${prop.foreignKey}", nullable=false)
-	/*
-	$prop
-	*/
+    /*
+    $prop
+    */
     @org.hibernate.annotations.Cascade({$cascadeHib})
     @org.hibernate.annotations.IndexColumn(name="index", nullable=false)
 #else
@@ -502,6 +497,17 @@ public #if($type.abstract)abstract#end class ${type.shortname}
         return get${prop.nameCapped}().iterator(); // TODO should this be direct access
     }
 
+    /**
+     * Returns an unmodifiable collection-view 
+     */
+    public java.util.Collection<${prop.type}> unmodifiable${prop.nameCapped}() {
+        preGetter( ${prop.nameUpper} );
+        if ( get${prop.nameCapped}() == null ) {
+            return java.util.Collections.emptyList();
+        }
+        return java.util.Collections.unmodifiableCollection( get${prop.nameCapped}() );
+    }
+    
     /**
      * takes a CBlock and calls the block once for each ${prop.type} while
      * collecting the results. If <code>block == null</code>, then the
@@ -865,11 +871,10 @@ public #if($type.abstract)abstract#end class ${type.shortname}
    /**
     * Many-to-one field ${type.id}.${prop.name} (${prop.type})
     */
-    // TODO @OrderBy
     @javax.persistence.ManyToOne( cascade = {}, targetEntity = ${prop.type}.class)
     @javax.persistence.JoinColumn(name="${prop.name}", nullable=${prop.nullable}, 
         unique=${prop.unique}, insertable=${prop.insert}, updatable=${prop.update})
-    @org.hibernate.annotations.ForeignKey(name="${prop.shortType}_fk_many_to_one")
+    @org.hibernate.annotations.ForeignKey(name="FK${type.shortname.toLowerCase()}_${prop.name}_${prop.shortType.toLowerCase()}")
 #if($type.isLink)## Need to convert from IObject to an implementation class
     @org.hibernate.annotations.Target(${prop.type}.class)
 #end
@@ -1105,7 +1110,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
     @javax.persistence.Transient
     protected boolean _loaded = true;
 
-	@javax.persistence.Transient
+    @javax.persistence.Transient
     public boolean isLoaded() {
         return _loaded;
     }
@@ -1221,7 +1226,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
 
         @javax.persistence.ManyToOne
         @javax.persistence.JoinColumn(name = "external_id", nullable = true, unique = true, insertable = true, updatable = false)
-        @org.hibernate.annotations.ForeignKey(name = "${type.table}_externalinfo_fk")
+        @org.hibernate.annotations.ForeignKey(name = "FK${type.table}_external_id_externalinfo")
         public ome.model.meta.ExternalInfo getExternalInfo() {
             return super.getExternalInfo();
         }
@@ -1230,7 +1235,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
         @Override
         @javax.persistence.ManyToOne(cascade = {})
         @javax.persistence.JoinColumn(name = "owner_id", nullable = false, unique = false, insertable = true, updatable = true)
-        @org.hibernate.annotations.ForeignKey(name = "${type.table}_owner_fk")
+        @org.hibernate.annotations.ForeignKey(name = "FK${type.table}_owner_id_experimenter")
         public ome.model.meta.Experimenter getOwner() {
             return super.getOwner();
         }
@@ -1238,7 +1243,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
         @Override
         @javax.persistence.ManyToOne(cascade = {})
         @javax.persistence.JoinColumn(name = "creation_id", nullable = false, unique = false, insertable = true, updatable = false)
-        @org.hibernate.annotations.ForeignKey(name = "${type.table}_creation_fk")
+        @org.hibernate.annotations.ForeignKey(name = "FK${type.table}_creation_id_event")
         public ome.model.meta.Event getCreationEvent() {
             return super.getCreationEvent();
         }
@@ -1246,7 +1251,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
         @Override
         @javax.persistence.ManyToOne(cascade = {})
         @javax.persistence.JoinColumn(name = "group_id", nullable = false, unique = false, insertable = true, updatable = true)
-        @org.hibernate.annotations.ForeignKey(name = "${type.table}_group_fk")
+        @org.hibernate.annotations.ForeignKey(name = "FK${type.table}_group_id_experimentergroup")
         public ome.model.meta.ExperimenterGroup getGroup() {
             return super.getGroup();
         }
@@ -1255,11 +1260,15 @@ public #if($type.abstract)abstract#end class ${type.shortname}
         @Override
         @javax.persistence.ManyToOne
         @javax.persistence.JoinColumn(name = "update_id", nullable = false, unique = false, insertable = true, updatable = true)
-        @org.hibernate.annotations.ForeignKey(name = "${type.table}_update_fk")
+        @org.hibernate.annotations.ForeignKey(name = "FK${type.table}_update_id_event")
         public ome.model.meta.Event getUpdateEvent() {
             return super.getUpdateEvent();
         }
 #end
+#end
+
+#if($extra)
+$extra
 #end
 
     }

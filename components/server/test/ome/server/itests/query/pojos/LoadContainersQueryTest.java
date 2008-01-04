@@ -266,17 +266,14 @@ public class LoadContainersQueryTest extends AbstractManagedContextTest {
 
         runLevel(Dataset.class, Arrays.asList(DATA.du7771.getId()), withLeaves);
 
-        Long id = null;
-
         assertTrue(list.size() > 0);
         for (Dataset dataset : (List<Dataset>) list) {
             assertTrue(dataset.sizeOfImageLinks() > 0);
             Image image = (Image) dataset.linkedImageList().get(0);
-            id = image.getId(); // store for later.
             Pixels p = ObjectFactory.createPixelGraph(null);
-            p.setDefaultPixels(Boolean.TRUE);
-            p.setImage(new Image(id, false));
-            iUpdate.saveObject(p);
+            image.addPixels(p);
+            image.setPrimaryPixels(p); // Necessary if there are others
+            iUpdate.saveObject(image);
         }
 
         runLevel(Dataset.class, Arrays.asList(DATA.du7771.getId()), withLeaves);
@@ -284,11 +281,11 @@ public class LoadContainersQueryTest extends AbstractManagedContextTest {
         boolean found = false;
         for (Dataset dataset : (List<Dataset>) list) {
             for (Image image : (List<Image>) dataset.linkedImageList()) {
-                if (!image.getId().equals(id)) {
+                if (!image.getId().equals(image.getId())) {
                     continue;
                 }
                 found = true;
-                assertNotNull(image.getDefaultPixels());
+                assertNotNull(image.getPrimaryPixels());
             }
         }
         assertTrue(found);
@@ -319,7 +316,7 @@ public class LoadContainersQueryTest extends AbstractManagedContextTest {
     private void check_pdi_ids(List ids1, List ids2) {
         check_pd_ids(ids1);
         for (Project prj : (List<Project>) list) {
-            for (Dataset ds : (List<Dataset>) prj.eachLinkedDataset(null)) {
+            for (Dataset ds : prj.<Dataset>eachLinkedDataset(null)) {
                 List imagesIds = ds.eachLinkedImage(new IdBlock());
                 assertTrue("Missing images", imagesIds.containsAll(ids2));
             }
@@ -345,7 +342,7 @@ public class LoadContainersQueryTest extends AbstractManagedContextTest {
     private void check_cgci_ids(List ids1, List ids2) {
         check_cgc_ids(ids1);
         for (CategoryGroup cg : (List<CategoryGroup>) list) {
-            for (Category cat : (List<Category>) cg.eachLinkedCategory(null)) {
+            for (Category cat : cg.<Category>eachLinkedCategory(null)) {
                 List imagesIds = cat.eachLinkedImage(new IdBlock());
                 assertTrue("Missing images", imagesIds.containsAll(ids2));
             }

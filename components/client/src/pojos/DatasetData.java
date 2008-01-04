@@ -15,7 +15,7 @@ import java.util.Set;
 
 // Application-internal dependencies
 import ome.model.IObject;
-import ome.model.annotations.DatasetAnnotation;
+import ome.model.annotations.Annotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -241,16 +241,15 @@ public class DatasetData extends DataObject {
      */
     public Set getAnnotations() {
 
-        if (annotations == null && asDataset().sizeOfAnnotations() >= 0) {
-            annotations = new HashSet(asDataset().collectAnnotations(
-                    new CBlock() {
-                        public Object call(IObject object) {
-                            return new AnnotationData(
-                                    (DatasetAnnotation) object);
-                        }
-                    }));
+        if (annotations == null) {
+            int size = asDataset().getAnnotations().size();
+            if (size >= 0) {
+                annotations = new HashSet(size);
+                for (Annotation a : asDataset().getAnnotations()) {
+                    annotations.add(new AnnotationData(a));
+                }
+            }
         }
-
         return annotations == null ? null : new HashSet(annotations);
     }
 
@@ -266,16 +265,16 @@ public class DatasetData extends DataObject {
 
         while (m.moreDeletions()) {
             setDirty(true);
-            asDataset().removeDatasetAnnotation(
-                    m.nextDeletion().asDatasetAnnotation());
+            asDataset().getAnnotations().remove(
+                    m.nextDeletion().asAnnotation());
             annotationCount = annotationCount == null ? null : new Long(
                     annotationCount.longValue() - 1);
         }
 
         while (m.moreAdditions()) {
             setDirty(true);
-            asDataset().removeDatasetAnnotation(
-                    m.nextAddition().asDatasetAnnotation());
+            asDataset().getAnnotations().remove(
+                    m.nextAddition().asAnnotation());
             annotationCount = annotationCount == null ? null : new Long(
                     annotationCount.longValue() + 1);
         }
@@ -283,16 +282,5 @@ public class DatasetData extends DataObject {
         annotations = m.result();
     }
 
-    /**
-     * Returns the number of dataset annotations done by the current user.
-     * 
-     * @return See above.
-     */
-    public Long getAnnotationCount() {
-        if (annotationCount == null) {
-            annotationCount = getCount(DatasetAnnotation.DATASET);
-        }
-        return annotationCount;
-    }
 
 }

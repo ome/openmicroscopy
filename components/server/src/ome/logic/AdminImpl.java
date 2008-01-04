@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
@@ -409,14 +410,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
         e = getSecuritySystem().doAction(e, action);
 
-        final GroupExperimenterMap defaultGroupMap = new GroupExperimenterMap();
-        defaultGroupMap.link(groupProxy(defaultGroup.getId()), userProxy(e
-                .getId()));
-        defaultGroupMap.setDefaultGroupLink(Boolean.TRUE);
-        defaultGroupMap.setDetails(getSecuritySystem().newTransientDetails(
-                defaultGroupMap));
-        getSecuritySystem().doAction(defaultGroupMap, action);
-
+        e.linkExperimenterGroup(defaultGroup);
         if (null != otherGroups) {
             for (ExperimenterGroup group : otherGroups) {
                 if (group == null) {
@@ -427,15 +421,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
                             "Groups must be previously saved during "
                                     + "Experimenter creation.");
                 }
-                GroupExperimenterMap groupMap = new GroupExperimenterMap();
-                groupMap.link(groupProxy(group.getId()), userProxy(e.getId()));
-                groupMap.setDefaultGroupLink(Boolean.FALSE);
-                groupMap.setDetails(getSecuritySystem().newTransientDetails(
-                        groupMap));
-                getSecuritySystem().doAction(groupMap, action);
+                e.linkExperimenterGroup(groupProxy(group.getId()));
             }
         }
-
+        getSecuritySystem().doAction(e, action);
         changeUserPassword(e.getOmeName(), " ");
 
         getBeanHelper().getLogger().info(
@@ -506,8 +495,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
                 toRemove.add(g.getId());
             }
         }
-        for (GroupExperimenterMap map : (List<GroupExperimenterMap>) foundUser
-                .collectGroupExperimenterMap(null)) {
+        for (GroupExperimenterMap map : foundUser.<GroupExperimenterMap>collectGroupExperimenterMap(null)) {
             Long pId = map.parent().getId();
             Long cId = map.child().getId();
             if (toRemove.contains(pId)) {
@@ -557,34 +545,28 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
                     + roles.getUserGroupName());
         }
 
-        boolean newDefaultSet = false;
         Experimenter foundUser = getExperimenter(user.getId());
         ExperimenterGroup foundGroup = getGroup(group.getId());
-        for (GroupExperimenterMap map : (List<GroupExperimenterMap>) foundUser
-                .collectGroupExperimenterMap(null)) {
-            if (map.parent().getId().equals(group.getId())) {
-                map.setDefaultGroupLink(Boolean.TRUE);
-                newDefaultSet = true;
-            } else {
-                map.setDefaultGroupLink(Boolean.FALSE);
-            }
-            // TODO: May want to move this outside the loop
-            // and after the !newDefaultSet check.
-            getSecuritySystem().doAction(map, new SecureAction() {
-                public <T extends IObject> T updateObject(T obj) {
-                    iUpdate.saveObject(obj);
-                    return null;
-                }
-            });
-
-        }
-
-        if (!newDefaultSet) {
+        Set<GroupExperimenterMap> foundMaps = foundUser.findGroupExperimenterMap(foundGroup);
+        if (foundMaps.size() < 1) {
             throw new ApiUsageException("Group " + group.getId() + " was not "
                     + "found for user " + user.getId());
+        } else if (foundMaps.size() > 1) {
+            getBeanHelper().getLogger().warn(foundMaps.size()+ " copies of "+
+                    foundGroup + " found for " + foundUser);
+        } else {
+            // May throw an exception
+            foundUser.setPrimaryGroupExperimenterMap(foundMaps.iterator().next());
         }
-
-        iUpdate.flush();
+        
+        // TODO: May want to move this outside the loop
+        // and after the !newDefaultSet check.
+        getSecuritySystem().doAction(foundUser, new SecureAction() {
+            public <T extends IObject> T updateObject(T obj) {
+                iUpdate.saveObject(obj);
+                return null;
+            }
+        });
 
         getBeanHelper().getLogger().info(
                 String.format("Changing default group for %s to %s", foundUser

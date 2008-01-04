@@ -11,9 +11,6 @@ package omeis.providers.re;
 import java.util.Iterator;
 import java.util.List;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
@@ -30,23 +27,23 @@ import omeis.providers.re.quantum.QuantumStrategy;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/10 17:36:31 $) </small>
+ * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date: 2005/06/10
+ *          17:36:31 $) </small>
  * @since OME2.2
  */
 class QuantumManager {
 
     /** The pixels metadata. */
-    private Pixels metadata;
+    private final Pixels metadata;
 
     /**
      * Contains a strategy object for each wavelength. Indexed according to the
      * wavelength indexes in the <i>OME</i> 5D pixels file.
      */
-    private QuantumStrategy[] wavesStg;
+    private final QuantumStrategy[] wavesStg;
 
     /** A quantum factory instance for looking up enumerations. */
-    private QuantumFactory factory;
+    private final QuantumFactory factory;
 
     /**
      * Creates a new instance.
@@ -55,7 +52,7 @@ class QuantumManager {
      *            The pixels metadata.
      */
     QuantumManager(Pixels metadata, QuantumFactory factory) {
-    	this.factory = factory;
+        this.factory = factory;
         this.metadata = metadata;
         wavesStg = new QuantumStrategy[metadata.getSizeC().intValue()];
     }
@@ -93,11 +90,10 @@ class QuantumManager {
     void initStrategies(QuantumDef qd, PixelsType type, ChannelBinding[] waves) {
         QuantumStrategy stg;
         double gMin, gMax;
-        List channels = this.metadata.getChannels();
         int w = 0;
         Channel channel;
-        for (Iterator i = channels.iterator(); i.hasNext();) {
-            channel = (Channel) i.next();
+        for (Iterator<Channel> i = metadata.iterateChannels(); i.hasNext();) {
+            channel = i.next();
             stg = factory.getStrategy(qd, type);
             gMin = channel.getStatsInfo().getGlobalMin().doubleValue();
             gMax = channel.getStatsInfo().getGlobalMax().doubleValue();
