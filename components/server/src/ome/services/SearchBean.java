@@ -9,6 +9,7 @@ package ome.services;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -28,14 +29,16 @@ import javax.interceptor.Interceptors;
 
 import ome.api.Search;
 import ome.api.ServiceInterface;
-import ome.conditions.ApiUsageException;
-import ome.model.IAnnotated;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.internal.Details;
 import ome.parameters.Parameters;
-import ome.services.search.QueryBuilder;
+import ome.services.search.AnnotatedWith;
+import ome.services.search.FullText;
+import ome.services.search.HqlQuery;
 import ome.services.search.QueryTemplate;
+import ome.services.search.SomeMustNone;
+import ome.services.search.Tags;
 import ome.services.util.OmeroAroundInvoke;
 
 import org.apache.commons.logging.Log;
@@ -61,17 +64,17 @@ import org.springframework.transaction.annotation.Transactional;
 @LocalBinding(jndiBinding = "omero/local/ome.api.Search")
 @Interceptors( { OmeroAroundInvoke.class })
 @SecurityDomain("OmeroSecurity")
-public class SearchBean extends AbstractStatefulBean implements Search {
+public abstract class SearchBean extends AbstractStatefulBean implements Search {
 
     private final static long serialVersionUID = 59809384038000069L;
 
     /** The logger for this class. */
     private final static Log log = LogFactory.getLog(SearchBean.class);
 
-    private final List<QueryTemplate> templates = Collections
+    private final List<QueryTemplate> queries = Collections
             .synchronizedList(new ArrayList<QueryTemplate>());
 
-    private final QueryBuilder builder = new QueryBuilder();
+    private final QueryTemplate template = new QueryTemplate();
 
     private List<IObject> lastResultsUnloaded;
 
@@ -115,101 +118,77 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     // Interface methods ~
     // ============================================
 
+    //
+    // CREATE METHODS
+    //
+
     @Transactional
     @RolesAllowed("user")
     public void ByAnnotatedWith(Annotation example) {
-        // TODO Auto-generated method stub
-
+        QueryTemplate byAnnotatedWith = new AnnotatedWith(example);
+        synchronized (template) {
+            byAnnotatedWith.copy(template);
+        }
+        queries.add(byAnnotatedWith);
     }
 
     @Transactional
     @RolesAllowed("user")
     public void ByFullText(String query) {
-        // TODO Auto-generated method stub
+        QueryTemplate byFullText = new FullText(query);
+        synchronized (template) {
+            byFullText.copy(template);
+        }
+        queries.add(byFullText);
 
     }
 
     @Transactional
     @RolesAllowed("user")
     public void ByHqlQuery(String query, Parameters p) {
-        // TODO Auto-generated method stub
-
+        QueryTemplate byHqlQuery = new HqlQuery(query, p);
+        synchronized (template) {
+            byHqlQuery.copy(template);
+        }
+        queries.add(byHqlQuery);
     }
 
     @Transactional
     @RolesAllowed("user")
     public void BySomeMustNone(String[] some, String[] must, String[] none) {
-        // TODO Auto-generated method stub
-
+        QueryTemplate bySomeMustNone = new SomeMustNone(some, must, none);
+        synchronized (template) {
+            bySomeMustNone.copy(template);
+        }
+        queries.add(bySomeMustNone);
     }
 
     @Transactional
     @RolesAllowed("user")
     public void ByTags(String[] tags) {
+        QueryTemplate byTags = new Tags(tags);
+        synchronized (template) {
+            byTags.copy(template);
+        }
+        queries.add(byTags);
+    }
+
+    //
+    // FETCH METHODS
+    //
+
+    @Transactional
+    @RolesAllowed("user")
+    public boolean hasNext() {
         // TODO Auto-generated method stub
-
+        return false;
     }
 
     @Transactional
     @RolesAllowed("user")
-    public int activeQueries() {
-        return templates.size();
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public void addAnnotation(IAnnotated annotated, Annotation annotation) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public void addTagToGroup(String tag, String tagGroup) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public List<String> allGroups() {
+    public IObject next() {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public List<String> allTags() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public void allTypes() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public void allowProjections() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public Map<String, List<Annotation>> annotations(Class<IObject> klass,
-            long id) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public void clearQueries() {
-        templates.clear();
     }
 
     @Transactional
@@ -221,51 +200,9 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     @Transactional
     @RolesAllowed("user")
-    public <T extends IObject> void fetchAlso(Map<T, String> fetches) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public <T extends IObject> void fetchAnnotations(Class<T>... classes) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public int getBatchSize() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public List<String> groupsForTag(String tag) {
+    public <T extends IObject> Map<T, List<Annotation>> results() {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public boolean hasNext() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public boolean isCaseSensitive() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public boolean isMergedBatched() {
-        // TODO Auto-generated method stub
-        return false;
     }
 
     @Transactional
@@ -277,178 +214,223 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     @Transactional
     @RolesAllowed("user")
-    public IObject next() throws ApiUsageException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public void onlyAnnotatedBetween(Timestamp start, Timestamp stop) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public void onlyAnnotatedBy(Details d) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public <A extends Annotation> void onlyAnnotatedWith(Class<A>... classes) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public void onlyCreatedBetween(Timestamp start, Timestamp stop) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public void onlyOwnedBy(Details d) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public <T extends IObject> void onlyTypes(Class<T>... classes) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Transactional
-    @RolesAllowed("user")
     public void remove() throws UnsupportedOperationException {
         throw new UnsupportedOperationException(
                 "Cannot remove via ome.api.Search");
     }
 
+    //
+    // QUERY MANAGEMENT
+    // 
+
     @Transactional
     @RolesAllowed("user")
-    public void removeAnnotation(IAnnotated annotated, Annotation annotation) {
-        // TODO Auto-generated method stub
-
+    public int activeQueries() {
+        return queries.size();
     }
 
     @Transactional
     @RolesAllowed("user")
-    public void removeTagFromGroup(String tag, String tagGroup) {
-        // TODO Auto-generated method stub
-
+    public void clearQueries() {
+        queries.clear();
     }
+
+    //
+    // TEMPLATE STATE
+    //
 
     @Transactional
     @RolesAllowed("user")
     public void resetDefaults() {
-        builder.setTemplate(new QueryTemplate());
+        synchronized (template) {
+            template.copy(new QueryTemplate());
+        }
     }
 
     @Transactional
     @RolesAllowed("user")
-    public <T extends IObject> Map<T, List<Annotation>> results() {
-        // TODO Auto-generated method stub
-        return null;
+    public <T extends IObject> void fetchAlso(Map<T, String> fetches) {
+        synchronized (template) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public <T extends IObject> void fetchAnnotations(Class<T>... classes) {
+        synchronized (template) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public int getBatchSize() {
+        synchronized (template) {
+            return template.batchSize;
+        }
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public boolean isCaseSensitive() {
+        synchronized (template) {
+            return template.caseSensitive;
+        }
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public boolean isMergedBatches() {
+        synchronized (template) {
+            return template.mergedBatches;
+        }
+
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public void onlyAnnotatedBetween(Timestamp start, Timestamp stop) {
+        synchronized (template) {
+            template.annotatedStart = QueryTemplate.copyTimestamp(start);
+            template.annotatedStop = QueryTemplate.copyTimestamp(stop);
+        }
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public void onlyAnnotatedBy(Details d) {
+        synchronized (template) {
+            template.annotatedBy = QueryTemplate.copyDetails(d);
+        }
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public <A extends Annotation> void onlyAnnotatedWith(Class<A>... classes) {
+        synchronized (template) {
+            List<Class<?>> list = Arrays.<Class<?>> asList(classes);
+            template.onlyAnnotations = QueryTemplate.copyList(list);
+        }
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public void onlyCreatedBetween(Timestamp start, Timestamp stop) {
+        synchronized (template) {
+            template.createdStart = QueryTemplate.copyTimestamp(start);
+            template.createdStop = QueryTemplate.copyTimestamp(stop);
+            throw new IllegalArgumentException("What invariants");
+        }
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public void onlyOwnedBy(Details d) {
+        synchronized (template) {
+            template.ownedBy = QueryTemplate.copyDetails(d);
+        }
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    @SuppressWarnings("all")
+    public <T extends IObject> void onlyType(Class<T> klass) {
+        onlyTypes(klass);
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    @SuppressWarnings("unchecked")
+    public <T extends IObject> void onlyTypes(Class<T>... classes) {
+        synchronized (template) {
+            template.onlyTypes = new ArrayList();
+            for (Class<T> k : classes) {
+                template.onlyTypes.add(k);
+            }
+        }
     }
 
     @Transactional
     @RolesAllowed("user")
     public void setBatchSize(int size) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public void setCaseSentivice() {
-        // TODO Auto-generated method stub
-
+        synchronized (template) {
+            template.batchSize = size;
+        }
     }
 
     @Transactional
     @RolesAllowed("user")
     public void setIdOnly() {
-        // TODO Auto-generated method stub
-
+        synchronized (template) {
+            template.idOnly = true;
+        }
     }
 
     @Transactional
     @RolesAllowed("user")
     public void setMergedBatches(boolean merge) {
-        builder.getTemplate().merged = true;
+        synchronized (template) {
+            template.mergedBatches = merge;
+        }
     }
 
     @Transactional
     @RolesAllowed("user")
-    public boolean tag(IAnnotated annotated, String tag, boolean reuse) {
-        // TODO Auto-generated method stub
-        return false;
+    public void fetchAlso(String... fetches) {
+        synchronized (template) {
+            template.fetches = Arrays.asList(fetches);
+        }
     }
 
     @Transactional
     @RolesAllowed("user")
-    public Map<String, String> tags() {
-        // TODO Auto-generated method stub
-        return null;
+    public boolean isReturnUnloaded() {
+        synchronized (template) {
+            return template.returnUnloaded;
+        }
     }
 
     @Transactional
     @RolesAllowed("user")
-    public List<String> tagsInGroup(String tagGroup) {
-        // TODO Auto-generated method stub
-        return null;
+    public boolean isUseProjections() {
+        synchronized (template) {
+            return template.useProjections;
+        }
     }
 
-    public <T extends IObject> void fetchAlso(String... fetches) {
-        // TODO Auto-generated method stub
-
-    }
-
-    public void isReturnUnloaded() {
-        // TODO Auto-generated method stub
-
-    }
-
-    public void isUseProjections() {
-        // TODO Auto-generated method stub
-
-    }
-
-    public <T extends IObject> T next() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
+    @Transactional
+    @RolesAllowed("user")
     public void onlyModifiedBetween(Timestamp start, Timestamp stop) {
-        // TODO Auto-generated method stub
-
+        synchronized (template) {
+            template.modifiedStart = QueryTemplate.copyTimestamp(start);
+            template.modifiedStop = QueryTemplate.copyTimestamp(stop);
+            throw new RuntimeException("What checks need to be performed.");
+        }
     }
 
-    public <T extends IObject> void onlyType(Class<T> klass) {
-        // TODO Auto-generated method stub
-
-    }
-
+    @Transactional
+    @RolesAllowed("user")
     public void setCaseSentivice(boolean caseSensitive) {
-        // TODO Auto-generated method stub
-
+        synchronized (template) {
+            template.caseSensitive = caseSensitive;
+        }
     }
 
+    @Transactional
+    @RolesAllowed("user")
     public void setReturnUnloaded(boolean returnUnloaded) {
-        // TODO Auto-generated method stub
-
+        synchronized (template) {
+            template.returnUnloaded = returnUnloaded;
+        }
     }
 
+    @Transactional
+    @RolesAllowed("user")
     public void setUseProjections(boolean useProjections) {
-        // TODO Auto-generated method stub
-
+        synchronized (template) {
+            template.useProjections = useProjections;
+        }
     }
 
 }

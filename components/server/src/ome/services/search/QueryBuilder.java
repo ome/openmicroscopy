@@ -7,12 +7,7 @@
 
 package ome.services.search;
 
-import java.io.Serializable;
-
 import ome.services.SearchBean;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Serializable builder used by {@link SearchBean} to generate
@@ -21,10 +16,6 @@ import org.apache.commons.logging.LogFactory;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class QueryBuilder implements Serializable {
-
-    private static final long serialVersionUID = 3314502886822080888L;
-
-    private static Log log = LogFactory.getLog(QueryBuilder.class);
+public interface QueryBuilder {
 
 }

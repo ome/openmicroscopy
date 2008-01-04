@@ -68,7 +68,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
     public final static int DEFAULT_BATCH_SIZE = 1000;
 
     /**
-     * Default {@link #isMergedBatched() merged-bathces}
+     * Default {@link #isMergedBatches() merged-batches}
      */
     public final static boolean DEFAULT_MERGED_BATCHES = false;
 
@@ -94,7 +94,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * Returns the number of active queries. This means that
      * <code>activeQueries</code> gives the minimum number of remaining calls
      * to {@link #results()} when batches are not
-     * {@link #isMergedBatched() merged}.
+     * {@link #isMergedBatches() merged}.
      * 
      * @return number of active queries
      */
@@ -102,9 +102,9 @@ public interface Search extends ome.api.StatefulServiceInterface,
 
     /**
      * Sets the maximum number of results that will be returned by one call to
-     * {@link #results()}. If batches are not {@link #isMergedBatched() merged},
+     * {@link #results()}. If batches are not {@link #isMergedBatches() merged},
      * then results may often be less than the batch size. If batches are
-     * {@link #isMergedBatched()} merged, then only the last call to
+     * {@link #isMergedBatches()} merged, then only the last call to
      * {@link #results()} can be less than batch size.
      * 
      * @param size
@@ -133,7 +133,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * {@link #setMergedBatches(boolean)} has not been called, the
      * {@link #DEFAULT_MERGED_BATCHES default value} will be in effect.
      */
-    boolean isMergedBatched();
+    boolean isMergedBatches();
 
     /**
      * Sets the case sensitivity on all queries where case-sensitivity is
@@ -165,7 +165,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * {@link #setUseProjections(boolean)} has not been called, the
      * {@link #DEFAULT_USE_PROJECTIONS} will be in effect.
      */
-    void isUseProjections();
+    boolean isUseProjections();
 
     /**
      * Determines if all results should be returned as unloaded objects. This is
@@ -181,7 +181,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * been called, the {@link #DEFAULT_RETURN_UNLOADED default value} will be
      * in effect.
      */
-    void isReturnUnloaded();
+    boolean isReturnUnloaded();
 
     // Filters ~~~~~~~~~~~~~~~~~~~~~
 
@@ -390,6 +390,13 @@ public interface Search extends ome.api.StatefulServiceInterface,
     void ByAnnotatedWith(Annotation example);
 
     /**
+     * Returns entities with the given UUID strings
+     * 
+     * @param uuids
+     */
+    void ByUUID(String[] uuids);
+
+    /**
      * Removes all active queries (leaving {@link #resetDefaults() settings}
      * alone), such that {@link #activeQueries()} will return 0.
      */
@@ -432,7 +439,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
     /**
      * Returns up to {@link #getBatchSize() batch size} number of results along
      * with the related query metadata. If
-     * {@link #isMergedBatched() batches are merged} then the results from
+     * {@link #isMergedBatches() batches are merged} then the results from
      * multiple queries may be returned together.
      */
     <T extends IObject> Map<T, List<Annotation>> results();
