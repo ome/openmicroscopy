@@ -36,7 +36,8 @@
                 inverse="renderingDef" ordered="true">
                 <rule id="CHANNEL_BINDING_CARD" type="cardinality"
                 description="c"/>
-            </onemany> 
+            </onemany>
+            <optional name="name" type="string"/> 
 			<required name="quantization" type="ome.model.display.QuantumDef"/>
 			<zeromany name="spatialDomainEnhancement" 
                 type="ome.model.display.CodomainMapContext"

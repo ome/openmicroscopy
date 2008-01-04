@@ -328,6 +328,23 @@ class DSLHandler extends DefaultHandler {
         }
 
         /*
+         * Check for all ordered relationships and apply unique constraints
+         */
+        for (String id : types.keySet()) {
+            SemanticType t = types.get(id);
+            for (Property property : t.getClassProperties()) {
+                if (property instanceof ManyZeroField) {
+                    Boolean ord = property.getOrdered();
+                    if (ord != null && ord.booleanValue()) {
+                        String name = property.getName();
+                        t.getUniqueConstraints().add(
+                                "\"id\",\"" + name + "_index\"");
+                    }
+                }
+            }
+        }
+
+        /*
          * Final post-processing step. Each semantic type should be given it's
          * finalized superclass instance.
          */

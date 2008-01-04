@@ -377,7 +377,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
         Image i = iUpdate.saveAndReturnObject(p.getImage());
 
         i = iQuery.findByQuery(
-                "select i from Image i left outer join i.pixels p "
+                "select i from Image i left outer join fetch i.pixels p "
                         + "where p.id = :id and index(p) = 0", new Parameters()
                         .addId(p.getId()));
         assertNotNull(i.getPrimaryPixels());

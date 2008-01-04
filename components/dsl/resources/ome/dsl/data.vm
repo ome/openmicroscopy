@@ -41,11 +41,11 @@ insert into experimentergroup (id,permissions,version,owner_id,group_id,creation
 insert into eventtype (id,permissions,owner_id,group_id,creation_id,value) values
         (0,-35,0,0,0,'Bootstrap');
 insert into groupexperimentermap 
-        (id,permissions,version,owner_id,group_id,creation_id,update_id, parent, child, index)
+        (id,permissions,version,owner_id,group_id,creation_id,update_id, parent, child, child_index)
         values
         (0,-35,0,0,0,0,0,0,0,0);
 insert into groupexperimentermap 
-        (id,permissions,version,owner_id,group_id,creation_id,update_id, parent, child, index)
+        (id,permissions,version,owner_id,group_id,creation_id,update_id, parent, child, child_index)
         select nextval('seq_groupexperimentermap'),-35,0,0,0,0,0,1,0,1;
 
 

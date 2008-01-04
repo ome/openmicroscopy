@@ -45,7 +45,7 @@
 		</properties>
 	</type>
 
-	<type id="ome.model.core.Pixels">
+	<type id="ome.model.core.Pixels" annotated="true">
 		<properties>
       <!-- Acquisition Context 1 -->      
 			<manyone name="image" type="ome.model.core.Image" ordered="true"/>
@@ -86,7 +86,7 @@
 		</properties>
 	</link>
 	      
-	<type id="ome.model.core.OriginalFile">
+	<type id="ome.model.core.OriginalFile" annotated="true">
 		<properties>
 			<child name="pixelsFileMaps" type="ome.model.core.PixelsOriginalFileMap"
         target="ome.model.core.Pixels"/>
@@ -110,7 +110,7 @@
 		</properties>
 	</type>
   
-	<type id="ome.model.core.PlaneInfo">
+	<type id="ome.model.core.PlaneInfo" annotated="true">
 		<properties>
 			<manyone name="pixels" type="ome.model.core.Pixels"/>
 			<required name="theZ" type="int"/>
@@ -156,7 +156,7 @@
     		Acquisition Context 2
        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
-	<type id="ome.model.core.Channel" >
+	<type id="ome.model.core.Channel" annotated="true">
 		<properties>
 			<optional name="statsInfo" type="ome.model.stats.StatsInfo">
         <rule id="STATSINFO_DEP" type="dependency" 

@@ -44,7 +44,7 @@ import ome.model.*;
  * injected directly into the SQL (not HQL)
  */
 @org.hibernate.annotations.FilterDefs({
-    @org.hibernate.annotations.FilterDef(name="${ofilter}", 
+    @org.hibernate.annotations.FilterDef(name="${ofilter}",
         parameters=@org.hibernate.annotations.ParamDef( name="ownerId", type="java.lang.Long" )),
     @org.hibernate.annotations.FilterDef(name="${gfilter}",
         parameters=@org.hibernate.annotations.ParamDef( name="groupId", type="java.lang.Long" )),
@@ -84,16 +84,20 @@ import ome.model.*;
 ## JOINED SUBCLASS
 #set($superId = ${type.typeToColumn($type.superclass)} )
 #if(!$type.discriminator)
-@javax.persistence.PrimaryKeyJoinColumn(name="${superId}_id") 
+@javax.persistence.PrimaryKeyJoinColumn(name="${superId}_id")
 @javax.persistence.Table(name = "${type.table}")
 @org.hibernate.annotations.ForeignKey(name="FK${type.table}_${superId}_id_${superId}")
 #else
 ## SINGLETABLE SUBCLASS
-@javax.persistence.DiscriminatorValue("${type.discriminator}") 
+@javax.persistence.DiscriminatorValue("${type.discriminator}")
 #end
 #else##########################################################
 ## TOP OF HIERARCHY
-@javax.persistence.Table(name = "${type.table}")
+@javax.persistence.Table(name = "${type.table}", uniqueConstraints = {
+#foreach($cols in $type.uniqueConstraints)
+    @javax.persistence.UniqueConstraint(columnNames={$cols})
+#end
+})
 @org.hibernate.annotations.Entity( selectBeforeUpdate = true )
 #if(!$type.discriminator)
 ## ...OF JOINED TABLES
@@ -101,21 +105,21 @@ import ome.model.*;
 #else
 ## ... IN A SINGLE TABLE
 @javax.persistence.Inheritance(strategy=javax.persistence.InheritanceType.SINGLE_TABLE)
-@javax.persistence.DiscriminatorValue("${type.discriminator}") 
-@javax.persistence.DiscriminatorColumn( 
-    name="discriminator", discriminatorType=javax.persistence.DiscriminatorType.STRING 
+@javax.persistence.DiscriminatorValue("${type.discriminator}")
+@javax.persistence.DiscriminatorColumn(
+    name="discriminator", discriminatorType=javax.persistence.DiscriminatorType.STRING
 )
 #end
-@javax.persistence.SequenceGenerator( 
-    name="seq_${type.table}", 
-    sequenceName="seq_${type.table}" 
-) 
+@javax.persistence.SequenceGenerator(
+    name="seq_${type.table}",
+    sequenceName="seq_${type.table}"
+)
 #end############################################################
-//TODO@org.hibernate.search.annotations.Indexed(index="FullText")
+@org.hibernate.search.annotations.Indexed(index="FullText")
 @org.hibernate.search.annotations.ClassBridge(
-    name="details", 
+    name="details",
     impl = ome.util.DetailsFieldBridge.class,
-    index=org.hibernate.search.annotations.Index.UN_TOKENIZED, 
+    index=org.hibernate.search.annotations.Index.UN_TOKENIZED,
     store=org.hibernate.search.annotations.Store.NO
 )
 public #if($type.abstract)abstract#end class ${type.shortname}
@@ -123,7 +127,7 @@ public #if($type.abstract)abstract#end class ${type.shortname}
 implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($type.isEnum), IEnum#end#if($type.isLink), ILink#end#if($type.annotated), IAnnotated#end
 {
 
-   /* These values are defined in dsl/resources/ome/dsl/mapping.vm:
+   /* These values are defined in dsl/resources/ome/dsl/object.vm:
     * -------------------------------------------------------------
     * Explanation of serialVersionUID ex 0000000 03 00 00 01 03 01 L;
     * 1-7   : currently unused
@@ -134,8 +138,8 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
     * 16-17 : release number (3)
     * 18-19 : increment per delta // any changes to the dsl or mapping files
     */
-    private static final long serialVersionUID = 0000000030000020301L;
-    
+    private static final long serialVersionUID = 0000000030000020302L;
+
 #if(!$type.global)
    /*
     * Constants naming filters used by the OMERO
@@ -352,7 +356,7 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
 #if($prop.class.name == "ome.dsl.EntryField")#############################TYPE
 ##
 ##  EntryFields are handled by ome/dsl/data.vm, since each of the entries isn't
-##  a real property but rather an enum value for the database. However, they 
+##  a real property but rather an enum value for the database. However, they
 ##  are not even returned by $type.classProperties only $type.properties
 ##
 #elseif($prop.one2Many)###################################################TYPE
@@ -380,7 +384,7 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
     */
     @javax.persistence.JoinColumn(name="${prop.inverse}", nullable=false)
     @javax.persistence.OneToMany(fetch=javax.persistence.FetchType.LAZY, cascade={${cascadeEjb}})
-    @org.hibernate.annotations.IndexColumn(name="index", nullable=false)
+    @org.hibernate.annotations.IndexColumn(name="${prop.inverse}_index", nullable=false)
 #else
     * one-to-many Set ${type.id}.${prop.name} (${prop.type})
     */

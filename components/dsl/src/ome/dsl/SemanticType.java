@@ -91,6 +91,8 @@ public abstract class SemanticType {
 
     private Boolean named;
 
+    private final Set<String> uniqueConstraints = new HashSet<String>();
+
     /**
      * sets the the various properties available in attrs USING DEFAULTS IF NOT
      * AVAILABLE. Subclasses may override these values.
@@ -359,6 +361,10 @@ public abstract class SemanticType {
      */
     public boolean getIsEnum() {
         return false;
+    }
+
+    public Set<String> getUniqueConstraints() {
+        return uniqueConstraints;
     }
 
     /**

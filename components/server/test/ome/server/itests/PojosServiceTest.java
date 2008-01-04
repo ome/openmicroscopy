@@ -21,7 +21,7 @@ import javax.sql.DataSource;
 
 import ome.api.IPojos;
 import ome.conditions.ApiUsageException;
-import ome.model.annotations.Annotation;
+import ome.model.ILink;
 import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
@@ -29,6 +29,7 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.testing.OMEData;
 import ome.testing.ObjectFactory;
+import ome.util.CBlock;
 import ome.util.builders.PojoOptions;
 
 import org.testng.annotations.Test;
@@ -58,9 +59,8 @@ public class PojosServiceTest extends AbstractManagedContextTest {
 
     @Test
     public void test_unannotated_Event_version() throws Exception {
-        Annotation da = createLinkedTextAnnotation();
-        Annotation da_test = new TextAnnotation(da.getId(), false);
-        iPojos.deleteDataObject(da_test, null);
+        ILink link = createLinkedTextAnnotation();
+        iPojos.deleteDataObject(link, null);
 
     }
 
@@ -170,7 +170,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         return (time);
     }
 
-    private Annotation createLinkedTextAnnotation() {
+    private ILink createLinkedTextAnnotation() {
         TextAnnotation da = new TextAnnotation();
         Dataset ds = new Dataset();
         Project p = new Project();
@@ -182,7 +182,8 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         da.setTextValue("uEv");
         ds.linkAnnotation(da);
         ds = iPojos.createDataObject(ds, null);
-        return ds.linkedAnnotationIterator().next();
+        return ds.collectAnnotationLinks((CBlock<ILink>) null).iterator()
+                .next();
     }
 
 }

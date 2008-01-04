@@ -7,11 +7,13 @@
 package ome.services.query;
 
 import java.sql.SQLException;
+
+import ome.model.core.Image;
+import ome.parameters.Parameters;
+
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import ome.model.core.Image;
-import ome.parameters.Parameters;
 
 public class PojosGetUserImagesQueryDefinition extends Query {
 
@@ -28,7 +30,7 @@ public class PojosGetUserImagesQueryDefinition extends Query {
         Criteria c = session.createCriteria(Image.class);
         c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
-        Criteria pix = c.createCriteria("defaultPixels", LEFT_JOIN);
+        Criteria pix = c.createCriteria("pixels", LEFT_JOIN);
         pix.createCriteria("pixelsType", LEFT_JOIN);
         pix.createCriteria("pixelsDimensions", LEFT_JOIN);
         // endTODO
