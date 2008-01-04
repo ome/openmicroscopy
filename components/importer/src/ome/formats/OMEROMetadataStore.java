@@ -38,8 +38,8 @@ import java.util.List;
 
 import loci.formats.FormatTools;
 import loci.formats.MetadataStore;
-//import loci.formats.MetadataStoreException;
 import ome.api.IQuery;
+import ome.api.IRepositoryInfo;
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
@@ -66,7 +66,6 @@ import ome.parameters.Parameters;
 import ome.system.Login;
 import ome.system.Server;
 import ome.system.ServiceFactory;
-import ome.api.IRepositoryInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -80,11 +79,10 @@ import org.apache.commons.logging.LogFactory;
  * @author Brian W. Loranger brain at lifesci.dundee.ac.uk
  * @author Chris Allan callan at blackcat.ca
  */
-public class OMEROMetadataStore implements MetadataStore
-{
+public class OMEROMetadataStore implements MetadataStore {
 
     /** Logger for this class. */
-    private static Log     log    = LogFactory.getLog(OMEROMetadataStore.class);
+    private static Log log = LogFactory.getLog(OMEROMetadataStore.class);
 
     /** OMERO service factory; all other services are retrieved from here. */
     private ServiceFactory sf;
@@ -93,47 +91,54 @@ public class OMEROMetadataStore implements MetadataStore
     private RawPixelsStore pservice;
 
     /** OMERO query service */
-    private IQuery         iQuery;
+    private IQuery iQuery;
 
     /** OMERO update service */
-    private IUpdate        iUpdate;
-    
+    private IUpdate iUpdate;
+
     private IRepositoryInfo iInfo;
 
     /** The "root" pixels object */
-    private ArrayList<Pixels>    pixelsList = new ArrayList<Pixels>();
-    
-    private Experimenter    exp;
-    
-    private RawFileStore    rawFileStore;
+    private ArrayList<Pixels> pixelsList = new ArrayList<Pixels>();
 
-    //private List<Boolean> minMaxSet = new ArrayList<Boolean>();
-    
+    private Experimenter exp;
+
+    private RawFileStore rawFileStore;
+
+    // private List<Boolean> minMaxSet = new ArrayList<Boolean>();
+
     /**
      * Creates a new instance.
      * 
-     * @param username the username to use to login to the OMERO server.
-     * @param password the password to use to login to the OMERO server.
-     * @param host the hostname of the OMERO server.
-     * @param port the port the OMERO server is listening on.
-     * @throws MetadataStoreException if the login credentials are
-     *             incorrect or there is another error instantiating required
-     *             services.
+     * @param username
+     *            the username to use to login to the OMERO server.
+     * @param password
+     *            the password to use to login to the OMERO server.
+     * @param host
+     *            the hostname of the OMERO server.
+     * @param port
+     *            the port the OMERO server is listening on.
+     * @throws MetadataStoreException
+     *             if the login credentials are incorrect or there is another
+     *             error instantiating required services.
      */
     public OMEROMetadataStore(String username, String password, String host,
-            String port) throws Exception
-    {
+            String port) throws Exception {
         // Mask the password information for display in the debug window
         String maskedPswd = "";
-        if (password == null) password = new String("");
-        if (password.length() > 0) maskedPswd = "<" +password.length() + "chars>";
-        else maskedPswd = "<empty>";
-        log.debug(String.format("Initializing store: %s/%s %s:%s", 
-                username, maskedPswd, host, port));
-        
+        if (password == null) {
+            password = new String("");
+        }
+        if (password.length() > 0) {
+            maskedPswd = "<" + password.length() + "chars>";
+        } else {
+            maskedPswd = "<empty>";
+        }
+        log.debug(String.format("Initializing store: %s/%s %s:%s", username,
+                maskedPswd, host, port));
+
         // Attempt to log in
-        try
-        {
+        try {
             Server server = new Server(host, Integer.parseInt(port));
             Login login = new Login(username, password);
             // Instantiate our service factory
@@ -145,38 +150,35 @@ public class OMEROMetadataStore implements MetadataStore
             pservice = sf.createRawPixelsStore();
             rawFileStore = sf.createRawFileStore();
             iInfo = sf.getRepositoryInfoService();
-            
+
             exp = iQuery.findByString(Experimenter.class, "omeName", username);
-        } catch (Throwable t)
-        {
+        } catch (Throwable t) {
             throw new Exception(t);
         }
     }
-    
+
     /**
      * Creates a new instance.
      * 
-     * @param factory a non-null, active {@link ServiceFactory}
-     * @throws MetadataStoreException if the factory is null or there
-     *             is another error instantiating required services.
+     * @param factory
+     *            a non-null, active {@link ServiceFactory}
+     * @throws MetadataStoreException
+     *             if the factory is null or there is another error
+     *             instantiating required services.
      */
-    public OMEROMetadataStore(ServiceFactory factory)
-            throws Exception
-    {
-        if (factory == null)
-            throw new Exception(
-                    "Factory argument cannot be null.");
+    public OMEROMetadataStore(ServiceFactory factory) throws Exception {
+        if (factory == null) {
+            throw new Exception("Factory argument cannot be null.");
+        }
 
         sf = factory;
 
-        try
-        {
+        try {
             // Now initialize all our services
             iQuery = sf.getQueryService();
             iUpdate = sf.getUpdateService();
             pservice = sf.createRawPixelsStore();
-        } catch (Throwable t)
-        {
+        } catch (Throwable t) {
             throw new Exception(t);
         }
     }
@@ -186,8 +188,7 @@ public class OMEROMetadataStore implements MetadataStore
      * 
      * @see loci.formats.MetadataStore#getRoot()
      */
-    public Object getRoot()
-    {
+    public Object getRoot() {
         return pixelsList;
     }
 
@@ -198,33 +199,32 @@ public class OMEROMetadataStore implements MetadataStore
      * @param series
      * @return
      */
-    public Pixels getPixels(Integer series)
-    {
-        if (series == null)
+    public Pixels getPixels(Integer series) {
+        if (series == null) {
             series = 0;
+        }
 
         resizePixelsArray(series);
-        
+
         Pixels p = pixelsList.get(series);
-        if (p == null)
-        {
+        if (p == null) {
             p = new Pixels();
             pixelsList.set(series, p);
         }
         return p;
     }
-    
+
     /*
      * (non-Javadoc)
      * 
      * @see loci.formats.MetadataStore#setRoot(java.lang.Object)
      */
-    public void setRoot(Object root) throws IllegalArgumentException
-    {
-        if (!(root instanceof List))
+    public void setRoot(Object root) throws IllegalArgumentException {
+        if (!(root instanceof List)) {
             throw new IllegalArgumentException("'root' object of type '"
                     + root.getClass()
                     + "' must be of type 'ome.model.core.Pixels'");
+        }
         pixelsList = (ArrayList<Pixels>) root;
     }
 
@@ -233,32 +233,36 @@ public class OMEROMetadataStore implements MetadataStore
      * 
      * @see loci.formats.MetadataStore#createRoot()
      */
-    public void createRoot()
-    {
+    public void createRoot() {
         pixelsList = new ArrayList<Pixels>();
     }
 
     /**
      * Retrieves a server side enumeration.
      * 
-     * @param klass the enumeration's class from <code>ome.model.enum</code>
-     * @param value the enumeration's string value.
+     * @param klass
+     *            the enumeration's class from <code>ome.model.enum</code>
+     * @param value
+     *            the enumeration's string value.
      * @return enumeration object.
      */
-    private IObject getEnumeration(Class<? extends IObject> klass, String value)
-    {
-        if (klass == null)
+    private IObject getEnumeration(Class<? extends IObject> klass, String value) {
+        if (klass == null) {
             throw new NullPointerException("Expecting not-null klass.");
-        if (value == null) return null;
+        }
+        if (value == null) {
+            return null;
+        }
 
         IObject enumeration = iQuery.findByString(klass, "value", value);
 
-        if (enumeration == null)
+        if (enumeration == null) {
             throw new EnumerationException("Problem finding enumeration: ",
                     klass, value);
+        }
         return enumeration;
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -266,9 +270,8 @@ public class OMEROMetadataStore implements MetadataStore
      *      java.lang.String, java.lang.String, java.lang.Integer)
      */
     public void setImage(String name, String creationDate, String description,
-            Integer series)
-    {
-        
+            Integer series) {
+
         log.debug(String.format("Setting Image: name (%s), creationDate (%s), "
                 + "description (%s)", name, creationDate, description));
         // FIXME: Image really needs to handle creation date somehow.
@@ -288,9 +291,8 @@ public class OMEROMetadataStore implements MetadataStore
      */
     public void setExperimenter(String firstName, String lastName,
             String email, String institution, String dataDirectory,
-            Object group, Integer i)
-    {
-    // FIXME: To implement.
+            Object group, Integer i) {
+        // FIXME: To implement.
     }
 
     /*
@@ -299,15 +301,13 @@ public class OMEROMetadataStore implements MetadataStore
      * @see loci.formats.MetadataStore#setGroup(java.lang.String,
      *      java.lang.Object, java.lang.Object, java.lang.Integer)
      */
-    public void setGroup(String name, Object leader, Object contact, Integer i)
-    {
-    // FIXME: To implement.
+    public void setGroup(String name, Object leader, Object contact, Integer i) {
+        // FIXME: To implement.
     }
 
     public void setInstrument(String manufacturer, String model,
-            String serialNumber, String type, Integer i)
-    {
-    // FIXME: To implement.
+            String serialNumber, String type, Integer i) {
+        // FIXME: To implement.
     }
 
     /*
@@ -318,28 +318,24 @@ public class OMEROMetadataStore implements MetadataStore
      *      java.lang.Integer)
      */
     public void setDimensions(Float pixelSizeX, Float pixelSizeY,
-            Float pixelSizeZ, Float pixelSizeC, Float pixelSizeT, Integer i)
-    {
+            Float pixelSizeZ, Float pixelSizeC, Float pixelSizeT, Integer i) {
         log.debug(String.format(
                 "Setting Dimensions: pixelSizeX (%f), pixelSizeY (%f), "
                         + "pixelSizeZ (%f), pixelSizeC (%f), pixelSizeT (%f)",
                 pixelSizeX, pixelSizeY, pixelSizeZ, pixelSizeC, pixelSizeT));
         PixelsDimensions dimensions = new PixelsDimensions();
-        
-        if (pixelSizeX == null || pixelSizeX <= 0.000001)
-        {
+
+        if (pixelSizeX == null || pixelSizeX <= 0.000001) {
             log.warn("pixelSizeX is <= 0.000001f, setting to 1.0f");
             pixelSizeX = 1.0f;
         }
 
-        if (pixelSizeY == null || pixelSizeY <= 0.000001)
-        {
+        if (pixelSizeY == null || pixelSizeY <= 0.000001) {
             log.warn("pixelSizeY is <= 0.000001f, setting to 1.0f");
             pixelSizeY = 1.0f;
         }
-        
-        if (pixelSizeZ == null || pixelSizeZ <= 0.000001)
-        {
+
+        if (pixelSizeZ == null || pixelSizeZ <= 0.000001) {
             log.warn("pixelSizeZ is <= 0.000001f, setting to 1.0f");
             pixelSizeZ = 1.0f;
         }
@@ -361,9 +357,8 @@ public class OMEROMetadataStore implements MetadataStore
      */
     public void setDisplayROI(Integer x0, Integer y0, Integer z0, Integer x1,
             Integer y1, Integer z1, Integer t0, Integer t1,
-            Object displayOptions, Integer i)
-    {
-    // FIXME: We have no real type for this.
+            Object displayOptions, Integer i) {
+        // FIXME: We have no real type for this.
     }
 
     /*
@@ -376,63 +371,60 @@ public class OMEROMetadataStore implements MetadataStore
      */
     public void setPixels(Integer sizeX, Integer sizeY, Integer sizeZ,
             Integer sizeC, Integer sizeT, Integer pixelType, Boolean bigEndian,
-            String dimensionOrder, Integer imageIndex, Integer pixelsIndex)
-    {
-        // Retrieve enumerations from the server               
+            String dimensionOrder, Integer imageIndex, Integer pixelsIndex) {
+        // Retrieve enumerations from the server
         PixelsType type = null;
         String pixTypeString = "";
-        switch(pixelType)
-        {
-            case FormatTools.INT8:
-                type = (PixelsType) getEnumeration(PixelsType.class, "int8");
-                pixTypeString = "int8";
-                break;
-            case FormatTools.UINT8:
-                type = (PixelsType) getEnumeration(PixelsType.class, "uint8");
-                pixTypeString = "uint8";
-                break;
-            case FormatTools.INT16:
-                type = (PixelsType) getEnumeration(PixelsType.class, "int16");
-                pixTypeString = "int16";
-                break;
-            case FormatTools.UINT16:
-                type = (PixelsType) getEnumeration(PixelsType.class, "uint16");
-                pixTypeString = "uint16";
-                break;
-            case FormatTools.INT32:
-                type = (PixelsType) getEnumeration(PixelsType.class, "int32");
-                pixTypeString = "int32";
-                break;
-            case FormatTools.UINT32:
-                type = (PixelsType) getEnumeration(PixelsType.class, "uint32");
-                pixTypeString = "uint32";
-                break;
-            case FormatTools.FLOAT:
-                type = (PixelsType) getEnumeration(PixelsType.class, "float");
-                pixTypeString = "float";
-                break;
-            case FormatTools.DOUBLE:
-                type = (PixelsType) getEnumeration(PixelsType.class, "double");
-                pixTypeString = "double";
-                break;
-            default: new RuntimeException("Unknown pixelType enumeration: " 
-                    + pixelType);
+        switch (pixelType) {
+        case FormatTools.INT8:
+            type = (PixelsType) getEnumeration(PixelsType.class, "int8");
+            pixTypeString = "int8";
+            break;
+        case FormatTools.UINT8:
+            type = (PixelsType) getEnumeration(PixelsType.class, "uint8");
+            pixTypeString = "uint8";
+            break;
+        case FormatTools.INT16:
+            type = (PixelsType) getEnumeration(PixelsType.class, "int16");
+            pixTypeString = "int16";
+            break;
+        case FormatTools.UINT16:
+            type = (PixelsType) getEnumeration(PixelsType.class, "uint16");
+            pixTypeString = "uint16";
+            break;
+        case FormatTools.INT32:
+            type = (PixelsType) getEnumeration(PixelsType.class, "int32");
+            pixTypeString = "int32";
+            break;
+        case FormatTools.UINT32:
+            type = (PixelsType) getEnumeration(PixelsType.class, "uint32");
+            pixTypeString = "uint32";
+            break;
+        case FormatTools.FLOAT:
+            type = (PixelsType) getEnumeration(PixelsType.class, "float");
+            pixTypeString = "float";
+            break;
+        case FormatTools.DOUBLE:
+            type = (PixelsType) getEnumeration(PixelsType.class, "double");
+            pixTypeString = "double";
+            break;
+        default:
+            new RuntimeException("Unknown pixelType enumeration: " + pixelType);
         }
-        
+
         log
-        .debug(String
-                .format(
-                        "Setting Pixels: x (%d), y (%d), z (%d), c (%d), t (%d), "
-                                + "PixelType (%s), BigEndian? (%b), dimemsionOrder (%s)",
-                        sizeX, sizeY, sizeZ, sizeC, sizeT, pixTypeString,
-                        bigEndian, dimensionOrder));
-        
-        
+                .debug(String
+                        .format(
+                                "Setting Pixels: x (%d), y (%d), z (%d), c (%d), t (%d), "
+                                        + "PixelType (%s), BigEndian? (%b), dimemsionOrder (%s)",
+                                sizeX, sizeY, sizeZ, sizeC, sizeT,
+                                pixTypeString, bigEndian, dimensionOrder));
+
         DimensionOrder order = (DimensionOrder) getEnumeration(
                 DimensionOrder.class, dimensionOrder);
 
         Pixels pixels = getPixels(imageIndex);
-        
+
         pixels.setSha1("foo"); // FIXME: needs to be fixed!
         pixels.setSizeX(sizeX);
         pixels.setSizeY(sizeY);
@@ -441,21 +433,17 @@ public class OMEROMetadataStore implements MetadataStore
         pixels.setSizeT(sizeT);
         pixels.setPixelsType(type);
         pixels.setDimensionOrder(order);
-        pixels.setDefaultPixels(Boolean.TRUE); // *Very* important
     }
 
-    private void resizePixelsArray(int series)
-    {
+    private void resizePixelsArray(int series) {
         int currentSize = pixelsList.size();
-        if (series + 1 > currentSize)
-        {
-            for (int i = 0; i < series + 1 - currentSize; i++)
-            {
+        if (series + 1 > currentSize) {
+            for (int i = 0; i < series + 1 - currentSize; i++) {
                 pixelsList.add(null);
             }
         }
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -463,16 +451,14 @@ public class OMEROMetadataStore implements MetadataStore
      *      java.lang.Float, java.lang.Float, java.lang.Float,
      *      java.lang.Integer)
      */
-    public void setStageLabel(String name, Float x, Float y, Float z, Integer i)
-    {
+    public void setStageLabel(String name, Float x, Float y, Float z, Integer i) {
         log.debug(String.format(
                 "Setting StageLabel: name (%s), x (%f), y (%f), z (%f)", name,
                 x, y, z));
 
         // Checks to make sure we have no null values and returns with a warning
         // if we do.
-        if (name == null || x == null || y == null || z == null)
-        {
+        if (name == null || x == null || y == null || z == null) {
             log
                     .warn(String
                             .format(
@@ -497,15 +483,16 @@ public class OMEROMetadataStore implements MetadataStore
      *      float, int, int, java.lang.String, java.lang.String,
      *      java.lang.Integer)
      */
-    public void setLogicalChannel(int channelIdx, String name, Integer samplesPerPixel,
-    	    Integer filter, Integer lightSource, Float lightAttenuation,
-    	    Integer lightWavelength, Integer otf, Integer detector, 
-    	    Float detectorOffset, Float detectorGain, String illuminationType, 
-    	    Integer pinholeSize, String photometricInterpretation, String mode, 
-    	    String contrastMethod, Integer auxLightSource, Float auxLightAttenuation, 
-    	    String auxTechnique, Integer auxLightWavelength, Integer emWave, 
-    	    Integer exWave, String fluor, Float ndFilter, Integer series)
-    {
+    public void setLogicalChannel(int channelIdx, String name,
+            Integer samplesPerPixel, Integer filter, Integer lightSource,
+            Float lightAttenuation, Integer lightWavelength, Integer otf,
+            Integer detector, Float detectorOffset, Float detectorGain,
+            String illuminationType, Integer pinholeSize,
+            String photometricInterpretation, String mode,
+            String contrastMethod, Integer auxLightSource,
+            Float auxLightAttenuation, String auxTechnique,
+            Integer auxLightWavelength, Integer emWave, Integer exWave,
+            String fluor, Float ndFilter, Integer series) {
         log
                 .debug(String
                         .format(
@@ -519,32 +506,31 @@ public class OMEROMetadataStore implements MetadataStore
         AcquisitionMode acquisitionMode = (AcquisitionMode) getEnumeration(
                 AcquisitionMode.class, mode);
 
-        
         Pixels pixels = getPixels(series);
-        
-        List<Channel> channels = pixels.getChannels();
+
+        List<Channel> channels = pixels.<Channel> collectChannels(null);
         Channel channel = new Channel();
 
-        if (channels.size() == 0)
-        {
+        if (channels.size() == 0) {
             channels = initChannels(series);
-        } 
-        else if (channels.size() != pixels.getSizeC())
-        {
-            log.warn(String.format("channels.size() (%d) is not equal to " +
-                    "pixels.getChannels().size() (%d) Resetting channel array.", 
-                    channels.size(), pixels.getSizeC()));
+        } else if (channels.size() != pixels.getSizeC()) {
+            log
+                    .warn(String
+                            .format(
+                                    "channels.size() (%d) is not equal to "
+                                            + "pixels.getChannels().size() (%d) Resetting channel array.",
+                                    channels.size(), pixels.getSizeC()));
             channels = initChannels(series);
         }
-        
-//        try {
-//            channels.set(channelIdx, channel);
-//        } catch (IndexOutOfBoundsException e) {
-//            channels.add(channelIdx, channel);
-//        }
+
+        // try {
+        // channels.set(channelIdx, channel);
+        // } catch (IndexOutOfBoundsException e) {
+        // channels.add(channelIdx, channel);
+        // }
 
         channels.set(channelIdx, channel);
-        
+
         LogicalChannel lchannel = new LogicalChannel();
         lchannel.setEmissionWave(emWave);
         lchannel.setExcitationWave(exWave);
@@ -554,16 +540,17 @@ public class OMEROMetadataStore implements MetadataStore
         lchannel.setMode(acquisitionMode);
 
         channel.setLogicalChannel(lchannel);
-        pixels.setChannels(channels);
+        pixels.clearChannels();
+        for (Channel ch : channels) {
+            pixels.addChannel(ch);
+        }
     }
 
-    private List<Channel> initChannels(Integer i)
-    {
+    private List<Channel> initChannels(Integer i) {
         Pixels pixels = getPixels(i);
-        
+
         List<Channel> channels = new ArrayList<Channel>(pixels.getSizeC());
-        for (int j = 0; j < pixels.getSizeC(); j++)
-        {
+        for (int j = 0; j < pixels.getSizeC(); j++) {
             channels.add(null);
         }
         return channels;
@@ -576,39 +563,35 @@ public class OMEROMetadataStore implements MetadataStore
      *      java.lang.Double, java.lang.Double, java.lang.Integer)
      */
     public void setChannelGlobalMinMax(int channelIdx, Double globalMin,
-            Double globalMax, Integer i)
-    {
-//       try { minMaxSet.get(channelIdx); }
-//        catch (IndexOutOfBoundsException e) 
-//        { minMaxSet.add(channelIdx, false); }
-//
-//        if (minMaxSet.get(channelIdx) == true)
-//            return;
+            Double globalMax, Integer i) {
+        // try { minMaxSet.get(channelIdx); }
+        // catch (IndexOutOfBoundsException e)
+        // { minMaxSet.add(channelIdx, false); }
+        //
+        // if (minMaxSet.get(channelIdx) == true)
+        // return;
         log.debug(String.format(
                 "Setting GlobalMin: '%f' GlobalMax: '%f' for channel: '%d'",
                 globalMin, globalMax, channelIdx));
-        if (globalMin != null)
-        {
-        	globalMin = new Double(Math.floor(globalMin.doubleValue()));
+        if (globalMin != null) {
+            globalMin = new Double(Math.floor(globalMin.doubleValue()));
         }
-        if (globalMax != null)
-        {
-        	globalMax = new Double(Math.ceil(globalMax.doubleValue()));
+        if (globalMax != null) {
+            globalMax = new Double(Math.ceil(globalMax.doubleValue()));
         }
 
-        List<Channel> channels = getPixels(i).getChannels();
-
-        if (channels.size() < channelIdx)
+        if (getPixels(i).sizeOfChannels() < channelIdx) {
             throw new IndexOutOfBoundsException("No such channel index: "
                     + channelIdx);
+        }
 
-        Channel channel = channels.get(channelIdx);
+        Channel channel = getPixels(i).getChannel(channelIdx);
         StatsInfo statsInfo = new StatsInfo();
         statsInfo.setGlobalMin(globalMin);
         statsInfo.setGlobalMax(globalMax);
-        
+
         channel.setStatsInfo(statsInfo);
-        //minMaxSet.set(channelIdx, true);
+        // minMaxSet.set(channelIdx, true);
     }
 
     /*
@@ -618,8 +601,7 @@ public class OMEROMetadataStore implements MetadataStore
      *      java.lang.Float, java.lang.Float, java.lang.Integer)
      */
     public void setPlaneInfo(int z, int c, int t, Float timestamp,
-            Float exposureTime, Integer i)
-    {
+            Float exposureTime, Integer i) {
         PlaneInfo pi = new PlaneInfo();
         pi.setTheZ(z);
         pi.setTheC(c);
@@ -634,20 +616,27 @@ public class OMEROMetadataStore implements MetadataStore
      * 
      * @see loci.formats.MetadataStore#setDefaultDisplaySettings(java.lang.Integer)
      */
-    public void setDefaultDisplaySettings(Integer i) {}
+    public void setDefaultDisplaySettings(Integer i) {
+    }
 
     /**
      * Writes a set of bytes as a plane in the OMERO image repository.
      * 
-     * @param id the primary <i>id</i> of the pixels set.
-     * @param pixels an array of bytes (sizeX * sizeY * bytesPerPixel)
-     * @param theZ the optical section in the pixels array.
-     * @param theC the channel in the pixels array.
-     * @param theT the timepoint in the pixels array.
+     * @param id
+     *            the primary <i>id</i> of the pixels set.
+     * @param pixels
+     *            an array of bytes (sizeX * sizeY * bytesPerPixel)
+     * @param theZ
+     *            the optical section in the pixels array.
+     * @param theC
+     *            the channel in the pixels array.
+     * @param theT
+     *            the timepoint in the pixels array.
      */
-    public void setPlane(Long id, byte[] pixels, int theZ, int theC, int theT)
-    {
-        if (pservice == null) pservice = sf.createRawPixelsStore();
+    public void setPlane(Long id, byte[] pixels, int theZ, int theC, int theT) {
+        if (pservice == null) {
+            pservice = sf.createRawPixelsStore();
+        }
 
         pservice.setPixelsId(id);
         pservice.setPlane(pixels, theZ, theC, theT);
@@ -656,14 +645,19 @@ public class OMEROMetadataStore implements MetadataStore
     /**
      * Writes a set of bytes as a stack in the OMERO image repository.
      * 
-     * @param id he primary <i>id</i> of the pixels set.
-     * @param pixels an array of bytes (sizeX * sizeY * sizeZ * bytesPerPixel)
-     * @param theC the channel in the pixels array.
-     * @param theT the timepoint in the pixels array.
+     * @param id
+     *            he primary <i>id</i> of the pixels set.
+     * @param pixels
+     *            an array of bytes (sizeX * sizeY * sizeZ * bytesPerPixel)
+     * @param theC
+     *            the channel in the pixels array.
+     * @param theT
+     *            the timepoint in the pixels array.
      */
-    public void setStack(Long id, byte[] pixels, int theC, int theT)
-    {
-        if (pservice == null) pservice = sf.createRawPixelsStore();
+    public void setStack(Long id, byte[] pixels, int theC, int theT) {
+        if (pservice == null) {
+            pservice = sf.createRawPixelsStore();
+        }
 
         pservice.setPixelsId(id);
         pservice.setStack(pixels, theT, theC, theT);
@@ -672,17 +666,16 @@ public class OMEROMetadataStore implements MetadataStore
     /**
      * Adds a pixels set (really its image) to a dataset.
      * 
-     * @param pixId the primary <i>id</i> of the pixels set.
-     * @param dataset the dataset.
+     * @param pixId
+     *            the primary <i>id</i> of the pixels set.
+     * @param dataset
+     *            the dataset.
      */
-    public void addPixelsToDataset(Long pixId, Dataset dataset)
-    {
+    public void addPixelsToDataset(Long pixId, Dataset dataset) {
         Pixels pixels = iQuery.get(Pixels.class, pixId);
-        Image unloadedImage = new Image(pixels.getImage().getId());
-        unloadedImage.unload();
+        Image unloadedImage = new Image(pixels.getImage().getId(), false);
 
-        Dataset unloadedDataset = new Dataset(dataset.getId());
-        unloadedDataset.unload();
+        Dataset unloadedDataset = new Dataset(dataset.getId(), false);
         DatasetImageLink link = new DatasetImageLink();
         link.setParent(unloadedDataset);
         link.setChild(unloadedImage);
@@ -694,19 +687,20 @@ public class OMEROMetadataStore implements MetadataStore
     /**
      * Retrieves dataset names of the current user from the active OMERO
      * instance.
-     * @param project the project to retireve datasets from. 
+     * 
+     * @param project
+     *            the project to retireve datasets from.
      * @return an array of dataset names.
      */
-    public List<Dataset> getDatasets(Project project)
-    {
-        List<Dataset> l = iQuery.findAllByQuery(
-                "from Dataset where id in " +
-                "(select link.child.id from ProjectDatasetLink link where " +
-                "link.parent.id = :id)", new Parameters().addId(project.getId()));
-       return (List<Dataset>) l;
-       
-       // Use this for M3 build till it gets fixed if this is needed.
-       //return new ArrayList();
+    public List<Dataset> getDatasets(Project project) {
+        List<Dataset> l = iQuery.findAllByQuery("from Dataset where id in "
+                + "(select link.child.id from ProjectDatasetLink link where "
+                + "link.parent.id = :id)", new Parameters().addId(project
+                .getId()));
+        return l;
+
+        // Use this for M3 build till it gets fixed if this is needed.
+        // return new ArrayList();
     }
 
     /**
@@ -715,50 +709,43 @@ public class OMEROMetadataStore implements MetadataStore
      * 
      * @return an array of dataset names.
      */
-    public List<Project> getProjects()
-    {
+    public List<Project> getProjects() {
         List<Project> l = iQuery.findAllByQuery(
-                "from Project as p left join fetch p.datasetLinks " +
-                "where p.details.owner.id = :id", 
-                new Parameters().addId(exp.getId()));
-        return (List<Project>) l;
+                "from Project as p left join fetch p.datasetLinks "
+                        + "where p.details.owner.id = :id", new Parameters()
+                        .addId(exp.getId()));
+        return l;
     }
-    
-    
+
     /**
      * Saves the current <i>root</i> pixelsList to the database.
      * 
      * @return the pixelsList set saved.
      */
-    public ArrayList<Pixels> saveToDB()
-    {
+    public ArrayList<Pixels> saveToDB() {
         IUpdate update = sf.getUpdateService();
-        Pixels[] pixelsArray = pixelsList.toArray(new Pixels[pixelsList.size()]);
+        Pixels[] pixelsArray = pixelsList
+                .toArray(new Pixels[pixelsList.size()]);
         IObject[] o = update.saveAndReturnArray(pixelsArray);
-        //update.saveArray(pixelsArray);
-        ///throw new RuntimeException("blarg");
-        for (int i = 0; i < o.length; i++)
-        {
+        // update.saveArray(pixelsArray);
+        // /throw new RuntimeException("blarg");
+        for (int i = 0; i < o.length; i++) {
             pixelsList.set(i, (Pixels) o[i]);
         }
         return pixelsList;
-        
+
     }
-    
-    public ServiceFactory getSF()
-    {
+
+    public ServiceFactory getSF() {
         return sf;
     }
 
-    public IUpdate getIUpdate()
-    {
+    public IUpdate getIUpdate() {
         return iUpdate;
     }
-    
-    public void setOriginalFiles(File[] files)
-    {
-        for (File file: files)
-        {
+
+    public void setOriginalFiles(File[] files) {
+        for (File file : files) {
             Format f = iQuery.findByString(Format.class, "value", "DV");
             OriginalFile oFile = new OriginalFile();
             oFile.setName(file.getName());
@@ -766,232 +753,258 @@ public class OMEROMetadataStore implements MetadataStore
             oFile.setSize(file.length());
             oFile.setSha1("pending");
             oFile.setFormat(f);
-            for (Pixels pixels:pixelsList)
-            {
+            for (Pixels pixels : pixelsList) {
                 pixels.linkOriginalFile(oFile);
             }
         }
     }
-    
-    public void writeFilesToFileStore(File[] files, long pixelsId)
-    {
-        try
-        {
-            for (File file : files)
-            {
+
+    public void writeFilesToFileStore(File[] files, long pixelsId) {
+        try {
+            for (File file : files) {
                 Parameters p = new Parameters();
                 p.addId(pixelsId);
                 p.addString("path", file.getAbsolutePath());
-                OriginalFile o = iQuery.findByQuery(
-                        "select ofile from OriginalFile as ofile left join " +
-                        "ofile.pixelsFileMaps as pfm left join pfm.child as child " +
-                        "where child.id = :id and ofile.path =:path", p);
-                
-                if (o == null) throw 
-                    new FileNotFoundException("Unable to look up originalFile");
-                
+                OriginalFile o = iQuery
+                        .findByQuery(
+                                "select ofile from OriginalFile as ofile left join "
+                                        + "ofile.pixelsFileMaps as pfm left join pfm.child as child "
+                                        + "where child.id = :id and ofile.path =:path",
+                                p);
+
+                if (o == null) {
+                    throw new FileNotFoundException(
+                            "Unable to look up originalFile");
+                }
+
                 rawFileStore.setFileId(o.getId());
-                
-                byte[] buf = new byte[262144];            
+
+                byte[] buf = new byte[262144];
                 FileInputStream stream = new FileInputStream(file);
 
                 long time = System.currentTimeMillis();
                 long pos = 0;
                 int rlen;
-                while((rlen = stream.read(buf)) > 0)
-                {
+                while ((rlen = stream.read(buf)) > 0) {
                     rawFileStore.write(buf, pos, rlen);
                     pos += rlen;
                     ByteBuffer nioBuffer = ByteBuffer.wrap(buf);
                     nioBuffer.limit(rlen);
                 }
             }
-            
-        } catch (Exception e)
-        {
-            e.printStackTrace();   
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-           
+
     }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setArc(java.lang.String, java.lang.Float, java.lang.Integer, java.lang.Integer)
-	 */
-	public void setArc(String type, Float power, Integer lightNdx,
-	                   Integer arcNdx)
-	{
-		// TODO: Unsupported.
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see loci.formats.MetadataStore#setArc(java.lang.String, java.lang.Float,
+     *      java.lang.Integer, java.lang.Integer)
+     */
+    public void setArc(String type, Float power, Integer lightNdx,
+            Integer arcNdx) {
+        // TODO: Unsupported.
+    }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see loci.formats.MetadataStore#setDetector(java.lang.String,
+     *      java.lang.String, java.lang.String, java.lang.String,
+     *      java.lang.Float, java.lang.Float, java.lang.Float,
+     *      java.lang.Integer, java.lang.Integer)
+     */
+    public void setDetector(String manufacturer, String model,
+            String serialNumber, String type, Float gain, Float voltage,
+            Float offset, Integer instrumentNdx, Integer detectorNdx) {
+        // TODO: Unsupported.
+    }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see loci.formats.MetadataStore#setDichroic(java.lang.String,
+     *      java.lang.String, java.lang.String, java.lang.Integer)
+     */
+    public void setDichroic(String manufacturer, String model,
+            String lotNumber, Integer dichroicNdx) {
+        // TODO: Unsupported.
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setDetector(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Float, java.lang.Float, java.lang.Float, java.lang.Integer, java.lang.Integer)
-	 */
-	public void setDetector(String manufacturer, String model,
-	                        String serialNumber, String type, Float gain,
-	                        Float voltage, Float offset, Integer instrumentNdx,
-	                        Integer detectorNdx)
-	{
-		// TODO: Unsupported.
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see loci.formats.MetadataStore#setDisplayChannel(java.lang.Integer,
+     *      java.lang.Double, java.lang.Double, java.lang.Float,
+     *      java.lang.Integer)
+     */
+    public void setDisplayChannel(Integer channelNumber, Double blackLevel,
+            Double whiteLevel, Float gamma, Integer i) {
+        // TODO: Unsupported.
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setDichroic(java.lang.String, java.lang.String, java.lang.String, java.lang.Integer)
-	 */
-	public void setDichroic(String manufacturer, String model, String lotNumber,
-	                        Integer dichroicNdx)
-	{
-		// TODO: Unsupported.
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see loci.formats.MetadataStore#setDisplayOptions(java.lang.Float,
+     *      java.lang.Boolean, java.lang.Boolean, java.lang.Boolean,
+     *      java.lang.Boolean, java.lang.String, java.lang.Integer,
+     *      java.lang.Integer, java.lang.Integer, java.lang.Integer,
+     *      java.lang.Integer, java.lang.Integer, java.lang.Integer,
+     *      java.lang.Integer, java.lang.Integer, java.lang.Integer)
+     */
+    public void setDisplayOptions(Float zoom, Boolean redChannelOn,
+            Boolean greenChannelOn, Boolean blueChannelOn, Boolean displayRGB,
+            String colorMap, Integer zstart, Integer zstop, Integer tstart,
+            Integer tstop, Integer imageNdx, Integer pixelsNdx,
+            Integer redChannel, Integer greenChannel, Integer blueChannel,
+            Integer grayChannel) {
+        // TODO: Unsupported.
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setDisplayChannel(java.lang.Integer, java.lang.Double, java.lang.Double, java.lang.Float, java.lang.Integer)
-	 */
-	public void setDisplayChannel(Integer channelNumber, Double blackLevel,
-			                      Double whiteLevel, Float gamma, Integer i)
-	{
-		// TODO: Unsupported.
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see loci.formats.MetadataStore#setEmissionFilter(java.lang.String,
+     *      java.lang.String, java.lang.String, java.lang.String,
+     *      java.lang.Integer)
+     */
+    public void setEmissionFilter(String manufacturer, String model,
+            String lotNumber, String type, Integer filterNdx) {
+        // TODO: Unsupported.
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setDisplayOptions(java.lang.Float, java.lang.Boolean, java.lang.Boolean, java.lang.Boolean, java.lang.Boolean, java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
-	 */
-	public void setDisplayOptions(Float zoom, Boolean redChannelOn,
-	                              Boolean greenChannelOn, Boolean blueChannelOn,
-	                              Boolean displayRGB, String colorMap,
-	                              Integer zstart, Integer zstop, Integer tstart,
-	                              Integer tstop, Integer imageNdx,
-	                              Integer pixelsNdx, Integer redChannel,
-	                              Integer greenChannel, Integer blueChannel,
-	                              Integer grayChannel)
-	{
-		// TODO: Unsupported.
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see loci.formats.MetadataStore#setExcitationFilter(java.lang.String,
+     *      java.lang.String, java.lang.String, java.lang.String,
+     *      java.lang.Integer)
+     */
+    public void setExcitationFilter(String manufacturer, String model,
+            String lotNumber, String type, Integer filterNdx) {
+        // TODO: Unsupported.
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setEmissionFilter(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Integer)
-	 */
-	public void setEmissionFilter(String manufacturer, String model,
-			                      String lotNumber, String type,
-			                      Integer filterNdx)
-	{
-		// TODO: Unsupported.
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see loci.formats.MetadataStore#setFilament(java.lang.String,
+     *      java.lang.Float, java.lang.Integer, java.lang.Integer)
+     */
+    public void setFilament(String type, Float power, Integer lightNdx,
+            Integer filamentNdx) {
+        // TODO: Unsupported.
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setExcitationFilter(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Integer)
-	 */
-	public void setExcitationFilter(String manufacturer, String model,
-			                        String lotNumber, String type,
-			                        Integer filterNdx)
-	{
-		// TODO: Unsupported.
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see loci.formats.MetadataStore#setFilterSet(java.lang.String,
+     *      java.lang.String, java.lang.String, java.lang.Integer,
+     *      java.lang.Integer)
+     */
+    public void setFilterSet(String manufacturer, String model,
+            String lotNumber, Integer filterSetNdx, Integer filterNdx) {
+        // TODO: Unsupported.
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setFilament(java.lang.String, java.lang.Float, java.lang.Integer, java.lang.Integer)
-	 */
-	public void setFilament(String type, Float power, Integer lightNdx,
-			                Integer filamentNdx)
-	{
-		// TODO: Unsupported.
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see loci.formats.MetadataStore#setImagingEnvironment(java.lang.Float,
+     *      java.lang.Float, java.lang.Float, java.lang.Float,
+     *      java.lang.Integer)
+     */
+    public void setImagingEnvironment(Float temperature, Float airPressure,
+            Float humidity, Float co2Percent, Integer i) {
+        // TODO: Unsupported.
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setFilterSet(java.lang.String, java.lang.String, java.lang.String, java.lang.Integer, java.lang.Integer)
-	 */
-	public void setFilterSet(String manufacturer, String model,
-			                 String lotNumber, Integer filterSetNdx,
-			                 Integer filterNdx)
-	{
-		// TODO: Unsupported.
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see loci.formats.MetadataStore#setLaser(java.lang.String,
+     *      java.lang.String, java.lang.Integer, java.lang.Boolean,
+     *      java.lang.Boolean, java.lang.String, java.lang.Float,
+     *      java.lang.Integer, java.lang.Integer, java.lang.Integer,
+     *      java.lang.Integer)
+     */
+    public void setLaser(String type, String medium, Integer wavelength,
+            Boolean frequencyDoubled, Boolean tunable, String pulse,
+            Float power, Integer instrumentNdx, Integer lightNdx,
+            Integer pumpNdx, Integer laserNdx) {
+        // TODO: Unsupported.
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setImagingEnvironment(java.lang.Float, java.lang.Float, java.lang.Float, java.lang.Float, java.lang.Integer)
-	 */
-	public void setImagingEnvironment(Float temperature, Float airPressure,
-			                          Float humidity, Float co2Percent,
-			                          Integer i)
-	{
-		// TODO: Unsupported.
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see loci.formats.MetadataStore#setLightSource(java.lang.String,
+     *      java.lang.String, java.lang.String, java.lang.Integer,
+     *      java.lang.Integer)
+     */
+    public void setLightSource(String manufacturer, String model,
+            String serialNumber, Integer instrumentIndex, Integer lightIndex) {
+        // TODO: Unsupported.
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setLaser(java.lang.String, java.lang.String, java.lang.Integer, java.lang.Boolean, java.lang.Boolean, java.lang.String, java.lang.Float, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
-	 */
-	public void setLaser(String type, String medium, Integer wavelength,
-			             Boolean frequencyDoubled, Boolean tunable,
-			             String pulse, Float power, Integer instrumentNdx,
-			             Integer lightNdx, Integer pumpNdx, Integer laserNdx)
-	{
-		// TODO: Unsupported.
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see loci.formats.MetadataStore#setOTF(java.lang.Integer,
+     *      java.lang.Integer, java.lang.String, java.lang.String,
+     *      java.lang.Boolean, java.lang.Integer, java.lang.Integer,
+     *      java.lang.Integer, java.lang.Integer)
+     */
+    public void setOTF(Integer sizeX, Integer sizeY, String pixelType,
+            String path, Boolean opticalAxisAverage, Integer instrumentNdx,
+            Integer otfNdx, Integer filterNdx, Integer objectiveNdx) {
+        // TODO: Unsupported.
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setLightSource(java.lang.String, java.lang.String, java.lang.String, java.lang.Integer, java.lang.Integer)
-	 */
-	public void setLightSource(String manufacturer, String model,
-			                   String serialNumber, Integer instrumentIndex,
-			                   Integer lightIndex)
-	{
-		// TODO: Unsupported.
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see loci.formats.MetadataStore#setObjective(java.lang.String,
+     *      java.lang.String, java.lang.String, java.lang.Float,
+     *      java.lang.Float, java.lang.Integer, java.lang.Integer)
+     */
+    public void setObjective(String manufacturer, String model,
+            String serialNumber, Float lensNA, Float magnification,
+            Integer instrumentNdx, Integer objectiveNdx) {
+        // TODO: Unsupported.
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setOTF(java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String, java.lang.Boolean, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
-	 */
-	public void setOTF(Integer sizeX, Integer sizeY, String pixelType,
-			           String path, Boolean opticalAxisAverage,
-			           Integer instrumentNdx, Integer otfNdx, Integer filterNdx,
-			           Integer objectiveNdx)
-	{
-		// TODO: Unsupported.
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setObjective(java.lang.String, java.lang.String, java.lang.String, java.lang.Float, java.lang.Float, java.lang.Integer, java.lang.Integer)
-	 */
-	public void setObjective(String manufacturer, String model,
-			                 String serialNumber, Float lensNA,
-			                 Float magnification, Integer instrumentNdx,
-			                 Integer objectiveNdx)
-	{
-		// TODO: Unsupported.
-	}
-
-
-
-	/**
-     * Check the MinMax values stored in the DB and sync them with the new values
-     * we generate in the channelMinMax reader, then save them to the DB. 
-     * We could trust that the values are in the right order, but this just 
+    /**
+     * Check the MinMax values stored in the DB and sync them with the new
+     * values we generate in the channelMinMax reader, then save them to the DB.
+     * We could trust that the values are in the right order, but this just
      * makes sure.
-	 * @param id
-	 */
-	public void populateMinMax(Long id, Integer i)
-    {
+     * 
+     * @param id
+     */
+    public void populateMinMax(Long id, Integer i) {
         Pixels p = iQuery.findByQuery(
-                "select p from Pixels as p left join fetch p.channels " +
-                "where p.id = :id", new Parameters().addId(id));
-        List<Channel> channels = p.getChannels();
-        List<Channel> readerChannels = getPixels(i).getChannels();
-        
-        for (int j=0; j < channels.size(); j++)
-        {
-            channels.get(j).setStatsInfo(readerChannels.get(j).getStatsInfo());
+                "select p from Pixels as p left join fetch p.channels "
+                        + "where p.id = :id", new Parameters().addId(id));
+
+        for (int j = 0; j < p.sizeOfChannels(); j++) {
+            p.getChannel(j).setStatsInfo(
+                    getPixels(i).getChannel(j).getStatsInfo());
         }
         iUpdate.saveObject(p);
     }
-    
-    public IRepositoryInfo getRepositoryInfo()
-    {
+
+    public IRepositoryInfo getRepositoryInfo() {
         return iInfo;
     }
-    
-    public long getRepositorySpace()
-    {
+
+    public long getRepositorySpace() {
         return iInfo.getFreeSpaceInKilobytes();
     }
 }

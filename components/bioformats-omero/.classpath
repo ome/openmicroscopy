@@ -20,5 +20,8 @@
 	<classpathentry kind="lib" path="lib/commons-httpclient-3.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/common-3.0-TRUNK.jar"/>
 	<classpathentry kind="lib" path="lib/client-3.0-TRUNK.jar"/>
+	<classpathentry kind="lib" path="target/libs/bio-formats.jar"/>
+	<classpathentry kind="lib" path="target/libs/ome-java.jar"/>
+	<classpathentry kind="lib" path="target/libs/testng.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
