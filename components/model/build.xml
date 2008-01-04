@@ -45,10 +45,14 @@
 	</target>
 
 	<target name="dsl" depends="dsl-init" unless="dsl.not.required">
-		<dsl destdir="${target.dir}/generated/">
-			<fileset dir="${resrc.dir}">
-				<include name="${dsl.pat}"/>
-			</fileset>
+		<dsl template="ome/dsl/object.vm" filepattern="${src.dest}/{package-dir}/{class-name}.java">
+			<fileset dir="${resrc.dir}" includes="${dsl.pat}"/>
+		</dsl>
+		<dsl template="ome/dsl/cfg.vm" filepattern="${resrc.dest}/hibernate.cfg.xml">
+			<fileset dir="${resrc.dir}" includes="${dsl.pat}"/>
+		</dsl>
+		<dsl template="ome/dsl/data.vm" filepattern="${resrc.dest}/data.sql">
+			<fileset dir="${resrc.dir}" includes="${dsl.pat}"/>
 		</dsl>
 		<done name="dsl"/>
 		<delete>

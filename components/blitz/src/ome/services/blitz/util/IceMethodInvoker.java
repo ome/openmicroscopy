@@ -19,9 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ome.api.ModelBased;
 import ome.api.ServiceInterface;
 import ome.model.IObject;
+import ome.model.ModelBased;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.system.EventContext;

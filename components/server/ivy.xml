@@ -31,7 +31,6 @@
     <dependency org="eclipse" name="jdtcore" rev="3.1.0" conf="build->default"/>
     <dependency org="jamon" name="jamon" rev="1.0" conf="build->default"/>
     <dependency org="jmock" name="jmock" rev="1.0.1" conf="build->default"/>
-    <dependency org="ldap" name="ldaptemplate" rev="1.0.2" conf="build->default"/>
     <dependency org="omero" name="jbosssx" rev="${versions.jboss}" conf="build->default"/>
     <dependency org="omero" name="jboss-ejb3x" rev="${versions.jboss}" conf="build->default"/>
     <dependency org="omero" name="jboss-annotations-ejb3" rev="${versions.jboss}" conf="build->default"/>

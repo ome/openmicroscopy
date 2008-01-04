@@ -47,22 +47,18 @@ public class IceMap {
 
 	static {
 #macro(put $longtype $shorttype)
-#if(!$pojo.classModifiers.contains("abstract"))
+#if(!$type.abstract)
 
 		_ome2omero.put(${longtype}.class,omero.model.${shorttype}I.class);
 		_omero2ome.put(omero.model.${shorttype}.class,${longtype}.class);
 		_omero2ome.put(omero.model.${shorttype}I.class,${longtype}.class);
 #end
 #end
-#foreach($pojo in $c2j.getPOJOIterator( $cfg.getClassMappings() ))
-#put($pojo.qualifiedDeclarationName $pojo.declarationName)
-#foreach($property in $pojo.allPropertiesIterator)
-#if($c2j.isComponent($property))
-#set($component = $c2j.getPOJOClass($property.getValue()))
-#put($component.qualifiedDeclarationName $component.declarationName)
+#foreach($type in $types)
+#put($type.id $type.shortname)
 #end
-#end 
-#end
+#put("ome.model.internal.Details" "Details")
+#put("ome.model.internal.Permissions" "Permissions")
 		OMEtoOMERO = Collections.unmodifiableMap(_ome2omero);
 		OMEROtoOME = Collections.unmodifiableMap(_omero2ome);
 	}

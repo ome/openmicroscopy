@@ -48,17 +48,10 @@ public abstract class ObjectFactoryRegistrar {
    */
   public static void registerObjectFactory(Ice.Communicator ic, Ice.ObjectFactory _factory) {
     conditionalAdd("::omero::model::Permissions", ic, _factory);
-#foreach($pojo in $c2j.getPOJOIterator( $cfg.getClassMappings() ))
-#if(!$pojo.classModifiers.contains("abstract"))
-    conditionalAdd("::omero::model::${pojo.declarationName}", ic,  _factory);
-#end
-#foreach($property in $pojo.allPropertiesIterator)
-#if($c2j.isComponent($property))
-#set($component = $c2j.getPOJOClass($property.getValue()))
-#if(!$pojo.classModifiers.contains("abstract"))
-    conditionalAdd("::omero::model::${component.declarationName}", ic, _factory);
-#end
-#end
+    conditionalAdd("::omero::model::Details", ic, _factory);
+#foreach($type in $types)
+#if(!$type.abstract)
+    conditionalAdd("::omero::model::${type.shortname}", ic,  _factory);
 #end
 #end
   }
@@ -71,19 +64,12 @@ public abstract class ObjectFactoryRegistrar {
       throw new IllegalArgumentException("Type argument is required.");
     } else if (type.equals("::omero::model::Permissions")) {
         return new omero.model.PermissionsI();  
-#foreach($pojo in $c2j.getPOJOIterator( $cfg.getClassMappings() ))
-#if(!$pojo.classModifiers.contains("abstract"))
-    } else if (type.equals("::omero::model::${pojo.declarationName}")) {
-      return new omero.model.${pojo.declarationName}I();
-#end
-#foreach($property in $pojo.allPropertiesIterator)
-#if($c2j.isComponent($property))
-#set($component = $c2j.getPOJOClass($property.getValue()))
-#if(!$component.classModifiers.contains("abstract"))
-    } else if (type.equals("::omero::model::${component.declarationName}")) {
-      return new omero.model.${component.declarationName}I();
-#end
-#end
+    } else if (type.equals("::omero::model::Details")) {
+        return new omero.model.DetailsI();  
+#foreach($type in $types)
+#if(!$type.abstract)
+    } else if (type.equals("::omero::model::${type.shortname}")) {
+      return new omero.model.${type.shortname}I();
 #end
 #end
     } else {

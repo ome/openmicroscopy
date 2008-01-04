@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.api.IPojos;
-import ome.api.ModelBased;
+import ome.model.ModelBased;
 import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.system.Roles;

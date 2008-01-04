@@ -15,7 +15,7 @@ package omero.model;
 
 public class DetailsI 
   extends Details 
-  implements ome.api.ModelBased 
+  implements ome.model.ModelBased 
 
 { 
 
@@ -96,13 +96,13 @@ public class DetailsI
 
      public ome.util.Filterable fillObject(ome.util.ReverseModelMapper _mapper) {
         omero.util.IceMapper mapper = (omero.util.IceMapper) _mapper;
-	ome.model.internal.Details target = new ome.model.internal.Details();
+        ome.model.internal.Details target = ome.model.internal.Details.create();
         mapper.store(this, target);
-        target.putAt(ome.model.internal.Details.OWNER, (ome.model.meta.Experimenter) mapper.reverse( (ome.api.ModelBased) this.getOwner() ) );
-        target.putAt(ome.model.internal.Details.GROUP, (ome.model.meta.ExperimenterGroup) mapper.reverse( (ome.api.ModelBased) this.getGroup() ) );
-        target.putAt(ome.model.internal.Details.CREATIONEVENT, (ome.model.meta.Event) mapper.reverse( (ome.api.ModelBased) this.getCreationEvent() ) );
-        target.putAt(ome.model.internal.Details.UPDATEEVENT, (ome.model.meta.Event) mapper.reverse( (ome.api.ModelBased) this.getUpdateEvent() ) );
-        target.putAt(ome.model.internal.Details.EXTERNALINFO, (ome.model.meta.ExternalInfo) mapper.reverse( (ome.api.ModelBased) this.getExternalInfo() ) );
+        target.putAt(ome.model.internal.Details.OWNER, (ome.model.meta.Experimenter) mapper.reverse( (ome.model.ModelBased) this.getOwner() ) );
+        target.putAt(ome.model.internal.Details.GROUP, (ome.model.meta.ExperimenterGroup) mapper.reverse( (ome.model.ModelBased) this.getGroup() ) );
+        target.putAt(ome.model.internal.Details.CREATIONEVENT, (ome.model.meta.Event) mapper.reverse( (ome.model.ModelBased) this.getCreationEvent() ) );
+        target.putAt(ome.model.internal.Details.UPDATEEVENT, (ome.model.meta.Event) mapper.reverse( (ome.model.ModelBased) this.getUpdateEvent() ) );
+        target.putAt(ome.model.internal.Details.EXTERNALINFO, (ome.model.meta.ExternalInfo) mapper.reverse( (ome.model.ModelBased) this.getExternalInfo() ) );
         PermissionsI sourceP = this.getPermissions();
         target.putAt(ome.model.internal.Details.PERMISSIONS, sourceP==null?new ome.model.internal.Permissions():ome.util.Utils.toPermissions(sourceP.getPerm1()));
         return target;

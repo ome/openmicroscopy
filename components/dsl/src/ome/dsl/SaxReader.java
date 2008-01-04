@@ -159,7 +159,7 @@ class DSLHandler extends DefaultHandler {
         } else if ("types".equals(element)) {
             // also ok.
         } else {
-            log.warn("Deprecated: In the future elements of type " + element
+            log.debug("Deprecated: In the future elements of type " + element
                     + " will be considered an error.");
         }
 
@@ -301,6 +301,19 @@ class DSLHandler extends DefaultHandler {
                         link.setBidirectional(Boolean.FALSE);
                     }
                 }
+            }
+        }
+
+        /*
+         * Final post-processing step. Each semantic type should be given it's
+         * finalized superclass instance.
+         */
+        for (String id : types.keySet()) {
+            SemanticType t = types.get(id);
+            String superclass = t.getSuperclass();
+            if (superclass != null) {
+                SemanticType s = types.get(superclass);
+                t.setActualSuperClass(s);
             }
         }
 

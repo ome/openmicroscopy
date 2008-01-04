@@ -36,6 +36,7 @@
 	
 	<!-- Components -->
 	<property name="dsl.comp"       value="${components.dir}/dsl"/>
+	<property name="model.comp"     value="${components.dir}/model"/>
 	<property name="common.comp"    value="${components.dir}/common"/>
 	<property name="server.comp"    value="${components.dir}/server"/>
 	<property name="nio.comp"       value="${components.dir}/romio"/>

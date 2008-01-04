@@ -74,7 +74,7 @@ public abstract class SemanticType {
     private String table;
 
     /** optional item */
-    private String superclass;
+    private SemanticType superclass;
 
     private String discriminator;
 
@@ -221,12 +221,25 @@ public abstract class SemanticType {
         return table;
     }
 
+    /*
+     * Here the finalized ST instance is passed back into this object by the
+     * post-processing step for calculating property closures and similar.
+     */
+    public void setActualSuperClass(SemanticType st) {
+        this.superclass = st;
+    }
+
     public void setSuperclass(String superclass) {
-        this.superclass = superclass;
+        if (superclass != null) {
+            Properties p = new Properties();
+            p.setProperty("id", superclass);
+            this.superclass = new SemanticType(p) {
+            };
+        }
     }
 
     public String getSuperclass() {
-        return superclass;
+        return superclass == null ? null : superclass.getId();
     }
 
     public void setDiscriminator(String discriminator) {
@@ -280,6 +293,21 @@ public abstract class SemanticType {
             if (!(property instanceof EntryField)) {
                 rv.add(property);
             }
+        }
+        return rv;
+    }
+
+    /**
+     * Read-only method which returns a set of this class's
+     * {@link #getClassProperties()} as well as those of the entire inheritance
+     * hierarchy.
+     * 
+     * @return
+     */
+    public List<Property> getPropertyClosure() {
+        List<Property> rv = getClassProperties();
+        if (superclass != null) {
+            rv.addAll(superclass.getPropertyClosure());
         }
         return rv;
     }

@@ -8,16 +8,16 @@ package ome.dsl;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Project;
@@ -40,12 +40,30 @@ import org.springframework.util.ResourceUtils;
  */
 public class DSLTask extends Task {
 
-    private final List _fileSets = new ArrayList();
+    public final static String PKG_PLACEHOLDER = "{package-dir}";
 
-    private File _outputDir;
+    public final static String CLS_PLACEHOLDER = "{class-name}";
 
-    public void setDestdir(File dir) {
-        _outputDir = dir;
+    private final List<FileSet> _fileSets = new ArrayList<FileSet>();
+
+    private String _filepattern;
+
+    private String _template;
+
+    private boolean singleType = false;
+
+    public void setFilepattern(String filepattern) {
+        _filepattern = filepattern;
+        if (_filepattern.contains(CLS_PLACEHOLDER)) {
+            singleType = true;
+        }
+    }
+
+    public void setTemplate(String template) {
+        _template = template;
+        if (_template == null) {
+            throw new BuildException("Template cannot be null");
+        }
     }
 
     public void addFileset(FileSet fileSet) {
@@ -61,9 +79,9 @@ public class DSLTask extends Task {
         List<SemanticType> types;
         DSLHandler handler = new DSLHandler();
 
-        java.util.Iterator p = _fileSets.iterator();
+        java.util.Iterator<FileSet> p = _fileSets.iterator();
         while (p.hasNext()) {
-            FileSet fileset = (FileSet) p.next();
+            FileSet fileset = p.next();
             DirectoryScanner scanner = fileset
                     .getDirectoryScanner(getProject());
             scanner.scan();
@@ -83,79 +101,108 @@ public class DSLTask extends Task {
 
         types = handler.process();
 
-        for (Iterator it = types.iterator(); it.hasNext();) {
-            SemanticType st = (SemanticType) it.next();
-            VelocityHelper vh = new VelocityHelper();
-            vh.put("type", st);
-            List<String> extraLines = new ArrayList<String>();
-            Log log = LogFactory.getLog(this.getClass());
-            try {
+        if (singleType) {
+            for (Iterator<SemanticType> it = types.iterator(); it.hasNext();) {
+                SemanticType st = it.next();
                 try {
-                    log.info(System.getProperties().getProperty(
-                            "java.classpath"));
-                    File extra = ResourceUtils.getFile("classpath:ome/extra/"
-                            + st.getId());
-                    log.warn(extra.toString());
-                    if (extra.canRead()) {
-                        vh.put("extra", fileAsString(extra));
-                        log.warn(fileAsString(extra));
-                    }
-                    log.warn("XXX");
-                } catch (FileNotFoundException fnfe) {
-                    // ok
-                    log.warn(fnfe.toString());
+                    VelocityHelper vh = new VelocityHelper();
+                    vh.put("type", st);
+                    String className = st.getShortname();
+                    String packageName = st.getId();
+                    packageName = packageName.substring(0, packageName
+                            .lastIndexOf("."));
+                    packageName = packageName.replaceAll("[.]", File.separator);
+
+                    String target = _filepattern;
+                    target = target.replace(CLS_PLACEHOLDER, className);
+                    target = target.replace(PKG_PLACEHOLDER, packageName);
+
+                    writeToFile(vh, new File(target), _template);
+                } catch (Exception e) {
+                    throw new BuildException("Error while writing type:" + st,
+                            e);
                 }
-            } catch (Exception e) {
-                throw new BuildException("Error while loading extra code", e);
             }
+        } else {
+            VelocityHelper vhData = new VelocityHelper();
+            vhData.put("types", types);
             try {
-                String file = _outputDir + File.separator + "src"
-                        + File.separator
-                        + st.getId().replaceAll("[.]", "\\" + File.separator)
-                        + ".java";
-                writeToFile(vh, file, "ome/dsl/object.vm");
+                writeToFile(vhData, new File(_filepattern), _template);
             } catch (Exception e) {
-                throw new BuildException("Error while writing type:" + st, e);
+                throw new BuildException("Error while generating for template:"
+                        + _template, e);
             }
         }
 
-        VelocityHelper vhData = new VelocityHelper();
-        vhData.put("types", types);
-        try {
-            String file = _outputDir + File.separator + "resources"
-                    + File.separator + "data.sql";
-            writeToFile(vhData, file, "ome/dsl/data.vm");
-        } catch (Exception e) {
-            throw new BuildException("Error while writing data:", e);
-        }
-
-        VelocityHelper vhCfg = new VelocityHelper();
-        vhCfg.put("types", types);
-        try {
-            String file = _outputDir + File.separator + "resources"
-                    + File.separator + "hibernate.cfg.xml";
-            writeToFile(vhCfg, file, "ome/dsl/cfg.vm");
-        } catch (Exception e) {
-            throw new BuildException("Error while writing cfg:", e);
-        }
-
     }
 
-    private void writeToFile(VelocityHelper vh, String file, String template)
+    InputStream getStream(String str) {
+        InputStream in = null;
+        try {
+            in = this.getClass().getClassLoader().getResourceAsStream(str);
+        } catch (Exception e) {
+            // ok
+        }
+
+        if (in == null) {
+
+            try {
+                File file = new File(str);
+                in = new FileInputStream(file);
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+
+        if (in == null) {
+            try {
+                URL url = ResourceUtils.getURL(str);
+                in = url.openStream();
+            } catch (Exception e) {
+                // ok
+            }
+        }
+
+        return in;
+    }
+
+    private void writeToFile(VelocityHelper vh, File file, String template)
             throws IOException {
-        mkdir(file);
-        FileWriter fw = new FileWriter(file);
-        vh.invoke(template, fw);
-        fw.flush();
-        fw.close();
+
+        InputStream in;
+        in = getStream(template);
+        if (in == null) {
+            in = getStream("classpath:" + template);
+        }
+        if (in == null) {
+            throw new BuildException("Cannot resolve template:" + template);
+        }
+
+        FileWriter fw = null;
+
+        try {
+            mkdir(file);
+            fw = new FileWriter(file);
+            vh.invoke(in, fw);
+        } finally {
+            try {
+                if (fw != null) {
+                    fw.flush();
+                    fw.close();
+                }
+            } finally {
+                if (in != null) {
+                    in.close();
+                }
+            }
+        }
     }
 
-    void mkdir(String file) {
+    void mkdir(File file) {
         Mkdir mkdir = new Mkdir();
         mkdir.setProject(new Project());
         mkdir.setOwningTarget(new Target());
-        mkdir.setDir(new File(file.substring(0, file
-                .lastIndexOf(File.separator))));
+        mkdir.setDir(new File(file.getParent()));
         mkdir.execute();
 
     }

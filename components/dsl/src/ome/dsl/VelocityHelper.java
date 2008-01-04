@@ -8,12 +8,11 @@
 package ome.dsl;
 
 // Java imports
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.io.Writer;
-// Third-party libraries
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
@@ -33,9 +32,9 @@ public class VelocityHelper {
 
     private String macros;
 
-    private VelocityEngine ve = new VelocityEngine();
+    private final VelocityEngine ve = new VelocityEngine();
 
-    private VelocityContext vc = new VelocityContext();
+    private final VelocityContext vc = new VelocityContext();
 
     /** setups up a VelocityEngine with no macros file */
     public VelocityHelper() {
@@ -70,23 +69,16 @@ public class VelocityHelper {
     }
 
     /** parses the given template and returns the results as a String */
-    public String invoke(String template) {
+    public String invoke(InputStream template) {
         StringWriter sw = new StringWriter();
         invoke(template, sw);
         return sw.toString();
     }
 
     /** parses the given template and writes the results to Writer */
-    public void invoke(String template, Writer w) {
+    public void invoke(InputStream template, Writer w) {
         try {
-            InputStream in = VelocityHelper.class.getClassLoader()
-                    .getResourceAsStream(template);
-
-            if (null == in) {
-                throw new FileNotFoundException(template);
-            }
-
-            InputStreamReader r = new InputStreamReader(in);
+            InputStreamReader r = new InputStreamReader(template);
             ve.evaluate(vc, w, "Running template: " + template, r);
         } catch (Exception e) {
             throw new RuntimeException("Error invoking Velocity template:"

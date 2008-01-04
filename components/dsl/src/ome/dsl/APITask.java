@@ -6,18 +6,6 @@
  */
 package ome.dsl;
 
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.DirectoryScanner;
-import org.apache.tools.ant.Task;
-import org.apache.tools.ant.types.FileSet;
-
-import com.thoughtworks.qdox.JavaDocBuilder;
-import com.thoughtworks.qdox.model.DocletTag;
-import com.thoughtworks.qdox.model.JavaClass;
-import com.thoughtworks.qdox.model.JavaSource;
-
-import ome.dsl.VelocityHelper;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -27,6 +15,16 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.DirectoryScanner;
+import org.apache.tools.ant.Task;
+import org.apache.tools.ant.types.FileSet;
+
+import com.thoughtworks.qdox.JavaDocBuilder;
+import com.thoughtworks.qdox.model.DocletTag;
+import com.thoughtworks.qdox.model.JavaClass;
+import com.thoughtworks.qdox.model.JavaSource;
 
 /**
  * An ant task for generating artifacts from the dsl. Example: <project ...>
@@ -39,7 +37,7 @@ import java.util.Set;
  */
 public class APITask extends Task {
 
-    private List _fileSets = new ArrayList();
+    private final List _fileSets = new ArrayList();
 
     private File _outputDir;
 
@@ -95,7 +93,7 @@ public class APITask extends Task {
                 FileWriter fw = new FileWriter(_outputDir + File.separator
                         + jclass.getFullyQualifiedName().replaceAll("[.]", "_")
                         + ".ice");
-                vh.invoke("ome/dsl/api.vm", fw);
+                vh.invoke(new File("ome/dsl/api.vm"), fw);
                 fw.flush();
                 fw.close();
             } catch (Exception e) {

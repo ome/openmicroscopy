@@ -1,4 +1,4 @@
-r*
+#*
  *   $Id$
  *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
@@ -22,7 +22,7 @@ classes.
 #set( $hdr = "hdr" )
 #set( $ice = "ice" )
 #set( $pyc = "pyc" )
-#if($pojo.classModifiers.contains("abstract"))
+#if($type.abstract)
 #set( $all = "abs" )
 #set( $jav = "abs" )
 #set( $cpp = "abs" )
@@ -44,7 +44,7 @@ Copyright notice added to all files:
 [$pyc] """
 
 VARIABLES:
-#set($Pojo  = "${pojo.declarationName}")
+#set($Pojo  = "${type.shortname}")
 #set($PojoI = "${Pojo}I")
 #set($POJO  = "${Pojo.toUpperCase()}")
 #set($POJOI = "${PojoI.toUpperCase()}")
@@ -57,21 +57,21 @@ DECLARATION BLOCK:
 [$hdr] #ifndef ${POJOI}_H
 [$hdr] #define ${POJOI}_H
 
-[$ice] \\\#include <omero/fwd.ice>
-[$ice] \\\#include <omero/IObject.ice>
-[$ice] \\\#include <omero/RTypes.ice>
-#if( $pojo.isSubclass() )
-#set( $parent = $pojo.extendsDeclaration.replaceFirst("extends.*ome.model..+?[.]","") )
-[$ice] \\\#include <omero/model/${parent}.ice>
+[$ice] \#include <omero/fwd.ice>
+[$ice] \#include <omero/IObject.ice>
+[$ice] \#include <omero/RTypes.ice>
+#if( $type.superclass )
+#set( $parent = $type.superclass.replaceFirst(".*ome.model..+?[.]","") )
+[$ice] \#include <omero/model/${parent}.ice>
 #set( $include = '\#include' )
 #set( $importModify = '.replaceAll("^","[ice]").replaceAll(".*java.*","").replaceAll("import.*[.](.*?);","$include <omero/model/$1.ice>") ' )
 $secondpassclassimports$importModify
-#end 
-[$hdr] \\\#include <omero/ClientErrors.h>
-[$hdr] \\\#include <omero/IObject.h>
-[$hdr] \\\#include <omero/model/DetailsI.h>
-[$hdr] \\\#include <omero/model/${Pojo}.h>
-[$hdr] \\\#include <omero/ModelI.h>
+#end
+[$hdr] \#include <omero/ClientErrors.h>
+[$hdr] \#include <omero/IObject.h>
+[$hdr] \#include <omero/model/DetailsI.h>
+[$hdr] \#include <omero/model/${Pojo}.h>
+[$hdr] \#include <omero/ModelI.h>
 
 [$ice] module omero {
 [$ice]   module model {
@@ -80,7 +80,7 @@ $secondpassclassimports$importModify
 [$jav] import  java.util.*;
 [$jav] import  ome.conditions.*;
 [$jav] public class ${PojoI} extends ${Pojo} 
-[$jav]    implements ome.api.ModelBased {
+[$jav]    implements ome.model.ModelBased {
 
 Note how the whitespace for the python definitions is important.
 [$pyc] import Ice
@@ -95,7 +95,7 @@ Note how the whitespace for the python definitions is important.
 [$hdr]   namespace model {
 [$hdr]     class ${PojoI} : virtual public ${Pojo} { 
 
-[$cpp] \\\#include <omero/model/${Pojo}I.h>
+[$cpp] \#include <omero/model/${Pojo}I.h>
 [$cpp] namespace omero { 
 [$cpp]   namespace model {
 
@@ -196,14 +196,13 @@ TOGGLE COLLECTIONS:
 [$hdr]       virtual void toggleCollectionsLoaded(bool load);
 [$cpp]    void ${PojoI}::toggleCollectionsLoaded(bool load) {
 [$pyc]       def toggleCollectionsLoaded(self,load):
-#foreach( $property in $pojo.propertyClosureForFullConstructor)
-#set(     $name = $pojo.getPropertyName($property))
-#set(     $javaType = $c2j.getJavaTypeName($property,false))##generics
-#set(     $seqName = "${Pojo}${name.substring(0,1).toUpperCase()}${name.substring(1,$name.length())}Seq" )## seqName copied from ice_defs.vm
-#set(     $genericType = $c2j.getJavaTypeName($property,true) )
-#if(      $genericType.contains("ome.model") )
-#set(     $genericType = $genericType.replaceFirst(".*<ome.model..+?[.]","omero::model::").replaceFirst(">.*","") )
-#end
+#foreach( $property in $type.classProperties)
+#set(     $PropertyName = $property.nameCapped )
+#set(     $javaType = $property.type)
+#set(     $seqName = "${Pojo}${PropertyName.substring(0,1).toUpperCase()}${PropertyName.substring(1,$PropertyName.length())}Seq" )## seqName copied from ice_defs.vm
+#set($genericType = $property.type)
+#set($genericType = $genericType.replaceFirst("ome.model..+?[.]","omero::model::"))
+#set($genericTypeC = "${genericType.replaceAll('[.]','::')}")
 
 Here we don't have to keep up with the type (set/list)
 since all collections are lists in ice.
@@ -211,8 +210,7 @@ since all collections are lists in ice.
 #if(      $fulltype.contains("byte[]"))
 [$ice]     sequence<byte> ${seqName};
 
-#elseif(  $javaType.startsWith("java.util.Set") || $javaType.startsWith("java.util.List"))
-#set(     $genericTypeC = "${genericType.replaceAll('[.]','::')}")
+#elseif(  $property.one2Many )
 
 [$ice]     ["java:type:java.util.ArrayList"] sequence<$genericTypeC> ${seqName};
 
@@ -249,14 +247,14 @@ ICE CLASS:
 
 Calculate inheritance. This is done here because sequences must first be defined.
 
-#set( $base = "extends omero::model::IObject" )
+#set( $base = "omero::model::IObject" )
 #set( $extendsDeclaration = $base )
-#if(  $pojo.isSubclass() )
-#set( $extendsDeclaration = $pojo.getExtendsDeclaration().replaceFirst("ome.model..+?[.]","omero::model::" ) )
+#if(  $type.superclass )
+#set( $extendsDeclaration = $type.superclass.replaceFirst("ome.model..+?[.]","omero::model::" ) )
 #end
 
-[$ice]     class ${pojo.declarationName}
-[$ice]     $extendsDeclaration
+[$ice]     class ${type.shortname}
+[$ice]     extends $extendsDeclaration
 [$ice]     {
 
 UNLOADED CONSTRUCTOR BLOCK:
@@ -284,9 +282,9 @@ UNLOAD BLOCK:
 [$pyc]           self.loaded = False
 [$jav]           loaded = false;
 [$cpp]           loaded = false;
-#foreach($property in $pojo.propertyClosureForFullConstructor)
+#foreach($property in $type.propertyClosure)
 #if(!$clazz.identifierProperty.equals($property))
-#set( $PropertyName = $pojo.beanCapitalize( $property.name ) )
+#set( $PropertyName = $property.nameCapped )
 [$jav]           unload${PropertyName}( );
 [$cpp]           unload${PropertyName}( );
 [$pyc]           self.unload${PropertyName}( )
@@ -302,7 +300,7 @@ Id acccesors copied from other accessors below.
 [$jav]       public Long getId() {
 [$jav]           return id == null ? null : id.val;
 [$jav]       }
-[$jav]    
+[$jav]
 [$jav]       public void setId( Long id ) {
 [$jav]           this.id = (id == null) ? null : new omero.RLong(id);
 [$jav]       }
@@ -332,18 +330,17 @@ Doing unloadedPython as a method because of the multi-line restriction. See belo
 [$pyc]               self.__dict__[loadedField] = True
 [$pyc]
 ###########################################################################
-#foreach($property in $pojo.propertyClosureForFullConstructor)#############
+#foreach($property in $type.propertyClosure)#############
 ###########################################################################
 
 ACCESSORS BLOCK:
 
-Copied from pojo/PropertyAccessors.vm.
 These mappings are from HibernateTypes-->IceTypes
 
 Ice properties should only be defined once (not in every subclass, obviously).
-However, because of Ice's inheritance structure, we are here using 
-propertyClosureForFullConstructor which gives us superclass fields. These
-must be filtered in the [Ice] sections below, but not for all others.
+However, because of Ice's inheritance structure, we are here using
+propertyClosure which gives us superclass fields. These must be filtered
+in the [Ice] sections below, but not for all others.
 
 [$hdr]
 [$hdr]       //
@@ -351,7 +348,7 @@ must be filtered in the [Ice] sections below, but not for all others.
 [$hdr]       //
 
 #set( $definedIn = "nothere" )
-#foreach( $p2 in $pojo.allPropertiesIterator )
+#foreach( $p2 in $type.classProperties )
 #if( $p2.name.equals($property.name) )
 #set( $definedIn = "here" )
 #end
@@ -362,12 +359,11 @@ must be filtered in the [Ice] sections below, but not for all others.
 #end
 
 ## UNIFY THESE
-#set( $name = $pojo.getPropertyName($property))
 #set( $field = $property.name )
-#set( $PropertyName = $pojo.beanCapitalize( $property.name ) )
+#set( $PropertyName = $property.nameCapped)
 #set( $FIELD = ${field.toUpperCase()} )
-#set( $javaType = $c2j.getJavaTypeName($property,false))##generics
-#set( $shortType = $c2j.unqualify($javaType) )
+#set( $javaType = $property.type )
+#set( $shortType = $type.unqualify($javaType) )
 #set( $open = " " )
 #set( $close= " " )
 #set( $prefix=" " )
@@ -375,12 +371,21 @@ must be filtered in the [Ice] sections below, but not for all others.
 #set( $unloadedJava=" " )
 #set( $unloadedCpp=" " )
 #set( $unloadedPython="pass" )
-#set( $elementType = $c2j.getJavaTypeName($property,true).replaceFirst(".*<","").replaceFirst(">.*",""))
-#set( $elementName = $c2j.unqualify( $elementType ) )
-#set( $seqName = "${Pojo}${name.substring(0,1).toUpperCase()}${name.substring(1,$name.length())}Seq" )## seqName copied from ice_defs.vm
+#set( $seqName = "${Pojo}${PropertyName.substring(0,1).toUpperCase()}${PropertyName.substring(1,$PropertyName.length())}Seq" )## seqName copied from ice_defs.vm
 #set( $propLoaded = "${property.Name}Loaded" )
 
-#if( $javaType.startsWith("ome"))##JAVA_TYPE
+## TODO use empty List or null?
+## #684 Mapping all sets to lists.
+#if( $property.one2Many )##JAVA_TYPE
+#set( $javaType = "java.util.List" )
+#set( $getter = "${property.name} == null ? new java.util.ArrayList() : new java.util.ArrayList( this.$property.name ) " )
+#set( $setter = "${property.name} == null ? new java.util.ArrayList() : new java.util.ArrayList( $property.name )" )
+#set( $unloadedJava = "if (${property.name} == null) { this.${propLoaded} = false; } else { this.${propLoaded} = true; }" )
+#set( $cppType = "$seqName" )
+#set( $unloadedCpp = "if (_${property.name} != ($cppType) 0) { ${propLoaded} = true; } else { ${propLoaded} = false; }" )
+#set( $unloadedPython = "self.checkUnloadedProperty(_${property.name},'${propLoaded}')" )
+
+#elseif( $javaType.startsWith("ome"))
 #set( $javaType = "omero.model.${shortType}" )
 #set( $getter = "(omero.model.${shortType}) this.$property.name" )
 #set( $setter = "${property.name}")
@@ -391,17 +396,6 @@ must be filtered in the [Ice] sections below, but not for all others.
 #set( $getter = "(omero.model.IObject) this.$property.name" )
 #set( $setter = "${property.name}")
 #set( $cppType = "omero::model::IObjectPtr")
-
-## TODO use empty List or null?
-## #684 Mapping all sets to lists.
-#elseif( $javaType.startsWith("java.util.List") || $javaType.startsWith("java.util.Set") )
-#set( $javaType = "java.util.List" )
-#set( $getter = "${property.name} == null ? new java.util.ArrayList() : new java.util.ArrayList( this.$property.name ) " )
-#set( $setter = "${property.name} == null ? new java.util.ArrayList() : new java.util.ArrayList( $property.name )" )
-#set( $unloadedJava = "if (${property.name} == null) { this.${propLoaded} = false; } else { this.${propLoaded} = true; }" )
-#set( $cppType = "$seqName" )
-#set( $unloadedCpp = "if (_${property.name} != ($cppType) 0) { ${propLoaded} = true; } else { ${propLoaded} = false; }" )
-#set( $unloadedPython = "self.checkUnloadedProperty(_${property.name},'${propLoaded}')" )
 
 #elseif( $javaType.startsWith("java.lang.Boolean"))
 #set( $getter = "${property.name} == null ? null : ${property.name}.val" )
@@ -452,7 +446,7 @@ must be filtered in the [Ice] sections below, but not for all others.
 ICE BLOCK:
 
 // $property
-#if($clazz.identifierProperty.equals($property))
+#if($field.equals("id"))
              // Id in IObject
 #elseif($field.equals("details"))
              // Details in IObject
@@ -473,15 +467,15 @@ ICE BLOCK:
 [$Ice]       omero::RInt ${property.name};
 #elseif ( ${shortType} == "Long" )
 [$Ice]       omero::RLong ${property.name};
+#elseif( $property.one2Many )
+[$Ice]       $seqName ${property.name};
+[$Ice]       bool ${property.name}Loaded;
 #elseif ($javaType.startsWith("ome") )## Had to be moved before "*Map" rule
 [$Ice]       omero::model::${shortType} ${property.name};
 #elseif ($javaType.equals("IObject"))## Special case of the previous
 [$Ice]       omero::model::IObject ${property.name};
 #elseif ($shortType.endsWith("Map") )
 [$Ice]       dictionary ${property.name};
-#elseif( $javaType.contains("java.util.List") || $javaType.contains("java.util.Set") || $javaType.contains("[]")) 
-[$Ice]       $seqName ${property.name};
-[$Ice]       bool ${property.name}Loaded;
 #elseif ($javaType.equals("java.sql.Timestamp"))
 [$Ice]       omero::RTime ${property.name};
 #elseif ($javaType.equals("long")) ## From Permissions
@@ -493,8 +487,12 @@ ICE BLOCK:
 
 ASSOCIATION TYPES BLOCK:
 
-#set( $hasSet  = $c2j.hasMetaAttribute($property, "set-add-method"))
-#set( $hasLink = $c2j.hasMetaAttribute($property, "link-add-method") )
+#set( $hasSet  = false)
+#set( $hasLink = false )
+#set( $hasSet  = $property.one2Many)
+#if( $property.class.name.equals("ome.dsl.ChildLink") || $property.class.name.equals("ome.dsl.ParentLink"))
+#set( $hasLink = true )
+#end
 
 #set( $access = "protected" )
 #set( $unloadIfIsSet = "${property.Name}Loaded = false;")
@@ -521,12 +519,12 @@ Unload
 Original accessors: will have their visibility reduced if
 the special set methods are added.
 
-[$jav]       $access $javaType $pojo.getGetterSignature($property)() throws omero.UnloadedEntityException {
+[$jav]       $access $javaType get${property.nameCapped}() throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           return $getter;
 [$jav]       }
-[$jav]    
-[$jav]       $access void set$name($javaType $property.Name) throws omero.UnloadedEntityException {
+[$jav]
+[$jav]       $access void set${PropertyName}($javaType $property.Name) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           this.$property.Name = $setter;
 [$jav]           $unloadedJava
@@ -535,28 +533,28 @@ the special set methods are added.
 #if($access == "protected" )
 [$hdr]     protected:
 #end
-[$hdr]       virtual $cppType $pojo.getGetterSignature($property)();
-[$hdr]       virtual void set$name($cppType _$property.Name);
+[$hdr]       virtual $cppType get${property.nameCapped};
+[$hdr]       virtual void set${PropertyName}($cppType _$property.Name);
 #if($access == "protected" )
 [$hdr]     public:
 #end
 
-[$cpp]       $cppType ${PojoI}::$pojo.getGetterSignature($property)() {
+[$cpp]       $cppType ${PojoI}::${property.nameCapped}() {
 [$cpp]           errorIfUnloaded();
 [$cpp]           return ${open}${property.name}${close};
 [$cpp]       }
-[$cpp]    
-[$cpp]       void ${PojoI}::set$name($cppType _$property.Name) {
+[$cpp]
+[$cpp]       void ${PojoI}::set${PropertyName}($cppType _$property.Name) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           $property.Name = $!{prefix}_${property.Name}$!{suffix};
 [$cpp]           $unloadedCpp
 [$cpp]       }
 
-[$pyc]       def $pojo.getGetterSignature($property)(self):
+[$pyc]       def get${property.nameCapped}(self):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           return self.${property.name}
 [$pyc]
-[$pyc]       def set$name(self, _${property.name}):
+[$pyc]       def set${PropertyName}(self, _${property.name}):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           self.${property.Name} = _${property.name}
 [$pyc]           $unloadedPython
@@ -646,90 +644,91 @@ field access on several methods below.
 Set modifications:
 
 #if( $hasSet )
-#set( $inverse = $c2j.getMetaAsString($property, "set-add-method"))
-#set( $Inverse = $pojo.beanCapitalize( $inverse) )
+#set( $inverse = $property.inverse )
+#set( $inverselength = $inverse.length() )
+#set( $Inverse = "${inverse.substring(0,1).toUpperCase()}${inverse.substring(1,$inverselength)}" )
 
 add single
 
-[$jav]       public void add${elementName}(${elementName} target) throws omero.UnloadedEntityException {
+[$jav]       public void add${property.shortType}(${property.shortType} target) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
-[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$jav]           ${property.name}.add( target );
 [$jav]           target.$inverse = this;
 [$jav]       }
-[$pyc]       def add${elementName}(self,target):
+[$pyc]       def add${property.shortType}(self,target):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${name}")
+[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${PropertyName}")
 [$pyc]           self.${property.name}.append( target );
 [$pyc]           target.$inverse = self;
 [$pyc]
-[$hdr]       virtual void add${elementName}(${elementName}Ptr target);
-[$cpp]       void ${PojoI}::add${elementName}(${elementName}Ptr target) {
+[$hdr]       virtual void add${property.shortType}(${property.shortType}Ptr target);
+[$cpp]       void ${PojoI}::add${property.shortType}(${property.shortType}Ptr target) {
 [$cpp]           errorIfUnloaded();
-[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$cpp]           ${property.name}.push_back( target );
 [$cpp]           target->$inverse = this;
-[$cpp]       } 
+[$cpp]       }
 
 add set
 
-[$jav]       public void add${elementName}Set(Collection<${elementName}> targets) throws omero.UnloadedEntityException {
+[$jav]       public void add${property.shortType}Set(Collection<${property.shortType}> targets) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
-[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$jav]           ${property.name}.addAll( targets );
-[$jav]           for( ${elementName} target : targets) {
+[$jav]           for( ${property.shortType} target : targets) {
 [$jav]               target.$inverse = this;
 [$jav]           }
 [$jav]       }
-[$pyc]       def add${elementName}Set(self, targets):
+[$pyc]       def add${property.shortType}Set(self, targets):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if  not self.${propLoaded}: self.throwNullCollectionException("${name}")
+[$pyc]           if  not self.${propLoaded}: self.throwNullCollectionException("${PropertyName}")
 [$pyc]           self.${property.name}.extend( targets )
 [$pyc]           for target in targets:
 [$pyc]               target.$inverse = self
 [$pyc]
-[$hdr]       virtual void add${elementName}Set($cppType targets);
-[$cpp]       void ${PojoI}::add${elementName}Set($cppType targets) {
+[$hdr]       virtual void add${property.shortType}Set($cppType targets);
+[$cpp]       void ${PojoI}::add${property.shortType}Set($cppType targets) {
 [$cpp]           errorIfUnloaded();
-[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$cpp]           $cppType::iterator loc = ${property.name}.end();
 [$cpp]           $cppType::iterator beg = targets.begin(); 
 [$cpp]           $cppType::iterator end = targets.end(); 
 [$cpp]           ${property.name}.insert(loc,beg,end);
 [$cpp]           for ($cppType::iterator it = targets.begin(); it != targets.end(); ++it) {
-[$cpp]               ${elementName}Ptr target = *it;
+[$cpp]               ${property.shortType}Ptr target = *it;
 [$cpp]               target->$inverse = this;
 [$cpp]           }
 [$cpp]       }
 
 remove single
 
-#set( $removePredicate = "testRemove${elementName}From${PojoI}" )
+#set( $removePredicate = "testRemove${property.shortType}From${PojoI}" )
 [$cpp]       struct $removePredicate
 [$cpp]       {
-[$cpp]           const ${elementName}Ptr t;
-[$cpp]           ${removePredicate}(const ${elementName}Ptr n) : t(n) {}
-[$cpp]           bool operator()(${elementName}Ptr const& o) {
+[$cpp]           const ${property.shortType}Ptr t;
+[$cpp]           ${removePredicate}(const ${property.shortType}Ptr n) : t(n) {}
+[$cpp]           bool operator()(${property.shortType}Ptr const& o) {
 [$cpp]               return o == t;
 [$cpp]           }
 [$cpp]       };
 
-[$jav]       public void remove${elementName}(${elementName} target) throws omero.UnloadedEntityException {
+[$jav]       public void remove${property.shortType}(${property.shortType} target) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
-[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$jav]           ${property.name}.remove( target );
 [$jav]           target.$inverse = null;
 [$jav]       }
-[$pyc]       def remove${elementName}(self, target):
+[$pyc]       def remove${property.shortType}(self, target):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${name}")
+[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${PropertyName}")
 [$pyc]           self.${property.name}.remove( target )
 [$pyc]           target.$inverse = None
 [$pyc]
-[$hdr]       virtual void remove${elementName}(${elementName}Ptr target);
-[$cpp]       void ${PojoI}::remove${elementName}(${elementName}Ptr target) {
+[$hdr]       virtual void remove${property.shortType}(${property.shortType}Ptr target);
+[$cpp]       void ${PojoI}::remove${property.shortType}(${property.shortType}Ptr target) {
 [$cpp]           errorIfUnloaded();
-[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$cpp]           $cppType::iterator it = std::remove_if(
 [$cpp]               ${property.name}.begin(),
 [$cpp]               ${property.name}.end(),
@@ -740,35 +739,35 @@ remove single
 
 remove multiple
 
-#set( $removeSetPredicate = "testRemove${elementName}SetFrom${PojoI}" )
+#set( $removeSetPredicate = "testRemove${property.shortType}SetFrom${PojoI}" )
 [$cpp]       struct ${removeSetPredicate}
 [$cpp]       {
 [$cpp]           const ${cppType} t;
 [$cpp]           ${removeSetPredicate}(const ${cppType} n) : t(n) {}
-[$cpp]           bool operator()(${elementName}Ptr const& o) {
+[$cpp]           bool operator()(${property.shortType}Ptr const& o) {
 [$cpp]               return std::find(t.begin(), t.end(), o) != t.end();
 [$cpp]           }
 [$cpp]       };    
 
-[$jav]       public void remove${elementName}Set(Collection<${elementName}> targets) throws omero.UnloadedEntityException {
+[$jav]       public void remove${property.shortType}Set(Collection<${property.shortType}> targets) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
-[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
-[$jav]           for( ${elementName} elt : targets) {
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
+[$jav]           for( ${property.shortType} elt : targets) {
 [$jav]               elt.$inverse = null;
 [$jav]               ${property.name}.remove( elt );
 [$jav]           }
 [$jav]       }
-[$pyc]       def remove${elementName}Set(self, targets):
+[$pyc]       def remove${property.shortType}Set(self, targets):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${name}")
+[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${PropertyName}")
 [$pyc]           for elt in targets:
 [$pyc]               elt.$inverse = None
 [$pyc]               self.${property.name}.remove( elt )
 [$pyc]
-[$hdr]       virtual void remove${elementName}Set($cppType targets);
-[$cpp]       void ${PojoI}::remove${elementName}Set($cppType targets) {
+[$hdr]       virtual void remove${property.shortType}Set($cppType targets);
+[$cpp]       void ${PojoI}::remove${property.shortType}Set($cppType targets) {
 [$cpp]           errorIfUnloaded();
-[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$cpp]           ${cppType}::iterator end = ${property.name}.end(); 
 [$cpp]           ${cppType}::iterator removed = std::remove_if(
 [$cpp]               ${property.name}.begin(), end,
@@ -784,15 +783,15 @@ clear
 
 [$jav]       public void clear${PropertyName}() throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
-[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
-[$jav]           for( ${elementName} elt : (Collection<${elementName}>)${property.name}) {
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
+[$jav]           for( ${property.shortType} elt : (Collection<${property.shortType}>)${property.name}) {
 [$jav]               elt.$inverse = null;
 [$jav]           }
 [$jav]           ${property.name}.clear();
 [$jav]       }
 [$pyc]       def clear${PropertyName}(self):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${name}")
+[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${PropertyName}")
 [$pyc]           for elt in self.${property.name}:
 [$pyc]               elt.$inverse = None
 [$pyc]           self.${property.name} = list()
@@ -800,14 +799,14 @@ clear
 [$hdr]       virtual void clear${PropertyName}();
 [$cpp]       void ${PojoI}::clear${PropertyName}() {
 [$cpp]           errorIfUnloaded();
-[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$cpp]           $cppType::iterator beg = ${property.name}.begin();
 [$cpp]           $cppType::iterator end = ${property.name}.end();
 [$cpp]           for(; beg != end; beg++) {
 [$cpp]               (*beg)->$inverse = (${PojoI}Ptr)0;
 [$cpp]           }
 [$cpp]           ${property.name}.clear();
-[$cpp]       }  
+[$cpp]       }
 
 Link Modifications
 
@@ -816,99 +815,101 @@ Link Modifications
 Here our "elements" from the above are the links which themselves
 have linked elements.
 
-#set( $linkedType = $c2j.getMetaAsString($property, "link-add-method"))
-#set( $linkedName = $c2j.unqualify( $linkedType ) )
-#set( $LinkType = $elementType )
-#set( $Link = $c2j.unqualify( $LinkType ) )
-#set( $order = $c2j.getMetaAsString($property, "link-add-order"))
-#set( $next = $c2j.getMetaAsString($property, "link-add-next"))
-#set( $other = $c2j.getMetaAsString($property, "link-add-other"))
-#set( $bidir = $c2j.getMetaAsBool($property, "link-add-bidir"))
+#if($property.class.name == "ome.dsl.ChildLink" )
+#set( $order = "this, addition" )
+#set( $next = "parent" )
+#set( $other = "child" )
+#elseif($property.class.name == "ome.dsl.ParentLink")
+#set( $order = "addition, this" )
+#set( $next = "child" )
+#set( $other = "parent" )
+#end
+#set( $bidir = $property.bidirectional )
 #set( $pyorder = $order.replaceAll("this","self"))
 
 ADD
 
-[$jav]       public void link${linkedName}(${linkedName} addition) throws omero.UnloadedEntityException {
+[$jav]       public void link${property.shortTarget}(${property.shortTarget} addition) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
-[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
-[$jav]           ${Link}I link = new ${Link}I();
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
+[$jav]           ${property.shortType}I link = new ${property.shortType}I();
 [$jav]           link.link( ${order} );
-[$jav]           add${Link}( link, true );
+[$jav]           add${property.shortType}( link, true );
 [$jav]       }
-[$pyc]       def link${linkedName}(self, addition):
+[$pyc]       def link${property.shortTarget}(self, addition):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${name}")
-[$pyc]           link = _omero_model.${Link}I()
+[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${PropertyName}")
+[$pyc]           link = _omero_model.${property.shortType}I()
 [$pyc]           link.link( ${pyorder} );
-[$pyc]           self.add${Link}( link, True )
+[$pyc]           self.add${property.shortType}( link, True )
 [$pyc]
-[$hdr]       virtual void link${linkedName}(${linkedName}Ptr addition);
-[$cpp]       void ${PojoI}::link${linkedName}(${linkedName}Ptr addition) {
+[$hdr]       virtual void link${property.shortTarget}(${property.shortTarget}Ptr addition);
+[$cpp]       void ${PojoI}::link${property.shortTarget}(${property.shortTarget}Ptr addition) {
 [$cpp]           errorIfUnloaded();
-[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
-[$cpp]           ${Link}IPtr link = new ${Link}I();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
+[$cpp]           ${property.shortType}IPtr link = new ${property.shortType}I();
 [$cpp]           link->link( ${order} );
-[$cpp]           add${Link}( link, true );
+[$cpp]           add${property.shortType}( link, true );
 [$cpp]       }  
 
 TODO: do we need to do link.parent = ...;
 
-[$jav]       public void add${Link}(${Link} link, boolean bothSides) throws omero.UnloadedEntityException {
+[$jav]       public void add${property.shortType}(${property.shortType} link, boolean bothSides) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
-[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$jav]           ${property.name}.add( link );
 #if($bidir) 
 TODO: Should we check for nulls in other?
 [$jav]           if (bothSides && link.${other}.loaded ) {
-[$jav]               ((${linkedName}I)link.${other}).add${Link}( link, false );
+[$jav]               ((${property.shortTarget}I)link.${other}).add${property.shortType}( link, false );
 [$jav]           }
 #end
 [$jav]       }
-[$pyc]       def add${Link}(self, link, bothSides):
+[$pyc]       def add${property.shortType}(self, link, bothSides):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${name}")
+[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${PropertyName}")
 [$pyc]           self.${property.name}.append( link )
 #if($bidir) 
 [$pyc]           if bothSides and link.${other}.loaded:
-[$pyc]               link.${other}.add${Link}( link, False )
+[$pyc]               link.${other}.add${property.shortType}( link, False )
 #end
 [$pyc]
-[$hdr]       virtual void add${Link}(${Link}Ptr link, bool bothSides);
-[$cpp]       void ${PojoI}::add${Link}(${Link}Ptr link, bool bothSides) {
+[$hdr]       virtual void add${property.shortType}(${property.shortType}Ptr link, bool bothSides);
+[$cpp]       void ${PojoI}::add${property.shortType}(${property.shortType}Ptr link, bool bothSides) {
 [$cpp]           errorIfUnloaded();
-[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$cpp]           ${property.name}.push_back( link );
 #if($bidir)
 [$cpp]           if (bothSides && link->${other}->loaded ) {
-[$cpp]               ${linkedName}IPtr::dynamicCast(link->${other})->add${Link}( link, false );
+[$cpp]               ${property.shortTarget}IPtr::dynamicCast(link->${other})->add${property.shortType}( link, false );
 [$cpp]           }
 #end
 [$cpp]       }  
 
 FIND
 
-[$jav]       public List<$Link> find${Link}(${linkedName} removal) throws omero.UnloadedEntityException {
+[$jav]       public List<$property.shortType> find${property.shortType}(${property.shortTarget} removal) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
-[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$jav]           List result = new ArrayList();
-[$jav]           for( $Link link : ${property.name} ) {
+[$jav]           for( $property.shortType link : ${property.name} ) {
 [$jav]               if (link.${other} == removal) result.add(link);
 [$jav]           }
 [$jav]           return result;
 [$jav]       }
-[$pyc]       def find${Link}(self, removal):
+[$pyc]       def find${property.shortType}(self, removal):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${name}")
+[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${PropertyName}")
 [$pyc]           result = list()
 [$pyc]           for link in self.${property.name}:
 [$pyc]               if link.${other} == removal: result.append(link)
 [$pyc]           return result
 [$pyc]
-[$hdr]       virtual std::vector<${Link}Ptr> find${Link}(${linkedName}Ptr removal);
-[$cpp]       std::vector<${Link}Ptr> ${PojoI}::find${Link}(${linkedName}Ptr removal) {
+[$hdr]       virtual std::vector<${property.shortType}Ptr> find${property.shortType}(${property.shortTarget}Ptr removal);
+[$cpp]       std::vector<${property.shortType}Ptr> ${PojoI}::find${property.shortType}(${property.shortTarget}Ptr removal) {
 [$cpp]           errorIfUnloaded();
-[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
-[$cpp]           std::vector<${Link}Ptr> result;
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
+[$cpp]           std::vector<${property.shortType}Ptr> result;
 [$cpp]           $cppType::iterator beg = begin${PropertyName}();
 [$cpp]           $cppType::iterator end = end${PropertyName}();
 [$cpp]           while (beg != end) {
@@ -920,18 +921,18 @@ FIND
 
 REMOVE
 
-#set( $removeLinkPredicate = "testRemove${Link}From${PojoI}" )
+#set( $removeLinkPredicate = "testRemove${property.shortType}From${PojoI}" )
 [$cpp]
 [$cpp]       struct $removeLinkPredicate {
 [$cpp] 
-[$cpp]         const ${Link}Ptr t;
+[$cpp]         const ${property.shortType}Ptr t;
 [$cpp]         const bool bothSides;
-[$cpp]         ${removeLinkPredicate}(const ${Link}Ptr n, const bool b) : t(n), bothSides(b) {}
-[$cpp]         bool operator()(${Link}Ptr const& o) {
+[$cpp]         ${removeLinkPredicate}(const ${property.shortType}Ptr n, const bool b) : t(n), bothSides(b) {}
+[$cpp]         bool operator()(${property.shortType}Ptr const& o) {
 [$cpp]            if (o == t) {
 #if($bidir)
 [$cpp]                if (bothSides && t->${other}->loaded){
-[$cpp]                    ${linkedName}IPtr::dynamicCast(o->${other})->remove${Link}(t,false);
+[$cpp]                    ${property.shortTarget}IPtr::dynamicCast(o->${other})->remove${property.shortType}(t,false);
 [$cpp]                }
 #end
 [$cpp]                return true;
@@ -941,57 +942,57 @@ REMOVE
 [$cpp]       }; 
 [$cpp]
 
-[$jav]       public void unlink${linkedName}(${linkedName} removal) throws omero.UnloadedEntityException {
+[$jav]       public void unlink${property.shortTarget}(${property.shortTarget} removal) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
-[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
-[$jav]           List<$Link> toRemove = find${Link}(removal);
-[$jav]           Iterator<$Link> it = toRemove.iterator();
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
+[$jav]           List<$property.shortType> toRemove = find${property.shortType}(removal);
+[$jav]           Iterator<$property.shortType> it = toRemove.iterator();
 [$jav]           while( it.hasNext() ){
-[$jav]               remove${Link}( it.next(), true );
+[$jav]               remove${property.shortType}( it.next(), true );
 [$jav]           }
 [$jav]       }
-[$jav]       public void remove${Link}(${Link} link, boolean bothSides ) throws omero.UnloadedEntityException, omero.UnloadedCollectionException {
+[$jav]       public void remove${property.shortType}(${property.shortType} link, boolean bothSides ) throws omero.UnloadedEntityException, omero.UnloadedCollectionException {
 [$jav]           errorIfUnloaded();
-[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$jav]           ${property.name}.remove( link );
 #if($bidir)
 [$jav]           if (bothSides && link.${other}.loaded) {
-[$jav]               ((${linkedName}I)link.${other}).remove${Link}(link, false );
+[$jav]               ((${property.shortTarget}I)link.${other}).remove${property.shortType}(link, false );
 [$jav]           }
 #end
 [$jav]       }
-[$pyc]       def unlink${linkedName}(self, removal):
+[$pyc]       def unlink${property.shortTarget}(self, removal):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${name}")
-[$pyc]           toRemove = self.find${Link}(removal)
+[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${PropertyName}")
+[$pyc]           toRemove = self.find${property.shortType}(removal)
 [$pyc]           for next in toRemove:
-[$pyc]               self.remove${Link}( next, True )
+[$pyc]               self.remove${property.shortType}( next, True )
 [$pyc]
-[$pyc]       def remove${Link}(self, link, bothSides ):
+[$pyc]       def remove${property.shortType}(self, link, bothSides ):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${name}")
+[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${PropertyName}")
 [$pyc]           self.${property.name}.remove( link )
 #if($bidir)
 [$pyc]           if bothSides and link.${other}.loaded:
-[$pyc]               link.${other}.remove${Link}(link, False)
+[$pyc]               link.${other}.remove${property.shortType}(link, False)
 #end
 [$pyc]
-[$hdr]       virtual void unlink${linkedName}(${linkedName}Ptr removal);
-[$cpp]       void ${PojoI}::unlink${linkedName}(${linkedName}Ptr removal) {
+[$hdr]       virtual void unlink${property.shortTarget}(${property.shortTarget}Ptr removal);
+[$cpp]       void ${PojoI}::unlink${property.shortTarget}(${property.shortTarget}Ptr removal) {
 [$cpp]           errorIfUnloaded();
-[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
-[$cpp]           std::vector<${Link}Ptr> toRemove = find${Link}(removal);
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
+[$cpp]           std::vector<${property.shortType}Ptr> toRemove = find${property.shortType}(removal);
 [$cpp]           $cppType::iterator beg = toRemove.begin();
 [$cpp]           $cppType::iterator end = toRemove.end();
 [$cpp]           while (beg != end) {
-[$cpp]             remove${Link}( *beg, true );
+[$cpp]             remove${property.shortType}( *beg, true );
 [$cpp]             ++beg;
 [$cpp]           }
 [$cpp]       }
-[$hdr]       virtual void remove${Link}(${Link}Ptr link, bool bothSides);
-[$cpp]       void ${PojoI}::remove${Link}(${Link}Ptr link, bool bothSides) {
+[$hdr]       virtual void remove${property.shortType}(${property.shortType}Ptr link, bool bothSides);
+[$cpp]       void ${PojoI}::remove${property.shortType}(${property.shortType}Ptr link, bool bothSides) {
 [$cpp]           errorIfUnloaded();
-[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$cpp]           // predicate may do reverse side
 [$cpp]           $cppType::iterator it = std::remove_if(
 [$cpp]               ${property.name}.begin(),
@@ -1000,15 +1001,15 @@ REMOVE
 [$cpp]           ${property.name}.erase(it,${property.name}.end());
 [$cpp]       } 
 
-##[$jav]    public Iterator<${linkedName}> linked${linkedName}Iterator() throws omero.UnloadedEntityException {
+##[$jav]    public Iterator<${property.shortTarget}> linked${property.shortTarget}Iterator() throws omero.UnloadedEntityException {
 ##[$jav]        errorIfUnloaded();
-##[$jav]        if (!${propLoaded}) throwNullCollectionException("${name}");
+##[$jav]        if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 ##[$jav]        return null;
 ##[$jav]    }
-##[$hdr]    virtual std::vector<${linkedName}Ptr>::iterator linked${linkedName}Iterator();
-##[$cpp]    std::vector<${linkedName}Ptr>::iterator ${PojoI}::linked${linkedName}Iterator() {
+##[$hdr]    virtual std::vector<${property.shortTarget}Ptr>::iterator linked${property.shortTarget}Iterator();
+##[$cpp]    std::vector<${property.shortTarget}Ptr>::iterator ${PojoI}::linked${property.shortTarget}Iterator() {
 ##[$cpp]        errorIfUnloaded();
-##[$cpp]        std::vector<${linkedName}Ptr>::iterator result;
+##[$cpp]        std::vector<${property.shortTarget}Ptr>::iterator result;
 ##[$cpp]        return result;
 ##TODO------------
 ##[$cpp]    }
@@ -1023,9 +1024,14 @@ REMOVE
 
 CLASS-LEVEL EXTRA METHODS:
 
-#if( $c2j.hasMetaAttribute($clazz, "link-parent") )
-#set( $parent = $c2j.unqualify( $c2j.getMetaAsString($clazz, "link-parent")))
-#set( $child =  $c2j.unqualify( $c2j.getMetaAsString($clazz, "link-child" )))
+#if($type.class.name.equals("ome.dsl.LinkType"))
+#foreach( $prop in $type.classProperties)
+#if($prop.class.name == "ome.dsl.LinkParent")
+#set( $parent = ${prop.shortType} )
+#elseif($prop.class.name == "ome.dsl.LinkChild")
+#set( $child = ${prop.shortType} )
+#end
+#end
 
 TODO: Should these be <>I or not?
 
@@ -1078,15 +1084,15 @@ COPYOBJECT BLOCK:
 
 [$jav]       public void copyObject(ome.util.Filterable model, ome.util.ModelMapper _mapper) {
 [$jav]            omero.util.IceMapper mapper = (omero.util.IceMapper) _mapper;
-[$jav]            if (model instanceof $pojo.qualifiedDeclarationName){
-[$jav]                $pojo.qualifiedDeclarationName source = ($pojo.qualifiedDeclarationName) model;
+[$jav]            if (model instanceof ${type.id}) {
+[$jav]                ${type.id} source = (${type.id}) model;
 [$jav]                this.loaded = source.isLoaded();
 [$jav]                this.setId( (Long) mapper.findTarget( source.getId() ));
-#foreach($property in $pojo.propertyClosureForFullConstructor)
-#set( $name = $pojo.getPropertyName($property))
-#set( $javaType = $c2j.getJavaTypeName($property,false))##generics
-#set( $shortType = $c2j.unqualify($javaType) )
-#set( $method = "source.get$name()" )
+#foreach($property in $type.propertyClosure)
+#set( $PropertyName = $property.nameCapped )
+#set( $javaType = $property.type )
+#set( $shortType = $type.unqualify($javaType) )
+#set( $method = "source.get$PropertyName()" )
 
  TODO: Currently the findTarget methods have separate names.
  Instead there should be a cast to guarantee that the right
@@ -1102,9 +1108,15 @@ COPYOBJECT BLOCK:
 #set( $guard  = "" )
 #end
 
-#if( $pojo.qualifiedDeclarationName.startsWith("ome.model.internal.Permissions") )
+#if( $type.id.equals("ome.model.internal.Permissions") )
 #set( $javaType = "Long" )
 #set( $method = "ome.util.Utils.internalForm(source)" )
+#elseif( $property.one2Many )
+## See ticket:684
+## If this is the case, we can't use the accessor and have to use a generated method
+#set( $javaType = "java.util.List" )
+#set( $method = "($javaType) source.retrieve(${type.id}.${PropertyName.toUpperCase()})" )
+#set( $findMethod = "Collection")
 #elseif( $javaType.startsWith("ome") )
 #set( $javaType = "omero.model.${shortType}" )
 #elseif( $javaType.startsWith("IObject") )
@@ -1113,21 +1125,15 @@ COPYOBJECT BLOCK:
 #set( $javaType = "Long")
 #elseif( $javaType.startsWith("java.util.Map") )
 #set( $findMethod = "Map" )
-#elseif( $javaType.startsWith("java.util.Set") || $javaType.startsWith("java.util.List") )
-## See ticket:684
-## If this is the case, we can't use the accessor and have to use a generated method
-#set( $method = "($javaType) source.retrieve(${pojo.qualifiedDeclarationName}.${name.toUpperCase()})" )
-#set( $javaType = "java.util.List" )
-#set( $findMethod = "Collection") 
 #end
 
-[$jav]              $guard this.set$name(($javaType) mapper.find${findMethod}($method));
+[$jav]              $guard this.set${PropertyName}(($javaType) mapper.find${findMethod}($method));
 
 #end
 
 [$jav]       } else {
 [$jav]                throw new IllegalArgumentException(
-[$jav]                  "${pojo.declarationName} cannot copy from " +
+[$jav]                  "${type.shortname} cannot copy from " +
 [$jav]                  (model==null ? "null" : model.getClass().getName()));
 [$jav]       }
 [$jav]       }
@@ -1136,44 +1142,44 @@ FILLOBJECT BLOCK:
 
 [$jav]       public ome.util.Filterable fillObject(ome.util.ReverseModelMapper _mapper) {
 [$jav]           omero.util.IceMapper mapper = (omero.util.IceMapper) _mapper;
-[$jav]           $pojo.qualifiedDeclarationName target = new ${pojo.qualifiedDeclarationName}();
+[$jav]           $type.id target = new ${type.id}();
 [$jav]           mapper.store(this, target);
 [$jav]           if (!this.loaded) {
 [$jav]             target.setId( id == null ? null : id.val );
 [$jav]             target.unload();
 [$jav]           } else {
 [$jav]             target.setId( this.getId() ); // special property
-#foreach($property in $pojo.propertyClosureForFullConstructor)
-#set( $name = $pojo.getPropertyName($property))
-#set( $javaType = $c2j.getJavaTypeName($property,false))##generics
-#set( $shortType = $c2j.unqualify($javaType) )
-#set( $FIELD = "${pojo.qualifiedDeclarationName}.${name.toUpperCase()}" )
+#foreach($property in $type.propertyClosure)
+#set( $PropertyName = $property.nameCapped )
+#set( $javaType = $property.type )
+#set( $shortType = $type.unqualify($javaType) )
+#set( $FIELD = "${type.id}.${PropertyName.toUpperCase()}" )
 #set( $propLoaded = "${property.Name}Loaded" )
 
-#if( $pojo.qualifiedDeclarationName.startsWith("ome.model.internal.Permissions") )
+#if( $type.id.equals("ome.model.internal.Permissions") )
 [$jav]             target = ome.util.Utils.toPermissions((Long)this.getPerm1());
 
-#elseif( $javaType.startsWith("ome") )
-[$jav]             target.putAt($FIELD, ($javaType) mapper.reverse( (ome.api.ModelBased) this.get$name() ) );
-
-#elseif( $javaType.startsWith("IObject") )
-[$jav]             target.set$name( (ome.model.IObject) mapper.reverse( (ome.api.ModelBased) this.get$name() ) );
-
-#elseif( $javaType.startsWith("java.util.Set") || $javaType.startsWith("java.util.List") )
+#elseif( $property.one2Many )
 ## If this is the case, we can't use the accessor and have to use a generated method
 
 [$jav]             if (this.${propLoaded}) {
 
 ticket:684 This is necessary to map back and forth from sets.
-[$jav]               target.putAt( $FIELD, mapper.reverse( this.get$name(), ${javaType}.class ));
+[$jav]               target.putAt( $FIELD, mapper.reverse( this.get${PropertyName}(), ${javaType}.class ));
 [$jav]             } else {
 [$jav]               target.putAt( $FIELD, null );
 [$jav]             }
 
+#elseif( $javaType.startsWith("ome") )
+[$jav]             target.putAt($FIELD, ($javaType) mapper.reverse( (ome.model.ModelBased) this.get${PropertyName}() ) );
+
+#elseif( $javaType.startsWith("IObject") )
+[$jav]             target.set${PropertyName}( (ome.model.IObject) mapper.reverse( (ome.model.ModelBased) this.get${PropertyName}() ) );
+
 #elseif( $javaType.startsWith("long"))
  ----------------> ERROR
 #else
-[$jav]             target.set$name( this.get$name() );
+[$jav]             target.set${PropertyName}( this.get${PropertyName}() );
 #end
 #end
 

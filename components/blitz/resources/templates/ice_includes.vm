@@ -1,16 +1,16 @@
 #*
  *   $Id$
- * 
+ *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- * 
+ *
  *#
 /*
  *   $$Id$$
- * 
+ *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- * 
+ *
  */
 
 ##########################################################################
@@ -20,8 +20,8 @@ module omero { module model { #end
 #macro(moduleStop $pkg)
  }; };#end
 ##########################################################################
-#macro(forwardDeclaration $pojo)
-#moduleStart(${pojo.packageDeclaration}) class ${pojo.declarationName}; #moduleStop(${pojo.packageDeclaration})
+#macro(forwardDeclaration $type)
+#moduleStart("unused") class ${type.shortname}; #moduleStop("unused")
 ##
 #end
 ##########################################################################
@@ -36,31 +36,15 @@ module omero { module model { #end
 // Global metadata
 [["java:java5"]]
 
-// Hard-coded 
+// Hard-coded
 module omero { module model {  class IObject; };};
 module omero { module model {  class Permissions; };};
+module omero { module model {  class Details; };};
 
 // Generated
-#foreach($pojo in $c2j.getPOJOIterator( $cfg.getClassMappings() ))
-##set( $key = "ForwardDeclaration:$pojo" )
-##if(! $ctx.get($key))
-##// ${ctx.put($key,$key)}
 
-#forwardDeclaration($pojo)
-##
-#foreach($property in $pojo.allPropertiesIterator)
-#if($c2j.isComponent($property))
-#set($component = $c2j.getPOJOClass($property.getValue()))
-###set( $key = "ForwardDeclaration:$component" )
-###if(! $ctx.get($key))
-##// ${ctx.put($key,$key)}
-
-#forwardDeclaration($component)
-##
-###end
-###end
-#end
-#end 
+#foreach($type in $types)
+#forwardDeclaration($type)
 #end
 
 #endif
