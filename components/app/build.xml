@@ -52,6 +52,7 @@
          </metainf>
          <fileset dir="${etc.dir}" includes="omero.properties"/>
          <fileset dir="${etc.dir}" includes="hibernate.properties"/>
+         <fileset dir="${etc.dir}" includes="local.properties"/>
          <fileset dir="${resrc.dir}" includes="ejb.properties"/>
          <fileset dir="${resrc.dir}" includes="jboss-service.xml"/>
          <fileset dir="${target.dir}/libs" includes="*.jar" />

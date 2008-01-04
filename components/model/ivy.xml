@@ -9,7 +9,7 @@
     <conf name="test"  extends="core"/>
   </configurations>
   <publications>
-    <artifact name="model-${db.profile}" type="jar" conf="core" />
+    <artifact name="model-${omero.db.profile}" type="jar" conf="core" />
   </publications>
   <dependencies>
     <!-- Internal -->

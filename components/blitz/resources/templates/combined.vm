@@ -13,14 +13,18 @@ and sets are nearly identical.
 
 Here we turn off all prefixes except for ice.  Since <>I files are
 concrete implementations, they should only be generated for concrete
-classes.
+classes. Capitalized versions will be turned on even for abstract classes.
 
 #set( $ALL = "all" )
+#set( $JAV = "jav" )
+#set( $CPP = "cpp" )
+#set( $HDR = "hdr" )
+#set( $PYC = "pyc" )
+#set( $ice = "ice" )
 #set( $all = "all" )
 #set( $jav = "jav" )
 #set( $cpp = "cpp" )
 #set( $hdr = "hdr" )
-#set( $ice = "ice" )
 #set( $pyc = "pyc" )
 #if($type.abstract)
 #set( $all = "abs" )
@@ -854,14 +858,17 @@ ADD
 
 TODO: do we need to do link.parent = ...;
 
-[$jav]       public void add${property.shortType}(${property.shortType} link, boolean bothSides) throws omero.UnloadedEntityException {
+#if(!$type.superclass)
+[$ice]       void add${property.shortType}(omero::model::${property.shortType} link, bool bothSides);
+#end
+[$jav]       public void add${property.shortType}(${property.shortType} link, boolean bothSides, Ice.Current current) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$jav]           ${property.name}.add( link );
 #if($bidir) 
 TODO: Should we check for nulls in other?
 [$jav]           if (bothSides && link.${other}.loaded ) {
-[$jav]               ((${property.shortTarget}I)link.${other}).add${property.shortType}( link, false );
+[$jav]               ((${property.shortTarget})link.${other}).add${property.shortType}( link, false );
 [$jav]           }
 #end
 [$jav]       }
@@ -881,7 +888,7 @@ TODO: Should we check for nulls in other?
 [$cpp]           ${property.name}.push_back( link );
 #if($bidir)
 [$cpp]           if (bothSides && link->${other}->loaded ) {
-[$cpp]               ${property.shortTarget}IPtr::dynamicCast(link->${other})->add${property.shortType}( link, false );
+[$cpp]               ${property.shortTarget}Ptr::dynamicCast(link->${other})->add${property.shortType}( link, false );
 [$cpp]           }
 #end
 [$cpp]       }  
@@ -932,7 +939,7 @@ REMOVE
 [$cpp]            if (o == t) {
 #if($bidir)
 [$cpp]                if (bothSides && t->${other}->loaded){
-[$cpp]                    ${property.shortTarget}IPtr::dynamicCast(o->${other})->remove${property.shortType}(t,false);
+[$cpp]                    ${property.shortTarget}Ptr::dynamicCast(o->${other})->remove${property.shortType}(t,false);
 [$cpp]                }
 #end
 [$cpp]                return true;
@@ -951,13 +958,17 @@ REMOVE
 [$jav]               remove${property.shortType}( it.next(), true );
 [$jav]           }
 [$jav]       }
-[$jav]       public void remove${property.shortType}(${property.shortType} link, boolean bothSides ) throws omero.UnloadedEntityException, omero.UnloadedCollectionException {
+
+#if(!$type.superclass)
+[$ice]       void remove${property.shortType}(omero::model::${property.shortType} link, bool bothSides);
+#end
+[$jav]       public void remove${property.shortType}(${property.shortType} link, boolean bothSides, Ice.Current current  ) throws omero.UnloadedEntityException, omero.UnloadedCollectionException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$jav]           ${property.name}.remove( link );
 #if($bidir)
 [$jav]           if (bothSides && link.${other}.loaded) {
-[$jav]               ((${property.shortTarget}I)link.${other}).remove${property.shortType}(link, false );
+[$jav]               ((${property.shortTarget})link.${other}).remove${property.shortType}(link, false );
 [$jav]           }
 #end
 [$jav]       }
@@ -1034,8 +1045,6 @@ CLASS-LEVEL EXTRA METHODS:
 #end
 #end
 
-TODO: Should these be <>I or not?
-
 [$jav]       public void link(${parent} _parent, ${child} _child) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           setParent( _parent );
@@ -1045,9 +1054,9 @@ TODO: Should these be <>I or not?
 [$jav]           errorIfUnloaded();
 [$jav]           return (${parent}) parent;
 [$jav]       }
-[$jav]       public ${child}I child() throws omero.UnloadedEntityException{
+[$jav]       public ${child} child() throws omero.UnloadedEntityException{
 [$jav]           errorIfUnloaded();
-[$jav]           return (${child}I) child;
+[$jav]           return (${child}) child;
 [$jav]       }
 [$pyc]       def link(self, _parent, _child):
 [$pyc]           self.errorIfUnloaded()
@@ -1211,7 +1220,7 @@ END DECLARATION BLOCK:
 [$ice]     };
 [$ice]   };
 [$ice] };
-[$ice] #endif // ${POJOI}_ICE
+[$ice] #endif // ${POJO}_ICE
 [$pyc] _omero_model.${PojoI} = ${PojoI}
 #stop
 
