@@ -27,5 +27,7 @@
     <dependency org="org/hibernate" name="hibernate-tools" rev="3.1.0.beta4" conf="build->default"/> 
     <dependency org="org/hibernate" name="hibernate" rev="${versions.hibernate}" conf="build->default"/> 
     <dependency org="org/hibernate" name="jtidy" rev="r8-21122004" conf="build->default"/> 
+    <!-- Testing -->
+    <dependency org="jamon" name="jamon" rev="${versions.jamon}" conf="test->default"/> 
   </dependencies>
 </ivy-module>

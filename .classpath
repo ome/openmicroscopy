@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" output="target/eclipse-server" path="components/server/src"/>
+	<classpathentry kind="src" path="components/dsl/test"/>
+	<classpathentry kind="src" path="components/dsl/resources"/>
+	<classpathentry kind="src" path="components/dsl/src"/>
 	<classpathentry kind="src" path="components/rendering/target/generated/src"/>
 	<classpathentry kind="src" path="components/rendering/src"/>
 	<classpathentry kind="src" path="components/rendering/resources"/>
@@ -45,7 +48,6 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/dbunit.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/dom4j.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/drools-all-jdk5.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/dsl.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/ehcache.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/geronimo-spec-jta.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/groovy.jar"/>
