@@ -424,9 +424,8 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     private Thumbnail createThumbnailMetadata(int sizeX, int sizeY)
     {
         // Unload the pixels object to avoid transactional headaches
-        Pixels unloadedPixels = new Pixels(pixels.getId());
-        unloadedPixels.unload();
-        
+        Pixels unloadedPixels = new Pixels(pixels.getId(), false);
+
         Thumbnail thumb = new Thumbnail();
         thumb.setPixels(unloadedPixels);
         thumb.setMimeType(DEFAULT_MIME_TYPE);

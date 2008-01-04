@@ -39,8 +39,11 @@ import ome.model.internal.Permissions;
 import ome.security.SecureAction;
 import ome.services.util.OmeroAroundInvoke;
 
+import org.hibernate.SessionFactory;
+import org.hibernate.metadata.ClassMetadata;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.RemoteBindings;
 import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 

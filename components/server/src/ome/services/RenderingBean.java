@@ -160,7 +160,7 @@ public class RenderingBean extends AbstractLevel2Service implements
      * read-write lock to prevent READ-calls during WRITE operations. Unneeded
      * for remote invocations (EJB synchronizes).
      */
-    private transient final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+    private transient ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 
     /** Notification that the bean has just returned from passivation. */
     private transient boolean wasPassivated = false;
@@ -310,8 +310,7 @@ public class RenderingBean extends AbstractLevel2Service implements
     		// instance as pixelsObj; which if passed to IUpdate will be
     		// set unloaded by the service. We *really* don't want this.
     		// *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
-    		Pixels unloadedPixels = new Pixels(pixelsId);
-    		unloadedPixels.unload();
+    		Pixels unloadedPixels = new Pixels(pixelsId, false);
     		rendDefObj.setPixels(unloadedPixels);
     		
     		// Ensure that we do not have "dirty" pixels or rendering settings
@@ -604,17 +603,14 @@ public class RenderingBean extends AbstractLevel2Service implements
             
     	    // Unload the model object to avoid transactional headaches
     	    RenderingModel unloadedModel = 
-    	    	new RenderingModel(rendDefObj.getModel().getId());
-    	    unloadedModel.unload();
+    	    	new RenderingModel(rendDefObj.getModel().getId(), false);
     	    rendDefObj.setModel(unloadedModel);
             
     	    // Unload the family of each channel binding to avoid transactional 
     	    // headaches.
-    	    for (Object object : rendDefObj.getWaveRendering())
+    	    for (ChannelBinding binding : rendDefObj.unmodifiableWaveRendering())
     	    {
-    	    	ChannelBinding binding = (ChannelBinding) object;
-    	    	Family unloadedFamily = new Family(binding.getFamily().getId());
-    	    	unloadedFamily.unload();
+    	    	Family unloadedFamily = new Family(binding.getFamily().getId(), false);
     	    	binding.setFamily(unloadedFamily);
     	    }
             
