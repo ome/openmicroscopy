@@ -14,7 +14,8 @@ import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.IObject;
-import ome.model.annotations.Annotation;
+import ome.model.annotations.DatasetAnnotationLink;
+import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
@@ -378,23 +379,26 @@ public class CreatePojosFixture {
         return link;
     }
 
-    protected Annotation datasetann(Experimenter user, Dataset d, String name) {
+    protected DatasetAnnotationLink datasetann(Experimenter user, Dataset d,
+            String name) {
         TextAnnotation dann = new TextAnnotation();
         dann.setName(name);
         dann.getDetails().setOwner(user);
-        d.linkAnnotation(dann);
-        // UNNEEDED? dann = push(dann);
-        return dann;
+        DatasetAnnotationLink link = new DatasetAnnotationLink();
+        link.link(d, dann);
+        link = push(link);
+        return link;
     }
 
-    protected Annotation imageann(Experimenter user, Image i, String name) {
+    protected ImageAnnotationLink imageann(Experimenter user, Image i,
+            String name) {
         TextAnnotation iann = new TextAnnotation();
         iann.setName(name);
         iann.getDetails().setOwner(user);
-        i.linkAnnotation(iann);
-        // UNNEEDED? iann = push(iann);
-        // iann.setImage(i);
-        return iann;
+        ImageAnnotationLink link = new ImageAnnotationLink();
+        link.link(i, iann);
+        link = push(link);
+        return link;
     }
 
     protected CategoryGroup catgroup(Experimenter owner, String name) {

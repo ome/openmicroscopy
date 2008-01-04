@@ -249,6 +249,29 @@ class DSLHandler extends DefaultHandler {
             types.put(semanticType.getId(), semanticType);
         }
 
+        /**
+         * Now handling the named and described attributes in the
+         * code-generation to free up the templates from the responsibility
+         */
+        for (SemanticType namedOrDescribed : types.values()) {
+            Boolean named = namedOrDescribed.getNamed();
+            Boolean descrd = namedOrDescribed.getDescribed();
+            if (named != null && named.booleanValue()) {
+                Properties p = new Properties();
+                p.setProperty("name", "name");
+                p.setProperty("type", "string");
+                RequiredField r = new RequiredField(namedOrDescribed, p);
+                namedOrDescribed.getProperties().add(r);
+            }
+            if (descrd != null && descrd.booleanValue()) {
+                Properties p = new Properties();
+                p.setProperty("name", "description");
+                p.setProperty("type", "text");
+                OptionalField o = new OptionalField(namedOrDescribed, p);
+                namedOrDescribed.getProperties().add(o);
+            }
+        }
+
         /*
          * Example: Pixels: <zeromany name="thumbnails"
          * type="ome.model.display.Thumbnail" inverse="pixels"/> Thumnail:

@@ -7,6 +7,7 @@
 package ome.dsl;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -93,7 +94,7 @@ public class APITask extends Task {
                 FileWriter fw = new FileWriter(_outputDir + File.separator
                         + jclass.getFullyQualifiedName().replaceAll("[.]", "_")
                         + ".ice");
-                vh.invoke(new File("ome/dsl/api.vm"), fw);
+                vh.invoke(new FileInputStream(new File("ome/dsl/api.vm")), fw);
                 fw.flush();
                 fw.close();
             } catch (Exception e) {

@@ -345,9 +345,10 @@ public class PojosTest extends TestCase {
         ExperimenterData ed = new ExperimenterData(exp);
         assertNotNull(ed.getDefaultGroup());
         assertTrue(ed.getDefaultGroup().asGroup() == g1);
-        assertTrue(ed.getGroups().size() == 1);
-        assertTrue(g2 == ((GroupData) ed.getGroups().iterator().next())
-                .asGroup());
+        assertTrue(ed.getGroups().size() == 2);
+        Iterator<GroupData> it = ed.getGroups().iterator();
+        assertTrue(g1 == it.next().asGroup());
+        assertTrue(g2 == it.next().asGroup());
     }
 
 }

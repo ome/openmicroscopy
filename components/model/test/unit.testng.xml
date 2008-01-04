@@ -1,8 +1,8 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
   
-<suite name="common.unit" >
+<suite name="model.unit" >
   
-  <test name="common.unit.active">
+  <test name="model.unit.active">
     <groups>
       <run>
         <exclude name="broken"/>

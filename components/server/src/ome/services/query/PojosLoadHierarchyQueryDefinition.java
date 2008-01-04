@@ -59,7 +59,7 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
         if (po.isLeaves()) {
             // TODO refactor out the pix criteria below. (in several queries)
             Criteria pix = hierarchy[hierarchy.length - 1].createCriteria(
-                    "defaultPixels", LEFT_JOIN);
+                    "pixels", LEFT_JOIN);
             pix.createCriteria("pixelsType", LEFT_JOIN);
             pix.createCriteria("pixelsDimensions", LEFT_JOIN);
         }

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import ome.dsl.DSLTask;
 import ome.dsl.SaxReader;
 import ome.dsl.SemanticType;
 import ome.dsl.VelocityHelper;
@@ -56,7 +57,7 @@ public class ObjectsVmTest extends TestCase {
             Map h = new HashMap();
             h.put("test", "this was a dynamic key test");
             vh.put("test", h);
-            String s = vh.invoke("ome/dsl/object.vm");
+            String s = vh.invoke(DSLTask.getStream("ome/dsl/object.vm"));
             log.info("Results of invoke:" + s);
         }
 

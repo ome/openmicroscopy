@@ -15,7 +15,8 @@ import java.util.Properties;
 import ome.api.IQuery;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.testing.MockServiceFactory;
+import ome.system.OmeroContext;
+import ome.system.ServiceFactory;
 import ome.util.tasks.admin.ListUsersAndGroupsTask;
 
 import org.jmock.Mock;
@@ -27,7 +28,9 @@ import org.testng.annotations.Test;
  */
 public class ListUsersAndGroupsTaskTest extends MockObjectTestCase {
 
-    MockServiceFactory sf;
+    Mock mockQuery;
+
+    ServiceFactory sf;
 
     List<Experimenter> users;
 
@@ -47,14 +50,20 @@ public class ListUsersAndGroupsTaskTest extends MockObjectTestCase {
         groups_err.setProperty(GROUPS, "err");
     }
 
+    @Override
     @BeforeClass
     protected void setUp() throws Exception {
         super.setUp();
 
         data();
-        sf = new MockServiceFactory();
-        Mock m = mock(IQuery.class);
-        sf.mockQuery = m;
+        mockQuery = mock(IQuery.class);
+        final IQuery proxy = (IQuery) mockQuery.proxy();
+        sf = new ServiceFactory((OmeroContext) null) {
+            @Override
+            public IQuery getQueryService() {
+                return proxy;
+            }
+        };
 
     };
 
@@ -112,12 +121,12 @@ public class ListUsersAndGroupsTaskTest extends MockObjectTestCase {
     // =========================================================================
 
     void checksUsers() {
-        sf.mockQuery.expects(once()).method("findAllByQuery").will(
+        mockQuery.expects(once()).method("findAllByQuery").will(
                 returnValue(users));
     }
 
     void checksGroups() {
-        sf.mockQuery.expects(once()).method("findAllByQuery").will(
+        mockQuery.expects(once()).method("findAllByQuery").will(
                 returnValue(groups));
     }
 
@@ -133,8 +142,9 @@ public class ListUsersAndGroupsTaskTest extends MockObjectTestCase {
         Experimenter[] es = new Experimenter[3];
         for (int i = 0; i < es.length; i++) {
             es[i] = new Experimenter();
-            if (i == 0)
+            if (i == 0) {
                 continue; // testing null handling
+            }
             es[i].setId(Long.valueOf(i));
             es[i].setOmeName("name" + i);
             es[i].setFirstName("first" + i);
@@ -145,8 +155,9 @@ public class ListUsersAndGroupsTaskTest extends MockObjectTestCase {
         ExperimenterGroup[] gs = new ExperimenterGroup[3];
         for (int i = 0; i < gs.length; i++) {
             gs[i] = new ExperimenterGroup();
-            if (i == 0)
+            if (i == 0) {
                 continue; // testing null handling
+            }
             gs[i].setId(Long.valueOf(i));
             gs[i].setName("name" + i);
             gs[i].setDescription("desc" + i);

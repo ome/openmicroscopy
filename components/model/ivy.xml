@@ -13,7 +13,7 @@
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency name="dsl" rev="${omero.version}" changing="true" conf="build->build"/>
+    <dependency name="dsl" rev="${omero.version}" changing="true" conf="build->build,test"/>
     <!-- Public -->
     <dependency org="jboss" name="jboss-j2ee" rev="${versions.jboss}" conf="build->default"/>
     <dependency org="jboss" name="jboss-ejb3x" rev="${versions.jboss}" conf="build->default"/> 

@@ -488,13 +488,15 @@ public class UseSecurityTest extends AbstractPermissionsTest {
 
         // whether or not this is valid is handled in the ReadSecurityTest.
         // an exception here means something went wrong elsewhere; most likely,
-        // that one tried to creat objects with permissions xx_xx_xx
+        // that one tried to create objects with permissions xx_xx_xx
         createPixels(ownsfB, groupB, permsB);
         createImage(ownsfA, groupA, permsA, pix);
         verifyDetails(img, ownerA, groupA, permsA);
         verifyDetails(pix, ownerB, groupB, permsB);
 
-        verifyLockStatus(img, will_lock);
+        // This is no longer true; the "default tag" metaphor no longer
+        // exists, and so the image will not be automatically locked.
+        // verifyLockStatus(img, will_lock);
         verifyLockStatus(pix, will_lock); // both locked. see
         // https://trac.openmicroscopy.org.uk/omero/ticket/357
 

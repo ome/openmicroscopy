@@ -12,8 +12,8 @@ import java.util.Map;
 
 import ome.icy.model.itests.IceTest;
 import omero.model.IObject;
-import omero.model.ImageAnnotationI;
 import omero.model.ImageI;
+import omero.model.TextAnnotationI;
 
 import org.testng.annotations.Test;
 
@@ -25,15 +25,14 @@ public class PojosTest extends IceTest {
         ImageI i = new ImageI();
         i.setName("findAnnotationsTest");
 
-        ImageAnnotationI a = new ImageAnnotationI();
-        a.setContent("an annotation");
-        a.setImage(i);
+        TextAnnotationI a = new TextAnnotationI();
+        a.setTextValue("an annotation");
+        i.linkAnnotation(a);
 
-        a = (ImageAnnotationI) ice.getUpdateService(null)
-                .saveAndReturnObject(a);
+        i = (ImageI) ice.getUpdateService(null).saveAndReturnObject(i);
+        a = (TextAnnotationI) i.iterateAnnotationLinks().next();
 
         Map<Long, List<IObject>> retVal = ice.getPojosService(null)
-                .findAnnotations("Image", Arrays.asList(a.getImage().id.val),
-                        null, null);
+                .findAnnotations("Image", Arrays.asList(i.id.val), null, null);
     }
 }

@@ -14,6 +14,7 @@
   <dependencies>
     <!-- Internal -->
     <dependency name="common" rev="${omero.version}" changing="true" />
+    <dependency name="testing" rev="${omero.version}" changing="true" conf="test->test" />
     <dependency name="importer" rev="${omero.version}" changing="true" />
     <dependency name="romio" rev="${omero.version}" changing="true" />
     <dependency name="rendering" rev="${omero.version}" changing="true" />

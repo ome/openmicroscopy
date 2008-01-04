@@ -1026,7 +1026,6 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         verifyDetails(img, ownerA, groupA, permsA);
 
         String outerJoin = "select i from Image i "
-                + "left outer join fetch i.defaultPixels "
                 + "left outer join fetch i.pixels " + "where i.id = :id";
         Parameters params = new Parameters().addId(img.getId());
 
@@ -1037,7 +1036,6 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
                 assertNotNull(test.getPrimaryPixels());
                 assertTrue(test.sizeOfPixels() > 0);
             } else {
-                assertNull(test.getPrimaryPixels());
                 assertTrue(test.sizeOfPixels() == 0); // TODO should it be
                 // null?
             }

@@ -23,7 +23,7 @@
     only.
   </description>
 
-  <bean id="ome.client" class="ome.system.OmeroContext">
+  <bean id="ome.client.unused_p" class="ome.system.OmeroContext">
     <description>
       Used to test the lookups that clients would perform.
     </description>

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import ome.dsl.DSLTask;
 import ome.dsl.Property;
 import ome.dsl.SaxReader;
 import ome.dsl.SemanticType;
@@ -59,7 +60,7 @@ public class ExampleUsageTest extends TestCase {
             Map h = new HashMap();
             h.put("test", "this was a dynamic key test");
             vh.put("test", h);
-            String s = vh.invoke("ome/dsl/mapping.vm");
+            String s = vh.invoke(DSLTask.getStream("ome/dsl/mapping.vm"));
             log.info("Results of invoke:" + s);
         }
 
@@ -76,7 +77,7 @@ public class ExampleUsageTest extends TestCase {
             // FileWriter fw = new
             // FileWriter("/tmp/"+st.getId().replaceAll("[.]","_")+".hbm.xml");
             StringWriter sw = new StringWriter();
-            vh.invoke("ome/dsl/mapping.vm", sw);
+            vh.invoke(DSLTask.getStream("ome/dsl/mapping.vm"), sw);
             sw.flush();
             sw.close();
             // fw.flush();
@@ -145,7 +146,7 @@ public class ExampleUsageTest extends TestCase {
             // FileWriter fw = new
             // FileWriter("/tmp/"+st.getId().replaceAll("[.]","_")+".hbm.xml");
             StringWriter sw = new StringWriter();
-            vh.invoke("ome/dsl/mapping.vm", sw);
+            vh.invoke(DSLTask.getStream("ome/dsl/mapping.vm"), sw);
             sw.flush();
             sw.close();
             // fw.flush();

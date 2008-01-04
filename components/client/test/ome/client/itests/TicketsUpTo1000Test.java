@@ -184,6 +184,7 @@ public class TicketsUpTo1000Test extends TestCase {
 
     private Annotation makeAnnotation() {
         TextAnnotation annotation = new TextAnnotation();
+        annotation.setName("ticket:546");
         annotation.setTextValue("ticket:546");
         return annotation;
     }

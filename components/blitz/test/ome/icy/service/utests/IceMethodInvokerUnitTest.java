@@ -148,7 +148,8 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
             return null;
         }
 
-        public Map<Long, byte[]> getThumbnailSet(Integer sizeX, Integer sizeY, Set<Long> pixelsIds) {
+        public Map<Long, byte[]> getThumbnailSet(Integer sizeX, Integer sizeY,
+                Set<Long> pixelsIds) {
             return null;
         }
 
@@ -692,7 +693,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         paramMap.put(POJOLEAVES.value, new JBool(true));
         paramMap.put(POJOEXPERIMENTER.value, new JLong(1L));
         paramMap.put(POJOFIELDS.value, new JArray(new JString(
-                Dataset.ANNOTATIONS)));
+                Dataset.ANNOTATIONLINKS)));
 
         init(IPojos.class, "loadContainerHierarchy");
         method().with(ANYTHING, ANYTHING, new Constraint() {
@@ -715,7 +716,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
                         return false;
                     }
                     List<String> fields = Arrays.asList(po.countFields());
-                    if (!fields.contains(Dataset.ANNOTATIONS)) {
+                    if (!fields.contains(Dataset.ANNOTATIONLINKS)) {
                         return false;
                     }
                 }

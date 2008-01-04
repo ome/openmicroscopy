@@ -810,7 +810,7 @@ clear
 
 Link Modifications
 
-#elseif( $hasLink )
+#if( $hasLink )
 
 Here our "elements" from the above are the links which themselves
 have linked elements.
@@ -1016,7 +1016,8 @@ REMOVE
 
 
 
-#end
+#end##End hasLink
+#end##End hasSet
 
 ##################################################################
 #end##FOREACH#####################################################

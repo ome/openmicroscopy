@@ -56,10 +56,13 @@ public class FindContainersQueryTest extends AbstractManagedContextTest {
     }
 
     private long createPixelsFromImage(long imageId, boolean def) {
+        Image i = iPojos.getImages(Image.class, Collections.singleton(imageId),
+                null).iterator().next();
         Pixels pix = ObjectFactory.createPixelGraph(null);
-        pix.setImage(new Image(imageId, false));
-        pix.setDefaultPixels(def);
-        return this.iPojos.createDataObject(pix, null).getId().longValue();
+        i.addPixels(pix);
+        i = this.iPojos.updateDataObject(i, null);
+        pix = i.getPixels(i.sizeOfPixels() - 1);
+        return pix.getId().longValue();
     }
 
 }

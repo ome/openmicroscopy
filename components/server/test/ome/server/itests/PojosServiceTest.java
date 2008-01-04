@@ -15,7 +15,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -120,52 +119,57 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         assertEquals(i.getDetails().getCounts().get(Image.ANNOTATIONLINKS), 1L);
 
     }
-    
+
     // ticket 651
     public void testIntervalInPojoOptions() {
-    	Long userID = factory.getAdminService().getEventContext().getCurrentUserId();
-    	// create
-    	Dataset ds = new Dataset();
+        Long userID = factory.getAdminService().getEventContext()
+                .getCurrentUserId();
+        // create
+        Dataset ds = new Dataset();
         ds.setName("ticket:651");
         Image im = new Image();
         im.setName("ticket:651");
         Pixels pi = ObjectFactory.createPixelGraph(null);
-        pi.setDefaultPixels(Boolean.TRUE);
         im.addPixels(pi);
         ds.linkImage(im);
         ds = iUpdate.saveAndReturnObject(ds);
-    	
-        // test        
-    	Timestamp startTime = getDate("before");
-		Timestamp endTime = getDate("after");
 
-		PojoOptions options = new PojoOptions();
-		options.exp(userID);
-		options.allCounts();
-		options.countsFor(new Long(userID));
-		options.startTime(startTime);
-		options.endTime(endTime);
+        // test
+        Timestamp startTime = getDate("before");
+        Timestamp endTime = getDate("after");
 
-		iPojos.getImagesByOptions(options.map());
-		iPojos.getImages(Dataset.class,Collections
-                .singleton(ds.getId()), options.map());
+        PojoOptions options = new PojoOptions();
+        options.exp(userID);
+        options.allCounts();
+        options.countsFor(new Long(userID));
+        options.startTime(startTime);
+        options.endTime(endTime);
+
+        iPojos.getImagesByOptions(options.map());
+        iPojos.getImages(Dataset.class, Collections.singleton(ds.getId()),
+                options.map());
     }
-    
+
     // ~ Helpers
     // =========================================================================
 
     private Timestamp getDate(String arg) {
-    		Calendar cal = Calendar.getInstance();
-    		cal.setLenient( true );
-    		cal.setTime( new Date() );
-    		if(arg.equals("after")) cal.add(Calendar.DATE, +1);
-    		if(arg.equals("before")) cal.add(Calendar.DATE, -1);
-    		Date yesterday = cal.getTime();
-    		SimpleDateFormat  currentDate = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
-    		Timestamp time = Timestamp.valueOf(currentDate.format(yesterday));
-    		return(time);
+        Calendar cal = Calendar.getInstance();
+        cal.setLenient(true);
+        cal.setTime(new Date());
+        if (arg.equals("after")) {
+            cal.add(Calendar.DATE, +1);
+        }
+        if (arg.equals("before")) {
+            cal.add(Calendar.DATE, -1);
+        }
+        Date yesterday = cal.getTime();
+        SimpleDateFormat currentDate = new SimpleDateFormat(
+                "yyyy-MM-dd hh:mm:ss");
+        Timestamp time = Timestamp.valueOf(currentDate.format(yesterday));
+        return (time);
     }
-    
+
     private Annotation createLinkedTextAnnotation() {
         TextAnnotation da = new TextAnnotation();
         Dataset ds = new Dataset();

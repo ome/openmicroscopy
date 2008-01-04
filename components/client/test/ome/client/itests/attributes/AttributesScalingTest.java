@@ -84,6 +84,7 @@ public class AttributesScalingTest extends TestCase {
                 for (int k = 0; k < random.nextInt(5); k++) {
 
                     TextAnnotation annotation = new TextAnnotation();
+                    annotation.setName("scalingtest");
                     annotation.setTextValue(loop);
                     image.linkAnnotation(annotation);
                 }

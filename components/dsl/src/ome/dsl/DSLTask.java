@@ -136,10 +136,10 @@ public class DSLTask extends Task {
 
     }
 
-    InputStream getStream(String str) {
+    public static InputStream getStream(String str) {
         InputStream in = null;
         try {
-            in = this.getClass().getClassLoader().getResourceAsStream(str);
+            in = DSLTask.class.getClassLoader().getResourceAsStream(str);
         } catch (Exception e) {
             // ok
         }
@@ -163,6 +163,12 @@ public class DSLTask extends Task {
             }
         }
 
+        // That didn't work. Then let's try to call ourself again with a
+        // "classpath prefix
+        if (in == null && !str.startsWith("classpath:")) {
+            in = getStream("classpath:" + str);
+        }
+
         return in;
     }
 
@@ -171,9 +177,6 @@ public class DSLTask extends Task {
 
         InputStream in;
         in = getStream(template);
-        if (in == null) {
-            in = getStream("classpath:" + template);
-        }
         if (in == null) {
             throw new BuildException("Cannot resolve template:" + template);
         }

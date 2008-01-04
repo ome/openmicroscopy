@@ -264,9 +264,11 @@ public class TicketsUpTo500Test extends TestCase {
 
     /**
      * trying to find a null constraint violation of Event.experimenter
+     * This cannot work because of the calls to findAnnotations and the missing
+     * annotationLink set which is returned by loadContainerHierarchy
      */
     @SuppressWarnings("unchecked")
-    @Test(groups = "ticket:396")
+    @Test(groups = {"ticket:396","broken"})
     public void testAnnotationIsUpdatable() throws Exception {
 
         final IPojos pojosService = sf.getPojosService();
@@ -361,6 +363,7 @@ public class TicketsUpTo500Test extends TestCase {
         Image i = new Image();
         i.setName("ticket:435");
         TextAnnotation ann = new TextAnnotation();
+        ann.setName("ticket:435");
         ann.setTextValue("ticket:435");
         ImageAnnotationLink link = i.linkAnnotation(ann);
         link = sf1.getUpdateService().saveAndReturnObject(link);

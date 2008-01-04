@@ -15,6 +15,7 @@
     <!-- Internal -->
     <dependency name="common" rev="${omero.version}" changing="true" />
     <dependency name="model" rev="${omero.version}" changing="true" />
+    <dependency name="testing" rev="${omero.version}" changing="true" conf="test->test"/>
     <!-- Not included above -->
     <dependency org="omero" name="jbossall-client" rev="${versions.jboss}" conf="build->default"/>
   </dependencies>
