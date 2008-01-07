@@ -21,7 +21,7 @@
  */
 
 
-package ui;
+package ui.components;
 
 import java.awt.Event;
 import java.awt.Insets;

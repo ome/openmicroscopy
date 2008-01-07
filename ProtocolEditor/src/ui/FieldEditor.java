@@ -47,6 +47,7 @@ import ui.components.AttributeEditor;
 import ui.components.AttributeMemoFormatEditor;
 import ui.components.ColourMenuItem;
 import ui.components.ColourPopupMenu;
+import ui.components.SimpleHTMLEditorPane;
 import util.ImageFactory;
 
 public class FieldEditor extends JPanel implements DataFieldObserver {
