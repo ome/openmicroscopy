@@ -35,6 +35,7 @@ import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import tree.DataField;
 import tree.DataFieldObserver;
@@ -42,20 +43,25 @@ import tree.DataFieldObserver;
 public class AttributesDialog extends JDialog implements DataFieldObserver{
 	
 	JComponent parent;
-	AttributesPanel attributesPanel;
+	
+	DataField dataField;
+	Box customAttributesBox;
+	ArrayList<AttributeEditor> customAttributesFields = new ArrayList<AttributeEditor>();
 	
 	
 	public AttributesDialog(JComponent parent, DataField dataField) {
 		
 		this.parent = parent;
+		this.dataField = dataField;
+		
 		dataField.addDataFieldObserver(this);
 		
 		setModal(false);
 		setUndecorated(true);
 		
-		attributesPanel = new AttributesPanel(dataField);
-		
-		getContentPane().add(attributesPanel, BorderLayout.CENTER);
+		customAttributesBox = Box.createVerticalBox();
+		displayAllAttributes();
+		getContentPane().add(customAttributesBox, BorderLayout.CENTER);
 		
 		pack();
 		
@@ -67,52 +73,39 @@ public class AttributesDialog extends JDialog implements DataFieldObserver{
 	}
 	
 	public void dataFieldUpdated() {
-		attributesPanel.updateValues();
+		updateValues();
 		showAttributesDialog();
 	}
 	
-	
-	public class AttributesPanel extends AbstractDataFieldPanel {
+
+	public void displayAllAttributes() {
+		LinkedHashMap<String, String> allAttributes = dataField.getAllAttributes();
 		
-		Box customAttributesBox;
-		ArrayList<AttributeEditor> customAttributesFields = new ArrayList<AttributeEditor>();
+		Iterator keyIterator = allAttributes.keySet().iterator();
 		
-		
-		public AttributesPanel(DataField dataField) {
-			this.dataField = dataField;
-			customAttributesBox = Box.createVerticalBox();
-			displayAllAttributes();
-			this.add(customAttributesBox);
-		}
-	
-		public void displayAllAttributes() {
-			LinkedHashMap<String, String> allAttributes = dataField.getAllAttributes();
-		
-			Iterator keyIterator = allAttributes.keySet().iterator();
-		
-			while (keyIterator.hasNext()) {
-				String name = (String)keyIterator.next();
-				String value = allAttributes.get(name);
+		while (keyIterator.hasNext()) {
+			String name = (String)keyIterator.next();
+			String value = allAttributes.get(name);
 			
-				// don't display these attributes
-				if ((name.equals(DataField.ELEMENT_NAME )) || (name.equals(DataField.INPUT_TYPE))
-						|| (name.equals(DataField.SUBSTEPS_COLLAPSED)) || (name.equals(DataField.TEXT_NODE_VALUE))) continue;
+			// don't display these attributes
+			if ((name.equals(DataField.ELEMENT_NAME )) || (name.equals(DataField.INPUT_TYPE))
+					|| (name.equals(DataField.SUBSTEPS_COLLAPSED)) || (name.equals(DataField.TEXT_NODE_VALUE))) continue;
 			
-				AttributeEditor attributeEditor = new AttributeEditor(name, value);
+			AttributeEditor attributeEditor = new AttributeEditor(dataField, name, value);
 			
-				// keep a list of fields
-				customAttributesFields.add(attributeEditor);
-				customAttributesBox.add(attributeEditor);
-			}
-		}
-		
-		public void updateValues() {
-			for (AttributeEditor field: customAttributesFields) {
-				String attribute = field.getTextField().getName();
-				String value = dataField.getAttribute(attribute);
-				field.getTextField().setText(value);
-			}
+			// keep a list of fields
+			customAttributesFields.add(attributeEditor);
+			customAttributesBox.add(attributeEditor);
 		}
 	}
-	
+		
+	public void updateValues() {
+		for (AttributeEditor field: customAttributesFields) {
+			String attribute = field.getTextField().getName();
+			String value = dataField.getAttribute(attribute);
+			field.getTextField().setText(value);
+		}
+	}
 }
+	
+

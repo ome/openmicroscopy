@@ -148,7 +148,8 @@ public class IndexFiles {
     		// need a "snippet" field for clustering search results with Carrot2
     		// this should be a String????
     		// but for clustering, want all of the document (or a large chunk?)
-    		String wholeDocText = "";
+    		/* 
+    		 String wholeDocText = "";
         	try{
         		ArrayList<HashMap> elements = new XMLMethods().getAllXmlFileAttributes(file);
         	
@@ -169,9 +170,10 @@ public class IndexFiles {
         	} catch (FileNotFoundException ex) {
 	        } catch (SAXParseException ex) {
 	        }
+	        
     		
     		doc.add(new Field("snippet", wholeDocText, Field.Store.YES, Field.Index.TOKENIZED));
-
+			*/
     		
             writer.addDocument(doc);
             
