@@ -20,7 +20,7 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package ui;
+package ui.components;
 
 import java.awt.BorderLayout;
 import java.awt.event.FocusEvent;

@@ -26,6 +26,7 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import tree.DataField;
+import ui.components.AttributeEditor;
 
 public class FieldEditorDate extends FieldEditor {
 	

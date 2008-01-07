@@ -43,6 +43,10 @@ import javax.swing.border.EmptyBorder;
 
 import tree.DataField;
 import tree.DataFieldObserver;
+import ui.components.AttributeEditor;
+import ui.components.AttributeMemoFormatEditor;
+import ui.components.ColourMenuItem;
+import ui.components.ColourPopupMenu;
 import util.ImageFactory;
 
 public class FieldEditor extends JPanel implements DataFieldObserver {

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ui;
+package ui.components;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -23,6 +23,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 
 import tree.DataField;
+import ui.SimpleHTMLEditorPane;
 import util.ImageFactory;
 
 public class AttributeMemoFormatEditor extends JPanel{

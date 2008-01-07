@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import org.w3c.dom.Element;
 
 import tree.DataField;
+import ui.components.AttributeEditor;
 
 
 public class FieldEditorText extends FieldEditor {

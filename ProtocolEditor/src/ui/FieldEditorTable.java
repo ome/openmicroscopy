@@ -29,6 +29,7 @@ import javax.swing.JOptionPane;
 import javax.swing.text.JTextComponent;
 
 import tree.DataField;
+import ui.components.AttributeMemoEditor;
 
 public class FieldEditorTable extends FieldEditor {
 	
@@ -85,17 +86,14 @@ public class FieldEditorTable extends FieldEditor {
 							"This will delete all the data in " + (deletedCols == 1? "this column":"these columns.") + "\n" +
 							"Are you sure you want to continue?", "Delete Columns?", JOptionPane.OK_CANCEL_OPTION);
 					if (confirm != JOptionPane.OK_OPTION) {
-						// user has canceled update, simple reset textBox
-						attributeTextField.setText(oldColumnNames);
-						textChanged = false;
+						// user has canceled update, simply reset textBox
+						tableColumnsEditor.setTextAreaText(oldColumnNames);
 						return;
 					}
 				} 
 			} 
 			// the user didn't get asked, or chose not to cancel, therefore update!
-			dataField.setAttribute(attributeName, newColumnNames, notifyUndoRedo);
-			
-			textChanged = false;
+			super.setDataFieldAttribute(attributeName, newColumnNames, true);
 		}
 	}
 	

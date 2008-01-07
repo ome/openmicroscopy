@@ -1,4 +1,4 @@
-package ui;
+package ui.components;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -14,7 +14,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 /* 1.4 example used by DialogDemo.java. */
-class ExportDialog extends JDialog
+public class ExportDialog extends JDialog
                    implements ActionListener,
                    PropertyChangeListener{
 

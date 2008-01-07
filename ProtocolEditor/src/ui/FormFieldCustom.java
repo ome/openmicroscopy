@@ -30,6 +30,7 @@ import javax.swing.JButton;
 import javax.swing.JTextField;
 
 import tree.DataField;
+import ui.components.AttributesDialog;
 import util.ImageFactory;
 
 public class FormFieldCustom extends FormField {

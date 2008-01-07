@@ -23,6 +23,7 @@
 package ui;
 
 import tree.DataField;
+import ui.components.AttributeMemoEditor;
 
 
 public class FieldEditorMemo extends FieldEditor {

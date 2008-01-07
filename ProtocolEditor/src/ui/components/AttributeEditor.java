@@ -1,21 +1,20 @@
-package ui;
+package ui.components;
 
-import java.awt.BorderLayout;
-import java.awt.Insets;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 
 import tree.DataField;
 
-public class AttributeMemoEditor extends JPanel {
+public class AttributeEditor extends JPanel {
 	
 boolean textChanged;
 	
@@ -24,49 +23,45 @@ boolean textChanged;
 	TextChangedListener textChangedListener = new TextChangedListener();
 	FocusListener focusChangedListener = new FocusChangedListener();
 	
-	JTextArea attributeTextField;
+	JTextField attributeTextField;
+	JLabel attributeName;
 	
-	// constructor creates a new panel and adds a name and text area to it.
-	public AttributeMemoEditor(DataField dataField, String attribute, String value) {
+	// constructor creates a new panel and adds a name and text field to it.
+	public AttributeEditor(DataField dataField, String attribute, String value) {
 		this(dataField, attribute, attribute, value);
 	}
-	public AttributeMemoEditor(DataField dataField, String label, String attribute, String value) {
+	
+	public AttributeEditor(DataField dataField, String label, String attribute, String value) {
 		
 		this.dataField = dataField;
 		
 		this.setBorder(new EmptyBorder(3,3,3,3));
-		JLabel attributeName = new JLabel(label);
-		attributeTextField = new JTextArea(value);
+		attributeName = new JLabel(label);
+		attributeTextField = new JTextField(value);
 		attributeTextField.setName(attribute);
-		attributeTextField.setRows(5);
-		attributeTextField.setLineWrap(true);
-		attributeTextField.setWrapStyleWord(true);
-		attributeTextField.setMargin(new Insets(3,3,3,3));
-		this.setLayout(new BorderLayout());
+		attributeTextField.setColumns(15);
+		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		attributeTextField.addKeyListener(textChangedListener);
 		attributeTextField.addFocusListener(focusChangedListener);
-		this.add(attributeName, BorderLayout.NORTH);
-		this.add(attributeTextField, BorderLayout.CENTER);
+		this.add(attributeName);
+		this.add(attributeTextField);
 	}
-	
-	public String getTextAreaText() {
-		return attributeTextField.getText();
+		
+	public String getTextFieldText() {
+			return attributeTextField.getText();
 	}
-	public void setTextAreaText(String text) {
+	public String getAttributeName() {
+		return attributeName.getText();
+	}
+	public void setTextFieldText(String text) {
 		attributeTextField.setText(text);
 	}
-	public void setTextAreaRows(int rows) {
-		attributeTextField.setRows(rows);
-	}
-	public JTextArea getTextArea() {
+	// to allow more precise manipulation of this field
+	public JTextField getTextField() {
 		return attributeTextField;
 	}
-	public void removeFocusListener() {
-		attributeTextField.removeFocusListener(focusChangedListener);
-	}
 	
-	
-	public class TextChangedListener implements KeyListener {
+public class TextChangedListener implements KeyListener {
 		
 		public void keyTyped(KeyEvent event) {
 			textChanged = true;		// some character was typed, so set this flag

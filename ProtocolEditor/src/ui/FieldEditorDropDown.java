@@ -32,6 +32,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import tree.DataField;
+import ui.components.AttributeMemoEditor;
 
 public class FieldEditorDropDown extends FieldEditor {
 	

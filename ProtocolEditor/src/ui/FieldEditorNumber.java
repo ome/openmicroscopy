@@ -31,6 +31,7 @@ import javax.swing.JTextField;
 
 import tree.DataField;
 import ui.FormField.FormPanelMouseListener;
+import ui.components.AttributeEditor;
 
 public class FieldEditorNumber extends FieldEditor {
 	

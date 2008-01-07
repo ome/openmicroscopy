@@ -28,6 +28,7 @@ import javax.swing.BorderFactory;
 import javax.swing.border.EtchedBorder;
 
 import tree.DataField;
+import ui.components.AttributeEditor;
 
 public class FieldEditorProtocol extends FieldEditor {
 	
