@@ -23,8 +23,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 
 import tree.DataField;
-import ui.AbstractDataFieldPanel.FocusChangedListener;
-import ui.AbstractDataFieldPanel.TextChangedListener;
 import util.ImageFactory;
 
 public class AttributeMemoFormatEditor extends JPanel{

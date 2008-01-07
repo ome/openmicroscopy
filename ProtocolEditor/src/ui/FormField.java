@@ -45,8 +45,6 @@ import javax.swing.text.JTextComponent;
 
 import tree.DataField;
 import tree.DataFieldObserver;
-import ui.AbstractDataFieldPanel.FocusChangedListener;
-import ui.AbstractDataFieldPanel.TextChangedListener;
 import util.BareBonesBrowserLaunch;
 import util.ImageFactory;
 
