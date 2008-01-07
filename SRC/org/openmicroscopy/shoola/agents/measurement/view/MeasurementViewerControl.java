@@ -538,4 +538,13 @@ class MeasurementViewerControl
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jhotdraw.draw.FigureListener#figureHandlesChanged(org.jhotdraw.draw.FigureEvent)
+	 */
+	public void figureHandlesChanged(FigureEvent arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
 }

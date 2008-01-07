@@ -146,7 +146,7 @@ public class MeasureBezierFigure
 		super.draw(g);
 		if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
 		{
-			if(CLOSED.get(this))
+			if(isClosed())
 			{
 				NumberFormat formatter = new DecimalFormat("###.#");
 				String polygonArea = formatter.format(getArea());
@@ -269,7 +269,7 @@ public class MeasureBezierFigure
 	 */
 	private Point2D.Double getPt(int i)
 	{
-		Point2D.Double pt = getPoint(i); 
+		Point2D.Double pt = getNode(i).getControlPoint(0); 
 			//new Point2D.Double(path.get(i).x[0],path.get(i).y[0]);
 		if (units.isInMicrons())
 			return new Point2D.Double(	pt.getX()*units.getMicronsPixelX(), 
@@ -285,13 +285,22 @@ public class MeasureBezierFigure
 	{
 		double length = 0;
 		Point2D p0, p1;
-		for (int i = 0 ; i < getPointCount()-1 ; i++)
+		for (int i = 0 ; i < path.size()-1 ; i++)
 		{
-			p0 = getPt(i);
-			p1 = getPt(i+1);
+			p0 = path.get(i).getControlPoint(0);
+			p1 = path.get(i+1).getControlPoint(0);
 			length += p0.distance(p1);
 		}
 		return length;
+	}
+	
+	/** 
+	 * Get the number of points.
+	 * @return see above. 
+	 */
+	public int getPointCount()
+	{
+		return this.getPoints().length;
 	}
 	
 	/**
@@ -337,7 +346,7 @@ public class MeasureBezierFigure
 	 */
 	public void measureBasicRemoveNode(int index)
 	{
-		this.basicRemoveNode(index);
+		this.removeNode(index);
 	}
 	
 	/**
@@ -371,19 +380,19 @@ public class MeasureBezierFigure
 	public void calculateMeasurements() 
 	{
 		if (shape==null) return;
-		
+		if(getNodeCount()<2)
+			return;
 		pointArrayX.clear();
 		pointArrayY.clear();
 		Point2D.Double pt;
 		for (int i = 0 ; i < path.size(); i++)
 		{
-			pt = getPt(i);
-			pointArrayX.add(pt.getX());
-			pointArrayY.add(pt.getY());
+			pointArrayX.add(path.get(i).getControlPoint(0).getX());
+			pointArrayY.add(path.get(i).getControlPoint(0).getY());
 		}
 		AnnotationKeys.POINTARRAYX.set(shape, pointArrayX);
 		AnnotationKeys.POINTARRAYY.set(shape, pointArrayY);
-		if (CLOSED.get(this))
+		if (isClosed())
 		{
 			AnnotationKeys.AREA.set(shape,getArea());
 			AnnotationKeys.PERIMETER.set(shape, getLength());
@@ -410,7 +419,7 @@ public class MeasureBezierFigure
 	 */
 	public String getType()
 	{
-		if (CLOSED.get(this)) return FigureUtil.POLYGON_TYPE;
+		if (isClosed()) return FigureUtil.POLYGON_TYPE;
 		return FigureUtil.SCRIBBLE_TYPE;
 	}
 

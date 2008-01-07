@@ -39,11 +39,13 @@ import java.text.AttributedString;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedDecoratedFigure;
 import org.jhotdraw.draw.AttributeKeys;
+import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.FontSizeHandle;
 import org.jhotdraw.draw.Handle;
 import org.jhotdraw.draw.TextAreaTool;
@@ -69,7 +71,10 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
  * </small>
  * @since OME3.0
  */
-public class MeasureTextArea  extends AbstractAttributedDecoratedFigure implements TextHolderFigure {
+public class MeasureTextArea  
+	extends AbstractAttributedDecoratedFigure 
+	implements TextHolderFigure 
+{
     private Rectangle2D.Double bounds = new Rectangle2D.Double();
     private boolean editable = true;
      // cache of the TextFigure's layout
@@ -88,7 +93,7 @@ public class MeasureTextArea  extends AbstractAttributedDecoratedFigure implemen
         if (getText() != null || isEditable()) {
             
             Font font = getFont();
-            boolean isUnderlined = MeasurementAttributes.FONT_UNDERLINED.get(this);
+            boolean isUnderlined = MeasurementAttributes.FONT_UNDERLINE.get(this);
             Insets2D.Double insets = getInsets();
             Rectangle2D.Double textRect = new Rectangle2D.Double(
                     bounds.x + insets.left,
@@ -401,5 +406,22 @@ public class MeasureTextArea  extends AbstractAttributedDecoratedFigure implemen
         writeBounds(out);
         writeAttributes(out);
     }
+	/* (non-Javadoc)
+	 * @see org.jhotdraw.draw.TextHolderFigure#isTextOverflow()
+	 */
+	public boolean isTextOverflow()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.jhotdraw.draw.Figure#transform(java.awt.geom.AffineTransform)
+	 */
+	public void transform(AffineTransform tx)
+	{
+		// TODO Auto-generated method stub
+		
+	}
     
 }

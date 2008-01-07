@@ -80,7 +80,7 @@ public class MeasureTextFigure
     {
     	super();
     	this.willChange();
-    	this.basicSetBounds(new Point2D.Double(x, y), new Point2D.Double(x, y));
+    	this.setBounds(new Point2D.Double(x, y), new Point2D.Double(x, y));
     	this.changed();
     	shape = null;
    		roi = null;

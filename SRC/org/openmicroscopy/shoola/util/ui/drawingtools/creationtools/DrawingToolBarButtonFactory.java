@@ -35,10 +35,10 @@ import org.jhotdraw.app.action.DuplicateAction;
 import org.jhotdraw.app.action.SelectAllAction;
 import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.Tool;
+import org.jhotdraw.draw.action.ButtonFactory;
 import org.jhotdraw.draw.action.MoveToBackAction;
 import org.jhotdraw.draw.action.MoveToFrontAction;
 import org.jhotdraw.draw.action.SelectSameAction;
-import org.jhotdraw.draw.action.ToolBarButtonFactory;
 import org.jhotdraw.util.ResourceBundleUtil;
 
 //Application-internal dependencies
@@ -102,7 +102,7 @@ public class DrawingToolBarButtonFactory
     public static void addSelectionToolTo(JToolBar tb, 
     					final DrawingEditor editor)
     {
-        ToolBarButtonFactory.addSelectionToolTo(tb, editor, 
+    	ButtonFactory.addSelectionToolTo(tb, editor, 
         		createDrawingActions(editor), createSelectionActions(editor));
     }
     
@@ -118,7 +118,7 @@ public class DrawingToolBarButtonFactory
             Tool tool, String labelKey)
     {
     	ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle(BASE_NAME);
-    	ToolBarButtonFactory.addToolTo(tb, editor, tool, labelKey, labels);
+    	ButtonFactory.addToolTo(tb, editor, tool, labelKey, labels);
     }
     
     /**

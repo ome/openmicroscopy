@@ -32,8 +32,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+
 //Third-party libraries
 import org.jhotdraw.draw.CreationTool;
+import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.TextHolderFigure;
@@ -117,7 +122,21 @@ public class DrawingTextTool
         if (textField.getText().length() > 0) {
             typingTarget.setText(textField.getText());
             if (createdFigure != null) {
-                getDrawing().fireUndoableEditHappened(creationEdit);
+            	final Figure addedFigure = createdFigure;
+                final Drawing addedDrawing = getDrawing();
+                getDrawing().fireUndoableEditHappened(new AbstractUndoableEdit() {
+                   public String getPresentationName() {
+                       return getPresentationName();
+                   }
+                   public void undo() throws CannotUndoException {
+                       super.undo();
+                       addedDrawing.remove(addedFigure);
+                   }
+                   public void redo() throws CannotRedoException {
+                       super.redo();
+                       addedDrawing.add(addedFigure);
+                   }
+               });    
                 createdFigure = null;
             }
         } else {

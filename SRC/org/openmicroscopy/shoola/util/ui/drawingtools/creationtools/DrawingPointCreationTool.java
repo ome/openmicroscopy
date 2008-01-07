@@ -28,9 +28,14 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+
 //Third-party libraries
 import org.jhotdraw.draw.CompositeFigure;
 import org.jhotdraw.draw.CreationTool;
+import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
@@ -74,7 +79,7 @@ public class DrawingPointCreationTool
 		Point2D.Double p2 = constrainPoint(viewToDrawing(new 
 			Point((int) (x+size), (int) (y+size))));
 		createdFigure.willChange();
-		createdFigure.basicSetBounds(p, p2);
+		createdFigure.setBounds(p, p2);
 		createdFigure.changed();
 	}
 	/**
@@ -152,7 +157,7 @@ public class DrawingPointCreationTool
 				Point2D.Double newP2 = new Point2D.Double(
 					centre.getX()+size, centre.getY()+size);
 				createdFigure.willChange();
-				createdFigure.basicSetBounds(newP1, newP2);
+				createdFigure.setBounds(newP1, newP2);
 				createdFigure.changed();
 			}
 			getView().addToSelection(createdFigure);
@@ -161,7 +166,21 @@ public class DrawingPointCreationTool
 		{
 			((CompositeFigure) createdFigure).layout();
 		}
-		getDrawing().fireUndoableEditHappened(creationEdit);
+		 final Figure addedFigure = createdFigure;
+         final Drawing addedDrawing = getDrawing();
+         getDrawing().fireUndoableEditHappened(new AbstractUndoableEdit() {
+            public String getPresentationName() {
+                return getPresentationName();
+            }
+            public void undo() throws CannotUndoException {
+                super.undo();
+                addedDrawing.remove(addedFigure);
+            }
+            public void redo() throws CannotRedoException {
+                super.redo();
+                addedDrawing.add(addedFigure);
+            }
+        });
 		creationFinished(createdFigure);
 		createdFigure = null;
 	}

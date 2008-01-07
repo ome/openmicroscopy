@@ -78,7 +78,7 @@ public class LineTextFigure
 		if (textLayout == null) 
 			textLayout = FigureUtil.createLayout(getText(), 
 								getFontRenderContext(), getFont(), 
-								AttributeKeys.FONT_UNDERLINED.get(this));
+								AttributeKeys.FONT_UNDERLINE.get(this));
 		return textLayout;
 	}
 	
@@ -295,5 +295,23 @@ public class LineTextFigure
 	 * @see TextHolderFigure#setFontSize(float)
 	 */
 	public void setFontSize(float size)  {}
+
+	/* (non-Javadoc)
+	 * @see org.jhotdraw.draw.TextHolderFigure#isTextOverflow()
+	 */
+	public boolean isTextOverflow()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	/**
+	 * Get the number of points in the line. 
+	 */
+	public int getPointCount()
+	{
+		return getNodeCount();
+	}
+
 	
 }

@@ -32,9 +32,11 @@ import java.awt.Graphics2D;
 import java.awt.font.TextLayout;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Map;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
+import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.LineConnectionFigure;
 import org.jhotdraw.draw.TextHolderFigure;
 import org.jhotdraw.draw.Tool;
@@ -81,7 +83,7 @@ public class LineConnectionTextFigure
 		if (textLayout == null) 
 			textLayout = FigureUtil.createLayout(getText(), 
 								getFontRenderContext(), getFont(), 
-								AttributeKeys.FONT_UNDERLINED.get(this));
+								AttributeKeys.FONT_UNDERLINE.get(this));
 		return textLayout;
 	}
 	
@@ -288,5 +290,14 @@ public class LineConnectionTextFigure
 	 * @see TextHolderFigure#setFontSize(float)
 	 */
 	public void setFontSize(float size)  {}
+
+	/* (non-Javadoc)
+	 * @see org.jhotdraw.draw.TextHolderFigure#isTextOverflow()
+	 */
+	public boolean isTextOverflow()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 }

@@ -471,6 +471,22 @@ public class MeasureLineConnectionFigure
 		}
 		return (PlanePoint2D[]) vector.toArray(new PlanePoint2D[vector.size()]);
 	}
+
+	/**
+	 * Get the number of points in the line. 
+	 */
+	public int getPointCount()
+	{
+		return getNodeCount();
+	}
+	
+	/**
+	 * Overridden method for bezier, make public what 7.0 made private.
+	 */
+	public void removeAllNodes()
+	{
+		super.removeAllNodes();
+	}
 	
 }
 

@@ -492,7 +492,15 @@ public class MeasureLineFigure
 			Point2D p  = i.next();
 			vector.add(new PlanePoint2D(p.getX(), p.getY()));
 		}
-		
+	
+	}
+
+	/**
+	 * Overridden method for bezier, make public what 7.0 made private.
+	 */
+	public void removeAllNodes()
+	{
+		super.removeAllNodes();
 	}
 	
 }

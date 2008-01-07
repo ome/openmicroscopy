@@ -29,9 +29,14 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+
 //Third-party libraries
 import org.jhotdraw.draw.CompositeFigure;
 import org.jhotdraw.draw.CreationTool;
+import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
@@ -99,7 +104,7 @@ public class DrawingObjectCreationTool
         } else {
             if (Math.abs(anchor.x-evt.getX()) < MINIMAL_SIZE_THRESHOLD.width && 
                Math.abs(anchor.y-evt.getY()) < MINIMAL_SIZE_THRESHOLD.height) {
-                createdFigure.basicSetBounds(
+                createdFigure.setBounds(
                         constrainPoint(new Point(anchor.x, anchor.y)),
                         constrainPoint(new Point(
                         anchor.x + (int) Math.max(bounds.width, 
@@ -114,7 +119,21 @@ public class DrawingObjectCreationTool
         if (createdFigure instanceof CompositeFigure) {
             ((CompositeFigure) createdFigure).layout();
         }
-        getDrawing().fireUndoableEditHappened(creationEdit);
+        final Figure addedFigure = createdFigure;
+        final Drawing addedDrawing = getDrawing();
+        getDrawing().fireUndoableEditHappened(new AbstractUndoableEdit() {
+           public String getPresentationName() {
+               return getPresentationName();
+           }
+           public void undo() throws CannotUndoException {
+               super.undo();
+               addedDrawing.remove(addedFigure);
+           }
+           public void redo() throws CannotRedoException {
+               super.redo();
+               addedDrawing.add(addedFigure);
+           }
+       });
         creationFinished(createdFigure);
         createdFigure = null;
     }
