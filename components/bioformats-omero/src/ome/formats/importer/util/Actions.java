@@ -18,4 +18,6 @@ public class Actions
     public static final String REFRESH = "refresh";
     public static final String CLEARDONE = "clear_done";
     public static final String CLEARFAILED = "clear_failed";
+    public static final String HISTORYSEARCH = "history_search";
+    public static final String CLEARHISTORY = "history_clear";
 }

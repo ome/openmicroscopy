@@ -225,6 +225,7 @@ public class DebugMessenger extends JDialog implements ActionListener
     private void sendRequest(String email, String comment, String error, String extra)
     {
         Map <String, String>map = new HashMap<String, String>();
+        extra = "(" + Main.versionText + ") " + extra;
         
         map.put("email",email);
         map.put("comment", comment);

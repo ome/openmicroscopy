@@ -18,6 +18,7 @@ import java.beans.PropertyChangeListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.prefs.Preferences;
 
@@ -42,8 +43,10 @@ import org.apache.commons.logging.LogFactory;
  * @author Brian Loranger brain at lifesci.dundee.ac.uk
  * @basedOnCodeFrom Curtis Rueden ctrueden at wisc.edu
  */
-public class LoginHandler implements PropertyChangeListener
+public class LoginHandler implements IObservable, PropertyChangeListener
 {
+    
+    ArrayList<IObserver> observers = new ArrayList<IObserver>();
     
     public volatile JFrame      f;
     
@@ -175,6 +178,7 @@ public class LoginHandler implements PropertyChangeListener
                 viewer.enableMenus(true);
                 viewer.setImportEnabled(true);
                 viewer.loggedIn = true;
+                notifyObservers("LOGGED_IN");
                 // if this fails, using the old server without repositorySpace
                 try {
                     long freeSpace = store.getRepositorySpace();
@@ -246,6 +250,27 @@ public class LoginHandler implements PropertyChangeListener
         if (prop.equals(Actions.LOGIN_CANCELLED))
         {
             loginCancelled();
+        }
+    }
+
+    // Observable methods
+    
+    public boolean addObserver(IObserver object)
+    {
+        return observers.add(object);
+    }
+    
+    public boolean deleteObserver(IObserver object)
+    {
+        return observers.remove(object);
+        
+    }
+
+    public void notifyObservers(Object message)
+    {
+        for (IObserver observer:observers)
+        {
+            observer.update(this, message);
         }
     }
 }

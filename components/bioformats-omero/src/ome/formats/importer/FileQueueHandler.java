@@ -45,7 +45,7 @@ public class FileQueueHandler
     private String savedDirectory = userPrefs.get("savedDirectory", "");
     
     @SuppressWarnings("unused")
-    private ImportHandler       importHandler;
+    public ImportHandler       importHandler;
     private OMEROMetadataStore  store;
  
     private OMEROWrapper    reader;
@@ -53,7 +53,7 @@ public class FileQueueHandler
     private Main          viewer;
     
     FileQueueChooser fileChooser = null;
-    FileQueueTable qTable = null;
+    public FileQueueTable qTable = null;
 
     
     /**
@@ -79,8 +79,8 @@ public class FileQueueHandler
         
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 fileChooser, qTable);
-
-        //splitPane.setResizeWeight(0.1);
+        
+        splitPane.setResizeWeight(0.1);
         
         add(splitPane, BorderLayout.CENTER);
     }
@@ -110,7 +110,7 @@ public class FileQueueHandler
                 addFileToQueue(file, dialog.dataset,
                         dialog.dataset.getName(), dialog.project.getName(), 
                         dialog.useFullPath, dialog.numOfDirectories, 
-                        dialog.archiveImage.isSelected());
+                        dialog.archiveImage.isSelected(), dialog.project.getId());
             } else { 
                 JOptionPane.showMessageDialog(viewer, 
                         "Due to an error the application is unable to \n" +
@@ -160,7 +160,8 @@ public class FileQueueHandler
                                 dialog.project.getName(),
                                 dialog.useFullPath, 
                                 dialog.numOfDirectories,
-                                dialog.archiveImage.isSelected());
+                                dialog.archiveImage.isSelected(),
+                                dialog.project.getId());
                 }
             } else {
                 JOptionPane.showMessageDialog(viewer, 
@@ -274,7 +275,7 @@ public class FileQueueHandler
     @SuppressWarnings("unchecked")
     private void addFileToQueue(File file, Dataset dataset, String dName, 
             String project, Boolean useFullPath, 
-            int numOfDirectories, boolean archiveImage)
+            int numOfDirectories, boolean archiveImage, Long projectID)
     {
         Vector row = new Vector();
         
@@ -286,6 +287,7 @@ public class FileQueueHandler
         row.add(dataset);
         row.add(file);
         row.add(archiveImage);
+        row.add(projectID);
         qTable.table.addRow(row);
         if (qTable.table.getRowCount() == 1)
             qTable.importBtn.setEnabled(true);

@@ -156,7 +156,6 @@ public class GuiCommonElements
         return panel;
     }
     
-    
     public WholeNumberField addWholeNumberField(Container container, String prefexStr,
             String initialValue, String suffexStr, int mnemonic, String tooltip,
             int maxChars, int fieldWidth, String placement, boolean debug)
@@ -548,7 +547,10 @@ public class GuiCommonElements
             button = new JButton(label);
         } else {
             java.net.URL imgURL = Main.class.getResource(image);
-            if (imgURL != null)
+            if (imgURL != null && label.length() > 0)
+            {
+                button = new JButton(label, new ImageIcon(imgURL));
+            } else if (imgURL != null)
             {
                 button = new JButton(null, new ImageIcon(imgURL));
             } else {

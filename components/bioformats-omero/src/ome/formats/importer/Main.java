@@ -54,7 +54,7 @@ public class Main extends JFrame implements ActionListener, WindowListener
 {
     private static final long   serialVersionUID = 1228000122345370913L;
 
-    public static String        versionText = "Beta 2.2 RC3";
+    public static String        versionText = "Beta 2.3";
     
     /** The data of the last release date. */
     public static String        releaseDate      
@@ -86,7 +86,11 @@ public class Main extends JFrame implements ActionListener, WindowListener
 
     public static final String ICON = "gfx/icon.png";
     
-    public LoginHandler        loginHandler;
+    public LoginHandler         loginHandler;
+    
+    public FileQueueHandler    fileQueueHandler;
+    
+    public static HistoryDB db = null;
 
     public StatusBar            statusBar;
 
@@ -96,11 +100,13 @@ public class Main extends JFrame implements ActionListener, WindowListener
   
     private JMenuItem           login;
     
-    public Boolean             loggedIn;
+    public Boolean              loggedIn;
 
     private JTextPane           outputTextPane;
 
     private JTextPane           debugTextPane;
+    
+    private JTextPane           historyTextPane;
 
     @SuppressWarnings("unused")
     private String              username;
@@ -168,14 +174,24 @@ public class Main extends JFrame implements ActionListener, WindowListener
         JPanel filePanel = new JPanel(new BorderLayout());
 
         // The file chooser sub-pane
-        FileQueueHandler fileQueueHandler = new FileQueueHandler(this);
+        fileQueueHandler = new FileQueueHandler(this);
         //splitPane.setResizeWeight(0.5);
 
         filePanel.add(fileQueueHandler, BorderLayout.CENTER);
         tPane.addTab("File Viewer", null, filePanel,
         "Add and delete images here to the import queue.");
         tPane.setMnemonicAt(0, KeyEvent.VK_1);
+
+        // history pane
+        JPanel historyPanel = new JPanel();
+        historyPanel.setOpaque(false);
+        historyPanel.setLayout(new BorderLayout());
         
+        tPane.addTab("Import History", null, historyPanel,
+                "Import history is displayed here.");
+        tPane.setMnemonicAt(0, KeyEvent.VK_4);
+
+       
         // output text pane
         JPanel outputPanel = new JPanel();
         outputPanel.setLayout(new BorderLayout());
@@ -230,9 +246,10 @@ public class Main extends JFrame implements ActionListener, WindowListener
         tPane.setMnemonicAt(0, KeyEvent.VK_3);
 
         tPane.setSelectedIndex(0);
+        
         // Add the tabbed pane to this panel.
         add(tPane);
-
+        
         statusBar = new StatusBar();
         statusBar.setStatusIcon("gfx/server_disconn16.png",
                 "Server disconnected.");
@@ -248,6 +265,9 @@ public class Main extends JFrame implements ActionListener, WindowListener
         appendToOutputLn("> Release date: " + releaseDate);
         
         loginHandler = new LoginHandler(this, false, false);
+        HistoryHandler historyHandler = new HistoryHandler(this);
+        historyPanel.add(historyHandler, BorderLayout.CENTER);       
+
     }
 
     /**
@@ -339,9 +359,7 @@ public class Main extends JFrame implements ActionListener, WindowListener
             } else 
             {                
                 loginHandler = new LoginHandler(this, true, true);
-                //store = loginHandler.getMetadataStore();
-                //loginHandler.tryLogin(this);
-                //store = loginHandler.getMetadataStore();
+                db = HistoryDB.getHistoryDB();
             }
         } else if ("quit".equals(cmd)) {
             if (quitConfirmed(this) == true)

@@ -279,6 +279,11 @@ public class OMEROMetadataStore implements MetadataStore
         getPixels(series).setImage(image);
     }
 
+    public long getExperimenterID()
+    {
+        return exp.getId();
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -330,18 +335,24 @@ public class OMEROMetadataStore implements MetadataStore
         {
             log.warn("pixelSizeX is <= 0.000001f, setting to 1.0f");
             pixelSizeX = 1.0f;
+        } else {
+            log.warn("pixelSizeX is " + pixelSizeX);
         }
 
         if (pixelSizeY == null || pixelSizeY <= 0.000001)
         {
             log.warn("pixelSizeY is <= 0.000001f, setting to 1.0f");
             pixelSizeY = 1.0f;
+        } else {
+            log.warn("pixelSizeY is " + pixelSizeY);
         }
         
         if (pixelSizeZ == null || pixelSizeZ <= 0.000001)
         {
             log.warn("pixelSizeZ is <= 0.000001f, setting to 1.0f");
             pixelSizeZ = 1.0f;
+        } else {
+            log.warn("pixelSizeZ is " + pixelSizeZ);
         }
 
         dimensions.setSizeX(pixelSizeX);
@@ -709,6 +720,18 @@ public class OMEROMetadataStore implements MetadataStore
        //return new ArrayList();
     }
 
+    public String getDatasetName(long datasetID)
+    {
+        Dataset dataset = iQuery.get(Dataset.class, datasetID);
+        return dataset.getName();
+    }
+
+    public String getProjectName(long projectID)
+    {
+        Project project = iQuery.get(Project.class, projectID);
+        return project.getName();
+    }
+    
     /**
      * Retrieves dataset names of the current user from the active OMERO
      * instance.

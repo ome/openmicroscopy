@@ -16,6 +16,7 @@ package ome.formats.importer;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -34,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Brian Loranger brain at lifesci.dundee.ac.uk
  * @basedOnCodeFrom Curtis Rueden ctrueden at wisc.edu
  */
-public class ImportHandler 
+public class ImportHandler
 {
 
     private ImportLibrary   library;
@@ -43,6 +44,8 @@ public class ImportHandler
     private Main      viewer;
     private static boolean   runState = false;
     private Thread runThread;
+    HistoryDB db = null;
+
     
     //private ProgressMonitor monitor;
     
@@ -59,6 +62,8 @@ public class ImportHandler
     public ImportHandler(Main viewer, FileQueueTable qTable, OMEROMetadataStore store,
             OMEROWrapper reader, ImportContainer[] fads)
     {
+        db = HistoryDB.getHistoryDB();
+        
         if (runState == true)
         {
             log.error("ImportHandler running twice");
@@ -121,12 +126,32 @@ public class ImportHandler
         qTable.importing = true;
         
         numOfPendings = 0;
+        int importKey = 0;
+        int importStatus = 0;
+        
+        try
+        {
+            db.insertImportHistory(store.getExperimenterID(), "pending");
+            importKey = db.getLastKey();
+        } catch (SQLException e) {  
+            e.printStackTrace();
+        }
+        
         for(int i = 0; i < fads.length; i++)
         {                
            	if (qTable.setProgressPending(i))
+           	{
                 numOfPendings++;
+               	try {
+               	    db.insertFileHistory(importKey, store.getExperimenterID(), i, fads[i].imageName, 
+               	         fads[i].projectID, fads[i].dataset.getId(), "pending");
+               	} catch (Exception e) { 
+               	    e.printStackTrace();
+               	}
+           	}
         }
         
+        db.notifyObservers("QUICKBAR_UPDATE");
         viewer.statusBar.setProgressMaximum(numOfPendings);
         
         numOfDone = 0;
@@ -149,17 +174,47 @@ public class ImportHandler
                 			    numOfPendings,
                 			    fads[j].imageName,
                 			    fads[j].archive);
+                    try
+                    {
+                        db.updateFileStatus(importKey, j, "done");
+                    } catch (SQLException e)
+                    {
+                        e.printStackTrace();
+                    }
+
                 }
                 catch (FormatException fe)
                 {
                     qTable.setProgressUnknown(j);
                     viewer.appendToOutputLn("> [" + j + "] Unknown format.");
+                    if (importStatus < 0)   importStatus = -3;
+                    else                    importStatus = -1;
+                    
+                    try
+                    {
+                        db.updateImportStatus(importKey, "incomplete");
+                        db.updateFileStatus(importKey, j, "unknown format");
+                    } catch (SQLException e)
+                    {
+                        e.printStackTrace();
+                    }
                 }
                 catch (Exception e)
                 {
                 	qTable.setProgressFailed(j);
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
                     new DebugMessenger(null, "Error Dialog", true, e);
+                    if (importStatus < 0)   importStatus = -3;
+                    else                    importStatus = -2;
+                    
+                    try
+                    {
+                        db.updateImportStatus(importKey, "incomplete");
+                        db.updateFileStatus(importKey, j, "failed");
+                    } catch (SQLException e1)
+                    {
+                        e1.printStackTrace();
+                    }
                 }
             }
         }
@@ -177,6 +232,14 @@ public class ImportHandler
         viewer.statusBar.setProgress(false, 0, "");
         //monitor.close();
         viewer.statusBar.setStatusIcon("gfx/import_done_16.png", "Import complete.");
+        //System.err.println("import status: " + importStatus);
+        if (importStatus >= 0) try
+        {
+            db.updateImportStatus(importKey, "complete");
+        } catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
 
         
         timestampOut = System.currentTimeMillis();

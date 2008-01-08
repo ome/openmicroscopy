@@ -15,6 +15,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -45,7 +46,7 @@ import loci.formats.ImageReader;
 
 
 public class FileQueueChooser 
-    extends JFileChooser implements ActionListener 
+    extends JFileChooser implements ActionListener
 {
     boolean DEBUG = false;
     
@@ -302,6 +303,38 @@ public class FileQueueChooser
         public void mouseExited(MouseEvent evt) {}
     }
 
+    public void keyPressed(KeyEvent evt)
+    {
+        Object src = evt.getSource();
+        int keyCode = evt.getKeyCode();
+        
+        System.err.println(keyCode);
+        
+        if (src == fileList && keyCode == KeyEvent.VK_ENTER) {                            
+            File[] arr = getSelectedFiles();
+            if (arr.length == 1 && arr[0].isFile())
+            {
+                approveSelection();
+            }
+        }
+    }
+
+    public void keyReleased(KeyEvent evt) 
+    {
+        Object src = evt.getSource();
+        int keyCode = evt.getKeyCode();
+        
+        System.err.println(keyCode);   
+    }
+    public void keyTyped(KeyEvent evt) 
+    {
+        Object src = evt.getSource();
+        int keyCode = evt.getKeyCode();
+        
+        System.err.println(keyCode);
+    }
+
+    
     class DashFileFilter extends javax.swing.filechooser.FileFilter
     {
 
@@ -455,5 +488,4 @@ public class FileQueueChooser
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.pack();
     }
-
 }

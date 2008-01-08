@@ -169,7 +169,7 @@ public class ImportFixture
     	ImportContainer[] fads = new ImportContainer[size];
     	File[] files = map.keySet().toArray( new File[size] );
     	for (int i = 0; i < fads.length; i++) {
-			fads[i] = new ImportContainer(files[i],map.get(files[i]),files[i].toString(), false);
+			fads[i] = new ImportContainer(files[i],null,map.get(files[i]),files[i].toString(), false);
 		}
     	return fads;
     }

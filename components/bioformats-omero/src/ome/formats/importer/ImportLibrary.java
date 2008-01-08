@@ -250,7 +250,7 @@ public class ImportLibrary
                 
             }
 
-            if (seriesName != null)
+            if (seriesName != null && seriesName.length() != 0)
                 name += " [" + seriesName + "]";
 
             pix.getImage().setName(name);
@@ -404,6 +404,13 @@ public class ImportLibrary
                 wSize = smallOffset;
                 tSize = wSize * numWaves;
                 zSize = tSize * numTimes;
+                break;
+            //TZW
+            case 5:
+                tSize = smallOffset;
+                zSize = wSize * numTimes;
+                wSize = tSize * numZSections;
+                
         }
     }
 
@@ -428,6 +435,7 @@ public class ImportLibrary
         if (dimOrder.equals("XYZCT")) return 2;
         if (dimOrder.equals("XYTCZ")) return 3;
         if (dimOrder.equals("XYCTZ")) return 4;
+        if (dimOrder.equals("XYTZC")) return 5;
         throw new RuntimeException(dimOrder + " not represented in " +
                 "getSequenceNumber");
     }

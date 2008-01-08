@@ -42,7 +42,7 @@ import ome.formats.importer.util.ETable;
 import ome.model.containers.Dataset;
 
 public class FileQueueTable 
-    extends JPanel 
+    extends JPanel
     implements ActionListener
 {
 
@@ -143,7 +143,7 @@ public class FileQueueTable
         queuePanel.add(Box.createRigidArea(new Dimension(0,5)));
         
         TableColumnModel cModel =  queue.getColumnModel();
-               
+        
         MyTableHeaderRenderer myHeader = new MyTableHeaderRenderer();
               
         // Create a custom header for the table
@@ -166,8 +166,10 @@ public class FileQueueTable
         //queue.getColumnModel().getSelectionModel()
         //    .addListSelectionListener(listener);
         
-        // Hide 3rd to 5th columns
+        // Hide 3rd to 6th columns
         TableColumnModel tcm = queue.getColumnModel();
+        TableColumn projectColumn = tcm.getColumn(6);
+        tcm.removeColumn(projectColumn);
         TableColumn datasetColumn = tcm.getColumn(3);
         tcm.removeColumn(datasetColumn);
         TableColumn pathColumn = tcm.getColumn(3);
@@ -175,10 +177,9 @@ public class FileQueueTable
         TableColumn archiveColumn = tcm.getColumn(3);
         tcm.removeColumn(archiveColumn);
         
-        
         // Add the table to the scollpane
         JScrollPane scrollPane = new JScrollPane(queue);
-        
+
         queuePanel.add(scrollPane);
         
         JPanel importPanel = new JPanel();
@@ -311,9 +312,10 @@ public class FileQueueTable
             try {
                 boolean archive = (Boolean) table.getValueAt(i, 5);
                 File file = new File(table.getValueAt(i, 4).toString());
+                Long projectID = (Long) table.getValueAt(i, 6);
                 Dataset dataset = (Dataset) table.getValueAt(i, 3);
                 String imageName = table.getValueAt(i, 0).toString();
-                fads[i] = new ImportContainer(file, dataset, imageName, archive);            }
+                fads[i] = new ImportContainer(file, projectID, dataset, imageName, archive);            }
             catch (ArrayIndexOutOfBoundsException e) {
                 e.printStackTrace();
             }
@@ -333,7 +335,7 @@ public class FileQueueTable
 //            firePropertyChange(Actions.REFRESH, false, true);
         if (src == clearDoneBtn)
             firePropertyChange(Actions.CLEARDONE, false, true);
-        if (src == clearDoneBtn)
+        if (src == clearFailedBtn)
             firePropertyChange(Actions.CLEARFAILED, false, true);
         if (src == importBtn)
         {
@@ -347,7 +349,7 @@ public class FileQueueTable
         implements TableModelListener {
         
         private static final long serialVersionUID = 1L;
-        private String[] columnNames = {"Files in Queue", "Project/Dataset", "Status", "DatasetNum", "Path", "Archive"};
+        private String[] columnNames = {"Files in Queue", "Project/Dataset", "Status", "DatasetNum", "Path", "Archive", "ProjectNum"};
 
         public void tableChanged(TableModelEvent arg0) { }
         

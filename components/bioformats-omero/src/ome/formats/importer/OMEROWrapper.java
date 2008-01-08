@@ -92,15 +92,19 @@ public class OMEROWrapper extends MinMaxCalculator
     
     public String getImageName(int series)
     {
-
-        
         if (reader.getSeriesCount() > 1)
         {
             List<Pixels> p = (List<Pixels>)iReader.getMetadataStoreRoot();
-            String name = p.get(series).getImage().getName(); 
-            return name == null ? "" + series : name;
+            try {
+                String name = p.get(series).getImage().getName(); 
+                return name == null ? "" + series : name;
+            } catch (Exception e)
+            {
+                return "";            
+            }
+
         }
-        return null;
+        return "";
     }
     
 	/**
