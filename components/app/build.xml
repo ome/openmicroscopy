@@ -14,6 +14,12 @@
     <import file="${import.dir}/server.xml"/>
     <import file="${import.dir}/setup.xml"/>
 
+    <!-- Reseting classpaths to empty to allow ant to delete the
+         jars on windows. See ticket:855 -->
+    <path id="omero.compile.classpath"/>
+    <path id="omero.classpath"/>
+    <path id="omero.test.classpath"/>
+
    <!--
    =======================================================================
    The EAR will be packaged to contain the EJB jar, 

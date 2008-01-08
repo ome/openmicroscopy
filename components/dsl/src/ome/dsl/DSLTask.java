@@ -111,7 +111,9 @@ public class DSLTask extends Task {
                     String packageName = st.getId();
                     packageName = packageName.substring(0, packageName
                             .lastIndexOf("."));
-                    packageName = packageName.replaceAll("[.]", File.separator);
+                    // What silliness!
+                    String sep = File.separator.replaceAll("\\\\","\\\\\\\\");
+                    packageName = packageName.replaceAll("[.]", sep);
 
                     String target = _filepattern;
                     target = target.replace(CLS_PLACEHOLDER, className);
