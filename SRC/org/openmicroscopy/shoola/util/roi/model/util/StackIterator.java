@@ -72,7 +72,7 @@ public class StackIterator
 	
 	
 	/**
-	 * Instacne of the stack iterator, upon passing a 4D stack to the 
+	 * Instance of the stack iterator, upon passing a 4D stack to the 
 	 * iterator it will iterate throught the 3D stack passing back a list 
 	 * of all the ROI in the stack.
 	 * @param stack The stack to iterate. 
