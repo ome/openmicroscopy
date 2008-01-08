@@ -14,6 +14,7 @@
   <dependencies>
     <!-- NOTE: Jars from lib/tools will be copied separately -->
     <!-- Internal -->
+    <dependency name="model" rev="${omero.version}" changing="true" conf="core->core" />
     <dependency name="common" rev="${omero.version}" changing="true" conf="core->core" />
     <dependency name="client" rev="${omero.version}" changing="true" conf="core->core" />
     <dependency name="server" rev="${omero.version}" changing="true" conf="server->core" />
