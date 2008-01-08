@@ -40,6 +40,15 @@
 	<import file="${import.dir}/lifecycle.xml"/>
 	<property file="${basedir}/etc/omero.properties"/>
 
+	<!-- Patterns that will be saved -->
+	<patternset id="etc.files">
+		<include name="local.properties"/>
+		<include name="local.properties.example"/>
+		<include name="omero.properties"/>
+		<include name="hibernate.properties"/>
+		<include name="log4j.properties"/>
+	</patternset>
+
 	<target name="usage"
 		description="Usage information">
 		<concat>
@@ -62,15 +71,6 @@
          <replacefilter token="@@@JDBC.PASSWORD@@@" value="${hibernate.connection.password}"/>
       </replace>
 
-		<!-- Patterns that will be saved -->
-		<patternset id="etc.files">
-			<include name="local.properties"/>
-			<include name="local.properties.example"/>
-			<include name="omero.properties"/>
-			<include name="hibernate.properties"/>
-			<include name="log4j.properties"/>
-		</patternset>
-
 		<!-- Touching the etc files to force update in the case that 
 		the timezone or similar on a system has changed. Please refer to #779 
 
@@ -92,6 +92,10 @@
 		</jar>
 		<delete dir="${temp.dir}"/>
 
+		<available file="${basedir}/blitz/blitz.jar}" property="update.blitz"/>	
+	</target>
+
+	<target name="update-blitz" if="update.blitz">
 		<jar update="true" 
 		  destfile="blitz/blitz.jar">
 			<fileset dir="${basedir}/etc">
