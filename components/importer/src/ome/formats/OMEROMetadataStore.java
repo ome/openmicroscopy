@@ -101,6 +101,12 @@ public class OMEROMetadataStore implements MetadataStore {
     /** The "root" pixels object */
     private ArrayList<Pixels> pixelsList = new ArrayList<Pixels>();
 
+    /** 
+     * An Image array to keep track of the mapping to Pixels. Eventually this 
+     * could put several pixels into a single image
+     */
+    private ArrayList<Image> imageList = new ArrayList<Image>();
+
     private Experimenter exp;
 
     private RawFileStore rawFileStore;
@@ -209,9 +215,23 @@ public class OMEROMetadataStore implements MetadataStore {
         Pixels p = pixelsList.get(series);
         if (p == null) {
             p = new Pixels();
+	    Image i = new Image();
             pixelsList.set(series, p);
+	    imageList.set(series, i);
         }
         return p;
+    }
+
+    /**
+     * Returns a specific image object in sync with a pixels.
+     */
+    public Image getImage(Integer series) {
+	if (series == null) {
+	    series = 0;
+	}
+	
+	getPixels(series); // Initializes
+	return imageList.get(series);
     }
 
     /*
@@ -235,6 +255,7 @@ public class OMEROMetadataStore implements MetadataStore {
      */
     public void createRoot() {
         pixelsList = new ArrayList<Pixels>();
+        imageList = new ArrayList<Image>();
     }
 
     /**
@@ -275,11 +296,10 @@ public class OMEROMetadataStore implements MetadataStore {
         log.debug(String.format("Setting Image: name (%s), creationDate (%s), "
                 + "description (%s)", name, creationDate, description));
         // FIXME: Image really needs to handle creation date somehow.
-        Image image = new Image();
+	Image image = getImage(series);
         image.setName(name);
         image.setDescription(description);
-
-        getPixels(series).setImage(image);
+        image.addPixels(getPixels(series));
     }
 
     /*
@@ -440,6 +460,7 @@ public class OMEROMetadataStore implements MetadataStore {
         if (series + 1 > currentSize) {
             for (int i = 0; i < series + 1 - currentSize; i++) {
                 pixelsList.add(null);
+                imageList.add(null);
             }
         }
     }
@@ -724,13 +745,15 @@ public class OMEROMetadataStore implements MetadataStore {
      */
     public ArrayList<Pixels> saveToDB() {
         IUpdate update = sf.getUpdateService();
-        Pixels[] pixelsArray = pixelsList
-                .toArray(new Pixels[pixelsList.size()]);
-        IObject[] o = update.saveAndReturnArray(pixelsArray);
+        Image[] imageArray = imageList
+                .toArray(new Image[imageList.size()]);
+        IObject[] o = update.saveAndReturnArray(imageArray);
         // update.saveArray(pixelsArray);
         // /throw new RuntimeException("blarg");
         for (int i = 0; i < o.length; i++) {
-            pixelsList.set(i, (Pixels) o[i]);
+	    Image img = (Image) o[i];
+            imageList.set(i, img);
+            pixelsList.set(i, img.getPrimaryPixels());
         }
         return pixelsList;
 
