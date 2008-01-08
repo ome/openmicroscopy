@@ -244,7 +244,7 @@ class XmlReport(object):
 		stringXml = StringIO(self.theDom.toxml())
 		
 		#
-		#print self.theDom.toprettyxml()
+		# print self.theDom.toprettyxml()
 		
 		# building the document tree from the input xml
 		try:
@@ -257,12 +257,10 @@ class XmlReport(object):
 		# according to the docs this should not throw an exception - but it does!
 		try:
 			schema.validate(document)
-			err = schema.error_log.last_error
-			if err:
+			self.isXsdValid = True
+			for err in schema.error_log:
 				self.isXsdValid = False
 				self.errorList.append(ParseMessage(None, err.line, None, "XSD", None, err.message))
-			else:
-				self.isXsdValid = True
 		except etree.XMLSchemaValidateError:
 			self.isXsdValid = False
 			self.errorList.append(ParseMessage(None, None, None, "XML", None, "Internal error in the system XML Schema validation module"))
