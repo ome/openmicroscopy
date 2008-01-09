@@ -263,7 +263,7 @@ class XmlReport(object):
 				self.errorList.append(ParseMessage(None, err.line, None, "XSD", None, err.message))
 		except etree.XMLSchemaValidateError:
 			self.isXsdValid = False
-			self.errorList.append(ParseMessage(None, None, None, "XML", None, "Internal error in the system XML Schema validation module"))
+			self.errorList.append(ParseMessage(None, None, None, "XML", None, "Processing the XML data has generated an unspecified error in the XML sub-system. This is usually a result of an incorrect top level block. Please check the OME block is well-formed and that the schemaLocation is specified correctly. This may also be caused by a missing namespace prefix or incorrect xmlns attribute."))
 			
 	
 	def loadChoosenSchema(self):
