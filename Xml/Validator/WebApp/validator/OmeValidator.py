@@ -36,7 +36,7 @@ def schemaFilePath(inFilename):
 def schemaFilePath(inFilename):
 	return inFilename
 """
-# Try to load Image for XML Schema Vlaidation Support
+# Try to load Image for Tiff Support
 haveTiffSupport = True
 try:
 	import Image
@@ -44,7 +44,7 @@ except ImportError:
 	# This exception means that we do not have tiff support loading
 	haveTiffSupport = False
 
-# Try to load lxml for XML Schema Vlaidation Support
+# Try to load lxml for XML Schema Validation Support
 haveXsdSupport = True
 try:
 	from lxml import etree
@@ -220,7 +220,7 @@ class XmlReport(object):
 		"""
 		# mark xlm as having been parsed
 		self.hasParsedXml = True
-		
+
 		# look at file for Ids, Refs, and namespaces
 		self.scanForIdsAndNamespace(inFile)
 		
@@ -232,7 +232,7 @@ class XmlReport(object):
 		
 		if self.isXsdValid is True and len(self.errorList) is 0 :
 			self.isOmeXml = True
-				
+	
 	def validateAgainstSchema(self):
 		if not haveXsdSupport:
 			self.errorList.append(ParseMessage(None, None, None, "XSD", None, " LXML support not available - no validation"))
@@ -254,18 +254,16 @@ class XmlReport(object):
 			return
 		
 		# validating the documnet tree against the loaded schema
-		# this should not throw an exception
+		# according to the docs this should not throw an exception - but it does!
 		try:
 			schema.validate(document)
-			err = schema.error_log.last_error
-			if err:
+			self.isXsdValid = True
+			for err in schema.error_log:
 				self.isXsdValid = False
 				self.errorList.append(ParseMessage(None, err.line, None, "XSD", None, err.message))
-			else:
-				self.isXsdValid = True
 		except etree.XMLSchemaValidateError:
 			self.isXsdValid = False
-			self.errorList.append(ParseMessage(None, None, None, "XML", None, "Internal error in the system XML Schema validation module"))
+			self.errorList.append(ParseMessage(None, None, None, "XML", None, "Processing the XML data has generated an unspecified error in the XML sub-system. This is usually a result of an incorrect top level block. Please check the OME block is well-formed and that the schemaLocation is specified correctly. This may also be caused by a missing namespace prefix or incorrect xmlns attribute."))
 			
 	
 	def loadChoosenSchema(self):
@@ -470,7 +468,7 @@ class XmlReport(object):
 		if self.tiffFileFrames < totalTiffDataFrames:
 			self.errorList.append(ParseMessage(None, None, None, "TIFF", ("Frames %s out of %s" % (self.tiffFileFrames,totalTiffDataFrames)) , "Not all required frames are present in this Tiff file"))
 			self.isOmeTiffConsistent = False
-
+		
 # Used by sax parser to handle errors when processing Elements
 class ParseErrorHandler(sax.ErrorHandler):
 	def __init__(self):
