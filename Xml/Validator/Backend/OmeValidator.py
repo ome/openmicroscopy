@@ -143,6 +143,10 @@ class XmlReport(object):
 	thePrefix = None
 	
 	"""
+	The file the schema for the namespace has been loaded from
+	"""
+	theSchemaFile = None
+	"""
 	Create the message lists for this instance of the report object
 	"""
 	errorList = None
@@ -240,6 +244,9 @@ class XmlReport(object):
 		
 		# loading the OME schema to validate against
 		schema = self.loadChoosenSchema()
+		if schema is None:
+			return
+		
 		# create an IO string for the xml string provided
 		stringXml = StringIO(self.theDom.toxml())
 		
@@ -261,32 +268,54 @@ class XmlReport(object):
 			for err in schema.error_log:
 				self.isXsdValid = False
 				self.errorList.append(ParseMessage(None, err.line, None, "XSD", None, err.message))
+			if self.isXsdValid:
+				self.checkOldSchemas(document)
 		except etree.XMLSchemaValidateError:
 			self.isXsdValid = False
 			self.errorList.append(ParseMessage(None, None, None, "XML", None, "Processing the XML data has generated an unspecified error in the XML sub-system. This is usually a result of an incorrect top level block. Please check the OME block is well-formed and that the schemaLocation is specified correctly. This may also be caused by a missing namespace prefix or incorrect xmlns attribute."))
-			
+	
+	def checkOldSchemas(self, inDocument):
+		for thePossibleSchema in [["ome-2007-07-V2.xsd","September 2007 V2"],["ome-2007-07-V1.xsd","June 2007 V1"],["ome-fc-tiff.xsd","2003 - Tiff Variant"], ["ome-fc.xsd","2003 - Standard version"]]:
+			# skip current one
+			if not thePossibleSchema[0] == self.theSchemaFile:
+				# load each old schema
+				try:
+					schema = etree.XMLSchema(etree.parse(schemaFilePath(thePossibleSchema[0])))
+				except:
+					# chosen schema failed to laod
+					self.errorList.append(ParseMessage(None, None, None, "XSD", None, "Validator Internal error: XSD schema file could not be found"))
+				# try validation
+				try:
+					schema.validate(inDocument)
+					err = schema.error_log.last_error
+					if not err:
+						# if valid then add info message "also valid under..."
+						self.warningList.append(ParseMessage(None, None, None, "Info", None, "File also valid under schema: " + thePossibleSchema[1]))
+				except etree.XMLSchemaValidateError:
+					err = False
 	
 	def loadChoosenSchema(self):
 		# choose the schema source
 		# assume the new schema
-		theSchemaFile = "ome-2007-07-V2.xsd"
+		self.theSchemaFile = "ome-2007-07-V2.xsd"
 		# if old schema
 		if self.theNamespace == "http://www.openmicroscopy.org/XMLschemas/OME/FC/ome.xsd":
 			# check if used by tiff
 			if self.isOmeTiff:
 				# use special tiff version of old schema
-				theSchemaFile = "ome-fc-tiff.xsd"
+				self.theSchemaFile = "ome-fc-tiff.xsd"
 			else:
 				# use normal version of old schema
-				theSchemaFile = "ome-fc.xsd"
+				self.theSchemaFile = "ome-fc.xsd"
 		
 		# loading the OME schema to validate against
 		try:
-			schema = etree.XMLSchema(etree.parse(schemaFilePath(theSchemaFile)))
+			schema = etree.XMLSchema(etree.parse(schemaFilePath(self.theSchemaFile)))
 		except:
-			#chosen scema failed to laod
+			# chosen schema failed to laod
 			self.errorList.append(ParseMessage(None, None, None, "XSD", None, "Validator Internal error: XSD schema file could not be found"))
-		
+			schema = None;
+			
 		return schema
 	
 	def scanForIdsAndNamespace(self, inFile):
