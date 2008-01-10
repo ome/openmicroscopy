@@ -318,11 +318,29 @@ class OMEROGateway
 	}
 
 	/**
+	 * Formats the specified string.
+	 * 
+	 * @param term			The value to format.
+	 * @param caseSensitive	Pass <code>true</code> if the case sensitivity has
+	 * 						to be taken into account.
+	 * @return See above.
+	 */
+	private String formatTerm(String term, boolean caseSensitive)
+	{
+		if (term == null) return null;
+		String v = term;
+		if (!caseSensitive) v = term.toLowerCase();
+		if (v.contains("*")) v = v.replace("*", "%");
+		if (v.contains("?")) v = v.replace("?", "_");
+		return v;
+	}
+	
+	/**
 	 * Returns the {@link IRenderingSettings} service.
 	 * 
 	 * @return See above.
 	 */
-	public IRenderingSettings getRenderingSettingsService()
+	private IRenderingSettings getRenderingSettingsService()
 	{
 		return entry.getRenderingSettingsService();
 	}
@@ -332,7 +350,7 @@ class OMEROGateway
 	 * 
 	 * @return See above.
 	 */
-	public IRepositoryInfo getRepositoryService()
+	private IRepositoryInfo getRepositoryService()
 	{
 		return entry.getRepositoryInfoService();
 	}
@@ -393,9 +411,16 @@ class OMEROGateway
 	 */
 	private RawFileStore getRawFileService()
 	{
-		//if (fileStore == null) fileStore = entry.createRawFileStore();
-		//return fileStore;
-		return entry.createRawFileStore();
+		if (fileStore == null) {
+			fileStore = entry.createRawFileStore();
+			try {
+				fileStore.close();
+			} catch (Exception e) {
+				// Ignore the exception.
+			}
+		}
+		fileStore = entry.createRawFileStore();
+		return fileStore;
 	}
 
 	/**
@@ -475,13 +500,17 @@ class OMEROGateway
 	/**
 	 * Creates a query.
 	 * 
-	 * @param type	Identifies the table to search on.
-	 * @param names	The terms to search for.
-	 * @param separator
+	 * @param type			Identifies the table to search on.
+	 * @param names			The terms to search for.
+	 *@param separator		The separator between words, either <code>and</code>
+	 * 						or <code>or</code>.
+	 * @param caseSensitive Pass <code>true</code> to take into account the
+	 * 						case sensitivity while searching, 
+	 * 						<code>false</code> otherwise.
 	 * @return The query.
 	 */
 	private String createSearchQuery(Class type, String[] names, 
-									String separator)
+									String separator, boolean caseSensitive)
 	{
 		String sql = null;
 		String table;
@@ -492,14 +521,18 @@ class OMEROGateway
 					"where (";
 			for (int j = 0; j < names.length; j++) {
 				if (j != 0) sql += separator;
-				sql += "lower(obj.content) like :"+names[j];
+				if (caseSensitive)
+					sql += "obj.content like :"+names[j];
+				else sql += "lower(obj.content) like :"+names[j];
 			}
 		} else if (DatasetAnnotation.class.equals(type)) {
 			sql = "select obj from DatasetAnnotation as obj " +
 			"left outer join fetch obj.details.creationEvent as d where (";
 			for (int j = 0; j < names.length; j++) {
 				if (j != 0) sql += separator;
-				sql += "lower(obj.content) like :"+names[j];
+				if (caseSensitive)
+					sql += "obj.content like :"+names[j];
+				else sql += "lower(obj.content) like :"+names[j];
 			}
 		} else if (CategoryData.class.equals(type)) {
 			table = getTableForLink(Category.class);
@@ -510,15 +543,23 @@ class OMEROGateway
             // "lower(link.parent.description) like :name";
 			for (int j = 0; j < names.length; j++) {
 				if (j != 0) sql += separator;
-				sql += "lower(obj.parent.name)  = :"+names[j];
+				if (caseSensitive)
+					sql += "obj.parent.name like :"+names[j];
+				else
+					sql += "lower(obj.parent.name)  like :"+names[j];
 			}
 		} else if (ImageData.class.equals(type)) {
 			sql =  "select obj from Image as obj left outer join fetch " +
 					"obj.details.creationEvent as d where (";
 			for (int j = 0; j < names.length; j++) {
 				if (j != 0) sql += separator;
-				sql += "(lower(obj.name) like :"+names[j];
-				sql += " or lower(obj.description) like :"+names[j]+")";
+				if (caseSensitive) {
+					sql += "(obj.name like :"+names[j];
+					sql += " or obj.description like :"+names[j]+")";
+				} else {
+					sql += "(lower(obj.name) like :"+names[j];
+					sql += " or lower(obj.description) like :"+names[j]+")";
+				}
 			}
 		} else if (CategoryGroupData.class.equals(type)) {
 			table = getTableForLink(CategoryGroup.class);
@@ -529,7 +570,10 @@ class OMEROGateway
 					//"lower(link.parent.description) like :name";
 			for (int j = 0; j < names.length; j++) {
 				if (j != 0) sql += separator;
-				sql += "lower(obj.parent.name) = :"+names[j];
+				if (caseSensitive)
+					sql += "obj.parent.name like :"+names[j];
+				else
+					sql += "lower(obj.parent.name) like :"+names[j];
 			}
 		}
 		sql += ")";
@@ -1868,20 +1912,25 @@ class OMEROGateway
 	 * Searches for the categories whose name contains the passed term.
 	 * Returns a collection of objects.
 	 * 
-	 * @param type 	The class identify the object to search for.
-	 * @param terms	The terms to search for.
-	 * @param start	The start value of a time interval.
-	 * @param end	The end value of a time interval.
-	 * @param user 	The user to exclude from the search.
-	 * @param separator
+	 * @param type 			The class identify the object to search for.
+	 * @param terms			The terms to search for.
+	 * @param start			The start value of a time interval.
+	 * @param end			The end value of a time interval.
+	 * @param user 			The user to exclude from the search.
+	 * @param separator		The separator between words, either <code>and</code>
+	 * 						or <code>or</code>.
+	 * @param caseSensitive Pass <code>true</code> to take into account the
+	 * 						case sensitivity while searching, 
+	 * 						<code>false</code> otherwise.	
 	 * @return See above.
-	 *  @throws DSOutOfServiceException  If the connection is broken, or logged
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List searchFor(Class type, List<String> terms, Timestamp start, 
-					Timestamp end, ExperimenterData user, String separator)
+					Timestamp end, ExperimenterData user, String separator,
+					boolean caseSensitive)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		IQuery service = getQueryService();
@@ -1894,18 +1943,23 @@ class OMEROGateway
 			term = (String)  i.next();
 			if (term != null) {
 				names[index] = "name"+index;
-				
+				/*
+				t = term;
+				if (!caseSensitive) t = term.toLowerCase();
 				if (CategoryData.class.equals(type) || 
 						CategoryGroupData.class.equals(type)) 
-					param.addString(names[index], term.toLowerCase());
+					param.addString(names[index], t);
 				else
 				
-					param.addString(names[index], "%"+term.toLowerCase()+"%");
+					param.addString(names[index], "%"+t+"%");
+					*/
+				param.addString(names[index], formatTerm(term, caseSensitive));
 				index++;
 			}
 		}
 		try {
-			String sql = createSearchQuery(type, names, separator);
+			String sql = createSearchQuery(type, names, separator, 
+											caseSensitive);
 			if (start != null && end != null) {
 				sql += " and d.time > :startTime and d.time < :endTime";
 				param.add(new QueryParameter("startTime", Timestamp.class, 
@@ -1965,31 +2019,33 @@ class OMEROGateway
 	 * @param start	The start value of a time interval.
 	 * @param end	The end value of a time interval.
 	 * @param user 	The user to exclude from the search.
-	 * @param separator
+	 * @param separator		The separator between words, either <code>and</code>
+	 * 						or <code>or</code>.
+	 * @param caseSensitive Pass <code>true</code> to take into account the
+	 * 						case sensitivity while searching, 
+	 * 						<code>false</code> otherwise.	
 	 * @return See above.
-	 *  @throws DSOutOfServiceException  If the connection is broken, or logged
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List searchFor(Class type, String term, Timestamp start, 
-					Timestamp end, ExperimenterData user, String separator)
+					Timestamp end, ExperimenterData user, String separator,
+					boolean caseSensitive)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		IQuery service = getQueryService();
 		Parameters param = new Parameters();
 		
 		String[] names = new String[1];
-		int index = 0;
-		names[index] = "name"+index;
 		
-		if (CategoryData.class.equals(type) || 
-				CategoryGroupData.class.equals(type)) 
-			param.addString(names[index], term.toLowerCase());
-		else
-			param.addString(names[index], "%"+term.toLowerCase()+"%");
+		names[0] = "name"+0;
+		param.addString(names[0], formatTerm(term, caseSensitive));
+		
 		try {
-			String sql = createSearchQuery(type, names, separator);
+			String sql = createSearchQuery(type, names, separator, 
+					caseSensitive);
 			if (start != null && end != null) {
 				sql += " and d.time > :startTime and d.time < :endTime";
 				param.add(new QueryParameter("startTime", Timestamp.class, 
@@ -2041,16 +2097,22 @@ class OMEROGateway
 		return new ArrayList();
 	}
 	
+	
+	
 	/**
 	 * Searches for the categories whose name contains the passed term.
 	 * Returns a collection of objects.
 	 * 
-	 * @param type 	The class identify the object to search for.
-	 * @param terms	The terms to search for.
-	 * @param start	The lower bound of the time interval.
-	 * @param end	The upper bound of the time interval.
-	 * @param users	The collection of potential users.
-	 * @param separator
+	 * @param type 			The class identify the object to search for.
+	 * @param terms			The terms to search for.
+	 * @param start			The lower bound of the time interval.
+	 * @param end			The upper bound of the time interval.
+	 * @param users			The collection of potential users.
+	 * @param separator		The separator between words, either <code>and</code>
+	 * 						or <code>or</code>.
+	 * @param caseSensitive Pass <code>true</code> to take into account the
+	 * 						case sensitivity while searching, 
+	 * 						<code>false</code> otherwise.	
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
@@ -2059,7 +2121,7 @@ class OMEROGateway
 	 */
 	List searchFor(Class type, List<String> terms, Timestamp start, 
 					Timestamp end, List<ExperimenterData> users, 
-					String separator)
+					String separator, boolean caseSensitive)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		IQuery service = getQueryService();
@@ -2072,18 +2134,27 @@ class OMEROGateway
 			term = (String)  i.next();
 			if (term != null) {
 				names[index] = "name"+index;
+				/*
+				if (caseSensitive) t = term;
+				else t = term.toLowerCase();
+				if (t.contains("*")) t = t.replace("*", "%");
+				if (t.contains("?")) t = t.replace("?", "_");
 				
 				if (CategoryData.class.equals(type) || 
 					CategoryGroupData.class.equals(type)) 
-					param.addString(names[index], term.toLowerCase());
+					param.addString(names[index], t);
 				else
-					param.addString(names[index], "%"+term.toLowerCase()+"%");
+					param.addString(names[index], "%"+t+"%");
+				
+				*/
+				param.addString(names[index], formatTerm(term, caseSensitive));
 				index++;
 			}
 		}
 		
 		try {
-			String sql = createSearchQuery(type, names, separator);
+			String sql = createSearchQuery(type, names, separator, 
+											caseSensitive);
 			if (start != null && end != null) {
 				sql += " and d.time > :startTime and d.time < :endTime";
 				param.add(new QueryParameter("startTime", Timestamp.class, 
@@ -2140,12 +2211,16 @@ class OMEROGateway
 	 * Searches for the categories whose name contains the passed term.
 	 * Returns a collection of objects.
 	 * 
-	 * @param type 	The class identify the object to search for.
-	 * @param term	The term to search for.
-	 * @param start	The lower bound of the time interval.
-	 * @param end	The upper bound of the time interval.
-	 * @param users	The collection of potential users.
-	 * @param separator
+	 * @param type 			The class identify the object to search for.
+	 * @param term			The term to search for.
+	 * @param start			The lower bound of the time interval.
+	 * @param end			The upper bound of the time interval.
+	 * @param users			The collection of potential users.
+	 * @param separator		The separator between words, either <code>and</code>
+	 * 						or <code>or</code>.
+	 * @param caseSensitive Pass <code>true</code> to take into account the
+	 * 						case sensitivity while searching, 
+	 * 						<code>false</code> otherwise.	
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
@@ -2154,7 +2229,7 @@ class OMEROGateway
 	 */
 	List searchFor(Class type, String term, Timestamp start, 
 					Timestamp end, List<ExperimenterData> users, 
-					String separator)
+					String separator, boolean caseSensitive)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		IQuery service = getQueryService();
@@ -2162,13 +2237,19 @@ class OMEROGateway
 		
 		String[] names = new String[1];
 		names[0] = "name"+0;
+		/*
+		String t = term;
+		if (!caseSensitive) t = term.toLowerCase();
 		if (type.equals(CategoryData.class) || 
 				type.equals(CategoryGroupData.class))
-			param.addString(names[0], term.toLowerCase());
+			param.addString(names[0], t);
 		else 
-			param.addString(names[0], "%"+term.toLowerCase()+"%");
+			param.addString(names[0], "%"+t+"%");
+			*/
+		param.addString(names[0], formatTerm(term, caseSensitive));
 		try {
-			String sql = createSearchQuery(type, names, separator);
+			String sql = createSearchQuery(type, names, separator, 
+										caseSensitive);
 			if (start != null && end != null) {
 				sql += " and d.time > :startTime and d.time < :endTime";
 				param.add(new QueryParameter("startTime", Timestamp.class, 

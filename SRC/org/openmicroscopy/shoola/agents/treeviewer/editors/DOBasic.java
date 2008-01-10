@@ -53,6 +53,7 @@ import layout.TableLayout;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.archived.view.Downloader;
 import org.openmicroscopy.shoola.agents.util.archived.view.DownloaderFactory;
+import org.openmicroscopy.shoola.agents.util.ui.SingleTagEditor;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
@@ -88,10 +89,10 @@ class DOBasic
     												"archived files";
     
     /** Area where to enter the name of the <code>DataObject</code>. */
-    JTextField                  nameArea;
+    private JTextField          nameArea;
      
     /** Area where to enter the description of the <code>DataObject</code>. */
-    JTextArea                   descriptionArea;
+    private JTextArea          	descriptionArea;
     
     /** Button to download the archived files. */
     private JButton				download;
@@ -414,8 +415,10 @@ class DOBasic
     {
     	if (!model.isImage()) return;
     	contentPanel.remove(contentPanel.getComponentCount()-1);
-    	contentPanel.add(UIUtilities.buildComponentPanel(new DOTag(controller, 
-						model)));
+    	SingleTagEditor editor = new SingleTagEditor(model.getTags(), 
+    					model.getTagSets(), model.getAvailableTags());
+    	editor.addPropertyChangeListener(controller);
+    	contentPanel.add(UIUtilities.buildComponentPanel(editor));
     	validate();
     	repaint();
     }
@@ -452,15 +455,7 @@ class DOBasic
     	return (!(d.equals(description)));
     }
 
-    /**
-     * Adds the passed nodes for annotation.
-     * 
-     * @param nodes	The nodes to pass.
-     */
-	void addSiblings(List nodes)
-	{
-		//if (annotator != null) annotator.addSelectedNodes(nodes);
-	}
-    
-	
+    /** Sets the focus on the name area. */
+	void setFocusOnName() { nameArea.requestFocus(); }
+   
 }

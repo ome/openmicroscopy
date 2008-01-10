@@ -129,6 +129,9 @@ public class SearchContext
 	/** Separator between terms to search for. */
 	private String			separator;
 	
+	/** Flag indicating if the search is case sensitive or not. */
+	private boolean			caseSensitive;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -139,6 +142,16 @@ public class SearchContext
 	{
 		this.terms = terms;
 		this.context = context;
+	}
+	
+	/**
+	 * Sets the case sensitivity flag.
+	 * 
+	 * @param caseSensitive The value to set.
+	 */
+	void setCaseSensitive(boolean caseSensitive)
+	{ 
+		this.caseSensitive = caseSensitive;
 	}
 	
 	/**
@@ -271,5 +284,12 @@ public class SearchContext
 	 */
 	public String getSeparator() { return separator; }
 	
+	/**
+	 * Returns <code>true</code> if the search is case sensitive, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isCaseSensitive() { return caseSensitive; }
 	
 }

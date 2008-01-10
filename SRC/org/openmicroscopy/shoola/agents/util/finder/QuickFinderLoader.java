@@ -34,14 +34,11 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
+import org.openmicroscopy.shoola.env.data.util.SearchResult;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import pojos.AnnotationData;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.ExperimenterData;
-import pojos.ImageData;
 
 /** 
  * Searches for tags, images, etc.
@@ -68,6 +65,7 @@ public class QuickFinderLoader
 	/** Collection of terms to search for. */
 	private List			values;
 	
+	/** The separator used between the terms. */
 	private String 			separator;
 	
 	/** Handle to the async call so that we can cancel it. */
@@ -107,7 +105,7 @@ public class QuickFinderLoader
     	users.add(getUserDetails());
     	
     	handle = dhView.advancedSearchFor(scope, values, users, null, null, 
-    									separator, this);
+    									separator, false, this);
     }
 
     /**
@@ -124,7 +122,14 @@ public class QuickFinderLoader
     {
     	if (viewer.getState() == Finder.DISCARDED) return;  //Async cancel.
         EventBus bus = registry.getEventBus();
-        Set set = (Set) result;
+        SearchResult r = (SearchResult) result;
+        if (r == null) {
+        	UserNotifier un = registry.getUserNotifier();
+        	un.notifyInfo("Search", "No results matching your criteria.");
+        	viewer.setStatus("", false);
+        	return;
+        }
+        Set<Long> set = r.getNodeIDs();
         if (set == null || set.size() == 0) {
         	UserNotifier un = registry.getUserNotifier();
         	un.notifyInfo("Search", "No results matching your criteria.");

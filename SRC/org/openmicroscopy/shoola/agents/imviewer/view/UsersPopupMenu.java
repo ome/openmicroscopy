@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
 //Java imports
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
@@ -36,6 +37,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 
 //Third-party libraries
 
@@ -68,9 +70,6 @@ class UsersPopupMenu
 	/** Reference to the model. */
 	private ImViewerModel	model;
 	
-	/** Reference to the UI. */
-	private ImViewerUI		view;
-	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
@@ -85,30 +84,42 @@ class UsersPopupMenu
 		Icon icon = icons.getIcon(IconManager.USER);
 		long id = model.getUserDetails().getId();
 		ButtonGroup group = new ButtonGroup();
+		long ownerID = model.getOwnerID();
 		while (i.hasNext()) {
 			exp = (ExperimenterData) i.next();
-			item = new UserItem(exp, icon);
-			item.setSelected(id == exp.getId());
-			group.add(item);
-			item.addActionListener(this);
-			add(item);
+			if (ownerID == exp.getId()) {
+				item = new UserItem(exp, icon);
+				item.setFont(item.getFont().deriveFont(Font.BOLD));
+				item.setSelected(id == exp.getId());
+				group.add(item);
+				item.addActionListener(this);
+				add(item);
+				add(new JSeparator());
+			}
+		}
+		i = list.iterator();
+		while (i.hasNext()) {
+			exp = (ExperimenterData) i.next();
+			if (ownerID != exp.getId()) {
+				item = new UserItem(exp, icon);
+				item.setSelected(id == exp.getId());
+				group.add(item);
+				item.addActionListener(this);
+				add(item);
+			}
 		}
 	}
 
 	/**
      * Creates a new instance.
      * 
-     * @param view  Reference to the View. Mustn't be <code>null</code>.
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-	UsersPopupMenu(ImViewerUI view, ImViewerModel model)
+	UsersPopupMenu(ImViewerModel model)
 	{
-		if (view == null)
-			throw new IllegalArgumentException("No view.");
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
 		this.model = model;
-		this.view = view;
 		initComponents();
 	}
 	

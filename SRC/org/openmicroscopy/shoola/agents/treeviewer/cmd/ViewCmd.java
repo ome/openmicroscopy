@@ -252,7 +252,7 @@ public class ViewCmd
 				return;
 			}
 			bus.post(new ViewImage(data.getId(), pixelsID, data.getName(), 
-					bounds));
+					bounds, data.getOwner().getId()));
 		} else if (ho instanceof DatasetData)
 			bus.post(new Browse(((DatasetData) ho).getId(), Browse.DATASET, 
 					exp, bounds)); 

@@ -27,12 +27,11 @@ package org.openmicroscopy.shoola.agents.util.finder;
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -45,7 +44,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
-
 import pojos.ExperimenterData;
 
 /** 
@@ -121,36 +119,28 @@ public class AdvancedFinder
 			un.notifyInfo(TITLE, "Please enter a context.");
 			return;
 		}
+		Timestamp start = ctx.getStartTime();
+		Timestamp end = ctx.getEndTime();
+		if (start != null && end != null && start.after(end)) {
+			un.notifyInfo(TITLE, "The time interval selected is not valid.");
+			return;
+		}
 		List<Integer> scope = new ArrayList<Integer>(context.size());
 		Iterator i = context.iterator();
-		int index; 
-		while (i.hasNext()) {
-			index = (Integer) i.next();
-			scope.add(convertScope(index));
-		}
-		/*
-		List<String> users = ctx.getUsers();
-		List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
-		switch (ctx.getUserSearchContext()) {
-			case SearchContext.JUST_CURRENT_USER:
-				exps.add(getUserDetails());
-				break;
-			case SearchContext.JUST_OTHERS:
-				addExperimenter(users, exps);
-				break;
-			case SearchContext.CURRENT_USER_AND_OTHERS:
-				exps.add(getUserDetails());
-				addExperimenter(users, exps);
-		}
-		*/
+		
+		while (i.hasNext()) 
+			scope.add(convertScope((Integer) i.next()));
+		
 		switch (ctx.getUserSearchContext()) {
 			case SearchContext.JUST_CURRENT_USER:
 			case SearchContext.CURRENT_USER_AND_OTHERS:
 				users.add(getUserDetails());
 		}
+		
 		AdvancedFinderLoader loader = new AdvancedFinderLoader(this, terms,
-											users, scope, ctx.getStartTime(),
-				ctx.getEndTime(), ctx.getSeparator());
+											users, scope, start, end, 
+											ctx.getSeparator(), 
+											ctx.isCaseSensitive());
 		loader.load();
 		finderHandlers.add(loader);
 		state = SEARCH;
@@ -240,11 +230,12 @@ public class AdvancedFinder
 
 	/** 
 	 * Implemented as specified by {@link Finder} I/F
-	 * @see Finder#setStatus(boolean)
+	 * @see Finder#setStatus(String, boolean)
 	 */
-	public void setStatus(boolean status)
+	public void setStatus(String text, boolean status)
 	{
-		setSearchEnabled(status);
+		if (text == null) text = "";
+		setSearchEnabled(text, status);
 	}
 	
 	/**

@@ -77,6 +77,9 @@ public class SearchComponent
 	/** Bound property indicating to select the owner. */
 	public static final String 		OWNER_PROPERTY = "owner";
     
+	/** The default size of the window. */
+	private static final Dimension	WIN_SIZE = new Dimension(450, 625);
+	
     /** The window's title. */
 	private static final String		TITLE = "Search";
 	
@@ -201,8 +204,7 @@ public class SearchComponent
         controls.add(UIUtilities.buildComponentPanel(uiDelegate));
         controls.add(buildToolBar());
 		c.add(controls, BorderLayout.CENTER);
-		c.add(buildStatusPanel(), 
-				BorderLayout.SOUTH);
+		c.add(buildStatusPanel(), BorderLayout.SOUTH);
 	}
 	
 	/** Closes and disposes of the window. */
@@ -234,6 +236,7 @@ public class SearchComponent
 		ctx.setUserSearchContext(uiDelegate.getUserSearchContext());
 		ctx.setUsers(uiDelegate.getUsers());
 		ctx.setSeparator(uiDelegate.getSeparator());
+		ctx.setCaseSensitive(uiDelegate.isCaseSensitive());
 		firePropertyChange(SEARCH_PROPERTY, null, ctx);
 	}
 	
@@ -281,7 +284,8 @@ public class SearchComponent
 		setProperties();
 		initComponents();
 		buildGUI();
-		setSize(450, 500);//pack();
+		setSize(WIN_SIZE);
+		//pack();
 	}
 
 	/**
@@ -299,16 +303,24 @@ public class SearchComponent
 	 */
 	public void setSearchEnabled(boolean b)
 	{
+		if (b) setSearchEnabled("Searching", b);
+		else setSearchEnabled("", b);
+	}
+	
+	/**
+	 * Sets the buttons enabled when performing  search.
+	 * 
+	 * @param text 	The text to display.
+	 * @param b 	Pass <code>true</code> to enable the {@link #searchButton}, 
+	 * 				<code>false</code>otherwise, and modifies the cursor.
+	 */
+	public void setSearchEnabled(String text, boolean b)
+	{
 		searchButton.setEnabled(!b);
 		progressBar.setVisible(b);
-		if (b) {
-			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			progressLabel.setText("Searching");
-		}
-		else {
-			setCursor(Cursor.getDefaultCursor());
-			progressLabel.setText("");
-		}
+		if (b) setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		else setCursor(Cursor.getDefaultCursor());
+		progressLabel.setText(text);
 	}
 	
 	/**

@@ -34,8 +34,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
-
-import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
@@ -178,7 +176,7 @@ public abstract class FinderLoader
         registry.getLogger().info(this, info);
         registry.getUserNotifier().notifyInfo("Data Retrieval Cancellation", 
                                               info);
-        viewer.setStatus(false);
+        viewer.setStatus("", false);
     }
     
     /**
@@ -195,7 +193,7 @@ public abstract class FinderLoader
         registry.getLogger().error(this, msg);
         registry.getUserNotifier().notifyError("Data Retrieval Failure", 
                                                s, exc);
-        viewer.setStatus(false);
+        viewer.setStatus("", false);
     }
     
     /** Fires an asynchronous data loading. */

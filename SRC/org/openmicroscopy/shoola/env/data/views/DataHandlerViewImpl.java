@@ -385,14 +385,16 @@ public class DataHandlerViewImpl
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see DataHandlerView#advancedSearchFor(List, List, List, Timestamp, 
-	 * 									Timestamp, String, AgentEventListener)
+	 * 									Timestamp, String, boolean,
+	 * 									AgentEventListener)
 	 */
 	public CallHandle advancedSearchFor(List<Class> scope, List<String> values, 
 			List<ExperimenterData> users, Timestamp start, Timestamp end,
-			String separator, AgentEventListener observer)
+			String separator, boolean caseSensitive, 
+			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ObjectFinder(scope, values, users, start, end,
-											separator);
+											separator, caseSensitive);
 		return cmd.exec(observer);
 	}
 

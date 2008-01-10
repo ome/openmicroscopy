@@ -210,9 +210,9 @@ public class QuickFinder
 	
 	/** 
 	 * Implemented as specified by {@link Finder} I/F
-	 * @see Finder#setStatus(boolean)
+	 * @see Finder#setStatus(String, boolean)
 	 */
-	public void setStatus(boolean status)
+	public void setStatus(String text, boolean status)
 	{
 		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}

@@ -269,11 +269,17 @@ public class IconManager
     /** The <code>Owner 48</code> icon. */
     public static final int	SEARCH_TAG_SET = 71;
     
+    /** The <code>Edit remove</code> icon. */
+    public static final int	EDIT_REMOVE = 72;
+    
+    /** The <code>Add 12</code> icon. */
+    public static final int	ADD_12 = 73;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 71;
+    private static int      MAX_ID = 73;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -353,6 +359,8 @@ public class IconManager
         relPaths[TRANSPARENT] = "zoom16.png";
         relPaths[OWNER_48] ="nuvola_kdmconfig48.png";
         relPaths[SEARCH_TAG_SET] ="search_tag_folder16.png";
+        relPaths[EDIT_REMOVE] = "remove12.png";
+        relPaths[ADD_12] = "add12.png";
     }
     
     /** 

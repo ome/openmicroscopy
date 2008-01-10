@@ -481,18 +481,23 @@ public interface DataHandlerView
 	/**
 	 * Retrieves the objects specified by the context of the search.
 	 * 
-	 * @param scope		The scope of the search.
-	 * @param values	The terms to find.
-	 * @param users		The users' data.
-	 * @param start		The start of the time interval.
-	 * @param end		The end of the time interval.
-	 * @param separator	
+	 * @param scope			The scope of the search.
+	 * @param values		The terms to find.
+	 * @param users			The users' data.
+	 * @param start			The start of the time interval.
+	 * @param end			The end of the time interval.
+	 * @param separator		The separator between words, either <code>and</code>
+	 * 						or <code>or</code>.
+	 * @param caseSensitive Pass <code>true</code> to take into account the
+	 * 						case sensitivity while searching, 
+	 * 						<code>false</code> otherwise.
 	 * @param observer	Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle advancedSearchFor(List<Class> scope, List<String> values, 
 			List<ExperimenterData> users, Timestamp start, Timestamp end,
-			String separator, AgentEventListener observer);
+			String separator, boolean caseSensitive,
+			AgentEventListener observer);
 	
 	/**
 	 * Loads the experimenter groups.

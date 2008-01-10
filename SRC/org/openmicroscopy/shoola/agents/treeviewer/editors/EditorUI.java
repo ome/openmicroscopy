@@ -469,27 +469,27 @@ class EditorUI
         if (hierarchyObject instanceof ProjectData) {
             ProjectData p = (ProjectData) hierarchyObject;
             p.setName(doBasic.getNameText());
-            p.setDescription(doBasic.descriptionArea.getText());
+            p.setDescription(doBasic.getDescriptionText());
             return p;
         } else if (hierarchyObject instanceof DatasetData) {
             DatasetData d = (DatasetData) hierarchyObject;
             d.setName(doBasic.getNameText());
-            d.setDescription(doBasic.descriptionArea.getText());
+            d.setDescription(doBasic.getDescriptionText());
             return d;
         } else if (hierarchyObject instanceof CategoryData) {
             CategoryData c = (CategoryData) hierarchyObject;
             c.setName(doBasic.getNameText());
-            c.setDescription(doBasic.descriptionArea.getText());
+            c.setDescription(doBasic.getDescriptionText());
             return c;
         } else if (hierarchyObject instanceof CategoryGroupData) {
             CategoryGroupData cg = (CategoryGroupData) hierarchyObject;
             cg.setName(doBasic.getNameText());
-            cg.setDescription(doBasic.descriptionArea.getText());
+            cg.setDescription(doBasic.getDescriptionText());
             return cg;
         } else if (hierarchyObject instanceof ImageData) {
             ImageData i = (ImageData) hierarchyObject;
             i.setName(doBasic.getNameText());
-            i.setDescription(doBasic.descriptionArea.getText());
+            i.setDescription(doBasic.getDescriptionText());
             return i;
         } 
         return null;
@@ -743,10 +743,7 @@ class EditorUI
     }
     
     /** Sets the focus on the name area. */
-	void setFocusOnName()
-	{
-		doBasic.nameArea.requestFocus();
-	}
+	void setFocusOnName() { doBasic.setFocusOnName(); }
 	
 	/**
 	 * Sets the default button for the specified root pane.

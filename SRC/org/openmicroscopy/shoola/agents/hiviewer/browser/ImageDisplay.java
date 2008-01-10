@@ -105,19 +105,19 @@ public abstract class ImageDisplay
     /** 
      * Back pointer to the parent node or <code>null</code> if this is the root.
      */
-    protected ImageDisplay  parentDisplay;
+    protected ImageDisplay  	parentDisplay;
     
     /** 
      * The set of nodes that have been added to this node.
      * Will always be empty for a leaf node. 
      */
-    private Set             childrenDisplay;
+    private Set<ImageDisplay>	childrenDisplay;
     
     /** 
      * The original object in the image hierarchy which is visualized by this 
      * node.
      */
-    protected Object        hierarchyObject;
+    protected Object       	 	hierarchyObject;
     
     /**
      * Checks if the algorithm to visit the tree is one of the constants
@@ -175,7 +175,7 @@ public abstract class ImageDisplay
         if (hierarchyObject == null) 
             throw new NullPointerException("No hierarchy object.");
         this.hierarchyObject = hierarchyObject;
-        childrenDisplay = new HashSet();
+        childrenDisplay = new HashSet<ImageDisplay>();
     }
  
     /** Fired a property change event to bring up the annotation widget. */

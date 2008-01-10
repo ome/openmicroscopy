@@ -64,26 +64,31 @@ public class ObjectFinder
     /**
      * Creates a {@link BatchCall} to retrieve the data
      * 
-     * @param scope		The scope of the search.
-     * @param values	The terms to search for.
-     * @param users		The users' name.
-     * @param start		The start of a time interval.
-     * @param end		The end of a time interval.
-     * @param separator
+     * @param scope			The scope of the search.
+     * @param values		The terms to search for.
+     * @param users			The users' name.
+     * @param start			The start of a time interval.
+     * @param end			The end of a time interval.
+     * @param separator		The separator between words, either <code>and</code>
+	 * 						or <code>or</code>.
+	 * @param caseSensitive Pass <code>true</code> to take into account the
+	 * 						case sensitivity while searching, 
+	 * 						<code>false</code> otherwise.
      * @return The {@link BatchCall}.
      */
     private BatchCall searchFor(final List<Class> scope, 
     							final List<String> values, 
     							final List<ExperimenterData> users, 
     							final Timestamp start,
-    							final Timestamp end, final String separator)
+    							final Timestamp end, final String separator, 
+    							final boolean caseSensitive)
     {
         return new BatchCall("Retrieving objects") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
                 result = os.advancedSearchFor(scope, values, users, start, end,
-                								separator);
+                								separator, caseSensitive);
             }
         };
     }
@@ -103,18 +108,23 @@ public class ObjectFinder
     /**
      * Creates a new instance.
      * 
-     * @param scope		The scope of the search.
-     * @param values	The terms to search for.
-     * @param users		The users' data.
-     * @param start		The start of a time interval.
-     * @param end		The end of a time interval.
-     * @param separator
+     * @param scope			The scope of the search.
+     * @param values		The terms to search for.
+     * @param users			The users' data.
+     * @param start			The start of a time interval.
+     * @param end			The end of a time interval.
+     * @param separator		The separator between words, either <code>and</code>
+	 * 						or <code>or</code>.
+	 * @param caseSensitive Pass <code>true</code> to take into account the
+	 * 						case sensitivity while searching, 
+	 * 						<code>false</code> otherwise.
      */
     public ObjectFinder(List<Class> scope, List<String> values, 
     					List<ExperimenterData> users, Timestamp start, 
-    					Timestamp end, String separator)
+    					Timestamp end, String separator, boolean caseSensitive)
     {
-    	loadCall = searchFor(scope, values, users, start, end, separator);
+    	loadCall = searchFor(scope, values, users, start, end, separator, 
+    						caseSensitive);
     }
     
 }

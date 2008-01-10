@@ -29,7 +29,11 @@ package org.openmicroscopy.shoola.agents.util.ui;
 //Java imports
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Point;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Iterator;
@@ -37,10 +41,13 @@ import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -84,32 +91,44 @@ public class TagNode
 	/** Bound property indicating to add the tag. */
 	public static final String	ADD_PROPERTY = "add";
 	
+	/** Bound property indicating to edit the tag. */
+	public static final String	EDIT_PROPERTY = "edit";
+	
 	/** Foreground color when the node is highlighted. */
 	private static final Color HIGHLIGHT_COLOR = Color.BLUE;
 	
+	/** The size of the editor. */
+	private static final Dimension	EDITOR_SIZE = new Dimension(200, 150);
+	
 	/** The original foreground color. */
-	private Color 		originalColor;
+	private Color 			originalColor;
 	
 	/** The original font. */
-	private Font 		originalFont;
+	private Font 			originalFont;
 	
 	/** The original font. */
-	private Font 		deriveFont;
+	private Font 			deriveFont;
 	
 	/** The object hosted by this component. */
-	private DataObject 	node;
+	private DataObject 		node;
 	
 	/** The label displaying the text. */
-	private JLabel		label;
+	private JLabel			label;
 	
 	/** The label displaying the text. */
-	private JLabel		iconLabel;
+	private JLabel			iconLabel;
 	
 	/**
 	 * One out of the following constants: {@link #REMOVE_TYPE} or 
 	 * {@link #ADD_TYPE}.
 	 */
-	private int			index;
+	private int				index;
+	
+	/** Component used to edit the data object. */
+	private MultilineLabel	editor;
+	
+	/** Menu used to edit the tag. */
+	private JPopupMenu		editorMenu;
 	
 	/** Sets the text and the tooltip of the node. */
 	private void setNodeTexts()
@@ -124,6 +143,56 @@ public class TagNode
 			label.setText(tagSet.getName());
 			label.setToolTipText(tagSet.getDescription());
 		}
+	}
+	
+	/** 
+	 * Edits the data object. 
+	 * 
+	 * @param point The location of the mouse click.
+	 */
+	private void edit(Point point)
+	{
+		if (editor == null) {
+			editor = new MultilineLabel(label.getToolTipText());
+			editor.setEditable(true);
+			editor.addKeyListener(new KeyAdapter() {
+				
+				/** 
+				 * Saves the data when the user presses enter
+				 * @see MouseAdapter#keyPressed(KeyEvent)
+				 */
+				public void keyPressed(KeyEvent e)
+				{
+	            	switch (e.getKeyCode()) {
+						case KeyEvent.VK_ENTER:
+							String s = editor.getText();
+							boolean fire = false;
+							if (node instanceof CategoryData) {
+								((CategoryData) node).setDescription(s);
+								fire = true;
+							} else if (node instanceof CategoryGroupData) {
+								((CategoryGroupData) node).setDescription(s);
+								fire = true;
+							}
+							if (fire) {
+								editorMenu.setVisible(false);
+								label.setToolTipText(s);
+								firePropertyChange(EDIT_PROPERTY, null, node);
+							}
+								
+							break;
+						
+					}
+				}
+			
+			});
+			JScrollPane pane = new JScrollPane(editor);
+			editor.setPreferredSize(EDITOR_SIZE);
+			editorMenu = new JPopupMenu();
+			editorMenu.add(pane);
+		} else editor.setText(label.getToolTipText());
+		
+		editorMenu.show(this, point.x, point.y+10);
 	}
 	
 	/**
@@ -212,8 +281,10 @@ public class TagNode
 			}
 			
 		} else {
-			if (e.getClickCount() == 1)
+			if (e.getClickCount() == 2)
 				firePropertyChange(BROWSE_PROPERTY, null, node);
+			else 
+				edit(e.getPoint());
 		}
 	}
 

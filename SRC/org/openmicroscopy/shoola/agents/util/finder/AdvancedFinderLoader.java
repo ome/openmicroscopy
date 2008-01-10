@@ -33,6 +33,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
+import org.openmicroscopy.shoola.env.data.util.SearchResult;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -75,6 +76,12 @@ public class AdvancedFinderLoader
 	/** The separator used between the terms. */
 	private String					separator;
 	
+	/**
+	 * Flag indicating to take into account the case sensitivy while 
+	 * doing the search.
+	 */
+	private boolean					caseSensitive;
+	
 	/** Handle to the async call so that we can cancel it. */
     private CallHandle  			handle;
 
@@ -97,19 +104,22 @@ public class AdvancedFinderLoader
 	/**
      * Creates a new instance.
      * 
-     * @param viewer 	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
-     * @param values	Collection of terms to search for.
-     * @param users		Collection of users' data.
-     * @param context	Collection of constants defined by this class.
-     * @param start		The start of a time interval.
-     * @param end		The end of a time interval.
-     * @param separator	The term used between the terms to search.
+     * @param viewer 		The viewer this data loader is for.
+     *               		Mustn't be <code>null</code>.
+     * @param values		Collection of terms to search for.
+     * @param users			Collection of users' data.
+     * @param context		Collection of constants defined by this class.
+     * @param start			The start of a time interval.
+     * @param end			The end of a time interval.
+     * @param separator		The term used between the terms to search.
+     * @param caseSensitive	Pass <code>true</code> to be case sensitive,
+     * 						<code>false</code> otherwise.
      */
     public AdvancedFinderLoader(Finder viewer, List<String> values,
     							List<ExperimenterData> users,
     							List<Integer> context, Timestamp start,
-    							Timestamp end, String separator)
+    							Timestamp end, String separator, 
+    							boolean caseSensitive)
     {
     	super(viewer);
     	if (values == null || values.size() == 0) 
@@ -122,6 +132,7 @@ public class AdvancedFinderLoader
     	this.start = start;
     	this.end = end;
     	this.separator = separator;
+    	this.caseSensitive = caseSensitive;
     }
     
     /**
@@ -131,7 +142,7 @@ public class AdvancedFinderLoader
     public void load()
     {
     	handle = dhView.advancedSearchFor(scope, values, users, start, end, 
-    									separator, this);
+    									separator, caseSensitive, this);
     }
 
     /**
@@ -148,15 +159,26 @@ public class AdvancedFinderLoader
     {
     	if (viewer.getState() == Finder.DISCARDED) return;  //Async cancel.
         EventBus bus = registry.getEventBus();
-        Set set = (Set) result;
-        if (set == null || set.size() == 0) {
-        	
+        SearchResult r = (SearchResult) result;
+        if (r == null) {
         	UserNotifier un = registry.getUserNotifier();
         	un.notifyInfo("Search", "No results matching your criteria.");
-        	viewer.setStatus(false);
+        	viewer.setStatus("", false);
         	return;
         }
-       
+        Set<Long> set = r.getNodeIDs();
+        if (set == null || set.size() == 0) {
+        	UserNotifier un = registry.getUserNotifier();
+        	un.notifyInfo("Search", "No results matching your criteria.");
+        	viewer.setStatus("", false);
+        	return;
+        }
+        int size = set.size();
+        if (size > Finder.MAX_RESULTS) {
+        	viewer.setStatus("Found: "+size+" results. " +
+        					"Please refine your search", false);
+        	return;
+        }
         Browse event = new Browse(set, Browse.IMAGES, getUserDetails(), null); 
         Iterator i = values.iterator();
         String s = " for \"";

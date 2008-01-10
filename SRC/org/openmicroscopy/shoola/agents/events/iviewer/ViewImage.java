@@ -59,6 +59,9 @@ public class ViewImage
     /** The ID of the image. */
     private long        imageID;
     
+    /** The id of the owner of the image. */
+    private long 		ownerID;
+    
     /** The name of the image. */
     private String      name;
 
@@ -72,8 +75,10 @@ public class ViewImage
      * @param pixelsID  The pixels set ID.
      * @param name      The name of the image.
      * @param bounds    The bounds of the component posting the event.
+     * @param ownerID	The id of the owner of the image.
      */
-    public ViewImage(long imageID, long pixelsID, String name, Rectangle bounds)
+    public ViewImage(long imageID, long pixelsID, String name, Rectangle bounds,
+    				long ownerID)
     {
         if (pixelsID < 0) 
             throw new IllegalArgumentException("Pixels set ID not valid.");
@@ -81,9 +86,17 @@ public class ViewImage
             throw new IllegalArgumentException("Image ID not valid.");
         this.pixelsID = pixelsID;
         this.imageID = imageID;
+        this.ownerID = ownerID;
         this.name = name;
         requesterBounds = bounds;
     }
+    
+    /**
+     * Returns the ID of the owner.
+     * 
+     * @return See above. 
+     */
+    public long getOwnerID() { return ownerID; }
     
     /**
      * Returns the image ID.

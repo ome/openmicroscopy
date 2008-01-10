@@ -292,7 +292,7 @@ public class FileChooser
 	{
 		if (path == null) return;
 		char separator = File.separatorChar;
-    	String n = path+File.separatorChar;
+    	//String n = path+File.separatorChar;
     	//If folder does not exist, create it.
     	File[] l = uiDelegate.getCurrentDirectory().listFiles();
        
@@ -304,6 +304,7 @@ public class FileChooser
             }
         }
     	if (!exist) new File(path).mkdir();
+    	System.err.println("FileChooser: "+(path+separator));
 		firePropertyChange(LOCATION_PROPERTY, null, path+separator);
 		if (uiDelegate.isSetDefaultFolder()) 
 			UIUtilities.setDefaultFolder(path);

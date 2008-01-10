@@ -167,9 +167,7 @@ class ToolBar
         button.addMouseListener(a);
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);  
-        button = new JButton(controller.getAction(ImViewerControl.SEARCH));
-        UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);  
+        
     }
     
     /** Initializes the components composing this tool bar. */
@@ -204,8 +202,22 @@ class ToolBar
         add(UIUtilities.buildComponentPanel(bar));
         JPanel right = new JPanel();
         right.setLayout(new BoxLayout(right, BoxLayout.X_AXIS));
+        JButton button = new JButton(controller.getAction(ImViewerControl.SEARCH));
+        UIUtilities.unifiedButtonLookAndFeel(button);
+        JToolBar bar = new JToolBar();
+        bar.setFloatable(false);
+        bar.setRollover(true);
+        bar.setBorder(null);
+        bar.add(button); 
+        right.add(bar); 
         right.add(UIUtilities.buildComponentPanelRight(createQuickSearch()));
-        right.add(categoryButton);
+        bar = new JToolBar();
+        bar.setFloatable(false);
+        bar.setRollover(true);
+        bar.setBorder(null);
+        bar.add(categoryButton); 
+        right.add(bar); 
+        //right.add(categoryButton);
         right.setOpaque(true);
         add(UIUtilities.buildComponentPanelRight(right));
     }

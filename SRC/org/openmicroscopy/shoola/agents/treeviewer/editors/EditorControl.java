@@ -38,6 +38,8 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
+import org.openmicroscopy.shoola.agents.util.ui.SingleTagEditor;
+
 import pojos.DataObject;
 
 
@@ -139,7 +141,7 @@ public class EditorControl
     void loadTags() { model.loadTags(); }
     
     /** Loads the tags not linked to the image. */
-    void loadAvailableTags() { model.loadAvailableTags(); }
+    //void loadAvailableTags() { model.loadAvailableTags(); }
     
     /**
      * Removes the tag or tags if a tag set is specified from the 
@@ -147,14 +149,14 @@ public class EditorControl
      * 
      * @param object The object to handle.
      */
-    void removeTag(DataObject object) { model.removeTag(object); }
+    //void removeTag(DataObject object) { model.removeTag(object); }
     
     /**
      * Adds the passed tag to the edited image.
      * 
      * @param object The object to handle.
      */
-    void addTagToImage(DataObject object) { model.addTagToImage(object); }
+    //void addTagToImage(DataObject object) { model.addTagToImage(object); }
     
     /** Retrieves the annotations. */
     void retrieveAnnotations() { model.retrieveAnnotations(); }
@@ -216,11 +218,30 @@ public class EditorControl
 	public void propertyChange(PropertyChangeEvent evt) 
 	{
 		String name = evt.getPropertyName();
+		DataObject ho;
 		if (AnnotatorEditor.ANNOTATED_PROPERTY.equals(name)) {
-			DataObject r = (DataObject) evt.getNewValue();
-			model.setSaveResult(r, TreeViewer.UPDATE_OBJECT); 
+			ho = (DataObject) evt.getNewValue();
+			model.setSaveResult(ho, TreeViewer.UPDATE_OBJECT); 
 		} else if (AnnotatorEditor.ANNOTATION_LOADED_PROPERTY.equals(name)) {
 			view.setStatus(false, null, true);
+		} else if (SingleTagEditor.LOAD_AVAILABLE_TAGS_PROPERTY.equals(name)) {
+			model.loadAvailableTags();
+		} else if (SingleTagEditor.BROWSE_TAG_PROPERTY.equals(name)) {
+			ho = (DataObject) evt.getNewValue();
+			if (ho != null)
+				browse(ho);
+		} else if (SingleTagEditor.REMOVE_TAG_PROPERTY.equals(name)) {
+			ho = (DataObject) evt.getNewValue();
+			if (ho != null)
+				model.removeTag(ho);
+		} else if (SingleTagEditor.ADD_TAG_PROPERTY.equals(name)) {
+			ho = (DataObject) evt.getNewValue();
+			if (ho != null)
+				model.addTagToImage(ho);
+		} else if (SingleTagEditor.EDIT_TAG_PROPERTY.equals(name)) {
+			ho = (DataObject) evt.getNewValue();
+			if (ho != null)
+				model.saveObject(ho, TreeViewer.UPDATE_OBJECT);
 		}
 	}
 

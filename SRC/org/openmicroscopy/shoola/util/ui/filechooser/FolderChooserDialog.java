@@ -180,6 +180,7 @@ public class FolderChooserDialog
             }
         }
         if (!exist) new File(path).mkdir();
+        System.err.println(path+separator);
 		firePropertyChange(LOCATION_PROPERTY, null, path+separator);
 		if (settings.isSelected()) 
 			UIUtilities.setDefaultFolder(path);

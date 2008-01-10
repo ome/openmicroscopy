@@ -1801,7 +1801,7 @@ class ImViewerUI
 	void showUsersList()
 	{
 		if (usersMenu == null) {
-			usersMenu = new UsersPopupMenu(this, model);
+			usersMenu = new UsersPopupMenu(model);
 			usersMenu.addPropertyChangeListener(controller);
 		}
 		usersMenu.show(source, location.x, location.y);

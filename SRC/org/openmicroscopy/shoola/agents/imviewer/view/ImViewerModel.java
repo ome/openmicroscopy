@@ -131,103 +131,112 @@ class ImViewerModel
 	private static final int    THUMB_MAX_HEIGHT = 48;
 
 	/** The id of the set of pixels. */
-	private long                pixelsID;
+	private long               		 	pixelsID;
 
 	/** The id of the image. */
-	private long                imageID;
+	private long                		imageID;
 
 	/** The name of the image. */
-	private String              imageName;
+	private String              		imageName;
 
 	/** Holds one of the state flags defined by {@link ImViewer}. */
-	private int                 state;
+	private int                 		state;
 
 	/** Reference to the component that embeds this model. */
-	private ImViewer            component;
+	private ImViewer            		component;
 
 	/** 
 	 * Will either be a data loader or
 	 * <code>null</code> depending on the current state. 
 	 */
-	private DataLoader          currentLoader;
+	private DataLoader          		currentLoader;
 
 	/** The sub-component that hosts the display. */
-	private Browser             browser;
+	private Browser             		browser;
 
 	/** Reference to the rendering control. */
-	private RenderingControl    rndControl;
+	private RenderingControl    		rndControl;
 
 	/** Reference to the {@link Renderer}. */
-	private Renderer            renderer;
+	private Renderer            		renderer;
 
 	/** Reference to the current player. */
-	private ChannelPlayer       player;
+	private ChannelPlayer       		player;
 
 	/** The width of the thumbnail if the window is iconified. */
-	private int                 sizeX;
+	private int                 		sizeX;
 
 	/** The height of the thumbnail if the window is iconified. */
-	private int                 sizeY;
+	private int                 		sizeY;
 
 	/** The magnification factor for the thumbnail. */
-	private double              factor;
+	private double              		factor;
 
 	/** The image icon. */
-	private BufferedImage       imageIcon;
+	private BufferedImage       		imageIcon;
 
 	/** The bounds of the component requesting the viewer. */
-	private Rectangle           requesterBounds;
+	private Rectangle           		requesterBounds;
 
 	/** Fit the image to the size of window, on resize. */
-	private boolean				zoomFitToWindow; 
+	private boolean						zoomFitToWindow; 
 
 	/** The index of the selected tabbed. */
-	private int					tabbedIndex;
+	private int							tabbedIndex;
 
 	/** 
 	 * Flag indicating to paint or not some textual information on top
 	 * of the grid image.
 	 */
-	private boolean				textVisible;
+	private boolean						textVisible;
 
 	/** Flag indicating that a movie is played. */
-	private boolean				playingMovie;
+	private boolean						playingMovie;
 	
 	/** Flag indicating that a movie is played. */
-	private boolean				playingChannelMovie;
+	private boolean						playingChannelMovie;
 
 	/** Collection of history item. */
-	private List<HistoryItem>	historyItems;
+	private List<HistoryItem>			historyItems;
 
 	/** 
 	 * Flag indicating that a previous item replaced an existing one. 
 	 * In that case, a new element is not added to the history list.
 	 */
-	private boolean				historyItemReplacement;
+	private boolean						historyItemReplacement;
 
 	/** Collection of categories the image belongs to. */
-	private List				categories;
+	private List						categories;
 
 	/** Collection of available categories.*/
-	private List				availableCategories;
+	private List						availableCategories;
 
 	/** Collection of category Group. */
-	private List				categoryGroups;
+	private List						categoryGroups;
 
 	/** The pixels set to copy the rendering settings from. */
-	private Pixels 				pixels;
+	private Pixels 						pixels;
 
 	/** 
 	 * The index of the movie, not that we set to <code>-1</code>
 	 * when the movie player is launched.
 	 */
-	private int 				movieIndex;
+	private int 						movieIndex;
 	
 	/** The rendering setting related to a given set of pixels. */
-	private Map					renderingSettings;
+	private Map							renderingSettings;
 	
 	/** Reference to the tagger. */
-	private Tagger				tagger;
+	private Tagger						tagger;
+	
+	/** The id of the owner of the image. */
+	private long						ownerID;
+	
+	/** 
+	 * The Map hosting the various rendering controls.
+	 * {imageID, rendering control}.
+	 */
+	private Map<Long, RenderingControl>	renderingControls;
 	
 	/** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
 	private void computeSizes()
@@ -253,8 +262,10 @@ class ImViewerModel
 	 * @param name      The image's name.
 	 * @param bounds    The bounds of the component invoking the 
 	 *                  {@link ImViewer}.
+	 * @param ownerID	The id of the owner of the image.
 	 */
-	ImViewerModel(long pixelsID, long imageID, String name, Rectangle bounds)
+	ImViewerModel(long pixelsID, long imageID, String name, Rectangle bounds,
+				long ownerID)
 	{
 		this.pixelsID = pixelsID;
 		this.imageID = imageID;
@@ -266,6 +277,8 @@ class ImViewerModel
 		tabbedIndex = ImViewer.VIEW_INDEX;
 		textVisible = true;
 		movieIndex = -1;
+		this.ownerID = ownerID;
+		renderingControls = new HashMap();
 	}
 
 	/**
@@ -1354,5 +1367,12 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	Tagger getTagger() { return tagger; }
+	
+	/**
+	 * Returns the id of the ower. 
+	 * 
+	 * @return See above.
+	 */
+	long getOwnerID() { return ownerID; }
 	
 }

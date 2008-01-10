@@ -40,6 +40,8 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
@@ -79,7 +81,7 @@ class SearchPanel
 	private static final Dimension	CALENDAR_SIZE = new Dimension(250, 200);
 	
 	/** The selected date format. */
-	private static final String		DATE_FORMAT = "MM/dd/yy";
+	private static final String		DATE_FORMAT = "YYYY/MM/DD";//"MM/dd/yy";
 	
 	/** The tooltip of the calendar button. */
 	private static final String		DATE_TOOLTIP = "Bring up a calendar.";
@@ -98,6 +100,9 @@ class SearchPanel
 											"("+DATE_FORMAT+")";
 	}
 
+	/** If checked the case is taken into account. */ 
+	private JCheckBox				caseSensitive;
+	
 	/** The button used to display the available users. */
 	private JButton					userButton;
 	
@@ -185,6 +190,7 @@ class SearchPanel
 		orBox.setSelected(true);
 		group.add(andBox);
 		group.add(orBox);
+		caseSensitive = new JCheckBox("Case sensitive");
 	}
 	
 	/** 
@@ -199,7 +205,7 @@ class SearchPanel
 		p.add(andBox);
 		p.add(Box.createRigidArea(SearchComponent.H_SPACER_SIZE));
 		p.add(orBox);
-		return  UIUtilities.buildComponentPanel(p);
+		return UIUtilities.buildComponentPanel(p);
 	}
 	
 	/** 
@@ -229,7 +235,7 @@ class SearchPanel
 		p.add(currentUser);
 		p.add(currentUserAndOthers);
 		p.add(others);
-		return  UIUtilities.buildComponentPanel(p);
+		return UIUtilities.buildComponentPanel(p);
 	}
 	
 	/** 
@@ -279,6 +285,81 @@ class SearchPanel
 		return p;
 	}
 	
+	/**
+	 * Builds the UI component hosting the terms to search for.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildSearchFor()
+	{
+		JPanel searchFor = new JPanel();
+		searchFor.setLayout(new BoxLayout(searchFor, BoxLayout.Y_AXIS));
+		initBorder("Search For", searchFor);
+		JPanel p = new JPanel();
+		p.add(new JLabel("(* = any string, ? = any character)"));
+		searchFor.add(UIUtilities.buildComponentPanel(p));
+		p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.add(termsArea);
+		p.add(caseSensitive);
+		searchFor.add(UIUtilities.buildComponentPanel(p));
+		searchFor.add(buildAndOrPanel());
+		return searchFor;
+	}
+	
+	/**
+	 * Builds the UI component hosting the users to search for.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildUsers()
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		
+		p.add(authors);
+		p.add(userButton);
+		JPanel usersPanel= new JPanel();
+		initBorder("Users", usersPanel);
+		usersPanel.setLayout(new BoxLayout(usersPanel, BoxLayout.Y_AXIS));
+		usersPanel.add(UIUtilities.buildComponentPanel(p));
+		usersPanel.add(buildUserSelectionPanel());
+		return usersPanel;
+	}
+	
+	/**
+	 * Builds the UI component hosting the time interval.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildDate()
+	{
+		JPanel p = new JPanel();
+		
+		
+		p.add(UIUtilities.buildComponentPanel(dates));
+		JPanel datesPanel= new JPanel();
+		datesPanel.setLayout(new BoxLayout(datesPanel, BoxLayout.Y_AXIS));
+		initBorder("Date", datesPanel);
+		datesPanel.add(UIUtilities.buildComponentPanel(p));
+		//From
+		datesPanel.add(buildTimeRangePanel());
+		return datesPanel;
+	}
+	
+	/**
+	 * Formats and sets the title border of the passed component.
+	 * 
+	 * @param title The title.
+	 * @param p		The component to handle.
+	 */
+	private void initBorder(String title, JComponent p)
+	{
+		TitledBorder border = new TitledBorder(title);
+		border.setTitleFont(p.getFont().deriveFont(Font.BOLD));
+		p.setBorder(border);
+	}
+	
 	/** 
 	 * Builds the panel hosting the authors.
 	 * 
@@ -286,44 +367,15 @@ class SearchPanel
 	 */
 	private JPanel buildSearchPanel()
 	{
-		//TODO: review layout
 		JPanel searchPanel= new JPanel();
-		double[][] tl = {{TableLayout.PREFERRED, 10, TableLayout.FILL, 
-						TableLayout.PREFERRED}, //columns
-				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5,
-				 TableLayout.PREFERRED, 5,
-			     TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
-			     TableLayout.PREFERRED, 5, 
-			     TableLayout.PREFERRED, TableLayout.PREFERRED} }; //rows
-		searchPanel.setLayout(new TableLayout(tl));
-		//Search For
-		
-		searchPanel.add(UIUtilities.setTextFont("Search For"), "0, 0, l, c");
-		searchPanel.add(termsArea, "2, 0, l, c");
-		
-		searchPanel.add(buildAndOrPanel(), "2, 2, l, c");
-		//Author
-		searchPanel.add(UIUtilities.setTextFont("Users"), "0, 4, l, c");
-		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(authors);
-		p.add(userButton);
-		searchPanel.add(p, "2, 4, l, c");
-		//searchPanel.add(userButton, "3, 2, l, c");
-		
-		
-		searchPanel.add(buildUserSelectionPanel(), "2, 6, l, c");
-		
-		//Date
-		searchPanel.add(UIUtilities.setTextFont("Date"), "0, 8, l, c");
-		searchPanel.add(UIUtilities.buildComponentPanel(dates), "2, 8, l, c");
-		
+		searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.Y_AXIS));
+		searchPanel.add(buildSearchFor());
+		searchPanel.add(buildUsers());
 		//From
-		searchPanel.add(buildTimeRangePanel(), "0, 10, 2, 10");
+		searchPanel.add(buildDate());
 		//Context
-		//searchPanel.add(UIUtilities.setTextFont("Scope"), "0, 10, l, c");
-		searchPanel.add(buildScopePanel(), "0, 12, 2, 12");
 		
+		searchPanel.add(buildScopePanel());
 		return UIUtilities.buildComponentPanel(searchPanel);
 	}
 	
@@ -368,6 +420,14 @@ class SearchPanel
 	{
 		return dates.getSelectedIndex();
 	}
+	
+	/**
+	 * Returns <code>true</code> if the search is case sensitive,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isCaseSensitive() { return caseSensitive.isSelected(); }
 	
 	/**
 	 * Returns the start time.

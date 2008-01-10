@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.data;
 //Java imports
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -38,10 +39,8 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.ILink;
 import ome.model.IObject;
-import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Category;
-import ome.model.containers.CategoryImageLink;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.meta.Event;
@@ -54,6 +53,8 @@ import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.data.model.Mapper;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
+import org.openmicroscopy.shoola.env.data.util.SearchResult;
+
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -1174,13 +1175,15 @@ class OmeroDataServiceImpl
 	 * @see OmeroDataService#advancedSearchFor(List, List, List, Timestamp, 
 	 * 											Timestamp, String)
 	 */
-	public Set advancedSearchFor(List<Class> scope, List<String> terms, 
+	public SearchResult advancedSearchFor(List<Class> scope, List<String> terms, 
 			List<ExperimenterData> users, Timestamp start, Timestamp end, 
-			String separator) 
+			String separator, boolean caseSensitive) 
 		throws DSOutOfServiceException, DSAccessException
 	{
+		SearchResult result = new SearchResult();
+		
+		if (terms == null) return result;
 		Set<Long> ids = new HashSet<Long>();
-		if (terms == null) return ids;
 		Iterator i = scope.iterator();
 		List l = new ArrayList();
 		Iterator j;
@@ -1195,11 +1198,68 @@ class OmeroDataServiceImpl
 				s = separator;
 			else s = "or"; //default
 		}
-		
+		/*
+		if ((users == null || users.size() == 0)) {
+			users =  new ArrayList<ExperimenterData>(1);
+			users.add(getUserDetails());
+		}
+		Map<String, Map> context = new HashMap<String, Map>();
+		if (s.equals("and")) {
+			List<List> nodes = new ArrayList();
+			Iterator k;
+			while (i.hasNext()) {
+				type = (Class) i.next();
+				if (type.equals(CategoryData.class) || 
+					type.equals(CategoryGroupData.class)) {
+					k = terms.iterator();
+					while (k.hasNext()) {
+						nodes.add(gateway.searchFor(type, (String) k.next(), 
+								start, end, users, s, caseSensitive));
+					}
+					
+				} else {
+					l.addAll(gateway.searchFor(type, terms, start, end, 
+							users, s, caseSensitive));
+				}
+			}
+			
+			
+			if (nodes.size() != 0) {
+				List nodeIds = new ArrayList();
+				List n = nodes.remove(0);
+				k = n.iterator();
+				while (k.hasNext()) 
+					nodeIds.add(((ILink) k.next()).getChild().getId());
+				
+				k = nodes.iterator();
+				Iterator link;
+				long id;
+				Set<Long> intersection = new HashSet<Long>();
+				while (k.hasNext()) {
+					n = (List) k.next();
+					link = n.iterator();
+					while (link.hasNext()) {
+						id = ((ILink) link.next()).getChild().getId();
+						if (nodeIds.contains(id))
+							intersection.add(id);
+						else nodeIds.remove(id);
+					}
+				}
+				
+				ids.addAll(intersection);
+			}
+		} else {
+			while (i.hasNext()) {
+				type = (Class) i.next();
+				l.addAll(gateway.searchFor(type, terms, start, end, users, 
+						s, caseSensitive));
+			}
+		}
+		*/
 		if ((users == null || users.size() == 0)) {
 			ExperimenterData exp = getUserDetails();
 			if (s.equals("and")) {
-				List<List> nodes = new ArrayList();
+				List<List> nodes = new ArrayList<List>();
 				Iterator k;
 				while (i.hasNext()) {
 					type = (Class) i.next();
@@ -1208,12 +1268,12 @@ class OmeroDataServiceImpl
 						k = terms.iterator();
 						while (k.hasNext()) {
 							nodes.add(gateway.searchFor(type, (String) k.next(), 
-									start, end, exp, s ));
+									start, end, exp, s, caseSensitive));
 						}
 						
 					} else {
 						l.addAll(gateway.searchFor(type, terms, start, end, 
-								exp, s));
+								exp, s, caseSensitive));
 					}
 				}
 				
@@ -1246,7 +1306,7 @@ class OmeroDataServiceImpl
 				while (i.hasNext()) {
 					type = (Class) i.next();
 					l.addAll(gateway.searchFor(type, terms, start, end, 
-									exp, s));
+									exp, s, caseSensitive));
 				}
 			}
 			
@@ -1261,12 +1321,12 @@ class OmeroDataServiceImpl
 						k = terms.iterator();
 						while (k.hasNext()) {
 							nodes.add(gateway.searchFor(type, (String) k.next(), 
-									start, end, users, s ));
+									start, end, users, s, caseSensitive));
 						}
 						
 					} else {
 						l.addAll(gateway.searchFor(type, terms, start, end, 
-								users, s));
+								users, s, caseSensitive));
 					}
 				}
 				
@@ -1299,10 +1359,11 @@ class OmeroDataServiceImpl
 				while (i.hasNext()) {
 					type = (Class) i.next();
 					l.addAll(gateway.searchFor(type, terms, start, end, users, 
-							s));
+							s, caseSensitive));
 				}
 			}
 		}
+		
 		if (l != null) {
 			j = l.iterator();
 			while (j.hasNext()) {
@@ -1316,7 +1377,8 @@ class OmeroDataServiceImpl
 			}
 		}
 		
-		return ids;
+		result.setNodeIDs(ids);
+		return result;
 	}
 
 }

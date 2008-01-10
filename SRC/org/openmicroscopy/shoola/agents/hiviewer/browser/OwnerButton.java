@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.util.finder.Finder 
+ * org.openmicroscopy.shoola.agents.hiviewer.browser.OwnerButton 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,16 +20,22 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.util.finder;
+package org.openmicroscopy.shoola.agents.hiviewer.browser;
+
+
 
 //Java imports
+import java.awt.Insets;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 
 /** 
- * Interface that every finder should implement
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -41,38 +47,34 @@ package org.openmicroscopy.shoola.agents.util.finder;
  * </small>
  * @since OME3.0
  */
-public interface Finder
+class OwnerButton 
+	extends JButton
 {
 
-	/** Identified the <code>DISCARD</code> state. */
-	public static final int		DISCARDED = 0;
-	
-	/** Identified the <code>SEARCH</code> state. */
-	public static final int		SEARCH = 1;
-	
-	/** The maximum number of results. */
-	static final int			MAX_RESULTS = 100;
-	
-	/** Cancels any ongoing search. */
-	public void cancel();
-	
-	/** 
-	 * Returns the state.
-	 * 
-	 * @return See above.
-	 */
-	public int getState();
-	
-	/** Disposes of the finder when the results are found. */
-	public void dispose();
-	
-	/**
-	 * Sets the status.
-	 * 
-	 * @param text		The text to display.
-	 * @param status 	Pass <code>true</code> to hide the progess bar,
-	 * 					<code>false</code> otherwise.
-	 */
-	public void setStatus(String text, boolean status);
+	/** Description of the button. */
+    private final String DESCRIPTION = "Indicates that you are the owner.";
+    
+    /** The node hosting this button. */
+    private final ImageNode    parentNode;
 
+    /** 
+     * Creates a new instance. 
+     * 
+     * @param node The node hosting this button. Mustn't be <code>null</code>.
+     */
+    OwnerButton(ImageNode node)
+    {
+    	if (node == null) throw new IllegalArgumentException("No node");
+        parentNode = node;
+        setContentAreaFilled(false);
+        setBorder(BorderFactory.createEmptyBorder());  //No border around icon.
+        setMargin(new Insets(0, 0, 0, 0));//Just to make sure button sz=icon sz.
+        setOpaque(false);  //B/c button=icon.
+        setFocusPainted(false);  //Don't paint focus box on top of icon.
+        //setRolloverEnabled(true);
+        IconManager im = IconManager.getInstance();
+        setIcon(im.getIcon(IconManager.OWNER_SMALL));
+        setToolTipText(DESCRIPTION);
+    }
+    
 }

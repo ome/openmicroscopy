@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.util.finder.Finder 
+ * org.openmicroscopy.shoola.env.data.util.SearchResult 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,16 +20,22 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.util.finder;
+package org.openmicroscopy.shoola.env.data.util;
+
 
 //Java imports
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * Interface that every finder should implement
+ * Utility class hosting the various parameters used to display the 
+ * result of a search.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -41,38 +47,54 @@ package org.openmicroscopy.shoola.agents.util.finder;
  * </small>
  * @since OME3.0
  */
-public interface Finder
+public class SearchResult
 {
 
-	/** Identified the <code>DISCARD</code> state. */
-	public static final int		DISCARDED = 0;
-	
-	/** Identified the <code>SEARCH</code> state. */
-	public static final int		SEARCH = 1;
-	
-	/** The maximum number of results. */
-	static final int			MAX_RESULTS = 100;
-	
-	/** Cancels any ongoing search. */
-	public void cancel();
+	/** Collection of image's ids. */
+	private Set<Long> 			nodeIDs;
 	
 	/** 
-	 * Returns the state.
+	 * Context of the search: key the string to search for, value is a map
+	 * whose key is the scope and the value the number of items found.
+	 */
+	private Map<String, Map> 	context;
+	
+	/** Creates a new instance, */
+	public SearchResult()
+	{
+		nodeIDs = new HashSet<Long>();
+		context = null;
+	}
+	
+	/**
+	 * Sets the collection of image's ids.
+	 * 
+	 * @param nodeIDs The value to set.
+	 */
+	public void setNodeIDs(Set<Long> nodeIDs) { this.nodeIDs = nodeIDs; }
+	
+	/**
+	 * Sets the context of the search.
+	 * 
+	 * @param context The value to set.
+	 */
+	public void setContext(Map<String, Map> context) { this.context = context; }
+	
+	/**
+	 * Returns the collection of image's ids.
 	 * 
 	 * @return See above.
 	 */
-	public int getState();
-	
-	/** Disposes of the finder when the results are found. */
-	public void dispose();
+	public Set<Long> getNodeIDs()
+	{ 
+		return Collections.unmodifiableSet(nodeIDs);
+	}
 	
 	/**
-	 * Sets the status.
+	 * Returns the context of the search.
 	 * 
-	 * @param text		The text to display.
-	 * @param status 	Pass <code>true</code> to hide the progess bar,
-	 * 					<code>false</code> otherwise.
+	 * @return See above.
 	 */
-	public void setStatus(String text, boolean status);
-
+	public Map<String, Map> getContext() { return context; }
+	
 }

@@ -883,8 +883,6 @@ class ImViewerControl
 	 * in our case.
 	 * @see ComponentListener#componentMoved(ComponentEvent)
 	 */
-	public void componentMoved(ComponentEvent e) {
-		
-	}
+	public void componentMoved(ComponentEvent e) {}
 	
 }

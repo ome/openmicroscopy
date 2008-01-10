@@ -34,9 +34,13 @@ import java.util.Date;
 import java.util.List;
 import javax.swing.JButton;
 
+import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
+import org.openmicroscopy.shoola.env.LookupNames;
+
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
@@ -148,6 +152,11 @@ public class ImageNode
     {
         if (hierarchyObject instanceof ImageData) { 
             List<JButton> nodes = new ArrayList<JButton>();
+            ExperimenterData exp = 
+            	(ExperimenterData) HiViewerAgent.getRegistry().lookup(
+			        LookupNames.CURRENT_USER_DETAILS);
+            long ownerID = ((ImageData) hierarchyObject).getOwner().getId();
+            if (exp.getId() == ownerID) nodes.add(new OwnerButton(this));
             nodes.add(new PinButton(this));
             if (isAnnotated()) nodes.add(new AnnotatedButton(this));
             if (isClassified()) nodes.add(new ClassifiedButton(this));

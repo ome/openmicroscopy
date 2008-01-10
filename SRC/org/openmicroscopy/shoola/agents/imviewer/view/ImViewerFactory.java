@@ -121,13 +121,14 @@ public class ImViewerFactory
 	 * @param name      The name of the image.
 	 * @param bounds    The bounds of the component invoking the 
 	 *                  {@link ImViewer}.
+	 * @param ownerID	The id of the owner of the image.
 	 * @return See above.
 	 */
 	public static ImViewer getImageViewer(long pixelsID, long imageID,
-			String name, Rectangle bounds)
+			String name, Rectangle bounds, long ownerID)
 	{
 		ImViewerModel model = new ImViewerModel(pixelsID, imageID, name, 
-				bounds);
+											bounds, ownerID);
 		return singleton.getViewer(model);
 	}
 

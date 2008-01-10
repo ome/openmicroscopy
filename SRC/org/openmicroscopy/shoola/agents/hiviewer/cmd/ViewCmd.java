@@ -158,11 +158,12 @@ public class ViewCmd
                     is = (ImageData) d.getHierarchyObject();
                     eventBus.post(new ViewImage(is.getId(), 
                             is.getDefaultPixels().getId(), is.getName(), 
-                            bounds)); 
+                            bounds, is.getOwner().getId())); 
                 }
             } else {
                 eventBus.post(new ViewImage(is.getId(), 
-                        is.getDefaultPixels().getId(), is.getName(), bounds)); 
+                        is.getDefaultPixels().getId(), is.getName(), bounds,
+                        is.getOwner().getId())); 
             }
         }
     }

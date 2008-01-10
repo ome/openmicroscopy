@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openmicroscopy.shoola.env.data.util.SearchResult;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -752,23 +754,28 @@ public interface OmeroDataService
 		throws DSOutOfServiceException, DSAccessException; 
 
 	/**
-	 * Retrieves the objects specified by the context of the search.
-	 * 
-	 * @param scope		The scope of the search.
-	 * @param values	The terms to find.
-	 * @param users		The users' name.
-	 * @param start		The start of the time interval.
-	 * @param end		The end of the time interval.
-	 * @param separator	
+	 * Retrieves the objects specified by the context of the search
+	 * and returns an object hosting various elements used for the display.
+	 * 	
+	 * @param scope			The scope of the search.
+	 * @param values		The terms to find.
+	 * @param users			The users' name.
+	 * @param start			The start of the time interval.
+	 * @param end			The end of the time interval.
+	 * @param separator		The separator between words, either <code>and</code>
+	 * 						or <code>or</code>.
+	 * @param caseSensitive Pass <code>true</code> to take into account the
+	 * 						case sensitivity while searching, 
+	 * 						<code>false</code> otherwise.	
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Set advancedSearchFor(List<Class> scope, List<String> values, 
+	public SearchResult advancedSearchFor(List<Class> scope, List<String> values, 
 			List<ExperimenterData> users, Timestamp start, Timestamp end,
-			String separator)
+			String separator, boolean caseSensitive)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

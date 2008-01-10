@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openmicroscopy.shoola.env.data.util.SearchResult;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -439,11 +441,11 @@ public class NullOmeroPojoService
 	/**
 	 * No-op implementation
 	 * @see OmeroDataService#advancedSearchFor(List, List, List, Timestamp, 
-	 * 											Timestamp, String)
+	 * 											Timestamp, String, boolean)
 	 */
-	public Set advancedSearchFor(List<Class> scope, List<String> values, 
+	public SearchResult advancedSearchFor(List<Class> scope, List<String> values, 
 			List<ExperimenterData> users, Timestamp start, Timestamp end, String
-			separator)
+			separator, boolean caseSensitive)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

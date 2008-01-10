@@ -137,9 +137,7 @@ class ToolBar
         bar.add(b);
         b = new JButton(controller.getAction(TreeViewerControl.PROPERTIES));
         UIUtilities.unifiedButtonLookAndFeel(b);
-        b = new JButton(controller.getAction(TreeViewerControl.SEARCH));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);
+       
         //bar.add(b);
         //bar.add(new JSeparator(JSeparator.VERTICAL));
         return bar;
@@ -152,8 +150,19 @@ class ToolBar
      */
     private JComponent createQuickSearch()
     {
+    	JPanel right = new JPanel();
+        right.setLayout(new BoxLayout(right, BoxLayout.X_AXIS));
+        JToolBar bar = new JToolBar();
+        bar.setFloatable(false);
+        bar.setRollover(true);
+        bar.setBorder(null);
+    	JButton b = new JButton(controller.getAction(TreeViewerControl.SEARCH));
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);
+        right.add(bar);
     	finder = FinderFactory.getQuickFinder(TreeViewerAgent.getRegistry());
-    	return finder;
+    	right.add(finder);
+    	return right;
     }
     
     /** Builds and lays out the UI. */
