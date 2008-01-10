@@ -30,15 +30,21 @@ def main(argv=None):
 		argv = sys.argv
 	try:
 		try:
-			opts, args = getopt.getopt(argv[1:], "ho:v", ["help", "output="])
+			opts, args = getopt.getopt(argv[1:], "ho:vew", ["help", "output="])
 		except getopt.error, msg:
 			raise Usage(msg)
 		
 		verbose = False
+		warnings = False
+		errors = False
 		# option processing
 		for option, value in opts:
 			if option == "-v":
 				verbose = True
+			if option == "-w":
+				warnings = True
+			if option == "-e":
+				errors = True
 			if option in ("-h", "--help"):
 				raise Usage(help_message)
 
@@ -66,6 +72,19 @@ def main(argv=None):
 					print report.theDom.toprettyxml()
 					print "============ XML block %s [raw]============ " % aFilename
 					print report.theDom.toxml()
+			else:
+				out = str()
+				if errors and len(report.errorList) > 0:
+					out = out + "Errors:\n"
+					for error in report.errorList:
+						out = out + str(error)
+				if warnings and len(report.warningList) > 0:
+					out = out + "Warnings:\n"
+					for warning in report.warningList:
+						out = out + str(warning)
+				
+				if len(out) > 0:
+					print out
 	
 	except Usage, err:
 		print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
