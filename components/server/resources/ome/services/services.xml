@@ -55,19 +55,24 @@
   Possibilities are: tracing, logging, security, transactions, etc.
 -->
 
+    <bean id="statelessInterceptors" class="java.util.ArrayList">
+        <constructor-arg>
+            <list>
+                <value>profile</value>
+                <value>serviceHandler</value>
+                <value>proxyHandler</value>
+                <value>transactionHandler</value>
+                <value>hibernateHandler</value>
+                <value>eventHandler</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
 	<bean id="managedService" abstract="true"
 		class="org.springframework.aop.framework.ProxyFactoryBean">
-		<property name="interceptorNames">
-			<list>
-				<value>profile</value>
-				<value>serviceHandler</value>
-				<value>proxyHandler</value>
-				<value>transactionHandler</value>
-				<value>hibernateHandler</value>
-				<value>eventHandler</value>
-			</list>
-		</property>
+		<property name="interceptorNames" ref="statelessInterceptors"/>
 	</bean>
+
 	<bean id="managedStatefulService" abstract="true"
 		class="org.springframework.aop.framework.ProxyFactoryBean">
 		<property name="interceptorNames">
@@ -139,6 +144,14 @@
   Shared resources
   =======================================================================
 -->
+
+  <bean id="executor" class="ome.services.util.Executor">
+    <constructor-arg ref="securitySystem"/>
+    <constructor-arg ref="transactionTemplate"/>
+    <constructor-arg ref="hibernateTemplate"/>
+    <constructor-arg ref="statelessInterceptors"/>
+  </bean>
+
   <bean id="queryFactory" class="ome.services.query.QueryFactory">
     <constructor-arg>
       <list>

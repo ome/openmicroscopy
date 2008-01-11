@@ -7,84 +7,37 @@
 
 package ome.util;
 
-import ome.model.IObject;
-import ome.model.internal.Details;
-import ome.model.meta.Event;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
+import java.util.Map;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.hibernate.search.annotations.Resolution;
 import org.hibernate.search.bridge.FieldBridge;
-import org.hibernate.search.bridge.builtin.DateBridge;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 
 /**
+ * Delegating {@link FieldBridge} which passes the "fieldBridge" bean from the
+ * "ome.model" Spring {@link ApplicationContext} all arguments.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
- * 
+ * @since 3.0-Beta3
  */
 public class DetailsFieldBridge implements FieldBridge {
 
-    // TODO add combined_fields to constants
-    public final static String COMBINED = "combined_fields";
+    private final static ApplicationContext CONTEXT = (ApplicationContext) ContextSingletonBeanFactoryLocator
+            .getInstance().useBeanFactory("ome.model");
 
-    public final static DateBridge dateBridge = new DateBridge(Resolution.DAY);
+    private final static Map BRIDGES = (Map) CONTEXT.getBean("bridges");
 
-    public void set(String name, Object value, Document document,
-            Field.Store store, Field.Index index, Float boost) {
+    private final static FieldBridge DELEGATE = (FieldBridge) BRIDGES
+            .get("fieldBridges");
 
-        IObject object = (IObject) value;
-        Details details = object.getDetails();
+    public void set(final String name, final Object value,
+            final Document document, final Field.Store store,
+            final Field.Index index, final Float boost) {
 
-        if (details != null) {
-            Experimenter e = details.getOwner();
-            if (e != null && e.isLoaded()) {
-                String omename = e.getOmeName();
-                String firstName = e.getFirstName();
-                String lastName = e.getLastName();
-                add(document, "owner", omename, store, index, boost);
-                add(document, "firstname", firstName, store, index, boost);
-                add(document, "lastName", lastName, store, index, boost);
-            }
+        DELEGATE.set(name, value, document, store, index, boost);
 
-            ExperimenterGroup g = details.getGroup();
-            if (g != null && g.isLoaded()) {
-                String groupName = g.getName();
-                add(document, "group", groupName, store, index, boost);
-
-            }
-
-            Event creationEvent = details.getCreationEvent();
-            if (creationEvent != null && creationEvent.isLoaded()) {
-                String creation = dateBridge.objectToString(creationEvent
-                        .getTime());
-                add(document, "creation", creation, store, index, boost);
-            }
-
-            Event updateEvent = details.getUpdateEvent();
-            if (updateEvent != null && updateEvent.isLoaded()) {
-                String update = dateBridge
-                        .objectToString(updateEvent.getTime());
-                add(document, "update", update, store, index, boost);
-            }
-        }
-    }
-
-    protected void add(Document d, String field, String value,
-            Field.Store store, Field.Index index, Float boost) {
-
-        Field f = new Field(field, value, store, index);
-        if (boost != null) {
-            f.setBoost(boost);
-        }
-        d.add(f);
-
-        f = new Field(COMBINED, value, store, index);
-        if (boost != null) {
-            f.setBoost(boost);
-        }
-        d.add(f);
     }
 
 }
