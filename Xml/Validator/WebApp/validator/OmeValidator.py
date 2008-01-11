@@ -268,6 +268,8 @@ class XmlReport(object):
 			for err in schema.error_log:
 				self.isXsdValid = False
 				self.errorList.append(ParseMessage(None, err.line, None, "XSD", None, err.message))
+			if self.isXsdValid:
+				self.checkOldSchemas(document)
 		except etree.XMLSchemaValidateError:
 			self.isXsdValid = False
 			self.errorList.append(ParseMessage(None, None, None, "XML", None, "Processing the XML data has generated an unspecified error in the XML sub-system. This is usually a result of an incorrect top level block. Please check the OME block is well-formed and that the schemaLocation is specified correctly. This may also be caused by a missing namespace prefix or incorrect xmlns attribute."))
