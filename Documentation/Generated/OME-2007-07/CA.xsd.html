@@ -6,391 +6,7 @@
       <title>Documentation for ome - CA.xsd</title>
       <meta http-equiv="Content-Type" content="text/xml; charset=UTF-8"/>
       <style type="text/css">
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-/* More-configurable styles */
-
-/******** General ********/
-         
-/* Document body */
-body {
-   color: Black;
-   background-color: White;
-   font-family: Arial, sans-serif;
-   font-size: 10pt;
-}
-                  
-/* Horizontal rules */
-hr {
-   color: black;
-}
-/* Document title */
-h1 {
-   font-size: 18pt;
-   letter-spacing: 2px;
-   border-bottom: 1px #ccc solid;
-   padding-top: 5px;
-   padding-bottom: 5px;
-}
-/* Main section headers */
-h2 {
-   font-size: 14pt;
-   letter-spacing: 1px;
-}
-/* Sub-section headers */
-h3, h3 a, h3 span {
-   font-size: 12pt;
-   font-weight: bold;
-   color: black;
-}
-/* Table displaying the properties of the schema components or the
-   schema document itself */
-table.properties th, table.properties th a {
-   color: black;
-   background-color: #F99; /* Pink */
-}
-table.properties td {
-   background-color: #eee; /* Gray */
-}
-
-img{
- border: 0;
-}         
-
-/********* Documentation style *************/
-p.documentation {
-   color:black;
-   font-style:italic;
-         background-color: #EEEEFF;
-         border: 1px solid #DDDDFF;
-         padding-top: 1px;
-         margin-right: 30px;
-         margin-top: 1px;
-}
-
-         
-/******** Table of Contents Section ********/
-
-/* Controls for switching between printing and viewing modes */
-div#printerControls {
-   color: #963; /* Orange-brown */
-}
-/* Controls that can collapse or expand all XML Instance
-   Representation and Schema Component Representation boxes */
-div#globalControls {
-   border: 2px solid #999;
-}
-
-
-/******** Schema Document Properties Section ********/
-
-/* Table displaying the namespaces declared in the schema */
-table.namespaces th {
-   background-color: #ccc;
-}
-table.namespaces td {
-   background-color: #eee;
-}
-/* Target namespace of the schema */
-span.targetNS {
-   color: #06C;
-   font-weight: bold;
-}
-
-
-/******** Schema Components' Sections ********/
-
-/* Name of schema component */
-.name {
-   color: #F93; /* Orange */
-}
-
-/* Hierarchy table */
-table.hierarchy {
-   border: 2px solid #999; /* Gray */
-}
-
-/* XML Instance Representation table */
-div.sample div.contents {
-   border: 1px dashed black;
-}
-
-
-/* Schema Component Representation table */
-div.schemaComponent div.contents {
-   border: 2px black solid;
-}
-
-
-/******** Glossary Section ********/
-
-/* Glossary Terms */
-.glossaryTerm {
-   color: #036; /* Blue */
-}
-
-
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-/* Printer-version styles */
-
-@media print {
-
-/* Ensures that controls are hidden when printing */
-div#printerControls {
-   visibility: hidden;
-}
-div#globalControls {
-   visibility: hidden;
-}
-#legend {
-   display: none;
-}
-#legendTOC {
-   display: none;
-}
-#glossary {
-   display: none;
-}
-#glossaryTOC {
-   display: none;
-}
-
-}
-
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-/* Base styles */
-
-/******** General ********/
-
-/* Unordered lists */
-ul {
-   margin-left: 1.5em;
-   margin-bottom: 0em;
-}
-/* Tables */
-table {
-   margin-top: 10px;
-   margin-bottom: 10px;
-   margin-left: 2px;
-   margin-right: 2px;
-}
-table th, table td {
-   font-size: 10pt;
-   vertical-align: top;
-   padding-top: 3px;
-   padding-bottom: 3px;
-   padding-left: 10px;
-   padding-right: 10px;
-}
-table th {
-   font-weight: bold;
-   text-align: left;
-}
-/* Table displaying the properties of the schema components or the
-   schema document itself */
-table.properties {
-   width: 90%;
-}
-table.properties th {
-   width: 30%;
-}
-/* Boxes that can make its content appear and disappear*/
-div.box {
-   margin: 1em;
-}
-   /* Box caption */
-div.box span.caption {
-   font-weight: bold;
-}
-   /* Button to open and close the box */
-div.box input.control {
-   width: 1.4em;
-   height: 1.4em;
-   text-align: center;
-   vertical-align: middle;
-   font-size: 11pt;
-}
-   /* Box contents */
-div.box div.contents {
-   margin-top: 3px;
-}
-
-
-/******** Table of Contents Section ********/
-
-/* Controls for switching between printing and viewing modes */
-div#printerControls {
-   white-space: nowrap;
-   font-weight: bold;
-   padding: 5px;
-   margin: 5px;
-}
-/* Controls that can collapse or expand all XML Instance
-   Representation and Schema Component Representation boxes */
-div#globalControls {
-   padding: 10px;
-   margin: 5px;
-}
-
-
-/******** Schema Document Properties Section ********/
-
-/* Table displaying the namespaces declared in the schema */
-table.namespaces th {
-}
-table.namespaces td {
-}
-/* Target namespace of the schema */
-span.targetNS {
-}
-
-
-/******** Schema Components' Sections ********/
-
-/* Name of schema component */
-.name {
-}
-
-/* Hierarchy table */
-table.hierarchy {
-   width: 90%;
-}
-table.hierarchy th {
-   font-weight: normal;
-   font-style: italic;
-   width: 20%;
-}
-table.hierarchy th, table.hierarchy td {
-   padding: 5px;
-}
-
-/* XML Instance Representation table */
-div.sample {
-   width: 90%;
-}
-div.sample div.contents {
-   padding: 5px;
-   font-family: Courier New, sans-serif;
-   font-size: 10pt;
-}
-   /* Normal elements and attributes */
-div.sample div.contents, div.sample div.contents a {
-   color: black;
-}
-   /* Group Headers */
-div.sample div.contents .group, div.sample div.contents .group a {
-   color: #999; /* Light gray */
-}
-   /* Type Information */
-div.sample div.contents .type, div.sample div.contents .type a {
-   color: #999; /* Light gray */
-}
-   /* Occurrence Information */
-div.sample div.contents .occurs, div.sample div.contents .occurs a {
-   color: #999; /* Light gray */
-}
-   /* Fixed values */
-div.sample div.contents .fixed {
-   color: #063; /* Green */
-   font-weight: bold;
-}
-   /* Simple type constraints */
-div.sample div.contents .constraint, div.sample div.contents .constraint a {
-   color: #999; /* Light gray */
-}
-   /* Elements and attributes inherited from base type */
-div.sample div.contents .inherited, div.sample div.contents .inherited a {
-   color: #666; /* Dark gray */
-}
-   /* Elements and attributes added to or changed from base type */
-div.sample div.contents .newFields {
-   font-weight: bold;
-}
-   /* Other type of information */
-div.sample div.contents .other, div.sample div.contents .other a {
-   color: #369; /* Blue */
-   font-style: italic;
-}
-   /* Link to open up window displaying documentation */
-div.sample div.contents a.documentation {
-   text-decoration: none;
-   padding-left: 3px;
-   padding-right: 3px;
-   padding-top: 0px;
-   padding-bottom: 0px;
-   font-weight: bold;
-   font-size: 11pt;
-   background-color: #FFD;
-   color: #069;
-}
-   /* Invert colors when hovering over link to open up window 
-      displaying documentation */
-div.sample div.contents a.documentation:hover {
-   color: #FFD;
-   background-color: #069;
-}
-
-/* Schema Component Representation table */
-div.schemaComponent {
-   width: 90%;
-}
-div.schemaComponent div.contents {
-   font-family: Courier New, sans-serif;
-   font-size: 10pt;
-   padding: 5px;
-}
-   /* Syntax characters */
-div.schemaComponent div.contents {
-   color: #00f; /* blue */
-}
-   /* Element and attribute tags */
-div.schemaComponent div.contents .scTag {
-   color: #933; /* maroon */
-}
-   /* Element and attribute content */
-div.schemaComponent div.contents .scContent, div.schemaComponent div.contents .scContent a {
-   color: black;
-   font-weight: bold;
-}
-   /* Comments */
-div.schemaComponent div.contents .comment {
-   color: #999; /* Light gray */
-}
-
-/******** Legend Section ********/
-
-div#legend table, div#legend div {
-   margin-bottom: 3px;
-}
-div#legend div.hint {
-   color: #999; /* Light gray */
-   width: 90%;
-   margin-left: 1em;
-   margin-bottom: 2em;
-}
-
-
-/******** Glossary Section ********/
-
-/* Glossary Terms */
-.glossaryTerm {
-   font-weight: bold;
-}
-
-/********* Details *************/
-.detailsToc {
-  color: #666; /* Light gray */
-}
-
-.details {
-  color: #666; /* Light gray */
-  text-decoration:none;
-}
-
-/******** Footer ********/
-
-.footer {
-   font-size: 8pt;
-}
+@import url(auto-gen-doc.css);
 </style>
       <script type="text/javascript">
 <!--
@@ -893,15 +509,15 @@ if (gc != null) {
          </tr>
          <tr>
             <td>
-               <a name="ns_OME">OME</a>
-            </td>
-            <td>http://www.openmicroscopy.org/Schemas/OME/2007-06</td>
-         </tr>
-         <tr>
-            <td>
                <a name="ns_xsd">xsd</a>
             </td>
             <td>http://www.w3.org/2001/XMLSchema</td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_OME">OME</a>
+            </td>
+            <td>http://www.openmicroscopy.org/Schemas/OME/2007-06</td>
          </tr>
       </table>
       <div class="schemaComponent box">
@@ -977,7 +593,7 @@ if (gc != null) {
          <div id="h-612624725_logicalDiagram" class="contents">
             <img usemap="#h-476146662" src="schemaDiagrams/h-476146662.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-476146662.map--><map name="h-476146662">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-476146662.map--><map name="h-476146662">
 </map>
          </div>
          <script type="text/javascript">
@@ -1014,7 +630,7 @@ if (gc != null) {
          <div id="h-612624725_diagram" class="contents">
             <img usemap="#h-621747164" src="schemaDiagrams/h-621747164.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-621747164.map--><map name="h-621747164">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-621747164.map--><map name="h-621747164">
 </map>
          </div>
          <script type="text/javascript">
@@ -1086,11 +702,20 @@ if (gc != null) {
          <div id="h1209030165_logicalDiagram" class="contents">
             <img usemap="#h1990894168" src="schemaDiagrams/h1990894168.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h1990894168.map--><map name="h1990894168">
-               <area shape="rect" alt="h767660029" coords="430,318,774,377"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1990894168.map--><map name="h1990894168">
+               <area shape="rect" alt="h1538002713" coords="436,159,786,235"
+                     href="CA.xsd.html#h1538002713"/>
+
+               <area shape="rect" alt="h425142118" coords="436,245,786,304"
+                     href="CA.xsd.html#h425142118"/>
+
+               <area shape="rect" alt="h1836570519" coords="436,314,786,373"
+                     href="CA.xsd.html#h1836570519"/>
+
+               <area shape="rect" alt="h767660029" coords="436,383,786,442"
                      href="CA.xsd.html#h767660029"/>
 
-               <area shape="rect" alt="h-612624725" coords="430,387,774,446"
+               <area shape="rect" alt="h-612624725" coords="436,452,780,511"
                      href="CA.xsd.html#h-612624725"/>
 
             </map>
@@ -1163,7 +788,7 @@ if (gc != null) {
          <div id="h1209030165_diagram" class="contents">
             <img usemap="#h1440628494" src="schemaDiagrams/h1440628494.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h1440628494.map--><map name="h1440628494">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1440628494.map--><map name="h1440628494">
                <area shape="rect" alt="h767660029" coords="263,0,389,42"
                      href="CA.xsd.html#h767660029"/>
 
@@ -1295,7 +920,7 @@ if (gc != null) {
          <div id="h621983294_logicalDiagram" class="contents">
             <img usemap="#h-633750419" src="schemaDiagrams/h-633750419.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-633750419.map--><map name="h-633750419">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-633750419.map--><map name="h-633750419">
 </map>
          </div>
          <script type="text/javascript">
@@ -1336,7 +961,7 @@ if (gc != null) {
          <div id="h621983294_diagram" class="contents">
             <img usemap="#h291724279" src="schemaDiagrams/h291724279.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h291724279.map--><map name="h291724279">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h291724279.map--><map name="h291724279">
                <area shape="rect" alt="h981330094" coords="198,0,292,26"
                      href="ome.xsd.html#h981330094"/>
 
@@ -1417,15 +1042,63 @@ if (gc != null) {
          <div id="h-628421064_logicalDiagram" class="contents">
             <img usemap="#h1034275131" src="schemaDiagrams/h1034275131.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h1034275131.map--><map name="h1034275131">
-               <area shape="rect" alt="h621983294" coords="430,371,774,430"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1034275131.map--><map name="h1034275131">
+               <area shape="rect" alt="h-354671696" coords="436,159,786,219"
+                     href="CA.xsd.html#h-354671696"/>
+
+               <area shape="rect" alt="h425142118" coords="436,229,786,288"
+                     href="CA.xsd.html#h425142118"/>
+
+               <area shape="rect" alt="h1538002713" coords="436,298,786,374"
+                     href="CA.xsd.html#h1538002713"/>
+
+               <area shape="rect" alt="h326680371" coords="436,384,786,443"
+                     href="CA.xsd.html#h326680371"/>
+
+               <area shape="rect" alt="h1836570519" coords="436,453,786,512"
+                     href="CA.xsd.html#h1836570519"/>
+
+               <area shape="rect" alt="h621983294" coords="436,522,786,581"
                      href="CA.xsd.html#h621983294"/>
 
-               <area shape="rect" alt="h-2050728521" coords="430,440,774,499"
+               <area shape="rect" alt="h1847473929" coords="436,591,786,650"
+                     href="CA.xsd.html#h1847473929"/>
+
+               <area shape="rect" alt="h2102375418" coords="436,660,786,719"
+                     href="CA.xsd.html#h2102375418"/>
+
+               <area shape="rect" alt="h-479714850" coords="436,729,786,788"
+                     href="CA.xsd.html#h-479714850"/>
+
+               <area shape="rect" alt="h-382271671" coords="436,798,786,857"
+                     href="CA.xsd.html#h-382271671"/>
+
+               <area shape="rect" alt="h-934915971" coords="436,867,786,926"
+                     href="CA.xsd.html#h-934915971"/>
+
+               <area shape="rect" alt="h-145110209" coords="436,936,786,995"
+                     href="CA.xsd.html#h-145110209"/>
+
+               <area shape="rect" alt="h-455665703" coords="436,1005,786,1064"
+                     href="CA.xsd.html#h-455665703"/>
+
+               <area shape="rect" alt="h-2103790224" coords="436,1074,786,1133"
+                     href="CA.xsd.html#h-2103790224"/>
+
+               <area shape="rect" alt="h488818005" coords="436,1143,786,1202"
+                     href="CA.xsd.html#h488818005"/>
+
+               <area shape="rect" alt="h-2050728521" coords="436,1212,786,1271"
                      href="CA.xsd.html#h-2050728521"/>
 
-               <area shape="rect" alt="h-612624725" coords="430,509,774,568"
+               <area shape="rect" alt="h-612624725" coords="436,1281,780,1340"
                      href="CA.xsd.html#h-612624725"/>
+
+               <area shape="rect" alt="h674213353" coords="436,1350,786,1409"
+                     href="CA.xsd.html#h674213353"/>
+
+               <area shape="rect" alt="h-327731571" coords="436,1419,786,1478"
+                     href="CA.xsd.html#h-327731571"/>
 
             </map>
          </div>
@@ -1506,7 +1179,7 @@ if (gc != null) {
          <div id="h-628421064_diagram" class="contents">
             <img usemap="#h-1889199247" src="schemaDiagrams/h-1889199247.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1889199247.map--><map name="h-1889199247">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1889199247.map--><map name="h-1889199247">
                <area shape="rect" alt="h621983294" coords="249,0,375,42"
                      href="CA.xsd.html#h621983294"/>
 
@@ -1649,17 +1322,41 @@ if (gc != null) {
          <div id="h674210404_logicalDiagram" class="contents">
             <img usemap="#h-1265282841" src="schemaDiagrams/h-1265282841.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1265282841.map--><map name="h-1265282841">
-               <area shape="rect" alt="h-543494986" coords="430,0,774,43"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1265282841.map--><map name="h-1265282841">
+               <area shape="rect" alt="h-543494986" coords="436,0,786,59"
                      href="CA.xsd.html#h-543494986"/>
 
-               <area shape="rect" alt="h1209030165" coords="430,53,774,96"
+               <area shape="rect" alt="h1209030165" coords="436,69,786,128"
                      href="CA.xsd.html#h1209030165"/>
 
-               <area shape="rect" alt="h-628421064" coords="430,106,774,149"
+               <area shape="rect" alt="h-1642661568" coords="436,138,786,197"
+                     href="CA.xsd.html#h-1642661568"/>
+
+               <area shape="rect" alt="h-621985805" coords="436,207,786,266"
+                     href="CA.xsd.html#h-621985805"/>
+
+               <area shape="rect" alt="h-2023622865" coords="436,276,786,335"
+                     href="CA.xsd.html#h-2023622865"/>
+
+               <area shape="rect" alt="h1950201325" coords="436,345,786,404"
+                     href="CA.xsd.html#h1950201325"/>
+
+               <area shape="rect" alt="h-630105252" coords="436,414,786,473"
+                     href="CA.xsd.html#h-630105252"/>
+
+               <area shape="rect" alt="h-161840854" coords="436,483,786,542"
+                     href="CA.xsd.html#h-161840854"/>
+
+               <area shape="rect" alt="h-628421064" coords="436,552,786,611"
                      href="CA.xsd.html#h-628421064"/>
 
-               <area shape="rect" alt="h-612624725" coords="430,159,774,202"
+               <area shape="rect" alt="h-419712291" coords="436,621,786,680"
+                     href="CA.xsd.html#h-419712291"/>
+
+               <area shape="rect" alt="h2032390672" coords="436,690,852,749"
+                     href="CA.xsd.html#h2032390672"/>
+
+               <area shape="rect" alt="h-612624725" coords="436,759,780,818"
                      href="CA.xsd.html#h-612624725"/>
 
             </map>
@@ -1704,7 +1401,7 @@ if (gc != null) {
          <div id="h674210404_diagram" class="contents">
             <img usemap="#h-883967843" src="schemaDiagrams/h-883967843.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-883967843.map--><map name="h-883967843">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-883967843.map--><map name="h-883967843">
                <area shape="rect" alt="h-543494986" coords="235,0,340,26"
                      href="CA.xsd.html#h-543494986"/>
 
@@ -1802,8 +1499,17 @@ if (gc != null) {
          <div id="h-543494986_logicalDiagram" class="contents">
             <img usemap="#h-2034212935" src="schemaDiagrams/h-2034212935.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-2034212935.map--><map name="h-2034212935">
-</map>
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-2034212935.map--><map name="h-2034212935">
+               <area shape="rect" alt="h1538002713" coords="436,106,786,182"
+                     href="CA.xsd.html#h1538002713"/>
+
+               <area shape="rect" alt="h425142118" coords="436,192,786,235"
+                     href="CA.xsd.html#h425142118"/>
+
+               <area shape="rect" alt="h1836570519" coords="436,245,786,304"
+                     href="CA.xsd.html#h1836570519"/>
+
+            </map>
          </div>
          <script type="text/javascript">
 <!--
@@ -1865,7 +1571,7 @@ if (gc != null) {
          <div id="h-543494986_diagram" class="contents">
             <img usemap="#h1710488687" src="schemaDiagrams/h1710488687.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h1710488687.map--><map name="h1710488687">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1710488687.map--><map name="h1710488687">
                <area shape="rect" alt="h431840015" coords="177,0,271,26"
                      href="ome.xsd.html#h431840015"/>
 
@@ -1978,7 +1684,7 @@ if (gc != null) {
          <div id="h767660029_logicalDiagram" class="contents">
             <img usemap="#h-1407518868" src="schemaDiagrams/h-1407518868.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1407518868.map--><map name="h-1407518868">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1407518868.map--><map name="h-1407518868">
 </map>
          </div>
          <script type="text/javascript">
@@ -2019,7 +1725,7 @@ if (gc != null) {
          <div id="h767660029_diagram" class="contents">
             <img usemap="#h-482044170" src="schemaDiagrams/h-482044170.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-482044170.map--><map name="h-482044170">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-482044170.map--><map name="h-482044170">
                <area shape="rect" alt="h431840015" coords="198,0,292,26"
                      href="ome.xsd.html#h431840015"/>
 
@@ -2102,11 +1808,11 @@ if (gc != null) {
          <div id="h-2050728521_logicalDiagram" class="contents">
             <img usemap="#h701933478" src="schemaDiagrams/h701933478.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h701933478.map--><map name="h701933478">
-               <area shape="rect" alt="h-2050728521" coords="430,159,774,218"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h701933478.map--><map name="h701933478">
+               <area shape="rect" alt="h-2050728521" coords="436,159,786,218"
                      href="CA.xsd.html#h-2050728521"/>
 
-               <area shape="rect" alt="h-612624725" coords="430,228,774,287"
+               <area shape="rect" alt="h-612624725" coords="436,228,780,287"
                      href="CA.xsd.html#h-612624725"/>
 
             </map>
@@ -2161,7 +1867,7 @@ if (gc != null) {
          <div id="h-2050728521_diagram" class="contents">
             <img usemap="#h268540976" src="schemaDiagrams/h268540976.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h268540976.map--><map name="h268540976">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h268540976.map--><map name="h268540976">
                <area shape="rect" alt="h-612624725" coords="256,52,424,94"
                      href="CA.xsd.html#h-612624725"/>
 

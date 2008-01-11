@@ -6,391 +6,7 @@
       <title>Documentation for ome - CLI.xsd</title>
       <meta http-equiv="Content-Type" content="text/xml; charset=UTF-8"/>
       <style type="text/css">
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-/* More-configurable styles */
-
-/******** General ********/
-         
-/* Document body */
-body {
-   color: Black;
-   background-color: White;
-   font-family: Arial, sans-serif;
-   font-size: 10pt;
-}
-                  
-/* Horizontal rules */
-hr {
-   color: black;
-}
-/* Document title */
-h1 {
-   font-size: 18pt;
-   letter-spacing: 2px;
-   border-bottom: 1px #ccc solid;
-   padding-top: 5px;
-   padding-bottom: 5px;
-}
-/* Main section headers */
-h2 {
-   font-size: 14pt;
-   letter-spacing: 1px;
-}
-/* Sub-section headers */
-h3, h3 a, h3 span {
-   font-size: 12pt;
-   font-weight: bold;
-   color: black;
-}
-/* Table displaying the properties of the schema components or the
-   schema document itself */
-table.properties th, table.properties th a {
-   color: black;
-   background-color: #F99; /* Pink */
-}
-table.properties td {
-   background-color: #eee; /* Gray */
-}
-
-img{
- border: 0;
-}         
-
-/********* Documentation style *************/
-p.documentation {
-   color:black;
-   font-style:italic;
-         background-color: #EEEEFF;
-         border: 1px solid #DDDDFF;
-         padding-top: 1px;
-         margin-right: 30px;
-         margin-top: 1px;
-}
-
-         
-/******** Table of Contents Section ********/
-
-/* Controls for switching between printing and viewing modes */
-div#printerControls {
-   color: #963; /* Orange-brown */
-}
-/* Controls that can collapse or expand all XML Instance
-   Representation and Schema Component Representation boxes */
-div#globalControls {
-   border: 2px solid #999;
-}
-
-
-/******** Schema Document Properties Section ********/
-
-/* Table displaying the namespaces declared in the schema */
-table.namespaces th {
-   background-color: #ccc;
-}
-table.namespaces td {
-   background-color: #eee;
-}
-/* Target namespace of the schema */
-span.targetNS {
-   color: #06C;
-   font-weight: bold;
-}
-
-
-/******** Schema Components' Sections ********/
-
-/* Name of schema component */
-.name {
-   color: #F93; /* Orange */
-}
-
-/* Hierarchy table */
-table.hierarchy {
-   border: 2px solid #999; /* Gray */
-}
-
-/* XML Instance Representation table */
-div.sample div.contents {
-   border: 1px dashed black;
-}
-
-
-/* Schema Component Representation table */
-div.schemaComponent div.contents {
-   border: 2px black solid;
-}
-
-
-/******** Glossary Section ********/
-
-/* Glossary Terms */
-.glossaryTerm {
-   color: #036; /* Blue */
-}
-
-
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-/* Printer-version styles */
-
-@media print {
-
-/* Ensures that controls are hidden when printing */
-div#printerControls {
-   visibility: hidden;
-}
-div#globalControls {
-   visibility: hidden;
-}
-#legend {
-   display: none;
-}
-#legendTOC {
-   display: none;
-}
-#glossary {
-   display: none;
-}
-#glossaryTOC {
-   display: none;
-}
-
-}
-
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-/* Base styles */
-
-/******** General ********/
-
-/* Unordered lists */
-ul {
-   margin-left: 1.5em;
-   margin-bottom: 0em;
-}
-/* Tables */
-table {
-   margin-top: 10px;
-   margin-bottom: 10px;
-   margin-left: 2px;
-   margin-right: 2px;
-}
-table th, table td {
-   font-size: 10pt;
-   vertical-align: top;
-   padding-top: 3px;
-   padding-bottom: 3px;
-   padding-left: 10px;
-   padding-right: 10px;
-}
-table th {
-   font-weight: bold;
-   text-align: left;
-}
-/* Table displaying the properties of the schema components or the
-   schema document itself */
-table.properties {
-   width: 90%;
-}
-table.properties th {
-   width: 30%;
-}
-/* Boxes that can make its content appear and disappear*/
-div.box {
-   margin: 1em;
-}
-   /* Box caption */
-div.box span.caption {
-   font-weight: bold;
-}
-   /* Button to open and close the box */
-div.box input.control {
-   width: 1.4em;
-   height: 1.4em;
-   text-align: center;
-   vertical-align: middle;
-   font-size: 11pt;
-}
-   /* Box contents */
-div.box div.contents {
-   margin-top: 3px;
-}
-
-
-/******** Table of Contents Section ********/
-
-/* Controls for switching between printing and viewing modes */
-div#printerControls {
-   white-space: nowrap;
-   font-weight: bold;
-   padding: 5px;
-   margin: 5px;
-}
-/* Controls that can collapse or expand all XML Instance
-   Representation and Schema Component Representation boxes */
-div#globalControls {
-   padding: 10px;
-   margin: 5px;
-}
-
-
-/******** Schema Document Properties Section ********/
-
-/* Table displaying the namespaces declared in the schema */
-table.namespaces th {
-}
-table.namespaces td {
-}
-/* Target namespace of the schema */
-span.targetNS {
-}
-
-
-/******** Schema Components' Sections ********/
-
-/* Name of schema component */
-.name {
-}
-
-/* Hierarchy table */
-table.hierarchy {
-   width: 90%;
-}
-table.hierarchy th {
-   font-weight: normal;
-   font-style: italic;
-   width: 20%;
-}
-table.hierarchy th, table.hierarchy td {
-   padding: 5px;
-}
-
-/* XML Instance Representation table */
-div.sample {
-   width: 90%;
-}
-div.sample div.contents {
-   padding: 5px;
-   font-family: Courier New, sans-serif;
-   font-size: 10pt;
-}
-   /* Normal elements and attributes */
-div.sample div.contents, div.sample div.contents a {
-   color: black;
-}
-   /* Group Headers */
-div.sample div.contents .group, div.sample div.contents .group a {
-   color: #999; /* Light gray */
-}
-   /* Type Information */
-div.sample div.contents .type, div.sample div.contents .type a {
-   color: #999; /* Light gray */
-}
-   /* Occurrence Information */
-div.sample div.contents .occurs, div.sample div.contents .occurs a {
-   color: #999; /* Light gray */
-}
-   /* Fixed values */
-div.sample div.contents .fixed {
-   color: #063; /* Green */
-   font-weight: bold;
-}
-   /* Simple type constraints */
-div.sample div.contents .constraint, div.sample div.contents .constraint a {
-   color: #999; /* Light gray */
-}
-   /* Elements and attributes inherited from base type */
-div.sample div.contents .inherited, div.sample div.contents .inherited a {
-   color: #666; /* Dark gray */
-}
-   /* Elements and attributes added to or changed from base type */
-div.sample div.contents .newFields {
-   font-weight: bold;
-}
-   /* Other type of information */
-div.sample div.contents .other, div.sample div.contents .other a {
-   color: #369; /* Blue */
-   font-style: italic;
-}
-   /* Link to open up window displaying documentation */
-div.sample div.contents a.documentation {
-   text-decoration: none;
-   padding-left: 3px;
-   padding-right: 3px;
-   padding-top: 0px;
-   padding-bottom: 0px;
-   font-weight: bold;
-   font-size: 11pt;
-   background-color: #FFD;
-   color: #069;
-}
-   /* Invert colors when hovering over link to open up window 
-      displaying documentation */
-div.sample div.contents a.documentation:hover {
-   color: #FFD;
-   background-color: #069;
-}
-
-/* Schema Component Representation table */
-div.schemaComponent {
-   width: 90%;
-}
-div.schemaComponent div.contents {
-   font-family: Courier New, sans-serif;
-   font-size: 10pt;
-   padding: 5px;
-}
-   /* Syntax characters */
-div.schemaComponent div.contents {
-   color: #00f; /* blue */
-}
-   /* Element and attribute tags */
-div.schemaComponent div.contents .scTag {
-   color: #933; /* maroon */
-}
-   /* Element and attribute content */
-div.schemaComponent div.contents .scContent, div.schemaComponent div.contents .scContent a {
-   color: black;
-   font-weight: bold;
-}
-   /* Comments */
-div.schemaComponent div.contents .comment {
-   color: #999; /* Light gray */
-}
-
-/******** Legend Section ********/
-
-div#legend table, div#legend div {
-   margin-bottom: 3px;
-}
-div#legend div.hint {
-   color: #999; /* Light gray */
-   width: 90%;
-   margin-left: 1em;
-   margin-bottom: 2em;
-}
-
-
-/******** Glossary Section ********/
-
-/* Glossary Terms */
-.glossaryTerm {
-   font-weight: bold;
-}
-
-/********* Details *************/
-.detailsToc {
-  color: #666; /* Light gray */
-}
-
-.details {
-  color: #666; /* Light gray */
-  text-decoration:none;
-}
-
-/******** Footer ********/
-
-.footer {
-   font-size: 8pt;
-}
+@import url(auto-gen-doc.css);
 </style>
       <script type="text/javascript">
 <!--
@@ -983,7 +599,7 @@ if (gc != null) {
          </tr>
          <tr>
             <th>Version</th>
-            <td>1</td>
+            <td>2</td>
          </tr>
          <tr>
             <th>Element and Attribute Namespaces</th>
@@ -1001,8 +617,8 @@ if (gc != null) {
                <ul>
                   <li>This schema imports schema(s) from the following namespace(s):<ul>
                         <li>
-                           <em>http://www.w3.org/XML/1998/namespace</em>
-                        </li>
+                           <em>http://www.w3.org/XML/1998/namespace</em> (at <a title="Jump to schema documentation for 'http://www.w3.org/2001/xml.xsd'."
+                              href="xml.xsd.html">http://www.w3.org/2001/xml.xsd</a>)</li>
                      </ul>
                   </li>
                </ul>
@@ -1053,8 +669,8 @@ if (gc != null) {
          </div>
          <div id="schema_scbox" class="contents">
             <div style="margin-left: 0em">&lt;<span class="scTag">schema</span> 
-               <span class="scTag">targetNamespace</span>="<span class="scContent">http://www.openmicroscopy.org/Schemas/CLI/2007-06</span>" <span class="scTag">version</span>="<span class="scContent">1</span>" <span class="scTag">elementFormDefault</span>="<span class="scContent">qualified</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">import</span> 
-                  <span class="scTag">namespace</span>="<span class="scContent">http://www.w3.org/XML/1998/namespace</span>"/&gt;</div>
+               <span class="scTag">targetNamespace</span>="<span class="scContent">http://www.openmicroscopy.org/Schemas/CLI/2007-06</span>" <span class="scTag">version</span>="<span class="scContent">2</span>" <span class="scTag">elementFormDefault</span>="<span class="scContent">qualified</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">import</span> 
+                  <span class="scTag">namespace</span>="<span class="scContent">http://www.w3.org/XML/1998/namespace</span>" <span class="scTag">schemaLocation</span>="<span class="scContent">http://www.w3.org/2001/xml.xsd</span>"/&gt;</div>
                <div class="scContent" style="margin-left: 1.5em">...</div>&lt;/<span class="scTag">schema</span>&gt;</div>
          </div>
          <script type="text/javascript">
@@ -1108,7 +724,7 @@ if (gc != null) {
          <div id="h-307143960_logicalDiagram" class="contents">
             <img usemap="#h1739321289" src="schemaDiagrams/h1739321289.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h1739321289.map--><map name="h1739321289">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1739321289.map--><map name="h1739321289">
                <area shape="rect" alt="h1400404319" coords="436,0,786,59"
                      href="CLI.xsd.html#h1400404319"/>
 
@@ -1148,8 +764,8 @@ if (gc != null) {
          <div id="h-307143960_diagram" class="contents">
             <img usemap="#h2062275795" src="schemaDiagrams/h2062275795.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h2062275795.map--><map name="h2062275795">
-               <area shape="rect" alt="h1400404319" coords="291,52,431,94"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h2062275795.map--><map name="h2062275795">
+               <area shape="rect" alt="h1400404319" coords="291,0,431,42"
                      href="CLI.xsd.html#h1400404319"/>
 
             </map>
@@ -1222,7 +838,7 @@ if (gc != null) {
          <div id="h-125610222_logicalDiagram" class="contents">
             <img usemap="#h-1790908877" src="schemaDiagrams/h-1790908877.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1790908877.map--><map name="h-1790908877">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1790908877.map--><map name="h-1790908877">
 </map>
          </div>
          <script type="text/javascript">
@@ -1260,7 +876,7 @@ if (gc != null) {
          <div id="h-125610222_diagram" class="contents">
             <img usemap="#h-369253783" src="schemaDiagrams/h-369253783.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-369253783.map--><map name="h-369253783">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-369253783.map--><map name="h-369253783">
 </map>
          </div>
          <script type="text/javascript">
@@ -1336,7 +952,7 @@ XML specification of the command line parameters is:
          <div id="h1801056508_logicalDiagram" class="contents">
             <img usemap="#h-1321609931" src="schemaDiagrams/h-1321609931.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1321609931.map--><map name="h-1321609931">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1321609931.map--><map name="h-1321609931">
                <area shape="rect" alt="h241656326" coords="436,144,786,203"
                      href="CLI.xsd.html#h241656326"/>
 
@@ -1390,8 +1006,8 @@ XML specification of the command line parameters is:
          <div id="h1801056508_diagram" class="contents">
             <img usemap="#h-998655425" src="schemaDiagrams/h-998655425.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-998655425.map--><map name="h-998655425">
-               <area shape="rect" alt="h241656326" coords="291,228,438,270"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-998655425.map--><map name="h-998655425">
+               <area shape="rect" alt="h241656326" coords="291,0,438,42"
                      href="CLI.xsd.html#h241656326"/>
 
             </map>
@@ -1477,7 +1093,7 @@ XML specification of the command line parameters is:
          <div id="h-1595366491_logicalDiagram" class="contents">
             <img usemap="#h-1664836672" src="schemaDiagrams/h-1664836672.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1664836672.map--><map name="h-1664836672">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1664836672.map--><map name="h-1664836672">
                <area shape="rect" alt="h2101807498" coords="436,0,786,59"
                      href="CLI.xsd.html#h2101807498"/>
 
@@ -1517,8 +1133,8 @@ XML specification of the command line parameters is:
          <div id="h-1595366491_diagram" class="contents">
             <img usemap="#h-243181578" src="schemaDiagrams/h-243181578.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-243181578.map--><map name="h-243181578">
-               <area shape="rect" alt="h2101807498" coords="298,68,480,110"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-243181578.map--><map name="h-243181578">
+               <area shape="rect" alt="h2101807498" coords="298,0,480,42"
                      href="CLI.xsd.html#h2101807498"/>
 
             </map>
@@ -1591,7 +1207,7 @@ XML specification of the command line parameters is:
          <div id="h991843399_logicalDiagram" class="contents">
             <img usemap="#h-756677110" src="schemaDiagrams/h-756677110.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-756677110.map--><map name="h-756677110">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-756677110.map--><map name="h-756677110">
                <area shape="rect" alt="h-628376409" coords="436,106,786,165"
                      href="CLI.xsd.html#h-628376409"/>
 
@@ -1638,8 +1254,8 @@ XML specification of the command line parameters is:
          <div id="h991843399_diagram" class="contents">
             <img usemap="#h-902277612" src="schemaDiagrams/h-902277612.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-902277612.map--><map name="h-902277612">
-               <area shape="rect" alt="h-628376409" coords="319,68,438,110"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-902277612.map--><map name="h-902277612">
+               <area shape="rect" alt="h-628376409" coords="319,0,438,42"
                      href="CLI.xsd.html#h-628376409"/>
 
             </map>
@@ -1722,7 +1338,7 @@ Not currently supported.
          <div id="h674201848_logicalDiagram" class="contents">
             <img usemap="#h1669723577" src="schemaDiagrams/h1669723577.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h1669723577.map--><map name="h1669723577">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1669723577.map--><map name="h1669723577">
 </map>
          </div>
          <script type="text/javascript">
@@ -1760,8 +1376,8 @@ Not currently supported.
          <div id="h674201848_diagram" class="contents">
             <img usemap="#h605586627" src="schemaDiagrams/h605586627.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h605586627.map--><map name="h605586627">
-               <area shape="rect" alt="h-937058429" coords="149,68,348,94"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h605586627.map--><map name="h605586627">
+               <area shape="rect" alt="h-937058429" coords="149,0,348,26"
                      href="CLI.xsd.html#h-937058429"/>
 
             </map>
@@ -1835,7 +1451,7 @@ Not currently supported.
          <div id="h-135910470_logicalDiagram" class="contents">
             <img usemap="#h-563162057" src="schemaDiagrams/h-563162057.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-563162057.map--><map name="h-563162057">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-563162057.map--><map name="h-563162057">
                <area shape="rect" alt="h1801056508" coords="436,89,786,148"
                      href="CLI.xsd.html#h1801056508"/>
 
@@ -1892,14 +1508,14 @@ Not currently supported.
          <div id="h-135910470_diagram" class="contents">
             <img usemap="#h-1815907135" src="schemaDiagrams/h-1815907135.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1815907135.map--><map name="h-1815907135">
-               <area shape="rect" alt="h1801056508" coords="361,52,522,94"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1815907135.map--><map name="h-1815907135">
+               <area shape="rect" alt="h1801056508" coords="361,0,522,42"
                      href="CLI.xsd.html#h1801056508"/>
 
-               <area shape="rect" alt="h-619959451" coords="361,104,480,146"
+               <area shape="rect" alt="h-619959451" coords="361,52,480,94"
                      href="CLI.xsd.html#h-619959451"/>
 
-               <area shape="rect" alt="h-2038867730" coords="361,156,487,198"
+               <area shape="rect" alt="h-2038867730" coords="361,104,487,146"
                      href="CLI.xsd.html#h-2038867730"/>
 
             </map>
@@ -2005,7 +1621,7 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h-628388433_logicalDiagram" class="contents">
             <img usemap="#h-1778297054" src="schemaDiagrams/h-1778297054.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1778297054.map--><map name="h-1778297054">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1778297054.map--><map name="h-1778297054">
                <area shape="rect" alt="h-628376409" coords="436,0,786,59"
                      href="CLI.xsd.html#h-628376409"/>
 
@@ -2045,8 +1661,8 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h-628388433_diagram" class="contents">
             <img usemap="#h2083277740" src="schemaDiagrams/h2083277740.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h2083277740.map--><map name="h2083277740">
-               <area shape="rect" alt="h-628376409" coords="249,180,368,222"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h2083277740.map--><map name="h2083277740">
+               <area shape="rect" alt="h-628376409" coords="249,0,368,42"
                      href="CLI.xsd.html#h-628376409"/>
 
             </map>
@@ -2119,7 +1735,7 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h-628376409_logicalDiagram" class="contents">
             <img usemap="#h-436830934" src="schemaDiagrams/h-436830934.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-436830934.map--><map name="h-436830934">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-436830934.map--><map name="h-436830934">
 </map>
          </div>
          <script type="text/javascript">
@@ -2163,8 +1779,8 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h-628376409_diagram" class="contents">
             <img usemap="#h-870223436" src="schemaDiagrams/h-870223436.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-870223436.map--><map name="h-870223436">
-               <area shape="rect" alt="h-937058429" coords="163,52,362,78"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-870223436.map--><map name="h-870223436">
+               <area shape="rect" alt="h-937058429" coords="163,0,362,26"
                      href="CLI.xsd.html#h-937058429"/>
 
             </map>
@@ -2245,7 +1861,7 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h-1381319720_logicalDiagram" class="contents">
             <img usemap="#h725178585" src="schemaDiagrams/h725178585.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h725178585.map--><map name="h725178585">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h725178585.map--><map name="h725178585">
                <area shape="rect" alt="h-628388433" coords="436,144,786,203"
                      href="CLI.xsd.html#h-628388433"/>
 
@@ -2309,14 +1925,14 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h-1381319720_diagram" class="contents">
             <img usemap="#h1048133091" src="schemaDiagrams/h1048133091.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h1048133091.map--><map name="h1048133091">
-               <area shape="rect" alt="h-628388433" coords="291,36,410,78"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1048133091.map--><map name="h1048133091">
+               <area shape="rect" alt="h-628388433" coords="291,0,410,42"
                      href="CLI.xsd.html#h-628388433"/>
 
-               <area shape="rect" alt="h991843399" coords="363,88,552,114"
+               <area shape="rect" alt="h991843399" coords="363,52,552,78"
                      href="CLI.xsd.html#h991843399"/>
 
-               <area shape="rect" alt="h-1595366491" coords="363,124,531,150"
+               <area shape="rect" alt="h-1595366491" coords="363,88,531,114"
                      href="CLI.xsd.html#h-1595366491"/>
 
             </map>
@@ -2406,7 +2022,7 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h2101807498_logicalDiagram" class="contents">
             <img usemap="#h-789475781" src="schemaDiagrams/h-789475781.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-789475781.map--><map name="h-789475781">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-789475781.map--><map name="h-789475781">
                <area shape="rect" alt="h-628376409" coords="422,0,772,43"
                      href="CLI.xsd.html#h-628376409"/>
 
@@ -2467,7 +2083,7 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h2101807498_diagram" class="contents">
             <img usemap="#h-378530575" src="schemaDiagrams/h-378530575.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-378530575.map--><map name="h-378530575">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-378530575.map--><map name="h-378530575">
                <area shape="rect" alt="h-628376409" coords="298,0,417,26"
                      href="CLI.xsd.html#h-628376409"/>
 
@@ -2562,7 +2178,7 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h-1728359066_logicalDiagram" class="contents">
             <img usemap="#h1988672351" src="schemaDiagrams/h1988672351.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h1988672351.map--><map name="h1988672351">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1988672351.map--><map name="h1988672351">
                <area shape="rect" alt="h-618976961" coords="436,0,786,43"
                      href="CLI.xsd.html#h-618976961"/>
 
@@ -2612,14 +2228,14 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h-1728359066_diagram" class="contents">
             <img usemap="#h-884639851" src="schemaDiagrams/h-884639851.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-884639851.map--><map name="h-884639851">
-               <area shape="rect" alt="h-618976961" coords="298,52,417,78"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-884639851.map--><map name="h-884639851">
+               <area shape="rect" alt="h-618976961" coords="298,0,417,26"
                      href="CLI.xsd.html#h-618976961"/>
 
-               <area shape="rect" alt="h674201848" coords="298,88,403,114"
+               <area shape="rect" alt="h674201848" coords="298,36,403,62"
                      href="CLI.xsd.html#h674201848"/>
 
-               <area shape="rect" alt="h1400404319" coords="298,124,438,166"
+               <area shape="rect" alt="h1400404319" coords="298,72,438,114"
                      href="CLI.xsd.html#h1400404319"/>
 
             </map>
@@ -2700,7 +2316,7 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h-625066334_logicalDiagram" class="contents">
             <img usemap="#h-1184322481" src="schemaDiagrams/h-1184322481.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1184322481.map--><map name="h-1184322481">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1184322481.map--><map name="h-1184322481">
 </map>
          </div>
          <script type="text/javascript">
@@ -2738,7 +2354,7 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h-625066334_diagram" class="contents">
             <img usemap="#h-1617714983" src="schemaDiagrams/h-1617714983.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1617714983.map--><map name="h-1617714983">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1617714983.map--><map name="h-1617714983">
 </map>
          </div>
          <script type="text/javascript">
@@ -2809,7 +2425,7 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h-2121445436_logicalDiagram" class="contents">
             <img usemap="#h613831105" src="schemaDiagrams/h613831105.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h613831105.map--><map name="h613831105">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h613831105.map--><map name="h613831105">
                <area shape="rect" alt="h1400404319" coords="436,53,786,112"
                      href="CLI.xsd.html#h1400404319"/>
 
@@ -2852,8 +2468,8 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h-2121445436_diagram" class="contents">
             <img usemap="#h63565431" src="schemaDiagrams/h63565431.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h63565431.map--><map name="h63565431">
-               <area shape="rect" alt="h1400404319" coords="256,36,396,78"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h63565431.map--><map name="h63565431">
+               <area shape="rect" alt="h1400404319" coords="256,0,396,42"
                      href="CLI.xsd.html#h1400404319"/>
 
             </map>
@@ -2930,7 +2546,7 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h-2113485515_logicalDiagram" class="contents">
             <img usemap="#h-1820909520" src="schemaDiagrams/h-1820909520.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1820909520.map--><map name="h-1820909520">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1820909520.map--><map name="h-1820909520">
 </map>
          </div>
          <script type="text/javascript">
@@ -2972,7 +2588,7 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h-2113485515_diagram" class="contents">
             <img usemap="#h-399254426" src="schemaDiagrams/h-399254426.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-399254426.map--><map name="h-399254426">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-399254426.map--><map name="h-399254426">
 </map>
          </div>
          <script type="text/javascript">
@@ -3047,7 +2663,7 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h1400404319_logicalDiagram" class="contents">
             <img usemap="#h1313057478" src="schemaDiagrams/h1313057478.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h1313057478.map--><map name="h1313057478">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1313057478.map--><map name="h1313057478">
 </map>
          </div>
          <script type="text/javascript">
@@ -3085,8 +2701,8 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h1400404319_diagram" class="contents">
             <img usemap="#h788722172" src="schemaDiagrams/h788722172.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h788722172.map--><map name="h788722172">
-               <area shape="rect" alt="h-1408984462" coords="184,68,390,94"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h788722172.map--><map name="h788722172">
+               <area shape="rect" alt="h-1408984462" coords="184,0,390,26"
                      href="CLI.xsd.html#h-1408984462"/>
 
             </map>
@@ -3160,7 +2776,7 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h241656326_logicalDiagram" class="contents">
             <img usemap="#h1541547883" src="schemaDiagrams/h1541547883.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h1541547883.map--><map name="h1541547883">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1541547883.map--><map name="h1541547883">
                <area shape="rect" alt="h2101807498" coords="436,0,786,59"
                      href="CLI.xsd.html#h2101807498"/>
 
@@ -3200,8 +2816,8 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h241656326_diagram" class="contents">
             <img usemap="#h-1827944715" src="schemaDiagrams/h-1827944715.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1827944715.map--><map name="h-1827944715">
-               <area shape="rect" alt="h2101807498" coords="277,52,459,94"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1827944715.map--><map name="h-1827944715">
+               <area shape="rect" alt="h2101807498" coords="277,0,459,42"
                      href="CLI.xsd.html#h2101807498"/>
 
             </map>
@@ -3274,7 +2890,7 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h-574263384_logicalDiagram" class="contents">
             <img usemap="#h505607645" src="schemaDiagrams/h505607645.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h505607645.map--><map name="h505607645">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h505607645.map--><map name="h505607645">
 </map>
          </div>
          <script type="text/javascript">
@@ -3312,7 +2928,7 @@ This means a stack statistics record that specifies theC as an index before theT
          <div id="h-574263384_diagram" class="contents">
             <img usemap="#h1877100563" src="schemaDiagrams/h1877100563.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h1877100563.map--><map name="h1877100563">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1877100563.map--><map name="h1877100563">
 </map>
          </div>
          <script type="text/javascript">
@@ -3387,7 +3003,7 @@ The FileSHA1 subelement is automatically calculated for the pixel dump file.
          <div id="h1931863620_logicalDiagram" class="contents">
             <img usemap="#h-337354003" src="schemaDiagrams/h-337354003.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-337354003.map--><map name="h-337354003">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-337354003.map--><map name="h-337354003">
                <area shape="rect" alt="h-619281068" coords="436,142,786,201"
                      href="CLI.xsd.html#h-619281068"/>
 
@@ -3477,32 +3093,32 @@ The FileSHA1 subelement is automatically calculated for the pixel dump file.
          <div id="h1931863620_diagram" class="contents">
             <img usemap="#h-14399497" src="schemaDiagrams/h-14399497.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-14399497.map--><map name="h-14399497">
-               <area shape="rect" alt="h-619281068" coords="291,180,410,222"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-14399497.map--><map name="h-14399497">
+               <area shape="rect" alt="h-619281068" coords="291,0,410,42"
                      href="CLI.xsd.html#h-619281068"/>
 
-               <area shape="rect" alt="h-619281067" coords="291,232,410,274"
+               <area shape="rect" alt="h-619281067" coords="291,52,410,94"
                      href="CLI.xsd.html#h-619281067"/>
 
-               <area shape="rect" alt="h-619281066" coords="291,284,410,326"
+               <area shape="rect" alt="h-619281066" coords="291,104,410,146"
                      href="CLI.xsd.html#h-619281066"/>
 
-               <area shape="rect" alt="h-619281089" coords="291,336,410,378"
+               <area shape="rect" alt="h-619281089" coords="291,156,410,198"
                      href="CLI.xsd.html#h-619281089"/>
 
-               <area shape="rect" alt="h-619281072" coords="291,388,410,430"
+               <area shape="rect" alt="h-619281072" coords="291,208,410,250"
                      href="CLI.xsd.html#h-619281072"/>
 
-               <area shape="rect" alt="h-1852583619" coords="291,440,438,482"
+               <area shape="rect" alt="h-1852583619" coords="291,260,438,302"
                      href="CLI.xsd.html#h-1852583619"/>
 
-               <area shape="rect" alt="h-125610222" coords="291,492,459,534"
+               <area shape="rect" alt="h-125610222" coords="291,312,459,354"
                      href="CLI.xsd.html#h-125610222"/>
 
-               <area shape="rect" alt="h393476237" coords="291,544,445,586"
+               <area shape="rect" alt="h393476237" coords="291,364,445,406"
                      href="CLI.xsd.html#h393476237"/>
 
-               <area shape="rect" alt="h-574263384" coords="291,596,403,638"
+               <area shape="rect" alt="h-574263384" coords="291,416,403,458"
                      href="CLI.xsd.html#h-574263384"/>
 
             </map>
@@ -3623,7 +3239,7 @@ The FileSHA1 subelement is automatically calculated for the pixel dump file.
          <div id="h-1852583619_logicalDiagram" class="contents">
             <img usemap="#h2008087508" src="schemaDiagrams/h2008087508.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h2008087508.map--><map name="h2008087508">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h2008087508.map--><map name="h2008087508">
 </map>
          </div>
          <script type="text/javascript">
@@ -3661,7 +3277,7 @@ The FileSHA1 subelement is automatically calculated for the pixel dump file.
          <div id="h-1852583619_diagram" class="contents">
             <img usemap="#h-1361405090" src="schemaDiagrams/h-1361405090.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1361405090.map--><map name="h-1361405090">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1361405090.map--><map name="h-1361405090">
 </map>
          </div>
          <script type="text/javascript">
@@ -3732,7 +3348,7 @@ The FileSHA1 subelement is automatically calculated for the pixel dump file.
          <div id="h-1373267910_logicalDiagram" class="contents">
             <img usemap="#h730682167" src="schemaDiagrams/h730682167.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h730682167.map--><map name="h730682167">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h730682167.map--><map name="h730682167">
 </map>
          </div>
          <script type="text/javascript">
@@ -3774,8 +3390,8 @@ The FileSHA1 subelement is automatically calculated for the pixel dump file.
          <div id="h-1373267910_diagram" class="contents">
             <img usemap="#h1053636673" src="schemaDiagrams/h1053636673.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h1053636673.map--><map name="h1053636673">
-               <area shape="rect" alt="h-937058429" coords="205,52,404,78"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1053636673.map--><map name="h1053636673">
+               <area shape="rect" alt="h-937058429" coords="205,0,404,26"
                      href="CLI.xsd.html#h-937058429"/>
 
             </map>
@@ -3856,7 +3472,7 @@ e.g. /OME/repository/1-tinyTest.ori
          <div id="h-1932850697_logicalDiagram" class="contents">
             <img usemap="#h-618839762" src="schemaDiagrams/h-618839762.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-618839762.map--><map name="h-618839762">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-618839762.map--><map name="h-618839762">
 </map>
          </div>
          <script type="text/javascript">
@@ -3894,7 +3510,7 @@ e.g. /OME/repository/1-tinyTest.ori
          <div id="h-1932850697_diagram" class="contents">
             <img usemap="#h-837488028" src="schemaDiagrams/h-837488028.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-837488028.map--><map name="h-837488028">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-837488028.map--><map name="h-837488028">
 </map>
          </div>
          <script type="text/javascript">
@@ -3963,7 +3579,7 @@ e.g. /OME/repository/1-tinyTest.ori
          <div id="h751550226_logicalDiagram" class="contents">
             <img usemap="#h-599506849" src="schemaDiagrams/h-599506849.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-599506849.map--><map name="h-599506849">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-599506849.map--><map name="h-599506849">
 </map>
          </div>
          <script type="text/javascript">
@@ -3998,7 +3614,7 @@ e.g. /OME/repository/1-tinyTest.ori
          <div id="h751550226_diagram" class="contents">
             <img usemap="#h-477873559" src="schemaDiagrams/h-477873559.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-477873559.map--><map name="h-477873559">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-477873559.map--><map name="h-477873559">
 </map>
          </div>
          <script type="text/javascript">
@@ -4068,7 +3684,7 @@ e.g. /OME/repository/1-tinyTest.ori
          <div id="h393476237_logicalDiagram" class="contents">
             <img usemap="#h2094968920" src="schemaDiagrams/h2094968920.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h2094968920.map--><map name="h2094968920">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h2094968920.map--><map name="h2094968920">
 </map>
          </div>
          <script type="text/javascript">
@@ -4106,7 +3722,7 @@ e.g. /OME/repository/1-tinyTest.ori
          <div id="h393476237_diagram" class="contents">
             <img usemap="#h719913486" src="schemaDiagrams/h719913486.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h719913486.map--><map name="h719913486">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h719913486.map--><map name="h719913486">
 </map>
          </div>
          <script type="text/javascript">
@@ -4179,7 +3795,7 @@ Currently this is still in development. I would STRONGLY recommend contacting Jo
          <div id="h-619959451_logicalDiagram" class="contents">
             <img usemap="#h-701267028" src="schemaDiagrams/h-701267028.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-701267028.map--><map name="h-701267028">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-701267028.map--><map name="h-701267028">
                <area shape="rect" alt="h-1381319720" coords="436,0,786,59"
                      href="CLI.xsd.html#h-1381319720"/>
 
@@ -4219,8 +3835,8 @@ Currently this is still in development. I would STRONGLY recommend contacting Jo
          <div id="h-619959451_diagram" class="contents">
             <img usemap="#h-1134659530" src="schemaDiagrams/h-1134659530.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1134659530.map--><map name="h-1134659530">
-               <area shape="rect" alt="h-1381319720" coords="249,100,410,142"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1134659530.map--><map name="h-1134659530">
+               <area shape="rect" alt="h-1381319720" coords="249,0,410,42"
                      href="CLI.xsd.html#h-1381319720"/>
 
             </map>
@@ -4294,7 +3910,7 @@ Currently this is still in development. I would STRONGLY recommend contacting Jo
          <div id="h-2038867730_logicalDiagram" class="contents">
             <img usemap="#h245887575" src="schemaDiagrams/h245887575.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h245887575.map--><map name="h245887575">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h245887575.map--><map name="h245887575">
                <area shape="rect" alt="h-2113485515" coords="436,0,786,59"
                      href="CLI.xsd.html#h-2113485515"/>
 
@@ -4334,8 +3950,8 @@ Currently this is still in development. I would STRONGLY recommend contacting Jo
          <div id="h-2038867730_diagram" class="contents">
             <img usemap="#h-304378099" src="schemaDiagrams/h-304378099.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-304378099.map--><map name="h-304378099">
-               <area shape="rect" alt="h-2113485515" coords="256,52,424,94"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-304378099.map--><map name="h-304378099">
+               <area shape="rect" alt="h-2113485515" coords="256,0,424,42"
                      href="CLI.xsd.html#h-2113485515"/>
 
             </map>
@@ -4408,7 +4024,7 @@ Currently this is still in development. I would STRONGLY recommend contacting Jo
          <div id="h-619281089_logicalDiagram" class="contents">
             <img usemap="#h568149394" src="schemaDiagrams/h568149394.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h568149394.map--><map name="h568149394">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h568149394.map--><map name="h568149394">
 </map>
          </div>
          <script type="text/javascript">
@@ -4446,7 +4062,7 @@ Currently this is still in development. I would STRONGLY recommend contacting Jo
          <div id="h-619281089_diagram" class="contents">
             <img usemap="#h134756892" src="schemaDiagrams/h134756892.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h134756892.map--><map name="h134756892">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h134756892.map--><map name="h134756892">
 </map>
          </div>
          <script type="text/javascript">
@@ -4517,7 +4133,7 @@ Currently this is still in development. I would STRONGLY recommend contacting Jo
          <div id="h-619281072_logicalDiagram" class="contents">
             <img usemap="#h328221921" src="schemaDiagrams/h328221921.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h328221921.map--><map name="h328221921">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h328221921.map--><map name="h328221921">
 </map>
          </div>
          <script type="text/javascript">
@@ -4555,7 +4171,7 @@ Currently this is still in development. I would STRONGLY recommend contacting Jo
          <div id="h-619281072_diagram" class="contents">
             <img usemap="#h-105170581" src="schemaDiagrams/h-105170581.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-105170581.map--><map name="h-105170581">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-105170581.map--><map name="h-105170581">
 </map>
          </div>
          <script type="text/javascript">
@@ -4626,7 +4242,7 @@ Currently this is still in development. I would STRONGLY recommend contacting Jo
          <div id="h-619281068_logicalDiagram" class="contents">
             <img usemap="#h524413533" src="schemaDiagrams/h524413533.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h524413533.map--><map name="h524413533">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h524413533.map--><map name="h524413533">
 </map>
          </div>
          <script type="text/javascript">
@@ -4664,7 +4280,7 @@ Currently this is still in development. I would STRONGLY recommend contacting Jo
          <div id="h-619281068_diagram" class="contents">
             <img usemap="#h91021031" src="schemaDiagrams/h91021031.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h91021031.map--><map name="h91021031">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h91021031.map--><map name="h91021031">
 </map>
          </div>
          <script type="text/javascript">
@@ -4735,7 +4351,7 @@ Currently this is still in development. I would STRONGLY recommend contacting Jo
          <div id="h-619281067_logicalDiagram" class="contents">
             <img usemap="#h-500280388" src="schemaDiagrams/h-500280388.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-500280388.map--><map name="h-500280388">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-500280388.map--><map name="h-500280388">
 </map>
          </div>
          <script type="text/javascript">
@@ -4773,7 +4389,7 @@ Currently this is still in development. I would STRONGLY recommend contacting Jo
          <div id="h-619281067_diagram" class="contents">
             <img usemap="#h-933672890" src="schemaDiagrams/h-933672890.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-933672890.map--><map name="h-933672890">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-933672890.map--><map name="h-933672890">
 </map>
          </div>
          <script type="text/javascript">
@@ -4844,7 +4460,7 @@ Currently this is still in development. I would STRONGLY recommend contacting Jo
          <div id="h-619281066_logicalDiagram" class="contents">
             <img usemap="#h-1524974309" src="schemaDiagrams/h-1524974309.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1524974309.map--><map name="h-1524974309">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1524974309.map--><map name="h-1524974309">
 </map>
          </div>
          <script type="text/javascript">
@@ -4882,7 +4498,7 @@ Currently this is still in development. I would STRONGLY recommend contacting Jo
          <div id="h-619281066_diagram" class="contents">
             <img usemap="#h-1958366811" src="schemaDiagrams/h-1958366811.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1958366811.map--><map name="h-1958366811">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1958366811.map--><map name="h-1958366811">
 </map>
          </div>
          <script type="text/javascript">
@@ -4955,7 +4571,7 @@ Not currently supported.
          <div id="h-618976961_logicalDiagram" class="contents">
             <img usemap="#h987373970" src="schemaDiagrams/h987373970.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h987373970.map--><map name="h987373970">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h987373970.map--><map name="h987373970">
 </map>
          </div>
          <script type="text/javascript">
@@ -4993,8 +4609,8 @@ Not currently supported.
          <div id="h-618976961_diagram" class="contents">
             <img usemap="#h553981468" src="schemaDiagrams/h553981468.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h553981468.map--><map name="h553981468">
-               <area shape="rect" alt="h-937058429" coords="163,68,362,94"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h553981468.map--><map name="h553981468">
+               <area shape="rect" alt="h-937058429" coords="163,0,362,26"
                      href="CLI.xsd.html#h-937058429"/>
 
             </map>
@@ -5067,7 +4683,7 @@ Not currently supported.
          <div id="h7550323_logicalDiagram" class="contents">
             <img usemap="#h-521950670" src="schemaDiagrams/h-521950670.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-521950670.map--><map name="h-521950670">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-521950670.map--><map name="h-521950670">
                <area shape="rect" alt="h1400404319" coords="436,106,786,165"
                      href="CLI.xsd.html#h1400404319"/>
 
@@ -5114,8 +4730,8 @@ Not currently supported.
          <div id="h7550323_diagram" class="contents">
             <img usemap="#h-1046285976" src="schemaDiagrams/h-1046285976.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1046285976.map--><map name="h-1046285976">
-               <area shape="rect" alt="h1400404319" coords="270,52,410,94"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1046285976.map--><map name="h-1046285976">
+               <area shape="rect" alt="h1400404319" coords="270,0,410,42"
                      href="CLI.xsd.html#h1400404319"/>
 
             </map>
@@ -5196,7 +4812,7 @@ Not currently supported.
          <div id="h1038273069_logicalDiagram" class="contents">
             <img usemap="#h-2134629064" src="schemaDiagrams/h-2134629064.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-2134629064.map--><map name="h-2134629064">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-2134629064.map--><map name="h-2134629064">
 </map>
          </div>
          <script type="text/javascript">
@@ -5234,8 +4850,8 @@ Not currently supported.
          <div id="h1038273069_diagram" class="contents">
             <img usemap="#h1636002926" src="schemaDiagrams/h1636002926.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h1636002926.map--><map name="h1636002926">
-               <area shape="rect" alt="h-937058429" coords="184,52,383,78"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1636002926.map--><map name="h1636002926">
+               <area shape="rect" alt="h-937058429" coords="184,0,383,26"
                      href="CLI.xsd.html#h-937058429"/>
 
             </map>
@@ -5308,7 +4924,7 @@ Not currently supported.
          <div id="h1517265304_logicalDiagram" class="contents">
             <img usemap="#h1669744153" src="schemaDiagrams/h1669744153.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h1669744153.map--><map name="h1669744153">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1669744153.map--><map name="h1669744153">
                <area shape="rect" alt="h-573184660" coords="436,214,786,257"
                      href="CLI.xsd.html#h-573184660"/>
 
@@ -5380,14 +4996,14 @@ Not currently supported.
          <div id="h1517265304_diagram" class="contents">
             <img usemap="#h1791377443" src="schemaDiagrams/h1791377443.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h1791377443.map--><map name="h1791377443">
-               <area shape="rect" alt="h-573184660" coords="263,52,375,78"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1791377443.map--><map name="h1791377443">
+               <area shape="rect" alt="h-573184660" coords="263,0,375,26"
                      href="CLI.xsd.html#h-573184660"/>
 
-               <area shape="rect" alt="h-573184666" coords="263,88,375,114"
+               <area shape="rect" alt="h-573184666" coords="263,36,375,62"
                      href="CLI.xsd.html#h-573184666"/>
 
-               <area shape="rect" alt="h-573184663" coords="263,124,375,150"
+               <area shape="rect" alt="h-573184663" coords="263,72,375,98"
                      href="CLI.xsd.html#h-573184663"/>
 
             </map>
@@ -5502,7 +5118,7 @@ Not currently supported.
          <div id="h674242784_logicalDiagram" class="contents">
             <img usemap="#h-550013743" src="schemaDiagrams/h-550013743.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-550013743.map--><map name="h-550013743">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-550013743.map--><map name="h-550013743">
 </map>
          </div>
          <script type="text/javascript">
@@ -5537,7 +5153,7 @@ Not currently supported.
          <div id="h674242784_diagram" class="contents">
             <img usemap="#h-1614150693" src="schemaDiagrams/h-1614150693.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1614150693.map--><map name="h-1614150693">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1614150693.map--><map name="h-1614150693">
 </map>
          </div>
          <script type="text/javascript">
@@ -5607,7 +5223,7 @@ Not currently supported.
          <div id="h-573184666_logicalDiagram" class="contents">
             <img usemap="#h1806800223" src="schemaDiagrams/h1806800223.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h1806800223.map--><map name="h1806800223">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1806800223.map--><map name="h1806800223">
                <area shape="rect" alt="h-307143960" coords="422,0,772,43"
                      href="CLI.xsd.html#h-307143960"/>
 
@@ -5668,17 +5284,17 @@ Not currently supported.
          <div id="h-573184666_diagram" class="contents">
             <img usemap="#h-1116674155" src="schemaDiagrams/h-1116674155.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1116674155.map--><map name="h-1116674155">
-               <area shape="rect" alt="h-307143960" coords="228,52,389,78"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1116674155.map--><map name="h-1116674155">
+               <area shape="rect" alt="h-307143960" coords="228,0,389,26"
                      href="CLI.xsd.html#h-307143960"/>
 
-               <area shape="rect" alt="h1038273069" coords="228,88,368,114"
+               <area shape="rect" alt="h1038273069" coords="228,36,368,62"
                      href="CLI.xsd.html#h1038273069"/>
 
-               <area shape="rect" alt="h-1728359066" coords="228,124,396,150"
+               <area shape="rect" alt="h-1728359066" coords="228,72,396,98"
                      href="CLI.xsd.html#h-1728359066"/>
 
-               <area shape="rect" alt="h-625066334" coords="228,160,347,186"
+               <area shape="rect" alt="h-625066334" coords="228,108,347,134"
                      href="CLI.xsd.html#h-625066334"/>
 
             </map>
@@ -5763,7 +5379,7 @@ Not currently supported.
          <div id="h-573184663_logicalDiagram" class="contents">
             <img usemap="#h-1267281540" src="schemaDiagrams/h-1267281540.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-1267281540.map--><map name="h-1267281540">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1267281540.map--><map name="h-1267281540">
                <area shape="rect" alt="h-307143960" coords="422,0,772,43"
                      href="CLI.xsd.html#h-307143960"/>
 
@@ -5824,17 +5440,17 @@ Not currently supported.
          <div id="h-573184663_diagram" class="contents">
             <img usemap="#h104211378" src="schemaDiagrams/h104211378.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h104211378.map--><map name="h104211378">
-               <area shape="rect" alt="h-307143960" coords="228,52,389,78"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h104211378.map--><map name="h104211378">
+               <area shape="rect" alt="h-307143960" coords="228,0,389,26"
                      href="CLI.xsd.html#h-307143960"/>
 
-               <area shape="rect" alt="h1038273069" coords="228,88,368,114"
+               <area shape="rect" alt="h1038273069" coords="228,36,368,62"
                      href="CLI.xsd.html#h1038273069"/>
 
-               <area shape="rect" alt="h-1728359066" coords="228,124,396,150"
+               <area shape="rect" alt="h-1728359066" coords="228,72,396,98"
                      href="CLI.xsd.html#h-1728359066"/>
 
-               <area shape="rect" alt="h-625066334" coords="228,160,347,186"
+               <area shape="rect" alt="h-625066334" coords="228,108,347,134"
                      href="CLI.xsd.html#h-625066334"/>
 
             </map>
@@ -5919,7 +5535,7 @@ Not currently supported.
          <div id="h-573184660_logicalDiagram" class="contents">
             <img usemap="#h-46396007" src="schemaDiagrams/h-46396007.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-46396007.map--><map name="h-46396007">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-46396007.map--><map name="h-46396007">
                <area shape="rect" alt="h-307143960" coords="422,0,772,43"
                      href="CLI.xsd.html#h-307143960"/>
 
@@ -5980,17 +5596,17 @@ Not currently supported.
          <div id="h-573184660_diagram" class="contents">
             <img usemap="#h1325096911" src="schemaDiagrams/h1325096911.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h1325096911.map--><map name="h1325096911">
-               <area shape="rect" alt="h-307143960" coords="228,52,389,78"
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1325096911.map--><map name="h1325096911">
+               <area shape="rect" alt="h-307143960" coords="228,0,389,26"
                      href="CLI.xsd.html#h-307143960"/>
 
-               <area shape="rect" alt="h1038273069" coords="228,88,368,114"
+               <area shape="rect" alt="h1038273069" coords="228,36,368,62"
                      href="CLI.xsd.html#h1038273069"/>
 
-               <area shape="rect" alt="h-1728359066" coords="228,124,396,150"
+               <area shape="rect" alt="h-1728359066" coords="228,72,396,98"
                      href="CLI.xsd.html#h-1728359066"/>
 
-               <area shape="rect" alt="h-625066334" coords="228,160,347,186"
+               <area shape="rect" alt="h-625066334" coords="228,108,347,134"
                      href="CLI.xsd.html#h-625066334"/>
 
             </map>
@@ -6076,7 +5692,7 @@ Not currently supported.
          <div id="h-937058429_diagram" class="contents">
             <img usemap="#h-250028712" src="schemaDiagrams/h-250028712.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h-250028712.map--><map name="h-250028712">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-250028712.map--><map name="h-250028712">
 </map>
          </div>
          <script type="text/javascript">
@@ -6145,7 +5761,7 @@ Not currently supported.
          <div id="h-1408984462_diagram" class="contents">
             <img usemap="#h1746404105" src="schemaDiagrams/h1746404105.png"/>
             <!--
-            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2007-07//schemaDiagrams/h1746404105.map--><map name="h1746404105">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1746404105.map--><map name="h1746404105">
 </map>
          </div>
          <script type="text/javascript">

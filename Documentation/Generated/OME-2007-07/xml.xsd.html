@@ -3,7 +3,7 @@
   PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
    <head>
-      <title>Documentation for ome - BinaryFile.xsd</title>
+      <title>Documentation for ome - xml.xsd</title>
       <meta http-equiv="Content-Type" content="text/xml; charset=UTF-8"/>
       <style type="text/css">
 @import url(auto-gen-doc.css);
@@ -11,13 +11,13 @@
       <script type="text/javascript">
 <!--
           /* IDs of XML Instance Representation boxes */
-var xiBoxes = new Array('h-490539570_xibox', 'h-343365906_xibox', 'h1856809568_xibox', 'h-1120178830_xibox');
+var xiBoxes = new Array('h-1961631311_xibox', 'h-674129501_xibox', 'h-1961929068_xibox', 'h-1016565346_xibox', 'h-871927579_xibox');
 /* IDs of diagram boxes */
-var diagramBoxes = new Array('h-490539570_diagram', 'h-343365906_diagram', 'h1856809568_diagram', 'h-1120178830_diagram');
+var diagramBoxes = new Array('h-1961631311_diagram', 'h-674129501_diagram', 'h-1961929068_diagram', 'h-1016565346_diagram', 'h-871927579_diagram');
 /* IDs of logical diagram boxes */
-var logicalDiagramBoxes = new Array('h-490539570_logicalDiagram', 'h-343365906_logicalDiagram', 'h1856809568_logicalDiagram');
+var logicalDiagramBoxes = new Array();
 /* IDs of Schema Component Representation boxes */
-var scBoxes = new Array('schema_scbox', 'h-490539570_scbox', 'h-343365906_scbox', 'h1856809568_scbox', 'h-1120178830_scbox');
+var scBoxes = new Array('schema_scbox', 'h-1961631311_scbox', 'h-674129501_scbox', 'h-1961929068_scbox', 'h-1016565346_scbox', 'h-871927579_scbox');
 
 /**
  * Can get the ID of the button controlling
@@ -396,15 +396,19 @@ if (gc != null) {
             <a href="#SchemaDeclarations">Global Declarations</a>
             <ul>
                <li>
-                  <a href="#h-343365906">Element: <strong>BinData</strong>
+                  <a href="#h-1961929068">Attribute: <strong>base</strong>
                   </a>
                </li>
                <li>
-                  <a href="#h1856809568">Element: <strong>BinaryFile</strong>
+                  <a href="#h-1016565346">Attribute: <strong>id</strong>
                   </a>
                </li>
                <li>
-                  <a href="#h-490539570">Element: <strong>External</strong>
+                  <a href="#h-1961631311">Attribute: <strong>lang</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#h-674129501">Attribute: <strong>space</strong>
                   </a>
                </li>
             </ul>
@@ -413,7 +417,7 @@ if (gc != null) {
             <a href="#SchemaDefinitions">Global Definitions</a>
             <ul>
                <li>
-                  <a href="#h-1120178830">Simple Type: <strong>Hex40</strong>
+                  <a href="#h-871927579">Attribute Group: <strong>specialAttrs</strong>
                   </a>
                </li>
             </ul>
@@ -443,44 +447,107 @@ if (gc != null) {
          <tr>
             <th>
                <a title="Look up 'Target Namespace' in glossary"
-                  href="BinaryFile.xsd.html#term_TargetNS">Target Namespace</a>
+                  href="xml.xsd.html#term_TargetNS">Target Namespace</a>
             </th>
             <td>
-               <span class="targetNS">http://www.openmicroscopy.org/Schemas/BinaryFile/2007-06</span>
+               <span class="targetNS">http://www.w3.org/XML/1998/namespace</span>
             </td>
          </tr>
          <tr>
-            <th>Version</th>
-            <td>2</td>
+            <th>Language</th>
+            <td>en</td>
          </tr>
          <tr>
             <th>Element and Attribute Namespaces</th>
             <td>
                <ul>
                   <li>Global element and attribute declarations belong to this schema's target namespace.</li>
-                  <li>By default, local element declarations belong to this schema's target namespace.</li>
+                  <li>By default, local element declarations have no namespace.</li>
                   <li>By default, local attribute declarations have no namespace.</li>
-               </ul>
-            </td>
-         </tr>
-         <tr>
-            <th>Schema Composition</th>
-            <td>
-               <ul>
-                  <li>This schema imports schema(s) from the following namespace(s):<ul>
-                        <li>
-                           <em>http://www.w3.org/XML/1998/namespace</em> (at <a title="Jump to schema documentation for 'http://www.w3.org/2001/xml.xsd'."
-                              href="xml.xsd.html">http://www.w3.org/2001/xml.xsd</a>)</li>
-                     </ul>
-                  </li>
                </ul>
             </td>
          </tr>
          <tr>
             <th>Documentation</th>
             <td class="documentation">
-			The elements in this file are not yet represented by classes in the EA diagrams - ajp
-		</td>
+   See http://www.w3.org/XML/1998/namespace.html and
+   http://www.w3.org/TR/REC-xml for information about this namespace.
+
+    This schema document describes the XML namespace, in a form
+    suitable for import by other schema documents.  
+
+    Note that local names in this namespace are intended to be defined
+    only by the World Wide Web Consortium or its subgroups.  The
+    following names are currently defined in this namespace and should
+    not be used with conflicting semantics by any Working Group,
+    specification, or document instance:
+
+    base (as an attribute name): denotes an attribute whose value
+         provides a URI to be used as the base for interpreting any
+         relative URIs in the scope of the element on which it
+         appears; its value is inherited.  This name is reserved
+         by virtue of its definition in the XML Base specification.
+
+    id   (as an attribute name): denotes an attribute whose value
+         should be interpreted as if declared to be of type ID.
+         This name is reserved by virtue of its definition in the
+         xml:id specification.
+
+    lang (as an attribute name): denotes an attribute whose value
+         is a language code for the natural language of the content of
+         any element; its value is inherited.  This name is reserved
+         by virtue of its definition in the XML specification.
+  
+    space (as an attribute name): denotes an attribute whose
+         value is a keyword indicating what whitespace processing
+         discipline is intended for the content of the element; its
+         value is inherited.  This name is reserved by virtue of its
+         definition in the XML specification.
+
+    Father (in any context at all): denotes Jon Bosak, the chair of 
+         the original XML Working Group.  This name is reserved by 
+         the following decision of the W3C XML Plenary and 
+         XML Coordination groups:
+
+             In appreciation for his vision, leadership and dedication
+             the W3C XML Plenary on this 10th day of February, 2000
+             reserves for Jon Bosak in perpetuity the XML name
+             xml:Father
+  <br/>
+               <br/>This schema defines attributes and an attribute group
+        suitable for use by
+        schemas wishing to allow xml:base, xml:lang, xml:space or xml:id
+        attributes on elements they define.
+
+        To enable this, such a schema must import this schema
+        for the XML namespace, e.g. as follows:
+        &lt;schema . . .&gt;
+         . . .
+         &lt;import namespace="http://www.w3.org/XML/1998/namespace"
+                    schemaLocation="http://www.w3.org/2001/xml.xsd"/&gt;
+
+        Subsequently, qualified reference to any of the attributes
+        or the group defined below will have the desired effect, e.g.
+
+        &lt;type . . .&gt;
+         . . .
+         &lt;attributeGroup ref="xml:specialAttrs"/&gt;
+ 
+         will define a type which will schema-validate an instance
+         element with any of those attributes<br/>
+               <br/>In keeping with the XML Schema WG's standard versioning
+   policy, this schema document will persist at
+   http://www.w3.org/2007/08/xml.xsd.
+   At the date of issue it can also be found at
+   http://www.w3.org/2001/xml.xsd.
+   The schema document at that URI may however change in the future,
+   in order to remain compatible with the latest version of XML Schema
+   itself, or with the XML namespace itself.  In other words, if the XML
+   Schema or XML namespaces change, the version of this document at
+   http://www.w3.org/2001/xml.xsd will change
+   accordingly; the version at
+   http://www.w3.org/2007/08/xml.xsd will not change.
+  </td>
          </tr>
       </table>
       <h3>Declared Namespaces</h3>
@@ -491,23 +558,17 @@ if (gc != null) {
          </tr>
          <tr>
             <td>
-               <a name="ns_">Default namespace</a>
-            </td>
-            <td>http://www.w3.org/2001/XMLSchema</td>
-         </tr>
-         <tr>
-            <td>
                <a name="ns_xml">xml</a>
             </td>
-            <td>http://www.w3.org/XML/1998/namespace</td>
+            <td>
+               <span class="targetNS">http://www.w3.org/XML/1998/namespace</span>
+            </td>
          </tr>
          <tr>
             <td>
-               <a name="ns_Bin">Bin</a>
+               <a name="ns_xs">xs</a>
             </td>
-            <td>
-               <span class="targetNS">http://www.openmicroscopy.org/Schemas/BinaryFile/2007-06</span>
-            </td>
+            <td>http://www.w3.org/2001/XMLSchema</td>
          </tr>
       </table>
       <div class="schemaComponent box">
@@ -518,10 +579,8 @@ if (gc != null) {
             <span class="caption">Schema Component Representation</span>
          </div>
          <div id="schema_scbox" class="contents">
-            <div style="margin-left: 0em">&lt;<span class="scTag">schema</span> 
-               <span class="scTag">targetNamespace</span>="<span class="scContent">http://www.openmicroscopy.org/Schemas/BinaryFile/2007-06</span>" <span class="scTag">version</span>="<span class="scContent">2</span>" <span class="scTag">elementFormDefault</span>="<span class="scContent">qualified</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">import</span> 
-                  <span class="scTag">namespace</span>="<span class="scContent">http://www.w3.org/XML/1998/namespace</span>" <span class="scTag">schemaLocation</span>="<span class="scContent">http://www.w3.org/2001/xml.xsd</span>"/&gt;</div>
-               <div class="scContent" style="margin-left: 1.5em">...</div>&lt;/<span class="scTag">schema</span>&gt;</div>
+            <div style="margin-left: 0em">&lt;<span class="scTag">xs:schema</span> 
+               <span class="scTag">xml:lang</span>="<span class="scContent">en</span>" <span class="scTag">targetNamespace</span>="<span class="scContent">http://www.w3.org/XML/1998/namespace</span>"&gt;<div class="scContent" style="margin-left: 1.5em">...</div>&lt;/<span class="scTag">xs:schema</span>&gt;</div>
          </div>
          <script type="text/javascript">
 <!--
@@ -536,133 +595,87 @@ if (gc != null) {
       <h2>
          <a name="SchemaDeclarations">Global Declarations</a>
       </h2>
-      <h3>Element: <a name="h-343365906" class="name">BinData</a>
+      <h3>Attribute: <a name="h-1961929068" class="name">base</a>
       </h3>
       <table class="properties">
          <tr>
             <th>Name</th>
-            <td>BinData</td>
+            <td>base</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Attribute Group <b>
+                  <a href="#h-871927579">specialAttrs</a>
+               </b>
+            </td>
          </tr>
          <tr>
             <th>Type</th>
-            <td>Locally-defined complex type</td>
-         </tr>
-         <tr>
-            <th>
-               <a title="Look up 'Nillable' in glossary" href="BinaryFile.xsd.html#term_Nillable">Nillable</a>
-            </th>
-            <td>no</td>
-         </tr>
-         <tr>
-            <th>
-               <a title="Look up 'Abstract' in glossary" href="BinaryFile.xsd.html#term_Abstract">Abstract</a>
-            </th>
-            <td>no</td>
+            <td>
+               <span class="type">
+                  <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:anyURI</span>
+            </td>
          </tr>
          <tr>
             <th>Documentation</th>
-            <td class="documentation">The contents of this element are base64-encoded.  These are not CDATA sections, just a base64 stream.</td>
+            <td class="documentation">See http://www.w3.org/TR/xmlbase/ for
+                     information about this attribute.</td>
          </tr>
       </table>
       <div class="sample box">
          <div>
-            <input type="button" id="h-343365906_logicalDiagram_button" class="control"
-                   onclick="switchState('h-343365906_logicalDiagram'); return false;"
-                   style="display: none"/> 
-            <span class="caption">Logical Diagram</span>
-         </div>
-         <div id="h-343365906_logicalDiagram" class="contents">
-            <img usemap="#h-1300510320" src="schemaDiagrams/h-1300510320.png"/>
-            <!--
-            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1300510320.map--><map name="h-1300510320">
-</map>
-         </div>
-         <script type="text/javascript">
-<!--
-          setState('h-343365906_logicalDiagram', false);
-// -->
-</script>
-      </div>
-      <div class="sample box">
-         <div>
-            <input type="button" id="h-343365906_xibox_button" class="control"
-                   onclick="switchState('h-343365906_xibox'); return false;"
+            <input type="button" id="h-1961929068_xibox_button" class="control"
+                   onclick="switchState('h-1961929068_xibox'); return false;"
                    style="display: none"/> 
             <span class="caption">XML Instance Representation</span>
          </div>
-         <div id="h-343365906_xibox" class="contents">
-            <div style="margin-left: 0em">&lt;<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:BinData<br/>
-               <span style="margin-left: 0.5em"> Compression="<span class="constraint">
-                     <span class="type">string</span> (<em>value</em> comes from list: {'zlib'|'bzip2'|'none'})</span> 
-                  <span class="occurs">[0..1]</span> 
-                  <p class="documentation">'Specifies the compression scheme used to encode the data.'</p>"</span>
-               <br/>
-               <span style="margin-left: 0.5em"> Length="<span class="constraint">
-                     <span class="type">nonNegativeInteger</span>
-                  </span> 
-                  <span class="occurs">[1]</span> 
-                  <p class="documentation">'Character count attribute for the BinData field. This is the length of the base-64 encoded block. It allows easy skipping of the block when parsing the file. Added in response to Evolution document - ajp'</p>"</span>&gt; <br/>
-               <span style="margin-left: 1.5em"> 
-                  <span class="type">base64Binary</span> 
-               </span>
-               <br/>&lt;/<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:BinData&gt;</div>
+         <div id="h-1961929068_xibox" class="contents">
+            <span style="margin-left: 0em"> 
+               <a href="#ns_xml" title="Find out namespace of 'xml' prefix">xml</a>:base="<span class="type">
+                  <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:anyURI</span>"</span>
          </div>
          <script type="text/javascript">
 <!--
-          setState('h-343365906_xibox', true);
+          setState('h-1961929068_xibox', true);
 // -->
 </script>
       </div>
       <div class="sample box">
          <div>
-            <input type="button" id="h-343365906_diagram_button" class="control"
-                   onclick="switchState('h-343365906_diagram'); return false;"
+            <input type="button" id="h-1961929068_diagram_button" class="control"
+                   onclick="switchState('h-1961929068_diagram'); return false;"
                    style="display: none"/> 
             <span class="caption">Diagram</span>
          </div>
-         <div id="h-343365906_diagram" class="contents">
-            <img usemap="#h-889565114" src="schemaDiagrams/h-889565114.png"/>
+         <div id="h-1961929068_diagram" class="contents">
+            <img usemap="#h831853497" src="schemaDiagrams/h831853497.png"/>
             <!--
-            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-889565114.map--><map name="h-889565114">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h831853497.map--><map name="h831853497">
 </map>
          </div>
          <script type="text/javascript">
 <!--
-          setState('h-343365906_diagram', true);
+          setState('h-1961929068_diagram', true);
 // -->
 </script>
       </div>
       <div class="schemaComponent box">
          <div>
-            <input type="button" id="h-343365906_scbox_button" class="control"
-                   onclick="switchState('h-343365906_scbox'); return false;"
+            <input type="button" id="h-1961929068_scbox_button" class="control"
+                   onclick="switchState('h-1961929068_scbox'); return false;"
                    style="display: none"/> 
             <span class="caption">Schema Component Representation</span>
          </div>
-         <div id="h-343365906_scbox" class="contents">
-            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
-               <span class="scTag">name</span>="<span class="scContent">BinData</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">extension</span> 
-                        <span class="scTag">base</span>="<span class="scContent">
-                           <span class="type">base64Binary</span>
-                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
-                           <span class="scTag">name</span>="<span class="scContent">Compression</span>" <span class="scTag">default</span>="<span class="scContent">none</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
-                                 <span class="scTag">base</span>="<span class="scContent">
-                                    <span class="type">string</span>
-                                 </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
-                                    <span class="scTag">value</span>="<span class="scContent">zlib</span>"/&gt;</div>
-                                 <div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
-                                    <span class="scTag">value</span>="<span class="scContent">bzip2</span>"/&gt;</div>
-                                 <div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
-                                    <span class="scTag">value</span>="<span class="scContent">none</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>
-                        <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
-                           <span class="scTag">name</span>="<span class="scContent">Length</span>" <span class="scTag">use</span>="<span class="scContent">required</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
-                                 <span class="scTag">base</span>="<span class="scContent">
-                                    <span class="type">nonNegativeInteger</span>
-                                 </span>"/&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>&lt;/<span class="scTag">extension</span>&gt;</div>&lt;/<span class="scTag">simpleContent</span>&gt;</div>&lt;/<span class="scTag">complexType</span>&gt;</div>&lt;/<span class="scTag">element</span>&gt;</div>
+         <div id="h-1961929068_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xs:attribute</span> 
+               <span class="scTag">name</span>="<span class="scContent">base</span>" <span class="scTag">type</span>="<span class="scContent">
+                  <span class="type">
+                     <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:anyURI</span>
+               </span>"/&gt;</div>
          </div>
          <script type="text/javascript">
 <!--
-          setState('h-343365906_scbox', false);
+          setState('h-1961929068_scbox', false);
 // -->
 </script>
       </div>
@@ -670,148 +683,183 @@ if (gc != null) {
          <a href="#top">top</a>
       </div>
       <hr/>
-      <h3>Element: <a name="h1856809568" class="name">BinaryFile</a>
+      <h3>Attribute: <a name="h-1016565346" class="name">id</a>
       </h3>
       <table class="properties">
          <tr>
             <th>Name</th>
-            <td>BinaryFile</td>
+            <td>id</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Attribute Group <b>
+                  <a href="#h-871927579">specialAttrs</a>
+               </b>
+            </td>
          </tr>
          <tr>
             <th>Type</th>
-            <td>Locally-defined complex type</td>
-         </tr>
-         <tr>
-            <th>
-               <a title="Look up 'Nillable' in glossary" href="BinaryFile.xsd.html#term_Nillable">Nillable</a>
-            </th>
-            <td>no</td>
-         </tr>
-         <tr>
-            <th>
-               <a title="Look up 'Abstract' in glossary" href="BinaryFile.xsd.html#term_Abstract">Abstract</a>
-            </th>
-            <td>no</td>
+            <td>
+               <span class="type">
+                  <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:ID</span>
+            </td>
          </tr>
          <tr>
             <th>Documentation</th>
-            <td class="documentation">Describes a binary file.</td>
+            <td class="documentation">See http://www.w3.org/TR/xml-id/ for
+                     information about this attribute.</td>
          </tr>
       </table>
       <div class="sample box">
          <div>
-            <input type="button" id="h1856809568_logicalDiagram_button" class="control"
-                   onclick="switchState('h1856809568_logicalDiagram'); return false;"
-                   style="display: none"/> 
-            <span class="caption">Logical Diagram</span>
-         </div>
-         <div id="h1856809568_logicalDiagram" class="contents">
-            <img usemap="#h107765166" src="schemaDiagrams/h107765166.png"/>
-            <!--
-            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h107765166.map--><map name="h107765166">
-               <area shape="rect" alt="h-490539570" coords="464,89,856,132"
-                     href="BinaryFile.xsd.html#h-490539570"/>
-
-               <area shape="rect" alt="h-343365906" coords="464,142,856,185"
-                     href="BinaryFile.xsd.html#h-343365906"/>
-
-            </map>
-         </div>
-         <script type="text/javascript">
-<!--
-          setState('h1856809568_logicalDiagram', false);
-// -->
-</script>
-      </div>
-      <div class="sample box">
-         <div>
-            <input type="button" id="h1856809568_xibox_button" class="control"
-                   onclick="switchState('h1856809568_xibox'); return false;"
+            <input type="button" id="h-1016565346_xibox_button" class="control"
+                   onclick="switchState('h-1016565346_xibox'); return false;"
                    style="display: none"/> 
             <span class="caption">XML Instance Representation</span>
          </div>
-         <div id="h1856809568_xibox" class="contents">
-            <div style="margin-left: 0em">&lt;<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:BinaryFile<br/>
-               <span style="margin-left: 0.5em"> FileName="<span class="constraint">
-                     <span class="type">string</span> (<em>length</em> &lt;= 64)</span> 
-                  <span class="occurs">[1]</span>"</span>
-               <br/>
-               <span style="margin-left: 0.5em"> Size="<span class="type">integer</span> 
-                  <span class="occurs">[1]</span> 
-                  <p class="documentation">'Size (in bytes) of the uncompressed file.'</p>"</span>&gt; <br/>
-               <span class="group" style="margin-left: 1.5em">Start <a title="Look up 'Choice' in glossary" href="BinaryFile.xsd.html#term_Choice">Choice</a> 
-                  <span class="occurs">[1]</span>
-               </span>
-               <br/>
-               <div style="margin-left: 3em">&lt;<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;External&#34; element declaration." href="#h-490539570">External</a>&gt; ... &lt;/<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;External&#34; element declaration." href="#h-490539570">External</a>&gt; <span class="occurs">[1]</span>
-               </div>
-               <div style="margin-left: 3em">&lt;<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;BinData&#34; element declaration." href="#h-343365906">BinData</a>&gt; ... &lt;/<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;BinData&#34; element declaration." href="#h-343365906">BinData</a>&gt; <span class="occurs">[1]</span>
-               </div>
-               <span class="group" style="margin-left: 1.5em">End Choice</span>
-               <br/>&lt;/<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:BinaryFile&gt;</div>
+         <div id="h-1016565346_xibox" class="contents">
+            <span style="margin-left: 0em"> 
+               <a href="#ns_xml" title="Find out namespace of 'xml' prefix">xml</a>:id="<span class="type">
+                  <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:ID</span>"</span>
          </div>
          <script type="text/javascript">
 <!--
-          setState('h1856809568_xibox', true);
+          setState('h-1016565346_xibox', true);
 // -->
 </script>
       </div>
       <div class="sample box">
          <div>
-            <input type="button" id="h1856809568_diagram_button" class="control"
-                   onclick="switchState('h1856809568_diagram'); return false;"
+            <input type="button" id="h-1016565346_diagram_button" class="control"
+                   onclick="switchState('h-1016565346_diagram'); return false;"
                    style="display: none"/> 
             <span class="caption">Diagram</span>
          </div>
-         <div id="h1856809568_diagram" class="contents">
-            <img usemap="#h1919603512" src="schemaDiagrams/h1919603512.png"/>
+         <div id="h-1016565346_diagram" class="contents">
+            <img usemap="#h-1766123665" src="schemaDiagrams/h-1766123665.png"/>
             <!--
-            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1919603512.map--><map name="h1919603512">
-               <area shape="rect" alt="h-490539570" coords="270,0,410,26"
-                     href="BinaryFile.xsd.html#h-490539570"/>
-
-               <area shape="rect" alt="h-343365906" coords="270,36,403,62"
-                     href="BinaryFile.xsd.html#h-343365906"/>
-
-            </map>
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1766123665.map--><map name="h-1766123665">
+</map>
          </div>
          <script type="text/javascript">
 <!--
-          setState('h1856809568_diagram', true);
+          setState('h-1016565346_diagram', true);
 // -->
 </script>
       </div>
       <div class="schemaComponent box">
          <div>
-            <input type="button" id="h1856809568_scbox_button" class="control"
-                   onclick="switchState('h1856809568_scbox'); return false;"
+            <input type="button" id="h-1016565346_scbox_button" class="control"
+                   onclick="switchState('h-1016565346_scbox'); return false;"
                    style="display: none"/> 
             <span class="caption">Schema Component Representation</span>
          </div>
-         <div id="h1856809568_scbox" class="contents">
-            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
-               <span class="scTag">name</span>="<span class="scContent">BinaryFile</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">choice</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
-                        <span class="scTag">ref</span>="<span class="scContent">
-                           <a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;External&#34; element declaration." href="#h-490539570">External</a>
-                        </span>"/&gt;</div>
-                     <div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
-                        <span class="scTag">ref</span>="<span class="scContent">
-                           <a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;BinData&#34; element declaration." href="#h-343365906">BinData</a>
-                        </span>"/&gt;</div>&lt;/<span class="scTag">choice</span>&gt;</div>
-                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
-                     <span class="scTag">name</span>="<span class="scContent">FileName</span>" <span class="scTag">use</span>="<span class="scContent">required</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+         <div id="h-1016565346_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xs:attribute</span> 
+               <span class="scTag">name</span>="<span class="scContent">id</span>" <span class="scTag">type</span>="<span class="scContent">
+                  <span class="type">
+                     <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:ID</span>
+               </span>"/&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-1016565346_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Attribute: <a name="h-1961631311" class="name">lang</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>lang</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Attribute Group <b>
+                  <a href="#h-871927579">specialAttrs</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined simple type</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">Attempting to install the relevant ISO 2- and 3-letter
+         codes as the enumerated possible values is probably never
+         going to be a realistic possibility.  See
+         RFC 3066 at http://www.ietf.org/rfc/rfc3066.txt and the IANA registry
+         at http://www.iana.org/assignments/lang-tag-apps.htm for
+         further information.
+
+         The union allows for the 'un-declaration' of xml:lang with
+         the empty string.</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-1961631311_xibox_button" class="control"
+                   onclick="switchState('h-1961631311_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="h-1961631311_xibox" class="contents">
+            <span style="margin-left: 0em"> 
+               <a href="#ns_xml" title="Find out namespace of 'xml' prefix">xml</a>:lang="<span class="constraint">union of: [ <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:language, [ <span class="type">
+                     <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:string</span> (<em>value</em> comes from list: {''}) ] ]</span>"</span>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-1961631311_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-1961631311_diagram_button" class="control"
+                   onclick="switchState('h-1961631311_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h-1961631311_diagram" class="contents">
+            <img usemap="#h-784964356" src="schemaDiagrams/h-784964356.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-784964356.map--><map name="h-784964356">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-1961631311_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="h-1961631311_scbox_button" class="control"
+                   onclick="switchState('h-1961631311_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="h-1961631311_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xs:attribute</span> 
+               <span class="scTag">name</span>="<span class="scContent">lang</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:union</span> 
+                     <span class="scTag">memberTypes</span>="<span class="scContent">
+                        <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:language</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:restriction</span> 
                            <span class="scTag">base</span>="<span class="scContent">
-                              <span class="type">string</span>
-                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">maxLength</span> 
-                              <span class="scTag">value</span>="<span class="scContent">64</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>
-                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
-                     <span class="scTag">name</span>="<span class="scContent">Size</span>" <span class="scTag">type</span>="<span class="scContent">
-                        <span class="type">integer</span>
-                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>&lt;/<span class="scTag">complexType</span>&gt;</div>&lt;/<span class="scTag">element</span>&gt;</div>
+                              <span class="type">
+                                 <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:string</span>
+                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:enumeration</span> 
+                              <span class="scTag">value</span>=""/&gt;</div>&lt;/<span class="scTag">xs:restriction</span>&gt;</div>&lt;/<span class="scTag">xs:simpleType</span>&gt;</div>&lt;/<span class="scTag">xs:union</span>&gt;</div>&lt;/<span class="scTag">xs:simpleType</span>&gt;</div>&lt;/<span class="scTag">xs:attribute</span>&gt;</div>
          </div>
          <script type="text/javascript">
 <!--
-          setState('h1856809568_scbox', false);
+          setState('h-1961631311_scbox', false);
 // -->
 </script>
       </div>
@@ -819,140 +867,84 @@ if (gc != null) {
          <a href="#top">top</a>
       </div>
       <hr/>
-      <h3>Element: <a name="h-490539570" class="name">External</a>
+      <h3>Attribute: <a name="h-674129501" class="name">space</a>
       </h3>
       <table class="properties">
          <tr>
             <th>Name</th>
-            <td>External</td>
+            <td>space</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Attribute Group <b>
+                  <a href="#h-871927579">specialAttrs</a>
+               </b>
+            </td>
          </tr>
          <tr>
             <th>Type</th>
-            <td>Locally-defined complex type</td>
-         </tr>
-         <tr>
-            <th>
-               <a title="Look up 'Nillable' in glossary" href="BinaryFile.xsd.html#term_Nillable">Nillable</a>
-            </th>
-            <td>no</td>
-         </tr>
-         <tr>
-            <th>
-               <a title="Look up 'Abstract' in glossary" href="BinaryFile.xsd.html#term_Abstract">Abstract</a>
-            </th>
-            <td>no</td>
-         </tr>
-         <tr>
-            <th>Documentation</th>
-            <td class="documentation">Describes a file location.  Can optionally specify a portion of a file using Offset and a ReadLength.
-If Offset and ReadLength are specified in conjuction with Compression, then they point into the uncompressed file.
-			</td>
+            <td>Locally-defined simple type</td>
          </tr>
       </table>
       <div class="sample box">
          <div>
-            <input type="button" id="h-490539570_logicalDiagram_button" class="control"
-                   onclick="switchState('h-490539570_logicalDiagram'); return false;"
+            <input type="button" id="h-674129501_xibox_button" class="control"
+                   onclick="switchState('h-674129501_xibox'); return false;"
                    style="display: none"/> 
-            <span class="caption">Logical Diagram</span>
+            <span class="caption">XML Instance Representation</span>
          </div>
-         <div id="h-490539570_logicalDiagram" class="contents">
-            <img usemap="#h1160566556" src="schemaDiagrams/h1160566556.png"/>
+         <div id="h-674129501_xibox" class="contents">
+            <span style="margin-left: 0em"> 
+               <a href="#ns_xml" title="Find out namespace of 'xml' prefix">xml</a>:space="<span class="constraint">
+                  <span class="type">
+                     <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:NCName</span> (<em>value</em> comes from list: {'default'|'preserve'})</span>"</span>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-674129501_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-674129501_diagram_button" class="control"
+                   onclick="switchState('h-674129501_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h-674129501_diagram" class="contents">
+            <img usemap="#h1746808522" src="schemaDiagrams/h1746808522.png"/>
             <!--
-            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1160566556.map--><map name="h1160566556">
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1746808522.map--><map name="h1746808522">
 </map>
          </div>
          <script type="text/javascript">
 <!--
-          setState('h-490539570_logicalDiagram', false);
-// -->
-</script>
-      </div>
-      <div class="sample box">
-         <div>
-            <input type="button" id="h-490539570_xibox_button" class="control"
-                   onclick="switchState('h-490539570_xibox'); return false;"
-                   style="display: none"/> 
-            <span class="caption">XML Instance Representation</span>
-         </div>
-         <div id="h-490539570_xibox" class="contents">
-            <div style="margin-left: 0em">&lt;<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:External<br/>
-               <span style="margin-left: 0.5em"> href="<span class="type">anyURI</span> 
-                  <span class="occurs">[1]</span> 
-                  <p class="documentation">'file location'</p>"</span>
-               <br/>
-               <span style="margin-left: 0.5em"> SHA1="<span class="type">
-                     <a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;Hex40&#34; type definition." href="#h-1120178830">Hex40</a>
-                  </span> 
-                  <span class="occurs">[1]</span> 
-                  <p class="documentation">'The digest of the file specified in href.'</p>"</span>
-               <br/>
-               <span style="margin-left: 0.5em"> Compression="<span class="constraint">
-                     <span class="type">string</span> (<em>value</em> comes from list: {'zlib'|'bzip2'|'none'})</span> 
-                  <span class="occurs">[0..1]</span> 
-                  <p class="documentation">'Specifies the compression scheme used to encode the data.'</p>"</span>/&gt; </div>
-         </div>
-         <script type="text/javascript">
-<!--
-          setState('h-490539570_xibox', true);
-// -->
-</script>
-      </div>
-      <div class="sample box">
-         <div>
-            <input type="button" id="h-490539570_diagram_button" class="control"
-                   onclick="switchState('h-490539570_diagram'); return false;"
-                   style="display: none"/> 
-            <span class="caption">Diagram</span>
-         </div>
-         <div id="h-490539570_diagram" class="contents">
-            <img usemap="#h1014966054" src="schemaDiagrams/h1014966054.png"/>
-            <!--
-            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1014966054.map--><map name="h1014966054">
-               <area shape="rect" alt="h-1120178830" coords="184,36,286,62"
-                     href="BinaryFile.xsd.html#h-1120178830"/>
-
-            </map>
-         </div>
-         <script type="text/javascript">
-<!--
-          setState('h-490539570_diagram', true);
+          setState('h-674129501_diagram', true);
 // -->
 </script>
       </div>
       <div class="schemaComponent box">
          <div>
-            <input type="button" id="h-490539570_scbox_button" class="control"
-                   onclick="switchState('h-490539570_scbox'); return false;"
+            <input type="button" id="h-674129501_scbox_button" class="control"
+                   onclick="switchState('h-674129501_scbox'); return false;"
                    style="display: none"/> 
             <span class="caption">Schema Component Representation</span>
          </div>
-         <div id="h-490539570_scbox" class="contents">
-            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
-               <span class="scTag">name</span>="<span class="scContent">External</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
-                     <span class="scTag">name</span>="<span class="scContent">href</span>" <span class="scTag">type</span>="<span class="scContent">
-                        <span class="type">anyURI</span>
-                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
-                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
-                     <span class="scTag">name</span>="<span class="scContent">SHA1</span>" <span class="scTag">type</span>="<span class="scContent">
+         <div id="h-674129501_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xs:attribute</span> 
+               <span class="scTag">name</span>="<span class="scContent">space</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:restriction</span> 
+                     <span class="scTag">base</span>="<span class="scContent">
                         <span class="type">
-                           <a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;Hex40&#34; type definition." href="#h-1120178830">Hex40</a>
-                        </span>
-                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
-                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
-                     <span class="scTag">name</span>="<span class="scContent">Compression</span>" <span class="scTag">default</span>="<span class="scContent">none</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
-                           <span class="scTag">base</span>="<span class="scContent">
-                              <span class="type">string</span>
-                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
-                              <span class="scTag">value</span>="<span class="scContent">zlib</span>"/&gt;</div>
-                           <div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
-                              <span class="scTag">value</span>="<span class="scContent">bzip2</span>"/&gt;</div>
-                           <div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
-                              <span class="scTag">value</span>="<span class="scContent">none</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>&lt;/<span class="scTag">complexType</span>&gt;</div>&lt;/<span class="scTag">element</span>&gt;</div>
+                           <a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:NCName</span>
+                     </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:enumeration</span> 
+                        <span class="scTag">value</span>="<span class="scContent">default</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">xs:enumeration</span> 
+                        <span class="scTag">value</span>="<span class="scContent">preserve</span>"/&gt;</div>&lt;/<span class="scTag">xs:restriction</span>&gt;</div>&lt;/<span class="scTag">xs:simpleType</span>&gt;</div>&lt;/<span class="scTag">xs:attribute</span>&gt;</div>
          </div>
          <script type="text/javascript">
 <!--
-          setState('h-490539570_scbox', false);
+          setState('h-674129501_scbox', false);
 // -->
 </script>
       </div>
@@ -963,74 +955,96 @@ If Offset and ReadLength are specified in conjuction with Compression, then they
       <h2>
          <a name="SchemaDefinitions">Global Definitions</a>
       </h2>
-      <h3>Simple Type: <a name="h-1120178830" class="name">Hex40</a>
+      <h3>Attribute Group: <a name="h-871927579" class="name">specialAttrs</a>
       </h3>
-      <table class="hierarchy">
-         <tr>
-            <th>Super-types:</th>
-            <td>
-               <span class="type">hexBinary</span> &lt; <strong>Hex40</strong> (by restriction)</td>
-         </tr>
-         <tr>
-            <th>Sub-types:</th>
-            <td>None</td>
-         </tr>
-      </table>
       <table class="properties">
          <tr>
             <th>Name</th>
-            <td>Hex40</td>
-         </tr>
-         <tr>
-            <th>Content</th>
-            <td>
-               <ul>
-                  <li>Base XSD Type: hexBinary</li>
-               </ul>
-               <ul>
-                  <li>
-                     <em>length</em> = 20</li>
-               </ul>
-            </td>
+            <td>specialAttrs</td>
          </tr>
       </table>
       <div class="sample box">
          <div>
-            <input type="button" id="h-1120178830_diagram_button" class="control"
-                   onclick="switchState('h-1120178830_diagram'); return false;"
+            <input type="button" id="h-871927579_xibox_button" class="control"
+                   onclick="switchState('h-871927579_xibox'); return false;"
                    style="display: none"/> 
-            <span class="caption">Diagram</span>
+            <span class="caption">XML Instance Representation</span>
          </div>
-         <div id="h-1120178830_diagram" class="contents">
-            <img usemap="#h2028662218" src="schemaDiagrams/h2028662218.png"/>
-            <!--
-            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h2028662218.map--><map name="h2028662218">
-</map>
+         <div id="h-871927579_xibox" class="contents">
+            <span style="margin-left: 0em"> 
+               <a href="#ns_xml" title="Find out namespace of 'xml' prefix">xml</a>:base="<span class="occurs">[0..1]</span>"</span>
+            <br/>
+            <span style="margin-left: 0em"> 
+               <a href="#ns_xml" title="Find out namespace of 'xml' prefix">xml</a>:lang="<span class="occurs">[0..1]</span>"</span>
+            <br/>
+            <span style="margin-left: 0em"> 
+               <a href="#ns_xml" title="Find out namespace of 'xml' prefix">xml</a>:space="<span class="occurs">[0..1]</span>"</span>
+            <br/>
+            <span style="margin-left: 0em"> 
+               <a href="#ns_xml" title="Find out namespace of 'xml' prefix">xml</a>:id="<span class="occurs">[0..1]</span>"</span>
          </div>
          <script type="text/javascript">
 <!--
-          setState('h-1120178830_diagram', true);
+          setState('h-871927579_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-871927579_diagram_button" class="control"
+                   onclick="switchState('h-871927579_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h-871927579_diagram" class="contents">
+            <img usemap="#h-815927480" src="schemaDiagrams/h-815927480.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-815927480.map--><map name="h-815927480">
+               <area shape="rect" alt="h-1961929068" coords="164,0,294,26"
+                     href="xml.xsd.html#h-1961929068"/>
+
+               <area shape="rect" alt="h-1961631311" coords="164,36,294,62"
+                     href="xml.xsd.html#h-1961631311"/>
+
+               <area shape="rect" alt="h-674129501" coords="164,72,301,98"
+                     href="xml.xsd.html#h-674129501"/>
+
+               <area shape="rect" alt="h-1016565346" coords="164,108,280,134"
+                     href="xml.xsd.html#h-1016565346"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-871927579_diagram', true);
 // -->
 </script>
       </div>
       <div class="schemaComponent box">
          <div>
-            <input type="button" id="h-1120178830_scbox_button" class="control"
-                   onclick="switchState('h-1120178830_scbox'); return false;"
+            <input type="button" id="h-871927579_scbox_button" class="control"
+                   onclick="switchState('h-871927579_scbox'); return false;"
                    style="display: none"/> 
             <span class="caption">Schema Component Representation</span>
          </div>
-         <div id="h-1120178830_scbox" class="contents">
-            <div style="margin-left: 0em">&lt;<span class="scTag">simpleType</span> 
-               <span class="scTag">name</span>="<span class="scContent">Hex40</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
-                  <span class="scTag">base</span>="<span class="scContent">
-                     <span class="type">hexBinary</span>
-                  </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">length</span> 
-                     <span class="scTag">value</span>="<span class="scContent">20</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>
+         <div id="h-871927579_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xs:attributeGroup</span> 
+               <span class="scTag">name</span>="<span class="scContent">specialAttrs</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:attribute</span> 
+                  <span class="scTag">ref</span>="<span class="scContent">
+                     <a href="#ns_xml" title="Find out namespace of 'xml' prefix">xml</a>:base</span>"/&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">xs:attribute</span> 
+                  <span class="scTag">ref</span>="<span class="scContent">
+                     <a href="#ns_xml" title="Find out namespace of 'xml' prefix">xml</a>:lang</span>"/&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">xs:attribute</span> 
+                  <span class="scTag">ref</span>="<span class="scContent">
+                     <a href="#ns_xml" title="Find out namespace of 'xml' prefix">xml</a>:space</span>"/&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">xs:attribute</span> 
+                  <span class="scTag">ref</span>="<span class="scContent">
+                     <a href="#ns_xml" title="Find out namespace of 'xml' prefix">xml</a>:id</span>"/&gt;</div>&lt;/<span class="scTag">xs:attributeGroup</span>&gt;</div>
          </div>
          <script type="text/javascript">
 <!--
-          setState('h-1120178830_scbox', false);
+          setState('h-871927579_scbox', false);
 // -->
 </script>
       </div>
@@ -1076,7 +1090,7 @@ If Offset and ReadLength are specified in conjuction with Compression, then they
             </tr>
             <tr>
                <th>
-                  <a title="Look up 'Abstract' in glossary" href="BinaryFile.xsd.html#term_Abstract">Abstract</a>
+                  <a title="Look up 'Abstract' in glossary" href="xml.xsd.html#term_Abstract">Abstract</a>
                </th>
                <td>no</td>
             </tr>
@@ -1231,19 +1245,18 @@ If Offset and ReadLength are specified in conjuction with Compression, then they
             <span class="glossaryTerm">
                <a name="term_ElemBlock">Disallowed Substitutions</a> 
             </span>(Applies to element declarations). If <em>substitution</em> is specified, then <a title="Look up 'substitution group' in glossary"
-               href="BinaryFile.xsd.html#term_SubGroup">substitution group</a> members cannot be used in place of the given element declaration to validate element instances. If <em>derivation methods</em>, e.g. extension, restriction, are specified, then the given element declaration will not validate element instances that have types derived from the element declaration's type using the specified derivation methods. Normally, element instances can override their declaration's type by specifying an <code>xsi:type</code> attribute.</p>
+               href="xml.xsd.html#term_SubGroup">substitution group</a> members cannot be used in place of the given element declaration to validate element instances. If <em>derivation methods</em>, e.g. extension, restriction, are specified, then the given element declaration will not validate element instances that have types derived from the element declaration's type using the specified derivation methods. Normally, element instances can override their declaration's type by specifying an <code>xsi:type</code> attribute.</p>
          <p>
             <span class="glossaryTerm">
                <a name="term_Key">Key Constraint</a> 
             </span>Like <a title="Look up 'Uniqueness Constraint' in glossary"
-               href="BinaryFile.xsd.html#term_Unique">Uniqueness Constraint</a>, but additionally requires that the specified value(s) must be provided. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
+               href="xml.xsd.html#term_Unique">Uniqueness Constraint</a>, but additionally requires that the specified value(s) must be provided. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
                href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
          <p>
             <span class="glossaryTerm">
                <a name="term_KeyRef">Key Reference Constraint</a> 
-            </span>Ensures that the specified value(s) must match value(s) from a <a title="Look up 'Key Constraint' in glossary"
-               href="BinaryFile.xsd.html#term_Key">Key Constraint</a> or <a title="Look up 'Uniqueness Constraint' in glossary"
-               href="BinaryFile.xsd.html#term_Unique">Uniqueness Constraint</a>. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
+            </span>Ensures that the specified value(s) must match value(s) from a <a title="Look up 'Key Constraint' in glossary" href="xml.xsd.html#term_Key">Key Constraint</a> or <a title="Look up 'Uniqueness Constraint' in glossary"
+               href="xml.xsd.html#term_Unique">Uniqueness Constraint</a>. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
                href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
          <p>
             <span class="glossaryTerm">
