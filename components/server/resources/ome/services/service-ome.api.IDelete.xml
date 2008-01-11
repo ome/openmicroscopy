@@ -20,7 +20,7 @@
 <beans>
 
   <bean parent="level2" id="internal:ome.api.IDelete"
-        class="ome.services.delete.DeleteBean"
+        class="ome.services.delete.DeleteBean">
         <property name="adminService" ref="internal:ome.api.LocalAdmin"/>
   </bean>
 

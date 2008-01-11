@@ -133,7 +133,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
      * This uses {@link #IMAGE_QUERY} to load all the subordinate metdata of the
      * {@link Image} which will be deleted.
      */
-    public List<IObject> verifyImageDelete(long id, boolean force) {
+    public List<IObject> previewImageDelete(long id, boolean force) {
         final UnloadedCollector delete = new UnloadedCollector(iQuery, admin,
                 false);
         Image[] holder = new Image[1];
@@ -185,7 +185,11 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
 
         final List<IObject> constraints = checkImageDelete(id, force);
         if (constraints.size() > 0) {
-            throw new ApiUsageException("Image has constraints:" + constraints);
+            throw new ApiUsageException(
+                    "Image has following constraints and cannot be deleted:"
+                            + constraints
+                            + "\nIt is possible to check for a "
+                            + "non-empty constraints list via checkImageDelete.");
         }
 
         final UnloadedCollector delete = new UnloadedCollector(iQuery, admin,
@@ -240,7 +244,8 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
                 // issues
                 // TODO Could use another exception here
                 ValidationException div = new ValidationException(
-                        "Could not delete " + object);
+                        "Delete failed since related object could not be deleted: "
+                                + object);
                 throw div;
             }
         }
@@ -255,7 +260,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
      * {@link #collect(UnloadedCollector, Image)} in order to define a list of
      * what will be deleted.
      * 
-     * This method fulfills the {@link #verifyImageDelete(long, boolean)}
+     * This method fulfills the {@link #previewImageDelete(long, boolean)}
      * contract and as such is used by {@link #deleteImage(long, boolean)} in
      * order to fulfill its contract.
      */

@@ -55,7 +55,7 @@ public interface IDelete extends ServiceInterface {
      * @param force
      * @return unloaded entity list
      */
-    public List<IObject> verifyImageDelete(long id, boolean force);
+    public List<IObject> previewImageDelete(long id, boolean force);
 
     /**
      * Deletes an {@link Image} and all related (subordinate) metadata as
@@ -63,7 +63,7 @@ public interface IDelete extends ServiceInterface {
      * {@link #checkImageDelete(long, boolean)} and throws a
      * {@link ConstraintViolation} exception with the results if they are not
      * empty; then it forcibly deletes all objects returned by
-     * {@link #verifyImageDelete(long, boolean)}
+     * {@link #previewImageDelete(long, boolean)}
      *
      * @param id
      *            id of the {@link Image} to be deleted

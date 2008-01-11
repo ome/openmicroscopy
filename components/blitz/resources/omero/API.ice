@@ -137,7 +137,7 @@ module omero {
     interface IDelete extends omero::api::ServiceInterface
       {
         omero::api::IObjectList checkImageDelete(long id, bool force) throws ServerError;
-        omero::api::IObjectList verifyImageDelete(long id, bool force) throws ServerError;
+        omero::api::IObjectList previewImageDelete(long id, bool force) throws ServerError;
         void deleteImage(long id, bool force) throws ApiUsageException, ValidationException, SecurityViolation, ServerError;
       };
 

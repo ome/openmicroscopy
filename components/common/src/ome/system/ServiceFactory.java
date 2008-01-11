@@ -13,6 +13,7 @@ import java.util.Properties;
 import ome.api.IAdmin;
 import ome.api.IAnalysis;
 import ome.api.IConfig;
+import ome.api.IDelete;
 import ome.api.ILdap;
 import ome.api.IPixels;
 import ome.api.IPojos;

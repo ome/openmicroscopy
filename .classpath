@@ -10,6 +10,7 @@
 	<classpathentry kind="src" output="target/eclipse-server" path="components/server/resources"/>
 	<classpathentry kind="src" path="components/importer/resources"/>
 	<classpathentry kind="src" path="components/importer/src"/>
+	<classpathentry kind="src" path="components/importer/test"/>
 	<classpathentry kind="src" path="components/testing/target/generated/src"/>
 	<classpathentry kind="src" path="components/testing/resources"/>
 	<classpathentry kind="src" path="components/testing/src"/>
