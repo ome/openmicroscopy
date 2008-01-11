@@ -32,7 +32,7 @@ import omeis.providers.re.RenderingEngine;
 /**
  * Entry point for all client calls. Provides methods to obtain proxies for all
  * remote facades.
- * 
+ *
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
  * @see OmeroContext
@@ -176,6 +176,10 @@ public class ServiceFactory {
 
     public IConfig getConfigService() {
         return getServiceByClass(IConfig.class);
+    }
+
+    public IDelete getDeleteService() {
+        return getServiceByClass(IDelete.class);
     }
 
     public ILdap getLdapService() {

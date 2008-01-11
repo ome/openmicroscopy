@@ -9,11 +9,11 @@
 #ifndef OMERO_CONSTANTS_ICE
 #define OMERO_CONSTANTS_ICE
 
-module omero { 
-  module constants {     
+module omero {
+  module constants {
 
     /*
-     * The names of the OmeroContext instances 
+     * The names of the OmeroContext instances
      * defined in beanRefContext.xml files. Only useful
      * in the Java mappings.
      */

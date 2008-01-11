@@ -114,7 +114,7 @@ module omero {
 	idempotent void changePermissions(omero::model::IObject obj, omero::model::Permissions perms) throws ServerError;
 	/* Leaving this non-idempotent, because of the overhead, though technically it is. */
 	Ice::BoolSeq unlock(IObjectList objects) throws ServerError;
-      
+
 	// UAuth
 	idempotent void changePassword(omero::RString newPassword) throws ServerError;
 	idempotent void changeUserPassword(string omeName, omero::RString newPassword) throws ServerError;
@@ -122,8 +122,8 @@ module omero {
 
 	// Security Context
 	idempotent omero::sys::Roles getSecurityRoles() throws ServerError;
-	idempotent omero::sys::EventContext getEventContext() throws ServerError;            
-      };  
+	idempotent omero::sys::EventContext getEventContext() throws ServerError;
+      };
 
     interface IConfig extends ServiceInterface
       {
@@ -133,7 +133,14 @@ module omero {
 	idempotent omero::RTime getDatabaseTime() throws ServerError;
 	idempotent omero::RTime getServerTime() throws ServerError;
       };
-      
+
+    interface IDelete extends omero::api::ServiceInterface
+      {
+        omero::api::IObjectList checkImageDelete(long id, bool force) throws ServerError;
+        omero::api::IObjectList verifyImageDelete(long id, bool force) throws ServerError;
+        void deleteImage(long id, bool force) throws ApiUsageException, ValidationException, SecurityViolation, ServerError;
+      };
+
      interface ILdap extends ServiceInterface
       {
 	idempotent ExperimenterList searchAll() throws ServerError;

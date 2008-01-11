@@ -348,10 +348,18 @@ public class IceMethodInvoker {
         } else if (ome.conditions.ResourceError.class.isAssignableFrom(c)) {
             omero.ResourceError re = new omero.ResourceError();
             return IceMapper.fillServerError(re, t);
-        } else {
-            omero.InternalException ie = new omero.InternalException();
-            return IceMapper.fillServerError(ie, t);
+        } else if (ome.conditions.RootException.class.isAssignableFrom(c)) {
+            // Not returning but logging error message.
+            log.error("RootException thrown which is an unknown subclasss.\n"+
+                "This most likely means that an exception was added to the\n"+
+                "ome.conditions hierarchy, without being accountd for in blitz:\n"+
+                c.getName());
         }
+
+        // Catch all in case above did not return
+        omero.InternalException ie = new omero.InternalException();
+        return IceMapper.fillServerError(ie, t);
+
     }
 
 }

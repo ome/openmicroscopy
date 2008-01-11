@@ -109,11 +109,16 @@
     <property name="jndiName" value="omero/${server.transport}/ome.api.IConfig"/>
     <property name="proxyInterface" value="ome.api.IConfig"/>
   </bean>
-  
+
+  <bean id="managed:ome.api.IDelete" parent="statelessJndi">
+    <property name="jndiName" value="omero/${server.transport}/ome.api.IDelete"/>
+    <property name="proxyInterface" value="ome.api.IDelete"/>
+  </bean>
+
   <bean id="managed:ome.api.ILdap" parent="statelessJndi">
     <property name="jndiName" value="omero/${server.transport}/ome.api.ILdap"/>
     <property name="proxyInterface" value="ome.api.ILdap"/>
-  </bean>    
+  </bean>
 
   <bean id="managed:ome.api.IPixels" parent="statelessJndi">
     <property name="jndiName" value="omero/${server.transport}/ome.api.IPixels"/>
