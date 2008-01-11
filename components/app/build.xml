@@ -103,4 +103,8 @@
        </copy>
    </target>
 
+    <target name="findbugs">
+        <echo>Uneeded; no classpath to search/test</echo>
+    </target>
+
 </project>
