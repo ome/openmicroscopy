@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -24,7 +24,7 @@ import org.hibernate.search.ProjectionConstants;
  * Central search interface, allowing Web2.0 style queries. Each {@link Search}
  * instance keeps up with several queries and lazily-loads the results as
  * {@link #next()} and {@link #results()} are called. These queries are created
- * by the "By*" methods.
+ * by the "by*" methods.
  * 
  * Each instance also has a number of settings which can all be changed from
  * their defaults via accessors, e.g.{@link #setBatchSize(int)} or
@@ -34,14 +34,14 @@ import org.hibernate.search.ProjectionConstants;
  * {@link Search} instance are:
  * <ul>
  * <li>{@link #onlyTypes(Class...)} OR {@link #allTypes()}</li>
- * <li>Any By* method to create a query</li>
+ * <li>Any by* method to create a query</li>
  * </ul>
  * Use of the {@link #allTypes()} method is discouraged, since it is possibly
  * very resource intensive, which is why any attempt to receive results without
  * specifically setting types or allowing all is prohibited.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
- * 
+ * @since 3.0-Beta3
  * @see ome.api.IQuery
  */
 public interface Search extends ome.api.StatefulServiceInterface,
@@ -308,7 +308,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * @param tags
      *            Not null nor empty.
      */
-    void ByTags(String[] tags);
+    void byTags(String[] tags);
 
     /**
      * Returns transient (without ID) {@link TagAnnotation} instances which
@@ -319,7 +319,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * @param group
      *            Can be null or empty to return all tags.
      */
-    void ByGroupForTags(String group);
+    void byGroupForTags(String group);
 
     /**
      * Creates a query which will return transient (without ID)
@@ -331,7 +331,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * @param tag
      *            Can be null or empty to return all groups.
      */
-    void ByTagForGroups(String tag);
+    void byTagForGroups(String tag);
 
     /**
      * Passes the query as is to the Lucene backend.
@@ -339,15 +339,14 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * @param query
      *            May not be null or of zero length.
      */
-    void ByFullText(String query);
+    void byFullText(String query);
 
     /*
-    TODO: An idea:
-    void ByWildcardSql();
-    */
+     * TODO: An idea: void byWildcardSql();
+     */
 
     /**
-     * Builds a Lucene query and passes it to {@link #ByFullText(String)}.
+     * Builds a Lucene query and passes it to {@link #byFullText(String)}.
      * 
      * @param some
      *            Some (at least one) of these terms must be present in the
@@ -359,7 +358,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
      *            None of these terms may be present in the document. May be
      *            null.
      */
-    void BySomeMustNone(String[] some, String[] must, String[] none);
+    void bySomeMustNone(String[] some, String[] must, String[] none);
 
     /**
      * Provides the main {@link IQuery} method here to take advantage of the
@@ -372,7 +371,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
      *            May be null. Defaults are then in effect.
      * @see IQuery#findAllByQuery(String, Parameters)
      */
-    void ByHqlQuery(String query, Parameters p);
+    void byHqlQuery(String query, Parameters p);
 
     /**
      * Finds entities annotated with an {@link Annotation} similar to the
@@ -385,21 +384,21 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * <li>details.owner</li>
      * <li>details.group</li>
      * </ul>
-     * Note this method is a superset of {@link #ByTags(String[])}, which can
+     * Note this method is a superset of {@link #byTags(String[])}, which can
      * be replaced via: <code>
-     *   search.ByAnnotatedWith(new TagAnnotation("string"));
+     *   search.byAnnotatedWith(new TagAnnotation("string"));
      * </code>
      * 
      * @param example
      */
-    void ByAnnotatedWith(Annotation example);
+    void byAnnotatedWith(Annotation example);
 
     /**
      * Returns entities with the given UUID strings
      * 
      * @param uuids
      */
-    void ByUUID(String[] uuids);
+    void byUUID(String[] uuids);
 
     /**
      * Removes all active queries (leaving {@link #resetDefaults() settings}

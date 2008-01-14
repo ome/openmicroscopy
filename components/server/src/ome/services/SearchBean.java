@@ -126,7 +126,7 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     @Transactional
     @RolesAllowed("user")
-    public void ByAnnotatedWith(Annotation example) {
+    public void byAnnotatedWith(Annotation example) {
         SearchAction byAnnotatedWith;
         synchronized (values) {
             byAnnotatedWith = new AnnotatedWith(values, example);
@@ -136,7 +136,7 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     @Transactional
     @RolesAllowed("user")
-    public void ByFullText(String query) {
+    public void byFullText(String query) {
         SearchAction byFullText;
         synchronized (values) {
             byFullText = new FullText(values, query);
@@ -147,7 +147,7 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     @Transactional
     @RolesAllowed("user")
-    public void ByHqlQuery(String query, Parameters p) {
+    public void byHqlQuery(String query, Parameters p) {
         SearchAction byHqlQuery;
         synchronized (values) {
             byHqlQuery = new HqlQuery(values, query, p);
@@ -157,7 +157,7 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     @Transactional
     @RolesAllowed("user")
-    public void BySomeMustNone(String[] some, String[] must, String[] none) {
+    public void bySomeMustNone(String[] some, String[] must, String[] none) {
         SearchAction bySomeMustNone;
         synchronized (values) {
             bySomeMustNone = new SomeMustNone(values, some, must, none);
@@ -167,7 +167,7 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     @Transactional
     @RolesAllowed("user")
-    public void ByTags(String[] tags) {
+    public void byTags(String[] tags) {
         SearchAction byTags;
         synchronized (values) {
             byTags = new Tags(values, tags);
@@ -177,20 +177,20 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     @Transactional
     @RolesAllowed("user")
-    public void ByGroupForTags(String group) {
+    public void byGroupForTags(String group) {
         throw new UnsupportedOperationException();
     }
 
     @Transactional
     @RolesAllowed("user")
-    public void ByTagForGroups(String tag) {
+    public void byTagForGroups(String tag) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException();
     }
 
     @Transactional
     @RolesAllowed("user")
-    public void ByUUID(String[] uuids) {
+    public void byUUID(String[] uuids) {
         throw new UnsupportedOperationException();
     }
 
@@ -329,7 +329,7 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     @RolesAllowed("user")
     public <A extends Annotation> void onlyAnnotatedWith(Class<A>... classes) {
         synchronized (values) {
-            List<Class<?>> list = Arrays.<Class<?>> asList(classes);
+            List<Class> list = Arrays.<Class> asList(classes);
             values.onlyAnnotations = SearchValues.copyList(list);
         }
     }

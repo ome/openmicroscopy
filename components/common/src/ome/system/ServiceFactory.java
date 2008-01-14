@@ -25,6 +25,7 @@ import ome.api.IUpdate;
 import ome.api.JobHandle;
 import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
+import ome.api.Search;
 import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
 import ome.model.internal.Permissions;
@@ -33,7 +34,7 @@ import omeis.providers.re.RenderingEngine;
 /**
  * Entry point for all client calls. Provides methods to obtain proxies for all
  * remote facades.
- *
+ * 
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
  * @see OmeroContext
@@ -250,6 +251,13 @@ public class ServiceFactory {
      */
     public RenderingEngine createRenderingEngine() {
         return getServiceByClass(RenderingEngine.class);
+    }
+
+    /**
+     * create a new {@link Search} proxy.
+     */
+    public Search createSearchService() {
+        return getServiceByClass(Search.class);
     }
 
     /**
