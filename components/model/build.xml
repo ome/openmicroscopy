@@ -69,7 +69,9 @@
 		<taskdef name="schemavalidator" classname="org.hibernate.tool.hbm2ddl.SchemaValidatorTask" classpathref="omero.classpath"/>
 		<!-- Disabled -->
 		<!--schemavalidator properties="${resrc.dest}/local.properties" config="${basedir}/test/test.cfg.xml"/-->
+        </target>
 
+        <target name="publish-schema" depends="generate-schema" description="Copies SQL from generate-schema to main sql/ directory">
 		<mkdir dir="${sql.dir}"/>
 		<copy file="${resrc.dest}/ddl.sql" tofile="${sql.dir}/schema.sql"/>
 		<copy file="${resrc.dest}/data.sql" tofile="${sql.dir}/data.sql"/>
