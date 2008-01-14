@@ -13,7 +13,7 @@
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency name="model" rev="${omero.version}" changing="true" />
+    <dependency name="model-${omero.db.profile}" rev="${omero.version}" changing="true" />
     <!-- Public -->
     <dependency org="jamon" name="jamon" rev="${versions.jamon}" conf="test->default"/> 
     <dependency org="net/sf/ehcache" name="ehcache" rev="${versions.ehcache}" conf="build->default"/>

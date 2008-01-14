@@ -1,7 +1,7 @@
 <ivy-module version="1.0">
   <info
       organisation="omero"
-      module="model"
+      module="model-${omero.db.profile}"
       status="integration"/>
   <configurations>
     <conf name="core"/>
