@@ -14,6 +14,8 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.aop.framework.ProxyFactoryBean;
@@ -48,23 +50,21 @@ public class Executor implements ApplicationContextAware {
 
     final protected ProxyFactoryBean proxyFactory;
     final protected SecuritySystem secSystem;
-    final protected HibernateTemplate hibTemplate;
-    final protected TransactionTemplate txTemplate;
     final protected String[] proxyNames;
+    final protected Interceptor interceptor;
 
     public Executor(SecuritySystem secSystem, TransactionTemplate tt,
             HibernateTemplate ht, String[] proxyNames) {
-        this.hibTemplate = ht;
-        this.txTemplate = tt;
+        this.interceptor = new Interceptor(tt, ht);
         this.secSystem = secSystem;
         this.proxyNames = proxyNames;
         this.proxyFactory = new ProxyFactoryBean();
         this.proxyFactory.setInterceptorNames(this.proxyNames);
         try {
             this.proxyFactory.setProxyInterfaces(new Class[] { Work.class });
-        } catch (ClassNotFoundException cnfe) {
-            throw new RuntimeException("Cannot find Work.class; "
-                    + "highly unlikely; " + "something is weird.", cnfe);
+        } catch (Exception e) {
+            throw new RuntimeException("Error working with Work.class; "
+                    + "highly unlikely; " + "something is weird.", e);
         }
     }
 
@@ -75,26 +75,51 @@ public class Executor implements ApplicationContextAware {
     }
 
     public void execute(Principal p, Work work) {
-        this.proxyFactory.setTarget(work);
-        final Work wrapped = (Work) this.proxyFactory.getObject();
+        ProxyFactoryBean innerFactory = new ProxyFactoryBean();
+        innerFactory.copyFrom(this.proxyFactory);
+        innerFactory.setTarget(work);
+        innerFactory.addAdvice(this.interceptor);
+        Work inner = (Work) innerFactory.getObject();
+
+        this.proxyFactory.setTarget(inner);
+        Work outer = (Work) this.proxyFactory.getObject();
         this.secSystem.login(p);
         try {
+            // Arguments will be replaced after hibernate is in effect
+            outer.doWork(null, null, new ServiceFactory(this.context));
+        } finally {
+            this.secSystem.logout();
+        }
+    }
+
+    static class Interceptor implements MethodInterceptor {
+
+        private final TransactionTemplate txTemplate;
+        private final HibernateTemplate hibTemplate;
+
+        public Interceptor(TransactionTemplate tt, HibernateTemplate ht) {
+            this.txTemplate = tt;
+            this.hibTemplate = ht;
+        }
+
+        public Object invoke(MethodInvocation arg0) throws Throwable {
+            final Work work = (Work) arg0.getThis();
+            final ServiceFactory sf = (ServiceFactory) arg0.getArguments()[2];
+
             txTemplate.execute(new TransactionCallback() {
                 public Object doInTransaction(final TransactionStatus status) {
                     hibTemplate.execute(new HibernateCallback() {
                         public Object doInHibernate(final Session session)
                                 throws HibernateException, SQLException {
-                            wrapped.doWork(status, session, new ServiceFactory(
-                                    context));
-
+                            work.doWork(status, session, sf);
                             return null;
                         }
                     }, true);
                     return null;
                 }
             });
-        } finally {
-            this.secSystem.logout();
+            return null;
         }
+
     }
 }

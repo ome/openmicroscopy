@@ -55,6 +55,7 @@
 		<entry name="Task"/>
 		<entry name="Test"/>
 		<entry name="Processing"/>
+		<entry name="FullText"/>
 	</enum>
 
 	<type id="ome.model.meta.Event" immutable="true" global="true">

@@ -7,16 +7,18 @@
 
 package ome.services.fulltext;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
+import java.util.Map;
 
 import ome.conditions.InternalException;
+import ome.io.nio.OriginalFilesService;
 import ome.model.IAnnotated;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.core.OriginalFile;
+import ome.model.enums.Format;
 import ome.model.internal.Details;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
@@ -29,6 +31,8 @@ import ome.system.ServiceFactory;
 import ome.util.CBlock;
 import ome.util.DetailsFieldBridge;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.hibernate.CacheMode;
@@ -54,6 +58,12 @@ import org.springframework.transaction.TransactionStatus;
  * @since 3.0-Beta3
  */
 public class FullTextIndexer implements Runnable, FieldBridge, Work {
+
+    private final static Log log = LogFactory.getLog(FullTextIndexer.class);
+
+    public interface Parser {
+        String parse(File file);
+    }
 
     abstract class Action {
         Class type;
@@ -90,10 +100,24 @@ public class FullTextIndexer implements Runnable, FieldBridge, Work {
     final protected Executor executor;
     final protected EventLogLoader loader;
     final protected Principal p = new Principal("root", "system", "FullText");
+    final protected OriginalFilesService files;
+    final protected Map<String, Parser> parsers;
 
+    /**
+     * Since this constructor provides the instance with no way of parsing
+     * {@link OriginalFile} binaries, all files will be assumed to have blank
+     * content.
+     */
     public FullTextIndexer(Executor executor, EventLogLoader ll) {
+        this(executor, ll, null, null);
+    }
+
+    public FullTextIndexer(Executor executor, EventLogLoader ll,
+            OriginalFilesService ofs, Map<String, Parser> parsers) {
         this.loader = ll;
         this.executor = executor;
+        this.files = ofs;
+        this.parsers = parsers;
     }
 
     public void run() {
@@ -107,36 +131,42 @@ public class FullTextIndexer implements Runnable, FieldBridge, Work {
         fullTextSession.setCacheMode(CacheMode.IGNORE);
         Transaction transaction = fullTextSession.beginTransaction();
         doIndexing(fullTextSession);
-        session.clear();
         transaction.commit();
+        session.clear();
     }
 
     public void doIndexing(FullTextSession session) {
 
-        List<EventLog> logs = loader.nextBatch();
-        List<Action> actions = new ArrayList<Action>();
+        int count = 0;
+        EventLog current = null;
 
-        for (EventLog eventLog : logs) {
-            String act = eventLog.getAction();
-            Class type = asClassOrThrow(eventLog.getEntityType());
-            long id = eventLog.getEntityId();
+        for (EventLog eventLog : loader) {
+            try {
+                current = eventLog;
+                String act = eventLog.getAction();
+                Class type = asClassOrThrow(eventLog.getEntityType());
+                long id = eventLog.getEntityId();
 
-            if ("DELETE".equals(act)) {
-                actions.add(new Purge(type, id));
-            } else if ("UPDATE".equals(act) || "INSERT".equals(act)) {
-                actions.add(new Index((IObject) session.get(type, id)));
-            } else {
-                throw new InternalException("Unknown action type: " + act);
+                Action action;
+                if ("DELETE".equals(act)) {
+                    action = new Purge(type, id);
+                } else if ("UPDATE".equals(act) || "INSERT".equals(act)) {
+                    action = new Index((IObject) session.get(type, id));
+                } else {
+                    throw new InternalException("Unknown action type: " + act);
+                }
+
+                action.go(session);
+                loader.done();
+                log.info("Successfully indexed:" + current);
+                current = null;
+                count = 0;
+            } catch (Exception e) {
+                log.error(String.format("Failed to index %s %d times", current,
+                        count), e);
             }
         }
 
-        // Now we have all our actions, and there should be less likelihood
-        // of an exception which might add some but not all of the information
-        // to the index.
-
-        for (Action action : actions) {
-            action.go(session);
-        }
     }
 
     protected Class asClassOrThrow(String str) {
@@ -242,11 +272,13 @@ public class FullTextIndexer implements Runnable, FieldBridge, Work {
     }
 
     protected String parse(OriginalFile file) {
-        /*
-         * String path = FILES.getPixelsPath(file.getId()); Format format =
-         * file.getFormat(); Object o = PARSERS.get(format.getValue()); return
-         * path;
-         */
-        return null;
+        if (files != null && parsers != null) {
+            String path = files.getPixelsPath(file.getId());
+            Format format = file.getFormat();
+            Parser parser = parsers.get(format.getValue());
+            return parser.parse(new File(path));
+        } else {
+            return "";
+        }
     }
 }

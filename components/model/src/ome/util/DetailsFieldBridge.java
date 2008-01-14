@@ -25,18 +25,16 @@ import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 public class DetailsFieldBridge implements FieldBridge {
 
     private final static ApplicationContext CONTEXT = (ApplicationContext) ContextSingletonBeanFactoryLocator
-            .getInstance().useBeanFactory("ome.model");
+            .getInstance().useBeanFactory("ome.model").getFactory();
 
     private final static Map BRIDGES = (Map) CONTEXT.getBean("bridges");
-
-    private final static FieldBridge DELEGATE = (FieldBridge) BRIDGES
-            .get("fieldBridges");
 
     public void set(final String name, final Object value,
             final Document document, final Field.Store store,
             final Field.Index index, final Float boost) {
 
-        DELEGATE.set(name, value, document, store, index, boost);
+        FieldBridge bridge = (FieldBridge) BRIDGES.get("fieldBridges");
+        bridge.set(name, value, document, store, index, boost);
 
     }
 

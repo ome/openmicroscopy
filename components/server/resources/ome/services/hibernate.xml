@@ -49,7 +49,7 @@
         <prop key="hibernate.cache.provider_class">org.hibernate.cache.NoCacheProvider</prop>
         <prop key="cache.use_query_cache">false</prop>
         <prop key="cache.use_minimal_puts">false</prop>
-        <prop key="hibernate.search.autoregister_listeners">false</prop>
+        <prop key="hibernate.search.default.indexBase">${omero.data.dir}</prop>
       </props>
     </property>
   </bean>
