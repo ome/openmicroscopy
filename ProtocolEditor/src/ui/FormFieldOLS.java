@@ -29,10 +29,9 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
 
-import tree.DataField;
+import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
 import ui.components.OntologyTermSelector;
 import util.ImageFactory;
 
@@ -47,11 +46,11 @@ public class FormFieldOLS extends FormField {
 	
 	JButton toggleMetadataButton;
 	
-	public FormFieldOLS(DataField dataField) {
+	public FormFieldOLS(IDataFieldObservable dataFieldObs) {
 		
-		super(dataField);
+		super(dataFieldObs);
 		
-		termId = dataField.getAttribute(DataField.ONTOLOGY_TERM_ID);
+		termId = dataField.getAttribute(DataFieldConstants.ONTOLOGY_TERM_ID);
 		
 		
 		Icon metadataIcon = ImageFactory.getInstance().getIcon(ImageFactory.ONTOLOGY_METADATA_ICON);
@@ -60,7 +59,7 @@ public class FormFieldOLS extends FormField {
 		toggleMetadataButton.setBorder(null);
 		toggleMetadataButton.addActionListener(new ToggleMetadataVisibilityListener());
 
-		OntologyTermSelector ontologyTermSelector = new OntologyTermSelector(dataField, DataField.ONTOLOGY_TERM_ID, "");
+		OntologyTermSelector ontologyTermSelector = new OntologyTermSelector(dataField, DataFieldConstants.ONTOLOGY_TERM_ID, "");
 		
 		horizontalBox.add(toggleMetadataButton);
 		horizontalBox.add(ontologyTermSelector);
@@ -102,7 +101,7 @@ public class FormFieldOLS extends FormField {
 //	 overridden by subclasses if they have other attributes to retrieve from dataField
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		termId = dataField.getAttribute(DataField.ONTOLOGY_TERM_ID);
+		termId = dataField.getAttribute(DataFieldConstants.ONTOLOGY_TERM_ID);
 		refreshTermDetails();
 	}
 

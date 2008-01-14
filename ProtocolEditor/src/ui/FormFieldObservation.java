@@ -7,7 +7,8 @@ import java.awt.event.ActionListener;
 import javax.swing.Box;
 import javax.swing.JLabel;
 
-import tree.DataField;
+import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
 import ui.components.DataFieldComboBox;
 import ui.components.OntologyTermSelector;
 
@@ -20,35 +21,35 @@ public class FormFieldObservation extends FormField {
 	DataFieldComboBox dataTypeSelector;
 	OntologyTermSelector unitTermSelector;
 	
-	public FormFieldObservation(DataField dataField) {
+	public FormFieldObservation(IDataFieldObservable dataFieldObs) {
 		
-		super(dataField);
+		super(dataFieldObs);
 		
 		int labelsMinWidth = 100;
 		int ontologySelectorsMaxWidth = 75;
 		
 		
 		JLabel dataTypeLabel = new JLabel("Data Type: ");
-		dataTypeSelector = new DataFieldComboBox(dataField, DataField.OBSERVATION_TYPE, dataTypes);
+		dataTypeSelector = new DataFieldComboBox(dataField, DataFieldConstants.OBSERVATION_TYPE, dataTypes);
 		dataTypeSelector.addActionListener(new DataTypeSelectorListener());
 		dataTypeSelector.setMaximumWidth(100);
 		horizontalBox.add(dataTypeLabel);
 		horizontalBox.add(dataTypeSelector);
 		
 		OntologyTermSelector entityTermSelector = new OntologyTermSelector(
-				dataField, DataField.OBSERVATION_ENTITY_TERM_ID, "  Entity", new String[] {"GO", "CL"});
+				dataField, DataFieldConstants.OBSERVATION_ENTITY_TERM_ID, "  Entity", new String[] {"GO", "CL"});
 		entityTermSelector.setLabelMinWidth(labelsMinWidth);
 		entityTermSelector.setOntologyComboBoxMaxWidth(ontologySelectorsMaxWidth);
 		
 		
 		OntologyTermSelector attributeTermSelector = new OntologyTermSelector(
-				dataField, DataField.OBSERVATION_ATTRIBUTE_TERM_ID, "  Attribute", new String[] {"PATO"});
+				dataField, DataFieldConstants.OBSERVATION_ATTRIBUTE_TERM_ID, "  Attribute", new String[] {"PATO"});
 		attributeTermSelector.setLabelMinWidth(labelsMinWidth);
 		attributeTermSelector.setOntologyComboBoxMaxWidth(ontologySelectorsMaxWidth);
 		
 		
 		unitTermSelector = new OntologyTermSelector(
-				dataField, DataField.OBSERVATION_UNITS_TERM_ID, "  Units", new String[] {"UO"});
+				dataField, DataFieldConstants.OBSERVATION_UNITS_TERM_ID, "  Units", new String[] {"UO"});
 		unitTermSelector.setLabelMinWidth(labelsMinWidth);
 		unitTermSelector.setOntologyComboBoxMaxWidth(ontologySelectorsMaxWidth);
 		
@@ -60,7 +61,7 @@ public class FormFieldObservation extends FormField {
 		this.add(termSelectorsVerticalBox, BorderLayout.CENTER);
 		
 		// set controlls etc.
-		String observationDataType = dataField.getAttribute(DataField.OBSERVATION_TYPE);
+		String observationDataType = dataField.getAttribute(DataFieldConstants.OBSERVATION_TYPE);
 		if (observationDataType != null) {
 			dataTypeSelector.setSelectedItem(observationDataType);
 		} else
@@ -76,7 +77,7 @@ public class FormFieldObservation extends FormField {
 				setUnitTermSelectorVisibility(true);
 			} else {
 				// if not visible, reset attribute value to null. 
-				dataField.setAttribute(DataField.OBSERVATION_UNITS_TERM_ID, null, false);
+				dataField.setAttribute(DataFieldConstants.OBSERVATION_UNITS_TERM_ID, null, false);
 				unitTermSelector.removeAllItems();
 				setUnitTermSelectorVisibility(false);
 			}

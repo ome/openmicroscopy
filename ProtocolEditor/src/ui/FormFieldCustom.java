@@ -29,7 +29,8 @@ import java.util.Iterator;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 
-import tree.DataField;
+import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
 import ui.components.AttributesDialog;
 import util.ImageFactory;
 
@@ -41,8 +42,8 @@ public class FormFieldCustom extends FormField {
 	JTextField textInput;
 	boolean attributesDialogVisible = false;
 
-	public FormFieldCustom(DataField dataField) {
-		super(dataField);
+	public FormFieldCustom(IDataFieldObservable dataFieldObs) {
+		super(dataFieldObs);
 		
 		if (areAnyCustomAttributes()) {
 			showAttributesButton = new JButton(ImageFactory.getInstance().getIcon(ImageFactory.NOTE_PAD));
@@ -55,7 +56,7 @@ public class FormFieldCustom extends FormField {
 		
 		textInput = new JTextField();
 		textInput.addMouseListener(new FormPanelMouseListener());
-		textInput.setName(DataField.TEXT_NODE_VALUE);
+		textInput.setName(DataFieldConstants.TEXT_NODE_VALUE);
 		textInput.addFocusListener(focusChangedListener);
 		textInput.addKeyListener(textChangedListener);
 		checkForTextNodeValue();
@@ -63,7 +64,7 @@ public class FormFieldCustom extends FormField {
 	}
 
 	public void checkForTextNodeValue() {
-		String textNodeValue = dataField.getAttribute(DataField.TEXT_NODE_VALUE);
+		String textNodeValue = dataField.getAttribute(DataFieldConstants.TEXT_NODE_VALUE);
 		//System.out.println("FormFieldCustom constructor: textNodeValue = " + textNodeValue);
 		if (textNodeValue != null) {
 			textInput.setText(textNodeValue);
@@ -74,7 +75,7 @@ public class FormFieldCustom extends FormField {
 	// overridden by subclasses (when focus lost) if they have values that need saving 
 	public void updateDataField() {
 		if (textInput != null)	
-			dataField.setAttribute(DataField.TEXT_NODE_VALUE, textInput.getText(), true);
+			dataField.setAttribute(DataFieldConstants.TEXT_NODE_VALUE, textInput.getText(), true);
 	}
 	
 	// overridden by subclasses if they have other attributes to retrieve from dataField
@@ -101,7 +102,7 @@ public class FormFieldCustom extends FormField {
 	
 	public void showAttributes(boolean visible) {
 		
-		if (attDialog == null) attDialog = new AttributesDialog(this, dataField);
+		if (attDialog == null) attDialog = new AttributesDialog(this, dataFieldObs);
 		
 		attributesDialogVisible = visible;
 		
@@ -124,8 +125,8 @@ public class FormFieldCustom extends FormField {
 		while (keyIterator.hasNext()) {
 			String name = (String)keyIterator.next();
 			// don't count these attributes
-			if ((name.equals(DataField.ELEMENT_NAME )) || (name.equals(DataField.INPUT_TYPE))
-					|| (name.equals(DataField.SUBSTEPS_COLLAPSED)) || (name.equals(DataField.TEXT_NODE_VALUE))) continue;
+			if ((name.equals(DataFieldConstants.ELEMENT_NAME )) || (name.equals(DataFieldConstants.INPUT_TYPE))
+					|| (name.equals(DataFieldConstants.SUBSTEPS_COLLAPSED)) || (name.equals(DataFieldConstants.TEXT_NODE_VALUE))) continue;
 			return true;
 		}
 		return false;

@@ -27,16 +27,17 @@ import java.awt.Dimension;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 
-import tree.DataField;
+import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
 
 public class FormFieldProtocol extends FormField {
 	
 	JLabel fileName;
 	JLabel fileNameLabel;
 	
-	public FormFieldProtocol(DataField dataField) {
+	public FormFieldProtocol(IDataFieldObservable dataFieldObs) {
 		
-		super(dataField);
+		super(dataFieldObs);
 		
 		nameLabel.setFont(XMLView.FONT_H1);
 		
@@ -47,7 +48,7 @@ public class FormFieldProtocol extends FormField {
 		fileName.setFont(XMLView.FONT_SMALL);
 		horizontalBox.add(fileName);
 		
-		fileNameLabel = new JLabel(dataField.getAttribute(DataField.PROTOCOL_FILE_NAME));
+		fileNameLabel = new JLabel(dataField.getAttribute(DataFieldConstants.PROTOCOL_FILE_NAME));
 		fileNameLabel.setFont(XMLView.FONT_SMALL);
 		fileNameLabel.setMaximumSize(new Dimension(200, 20));
 		horizontalBox.add(fileNameLabel);
@@ -60,7 +61,7 @@ public class FormFieldProtocol extends FormField {
 	// overridden by subclasses if they have other attributes to retrieve from dataField
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		fileNameLabel.setText(dataField.getAttribute(DataField.PROTOCOL_FILE_NAME));
+		fileNameLabel.setText(dataField.getAttribute(DataFieldConstants.PROTOCOL_FILE_NAME));
 	}
 
 }

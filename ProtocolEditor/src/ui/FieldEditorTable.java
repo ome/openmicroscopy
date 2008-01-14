@@ -29,6 +29,7 @@ import javax.swing.JOptionPane;
 import javax.swing.text.JTextComponent;
 
 import tree.DataField;
+import tree.DataFieldConstants;
 import ui.components.AttributeMemoEditor;
 
 public class FieldEditorTable extends FieldEditor {
@@ -40,11 +41,11 @@ public class FieldEditorTable extends FieldEditor {
 		super(dataField);
 	
 		//	 comma-delimited list of options
-		String tableColumns = dataField.getAttribute(DataField.TABLE_COLUMN_NAMES);
+		String tableColumns = dataField.getAttribute(DataFieldConstants.TABLE_COLUMN_NAMES);
 		
 		// attributeMemoEditor has listener to update dataField - and adds change to undo-redo.
 		tableColumnsEditor = new TableColumnsEditor
-			(dataField, "Columns: (separate with commas)", DataField.TABLE_COLUMN_NAMES, tableColumns);
+			(dataField, "Columns: (separate with commas)", DataFieldConstants.TABLE_COLUMN_NAMES, tableColumns);
 		//tableColumnsEditor.removeFocusListener();
 		//tableColumnsEditor.getTextArea().addFocusListener(new TableColumnsFocusListener());
 		
@@ -67,14 +68,14 @@ public class FieldEditorTable extends FieldEditor {
 		protected void setDataFieldAttribute(String attributeName, String newColumnNames, boolean notifyUndoRedo) {
 			
 			// if not planning to update TABLE_COLUMN_NAME attribute, just setAttribute (eg Name, Description..)
-			if (!attributeName.equals(DataField.TABLE_COLUMN_NAMES)) {
+			if (!attributeName.equals(DataFieldConstants.TABLE_COLUMN_NAMES)) {
 				super.setDataFieldAttribute(attributeName, newColumnNames, true);
 				return;
 			}
 			
 			String[] newCols = newColumnNames.split(",");
 			
-			String oldColumnNames = dataField.getAttribute(DataField.TABLE_COLUMN_NAMES);
+			String oldColumnNames = dataField.getAttribute(DataFieldConstants.TABLE_COLUMN_NAMES);
 			if (oldColumnNames != null) {
 				String[] oldCols = oldColumnNames.split(",");
 			

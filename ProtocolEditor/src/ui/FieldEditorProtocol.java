@@ -28,6 +28,7 @@ import javax.swing.BorderFactory;
 import javax.swing.border.EtchedBorder;
 
 import tree.DataField;
+import tree.DataFieldConstants;
 import ui.components.AttributeEditor;
 
 public class FieldEditorProtocol extends FieldEditor {
@@ -39,13 +40,13 @@ public class FieldEditorProtocol extends FieldEditor {
 		super(dataField);
 		
 //		 comma-delimited set of search words
-		String keywords = dataField.getAttribute(DataField.KEYWORDS);
+		String keywords = dataField.getAttribute(DataFieldConstants.KEYWORDS);
 
 		// can't change the protocol field to a different type
 		inputTypeSelector.setEnabled(false);
 		
 		keywordsFieldEditor = new AttributeEditor
-			(dataField, "Keywords: ", DataField.KEYWORDS, keywords);
+			(dataField, "Keywords: ", DataFieldConstants.KEYWORDS, keywords);
 		keywordsFieldEditor.setToolTipText("Add keywords, separated by commas");
 		attributeFieldsPanel.add(keywordsFieldEditor);
 		
@@ -54,7 +55,7 @@ public class FieldEditorProtocol extends FieldEditor {
 	// called when dataField changes attributes
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		keywordsFieldEditor.setTextFieldText(dataField.getAttribute(DataField.KEYWORDS));
+		keywordsFieldEditor.setTextFieldText(dataField.getAttribute(DataFieldConstants.KEYWORDS));
 	}
 
 }

@@ -26,6 +26,7 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import tree.DataField;
+import tree.DataFieldConstants;
 import ui.components.AttributeEditor;
 
 public class FieldEditorDate extends FieldEditor {
@@ -43,9 +44,9 @@ public class FieldEditorDate extends FieldEditor {
 	    // Format the time string.
 	    String defaultDate = fDateFormat.format (now);
 	    
-	    dataField.setAttribute(DataField.DEFAULT, defaultDate, false);
+	    dataField.setAttribute(DataFieldConstants.DEFAULT, defaultDate, false);
 		
-		defaultFieldEditor = new AttributeEditor(dataField, "Default: ", DataField.DEFAULT, defaultDate);
+		defaultFieldEditor = new AttributeEditor(dataField, "Default: ", DataFieldConstants.DEFAULT, defaultDate);
 		// don't allow users to set any other default data!
 		defaultFieldEditor.setEnabled(false);
 		attributeFieldsPanel.add(defaultFieldEditor);
@@ -55,7 +56,7 @@ public class FieldEditorDate extends FieldEditor {
 	// called when dataField changes attributes
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		defaultFieldEditor.setTextFieldText(dataField.getAttribute(DataField.DEFAULT));
+		defaultFieldEditor.setTextFieldText(dataField.getAttribute(DataFieldConstants.DEFAULT));
 	}
 
 }

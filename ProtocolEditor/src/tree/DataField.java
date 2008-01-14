@@ -39,43 +39,11 @@ import ui.FormField;
 // the in-memory form of an xml element
 // has hash map of attributes, plus FormField and FieldEditor panels to display them
 
-public class DataField implements IAttributeSaver, IDataFieldObservable {
+public class DataField 
+	implements IAttributeSaver, IDataFieldObservable, IDataFieldSelectable {
 	
-	// attribute types
-	// changes to the attributes are reflected in XML element saving.
-	// any significant changes should be given a new XML version number (in XMLModel)
+	// attribute types - see DataFieldConstants.java
 
-	public static final String ELEMENT_NAME = "elementName";
-	public static final String DESCRIPTION = "description";
-	public static final String VALUE = "value";
-	public static final String PROTOCOL_FILE_NAME = "protocolFileName";
-	public static final String TEXT_NODE_VALUE ="textNodeValue";
-	public static final String DEFAULT = "default";
-	public static final String INPUT_TYPE = "inputType";
-	public static final String DROPDOWN_OPTIONS = "dropdownOptions";
-	public static final String TABLE_COLUMN_NAMES = "tableColumnNames";
-	public final static String TABLE_ROW_COUNT = "tableRowCount";
-	public final static String ROW_DATA_NUMBER = "rowNumber";	// concatenate this with row integer
-	public static final String UNITS = "units";
-	public static final String KEYWORDS = "keywords";
-	public static final String SUBSTEPS_COLLAPSED ="substepsCollapsed"; // "true" or "false"
-	public static final String BACKGROUND_COLOUR = "backgroundColour";
-	public static final String URL = "url";
-	
-	public static final String ONTOLOGY_ID = "ontologyId";
-	public static final String ONTOLOGY_TERM_ID = "ontolgoyTermId";
-	public static final String ONTOLOGY_TERM_NAME = "ontologyTermName";
-	public static final String ONTOLOGY_TERM_DEF = "ontologyTermDef";
-	
-	public static final String OBSERVATION_ENTITY_TERM_ID = "observationEntityTermID";
-	public static final String OBSERVATION_ATTRIBUTE_TERM_ID = "observationAttributeTermID";
-	public static final String OBSERVATION_TYPE = "observationType";
-	public static final String OBSERVATION_UNITS_TERM_ID = "observationUnitsTermID";
-	
-	// attribute values
-	public static final String TRUE = "true";
-	public static final String FALSE = "false";
-	
 	// old input types
 	// need to be able to read elements that use attribute: inputType="Fixed Step" 
 	// but should be saved as elements named  <FixedStep elementName="etc">  see input types below
@@ -89,37 +57,13 @@ public class DataField implements IAttributeSaver, IDataFieldObservable {
 	public static final String OLD_TABLE = "Table";
 	public static final String OLD_CUSTOM = "Custom";
 	
-	// input types
-	public static final String PROTOCOL_TITLE = "ProtocolTitle";
-	public static final String FIXED_PROTOCOL_STEP = "FixedStep";
-	public static final String TEXT_ENTRY_STEP = "TextField";
-	public static final String MEMO_ENTRY_STEP = "TextBox";
-	public static final String NUMBER_ENTRY_STEP = "NumberField";
-	public static final String DROPDOWN_MENU_STEP = "DropDownMenu";
-	public static final String CHECKBOX_STEP = "CheckBoxField";
-	public static final String DATE = "DateField";
-	public static final String TIME_FIELD = "TimeField";
-	public static final String TABLE = "TableField";
-	
-	public static final String CUSTOM = "CustomField";
-	public static final String OLS_FIELD = "OntologyLookupServiceField";
-	public static final String OBSERVATION_DEFINITION = "ObservationDefinition";
-	
-	public static final String[] INPUT_TYPES = 
-	{FIXED_PROTOCOL_STEP, TEXT_ENTRY_STEP,
-	MEMO_ENTRY_STEP, DROPDOWN_MENU_STEP, CHECKBOX_STEP, NUMBER_ENTRY_STEP, DATE, TIME_FIELD, TABLE, 
-	OLS_FIELD, OBSERVATION_DEFINITION
-	};
-	
-//	 the names used for the UI - MUST be in SAME ORDER as INPUT_TYPES they correspond to 
-	// this means you can change the UI names without changing INPUT_TYPES.
-	public static final String[] UI_INPUT_TYPES = 	
-	{ "Fixed", "Text", "Text Box", "Drop-down Menu", "Check-Box", "Number", "Date", "Time", "Table", 
-		"Ontology Term", "Phenote Observation"
-		};
 	
 	// Datafield has attributes stored in LinkedHashMap
 	LinkedHashMap<String, String> allAttributesMap;
+	
+	// used for display purposes. Corresponds to list of selectedFields in Tree.
+	boolean fieldSelected = false;
+	public static final String FIELD_SELECTED = "fieldSelected";
 
 	// the two JPanels that display the dataField, and hold optional attributes
 	FormField formField;
@@ -140,8 +84,8 @@ public class DataField implements IAttributeSaver, IDataFieldObservable {
 		allAttributesMap = new LinkedHashMap<String, String>();
 		
 		// default type and name
-		setAttribute(DataField.INPUT_TYPE, DataField.FIXED_PROTOCOL_STEP);
-		setAttribute(DataField.ELEMENT_NAME, "untitled");
+		setAttribute(DataFieldConstants.INPUT_TYPE, DataFieldConstants.FIXED_PROTOCOL_STEP);
+		setAttribute(DataFieldConstants.ELEMENT_NAME, "untitled");
 
 	}
 	
@@ -169,7 +113,7 @@ public class DataField implements IAttributeSaver, IDataFieldObservable {
 	public void setAttribute(String name, String value, boolean rememberUndo) {
 		System.out.println("DataField.setAttribute(notifyObservers="+ rememberUndo +"): " + name + "=" + value);
 		
-		if (name.equals(INPUT_TYPE)) {
+		if (name.equals(DataFieldConstants.INPUT_TYPE)) {
 			this.changeDataFieldInputType(value, rememberUndo);
 			return;
 		}
@@ -195,9 +139,14 @@ public class DataField implements IAttributeSaver, IDataFieldObservable {
 	
 	// used to access boolean attributes, eg SUBSTEPS_COLLAPSED
 	public boolean isAttributeTrue(String attributeName) {
+		
+		// check if attribute is fieldSelected (this not stored in attributeMap)
+		if (attributeName.equals(FIELD_SELECTED)) {
+			return fieldSelected;
+		}
 		String value = getAttribute(attributeName);
 		if (value == null) return false;
-		return (value.equals(TRUE));
+		return (value.equals(DataFieldConstants.TRUE));
 	}
 	// returns false if attribute is null
 	public boolean isAttributeEqualTo(String attribute, String equalTo) {
@@ -208,8 +157,8 @@ public class DataField implements IAttributeSaver, IDataFieldObservable {
 	// returns true if no InputType has been set, or if it is CUSTOM
 	public boolean isCustomInputType() {
 		boolean customElement = false;
-		if ((getAttribute(DataField.INPUT_TYPE) == null)) customElement = true;
-		else if (getAttribute(DataField.INPUT_TYPE).equals(DataField.CUSTOM)) customElement = true;
+		if ((getAttribute(DataFieldConstants.INPUT_TYPE) == null)) customElement = true;
+		else if (getAttribute(DataFieldConstants.INPUT_TYPE).equals(DataFieldConstants.CUSTOM)) customElement = true;
 		return customElement;
 	}
 	
@@ -217,7 +166,7 @@ public class DataField implements IAttributeSaver, IDataFieldObservable {
 		
 		// delete all attributes other than name & description. (not relevant to new input type - probably)
 		// unless initializing to "Custom" field (from null), since Custom may have many attributes
-		if (!newInputType.equals(DataField.CUSTOM)) {
+		if (!newInputType.equals(DataFieldConstants.CUSTOM)) {
 			
 			// remember undo 
 			if (rememberUndo) {
@@ -225,18 +174,18 @@ public class DataField implements IAttributeSaver, IDataFieldObservable {
 			}
 			
 //			 keep the original name & description & colour (may be null)
-			String copyName = allAttributesMap.get(DataField.ELEMENT_NAME);
-			String copyDescription = allAttributesMap.get(DataField.DESCRIPTION);
-			String copyColour = getAttribute(DataField.BACKGROUND_COLOUR);
+			String copyName = allAttributesMap.get(DataFieldConstants.ELEMENT_NAME);
+			String copyDescription = allAttributesMap.get(DataFieldConstants.DESCRIPTION);
+			String copyColour = getAttribute(DataFieldConstants.BACKGROUND_COLOUR);
 			
 			allAttributesMap.clear();
 			
-			setAttribute(DataField.ELEMENT_NAME, copyName);
-			setAttribute(DataField.DESCRIPTION, copyDescription);
-			setAttribute(DataField.BACKGROUND_COLOUR, copyColour);
+			setAttribute(DataFieldConstants.ELEMENT_NAME, copyName);
+			setAttribute(DataFieldConstants.DESCRIPTION, copyDescription);
+			setAttribute(DataFieldConstants.BACKGROUND_COLOUR, copyColour);
 		}
 		
-		setAttribute(DataField.INPUT_TYPE, newInputType);
+		setAttribute(DataFieldConstants.INPUT_TYPE, newInputType);
 		
 		// new subclasses of formField and fieldEditor will get made when needed
 		fieldEditor = null;
@@ -279,9 +228,11 @@ public class DataField implements IAttributeSaver, IDataFieldObservable {
 	}
 	
 	public void setHighlighted(boolean highlighted) {
-		if (formField == null) getFormField();	// make sure there is one
-		
-		formField.setHighlighted(highlighted);
+		fieldSelected = highlighted;
+		// refresh display 
+		// (don't want to call notifyObservers() as this tries to display AttributesDialog, which adds
+		// it to the list of listeners, at the same time as moving through the list!) concurrency error!
+		formField.dataFieldUpdated();
 	}
 	
 	public JPanel getFieldEditor() {
@@ -299,7 +250,7 @@ public class DataField implements IAttributeSaver, IDataFieldObservable {
 	}
 	
 	public String getName() {
-		String name = getAttribute(DataField.ELEMENT_NAME);
+		String name = getAttribute(DataFieldConstants.ELEMENT_NAME);
 		if ((name != null) && (name.length() > 0))
 			return name;
 		else return "untitled";		// have to return SOME text or formField panel may be v.v.small!
@@ -307,15 +258,15 @@ public class DataField implements IAttributeSaver, IDataFieldObservable {
 	//	 used to update dataField etc when fieldEditor panel is edited
 	
 	public String getDescription() {
-		return getAttribute(DataField.DESCRIPTION);
+		return getAttribute(DataFieldConstants.DESCRIPTION);
 	}
 	
 	public String getURL() {
-		return getAttribute(DataField.URL);
+		return getAttribute(DataFieldConstants.URL);
 	}
 	
 	public String getInputType() {
-		return getAttribute(DataField.INPUT_TYPE);
+		return getAttribute(DataFieldConstants.INPUT_TYPE);
 	}
 	
 	public DataFieldNode getNode() {
@@ -329,7 +280,7 @@ public class DataField implements IAttributeSaver, IDataFieldObservable {
 	// if there are any children, set their collapsed (visible) state
 	public void collapseChildren(boolean collapsed) {
 		if (hasChildren()) {
-			setAttribute(SUBSTEPS_COLLAPSED, (new Boolean(collapsed)).toString());
+			setAttribute(DataFieldConstants.SUBSTEPS_COLLAPSED, (new Boolean(collapsed)).toString());
 			refreshTitleCollapsed();
 		}
 	}
@@ -346,11 +297,8 @@ public class DataField implements IAttributeSaver, IDataFieldObservable {
 		if (formField == null) getFormField();	// make sure there is one
 		return formField.getVisibleAttributes();
 	}
-	public void formFieldClicked(boolean clearOthers) {
+	public void dataFieldSelected(boolean clearOthers) {
 		node.nodeClicked(clearOthers);
-	}
-	public void hideChildren(boolean hidden) {
-		node.hideChildren(hidden);
 	}
 	
 	// used for finding words within an open document, eg to display
@@ -371,14 +319,14 @@ public class DataField implements IAttributeSaver, IDataFieldObservable {
 
 	// a method used by the Tree class to convert from old xml version to new
 	public static String getNewInputTypeFromOldInputType(String oldInputType) {
-		if (oldInputType.equals(OLD_PROTOCOL_TITLE)) return PROTOCOL_TITLE;
-		if (oldInputType.equals(OLD_FIXED_PROTOCOL_STEP)) return FIXED_PROTOCOL_STEP;
-		if (oldInputType.equals(OLD_TEXT_ENTRY_STEP)) return TEXT_ENTRY_STEP;
-		if (oldInputType.equals(OLD_MEMO_ENTRY_STEP)) return MEMO_ENTRY_STEP;
-		if (oldInputType.equals(OLD_NUMBER_ENTRY_STEP)) return NUMBER_ENTRY_STEP;
-		if (oldInputType.equals(OLD_DROPDOWN_MENU_STEP)) return DROPDOWN_MENU_STEP;
-		if (oldInputType.equals(OLD_DATE)) return DATE;
-		if (oldInputType.equals(OLD_TABLE)) return TABLE;
+		if (oldInputType.equals(OLD_PROTOCOL_TITLE)) return DataFieldConstants.PROTOCOL_TITLE;
+		if (oldInputType.equals(OLD_FIXED_PROTOCOL_STEP)) return DataFieldConstants.FIXED_PROTOCOL_STEP;
+		if (oldInputType.equals(OLD_TEXT_ENTRY_STEP)) return DataFieldConstants.TEXT_ENTRY_STEP;
+		if (oldInputType.equals(OLD_MEMO_ENTRY_STEP)) return DataFieldConstants.MEMO_ENTRY_STEP;
+		if (oldInputType.equals(OLD_NUMBER_ENTRY_STEP)) return DataFieldConstants.NUMBER_ENTRY_STEP;
+		if (oldInputType.equals(OLD_DROPDOWN_MENU_STEP)) return DataFieldConstants.DROPDOWN_MENU_STEP;
+		if (oldInputType.equals(OLD_DATE)) return DataFieldConstants.DATE;
+		if (oldInputType.equals(OLD_TABLE)) return DataFieldConstants.TABLE;
 		if (oldInputType.equals(OLD_CUSTOM)) return OLD_CUSTOM;
 		
 		return oldInputType;

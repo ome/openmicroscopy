@@ -23,27 +23,25 @@
 package ui;
 
 import java.awt.Color;
-import java.util.ArrayList;
 
 import javax.swing.JTextField;
 
-import org.w3c.dom.Element;
-
-import tree.DataField;
+import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
 
 public class FormFieldText extends FormField {
 	
 	JTextField textInput;
 	
-	public FormFieldText(DataField dataField) {
-		super(dataField);
+	public FormFieldText(IDataFieldObservable dataFieldObs) {
+		super(dataFieldObs);
 		
-		String value = dataField.getAttribute(DataField.VALUE);
+		String value = dataField.getAttribute(DataFieldConstants.VALUE);
 		
 		textInput = new JTextField(value);
 		visibleAttributes.add(textInput);
 		textInput.addMouseListener(new FormPanelMouseListener());
-		textInput.setName(DataField.VALUE);
+		textInput.setName(DataFieldConstants.VALUE);
 		textInput.addFocusListener(focusChangedListener);
 		textInput.addKeyListener(textChangedListener);
 		horizontalBox.add(textInput);
@@ -54,7 +52,7 @@ public class FormFieldText extends FormField {
 	// overridden by subclasses if they have other attributes to retrieve from dataField
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		textInput.setText(dataField.getAttribute(DataField.VALUE));
+		textInput.setText(dataField.getAttribute(DataFieldConstants.VALUE));
 	}
 
 	

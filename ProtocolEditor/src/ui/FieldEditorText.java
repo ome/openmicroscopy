@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import org.w3c.dom.Element;
 
 import tree.DataField;
+import tree.DataFieldConstants;
 import ui.components.AttributeEditor;
 
 
@@ -38,17 +39,17 @@ public class FieldEditorText extends FieldEditor {
 		
 		super(dataField);
 		
-		String defaultValue = dataField.getAttribute(DataField.DEFAULT);
+		String defaultValue = dataField.getAttribute(DataFieldConstants.DEFAULT);
 		
 		defaultFieldEditor = new AttributeEditor
-			(dataField, "Default Value: ", DataField.DEFAULT, defaultValue);
+			(dataField, "Default Value: ", DataFieldConstants.DEFAULT, defaultValue);
 		attributeFieldsPanel.add(defaultFieldEditor);
 	}
 	
 	// called when dataField changes attributes
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		defaultFieldEditor.setTextFieldText(dataField.getAttribute(DataField.DEFAULT));
+		defaultFieldEditor.setTextFieldText(dataField.getAttribute(DataFieldConstants.DEFAULT));
 	}
 
 }

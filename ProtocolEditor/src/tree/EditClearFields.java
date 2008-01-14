@@ -40,11 +40,11 @@ public class EditClearFields extends AbstractUndoableEdit {
 		
 		while (iterator.hasNext()) {
 			DataField field = (DataField)iterator.next().getDataField();
-			String oldValue = field.getAttribute(DataField.VALUE);	// may be null
+			String oldValue = field.getAttribute(DataFieldConstants.VALUE);	// may be null
 			String newValue = "";
 			
 			if (oldValue != null) {		// make a list of all fields that have a value attribute
-				editedFields.add(new EditDataFieldAttribute(field, DataField.VALUE, oldValue, newValue));	// keep a reference to fields that have been edited
+				editedFields.add(new EditDataFieldAttribute(field, DataFieldConstants.VALUE, oldValue, newValue));	// keep a reference to fields that have been edited
 			}
 			
 		}

@@ -1204,7 +1204,7 @@ public class XMLView
 		// make sure field is not hidden under a collapsed parent
 		field.getNode().expandAllAncestors();
 		// highlight the field (clear others)
-		field.formFieldClicked(true);	
+		field.dataFieldSelected(true);	
 		
 		// if necessary, scroll to show field
 		int bottomOfPanel = field.getHeightOfFieldBottom();

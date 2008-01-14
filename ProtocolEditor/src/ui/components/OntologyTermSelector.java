@@ -29,10 +29,11 @@ import ols.Ontologies;
 import ols.OntologyLookUp;
 
 import tree.DataField;
+import tree.IAttributeSaver;
 
 public class OntologyTermSelector extends JPanel {
 	
-	DataField dataField;
+	IAttributeSaver dataField;
 	String attributeId;
 	
 	JLabel nameLabel;
@@ -45,7 +46,7 @@ public class OntologyTermSelector extends JPanel {
 	
 	public static final String ONTOLOGY_ID_NAME_SEPARATOR = "   ";
 
-	public OntologyTermSelector(DataField dataField, String attributeId, String termLabel) {
+	public OntologyTermSelector(IAttributeSaver dataField, String attributeId, String termLabel) {
 		
 		
 		/* need a String[] of ontology Id-Name pairs
@@ -72,13 +73,13 @@ public class OntologyTermSelector extends JPanel {
 		
 	}
 	
-	public OntologyTermSelector(DataField dataField, String attributeId, String termLabel, String[] ontologies) {
+	public OntologyTermSelector(IAttributeSaver dataField, String attributeId, String termLabel, String[] ontologies) {
 		buildPanel(dataField, attributeId, termLabel, ontologies);
 	}
 	
 	
 	
-	protected void buildPanel(DataField dataField, String attributeId, String termLabel, String[] ontologies) {
+	protected void buildPanel(IAttributeSaver dataField, String attributeId, String termLabel, String[] ontologies) {
 		
 		this.setLayout(new BorderLayout());
 		this.setBackground(null);

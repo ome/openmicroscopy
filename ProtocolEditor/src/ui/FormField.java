@@ -25,6 +25,7 @@ package ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Insets;
@@ -44,7 +45,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 
 import tree.DataField;
+import tree.DataFieldConstants;
 import tree.DataFieldObserver;
+import tree.IAttributeSaver;
+import tree.IDataFieldObservable;
+import tree.IDataFieldSelectable;
 import util.BareBonesBrowserLaunch;
 import util.ImageFactory;
 
@@ -54,7 +59,8 @@ import util.ImageFactory;
 
 public class FormField extends JPanel implements DataFieldObserver{
 	
-	DataField dataField;
+	IDataFieldObservable dataFieldObs;
+	IAttributeSaver dataField;
 	
 	boolean textChanged = false;
 	TextChangedListener textChangedListener = new TextChangedListener();
@@ -72,6 +78,8 @@ public class FormField extends JPanel implements DataFieldObserver{
 	JButton urlButton;	// used (if url) to open browser 
 	JButton collapseAllChildrenButton;
 	
+	Container childContainer;
+	
 	boolean childrenCollapsed = false; 	// used for root field only - to toggle all collapsed
 	
 	boolean highlighted = false;
@@ -87,10 +95,17 @@ public class FormField extends JPanel implements DataFieldObserver{
 	
 	boolean showDescription = false;	// not saved, just used to toggle
 	
-	public FormField(DataField dataField) {
+	public FormField(IDataFieldObservable dataFieldObs) {
 		
-		this.dataField = dataField;
-		dataField.addDataFieldObserver(this);
+		this.dataFieldObs = dataFieldObs;
+		this.dataFieldObs.addDataFieldObserver(this);
+		
+		// save a reference to the datafield as an IAttributeSaver (get and set-Attribute methods)
+		if (dataFieldObs instanceof IAttributeSaver) {
+			this.dataField = (IAttributeSaver)dataFieldObs;
+		} else {
+			throw new RuntimeException("FormField(dataField) needs dataField to implement IAttributeSaver");
+		}
 		
 		//System.out.println("FormField Constructor: name is " + dataField.getName());
 		
@@ -103,7 +118,7 @@ public class FormField extends JPanel implements DataFieldObserver{
 		
 		horizontalBox = Box.createHorizontalBox();
 		
-		boolean subStepsCollapsed = dataField.isAttributeTrue(DataField.SUBSTEPS_COLLAPSED);
+		boolean subStepsCollapsed = dataField.isAttributeTrue(DataFieldConstants.SUBSTEPS_COLLAPSED);
 		
 		collapseButton = new JButton();
 		collapseButton.setFocusable(false);
@@ -145,13 +160,14 @@ public class FormField extends JPanel implements DataFieldObserver{
 		descriptionButton.setBackground(null);
 		descriptionButton.setBorder(eb);
 		descriptionButton.setVisible(false);	// only made visible if description exists.
-		setDescriptionText(dataField.getAttribute(DataField.DESCRIPTION)); 	// will update description label
+		setDescriptionText(dataField.getAttribute(DataFieldConstants.DESCRIPTION)); 	// will update description label
 		
 		collapseAllChildrenButton = new JButton("Collapse/Expand All", notCollapsedIcon);
 		collapseAllChildrenButton.setToolTipText("Collapse or Expand every field in this document");
 		collapseAllChildrenButton.setBackground(null);
 		collapseAllChildrenButton.addActionListener(new CollapseChildrenListener());
-		collapseAllChildrenButton.setVisible(isThisRootField());
+		collapseAllChildrenButton.setVisible(false);
+		// visibility set by refreshRootField(boolean);
 		
 		/*
 		 * complex layout required to limit the size of nameLabel (expands with html content)
@@ -173,9 +189,9 @@ public class FormField extends JPanel implements DataFieldObserver{
 		horizontalFrameBox.add(contentsNorthPanel);
 
 		// refresh the current state
-		nameLabel.setText(addHtmlTagsForNameLabel(dataField.getName()));
-		setDescriptionText(dataField.getDescription());
-		setURL(dataField.getURL());
+		nameLabel.setText(addHtmlTagsForNameLabel(dataField.getAttribute(DataFieldConstants.ELEMENT_NAME)));
+		setDescriptionText(dataField.getAttribute(DataFieldConstants.DESCRIPTION));
+		setURL(dataField.getAttribute(DataFieldConstants.URL));
 		refreshBackgroundColour();
 		refreshHighlighted();
 		
@@ -186,10 +202,11 @@ public class FormField extends JPanel implements DataFieldObserver{
 	
 	// called by dataField to notify observers that something has changed.
 	public void dataFieldUpdated() {
-		setNameText(addHtmlTagsForNameLabel(dataField.getName()));
-		setDescriptionText(dataField.getAttribute(DataField.DESCRIPTION));
-		setURL(dataField.getAttribute(DataField.URL));
+		setNameText(addHtmlTagsForNameLabel(dataField.getAttribute(DataFieldConstants.ELEMENT_NAME)));
+		setDescriptionText(dataField.getAttribute(DataFieldConstants.DESCRIPTION));
+		setURL(dataField.getAttribute(DataFieldConstants.URL));
 		
+		setHighlighted(dataField.isAttributeTrue(DataField.FIELD_SELECTED));
 		refreshBackgroundColour();
 		
 		dataFieldUpdatedOtherAttributes();
@@ -266,7 +283,7 @@ public class FormField extends JPanel implements DataFieldObserver{
 	
 	public class URLclickListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			BareBonesBrowserLaunch.openURL(dataField.getURL());
+			BareBonesBrowserLaunch.openURL(dataField.getAttribute(DataFieldConstants.URL));
 		}
 	}
 	
@@ -280,7 +297,9 @@ public class FormField extends JPanel implements DataFieldObserver{
 	}
 	
 	public void panelClicked(boolean clearOthers) {
-		dataField.formFieldClicked(clearOthers);
+		if (dataFieldObs instanceof IDataFieldSelectable){
+			((IDataFieldSelectable)dataFieldObs).dataFieldSelected(clearOthers);
+		}
 	}
 	
 	//public void checkForChildren() {
@@ -289,7 +308,7 @@ public class FormField extends JPanel implements DataFieldObserver{
 
 	public void refreshHasChildren(boolean hasChildren) {
 		if (!hasChildren) {
-			dataField.setAttribute(DataField.SUBSTEPS_COLLAPSED, DataField.FALSE, false);
+			dataField.setAttribute(DataFieldConstants.SUBSTEPS_COLLAPSED, DataFieldConstants.FALSE, false);
 			collapseButton.setIcon(notCollapsedIcon);
 		}
 		collapseButton.setVisible(hasChildren);
@@ -298,13 +317,13 @@ public class FormField extends JPanel implements DataFieldObserver{
 	public class CollapseListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			
-			boolean collapsed = dataField.isAttributeTrue(DataField.SUBSTEPS_COLLAPSED); 
+			boolean collapsed = dataField.isAttributeTrue(DataFieldConstants.SUBSTEPS_COLLAPSED); 
 			
 			// toggle collapsed state
 			if (collapsed) {
-				dataField.setAttribute(DataField.SUBSTEPS_COLLAPSED, DataField.FALSE, false);
+				dataField.setAttribute(DataFieldConstants.SUBSTEPS_COLLAPSED, DataFieldConstants.FALSE, false);
 			} else {
-				dataField.setAttribute(DataField.SUBSTEPS_COLLAPSED, DataField.TRUE, false);
+				dataField.setAttribute(DataFieldConstants.SUBSTEPS_COLLAPSED, DataFieldConstants.TRUE, false);
 			}
 			
 			refreshTitleCollapsed();
@@ -315,17 +334,30 @@ public class FormField extends JPanel implements DataFieldObserver{
 	// also called when user collapses or expands sub-steps
 	public void refreshTitleCollapsed() {
 		
-		boolean collapsed = dataField.isAttributeTrue(DataField.SUBSTEPS_COLLAPSED);
+		boolean collapsed = dataField.isAttributeTrue(DataFieldConstants.SUBSTEPS_COLLAPSED);
 		collapseButton.setIcon(collapsed ? collapsedIcon : notCollapsedIcon);
 		
-		dataField.hideChildren(collapsed);
+		showChildren(!collapsed);
 		
 		// this is only needed when building UI (superfluous when simply collapsing)
-		refreshHasChildren(dataField.hasChildren());
-		collapseAllChildrenButton.setVisible(dataField.getNode().getParentNode() == null);
-		
+		boolean hasChildren = childContainer.getComponentCount()>0;
+		refreshHasChildren(hasChildren);
+	}
+
+	public void refreshRootField(boolean rootField) {
+		// only show this button for the root FormField (ie if parent == null)
+		collapseAllChildrenButton.setVisible(rootField);
 	}
 	
+	public void setChildContainer(Container container) {
+		childContainer = container;
+	}
+	public Container getChildContainer() {
+		return childContainer;
+	}
+	public void showChildren(boolean visible) {
+		childContainer.setVisible(visible);
+	}
 	
 	public class CollapseChildrenListener implements ActionListener {
 
@@ -333,7 +365,7 @@ public class FormField extends JPanel implements DataFieldObserver{
 			
 			// toggle collapsed state of node and it's children
 			childrenCollapsed = !childrenCollapsed;
-			dataField.getNode().collapseAllChildren(childrenCollapsed);
+			//dataFieldObs.getNode().collapseAllChildren(childrenCollapsed);
 			
 			collapseAllChildrenButton.setIcon(childrenCollapsed ? collapsedIcon : notCollapsedIcon);
 		}
@@ -354,7 +386,7 @@ public class FormField extends JPanel implements DataFieldObserver{
     }
 	
 	private void refreshBackgroundColour() {
-		backgroundColour = getColorFromString(dataField.getAttribute(DataField.BACKGROUND_COLOUR));
+		backgroundColour = getColorFromString(dataField.getAttribute(DataFieldConstants.BACKGROUND_COLOUR));
 		horizontalFrameBox.setBackground(backgroundColour);
 	}
 	
@@ -386,13 +418,15 @@ public class FormField extends JPanel implements DataFieldObserver{
 		} else {
 			int y = this.getHeight() + this.getY();		// get position within the box...
 			// then add parent's position - will call recursively 'till root.
-			y = y + ((FormField)dataField.getNode().getParentNode().getDataField().getFormField()).getHeightOfPanelBottom();
+			//y = y + ((FormField)df.getNode().getParentNode().getDataField().getFormField()).getHeightOfPanelBottom();
+			y = y + ((FormFieldContainer)this.getParent()).getYPositionWithinRootContainer();
 			return y;
 		}
 	}
 	
 	private boolean isThisRootField() {
-		return (dataField.getNode().getParentNode() == null);
+		return ((FormFieldContainer)this.getParent()).isRootContainer();
+		
 	}
 
 	public ArrayList<JComponent> getVisibleAttributes() {

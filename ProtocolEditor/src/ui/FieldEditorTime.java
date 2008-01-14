@@ -9,6 +9,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import tree.DataField;
+import tree.DataFieldConstants;
 
 public class FieldEditorTime extends FieldEditor {
 	
@@ -32,7 +33,7 @@ public class FieldEditorTime extends FieldEditor {
 		
 		// time String is in the form HHMMSS
 		
-		timeValue = dataField.getAttribute(DataField.DEFAULT);
+		timeValue = dataField.getAttribute(DataFieldConstants.DEFAULT);
 		if (timeValue != null) {
 			convertTimeStringToInts();
 		}
@@ -68,7 +69,7 @@ public class FieldEditorTime extends FieldEditor {
 	// called when dataField changes attributes
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		timeValue = dataField.getAttribute(DataField.DEFAULT);
+		timeValue = dataField.getAttribute(DataFieldConstants.DEFAULT);
 		convertTimeStringToInts();
 		
 		updateTimeSpinners();
@@ -100,7 +101,7 @@ public class FieldEditorTime extends FieldEditor {
 			timeValue = hrs + ":" + mns + ":" + scs;
 			convertTimeStringToInts();	// doesn't do much!
 			
-			dataField.setAttribute(DataField.DEFAULT, timeValue, true);
+			dataField.setAttribute(DataFieldConstants.DEFAULT, timeValue, true);
 		}
 	}
 

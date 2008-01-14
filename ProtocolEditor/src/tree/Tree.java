@@ -207,8 +207,8 @@ public class Tree {
 		rootNode = new DataFieldNode(this);
 		DataField rootField = rootNode.getDataField();
 		
-		rootField.setAttribute(DataField.INPUT_TYPE, DataField.PROTOCOL_TITLE, false);
-		rootField.setAttribute(DataField.ELEMENT_NAME, "Title - click to edit", false);
+		rootField.setAttribute(DataFieldConstants.INPUT_TYPE, DataFieldConstants.PROTOCOL_TITLE, false);
+		rootField.setAttribute(DataFieldConstants.ELEMENT_NAME, "Title - click to edit", false);
 		
 		DataFieldNode newNode = new DataFieldNode(this);// make a new default-type field
 		newNode.setParent(rootNode);
@@ -240,7 +240,7 @@ public class Tree {
 				 String textValue = node.getTextContent().trim();
 				 if (textValue.length() > 0){
 					 // set this attribute of the parent node, true: notify observers to update formField
-					 dfNode.getDataField().setAttribute(DataField.TEXT_NODE_VALUE, node.getTextContent(), false);
+					 dfNode.getDataField().setAttribute(DataFieldConstants.TEXT_NODE_VALUE, node.getTextContent(), false);
 				 }
 			 }
 		}
@@ -307,18 +307,18 @@ public class Tree {
 		 // if this attribute exists, need to convert it to the new type 
 		 // eg. "Fixed Step" becomes "FixedStep"
 		 // otherwise, need to use the NodeName as the inputType (as in the new version)
-		 if (allAttributes.get(DataField.INPUT_TYPE) != null) {
-			 String oldInputType = allAttributes.get(DataField.INPUT_TYPE);
-			 allAttributes.put(DataField.INPUT_TYPE, DataField.getNewInputTypeFromOldInputType(oldInputType));
+		 if (allAttributes.get(DataFieldConstants.INPUT_TYPE) != null) {
+			 String oldInputType = allAttributes.get(DataFieldConstants.INPUT_TYPE);
+			 allAttributes.put(DataFieldConstants.INPUT_TYPE, DataField.getNewInputTypeFromOldInputType(oldInputType));
 		 } else {
 			 // inputType is null, this is the new xml version: Use NodeName for inputType
 			 // if this is not recognised later (ie reading custom xml) it will get set to CUSTOM 
-			 allAttributes.put(DataField.INPUT_TYPE, elementName);
+			 allAttributes.put(DataFieldConstants.INPUT_TYPE, elementName);
 		 }
 		 
 		 // if the xml file's elements don't have "elementName" attribute, use the <tagName>
-		 if (allAttributes.get(DataField.ELEMENT_NAME) == null) {
-			 allAttributes.put(DataField.ELEMENT_NAME, elementName);
+		 if (allAttributes.get(DataFieldConstants.ELEMENT_NAME) == null) {
+			 allAttributes.put(DataFieldConstants.ELEMENT_NAME, elementName);
 		 }
 	}
 
@@ -386,8 +386,8 @@ public class Tree {
 		setTreeEdited(true);
 		
 		DataFieldNode newNode = new DataFieldNode(this);// make a new default-type field
-		newNode.getDataField().setAttribute(DataField.ELEMENT_NAME, fieldName, false);
-		newNode.getDataField().setAttribute(DataField.INPUT_TYPE, DataField.CUSTOM, false);
+		newNode.getDataField().setAttribute(DataFieldConstants.ELEMENT_NAME, fieldName, false);
+		newNode.getDataField().setAttribute(DataFieldConstants.INPUT_TYPE, DataFieldConstants.CUSTOM, false);
 		addDataField(newNode);	// adds after last highlighted field, or last child of root
 		
 		UndoableEdit edit = new EditAddField(newNode);
@@ -401,7 +401,7 @@ public class Tree {
 		setTreeEdited(true);
 		
 		DataFieldNode newNode = new DataFieldNode(this);// make a new default-type field
-		newNode.getDataField().setAttribute(DataField.INPUT_TYPE, inputType, false);
+		newNode.getDataField().setAttribute(DataFieldConstants.INPUT_TYPE, inputType, false);
 		addDataField(newNode);	// adds after last highlighted field, or last child of root
 		
 		UndoableEdit edit = new EditAddField(newNode);
@@ -702,7 +702,7 @@ public class Tree {
 			
 			boolean customElement = false;
 			if ((rootField.getInputType() == null)) customElement = true;
-			else if (rootField.getInputType().equals(DataField.CUSTOM)) customElement = true;
+			else if (rootField.getInputType().equals(DataFieldConstants.CUSTOM)) customElement = true;
 			
 			// if custom XML element, use the elementName attribute as the element Name
 			if (customElement) elementName = rootField.getName();
@@ -758,7 +758,7 @@ public class Tree {
 			
 			// if custom xml Element that has a text node value, save it! 
 			if (customElement) {
-				String text = dataField.getAttribute(DataField.TEXT_NODE_VALUE);
+				String text = dataField.getAttribute(DataFieldConstants.TEXT_NODE_VALUE);
 				if (text != null)
 					element.setTextContent(text);
 			}
@@ -772,10 +772,10 @@ public class Tree {
 	// copies each dataField's attribute Hash Map into element's attributes
 	private void parseAttributesMapToElement(LinkedHashMap<String, String> allAttributes, Element element) {
 		
-		String inputType = allAttributes.get(DataField.INPUT_TYPE);
+		String inputType = allAttributes.get(DataFieldConstants.INPUT_TYPE);
 		boolean customElement = false;
 		if ((inputType == null)) customElement = true;
-		else if (inputType.equals(DataField.CUSTOM)) customElement = true;
+		else if (inputType.equals(DataFieldConstants.CUSTOM)) customElement = true;
 				
 		Iterator keyIterator = allAttributes.keySet().iterator();
 		
@@ -785,13 +785,13 @@ public class Tree {
 			
 			// if you want to recreate original xml, don't include "extra" attributes
 			if (customElement) {
-				if (key.equals(DataField.ELEMENT_NAME) || key.equals(DataField.SUBSTEPS_COLLAPSED)
-						|| key.equals(DataField.TEXT_NODE_VALUE) || key.equals(DataField.INPUT_TYPE))
+				if (key.equals(DataFieldConstants.ELEMENT_NAME) || key.equals(DataFieldConstants.SUBSTEPS_COLLAPSED)
+						|| key.equals(DataFieldConstants.TEXT_NODE_VALUE) || key.equals(DataFieldConstants.INPUT_TYPE))
 					continue;
 			}
 			
 			// for all new - versions of xml, don't save inputType attribute (this is now the tag name)
-			if (key.equals(DataField.INPUT_TYPE)) continue;
+			if (key.equals(DataFieldConstants.INPUT_TYPE)) continue;
 			
 			// only save non-null values (and don't save "")
 			if ((value != null) && (value.length() > 0)) {
@@ -961,7 +961,7 @@ public class Tree {
 		while (iterator.hasNext()) {
 			DataFieldNode node = iterator.next();
 			DataField field = node.getDataField();
-			if (field.getAttribute(DataField.INPUT_TYPE).equals(DataField.OBSERVATION_DEFINITION)) {
+			if (field.getAttribute(DataFieldConstants.INPUT_TYPE).equals(DataFieldConstants.OBSERVATION_DEFINITION)) {
 				observationFields.add(field);
 			}
 		}

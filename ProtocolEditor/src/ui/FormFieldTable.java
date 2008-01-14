@@ -40,7 +40,8 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
 
 import table.InteractiveTableModel;
-import tree.DataField;
+import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
 import util.ImageFactory;
 
 public class FormFieldTable extends FormField {
@@ -56,10 +57,10 @@ public class FormFieldTable extends FormField {
     JButton addRowButton;
     JButton removeRowsButton;
     
-	public FormFieldTable(DataField dataField) {
-		super(dataField);
+	public FormFieldTable(IDataFieldObservable dataFieldObs) {
+		super(dataFieldObs);
 		
-		String columns = dataField.getAttribute(DataField.TABLE_COLUMN_NAMES);
+		String columns = dataField.getAttribute(DataFieldConstants.TABLE_COLUMN_NAMES);
 		table = new JTable();
 		
 		if (columns != null) {
@@ -80,13 +81,13 @@ public class FormFieldTable extends FormField {
         tableModel.fireTableStructureChanged();
         
         // add data, creating a new row each time
-        String numberOfRows = dataField.getAttribute(DataField.TABLE_ROW_COUNT);
+        String numberOfRows = dataField.getAttribute(DataFieldConstants.TABLE_ROW_COUNT);
         int rowCount;
         if (numberOfRows == null) rowCount = 0;
         else rowCount = Integer.valueOf(numberOfRows).intValue();
         for (int row=0; row<rowCount; row++) {
         	
-        	String rowDataString = dataField.getAttribute(DataField.ROW_DATA_NUMBER + row);
+        	String rowDataString = dataField.getAttribute(DataFieldConstants.ROW_DATA_NUMBER + row);
         	// System.out.println("FormFieldTable constructor row " + row + " data = " + rowDataString);
         	if (rowDataString != null) {
         		tableModel.addEmptyRow();
@@ -237,7 +238,7 @@ public class FormFieldTable extends FormField {
 			columnNames = columnNames + table.getColumnModel().getColumn(col).getHeaderValue();
 		}
 		
-		dataField.setAttribute(DataField.TABLE_COLUMN_NAMES, columnNames, false);
+		dataField.setAttribute(DataFieldConstants.TABLE_COLUMN_NAMES, columnNames, false);
 		
 		// now update data
 		ArrayList<ArrayList<String>> data = tableModel.getData();
@@ -251,20 +252,20 @@ public class FormFieldTable extends FormField {
 				if (col > 0) rowData = rowData + ", ";
 				rowData = rowData + rowDataArray.get(col).trim();
 			}
-			String rowId = DataField.ROW_DATA_NUMBER + outputRowNumber;
+			String rowId = DataFieldConstants.ROW_DATA_NUMBER + outputRowNumber;
 			dataField.setAttribute(rowId, rowData, false);
 			//System.out.println("FormFieldTable updateDatafield: " + rowId + " = " + rowData);
 			outputRowNumber++;
 		}
 		
 		// delete extra un-needed rows from dataField
-		while (dataField.getAttribute(DataField.ROW_DATA_NUMBER + outputRowNumber) != null) {
-			String rowId = DataField.ROW_DATA_NUMBER + outputRowNumber;
+		while (dataField.getAttribute(DataFieldConstants.ROW_DATA_NUMBER + outputRowNumber) != null) {
+			String rowId = DataFieldConstants.ROW_DATA_NUMBER + outputRowNumber;
 			dataField.setAttribute(rowId, null, false);
 			outputRowNumber++;
 		}
 		
-		dataField.setAttribute(DataField.TABLE_ROW_COUNT, Integer.toString(outputRowNumber), false);
+		dataField.setAttribute(DataFieldConstants.TABLE_ROW_COUNT, Integer.toString(outputRowNumber), false);
 	}
 	
 	
@@ -272,7 +273,7 @@ public class FormFieldTable extends FormField {
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();	// takes care of name etc.
 		
-		String columns = dataField.getAttribute(DataField.TABLE_COLUMN_NAMES);
+		String columns = dataField.getAttribute(DataFieldConstants.TABLE_COLUMN_NAMES);
 		
 		// refresh column names....
 		if (columns != null) { 

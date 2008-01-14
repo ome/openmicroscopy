@@ -41,6 +41,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 
+import tree.DataFieldConstants;
 import tree.IAttributeSaver;
 import tree.DataField;
 import tree.DataFieldObserver;
@@ -89,7 +90,7 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 		attributeFieldsPanel.setLayout(new BoxLayout(attributeFieldsPanel, BoxLayout.Y_AXIS));
 		attributeFieldsPanel.setBorder(new EmptyBorder(5, 5, 5,5));
 		
-		nameFieldEditor = new AttributeMemoFormatEditor(dataField, "Field Name: ", DataField.ELEMENT_NAME, dataField.getAttribute(DataField.ELEMENT_NAME));
+		nameFieldEditor = new AttributeMemoFormatEditor(dataField, "Field Name: ", DataFieldConstants.ELEMENT_NAME, dataField.getAttribute(DataFieldConstants.ELEMENT_NAME));
 		attributeFieldsPanel.add(nameFieldEditor);
 		
 		// Drop-down selector of input-type. 
@@ -97,13 +98,13 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 		inputTypePanel.setBorder(new EmptyBorder(3,3,3,3));
 		inputTypePanel.setLayout(new BoxLayout(inputTypePanel, BoxLayout.X_AXIS));
 		
-		inputTypeSelector = new JComboBox(DataField.UI_INPUT_TYPES);
+		inputTypeSelector = new JComboBox(DataFieldConstants.UI_INPUT_TYPES);
 		inputTypeSelector.setMaximumRowCount(12);
 		// Set it to the current input type
-		String inputType = dataField.getAttribute(DataField.INPUT_TYPE);
+		String inputType = dataField.getAttribute(DataFieldConstants.INPUT_TYPE);
 		if (inputType != null) {
-			for (int i=0; i<DataField.UI_INPUT_TYPES.length; i++)
-				if (inputType.equals(DataField.INPUT_TYPES[i]))
+			for (int i=0; i<DataFieldConstants.UI_INPUT_TYPES.length; i++)
+				if (inputType.equals(DataFieldConstants.INPUT_TYPES[i]))
 					inputTypeSelector.setSelectedIndex(i);
 		}
 		
@@ -113,10 +114,10 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 		inputTypeSelector.addActionListener(new inputTypeSelectorListener());
 		attributeFieldsPanel.add(inputTypePanel);
 		
-		descriptionFieldEditor = new AttributeMemoFormatEditor(dataField, "Description: ", DataField.DESCRIPTION, dataField.getAttribute(DataField.DESCRIPTION));
+		descriptionFieldEditor = new AttributeMemoFormatEditor(dataField, "Description: ", DataFieldConstants.DESCRIPTION, dataField.getAttribute(DataFieldConstants.DESCRIPTION));
 		attributeFieldsPanel.add(descriptionFieldEditor);
 		
-		urlFieldEditor = new AttributeEditor(dataField, "Url: ", DataField.URL, dataField.getAttribute(DataField.URL));
+		urlFieldEditor = new AttributeEditor(dataField, "Url: ", DataFieldConstants.URL, dataField.getAttribute(DataFieldConstants.URL));
 		attributeFieldsPanel.add(urlFieldEditor);
 		
 		/* colour-picker */
@@ -166,9 +167,9 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 	
 	// called by dataField when something changes, eg undo() previous editing
 	public void dataFieldUpdated() {
-		nameFieldEditor.setTextAreaText(dataField.getAttribute(DataField.ELEMENT_NAME));
-		descriptionFieldEditor.setTextAreaText(dataField.getAttribute(DataField.DESCRIPTION));
-		urlFieldEditor.setTextFieldText(dataField.getAttribute(DataField.URL));
+		nameFieldEditor.setTextAreaText(dataField.getAttribute(DataFieldConstants.ELEMENT_NAME));
+		descriptionFieldEditor.setTextAreaText(dataField.getAttribute(DataFieldConstants.DESCRIPTION));
+		urlFieldEditor.setTextFieldText(dataField.getAttribute(DataFieldConstants.URL));
 	}
 	
 	
@@ -181,13 +182,13 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 			JMenuItem source = (JMenuItem)event.getSource();
 			// if not an instance of ColourMenuItem, then no colour selected
 			if (!(source instanceof ColourMenuItem)) {
-				dataField.setAttribute(DataField.BACKGROUND_COLOUR, null, true);
+				dataField.setAttribute(DataFieldConstants.BACKGROUND_COLOUR, null, true);
 				return;
 			}
 			// otherwise, get the background colour and set the colour attribute of dataField
 			Color newColour = source.getBackground();
 			String colour = newColour.getRed() + ":" + newColour.getGreen() + ":" + newColour.getBlue();
-			dataField.setAttribute(DataField.BACKGROUND_COLOUR, colour, true);
+			dataField.setAttribute(DataFieldConstants.BACKGROUND_COLOUR, colour, true);
 		}
 	}	
 	
@@ -200,14 +201,14 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 		public void actionPerformed (ActionEvent event) {
 			JComboBox source = (JComboBox)event.getSource();
 			int selectedIndex = source.getSelectedIndex();
-			String newType = DataField.INPUT_TYPES[selectedIndex];
+			String newType = DataFieldConstants.INPUT_TYPES[selectedIndex];
 			inputTypeSelectorChanged(newType);
 		}
 	}	
 	
 	public void inputTypeSelectorChanged(String newType) {
 		// true : rememberUndo
-		dataField.setAttribute(DataField.INPUT_TYPE, newType, true);
+		dataField.setAttribute(DataFieldConstants.INPUT_TYPE, newType, true);
 		
 		//((DataField)dataField).notifyDataFieldObservers();
 	}

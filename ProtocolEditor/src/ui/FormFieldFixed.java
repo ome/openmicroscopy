@@ -22,12 +22,12 @@
 
 package ui;
 
-import tree.DataField;
+import tree.IDataFieldObservable;
 
 public class FormFieldFixed extends FormField {
 	
-	public FormFieldFixed(DataField dataField) {
-		super(dataField);
+	public FormFieldFixed(IDataFieldObservable dataFieldObs) {
+		super(dataFieldObs);
 			
 	}
 }

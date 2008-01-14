@@ -23,6 +23,7 @@
 package ui;
 
 import tree.DataField;
+import tree.DataFieldConstants;
 
 
 // this class handles instantiation of FieldEditor and FormField subclasses
@@ -51,48 +52,48 @@ public class FieldEditorFormFieldFactory {
 		if (inputType == null) {
 			fieldEditor = new FieldEditorCustom(dataField);
 		}
-		else if (inputType.equals(DataField.TEXT_ENTRY_STEP)) {
+		else if (inputType.equals(DataFieldConstants.TEXT_ENTRY_STEP)) {
 			fieldEditor = new FieldEditorText(dataField);
 		}
-		else if (inputType.equals(DataField.MEMO_ENTRY_STEP)) {
+		else if (inputType.equals(DataFieldConstants.MEMO_ENTRY_STEP)) {
 			fieldEditor = new FieldEditorMemo(dataField);
 		}
-		else if (inputType.equals(DataField.PROTOCOL_TITLE)) {
+		else if (inputType.equals(DataFieldConstants.PROTOCOL_TITLE)) {
 			fieldEditor = new FieldEditorProtocol(dataField);
 		}
-		else if (inputType.equals(DataField.NUMBER_ENTRY_STEP)) {
+		else if (inputType.equals(DataFieldConstants.NUMBER_ENTRY_STEP)) {
 			fieldEditor = new FieldEditorNumber(dataField);
 		}
-		else if (inputType.equals(DataField.DATE)) {
+		else if (inputType.equals(DataFieldConstants.DATE)) {
 			fieldEditor = new FieldEditorDate(dataField);
 		}
-		else if (inputType.equals(DataField.TIME_FIELD)) {
+		else if (inputType.equals(DataFieldConstants.TIME_FIELD)) {
 			fieldEditor = new FieldEditorTime(dataField);
 		}
-		else if (inputType.equals(DataField.DROPDOWN_MENU_STEP)) {
+		else if (inputType.equals(DataFieldConstants.DROPDOWN_MENU_STEP)) {
 			fieldEditor = new FieldEditorDropDown(dataField);
 		}
-		else if (inputType.equals(DataField.CUSTOM)) {
+		else if (inputType.equals(DataFieldConstants.CUSTOM)) {
 			fieldEditor = new FieldEditorCustom(dataField);
 		} 
-		else if (inputType.equals(DataField.TABLE)) {
+		else if (inputType.equals(DataFieldConstants.TABLE)) {
 			fieldEditor = new FieldEditorTable(dataField);
 		} 
-		else if (inputType.equals(DataField.CHECKBOX_STEP)) {
+		else if (inputType.equals(DataFieldConstants.CHECKBOX_STEP)) {
 			fieldEditor = new FieldEditorCheckBox(dataField);
 		}
-		else if (inputType.equals(DataField.FIXED_PROTOCOL_STEP)) {
+		else if (inputType.equals(DataFieldConstants.FIXED_PROTOCOL_STEP)) {
 			fieldEditor = new FieldEditorFixed(dataField);
 		}
-		else if (inputType.equals(DataField.OLS_FIELD)) {
+		else if (inputType.equals(DataFieldConstants.OLS_FIELD)) {
 			fieldEditor = new FieldEditorOLS(dataField);
 		}
-		else if (inputType.equals(DataField.OBSERVATION_DEFINITION)) {
+		else if (inputType.equals(DataFieldConstants.OBSERVATION_DEFINITION)) {
 			fieldEditor = new FieldEditorObservation(dataField);
 		}
 		else {
 			fieldEditor = new FieldEditorCustom(dataField);
-			dataField.setAttribute(DataField.INPUT_TYPE, DataField.CUSTOM, false);
+			dataField.setAttribute(DataFieldConstants.INPUT_TYPE, DataFieldConstants.CUSTOM, false);
 		}
 		
 		return fieldEditor;
@@ -109,48 +110,48 @@ public class FieldEditorFormFieldFactory {
 		if (inputType == null) {
 			formField = new FormFieldCustom(dataField);
 		}
-		else if (inputType.equals(DataField.TEXT_ENTRY_STEP)) {
+		else if (inputType.equals(DataFieldConstants.TEXT_ENTRY_STEP)) {
 			formField = new FormFieldText(dataField);
 		}
-		else if (inputType.equals(DataField.MEMO_ENTRY_STEP)) {
+		else if (inputType.equals(DataFieldConstants.MEMO_ENTRY_STEP)) {
 			formField = new FormFieldMemo(dataField);
 		}
-		else if (inputType.equals(DataField.PROTOCOL_TITLE)) {
+		else if (inputType.equals(DataFieldConstants.PROTOCOL_TITLE)) {
 			formField = new FormFieldProtocol(dataField);
 		}
-		else if (inputType.equals(DataField.NUMBER_ENTRY_STEP)) {
+		else if (inputType.equals(DataFieldConstants.NUMBER_ENTRY_STEP)) {
 			formField = new FormFieldNumber(dataField);
 		}
-		else if (inputType.equals(DataField.DATE)) {
+		else if (inputType.equals(DataFieldConstants.DATE)) {
 			formField = new FormFieldDate(dataField);
 		}
-		else if (inputType.equals(DataField.TIME_FIELD)) {
+		else if (inputType.equals(DataFieldConstants.TIME_FIELD)) {
 			formField = new FormFieldTime(dataField);
 		}
-		else if (inputType.equals(DataField.DROPDOWN_MENU_STEP)) {
+		else if (inputType.equals(DataFieldConstants.DROPDOWN_MENU_STEP)) {
 			formField = new FormFieldDropDown(dataField);
 		}
-		else if (inputType.equals(DataField.CUSTOM)) {
+		else if (inputType.equals(DataFieldConstants.CUSTOM)) {
 			formField = new FormFieldCustom(dataField);
 		}
-		else if (inputType.equals(DataField.TABLE)) {
+		else if (inputType.equals(DataFieldConstants.TABLE)) {
 			formField = new FormFieldTable(dataField);
 		}
-		else if (inputType.equals(DataField.FIXED_PROTOCOL_STEP)) {
+		else if (inputType.equals(DataFieldConstants.FIXED_PROTOCOL_STEP)) {
 			formField = new FormFieldFixed(dataField);
 		} 
-		else if (inputType.equals(DataField.CHECKBOX_STEP)) {
+		else if (inputType.equals(DataFieldConstants.CHECKBOX_STEP)) {
 			formField = new FormFieldCheckBox(dataField);
 		} 
-		else if (inputType.equals(DataField.OLS_FIELD)) {
+		else if (inputType.equals(DataFieldConstants.OLS_FIELD)) {
 			formField = new FormFieldOLS(dataField);
 		}
-		else if (inputType.equals(DataField.OBSERVATION_DEFINITION)) {
+		else if (inputType.equals(DataFieldConstants.OBSERVATION_DEFINITION)) {
 			formField = new FormFieldObservation(dataField);
 		}
 		else {
 			formField = new FormFieldCustom(dataField);
-			dataField.setAttribute(DataField.INPUT_TYPE, DataField.CUSTOM);
+			dataField.setAttribute(DataFieldConstants.INPUT_TYPE, DataFieldConstants.CUSTOM);
 		}
 		
 		return formField;

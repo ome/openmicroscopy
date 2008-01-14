@@ -32,6 +32,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import tree.DataField;
+import tree.DataFieldConstants;
 import ui.components.AttributeMemoEditor;
 
 public class FieldEditorDropDown extends FieldEditor {
@@ -46,12 +47,12 @@ public class FieldEditorDropDown extends FieldEditor {
 		super(dataField);
 		
 		// comma-delimited list of options
-		String dropDownOptions = dataField.getAttribute(DataField.DROPDOWN_OPTIONS);
-		String defaultValue = dataField.getAttribute(DataField.DEFAULT);
+		String dropDownOptions = dataField.getAttribute(DataFieldConstants.DROPDOWN_OPTIONS);
+		String defaultValue = dataField.getAttribute(DataFieldConstants.DEFAULT);
 		String[] ddOptions = {" "};
 		
 		optionsFieldEditor = new AttributeMemoEditor
-			(dataField, "Drop-down options: (separate with commas)", DataField.DROPDOWN_OPTIONS, dropDownOptions);
+			(dataField, "Drop-down options: (separate with commas)", DataFieldConstants.DROPDOWN_OPTIONS, dropDownOptions);
 		optionsFieldEditor.setToolTipText("Add keywords, separated by commas");
 		optionsFieldEditor.setTextAreaRows(4);
 		attributeFieldsPanel.add(optionsFieldEditor);
@@ -94,7 +95,7 @@ public class FieldEditorDropDown extends FieldEditor {
 			}
 			
 //			 Set it to the current defaultValue, (if it exists in the new ddOptions)
-			String defaultValue = dataField.getAttribute(DataField.DEFAULT);
+			String defaultValue = dataField.getAttribute(DataFieldConstants.DEFAULT);
 			if (defaultValue != null) {
 				for (int i=0; i<ddOptions.length; i++)
 					if (defaultValue.equals(ddOptions[i]))
@@ -117,7 +118,7 @@ public class FieldEditorDropDown extends FieldEditor {
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
 		
-		String dropDownOptions = dataField.getAttribute(DataField.DROPDOWN_OPTIONS);
+		String dropDownOptions = dataField.getAttribute(DataFieldConstants.DROPDOWN_OPTIONS);
 		
 		setDropDownOptions(dropDownOptions);	// also takes care of default
 		optionsFieldEditor.setTextAreaText(dropDownOptions);
@@ -126,7 +127,7 @@ public class FieldEditorDropDown extends FieldEditor {
 	
 	public class DefaultValueSelectionListener implements ActionListener {
 		public void actionPerformed (ActionEvent event) {
-			dataField.setAttribute(DataField.DEFAULT, defaultValueComboBox.getSelectedItem().toString(), true);
+			dataField.setAttribute(DataFieldConstants.DEFAULT, defaultValueComboBox.getSelectedItem().toString(), true);
 		}
 	}
 

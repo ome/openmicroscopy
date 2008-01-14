@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JCheckBox;
 
 import tree.DataField;
+import tree.DataFieldConstants;
 
 public class FieldEditorCheckBox extends FieldEditor {
 	
@@ -17,12 +18,12 @@ public class FieldEditorCheckBox extends FieldEditor {
 		
 		super(dataField);
 		
-		defaultValue = dataField.isAttributeTrue(DataField.DEFAULT);
+		defaultValue = dataField.isAttributeTrue(DataFieldConstants.DEFAULT);
 		defaultCheckBox = new JCheckBox("Default checked", defaultValue);
 		
 		// if no default value is set (null), set it to false;
-		if (dataField.getAttribute(DataField.DEFAULT) == null) 
-			dataField.setAttribute(DataField.DEFAULT, DataField.FALSE, false);
+		if (dataField.getAttribute(DataFieldConstants.DEFAULT) == null) 
+			dataField.setAttribute(DataFieldConstants.DEFAULT, DataFieldConstants.FALSE, false);
 		
 		defaultCheckBox.addActionListener(new DefaultCheckBoxListener());
 		
@@ -32,7 +33,7 @@ public class FieldEditorCheckBox extends FieldEditor {
 	// called when dataField changes attributes
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		defaultValue = dataField.isAttributeTrue(DataField.DEFAULT);
+		defaultValue = dataField.isAttributeTrue(DataFieldConstants.DEFAULT);
 		defaultCheckBox.setSelected(defaultValue);
 	} 
 	
@@ -41,7 +42,7 @@ public class FieldEditorCheckBox extends FieldEditor {
 			 defaultValue = defaultCheckBox.isSelected();
 			 
 			 String defaultBoolean = Boolean.toString(defaultValue);
-			 dataField.setAttribute(DataField.DEFAULT, defaultBoolean, true);
+			 dataField.setAttribute(DataFieldConstants.DEFAULT, defaultBoolean, true);
 		}
 		
 	}

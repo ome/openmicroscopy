@@ -31,8 +31,8 @@ import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 
+import tree.DataFieldConstants;
 import tree.IAttributeSaver;
-import tree.DataField;
 import tree.IDataFieldObservable;
 import tree.DataFieldObserver;
 
@@ -70,7 +70,7 @@ public class AttributesDialog extends JDialog implements DataFieldObserver{
 	
 	public void dataFieldUpdated() {
 		updateValues();
-		showAttributesDialog();
+		// showAttributesDialog();
 	}
 	
 
@@ -87,8 +87,8 @@ public class AttributesDialog extends JDialog implements DataFieldObserver{
 				String value = allAttributes.get(name);
 				
 				// don't display these attributes
-				if ((name.equals(DataField.ELEMENT_NAME )) || (name.equals(DataField.INPUT_TYPE))
-						|| (name.equals(DataField.SUBSTEPS_COLLAPSED)) || (name.equals(DataField.TEXT_NODE_VALUE))) continue;
+				if ((name.equals(DataFieldConstants.ELEMENT_NAME )) || (name.equals(DataFieldConstants.INPUT_TYPE))
+						|| (name.equals(DataFieldConstants.SUBSTEPS_COLLAPSED)) || (name.equals(DataFieldConstants.TEXT_NODE_VALUE))) continue;
 				
 				AttributeEditor attributeEditor = new AttributeEditor(dataField, name, value);
 				

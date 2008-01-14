@@ -15,8 +15,8 @@ import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import tree.DataField;
-import ui.FieldEditorTime.TimeChangedListener;
+import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
 
 public class FormFieldTime extends FormField {
 	
@@ -39,11 +39,11 @@ public class FormFieldTime extends FormField {
 
 	private JButton startTimerButton;
 	
-	public FormFieldTime(DataField dataField) {
+	public FormFieldTime(IDataFieldObservable dataFieldObs) {
 		
-		super(dataField);
+		super(dataFieldObs);
 		
-		timeValue = dataField.getAttribute(DataField.VALUE);
+		timeValue = dataField.getAttribute(DataFieldConstants.VALUE);
 		
 		convertTimeStringToInts();
 		
@@ -101,7 +101,7 @@ public class FormFieldTime extends FormField {
 			timeValue = hrs + ":" + mns + ":" + scs;
 			convertTimeStringToInts();	// doesn't do much!
 			
-			dataField.setAttribute(DataField.VALUE, timeValue, true);
+			dataField.setAttribute(DataFieldConstants.VALUE, timeValue, true);
 		}
 	}
 	
@@ -146,7 +146,7 @@ public class FormFieldTime extends FormField {
 	// called when dataField changes attributes
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		timeValue = dataField.getAttribute(DataField.VALUE);
+		timeValue = dataField.getAttribute(DataFieldConstants.VALUE);
 		convertTimeStringToInts();
 		updateTimeSpinners();
 	}

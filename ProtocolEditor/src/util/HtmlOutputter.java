@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 import tree.DataField;
+import tree.DataFieldConstants;
 import tree.DataFieldNode;
 import ui.FormField;
 
@@ -127,7 +128,7 @@ public class HtmlOutputter {
             	printDataField(protocolField, outputStream, showEveryField, showDescriptions, showDefaultValues, 
 					 showUrl,  showAllOtherAttributes, printTableData);
             	
-            	if (!protocolField.isAttributeTrue(DataField.SUBSTEPS_COLLAPSED) || 
+            	if (!protocolField.isAttributeTrue(DataFieldConstants.SUBSTEPS_COLLAPSED) || 
     					(showEveryField)) {
             		printDataFieldTree(outputStream, parentRootNode, showEveryField, showDescriptions, showDefaultValues, 
             				showUrl,  showAllOtherAttributes, printTableData);
@@ -172,7 +173,7 @@ public class HtmlOutputter {
 					 showUrl,  showAllOtherAttributes, printTableData);
 			
 			
-			if (!dataField.isAttributeTrue(DataField.SUBSTEPS_COLLAPSED) || 
+			if (!dataField.isAttributeTrue(DataFieldConstants.SUBSTEPS_COLLAPSED) || 
 					(showEveryField)) {
 				printDataFieldTree(outStream, child, showEveryField, showDescriptions, showDefaultValues, 
 						 showUrl,  showAllOtherAttributes, printTableData);
@@ -190,7 +191,7 @@ public class HtmlOutputter {
 			boolean showDescriptions, boolean showDefaultValues, 
 			boolean showUrl, boolean showAllOtherAttributes, boolean printTableData) {
 		
-		boolean subStepsCollapsed = dataField.isAttributeTrue(DataField.SUBSTEPS_COLLAPSED);
+		boolean subStepsCollapsed = dataField.isAttributeTrue(DataFieldConstants.SUBSTEPS_COLLAPSED);
 		if (showEveryField)
 			subStepsCollapsed = false;
 			
@@ -198,12 +199,12 @@ public class HtmlOutputter {
         	
 		String divHeader = "";
 			
-        if (dataField.isAttributeEqualTo(DataField.INPUT_TYPE,DataField.PROTOCOL_TITLE))
+        if (dataField.isAttributeEqualTo(DataFieldConstants.INPUT_TYPE,DataFieldConstants.PROTOCOL_TITLE))
         	divHeader = DIV_CLASS_PROTOCOL;
         else divHeader = DIV;
         
         if (true) {
-        	String colour = dataField.getAttribute(DataField.BACKGROUND_COLOUR);
+        	String colour = dataField.getAttribute(DataFieldConstants.BACKGROUND_COLOUR);
         	Color bgColour = FormField.getColorFromString(colour);
         	if (bgColour != null) {
         		int r = bgColour.getRed();
@@ -218,8 +219,8 @@ public class HtmlOutputter {
         
         outputStream.print(divHeader);
         	
-        String value = allAttributes.get(DataField.VALUE);
-        String units = allAttributes.get(DataField.UNITS);
+        String value = allAttributes.get(DataFieldConstants.VALUE);
+        String units = allAttributes.get(DataFieldConstants.UNITS);
         	
         outputStream.print(SPAN_CLASS_ELEMENT_NAME);
         	
@@ -230,23 +231,23 @@ public class HtmlOutputter {
         		outputStream.print(DOWN_ARROW);
         	}
         }
-        outputStream.print(allAttributes.get(DataField.ELEMENT_NAME));
+        outputStream.print(allAttributes.get(DataFieldConstants.ELEMENT_NAME));
         	
         if (value != null) outputStream.print(": " + UNDERLINE + value + UNDERLINE_END);
         if (units != null) outputStream.print(" " + units);
         outputStream.println(SPAN_END);
         	
-        if ((showDefaultValues) && (allAttributes.get(DataField.DEFAULT) != null)) {
+        if ((showDefaultValues) && (allAttributes.get(DataFieldConstants.DEFAULT) != null)) {
         	outputStream.print(DIV_CLASS_ATTRIBUTE + "Default Value = " +
-        			allAttributes.get(DataField.DEFAULT) + DIV_END);
+        			allAttributes.get(DataFieldConstants.DEFAULT) + DIV_END);
         }
-        if ((showDescriptions) && (allAttributes.get(DataField.DESCRIPTION) != null)) {
+        if ((showDescriptions) && (allAttributes.get(DataFieldConstants.DESCRIPTION) != null)) {
         	outputStream.print(DIV_CLASS_ATTRIBUTE + 
-        			allAttributes.get(DataField.DESCRIPTION) + DIV_END);
+        			allAttributes.get(DataFieldConstants.DESCRIPTION) + DIV_END);
         }
-        if ((showUrl) && (allAttributes.get(DataField.URL) != null)) {
+        if ((showUrl) && (allAttributes.get(DataFieldConstants.URL) != null)) {
         	outputStream.print(DIV_CLASS_ATTRIBUTE + "URL = " +
-        			allAttributes.get(DataField.URL) + DIV_END);
+        			allAttributes.get(DataFieldConstants.URL) + DIV_END);
         }
         if (showAllOtherAttributes) {
         	printAllAttributes(allAttributes, outputStream);
@@ -271,11 +272,11 @@ public class HtmlOutputter {
     		if (value == null) value="";
     		if (name == null) name = "";
     		
-    		if ((name.equals(DataField.INPUT_TYPE)) || (name.equals(DataField.ELEMENT_NAME))||
-    				(name.equals(DataField.DESCRIPTION)) || (name.equals(DataField.VALUE)) ||
-    				(name.equals(DataField.URL)) || (name.equals(DataField.SUBSTEPS_COLLAPSED)) ||
-    				(name.equals(DataField.BACKGROUND_COLOUR)) ||
-    				(name.equals(DataField.DEFAULT)))
+    		if ((name.equals(DataFieldConstants.INPUT_TYPE)) || (name.equals(DataFieldConstants.ELEMENT_NAME))||
+    				(name.equals(DataFieldConstants.DESCRIPTION)) || (name.equals(DataFieldConstants.VALUE)) ||
+    				(name.equals(DataFieldConstants.URL)) || (name.equals(DataFieldConstants.SUBSTEPS_COLLAPSED)) ||
+    				(name.equals(DataFieldConstants.BACKGROUND_COLOUR)) ||
+    				(name.equals(DataFieldConstants.DEFAULT)))
     				continue;
     		else name = name + ": ";
     		
@@ -285,7 +286,7 @@ public class HtmlOutputter {
 	
 	public static void printTableData(LinkedHashMap<String, String> allAttributes, PrintWriter outputStream) {
 		
-		String colNames = allAttributes.get(DataField.TABLE_COLUMN_NAMES);
+		String colNames = allAttributes.get(DataFieldConstants.TABLE_COLUMN_NAMES);
 		if (colNames == null) return;
 		
 		outputStream.println(TABLE);
@@ -296,7 +297,7 @@ public class HtmlOutputter {
 		}
 		outputStream.println(TABLE_ROW_END);
 		
-		String rowNumberData = DataField.ROW_DATA_NUMBER;
+		String rowNumberData = DataFieldConstants.ROW_DATA_NUMBER;
 		int rowIndex = 0;
 		String rowData = allAttributes.get(rowNumberData + rowIndex);
 		

@@ -39,14 +39,14 @@ public class EditMultiplyValues extends AbstractUndoableEdit {
 		
 		for (DataFieldNode node: highlightedFields) {
 			DataField dataField = node.getDataField();
-			String oldValue = dataField.getAttribute(DataField.VALUE);
+			String oldValue = dataField.getAttribute(DataFieldConstants.VALUE);
 			
 			try {
 				FormFieldNumber formFieldNumber = (FormFieldNumber)dataField.getFormField();
 				formFieldNumber.multiplyCurrentValue(factor);
 				
-				String newValue = dataField.getAttribute(DataField.VALUE);
-				editedFields.add(new EditDataFieldAttribute(dataField, DataField.VALUE, oldValue, newValue));	// keep a reference to fields that have been edited
+				String newValue = dataField.getAttribute(DataFieldConstants.VALUE);
+				editedFields.add(new EditDataFieldAttribute(dataField, DataFieldConstants.VALUE, oldValue, newValue));	// keep a reference to fields that have been edited
 			} catch (Exception ex) {
 				// cast failed: formField is not a Number field
 			}

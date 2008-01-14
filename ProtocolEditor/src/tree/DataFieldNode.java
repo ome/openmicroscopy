@@ -43,7 +43,6 @@ public class DataFieldNode {
 	Tree tree;		// class that manages tree structure (takes click commands)
 	ArrayList<DataFieldNode> children;
 	DataFieldNode parent;
-	Box childBox;	// swing component that holds all subtree. Hide when collapse
 	
 	// constructor 
 	public DataFieldNode(LinkedHashMap<String, String> allAttributesMap, DataFieldNode parent, Tree tree) {
@@ -147,12 +146,6 @@ public class DataFieldNode {
 	public ArrayList<DataFieldNode> getChildren() {
 		return children;
 	}
-	public void setChildBox(Box childBox) {
-		this.childBox = childBox;
-	}
-	public Box getChildBox() {
-		return childBox;
-	}
 	
 	public void setHighlighted(boolean highlighted) {
 		this.highlighted = highlighted;
@@ -172,10 +165,8 @@ public class DataFieldNode {
 	public void xmlUpdated() {
 		getTree().xmlUpdated();
 	}
-	public void hideChildren(boolean hidden) {
-		if (childBox != null)	// sometimes visibility of children is set before UI is fully built
-			childBox.setVisible(!hidden);
-	}
+
+
 
 	public void collapseAllChildren(boolean collapse) {
 		getTree().collapseAllChildren(collapse);

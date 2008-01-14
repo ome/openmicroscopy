@@ -44,6 +44,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import tree.DataField;
+import tree.DataFieldConstants;
 import tree.DataFieldNode;
 import tree.Tree;
 import tree.Tree.Actions;
@@ -276,7 +277,7 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 //		 always note the xml version (unless this is custom element)
 		if (!getRootNode().getDataField().isCustomInputType()) {
 			getRootNode().getDataField().setAttribute(VERSION, XML_VERSION_NUMBER, false);
-			getRootNode().getDataField().setAttribute(DataField.PROTOCOL_FILE_NAME, outputFile.getName(), true);
+			getRootNode().getDataField().setAttribute(DataFieldConstants.PROTOCOL_FILE_NAME, outputFile.getName(), true);
 		}
 		
 		// now you can save

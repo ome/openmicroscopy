@@ -43,7 +43,7 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-import tree.DataField;
+import tree.DataFieldConstants;
 
 // class to hold some useful XML methods
 
@@ -88,7 +88,7 @@ public ArrayList<HashMap> getAllXmlFileAttributes(File file) throws FileNotFound
 		
 		public void startElement(String uri, String localName, String qualName, Attributes attribs) {
 			
-			String elementName = attribs.getValue(DataField.ELEMENT_NAME);
+			String elementName = attribs.getValue(DataFieldConstants.ELEMENT_NAME);
 			if (elementName != null) elementName = elementName.replace("/", "-");	// don't add any confusing / into path
 			
 			elementPath = elementPath + "/" + elementName;

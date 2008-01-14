@@ -40,6 +40,7 @@ import ols.Ontologies;
 import ols.OntologyLookUp;
 
 import tree.DataField;
+import tree.DataFieldConstants;
 import ui.components.OLSLinkPanel;
 import util.BareBonesBrowserLaunch;
 import util.ImageFactory;
@@ -54,8 +55,8 @@ public class FieldEditorOLS extends FieldEditor {
 		
 		super(dataField);
 		
-		String parentFieldType = dataField.getNode().getParentNode().getDataField().getAttribute(DataField.INPUT_TYPE);
-		boolean parentFieldIsOLS = parentFieldType.equals(DataField.OLS_FIELD);
+		String parentFieldType = dataField.getNode().getParentNode().getDataField().getAttribute(DataFieldConstants.INPUT_TYPE);
+		boolean parentFieldIsOLS = parentFieldType.equals(DataFieldConstants.OLS_FIELD);
 		if (parentFieldIsOLS) {
 			JPanel parentRelationshipPanel = new JPanel(new BorderLayout());
 			parentRelationshipComboBox = new JComboBox(Ontologies.getOboRelationshipTerms());

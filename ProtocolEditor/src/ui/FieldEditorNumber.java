@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import javax.swing.JTextField;
 
 import tree.DataField;
+import tree.DataFieldConstants;
 import ui.FormField.FormPanelMouseListener;
 import ui.components.AttributeEditor;
 
@@ -42,23 +43,23 @@ public class FieldEditorNumber extends FieldEditor {
 		
 		super(dataField);
 		
-		String defaultValueString = dataField.getAttribute(DataField.DEFAULT);
-		String units = dataField.getAttribute(DataField.UNITS);
+		String defaultValueString = dataField.getAttribute(DataFieldConstants.DEFAULT);
+		String units = dataField.getAttribute(DataFieldConstants.UNITS);
 		
-		defaultFieldEditor = new AttributeEditor(dataField, "Default: ", DataField.DEFAULT, defaultValueString);
+		defaultFieldEditor = new AttributeEditor(dataField, "Default: ", DataFieldConstants.DEFAULT, defaultValueString);
 		defaultFieldEditor.getTextField().addFocusListener(new NumberCheckerListener());
 		attributeFieldsPanel.add(defaultFieldEditor);
 		
-		unitsFieldEditor = new AttributeEditor(dataField, "Units: ", DataField.UNITS, units);
+		unitsFieldEditor = new AttributeEditor(dataField, "Units: ", DataFieldConstants.UNITS, units);
 		attributeFieldsPanel.add(unitsFieldEditor);
 	}
 
 	// called when dataField changes attributes
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		defaultFieldEditor.setTextFieldText(dataField.getAttribute(DataField.DEFAULT));
+		defaultFieldEditor.setTextFieldText(dataField.getAttribute(DataFieldConstants.DEFAULT));
 		checkForNumber();
-		unitsFieldEditor.setTextFieldText(dataField.getAttribute(DataField.UNITS));
+		unitsFieldEditor.setTextFieldText(dataField.getAttribute(DataFieldConstants.UNITS));
 	}
 	
 	public class NumberCheckerListener implements FocusListener {

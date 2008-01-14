@@ -25,11 +25,11 @@ package ui;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 import javax.swing.JComboBox;
 
-import tree.DataField;
+import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
 import ui.FormField.FormPanelMouseListener;
 
 public class FormFieldDropDown extends FormField {
@@ -40,12 +40,12 @@ public class FormFieldDropDown extends FormField {
 	
 	JComboBox comboBox;
 	
-	public FormFieldDropDown (DataField dataField) {
+	public FormFieldDropDown (IDataFieldObservable dataFieldObs) {
 	
-		super(dataField);
+		super(dataFieldObs);
 		
-		String dropDownOptions = dataField.getAttribute(DataField.DROPDOWN_OPTIONS);
-		String value = dataField.getAttribute(DataField.VALUE);
+		String dropDownOptions = dataField.getAttribute(DataFieldConstants.DROPDOWN_OPTIONS);
+		String value = dataField.getAttribute(DataFieldConstants.VALUE);
 		
 		comboBox = new JComboBox();
 		
@@ -77,7 +77,7 @@ public class FormFieldDropDown extends FormField {
 			}
 			
 			// Set it to the current value, (if it exists in the new ddOptions)
-			String value = dataField.getAttribute(DataField.VALUE);
+			String value = dataField.getAttribute(DataFieldConstants.VALUE);
 			if (value != null) {
 				for (int i=0; i<ddOptions.length; i++)
 					if (value.equals(ddOptions[i]))
@@ -99,7 +99,7 @@ public class FormFieldDropDown extends FormField {
 //	 overridden by subclasses if they have other attributes to retrieve from dataField
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		setDropDownOptions(dataField.getAttribute(DataField.DROPDOWN_OPTIONS));
+		setDropDownOptions(dataField.getAttribute(DataFieldConstants.DROPDOWN_OPTIONS));
 	}
 
 	
@@ -108,7 +108,7 @@ public class FormFieldDropDown extends FormField {
 		int index = comboBox.getSelectedIndex();
 		if ((index >= 0) && (index < ddOptions.length)) {
 			String currentValue = ddOptions[index];
-			dataField.setAttribute(DataField.VALUE, currentValue, false);
+			dataField.setAttribute(DataFieldConstants.VALUE, currentValue, false);
 		}
 	}
 
@@ -139,7 +139,7 @@ public class FormFieldDropDown extends FormField {
 	
 	public class ValueSelectionListener implements ActionListener {
 		public void actionPerformed (ActionEvent event) {
-			dataField.setAttribute(DataField.VALUE, comboBox.getSelectedItem().toString(), true);
+			dataField.setAttribute(DataFieldConstants.VALUE, comboBox.getSelectedItem().toString(), true);
 		}
 	}
 	

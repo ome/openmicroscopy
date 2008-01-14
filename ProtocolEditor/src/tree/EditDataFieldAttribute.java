@@ -42,14 +42,14 @@ public class EditDataFieldAttribute extends AbstractUndoableEdit {
 		dataField.setAttribute(attribute, oldValue, false);
 		// need to display changes without adding this change to the undoActions history in Tree
 		dataField.notifyDataFieldObservers();
-		dataField.formFieldClicked(true);	// highlight this field
+		dataField.dataFieldSelected(true);	// highlight this field
 	}
 	
 	public void redo() {
 		dataField.setAttribute(attribute, newValue, false);
 		// need to display changes without adding this change to the undoActions history in Tree
 		dataField.notifyDataFieldObservers();
-		dataField.formFieldClicked(true);	// highlight this field
+		dataField.dataFieldSelected(true);	// highlight this field
 	}
 	
 	public void undoNoHighlight() {
@@ -66,7 +66,7 @@ public class EditDataFieldAttribute extends AbstractUndoableEdit {
 	
 	// used to highlight a range of fields, when this is the first field in a range
 	public void selectField() {
-		dataField.formFieldClicked(false);
+		dataField.dataFieldSelected(false);
 	}
 	
 	public String getPresentationName() {

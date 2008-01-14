@@ -1,6 +1,7 @@
 package ols;
 
 import tree.DataField;
+import tree.DataFieldConstants;
 
 public class Observation {
 	
@@ -19,10 +20,10 @@ public class Observation {
 	public Observation(DataField dataField) {
 		
 		observationName = dataField.getName().trim();	// gets extra lines etc from formatting
-		dataType = dataField.getAttribute(DataField.OBSERVATION_TYPE);
-		entityTermId = dataField.getAttribute(DataField.OBSERVATION_ENTITY_TERM_ID);
-		attributeTermId = dataField.getAttribute(DataField.OBSERVATION_ATTRIBUTE_TERM_ID);
-		unitTermId = dataField.getAttribute(DataField.OBSERVATION_UNITS_TERM_ID);
+		dataType = dataField.getAttribute(DataFieldConstants.OBSERVATION_TYPE);
+		entityTermId = dataField.getAttribute(DataFieldConstants.OBSERVATION_ENTITY_TERM_ID);
+		attributeTermId = dataField.getAttribute(DataFieldConstants.OBSERVATION_ATTRIBUTE_TERM_ID);
+		unitTermId = dataField.getAttribute(DataFieldConstants.OBSERVATION_UNITS_TERM_ID);
 		
 	}
 	

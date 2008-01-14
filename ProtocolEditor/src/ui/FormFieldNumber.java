@@ -30,7 +30,8 @@ import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
-import tree.DataField;
+import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
 
 public class FormFieldNumber extends FormField {
 	
@@ -38,18 +39,18 @@ public class FormFieldNumber extends FormField {
 	JLabel unitsLabel;
 	
 	
-	public FormFieldNumber (DataField dataField) {
-		super(dataField);
+	public FormFieldNumber (IDataFieldObservable dataFieldObs) {
+		super(dataFieldObs);
 		
-		String valueString = dataField.getAttribute(DataField.VALUE);
+		String valueString = dataField.getAttribute(DataFieldConstants.VALUE);
 		
-		String units = dataField.getAttribute(DataField.UNITS);
+		String units = dataField.getAttribute(DataFieldConstants.UNITS);
 		
 		numberTextBox = new JTextField(valueString);
 		visibleAttributes.add(numberTextBox);
 		numberTextBox.addMouseListener(new FormPanelMouseListener());
 		numberTextBox.addFocusListener(new NumberCheckerListener());
-		numberTextBox.setName(DataField.VALUE);
+		numberTextBox.setName(DataFieldConstants.VALUE);
 		numberTextBox.addFocusListener(focusChangedListener);
 		numberTextBox.addKeyListener(textChangedListener);
 		numberTextBox.setToolTipText("Must enter a number");
@@ -106,9 +107,9 @@ public class FormFieldNumber extends FormField {
 	// overridden by subclasses if they have other attributes to retrieve from dataField
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		numberTextBox.setText(dataField.getAttribute(DataField.VALUE));
+		numberTextBox.setText(dataField.getAttribute(DataFieldConstants.VALUE));
 		checkForNumber();
-		setUnits(dataField.getAttribute(DataField.UNITS));
+		setUnits(dataField.getAttribute(DataFieldConstants.UNITS));
 	}
 	
 	public void multiplyCurrentValue(float factor) {
@@ -120,7 +121,7 @@ public class FormFieldNumber extends FormField {
 				currentValue = currentValue * factor;
 				number = Float.toString(currentValue);
 				numberTextBox.setText(number);
-				dataField.setAttribute(DataField.VALUE, number, false);
+				dataField.setAttribute(DataFieldConstants.VALUE, number, false);
 				
 				numberTextBox.setBackground(Color.WHITE);
 			}

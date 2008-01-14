@@ -23,6 +23,7 @@
 package ui;
 
 import tree.DataField;
+import tree.DataFieldConstants;
 import ui.components.AttributeMemoEditor;
 
 
@@ -34,11 +35,11 @@ private AttributeMemoEditor defaultFieldEditor;
 		
 		super(dataField);
 		
-		String defaultValue = dataField.getAttribute(DataField.DEFAULT);
+		String defaultValue = dataField.getAttribute(DataFieldConstants.DEFAULT);
 		if (defaultValue == null) defaultValue = "";
 		
 		defaultFieldEditor = new AttributeMemoEditor
-			(dataField, "Default Text: ", DataField.DEFAULT, defaultValue);
+			(dataField, "Default Text: ", DataFieldConstants.DEFAULT, defaultValue);
 		defaultFieldEditor.setTextAreaRows(3);
 		attributeFieldsPanel.add(defaultFieldEditor);
 	}
@@ -46,7 +47,7 @@ private AttributeMemoEditor defaultFieldEditor;
 	// called when dataField changes attributes
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		defaultFieldEditor.setTextAreaText(dataField.getAttribute(DataField.DEFAULT));
+		defaultFieldEditor.setTextAreaText(dataField.getAttribute(DataFieldConstants.DEFAULT));
 	}
 
 }

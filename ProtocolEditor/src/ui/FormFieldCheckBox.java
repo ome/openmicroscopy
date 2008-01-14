@@ -5,18 +5,19 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
 
-import tree.DataField;
+import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
 
 public class FormFieldCheckBox extends FormField {
 	
 	boolean checkedValue;
 	JCheckBox checkBox;
 	
-	public FormFieldCheckBox (DataField dataField) {
+	public FormFieldCheckBox (IDataFieldObservable dataFieldObs) {
 		
-		super(dataField);
+		super(dataFieldObs);
 		
-		checkedValue = dataField.isAttributeTrue(DataField.VALUE);
+		checkedValue = dataField.isAttributeTrue(DataFieldConstants.VALUE);
 		
 		checkBox = new JCheckBox(" ", checkedValue);
 		checkBox.addActionListener(new CheckBoxListener());
@@ -28,7 +29,7 @@ public class FormFieldCheckBox extends FormField {
 	// called when dataField changes attributes
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		checkedValue = dataField.isAttributeTrue(DataField.VALUE);
+		checkedValue = dataField.isAttributeTrue(DataFieldConstants.VALUE);
 		checkBox.setSelected(checkedValue);
 	} 
 	
@@ -37,7 +38,7 @@ public class FormFieldCheckBox extends FormField {
 			 checkedValue = checkBox.isSelected();
 			 
 			 String value = Boolean.toString(checkedValue);
-			 dataField.setAttribute(DataField.VALUE, value, true);
+			 dataField.setAttribute(DataFieldConstants.VALUE, value, true);
 		}
 		
 	}
