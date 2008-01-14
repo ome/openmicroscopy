@@ -7,20 +7,16 @@
 
 package ome.api;
 
-// Java imports
 import java.util.List;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.annotations.NotNull;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.parameters.Filter;
+import ome.parameters.Page;
 import ome.parameters.Parameters;
 import ome.parameters.QueryParameter;
-import ome.parameters.Page;
 
 /**
  * Provides methods for directly querying object graphs. As far as is possible,
@@ -179,7 +175,7 @@ public interface IQuery extends ServiceInterface {
     // removed java.lang.Object based parameters from the API for cross-language
     // support.
 
-    // We on't provide method with Page argument. Include in QueryParameters.
+    // We don't provide methods with Page argument. Include in QueryParameters.
 
     // Available queries:
     // is class in hibernate? use parameters as field name.
@@ -213,7 +209,7 @@ public interface IQuery extends ServiceInterface {
      * executes the stored query with the given name. If a query with the name
      * cannot be found, an exception will be thrown.
      * 
-     * The queryName parameter can be an actualy query String if the
+     * The queryName parameter can be an actual query String if the
      * StringQuerySource is configured on the server and the user running the
      * query has proper permissions.
      * 
@@ -229,6 +225,41 @@ public interface IQuery extends ServiceInterface {
      */
     <T extends IObject> List<T> findAllByQuery(@NotNull
     String queryName, Parameters parameters);
+
+    /**
+     * executes a full text search based on Lucene. Each term in the query can
+     * also be prefixed by the name of the field to which is should be
+     * restricted.
+     * 
+     * Examples:
+     * <ul>
+     * <li>owner:root AND annotation:someTag</li>
+     * <li>file:xml AND name:*hoechst*</li>
+     * </ul>
+     * 
+     * For more information, see <a
+     * href="http://lucene.apache.org/java/docs/queryparsersyntax.html">Query
+     * Parser Synax</a>
+     * 
+     * The return values are first filtered by the security system.
+     * 
+     * @param <T>
+     * @param type
+     *            A non-null class specification of which type should be
+     *            searched.
+     * @param query
+     *            A non-null query string. An empty string will return no
+     *            results.
+     * @param parameters
+     *            Currently the parameters themselves are unusued. But the
+     *            {@link Parameters#getFilter()} can be used to limit the number
+     *            of results returned ({@link Filter#maxResults()}) or the
+     *            user for who the results will be found ({@link Filter#owner()}).
+     * @return A list of loaded {@link IObject} instances. Never null.
+     */
+    <T extends IObject> List<T> findAllByFullText(@NotNull
+    Class<T> type, @NotNull
+    String query, Parameters parameters);
 
     // ~ Other
     // =========================================================================

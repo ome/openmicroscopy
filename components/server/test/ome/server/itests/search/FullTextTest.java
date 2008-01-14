@@ -8,14 +8,18 @@ package ome.server.itests.search;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import ome.api.IQuery;
 import ome.io.nio.OriginalFilesService;
 import ome.model.IObject;
+import ome.model.core.Image;
 import ome.model.core.OriginalFile;
+import ome.model.internal.Permissions;
 import ome.model.meta.EventLog;
+import ome.model.meta.Experimenter;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
@@ -31,6 +35,7 @@ import org.testng.annotations.Test;
 public class FullTextTest extends AbstractManagedContextTest {
 
     FullTextIndexer fti;
+    Image i;
 
     @Test(enabled = false, groups = "manual")
     public void testIndexWholeDb() throws Exception {
@@ -58,7 +63,6 @@ public class FullTextTest extends AbstractManagedContextTest {
                 if (last_id >= max) {
                     more[0] = false;
                 }
-                last_id = el.getId();
                 return el;
             }
 
@@ -73,7 +77,70 @@ public class FullTextTest extends AbstractManagedContextTest {
 
     public void testSimpleCreation() throws Exception {
         fti = new FullTextIndexer(getExecutor(), getLogs());
+        set(fti);
         fti.run();
+    }
+
+    public void testUniqueImage() throws Exception {
+        i = new Image();
+        i.setName(UUID.randomUUID().toString());
+        i = iUpdate.saveAndReturnObject(i);
+        indexObject(i);
+
+        this.loginRoot();
+        List<Image> list = iQuery.findAllByFullText(Image.class, i.getName(),
+                null);
+        assertTrue(list.size() == 1);
+        assertTrue(list.get(0).getId().equals(i.getId()));
+    }
+
+    public void testUniquePrivateImage() throws Exception {
+        testUniqueImage();
+        iAdmin.changePermissions(i, Permissions.USER_PRIVATE);
+
+        this.loginNewUser();
+        List<Image> list = iQuery.findAllByFullText(Image.class, i.getName(),
+                null);
+        assertTrue(list.size() == 0);
+    }
+
+    public void testUniqueImageBelongingToOnlyUser() throws Exception {
+        testUniqueImage();
+        Experimenter e = this.loginNewUser();
+
+        // Create an image with the same name
+        Image i2 = new Image();
+        i2.setName(i.getName());
+        i2 = iUpdate.saveAndReturnObject(i2);
+
+        indexObject(i2);
+        loginUser(e.getOmeName()); // After indexing, must relogin
+        long id = iAdmin.getEventContext().getCurrentUserId();
+
+        List<Image> list = iQuery.findAllByFullText(Image.class, i.getName(),
+                new Parameters(new Filter().owner(id)));
+        assertTrue(list.size() == 1);
+
+        list = iQuery.findAllByFullText(Image.class, i.getName(), null);
+        assertTrue(list.size() == 2);
+
+    }
+
+    public void testUniqueImageBelongingToOnlyGroup() throws Exception {
+        testUniqueImageBelongingToOnlyUser();
+        long id = iAdmin.getEventContext().getCurrentGroupId();
+
+        List<Image> list = iQuery.findAllByFullText(Image.class, i.getName(),
+                new Parameters(new Filter().group(id)));
+        assertTrue(list.size() == 1);
+
+        list = iQuery.findAllByFullText(Image.class, i.getName(), null);
+        assertTrue(list.size() == 2);
+
+    }
+
+    public void testUserOverridesGroup() throws Exception {
+        fail("nyi");
     }
 
     public void testCreateFile() throws Exception {
@@ -155,6 +222,13 @@ public class FullTextTest extends AbstractManagedContextTest {
     EventLogLoader getLogs() {
         return (EventLogLoader) this.applicationContext
                 .getBean("eventLogLoader");
+    }
+
+    void indexObject(IObject o) {
+        CreationLogLoader logs = new CreationLogLoader(o);
+        fti = new FullTextIndexer(getExecutor(), logs);
+        set(fti);
+        fti.run();
     }
 
     void set(FullTextIndexer fti) {

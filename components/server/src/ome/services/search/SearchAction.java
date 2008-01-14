@@ -7,6 +7,9 @@
 
 package ome.services.search;
 
+import java.util.List;
+
+import ome.model.IObject;
 import ome.services.SearchBean;
 
 /**
@@ -26,5 +29,7 @@ public abstract class SearchAction {
         }
         this.values.copy(values);
     }
+
+    public abstract <T extends IObject> List<T> getNext();
 
 }

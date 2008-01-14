@@ -14,6 +14,10 @@ import java.util.List;
 
 import ome.api.Search;
 import ome.model.internal.Details;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
+import ome.parameters.Filter;
+import ome.parameters.Parameters;
 import ome.services.SearchBean;
 
 /**
@@ -40,8 +44,8 @@ public class SearchValues implements Serializable {
     public Timestamp modifiedStop = null;
     public Timestamp annotatedStart = null;
     public Timestamp annotatedStop = null;
-    public List<Class<?>> onlyTypes = null;
-    public List<Class<?>> onlyAnnotations = null;
+    public List<Class> onlyTypes = null;
+    public List<Class> onlyAnnotations = null;
     public Details ownedBy = null;
     public Details annotatedBy = null;
 
@@ -66,6 +70,26 @@ public class SearchValues implements Serializable {
         this.annotatedBy = copyDetails(values.annotatedBy);
     }
 
+    /**
+     * Copies all known values from Parameters
+     * 
+     * @param params
+     */
+    public void copy(Parameters params) {
+        if (params != null) {
+            Filter filter = params.getFilter();
+            batchSize = filter.maxResults();
+            if (filter.owner() >= 0) {
+                ownedBy = Details.create();
+                ownedBy.setOwner(new Experimenter(filter.owner(), false));
+            } else if (filter.group() >= 0) {
+                ownedBy = Details.create();
+                ownedBy.setGroup(new ExperimenterGroup(filter.group(), false));
+            }
+        }
+
+    }
+
     public static <T> List<T> copyList(List<T> old) {
         if (old == null) {
             return null;
@@ -87,11 +111,12 @@ public class SearchValues implements Serializable {
         return t;
     }
 
-    public static Class<?>[] copyClassListToArray(List<Class<?>> old) {
+    @SuppressWarnings("unchecked")
+    public static Class[] copyClassListToArray(List<Class> old) {
         if (old == null) {
-            return new Class<?>[] {};
+            return new Class[] {};
         } else {
-            return (Class<?>[]) old.toArray();
+            return old.toArray(new Class[] {});
         }
     }
 }

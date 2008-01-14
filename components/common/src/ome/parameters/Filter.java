@@ -20,8 +20,7 @@ import java.io.Serializable;
  * @author <br>
  *         Josh Moore&nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
- *          </small>
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
  * @since 3.0-M2
  * @see ome.parameters.Page
  * @see ome.parameters.Order
@@ -35,7 +34,7 @@ public class Filter implements Serializable {
      */
     private boolean unique = false;
 
-    private long id_owner, id_group;
+    private long id_owner = -1, id_group = -1;
 
     private Page page = new Page(0, Integer.MAX_VALUE);
 

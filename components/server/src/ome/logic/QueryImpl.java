@@ -7,8 +7,8 @@
 
 package ome.logic;
 
-// Java imports
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
@@ -19,10 +19,19 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
-// Third-party libraries
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import ome.api.IQuery;
+import ome.api.ServiceInterface;
+import ome.api.local.LocalQuery;
+import ome.conditions.ApiUsageException;
+import ome.conditions.ValidationException;
+import ome.model.IObject;
+import ome.parameters.Filter;
+import ome.parameters.Parameters;
+import ome.services.dao.Dao;
+import ome.services.query.Query;
+import ome.services.search.FullText;
+import ome.services.search.SearchValues;
+import ome.services.util.OmeroAroundInvoke;
 
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
@@ -38,19 +47,9 @@ import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
 import org.jboss.annotation.security.SecurityDomain;
-
-// Application-internal dependencies
-import ome.api.IQuery;
-import ome.api.ServiceInterface;
-import ome.api.local.LocalQuery;
-import ome.conditions.ApiUsageException;
-import ome.conditions.ValidationException;
-import ome.model.IObject;
-import ome.parameters.Filter;
-import ome.parameters.Parameters;
-import ome.services.dao.Dao;
-import ome.services.query.Query;
-import ome.services.util.OmeroAroundInvoke;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Provides methods for directly querying object graphs.
@@ -65,11 +64,9 @@ import ome.services.util.OmeroAroundInvoke;
 @Transactional(readOnly = true)
 @Stateless
 @Remote(IQuery.class)
-@RemoteBindings({
-    @RemoteBinding(jndiBinding = "omero/remote/ome.api.IQuery"),
-    @RemoteBinding(jndiBinding = "omero/secure/ome.api.IQuery",
-		   clientBindUrl="sslsocket://0.0.0.0:3843")
-})
+@RemoteBindings( {
+        @RemoteBinding(jndiBinding = "omero/remote/ome.api.IQuery"),
+        @RemoteBinding(jndiBinding = "omero/secure/ome.api.IQuery", clientBindUrl = "sslsocket://0.0.0.0:3843") })
 @Local(LocalQuery.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.local.LocalQuery")
 @SecurityDomain("OmeroSecurity")
@@ -378,6 +375,29 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
             Parameters params) {
         Query<List<T>> q = getQueryFactory().lookup(queryName, params);
         return execute(q);
+    }
+
+    /**
+     * @see ome.api.IQuery#findAllByFullText(java.lang.String,
+     *      ome.parameters.Parameteres)
+     */
+    @RolesAllowed("user")
+    @SuppressWarnings("unchecked")
+    public <T extends IObject> List<T> findAllByFullText(final Class<T> type,
+            final String query, final Parameters params) {
+        return (List<T>) getHibernateTemplate().execute(
+                new HibernateCallback() {
+
+                    public Object doInHibernate(Session session)
+                            throws HibernateException, SQLException {
+                        SearchValues values = new SearchValues();
+                        values.onlyTypes = Arrays.asList((Class) type);
+                        values.copy(params);
+                        FullText fullText = new FullText(values, query);
+                        fullText.init(session);
+                        return fullText.getNext();
+                    }
+                }, true);
     }
 
     // ~ Others

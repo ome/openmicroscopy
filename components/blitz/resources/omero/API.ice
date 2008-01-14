@@ -194,13 +194,14 @@ module omero {
       {
 	idempotent omero::model::IObject get(string klass, long id) throws ServerError;
 	idempotent omero::model::IObject find(string klass, long id) throws ServerError;
-	idempotent IObjectList           findAll(string klass, omero::sys::Filter filter) throws ServerError;          
+	idempotent IObjectList           findAll(string klass, omero::sys::Filter filter) throws ServerError;
 	idempotent omero::model::IObject findByExample(omero::model::IObject example) throws ServerError;
-	idempotent IObjectList           findAllByExample(omero::model::IObject example, omero::sys::Filter filter) throws ServerError;    
+	idempotent IObjectList           findAllByExample(omero::model::IObject example, omero::sys::Filter filter) throws ServerError;
 	idempotent omero::model::IObject findByString(string klass, string field, string value) throws ServerError;
 	idempotent IObjectList           findAllByString(string klass, string field, string value, bool caseSensitive, omero::sys::Filter filter) throws ServerError;
 	idempotent omero::model::IObject findByQuery(string query, omero::sys::Parameters params) throws ServerError;
 	idempotent IObjectList           findAllByQuery(string query, omero::sys::Parameters params) throws ServerError;
+	idempotent IObjectList           findAllByFullTet(string klass, string query, omero::sys::Parameters params) throws ServerError;
 	idempotent omero::model::IObject refresh(omero::model::IObject iObject) throws ServerError;
       };
 
@@ -208,7 +209,7 @@ module omero {
       {
 	omero::model::IObject createEnumeration(omero::model::IObject newEnum) throws ServerError;
 	idempotent omero::model::IObject getEnumeration(string type, string value) throws ServerError;
-	idempotent IObjectList allEnumerations(string type) throws ServerError;      
+	idempotent IObjectList allEnumerations(string type) throws ServerError;
       };
 
     interface IUpdate extends ServiceInterface
@@ -307,6 +308,11 @@ module omero {
 	float getCompressionLevel() throws ServerError;
       };
 
+    //interface Search extends StatefulServiceInterface
+    //  {
+    //  
+    //  };
+
     interface ThumbnailStore extends StatefulServiceInterface
       {
 	bool setPixelsId(long pixelsId) throws ServerError;
@@ -348,6 +354,7 @@ module omero {
 	IPixels*   getPixelsService() throws ServerError;
 	IPojos*    getPojosService() throws ServerError;
 	IQuery*    getQueryService() throws ServerError;
+	IRepositoryInfo* getRepositoryInfoService() throws ServerError;
 	ITypes*    getTypesService() throws ServerError;
 	IUpdate*   getUpdateService() throws ServerError;
 
@@ -355,8 +362,8 @@ module omero {
 	RawFileStore* createRawFileStore() throws ServerError;
 	RawPixelsStore* createRawPixelsStore() throws ServerError;
 	RenderingEngine* createRenderingEngine() throws ServerError;
+	// Search* createSearchService() throws ServerError;
 	ThumbnailStore* createThumbnailStore() throws ServerError;
-	IRepositoryInfo* getRepositoryInfoService() throws ServerError;
 
 	/*
 	 * Allows looking up any service by name. See Constants.ice

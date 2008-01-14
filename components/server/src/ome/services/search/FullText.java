@@ -11,15 +11,17 @@ import java.util.List;
 
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
+import ome.model.internal.Details;
 import ome.services.SearchBean;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
-import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 
@@ -63,14 +65,27 @@ public class FullText extends SearchAction {
 
     public synchronized void init(Session session) {
         this.session = Search.createFullTextSession(session);
-        Query q = this.session.createFullTextQuery(this.q, SearchValues
-                .copyClassListToArray(values.onlyTypes));
-        scroll = q.scroll(ScrollMode.FORWARD_ONLY);
+        Criteria criteria = session.createCriteria(values.onlyTypes.get(0));
+        if (values.ownedBy != null) {
+            Details d = values.ownedBy;
+            if (/* ownable && */d.getOwner() != null) {
+                criteria.add(Restrictions.eq("details.owner.id", values.ownedBy
+                        .getOwner().getId()));
+            } else if (d.getGroup() != null) {
+                criteria.add(Restrictions.eq("details.group.id", values.ownedBy
+                        .getGroup().getId()));
+            }
+        }
+        query = this.session.createFullTextQuery(this.q).setCriteriaQuery(
+                criteria);
+        // TODO And if allTypes? or multiple types
     }
 
-    public synchronized List<IObject> getNext(int size) {
-        // scroll.
-
-        return null;
+    @Override
+    @SuppressWarnings("unchecked")
+    public synchronized <T extends IObject> List<T> getNext() {
+        // scroll = query.scroll(ScrollMode.FORWARD_ONLY);
+        return query.list();
     }
+
 }

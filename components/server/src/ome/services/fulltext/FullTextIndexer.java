@@ -20,6 +20,7 @@ import ome.model.annotations.TextAnnotation;
 import ome.model.core.OriginalFile;
 import ome.model.enums.Format;
 import ome.model.internal.Details;
+import ome.model.internal.Permissions;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
@@ -35,6 +36,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Field.Store;
 import org.hibernate.CacheMode;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
@@ -227,7 +229,7 @@ public class FullTextIndexer implements Runnable, FieldBridge, Work {
                 String omename = e.getOmeName();
                 String firstName = e.getFirstName();
                 String lastName = e.getLastName();
-                add(document, "owner", omename, store, index, boost);
+                add(document, "owner", omename, Store.YES, index, boost);
                 add(document, "firstname", firstName, store, index, boost);
                 add(document, "lastName", lastName, store, index, boost);
             }
@@ -235,7 +237,7 @@ public class FullTextIndexer implements Runnable, FieldBridge, Work {
             ExperimenterGroup g = details.getGroup();
             if (g != null && g.isLoaded()) {
                 String groupName = g.getName();
-                add(document, "group", groupName, store, index, boost);
+                add(document, "group", groupName, Store.YES, index, boost);
 
             }
 
@@ -243,14 +245,20 @@ public class FullTextIndexer implements Runnable, FieldBridge, Work {
             if (creationEvent != null && creationEvent.isLoaded()) {
                 String creation = dateBridge.objectToString(creationEvent
                         .getTime());
-                add(document, "creation", creation, store, index, boost);
+                add(document, "creation", creation, Store.YES, index, boost);
             }
 
             Event updateEvent = details.getUpdateEvent();
             if (updateEvent != null && updateEvent.isLoaded()) {
                 String update = dateBridge
                         .objectToString(updateEvent.getTime());
-                add(document, "update", update, store, index, boost);
+                add(document, "update", update, Store.YES, index, boost);
+            }
+
+            Permissions perms = details.getPermissions();
+            if (perms != null) {
+                add(document, "permissions", perms.toString(), Store.YES,
+                        index, boost);
             }
         }
     }
@@ -264,7 +272,8 @@ public class FullTextIndexer implements Runnable, FieldBridge, Work {
         }
         d.add(f);
 
-        f = new Field(COMBINED, value, store, index);
+        // Never storing in combined fields, since it's duplicated
+        f = new Field(COMBINED, value, Store.NO, index);
         if (boost != null) {
             f.setBoost(boost);
         }
