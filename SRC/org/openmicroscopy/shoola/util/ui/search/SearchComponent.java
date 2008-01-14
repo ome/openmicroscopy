@@ -77,9 +77,6 @@ public class SearchComponent
 	/** Bound property indicating to select the owner. */
 	public static final String 		OWNER_PROPERTY = "owner";
     
-	/** The default size of the window. */
-	private static final Dimension	WIN_SIZE = new Dimension(450, 625);
-	
     /** The window's title. */
 	private static final String		TITLE = "Search";
 	
@@ -203,6 +200,7 @@ public class SearchComponent
         controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
         controls.add(UIUtilities.buildComponentPanel(uiDelegate));
         controls.add(buildToolBar());
+        controls.add(Box.createVerticalStrut(10));
 		c.add(controls, BorderLayout.CENTER);
 		c.add(buildStatusPanel(), BorderLayout.SOUTH);
 	}
@@ -284,8 +282,8 @@ public class SearchComponent
 		setProperties();
 		initComponents();
 		buildGUI();
-		setSize(WIN_SIZE);
-		//pack();
+		//setSize(WIN_SIZE);
+		pack();
 	}
 
 	/**

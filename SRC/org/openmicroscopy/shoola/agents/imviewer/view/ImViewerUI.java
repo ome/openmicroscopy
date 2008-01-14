@@ -55,7 +55,6 @@ import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
@@ -80,6 +79,8 @@ import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
+import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -202,7 +203,7 @@ class ImViewerUI
 	private LoadingWindow   		loadingWindow;
 
 	/** Tabbed pane hosting the various panel. */
-	private JTabbedPane				tabs;
+	private ClosableTabbedPane		tabs;
 
 	/** The component displaying the history. */
 	private HistoryUI				historyUI;
@@ -254,25 +255,35 @@ class ImViewerUI
 	private int						heightAdded;
 
 	/** Group hosting the possible background colors. */
-	private ButtonGroup 			bgColorGroup;
+	private ButtonGroup 				bgColorGroup;
 	
 	/** Group hosting the possible scale bar length. */
-	private ButtonGroup 			scaleBarGroup;
+	private ButtonGroup 				scaleBarGroup;
 	
 	/** The source invoking the {@link #usersMenu}. */
-	private Component				source;
+	private Component					source;
 	
 	/** The location where to pop up the {@link #usersMenu}. */
-	private Point					location;
+	private Point						location;
 	
 	/** The zoom menu. */
-	private JMenu					zoomMenu;
+	private JMenu						zoomMenu;
 	
 	/** The zoom grid menu. */
-	private JMenu					zoomGridMenu;
+	private JMenu						zoomGridMenu;
 	
 	/** Group hosting the items of the <code>ZoomGrid</code> menu. */
-	private ButtonGroup     		zoomingGridGroup;
+	private ButtonGroup     			zoomingGridGroup;
+	
+	/** The panel hosting the view. */
+	private ClosableTabbedPaneComponent	viewPanel;
+	
+	/** The panel hosting the view. */
+	private ClosableTabbedPaneComponent	gridViewPanel;
+	
+	/** The panel hosting the view. */
+	private ClosableTabbedPaneComponent	annotatorPanel;
+	
 	
 	/**
 	 * Initializes and returns a split pane, either verical or horizontal 
@@ -320,6 +331,7 @@ class ImViewerUI
 		menuBar.add(createControlsMenu(pref));
 		menuBar.add(createViewMenu(pref));
 		menuBar.add(createZoomMenu(pref));
+		menuBar.add(createShowViewMenu());
 		createRatingMenu();
 		TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
 		menuBar.add(tb.getWindowsMenu());
@@ -604,7 +616,7 @@ class ImViewerUI
 	}
 
 	/**
-	 * Helper methods to create the Zoom menu. 
+	 * Helper method to create the Zoom menu. 
 	 * 
 	 * @param pref The user preferences.
 	 * @return The zoom submenu;
@@ -702,7 +714,7 @@ class ImViewerUI
 	}
 
 	/**
-	 * Helper methods to create the Rating menu. 
+	 * Helper method to create the Rating menu. 
 	 * 
 	 * @return The rating submenu;
 	 */
@@ -748,45 +760,80 @@ class ImViewerUI
 		ratingGroup.add(item);
 		return menu;
 	}
+	
+	/**
+	 * Helper method to create the show View menu. 
+	 * 
+	 * @return The rating submenu;
+	 */
+	private JMenu createShowViewMenu()
+	{
+		JMenu menu = new JMenu("Show View");
+		menu.setMnemonic(KeyEvent.VK_S);
+		JMenuItem item = new JMenuItem(
+					controller.getAction(ImViewerControl.TAB_VIEW));
+		menu.add(item);
+		item = new JMenuItem(
+				controller.getAction(ImViewerControl.TAB_ANNOTATION));
+		menu.add(item);
+		item = new JMenuItem(
+			controller.getAction(ImViewerControl.TAB_GRID));
+		menu.add(item);
+		return menu;
+	}
 
 	/** Builds and lays out the GUI. */
 	private void buildGUI()
 	{
 		Browser browser = model.getBrowser();
 		browser.setComponentsSize(model.getMaxX(), model.getMaxY());
-		tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
+		tabs = new ClosableTabbedPane(JTabbedPane.TOP, 
+									JTabbedPane.WRAP_TAB_LAYOUT);
+		//new JTabbedPane;
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 
-		JPanel p = new JPanel();
+		viewPanel = new ClosableTabbedPaneComponent(ImViewer.VIEW_INDEX, 
+							browser.getTitle(), browser.getIcon(), "");
+		
 		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, 
 				{TableLayout.FILL, TableLayout.PREFERRED}};
-		p.setLayout(new TableLayout(tl));
-		p.add(controlPane, "0, 0");
-		p.add(browser.getUI(), "1, 0");
-		p.add(controlPane.getTimeSliderPane(ImViewer.VIEW_INDEX), "1, 1");
+		viewPanel.setLayout(new TableLayout(tl));
+		viewPanel.add(controlPane, "0, 0");
+		viewPanel.add(browser.getUI(), "1, 0");
+		viewPanel.add(controlPane.getTimeSliderPane(ImViewer.VIEW_INDEX), 
+						"1, 1");
 		tabbedIconHeight = browser.getIcon().getIconHeight()+ICON_EXTRA;
-		tabs.insertTab(browser.getTitle(), browser.getIcon(), p, "", 
+		
+		tabs.insertTab(browser.getTitle(), browser.getIcon(), viewPanel, "", 
 				ImViewer.VIEW_INDEX);
 		browser.layoutAnnotator(controlPane.buildAnnotatorComponent(), 
 				controlPane.getTimeSliderPane(ImViewer.ANNOTATOR_INDEX));
+		
+		annotatorPanel = new ClosableTabbedPaneComponent(
+							ImViewer.ANNOTATOR_INDEX, 
+				browser.getAnnotatorTitle(), browser.getAnnotatorIcon(), "");
+		double[][] tlq = {{TableLayout.FILL}, {TableLayout.FILL}};
+		annotatorPanel.setLayout(new TableLayout(tlq));
+		annotatorPanel.add(browser.getAnnotator(), "0, 0");
 		tabs.insertTab(browser.getAnnotatorTitle(), browser.getAnnotatorIcon(), 
-				browser.getAnnotator(), "", ImViewer.ANNOTATOR_INDEX);
+				annotatorPanel, "", ImViewer.ANNOTATOR_INDEX);
 
-		p = new JPanel();
-		p.setLayout(new TableLayout(tl));
-		p.add(controlPane.buildGridComponent(), "0, 0");
-		p.add(browser.getGridView(), "1, 0");
-		p.add(controlPane.getTimeSliderPane(ImViewer.GRID_INDEX), "1, 1");
+		gridViewPanel = new ClosableTabbedPaneComponent(ImViewer.GRID_INDEX, 
+				browser.getGridViewTitle(),  browser.getGridViewIcon(), "");
+		gridViewPanel.setLayout(new TableLayout(tl));
+		gridViewPanel.add(controlPane.buildGridComponent(), "0, 0");
+		gridViewPanel.add(browser.getGridView(), "1, 0");
+		gridViewPanel.add(controlPane.getTimeSliderPane(ImViewer.GRID_INDEX), 
+						"1, 1");
 
-		tabs.insertTab(browser.getGridViewTitle(), browser.getGridViewIcon(), p, 
-				"", ImViewer.GRID_INDEX);
+		tabs.insertTab(browser.getGridViewTitle(), browser.getGridViewIcon(), 
+						gridViewPanel, "", ImViewer.GRID_INDEX);
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout(0, 0));
 		container.add(toolBar, BorderLayout.NORTH);
 		container.add(tabs, BorderLayout.CENTER);
 		container.add(statusBar, BorderLayout.SOUTH);
 		tabs.addChangeListener(controller);
-		tabs.setEnabledAt(ImViewer.GRID_INDEX, model.getMaxC() != 1);
 		//attach listener to the frame border
 		boundsAdapter = new HierarchyBoundsAdapter() {
 
@@ -844,7 +891,8 @@ class ImViewerUI
 		pane.setRightComponent(right);
 	}
 	
-	/** Lays out the components composing main panel. 
+	/** 
+	 * Lays out the components composing main panel. 
 	 * 
 	 * @param fromPreferences	Pass <code>true</code> to indicate that the 
 	 * 							method is invoked while setting the user 
@@ -1849,6 +1897,26 @@ class ImViewerUI
 	/** Cancels any ongoing search. */
     void discard() { toolBar.discard(); }
     
+    /**
+     * Adds the component specified by the passed index to the display
+     * 
+     * @param index The index identifying the UI component.
+     */
+    void showView(int index)
+    {
+    	
+		switch (index) {
+			case ImViewer.VIEW_INDEX:
+				tabs.insertClosableComponent(viewPanel);
+				break;
+			case ImViewer.GRID_INDEX:
+				tabs.insertClosableComponent(gridViewPanel);
+				break;
+			case ImViewer.ANNOTATOR_INDEX:
+				tabs.insertClosableComponent(annotatorPanel);
+		}
+	}
+    
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 
@@ -1863,9 +1931,6 @@ class ImViewerUI
 				Dimension size = comp.getPreferredSize();
 				int w = size.width;
 				int h = size.height;
-				//Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-				//int width = (int) (screen.width*SCREEN_RATIO);
-				//int height = (int) (screen.height*SCREEN_RATIO);
 				ViewerPreferences pref = ImViewerFactory.getPreferences();
 				if (pref != null) {
 					r = pref.getViewerBounds();

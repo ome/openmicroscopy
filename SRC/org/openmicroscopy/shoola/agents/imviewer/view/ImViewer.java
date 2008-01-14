@@ -854,5 +854,12 @@ public interface ImViewer
 	 *                  <code>component</code>'s coordinates.
 	 */
 	public void retrieveTags(Component component, Point point);
+
+	/**
+	 * Adds the view identified by the index.
+	 * 
+	 * @param index The index identifying the view.
+	 */
+	public void showView(int index);
 	
 }

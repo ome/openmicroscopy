@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.actions.SearchAction 
+ * org.openmicroscopy.shoola.agents.imviewer.actions.ShowViewAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -32,15 +32,11 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
-import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-
 /** 
- * Brings up the widget to perform and advanced search.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,40 +48,71 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public class SearchAction
+public class ShowViewAction 
 	extends ViewerAction
 {
 
-	/** The description of the action. */
-    private static final String NAME = "Search ";
-    
-	/** The description of the action. */
-    private static final String DESCRIPTION = "Bring up the Advanced search.";
-    
-    /**
+	/** Identifies the <code>View</code> pane. */
+	public static final int	VIEW = ImViewer.VIEW_INDEX;
+	
+	/** Identifies the <code>View</code> pane. */
+	public static final int	ANNOTATION = ImViewer.ANNOTATOR_INDEX;
+	
+	/** Identifies the <code>View</code> pane. */
+	public static final int	SPLIT = ImViewer.GRID_INDEX;
+	
+	/** One of the constants defined by this class .*/
+	private int index;
+	
+	/**
+	 * Checks if the index is valid.
+	 * 
+	 * @param value The value to handle.
+	 */
+	private void checkIndex(int value)
+	{
+		IconManager icons = IconManager.getInstance();
+		switch (value) {
+			case VIEW:
+				putValue(Action.NAME, "View");
+				putValue(Action.SMALL_ICON, 
+						icons.getIcon(IconManager.VIEWER));
+				break;
+			case ANNOTATION:
+				putValue(Action.NAME, "Annotation");
+				putValue(Action.SMALL_ICON, 
+						icons.getIcon(IconManager.ANNOTATION));
+				break;
+			case SPLIT:
+				putValue(Action.NAME, "Split");
+				putValue(Action.SMALL_ICON, 
+						icons.getIcon(IconManager.GRIDVIEW));
+				break;
+				default:
+					throw new IllegalArgumentException("Index not valid.");
+		}
+		this.index = value;
+	}
+	
+	/**
      * Creates a new instance.
      * 
      * @param model     Reference to the model. Mustn't be <code>null</code>.
+     * @param index		One of the constants defined by this class.
      */
-    public SearchAction(ImViewer model)
+    public ShowViewAction(ImViewer model, int index)
     {
     	super(model);
-    	name = NAME;
-    	IconManager icons = IconManager.getInstance();
-    	putValue(Action.SMALL_ICON, icons.getIcon(IconManager.SEARCH));
-    	putValue(Action.SHORT_DESCRIPTION, 
-    			UIUtilities.formatToolTipText(DESCRIPTION));
+    	checkIndex(index);
     }
     
-	/** 
-     * Retrieves the rendering settings set by other users.
+    /** 
+     * Adds the selected view to the display.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
-    	AdvancedFinder dialog = FinderFactory.getAdvancedFinder(
-    									ImViewerAgent.getRegistry());
-        UIUtilities.centerAndShow(dialog);
+    	model.showView(index);
     }
     
 }

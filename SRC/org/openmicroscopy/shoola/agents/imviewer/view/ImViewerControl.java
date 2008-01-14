@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Frame;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -72,6 +73,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.RateImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SearchAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ShowViewAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.TextVisibleAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
@@ -93,6 +95,8 @@ import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
+import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
@@ -293,25 +297,34 @@ class ImViewerControl
 	static final Integer     ZOOM_GRID_25 = new Integer(49);
 	
 	/** 
-	 * Identifies the <code>Zooming 25%</code> action of the grid image
+	 * Identifies the <code>Zooming 50%</code> action of the grid image
 	 * in the menu.
 	 */
 	static final Integer     ZOOM_GRID_50 = new Integer(50);
 	
 	/** 
-	 * Identifies the <code>Zooming 25%</code> action of the grid image
+	 * Identifies the <code>Zooming 75%</code> action of the grid image
 	 * in the menu.
 	 */
 	static final Integer     ZOOM_GRID_75 = new Integer(51);
 	
 	/** 
-	 * Identifies the <code>Zooming 25%</code> action of the grid image
+	 * Identifies the <code>Zooming 100%</code> action of the grid image
 	 * in the menu.
 	 */
 	static final Integer     ZOOM_GRID_100 = new Integer(52);
 	
 	/** Identifies the <code>Search</code> action. */
 	static final Integer     SEARCH = new Integer(53);
+	
+	/** Identifies the <code>Search</code> action. */
+	static final Integer     TAB_VIEW = new Integer(54);
+	
+	/** Identifies the <code>Search</code> action. */
+	static final Integer     TAB_ANNOTATION = new Integer(55);
+	
+	/** Identifies the <code>Search</code> action. */
+	static final Integer     TAB_GRID = new Integer(56);
 	
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
@@ -413,6 +426,11 @@ class ImViewerControl
 		actionsMap.put(ZOOM_GRID_100, new ZoomGridAction(model, 
 				ZoomGridAction.ZOOM_100));
 		actionsMap.put(SEARCH, new SearchAction(model));
+		actionsMap.put(TAB_VIEW, new ShowViewAction(model, ShowViewAction.VIEW));
+		actionsMap.put(TAB_ANNOTATION, new ShowViewAction(model, 
+											ShowViewAction.ANNOTATION));
+		actionsMap.put(TAB_GRID, new ShowViewAction(model, 
+									ShowViewAction.SPLIT));
 	}
 
 	/** 
@@ -688,7 +706,12 @@ class ImViewerControl
 	{
 		if (e.getSource() instanceof JTabbedPane) {
 			JTabbedPane pane = (JTabbedPane) e.getSource();
-			view.setSelectedPane(pane.getSelectedIndex());
+			Component c = pane.getSelectedComponent();
+			if (c instanceof ClosableTabbedPaneComponent) {
+				view.setSelectedPane(
+						((ClosableTabbedPaneComponent) c).getIndex());
+			} else 
+				view.setSelectedPane(pane.getSelectedIndex());
 			return;
 		}
 

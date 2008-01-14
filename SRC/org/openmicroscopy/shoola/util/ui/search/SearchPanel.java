@@ -26,6 +26,9 @@ package org.openmicroscopy.shoola.util.ui.search;
 //Java imports
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,10 +50,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-
-
 //Third-party libraries
-import layout.TableLayout;
 import com.toedter.calendar.JDateChooser;
 
 //Application-internal dependencies
@@ -60,7 +60,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 /** 
- * The Componnent hosting the various fields used to collect the 
+ * The Component hosting the various fields used to collect the 
  * context of the search.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -246,37 +246,23 @@ class SearchPanel
 	private JPanel buildScopePanel()
 	{
 		JPanel p = new JPanel();
-		double[] tl = {TableLayout.PREFERRED, 10, TableLayout.PREFERRED}; //columns
-		TableLayout layout = new TableLayout();
-		layout.setColumn(tl);
-		
-		List<SearchObject> nodes = model.getNodes();
+		p.setLayout(new GridBagLayout());
+        p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.WEST;
+        c.insets = new Insets(3, 3, 3, 3);
+        List<SearchObject> nodes = model.getNodes();
 		SearchObject n;
-		int j = 0;
 		int m = nodes.size();
-		double[] rows;
-		int size = 0;
-		if (m%2 == 0) size = m-1;
-		else size = m;
-		rows = new double[size];
-		for (int i = 0; i < rows.length; i++) {
-			if (i%2 == 0) rows[i] = TableLayout.PREFERRED;
-			else rows[i] = 5;
-		}
-		layout.setRow(rows);
-		p.setLayout(layout);
-		int row = -2;
 		JCheckBox box;
+		c.weightx = 1.0;
 		for (int i = 0; i < m; i++) {
 			n = nodes.get(i);
 			box = new JCheckBox(n.getDescription());
 			if (i == 0) box.setSelected(true);
-			if (i%2 == 0) {
-				row = row+2;
-				j = 0;
-			} else j = 2;
+			if (i%2 == 0) c.gridy++;
 			
-			p.add(box, j+", "+row+", l, c");
+			p.add(box, c);
 			scopes.put(n.getIndex(), box);
 		}
 		TitledBorder border = new TitledBorder("Scope");
@@ -335,8 +321,6 @@ class SearchPanel
 	private JPanel buildDate()
 	{
 		JPanel p = new JPanel();
-		
-		
 		p.add(UIUtilities.buildComponentPanel(dates));
 		JPanel datesPanel= new JPanel();
 		datesPanel.setLayout(new BoxLayout(datesPanel, BoxLayout.Y_AXIS));
@@ -482,22 +466,6 @@ class SearchPanel
 	{
 		return SearchUtil.splitTerms(termsArea.getText(), 
 				SearchUtil.SEARCH_SEPARATOR);
-		/*
-		List<String> l = new ArrayList<String>();
-		String text = termsArea.getText();
-		if (text == null) return l;
-		text = text.trim();
-		String value;
-		String[] r = text.split(" ");
-		for (int i = 0; i < r.length; i++) {
-			value = r[i];
-			if (value != null) {
-				value.trim();
-				if ( value.length() != 0) l.add(value);
-			}
-		}
-		return l;
-		*/
 	}
 	
 	/**

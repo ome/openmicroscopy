@@ -275,11 +275,17 @@ public class IconManager
     /** The <code>Add 12</code> icon. */
     public static final int	ADD_12 = 73;
     
+    /** The <code>Close 8</code> icon. */
+    public static final int	CLOSE = 74;
+    
+    /** The <code>Close over 8</code> icon. */
+    public static final int	CLOSE_OVER = 75;
+
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 73;
+    private static int      MAX_ID = 75;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -361,6 +367,8 @@ public class IconManager
         relPaths[SEARCH_TAG_SET] ="search_tag_folder16.png";
         relPaths[EDIT_REMOVE] = "remove12.png";
         relPaths[ADD_12] = "add12.png";
+        relPaths[CLOSE] = "eclipse_remove_att12.png";
+        relPaths[CLOSE_OVER] = "nuvola_messagebox_critical12.png";
     }
     
     /** 

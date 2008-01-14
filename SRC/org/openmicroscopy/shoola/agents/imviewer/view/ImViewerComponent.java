@@ -2426,5 +2426,17 @@ class ImViewerComponent
 		}
 		*/
 	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#showView(int)
+	 */
+	public void showView(int index)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be invoked" +
+					" in the DISCARDED state.");
+		view.showView(index);
+	}
     
 }
