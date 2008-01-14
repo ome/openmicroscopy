@@ -13,13 +13,13 @@ import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 
-import tree.DataField;
+import tree.IAttributeSaver;
 
 public class AttributeMemoEditor extends JPanel {
 	
 boolean textChanged;
 	
-	DataField dataField;
+	IAttributeSaver dataField;
 	
 	TextChangedListener textChangedListener = new TextChangedListener();
 	FocusListener focusChangedListener = new FocusChangedListener();
@@ -27,10 +27,10 @@ boolean textChanged;
 	JTextArea attributeTextField;
 	
 	// constructor creates a new panel and adds a name and text area to it.
-	public AttributeMemoEditor(DataField dataField, String attribute, String value) {
+	public AttributeMemoEditor(IAttributeSaver dataField, String attribute, String value) {
 		this(dataField, attribute, attribute, value);
 	}
-	public AttributeMemoEditor(DataField dataField, String label, String attribute, String value) {
+	public AttributeMemoEditor(IAttributeSaver dataField, String label, String attribute, String value) {
 		
 		this.dataField = dataField;
 		

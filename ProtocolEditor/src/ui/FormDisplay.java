@@ -98,6 +98,8 @@ public class FormDisplay extends JPanel {
 		//	set visibility of the childBox wrt collapsed boolean of dataField
 		//	 & sets collapse button visible if dataFieldNode has children
 		dfNode.getDataField().refreshTitleCollapsed();
+		
+		System.out.println("FormDisplay: buildFormTree() " + dfNode.getDataField().getName());
 	
 		// for each child, get their JPanel, add it to the childBox
 		for (DataFieldNode child: children){

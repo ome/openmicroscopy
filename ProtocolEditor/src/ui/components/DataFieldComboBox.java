@@ -6,13 +6,15 @@ import java.awt.event.ActionListener;
 import javax.swing.JComboBox;
 
 import tree.DataField;
+import tree.IAttributeSaver;
 
 public class DataFieldComboBox extends CustomComboBox {
 
 	String attribute;
-	DataField dataField;
+	IAttributeSaver dataField;
+	SelectionListener selectionListener = new SelectionListener();
 	
-	public DataFieldComboBox(DataField dataField, String attribute, String[] items) {
+	public DataFieldComboBox(IAttributeSaver dataField, String attribute, String[] items) {
 		
 		super(items);
 		
@@ -23,7 +25,19 @@ public class DataFieldComboBox extends CustomComboBox {
 	}
 	
 	protected void init() {
-		this.addActionListener(new SelectionListener());
+		this.addActionListener(selectionListener);
+	}
+	
+	public void setSelectedItem(Object item) {
+		removeActionListener(selectionListener);
+		super.setSelectedItem(item);
+		addActionListener(selectionListener);
+	}
+	
+	public void setSelectedIndex(int index) {
+		removeActionListener(selectionListener);
+		super.setSelectedIndex(index);
+		addActionListener(selectionListener);
 	}
 	
 	public class SelectionListener implements ActionListener {

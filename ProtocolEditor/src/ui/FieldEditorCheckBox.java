@@ -17,13 +17,13 @@ public class FieldEditorCheckBox extends FieldEditor {
 		
 		super(dataField);
 		
+		defaultValue = dataField.isAttributeTrue(DataField.DEFAULT);
+		defaultCheckBox = new JCheckBox("Default checked", defaultValue);
+		
 		// if no default value is set (null), set it to false;
 		if (dataField.getAttribute(DataField.DEFAULT) == null) 
 			dataField.setAttribute(DataField.DEFAULT, DataField.FALSE, false);
 		
-		defaultValue = dataField.isAttributeTrue(DataField.DEFAULT);
-		
-		defaultCheckBox = new JCheckBox("Default checked", defaultValue);
 		defaultCheckBox.addActionListener(new DefaultCheckBoxListener());
 		
 		attributeFieldsPanel.add(defaultCheckBox);

@@ -6,8 +6,9 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
 
 import util.BareBonesBrowserLaunch;
 import util.ImageFactory;
@@ -17,14 +18,17 @@ public class OLSLinkPanel extends JPanel {
 	public OLSLinkPanel() {
 		this.setLayout(new BorderLayout());
 		
+		this.setBorder(new EtchedBorder());
+		
 		// a link to the Ontology-Lookup-Service website
 		Icon olsIcon = ImageFactory.getInstance().getIcon(ImageFactory.OLS_LOGO_SMALL);
-		JLabel olsLabel = new JLabel("Uses the EBI OLS");
-		JButton olsButton = new JButton(olsIcon);
-		olsButton.setBorder(null);
+		JButton olsButton = new JButton("Uses the EBI OLS", olsIcon);
+		olsButton.setBorder(new EmptyBorder(2,2,2,2));
 		olsButton.addActionListener(new OlsLinkListener());
-		this.add(olsLabel, BorderLayout.WEST);
-		this.add(olsButton, BorderLayout.CENTER);
+		
+		// makes the panel shrink to the size of the button (if in WEST/EAST)
+		this.setAlignmentX(LEFT_ALIGNMENT);
+		this.add(olsButton, BorderLayout.WEST);
 	}
 	
 	

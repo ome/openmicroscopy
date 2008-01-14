@@ -39,7 +39,7 @@ import ui.FormField;
 // the in-memory form of an xml element
 // has hash map of attributes, plus FormField and FieldEditor panels to display them
 
-public class DataField {
+public class DataField implements IAttributeSaver, IDataFieldObservable {
 	
 	// attribute types
 	// changes to the attributes are reflected in XML element saving.
@@ -140,8 +140,8 @@ public class DataField {
 		allAttributesMap = new LinkedHashMap<String, String>();
 		
 		// default type and name
-		setAttribute(DataField.INPUT_TYPE, DataField.FIXED_PROTOCOL_STEP, false);
-		setAttribute(DataField.ELEMENT_NAME, "untitled", false);
+		setAttribute(DataField.INPUT_TYPE, DataField.FIXED_PROTOCOL_STEP);
+		setAttribute(DataField.ELEMENT_NAME, "untitled");
 
 	}
 	
@@ -166,19 +166,27 @@ public class DataField {
 	 * notifyObservers is true if the edit corresponds to a single undo() action. 
 	 * This is passed to the tree (via node) to be added to the undoManager. 
 	 */
-	public void setAttribute(String name, String value, boolean notifyDataFieldObservers) {
-		System.out.println("DataField.setAttribute(notifyObservers="+ notifyDataFieldObservers +"): " + name + "=" + value);
+	public void setAttribute(String name, String value, boolean rememberUndo) {
+		System.out.println("DataField.setAttribute(notifyObservers="+ rememberUndo +"): " + name + "=" + value);
+		
+		if (name.equals(INPUT_TYPE)) {
+			this.changeDataFieldInputType(value, rememberUndo);
+			return;
+		}
 		
 		String oldValue = allAttributesMap.get(name);
 		
-		allAttributesMap.put(name, value);
+		setAttribute(name, value);
 		
-		if (notifyDataFieldObservers) {
+		if (rememberUndo) {
 			// remember what change was made - add it to undo() history
 			node.dataFieldUpdated(new EditDataFieldAttribute(this, name, oldValue, value));
-			
 			notifyDataFieldObservers();
 		}
+	}
+	
+	public void setAttribute(String name, String value) {
+		allAttributesMap.put(name, value);
 	}
 	
 	public String getAttribute(String name) {
@@ -205,14 +213,16 @@ public class DataField {
 		return customElement;
 	}
 	
-	public void changeDataFieldInputType(String newInputType) {
+	public void changeDataFieldInputType(String newInputType, boolean rememberUndo) {
 		
 		// delete all attributes other than name & description. (not relevant to new input type - probably)
 		// unless initializing to "Custom" field (from null), since Custom may have many attributes
 		if (!newInputType.equals(DataField.CUSTOM)) {
 			
 			// remember undo 
-			node.dataFieldUpdated(new EditDataFieldType(this, getAllAttributes()));
+			if (rememberUndo) {
+				node.dataFieldUpdated(new EditDataFieldType(this, getAllAttributes()));
+			}
 			
 //			 keep the original name & description & colour (may be null)
 			String copyName = allAttributesMap.get(DataField.ELEMENT_NAME);
@@ -221,12 +231,12 @@ public class DataField {
 			
 			allAttributesMap.clear();
 			
-			setAttribute(DataField.ELEMENT_NAME, copyName, false);
-			setAttribute(DataField.DESCRIPTION, copyDescription, false);
-			setAttribute(DataField.BACKGROUND_COLOUR, copyColour, false);
+			setAttribute(DataField.ELEMENT_NAME, copyName);
+			setAttribute(DataField.DESCRIPTION, copyDescription);
+			setAttribute(DataField.BACKGROUND_COLOUR, copyColour);
 		}
 		
-		setAttribute(DataField.INPUT_TYPE, newInputType, false);
+		setAttribute(DataField.INPUT_TYPE, newInputType);
 		
 		// new subclasses of formField and fieldEditor will get made when needed
 		fieldEditor = null;
@@ -235,8 +245,8 @@ public class DataField {
 		// reset the blue colour
 		node.nodeClicked(true);
 		
-		// this only needed if call comes from FieldEditor (let fieldEditor do it)
-		// notifyDataFieldObservers(); 
+		
+		notifyXmlObservers(); 
 	}
 	
 	public void resetFieldEditorFormField() {
@@ -319,7 +329,7 @@ public class DataField {
 	// if there are any children, set their collapsed (visible) state
 	public void collapseChildren(boolean collapsed) {
 		if (hasChildren()) {
-			setAttribute(SUBSTEPS_COLLAPSED, (new Boolean(collapsed)).toString(), false);
+			setAttribute(SUBSTEPS_COLLAPSED, (new Boolean(collapsed)).toString());
 			refreshTitleCollapsed();
 		}
 	}

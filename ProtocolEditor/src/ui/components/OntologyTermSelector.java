@@ -5,6 +5,10 @@ import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Iterator;
@@ -12,9 +16,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.swing.Box;
+import javax.swing.ComboBoxEditor;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.text.JTextComponent;
 
 import ols.Ontologies;
@@ -31,6 +39,7 @@ public class OntologyTermSelector extends JPanel {
 	
 	CustomComboBox ontologySelector;
 	JComboBox ontologyTermSelector;
+	int listIndex = 0;
 	OntologyTermKeyListener ontologyTermListener;
 	TermSelectionListener termSelectionListener;
 	
@@ -126,24 +135,54 @@ public class OntologyTermSelector extends JPanel {
 	 */
 	public class OntologyTermKeyListener implements KeyListener {
 		
+		
 		public void keyReleased(KeyEvent event) {
 
 			int keyCode = event.getKeyCode();
 			
+			// System.out.println(keyCode);
+			
 			// ignore events from the Enter key, since this will be processed by ActionListener
-			if (keyCode == Event.ENTER)	// return key
-				 return;
+			if ((keyCode == Event.ENTER)) {	// return key
+				if (listIndex > -1)
+				ontologyTermSelector.setSelectedItem(ontologyTermSelector.getItemAt(listIndex));
+				return;
+			}
+				 
+			// use a listIndex to keep track of user moving up and down the popupMenu with keys
+			// Can't find any other way of keeping track of highlighted item, since calling
+			// getSelectedItem() always returns the item in the editableTextBox.
+			// If the user hits enter (see above) the item at the current index is 
+			// loaded into the editable text box, using setSelectedItem();
+			if (keyCode == KeyEvent.VK_DOWN) {
+				if (listIndex < ontologyTermSelector.getItemCount()-1)
+				listIndex++;
+				return;
+			}
+			if (keyCode == KeyEvent.VK_UP) {
+				if (listIndex >1)
+					listIndex--;
+				return;
+			}
+			
+			
 			
 			JTextComponent source = (JTextComponent)event.getSource();
 			String input = source.getText();
 			
+			// don't auto-complete unless 3 characters have been entered
+			if (input.length() < 3) return;
+			
 			ontologyTermSelector.removeActionListener(termSelectionListener);
 			ontologyTermSelector.removeAllItems();
 			
-			ontologyTermSelector.addItem(input);
+			// reset this, since items have changed. 
+			listIndex = 0;
+			
+			//ontologyTermSelector.addItem(input);
 
 			// don't auto-complete unless 3 characters have been entered
-			if (input.length() < 3) return;
+			//if (input.length() < 3) return;
 			
 			String currentOntologyId = getCurrentOntologyId();
 			
@@ -155,6 +194,8 @@ public class OntologyTermSelector extends JPanel {
 				ontologyTermSelector.addItem(name);
 			}
 			ontologyTermSelector.setPopupVisible(true);
+
+			//ontologyTermSelector.getPopupMenuListeners();
 			source.setText(input);
 			ontologyTermSelector.addActionListener(termSelectionListener);
 		}
@@ -168,11 +209,14 @@ public class OntologyTermSelector extends JPanel {
 		public void actionPerformed (ActionEvent event) {
 			
 			String selection = ontologyTermSelector.getSelectedItem().toString();
+			//System.out.println(ontologyTermSelector.getSelectedItem().toString());
 			
 			JComboBox sourceComboBox = (JComboBox)event.getSource();
+			// System.out.println(sourceComboBox.getModel().getSelectedItem().toString());
 			
 			/*
-			 * if the user hits enter to select auto-complete, the selection will simply be the 
+			 * if the user hits enter to select the first item in auto-complete list,
+			 *  the selection (selectedItem) will simply be the 
 			 * stuff they have typed in (not an item from the list)
 			 * A test for this is whether it contains the ID_NAME_SEPARATOR, contained by all list items.
 			 */
@@ -195,12 +239,18 @@ public class OntologyTermSelector extends JPanel {
 				sourceComboBox.addActionListener(termSelectionListener);
 				
 			}
-			System.out.println("FormFieldOLS TermSelectionListener   selection = " + selection);
 			
+			// would be nice to do this when user uses mouse to select item,
+			// because this causes the selected item and the listIndex to get out of sync. 
+			// BUT the line below would incorrectly reset listIndex when "Enter" is hit
+			// because getSelectedIndex() would return the LAST selected item (not the new one).
+			// This fails (BUG) if the user selects using the up and down keys after using the mouse
+			// for a previous selection, because the listIndex has become out of sync.
+			//listIndex = sourceComboBox.getSelectedIndex();
 			
 			int separatorIndex = selection.indexOf(ONTOLOGY_ID_NAME_SEPARATOR);
 			
-			// this will still be true if no items were in the list 
+			// just in case there were no items were in the list 
 			if(separatorIndex == -1) {
 				dataField.setAttribute(attributeId, selection, true);
 				return;
@@ -209,11 +259,9 @@ public class OntologyTermSelector extends JPanel {
 			String termId = selection.substring(0, separatorIndex);
 			// String termName = selection.substring(separatorIndex + ONTOLOGY_ID_NAME_SEPARATOR.length());
 				
+			// would be better to do this when focus lost,
+			// since this actionPerformed seems to fire several times (2 or 3 times).
 			dataField.setAttribute(attributeId, termId, true);
-			
-			//dataField.setAttribute(DataField.ONTOLOGY_TERM_NAME, termName, false);
-			
-			//ontologyTermSelector.setSize(ontologyTermSelector.getPreferredSize());
 		}
 	}
 	

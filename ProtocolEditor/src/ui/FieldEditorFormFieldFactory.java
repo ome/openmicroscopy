@@ -150,7 +150,7 @@ public class FieldEditorFormFieldFactory {
 		}
 		else {
 			formField = new FormFieldCustom(dataField);
-			dataField.setAttribute(DataField.INPUT_TYPE, DataField.CUSTOM, false);
+			dataField.setAttribute(DataField.INPUT_TYPE, DataField.CUSTOM);
 		}
 		
 		return formField;

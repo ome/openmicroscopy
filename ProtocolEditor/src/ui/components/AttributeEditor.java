@@ -12,13 +12,13 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 
-import tree.DataField;
+import tree.IAttributeSaver;
 
 public class AttributeEditor extends JPanel {
 	
 boolean textChanged;
 	
-	DataField dataField;
+	IAttributeSaver dataField;
 	
 	TextChangedListener textChangedListener = new TextChangedListener();
 	FocusListener focusChangedListener = new FocusChangedListener();
@@ -27,11 +27,11 @@ boolean textChanged;
 	JLabel attributeName;
 	
 	// constructor creates a new panel and adds a name and text field to it.
-	public AttributeEditor(DataField dataField, String attribute, String value) {
+	public AttributeEditor(IAttributeSaver dataField, String attribute, String value) {
 		this(dataField, attribute, attribute, value);
 	}
 	
-	public AttributeEditor(DataField dataField, String label, String attribute, String value) {
+	public AttributeEditor(IAttributeSaver dataField, String label, String attribute, String value) {
 		
 		this.dataField = dataField;
 		

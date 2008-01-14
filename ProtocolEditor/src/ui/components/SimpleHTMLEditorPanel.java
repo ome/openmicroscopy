@@ -1,37 +1,63 @@
-/**
- * 
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *
+ *
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ *	author Will Moore will@lifesci.dundee.ac.uk
  */
+
+
 package ui.components;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
-import tree.IAttributeSaver;
 import util.ImageFactory;
 
-public class AttributeMemoFormatEditor extends JPanel{
-	/**
-	 * 
-	 */
+/**
+ * This is a class similar to AttributeMemoEditor, except this one doesn't deal with dataFields.
+ * This is simply a html formatting and editing panel, that you can getText from, 
+ * or add property change listeners to
+ */
 
-	IAttributeSaver dataField;
-	String attributeId;
+public class SimpleHTMLEditorPanel extends JPanel{
 
+	public static final String HTML_TEXT = "htmlText";
+	public static final String HTML_TEXT_NO_BODY_TAG_OR_HTML_TAG = "htmlTextNoBodyTagOrHtmlTag";
+	
 	boolean textChanged = false;
 	
 	SimpleHTMLEditorPane editorPane;
@@ -40,21 +66,20 @@ public class AttributeMemoFormatEditor extends JPanel{
 	
 	TextChangedListener textChangedListener = new TextChangedListener();
 	FocusListener focusChangedListener = new FocusChangedListener();
+
+	protected JPanel topPanel;
 	
-	// constructor creates a new panel and adds a name and text area to it.
-	public AttributeMemoFormatEditor(IAttributeSaver dataField, String attribute, String value) {
-		this(dataField, attribute, attribute, value);
+	public SimpleHTMLEditorPanel(String title) {
+		this();
+		JLabel titleLabel = new JLabel(title);
+		addComponentOppositeToolBar(titleLabel);
 	}
-	public AttributeMemoFormatEditor(IAttributeSaver dataField, String label, String attribute, String value) {
-		
-		this.dataField = dataField;
+	
+	public SimpleHTMLEditorPanel() {
 		
 		this.setBorder(new EmptyBorder(3,3,3,3));
-		JLabel attributeName = new JLabel(label);
 		
 		editorPane = new SimpleHTMLEditorPane();
-		editorPane.addHtmlTagsAndSetText(value);
-		attributeId = attribute;
 		editorPane.addKeyListener(textChangedListener);
 		editorPane.addFocusListener(focusChangedListener);
 		
@@ -78,16 +103,20 @@ public class AttributeMemoFormatEditor extends JPanel{
 		underlineButton.setBorder(toolBarButtonBorder);
 		toolBarBox.add(underlineButton);
 		
-		JPanel topPanel = new JPanel(new BorderLayout());
-		topPanel.add(attributeName, BorderLayout.WEST);
+		topPanel = new JPanel(new BorderLayout());
 		topPanel.add(toolBarBox, BorderLayout.EAST);
 		
 		this.setLayout(new BorderLayout());
 		this.add(topPanel, BorderLayout.NORTH);
 		this.add(editorPane, BorderLayout.CENTER);
 	}
+	
+	public void addComponentOppositeToolBar(JComponent newComponent) {
+		topPanel.add(newComponent, BorderLayout.WEST);
+	}
+	
 	public String getTextAreaText() {
-		return editorPane.getTextNoBodyTagOrHtmlTag();
+		return editorPane.getText();
 	}
 	public void setTextAreaText(String text) {
 		editorPane.addHtmlTagsAndSetText(text);
@@ -99,10 +128,7 @@ public class AttributeMemoFormatEditor extends JPanel{
 		component.setBorder(toolBarButtonBorder);
 		toolBarBox.add(component);
 	}
-	
-	public void removeFocusListener() {
-		editorPane.removeFocusListener(focusChangedListener);
-	}
+
 	
 	/*
 	 * Listens to buttons for changing the editorPane formatting eg Underline, bold.
@@ -119,17 +145,20 @@ public class AttributeMemoFormatEditor extends JPanel{
 			// change the formatting of the text in the editorPane
 			editorPane.getHtmlEditorKitAction(actionCommand).actionPerformed(e);
 			
-			// update the changes to the dataField
-			setDataFieldAttribute(attributeId, getText(), true);
-			textChanged = false;
+			// notify listeners of the changes 
+			textChanged();
 		}
 	}
 	
-	// called to update dataField with attribute
-	protected void setDataFieldAttribute(String attributeName, String value, boolean notifyUndoRedo) {
-		dataField.setAttribute(attributeName, value, notifyUndoRedo);
+	// notify listeners of a change to the text
+	public void textChanged() {
+		
+		firePropertyChange(HTML_TEXT, "", editorPane.getText());
+		firePropertyChange(HTML_TEXT_NO_BODY_TAG_OR_HTML_TAG, "", editorPane.getTextNoBodyTagOrHtmlTag());
+		
+		textChanged = false;
 	}
-	
+
 	public class TextChangedListener implements KeyListener {
 		
 		public void keyTyped(KeyEvent event) {
@@ -144,17 +173,44 @@ public class AttributeMemoFormatEditor extends JPanel{
 		
 		public void focusLost(FocusEvent event) {
 			if (textChanged) {
-				
-				setDataFieldAttribute(attributeId, getText(), true);
-				
-				textChanged = false;
+				textChanged();
 			}
 		}
 		public void focusGained(FocusEvent event) {}
 	}
 	
-	// don't want to save the start and end <html> tags and <body> tags.
 	public String getText() {
+		return editorPane.getText();
+	}
+	
+	public String getTextNoBodyTagOrHtmlTag() {
 		return editorPane.getTextNoBodyTagOrHtmlTag();
+	}
+	
+	public SimpleHTMLEditorPane getEditorPane() {
+		return editorPane;
+	}
+	
+	public static void main(String[] args) {
+		
+		JPanel simpleHTMLEditorPanel = new SimpleHTMLEditorPanel("Test");
+		simpleHTMLEditorPanel.addPropertyChangeListener(HTML_TEXT_NO_BODY_TAG_OR_HTML_TAG, new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                System.out.println(HTML_TEXT_NO_BODY_TAG_OR_HTML_TAG);
+            	System.out.println(evt.getNewValue());
+            }
+        });
+		
+		JButton testGetTextButton = new JButton("Take focus from editor");
+
+		
+		JFrame frame = new JFrame("Drop Down Test");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(new BorderLayout());
+		frame.getContentPane().add("Center", simpleHTMLEditorPanel);
+		frame.getContentPane().add("North", testGetTextButton);
+		frame.pack();
+		frame.setSize(new Dimension(300, 300));
+	    frame.setVisible(true);
 	}
 }

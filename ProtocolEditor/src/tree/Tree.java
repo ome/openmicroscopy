@@ -1045,6 +1045,7 @@ public class Tree {
 	
 	// when the data structure changes, edited = true. When saved, edited = false
 	public void setTreeEdited(boolean edited) {
+		System.out.println("Tree Edited = " + edited);
 		treeEdited = edited;
 	}
 	
@@ -1053,14 +1054,16 @@ public class Tree {
 	}
 	
 	public String getUndoCommand() {
-		if (undoManager.canUndo()) 
+		if (undoManager.canUndo()) {
 			return undoManager.getUndoPresentationName();
+		}
 		else 
 			return "Cannot Undo";
 	}
 	public String getRedoCommand() {
-		if (undoManager.canRedo())
+		if (undoManager.canRedo()) {
 			return undoManager.getRedoPresentationName();
+		}
 		else 
 			return "Cannot Redo";
 	}
@@ -1071,7 +1074,7 @@ public class Tree {
 		return undoManager.canRedo();
 	}
 	
-	  /**
+	/**
 	  * An undo/redo adpater. The adpater is notified when
 	  * an undo edit occur(e.g. add or remove from the list)
 	  * The adptor extract the edit from the event, add it

@@ -41,6 +41,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 
+import tree.IAttributeSaver;
 import tree.DataField;
 import tree.DataFieldObserver;
 import ui.components.AttributeEditor;
@@ -54,7 +55,7 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 	
 	public static final Dimension MINIMUM_SIZE = new Dimension(290,300);
 	
-	DataField dataField;
+	IAttributeSaver dataField;
 	
 	JPanel attributeFieldsPanel;
 	JPanel inputTypePanel;
@@ -88,7 +89,7 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 		attributeFieldsPanel.setLayout(new BoxLayout(attributeFieldsPanel, BoxLayout.Y_AXIS));
 		attributeFieldsPanel.setBorder(new EmptyBorder(5, 5, 5,5));
 		
-		nameFieldEditor = new AttributeMemoFormatEditor(dataField, "Field Name: ", DataField.ELEMENT_NAME, dataField.getName());
+		nameFieldEditor = new AttributeMemoFormatEditor(dataField, "Field Name: ", DataField.ELEMENT_NAME, dataField.getAttribute(DataField.ELEMENT_NAME));
 		attributeFieldsPanel.add(nameFieldEditor);
 		
 		// Drop-down selector of input-type. 
@@ -99,9 +100,10 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 		inputTypeSelector = new JComboBox(DataField.UI_INPUT_TYPES);
 		inputTypeSelector.setMaximumRowCount(12);
 		// Set it to the current input type
-		if (dataField.getInputType() != null) {
+		String inputType = dataField.getAttribute(DataField.INPUT_TYPE);
+		if (inputType != null) {
 			for (int i=0; i<DataField.UI_INPUT_TYPES.length; i++)
-				if (dataField.getInputType().equals(DataField.INPUT_TYPES[i]))
+				if (inputType.equals(DataField.INPUT_TYPES[i]))
 					inputTypeSelector.setSelectedIndex(i);
 		}
 		
@@ -111,10 +113,10 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 		inputTypeSelector.addActionListener(new inputTypeSelectorListener());
 		attributeFieldsPanel.add(inputTypePanel);
 		
-		descriptionFieldEditor = new AttributeMemoFormatEditor(dataField, "Description: ", DataField.DESCRIPTION, dataField.getDescription());
+		descriptionFieldEditor = new AttributeMemoFormatEditor(dataField, "Description: ", DataField.DESCRIPTION, dataField.getAttribute(DataField.DESCRIPTION));
 		attributeFieldsPanel.add(descriptionFieldEditor);
 		
-		urlFieldEditor = new AttributeEditor(dataField, "Url: ", DataField.URL, dataField.getURL());
+		urlFieldEditor = new AttributeEditor(dataField, "Url: ", DataField.URL, dataField.getAttribute(DataField.URL));
 		attributeFieldsPanel.add(urlFieldEditor);
 		
 		/* colour-picker */
@@ -169,19 +171,6 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 		urlFieldEditor.setTextFieldText(dataField.getAttribute(DataField.URL));
 	}
 	
-	// called when focus lost
-	public void updateDataField() {
-		dataField.setAttribute(DataField.ELEMENT_NAME, nameFieldEditor.getTextAreaText(), true);
-		// dataField.setAttribute(DataField.DESCRIPTION, descriptionFieldEditor.getTextAreaText());
-
-		String url = urlFieldEditor.getTextFieldText();
-		if ((url.length() > 0) && !(url.startsWith("http"))) url = "http://" + url;
-		// dataField.setAttribute(DataField.URL, url);
-		
-
-		
-		dataField.notifyDataFieldObservers();
-	}
 	
 	/*
 	 * used to process colour selection from the Colour JPopupMenu. 
@@ -217,9 +206,10 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 	}	
 	
 	public void inputTypeSelectorChanged(String newType) {
-		dataField.changeDataFieldInputType(newType);
-		// the above call doesn't notify others (mostly don't want to)
-		dataField.notifyXmlObservers();		// updates UI with new formField & fieldEd
+		// true : rememberUndo
+		dataField.setAttribute(DataField.INPUT_TYPE, newType, true);
+		
+		//((DataField)dataField).notifyDataFieldObservers();
 	}
 
 }

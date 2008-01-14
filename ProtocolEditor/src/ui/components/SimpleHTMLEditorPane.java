@@ -118,7 +118,7 @@ public class SimpleHTMLEditorPane extends JEditorPane {
 	 * ie. no tags EXCEPT <br>, <u>, and <b>
 	 * @see javax.swing.JEditorPane#getText()
 	 */
-	public String getText() {
+	public String getTextNoBodyTagOrHtmlTag() {
 		
 		String htmlText = super.getText();
 		
