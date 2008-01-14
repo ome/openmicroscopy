@@ -8,8 +8,8 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import tree.DataField;
 import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
 
 public class FieldEditorTime extends FieldEditor {
 	
@@ -27,9 +27,9 @@ public class FieldEditorTime extends FieldEditor {
 	SpinnerModel secsModel;
 	JSpinner secsSpinner;
 	
-	public FieldEditorTime(DataField dataField) {
+	public FieldEditorTime(IDataFieldObservable dataFieldObs) {
 		
-		super(dataField);
+		super(dataFieldObs);
 		
 		// time String is in the form HHMMSS
 		

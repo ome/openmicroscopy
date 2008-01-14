@@ -22,22 +22,17 @@
 
 package ui;
 
-import java.util.ArrayList;
-
-import javax.swing.BorderFactory;
-import javax.swing.border.EtchedBorder;
-
-import tree.DataField;
 import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
 import ui.components.AttributeEditor;
 
 public class FieldEditorProtocol extends FieldEditor {
 	
 	private AttributeEditor keywordsFieldEditor;
 	
-	public FieldEditorProtocol (DataField dataField) {
+	public FieldEditorProtocol (IDataFieldObservable dataFieldObs) {
 		
-		super(dataField);
+		super(dataFieldObs);
 		
 //		 comma-delimited set of search words
 		String keywords = dataField.getAttribute(DataFieldConstants.KEYWORDS);

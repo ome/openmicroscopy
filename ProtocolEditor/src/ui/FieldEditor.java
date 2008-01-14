@@ -43,8 +43,8 @@ import javax.swing.border.EmptyBorder;
 
 import tree.DataFieldConstants;
 import tree.IAttributeSaver;
-import tree.DataField;
 import tree.DataFieldObserver;
+import tree.IDataFieldObservable;
 import ui.components.AttributeEditor;
 import ui.components.AttributeMemoFormatEditor;
 import ui.components.ColourMenuItem;
@@ -57,6 +57,7 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 	public static final Dimension MINIMUM_SIZE = new Dimension(290,300);
 	
 	IAttributeSaver dataField;
+	IDataFieldObservable dataFieldObs;
 	
 	JPanel attributeFieldsPanel;
 	JPanel inputTypePanel;
@@ -78,9 +79,17 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 		this.setMinimumSize(MINIMUM_SIZE);
 	}
 	
-	public FieldEditor(DataField dataField) {
-		this.dataField = dataField;
-		dataField.addDataFieldObserver(this);
+	public FieldEditor(IDataFieldObservable dataFieldObs) {
+		this.dataFieldObs = dataFieldObs;
+		dataFieldObs.addDataFieldObserver(this);
+		
+		// save a reference to the datafield as an IAttributeSaver (get and set-Attribute methods)
+		if (dataFieldObs instanceof IAttributeSaver) {
+			this.dataField = (IAttributeSaver)dataFieldObs;
+		} else {
+			throw new RuntimeException("FormField(dataField) needs dataField to implement IAttributeSaver");
+		}
+		
 		buildPanel();
 	}
 	

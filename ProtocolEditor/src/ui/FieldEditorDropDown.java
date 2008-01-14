@@ -31,8 +31,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import tree.DataField;
 import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
 import ui.components.AttributeMemoEditor;
 
 public class FieldEditorDropDown extends FieldEditor {
@@ -42,9 +42,9 @@ public class FieldEditorDropDown extends FieldEditor {
 	
 	private AttributeMemoEditor optionsFieldEditor;
 	
-	public FieldEditorDropDown (DataField dataField) {
+	public FieldEditorDropDown (IDataFieldObservable dataFieldObs) {
 		
-		super(dataField);
+		super(dataFieldObs);
 		
 		// comma-delimited list of options
 		String dropDownOptions = dataField.getAttribute(DataFieldConstants.DROPDOWN_OPTIONS);

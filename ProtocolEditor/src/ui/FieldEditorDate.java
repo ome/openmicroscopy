@@ -25,17 +25,17 @@ package ui;
 import java.text.DateFormat;
 import java.util.Date;
 
-import tree.DataField;
 import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
 import ui.components.AttributeEditor;
 
 public class FieldEditorDate extends FieldEditor {
 	
 	AttributeEditor defaultFieldEditor;
 	
-	public FieldEditorDate (DataField dataField) {
+	public FieldEditorDate (IDataFieldObservable dataFieldObs) {
 		
-		super(dataField);
+		super(dataFieldObs);
 		
 		DateFormat fDateFormat = DateFormat.getDateInstance (DateFormat.MEDIUM);
 		

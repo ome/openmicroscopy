@@ -22,12 +22,12 @@
 
 package ui;
 
-import tree.DataField;
+import tree.IDataFieldObservable;
 
 public class FieldEditorFixed extends FieldEditor{
 	
-	public FieldEditorFixed(DataField dataField) {
-		super(dataField);
+	public FieldEditorFixed(IDataFieldObservable dataFieldObs) {
+		super(dataFieldObs);
 	}
 
 }

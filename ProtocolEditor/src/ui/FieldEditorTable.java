@@ -22,23 +22,20 @@
 
 package ui;
 
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-
 import javax.swing.JOptionPane;
-import javax.swing.text.JTextComponent;
 
-import tree.DataField;
 import tree.DataFieldConstants;
+import tree.IAttributeSaver;
+import tree.IDataFieldObservable;
 import ui.components.AttributeMemoEditor;
 
 public class FieldEditorTable extends FieldEditor {
 	
 	AttributeMemoEditor tableColumnsEditor;
 	
-	public FieldEditorTable (DataField dataField) {
+	public FieldEditorTable (IDataFieldObservable dataFieldObs) {
 		
-		super(dataField);
+		super(dataFieldObs);
 	
 		//	 comma-delimited list of options
 		String tableColumns = dataField.getAttribute(DataFieldConstants.TABLE_COLUMN_NAMES);
@@ -57,10 +54,10 @@ public class FieldEditorTable extends FieldEditor {
 	public class TableColumnsEditor extends AttributeMemoEditor {
 		
 		// constructor creates a new panel and adds a name and text area to it.
-		public TableColumnsEditor(DataField dataField, String attribute, String value) {
+		public TableColumnsEditor(IAttributeSaver dataField, String attribute, String value) {
 			this(dataField, attribute, attribute, value);
 		}
-		public TableColumnsEditor(DataField dataField, String label, String attribute, String value) {
+		public TableColumnsEditor(IAttributeSaver dataField, String label, String attribute, String value) {
 			super(dataField, label, attribute, value);
 		}
 		

@@ -5,8 +5,8 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
 
-import tree.DataField;
 import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
 
 public class FieldEditorCheckBox extends FieldEditor {
 	
@@ -14,9 +14,9 @@ public class FieldEditorCheckBox extends FieldEditor {
 	
 	boolean defaultValue;
 	
-	public FieldEditorCheckBox(DataField dataField) {
+	public FieldEditorCheckBox(IDataFieldObservable dataFieldObs) {
 		
-		super(dataField);
+		super(dataFieldObs);
 		
 		defaultValue = dataField.isAttributeTrue(DataFieldConstants.DEFAULT);
 		defaultCheckBox = new JCheckBox("Default checked", defaultValue);

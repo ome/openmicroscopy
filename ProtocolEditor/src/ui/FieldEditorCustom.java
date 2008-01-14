@@ -22,16 +22,16 @@
 
 package ui;
 
-import tree.DataField;
+import tree.IDataFieldObservable;
 
 // all dataField attributes are displayed in panel
 // used for displaying imported XML elements that may have other attributes
 
 public class FieldEditorCustom extends FieldEditor {
 
-	public FieldEditorCustom(DataField dataField) {
+	public FieldEditorCustom(IDataFieldObservable dataFieldObs) {
 		
-		super(dataField);
+		super(dataFieldObs);
 		
 		// can't edit custom fields
 		nameFieldEditor.getTextArea().setEnabled(false);

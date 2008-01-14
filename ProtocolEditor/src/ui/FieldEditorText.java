@@ -22,12 +22,8 @@
 
 package ui;
 
-import java.util.ArrayList;
-
-import org.w3c.dom.Element;
-
-import tree.DataField;
 import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
 import ui.components.AttributeEditor;
 
 
@@ -35,9 +31,9 @@ public class FieldEditorText extends FieldEditor {
 	
 	private AttributeEditor defaultFieldEditor;
 	
-	public FieldEditorText(DataField dataField) {
+	public FieldEditorText(IDataFieldObservable dataFieldObs) {
 		
-		super(dataField);
+		super(dataFieldObs);
 		
 		String defaultValue = dataField.getAttribute(DataFieldConstants.DEFAULT);
 		

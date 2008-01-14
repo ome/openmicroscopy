@@ -6,15 +6,15 @@ import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import tree.DataField;
+import tree.IDataFieldObservable;
 import ui.components.InfoLabel;
 import ui.components.OLSLinkPanel;
 
 public class FieldEditorObservation extends FieldEditor {
 	
-	public FieldEditorObservation(DataField dataField) {
+	public FieldEditorObservation(IDataFieldObservable dataFieldObs) {
 		
-		super(dataField);
+		super(dataFieldObs);
 		
 		String infoMessage = "<br>An observation is a Phenotype or Measurement you intend to "
 			+ "score on multiple experimental samples. <br>" +

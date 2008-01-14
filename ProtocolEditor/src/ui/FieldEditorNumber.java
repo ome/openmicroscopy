@@ -25,13 +25,9 @@ package ui;
 import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.util.ArrayList;
 
-import javax.swing.JTextField;
-
-import tree.DataField;
 import tree.DataFieldConstants;
-import ui.FormField.FormPanelMouseListener;
+import tree.IDataFieldObservable;
 import ui.components.AttributeEditor;
 
 public class FieldEditorNumber extends FieldEditor {
@@ -39,9 +35,9 @@ public class FieldEditorNumber extends FieldEditor {
 	private AttributeEditor defaultFieldEditor;
 	private AttributeEditor unitsFieldEditor;
 	
-	public FieldEditorNumber (DataField dataField) {
+	public FieldEditorNumber (IDataFieldObservable dataFieldObs) {
 		
-		super(dataField);
+		super(dataFieldObs);
 		
 		String defaultValueString = dataField.getAttribute(DataFieldConstants.DEFAULT);
 		String units = dataField.getAttribute(DataFieldConstants.UNITS);

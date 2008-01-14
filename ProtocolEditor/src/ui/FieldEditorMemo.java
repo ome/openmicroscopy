@@ -22,8 +22,8 @@
 
 package ui;
 
-import tree.DataField;
 import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
 import ui.components.AttributeMemoEditor;
 
 
@@ -31,9 +31,9 @@ public class FieldEditorMemo extends FieldEditor {
 	
 private AttributeMemoEditor defaultFieldEditor;
 	
-	public FieldEditorMemo(DataField dataField) {
+	public FieldEditorMemo(IDataFieldObservable dataFieldObs) {
 		
-		super(dataField);
+		super(dataFieldObs);
 		
 		String defaultValue = dataField.getAttribute(DataFieldConstants.DEFAULT);
 		if (defaultValue == null) defaultValue = "";

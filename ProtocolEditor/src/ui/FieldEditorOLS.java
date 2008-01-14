@@ -23,27 +23,15 @@
 package ui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
-import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import ols.Ontologies;
-import ols.OntologyLookUp;
 
-import tree.DataField;
-import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
 import ui.components.OLSLinkPanel;
-import util.BareBonesBrowserLaunch;
-import util.ImageFactory;
 
 public class FieldEditorOLS extends FieldEditor {
 	
@@ -51,13 +39,14 @@ public class FieldEditorOLS extends FieldEditor {
 	
 	JComboBox parentRelationshipComboBox;
 	
-	public FieldEditorOLS (DataField dataField) {
+	public FieldEditorOLS (IDataFieldObservable dataFieldObs) {
 		
-		super(dataField);
+		super(dataFieldObs);
 		
-		String parentFieldType = dataField.getNode().getParentNode().getDataField().getAttribute(DataFieldConstants.INPUT_TYPE);
-		boolean parentFieldIsOLS = parentFieldType.equals(DataFieldConstants.OLS_FIELD);
-		if (parentFieldIsOLS) {
+		//String parentFieldType = dataField.getNode().getParentNode().getDataField().getAttribute(DataFieldConstants.INPUT_TYPE);
+		//boolean parentFieldIsOLS = parentFieldType.equals(DataFieldConstants.OLS_FIELD);
+		//if (parentFieldIsOLS) {
+		if (false) {
 			JPanel parentRelationshipPanel = new JPanel(new BorderLayout());
 			parentRelationshipComboBox = new JComboBox(Ontologies.getOboRelationshipTerms());
 			parentRelationshipComboBox.setSelectedItem("PART_OF");
