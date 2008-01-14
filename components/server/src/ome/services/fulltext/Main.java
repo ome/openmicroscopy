@@ -7,15 +7,7 @@
 
 package ome.services.fulltext;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import ome.api.IQuery;
-import ome.model.IObject;
-import ome.model.meta.EventLog;
-import ome.parameters.Filter;
-import ome.parameters.Parameters;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
 
@@ -81,97 +73,12 @@ public class Main {
 
     public static void indexAllEvents() {
         init();
-        final AllEventLogsLoader loader = new AllEventLogsLoader();
+        final AllEventsLogLoader loader = new AllEventsLogLoader();
         loader.setQueryService(rawQuery);
         final FullTextIndexer fti = new FullTextIndexer(executor, loader);
 
         while (loader.more()) {
             fti.run();
         }
-    }
-}
-
-class AllEntitiesPseudoLogLoader<T extends IObject> extends EventLogLoader {
-
-    List<String> classes;
-    String current = null;
-    long last = -1;
-
-    public void setClasses(Set<String> classes) {
-        this.classes = new ArrayList<String>(classes);
-    }
-
-    @Override
-    protected EventLog query() {
-        if (current == null) {
-            if (!more()) {
-                return null;
-            }
-            current = classes.remove(0);
-        }
-
-        final String query = String.format(
-                "select obj from %s obj where obj.id > %d", current, last);
-        final IObject obj = queryService.findByQuery(query, new Parameters(
-                new Filter().page(0, 1)));
-
-        if (obj != null) {
-            last = obj.getId();
-            // Here we pass the string to prevent $$ CGLIB style issues
-            return wrap(current, obj);
-        } else {
-            // If no object, then reset and recurse
-            current = null;
-            last = -1;
-            return query();
-        }
-    }
-
-    public boolean more() {
-        return classes.size() > 0;
-    }
-
-    protected EventLog wrap(String cls, IObject obj) {
-        EventLog el = new EventLog();
-        el.setEntityType(cls);
-        el.setEntityId(obj.getId());
-        el.setAction("UPDATE");
-        return el;
-    }
-}
-
-class AllEventLogsLoader extends EventLogLoader {
-
-    long previous = 0;
-    long max = -1;
-    private boolean more = true;
-
-    @Override
-    protected EventLog query() {
-        if (max < 0) {
-            final IObject lastLog = queryService.findByQuery(
-                    "select el from EventLog el order by id desc",
-                    new Parameters(new Filter().page(0, 1)));
-            max = lastLog.getId();
-        }
-
-        EventLog el = queryService.findByQuery("select el from EventLog el "
-                + "where el.id > :id order by id", new Parameters(new Filter()
-                .page(0, 1)).addId(previous));
-
-        if (el == null) {
-            previous = Long.MAX_VALUE;
-        } else {
-            previous = el.getId();
-        }
-
-        if (previous >= max) {
-            more = false;
-        }
-        return el;
-    }
-
-    public boolean more() {
-        return more;
     }
 }

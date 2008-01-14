@@ -69,7 +69,7 @@
     <constructor-arg ref="eventLogLoader"/>
   </bean>
 
-  <bean id="eventLogLoader" class="ome.services.fulltext.EventLogLoader">
+  <bean id="eventLogLoader" class="ome.services.fulltext.PersistentEventLogLoader">
     <property name="queryService" ref="internal:ome.api.LocalQuery"/>
   </bean>
   

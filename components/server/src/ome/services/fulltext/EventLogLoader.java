@@ -8,6 +8,7 @@
 package ome.services.fulltext;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import ome.api.IQuery;
 import ome.model.meta.EventLog;
@@ -24,7 +25,8 @@ import ome.parameters.Parameters;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class EventLogLoader implements Iterator<EventLog>, Iterable<EventLog> {
+public abstract class EventLogLoader implements Iterator<EventLog>,
+        Iterable<EventLog> {
 
     private final static int DEFAULT_BATCH_SIZE = 10;
 
@@ -35,7 +37,17 @@ public class EventLogLoader implements Iterator<EventLog>, Iterable<EventLog> {
 
     private final int batchSize = DEFAULT_BATCH_SIZE;
 
+    /**
+     * The number of objects which have been returned via {@link #next()}
+     */
     private int count = 0;
+
+    /**
+     * Whether or not {@link #hasNext()} should initialize itself.
+     */
+    private boolean doInit = true;
+
+    private EventLog log;
 
     protected IQuery queryService;
 
@@ -52,31 +64,62 @@ public class EventLogLoader implements Iterator<EventLog>, Iterable<EventLog> {
         // null
     }
 
+    /**
+     * Tests for available objects. If {@link #count} is 0, calls
+     * {@link #query()} to load a new {@link #log}. Otherwise, just tests that
+     * field for null.
+     */
     public boolean hasNext() {
+        if (doInit) {
+            log = query();
+            doInit = false;
+        }
+        return log != null;
+    }
+
+    /**
+     * Returns the current {@link #log} instance which may be loaded by a call
+     * to {@link #hasNext()} if necessary. If {@link #hasNext()} returns false,
+     * a {@link NoSuchElementException} will be thrown.
+     */
+    public EventLog next() {
+
+        // Consumer should have checked with hasNext
+        if (!hasNext()) {
+            throw new NoSuchElementException();
+        }
+
+        EventLog rv = log;
+
         if (count == batchSize) {
             count = 0;
-            return false;
+            doInit = true;
+            log = null;
+        } else {
+            count++;
+            log = query();
         }
-        return query() != null;
+        return rv;
     }
 
-    public EventLog next() {
-        count++;
-        return query();
-    }
-
-    public void remove() {
+    public final void remove() {
         throw new UnsupportedOperationException("Cannot remove EventLogs");
     }
 
-    protected EventLog query() {
-        return this.queryService.findByQuery("select el from EventLog el "
-                + "where id > :id order by id", new Parameters(P)
-                .addId((long) count + 100));
-
-    }
+    protected abstract EventLog query();
 
     public Iterator<EventLog> iterator() {
         return this;
+    }
+
+    /**
+     * Always returns true. The default implementation is to tell the
+     * {@link FullTextIndexer} to always retry in a while loop. Other
+     * implementations may want to break the execution.
+     * 
+     * @return true
+     */
+    public boolean more() {
+        return true;
     }
 }

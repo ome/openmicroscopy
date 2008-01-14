@@ -39,7 +39,7 @@ public class FullTextTest extends AbstractManagedContextTest {
     FullTextIndexer fti;
     Image i;
 
-    @Test(enabled = false, groups = "manual")
+    @Test(enabled = true, groups = "manual")
     public void testIndexWholeDb() throws Exception {
         ome.services.fulltext.Main.indexFullDb();
     }
@@ -160,22 +160,22 @@ public class FullTextTest extends AbstractManagedContextTest {
         }
 
         @Override
-        public EventLog next() {
-            EventLog el = rawQuery()
-                    .findByQuery(
-                            "select el from EventLog el "
-                                    + "where el.entityType = :type and el.entityId = :id",
-                            new Parameters().addString("type",
-                                    obj.getClass().getName())
-                                    .addId(obj.getId()));
-            obj = null;
-            return el;
+        public EventLog query() {
+            if (obj == null) {
+                return null;
+            } else {
+                EventLog el = rawQuery()
+                        .findByQuery(
+                                "select el from EventLog el "
+                                        + "where el.entityType = :type and el.entityId = :id",
+                                new Parameters().addString("type",
+                                        obj.getClass().getName()).addId(
+                                        obj.getId()));
+                obj = null;
+                return el;
+            }
         }
 
-        @Override
-        public boolean hasNext() {
-            return obj != null;
-        }
     }
 
     IQuery rawQuery() {
@@ -192,9 +192,30 @@ public class FullTextTest extends AbstractManagedContextTest {
         return (Executor) this.applicationContext.getBean("executor");
     }
 
+    /**
+     * Returns a simple {@link EventLogLoader} which only loads the last
+     * {@link EventLog}
+     * 
+     * @return
+     */
     EventLogLoader getLogs() {
-        return (EventLogLoader) this.applicationContext
-                .getBean("eventLogLoader");
+        EventLogLoader ell = new EventLogLoader() {
+            int todo = 1;
+
+            @Override
+            protected EventLog query() {
+                if (todo < 0) {
+                    return null;
+                } else {
+                    todo--;
+                    return this.queryService.findByQuery(
+                            "select el from EventLog el " + "order by id desc",
+                            null);
+                }
+            }
+        };
+        ell.setQueryService(this.rawQuery());
+        return ell;
     }
 
     void indexObject(IObject o) {
