@@ -39,6 +39,7 @@ import ome.model.internal.Permissions;
 import ome.model.internal.Token;
 import ome.model.internal.Permissions.Flag;
 import ome.model.jobs.Job;
+import ome.model.meta.DBPatch;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
@@ -207,6 +208,9 @@ public class BasicSecuritySystem implements SecuritySystem {
             return true;
         }
         if (Job.class.isAssignableFrom(klass)) {
+            return true;
+        }
+        if (DBPatch.class.isAssignableFrom(klass)) {
             return true;
         }
         return false;

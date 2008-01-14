@@ -10,11 +10,10 @@ package ome.security.basic;
 // Java imports
 
 // Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
-
-// Application-internal dependencies
+import static ome.model.internal.Permissions.Right.WRITE;
+import static ome.model.internal.Permissions.Role.GROUP;
+import static ome.model.internal.Permissions.Role.USER;
+import static ome.model.internal.Permissions.Role.WORLD;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.conditions.InternalException;
@@ -22,12 +21,14 @@ import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import static ome.model.internal.Permissions.Right.*;
-import static ome.model.internal.Permissions.Role.*;
 import ome.model.internal.Token;
 import ome.security.ACLVoter;
 import ome.security.SecuritySystem;
 import ome.tools.hibernate.SecurityFilter;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
 /**
  * 
@@ -45,7 +46,7 @@ public class BasicACLVoter implements ACLVoter {
 
     private final static Log log = LogFactory.getLog(BasicACLVoter.class);
 
-    private BasicSecuritySystem secSys;
+    private final BasicSecuritySystem secSys;
 
     public BasicACLVoter(BasicSecuritySystem securitySystem) {
         this.secSys = securitySystem;
@@ -131,8 +132,7 @@ public class BasicACLVoter implements ACLVoter {
         // needs no details info
         if (secSys.hasPrivilegedToken(iObject) || secSys.currentUserIsAdmin()) {
             return true;
-        } else if (secSys.isSystemType(iObject
-                .getClass())) {
+        } else if (secSys.isSystemType(iObject.getClass())) {
             return false;
         }
 
@@ -147,6 +147,10 @@ public class BasicACLVoter implements ACLVoter {
             return true;
         }
 
+        // the owner and group information might be null if the type
+        // is intended to be a system-type but isn't marked as one
+        // via SecuritySystem.isSystemType(). A NPE here might imply
+        // that that information is out of sync.
         Long o = d.getOwner() == null ? null : d.getOwner().getId();
         Long g = d.getGroup() == null ? null : d.getGroup().getId();
 
