@@ -9,7 +9,7 @@ package ome.services.fulltext;
 
 import java.util.Iterator;
 
-import ome.api.local.LocalQuery;
+import ome.api.IQuery;
 import ome.model.meta.EventLog;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
@@ -37,9 +37,9 @@ public class EventLogLoader implements Iterator<EventLog>, Iterable<EventLog> {
 
     private int count = 0;
 
-    private LocalQuery queryService;
+    protected IQuery queryService;
 
-    public void setQueryService(LocalQuery queryService) {
+    public void setQueryService(IQuery queryService) {
         this.queryService = queryService;
     }
 

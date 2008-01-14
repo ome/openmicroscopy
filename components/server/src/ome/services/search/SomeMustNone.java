@@ -7,6 +7,9 @@
 
 package ome.services.search;
 
+import java.util.List;
+
+import ome.model.IObject;
 import ome.services.SearchBean;
 
 /**
@@ -32,4 +35,8 @@ public class SomeMustNone extends SearchAction {
         throw new IllegalArgumentException("Must check these");
     }
 
+    @Override
+    public <T extends IObject> List<T> getNext() {
+        return null;
+    }
 }

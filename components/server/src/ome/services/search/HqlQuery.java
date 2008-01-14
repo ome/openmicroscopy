@@ -7,6 +7,9 @@
 
 package ome.services.search;
 
+import java.util.List;
+
+import ome.model.IObject;
 import ome.parameters.Parameters;
 import ome.services.SearchBean;
 
@@ -30,6 +33,11 @@ public class HqlQuery extends SearchAction {
         }
         this.query = query;
         this.p = p;
+    }
+
+    @Override
+    public <T extends IObject> List<T> getNext() {
+        return null;
     }
 
 }

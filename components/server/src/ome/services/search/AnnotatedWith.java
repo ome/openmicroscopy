@@ -7,6 +7,9 @@
 
 package ome.services.search;
 
+import java.util.List;
+
+import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.services.SearchBean;
 
@@ -25,6 +28,11 @@ public class AnnotatedWith extends SearchAction {
     public AnnotatedWith(SearchValues values, Annotation annotation) {
         super(values);
         this.annotation = annotation;
+    }
+
+    @Override
+    public <T extends IObject> List<T> getNext() {
+        return null;
     }
 
 }

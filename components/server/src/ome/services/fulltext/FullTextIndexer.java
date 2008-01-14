@@ -31,6 +31,7 @@ import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.CBlock;
 import ome.util.DetailsFieldBridge;
+import ome.util.Utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -123,7 +124,13 @@ public class FullTextIndexer implements Runnable, FieldBridge, Work {
     }
 
     public void run() {
-        this.executor.execute(p, this);
+        DetailsFieldBridge.lock();
+        try {
+            DetailsFieldBridge.setFieldBridge(this);
+            this.executor.execute(p, this);
+        } finally {
+            DetailsFieldBridge.unlock();
+        }
     }
 
     public void doWork(TransactionStatus status, Session session,
@@ -189,10 +196,17 @@ public class FullTextIndexer implements Runnable, FieldBridge, Work {
     public final static DateBridge dateBridge = new DateBridge(Resolution.DAY);
 
     public void set(final String name, final Object value,
-            final Document document, final Field.Store store,
+            final Document document, final Field.Store store2,
             final Field.Index index, final Float boost) {
 
+        // TODO Temporarily storing all values for easier testing;
+        final Field.Store store = Field.Store.YES;
+
         IObject object = (IObject) value;
+
+        // Store class in COMBINED
+        String cls = Utils.trueClass(object.getClass()).getName();
+        add(document, null, cls, store, index, boost);
 
         if (object instanceof OriginalFile) {
             OriginalFile file = (OriginalFile) object;
@@ -266,11 +280,17 @@ public class FullTextIndexer implements Runnable, FieldBridge, Work {
     protected void add(Document d, String field, String value,
             Field.Store store, Field.Index index, Float boost) {
 
-        Field f = new Field(field, value, store, index);
-        if (boost != null) {
-            f.setBoost(boost);
+        Field f;
+
+        // If the field == null, then we ignore it, to all easy addition
+        // of Fields as COMBINED
+        if (field != null) {
+            f = new Field(field, value, store, index);
+            if (boost != null) {
+                f.setBoost(boost);
+            }
+            d.add(f);
         }
-        d.add(f);
 
         // Never storing in combined fields, since it's duplicated
         f = new Field(COMBINED, value, Store.NO, index);

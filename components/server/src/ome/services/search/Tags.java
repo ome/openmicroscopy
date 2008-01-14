@@ -7,6 +7,9 @@
 
 package ome.services.search;
 
+import java.util.List;
+
+import ome.model.IObject;
 import ome.services.SearchBean;
 
 /**
@@ -36,4 +39,8 @@ public class Tags extends SearchAction {
         }
     }
 
+    @Override
+    public <T extends IObject> List<T> getNext() {
+        return null;
+    }
 }

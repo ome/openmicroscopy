@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 
 import ome.api.IQuery;
@@ -29,6 +30,7 @@ import ome.services.fulltext.FullTextIndexer.Parser;
 import ome.services.util.Executor;
 import ome.testing.FileUploader;
 
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.testng.annotations.Test;
 
 @Test(groups = { "query", "fulltext" })
@@ -39,45 +41,17 @@ public class FullTextTest extends AbstractManagedContextTest {
 
     @Test(enabled = false, groups = "manual")
     public void testIndexWholeDb() throws Exception {
-        final boolean[] more = new boolean[] { true };
-        final long max = iQuery.findByQuery(
-                "select el from EventLog el order by id desc",
-                new Parameters(new Filter().page(0, 1))).getId();
-        fti = new FullTextIndexer(getExecutor(), new EventLogLoader() {
+        ome.services.fulltext.Main.indexFullDb();
+    }
 
-            long last_id = 0;
-
-            @Override
-            protected EventLog query() {
-                EventLog el = rawQuery().findByQuery(
-                        "select el from EventLog el "
-                                + "where el.id > :id order by id",
-                        new Parameters(new Filter().page(0, 1)).addId(last_id));
-
-                if (el == null) {
-                    last_id = Long.MAX_VALUE;
-                } else {
-                    last_id = el.getId();
-                }
-
-                if (last_id >= max) {
-                    more[0] = false;
-                }
-                return el;
-            }
-
-        });
-
-        set(fti);
-
-        while (more[0]) {
-            fti.run();
-        }
+    public void testMimeTypes() throws Exception {
+        Properties p = PropertiesLoaderUtils
+                .loadAllProperties("classpath:mime.properties");
+        System.out.println(p);
     }
 
     public void testSimpleCreation() throws Exception {
         fti = new FullTextIndexer(getExecutor(), getLogs());
-        set(fti);
         fti.run();
     }
 
@@ -172,7 +146,6 @@ public class FullTextTest extends AbstractManagedContextTest {
                 .getId(), false));
         fti = new FullTextIndexer(getExecutor(), logs, getFileService(),
                 parsers);
-        set(fti);
         fti.run();
     }
 
@@ -227,12 +200,7 @@ public class FullTextTest extends AbstractManagedContextTest {
     void indexObject(IObject o) {
         CreationLogLoader logs = new CreationLogLoader(o);
         fti = new FullTextIndexer(getExecutor(), logs);
-        set(fti);
         fti.run();
     }
 
-    void set(FullTextIndexer fti) {
-        Map bridges = (Map) this.applicationContext.getBean("bridges");
-        bridges.put("fieldBridges", fti);
-    }
 }

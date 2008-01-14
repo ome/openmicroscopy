@@ -7,13 +7,13 @@
 
 package ome.util;
 
-import java.util.Map;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.hibernate.search.bridge.FieldBridge;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 
 /**
  * Delegating {@link FieldBridge} which passes the "fieldBridge" bean from the
@@ -24,16 +24,26 @@ import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
  */
 public class DetailsFieldBridge implements FieldBridge {
 
-    private final static ApplicationContext CONTEXT = (ApplicationContext) ContextSingletonBeanFactoryLocator
-            .getInstance().useBeanFactory("ome.model").getFactory();
+    private static FieldBridge bridge;
 
-    private final static Map BRIDGES = (Map) CONTEXT.getBean("bridges");
+    private final static ReadWriteLock lock = new ReentrantReadWriteLock();
+
+    public static void lock() {
+        lock.writeLock().lock();
+    }
+
+    public static void unlock() {
+        lock.writeLock().unlock();
+    }
+
+    public static void setFieldBridge(FieldBridge bridge) {
+        DetailsFieldBridge.bridge = bridge;
+    }
 
     public void set(final String name, final Object value,
             final Document document, final Field.Store store,
             final Field.Index index, final Float boost) {
 
-        FieldBridge bridge = (FieldBridge) BRIDGES.get("fieldBridges");
         bridge.set(name, value, document, store, index, boost);
 
     }
