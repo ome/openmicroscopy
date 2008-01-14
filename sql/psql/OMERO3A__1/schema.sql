@@ -38,6 +38,7 @@ BEGIN;
         boolValue bool,
         longValue int8,
         thumbnail int8,
+        timeValue timestamp,
         group_id int8 not null,
         owner_id int8 not null,
         creation_id int8 not null,

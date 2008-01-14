@@ -47,9 +47,15 @@
     </properties>
   </type>
 
+  <!-- other basic -->
   <type id="ome.model.annotations.BooleanAnnotation" discriminator="/basic/bool/" superclass="ome.model.annotations.BasicAnnotation" immutable="true">
     <properties>
       <optional name="boolValue" type="boolean" mutable="false"/>
+    </properties>
+  </type>
+  <type id="ome.model.annotations.TimestampAnnotation" discriminator="/basic/time/" superclass="ome.model.annotations.BasicAnnotation" immutable="true">
+    <properties>
+      <optional name="timeValue" type="timestamp" mutable="false"/>
     </properties>
   </type>
 
