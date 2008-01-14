@@ -131,6 +131,7 @@
 	</target>
 
 	<target name="generate" depends="prepare,slice">
+                <pathconvert property="omero.path" refid="omero.classpath"/>
                 <echo file="${resrc.dest}/Classpath.sh">
                   export CLASSPATH=${omero.path}
                 </echo>
