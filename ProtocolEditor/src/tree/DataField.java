@@ -232,7 +232,8 @@ public class DataField
 		// refresh display 
 		// (don't want to call notifyObservers() as this tries to display AttributesDialog, which adds
 		// it to the list of listeners, at the same time as moving through the list!) concurrency error!
-		formField.dataFieldUpdated();
+		if (formField != null)
+			formField.dataFieldUpdated();
 	}
 	
 	public JPanel getFieldEditor() {

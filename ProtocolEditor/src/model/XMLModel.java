@@ -103,18 +103,32 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	
 	
 	public static void main(String args[]) {
-		new XMLModel();
+		new XMLModel(true);
 	}
 	
 	
-	// default constructor, instantiates empty Tree, then creates new View. 
+	// default constructor, instantiates empty Tree. View must be created elsewhere.  
 	public XMLModel() {
 		
 		xmlObservers = new ArrayList<XMLUpdateObserver>();
 		
 		currentTree = null;
 
-		//new XMLView(this);
+		// new XMLView(this);
+	}	
+	
+	// alternative constructor, instantiates empty Tree, then creates new View. 
+	public XMLModel(boolean showView) {
+		
+		xmlObservers = new ArrayList<XMLUpdateObserver>();
+		
+		currentTree = null;
+
+		if (showView) {
+			XMLView view = new XMLView(this);
+			view.buildFrame();
+		}
+			
 	}	
 	
 	// return true if all OK - even if file is open already. (false if failed to open)
