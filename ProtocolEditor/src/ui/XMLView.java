@@ -53,7 +53,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
-import model.XMLModel;
 
 import ols.ObservationCreator;
 import omeXml.OmeXmlQueryer;
@@ -80,6 +79,7 @@ import ui.components.ExportDialog;
 import util.FileDownload;
 import util.HtmlOutputter;
 import util.ImageFactory;
+import xmlMVC.XMLModel;
 
 
 // the main View class. 

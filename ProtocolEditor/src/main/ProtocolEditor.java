@@ -32,7 +32,7 @@ import ols.Observation;
 import ols.ObservationCreator;
 
 import ui.XMLView;
-import model.XMLModel;
+import xmlMVC.XMLModel;
 
 /**
  * This main() class is used to start the application.

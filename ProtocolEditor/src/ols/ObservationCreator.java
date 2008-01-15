@@ -3,8 +3,8 @@ package ols;
 import java.util.ArrayList;
 
 import tree.DataField;
+import xmlMVC.XMLModel;
 
-import model.XMLModel;
 
 public class ObservationCreator {
 
