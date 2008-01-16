@@ -1,4 +1,4 @@
---
+-
 -- Copyright 2008 Glencoe Software, Inc. All rights reserved.
 -- Use is subject to license terms supplied in LICENSE.txt
 --
@@ -291,6 +291,8 @@ insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_eventtype'),-35,0,0,0,'Test';
 insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_eventtype'),-35,0,0,0,'Processing';
+insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_eventtype'),-35,0,0,0,'FullText';
 insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_lasermedium'),-35,0,0,0,'Rhodamine-5G';
 insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
@@ -441,6 +443,8 @@ insert into filtertype (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_filtertype'),-35,0,0,0,'BandPass';
 insert into filtertype (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_filtertype'),-35,0,0,0,'MultiPass';
+
+create table configuration ( name varchar(255) primary key, value text );
 
 create table password ( experimenter_id bigint unique not null REFERENCES experimenter (id) , hash char(24), dn text );
 insert into password values (0,'@ROOTPASS@'); 

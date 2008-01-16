@@ -25,6 +25,9 @@ DECLARE
     new_annotation INT8;
 BEGIN
 
+  -- Adding configuration table for ticket:800
+  CREATE TABLE configuration ( name VARCHAR(255) PRIMARY KEY, value TEXT );
+
   -- For the ordering in the following scripts to work
   -- properly, it is important that NULLs be set to
   -- FALSE.
@@ -33,26 +36,33 @@ BEGIN
   UPDATE pixels               SET defaultpixels = false    WHERE defaultpixels    IS NULL;
 
   --
-  -- Simple renamings
+  -- Simple renamings as opposed to deletes suggested by apgdiff
   --
 
   ALTER TABLE channel RENAME COLUMN index TO pixels_index;
+  ALTER TABLE channel ALTER  COLUMN          pixels_index SET NOT NULL;
   ALTER TABLE channelbinding RENAME COLUMN index TO renderingdef_index;
+  ALTER TABLE channelbinding ALTER  COLUMN          renderingdef_index SET NOT NULL;
   ALTER TABLE codomainmapcontext RENAME COLUMN index TO renderingdef_index;
-
-  --
-  -- Creating tables and sequences:
-  -- should match hibernate declarations
-  --
+  ALTER TABLE codomainmapcontext ALTER  COLUMN          renderingdef_index SET NOT NULL;
 
   ALTER TABLE groupexperimentermap ADD COLUMN child_index int4;
   ALTER TABLE pixels ADD COLUMN image_index int4;
 
   --
-  -- All changes except table drops
+  -- Minor other changes
+  --
+  ALTER TABLE externalinfo ALTER COLUMN lsid DROP NOT NULL;
+  ALTER TABLE externalinfo ADD COLUMN uuid character varying(255);
+
+  --
+  -- Creating tables and sequences. Generated.
+  -- Should match hibernate declarations of 
+  -- DROP SEQ/CREATE SEQ/CREATE TBL/ALTER TBL (constraints)
+  --
+  -- (skips DROP TBL, and ALTER TBL columns)
   --
 
-  ALTER TABLE externalinfo ALTER COLUMN lsid DROP NOT NULL;
 
   DROP SEQUENCE seq_boundingbox;
   DROP SEQUENCE seq_datasetannotation;
@@ -82,7 +92,6 @@ BEGIN
   DROP SEQUENCE seq_xyztoxylink;
   DROP SEQUENCE seq_xyzttoxytlink;
   DROP SEQUENCE seq_xyzttoxyzlink;
-  
   CREATE SEQUENCE seq_annotation;
   CREATE SEQUENCE seq_annotationannotationlink;
   CREATE SEQUENCE seq_channelannotationlink;
@@ -95,100 +104,99 @@ BEGIN
   CREATE SEQUENCE seq_projectannotationlink;
   CREATE SEQUENCE seq_roi;
   CREATE SEQUENCE seq_roilink;
-  CREATE SEQUENCE seq_roilinkannotationlink;  
-  
+  CREATE SEQUENCE seq_roilinkannotationlink;
   CREATE TABLE annotation (
         discriminator character varying(31) NOT NULL,
         id bigint NOT NULL,
+        description text,
         permissions bigint NOT NULL,
-        name character varying(255) NOT NULL,
+        name character varying(255),
         textvalue text,
         doublevalue double precision,
         boolvalue boolean,
         longvalue bigint,
         thumbnail bigint,
-        external_id bigint,
-        file bigint,
-        owner_id bigint NOT NULL,
+        timevalue timestamp without time zone,
         group_id bigint NOT NULL,
-        creation_id bigint NOT NULL
+        owner_id bigint NOT NULL,
+        creation_id bigint NOT NULL,
+        external_id bigint,
+        file bigint
   );
-  
   CREATE TABLE annotationannotationlink (
         id bigint NOT NULL,
         permissions bigint NOT NULL,
         version integer,
-        owner_id bigint NOT NULL,
         parent bigint NOT NULL,
-        group_id bigint NOT NULL,
-        creation_id bigint NOT NULL,
+        child bigint NOT NULL,
+        owner_id bigint NOT NULL,
         external_id bigint,
+        creation_id bigint NOT NULL,
         update_id bigint NOT NULL,
-        child bigint NOT NULL
+        group_id bigint NOT NULL
   );
-  
   CREATE TABLE channelannotationlink (
         id bigint NOT NULL,
         permissions bigint NOT NULL,
         version integer,
-        owner_id bigint NOT NULL,
         parent bigint NOT NULL,
+        creation_id bigint NOT NULL,
+        owner_id bigint NOT NULL,
         group_id bigint NOT NULL,
-        child bigint NOT NULL,
-        update_id bigint NOT NULL,
         external_id bigint,
-        creation_id bigint NOT NULL
-);
+        child bigint NOT NULL,
+        update_id bigint NOT NULL
+  );
 
   CREATE TABLE datasetannotationlink (
         id bigint NOT NULL,
         permissions bigint NOT NULL,
         version integer,
-        child bigint NOT NULL,
-        parent bigint NOT NULL,
-        external_id bigint,
-        update_id bigint NOT NULL,
-        owner_id bigint NOT NULL,
         creation_id bigint NOT NULL,
-        group_id bigint NOT NULL
+        owner_id bigint NOT NULL,
+        child bigint NOT NULL,
+        update_id bigint NOT NULL,
+        group_id bigint NOT NULL,
+        parent bigint NOT NULL,
+        external_id bigint
   );
 
-CREATE TABLE experimenterannotationlink (
+  CREATE TABLE experimenterannotationlink (
         id bigint NOT NULL,
         permissions bigint NOT NULL,
         version integer,
-        group_id bigint NOT NULL,
-        child bigint NOT NULL,
         owner_id bigint NOT NULL,
-        external_id bigint,
-        parent bigint NOT NULL,
+        group_id bigint NOT NULL,
+        creation_id bigint NOT NULL,
+        child bigint NOT NULL,
         update_id bigint NOT NULL,
-        creation_id bigint NOT NULL
+        external_id bigint,
+        parent bigint NOT NULL
   );
 
   CREATE TABLE imageannotationlink (
         id bigint NOT NULL,
         permissions bigint NOT NULL,
         version integer,
-        update_id bigint NOT NULL,
-        child bigint NOT NULL,
-        external_id bigint,
-        group_id bigint NOT NULL,
         owner_id bigint NOT NULL,
         creation_id bigint NOT NULL,
-        parent bigint NOT NULL
-);
+        external_id bigint,
+        update_id bigint NOT NULL,
+        child bigint NOT NULL,
+        parent bigint NOT NULL,
+        group_id bigint NOT NULL
+  );
 
   CREATE TABLE originalfileannotationlink (
         id bigint NOT NULL,
         permissions bigint NOT NULL,
         version integer,
-        child bigint NOT NULL,
+        update_id bigint NOT NULL,
         external_id bigint,
         parent bigint NOT NULL,
         group_id bigint NOT NULL,
         creation_id bigint NOT NULL,
-        update_id bigint NOT NULL,
+        child bigint NOT NULL,
         owner_id bigint NOT NULL
   );
 
@@ -196,26 +204,26 @@ CREATE TABLE experimenterannotationlink (
         id bigint NOT NULL,
         permissions bigint NOT NULL,
         version integer,
-        update_id bigint NOT NULL,
-        creation_id bigint NOT NULL,
-        external_id bigint,
-        group_id bigint NOT NULL,
-        owner_id bigint NOT NULL,
         child bigint NOT NULL,
-        parent bigint NOT NULL
-);
+        creation_id bigint NOT NULL,
+        update_id bigint NOT NULL,
+        owner_id bigint NOT NULL,
+        group_id bigint NOT NULL,
+        parent bigint NOT NULL,
+        external_id bigint
+  );
 
   CREATE TABLE planeinfoannotationlink (
         id bigint NOT NULL,
         permissions bigint NOT NULL,
         version integer,
-        creation_id bigint NOT NULL,
-        external_id bigint,
-        group_id bigint NOT NULL,
-        owner_id bigint NOT NULL,
+        update_id bigint NOT NULL,
         parent bigint NOT NULL,
+        owner_id bigint NOT NULL,
         child bigint NOT NULL,
-        update_id bigint NOT NULL
+        external_id bigint,
+        creation_id bigint NOT NULL,
+        group_id bigint NOT NULL
   );
 
   CREATE TABLE projectannotationlink (
@@ -223,13 +231,13 @@ CREATE TABLE experimenterannotationlink (
         permissions bigint NOT NULL,
         version integer,
         group_id bigint NOT NULL,
-        child bigint NOT NULL,
-        owner_id bigint NOT NULL,
-        external_id bigint,
         creation_id bigint NOT NULL,
         update_id bigint NOT NULL,
-        parent bigint NOT NULL
-);
+        parent bigint NOT NULL,
+        child bigint NOT NULL,
+        owner_id bigint NOT NULL,
+        external_id bigint
+  );
 
   CREATE TABLE roi (
         discriminator character varying(31) NOT NULL,
@@ -241,39 +249,39 @@ CREATE TABLE experimenterannotationlink (
         visible boolean NOT NULL,
         xml text,
         z integer,
-        creation_id bigint NOT NULL,
-        external_id bigint,
         owner_id bigint NOT NULL,
         pixels bigint NOT NULL,
-        update_id bigint NOT NULL,
-        group_id bigint NOT NULL
+        creation_id bigint NOT NULL,
+        group_id bigint NOT NULL,
+        external_id bigint,
+        update_id bigint NOT NULL
   );
 
   CREATE TABLE roilink (
         id bigint NOT NULL,
         permissions bigint NOT NULL,
         version integer,
+        owner_id bigint NOT NULL,
+        external_id bigint,
+        child bigint NOT NULL,
         group_id bigint NOT NULL,
         update_id bigint NOT NULL,
-        child bigint NOT NULL,
-        external_id bigint,
-        creation_id bigint NOT NULL,
-        owner_id bigint NOT NULL,
-        parent bigint NOT NULL
+        parent bigint NOT NULL,
+        creation_id bigint NOT NULL
   );
 
   CREATE TABLE roilinkannotationlink (
         id bigint NOT NULL,
         permissions bigint NOT NULL,
         version integer,
-        creation_id bigint NOT NULL,
-        owner_id bigint NOT NULL,
-        parent bigint NOT NULL,
-        child bigint NOT NULL,
-        update_id bigint NOT NULL,
         external_id bigint,
-        group_id bigint NOT NULL
-  );
+        owner_id bigint NOT NULL,
+        group_id bigint NOT NULL,
+        creation_id bigint NOT NULL,
+        update_id bigint NOT NULL,
+        child bigint NOT NULL,
+        parent bigint NOT NULL
+);
 
   ALTER TABLE annotation ADD CONSTRAINT annotation_pkey PRIMARY KEY (id);
   ALTER TABLE annotationannotationlink ADD CONSTRAINT annotationannotationlink_pkey PRIMARY KEY (id);
@@ -332,196 +340,69 @@ CREATE TABLE experimenterannotationlink (
   ALTER TABLE experimenterannotationlink ADD CONSTRAINT fkexperimenterannotationlink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
   ALTER TABLE groupexperimentermap ADD CONSTRAINT groupexperimentermap_id_key UNIQUE (id, child_index);
   ALTER TABLE imageannotationlink ADD CONSTRAINT imageannotationlink_external_id_key UNIQUE (external_id);
-  
-  ALTER TABLE imageannotationlink
-        ADD CONSTRAINT fkimageannotationlink_child_annotation FOREIGN KEY (child) REFERENCES annotation(id);
-  
-  ALTER TABLE imageannotationlink
-        ADD CONSTRAINT fkimageannotationlink_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
-  
-  ALTER TABLE imageannotationlink
-        ADD CONSTRAINT fkimageannotationlink_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
-  
-  ALTER TABLE imageannotationlink
-        ADD CONSTRAINT fkimageannotationlink_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id);
-  
-  ALTER TABLE imageannotationlink
-        ADD CONSTRAINT fkimageannotationlink_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
-  
-  ALTER TABLE imageannotationlink
-        ADD CONSTRAINT fkimageannotationlink_parent_image FOREIGN KEY (parent) REFERENCES image(id);
-  
-  ALTER TABLE imageannotationlink
-        ADD CONSTRAINT fkimageannotationlink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
-    
-  ALTER TABLE originalfileannotationlink
-        ADD CONSTRAINT originalfileannotationlink_external_id_key UNIQUE (external_id);
-  
-  ALTER TABLE originalfileannotationlink
-        ADD CONSTRAINT fkoriginalfileannotationlink_child_annotation FOREIGN KEY (child) REFERENCES annotation(id);
-  
-  ALTER TABLE originalfileannotationlink
-        ADD CONSTRAINT fkoriginalfileannotationlink_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
-  
-  ALTER TABLE originalfileannotationlink
-        ADD CONSTRAINT fkoriginalfileannotationlink_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
-  
-  ALTER TABLE originalfileannotationlink
-        ADD CONSTRAINT fkoriginalfileannotationlink_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id);
-  
-  ALTER TABLE originalfileannotationlink
-        ADD CONSTRAINT fkoriginalfileannotationlink_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
-  
-  ALTER TABLE originalfileannotationlink
-        ADD CONSTRAINT fkoriginalfileannotationlink_parent_originalfile FOREIGN KEY (parent) REFERENCES originalfile(id);
-  
-  ALTER TABLE originalfileannotationlink
-        ADD CONSTRAINT fkoriginalfileannotationlink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
-  
-  ALTER TABLE pixels
-        ADD CONSTRAINT pixels_id_key UNIQUE (id, image_index);
-  
-  ALTER TABLE pixelsannotationlink
-        ADD CONSTRAINT pixelsannotationlink_external_id_key UNIQUE (external_id);
-  
-  ALTER TABLE pixelsannotationlink
-        ADD CONSTRAINT fkpixelsannotationlink_child_annotation FOREIGN KEY (child) REFERENCES annotation(id);
-  
-  ALTER TABLE pixelsannotationlink
-        ADD CONSTRAINT fkpixelsannotationlink_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
-  
-  ALTER TABLE pixelsannotationlink
-        ADD CONSTRAINT fkpixelsannotationlink_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
-  
-  ALTER TABLE pixelsannotationlink
-        ADD CONSTRAINT fkpixelsannotationlink_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id);
-  
-  ALTER TABLE pixelsannotationlink
-        ADD CONSTRAINT fkpixelsannotationlink_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
-  
-  ALTER TABLE pixelsannotationlink
-        ADD CONSTRAINT fkpixelsannotationlink_parent_pixels FOREIGN KEY (parent) REFERENCES pixels(id);
-  
-  ALTER TABLE pixelsannotationlink
-        ADD CONSTRAINT fkpixelsannotationlink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
-  
-  ALTER TABLE planeinfoannotationlink
-        ADD CONSTRAINT planeinfoannotationlink_external_id_key UNIQUE (external_id);
-  
-  ALTER TABLE planeinfoannotationlink
-        ADD CONSTRAINT fkplaneinfoannotationlink_child_annotation FOREIGN KEY (child) REFERENCES annotation(id);
-  
-  ALTER TABLE planeinfoannotationlink
-        ADD CONSTRAINT fkplaneinfoannotationlink_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
-  
-  ALTER TABLE planeinfoannotationlink
-        ADD CONSTRAINT fkplaneinfoannotationlink_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
-  
-  ALTER TABLE planeinfoannotationlink
-        ADD CONSTRAINT fkplaneinfoannotationlink_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id);
-  
-  ALTER TABLE planeinfoannotationlink
-        ADD CONSTRAINT fkplaneinfoannotationlink_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
-  
-  ALTER TABLE planeinfoannotationlink
-        ADD CONSTRAINT fkplaneinfoannotationlink_parent_planeinfo FOREIGN KEY (parent) REFERENCES planeinfo(id);
-  
-  ALTER TABLE planeinfoannotationlink
-        ADD CONSTRAINT fkplaneinfoannotationlink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
-  
-  ALTER TABLE projectannotationlink
-        ADD CONSTRAINT projectannotationlink_external_id_key UNIQUE (external_id);
-  
-  ALTER TABLE projectannotationlink
-        ADD CONSTRAINT fkprojectannotationlink_child_annotation FOREIGN KEY (child) REFERENCES annotation(id);
-  
-  ALTER TABLE projectannotationlink
-        ADD CONSTRAINT fkprojectannotationlink_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
-  
-  ALTER TABLE projectannotationlink
-        ADD CONSTRAINT fkprojectannotationlink_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
-  
-  ALTER TABLE projectannotationlink
-        ADD CONSTRAINT fkprojectannotationlink_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id);
-  
-  ALTER TABLE projectannotationlink
-        ADD CONSTRAINT fkprojectannotationlink_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
-  
-  ALTER TABLE projectannotationlink
-        ADD CONSTRAINT fkprojectannotationlink_parent_project FOREIGN KEY (parent) REFERENCES project(id);
-  
-  ALTER TABLE projectannotationlink
-        ADD CONSTRAINT fkprojectannotationlink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
-  
-  ALTER TABLE roi
-        ADD CONSTRAINT roi_external_id_key UNIQUE (external_id);
-  
-  ALTER TABLE roi
-        ADD CONSTRAINT fkroi_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
-  
-  ALTER TABLE roi
-        ADD CONSTRAINT fkroi_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
-  
-  ALTER TABLE roi
-        ADD CONSTRAINT fkroi_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id);
-  
-  ALTER TABLE roi
-        ADD CONSTRAINT fkroi_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
-  
-  ALTER TABLE roi
-        ADD CONSTRAINT fkroi_pixels_pixels FOREIGN KEY (pixels) REFERENCES pixels(id);
-  
-  ALTER TABLE roi
-        ADD CONSTRAINT fkroi_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
-  
-  ALTER TABLE roilink
-        ADD CONSTRAINT roilink_external_id_key UNIQUE (external_id);
-  
-  ALTER TABLE roilink
-        ADD CONSTRAINT fkroilink_child_roi FOREIGN KEY (child) REFERENCES roi(id);
-  
-  ALTER TABLE roilink
-        ADD CONSTRAINT fkroilink_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
-  
-  ALTER TABLE roilink
-        ADD CONSTRAINT fkroilink_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
-  
-  ALTER TABLE roilink
-        ADD CONSTRAINT fkroilink_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id);
-  
-  ALTER TABLE roilink
-        ADD CONSTRAINT fkroilink_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
-  
-  ALTER TABLE roilink
-        ADD CONSTRAINT fkroilink_parent_roi FOREIGN KEY (parent) REFERENCES roi(id);
-  
-  ALTER TABLE roilink
-        ADD CONSTRAINT fkroilink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
-  
-  ALTER TABLE roilinkannotationlink
-        ADD CONSTRAINT roilinkannotationlink_external_id_key UNIQUE (external_id);
-  
-  ALTER TABLE roilinkannotationlink
-        ADD CONSTRAINT fkroilinkannotationlink_child_annotation FOREIGN KEY (child) REFERENCES annotation(id);
-  
-  ALTER TABLE roilinkannotationlink
-        ADD CONSTRAINT fkroilinkannotationlink_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
-  
-  ALTER TABLE roilinkannotationlink
-        ADD CONSTRAINT fkroilinkannotationlink_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
-  
-  ALTER TABLE roilinkannotationlink
-        ADD CONSTRAINT fkroilinkannotationlink_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id);
-  
-  ALTER TABLE roilinkannotationlink
-        ADD CONSTRAINT fkroilinkannotationlink_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
-  
-  ALTER TABLE roilinkannotationlink
-        ADD CONSTRAINT fkroilinkannotationlink_parent_roilink FOREIGN KEY (parent) REFERENCES roilink(id);
-  
-  ALTER TABLE roilinkannotationlink
-        ADD CONSTRAINT fkroilinkannotationlink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
-  
+  ALTER TABLE imageannotationlink ADD CONSTRAINT fkimageannotationlink_child_annotation FOREIGN KEY (child) REFERENCES annotation(id);
+  ALTER TABLE imageannotationlink ADD CONSTRAINT fkimageannotationlink_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
+  ALTER TABLE imageannotationlink ADD CONSTRAINT fkimageannotationlink_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
+  ALTER TABLE imageannotationlink ADD CONSTRAINT fkimageannotationlink_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id);
+  ALTER TABLE imageannotationlink ADD CONSTRAINT fkimageannotationlink_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
+  ALTER TABLE imageannotationlink ADD CONSTRAINT fkimageannotationlink_parent_image FOREIGN KEY (parent) REFERENCES image(id);
+  ALTER TABLE imageannotationlink ADD CONSTRAINT fkimageannotationlink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
+  ALTER TABLE originalfileannotationlink ADD CONSTRAINT originalfileannotationlink_external_id_key UNIQUE (external_id);
+  ALTER TABLE originalfileannotationlink ADD CONSTRAINT fkoriginalfileannotationlink_child_annotation FOREIGN KEY (child) REFERENCES annotation(id);
+  ALTER TABLE originalfileannotationlink ADD CONSTRAINT fkoriginalfileannotationlink_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
+  ALTER TABLE originalfileannotationlink ADD CONSTRAINT fkoriginalfileannotationlink_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
+  ALTER TABLE originalfileannotationlink ADD CONSTRAINT fkoriginalfileannotationlink_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id);
+  ALTER TABLE originalfileannotationlink ADD CONSTRAINT fkoriginalfileannotationlink_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
+  ALTER TABLE originalfileannotationlink ADD CONSTRAINT fkoriginalfileannotationlink_parent_originalfile FOREIGN KEY (parent) REFERENCES originalfile(id);
+  ALTER TABLE originalfileannotationlink ADD CONSTRAINT fkoriginalfileannotationlink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
+  ALTER TABLE pixels ADD CONSTRAINT pixels_id_key UNIQUE (id, image_index);
+  ALTER TABLE pixelsannotationlink ADD CONSTRAINT pixelsannotationlink_external_id_key UNIQUE (external_id);
+  ALTER TABLE pixelsannotationlink ADD CONSTRAINT fkpixelsannotationlink_child_annotation FOREIGN KEY (child) REFERENCES annotation(id);
+  ALTER TABLE pixelsannotationlink ADD CONSTRAINT fkpixelsannotationlink_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
+  ALTER TABLE pixelsannotationlink ADD CONSTRAINT fkpixelsannotationlink_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
+  ALTER TABLE pixelsannotationlink ADD CONSTRAINT fkpixelsannotationlink_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id);
+  ALTER TABLE pixelsannotationlink ADD CONSTRAINT fkpixelsannotationlink_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
+  ALTER TABLE pixelsannotationlink ADD CONSTRAINT fkpixelsannotationlink_parent_pixels FOREIGN KEY (parent) REFERENCES pixels(id);
+  ALTER TABLE pixelsannotationlink ADD CONSTRAINT fkpixelsannotationlink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
+  ALTER TABLE planeinfoannotationlink ADD CONSTRAINT planeinfoannotationlink_external_id_key UNIQUE (external_id);
+  ALTER TABLE planeinfoannotationlink ADD CONSTRAINT fkplaneinfoannotationlink_child_annotation FOREIGN KEY (child) REFERENCES annotation(id);
+  ALTER TABLE planeinfoannotationlink ADD CONSTRAINT fkplaneinfoannotationlink_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
+  ALTER TABLE planeinfoannotationlink ADD CONSTRAINT fkplaneinfoannotationlink_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
+  ALTER TABLE planeinfoannotationlink ADD CONSTRAINT fkplaneinfoannotationlink_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id);
+  ALTER TABLE planeinfoannotationlink ADD CONSTRAINT fkplaneinfoannotationlink_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
+  ALTER TABLE planeinfoannotationlink ADD CONSTRAINT fkplaneinfoannotationlink_parent_planeinfo FOREIGN KEY (parent) REFERENCES planeinfo(id);
+  ALTER TABLE planeinfoannotationlink ADD CONSTRAINT fkplaneinfoannotationlink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
+  ALTER TABLE projectannotationlink ADD CONSTRAINT projectannotationlink_external_id_key UNIQUE (external_id);
+  ALTER TABLE projectannotationlink ADD CONSTRAINT fkprojectannotationlink_child_annotation FOREIGN KEY (child) REFERENCES annotation(id);
+  ALTER TABLE projectannotationlink ADD CONSTRAINT fkprojectannotationlink_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
+  ALTER TABLE projectannotationlink ADD CONSTRAINT fkprojectannotationlink_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
+  ALTER TABLE projectannotationlink ADD CONSTRAINT fkprojectannotationlink_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id);
+  ALTER TABLE projectannotationlink ADD CONSTRAINT fkprojectannotationlink_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
+  ALTER TABLE projectannotationlink ADD CONSTRAINT fkprojectannotationlink_parent_project FOREIGN KEY (parent) REFERENCES project(id);
+  ALTER TABLE projectannotationlink ADD CONSTRAINT fkprojectannotationlink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
+  ALTER TABLE roi ADD CONSTRAINT roi_external_id_key UNIQUE (external_id);
+  ALTER TABLE roi ADD CONSTRAINT fkroi_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
+  ALTER TABLE roi ADD CONSTRAINT fkroi_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
+  ALTER TABLE roi ADD CONSTRAINT fkroi_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id);
+  ALTER TABLE roi ADD CONSTRAINT fkroi_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
+  ALTER TABLE roi ADD CONSTRAINT fkroi_pixels_pixels FOREIGN KEY (pixels) REFERENCES pixels(id);
+  ALTER TABLE roi ADD CONSTRAINT fkroi_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
+  ALTER TABLE roilink ADD CONSTRAINT roilink_external_id_key UNIQUE (external_id);
+  ALTER TABLE roilink ADD CONSTRAINT fkroilink_child_roi FOREIGN KEY (child) REFERENCES roi(id);
+  ALTER TABLE roilink ADD CONSTRAINT fkroilink_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
+  ALTER TABLE roilink ADD CONSTRAINT fkroilink_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
+  ALTER TABLE roilink ADD CONSTRAINT fkroilink_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id);
+  ALTER TABLE roilink ADD CONSTRAINT fkroilink_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
+  ALTER TABLE roilink ADD CONSTRAINT fkroilink_parent_roi FOREIGN KEY (parent) REFERENCES roi(id);
+  ALTER TABLE roilink ADD CONSTRAINT fkroilink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
+  ALTER TABLE roilinkannotationlink ADD CONSTRAINT roilinkannotationlink_external_id_key UNIQUE (external_id);
+  ALTER TABLE roilinkannotationlink ADD CONSTRAINT fkroilinkannotationlink_child_annotation FOREIGN KEY (child) REFERENCES annotation(id);
+  ALTER TABLE roilinkannotationlink ADD CONSTRAINT fkroilinkannotationlink_creation_id_event FOREIGN KEY (creation_id) REFERENCES event(id);
+  ALTER TABLE roilinkannotationlink ADD CONSTRAINT fkroilinkannotationlink_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
+  ALTER TABLE roilinkannotationlink ADD CONSTRAINT fkroilinkannotationlink_group_id_experimentergroup FOREIGN KEY (group_id) REFERENCES experimentergroup(id);
+  ALTER TABLE roilinkannotationlink ADD CONSTRAINT fkroilinkannotationlink_owner_id_experimenter FOREIGN KEY (owner_id) REFERENCES experimenter(id);
+  ALTER TABLE roilinkannotationlink ADD CONSTRAINT fkroilinkannotationlink_parent_roilink FOREIGN KEY (parent) REFERENCES roilink(id);
+  ALTER TABLE roilinkannotationlink ADD CONSTRAINT fkroilinkannotationlink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
 
   --
   -- Convert all groupexperimentermaps to indexed arrays
@@ -536,7 +417,10 @@ CREATE TABLE experimenterannotationlink (
     END LOOP;
   END LOOP;
   ALTER TABLE groupexperimentermap ALTER COLUMN child_index SET NOT NULL;
+  ALTER TABLE groupexperimentermap DROP COLUMN defaultgrouplink;
 
+  --
+  -- Convert all pixels to indexed arrays
   FOR indexed IN SELECT image as id FROM pixels GROUP BY image LOOP
     count := 0;
     FOR mviews IN SELECT id FROM pixels WHERE image = indexed.id ORDER BY defaultPixels DESC LOOP
@@ -547,6 +431,7 @@ CREATE TABLE experimenterannotationlink (
     END LOOP;
   END LOOP;
   ALTER TABLE pixels ALTER COLUMN image_index SET NOT NULL;
+  ALTER TABLE pixels DROP COLUMN defaultpixels;
 
   --
   -- Convert all image annotations to use new annotation framework
@@ -561,7 +446,7 @@ CREATE TABLE experimenterannotationlink (
         ('/text/', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
          mviews.permissions, mviews.external_id, mviews.content, '');
 
-    INSERT INTO imageannotationlink 
+    INSERT INTO imageannotationlink
         (id, permissions, owner_id, creation_id, update_id, child, parent, group_id)
         VALUES
         (nextval('seq_imageannotationlink'),mviews.permissions, mviews.owner_id, mviews.creation_id, mviews.update_id, ann, mviews.image, mviews.group_id);
@@ -581,7 +466,7 @@ CREATE TABLE experimenterannotationlink (
       VALUES
       ('/text/', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
       mviews.permissions, mviews.external_id, mviews.content, '');
-    INSERT INTO datasetannotationlink 
+    INSERT INTO datasetannotationlink
         (id, permissions, owner_id, creation_id, update_id, child, parent, group_id)
         VALUES
         (nextval('seq_datasetannotationlink'),mviews.permissions, mviews.owner_id, mviews.creation_id, mviews.update_id, ann, mviews.dataset, mviews.group_id);
@@ -601,7 +486,7 @@ CREATE TABLE experimenterannotationlink (
       VALUES
       ('/text/', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
       mviews.permissions, mviews.external_id, mviews.content, '');
-    INSERT INTO projectannotationlink 
+    INSERT INTO projectannotationlink
         (id, permissions, owner_id, creation_id, update_id, child, parent, group_id)
         VALUES
         (nextval('seq_projectannotationlink'),mviews.permissions, mviews.owner_id, mviews.creation_id, mviews.update_id, ann, mviews.project, mviews.group_id);
@@ -667,15 +552,14 @@ CREATE TABLE experimenterannotationlink (
   --
   -- Table drops
   --
-
-  DROP TABLE imageannotation;
-  DROP TABLE datasetannotation;
-  DROP TABLE projectannotation;
   DROP TABLE boundingbox CASCADE;
+  DROP TABLE datasetannotation;
   DROP TABLE dummystatistics CASCADE;
+  DROP TABLE imageannotation;
   DROP TABLE metadata CASCADE;
   DROP TABLE overlay CASCADE;
   DROP TABLE overlaytype CASCADE;
+  DROP TABLE projectannotation;
   DROP TABLE region CASCADE;
   DROP TABLE regiontype CASCADE;
   DROP TABLE roi5d CASCADE;
@@ -714,8 +598,6 @@ CREATE TABLE experimenterannotationlink (
   DROP TABLE OMERO3B_1__cg_to_ann;
   DELETE FROM OMERO3B_1__c_to_ann;
   DROP TABLE OMERO3B_1__c_to_ann;
-  ALTER TABLE groupexperimentermap DROP COLUMN defaultgrouplink;
-  ALTER TABLE pixels DROP COLUMN defaultpixels;
 
   RETURN 'success';
 END;

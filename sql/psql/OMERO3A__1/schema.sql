@@ -9,10 +9,10 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         group_id int8 not null,
-        external_id int8 unique,
+        creation_id int8 not null,
         owner_id int8 not null,
+        external_id int8 unique,
         primary key (id)
     );
 
@@ -21,9 +21,9 @@ BEGIN;
         permissions int8 not null,
         value varchar(255) not null unique,
         external_id int8 unique,
-        owner_id int8 not null,
-        creation_id int8 not null,
         group_id int8 not null,
+        creation_id int8 not null,
+        owner_id int8 not null,
         primary key (id)
     );
 
@@ -35,14 +35,14 @@ BEGIN;
         name varchar(255),
         textValue text,
         doubleValue float8,
+        timeValue timestamp,
         boolValue bool,
         longValue int8,
+        external_id int8 unique,
         thumbnail int8,
-        timeValue timestamp,
-        group_id int8 not null,
         owner_id int8 not null,
         creation_id int8 not null,
-        external_id int8 unique,
+        group_id int8 not null,
         file int8,
         primary key (id)
     );
@@ -51,13 +51,13 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        parent int8 not null,
         child int8 not null,
-        owner_id int8 not null,
-        external_id int8 unique,
         creation_id int8 not null,
         update_id int8 not null,
+        external_id int8 unique,
         group_id int8 not null,
+        parent int8 not null,
+        owner_id int8 not null,
         primary key (id)
     );
 
@@ -71,8 +71,8 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        group_id int8 not null,
         owner_id int8 not null,
+        group_id int8 not null,
         creation_id int8 not null,
         external_id int8 unique,
         primary key (id)
@@ -83,9 +83,9 @@ BEGIN;
         permissions int8 not null,
         value varchar(255) not null unique,
         external_id int8 unique,
-        creation_id int8 not null,
-        group_id int8 not null,
         owner_id int8 not null,
+        group_id int8 not null,
+        creation_id int8 not null,
         primary key (id)
     );
 
@@ -109,10 +109,10 @@ BEGIN;
         permissions int8 not null,
         name varchar(255) not null,
         version int4,
+        group_id int8 not null,
+        update_id int8 not null,
         creation_id int8 not null,
         external_id int8 unique,
-        update_id int8 not null,
-        group_id int8 not null,
         owner_id int8 not null,
         primary key (id)
     );
@@ -121,13 +121,13 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        update_id int8 not null,
-        child int8 not null,
+        creation_id int8 not null,
         parent int8 not null,
         group_id int8 not null,
-        external_id int8 unique,
-        creation_id int8 not null,
+        child int8 not null,
+        update_id int8 not null,
         owner_id int8 not null,
+        external_id int8 unique,
         primary key (id)
     );
 
@@ -135,13 +135,13 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        external_id int8 unique,
-        creation_id int8 not null,
-        parent int8 not null,
         child int8 not null,
-        group_id int8 not null,
-        update_id int8 not null,
+        external_id int8 unique,
         owner_id int8 not null,
+        parent int8 not null,
+        update_id int8 not null,
+        group_id int8 not null,
+        creation_id int8 not null,
         primary key (id)
     );
 
@@ -150,11 +150,11 @@ BEGIN;
         area float8 not null,
         permissions int8 not null,
         version int4,
-        creation_id int8 not null,
-        group_id int8 not null,
-        owner_id int8 not null,
         external_id int8 unique,
+        owner_id int8 not null,
+        creation_id int8 not null,
         update_id int8 not null,
+        group_id int8 not null,
         primary key (id)
     );
 
@@ -163,11 +163,11 @@ BEGIN;
         permissions int8 not null,
         eccentricity float8 not null,
         version int4,
-        external_id int8 unique,
         group_id int8 not null,
-        owner_id int8 not null,
-        creation_id int8 not null,
         update_id int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        owner_id int8 not null,
         primary key (id)
     );
 
@@ -176,11 +176,11 @@ BEGIN;
         permissions int8 not null,
         extent float8 not null,
         version int4,
+        update_id int8 not null,
+        owner_id int8 not null,
         creation_id int8 not null,
         group_id int8 not null,
-        update_id int8 not null,
         external_id int8 unique,
-        owner_id int8 not null,
         primary key (id)
     );
 
@@ -189,11 +189,11 @@ BEGIN;
         permissions int8 not null,
         length float8 not null,
         version int4,
+        external_id int8 unique,
+        owner_id int8 not null,
         update_id int8 not null,
         group_id int8 not null,
-        owner_id int8 not null,
         creation_id int8 not null,
-        external_id int8 unique,
         primary key (id)
     );
 
@@ -202,11 +202,11 @@ BEGIN;
         permissions int8 not null,
         length float8 not null,
         version int4,
-        owner_id int8 not null,
-        update_id int8 not null,
         group_id int8 not null,
-        creation_id int8 not null,
         external_id int8 unique,
+        update_id int8 not null,
+        creation_id int8 not null,
+        owner_id int8 not null,
         primary key (id)
     );
 
@@ -216,10 +216,10 @@ BEGIN;
         perimeter float8 not null,
         version int4,
         external_id int8 unique,
+        creation_id int8 not null,
         owner_id int8 not null,
         update_id int8 not null,
         group_id int8 not null,
-        creation_id int8 not null,
         primary key (id)
     );
 
@@ -230,11 +230,11 @@ BEGIN;
         zPosition float8 not null,
         permissions int8 not null,
         version int4,
-        group_id int8 not null,
+        owner_id int8 not null,
         update_id int8 not null,
         external_id int8 unique,
+        group_id int8 not null,
         creation_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );
 
@@ -243,11 +243,11 @@ BEGIN;
         permissions int8 not null,
         solidity float8 not null,
         version int4,
+        group_id int8 not null,
+        external_id int8 unique,
         owner_id int8 not null,
         creation_id int8 not null,
-        external_id int8 unique,
         update_id int8 not null,
-        group_id int8 not null,
         primary key (id)
     );
 
@@ -255,15 +255,15 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        creation_id int8 not null,
-        colorComponent int8,
-        update_id int8 not null,
+        logicalChannel int8,
+        owner_id int8 not null,
+        external_id int8 unique,
         statsInfo int8,
         pixels int8 not null,
-        owner_id int8 not null,
         group_id int8 not null,
-        external_id int8 unique,
-        logicalChannel int8,
+        update_id int8 not null,
+        creation_id int8 not null,
+        colorComponent int8,
         pixels_index int4 not null,
         primary key (id),
         unique (id, pixels_index)
@@ -276,10 +276,10 @@ BEGIN;
         parent int8 not null,
         creation_id int8 not null,
         owner_id int8 not null,
-        group_id int8 not null,
         external_id int8 unique,
         child int8 not null,
         update_id int8 not null,
+        group_id int8 not null,
         primary key (id)
     );
 
@@ -292,14 +292,14 @@ BEGIN;
         inputStart double precision not null not null,
         noiseReduction bool not null,
         version int4,
-        family int8 not null,
+        owner_id int8 not null,
         group_id int8 not null,
-        update_id int8 not null,
-        external_id int8 unique,
         renderingDef int8 not null,
         color int8 not null,
-        owner_id int8 not null,
+        external_id int8 unique,
+        update_id int8 not null,
         creation_id int8 not null,
+        family int8 not null,
         renderingDef_index int4 not null,
         primary key (id),
         unique (id, renderingDef_index)
@@ -309,10 +309,10 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
-        group_id int8 not null,
         owner_id int8 not null,
+        group_id int8 not null,
         external_id int8 unique,
+        creation_id int8 not null,
         primary key (id)
     );
 
@@ -320,12 +320,12 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        update_id int8 not null,
-        group_id int8 not null,
-        owner_id int8 not null,
-        external_id int8 unique,
-        creation_id int8 not null,
         renderingDef int8 not null,
+        owner_id int8 not null,
+        group_id int8 not null,
+        external_id int8 unique,
+        update_id int8 not null,
+        creation_id int8 not null,
         renderingDef_index int4 not null,
         primary key (id),
         unique (id, renderingDef_index)
@@ -339,10 +339,10 @@ BEGIN;
         green int4 not null,
         red int4 not null,
         version int4,
-        external_id int8 unique,
+        creation_id int8 not null,
         owner_id int8 not null,
         group_id int8 not null,
-        creation_id int8 not null,
+        external_id int8 unique,
         update_id int8 not null,
         primary key (id)
     );
@@ -351,10 +351,10 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        external_id int8 unique,
         owner_id int8 not null,
-        group_id int8 not null,
+        external_id int8 unique,
         creation_id int8 not null,
+        group_id int8 not null,
         primary key (id)
     );
 
@@ -374,15 +374,15 @@ BEGIN;
         model varchar(255) not null,
         serialNumber varchar(255),
         version int4,
-        transmittanceRange int8,
-        excitationFilter int8 not null,
-        dichroic int8 not null,
         group_id int8 not null,
-        emissionFilter int8 not null,
-        external_id int8 unique,
+        dichroic int8 not null,
         creation_id int8 not null,
-        owner_id int8 not null,
+        transmittanceRange int8,
+        emissionFilter int8 not null,
+        excitationFilter int8 not null,
         update_id int8 not null,
+        external_id int8 unique,
+        owner_id int8 not null,
         primary key (id)
     );
 
@@ -393,10 +393,10 @@ BEGIN;
         name varchar(255) not null,
         version int4,
         group_id int8 not null,
-        creation_id int8 not null,
-        external_id int8 unique,
-        owner_id int8 not null,
         update_id int8 not null,
+        external_id int8 unique,
+        creation_id int8 not null,
+        owner_id int8 not null,
         primary key (id)
     );
 
@@ -405,12 +405,12 @@ BEGIN;
         permissions int8 not null,
         version int4,
         creation_id int8 not null,
-        owner_id int8 not null,
-        child int8 not null,
-        update_id int8 not null,
-        group_id int8 not null,
-        parent int8 not null,
         external_id int8 unique,
+        parent int8 not null,
+        owner_id int8 not null,
+        group_id int8 not null,
+        update_id int8 not null,
+        child int8 not null,
         primary key (id)
     );
 
@@ -418,13 +418,13 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        child int8 not null,
         parent int8 not null,
-        group_id int8 not null,
+        external_id int8 unique,
         update_id int8 not null,
+        child int8 not null,
+        group_id int8 not null,
         creation_id int8 not null,
         owner_id int8 not null,
-        external_id int8 unique,
         primary key (id)
     );
 
@@ -452,12 +452,12 @@ BEGIN;
         version int4,
         voltage double precision,
         update_id int8 not null,
-        group_id int8 not null,
-        owner_id int8 not null,
-        instrument int8 not null,
         type int8 not null,
         external_id int8 unique,
         creation_id int8 not null,
+        group_id int8 not null,
+        instrument int8 not null,
+        owner_id int8 not null,
         primary key (id)
     );
 
@@ -470,13 +470,13 @@ BEGIN;
         readOutRate double precision,
         version int4,
         voltage double precision,
-        external_id int8 unique,
-        detector int8 not null,
-        group_id int8 not null,
         update_id int8 not null,
+        external_id int8 unique,
         binning int8,
-        owner_id int8 not null,
+        detector int8 not null,
         creation_id int8 not null,
+        owner_id int8 not null,
+        group_id int8 not null,
         primary key (id)
     );
 
@@ -485,8 +485,8 @@ BEGIN;
         permissions int8 not null,
         value varchar(255) not null unique,
         external_id int8 unique,
-        owner_id int8 not null,
         group_id int8 not null,
+        owner_id int8 not null,
         creation_id int8 not null,
         primary key (id)
     );
@@ -495,11 +495,11 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        group_id int8 not null,
-        external_id int8 unique,
-        creation_id int8 not null,
-        owner_id int8 not null,
         update_id int8 not null,
+        group_id int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        owner_id int8 not null,
         primary key (id)
     );
 
@@ -508,9 +508,9 @@ BEGIN;
         permissions int8 not null,
         value varchar(255) not null unique,
         external_id int8 unique,
-        owner_id int8 not null,
-        group_id int8 not null,
         creation_id int8 not null,
+        group_id int8 not null,
+        owner_id int8 not null,
         primary key (id)
     );
 
@@ -518,13 +518,13 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        external_id int8 unique,
         creation_id int8 not null,
+        owner_id int8 not null,
+        type int8 not null,
         update_id int8 not null,
         group_id int8 not null,
-        type int8 not null,
-        owner_id int8 not null,
         transmittanceRange int8,
+        external_id int8 unique,
         primary key (id)
     );
 
@@ -534,10 +534,10 @@ BEGIN;
         status varchar(255),
         time timestamp not null,
         containingEvent int8,
-        experimenter int8 not null,
         type int8,
-        external_id int8 unique,
+        experimenter int8 not null,
         experimenterGroup int8,
+        external_id int8 unique,
         primary key (id)
     );
 
@@ -556,10 +556,10 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        group_id int8 not null,
-        creation_id int8 not null,
         owner_id int8 not null,
         external_id int8 unique,
+        group_id int8 not null,
+        creation_id int8 not null,
         primary key (id)
     );
 
@@ -567,13 +567,13 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        creation_id int8 not null,
         update_id int8 not null,
         type int8 not null,
-        owner_id int8 not null,
-        group_id int8 not null,
-        external_id int8 unique,
+        creation_id int8 not null,
         transmittanceRange int8,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
         primary key (id)
     );
 
@@ -582,12 +582,12 @@ BEGIN;
         description text,
         permissions int8 not null,
         version int4,
-        group_id int8 not null,
-        update_id int8 not null,
-        external_id int8 unique,
         type int8 not null,
+        group_id int8 not null,
+        external_id int8 unique,
         owner_id int8 not null,
         creation_id int8 not null,
+        update_id int8 not null,
         primary key (id)
     );
 
@@ -609,12 +609,12 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        owner_id int8 not null,
-        group_id int8 not null,
-        creation_id int8 not null,
+        external_id int8 unique,
         child int8 not null,
         update_id int8 not null,
-        external_id int8 unique,
+        group_id int8 not null,
+        creation_id int8 not null,
+        owner_id int8 not null,
         parent int8 not null,
         primary key (id)
     );
@@ -625,11 +625,11 @@ BEGIN;
         permissions int8 not null,
         name varchar(255) not null unique,
         version int4,
+        external_id int8 unique,
         creation_id int8 not null,
         update_id int8 not null,
         group_id int8 not null,
         owner_id int8 not null,
-        external_id int8 unique,
         primary key (id)
     );
 
@@ -637,10 +637,10 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        owner_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
         creation_id int8 not null,
+        owner_id int8 not null,
         primary key (id)
     );
 
@@ -651,10 +651,10 @@ BEGIN;
         entityType varchar(255) not null,
         lsid varchar(255),
         uuid varchar(255),
-        creation_id int8 not null,
         group_id int8 not null,
         external_id int8 unique,
         owner_id int8 not null,
+        creation_id int8 not null,
         primary key (id)
     );
 
@@ -662,10 +662,10 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        group_id int8 not null,
         external_id int8 unique,
-        creation_id int8 not null,
         owner_id int8 not null,
+        group_id int8 not null,
+        creation_id int8 not null,
         primary key (id)
     );
 
@@ -679,10 +679,10 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        owner_id int8 not null,
-        creation_id int8 not null,
         group_id int8 not null,
+        owner_id int8 not null,
         external_id int8 unique,
+        creation_id int8 not null,
         primary key (id)
     );
 
@@ -691,14 +691,14 @@ BEGIN;
         customized bool not null,
         permissions int8 not null,
         version int4,
+        owner_id int8 not null,
         creation_id int8 not null,
         filterSet int8,
         external_id int8 unique,
+        instrument int8 not null,
+        customizedFilterSet int8,
         group_id int8 not null,
         update_id int8 not null,
-        customizedFilterSet int8,
-        instrument int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );
 
@@ -710,10 +710,10 @@ BEGIN;
         serialNumber varchar(255),
         version int4,
         external_id int8 unique,
-        update_id int8 not null,
+        creation_id int8 not null,
         owner_id int8 not null,
         group_id int8 not null,
-        creation_id int8 not null,
+        update_id int8 not null,
         transmittanceRange int8,
         primary key (id)
     );
@@ -722,9 +722,9 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        owner_id int8 not null,
         group_id int8 not null,
         creation_id int8 not null,
+        owner_id int8 not null,
         external_id int8 unique,
         primary key (id)
     );
@@ -733,10 +733,10 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        group_id int8 not null,
-        creation_id int8 not null,
         external_id int8 unique,
         owner_id int8 not null,
+        group_id int8 not null,
+        creation_id int8 not null,
         primary key (id)
     );
 
@@ -744,10 +744,10 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
+        group_id int8 not null,
+        creation_id int8 not null,
         owner_id int8 not null,
         external_id int8 unique,
-        creation_id int8 not null,
-        group_id int8 not null,
         primary key (id)
     );
 
@@ -755,13 +755,13 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        child int8 not null,
         update_id int8 not null,
-        owner_id int8 not null,
-        creation_id int8 not null,
-        external_id int8 unique,
         group_id int8 not null,
+        external_id int8 unique,
+        creation_id int8 not null,
         parent int8 not null,
+        owner_id int8 not null,
+        child int8 not null,
         child_index int4 not null,
         primary key (id),
         unique (id, child_index)
@@ -771,10 +771,10 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
-        group_id int8 not null,
         owner_id int8 not null,
         external_id int8 unique,
+        group_id int8 not null,
+        creation_id int8 not null,
         primary key (id)
     );
 
@@ -784,16 +784,16 @@ BEGIN;
         permissions int8 not null,
         name varchar(255) not null,
         version int4,
-        group_id int8 not null,
-        owner_id int8 not null,
+        objectiveSettings int8,
+        creation_id int8 not null,
         position int8,
         external_id int8 unique,
-        creation_id int8 not null,
-        update_id int8 not null,
-        context int8,
+        owner_id int8 not null,
         condition int8,
-        objectiveSettings int8,
+        context int8,
+        update_id int8 not null,
         setup int8,
+        group_id int8 not null,
         primary key (id)
     );
 
@@ -802,12 +802,12 @@ BEGIN;
         permissions int8 not null,
         version int4,
         owner_id int8 not null,
-        creation_id int8 not null,
+        child int8 not null,
         external_id int8 unique,
         update_id int8 not null,
-        child int8 not null,
-        parent int8 not null,
+        creation_id int8 not null,
         group_id int8 not null,
+        parent int8 not null,
         primary key (id)
     );
 
@@ -816,11 +816,11 @@ BEGIN;
         count int4 not null,
         permissions int8 not null,
         version int4,
-        creation_id int8 not null,
+        update_id int8 not null,
         owner_id int8 not null,
         external_id int8 unique,
+        creation_id int8 not null,
         group_id int8 not null,
-        update_id int8 not null,
         primary key (id)
     );
 
@@ -830,9 +830,9 @@ BEGIN;
         permissions int8 not null,
         version int4,
         update_id int8 not null,
+        external_id int8 unique,
         creation_id int8 not null,
         owner_id int8 not null,
-        external_id int8 unique,
         group_id int8 not null,
         primary key (id)
     );
@@ -846,10 +846,10 @@ BEGIN;
         temperature double precision,
         version int4,
         owner_id int8 not null,
-        external_id int8 unique,
-        update_id int8 not null,
-        creation_id int8 not null,
         group_id int8 not null,
+        update_id int8 not null,
+        external_id int8 unique,
+        creation_id int8 not null,
         primary key (id)
     );
 
@@ -857,10 +857,10 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
+        external_id int8 unique,
+        group_id int8 not null,
         creation_id int8 not null,
         owner_id int8 not null,
-        group_id int8 not null,
-        external_id int8 unique,
         primary key (id)
     );
 
@@ -875,12 +875,12 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        microscope int8 not null,
-        update_id int8 not null,
-        group_id int8 not null,
-        external_id int8 unique,
         creation_id int8 not null,
+        external_id int8 unique,
         owner_id int8 not null,
+        microscope int8 not null,
+        group_id int8 not null,
+        update_id int8 not null,
         primary key (id)
     );
 
@@ -888,10 +888,10 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
-        group_id int8 not null,
         owner_id int8 not null,
+        group_id int8 not null,
         external_id int8 unique,
+        creation_id int8 not null,
         primary key (id)
     );
 
@@ -907,12 +907,12 @@ BEGIN;
         type varchar(255) not null,
         username varchar(255) not null,
         version int4,
+        external_id int8 unique,
         status int8 not null,
+        update_id int8 not null,
+        owner_id int8 not null,
         group_id int8 not null,
         creation_id int8 not null,
-        external_id int8 unique,
-        owner_id int8 not null,
-        update_id int8 not null,
         primary key (id)
     );
 
@@ -921,12 +921,12 @@ BEGIN;
         permissions int8 not null,
         version int4,
         creation_id int8 not null,
+        update_id int8 not null,
         owner_id int8 not null,
+        parent int8 not null,
+        group_id int8 not null,
         child int8 not null,
         external_id int8 unique,
-        update_id int8 not null,
-        group_id int8 not null,
-        parent int8 not null,
         primary key (id)
     );
 
@@ -934,10 +934,10 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         creation_id int8 not null,
+        group_id int8 not null,
+        external_id int8 unique,
+        owner_id int8 not null,
         primary key (id)
     );
 
@@ -946,11 +946,11 @@ BEGIN;
         pockelCell bool not null,
         tunable bool not null,
         wavelength int4,
-        frequencyMultiplication int8 not null,
         type int8 not null,
-        pump int8,
         pulse int8,
         laserMedium int8 not null,
+        frequencyMultiplication int8 not null,
+        pump int8,
         primary key (lightsource_id)
     );
 
@@ -958,10 +958,10 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        external_id int8 unique,
-        group_id int8 not null,
         owner_id int8 not null,
+        group_id int8 not null,
         creation_id int8 not null,
+        external_id int8 unique,
         primary key (id)
     );
 
@@ -969,10 +969,10 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        external_id int8 unique,
         creation_id int8 not null,
-        group_id int8 not null,
+        external_id int8 unique,
         owner_id int8 not null,
+        group_id int8 not null,
         primary key (id)
     );
 
@@ -982,12 +982,12 @@ BEGIN;
         power double precision,
         technique varchar(255),
         version int4,
-        group_id int8 not null,
-        update_id int8 not null,
         lightSource int8 not null,
         external_id int8 unique,
-        creation_id int8 not null,
+        update_id int8 not null,
         owner_id int8 not null,
+        creation_id int8 not null,
+        group_id int8 not null,
         primary key (id)
     );
 
@@ -999,12 +999,12 @@ BEGIN;
         power double precision not null not null,
         serialNumber varchar(255),
         version int4,
-        instrument int8 not null,
-        external_id int8 unique,
         group_id int8 not null,
-        update_id int8 not null,
-        owner_id int8 not null,
+        external_id int8 unique,
         creation_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        instrument int8 not null,
         primary key (id)
     );
 
@@ -1012,11 +1012,11 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        group_id int8 not null,
-        creation_id int8 not null,
-        update_id int8 not null,
-        owner_id int8 not null,
         external_id int8 unique,
+        group_id int8 not null,
+        update_id int8 not null,
+        creation_id int8 not null,
+        owner_id int8 not null,
         primary key (id)
     );
 
@@ -1031,19 +1031,19 @@ BEGIN;
         pinHoleSize int4,
         pockelCellSetting varchar(255),
         version int4,
+        owner_id int8 not null,
+        contrastMethod int8,
+        lightSource int8,
         photometricInterpretation int8,
-        detectorSettings int8,
+        creation_id int8 not null,
         otf int8,
         illumination int8,
-        contrastMethod int8,
         auxLightSource int8,
-        external_id int8 unique,
-        group_id int8 not null,
-        lightSource int8,
-        owner_id int8 not null,
         update_id int8 not null,
-        creation_id int8 not null,
+        detectorSettings int8,
         mode int8,
+        group_id int8 not null,
+        external_id int8 unique,
         primary key (id)
     );
 
@@ -1051,9 +1051,9 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
+        owner_id int8 not null,
         external_id int8 unique,
         creation_id int8 not null,
-        owner_id int8 not null,
         group_id int8 not null,
         primary key (id)
     );
@@ -1065,12 +1065,12 @@ BEGIN;
         model varchar(255) not null,
         serialNumber varchar(255),
         version int4,
-        creation_id int8 not null,
         owner_id int8 not null,
-        external_id int8 unique,
+        creation_id int8 not null,
         type int8 not null,
-        group_id int8 not null,
         update_id int8 not null,
+        group_id int8 not null,
+        external_id int8 unique,
         primary key (id)
     );
 
@@ -1090,11 +1090,11 @@ BEGIN;
         area float8 not null,
         permissions int8 not null,
         version int4,
-        owner_id int8 not null,
-        group_id int8 not null,
-        update_id int8 not null,
         creation_id int8 not null,
+        group_id int8 not null,
         external_id int8 unique,
+        owner_id int8 not null,
+        update_id int8 not null,
         primary key (id)
     );
 
@@ -1103,11 +1103,11 @@ BEGIN;
         permissions int8 not null,
         eccentricity float8 not null,
         version int4,
-        group_id int8 not null,
-        owner_id int8 not null,
-        update_id int8 not null,
-        creation_id int8 not null,
         external_id int8 unique,
+        creation_id int8 not null,
+        update_id int8 not null,
+        owner_id int8 not null,
+        group_id int8 not null,
         primary key (id)
     );
 
@@ -1118,9 +1118,9 @@ BEGIN;
         version int4,
         creation_id int8 not null,
         owner_id int8 not null,
-        update_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
+        update_id int8 not null,
         primary key (id)
     );
 
@@ -1129,11 +1129,11 @@ BEGIN;
         permissions int8 not null,
         length float8 not null,
         version int4,
-        creation_id int8 not null,
-        external_id int8 unique,
-        group_id int8 not null,
         owner_id int8 not null,
+        group_id int8 not null,
+        external_id int8 unique,
         update_id int8 not null,
+        creation_id int8 not null,
         primary key (id)
     );
 
@@ -1142,11 +1142,11 @@ BEGIN;
         permissions int8 not null,
         length float8 not null,
         version int4,
-        update_id int8 not null,
-        external_id int8 unique,
         creation_id int8 not null,
-        group_id int8 not null,
         owner_id int8 not null,
+        update_id int8 not null,
+        group_id int8 not null,
+        external_id int8 unique,
         primary key (id)
     );
 
@@ -1155,10 +1155,10 @@ BEGIN;
         permissions int8 not null,
         perimenter float8 not null,
         version int4,
-        group_id int8 not null,
+        owner_id int8 not null,
         update_id int8 not null,
         external_id int8 unique,
-        owner_id int8 not null,
+        group_id int8 not null,
         creation_id int8 not null,
         primary key (id)
     );
@@ -1170,11 +1170,11 @@ BEGIN;
         zPosition float8 not null,
         permissions int8 not null,
         version int4,
-        group_id int8 not null,
-        owner_id int8 not null,
         external_id int8 unique,
         creation_id int8 not null,
         update_id int8 not null,
+        owner_id int8 not null,
+        group_id int8 not null,
         primary key (id)
     );
 
@@ -1183,11 +1183,11 @@ BEGIN;
         permissions int8 not null,
         solidity float8 not null,
         version int4,
+        external_id int8 unique,
+        update_id int8 not null,
+        owner_id int8 not null,
         creation_id int8 not null,
         group_id int8 not null,
-        update_id int8 not null,
-        external_id int8 unique,
-        owner_id int8 not null,
         primary key (id)
     );
 
@@ -1200,14 +1200,14 @@ BEGIN;
         model varchar(255) not null,
         serialNumber varchar(255),
         version int4,
-        immersion int8,
-        update_id int8 not null,
-        group_id int8 not null,
-        creation_id int8 not null,
-        owner_id int8 not null,
-        instrument int8 not null,
-        external_id int8 unique,
         coating int8,
+        immersion int8,
+        owner_id int8 not null,
+        creation_id int8 not null,
+        update_id int8 not null,
+        external_id int8 unique,
+        instrument int8 not null,
+        group_id int8 not null,
         primary key (id)
     );
 
@@ -1217,13 +1217,13 @@ BEGIN;
         permissions int8 not null,
         refractiveIndex double precision,
         version int4,
-        creation_id int8 not null,
-        update_id int8 not null,
         owner_id int8 not null,
+        update_id int8 not null,
         external_id int8 unique,
+        creation_id int8 not null,
+        group_id int8 not null,
         objective int8 not null,
         medium int8,
-        group_id int8 not null,
         primary key (id)
     );
 
@@ -1238,12 +1238,12 @@ BEGIN;
         sha1 varchar(255) not null,
         size int8 not null,
         version int4,
+        group_id int8 not null,
         format int8 not null,
         update_id int8 not null,
-        external_id int8 unique,
-        group_id int8 not null,
         creation_id int8 not null,
         owner_id int8 not null,
+        external_id int8 unique,
         primary key (id)
     );
 
@@ -1251,13 +1251,13 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        update_id int8 not null,
-        external_id int8 unique,
-        parent int8 not null,
-        group_id int8 not null,
         creation_id int8 not null,
-        child int8 not null,
         owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        child int8 not null,
+        group_id int8 not null,
+        external_id int8 unique,
         primary key (id)
     );
 
@@ -1269,12 +1269,12 @@ BEGIN;
         sizeX int4 not null,
         sizeY int4 not null,
         version int4,
-        owner_id int8 not null,
-        external_id int8 unique,
-        group_id int8 not null,
-        pixelType int8 not null,
-        creation_id int8 not null,
         update_id int8 not null,
+        owner_id int8 not null,
+        group_id int8 not null,
+        external_id int8 unique,
+        creation_id int8 not null,
+        pixelType int8 not null,
         primary key (id)
     );
 
@@ -1282,9 +1282,9 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
+        group_id int8 not null,
         owner_id int8 not null,
         creation_id int8 not null,
-        group_id int8 not null,
         external_id int8 unique,
         primary key (id)
     );
@@ -1300,16 +1300,16 @@ BEGIN;
         sizeY int4 not null,
         sizeZ int4 not null,
         version int4,
-        owner_id int8 not null,
-        update_id int8 not null,
-        pixelsType int8 not null,
         dimensionOrder int8 not null,
-        relatedTo int8,
-        external_id int8 unique,
-        creation_id int8 not null,
-        image int8 not null,
-        pixelsDimensions int8 not null,
         group_id int8 not null,
+        update_id int8 not null,
+        relatedTo int8,
+        image int8 not null,
+        pixelsType int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        pixelsDimensions int8 not null,
+        owner_id int8 not null,
         image_index int4 not null,
         primary key (id),
         unique (id, image_index)
@@ -1319,13 +1319,13 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
+        group_id int8 not null,
         child int8 not null,
+        external_id int8 unique,
+        parent int8 not null,
         creation_id int8 not null,
         update_id int8 not null,
         owner_id int8 not null,
-        group_id int8 not null,
-        parent int8 not null,
-        external_id int8 unique,
         primary key (id)
     );
 
@@ -1337,10 +1337,10 @@ BEGIN;
         sizeZ double precision not null not null,
         version int4,
         update_id int8 not null,
-        group_id int8 not null,
         owner_id int8 not null,
-        creation_id int8 not null,
+        group_id int8 not null,
         external_id int8 unique,
+        creation_id int8 not null,
         primary key (id)
     );
 
@@ -1348,13 +1348,13 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        parent int8 not null,
-        group_id int8 not null,
         child int8 not null,
-        external_id int8 unique,
-        owner_id int8 not null,
-        creation_id int8 not null,
         update_id int8 not null,
+        creation_id int8 not null,
+        group_id int8 not null,
+        owner_id int8 not null,
+        parent int8 not null,
+        external_id int8 unique,
         primary key (id)
     );
 
@@ -1362,9 +1362,9 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        group_id int8 not null,
         creation_id int8 not null,
         owner_id int8 not null,
+        group_id int8 not null,
         external_id int8 unique,
         primary key (id)
     );
@@ -1381,12 +1381,12 @@ BEGIN;
         theZ int4 not null,
         timestamp double precision not null not null,
         version int4,
-        creation_id int8 not null,
-        owner_id int8 not null,
-        group_id int8 not null,
-        update_id int8 not null,
-        external_id int8 unique,
         pixels int8 not null,
+        group_id int8 not null,
+        owner_id int8 not null,
+        external_id int8 unique,
+        creation_id int8 not null,
+        update_id int8 not null,
         primary key (id)
     );
 
@@ -1394,13 +1394,13 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        update_id int8 not null,
-        parent int8 not null,
-        owner_id int8 not null,
-        child int8 not null,
-        external_id int8 unique,
         creation_id int8 not null,
+        owner_id int8 not null,
         group_id int8 not null,
+        external_id int8 unique,
+        update_id int8 not null,
+        child int8 not null,
+        parent int8 not null,
         primary key (id)
     );
 
@@ -1421,10 +1421,10 @@ BEGIN;
         name varchar(255) not null,
         version int4,
         owner_id int8 not null,
-        external_id int8 unique,
-        creation_id int8 not null,
         group_id int8 not null,
         update_id int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
         primary key (id)
     );
 
@@ -1432,13 +1432,13 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        group_id int8 not null,
         creation_id int8 not null,
-        update_id int8 not null,
-        parent int8 not null,
+        group_id int8 not null,
         child int8 not null,
-        owner_id int8 not null,
+        update_id int8 not null,
         external_id int8 unique,
+        owner_id int8 not null,
+        parent int8 not null,
         primary key (id)
     );
 
@@ -1446,13 +1446,13 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        owner_id int8 not null,
-        parent int8 not null,
-        creation_id int8 not null,
         child int8 not null,
+        owner_id int8 not null,
+        group_id int8 not null,
         external_id int8 unique,
         update_id int8 not null,
-        group_id int8 not null,
+        creation_id int8 not null,
+        parent int8 not null,
         primary key (id)
     );
 
@@ -1460,10 +1460,10 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        owner_id int8 not null,
         group_id int8 not null,
-        external_id int8 unique,
         creation_id int8 not null,
+        owner_id int8 not null,
+        external_id int8 unique,
         primary key (id)
     );
 
@@ -1474,11 +1474,11 @@ BEGIN;
         cdStart int4 not null,
         permissions int8 not null,
         version int4,
+        update_id int8 not null,
+        owner_id int8 not null,
+        external_id int8 unique,
         creation_id int8 not null,
         group_id int8 not null,
-        external_id int8 unique,
-        owner_id int8 not null,
-        update_id int8 not null,
         primary key (id)
     );
 
@@ -1489,14 +1489,14 @@ BEGIN;
         permissions int8 not null,
         name varchar(255),
         version int4,
-        group_id int8 not null,
-        model int8 not null,
-        creation_id int8 not null,
-        update_id int8 not null,
         pixels int8 not null,
         external_id int8 unique,
-        quantization int8 not null,
         owner_id int8 not null,
+        group_id int8 not null,
+        creation_id int8 not null,
+        update_id int8 not null,
+        quantization int8 not null,
+        model int8 not null,
         primary key (id)
     );
 
@@ -1504,10 +1504,10 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        external_id int8 unique,
-        group_id int8 not null,
         creation_id int8 not null,
         owner_id int8 not null,
+        group_id int8 not null,
+        external_id int8 unique,
         primary key (id)
     );
 
@@ -1527,12 +1527,12 @@ BEGIN;
         visible bool not null,
         xml text,
         z int4,
+        update_id int8 not null,
+        external_id int8 unique,
+        creation_id int8 not null,
         owner_id int8 not null,
         pixels int8 not null,
-        creation_id int8 not null,
         group_id int8 not null,
-        external_id int8 unique,
-        update_id int8 not null,
         primary key (id)
     );
 
@@ -1540,13 +1540,13 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        owner_id int8 not null,
-        external_id int8 unique,
-        child int8 not null,
         group_id int8 not null,
         update_id int8 not null,
+        owner_id int8 not null,
         parent int8 not null,
+        child int8 not null,
         creation_id int8 not null,
+        external_id int8 unique,
         primary key (id)
     );
 
@@ -1554,13 +1554,13 @@ BEGIN;
         id int8 not null,
         permissions int8 not null,
         version int4,
-        external_id int8 unique,
-        owner_id int8 not null,
         group_id int8 not null,
+        owner_id int8 not null,
         creation_id int8 not null,
         update_id int8 not null,
-        child int8 not null,
         parent int8 not null,
+        external_id int8 unique,
+        child int8 not null,
         primary key (id)
     );
 
@@ -1578,11 +1578,11 @@ BEGIN;
         positionY double precision not null not null,
         positionZ double precision not null not null,
         version int4,
+        external_id int8 unique,
+        owner_id int8 not null,
+        creation_id int8 not null,
         update_id int8 not null,
         group_id int8 not null,
-        owner_id int8 not null,
-        external_id int8 unique,
-        creation_id int8 not null,
         primary key (id)
     );
 
@@ -1592,11 +1592,11 @@ BEGIN;
         globalMax float8 not null,
         globalMin float8 not null,
         version int4,
-        group_id int8 not null,
         external_id int8 unique,
-        update_id int8 not null,
         creation_id int8 not null,
         owner_id int8 not null,
+        group_id int8 not null,
+        update_id int8 not null,
         primary key (id)
     );
 
@@ -1608,12 +1608,12 @@ BEGIN;
         sizeX int4 not null,
         sizeY int4 not null,
         version int4,
-        creation_id int8 not null,
-        owner_id int8 not null,
-        external_id int8 unique,
-        pixels int8 not null,
         group_id int8 not null,
+        owner_id int8 not null,
+        creation_id int8 not null,
         update_id int8 not null,
+        pixels int8 not null,
+        external_id int8 unique,
         primary key (id)
     );
 
@@ -1627,10 +1627,10 @@ BEGIN;
         transmittance double precision not null not null,
         version int4,
         owner_id int8 not null,
-        creation_id int8 not null,
         external_id int8 unique,
         update_id int8 not null,
         group_id int8 not null,
+        creation_id int8 not null,
         primary key (id)
     );
 
@@ -1690,14 +1690,14 @@ BEGIN;
         references event;
 
     alter table annotation 
-        add constraint FKannotation_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table annotation 
         add constraint FKannotation_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table annotation 
+        add constraint FKannotation_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table annotation 
         add constraint FKthumbnailannotation_thumbnail_thumbnail 
@@ -1830,14 +1830,14 @@ BEGIN;
         references event;
 
     alter table categorygroup 
-        add constraint FKcategorygroup_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table categorygroup 
         add constraint FKcategorygroup_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table categorygroup 
+        add constraint FKcategorygroup_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table categorygroupcategorylink 
         add constraint FKcategorygroupcategorylink_child_category 
@@ -1925,14 +1925,14 @@ BEGIN;
         references event;
 
     alter table cellarea 
-        add constraint FKcellarea_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table cellarea 
         add constraint FKcellarea_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table cellarea 
+        add constraint FKcellarea_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table celleccentricity 
         add constraint FKcelleccentricity_update_id_event 
@@ -1950,14 +1950,14 @@ BEGIN;
         references event;
 
     alter table celleccentricity 
-        add constraint FKcelleccentricity_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table celleccentricity 
         add constraint FKcelleccentricity_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table celleccentricity 
+        add constraint FKcelleccentricity_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table cellextent 
         add constraint FKcellextent_update_id_event 
@@ -2000,14 +2000,14 @@ BEGIN;
         references event;
 
     alter table cellmajoraxislength 
-        add constraint FKcellmajoraxislength_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table cellmajoraxislength 
         add constraint FKcellmajoraxislength_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table cellmajoraxislength 
+        add constraint FKcellmajoraxislength_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table cellminoraxislength 
         add constraint FKcellminoraxislength_update_id_event 
@@ -2075,14 +2075,14 @@ BEGIN;
         references event;
 
     alter table cellposition 
-        add constraint FKcellposition_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table cellposition 
         add constraint FKcellposition_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table cellposition 
+        add constraint FKcellposition_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table cellsolidity 
         add constraint FKcellsolidity_update_id_event 
@@ -2100,14 +2100,14 @@ BEGIN;
         references event;
 
     alter table cellsolidity 
-        add constraint FKcellsolidity_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table cellsolidity 
         add constraint FKcellsolidity_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table cellsolidity 
+        add constraint FKcellsolidity_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table channel 
         add constraint FKchannel_colorComponent_color 
@@ -2140,14 +2140,14 @@ BEGIN;
         references logicalchannel;
 
     alter table channel 
-        add constraint FKchannel_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table channel 
         add constraint FKchannel_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table channel 
+        add constraint FKchannel_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table channel 
         add constraint FKchannel_statsInfo_statsinfo 
@@ -2180,14 +2180,14 @@ BEGIN;
         references channel;
 
     alter table channelannotationlink 
-        add constraint FKchannelannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table channelannotationlink 
         add constraint FKchannelannotationlink_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table channelannotationlink 
+        add constraint FKchannelannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table channelbinding 
         add constraint FKchannelbinding_color_color 
@@ -2295,14 +2295,14 @@ BEGIN;
         references event;
 
     alter table color 
-        add constraint FKcolor_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table color 
         add constraint FKcolor_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table color 
+        add constraint FKcolor_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table contrastmethod 
         add constraint FKcontrastmethod_owner_id_experimenter 
@@ -2425,14 +2425,14 @@ BEGIN;
         references dataset;
 
     alter table datasetannotationlink 
-        add constraint FKdatasetannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table datasetannotationlink 
         add constraint FKdatasetannotationlink_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table datasetannotationlink 
+        add constraint FKdatasetannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table datasetimagelink 
         add constraint FKdatasetimagelink_child_image 
@@ -2460,14 +2460,14 @@ BEGIN;
         references dataset;
 
     alter table datasetimagelink 
-        add constraint FKdatasetimagelink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table datasetimagelink 
         add constraint FKdatasetimagelink_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table datasetimagelink 
+        add constraint FKdatasetimagelink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table dbpatch 
         add constraint FKdbpatch_external_id_externalinfo 
@@ -2500,14 +2500,14 @@ BEGIN;
         references detectortype;
 
     alter table detector 
-        add constraint FKdetector_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table detector 
         add constraint FKdetector_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table detector 
+        add constraint FKdetector_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table detectorsettings 
         add constraint FKdetectorsettings_binning_binning 
@@ -2635,14 +2635,14 @@ BEGIN;
         references event;
 
     alter table emissionfilter 
-        add constraint FKemissionfilter_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table emissionfilter 
         add constraint FKemissionfilter_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table emissionfilter 
+        add constraint FKemissionfilter_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table event 
         add constraint FKevent_type_eventtype 
@@ -2690,14 +2690,14 @@ BEGIN;
         references event;
 
     alter table eventtype 
-        add constraint FKeventtype_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table eventtype 
         add constraint FKeventtype_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table eventtype 
+        add constraint FKeventtype_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table excitationfilter 
         add constraint FKexcitationfilter_update_id_event 
@@ -2705,19 +2705,14 @@ BEGIN;
         references event;
 
     alter table excitationfilter 
-        add constraint FKexcitationfilter_transmittanceRange_transmittancerange 
-        foreign key (transmittanceRange) 
-        references transmittancerange;
-
-    alter table excitationfilter 
         add constraint FKexcitationfilter_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter;
 
     alter table excitationfilter 
-        add constraint FKexcitationfilter_type_filtertype 
-        foreign key (type) 
-        references filtertype;
+        add constraint FKexcitationfilter_transmittanceRange_transmittancerange 
+        foreign key (transmittanceRange) 
+        references transmittancerange;
 
     alter table excitationfilter 
         add constraint FKexcitationfilter_creation_id_event 
@@ -2725,14 +2720,19 @@ BEGIN;
         references event;
 
     alter table excitationfilter 
-        add constraint FKexcitationfilter_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
+        add constraint FKexcitationfilter_type_filtertype 
+        foreign key (type) 
+        references filtertype;
 
     alter table excitationfilter 
         add constraint FKexcitationfilter_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table excitationfilter 
+        add constraint FKexcitationfilter_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table experiment 
         add constraint FKexperiment_update_id_event 
@@ -2795,14 +2795,14 @@ BEGIN;
         references experimenter;
 
     alter table experimenterannotationlink 
-        add constraint FKexperimenterannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table experimenterannotationlink 
         add constraint FKexperimenterannotationlink_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table experimenterannotationlink 
+        add constraint FKexperimenterannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table experimentergroup 
         add constraint FKexperimentergroup_update_id_event 
@@ -2820,14 +2820,14 @@ BEGIN;
         references event;
 
     alter table experimentergroup 
-        add constraint FKexperimentergroup_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table experimentergroup 
         add constraint FKexperimentergroup_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table experimentergroup 
+        add constraint FKexperimentergroup_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table experimenttype 
         add constraint FKexperimenttype_owner_id_experimenter 
@@ -2880,14 +2880,14 @@ BEGIN;
         references event;
 
     alter table family 
-        add constraint FKfamily_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table family 
         add constraint FKfamily_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table family 
+        add constraint FKfamily_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table filament 
         add constraint FKfilament_type_filamenttype 
@@ -2935,14 +2935,14 @@ BEGIN;
         references event;
 
     alter table filter 
-        add constraint FKfilter_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter;
-
-    alter table filter 
         add constraint FKfilter_customizedFilterSet_customizedfilterset 
         foreign key (customizedFilterSet) 
         references customizedfilterset;
+
+    alter table filter 
+        add constraint FKfilter_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter;
 
     alter table filter 
         add constraint FKfilter_creation_id_event 
@@ -3020,14 +3020,14 @@ BEGIN;
         references event;
 
     alter table format 
-        add constraint FKformat_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table format 
         add constraint FKformat_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table format 
+        add constraint FKformat_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table frequencymultiplication 
         add constraint FKfrequencymultiplication_owner_id_experimenter 
@@ -3040,14 +3040,14 @@ BEGIN;
         references event;
 
     alter table frequencymultiplication 
-        add constraint FKfrequencymultiplication_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table frequencymultiplication 
         add constraint FKfrequencymultiplication_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table frequencymultiplication 
+        add constraint FKfrequencymultiplication_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table groupexperimentermap 
         add constraint FKgroupexperimentermap_child_experimenter 
@@ -3075,14 +3075,14 @@ BEGIN;
         references experimentergroup;
 
     alter table groupexperimentermap 
-        add constraint FKgroupexperimentermap_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table groupexperimentermap 
         add constraint FKgroupexperimentermap_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table groupexperimentermap 
+        add constraint FKgroupexperimentermap_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table illumination 
         add constraint FKillumination_owner_id_experimenter 
@@ -3095,19 +3095,14 @@ BEGIN;
         references event;
 
     alter table illumination 
-        add constraint FKillumination_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table illumination 
         add constraint FKillumination_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
 
-    alter table image 
-        add constraint FKimage_context_experiment 
-        foreign key (context) 
-        references experiment;
+    alter table illumination 
+        add constraint FKillumination_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table image 
         add constraint FKimage_update_id_event 
@@ -3115,14 +3110,19 @@ BEGIN;
         references event;
 
     alter table image 
-        add constraint FKimage_position_stagelabel 
-        foreign key (position) 
-        references stagelabel;
+        add constraint FKimage_context_experiment 
+        foreign key (context) 
+        references experiment;
 
     alter table image 
         add constraint FKimage_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter;
+
+    alter table image 
+        add constraint FKimage_position_stagelabel 
+        foreign key (position) 
+        references stagelabel;
 
     alter table image 
         add constraint FKimage_creation_id_event 
@@ -3135,14 +3135,14 @@ BEGIN;
         references imagingenvironment;
 
     alter table image 
-        add constraint FKimage_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table image 
         add constraint FKimage_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table image 
+        add constraint FKimage_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table image 
         add constraint FKimage_setup_instrument 
@@ -3255,14 +3255,14 @@ BEGIN;
         references event;
 
     alter table imagingenvironment 
-        add constraint FKimagingenvironment_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table imagingenvironment 
         add constraint FKimagingenvironment_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table imagingenvironment 
+        add constraint FKimagingenvironment_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table immersion 
         add constraint FKimmersion_owner_id_experimenter 
@@ -3275,14 +3275,14 @@ BEGIN;
         references event;
 
     alter table immersion 
-        add constraint FKimmersion_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table immersion 
         add constraint FKimmersion_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table immersion 
+        add constraint FKimmersion_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table importjob 
         add constraint FKimportjob_job_id_job 
@@ -3310,14 +3310,14 @@ BEGIN;
         references event;
 
     alter table instrument 
-        add constraint FKinstrument_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table instrument 
         add constraint FKinstrument_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table instrument 
+        add constraint FKinstrument_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table irisdiaphragm 
         add constraint FKirisdiaphragm_owner_id_experimenter 
@@ -3355,11 +3355,6 @@ BEGIN;
         references event;
 
     alter table job 
-        add constraint FKjob_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table job 
         add constraint FKjob_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
@@ -3368,6 +3363,11 @@ BEGIN;
         add constraint FKjob_status_jobstatus 
         foreign key (status) 
         references jobstatus;
+
+    alter table job 
+        add constraint FKjob_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table joboriginalfilelink 
         add constraint FKjoboriginalfilelink_child_originalfile 
@@ -3395,14 +3395,14 @@ BEGIN;
         references job;
 
     alter table joboriginalfilelink 
-        add constraint FKjoboriginalfilelink_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table joboriginalfilelink 
         add constraint FKjoboriginalfilelink_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table joboriginalfilelink 
+        add constraint FKjoboriginalfilelink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table jobstatus 
         add constraint FKjobstatus_owner_id_experimenter 
@@ -3415,14 +3415,14 @@ BEGIN;
         references event;
 
     alter table jobstatus 
-        add constraint FKjobstatus_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table jobstatus 
         add constraint FKjobstatus_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table jobstatus 
+        add constraint FKjobstatus_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table laser 
         add constraint FKlaser_laserMedium_lasermedium 
@@ -3435,14 +3435,14 @@ BEGIN;
         references pulse;
 
     alter table laser 
-        add constraint FKlaser_type_lasertype 
-        foreign key (type) 
-        references lasertype;
-
-    alter table laser 
         add constraint FKlaser_frequencyMultiplication_frequencymultiplication 
         foreign key (frequencyMultiplication) 
         references frequencymultiplication;
+
+    alter table laser 
+        add constraint FKlaser_type_lasertype 
+        foreign key (type) 
+        references lasertype;
 
     alter table laser 
         add constraint FKlaser_lightsource_id_lightsource 
@@ -3465,14 +3465,14 @@ BEGIN;
         references event;
 
     alter table lasermedium 
-        add constraint FKlasermedium_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table lasermedium 
         add constraint FKlasermedium_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table lasermedium 
+        add constraint FKlasermedium_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table lasertype 
         add constraint FKlasertype_owner_id_experimenter 
@@ -3510,6 +3510,11 @@ BEGIN;
         references event;
 
     alter table lightsettings 
+        add constraint FKlightsettings_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
+
+    alter table lightsettings 
         add constraint FKlightsettings_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
@@ -3518,11 +3523,6 @@ BEGIN;
         add constraint FKlightsettings_lightSource_lightsource 
         foreign key (lightSource) 
         references lightsource;
-
-    alter table lightsettings 
-        add constraint FKlightsettings_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
 
     alter table lightsource 
         add constraint FKlightsource_instrument_instrument 
@@ -3545,14 +3545,14 @@ BEGIN;
         references event;
 
     alter table lightsource 
-        add constraint FKlightsource_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table lightsource 
         add constraint FKlightsource_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table lightsource 
+        add constraint FKlightsource_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table link 
         add constraint FKlink_update_id_event 
@@ -3570,14 +3570,14 @@ BEGIN;
         references event;
 
     alter table link 
-        add constraint FKlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table link 
         add constraint FKlink_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table link 
+        add constraint FKlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table logicalchannel 
         add constraint FKlogicalchannel_contrastMethod_contrastmethod 
@@ -3600,14 +3600,14 @@ BEGIN;
         references acquisitionmode;
 
     alter table logicalchannel 
-        add constraint FKlogicalchannel_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table logicalchannel 
         add constraint FKlogicalchannel_lightSource_lightsettings 
         foreign key (lightSource) 
         references lightsettings;
+
+    alter table logicalchannel 
+        add constraint FKlogicalchannel_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table logicalchannel 
         add constraint FKlogicalchannel_update_id_event 
@@ -3685,14 +3685,14 @@ BEGIN;
         references event;
 
     alter table microscope 
-        add constraint FKmicroscope_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table microscope 
         add constraint FKmicroscope_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table microscope 
+        add constraint FKmicroscope_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table microscopetype 
         add constraint FKmicroscopetype_owner_id_experimenter 
@@ -3755,14 +3755,14 @@ BEGIN;
         references event;
 
     alter table nucleuseccentricity 
-        add constraint FKnucleuseccentricity_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table nucleuseccentricity 
         add constraint FKnucleuseccentricity_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table nucleuseccentricity 
+        add constraint FKnucleuseccentricity_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table nucleusextent 
         add constraint FKnucleusextent_update_id_event 
@@ -3805,14 +3805,14 @@ BEGIN;
         references event;
 
     alter table nucleusmajoraxislength 
-        add constraint FKnucleusmajoraxislength_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table nucleusmajoraxislength 
         add constraint FKnucleusmajoraxislength_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table nucleusmajoraxislength 
+        add constraint FKnucleusmajoraxislength_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table nucleusminoraxislength 
         add constraint FKnucleusminoraxislength_update_id_event 
@@ -3830,14 +3830,14 @@ BEGIN;
         references event;
 
     alter table nucleusminoraxislength 
-        add constraint FKnucleusminoraxislength_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table nucleusminoraxislength 
         add constraint FKnucleusminoraxislength_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table nucleusminoraxislength 
+        add constraint FKnucleusminoraxislength_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table nucleusperimeter 
         add constraint FKnucleusperimeter_update_id_event 
@@ -3855,14 +3855,14 @@ BEGIN;
         references event;
 
     alter table nucleusperimeter 
-        add constraint FKnucleusperimeter_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table nucleusperimeter 
         add constraint FKnucleusperimeter_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table nucleusperimeter 
+        add constraint FKnucleusperimeter_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table nucleusposition 
         add constraint FKnucleusposition_update_id_event 
@@ -3880,14 +3880,14 @@ BEGIN;
         references event;
 
     alter table nucleusposition 
-        add constraint FKnucleusposition_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table nucleusposition 
         add constraint FKnucleusposition_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table nucleusposition 
+        add constraint FKnucleusposition_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table nucleussolidity 
         add constraint FKnucleussolidity_update_id_event 
@@ -3905,14 +3905,14 @@ BEGIN;
         references event;
 
     alter table nucleussolidity 
-        add constraint FKnucleussolidity_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table nucleussolidity 
         add constraint FKnucleussolidity_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table nucleussolidity 
+        add constraint FKnucleussolidity_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table objective 
         add constraint FKobjective_instrument_instrument 
@@ -3940,14 +3940,14 @@ BEGIN;
         references event;
 
     alter table objective 
-        add constraint FKobjective_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table objective 
         add constraint FKobjective_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table objective 
+        add constraint FKobjective_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table objective 
         add constraint FKobjective_coating_coating 
@@ -3975,14 +3975,14 @@ BEGIN;
         references medium;
 
     alter table objectivesettings 
-        add constraint FKobjectivesettings_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table objectivesettings 
         add constraint FKobjectivesettings_objective_objective 
         foreign key (objective) 
         references objective;
+
+    alter table objectivesettings 
+        add constraint FKobjectivesettings_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table objectivesettings 
         add constraint FKobjectivesettings_external_id_externalinfo 
@@ -4010,14 +4010,14 @@ BEGIN;
         references event;
 
     alter table originalfile 
-        add constraint FKoriginalfile_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table originalfile 
         add constraint FKoriginalfile_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table originalfile 
+        add constraint FKoriginalfile_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table originalfileannotationlink 
         add constraint FKoriginalfileannotationlink_child_annotation 
@@ -4045,14 +4045,14 @@ BEGIN;
         references originalfile;
 
     alter table originalfileannotationlink 
-        add constraint FKoriginalfileannotationlink_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table originalfileannotationlink 
         add constraint FKoriginalfileannotationlink_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table originalfileannotationlink 
+        add constraint FKoriginalfileannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table otf 
         add constraint FKotf_pixelType_pixelstype 
@@ -4075,14 +4075,14 @@ BEGIN;
         references event;
 
     alter table otf 
-        add constraint FKotf_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table otf 
         add constraint FKotf_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table otf 
+        add constraint FKotf_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table photometricinterpretation 
         add constraint FKphotometricinterpretation_owner_id_experimenter 
@@ -4105,14 +4105,14 @@ BEGIN;
         references experimentergroup;
 
     alter table pixels 
-        add constraint FKpixels_relatedTo_pixels 
-        foreign key (relatedTo) 
-        references pixels;
-
-    alter table pixels 
         add constraint FKpixels_pixelsType_pixelstype 
         foreign key (pixelsType) 
         references pixelstype;
+
+    alter table pixels 
+        add constraint FKpixels_relatedTo_pixels 
+        foreign key (relatedTo) 
+        references pixels;
 
     alter table pixels 
         add constraint FKpixels_update_id_event 
@@ -4120,14 +4120,14 @@ BEGIN;
         references event;
 
     alter table pixels 
-        add constraint FKpixels_dimensionOrder_dimensionorder 
-        foreign key (dimensionOrder) 
-        references dimensionorder;
-
-    alter table pixels 
         add constraint FKpixels_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter;
+
+    alter table pixels 
+        add constraint FKpixels_dimensionOrder_dimensionorder 
+        foreign key (dimensionOrder) 
+        references dimensionorder;
 
     alter table pixels 
         add constraint FKpixels_creation_id_event 
@@ -4140,14 +4140,14 @@ BEGIN;
         references pixelsdimensions;
 
     alter table pixels 
-        add constraint FKpixels_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table pixels 
         add constraint FKpixels_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table pixels 
+        add constraint FKpixels_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table pixels 
         add constraint FKpixels_image_image 
@@ -4325,14 +4325,14 @@ BEGIN;
         references planeinfo;
 
     alter table planeinfoannotationlink 
-        add constraint FKplaneinfoannotationlink_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table planeinfoannotationlink 
         add constraint FKplaneinfoannotationlink_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table planeinfoannotationlink 
+        add constraint FKplaneinfoannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table planeslicingcontext 
         add constraint FKplaneslicingcontext_codomainmapcontext_id_codomainmapcontext 
@@ -4355,14 +4355,14 @@ BEGIN;
         references event;
 
     alter table project 
-        add constraint FKproject_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table project 
         add constraint FKproject_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table project 
+        add constraint FKproject_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table projectannotationlink 
         add constraint FKprojectannotationlink_child_annotation 
@@ -4425,14 +4425,14 @@ BEGIN;
         references project;
 
     alter table projectdatasetlink 
-        add constraint FKprojectdatasetlink_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table projectdatasetlink 
         add constraint FKprojectdatasetlink_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table projectdatasetlink 
+        add constraint FKprojectdatasetlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table pulse 
         add constraint FKpulse_owner_id_experimenter 
@@ -4470,14 +4470,14 @@ BEGIN;
         references event;
 
     alter table quantumdef 
-        add constraint FKquantumdef_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table quantumdef 
         add constraint FKquantumdef_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table quantumdef 
+        add constraint FKquantumdef_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table renderingdef 
         add constraint FKrenderingdef_pixels_pixels 
@@ -4510,14 +4510,14 @@ BEGIN;
         references renderingmodel;
 
     alter table renderingdef 
-        add constraint FKrenderingdef_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table renderingdef 
         add constraint FKrenderingdef_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table renderingdef 
+        add constraint FKrenderingdef_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table renderingmodel 
         add constraint FKrenderingmodel_owner_id_experimenter 
@@ -4530,14 +4530,14 @@ BEGIN;
         references event;
 
     alter table renderingmodel 
-        add constraint FKrenderingmodel_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table renderingmodel 
         add constraint FKrenderingmodel_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table renderingmodel 
+        add constraint FKrenderingmodel_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table reverseintensitycontext 
         add constraint FKreverseintensitycontext_codomainmapcontext_id_codomainmapcontext 
@@ -4565,14 +4565,14 @@ BEGIN;
         references event;
 
     alter table roi 
-        add constraint FKroi_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table roi 
         add constraint FKroi_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table roi 
+        add constraint FKroi_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table roilink 
         add constraint FKroilink_child_roi 
@@ -4600,14 +4600,14 @@ BEGIN;
         references roi;
 
     alter table roilink 
-        add constraint FKroilink_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table roilink 
         add constraint FKroilink_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table roilink 
+        add constraint FKroilink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table roilinkannotationlink 
         add constraint FKroilinkannotationlink_child_annotation 
@@ -4635,14 +4635,14 @@ BEGIN;
         references roilink;
 
     alter table roilinkannotationlink 
-        add constraint FKroilinkannotationlink_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table roilinkannotationlink 
         add constraint FKroilinkannotationlink_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table roilinkannotationlink 
+        add constraint FKroilinkannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table scriptjob 
         add constraint FKscriptjob_job_id_job 
@@ -4665,14 +4665,14 @@ BEGIN;
         references event;
 
     alter table stagelabel 
-        add constraint FKstagelabel_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table stagelabel 
         add constraint FKstagelabel_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table stagelabel 
+        add constraint FKstagelabel_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table statsinfo 
         add constraint FKstatsinfo_update_id_event 
@@ -4690,14 +4690,14 @@ BEGIN;
         references event;
 
     alter table statsinfo 
-        add constraint FKstatsinfo_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table statsinfo 
         add constraint FKstatsinfo_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup;
+
+    alter table statsinfo 
+        add constraint FKstatsinfo_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo;
 
     alter table thumbnail 
         add constraint FKthumbnail_pixels_pixels 
@@ -4720,14 +4720,14 @@ BEGIN;
         references event;
 
     alter table thumbnail 
-        add constraint FKthumbnail_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table thumbnail 
         add constraint FKthumbnail_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
+
+    alter table thumbnail 
+        add constraint FKthumbnail_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup;
 
     alter table transmittancerange 
         add constraint FKtransmittancerange_update_id_event 
