@@ -26,11 +26,16 @@ import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.fulltext.EventLogLoader;
 import ome.services.fulltext.FullTextIndexer;
+import ome.services.fulltext.PersistentEventLogLoader;
 import ome.services.fulltext.FullTextIndexer.Parser;
 import ome.services.util.Executor;
+import ome.system.Principal;
+import ome.system.ServiceFactory;
 import ome.testing.FileUploader;
 
+import org.hibernate.Session;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
+import org.springframework.transaction.TransactionStatus;
 import org.testng.annotations.Test;
 
 @Test(groups = { "query", "fulltext" })
@@ -39,9 +44,42 @@ public class FullTextTest extends AbstractManagedContextTest {
     FullTextIndexer fti;
     Image i;
 
-    @Test(enabled = true, groups = "manual")
+    @Test(enabled = false, groups = "manual")
     public void testIndexWholeDb() throws Exception {
         ome.services.fulltext.Main.indexFullDb();
+    }
+
+    @Test(enabled = false, groups = "manual")
+    public void testWholeDbWithPersistentELL() throws Exception {
+        final Principal p = new Principal("root", "system", "FullText");
+        final PersistentEventLogLoader pell = (PersistentEventLogLoader) this.applicationContext
+                .getBean("persistentEventLogLoader");
+        final EventLog[] max = new EventLog[1];
+        final long[] id = new long[1];
+        getExecutor().execute(p, new Executor.Work() {
+            public void doWork(TransactionStatus status, Session session,
+                    ServiceFactory sf) {
+                pell.deleteCurrentId();
+                max[0] = pell.lastEventLog();
+            }
+        });
+
+        fti = new FullTextIndexer(getExecutor(), pell);
+        fti.run(); // Single run to do initialization
+
+        // Can't use more() here since it will always return true
+        // since PELL is designed to be called by a timer.
+        // Instead we only do the whole database once.
+        getExecutor().execute(p, new Executor.Work() {
+            public void doWork(TransactionStatus status, Session session,
+                    ServiceFactory sf) {
+                id[0] = pell.getCurrentId();
+            }
+        });
+        while (id[0] < max[0].getId()) {
+            fti.run();
+        }
+
     }
 
     public void testMimeTypes() throws Exception {
@@ -176,6 +214,11 @@ public class FullTextTest extends AbstractManagedContextTest {
             }
         }
 
+        @Override
+        public boolean more() {
+            return false;
+        }
+
     }
 
     IQuery rawQuery() {
@@ -208,9 +251,7 @@ public class FullTextTest extends AbstractManagedContextTest {
                     return null;
                 } else {
                     todo--;
-                    return this.queryService.findByQuery(
-                            "select el from EventLog el " + "order by id desc",
-                            null);
+                    return this.lastEventLog();
                 }
             }
         };

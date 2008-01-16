@@ -7,7 +7,17 @@
 
 package ome.services.fulltext;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import ome.api.ITypes;
+import ome.conditions.InternalException;
+import ome.model.IEnum;
 import ome.model.meta.EventLog;
+
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 /**
  * P@link EventLogLoader} implementation which keeps tracks of the last
@@ -19,30 +29,123 @@ import ome.model.meta.EventLog;
  */
 public class PersistentEventLogLoader extends EventLogLoader {
 
+    private final List<EventLog> initialization = new ArrayList<EventLog>();
+
     /**
-     * Non-iterator method which increments the next {@link EventLog} which will
-     * be returned. Unlike other iterators, {@link PersistentEventLogLoader}
-     * will continually return the same instance until it is successful.
+     * Key used to look configuration value; 'name'
      */
-    @Override
-    public void done() {
-        // null
+    protected String key;
+
+    /**
+     * Query used with parameter 'name' to lookup configuration value
+     */
+    protected String query;
+
+    /**
+     * String use with parameters 'name', and 'value' to insert a new current id
+     */
+    protected String insert;
+
+    /**
+     * String used with parameters 'value' and 'name' to change the current id
+     */
+    protected String update;
+
+    /**
+     * String used with parameter 'name' to drop the current id;
+     */
+    protected String delete;
+
+    protected ITypes types;
+
+    protected SimpleJdbcTemplate template;
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
+    }
+
+    public void setInsert(String insert) {
+        this.insert = insert;
+    }
+
+    public void setUpdate(String update) {
+        this.update = update;
+    }
+
+    public void setDelete(String delete) {
+        this.delete = delete;
+    }
+
+    public void setTypes(ITypes types) {
+        this.types = types;
+    }
+
+    public void setTemplate(SimpleJdbcTemplate template) {
+        this.template = template;
     }
 
     @Override
     protected EventLog query() {
-        return null;
+
+        long current_id;
+        try {
+            current_id = getCurrentId();
+        } catch (EmptyResultDataAccessException erdae) {
+            // This event log loader has never been run. Initialize
+            current_id = -1;
+            setCurrentId(-1);
+            initialize();
+        } catch (DataAccessException dae) {
+            // Most likely there's no configuration table.
+            throw new InternalException(
+                    "The configuration table seems to be missing \n"
+                            + "from your database. Please check your server installation instructions \n"
+                            + "for possible reasons.");
+        }
+
+        if (initialization.size() > 0) {
+            return initialization.remove(0);
+        } else {
+            EventLog el = nextEventLog(current_id);
+            if (el != null) {
+                setCurrentId(el.getId());
+            }
+            return el;
+        }
     }
 
     /**
-     * Always returns true. The default implementation is to tell the
-     * {@link FullTextIndexer} to always retry in a while loop. Other
-     * implementations may want to break the execution.
-     * 
-     * @return true
+     * Called when the configuration database does not contain a valid
+     * current_id. Used to index all the data which does not have an EventLog.
      */
-    @Override
-    public boolean more() {
-        return true;
+    public void initialize() {
+        for (Class<IEnum> cls : types.getEnumerationTypes()) {
+            for (IEnum e : queryService.findAll(cls, null)) {
+                EventLog el = new EventLog();
+                el.setEntityId(e.getId());
+                el.setEntityType(cls.getName());
+                el.setAction("INSERT");
+                initialization.add(el);
+            }
+        }
+    }
+
+    public long getCurrentId() {
+        return template.queryForLong(query, key);
+    }
+
+    public void setCurrentId(long id) {
+        int count = template.update(update, id, key);
+        if (count == 0) {
+            template.update(insert, key, id);
+        }
+    }
+
+    public void deleteCurrentId() {
+        template.update(delete, key);
     }
 }

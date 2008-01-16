@@ -74,6 +74,8 @@ public class FullTextIndexer implements Runnable, FieldBridge, Work {
         IObject obj;
 
         abstract void go(FullTextSession session);
+
+        abstract void log(Log log);
     }
 
     class Purge extends Action {
@@ -86,6 +88,11 @@ public class FullTextIndexer implements Runnable, FieldBridge, Work {
         void go(FullTextSession session) {
             session.purge(type, id);
         }
+
+        @Override
+        void log(Log log) {
+            log.info(String.format("Purged: %s:Id_%d", type, id));
+        }
     }
 
     class Index extends Action {
@@ -97,6 +104,11 @@ public class FullTextIndexer implements Runnable, FieldBridge, Work {
         @Override
         void go(FullTextSession session) {
             session.index(obj);
+        }
+
+        @Override
+        void log(Log log) {
+            log.info(String.format("Indexed: %s", obj));
         }
     }
 
@@ -147,32 +159,38 @@ public class FullTextIndexer implements Runnable, FieldBridge, Work {
     public void doIndexing(FullTextSession session) {
 
         int count = 0;
-        EventLog current = null;
 
         for (EventLog eventLog : loader) {
-            try {
-                current = eventLog;
-                String act = eventLog.getAction();
-                Class type = asClassOrThrow(eventLog.getEntityType());
-                long id = eventLog.getEntityId();
+            // Three retries
+            while (count < 3 && eventLog != null) {
+                try {
+                    String act = eventLog.getAction();
+                    Class type = asClassOrThrow(eventLog.getEntityType());
+                    long id = eventLog.getEntityId();
 
-                Action action;
-                if ("DELETE".equals(act)) {
-                    action = new Purge(type, id);
-                } else if ("UPDATE".equals(act) || "INSERT".equals(act)) {
-                    action = new Index((IObject) session.get(type, id));
-                } else {
-                    throw new InternalException("Unknown action type: " + act);
+                    Action action;
+                    if ("DELETE".equals(act)) {
+                        action = new Purge(type, id);
+                    } else if ("UPDATE".equals(act) || "INSERT".equals(act)) {
+                        action = new Index((IObject) session.get(type, id));
+                    } else {
+                        throw new InternalException("Unknown action type: "
+                                + act);
+                    }
+
+                    action.go(session);
+                    action.log(log);
+                    eventLog = null;
+                    count = 0;
+                } catch (Exception e) {
+                    log.error(String.format("Failed to index %s %d times",
+                            eventLog, count), e);
                 }
+            }
 
-                action.go(session);
-                loader.done();
-                log.info("Successfully indexed:" + current);
-                current = null;
-                count = 0;
-            } catch (Exception e) {
-                log.error(String.format("Failed to index %s %d times", current,
-                        count), e);
+            // Failed; Giving up
+            if (count > 0) {
+                throw new InternalException("Failed to index entry. Giving up.");
             }
         }
 

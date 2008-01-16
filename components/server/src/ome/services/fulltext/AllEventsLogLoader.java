@@ -9,8 +9,6 @@ package ome.services.fulltext;
 
 import ome.model.IObject;
 import ome.model.meta.EventLog;
-import ome.parameters.Filter;
-import ome.parameters.Parameters;
 
 /**
  * Driver for various full text actions. Commands include:
@@ -31,15 +29,11 @@ public class AllEventsLogLoader extends EventLogLoader {
     @Override
     protected EventLog query() {
         if (max < 0) {
-            final IObject lastLog = queryService.findByQuery(
-                    "select el from EventLog el order by id desc",
-                    new Parameters(new Filter().page(0, 1)));
+            final IObject lastLog = lastEventLog();
             max = lastLog.getId();
         }
 
-        EventLog el = queryService.findByQuery("select el from EventLog el "
-                + "where el.id > :id order by id", new Parameters(new Filter()
-                .page(0, 1)).addId(previous));
+        EventLog el = nextEventLog(previous);
 
         if (el == null) {
             previous = Long.MAX_VALUE;

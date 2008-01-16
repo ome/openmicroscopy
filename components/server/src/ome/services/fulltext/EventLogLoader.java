@@ -30,11 +30,6 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
 
     private final static int DEFAULT_BATCH_SIZE = 10;
 
-    private final static Parameters P = new Parameters();
-    static {
-        P.setFilter(new Filter().page(0, 1));
-    }
-
     private final int batchSize = DEFAULT_BATCH_SIZE;
 
     /**
@@ -53,15 +48,6 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
 
     public void setQueryService(IQuery queryService) {
         this.queryService = queryService;
-    }
-
-    /**
-     * Non-iterator method which increments the next {@link EventLog} which will
-     * be returned. Unlike other iterators, {@link EventLogLoader} will
-     * continually return the same instance until it is successful.
-     */
-    public void done() {
-        // null
     }
 
     /**
@@ -121,5 +107,22 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
      */
     public boolean more() {
         return true;
+    }
+
+    /**
+     * Returns the {@link EventLog} with the next id after the given argument or
+     * null if none exists. This method will only return "true" {@link EventLog}
+     * instances, with a valid id.
+     */
+    public final EventLog nextEventLog(long id) {
+        return queryService.findByQuery("select el from EventLog el "
+                + "where el.id > :id order by id", new Parameters(new Filter()
+                .page(0, 1)).addId(id));
+    }
+
+    public final EventLog lastEventLog() {
+        return queryService.findByQuery(
+                "select el from EventLog el order by id desc", new Parameters(
+                        new Filter().page(0, 1)));
     }
 }
