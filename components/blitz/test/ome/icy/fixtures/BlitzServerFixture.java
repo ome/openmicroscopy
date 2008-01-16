@@ -39,13 +39,13 @@ public class BlitzServerFixture extends MockObjectTestCase {
     private final Map<String, Mock> MOCKS = new HashMap<String, Mock>();
 
     // Name used to look up the test context.
-    static String DEFAULT = "OMERO.blitz.test";
-    String name;
-    Thread t;
-    Main m;
-    Router r;
-    IceServiceFactory ice;
-    OmeroContext ctx;
+    protected static String DEFAULT = "OMERO.blitz.test";
+    protected String name;
+    protected Thread t;
+    protected Main m;
+    protected Router r;
+    protected IceServiceFactory ice;
+    protected OmeroContext ctx;
 
     int sessionTimeout;
     int serviceTimeout;

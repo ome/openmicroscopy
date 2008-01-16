@@ -6,15 +6,27 @@
 
 package ome.services.blitz;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import ome.system.OmeroContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import sun.misc.Signal;
+import sun.misc.SignalHandler;
 
 /**
  * Simple base case which allows {@link Startup} and {@link Shutdown} to control
@@ -260,6 +272,24 @@ public class Main implements Runnable {
     }
 
     public void run() {
+
+        SignalHandler handler = new SignalHandler() {
+            public void handle(Signal sig) {
+                System.out.println("\n"); // Clearning the line
+                log.info(sig.getName() + ": Shutdown requested.");
+                try {
+                    System.in.close();
+                } catch (IOException ioe) {
+                    // ok. We're just forcing the waitForQuit block to exit.
+                }
+                shutdown();
+                System.exit(sig.getNumber());
+            }
+        };
+
+        Signal.handle(new Signal("INT"), handler);
+        Signal.handle(new Signal("TERM"), handler);
+
         startup.start();
         // From omeis.env.Env (A.Falconi)
         // Now the main thread exits and the bootstrap procedure is run within
@@ -311,7 +341,7 @@ public class Main implements Runnable {
                     .getBean("Ice.Communicator");
 
             // Cannot throw an exception, but just in case
-            log.info("Calling stop router.");
+            log.debug("Calling stop router.");
             shutdown.stopRouter(ic);
 
         } finally {
@@ -319,6 +349,24 @@ public class Main implements Runnable {
             ctx.close();
             log.info("Finished shutdown.");
 
+        }
+    }
+
+    public class ReadTask implements Callable<String> {
+        public String call() throws IOException {
+            BufferedReader br = new BufferedReader(new InputStreamReader(
+                    System.in));
+
+            String line;
+            try {
+                while (!br.ready()) {
+                    Thread.sleep(500);
+                }
+                line = br.readLine();
+            } catch (InterruptedException e) {
+                return null;
+            }
+            return line;
         }
     }
 
@@ -330,22 +378,26 @@ public class Main implements Runnable {
         System.out.println(" Enter q[uit] to stop server or use Ctrl-C");
         System.out.println("**********************************************");
         System.out.println("");
-        Scanner s = new Scanner(System.in);
-        while (!startup.stop) {
-            try {
-                Thread.sleep(200L);
-            } catch (InterruptedException e) {
-                // Continue with loop.
-            }
-            try {
-                String line = s.nextLine().toLowerCase();
-                if (line.startsWith("q")) {
-                    s.close();
-                    shutdown();
+        final ExecutorService ex = Executors.newSingleThreadExecutor();
+        try {
+            while (!startup.stop) {
+                String line = null;
+                Future<String> result = ex.submit(new ReadTask());
+                try {
+                    line = result.get(5, TimeUnit.SECONDS);
+                    if (line != null && line.toLowerCase().startsWith("q")) {
+                        shutdown(); // Sets startup.stop == true
+                    }
+                } catch (InterruptedException e) {
+                    // Just wake up and keep going.
+                } catch (ExecutionException e) {
+                    // Ok. Then we'll just have to wait for stop==true
+                } catch (TimeoutException e) {
+                    // Good. Nothing in this loop.
                 }
-            } catch (java.util.NoSuchElementException nsee) {
-                // ok. This means that there's no stdin.
             }
+        } finally {
+            ex.shutdownNow();
         }
     }
 }
