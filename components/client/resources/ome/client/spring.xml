@@ -86,6 +86,7 @@
     <property name="lookupOnStartup" value="false"/>    
     <property name="principal"       ref="principal"/>
     <property name="credentials"     value="${omero.pass}"/>
+    <property name="interceptor"><bean class="ome.client.Interceptor"/></property>
   </bean>
   <bean id="statefulJndi" abstract="true" parent="statelessJndi"
     class="ome.client.ConfigurableJndiObjectFactoryBean">

@@ -10,15 +10,16 @@ package ome.client;
 // Java imports
 import javax.naming.NamingException;
 
-// Third-party libraries
+import ome.conditions.InternalException;
+import ome.model.IObject;
+import ome.system.Principal;
+
+import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.aop.TargetSource;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.jndi.JndiObjectTargetSource;
-
-import ome.conditions.InternalException;
-import ome.system.Principal;
 
 // Application-internal dependencies
 
@@ -34,8 +35,7 @@ import ome.system.Principal;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.more@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
- *          </small>
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
  * @since OME3.0
  * @see ome.client.Session#register(IObject)
  */
@@ -45,6 +45,8 @@ public class ConfigurableJndiObjectFactoryBean extends JndiObjectFactoryBean {
     protected Principal principal;
 
     protected String credentials;
+
+    protected MethodInterceptor interceptor;
 
     /**
      * changes the behavior of the {@link JndiObjectFactoryBean} by
@@ -67,6 +69,13 @@ public class ConfigurableJndiObjectFactoryBean extends JndiObjectFactoryBean {
      */
     public void setCredentials(String securityCredentials) {
         this.credentials = securityCredentials;
+    }
+
+    /**
+     * setter for the interceptor, which will be used to wrap all proxies.
+     */
+    public void setInterceptor(MethodInterceptor interceptor) {
+        this.interceptor = interceptor;
     }
 
     /**
@@ -109,6 +118,9 @@ public class ConfigurableJndiObjectFactoryBean extends JndiObjectFactoryBean {
             proxyFactory.addInterface(klass);
         }
         proxyFactory.setTargetSource(redirector);
+        if (interceptor != null) {
+            proxyFactory.addAdvice(interceptor);
+        }
         return proxyFactory.getProxy();
     }
 

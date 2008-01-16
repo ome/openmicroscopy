@@ -9,6 +9,7 @@ package ome.client.itests;
 import java.util.Date;
 
 import junit.framework.TestCase;
+import ome.api.IConfig;
 import ome.api.IUpdate;
 import ome.model.containers.Project;
 import ome.system.ServiceFactory;
@@ -36,7 +37,8 @@ public class EjbTest extends TestCase {
             t = new Thread() {
                 @Override
                 public void run() {
-                    sf.getConfigService().getServerTime();
+                    IConfig config = sf.getConfigService();
+                    config.getServerTime();
                 };
             };
             t.run();

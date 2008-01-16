@@ -9,12 +9,13 @@ package ome.client;
 
 // Java imports
 import java.security.Principal;
+
 import javax.naming.NamingException;
 
-// Third-party libraries
 import org.jboss.security.SecurityAssociation;
 import org.springframework.aop.TargetSource;
 import org.springframework.aop.target.SingletonTargetSource;
+import org.springframework.jndi.JndiLookupFailureException;
 import org.springframework.jndi.JndiObjectTargetSource;
 import org.springframework.util.Assert;
 
@@ -27,8 +28,7 @@ import org.springframework.util.Assert;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.more@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
- *          </small>
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
  * @since OME3.0
  * @see ConfigurableJndiObjectFactoryBean#getObject()
  */
@@ -70,8 +70,13 @@ public class JBossTargetSource implements TargetSource {
      * security creditials for this thread
      */
     public Object getTarget() throws NamingException {
-        Object retVal = this.target.getTarget();
-
+        Object retVal;
+        try {
+            retVal = this.target.getTarget();
+        } catch (JndiLookupFailureException jlfe) {
+            throw new OutOfService(
+                    "Cannot find service. Is the server running?");
+        }
         // Associate this security context
         SecurityAssociation.setPrincipal(principal);
         SecurityAssociation.setCredential(credentials);
