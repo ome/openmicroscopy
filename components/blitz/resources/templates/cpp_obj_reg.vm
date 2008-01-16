@@ -28,10 +28,10 @@ namespace omero {
 
     Ice::ObjectPtr ObjectFactory::create(const std::string& type) {
     if (0==type.compare("::omero::model::Permissions")) {
-        return new omero::model::PermissionsI();  
+        return new omero::model::PermissionsI();
     }
     if (0==type.compare("::omero::model::Details")) {
-        return new omero::model::PermissionsI();  
+        return new omero::model::DetailsI();
     }
 #foreach($pojo in $c2j.getPOJOIterator( $cfg.getClassMappings() ))
 #if(!$pojo.classModifiers.contains("abstract"))
