@@ -861,10 +861,14 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
 
 #end## End isLink
 #elseif($prop.foreignKey)## REGULAR M-1 ##################################TYPE
+#set( $fetchType = "LAZY")
+#if($prop.actualType.abstract)
+#set( $fetchType = "EAGER" )
+#end
    /**
     * Many-to-one field ${type.id}.${prop.name} (${prop.type})
     */
-    @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, cascade = {${cascadeEjb}}, targetEntity = ${prop.type}.class)
+    @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.${fetchType}, cascade = {${cascadeEjb}}, targetEntity = ${prop.type}.class)
     @org.hibernate.annotations.Cascade({${cascadeHib}})
     @javax.persistence.JoinColumn(name="${prop.name}", nullable=${prop.nullable},
         unique=${prop.unique}, insertable=${prop.insert}, updatable=${prop.update})
