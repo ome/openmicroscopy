@@ -29,4 +29,42 @@
     <property name="target" ref="internal:ome.api.Search"/>
   </bean>
 
+  <!-- Trigger for running lucene -->
+
+  <bean id="fullTextThread" class="ome.services.fulltext.FullTextThread">
+    <constructor-arg ref="executor"/>
+    <constructor-arg ref="fullTextIndexer"/>
+    <constructor-arg ref="fullTextBridge"/>
+  </bean>
+
+  <bean id="fullTextIndexer" class="ome.services.fulltext.FullTextIndexer">
+    <constructor-arg ref="eventLogLoader"/>
+  </bean>
+
+  <bean id="fullTextBridge" class="ome.services.fulltext.FullTextBridge"/>
+
+  <alias name="persistentEventLogLoader" alias="eventLogLoader"/>
+
+  <bean id="persistentEventLogLoader" class="ome.services.fulltext.PersistentEventLogLoader">
+    <property name="queryService" ref="internal:ome.api.LocalQuery"/>
+    <property name="template" ref="simpleJdbcTemplate"/>
+    <property name="key" value="PersistentEventLogLoader.current_id"/>
+    <property name="query" value="select value from configuration where name = ?"/>
+    <property name="insert" value="insert into configuration (name, value) values (?,?)"/>
+    <property name="update" value="update configuration set value = ? where name = ?"/>
+    <property name="delete" value="delete from configuration where name = ?"/>
+    <property name="types" ref="internal:ome.api.ITypes"/>
+  </bean>
+
+  <bean id="fullTextThreadRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="fullTextThread" />
+    <property name="targetMethod" value="run" />
+    <property name="concurrent" value="false" />
+  </bean>
+
+  <bean id="fullTextIndexerTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    <property name="jobDetail" ref="fullTextThreadRun" />
+    <property name="cronExpression" value="0,30 * * * * ?" />
+  </bean>
+
 </beans>

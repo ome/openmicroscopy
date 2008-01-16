@@ -7,7 +7,9 @@
 
 package ome.services.fulltext;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import ome.api.IQuery;
@@ -42,6 +44,13 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
      */
     private boolean doInit = true;
 
+    /**
+     * {@link List} of {@link EventLog} instances which will be consumed before
+     * making use of the {@link #query()} method. Used to implement the default
+     * {@link #rollback(EventLog)} mechanism.
+     */
+    protected final List<EventLog> backlog = new ArrayList<EventLog>();
+
     private EventLog log;
 
     protected IQuery queryService;
@@ -56,6 +65,9 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
      * field for null.
      */
     public boolean hasNext() {
+        if (backlog.size() > 0) {
+            return true;
+        }
         if (doInit) {
             log = query();
             doInit = false;
@@ -75,6 +87,10 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
             throw new NoSuchElementException();
         }
 
+        if (backlog.size() > 0) {
+            return backlog.remove(0);
+        }
+
         EventLog rv = log;
 
         if (count == batchSize) {
@@ -90,6 +106,10 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
 
     public final void remove() {
         throw new UnsupportedOperationException("Cannot remove EventLogs");
+    }
+
+    public void rollback(EventLog log) {
+        backlog.add(log);
     }
 
     protected abstract EventLog query();

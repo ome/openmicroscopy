@@ -70,19 +70,4 @@
     <property name="cronExpression" value="0,30 * * * * ?" />
   </bean>
 
-  <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-    <property name="jobDetails">
-      <list>
-        <ref bean="process-jobs-manual" />
-      </list>
-    </property>
-    <!--Disabling trigger, since context is not properly initialized
-     property name="triggers">
-      <list>
-        <ref bean="process-jobs-every-30-seconds" />
-      </list>
-    </property-->
-  </bean>
-
-
 </beans>

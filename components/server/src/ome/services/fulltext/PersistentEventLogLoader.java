@@ -7,9 +7,6 @@
 
 package ome.services.fulltext;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ome.api.ITypes;
 import ome.conditions.InternalException;
 import ome.model.IEnum;
@@ -20,7 +17,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 /**
- * P@link EventLogLoader} implementation which keeps tracks of the last
+ * {@link EventLogLoader} implementation which keeps tracks of the last
  * {@link EventLog} instance, and always provides the next unindexed instance.
  * Reseting that saved value would restart indexing.
  * 
@@ -28,8 +25,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
  * @since 3.0-Beta3
  */
 public class PersistentEventLogLoader extends EventLogLoader {
-
-    private final List<EventLog> initialization = new ArrayList<EventLog>();
 
     /**
      * Key used to look configuration value; 'name'
@@ -107,8 +102,8 @@ public class PersistentEventLogLoader extends EventLogLoader {
                             + "for possible reasons.");
         }
 
-        if (initialization.size() > 0) {
-            return initialization.remove(0);
+        if (backlog.size() > 0) {
+            return backlog.remove(0);
         } else {
             EventLog el = nextEventLog(current_id);
             if (el != null) {
@@ -129,7 +124,7 @@ public class PersistentEventLogLoader extends EventLogLoader {
                 el.setEntityId(e.getId());
                 el.setEntityType(cls.getName());
                 el.setAction("INSERT");
-                initialization.add(el);
+                backlog.add(el);
             }
         }
     }

@@ -14,9 +14,10 @@ import ome.system.OmeroContext;
 import org.hibernate.SessionFactory;
 
 /**
- * Driver for various full text actions. Commands include:
+ * Commandline entry-point for various full text actions. Commands include:
  * <ul>
- * <li>full - Index full database</li
+ * <li>full - Index full database</li>
+ * <li>events - Index all events</li>
  * </ul>
  * 
  * @author Josh Moore, josh at glencoesoftware.com
@@ -64,10 +65,9 @@ public class Main {
         final AllEntitiesPseudoLogLoader loader = new AllEntitiesPseudoLogLoader();
         loader.setQueryService(rawQuery);
         loader.setClasses(factory.getAllClassMetadata().keySet());
-        final FullTextIndexer fti = new FullTextIndexer(executor, loader);
-
+        final FullTextThread ftt = createFullTextThread(loader);
         while (loader.more()) {
-            fti.run();
+            ftt.run();
         }
     }
 
@@ -75,10 +75,17 @@ public class Main {
         init();
         final AllEventsLogLoader loader = new AllEventsLogLoader();
         loader.setQueryService(rawQuery);
-        final FullTextIndexer fti = new FullTextIndexer(executor, loader);
+        final FullTextThread ftt = createFullTextThread(loader);
 
         while (loader.more()) {
-            fti.run();
+            ftt.run();
         }
+    }
+
+    protected static FullTextThread createFullTextThread(EventLogLoader loader) {
+        final FullTextBridge ftb = new FullTextBridge();
+        final FullTextIndexer fti = new FullTextIndexer(loader);
+        final FullTextThread ftt = new FullTextThread(executor, fti, ftb);
+        return ftt;
     }
 }

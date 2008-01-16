@@ -25,7 +25,9 @@ import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.fulltext.EventLogLoader;
+import ome.services.fulltext.FullTextBridge;
 import ome.services.fulltext.FullTextIndexer;
+import ome.services.fulltext.FullTextThread;
 import ome.services.fulltext.PersistentEventLogLoader;
 import ome.services.fulltext.FullTextIndexer.Parser;
 import ome.services.util.Executor;
@@ -41,12 +43,30 @@ import org.testng.annotations.Test;
 @Test(groups = { "query", "fulltext" })
 public class FullTextTest extends AbstractManagedContextTest {
 
+    FullTextThread ftt;
     FullTextIndexer fti;
+    FullTextBridge ftb;
     Image i;
 
     @Test(enabled = false, groups = "manual")
     public void testIndexWholeDb() throws Exception {
         ome.services.fulltext.Main.indexFullDb();
+    }
+
+    @Test(enabled = true, groups = "manual")
+    public void testCheckThatProcessStarts() {
+
+        long start = System.currentTimeMillis();
+        while ((System.currentTimeMillis() - start) < (30 * 1000)) {
+            i = new Image();
+            i.setName(UUID.randomUUID().toString());
+            i = iUpdate.saveAndReturnObject(i);
+            try {
+                Thread.sleep(1000L);
+            } catch (InterruptedException e) {
+                // ok continue
+            }
+        }
     }
 
     @Test(enabled = false, groups = "manual")
@@ -64,8 +84,10 @@ public class FullTextTest extends AbstractManagedContextTest {
             }
         });
 
-        fti = new FullTextIndexer(getExecutor(), pell);
-        fti.run(); // Single run to do initialization
+        ftb = new FullTextBridge();
+        fti = new FullTextIndexer(pell);
+        ftt = new FullTextThread(getExecutor(), fti, ftb);
+        ftt.run(); // Single run to do initialization
 
         // Can't use more() here since it will always return true
         // since PELL is designed to be called by a timer.
@@ -77,7 +99,7 @@ public class FullTextTest extends AbstractManagedContextTest {
             }
         });
         while (id[0] < max[0].getId()) {
-            fti.run();
+            ftt.run();
         }
 
     }
@@ -89,8 +111,10 @@ public class FullTextTest extends AbstractManagedContextTest {
     }
 
     public void testSimpleCreation() throws Exception {
-        fti = new FullTextIndexer(getExecutor(), getLogs());
-        fti.run();
+        ftb = new FullTextBridge();
+        fti = new FullTextIndexer(getLogs());
+        ftt = new FullTextThread(getExecutor(), fti, ftb);
+        ftt.run();
     }
 
     public void testUniqueImage() throws Exception {
@@ -182,9 +206,10 @@ public class FullTextTest extends AbstractManagedContextTest {
         // Index
         CreationLogLoader logs = new CreationLogLoader(new OriginalFile(upload
                 .getId(), false));
-        fti = new FullTextIndexer(getExecutor(), logs, getFileService(),
-                parsers);
-        fti.run();
+        ftb = new FullTextBridge(getFileService(), parsers);
+        fti = new FullTextIndexer(logs);
+        ftt = new FullTextThread(getExecutor(), fti, ftb);
+        ftt.run();
     }
 
     // Helpers
@@ -261,8 +286,10 @@ public class FullTextTest extends AbstractManagedContextTest {
 
     void indexObject(IObject o) {
         CreationLogLoader logs = new CreationLogLoader(o);
-        fti = new FullTextIndexer(getExecutor(), logs);
-        fti.run();
+        ftb = new FullTextBridge();
+        fti = new FullTextIndexer(logs);
+        ftt = new FullTextThread(getExecutor(), fti, ftb);
+        ftt.run();
     }
 
 }

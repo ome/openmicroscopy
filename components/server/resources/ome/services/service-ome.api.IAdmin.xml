@@ -52,17 +52,4 @@
     <property name="cronExpression" value="* 0,30 * * * ?" />
   </bean>
 
-  <bean id="ticket813WorkaroundScheduler" lazy-init="false" 
-     class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-     <property name="triggers">
-      <list>
-        <ref bean="flushAuthenticationCachesTrigger"/>
-      </list>
-    </property>
-  </bean>
-
-  <bean id="dummy" class="java.lang.ref.WeakReference" lazy-init="false">
-     <constructor-arg ref="ticket813WorkaroundScheduler"/>
-  </bean>
-  
 </beans>

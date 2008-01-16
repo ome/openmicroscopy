@@ -160,6 +160,28 @@
       </list>
     </constructor-arg>
   </bean>
+  
+  <bean id="scheduler" class="ome.services.scheduler.SchedulerFactoryBean">
+    <property name="jobDetails">
+      <list>
+        <ref bean="process-jobs-manual" />
+      </list>
+    </property>
+    <property name="triggers">
+      <list>
+        <ref bean="flushAuthenticationCachesTrigger"/>
+        <ref bean="fullTextIndexerTrigger"/>
+      </list>
+
+    <!--Disabling trigger, since context is not properly initialized
+     property name="triggers">
+      <list>
+        <ref bean="process-jobs-every-30-seconds" />
+      </list>
+    </property-->
+
+    </property>
+  </bean>
 
   <!-- internal: prefix because the definition is used for self-configuration.
   see BeanHelper.configure and OmeroContext.applyBeanPropertyValues. -->
