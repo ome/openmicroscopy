@@ -32,6 +32,7 @@ import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -43,6 +44,7 @@ import layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 
 /** 
@@ -79,6 +81,9 @@ class GraphicsPane
     /** Action command ID to indicate that the start value is modified.*/
     private static final int	END_SELECTED = 1;
     
+    /** Action command ID to set the start and end values to min and max.*/
+    private static final int	RANGE = 2;
+    
     /** Slider to select a sub-interval of [0, 255]. */
     private TwoKnobsSlider      codomainSlider;
     
@@ -96,6 +101,9 @@ class GraphicsPane
     
     /** The label displaying the global min. */
     private JLabel              minLabel;
+    
+    /** Button to set the start and end value to the min and max. */
+    private JButton				rangeButton;
     
     /** The component displaying the plane histogram. */
     private GraphicsPaneUI      uiDelegate;
@@ -169,6 +177,9 @@ class GraphicsPane
         minLabel = new JLabel(""+(int) min);
         preview = new JCheckBox(PREVIEW);
         preview.setToolTipText(PREVIEW_DESCRIPTION);
+        rangeButton = new JButton("Min/Max");
+        rangeButton.addActionListener(this);
+        rangeButton.setActionCommand(""+RANGE);
     }
     
     /** Builds and lays out the GUI. */
@@ -219,7 +230,11 @@ class GraphicsPane
    	 	p.add(panel, "0, 0");
    	 	panel = buildFieldsPanel("Max", maxLabel, "End", endField);
    	 	p.add(panel, "2, 0");
-        return p;//UIUtilities.buildComponentPanel(p);
+   	 	
+   	 	JPanel content = new JPanel();
+   	 	content.add(p);
+   	 	content.add(UIUtilities.buildComponentPanel(rangeButton));
+        return content;//UIUtilities.buildComponentPanel(p);
     }
     
     /**
@@ -550,9 +565,15 @@ class GraphicsPane
             index = Integer.parseInt(e.getActionCommand());
             switch (index) {
                 case START_SELECTED:
-                    startSelectionHandler(); break;
+                    startSelectionHandler(); 
+                    break;
                 case END_SELECTED:
                     endSelectionHandler(); 
+                    break;
+                case RANGE:
+                	controller.setInputInterval(model.getGlobalMin(), 
+                							model.getGlobalMax(), true);
+                	
             }
         } catch(NumberFormatException nfe) { 
             throw new Error("Invalid Action ID "+index, nfe); 
