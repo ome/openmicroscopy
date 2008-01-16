@@ -27,7 +27,7 @@
 
 	<target name="dist" description="Copies target onto an existing dist">
 		<copy todir="../../dist" overwrite="true">
-			<fileset dir="target" includes="*.war,lib/**/*,client/**/*,include/**/*" followsymlinks="false"/>
+			<fileset dir="target" includes="*.war,var/**/*,bin/**/*,etc/**/*,lib/**/*,client/**/*,include/**/*" followsymlinks="false"/>
 		</copy>
 		<mkdir dir="${tools.classes}/META-INF"/>
 		<echo file="${tools.classes}/META-INF/README.txt">

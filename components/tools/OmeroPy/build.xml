@@ -47,7 +47,7 @@
     </target>
 
     <target name="tools-build" depends="tools-init,python-build" description="Uses setup.py to build artifacts">
-        <copy file="${basedir}/bin/omero" tofile="${basedir}/build/omero"/>
+        <copy file="${basedir}/bin/omero" tofile="${basedir}/build/bin/omero"/>
     </target>
 
     <target name="tools-dist" depends="tools-build,python-install" description="Copies files into tools/target">

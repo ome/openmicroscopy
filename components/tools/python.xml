@@ -41,8 +41,8 @@
     </target>
 
     <target name="python-install" unless="py.NOPYTHON">
-        <copy todir="../target/lib">
-            <fileset dir="build/lib" includes="**/*"/>
+        <copy todir="../target">
+            <fileset dir="build" includes="**/*"/>
         </copy>
     </target>
 
