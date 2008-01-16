@@ -72,14 +72,9 @@ public class FormFieldCustom extends FormField {
 		}
 	}
 	
-	// overridden by subclasses (when focus lost) if they have values that need saving 
-	public void updateDataField() {
-		if (textInput != null)	
-			dataField.setAttribute(DataFieldConstants.TEXT_NODE_VALUE, textInput.getText(), true);
-	}
-	
-	// overridden by subclasses if they have other attributes to retrieve from dataField
-	public void dataFieldUpdatedOtherAttributes() {
+	// called when dataField changes
+	public void dataFieldUpdated() {
+		super.dataFieldUpdated();
 		checkForTextNodeValue();
 	}
 	

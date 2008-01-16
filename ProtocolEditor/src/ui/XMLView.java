@@ -316,9 +316,9 @@ public class XMLView
 		saveFileButton.setToolTipText("Save File");
 		saveFileButton.setBorder(fileManagerToolBarBorder);
 		
-		JMenuItem printWholeFile = new JMenuItem("Print the whole document");
+		JMenuItem printWholeFile = new JMenuItem("Export the whole document");
 		printWholeFile.addActionListener(new PrintWholeFileListener());
-		JMenuItem printSelectedFields = new JMenuItem("Print highlighted fields");
+		JMenuItem printSelectedFields = new JMenuItem("Export highlighted fields");
 		printSelectedFields.addActionListener(new PrintSelectedFieldsListener());
 		printPopupMenu = new JPopupMenu("Print Options");
 		printPopupMenu.add(printWholeFile);
@@ -340,7 +340,7 @@ public class XMLView
 			public void mouseExited(MouseEvent e) {}
 		});
 		//printButton.addActionListener(new PrintWholeFileListener());
-		printButton.setToolTipText("Print the current file / fields..."); 
+		printButton.setToolTipText("Export the current file for printing..."); 
 		printButton.setBorder(fileManagerToolBarBorder);
 		
 		undoButton = new JButton(undoIcon);
@@ -691,14 +691,14 @@ public class XMLView
 			saveFileAsMenuItem = new JMenuItem("Save File As...", saveFileAsIcon);
 			saveFileAsMenuItem.addActionListener(new SaveFileAsListener());
 	
-			JMenu printsubMenu = new JMenu("Print / Export...");
+			JMenu printsubMenu = new JMenu("Export for printing...");
 			printsubMenu.setIcon(printIcon);
-			JMenuItem printWholeFileMenuItem = new JMenuItem("Print the whole document");
+			JMenuItem printWholeFileMenuItem = new JMenuItem("Export the whole document");
 			printWholeFileMenuItem.addActionListener(new PrintWholeFileListener());
 			setMenuItemAccelerator(printWholeFileMenuItem, KeyEvent.VK_P);
 			printsubMenu.add(printWholeFileMenuItem);
 			
-			JMenuItem printSelectedFieldsMenuItem = new JMenuItem("Print highlighted fields");
+			JMenuItem printSelectedFieldsMenuItem = new JMenuItem("Export highlighted fields");
 			printSelectedFieldsMenuItem.addActionListener(new PrintSelectedFieldsListener());
 			printsubMenu.add(printSelectedFieldsMenuItem);
 			
@@ -1467,6 +1467,24 @@ public class XMLView
 		
 		// use this method for now
 		
+		final JFileChooser fc = new JFileChooser();
+		fc.setCurrentDirectory(null);
+		fc.setFileFilter(new FileFilter() {
+			public boolean accept(File f) {
+				if (f.getName().endsWith(".html"))
+					return true;
+				return false;
+			}
+			public String getDescription() {
+				return ".html files";
+			}
+		});
+		int returnVal = fc.showSaveDialog(XMLFrame);
+		if (returnVal != JFileChooser.APPROVE_OPTION) {
+			return;
+		}
+		File file = fc.getSelectedFile();
+		
 		LinkedHashMap<String,Boolean> booleanMap = new LinkedHashMap<String,Boolean>();
 		booleanMap.put("Show every field (include collapsed fields)", false);
 		booleanMap.put("Show descriptions", false);
@@ -1490,7 +1508,7 @@ public class XMLView
 			boolean	showAllOtherAttributes = booleanMap.get("Show all other attributes");
 			boolean printTableData = booleanMap.get("Show Table Data");
 		
-			HtmlOutputter.outputHTML(rootNodes, showEveryField, 
+			HtmlOutputter.outputHTML(file, rootNodes, showEveryField, 
 					showDescriptions, showDefaultValues, 
 					showUrl, showAllOtherAttributes, printTableData);
 		}
@@ -1616,7 +1634,6 @@ public class XMLView
 			return " .pro .exp .xml files";
 		}
 	}
-	
 	
 	public void saveFileAs() {
 		

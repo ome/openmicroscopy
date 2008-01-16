@@ -28,8 +28,8 @@ public class DataFieldConstants {
 	public static final String ONTOLOGY_TERM_NAME = "ontologyTermName";
 	public static final String ONTOLOGY_TERM_DEF = "ontologyTermDef";
 	
-	public static final String OBSERVATION_ENTITY_TERM_ID = "observationEntityTermID";
-	public static final String OBSERVATION_ATTRIBUTE_TERM_ID = "observationAttributeTermID";
+	public static final String OBSERVATION_ENTITY_TERM_IDNAME = "observationEntityTermID";
+	public static final String OBSERVATION_ATTRIBUTE_TERM_IDNAME = "observationAttributeTermID";
 	public static final String OBSERVATION_TYPE = "observationType";
 	public static final String OBSERVATION_UNITS_TERM_ID = "observationUnitsTermID";
 	

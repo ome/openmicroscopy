@@ -44,7 +44,7 @@ public class ImageFactory {
 	
 	public static final String OPEN_FILE_ICON = ICONS_FILE + "filesystems/folder_open.png";
 	public static final String SAVE_ICON = ACTION_ICONS_FILE + "filesave.png";
-	public static final String PRINT_ICON = ACTION_ICONS_FILE + "fileprint.png";
+	public static final String PRINT_ICON = ACTION_ICONS_FILE + "fileExportPrint.png";
 	public static final String LOAD_DEFAULTS_ICON = ACTION_ICONS_FILE + "bookmarks_list_add.png";
 	public static final String NEW_FILE_ICON = ACTION_ICONS_FILE + "filenew.png";
 	public static final String SAVE_FILE_AS_ICON = ACTION_ICONS_FILE + "filesaveas.png";

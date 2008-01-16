@@ -208,12 +208,7 @@ public class FormField extends JPanel implements DataFieldObserver{
 		
 		setHighlighted(dataField.isAttributeTrue(DataField.FIELD_SELECTED));
 		refreshBackgroundColour();
-		
-		dataFieldUpdatedOtherAttributes();
 	}
-	
-	// overridden by subclasses if they have other attributes to retrieve from dataField
-	public void dataFieldUpdatedOtherAttributes() {};
 	
 	// these methods called when user updates the fieldEditor panel
 	public void setNameText(String name) {

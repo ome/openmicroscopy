@@ -25,16 +25,17 @@ public class DataFieldComboBox extends CustomComboBox {
 	}
 	
 	protected void init() {
+		setSelectedItem(dataField.getAttribute(attribute));
 		this.addActionListener(selectionListener);
 	}
 	
-	public void setSelectedItem(Object item) {
+	public void setSelectedItemNoListeners(Object item) {
 		removeActionListener(selectionListener);
 		super.setSelectedItem(item);
 		addActionListener(selectionListener);
 	}
 	
-	public void setSelectedIndex(int index) {
+	public void setSelectedIndexNoListeners(int index) {
 		removeActionListener(selectionListener);
 		super.setSelectedIndex(index);
 		addActionListener(selectionListener);

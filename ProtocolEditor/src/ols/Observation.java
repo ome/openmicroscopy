@@ -21,8 +21,8 @@ public class Observation {
 		
 		observationName = dataField.getName().trim();	// gets extra lines etc from formatting
 		dataType = dataField.getAttribute(DataFieldConstants.OBSERVATION_TYPE);
-		entityTermId = dataField.getAttribute(DataFieldConstants.OBSERVATION_ENTITY_TERM_ID);
-		attributeTermId = dataField.getAttribute(DataFieldConstants.OBSERVATION_ATTRIBUTE_TERM_ID);
+		entityTermId = dataField.getAttribute(DataFieldConstants.OBSERVATION_ENTITY_TERM_IDNAME);
+		attributeTermId = dataField.getAttribute(DataFieldConstants.OBSERVATION_ATTRIBUTE_TERM_IDNAME);
 		unitTermId = dataField.getAttribute(DataFieldConstants.OBSERVATION_UNITS_TERM_ID);
 		
 	}

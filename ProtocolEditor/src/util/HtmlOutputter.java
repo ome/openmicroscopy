@@ -41,7 +41,7 @@ import ui.FormField;
 public class HtmlOutputter {
 	
 	static FileWriter fileWriter;
-	static String outputFileName;
+	static final String outputFileName = "print.html";
 	
 	public static String HEADER = "<html><head> \n" +
 		"<style type='text/css'> \n" +
@@ -108,16 +108,25 @@ public class HtmlOutputter {
 	 * @param showUrl			if true, show the url attribute
 	 * @param showAllOtherAttributes	if true, show any other additional attributes
 	 */
+	
 	public static void outputHTML (ArrayList<DataFieldNode> rootNodes, boolean showEveryField, 
+			boolean showDescriptions, boolean showDefaultValues, 
+			boolean showUrl, boolean showAllOtherAttributes, boolean printTableData) {
+				File outputFile = new File(outputFileName);
+				outputHTML(outputFile, rootNodes, showEveryField, 
+						 showDescriptions, showDefaultValues, 
+						 showUrl, showAllOtherAttributes, printTableData);
+	}
+	
+	public static void outputHTML (File outputFile, ArrayList<DataFieldNode> rootNodes, boolean showEveryField, 
 			boolean showDescriptions, boolean showDefaultValues, 
 			boolean showUrl, boolean showAllOtherAttributes, boolean printTableData) {
 		
 		PrintWriter outputStream = null;
 		fileWriter = null;
-		outputFileName = "print.html";
 		
         try {
-        	fileWriter = new FileWriter(outputFileName);
+        	fileWriter = new FileWriter(outputFile);
         	
             outputStream = new PrintWriter(fileWriter);
             
@@ -147,12 +156,14 @@ public class HtmlOutputter {
         }
         
         
-        File findMyDirectory = new File("");
-        String currentDirectory = findMyDirectory.getAbsolutePath();
         
-        String outputFilePath = "file://" + currentDirectory + "/" + outputFileName;
+        String outputFilePath = outputFile.getAbsolutePath();
+        
+        outputFilePath = "file://" + outputFilePath;
         
         outputFilePath = outputFilePath.replaceAll(" ", "%20");
+        
+        System.out.println("HtmlOutputter outputFilePath = " + outputFilePath);
         
         BareBonesBrowserLaunch.openURL(outputFilePath);
 		

@@ -39,7 +39,7 @@ public class OntologyTermSelector extends JPanel {
 	JLabel nameLabel;
 	
 	CustomComboBox ontologySelector;
-	JComboBox ontologyTermSelector;
+	CustomComboBox ontologyTermSelector;
 	int listIndex = 0;
 	OntologyTermKeyListener ontologyTermListener;
 	TermSelectionListener termSelectionListener;
@@ -86,11 +86,10 @@ public class OntologyTermSelector extends JPanel {
 		
 		this.dataField = dataField;
 		this.attributeId = attributeId;
-		String termId = dataField.getAttribute(attributeId);
-		String termName = "";
-		if(termId != null) {
-			termName = OntologyLookUp.getTermName(termId);
-		}
+		
+		// this has term ID and term Name, joined with ONTOLOGY_ID_NAME_SEPARATOR
+		String termIdName = dataField.getAttribute(attributeId);
+		
 		
 		Box horizontalBox = Box.createHorizontalBox();
 		horizontalBox.setBackground(null);
@@ -103,15 +102,13 @@ public class OntologyTermSelector extends JPanel {
 		ontologySelector.setMaximumRowCount(25);
 		ontologySelector.setMaximumWidth(200);
 		//ontologySelector.setMaximumSize(new Dimension(200, 50));
-		setCurrentOntology(Ontologies.getOntologyIdFromTermId(termId));
+		setCurrentOntology(Ontologies.getOntologyIdFromTermId(termIdName));
 		
 		// make an editable comboBox (auto-complete) for ontology Terms
 		ontologyTermSelector = new CustomComboBox();
 		ontologyTermSelector.setEditable(true);
-		if (termId != null) {
-			String idAndName = termId + ONTOLOGY_ID_NAME_SEPARATOR + termName;
-			ontologyTermSelector.addItem(idAndName);
-		}
+		ontologyTermSelector.setMaximumWidth(500);
+		ontologyTermSelector.setSelectedItem(termIdName);
 		ontologyTermListener = new OntologyTermKeyListener();
 		ontologyTermSelector.getEditor().getEditorComponent().addKeyListener(ontologyTermListener);
 		termSelectionListener = new TermSelectionListener();
@@ -166,7 +163,9 @@ public class OntologyTermSelector extends JPanel {
 				return;
 			}
 			
-			
+			// ignore left and right buttons
+			if ((keyCode == KeyEvent.VK_RIGHT) || (keyCode == KeyEvent.VK_LEFT)) 
+				return;
 			
 			JTextComponent source = (JTextComponent)event.getSource();
 			String input = source.getText();
@@ -248,21 +247,10 @@ public class OntologyTermSelector extends JPanel {
 			// This fails (BUG) if the user selects using the up and down keys after using the mouse
 			// for a previous selection, because the listIndex has become out of sync.
 			//listIndex = sourceComboBox.getSelectedIndex();
-			
-			int separatorIndex = selection.indexOf(ONTOLOGY_ID_NAME_SEPARATOR);
-			
-			// just in case there were no items were in the list 
-			if(separatorIndex == -1) {
-				dataField.setAttribute(attributeId, selection, true);
-				return;
-			}
-			
-			String termId = selection.substring(0, separatorIndex);
-			// String termName = selection.substring(separatorIndex + ONTOLOGY_ID_NAME_SEPARATOR.length());
 				
 			// would be better to do this when focus lost,
 			// since this actionPerformed seems to fire several times (2 or 3 times).
-			dataField.setAttribute(attributeId, termId, true);
+			dataField.setAttribute(attributeId, selection, true);
 		}
 	}
 	
@@ -271,12 +259,11 @@ public class OntologyTermSelector extends JPanel {
 		
 		String ontologyId = ontologySelector.getSelectedItem().toString();
 		
+		// ontologyIds in ontologySelector may be eg "PATO", or may be "PATO	patoName"
 		int idNameSeparatorIndex = ontologyId.indexOf(ONTOLOGY_ID_NAME_SEPARATOR);
 		if(idNameSeparatorIndex > 0) {
 			ontologyId = ontologyId.substring(0, idNameSeparatorIndex);
 		}
-		
-		System.out.println("OntologyTermSelector getCurrentOntologyId ontologyId = " + ontologyId);
 		
 		return ontologyId;
 	}
@@ -310,6 +297,17 @@ public class OntologyTermSelector extends JPanel {
 		ontologyTermSelector.removeActionListener(termSelectionListener);
 		ontologyTermSelector.removeKeyListener(ontologyTermListener);
 		ontologyTermSelector.removeAllItems();
+		ontologyTermSelector.addActionListener(termSelectionListener);
+		ontologyTermSelector.addKeyListener(ontologyTermListener);
+	}
+	
+	public Object getSelectedItem() {
+		return ontologyTermSelector.getSelectedItem();
+	}
+	public void setSelectedItem(Object anObject) {
+		ontologyTermSelector.removeActionListener(termSelectionListener);
+		ontologyTermSelector.removeKeyListener(ontologyTermListener);
+		ontologyTermSelector.setSelectedItem(anObject);
 		ontologyTermSelector.addActionListener(termSelectionListener);
 		ontologyTermSelector.addKeyListener(ontologyTermListener);
 	}

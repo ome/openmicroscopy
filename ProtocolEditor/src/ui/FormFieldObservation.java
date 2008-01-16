@@ -18,8 +18,10 @@ public class FormFieldObservation extends FormField {
 	public static final String NUMBER = "Number";
 	public static final String BOOLEAN = "True/False";
 	public static String[] dataTypes = {FREE_TEXT, NUMBER, BOOLEAN};
-	DataFieldComboBox dataTypeSelector;
-	OntologyTermSelector unitTermSelector;
+	protected DataFieldComboBox dataTypeSelector;
+	protected OntologyTermSelector attributeTermSelector;
+	protected OntologyTermSelector entityTermSelector;
+	protected OntologyTermSelector unitTermSelector;
 	
 	public FormFieldObservation(IDataFieldObservable dataFieldObs) {
 		
@@ -30,20 +32,20 @@ public class FormFieldObservation extends FormField {
 		
 		
 		JLabel dataTypeLabel = new JLabel("Data Type: ");
+		// DataFieldComboBox automatically updates its changes to dataField
 		dataTypeSelector = new DataFieldComboBox(dataField, DataFieldConstants.OBSERVATION_TYPE, dataTypes);
-		dataTypeSelector.addActionListener(new DataTypeSelectorListener());
 		dataTypeSelector.setMaximumWidth(100);
 		horizontalBox.add(dataTypeLabel);
 		horizontalBox.add(dataTypeSelector);
 		
-		OntologyTermSelector entityTermSelector = new OntologyTermSelector(
-				dataField, DataFieldConstants.OBSERVATION_ENTITY_TERM_ID, "  Entity", new String[] {"GO", "CL"});
+		entityTermSelector = new OntologyTermSelector(
+				dataField, DataFieldConstants.OBSERVATION_ENTITY_TERM_IDNAME, "  Entity", new String[] {"GO", "CL"});
 		entityTermSelector.setLabelMinWidth(labelsMinWidth);
 		entityTermSelector.setOntologyComboBoxMaxWidth(ontologySelectorsMaxWidth);
 		
 		
-		OntologyTermSelector attributeTermSelector = new OntologyTermSelector(
-				dataField, DataFieldConstants.OBSERVATION_ATTRIBUTE_TERM_ID, "  Attribute", new String[] {"PATO"});
+		attributeTermSelector = new OntologyTermSelector(
+				dataField, DataFieldConstants.OBSERVATION_ATTRIBUTE_TERM_IDNAME, "  Attribute", new String[] {"PATO"});
 		attributeTermSelector.setLabelMinWidth(labelsMinWidth);
 		attributeTermSelector.setOntologyComboBoxMaxWidth(ontologySelectorsMaxWidth);
 		
@@ -60,31 +62,40 @@ public class FormFieldObservation extends FormField {
 		
 		this.add(termSelectorsVerticalBox, BorderLayout.CENTER);
 		
-		// set controlls etc.
-		String observationDataType = dataField.getAttribute(DataFieldConstants.OBSERVATION_TYPE);
-		if (observationDataType != null) {
-			dataTypeSelector.setSelectedItem(observationDataType);
-		} else
-			// causes unitTermSelector to be set invisible (untis not required) 
-			dataTypeSelector.setSelectedItem(FREE_TEXT);	// causes dataField attribute to be set to this default
+		// set controls etc.
+		refreshUnitTermSelectorVisibility();
+	}
+	
+	// something has changed at the dataField (eg undo/redo)
+	public void dataFieldUpdated() {
+		super.dataFieldUpdated();
+		// change of dataType
+		dataTypeSelector.setSelectedItemNoListeners(dataField.getAttribute(DataFieldConstants.OBSERVATION_TYPE));
+		refreshUnitTermSelectorVisibility();
 		
+		entityTermSelector.setSelectedItem(dataField.getAttribute(DataFieldConstants.OBSERVATION_ENTITY_TERM_IDNAME));
+		attributeTermSelector.setSelectedItem(dataField.getAttribute(DataFieldConstants.OBSERVATION_ATTRIBUTE_TERM_IDNAME));
 		
 	}
 	
-	public class DataTypeSelectorListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			if (dataTypeSelector.getSelectedItem().equals(NUMBER)) {
-				setUnitTermSelectorVisibility(true);
-			} else {
-				// if not visible, reset attribute value to null. 
-				dataField.setAttribute(DataFieldConstants.OBSERVATION_UNITS_TERM_ID, null, false);
-				unitTermSelector.removeAllItems();
-				setUnitTermSelectorVisibility(false);
+	public void refreshUnitTermSelectorVisibility() {
+		boolean newVisibility = ((dataTypeSelector.getSelectedItem() != null) && 
+				dataTypeSelector.getSelectedItem().equals(NUMBER));
+
+		if (newVisibility) {
+			if (unitTermSelector.isVisible()) {
+				unitTermSelector.setSelectedItem(dataField.getAttribute(DataFieldConstants.OBSERVATION_UNITS_TERM_ID));
 			}
+			else if (unitTermSelector.getSelectedItem() != null) {
+				// if units turned on (and still have values) make sure these are updated to dataField
+				dataField.setAttribute(DataFieldConstants.OBSERVATION_UNITS_TERM_ID, 
+						unitTermSelector.getSelectedItem().toString(), false);
+			}
+		} else {
+			// if not using units, delete the attribute
+			dataField.setAttribute(DataFieldConstants.OBSERVATION_UNITS_TERM_ID, null, false);
 		}
-	}
-	
-	public void setUnitTermSelectorVisibility(boolean visible) {
-		unitTermSelector.setVisible(visible);
+		
+		unitTermSelector.setVisible(newVisibility);
 	}
 }
