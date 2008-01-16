@@ -48,14 +48,22 @@ class client(object):
     def getProperty(self,key):
         return self.getProperties().getProperty(key)
 
-    def createSession(self):
-        username = self.getProperty(constants.USERNAME)
-        password = self.getProperty(constants.PASSWORD)
+    def createSession(self, username=None, password=None):
+        if not username:
+            username = self.getProperty("OMERO.username")
+        if len(username) == 0:
+            raise ClientError("No username specified")
+        if not password:
+            password = self.getProperty("OMERO.password")
+        if len(password) == 0:
+            raise ClientError("No password specified")
 
         prx = self.ic.getDefaultRouter()
+        if not prx:
+            raise ClientError("No default router found.")
         router = Glacier2.RouterPrx.checkedCast(prx)
         if not router:
-            raise ClientError("No default router found.")
+            raise ClientError("Error obtaining Glacier2 router.")
         session = router.createSession(username, password)
         self.sf = api.ServiceFactoryPrx.checkedCast(session)
         if not self.sf:
@@ -130,7 +138,22 @@ class client(object):
         return ofile
 
     def closeSession(self):
-        self.sf.close() 
+        # If 'sf' does not exist we don't have a session at all
+        if not hasattr(self, 'sf'):
+            return
+        # But even if we do have 'sf', the connection may have been lost and 'close' will fail
+        try:
+            self.sf.close()
+        except:
+            pass
+        # Now destroy the actual session, which will always trigger an exception, regardless of
+        # actually being connected or not
+        prx = self.ic.getDefaultRouter()
+        router = Glacier2.RouterPrx.checkedCast(prx)
+        try:
+            router.destroySession()
+        except Ice.ConnectionLostException:
+            pass
 
 import util.FactoryMap
 class ObjectFactory(Ice.ObjectFactory):

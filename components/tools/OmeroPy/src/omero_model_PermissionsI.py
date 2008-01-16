@@ -100,10 +100,20 @@ class PermissionsI(_omero_model.Permissions):
       def getPerm1(self):
           return self.perm1
 
-      def setPerm1(_perm1):
+      def setPerm1(self, _perm1):
           self.perm1 = value
           pass
 
+      def __str__(self):
+          vals = []
+          vals.append(self.isUserRead() and "r" or "-")
+          vals.append(self.isUserWrite() and "w" or "-")
+          vals.append(self.isGroupRead() and "r" or "-")
+          vals.append(self.isGroupWrite() and "w" or "-")
+          vals.append(self.isWorldRead() and "r" or "-")
+          vals.append(self.isWorldWrite() and "w" or "-")
+          return "".join(vals)
+          
 _omero_model.PermissionsI = PermissionsI
 
 def _test():
