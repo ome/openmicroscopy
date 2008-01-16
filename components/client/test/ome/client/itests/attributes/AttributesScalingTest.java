@@ -36,7 +36,8 @@ import com.jamonapi.MonitorFactory;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-@Test(groups = { "client", "integration", "attributes", "performance", "manual" })
+@Test(enabled = true, groups = { "client", "integration", "attributes",
+        "performance", "manual" })
 public class AttributesScalingTest extends TestCase {
 
     protected static Log log = LogFactory.getLog(AttributesScalingTest.class);
@@ -99,7 +100,7 @@ public class AttributesScalingTest extends TestCase {
             write.stop();
 
             Set<Long> ids;
-            Map<Long, Set<? extends IObject>> map;
+            Map<Long, Set<IObject>> map;
 
             // ALL
             ids = idSet(rv);
@@ -125,7 +126,7 @@ public class AttributesScalingTest extends TestCase {
         }
     }
 
-    private void assertAllAnnotations(Map<Long, Set<? extends IObject>> map,
+    private void assertAllAnnotations(Map<Long, Set<IObject>> map,
             IObject... rv) {
         for (IObject object : rv) {
             Image image = (Image) object;

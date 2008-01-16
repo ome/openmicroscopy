@@ -236,8 +236,7 @@ public interface IPojos extends ServiceInterface {
      * @return A map whose key is rootNodeId and value the <code>Set</code> of
      *         all annotations for that node or <code>null</code>.
      */
-    @Deprecated
-    public <T extends IObject> Map<Long, Set<? extends IObject>> findAnnotations(
+    public <T extends IObject, A extends IObject> Map<Long, Set<A>> findAnnotations(
             @NotNull
             Class<T> rootNodeType, @NotNull
             @Validate(Long.class)
@@ -315,8 +314,8 @@ public interface IPojos extends ServiceInterface {
      * @param options
      *            Map as above. No notion of <code>leaves</code>.
      *            <code>experimenter|group</code> apply at the Image level.
-     *            OPTIONS:
-     *             - startTime and/or endTime should be Timestamp.valueOf("YYYY-MM-DD hh:mm:ss.ms");
+     *            OPTIONS: - startTime and/or endTime should be
+     *            Timestamp.valueOf("YYYY-MM-DD hh:mm:ss.ms");
      * @return A set of images.
      */
     public <T extends IObject> Set<Image> getImages(@NotNull
@@ -330,13 +329,12 @@ public interface IPojos extends ServiceInterface {
      * @param options
      *            Map as above. No notion of <code>leaves</code>.
      *            <code>experimenter|group</code> apply at the Image level and
-     *            <b>must be present</b>.
-     *            OPTIONS:
-     *             - startTime and/or endTime should be Timestamp.valueOf("YYYY-MM-DD hh:mm:ss.ms");
+     *            <b>must be present</b>. OPTIONS: - startTime and/or endTime
+     *            should be Timestamp.valueOf("YYYY-MM-DD hh:mm:ss.ms");
      * @return A set of images.
      */
     public Set<Image> getImagesByOptions(Map options);
-    
+
     /**
      * Retrieve a user's images.
      * 

@@ -385,7 +385,7 @@ public class CreatePojosFixture {
         dann.setName(name);
         dann.getDetails().setOwner(user);
         DatasetAnnotationLink link = new DatasetAnnotationLink();
-        link.link(d, dann);
+        link.link(d.proxy(), dann);
         link = push(link);
         return link;
     }
@@ -396,7 +396,7 @@ public class CreatePojosFixture {
         iann.setName(name);
         iann.getDetails().setOwner(user);
         ImageAnnotationLink link = new ImageAnnotationLink();
-        link.link(i, iann);
+        link.link(i.proxy(), iann);
         link = push(link);
         return link;
     }

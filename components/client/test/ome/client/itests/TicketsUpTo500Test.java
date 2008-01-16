@@ -263,12 +263,12 @@ public class TicketsUpTo500Test extends TestCase {
     }
 
     /**
-     * trying to find a null constraint violation of Event.experimenter
-     * This cannot work because of the calls to findAnnotations and the missing
+     * trying to find a null constraint violation of Event.experimenter This
+     * cannot work because of the calls to findAnnotations and the missing
      * annotationLink set which is returned by loadContainerHierarchy
      */
     @SuppressWarnings("unchecked")
-    @Test(groups = {"ticket:396","broken"})
+    @Test(groups = { "ticket:396" })
     public void testAnnotationIsUpdatable() throws Exception {
 
         final IPojos pojosService = sf.getPojosService();
@@ -286,20 +286,22 @@ public class TicketsUpTo500Test extends TestCase {
         // create annotation
         TextAnnotation annotation = new TextAnnotation();
         annotation.setTextValue("ticket:396");
-        DatasetAnnotationLink link = dataset.linkAnnotation(annotation);
+        DatasetAnnotationLink link = new DatasetAnnotationLink();
+        link.link(dataset.proxy(), annotation);
         pojosService.updateDataObject(link, null);
 
         // load annotation via findAnnotations
-        annotation = ((Set<TextAnnotation>) pojosService.findAnnotations(
+        annotation = (TextAnnotation) pojosService.findAnnotations(
                 Dataset.class,
                 new HashSet<Long>(Arrays.asList(dataset.getId())), null, null)
-                .get(dataset.getId())).iterator().next();
+                .get(dataset.getId()).iterator().next();
 
         // update annotation
-        annotation.setTextValue(annotation.getTextValue() + ":updated");
+        String newValue = annotation.getTextValue() + ":updated";
+        annotation.setTextValue(newValue);
         pojosService.updateDataObject(annotation, null);
-        fail("This shouldn't work");
-
+        annotation = iQuery.get(TextAnnotation.class, annotation.getId());
+        assertFalse(newValue.equals(annotation.getTextValue()));
     }
 
     @Test(groups = "ticket:401")

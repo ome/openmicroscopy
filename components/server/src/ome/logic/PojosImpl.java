@@ -35,6 +35,7 @@ import ome.api.IPojos;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
+import ome.model.IAnnotated;
 import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.containers.Category;
@@ -45,6 +46,7 @@ import ome.model.core.Image;
 import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
 import ome.services.query.PojosCGCPathsQueryDefinition;
+import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
 import ome.services.query.PojosGetImagesByOptionsQueryDefinition;
 import ome.services.query.PojosGetImagesQueryDefinition;
@@ -195,14 +197,68 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
 	}
 
-	@RolesAllowed("user")
-	@Deprecated
-	@Transactional(readOnly = true)
-	public <T extends IObject> Map<Long, Set<? extends IObject>> findAnnotations(
-			Class<T> rootNodeType, Set<Long> rootNodeIds,
-			Set<Long> annotatorIds, Map options) {
-		throw new UnsupportedOperationException("See ome.api.Search");
-	}
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public <T extends IObject, A extends IObject> Map<Long, Set<A>> findAnnotations(
+            Class<T> rootNodeType, Set<Long> rootNodeIds,
+            Set<Long> annotatorIds, Map options) {
+
+        Map<Long, Set<A>> map = new HashMap<Long, Set<A>>();
+
+        if (rootNodeIds.size() == 0) {
+            return map;
+        }
+
+        if (!IAnnotated.class.isAssignableFrom(rootNodeType)) {
+            throw new IllegalArgumentException(
+                    "Class parameter for findAnnotation() "
+                            + "must be a subclass of ome.model.IAnnotated");
+        }
+
+        PojoOptions po = new PojoOptions(options);
+
+        Query<List<IAnnotated>> q = getQueryFactory().lookup(
+                PojosFindAnnotationsQueryDefinition.class.getName(),
+                new Parameters().addIds(rootNodeIds).addClass(rootNodeType)
+                        .addSet("annotatorIds", annotatorIds).addOptions(
+                                po.map()));
+
+        List<IAnnotated> l = iQuery.execute(q);
+        // no count collection
+
+        //
+        // Destructive changes below this point.
+        //
+        for (IAnnotated annotated : l) {
+            iQuery.evict(annotated);
+            annotated.collectAnnotationLinks(new CBlock<ILink>() {
+
+                public ILink call(IObject object) {
+                    ILink link = (ILink) object;
+                    iQuery.evict(link);
+                    iQuery.evict(link.getChild());
+                    return null;
+                }
+
+            });
+        }
+
+        // SORT
+        Iterator<IAnnotated> i = new HashSet<IAnnotated>(l).iterator();
+        while (i.hasNext()) {
+            IAnnotated annotated = i.next();
+            Long id = annotated.getId();
+            Set<A> set = map.get(id);
+            if (set == null) {
+                set = new HashSet<A>();
+                map.put(id, set);
+            }
+            set.addAll((List<A>) annotated.linkedAnnotationList());
+        }
+
+        return map;
+
+    }
 
 	@RolesAllowed("user")
 	@Transactional(readOnly = true)
