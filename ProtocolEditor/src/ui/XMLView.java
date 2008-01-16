@@ -44,6 +44,7 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -136,7 +137,7 @@ public class XMLView
 	FormDisplay xmlFormDisplay;			// this is the UI-form
 	JSplitPane XMLUIPanel;		// the top-level panel of the frame
 	JPanel fieldEditor; 	// shows each field to be edited
-	JTabbedPane XMLTabbedPane;
+	
 	Color backgroundColor;
 	
 	JPanel fileManagerPanel; 	// tool bar for open/close/print etc. 
@@ -188,9 +189,8 @@ public class XMLView
 	JPanel xmlValidationPanel;
 	Icon closeIcon;
 	Icon redBallIcon;
-	
-	Box expTabToolBar;
-	Box proTabToolBar;
+
+	JToolBar protocolEditToolBar;
 	
 	JComboBox currentlyOpenedFiles;
 	JButton closeFileButton;
@@ -343,6 +343,51 @@ public class XMLView
 		printButton.setToolTipText("Export the current file for printing..."); 
 		printButton.setBorder(fileManagerToolBarBorder);
 		
+		
+
+		// experiment tool-bar buttons
+		
+		loadDefaultsPopupMenu = new JPopupMenu("Load Defaults");
+		JMenuItem loadDefaults = new JMenuItem("Load Defaults for All fields");
+		loadDefaults.setActionCommand(LOAD_DEFAULTS);
+		loadDefaults.addActionListener(new LoadDefaultsListener());
+		loadDefaultsPopupMenu.add(loadDefaults);
+		
+		JMenuItem loadDefaultsHighLtFields = new JMenuItem("Load Defaults for Highlighted Fields (and all child fields)");
+		loadDefaultsHighLtFields.setActionCommand(LOAD_DEFAULTS_HIGHLIGHTED_FIELDS);
+		loadDefaultsHighLtFields.addActionListener(new LoadDefaultsListener());
+		loadDefaultsPopupMenu.add(loadDefaultsHighLtFields);
+		
+		JButton loadDefaultsButton = new JButton(loadDefaultsIcon);
+		loadDefaultsButton.setToolTipText("Load Default Values");
+		loadDefaultsButton.setBorder(fileManagerToolBarBorder);
+		loadDefaultsButton.addMouseListener(new MouseListener() {
+			public void mousePressed(MouseEvent e) {
+				maybeShowPopup(e);
+			}
+			public void mouseReleased(MouseEvent e) {
+				maybeShowPopup(e);
+			}
+			private void maybeShowPopup(MouseEvent e) {
+				loadDefaultsPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+			}
+			public void mouseClicked(MouseEvent e) {}
+			public void mouseEntered(MouseEvent e) {}
+			public void mouseExited(MouseEvent e) {}
+		});
+		
+		JButton clearFieldsButton = new JButton(clearFieldsIcon);
+		clearFieldsButton.setToolTipText("Clear All Fields");
+		clearFieldsButton.addActionListener(new ClearFieldsListener());
+		clearFieldsButton.setBorder(fileManagerToolBarBorder);
+		
+		JButton multiplyValueOfSelectedFieldsButton = new JButton(mathsIcon);
+		multiplyValueOfSelectedFieldsButton.setToolTipText("Multiply the selected numerical values by a factor of...");
+		multiplyValueOfSelectedFieldsButton.addActionListener(new MultiplyValueOfSelectedFieldsListener());
+		multiplyValueOfSelectedFieldsButton.setBorder(fileManagerToolBarBorder);
+	
+		// undo - redo buttons
+		
 		undoButton = new JButton(undoIcon);
 		undoButton.setToolTipText("Undo last action");
 		undoButton.setBorder(fileManagerToolBarBorder);
@@ -434,6 +479,10 @@ public class XMLView
 		fileManagerWestToolBar.add(saveFileAsButton);
 		fileManagerWestToolBar.add(printButton);
 		fileManagerWestToolBar.add(new JSeparator(JSeparator.VERTICAL));
+		fileManagerWestToolBar.add(loadDefaultsButton);
+		fileManagerWestToolBar.add(clearFieldsButton);
+		fileManagerWestToolBar.add(multiplyValueOfSelectedFieldsButton);
+		fileManagerWestToolBar.add(new JSeparator(JSeparator.VERTICAL));
 		fileManagerWestToolBar.add(undoButton);
 		fileManagerWestToolBar.add(redoButton);
 		fileManagerWestToolBar.add(new JSeparator(JSeparator.VERTICAL));
@@ -460,56 +509,17 @@ public class XMLView
 		XMLScrollPane.setPreferredSize(new Dimension( panelWidth, windowHeight));
 
 		
-//		 Make a nice border
-		EmptyBorder eb = new EmptyBorder(0,BUTTON_SPACING,BUTTON_SPACING,BUTTON_SPACING);
-		EmptyBorder noLeftPadding = new EmptyBorder (0, 2, BUTTON_SPACING, BUTTON_SPACING);
-		EmptyBorder noRightPadding = new EmptyBorder (0, BUTTON_SPACING, BUTTON_SPACING, 1);
-		EmptyBorder thinLeftRightPadding = new EmptyBorder (0, 4, BUTTON_SPACING, 3);
 	
-		// experiment tool-bar buttons
-		
-		loadDefaultsPopupMenu = new JPopupMenu("Load Defaults");
-		JMenuItem loadDefaults = new JMenuItem("Load Defaults for All fields");
-		loadDefaults.setActionCommand(LOAD_DEFAULTS);
-		loadDefaults.addActionListener(new LoadDefaultsListener());
-		loadDefaultsPopupMenu.add(loadDefaults);
-		
-		JMenuItem loadDefaultsHighLtFields = new JMenuItem("Load Defaults for Highlighted Fields (and all child fields)");
-		loadDefaultsHighLtFields.setActionCommand(LOAD_DEFAULTS_HIGHLIGHTED_FIELDS);
-		loadDefaultsHighLtFields.addActionListener(new LoadDefaultsListener());
-		loadDefaultsPopupMenu.add(loadDefaultsHighLtFields);
-		
-		JButton loadDefaultsButton = new JButton(loadDefaultsIcon);
-		loadDefaultsButton.setToolTipText("Load Default Values");
-		loadDefaultsButton.setBorder(eb);
-		loadDefaultsButton.addMouseListener(new MouseListener() {
-			public void mousePressed(MouseEvent e) {
-				maybeShowPopup(e);
-			}
-			public void mouseReleased(MouseEvent e) {
-				maybeShowPopup(e);
-			}
-			private void maybeShowPopup(MouseEvent e) {
-				loadDefaultsPopupMenu.show(e.getComponent(), e.getX(), e.getY());
-			}
-			public void mouseClicked(MouseEvent e) {}
-			public void mouseEntered(MouseEvent e) {}
-			public void mouseExited(MouseEvent e) {}
-		});
-		
-		JButton clearFieldsButton = new JButton(clearFieldsIcon);
-		clearFieldsButton.setToolTipText("Clear All Fields");
-		clearFieldsButton.addActionListener(new ClearFieldsListener());
-		clearFieldsButton.setBorder(eb);
-		
-		JButton multiplyValueOfSelectedFieldsButton = new JButton(mathsIcon);
-		multiplyValueOfSelectedFieldsButton.setToolTipText("Multiply the selected numerical values by a factor of...");
-		multiplyValueOfSelectedFieldsButton.addActionListener(new MultiplyValueOfSelectedFieldsListener());
-		multiplyValueOfSelectedFieldsButton.setBorder(eb);
-		
 		// JButton compareFilesButton = new JButton("compare files");
 		// compareFilesButton.setToolTipText("Compare the first two files in the list");
 		// compareFilesButton.addActionListener(new CompareFileListener());
+		
+//		 Make a nice border
+		EmptyBorder eb = new EmptyBorder(BUTTON_SPACING,BUTTON_SPACING,BUTTON_SPACING,BUTTON_SPACING);
+		EmptyBorder noLeftPadding = new EmptyBorder (BUTTON_SPACING, 2, BUTTON_SPACING, BUTTON_SPACING);
+		EmptyBorder noRightPadding = new EmptyBorder (BUTTON_SPACING, BUTTON_SPACING, BUTTON_SPACING, 1);
+		EmptyBorder thinLeftRightPadding = new EmptyBorder (BUTTON_SPACING, 4, BUTTON_SPACING, 3);
+	
 		
 		// Protocol edit buttons
 		
@@ -589,58 +599,41 @@ public class XMLView
 		//xmlValidationPanel.setMaximumSize(new Dimension(100, 22));
 		
 		
-		expTabToolBar = Box.createHorizontalBox();
-		expTabToolBar.add(loadDefaultsButton);
-		expTabToolBar.add(clearFieldsButton);
-		expTabToolBar.add(multiplyValueOfSelectedFieldsButton);
-		// expTabToolBar.add(compareFilesButton);
-		expTabToolBar.add(Box.createHorizontalGlue());
-		expTabToolBar.add(xmlValidationPanel);
-		
-		proTabToolBar = Box.createHorizontalBox();
-		proTabToolBar.add(addAnInput);
-		proTabToolBar.add(duplicateField);
-		proTabToolBar.add(deleteAnInput);
-		proTabToolBar.add(moveUpButton);
-		proTabToolBar.add(moveDownButton);
-		proTabToolBar.add(promoteField);
-		proTabToolBar.add(demoteField);
-		proTabToolBar.add(copyButton);
-		proTabToolBar.add(pasteButton);
-		proTabToolBar.add(importElemetsButton);
-		proTabToolBar.add(Box.createHorizontalGlue());
+		protocolEditToolBar = new JToolBar();
+		protocolEditToolBar.add(addAnInput);
+		protocolEditToolBar.add(duplicateField);
+		protocolEditToolBar.add(deleteAnInput);
+		protocolEditToolBar.add(moveUpButton);
+		protocolEditToolBar.add(moveDownButton);
+		protocolEditToolBar.add(promoteField);
+		protocolEditToolBar.add(demoteField);
+		protocolEditToolBar.add(copyButton);
+		protocolEditToolBar.add(pasteButton);
+		protocolEditToolBar.add(importElemetsButton);
+		protocolEditToolBar.add(Box.createHorizontalGlue());
 		
 		
 		fieldEditor = new FieldEditor();
 		//splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, XMLScrollPane, fieldEditor);
 		//splitPane.setResizeWeight(1.0);
 		
+		JPanel toolBarContainer = new JPanel(new BorderLayout());
+		toolBarContainer.add(XMLScrollPane, BorderLayout.CENTER);
+		toolBarContainer.add(protocolEditToolBar, BorderLayout.NORTH);
+		
 		protocolTab = new JPanel();
 		protocolTab.setLayout(new BorderLayout());
-		protocolTab.add(proTabToolBar, BorderLayout.NORTH);
-		protocolTab.add(XMLScrollPane, BorderLayout.CENTER);
+		protocolTab.add(toolBarContainer, BorderLayout.CENTER);
 		protocolTab.add(fieldEditor, BorderLayout.EAST);
 		
-		Box experimentTab = Box.createVerticalBox();
-		experimentTab.add(expTabToolBar);
-		experimentTab.add(XMLScrollPane);
 		
-		
-		/*
-		 * put the tabs in a tabbed pane
-		 */
-		
-		XMLTabbedPane = new JTabbedPane();
-		XMLTabbedPane.addTab("Edit Experiment", experimentTab);;
-		XMLTabbedPane.addTab("Edit Protocol", protocolTab);
-		XMLTabbedPane.addChangeListener(new TabChangeListener());
-		
+
 		// split pane to display search results (right only visible after search)
 		XMLUIPanel = new JSplitPane();
 		XMLUIPanel.setPreferredSize(new Dimension( panelWidth, windowHeight ));
 		XMLUIPanel.setDividerSize(0);
 		XMLUIPanel.setDividerLocation(1.0);
-		XMLUIPanel.setLeftComponent(XMLTabbedPane);
+		XMLUIPanel.setLeftComponent(protocolTab);
 		XMLUIPanel.setRightComponent(null);
 		
 		mainContentPane = new JPanel(new BorderLayout());
@@ -654,7 +647,7 @@ public class XMLView
 	    
 		
 //		 not visible till a file is opened
-		XMLTabbedPane.setVisible(false);
+		protocolTab.setVisible(false);
 		
 		
 		//showStartUpDialog();
@@ -742,7 +735,7 @@ public class XMLView
 			JMenu experimentMenu = new JMenu("Experiment");
 			experimentMenu.setBorder(menuItemBorder);
 			editExperimentMenuItem = new JCheckBoxMenuItem("Edit Experiment");
-			editExperimentMenuItem.addActionListener(new EditExperimentListener());
+			//editExperimentMenuItem.addActionListener(new EditExperimentListener());
 			
 			loadDefaultsSubMenu = new JMenu("Load Default Values");
 			loadDefaultsSubMenu.setIcon(loadDefaultsIcon);
@@ -784,7 +777,7 @@ public class XMLView
 			pasteFieldsMenuItem.setActionCommand(PASTE);
 			setMenuItemAccelerator(pasteFieldsMenuItem, KeyEvent.VK_V);
 			
-			editProtocolMenuItem.addActionListener(new ToggleProtocolEditingListener());
+			//editProtocolMenuItem.addActionListener(new ToggleProtocolEditingListener());
 			addFieldMenuItem.addActionListener(new AddDataFieldListener());
 			deleteFieldMenuItem.addActionListener(new deleteDataFieldListener());
 			moveStepUpMenuItem.addActionListener(new MoveFieldUpListener());
@@ -972,7 +965,7 @@ public class XMLView
 			saveFileMenuItem.setEnabled(!noFiles);
 			saveFileAsMenuItem.setEnabled(!noFiles);
 		}
-		XMLTabbedPane.setVisible(!noFiles);
+		protocolTab.setVisible(!noFiles);
 	}
 	
 	public void deleteDataFields() {
@@ -1028,7 +1021,6 @@ public class XMLView
 	// open a blank protocol (after checking you want to save!)
 	public void newProtocolFile() {
 		xmlModel.openBlankProtocolFile();
-		XMLTabbedPane.setSelectedIndex(1); 	// protocol Editing tab
 	}
 	
 	
@@ -1058,12 +1050,6 @@ public class XMLView
 			     "XML error",
 			     JOptionPane.ERROR_MESSAGE);
 			 return;
-		 }
-		 
-		 // logical to view experiment file in Experiment tab.
-		 if(file.getName().endsWith(".exp")) {
-			// setEditingOfExperimentalValues(true);	// if already in exp-tab, need to do this	
-			 XMLTabbedPane.setSelectedIndex(EXPERIMENT_TAB);	
 		 }
 	}
 	
@@ -1372,13 +1358,13 @@ public class XMLView
 	public void searchFiles() {
 		JPanel searchPanel = new SearchPanel(searchField.getText(), this);
 		updateSearchPanel(searchPanel);
-		XMLTabbedPane.setSelectedIndex(EXPERIMENT_TAB);
+		//XMLTabbedPane.setSelectedIndex(EXPERIMENT_TAB);
 	}
 	
 	public void searchFiles(File file) {
 		JPanel searchPanel = new SearchPanel(file, this);
 		updateSearchPanel(searchPanel);
-		XMLTabbedPane.setSelectedIndex(EXPERIMENT_TAB);
+		//XMLTabbedPane.setSelectedIndex(EXPERIMENT_TAB);
 	}
 	
 	public class IndexFilesListener implements ActionListener {
@@ -1411,39 +1397,6 @@ public class XMLView
 		XMLUIPanel.resetToPreferredSizes();
 	}
 	
-	public class TabChangeListener implements ChangeListener {
-		public void stateChanged(ChangeEvent event) {
-			JTabbedPane tabbedPane = (JTabbedPane)event.getSource();
-			int index = tabbedPane.getSelectedIndex();
-			JComponent tab = (JComponent)tabbedPane.getComponentAt(index);
-			// can't see the ScrollPane in both tabs at once, so need to keep swapping it to the active tab
-			tab.add(XMLScrollPane);
-			
-			if (index == 0) { // Edit Experiment Tab
-				xmlFormDisplay.setBackground(backgroundColor);
-				expTabToolBar.add(xmlValidationPanel);
-				enableProtocolEditing(false);
-			}
-			else { 
-				xmlFormDisplay.setBackground(null);
-				proTabToolBar.add(xmlValidationPanel);
-				enableProtocolEditing(true);
-			}
-		}
-	}
-	
-	
-	public class ToggleProtocolEditingListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			XMLTabbedPane.setSelectedIndex(PROTOCOL_TAB);	// goto protocol editing tab
-		}
-	}
-	
-	public class EditExperimentListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			XMLTabbedPane.setSelectedIndex(EXPERIMENT_TAB);	// goto exp editing tab
-		}
-	}
 	
 	public class PrintWholeFileListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
