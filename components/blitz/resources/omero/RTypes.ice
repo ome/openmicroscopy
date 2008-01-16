@@ -122,7 +122,7 @@ module omero {
 
   // Collections
 
-  ["java:type:java.util.ArrayList<RType>:java.util.List<RType>"] 
+  ["java:type:java.util.ArrayList<RType>:java.util.List<RType>"]
   sequence<RType> RTypeSeq;
 
   /*
@@ -134,13 +134,13 @@ module omero {
    *
    * This flexible mechanism is not used in all API calls because
    * the flexibility brings a performance penalty.
-   */ 
+   */
   class RCollection extends RType
   {
     RTypeSeq val;
   };
 
-  // Mapped to an array on the server of a type given 
+  // Mapped to an array on the server of a type given
   // by a random member of the RTypeSeq. Only pass
   // homogenous lists.
   class RArray extends RCollection
@@ -155,6 +155,13 @@ module omero {
   // Mapped to a java.util.HashSet on the server
   class RSet extends RCollection
   {
+  };
+
+  ["java:type:java.util.HashMap<String,RType>"]
+  dictionary<string,omero::RType> RTypeDict;
+
+  class RMap extends RType {
+    RTypeDict val;
   };
 };
 
