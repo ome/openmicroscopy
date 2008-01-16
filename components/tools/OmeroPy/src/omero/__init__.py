@@ -62,6 +62,73 @@ class client(object):
             raise ClientError("No session obtained.")
         return self.sf
 
+    def sha1(self, filename):
+        import sha
+        digest = sha.new()
+        file = open(filename, 'rb')
+        try:
+            while True:
+                block = file.read(1024)
+                if not block:
+                    break
+                digest.update(block)
+        finally:
+            file.close()
+        return digest.hexdigest()
+
+    def upload(self, filename, name = None, path = None, type = None, ofile = None):
+        if not self.sf:
+            raise ClientError("No session. Use createSession first.")
+
+        import os, types
+        if not filename or not isinstance(filename, types.StringType):
+            raise ClientError("Non-null filename must be provided")
+
+        if not os.path.exists(filename):
+            raise ClientError("File does not exist: " + filename)
+
+        file = open(filename, 'rb')
+        try:
+            from omero_model_OriginalFileI import OriginalFileI
+            from omero_model_FormatI import FormatI
+            import omero
+
+            if not ofile:
+                ofile = OriginalFileI()
+
+            ofile.size = omero.RLong(os.path.getsize(file.name))
+            ofile.sha1 = omero.RString(self.sha1(file.name))
+        
+            if not ofile.name:
+               ofile.name = omero.RString(file.name)
+
+            if not ofile.path:
+               ofile.path = omero.RString(os.path.abspath(file.name))
+
+            if not ofile.format:
+                if not type:
+                    ofile.format = FormatI("unknown") XX create first
+                else:
+                    ofile.format = FormatI(type)
+
+            up = self.sf.getUpdateService()
+            ofile = up.saveAndReturnObject(ofile)
+
+            prx = self.sf.createRawFileServie()
+            prx.setFileId(ofile.id.val)
+            offset = 0
+            while True:
+                block = file.read(1024)
+                if not block:
+                    break
+                prx.write(offset, block)
+                offset += len(block)
+            prx.close() 
+        finally:
+            file.close()
+
+        return ofile
+
     def closeSession(self):
         self.sf.close() 
 

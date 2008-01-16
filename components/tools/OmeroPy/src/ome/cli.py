@@ -203,15 +203,22 @@ class CLI(cmd.Cmd):
         if self._client:
             return self._client
 
-        import omero, ome.java
+        import ome.java
         if profile:
             ome.java.run(["prefs","def","profile"]) 
         output = ome.java.run(["prefs","get"])
-        props = {}
+
+        import Ice 
+        data = Ice.InitializationData()
+        data.properties = Ice.createProperties()
         for line in output.splitlines():
            parts = line.split("=",1)
-           props[parts[0]] = parts[1] 
-        print parts
+           data.properties.setProperty(parts[0],parts[1])
+
+        import omero
+        self._client = omero.client(id = data)
+        self._client.createSession()
+        return self._client
 
     ## End Cli
 

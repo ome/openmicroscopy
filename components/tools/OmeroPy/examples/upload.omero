@@ -1,0 +1,5 @@
+#!/usr/bin/env omero load
+
+upload ./upload.omero 
+
+

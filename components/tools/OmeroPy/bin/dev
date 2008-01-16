@@ -1,0 +1,12 @@
+#!/bin/bash
+
+#
+# This script is intended to help during development.
+#
+
+dir=`dirname $0`
+
+ant tools-build
+cp $dir/bin/omero $dir/build/omero
+chmod a+x $dir/build/omero
+$dir/build/omero $*

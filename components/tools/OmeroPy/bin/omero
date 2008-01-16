@@ -31,14 +31,8 @@ def readlink(file=sys.argv[0]):
 
 exe = readlink()
 
-src = os.path.normpath(os.path.join(exe, os.pardir, "src"))
-sys.path.insert(0,src)
-target = os.path.normpath(os.path.join(exe, os.pardir, "target"))
-sys.path.insert(0,target)
-build = os.path.normpath(os.path.join(exe, os.pardir, "build/lib"))
-sys.path.insert(0,build)
 lib = os.path.normpath(os.path.join(exe, os.pardir, "lib"))
-sys.path.insert(0,lib)
+sys.path.append(lib)
 
 import ome.cli
 ome.cli.argv()
