@@ -1,6 +1,6 @@
 /*
  *   $Id$
- * 
+ *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
@@ -45,29 +45,27 @@ module omero {
     const string PASSWORD = "omero.pass";
     const string GROUP    = "omero.group";
     const string EVENT    = "omero.event";
-    const string UMASK    = "omero.umask"; 
+    const string UMASK    = "omero.umask";
 
     /*
      * Strings used by the Java class ome.util.builders.PojoOptions
      * to create Map options for IPojos methods. omero::api::IPojos
-     * takes omero::sys::ParamMaps instead. 
-     * 
+     * takes omero::sys::ParamMaps instead.
+     *
      * See System.ice and RTypes.ice.
      */
-    const string POJOFIELDS       = "fields";         // omero::RList<omero::RString> (names of fields) UNSUPPORTED
-    const string POJOCOUNTS       = "counts";         // omero::RLong (user id)
     const string POJOLEAVES       = "leaves";         // omero::RBool (whether or not Images returned)
     const string POJOEXPERIMENTER = "experimenter";   // omero::RLong
     const string POJOGROUP        = "group";          // omero::RLong
 
     /*
-     * Used by IPojos.findCGCPaths(...,string algo,...) 
+     * Used by IPojos.findCGCPaths(...,string algo,...)
      */
-    const string CLASSIFICATIONME  =  "CLASSIFICATION_ME";
+    const string CLASSIFICATIONME  = "CLASSIFICATION_ME";
     const string CLASSIFICATIONNME = "CLASSIFICATION_NME";
     const string DECLASSIFICATION  = "DECLASSIFICATION";
 
   };
 };
 
-#endif 
+#endif

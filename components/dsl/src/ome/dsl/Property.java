@@ -120,7 +120,15 @@ public abstract class Property { // TODO need to define equality so that two
         DBTYPES.put(TEXT, TEXT);
     }
 
+    /**
+     * The {@link SemanticType} instance which this property belongs to
+     */
     private SemanticType st;
+
+    /**
+     * The {@link SemanticType} instance which this property points at
+     */
+    private SemanticType actualType;
 
     // String based values.
     private String name;
@@ -236,6 +244,14 @@ public abstract class Property { // TODO need to define equality so that two
             return type;
         }
         return t;
+    }
+
+    public void setActualType(SemanticType type) {
+        this.actualType = type;
+    }
+
+    public SemanticType getActualType() {
+        return this.actualType;
     }
 
     /**

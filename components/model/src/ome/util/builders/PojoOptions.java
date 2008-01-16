@@ -11,14 +11,6 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
-import ome.model.containers.CategoryImageLink;
-
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * generates Maps for Pojo service calls.
  * 
@@ -36,20 +28,16 @@ import ome.model.containers.CategoryImageLink;
 public class PojoOptions
 
 {
-    public static final String FIELDS = "fields";
-
-    public static final String COUNTS = "counts";
-
     public static final String LEAF = "leaves";
 
     public static final String EXPERIMENTER = "experimenter";
 
     public static final String GROUP = "group";
-    
+
     public static final String START_TIME = "startTime";
 
     public static final String END_TIME = "endTime";
-    
+
     private final Map options = new HashMap();
 
     public PojoOptions() {
@@ -72,7 +60,8 @@ public class PojoOptions
     }
 
     protected void copy(Map map) {
-        String[] s = new String[] { FIELDS, COUNTS, LEAF, EXPERIMENTER, GROUP, START_TIME, END_TIME };
+        String[] s = new String[] { LEAF, EXPERIMENTER, GROUP, START_TIME,
+                END_TIME };
         for (int i = 0; i < s.length; i++) {
             if (map.containsKey(s[i])) {
                 this.options.put(s[i], map.get(s[i]));
@@ -97,60 +86,6 @@ public class PojoOptions
 
     public boolean isLeaves() {
         return options.containsKey(LEAF);
-    }
-
-    /*
-     * ============================== With / Without Counts
-     * ==============================
-     */
-
-    public PojoOptions countFields(String[] fields) {
-        options.put(FIELDS, fields);
-        return this;
-    }
-
-    public String[] countFields() {
-        return (String[]) options.get(FIELDS);
-    }
-
-    public boolean hasCountFields() {
-        return options.containsKey(FIELDS) && options.get(FIELDS) != null;
-    }
-
-    public PojoOptions noCounts() {
-        remove(COUNTS);
-        return this;
-    }
-
-    public PojoOptions countsFor(Long i) {
-        options.put(COUNTS, i);
-        return this;
-    }
-
-    public PojoOptions countsForUser() {
-        options.put(COUNTS, Boolean.TRUE);
-        return this;
-    }
-
-    public PojoOptions allCounts() {
-        options.put(COUNTS, null);
-        return this;
-    }
-
-    public boolean isCounts() {
-        return options.containsKey(COUNTS);
-    }
-
-    public boolean isCountsForUser() {
-        return isCounts() && options.get(COUNTS) instanceof Boolean;
-    }
-
-    public boolean isAllCounts() {
-        return isCounts() && options.get(COUNTS) == null;
-    }
-
-    public Integer getCounts() {
-        return (Integer) options.get(COUNTS);
     }
 
     /*
@@ -190,7 +125,7 @@ public class PojoOptions
         options.put(END_TIME, endTime);
         return this;
     }
-    
+
     public PojoOptions allTimes() {
         remove(START_TIME);
         remove(END_TIME);
@@ -213,7 +148,6 @@ public class PojoOptions
         return (Timestamp) options.get(END_TIME);
     }
 
-    
     /*
      * ============================== Filtered by Group
      * ==============================

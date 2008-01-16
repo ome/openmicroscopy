@@ -90,9 +90,6 @@ public abstract class Details implements Filterable, Serializable {
     Set<String> _filteredCollections;
 
     @Transient
-    Map _counts;
-
-    @Transient
     Map _dynamicFields;
 
     /** default constructor. Leaves values null to save resources. */
@@ -134,8 +131,6 @@ public abstract class Details implements Filterable, Serializable {
         setUpdateEvent(copy.getUpdateEvent());
         // Non-entity fields
         _filteredCollections = copy.filteredSet();
-        _counts = copy.getCounts() == null ? null : new HashMap(copy
-                .getCounts());
     }
 
     /**
@@ -159,8 +154,6 @@ public abstract class Details implements Filterable, Serializable {
         setUpdateEvent(copy.getUpdateEvent() == null ? null : new Event(copy
                 .getUpdateEvent().getId(), false));
         _filteredCollections = copy.filteredSet();
-        setCounts(copy.getCounts() == null ? null : new HashMap(this
-                .getCounts()));
 
     }
 
@@ -363,15 +356,6 @@ public abstract class Details implements Filterable, Serializable {
 
     // Getters & Setters
     // ===========================================================
-
-    @Transient
-    public Map getCounts() {
-        return _counts; // TODO unmodifiable?
-    }
-
-    public void setCounts(Map counts) {
-        _counts = counts;
-    }
 
     public boolean acceptFilter(Filter filter) {
         setPermissions((Permissions) filter.filter(PERMISSIONS,

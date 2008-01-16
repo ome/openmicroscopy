@@ -66,6 +66,10 @@ public class Utils {
         return source;
     }
 
+    static String msg = "Failed to instantiate %s. This may be caused by an "
+            + "abstract class not being properly \"join fetch\"'d. Please review "
+            + "your query or contact your server administrator.";
+
     /**
      * instantiates an object using the trueClass.
      * 
@@ -79,7 +83,7 @@ public class Utils {
         try {
             result = trueClass.newInstance();
         } catch (InstantiationException e) {
-            throw new RuntimeException("Failed to instantiate " + trueClass, e);
+            throw new RuntimeException(String.format(msg, trueClass), e);
         } catch (IllegalAccessException e) {
             throw new RuntimeException("Not allowed to create class:"
                     + trueClass, e);
@@ -109,7 +113,7 @@ public class Utils {
 
         return (String[]) set.toArray(new String[set.size()]);
     }
-    
+
     /**
      * Returns the internal representation of a {@link Permissions} object.
      * Should be used with caution!
@@ -118,36 +122,38 @@ public class Utils {
         P pp = new P(p);
         return new Long(pp.toLong());
     }
-    
+
     /**
      * Returns a {@link Permissions} instance from its internal representation.
      * Should be used with caution!
      */
     public static Permissions toPermissions(Object o) {
-        P pp = new P((Long)o);
+        P pp = new P((Long) o);
         return new Permissions(pp);
     }
-    
+
     private static class P extends Permissions {
         private static final long serialVersionUID = -18133057809465999L;
+
         protected P(Permissions p) {
             revokeAll(p);
             grantAll(p);
         }
+
         protected P(Long l) {
             this.setPerm1(l.longValue());
         }
+
         long toLong() {
             return super.getPerm1();
         }
     }
+
     /**
      * Returns a {@link String} which can be used to correlate log messages.
      */
     public static String getThreadIdentifier() {
-        return new StringBuilder(32)
-        .append(Runtime.getRuntime().hashCode())
-        .append("::")
-        .append(Thread.currentThread().getId()).toString();
+        return new StringBuilder(32).append(Runtime.getRuntime().hashCode())
+                .append("::").append(Thread.currentThread().getId()).toString();
     }
 }

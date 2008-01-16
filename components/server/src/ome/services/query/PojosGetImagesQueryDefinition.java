@@ -8,24 +8,24 @@ package ome.services.query;
 
 import static ome.parameters.Parameters.CLASS;
 import static ome.parameters.Parameters.IDS;
+import static ome.parameters.Parameters.OPTIONS;
 
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
-import ome.model.core.Image;
-import ome.parameters.Parameters;
-
-import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
-
+import ome.conditions.ApiUsageException;
+import ome.model.containers.Category;
+import ome.model.containers.CategoryGroup;
+import ome.model.containers.Dataset;
+import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.parameters.Parameters;
 import ome.util.builders.PojoOptions;
-import static ome.parameters.Parameters.*;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 
 public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery {
 
@@ -36,39 +36,89 @@ public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery 
     @Override
     protected void buildQuery(Session session) throws HibernateException,
             SQLException {
-        Criteria c = session.createCriteria(Image.class);
-        c.createAlias("details.creationEvent", "create");
-        c.createAlias("details.updateEvent", "update");
-        c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
-        Criteria pix = c.createCriteria("pixels", LEFT_JOIN);
-        pix.createCriteria("pixelsType", LEFT_JOIN);
-        pix.createCriteria("pixelsDimensions", LEFT_JOIN);
-
-        // if PojoOptions sets START_TIME and/or END_TIME
-        if (check(OPTIONS)) {
-        	PojoOptions po = new PojoOptions((Map) value(OPTIONS));
-        	
-			if (po.getStartTime() != null) {
-				c.add(Restrictions.gt("create.time", (Timestamp) po.getStartTime()));
-			}
-			if (po.getEndTime() != null)
-				c.add(Restrictions.lt("create.time", (Timestamp) po.getEndTime()));
-        }
-        
+        Map<String, Object> params = new HashMap<String, Object>();
         Class klass = (Class) value(CLASS);
         Collection ids = (Collection) value(IDS);
 
-        // see https://trac.openmicroscopy.org.uk/omero/ticket/296
-        if (Image.class.isAssignableFrom(klass)) {
-            c.add(Restrictions.in("id", ids));
-        } else {
-            // Add restrictions to the most distant criteria
-            Criteria[] hy = Hierarchy.fetchParents(c, klass, Integer.MAX_VALUE);
-            hy[hy.length - 1].add(Restrictions.in("id", ids));
+        StringBuilder sb = new StringBuilder();
+        sb.append("select img from Image img ");
+        sb.append("left outer join fetch img.details.creationEvent ");
+        sb.append("left outer join fetch img.details.updateEvent ");
+        sb.append("left outer join fetch img.pixels as pix ");
+        sb.append("left outer join fetch pix.pixelsType as pt ");
+        sb.append("left outer join fetch pix.pixelsDimensions as pd ");
+        sb.append("left outer join fetch "
+                + "img.annotationLinksCountPerOwner as i_c_ann ");
+        sb.append("left outer join fetch "
+                + "img.datasetLinksCountPerOwner as i_c_ds ");
+
+        if (Dataset.class.isAssignableFrom(klass)
+                || Project.class.isAssignableFrom(klass)) {
+            sb.append("join img.datasetLinks dil ");
+            sb.append("join dil.parent ds ");
+            // sb.append("left outer join fetch "
+            // + "ds.annotationLinksCountPerOwner as ds_c ");
         }
 
-        setCriteria(c);
+        if (Project.class.isAssignableFrom(klass)) {
+            sb.append("join ds.projectLinks pdl ");
+            sb.append("join pdl.parent prj ");
+            // sb.append("left outer join fetch "
+            // + "prj.annotationLinksCountPerOwner as prj_c ");
+        }
+
+        if (Category.class.isAssignableFrom(klass)
+                || CategoryGroup.class.isAssignableFrom(klass)) {
+            sb.append("join img.categoryLinks cil ");
+            sb.append("join cil.parent cat ");
+            // sb.append("left outer join fetch "
+            // + "cat.annotationLinksCountPerOwner as cat_c ");
+        }
+
+        if (CategoryGroup.class.isAssignableFrom(klass)) {
+            sb.append("join cat.categoryGroupLinks cgcl ");
+            sb.append("join cgcl.parent cg ");
+            // sb.append("left outer join fetch "
+            // + "cgcl.annotationLinksCountPerOwner as cgcl_c ");
+        }
+
+        sb.append("where ");
+
+        // if PojoOptions sets START_TIME and/or END_TIME
+        if (check(OPTIONS)) {
+            PojoOptions po = new PojoOptions((Map) value(OPTIONS));
+            if (po.getStartTime() != null) {
+                sb.append("img.details.creationEvent.time > :starttime and ");
+                params.put("starttime", po.getStartTime());
+            }
+            if (po.getEndTime() != null) {
+                sb.append("img.details.creationEvent.time < :endtime and ");
+                params.put("endtime", po.getEndTime());
+            }
+        }
+
+        // see https://trac.openmicroscopy.org.uk/omero/ticket/296
+        if (Image.class.isAssignableFrom(klass)) {
+            sb.append("img.id in (:ids) ");
+        } else if (Dataset.class.isAssignableFrom(klass)) {
+            sb.append("ds.id in (:ids)");
+        } else if (Project.class.isAssignableFrom(klass)) {
+            sb.append("prj.id in (:ids)");
+        } else if (Category.class.isAssignableFrom(klass)) {
+            sb.append("cat.id in (:ids)");
+        } else if (CategoryGroup.class.isAssignableFrom(klass)) {
+            sb.append("cg.id in (:ids)");
+        } else {
+            throw new ApiUsageException("Query not implemented for " + klass);
+        }
+
+        org.hibernate.Query q = session.createQuery(sb.toString());
+        for (String param : params.keySet()) {
+            q.setParameter(param, params.get(param));
+        }
+        q.setParameterList("ids", ids);
+        setQuery(q);
     }
 
     @Override

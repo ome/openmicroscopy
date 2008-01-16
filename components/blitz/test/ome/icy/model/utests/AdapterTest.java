@@ -51,7 +51,6 @@ import omero.RSet;
 import omero.RString;
 import omero.RTime;
 import omero.RType;
-import omero.constants.POJOCOUNTS;
 import omero.constants.POJOEXPERIMENTER;
 import omero.constants.POJOLEAVES;
 import omero.model.AnnotationAnnotationLinkI;
@@ -256,13 +255,11 @@ public class AdapterTest extends TestCase {
         PojoOptions po = new PojoOptions();
         po.leaves();
         po.exp(1L);
-        po.countFields(new String[] { "a", "b" });
 
         RList rl = new RList();
         rl.val = Arrays.<RType> asList(new JString("a"), new JString("b"));
 
         Map<String, RType> map = new HashMap<String, RType>();
-        map.put(POJOCOUNTS.value, rl);
         map.put(POJOLEAVES.value, new JBool(true));
         map.put(POJOEXPERIMENTER.value, new JLong(1L));
 
@@ -272,10 +269,6 @@ public class AdapterTest extends TestCase {
         assertEquals(l, po.getExperimenter());
         Boolean b = (Boolean) reversed.get(POJOLEAVES.value);
         assertEquals(b, Boolean.valueOf(po.isLeaves()));
-        // FIXME Unsupported. No existing field on the objets
-        // Would need to be cnverted to an array
-        List c = (List) reversed.get(POJOCOUNTS.value);
-        assertTrue(c.contains("a"));
     }
 
     @Test

@@ -17,19 +17,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// Third-party libraries
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import org.hibernate.Hibernate;
-import org.hibernate.collection.AbstractPersistentCollection;
-
-// Application-internal dependencies
 import ome.api.StatefulServiceInterface;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.util.ContextFilter;
 import ome.util.Filterable;
 import ome.util.Utils;
+
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.hibernate.Hibernate;
+import org.hibernate.collection.AbstractPersistentCollection;
 
 /**
  * removes all proxies from a return graph to prevent ClassCastExceptions and
@@ -65,8 +63,7 @@ public class ProxyCleanupFilter extends ContextFilter {
             if (f instanceof IObject) {
                 IObject proxy = (IObject) f;
                 IObject unloaded = (IObject) Utils.trueInstance(f.getClass());
-                unloaded.setId(proxy.getId()); // TODO is this causing a DB
-                                                // hit?
+                unloaded.setId(proxy.getId());
                 unloaded.unload();
                 unloadedObjectCache.put(f, unloaded);
                 return unloaded;

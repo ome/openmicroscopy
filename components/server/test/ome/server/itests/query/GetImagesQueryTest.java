@@ -6,6 +6,7 @@
  */
 package ome.server.itests.query;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,6 +18,7 @@ import java.util.Set;
 
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
+import ome.model.annotations.TimestampAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
@@ -92,7 +94,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
 
     }
 
-    @Test(groups = { "ticket:159", "broken", "ticket:422" })
+    @Test(groups = { "ticket:159", "ticket:422" })
     public void test_shouldReturnImages() throws Exception {
         Project prj = (Project) iQuery.findByQuery(
         // FIXME NullPointerException in Antlr. Report bug.
@@ -443,6 +445,33 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
         Image test = (Image) iQuery.execute(q);
         assertNotNull(test.getDetails().getCreationEvent().getTime());
         assertNotNull(test.getDetails().getUpdateEvent().getTime());
+    }
+
+    @Test(groups = { "CollectionsCounts" })
+    public void testGetImagesShouldReturnCountsOnAnnotations() {
+        long self = iAdmin.getEventContext().getCurrentUserId();
+
+        Dataset d = new Dataset();
+        d.setName("CollectionCounts");
+        Image i = new Image();
+        i.setName("CollectionCounts");
+        TimestampAnnotation ta = new TimestampAnnotation();
+        ta.setName("CollectionCounts");
+        ta.setTimeValue(new Timestamp(System.currentTimeMillis()));
+
+        i.linkAnnotation(ta);
+        i.linkDataset(d);
+
+        i = iUpdate.saveAndReturnObject(i);
+
+        q = new PojosGetImagesQueryDefinition(new Parameters(new Filter()
+                .unique()).addClass(Image.class).addIds(
+                Collections.singleton(i.getId())));
+        Image test = (Image) iQuery.execute(q);
+        assertNotNull(test.getAnnotationLinksCountPerOwner());
+        assertNotNull(test.getAnnotationLinksCountPerOwner().get(self));
+        assertNotNull(test.getDatasetLinksCountPerOwner());
+        assertNotNull(test.getDatasetLinksCountPerOwner().get(self));
     }
 
     // ~ Helpers

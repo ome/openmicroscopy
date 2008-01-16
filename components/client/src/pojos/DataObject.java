@@ -18,9 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.model.IAnnotated;
 import ome.model.IMutable;
 import ome.model.IObject;
@@ -49,8 +46,7 @@ import ome.model.meta.ExperimenterGroup;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.more@gmx.de"> josh.moore@gmx.de</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date$)
- *          </small>
+ * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
  * @since OME2.2
  */
 public abstract class DataObject {
@@ -244,22 +240,6 @@ public abstract class DataObject {
         return asIObject().getDetails();
     }
 
-    protected Long getCount(String countName) {
-        Object count = null;
-
-        if (!nullDetails() && countName != null
-                && getDetails().getCounts() != null) {
-            count = getDetails().getCounts().get(countName);
-        }
-
-        if (count instanceof Long) {
-            return (Long) count;
-        }
-
-        return null;
-
-    }
-
     // ~ VIEWS
     // =========================================================================
     // These methods should never a null value
@@ -283,7 +263,7 @@ public abstract class DataObject {
     public IAnnotated asIAnnotated() {
         return (IAnnotated) asIObject();
     }
-    
+
     /**
      * not null; may through class-cast exception
      * 
@@ -394,15 +374,17 @@ public abstract class DataObject {
  */
 class SetMutator<E> {
 
-    private List<E> _old, _new, del, add;
+    private final List<E> _old, _new, del, add;
 
-    private Iterator<E> r, a;
+    private final Iterator<E> r, a;
 
     /** null-safe constructor */
     public SetMutator(Collection<E> originalSet, Collection<E> targetSet) {
 
-        _old = originalSet == null ? new ArrayList<E>() : new ArrayList<E>(originalSet);
-        _new = targetSet == null ? new ArrayList<E>() : new ArrayList<E>(targetSet);
+        _old = originalSet == null ? new ArrayList<E>() : new ArrayList<E>(
+                originalSet);
+        _new = targetSet == null ? new ArrayList<E>() : new ArrayList<E>(
+                targetSet);
 
         del = new ArrayList<E>(_old);
         del.removeAll(_new);

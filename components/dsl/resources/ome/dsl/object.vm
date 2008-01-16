@@ -846,8 +846,10 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
 
     /**
      * If fetched, returns the count(*) of ${LinkType} that a user has.
-     * If unfetched, returns null.
+     * If unfetched, returns null. No entries in the collection should be null.
      */
+    // Prevents deletes
+    @org.hibernate.annotations.Persister(impl = ome.util.CountCollectionPersister.class)
     @javax.persistence.JoinTable(
         name="count_${type.shortname}_${prop.name}_by_owner"
     )
@@ -956,7 +958,10 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
         this.version = (Integer) __filter.filter(VERSION, this.version);
 #end
 #foreach($prop in $type.classProperties)
-        this.${prop.name} = (${prop.fieldType}) __filter.filter(${prop.name.toUpperCase()}, this.${prop.name} ); 
+#if($prop.one2Many && $prop.isLink)
+        this.${prop.name}CountPerOwner = (java.util.Map<Long, Long>) __filter.filter(${prop.name.toUpperCase()}COUNTPEROWNER, this.${prop.name}CountPerOwner );
+#end
+        this.${prop.name} = (${prop.fieldType}) __filter.filter(${prop.name.toUpperCase()}, this.${prop.name} );
 #end
 #if($type.superclass)
         return super.acceptFilter(__filter);
@@ -972,7 +977,7 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
         sb.append(name);
         if (this.id == null) {
             sb.append(":Hash_");
-            sb.append(this.hashCode()); 
+            sb.append(this.hashCode());
         } else {
             sb.append(":Id_");
             sb.append(this.id);
@@ -987,6 +992,9 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
     }
   
 #foreach($prop in $type.classProperties)
+#if($prop.one2Many && $prop.isLink)
+    public final static String ${prop.name.toUpperCase()}COUNTPEROWNER = "${type.id}_${prop.name}CountPerOwner";
+#end
     public final static String ${prop.nameUpper} = "${type.id}_${prop.name}";
 #end
 
@@ -1001,10 +1009,13 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
        raw.add(VERSION);
 #end
 #foreach($prop in $type.classProperties)
+#if($prop.one2Many && $prop.isLink)
+       raw.add(${prop.name.toUpperCase()}COUNTPEROWNER);
+#end
        raw.add(${prop.nameUpper});
 #if($type.superclass)
        raw.addAll(${type.superclass}.FIELDS);
-#end       
+#end
 #end
        FIELDS = java.util.Collections.unmodifiableSet( raw );
     }
@@ -1031,6 +1042,10 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
              return getVersion();
 #end
 #foreach($prop in $type.classProperties)
+#if($prop.one2Many && $prop.isLink)
+        } else if (field.equals(${prop.name.toUpperCase()}COUNTPEROWNER)) {
+            return get${prop.nameCapped}CountPerOwner();
+#end
         } else if (field.equals(${prop.nameUpper})) { // TODO use == here first??
             return get${prop.nameCapped}();
 #end
@@ -1062,18 +1077,22 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
              setVersion((Integer) value);
 #end
 #foreach($prop in $type.classProperties)
+#if($prop.one2Many && $prop.isLink)
+        } else if (field.equals(${prop.name.toUpperCase()}COUNTPEROWNER)) {
+            set${prop.nameCapped}CountPerOwner((java.util.Map<Long,Long>)value);
+#end
         } else if (field.equals(${prop.nameUpper})) {
             set${prop.nameCapped}((${prop.fieldType})value);
 #end
         } else {
 #if($type.superclass)
             super.putAt(field,value);
-#else            
+#else
             if (_dynamicFields == null) {
                 _dynamicFields = new java.util.HashMap<String, Object>();
             }
             _dynamicFields.put(field,value);
-#end            
+#end
         }
     }
 
@@ -1091,9 +1110,9 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
             throw new IllegalStateException("Object unloaded:"+this);
         }
     }
-    
+
 #end
-    
+
     public void unload() {
         _loaded = false;
 #if(!$type.superclass)
@@ -1103,17 +1122,20 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
         this.version = null;
 #end
 #foreach($prop in $type.classProperties)
+#if($prop.one2Many && $prop.isLink)
+        this.${prop.name}CountPerOwner = null;
+#end
         this.${prop.name} = null;
 #end
 #if($type.superclass)
         super.unload();
 #end
     }
-    
+
 #if(!$type.superclass)
     @javax.persistence.Transient
     private transient ome.model.internal.GraphHolder _graphHolder;
-    
+
     @javax.persistence.Transient
     public final ome.model.internal.GraphHolder getGraphHolder()
     {
@@ -1129,7 +1151,7 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
     private void readObject(java.io.ObjectInputStream s)
     throws java.io.IOException, ClassNotFoundException
     {
-        s.defaultReadObject();  
+        s.defaultReadObject();
     }
 *#
     protected void preGetter( String field ) {

@@ -27,6 +27,7 @@ import ome.conditions.OptimisticLockException;
 import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
+import ome.model.annotations.DatasetAnnotationLink;
 import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
@@ -674,29 +675,31 @@ public class PojosServiceTest extends TestCase {
 
     @Test
     public void test_counts() throws Exception {
-        Map counts;
+        Dataset counts;
+        long self = factory.getAdminService().getEventContext()
+                .getCurrentUserId();
 
-        counts = getCounts(Dataset.class, fixture.du7770.getId(), null);
-        assertNull(counts);
+        // Counts are now always loaded
+        counts = loadForCounts(fixture.du7770.getId(), null);
+        // 7770 has not links
+        assertNull(counts.getAnnotationLinksCountPerOwner().get(self));
 
-        PojoOptions po = new PojoOptions().leaves();
-        counts = getCounts(Dataset.class, fixture.du7770.getId(), po.map());
-        assertTrue(counts == null || null == counts.get(Image.ANNOTATIONLINKS));
-        assertTrue(counts == null
-                || null == counts.get(Dataset.ANNOTATIONLINKS));
-
-        counts = getCounts(Dataset.class, fixture.du7771.getId(), null);
-        assertNull(counts.get(Image.ANNOTATIONLINKS));
-        assertTrue(counts.containsKey(Dataset.ANNOTATIONLINKS));
-        assertTrue(((Long) counts.get(Dataset.ANNOTATIONLINKS)).intValue() == 1);
+        counts = loadForCounts(fixture.du7771.getId(), null);
+        // Here we get the first map, since fixture creates entities
+        // as other users too
+        assertNotNull(counts.getImageLinksCountPerOwner());
+        assertTrue(counts.getImageLinksCountPerOwner().values().iterator()
+                .next() > 0);
+        assertNotNull(counts.getAnnotationLinksCountPerOwner());
+        assertTrue(counts.getAnnotationLinksCountPerOwner().values().iterator()
+                .next().equals(1L));
 
     }
 
-    private Map getCounts(Class klass, Long id, Map options) {
-        IObject obj = (IObject) iPojos.loadContainerHierarchy(klass,
+    private Dataset loadForCounts(Long id, Map options) {
+        Dataset obj = iPojos.loadContainerHierarchy(Dataset.class,
                 Collections.singleton(id), options).iterator().next();
-
-        return obj.getDetails().getCounts();
+        return obj;
     }
 
     // /
@@ -823,6 +826,9 @@ public class PojosServiceTest extends TestCase {
 
     @Test
     public void test_annotating_a_dataset() throws Exception {
+        long self = factory.getAdminService().getEventContext()
+                .getCurrentUserId();
+
         String name = " two rows " + System.currentTimeMillis();
         String text = " two rows content " + System.currentTimeMillis();
         String desc = " new description " + System.currentTimeMillis();
@@ -832,9 +838,9 @@ public class PojosServiceTest extends TestCase {
         original.setName(name);
         original = iPojos.createDataObject(original, null);
 
-        assertTrue(original.getDetails().getCounts() == null
-                || original.getDetails().getCounts().get(
-                        Dataset.ANNOTATIONLINKS) == null);
+        // No longer return these from create methods.
+        assertNull(original.getAnnotationLinksCountPerOwner());
+        // assertNull(original.getAnnotationLinksCountPerOwner().get(self));
 
         original.setDescription(desc);
 
@@ -853,15 +859,11 @@ public class PojosServiceTest extends TestCase {
 
         assertTrue(desc.equals(test.getDescription()));
 
-        assertNotNull(original.getDetails().getCounts());
-        assertNotNull(original.getDetails().getCounts().get(
-                Dataset.ANNOTATIONLINKS));
-        assertTrue(((Long) original.getDetails().getCounts().get(
-                Dataset.ANNOTATIONLINKS)).intValue() > 0);
-
-        if (log.isDebugEnabled()) {
-            log.debug(original.getDetails().getCounts());
-        }
+        // createDataObjects no longer does counts
+        // assertNotNull(original.getAnnotationLinksCountPerOwner());
+        // assertNotNull(original.getAnnotationLinksCountPerOwner().get(self));
+        // assertTrue(original.getAnnotationLinksCountPerOwner().get(self) >
+        // 0L);
 
     }
 
@@ -943,8 +945,11 @@ public class PojosServiceTest extends TestCase {
         d.linkAnnotation(a);
 
         d = iPojos.createDataObject(d, null);
-        a = (TextAnnotation) d.linkedAnnotationIterator().next();
+        DatasetAnnotationLink al = d.unmodifiableAnnotationLinks().iterator()
+                .next();
+        a = (TextAnnotation) al.child();
 
+        iPojos.deleteDataObject(al, null);
         iPojos.deleteDataObject(a, null);
 
         Object o = iQuery.find(TextAnnotation.class, a.getId().longValue());
@@ -1024,8 +1029,7 @@ public class PojosServiceTest extends TestCase {
         ProjectData pd_test = new ProjectData(iPojos.loadContainerHierarchy(
                 Project.class, Collections.singleton(p.getId()), null)
                 .iterator().next());
-        DatasetData dd_test = (DatasetData) pd_test.getDatasets().iterator()
-                .next();
+        DatasetData dd_test = pd_test.getDatasets().iterator().next();
         pd_test.setDescription("new value:ui");
 
         iPojos.updateDataObject(pd_test.asIObject(), null);

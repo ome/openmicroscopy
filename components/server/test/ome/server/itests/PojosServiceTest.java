@@ -110,13 +110,15 @@ public class PojosServiceTest extends AbstractManagedContextTest {
                 .singleton(d.getId()), null);
 
         i = list.iterator().next();
-        d = i.linkedDatasetList().get(0);
+        // d = i.linkedDatasetList().get(0);
+        // No longer joined
 
-        assertTrue(d.getDetails().getCounts() != null);
-        assertEquals(d.getDetails().getCounts().get(Dataset.ANNOTATIONLINKS),
-                1L);
-        assertTrue(i.getDetails().getCounts() != null);
-        assertEquals(i.getDetails().getCounts().get(Image.ANNOTATIONLINKS), 1L);
+        long self = this.iAdmin.getEventContext().getCurrentUserId();
+        // Aren't returned now by getImages
+        // assertTrue(d.getAnnotationLinksCountPerOwner() != null);
+        // assertTrue(d.getAnnotationLinksCountPerOwner().get(self).equals(1L));
+        assertTrue(i.getAnnotationLinksCountPerOwner() != null);
+        assertTrue(i.getAnnotationLinksCountPerOwner().get(self).equals(1L));
 
     }
 
@@ -140,8 +142,6 @@ public class PojosServiceTest extends AbstractManagedContextTest {
 
         PojoOptions options = new PojoOptions();
         options.exp(userID);
-        options.allCounts();
-        options.countsFor(new Long(userID));
         options.startTime(startTime);
         options.endTime(endTime);
 

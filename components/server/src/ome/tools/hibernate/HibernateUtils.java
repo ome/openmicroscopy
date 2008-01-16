@@ -10,8 +10,10 @@ package ome.tools.hibernate;
 // Java imports
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 // Third-party imports
@@ -170,16 +172,20 @@ public abstract class HibernateUtils {
                 Object previous = previousState[i];
                 if (previous == null) {
                     // ignore. If the system gave it to us, it can handle it.
-                } else if (!(previous instanceof Collection)) {
-                    throw new InternalException(String.format(
-                            "Invalid collection found for null "
-                                    + "field %s in previous state for %s",
-                            propertyNames[i], entity));
-                } else {
+                } else if (previous instanceof Collection) {
                     log("Copying nulled collection ", propertyNames[i]);
                     Collection copy = copy(((Collection) previous));
                     persister.setPropertyValue(entity, i, copy, source
                             .getEntityMode());
+                } else if (previous instanceof Map) {
+                    Map copy = copy((Map) previous);
+                    persister.setPropertyValue(entity, i, copy, source
+                            .getEntityMode());
+                } else {
+                    throw new InternalException(String.format(
+                            "Invalid collection found for null "
+                                    + "field %s in previous state for %s",
+                            propertyNames[i], entity));
                 }
             }
         }
@@ -361,6 +367,13 @@ public abstract class HibernateUtils {
             }
         }
         throw new InternalException("No \"" + str + "\" property found.");
+    }
+
+    @SuppressWarnings("unchecked")
+    protected static Map copy(Map m) {
+        Map newMap = new HashMap();
+        m.putAll(m);
+        return m;
     }
 
     @SuppressWarnings("unchecked")

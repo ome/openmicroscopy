@@ -371,7 +371,7 @@ public class TicketsUpTo500Test extends TestCase {
         link = sf1.getUpdateService().saveAndReturnObject(link);
         i = link.parent();
 
-        PojoOptions po = new PojoOptions().noCounts().noLeaves();
+        PojoOptions po = new PojoOptions().noLeaves();
         Map map = sf2.getPojosService().findAnnotations(Image.class,
                 Collections.singleton(i.getId()), null, po.map());
         Set<TextAnnotation> anns = (Set<TextAnnotation>) map.values()

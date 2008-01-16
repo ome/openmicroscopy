@@ -53,19 +53,16 @@ import ome.services.query.PojosGetImagesQueryDefinition;
 import ome.services.query.PojosGetUserImagesQueryDefinition;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
 import ome.services.query.Query;
-import ome.services.util.CountCollector;
 import ome.services.util.OmeroAroundInvoke;
 import ome.tools.HierarchyTransformations;
 import ome.tools.lsid.LsidUtils;
 import ome.util.CBlock;
 import ome.util.builders.PojoOptions;
 
-import org.hibernate.Session;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
 import org.jboss.annotation.security.SecurityDomain;
-import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -128,8 +125,6 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 		// QPs.
 		List<IObject> l = iQuery.execute(q);
 
-		collectCounts(l, po);
-
 		return new HashSet<IObject>(l);
 
 	}
@@ -155,7 +150,6 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 				new Parameters().addClass(rootNodeType).addIds(imageIds)
 						.addOptions(po.map()));
 		List<Image> l = iQuery.execute(q);
-		collectCounts(l, po);
 
 		//
 		// Destructive changes below this point.
@@ -320,7 +314,6 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 			returnValues.add(cg);
 		}
 
-		collectCounts(returnValues, po);
 		return returnValues;
 
 	}
@@ -341,7 +334,6 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 						.addOptions(po.map()));
 
 		List<IObject> l = iQuery.execute(q);
-		collectCounts(l, po);
 		return new HashSet<IObject>(l);
 
 	}
@@ -362,7 +354,6 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 				new Parameters().addOptions(options));
 
 		List<IObject> l = iQuery.execute(q);
-		collectCounts(l, po);
 		return new HashSet<IObject>(l);
 
 	}
@@ -383,7 +374,6 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 				new Parameters().addOptions(options));
 
 		List<Image> l = iQuery.execute(q);
-		collectCounts(l, po);
 		return new HashSet<Image>(l);
 
 	}
@@ -465,7 +455,6 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 	@Transactional(readOnly = false)
 	public IObject createDataObject(IObject arg0, Map arg1) {
 		IObject retVal = iUpdate.saveAndReturnObject(arg0);
-		collectCounts(retVal, new PojoOptions(arg1));
 		return retVal;
 	}
 
@@ -473,7 +462,6 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 	@Transactional(readOnly = false)
 	public IObject[] createDataObjects(IObject[] arg0, Map arg1) {
 		IObject[] retVal = iUpdate.saveAndReturnArray(arg0);
-		collectCounts(retVal, new PojoOptions(arg1));
 		return retVal;
 
 	}
@@ -491,7 +479,6 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 		// IUpdate returns an IObject array here. Can't be cast using (Link[])
 		ILink[] links = new ILink[retVal.length];
 		System.arraycopy(retVal, 0, links, 0, retVal.length);
-		collectCounts(links, new PojoOptions(arg1));
 		return links;
 
 	}
@@ -500,7 +487,6 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 	@Transactional(readOnly = false)
 	public IObject updateDataObject(IObject arg0, Map arg1) {
 		IObject retVal = iUpdate.saveAndReturnObject(arg0);
-		collectCounts(retVal, new PojoOptions(arg1));
 		return retVal;
 
 	}
@@ -509,7 +495,6 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 	@Transactional(readOnly = false)
 	public IObject[] updateDataObjects(IObject[] arg0, Map arg1) {
 		IObject[] retVal = iUpdate.saveAndReturnArray(arg0);
-		collectCounts(retVal, new PojoOptions(arg1));
 		return retVal;
 	}
 
@@ -530,32 +515,6 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
 	// ~ Helpers
 	// =========================================================================
-
-	/**
-	 * Determines collection counts for all <code>String[] fields</code> in
-	 * the options.
-	 * 
-	 * TODO possibly move to CountCollector itself. It'll need an IQuery then.
-	 * or is it a part of the Pojo QueryDefinitions ?
-	 */
-	private void collectCounts(Object retVal, PojoOptions po) {
-		if (po.hasCountFields() && po.isCounts()) {
-			CountCollector c = new CountCollector();
-			for (String key : po.countFields()) {
-
-				final String q = getExtendedMetadata().getCountQuery(key);
-				List<Object[]> l_c = null;
-				l_c = iQuery.execute(new HibernateCallback() {
-					public Object doInHibernate(Session arg0) {
-						org.hibernate.Query query = arg0.createQuery(q);
-						return query.list();
-					}
-				});
-				c.addCounts(getExtendedMetadata().getTargetType(key), key, l_c);
-			}
-			c.collect(retVal);
-		}
-	}
 
 	final static String alphaNumeric = "^\\w+$";
 

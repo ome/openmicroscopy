@@ -131,7 +131,6 @@ public class TicketsUpTo1000Test extends TestCase {
         PojoOptions po = new PojoOptions();
         po.leaves();
         po.exp(user_id);
-        po.countsFor(user_id);
 
         Set s = sf.getPojosService().findContainerHierarchies(Project.class,
                 Collections.singleton(i.getId()), po.map());

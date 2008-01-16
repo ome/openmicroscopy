@@ -351,9 +351,23 @@ class DSLHandler extends DefaultHandler {
             }
         }
 
+        /**
+         * Each property is given its an actual
+         * {@link SemanticType implementation which it points to
+         */
+        for (SemanticType semanticType : types.values()) {
+            for (Property property : semanticType.getClassProperties()) {
+                String type = property.getType();
+                SemanticType actualType = types.get(type);
+                if (actualType != null) {
+                    property.setActualType(actualType);
+                }
+            }
+        }
+
         /*
          * Final post-processing step. Each semantic type should be given it's
-         * finalized superclass instance.
+         * finalized superclass instance
          */
         for (String id : types.keySet()) {
             SemanticType t = types.get(id);

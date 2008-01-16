@@ -26,7 +26,6 @@ import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
-import ome.model.containers.Dataset;
 import ome.model.enums.Family;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.QueryParameter;
@@ -39,7 +38,6 @@ import ome.system.Roles;
 import ome.util.builders.PojoOptions;
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.RenderingEngine;
-import omero.JArray;
 import omero.JBool;
 import omero.JList;
 import omero.JLong;
@@ -48,7 +46,6 @@ import omero.JTime;
 import omero.RString;
 import omero.RType;
 import omero.constants.POJOEXPERIMENTER;
-import omero.constants.POJOFIELDS;
 import omero.constants.POJOLEAVES;
 import omero.model.Experimenter;
 import omero.model.ExperimenterI;
@@ -692,8 +689,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         Map<String, RType> paramMap = new HashMap<String, RType>();
         paramMap.put(POJOLEAVES.value, new JBool(true));
         paramMap.put(POJOEXPERIMENTER.value, new JLong(1L));
-        paramMap.put(POJOFIELDS.value, new JArray(new JString(
-                Dataset.ANNOTATIONLINKS)));
 
         init(IPojos.class, "loadContainerHierarchy");
         method().with(ANYTHING, ANYTHING, new Constraint() {
@@ -713,10 +708,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
                         return false;
                     }
                     if (!po.getExperimenter().equals(1L)) {
-                        return false;
-                    }
-                    List<String> fields = Arrays.asList(po.countFields());
-                    if (!fields.contains(Dataset.ANNOTATIONLINKS)) {
                         return false;
                     }
                 }

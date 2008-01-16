@@ -6,7 +6,6 @@
  */
 package ome.adapters.pojos.utests;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -318,19 +317,8 @@ public class PojosTest extends TestCase {
 
     @Test(groups = "ticket:308")
     public void testLongValuedCounts() throws Exception {
-        Image i = new Image();
-        i.getDetails().setCounts(new HashMap());
-        i.getDetails().getCounts().put(Image.ANNOTATIONLINKS, new Long(1L));
-        ImageData id = new ImageData(i);
-        fail("NYI - need to reimplement the count method");
-        // assertNotNull(id.getAnnotationCount());
-
-        // we check for a Long value. non-Long --> null.
-        i.getDetails().setCounts(new HashMap());
-        i.getDetails().getCounts().put(Image.ANNOTATIONLINKS, new Integer(1));
-        id = new ImageData(i);
-        fail("NYI - here too");
-        // assertNull(id.getAnnotationCount());
+        // Counts are returned by the server and no longer
+        // settable in the client. See integration tests.
     }
 
     @Test(groups = "ticket:316")

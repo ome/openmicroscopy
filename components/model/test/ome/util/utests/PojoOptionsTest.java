@@ -6,15 +6,15 @@
  */
 package ome.util.utests;
 
-import org.testng.annotations.*;
 import java.util.HashMap;
 
+import junit.framework.TestCase;
 import ome.util.builders.PojoOptions;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import junit.framework.TestCase;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 public class PojoOptionsTest extends TestCase {
 
@@ -35,8 +35,7 @@ public class PojoOptionsTest extends TestCase {
 
     @Test
     public void testAllMethods() {
-        log.info(ob.allCounts().countsFor(new Long(1)).noCounts().exp(
-                new Long(3)).allExps().noLeaves().map());
+        log.info(ob.exp(new Long(3)).allExps().noLeaves().map());
     }
 
     @Test
