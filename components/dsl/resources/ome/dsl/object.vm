@@ -837,6 +837,28 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
             remove${Link}( link, true );
         }
     }
+
+    private java.util.Map<Long, Long> ${prop.name}CountPerOwner = null;
+
+    protected void set${prop.nameCapped}CountPerOwner(java.util.Map<Long, Long> map) {
+        this.${prop.name}CountPerOwner = map;
+    }
+
+    /**
+     * If fetched, returns the count(*) of ${LinkType} that a user has.
+     * If unfetched, returns null.
+     */
+    @javax.persistence.JoinTable(
+        name="count_${type.shortname}_${prop.name}_by_owner"
+    )
+    @javax.persistence.Column(name="count", nullable=false)
+    @org.hibernate.annotations.ForeignKey(name="FK_count_to_${type.shortname}_${prop.name}")
+    @org.hibernate.annotations.CollectionOfElements()
+    @org.hibernate.annotations.MapKey(columns=@javax.persistence.Column(name="owner_id"))
+    public java.util.Map<Long, Long> get${prop.nameCapped}CountPerOwner() {
+        return this.${prop.name}CountPerOwner;
+    }
+
 #end## End isLink
 #elseif($prop.foreignKey)## REGULAR M-1 ##################################TYPE
    /**
@@ -844,7 +866,7 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
     */
     @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, cascade = {${cascadeEjb}}, targetEntity = ${prop.type}.class)
     @org.hibernate.annotations.Cascade({${cascadeHib}})
-    @javax.persistence.JoinColumn(name="${prop.name}", nullable=${prop.nullable}, 
+    @javax.persistence.JoinColumn(name="${prop.name}", nullable=${prop.nullable},
         unique=${prop.unique}, insertable=${prop.insert}, updatable=${prop.update})
     @org.hibernate.annotations.ForeignKey(name="FK${type.shortname.toLowerCase()}_${prop.name}_${prop.shortType.toLowerCase()}")
 #if($type.isLink)## Need to convert from IObject to an implementation class

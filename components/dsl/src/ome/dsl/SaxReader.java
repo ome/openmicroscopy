@@ -228,12 +228,17 @@ class DSLHandler extends DefaultHandler {
                 parentP.setProperty("type", t.getId());
                 LinkParent lp = new LinkParent(l, parentP);
 
+                lp.validate();
+                l.getProperties().add(lp);
+
                 Properties childP = new Properties();
                 childP.setProperty("type", ann.getId());
                 LinkChild lc = new LinkChild(l, childP);
 
+                lc.validate();
                 l.getProperties().add(lc);
-                l.getProperties().add(lp);
+
+                l.validate();
                 additions.add(l);
 
                 // And now create the links to the link
@@ -242,6 +247,8 @@ class DSLHandler extends DefaultHandler {
                 clP.setProperty("type", newId);
                 clP.setProperty("target", ann.getId());
                 ChildLink cl = new ChildLink(t, clP);
+
+                cl.validate();
                 t.getProperties().add(cl);
             }
         }

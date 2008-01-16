@@ -4974,4 +4974,282 @@ BEGIN;
 
     create sequence seq_transmittancerange;
 
+   -- Adding count tables
+
+    create table count_Annotation_annotationLinks_by_owner (
+        annotation_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (annotation_id, owner_id)
+    );
+
+    create table count_CategoryGroup_categoryLinks_by_owner (
+        categorygroup_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (categorygroup_id, owner_id)
+    );
+
+    create table count_Category_categoryGroupLinks_by_owner (
+        category_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (category_id, owner_id)
+    );
+
+    create table count_Category_imageLinks_by_owner (
+        category_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (category_id, owner_id)
+    );
+
+    create table count_Channel_annotationLinks_by_owner (
+        channel_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (channel_id, owner_id)
+    );
+
+    create table count_Dataset_annotationLinks_by_owner (
+        dataset_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (dataset_id, owner_id)
+    );
+
+    create table count_Dataset_imageLinks_by_owner (
+        dataset_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (dataset_id, owner_id)
+    );
+
+    create table count_Dataset_projectLinks_by_owner (
+        dataset_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (dataset_id, owner_id)
+    );
+
+    create table count_ExperimenterGroup_groupExperimenterMap_by_owner (
+        experimentergroup_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (experimentergroup_id, owner_id)
+    );
+
+    create table count_Experimenter_annotationLinks_by_owner (
+        experimenter_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (experimenter_id, owner_id)
+    );
+
+    create table count_Experimenter_groupExperimenterMap_by_owner (
+        experimenter_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (experimenter_id, owner_id)
+    );
+
+    create table count_Image_annotationLinks_by_owner (
+        image_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (image_id, owner_id)
+    );
+
+    create table count_Image_categoryLinks_by_owner (
+        image_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (image_id, owner_id)
+    );
+
+    create table count_Image_datasetLinks_by_owner (
+        image_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (image_id, owner_id)
+    );
+
+    create table count_Job_originalFileLinks_by_owner (
+        job_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (job_id, owner_id)
+    );
+
+    create table count_OriginalFile_annotationLinks_by_owner (
+        originalfile_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (originalfile_id, owner_id)
+    );
+
+    create table count_OriginalFile_pixelsFileMaps_by_owner (
+        originalfile_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (originalfile_id, owner_id)
+    );
+
+    create table count_Pixels_annotationLinks_by_owner (
+        pixels_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (pixels_id, owner_id)
+    );
+
+    create table count_Pixels_pixelsFileMaps_by_owner (
+        pixels_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (pixels_id, owner_id)
+    );
+
+    create table count_PlaneInfo_annotationLinks_by_owner (
+        planeinfo_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (planeinfo_id, owner_id)
+    );
+
+    create table count_Project_annotationLinks_by_owner (
+        project_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (project_id, owner_id)
+    );
+
+    create table count_Project_datasetLinks_by_owner (
+        project_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (project_id, owner_id)
+    );
+
+    create table count_RoiLink_annotationLinks_by_owner (
+        roilink_id int8 not null,
+        count int8 not null,
+        owner_id int8,
+        primary key (roilink_id, owner_id)
+    );
+
+    alter table count_Annotation_annotationLinks_by_owner
+        add constraint FK_count_to_Annotation_annotationLinks
+        foreign key (annotation_id)
+        references annotation;
+
+    alter table count_CategoryGroup_categoryLinks_by_owner
+        add constraint FK_count_to_CategoryGroup_categoryLinks
+        foreign key (categorygroup_id)
+        references categorygroup;
+
+    alter table count_Category_categoryGroupLinks_by_owner
+        add constraint FK_count_to_Category_categoryGroupLinks
+        foreign key (category_id)
+        references category;
+
+    alter table count_Category_imageLinks_by_owner
+        add constraint FK_count_to_Category_imageLinks
+        foreign key (category_id)
+        references category;
+
+    alter table count_Channel_annotationLinks_by_owner
+        add constraint FK_count_to_Channel_annotationLinks
+        foreign key (channel_id)
+        references channel;
+
+    alter table count_Dataset_annotationLinks_by_owner
+        add constraint FK_count_to_Dataset_annotationLinks
+        foreign key (dataset_id)
+        references dataset;
+
+    alter table count_Dataset_imageLinks_by_owner
+        add constraint FK_count_to_Dataset_imageLinks
+        foreign key (dataset_id)
+        references dataset;
+
+    alter table count_Dataset_projectLinks_by_owner
+        add constraint FK_count_to_Dataset_projectLinks
+        foreign key (dataset_id)
+        references dataset;
+
+    alter table count_ExperimenterGroup_groupExperimenterMap_by_owner
+        add constraint FK_count_to_ExperimenterGroup_groupExperimenterMap
+        foreign key (experimentergroup_id)
+        references experimentergroup;
+
+    alter table count_Experimenter_annotationLinks_by_owner
+        add constraint FK_count_to_Experimenter_annotationLinks
+        foreign key (experimenter_id)
+        references experimenter;
+
+    alter table count_Experimenter_groupExperimenterMap_by_owner
+        add constraint FK_count_to_Experimenter_groupExperimenterMap
+        foreign key (experimenter_id)
+        references experimenter;
+
+    alter table count_Image_annotationLinks_by_owner
+        add constraint FK_count_to_Image_annotationLinks
+        foreign key (image_id)
+        references image;
+
+    alter table count_Image_categoryLinks_by_owner
+        add constraint FK_count_to_Image_categoryLinks
+        foreign key (image_id)
+        references image;
+
+    alter table count_Image_datasetLinks_by_owner
+        add constraint FK_count_to_Image_datasetLinks
+        foreign key (image_id)
+        references image;
+
+    alter table count_Job_originalFileLinks_by_owner
+        add constraint FK_count_to_Job_originalFileLinks
+        foreign key (job_id)
+        references job;
+
+    alter table count_OriginalFile_annotationLinks_by_owner
+        add constraint FK_count_to_OriginalFile_annotationLinks
+        foreign key (originalfile_id)
+        references originalfile;
+
+    alter table count_OriginalFile_pixelsFileMaps_by_owner
+        add constraint FK_count_to_OriginalFile_pixelsFileMaps
+        foreign key (originalfile_id)
+        references originalfile;
+
+    alter table count_Pixels_annotationLinks_by_owner
+        add constraint FK_count_to_Pixels_annotationLinks
+        foreign key (pixels_id)
+        references pixels;
+
+    alter table count_Pixels_pixelsFileMaps_by_owner
+        add constraint FK_count_to_Pixels_pixelsFileMaps
+        foreign key (pixels_id)
+        references pixels;
+
+    alter table count_PlaneInfo_annotationLinks_by_owner
+        add constraint FK_count_to_PlaneInfo_annotationLinks
+        foreign key (planeinfo_id)
+        references planeinfo;
+
+    alter table count_Project_annotationLinks_by_owner
+        add constraint FK_count_to_Project_annotationLinks
+        foreign key (project_id)
+        references project;
+
+    alter table count_Project_datasetLinks_by_owner
+        add constraint FK_count_to_Project_datasetLinks
+        foreign key (project_id)
+        references project;
+
+    alter table count_RoiLink_annotationLinks_by_owner
+        add constraint FK_count_to_RoiLink_annotationLinks
+        foreign key (roilink_id)
+        references roilink;
+
 COMMIT;
