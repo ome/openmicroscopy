@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+
+"""
+
+:author: Josh Moore <josh@glencoesoftware.com>
+
+Python driver for OMERO
+Copyright (c) 2007, Glencoe Software, Inc.
+See LICENSE for details.
+
+"""
+
+usage = """ usage: omero [-h|--help|--version] """
+version = " omero 1.0. Copyright 2007, Glencoe Software, Inc."
+
+import sys, os
+
+def readlink(file=sys.argv[0]):
+    import stat
+
+    file = sys.argv[0]
+    while stat.S_ISLNK(os.lstat(file)[stat.ST_MODE]):
+        target = os.readlink(file)
+        if target[0] != "/":
+            file = os.path.join(os.path.dirname(file), target)
+        else:
+            file = target
+
+    file = os.path.abspath(file)
+    return file
+
+exe = readlink()
+
+src = os.path.normpath(os.path.join(exe, os.pardir, "src"))
+sys.path.insert(0,src)
+target = os.path.normpath(os.path.join(exe, os.pardir, "target"))
+sys.path.insert(0,target)
+build = os.path.normpath(os.path.join(exe, os.pardir, "build/lib"))
+sys.path.insert(0,build)
+lib = os.path.normpath(os.path.join(exe, os.pardir, "lib"))
+sys.path.insert(0,lib)
+
+import ome.cli
+ome.cli.argv()
