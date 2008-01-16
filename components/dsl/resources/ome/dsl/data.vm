@@ -69,6 +69,8 @@ insert into $table (id,permissions,owner_id,group_id,creation_id,value)
 #end
 #end
 
+create table configuration ( name varchar(255) primary key, value text );
+
 create table password ( experimenter_id bigint unique not null REFERENCES experimenter (id) , hash char(24), dn text );
 insert into password values (0,'@ROOTPASS@'); 
 -- root can now login with omero.rootpass property value
