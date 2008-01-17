@@ -17,13 +17,11 @@ import ome.model.annotations.Annotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.core.OriginalFile;
-import ome.model.enums.Format;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.services.fulltext.FullTextIndexer.Parser;
 import ome.util.CBlock;
 import ome.util.DetailsFieldBridge;
 import ome.util.Utils;
@@ -58,7 +56,7 @@ public class FullTextBridge implements FieldBridge {
     public final static DateBridge dateBridge = new DateBridge(Resolution.DAY);
 
     final protected OriginalFilesService files;
-    final protected Map<String, Parser> parsers;
+    final protected Map<String, FileParser> parsers;
 
     /**
      * Since this constructor provides the instance with no way of parsing
@@ -71,7 +69,7 @@ public class FullTextBridge implements FieldBridge {
     }
 
     public FullTextBridge(OriginalFilesService files,
-            Map<String, Parser> parsers) {
+            Map<String, FileParser> parsers) {
         this.files = files;
         this.parsers = parsers;
     }
@@ -82,7 +80,6 @@ public class FullTextBridge implements FieldBridge {
 
         // TODO Temporarily storing all values for easier testing;
         final Field.Store store = Field.Store.YES;
-
         IObject object = (IObject) value;
 
         // Store class in COMBINED
@@ -91,8 +88,9 @@ public class FullTextBridge implements FieldBridge {
 
         if (object instanceof OriginalFile) {
             OriginalFile file = (OriginalFile) object;
-            String parsed = parse(file);
-            add(document, "file", parsed, store, index, boost);
+            for (String parsed : parse(file)) {
+                add(document, "file", parsed, store, index, boost);
+            }
         }
 
         if (object instanceof IAnnotated) {
@@ -109,8 +107,10 @@ public class FullTextBridge implements FieldBridge {
                     } else if (annotation instanceof FileAnnotation) {
                         FileAnnotation fileAnnotation = (FileAnnotation) annotation;
                         OriginalFile file = fileAnnotation.getFile();
-                        String parsed = parse(file);
-                        add(document, "annotation", parsed, store, index, boost);
+                        for (String parsed : parse(file)) {
+                            add(document, "annotation", parsed, store, index,
+                                    boost);
+                        }
                     }
                     return annotation;
                 }
@@ -181,14 +181,31 @@ public class FullTextBridge implements FieldBridge {
         d.add(f);
     }
 
-    protected String parse(OriginalFile file) {
+    /**
+     * Attempts to parse the given {@link OriginalFile}. If any of the
+     * necessary components is null, then it will return an empty, but not null
+     * {@link Iterable}. Also looks for the catch all parser under "*"
+     * 
+     * @param file
+     *            Can be null.
+     * @return will not be null.
+     */
+    protected Iterable<String> parse(OriginalFile file) {
         if (files != null && parsers != null) {
-            String path = files.getPixelsPath(file.getId());
-            Format format = file.getFormat();
-            Parser parser = parsers.get(format.getValue());
-            return parser.parse(new File(path));
-        } else {
-            return "";
+            if (file != null && file.getFormat() != null) {
+                String path = files.getFilesPath(file.getId());
+                String format = file.getFormat().getValue();
+                FileParser parser = parsers.get(format);
+                if (parser != null) {
+                    return parser.parse(new File(path));
+                } else {
+                    parser = parsers.get("*");
+                    if (parser != null) {
+                        return parser.parse(new File(path));
+                    }
+                }
+            }
         }
+        return FileParser.EMPTY;
     }
 }

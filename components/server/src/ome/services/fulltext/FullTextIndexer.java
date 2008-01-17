@@ -7,8 +7,6 @@
 
 package ome.services.fulltext;
 
-import java.io.File;
-
 import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.meta.EventLog;
@@ -36,10 +34,6 @@ import org.springframework.transaction.TransactionStatus;
 public class FullTextIndexer implements Work {
 
     private final static Log log = LogFactory.getLog(FullTextIndexer.class);
-
-    public interface Parser {
-        String parse(File file);
-    }
 
     abstract class Action {
         Class type;

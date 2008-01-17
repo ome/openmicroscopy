@@ -41,7 +41,23 @@
     <constructor-arg ref="eventLogLoader"/>
   </bean>
 
-  <bean id="fullTextBridge" class="ome.services.fulltext.FullTextBridge"/>
+  <bean id="fullTextBridge" class="ome.services.fulltext.FullTextBridge">
+    <constructor-arg ref="fileParsers"/>
+    <constructor-arg ref="/OMERO/Files"/>
+  </bean>
+  
+  <!-- Use "*" as a wildcard parser -->
+  <bean id="fileParsers" class="java.util.HashMap">
+    <constructor-arg>
+      <map>
+        <entry key="text/plain" value-ref="fileParser"/>
+        <entry key="text/csv"   value-ref="fileParser"/>
+        <entry key="text/xml"   value-ref="fileParser"/>
+      </map>
+    </constructor-arg>
+  </bean>
+  
+  <bean id="fileParser" class="ome.services.fulltext.FileParser"/>
 
   <alias name="persistentEventLogLoader" alias="eventLogLoader"/>
 

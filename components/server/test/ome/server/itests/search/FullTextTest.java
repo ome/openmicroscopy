@@ -8,14 +8,12 @@ package ome.server.itests.search;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
-import ome.api.IQuery;
-import ome.io.nio.OriginalFilesService;
-import ome.model.IObject;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Permissions;
@@ -23,13 +21,11 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
-import ome.server.itests.AbstractManagedContextTest;
-import ome.services.fulltext.EventLogLoader;
+import ome.services.fulltext.FileParser;
 import ome.services.fulltext.FullTextBridge;
 import ome.services.fulltext.FullTextIndexer;
 import ome.services.fulltext.FullTextThread;
 import ome.services.fulltext.PersistentEventLogLoader;
-import ome.services.fulltext.FullTextIndexer.Parser;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -40,13 +36,7 @@ import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.transaction.TransactionStatus;
 import org.testng.annotations.Test;
 
-@Test(groups = { "query", "fulltext" })
-public class FullTextTest extends AbstractManagedContextTest {
-
-    FullTextThread ftt;
-    FullTextIndexer fti;
-    FullTextBridge ftb;
-    Image i;
+public class FullTextTest extends AbstractTest {
 
     @Test(enabled = false, groups = "manual")
     public void testIndexWholeDb() throws Exception {
@@ -185,12 +175,29 @@ public class FullTextTest extends AbstractManagedContextTest {
         final String str = UUID.randomUUID().toString();
 
         // Parser setup
-        Parser parser = new Parser() {
-            public String parse(File file) {
-                return str;
+        FileParser parser = new FileParser() {
+            @Override
+            public Iterable<String> doParse(File file) {
+                return wrap(new Iterator<String>() {
+                    String next = str;
+
+                    public boolean hasNext() {
+                        return next != null;
+                    }
+
+                    public String next() {
+                        String rv = next;
+                        next = null;
+                        return rv;
+                    }
+
+                    public void remove() {
+                        next = null;
+                    }
+                });
             }
         };
-        Map<String, Parser> parsers = new HashMap<String, Parser>();
+        Map<String, FileParser> parsers = new HashMap<String, FileParser>();
         parsers.put("text/plain", parser);
 
         // Upload
@@ -207,86 +214,6 @@ public class FullTextTest extends AbstractManagedContextTest {
         CreationLogLoader logs = new CreationLogLoader(new OriginalFile(upload
                 .getId(), false));
         ftb = new FullTextBridge(getFileService(), parsers);
-        fti = new FullTextIndexer(logs);
-        ftt = new FullTextThread(getExecutor(), fti, ftb);
-        ftt.run();
-    }
-
-    // Helpers
-    // =========================================================================
-
-    class CreationLogLoader extends EventLogLoader {
-        IObject obj;
-
-        public CreationLogLoader(IObject obj) {
-            this.obj = obj;
-        }
-
-        @Override
-        public EventLog query() {
-            if (obj == null) {
-                return null;
-            } else {
-                EventLog el = rawQuery()
-                        .findByQuery(
-                                "select el from EventLog el "
-                                        + "where el.entityType = :type and el.entityId = :id",
-                                new Parameters().addString("type",
-                                        obj.getClass().getName()).addId(
-                                        obj.getId()));
-                obj = null;
-                return el;
-            }
-        }
-
-        @Override
-        public boolean more() {
-            return false;
-        }
-
-    }
-
-    IQuery rawQuery() {
-        return (IQuery) this.applicationContext
-                .getBean("internal:ome.api.IQuery");
-    }
-
-    OriginalFilesService getFileService() {
-        return (OriginalFilesService) this.applicationContext
-                .getBean("/OMERO/Files");
-    }
-
-    Executor getExecutor() {
-        return (Executor) this.applicationContext.getBean("executor");
-    }
-
-    /**
-     * Returns a simple {@link EventLogLoader} which only loads the last
-     * {@link EventLog}
-     * 
-     * @return
-     */
-    EventLogLoader getLogs() {
-        EventLogLoader ell = new EventLogLoader() {
-            int todo = 1;
-
-            @Override
-            protected EventLog query() {
-                if (todo < 0) {
-                    return null;
-                } else {
-                    todo--;
-                    return this.lastEventLog();
-                }
-            }
-        };
-        ell.setQueryService(this.rawQuery());
-        return ell;
-    }
-
-    void indexObject(IObject o) {
-        CreationLogLoader logs = new CreationLogLoader(o);
-        ftb = new FullTextBridge();
         fti = new FullTextIndexer(logs);
         ftt = new FullTextThread(getExecutor(), fti, ftb);
         ftt.run();

@@ -20,9 +20,9 @@ import ome.parameters.Parameters;
 /**
  * Data access object for the {@link FullTextIndexer} which provides an
  * {@link Iterator} interface for {@link EventLog} instances to be properly
- * indexed. The default implementation keeps tracks of the last {@link EventLog}
- * instance, and always provides the next unindexed instance. Reseting that
- * saved value would restart indexing.
+ * indexed. Also supports the concept of batches. After {@link #batchSize}
+ * queries,
+ * 
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
@@ -35,14 +35,12 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
     private final int batchSize = DEFAULT_BATCH_SIZE;
 
     /**
-     * The number of objects which have been returned via {@link #next()}
+     * The number of objects which have been returned via {@link #next()}. If
+     * {@link #count} is -1, then {@link #hasNext()} will temporarily return
+     * null. This signals the end of a batch. A call to {@link #more()} will
+     * test whether or not other batches are available.
      */
     private int count = 0;
-
-    /**
-     * Whether or not {@link #hasNext()} should initialize itself.
-     */
-    private boolean doInit = true;
 
     /**
      * {@link List} of {@link EventLog} instances which will be consumed before
@@ -65,12 +63,15 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
      * field for null.
      */
     public boolean hasNext() {
+        if (count == -1) {
+            count = 0;
+            return false;
+        }
         if (backlog.size() > 0) {
             return true;
         }
-        if (doInit) {
+        if (log == null) {
             log = query();
-            doInit = false;
         }
         return log != null;
     }
@@ -87,21 +88,23 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
             throw new NoSuchElementException();
         }
 
+        // Here we increment the number of times that this method has
+        // successfully been entered. If we've reached batchSize, then set
+        // to -1 to signal to {@link #hasNext()} that a batch is over.
+        count++;
+        if (count == batchSize) {
+            count = -1;
+        }
+
         if (backlog.size() > 0) {
             return backlog.remove(0);
         }
 
+        // already loaded by call to hasNext() above
         EventLog rv = log;
-
-        if (count == batchSize) {
-            count = 0;
-            doInit = true;
-            log = null;
-        } else {
-            count++;
-            log = query();
-        }
+        log = null;
         return rv;
+
     }
 
     public final void remove() {
