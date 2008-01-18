@@ -169,10 +169,10 @@ public class XMLView
 	JLabel hitsCountLabel;
 	
 	JMenu loadDefaultsSubMenu;
+	JMenuItem clearFieldsMenuItem;
 	JMenuItem multiplyValueOfSelectedFieldsMenuItem;
-	JCheckBoxMenuItem editExperimentMenuItem;
 	
-	JCheckBoxMenuItem editProtocolMenuItem;
+	JCheckBoxMenuItem showEditToolbarMenuItem;
 	JMenuItem addFieldMenuItem;
 	JMenuItem deleteFieldMenuItem;
 	JMenuItem moveStepUpMenuItem;
@@ -233,6 +233,12 @@ public class XMLView
 	private Icon nextDownIcon;
 
 	private Icon searchIcon;
+
+	protected JButton loadDefaultsButton;
+
+	protected JButton clearFieldsButton;
+
+	protected JButton multiplyValueOfSelectedFieldsButton;
     
 	
     public XMLView(XMLModel xmlModel) {
@@ -358,7 +364,7 @@ public class XMLView
 		loadDefaultsHighLtFields.addActionListener(new LoadDefaultsListener());
 		loadDefaultsPopupMenu.add(loadDefaultsHighLtFields);
 		
-		JButton loadDefaultsButton = new JButton(loadDefaultsIcon);
+		loadDefaultsButton = new JButton(loadDefaultsIcon);
 		loadDefaultsButton.setToolTipText("Load Default Values");
 		loadDefaultsButton.setBorder(fileManagerToolBarBorder);
 		loadDefaultsButton.addMouseListener(new MouseListener() {
@@ -376,12 +382,12 @@ public class XMLView
 			public void mouseExited(MouseEvent e) {}
 		});
 		
-		JButton clearFieldsButton = new JButton(clearFieldsIcon);
+		clearFieldsButton = new JButton(clearFieldsIcon);
 		clearFieldsButton.setToolTipText("Clear All Fields");
 		clearFieldsButton.addActionListener(new ClearFieldsListener());
 		clearFieldsButton.setBorder(fileManagerToolBarBorder);
 		
-		JButton multiplyValueOfSelectedFieldsButton = new JButton(mathsIcon);
+		multiplyValueOfSelectedFieldsButton = new JButton(mathsIcon);
 		multiplyValueOfSelectedFieldsButton.setToolTipText("Multiply the selected numerical values by a factor of...");
 		multiplyValueOfSelectedFieldsButton.addActionListener(new MultiplyValueOfSelectedFieldsListener());
 		multiplyValueOfSelectedFieldsButton.setBorder(fileManagerToolBarBorder);
@@ -619,7 +625,8 @@ public class XMLView
 		
 		JPanel toolBarContainer = new JPanel(new BorderLayout());
 		toolBarContainer.add(XMLScrollPane, BorderLayout.CENTER);
-		toolBarContainer.add(protocolEditToolBar, BorderLayout.NORTH);
+		protocolEditToolBar.setOrientation(JToolBar.VERTICAL);
+		toolBarContainer.add(protocolEditToolBar, BorderLayout.EAST);
 		
 		protocolTab = new JPanel();
 		protocolTab.setLayout(new BorderLayout());
@@ -640,8 +647,7 @@ public class XMLView
 		mainContentPane.add("Center", XMLUIPanel);
 		mainContentPane.add("North", fileManagerPanel);
 		
-		enableProtocolEditing(false);	// turn off controls
-		noFilesOpen(true);		// disable save etc.
+		refreshAnyFilesOpen();		// disable save etc.
 		updateUndoRedo();	// disable undo redo 
 		findBox.setVisible(false); 	// not visible until findButton clicked
 	    
@@ -713,30 +719,6 @@ public class XMLView
 			JMenu editMenu = new JMenu("Edit");
 			editMenu.setBorder(menuItemBorder);
 			
-			undoMenuItem = new JMenuItem("Undo", undoIcon);
-			undoMenuItem.addActionListener(new UndoActionListener());
-			setMenuItemAccelerator(undoMenuItem, KeyEvent.VK_Z);
-			editMenu.add(undoMenuItem);
-			
-			redoMenuItem = new JMenuItem("Redo", redoIcon);
-			redoMenuItem.addActionListener(new RedoActionListener());
-			setMenuItemAccelerator(redoMenuItem, KeyEvent.VK_Y);
-			editMenu.add(redoMenuItem);
-			
-			JMenuItem findMenuItem = new JMenuItem("Find", findIcon);
-			findMenuItem.addActionListener(new FindTextListener());
-			setMenuItemAccelerator(findMenuItem, KeyEvent.VK_F);
-			editMenu.add(findMenuItem);
-			
-			
-			menuBar.add(editMenu);
-			
-			// experiment menu
-			JMenu experimentMenu = new JMenu("Experiment");
-			experimentMenu.setBorder(menuItemBorder);
-			editExperimentMenuItem = new JCheckBoxMenuItem("Edit Experiment");
-			//editExperimentMenuItem.addActionListener(new EditExperimentListener());
-			
 			loadDefaultsSubMenu = new JMenu("Load Default Values");
 			loadDefaultsSubMenu.setIcon(loadDefaultsIcon);
 			
@@ -749,19 +731,42 @@ public class XMLView
 			loadDefaultsHighLtFieldsMenuItem.addActionListener(new LoadDefaultsListener());
 			loadDefaultsSubMenu.add(loadDefaultsHighLtFieldsMenuItem);
 			
+			clearFieldsMenuItem = new JMenuItem("Clear Values from All Fields", clearFieldsIcon);
+			clearFieldsMenuItem.addActionListener(new ClearFieldsListener());
+			
 			multiplyValueOfSelectedFieldsMenuItem = new JMenuItem("MultiplyValuesBy...", mathsIcon);
 			multiplyValueOfSelectedFieldsMenuItem.addActionListener(new MultiplyValueOfSelectedFieldsListener());
 			
-			experimentMenu.add(editExperimentMenuItem);
-			experimentMenu.add(loadDefaultsSubMenu);
-			experimentMenu.add(multiplyValueOfSelectedFieldsMenuItem);
-			menuBar.add(experimentMenu);
+			// undo-redo menu items
+			undoMenuItem = new JMenuItem("Undo", undoIcon);
+			undoMenuItem.addActionListener(new UndoActionListener());
+			setMenuItemAccelerator(undoMenuItem, KeyEvent.VK_Z);
+			
+			redoMenuItem = new JMenuItem("Redo", redoIcon);
+			redoMenuItem.addActionListener(new RedoActionListener());
+			setMenuItemAccelerator(redoMenuItem, KeyEvent.VK_Y);
+			
+			JMenuItem findMenuItem = new JMenuItem("Find", findIcon);
+			findMenuItem.addActionListener(new FindTextListener());
+			setMenuItemAccelerator(findMenuItem, KeyEvent.VK_F);
+			
+			editMenu.add(loadDefaultsSubMenu);
+			editMenu.add(clearFieldsMenuItem);
+			editMenu.add(multiplyValueOfSelectedFieldsMenuItem);
+			editMenu.addSeparator();
+			editMenu.add(undoMenuItem);
+			editMenu.add(redoMenuItem);
+			editMenu.add(findMenuItem);
+			
+			menuBar.add(editMenu);
+
 			
 			// protocol menu
-			JMenu protocolMenu = new JMenu("Protocol");
+			JMenu protocolMenu = new JMenu("Edit-Template");
 			protocolMenu.setBorder(menuItemBorder);
 			
-			editProtocolMenuItem= new JCheckBoxMenuItem("Edit Protocol...");
+			showEditToolbarMenuItem= new JCheckBoxMenuItem("Show Edit-Template toolbar");
+			showEditToolbarMenuItem.setSelected(true);		// start off visible
 			addFieldMenuItem = new JMenuItem("Add Step", addIcon);
 			deleteFieldMenuItem = new JMenuItem("Delete Step", deleteIcon);
 			moveStepUpMenuItem = new JMenuItem("Move Step Up", moveUpIcon);
@@ -777,7 +782,7 @@ public class XMLView
 			pasteFieldsMenuItem.setActionCommand(PASTE);
 			setMenuItemAccelerator(pasteFieldsMenuItem, KeyEvent.VK_V);
 			
-			//editProtocolMenuItem.addActionListener(new ToggleProtocolEditingListener());
+			showEditToolbarMenuItem.addActionListener(new ToggleEditTemplateControlsListener());
 			addFieldMenuItem.addActionListener(new AddDataFieldListener());
 			deleteFieldMenuItem.addActionListener(new deleteDataFieldListener());
 			moveStepUpMenuItem.addActionListener(new MoveFieldUpListener());
@@ -789,7 +794,7 @@ public class XMLView
 			copyFieldsMenuItem.addActionListener(this);
 			pasteFieldsMenuItem.addActionListener(this);
 			
-			protocolMenu.add(editProtocolMenuItem);
+			protocolMenu.add(showEditToolbarMenuItem);
 			protocolMenu.add(addFieldMenuItem);
 			protocolMenu.add(deleteFieldMenuItem);
 			protocolMenu.add(moveStepUpMenuItem);
@@ -818,6 +823,9 @@ public class XMLView
 	
 			menuBar.add(searchPanel);
 			menuBar.add(searchButton);
+			
+			// disable save etc.
+			refreshAnyFilesOpen();
 	
 		    // set up frame
 			XMLFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -863,9 +871,14 @@ public class XMLView
 				else if (n == 1) openFile();
 	}
 	
-	// turn on/off the controls for editing protocols
+	public void showFieldEditorAndToolbar(boolean visible) {
+		protocolEditToolBar.setVisible(visible);
+		fieldEditor.setVisible(visible);
+	}
+	
+	// turn on/off the controls for editing
 	// these are turned off when no files open
-	public void enableProtocolEditing(boolean enabled){
+	public void enableEditingControls(boolean enabled){
 		
 		// only modify menu items if the Frame has been built
 		if (XMLFrame != null) {
@@ -878,15 +891,16 @@ public class XMLView
 			duplicateFieldMenuItem.setEnabled(enabled);
 			importFieldsMenuItem.setEnabled(enabled);
 		
-			editProtocolMenuItem.setSelected(enabled);
-		
-			loadDefaultsSubMenu.setEnabled(!enabled);
-			multiplyValueOfSelectedFieldsMenuItem.setEnabled(!enabled);
-		
-			editExperimentMenuItem.setSelected(!enabled);
+			loadDefaultsSubMenu.setEnabled(enabled);
+			clearFieldsMenuItem.setEnabled(enabled);
+			multiplyValueOfSelectedFieldsMenuItem.setEnabled(enabled);
 		}
 		
-		//setEditingOfExperimentalValues(!enabled);
+		printButton.setEnabled(enabled);
+		loadDefaultsButton.setEnabled(enabled);
+		clearFieldsButton.setEnabled(enabled);
+		multiplyValueOfSelectedFieldsButton.setEnabled(enabled);
+		
 	}
 
 	
@@ -937,11 +951,7 @@ public class XMLView
 		
 		String[] fileList = xmlModel.getOpenFileList();
 		
-		if (fileList.length == 0){
-			noFilesOpen(true);
-		} else {
-			
-			noFilesOpen(false);
+		if (fileList.length > 0){
 		
 			for (int i=0; i<fileList.length; i++) {
 				currentlyOpenedFiles.addItem(fileList[i]);
@@ -949,13 +959,17 @@ public class XMLView
 			currentlyOpenedFiles.setSelectedIndex(xmlModel.getCurrentFileIndex());
 		}
 		
+		refreshAnyFilesOpen();
+		
 		currentlyOpenedFiles.addActionListener(fileListSelectionListener);
 	}
 	
 	// if no files open, hide the tabbed pane
-	public void noFilesOpen(boolean noFiles) {
+	public void refreshAnyFilesOpen() {
 		
-		enableProtocolEditing(noFiles); // disables menu items
+		boolean noFiles = (xmlModel.getOpenFileList().length == 0);
+		
+		enableEditingControls(!noFiles); // disables menu items
 		
 		saveFileButton.setEnabled(!noFiles);
 		saveFileAsButton.setEnabled(!noFiles);
@@ -1238,6 +1252,14 @@ public class XMLView
 		updateFindNextPrev();
 	}
 	
+	public class ToggleEditTemplateControlsListener implements ActionListener {
+		public void actionPerformed(ActionEvent event) {
+			if (event.getSource() instanceof JCheckBoxMenuItem) {
+				boolean visible = ((JCheckBoxMenuItem)event.getSource()).isSelected();
+				showFieldEditorAndToolbar(visible);
+			}
+		}
+	}
 	
 	/* takes all events from the find text functionality */
 	public class FindTextListener implements ActionListener {

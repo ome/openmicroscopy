@@ -24,6 +24,7 @@ import org.xml.sax.SAXParseException;
 import tree.DataField;
 import tree.DataFieldConstants;
 import tree.DataFieldNode;
+import tree.IAttributeSaver;
 import tree.Tree;
 import tree.Tree.Actions;
 import ui.SelectionObserver;
@@ -353,9 +354,9 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	
 
 	
-	public ArrayList<DataField> getObservationFields() {
+	public ArrayList<IAttributeSaver> getObservationFields() {
 		if(getCurrentTree() == null) 
-			return new ArrayList<DataField>();
+			return new ArrayList<IAttributeSaver>();
 		return getCurrentTree().getObservationFields();
 	}
 	

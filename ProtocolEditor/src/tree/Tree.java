@@ -786,7 +786,8 @@ public class Tree {
 			// if you want to recreate original xml, don't include "extra" attributes
 			if (customElement) {
 				if (key.equals(DataFieldConstants.ELEMENT_NAME) || key.equals(DataFieldConstants.SUBSTEPS_COLLAPSED)
-						|| key.equals(DataFieldConstants.TEXT_NODE_VALUE) || key.equals(DataFieldConstants.INPUT_TYPE))
+						|| key.equals(DataFieldConstants.TEXT_NODE_VALUE) || key.equals(DataFieldConstants.INPUT_TYPE)
+						|| key.equals(DataFieldConstants.BACKGROUND_COLOUR))
 					continue;
 			}
 			
@@ -913,18 +914,7 @@ public class Tree {
 		}
 		
 	}
-	
-	// collapse all children, but not root node
-	public void collapseAllChildren(boolean collapsed) {
-		Iterator<DataFieldNode> iterator = rootNode.iterator();
-		
-		while (iterator.hasNext()) {
-			DataFieldNode node = (DataFieldNode)iterator.next();
-			node.getDataField().collapseChildren(collapsed);
-		}
-		// expand root again!
-		rootNode.getDataField().collapseChildren(false);
-	}
+
 
 	public DataFieldNode getRootNode() {
 		return rootNode;
@@ -953,14 +943,14 @@ public class Tree {
 	/*
 	 * Goes through the Tree, adding the observation fields to a list
 	 */
-	public ArrayList<DataField> getObservationFields() {
-		ArrayList<DataField> observationFields = new ArrayList<DataField>();
+	public ArrayList<IAttributeSaver> getObservationFields() {
+		ArrayList<IAttributeSaver> observationFields = new ArrayList<IAttributeSaver>();
 		
 		Iterator <DataFieldNode>iterator = rootNode.iterator();
 
 		while (iterator.hasNext()) {
 			DataFieldNode node = iterator.next();
-			DataField field = node.getDataField();
+			IAttributeSaver field = node.getDataField();
 			if (field.getAttribute(DataFieldConstants.INPUT_TYPE).equals(DataFieldConstants.OBSERVATION_DEFINITION)) {
 				observationFields.add(field);
 			}

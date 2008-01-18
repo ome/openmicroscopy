@@ -2,7 +2,7 @@ package ols;
 
 import java.util.ArrayList;
 
-import tree.DataField;
+import tree.IAttributeSaver;
 import xmlMVC.XMLModel;
 
 
@@ -13,9 +13,9 @@ public class ObservationCreator {
 		
 		ArrayList<Observation> observations = new ArrayList<Observation>();
 		
-		ArrayList<DataField> observationFields = model.getObservationFields();
+		ArrayList<IAttributeSaver> observationFields = model.getObservationFields();
 		
-		for (DataField field: observationFields) {
+		for (IAttributeSaver field: observationFields) {
 			observations.add(new Observation(field));
 		}
 		

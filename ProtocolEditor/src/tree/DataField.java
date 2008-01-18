@@ -228,12 +228,16 @@ public class DataField
 	}
 	
 	public void setHighlighted(boolean highlighted) {
-		fieldSelected = highlighted;
+		//fieldSelected = highlighted;	// this idea doesn't work so well... see below
 		// refresh display 
 		// (don't want to call notifyObservers() as this tries to display AttributesDialog, which adds
 		// it to the list of listeners, at the same time as moving through the list!) concurrency error!
-		if (formField != null)
-			formField.dataFieldUpdated();
+		// Also, calling dataFieldUpdated when highlighting changes can refresh a field with old values
+		// when it becomes un-highlighted following editing, instead of saving new values!
+		if (formField == null)
+			getFormField();
+		
+		formField.setHighlighted(highlighted);
 	}
 	
 	public JPanel getFieldEditor() {

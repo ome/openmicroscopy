@@ -2,6 +2,7 @@ package ols;
 
 import tree.DataField;
 import tree.DataFieldConstants;
+import tree.IAttributeSaver;
 
 public class Observation {
 	
@@ -17,9 +18,9 @@ public class Observation {
 	
 	
 	
-	public Observation(DataField dataField) {
+	public Observation(IAttributeSaver dataField) {
 		
-		observationName = dataField.getName().trim();	// gets extra lines etc from formatting
+		observationName = dataField.getAttribute(DataFieldConstants.ELEMENT_NAME).trim();	// gets extra lines etc from formatting
 		dataType = dataField.getAttribute(DataFieldConstants.OBSERVATION_TYPE);
 		entityTermId = dataField.getAttribute(DataFieldConstants.OBSERVATION_ENTITY_TERM_IDNAME);
 		attributeTermId = dataField.getAttribute(DataFieldConstants.OBSERVATION_ATTRIBUTE_TERM_IDNAME);

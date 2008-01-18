@@ -26,12 +26,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
-import javax.swing.Box;
 import javax.swing.JPanel;
 import javax.swing.undo.AbstractUndoableEdit;
-import javax.swing.undo.UndoableEdit;
-
-import org.w3c.dom.Element;
 
 
 public class DataFieldNode {
@@ -164,12 +160,6 @@ public class DataFieldNode {
 	// notification that UI needs updating. eg. due to dataField inputType change
 	public void xmlUpdated() {
 		getTree().xmlUpdated();
-	}
-
-
-
-	public void collapseAllChildren(boolean collapse) {
-		getTree().collapseAllChildren(collapse);
 	}
 	
 	// expandAllAncestors() 	used to show a field that may be hidden

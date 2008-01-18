@@ -35,4 +35,17 @@ public class FormFieldContainer extends Box{
 			return getY() + ((FormFieldContainer)getParent()).getYPositionWithinRootContainer();
 		}
 	}
+	
+	public void collapseAllFormFieldChildrn(boolean collapsed) {
+		
+		Component[] children = getComponents();
+		for (int i=0; i< children.length; i++) {
+			if (children[i] instanceof FormField) {
+				((FormField)children[i]).setSubStepsCollapsed(collapsed);
+			} 
+			else if (children[i] instanceof FormFieldContainer) {
+				((FormFieldContainer)children[i]).collapseAllFormFieldChildrn(collapsed);
+			}
+		}
+	}
 }

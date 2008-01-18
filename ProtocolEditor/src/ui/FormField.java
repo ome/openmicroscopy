@@ -206,7 +206,7 @@ public class FormField extends JPanel implements DataFieldObserver{
 		setDescriptionText(dataField.getAttribute(DataFieldConstants.DESCRIPTION));
 		setURL(dataField.getAttribute(DataFieldConstants.URL));
 		
-		setHighlighted(dataField.isAttributeTrue(DataField.FIELD_SELECTED));
+		//setHighlighted(dataField.isAttributeTrue(DataField.FIELD_SELECTED));
 		refreshBackgroundColour();
 	}
 	
@@ -303,8 +303,13 @@ public class FormField extends JPanel implements DataFieldObserver{
 
 	public void refreshHasChildren(boolean hasChildren) {
 		if (!hasChildren) {
-			dataField.setAttribute(DataFieldConstants.SUBSTEPS_COLLAPSED, DataFieldConstants.FALSE, false);
-			collapseButton.setIcon(notCollapsedIcon);
+			// if this node has just lost it's children, need to un-collapse it
+			// if it had children previously, the collapseButton will be visible
+			if (collapseButton.isVisible()) {
+				dataField.setAttribute(DataFieldConstants.SUBSTEPS_COLLAPSED, DataFieldConstants.FALSE, false);
+				// reset to uncollapsed state
+				collapseButton.setIcon(notCollapsedIcon);
+			}
 		}
 		collapseButton.setVisible(hasChildren);
 	}
@@ -315,12 +320,13 @@ public class FormField extends JPanel implements DataFieldObserver{
 			boolean collapsed = dataField.isAttributeTrue(DataFieldConstants.SUBSTEPS_COLLAPSED); 
 			
 			// toggle collapsed state
-			if (collapsed) {
-				dataField.setAttribute(DataFieldConstants.SUBSTEPS_COLLAPSED, DataFieldConstants.FALSE, false);
-			} else {
-				dataField.setAttribute(DataFieldConstants.SUBSTEPS_COLLAPSED, DataFieldConstants.TRUE, false);
-			}
-			
+			setSubStepsCollapsed(!collapsed);
+		}
+	}
+	
+	public void setSubStepsCollapsed(boolean collapsed) {
+		if (hasChildren()) {
+			dataField.setAttribute(DataFieldConstants.SUBSTEPS_COLLAPSED, Boolean.toString(collapsed), false);
 			refreshTitleCollapsed();
 		}
 	}
@@ -335,10 +341,13 @@ public class FormField extends JPanel implements DataFieldObserver{
 		showChildren(!collapsed);
 		
 		// this is only needed when building UI (superfluous when simply collapsing)
-		boolean hasChildren = childContainer.getComponentCount()>0;
-		refreshHasChildren(hasChildren);
+		refreshHasChildren(hasChildren());
 	}
 
+	public boolean hasChildren() {
+		return childContainer.getComponentCount()>0;
+	}
+	
 	public void refreshRootField(boolean rootField) {
 		// only show this button for the root FormField (ie if parent == null)
 		collapseAllChildrenButton.setVisible(rootField);
@@ -360,11 +369,16 @@ public class FormField extends JPanel implements DataFieldObserver{
 			
 			// toggle collapsed state of node and it's children
 			childrenCollapsed = !childrenCollapsed;
-			//dataFieldObs.getNode().collapseAllChildren(childrenCollapsed);
+			
+			if (getParent() instanceof FormFieldContainer) {
+				((FormFieldContainer)getParent()).collapseAllFormFieldChildrn(childrenCollapsed);
+			}
+			
+			// expand this node
+			setSubStepsCollapsed(false);
 			
 			collapseAllChildrenButton.setIcon(childrenCollapsed ? collapsedIcon : notCollapsedIcon);
-		}
-		
+		}	
 	}
 	
 	
