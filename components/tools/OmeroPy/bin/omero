@@ -31,8 +31,8 @@ def readlink(file=sys.argv[0]):
 
 exe = readlink()
 
-lib = os.path.normpath(os.path.join(exe, os.pardir, "lib"))
+lib = os.path.normpath(os.path.join(exe, os.pardir, os.pardir, "lib"))
 sys.path.append(lib)
 
-import ome.cli
-ome.cli.argv()
+import omero.cli
+omero.cli.argv()
