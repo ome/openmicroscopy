@@ -359,16 +359,30 @@ public class PojosServiceTest extends TestCase {
 
     }
 
-    @Test(groups = "broken", enabled = false)
+    @Test
     public void test_findAnnotations() {
 
-        Map m;
+        Map<Long, Set<IObject>> m;
 
         ids = new HashSet(data.getMax("Image.Annotated.ids", 2));
-        iPojos.findAnnotations(Image.class, ids, null, null);
+        m = iPojos.findAnnotations(Image.class, ids, null, null);
+        assertAnnotations(m);
 
         ids = new HashSet(data.getMax("Dataset.Annotated.ids", 2));
-        iPojos.findAnnotations(Dataset.class, ids, null, null);
+        m = iPojos.findAnnotations(Dataset.class, ids, null, null);
+        assertTrue(m.size() > 0);
+        assertAnnotations(m);
+    }
+
+    void assertAnnotations(Map<Long, Set<IObject>> m) {
+        Annotation ann = (Annotation) m.values().iterator().next().iterator()
+                .next();
+        assertNotNull(ann.getDetails().getOwner());
+        assertTrue(ann.getDetails().getOwner().isLoaded());
+        assertNotNull(ann.getDetails().getCreationEvent());
+        assertTrue(ann.getDetails().getCreationEvent().isLoaded());
+        assertNotNull(ann.getDetails().getUpdateEvent());
+        assertTrue(ann.getDetails().getUpdateEvent().isLoaded());
 
     }
 

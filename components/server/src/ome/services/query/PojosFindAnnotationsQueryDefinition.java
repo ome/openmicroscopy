@@ -40,20 +40,25 @@ public class PojosFindAnnotationsQueryDefinition extends Query {
 
         Class k = (Class) value(CLASS);
 
-        // TODO refactor into CriteriaUtils
         Criteria obj = session.createCriteria(k);
-        obj.createAlias("details.owner", "obj_owner");
-        obj.createAlias("details.creationEvent", "obj_create");
-        obj.createAlias("details.updateEvent", "obj_update");
+        // TODO refactor into CriteriaUtils
+        // Not currently loading, since IPojos.findAnnotations, rearranges
+        // them to return the annotations, which have no links to their
+        // owning objects
+        // obj.setFetchMode("details.owner", FetchMode.JOIN);
+        // obj.setFetchMode("details.group", FetchMode.JOIN);
+        // obj.setFetchMode("details.creationEvent", FetchMode.JOIN);
+        // obj.setFetchMode("details.updateEvent", FetchMode.JOIN);
         obj.add(Restrictions.in("id", (Collection) value(IDS)));
 
+        // Here we do want the left join, so the consumer will see
+        // that there's an empty set
         Criteria links = obj.createCriteria("annotationLinks", "links",
                 LEFT_JOIN);
-
         Criteria ann = links.createCriteria("child", LEFT_JOIN);
         Criteria annotator = ann.createAlias("details.owner", "ann_owner");
+
         ann.createAlias("details.creationEvent", "ann_create");
-        // ann.createAlias("details.updateEvent", "ann_update");
         ann.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
         if (check("annotatorIds")) {
