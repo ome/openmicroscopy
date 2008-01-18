@@ -80,7 +80,7 @@
 
   <bean id="fullTextIndexerTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
     <property name="jobDetail" ref="fullTextThreadRun" />
-    <property name="cronExpression" value="0,30 * * * * ?" />
+    <property name="cronExpression" value="${omero.search.cron}" />
   </bean>
 
 </beans>
