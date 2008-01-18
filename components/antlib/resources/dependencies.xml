@@ -4,10 +4,10 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # $Id$
-# 
+#
 # Copyright 2007 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
-# 
+#
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -16,11 +16,11 @@
 -->
 
   <description>
-  
-    
+
+
     Use namespace "deps-" for all targets, "deps." for all variables.
   </description>
-  
+
   <!-- For these definitions to work properly, directories.xml must be imported-->
   <property name="deps.lib.dir" value="${target.dir}/libs"/>
   <property name="ivy.local.default.root" value="${omero.home}/lib/repository"/>
@@ -36,9 +36,9 @@
   </path>
   <taskdef resource="org/apache/ivy/ant/antlib.xml"
 	   uri="antlib:org.apache.ivy.ant" classpathref="tools.classpath"/>
-  
 
-  <!-- 
+
+  <!--
        These classpaths are used by all components, and amount to only the deps.lib.dir
        directory within each component. That directory is configured using deps-retrieve,
        which "retrieves" the directories from the local directory. After that initial 
@@ -47,14 +47,14 @@
   <path id="omero.compile.classpath">
     <fileset dir="${deps.lib.dir}" />
   </path>
-  
+
   <path id="omero.classpath">
     <path location="${classes.dir}" />
     <path location="${resrc.dir}" />
     <path location="${resrc.dest}" />
     <path refid="omero.compile.classpath" />
   </path>
-  
+
   <path id="omero.test.classpath">
     <path refid="omero.classpath" />
   </path>
@@ -66,10 +66,16 @@
     -->
   <target name="deps-configure"
 	  description="Parses the Ivy configuration. Required by all Ivy activities.">
+    <fail>
+        <condition><not>
+            <available file="${etc.dir}/local.properties"/>
+        </not></condition>
+        ${msg.macro.missing_properties}
+    </fail>
     <ivy:settings id="ivy.instance"  file="${etc.dir}/ivysettings.xml" />
   </target>
-  
-  <target name="deps-buildlist" 
+
+  <target name="deps-buildlist"
 	  depends="deps-configure"
 	  description="Reads all build.xml and ivy.xml files to determine depedencies.">
     <property name="deps.buildlist.dir" value="${omero.home}/components"/>
@@ -78,7 +84,7 @@
     </ivy:buildlist>
   </target>
 
-  <target name="deps-retrieve" 
+  <target name="deps-retrieve"
 	  depends="deps-configure"
 	  description="Copy dependencies into the component-local deps.lib.dir."
 	  unless="deps.lib.dir.needed">
