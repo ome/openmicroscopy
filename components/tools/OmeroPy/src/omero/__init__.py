@@ -5,9 +5,6 @@
 #   Use is subject to license terms supplied in LICENSE.txt
 #
 
-#import os
-#dirname = __path__[0]
-#__path__.append(os.path.join(dirname, "_gen"))
 import exceptions
 import Ice, Glacier2
 import api
@@ -17,6 +14,12 @@ from omero_ext import pysys
 import omero_Constants_ice
 
 class client(object):
+    """
+    Central blitz entry point
+
+    Typical usage includes:
+    client = omero.client()    # Uses --Ice.Config argument or ICE_CONFIG variable
+    """
 
     def __init__(self, args = pysys.argv, id = Ice.InitializationData()):
 
@@ -71,6 +74,9 @@ class client(object):
         return self.sf
 
     def sha1(self, filename):
+        """
+        Calculates the local sha1 for a file.
+        """
         import sha
         digest = sha.new()
         file = open(filename, 'rb')
@@ -85,6 +91,9 @@ class client(object):
         return digest.hexdigest()
 
     def upload(self, filename, name = None, path = None, type = None, ofile = None):
+        """
+        Utility method to upload a file to the server.
+        """
         if not self.sf:
             raise ClientError("No session. Use createSession first.")
 
@@ -106,7 +115,7 @@ class client(object):
 
             ofile.size = omero.RLong(os.path.getsize(file.name))
             ofile.sha1 = omero.RString(self.sha1(file.name))
-        
+
             if not ofile.name:
                ofile.name = omero.RString(file.name)
 
@@ -115,7 +124,9 @@ class client(object):
 
             if not ofile.format:
                 if not type:
-                    ofile.format = FormatI("unknown") XX create first
+                    # ofile.format = FormatI("unknown")
+                    # Or determine type from file ending
+                    raise ClientError("no format given")
                 else:
                     ofile.format = FormatI(type)
 
@@ -131,7 +142,7 @@ class client(object):
                     break
                 prx.write(offset, block)
                 offset += len(block)
-            prx.close() 
+            prx.close()
         finally:
             file.close()
 
@@ -155,8 +166,44 @@ class client(object):
         except Ice.ConnectionLostException:
             pass
 
+def script(name, description = None, **kwargs):
+    """
+    Entry point for all script engine scripts.
+
+    Typical usage consists of:
+
+      client = omero.script("name","description", param1="long", param2="bool")
+
+    where the returned client is created via the empty constructor to omero.client
+    using only --Ice.Config or ICE_CONFIG, and the function arguments are taken
+    as metdata about the current script. With this information, all script
+    consumers should be able to determine the required types for execution.
+
+    Possible types are all those defined in the blitz slice definitions, including:
+
+      * long
+      * int
+      * bool
+      * string
+      * omero::model::<Type>
+
+    Any type suffixed with "*" is optional and can be safely left null.
+
+    """
+    c = client()
+    if "true" == c.getProperty("omero.script.parse"): # Add to omero/Constants.ice
+        print "Name:       ", name
+        print "Description:", description
+        print "Parameters:\n",kwargs
+        return kwargs
+    else:
+        return c
+
 import util.FactoryMap
 class ObjectFactory(Ice.ObjectFactory):
+    """
+    Responsible for instantiating objects during deserialization.
+    """
 
     def __init__(self, map = util.FactoryMap.map()):
         self.__m = map
@@ -177,6 +224,9 @@ class ObjectFactory(Ice.ObjectFactory):
         pass
 
 class ClientError(exceptions.Exception):
+    """
+    Top of client exception hierarchy.
+    """
     pass
 
 class UnloadedEntityException(ClientError):
