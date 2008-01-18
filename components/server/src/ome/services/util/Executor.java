@@ -74,7 +74,20 @@ public class Executor implements ApplicationContextAware {
         this.proxyFactory.setBeanFactory(context);
     }
 
-    public void execute(Principal p, Work work) {
+    /**
+     * Executes a {@link Work} instance wrapped in two layers of AOP. The first
+     * is intended to acquire the proper arguments for
+     * {@link Work#doWork(TransactionStatus, Session, ServiceFactory)} for the
+     * {@link OmeroContext}, and the second performs all the standard service
+     * actions for any normal method call.
+     * 
+     * If the {@link Principal} argument is not null, then additionally, a
+     * login/logout sequence will be performed in a try/finally block.
+     * 
+     * @param p
+     * @param work
+     */
+    public void execute(final Principal p, final Work work) {
         ProxyFactoryBean innerFactory = new ProxyFactoryBean();
         innerFactory.copyFrom(this.proxyFactory);
         innerFactory.setTarget(work);
@@ -83,12 +96,16 @@ public class Executor implements ApplicationContextAware {
 
         this.proxyFactory.setTarget(inner);
         Work outer = (Work) this.proxyFactory.getObject();
-        this.secSystem.login(p);
+        if (p != null) {
+            this.secSystem.login(p);
+        }
         try {
             // Arguments will be replaced after hibernate is in effect
             outer.doWork(null, null, new ServiceFactory(this.context));
         } finally {
-            this.secSystem.logout();
+            if (p != null) {
+                this.secSystem.logout();
+            }
         }
     }
 

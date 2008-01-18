@@ -7,12 +7,11 @@
 
 package ome.services.search;
 
-import java.util.List;
-
 import ome.conditions.ApiUsageException;
-import ome.model.IObject;
+import ome.model.IAnnotated;
 import ome.model.internal.Details;
 import ome.services.SearchBean;
+import ome.system.ServiceFactory;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.ParseException;
@@ -24,6 +23,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
+import org.springframework.transaction.TransactionStatus;
 
 /**
  * Query template used by {@link SearchBean} to store user requests.
@@ -63,9 +63,19 @@ public class FullText extends SearchAction {
         }
     }
 
-    public synchronized void init(Session session) {
+    public void doWork(TransactionStatus status, Session session,
+            ServiceFactory sf) {
+
+        if (values.onlyTypes == null || values.onlyTypes.size() != 1) {
+            throw new ApiUsageException(
+                    "Searches by full text are currently limited to a single type.\n"
+                            + "Plese use Search.onlyType().");
+        }
+
+        Class cls = values.onlyTypes.get(0);
+
         this.session = Search.createFullTextSession(session);
-        Criteria criteria = session.createCriteria(values.onlyTypes.get(0));
+        Criteria criteria = session.createCriteria(cls);
         if (values.ownedBy != null) {
             Details d = values.ownedBy;
             if (/* ownable && */d.getOwner() != null) {
@@ -76,16 +86,26 @@ public class FullText extends SearchAction {
                         .getGroup().getId()));
             }
         }
+
+        if (values.onlyAnnotatedWith != null) {
+            if (values.onlyAnnotatedWith.size() > 0) {
+                if (!IAnnotated.class.isAssignableFrom(cls)) {
+                    // A non-IAnnotated object cannot have any
+                    // Annotations, and so our results are null
+                    result = null;
+                    return; // EARLY EXIT !
+                }
+                Criteria anns = criteria.add(Restrictions
+                        .isNotEmpty("annotationLinks"));
+            } else {
+                criteria.add(Restrictions.isEmpty("annotationLinks"));
+            }
+        }
+
         query = this.session.createFullTextQuery(this.q).setCriteriaQuery(
                 criteria);
         // TODO And if allTypes? or multiple types
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public synchronized <T extends IObject> List<T> getNext() {
         // scroll = query.scroll(ScrollMode.FORWARD_ONLY);
-        return query.list();
+        result = query.list();
     }
-
 }

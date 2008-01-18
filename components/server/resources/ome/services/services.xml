@@ -67,7 +67,24 @@
             </list>
         </constructor-arg>
     </bean>
-
+    
+    <bean id="selfManagingService" abstract="true"
+        class="org.springframework.aop.framework.ProxyFactoryBean">
+        <description>
+        A self managed service, which must take care to properly create 
+        sessions and transactions before using any other services. This
+        can be achieved by properly using the Executor.Work interface.
+        
+        See the "executor" bean.
+        </description>
+        <property name="interceptorNames">
+            <list>
+                <value>profile</value>
+                <value>serviceHandler</value>
+            </list>
+        </property>
+    </bean>
+    
 	<bean id="managedService" abstract="true"
 		class="org.springframework.aop.framework.ProxyFactoryBean">
 		<property name="interceptorNames" ref="statelessInterceptors"/>

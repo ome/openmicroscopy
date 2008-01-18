@@ -23,8 +23,8 @@ import org.hibernate.search.ProjectionConstants;
 /**
  * Central search interface, allowing Web2.0 style queries. Each {@link Search}
  * instance keeps up with several queries and lazily-loads the results as
- * {@link #next()} and {@link #results()} are called. These queries are created
- * by the "by*" methods.
+ * {@link #hasNext()}, {@link #next()} and {@link #results()} are called. These
+ * queries are created by the "by*" methods.
  * 
  * Each instance also has a number of settings which can all be changed from
  * their defaults via accessors, e.g.{@link #setBatchSize(int)} or
@@ -33,7 +33,8 @@ import org.hibernate.search.ProjectionConstants;
  * The only methods which are required for the proper functioning of a
  * {@link Search} instance are:
  * <ul>
- * <li>{@link #onlyTypes(Class...)} OR {@link #allTypes()}</li>
+ * <li>{@link #onlyType(Class)}, {@link #onlyTypes(Class...)} OR
+ * {@link #allTypes()}</li>
  * <li>Any by* method to create a query</li>
  * </ul>
  * Use of the {@link #allTypes()} method is discouraged, since it is possibly
@@ -104,8 +105,11 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * Sets the maximum number of results that will be returned by one call to
      * {@link #results()}. If batches are not {@link #isMergedBatches() merged},
      * then results may often be less than the batch size. If batches are
-     * {@link #isMergedBatches()} merged, then only the last call to
+     * {@link #isMergedBatches() merged}, then only the last call to
      * {@link #results()} can be less than batch size.
+     * 
+     * Note: some query types may not support batching at the query level, and
+     * all instances must then be loaded into memory simultaneously.
      * 
      * @param size
      *            maximum number of results per call to {@link #results()}
@@ -259,16 +263,25 @@ public interface Search extends ome.api.StatefulServiceInterface,
     void onlyAnnotatedBy(Details d);
 
     /**
-     * Restricts entities to having an {@link Annotation} of the given types.
-     * This is useful in combination with the other onlyAnnotated* methods to
-     * say, e.g., only annotated with a file by user X.
+     * Restricts entities to having an {@link Annotation} of all the given
+     * types. This is useful in combination with the other onlyAnnotated*
+     * methods to say, e.g., only annotated with a file by user X. By default,
+     * this value is <code>null</code> and imposes no restriction. Passing an
+     * empty array implies an object that is not annotated at all.
      * 
-     * @param <A>
+     * 
+     * Note: If the semantics were OR, then a client would have to query each
+     * class individually, and compare all the various values, checking which
+     * ids are where. However, since this method defaults to AND, multiple calls
+     * (optionally with {@link #isMergedBatches()} and
+     * {@link #isReturnUnloaded()}) and combine the results. Duplicate ids are
+     * still possible, so a set of some form should be used to collect the
+     * results.
+     * 
      * @param classes
-     *            Can be empty, in which restriction is removed.
+     *            Can be empty, in which case restriction is removed.
      */
-    <A extends ome.model.annotations.Annotation> void onlyAnnotatedWith(
-            Class<A>... classes);
+    void onlyAnnotatedWith(Class... classes);
 
     // Fetches ~~~~~~~~~~~~~~~~~~~~~~
 

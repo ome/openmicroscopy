@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +42,7 @@ import ome.services.search.SearchAction;
 import ome.services.search.SearchValues;
 import ome.services.search.SomeMustNone;
 import ome.services.search.Tags;
+import ome.services.util.Executor;
 import ome.services.util.OmeroAroundInvoke;
 
 import org.apache.commons.logging.Log;
@@ -78,10 +80,13 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     private final SearchValues values = new SearchValues();
 
-    private List<IObject> lastResultsUnloaded;
+    private final List<List<IObject>> results = new ArrayList<List<IObject>>();
+
+    private final Executor executor;
 
     /** default constructor */
-    public SearchBean() {
+    public SearchBean(Executor executor) {
+        this.executor = executor;
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
@@ -201,35 +206,85 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     @Transactional
     @RolesAllowed("user")
     public boolean hasNext() {
-        return false;
+
+        while (results.size() > 0) {
+            List<IObject> first = results.get(0);
+            if (first == null || first.size() < 1) {
+                results.remove(0);
+            } else {
+                return true;
+            }
+        }
+
+        // There are no current results, we now need to execute an action
+        if (actions.size() == 0) {
+            return false;
+        }
+        SearchAction action = actions.remove(0);
+        executor.execute(null, action);
+        results.add(action.getResult());
+        return hasNext(); // recursive call
     }
 
     @Transactional
     @RolesAllowed("user")
     public IObject next() throws ApiUsageException {
-        // TODO Auto-generated method stub
-        return null;
+
+        if (!hasNext()) {
+            throw new ApiUsageException("No element. Please use hasNext().");
+        }
+
+        // Now we're guaranteed to have an element
+        return pop(results.get(0));
     }
 
     @Transactional
     @RolesAllowed("user")
     public List<Annotation> currentMetadata() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Transactional
     @RolesAllowed("user")
     public <T extends IObject> Map<T, List<Annotation>> results() {
-        // TODO Auto-generated method stub
-        return null;
+
+        if (!hasNext()) {
+            throw new ApiUsageException("No elements. Please use hasNext().");
+        }
+
+        // Now we're guaranteed to have an element
+        Map<T, List<Annotation>> map = new HashMap<T, List<Annotation>>();
+        while (hasNext() && map.size() < values.batchSize) {
+            List<IObject> current = results.get(0);
+            if (current.size() > 0) {
+                map.put((T) pop(current), new ArrayList<Annotation>());
+            } else {
+                // If batches aren't merged, we can exist now.
+                if (!values.mergedBatches) {
+                    break;
+                }
+            }
+        }
+        return map;
+    }
+
+    /**
+     * Wrapper method which should be called on all results for the user.
+     * Removes the value from the last list, and applies all requirements of
+     * {@link #values}.
+     */
+    protected IObject pop(List<IObject> current) {
+        IObject obj = current.remove(0);
+        if (values.returnUnloaded) {
+            obj.unload();
+        }
+        return obj;
     }
 
     @Transactional
     @RolesAllowed("user")
     public void lastresultsAsWorkingGroup() {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException();
     }
 
     @Transactional
@@ -327,10 +382,14 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     @Transactional
     @RolesAllowed("user")
-    public <A extends Annotation> void onlyAnnotatedWith(Class<A>... classes) {
+    public void onlyAnnotatedWith(Class... classes) {
         synchronized (values) {
-            List<Class> list = Arrays.<Class> asList(classes);
-            values.onlyAnnotations = SearchValues.copyList(list);
+            if (classes == null) {
+                values.onlyAnnotatedWith = null;
+            } else {
+                List<Class> list = Arrays.<Class> asList(classes);
+                values.onlyAnnotatedWith = SearchValues.copyList(list);
+            }
         }
     }
 
@@ -355,7 +414,7 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     @Transactional
     @RolesAllowed("user")
     public void allTypes() {
-        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException();
     }
 
     @Transactional
@@ -454,9 +513,14 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     @Transactional
     @RolesAllowed("user")
     public void setUseProjections(boolean useProjections) {
-        synchronized (values) {
-            values.useProjections = useProjections;
-        }
+        throw new UnsupportedOperationException();
+        // Before activating, please test heavily.
+        // In fact, this may need to be removed,
+        // since much of the security in Lucene
+        // is based on the db.
+        // synchronized (values) {
+        // values.useProjections = useProjections;
+        // }
     }
 
     //
@@ -464,11 +528,17 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     //
 
     public void addAction(SearchAction action) {
+        if (action == null) {
+            throw new IllegalArgumentException("Action cannot be null");
+        }
         synchronized (actions) {
-            if (action == null) {
-                throw new IllegalArgumentException("Action cannot be null");
-            }
             actions.add(action);
+        }
+    }
+
+    public void addResult(List<IObject> result) {
+        synchronized (results) {
+            results.add(result); // Can be null as flag?
         }
     }
 }

@@ -30,7 +30,7 @@ import ome.parameters.Parameters;
 public abstract class EventLogLoader implements Iterator<EventLog>,
         Iterable<EventLog> {
 
-    private final static int DEFAULT_BATCH_SIZE = 10;
+    private final static int DEFAULT_BATCH_SIZE = 100;
 
     private final int batchSize = DEFAULT_BATCH_SIZE;
 

@@ -45,7 +45,7 @@ public class SearchValues implements Serializable {
     public Timestamp annotatedStart = null;
     public Timestamp annotatedStop = null;
     public List<Class> onlyTypes = null;
-    public List<Class> onlyAnnotations = null;
+    public List<Class> onlyAnnotatedWith = null;
     public Details ownedBy = null;
     public Details annotatedBy = null;
 
@@ -65,7 +65,7 @@ public class SearchValues implements Serializable {
         this.annotatedStart = copyTimestamp(values.annotatedStart);
         this.annotatedStop = copyTimestamp(values.annotatedStop);
         this.onlyTypes = copyList(values.onlyTypes);
-        this.onlyAnnotations = copyList(values.onlyAnnotations);
+        this.onlyAnnotatedWith = copyList(values.onlyAnnotatedWith);
         this.ownedBy = copyDetails(values.ownedBy);
         this.annotatedBy = copyDetails(values.annotatedBy);
     }

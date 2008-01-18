@@ -101,6 +101,7 @@ public abstract class AbstractTest extends AbstractManagedContextTest {
         return ell;
     }
 
+    /** Warning: reset the login */
     void indexObject(IObject o) {
         CreationLogLoader logs = new CreationLogLoader(o);
         ftb = new FullTextBridge();

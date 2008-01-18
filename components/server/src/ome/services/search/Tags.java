@@ -7,10 +7,11 @@
 
 package ome.services.search;
 
-import java.util.List;
-
-import ome.model.IObject;
 import ome.services.SearchBean;
+import ome.system.ServiceFactory;
+
+import org.hibernate.Session;
+import org.springframework.transaction.TransactionStatus;
 
 /**
  * Query template used by {@link SearchBean} to store user requests.
@@ -39,8 +40,8 @@ public class Tags extends SearchAction {
         }
     }
 
-    @Override
-    public <T extends IObject> List<T> getNext() {
-        return null;
+    public void doWork(TransactionStatus status, Session session,
+            ServiceFactory sf) {
+        throw new UnsupportedOperationException();
     }
 }

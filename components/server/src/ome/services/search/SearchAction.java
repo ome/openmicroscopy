@@ -18,9 +18,11 @@ import ome.services.SearchBean;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public abstract class SearchAction {
+public abstract class SearchAction implements ome.services.util.Executor.Work {
 
     protected final SearchValues values = new SearchValues();
+
+    protected List<IObject> result = null;
 
     public SearchAction(SearchValues values) {
         if (values == null) {
@@ -30,6 +32,8 @@ public abstract class SearchAction {
         this.values.copy(values);
     }
 
-    public abstract <T extends IObject> List<T> getNext();
+    public final List<IObject> getResult() {
+        return result;
+    }
 
 }

@@ -22,9 +22,10 @@
   <bean singleton="false" parent="stateful"
         id="internal:ome.api.Search"
      class="ome.services.SearchBean">
+     <constructor-arg ref="executor"/>
   </bean>
 
-  <bean id="managed:ome.api.Search" parent="managedStatefulService" singleton="false">
+  <bean id="managed:ome.api.Search" parent="selfManagingService" singleton="false">
     <property name="proxyInterfaces" value="ome.api.Search"/>
     <property name="target" ref="internal:ome.api.Search"/>
   </bean>
