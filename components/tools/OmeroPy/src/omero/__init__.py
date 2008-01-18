@@ -53,11 +53,11 @@ class client(object):
 
     def createSession(self, username=None, password=None):
         if not username:
-            username = self.getProperty("OMERO.username")
+            username = self.getProperty("omero.user")
         if len(username) == 0:
             raise ClientError("No username specified")
         if not password:
-            password = self.getProperty("OMERO.password")
+            password = self.getProperty("omero.pass")
         if len(password) == 0:
             raise ClientError("No password specified")
 

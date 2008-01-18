@@ -8,10 +8,10 @@ utilities, including starting and stopping servers, running
 analyses, configuration, and more.
 
 Usable via the ./omero script provided with the distribution
-as well as from python via "import ome.cli; ome.cli.run()"
+as well as from python via "import omero.cli; omero.cli.run()"
 
 Arguments are taken from (in order of priority): the run method
-arguments, sys.argv, and finally from standard in using the 
+arguments, sys.argv, and finally from standard in using the
 cmd.Cmd.cmdloop method.
 
 Josh Moore, josh at glencoesoftware.com
@@ -20,7 +20,8 @@ See LICENSE for details.
 
 """
 
-import cmd, string, sys, re, os, types
+import cmd, string, re, os, types, shlex
+from omero_ext import pysys
 
 VERSION=1.0
 COMMENT = re.compile("^\s*#")
@@ -28,7 +29,7 @@ DEBUG = False
 if os.environ.has_key("DEBUG"):
     print "Running omero with debugging on"
     DEBUG = True
-TEXT=""" 
+TEXT="""
   OMERO Python Shell. Version %s
   Type "?" or "help" for more information, "quit" or Ctrl-D to exit
 """ % str(VERSION)
@@ -49,7 +50,7 @@ class CLI(cmd.Cmd):
     """
     Command line interface class. Supports various styles of executing the
     registered plugins. Each plugin is given the chance to update this class
-    by adding methods of the form "do_<plugin name>". 
+    by adding methods of the form "do_<plugin name>".
     """
 
     def __init__(self):
@@ -95,7 +96,7 @@ class CLI(cmd.Cmd):
 
     def parseline(self, line):
         """
-        Overrides the parseline functionality of cmd.py in order to 
+        Overrides the parseline functionality of cmd.py in order to
         take command line parameters without shlex'ing and unshlex'ing
         them. If "line" is an array, then the first element will be
         returned as "cmd" and the rest as "args".
@@ -112,12 +113,17 @@ class CLI(cmd.Cmd):
         else:
             return cmd.Cmd.parseline(self,line)
 
+    def shlex(self, input):
+        if isinstance(input, types.StringType):
+            return shlex.split(input)
+        return input
+
     def default(self,arg):
         if arg.startswith("EOF"):
-            sys.exit(0)
+            pysys.exit(0)
         else:
             print "Unkown command: " + arg
-    
+
     def completedefault(self, text, line, begidx, endidx):
         try:
             import readline
@@ -132,13 +138,13 @@ class CLI(cmd.Cmd):
 
     def do_help(self, arg):
         if not arg or len(arg) == 0:
-            print """ 
- 
+            print """
+
         Use "help <topic>" for more information
         -------------------------------------------------
         longhelp  -  long output of help topics
         v[ersion] -  print version number
-        q[uit]    - 
+        q[uit]    -
 
         """
         else:
@@ -159,12 +165,12 @@ class CLI(cmd.Cmd):
         print "Simple commands include: version, help, quit, reload"
 
     def help_login(self):
-        print """ 
+        print """
         The OMERO cli uses the prefs Java class to configure the current profile.
-        """ 
+        """
 
     def do_quit(self, arg):
-        sys.exit(1)
+        pysys.exit(1)
     do_q = do_quit
 
     def help_quit(self):
@@ -175,7 +181,7 @@ class CLI(cmd.Cmd):
     def do_version(self, arg):
         "print current version"
         print VERSION
-    do_v = do_version    
+    do_v = do_version
 
     def help_server(self):
         print "omero-<name>"
@@ -183,7 +189,7 @@ class CLI(cmd.Cmd):
     def do_load(self, arg):
         file = open(arg,'r')
         for line in file:
-           self.invoke(line) 
+           self.invoke(line)
 
     def help_load(self):
         status = "enabled"
@@ -191,7 +197,7 @@ class CLI(cmd.Cmd):
             import readline
         except:
             status = "disabled"
-         
+
         print "load file as if it were sent on standard in. File tab-complete %s" % status
 
     #
@@ -203,12 +209,12 @@ class CLI(cmd.Cmd):
         if self._client:
             return self._client
 
-        import ome.java
+        import omero.java
         if profile:
-            ome.java.run(["prefs","def","profile"]) 
-        output = ome.java.run(["prefs","get"])
+            omero.java.run(["prefs","def","profile"])
+        output = omero.java.run(["prefs","get"])
 
-        import Ice 
+        import Ice
         data = Ice.InitializationData()
         data.properties = Ice.createProperties()
         for line in output.splitlines():
@@ -216,16 +222,16 @@ class CLI(cmd.Cmd):
            data.properties.setProperty(parts[0],parts[1])
 
         import omero
-        self._client = omero.client(id = data)
+        self._client = omero.client(pysys.argv, id = data)
         self._client.createSession()
         return self._client
 
     ## End Cli
 
-def argv(args=sys.argv):
-    """    
+def argv(args=pysys.argv):
+    """
     Main entry point for the OMERO command-line interface. First
-    loads all plugins by passing them the classes defined here 
+    loads all plugins by passing them the classes defined here
     so they can add their methods.
 
     Then the case where arguments are passed on the command line are
@@ -235,9 +241,17 @@ def argv(args=sys.argv):
     """
     UniqueCLI = loadplugins()
 
+    # Modifying the args list if the name of the file
+    # has arguments encoded in it
+    if args[0].find("-") >= 0:
+        parts = args[0].split("-")
+        for arg in args[1:]:
+            parts.append(arg)
+        args = parts
+
     cli = UniqueCLI()
-    if len(sys.argv) > 1:
-        cli.invoke(sys.argv[1:])
+    if len(args) > 1:
+        cli.invoke(args[1:])
     else:
         cli.invokeloop()
 
@@ -249,8 +263,8 @@ def loadplugins():
     loc = {}
     loc["CLI"] = UniqueCLI
     loc["Command"] = Command
-    
-    from os.path import abspath, realpath, join, dirname 
+
+    from os.path import abspath, realpath, join, dirname
     dir = join(dirname(abspath(__file__)),"plugins")
     for root, dirs, files in os.walk(dir):
         for file in files:
