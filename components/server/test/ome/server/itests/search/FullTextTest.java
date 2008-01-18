@@ -43,7 +43,7 @@ public class FullTextTest extends AbstractTest {
         ome.services.fulltext.Main.indexFullDb();
     }
 
-    @Test(enabled = true, groups = "manual")
+    @Test(enabled = false, groups = "manual")
     public void testCheckThatProcessStarts() {
 
         long start = System.currentTimeMillis();
