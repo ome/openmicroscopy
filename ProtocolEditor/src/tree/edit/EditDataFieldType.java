@@ -20,57 +20,49 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package tree;
+package tree.edit;
+
+import java.util.LinkedHashMap;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
-public class EditDataFieldAttribute extends AbstractUndoableEdit {
+import tree.DataField;
+
+public class EditDataFieldType extends AbstractUndoableEdit {
 	
 	private DataField dataField;
-	private String attribute;
-	private String oldValue;
-	private String newValue;
+	private LinkedHashMap<String, String> oldAttributes;
+	private LinkedHashMap<String, String> newAttributes;
+
 	
-	public EditDataFieldAttribute(DataField dataField, String attribute, String oldValue, String newValue) {
+	public EditDataFieldType(DataField dataField, LinkedHashMap<String, String> allAttributes) {
 		this.dataField = dataField;
-		this.attribute = attribute;
-		this.oldValue = oldValue;
-		this.newValue = newValue;
+		this.oldAttributes = new LinkedHashMap<String, String>(allAttributes);
 	}
 	
 	public void undo() {
-		dataField.setAttribute(attribute, oldValue, false);
+		// first, remember the new attributes to you can redo
+		newAttributes = new LinkedHashMap<String, String>(dataField.getAllAttributes());
+		
+		dataField.setAllAttributes(oldAttributes);
+		// set fieldEditor and formField to null, so that new ones are created for the new inputType
+		dataField.resetFieldEditorFormField();
+		
 		// need to display changes without adding this change to the undoActions history in Tree
-		dataField.notifyDataFieldObservers();
-		dataField.dataFieldSelected(true);	// highlight this field
+		dataField.notifyDataFieldObservers();	
 	}
 	
 	public void redo() {
-		dataField.setAttribute(attribute, newValue, false);
+		dataField.setAllAttributes(newAttributes);
+		// set fieldEditor and formField to null, so that new ones are created for the new inputType
+		dataField.resetFieldEditorFormField();	
+		
 		// need to display changes without adding this change to the undoActions history in Tree
 		dataField.notifyDataFieldObservers();
-		dataField.dataFieldSelected(true);	// highlight this field
-	}
-	
-	public void undoNoHighlight() {
-		dataField.setAttribute(attribute, oldValue, false);
-		// need to display changes without adding this change to the undoActions history in Tree
-		dataField.notifyDataFieldObservers();
-	}
-	
-	public void redoNoHighlight() {
-		dataField.setAttribute(attribute, newValue, false);
-		// need to display changes without adding this change to the undoActions history in Tree
-		dataField.notifyDataFieldObservers();
-	}
-	
-	// used to highlight a range of fields, when this is the first field in a range
-	public void selectField() {
-		dataField.dataFieldSelected(false);
 	}
 	
 	public String getPresentationName() {
-		return "Edit " + attribute;
+		return "Change Field Type";
 	}
 
 	public boolean canUndo() {

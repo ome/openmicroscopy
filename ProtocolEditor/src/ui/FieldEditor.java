@@ -71,6 +71,8 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 	SimpleHTMLEditorPane editorPane;
 
 	private Action boldFontAction;
+
+	protected JButton colourSelectButton;
 	
 	//XMLView xmlView; 	// the UI container for displaying this panel
 	
@@ -141,7 +143,8 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 		
 		//...which is displayed from a button..
 		Icon colourSelectIcon = ImageFactory.getInstance().getIcon(ImageFactory.COLOUR_SELECTION_ICON);
-		JButton colourSelectButton = new JButton(colourSelectIcon);
+		colourSelectButton = new JButton(colourSelectIcon);
+		colourSelectButton.setToolTipText("Set background colour");
 		colourSelectButton.addMouseListener(new PopupListener());
 		
 		//...add to tool bar at top of panel

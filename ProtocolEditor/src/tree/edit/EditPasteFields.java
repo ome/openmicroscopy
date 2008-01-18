@@ -20,19 +20,22 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package tree;
+package tree.edit;
 
 import java.util.ArrayList;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
-public class EditDuplicateFields extends AbstractUndoableEdit {
+import tree.DataFieldNode;
+import tree.Tree;
+
+public class EditPasteFields extends AbstractUndoableEdit {
 	
 	ArrayList<DataFieldNode> addedFields;
 	DataFieldNode parentNode;
 	int indexOfFirstHighlightedField;
 	
-	public EditDuplicateFields (ArrayList<DataFieldNode> addTheseFields) {
+	public EditPasteFields (ArrayList<DataFieldNode> addTheseFields) {
 		
 		addedFields = new ArrayList<DataFieldNode>(addTheseFields);
 		
@@ -50,7 +53,7 @@ public class EditDuplicateFields extends AbstractUndoableEdit {
 	}
 	
 	public String getPresentationName() {
-		return "Duplicate Fields";
+		return "Paste Fields";
 	}
 
 	public boolean canUndo() {
@@ -62,3 +65,4 @@ public class EditDuplicateFields extends AbstractUndoableEdit {
 	}
 
 }
+

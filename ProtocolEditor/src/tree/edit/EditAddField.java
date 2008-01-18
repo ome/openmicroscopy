@@ -20,40 +20,47 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package tree;
-
-import java.util.ArrayList;
+package tree.edit;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
-public class EditDemoteFields extends AbstractUndoableEdit {
+import tree.DataFieldNode;
+import tree.Tree;
+
+public class EditAddField extends AbstractUndoableEdit {
 	
-	ArrayList<DataFieldNode> movedFields;
-	int lastNodeChildCount;
+	DataFieldNode newNode;
+	DataFieldNode parentNode;
+	int index;
 	
-	public EditDemoteFields (ArrayList<DataFieldNode> moveTheseFields) {
+	public EditAddField(DataFieldNode newNode) {
 		
-		movedFields = new ArrayList<DataFieldNode>(moveTheseFields);
-		lastNodeChildCount = movedFields.get(movedFields.size()-1).getChildren().size();
+		this.newNode = newNode;
+		parentNode = newNode.getParentNode();
+		
 	}
 	
 	public void undo() {
-		Tree.promoteDataFields(movedFields);
-	}
-	public void redo() {
-		Tree.demoteDataFields(movedFields);
+		//need ref to new field (will have been added after last highlighted field)
+		index = newNode.getMyIndexWithinSiblings();
+		System.out.println("TreeAction.ADD_NEW_FIELD indexToRemove = " + index);
+		parentNode.removeChild(index);
 	}
 	
+	public void redo() {
+		Tree.addDataField(newNode, parentNode, index);
+	}
+	
+
 	public String getPresentationName() {
-		return "Demote Fields";
+		return "Add Field";
 	}
 
-	public boolean canUndo() {
-		return true;
-	}
+	  public boolean canUndo() {
+	         return true;
+	  }
 
-	public boolean canRedo() {
-		return true;
-	}
-
+	  public boolean canRedo() {
+	         return true;
+	  }
 }

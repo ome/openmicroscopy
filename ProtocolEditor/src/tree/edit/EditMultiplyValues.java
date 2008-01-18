@@ -20,12 +20,15 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package tree;
+package tree.edit;
 
 import java.util.ArrayList;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
+import tree.DataField;
+import tree.DataFieldConstants;
+import tree.DataFieldNode;
 import ui.FormFieldNumber;
 
 public class EditMultiplyValues extends AbstractUndoableEdit {

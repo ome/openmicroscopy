@@ -35,6 +35,8 @@ public class FieldEditorCustom extends FieldEditor {
 		
 		// can't edit custom fields
 		nameFieldEditor.getTextArea().setEnabled(false);
+		// can't set color attribute (won't be saved in xml)
+		colourSelectButton.setEnabled(false);
 		
 		attributeFieldsPanel.remove(inputTypePanel);
 		attributeFieldsPanel.remove(descriptionFieldEditor);

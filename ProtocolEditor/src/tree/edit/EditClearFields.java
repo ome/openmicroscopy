@@ -20,39 +20,56 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package tree;
+package tree.edit;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
-public class EditPromoteFields extends AbstractUndoableEdit {
+import tree.DataField;
+import tree.DataFieldConstants;
+import tree.DataFieldNode;
+
+public class EditClearFields extends AbstractUndoableEdit {
 	
-	ArrayList<DataFieldNode> movedFields;
-	int lastNodeChildCount;
+	Iterator<DataFieldNode> iterator;
+	ArrayList<EditDataFieldAttribute> editedFields;
 	
-	public EditPromoteFields (ArrayList<DataFieldNode> moveTheseFields) {
+	public EditClearFields (DataFieldNode rootNode) {
 		
-		movedFields = new ArrayList<DataFieldNode>(moveTheseFields);
-		lastNodeChildCount = movedFields.get(movedFields.size()-1).getChildren().size();
+		iterator = rootNode.iterator();
+		editedFields = new ArrayList<EditDataFieldAttribute>();
+
+		
+		while (iterator.hasNext()) {
+			DataField field = (DataField)iterator.next().getDataField();
+			String oldValue = field.getAttribute(DataFieldConstants.VALUE);	// may be null
+			String newValue = "";
+			
+			if (oldValue != null) {		// make a list of all fields that have a value attribute
+				editedFields.add(new EditDataFieldAttribute(field, DataFieldConstants.VALUE, oldValue, newValue));	// keep a reference to fields that have been edited
+			}
+			
+		}
+		redo();		// this sets value to "" (newValue) for all fields in the list
 	}
+	
 	
 	public void undo() {
-		Tree.demoteDataFields(movedFields);
-		// now have to restore any extra children of last node, acquired when it was promoted
-		DataFieldNode lastNode = movedFields.get(movedFields.size()-1);
-		int lastNodeNewChildCount = lastNode.getChildren().size();
-		
-		for (int i=lastNodeNewChildCount-1; i>lastNodeChildCount-1; i--) {
-			Tree.promoteDataField(lastNode.getChild(i));
+		for (EditDataFieldAttribute field: editedFields) {
+			field.undoNoHighlight();
 		}
 	}
+	
 	public void redo() {
-		Tree.promoteDataFields(movedFields);
+		for (EditDataFieldAttribute field: editedFields) {
+			field.redoNoHighlight();
+		}
 	}
 	
 	public String getPresentationName() {
-		return "Promote Fields";
+		return "Clear Fields";
 	}
 
 	public boolean canUndo() {
@@ -62,6 +79,5 @@ public class EditPromoteFields extends AbstractUndoableEdit {
 	public boolean canRedo() {
 		return true;
 	}
-
 
 }

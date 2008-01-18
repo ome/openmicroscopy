@@ -20,12 +20,16 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package tree;
+package tree.edit;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.swing.undo.AbstractUndoableEdit;
+
+import tree.DataField;
+import tree.DataFieldConstants;
+import tree.DataFieldNode;
 
 public class EditCopyDefaultValues extends AbstractUndoableEdit {
 	

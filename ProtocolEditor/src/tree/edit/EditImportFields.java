@@ -20,31 +20,40 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package tree;
+package tree.edit;
 
 import java.util.ArrayList;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
-public class EditMoveFieldsUp extends AbstractUndoableEdit {
+import tree.DataFieldNode;
+import tree.Tree;
+
+public class EditImportFields extends AbstractUndoableEdit {
 	
-	ArrayList<DataFieldNode> movedFields;
+	ArrayList<DataFieldNode> addedFields;
+	DataFieldNode parentNode;
+	int indexOfFirstHighlightedField;
 	
-	public EditMoveFieldsUp (ArrayList<DataFieldNode> moveTheseFields) {
+	public EditImportFields (ArrayList<DataFieldNode> addTheseFields) {
 		
-		movedFields = new ArrayList<DataFieldNode>(moveTheseFields);
+		addedFields = new ArrayList<DataFieldNode>(addTheseFields);
+		
+		DataFieldNode firstNode = addedFields.get(0);
+		parentNode = firstNode.getParentNode();
+		indexOfFirstHighlightedField = firstNode.getMyIndexWithinSiblings();
 		
 	}
 	
 	public void undo() {
-		Tree.moveFieldsDown(movedFields);
+		Tree.deleteDataFields(addedFields);
 	}
 	public void redo() {
-		Tree.moveFieldsUp(movedFields);
+		Tree.insertTheseDataFields(addedFields, parentNode, indexOfFirstHighlightedField);
 	}
 	
 	public String getPresentationName() {
-		return "Move Fields Up";
+		return "Import Fields";
 	}
 
 	public boolean canUndo() {
@@ -54,4 +63,6 @@ public class EditMoveFieldsUp extends AbstractUndoableEdit {
 	public boolean canRedo() {
 		return true;
 	}
+
 }
+

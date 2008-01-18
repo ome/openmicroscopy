@@ -20,47 +20,42 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package tree;
+package tree.edit;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
-public class EditDataFieldType extends AbstractUndoableEdit {
-	
-	private DataField dataField;
-	private LinkedHashMap<String, String> oldAttributes;
-	private LinkedHashMap<String, String> newAttributes;
+import tree.DataFieldNode;
+import tree.Tree;
 
+public class EditPromoteFields extends AbstractUndoableEdit {
 	
-	public EditDataFieldType(DataField dataField, LinkedHashMap<String, String> allAttributes) {
-		this.dataField = dataField;
-		this.oldAttributes = new LinkedHashMap<String, String>(allAttributes);
+	ArrayList<DataFieldNode> movedFields;
+	int lastNodeChildCount;
+	
+	public EditPromoteFields (ArrayList<DataFieldNode> moveTheseFields) {
+		
+		movedFields = new ArrayList<DataFieldNode>(moveTheseFields);
+		lastNodeChildCount = movedFields.get(movedFields.size()-1).getChildren().size();
 	}
 	
 	public void undo() {
-		// first, remember the new attributes to you can redo
-		newAttributes = new LinkedHashMap<String, String>(dataField.getAllAttributes());
+		Tree.demoteDataFields(movedFields);
+		// now have to restore any extra children of last node, acquired when it was promoted
+		DataFieldNode lastNode = movedFields.get(movedFields.size()-1);
+		int lastNodeNewChildCount = lastNode.getChildren().size();
 		
-		dataField.setAllAttributes(oldAttributes);
-		// set fieldEditor and formField to null, so that new ones are created for the new inputType
-		dataField.resetFieldEditorFormField();
-		
-		// need to display changes without adding this change to the undoActions history in Tree
-		dataField.notifyDataFieldObservers();	
+		for (int i=lastNodeNewChildCount-1; i>lastNodeChildCount-1; i--) {
+			Tree.promoteDataField(lastNode.getChild(i));
+		}
 	}
-	
 	public void redo() {
-		dataField.setAllAttributes(newAttributes);
-		// set fieldEditor and formField to null, so that new ones are created for the new inputType
-		dataField.resetFieldEditorFormField();	
-		
-		// need to display changes without adding this change to the undoActions history in Tree
-		dataField.notifyDataFieldObservers();
+		Tree.promoteDataFields(movedFields);
 	}
 	
 	public String getPresentationName() {
-		return "Change Field Type";
+		return "Promote Fields";
 	}
 
 	public boolean canUndo() {
@@ -70,4 +65,6 @@ public class EditDataFieldType extends AbstractUndoableEdit {
 	public boolean canRedo() {
 		return true;
 	}
+
+
 }

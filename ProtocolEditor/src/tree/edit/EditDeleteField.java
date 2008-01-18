@@ -20,11 +20,14 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package tree;
+package tree.edit;
 
 import java.util.ArrayList;
 
 import javax.swing.undo.AbstractUndoableEdit;
+
+import tree.DataFieldNode;
+import tree.Tree;
 
 public class EditDeleteField extends AbstractUndoableEdit {
 	

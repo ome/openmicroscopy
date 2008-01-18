@@ -31,6 +31,8 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.undo.UndoableEdit;
 
+import tree.edit.EditDataFieldAttribute;
+import tree.edit.EditDataFieldType;
 import ui.FieldEditor;
 import ui.FieldEditorFormFieldFactory;
 import ui.FormField;

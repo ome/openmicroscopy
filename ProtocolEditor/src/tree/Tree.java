@@ -42,6 +42,17 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import tree.edit.EditAddField;
+import tree.edit.EditClearFields;
+import tree.edit.EditCopyDefaultValues;
+import tree.edit.EditDeleteField;
+import tree.edit.EditDemoteFields;
+import tree.edit.EditDuplicateFields;
+import tree.edit.EditImportFields;
+import tree.edit.EditMoveFieldsDown;
+import tree.edit.EditMoveFieldsUp;
+import tree.edit.EditMultiplyValues;
+import tree.edit.EditPromoteFields;
 import ui.FieldEditor;
 import ui.FormFieldNumber;
 import ui.SelectionObserver;
@@ -688,14 +699,14 @@ public class Tree {
 	}
 	
 	// used to export the tree to DOM document
-	public void buildDOMfromTree(Document document) {
+	public static void buildDOMfromTree(DataFieldNode treeRootNode, Document document) {
 
 		//DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		
 		try {
 			// DocumentBuilder db = dbf.newDocumentBuilder();
 			//document = db.newDocument();
-			DataField rootField = rootNode.getDataField();
+			DataField rootField = treeRootNode.getDataField();
 			
 			String elementName = rootField.getInputType();
 		
@@ -723,7 +734,7 @@ public class Tree {
 			document.appendChild(element);
 			// System.out.println("Tree.buildDOMfromTree appendedChild: " + element.getNodeName());
 			
-			buildDOMchildrenFromTree(document, rootNode, element);
+			buildDOMchildrenFromTree(document, treeRootNode, element);
 			
 			
 		} catch (Exception ex) {
@@ -733,7 +744,7 @@ public class Tree {
 	}
 	
 	// recursive function to build DOM from tree
-	private void buildDOMchildrenFromTree(Document document, DataFieldNode rootNode, Element rootElement) {
+	private static void buildDOMchildrenFromTree(Document document, DataFieldNode rootNode, Element rootElement) {
 		
 		ArrayList<DataFieldNode> childNodes = rootNode.getChildren();
 		if (childNodes.size() == 0) return;
@@ -770,7 +781,7 @@ public class Tree {
 	}
 	
 	// copies each dataField's attribute Hash Map into element's attributes
-	private void parseAttributesMapToElement(LinkedHashMap<String, String> allAttributes, Element element) {
+	private static void parseAttributesMapToElement(LinkedHashMap<String, String> allAttributes, Element element) {
 		
 		String inputType = allAttributes.get(DataFieldConstants.INPUT_TYPE);
 		boolean customElement = false;
