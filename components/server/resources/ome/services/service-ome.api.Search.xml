@@ -22,7 +22,7 @@
   <bean singleton="false" parent="stateful"
         id="internal:ome.api.Search"
      class="ome.services.SearchBean">
-     <constructor-arg ref="executor"/>
+     <property name="executor" ref="executor"/>
   </bean>
 
   <bean id="managed:ome.api.Search" parent="selfManagingService" singleton="false">

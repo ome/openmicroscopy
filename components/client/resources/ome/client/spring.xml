@@ -175,6 +175,11 @@
     <property name="proxyInterface" value="omeis.providers.re.RenderingEngine"/>
   </bean>
 
+  <bean id="managed:ome.api.Search" parent="statefulJndi">
+    <property name="jndiName" value="omero/${server.transport}/ome.api.Search"/>
+    <property name="proxyInterface" value="ome.api.Search"/>
+  </bean>
+
   <bean id="managed:ome.api.ThumbnailStore" parent="statefulJndi">
     <property name="jndiName" value="omero/${server.transport}/ome.api.ThumbnailStore"/>
     <property name="proxyInterface" value="ome.api.ThumbnailStore"/>

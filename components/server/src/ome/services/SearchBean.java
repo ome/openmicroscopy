@@ -44,6 +44,7 @@ import ome.services.search.SomeMustNone;
 import ome.services.search.Tags;
 import ome.services.util.Executor;
 import ome.services.util.OmeroAroundInvoke;
+import ome.system.SelfConfigurableService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,15 +83,32 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     private final List<List<IObject>> results = new ArrayList<List<IObject>>();
 
-    private final Executor executor;
+    private/* final */Executor executor;
 
-    /** default constructor */
     public SearchBean(Executor executor) {
         this.executor = executor;
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
         return Search.class;
+    }
+
+    /**
+     * Empty constructor required by EJB and
+     * {@link SelfConfigurableService self configuration}.
+     */
+    public SearchBean() {
+
+    }
+
+    /**
+     * Injector used by Spring, currently, since
+     * {@link SelfConfigurableService#selfConfigure()} requires it.
+     * 
+     * @param executor
+     */
+    public void setExecutor(Executor executor) {
+        this.executor = executor;
     }
 
     // Lifecycle methods
