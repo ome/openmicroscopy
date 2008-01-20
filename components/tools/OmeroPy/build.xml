@@ -50,6 +50,8 @@
         <copy file="${basedir}/bin/omero" tofile="${basedir}/build/bin/omero"/>
     </target>
 
+    <target name="tools-test" depends="tools-build,python-test" description="Runs test target of setup.py"/>
+
     <target name="tools-dist" depends="tools-build,python-install" description="Copies files into tools/target">
     </target>
 
