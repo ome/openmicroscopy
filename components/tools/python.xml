@@ -8,14 +8,7 @@
     <macrodef name="setup_py">
         <element name="args" implicit="true"/>
         <sequential>
-            <dirset dir="${basedir}" id="nose.path">
-                <include name="nose*egg"/>
-            </dirset>
-            <pathconvert property="pythonpath" refid="nose.path">
-                <flattenmapper/>
-            </pathconvert>
             <exec executable="${basedir}/setup.py" failonerror="true">
-                <env key="PYTHONPATH" path="${pythonpath}:${basedir}/target"/>
                 <args/>
             </exec>
         </sequential>
@@ -49,8 +42,7 @@
 
     <target name="python-test" unless="py.NOPYTHON">
         <setup_py>
-            <arg value="nosetests"/>
-            <arg value="-P"/>
+            <arg value="test"/>
         </setup_py>
     </target>
 

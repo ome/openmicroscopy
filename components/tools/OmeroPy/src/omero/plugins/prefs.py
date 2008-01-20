@@ -1,7 +1,7 @@
 
 def do_prefs(self, arg):
-    import ome.java, shlex
-    print ome.java.run(["prefs"]+shlex.split(arg))
+    import omero.java, shlex
+    print omero.java.run(["prefs"]+shlex.split(arg))
 
 CLI.do_prefs = do_prefs
 

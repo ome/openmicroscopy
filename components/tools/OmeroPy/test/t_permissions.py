@@ -1,4 +1,4 @@
-import unittest, omero.model, omero.model.PermissionsI
+import unittest, omero.model, omero_model_PermissionsI
 
 class TestPermissions(unittest.TestCase):
 
