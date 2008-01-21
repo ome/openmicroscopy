@@ -46,6 +46,14 @@
         </setup_py>
     </target>
 
+    <target name="python-integration" unless="py.NOPYTHON">
+        <setup_py>
+            <arg value="test"/>
+            <arg value="-s"/>
+            <arg value="test.integration.suite"/>
+        </setup_py>
+    </target>
+
     <target name="python-install" unless="py.NOPYTHON">
         <copy todir="../target">
             <fileset dir="build" includes="**/*"/>
