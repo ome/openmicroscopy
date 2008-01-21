@@ -17,10 +17,15 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.hibernate.Criteria;
+import org.hibernate.EntityMode;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
+import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.SimpleExpression;
+import org.hibernate.engine.TypedValue;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.springframework.transaction.TransactionStatus;
@@ -79,24 +84,44 @@ public class FullText extends SearchAction {
         if (values.ownedBy != null) {
             Details d = values.ownedBy;
             if (/* ownable && */d.getOwner() != null) {
-                criteria.add(Restrictions.eq("details.owner.id", values.ownedBy
-                        .getOwner().getId()));
+                Long id = d.getOwner().getId();
+                if (id == null) {
+                    throw new ApiUsageException("Id for owner cannot be null.");
+                }
+                criteria.add(Restrictions.eq("details.owner.id", id));
             } else if (d.getGroup() != null) {
-                criteria.add(Restrictions.eq("details.group.id", values.ownedBy
-                        .getGroup().getId()));
+                Long id = d.getOwner().getId();
+                if (id == null) {
+                    throw new ApiUsageException("Id for group cannot be null.");
+                }
+                criteria.add(Restrictions.eq("details.group.id", id));
             }
         }
 
         if (values.onlyAnnotatedWith != null) {
-            if (values.onlyAnnotatedWith.size() > 0) {
+            if (values.onlyAnnotatedWith.size() > 1) {
+                throw new ApiUsageException(
+                        "HHH-879: "
+                                + "At the moment Hibernate cannot fulfill this request.\n"
+                                + "Please use only a single onlyAnnotatedWith "
+                                + "parameter when performing full text searches.");
+            } else if (values.onlyAnnotatedWith.size() > 0) {
                 if (!IAnnotated.class.isAssignableFrom(cls)) {
                     // A non-IAnnotated object cannot have any
                     // Annotations, and so our results are null
                     result = null;
                     return; // EARLY EXIT !
+                } else {
+                    for (Class annCls : values.onlyAnnotatedWith) {
+                        Criteria links = criteria
+                                .createCriteria("annotationLinks");
+                        Criteria child = links.createCriteria("child");
+
+                        SimpleExpression ofType = new TypeEqualityExpression(
+                                "class", annCls);
+                        child.add(ofType);
+                    }
                 }
-                Criteria anns = criteria.add(Restrictions
-                        .isNotEmpty("annotationLinks"));
             } else {
                 criteria.add(Restrictions.isEmpty("annotationLinks"));
             }
@@ -108,4 +133,53 @@ public class FullText extends SearchAction {
         // scroll = query.scroll(ScrollMode.FORWARD_ONLY);
         result = query.list();
     }
+}
+
+// Copied from http://opensource.atlassian.com/projects/hibernate/browse/HHH-746
+class TypeEqualityExpression extends SimpleExpression {
+
+    private final Class classValue;
+    private final String classPropertyName;
+
+    public TypeEqualityExpression(String propertyName, Class value) {
+        super(propertyName, value, "=");
+        this.classPropertyName = propertyName;
+        this.classValue = value;
+    }
+
+    @Override
+    public TypedValue[] getTypedValues(Criteria criteria,
+            CriteriaQuery criteriaQuery) throws HibernateException {
+
+        return new TypedValue[] { fixDiscriminatorTypeValue(criteriaQuery
+                .getTypedValue(criteria, classPropertyName, classValue)) };
+
+    }
+
+    private TypedValue fixDiscriminatorTypeValue(TypedValue typedValue) {
+        Object value = typedValue.getValue();
+
+        // check to make sure we can reconstruct an equivalent TypedValue
+        if (!String.class.isInstance(value)
+                || !typedValue.equals(new TypedValue(typedValue.getType(),
+                        typedValue.getValue(), EntityMode.POJO))) {
+            return typedValue;
+        }
+
+        /** replace leading and trailing apostrophes* */
+        String svalue = value.toString();
+
+        if (svalue.charAt(0) == '\''
+                && svalue.charAt(svalue.length() - 1) == '\'') {
+            value = svalue.substring(0, svalue.length() - 1).substring(1);
+            /** ***************************************** */
+        }
+
+        if (!value.equals(typedValue.getValue())) {
+            return new TypedValue(typedValue.getType(), value, EntityMode.POJO);
+        } else {
+            return typedValue;
+        }
+    }
+
 }

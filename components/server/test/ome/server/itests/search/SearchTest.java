@@ -16,6 +16,9 @@ import ome.model.annotations.BooleanAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.TagAnnotation;
 import ome.model.core.Image;
+import ome.model.internal.Details;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 
 import org.testng.annotations.Test;
 
@@ -58,8 +61,75 @@ public class SearchTest extends AbstractTest {
     }
 
     @Test
-    public void testOnlyOwnerBy() {
-        fail("nyi");
+    public void testOnlyOwnedByOwner() {
+
+        Experimenter e = loginNewUser();
+        Details user = Details.create();
+        user.setOwner(e);
+
+        String name = uuid();
+        Image i = new Image(name);
+        i = iUpdate.saveAndReturnObject(i);
+        indexObject(i);
+
+        loginRoot();
+        long id = iAdmin.getEventContext().getCurrentUserId();
+        Experimenter self = new Experimenter(id, false);
+        Details root = Details.create();
+        root.setOwner(self);
+
+        // With no restriction it should be found.
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+        search.byFullText(name);
+        assertEquals(1, search.results().size());
+
+        // Restrict only to root, and then shouldn't be found
+        search.onlyOwnedBy(root);
+        search.byFullText(name);
+        assertFalse(search.hasNext());
+
+        // Now restrict to the user, and again one
+        search.onlyOwnedBy(user);
+        search.byFullText(name);
+        assertEquals(1, search.results().size());
+    }
+
+    @Test
+    public void testOnlyOwnedByGroup() {
+
+        Experimenter e = loginNewUser();
+        ExperimenterGroup g = new ExperimenterGroup(iAdmin.getEventContext()
+                .getCurrentGroupId(), false);
+        Details user = Details.create();
+        user.setGroup(g);
+
+        String name = uuid();
+        Image i = new Image(name);
+        i = iUpdate.saveAndReturnObject(i);
+        indexObject(i);
+
+        loginRoot();
+        long id = iAdmin.getEventContext().getCurrentGroupId();
+        ExperimenterGroup self = new ExperimenterGroup(id, false);
+        Details root = Details.create();
+        root.setGroup(self);
+
+        // With no restriction it should be found.
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+        search.byFullText(name);
+        assertEquals(1, search.results().size());
+
+        // Restrict only to root, and then shouldn't be found
+        search.onlyOwnedBy(root);
+        search.byFullText(name);
+        assertFalse(search.hasNext());
+
+        // Now restrict to the user, and again one
+        search.onlyOwnedBy(user);
+        search.byFullText(name);
+        assertEquals(1, search.results().size());
     }
 
     @Test
@@ -114,7 +184,7 @@ public class SearchTest extends AbstractTest {
         assertEquals(1, search.results().size());
     }
 
-    @Test
+    @Test(groups = { "HHH-879", "broken" })
     public void testOnlyAnnotatedWithMultiple() {
         String name = uuid();
         Image onlyTag = new Image(name);
@@ -131,7 +201,12 @@ public class SearchTest extends AbstractTest {
         both.linkAnnotation(bool);
         onlyBool.linkAnnotation(bool);
 
-        iUpdate.saveArray(new IObject[] { onlyTag, onlyBool, both });
+        IObject[] arr = iUpdate.saveAndReturnArray(new IObject[] { onlyTag,
+                onlyBool, both });
+        for (IObject object : arr) {
+            indexObject(object);
+        }
+        loginRoot();
 
         Search search = this.factory.createSearchService();
         search.onlyType(Image.class);
