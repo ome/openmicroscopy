@@ -51,7 +51,7 @@ import ome.model.meta.ExperimenterGroup;
  */
 public abstract class DataObject {
 
-    public static Set asPojos(Set iObjects) {
+    public static Set asPojos(Collection iObjects) {
         Set result = new HashSet();
         for (Iterator it = iObjects.iterator(); it.hasNext();) {
             IObject obj = (IObject) it.next();
@@ -67,13 +67,21 @@ public abstract class DataObject {
             Object key = it.next();
             Object value = iObjects.get(key);
 
-            DataObject convertedKey = null, convertedValue = null;
+            Object convertedKey = null, convertedValue = null;
             if (key instanceof IObject) {
-                convertedKey = asPojo((IObject) iObjects.get(key));
+                convertedKey = asPojo((IObject) key);
+            } else if (key instanceof Collection) {
+                convertedKey = asPojos((Collection) key);
+            } else if (key instanceof Map) {
+                convertedKey = asPojos((Map) key);
             }
 
             if (value instanceof IObject) {
-                convertedValue = asPojo((IObject) iObjects.get(value));
+                convertedValue = asPojo((IObject) iObjects.get(key));
+            } else if (value instanceof Collection) {
+                convertedValue = asPojos((Collection) iObjects.get(key));
+            } else if (value instanceof Map) {
+                convertedValue = asPojos((Map) iObjects.get(key));
             }
 
             result.put(null == convertedKey ? key : convertedKey,

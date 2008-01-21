@@ -14,7 +14,8 @@ import ome.model.annotations.TextAnnotation;
 
 /**
  * Holds a textual annotation of a given data object and a reference to the
- * Experimenter that wrote it.
+ * Experimenter that wrote it. This class wraps a given {@link Annotation}
+ * instance in a wrapper.
  * 
  * @author Jean-Marie Burel, j.burel at dundee.ac.uk
  * @author Andrea Falconi, a.falconi at dundee.ac.uk
@@ -22,12 +23,6 @@ import ome.model.annotations.TextAnnotation;
  * @since OME2.2
  */
 public class AnnotationData extends DataObject {
-
-    /**
-     * The object this annotation refers to, for example Image or Dataset. This
-     * field may not be <code>null</code>.
-     */
-    private DataObject annotatedObject;
 
     /**
      * A wrapper which handles dispatching all {@link Annotation} needs to a

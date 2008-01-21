@@ -372,6 +372,11 @@ public class PojosServiceTest extends TestCase {
         m = iPojos.findAnnotations(Dataset.class, ids, null, null);
         assertTrue(m.size() > 0);
         assertAnnotations(m);
+
+        Map<Long, Set<AnnotationData>> m2 = DataObject.asPojos(m);
+        AnnotationData data = m2.values().iterator().next().iterator().next();
+        assertNotNull(data.getOwner());
+
     }
 
     void assertAnnotations(Map<Long, Set<IObject>> m) {
@@ -381,8 +386,9 @@ public class PojosServiceTest extends TestCase {
         assertTrue(ann.getDetails().getOwner().isLoaded());
         assertNotNull(ann.getDetails().getCreationEvent());
         assertTrue(ann.getDetails().getCreationEvent().isLoaded());
-        assertNotNull(ann.getDetails().getUpdateEvent());
-        assertTrue(ann.getDetails().getUpdateEvent().isLoaded());
+        // Annotations are immutable
+        // assertNotNull(ann.getDetails().getUpdateEvent());
+        // assertTrue(ann.getDetails().getUpdateEvent().isLoaded());
 
     }
 

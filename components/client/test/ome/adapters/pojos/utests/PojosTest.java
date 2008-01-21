@@ -13,12 +13,14 @@ import java.util.Set;
 import junit.framework.TestCase;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
+import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
+import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
@@ -31,8 +33,10 @@ import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
+import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -339,6 +343,18 @@ public class PojosTest extends TestCase {
         Iterator<GroupData> it = ed.getGroups().iterator();
         assertTrue(g1 == it.next().asGroup());
         assertTrue(g2 == it.next().asGroup());
+    }
+
+    @Test
+    public void testAnnotationHasOwnerDetails() {
+        TagAnnotation tag = new TagAnnotation();
+        Details d = tag.getDetails();
+        d.setOwner(new Experimenter(1L, false));
+        d.setGroup(new ExperimenterGroup(2L, false));
+        AnnotationData aData = new AnnotationData(tag);
+        assertNotNull(aData.getOwner());
+        aData = (AnnotationData) DataObject.asPojo(tag);
+        assertNotNull(aData.getOwner());
     }
 
 }
