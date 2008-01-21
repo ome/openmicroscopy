@@ -46,9 +46,11 @@
         </slice_py>
     </target>
 
+    <!-- Copied prefs.class for testing the prefs plugin. -->
     <target name="tools-build" depends="tools-init,python-build" description="Uses setup.py to build artifacts">
         <copy file="${basedir}/bin/omero" tofile="${basedir}/build/bin/omero"/>
         <chmod file="${basedir}/build/bin/omero" perm="ugo+x"/>
+        <copy file="${basedir}/../../common/target/classes/prefs.class" todir="${basedir}/build/"/>
     </target>
 
     <target name="tools-test" depends="tools-build,python-test" description="Runs test target of setup.py"/>

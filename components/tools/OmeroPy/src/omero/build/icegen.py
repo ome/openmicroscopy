@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+"""
+   distutils command (unused)
+
+   Command class originally used to generate slice from
+   within setup.py. This is now handled by ant's build.xml.
+
+   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+   Use is subject to license terms supplied in LICENSE.txt
+
+"""
+
 from distutils.cmd import Command
 from distutils.errors import *
 from distutils import log
@@ -24,5 +36,5 @@ class icegen(Command):
         log.info(os.path.abspath(self.copy_dir));
         log.info(commands.getoutput("which slice2py"))
         log.info(commands.getoutput("slice2py --help"))
-        (out,rv) = commands.get("slice2py 
+        (out,rv) = commands.get("slice2py")
 

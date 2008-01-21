@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+
+"""
+   Simple unit test which makes various calls on the code
+   generated model.
+
+   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+   Use is subject to license terms supplied in LICENSE.txt
+
+"""
+
 import unittest
 import omero
 from omero_model_PixelsI import PixelsI
@@ -51,11 +62,11 @@ class TestModel(unittest.TestCase):
 
     def testSequences(self):
         img = ImageI()
-        self.assert_( img.annotationsLoaded )
-        img.annotations.append(None)
+        self.assert_( img.annotationLinksLoaded )
+        img.annotationLinks.append(None)
         img.unload()
-        self.assert_( not img.annotationsLoaded )
-        self.assert_( img.annotations == None )
+        self.assert_( not img.annotationLinksLoaded )
+        self.assert_( img.annotationLinks == None )
 
     def testAccessors(self):
         name = omero.RString("name")

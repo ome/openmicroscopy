@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+
+"""
+   Simple unit test which stipulates what the default permissions
+   values should be.
+
+   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+   Use is subject to license terms supplied in LICENSE.txt
+
+"""
+
 import unittest, omero.model, omero_model_PermissionsI
 
 class TestPermissions(unittest.TestCase):

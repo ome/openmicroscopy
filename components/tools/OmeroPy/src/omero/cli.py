@@ -20,7 +20,7 @@ See LICENSE for details.
 
 """
 
-import cmd, string, re, os, types, shlex
+import cmd, string, re, os, types, shlex, exceptions
 from omero_ext import pysys
 
 VERSION=1.0
@@ -45,6 +45,11 @@ class Command:
     def __call__(self, arg):
         print arg
 
+class Exc(exceptions.Exception):
+    """
+    Top of the CLI exception hierarchy
+    """
+    pass
 
 class CLI(cmd.Cmd):
     """
@@ -114,9 +119,36 @@ class CLI(cmd.Cmd):
             return cmd.Cmd.parseline(self,line)
 
     def shlex(self, input):
+        """
+        Used to split a string argument via shlex.split(). If the
+        argument is not a string, then it is returned unchnaged.
+        This is useful since the arg argument to all plugins can
+        be either a list or a string.
+        """
         if isinstance(input, types.StringType):
             return shlex.split(input)
         return input
+
+    def throw(self, string):
+        """
+        Simple method for throwing a Cli-specific exception
+        """
+        raise Exc(string)
+
+    def pythonpath(self):
+        """
+        Converts the current sys.path to a PYTHONPATH string
+        to be used by plugins which must start a new process.
+
+        Note: this was initially created for running during
+        testing when PYTHONPATH is not properly set.
+        """
+        path = list(pysys.path)
+        for i in range(0,len(path)-1):
+            if path[i] == '':
+                path[i] = os.getcwd()
+        pythonpath = ":".join(path)
+        return pythonpath
 
     def default(self,arg):
         if arg.startswith("EOF"):

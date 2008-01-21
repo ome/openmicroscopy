@@ -13,3 +13,4 @@ import sys
 argv = sys.argv
 stderr = sys.stderr
 exit = sys.exit
+path = sys.path

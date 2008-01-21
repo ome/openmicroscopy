@@ -1,9 +1,18 @@
-#
-#   $Id$
-#
-#   Copyright 2007 Glencoe Software, Inc. All rights reserved.
-#   Use is subject to license terms supplied in LICENSE.txt
-#
+#!/usr/bin/env python
+"""
+   Primary OmeroPy types
+
+   Classes:
+    omero.client    -- Main OmeroPy connector object
+
+   Functions:
+       omero.script -- Produces an omero.client object with
+                       given input/output constraints.
+
+   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+   Use is subject to license terms supplied in LICENSE.txt
+
+"""
 
 import exceptions
 import Ice, Glacier2
@@ -165,6 +174,39 @@ class client(object):
             router.destroySession()
         except Ice.ConnectionLostException:
             pass
+
+    # The following {get,set}{Input,Output} methods
+    # are temporary and only unintended to allow
+    # script development while OmeroSessions are
+    # being developed.
+
+    def getInput(self, key):
+        if not hasattr(self, "inputs"):
+            self.inputs = {}
+        try:
+            rv = self.inputs[key]
+        except KeyError, ke:
+            rv = self.getProperty(key)
+        return rv
+
+    def setInput(self, key, value):
+        if not hasattr(self, "inputs"):
+            self.inputs = {}
+        self.inputs[key] = value
+
+    def getOutput(self, key):
+        if not hasattr(self, "outputs"):
+            self.outputs = {}
+        try:
+            rv = self.outputs[key]
+        except KeyError, ke:
+            rv = self.getProperty(key)
+        return rv
+
+    def setOutput(self, key, value):
+        if not hasattr(self, "outputs"):
+            self.outputs = {}
+        self.outputs[key] = value
 
 def script(name, description = None, **kwargs):
     """

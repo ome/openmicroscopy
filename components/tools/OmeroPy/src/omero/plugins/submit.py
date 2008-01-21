@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+"""
+   submit plugin
+
+   Plugin read by omero.cli.Cli during initialization. The method(s)
+   defined here will be added to the Cli class for later use.
+
+   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+   Use is subject to license terms supplied in LICENSE.txt
+
+"""
+
 
 import cmd, sys, exceptions
 import sys
