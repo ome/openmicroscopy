@@ -8,7 +8,7 @@
 
 Note: lines not prefixed with [...] will be omitted in the final product.
 The other prefixes are used by blitz/build.xml to determine how this file
-will be split. This is done because the individual velocity if/elseif's 
+will be split. This is done because the individual velocity if/elseif's
 and sets are nearly identical.
 
 Here we turn off all prefixes except for ice.  Since <>I files are
@@ -241,7 +241,7 @@ since all collections are lists in ice.
 [$pyc]               self.${property.name}Loaded = False;
 [$pyc]
 #end
-#end
+#end##FOREACH
 [$jav]    }
 [$cpp]    }
 ##               In case there are no collections
@@ -287,6 +287,10 @@ UNLOAD BLOCK:
 [$pyc]           self.loaded = False
 [$jav]           loaded = false;
 [$cpp]           loaded = false;
+## Properties not in foreach
+## [$jav]           unloadDetails( );
+## [$cpp]           unloadDetails( );
+## [$pyc]           self.unloadDetails( )
 #foreach($property in $type.propertyClosure)
 #if(!$clazz.identifierProperty.equals($property))
 #set( $PropertyName = $property.nameCapped )
@@ -294,7 +298,7 @@ UNLOAD BLOCK:
 [$cpp]           unload${PropertyName}( );
 [$pyc]           self.unload${PropertyName}( )
 #end
-#end
+#end##FOREACH
 [$pyc]
 [$jav]    }
 [$cpp]    }
@@ -1048,7 +1052,7 @@ CLASS-LEVEL EXTRA METHODS:
 #elseif($prop.class.name == "ome.dsl.LinkChild")
 #set( $child = ${prop.shortType} )
 #end
-#end
+#end##FOREACH
 
 [$jav]       public void link(${parent} _parent, ${child} _child) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
@@ -1103,6 +1107,8 @@ COPYOBJECT BLOCK:
 [$jav]                ${type.id} source = (${type.id}) model;
 [$jav]                this.loaded = source.isLoaded();
 [$jav]                this.setId( (Long) mapper.findTarget( source.getId() ));
+## Properties not in foreach
+## [$jav]                if (this.loaded) this.setDetails( (omero.model.Details) mapper.findTarget( source.getDetails() ));
 #foreach($property in $type.propertyClosure)
 #set( $PropertyName = $property.nameCapped )
 #set( $javaType = $property.type )
@@ -1144,7 +1150,7 @@ COPYOBJECT BLOCK:
 
 [$jav]              $guard this.set${PropertyName}(($javaType) mapper.find${findMethod}($method));
 
-#end
+#end##FOREACH
 
 [$jav]       } else {
 [$jav]                throw new IllegalArgumentException(
@@ -1164,6 +1170,8 @@ FILLOBJECT BLOCK:
 [$jav]             target.unload();
 [$jav]           } else {
 [$jav]             target.setId( this.getId() ); // special property
+## Properties not in foreach
+## [$jav]             target.setDetails( (ome.model.internal.Details) mapper.reverse( (ome.model.ModelBased) this.getDetails() ) );
 #foreach($property in $type.propertyClosure)
 #set( $PropertyName = $property.nameCapped )
 #set( $javaType = $property.type )
@@ -1196,7 +1204,7 @@ ticket:684 This is necessary to map back and forth from sets.
 #else
 [$jav]             target.set${PropertyName}( this.get${PropertyName}() );
 #end
-#end
+#end##FOREACH
 
 [$jav]           }
 [$jav]           return target;

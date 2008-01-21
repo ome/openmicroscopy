@@ -367,7 +367,7 @@ class DSLHandler extends DefaultHandler {
 
         /*
          * Final post-processing step. Each semantic type should be given it's
-         * finalized superclass instance
+         * finalized superclass instance as well as its Details property.
          */
         for (String id : types.keySet()) {
             SemanticType t = types.get(id);
@@ -375,6 +375,8 @@ class DSLHandler extends DefaultHandler {
             if (superclass != null) {
                 SemanticType s = types.get(superclass);
                 t.setActualSuperClass(s);
+            } else {
+                t.getProperties().add(new DetailsField(t, new Properties()));
             }
         }
 

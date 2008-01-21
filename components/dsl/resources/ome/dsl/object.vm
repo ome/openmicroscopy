@@ -229,57 +229,6 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
         this.id = id;
     }
 
-    public final static String DETAILS = "${type.id}_details";
-
-   /**
-    * Note: subclasses of this class can only return subclasses of 
-    * this {@link Details} type.
-    */
-   protected Details details = new Details();
-
-   /**
-    * The details of this object correspond to low-level system
-    * information. Owner, permissions, Details is always guaranteed 
-    * to be non-null, unless the user actively nulls it.
-    *
-    * Every entity also contains a Detail reference, which doesn't
-    * refer to a separate table but rather to a collection of fields
-    * collected into a Hibernate "component" which is embedded in the
-    * object.
-    *
-    * HQL queries which refer to the Details component cannot directly
-    * fetch the entity like this:
-    *
-    *    select o from Object join fetch o.details
-    *
-    * but rather each field of the Details instance must be explicitly
-    * joined:
-    *
-    *    select o from Object join fetch o.details.owner
-    *
-    * It should also be noted that not all types have all the fields
-    * which are present on Details. For example,
-    *
-    *    select e from Experimenter e join fetch e.details.owner
-    *
-    * will fail. Experimenter has no owner, for obvious reasons.
-    */
-    @javax.persistence.Embedded
-    @org.hibernate.annotations.Target(Details.class)
-    public ome.model.internal.Details getDetails() {
-        preGetter( DETAILS );
-        return this.details;
-    }
-
-   /**
-    * Use the {@link Details\#copy(Details)} or {@link Details\#shallowCopy(Details)}
-    * methods to set the {@link Details} instance instead.
-    */
-    protected void setDetails(ome.model.internal.Details details) {
-        preSetter( DETAILS, details );
-        this.details = (Details) details;
-    }
-
 #end
 
    /*
@@ -353,7 +302,55 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
 ##
     protected ${prop.fieldType} ${prop.name} = ${prop.fieldInitializer};
 
-#if($prop.class.name == "ome.dsl.EntryField")#############################TYPE
+#if($prop.name == "details") #############################################TYPE
+
+   /**
+    * The details of this object correspond to low-level system
+    * information. Owner, permissions, Details is always guaranteed 
+    * to be non-null, unless the user actively nulls it.
+    *
+    * Every entity also contains a Detail reference, which doesn't
+    * refer to a separate table but rather to a collection of fields
+    * collected into a Hibernate "component" which is embedded in the
+    * object.
+    *
+    * HQL queries which refer to the Details component cannot directly
+    * fetch the entity like this:
+    *
+    *    select o from Object join fetch o.details
+    *
+    * but rather each field of the Details instance must be explicitly
+    * joined:
+    *
+    *    select o from Object join fetch o.details.owner
+    *
+    * It should also be noted that not all types have all the fields
+    * which are present on Details. For example,
+    *
+    *    select e from Experimenter e join fetch e.details.owner
+    *
+    * will fail. Experimenter has no owner, for obvious reasons.
+    *
+    * Note: subclasses of this class will return a subclasse of 
+    * the {@link ome.model.internal.Details} type.
+    */
+    @javax.persistence.Embedded
+    @org.hibernate.annotations.Target(Details.class)
+    public ome.model.internal.Details getDetails() {
+        preGetter( DETAILS );
+        return this.details;
+    }
+
+   /**
+    * Use the {@link Details\#copy(Details)} or {@link Details\#shallowCopy(Details)}
+    * methods to set the {@link Details} instance instead.
+    */
+    protected void setDetails(ome.model.internal.Details details) {
+        preSetter( DETAILS, details );
+        this.details = (Details) details;
+    }
+
+#elseif($prop.class.name == "ome.dsl.EntryField")#############################TYPE
 ##
 ##  EntryFields are handled by ome/dsl/data.vm, since each of the entries isn't
 ##  a real property but rather an enum value for the database. However, they
@@ -952,7 +949,6 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
     public boolean acceptFilter(ome.util.Filter __filter){
 #if(!$type.superclass)
         this.id = (Long) __filter.filter(ID, this.id);
-        this.details = (Details) __filter.filter(DETAILS, this.details);
 #end
 #if(!${type.immutable} && !${type.superclass})
         this.version = (Integer) __filter.filter(VERSION, this.version);
@@ -1003,7 +999,6 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
        java.util.Set<String> raw = new java.util.HashSet<String>();
 #if(!$type.superclass)
        raw.add(ID);
-       raw.add(DETAILS);
 #end
 #if(!${type.immutable} && !${type.superclass})
        raw.add(VERSION);
@@ -1034,8 +1029,6 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
 #if(!$type.superclass)
         } else if (field.equals(ID)) {
              return getId();
-        } else if (field.equals(DETAILS)) {
-             return getDetails();
 #end
 #if(!${type.immutable} && !${type.superclass})
         } else if (field.equals(VERSION)) {
@@ -1069,8 +1062,6 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
 #if(!$type.superclass)
         } else if (field.equals(ID)) {
              setId((Long) value);
-        } else if (field.equals(DETAILS)) {
-             setDetails((Details) value);
 #end
 #if(!${type.immutable} && !${type.superclass})
         } else if (field.equals(VERSION)) {
@@ -1115,9 +1106,6 @@ implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($
 
     public void unload() {
         _loaded = false;
-#if(!$type.superclass)
-        this.details = null;
-#end
 #if(!${type.immutable} && !${type.superclass})
         this.version = null;
 #end

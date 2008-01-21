@@ -706,3 +706,17 @@ class EntryField extends Property {
         }
     }
 }
+
+class DetailsField extends Property {
+
+    public DetailsField(SemanticType st, Properties attrs) {
+        super(st, attrs);
+        setName("details");
+        setType("ome.model.internal.Details");
+    }
+
+    @Override
+    public String getFieldInitializer() {
+        return "new Details()";
+    }
+}
