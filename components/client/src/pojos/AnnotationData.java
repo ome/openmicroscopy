@@ -134,7 +134,7 @@ public class AnnotationData extends DataObject {
         if (nullDetails()) {
             return null;
         }
-        return timeOfEvent(getDetails().getUpdateEvent());
+        return timeOfEvent(getDetails().getCreationEvent());
     }
 
     private void setWrapper(Annotation a) {
