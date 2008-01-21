@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-   Simple integration test which makes various calls on the
+   Integration test focused on the omero.api.IPojos interface
    a running server.
 
    Copyright 2008 Glencoe Software, Inc. All rights reserved.
@@ -11,6 +11,7 @@
 
 import test.integration.library as lib
 import omero
+import omero_RTypes_ice
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI
@@ -19,12 +20,13 @@ from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 
-class TestSimple(lib.ITest):
+class TestIPojos(lib.ITest):
 
-    def testCurrentUser(self):
-        admin = self.client.sf.getAdminService()
-        ec = admin.getEventContext()
-        self.assert_(ec)
+    def testFindAnnotations(self):
+        ipojo = self.client.sf.getPojosService()
+        i = ImageI()
+        i.setName(omero.RString("name"))
+        i = ipojo.createDataObject(i,None)
 
 if __name__ == '__main__':
     unittest.main()

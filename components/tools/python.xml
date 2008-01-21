@@ -48,6 +48,7 @@
 
     <target name="python-integration" unless="py.NOPYTHON">
         <setup_py>
+            <env key="ICE_CONFIG" value="${basedir}/../../blitz/resources/ice.config,${basedir}/../../../etc/local.properties"/>
             <arg value="test"/>
             <arg value="-s"/>
             <arg value="test.integration.suite"/>
