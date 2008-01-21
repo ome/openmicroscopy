@@ -329,6 +329,7 @@ public class prefs {
                 rv[i] = key + "=" + value;
             }
         }
+        Arrays.sort(rv);
         return rv;
 
     }
