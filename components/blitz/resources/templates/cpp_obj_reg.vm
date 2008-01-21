@@ -1,16 +1,16 @@
 #*
  *   $Id$
- * 
+ *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- * 
+ *
  *#
 /*
  *   $$Id$$
- * 
+ *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- * 
+ *
  */
 
 //
@@ -33,23 +33,11 @@ namespace omero {
     if (0==type.compare("::omero::model::Details")) {
         return new omero::model::DetailsI();
     }
-#foreach($pojo in $c2j.getPOJOIterator( $cfg.getClassMappings() ))
-#if(!$pojo.classModifiers.contains("abstract"))
-    if (0==type.compare("::omero::model::${pojo.declarationName}")) {
-      return new omero::model::${pojo.declarationName}I();
+#foreach($type in $types)
+#if(!$type.abstract)
+    if (0==type.compare("::omero::model::${type.shortname}")) {
+      return new omero::model::${type.shortname}I();
     }
-#end
-#foreach($property in $pojo.allPropertiesIterator)
-#if($c2j.isComponent($property))
-#set($component = $c2j.getPOJOClass($property.getValue()))
-#if(!$component.classModifiers.contains("abstract"))
-#if(!$component.declarationName.equals("Details"))
-    if (0==type.compare("::omero::model::${component.declarationName}")) {
-      return new omero::model::${component.declarationName}I();
-    }
-#end
-#end
-#end
 #end
 #end
     throw "Unknown type" + type;
@@ -69,17 +57,10 @@ namespace omero {
   void ObjectFactory::registerObjectFactory(const Ice::CommunicatorPtr ic) {
     Ice::ObjectFactoryPtr _factory = this;
     conditionalAdd("::omero::model::Permissions", ic, _factory);
-#foreach($pojo in $c2j.getPOJOIterator( $cfg.getClassMappings() ))
-#if(!$pojo.classModifiers.contains("abstract"))
-    conditionalAdd("::omero::model::${pojo.declarationName}", ic,  _factory);
-#end
-#foreach($property in $pojo.allPropertiesIterator)
-#if($c2j.isComponent($property))
-#set($component = $c2j.getPOJOClass($property.getValue()))
-#if(!$pojo.classModifiers.contains("abstract"))
-    conditionalAdd("::omero::model::${component.declarationName}", ic, _factory);
-#end
-#end
+    conditionalAdd("::omero::model::Details", ic, _factory);
+#foreach($type in $types)
+#if(!$type.abstract)
+    conditionalAdd("::omero::model::${type.shortname}", ic,  _factory);
 #end
 #end
   }

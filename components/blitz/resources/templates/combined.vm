@@ -1136,7 +1136,7 @@ COPYOBJECT BLOCK:
 ## See ticket:684
 ## If this is the case, we can't use the accessor and have to use a generated method
 #set( $javaType = "java.util.List" )
-#set( $method = "($javaType) source.retrieve(${type.id}.${PropertyName.toUpperCase()})" )
+#set( $method = "(Collection) source.retrieve(${type.id}.${PropertyName.toUpperCase()})" )
 #set( $findMethod = "Collection")
 #elseif( $javaType.startsWith("ome") )
 #set( $javaType = "omero.model.${shortType}" )
@@ -1174,12 +1174,15 @@ FILLOBJECT BLOCK:
 ## [$jav]             target.setDetails( (ome.model.internal.Details) mapper.reverse( (ome.model.ModelBased) this.getDetails() ) );
 #foreach($property in $type.propertyClosure)
 #set( $PropertyName = $property.nameCapped )
+#set( $fieldType = $property.fieldType.replaceAll("[<].*[>]",""))
 #set( $javaType = $property.type )
 #set( $shortType = $type.unqualify($javaType) )
 #set( $FIELD = "${type.id}.${PropertyName.toUpperCase()}" )
 #set( $propLoaded = "${property.Name}Loaded" )
 
-#if( $type.id.equals("ome.model.internal.Permissions") )
+#if( $property.name.equals("details"))
+[$jav]             target.getDetails().copy( (${property.type}) mapper.reverse( (ome.model.ModelBased) this.get${PropertyName}() ) );
+#elseif( $type.id.equals("ome.model.internal.Permissions") )
 [$jav]             target = ome.util.Utils.toPermissions((Long)this.getPerm1());
 
 #elseif( $property.one2Many )
@@ -1188,7 +1191,7 @@ FILLOBJECT BLOCK:
 [$jav]             if (this.${propLoaded}) {
 
 ticket:684 This is necessary to map back and forth from sets.
-[$jav]               target.putAt( $FIELD, mapper.reverse( this.get${PropertyName}(), ${javaType}.class ));
+[$jav]               target.putAt( $FIELD, mapper.reverse( this.get${PropertyName}(), ${fieldType}.class ));
 [$jav]             } else {
 [$jav]               target.putAt( $FIELD, null );
 [$jav]             }
