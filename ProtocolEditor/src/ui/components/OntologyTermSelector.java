@@ -30,6 +30,7 @@ import ols.OntologyLookUp;
 
 import tree.DataField;
 import tree.IAttributeSaver;
+import ui.FormField;
 
 public class OntologyTermSelector extends JPanel {
 	
@@ -43,6 +44,7 @@ public class OntologyTermSelector extends JPanel {
 	int listIndex = 0;
 	OntologyTermKeyListener ontologyTermListener;
 	TermSelectionListener termSelectionListener;
+	FocusListener componentFocusListener = new ComponentFocusListener();
 	
 	public static final String ONTOLOGY_ID_NAME_SEPARATOR = "   ";
 
@@ -99,6 +101,7 @@ public class OntologyTermSelector extends JPanel {
 	
 		// make a new comboBox with the ontology Names
 		ontologySelector = new CustomComboBox(ontologies);
+		ontologySelector.addFocusListener(componentFocusListener);
 		ontologySelector.setMaximumRowCount(25);
 		ontologySelector.setMaximumWidth(200);
 		//ontologySelector.setMaximumSize(new Dimension(200, 50));
@@ -107,6 +110,7 @@ public class OntologyTermSelector extends JPanel {
 		// make an editable comboBox (auto-complete) for ontology Terms
 		ontologyTermSelector = new CustomComboBox();
 		ontologyTermSelector.setEditable(true);
+		ontologyTermSelector.getEditor().getEditorComponent().addFocusListener(componentFocusListener);
 		ontologyTermSelector.setMaximumWidth(500);
 		ontologyTermSelector.setSelectedItem(termIdName);
 		ontologyTermListener = new OntologyTermKeyListener();
@@ -310,6 +314,13 @@ public class OntologyTermSelector extends JPanel {
 		ontologyTermSelector.setSelectedItem(anObject);
 		ontologyTermSelector.addActionListener(termSelectionListener);
 		ontologyTermSelector.addKeyListener(ontologyTermListener);
+	}
+	
+	public class ComponentFocusListener implements FocusListener {
+		public void focusGained(FocusEvent e) {
+			OntologyTermSelector.this.firePropertyChange(FormField.HAS_FOCUS, false, true);
+		}
+		public void focusLost(FocusEvent e) {}
 	}
 	
 }

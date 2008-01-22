@@ -55,7 +55,7 @@ public class FormFieldDropDown extends FormField {
 		setDropDownOptions(dropDownOptions);
 		
 		if (value != null) setValue(value);
-		comboBox.addMouseListener(new FormPanelMouseListener());
+		comboBox.addFocusListener(componentFocusListener);
 		horizontalBox.add(comboBox);
 	
 		//setExperimentalEditing(false);	// default created as uneditable

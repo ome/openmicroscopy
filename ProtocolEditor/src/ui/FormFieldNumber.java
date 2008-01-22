@@ -48,7 +48,7 @@ public class FormFieldNumber extends FormField {
 		
 		numberTextBox = new JTextField(valueString);
 		visibleAttributes.add(numberTextBox);
-		numberTextBox.addMouseListener(new FormPanelMouseListener());
+		numberTextBox.addFocusListener(componentFocusListener);
 		numberTextBox.addFocusListener(new NumberCheckerListener());
 		numberTextBox.setName(DataFieldConstants.VALUE);
 		numberTextBox.addFocusListener(focusChangedListener);

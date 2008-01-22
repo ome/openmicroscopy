@@ -40,7 +40,7 @@ public class FormFieldText extends FormField {
 		
 		textInput = new JTextField(value);
 		visibleAttributes.add(textInput);
-		textInput.addMouseListener(new FormPanelMouseListener());
+		textInput.addFocusListener(componentFocusListener);		// to highlight field when textBox gets focus
 		textInput.setName(DataFieldConstants.VALUE);
 		textInput.addFocusListener(focusChangedListener);
 		textInput.addKeyListener(textChangedListener);

@@ -45,6 +45,7 @@ public class SimpleHTMLEditorPane extends JEditorPane {
 	
 	public static final String FONT_BOLD = "font-bold";
 	public static final String FONT_UNDERLINE = "font-underline";
+	public static final String INSERT_UNORDERED_LIST_ITEM = "InsertUnorderedListItem";
 	
 	Action[] actionsArray;
 	HashMap <Object, Action> actions;

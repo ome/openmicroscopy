@@ -23,6 +23,15 @@ public class FormFieldContainer extends Box{
 		add(formFieldParent);
 	}
 	
+	public Component getParentOfRootContainer() {
+		if (isRootContainer()) {
+			return getParent();
+		} else if (getParent() instanceof FormFieldContainer){
+			return ((FormFieldContainer)getParent()).getParentOfRootContainer();
+		} else
+			return null;
+	}
+	
 	public boolean isRootContainer() {
 		//System.out.println("FormFieldContainer  isRootContainer() parent = " + getParent());
 		return (!(getParent() instanceof FormFieldContainer));

@@ -52,24 +52,28 @@ public class FormFieldTime extends FormField {
 		timeChangedListener = new TimeChangedListener();
 		hoursModel = new SpinnerNumberModel(hours, 0, 99, 1);
 		hoursSpinner = new JSpinner(hoursModel);
+		((JSpinner.DefaultEditor)hoursSpinner.getEditor()).getTextField().addFocusListener(componentFocusListener);
 		hoursSpinner.setMaximumSize(spinnerSize);
 		hoursSpinner.setPreferredSize(spinnerSize);
 		hoursSpinner.addChangeListener(timeChangedListener);
 		
 		minsModel = new SpinnerNumberModel(mins, 0, 59, 1);
 		minsSpinner = new JSpinner(minsModel);
+		((JSpinner.DefaultEditor)minsSpinner.getEditor()).getTextField().addFocusListener(componentFocusListener);
 		minsSpinner.setMaximumSize(spinnerSize);
 		minsSpinner.setPreferredSize(spinnerSize);
 		minsSpinner.addChangeListener(timeChangedListener);
 		
 		secsModel = new SpinnerNumberModel(secs, 0, 59, 1);
 		secsSpinner = new JSpinner(secsModel);
+		((JSpinner.DefaultEditor)secsSpinner.getEditor()).getTextField().addFocusListener(componentFocusListener);
 		secsSpinner.setMaximumSize(spinnerSize);
 		secsSpinner.setPreferredSize(spinnerSize);
 		secsSpinner.addChangeListener(timeChangedListener);
 		
 		timer = new Timer(1000, new TimeElapsedListener());
 		startTimerButton = new JButton("Start Countdown");
+		startTimerButton.addFocusListener(componentFocusListener);
 		startTimerButton.setEnabled(getTimeInSecs() > 0);
 		startTimerButton.setBackground(null);
 		startTimerButton.addActionListener(new StartTimerListener());

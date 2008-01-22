@@ -35,7 +35,7 @@ public class ExportDialog extends JDialog
         // initialize the array to hold checkBoxes for each boolean in the map (+1 for message)
         array = new Object[booleanMap.size() + 1];
         
-        // put a message at the start of the arary
+        // put a message at the start of the array
         JLabel message = new JLabel("<html>The <i>name</i> and <i>value</i> of each visible field will be printed.<br>" +
         		"To print additional fields or attributes, select them below.</html>");
         array[0] = message;

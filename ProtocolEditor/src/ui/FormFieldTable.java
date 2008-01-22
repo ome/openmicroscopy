@@ -23,6 +23,7 @@
 package ui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -62,6 +63,7 @@ public class FormFieldTable extends FormField {
 		
 		String columns = dataField.getAttribute(DataFieldConstants.TABLE_COLUMN_NAMES);
 		table = new JTable();
+		table.addFocusListener(componentFocusListener);
 		
 		if (columns != null) {
 			columnNames = columns.split(",");
@@ -105,7 +107,8 @@ public class FormFieldTable extends FormField {
      // tableModelListener tells the table how to respond to changes in Model
         tableModel.addTableModelListener(new InteractiveTableModelListener());
         
-        tableScroller = new JScrollPane(table);
+        tableScroller = new JScrollPane(table, 
+        		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         table.setPreferredScrollableViewportSize(new Dimension(450, 100));
 		
         Icon addRowIcon = ImageFactory.getInstance().getIcon(ImageFactory.NEW_ROW_ICON);
@@ -144,6 +147,7 @@ public class FormFieldTable extends FormField {
 					"This cannot be undone.", "Really delete rows?", JOptionPane.OK_CANCEL_OPTION);
 			if (delete == JOptionPane.OK_OPTION) {
 				removeSelectedRows();
+				refreshViewportSize();
 			}
 		}
 	}
@@ -158,6 +162,7 @@ public class FormFieldTable extends FormField {
 	public class AddRowListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			addRow();
+			refreshViewportSize();
 		}
 	}
 	// inserts an empty row at the specified index
@@ -316,7 +321,30 @@ public class FormFieldTable extends FormField {
 		
 		addRowButton.setEnabled(highlight);
 		removeRowsButton.setEnabled(highlight);
-		table.setEnabled(highlight);
+		
+	}
+	
+	public void refreshViewportSize() {
+		setScrollPaneRowCount(table.getRowCount());
+		
+		// size of this panel has changed. Need to validate the ScrollPane that holds the 
+		// tree of FormFieldContainers...
+		Component parentOfRootContainer = null;
+		parentOfRootContainer = ((FormFieldContainer)getParent()).getParentOfRootContainer();
+		if (parentOfRootContainer != null) {
+			parentOfRootContainer.validate();
+		}
+		
+	}
+	
+	public void setScrollPaneRowCount(int rows) {
+		int height = rows * table.getRowHeight();
+		table.setPreferredScrollableViewportSize(new Dimension(450, height));
+		
+		int width = table.getColumnCount() * 150;
+		Dimension size = new Dimension(width, height);
+		table.setMinimumSize(size);
+		table.setPreferredSize(size);
 	}
 
 

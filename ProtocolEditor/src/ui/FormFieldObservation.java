@@ -41,18 +41,21 @@ public class FormFieldObservation extends FormField {
 		entityTermSelector = new OntologyTermSelector(
 				dataField, DataFieldConstants.OBSERVATION_ENTITY_TERM_IDNAME, "  Entity", new String[] {"GO", "CL"});
 		entityTermSelector.setLabelMinWidth(labelsMinWidth);
+		entityTermSelector.addPropertyChangeListener(new FocusGainedPropertyChangedListener());
 		entityTermSelector.setOntologyComboBoxMaxWidth(ontologySelectorsMaxWidth);
 		
 		
 		attributeTermSelector = new OntologyTermSelector(
 				dataField, DataFieldConstants.OBSERVATION_ATTRIBUTE_TERM_IDNAME, "  Attribute", new String[] {"PATO"});
 		attributeTermSelector.setLabelMinWidth(labelsMinWidth);
+		attributeTermSelector.addPropertyChangeListener(new FocusGainedPropertyChangedListener());
 		attributeTermSelector.setOntologyComboBoxMaxWidth(ontologySelectorsMaxWidth);
 		
 		
 		unitTermSelector = new OntologyTermSelector(
 				dataField, DataFieldConstants.OBSERVATION_UNITS_TERM_ID, "  Units", new String[] {"UO"});
 		unitTermSelector.setLabelMinWidth(labelsMinWidth);
+		unitTermSelector.addPropertyChangeListener(new FocusGainedPropertyChangedListener());
 		unitTermSelector.setOntologyComboBoxMaxWidth(ontologySelectorsMaxWidth);
 		
 		Box termSelectorsVerticalBox = Box.createVerticalBox();

@@ -31,14 +31,23 @@ import javax.swing.JTextArea;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import ui.FormField.FormPanelMouseListener;
+import ui.components.AttributeMemoFormatEditor;
 
 public class FormFieldMemo extends FormField {
 	
-	JTextArea textInput;
+	AttributeMemoFormatEditor inputEditor;
 	
 	public FormFieldMemo(IDataFieldObservable dataFieldObs) {
 		super(dataFieldObs);
 		
+		inputEditor = new AttributeMemoFormatEditor(dataField, 
+				"", DataFieldConstants.VALUE, dataField.getAttribute(DataFieldConstants.VALUE));
+		inputEditor.getTextArea().addFocusListener(componentFocusListener);
+		horizontalBox.add(inputEditor);
+		
+		
+		/*
 		String value = dataField.getAttribute(DataFieldConstants.VALUE);
 		
 		textInput = new JTextArea(value);
@@ -54,7 +63,7 @@ public class FormFieldMemo extends FormField {
 		textInput.addFocusListener(focusChangedListener);
 		textInput.addKeyListener(textChangedListener);
 		horizontalBox.add(textScroller);
-		
+		*/
 		//setExperimentalEditing(false);	// default created as uneditable
 	}
 	
@@ -62,15 +71,7 @@ public class FormFieldMemo extends FormField {
 	// overridden by subclasses if they have other attributes to retrieve from dataField
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		textInput.setText(dataField.getAttribute(DataFieldConstants.VALUE));
+		inputEditor.setTextAreaText(dataField.getAttribute(DataFieldConstants.VALUE));
 	}
 	
-//	 overridden by subclasses that have input components
-	public void setExperimentalEditing(boolean enabled) {
-		
-		if (enabled) textInput.setForeground(Color.BLACK);
-		else textInput.setForeground(textInput.getBackground());
-		
-		textInput.setEditable(enabled);
-	}
 }

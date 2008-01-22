@@ -224,7 +224,7 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 			ex.printStackTrace();
 		}
 		Tree tree = getCurrentTree();
-		tree.buildDOMfromTree(tree.getRootNode(), outputDocument);
+		Tree.buildDOMfromTree(tree.getRootNode(), outputDocument);
 	} 
 	
 	

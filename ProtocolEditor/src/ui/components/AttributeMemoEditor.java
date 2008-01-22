@@ -7,9 +7,11 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 
@@ -42,6 +44,10 @@ boolean textChanged;
 		attributeTextField.setLineWrap(true);
 		attributeTextField.setWrapStyleWord(true);
 		attributeTextField.setMargin(new Insets(3,3,3,3));
+		Border bevelBorder = BorderFactory.createLoweredBevelBorder();
+		Border emptyBorder = BorderFactory.createEmptyBorder(3, 3, 3, 3);
+		Border compoundBorder = BorderFactory.createCompoundBorder(bevelBorder, emptyBorder);
+		attributeTextField.setBorder(compoundBorder);
 		this.setLayout(new BorderLayout());
 		attributeTextField.addKeyListener(textChangedListener);
 		attributeTextField.addFocusListener(focusChangedListener);

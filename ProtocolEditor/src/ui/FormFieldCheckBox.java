@@ -21,6 +21,7 @@ public class FormFieldCheckBox extends FormField {
 		
 		checkBox = new JCheckBox(" ", checkedValue);
 		checkBox.addActionListener(new CheckBoxListener());
+		checkBox.addFocusListener(componentFocusListener);
 		checkBox.setBackground(null);
 		
 		horizontalBox.add(checkBox);

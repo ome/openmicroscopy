@@ -62,6 +62,12 @@ public class AttributeMemoFormatEditor extends JPanel{
 		toolBarButtonBorder = new EmptyBorder(spacing,spacing,spacing,spacing);
 		toolBarBox = Box.createHorizontalBox();
 		
+		JButton unorderedListButton = new JButton("bullet");
+		unorderedListButton.setActionCommand(SimpleHTMLEditorPane.INSERT_UNORDERED_LIST_ITEM);
+		unorderedListButton.addActionListener(new FontFormattingChangedListener());
+		unorderedListButton.setBorder(toolBarButtonBorder);
+		toolBarBox.add(unorderedListButton);
+		
 		Icon boldIcon = ImageFactory.getInstance().getIcon(ImageFactory.BOLD_ICON); 
 		JButton boldButton = new JButton(boldIcon);
 		boldButton.setFocusable(false);		// don't want to lose focus from the editorPane when clicked

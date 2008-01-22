@@ -32,6 +32,7 @@ import javax.swing.JButton;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import ui.FormField.FocusGainedPropertyChangedListener;
 import ui.components.OntologyTermSelector;
 import util.ImageFactory;
 
@@ -55,11 +56,14 @@ public class FormFieldOLS extends FormField {
 		
 		Icon metadataIcon = ImageFactory.getInstance().getIcon(ImageFactory.ONTOLOGY_METADATA_ICON);
 		toggleMetadataButton = new JButton(metadataIcon);
+		toggleMetadataButton.addFocusListener(componentFocusListener);
 		toggleMetadataButton.setBackground(null);
 		toggleMetadataButton.setBorder(null);
 		toggleMetadataButton.addActionListener(new ToggleMetadataVisibilityListener());
 
 		OntologyTermSelector ontologyTermSelector = new OntologyTermSelector(dataField, DataFieldConstants.ONTOLOGY_TERM_ID, "");
+		// requests focus
+		ontologyTermSelector.addPropertyChangeListener(new FocusGainedPropertyChangedListener());
 		
 		horizontalBox.add(toggleMetadataButton);
 		horizontalBox.add(ontologyTermSelector);

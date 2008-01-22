@@ -80,6 +80,7 @@ import ui.components.ExportDialog;
 import util.FileDownload;
 import util.HtmlOutputter;
 import util.ImageFactory;
+import util.PropertiesManager;
 import xmlMVC.XMLModel;
 
 
@@ -1045,10 +1046,17 @@ public class XMLView
 		final JFileChooser fc = new JFileChooser();
 		fc.setFileFilter(new OpenProExpXmlFileFilter());
 		
-		fc.setCurrentDirectory(xmlModel.getCurrentFile());
+		File currentLocation = null;
+		if (PropertiesManager.getProperty(PropertiesManager.CURRENT_FILES_FOLDER) != null) {
+			currentLocation = new File(PropertiesManager.getProperty(PropertiesManager.CURRENT_FILES_FOLDER));
+		} 
+		fc.setCurrentDirectory(currentLocation);
+
 		int returnVal = fc.showOpenDialog(XMLFrame);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
             File xmlFile = fc.getSelectedFile();
+         // remember where the user last saved a file
+            PropertiesManager.setProperty(PropertiesManager.CURRENT_FILES_FOLDER, xmlFile.getParent());
             openThisFile(xmlFile);
 		}
 	}
@@ -1443,10 +1451,16 @@ public class XMLView
 		// use this method for now
 		
 		final JFileChooser fc = new JFileChooser();
-		fc.setCurrentDirectory(null);
+		
+		File currentLocation = null;
+		if (PropertiesManager.getProperty(PropertiesManager.CURRENT_EXPORT_FOLDER) != null) {
+			currentLocation = new File(PropertiesManager.getProperty(PropertiesManager.CURRENT_EXPORT_FOLDER));
+		} 
+		fc.setCurrentDirectory(currentLocation);
+
 		fc.setFileFilter(new FileFilter() {
 			public boolean accept(File f) {
-				if (f.getName().endsWith(".html"))
+				if (f.getName().endsWith(".html") || (f.isDirectory()))
 					return true;
 				return false;
 			}
@@ -1459,14 +1473,30 @@ public class XMLView
 			return;
 		}
 		File file = fc.getSelectedFile();
+		if (file.isDirectory()) {
+            JOptionPane.showMessageDialog(XMLFrame, "Please choose a file name (not a directory)");
+            // try again! 
+            printToHtml(rootNodes);
+            return;
+        }
+		
+		// remember where the user last exported a file
+        PropertiesManager.setProperty(PropertiesManager.CURRENT_EXPORT_FOLDER, file.getParent());
+		
+		// now, make sure the filename ends .html
+        String filePathAndName = file.getAbsolutePath();
+        if (!(filePathAndName.endsWith(".html"))) {	// if not..
+        	filePathAndName = filePathAndName + ".html";
+        	file = new File(filePathAndName);
+        }
 		
 		LinkedHashMap<String,Boolean> booleanMap = new LinkedHashMap<String,Boolean>();
-		booleanMap.put("Show every field (include collapsed fields)", false);
-		booleanMap.put("Show descriptions", false);
-		booleanMap.put("Show default values", false);
-		booleanMap.put("Show Url", false);
-		booleanMap.put("Show Table Data", false);
-		booleanMap.put("Show all other attributes", false);
+		booleanMap.put("Show every field (include collapsed fields)", true);
+		booleanMap.put("Show descriptions", true);
+		booleanMap.put("Show default values", true);
+		booleanMap.put("Show Url", true);
+		booleanMap.put("Show Table Data", true);
+		booleanMap.put("Show all other attributes", true);
 	
 		
 		ExportDialog printDialog = new ExportDialog(XMLFrame, printButton, "Print Options", booleanMap);
@@ -1586,17 +1616,7 @@ public class XMLView
 		}
 	}
 	
-	public class OpenProExpFileFilter extends FileFilter {
-		public boolean accept(File file) {
-			boolean recognisedFileType = 
-				//	allows "MS Windows" to see directories (otherwise only .pro or .exp are visible)
-				((file.getName().endsWith("pro")) || (file.getName().endsWith("exp")) || (file.isDirectory()));
-			return recognisedFileType;
-		}
-		public String getDescription() {
-			return " .pro and .exp files only";
-		}
-	}
+
 	public class OpenProExpXmlFileFilter extends FileFilter {
 		public boolean accept(File file) {
 			boolean recognisedFileType = 
@@ -1613,12 +1633,20 @@ public class XMLView
 	public void saveFileAs() {
 		
 		final JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new OpenProExpFileFilter());
-		fc.setCurrentDirectory(xmlModel.getCurrentFile());
+		fc.setFileFilter(new OpenProExpXmlFileFilter());
+		
+		File currentLocation = null;
+		if (PropertiesManager.getProperty(PropertiesManager.CURRENT_FILES_FOLDER) != null) {
+			currentLocation = new File(PropertiesManager.getProperty(PropertiesManager.CURRENT_FILES_FOLDER));
+		} 
+		fc.setCurrentDirectory(currentLocation);
 
 		int returnVal = fc.showSaveDialog(XMLFrame);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
             File xmlFile = fc.getSelectedFile();  // this may be a directory! 
+            
+            // remember where the user last saved a file
+            PropertiesManager.setProperty(PropertiesManager.CURRENT_FILES_FOLDER, xmlFile.getParent());
             
             if (xmlFile.isDirectory()) {
                 JOptionPane.showMessageDialog(XMLFrame, "Please choose a file name (not a directory)");
@@ -1633,7 +1661,7 @@ public class XMLView
             	filePathAndName = filePathAndName + ".pro.xml";
             	xmlFile = new File(filePathAndName);
             }
-            
+               
             // now check if the file exists. If so, take appropriate action
             if (xmlFile.exists()) {
             	int result = JOptionPane.showConfirmDialog(XMLUIPanel, "File exists. Overwrite it?");
@@ -1709,16 +1737,15 @@ public class XMLView
 	
 	public void updateFieldEditor(JPanel newDisplay) {
 		fieldEditor.setVisible(false);
-		//int divLoc = splitPane.getDividerLocation();
+		
 		protocolTab.remove(fieldEditor);
 		
 		fieldEditor = newDisplay;
 			
 		protocolTab.add(fieldEditor, BorderLayout.EAST);
-		//splitPane.setRightComponent(fieldEditor);
-		//splitPane.setDividerLocation(divLoc);
+		
 		protocolTab.validate();
-		fieldEditor.validate();
+		//fieldEditor.validate();
 		fieldEditor.setVisible(true);	// need to hide, then show to get refresh to work
 	}
 	

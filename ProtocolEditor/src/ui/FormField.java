@@ -37,6 +37,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
 import javax.swing.*;
@@ -62,9 +64,13 @@ public class FormField extends JPanel implements DataFieldObserver{
 	IDataFieldObservable dataFieldObs;
 	IAttributeSaver dataField;
 	
+	// property change listener, property name
+	public static final String HAS_FOCUS = "hasFocus";
+	
 	boolean textChanged = false;
 	TextChangedListener textChangedListener = new TextChangedListener();
 	FocusListener focusChangedListener = new FocusChangedListener();
+	FocusListener componentFocusListener = new FormFieldComponentFocusListener();
 	
 	// swing components
 	Box horizontalFrameBox;
@@ -275,6 +281,22 @@ public class FormField extends JPanel implements DataFieldObserver{
 				panelClicked(true);
 		}
 	}	
+	
+	// add this to every focusable component (button, field etc within the panel)
+	public class FormFieldComponentFocusListener implements FocusListener {
+		public void focusGained(FocusEvent e) {
+			panelClicked(true);
+		}
+		public void focusLost(FocusEvent e) {}
+	}
+	// add this to every non-focusable component (Panels etc)
+	public class FocusGainedPropertyChangedListener implements PropertyChangeListener {
+		public void propertyChange(PropertyChangeEvent evt) {
+			if(evt.getPropertyName().equals(FormField.HAS_FOCUS)) {
+				panelClicked(true);
+			}
+		}
+	}
 	
 	public class URLclickListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {

@@ -41,7 +41,7 @@ public class FormFieldDate extends FormField {
 		
 		textInput = new JTextField(date);
 		visibleAttributes.add(textInput);
-		textInput.addMouseListener(new FormPanelMouseListener());
+		textInput.addFocusListener(componentFocusListener);
 		textInput.setName(DataFieldConstants.VALUE);
 		textInput.addFocusListener(focusChangedListener);
 		textInput.addKeyListener(textChangedListener);
