@@ -112,7 +112,7 @@ public class ClassifyAction
         	} else {
         		if (index == DECLASSIFY) {
         			ImageData img = (ImageData) o;
-            		Long v = img.getClassificationCount();
+            		Long v = null;//img.getClassificationCount();
             		setEnabled(v != null && v.longValue() > 0);
         		} else
         		

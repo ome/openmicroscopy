@@ -30,10 +30,10 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.TextAnnotation;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-import pojos.AnnotationData;
 
 /** 
 * Implements the {@link Annotator} interface to provide the functionality
@@ -63,59 +63,59 @@ class AnnotatorComponent
 {
 
 	/** The Model sub-component. */
-  private AnnotatorModel     model;
-  
-  /** The Controller sub-component. */
-  private AnnotatorControl   controller;
-  
-  /** The View sub-component. */
-  private AnnotatorView       view;
-  
-  /**
-   * Creates a new instance.
-   * The {@link #initialize() initialize} method should be called straight 
-   * after to complete the MVC set up.
-   * 
-   * @param model The Model sub-component.
-   */
-  AnnotatorComponent(AnnotatorModel model)
+	private AnnotatorModel     model;
+
+	/** The Controller sub-component. */
+	private AnnotatorControl   controller;
+
+	/** The View sub-component. */
+	private AnnotatorView       view;
+
+	/**
+	 * Creates a new instance.
+	 * The {@link #initialize() initialize} method should be called straight 
+	 * after to complete the MVC set up.
+	 * 
+	 * @param model The Model sub-component.
+	 */
+	AnnotatorComponent(AnnotatorModel model)
 	{
 		if (model == null) throw new NullPointerException("No model."); 
-      this.model = model;
-      controller = new AnnotatorControl(this);
-      view = new AnnotatorView();
+		this.model = model;
+		controller = new AnnotatorControl(this);
+		view = new AnnotatorView();
 	}
-	
+
 	/** Links up the MVC triad. */
-  void initialize()
-  {
-  	controller.initialize(view);
-  	view.initialize(model, controller);
-  }
-  
-  /**
-   * Implemented as specified by the {@link Annotator} interface.
-   * @see Annotator#activate()
-   */
+	void initialize()
+	{
+		controller.initialize(view);
+		view.initialize(model, controller);
+	}
+
+	/**
+	 * Implemented as specified by the {@link Annotator} interface.
+	 * @see Annotator#activate()
+	 */
 	public void activate()
 	{
 		switch (model.getState()) {
-	        case NEW:
-	        	if (!model.hasAnnotatedData())
-	        		view.resetDisplay();
-	        	model.fireAnnotationsRetrieval();
-	        	fireStateChange();
-	            break;
-	        case DISCARDED:
-	            throw new IllegalStateException(
-	                    "This method can't be invoked in the DISCARDED state.");
+		case NEW:
+			if (!model.hasAnnotatedData())
+				view.resetDisplay();
+			model.fireAnnotationsRetrieval();
+			fireStateChange();
+			break;
+		case DISCARDED:
+			throw new IllegalStateException(
+					"This method can't be invoked in the DISCARDED state.");
 		} 
 	}
 
-  /**
-   * Implemented as specified by the {@link Annotator} interface.
-   * @see Annotator#discard()
-   */
+	/**
+	 * Implemented as specified by the {@link Annotator} interface.
+	 * @see Annotator#discard()
+	 */
 	public void discard()
 	{
 		if (model.getState() != DISCARDED) {
@@ -125,35 +125,35 @@ class AnnotatorComponent
 	}
 
 	/**
-   * Implemented as specified by the {@link Annotator} interface.
-   * @see Annotator#close()
-   */
+	 * Implemented as specified by the {@link Annotator} interface.
+	 * @see Annotator#close()
+	 */
 	public void close()
 	{
 		if (view.hasDataToSave()) {
 			MessageBox msg = new MessageBox(view, "Save Annotation", 
 			"Do you want to save the annotation before closing?");
-  		if (msg.centerMsgBox() == MessageBox.YES_OPTION) finish();
+			if (msg.centerMsgBox() == MessageBox.YES_OPTION) finish();
 		}
 		model.discard();
 		fireStateChange();
 	}
-	
-  /**
-   * Implemented as specified by the {@link Annotator} interface.
-   * @see Annotator#getState()
-   */
+
+	/**
+	 * Implemented as specified by the {@link Annotator} interface.
+	 * @see Annotator#getState()
+	 */
 	public int getState() { return model.getState(); }
 
-  /**
-   * Implemented as specified by the {@link Annotator} interface.
-   * @see Annotator#finish()
-   */
+	/**
+	 * Implemented as specified by the {@link Annotator} interface.
+	 * @see Annotator#finish()
+	 */
 	public void finish()
 	{
 		if (model.getState() != READY)
 			throw new IllegalStateException("This method can only be " +
-					"invoked in the READY state.");
+			"invoked in the READY state.");
 		if (model.getAnnotationMode() == BULK_ANNOTATE_MODE || 
 				view.isResetDisplay()) {
 			save(SELECT_ALL);
@@ -165,18 +165,19 @@ class AnnotatorComponent
 			UIUtilities.centerAndShow(dialog);
 		}
 	}
-	
+
 	/**
-   * Implemented as specified by the {@link Annotator} interface.
-   * @see Annotator#save(int)
-   */
+	 * Implemented as specified by the {@link Annotator} interface.
+	 * @see Annotator#save(int)
+	 */
 	public void save(int index)
 	{
 		if (model.getState() != READY)
 			throw new IllegalStateException("This method can only be " +
-					"invoked in the READY state.");
-		AnnotationData d = model.getAnnotationType();
-		d.setText(view.getAnnotationText());
+			"invoked in the READY state.");
+		//AnnotationData d = model.getAnnotationType();
+		TextAnnotation d = new TextAnnotation(view.getAnnotationText());
+		
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		controller.getAction(AnnotatorControl.FINISH).setEnabled(false);
 		switch (index) {
@@ -186,47 +187,47 @@ class AnnotatorComponent
 			case SELECT_ALL:
 			default:
 				model.fireAnnotationSaving(d, null);
-				break;
+			break;
 		}
 		fireStateChange();
 	}
-	
-  /**
-   * Implemented as specified by the {@link Annotator} interface.
-   * @see Annotator#cancel()
-   */
+
+	/**
+	 * Implemented as specified by the {@link Annotator} interface.
+	 * @see Annotator#cancel()
+	 */
 	public void cancel()
 	{
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException("This method cannot be invoked "+
-					"in the DISCARDED state.");
+			"in the DISCARDED state.");
 		model.discard();
 		fireStateChange();
 	}
 
-  /**
-   * Implemented as specified by the {@link Annotator} interface.
-   * @see Annotator#setAnnotations(Map)
-   */
+	/**
+	 * Implemented as specified by the {@link Annotator} interface.
+	 * @see Annotator#setAnnotations(Map)
+	 */
 	public void setAnnotations(Map annotations)
 	{
 		if (model.getState() != LOADING)
 			throw new IllegalStateException("This method can only be invoked "+
-					"in the LOADING state.");
+			"in the LOADING state.");
 		model.setAnnotations(annotations);
 		view.showAnnotations();
 		fireStateChange();
 	}
 
-  /**
-   * Implemented as specified by the {@link Annotator} interface.
-   * @see Annotator#saveAnnotations(List)
-   */
+	/**
+	 * Implemented as specified by the {@link Annotator} interface.
+	 * @see Annotator#saveAnnotations(List)
+	 */
 	public void saveAnnotations(List results)
 	{
 		if (model.getState() != SAVING)
 			throw new IllegalStateException("This method can only be invoked "+
-					"in the SAVING state.");
+			"in the SAVING state.");
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		firePropertyChange(ANNOTATED_PROPERTY, null, results);
 	}

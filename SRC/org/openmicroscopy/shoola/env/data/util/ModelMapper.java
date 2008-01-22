@@ -36,8 +36,10 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.ILink;
 import ome.model.IObject;
-import ome.model.annotations.DatasetAnnotation;
-import ome.model.annotations.ImageAnnotation;
+import ome.model.annotations.DatasetAnnotationLink;
+import ome.model.annotations.ImageAnnotationLink;
+import ome.model.annotations.ProjectAnnotationLink;
+import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.CategoryGroupCategoryLink;
@@ -424,6 +426,35 @@ public class ModelMapper
     public static IObject createAnnotation(IObject annotatedObject,
                                     AnnotationData data)
     {
+    	if (annotatedObject instanceof Dataset) {
+    		Dataset m = (Dataset) annotatedObject;
+    		TextAnnotation annotation = new TextAnnotation();
+    		annotation.setTextValue(data.getContentAsString());
+    		DatasetAnnotationLink l = new DatasetAnnotationLink();
+    		l.setParent(m);
+    		l.setChild(annotation);
+    		
+    		return l;
+    	} else if (annotatedObject instanceof Image) {
+    		Image m = (Image) annotatedObject;
+    		TextAnnotation annotation = new TextAnnotation();
+    		annotation.setTextValue(data.getContentAsString());
+    		ImageAnnotationLink l = new ImageAnnotationLink();
+    		l.setParent(m);
+    		l.setChild(annotation);
+    		
+    		return l;
+    	} else if (annotatedObject instanceof Project) {
+    		Project m = (Project) annotatedObject;
+    		TextAnnotation annotation = new TextAnnotation();
+    		annotation.setTextValue(data.getContentAsString());
+    		ProjectAnnotationLink l = new ProjectAnnotationLink();
+    		l.setParent(m);
+    		l.setChild(annotation);
+    		
+    		return l;
+    	}
+    	/*
         if (annotatedObject instanceof Dataset) {
             Dataset m = (Dataset) annotatedObject; 
             DatasetAnnotation annotation = new DatasetAnnotation();
@@ -438,6 +469,8 @@ public class ModelMapper
             return annotation;
         }
         throw new IllegalArgumentException("DataObject cannot be annotated.");
+        */
+    	return null;
     }
     
     /**
@@ -449,10 +482,12 @@ public class ModelMapper
     public static void setAnnotatedObject(IObject annotated, 
             IObject annotation)  
     {
+    	/*
         if (annotation instanceof ImageAnnotation)
             ((ImageAnnotation) annotation).setImage((Image) annotated);
         if (annotation instanceof DatasetAnnotation)
             ((DatasetAnnotation) annotation).setDataset((Dataset) annotated);
+            */
     }
     
     /**
@@ -463,12 +498,13 @@ public class ModelMapper
      */
     public static IObject getAnnotatedObject(IObject annotation)
     {
-        if (annotation instanceof ImageAnnotation)
-            return ((ImageAnnotation) annotation).getImage();
-        else if (annotation instanceof DatasetAnnotation)
-            return ((DatasetAnnotation) annotation).getDataset();
-        throw new IllegalArgumentException("Annotation can only be " +
-                "DatasetAnnoation or ImageAnnotation.");
+    	if (annotation instanceof DatasetAnnotationLink)
+    		return ((DatasetAnnotationLink) annotation).getParent();
+    	else if (annotation instanceof ProjectAnnotationLink)
+    		return ((ProjectAnnotationLink) annotation).getParent();
+    	else if (annotation instanceof ImageAnnotationLink)
+    		return ((ImageAnnotationLink) annotation).getParent();
+    	return null;
     }
     
     /**
@@ -509,7 +545,9 @@ public class ModelMapper
     		Category o = (Category) oldObject;
     		n.setName(o.getName());
     		n.setDescription(o.getDescription());
-    	} else if (oldObject instanceof ImageAnnotation) {
+    	} 
+    	/*
+    	else if (oldObject instanceof ImageAnnotation) {
     		ImageAnnotation n = (ImageAnnotation) newObject;
     		ImageAnnotation o = (ImageAnnotation) oldObject;
     		n.setContent(o.getContent());
@@ -519,7 +557,8 @@ public class ModelMapper
     		DatasetAnnotation o = (DatasetAnnotation) oldObject;
     		n.setContent(o.getContent());
     		n.setDataset(o.getDataset()); 
-    	} else if (oldObject instanceof Experimenter) {
+    	*/
+    	else if (oldObject instanceof Experimenter) {
     		Experimenter n = (Experimenter) newObject;
     		Experimenter o = (Experimenter) oldObject;
     		n.setEmail(o.getEmail());

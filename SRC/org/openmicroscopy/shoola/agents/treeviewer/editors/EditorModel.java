@@ -269,7 +269,8 @@ class EditorModel
     { 
         if (hierarchyObject == null) return false;
         else if ((hierarchyObject instanceof DatasetData) ||
-                (hierarchyObject instanceof ImageData)) return true; 
+                (hierarchyObject instanceof ImageData) ||
+                (hierarchyObject instanceof ProjectData)) return true; 
         return false;
     }
     
@@ -283,7 +284,7 @@ class EditorModel
     {
         if (hierarchyObject == null || !(hierarchyObject instanceof ImageData))
                 return false;
-        Long i = ((ImageData) hierarchyObject).getClassificationCount();
+        Long i = null;//((ImageData) hierarchyObject).getClassificationCount();
         return (i != null && i.longValue() >0);
     }
     
@@ -427,9 +428,6 @@ class EditorModel
      */
     void fireAnnotationsLoading()
     {
-        //state = Editor.LOADING_ANNOTATION;
-        //currentLoader = new AnnotationLoader(component, hierarchyObject);
-        //currentLoader.load();
     	if (annotator != null)
     		annotator.activate();
     }

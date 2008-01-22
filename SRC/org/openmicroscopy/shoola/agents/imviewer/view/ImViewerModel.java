@@ -233,10 +233,9 @@ class ImViewerModel
 	private long						ownerID;
 	
 	/** 
-	 * The Map hosting the various rendering controls.
-	 * {imageID, rendering control}.
+	 * The list hosting the various rendering controls.
 	 */
-	private Map<Long, RenderingControl>	renderingControls;
+	private List<RenderingControlDef>	renderingControls;
 	
 	/** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
 	private void computeSizes()
@@ -278,7 +277,8 @@ class ImViewerModel
 		textVisible = true;
 		movieIndex = -1;
 		this.ownerID = ownerID;
-		renderingControls = new HashMap();
+		
+		renderingControls = new ArrayList<RenderingControlDef>();
 	}
 
 	/**

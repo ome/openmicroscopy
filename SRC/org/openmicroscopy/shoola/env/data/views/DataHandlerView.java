@@ -124,23 +124,6 @@ public interface DataHandlerView
 	 *                          <code>DatasetData</code>,
 	 *                          <code>ImageData</code>.   
 	 *                          Mustn't be <code>null</code>.
-	 * @param data              The annotation object to delete. 
-	 *                          Mustn't be <code>null</code>.
-	 * @param observer          Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle deleteAnnotation(DataObject annotatedObject,
-			AnnotationData data,
-			AgentEventListener observer);
-
-	/**
-	 * Deletes the specified annotation.
-	 * 
-	 * @param annotatedObject   The annotated <code>DataObject</code>.
-	 *                          One of the following type:
-	 *                          <code>DatasetData</code>,
-	 *                          <code>ImageData</code>.   
-	 *                          Mustn't be <code>null</code>.
 	 * @param data              Collection of annotation objects to delete. 
 	 *                          Mustn't be <code>null</code>.
 	 * @param observer          Callback handler.

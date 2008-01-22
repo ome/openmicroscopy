@@ -40,12 +40,13 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.TextAnnotation;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
 import pojos.AnnotationData;
 import pojos.DataObject;
-import pojos.ImageData;
 
 /** 
  * Implements the {@link AnnotatorEditor} interface to provide the functionality
@@ -211,10 +212,12 @@ class AnnotatorEditorComponent
     	fireStateChange();
     	Iterator i = result.iterator();
     	DataObject object;
-    	long id = model.getDataObject().getId();
+    	DataObject refObject = model.getDataObject();
+    	long id = refObject.getId();
     	while (i.hasNext()) {
 			object = (DataObject) i.next();
-			if (object.getId() == id) {
+			if (object.getId() == id 
+				&& object.getClass().equals(refObject.getClass())) {
 				firePropertyChange(ANNOTATED_PROPERTY, null, object);
 				break;
 			}
@@ -223,20 +226,22 @@ class AnnotatorEditorComponent
 
     /**
      * Implemented as specified by the {@link Annotator} interface.
-     * @see AnnotatorEditor#delete()
+     * @see AnnotatorEditor#delete(List)
      */ 
-	public void delete()
+	public void delete(List l)
 	{
 		if (model.getState() != READY)
 			throw new IllegalStateException("This method can only be invoked "+
 			"in the READY state.");
-		List l = view.getSelectedAnnotations();
-		if (l == null || l.size() == 0) {
-			UserNotifier un = AnnotatorFactory.getRegistry().getUserNotifier();
-			un.notifyInfo("Annotation", "No annotation to delete");
-			return;
+		if (l == null) {
+			l = view.getSelectedAnnotations();
+			if (l == null || l.size() == 0) {
+				UserNotifier un = 
+					AnnotatorFactory.getRegistry().getUserNotifier();
+				un.notifyInfo("Annotation", "No annotation to delete");
+				return;
+			}
 		}
-		
 		model.fireAnnotationDelete(l);
 		fireStateChange();
 	}
@@ -337,25 +342,20 @@ class AnnotatorEditorComponent
 		if (model.getState() != READY)
 			throw new IllegalStateException("This method can only be invoked "+
 			"in the READY state.");
-		AnnotationData data = null;//model.getAnnotationData();
-		//if (!view.isAnnotatable()) return;
-		if (!model.isAnnotated()) return;
-		if (data == null) {
-			DataObject ho = model.getDataObject();
-            if (ho instanceof ImageData)
-                data = new AnnotationData(AnnotationData.IMAGE_ANNOTATION);
-            else 
-                data = new AnnotationData(
-                        AnnotationData.DATASET_ANNOTATION); 
-            data.setText(view.getAnnotationText());
-            model.fireAnnotationCreate(data, index);
-		} else {
-			data.setText(view.getAnnotationText());
-			model.fireAnnotationUpdate(data);
-		}
+		TextAnnotation data = new TextAnnotation();
+		data.setText(view.getAnnotationText());
+		model.fireAnnotationUpdate(data);
 		fireStateChange();
 	}
 
+	public void save(String text)
+	{
+		TextAnnotation newData = new TextAnnotation();
+		newData.setText(text);
+		model.fireAnnotationUpdate(newData);
+		fireStateChange();
+	}
+	
 	/**
      * Implemented as specified by the {@link Annotator} interface.
      * @see AnnotatorEditor#addSelectedNodes(List)

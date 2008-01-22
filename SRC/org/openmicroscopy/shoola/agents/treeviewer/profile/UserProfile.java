@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -159,7 +158,8 @@ class UserProfile
     	if (v == null) v = "";
     	newOne.setFirstName(v.trim());
     	newOne.setId(original.getId());
-    	newOne.setDefaultGroup((GroupData) groups.getSelectedItem());
+    	
+    	//newOne.setDefaultGroup((GroupData) groups.getSelectedItem());
     	controller.save(newOne);
     }
     
@@ -215,7 +215,7 @@ class UserProfile
     	oldPassword = new JPasswordField();
     	items = new HashMap<String, JTextField>();
     	ExperimenterData user = model.getUser();
-    	Set userGroups = user.getGroups();
+    	List userGroups = user.getGroups();
     	GroupData defaultGroup = user.getDefaultGroup();
 		long groupID = defaultGroup.getId();
 		//Build the array for box.

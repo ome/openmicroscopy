@@ -29,9 +29,14 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
@@ -58,14 +63,23 @@ public class TitledLineBorder
 {
 
 	/** The default color of the line. */
-	private static final Color DEFAULT_COLOR = Color.LIGHT_GRAY;
+	private static final Color 	DEFAULT_COLOR = Color.LIGHT_GRAY;
+	
+	/** Extra space added to the bounds of the close button. */
+	private static final int	EDGE_GAP = 2;
 	
 	/** Location of the text. */
-	private Point 	textLoc;
+	protected Point			textLoc;
 	
 	/** The color of the line. */
-	private Color	lineColor;
+	private Color			lineColor;
 
+	/** Collection of images to add, Images correspond to button. */
+	private List<Image>		images;
+	
+	/** Bounds of the images. */
+	private List<Rectangle>	imageBounds;
+	
 	/**
 	 * Returns <code>true</code> if the passed rectangle intersects withe 
 	 * the passed parameters defining the rectangle of reference, 
@@ -130,7 +144,21 @@ public class TitledLineBorder
 	}
 	
 	/**
-     * Overriden to remove one segment of the border, either the top or 
+	 * Sets the collections of images.
+	 * 
+	 * @param images The collection of images to set.
+	 */
+	public void setImages(List<Image> images) { this.images = images; }
+	
+	/**
+	 * Returns the collection of images' bounds.
+	 * 
+	 * @return See above.
+	 */
+	public List<Rectangle> getImagesBounds() { return imageBounds; }
+	
+	/**
+     * Overridden to remove one segment of the border, either the top or 
      * bottom part.
      * @see TitledBorder#paintBorder(Component, Graphics, int, int, int, int)
      */
@@ -146,8 +174,8 @@ public class TitledLineBorder
          }
 
          Rectangle grooveRect = new Rectangle(x+EDGE_SPACING, y+EDGE_SPACING,
-                                              width - (EDGE_SPACING * 2),
-                                              height - (EDGE_SPACING * 2));
+                                              width-(EDGE_SPACING*2),
+                                              height-(EDGE_SPACING*2));
          Font font = g.getFont();
          Color color = g.getColor();
          Font fontc = getFont(c);
@@ -204,7 +232,7 @@ public class TitledLineBorder
 	 	    	justification == DEFAULT_JUSTIFICATION) 
 	 	        justification = LEFT;
 	 	    
-	 	    else if (justification==TRAILING) 
+	 	    else if (justification == TRAILING) 
 	 	    	justification = RIGHT;
  	    
          } else {
@@ -307,6 +335,26 @@ public class TitledLineBorder
          g.drawString(getTitle(), textLoc.x, textLoc.y);
          g.setFont(font);
          g.setColor(color);
+         
+         if (images == null || images.size() == 0) return;
+         Iterator i = images.iterator();
+         Rectangle r;
+         Image img;
+         x = textLoc.x+fm.stringWidth(getTitle());;
+         y = textLoc.y;
+         int w, h;
+         imageBounds = new ArrayList<Rectangle>(images.size());
+         while (i.hasNext()) {
+        	 r = new Rectangle();
+        	 img = (Image) i.next();
+        	 w = img.getWidth(null);
+        	 h = img.getHeight(null);
+        	 r.setBounds(x, textLoc.y-3*h/4, w, h);
+        	 g.drawImage(img, x, textLoc.y-3*h/4, w, h, null); 
+        	 x += w;
+        	 x += EDGE_GAP;
+        	 imageBounds.add(r);
+         }
     }
     
 }

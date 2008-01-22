@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.agents.util.finder;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.annotations.ImageAnnotation;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
@@ -103,8 +102,8 @@ public abstract class FinderLoader
 				return CategoryData.class;
 			case IMAGES:
 				return ImageData.class;
-			case ANNOTATIONS:
-				return ImageAnnotation.class;
+			//case ANNOTATIONS:
+			//	return ImageAnnotation.class;
 			case PROJECTS:
 				return ProjectData.class;
 			case DATASETS:
@@ -126,7 +125,7 @@ public abstract class FinderLoader
     {
     	 if (CategoryData.class.equals(type)) return "Tags";
          else if (ImageData.class.equals(type)) return "Images";
-         else if (ImageAnnotation.class.equals(type)) return "Annotations";
+         //else if (ImageAnnotation.class.equals(type)) return "Annotations";
          else if (CategoryGroupData.class.equals(type)) return "Tag sets";
     	 return "";
     }

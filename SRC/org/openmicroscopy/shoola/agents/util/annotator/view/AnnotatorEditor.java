@@ -119,8 +119,19 @@ public interface AnnotatorEditor
 	 */
 	public void save(int index);
 	
-	/** Removes the annotation. */
-	public void delete();
+	/** 
+	 * Creates a new textual annotation.
+	 * 
+	 * @param text The annotation to save.
+	 */
+	public void save(String text);
+	
+	/** 
+	 * Removes the annotation. 
+	 * 
+	 * @param l The annotations to delete.
+	 */
+	public void delete(List l);
 	
 	/** 
 	 * Returns the view

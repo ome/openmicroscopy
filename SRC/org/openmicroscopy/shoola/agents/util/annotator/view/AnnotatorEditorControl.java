@@ -28,7 +28,9 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -40,6 +42,8 @@ import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.annotator.actions.AnnotatorEditorAction;
 import org.openmicroscopy.shoola.agents.util.annotator.actions.DeleteAction;
 import org.openmicroscopy.shoola.agents.util.annotator.actions.SaveAction;
+
+import pojos.AnnotationData;
 
 /** 
  * The {@link AnnotatorEditor}'s controller. 
@@ -130,6 +134,28 @@ class AnnotatorEditorControl
 	 * @return The specified action.
 	 */
 	AnnotatorEditorAction getAction(Integer id) { return actionsMap.get(id); }
+	
+	/**
+	 * Deletes the annotation.
+	 * 
+	 * @param data The annotation to delete.
+	 */
+	void deleteAnnotation(AnnotationData data)
+	{
+		List<AnnotationData> l = new ArrayList<AnnotationData>(1);
+		l.add(data);
+		model.delete(l);
+	}
+	
+	/**
+	 * Updates the annotation.
+	 * 
+	 * @param data The annotation to delete.
+	 */
+	void updateAnnotation(String data)
+	{
+		model.save(data);
+	}
 	
 	/**
 	 * Reacts to state changes.

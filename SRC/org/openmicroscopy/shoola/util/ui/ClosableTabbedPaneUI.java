@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -42,7 +43,8 @@ import javax.swing.plaf.basic.BasicTabbedPaneUI;
 //Application-internal dependencies
 
 /** 
- * 
+ * Adds a close button to the basic implementation of the 
+ * tabbed pane UI.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -83,6 +85,23 @@ class ClosableTabbedPaneUI
 	/** The mouse listener. */
 	private MouseAdapter	handler;
 	
+	/**
+	 * Shows the menu at the specified location.
+	 * 
+	 * @param invoker 	The component in whose space the popup menu is to
+	 * 					appear.
+     * @param x 		The x coordinate in invoker's coordinate space at which 
+     * 					the popup menu is to be displayed
+     * @param y 		The y coordinate in invoker's coordinate space at which 
+     * 					the popup menu is to be displayed
+	 */
+	private void showMenu(Component invoker, int x, int y)
+	{
+		ClosablePopupMenu menu = new ClosablePopupMenu(
+										(ClosableTabbedPane) tabPane);
+		menu.show(invoker, x, y);
+	}
+	
 	/** Initializes the various component. */
 	private void initialize()
 	{
@@ -113,11 +132,27 @@ class ClosableTabbedPaneUI
 	                    break;
 	                }
 	            }
-			    if (tabIndex >= 0 && !e.isPopupTrigger()) {
-			    	if (selectedRectangle.contains(x, y) ||
-			    			mouseOverRectangle.contains(x, y))
-			    		tabPane.remove(tabIndex);
-		        }
+			    if (tabIndex >= 0) {
+			    	if (e.isPopupTrigger()) {
+			    		Object source = e.getSource();
+			    		if (source instanceof Component)
+			    			showMenu((Component) source, x, y);
+			    	} else {
+			    		if (selectedRectangle.contains(x, y) ||
+				    			mouseOverRectangle.contains(x, y))
+				    		((ClosableTabbedPane) tabPane).remove(tabIndex);
+			    	}
+			    }
+			}
+			
+			public void mousePressed(MouseEvent e)
+			{
+				super.mousePressed(e);
+				if (e.isPopupTrigger()) {
+					Object source = e.getSource();
+		    		if (source instanceof Component)
+		    			showMenu((Component) source, e.getX(), e.getY());
+				}
 			}
 		};
 	}
@@ -149,8 +184,13 @@ class ClosableTabbedPaneUI
 		 Graphics2D g2D = (Graphics2D) g;
 		 Rectangle rect = rects[tabIndex];
 		 int x = rect.x+rect.width-19;
-		 int y = rect.y+6;
+		 int y = rect.y+2;
 		 int w = 0, h = 0;
+		 w = selectedIndexImage.getWidth(null);
+		 h = selectedIndexImage.getHeight(null);
+		 selectedRectangle.setBounds(x, y, w, h);
+		 g2D.drawImage(selectedIndexImage, x, y, w, h, null); 
+		 /*
 		 if (tabIndex == tabPane.getSelectedIndex()) {
 			 w = selectedIndexImage.getWidth(null);
 			 h = selectedIndexImage.getHeight(null);
@@ -162,6 +202,7 @@ class ClosableTabbedPaneUI
 			 mouseOverRectangle.setBounds(x, y, w, h);
 			 g2D.drawImage(tabMouseImage, x, y, w, h, null); 
 		 }
+		 */
 	}
 	
 	/**

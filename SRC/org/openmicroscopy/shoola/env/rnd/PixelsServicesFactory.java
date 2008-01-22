@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -67,9 +68,6 @@ import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 public class PixelsServicesFactory
 {
 
-	/** The default size in MB of the general cache. */
-	//private static final int                DEFAULT_CACHE_SIZE = 40;
-
 	/** The sole instance. */
 	private static PixelsServicesFactory 	singleton;
 
@@ -95,7 +93,7 @@ public class PixelsServicesFactory
 		proxy.setBitResolution(def.getBitResolution());
 		
 		ChannelBinding c;
-		List bindings = rndDef.getWaveRendering();
+		Collection bindings = rndDef.unmodifiableWaveRendering();//rndDef.getWaveRendering();
 		
 		Color color;
 		Iterator k = bindings.iterator();
@@ -231,6 +229,7 @@ public class PixelsServicesFactory
 			
 		return proxy;
 	}
+	
 	/**
 	 * Shuts downs the rendering service attached to the specified 
 	 * pixels set.

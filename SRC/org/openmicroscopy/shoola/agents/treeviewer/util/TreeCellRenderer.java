@@ -37,7 +37,10 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.CountUtil;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -70,6 +73,9 @@ public class TreeCellRenderer
     /** Flag to indicate if the number of children is visible. */
     private boolean             numberChildrenVisible;
     
+    /** The ID of the current user. */
+    private long				userID;
+    
     /**
      * Sets the icon and the text corresponding to the user's object.
      * If an icon is passed, the passed icon is set
@@ -80,26 +86,39 @@ public class TreeCellRenderer
     {
     	Object usrObject = node.getUserObject();
         Icon icon = icons.getIcon(IconManager.OWNER);
-        if (usrObject instanceof ProjectData)
-            icon = icons.getIcon(IconManager.PROJECT);
-        else if (usrObject instanceof DatasetData) {
-            Long i = ((DatasetData) usrObject).getAnnotationCount();
-            if (i == null || i.longValue() == 0)
-                icon = icons.getIcon(IconManager.DATASET);
-            else icon = icons.getIcon(IconManager.ANNOTATED_DATASET);
+        boolean a, b;
+        if (usrObject instanceof ProjectData) {
+        	 a = CountUtil.annotatedByCurrentUser(usrObject, userID);
+             b = CountUtil.annotatedByOtherUser(usrObject, userID);
+             if (a && b)
+             	icon = icons.getIcon(IconManager.PROJECT_ANNOTATED_BY_ALL);
+             else if (a && !b)
+             	icon = icons.getIcon(IconManager.PROJECT_ANNOTATED_BY_USER);
+             else if (!a && b)
+             	icon = icons.getIcon(IconManager.PROJECT_ANNOTATED_BY_OTHER);
+             else 
+                icon = icons.getIcon(IconManager.PROJECT);
+        } else if (usrObject instanceof DatasetData) {
+        	a = CountUtil.annotatedByCurrentUser(usrObject, userID);
+            b = CountUtil.annotatedByOtherUser(usrObject, userID);
+            if (a && b)
+            	icon = icons.getIcon(IconManager.DATASET_ANNOTATED_BY_ALL);
+            else if (a && !b)
+            	icon = icons.getIcon(IconManager.DATASET_ANNOTATED_BY_USER);
+            else if (!a && b)
+            	icon = icons.getIcon(IconManager.DATASET_ANNOTATED_BY_OTHER);
+            else icon = icons.getIcon(IconManager.DATASET);
         } else if (usrObject instanceof ImageData) {
-            ImageData img = (ImageData) usrObject;
-            Long a = img.getAnnotationCount();
-            long n = 0, m = 0;
-            if (a != null) n = a.longValue();
-            if (node.hasTags()) m++;
-            if (n == 0 && m == 0) icon = icons.getIcon(IconManager.IMAGE);
-            else if (n == 0 && m != 0)
-                icon = icons.getIcon(IconManager.CLASSIFIED_IMAGE);
-            else if (n != 0 && m == 0)
-                icon = icons.getIcon(IconManager.ANNOTATED_IMAGE);
-            else if (n != 0 && m != 0)
-                icon = icons.getIcon(IconManager.ANNOTATED_CLASSIFIED_IMAGE);
+            a = CountUtil.annotatedByCurrentUser(usrObject, userID);
+            b = CountUtil.annotatedByOtherUser(usrObject, userID);
+            if (a && b)
+            	icon = icons.getIcon(IconManager.IMAGE_ANNOTATED_BY_ALL);
+            else if (a && !b)
+            	icon = icons.getIcon(IconManager.IMAGE_ANNOTATED_BY_USER);
+            else if (!a && b)
+            	icon = icons.getIcon(IconManager.IMAGE_ANNOTATED_BY_OTHER);
+            else icon = icons.getIcon(IconManager.IMAGE);
+        
         } else if (usrObject instanceof CategoryGroupData)
             icon = icons.getIcon(IconManager.CATEGORY_GROUP);
         else if (usrObject instanceof CategoryData)
@@ -133,6 +152,10 @@ public class TreeCellRenderer
     {
         numberChildrenVisible = b;
         icons = IconManager.getInstance();
+        ExperimenterData exp = 
+        	(ExperimenterData) TreeViewerAgent.getRegistry().lookup(
+        			LookupNames.CURRENT_USER_DETAILS);
+        userID = exp.getId();
     }
     
     /** Creates a new instance. */

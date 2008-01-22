@@ -130,7 +130,7 @@ public class RegExVisitor
         if (annotations == null || annotations.size() == 0) return null;
         AnnotationData data = (AnnotationData) (annotations.toArray()[0]);
         if (data == null) return null;
-        return data.getText();
+        return null;//data.getText();
     }
     
     /**

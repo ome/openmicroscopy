@@ -139,25 +139,7 @@ public class EditorControl
     
     /** Loads the tags */
     void loadTags() { model.loadTags(); }
-    
-    /** Loads the tags not linked to the image. */
-    //void loadAvailableTags() { model.loadAvailableTags(); }
-    
-    /**
-     * Removes the tag or tags if a tag set is specified from the 
-     * image.
-     * 
-     * @param object The object to handle.
-     */
-    //void removeTag(DataObject object) { model.removeTag(object); }
-    
-    /**
-     * Adds the passed tag to the edited image.
-     * 
-     * @param object The object to handle.
-     */
-    //void addTagToImage(DataObject object) { model.addTagToImage(object); }
-    
+   
     /** Retrieves the annotations. */
     void retrieveAnnotations() { model.retrieveAnnotations(); }
     
@@ -221,7 +203,11 @@ public class EditorControl
 		DataObject ho;
 		if (AnnotatorEditor.ANNOTATED_PROPERTY.equals(name)) {
 			ho = (DataObject) evt.getNewValue();
+			
 			model.setSaveResult(ho, TreeViewer.UPDATE_OBJECT); 
+			if (EditorFactory.getEditorSelectedPane() 
+					== Editor.ANNOTATIONS_INDEX)
+				retrieveAnnotations();
 		} else if (AnnotatorEditor.ANNOTATION_LOADED_PROPERTY.equals(name)) {
 			view.setStatus(false, null, true);
 		} else if (SingleTagEditor.LOAD_AVAILABLE_TAGS_PROPERTY.equals(name)) {

@@ -234,6 +234,8 @@ class EditorComponent
         if (object == null)
             throw new IllegalArgumentException("No DataObject to save.");
         model.setSaveResult(object, operation);
+        //reload the annotation
+        
         fireStateChange();
     }
 

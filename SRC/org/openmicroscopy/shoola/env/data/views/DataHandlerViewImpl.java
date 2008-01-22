@@ -96,20 +96,6 @@ public class DataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#deleteAnnotation(DataObject, AnnotationData,
-	 *                                       AgentEventListener)
-	 */
-	public CallHandle deleteAnnotation(DataObject annotatedObject,
-			AnnotationData data,
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new AnnotationSaver(annotatedObject, data, 
-				AnnotationSaver.DELETE);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
 	 * @see DataHandlerView#deleteAnnotation(DataObject, List,
 	 *                                       AgentEventListener)
 	 */

@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * Command to load the annotations linked to the specified nodes.
@@ -80,7 +81,8 @@ public class AnnotationLoader
         if (nodeIDs == null || nodeIDs.size() == 0)
             throw new IllegalArgumentException("No root node ids.");
         if (nodeType.equals(DatasetData.class) ||
-            nodeType.equals(ImageData.class))
+            nodeType.equals(ImageData.class) ||
+            nodeType.equals(ProjectData.class))
             loadCall = makeAnnotationBatchCall(nodeType, nodeIDs, forUser);
         else throw new IllegalArgumentException("DataObject not supported.");
     }
@@ -90,7 +92,8 @@ public class AnnotationLoader
      * dataset's Annotation or image's Annotation.
      * 
      * @param nodeType 		The type of the node. Can only be one out of:
-     *                 		{@link DatasetData}, {@link ImageData}.
+     *                 		{@link DatasetData}, {@link ImageData},
+     *                 		{@link ProjectData}.
      * @param nodeIDs  		Collection of node's ids.
      * @param forUser		Pass <code>true</code> to retrieve the annotations
      * 						for the current user, <code>false</code>
@@ -130,7 +133,8 @@ public class AnnotationLoader
      * early and in the caller's thread.
      * 
      * @param nodeType 		The type of the node. Can only be one out of:
-     *                 		{@link DatasetData}, {@link ImageData}.
+     *                 		{@link DatasetData}, {@link ImageData},
+     *                 		{@link ProjectData}.
      * @param nodeID  		The id of the node.
      * @param forUser		Pass <code>true</code> to retrieve the annotations
      * 						for the current user, <code>false</code>
@@ -151,7 +155,8 @@ public class AnnotationLoader
      * early and in the caller's thread.
      * 
      * @param nodeType 		The type of the node. Can only be one out of:
-     *                 		{@link DatasetData}, {@link ImageData}.
+     *                 		{@link DatasetData}, {@link ImageData},
+     *                 		{@link ProjectData}.
      * @param nodeIDs  		Collection of node's ids.
      * @param forUser		Pass <code>true</code> to retrieve the annotations
      * 						for the current user, <code>false</code>

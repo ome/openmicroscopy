@@ -27,7 +27,7 @@ package org.openmicroscopy.shoola.env.data;
 //Java imports
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -39,7 +39,6 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.ILink;
 import ome.model.IObject;
-import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Category;
 import ome.model.core.Channel;
 import ome.model.core.Image;
@@ -168,7 +167,7 @@ class OmeroDataServiceImpl
 		if (rootNodeIDs == null) po.exp(new Long(userID));
 		if (withLeaves) po.leaves();
 		else po.noLeaves();
-		po.countsFor(new Long(userID));
+		//po.countsFor(new Long(userID));
 		//If rootNodeIDs, returns the orphaned containers:
 		Set parents = gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,
 				po.map()); 
@@ -225,10 +224,10 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		PojoOptions po = new PojoOptions();
-		po.allCounts();
+		//po.allCounts();
 		po.exp(new Long(userID));
 		po.noLeaves();
-		po.countsFor(new Long(userID));
+		//po.countsFor(new Long(userID));
 		return gateway.loadContainerHierarchy(rootNodeType, null,
 				po.map());                         
 	}
@@ -246,7 +245,7 @@ class OmeroDataServiceImpl
 			PojoOptions po = new PojoOptions();
 			po.leaves();
 			po.exp(new Long(userID));
-			po.countsFor(new Long(userID));
+			//po.countsFor(new Long(userID));
 			return gateway.findContainerHierarchy(rootNodeType, leavesIDs,
 					po.map());
 		} catch (Exception e) {
@@ -263,7 +262,6 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		PojoOptions po = new PojoOptions();
-		po.noCounts();
 		po.noLeaves();
 		if (forUser) po.exp(new Long(getUserDetails().getId()));
 		return gateway.findAnnotations(nodeType, nodeIDs, annotatorIDs, 
@@ -281,7 +279,6 @@ class OmeroDataServiceImpl
 			throw new IllegalArgumentException("Find CGCPaths algorithm not " +
 			"supported.");
 		PojoOptions po = new PojoOptions();
-		po.noCounts();
 		po.exp(new Long(userID));
 		return gateway.findCGCPaths(imgIDs, algorithm, po.map());
 	}
@@ -313,7 +310,7 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		PojoOptions po = new PojoOptions();
-		po.noCounts();
+		//po.noCounts();
 		po.exp(new Long(userID));
 		return gateway.getUserImages(po.map());
 	}
@@ -327,7 +324,7 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		PojoOptions po = new PojoOptions();
-		po.noCounts();
+		//po.noCounts();
 		if (!(property.equals(IMAGES_PROPERTY)))
 			throw new IllegalArgumentException("Property not supported.");
 		Map m = gateway.getCollectionCount(rootNodeType, property, rootNodeIDs, 
@@ -347,10 +344,12 @@ class OmeroDataServiceImpl
 			throw new IllegalArgumentException("No annotation to create.");
 		if (annotatedObject == null) 
 			throw new IllegalArgumentException("No DataObject to annotate."); 
+		/*
 		if (!(annotatedObject instanceof ImageData) && 
 				!(annotatedObject instanceof DatasetData))
 			throw new IllegalArgumentException("This method only supports " +
 			"ImageData and DatasetData objects.");
+			*/
 		//First make sure the annotated object is current.
 		IObject ho = gateway.findIObject(annotatedObject.asIObject());
 		if (ho == null) return null;
@@ -360,28 +359,6 @@ class OmeroDataServiceImpl
 		return PojoMapper.asDataObject(ModelMapper.getAnnotatedObject(object));
 	}
 
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#removeAnnotationFrom(DataObject, AnnotationData)
-	 */
-	public DataObject removeAnnotationFrom(DataObject annotatedObject, 
-			AnnotationData data)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		if (data == null) 
-			throw new IllegalArgumentException("No annotation to delete.");
-		if (annotatedObject == null) 
-			throw new IllegalArgumentException("No annotated DataObject."); 
-		if (!(annotatedObject instanceof ImageData) && 
-				!(annotatedObject instanceof DatasetData))
-			throw new IllegalArgumentException("This method only supports " +
-			"ImageData and DatasetData objects.");
-		//First make sure the data object is current;
-		IObject ho = gateway.findIObject(data.asIObject());
-		if (ho != null) gateway.deleteObject(ho);
-		ho = gateway.findIObject(annotatedObject.asIObject());
-		return PojoMapper.asDataObject(ho);
-	}
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
@@ -395,20 +372,30 @@ class OmeroDataServiceImpl
 			throw new IllegalArgumentException("No annotation to delete.");
 		if (annotatedObject == null) 
 			throw new IllegalArgumentException("No annotated DataObject."); 
-		if (!(annotatedObject instanceof ImageData) && 
-				!(annotatedObject instanceof DatasetData))
+		if (!(annotatedObject instanceof ImageData ||
+				annotatedObject instanceof DatasetData ||
+				annotatedObject instanceof ProjectData))
 			throw new IllegalArgumentException("This method only supports " +
 			"ImageData and DatasetData objects.");
 		//First make sure the data object is current;
 		Iterator i = data.iterator();
-		IObject ho;
+		IObject ho, link;
 		AnnotationData d;
+		IObject parent = annotatedObject.asIObject();
+		IObject[] toRemove;
 		while (i.hasNext()) {
 			d = (AnnotationData) i.next();
 			ho = gateway.findIObject(d.asIObject());
-			if (ho != null) gateway.deleteObject(ho);
+			//First delete the link
+			link = gateway.findAnnotationLink(parent, ho);
+			toRemove = new IObject[2];
+			if (ho != null && link != null) {
+				toRemove[0] = link;
+				toRemove[1] = ho;
+				gateway.deleteObjects(toRemove);
+			}
 		}
-		ho = gateway.findIObject(annotatedObject.asIObject());
+		ho = gateway.findIObject(parent);
 		return PojoMapper.asDataObject(ho);
 	}
 
@@ -731,7 +718,7 @@ class OmeroDataServiceImpl
 	public List getChannelsMetadata(long pixelsID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		List l = gateway.getChannelsData(pixelsID);
+		Collection l = gateway.getChannelsData(pixelsID);
 		Iterator i = l.iterator();
 		List<ChannelMetadata> m = new ArrayList<ChannelMetadata>(l.size());
 		int index = 0;
@@ -764,6 +751,7 @@ class OmeroDataServiceImpl
 			ho = gateway.findIObject(annotatedObject.asIObject());
 			if (ho != null) {
 				toCreate[index] = ModelMapper.createAnnotation(ho, d);
+				
 				objects[index] = gateway.createObject(toCreate[index], 
 						(new PojoOptions()).map());
 				index++;
@@ -771,6 +759,7 @@ class OmeroDataServiceImpl
 
 		}
 		List<DataObject> results = new ArrayList<DataObject>(objects.length);
+		//TODO review that code.
 		for (int j = 0; j < objects.length; j++) {
 			results.add(PojoMapper.asDataObject(
 					ModelMapper.getAnnotatedObject(objects[j])));
@@ -961,7 +950,6 @@ class OmeroDataServiceImpl
 		DataObject image;
 		List<DataObject> results = new ArrayList<DataObject>();
 		PojoOptions po = new PojoOptions();
-		po.noCounts();
 		po.allExps();
 		Map map = po.map();
 		while (i.hasNext()) {
@@ -1088,8 +1076,6 @@ class OmeroDataServiceImpl
 		PojoOptions po = new PojoOptions();
 		po.leaves();
 		po.exp(new Long(userID));
-		po.countsFor(new Long(userID));
-		//po.allCounts();
 		po.startTime(startTime);
 		po.endTime(endTime);
 		return gateway.getImages(po.map());
@@ -1368,12 +1354,14 @@ class OmeroDataServiceImpl
 			j = l.iterator();
 			while (j.hasNext()) {
 				object = (IObject) j.next();
+				/*
 				if (object instanceof ImageAnnotation)
 					ids.add(((ImageAnnotation) object).getImage().getId());
 				else if (object instanceof ILink) 
 					ids.add(((ILink) object).getChild().getId());
 				else 
-					ids.add(object.getId());
+				*/
+				ids.add(object.getId());
 			}
 		}
 		

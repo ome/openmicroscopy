@@ -45,6 +45,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * The Model component in the <code>AnnotatorEditor</code> MVC triad.
@@ -71,7 +72,6 @@ class AnnotatorEditorModel
 	/** Holds one of the state flags defined by {@link Annotator}. */
 	private int						state;
 
-	
     /** The annotations related to the currently edited {@link DataObject}. */ 
     private Map             		annotations;
     
@@ -181,7 +181,7 @@ class AnnotatorEditorModel
             set = (Set) map.get(index);
             j = set.iterator();
             while (j.hasNext()) {
-                annotation = (AnnotationData) j.next();;
+                annotation = (AnnotationData) j.next();
                 ownerID = new Long(annotation.getOwner().getId());
                 userAnnos = (List) sortedAnnotations.get(ownerID);
                 if (userAnnos == null) {
@@ -295,7 +295,8 @@ class AnnotatorEditorModel
         long id = getUserDetails().getId();
         if (dataObject == null) return null;
         else if ((dataObject instanceof ImageData) || 
-                (dataObject instanceof DatasetData)) {
+                (dataObject instanceof DatasetData) ||
+                (dataObject instanceof ProjectData)) {
         	List l = getAnnotations(id);
         	if (l == null || l.size() == 0) return null;
         	return (AnnotationData) l.get(index);

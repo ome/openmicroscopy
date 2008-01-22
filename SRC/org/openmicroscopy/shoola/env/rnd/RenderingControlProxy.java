@@ -35,6 +35,10 @@ import java.util.List;
 import javax.ejb.EJBException;
 import javax.imageio.ImageIO;
 
+
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGImageDecoder;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -50,8 +54,6 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageDecoder;
 
 
 /** 

@@ -211,7 +211,6 @@ class AnnotatorUI
 		action.setEnabled(hasDataToSave());
 	}
 
-
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
@@ -520,7 +519,7 @@ class AnnotatorUI
 			area.setEditable(false);
 			area.setOpaque(true);
 			area.setBorder(new TitledLineBorder(node.toString()));
-			area.setText(data.getText());
+			area.setText(data.getContentAsString());
 			if (index%2 == row) area.setOriginalBackground(
 					UIUtilities.BACKGROUND);
 			else area.setOriginalBackground(UIUtilities.BACKGROUND_ONE);
@@ -593,7 +592,6 @@ class AnnotatorUI
 			showObjectAnnotation(selectedNode);
 			objectsTree.setSelectionPath(new TreePath(selectedNode.getPath()));
 		}
-
 	}
 
 	/**

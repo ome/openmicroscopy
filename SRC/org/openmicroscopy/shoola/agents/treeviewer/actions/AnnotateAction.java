@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * Brings the property widget to annotate the data object.
@@ -76,8 +77,15 @@ public class AnnotateAction
      */
     private static final String DESCRIPTION_DATASET = "Annotate the dataset.";
     
+    /** 
+     * The description of the action if the <code>DataObject</code>
+     * is a <code>Project</code> 
+     */
+    private static final String DESCRIPTION_PROJECT = "Annotate the project.";
+    
+    
     /** The description of the action. */
-    private static final String DESCRIPTION = "Annotate the dataset.";
+    private static final String DESCRIPTION = "Annotate.";
     
     /**
      * Enables or not the action and sets the description depending on
@@ -97,6 +105,11 @@ public class AnnotateAction
     		putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
             description = DESCRIPTION_DATASET;
+    	} else if (ho instanceof ProjectData) {
+    		setEnabled(true);
+    		putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_PROJECT));
+            description = DESCRIPTION_PROJECT;
     	} else {
     		setEnabled(false);
     		putValue(Action.SHORT_DESCRIPTION, 

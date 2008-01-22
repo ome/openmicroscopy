@@ -88,7 +88,7 @@ public class BrowseImageCategoriesAction
           Object ho = selectedDisplay.getUserObject();
           if (ho != null && ho instanceof ImageData) {
           	ImageData img = (ImageData) ho;
-          	Long l = img.getClassificationCount();
+          	Long l = null;//img.getClassificationCount();
           	if (l != null) setEnabled(l.longValue() != 0);
           	else setEnabled(false);
           } else setEnabled(false);

@@ -37,8 +37,8 @@ import java.util.Set;
 
 //Application-internal dependencies
 import ome.model.IObject;
-import ome.model.annotations.DatasetAnnotation;
-import ome.model.annotations.ImageAnnotation;
+import ome.model.annotations.Annotation;
+import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
@@ -112,10 +112,9 @@ public class PojoMapper
             return new CategoryData((Category) object);
         else if (object instanceof Image) 
             return new ImageData((Image) object);
-        else if (object instanceof ImageAnnotation) 
-            return new AnnotationData((ImageAnnotation) object);
-        else if (object instanceof DatasetAnnotation) 
-            return new AnnotationData((DatasetAnnotation) object);
+        else if (object instanceof TextAnnotation)
+        	return new AnnotationData((Annotation) object);
+        	//return new AnnotationData(TextAnnotation.class);
         else if (object instanceof Pixels) 
             return new PixelsData((Pixels) object);
         else if (object instanceof Experimenter) 

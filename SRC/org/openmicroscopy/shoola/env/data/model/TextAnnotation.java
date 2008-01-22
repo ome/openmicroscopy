@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.DataObject
+ * org.openmicroscopy.shoola.env.data.model.TextAnnotation 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,38 +20,58 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data.model;
 
+
 //Java imports
+import pojos.AnnotationData;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * Internal object implement this interface if they need to make
- * deep copy.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2 
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since OME3.0
  */
-public interface DataObject
+public class TextAnnotation 
+	extends AnnotationData
 {
+
+	/** Creates a new instance. */
+	public TextAnnotation()
+	{
+		this("");
+	}
 	
-	/** 
-	 * Creates a new instance 
+	/**
+	 * Creates a new instance.
 	 * 
-	 * @return See above.
+	 * @param text The string to set.
 	 */
-	public DataObject makeNew();
+	public TextAnnotation(String text)
+	{
+		super(ome.model.annotations.TextAnnotation.class);
+		setText(text);
+	}
+	
+	/**
+	 * Sets the text of the annotation.
+	 * 
+	 * @param text The textual annotation.
+	 */
+	public void setText(String text)
+	{
+		super.setContent(text);
+	}
 	
 }

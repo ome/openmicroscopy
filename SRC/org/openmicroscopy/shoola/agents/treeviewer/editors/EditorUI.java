@@ -371,7 +371,8 @@ class EditorUI
             case Editor.PROPERTIES_EDITOR:
                 IconManager im = IconManager.getInstance();
                 tabs = new JTabbedPane(JTabbedPane.TOP, 
-                                                   JTabbedPane.WRAP_TAB_LAYOUT);
+                                                 JTabbedPane.WRAP_TAB_LAYOUT);
+               
                 tabs.setAlignmentX(LEFT_ALIGNMENT);
                 tabs.addTab(PROPERTIES_TITLE, 
                         im.getIcon(IconManager.PROPERTIES), doBasic);

@@ -114,9 +114,9 @@ class AnnotatorModel
 	{
 		Long n = null;
 		if (data instanceof ImageData) 
-			n = ((ImageData) data).getAnnotationCount();
+			n = 0L;//((ImageData) data).getAnnotationCount();
 		else if (data instanceof DatasetData) 
-			n = ((DatasetData) data).getAnnotationCount();
+			n = 0L;//((DatasetData) data).getAnnotationCount();
 		if (n == null) return false;
 		return (n.longValue() != 0);
 	}
@@ -353,12 +353,13 @@ class AnnotatorModel
 	AnnotationData getAnnotationType()
 	{ 
 		if (mode == Annotator.BULK_ANNOTATE_MODE)
-			return new AnnotationData(AnnotationData.IMAGE_ANNOTATION); 
+			 return null;//return new AnnotationData(AnnotationData.IMAGE_ANNOTATION); 
 		if (type.equals(DatasetData.class))
-			return new AnnotationData(AnnotationData.DATASET_ANNOTATION); 
+			return null;//return new AnnotationData(AnnotationData.DATASET_ANNOTATION); 
 		if (type.equals(ImageData.class))
-			return new AnnotationData(AnnotationData.IMAGE_ANNOTATION); 
+			return null;//return new AnnotationData(AnnotationData.IMAGE_ANNOTATION); 
 		return null;
+		
 	}
 	
 	/**

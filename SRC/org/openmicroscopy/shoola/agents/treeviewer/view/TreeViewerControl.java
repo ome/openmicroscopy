@@ -610,6 +610,7 @@ class TreeViewerControl
 				((Browser) i.next()).refreshTree();
 		} else if (name.equals(DataHandler.ANNOTATED_PROPERTY) ||
 				name.equals(DataHandler.CLASSIFIED_PROPERTY) ) {
+			
 			if (view.getDataHandler() == null) return;
 			view.discardDataHandler();
 			Map browsers = model.getBrowsers();

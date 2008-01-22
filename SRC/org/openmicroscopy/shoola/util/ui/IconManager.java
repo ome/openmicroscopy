@@ -367,8 +367,8 @@ public class IconManager
         relPaths[SEARCH_TAG_SET] ="search_tag_folder16.png";
         relPaths[EDIT_REMOVE] = "remove12.png";
         relPaths[ADD_12] = "add12.png";
-        relPaths[CLOSE] = "eclipse_remove_att12.png";
-        relPaths[CLOSE_OVER] = "nuvola_messagebox_critical12.png";
+        relPaths[CLOSE] = "nuvola_fileclose16.png";//"eclipse_remove_att12.png";
+        relPaths[CLOSE_OVER] = "nuvola_fileclose16.png";//"nuvola_messagebox_critical12.png";
     }
     
     /** 

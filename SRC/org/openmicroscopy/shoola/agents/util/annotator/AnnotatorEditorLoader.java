@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * Parent of all classes that load data asynchronously for a 
@@ -83,6 +84,7 @@ public abstract class AnnotatorEditorLoader
 	{
 		if (DatasetData.class.equals(c)) return true;
 		else if (ImageData.class.equals(c)) return true; 
+		else if (ProjectData.class.equals(c)) return true; 
 		return false;
 	} 
 	

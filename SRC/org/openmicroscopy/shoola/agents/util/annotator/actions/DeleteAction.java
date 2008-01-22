@@ -83,6 +83,6 @@ public class DeleteAction
 	 * Saves the annotations.
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void actionPerformed(ActionEvent e) { model.delete(); }
+	public void actionPerformed(ActionEvent e) { model.delete(null); }
 	
 }

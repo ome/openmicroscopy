@@ -322,10 +322,5 @@ public class AddExistingObjectsDialog
         buildGUI(nodes);
         pack();
     }
-
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
     
 }

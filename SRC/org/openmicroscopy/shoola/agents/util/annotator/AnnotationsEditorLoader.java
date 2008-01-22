@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * Retrieves the annotations linked to a given <code>DataObject</code>.
@@ -88,10 +89,13 @@ public class AnnotationsEditorLoader
 	{
 		if (object instanceof DatasetData) 
 	           handle = dhView.loadAnnotations(DatasetData.class, 
-	                       ((DatasetData) object).getId(), this);
-	       else if (object instanceof ImageData) 
+	        		   object.getId(), this);
+	     else if (object instanceof ImageData) 
 	           handle = dhView.loadAnnotations(ImageData.class, 
-	                       ((ImageData) object).getId(), this);
+	        		   				object.getId(), this);
+	     else if (object instanceof ProjectData) 
+	           handle = dhView.loadAnnotations(ProjectData.class, 
+	        		   object.getId(), this);
 	}
 	
 	/** 

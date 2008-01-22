@@ -97,8 +97,23 @@ public class ClosableTabbedPane
     	super(tabPlacement, tabLayoutPolicy);
     	ClosableTabbedPaneUI ui = new ClosableTabbedPaneUI();
     	setUI(ui);
-    	addMouseMotionListener(ui);
+    	setFocusable(false);
+    	//addMouseMotionListener(ui);
     	addChangeListener(this);
+    }
+    
+    /** 
+     * Removes all components excepted the selected one from the 
+     * tabbed pane.
+     */
+    void removeOthers()
+    {
+        int tabCount = getTabCount();
+        int index = getSelectedIndex();
+        while (tabCount-- > 0) {
+        	if (index != tabCount) 
+        		removeTabAt(tabCount);
+        }
     }
     
     /**
@@ -151,6 +166,16 @@ public class ClosableTabbedPane
 	/**
 	 * Overridden to insert the tab at the end or requests focus on 
 	 * the added component.
+	 * @see JTabbedPane#addTab(String, Icon, Component)
+	 */
+	public void addTab(String title, Icon icon, Component component)
+	{
+		insertTab(title, icon, component, "", getTabCount());
+	}
+	
+	/**
+	 * Overridden to insert the tab at the end or requests focus on 
+	 * the added component.
 	 * @see JTabbedPane#insertTab(String, Icon, Component, String, int)
 	 */
 	public void insertTab(String title, Icon icon, Component component, 
@@ -180,7 +205,6 @@ public class ClosableTabbedPane
 	 */
 	public void stateChanged(ChangeEvent e)
 	{
-		
 		for (int i = 0; i < getTabCount(); i++) {
 			if (getSelectedIndex() == i)
 				setBackgroundAt(i, UIUtilities.SELECTED_BLUE);

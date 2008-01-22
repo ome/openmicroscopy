@@ -45,6 +45,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
 * Command to save the annotation.
@@ -134,26 +135,6 @@ public class AnnotationSaver
 			{
 				OmeroDataService os = context.getDataService();
 				result = os.createAnnotationFor(objects, data);
-			}
-		};
-	}
-
-	/**
-	 * Creates a {@link BatchCall} to remove the specified annotation.
-	 * 
-	 * @param object    The annotated <code>DataObject</code>.
-	 * @param data      The annotation to remove.
-	 * @return The {@link BatchCall}.
-	 */
-	private BatchCall removeAnnotation(final DataObject object,
-			final AnnotationData data)
-	{
-		return new BatchCall("Remove dataset annotation.") {
-			public void doCall() throws Exception
-			{
-				OmeroDataService os = context.getDataService();
-				result = new ArrayList(1);
-				result.add(os.removeAnnotationFrom(object, data));
 			}
 		};
 	}
@@ -300,18 +281,15 @@ public class AnnotationSaver
 			throw new IllegalArgumentException("DataObject cannot be " +
 			"annotated.");
 		switch (algorithm) {
-		case DELETE:
-			saveCall = removeAnnotation(annotatedObject, data);
-			break;
-		case UPDATE: 
-			saveCall = updateAnnotation(annotatedObject, data);
-			break;
-		case CREATE:
-			saveCall = createAnnotation(annotatedObject, data);
-			break;
-		default: 
-			throw new IllegalArgumentException("Constructor should only" +
-					"be invoked to update or delete annotation.");
+			case UPDATE: 
+				saveCall = updateAnnotation(annotatedObject, data);
+				break;
+			case CREATE:
+				saveCall = createAnnotation(annotatedObject, data);
+				break;
+			default: 
+				throw new IllegalArgumentException("Constructor should only" +
+						"be invoked to update or delete annotation.");
 		}
 	}
 
@@ -332,8 +310,9 @@ public class AnnotationSaver
 		if (data == null) throw new IllegalArgumentException("No annotation.");
 		if (annotatedObject == null) 
 			throw new IllegalArgumentException("No DataObject to annotate.");
-		if (!(annotatedObject instanceof DatasetData) &&
-				!(annotatedObject instanceof ImageData))
+		if (!(annotatedObject instanceof DatasetData ||
+				annotatedObject instanceof ImageData ||
+				annotatedObject instanceof ProjectData))
 			throw new IllegalArgumentException("DataObject cannot be " +
 			"annotated.");
 		switch (algorithm) {

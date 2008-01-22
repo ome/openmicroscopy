@@ -32,6 +32,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -59,12 +60,11 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.model.ILink;
 import ome.model.IObject;
-import ome.model.annotations.DatasetAnnotation;
-import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
+import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
@@ -225,6 +225,21 @@ class OMEROGateway
 	 * @param klass The class to analyze.
 	 * @return See above.
 	 */
+	private String getTableForAnnotationLink(Class klass)
+	{
+		String table = null;
+		if (klass.equals(Dataset.class)) table = "DatasetAnnotationLink";
+		else if (klass.equals(Project.class)) table = "ProjectAnnotationLink";
+		else if (klass.equals(Image.class)) table = "ImageAnnotationLink";
+		return table;
+	}
+	
+	/**
+	 * Determines the table name corresponding to the specified class.
+	 * 
+	 * @param klass The class to analyze.
+	 * @return See above.
+	 */
 	private String getTableForClass(Class klass)
 	{
 		if (klass.equals(CategoryData.class)) return "Category";
@@ -232,7 +247,7 @@ class OMEROGateway
 		else if (klass.equals(ProjectData.class)) return "Project";
 		else if (klass.equals(CategoryGroupData.class)) return "CategoryGroup";
 		else if (klass.equals(ImageData.class)) return "Image";
-		else if (klass.equals(ImageAnnotation.class)) return "ImageAnnotation";
+		//else if (klass.equals(ImageAnnotation.class)) return "ImageAnnotation";
 		return null;
 	}
 	
@@ -442,6 +457,7 @@ class OMEROGateway
 	 */
 	private RawPixelsStore getPixelsStore()
 	{
+		
 		return entry.createRawPixelsStore();
 	}
 
@@ -515,6 +531,7 @@ class OMEROGateway
 		String sql = null;
 		String table;
 		separator = " "+separator+" ";
+		/*
 		if (ImageAnnotation.class.equals(type)) {
 			sql = "select obj from ImageAnnotation as obj " +
 					"left outer join fetch obj.details.creationEvent as d " +
@@ -534,7 +551,9 @@ class OMEROGateway
 					sql += "obj.content like :"+names[j];
 				else sql += "lower(obj.content) like :"+names[j];
 			}
-		} else if (CategoryData.class.equals(type)) {
+		} else 
+		*/
+		if (CategoryData.class.equals(type)) {
 			table = getTableForLink(Category.class);
 			sql = "select obj from "+table+" as obj " +
 					"left outer join fetch obj.details.creationEvent " +
@@ -1129,7 +1148,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	List getChannelsData(long pixelsID)
+	Collection getChannelsData(long pixelsID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
@@ -1142,7 +1161,7 @@ class OMEROGateway
 					"left outer join fetch c.logicalChannel as lc " +
 					"left outer join fetch c.statsInfo where p.id = :id",
 					new Parameters().addId(new Long(pixelsID)));
-			return pixs.getChannels();
+			return pixs.unmodifiableChannels();//pixs.getChannels();
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the channelsData for "+
 					"the pixels set "+pixelsID);
@@ -1235,6 +1254,37 @@ class OMEROGateway
 		return null;
 	}
 
+	/**
+	 * Finds the link if any between the specified parent and child.
+	 * 
+	 * @param parent    The parent.
+	 * @param child     The child.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	IObject findAnnotationLink(IObject parent, IObject child)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			String table = getTableForAnnotationLink(parent.getClass());
+			if (table == null) return null;
+			String sql = "select link from "+table+" as link where " +
+			"link.parent.id = :parentID and link.child.id = :childID";
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			param.addLong("parentID", parent.getId());
+			param.addLong("childID", child.getId());
+			return service.findByQuery(sql, param);
+		} catch (Throwable t) {
+			handleException(t, "Cannot retrieve the requested link for "+
+					"parent ID: "+parent.getId()+" and child " +
+					"ID: "+child.getId());
+		}
+		return null;
+	}
+	
 	/**
 	 * Finds the link if any between the specified parent and child.
 	 * 
@@ -1976,7 +2026,7 @@ class OMEROGateway
 			
 			//No users so retrieve the data of all members of a group.
 			param.addLong("userID", user.getId());
-			Set groups = user.getGroups();
+			List groups = user.getGroups();//user.getGroups();
 			Set<Long> groupIDs = new HashSet<Long>(groups.size());
 			i = groups.iterator();
 			while (i.hasNext()) 
@@ -2062,7 +2112,7 @@ class OMEROGateway
 			
 			//No users so retrieve the data of all members of a group.
 			param.addLong("userID", user.getId());
-			Set groups = user.getGroups();
+			List groups = user.getGroups();
 			Set<Long> groupIDs = new HashSet<Long>(groups.size());
 			Iterator i = groups.iterator();
 			while (i.hasNext()) {

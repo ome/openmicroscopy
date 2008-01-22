@@ -260,11 +260,38 @@ public class IconManager
     /** The <code>add_12</code> icon. */
     public static int           ADD_12 = 68;
     
+    /** The <code>annotated by user</code> icon. */
+    public static int           IMAGE_ANNOTATED_BY_USER = 69;
+    
+    /** The <code>annotated by user</code> icon. */
+    public static int           IMAGE_ANNOTATED_BY_OTHER = 70;
+    
+    /** The <code>annotated by user</code> icon. */
+    public static int           IMAGE_ANNOTATED_BY_ALL = 71;
+    
+    /** The <code>annotated by user</code> icon. */
+    public static int           DATASET_ANNOTATED_BY_USER = 72;
+    
+    /** The <code>annotated by user</code> icon. */
+    public static int           DATASET_ANNOTATED_BY_OTHER = 73;
+    
+    /** The <code>annotated by user</code> icon. */
+    public static int           DATASET_ANNOTATED_BY_ALL = 74;
+    
+    /** The <code>annotated by user</code> icon. */
+    public static int           PROJECT_ANNOTATED_BY_USER = 75;
+    
+    /** The <code>annotated by user</code> icon. */
+    public static int           PROJECT_ANNOTATED_BY_OTHER = 76;
+    
+    /** The <code>annotated by user</code> icon. */
+    public static int           PROJECT_ANNOTATED_BY_ALL = 77;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 68;
+    private static int          MAX_ID = 77;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -341,6 +368,15 @@ public class IconManager
         relPaths[SEARCH] = "nuvola_find16.png";
         relPaths[EDIT_REMOVE] = "remove12.png";
         relPaths[ADD_12] = "add12.png";
+        relPaths[IMAGE_ANNOTATED_BY_USER] = "annotatedByUser_image16.png";
+        relPaths[IMAGE_ANNOTATED_BY_OTHER] = "annotatedByOther_image16.png";
+        relPaths[IMAGE_ANNOTATED_BY_ALL] = "annotatedByAll_image16.png";
+        relPaths[DATASET_ANNOTATED_BY_USER] = "annotatedByUser_dataset16.png";
+        relPaths[DATASET_ANNOTATED_BY_OTHER] = "annotatedByOther_dataset16.png";
+        relPaths[DATASET_ANNOTATED_BY_ALL] = "annotatedByAll_dataset16.png";
+        relPaths[PROJECT_ANNOTATED_BY_USER] = "annotatedByUser_project16.png";
+        relPaths[PROJECT_ANNOTATED_BY_OTHER] = "annotatedByOther_project16.png";
+        relPaths[PROJECT_ANNOTATED_BY_ALL] = "annotatedByAll_project16.png";
     }
     
     /** The sole instance. */

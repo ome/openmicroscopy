@@ -131,8 +131,7 @@ public class UIUtilities
     public static final String              DOTS = "...";
     
     /** The blue color used when an item is selected. */
-    public static final	Color				SELECTED_BLUE = new Color(147, 190,
-																	235);
+    public static final	Color				SELECTED_BLUE = new Color(100, 100, 240);
     
     /** The Steelblue color. */
     public static final Color               STEELBLUE = new Color(0x4682B4);

@@ -316,25 +316,7 @@ public interface OmeroDataService
 	 */
 	public DataObject createAnnotationFor(DataObject annotatedObject,
 			AnnotationData data)
-	throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Removes the specified annotation from the specified
-	 * <code>DataObject</code>. The updated <code>DataObject</code> is
-	 * then returned.
-	 * 
-	 * @param annotatedObject   The object to annotate.
-	 *                          Mustn't be <code>null</code>.
-	 * @param data              The annotation data to remove. 
-	 *                          Mustn't be <code>null</code>.
-	 * @return See above.                  
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public DataObject removeAnnotationFrom(DataObject annotatedObject, 
-			AnnotationData data)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Removes the specified annotation from the specified

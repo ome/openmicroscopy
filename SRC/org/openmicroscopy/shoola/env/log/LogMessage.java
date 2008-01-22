@@ -83,6 +83,7 @@ public class LogMessage
 	public void print(Throwable t)
 	{
 		t.printStackTrace(this);
+		print(out.toString());
 		print("Exception in thread \"");
 		print(Thread.currentThread().getName());	
 		println("\"");
