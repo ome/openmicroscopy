@@ -90,12 +90,31 @@ public class FullText extends SearchAction {
                 }
                 criteria.add(Restrictions.eq("details.owner.id", id));
             } else if (d.getGroup() != null) {
-                Long id = d.getOwner().getId();
+                Long id = d.getGroup().getId();
                 if (id == null) {
                     throw new ApiUsageException("Id for group cannot be null.");
                 }
                 criteria.add(Restrictions.eq("details.group.id", id));
             }
+        }
+
+        criteria.createAlias("details.creationEvent", "create");
+        criteria.createAlias("details.updateEvent", "update");
+
+        if (values.createdStart != null) {
+            criteria.add(Restrictions.gt("create.time", values.createdStart));
+        }
+
+        if (values.createdStop != null) {
+            criteria.add(Restrictions.lt("create.time", values.createdStop));
+        }
+
+        if (values.modifiedStart != null) {
+            criteria.add(Restrictions.gt("update.time", values.modifiedStart));
+        }
+
+        if (values.modifiedStop != null) {
+            criteria.add(Restrictions.lt("update.time", values.modifiedStop));
         }
 
         if (values.onlyAnnotatedWith != null) {

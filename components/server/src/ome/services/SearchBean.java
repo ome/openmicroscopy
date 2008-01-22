@@ -37,6 +37,7 @@ import ome.model.internal.Details;
 import ome.parameters.Parameters;
 import ome.services.search.AnnotatedWith;
 import ome.services.search.FullText;
+import ome.services.search.GroupForTags;
 import ome.services.search.HqlQuery;
 import ome.services.search.SearchAction;
 import ome.services.search.SearchValues;
@@ -201,14 +202,21 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     @Transactional
     @RolesAllowed("user")
     public void byGroupForTags(String group) {
-        throw new UnsupportedOperationException();
+        SearchAction byTags;
+        synchronized (values) {
+            byTags = new GroupForTags(values, group);
+        }
+        actions.add(byTags);
     }
 
     @Transactional
     @RolesAllowed("user")
     public void byTagForGroups(String tag) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException();
+        SearchAction byTags;
+        synchronized (values) {
+            throw new UnsupportedOperationException();
+        }
+        // actions.add(null);
     }
 
     @Transactional
@@ -417,7 +425,12 @@ public class SearchBean extends AbstractStatefulBean implements Search {
         synchronized (values) {
             values.createdStart = SearchValues.copyTimestamp(start);
             values.createdStop = SearchValues.copyTimestamp(stop);
-            throw new IllegalArgumentException("What invariants");
+            if (start != null && stop != null) {
+                if (stop.getTime() < start.getTime()) {
+                    log.warn("FullText search created with "
+                            + "creation stop before start");
+                }
+            }
         }
     }
 
@@ -508,7 +521,12 @@ public class SearchBean extends AbstractStatefulBean implements Search {
         synchronized (values) {
             values.modifiedStart = SearchValues.copyTimestamp(start);
             values.modifiedStop = SearchValues.copyTimestamp(stop);
-            throw new RuntimeException("What checks need to be performed.");
+            if (start != null && stop != null) {
+                if (stop.getTime() < start.getTime()) {
+                    log.warn("FullText search created "
+                            + "with modification stop before start");
+                }
+            }
         }
     }
 

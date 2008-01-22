@@ -6,6 +6,8 @@
  */
 package ome.server.itests.search;
 
+import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +26,94 @@ import org.testng.annotations.Test;
 
 @Test(groups = { "query", "fulltext", "search" })
 public class SearchTest extends AbstractTest {
+
+    @Test
+    public void testByGroupForTags() {
+        String groupStr = uuid();
+        String tagStr = uuid();
+
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue(tagStr);
+
+        TagAnnotation grp = new TagAnnotation();
+        grp.setTextValue(groupStr);
+
+        tag.linkAnnotation(grp);
+        tag = iUpdate.saveAndReturnObject(tag);
+
+        Search search = this.factory.createSearchService();
+        search.byGroupForTags(groupStr);
+        assertEquals(1, search.results().size());
+
+        // Make another one
+        groupStr = uuid();
+        grp = new TagAnnotation();
+        tag.linkAnnotation(grp);
+        tag = iUpdate.saveAndReturnObject(tag);
+
+        // Now we are sure that there are two taggroups in the db;
+        // this should return all two then
+        search.byGroupForTags(null);
+        search.setBatchSize(2);
+        assertEquals(2, search.results().size());
+
+        // Let's now add the tag to another tag group as another user
+        // and try to filter out those results
+
+        long oldUser = iAdmin.getEventContext().getCurrentUserId();
+        Details d = Details.create();
+        d.setOwner(new Experimenter(oldUser, false));
+
+        Experimenter e = loginNewUser();
+        grp = new TagAnnotation();
+        groupStr = uuid();
+        grp.setTextValue(groupStr);
+        tag.linkAnnotation(grp);
+        tag = iUpdate.saveAndReturnObject(tag);
+
+        search.onlyOwnedBy(d);
+        search.byGroupForTags(groupStr);
+        assertFalse(search.hasNext());
+
+        search.onlyOwnedBy(null);
+        search.byGroupForTags(groupStr);
+        assertEquals(1, search.results().size());
+    }
+
+    @Test
+    public void testByTagForGroup() {
+        String groupStr = uuid();
+        String tagStr = uuid();
+
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue(tagStr);
+
+        TagAnnotation grp = new TagAnnotation();
+        grp.setTextValue(groupStr);
+
+        tag.linkAnnotation(grp);
+        tag = iUpdate.saveAndReturnObject(tag);
+
+        Search search = this.factory.createSearchService();
+        search.byTagForGroups(tagStr);
+        assertEquals(1, search.results().size());
+
+        // Make another one
+        tagStr = uuid();
+        tag = new TagAnnotation();
+        tag.linkAnnotation(grp);
+        tag = iUpdate.saveAndReturnObject(tag);
+
+        // Now we are sure that there are two tags for the one group;
+        // this should return all two then
+        search.byTagForGroups(null);
+        search.setBatchSize(2);
+        assertEquals(2, search.results().size());
+    }
+
+    // General methods
+    // The following sections should include all the by* methods except for
+    // the special cases above.
 
     @Test
     public void testSimpleFullTextSearch() {
@@ -132,10 +222,149 @@ public class SearchTest extends AbstractTest {
         assertEquals(1, search.results().size());
     }
 
+    static Timestamp oneHourAgo, inOneHour, now;
+    static {
+        Calendar today = Calendar.getInstance();
+        today.set(Calendar.HOUR, today.get(Calendar.HOUR) - 1);
+        oneHourAgo = new Timestamp(today.getTimeInMillis());
+        today = Calendar.getInstance();
+        today.set(Calendar.HOUR, today.get(Calendar.HOUR) + 1);
+        inOneHour = new Timestamp(today.getTimeInMillis());
+        now = new Timestamp(System.currentTimeMillis());
+    }
+
+    @Test
+    public void testOnlyCreateBetween() {
+
+        String name = uuid();
+        Image i = new Image();
+        i.setName(name);
+        i = iUpdate.saveAndReturnObject(i);
+
+        indexObject(i);
+        loginRoot();
+
+        Search search = this.factory.createSearchService();
+
+        // Find the Image
+        search.onlyType(Image.class);
+        search.byFullText(name);
+        assertEquals(1, search.results().size());
+
+        // Now restrict the search to past
+        search.onlyCreatedBetween(null, oneHourAgo);
+        search.byFullText(name);
+        assertFalse(search.hasNext());
+
+        // Future
+        search.onlyCreatedBetween(inOneHour, null);
+        search.byFullText(name);
+        assertFalse(search.hasNext());
+
+        // 2 hour period around now
+        search.onlyCreatedBetween(oneHourAgo, inOneHour);
+        search.byFullText(name);
+        assertEquals(1, search.results().size());
+
+        // Starting at now old 'now'
+        search.onlyCreatedBetween(null, now);
+        search.byFullText(name);
+        assertFalse(search.hasNext());
+
+        // Open them up again and should be found
+        search.onlyCreatedBetween(null, null);
+        search.byFullText(name);
+        assertEquals(1, search.results().size());
+
+    }
+
+    @Test
+    public void testOnlyModifiedBetween() {
+
+        String name = uuid();
+        Image i = new Image();
+        i.setName(name);
+        i = iUpdate.saveAndReturnObject(i);
+
+        indexObject(i);
+        loginRoot();
+
+        Search search = this.factory.createSearchService();
+
+        // Find the Image
+        search.onlyType(Image.class);
+        search.byFullText(name);
+        assertEquals(1, search.results().size());
+
+        // Now restrict the search to past
+        search.onlyModifiedBetween(null, oneHourAgo);
+        search.byFullText(name);
+        assertFalse(search.hasNext());
+
+        // Future
+        search.onlyModifiedBetween(inOneHour, null);
+        search.byFullText(name);
+        assertFalse(search.hasNext());
+
+        // 2 hour period around now
+        search.onlyModifiedBetween(oneHourAgo, inOneHour);
+        search.byFullText(name);
+        assertEquals(1, search.results().size());
+
+        // Starting at now old 'now'
+        search.onlyModifiedBetween(null, now);
+        search.byFullText(name);
+        assertFalse(search.hasNext());
+
+        // Open them up again and should be found
+        search.onlyModifiedBetween(null, null);
+        search.byFullText(name);
+        assertEquals(1, search.results().size());
+
+    }
+
     @Test
     public void testOnlyAnnotatedBetween() {
+
+        String name = uuid();
+        Image i = new Image();
+        i.setName(name);
+        i = iUpdate.saveAndReturnObject(i);
+
+        indexObject(i);
+        loginRoot();
+
         Search search = this.factory.createSearchService();
+
+        // Find the Image
+        search.onlyType(Image.class);
+        search.byFullText(name);
+        assertEquals(1, search.results().size());
+
+        // Now restrict the search to past
+        search.onlyAnnotatedBetween(null, oneHourAgo);
+        search.byFullText(name);
+        assertFalse(search.hasNext());
+
+        // Future
+        search.onlyAnnotatedBetween(inOneHour, null);
+        search.byFullText(name);
+        assertFalse(search.hasNext());
+
+        // 2 hour period around now
+        search.onlyAnnotatedBetween(oneHourAgo, inOneHour);
+        search.byFullText(name);
+        assertEquals(1, search.results().size());
+
+        // Starting at now old 'now'
+        search.onlyAnnotatedBetween(null, now);
+        search.byFullText(name);
+        assertFalse(search.hasNext());
+
+        // Open them up again and should be found
         search.onlyAnnotatedBetween(null, null);
+        search.byFullText(name);
+        assertEquals(1, search.results().size());
     }
 
     @Test
