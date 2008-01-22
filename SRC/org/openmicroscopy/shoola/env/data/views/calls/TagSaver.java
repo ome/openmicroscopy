@@ -116,9 +116,9 @@ public class TagSaver
 	 * Creates a {@link BatchCall} to tag the images acquired during a
 	 * given period of time.
 	 * 
-	 * @param timeRef	the time object defi§ing the time interval.	
-	 * @param toCreate The collection of tags to create if any.
-	 * @param toUpdate The collection of tags to update if any.
+	 * @param timeRef	Thhe time object defining the time interval.	
+	 * @param toCreate 	The collection of tags to create if any.
+	 * @param toUpdate 	The collection of tags to update if any.
 	 * @return The {@link BatchCall}.
 	 */
 	private BatchCall tagImages(final TimeRefObject timeRef, 
