@@ -297,11 +297,11 @@ public abstract class ImageDisplay
     {
         if (hierarchyObject instanceof DatasetData) {
             DatasetData d =  (DatasetData) hierarchyObject;
-            Long n = d.getAnnotationCount();
+            Long n = null;//d.getAnnotationCount();
             return (n != null && n.longValue() > 0);
         } else if (hierarchyObject instanceof ImageData) {
             ImageData d =  (ImageData) hierarchyObject;
-            Long n = d.getAnnotationCount();
+            Long n = null;//d.getAnnotationCount();
             return (n != null && n.longValue() > 0);
         }
         return false;

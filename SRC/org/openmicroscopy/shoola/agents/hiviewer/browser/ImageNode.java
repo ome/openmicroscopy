@@ -174,7 +174,7 @@ public class ImageNode
     {
         if (hierarchyObject instanceof ImageData) {
             ImageData d =  (ImageData) hierarchyObject;
-            Long n = d.getClassificationCount();
+            Long n = null;//d.getClassificationCount();
             return (n != null && n.longValue() > 0);
         }
         return false;

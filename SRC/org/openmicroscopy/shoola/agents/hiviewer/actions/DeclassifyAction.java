@@ -92,7 +92,7 @@ public class DeclassifyAction
         	return;
         }
         ImageData img = (ImageData) ho;
-        Long count = img.getClassificationCount();
+        Long count = null;//img.getClassificationCount();
         setEnabled(count != null && count.longValue() > 0);
     }
     

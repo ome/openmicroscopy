@@ -185,7 +185,7 @@ public class ClassificationPane
         String title = null;
         if (ho instanceof ImageData) {
             ImageData img = (ImageData) ho;
-            Long n = img.getClassificationCount();
+            Long n = null;//img.getClassificationCount();
             if (n == null || n.longValue() == 0) title = null;
             else {
                 image = img;

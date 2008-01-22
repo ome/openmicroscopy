@@ -109,7 +109,7 @@ public class TreeCellRenderer
         } else if (usrObject instanceof DatasetData) {
             DatasetData data = (DatasetData) usrObject;
             if (icon == null) {
-                Long i = data.getAnnotationCount();
+                Long i = null;//data.getAnnotationCount();
                 if (i == null || i.longValue() == 0)
                     icon = icons.getIcon(IconManager.DATASET);
                 else icon = icons.getIcon(IconManager.ANNOTATED_DATASET);
@@ -120,8 +120,8 @@ public class TreeCellRenderer
                 if (thumbnail) icon = icons.getIcon(IconManager.IMAGE_MEDIUM);
                 else {
                     ImageData img = (ImageData) usrObject;
-                    Long a = img.getAnnotationCount();
-                    Long c = img.getClassificationCount();
+                    Long a = null;//img.getAnnotationCount();
+                    Long c = null;//img.getClassificationCount();
                     long n = 0, m = 0;
                     if (a != null) n = a.longValue();
                     if (c != null) m = c.longValue();

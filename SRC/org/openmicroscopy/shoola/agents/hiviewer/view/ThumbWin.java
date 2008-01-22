@@ -109,7 +109,7 @@ class ThumbWin
     {
     	if (dataObject instanceof ImageData) {
             ImageData d =  (ImageData) dataObject;
-            Long n = d.getAnnotationCount();
+            Long n = null;//d.getAnnotationCount();
             return (n != null && n.longValue() > 0);
         }
         return false;
@@ -125,7 +125,7 @@ class ThumbWin
     {
     	if (dataObject instanceof ImageData) {
             ImageData d =  (ImageData) dataObject;
-            Long n = d.getClassificationCount();
+            Long n = null;//d.getClassificationCount();
             return (n != null && n.longValue() > 0);
         }
         return false;
