@@ -54,7 +54,7 @@
   <property name="dist.dir" location="${build.dir}/dist"/>
   <property name="dist.jar.file" value="omero.insight.jar"/>
   <property name="dist.bundle.name" value="omero.insight"/> 
-  <property name="dist.bundle.version" value="3_Beta2.3_26-11-07"/>
+  <property name="dist.bundle.version" value="3_Beta2.3"/>
   <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
     <include name="*.sh"/>
     <include name="*.bat"/> 
@@ -132,7 +132,7 @@
       <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
       <zipfileset refid="app.libs" prefix="${dist.app.lib.dir.name}"/> 
       <fileset dir="${dist.dir}" includes="${dist.jar.file}"/>
-      <zipfileset refid="dist.launch.scripts" filemode="555"/>
+      <zipfileset refid="dist.launch.scripts" filemode="775"/>
       <fileset file="${dist.installfile}"/>
       <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
     </zip> 
@@ -175,7 +175,7 @@
                excludes="**/${dist.osx.stub.name}"/>
       <zipfileset file="${dist.osx.stub}" 
                   fullpath="OMERO.insight.app/Contents/MacOS/${dist.osx.stub.name}"
-                  filemode="555"/> 
+                  filemode="775"/> 
       <fileset file="${dist.osx.installfile}"/>
       <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
     </zip> 

@@ -50,7 +50,6 @@
   <available classname="javax.media.j3d.SceneGraphObject" property="app.j3d"/>  
   <patternset id="app.sources">
     <include name="**/*.java"/>
-    <exclude name="**/roi**/*.java"/>
   </patternset>
   <fileset id="app.libs" dir="${base.lib.dir}" includes="*.jar"/>
   <fileset id="app.resources" dir="${base.src.dir}" excludes="**/*.java"/>
