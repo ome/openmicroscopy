@@ -5,10 +5,6 @@
    Classes:
     omero.client    -- Main OmeroPy connector object
 
-   Functions:
-       omero.script -- Produces an omero.client object with
-                       given input/output constraints.
-
    Copyright 2007 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
@@ -207,39 +203,6 @@ class client(object):
         if not hasattr(self, "outputs"):
             self.outputs = {}
         self.outputs[key] = value
-
-def script(name, description = None, **kwargs):
-    """
-    Entry point for all script engine scripts.
-
-    Typical usage consists of:
-
-      client = omero.script("name","description", param1="long", param2="bool")
-
-    where the returned client is created via the empty constructor to omero.client
-    using only --Ice.Config or ICE_CONFIG, and the function arguments are taken
-    as metdata about the current script. With this information, all script
-    consumers should be able to determine the required types for execution.
-
-    Possible types are all those defined in the blitz slice definitions, including:
-
-      * long
-      * int
-      * bool
-      * string
-      * omero::model::<Type>
-
-    Any type suffixed with "*" is optional and can be safely left null.
-
-    """
-    c = client()
-    if "true" == c.getProperty("omero.script.parse"): # Add to omero/Constants.ice
-        print "Name:       ", name
-        print "Description:", description
-        print "Parameters:\n",kwargs
-        return kwargs
-    else:
-        return c
 
 import util.FactoryMap
 class ObjectFactory(Ice.ObjectFactory):

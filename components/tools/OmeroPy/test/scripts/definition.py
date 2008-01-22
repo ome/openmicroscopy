@@ -6,19 +6,21 @@
 #   Use is subject to license terms supplied in LICENSE.txt
 #
 
-import omero
+import omero, omero.scripts as sc
 
-client = omero.script("script_1", """
+client = sc.client("script_1", """
     This is a test script used to test the basic parsing functionality
     and attempts to interaction with the server
     """,
-    myint="int", mylong="long", mybool="bool",
-    mystring="string", myoptional="string*"
+    #sc.Int("myint"),
+    sc.Long("mylong"),
+    sc.Bool("mybool"),
+    sc.String("mystring"),
+    sc.String("myoptional",optional=True)
     )
 
-
 import os, sys, types
-assert type(client) == types.DictType
+assert type(client) == types.TupleType
 
 self =  sys.argv[0]
 cfg  = self.replace("py","cfg")

@@ -9,9 +9,9 @@
 
 """
 
-import omero, omero.cli
+import omero.scripts
 
-client = omero.script("test_harness")
+client = omero.scripts.client("test_harness")
 pixelsID = client.getInput("pixelsID")
 client.setOutput("newPixelsID",-1)
 
