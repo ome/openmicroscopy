@@ -10,8 +10,11 @@ package ome.services.search;
 import ome.conditions.ApiUsageException;
 import ome.model.IAnnotated;
 import ome.model.internal.Details;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.services.SearchBean;
 import ome.system.ServiceFactory;
+import ome.tools.hibernate.QueryBuilder;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.ParseException;
@@ -81,21 +84,9 @@ public class FullText extends SearchAction {
 
         this.session = Search.createFullTextSession(session);
         Criteria criteria = session.createCriteria(cls);
-        if (values.ownedBy != null) {
-            Details d = values.ownedBy;
-            if (/* ownable && */d.getOwner() != null) {
-                Long id = d.getOwner().getId();
-                if (id == null) {
-                    throw new ApiUsageException("Id for owner cannot be null.");
-                }
-                criteria.add(Restrictions.eq("details.owner.id", id));
-            } else if (d.getGroup() != null) {
-                Long id = d.getGroup().getId();
-                if (id == null) {
-                    throw new ApiUsageException("Id for group cannot be null.");
-                }
-                criteria.add(Restrictions.eq("details.group.id", id));
-            }
+        OwnerOrGroup oog = new OwnerOrGroup(values.ownedBy);
+        if (oog.needed()) {
+            oog.on(criteria);
         }
 
         criteria.createAlias("details.creationEvent", "create");
@@ -117,6 +108,21 @@ public class FullText extends SearchAction {
             criteria.add(Restrictions.lt("update.time", values.modifiedStop));
         }
 
+        AnnotationCriteria ann = new AnnotationCriteria(criteria);
+        OwnerOrGroup aoog = new OwnerOrGroup(values.annotatedBy);
+        if (aoog.needed()) {
+            aoog.on(ann.getChild());
+        }
+
+        if (values.annotatedStart != null) {
+            ann.getCreate().add(
+                    Restrictions.gt("anncreate.time", values.annotatedStart));
+        }
+
+        if (values.annotatedStop != null) {
+            ann.getCreate().add(
+                    Restrictions.lt("anncreate.time", values.annotatedStop));
+        }
         if (values.onlyAnnotatedWith != null) {
             if (values.onlyAnnotatedWith.size() > 1) {
                 throw new ApiUsageException(
@@ -132,13 +138,9 @@ public class FullText extends SearchAction {
                     return; // EARLY EXIT !
                 } else {
                     for (Class annCls : values.onlyAnnotatedWith) {
-                        Criteria links = criteria
-                                .createCriteria("annotationLinks");
-                        Criteria child = links.createCriteria("child");
-
                         SimpleExpression ofType = new TypeEqualityExpression(
                                 "class", annCls);
-                        child.add(ofType);
+                        ann.getChild().add(ofType);
                     }
                 }
             } else {
@@ -151,6 +153,113 @@ public class FullText extends SearchAction {
         // TODO And if allTypes? or multiple types
         // scroll = query.scroll(ScrollMode.FORWARD_ONLY);
         result = query.list();
+    }
+}
+
+/**
+ * Function-like class to assert either first the {@link Experimenter owner} of
+ * an object, or lacking that, the {@link ExperimenterGroup group}.
+ */
+class OwnerOrGroup {
+    final Details d;
+
+    String path;
+
+    long id;
+
+    OwnerOrGroup(Details d) {
+        this.d = d;
+    }
+
+    boolean needed() {
+        return needed("");
+    }
+
+    /**
+     * @param prefix
+     */
+    boolean needed(String prefix) {
+        if (d != null) {
+            if (/* ownable && */d.getOwner() != null) {
+                Long _id = d.getOwner().getId();
+                if (_id == null) {
+                    throw new ApiUsageException("Id for owner cannot be null.");
+                }
+                id = _id.longValue();
+                path = prefix + "details.owner.id";
+            } else if (d.getGroup() != null) {
+                Long _id = d.getGroup().getId();
+                if (_id == null) {
+                    throw new ApiUsageException("Id for group cannot be null.");
+                }
+                id = _id.longValue();
+                path = prefix + "details.group.id";
+            }
+        }
+        return path != null;
+    }
+
+    void check() {
+        if (path == null) {
+            throw new ApiUsageException("Please call \"needs()\" first.");
+        }
+    }
+
+    /**
+     * @param criteria
+     *            Should be not not null and should have a path of the form
+     *            "details.owner.id" an "details.group.id".
+     */
+    void on(Criteria criteria) {
+        check();
+        criteria.add(Restrictions.eq(path, id));
+    }
+
+    void on(QueryBuilder qb) {
+        check();
+        String unique = path.replaceAll("[.]", "_");
+        qb.append(path);
+        qb.append(" = ");
+        qb.append(" :");
+        qb.append(unique);
+        qb.param(unique, id);
+    }
+}
+
+/**
+ * Lazy loading class for {@link Criteria} instances related to annotations.
+ * Otherwise the null checks get absurd.
+ */
+class AnnotationCriteria {
+    final Criteria base;
+    Criteria annotationLinks;
+    Criteria annotationChild;
+    Criteria annCreateAlias;
+
+    AnnotationCriteria(Criteria base) {
+        this.base = base;
+    }
+
+    Criteria getLinks() {
+        if (annotationLinks == null) {
+            annotationLinks = base.createCriteria("annotationLinks");
+        }
+        return annotationLinks;
+    }
+
+    Criteria getChild() {
+        if (annotationChild == null) {
+            annotationChild = getLinks().createCriteria("child");
+        }
+        return annotationChild;
+    }
+
+    Criteria getCreate() {
+        if (annCreateAlias == null) {
+            annCreateAlias = getChild().createAlias("details.creationEvent",
+                    "anncreate");
+        }
+        return annCreateAlias;
     }
 }
 

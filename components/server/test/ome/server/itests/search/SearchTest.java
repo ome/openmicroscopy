@@ -56,6 +56,9 @@ public class SearchTest extends AbstractTest {
         search.byGroupForTags(null);
         search.setBatchSize(2);
         assertEquals(2, search.results().size());
+        while (search.hasNext()) {
+            search.next(); // Clear search
+        }
 
         // Let's now add the tag to another tag group as another user
         // and try to filter out those results
@@ -71,9 +74,18 @@ public class SearchTest extends AbstractTest {
         tag.linkAnnotation(grp);
         tag = iUpdate.saveAndReturnObject(tag);
 
+        // All queries finished?
+        assertEquals(0, search.activeQueries());
+        assertFalse(search.hasNext());
+
         search.onlyOwnedBy(d);
         search.byGroupForTags(groupStr);
         assertFalse(search.hasNext());
+
+        d.setOwner(e);
+        search.onlyOwnedBy(d);
+        search.byGroupForTags(groupStr);
+        assertEquals(1, search.results().size());
 
         search.onlyOwnedBy(null);
         search.byGroupForTags(groupStr);
@@ -111,9 +123,8 @@ public class SearchTest extends AbstractTest {
         assertEquals(2, search.results().size());
     }
 
-    // General methods
-    // The following sections should include all the by* methods except for
-    // the special cases above.
+    // Misc
+    // =========================================================================
 
     @Test
     public void testSimpleFullTextSearch() {
@@ -144,6 +155,11 @@ public class SearchTest extends AbstractTest {
 
         search.close();
     }
+
+    // General methods
+    // ========================================================================
+    // The following sections should include all the by* methods except for
+    // the special cases above.
 
     @Test
     public void testTypes() {
@@ -329,6 +345,10 @@ public class SearchTest extends AbstractTest {
         String name = uuid();
         Image i = new Image();
         i.setName(name);
+        TagAnnotation ta = new TagAnnotation();
+        ta.setTextValue("");
+        i.linkAnnotation(ta);
+
         i = iUpdate.saveAndReturnObject(i);
 
         indexObject(i);
@@ -365,6 +385,34 @@ public class SearchTest extends AbstractTest {
         search.onlyAnnotatedBetween(null, null);
         search.byFullText(name);
         assertEquals(1, search.results().size());
+    }
+
+    @Test
+    public void testOnlyAnnotatedBy() {
+        String name = uuid();
+        Image i = new Image();
+        i.setName(name);
+        TagAnnotation t = new TagAnnotation();
+        t.setTextValue(uuid());
+        i.linkAnnotation(t);
+        i = iUpdate.saveAndReturnObject(i);
+        indexObject(i);
+        loginRoot();
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+
+        // Find the annotation
+        search.byFullText(name);
+        assertEquals(1, search.results().size());
+
+        // But if we restrict it to another user, there should be none
+        Experimenter e = loginNewUser();
+        Details d = Details.create();
+        d.setOwner(e);
+        search.onlyAnnotatedBy(d);
+        search.byFullText(name);
+        assertFalse(search.hasNext());
     }
 
     @Test

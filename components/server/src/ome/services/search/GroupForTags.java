@@ -14,7 +14,6 @@ import ome.conditions.ApiUsageException;
 import ome.model.IAnnotated;
 import ome.model.IObject;
 import ome.model.annotations.TagAnnotation;
-import ome.model.internal.Details;
 import ome.services.SearchBean;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
@@ -67,23 +66,10 @@ public class GroupForTags extends SearchAction {
             qb.param("groupStr", groupStr);
         }
 
-        if (values.ownedBy != null) {
-            Details d = values.ownedBy;
-            if (/* ownable && */d.getOwner() != null) {
-                Long id = d.getOwner().getId();
-                if (id == null) {
-                    throw new ApiUsageException("Id for owner cannot be null.");
-                }
-                qb.and("taggroup.details.owner.id = :id");
-                qb.param("id", id);
-            } else if (d.getGroup() != null) {
-                Long id = d.getGroup().getId();
-                if (id == null) {
-                    throw new ApiUsageException("Id for group cannot be null.");
-                }
-                qb.and("taggroup.details.group.id = :id");
-                qb.param("id", id);
-            }
+        OwnerOrGroup oog = new OwnerOrGroup(values.ownedBy);
+        if (oog.needed("taggroup.")) {
+            qb.and("");
+            oog.on(qb);
         }
 
         // criteria.createAlias("details.creationEvent", "create");

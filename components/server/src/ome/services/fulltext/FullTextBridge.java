@@ -104,9 +104,10 @@ public class FullTextBridge implements FieldBridge {
                         try {
                             if (annotation instanceof TextAnnotation) {
                                 TextAnnotation text = (TextAnnotation) annotation;
-                                add(document, "annotation",
-                                        text.getTextValue(), store, index,
-                                        boost);
+                                String textValue = text.getTextValue();
+                                textValue = textValue == null ? "" : textValue;
+                                add(document, "annotation", textValue, store,
+                                        index, boost);
                             } else if (annotation instanceof FileAnnotation) {
                                 FileAnnotation fileAnnotation = (FileAnnotation) annotation;
                                 OriginalFile file = fileAnnotation.getFile();
