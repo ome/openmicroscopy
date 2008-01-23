@@ -40,7 +40,7 @@ public class Tags extends SearchAction {
         }
     }
 
-    public void doWork(TransactionStatus status, Session session,
+    public Object doWork(TransactionStatus status, Session session,
             ServiceFactory sf) {
         throw new UnsupportedOperationException();
     }

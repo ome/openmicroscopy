@@ -71,7 +71,7 @@ public class FullText extends SearchAction {
         }
     }
 
-    public void doWork(TransactionStatus status, Session session,
+    public Object doWork(TransactionStatus status, Session session,
             ServiceFactory sf) {
 
         if (values.onlyTypes == null || values.onlyTypes.size() != 1) {
@@ -134,8 +134,7 @@ public class FullText extends SearchAction {
                 if (!IAnnotated.class.isAssignableFrom(cls)) {
                     // A non-IAnnotated object cannot have any
                     // Annotations, and so our results are null
-                    result = null;
-                    return; // EARLY EXIT !
+                    return null; // EARLY EXIT !
                 } else {
                     for (Class annCls : values.onlyAnnotatedWith) {
                         SimpleExpression ofType = new TypeEqualityExpression(
@@ -152,7 +151,7 @@ public class FullText extends SearchAction {
                 criteria);
         // TODO And if allTypes? or multiple types
         // scroll = query.scroll(ScrollMode.FORWARD_ONLY);
-        result = query.list();
+        return query.list();
     }
 }
 

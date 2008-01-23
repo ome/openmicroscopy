@@ -29,8 +29,8 @@ public class SearchBeanTest extends MockObjectTestCase {
 
     protected Executor executor = new Executor(null, null, null, null) {
         @Override
-        public void execute(Principal p, Work work) {
-            work.doWork(null, null, null);
+        public Object execute(Principal p, Work work) {
+            return work.doWork(null, null, null);
         }
     };
 
@@ -159,12 +159,13 @@ public class SearchBeanTest extends MockObjectTestCase {
     private void addActionWithResultOfSize_n(final int n) {
         bean.addAction(new SearchAction(new SearchValues()) {
 
-            public void doWork(TransactionStatus status, Session session,
+            public Object doWork(TransactionStatus status, Session session,
                     ServiceFactory sf) {
-                result = new ArrayList<IObject>();
+                List<IObject> rv = new ArrayList<IObject>();
                 for (int i = 0; i < n; i++) {
-                    result.add(new Image());
+                    rv.add(new Image());
                 }
+                return rv;
             }
         });
     }

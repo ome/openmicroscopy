@@ -42,8 +42,28 @@ import org.springframework.transaction.support.TransactionTemplate;
  */
 public class Executor implements ApplicationContextAware {
 
+    /**
+     * Work SPI to perform actions within the server as if they were fully
+     * wrapped in our service logic. Note: any results which are coming from
+     * Hibernate <em>may <b>not</b></em> be assigned directly to a field,
+     * rather must be returned as an {@link Object} so that Hibernate proxies
+     * can be properly handled.
+     */
     public interface Work {
-        void doWork(TransactionStatus status, Session session, ServiceFactory sf);
+        /**
+         * Work method. Must return all results coming from Hibernate via the
+         * {@link Object} return method.
+         * 
+         * @param status
+         *            non null.
+         * @param session
+         *            non null.
+         * @param sf
+         *            non null.
+         * @return Any results which will be used by non-wrapped code.
+         */
+        Object doWork(TransactionStatus status, Session session,
+                ServiceFactory sf);
     }
 
     protected OmeroContext context;
@@ -87,7 +107,7 @@ public class Executor implements ApplicationContextAware {
      * @param p
      * @param work
      */
-    public void execute(final Principal p, final Work work) {
+    public Object execute(final Principal p, final Work work) {
         ProxyFactoryBean innerFactory = new ProxyFactoryBean();
         innerFactory.copyFrom(this.proxyFactory);
         innerFactory.setTarget(work);
@@ -101,7 +121,7 @@ public class Executor implements ApplicationContextAware {
         }
         try {
             // Arguments will be replaced after hibernate is in effect
-            outer.doWork(null, null, new ServiceFactory(this.context));
+            return outer.doWork(null, null, new ServiceFactory(this.context));
         } finally {
             if (p != null) {
                 this.secSystem.logout();
@@ -123,19 +143,16 @@ public class Executor implements ApplicationContextAware {
             final Work work = (Work) arg0.getThis();
             final ServiceFactory sf = (ServiceFactory) arg0.getArguments()[2];
 
-            txTemplate.execute(new TransactionCallback() {
+            return txTemplate.execute(new TransactionCallback() {
                 public Object doInTransaction(final TransactionStatus status) {
-                    hibTemplate.execute(new HibernateCallback() {
+                    return hibTemplate.execute(new HibernateCallback() {
                         public Object doInHibernate(final Session session)
                                 throws HibernateException, SQLException {
-                            work.doWork(status, session, sf);
-                            return null;
+                            return work.doWork(status, session, sf);
                         }
                     }, true);
-                    return null;
                 }
             });
-            return null;
         }
 
     }

@@ -48,7 +48,7 @@ public class GroupForTags extends SearchAction {
         }
     }
 
-    public void doWork(TransactionStatus status, Session session,
+    public Object doWork(TransactionStatus status, Session session,
             ServiceFactory sf) {
 
         // Ignore:
@@ -126,12 +126,13 @@ public class GroupForTags extends SearchAction {
 
         Query query = qb.query(session);
 
-        result = new ArrayList<IObject>();
+        List<IObject> rv = new ArrayList<IObject>();
         List<String> tags = query.list();
         for (String tag : tags) {
             TagAnnotation ta = new TagAnnotation();
             ta.setTextValue(tag);
-            result.add(ta);
+            rv.add(ta);
         }
+        return rv;
     }
 }

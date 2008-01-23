@@ -247,8 +247,8 @@ public class SearchBean extends AbstractStatefulBean implements Search {
             return false;
         }
         SearchAction action = actions.remove(0);
-        executor.execute(null, action);
-        results.add(action.getResult());
+        List<IObject> list = (List<IObject>) executor.execute(null, action);
+        results.add(list);
         return hasNext(); // recursive call
     }
 

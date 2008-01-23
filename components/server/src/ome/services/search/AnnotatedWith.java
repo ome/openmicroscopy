@@ -31,7 +31,7 @@ public class AnnotatedWith extends SearchAction {
         this.annotation = annotation;
     }
 
-    public void doWork(TransactionStatus status, Session session,
+    public Object doWork(TransactionStatus status, Session session,
             ServiceFactory sf) {
         throw new UnsupportedOperationException();
     }

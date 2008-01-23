@@ -36,9 +36,9 @@ public class HqlQuery extends SearchAction {
         this.p = p;
     }
 
-    public void doWork(TransactionStatus status, Session session,
+    public Object doWork(TransactionStatus status, Session session,
             ServiceFactory sf) {
-        result = sf.getQueryService().findAllByQuery(query, p);
+        return sf.getQueryService().findAllByQuery(query, p);
     }
 
 }

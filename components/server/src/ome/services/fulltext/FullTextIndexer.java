@@ -85,7 +85,7 @@ public class FullTextIndexer implements Work {
         this.loader = ll;
     }
 
-    public void doWork(TransactionStatus status, Session session,
+    public Object doWork(TransactionStatus status, Session session,
             ServiceFactory sf) {
         FullTextSession fullTextSession = Search.createFullTextSession(session);
         fullTextSession.setFlushMode(FlushMode.MANUAL);
@@ -94,6 +94,7 @@ public class FullTextIndexer implements Work {
         doIndexing(fullTextSession);
         transaction.commit();
         session.clear();
+        return null;
     }
 
     public void doIndexing(FullTextSession session) {

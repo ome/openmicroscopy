@@ -64,13 +64,13 @@ public class FullTextTest extends AbstractTest {
         final Principal p = new Principal("root", "system", "FullText");
         final PersistentEventLogLoader pell = (PersistentEventLogLoader) this.applicationContext
                 .getBean("persistentEventLogLoader");
-        final EventLog[] max = new EventLog[1];
-        final long[] id = new long[1];
-        getExecutor().execute(p, new Executor.Work() {
-            public void doWork(TransactionStatus status, Session session,
+        final EventLog max;
+        final long id;
+        max = (EventLog) getExecutor().execute(p, new Executor.Work() {
+            public Object doWork(TransactionStatus status, Session session,
                     ServiceFactory sf) {
                 pell.deleteCurrentId();
-                max[0] = pell.lastEventLog();
+                return pell.lastEventLog();
             }
         });
 
@@ -82,13 +82,13 @@ public class FullTextTest extends AbstractTest {
         // Can't use more() here since it will always return true
         // since PELL is designed to be called by a timer.
         // Instead we only do the whole database once.
-        getExecutor().execute(p, new Executor.Work() {
-            public void doWork(TransactionStatus status, Session session,
+        id = (Long) getExecutor().execute(p, new Executor.Work() {
+            public Object doWork(TransactionStatus status, Session session,
                     ServiceFactory sf) {
-                id[0] = pell.getCurrentId();
+                return pell.getCurrentId();
             }
         });
-        while (id[0] < max[0].getId()) {
+        while (id < max.getId()) {
             ftt.run();
         }
 

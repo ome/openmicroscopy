@@ -394,8 +394,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                         values.onlyTypes = Arrays.asList((Class) type);
                         values.copy(params);
                         FullText fullText = new FullText(values, query);
-                        fullText.doWork(null, session, null);
-                        return fullText.getResult();
+                        return fullText.doWork(null, session, null);
                     }
                 }, true);
     }

@@ -7,9 +7,6 @@
 
 package ome.services.search;
 
-import java.util.List;
-
-import ome.model.IObject;
 import ome.services.SearchBean;
 
 /**
@@ -22,18 +19,12 @@ public abstract class SearchAction implements ome.services.util.Executor.Work {
 
     protected final SearchValues values = new SearchValues();
 
-    protected List<IObject> result = null;
-
     public SearchAction(SearchValues values) {
         if (values == null) {
             throw new IllegalArgumentException(
                     "SearchValues argument must not be null");
         }
         this.values.copy(values);
-    }
-
-    public final List<IObject> getResult() {
-        return result;
     }
 
 }

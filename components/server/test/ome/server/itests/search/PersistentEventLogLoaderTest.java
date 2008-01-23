@@ -34,7 +34,7 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
     public void testInitialUseWithNoDbEntry() throws Exception {
         ex.execute(new Principal("root", "system", "FullText"),
                 new Executor.Work() {
-                    public void doWork(TransactionStatus status,
+                    public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
                         ll.deleteCurrentId();
                         EventLog log = ll.next();
@@ -46,6 +46,7 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
                             }
                         }
                         assertTrue(ll.getCurrentId() > 0);
+                        return null;
                     }
                 });
     }

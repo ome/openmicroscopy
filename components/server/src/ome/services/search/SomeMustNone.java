@@ -36,7 +36,7 @@ public class SomeMustNone extends SearchAction {
         throw new IllegalArgumentException("Must check these");
     }
 
-    public void doWork(TransactionStatus status, Session session,
+    public Object doWork(TransactionStatus status, Session session,
             ServiceFactory sf) {
         throw new UnsupportedOperationException();
     }
