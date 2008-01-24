@@ -109,6 +109,11 @@ public class FormFieldCustom extends FormField {
 	public void setHighlighted(boolean highlight) {
 		super.setHighlighted(highlight);
 		
+		// if the user highlighted this field by clicking the field  
+		// need to get focus, otherwise focus will remain elsewhere. 
+		if (highlight && (!showAttributesButton.hasFocus()))
+				showAttributesButton.requestFocusInWindow();
+		
 		// always hide attributes dialog when de-selecting a field
 		if (!highlight) showAttributes(false);
 	}

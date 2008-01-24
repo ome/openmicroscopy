@@ -74,4 +74,12 @@ public class FormFieldMemo extends FormField {
 		inputEditor.setTextAreaText(dataField.getAttribute(DataFieldConstants.VALUE));
 	}
 	
+	public void setHighlighted(boolean highlight) {
+		super.setHighlighted(highlight);
+		// if the user highlighted this field by clicking the field (not the textArea itself) 
+		// need to get focus, otherwise focus will remain elsewhere. 
+		if (highlight && (!inputEditor.getTextArea().hasFocus()))
+			inputEditor.getTextArea().requestFocusInWindow();
+	}
+	
 }

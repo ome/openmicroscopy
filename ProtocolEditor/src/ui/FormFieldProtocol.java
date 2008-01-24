@@ -64,4 +64,11 @@ public class FormFieldProtocol extends FormField {
 		fileNameLabel.setText(dataField.getAttribute(DataFieldConstants.PROTOCOL_FILE_NAME));
 	}
 
+	public void setHighlighted(boolean highlight) {
+		super.setHighlighted(highlight);
+		// if the user highlighted this field by clicking the field (not the textBox itself) 
+		// need to get focus, otherwise focus will remain elsewhere. 
+		if (highlight && (!collapseAllChildrenButton.hasFocus()))
+			collapseAllChildrenButton.requestFocusInWindow();
+	}
 }

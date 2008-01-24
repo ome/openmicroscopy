@@ -296,10 +296,7 @@ public class DataField
 		if (formField == null) getFormField();	// make sure there is one
 		formField.refreshTitleCollapsed();
 	}
-	public void setExperimentalEditing(boolean enabled) {
-		if (formField == null) getFormField();	// make sure there is one
-		formField.setExperimentalEditing(enabled);
-	}
+
 	public ArrayList<JComponent> getVisibleAttributes() {
 		if (formField == null) getFormField();	// make sure there is one
 		return formField.getVisibleAttributes();

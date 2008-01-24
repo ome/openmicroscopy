@@ -107,6 +107,8 @@ public class FormFieldTable extends FormField {
      // tableModelListener tells the table how to respond to changes in Model
         tableModel.addTableModelListener(new InteractiveTableModelListener());
         
+     // Disable auto resizing
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         tableScroller = new JScrollPane(table, 
         		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         table.setPreferredScrollableViewportSize(new Dimension(450, 100));
@@ -138,7 +140,9 @@ public class FormFieldTable extends FormField {
 		// update new rows etc.
 		tableModel.fireTableStructureChanged();
 		
-		setExperimentalEditing(false);	// default created as uneditable
+		// refresh layout of columns and height of viewport
+		refreshColumnAutoResizeMode();
+		refreshViewportSize();
 	}
 	
 	public class RemoveRowsListener implements ActionListener {
@@ -314,6 +318,9 @@ public class FormFieldTable extends FormField {
 		}
 		
 		copyTableModelToDataField();
+		
+		// finally refresh the column layout
+		refreshColumnAutoResizeMode();
 	}
 	
 	public void setHighlighted(boolean highlight) {
@@ -322,6 +329,10 @@ public class FormFieldTable extends FormField {
 		addRowButton.setEnabled(highlight);
 		removeRowsButton.setEnabled(highlight);
 		
+		// if the user highlighted this field by clicking the field (not the table itself) 
+		// need to get focus, otherwise focus will remain elsewhere. 
+		if (highlight && (!table.hasFocus()))
+			table.requestFocusInWindow();
 	}
 	
 	public void refreshViewportSize() {
@@ -330,7 +341,9 @@ public class FormFieldTable extends FormField {
 		// size of this panel has changed. Need to validate the ScrollPane that holds the 
 		// tree of FormFieldContainers...
 		Component parentOfRootContainer = null;
-		parentOfRootContainer = ((FormFieldContainer)getParent()).getParentOfRootContainer();
+		FormFieldContainer parent = (FormFieldContainer)getParent();
+		if (parent != null)
+			parentOfRootContainer = parent.getParentOfRootContainer();
 		if (parentOfRootContainer != null) {
 			parentOfRootContainer.validate();
 		}
@@ -340,12 +353,19 @@ public class FormFieldTable extends FormField {
 	public void setScrollPaneRowCount(int rows) {
 		int height = rows * table.getRowHeight();
 		table.setPreferredScrollableViewportSize(new Dimension(450, height));
-		
-		int width = table.getColumnCount() * 150;
-		Dimension size = new Dimension(width, height);
-		table.setMinimumSize(size);
-		table.setPreferredSize(size);
 	}
 
-
+	// if there is not enough space for each column to have it's preferred width,
+	// turn off the AutoResize so that the table expands horizontally
+	public void refreshColumnAutoResizeMode() {
+		int scrollPaneWidth = tableScroller.getWidth();
+		int prefColWidth = table.getColumnModel().getColumn(0).getPreferredWidth();
+		int cols = table.getColumnCount();
+		
+		if (prefColWidth * cols > scrollPaneWidth) {
+			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		} else {
+			table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+		}
+	}
 }

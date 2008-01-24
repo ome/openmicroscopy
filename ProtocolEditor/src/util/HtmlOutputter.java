@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
+import javax.swing.JOptionPane;
+
 import tree.DataField;
 import tree.DataFieldConstants;
 import tree.DataFieldNode;
@@ -159,10 +161,15 @@ public class HtmlOutputter {
         
         String outputFilePath = outputFile.getAbsolutePath();
         
-        outputFilePath = "file://" + outputFilePath;
+        if (System.getProperty("os.name").startsWith("Mac OS")) {
+        	outputFilePath = "file://" + outputFilePath;
+        } else {
+        	outputFilePath = "file:///" + outputFilePath;
+        }
         
         outputFilePath = outputFilePath.replaceAll(" ", "%20");
         
+        JOptionPane.showMessageDialog(null, outputFilePath);
         System.out.println("HtmlOutputter outputFilePath = " + outputFilePath);
         
         BareBonesBrowserLaunch.openURL(outputFilePath);

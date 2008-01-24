@@ -106,6 +106,8 @@ public class XMLView
 	public static final int EDITING_FIELDS = 0;
 	public static final int IMPORTING_FIELDS = 1;
 	
+	private boolean fieldEditorAndToolbarVisible = true;
+	
 	// commands 
 	public static final String COPY = "copy";
 	public static final String PASTE = "paste";
@@ -137,7 +139,10 @@ public class XMLView
 	JScrollPane XMLScrollPane;	// contains the UI
 	FormDisplay xmlFormDisplay;			// this is the UI-form
 	JSplitPane XMLUIPanel;		// the top-level panel of the frame
+	
 	JPanel fieldEditor; 	// shows each field to be edited
+	JPanel fieldEditorContainer;	// holds show/hide button above FieldEditor
+	JButton showHideFieldEditorButton;
 	
 	Color backgroundColor;
 	
@@ -232,8 +237,9 @@ public class XMLView
 	private Icon fileCloseIcon;
 	private Icon previousUpIcon;
 	private Icon nextDownIcon;
-
+	private Icon moreLikeThisIcon;
 	private Icon searchIcon;
+	private Icon configureIcon;
 
 	protected JButton loadDefaultsButton;
 
@@ -260,6 +266,7 @@ public class XMLView
     public void buildUI() {
 		
 		searchIcon = ImageFactory.getInstance().getIcon(ImageFactory.SEARCH_ICON);
+		moreLikeThisIcon = ImageFactory.getInstance().getIcon(ImageFactory.MORE_LIKE_THIS_ICON);
 		newFileIcon = ImageFactory.getInstance().getIcon(ImageFactory.NEW_FILE_ICON);
 		openFileIcon = ImageFactory.getInstance().getIcon(ImageFactory.OPEN_FILE_ICON);
 		validationIcon = ImageFactory.getInstance().getIcon(ImageFactory.VALIDATION_ICON);
@@ -288,7 +295,7 @@ public class XMLView
 		fileCloseIcon = ImageFactory.getInstance().getIcon(ImageFactory.FILE_CLOSE_ICON);
 		previousUpIcon = ImageFactory.getInstance().getIcon(ImageFactory.PREVIOUS_UP_ICON);
 		nextDownIcon = ImageFactory.getInstance().getIcon(ImageFactory.NEXT_DOWN_ICON);
-				
+		configureIcon = ImageFactory.getInstance().getIcon(ImageFactory.CONFIGURE_ICON);
 		
 		
 //		 controls for changing currently opened file, and closing current file
@@ -464,13 +471,16 @@ public class XMLView
 		
 		// more-like this button
 		
-		JButton moreLikeThisButton = new JButton("More Files Like This >", searchIcon);
+		JButton moreLikeThisButton = new JButton(moreLikeThisIcon);
+		moreLikeThisButton.setToolTipText("'More Like This' search to find files like the current one");;
+		moreLikeThisButton.setBorder(new EmptyBorder(0,2,0,4));
 		moreLikeThisButton.addActionListener(new MoreLikeThisListener());
 		
 		// comboBox for switching between opened files 
 		// also, close file button
 		
 		closeFileButton = new JButton(closeIcon);
+		closeFileButton.setToolTipText("Close the current file");
 		closeFileButton.setBorder(new EmptyBorder(0,2,0,4));
 		closeFileButton.addActionListener(new CloseFileListener());
 		
@@ -498,8 +508,9 @@ public class XMLView
 		// fileManagerWestToolBar.add(printObservationsButton);
 		fileManagerPanel.add(fileManagerWestToolBar, BorderLayout.WEST);
 		
-		fileManagerEastToolBar.add(moreLikeThisButton);
+		fileManagerEastToolBar.add(new JLabel("Current file:"));
 		fileManagerEastToolBar.add(currentlyOpenedFiles);
+		fileManagerEastToolBar.add(moreLikeThisButton);
 		fileManagerEastToolBar.add(closeFileButton);
 		fileManagerPanel.add(fileManagerEastToolBar, BorderLayout.EAST);
 	
@@ -512,6 +523,7 @@ public class XMLView
 		
 		XMLScrollPane = new JScrollPane(xmlFormDisplay, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		XMLScrollPane.setFocusable(true);
+		XMLScrollPane.setMinimumSize(new Dimension(200, 200));
 		XMLScrollPane.addMouseListener(new ScrollPaneMouseListener());
 		XMLScrollPane.setPreferredSize(new Dimension( panelWidth, windowHeight));
 
@@ -606,7 +618,7 @@ public class XMLView
 		//xmlValidationPanel.setMaximumSize(new Dimension(100, 22));
 		
 		
-		protocolEditToolBar = new JToolBar();
+		protocolEditToolBar = new JToolBar("Close toolbar to re-Dock");
 		protocolEditToolBar.add(addAnInput);
 		protocolEditToolBar.add(duplicateField);
 		protocolEditToolBar.add(deleteAnInput);
@@ -619,20 +631,28 @@ public class XMLView
 		protocolEditToolBar.add(importElemetsButton);
 		protocolEditToolBar.add(Box.createHorizontalGlue());
 		
-		
+		// Field Editor
 		fieldEditor = new FieldEditor();
-		//splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, XMLScrollPane, fieldEditor);
-		//splitPane.setResizeWeight(1.0);
+		fieldEditor.setVisible(fieldEditorAndToolbarVisible);
+		fieldEditorContainer = new JPanel(new BorderLayout());		// holds show/hide button above FieldEditor
+		showHideFieldEditorButton = new JButton(">>", fileCloseIcon);
+		showHideFieldEditorButton.addActionListener(new ToggleEditTemplateControlsListener());
+		showHideFieldEditorButton.setBorder(new EmptyBorder(2,2,2,2));
+		JPanel buttonContainer = new JPanel(new BorderLayout());
+		buttonContainer.add(showHideFieldEditorButton, BorderLayout.WEST);
+		fieldEditorContainer.add(buttonContainer, BorderLayout.NORTH);
+		fieldEditorContainer.add(fieldEditor, BorderLayout.CENTER);
 		
 		JPanel toolBarContainer = new JPanel(new BorderLayout());
 		toolBarContainer.add(XMLScrollPane, BorderLayout.CENTER);
 		protocolEditToolBar.setOrientation(JToolBar.VERTICAL);
+		protocolEditToolBar.setVisible(fieldEditorAndToolbarVisible);
 		toolBarContainer.add(protocolEditToolBar, BorderLayout.EAST);
 		
 		protocolTab = new JPanel();
 		protocolTab.setLayout(new BorderLayout());
 		protocolTab.add(toolBarContainer, BorderLayout.CENTER);
-		protocolTab.add(fieldEditor, BorderLayout.EAST);
+		protocolTab.add(fieldEditorContainer, BorderLayout.EAST);
 		
 		
 
@@ -870,11 +890,6 @@ public class XMLView
 				
 				if (n == 0) newProtocolFile();
 				else if (n == 1) openFile();
-	}
-	
-	public void showFieldEditorAndToolbar(boolean visible) {
-		protocolEditToolBar.setVisible(visible);
-		fieldEditor.setVisible(visible);
 	}
 	
 	// turn on/off the controls for editing
@@ -1254,6 +1269,19 @@ public class XMLView
 		findTextField.requestFocusInWindow();
 	}
 	
+	public void refreshFieldEditorAndToolbarVisibility() {
+		boolean visible = fieldEditorAndToolbarVisible;
+		
+		protocolEditToolBar.setVisible(visible);
+		fieldEditor.setVisible(visible);
+		
+		showEditToolbarMenuItem.setSelected(visible);
+		showEditToolbarMenuItem.setIcon(visible ? fileCloseIcon : configureIcon);
+		
+		showHideFieldEditorButton.setIcon(visible ? fileCloseIcon : configureIcon);
+		showHideFieldEditorButton.setText(visible ? ">>" : "<<");
+	}
+
 	/* clear the search results - eg when user edits file */
 	public void clearFindTextHits() {
 		findTextSearchHits.clear();
@@ -1262,10 +1290,9 @@ public class XMLView
 	
 	public class ToggleEditTemplateControlsListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			if (event.getSource() instanceof JCheckBoxMenuItem) {
-				boolean visible = ((JCheckBoxMenuItem)event.getSource()).isSelected();
-				showFieldEditorAndToolbar(visible);
-			}
+			fieldEditorAndToolbarVisible = !fieldEditorAndToolbarVisible;
+				
+			refreshFieldEditorAndToolbarVisibility();
 		}
 	}
 	
@@ -1422,6 +1449,8 @@ public class XMLView
 		XMLUIPanel.setRightComponent(newPanel);
 		if (newPanel != null)	XMLUIPanel.setDividerSize(10);
 		else XMLUIPanel.setDividerSize(0);
+		
+		XMLUIPanel.setDividerLocation(0.5f);
 		
 		XMLUIPanel.validate();
 		XMLUIPanel.resetToPreferredSizes();
@@ -1738,15 +1767,15 @@ public class XMLView
 	public void updateFieldEditor(JPanel newDisplay) {
 		fieldEditor.setVisible(false);
 		
-		protocolTab.remove(fieldEditor);
+		fieldEditorContainer.remove(fieldEditor);
 		
 		fieldEditor = newDisplay;
 			
-		protocolTab.add(fieldEditor, BorderLayout.EAST);
+		fieldEditorContainer.add(fieldEditor, BorderLayout.EAST);
 		
 		protocolTab.validate();
 		//fieldEditor.validate();
-		fieldEditor.setVisible(true);	// need to hide, then show to get refresh to work
+		fieldEditor.setVisible(fieldEditorAndToolbarVisible);	// need to hide, then show to get refresh to work
 	}
 	
 	public void insertFieldsFromFile() {

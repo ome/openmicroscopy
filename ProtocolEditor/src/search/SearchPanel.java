@@ -40,6 +40,7 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
 import ui.XMLView;
+import util.BareBonesBrowserLaunch;
 import util.ImageFactory;
 
 // instance of this class made for each search (passed search term in constructor)
@@ -73,7 +74,7 @@ public class SearchPanel extends JPanel {
 	}
 	
 	public void buildResultsPanel(String searchTerm) {
-		resultsText = "<html><div style='padding: 5px 5px 5px 5px;'>";
+		resultsText = "<html><div style='padding: 5px 5px 5px 5px; width=300;'>";
 		
 		// show the top 10 results
 		for (int i=0; (i<results.size() && i<10); i++) {
@@ -89,6 +90,14 @@ public class SearchPanel extends JPanel {
 		
 		JEditorPane resultsPane;
 		resultsPane = new JEditorPane("text/html", resultsText);
+		// size!! Does f***-all!
+		Dimension size = new Dimension(400, 400);
+		resultsPane.setMaximumSize(size);
+		resultsPane.setPreferredSize(size);
+		resultsPane.setMinimumSize(size);
+		this.setMaximumSize(size);
+		this.setMinimumSize(size);
+		this.setPreferredSize(size);
 
 		resultsPane.setEditable(false);
 		resultsPane.addHyperlinkListener(new ResultHyperLinkListener());
@@ -170,8 +179,16 @@ public class SearchPanel extends JPanel {
 			if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
 				if (event != null) {
 					String filePath = event.getURL().toString();
+					
+					System.out.println("SearchPanel.hyperlinkUpdate: filePath: " + filePath);
+					
+					if (filePath.endsWith(".html") || filePath.endsWith(".htm")) {
+						filePath = filePath.replace("http:/", "file://");
+						BareBonesBrowserLaunch.openURL(filePath);
+						return;
+					}
+					
 					filePath = filePath.replace("http:/", "");
-					//System.out.println("SearchPanel.hyperlinkUpdate: filePath: " + filePath);
 					
 					File file = new File(filePath);
 					//System.out.println(file.getAbsolutePath());

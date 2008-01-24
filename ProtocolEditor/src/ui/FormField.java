@@ -284,8 +284,12 @@ public class FormField extends JPanel implements DataFieldObserver{
 	
 	// add this to every focusable component (button, field etc within the panel)
 	public class FormFieldComponentFocusListener implements FocusListener {
+		// when the component gets focus, the field is selected 
+		// - this re-applies focus to the component - recursion is prevented by 
+		// checking that this field is not already highlighted. 
 		public void focusGained(FocusEvent e) {
-			panelClicked(true);
+			if (!highlighted)
+				panelClicked(true);
 		}
 		public void focusLost(FocusEvent e) {}
 	}
@@ -315,6 +319,8 @@ public class FormField extends JPanel implements DataFieldObserver{
 	
 	public void panelClicked(boolean clearOthers) {
 		if (dataFieldObs instanceof IDataFieldSelectable){
+			System.out.println("FormField panelClicked() name:" + 
+					dataField.getAttribute(DataFieldConstants.ELEMENT_NAME) + " clearOthers = " + clearOthers);
 			((IDataFieldSelectable)dataFieldObs).dataFieldSelected(clearOthers);
 		}
 	}
@@ -402,12 +408,6 @@ public class FormField extends JPanel implements DataFieldObserver{
 			collapseAllChildrenButton.setIcon(childrenCollapsed ? collapsedIcon : notCollapsedIcon);
 		}	
 	}
-	
-	
-	// overridden by subclasses that have input components, 
-	// .. to disable them when in template-edit mode
-	public void setExperimentalEditing(boolean enabled) {}
-	
 	
 	public static void unifiedButtonLookAndFeel(AbstractButton b)
     {

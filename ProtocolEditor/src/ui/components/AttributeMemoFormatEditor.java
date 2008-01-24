@@ -62,7 +62,8 @@ public class AttributeMemoFormatEditor extends JPanel{
 		toolBarButtonBorder = new EmptyBorder(spacing,spacing,spacing,spacing);
 		toolBarBox = Box.createHorizontalBox();
 		
-		JButton unorderedListButton = new JButton("bullet");
+		Icon bulletPointsIcon = ImageFactory.getInstance().getIcon(ImageFactory.BULLET_POINTS_ICON); 
+		JButton unorderedListButton = new JButton(bulletPointsIcon);
 		unorderedListButton.setActionCommand(SimpleHTMLEditorPane.INSERT_UNORDERED_LIST_ITEM);
 		unorderedListButton.addActionListener(new FontFormattingChangedListener());
 		unorderedListButton.setBorder(toolBarButtonBorder);

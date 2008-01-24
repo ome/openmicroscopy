@@ -94,15 +94,7 @@ public class FormFieldNumber extends FormField {
 			numberTextBox.setBackground(Color.RED);
 		}
 	}
-	
-//	 overridden by subclasses that have input components
-	public void setExperimentalEditing(boolean enabled) {
-		
-		if (enabled) numberTextBox.setForeground(Color.BLACK);
-		else numberTextBox.setForeground(Color.WHITE);
-		
-		numberTextBox.setEditable(enabled);
-	}
+
 	
 	// overridden by subclasses if they have other attributes to retrieve from dataField
 	public void dataFieldUpdated() {
@@ -129,6 +121,14 @@ public class FormFieldNumber extends FormField {
 			// couldn't convert textBox string to float
 			numberTextBox.setBackground(Color.RED);
 		}
+	}
+	
+	public void setHighlighted(boolean highlight) {
+		super.setHighlighted(highlight);
+		// if the user highlighted this field by clicking the field (not the textBox itself) 
+		// need to get focus, otherwise focus will remain elsewhere. 
+		if (highlight && (!numberTextBox.hasFocus()))
+			numberTextBox.requestFocusInWindow();
 	}
 
 }

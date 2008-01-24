@@ -12,6 +12,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.Timer;
+import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -52,21 +53,21 @@ public class FormFieldTime extends FormField {
 		timeChangedListener = new TimeChangedListener();
 		hoursModel = new SpinnerNumberModel(hours, 0, 99, 1);
 		hoursSpinner = new JSpinner(hoursModel);
-		((JSpinner.DefaultEditor)hoursSpinner.getEditor()).getTextField().addFocusListener(componentFocusListener);
+		((DefaultEditor)hoursSpinner.getEditor()).getTextField().addFocusListener(componentFocusListener);
 		hoursSpinner.setMaximumSize(spinnerSize);
 		hoursSpinner.setPreferredSize(spinnerSize);
 		hoursSpinner.addChangeListener(timeChangedListener);
 		
 		minsModel = new SpinnerNumberModel(mins, 0, 59, 1);
 		minsSpinner = new JSpinner(minsModel);
-		((JSpinner.DefaultEditor)minsSpinner.getEditor()).getTextField().addFocusListener(componentFocusListener);
+		((DefaultEditor)minsSpinner.getEditor()).getTextField().addFocusListener(componentFocusListener);
 		minsSpinner.setMaximumSize(spinnerSize);
 		minsSpinner.setPreferredSize(spinnerSize);
 		minsSpinner.addChangeListener(timeChangedListener);
 		
 		secsModel = new SpinnerNumberModel(secs, 0, 59, 1);
 		secsSpinner = new JSpinner(secsModel);
-		((JSpinner.DefaultEditor)secsSpinner.getEditor()).getTextField().addFocusListener(componentFocusListener);
+		((DefaultEditor)secsSpinner.getEditor()).getTextField().addFocusListener(componentFocusListener);
 		secsSpinner.setMaximumSize(spinnerSize);
 		secsSpinner.setPreferredSize(spinnerSize);
 		secsSpinner.addChangeListener(timeChangedListener);
@@ -200,4 +201,15 @@ public class FormFieldTime extends FormField {
 		}
 	}
 
+	public void setHighlighted(boolean highlight) {
+		super.setHighlighted(highlight);
+		// if the user highlighted this field by clicking the field (not the textBox itself) 
+		// need to get focus, otherwise focus will remain elsewhere. 
+		boolean hasFocus = (((DefaultEditor)hoursSpinner.getEditor()).getTextField().hasFocus() || 
+				((DefaultEditor)minsSpinner.getEditor()).getTextField().hasFocus() || 
+				((DefaultEditor)secsSpinner.getEditor()).getTextField().hasFocus() || 
+				startTimerButton.hasFocus());
+		if (highlight && !hasFocus)
+			((DefaultEditor)hoursSpinner.getEditor()).getTextField().requestFocusInWindow();
+	}
 }

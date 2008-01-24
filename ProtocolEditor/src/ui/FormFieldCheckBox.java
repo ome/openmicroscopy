@@ -44,4 +44,12 @@ public class FormFieldCheckBox extends FormField {
 		
 	}
 	
+	public void setHighlighted(boolean highlight) {
+		super.setHighlighted(highlight);
+		// if the user highlighted this field by clicking the field (not the checkBox itself) 
+		// need to get focus, otherwise focus will remain elsewhere. 
+		if (highlight && (!checkBox.hasFocus()))
+			checkBox.requestFocusInWindow();
+	}
+	
 }

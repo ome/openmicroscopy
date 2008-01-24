@@ -65,10 +65,22 @@ public class SearchResultHtml {
 	
 	public String getHtmlText() {
 		
-        if (file.exists()){
-        	resultHtml = "<a href='http:/" + path + "'>"+ name + "</a> <br>";
+		// if file not found...
+        if (!file.exists()){
+        	resultHtml = "<u>" + name + "</u> <br>" + 
+        	"File not found at " + path + "<br>";
+        	return resultHtml;
+        }
         
-        	resultHtml = resultHtml + date + "<br>";
+        resultHtml = "<a href='http:/" + path + "'>"+ name + "</a> <br>";
+        
+    	resultHtml = resultHtml + date + "<br>";
+        
+    	// if html file, 
+        if ((file.getName().endsWith(".html")) || (file.getName().endsWith(".htm"))) {
+        	resultHtml = resultHtml + "To view the html page in a browser, click the link above.<br>";
+        } else {
+        	// try parsing xml to get context...
 		
 			try {
 				
@@ -132,11 +144,8 @@ public class SearchResultHtml {
 	        } catch (FileNotFoundException ex) {
 	        	resultHtml = resultHtml + "File not found<br>";
 	        } catch (SAXParseException ex) {
-	        	resultHtml = "<u>" + name + "</u> <br>" + "Cannot read file at " + path + ", due to badly-formed XML<br>";
+	        	resultHtml = "<u>" + name + "</u> <br>" + date + "<br>Cannot read file at " + path + ", due to badly-formed XML<br>";
 	        }
-        } else {
-        	resultHtml = "<u>" + name + "</u> <br>" + 
-        	"File not found at " + path + "<br>";
         }
         
 		return resultHtml;

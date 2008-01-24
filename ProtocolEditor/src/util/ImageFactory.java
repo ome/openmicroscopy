@@ -63,6 +63,7 @@ public class ImageFactory {
 	public static final String COLLAPSED_ICON = ACTION_ICONS_FILE + "1rightarrow.png";
 	public static final String NOT_COLLAPSED_ICON = ACTION_ICONS_FILE + "1downarrow.png";
 	public static final String WWW_ICON = ACTION_ICONS_FILE + "www.png";
+	public static final String MORE_LIKE_THIS_ICON = ACTION_ICONS_FILE + "moreLikeThis.png";
 	public static final String INFO_ICON = ACTION_ICONS_FILE + "messagebox_info.png";
 	public static final String SEARCH_ICON = ICONS_FILE + "apps/xmag.png";
 	public static final String TWO_LEFT_ARROW = ACTION_ICONS_FILE + "2leftarrow.png";
@@ -84,9 +85,11 @@ public class ImageFactory {
 	public static final String CLEAR_ROW_ICON = ACTION_ICONS_FILE + "view_clear.png";
 	public static final String COLOUR_SELECTION_ICON = ACTION_ICONS_FILE + "colorize.png";
 	public static final String BOLD_ICON = ACTION_ICONS_FILE + "bold.png";
+	public static final String BULLET_POINTS_ICON = ACTION_ICONS_FILE + "bulletPoints.png";
 	public static final String UNDERLINE_ICON = ACTION_ICONS_FILE + "underline.png";
 	public static final String ENTER_ICON = ACTION_ICONS_FILE + "enter.png";
 	public static final String ONTOLOGY_METADATA_ICON = ICONS_FILE + "apps/kdict.png";
+	public static final String CONFIGURE_ICON = ICONS_FILE + "apps/package_utilities.png";
 	
 	public Icon getIcon(String iconPathName) {
 		try {

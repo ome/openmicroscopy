@@ -65,5 +65,13 @@ public class FormFieldDate extends FormField {
 		textInput.setEditable(enabled);
 	}
 	
+	public void setHighlighted(boolean highlight) {
+		super.setHighlighted(highlight);
+		// if the user highlighted this field by clicking the field (not the textBox itself) 
+		// need to get focus, otherwise focus will remain elsewhere. 
+		if (highlight && (!textInput.hasFocus()))
+			textInput.requestFocusInWindow();
+	}
+	
 }
 
