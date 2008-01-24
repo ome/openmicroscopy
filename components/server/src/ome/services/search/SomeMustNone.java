@@ -7,19 +7,19 @@
 
 package ome.services.search;
 
-import ome.services.SearchBean;
-import ome.system.ServiceFactory;
-
-import org.hibernate.Session;
-import org.springframework.transaction.TransactionStatus;
+import ome.conditions.ApiUsageException;
 
 /**
- * Query template used by {@link SearchBean} to store user requests.
+ * {@link FullText} subclass which
+ * {@link #parse(String[], String[], String[]) parses} 3 arrays of strings into
+ * into a single Lucene query. If no text is produced, then an exception will be
+ * thrown. Some terms are joined in to "( a OR b OR c)", must terms are turned
+ * into "+d +e +f", and none terms are turned into "-g -h -i".
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class SomeMustNone extends SearchAction {
+public class SomeMustNone extends FullText {
 
     private static final long serialVersionUID = 1L;
 
@@ -29,15 +29,61 @@ public class SomeMustNone extends SearchAction {
 
     public SomeMustNone(SearchValues values, String[] some, String[] must,
             String[] none) {
-        super(values);
+        super(values, parse(some, must, none));
         this.some = some;
         this.must = must;
         this.none = none;
-        throw new IllegalArgumentException("Must check these");
     }
 
-    public Object doWork(TransactionStatus status, Session session,
-            ServiceFactory sf) {
-        throw new UnsupportedOperationException();
+    protected static String parse(String[] some, String[] must, String[] none) {
+        final StringBuilder sb = new StringBuilder();
+
+        if (some != null && some.length > 0) {
+            sb.append("(");
+            boolean first = true;
+            for (String string : some) {
+                if (string.length() > 0) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        sb.append(" OR ");
+                    }
+                    sb.append(string);
+                }
+            }
+            sb.append(")");
+        }
+
+        if (sb.length() > 0) {
+            sb.append(" ");
+        }
+
+        if (must != null && must.length > 0) {
+            for (String string : must) {
+                if (string.length() > 0) {
+                    sb.append("+");
+                    sb.append(string);
+                }
+            }
+        }
+
+        if (sb.length() > 0) {
+            sb.append(" ");
+        }
+
+        if (none != null && none.length > 0) {
+            for (String string : none) {
+                if (string.length() > 0) {
+                    sb.append("-");
+                    sb.append(string);
+                }
+            }
+        }
+
+        if (sb.toString().length() == 0) {
+            throw new ApiUsageException(
+                    "No search terms provided for SomeMustNone");
+        }
+        return sb.toString();
     }
 }

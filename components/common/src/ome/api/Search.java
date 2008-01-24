@@ -437,7 +437,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * metadata which is returned in the map via {@link #results}.
      * 
      * @throws ApiUsageException
-     *             if there are no active queries or if
+     *             if {@link #hasNext()} returns false.
      */
     IObject next() throws ApiUsageException;
 
@@ -458,7 +458,11 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * with the related query metadata. If
      * {@link #isMergedBatches() batches are merged} then the results from
      * multiple queries may be returned together.
+     * 
+     * @throws ApiUsageException
+     *             if {@link #hasNext()} returns false.
      */
-    <T extends IObject> Map<T, List<Annotation>> results();
+    <T extends IObject> Map<T, List<Annotation>> results()
+            throws ApiUsageException;
 
 }

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import ome.api.Search;
+import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.BooleanAnnotation;
@@ -26,6 +27,11 @@ import org.testng.annotations.Test;
 
 @Test(groups = { "query", "fulltext", "search" })
 public class SearchTest extends AbstractTest {
+
+    // by<Query>
+    // =========================================================================
+    // This section tests each query method with various combinations of
+    // restrictions
 
     @Test
     public void testByGroupForTags() {
@@ -123,9 +129,6 @@ public class SearchTest extends AbstractTest {
         assertEquals(2, search.results().size());
     }
 
-    // Misc
-    // =========================================================================
-
     @Test
     public void testSimpleFullTextSearch() {
 
@@ -156,10 +159,143 @@ public class SearchTest extends AbstractTest {
         search.close();
     }
 
-    // General methods
+    String[] sa(String... arr) {
+        return arr;
+    }
+
+    @Test
+    public void testSomeMustNone() {
+        final String[] contained = new String[] { "abc", "def", "ghi", "123" };
+        final String[] missing = new String[] { "jkl", "mno", "pqr", "456" };
+
+        Image i = new Image();
+        i.setName("abc def ghi");
+        i = iUpdate.saveAndReturnObject(i);
+        indexObject(i);
+        loginRoot();
+
+        final Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+
+        // Make sure we can find it simply
+        search.bySomeMustNone(sa("abc"), sa(), sa());
+        assertTrue(search.results().size() >= 1);
+
+        //
+        // Now we'll try more complicated queries
+        //
+
+        // This should return nothing since none is contained
+        search.bySomeMustNone(sa("abc"), sa(), sa("def"));
+        assertResults(search, 0);
+
+        // but if the none is not contained should be ok.
+        search.bySomeMustNone(sa("abc"), sa("abc"), sa("jkl"));
+        assertAtLeastResults(search, 1);
+
+        // Simple must query
+        search.bySomeMustNone(sa(), sa("abc"), sa());
+        assertAtLeastResults(search, 1);
+
+        // same, but with a matching none
+        search.bySomeMustNone(sa(), sa("abc"), sa("def"));
+        assertResults(search, 0);
+
+        // same again, but with non-matching none
+        search.bySomeMustNone(sa(), sa("abc"), sa("jkl"));
+        assertAtLeastResults(search, 1);
+
+        //
+        // Mixing some and must
+        //
+
+        // Present must
+        search.bySomeMustNone(sa("abc"), sa("def"), sa());
+        assertAtLeastResults(search, 1);
+
+        // Missing must
+        search.bySomeMustNone(sa("abc"), sa("jkl"), sa());
+        assertResults(search, 0);
+
+        // Present must, missing some
+        search.bySomeMustNone(sa("jkl"), sa("def"), sa());
+        assertAtLeastResults(search, 1);
+
+        //
+        // Using wildcards
+        //
+
+        // some with wildcard
+        search.bySomeMustNone(sa("ab*"), sa(), sa());
+        assertAtLeastResults(search, 1);
+
+        // must with wildcard
+        search.bySomeMustNone(sa(), sa("ab*"), sa());
+        assertAtLeastResults(search, 1);
+
+        // none with wildcard
+        search.bySomeMustNone(sa(), sa(), sa("ab*"));
+        assertResults(search, 0);
+
+        //
+        // Multiterms
+        //
+
+        search.bySomeMustNone(sa("abc", "def"), null, null);
+        assertAtLeastResults(search, 1);
+
+        search.bySomeMustNone(null, sa("abc", "def"), null);
+        assertAtLeastResults(search, 1);
+
+        search.bySomeMustNone(null, null, sa("abc", "def"));
+        assertResults(search, 0);
+
+        search.bySomeMustNone(sa("ghi", "123"), sa("abc", "def"), null);
+        assertAtLeastResults(search, 1);
+
+        search.bySomeMustNone(sa("ghi", "123"), sa("abc", "def"), sa("456"));
+        assertAtLeastResults(search, 1);
+
+        search.bySomeMustNone(sa("ghi", "123"), sa("abc", "456"), sa("456"));
+        assertResults(search, 0);
+
+        //
+        // Completely empty
+        //
+        try {
+            search.bySomeMustNone(null, null, null);
+            fail("Should throw");
+        } catch (ApiUsageException aue) {
+            // ok
+        }
+
+        try {
+            search.bySomeMustNone(sa(), null, null);
+            fail("Should throw");
+        } catch (ApiUsageException aue) {
+            // ok
+        }
+
+        try {
+            search.bySomeMustNone(sa(""), null, null);
+            fail("Should throw");
+        } catch (ApiUsageException aue) {
+            // ok
+        }
+
+        //
+        // Queries with spaces
+        // For the moment these return as expected since the parser splits into
+        // keywords.
+        //
+        search.bySomeMustNone(sa("\"abc def\""), null, null);
+        assertAtLeastResults(search, 1);
+    }
+
+    // restrictions methods
     // ========================================================================
-    // The following sections should include all the by* methods except for
-    // the special cases above.
+    // The tests in the following sections should include all the by* methods
+    // each testing a specific restriction
 
     @Test
     public void testTypes() {
@@ -500,6 +636,21 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertEquals(1, search.results().size());
 
+    }
+
+    // Helpers
+    // =========================================================================
+
+    void assertResults(Search search, int k) {
+        if (k == 0) {
+            assertFalse(search.hasNext());
+        } else {
+            assertEquals(k, search.results().size());
+        }
+    }
+
+    void assertAtLeastResults(Search search, int k) {
+        assertTrue(search.results().size() >= k);
     }
 
 }
