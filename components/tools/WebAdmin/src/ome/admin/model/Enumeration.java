@@ -36,6 +36,8 @@ public class Enumeration {
      * String provides name of class
      */
     private String className = null;
+    
+    private boolean oryginalVales = true;
 
     /**
      * String provides value
@@ -97,6 +99,14 @@ public class Enumeration {
      */
     public void setClassName(String className) {
         this.className = className;
+    }
+
+    public boolean isOryginalVales() {
+        return oryginalVales;
+    }
+
+    public void setOryginalVales(boolean oryginalVales) {
+        this.oryginalVales = oryginalVales;
     }
 
 }

@@ -344,7 +344,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
     // ~ AttributesMapper
     // =========================================================================
 
-    public class UidAttributMapper implements AttributesMapper {
+    public static class UidAttributMapper implements AttributesMapper {
 
         @RolesAllowed("system")
         public Object mapFromAttributes(Attributes attributes)
@@ -366,7 +366,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
     }
 
-    public class GroupAttributMapper implements AttributesMapper {
+    public static class GroupAttributMapper implements AttributesMapper {
 
         @RolesAllowed("system")
         public Object mapFromAttributes(Attributes attributes)

@@ -26,6 +26,7 @@
 	<classpathentry kind="lib" path="WEB-INF/lib/jfreechart.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/log4j.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/jstl.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/model-psql.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/myfaces-impl.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/myfaces-api.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/opencsv.jar"/>

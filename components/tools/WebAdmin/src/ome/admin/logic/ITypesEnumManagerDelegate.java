@@ -8,6 +8,8 @@
 package ome.admin.logic;
 
 // Java imports
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -130,14 +132,33 @@ public class ITypesEnumManagerDelegate implements java.io.Serializable {
     public List<Enumeration> getEnumerationsWithEntries() {
         List<Enumeration> list = new ArrayList<Enumeration>();
         Map map = db.getEnumerationsWithEntries();
+        List<IEnum> oryginList = db.getOryginalEnumerations();
         for (Iterator iter = map.keySet().iterator(); iter.hasNext();) {
             Class klass = (Class) iter.next();
             List<? extends IEnum> entries = (List<? extends IEnum>) map
                     .get(klass);
-
+            
             Enumeration en = new Enumeration();
             en.setClassName(klass.getName());
             en.setEntryList(entries);
+            
+            for(IEnum entry:entries) {
+                boolean flag = false;
+                int c = 0;
+                for(IEnum oryginal:oryginList) {
+                    if(entry.getClass().equals(oryginal.getClass())) {
+                        c++;
+                        if(entry.getValue().equals(oryginal.getValue())) {
+                            flag = true;
+                        }
+                    }
+                }
+                if(c!=entries.size()) {
+                    en.setOryginalVales(false);
+                } else {
+                    en.setOryginalVales(flag);
+                }                    
+            }  
             list.add(en);
         }
         this.enums = list;
@@ -188,6 +209,14 @@ public class ITypesEnumManagerDelegate implements java.io.Serializable {
      */
     public void delEnumeration(IEnum en) {
         db.deleteEnumeration(en);
+    }
+
+    public void resetEnumeration(Class klass) throws ClassNotFoundException,
+            IllegalArgumentException, SecurityException,
+            InstantiationException, IllegalAccessException,
+            InvocationTargetException, NoSuchMethodException,
+            FileNotFoundException, IOException {
+        db.resetEnumeration(klass);
     }
 
     /**

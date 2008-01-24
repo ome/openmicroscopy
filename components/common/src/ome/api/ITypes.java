@@ -8,15 +8,12 @@
 package ome.api;
 
 // Java imports
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.annotations.NotNull;
 import ome.annotations.Validate;
+import ome.conditions.ApiUsageException;
 import ome.model.IEnum;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
@@ -96,13 +93,13 @@ public interface ITypes extends ServiceInterface {
      * Gets all oryginal values of specified class. 
      * @param <T> 
      *            The type of the enumeration. Must extend {@link IEnum}
-     * @param klass 
-     *            An enumeration class which should be searched.
      * @return A list of managed enumerations.
      * @throws RuntimeException
      *             if xml parsing failure.
      */
-    <T extends IEnum> List<T> allOryginalEnumerations(Class<T> klass);
+    <T extends IEnum> List<T> getOryginalEnumerations();
+    
+    <T extends IEnum> void resetEnumerations(Class<T> klass);
     
     /**
      * Gets all metadata classes which are IEnum type. 

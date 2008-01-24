@@ -38,7 +38,16 @@
 						<h:graphicImage url="/images/edit.png"
 							alt="#{msg.enumsEditEnum}" styleClass="action" />
 					</h:commandLink>
+					
+					<h:commandLink action="#{ITEManagerBean.resetEnumeration}"
+						onclick="if (!confirm('#{msg.enumsResetConfirmation}')) return false"
+						title="#{msg.enumsResetEnum}" rendered="#{not enumeration.oryginalVales}"  >
+						<h:graphicImage url="/images/reset.png" alt="#{msg.enumsResetEnum}"
+							styleClass="action" />						
+					</h:commandLink>
 
+					<h:graphicImage url="/images/reset-grey.png" alt="#{msg.enumsResetEnum}"
+						styleClass="action" rendered="#{enumeration.oryginalVales}" />	
 				</h:column>
 
 				<h:column>
@@ -71,7 +80,7 @@
 						<h:outputText value="#{enumeration.className}" />
 					</h:commandLink>
 				</h:column>
-
+				
 			</t:dataTable></div>
 			<div><h:panelGrid columns="1"
 				rendered="#{ITEManagerBean.scrollerMode}" styleClass="scroller">

@@ -59,7 +59,7 @@
 		</copy>
 		<copy todir="${build.dir}">
 			<fileset dir="${src.dir}" includes="**/*.properties" />
-		</copy>
+		</copy>		
 	</target>
 
 	<target name="cleanWebApp">
@@ -71,7 +71,7 @@
 		<war warfile="${war.file.name}" webxml="${basedir}/WEB-INF/web.xml">
 			<fileset dir="${basedir}" includes="**/*.*" excludes="*.war, **/*.java, *.xml, src/**/*, target/**/*, **/*.nbattrs, web.xml, **/WEB-INF/**/*.*, **/*.classpath" />
 			<webinf dir="${basedir}/WEB-INF" includes="**/* **/*.class" excludes="web.xml, **/*.jar, **/*.class" />
-			<lib dir="${basedir}/WEB-INF/lib" excludes="ant.jar,antlr.jar,asm-attrs.jar,asm.jar,cglib.jar,dsl.jar,ehcache.jar,emma_ant.jar,emma.jar,findbugs-ant.jar,geronimo-spec-jta.jar,groovy.jar,hibernate-tools.jar,hibernate.jar,jmock.jar,jtidy.jar,postgresql.jar,qdox.jar,spring-mock.jar,testng.jar,velocity-tools-generic.jar,velocity.jar,commons-io.jar,dom4j.jar,jdom.jar,jaxen.jar,htmlunit.jar,junit.jar,jboss-j2ee.jar,jboss-servlet-api.jar,xom.jar,xmlParserAPIs.jar,xml-apis.jar,xercesImpl.jar,servlet-api.jar,regexp.jar,nekohtml.jar,jwebunit-htmlunit-plugin.jar,jwebunit-core.jar,js.jar" />
+			<lib dir="${basedir}/WEB-INF/lib" excludes="ant.jar,antlr.jar,asm-attrs.jar,asm.jar,cglib.jar,dsl.jar,ehcache.jar,emma_ant.jar,emma.jar,findbugs-ant.jar,freemarker.jar,groovy.jar,hibernate-annotations.jar,hibernate-commons-annotations.jar,hibernate-search.jar,hibernate-tools.jar,hibernate-validator.jar,hibernate.jar,jamon.jar,jmock.jar,jtidy.jar,lucene-core.jar,persistence-api.jar,postgresql.jar,qdox.jar,spring-mock.jar,testing.jar,testng.jar,velocity-tools-generic.jar,velocity.jar,commons-io.jar,dom4j.jar,jdom.jar,jaxen.jar,htmlunit.jar,junit.jar,jboss-j2ee.jar,jboss-servlet-api.jar,xom.jar,xmlParserAPIs.jar,xml-apis.jar,xercesImpl.jar,servlet-api.jar,regexp.jar,nekohtml.jar,jwebunit-htmlunit-plugin.jar,jwebunit-core.jar,js.jar" />
 			<classes dir="${basedir}/WEB-INF/classes" />
 		</war>
 	</target>

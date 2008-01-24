@@ -45,7 +45,7 @@
 		<dsl template="ome/dsl/views.vm" filepattern="${resrc.dest}/views.sql">
 			<fileset dir="${resrc.dir}" includes="${dsl.pat}"/>
 		</dsl>
-		<dsl template="ome/dsl/enums.vm" filepattern="${resrc.dest}/enums.properties">
+		<dsl template="ome/dsl/enums.vm" filepattern="${basedir}/../app/target/generated/resources/enums.properties">
 			<fileset dir="${resrc.dir}" includes="${dsl.pat}"/>
 		</dsl>
 		<done name="dsl"/>

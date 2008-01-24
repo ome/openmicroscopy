@@ -173,6 +173,11 @@ public class ConnectionDB {
         logger.info("getEnumerationsWithEntries by user ID: '" + userid + "'");
         return typesService.getEnumerationsWithEntries();
     }
+    
+    public List<IEnum> getOryginalEnumerations() {
+        logger.info("getOryginalEnumerations by user ID: '" + userid + "'");
+        return typesService.getOryginalEnumerations();
+    }
 
     /**
      * Gets Enumerations' classes
@@ -264,6 +269,16 @@ public class ConnectionDB {
         return true;
 
     }
+
+    /**
+     * Resets value of enumerations specified by class
+     * 
+     * @param klass
+     *            Class
+     */
+    public void resetEnumeration(Class klass) {
+        typesService.resetEnumerations(klass);
+    }        
 
     // -----------------------------------------------------------------------
 
@@ -596,8 +611,8 @@ public class ConnectionDB {
         logger.info("ExperimenterGroup details [id: '"
                 + experimenterGroup.getId() + "', name: '"
                 + experimenterGroup.getName() + "', desc: '"
-                + experimenterGroup.getDescription() + "', owner: '"
-                + ownerId + "']");
+                + experimenterGroup.getDescription() + "', owner: '" + ownerId
+                + "']");
         Experimenter exp = adminService.getExperimenter(ownerId);
         adminService.updateGroup(experimenterGroup);
         adminService.setGroupOwner(experimenterGroup, exp);

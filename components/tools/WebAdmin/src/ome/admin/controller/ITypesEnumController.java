@@ -207,10 +207,8 @@ public class ITypesEnumController implements java.io.Serializable {
         return this.entryModel;
 
     }
-
-    /*
-     * public void setEntrys(DataModel dm) { this.entryModel = dm; }
-     */
+    
+    //public void setEntrys(DataModel dm) { this.entryModel = dm; }
 
     /**
      * Sets editMode
@@ -257,15 +255,10 @@ public class ITypesEnumController implements java.io.Serializable {
      * @return {@link java.lang.String} "success"
      */
     public String addNewEnumeration() {
-        FacesContext context = FacesContext.getCurrentInstance();
-        FacesMessage message = new FacesMessage("Cannot add new enumeration." +
-                "v2.3 does not support it.");
-        context.addMessage("enumerations", message);
-        return NavigationResults.FALSE;
-        /*this.editMode = false;
+        this.editMode = false;
         this.enumeration = new Enumeration();
         this.enumeration.setClassName("");
-        return NavigationResults.SUCCESS;*/
+        return NavigationResults.SUCCESS;
     }
 
     /**
@@ -274,9 +267,8 @@ public class ITypesEnumController implements java.io.Serializable {
      * 
      * @return {@link java.lang.String} "success"
      */
-    public String addEnumeration() {
-        return NavigationResults.FALSE;
-        /*try {
+    public String addEnumeration() {        
+        try {
             itype.checkEnumeration(Class.forName(this.enumeration
                     .getClassName()), this.enumeration.getEvent());
             itype.addEnumeration(this.enumeration);
@@ -291,7 +283,7 @@ public class ITypesEnumController implements java.io.Serializable {
                     + e.getMessage());
             context.addMessage("enumerationAddForm", message);
             return NavigationResults.FALSE;
-        }*/
+        }
     }
 
     /**
@@ -324,13 +316,8 @@ public class ITypesEnumController implements java.io.Serializable {
      * 
      * @return {@link java.lang.String} "success" or "false"
      */
-    public String delEnumeration() {
-        FacesContext context = FacesContext.getCurrentInstance();
-        FacesMessage message = new FacesMessage("Cannot delete enumeration." +
-                "v2.3 does not support it.");
-        context.addMessage("enumerationEditForm", message);
-        return NavigationResults.FALSE;
-        /*try {
+    public String delEnumeration() {        
+        try {
             itype.delEnumeration((IEnum) entryModel.getRowData());
             this.enumerationModel.setWrappedData(itype.getAndSortItems(
                     sortItem, sort));
@@ -346,7 +333,7 @@ public class ITypesEnumController implements java.io.Serializable {
                     + "'] : " + e.getMessage());
             context.addMessage("enumerationEditForm", message);
             return NavigationResults.FALSE;
-        }*/
+        }
     }
 
     /**
@@ -356,12 +343,7 @@ public class ITypesEnumController implements java.io.Serializable {
      * @return {@link java.lang.String} "success" or "false"
      */
     public String updateEnumerations() {
-        FacesContext context = FacesContext.getCurrentInstance();
-        FacesMessage message = new FacesMessage("Cannot update enumerations." +
-                "v2.3 does not support it.");
-        context.addMessage("enumerationEditForm", message);
-        return NavigationResults.FALSE;
-        /*try {
+        try {
             this.editMode = false;
             Class klass = Class.forName(this.enumeration.getClassName());
             itype.updateEnumerations(this.enumeration.getEntryList());
@@ -376,9 +358,36 @@ public class ITypesEnumController implements java.io.Serializable {
             FacesMessage message = new FacesMessage("Enumeration: [id: "
                     + this.entry.getId() + ", '" + this.entry.getValue()
                     + "'] : " + e.getMessage());
-            context.addMessage("groupForm", message);
+            context.addMessage("enumerationEditForm", message);
             return NavigationResults.FALSE;
-        }*/
+        }
+    }
+    
+    /**
+     * Provides action for navigation rule "resetEnumeration" what is described
+     * in the faces-config.xml file.
+     * 
+     * @return {@link java.lang.String} "success" or "false"
+     */
+    public String resetEnumeration() {
+        try{
+            this.enumeration = (Enumeration) enumerationModel.getRowData();
+            Class klass = Class.forName(this.enumeration.getClassName());
+            itype.resetEnumeration(klass);
+            this.enumerationModel.setWrappedData(itype.getAndSortItems(
+                    sortItem, sort));
+            this.entryModel.setWrappedData(itype.getAndSortEntrys(sortEntry,
+                    sort, null, klass));
+            return NavigationResults.SUCCESS;            
+        } catch (Exception e) {
+            logger.error("resetEnumeration: " + e.getMessage());
+            FacesContext context = FacesContext.getCurrentInstance();
+            FacesMessage message = new FacesMessage("Enumeration: [id: "
+                    + this.entry.getId() + ", '" + this.entry.getValue()
+                    + "'] : " + e.getMessage());
+            context.addMessage("enumerations", message);
+            return NavigationResults.FALSE;
+        }
     }
 
     /**
