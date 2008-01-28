@@ -638,6 +638,38 @@ public class SearchTest extends AbstractTest {
 
     }
 
+    // misc
+    // =========================================================================
+
+    @Test
+    public void testMergedBatches() {
+        String uuid1 = uuid(), uuid2 = uuid();
+        Image i1 = new Image(uuid1);
+        Image i2 = new Image(uuid2);
+        i1 = iUpdate.saveAndReturnObject(i1);
+        i2 = iUpdate.saveAndReturnObject(i2);
+        indexObject(i1);
+        indexObject(i2);
+        loginRoot();
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+        search.byFullText(uuid1);
+        assertResults(search, 1);
+
+        search.byFullText(uuid2);
+        assertResults(search, 1);
+
+        search.bySomeMustNone(sa(uuid1, uuid2), null, null);
+        assertResults(search, 2);
+
+        // Everything looks ok, now try with batch
+        search.setMergedBatches(true);
+        search.byFullText(uuid1);
+        search.byFullText(uuid2);
+        assertResults(search, 2);
+    }
+
     // Helpers
     // =========================================================================
 
