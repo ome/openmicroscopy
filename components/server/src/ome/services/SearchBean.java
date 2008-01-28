@@ -84,7 +84,7 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     private final List<List<IObject>> results = new ArrayList<List<IObject>>();
 
-    private/* final */Executor executor;
+    private/* final */transient Executor executor;
 
     public SearchBean(Executor executor) {
         this.executor = executor;

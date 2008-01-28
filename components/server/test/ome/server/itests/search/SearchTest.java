@@ -6,6 +6,8 @@
  */
 package ome.server.itests.search;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
@@ -27,6 +29,14 @@ import org.testng.annotations.Test;
 
 @Test(groups = { "query", "fulltext", "search" })
 public class SearchTest extends AbstractTest {
+
+    @Test
+    public void testSerialization() throws Exception {
+        Object o = this.applicationContext.getBean("internal:ome.api.Search");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(o);
+    }
 
     // by<Query>
     // =========================================================================
