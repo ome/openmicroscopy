@@ -8,6 +8,7 @@
 package ome.services.search;
 
 import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
 import ome.model.IAnnotated;
 import ome.model.IGlobal;
 import ome.model.IMutable;
@@ -21,6 +22,8 @@ import ome.tools.hibernate.QueryBuilder;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.hibernate.Criteria;
 import org.hibernate.EntityMode;
 import org.hibernate.HibernateException;
@@ -31,6 +34,7 @@ import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.SimpleExpression;
 import org.hibernate.engine.TypedValue;
+import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.springframework.transaction.TransactionStatus;
@@ -60,6 +64,13 @@ public class FullText extends SearchAction {
 
     public FullText(SearchValues values, String query) {
         super(values);
+
+        if (values.onlyTypes == null || values.onlyTypes.size() != 1) {
+            throw new ApiUsageException(
+                    "Searches by full text are currently limited to a single type.\n"
+                            + "Plese use Search.onlyType().");
+        }
+
         if (query == null || query.length() < 1) {
             throw new IllegalArgumentException("Query string must be non-empty");
         }
@@ -75,12 +86,6 @@ public class FullText extends SearchAction {
 
     public Object doWork(TransactionStatus status, Session session,
             ServiceFactory sf) {
-
-        if (values.onlyTypes == null || values.onlyTypes.size() != 1) {
-            throw new ApiUsageException(
-                    "Searches by full text are currently limited to a single type.\n"
-                            + "Plese use Search.onlyType().");
-        }
 
         Class cls = values.onlyTypes.get(0);
 
@@ -156,10 +161,29 @@ public class FullText extends SearchAction {
             }
         }
 
-        query = this.session.createFullTextQuery(this.q).setCriteriaQuery(
-                criteria);
-        // TODO And if allTypes? or multiple types
-        // scroll = query.scroll(ScrollMode.FORWARD_ONLY);
+        FullTextQuery ftQuery = this.session.createFullTextQuery(this.q);
+        ftQuery.setSort(new Sort("description", true));
+        ftQuery.setCriteriaQuery(criteria);
+
+        if (values.orderBy.size() > 0) {
+            SortField[] sorts = new SortField[values.orderBy.size()];
+            for (int i = 0; i < sorts.length; i++) {
+                String orderBy = values.orderBy.get(i);
+                String orderWithoutMode = orderBy
+                        .substring(1, orderBy.length());
+                if (orderBy.startsWith("A")) {
+                    sorts[i] = new SortField(orderWithoutMode, false);
+                } else if (orderBy.startsWith("D")) {
+                    sorts[i] = new SortField(orderWithoutMode, true);
+                } else {
+                    throw new InternalException(
+                            "Unsupported orderBy mode added to values.orderBy");
+                }
+            }
+            ftQuery.setSort(new Sort(sorts));
+        }
+
+        query = ftQuery;
         return query.list();
     }
 }

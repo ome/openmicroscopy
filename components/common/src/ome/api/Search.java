@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
+import ome.annotations.NotNull;
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
@@ -283,7 +284,37 @@ public interface Search extends ome.api.StatefulServiceInterface,
      */
     void onlyAnnotatedWith(Class... classes);
 
-    // Fetches ~~~~~~~~~~~~~~~~~~~~~~
+    // Fetches, order, counts, etc ~~~~~~~~~~~~~~~~~~~~~~
+
+    /**
+     * A path from the target entity which will be added to the current stack of
+     * order statements applied to the query.
+     * 
+     * @param path
+     *            Non-null.
+     * @see #unordered()
+     */
+    void addOrderByAsc(@NotNull
+    String path);
+
+    /**
+     * A path from the target entity which will be added to the current stack of
+     * order statements applied to the query.
+     * 
+     * @param path
+     *            Non-null.
+     * @see #unordered()
+     */
+    void addOrderByDesc(@NotNull
+    String path);
+
+    /**
+     * Removes the current stack of order statements.
+     * 
+     * @see #addOrderByAsc(String)
+     * @see #addOrderByDesc(String)
+     */
+    void unordered();
 
     /**
      * Queries the database for all {@link Annotation annotations} of the given

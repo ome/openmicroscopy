@@ -350,6 +350,30 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     @Transactional
     @RolesAllowed("user")
+    public void addOrderByAsc(String path) {
+        synchronized (values) {
+            values.orderBy.add("A" + path);
+        }
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public void addOrderByDesc(String path) {
+        synchronized (values) {
+            values.orderBy.add("D" + path);
+        }
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public void unordered() {
+        synchronized (values) {
+            values.orderBy.clear();
+        }
+    }
+
+    @Transactional
+    @RolesAllowed("user")
     public <T extends IObject> void fetchAlso(Map<T, String> fetches) {
         synchronized (values) {
             throw new UnsupportedOperationException();

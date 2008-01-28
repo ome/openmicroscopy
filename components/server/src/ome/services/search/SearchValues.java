@@ -37,6 +37,7 @@ public class SearchValues implements Serializable {
     public boolean useProjections = Search.DEFAULT_USE_PROJECTIONS;
     public boolean idOnly = false;
     public List<String> fetches = new ArrayList<String>();
+    public List<String> orderBy = new ArrayList<String>();
     // Nulls mean all
     public Timestamp createdStart = null;
     public Timestamp createdStop = null;
@@ -57,6 +58,7 @@ public class SearchValues implements Serializable {
         this.useProjections = values.useProjections;
         this.idOnly = values.idOnly;
         this.fetches = new ArrayList<String>(values.fetches);
+        this.orderBy = new ArrayList<String>(values.orderBy);
         // Nulls mean all
         this.createdStart = copyTimestamp(values.createdStart);
         this.createdStop = copyTimestamp(values.createdStop);

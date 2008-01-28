@@ -9,6 +9,7 @@ package ome.server.itests.search;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -649,33 +650,7 @@ public class SearchTest extends AbstractTest {
 
     }
 
-    // bugs
-    // =========================================================================
-
-    @Test
-    public void testTextAnnotationDoesntTryToLoadUpdateEvent() {
-        String uuid = uuid();
-        TextAnnotation ta = new TextAnnotation();
-        ta.setTextValue(uuid);
-        ta = iUpdate.saveAndReturnObject(ta);
-        indexObject(ta);
-        loginRoot();
-
-        Search search = this.factory.createSearchService();
-        search.onlyType(TextAnnotation.class);
-        search.byFullText(uuid);
-        assertResults(search, 1);
-    }
-
-    @Test
-    public void testExperimenterDoesntTryToLoadOwner() {
-        Search search = this.factory.createSearchService();
-        search.onlyType(Experimenter.class);
-        search.byFullText("root");
-        assertAtLeastResults(search, 1);
-    }
-
-    // misc
+    // other
     // =========================================================================
 
     @Test
@@ -705,6 +680,135 @@ public class SearchTest extends AbstractTest {
         search.byFullText(uuid1);
         search.byFullText(uuid2);
         assertResults(search, 2);
+    }
+
+    @Test
+    public void testOrderBy() throws Exception {
+        String uuid = uuid();
+        Image i1 = new Image(uuid);
+        i1.setDescription("a");
+        Image i2 = new Image(uuid);
+        i2.setDescription("b");
+        i1 = iUpdate.saveAndReturnObject(i1);
+        Thread.sleep(2000L); // Waiting to test creation time ordering better
+        i2 = iUpdate.saveAndReturnObject(i2);
+        indexObject(i1);
+        indexObject(i2);
+        loginRoot();
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+
+        search.unordered();
+        search.addOrderByDesc("description");
+        search.byFullText(uuid);
+
+        List<String> desc = new ArrayList<String>();
+        desc.add(i2.getDescription());
+        desc.add(i1.getDescription());
+        while (search.hasNext()) {
+            assertEquals(desc.remove(0), ((Image) search.next())
+                    .getDescription());
+        }
+
+        search.unordered();
+        search.addOrderByAsc("description");
+        search.byFullText(uuid);
+
+        List<String> asc = new ArrayList<String>();
+        asc.add(i1.getDescription());
+        asc.add(i2.getDescription());
+        while (search.hasNext()) {
+            assertEquals(asc.remove(0), ((Image) search.next())
+                    .getDescription());
+        }
+
+        search.unordered();
+        search.addOrderByDesc("id");
+        search.byFullText(uuid);
+
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(i2.getId());
+        ids.add(i1.getId());
+        while (search.hasNext()) {
+            assertEquals(ids.remove(0), search.next().getId());
+        }
+
+        search.unordered();
+        search.addOrderByDesc("details.creationEvent.id");
+        search.byFullText(uuid);
+
+        ids = new ArrayList<Long>();
+        ids.add(i2.getId());
+        ids.add(i1.getId());
+        while (search.hasNext()) {
+            assertEquals(ids.remove(0), search.next().getId());
+        }
+
+        search.unordered();
+        search.addOrderByDesc("details.creationEvent.time");
+        search.byFullText(uuid);
+
+        // To test multiple sort fields, we add another image with an "a"
+        // description, which should could before the other image with the "a"
+        // description if we reverse the id order
+
+        Image i3 = new Image(uuid);
+        i3.setDescription("a");
+        i3 = iUpdate.saveAndReturnObject(i3);
+        indexObject(i3);
+        loginRoot();
+
+        // TODO Multi-ordering is currently not working.
+
+        search.unordered();
+        search.addOrderByAsc("description");
+        search.addOrderByDesc("id");
+        search.byFullText(uuid);
+
+        List<Long> multi = new ArrayList<Long>();
+        multi.add(i3.getId());
+        multi.add(i1.getId());
+        multi.add(i2.getId());
+        while (search.hasNext()) {
+            assertEquals(multi.remove(0), search.next().getId());
+        }
+
+        // TODO Ordering by time is currently not working.
+
+        ids = new ArrayList<Long>();
+        ids.add(i2.getId());
+        ids.add(i1.getId());
+        while (search.hasNext()) {
+            assertEquals(ids.remove(0), search.next().getId());
+        }
+
+    }
+
+    // bugs
+    // =========================================================================
+
+    @Test
+    public void testTextAnnotationDoesntTryToLoadUpdateEvent() {
+        String uuid = uuid();
+        TextAnnotation ta = new TextAnnotation();
+        ta.setTextValue(uuid);
+        ta = iUpdate.saveAndReturnObject(ta);
+        indexObject(ta);
+        loginRoot();
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(TextAnnotation.class);
+        search.byFullText(uuid);
+        assertResults(search, 1);
+    }
+
+    @Test
+    public void testExperimenterDoesntTryToLoadOwner() {
+        Search search = this.factory.createSearchService();
+        search.onlyType(Experimenter.class);
+        search.byFullText("root");
+        assertAtLeastResults(search, 1);
     }
 
     @Test

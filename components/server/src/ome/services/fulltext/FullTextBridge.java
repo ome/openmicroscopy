@@ -31,7 +31,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
-import org.hibernate.search.annotations.Resolution;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.builtin.DateBridge;
 
@@ -52,8 +51,6 @@ public class FullTextBridge implements FieldBridge {
 
     // TODO add combined_fields to constants
     public final static String COMBINED = "combined_fields";
-
-    public final static DateBridge dateBridge = new DateBridge(Resolution.DAY);
 
     final protected OriginalFilesService files;
     final protected Map<String, FileParser> parsers;
@@ -131,36 +128,52 @@ public class FullTextBridge implements FieldBridge {
                     String omename = e.getOmeName();
                     String firstName = e.getFirstName();
                     String lastName = e.getLastName();
-                    add(document, "owner", omename, Store.YES, index, boost);
-                    add(document, "firstname", firstName, store, index, boost);
-                    add(document, "lastName", lastName, store, index, boost);
+                    add(document, "details.owner.omeName", omename, Store.YES,
+                            index, boost);
+                    add(document, "details.owner.firstName", firstName, store,
+                            index, boost);
+                    add(document, "details.owner.lastName", lastName, store,
+                            index, boost);
                 }
 
                 ExperimenterGroup g = details.getGroup();
                 if (g != null && g.isLoaded()) {
                     String groupName = g.getName();
-                    add(document, "group", groupName, Store.YES, index, boost);
+                    add(document, "details.group.name", groupName, Store.YES,
+                            index, boost);
 
                 }
 
                 Event creationEvent = details.getCreationEvent();
-                if (creationEvent != null && creationEvent.isLoaded()) {
-                    String creation = dateBridge.objectToString(creationEvent
-                            .getTime());
-                    add(document, "creation", creation, Store.YES, index, boost);
+                if (creationEvent != null) {
+                    add(document, "details.creationEvent.id", creationEvent
+                            .getId().toString(), Store.YES,
+                            Field.Index.UN_TOKENIZED, boost);
+                    if (creationEvent.isLoaded()) {
+                        String creation = DateBridge.DATE_SECOND
+                                .objectToString(creationEvent.getTime());
+                        add(document, "details.creationEvent.time", creation,
+                                Store.YES, Field.Index.UN_TOKENIZED, boost);
+                    }
                 }
 
                 Event updateEvent = details.getUpdateEvent();
-                if (updateEvent != null && updateEvent.isLoaded()) {
-                    String update = dateBridge.objectToString(updateEvent
-                            .getTime());
-                    add(document, "update", update, Store.YES, index, boost);
+                if (updateEvent != null) {
+                    add(document, "details.updateEvent.id", updateEvent.getId()
+                            .toString(), Store.YES, Field.Index.UN_TOKENIZED,
+                            boost);
+                    if (updateEvent.isLoaded()) {
+                        String update = DateBridge.DATE_SECOND
+                                .objectToString(updateEvent.getTime());
+                        add(document, "details.updateEvent.time", update,
+                                Store.YES, Field.Index.UN_TOKENIZED, boost);
+                    }
                 }
 
                 Permissions perms = details.getPermissions();
                 if (perms != null) {
-                    add(document, "permissions", perms.toString(), Store.YES,
-                            index, boost);
+                    add(document, "details.permissions", perms.toString(),
+                            Store.YES, index, boost);
                 }
             }
         } catch (NullValueException nve) {
