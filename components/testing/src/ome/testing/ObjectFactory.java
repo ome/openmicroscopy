@@ -9,6 +9,7 @@ package ome.testing;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
+import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.core.PlaneInfo;
@@ -21,6 +22,7 @@ import ome.model.display.Thumbnail;
 import ome.model.enums.AcquisitionMode;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.Family;
+import ome.model.enums.Format;
 import ome.model.enums.PhotometricInterpretation;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
@@ -35,6 +37,18 @@ import ome.model.stats.StatsInfo;
  * else could it live?
  */
 public class ObjectFactory {
+
+    public static OriginalFile createFile() {
+        OriginalFile ofile = new OriginalFile();
+        ofile.setName("testing");
+        ofile.setPath("/dev/null");
+        ofile.setSha1("abc");
+        ofile.setSize(1L);
+        ofile.setFormat(new Format("text/plain"));
+
+        return ofile;
+    }
+
     public static Thumbnail createThumbnails(Pixels p) {
         Thumbnail t = new Thumbnail();
         t.setMimeType("txt");

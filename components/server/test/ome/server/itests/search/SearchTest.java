@@ -11,7 +11,6 @@ import java.io.ObjectOutputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +28,7 @@ import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.parameters.Filter;
+import ome.testing.ObjectFactory;
 
 import org.springframework.aop.framework.Advised;
 import org.testng.annotations.Test;
@@ -337,10 +336,10 @@ public class SearchTest extends AbstractTest {
 
         assertResults(search, 1);
 
-        Iterator<OriginalFile> it = iQuery.findAll(OriginalFile.class,
-                new Filter().page(0, 2)).iterator();
-        OriginalFile file1 = it.next();
-        OriginalFile file2 = it.next();
+        OriginalFile file1 = ObjectFactory.createFile();
+        file1 = iUpdate.saveAndReturnObject(file1);
+        OriginalFile file2 = ObjectFactory.createFile();
+        file2 = iUpdate.saveAndReturnObject(file2);
         FileAnnotation fa1 = new FileAnnotation();
         fa1.setFile(file1);
         i.linkAnnotation(fa1);
@@ -366,8 +365,46 @@ public class SearchTest extends AbstractTest {
         txtAnn.setTextValue(uuid);
         search.byAnnotatedWith(txtAnn);
         assertResults(search, 1);
+    }
 
+    @Test
+    public void testAnnotatedWithNamespace() {
         fail("via namespace");
+    }
+
+    @Test
+    public void testAnnotatedWithMultiple() {
+        Image i1 = new Image("i1");
+        Image i2 = new Image("i2");
+
+        String uuid = uuid();
+        TagAnnotation ta = new TagAnnotation();
+        ta.setTextValue(uuid);
+        BooleanAnnotation ba = new BooleanAnnotation();
+        ba.setBoolValue(false);
+        i1.linkAnnotation(ta);
+        i2.linkAnnotation(ta);
+        i2.linkAnnotation(ba);
+
+        i1 = iUpdate.saveAndReturnObject(i1);
+        i2 = iUpdate.saveAndReturnObject(i2);
+
+        ta = new TagAnnotation();
+        ta.setTextValue(uuid);
+        ba = new BooleanAnnotation();
+        ba.setBoolValue(false);
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+
+        search.byAnnotatedWith(ta);
+        assertResults(search, 2);
+
+        search.byAnnotatedWith(ba);
+        assertAtLeastResults(search, 1);
+
+        search.byAnnotatedWith(ta, ba);
+        assertResults(search, 1);
 
     }
 
@@ -879,24 +916,31 @@ public class SearchTest extends AbstractTest {
     @Test
     public void testOrderBy() throws Exception {
         String uuid = uuid();
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue(uuid);
         Image i1 = new Image(uuid);
         i1.setDescription("a");
+        i1.linkAnnotation(tag);
         Image i2 = new Image(uuid);
         i2.setDescription("b");
+        i2.linkAnnotation(tag);
         i1 = iUpdate.saveAndReturnObject(i1);
         Thread.sleep(2000L); // Waiting to test creation time ordering better
         i2 = iUpdate.saveAndReturnObject(i2);
         indexObject(i1);
         indexObject(i2);
         loginRoot();
+        tag = new TagAnnotation();
+        tag.setTextValue(uuid);
 
         Search search = this.factory.createSearchService();
         search.onlyType(Image.class);
 
+        // Order by description desc
         search.unordered();
         search.addOrderByDesc("description");
+        // full text
         search.byFullText(uuid);
-
         List<String> desc = new ArrayList<String>();
         desc.add(i2.getDescription());
         desc.add(i1.getDescription());
@@ -904,11 +948,21 @@ public class SearchTest extends AbstractTest {
             assertEquals(desc.remove(0), ((Image) search.next())
                     .getDescription());
         }
+        // annotated with
+        search.byAnnotatedWith(tag);
+        desc = new ArrayList<String>();
+        desc.add(i2.getDescription());
+        desc.add(i1.getDescription());
+        while (search.hasNext()) {
+            assertEquals(desc.remove(0), ((Image) search.next())
+                    .getDescription());
+        }
 
+        // Order by descript asc
         search.unordered();
         search.addOrderByAsc("description");
+        // full text
         search.byFullText(uuid);
-
         List<String> asc = new ArrayList<String>();
         asc.add(i1.getDescription());
         asc.add(i2.getDescription());
@@ -916,22 +970,29 @@ public class SearchTest extends AbstractTest {
             assertEquals(asc.remove(0), ((Image) search.next())
                     .getDescription());
         }
+        // annotated with
+        search.byAnnotatedWith(tag);
+        asc = new ArrayList<String>();
+        asc.add(i1.getDescription());
+        asc.add(i2.getDescription());
+        while (search.hasNext()) {
+            assertEquals(asc.remove(0), ((Image) search.next())
+                    .getDescription());
+        }
 
+        // Ordered by id
         search.unordered();
         search.addOrderByDesc("id");
+        // full text
         search.byFullText(uuid);
-
         List<Long> ids = new ArrayList<Long>();
         ids.add(i2.getId());
         ids.add(i1.getId());
         while (search.hasNext()) {
             assertEquals(ids.remove(0), search.next().getId());
         }
-
-        search.unordered();
-        search.addOrderByDesc("details.creationEvent.id");
-        search.byFullText(uuid);
-
+        // annotated with
+        search.byAnnotatedWith(tag);
         ids = new ArrayList<Long>();
         ids.add(i2.getId());
         ids.add(i1.getId());
@@ -939,9 +1000,39 @@ public class SearchTest extends AbstractTest {
             assertEquals(ids.remove(0), search.next().getId());
         }
 
+        // Ordered by creation event id
+        search.unordered();
+        search.addOrderByDesc("details.creationEvent.id");
+        // full text
+        search.byFullText(uuid);
+        ids = new ArrayList<Long>();
+        ids.add(i2.getId());
+        ids.add(i1.getId());
+        while (search.hasNext()) {
+            assertEquals(ids.remove(0), search.next().getId());
+        }
+        // annotated with
+        search.byAnnotatedWith(tag);
+        ids = new ArrayList<Long>();
+        ids.add(i2.getId());
+        ids.add(i1.getId());
+        while (search.hasNext()) {
+            assertEquals(ids.remove(0), search.next().getId());
+        }
+
+        // ordered by creation event time
         search.unordered();
         search.addOrderByDesc("details.creationEvent.time");
-        search.byFullText(uuid);
+        // full text
+        // see failing tests below
+        // annotated with
+        search.byAnnotatedWith(tag);
+        ids = new ArrayList<Long>();
+        ids.add(i2.getId());
+        ids.add(i1.getId());
+        while (search.hasNext()) {
+            assertEquals(ids.remove(0), search.next().getId());
+        }
 
         // To test multiple sort fields, we add another image with an "a"
         // description, which should could before the other image with the "a"
@@ -949,18 +1040,29 @@ public class SearchTest extends AbstractTest {
 
         Image i3 = new Image(uuid);
         i3.setDescription("a");
+        i3.linkAnnotation(tag);
         i3 = iUpdate.saveAndReturnObject(i3);
         indexObject(i3);
         loginRoot();
+        tag = new TagAnnotation();
+        tag.setTextValue(uuid);
 
-        // TODO Multi-ordering is currently not working.
-
+        // multi-ordering
         search.unordered();
         search.addOrderByAsc("description");
         search.addOrderByDesc("id");
-        search.byFullText(uuid);
-
+        // annotated with
+        search.byAnnotatedWith(tag);
         List<Long> multi = new ArrayList<Long>();
+        multi.add(i3.getId());
+        multi.add(i1.getId());
+        multi.add(i2.getId());
+        while (search.hasNext()) {
+            assertEquals(multi.remove(0), search.next().getId());
+        }
+        // full text
+        search.byFullText(uuid);
+        multi = new ArrayList<Long>();
         multi.add(i3.getId());
         multi.add(i1.getId());
         multi.add(i2.getId());
@@ -970,6 +1072,7 @@ public class SearchTest extends AbstractTest {
 
         // TODO Ordering by time is currently not working.
 
+        search.byFullText(uuid);
         ids = new ArrayList<Long>();
         ids.add(i2.getId());
         ids.add(i1.getId());

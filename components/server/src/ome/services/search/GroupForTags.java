@@ -63,7 +63,6 @@ public class GroupForTags extends SearchAction {
 
         OwnerOrGroup oog = new OwnerOrGroup(values.ownedBy, "taggroup.");
         if (oog.needed()) {
-            qb.and("");
             oog.on(qb);
         }
 

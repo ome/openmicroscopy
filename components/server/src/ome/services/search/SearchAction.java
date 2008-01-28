@@ -7,13 +7,24 @@
 
 package ome.services.search;
 
+import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.model.IGlobal;
+import ome.model.IMutable;
+import ome.model.internal.Details;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.services.SearchBean;
+import ome.tools.hibernate.QueryBuilder;
 
 import org.hibernate.Criteria;
+import org.hibernate.EntityMode;
+import org.hibernate.HibernateException;
+import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.SimpleExpression;
+import org.hibernate.engine.TypedValue;
 
 /**
  * Serializable action used by {@link SearchBean} to generate results lazily.
@@ -42,8 +53,89 @@ public abstract class SearchAction implements ome.services.util.Executor.Work {
         }
     }
 
+    protected void ownerOrGroup(Class cls, QueryBuilder qb, String path) {
+        if (!IGlobal.class.isAssignableFrom(cls)) {
+            OwnerOrGroup oog = new OwnerOrGroup(values.ownedBy, path);
+            if (oog.needed()) {
+                oog.on(qb);
+            }
+        }
+    }
+
     protected void createdOrModified(Class cls, Criteria criteria) {
-        CreatedOrModified com = new CreatedOrModified(cls, criteria, values);
+        createdOrModified(cls, criteria, null, null);
+    }
+
+    protected void createdOrModified(Class cls, QueryBuilder qb, String path) {
+        createdOrModified(cls, null, qb, path);
+    }
+
+    private void createdOrModified(Class cls, Criteria criteria,
+            QueryBuilder qb, String path) {
+
+        if (!IGlobal.class.isAssignableFrom(cls)) {
+
+            if (criteria != null) {
+                criteria.createAlias("details.creationEvent", "create");
+            }
+
+            if (values.createdStart != null) {
+                if (criteria != null) {
+                    criteria.add(Restrictions.gt("create.time",
+                            values.createdStart));
+                }
+                if (qb != null) {
+                    String ctime = qb.unique_alias("ctimestart");
+                    qb.and(path + "details.creationEvent.time > :" + ctime);
+                    qb.param(ctime, values.createdStart);
+                }
+            }
+
+            if (values.createdStop != null) {
+                if (criteria != null) {
+                    criteria.add(Restrictions.lt("create.time",
+                            values.createdStop));
+                }
+                if (qb != null) {
+                    String ctime = qb.unique_alias("ctimestop");
+                    qb.and(path + "details.creationEvent.time < :" + ctime);
+                    qb.param(ctime, values.createdStop);
+                }
+            }
+
+            if (IMutable.class.isAssignableFrom(cls)) {
+
+                if (criteria != null) {
+                    criteria.createAlias("details.updateEvent", "update");
+                }
+
+                if (values.modifiedStart != null) {
+                    if (criteria != null) {
+                        criteria.add(Restrictions.gt("update.time",
+                                values.modifiedStart));
+                    }
+
+                    if (qb != null) {
+                        String mtime = qb.unique_alias("mtimestart");
+                        qb.and(path + "details.updateEvent.time > :" + mtime);
+                        qb.param(mtime, values.modifiedStart);
+                    }
+                }
+
+                if (values.modifiedStop != null) {
+                    if (criteria != null) {
+                        criteria.add(Restrictions.lt("update.time",
+                                values.modifiedStop));
+                    }
+
+                    if (qb != null) {
+                        String mtime = qb.unique_alias("mtimestart");
+                        qb.and(path + "details.updateEvent.time < :" + mtime);
+                        qb.param(mtime, values.modifiedStop);
+                    }
+                }
+            }
+        }
     }
 
     protected void annotatedBy(AnnotationCriteria ann) {
@@ -53,8 +145,76 @@ public abstract class SearchAction implements ome.services.util.Executor.Work {
         }
     }
 
+    protected void annotatedBy(QueryBuilder qb, String path) {
+        OwnerOrGroup aoog = new OwnerOrGroup(values.annotatedBy, path);
+        if (aoog.needed()) {
+            aoog.on(qb);
+        }
+    }
+
     protected void annotatedBetween(AnnotationCriteria ann) {
-        AnnotatedBetween abetween = new AnnotatedBetween(ann, values);
+        annotatedBetween(ann, null, null);
+    }
+
+    protected void annotatedBetween(QueryBuilder qb, String path) {
+        annotatedBetween(null, qb, path);
+    }
+
+    private void annotatedBetween(AnnotationCriteria ann, QueryBuilder qb,
+            String path) {
+        if (values.annotatedStart != null) {
+            if (ann != null) {
+                ann.getCreate().add(
+                        Restrictions
+                                .gt("anncreate.time", values.annotatedStart));
+            }
+
+            if (qb != null) {
+                String astart = qb.unique_alias("astart");
+                qb.and(path + "details.creationEvent.time > :" + astart);
+                qb.param(astart, values.annotatedStart);
+            }
+        }
+
+        if (values.annotatedStop != null) {
+            if (ann != null) {
+                ann.getCreate()
+                        .add(
+                                Restrictions.lt("anncreate.time",
+                                        values.annotatedStop));
+            }
+
+            if (qb != null) {
+                String astop = qb.unique_alias("astop");
+                qb.and(path + "details.creationEvent.time < :" + astop);
+                qb.param(astop, values.annotatedStop);
+            }
+        }
+    }
+
+    public static void notNullOrLikeOrEqual(QueryBuilder qb, String path,
+            Class type, Object value, boolean useLike, boolean caseSensitive) {
+        if (null == value) {
+            qb.and(path + " is null ");
+        } else {
+            String operator;
+            if (useLike && String.class.isAssignableFrom(type)) {
+                if (caseSensitive) {
+                    operator = "like";
+                } else {
+                    operator = "ilike";
+                }
+            } else {
+                operator = "=";
+            }
+            String alias = qb.unique_alias("main");
+            qb.and(path);
+            qb.append(operator);
+            qb.append(":");
+            qb.append(alias);
+            qb.appendSpace();
+            qb.param(alias, value);
+        }
     }
 
     public static Criterion notNullOrLikeOrEqual(String path, Class type,
@@ -87,4 +247,158 @@ public abstract class SearchAction implements ome.services.util.Executor.Work {
                     "Unsupported orderBy mode added to values.orderBy");
         }
     }
+}
+
+/**
+ * Function-like class to assert either first the {@link Experimenter owner} of
+ * an object, or lacking that, the {@link ExperimenterGroup group}.
+ */
+class OwnerOrGroup {
+
+    String path;
+
+    long id;
+
+    OwnerOrGroup(Details d) {
+        this(d, "");
+    }
+
+    OwnerOrGroup(Details d, String prefix) {
+        if (prefix == null) {
+            prefix = "";
+        }
+        if (d != null) {
+            if (d.getOwner() != null) {
+                Long _id = d.getOwner().getId();
+                if (_id == null) {
+                    throw new ApiUsageException("Id for owner cannot be null.");
+                }
+                id = _id.longValue();
+                path = prefix + "details.owner.id";
+            } else if (d.getGroup() != null) {
+                Long _id = d.getGroup().getId();
+                if (_id == null) {
+                    throw new ApiUsageException("Id for group cannot be null.");
+                }
+                id = _id.longValue();
+                path = prefix + "details.group.id";
+            }
+        }
+    }
+
+    boolean needed() {
+        return path != null;
+    }
+
+    private void check() {
+        if (path == null) {
+            throw new ApiUsageException("Please call \"needs()\" first.");
+        }
+    }
+
+    /**
+     * @param criteria
+     *            Should be not not null and should have a path of the form
+     *            "details.owner.id" an "details.group.id".
+     */
+    void on(Criteria criteria) {
+        check();
+        criteria.add(Restrictions.eq(path, id));
+    }
+
+    void on(QueryBuilder qb) {
+        check();
+        String unique = qb.unique_alias("owner");
+        qb.and(path);
+        qb.append(" = :");
+        qb.append(unique);
+        qb.appendSpace();
+        qb.param(unique, id);
+    }
+}
+
+/**
+ * Lazy loading class for {@link Criteria} instances related to annotations.
+ * Otherwise the null checks get absurd.
+ */
+class AnnotationCriteria {
+    final Criteria base;
+    Criteria annotationLinks;
+    Criteria annotationChild;
+    Criteria annCreateAlias;
+
+    AnnotationCriteria(Criteria base) {
+        this.base = base;
+    }
+
+    Criteria getLinks() {
+        if (annotationLinks == null) {
+            annotationLinks = base.createCriteria("annotationLinks");
+        }
+        return annotationLinks;
+    }
+
+    Criteria getChild() {
+        if (annotationChild == null) {
+            annotationChild = getLinks().createCriteria("child");
+        }
+        return annotationChild;
+    }
+
+    Criteria getCreate() {
+        if (annCreateAlias == null) {
+            annCreateAlias = getChild().createAlias("details.creationEvent",
+                    "anncreate");
+        }
+        return annCreateAlias;
+    }
+}
+
+// Copied from http://opensource.atlassian.com/projects/hibernate/browse/HHH-746
+class TypeEqualityExpression extends SimpleExpression {
+
+    private final Class classValue;
+    private final String classPropertyName;
+
+    public TypeEqualityExpression(String propertyName, Class value) {
+        super(propertyName, value, "=");
+        this.classPropertyName = propertyName;
+        this.classValue = value;
+    }
+
+    @Override
+    public TypedValue[] getTypedValues(Criteria criteria,
+            CriteriaQuery criteriaQuery) throws HibernateException {
+
+        return new TypedValue[] { fixDiscriminatorTypeValue(criteriaQuery
+                .getTypedValue(criteria, classPropertyName, classValue)) };
+
+    }
+
+    private TypedValue fixDiscriminatorTypeValue(TypedValue typedValue) {
+        Object value = typedValue.getValue();
+
+        // check to make sure we can reconstruct an equivalent TypedValue
+        if (!String.class.isInstance(value)
+                || !typedValue.equals(new TypedValue(typedValue.getType(),
+                        typedValue.getValue(), EntityMode.POJO))) {
+            return typedValue;
+        }
+
+        /** replace leading and trailing apostrophes* */
+        String svalue = value.toString();
+
+        if (svalue.charAt(0) == '\''
+                && svalue.charAt(svalue.length() - 1) == '\'') {
+            value = svalue.substring(0, svalue.length() - 1).substring(1);
+            /** ***************************************** */
+        }
+
+        if (!value.equals(typedValue.getValue())) {
+            return new TypedValue(typedValue.getType(), value, EntityMode.POJO);
+        } else {
+            return typedValue;
+        }
+    }
+
 }

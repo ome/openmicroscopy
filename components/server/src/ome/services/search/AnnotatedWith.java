@@ -22,10 +22,9 @@ import ome.model.core.OriginalFile;
 import ome.model.display.Thumbnail;
 import ome.model.internal.Details;
 import ome.system.ServiceFactory;
+import ome.tools.hibernate.QueryBuilder;
 
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
 import org.springframework.transaction.TransactionStatus;
 
 /**
@@ -47,15 +46,15 @@ public class AnnotatedWith extends SearchAction {
 
     private static final long serialVersionUID = 1L;
 
-    private final Annotation annotation;
+    private final Annotation[] annotation;
 
-    private final String path;
+    private final String[] path;
 
-    private final Class annCls;
+    private final Class[] annCls;
 
-    private final Class type;
+    private final Class[] type;
 
-    private final Object value;
+    private final Object[] value;
 
     private final boolean useNamespace;
 
@@ -63,7 +62,7 @@ public class AnnotatedWith extends SearchAction {
 
     private final Class cls;
 
-    public AnnotatedWith(SearchValues values, Annotation annotation,
+    public AnnotatedWith(SearchValues values, Annotation[] annotation,
             boolean useNamespace, boolean useLike) {
         super(values);
         this.annotation = annotation;
@@ -82,44 +81,54 @@ public class AnnotatedWith extends SearchAction {
             cls = values.onlyTypes.get(0);
         }
 
-        if (annotation instanceof TextAnnotation) {
-            annCls = TextAnnotation.class;
-            type = String.class;
-            path = "textValue";
-            value = ((TextAnnotation) annotation).getTextValue();
-        } else if (annotation instanceof BooleanAnnotation) {
-            annCls = BooleanAnnotation.class;
-            type = Boolean.class;
-            path = "boolValue";
-            value = ((BooleanAnnotation) annotation).getBoolValue();
-        } else if (annotation instanceof TimestampAnnotation) {
-            annCls = TimestampAnnotation.class;
-            type = Timestamp.class;
-            path = "timeValue";
-            value = ((TimestampAnnotation) annotation).getTimeValue();
-        } else if (annotation instanceof FileAnnotation) {
-            annCls = FileAnnotation.class;
-            type = OriginalFile.class;
-            path = "file";
-            value = ((FileAnnotation) annotation).getFile();
-        } else if (annotation instanceof ThumbnailAnnotation) {
-            annCls = ThumbnailAnnotation.class;
-            type = Thumbnail.class;
-            path = "thumbnail";
-            value = ((ThumbnailAnnotation) annotation).getThumbnail();
-        } else if (annotation instanceof DoubleAnnotation) {
-            annCls = DoubleAnnotation.class;
-            type = Double.class;
-            path = "doubleValue";
-            value = ((DoubleAnnotation) annotation).getDoubleValue();
-        } else if (annotation instanceof LongAnnotation) {
-            annCls = LongAnnotation.class;
-            type = Long.class;
-            path = "longValue";
-            value = ((LongAnnotation) annotation).getLongValue();
-        } else {
-            throw new ApiUsageException("Unsupported annotation type:"
-                    + annotation);
+        if (annotation == null || annotation.length == 0) {
+            throw new ApiUsageException("Must specify at least one annotation.");
+        }
+        this.path = new String[annotation.length];
+        this.annCls = new Class[annotation.length];
+        this.type = new Class[annotation.length];
+        this.value = new Object[annotation.length];
+
+        for (int i = 0; i < annotation.length; i++) {
+            if (annotation[i] instanceof TextAnnotation) {
+                annCls[i] = TextAnnotation.class;
+                type[i] = String.class;
+                path[i] = "textValue";
+                value[i] = ((TextAnnotation) annotation[i]).getTextValue();
+            } else if (annotation[i] instanceof BooleanAnnotation) {
+                annCls[i] = BooleanAnnotation.class;
+                type[i] = Boolean.class;
+                path[i] = "boolValue";
+                value[i] = ((BooleanAnnotation) annotation[i]).getBoolValue();
+            } else if (annotation[i] instanceof TimestampAnnotation) {
+                annCls[i] = TimestampAnnotation.class;
+                type[i] = Timestamp.class;
+                path[i] = "timeValue";
+                value[i] = ((TimestampAnnotation) annotation[i]).getTimeValue();
+            } else if (annotation[i] instanceof FileAnnotation) {
+                annCls[i] = FileAnnotation.class;
+                type[i] = OriginalFile.class;
+                path[i] = "file";
+                value[i] = ((FileAnnotation) annotation[i]).getFile();
+            } else if (annotation[i] instanceof ThumbnailAnnotation) {
+                annCls[i] = ThumbnailAnnotation.class;
+                type[i] = Thumbnail.class;
+                path[i] = "thumbnail";
+                value[i] = ((ThumbnailAnnotation) annotation[i]).getThumbnail();
+            } else if (annotation[i] instanceof DoubleAnnotation) {
+                annCls[i] = DoubleAnnotation.class;
+                type[i] = Double.class;
+                path[i] = "doubleValue";
+                value[i] = ((DoubleAnnotation) annotation[i]).getDoubleValue();
+            } else if (annotation[i] instanceof LongAnnotation) {
+                annCls[i] = LongAnnotation.class;
+                type[i] = Long.class;
+                path[i] = "longValue";
+                value[i] = ((LongAnnotation) annotation[i]).getLongValue();
+            } else {
+                throw new ApiUsageException("Unsupported annotation type:"
+                        + annotation);
+            }
         }
 
     }
@@ -127,36 +136,45 @@ public class AnnotatedWith extends SearchAction {
     public Object doWork(TransactionStatus status, Session session,
             ServiceFactory sf) {
 
-        Criteria criteria = session.createCriteria(cls);
-        AnnotationCriteria ann = new AnnotationCriteria(criteria);
+        String[] link = new String[annotation.length];
+        String[] ann = new String[annotation.length];
 
-        // Main criteria
-        if (useNamespace) {
-            ann.getChild().add(
-                    notNullOrLikeOrEqual("name", type, annotation.getName(),
-                            useLike, values.caseSensitive));
+        QueryBuilder qb = new QueryBuilder();
+        qb.select("this");
+        qb.from(cls.getName(), "this");
+        for (int i = 0; i < ann.length; i++) {
+            link[i] = qb.unique_alias("link");
+            ann[i] = link[i] + "_child";
+            qb.join("this.annotationLinks", link[i], false, false);
+            qb.join(link[i] + ".child", ann[i], false, false);
         }
 
-        ann.getChild().add(
-                notNullOrLikeOrEqual(path, type, value, useLike,
-                        values.caseSensitive));
+        qb.where();
 
-        ownerOrGroup(cls, criteria);
-        createdOrModified(cls, criteria);
-        annotatedBy(ann);
-        annotatedBetween(ann);
+        ownerOrGroup(cls, qb, "this.");
+        createdOrModified(cls, qb, "this.");
+
+        for (int j = 0; j < annotation.length; j++) {
+            // Main criteria
+            if (useNamespace) {
+                notNullOrLikeOrEqual(qb, ann + ".name", type[j], annotation[j]
+                        .getName(), useLike, values.caseSensitive);
+            }
+
+            notNullOrLikeOrEqual(qb, ann[j] + "." + path[j], type[j], value[j],
+                    useLike, values.caseSensitive);
+
+            annotatedBetween(qb, ann[j] + ".");
+            annotatedBy(qb, ann[j] + ".");
+        }
 
         // orderBy
         for (String orderBy : values.orderBy) {
             String orderByPath = orderByPath(orderBy);
             boolean ascending = orderByAscending(orderBy);
-            if (ascending) {
-                criteria.addOrder(Order.asc(orderByPath));
-            } else {
-                criteria.addOrder(Order.desc(orderByPath));
-            }
+            qb.order("this." + orderByPath, ascending);
         }
 
-        return criteria.list();
+        return qb.query(session).list();
     }
 }

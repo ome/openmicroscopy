@@ -42,7 +42,6 @@ import ome.services.search.HqlQuery;
 import ome.services.search.SearchAction;
 import ome.services.search.SearchValues;
 import ome.services.search.SomeMustNone;
-import ome.services.search.Tags;
 import ome.services.util.Executor;
 import ome.services.util.OmeroAroundInvoke;
 import ome.system.SelfConfigurableService;
@@ -150,10 +149,10 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     @Transactional
     @RolesAllowed("user")
-    public void byAnnotatedWith(Annotation example) {
+    public void byAnnotatedWith(Annotation... examples) {
         SearchAction byAnnotatedWith;
         synchronized (values) {
-            byAnnotatedWith = new AnnotatedWith(values, example, false, false);
+            byAnnotatedWith = new AnnotatedWith(values, examples, false, false);
         }
         actions.add(byAnnotatedWith);
     }
@@ -187,16 +186,6 @@ public class SearchBean extends AbstractStatefulBean implements Search {
             bySomeMustNone = new SomeMustNone(values, some, must, none);
         }
         actions.add(bySomeMustNone);
-    }
-
-    @Transactional
-    @RolesAllowed("user")
-    public void byTags(String[] tags) {
-        SearchAction byTags;
-        synchronized (values) {
-            byTags = new Tags(values, tags);
-        }
-        actions.add(byTags);
     }
 
     @Transactional

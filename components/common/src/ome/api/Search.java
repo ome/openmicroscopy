@@ -347,14 +347,6 @@ public interface Search extends ome.api.StatefulServiceInterface,
     // =========================================================================
 
     /**
-     * Finds all entities which are annotated with the given tags.
-     * 
-     * @param tags
-     *            Not null nor empty.
-     */
-    void byTags(String[] tags);
-
-    /**
      * Returns transient (without ID) {@link TagAnnotation} instances which
      * represent all the {@link TagAnnotation tags} in the given group. The
      * entities are transient and without ownership since multiple users can own
@@ -426,17 +418,11 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * <li>the main content of the annotation : String,
      * {@link OriginalFile#getId()}, etc.</li>
      * </ul>
-     * Note this method is a superset of {@link #byTags(String[])}, which can
-     * be replaced via: <code>
-     *   search.byAnnotatedWith(new TagAnnotation("string"));
-     * </code>
      * 
-     * Currently this method does not support multiple {@link Annotation}
-     * instances, due to a weakness in Hibernate's Criteria API.
-     * 
-     * @param example
+     * @param examples
+     *            Not empty.
      */
-    void byAnnotatedWith(Annotation example);
+    void byAnnotatedWith(Annotation... examples);
 
     /**
      * Returns entities with the given UUID strings

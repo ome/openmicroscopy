@@ -9,7 +9,9 @@ package ome.tools.hibernate;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import ome.conditions.ApiUsageException;
 
@@ -24,12 +26,18 @@ import org.hibernate.Session;
  * Note: It is the responsibility of each method here to end with a blank space,
  * meaning that each method may also begin without one.
  * 
+ * This class is NOT thread-safe.
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
 public class QueryBuilder {
 
+    private int count = 0;
+
     private final StringBuilder sb;
+
+    private final Set<String> random = new HashSet<String>();
 
     private final Map<String, Object> params = new HashMap<String, Object>();
 
@@ -53,6 +61,23 @@ public class QueryBuilder {
         err.append("It is required to call in the following order:\n");
         err.append("select, from, join*, where, [and,or]*, order*, group*");
         throw new ApiUsageException(err.toString());
+    }
+
+    /**
+     * Obtain a unique alias to be used in the SQL.
+     * 
+     * @param prefix
+     *            Not null
+     */
+    public String unique_alias(String prefix) {
+        StringBuilder sb = new StringBuilder(prefix.length() + 8);
+        sb.append(prefix.trim());
+        while (random.contains(sb.toString())) {
+            sb.append(count++);
+        }
+        String alias = sb.toString();
+        random.add(alias);
+        return alias;
     }
 
     /**
@@ -186,7 +211,12 @@ public class QueryBuilder {
         if (!select || !from || !join || !where || group) {
             throwUsage();
         }
-        sb.append("order by ");
+        if (!order) {
+            sb.append("order by ");
+            order = true;
+        } else {
+            sb.append(", ");
+        }
         sb.append(path);
         appendSpace();
         if (ascending) {
@@ -194,7 +224,6 @@ public class QueryBuilder {
         } else {
             sb.append("desc ");
         }
-        order = true;
         return this;
     }
 
@@ -219,7 +248,7 @@ public class QueryBuilder {
         return q;
     }
 
-    protected QueryBuilder appendSpace() {
+    public QueryBuilder appendSpace() {
         if (sb.charAt(sb.length() - 1) != ' ') {
             sb.append(' ');
         }

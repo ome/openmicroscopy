@@ -74,7 +74,7 @@ public class QueryBuilderMockTest extends MockObjectTestCase {
         qb.and("img.id in (:ids)");
         qb.paramList("ids", new HashSet());
         qb.order("img.id", true);
-
+        qb.order("this.details.creationEvent.time", false);
         mockQuery.expects(once()).method("setParameter").with(this.ANYTHING,
                 this.ANYTHING);
         mockQuery.expects(once()).method("setParameterList").with(
