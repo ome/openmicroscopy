@@ -124,7 +124,7 @@ import ome.model.*;
 )
 public #if($type.abstract)abstract#end class ${type.shortname}
 #if($type.superclass)extends $type.superclass #end
-implements java.io.Serializable, IObject#if(!$type.immutable), IMutable#end#if($type.isEnum), IEnum#end#if($type.isLink), ILink#end#if($type.annotated), IAnnotated#end
+implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type.immutable), IMutable#end#if($type.isEnum), IEnum#end#if($type.isLink), ILink#end#if($type.annotated), IAnnotated#end
 {
 
    /* These values are defined in dsl/resources/ome/dsl/object.vm:

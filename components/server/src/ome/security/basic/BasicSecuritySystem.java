@@ -30,6 +30,7 @@ import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.model.IEnum;
+import ome.model.IGlobal;
 import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.enums.EventType;
@@ -154,26 +155,6 @@ public class BasicSecuritySystem implements SecuritySystem {
         // TODO could check for open session.
         if (cd.getCreationEvent() != null && cd.getGroup() != null
                 && cd.getOwner() != null) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * implements {@link SecuritySystem#isGlobal()} classes without owners and
-     * events
-     */
-    public boolean isGlobal(Class<? extends IObject> klass) {
-        if (klass == null) {
-            return false;
-        }
-        if (Experimenter.class.isAssignableFrom(klass)) {
-            return true;
-        }
-        if (Event.class.isAssignableFrom(klass)) {
-            return true;
-        }
-        if (EventLog.class.isAssignableFrom(klass)) {
             return true;
         }
         return false;
@@ -557,20 +538,22 @@ public class BasicSecuritySystem implements SecuritySystem {
             altered |= managedExternalInfo(locked, privileged, iobj,
                     previousDetails, currentDetails, newDetails);
 
-            if (!isGlobal(iobj.getClass())) // implies that Permissions dosn't
-            // matter
+            // implies that Permissions dosn't matter
+            if (!IGlobal.class.isAssignableFrom(iobj.getClass())) 
             {
                 altered |= managedPermissions(locked, privileged, iobj,
                         previousDetails, currentDetails, newDetails);
             }
 
-            if (!isGlobal(iobj.getClass())) // implies that owner doesn't matter
+            // implies that owner doesn't matter
+            if (!IGlobal.class.isAssignableFrom(iobj.getClass()))
             {
                 altered |= managedOwner(locked, privileged, iobj,
                         previousDetails, currentDetails, newDetails);
             }
-
-            if (!isGlobal(iobj.getClass())) // implies that group doesn't matter
+         
+            // implies that group doesn't matter
+            if (!IGlobal.class.isAssignableFrom(iobj.getClass()))
             {
                 altered |= managedGroup(locked, privileged, iobj,
                         previousDetails, currentDetails, newDetails);
@@ -579,7 +562,8 @@ public class BasicSecuritySystem implements SecuritySystem {
             // the event check needs to be last, because we need to test
             // whether or not it is necessary to change the updateEvent
             // (i.e. last modification)
-            if (!isGlobal(iobj.getClass())) // implies that event doesn't matter
+            // implies that event doesn't matter
+            if (!IGlobal.class.isAssignableFrom(iobj.getClass()))
             {
                 altered |= managedEvent(locked, privileged, iobj,
                         previousDetails, currentDetails, newDetails);
