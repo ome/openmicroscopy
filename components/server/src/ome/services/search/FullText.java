@@ -8,7 +8,6 @@
 package ome.services.search;
 
 import ome.conditions.ApiUsageException;
-import ome.conditions.InternalException;
 import ome.model.IAnnotated;
 import ome.model.IGlobal;
 import ome.model.IMutable;
@@ -91,11 +90,86 @@ public class FullText extends SearchAction {
 
         this.session = Search.createFullTextSession(session);
         Criteria criteria = session.createCriteria(cls);
-        OwnerOrGroup oog = new OwnerOrGroup(values.ownedBy);
-        if (oog.needed()) {
-            oog.on(criteria);
+        AnnotationCriteria ann = new AnnotationCriteria(criteria);
+
+        ownerOrGroup(cls, criteria);
+        createdOrModified(cls, criteria);
+        annotatedBy(ann);
+        annotatedBetween(ann);
+
+        // annotatedWith
+        if (values.onlyAnnotatedWith != null) {
+            if (values.onlyAnnotatedWith.size() > 1) {
+                throw new ApiUsageException(
+                        "HHH-879: "
+                                + "At the moment Hibernate cannot fulfill this request.\n"
+                                + "Please use only a single onlyAnnotatedWith "
+                                + "parameter when performing full text searches.");
+            } else if (values.onlyAnnotatedWith.size() > 0) {
+                if (!IAnnotated.class.isAssignableFrom(cls)) {
+                    // A non-IAnnotated object cannot have any
+                    // Annotations, and so our results are null
+                    return null; // EARLY EXIT !
+                } else {
+                    for (Class annCls : values.onlyAnnotatedWith) {
+                        SimpleExpression ofType = new TypeEqualityExpression(
+                                "class", annCls);
+                        ann.getChild().add(ofType);
+                    }
+                }
+            } else {
+                criteria.add(Restrictions.isEmpty("annotationLinks"));
+            }
         }
 
+        // Main query
+        FullTextQuery ftQuery = this.session.createFullTextQuery(this.q);
+        ftQuery.setCriteriaQuery(criteria);
+
+        // orderBy
+        if (values.orderBy.size() > 0) {
+            SortField[] sorts = new SortField[values.orderBy.size()];
+            for (int i = 0; i < sorts.length; i++) {
+                String orderBy = values.orderBy.get(i);
+                String orderWithoutMode = orderByPath(orderBy);
+                boolean ascending = orderByAscending(orderBy);
+                if (ascending) {
+                    sorts[i] = new SortField(orderWithoutMode, false);
+                } else {
+                    sorts[i] = new SortField(orderWithoutMode, true);
+                }
+            }
+            ftQuery.setSort(new Sort(sorts));
+        }
+
+        query = ftQuery;
+        return query.list();
+    }
+
+}
+
+class AnnotatedBetween {
+
+    AnnotatedBetween(AnnotationCriteria ann, SearchValues values) {
+        if (values.annotatedStart != null) {
+            ann.getCreate().add(
+                    Restrictions.gt("anncreate.time", values.annotatedStart));
+        }
+
+        if (values.annotatedStop != null) {
+            ann.getCreate().add(
+                    Restrictions.lt("anncreate.time", values.annotatedStop));
+        }
+    }
+}
+
+/**
+ * Function-like class to assert between-statements on creation and modification
+ * timestamps
+ */
+class CreatedOrModified {
+
+    CreatedOrModified(Class cls, Criteria criteria, SearchValues values) {
         if (!IGlobal.class.isAssignableFrom(cls)) {
             criteria.createAlias("details.creationEvent", "create");
             if (values.createdStart != null) {
@@ -121,70 +195,6 @@ public class FullText extends SearchAction {
                 }
             }
         }
-
-        AnnotationCriteria ann = new AnnotationCriteria(criteria);
-        OwnerOrGroup aoog = new OwnerOrGroup(values.annotatedBy);
-        if (aoog.needed()) {
-            aoog.on(ann.getChild());
-        }
-
-        if (values.annotatedStart != null) {
-            ann.getCreate().add(
-                    Restrictions.gt("anncreate.time", values.annotatedStart));
-        }
-
-        if (values.annotatedStop != null) {
-            ann.getCreate().add(
-                    Restrictions.lt("anncreate.time", values.annotatedStop));
-        }
-        if (values.onlyAnnotatedWith != null) {
-            if (values.onlyAnnotatedWith.size() > 1) {
-                throw new ApiUsageException(
-                        "HHH-879: "
-                                + "At the moment Hibernate cannot fulfill this request.\n"
-                                + "Please use only a single onlyAnnotatedWith "
-                                + "parameter when performing full text searches.");
-            } else if (values.onlyAnnotatedWith.size() > 0) {
-                if (!IAnnotated.class.isAssignableFrom(cls)) {
-                    // A non-IAnnotated object cannot have any
-                    // Annotations, and so our results are null
-                    return null; // EARLY EXIT !
-                } else {
-                    for (Class annCls : values.onlyAnnotatedWith) {
-                        SimpleExpression ofType = new TypeEqualityExpression(
-                                "class", annCls);
-                        ann.getChild().add(ofType);
-                    }
-                }
-            } else {
-                criteria.add(Restrictions.isEmpty("annotationLinks"));
-            }
-        }
-
-        FullTextQuery ftQuery = this.session.createFullTextQuery(this.q);
-        ftQuery.setSort(new Sort("description", true));
-        ftQuery.setCriteriaQuery(criteria);
-
-        if (values.orderBy.size() > 0) {
-            SortField[] sorts = new SortField[values.orderBy.size()];
-            for (int i = 0; i < sorts.length; i++) {
-                String orderBy = values.orderBy.get(i);
-                String orderWithoutMode = orderBy
-                        .substring(1, orderBy.length());
-                if (orderBy.startsWith("A")) {
-                    sorts[i] = new SortField(orderWithoutMode, false);
-                } else if (orderBy.startsWith("D")) {
-                    sorts[i] = new SortField(orderWithoutMode, true);
-                } else {
-                    throw new InternalException(
-                            "Unsupported orderBy mode added to values.orderBy");
-                }
-            }
-            ftQuery.setSort(new Sort(sorts));
-        }
-
-        query = ftQuery;
-        return query.list();
     }
 }
 
@@ -193,26 +203,21 @@ public class FullText extends SearchAction {
  * an object, or lacking that, the {@link ExperimenterGroup group}.
  */
 class OwnerOrGroup {
-    final Details d;
 
     String path;
 
     long id;
 
     OwnerOrGroup(Details d) {
-        this.d = d;
+        this(d, "");
     }
 
-    boolean needed() {
-        return needed("");
-    }
-
-    /**
-     * @param prefix
-     */
-    boolean needed(String prefix) {
+    OwnerOrGroup(Details d, String prefix) {
+        if (prefix == null) {
+            prefix = "";
+        }
         if (d != null) {
-            if (/* ownable && */d.getOwner() != null) {
+            if (d.getOwner() != null) {
                 Long _id = d.getOwner().getId();
                 if (_id == null) {
                     throw new ApiUsageException("Id for owner cannot be null.");
@@ -228,10 +233,13 @@ class OwnerOrGroup {
                 path = prefix + "details.group.id";
             }
         }
+    }
+
+    boolean needed() {
         return path != null;
     }
 
-    void check() {
+    private void check() {
         if (path == null) {
             throw new ApiUsageException("Please call \"needs()\" first.");
         }

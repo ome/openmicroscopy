@@ -425,13 +425,14 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * <ul>
      * <li>the main content of the annotation : String,
      * {@link OriginalFile#getId()}, etc.</li>
-     * <li>details.owner</li>
-     * <li>details.group</li>
      * </ul>
      * Note this method is a superset of {@link #byTags(String[])}, which can
      * be replaced via: <code>
      *   search.byAnnotatedWith(new TagAnnotation("string"));
      * </code>
+     * 
+     * Currently this method does not support multiple {@link Annotation}
+     * instances, due to a weakness in Hibernate's Criteria API.
      * 
      * @param example
      */

@@ -18,8 +18,6 @@ import ome.services.SearchBean;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
 
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.queryParser.QueryParser;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.transaction.TransactionStatus;
@@ -31,9 +29,6 @@ import org.springframework.transaction.TransactionStatus;
  * @since 3.0-Beta3
  */
 public class GroupForTags extends SearchAction {
-
-    private final static QueryParser parser = new QueryParser(
-            "combined_fields", new StandardAnalyzer());
 
     private static final long serialVersionUID = 1L;
 
@@ -66,8 +61,8 @@ public class GroupForTags extends SearchAction {
             qb.param("groupStr", groupStr);
         }
 
-        OwnerOrGroup oog = new OwnerOrGroup(values.ownedBy);
-        if (oog.needed("taggroup.")) {
+        OwnerOrGroup oog = new OwnerOrGroup(values.ownedBy, "taggroup.");
+        if (oog.needed()) {
             qb.and("");
             oog.on(qb);
         }

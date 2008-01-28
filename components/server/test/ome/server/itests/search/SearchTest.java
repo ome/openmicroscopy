@@ -11,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -19,14 +20,18 @@ import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.BooleanAnnotation;
+import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.core.Image;
+import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.parameters.Filter;
 
+import org.springframework.aop.framework.Advised;
 import org.testng.annotations.Test;
 
 @Test(groups = { "query", "fulltext", "search" })
@@ -34,10 +39,18 @@ public class SearchTest extends AbstractTest {
 
     @Test
     public void testSerialization() throws Exception {
-        Object o = this.applicationContext.getBean("internal:ome.api.Search");
+        Search search = this.factory.createSearchService();
+        search.onlyType(Experimenter.class);
+        search.byFullText("root");
+        search.hasNext();
+        Search internal = search;
+        while (internal instanceof Advised) {
+            internal = (Search) ((Advised) search).getTargetSource()
+                    .getTarget();
+        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(o);
+        oos.writeObject(internal);
     }
 
     // by<Query>
@@ -304,15 +317,64 @@ public class SearchTest extends AbstractTest {
         assertAtLeastResults(search, 1);
     }
 
+    @Test
+    public void testAnnotatedWith() {
+
+        String uuid = uuid();
+        Image i = new Image(uuid);
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue(uuid);
+        i.linkAnnotation(tag);
+        i = iUpdate.saveAndReturnObject(i);
+        indexObject(i);
+        loginRoot();
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+        TagAnnotation example = new TagAnnotation();
+        example.setTextValue(uuid);
+        search.byAnnotatedWith(example);
+
+        assertResults(search, 1);
+
+        Iterator<OriginalFile> it = iQuery.findAll(OriginalFile.class,
+                new Filter().page(0, 2)).iterator();
+        OriginalFile file1 = it.next();
+        OriginalFile file2 = it.next();
+        FileAnnotation fa1 = new FileAnnotation();
+        fa1.setFile(file1);
+        i.linkAnnotation(fa1);
+        FileAnnotation fa2 = new FileAnnotation();
+        fa2.setFile(file2);
+        i.linkAnnotation(fa2);
+        i = iUpdate.saveAndReturnObject(i);
+        indexObject(i);
+        loginRoot();
+
+        // Properly uses the id
+        FileAnnotation ex2 = new FileAnnotation();
+        ex2.setFile(new OriginalFile(file2.getId(), false));
+        search.byAnnotatedWith(ex2);
+        assertResults(search, 1);
+
+        // Now check if an empty example return results
+        search.byAnnotatedWith(new FileAnnotation());
+        assertAtLeastResults(search, 1);
+
+        // Finding by superclass
+        TextAnnotation txtAnn = new TextAnnotation();
+        txtAnn.setTextValue(uuid);
+        search.byAnnotatedWith(txtAnn);
+        assertResults(search, 1);
+
+        fail("via namespace");
+
+    }
+
     // restrictions methods
     // ========================================================================
     // The tests in the following sections should include all the by* methods
     // each testing a specific restriction
-
-    @Test
-    public void testTypes() {
-        fail("nyi");
-    }
 
     @Test
     public void testOnlyOwnedByOwner() {
@@ -323,7 +385,13 @@ public class SearchTest extends AbstractTest {
 
         String name = uuid();
         Image i = new Image(name);
+        TagAnnotation ta = new TagAnnotation();
+        ta.setTextValue(name);
+        i.linkAnnotation(ta);
         i = iUpdate.saveAndReturnObject(i);
+        // Recreating instance as example
+        ta = new TagAnnotation();
+        ta.setTextValue(name);
         indexObject(i);
 
         loginRoot();
@@ -332,21 +400,34 @@ public class SearchTest extends AbstractTest {
         Details root = Details.create();
         root.setOwner(self);
 
-        // With no restriction it should be found.
         Search search = this.factory.createSearchService();
         search.onlyType(Image.class);
+
+        // With no restriction it should be found.
+        // full text
         search.byFullText(name);
         assertEquals(1, search.results().size());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 1);
 
         // Restrict only to root, and then shouldn't be found
         search.onlyOwnedBy(root);
+        // full text
         search.byFullText(name);
         assertFalse(search.hasNext());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 0);
 
         // Now restrict to the user, and again one
         search.onlyOwnedBy(user);
+        // full text
         search.byFullText(name);
         assertEquals(1, search.results().size());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 1);
     }
 
     @Test
@@ -360,7 +441,13 @@ public class SearchTest extends AbstractTest {
 
         String name = uuid();
         Image i = new Image(name);
+        TagAnnotation ta = new TagAnnotation();
+        ta.setTextValue(name);
+        i.linkAnnotation(ta);
         i = iUpdate.saveAndReturnObject(i);
+        // Recreating instance as example
+        ta = new TagAnnotation();
+        ta.setTextValue(name);
         indexObject(i);
 
         loginRoot();
@@ -369,21 +456,34 @@ public class SearchTest extends AbstractTest {
         Details root = Details.create();
         root.setGroup(self);
 
-        // With no restriction it should be found.
         Search search = this.factory.createSearchService();
         search.onlyType(Image.class);
+
+        // With no restriction it should be found.
+        // full text
         search.byFullText(name);
         assertEquals(1, search.results().size());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 1);
 
         // Restrict only to root, and then shouldn't be found
         search.onlyOwnedBy(root);
+        // full text
         search.byFullText(name);
         assertFalse(search.hasNext());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 0);
 
         // Now restrict to the user, and again one
         search.onlyOwnedBy(user);
+        // full text
         search.byFullText(name);
         assertEquals(1, search.results().size());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 1);
     }
 
     static Timestamp oneHourAgo, inOneHour, now;
@@ -403,42 +503,70 @@ public class SearchTest extends AbstractTest {
         String name = uuid();
         Image i = new Image();
         i.setName(name);
+        TagAnnotation ta = new TagAnnotation();
+        ta.setTextValue(name);
+        i.linkAnnotation(ta);
         i = iUpdate.saveAndReturnObject(i);
-
+        ta = new TagAnnotation();
+        ta.setTextValue(name);
         indexObject(i);
         loginRoot();
 
         Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
 
         // Find the Image
-        search.onlyType(Image.class);
+        // full text
         search.byFullText(name);
         assertEquals(1, search.results().size());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 1);
 
         // Now restrict the search to past
         search.onlyCreatedBetween(null, oneHourAgo);
+        // full text
         search.byFullText(name);
         assertFalse(search.hasNext());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 0);
 
         // Future
         search.onlyCreatedBetween(inOneHour, null);
+        // full text
         search.byFullText(name);
         assertFalse(search.hasNext());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 0);
 
         // 2 hour period around now
         search.onlyCreatedBetween(oneHourAgo, inOneHour);
+        // full text
         search.byFullText(name);
         assertEquals(1, search.results().size());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 1);
 
         // Starting at now old 'now'
         search.onlyCreatedBetween(null, now);
+        // full text
         search.byFullText(name);
         assertFalse(search.hasNext());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 0);
 
         // Open them up again and should be found
         search.onlyCreatedBetween(null, null);
+        // full text
         search.byFullText(name);
         assertEquals(1, search.results().size());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 1);
 
     }
 
@@ -448,42 +576,70 @@ public class SearchTest extends AbstractTest {
         String name = uuid();
         Image i = new Image();
         i.setName(name);
+        TagAnnotation ta = new TagAnnotation();
+        ta.setTextValue(name);
+        i.linkAnnotation(ta);
         i = iUpdate.saveAndReturnObject(i);
-
+        ta = new TagAnnotation();
+        ta.setTextValue(name);
         indexObject(i);
         loginRoot();
 
         Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
 
         // Find the Image
-        search.onlyType(Image.class);
+        // full text
         search.byFullText(name);
         assertEquals(1, search.results().size());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 1);
 
         // Now restrict the search to past
         search.onlyModifiedBetween(null, oneHourAgo);
+        // full text
         search.byFullText(name);
         assertFalse(search.hasNext());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 0);
 
         // Future
         search.onlyModifiedBetween(inOneHour, null);
+        // full text
         search.byFullText(name);
         assertFalse(search.hasNext());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 0);
 
         // 2 hour period around now
         search.onlyModifiedBetween(oneHourAgo, inOneHour);
+        // full text
         search.byFullText(name);
         assertEquals(1, search.results().size());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 1);
 
         // Starting at now old 'now'
         search.onlyModifiedBetween(null, now);
+        // full text
         search.byFullText(name);
         assertFalse(search.hasNext());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 0);
 
         // Open them up again and should be found
         search.onlyModifiedBetween(null, null);
+        // full text
         search.byFullText(name);
         assertEquals(1, search.results().size());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 1);
 
     }
 
@@ -494,56 +650,84 @@ public class SearchTest extends AbstractTest {
         Image i = new Image();
         i.setName(name);
         TagAnnotation ta = new TagAnnotation();
-        ta.setTextValue("");
+        ta.setTextValue(name);
         i.linkAnnotation(ta);
-
         i = iUpdate.saveAndReturnObject(i);
-
+        ta = new TagAnnotation();
+        ta.setTextValue(name);
         indexObject(i);
         loginRoot();
 
         Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
 
         // Find the Image
-        search.onlyType(Image.class);
+        // full text
         search.byFullText(name);
         assertEquals(1, search.results().size());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 1);
 
         // Now restrict the search to past
         search.onlyAnnotatedBetween(null, oneHourAgo);
+        // full text
         search.byFullText(name);
         assertFalse(search.hasNext());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 0);
 
         // Future
         search.onlyAnnotatedBetween(inOneHour, null);
+        // full text
         search.byFullText(name);
         assertFalse(search.hasNext());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 0);
 
         // 2 hour period around now
         search.onlyAnnotatedBetween(oneHourAgo, inOneHour);
+        // full text
         search.byFullText(name);
         assertEquals(1, search.results().size());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 1);
 
         // Starting at now old 'now'
         search.onlyAnnotatedBetween(null, now);
+        // full text
         search.byFullText(name);
         assertFalse(search.hasNext());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 0);
 
         // Open them up again and should be found
         search.onlyAnnotatedBetween(null, null);
+        // full text
         search.byFullText(name);
         assertEquals(1, search.results().size());
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 1);
+
     }
 
     @Test
     public void testOnlyAnnotatedBy() {
         String name = uuid();
+        String tag = uuid();
         Image i = new Image();
         i.setName(name);
         TagAnnotation t = new TagAnnotation();
-        t.setTextValue(uuid());
+        t.setTextValue(tag);
         i.linkAnnotation(t);
         i = iUpdate.saveAndReturnObject(i);
+        t = new TagAnnotation();
+        t.setTextValue(tag);
         indexObject(i);
         loginRoot();
 
@@ -551,20 +735,30 @@ public class SearchTest extends AbstractTest {
         search.onlyType(Image.class);
 
         // Find the annotation
+        // full text
         search.byFullText(name);
         assertEquals(1, search.results().size());
+        // annotated with
+        search.byAnnotatedWith(t);
+        assertResults(search, 1);
 
         // But if we restrict it to another user, there should be none
         Experimenter e = loginNewUser();
         Details d = Details.create();
         d.setOwner(e);
         search.onlyAnnotatedBy(d);
+        // full text
         search.byFullText(name);
         assertFalse(search.hasNext());
+        // annotated with
+        search.byAnnotatedWith(t);
+        assertResults(search, 0);
     }
 
     @Test
     public void testOnlyAnnotatedWith() {
+
+        // ignored by byAnnotatedWith
 
         String name = uuid();
         Image i = new Image();
@@ -814,12 +1008,12 @@ public class SearchTest extends AbstractTest {
     @Test
     public void testLookingForExperimenterWithOwner() {
         Search search = this.factory.createSearchService();
+        search.onlyType(Experimenter.class);
         Details d = Details.create();
         d.setOwner(new Experimenter(0L, false));
         search.onlyOwnedBy(d);
         search.byFullText("root");
         search.next();
-        fail("This should have (currently) failed due to a bad association path.");
     }
 
     // Helpers

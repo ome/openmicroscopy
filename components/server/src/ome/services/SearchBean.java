@@ -153,7 +153,7 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     public void byAnnotatedWith(Annotation example) {
         SearchAction byAnnotatedWith;
         synchronized (values) {
-            byAnnotatedWith = new AnnotatedWith(values, example);
+            byAnnotatedWith = new AnnotatedWith(values, example, false, false);
         }
         actions.add(byAnnotatedWith);
     }
