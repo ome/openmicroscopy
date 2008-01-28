@@ -219,6 +219,16 @@ public interface Search extends ome.api.StatefulServiceInterface,
     void onlyOwnedBy(Details d);
 
     /**
+     * Uses the {@link Details#getOwner()} and {@link Details#getGroup()}
+     * information to restrict the entities which will be returned. If both are
+     * non-null, the two restrictions are joined by an AND.
+     * 
+     * @param d
+     *            Can be null, in which the previous restriction is removed.
+     */
+    void notOwnedBy(Details d);
+
+    /**
      * Restricts the time between which an entity may have been created.
      * 
      * @param start
@@ -262,6 +272,18 @@ public interface Search extends ome.api.StatefulServiceInterface,
      *            removed.
      */
     void onlyAnnotatedBy(Details d);
+
+    /**
+     * Restricts entities by who has not annotated them with an
+     * {@link Annotation} matching the other filters. As
+     * {@link #notOwnedBy(Details)}, the {@link Details#getOwner()} and
+     * {@link Details#getGroup()} information is combined with an AND condition.
+     * 
+     * @param d
+     *            Can be null, in which case any previous restriction is
+     *            removed.
+     */
+    void notAnnotatedBy(Details d);
 
     /**
      * Restricts entities to having an {@link Annotation} of all the given

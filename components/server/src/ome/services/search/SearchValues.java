@@ -48,7 +48,9 @@ public class SearchValues implements Serializable {
     public List<Class> onlyTypes = null;
     public List<Class> onlyAnnotatedWith = null;
     public Details ownedBy = null;
+    public Details notOwnedBy = null;
     public Details annotatedBy = null;
+    public Details notAnnotatedBy = null;
 
     public void copy(SearchValues values) {
         this.caseSensitive = values.caseSensitive;
@@ -70,6 +72,8 @@ public class SearchValues implements Serializable {
         this.onlyAnnotatedWith = copyList(values.onlyAnnotatedWith);
         this.ownedBy = copyDetails(values.ownedBy);
         this.annotatedBy = copyDetails(values.annotatedBy);
+        this.notOwnedBy = copyDetails(values.notOwnedBy);
+        this.notAnnotatedBy = copyDetails(values.notAnnotatedBy);
     }
 
     /**

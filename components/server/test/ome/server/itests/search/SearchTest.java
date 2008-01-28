@@ -449,6 +449,7 @@ public class SearchTest extends AbstractTest {
         assertResults(search, 1);
 
         // Restrict only to root, and then shouldn't be found
+        search.notOwnedBy(null);
         search.onlyOwnedBy(root);
         // full text
         search.byFullText(name);
@@ -457,7 +458,18 @@ public class SearchTest extends AbstractTest {
         search.byAnnotatedWith(ta);
         assertResults(search, 0);
 
+        // Restrict to not root, and then should be found again.
+        search.onlyOwnedBy(null);
+        search.notOwnedBy(root);
+        // full text
+        search.byFullText(name);
+        assertResults(search, 1);
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 1);
+
         // Now restrict to the user, and again one
+        search.notOwnedBy(null);
         search.onlyOwnedBy(user);
         // full text
         search.byFullText(name);
@@ -465,6 +477,16 @@ public class SearchTest extends AbstractTest {
         // annotated with
         search.byAnnotatedWith(ta);
         assertResults(search, 1);
+
+        // But not-user should return nothing
+        search.notOwnedBy(user);
+        search.onlyOwnedBy(null);
+        // full text
+        search.byFullText(name);
+        assertResults(search, 0);
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 0);
     }
 
     @Test
@@ -506,6 +528,7 @@ public class SearchTest extends AbstractTest {
 
         // Restrict only to root, and then shouldn't be found
         search.onlyOwnedBy(root);
+        search.notOwnedBy(null);
         // full text
         search.byFullText(name);
         assertFalse(search.hasNext());
@@ -513,14 +536,35 @@ public class SearchTest extends AbstractTest {
         search.byAnnotatedWith(ta);
         assertResults(search, 0);
 
+        // Restrict to not root, and then should be found again.
+        search.onlyOwnedBy(null);
+        search.notOwnedBy(root);
+        // full text
+        search.byFullText(name);
+        assertResults(search, 1);
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 1);
+
         // Now restrict to the user, and again one
         search.onlyOwnedBy(user);
+        search.notOwnedBy(null);
         // full text
         search.byFullText(name);
         assertEquals(1, search.results().size());
         // annotated with
         search.byAnnotatedWith(ta);
         assertResults(search, 1);
+
+        // But not-user should return nothing
+        search.notOwnedBy(user);
+        search.onlyOwnedBy(null);
+        // full text
+        search.byFullText(name);
+        assertResults(search, 0);
+        // annotated with
+        search.byAnnotatedWith(ta);
+        assertResults(search, 0);
     }
 
     static Timestamp oneHourAgo, inOneHour, now;
@@ -784,12 +828,23 @@ public class SearchTest extends AbstractTest {
         Details d = Details.create();
         d.setOwner(e);
         search.onlyAnnotatedBy(d);
+        search.notAnnotatedBy(null);
         // full text
         search.byFullText(name);
         assertFalse(search.hasNext());
         // annotated with
         search.byAnnotatedWith(t);
         assertResults(search, 0);
+
+        // Reversing the ownership should give results
+        search.onlyAnnotatedBy(null);
+        search.notAnnotatedBy(d);
+        // full text
+        search.byFullText(name);
+        assertResults(search, 1);
+        // annotated with
+        search.byAnnotatedWith(t);
+        assertResults(search, 1);
     }
 
     @Test

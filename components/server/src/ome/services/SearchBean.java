@@ -421,6 +421,14 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     @Transactional
     @RolesAllowed("user")
+    public void notAnnotatedBy(Details d) {
+        synchronized (values) {
+            values.notAnnotatedBy = SearchValues.copyDetails(d);
+        }
+    }
+
+    @Transactional
+    @RolesAllowed("user")
     public void onlyAnnotatedWith(Class... classes) {
         synchronized (values) {
             if (classes == null) {
@@ -452,6 +460,14 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     public void onlyOwnedBy(Details d) {
         synchronized (values) {
             values.ownedBy = SearchValues.copyDetails(d);
+        }
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public void notOwnedBy(Details d) {
+        synchronized (values) {
+            values.notOwnedBy = SearchValues.copyDetails(d);
         }
     }
 

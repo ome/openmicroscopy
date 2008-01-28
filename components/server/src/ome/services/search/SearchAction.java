@@ -45,20 +45,35 @@ public abstract class SearchAction implements ome.services.util.Executor.Work {
     }
 
     protected void ownerOrGroup(Class cls, Criteria criteria) {
-        if (!IGlobal.class.isAssignableFrom(cls)) {
-            OwnerOrGroup oog = new OwnerOrGroup(values.ownedBy, "");
-            if (oog.needed()) {
-                oog.on(criteria);
-            }
-        }
+        ownerOrGroup(cls, criteria, null, null);
     }
 
     protected void ownerOrGroup(Class cls, QueryBuilder qb, String path) {
+        ownerOrGroup(cls, null, qb, path);
+    }
+
+    private void ownerOrGroup(Class cls, Criteria criteria, QueryBuilder qb,
+            String path) {
         if (!IGlobal.class.isAssignableFrom(cls)) {
             OwnerOrGroup oog = new OwnerOrGroup(values.ownedBy, path);
             if (oog.needed()) {
-                oog.on(qb);
+                if (criteria != null) {
+                    oog.on(criteria);
+                }
+                if (qb != null) {
+                    oog.on(qb);
+                }
             }
+            OwnerOrGroup noog = new OwnerOrGroup(values.notOwnedBy, path);
+            if (noog.needed()) {
+                if (criteria != null) {
+                    noog.on(criteria, false);
+                }
+                if (qb != null) {
+                    noog.on(qb, false);
+                }
+            }
+
         }
     }
 
@@ -139,16 +154,32 @@ public abstract class SearchAction implements ome.services.util.Executor.Work {
     }
 
     protected void annotatedBy(AnnotationCriteria ann) {
-        OwnerOrGroup aoog = new OwnerOrGroup(values.annotatedBy);
-        if (aoog.needed()) {
-            aoog.on(ann.getChild());
-        }
+        annotatedBy(ann, null, null);
     }
 
     protected void annotatedBy(QueryBuilder qb, String path) {
+        annotatedBy(null, qb, path);
+    }
+
+    private void annotatedBy(AnnotationCriteria ann, QueryBuilder qb,
+            String path) {
         OwnerOrGroup aoog = new OwnerOrGroup(values.annotatedBy, path);
         if (aoog.needed()) {
-            aoog.on(qb);
+            if (ann != null) {
+                aoog.on(ann.getChild());
+            }
+            if (qb != null) {
+                aoog.on(qb);
+            }
+        }
+        OwnerOrGroup naoog = new OwnerOrGroup(values.notAnnotatedBy, path);
+        if (naoog.needed()) {
+            if (ann != null) {
+                naoog.on(ann.getChild(), false);
+            }
+            if (qb != null) {
+                naoog.on(qb, false);
+            }
         }
     }
 
@@ -302,15 +333,30 @@ class OwnerOrGroup {
      *            "details.owner.id" an "details.group.id".
      */
     void on(Criteria criteria) {
+        on(criteria, true);
+    }
+
+    void on(Criteria criteria, boolean equals) {
         check();
-        criteria.add(Restrictions.eq(path, id));
+        if (equals) {
+            criteria.add(Restrictions.eq(path, id));
+        } else {
+            criteria.add(Restrictions.ne(path, id));
+        }
     }
 
     void on(QueryBuilder qb) {
+        on(qb, true);
+    }
+
+    void on(QueryBuilder qb, boolean equals) {
         check();
+        String op = equals ? "=" : "!=";
         String unique = qb.unique_alias("owner");
         qb.and(path);
-        qb.append(" = :");
+        qb.append(" ");
+        qb.append(op);
+        qb.append(" :");
         qb.append(unique);
         qb.appendSpace();
         qb.param(unique, id);
