@@ -20,6 +20,7 @@ import ome.model.annotations.Annotation;
 import ome.model.annotations.BooleanAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.TagAnnotation;
+import ome.model.annotations.TextAnnotation;
 import ome.model.core.Image;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
@@ -648,6 +649,32 @@ public class SearchTest extends AbstractTest {
 
     }
 
+    // bugs
+    // =========================================================================
+
+    @Test
+    public void testTextAnnotationDoesntTryToLoadUpdateEvent() {
+        String uuid = uuid();
+        TextAnnotation ta = new TextAnnotation();
+        ta.setTextValue(uuid);
+        ta = iUpdate.saveAndReturnObject(ta);
+        indexObject(ta);
+        loginRoot();
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(TextAnnotation.class);
+        search.byFullText(uuid);
+        assertResults(search, 1);
+    }
+
+    @Test
+    public void testExperimenterDoesntTryToLoadOwner() {
+        Search search = this.factory.createSearchService();
+        search.onlyType(Experimenter.class);
+        search.byFullText("root");
+        assertAtLeastResults(search, 1);
+    }
+
     // misc
     // =========================================================================
 
@@ -678,6 +705,17 @@ public class SearchTest extends AbstractTest {
         search.byFullText(uuid1);
         search.byFullText(uuid2);
         assertResults(search, 2);
+    }
+
+    @Test
+    public void testLookingForExperimenterWithOwner() {
+        Search search = this.factory.createSearchService();
+        Details d = Details.create();
+        d.setOwner(new Experimenter(0L, false));
+        search.onlyOwnedBy(d);
+        search.byFullText("root");
+        search.next();
+        fail("This should have (currently) failed due to a bad association path.");
     }
 
     // Helpers

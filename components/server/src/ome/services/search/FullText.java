@@ -9,6 +9,8 @@ package ome.services.search;
 
 import ome.conditions.ApiUsageException;
 import ome.model.IAnnotated;
+import ome.model.IGlobal;
+import ome.model.IMutable;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -89,23 +91,30 @@ public class FullText extends SearchAction {
             oog.on(criteria);
         }
 
-        criteria.createAlias("details.creationEvent", "create");
-        criteria.createAlias("details.updateEvent", "update");
+        if (!IGlobal.class.isAssignableFrom(cls)) {
+            criteria.createAlias("details.creationEvent", "create");
+            if (values.createdStart != null) {
+                criteria.add(Restrictions
+                        .gt("create.time", values.createdStart));
+            }
 
-        if (values.createdStart != null) {
-            criteria.add(Restrictions.gt("create.time", values.createdStart));
-        }
+            if (values.createdStop != null) {
+                criteria
+                        .add(Restrictions.lt("create.time", values.createdStop));
+            }
 
-        if (values.createdStop != null) {
-            criteria.add(Restrictions.lt("create.time", values.createdStop));
-        }
+            if (IMutable.class.isAssignableFrom(cls)) {
+                criteria.createAlias("details.updateEvent", "update");
+                if (values.modifiedStart != null) {
+                    criteria.add(Restrictions.gt("update.time",
+                            values.modifiedStart));
+                }
 
-        if (values.modifiedStart != null) {
-            criteria.add(Restrictions.gt("update.time", values.modifiedStart));
-        }
-
-        if (values.modifiedStop != null) {
-            criteria.add(Restrictions.lt("update.time", values.modifiedStop));
+                if (values.modifiedStop != null) {
+                    criteria.add(Restrictions.lt("update.time",
+                            values.modifiedStop));
+                }
+            }
         }
 
         AnnotationCriteria ann = new AnnotationCriteria(criteria);
