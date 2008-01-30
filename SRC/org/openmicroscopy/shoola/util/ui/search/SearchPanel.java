@@ -55,12 +55,10 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
 //Third-party libraries
-import com.sun.corba.se.pept.transport.OutboundConnectionCache;
 import com.toedter.calendar.JDateChooser;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
-import org.openmicroscopy.shoola.util.ui.OutlookBar;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
