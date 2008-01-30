@@ -8,6 +8,8 @@
 package ome.services.search;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import ome.conditions.ApiUsageException;
 import ome.model.annotations.Annotation;
@@ -24,6 +26,8 @@ import ome.model.internal.Details;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.TransactionStatus;
 
@@ -44,6 +48,8 @@ import org.springframework.transaction.TransactionStatus;
  */
 public class AnnotatedWith extends SearchAction {
 
+    private static final Log log = LogFactory.getLog(AnnotatedWith.class);
+
     private static final long serialVersionUID = 1L;
 
     private final Annotation[] annotation;
@@ -55,6 +61,14 @@ public class AnnotatedWith extends SearchAction {
     private final Class[] type;
 
     private final Object[] value;
+
+    private final boolean[] fetch;
+
+    /**
+     * copy of fetchAnnotations list, so that items which are already fetched
+     * via {@link #fetch} are not fetched again.
+     */
+    private final List<Class> fetchAnnotationsCopy = new ArrayList<Class>();
 
     private final boolean useNamespace;
 
@@ -88,7 +102,8 @@ public class AnnotatedWith extends SearchAction {
         this.annCls = new Class[annotation.length];
         this.type = new Class[annotation.length];
         this.value = new Object[annotation.length];
-
+        this.fetch = new boolean[annotation.length];
+        this.fetchAnnotationsCopy.addAll(values.fetchAnnotations);
         for (int i = 0; i < annotation.length; i++) {
             if (annotation[i] instanceof TextAnnotation) {
                 annCls[i] = TextAnnotation.class;
@@ -129,6 +144,13 @@ public class AnnotatedWith extends SearchAction {
                 throw new ApiUsageException("Unsupported annotation type:"
                         + annotation);
             }
+            // fetch annotations
+            for (Class ac : values.fetchAnnotations) {
+                if (annCls[i].isAssignableFrom(ac)) {
+                    fetch[i] = true;
+                    fetchAnnotationsCopy.remove(ac);
+                }
+            }
         }
 
     }
@@ -145,12 +167,23 @@ public class AnnotatedWith extends SearchAction {
         for (int i = 0; i < ann.length; i++) {
             link[i] = qb.unique_alias("link");
             ann[i] = link[i] + "_child";
-            qb.join("this.annotationLinks", link[i], false, false);
-            qb.join(link[i] + ".child", ann[i], false, false);
+            qb.join("this.annotationLinks", link[i], false, fetch[i]);
+            qb.join(link[i] + ".child", ann[i], false, fetch[i]);
         }
 
+        // fetch annotations
+        for (int i = 0; i < fetchAnnotationsCopy.size(); i++) {
+            qb.join("this.annotationLinks", "fetchannlink" + i, false, true);
+            qb.join("fetchannlink" + i + ".child", "fetchannchild" + i, false,
+                    true);
+        }
         qb.where();
+        for (int i = 0; i < fetchAnnotationsCopy.size(); i++) {
+            qb.and("fetchannchild" + i + ".class = "
+                    + fetchAnnotationsCopy.get(i).getSimpleName());
+        }
 
+        ids(qb, "this.");
         ownerOrGroup(cls, qb, "this.");
         createdOrModified(cls, qb, "this.");
 
@@ -175,6 +208,7 @@ public class AnnotatedWith extends SearchAction {
             qb.order("this." + orderByPath, ascending);
         }
 
+        log.debug(qb.toString());
         return qb.query(session).list();
     }
 }

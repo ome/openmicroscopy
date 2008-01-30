@@ -80,8 +80,10 @@ public class FullText extends SearchAction {
 
         this.session = Search.createFullTextSession(session);
         Criteria criteria = session.createCriteria(cls);
-        AnnotationCriteria ann = new AnnotationCriteria(criteria);
+        AnnotationCriteria ann = new AnnotationCriteria(criteria,
+                values.fetchAnnotations);
 
+        ids(criteria);
         ownerOrGroup(cls, criteria);
         createdOrModified(cls, criteria);
         annotatedBy(ann);
@@ -124,9 +126,11 @@ public class FullText extends SearchAction {
                 String orderWithoutMode = orderByPath(orderBy);
                 boolean ascending = orderByAscending(orderBy);
                 if (ascending) {
-                    sorts[i] = new SortField(orderWithoutMode, false);
+                    sorts[i] = new SortField(orderWithoutMode,
+                            SortField.STRING, false);
                 } else {
-                    sorts[i] = new SortField(orderWithoutMode, true);
+                    sorts[i] = new SortField(orderWithoutMode,
+                            SortField.STRING, true);
                 }
             }
             ftQuery.setSort(new Sort(sorts));

@@ -36,6 +36,7 @@ public class SearchValues implements Serializable {
     public boolean returnUnloaded = Search.DEFAULT_RETURN_UNLOADED;
     public boolean useProjections = Search.DEFAULT_USE_PROJECTIONS;
     public boolean idOnly = false;
+    public List<Class> fetchAnnotations = new ArrayList<Class>();
     public List<String> fetches = new ArrayList<String>();
     public List<String> orderBy = new ArrayList<String>();
     // Nulls mean all
@@ -45,6 +46,7 @@ public class SearchValues implements Serializable {
     public Timestamp modifiedStop = null;
     public Timestamp annotatedStart = null;
     public Timestamp annotatedStop = null;
+    public List<Long> onlyIds = null;
     public List<Class> onlyTypes = null;
     public List<Class> onlyAnnotatedWith = null;
     public Details ownedBy = null;
@@ -59,6 +61,7 @@ public class SearchValues implements Serializable {
         this.returnUnloaded = values.returnUnloaded;
         this.useProjections = values.useProjections;
         this.idOnly = values.idOnly;
+        this.fetchAnnotations = new ArrayList<Class>(values.fetchAnnotations);
         this.fetches = new ArrayList<String>(values.fetches);
         this.orderBy = new ArrayList<String>(values.orderBy);
         // Nulls mean all
@@ -68,6 +71,7 @@ public class SearchValues implements Serializable {
         this.modifiedStop = copyTimestamp(values.modifiedStop);
         this.annotatedStart = copyTimestamp(values.annotatedStart);
         this.annotatedStop = copyTimestamp(values.annotatedStop);
+        this.onlyIds = copyList(values.onlyIds);
         this.onlyTypes = copyList(values.onlyTypes);
         this.onlyAnnotatedWith = copyList(values.onlyAnnotatedWith);
         this.ownedBy = copyDetails(values.ownedBy);

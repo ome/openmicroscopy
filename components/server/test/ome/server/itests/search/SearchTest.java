@@ -19,8 +19,10 @@ import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.BooleanAnnotation;
+import ome.model.annotations.DoubleAnnotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
+import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.core.Image;
@@ -28,6 +30,7 @@ import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.parameters.Parameters;
 import ome.testing.ObjectFactory;
 
 import org.springframework.aop.framework.Advised;
@@ -412,6 +415,71 @@ public class SearchTest extends AbstractTest {
     // ========================================================================
     // The tests in the following sections should include all the by* methods
     // each testing a specific restriction
+
+    @Test
+    public void testOnlyIds() {
+        String uuid = uuid();
+        Image i1 = new Image(uuid);
+        Image i2 = new Image(uuid);
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue(uuid);
+        i1.linkAnnotation(tag);
+        i2.linkAnnotation(tag);
+        i1 = iUpdate.saveAndReturnObject(i1);
+        i2 = iUpdate.saveAndReturnObject(i2);
+        tag = new TagAnnotation();
+        tag.setTextValue(uuid);
+        indexObject(i1);
+        indexObject(i2);
+        loginRoot();
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+
+        // Regular search
+        // full text
+        search.byFullText(uuid);
+        assertResults(search, 2);
+        // annotated with
+        search.byAnnotatedWith(tag);
+        assertResults(search, 2);
+
+        // Restrict to one id
+        search.onlyIds(i1.getId());
+        // full text
+        search.byFullText(uuid);
+        assertResults(search, 1);
+        // annotated with
+        search.byAnnotatedWith(tag);
+        assertResults(search, 1);
+
+        // Restrict to both ids
+        search.onlyIds(i1.getId(), i2.getId());
+        // full text
+        search.byFullText(uuid);
+        assertResults(search, 2);
+        // annotated with
+        search.byAnnotatedWith(tag);
+        assertResults(search, 2);
+
+        // Restrict to unknown ids
+        search.onlyIds(-1L, -2L, -3L);
+        // full text
+        search.byFullText(uuid);
+        assertResults(search, 0);
+        // annotated with
+        search.byAnnotatedWith(tag);
+        assertResults(search, 0);
+
+        // unrestrict
+        search.onlyIds(null);
+        // full text
+        search.byFullText(uuid);
+        assertResults(search, 2);
+        // annotated with
+        search.byAnnotatedWith(tag);
+        assertResults(search, 2);
+    }
 
     @Test
     public void testOnlyOwnedByOwner() {
@@ -1079,7 +1147,13 @@ public class SearchTest extends AbstractTest {
         search.unordered();
         search.addOrderByDesc("details.creationEvent.time");
         // full text
-        // see failing tests below
+        search.byFullText(uuid);
+        ids = new ArrayList<Long>();
+        ids.add(i2.getId());
+        ids.add(i1.getId());
+        while (search.hasNext()) {
+            assertEquals(ids.remove(0), search.next().getId());
+        }
         // annotated with
         search.byAnnotatedWith(tag);
         ids = new ArrayList<Long>();
@@ -1125,16 +1199,98 @@ public class SearchTest extends AbstractTest {
             assertEquals(multi.remove(0), search.next().getId());
         }
 
-        // TODO Ordering by time is currently not working.
+    }
 
+    @Test
+    public void testFetchAnnotations() {
+        String uuid = uuid();
+        Image i = new Image(uuid);
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue(uuid);
+        LongAnnotation la = new LongAnnotation();
+        la.setLongValue(1L);
+        DoubleAnnotation da = new DoubleAnnotation();
+        da.setDoubleValue(0.0);
+        i.linkAnnotation(tag);
+        i.linkAnnotation(la);
+        i.linkAnnotation(da);
+        i = iUpdate.saveAndReturnObject(i);
+        tag = new TagAnnotation();
+        tag.setTextValue(uuid);
+        indexObject(i);
+        loginRoot();
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+
+        // No fetch returns empty annotations
+        // full text
         search.byFullText(uuid);
-        ids = new ArrayList<Long>();
-        ids.add(i2.getId());
-        ids.add(i1.getId());
-        while (search.hasNext()) {
-            assertEquals(ids.remove(0), search.next().getId());
-        }
+        Image t = (Image) search.results().keySet().iterator().next();
+        assertEquals(-1, t.sizeOfAnnotationLinks());
+        // annotated with
+        search.byAnnotatedWith(tag);
+        t = (Image) search.results().keySet().iterator().next();
+        assertEquals(-1, t.sizeOfAnnotationLinks());
 
+        // Fetch only a given type
+        search.fetchAnnotations(TagAnnotation.class);
+        // annotated with
+        search.byAnnotatedWith(tag);
+        t = (Image) search.results().keySet().iterator().next();
+        assertEquals(1, t.sizeOfAnnotationLinks());
+        // full text
+        search.byFullText(uuid);
+        t = (Image) search.results().keySet().iterator().next();
+        assertEquals(3, t.sizeOfAnnotationLinks());
+
+        // fetch only a given type different from annotated-with type
+        search.fetchAnnotations(DoubleAnnotation.class);
+        // annotated with
+        search.byAnnotatedWith(tag);
+        t = (Image) search.results().keySet().iterator().next();
+        assertEquals(1, t.sizeOfAnnotationLinks());
+        // full text
+        search.byFullText(uuid);
+        t = (Image) search.results().keySet().iterator().next();
+        assertEquals(3, t.sizeOfAnnotationLinks());
+
+        // fetch two types
+        search.fetchAnnotations(TagAnnotation.class, DoubleAnnotation.class);
+        // annotated with
+        search.byAnnotatedWith(tag);
+        t = (Image) search.results().keySet().iterator().next();
+        assertEquals(2, t.sizeOfAnnotationLinks());
+        // full text
+        search.byFullText(uuid);
+        t = (Image) search.results().keySet().iterator().next();
+        assertEquals(3, t.sizeOfAnnotationLinks());
+
+        // Fetch all
+        search.fetchAnnotations(Annotation.class);
+        // annotated with
+        search.byAnnotatedWith(tag);
+        assertResults(search, 0);
+        // TODO t = (Image) search.results().keySet().iterator().next();
+        // TODO assertEquals(3, t.sizeOfAnnotationLinks());
+        // full text
+        search.byFullText(uuid);
+        t = (Image) search.results().keySet().iterator().next();
+        assertEquals(3, t.sizeOfAnnotationLinks());
+
+        // resave and see if there is data loss
+        search.fetchAnnotations(TagAnnotation.class);
+        search.byAnnotatedWith(tag);
+        t = (Image) search.next();
+        FileAnnotation f = new FileAnnotation();
+        t.linkAnnotation(f);
+        t.getDetails().filteredSet().add(Image.ANNOTATIONLINKS);
+        iUpdate.saveObject(t);
+        t = iQuery
+                .findByQuery(
+                        "select t from Image t join fetch t.annotationLinks where t.id = :id",
+                        new Parameters().addId(t.getId()));
+        assertEquals(4, t.sizeOfAnnotationLinks());
     }
 
     // bugs

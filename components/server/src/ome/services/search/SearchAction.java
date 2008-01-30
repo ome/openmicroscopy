@@ -7,6 +7,8 @@
 
 package ome.services.search;
 
+import java.util.List;
+
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.model.IGlobal;
@@ -19,6 +21,7 @@ import ome.tools.hibernate.QueryBuilder;
 
 import org.hibernate.Criteria;
 import org.hibernate.EntityMode;
+import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Criterion;
@@ -42,6 +45,28 @@ public abstract class SearchAction implements ome.services.util.Executor.Work {
                     "SearchValues argument must not be null");
         }
         this.values.copy(values);
+    }
+
+    protected void ids(Criteria criteria) {
+        ids(criteria, null, null);
+    }
+
+    protected void ids(QueryBuilder qb, String path) {
+        ids(null, qb, path);
+    }
+
+    private void ids(Criteria criteria, QueryBuilder qb, String path) {
+        if (values.onlyIds != null) {
+            if (criteria != null) {
+                criteria.add(Restrictions.in("id", values.onlyIds));
+            }
+
+            if (qb != null) {
+                String unique = qb.unique_alias("ids");
+                qb.and(String.format("%sid in (:%s) ", path, unique));
+                qb.paramList(unique, values.onlyIds);
+            }
+        }
     }
 
     protected void ownerOrGroup(Class cls, Criteria criteria) {
@@ -369,24 +394,34 @@ class OwnerOrGroup {
  */
 class AnnotationCriteria {
     final Criteria base;
+    final List<Class> fetchAnnotations;
     Criteria annotationLinks;
     Criteria annotationChild;
     Criteria annCreateAlias;
+    final int joinType;
 
-    AnnotationCriteria(Criteria base) {
+    AnnotationCriteria(Criteria base, List<Class> fetchAnnotations) {
         this.base = base;
+        this.fetchAnnotations = fetchAnnotations;
+        if (fetchAnnotations.size() > 0) {
+            joinType = Criteria.LEFT_JOIN;
+            base.setFetchMode("annotationLinks", FetchMode.JOIN);
+            getLinks().setFetchMode("child", FetchMode.JOIN);
+        } else {
+            joinType = Criteria.INNER_JOIN;
+        }
     }
 
     Criteria getLinks() {
         if (annotationLinks == null) {
-            annotationLinks = base.createCriteria("annotationLinks");
+            annotationLinks = base.createCriteria("annotationLinks", joinType);
         }
         return annotationLinks;
     }
 
     Criteria getChild() {
         if (annotationChild == null) {
-            annotationChild = getLinks().createCriteria("child");
+            annotationChild = getLinks().createCriteria("child", joinType);
         }
         return annotationChild;
     }

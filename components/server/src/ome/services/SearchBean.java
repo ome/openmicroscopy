@@ -371,9 +371,12 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     @Transactional
     @RolesAllowed("user")
-    public <T extends IObject> void fetchAnnotations(Class<T>... classes) {
+    public void fetchAnnotations(Class... classes) {
         synchronized (values) {
-            throw new UnsupportedOperationException();
+            values.fetchAnnotations = new ArrayList();
+            for (Class k : classes) {
+                values.fetchAnnotations.add(k);
+            }
         }
     }
 
@@ -460,6 +463,18 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     public void onlyOwnedBy(Details d) {
         synchronized (values) {
             values.ownedBy = SearchValues.copyDetails(d);
+        }
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public void onlyIds(Long... ids) {
+        synchronized (values) {
+            if (ids == null) {
+                values.onlyIds = null;
+            } else {
+                values.onlyIds = Arrays.asList(ids);
+            }
         }
     }
 

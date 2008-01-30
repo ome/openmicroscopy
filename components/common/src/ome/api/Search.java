@@ -209,12 +209,24 @@ public interface Search extends ome.api.StatefulServiceInterface,
     void allTypes();
 
     /**
+     * Restricts the set of {@link IObject#getId() ids} which will be checked.
+     * This is useful for testing one of the given restrictions on a reduced set
+     * of objects.
+     * 
+     * @param ids
+     *            Can be null, in which case the previous restriction is
+     *            removed.
+     */
+    void onlyIds(Long... ids);
+
+    /**
      * Uses the {@link Details#getOwner()} and {@link Details#getGroup()}
      * information to restrict the entities which will be returned. If both are
      * non-null, the two restrictions are joined by an AND.
      * 
      * @param d
-     *            Can be null, in which the previous restriction is removed.
+     *            Can be null, in which case the previous restriction is
+     *            removed.
      */
     void onlyOwnedBy(Details d);
 
@@ -224,7 +236,8 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * non-null, the two restrictions are joined by an AND.
      * 
      * @param d
-     *            Can be null, in which the previous restriction is removed.
+     *            Can be null, in which case the previous restriction is
+     *            removed.
      */
     void notOwnedBy(Details d);
 
@@ -345,7 +358,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * @param classes
      *            Can be empty, which removes previous fetch setting.
      */
-    <T extends IObject> void fetchAnnotations(Class<T>... classes);
+    void fetchAnnotations(Class... classes);
 
     /**
      * Adds a fetch clause for loading non-annotation fields of returned

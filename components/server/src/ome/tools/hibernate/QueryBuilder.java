@@ -255,4 +255,13 @@ public class QueryBuilder {
         return this;
 
     }
+
+    @Override
+    public String toString() {
+        StringBuilder toString = new StringBuilder();
+        toString.append(sb);
+        toString.append(params);
+        toString.append(listParams);
+        return toString.toString();
+    }
 }
