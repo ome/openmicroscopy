@@ -25,20 +25,17 @@ package org.openmicroscopy.shoola.agents.util.finder;
 
 
 //Java imports
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
+import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SearchResult;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import pojos.ExperimenterData;
 
 /** 
  * Searches for tags, images, etc.
@@ -59,14 +56,8 @@ public class QuickFinderLoader
 	extends FinderLoader
 {
 
-	/** The scope of the search.  */
-	private Class			type;
-	
-	/** Collection of terms to search for. */
-	private List			values;
-	
-	/** The separator used between the terms. */
-	private String 			separator;
+	/** The context of the search.  */
+	private SearchDataContext context;	
 	
 	/** Handle to the async call so that we can cancel it. */
     private CallHandle  	handle;
@@ -76,21 +67,13 @@ public class QuickFinderLoader
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
-     * @param index		One of the constants defined by this class. 
-     * @param values	Collection of terms to search for.
-     * @param type		The type of data to search, One of the constants 
-     * 					defined by this class.
-     * @param separator 
+     * @param context	The context of the search. 
      */
-    public QuickFinderLoader(QuickFinder viewer, List values, int type, 
-    		String separator)
+    public QuickFinderLoader(QuickFinder viewer, SearchDataContext context)
     {
     	super(viewer);
-    	this.type = checkType(type);
-    	if (values == null || values.size() == 0) 
+    	if (context == null) 
     		throw new IllegalArgumentException("No terms to search for.");
-    	this.values = values;
-    	this.separator = separator;
     }
     
     /**
@@ -99,13 +82,7 @@ public class QuickFinderLoader
      */
     public void load()
     {
-    	List<Class> scope = new ArrayList<Class>(1);
-    	scope.add(type);
-    	List<ExperimenterData> users = new ArrayList<ExperimenterData>(1);
-    	users.add(getUserDetails());
-    	
-    	handle = dhView.advancedSearchFor(scope, values, users, null, null, 
-    									separator, false, this);
+    	handle = dhView.advancedSearchFor(context, this);
     }
 
     /**
@@ -136,6 +113,7 @@ public class QuickFinderLoader
         	return;
         }
         Browse event = new Browse(set, Browse.IMAGES, getUserDetails(), null); 
+        /*
         Iterator i = values.iterator();
         String s = " for \"";
         while (i.hasNext()) {
@@ -145,7 +123,8 @@ public class QuickFinderLoader
         s = s.substring(0, s.length()-1);
         s += "\" in ";
         s += convertType(type);
-        
+        */
+        String s = " ";
         event.setSearchContext(s);
 		bus.post(event); 
 		viewer.dispose();

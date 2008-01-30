@@ -23,21 +23,17 @@
 package org.openmicroscopy.shoola.agents.util.finder;
 
 //Java imports
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
+import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SearchResult;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import pojos.ExperimenterData;
 
 /** 
  * Searches for data
@@ -59,48 +55,11 @@ public class AdvancedFinderLoader
 {
 
 	/** Collection of terms to search for. */
-	private List<String>			values;
-	
-	/** Collection of terms to search for. */
-	private List<ExperimenterData>	users;
-	
-	/** Collection of terms to search for. */
-	private List<Class>				scope;
-	
-	/** The start of a time interval. */
-	private Timestamp 				start;
-	
-	/** The end of a time interval. */
-	private Timestamp 				end;
-	
-	/** The separator used between the terms. */
-	private String					separator;
-	
-	/**
-	 * Flag indicating to take into account the case sensitivy while 
-	 * doing the search.
-	 */
-	private boolean					caseSensitive;
+	private SearchDataContext		searchContext;
 	
 	/** Handle to the async call so that we can cancel it. */
     private CallHandle  			handle;
 
-    /**
-     * Converts all the elements from the passed collection.
-     * 
-     * @param context The collection to handle.
-     */
-    private void convertContext(List<Integer> context)
-    {
-    	scope = new ArrayList<Class>();
-    	Iterator i = context.iterator();
-    	Integer index;
-    	while (i.hasNext()) {
-    		index = (Integer) i.next();
-    		scope.add(checkType(index));
-		}
-    }
-    
 	/**
      * Creates a new instance.
      * 
@@ -115,24 +74,12 @@ public class AdvancedFinderLoader
      * @param caseSensitive	Pass <code>true</code> to be case sensitive,
      * 						<code>false</code> otherwise.
      */
-    public AdvancedFinderLoader(Finder viewer, List<String> values,
-    							List<ExperimenterData> users,
-    							List<Integer> context, Timestamp start,
-    							Timestamp end, String separator, 
-    							boolean caseSensitive)
+    public AdvancedFinderLoader(Finder viewer, SearchDataContext context)
     {
     	super(viewer);
-    	if (values == null || values.size() == 0) 
-    		throw new IllegalArgumentException("No terms to search for.");
-    	if (context == null || context.size() == 0) 
+    	if (context == null) 
     		throw new IllegalArgumentException("No scope defined.");
-    	convertContext(context);
-    	this.values = values;
-    	this.users = users;
-    	this.start = start;
-    	this.end = end;
-    	this.separator = separator;
-    	this.caseSensitive = caseSensitive;
+    	searchContext = context;
     }
     
     /**
@@ -141,8 +88,7 @@ public class AdvancedFinderLoader
      */
     public void load()
     {
-    	handle = dhView.advancedSearchFor(scope, values, users, start, end, 
-    									separator, caseSensitive, this);
+    	handle = dhView.advancedSearchFor(searchContext, this);
     }
 
     /**
@@ -180,6 +126,7 @@ public class AdvancedFinderLoader
         	return;
         }
         Browse event = new Browse(set, Browse.IMAGES, getUserDetails(), null); 
+        /*
         Iterator i = values.iterator();
         String s = " for \"";
         while (i.hasNext()) {
@@ -197,7 +144,8 @@ public class AdvancedFinderLoader
         	if (index != l) s +=", ";
         	index++;
 		}
-        
+        */
+        String s = "Results";
         event.setSearchContext(s);
 		bus.post(event); 
 		viewer.dispose();

@@ -78,11 +78,10 @@ public class SearchComponent
 	public static final String 		OWNER_PROPERTY = "owner";
     
     /** The window's title. */
-	private static final String		TITLE = "Search";
+	private static final String		TITLE = "Advanced Search";
 	
 	/** The textual decription of the window. */
-	private static final String 	TEXT = "To search for several terms, " +
-			"separate each term with a comma.";
+	private static final String 	TEXT = "";
 	
 	/** Action command ID indicating to cancel. */
 	private static final int 		CANCEL = 0;
@@ -119,6 +118,9 @@ public class SearchComponent
 	
 	/** The available nodes. */
 	private List<SearchObject>	nodes;
+	
+	/** The possible types. */
+	private List<SearchObject>	types;
 	
 	/** Sets the window properties. */
 	private void setProperties()
@@ -217,12 +219,13 @@ public class SearchComponent
 	private void search()
 	{
 		//Terms cannot be null
-		List<String> terms = uiDelegate.getTerms();
-		//Determine the context.
-		List<Integer> l = uiDelegate.getScope();
-		
+		String[] some = uiDelegate.getSome();
+		String[] must = uiDelegate.getMust();
+		String[] none = uiDelegate.getNone();
+	
 		//Determine the time
-		SearchContext ctx = new SearchContext(terms, l);
+		SearchContext ctx = new SearchContext(some, must, none, 
+								uiDelegate.getScope());
 		int index = uiDelegate.getSelectedDate();
 		switch (index) {
 			case SearchContext.RANGE:
@@ -233,41 +236,34 @@ public class SearchComponent
 		}
 		ctx.setUserSearchContext(uiDelegate.getUserSearchContext());
 		ctx.setUsers(uiDelegate.getUsers());
-		ctx.setSeparator(uiDelegate.getSeparator());
 		ctx.setCaseSensitive(uiDelegate.isCaseSensitive());
+		ctx.setType( uiDelegate.getType());
 		firePropertyChange(SEARCH_PROPERTY, null, ctx);
 	}
 	
 	/** Sets the default contexts. */
 	private void setDefaultContext()
 	{
-		IconManager icons = IconManager.getInstance();
 		nodes = new ArrayList<SearchObject>();
-    	SearchObject node = new SearchObject(SearchContext.TAGS, 
-				icons.getImageIcon(IconManager.SEARCH_TAG), "Tags");
+    	SearchObject node = new SearchObject(SearchContext.NAME_DESCRIPTION, 
+				null, "Name/Description");
     	nodes.add(node);
-    	node = new SearchObject(SearchContext.TAG_SETS, 
-				icons.getImageIcon(IconManager.SEARCH_TAG_SET), "Tag Sets");
+    	node = new SearchObject(SearchContext.TEXT_ANNOTATION, null, 
+					"Textual Annotation");
     	nodes.add(node);
-    	node = new SearchObject(SearchContext.ANNOTATIONS, 
-				icons.getImageIcon(IconManager.SEARCH_ANNOTATION), 
-					"Annotations");
+    	node = new SearchObject(SearchContext.TAGS, null, "Tags");
     	nodes.add(node);
-    	node = new SearchObject(SearchContext.IMAGES, 
-				icons.getImageIcon(IconManager.SEARCH_IMAGE), 
-					"Images");
+    	node = new SearchObject(SearchContext.FILE_ANNOTATION, null, 
+					"Attachments");
+    	nodes.add(node);
     	
-    	nodes.add(node);
-    	/*
-    	node = new SearchObject(SearchContext.DATASETS, icons.getImageIcon(
-    							IconManager.SEARCH_DATASET), "Datasets");
-    	nodes.add(node);
-    	node = new SearchObject(SearchContext.PROJECTS, 
-    							icons.getImageIcon(IconManager.SEARCH_PROJECT), 
-								"Projects");
-    	nodes.add(node);
-    	*/
-    	
+    	types = new ArrayList<SearchObject>();
+    	node = new SearchObject(SearchContext.IMAGES, null, "Image");
+    	types.add(node);
+    	node = new SearchObject(SearchContext.DATASETS, null, "Dataset");
+    	types.add(node);
+    	node = new SearchObject(SearchContext.PROJECTS, null, "Project");
+    	types.add(node);
 	}
 	
 	/**
@@ -292,6 +288,13 @@ public class SearchComponent
 	 * @return See above.
 	 */
 	List<SearchObject> getNodes() { return nodes; }
+	
+	/**
+	 * Returns the collection of possible types.
+	 * 
+	 * @return See above.
+	 */
+	List<SearchObject> getTypes() { return types; }
 	
 	/**
 	 * Sets the buttons enabled when performing  search.

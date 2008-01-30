@@ -52,12 +52,7 @@ public class CommunicatorProxy
 	implements Communicator
 {
 
-	/** The tool invoking the service. */
-	private static final String INVOKER_ERROR = "insight_bugs";
-	
-	/** The tool invoking the service. */
-	private static final String INVOKER_COMMENT = "insight_comment";
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -70,14 +65,14 @@ public class CommunicatorProxy
 
 	/**
 	 * Implemented as specified by the {@link Communicator} interface.
-	 * @see Communicator#submitComment(String, String, String, String)
+	 * @see Communicator#submitComment(String, String, String, String, String)
 	 */
-	public void submitComment(String email, String comment, String extra, 
-							String reply) 
+	public void submitComment(String invoker, String email, String comment, 
+							String extra, String reply) 
 		throws TransportException 
 	{
 		MessengerRequest out = new MessengerRequest(email, comment, extra, 
-													null, INVOKER_COMMENT);
+													null, invoker);
 		MessengerReply in = new MessengerReply(reply);
         
         try {
@@ -92,12 +87,12 @@ public class CommunicatorProxy
 	 * Implemented as specified by the {@link Communicator} interface.
 	 * @see Communicator#submitError(String, String, String, String, String)
 	 */
-	public void submitError(String email, String comment, String extra, 
-							String error, String reply) 
+	public void submitError(String invoker, String email, String comment, 
+							String extra, String error, String reply) 
 		throws TransportException
 	{
 		MessengerRequest out = new MessengerRequest(email, comment, extra, 
-														error, INVOKER_ERROR);
+														error, invoker);
 		MessengerReply in = new MessengerReply(reply);
         
         try {

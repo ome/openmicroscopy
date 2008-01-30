@@ -44,8 +44,6 @@ import org.openmicroscopy.shoola.env.data.model.TextAnnotation;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
-import pojos.AnnotationData;
 import pojos.DataObject;
 
 /** 
@@ -205,7 +203,7 @@ class AnnotatorEditorComponent
 	{
 		if (model.getState() != SAVING)
 			throw new IllegalStateException("This method can only be invoked "+
-					"in the SAVING state.");
+					"in the SAVING state: "+model.getState());
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		//model.fireAnnotationsRetrieval();
 		model.setState(READY);
@@ -348,6 +346,10 @@ class AnnotatorEditorComponent
 		fireStateChange();
 	}
 
+	/**
+     * Implemented as specified by the {@link Annotator} interface.
+     * @see AnnotatorEditor#save(String)
+     */
 	public void save(String text)
 	{
 		TextAnnotation newData = new TextAnnotation();

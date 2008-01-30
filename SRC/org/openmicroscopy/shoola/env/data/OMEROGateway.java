@@ -46,6 +46,7 @@ import javax.ejb.EJBException;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
+import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import ome.api.IAdmin;
 import ome.api.IPojos;
@@ -55,11 +56,14 @@ import ome.api.IRepositoryInfo;
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
+import ome.api.Search;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.model.ILink;
 import ome.model.IObject;
+import ome.model.annotations.Annotation;
+import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
@@ -79,6 +83,7 @@ import ome.system.Server;
 import ome.system.ServiceFactory;
 import ome.util.builders.PojoOptions;
 import omeis.providers.re.RenderingEngine;
+import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -135,6 +140,9 @@ class OMEROGateway
 	/** The raw pixels store. */
 	private RawPixelsStore			pixelsStore;
 
+	/** The search stateful service. */
+	private Search					searchService;
+	
 	/**
 	 * Tells whether we're currently connected and logged into <i>OMERO</i>.
 	 */
@@ -329,6 +337,8 @@ class OMEROGateway
 		else if (nodeType.equals(CategoryData.class)) return Category.class;
 		else if (nodeType.equals(CategoryGroupData.class))
 			return CategoryGroup.class;
+		else if (nodeType.equals(AnnotationData.class)) 
+			return TextAnnotation.class;
 		else throw new IllegalArgumentException("NodeType not supported");
 	}
 
@@ -397,7 +407,7 @@ class OMEROGateway
 	 * @return See above.
 	 */
 	private IAdmin getAdminService() { return entry.getAdminService(); }
-
+	
 	/**
 	 * Returns the {@link ThumbnailStore} service.
 	 *  
@@ -461,6 +471,19 @@ class OMEROGateway
 		return entry.createRawPixelsStore();
 	}
 
+	/**
+	 * Returns the {@link Search} service.
+	 * 
+	 * @return See above.
+	 */
+	private Search getSearchService()
+	{
+		//if (searchService == null) 
+			searchService = entry.createSearchService();
+		//searchService.resetDefaults();
+		return searchService;
+	}
+	
 	/**
 	 * Checks if some default rendering settings have to be created
 	 * for the specified set of pixels.
@@ -722,7 +745,7 @@ class OMEROGateway
 	 * @see IPojos#loadContainerHierarchy(Class, Set, Map)
 	 */
 	Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs, Map options)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			IPojos service = getPojosService();
@@ -2353,6 +2376,136 @@ class OMEROGateway
 			handleException(e, "Search not valid");
 		}
 		return new ArrayList();
+	}
+	
+	List getTaggedEntities(Class type, List<ExperimenterData> users,
+			Timestamp start, Timestamp end, String[] tags)
+	{
+		Search service = getSearchService();
+		service.onlyAnnotatedBetween(start, end);
+		if (users != null && users.size() > 0) {
+			Iterator i = users.iterator();
+			ExperimenterData exp;
+			while (i.hasNext()) {
+				exp = (ExperimenterData) i.next();
+				
+				service.onlyAnnotatedBy(exp.asExperimenter().getDetails());
+			}
+		}
+		Class nodeType = convertPojos(type);
+		//if (nodeType != null)
+		//	service.onlyType(nodeType);
+		service.onlyType(Project.class);
+		//service.byTags(tags);
+		if (service.hasNext()) {
+			Map results = service.results();
+			Iterator j = results.keySet().iterator();
+			while (j.hasNext()) {
+				System.err.println(j.next());
+				
+			}
+		}
+		//Map results = service.results();
+		return null;
+			
+	}
+	
+	Map performSearch(SearchDataContext context)
+	{
+		Search service = getSearchService();
+		service.setCaseSentivice(context.isCaseSensitive());
+		
+		Timestamp start = context.getStart();
+		Timestamp end = context.getEnd();
+		//Sets the time
+		if (start != null || end != null) {
+			switch (context.getTimeIndex()) {
+				case SearchDataContext.CREATION_TIME:
+					service.onlyCreatedBetween(start, end);
+					break;
+				case SearchDataContext.MODIFICATION_TIME:
+					service.onlyModifiedBetween(start, end);
+					break;
+				case SearchDataContext.ANNOTATION_TIME:
+					service.onlyAnnotatedBetween(start, end);
+					break;
+						
+			}
+		
+		}
+		List<ExperimenterData> users = context.getUsers();
+		Iterator i;
+		if (users != null && users.size() > 0) {
+			i = users.iterator();
+			ExperimenterData exp;
+			switch (context.getOwnershipIndex()) {
+				case SearchDataContext.OWNER:
+					while (i.hasNext()) {
+						exp = (ExperimenterData) i.next();
+						service.onlyOwnedBy(exp.asExperimenter().getDetails());
+					}
+					break;
+				case SearchDataContext.ANNOTATOR:
+					while (i.hasNext()) {
+						exp = (ExperimenterData) i.next();
+						service.onlyAnnotatedBy(
+									exp.asExperimenter().getDetails());
+					}
+					break;
+				case SearchDataContext.EXCLUDE_OWNER:
+					//TODO:
+					break;
+				case SearchDataContext.EXCLUDE_ANNOTATOR:
+					//TODO
+					break;
+				default:
+					break;
+			}
+			
+		}
+		List<Class> types = context.getTypes();
+		List<Class> scopes = context.getScope();
+		if (scopes != null) {
+			
+		}
+		Class[] dataTypes = null;
+		if (types != null) {
+			i = types.iterator();
+			dataTypes = new Class[types.size()];
+			int index = 0;
+			while (i.hasNext()) {
+				dataTypes[index] = convertPojos((Class) i.next());
+				index++;
+			}
+			
+			//service.onlyTypes(t); //
+		}
+		String[] some = context.getSome();
+		String[] must = context.getMust();
+		String[] none = context.getNone();
+		if (scopes != null) {
+			if (scopes.contains(String.class) && dataTypes != null) {
+				for (int j = 0; j < dataTypes.length; j++) {
+					service.onlyType(dataTypes[j]);
+					service.bySomeMustNone(some, must, none);
+				}
+				scopes.remove(String.class);
+			}
+			i = scopes.iterator();
+			while (i.hasNext()) {
+				//type element = (//type) i.next();
+				
+			}
+		}
+		
+		
+		if (service.hasNext()) {
+			Map results = service.results();
+			service.close();
+			return results;
+		}
+		service.close();
+		return new HashMap();
 	}
 	
 }

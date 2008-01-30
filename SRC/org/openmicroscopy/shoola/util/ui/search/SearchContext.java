@@ -72,13 +72,19 @@ public class SearchContext
 	public static final int			PROJECTS = 2;
 	
 	/** Identifying the <code>Annotation</code> context. */
-	public static final int			ANNOTATIONS = 3;
+	public static final int			TEXT_ANNOTATION = 3;
 	
 	/** Identifying the <code>Tag</code> context. */
 	public static final int			TAGS = 4;
 	
 	/** Identifying the <code>Tag set</code> context. */
 	public static final int			TAG_SETS = 5;
+	
+	/** Identifying the <code>Name/Description</code> context. */
+	public static final int			NAME_DESCRIPTION = 6;
+	
+	/** Identifying the <code>File annotation</code> context. */
+	public static final int			FILE_ANNOTATION = 7;
 	
 	/** Indicates not to take into account the time criteria. */
 	static final int				ANY_DATE = 0;
@@ -99,16 +105,53 @@ public class SearchContext
 	 * Indicates to search for objects imported during a given period of 
 	 * time. 
 	 */
-	static final int	RANGE = 5; 
+	static final int				RANGE = 5; 
 	
 	/** Maximum number of time options. */
-	static final int 	MAX = 5;
+	static final int 				MAX = 5;
+	
+	/** Identifies the number of results {@link #LEVEL_ONE_VALUE}. */
+	static final int				LEVEL_ONE = 0;
+	
+	/** Identifies the number of results {@link #LEVEL_TWO_VALUE}. */
+	static final int				LEVEL_TWO = 1;
+	
+	/** Identifies the number of results {@link #LEVEL_THREE_VALUE}. */
+	static final int				LEVEL_THREE = 2;
+	
+	/** Identifies the number of results {@link #LEVEL_FOUR_VALUE}. */
+	static final int				LEVEL_FOUR = 3;
+	
+	/** The number of options for possible returned results. */
+	static final int				MAX_RESULTS = 3;
+	
+	/** The number of results returned. */
+	static final int				LEVEL_ONE_VALUE = 50;
+	
+	/** The number of results returned. */
+	static final int				LEVEL_TWO_VALUE = 100;
+	
+	/** The number of results returned. */
+	static final int				LEVEL_THREE_VALUE = 250;
+	
+	/** The number of results returned. */
+	static final int				LEVEL_FOUR_VALUE = 500;
+	
 	
 	/** Collection of terms to search for. */
-	private List<String>	terms;
+	private String[]		some;
+	
+	/** Collection of terms to search for. */
+	private String[]		must;
+	
+	/** Collection of terms to search for. */
+	private String[]		none;
 	
 	/** Collection of context. */
 	private List<Integer>	context;
+	
+	/** Collection of context. */
+	private List<Integer>	type;
 	
 	/** Collection of context. */
 	private List<String>	users;
@@ -126,21 +169,26 @@ public class SearchContext
 	 */
 	private int				userSearchContext;
 	
-	/** Separator between terms to search for. */
-	private String			separator;
-	
 	/** Flag indicating if the search is case sensitive or not. */
 	private boolean			caseSensitive;
+	
+	/** The number of results. */
+	private int				numberOfResults;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param terms		Collection of terms to search. 
+	 * @param some		The terms to search for. 
+	 * @param must		The terms that must be contained in the documents.
+	 * @param none		The terms that cannot be in the document.
 	 * @param context	Collection of context.
 	 */
-	SearchContext(List<String> terms, List<Integer> context)
+	SearchContext(String[] some, String[] must, String[] none,
+				List<Integer> context)
 	{
-		this.terms = terms;
+		this.some = some;
+		this.must = must;
+		this.none = none;
 		this.context = context;
 	}
 	
@@ -152,16 +200,6 @@ public class SearchContext
 	void setCaseSensitive(boolean caseSensitive)
 	{ 
 		this.caseSensitive = caseSensitive;
-	}
-	
-	/**
-	 * Sets the separator used between the search term.
-	 * 
-	 * @param separator The value to set.
-	 */
-	void setSeparator(String separator)
-	{
-		this.separator = separator;
 	}
 	
 	/**
@@ -240,8 +278,21 @@ public class SearchContext
 	 * 
 	 * @return See above.
 	 */
-	public List<String> getTerms() { return terms; }
+	public String[] getSome() { return some; }
 	
+	/**
+	 * Returns the collection of terms to search for. 
+	 * 
+	 * @return See above.
+	 */
+	public String[] getMust() { return must; }
+	
+	/**
+	 * Returns the collection of terms to search for. 
+	 * 
+	 * @return See above.
+	 */
+	public String[] getNone() { return none; }
 	/**
 	 * Returns the collection of context.
 	 * 
@@ -278,18 +329,39 @@ public class SearchContext
 	public int getUserSearchContext() { return userSearchContext; }
 	
 	/**
-	 * Returns the separator used between the search term.
-	 * 
-	 * @return See above.
-	 */
-	public String getSeparator() { return separator; }
-	
-	/**
 	 * Returns <code>true</code> if the search is case sensitive, 
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
 	public boolean isCaseSensitive() { return caseSensitive; }
+	
+	/**
+	 * Sets the type.
+	 * 
+	 * @param type The value to set.
+	 */
+	public void setType(List<Integer> type) { this.type = type; }
+	
+	/**
+	 * Returns the type.
+	 * 
+	 * @return See above.
+	 */
+	public List<Integer> getType() { return type; }
+
+	/** 
+	 * Returns the numbers of results.
+	 * 
+	 * @return See above.
+	 */
+	public int getNumberOfResults() { return numberOfResults; }
+	
+	/**
+	 * Sets the number of results.
+	 * 
+	 * @param results The value to set.
+	 */
+	public void setNumberOfResults(int results) { numberOfResults = results; }
 	
 }

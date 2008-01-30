@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.data.model.Mapper;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
+import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SearchResult;
 
 import pojos.AnnotationData;
@@ -1166,6 +1167,15 @@ class OmeroDataServiceImpl
 			String separator, boolean caseSensitive) 
 		throws DSOutOfServiceException, DSAccessException
 	{
+		
+		Class[] ann = new Class[1];
+		ann[0] = AnnotationData.class;
+		String[] some = new String[1];
+		some[0] = "annotation";
+		Class[] types = new Class[2];
+		types[0] = DatasetData.class;
+		types[1] = ProjectData.class;
+	
 		SearchResult result = new SearchResult();
 		
 		if (terms == null) return result;
@@ -1184,64 +1194,6 @@ class OmeroDataServiceImpl
 				s = separator;
 			else s = "or"; //default
 		}
-		/*
-		if ((users == null || users.size() == 0)) {
-			users =  new ArrayList<ExperimenterData>(1);
-			users.add(getUserDetails());
-		}
-		Map<String, Map> context = new HashMap<String, Map>();
-		if (s.equals("and")) {
-			List<List> nodes = new ArrayList();
-			Iterator k;
-			while (i.hasNext()) {
-				type = (Class) i.next();
-				if (type.equals(CategoryData.class) || 
-					type.equals(CategoryGroupData.class)) {
-					k = terms.iterator();
-					while (k.hasNext()) {
-						nodes.add(gateway.searchFor(type, (String) k.next(), 
-								start, end, users, s, caseSensitive));
-					}
-					
-				} else {
-					l.addAll(gateway.searchFor(type, terms, start, end, 
-							users, s, caseSensitive));
-				}
-			}
-			
-			
-			if (nodes.size() != 0) {
-				List nodeIds = new ArrayList();
-				List n = nodes.remove(0);
-				k = n.iterator();
-				while (k.hasNext()) 
-					nodeIds.add(((ILink) k.next()).getChild().getId());
-				
-				k = nodes.iterator();
-				Iterator link;
-				long id;
-				Set<Long> intersection = new HashSet<Long>();
-				while (k.hasNext()) {
-					n = (List) k.next();
-					link = n.iterator();
-					while (link.hasNext()) {
-						id = ((ILink) link.next()).getChild().getId();
-						if (nodeIds.contains(id))
-							intersection.add(id);
-						else nodeIds.remove(id);
-					}
-				}
-				
-				ids.addAll(intersection);
-			}
-		} else {
-			while (i.hasNext()) {
-				type = (Class) i.next();
-				l.addAll(gateway.searchFor(type, terms, start, end, users, 
-						s, caseSensitive));
-			}
-		}
-		*/
 		if ((users == null || users.size() == 0)) {
 			ExperimenterData exp = getUserDetails();
 			if (s.equals("and")) {
@@ -1367,6 +1319,21 @@ class OmeroDataServiceImpl
 		
 		result.setNodeIDs(ids);
 		return result;
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#advancedSearchFor(SearchDataContext)
+	 */
+	public SearchResult advancedSearchFor(SearchDataContext context) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (context == null)
+			throw new IllegalArgumentException("No search context defined.");
+		if (!context.isValid())
+			throw new IllegalArgumentException("Search context not valid.");
+		gateway.performSearch(context); 
+		return null;
 	}
 
 }

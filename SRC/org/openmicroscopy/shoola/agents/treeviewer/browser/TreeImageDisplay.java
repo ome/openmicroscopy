@@ -597,12 +597,4 @@ public abstract class TreeImageDisplay
      */
     public abstract TreeImageDisplay copy();
     
-    /**
-     * Returns <code>true</code> if the object has a tag attached to it,
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    public abstract boolean hasTags(); 
-    
 }

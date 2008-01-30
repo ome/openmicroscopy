@@ -86,6 +86,12 @@ class UserNotifierManager
 	private static final String	ERROR_REPLY = "Thanks, the error message " +
 										"has been successfully posted.";
 	
+	/** The tool invoking the service. */
+	private static final String INVOKER_ERROR = "insight_bugs";
+	
+	/** The tool invoking the service. */
+	private static final String INVOKER_COMMENT = "insight_comment";
+	
     /** Reference to the container. */
 	private Container		container;
 	
@@ -114,9 +120,11 @@ class UserNotifierManager
 			
 			String reply = "";
 			if (!bug)
-				c.submitComment(details.getEmail(), details.getComment(), 
+				c.submitComment(INVOKER_COMMENT,
+								details.getEmail(), details.getComment(), 
 								details.getExtra(), reply);
-			else c.submitError(details.getEmail(), details.getComment(), 
+			else c.submitError(INVOKER_ERROR, 
+							details.getEmail(), details.getComment(), 
 					details.getExtra(), error, reply);
 			if (!bug) reply += COMMENT_REPLY;
 			else reply += ERROR_REPLY;

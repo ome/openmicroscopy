@@ -34,6 +34,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.TagSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -481,6 +482,16 @@ public interface DataHandlerView
 			List<ExperimenterData> users, Timestamp start, Timestamp end,
 			String separator, boolean caseSensitive,
 			AgentEventListener observer);
+	
+	/**
+	 * Retrieves the objects specified by the context of the search.
+	 * 
+	 * @param context	The context of the search.
+	 * @param observer	Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle advancedSearchFor(SearchDataContext context, 
+										AgentEventListener observer);
 	
 	/**
 	 * Loads the experimenter groups.

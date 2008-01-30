@@ -152,12 +152,13 @@ public class NotificationDialog
 		 int iconSpace = 0;
 		 if (icon != null) iconSpace = icon.getIconWidth()+20;
 
-		 double tableSize[][] =  
-		 {{iconSpace, (160 - iconSpace), TableLayout.FILL}, // columns
-		 {TableLayout.FILL}}; // rows
+		 double tableSize[][] = {{iconSpace, (160 - iconSpace), 
+			 					TableLayout.FILL}, // columns
+			 					{TableLayout.FILL}}; // rows
 		 TableLayout layout = new TableLayout(tableSize);
 		 messagePanel.setLayout(layout);  
-		 messagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		 messagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 
+				 				10));
 
 		 if (icon != null)
 			 messagePanel.add(new JLabel(icon), "0, 0, l, c");

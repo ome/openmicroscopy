@@ -281,11 +281,17 @@ public class IconManager
     /** The <code>Close over 8</code> icon. */
     public static final int	CLOSE_OVER = 75;
 
+    /** The <code>Help</code> icon. */
+    public static final int	HELP = 76;
+
+    /** The <code>Help</code> icon. */
+    public static final int	HELP_48 = 77;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 75;
+    private static int      MAX_ID = 77;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -369,6 +375,9 @@ public class IconManager
         relPaths[ADD_12] = "add12.png";
         relPaths[CLOSE] = "nuvola_fileclose16.png";//"eclipse_remove_att12.png";
         relPaths[CLOSE_OVER] = "nuvola_fileclose16.png";//"nuvola_messagebox_critical12.png";
+        relPaths[HELP] = "nuvola_help16.png";
+        relPaths[HELP_48] ="nuvola_kdmconfig48.png";
+        
     }
     
     /** 

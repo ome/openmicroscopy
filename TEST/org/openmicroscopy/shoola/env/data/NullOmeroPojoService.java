@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SearchResult;
 
 //Third-party libraries
@@ -459,6 +460,12 @@ public class NullOmeroPojoService
 			Set<CategoryData> tags) 
 		throws DSOutOfServiceException, DSAccessException
 	{
+		return null;
+	}
+
+	public SearchResult advancedSearchFor(SearchDataContext context) 
+		throws DSOutOfServiceException, DSAccessException {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

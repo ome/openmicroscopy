@@ -146,6 +146,9 @@ public class MessengerDialog
 	/** The e-mail field's suffix. */
 	private static final String		EMAIL_SUFFIX = " (Optional)";
 
+	/** Brief description of the error. */
+	private static final String		ERROR_BRIEF = "Brief Description:";
+	
 	/** 
 	 * One of the following constants: {@link #ERROR_TYPE} or 
 	 * {@link #COMMENT_TYPE}.
@@ -178,6 +181,9 @@ public class MessengerDialog
 	
 	/** The version of the software. */
 	private String			version;
+	
+	/** A brief description of the error. */
+	private String			errorDescription;
 	
 	/**
 	 * Formats the specified button.
@@ -444,21 +450,29 @@ public class MessengerDialog
 									Icon icon)
 	{
 		JPanel commentPanel = new JPanel();
+		
         int iconSpace = 0;
         if (icon != null) iconSpace = icon.getIconWidth()+20;
-        
-        double tableSize[][] =  
-        		{{iconSpace, (160 - iconSpace), TableLayout.FILL}, // columns
-                {100, 30, TableLayout.FILL}}; // rows
-        TableLayout layout = new TableLayout(tableSize);
-        commentPanel.setLayout(layout);  
-        commentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        if (icon != null)
-        	commentPanel.add(new JLabel(icon), "0, 0, l, c");
-        commentPanel.add(UIUtilities.buildTextPane(instructions), "1, 0, 2, 0");
-        commentPanel.add(buildEmailAreaPanel('E'), "0, 1, 2, 1");
-        commentPanel.add(buildCommentAreaPanel(comment, 'W'), "0, 2, 2, 2");
+        double tableSize[][] =  {{iconSpace, (160 - iconSpace), 
+        						TableLayout.FILL}, // columns
+        						{100, 0, 30, TableLayout.FILL}}; // rows
+	    TableLayout layout = new TableLayout(tableSize);
+	    commentPanel.setLayout(layout);  
+	    commentPanel.setBorder(
+	    				BorderFactory.createEmptyBorder(10, 10, 10, 10));
+	    
+	    if (icon != null)
+	    	commentPanel.add(new JLabel(icon), "0, 0, l, c");
+	    commentPanel.add(UIUtilities.buildTextPane(instructions), "1, 0, 2, 0");
+	    commentPanel.add(buildEmailAreaPanel('E'), "0, 2, 2, 2");
+	    commentPanel.add(buildCommentAreaPanel(comment, 'W'), "0, 3, 2, 3");
+	    if (errorDescription != null && errorDescription.length() > 0) {
+	    	layout.setRow(1, 30);
+	    	JPanel p = new JPanel();
+	    	p.add(UIUtilities.setTextFont(ERROR_BRIEF));
+	    	p.add(new JLabel(errorDescription));
+	    	commentPanel.add(UIUtilities.buildComponentPanel(p), "0, 1, 2, 1");
+	    }
 		return commentPanel;
 	}
 	
@@ -555,6 +569,16 @@ public class MessengerDialog
 		this.exception = exception;
 		initialize(title);
 	}	
+	
+	/**
+	 * Sets a brief description of the error.
+	 * 
+	 * @param description The value to set.
+	 */
+	public void setErrorDescription(String description)
+	{
+		errorDescription = description;
+	}
 	
 	/** 
 	 * Sets the version of the software.

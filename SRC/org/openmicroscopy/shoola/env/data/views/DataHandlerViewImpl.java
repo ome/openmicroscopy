@@ -33,6 +33,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.views.calls.AdminLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
@@ -44,6 +45,8 @@ import org.openmicroscopy.shoola.env.data.views.calls.ObjectFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.TagSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.util.ui.search.SearchContext;
+
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.DataObject;
@@ -379,10 +382,21 @@ public class DataHandlerViewImpl
 			String separator, boolean caseSensitive, 
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ObjectFinder(scope, values, users, start, end,
-											separator, caseSensitive);
+		return null;
+	}
+	
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataHandlerView#advancedSearchFor(SearchDataContext,
+	 * 										AgentEventListener)
+	 */
+	public CallHandle advancedSearchFor(SearchDataContext context, 
+										AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ObjectFinder(context);
 		return cmd.exec(observer);
 	}
+	
 
 	/**
 	 * Implemented as specified by the view interface.

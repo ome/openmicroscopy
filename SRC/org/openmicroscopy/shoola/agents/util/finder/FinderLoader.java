@@ -33,6 +33,8 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+
+import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
@@ -76,9 +78,6 @@ public abstract class FinderLoader
 	/** Indicates to search for datasets. */
 	public static final int DATASETS = 4;
 	
-	/** Indicates to search for datasets. */
-	public static final int TAG_SETS = 5;
-	
 	/** The viewer this data loader is for. */
 	protected Finder					viewer;
 	
@@ -102,14 +101,12 @@ public abstract class FinderLoader
 				return CategoryData.class;
 			case IMAGES:
 				return ImageData.class;
-			//case ANNOTATIONS:
-			//	return ImageAnnotation.class;
+			case ANNOTATIONS:
+				return AnnotationData.class;
 			case PROJECTS:
 				return ProjectData.class;
 			case DATASETS:
 				return DatasetData.class;
-			case TAG_SETS:
-				return CategoryGroupData.class;
 			default:
 				throw new IllegalArgumentException("Type not supported.");
 		}

@@ -48,10 +48,13 @@ public class SearchUtil
 {
 
 	/** Separator between words. */
-	public static final String		SEARCH_SEPARATOR =",";
+	public static final String		COMMA_SEPARATOR =",";
 	
 	/** The separator between the first name and the last name. */
-	public static final String		NAME_SEPARATOR = " ";
+	public static final String		SPACE_SEPARATOR = " ";
+	
+	/** The separator between the first name and the last name. */
+	public static final String		QUOTE_SEPARATOR = "\"";
 	
 	/**
 	 * Splits the passed string around matches of the given pattern.

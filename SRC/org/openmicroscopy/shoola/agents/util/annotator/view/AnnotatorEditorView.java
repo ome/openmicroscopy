@@ -490,7 +490,6 @@ class AnnotatorEditorView
 				 * @see MouseAdapter#mouseReleased(MouseEvent)
 				 */
 				public void mouseReleased(MouseEvent e) {
-					super.mouseReleased(e);
 					Component c = e.getComponent();
 					if (c instanceof JComponent) 
 						handleAnnotation((JComponent) c, e.getPoint());
@@ -545,7 +544,7 @@ class AnnotatorEditorView
     				 * @see MouseAdapter#mouseReleased(MouseEvent)
     				 */
     				public void mouseReleased(MouseEvent e) {
-    					super.mouseReleased(e);
+    					//super.mouseReleased(e);
     					Component c = e.getComponent();
     					if (c instanceof JComponent) 
     						handleAnnotation((JComponent) c, e.getPoint());
@@ -573,6 +572,7 @@ class AnnotatorEditorView
      */
     private void handleAnnotation(JComponent area, Point p)
     {
+    	if (model.getState() != AnnotatorEditor.READY) return;
     	Border b = area.getBorder();
     	if (!(b instanceof TitledLineBorder)) return;
     	List<Rectangle> rectangles = ((TitledLineBorder) b).getImagesBounds();
@@ -585,21 +585,27 @@ class AnnotatorEditorView
 			if (index != null) {
 				AnnotationData data = model.getAnnotationData(index);
 				String ann = data.getContentAsString();
-				if (!text.equals(ann)) controller.updateAnnotation(text); 
-			} else
+				if (!text.equals(ann)) {
+					controller.updateAnnotation(text); 
+				}
+			} else {
 				controller.updateAnnotation(text); 
+				
+			}
 		}
 		
-		if (rectangles.size() <= 1) return;
-		r = rectangles.get(CustomizedBorderFactory.CLOSE_INDEX);
-		if (r != null && r.contains(p)) {
-			Integer index = mutableAnnotation.get(area);
-			AnnotationData data = model.getAnnotationData(index);
-			if (data == null) return;
-			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			controller.deleteAnnotation(data);
-			return;
+		if (rectangles.size() > 1) {
+			r = rectangles.get(CustomizedBorderFactory.CLOSE_INDEX);
+			if (r != null && r.contains(p)) {
+				Integer index = mutableAnnotation.get(area);
+				AnnotationData data = model.getAnnotationData(index);
+				if (data != null) {
+					setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					controller.deleteAnnotation(data);
+				}
+			}
 		}
+		
     }
     
     /**

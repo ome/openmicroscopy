@@ -22,16 +22,21 @@
  */
 package org.openmicroscopy.shoola.agents.util;
 
-import java.util.Map;
-import java.util.Set;
+
 
 
 //Java imports
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -69,7 +74,7 @@ public class CountUtil
 			counts = ((DatasetData) object).getAnnotationsCounts();
 		else if (object instanceof ProjectData)
 			counts = ((ProjectData) object).getAnnotationsCounts();
-		if (counts == null) return false;
+		if (counts == null || counts.size() == 0) return false;
 		return counts.keySet().contains(userID);
 	}
 	
@@ -92,10 +97,52 @@ public class CountUtil
 		else if (object instanceof ProjectData) 
 			counts = ((ProjectData) object).getAnnotationsCounts();
 		
-		if (counts == null) return false;
+		if (counts == null || counts.size() == 0) return false;
 		Set set = counts.keySet();
 		if (set.size() > 1) return true;
 		return !set.contains(userID);
+	}
+	
+	public static Map getAnnotations(Object object, Map userGroups)
+	{
+		Map<ExperimenterData, Long> 
+			result = new HashMap<ExperimenterData, Long>();
+		if (object == null) return result;
+		Map<Long, Long> counts = null;
+		if (object instanceof ImageData)
+			counts = ((ImageData) object).getAnnotationsCounts();
+		else if (object instanceof DatasetData)
+			counts = ((DatasetData) object).getAnnotationsCounts();
+		else if (object instanceof ProjectData) 
+			counts = ((ProjectData) object).getAnnotationsCounts();
+		
+		if (counts == null) return result;
+		Iterator i = userGroups.keySet().iterator(), j;
+		GroupData g;
+		Map<Long, ExperimenterData> 
+			users = new HashMap<Long, ExperimenterData>();
+		Set children;
+		ExperimenterData user;
+ 		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			children = g.getExperimenters();
+			if (children != null) {
+				j = children.iterator();
+				while (j.hasNext()) {
+					user = (ExperimenterData) j.next();
+					users.put(user.getId(), user);
+				}
+			}
+		}
+ 		i = counts.keySet().iterator();
+ 		Long id;
+ 		while (i.hasNext()) {
+ 			id = (Long) i.next();
+ 			user = users.get(id);
+ 			if (user != null)
+ 				result.put(users.get(id), counts.get(id));
+		}
+		return result;
 	}
 	
 }

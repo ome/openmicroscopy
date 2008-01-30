@@ -29,11 +29,14 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
@@ -44,6 +47,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -51,10 +55,12 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
 //Third-party libraries
+import com.sun.corba.se.pept.transport.OutboundConnectionCache;
 import com.toedter.calendar.JDateChooser;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.OutlookBar;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
@@ -77,6 +83,26 @@ class SearchPanel
 	extends JPanel
 {
 
+	/** Wild card used. */
+	private static final String		WILD_CARD = 
+									"(* = any string, ? = any character)";
+	
+	/** Description of the {@link #allTermsArea}. */
+	private static final String		ALL_WORDS = 
+										"<html><b>All</b> the words</html>";
+	
+	/** Description of the {@link #exactPhraseArea}. */
+	private static final String		EXACT_WORDS = 
+										"<html><b>Exact</b> phrase</html>";
+	
+	/** Description of the {@link #atLeastTermsArea}. */
+	private static final String		AT_LEAST_WORDS = 
+								"<html><b>At least one</b> of the words</html>";
+	
+	/** Description of the {@link #withoutTermsArea}. */
+	private static final String		WITHOUT_WORDS = 
+										"<html><b>Without</b> the words</html>";
+	
 	/** The preferred size of the calendar popup. */
 	private static final Dimension	CALENDAR_SIZE = new Dimension(250, 200);
 	
@@ -89,6 +115,9 @@ class SearchPanel
 	/** Possible time options. */
 	private static String[]		dateOptions;
 	
+	/** The maximum number of results returned. */
+	private static String[]		numberOfResults;
+	
 	static {
 		dateOptions = new String[SearchContext.MAX+1];
 		dateOptions[SearchContext.ANY_DATE] = "Any date";
@@ -98,6 +127,15 @@ class SearchPanel
 		dateOptions[SearchContext.ONE_YEAR] = "1 year";
 		dateOptions[SearchContext.RANGE] = "Specify date range " +
 											"("+DATE_FORMAT+")";
+		numberOfResults = new String[SearchContext.MAX_RESULTS+1];
+		numberOfResults[SearchContext.LEVEL_ONE] = 
+									SearchContext.LEVEL_ONE_VALUE+" results";
+		numberOfResults[SearchContext.LEVEL_TWO] = 
+			SearchContext.LEVEL_TWO_VALUE+" results";
+		numberOfResults[SearchContext.LEVEL_THREE] = 
+			SearchContext.LEVEL_THREE_VALUE+" results";
+		numberOfResults[SearchContext.LEVEL_FOUR] = 
+			SearchContext.LEVEL_FOUR_VALUE+" results";
 	}
 
 	/** If checked the case is taken into account. */ 
@@ -112,8 +150,20 @@ class SearchPanel
 	/** Possible dates. */
 	private JComboBox				dates;
 	
+	/** Possible results. */
+	private JComboBox				results;
+	
 	/** The terms to search for. */
-	private JTextField				termsArea;
+	private JTextField				allTermsArea;
+	
+	/** The terms to search for. */
+	private JTextField				exactPhraseArea;
+	
+	/** The terms to search for. */
+	private JTextField				atLeastTermsArea;
+	
+	/** The terms to search for. */
+	private JTextField				withoutTermsArea;
 	
 	/** Date used to specify the beginning of the time interval. */
 	private JDateChooser			fromDate;
@@ -126,6 +176,9 @@ class SearchPanel
 	
 	/** Items used to defined the scope of the search. */
 	private Map<Integer, JCheckBox>	scopes;
+	
+	/** Items used to defined the scope of the search. */
+	private Map<Integer, JCheckBox>	types;
 	
 	/** Button to only retrieve the current user's data. */
 	private JRadioButton			currentUser;
@@ -142,10 +195,17 @@ class SearchPanel
 	/** Button to put <code>OR</code> between terms. */
 	private JRadioButton			orBox;
 	
+	/** The possible textual areas. */
+	private Map<JTextField, JLabel>	areas;
+	
+	/** Button to bring up the tooltips for help. */
+	private JButton					helpButton;
+	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
 		scopes = new HashMap<Integer, JCheckBox>(model.getNodes().size());
+		types = new HashMap<Integer, JCheckBox>(model.getTypes().size());
 		IconManager icons = IconManager.getInstance();
 		fromDate = new JDateChooser();
 		JButton b = fromDate.getCalendarButton();
@@ -164,7 +224,11 @@ class SearchPanel
 		toDate.getJCalendar().setPreferredSize(CALENDAR_SIZE);
 		fromDate.setEnabled(false);
 		toDate.setEnabled(false);
-		termsArea = new JTextField(20);
+		allTermsArea = new JTextField(20);
+		exactPhraseArea = new JTextField(20);
+		atLeastTermsArea = new JTextField(20);
+		withoutTermsArea = new JTextField(20);
+	
 		authors = new JTextField(20);
 		authors.setEditable(false);
 		dates = new JComboBox(dateOptions);
@@ -191,6 +255,29 @@ class SearchPanel
 		group.add(andBox);
 		group.add(orBox);
 		caseSensitive = new JCheckBox("Case sensitive");
+		areas = new LinkedHashMap<JTextField, JLabel>();
+		areas.put(atLeastTermsArea, new JLabel(AT_LEAST_WORDS));
+		areas.put(allTermsArea, new JLabel(ALL_WORDS));
+		areas.put(exactPhraseArea, new JLabel(EXACT_WORDS));
+		areas.put(withoutTermsArea, new JLabel(WITHOUT_WORDS));
+		results = new JComboBox(numberOfResults);
+		helpButton = new JButton(icons.getIcon(IconManager.HELP));
+		helpButton.setToolTipText("Advanced search Tips.s");
+		UIUtilities.unifiedButtonLookAndFeel(helpButton);
+		helpButton.addActionListener(new ActionListener() {
+		
+			public void actionPerformed(ActionEvent e) {
+				showHelp();
+			}
+		
+		});
+	}
+	
+	/** Brings up the Help dialog. */
+	private void showHelp()
+	{
+		SearchHelp helpDialog = new SearchHelp((JFrame) model.getOwner());
+		UIUtilities.centerAndShow(helpDialog);
 	}
 	
 	/** 
@@ -271,6 +358,38 @@ class SearchPanel
 		return p;
 	}
 	
+	/** 
+	 * Builds and lays out the component displaying the various types.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildTypePanel()
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new GridBagLayout());
+        p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.WEST;
+        c.insets = new Insets(3, 3, 3, 3);
+        List<SearchObject> nodes = model.getTypes();
+		SearchObject n;
+		int m = nodes.size();
+		JCheckBox box;
+		c.weightx = 1.0;
+		for (int i = 0; i < m; i++) {
+			n = nodes.get(i);
+			box = new JCheckBox(n.getDescription());
+			if (i == 0) box.setSelected(true);
+			
+			p.add(box, c);
+			types.put(n.getIndex(), box);
+		}
+		TitledBorder border = new TitledBorder("Type");
+		border.setTitleFont(p.getFont().deriveFont(Font.BOLD));
+		p.setBorder(border);
+		return p;
+	}
+	
 	/**
 	 * Builds the UI component hosting the terms to search for.
 	 * 
@@ -280,16 +399,41 @@ class SearchPanel
 	{
 		JPanel searchFor = new JPanel();
 		searchFor.setLayout(new BoxLayout(searchFor, BoxLayout.Y_AXIS));
-		initBorder("Search For", searchFor);
+		//initBorder("Search For", searchFor);
 		JPanel p = new JPanel();
-		p.add(new JLabel("(* = any string, ? = any character)"));
-		searchFor.add(UIUtilities.buildComponentPanel(p));
-		p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(termsArea);
-		p.add(caseSensitive);
-		searchFor.add(UIUtilities.buildComponentPanel(p));
-		searchFor.add(buildAndOrPanel());
+		//p.add(UIUtilities.setTextFont(WILD_CARD, Font.ITALIC, 10));
+		p.add(results);
+		p.add(helpButton);
+		searchFor.add(UIUtilities.buildComponentPanelRight(p));
+		
+		//searchFor.add(UIUtilities.buildComponentPanel(p));
+		p = new JPanel();
+		p.setLayout(new GridBagLayout());
+        p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.WEST;
+        c.insets = new Insets(3, 3, 3, 3);
+       
+        Iterator i = areas.keySet().iterator();
+        JLabel label;
+        JTextField area;
+        while (i.hasNext()) {
+            ++c.gridy;
+            c.gridx = 0;
+            area = (JTextField) i.next();
+            label = areas.get(area);
+            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+            c.weightx = 0.0;  
+            p.add(label, c);
+            label.setLabelFor(area);
+            c.gridx = 1;
+            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 1.0;
+            p.add(area, c);  
+        }
+        searchFor.add(UIUtilities.buildComponentPanel(p));
 		return searchFor;
 	}
 	
@@ -360,6 +504,7 @@ class SearchPanel
 		//Context
 		
 		searchPanel.add(buildScopePanel());
+		searchPanel.add(buildTypePanel());
 		return UIUtilities.buildComponentPanel(searchPanel);
 	}
 	
@@ -457,15 +602,94 @@ class SearchPanel
 		return list;
 	}
 	
-	/**
-	 * Returns the terms to search for.
+	/** 
+	 * Returns the scope of the search.
 	 * 
 	 * @return See above.
 	 */
-	List<String> getTerms() 
+	List<Integer> getType()
 	{
-		return SearchUtil.splitTerms(termsArea.getText(), 
-				SearchUtil.SEARCH_SEPARATOR);
+		List<Integer> list = new ArrayList<Integer>();
+		Iterator i = types.keySet().iterator();
+		JCheckBox box;
+		Integer key;
+		while (i.hasNext()) {
+			key = (Integer) i.next();
+			box = types.get(key);
+			if (box.isSelected())
+				list.add(key);
+		}
+		return list;
+	}
+	
+	
+	/**
+	 * Returns the terms that may be in the document.
+	 * 
+	 * @return See above.
+	 */
+	String[] getSome()
+	{
+		String text = atLeastTermsArea.getText();
+		List<String> l = 
+			SearchUtil.splitTerms(text, SearchUtil.QUOTE_SEPARATOR);
+		String[] terms = null;
+		if (l.size() > 0) {
+			//terms = (String[]) l.toArray(new String[] {});
+		} else {
+			l = SearchUtil.splitTerms(text, SearchUtil.SPACE_SEPARATOR);
+			//if (l.size() > 0)
+			//	terms = (String[]) l.toArray(new String[] {});
+		}
+		text = exactPhraseArea.getText();
+		if (text != null) {
+			l.addAll(SearchUtil.splitTerms(text, SearchUtil.QUOTE_SEPARATOR));
+		}
+		if (l.size() > 0)
+			terms = (String[]) l.toArray(new String[] {});
+		return terms;
+	}
+	
+	/**
+	 * Returns the terms that may be in the document.
+	 * 
+	 * @return See above.
+	 */
+	String[] getMust()
+	{
+		String text = atLeastTermsArea.getText();
+		List l = SearchUtil.splitTerms(text, SearchUtil.QUOTE_SEPARATOR);
+		String[] terms = null;
+		if (l.size() > 0) {
+			terms = (String[]) l.toArray(new String[] {});
+			
+		} else {
+			l = SearchUtil.splitTerms(text, SearchUtil.SPACE_SEPARATOR);
+			if (l.size() > 0)
+				terms = (String[]) l.toArray(new String[] {});
+		}
+		return terms;
+	}
+	
+	/**
+	 * Returns the terms that may be in the document.
+	 * 
+	 * @return See above.
+	 */
+	String[] getNone()
+	{
+		String text = withoutTermsArea.getText();
+		List l = SearchUtil.splitTerms(text, SearchUtil.QUOTE_SEPARATOR);
+		String[] terms = null;
+		if (l.size() > 0) {
+			terms = (String[]) l.toArray(new String[] {});
+			
+		} else {
+			l = SearchUtil.splitTerms(text, SearchUtil.SPACE_SEPARATOR);
+			if (l.size() > 0)
+				terms = (String[]) l.toArray(new String[] {});
+		}
+		return terms;
 	}
 	
 	/**
@@ -491,7 +715,7 @@ class SearchPanel
 		if (getUserSearchContext() == SearchContext.JUST_CURRENT_USER)
 			return new ArrayList<String>();
 		return SearchUtil.splitTerms(authors.getText(), 
-									SearchUtil.SEARCH_SEPARATOR);
+									SearchUtil.COMMA_SEPARATOR);
 	}
 	
 	/**
@@ -508,7 +732,13 @@ class SearchPanel
 	/** Indicates to set the focus on the search area. */
 	void setFocusOnSearch()
 	{
-		if (termsArea != null) termsArea.requestFocus();
+		if (areas != null) {
+			Iterator i = areas.keySet().iterator();
+			while (i.hasNext()) {
+				((JTextField) i.next()).requestFocus();
+				break;
+			}
+		}
 	}
 	
 	/**
@@ -519,7 +749,7 @@ class SearchPanel
 	void setUserString(String name)
 	{
 		String text = authors.getText();
-		String[] values = text.split(SearchUtil.SEARCH_SEPARATOR);
+		String[] values = text.split(SearchUtil.COMMA_SEPARATOR);
 		String n;
 		String v = "";
 		boolean exist = false;
@@ -530,11 +760,11 @@ class SearchPanel
 				v += n;
 				if (name.equals(n)) {
 					if (i != (l-1))
-						v += SearchUtil.SEARCH_SEPARATOR
-								+SearchUtil.NAME_SEPARATOR;
+						v += SearchUtil.COMMA_SEPARATOR
+								+SearchUtil.SPACE_SEPARATOR;
 					exist = true;
-				} else v += SearchUtil.SEARCH_SEPARATOR
-							+SearchUtil.NAME_SEPARATOR;
+				} else v += SearchUtil.COMMA_SEPARATOR
+							+SearchUtil.SPACE_SEPARATOR;
 			}
 		}
 		if (!exist) v += name;

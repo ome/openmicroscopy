@@ -59,7 +59,7 @@ import pojos.AnnotationData;
  * @since OME3.0
  */
 class AnnotatorEditorControl 
-	implements ChangeListener, PropertyChangeListener
+	implements PropertyChangeListener
 {
 
 	/** Identifies the <code>Delete action</code> in the Edit menu. */
@@ -85,7 +85,7 @@ class AnnotatorEditorControl
 	 */
 	private void attachListeners()
 	{
-		model.addChangeListener(this);
+		//model.addChangeListener(this);
 	}
 	
 	/** 
@@ -154,25 +154,10 @@ class AnnotatorEditorControl
 	 */
 	void updateAnnotation(String data)
 	{
+		System.err.println("data: "+data);
 		model.save(data);
 	}
 	
-	/**
-	 * Reacts to state changes.
-	 * @see ChangeListener#stateChanged(ChangeEvent)
-	 */
-	public void stateChanged(ChangeEvent e)
-	{
-		switch (model.getState()) {
-			case DataHandler.DISCARDED:
-			case DataHandler.LOADING:
-			case DataHandler.SAVING:
-				break;
-			default:
-				break;
-		}
-	}
-
 	/**
 	 * Reacts to property changes fired by {@link AnnotatorSavingDialog}.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

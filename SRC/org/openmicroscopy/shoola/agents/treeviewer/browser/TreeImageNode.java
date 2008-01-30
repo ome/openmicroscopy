@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.ImageData;
 
 /** 
  * Represents a leaf in the composite structure used to visualize an
@@ -71,8 +70,6 @@ public class TreeImageNode
     public TreeImageNode(Object hierarchyObject)
     {
         super(hierarchyObject);
-        Long c = null;//((ImageData) getUserObject()).getClassificationCount();
-		if (c != null) tagNumber = (int) c.longValue();
     }
     
     /**
@@ -121,15 +118,5 @@ public class TreeImageNode
         copy.setExpanded(this.isExpanded());
         return copy;
     }
-
-	/**
-	 * Returns <code>true</code> if the object has tagged, 
-	 * <code>false</code> otherwise.
-	 * @see TreeImageDisplay#hasTags()
-	 */
-	public boolean hasTags()
-	{
-		return (tagNumber > 0);
-	}
-
+    
 }

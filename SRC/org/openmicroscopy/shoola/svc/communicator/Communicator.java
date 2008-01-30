@@ -50,6 +50,7 @@ public interface Communicator
 	/**
 	 * Sends a message to the server collecting the errors and comments.
 	 * 
+	 * @param invoker	The client posting the message.
 	 * @param email		The <code>e-mail</code> address of the user
 	 * 					submitting the bug.
 	 * @param comment	The comment entered by the user.
@@ -59,13 +60,14 @@ public interface Communicator
 	 * @throws TransportException 	Thrown if an error occured while trying 
 	 * 								to submit the error.
 	 */
-	public void submitError(String email, String comment, String extra, 
-							String error, String reply)
+	public void submitError(String invoker, String email, String comment,
+							String extra, String error, String reply)
 		throws TransportException;
 	
 	/**
 	 * Sends a comment to the server collecting the errors and comments.
 	 * 
+	 * @param invoker	The client posting the message.
 	 * @param email		The <code>e-mail</code> address of the user
 	 * 					submitting the bug.
 	 * @param comment	The comment entered by the user.
@@ -74,8 +76,8 @@ public interface Communicator
 	 * @throws TransportException 	Thrown if an error occured while trying 
 	 * 								to submit the error.
 	 */
-	public void submitComment(String email, String comment, String extra, 
-								String reply)
+	public void submitComment(String invoker, String email, String comment, 
+							String extra, String reply)
 		throws TransportException;
 	
 }

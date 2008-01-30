@@ -26,17 +26,14 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.sql.Timestamp;
-import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-
-import pojos.ExperimenterData;
 
 /** 
  * Searches for objects.
@@ -64,31 +61,16 @@ public class ObjectFinder
     /**
      * Creates a {@link BatchCall} to retrieve the data
      * 
-     * @param scope			The scope of the search.
-     * @param values		The terms to search for.
-     * @param users			The users' name.
-     * @param start			The start of a time interval.
-     * @param end			The end of a time interval.
-     * @param separator		The separator between words, either <code>and</code>
-	 * 						or <code>or</code>.
-	 * @param caseSensitive Pass <code>true</code> to take into account the
-	 * 						case sensitivity while searching, 
-	 * 						<code>false</code> otherwise.
+     * @param searchContext The context of the search.
      * @return The {@link BatchCall}.
      */
-    private BatchCall searchFor(final List<Class> scope, 
-    							final List<String> values, 
-    							final List<ExperimenterData> users, 
-    							final Timestamp start,
-    							final Timestamp end, final String separator, 
-    							final boolean caseSensitive)
+    private BatchCall searchFor(final SearchDataContext searchContext)
     {
         return new BatchCall("Retrieving objects") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.advancedSearchFor(scope, values, users, start, end,
-                								separator, caseSensitive);
+                result = os.advancedSearchFor(searchContext);
             }
         };
     }
@@ -108,23 +90,11 @@ public class ObjectFinder
     /**
      * Creates a new instance.
      * 
-     * @param scope			The scope of the search.
-     * @param values		The terms to search for.
-     * @param users			The users' data.
-     * @param start			The start of a time interval.
-     * @param end			The end of a time interval.
-     * @param separator		The separator between words, either <code>and</code>
-	 * 						or <code>or</code>.
-	 * @param caseSensitive Pass <code>true</code> to take into account the
-	 * 						case sensitivity while searching, 
-	 * 						<code>false</code> otherwise.
+     * @param searchContext The context of the search.
      */
-    public ObjectFinder(List<Class> scope, List<String> values, 
-    					List<ExperimenterData> users, Timestamp start, 
-    					Timestamp end, String separator, boolean caseSensitive)
+    public ObjectFinder(SearchDataContext searchContext)
     {
-    	loadCall = searchFor(scope, values, users, start, end, separator, 
-    						caseSensitive);
+    	loadCall = searchFor(searchContext);
     }
     
 }

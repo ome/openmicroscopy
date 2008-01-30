@@ -75,7 +75,7 @@ public class TreeCellRenderer
     
     /** The ID of the current user. */
     private long				userID;
-    
+
     /**
      * Sets the icon and the text corresponding to the user's object.
      * If an icon is passed, the passed icon is set
@@ -90,12 +90,12 @@ public class TreeCellRenderer
         if (usrObject instanceof ProjectData) {
         	 a = CountUtil.annotatedByCurrentUser(usrObject, userID);
              b = CountUtil.annotatedByOtherUser(usrObject, userID);
-             if (a && b)
-             	icon = icons.getIcon(IconManager.PROJECT_ANNOTATED_BY_ALL);
-             else if (a && !b)
-             	icon = icons.getIcon(IconManager.PROJECT_ANNOTATED_BY_USER);
-             else if (!a && b)
-             	icon = icons.getIcon(IconManager.PROJECT_ANNOTATED_BY_OTHER);
+             if (a && b) 
+            	 icon = icons.getIcon(IconManager.PROJECT_ANNOTATED_BY_ALL);
+             else if (a && !b) 
+            	 icon = icons.getIcon(IconManager.PROJECT_ANNOTATED_BY_USER);
+             else if (!a && b) 
+            	 icon = icons.getIcon(IconManager.PROJECT_ANNOTATED_BY_OTHER);
              else 
                 icon = icons.getIcon(IconManager.PROJECT);
         } else if (usrObject instanceof DatasetData) {
@@ -156,6 +156,7 @@ public class TreeCellRenderer
         	(ExperimenterData) TreeViewerAgent.getRegistry().lookup(
         			LookupNames.CURRENT_USER_DETAILS);
         userID = exp.getId();
+      
     }
     
     /** Creates a new instance. */

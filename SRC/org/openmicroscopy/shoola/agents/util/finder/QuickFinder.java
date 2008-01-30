@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
+ * 
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
  * @since OME3.0
@@ -69,25 +70,7 @@ public class QuickFinder
 	private void fireTagsRetrieval(List values, String sep)
 	{
 		state = SEARCH;
-		QuickFinderLoader handler = new QuickFinderLoader(this, values, 
-													QuickFinderLoader.TAGS, 
-													sep);
-		handler.load();
-		finderHandlers.add(handler);
-	}
-	
-	/** 
-	 * Searches for the passed values.
-	 * 
-	 * @param values The value to search for.
-	 * @param sep
-	 */
-	private void fireTagSetsRetrieval(List values, String sep)
-	{
-		state = SEARCH;
-		QuickFinderLoader handler = new QuickFinderLoader(this, values, 
-													QuickFinderLoader.TAG_SETS,
-													sep);
+		QuickFinderLoader handler = new QuickFinderLoader(this, null);
 		handler.load();
 		finderHandlers.add(handler);
 	}
@@ -101,8 +84,7 @@ public class QuickFinder
 	private void fireImagesRetrieval(List values, String sep)
 	{
 		state = SEARCH;
-		QuickFinderLoader handler = new QuickFinderLoader(this, values, 
-										QuickFinderLoader.IMAGES, sep);
+		QuickFinderLoader handler = new QuickFinderLoader(this, null);
 		handler.load();
 		finderHandlers.add(handler);
 	}
@@ -116,8 +98,7 @@ public class QuickFinder
 	private void fireAnnotationsRetrieval(List values, String sep)
 	{
 		state = SEARCH;
-		QuickFinderLoader handler = new QuickFinderLoader(this, values, 
-										QuickFinderLoader.ANNOTATIONS, sep);
+		QuickFinderLoader handler = new QuickFinderLoader(this, null);
 		handler.load();
 		finderHandlers.add(handler);
 	}
@@ -176,8 +157,6 @@ public class QuickFinder
 			case ANNOTATIONS:
 				fireAnnotationsRetrieval(terms, sep);
 				break;
-			case TAG_SETS:
-				fireTagSetsRetrieval(terms, sep);
 		}
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	}

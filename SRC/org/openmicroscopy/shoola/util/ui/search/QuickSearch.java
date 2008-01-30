@@ -248,7 +248,7 @@ public class QuickSearch
 	private void handleKeyEnter()
 	{
 		List<String> l = SearchUtil.splitTerms(searchArea.getText(), 
-											SearchUtil.SEARCH_SEPARATOR);
+											SearchUtil.COMMA_SEPARATOR);
 		
 		if (selectedNode == null) selectedNode = new SearchObject();
 		selectedNode.setResult(l);

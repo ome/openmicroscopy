@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SearchResult;
 
 //Third-party libraries
@@ -760,4 +761,17 @@ public interface OmeroDataService
 			String separator, boolean caseSensitive)
 		throws DSOutOfServiceException, DSAccessException;
 	
+	/**
+	 * Retrieves the objects specified by the context of the search
+	 * and returns an object hosting various elements used for the display.
+	 * 	
+	 * @param context The context of the search.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public SearchResult advancedSearchFor(SearchDataContext context)
+		throws DSOutOfServiceException, DSAccessException;
 }

@@ -235,7 +235,7 @@ class TaggerUI
 	{
 		String name = nameArea.getText();
 		if (name == null || name.length() == 0) return;
-		String[] names = name.split(SearchUtil.SEARCH_SEPARATOR);
+		String[] names = name.split(SearchUtil.COMMA_SEPARATOR);
 		Rectangle2D r;
 		Graphics context = nameArea.getGraphics();
 		int l = 0;
@@ -309,7 +309,7 @@ class TaggerUI
 	private void handleTagSetEnter(CategoryGroupData data)
 	{
 		String name = nameArea.getText();
-		String[] names = name.split(SearchUtil.SEARCH_SEPARATOR);
+		String[] names = name.split(SearchUtil.COMMA_SEPARATOR);
 		Set categories = data.getCategories();
 		Iterator j = categories.iterator();
 		CategoryData category;
@@ -321,7 +321,7 @@ class TaggerUI
 		for (int i = 0; i < l; i++) {
 			n = names[i].trim();
 			text += n;
-			text += SearchUtil.SEARCH_SEPARATOR+SearchUtil.NAME_SEPARATOR;
+			text += SearchUtil.COMMA_SEPARATOR+SearchUtil.SPACE_SEPARATOR;
 		}
 		while (j.hasNext()) {
 			category = (CategoryData) j.next();
@@ -333,7 +333,7 @@ class TaggerUI
 				}
 			}
 			if (!exist) {
-				text += s+SearchUtil.SEARCH_SEPARATOR+SearchUtil.NAME_SEPARATOR;
+				text += s+SearchUtil.COMMA_SEPARATOR+SearchUtil.SPACE_SEPARATOR;
 				descriptionArea.setText(category.getDescription());
 			}
 		}
@@ -350,7 +350,7 @@ class TaggerUI
 	private void handleTagEnter(CategoryData data)
 	{
 		String name = nameArea.getText();
-		String[] names = name.split(SearchUtil.SEARCH_SEPARATOR);
+		String[] names = name.split(SearchUtil.COMMA_SEPARATOR);
 		String s = data.getName();
 		String n;
 		String text = "";
@@ -362,11 +362,11 @@ class TaggerUI
 			text += n;
 			if (s.equals(n)) {
 				if (i != (l-1))
-					text += SearchUtil.SEARCH_SEPARATOR
-							+SearchUtil.NAME_SEPARATOR;
+					text += SearchUtil.COMMA_SEPARATOR
+							+SearchUtil.SPACE_SEPARATOR;
 				exist = true;
-			} else text += SearchUtil.SEARCH_SEPARATOR
-							+SearchUtil.NAME_SEPARATOR;
+			} else text += SearchUtil.COMMA_SEPARATOR
+							+SearchUtil.SPACE_SEPARATOR;
 		}
 		if (!exist) {
 			descriptionArea.setText(data.getDescription());
@@ -458,7 +458,7 @@ class TaggerUI
     	typing = true;
     	finishButton.setEnabled(length != 0);
     	String name = nameArea.getText();
-    	String[] names = name.split(SearchUtil.SEARCH_SEPARATOR);
+    	String[] names = name.split(SearchUtil.COMMA_SEPARATOR);
     	if (length == 0 && historyDialog != null)
     		historyDialog.setVisible(false);
     	else 
@@ -526,7 +526,7 @@ class TaggerUI
     	typing = true;
         finishButton.setEnabled(true);
         String name = nameArea.getText();
-        String[] names = name.split(SearchUtil.SEARCH_SEPARATOR);
+        String[] names = name.split(SearchUtil.COMMA_SEPARATOR);
         setSelectedTextValue(names);
     }
     
@@ -666,7 +666,7 @@ class TaggerUI
 		String text = "";
 		if (length >= 1) {
 			boolean exist = false;
-			String[] names = name.split(SearchUtil.SEARCH_SEPARATOR);
+			String[] names = name.split(SearchUtil.COMMA_SEPARATOR);
 			String n;
 			int l = names.length;
 			if (typing) l = l-1;
@@ -676,11 +676,11 @@ class TaggerUI
 					text += n;
 					if (itemName.equals(n)) {
 						if (i != (l-1))
-							text += SearchUtil.SEARCH_SEPARATOR
-									+SearchUtil.NAME_SEPARATOR;
+							text += SearchUtil.COMMA_SEPARATOR
+									+SearchUtil.SPACE_SEPARATOR;
 						exist = true;
-					} else text += SearchUtil.SEARCH_SEPARATOR
-									+SearchUtil.NAME_SEPARATOR;
+					} else text += SearchUtil.COMMA_SEPARATOR
+									+SearchUtil.SPACE_SEPARATOR;
 				}
 			}
 			if (!exist) {
@@ -709,7 +709,7 @@ class TaggerUI
 		String name = nameArea.getText();
 		CategoryData item;
 		if (name == null) return null;
-		String[] names = name.split(SearchUtil.SEARCH_SEPARATOR);
+		String[] names = name.split(SearchUtil.COMMA_SEPARATOR);
 		int l = names.length;
 		if (names != null && l > 0) {
 			String v; 

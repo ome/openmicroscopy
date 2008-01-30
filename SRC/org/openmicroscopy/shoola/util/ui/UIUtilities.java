@@ -480,6 +480,23 @@ public class UIUtilities
     }
     
     /**
+     * Displays the specified string into a {@link JLabel} and sets 
+     * the font to <code>bold</code>.
+     * 
+     * @param s 		The string to display.
+     * @param fontStyle The style of font.
+     * @param fontSize	The size of the font.
+     * @return See above.
+     */
+    public static JLabel setTextFont(String s, int fontStyle, int fontSize)
+    {
+        JLabel label = new JLabel(s);
+        Font font = label.getFont();
+        label.setFont(font.deriveFont(fontStyle, fontSize));
+        return label;
+    }
+    
+    /**
      * Adds the specified {@link JComponent} to a {@link JPanel} 
      * with a left flowlayout.
      * 

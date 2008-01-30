@@ -38,13 +38,20 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
+
+import pojos.AnnotationData;
+import pojos.CategoryData;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * The class actually managing the search.
@@ -82,22 +89,21 @@ public class AdvancedFinder
 	 * @param value The value to convert.
 	 * @return See above.
 	 */
-	private int convertScope(int value)
+	private Class convertScope(int value)
 	{
 		switch (value) {
-			case SearchContext.ANNOTATIONS:
-				return FinderLoader.ANNOTATIONS;
+			case SearchContext.TEXT_ANNOTATION:
+				return AnnotationData.class;
 			case SearchContext.TAGS:
-				return FinderLoader.TAGS;
+				return CategoryData.class;
 			case SearchContext.DATASETS:
-				return FinderLoader.DATASETS;
+				return DatasetData.class;
 			case SearchContext.PROJECTS:
-				return FinderLoader.PROJECTS;
-			case SearchContext.TAG_SETS:
-				return FinderLoader.TAG_SETS;
-			default:
+				return ProjectData.class;
 			case SearchContext.IMAGES:
-				return FinderLoader.IMAGES;
+				return ImageData.class;
+			default:
+				return null;
 		}
 	}
 	
@@ -108,9 +114,11 @@ public class AdvancedFinder
 	 */
 	private void handleSearchContext(SearchContext ctx)
 	{
-		List<String> terms = ctx.getTerms();
+		String[] some = ctx.getSome();
+		String[] must = ctx.getMust();
+		String[] none = ctx.getNone();
 		UserNotifier un = FinderFactory.getRegistry().getUserNotifier();
-		if (terms == null || terms.size() == 0) {
+		if (some == null && must == null && none == null) {
 			un.notifyInfo(TITLE, "Please enter a term to search for.");
 			return;
 		}
@@ -125,22 +133,36 @@ public class AdvancedFinder
 			un.notifyInfo(TITLE, "The time interval selected is not valid.");
 			return;
 		}
-		List<Integer> scope = new ArrayList<Integer>(context.size());
+		List<Class> scope = new ArrayList<Class>(context.size());
 		Iterator i = context.iterator();
+		Class k;
+		while (i.hasNext()) {
+			k = convertScope((Integer) i.next());
+			if (k != null) scope.add(k);
+		}
+			
 		
-		while (i.hasNext()) 
-			scope.add(convertScope((Integer) i.next()));
+		List<Class> types = new ArrayList<Class>();
+		i = ctx.getType().iterator();
+		
+		while (i.hasNext()) {
+			k = convertScope((Integer) i.next());
+			if (k != null) types.add(k);
+		}
 		
 		switch (ctx.getUserSearchContext()) {
 			case SearchContext.JUST_CURRENT_USER:
 			case SearchContext.CURRENT_USER_AND_OTHERS:
 				users.add(getUserDetails());
 		}
-		
-		AdvancedFinderLoader loader = new AdvancedFinderLoader(this, terms,
-											users, scope, start, end, 
-											ctx.getSeparator(), 
-											ctx.isCaseSensitive());
+		SearchDataContext searchContext = new SearchDataContext(scope, types, 
+										some, must, none);
+		searchContext.setTimeInterval(start, end);
+		searchContext.setUsers(users);
+		searchContext.setCaseSensitive(ctx.isCaseSensitive());
+		searchContext.setNumberOfResults(ctx.getNumberOfResults());
+		AdvancedFinderLoader loader = new AdvancedFinderLoader(this, 
+													searchContext);
 		loader.load();
 		finderHandlers.add(loader);
 		state = SEARCH;
@@ -262,7 +284,7 @@ public class AdvancedFinder
 				exp = (ExperimenterData) m.get(i.next());
 				if (!users.contains(exp)) {
 					users.add(exp);
-					setUserString(exp.getFirstName()+SearchUtil.NAME_SEPARATOR+
+					setUserString(exp.getFirstName()+SearchUtil.SPACE_SEPARATOR+
 								exp.getLastName());
 				}
 			}
