@@ -263,13 +263,16 @@ public class OntologyTermSelector extends JPanel {
 		
 		String ontologyId = ontologySelector.getSelectedItem().toString();
 		
+		return getOntologyIdFromIdAndName(ontologyId);
+	}
+	
+	public static String getOntologyIdFromIdAndName(String IdAndName) {
 		// ontologyIds in ontologySelector may be eg "PATO", or may be "PATO	patoName"
-		int idNameSeparatorIndex = ontologyId.indexOf(ONTOLOGY_ID_NAME_SEPARATOR);
+		int idNameSeparatorIndex = IdAndName.indexOf(ONTOLOGY_ID_NAME_SEPARATOR);
 		if(idNameSeparatorIndex > 0) {
-			ontologyId = ontologyId.substring(0, idNameSeparatorIndex);
+			IdAndName = IdAndName.substring(0, idNameSeparatorIndex);
 		}
-		
-		return ontologyId;
+		return IdAndName;
 	}
 	
 	public void setCurrentOntology(String ontologyId) {

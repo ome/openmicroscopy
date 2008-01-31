@@ -18,11 +18,15 @@
  *
  *------------------------------------------------------------------------------
  *	author Will Moore will@lifesci.dundee.ac.uk
+ *
+ * This code is adapted from the Apache demo classes:
+ * (see below)
  */
 
 package search;
 
 /**
+ * 
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -44,19 +48,13 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
 import org.apache.lucene.index.IndexWriter;
-import org.xml.sax.SAXParseException;
-
-import util.XMLMethods;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 
 // almost all Lucene demo code for indexing files. 
 

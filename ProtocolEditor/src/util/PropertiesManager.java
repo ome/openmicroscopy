@@ -37,14 +37,14 @@ public class PropertiesManager {
 	
 	public static String getProperty(String key) {
 		
-		System.out.println("PropertiesManager getProperty(" + key + ") = " + System.getProperty(key));
+		//System.out.println("PropertiesManager getProperty(" + key + ") = " + System.getProperty(key));
 		
 		return System.getProperty(key);
 	}
 	
 	public static void setProperty(String key, String value) {
 		
-		System.out.println("PropertiesManager setProperty() key = " + key + ", value = " + value);
+		//System.out.println("PropertiesManager setProperty() key = " + key + ", value = " + value);
 		
 		System.setProperty(key, value);
 	}

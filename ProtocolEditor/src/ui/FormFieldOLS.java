@@ -39,7 +39,7 @@ import util.ImageFactory;
 public class FormFieldOLS extends FormField {
 	
 	// variables
-	String termId;
+	String termIdAndName;
 	
 	boolean metadataPanelVisible = false;
 	
@@ -51,8 +51,7 @@ public class FormFieldOLS extends FormField {
 		
 		super(dataFieldObs);
 		
-		termId = dataField.getAttribute(DataFieldConstants.ONTOLOGY_TERM_ID);
-		
+		termIdAndName = dataField.getAttribute(DataFieldConstants.ONTOLOGY_TERM_ID);
 		
 		Icon metadataIcon = ImageFactory.getInstance().getIcon(ImageFactory.ONTOLOGY_METADATA_ICON);
 		toggleMetadataButton = new JButton(metadataIcon);
@@ -77,6 +76,7 @@ public class FormFieldOLS extends FormField {
 	// this updates the olsMetadataPanel
 	private void refreshTermDetails() {
 		if ((metadataPanelVisible) && (olsMetadataPanel != null)) {
+			String termId = OntologyTermSelector.getOntologyIdFromIdAndName(termIdAndName);
 			olsMetadataPanel.resetTerm(termId);
 			this.validate();
 		}
@@ -89,6 +89,7 @@ public class FormFieldOLS extends FormField {
 		// (or until auto-complete is required). 
 
 		if (olsMetadataPanel == null) {
+			String termId = OntologyTermSelector.getOntologyIdFromIdAndName(termIdAndName);
 			olsMetadataPanel = new OLSMetadataPanel(termId);
 			this.add(olsMetadataPanel, BorderLayout.SOUTH);
 		}
@@ -105,7 +106,7 @@ public class FormFieldOLS extends FormField {
 //	 overridden by subclasses if they have other attributes to retrieve from dataField
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		termId = dataField.getAttribute(DataFieldConstants.ONTOLOGY_TERM_ID);
+		termIdAndName = dataField.getAttribute(DataFieldConstants.ONTOLOGY_TERM_ID);
 		refreshTermDetails();
 	}
 

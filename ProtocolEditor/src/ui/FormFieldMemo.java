@@ -36,34 +36,37 @@ import ui.components.AttributeMemoFormatEditor;
 
 public class FormFieldMemo extends FormField {
 	
-	AttributeMemoFormatEditor inputEditor;
+	//AttributeMemoFormatEditor inputEditor;
+	
+	JTextArea textInput;
 	
 	public FormFieldMemo(IDataFieldObservable dataFieldObs) {
 		super(dataFieldObs);
 		
+		/*
 		inputEditor = new AttributeMemoFormatEditor(dataField, 
 				"", DataFieldConstants.VALUE, dataField.getAttribute(DataFieldConstants.VALUE));
 		inputEditor.getTextArea().addFocusListener(componentFocusListener);
 		horizontalBox.add(inputEditor);
+		*/
 		
 		
-		/*
 		String value = dataField.getAttribute(DataFieldConstants.VALUE);
 		
 		textInput = new JTextArea(value);
 		visibleAttributes.add(textInput);
-		textInput.setRows(3);
+		//textInput.setRows(3);
 		textInput.setLineWrap(true);
 		textInput.setWrapStyleWord(true);
 		JScrollPane textScroller = new JScrollPane(textInput);
 		textInput.setMargin(new Insets(3,3,3,3));
-		textInput.setPreferredSize(new Dimension(300, 100));
+		textInput.setMaximumSize(new Dimension(500, 500));
 		textInput.addMouseListener(new FormPanelMouseListener());
 		textInput.setName(DataFieldConstants.VALUE);
 		textInput.addFocusListener(focusChangedListener);
 		textInput.addKeyListener(textChangedListener);
 		horizontalBox.add(textScroller);
-		*/
+		
 		//setExperimentalEditing(false);	// default created as uneditable
 	}
 	
@@ -71,15 +74,15 @@ public class FormFieldMemo extends FormField {
 	// overridden by subclasses if they have other attributes to retrieve from dataField
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		inputEditor.setTextAreaText(dataField.getAttribute(DataFieldConstants.VALUE));
+		textInput.setText(dataField.getAttribute(DataFieldConstants.VALUE));
 	}
 	
 	public void setHighlighted(boolean highlight) {
 		super.setHighlighted(highlight);
 		// if the user highlighted this field by clicking the field (not the textArea itself) 
 		// need to get focus, otherwise focus will remain elsewhere. 
-		if (highlight && (!inputEditor.getTextArea().hasFocus()))
-			inputEditor.getTextArea().requestFocusInWindow();
+		if (highlight && (!textInput.hasFocus()))
+			textInput.requestFocusInWindow();
 	}
 	
 }

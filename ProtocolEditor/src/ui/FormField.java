@@ -48,6 +48,7 @@ import javax.swing.text.JTextComponent;
 
 import tree.DataField;
 import tree.DataFieldConstants;
+import tree.DataFieldNode;
 import tree.DataFieldObserver;
 import tree.IAttributeSaver;
 import tree.IDataFieldObservable;
@@ -113,7 +114,7 @@ public class FormField extends JPanel implements DataFieldObserver{
 			throw new RuntimeException("FormField(dataField) needs dataField to implement IAttributeSaver");
 		}
 		
-		//System.out.println("FormField Constructor: name is " + dataField.getName());
+		//System.out.println("FormField Constructor: name is " + dataField.getAttribute(DataFieldConstants.ELEMENT_NAME));
 		
 		// build the formField panel
 		Border eb = BorderFactory.createEmptyBorder(3, 3, 3, 3);
@@ -319,8 +320,8 @@ public class FormField extends JPanel implements DataFieldObserver{
 	
 	public void panelClicked(boolean clearOthers) {
 		if (dataFieldObs instanceof IDataFieldSelectable){
-			System.out.println("FormField panelClicked() name:" + 
-					dataField.getAttribute(DataFieldConstants.ELEMENT_NAME) + " clearOthers = " + clearOthers);
+			//System.out.println("FormField panelClicked() name:" + 
+			//		dataField.getAttribute(DataFieldConstants.ELEMENT_NAME) + " clearOthers = " + clearOthers);
 			((IDataFieldSelectable)dataFieldObs).dataFieldSelected(clearOthers);
 		}
 	}
@@ -363,7 +364,10 @@ public class FormField extends JPanel implements DataFieldObserver{
 	// also called when user collapses or expands sub-steps
 	public void refreshTitleCollapsed() {
 		
-		boolean collapsed = dataField.isAttributeTrue(DataFieldConstants.SUBSTEPS_COLLAPSED);
+		boolean collapsed = subStepsCollapsed();
+		
+		//System.out.println("FormField   refreshTitleCollapsed()  collapsed=" + collapsed);
+		
 		collapseButton.setIcon(collapsed ? collapsedIcon : notCollapsedIcon);
 		
 		showChildren(!collapsed);
@@ -371,9 +375,20 @@ public class FormField extends JPanel implements DataFieldObserver{
 		// this is only needed when building UI (superfluous when simply collapsing)
 		refreshHasChildren(hasChildren());
 	}
+	
+	public boolean subStepsCollapsed() {
+		// default for Custom XML fields is false
+		if ((dataField.getAttribute(DataFieldConstants.INPUT_TYPE).equals(DataFieldConstants.CUSTOM))
+				&& (dataField.getAttribute(DataFieldConstants.SUBSTEPS_COLLAPSED) == null)) {
+			dataField.setAttribute(DataFieldConstants.SUBSTEPS_COLLAPSED, DataFieldConstants.TRUE, false);
+			return true;
+		}
+		
+		return dataField.isAttributeTrue(DataFieldConstants.SUBSTEPS_COLLAPSED);
+	}
 
 	public boolean hasChildren() {
-		return childContainer.getComponentCount()>0;
+		return ((DataField)dataField).hasChildren();
 	}
 	
 	public void refreshRootField(boolean rootField) {
@@ -388,6 +403,10 @@ public class FormField extends JPanel implements DataFieldObserver{
 		return childContainer;
 	}
 	public void showChildren(boolean visible) {
+		if (visible && childContainer.getComponentCount() == 0) {
+			ArrayList<DataFieldNode> children = ((DataField)dataField).getNode().getChildren();
+			FormDisplay.showChildren(children, (Box)childContainer);
+		}
 		childContainer.setVisible(visible);
 	}
 	

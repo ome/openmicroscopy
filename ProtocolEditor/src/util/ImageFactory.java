@@ -60,6 +60,7 @@ public class ImageFactory {
 	public static final String PASTE_ICON = ACTION_ICONS_FILE + "eclipse_paste_edit.png";
 	public static final String IMPORT_ICON = ACTION_ICONS_FILE + "compfile.png";
 	public static final String BIG_PROTOCOL_ICON = ACTION_ICONS_FILE + "edu_science.png";
+	public static final String PROTOCOL_ICON = ICONS_FILE + "apps/edu_science.png";
 	public static final String COLLAPSED_ICON = ACTION_ICONS_FILE + "1rightarrow.png";
 	public static final String NOT_COLLAPSED_ICON = ACTION_ICONS_FILE + "1downarrow.png";
 	public static final String WWW_ICON = ACTION_ICONS_FILE + "www.png";
@@ -90,6 +91,9 @@ public class ImageFactory {
 	public static final String ENTER_ICON = ACTION_ICONS_FILE + "enter.png";
 	public static final String ONTOLOGY_METADATA_ICON = ICONS_FILE + "apps/kdict.png";
 	public static final String CONFIGURE_ICON = ICONS_FILE + "apps/package_utilities.png";
+	public static final String OPEN_IMAGE_ICON = ICONS_FILE + "filesystems/folder_image.png";
+	public static final String SEND_COMMENT_ICON = ACTION_ICONS_FILE + "mail_send.png";
+	public static final String ZOOM_ICON = ACTION_ICONS_FILE + "zoom.png";
 	
 	public Icon getIcon(String iconPathName) {
 		try {
@@ -100,4 +104,7 @@ public class ImageFactory {
 		}
 	}
 
+	public ImageIcon getImageIcon(String iconPathName) {
+		return (ImageIcon)getIcon(iconPathName);
+	}
 }

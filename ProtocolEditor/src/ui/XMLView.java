@@ -24,6 +24,7 @@ package ui;
 
 import javax.swing.Box;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
@@ -77,6 +78,7 @@ import tree.DataFieldNode;
 import tree.Tree;
 import tree.Tree.Actions;
 import ui.components.ExportDialog;
+import util.ExceptionHandler;
 import util.FileDownload;
 import util.HtmlOutputter;
 import util.ImageFactory;
@@ -125,7 +127,7 @@ public class XMLView
 	
 	public static final int CONTROL_CLICK = 18;
 	public static final int SHIFT_CLICK = 17;
-	public static final Font FONT_H1 = new Font("SansSerif", Font.BOLD, 18);
+	public static final Font FONT_H1 = new Font("SansSerif", Font.PLAIN, 16);
 	public static final Font FONT_SMALL = new Font("SansSerif", Font.PLAIN, 12);
 	public static final Font FONT_TINY = new Font("SansSerif", Font.PLAIN, 9);
 	public static final Font FONT_INVISIBLE = new Font("Sanserif", Font.PLAIN, 1);
@@ -240,6 +242,8 @@ public class XMLView
 	private Icon moreLikeThisIcon;
 	private Icon searchIcon;
 	private Icon configureIcon;
+	private Icon protocolIcon;
+	private Icon sendCommentIcon;
 
 	protected JButton loadDefaultsButton;
 
@@ -296,6 +300,8 @@ public class XMLView
 		previousUpIcon = ImageFactory.getInstance().getIcon(ImageFactory.PREVIOUS_UP_ICON);
 		nextDownIcon = ImageFactory.getInstance().getIcon(ImageFactory.NEXT_DOWN_ICON);
 		configureIcon = ImageFactory.getInstance().getIcon(ImageFactory.CONFIGURE_ICON);
+		protocolIcon = ImageFactory.getInstance().getIcon(ImageFactory.PROTOCOL_ICON);
+		sendCommentIcon = ImageFactory.getInstance().getIcon(ImageFactory.SEND_COMMENT_ICON);
 		
 		
 //		 controls for changing currently opened file, and closing current file
@@ -543,42 +549,42 @@ public class XMLView
 		// Protocol edit buttons
 		
 		addAnInput = new JButton(addIcon);
-		addAnInput.setToolTipText("Add a step to the protocol");
+		addAnInput.setToolTipText("Add a field to the template");
 		addAnInput.addActionListener(new AddDataFieldListener());
 		addAnInput.setBorder(noRightPadding);
 		
 		duplicateField = new JButton(duplicateIcon);
-		duplicateField.setToolTipText("Duplicate the selected step. To select multiple steps use Shift-Click");
+		duplicateField.setToolTipText("Duplicate the selected field. To select multiple fields use Shift-Click");
 		duplicateField.addActionListener(new DuplicateFieldListener());
 		duplicateField.setBorder(thinLeftRightPadding);
 		
 		deleteAnInput = new JButton(deleteIcon);
-		deleteAnInput.setToolTipText("Delete the highlighted steps from the protocol");
+		deleteAnInput.setToolTipText("Delete the highlighted fields from the protocol");
 		deleteAnInput.addActionListener(new deleteDataFieldListener());
 		deleteAnInput.setBorder(noLeftPadding);
 		
 		JButton moveUpButton = new JButton(moveUpIcon);
-		moveUpButton.setToolTipText("Move the step up");
+		moveUpButton.setToolTipText("Move the field up");
 		moveUpButton.addActionListener(new MoveFieldUpListener());
 		moveUpButton.setBorder(noRightPadding);
 		
 		JButton moveDownButton = new JButton(moveDownIcon);
-		moveDownButton.setToolTipText("Move the step down");
+		moveDownButton.setToolTipText("Move the field down");
 		moveDownButton.addActionListener(new MoveFieldDownListener());
 		moveDownButton.setBorder(noLeftPadding);
 		
 		promoteField = new JButton(promoteIcon);
-		promoteField.setToolTipText("Indent steps to left.  To select multiple steps use Shift-Click");
+		promoteField.setToolTipText("Indent fields to left.  To select multiple steps use Shift-Click");
 		promoteField.addActionListener(new PromoteFieldListener());
 		promoteField.setBorder(noRightPadding);
 		
 		demoteField = new JButton(demoteIcon);
-		demoteField.setToolTipText("Indent steps to right");
+		demoteField.setToolTipText("Indent fields to right");
 		demoteField.addActionListener(new DemoteFieldListener());
 		demoteField.setBorder(noLeftPadding);
 		
 		JButton importElemetsButton = new JButton(importElementsIcon);
-		importElemetsButton.setToolTipText("Import steps from another document");
+		importElemetsButton.setToolTipText("Import fields from another document or XML file");
 		importElemetsButton.addActionListener(new InsertElementsFromFileListener());
 		importElemetsButton.setBorder(eb);
 		
@@ -594,7 +600,7 @@ public class XMLView
 		pasteButton.addActionListener(this);
 		pasteButton.setBorder(noLeftPadding);
 		
-		// XML validation
+		// XML validation - currently not displayed. Demand for this functionality??
 		Dimension xmlValidDim = new Dimension(150, 22);
 		xmlValidationPanel = new JPanel(new BorderLayout());
 		Box xmlValidationBox = Box.createHorizontalBox();
@@ -684,6 +690,8 @@ public class XMLView
 	
 	public void buildFrame() {
 	    	XMLFrame = new JFrame("Protocol Editor");
+	    	XMLFrame.setIconImage( ((ImageIcon)protocolIcon).getImage());
+	    	
 			// Build menus
 			JMenuBar menuBar = new JMenuBar();
 			EmptyBorder menuItemBorder = new EmptyBorder(0,5,0,5);
@@ -782,7 +790,7 @@ public class XMLView
 			menuBar.add(editMenu);
 
 			
-			// protocol menu
+			// Edit-Template menu
 			JMenu protocolMenu = new JMenu("Edit-Template");
 			protocolMenu.setBorder(menuItemBorder);
 			
@@ -828,6 +836,19 @@ public class XMLView
 			protocolMenu.add(pasteFieldsMenuItem);
 			menuBar.add(protocolMenu);
 			
+			
+			// Help menu
+			JMenu helpMenu = new JMenu("Help");
+			helpMenu.setBorder(menuItemBorder);
+			
+			JMenuItem sendCommentMenuItem = new JMenuItem("Send Comment", sendCommentIcon);
+			sendCommentMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					ExceptionHandler.showCommentDialog();	
+				}
+			});
+			helpMenu.add(sendCommentMenuItem);
+			menuBar.add(helpMenu);
 			
 			// search Field and button
 			searchField = new JTextField("Search Files", 20);

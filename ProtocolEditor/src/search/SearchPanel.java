@@ -41,6 +41,7 @@ import javax.swing.event.HyperlinkListener;
 
 import ui.XMLView;
 import util.BareBonesBrowserLaunch;
+import util.ExceptionHandler;
 import util.ImageFactory;
 
 // instance of this class made for each search (passed search term in constructor)
@@ -136,11 +137,15 @@ public class SearchPanel extends JPanel {
 					SearchFiles.search(searchString, results);
 				} catch (Exception e) {
 					// user didn't index, or indexing failed. 
-					JOptionPane.showMessageDialog(this, "No Search Index found", "No Search Index", JOptionPane.ERROR_MESSAGE);
-				}
+					// show error and give user a chance to submit error
+	    			ExceptionHandler.showErrorDialog("Searching files failed - index not found",
+	    					"", e);}
     		}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			// show error and give user a chance to submit error
+			ExceptionHandler.showErrorDialog("Searching files failed",
+					"", ex);
+			
 		}
 	}
 	
@@ -161,12 +166,15 @@ public class SearchPanel extends JPanel {
     			try {
 					SearchFiles.search(findMoreLikeThis, results);
 				} catch (Exception e) {
-					// user didn't index, or indexing failed. 
-					JOptionPane.showMessageDialog(this, "No Search Index found", "No Search Index", JOptionPane.ERROR_MESSAGE);
+					// show error and give user a chance to submit error
+	    			ExceptionHandler.showErrorDialog("Searching files failed - index not found",
+	    					"", e);
 				}
     		}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			// show error and give user a chance to submit error
+			ExceptionHandler.showErrorDialog("Searching files failed",
+					"", ex);
 		}
 	}
 	

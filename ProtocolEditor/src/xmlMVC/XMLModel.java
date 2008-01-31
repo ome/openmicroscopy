@@ -1,12 +1,35 @@
 package xmlMVC;
 
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *
+ *
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ *	author Will Moore will@lifesci.dundee.ac.uk
+ */
+
+
 import java.util.ArrayList;
 import java.io.*;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -19,7 +42,6 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 import tree.DataField;
 import tree.DataFieldConstants;
@@ -30,6 +52,7 @@ import tree.Tree.Actions;
 import ui.SelectionObserver;
 import ui.XMLUpdateObserver;
 import ui.XMLView;
+import util.ExceptionHandler;
 import util.XMLMethods;
 import util.XmlTransform;
 import validation.SAXValidator;
@@ -54,6 +77,8 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	public static final String VERSION = "version";
 	public static final String XML_VERSION_NUMBER = "1.0";
 			
+	public static final String RELEASE_VERSION_NAME = "ProtocolEditor-Jan08";
+	
 	/**
 	 * DOM Document used to pass XML files between methods such as readXMLtoDOM() and openXMLFile()
 	 */
@@ -82,7 +107,16 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	
 	
 	public static void main(String args[]) {
-		new XMLModel(true);
+		try {
+			new XMLModel(true);
+			
+		// catch any uncaught exceptions	
+		} catch (Exception se) {
+			
+			// give users chance to submit bug.
+			ExceptionHandler.showErrorDialog("Unknown Error", 
+					"Abnormal termination due to an uncaught exception.", se);
+		} 
 	}
 	
 	
@@ -125,6 +159,11 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		try {
 			readXMLtoDOM(xmlFile); // overwrites document
 		} catch (SAXException e) {
+			
+			// show error and give user a chance to submit error
+			ExceptionHandler.showErrorDialog("File failed to open.",
+					"XML was not read correctly. XML may be 'badly-formed'", e);
+			
 			e.printStackTrace();
 			return false;
 		}	
@@ -139,6 +178,7 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		document = null;
 
 		notifyXMLObservers();
+		//selectionChanged();
 		
 		return true;
 	}
@@ -180,6 +220,11 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		try {
 			readXMLtoDOM(xmlFile); // overwrites document
 		} catch (SAXException e) {
+			
+			// show error and give user a chance to submit error
+			ExceptionHandler.showErrorDialog("File failed to open.",
+					"XML was not read correctly. XML may be 'badly-formed'", e);
+			
 			e.printStackTrace();
 			return null;
 		}	
@@ -221,7 +266,10 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			outputDocument = db.newDocument();
 		} catch (Exception ex) { 
-			ex.printStackTrace();
+			// show error and give user a chance to submit error
+			ExceptionHandler.showErrorDialog("File failed to export to XML.",
+					"Cannot create new output DOM Document", ex);
+			
 		}
 		Tree tree = getCurrentTree();
 		Tree.buildDOMfromTree(tree.getRootNode(), outputDocument);
@@ -286,12 +334,12 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 			setCurrentFile(outputFile);	// remember the current file. 
 			getCurrentTree().setTreeEdited(false);
 			
-		} catch (TransformerConfigurationException e) {
-			e.printStackTrace();
-		} catch (TransformerFactoryConfigurationError e) {
-			e.printStackTrace();
 		} catch (TransformerException e) {
-			e.printStackTrace();
+			
+			// show error and give user a chance to submit error
+			ExceptionHandler.showErrorDialog("XML Transformer Exception",
+					"Error in saving file.", e);
+			
 		}
 	}
 	

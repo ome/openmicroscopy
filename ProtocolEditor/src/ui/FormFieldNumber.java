@@ -23,6 +23,7 @@
 package ui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
@@ -51,6 +52,7 @@ public class FormFieldNumber extends FormField {
 		numberTextBox.addFocusListener(componentFocusListener);
 		numberTextBox.addFocusListener(new NumberCheckerListener());
 		numberTextBox.setName(DataFieldConstants.VALUE);
+		numberTextBox.setMaximumSize(new Dimension(100, 30));
 		numberTextBox.addFocusListener(focusChangedListener);
 		numberTextBox.addKeyListener(textChangedListener);
 		numberTextBox.setToolTipText("Must enter a number");

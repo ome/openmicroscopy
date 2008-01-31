@@ -18,6 +18,9 @@
  *
  *------------------------------------------------------------------------------
  *	author Will Moore will@lifesci.dundee.ac.uk
+ *
+ *  parts of this code have been adapted from the Lucene demo classes. 
+ *
  */package search;
 
  
@@ -51,6 +54,8 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Searcher;
 import org.apache.lucene.search.similar.MoreLikeThis;
+
+import util.ExceptionHandler;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -151,7 +156,10 @@ public class SearchFiles {
 		  addHitsToList(hits, results, findMoreLikeThis.getName());
 	  } catch (FileNotFoundException ex) {
 		  // findMoreLikeThis file not found
-		  ex.printStackTrace();
+		// show error and give user a chance to submit error
+			ExceptionHandler.showErrorDialog("Find-More-Like-This file not found",
+					"File Not Found Error", ex);
+			
 	  }
 	  
 	  reader.close();
@@ -171,11 +179,14 @@ public class SearchFiles {
 	        	try {
 	        		doc = hits.doc(i);
 	        	} catch (CorruptIndexException e) {
-	        		// TODO Auto-generated catch block
-	        		e.printStackTrace();
+	        		// show error and give user a chance to submit error
+	    			ExceptionHandler.showErrorDialog("CorruptIndexException",
+	    					"", e);
+	    			
 	        	} catch (IOException e) {
-	        		// TODO Auto-generated catch block
-	        		e.printStackTrace();
+	        		// show error and give user a chance to submit error
+	    			ExceptionHandler.showErrorDialog("I/O Exception",
+	    					"", e);
 	        	}
 	          
 	        	results.add(new SearchResultHtml(doc, searchString));

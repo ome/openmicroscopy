@@ -142,7 +142,7 @@ public class SearchResultHtml {
 	        	}
 	        	 
 	        } catch (FileNotFoundException ex) {
-	        	resultHtml = resultHtml + "File not found<br>";
+	        	resultHtml = resultHtml + "File not found. May have been moved since indexing.<br>";
 	        } catch (SAXParseException ex) {
 	        	resultHtml = "<u>" + name + "</u> <br>" + date + "<br>Cannot read file at " + path + ", due to badly-formed XML<br>";
 	        }

@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Box;
 import javax.swing.JLabel;
+import javax.swing.border.EmptyBorder;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
@@ -59,6 +60,7 @@ public class FormFieldObservation extends FormField {
 		unitTermSelector.setOntologyComboBoxMaxWidth(ontologySelectorsMaxWidth);
 		
 		Box termSelectorsVerticalBox = Box.createVerticalBox();
+		termSelectorsVerticalBox.setBorder(new EmptyBorder(0,20,0,0));
 		termSelectorsVerticalBox.add(entityTermSelector);
 		termSelectorsVerticalBox.add(attributeTermSelector);
 		termSelectorsVerticalBox.add(unitTermSelector);

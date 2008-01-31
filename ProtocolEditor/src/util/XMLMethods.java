@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 
+import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -158,11 +159,14 @@ public ArrayList<HashMap> getAllXmlFileAttributes(File file) throws FileNotFound
 
          } catch (ParserConfigurationException pce) {
              // Parser with specified options can't be built
-             pce.printStackTrace();
+        	// show error and give user a chance to submit error
+ 			ExceptionHandler.showErrorDialog("Parser Confuguration Exception",
+ 					"Parser with specified options can't be built.", pce);
 
          } catch (IOException ioe) {
             // I/O error
-            ioe.printStackTrace();
+        	 ExceptionHandler.showErrorDialog("I/O error",
+  					"File could not be read", ioe);
          }
          return document;
 	}

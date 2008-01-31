@@ -91,6 +91,9 @@ public class FieldEditorFormFieldFactory {
 		else if (inputType.equals(DataFieldConstants.OBSERVATION_DEFINITION)) {
 			fieldEditor = new FieldEditorObservation(dataField);
 		}
+		else if (inputType.equals(DataFieldConstants.IMAGE_FIELD)) {
+			fieldEditor = new FieldEditorFixed(dataField);
+		}
 		else {
 			fieldEditor = new FieldEditorCustom(dataField);
 			dataField.setAttribute(DataFieldConstants.INPUT_TYPE, DataFieldConstants.CUSTOM, false);
@@ -148,6 +151,9 @@ public class FieldEditorFormFieldFactory {
 		}
 		else if (inputType.equals(DataFieldConstants.OBSERVATION_DEFINITION)) {
 			formField = new FormFieldObservation(dataField);
+		}
+		else if (inputType.equals(DataFieldConstants.IMAGE_FIELD)) {
+			formField = new FormFieldImage(dataField);
 		}
 		else {
 			formField = new FormFieldCustom(dataField);

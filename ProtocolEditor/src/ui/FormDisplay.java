@@ -38,7 +38,7 @@ public class FormDisplay extends JPanel {
 	
 	private XMLView parentXMLView;
 	
-	int childLeftIndent = 40;
+	protected static int childLeftIndent = 40;
 	
 	FormFieldContainer verticalFormBox;
 	
@@ -92,18 +92,37 @@ public class FormDisplay extends JPanel {
 	
 //	 this will get the node's children and add them to the Box (within a new Box)
 	// the Panel of dfNode has already been added at the top of verticalBox
-	public void buildFormTree(DataFieldNode dfNode, FormField formField, Box verticalBox) {
+	public static void buildFormTree(DataFieldNode dfNode, FormField formField, Box verticalBox) {
 		
 		ArrayList<DataFieldNode> children = dfNode.getChildren();
 		
+		// every field gets a childBox, even though it may not have any children
 		FormFieldContainer childBox = new FormFieldContainer();
 		childBox.setBorder(BorderFactory.createEmptyBorder(0, childLeftIndent, 0, 0));
 		// the node gets a ref to the Box (used for collapsing. Box becomes hidden)
 		formField.setChildContainer(childBox);
 		
-		
 		//System.out.println("FormDisplay: buildFormTree() " + dfNode.getDataField().getName());
+		
+		boolean subStepsCollapsed = formField.subStepsCollapsed();
+		
+		if (!subStepsCollapsed) {
+			// add the children to the childBox - this will recursively build tree for each
+			showChildren(children, childBox);
+		}
+		// add the new childBox to it's parent
+		verticalBox.add(childBox);
+		
+//		set visibility of the childBox wrt collapsed boolean of dataField
+		//	 & sets collapse button visible if dataFieldNode has children
+		formField.refreshTitleCollapsed();
+		
+	}
 	
+	public static void showChildren(ArrayList<DataFieldNode> children, Box childBox) {
+		
+		//System.out.println("	showChildren()");
+		
 		// for each child, get their JPanel, add it to the childBox
 		for (DataFieldNode child: children){
 			JPanel newFormField = child.getFormField();
@@ -112,13 +131,6 @@ public class FormDisplay extends JPanel {
 			// recursively build the tree below each child
 			buildFormTree(child, fField, childBox);
 		}
-		// add the new childBox to it's parent
-		verticalBox.add(childBox);
-		
-//		set visibility of the childBox wrt collapsed boolean of dataField
-		//	 & sets collapse button visible if dataFieldNode has children
-		formField.refreshTitleCollapsed();
-		//dfNode.getDataField().refreshTitleCollapsed();
 	}
 	
 	public void refreshForm() {
