@@ -1,0 +1,323 @@
+/**
+ * omero_image - style definitions
+ * 
+ * Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
+ * 
+ * This software is distributed under the terms described by the LICENCE file
+ * you can find at the root of the distribution bundle, which states you are
+ * free to use it only for non commercial purposes.
+ * If the file is missing please request a copy by contacting
+ * jason@glencoesoftware.com.
+ */
+
+html {
+  overflow: hidden;
+}
+
+body {
+  font-family: verdana;
+  font-size: 0.9em;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#body { 
+  clear: both;
+}
+
+#header {
+  padding: 0;
+  margin: 0;
+}
+
+#header span {
+  /*margin: 20px;*/
+  padding-top:5px;
+}
+
+#header span p {
+  font-size: 1.0em;
+  margin: 0px;
+  padding: 0px;
+}
+
+/*
+#header img { 
+  margin: 0.5em;
+  padding: 0;
+}
+*/
+#header ul { 
+  text-align: left;
+  list-style-type: none;
+  padding-top: 1.5em;
+}
+
+hr { 
+  display: block;
+  margin: 0px;
+  padding: 0 0 0 0;
+  clear: both;
+  background: url('/media/img/blitzcon/hr_sep_1.gif') repeat-x center;
+  height: 10px;
+}
+
+#wblitz { 
+  clear: both;
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  padding-top: 5px;
+}
+
+.centeredImage {
+  display: block;
+  margin-top:0px;
+  margin-bottom:0px;
+  margin-left: auto;
+  margin-right: auto;
+  padding:0px;
+}
+
+.box { 
+  display: block;
+  background-color: #C4CFD5;
+  border: 2px solid;
+  padding: 0px;
+  text-align: center;
+  max-width: 200px;
+  overflow: hidden;
+  height: 55px;
+  _height: 60px;
+  font-size: 0.9em;
+}
+
+.box.popover { 
+  _width: 200px;
+  z-index: 10;
+}
+
+.box.popover h1 { 
+  cursor: pointer;
+  padding: 0 5px;
+}
+
+.box.popover .detail { 
+  display: none;
+  margin-bottom: 0.5em;
+}
+
+.detail ul { 
+  margin-top: 0;
+  padding-top: 0;
+  text-align: left;
+  list-style-type: none;
+  padding-left: 30%;
+  _padding-left: 5%;
+}
+
+.detail .selected { 
+  background: #a4afb5;
+}
+
+.detail a { 
+  display: block;
+  margin: 2px;
+}
+
+.box.popover.popped .detail { 
+  position: relative;
+  display: block;
+}
+
+.drop-img {
+  display: inline;
+  width: 8px;
+  height: 8px;
+  background: url('/media/img/blitzcon/white_arrow_down.gif') no-repeat center;
+}
+
+.popped .drop-img { 
+  background: url('/media/img/blitzcon/white_arrow_up.gif') no-repeat center;
+}
+
+.drop-left { 
+  float: left;
+}
+
+.box .drop-right { 
+  float: right;
+}
+
+.box.popover.popped .not-detail { 
+  display: none;
+}
+
+.box.popped { 
+  height: auto;
+  overflow: auto;
+}
+
+.box h1 { 
+  font-size: 1.0em;
+  display: block;
+  margin: 0px;
+  font-weight: bold;
+  background-color: #184a89;
+  color: #fff;
+}
+
+.box h2 { 
+  display: block;
+  margin: 0px;
+  margin-top: 0.5em;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.box input {
+  margin: 4px 0 0 4px;
+}
+
+.box select {
+  font-size: 0.8em;
+}
+
+.box table {
+  width: 100%;
+  text-align: center;
+  margin: 0.5em; 
+  font-size: 1.0em;
+}
+
+.box td { 
+  text-align: left;
+}
+
+.box td.key { 
+  text-align: right;
+  width: 30%;
+}
+
+.tooltipbox {
+  display: none;
+  position: absolute;
+  background-color: #c4cfd5;
+  z-index: 10;
+  border: solid 2px;
+}
+
+.tooltipbox td {
+  font-size: 0.8em;
+  font-weight: bold;
+}
+
+.tooltipbox.popped { 
+  display: block;
+}
+
+#wblitz-workarea {    
+  display: block;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  width: 100%;
+  height: 100%
+  overflow: hidden;
+}
+
+#wblitz-workarea .box {
+  display: block;
+  float: left;
+  position: relative;
+  margin: 0px 5px 0px 0px;
+}
+
+#wblitz-workarea button#full-size {
+  background: url('/media/img/blitzcon/1_1.gif') no-repeat center;
+  height: 22px;
+  width: 22px;
+  padding: 0;
+  margin-bottom: 4px;
+}
+
+#wblitz-workarea button#full-screen {
+  background: url('/media/img/blitzcon/fs.gif') no-repeat center;
+  height: 22px;
+  width: 22px;
+  padding: 0;
+  margin-bottom: 4px;
+}
+
+
+#footer {
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  clear: both;
+  display: block;
+  bottom: 0px;    
+  left: 0px;
+  width: 100%;
+  height: 15px;
+  overflow: hidden;
+  background-color: #184A89;
+  font-size: x-small;
+  color: white;
+}
+
+button.pressed {
+  border-style: inset;
+}
+
+.forcegrey { 
+  background-color: grey !important;
+  color: white;
+}
+
+.popclose { 
+  cursor: pointer;
+}
+
+.postit { 
+  background-color: C4CFD5;
+}
+
+.postit h1 {
+  background-color: #184A89;
+  color: #FFF;
+}
+
+.postit table { 
+  font-size: 0.9em;
+
+}
+
+#metadata-postit { 
+  _width: 350px;
+}
+
+#sizes-postit { 
+  _width: 170px;
+}
+
+.chan-window-slider { 
+  position: relative;
+  display: block;
+  height: 15px;
+  clear: both;
+}
+
+INPUT.changed { 
+  background-color: #FF9999;
+}
+
+#cbpicker-box { 
+  _width: 197px;
+}

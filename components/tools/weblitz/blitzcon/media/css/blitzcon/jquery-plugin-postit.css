@@ -1,0 +1,90 @@
+/**
+ * jquery-plugin-postit - style definitions
+ * 
+ * Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
+ * 
+ * This software is distributed under the terms described by the LICENCE file
+ * you can find at the root of the distribution bundle, which states you are
+ * free to use it only for non commercial purposes.
+ * If the file is missing please request a copy by contacting
+ * jason@glencoesoftware.com.
+ */
+
+.postit { 
+  position: absolute;
+  display: none;
+  top: 0px;
+  background: #FF0;
+  z-index: 10;
+  border: 1px solid;
+  overflow: hidden;
+  _width: 25%;
+}
+
+
+#wblitz-image-vpi.ondrag { 
+  cursor: -moz-grabbing;
+  cursor: url('/media/img/blitzcon/closedhand.cur'), hand, auto;
+}
+
+.postit h1 { 
+  margin: 0px;
+  padding: 0px 2em;
+  background: #EE0;
+  height: 1.5em;
+  font-size: 1.0em;
+  font-weight: bold;
+  text-align: center;
+  cursor: -moz-grab;
+  cursor: url('/media/img/blitzcon/openhand.cur'), pointer, auto;
+}
+
+.postit h2 { 
+  font-size: 1.0em;
+  font-style: italic;
+  text-align: center;
+  text-decoration: underline;
+}
+
+.postit td { 
+  font-family: Courier New, monospace;
+}
+
+.postit ul { 
+  font-family: Courier New, monospace;
+  list-style-type: none;
+  margin-left: 0px;
+  padding: 0px 0.5em;
+}
+
+.postit.collapsed { 
+  height: 1.5em;
+  border-bottom-style: dashed;
+}
+
+.postit-close-btn { 
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  background-image: url("/media/img/blitzcon/close.gif");
+  background-repeat: no-repeat;
+  background-position: center center;
+  width: 1.5em;
+  height: 1.5em;
+  cursor: pointer;
+}
+
+.postit-toggle-btn { 
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  background: url('/media/img/blitzcon/white_arrow_up.gif') no-repeat center;
+  background-position: center center;
+  width: 1.5em;
+  height: 1.5em;
+  cursor: pointer;
+}
+
+.postit.collapsed .postit-toggle-btn { 
+  background: url('/media/img/blitzcon/white_arrow_down.gif') no-repeat center;
+}

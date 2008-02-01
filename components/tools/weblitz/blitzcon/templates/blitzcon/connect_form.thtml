@@ -1,0 +1,37 @@
+{% comment %}
+/**
+ * connect_form - django html template
+ * 
+ * Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
+ * 
+ * This software is distributed under the terms described by the LICENCE file
+ * you can find at the root of the distribution bundle, which states you are
+ * free to use it only for non commercial purposes.
+ * If the file is missing please request a copy by contacting
+ * jason@glencoesoftware.com.
+ */
+{% endcomment %}
+
+<form action="." method="POST">
+  <div class="form_entry">
+    <label for="server">Server</label>
+    <input type="text" id="server" name="server" value="{{ server }}" />
+  </div>
+  <div class="form_entry">
+    <label for="port">Port</label>
+    <input type="text" id="port" name="port" value="{{ port }}" />
+  </div>
+  
+
+  <div class="form_entry">
+    <label for="user">Username</label>
+    <input type="text" id="user" name="user" value="{{ user }}" />
+  </div>
+  <div class="form_entry">
+    <label for="password">Password</label>
+    <input type="password" id="pass" name="pass" />
+  </div>
+  <div class="form_submit">
+    <input name="login" id="login" value="Connect" type="submit" />
+  </div>
+</form>

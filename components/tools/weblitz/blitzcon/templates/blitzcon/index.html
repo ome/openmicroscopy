@@ -1,0 +1,55 @@
+{% extends "blitzcon/base_site.html" %}
+
+{% comment %}
+/**
+ * index - django html template
+ * 
+ * Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
+ * 
+ * This software is distributed under the terms described by the LICENCE file
+ * you can find at the root of the distribution bundle, which states you are
+ * free to use it only for non commercial purposes.
+ * If the file is missing please request a copy by contacting
+ * jason@glencoesoftware.com.
+ */
+{% endcomment %}
+
+
+{% block content %}
+
+{% if not dataset %}
+  <h1>Projects</h1>
+  <p style="width: 70%;">
+    Click on a project name to the left for a list of figures available. Choosing any figure will display a thumbnail for each contained image.
+  </p>
+
+{% else %}
+
+<script type="text/javascript">
+
+function popup (url, wname) {
+  window.open(url, wname, "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=800,height=800");
+}
+
+</script>
+
+  <h1>Project: {{ project.name }}</h1>
+  <p>{% firstof project.description "No description" %}</p>
+
+  <h2>{{ dataset.name }}</h2>
+  <p>{% firstof dataset.description "No description" %}</p>
+
+  <!-- Each Image -->
+	  {% for img in dataset.listChildren %}
+      <p>
+      <a href="/{{ blitzcon.client_base }}/img_detail/{{ img.id }}/{{ dataset.id }}/" target="image_{{ img.id }}"
+         onclick="popup('/{{ blitzcon.client_base }}/img_detail/{{ img.id }}/{{ dataset.id }}/','image_{{ img.id }}'); return false;">
+        <img src="/{{ blitzcon.client_base }}/render_thumbnail/{{ img.id }}/" alt="{{ img.name }}"/>
+        {{ img.name }}
+      </a>
+      </p>
+    {% endfor %}
+
+{% endif %}
+
+{% endblock content %}

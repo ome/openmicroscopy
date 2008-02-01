@@ -1,0 +1,48 @@
+OMERO weblitz - INSTALL
+
+Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
+
+This software is distributed under the terms described by the LICENCE file
+you can find at the root of the distribution bundle, which states you are
+free to use only for non commercial purposes.
+If the file is missing please request a copy by contacting
+jason@glencoesoftware.com.
+
+Quick installation guide:
+-------------------------
+
+(todo)
+
+Miscelaneous details:
+---------------------
+
+If you don't want / can't install Ice and IcePy system wide, you can build a local version and put the contents of IcePy/python in a directory called ${WEBLITZ_HOME}/blitzcon/icepy, and that will be used by weblitz. You'll still need to make sure the Ice libs are found in runtime (usually by means of LD_PRELOAD or LD_LIBRARY_PATH env vars).
+
+
+Basic configuration:
+--------------------
+
+(todo)
+
+Multiple template customization:
+--------------------------------
+
+There is a very simple system to support multiple templates which may inherit or totally override the default one.
+To use this feature, create a new django app inside the weblitz root dir and call it 'blitzcon_{name}', where {name} must match the blitzcon Stored Connection base path for the connection you want to use the template with. Also make sure that 'has template' is enabled.
+
+$ python manage.py startapp blitzcon_glencoe
+
+Create a directory called 'templates' inside the created app, and another one with the same name as the app inside 'templates'.
+
+$ mkdir blitzcon_glencoe/templates
+$ mkdir blitzcon_glencoe/templates/blitzcon_glencoe
+
+Add that add to the settings.py file, inside the INSTALLED_APPS list and restart your server.
+
+You'll need to add at least 'index.html' and 'omero_image.html' to the 'templates/blitzcon_{name}' directory, and you can find a minimal example in blitzcon_glencoe, but a lot of other things are customizable. See the sources for the core files in blitzcon.
+
+Also note that you can add css, images and even custom javascript files by adding them to the blitzcon_{name}/media/[css|img|js]/blitzcon_{name} directories (which you'll need to create) but if you are using the default nginx server you'll also need to introduce those paths to the static file serving lookup paths for it, for which a script is supplied:
+
+$ python weblitz_sync_dirs.py
+
+You need to do this every time you add one of those directories, and a symlink will be created in a place that will be picked up by the server. You may also need to restart the server afterwards.

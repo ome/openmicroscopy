@@ -1,0 +1,79 @@
+/**
+ * base.css - Basic style for the weblitz viewer
+ * 
+ * Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
+ * 
+ * This software is distributed under the terms described by the LICENCE file
+ * you can find at the root of the distribution bundle, which states you are
+ * free to use it only for non commercial purposes.
+ * If the file is missing please request a copy by contacting
+ * jason@glencoesoftware.com.
+ */
+
+* {
+  font-family: verdana;
+}
+
+#header {
+}
+
+#header div.toolbar { 
+  text-align: right;
+  font-size: 0.8em;
+}
+
+#menu { 
+  display: block;
+  float: left;
+  height: 100%;
+  background: #BBB;
+  width:259px; 
+  font-size: 0.9em;
+}
+
+ul#menu { 
+  margin: 0em;
+  padding: 0em;
+}
+
+li.menu-root {
+  background: #184A89;
+  list-style: none;
+}
+
+.menu-root * { 
+  background: #BBB;
+  list-style-image: url('/media/img/blitzcon/arrow.gif');
+  padding-right: 2px;
+  padding-top: 1px;
+}
+
+.content { 
+  margin-top: 0px;
+  margin-right: 5px;
+  margin-left: 5px;
+  float: left;
+  width: 70%;
+}
+
+.ome-dataset.selected a { 
+  color: #fff;
+  background-color: #184A89;
+}
+
+a:link { 
+  color: #184A89;
+  text-decoration: none;
+}
+a:visited { 
+  color: #184A89;
+  text-decoration: none;
+}
+a:hover { 
+  color: #BBB;
+  background-color: #184A89;
+}
+a:active { 
+  color: #184A89;
+  text-decoration: none;
+}
