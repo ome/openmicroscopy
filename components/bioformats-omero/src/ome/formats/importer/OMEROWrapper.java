@@ -14,8 +14,10 @@ import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MinMaxCalculator;
 import loci.formats.in.LeicaReader;
+import loci.formats.meta.MetadataStore;
 import ome.formats.OMEROMetadataStore;
 import ome.model.core.Channel;
+import ome.model.core.Image;
 import ome.model.core.Pixels;
 
 public class OMEROWrapper extends MinMaxCalculator
@@ -148,15 +150,15 @@ public class OMEROWrapper extends MinMaxCalculator
 			setChannelGlobalMinMax(id);
 	}
 
-    public boolean isMinMaxSet() throws FormatException, IOException
+    @SuppressWarnings("unchecked")
+	public boolean isMinMaxSet() throws FormatException, IOException
     {
         if (minMaxSet == null)
         {
             OMEROMetadataStore store = 
                 (OMEROMetadataStore) reader.getMetadataStore();
-            List<Pixels> p = (ArrayList<Pixels>) store.getRoot();
             int series = reader.getSeries();
-            List<Channel> channels = p.get(series).getChannels();
+            List<Channel> channels = store.getPixels(series).getChannels();
             if (channels.get(getSizeC()-1).getStatsInfo() == null)
             {
                 minMaxSet = false;
@@ -196,6 +198,12 @@ public class OMEROWrapper extends MinMaxCalculator
          minMaxSet = null;
          super.close();
      }
+     
+     @Override
+    public OMEROMetadataStore getMetadataStore()
+    {
+    	 return (OMEROMetadataStore) super.getMetadataStore();
+    }
      
     /**
      * Return the base image reader

@@ -30,6 +30,7 @@ import ome.conditions.ApiUsageException;
 import ome.formats.OMEROMetadataStore;
 import ome.model.containers.Dataset;
 import ome.model.core.Channel;
+import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.display.Color;
@@ -159,10 +160,11 @@ public class ImportLibrary
         return fads;
     }
 
-    /** gets {@link Pixels} instance from {@link OMEROMetadataStore} */
-    public List<Pixels> getRoot()
+    /** gets {@link Image} instance from {@link OMEROMetadataStore} */
+    @SuppressWarnings("unchecked")
+	public List<Image> getRoot()
     {
-        return (List<Pixels>) store.getRoot();
+        return (List<Image>) store.getRoot();
     }
 
     // ~ Actions
@@ -188,8 +190,9 @@ public class ImportLibrary
      */
     public int calculateImageCount(String fileName, Integer series)
     {
-        List<Pixels> pixelsList = getRoot();
-        Pixels pixels = pixelsList.get(series);
+        List<Image> imageList = getRoot();
+        // FIXME: This assumes only *one* Pixels.
+        Pixels pixels = imageList.get(series).getDefaultPixels();
         this.sizeZ = pixels.getSizeZ().intValue();
         this.sizeC = pixels.getSizeC().intValue();
         this.sizeT = pixels.getSizeT().intValue();
@@ -208,14 +211,17 @@ public class ImportLibrary
 	 * @throws FormatException if there is an error parsing metadata.
 	 * @throws IOException if there is an error reading the file.
      */
-    public List<Pixels> importMetadata(String imageName)
+    @SuppressWarnings("unchecked")
+	public List<Pixels> importMetadata(String imageName)
     	throws FormatException, IOException
     {
-        List<Pixels> pixelsArray = (List<Pixels>) store.getRoot();
+        List<Image> imageList = (List<Image>) store.getRoot();
         // Ensure that our metadata is consistent before writing to the DB.
         int series = 0;
-        for (Pixels pix:pixelsArray)
+        for (Image image : imageList)
         {
+        	// FIXME: This assumes only *one* set of pixels.
+        	Pixels pix = image.getDefaultPixels();
             String name = imageName;
             String seriesName = reader.getImageName(series);
             
@@ -266,14 +272,14 @@ public class ImportLibrary
             
         }
         
-        pixelsArray = store.saveToDB();
+        List<Pixels> pixelsList = store.saveToDB();
         
-        for (Pixels pix:pixelsArray)
+        for (Image image : imageList)
         {
-            store.addPixelsToDataset(pix.getId(), dataset);
+            store.addImageToDataset(image, dataset);
         }
         
-        return pixelsArray;
+        return pixelsList;
     }
 
     /**

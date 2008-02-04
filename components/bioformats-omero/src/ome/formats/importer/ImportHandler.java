@@ -302,10 +302,7 @@ public class ImportHandler
         {
             files[i] = new File(fileNameList[i]); 
         }
-        if (archive == true)
-        {
-            store.setOriginalFiles(files); 
-        }
+        store.setOriginalFiles(files); 
         reader.getUsedFiles();
         
         List<Pixels> pixList = library.importMetadata(imageName);
@@ -335,7 +332,6 @@ public class ImportHandler
             //viewer.appendToOutput("> Importing plane: ");
             library.importData(pixId, fileName, series, new ImportLibrary.Step()
             {
-
                 @Override
                 public void step(int series, int step)
                 {
