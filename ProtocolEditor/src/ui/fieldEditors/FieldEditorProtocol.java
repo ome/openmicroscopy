@@ -20,43 +20,37 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package ui;
-
-import java.text.DateFormat;
-import java.util.Date;
+package ui.fieldEditors;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.components.AttributeEditor;
 
-public class FieldEditorDate extends FieldEditor {
+public class FieldEditorProtocol extends FieldEditor {
 	
-	AttributeEditor defaultFieldEditor;
+	private AttributeEditor keywordsFieldEditor;
 	
-	public FieldEditorDate (IDataFieldObservable dataFieldObs) {
+	public FieldEditorProtocol (IDataFieldObservable dataFieldObs) {
 		
 		super(dataFieldObs);
 		
-		DateFormat fDateFormat = DateFormat.getDateInstance (DateFormat.MEDIUM);
-		
-		Date now = new Date ();
+//		 comma-delimited set of search words
+		String keywords = dataField.getAttribute(DataFieldConstants.KEYWORDS);
 
-	    // Format the time string.
-	    String defaultDate = fDateFormat.format (now);
-	    
-	    dataField.setAttribute(DataFieldConstants.DEFAULT, defaultDate, false);
+		// can't change the protocol field to a different type
+		inputTypeSelector.setEnabled(false);
 		
-		defaultFieldEditor = new AttributeEditor(dataField, "Default: ", DataFieldConstants.DEFAULT, defaultDate);
-		// don't allow users to set any other default data!
-		defaultFieldEditor.setEnabled(false);
-		attributeFieldsPanel.add(defaultFieldEditor);
+		keywordsFieldEditor = new AttributeEditor
+			(dataField, "Keywords: ", DataFieldConstants.KEYWORDS, keywords);
+		keywordsFieldEditor.setToolTipText("Add keywords, separated by commas");
+		attributeFieldsPanel.add(keywordsFieldEditor);
 		
 	}
 	
 	// called when dataField changes attributes
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		defaultFieldEditor.setTextFieldText(dataField.getAttribute(DataFieldConstants.DEFAULT));
+		keywordsFieldEditor.setTextFieldText(dataField.getAttribute(DataFieldConstants.KEYWORDS));
 	}
 
 }

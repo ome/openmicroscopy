@@ -20,34 +20,14 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package ui;
+package ui.formFields;
 
-import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
-import ui.components.AttributeMemoEditor;
 
-
-public class FieldEditorMemo extends FieldEditor {
+public class FormFieldFixed extends FormField {
 	
-private AttributeMemoEditor defaultFieldEditor;
-	
-	public FieldEditorMemo(IDataFieldObservable dataFieldObs) {
-		
+	public FormFieldFixed(IDataFieldObservable dataFieldObs) {
 		super(dataFieldObs);
-		
-		String defaultValue = dataField.getAttribute(DataFieldConstants.DEFAULT);
-		if (defaultValue == null) defaultValue = "";
-		
-		defaultFieldEditor = new AttributeMemoEditor
-			(dataField, "Default Text: ", DataFieldConstants.DEFAULT, defaultValue);
-		defaultFieldEditor.setTextAreaRows(3);
-		attributeFieldsPanel.add(defaultFieldEditor);
+			
 	}
-	
-	// called when dataField changes attributes
-	public void dataFieldUpdated() {
-		super.dataFieldUpdated();
-		defaultFieldEditor.setTextAreaText(dataField.getAttribute(DataFieldConstants.DEFAULT));
-	}
-
 }

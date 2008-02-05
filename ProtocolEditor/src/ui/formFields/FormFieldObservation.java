@@ -1,4 +1,4 @@
-package ui;
+package ui.formFields;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;

@@ -85,6 +85,7 @@ import tree.Tree.Actions;
 import ui.components.ExportDialog;
 import ui.components.PopupMenuButton;
 import ui.components.ProtocolFileFilter;
+import ui.fieldEditors.FieldEditor;
 import util.ExceptionHandler;
 import util.FileDownload;
 import util.HtmlOutputter;

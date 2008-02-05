@@ -53,10 +53,10 @@ import tree.edit.EditMoveFieldsDown;
 import tree.edit.EditMoveFieldsUp;
 import tree.edit.EditMultiplyValues;
 import tree.edit.EditPromoteFields;
-import ui.FieldEditor;
-import ui.FormFieldNumber;
 import ui.SelectionObserver;
 import ui.XMLUpdateObserver;
+import ui.fieldEditors.FieldEditor;
+import ui.formFields.FormFieldNumber;
 import validation.XMLSchema;
 
 // Tree manages the tree data structure

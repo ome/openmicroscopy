@@ -20,7 +20,7 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package ui;
+package ui.formFields;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -30,8 +30,8 @@ import javax.swing.JComboBox;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
-import ui.FormField.FormPanelMouseListener;
 import ui.components.CustomComboBox;
+import ui.formFields.FormField.FormPanelMouseListener;
 
 public class FormFieldDropDown extends FormField {
 	

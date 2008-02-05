@@ -29,7 +29,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import tree.DataField;
 import tree.DataFieldConstants;
 import tree.DataFieldNode;
-import ui.FormFieldNumber;
+import ui.formFields.FormFieldNumber;
 
 public class EditMultiplyValues extends AbstractUndoableEdit {
 	

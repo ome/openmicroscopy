@@ -20,32 +20,28 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package ui;
+package ui.fieldEditors;
 
-import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
-import ui.components.AttributeEditor;
 
+// all dataField attributes are displayed in panel
+// used for displaying imported XML elements that may have other attributes
 
-public class FieldEditorText extends FieldEditor {
-	
-	private AttributeEditor defaultFieldEditor;
-	
-	public FieldEditorText(IDataFieldObservable dataFieldObs) {
+public class FieldEditorCustom extends FieldEditor {
+
+	public FieldEditorCustom(IDataFieldObservable dataFieldObs) {
 		
 		super(dataFieldObs);
 		
-		String defaultValue = dataField.getAttribute(DataFieldConstants.DEFAULT);
+		// can't edit custom fields
+		nameFieldEditor.getTextArea().setEnabled(false);
+		// can't set color attribute (won't be saved in xml)
+		colourSelectButton.setEnabled(false);
 		
-		defaultFieldEditor = new AttributeEditor
-			(dataField, "Default Value: ", DataFieldConstants.DEFAULT, defaultValue);
-		attributeFieldsPanel.add(defaultFieldEditor);
-	}
-	
-	// called when dataField changes attributes
-	public void dataFieldUpdated() {
-		super.dataFieldUpdated();
-		defaultFieldEditor.setTextFieldText(dataField.getAttribute(DataFieldConstants.DEFAULT));
+		attributeFieldsPanel.remove(inputTypePanel);
+		attributeFieldsPanel.remove(descriptionFieldEditor);
+		attributeFieldsPanel.remove(urlFieldEditor);
 	}
 
+	
 }

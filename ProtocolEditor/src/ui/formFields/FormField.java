@@ -20,7 +20,7 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package ui;
+package ui.formFields;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -53,6 +53,8 @@ import tree.DataFieldObserver;
 import tree.IAttributeSaver;
 import tree.IDataFieldObservable;
 import tree.IDataFieldSelectable;
+import ui.FormDisplay;
+import ui.XMLView;
 import util.BareBonesBrowserLaunch;
 import util.ImageFactory;
 

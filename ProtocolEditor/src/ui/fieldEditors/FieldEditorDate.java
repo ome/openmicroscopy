@@ -20,14 +20,43 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package ui;
+package ui.fieldEditors;
 
+import java.text.DateFormat;
+import java.util.Date;
+
+import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import ui.components.AttributeEditor;
 
-public class FieldEditorFixed extends FieldEditor{
+public class FieldEditorDate extends FieldEditor {
 	
-	public FieldEditorFixed(IDataFieldObservable dataFieldObs) {
+	AttributeEditor defaultFieldEditor;
+	
+	public FieldEditorDate (IDataFieldObservable dataFieldObs) {
+		
 		super(dataFieldObs);
+		
+		DateFormat fDateFormat = DateFormat.getDateInstance (DateFormat.MEDIUM);
+		
+		Date now = new Date ();
+
+	    // Format the time string.
+	    String defaultDate = fDateFormat.format (now);
+	    
+	    dataField.setAttribute(DataFieldConstants.DEFAULT, defaultDate, false);
+		
+		defaultFieldEditor = new AttributeEditor(dataField, "Default: ", DataFieldConstants.DEFAULT, defaultDate);
+		// don't allow users to set any other default data!
+		defaultFieldEditor.setEnabled(false);
+		attributeFieldsPanel.add(defaultFieldEditor);
+		
+	}
+	
+	// called when dataField changes attributes
+	public void dataFieldUpdated() {
+		super.dataFieldUpdated();
+		defaultFieldEditor.setTextFieldText(dataField.getAttribute(DataFieldConstants.DEFAULT));
 	}
 
 }

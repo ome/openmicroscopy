@@ -20,7 +20,7 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package ui;
+package ui.formFields;
 
 import java.awt.Dimension;
 
@@ -29,6 +29,7 @@ import javax.swing.border.EtchedBorder;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import ui.XMLView;
 
 public class FormFieldProtocol extends FormField {
 	

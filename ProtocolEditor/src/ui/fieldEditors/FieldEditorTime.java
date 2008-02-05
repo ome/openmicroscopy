@@ -1,4 +1,4 @@
-package ui;
+package ui.fieldEditors;
 
 import javax.swing.Box;
 import javax.swing.JLabel;

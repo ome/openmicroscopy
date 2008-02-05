@@ -1,4 +1,4 @@
-package ui;
+package ui.fieldEditors;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

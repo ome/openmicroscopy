@@ -33,9 +33,9 @@ import javax.swing.undo.UndoableEdit;
 
 import tree.edit.EditDataFieldAttribute;
 import tree.edit.EditDataFieldType;
-import ui.FieldEditor;
 import ui.FieldEditorFormFieldFactory;
-import ui.FormField;
+import ui.fieldEditors.FieldEditor;
+import ui.formFields.FormField;
 
 
 // the in-memory form of an xml element

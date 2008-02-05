@@ -20,61 +20,32 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package ui;
-
-import java.awt.Color;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
+package ui.fieldEditors;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.components.AttributeEditor;
 
-public class FieldEditorNumber extends FieldEditor {
+
+public class FieldEditorText extends FieldEditor {
 	
 	private AttributeEditor defaultFieldEditor;
-	private AttributeEditor unitsFieldEditor;
 	
-	public FieldEditorNumber (IDataFieldObservable dataFieldObs) {
+	public FieldEditorText(IDataFieldObservable dataFieldObs) {
 		
 		super(dataFieldObs);
 		
-		String defaultValueString = dataField.getAttribute(DataFieldConstants.DEFAULT);
-		String units = dataField.getAttribute(DataFieldConstants.UNITS);
+		String defaultValue = dataField.getAttribute(DataFieldConstants.DEFAULT);
 		
-		defaultFieldEditor = new AttributeEditor(dataField, "Default: ", DataFieldConstants.DEFAULT, defaultValueString);
-		defaultFieldEditor.getTextField().addFocusListener(new NumberCheckerListener());
+		defaultFieldEditor = new AttributeEditor
+			(dataField, "Default Value: ", DataFieldConstants.DEFAULT, defaultValue);
 		attributeFieldsPanel.add(defaultFieldEditor);
-		
-		unitsFieldEditor = new AttributeEditor(dataField, "Units: ", DataFieldConstants.UNITS, units);
-		attributeFieldsPanel.add(unitsFieldEditor);
 	}
-
+	
 	// called when dataField changes attributes
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
 		defaultFieldEditor.setTextFieldText(dataField.getAttribute(DataFieldConstants.DEFAULT));
-		checkForNumber();
-		unitsFieldEditor.setTextFieldText(dataField.getAttribute(DataFieldConstants.UNITS));
-	}
-	
-	public class NumberCheckerListener implements FocusListener {
-		public void focusLost(FocusEvent event){	
-			checkForNumber();
-		}
-		public void focusGained(FocusEvent event){	}
-	}
-	
-	private void checkForNumber() {
-		String number = defaultFieldEditor.getTextFieldText();
-		try {
-			if (number.length() > 0) {
-				float value = Float.parseFloat(number);
-				defaultFieldEditor.getTextField().setBackground(Color.WHITE);
-			}
-		}catch (Exception ex) {
-			defaultFieldEditor.getTextField().setBackground(Color.RED);
-		}
 	}
 
 }

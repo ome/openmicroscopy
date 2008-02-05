@@ -20,7 +20,7 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package ui;
+package ui.formFields;
 
 
 import java.awt.BorderLayout;
@@ -32,8 +32,9 @@ import javax.swing.JButton;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
-import ui.FormField.FocusGainedPropertyChangedListener;
+import ui.OLSMetadataPanel;
 import ui.components.OntologyTermSelector;
+import ui.formFields.FormField.FocusGainedPropertyChangedListener;
 import util.ImageFactory;
 
 public class FormFieldOLS extends FormField {

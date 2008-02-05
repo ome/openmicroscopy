@@ -20,7 +20,7 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package ui;
+package ui.formFields;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -33,8 +33,8 @@ import javax.swing.border.Border;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
-import ui.FormField.FormPanelMouseListener;
 import ui.components.AttributeMemoFormatEditor;
+import ui.formFields.FormField.FormPanelMouseListener;
 
 public class FormFieldMemo extends FormField {
 	

@@ -20,7 +20,7 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package ui;
+package ui.formFields;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,6 +31,7 @@ import javax.swing.JTextField;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import ui.XMLView;
 import ui.components.AttributesDialog;
 import util.ImageFactory;
 

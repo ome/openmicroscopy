@@ -36,7 +36,7 @@ import javax.swing.JOptionPane;
 import tree.DataField;
 import tree.DataFieldConstants;
 import tree.DataFieldNode;
-import ui.FormField;
+import ui.formFields.FormField;
 
 // crude attempt at getting html from tree of datafields etc. 
 // needs some more work to improve look of output!

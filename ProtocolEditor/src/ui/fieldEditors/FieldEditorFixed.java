@@ -20,14 +20,14 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package ui;
+package ui.fieldEditors;
 
 import tree.IDataFieldObservable;
 
-public class FormFieldFixed extends FormField {
+public class FieldEditorFixed extends FieldEditor{
 	
-	public FormFieldFixed(IDataFieldObservable dataFieldObs) {
+	public FieldEditorFixed(IDataFieldObservable dataFieldObs) {
 		super(dataFieldObs);
-			
 	}
+
 }

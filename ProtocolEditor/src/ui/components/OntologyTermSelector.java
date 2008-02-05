@@ -30,7 +30,7 @@ import ols.OntologyLookUp;
 
 import tree.DataField;
 import tree.IAttributeSaver;
-import ui.FormField;
+import ui.formFields.FormField;
 
 public class OntologyTermSelector extends JPanel {
 	

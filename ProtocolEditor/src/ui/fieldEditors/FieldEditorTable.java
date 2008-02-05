@@ -20,7 +20,7 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package ui;
+package ui.fieldEditors;
 
 import javax.swing.JOptionPane;
 
