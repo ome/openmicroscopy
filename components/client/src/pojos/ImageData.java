@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 // Third-party libraries
@@ -175,6 +176,18 @@ public class ImageData extends DataObject {
         return asImage().getDescription();
     }
 
+    /**
+     * Returns the number of annotations linked to the object,
+     * key: id of the user, value: number of annotation.
+     * The map may be <code>null</code> if no annotation.
+     * 
+     * @return See above.
+     */
+    public Map<Long, Long> getAnnotationsCounts()
+    {
+    	return asImage().getAnnotationLinksCountPerOwner(); 
+    }
+    
     /**
      * Returns the creation time of the image.
      * 

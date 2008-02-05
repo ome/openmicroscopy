@@ -9,6 +9,7 @@ package pojos;
 
 // Java imports
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 // Third-party libraries
@@ -117,6 +118,18 @@ public class ProjectData extends DataObject {
         return asProject().getDescription();
     }
 
+    /**
+     * Returns the number of annotations linked to the object,
+     * key: id of the user, value: number of annotation.
+     * The map may be <code>null</code> if no annotation.
+     * 
+     * @return See above.
+     */
+    public Map<Long, Long> getAnnotationsCounts()
+    {
+    	return asProject().getAnnotationLinksCountPerOwner(); 
+    }
+    
     // Lazy loaded Links
     /**
      * Returns the datasets contained in this project.
