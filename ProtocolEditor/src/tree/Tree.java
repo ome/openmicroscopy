@@ -69,7 +69,8 @@ public class Tree {
 		DELTE_FIELDS("Delete Fields"), ADD_NEW_FIELD("Add New Field"), DEMOTE_FIELDS("Demote Fields"), 
 		PROMOTE_FIELDS("Promote Fields"), DUPLICATE_FIELDS("Duplicate Fields"), UNDO_LAST_ACTION("Undo Last Action"), REDO_ACTION("Redo"), 
 		IMPORT_FIELDS("Import Fields"), LOAD_DEFAULTS("Load Default Values"), 
-		LOAD_DEFAULTS_HIGHLIGHTED_FIELDS("Load Defaults for Highlighted Fields"), CLEAR_FIELDS("Clear Fields");
+		LOAD_DEFAULTS_HIGHLIGHTED_FIELDS("Load Defaults for Highlighted Fields"), 
+		CLEAR_FIELDS("Clear Fields"), CLEAR_FIELDS_HIGHLIGHTED_FIELDS("Clear Fields for Highlighted Fields");
 		private Actions(String name){
 			this.name = name;
 		}
@@ -206,6 +207,10 @@ public class Tree {
 				clearFields();
 				break;
 			}
+			case CLEAR_FIELDS_HIGHLIGHTED_FIELDS: {
+				clearFieldsforHighlightedFields();
+				break;
+			}
 		}
 		
 	}
@@ -280,10 +285,21 @@ public class Tree {
 		selectionChanged();		// to update undo button
 	}
 	
-	// called by button on Edit Experiment tab
+	// clear the variable "value" for any field that has one
+	// do the whole tree (start at root node)
 	private void clearFields() {
 		
 		UndoableEdit edit = new EditClearFields(rootNode);
+		undoSupport.postEdit(edit);
+		
+		selectionChanged();		// to update undo button
+	}
+	
+	// clear the variable "value" for any field that has one
+	// just do the highlighted fields (and all their children)
+	private void clearFieldsforHighlightedFields() {
+		
+		UndoableEdit edit = new EditClearFields(getHighlightedFields());
 		undoSupport.postEdit(edit);
 		
 		selectionChanged();		// to update undo button

@@ -22,6 +22,9 @@
 
 package ui;
 
+import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -55,6 +58,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
+import actions.NewFileAction;
+
 
 import ols.ObservationCreator;
 import omeXml.OmeXmlQueryer;
@@ -78,10 +83,13 @@ import tree.DataFieldNode;
 import tree.Tree;
 import tree.Tree.Actions;
 import ui.components.ExportDialog;
+import ui.components.PopupMenuButton;
+import ui.components.ProtocolFileFilter;
 import util.ExceptionHandler;
 import util.FileDownload;
 import util.HtmlOutputter;
 import util.ImageFactory;
+import util.PreferencesManager;
 import util.PropertiesManager;
 import xmlMVC.XMLModel;
 
@@ -95,6 +103,7 @@ public class XMLView
 	{
 	
 	XMLModel xmlModel;
+	Controller controller;
 
 	DataFieldNode protocolRootNode;
 	
@@ -120,6 +129,8 @@ public class XMLView
 	public static final String PREV_FIND_HIT = "PrevFindHit";
 	public static final String LOAD_DEFAULTS = "LoadDefaults";
 	public static final String LOAD_DEFAULTS_HIGHLIGHTED_FIELDS = "LoadDefaultsHighlightedFields";
+	public static final String CLEAR_FIELDS = "ClearFields";
+	public static final String CLEAR_FIELDS_HIGHLIGHTED_FIELDS = "ClearFieldsHighlightedFields";
 	
 	// tab positions 
 	public static final int EXPERIMENT_TAB = 0;
@@ -152,7 +163,6 @@ public class XMLView
 	
 	JButton saveFileButton;
 	JButton saveFileAsButton;
-	JButton printButton;
 	
 	JButton addAnInput;
 	JButton deleteAnInput;
@@ -164,21 +174,12 @@ public class XMLView
 	JMenuItem saveFileMenuItem;
 	JMenuItem saveFileAsMenuItem;
 	
-	JMenuItem undoMenuItem;
-	JMenuItem redoMenuItem;
-	JButton undoButton;
-	JButton redoButton;
-	
 	Box findBox;
 	JButton findButton;
 	JTextField findTextField;
 	JButton findNextButton;
 	JButton findPrevButton;
 	JLabel hitsCountLabel;
-	
-	JMenu loadDefaultsSubMenu;
-	JMenuItem clearFieldsMenuItem;
-	JMenuItem multiplyValueOfSelectedFieldsMenuItem;
 	
 	JCheckBoxMenuItem showEditToolbarMenuItem;
 	JMenuItem addFieldMenuItem;
@@ -209,18 +210,12 @@ public class XMLView
 	static final int windowHeight = 460;
     static final int panelWidth = 950;
 
-	private JPopupMenu printPopupMenu;
+	private JPopupMenu clearFieldsPopupMenu;
 
-	private JPopupMenu loadDefaultsPopupMenu;
-
-	private Icon newFileIcon;
-	private Icon openFileIcon;
 	private Icon validationIcon;
-	private Icon saveIcon;
 	private Icon printIcon;
 	private Icon loadDefaultsIcon;
 	private Icon clearFieldsIcon;
-	private Icon saveFileAsIcon;
 	private Icon addIcon;
 	private Icon deleteIcon;
 	private Icon moveUpIcon;
@@ -234,7 +229,6 @@ public class XMLView
 	private Icon mathsIcon;
 	private Icon undoIcon;
 	private Icon redoIcon;
-	private Icon wwwFileIcon;
 	private Icon findIcon;
 	private Icon fileCloseIcon;
 	private Icon previousUpIcon;
@@ -245,16 +239,11 @@ public class XMLView
 	private Icon protocolIcon;
 	private Icon sendCommentIcon;
 
-	protected JButton loadDefaultsButton;
-
-	protected JButton clearFieldsButton;
-
-	protected JButton multiplyValueOfSelectedFieldsButton;
-    
 	
     public XMLView(XMLModel xmlModel) {
     	
     	this.xmlModel = xmlModel;
+    	controller = new Controller(xmlModel, this);
     	
     	xmlModel.addXMLObserver(this);
     	xmlModel.addSelectionObserver(this);
@@ -271,14 +260,10 @@ public class XMLView
 		
 		searchIcon = ImageFactory.getInstance().getIcon(ImageFactory.SEARCH_ICON);
 		moreLikeThisIcon = ImageFactory.getInstance().getIcon(ImageFactory.MORE_LIKE_THIS_ICON);
-		newFileIcon = ImageFactory.getInstance().getIcon(ImageFactory.NEW_FILE_ICON);
-		openFileIcon = ImageFactory.getInstance().getIcon(ImageFactory.OPEN_FILE_ICON);
 		validationIcon = ImageFactory.getInstance().getIcon(ImageFactory.VALIDATION_ICON);
-		saveIcon = ImageFactory.getInstance().getIcon(ImageFactory.SAVE_ICON);
 		printIcon = ImageFactory.getInstance().getIcon(ImageFactory.PRINT_ICON);
 		loadDefaultsIcon = ImageFactory.getInstance().getIcon(ImageFactory.LOAD_DEFAULTS_ICON);
 		clearFieldsIcon = ImageFactory.getInstance().getIcon(ImageFactory.CLEAR_FIELDS_ICON);
-		saveFileAsIcon = ImageFactory.getInstance().getIcon(ImageFactory.SAVE_FILE_AS_ICON);
 		addIcon = ImageFactory.getInstance().getIcon(ImageFactory.ADD_ICON);
 		deleteIcon = ImageFactory.getInstance().getIcon(ImageFactory.DELETE_ICON);
 		moveUpIcon = ImageFactory.getInstance().getIcon(ImageFactory.MOVE_UP_ICON);
@@ -294,7 +279,6 @@ public class XMLView
 		redBallIcon = ImageFactory.getInstance().getIcon(ImageFactory.RED_BALL_ICON);
 		undoIcon = ImageFactory.getInstance().getIcon(ImageFactory.UNDO_ICON);
 		redoIcon = ImageFactory.getInstance().getIcon(ImageFactory.REDO_ICON);
-		wwwFileIcon = ImageFactory.getInstance().getIcon(ImageFactory.WWW_FILE_ICON);
 		findIcon = ImageFactory.getInstance().getIcon(ImageFactory.FIND_ICON);
 		fileCloseIcon = ImageFactory.getInstance().getIcon(ImageFactory.FILE_CLOSE_ICON);
 		previousUpIcon = ImageFactory.getInstance().getIcon(ImageFactory.PREVIOUS_UP_ICON);
@@ -311,112 +295,51 @@ public class XMLView
 		Box fileManagerWestToolBar = Box.createHorizontalBox();
 		Border fileManagerToolBarBorder = new EmptyBorder(2,BUTTON_SPACING,2,BUTTON_SPACING);
 		
-		JButton newFileButton = new JButton(newFileIcon);
-		newFileButton.setToolTipText("New Blank File");
-		newFileButton.addActionListener(new newProtocolFileListener());
-		newFileButton.setBorder(new EmptyBorder(2,BUTTON_SPACING + 3,2,BUTTON_SPACING));
-		
-		JButton openFileButton = new JButton(openFileIcon);
-		openFileButton.setToolTipText("Open File..");
-		openFileButton.addActionListener(new openFileListener());
-		openFileButton.setBorder(fileManagerToolBarBorder);
-		
-		JButton openWwwFileButton = new JButton(wwwFileIcon);
-		openWwwFileButton.setToolTipText("Open file from URL");
-		openWwwFileButton.addActionListener(new OpenWwwFileListener());
-		openWwwFileButton.setBorder(fileManagerToolBarBorder);
-		
-		saveFileAsButton = new JButton(saveFileAsIcon);
-		saveFileAsButton.setToolTipText("Save File As..");
-		saveFileAsButton.setBorder(fileManagerToolBarBorder);
-		saveFileAsButton.addActionListener(new SaveFileAsListener());
-		
-		saveFileButton = new JButton(saveIcon);
-		saveFileButton.addActionListener(new SaveCurrentFileListener());
-		saveFileButton.setToolTipText("Save File");
-		saveFileButton.setBorder(fileManagerToolBarBorder);
-		
-		JMenuItem printWholeFile = new JMenuItem("Export the whole document");
-		printWholeFile.addActionListener(new PrintWholeFileListener());
-		JMenuItem printSelectedFields = new JMenuItem("Export highlighted fields");
-		printSelectedFields.addActionListener(new PrintSelectedFieldsListener());
-		printPopupMenu = new JPopupMenu("Print Options");
-		printPopupMenu.add(printWholeFile);
-		printPopupMenu.add(printSelectedFields);
-		
-		printButton = new JButton(printIcon);
-		printButton.addMouseListener(new MouseListener() {
-			public void mousePressed(MouseEvent e) {
-				maybeShowPopup(e);
-			}
-			public void mouseReleased(MouseEvent e) {
-				maybeShowPopup(e);
-			}
-			private void maybeShowPopup(MouseEvent e) {
-				printPopupMenu.show(e.getComponent(), e.getX(), e.getY());
-			}
-			public void mouseClicked(MouseEvent e) {}
-			public void mouseEntered(MouseEvent e) {}
-			public void mouseExited(MouseEvent e) {}
-		});
-		//printButton.addActionListener(new PrintWholeFileListener());
-		printButton.setToolTipText("Export the current file for printing..."); 
-		printButton.setBorder(fileManagerToolBarBorder);
-		
-		
+		// add buttons to the tool-bar 
+		addButton(Controller.NEW_FILE, "", fileManagerToolBarBorder, fileManagerWestToolBar);
+		addButton(Controller.OPEN_FILE, "", fileManagerToolBarBorder, fileManagerWestToolBar);
+		addButton(Controller.OPEN_WWW_FILE, "", fileManagerToolBarBorder, fileManagerWestToolBar);
+		addButton(Controller.SAVE_FILE, "", fileManagerToolBarBorder, fileManagerWestToolBar);
+		addButton(Controller.SAVE_FILE_AS, "", fileManagerToolBarBorder, fileManagerWestToolBar);
 
+		Action[] printExportActions = new Action[] {
+				controller.getAction(Controller.PRINT_EXPORT_ALL),
+				controller.getAction(Controller.PRINT_EXPORT_HIGHLT) };
+		JButton printButton = new PopupMenuButton("Export the current file for printing", 
+				printIcon, printExportActions);
+		addButton(printButton, fileManagerToolBarBorder, fileManagerWestToolBar);
+
+		fileManagerWestToolBar.add(new JSeparator(JSeparator.VERTICAL));
+
+		
 		// experiment tool-bar buttons
 		
-		loadDefaultsPopupMenu = new JPopupMenu("Load Defaults");
-		JMenuItem loadDefaults = new JMenuItem("Load Defaults for All fields");
-		loadDefaults.setActionCommand(LOAD_DEFAULTS);
-		loadDefaults.addActionListener(new LoadDefaultsListener());
-		loadDefaultsPopupMenu.add(loadDefaults);
+		Action[] loadDefaultsActions = new Action[] {
+				controller.getAction(Controller.LOAD_DEFAULTS_ALL),
+				controller.getAction(Controller.LOAD_DEFAULTS_HIGHLT) };
+		JButton loadDefaultsButton = new PopupMenuButton("Load Default Values", 
+				loadDefaultsIcon, loadDefaultsActions);
+		addButton(loadDefaultsButton, fileManagerToolBarBorder, fileManagerWestToolBar);
 		
-		JMenuItem loadDefaultsHighLtFields = new JMenuItem("Load Defaults for Highlighted Fields (and all child fields)");
-		loadDefaultsHighLtFields.setActionCommand(LOAD_DEFAULTS_HIGHLIGHTED_FIELDS);
-		loadDefaultsHighLtFields.addActionListener(new LoadDefaultsListener());
-		loadDefaultsPopupMenu.add(loadDefaultsHighLtFields);
 		
-		loadDefaultsButton = new JButton(loadDefaultsIcon);
-		loadDefaultsButton.setToolTipText("Load Default Values");
-		loadDefaultsButton.setBorder(fileManagerToolBarBorder);
-		loadDefaultsButton.addMouseListener(new MouseListener() {
-			public void mousePressed(MouseEvent e) {
-				maybeShowPopup(e);
-			}
-			public void mouseReleased(MouseEvent e) {
-				maybeShowPopup(e);
-			}
-			private void maybeShowPopup(MouseEvent e) {
-				loadDefaultsPopupMenu.show(e.getComponent(), e.getX(), e.getY());
-			}
-			public void mouseClicked(MouseEvent e) {}
-			public void mouseEntered(MouseEvent e) {}
-			public void mouseExited(MouseEvent e) {}
-		});
+		Action[] clearFieldsActions = new Action[] {
+				controller.getAction(Controller.CLEAR_FIELDS_ALL),
+				controller.getAction(Controller.CLEAR_FIELDS_HIGHLT) };
+		JButton clearFieldsButton = new PopupMenuButton("Clear Field Values", 
+				clearFieldsIcon, clearFieldsActions);
+		addButton(clearFieldsButton, fileManagerToolBarBorder, fileManagerWestToolBar);
 		
-		clearFieldsButton = new JButton(clearFieldsIcon);
-		clearFieldsButton.setToolTipText("Clear All Fields");
-		clearFieldsButton.addActionListener(new ClearFieldsListener());
-		clearFieldsButton.setBorder(fileManagerToolBarBorder);
+		addButton(Controller.MULTIPLY_VALUES, "", fileManagerToolBarBorder, fileManagerWestToolBar);
 		
-		multiplyValueOfSelectedFieldsButton = new JButton(mathsIcon);
-		multiplyValueOfSelectedFieldsButton.setToolTipText("Multiply the selected numerical values by a factor of...");
-		multiplyValueOfSelectedFieldsButton.addActionListener(new MultiplyValueOfSelectedFieldsListener());
-		multiplyValueOfSelectedFieldsButton.setBorder(fileManagerToolBarBorder);
+		fileManagerWestToolBar.add(new JSeparator(JSeparator.VERTICAL));
 	
+		
 		// undo - redo buttons
+		// "no-name" actions don't refresh name (so that the buttons don't display text)
+		addButton(Controller.UNDO_NO_NAME, "", fileManagerToolBarBorder, fileManagerWestToolBar);
+		addButton(Controller.REDO_NO_NAME, "", fileManagerToolBarBorder, fileManagerWestToolBar);
+		fileManagerWestToolBar.add(new JSeparator(JSeparator.VERTICAL));
 		
-		undoButton = new JButton(undoIcon);
-		undoButton.setToolTipText("Undo last action");
-		undoButton.setBorder(fileManagerToolBarBorder);
-		undoButton.addActionListener(new UndoActionListener());
-		
-		redoButton = new JButton(redoIcon);
-		redoButton.setToolTipText("Redo last action");
-		redoButton.setBorder(fileManagerToolBarBorder);
-		redoButton.addActionListener(new RedoActionListener());
 		
 		// "Find" controls
 		ActionListener findTextListener = new FindTextListener();
@@ -495,19 +418,7 @@ public class XMLView
 		fileListSelectionListener = new FileListSelectionListener();
 		currentlyOpenedFiles.addActionListener(fileListSelectionListener);
 		
-		fileManagerWestToolBar.add(newFileButton);
-		fileManagerWestToolBar.add(openFileButton);
-		fileManagerWestToolBar.add(openWwwFileButton);
-		fileManagerWestToolBar.add(saveFileButton);
-		fileManagerWestToolBar.add(saveFileAsButton);
-		fileManagerWestToolBar.add(printButton);
-		fileManagerWestToolBar.add(new JSeparator(JSeparator.VERTICAL));
-		fileManagerWestToolBar.add(loadDefaultsButton);
-		fileManagerWestToolBar.add(clearFieldsButton);
-		fileManagerWestToolBar.add(multiplyValueOfSelectedFieldsButton);
-		fileManagerWestToolBar.add(new JSeparator(JSeparator.VERTICAL));
-		fileManagerWestToolBar.add(undoButton);
-		fileManagerWestToolBar.add(redoButton);
+		
 		fileManagerWestToolBar.add(new JSeparator(JSeparator.VERTICAL));
 		fileManagerWestToolBar.add(findButton);
 		fileManagerWestToolBar.add(findBox);
@@ -675,7 +586,6 @@ public class XMLView
 		mainContentPane.add("North", fileManagerPanel);
 		
 		refreshAnyFilesOpen();		// disable save etc.
-		updateUndoRedo();	// disable undo redo 
 		findBox.setVisible(false); 	// not visible until findButton clicked
 	    
 		
@@ -700,34 +610,28 @@ public class XMLView
 			JMenu fileMenu = new JMenu("File");
 			fileMenu.setBorder(menuItemBorder);
 			
-			JMenuItem openFile = new JMenuItem("Open File..", openFileIcon);
+			JMenuItem openFile = new JMenuItem(controller.getAction(Controller.OPEN_FILE));
 			setMenuItemAccelerator(openFile, KeyEvent.VK_O);
-			openFile.addActionListener(new openFileListener());
 			
-			JMenuItem newBlankProtocolMenuItem = new JMenuItem("New Blank Protocol", newFileIcon);
+			JMenuItem newBlankProtocolMenuItem = new JMenuItem(controller.getAction(Controller.NEW_FILE));
 			setMenuItemAccelerator(newBlankProtocolMenuItem, KeyEvent.VK_N);
-			newBlankProtocolMenuItem.addActionListener(new newProtocolFileListener());
 			
 			JMenuItem closeFileMenuItem = new JMenuItem("Close File", closeIcon);
 			closeFileMenuItem.addActionListener(new CloseFileListener());
 			setMenuItemAccelerator(closeFileMenuItem, KeyEvent.VK_W);
 			
-			saveFileMenuItem = new JMenuItem("Save File", saveIcon);
+			saveFileMenuItem = new JMenuItem(controller.getAction(Controller.SAVE_FILE));
 			setMenuItemAccelerator(saveFileMenuItem, KeyEvent.VK_S);
-			saveFileMenuItem.addActionListener(new SaveCurrentFileListener());
 			
-			saveFileAsMenuItem = new JMenuItem("Save File As...", saveFileAsIcon);
-			saveFileAsMenuItem.addActionListener(new SaveFileAsListener());
-	
+			saveFileAsMenuItem = new JMenuItem(controller.getAction(Controller.SAVE_FILE_AS));
+			
 			JMenu printsubMenu = new JMenu("Export for printing...");
 			printsubMenu.setIcon(printIcon);
-			JMenuItem printWholeFileMenuItem = new JMenuItem("Export the whole document");
-			printWholeFileMenuItem.addActionListener(new PrintWholeFileListener());
+			JMenuItem printWholeFileMenuItem = new JMenuItem(controller.getAction(Controller.PRINT_EXPORT_ALL));
 			setMenuItemAccelerator(printWholeFileMenuItem, KeyEvent.VK_P);
 			printsubMenu.add(printWholeFileMenuItem);
 			
-			JMenuItem printSelectedFieldsMenuItem = new JMenuItem("Export highlighted fields");
-			printSelectedFieldsMenuItem.addActionListener(new PrintSelectedFieldsListener());
+			JMenuItem printSelectedFieldsMenuItem = new JMenuItem(controller.getAction(Controller.PRINT_EXPORT_HIGHLT));
 			printsubMenu.add(printSelectedFieldsMenuItem);
 			
 			JMenuItem indexFilesMenuItem = new JMenuItem("Index files for searching");
@@ -748,31 +652,27 @@ public class XMLView
 			JMenu editMenu = new JMenu("Edit");
 			editMenu.setBorder(menuItemBorder);
 			
-			loadDefaultsSubMenu = new JMenu("Load Default Values");
+			JMenu loadDefaultsSubMenu = new JMenu("Load Default Values");
 			loadDefaultsSubMenu.setIcon(loadDefaultsIcon);
-			
-			JMenuItem loadDefaultsMenuItem = new JMenuItem("Load Defaults for All Fields");
-			loadDefaultsMenuItem.setActionCommand(LOAD_DEFAULTS);
-			loadDefaultsMenuItem.addActionListener(new LoadDefaultsListener());
+			JMenuItem loadDefaultsMenuItem = new JMenuItem(controller.getAction(Controller.LOAD_DEFAULTS_ALL));
 			loadDefaultsSubMenu.add(loadDefaultsMenuItem);
-			JMenuItem loadDefaultsHighLtFieldsMenuItem = new JMenuItem("Load Defaults for Highlighted fields (and child fields)");
-			loadDefaultsHighLtFieldsMenuItem.setActionCommand(LOAD_DEFAULTS_HIGHLIGHTED_FIELDS);
-			loadDefaultsHighLtFieldsMenuItem.addActionListener(new LoadDefaultsListener());
+			JMenuItem loadDefaultsHighLtFieldsMenuItem = new JMenuItem(controller.getAction(Controller.LOAD_DEFAULTS_HIGHLT));
 			loadDefaultsSubMenu.add(loadDefaultsHighLtFieldsMenuItem);
 			
-			clearFieldsMenuItem = new JMenuItem("Clear Values from All Fields", clearFieldsIcon);
-			clearFieldsMenuItem.addActionListener(new ClearFieldsListener());
+			JMenu clearFieldsSubMenu = new JMenu("Clear Field Values");
+			clearFieldsSubMenu.setIcon(clearFieldsIcon);
+			JMenuItem clearFieldsMenuItem = new JMenuItem(controller.getAction(Controller.CLEAR_FIELDS_ALL));
+			clearFieldsSubMenu.add(clearFieldsMenuItem);
+			JMenuItem clearFieldsHighLtFieldsMenuItem = new JMenuItem(controller.getAction(Controller.CLEAR_FIELDS_HIGHLT));
+			clearFieldsSubMenu.add(clearFieldsHighLtFieldsMenuItem);
 			
-			multiplyValueOfSelectedFieldsMenuItem = new JMenuItem("MultiplyValuesBy...", mathsIcon);
-			multiplyValueOfSelectedFieldsMenuItem.addActionListener(new MultiplyValueOfSelectedFieldsListener());
+			JMenuItem multiplyValueOfSelectedFieldsMenuItem = new JMenuItem(controller.getAction(Controller.MULTIPLY_VALUES));
 			
 			// undo-redo menu items
-			undoMenuItem = new JMenuItem("Undo", undoIcon);
-			undoMenuItem.addActionListener(new UndoActionListener());
+			JMenuItem undoMenuItem = new JMenuItem(controller.getAction(Controller.UNDO));
 			setMenuItemAccelerator(undoMenuItem, KeyEvent.VK_Z);
 			
-			redoMenuItem = new JMenuItem("Redo", redoIcon);
-			redoMenuItem.addActionListener(new RedoActionListener());
+			JMenuItem redoMenuItem = new JMenuItem(controller.getAction(Controller.REDO));
 			setMenuItemAccelerator(redoMenuItem, KeyEvent.VK_Y);
 			
 			JMenuItem findMenuItem = new JMenuItem("Find", findIcon);
@@ -780,7 +680,7 @@ public class XMLView
 			setMenuItemAccelerator(findMenuItem, KeyEvent.VK_F);
 			
 			editMenu.add(loadDefaultsSubMenu);
-			editMenu.add(clearFieldsMenuItem);
+			editMenu.add(clearFieldsSubMenu);
 			editMenu.add(multiplyValueOfSelectedFieldsMenuItem);
 			editMenu.addSeparator();
 			editMenu.add(undoMenuItem);
@@ -927,17 +827,8 @@ public class XMLView
 			demoteStepMenuItem.setEnabled(enabled);
 			duplicateFieldMenuItem.setEnabled(enabled);
 			importFieldsMenuItem.setEnabled(enabled);
-		
-			loadDefaultsSubMenu.setEnabled(enabled);
-			clearFieldsMenuItem.setEnabled(enabled);
-			multiplyValueOfSelectedFieldsMenuItem.setEnabled(enabled);
+
 		}
-		
-		printButton.setEnabled(enabled);
-		loadDefaultsButton.setEnabled(enabled);
-		clearFieldsButton.setEnabled(enabled);
-		multiplyValueOfSelectedFieldsButton.setEnabled(enabled);
-		
 	}
 
 	
@@ -956,30 +847,16 @@ public class XMLView
 	// selection observer method, fired when tree changes selection
 	// this method called when UI needs updating, but xml not changed.
 	public void selectionChanged() {
-		// System.out.println("XMLView.selectionChanged");
+		System.out.println("XMLView.selectionChanged");
 		if (editingState == EDITING_FIELDS) {
 			updateFieldEditor();
 		}
-		updateUndoRedo();
+
 		refreshFileEdited();
 		updateFileList();
 		updateXmlValidationPanel();
 	}
 	
-	public void updateUndoRedo() {
-		undoButton.setEnabled(xmlModel.canUndo());
-		undoButton.setToolTipText(xmlModel.getUndoCommand());
-		redoButton.setEnabled(xmlModel.canRedo());
-		redoButton.setToolTipText(xmlModel.getRedoCommand());
-		
-		// only modify menus if Frame has been built
-		if (XMLFrame != null) {
-			undoMenuItem.setText(xmlModel.getUndoCommand());
-			undoMenuItem.setEnabled(xmlModel.canUndo());
-			redoMenuItem.setText(xmlModel.getRedoCommand());
-			redoMenuItem.setEnabled(xmlModel.canRedo());
-		}
-	}
 
 	public void updateFileList() {
 		currentlyOpenedFiles.removeActionListener(fileListSelectionListener);
@@ -1008,14 +885,16 @@ public class XMLView
 		
 		enableEditingControls(!noFiles); // disables menu items
 		
-		saveFileButton.setEnabled(!noFiles);
-		saveFileAsButton.setEnabled(!noFiles);
+		//saveFileButton.setEnabled(!noFiles);
+		//saveFileAsButton.setEnabled(!noFiles);
 		
 		// only modify menus if Frame has been built
-		if (XMLFrame != null) {
+		/*
+		 if (XMLFrame != null) {
 			saveFileMenuItem.setEnabled(!noFiles);
 			saveFileAsMenuItem.setEnabled(!noFiles);
 		}
+		*/
 		protocolTab.setVisible(!noFiles);
 	}
 	
@@ -1060,7 +939,7 @@ public class XMLView
 				(XMLUIPanel, "Save the current file before closing?");
 			if (result == JOptionPane.YES_OPTION) {
 				// save Protocol (no exp details)	Experiment must be saved by user manually
-				saveFileAs();
+			//	saveFileAs();
 			} else if (result == JOptionPane.CANCEL_OPTION) {
 				return;
 			}
@@ -1069,7 +948,7 @@ public class XMLView
 		xmlModel.closeCurrentFile();
 	}
 	
-	// open a blank protocol (after checking you want to save!)
+	// open a blank protocol 
 	public void newProtocolFile() {
 		xmlModel.openBlankProtocolFile();
 	}
@@ -1080,11 +959,11 @@ public class XMLView
 		
 		// Create a file chooser
 		final JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new OpenProExpXmlFileFilter());
+		fc.setFileFilter(new ProtocolFileFilter());
 		
 		File currentLocation = null;
-		if (PropertiesManager.getProperty(PropertiesManager.CURRENT_FILES_FOLDER) != null) {
-			currentLocation = new File(PropertiesManager.getProperty(PropertiesManager.CURRENT_FILES_FOLDER));
+		if (PreferencesManager.getPreference(PreferencesManager.CURRENT_FILES_FOLDER) != null) {
+			currentLocation = new File(PreferencesManager.getPreference(PreferencesManager.CURRENT_FILES_FOLDER));
 		} 
 		fc.setCurrentDirectory(currentLocation);
 
@@ -1092,7 +971,7 @@ public class XMLView
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
             File xmlFile = fc.getSelectedFile();
          // remember where the user last saved a file
-            PropertiesManager.setProperty(PropertiesManager.CURRENT_FILES_FOLDER, xmlFile.getParent());
+            PreferencesManager.setPreference(PreferencesManager.CURRENT_FILES_FOLDER, xmlFile.getParent());
             openThisFile(xmlFile);
 		}
 	}
@@ -1141,36 +1020,7 @@ public class XMLView
     	}
 	}
 	
-	public void multiplyValueOfSelectedFields() {
-		String s = (String)JOptionPane.showInputDialog(
-                XMLFrame,
-                "Multiply all selected field values by:\n"
-                + "(enter a number)\n NB: This will only apply to NUMBER fields \n"
-                + "To divide, use /, eg '/3' ",
-                "Enter a number",
-                JOptionPane.QUESTION_MESSAGE);
-		
-		if (s != null && s.length() > 0) {
-			boolean division = false;
-			if (s.startsWith("/")) {
-				s = s.substring(1);
-				division = true;
-			}
-			
-			float factor;
-			try {
-				factor = Float.parseFloat(s);
-				if (division) xmlModel.multiplyValueOfSelectedFields(1/factor);
-				else xmlModel.multiplyValueOfSelectedFields(factor);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				JOptionPane.showMessageDialog(XMLFrame, 
-						"You didn't enter a valid number", 
-						"Invalid multiplication factor", 
-						JOptionPane.ERROR_MESSAGE);
-			}
-		}
-	}
+
 	
 	public void findMoreLikeThis() {
 		File file = xmlModel.getCurrentFile();
@@ -1192,27 +1042,7 @@ public class XMLView
 		updateXmlValidationPanel();	
 	}
 	
-	public void openWwwFile() {
-		Object[] possibilities = {"http://cvs.openmicroscopy.org.uk/svn/specification/Xml/Working/completesample.xml",
-				"http://trac.openmicroscopy.org.uk/~will/protocolFiles/experiments/AuroraB%20fix-stain.exp", 
-				"http://trac.openmicroscopy.org.uk/~will/protocolFiles/experiments/arwen_slice_1.exp"};
-		String url = (String)JOptionPane.showInputDialog(
-                XMLFrame,
-                "Enter a url for an XML file to open:",
-                "Open a www file",
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                possibilities,
-                "");
-		
-		try {
-			File downloadedFile = FileDownload.downloadFile(url);
-			this.openThisFile(downloadedFile);
-		} catch (MalformedURLException ex) {
-			JOptionPane.showMessageDialog(XMLFrame, "invalid URL, please try again");
-		}
-
-	}
+	
 	
 	/*
 	 * "Find" function to highlight fields containing a search-word. 
@@ -1353,18 +1183,6 @@ public class XMLView
 		}	
 	}
 	
-	public class OpenWwwFileListener implements ActionListener {
-		public void actionPerformed(ActionEvent arg0) {
-			openWwwFile();
-		}
-	}
-	
-	public class ClearFieldsListener implements ActionListener {
-		public void actionPerformed(ActionEvent arg0) {
-			xmlModel.editCurrentTree(Actions.CLEAR_FIELDS);
-		}
-	}
-	
 	public class XmlValidationListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent event) {
@@ -1381,16 +1199,6 @@ public class XMLView
 		
 	}
 	
-	public class UndoActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent arg0) {
-			xmlModel.editCurrentTree(Actions.UNDO_LAST_ACTION);
-		}
-	}
-	public class RedoActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent arg0) {
-			xmlModel.editCurrentTree(Actions.REDO_ACTION);
-		}
-	}
 	
 	public class MoreLikeThisListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
@@ -1398,11 +1206,6 @@ public class XMLView
 		}
 	}
 	
-	public class MultiplyValueOfSelectedFieldsListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			multiplyValueOfSelectedFields();
-		}
-	}
 	
 	public class CloseFileListener implements ActionListener {
 
@@ -1454,13 +1257,21 @@ public class XMLView
 		 //Create a file chooser
 		final JFileChooser fc = new JFileChooser();
 			
-		fc.setCurrentDirectory(xmlModel.getCurrentFile());
+		File rootFolderLocation = null;
+		if (PreferencesManager.getPreference(PreferencesManager.ROOT_FILES_FOLDER) != null) {
+			rootFolderLocation = new File(PreferencesManager.getPreference(PreferencesManager.ROOT_FILES_FOLDER));
+		} else if (PreferencesManager.getPreference(PreferencesManager.CURRENT_FILES_FOLDER) != null) {
+			rootFolderLocation = new File(PreferencesManager.getPreference(PreferencesManager.CURRENT_FILES_FOLDER));
+		}
+		fc.setCurrentDirectory(rootFolderLocation);
 		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			
 		int returnVal = fc.showOpenDialog(XMLFrame);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File folderToIndex = fc.getSelectedFile();
 			String[] path = {folderToIndex.getAbsolutePath()};
+			// remember this location
+			PreferencesManager.setPreference(PreferencesManager.ROOT_FILES_FOLDER, folderToIndex.getAbsolutePath());
 	            
 			IndexFiles.main(path);
 		}
@@ -1478,114 +1289,6 @@ public class XMLView
 	}
 	
 	
-	public class PrintWholeFileListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			ArrayList<DataFieldNode> rootNode = new ArrayList<DataFieldNode>();
-			rootNode.add(protocolRootNode); 
-			
-			printToHtml(rootNode);
-		}
-	}
-	public class PrintSelectedFieldsListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			printToHtml(xmlModel.getHighlightedFields());
-		}
-	}
-	
-	
-	public void printToHtml(ArrayList<DataFieldNode> rootNodes) {
-		
-		// Can't work out how to export xsl file into .jar
-		// xmlModel.transformXmlToHtml();
-		
-		// use this method for now
-		
-		final JFileChooser fc = new JFileChooser();
-		
-		File currentLocation = null;
-		if (PropertiesManager.getProperty(PropertiesManager.CURRENT_EXPORT_FOLDER) != null) {
-			currentLocation = new File(PropertiesManager.getProperty(PropertiesManager.CURRENT_EXPORT_FOLDER));
-		} 
-		fc.setCurrentDirectory(currentLocation);
-
-		fc.setFileFilter(new FileFilter() {
-			public boolean accept(File f) {
-				if (f.getName().endsWith(".html") || (f.isDirectory()))
-					return true;
-				return false;
-			}
-			public String getDescription() {
-				return ".html files";
-			}
-		});
-		int returnVal = fc.showSaveDialog(XMLFrame);
-		if (returnVal != JFileChooser.APPROVE_OPTION) {
-			return;
-		}
-		File file = fc.getSelectedFile();
-		if (file.isDirectory()) {
-            JOptionPane.showMessageDialog(XMLFrame, "Please choose a file name (not a directory)");
-            // try again! 
-            printToHtml(rootNodes);
-            return;
-        }
-		
-		// remember where the user last exported a file
-        PropertiesManager.setProperty(PropertiesManager.CURRENT_EXPORT_FOLDER, file.getParent());
-		
-		// now, make sure the filename ends .html
-        String filePathAndName = file.getAbsolutePath();
-        if (!(filePathAndName.endsWith(".html"))) {	// if not..
-        	filePathAndName = filePathAndName + ".html";
-        	file = new File(filePathAndName);
-        }
-		
-		LinkedHashMap<String,Boolean> booleanMap = new LinkedHashMap<String,Boolean>();
-		booleanMap.put("Show every field (include collapsed fields)", true);
-		booleanMap.put("Show descriptions", true);
-		booleanMap.put("Show default values", true);
-		booleanMap.put("Show Url", true);
-		booleanMap.put("Show Table Data", true);
-		booleanMap.put("Show all other attributes", true);
-	
-		
-		ExportDialog printDialog = new ExportDialog(XMLFrame, printButton, "Print Options", booleanMap);
-		printDialog.pack();
-		printDialog.setVisible(true);
-		
-		if (printDialog.getValue().equals(JOptionPane.OK_OPTION)) {
-		
-			booleanMap = printDialog.getBooleanMap();
-			boolean showEveryField = booleanMap.get("Show every field (include collapsed fields)");
-			boolean	showDescriptions = booleanMap.get("Show descriptions");
-			boolean	showDefaultValues = booleanMap.get("Show default values");
-			boolean	showUrl = booleanMap.get("Show Url");
-			boolean	showAllOtherAttributes = booleanMap.get("Show all other attributes");
-			boolean printTableData = booleanMap.get("Show Table Data");
-		
-			HtmlOutputter.outputHTML(file, rootNodes, showEveryField, 
-					showDescriptions, showDefaultValues, 
-					showUrl, showAllOtherAttributes, printTableData);
-		}
-	}
-
-	
-	public class LoadDefaultsListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			String command = event.getActionCommand();
-			if (command.equals(LOAD_DEFAULTS)) {
-				xmlModel.editCurrentTree(Actions.LOAD_DEFAULTS);
-			} else if (command.equals(LOAD_DEFAULTS_HIGHLIGHTED_FIELDS)) {
-				xmlModel.editCurrentTree(Actions.LOAD_DEFAULTS_HIGHLIGHTED_FIELDS);
-			}
-		}
-	}
-	
-	public class newProtocolFileListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			newProtocolFile();
-		}
-	}
 	
 	public class AddDataFieldListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
@@ -1626,12 +1329,6 @@ public class XMLView
 		}
 	}
 	
-	public class openFileListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			openFile();
-		}
-	}
-	
 	
 	public class InsertElementsFromFileListener implements ActionListener {
 		public void actionPerformed(ActionEvent event){
@@ -1639,92 +1336,7 @@ public class XMLView
 		}
 	}
 	
-	// saves updates to the current file - or calls saveAs
-	public class SaveCurrentFileListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			// if the current file is not saved (still called "untitled")
-			if (xmlModel.getCurrentFile() == null) return;
-			
-			if (xmlModel.getCurrentFile().getName().equals("untitled")) {
-				saveFileAs();
-			}
-			else {
-				int option = JOptionPane.showConfirmDialog(XMLFrame, "Save changes? " + 
-						"\n This will over-write the original file",
-						"Save Changes?", JOptionPane.OK_CANCEL_OPTION);
-				if (option == JOptionPane.OK_OPTION) {
-					xmlModel.saveTreeToXmlFile(xmlModel.getCurrentFile());
-					JOptionPane.showMessageDialog(XMLFrame, "Experiment saved.");
-				}
-			}
-		}
-	}
 	
-	public class SaveFileAsListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			saveFileAs();
-		}
-	}
-	
-
-	public class OpenProExpXmlFileFilter extends FileFilter {
-		public boolean accept(File file) {
-			boolean recognisedFileType = 
-				//	allows "MS Windows" to see directories
-				((file.getName().endsWith("pro")) || (file.getName().endsWith("exp")) || 
-						(file.getName().endsWith("xml")) || (file.isDirectory()));
-			return recognisedFileType;
-		}
-		public String getDescription() {
-			return " .pro .exp .xml files";
-		}
-	}
-	
-	public void saveFileAs() {
-		
-		final JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new OpenProExpXmlFileFilter());
-		
-		File currentLocation = null;
-		if (PropertiesManager.getProperty(PropertiesManager.CURRENT_FILES_FOLDER) != null) {
-			currentLocation = new File(PropertiesManager.getProperty(PropertiesManager.CURRENT_FILES_FOLDER));
-		} 
-		fc.setCurrentDirectory(currentLocation);
-
-		int returnVal = fc.showSaveDialog(XMLFrame);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File xmlFile = fc.getSelectedFile();  // this may be a directory! 
-            
-            // remember where the user last saved a file
-            PropertiesManager.setProperty(PropertiesManager.CURRENT_FILES_FOLDER, xmlFile.getParent());
-            
-            if (xmlFile.isDirectory()) {
-                JOptionPane.showMessageDialog(XMLFrame, "Please choose a file name (not a directory)");
-                // try again! 
-                saveFileAs();
-                return;
-            }
-
-            // first, make sure the filename ends .exp.xml
-            String filePathAndName = xmlFile.getAbsolutePath();
-            if (!(filePathAndName.endsWith(".pro.xml"))) {	// if not..
-            	filePathAndName = filePathAndName + ".pro.xml";
-            	xmlFile = new File(filePathAndName);
-            }
-               
-            // now check if the file exists. If so, take appropriate action
-            if (xmlFile.exists()) {
-            	int result = JOptionPane.showConfirmDialog(XMLUIPanel, "File exists. Overwrite it?");
-            	if (!(result == JOptionPane.YES_OPTION)) {	// if not yes, then forget it!
-            		return;
-            	}
-        	}
-            
-            xmlModel.saveTreeToXmlFile(xmlFile);
-            
-            refreshFileEdited();
-		}
-	}
 	
 	
 	// called when user changes to Editing Protocol. 
@@ -1802,12 +1414,19 @@ public class XMLView
 	public void insertFieldsFromFile() {
 //		 Create a file chooser
 		final JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new OpenProExpXmlFileFilter());
+		fc.setFileFilter(new ProtocolFileFilter());
 		
-		fc.setCurrentDirectory(xmlModel.getCurrentFile());
+		File currentLocation = null;
+		if (PreferencesManager.getPreference(PreferencesManager.CURRENT_FILES_FOLDER) != null) {
+			currentLocation = new File(PreferencesManager.getPreference(PreferencesManager.CURRENT_FILES_FOLDER));
+		} 
+		fc.setCurrentDirectory(currentLocation);
 		int returnVal = fc.showOpenDialog(XMLFrame);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
            File xmlFile = fc.getSelectedFile();	
+           
+        // remember where the user last saved a file
+           PreferencesManager.setPreference(PreferencesManager.CURRENT_FILES_FOLDER, xmlFile.getParent());
            
            Tree importTree = xmlModel.getTreeFromNewFile(xmlFile); 
            
@@ -1882,5 +1501,34 @@ public class XMLView
 		return (osName.contains("Mac OS"));
 	}
 	
+	public void addAbstractButton(AbstractButton button, String text, Icon icon, 
+			String toolTipText, Border border, ActionListener actionListener, JComponent comp) {
+		if (button == null) {
+			button = new JButton();
+		}
+		if (text != null) button.setText(text);
+		if (icon != null) button.setIcon(icon);
+		if (toolTipText != null) button.setToolTipText(toolTipText);
+		if (border != null) button.setBorder(border);
+		if (actionListener != null)  button.addActionListener(actionListener);
+		if (comp != null)  comp.add(button);
+	}
+	
+	
+	public void addButton(int controllerIndex, String text, Border border, JComponent comp) {
+		JButton button = new JButton(controller.getAction(controllerIndex));
+		if (text != null) button.setText(text);
+		if (border != null) button.setBorder(border);
+		if (comp != null)  comp.add(button);
+	}
+	public void addButton(JButton button, Border border, JComponent comp) {
+		if (button == null) return;
+		if (border != null) button.setBorder(border);
+		if (comp != null)  comp.add(button);
+	}
+	
+	public JFrame getFrame() {
+		return XMLFrame;
+	}
 }
 

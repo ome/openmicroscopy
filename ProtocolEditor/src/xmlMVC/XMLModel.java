@@ -113,6 +113,7 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		// catch any uncaught exceptions	
 		} catch (Exception se) {
 			
+			se.printStackTrace();
 			// give users chance to submit bug.
 			ExceptionHandler.showErrorDialog("Unknown Error", 
 					"Abnormal termination due to an uncaught exception.", se);

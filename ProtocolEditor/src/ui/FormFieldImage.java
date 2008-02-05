@@ -202,9 +202,6 @@ public class FormFieldImage extends FormField {
 		fc.setFileFilter(new ImageFileFilter());
 		
 		File currentLocation = null;
-		if (PropertiesManager.getProperty(PropertiesManager.CURRENT_FILES_FOLDER) != null) {
-			currentLocation = new File(PropertiesManager.getProperty(PropertiesManager.CURRENT_FILES_FOLDER));
-		} 
 		fc.setCurrentDirectory(currentLocation);
 
 		int returnVal = fc.showOpenDialog(this);

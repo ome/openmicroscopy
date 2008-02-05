@@ -24,8 +24,8 @@ public class ExportDialog extends JDialog
 
     public ExportDialog(JFrame frame, JComponent parent, String title, LinkedHashMap<String, Boolean> booleanMap) {
         super(frame, true);
-       
-        this.setLocationRelativeTo(parent);
+        if (parent != null)
+        	this.setLocationRelativeTo(parent);
         this.booleanMap = booleanMap;
         setTitle(title);
         

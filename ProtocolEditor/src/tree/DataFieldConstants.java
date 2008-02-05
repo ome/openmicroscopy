@@ -25,10 +25,10 @@ public class DataFieldConstants {
 	public static final String BACKGROUND_COLOUR = "backgroundColour";
 	public static final String URL = "url";
 	
-	public static final String ONTOLOGY_ID = "ontologyId";
-	public static final String ONTOLOGY_TERM_ID = "ontolgoyTermId";
-	public static final String ONTOLOGY_TERM_NAME = "ontologyTermName";
-	public static final String ONTOLOGY_TERM_DEF = "ontologyTermDef";
+	//public static final String ONTOLOGY_ID = "ontologyId";
+	public static final String ONTOLOGY_TERM_ID = "ontolgoyTermId";		// store the term name here too
+	//public static final String ONTOLOGY_TERM_NAME = "ontologyTermName";
+	//public static final String ONTOLOGY_TERM_DEF = "ontologyTermDef";
 	
 	public static final String OBSERVATION_ENTITY_TERM_IDNAME = "observationEntityTermID";
 	public static final String OBSERVATION_ATTRIBUTE_TERM_IDNAME = "observationAttributeTermID";

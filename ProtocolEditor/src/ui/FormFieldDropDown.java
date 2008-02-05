@@ -31,6 +31,7 @@ import javax.swing.JComboBox;
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.FormField.FormPanelMouseListener;
+import ui.components.CustomComboBox;
 
 public class FormFieldDropDown extends FormField {
 	
@@ -38,7 +39,7 @@ public class FormFieldDropDown extends FormField {
 	
 	String[] ddOptions = {" "};
 	
-	JComboBox comboBox;
+	CustomComboBox comboBox;
 	
 	public FormFieldDropDown (IDataFieldObservable dataFieldObs) {
 	
@@ -47,7 +48,8 @@ public class FormFieldDropDown extends FormField {
 		String dropDownOptions = dataField.getAttribute(DataFieldConstants.DROPDOWN_OPTIONS);
 		String value = dataField.getAttribute(DataFieldConstants.VALUE);
 		
-		comboBox = new JComboBox();
+		comboBox = new CustomComboBox();
+		comboBox.setMaximumWidth(250);
 		
 		comboBox.addActionListener(valueSelectionListener);
 		// comboBox.addFocusListener(new FocusLostUpdatDataFieldListener());

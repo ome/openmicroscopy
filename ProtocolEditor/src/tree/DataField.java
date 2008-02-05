@@ -190,6 +190,8 @@ public class DataField
 		setAttribute(DataFieldConstants.INPUT_TYPE, newInputType);
 		
 		// new subclasses of formField and fieldEditor will get made when needed
+		removeDataFieldObserver(fieldEditor);
+		removeDataFieldObserver(formField);
 		fieldEditor = null;
 		formField = null;
 		
@@ -227,6 +229,9 @@ public class DataField
 	
 	public void addDataFieldObserver(DataFieldObserver observer) {
 		dataFieldObservers.add(observer);
+	}
+	public void removeDataFieldObserver(DataFieldObserver observer) {
+		dataFieldObservers.remove(observer);
 	}
 	
 	public void setHighlighted(boolean highlighted) {

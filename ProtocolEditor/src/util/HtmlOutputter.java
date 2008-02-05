@@ -29,6 +29,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
@@ -120,7 +121,7 @@ public class HtmlOutputter {
 						 showUrl, showAllOtherAttributes, printTableData);
 	}
 	
-	public static void outputHTML (File outputFile, ArrayList<DataFieldNode> rootNodes, boolean showEveryField, 
+	public static void outputHTML (File outputFile, List<DataFieldNode> rootNodes, boolean showEveryField, 
 			boolean showDescriptions, boolean showDefaultValues, 
 			boolean showUrl, boolean showAllOtherAttributes, boolean printTableData) {
 		

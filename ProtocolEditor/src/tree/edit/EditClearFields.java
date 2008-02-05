@@ -38,9 +38,29 @@ public class EditClearFields extends AbstractUndoableEdit {
 	
 	public EditClearFields (DataFieldNode rootNode) {
 		
-		iterator = rootNode.iterator();
 		editedFields = new ArrayList<EditDataFieldAttribute>();
 
+		populateEditedFields(rootNode);
+		
+		redo();		// this sets value to "" (newValue) for all fields in the list
+	}
+	
+	
+	public EditClearFields (ArrayList<DataFieldNode> rootNodes) {
+		
+		editedFields = new ArrayList<EditDataFieldAttribute>();
+
+		for (DataFieldNode rootNode: rootNodes) {
+			populateEditedFields(rootNode);
+		}
+		
+		redo();		// this sets value to "" (newValue) for all fields in the list
+	}
+	
+	
+	public void populateEditedFields(DataFieldNode rootNode) {
+		
+		iterator = rootNode.iterator();
 		
 		while (iterator.hasNext()) {
 			DataField field = (DataField)iterator.next().getDataField();
@@ -52,7 +72,6 @@ public class EditClearFields extends AbstractUndoableEdit {
 			}
 			
 		}
-		redo();		// this sets value to "" (newValue) for all fields in the list
 	}
 	
 	

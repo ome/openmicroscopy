@@ -26,8 +26,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Insets;
 
+import javax.swing.BorderFactory;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.border.Border;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
@@ -58,14 +60,17 @@ public class FormFieldMemo extends FormField {
 		//textInput.setRows(3);
 		textInput.setLineWrap(true);
 		textInput.setWrapStyleWord(true);
-		JScrollPane textScroller = new JScrollPane(textInput);
-		textInput.setMargin(new Insets(3,3,3,3));
-		textInput.setMaximumSize(new Dimension(500, 500));
+		//JScrollPane textScroller = new JScrollPane(textInput);
+		Border bevelBorder = BorderFactory.createLoweredBevelBorder();
+		Border emptyBorder = BorderFactory.createEmptyBorder(3, 3, 3, 3);
+		Border compoundBorder = BorderFactory.createCompoundBorder(bevelBorder, emptyBorder);
+		textInput.setBorder(compoundBorder);
+		//textInput.setMaximumSize(new Dimension(500, 500));
 		textInput.addMouseListener(new FormPanelMouseListener());
 		textInput.setName(DataFieldConstants.VALUE);
 		textInput.addFocusListener(focusChangedListener);
 		textInput.addKeyListener(textChangedListener);
-		horizontalBox.add(textScroller);
+		horizontalBox.add(textInput);
 		
 		//setExperimentalEditing(false);	// default created as uneditable
 	}
