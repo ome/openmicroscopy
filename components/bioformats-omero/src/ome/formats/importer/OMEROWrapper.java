@@ -3,7 +3,6 @@ package ome.formats.importer;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 
 import loci.formats.ChannelFiller;
@@ -14,10 +13,8 @@ import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MinMaxCalculator;
 import loci.formats.in.LeicaReader;
-import loci.formats.meta.MetadataStore;
 import ome.formats.OMEROMetadataStore;
 import ome.model.core.Channel;
-import ome.model.core.Image;
 import ome.model.core.Pixels;
 
 public class OMEROWrapper extends MinMaxCalculator
@@ -48,6 +45,10 @@ public class OMEROWrapper extends MinMaxCalculator
         }
         reader = separator  = new ChannelSeparator(filler);
         //reader = separator = new ChannelSeparator(iReader);
+        
+        // Force unreadable characters to be removed from metadata key/value pairs 
+        reader.setMetadataFiltered(true);
+        separator.setMetadataFiltered(true);
     };
 	/**
 	 * Obtains an object which represents a given plane within the file.
@@ -158,8 +159,9 @@ public class OMEROWrapper extends MinMaxCalculator
             OMEROMetadataStore store = 
                 (OMEROMetadataStore) reader.getMetadataStore();
             int series = reader.getSeries();
-            List<Channel> channels = store.getPixels(series).getChannels();
-            if (channels.get(getSizeC()-1).getStatsInfo() == null)
+            Pixels p = store.getPixels(series);
+            Channel c = store.getChannel(p, getSizeC() - 1);
+            if (c.getStatsInfo() == null)
             {
                 minMaxSet = false;
             } else {

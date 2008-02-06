@@ -106,7 +106,19 @@ public class OMEROMetadataStore implements MetadataStore
     private List<Image> imageList = new ArrayList<Image>();
     
     /** An list of Pixels that we have worked on ordered by first access. */
-    private List<Pixels> pList = new ArrayList<Pixels>();
+    private List<Pixels> pixelsList = new ArrayList<Pixels>();
+    
+    /** 
+     * PlaneInfo ordered cache (compensates for pixels.planeInfo being a
+     * HashMap. Should be invalidated when currentPixels has changed.
+     */
+    private List<PlaneInfo> planeInfoCache = null;
+    
+    /** 
+     * The current pixels set, when this changes we invalidate 
+     * <code>planeInfoCache</code>.
+     */
+    private Integer currentPixelsIndex = null;
     
     private Experimenter    exp;
     
@@ -204,6 +216,7 @@ public class OMEROMetadataStore implements MetadataStore
 	public void createRoot()
 	{
 	    imageList = new ArrayList<Image>();
+	    pixelsList = new ArrayList<Pixels>();
 	}
 
 	/*
@@ -577,19 +590,11 @@ public class OMEROMetadataStore implements MetadataStore
         	globalMax = new Double(Math.ceil(globalMax.doubleValue()));
         }
 
-        List<Channel> channels = getPixels(i).getChannels();
-
-        if (channels.size() < channelIdx)
-            throw new IndexOutOfBoundsException("No such channel index: "
-                    + channelIdx);
-
-        Channel channel = channels.get(channelIdx);
+        Channel channel = getChannel(getPixels(i), channelIdx);
         StatsInfo statsInfo = new StatsInfo();
         statsInfo.setGlobalMin(globalMin);
         statsInfo.setGlobalMax(globalMax);
-        
         channel.setStatsInfo(statsInfo);
-        //minMaxSet.set(channelIdx, true);
     }
 
     /*
@@ -725,11 +730,15 @@ public class OMEROMetadataStore implements MetadataStore
         IUpdate update = sf.getUpdateService();
         Image[] imageArray = imageList.toArray(new Image[imageList.size()]);
         IObject[] o = update.saveAndReturnArray(imageArray);
+        pixelsList = new ArrayList<Pixels>();
         for (int i = 0; i < o.length; i++)
         {
-            imageList.set(i, (Image) o[i]);
+            Image image = (Image) o[i];
+            // FIXME: This assumes only *one* pixels set.
+            pixelsList.add((Pixels) image.iteratePixels().next());
+            imageList.set(i, image);
         }
-        return pList;
+        return pixelsList;
     }
     
     public ServiceFactory getSF()
@@ -762,7 +771,7 @@ public class OMEROMetadataStore implements MetadataStore
             oFile.setSize(file.length());
             oFile.setSha1("pending");
             oFile.setFormat(f);
-            for (Pixels pixels : pList)
+            for (Pixels pixels : pixelsList)
             {
                 pixels.linkOriginalFile(oFile);
             }
@@ -971,9 +980,20 @@ public class OMEROMetadataStore implements MetadataStore
         List<Channel> channels = p.getChannels();
         List<Channel> readerChannels = getPixels(i).getChannels();
         
-        for (int j=0; j < channels.size(); j++)
+        for (int j=0; j < p.getSizeC(); j++)
         {
-            channels.get(j).setStatsInfo(readerChannels.get(j).getStatsInfo());
+            Channel channel;
+            if (j > channels.size() - 1)
+            {
+                channel = new Channel();
+                channel.setLogicalChannel(new LogicalChannel());
+                channels.add(channel);
+            }
+            else
+            {
+                channel = channels.get(j);
+            }
+            channel.setStatsInfo(readerChannels.get(j).getStatsInfo());
         }
         iUpdate.saveObject(p);
     }
@@ -1024,7 +1044,10 @@ public class OMEROMetadataStore implements MetadataStore
 	/**
 	 * Returns a Pixels from a given Image's indexed pixels list. The indexed
 	 * pixels list is extended as required and the Pixels object itself is
-	 * created as required.
+	 * created as required. This also invalidates the PlaneInfo ordered cache
+	 * if the pixelsIndex is different than the one currently stored. You 
+	 * <b>must not</b> attempt to retrieve two different Pixels instances and 
+	 * expect to have planeIndexes maintained.
 	 * 
 	 * @param imageIndex The image index.
 	 * @param pixelsIndex The pixels index within <code>imageIndex</code>.
@@ -1040,8 +1063,12 @@ public class OMEROMetadataStore implements MetadataStore
     		for (int i = image.sizeOfPixels(); i <= pixelsIndex; i++)
     		{
     			// Since OMERO model objects prevent us from inserting nulls
-    			// here we must insert a Pixels object.
-    			image.addPixels(new Pixels());
+    			// here we must insert a Pixels object. We also need to ensure
+    			// that the OMERO specific "sha1" field is filled.
+    			Pixels p = new Pixels();
+    			// FIXME: We *really* should deal with this properly... finally.
+    			p.setSha1("foo");
+    			image.addPixels(p);
     		}
     	}
     	
@@ -1061,9 +1088,16 @@ public class OMEROMetadataStore implements MetadataStore
     			// time based upon its "series" in Bio-Formats terms.
     			// FIXME: Note that there is no way to really ensure that
     			// "series" acurately maps to index in the List.
-    			if (!pList.contains(p))
+    			if (!pixelsList.contains(p))
     			{
-    				pList.add(p);
+    				pixelsList.add(p);
+    			}
+    			// Invalidate the planeInfoCache if necessary.
+    			if (currentPixelsIndex == null
+    			    || pixelsIndex != currentPixelsIndex)
+    			{
+    				planeInfoCache = new ArrayList<PlaneInfo>();
+    				currentPixelsIndex = pixelsIndex;
     			}
     			return p;
     		}
@@ -1083,11 +1117,11 @@ public class OMEROMetadataStore implements MetadataStore
 	@SuppressWarnings("unchecked")
 	public Pixels getPixels(int series)
 	{
-		return pList.get(series);
+		return pixelsList.get(series);
 	}
 	
 	/**
-	 * Returns a PlaneInfo from a given Image's, Pixels' indexed plane info
+	 * Returns a PlaneInfo from a given Image's, Pixels' indexed  plane info
 	 * list. The indexed plane info list is extended as required and the 
 	 * PlaneInfo object itself is created as required.
 	 * 
@@ -1100,30 +1134,23 @@ public class OMEROMetadataStore implements MetadataStore
 	public PlaneInfo getPlaneInfo(int imageIndex, int pixelsIndex,
 			int planeIndex)
 	{
-		Pixels p = getPixels(imageIndex, pixelsIndex);
-    	if (p.sizeOfPlaneInfo() < (planeIndex + 1))
+    	if (planeInfoCache.size() < (planeIndex + 1))
     	{
-    		for (int i = p.sizeOfPlaneInfo(); i <= planeIndex; i++)
+    		for (int i = planeInfoCache.size(); i <= planeIndex; i++)
     		{
     			// Since OMERO model objects prevent us from inserting nulls
-    			// here we must insert a PlaneInfo object.
-    			p.addPlaneInfo(new PlaneInfo());
+    			// here we must insert a PlaneInfo object. Also, we need an
+    			// ordered list of PlaneInfo objects for later reference so
+    			// we're populating the cache here which will be invalidated
+    			// upon the switch of Pixels sets.
+    			PlaneInfo info = new PlaneInfo();
+                // FIXME: Time stamp needs fixing.
+    			info.setTimestamp(0.0f);
+    			planeInfoCache.add(info);
+    			getPixels(imageIndex, pixelsIndex).addPlaneInfo(info);
     		}
     	}
-    	
-    	Iterator<PlaneInfo> i = p.iteratePlaneInfo();
-    	int j = 0;
-    	while (i.hasNext())
-    	{
-    		PlaneInfo info = i.next();
-    		if (j == pixelsIndex)
-    		{
-    			return info;
-    		}
-    		j++;
-    	}
-    	throw new RuntimeException(
-    			"Unable to locate plane info index: " + planeIndex);
+    	return planeInfoCache.get(planeIndex);
 	}
 	
 	/**
@@ -1315,11 +1342,15 @@ public class OMEROMetadataStore implements MetadataStore
         log.debug(String.format(
         		"Setting Image[%d] Pixels[%d] physical size X: '%f'",
         		imageIndex, pixelsIndex, physicalSizeX));
+        if (physicalSizeX == null) return;
         Pixels p = getPixels(imageIndex, pixelsIndex);
         PixelsDimensions dims = p.getPixelsDimensions();
         if (dims == null)
         {
         	dims = new PixelsDimensions();
+        	dims.setSizeX(0.0f);
+            dims.setSizeY(0.0f);
+            dims.setSizeZ(0.0f);
         	p.setPixelsDimensions(dims);
         }
         dims.setSizeX(physicalSizeX);
@@ -1334,11 +1365,15 @@ public class OMEROMetadataStore implements MetadataStore
         log.debug(String.format(
         		"Setting Image[%d] Pixels[%d] physical size Y: '%f'",
         		imageIndex, pixelsIndex, physicalSizeY));
+        if (physicalSizeY == null) return;
         Pixels p = getPixels(imageIndex, pixelsIndex);
         PixelsDimensions dims = p.getPixelsDimensions();
         if (dims == null)
         {
         	dims = new PixelsDimensions();
+            dims.setSizeX(0.0f);
+            dims.setSizeY(0.0f);
+            dims.setSizeZ(0.0f);
         	p.setPixelsDimensions(dims);
         }
         dims.setSizeY(physicalSizeY);
@@ -1353,11 +1388,15 @@ public class OMEROMetadataStore implements MetadataStore
         log.debug(String.format(
         		"Setting Image[%d] Pixels[%d] physical size Z: '%f'",
         		imageIndex, pixelsIndex, physicalSizeZ));
+        if (physicalSizeZ == null) return;
         Pixels p = getPixels(imageIndex, pixelsIndex);
         PixelsDimensions dims = p.getPixelsDimensions();
         if (dims == null)
         {
         	dims = new PixelsDimensions();
+            dims.setSizeX(0.0f);
+            dims.setSizeY(0.0f);
+            dims.setSizeZ(0.0f);
         	p.setPixelsDimensions(dims);
         }
         dims.setSizeZ(physicalSizeZ);
@@ -1540,7 +1579,7 @@ public class OMEROMetadataStore implements MetadataStore
         	Channel c = getChannel(p, logicalChannelIndex);
             log.debug(String.format(
             		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] name: '%s'",
-            		imageIndex, p, logicalChannelIndex, name));
+            		imageIndex, p, c, logicalChannelIndex, name));
             LogicalChannel lc = getLogicalChannel(c);
             lc.setName(name);
         }
@@ -1561,7 +1600,7 @@ public class OMEROMetadataStore implements MetadataStore
         	Channel c = getChannel(p, logicalChannelIndex);
             log.debug(String.format(
             		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] samples per pixel: '%d'",
-            		imageIndex, p, logicalChannelIndex, samplesPerPixel));
+            		imageIndex, p, c, logicalChannelIndex, samplesPerPixel));
             log.debug("NOTE: This field is unsupported/unused.");
         }
 	}
@@ -1581,7 +1620,7 @@ public class OMEROMetadataStore implements MetadataStore
         	Channel c = getChannel(p, logicalChannelIndex);
             log.debug(String.format(
             		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] illumination type: '%s'",
-            		imageIndex, p, logicalChannelIndex, illuminationType));
+            		imageIndex, p, c, logicalChannelIndex, illuminationType));
             LogicalChannel lc = getLogicalChannel(c);
             Illumination iType = (Illumination) getEnumeration(
                     AcquisitionMode.class, illuminationType);
@@ -1604,7 +1643,7 @@ public class OMEROMetadataStore implements MetadataStore
         	Channel c = getChannel(p, logicalChannelIndex);
             log.debug(String.format(
             		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] pinhole size: '%d'",
-            		imageIndex, p, logicalChannelIndex, pinholeSize));
+            		imageIndex, p, c, logicalChannelIndex, pinholeSize));
             LogicalChannel lc = getLogicalChannel(c);
             lc.setPinHoleSize(pinholeSize);
         }
@@ -1627,7 +1666,7 @@ public class OMEROMetadataStore implements MetadataStore
             log.debug(String.format(
             		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] " +
             		"photometric interpretation: '%s'",
-            		imageIndex, p, logicalChannelIndex, photometricInterpretation));
+            		imageIndex, p, c, logicalChannelIndex, photometricInterpretation));
             LogicalChannel lc = getLogicalChannel(c);
             PhotometricInterpretation pi = 
             	(PhotometricInterpretation) getEnumeration(
@@ -1652,7 +1691,7 @@ public class OMEROMetadataStore implements MetadataStore
             log.debug(String.format(
             		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] " +
             		"channel mode: '%s'",
-            		imageIndex, p, logicalChannelIndex, mode));
+            		imageIndex, p, c, logicalChannelIndex, mode));
             LogicalChannel lc = getLogicalChannel(c);
             AcquisitionMode m = 
             	(AcquisitionMode) getEnumeration(AcquisitionMode.class, mode);
@@ -1676,7 +1715,7 @@ public class OMEROMetadataStore implements MetadataStore
             log.debug(String.format(
             		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] " +
             		"contrast method: '%s'",
-            		imageIndex, p, logicalChannelIndex, contrastMethod));
+            		imageIndex, p, c, logicalChannelIndex, contrastMethod));
             LogicalChannel lc = getLogicalChannel(c);
             ContrastMethod m = (ContrastMethod) 
             	getEnumeration(ContrastMethod.class, contrastMethod);
@@ -1700,7 +1739,7 @@ public class OMEROMetadataStore implements MetadataStore
             log.debug(String.format(
             		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] " +
             		"excitation wavelength: '%d'",
-            		imageIndex, p, logicalChannelIndex, exWave));
+            		imageIndex, p, c, logicalChannelIndex, exWave));
             LogicalChannel lc = getLogicalChannel(c);
             lc.setExcitationWave(exWave);
         }
@@ -1722,7 +1761,7 @@ public class OMEROMetadataStore implements MetadataStore
             log.debug(String.format(
             		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] " +
             		"emission wavelength: '%d'",
-            		imageIndex, p, logicalChannelIndex, emWave));
+            		imageIndex, p, c, logicalChannelIndex, emWave));
             LogicalChannel lc = getLogicalChannel(c);
             lc.setEmissionWave(emWave);
         }
@@ -1744,7 +1783,7 @@ public class OMEROMetadataStore implements MetadataStore
             log.debug(String.format(
             		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] " +
             		"fluor: '%s'",
-            		imageIndex, p, logicalChannelIndex, fluor));
+            		imageIndex, p, c, logicalChannelIndex, fluor));
             LogicalChannel lc = getLogicalChannel(c);
             lc.setFluor(fluor);
         }
@@ -1765,8 +1804,8 @@ public class OMEROMetadataStore implements MetadataStore
         	Channel c = getChannel(p, logicalChannelIndex);
             log.debug(String.format(
             		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] " +
-            		"ndFilter: '%d'",
-            		imageIndex, p, logicalChannelIndex, ndFilter));
+            		"ndFilter: '%f'",
+            		imageIndex, p, c, logicalChannelIndex, ndFilter));
             LogicalChannel lc = getLogicalChannel(c);
             lc.setNdFilter(ndFilter);
         }
@@ -1788,7 +1827,7 @@ public class OMEROMetadataStore implements MetadataStore
             log.debug(String.format(
             		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] " +
             		"pockel cell setting: '%d'",
-            		imageIndex, p, logicalChannelIndex, pockelCellSetting));
+            		imageIndex, p, c, logicalChannelIndex, pockelCellSetting));
             LogicalChannel lc = getLogicalChannel(c);
             lc.setPockelCellSetting(pockelCellSetting.toString());
             // FIXME: Should pockel cell be String or Integer?
@@ -1909,8 +1948,10 @@ public class OMEROMetadataStore implements MetadataStore
 
 	public void setLaserLaserMedium(String laserMedium, int instrumentIndex,
 			int lightSourceIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
+        log.debug(String.format(
+                "FIXME: Ignoring laserMedium[%s] instrumentIndex[%d] lightsourceMedium[%d] ",
+                laserMedium, instrumentIndex, lightSourceIndex));
+        // FIXME: Needs to be implemented when the model is relaxed.	
 	}
 
 	public void setLaserPower(Float power, int instrumentIndex,
@@ -1933,8 +1974,10 @@ public class OMEROMetadataStore implements MetadataStore
 
 	public void setLaserType(String type, int instrumentIndex,
 			int lightSourceIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
+        log.debug(String.format(
+                "FIXME: Ignoring type[%s] instrumentIndex[%d] lightsourceMedium[%d] ",
+        type, instrumentIndex, lightSourceIndex));
+// FIXME: Needs to be implemented when the model is relaxed.
 	}
 
 	public void setLaserWavelength(Integer wavelength, int instrumentIndex,
@@ -2033,8 +2076,10 @@ public class OMEROMetadataStore implements MetadataStore
 
 	public void setObjectiveModel(String model, int instrumentIndex,
 			int objectiveIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
+        log.debug(String.format(
+                "FIXME: Ignoring model[%s] instrumentIndex[%d] objectiveIndex[%d] ",
+                model, instrumentIndex, objectiveIndex));
+        // FIXME: Needs to be implemented when the model is relaxed.
 	}
 
 	public void setObjectiveNominalMagnification(Integer nominalMagnification,
@@ -2114,4 +2159,16 @@ public class OMEROMetadataStore implements MetadataStore
 		throw new RuntimeException("Un-implemented.");
 		
 	}
+
+    public void setDetectorSettingsDetector(Object detector, int imageIndex,
+            int logicalChannelIndex)
+    {
+        throw new RuntimeException("Un-implemented.");
+    }
+
+    public void setLightSourceSettingsLightSource(Object lightSource,
+            int imageIndex, int logicalChannelIndex)
+    {
+        throw new RuntimeException("Un-implemented.");
+    }
 }

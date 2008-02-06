@@ -20,4 +20,5 @@ public class Actions
     public static final String CLEARFAILED = "clear_failed";
     public static final String HISTORYSEARCH = "history_search";
     public static final String CLEARHISTORY = "history_clear";
+    public static final String LOADINGIMAGE = "loading_image";
 }

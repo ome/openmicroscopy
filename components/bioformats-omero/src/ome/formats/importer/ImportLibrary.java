@@ -15,12 +15,14 @@
 package ome.formats.importer;
 
 // Java imports
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 import loci.formats.FormatException;
@@ -64,9 +66,12 @@ import org.apache.commons.logging.LogFactory;
  */
 // @RevisionDate("$Date: 2006-12-15 10:39:34 +0000 (Fri, 15 Dec 2006) $")
 // @RevisionNumber("$Revision: 1167 $")
-public class ImportLibrary
+public class ImportLibrary implements IObservable
 {
 
+    
+    ArrayList<IObserver> observers = new ArrayList<IObserver>();
+    
     /**
      * simple action class to be used during
      * {@link ImportLibrary#importData(long, String, ome.formats.testclient.ImportLibrary.Step)}
@@ -192,7 +197,7 @@ public class ImportLibrary
     {
         List<Image> imageList = getRoot();
         // FIXME: This assumes only *one* Pixels.
-        Pixels pixels = imageList.get(series).getDefaultPixels();
+        Pixels pixels = (Pixels) imageList.get(series).iteratePixels().next();
         this.sizeZ = pixels.getSizeZ().intValue();
         this.sizeC = pixels.getSizeC().intValue();
         this.sizeT = pixels.getSizeT().intValue();
@@ -221,7 +226,7 @@ public class ImportLibrary
         for (Image image : imageList)
         {
         	// FIXME: This assumes only *one* set of pixels.
-        	Pixels pix = image.getDefaultPixels();
+        	Pixels pix = (Pixels) image.iteratePixels().next();
             String name = imageName;
             String seriesName = reader.getImageName(series);
             
@@ -498,4 +503,145 @@ public class ImportLibrary
       // We've got a big-endian file with a big-endian byte array.
       return buffer.array();
     }
+    
+    /**
+     * @param file
+     * @param index
+     * @param total Import the actual image planes
+     * @param b 
+     * @throws FormatException if there is an error parsing metadata.
+     * @throws IOException if there is an error reading the file.
+     */
+    // TODO: Add observer messaging for any agnostic viewer class to use
+    @SuppressWarnings("unused")
+    private List<Pixels> importImage(File file, int index, int total, String imageName, boolean archive)
+    throws FormatException, IOException
+    {        
+        String fileName = file.getAbsolutePath();
+        String shortName = file.getName();
+        
+        /*
+        viewer.appendToOutput("> [" + index + "] Loading image \"" + shortName
+                + "\"...");
+
+        qTable.setProgressPrepping(index);
+        viewer.statusBar.setStatusIcon("gfx/import_icon_16.png", "Prepping file \"" + shortName + "\"");
+        */
+        
+        
+
+        open(file.getAbsolutePath());
+        
+        /*
+        viewer.appendToOutput(" Succesfully loaded.\n");
+
+        viewer.statusBar.setProgress(true, 0, "Importing file " + 
+                numOfDone + " of " + total);
+        viewer.statusBar.setProgressValue(numOfDone - 1);
+
+        viewer.appendToOutput("> [" + index + "] Importing metadata for "
+                + "image \"" + shortName + "\"... ");
+
+        qTable.setProgressAnalyzing(index);
+        //System.err.println("index:" + index);
+        viewer.statusBar.setStatusIcon("gfx/import_icon_16.png", 
+                "Analyzing the metadata for file \"" + shortName + "\"");
+        */
+        
+        String[] fileNameList = reader.getUsedFiles();
+        File[] files = new File[fileNameList.length];
+        for (int i = 0; i < fileNameList.length; i++) 
+        {
+            files[i] = new File(fileNameList[i]); 
+        }
+        store.setOriginalFiles(files); 
+        reader.getUsedFiles();
+        
+        List<Pixels> pixList = importMetadata(imageName);
+
+        int seriesCount = reader.getSeriesCount();
+        
+//        if (seriesCount > 1)
+//        {
+//            System.err.println("Series Count: " + reader.getSeriesCount());
+//            throw new RuntimeException("More then one image in series");
+//        }
+        
+        for (int series = 0; series < seriesCount; series++)
+        {
+            int count = calculateImageCount(fileName, series);
+            Long pixId = pixList.get(series).getId(); 
+
+            /*
+            viewer.appendToOutputLn("Successfully stored to dataset \""
+                    + library.getDataset() + "\" with id \"" + pixId + "\".");
+            viewer.appendToOutputLn("> [" + index + "] Importing pixel data for "
+                    + "image \"" + shortName + "\"... ");
+
+            viewer.statusBar.setStatusIcon("gfx/import_icon_16.png", "Importing the plane data for file \"" + shortName + "\"");
+            
+            qTable.setProgressInfo(index, count);
+            */
+            
+            //viewer.appendToOutput("> Importing plane: ");
+            importData(pixId, fileName, series, new ImportLibrary.Step()
+            {
+                @Override
+                public void step(int series, int step)
+                {
+                    /*
+                    if (step <= qTable.getMaximum()) 
+                    {   
+                        qTable.setImportProgress(reader.getSeriesCount(), series, step);
+                    }
+                    */
+                }
+            });
+            
+            /*
+            viewer.appendToOutputLn("> Successfully stored with pixels id \""
+                    + pixId + "\".");
+            viewer.appendToOutputLn("> [" + index
+                    + "] Image imported successfully!");
+            */
+
+            if (archive == true)
+            {
+                //qTable.setProgressArchiving(index);
+                for (int i = 0; i < fileNameList.length; i++) 
+                {
+                    files[i] = new File(fileNameList[i]);
+                    store.writeFilesToFileStore(files, pixId);   
+                }
+            }
+        }
+        
+        //qTable.setProgressDone(index);
+        //System.err.println(iInfo.getFreeSpaceInKilobytes());
+        
+        return pixList;
+        
+    }
+
+    // Observable methods
+    
+    public boolean addObserver(IObserver object)
+    {
+        return observers.add(object);
+    }
+    
+    public boolean deleteObserver(IObserver object)
+    {
+        return observers.remove(object);
+        
+    }
+
+    public void notifyObservers(Object message)
+    {
+        for (IObserver observer:observers)
+        {
+            observer.update(this, message);
+        }
+    }
+
 }

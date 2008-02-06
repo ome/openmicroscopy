@@ -77,6 +77,7 @@ public class ImportHandler
             this.qTable = qTable;
             this.reader = reader;
             this.library = new ImportLibrary(store, reader, fads);
+            library.addObserver(qTable);
                        
             runThread = new Thread()
             {
@@ -174,6 +175,7 @@ public class ImportHandler
                 			    numOfPendings,
                 			    fads[j].imageName,
                 			    fads[j].archive);
+                	store.createRoot();
                     try
                     {
                         db.updateFileStatus(importKey, j, "done");

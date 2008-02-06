@@ -43,7 +43,7 @@ import ome.model.containers.Dataset;
 
 public class FileQueueTable 
     extends JPanel
-    implements ActionListener
+    implements ActionListener, IObserver
 {
 
     public QueueTableModel table = new QueueTableModel();
@@ -538,5 +538,10 @@ public class FileQueueTable
         f.setVisible(true);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.pack();
+    }
+
+    public void update(IObservable observable, Object message)
+    {
+        // TODO: add handlers for updating qTable
     }
 }
