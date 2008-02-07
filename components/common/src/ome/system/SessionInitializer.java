@@ -22,7 +22,11 @@ public class SessionInitializer {
 
     protected Object mutex = new Object();
 
+    /** Principal given by the user */
     protected Principal principal;
+
+    /** Principal generated from session */
+    protected Principal sessionPrincipal;
 
     protected String credentials;
 
@@ -38,6 +42,11 @@ public class SessionInitializer {
         this.principal = principal;
     }
 
+    public Principal createPrincipal() {
+        getSession();
+        return sessionPrincipal;
+    }
+
     public void setCredentials(String securityCredentials) {
         this.credentials = securityCredentials;
     }
@@ -46,6 +55,10 @@ public class SessionInitializer {
         synchronized (mutex) {
             if (session == null) {
                 session = sessions.createSession(principal, credentials);
+                sessionPrincipal = new Principal(this.session.getUuid(),
+                        this.principal.getGroup(), this.principal
+                                .getEventType());
+
             }
         }
         return this.session;

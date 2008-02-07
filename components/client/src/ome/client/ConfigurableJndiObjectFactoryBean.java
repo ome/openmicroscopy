@@ -9,18 +9,16 @@ package ome.client;
 
 import javax.naming.NamingException;
 
+import ome.conditions.InternalException;
+import ome.model.IObject;
+import ome.system.SessionInitializer;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.aop.TargetSource;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.jndi.JndiObjectTargetSource;
-
-import ome.api.ISession;
-import ome.conditions.InternalException;
-import ome.model.IObject;
-import ome.system.Principal;
-import ome.system.SessionInitializer;
 
 /**
  * allows prototype-like lookup of stateful session beans. This is achieved by
@@ -44,8 +42,6 @@ public class ConfigurableJndiObjectFactoryBean extends JndiObjectFactoryBean {
 
     protected SessionInitializer init;
 
-    protected Principal principal;
-
     protected MethodInterceptor interceptor;
 
     /**
@@ -60,11 +56,11 @@ public class ConfigurableJndiObjectFactoryBean extends JndiObjectFactoryBean {
     }
 
     /**
-     * setter for the {@link Principal} which will be passed to
-     * {@link JBossTargetSource#JBossTargetSource(JndiObjectTargetSource, java.security.Principal, String)}
+     * setter for {@link Interceptor} which will surround all proxies to, e.g.
+     * catch unknown exceptions.
      */
-    public void setPrincipal(Principal securityPrincipal) {
-        this.principal = securityPrincipal;
+    public void setInterceptor(Interceptor interceptor) {
+        this.interceptor = interceptor;
     }
 
     /**
@@ -108,8 +104,8 @@ public class ConfigurableJndiObjectFactoryBean extends JndiObjectFactoryBean {
         Object object = super.getObject();
         Advised advised = (Advised) object;
         JBossTargetSource redirector = new JBossTargetSource(
-                (JndiObjectTargetSource) advised.getTargetSource(),
-                this.principal, sess.getUuid());
+                (JndiObjectTargetSource) advised.getTargetSource(), init
+                        .createPrincipal(), sess.getUuid());
 
         ProxyFactory proxyFactory = new ProxyFactory();
         for (Class klass : advised.getProxiedInterfaces()) {

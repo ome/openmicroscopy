@@ -96,8 +96,7 @@
   <bean id="statelessJndi" abstract="true"
     class="ome.client.ConfigurableJndiObjectFactoryBean">
     <property name="jndiEnvironment" ref="env"/>
-    <property name="lookupOnStartup" value="false"/>    
-    <property name="principal"       ref="principal"/>
+    <property name="lookupOnStartup" value="false"/>
     <property name="interceptor"><bean class="ome.client.Interceptor"/></property>
     <property name="init"            ref="init"/>
   </bean>
