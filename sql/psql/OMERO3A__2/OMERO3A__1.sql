@@ -39,17 +39,15 @@ INSERT INTO session
         SELECT nextval('seq_session'),-35, 0,0,now(),now(),'rw----','PREVIOUSITEMS','1111';
 
 INSERT INTO EVENTTYPE (id,permissions,owner_id,group_id,creation_id,value)
-    SELECT nextval('seq_eventtype'),-35,0,0,0,'Sessions';
+        SELECT nextval('seq_eventtype'),-35,0,0,0,'Sessions';
 
 INSERT INTO experimentergroup (id,permissions,version,owner_id,group_id,creation_id,update_id,name)
         VALUES (nextval('seq_experimentergroup'),-35,0,0,0,0,0,'guest');
 
 INSERT INTO groupexperimentermap
         (id,permissions,version,owner_id,group_id,creation_id,update_id, parent, child, child_index)
-        SELECT nextval('seq_groupexperimentermap'),-35,0,0,0,0,0,3,1,0;
-
-INSERT INTO eventtype (id,permissions,owner_id,group_id,creation_id,value)
-        SELECT nextval('seq_eventtype'),-35,0,0,0,'Sessions';
+        SELECT nextval('seq_groupexperimentermap'),-35,0,0,0,0,0,g.id,e.id,0 FROM
+        experimenter e, experimentergroup g WHERE e.omeName = 'guest' and g.name = 'guest';
 
 INSERT INTO password SELECT id AS experimenter_id, '' AS hash FROM experimenter WHERE omename = 'guest';
 
