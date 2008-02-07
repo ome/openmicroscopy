@@ -41,10 +41,10 @@
     <property name="adminService"  ref="internal:ome.api.IAdmin"/>
     <property name="queryService"  ref="internal:ome.api.IQuery"/>
     <property name="updateService" ref="internal:ome.api.IUpdate"/>
-    <property name="sessionCache"  ref="sessionCache"/>
+    <property name="sessionCache"><null/></property>
     <property name="roles"  ref="roles"/>
   </bean>  
   
-  <bean name="sessionCache" class="ome.services.sessions.SessionCacheImpl"/>
+  <bean name="sessionCache" class="java.util.HashMap"/>
   
 </beans>

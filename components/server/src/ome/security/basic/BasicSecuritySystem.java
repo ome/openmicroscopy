@@ -53,6 +53,7 @@ import ome.services.sessions.SessionManager;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
+import ome.system.ServiceFactory;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.HibernateUtils;
 import ome.tools.hibernate.SecurityFilter;
@@ -116,11 +117,10 @@ public class BasicSecuritySystem implements SecuritySystem {
      * @param factory
      *            Not null.
      */
-    public BasicSecuritySystem(LocalQuery rawQuery, LocalUpdate rawUpdate, SessionManager sessionManager, Roles roles) {
-        Assert.notNull(rawQuery);
-        Assert.notNull(rawUpdate);
-        this.query = rawQuery;
-        this.update = rawUpdate;
+    public BasicSecuritySystem(ServiceFactory sf, SessionManager sessionManager, Roles roles) {
+        Assert.notNull(sf);
+        this.query = (LocalQuery) sf.getQueryService();
+        this.update = (LocalUpdate) sf.getUpdateService();
         this.sessionManager = sessionManager;
         this.roles = roles;
     }

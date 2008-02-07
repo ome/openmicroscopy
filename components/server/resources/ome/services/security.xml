@@ -31,11 +31,13 @@
 <beans>
 
   <bean id="securitySystem" class="ome.security.basic.BasicSecuritySystem">
-    <constructor-arg>
-      <bean class="ome.tools.spring.InternalServiceFactory"/>
-  	</constructor-arg>
+    <constructor-arg><bean class="ome.tools.spring.InternalServiceFactory"/></constructor-arg>
+    <constructor-arg ref="sessionManager"/>
+    <constructor-arg ref="roles"/>    
   </bean>
 
+  <bean id="roles" class="ome.system.Roles"/>
+  
   <!-- Scope: private -->
 
   <bean id="securityWiring" class="ome.security.basic.BasicSecurityWiring"
