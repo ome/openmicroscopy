@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -100,8 +101,13 @@ public class BasicSecuritySystem implements SecuritySystem {
     /** metadata for calculating certain walks */
     protected ExtendedMetadata em;
 
-    /** active principal */
-    protected ThreadLocal<Principal> principalHolder = new ThreadLocal<Principal>();
+    /** active principal stack */
+    protected ThreadLocal<LinkedList<Principal>> principalHolder = new ThreadLocal<LinkedList<Principal>>() {
+        @Override
+        protected java.util.LinkedList<Principal> initialValue() {
+            return new LinkedList<Principal>();
+        }
+    };
 
     // Configured Elements
 
@@ -142,11 +148,14 @@ public class BasicSecuritySystem implements SecuritySystem {
     // =========================================================================
 
     public void login(Principal principal) {
-        principalHolder.set(principal);
+        principalHolder.get().addLast(principal);
     }
 
     public void logout() {
-        principalHolder.remove();
+        LinkedList<Principal> list = principalHolder.get();
+        if (list.size() > 0) {
+            list.removeLast();
+        }
     }
 
     // ~ Checks
@@ -1026,12 +1035,14 @@ public class BasicSecuritySystem implements SecuritySystem {
         // clear even if this fails. (make SecuritySystem unusable)
         clearEventContext();
 
-        final Principal p = principalHolder.get();
+        final LinkedList<Principal> l = principalHolder.get();
 
-        if (p == null) {
+        if (l.size() == 0) {
             throw new SecurityViolation(
                     "Principal is null. Not logged in to SecuritySystem.");
         }
+
+        final Principal p = l.getLast();
 
         if (p.getName() == null) {
             throw new InternalException(
@@ -1341,11 +1352,12 @@ public class BasicSecuritySystem implements SecuritySystem {
      * transient details should have the umask applied to them if soft.
      */
     void applyUmaskIfNecessary(Details d) {
+        Principal pr = principalHolder.get().getLast();
         Permissions p = d.getPermissions();
         if (p.isSet(Flag.SOFT)) {
-            if (principalHolder.get().hasUmask()) {
-                p.grantAll(principalHolder.get().getUmask());
-                p.revokeAll(principalHolder.get().getUmask());
+            if (pr.hasUmask()) {
+                p.grantAll(pr.getUmask());
+                p.revokeAll(pr.getUmask());
             }
             // don't store it in the DB.
             p.unSet(Flag.SOFT);

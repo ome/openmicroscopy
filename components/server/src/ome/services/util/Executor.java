@@ -45,6 +45,13 @@ import org.springframework.transaction.support.TransactionTemplate;
  */
 public class Executor implements ApplicationContextAware {
 
+    private final ThreadLocal<Integer> count = new ThreadLocal<Integer>() {
+        @Override
+        protected Integer initialValue() {
+            return Integer.valueOf(0);
+        }
+    };
+
     /**
      * Work SPI to perform actions within the server as if they were fully
      * wrapped in our service logic. Note: any results which are coming from
@@ -139,19 +146,29 @@ public class Executor implements ApplicationContextAware {
         innerFactory.addAdvice(this.interceptor);
         Work inner = (Work) innerFactory.getObject();
 
-        ThreadLocal counting if already called
-        A stack in secSystm
-        
-        this.proxyFactory.setTarget(inner);
-        Work outer = (Work) this.proxyFactory.getObject();
+        // If we've already entered Executor.execute once, then we don't
+        // want to reapply all the interceptors.
+        Work outer;
+        int depth = count.get().intValue();
+        if (depth == 0) {
+            this.proxyFactory.setTarget(inner);
+            outer = (Work) this.proxyFactory.getObject();
+        } else {
+            outer = inner;
+        }
+
         if (p != null) {
             this.secSystem.login(p);
         }
         try {
+            depth++;
+            count.set(depth);
             // Arguments will be replaced after hibernate is in effect
             return outer.doWork(null, null, new InternalServiceFactory(
                     this.context));
         } finally {
+            depth--;
+            count.set(depth);
             if (p != null) {
                 this.secSystem.logout();
             }

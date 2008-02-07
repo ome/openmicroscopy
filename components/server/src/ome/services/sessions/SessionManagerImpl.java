@@ -335,7 +335,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
         session.setDefaultEventType(_type);
     }
 
-    protected Session copy(Session source) {
+    public Session copy(Session source) {
         if (source == null) {
             throw new ApiUsageException("Source may not be null.");
         }

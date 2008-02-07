@@ -36,9 +36,7 @@ import org.testng.annotations.Test;
 public class SessMgrUnitTest extends MockObjectTestCase {
 
     private static class TestSessionManager extends SessionManagerImpl {
-        void testCopy(Session s1, Session s2) {
-            copy(s1, s2);
-        }
+
     }
 
     private Mock adminMock, updateMock, queryMock;
@@ -157,8 +155,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     @Test
     public void testThatCopiesHaveAllTheRightFields() throws Exception {
         testCreateNewSession();
-        Session copy = new Session();
-        mgr.testCopy(session, copy);
+        Session copy = mgr.copy(session);
         assertFalse(copy == session);
         assertNotNull(copy.getId());
         assertNotNull(copy.getStarted());
