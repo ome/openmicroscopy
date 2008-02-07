@@ -31,7 +31,6 @@ import javax.interceptor.Interceptors;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
-import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
 // Application-internal dependencies
@@ -82,7 +81,6 @@ import omeis.providers.re.quantum.QuantumFactory;
 })
 @Local(IRenderingSettings.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.IRenderingSettings")
-@SecurityDomain("OmeroSecurity")
 @TransactionManagement(TransactionManagementType.BEAN)
 @Transactional
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })

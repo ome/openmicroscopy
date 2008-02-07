@@ -62,7 +62,6 @@ import ome.util.builders.PojoOptions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
-import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -84,7 +83,6 @@ import org.springframework.transaction.annotation.Transactional;
 })
 @Local(IPojos.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.IPojos")
-@SecurityDomain("OmeroSecurity")
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class PojosImpl extends AbstractLevel2Service implements IPojos {
 

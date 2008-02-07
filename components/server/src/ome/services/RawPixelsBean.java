@@ -31,7 +31,6 @@ import org.apache.commons.logging.LogFactory;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
-import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
 // Application-internal dependencies
@@ -69,7 +68,6 @@ import omeis.providers.re.RenderingEngine;
 @Local(RenderingEngine.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.RawPixelsStore")
 @Interceptors( { OmeroAroundInvoke.class })
-@SecurityDomain("OmeroSecurity")
 public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStore {
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(RawPixelsBean.class);

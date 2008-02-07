@@ -33,7 +33,6 @@ import org.hibernate.Session;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
-import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,7 +65,6 @@ import ome.util.Utils;
 })
 @Local(LocalUpdate.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.local.LocalUpdate")
-@SecurityDomain("OmeroSecurity")
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     protected transient LocalQuery localQuery;

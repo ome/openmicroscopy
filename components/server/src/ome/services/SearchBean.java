@@ -50,7 +50,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -68,7 +67,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Local(Search.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.Search")
 @Interceptors( { OmeroAroundInvoke.class })
-@SecurityDomain("OmeroSecurity")
 public class SearchBean extends AbstractStatefulBean implements Search {
 
     private final static long serialVersionUID = 59809384038000069L;

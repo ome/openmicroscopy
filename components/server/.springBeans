@@ -10,7 +10,6 @@
 		<config>resources/ome/services/service-ome.api.IPojos.xml</config>
 		<config>resources/ome/services/service-ome.io.nio.PixelsService.xml</config>
 		<config>resources/ome/services/service-ome.api.ITypes.xml</config>
-		<config>resources/ome/services/in-container.xml</config>
 		<config>resources/ome/services/services.xml</config>
 		<config>resources/ome/services/service-ome.api.IQuery.xml</config>
 		<config>resources/ome/services/security.xml</config>
@@ -44,7 +43,6 @@
 				<config>resources/ome/services/service-ome.io.nio.OriginalFilesService.xml</config>
 				<config>resources/ome/services/service-ome.io.nio.PixelsService.xml</config>
 				<config>resources/ome/services/service-omeis.providers.re.RenderingEngine.xml</config>
-				<config>resources/ome/services/in-container.xml</config>
 			</configs>
 		</configSet>
 	</configSets>

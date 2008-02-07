@@ -26,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
-import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -57,7 +56,6 @@ import org.springframework.transaction.annotation.Transactional;
 })
 @Local(IRepositoryInfo.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.IRepositoryInfo")
-@SecurityDomain("OmeroSecurity")
 @Interceptors( { SimpleLifecycle.class })
 public class RepositoryInfoImpl extends AbstractLevel2Service implements
 		IRepositoryInfo {

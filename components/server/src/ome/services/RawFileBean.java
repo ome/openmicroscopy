@@ -43,7 +43,6 @@ import org.apache.commons.logging.LogFactory;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
-import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -67,7 +66,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Local(RawFileStore.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.RawFileStore")
 @Interceptors( { OmeroAroundInvoke.class })
-@SecurityDomain("OmeroSecurity")
 public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     /**
      * 

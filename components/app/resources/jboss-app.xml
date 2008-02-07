@@ -5,14 +5,8 @@
 <jboss-app>
   <loader-repository>
     omero:app=omero-app
-    <loader-repository-config> 
-      java2ParentDelegation=false 
+    <loader-repository-config>
+      java2ParentDelegation=false
     </loader-repository-config>
   </loader-repository>
-  <module>
-    <service>omero-ds.xml</service>
-  </module>
-   <module>
-      <service>jboss-service.xml</service>
-   </module>
 </jboss-app>

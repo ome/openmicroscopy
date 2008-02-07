@@ -73,7 +73,6 @@ import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
-import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jmx.support.JmxUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -108,7 +107,6 @@ import org.springframework.util.Assert;
 })
 @Local(IAdmin.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.IAdmin")
-@SecurityDomain("OmeroSecurity")
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 

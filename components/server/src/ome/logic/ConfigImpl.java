@@ -29,7 +29,6 @@ import javax.interceptor.Interceptors;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
-import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -137,15 +136,6 @@ import ome.system.Version;
  */
 @LocalBinding(jndiBinding = "omero/local/ome.api.IConfig")
 /*
- * Source: JBoss-specific Purpose: Defines which security manager service is
- * responsible for calls to this service. This value is defined in:
- * 
- * components/app/resourcs/jboss-login.xml
- * 
- * and specifies where the manager should be found in JNDI.
- */
-@SecurityDomain("OmeroSecurity")
-/*
  * Source: EJB3 Specification Purpose: List of classes (with no-arg
  * constructors) which should serve as interceptors for all calls to this class.
  * Available interceptors are:
@@ -223,8 +213,8 @@ public class ConfigImpl extends AbstractLevel2Service implements IConfig {
     /*
      * Source: EJB3 Specification Purpose: defines the role which must have been
      * obtained during authentication and authorization in order to access this
-     * method. This works in combination with the class-level @SecurityDomain
-     * annotation above to fully define security semantics.
+     * method. This works in combination with the BasicMethodSecurity to fully
+     * define security semantics.
      */
     /**
      * see {@link IConfig#getServerTime()}

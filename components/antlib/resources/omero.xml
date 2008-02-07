@@ -60,17 +60,6 @@
 		<fail>etc/local.properties does not exist. Try calling "setup"<condition>
 		<not><available file="${basedir}/etc/local.properties"/></not></condition></fail>
 
-                <!-- copied from app/build.xml refactor -->
-      <tempfile property="temp.dir" prefix="omero"/>
-      <mkdir dir="${temp.dir}"/>
-      <copy file="${etc.dir}/omero-ds.xml" todir="${temp.dir}" />
-      <replace file="${temp.dir}/omero-ds.xml">
-         <replacefilter token="@@@JDBC.URL@@@" value="${hibernate.connection.url}"/>
-         <replacefilter token="@@@JDBC.DRIVER@@@" value="${hibernate.connection.driver_class}"/>
-         <replacefilter token="@@@JDBC.USERNAME@@@" value="${hibernate.connection.username}"/>
-         <replacefilter token="@@@JDBC.PASSWORD@@@" value="${hibernate.connection.password}"/>
-      </replace>
-
 		<!-- Touching the etc files to force update in the case that 
 		the timezone or similar on a system has changed. Please refer to #779 
 
@@ -85,9 +74,6 @@
 		  destfile="${product.final.name}">
 			<fileset dir="${basedir}/etc">
 				<patternset refid="etc.files"/>
-			</fileset>
-			<fileset dir="${temp.dir}">
-				<include name="omero-ds.xml"/>
 			</fileset>
 		</jar>
 		<delete dir="${temp.dir}"/>

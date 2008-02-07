@@ -46,7 +46,6 @@ import org.hibernate.metadata.ClassMetadata;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
-import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,7 +68,6 @@ import org.springframework.transaction.annotation.Transactional;
         @RemoteBinding(jndiBinding = "omero/secure/ome.api.IQuery", clientBindUrl = "sslsocket://0.0.0.0:3843") })
 @Local(LocalQuery.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.local.LocalQuery")
-@SecurityDomain("OmeroSecurity")
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
 

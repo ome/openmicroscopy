@@ -29,7 +29,7 @@
    -->
    <target name="package" depends="generate"
            description="Packages the EAR by assembling all modules and deployment descriptors">
-      
+
       <delete>
         <fileset dir="${target.dir}/libs" includes="commons-logging*"/>
         <fileset dir="${target.dir}/libs" includes="jboss*"/>
@@ -40,30 +40,17 @@
       </delete>
 
       <useServices dir="${target.dir}/libs"/>
-      
-      <!-- DataSource with replacement. -->
-      <copy file="${etc.dir}/omero-ds.xml" todir="${target.dir}" overwrite="true"/>
-      <replace file="${target.dir}/omero-ds.xml">
-         <replacefilter token="@@@JDBC.URL@@@" value="${hibernate.connection.url}"/>
-         <replacefilter token="@@@JDBC.DRIVER@@@" value="${hibernate.connection.driver_class}"/>
-         <replacefilter token="@@@JDBC.USERNAME@@@" value="${hibernate.connection.username}"/>
-         <replacefilter token="@@@JDBC.PASSWORD@@@" value="${hibernate.connection.password}"/>
-      </replace>
-      
+
       <jar jarfile="${target.dir}/${ivy.module}.ear">
          <metainf dir="${resrc.dir}">
             <include name="application.xml" />
             <include name="jboss-app.xml" />
-            <include name="jboss-login.xml" />
          </metainf>
          <fileset dir="${target.dir}/generated/resources" includes="enums.properties"/>
          <fileset dir="${etc.dir}" includes="omero.properties"/>
          <fileset dir="${etc.dir}" includes="hibernate.properties"/>
          <fileset dir="${etc.dir}" includes="local.properties"/>
-         <fileset dir="${resrc.dir}" includes="ejb.properties"/>
-         <fileset dir="${resrc.dir}" includes="jboss-service.xml"/>
          <fileset dir="${target.dir}/libs" includes="*.jar" />
-         <fileset dir="${target.dir}" includes="omero-ds.xml"/>
          <manifest>
             <attribute name="Product-Name"      value="${product.name}"/>
             <attribute name="Product-Version"   value="${omero.version}"/>
@@ -81,7 +68,7 @@
    </target>
 
    <!-- This will change and all dependency on jboss will move to properties-->
-    <property name="jboss.home" value="${env.JBOSS_HOME}"/>   
+    <property name="jboss.home" value="${env.JBOSS_HOME}"/>
     <property name="jboss.server.config" value="default"/>
     <property name="jboss.deploy.dir" value="${jboss.home}/server/${jboss.server.config}/deploy"/>
 

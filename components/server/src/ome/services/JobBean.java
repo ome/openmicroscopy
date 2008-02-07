@@ -41,7 +41,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -59,7 +58,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Local(JobHandle.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.JobHandle")
 @Interceptors( { OmeroAroundInvoke.class })
-@SecurityDomain("OmeroSecurity")
 public class JobBean extends AbstractStatefulBean implements JobHandle,
         ProcessCallback {
     /**

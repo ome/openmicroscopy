@@ -54,7 +54,6 @@ import org.hibernate.Session;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
-import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,7 +76,6 @@ import org.springframework.transaction.annotation.Transactional;
         @RemoteBinding(jndiBinding = "omero/secure/ome.api.IDelete", clientBindUrl = "sslsocket://0.0.0.0:3843") })
 @Local(IDelete.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.IDelete")
-@SecurityDomain("OmeroSecurity")
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class DeleteBean extends AbstractLevel2Service implements IDelete {
 

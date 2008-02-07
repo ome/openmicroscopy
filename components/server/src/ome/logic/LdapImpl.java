@@ -38,7 +38,6 @@ import javax.naming.ldap.InitialLdapContext;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
-import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jmx.support.JmxUtils;
 import org.springframework.ldap.core.AttributesMapper;
@@ -94,7 +93,6 @@ import ome.system.OmeroContext;
         @RemoteBinding(jndiBinding = "omero/secure/ome.api.ILdap", clientBindUrl = "sslsocket://0.0.0.0:3843") })
 @Local(ILdap.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.local.LocalLdap")
-@SecurityDomain("OmeroSecurity")
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 

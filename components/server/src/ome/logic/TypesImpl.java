@@ -55,7 +55,6 @@ import org.hibernate.metadata.ClassMetadata;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
-import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 
@@ -76,7 +75,6 @@ import org.springframework.util.ResourceUtils;
         @RemoteBinding(jndiBinding = "omero/secure/ome.api.ITypes", clientBindUrl = "sslsocket://0.0.0.0:3843") })
 @Local(ITypes.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.ITypes")
-@SecurityDomain("OmeroSecurity")
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class TypesImpl extends AbstractLevel2Service implements ITypes {
 

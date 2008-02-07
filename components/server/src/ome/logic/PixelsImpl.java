@@ -22,7 +22,6 @@ import javax.interceptor.Interceptors;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
-import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
 // Application-internal dependencies
@@ -60,7 +59,6 @@ import ome.services.util.OmeroAroundInvoke;
 })
 @Local(IPixels.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.IPixels")
-@SecurityDomain("OmeroSecurity")
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 class PixelsImpl extends AbstractLevel2Service implements IPixels {
 

@@ -68,7 +68,6 @@ import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
 import org.jboss.annotation.ejb.cache.Cache;
-import org.jboss.annotation.security.SecurityDomain;
 import org.jboss.ejb3.cache.NoPassivationCache;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -108,7 +107,6 @@ import org.springframework.transaction.annotation.Transactional;
 })
 @Local(RenderingEngine.class)
 @LocalBinding(jndiBinding = "omero/local/omeis.providers.re.RenderingEngine")
-@SecurityDomain("OmeroSecurity")
 @TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly = true)
 @Interceptors( { OmeroAroundInvoke.class })
