@@ -289,7 +289,7 @@ public class ServiceFactory {
     protected SessionInitializer getSessionInitializer() {
         SessionInitializer si;
         try {
-            si = (SessionInitializer) this.ctx.getBean("sessionInitializer");
+            si = (SessionInitializer) this.ctx.getBean("init");
         } catch (Exception e) {
             throw new ApiUsageException("This ServiceFactory is not configured"
                     + "for sessions");

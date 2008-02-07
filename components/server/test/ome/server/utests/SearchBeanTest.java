@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 
 public class SearchBeanTest extends MockObjectTestCase {
 
-    protected Executor executor = new Executor(null, null, null, null, null) {
+    protected Executor executor = new Executor(null, null, null, null) {
         @Override
         public Object execute(Principal p, Work work) {
             return work.doWork(null, null, null);

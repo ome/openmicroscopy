@@ -15,6 +15,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import ome.conditions.InternalException;
 import ome.conditions.SessionTimeoutException;
 import ome.model.meta.Session;
 import ome.services.sessions.SessionCallback;
@@ -147,15 +148,8 @@ public class SessionCache extends CacheListener {
     }
 
     public void setNeedsUpdate(boolean needsUpdate) {
-        boolean wasLocked = this.needsUpdate;
         this.needsUpdate = needsUpdate;
-        if (this.needsUpdate) {
-            updateLock.writeLock().lock();
-        } else {
-            if (wasLocked) {
-                updateLock.writeLock().unlock();
-            }
-        }
+        doUpdate();
     }
 
     public boolean getNeedsUpdate() {
@@ -176,21 +170,14 @@ public class SessionCache extends CacheListener {
     // are responsible for synchronization and the update mechanism.
 
     public void putSession(String uuid, SessionContext sessionContext) {
-        updateLock.readLock().lock();
-        try {
-            sessions.put(new Element(uuid, sessionContext));
-        } finally {
-            updateLock.readLock().unlock();
-        }
+        blockingUpdate();
+        sessions.put(new Element(uuid, sessionContext));
+
     }
 
     public SessionContext getSessionContext(String uuid) {
-        updateLock.readLock().lock();
-        try {
-            return getSessionContextThrows(uuid, false);
-        } finally {
-            updateLock.readLock().unlock();
-        }
+        blockingUpdate();
+        return getSessionContextThrows(uuid, false);
     }
 
     /**
@@ -201,7 +188,7 @@ public class SessionCache extends CacheListener {
      */
     public SessionContext getSessionContextThrows(String uuid,
             boolean throwOnExpiration) {
-        updateLock.readLock().lock();
+        blockingUpdate();
         throwsOnExpiration.set(Boolean.TRUE);
         try {
             Element elt = sessions.get(uuid);
@@ -211,53 +198,73 @@ public class SessionCache extends CacheListener {
             return (SessionContext) elt.getObjectValue();
         } finally {
             throwsOnExpiration.set(Boolean.FALSE);
-            updateLock.readLock().unlock();
         }
     }
 
     public void removeSession(String uuid) {
-        updateLock.readLock().lock();
-        try {
-            sessions.remove(uuid);
-        } finally {
-            updateLock.readLock().unlock();
-        }
+        blockingUpdate();
+        sessions.remove(uuid);
     }
 
     public List<String> getIds() {
+        blockingUpdate();
+        return sessions.getKeysWithExpiryCheck();
+    }
+
+    /**
+     * 
+     */
+    protected void blockingUpdate() {
         updateLock.readLock().lock();
-        try {
-            return sessions.getKeysWithExpiryCheck();
-        } finally {
+        if (needsUpdate) {
+            updateLock.readLock().unlock();
+            doUpdate();
+        } else {
             updateLock.readLock().unlock();
         }
     }
 
     /**
-     * Called in a separate thread
+     * 
      */
     protected void doUpdate() {
         updateLock.writeLock().lock();
-        boolean success = false;
-        int tries = 0;
-        for (StaleCacheListener listener : staleCacheListeners) {
-            tries++;
-            try {
-                success |= listener.attemptCacheUpdate();
-            } catch (Exception e) {
-                log.error("Error while attempting to update cache with "
-                        + listener, e);
-            }
-            if (success) {
+        try {
+            // Could have been unset while we were waiting.
+            if (needsUpdate) {
+                // Prevent recursion!
                 needsUpdate = false;
-                lastUpdate = System.currentTimeMillis();
+                boolean success = false;
+                int tries = 0;
+                try {
+                    for (StaleCacheListener listener : staleCacheListeners) {
+                        tries++;
+                        try {
+                            success |= listener.attemptCacheUpdate();
+                        } catch (Throwable t) {
+                            log.error(
+                                    "Error while attempting to update cache with "
+                                            + listener, t);
+                        }
+                        if (success) {
+                            needsUpdate = false;
+                            lastUpdate = System.currentTimeMillis();
+                        }
+                    }
+                } finally {
+                    if (!success) {
+                        needsUpdate = true;
+                        throw new InternalException(
+                                "Could not update session cache."
+                                        + "\nNumber of failed listeners:"
+                                        + tries
+                                        + "\n"
+                                        + "\nAll further attempts to access the server may fail."
+                                        + "\nPlease contact your server administrator.");
+                    }
+                }
             }
-        }
-        if (!success) {
-            needsUpdate = true;
-            throw new RuntimeException("Could not update stale cache. "
-                    + "Number of failed listeners:" + tries);
-        } else {
+        } finally {
             updateLock.writeLock().unlock();
         }
     }

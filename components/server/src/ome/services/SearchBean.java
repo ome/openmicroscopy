@@ -134,6 +134,7 @@ public class SearchBean extends AbstractStatefulBean implements Search {
      * 
      * @see ome.api.StatefulServiceInterface#close()
      */
+    @RolesAllowed("user")
     @Remove
     public void close() {
     }

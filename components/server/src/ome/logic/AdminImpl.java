@@ -22,9 +22,6 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 
 import ome.annotations.NotNull;
 import ome.annotations.RevisionDate;
@@ -57,8 +54,10 @@ import ome.security.basic.UpdateEventListener;
 import ome.services.query.Definitions;
 import ome.services.query.Query;
 import ome.services.query.QueryParameterDef;
+import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.util.OmeroAroundInvoke;
 import ome.system.EventContext;
+import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.system.SimpleEventContext;
 import ome.tools.hibernate.HibernateUtils;
@@ -73,8 +72,10 @@ import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.jmx.support.JmxUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,15 +101,14 @@ import org.springframework.util.Assert;
 @RevisionNumber("$Revision:1754 $")
 @Stateless
 @Remote(IAdmin.class)
-@RemoteBindings({
-    @RemoteBinding(jndiBinding = "omero/remote/ome.api.IAdmin"),
-    @RemoteBinding(jndiBinding = "omero/secure/ome.api.IAdmin",
-		   clientBindUrl="sslsocket://0.0.0.0:3843")
-})
+@RemoteBindings( {
+        @RemoteBinding(jndiBinding = "omero/remote/ome.api.IAdmin"),
+        @RemoteBinding(jndiBinding = "omero/secure/ome.api.IAdmin", clientBindUrl = "sslsocket://0.0.0.0:3843") })
 @Local(IAdmin.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.IAdmin")
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
-public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
+public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
+        ApplicationContextAware {
 
     /**
      * Action used by various methods to save objects with the blessing of the
@@ -149,6 +149,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     protected transient SessionFactory sf;
 
+    protected transient OmeroContext context;
+
     /** injector for usage by the container. Not for general use */
     public final void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
         getBeanHelper().throwIfAlreadySet(this.jdbc, jdbcTemplate);
@@ -159,6 +161,11 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     public final void setSessionFactory(SessionFactory sessions) {
         getBeanHelper().throwIfAlreadySet(this.sf, sessions);
         sf = sessions;
+    }
+
+    public void setApplicationContext(ApplicationContext ctx)
+            throws BeansException {
+        this.context = (OmeroContext) ctx;
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
@@ -255,7 +262,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         return groupIds;
     }
 
-    @RolesAllowed("user") // TODO copied from getMemberOfGroupIds
+    @RolesAllowed("user")
+    // TODO copied from getMemberOfGroupIds
     public List<String> getUserRoles(final Experimenter e) {
         Assert.notNull(e);
         Assert.notNull(e.getId());
@@ -374,25 +382,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     @RolesAllowed("system")
     public void synchronizeLoginCache() {
-        String string = "omero:service=LoginConfig";
-        // using Spring utilities to get MBeanServer
-        MBeanServer mbeanServer = JmxUtils.locateMBeanServer();
-        getBeanHelper().getLogger().debug("Acquired MBeanServer.");
-        ObjectName name;
-        try {
-            // defined in app/resources/jboss-service.xml
-            name = new ObjectName(string);
-            mbeanServer.invoke(name, "flushAuthenticationCaches",
-                    new Object[] {}, new String[] {});
-            getBeanHelper().getLogger().debug("Flushed authentication caches.");
-        } catch (InstanceNotFoundException infe) {
-            getBeanHelper().getLogger().warn(
-                    string + " not found. Won't synchronize login cache.");
-        } catch (Exception e) {
-            InternalException ie = new InternalException(e.getMessage());
-            ie.setStackTrace(e.getStackTrace());
-            throw ie;
-        }
+        context.publishEvent(new UserGroupUpdateEvent(this));
     }
 
     @RolesAllowed("user")

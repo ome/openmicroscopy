@@ -162,7 +162,6 @@
 
   <bean id="executor" class="ome.services.util.Executor">
     <constructor-arg ref="securitySystem"/>
-    <constructor-arg ref="eventHandler"/>
     <constructor-arg ref="transactionTemplate"/>
     <constructor-arg ref="hibernateTemplate"/>
     <constructor-arg ref="statelessInterceptors"/>
@@ -187,7 +186,6 @@
     </property>
     <property name="triggers">
       <list>
-        <ref bean="flushAuthenticationCachesTrigger"/>
         <ref bean="fullTextIndexerTrigger"/>
       </list>
 

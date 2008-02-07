@@ -288,7 +288,9 @@ public class BasicSecuritySystem implements SecuritySystem {
      * @see EventHandler#invoke(org.aopalliance.intercept.MethodInvocation)
      */
     public void disableReadFilter(Object session) {
-        checkReady("disableReadFilter");
+        // Session system doesn't seem to provide this
+        // i.e. isReady() is false here. Disabling but need to review
+        // checkReady("disableReadFilter");
 
         Session sess = (Session) session;
         sess.disableFilter(SecurityFilter.filterName);

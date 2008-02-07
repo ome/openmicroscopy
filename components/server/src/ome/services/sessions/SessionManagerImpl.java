@@ -32,6 +32,8 @@ import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.StatelessSession;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.transaction.TransactionStatus;
@@ -49,6 +51,8 @@ import org.springframework.transaction.TransactionStatus;
  * @since 3.0-Beta3
  */
 public class SessionManagerImpl implements SessionManager, StaleCacheListener {
+
+    private final static Log log = LogFactory.getLog(SessionManagerImpl.class);
 
     /**
      * The id of this session manager, used to identify its own actions.
@@ -117,6 +121,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
         boolean ok = executeCheckPassword(_principal, credentials);
 
         if (!ok) {
+            log.warn("Failed to authenticate: + " + _principal);
             throw new AuthenticationException("Authentication exception.");
         }
 
@@ -263,9 +268,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
      * @see ome.server.utests.sessions.SessionManager#onApplicationEvent(org.springframework.context.ApplicationEvent)
      */
     public void onApplicationEvent(ApplicationEvent event) {
-
         if (event instanceof UserGroupUpdateEvent) {
-            executor.trigger("update-cache-manual");
+            cache.setNeedsUpdate(true);
         }
 
         // TODO

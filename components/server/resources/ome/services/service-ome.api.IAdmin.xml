@@ -40,16 +40,5 @@
     </property>
     <property name="target" ref="internal:ome.api.IAdmin"/>
   </bean>  
-  
-  <bean id="flushAuthenticationCachesMethod" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-    <property name="targetObject" ref="internal:ome.api.IAdmin" />
-    <property name="targetMethod" value="synchronizeLoginCache" />
-    <property name="concurrent" value="false" />
-  </bean>
-
-  <bean id="flushAuthenticationCachesTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
-    <property name="jobDetail" ref="flushAuthenticationCachesMethod" />
-    <property name="cronExpression" value="* 0,30 * * * ?" />
-  </bean>
 
 </beans>

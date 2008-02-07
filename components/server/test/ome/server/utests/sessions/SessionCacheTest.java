@@ -14,7 +14,9 @@ import junit.framework.TestCase;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import ome.conditions.InternalException;
 import ome.model.meta.Session;
+import ome.services.sessions.SessionCallback;
 import ome.services.sessions.SessionContextImpl;
 import ome.services.sessions.state.CacheFactory;
 import ome.services.sessions.state.CacheListener;
@@ -52,6 +54,7 @@ public class SessionCacheTest extends TestCase {
 
     public void testUnderstandingListeners() throws Exception {
         cf.setCacheName("understanding");
+        cf.setTimeToIdle(1);
         Ehcache c = cf.createCache(new CacheListener() {
             @Override
             public void notifyElementExpired(Ehcache arg0, Element arg1) {
@@ -101,11 +104,10 @@ public class SessionCacheTest extends TestCase {
         cache.addStaleCacheListener(doesNothing);
 
         before = cache.getLastUpdated();
-        cache.setNeedsUpdate(true);
         try {
-            cache.getIds();
+            cache.setNeedsUpdate(true);
             fail("This should fail");
-        } catch (Exception e) {
+        } catch (InternalException e) {
             // ok
         }
 
@@ -119,17 +121,26 @@ public class SessionCacheTest extends TestCase {
     List<String> roles = Arrays.asList("");
 
     public void testSimpleTimeout() throws Exception {
+        initCache(1);
         called[0] = false;
         final Session s = sess();
-        SessionContextImpl sc = new SessionContextImpl(s, ids, ids, roles) {
-            // @Override
-            // public void close() {
-            // called[0] = true;
-            // super.close();
-            // }
-        };
-        cache.putSession(s.getUuid(), sc);
-        Thread.sleep(2L);
+        cache.addSessionCallback(s.getUuid(), new SessionCallback() {
+            public void close() {
+                called[0] = true;
+            }
+
+            public String getName() {
+                return null;
+            }
+
+            public Object getObject() {
+                return null;
+            }
+
+            public void join(String session) {
+            }
+        });
+        Thread.sleep(2000L);
         assertTrue(called[0]);
     }
 
@@ -141,6 +152,57 @@ public class SessionCacheTest extends TestCase {
 
         });
         assertTrue(cache.getIds().size() == 1);
+    }
+
+    public void testNoSuccessfulListenersThrowsExceptionOnUpdate() {
+        initCache(1000);
+        try {
+            cache.setNeedsUpdate(true);
+            fail("Should throw internal exception");
+        } catch (InternalException ie) {
+            // ok
+        }
+
+    }
+
+    public void testIfFirstThreadFailsSecondThreadAlsoTriesToUpdate()
+            throws Exception {
+        initCache(10000);
+        try {
+            cache.setNeedsUpdate(true);
+            fail("throw!");
+        } catch (InternalException ie) {
+            // ok.
+        }
+
+        // Now the cache still needs an update
+        final boolean done[] = new boolean[] { false, false };
+
+        class TryUpdate extends Thread {
+            int i;
+
+            TryUpdate(int i) {
+                this.i = i;
+            }
+
+            @Override
+            public void run() {
+                try {
+                    cache.getSessionContext("anything");
+                } catch (InternalException ie) {
+                    done[i] = true;
+                }
+            }
+        }
+
+        Thread t1 = new TryUpdate(0), t2 = new TryUpdate(1);
+        t1.start();
+        t2.start();
+        t1.join();
+        t2.join();
+        assertTrue(done[0]);
+        assertTrue(done[1]);
+
     }
 
     // Helpers
