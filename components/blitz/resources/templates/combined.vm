@@ -856,8 +856,8 @@ ADD
 [$pyc]           link.link( ${pyorder} );
 [$pyc]           self.add${property.shortType}( link, True )
 [$pyc]
-[$hdr]       virtual void link${property.shortTarget}(${property.shortTarget}Ptr addition);
-[$cpp]       void ${PojoI}::link${property.shortTarget}(${property.shortTarget}Ptr addition) {
+[$hdr]       virtual void link${property.shortTarget}(const ${property.shortTarget}Ptr& addition);
+[$cpp]       void ${PojoI}::link${property.shortTarget}(const ${property.shortTarget}Ptr& addition) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$cpp]           ${property.shortType}IPtr link = new ${property.shortType}I();
@@ -890,8 +890,8 @@ TODO: Should we check for nulls in other?
 [$pyc]               link.${other}.add${property.shortType}( link, False )
 #end
 [$pyc]
-[$hdr]       virtual void add${property.shortType}(${property.shortType}Ptr link, bool bothSides);
-[$cpp]       void ${PojoI}::add${property.shortType}(${property.shortType}Ptr link, bool bothSides) {
+[$hdr]       virtual void add${property.shortType}(const ${property.shortType}Ptr& link, bool bothSides, const Ice::Current& current = Ice::Current());
+[$cpp]       void ${PojoI}::add${property.shortType}(const ${property.shortType}Ptr& link, bool bothSides, const Ice::Current& current) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$cpp]           ${property.name}.push_back( link );
@@ -997,8 +997,8 @@ REMOVE
 [$pyc]               link.${other}.remove${property.shortType}(link, False)
 #end
 [$pyc]
-[$hdr]       virtual void unlink${property.shortTarget}(${property.shortTarget}Ptr removal);
-[$cpp]       void ${PojoI}::unlink${property.shortTarget}(${property.shortTarget}Ptr removal) {
+[$hdr]       virtual void unlink${property.shortTarget}(const ${property.shortTarget}Ptr& removal);
+[$cpp]       void ${PojoI}::unlink${property.shortTarget}(const ${property.shortTarget}Ptr& removal) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$cpp]           std::vector<${property.shortType}Ptr> toRemove = find${property.shortType}(removal);
@@ -1009,8 +1009,8 @@ REMOVE
 [$cpp]             ++beg;
 [$cpp]           }
 [$cpp]       }
-[$hdr]       virtual void remove${property.shortType}(${property.shortType}Ptr link, bool bothSides);
-[$cpp]       void ${PojoI}::remove${property.shortType}(${property.shortType}Ptr link, bool bothSides) {
+[$hdr]       virtual void remove${property.shortType}(const ${property.shortType}Ptr& link, bool bothSides, const Ice::Current& current = Ice::Current());
+[$cpp]       void ${PojoI}::remove${property.shortType}(const ${property.shortType}Ptr& link, bool bothSides, const Ice::Current& current) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
 [$cpp]           // predicate may do reverse side
