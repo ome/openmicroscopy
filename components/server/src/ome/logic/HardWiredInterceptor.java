@@ -29,13 +29,13 @@ import ome.system.ServiceFactory;
 /**
  * Extension point for interceptors which should be compiled in from 
  * third-party code. Subclasses can be added to the 
- * {@link ome.logic.AbstractBean} class via server/build.xml and the
+ * {@link ome.services.util.OmeroAroundInvoke} class via server/build.xml and the
  * omero.hard-wired.interceptors property value. All subclasses must
  * have a no-arg constructor, but can assess various environment 
  * variables via the getters defined on this class.
  *
  * @author Josh Moore, josh.moore at gmx.de
- * @since 3.0-RC1
+ * @since 3.0-Beta1
  */
 @RevisionDate("$Date: 2006-12-15 11:39:34 +0100 (Fri, 15 Dec 2006) $")
 @RevisionNumber("$Revision: 1167 $")

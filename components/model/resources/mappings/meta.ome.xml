@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# 
+#
 # $Id$
-# 
+#
 # Copyright 2006 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 <types>
-	
+
 	<!-- MANAGEMENT -->
 	<type id="ome.model.meta.ExperimenterGroup" described="true">
 		<properties>
@@ -20,11 +20,11 @@
         target="ome.model.meta.Experimenter"/>
 		</properties>
 	</type>
-	
+
 	<type id="ome.model.meta.Experimenter" global="true" annotated="true">
 		<!-- ## needs to be ome_name -->
 		<properties>
-			<parent name="groupExperimenterMap" ordered="true" 
+			<parent name="groupExperimenterMap" ordered="true"
 				type="ome.model.meta.GroupExperimenterMap"
 				target="ome.model.meta.ExperimenterGroup"/>
 			<required name="omeName" type="string" unique="true"/>
@@ -35,18 +35,39 @@
 			<component id="ome.model.internal.Email" required="false">
 				<optional name="email" type="string"/>
 			</component>
-			<!-- ## add to dsl [email/] -->		
+			<!-- ## add to dsl [email/] -->
 		</properties>
 	</type>
-	
+
 	<link id="ome.model.meta.GroupExperimenterMap">
 		<properties>
 			<from_parent type="ome.model.meta.ExperimenterGroup"/>
 			<to_child type="ome.model.meta.Experimenter" ordered="true"/>
 		</properties>
 	</link>
-	
+
 	<!-- EVENTS -->
+        <type id="ome.model.meta.Session" immutable="true" global="true">
+            <properties>
+            <!-- Type & Group are not really optional. Needed to bootstrap.
+                 Constraints are added later -->
+                   <required name="uuid"               type="string"/>
+                   <required name="started"            type="timestamp"/>
+                   <optional name="closed"             type="timestamp"/>
+                   <required name="defaultPermissions" type="string"/>
+                   <required name="defaultEventType"   type="string"/>
+                   <optional name="userAgent"          type="string"/>
+                   <onemany  name="events"             type="ome.model.meta.Event"
+                            inverse="session"/>
+            <!--
+            // with stateless session, catch exception.
+            // agents per session? inuse?     // automatically join session if running by same user?
+            // probably not. one session per user.
+             * validation (or similar) must be in place to prevent vandalism of sess tbl.
+             * meta package (rename admin?)
+            -->
+            </properties>
+        </type>
 	<enum id="ome.model.enums.EventType">
 		<entry name="Import"/>
 		<entry name="Internal"/>
@@ -70,17 +91,18 @@
 			<optional name="containingEvent" type="ome.model.meta.Event"/>
 			<onemany  name="logs" type="ome.model.meta.EventLog" inverse="event"/>
 		</properties>
-	</type>    
+	</type>
 
 	<type id="ome.model.meta.EventLog" immutable="true" global="true">
 		<properties>
 			<required name="entityId" type="long"/>
 			<required name="entityType" type="string"/>
 			<required name="action" type="string"/>
-			<manyone name="event" type="ome.model.meta.Event"/>
+			<manyone  name="event" type="ome.model.meta.Event"/>
+			<manyone  name="session" type="ome.model.meta.Session"/>
 		</properties>
 	</type>
-	
+
 	<type id="ome.model.meta.ExternalInfo" immutable="true">
 		<properties>
 			<required name="entityId" type="long" mutable="false"/>

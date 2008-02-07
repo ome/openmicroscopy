@@ -434,6 +434,13 @@ public class Permissions implements Serializable {
         private static final long serialVersionUID = -4407900270934589522L;
 
         /**
+         * Factory method to create an immutable Permissions object.
+         */
+        public static Permissions immutable(Permissions p) {
+            return new ImmutablePermissions(p);
+        }
+
+        /**
          * the delegate {@link Permissions} which this immutable wrapper bases
          * all of its logic on. Not final for reasons of serialization.
          */

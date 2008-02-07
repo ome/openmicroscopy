@@ -21,10 +21,8 @@ import java.util.Set;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
-import ome.api.ITypes;
-import ome.api.IUpdate;
-import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
+import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
@@ -51,10 +49,10 @@ import ome.security.ACLVoter;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
+import ome.services.sessions.SessionManager;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
-import ome.system.ServiceFactory;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.HibernateUtils;
 import ome.tools.hibernate.SecurityFilter;
@@ -73,15 +71,15 @@ import org.springframework.util.Assert;
  * {@link CurrentDetails} to provide the security infrastructure.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
+ * @version $Revision: 1581 $, $Date: 2007-06-02 12:31:30 +0200 (Sat, 02 Jun 2007) $
  * @see Token
  * @see SecuritySystem
  * @see Details
  * @see Permissions
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
+@RevisionDate("$Date: 2007-06-02 12:31:30 +0200 (Sat, 02 Jun 2007) $")
+@RevisionNumber("$Revision: 1581 $")
 public class BasicSecuritySystem implements SecuritySystem {
     private final static Log log = LogFactory.getLog(BasicSecuritySystem.class);
 
@@ -93,9 +91,12 @@ public class BasicSecuritySystem implements SecuritySystem {
      */
     private final Token token = new Token();
 
-    /** {@link ServiceFactory} for accessing all available services */
-    private final ServiceFactory sf;
-
+    // Constructor arguments
+    private final LocalQuery query;
+    private final LocalUpdate update;
+    private final SessionManager sessionManager; 
+    private final Roles roles;
+    
     /** metadata for calculating certain walks */
     protected ExtendedMetadata em;
 
@@ -106,7 +107,6 @@ public class BasicSecuritySystem implements SecuritySystem {
 
     protected CurrentDetails cd = new CurrentDetails();
 
-    protected Roles roles = new Roles();
 
     protected ACLVoter acl = new BasicACLVoter(this); // FIXME dangerous
 
@@ -116,9 +116,13 @@ public class BasicSecuritySystem implements SecuritySystem {
      * @param factory
      *            Not null.
      */
-    public BasicSecuritySystem(ServiceFactory factory) {
-        Assert.notNull(factory);
-        this.sf = factory;
+    public BasicSecuritySystem(LocalQuery rawQuery, LocalUpdate rawUpdate, SessionManager sessionManager, Roles roles) {
+        Assert.notNull(rawQuery);
+        Assert.notNull(rawUpdate);
+        this.query = rawQuery;
+        this.update = rawUpdate;
+        this.sessionManager = sessionManager;
+        this.roles = roles;
     }
 
     /**
@@ -943,35 +947,25 @@ public class BasicSecuritySystem implements SecuritySystem {
     // ~ CurrentDetails delegation (ensures proper settings of Tokens)
     // =========================================================================
 
-    public void loadEventContext(boolean isReadOnly) {
-
-        // needed services
-        LocalAdmin localAdmin = (LocalAdmin) sf.getAdminService();
-        ITypes iTypes = sf.getTypesService();
-        IUpdate iUpdate = sf.getUpdateService();
+    public void loadEventContext(boolean isReadyOnly) {
 
         final Principal p = clearAndCheckPrincipal();
-
+        final EventContext ec = sessionManager.getEventContext(p.getName());
+        
         // start refilling current details
-        cd.setReadOnly(isReadOnly);
+        cd.setReadOnly(isReadyOnly);
+
+        cd.setMemberOfGroups(ec.getMemberOfGroupsList());
+        cd.setLeaderOfGroups(ec.getLeaderOfGroupsList());
 
         // Experimenter
-
-        final Experimenter exp = localAdmin.userProxy(p.getName());
+        final Experimenter exp = new Experimenter(ec.getCurrentUserId(),false);
         exp.getGraphHolder().setToken(token, token);
         cd.setOwner(exp);
 
-        // Member of Groups
-        List<Long> memberOfGroupsIds = localAdmin.getMemberOfGroupIds(exp);
-        cd.setMemberOfGroups(memberOfGroupsIds);
-
-        // Leader of Groups
-        List<Long> leaderOfGroupsIds = localAdmin.getLeaderOfGroupIds(exp);
-        cd.setLeaderOfGroups(leaderOfGroupsIds);
-
         // Active group
-        ExperimenterGroup grp = localAdmin.groupProxy(p.getGroup());
-        if (!memberOfGroupsIds.contains(grp.getId())) {
+        final ExperimenterGroup grp = new ExperimenterGroup(ec.getCurrentGroupId(),false);
+        if (!ec.getMemberOfGroupsList().contains(grp.getId())) {
             throw new SecurityViolation(String.format(
                     "User %s is not a member of group %s", p.getName(), p
                             .getGroup()));
@@ -980,41 +974,22 @@ public class BasicSecuritySystem implements SecuritySystem {
         cd.setGroup(grp);
 
         // isAdmin
-
         if (roles.isSystemGroup(grp)) {
             cd.setAdmin(true);
         }
 
         // Event
-
-        EventType type = iTypes.getEnumeration(EventType.class, p
-                .getEventType());
+        EventType type = new EventType(p.getEventType());
         type.getGraphHolder().setToken(token, token);
         cd.newEvent(type, token);
 
-        if (!isReadOnly) {
-            saveEventIfWriteMethod();
-        }
-
-    }
-
-    /**
-     * During {@link #loadEventContext(boolean) loading} and
-     * {@link #setEventContext(EventContext) setting} of the
-     * {@link EventContext} it is necessary to save the {@link Event} to prevent
-     * "null or transient value exceptions" later. This is done also done for
-     * {@link Event events} of stateful services, in which the
-     * {@link EventContext#isReadOnly()} flag changes from true to false.
-     * 
-     * @see EventHandler
-     * @see #loadEventContext(boolean)
-     * @see #setEventContext(EventContext)
-     */
-    private void saveEventIfWriteMethod() {
-        IUpdate iUpdate = sf.getUpdateService();
         Event event = getCurrentEvent();
         event.getGraphHolder().setToken(token, token);
-        setCurrentEvent(iUpdate.saveAndReturnObject(event));
+
+        // If this event is not read only, then lets save this event to prevent
+        // flushing issues later.
+        if (!isReadyOnly) {
+            setCurrentEvent(update.saveAndReturnObject(event));
     }
 
     /**
@@ -1036,9 +1011,6 @@ public class BasicSecuritySystem implements SecuritySystem {
         if (p.getName().equals(u_name) && p.getGroup().equals(g_name)
                 && p.getEventType().equals(t_name)) {
             cd.setCurrentEventContext(bec);
-            if (!bec.isReadOnly) {
-                saveEventIfWriteMethod();
-            }
         }
 
         else {
@@ -1065,40 +1037,9 @@ public class BasicSecuritySystem implements SecuritySystem {
                     "Principal.name is null. Security system failure.");
         }
 
-        if (p.getGroup() == null) {
-            throw new InternalException(
-                    "Principal.group is null in EventContext. Security system failure.");
-        }
+        // the rest of the checkPrincipal logic all moved to SessionManager
+        sessionManager.assertSession(p.getName());
 
-        if (p.getEventType() == null) {
-            throw new InternalException(
-                    "Principal.eventType is null in EventContext. Security system failure.");
-        }
-
-        // ticket:404 -- preventing users from logging into "user" group
-        if (roles.getUserGroupName().equals(p.getGroup())) {
-            LocalAdmin admin = (LocalAdmin) sf.getAdminService();
-            ExperimenterGroup defaultGroup = null;
-            try {
-                Experimenter exp = admin.userProxy(p.getName());
-                defaultGroup = admin.getDefaultGroup(exp.getId());
-            } catch (ApiUsageException aue) {
-                // Will be handled by the null clause following.
-            }
-            if (defaultGroup == null) {
-                throw new SecurityViolation(
-                        String
-                                .format(
-                                        "User %s attempted to login to user group \"%s\". When "
-                                                + "doing so, user must be in at least one other group",
-                                        p.getName(), roles.getUserGroupName()));
-            }
-
-            final Principal updated = new Principal(p.getName(), defaultGroup
-                    .getName(), p.getEventType());
-            principalHolder.set(p);
-            return updated;
-        }
         return p;
     }
 
@@ -1124,8 +1065,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 
         if (Event.class.isAssignableFrom(klass)
                 || EventLog.class.isAssignableFrom(klass)) {
-            // Cannot log because these are the log classes.
-            log.info("Noticing:" + action + "," + klass + "," + id);
+            log.debug("Not logging creation of logging type:" + klass);
         }
 
         else {
@@ -1392,7 +1332,7 @@ public class BasicSecuritySystem implements SecuritySystem {
     }
 
     /**
-     * transient details should be have the umask applied to them if soft.
+     * transient details should have the umask applied to them if soft.
      */
     void applyUmaskIfNecessary(Details d) {
         Permissions p = d.getPermissions();

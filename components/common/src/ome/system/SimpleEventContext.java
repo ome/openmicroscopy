@@ -24,36 +24,39 @@ import ome.annotations.RevisionNumber;
  * simple, non-thread-safe, serializable {@link ome.system.EventContext}
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
+ * @version $Revision: 1167 $, $Date: 2006-12-15 11:39:34 +0100 (Fri, 15 Dec 2006) $
  * @see EventContext
  * @since 3.0
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
+@RevisionDate("$Date: 2006-12-15 11:39:34 +0100 (Fri, 15 Dec 2006) $")
+@RevisionNumber("$Revision: 1167 $")
 public class SimpleEventContext implements EventContext, Serializable {
 
     private static final long serialVersionUID = -3918201598642847439L;
 
-    private Long cgId;
+    protected Long cgId;
 
-    private Long cuId;
+    protected Long cuId;
 
-    private Long ceId;
+    protected Long ceId;
 
-    private String cgName;
+    protected String cgName;
 
-    private String cuName;
+    protected String cuName;
 
-    private String ceType;
+    protected String ceType;
 
-    private boolean isAdmin;
+    protected boolean isAdmin;
 
-    private boolean isReadOnly;
+    protected boolean isReadOnly;
 
-    private List<Long> memberOfGroups;
+    protected List<Long> memberOfGroups;
 
-    private List<Long> leaderOfGroups;
+    protected List<Long> leaderOfGroups;
 
+    /** Constructor for subclasses */
+    protected SimpleEventContext() {}
+    
     /** copy constructor. Makes defensive copies where necessary */
     public SimpleEventContext(EventContext ec) {
         if (ec == null) {

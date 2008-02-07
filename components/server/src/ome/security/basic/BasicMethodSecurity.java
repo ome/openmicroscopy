@@ -17,6 +17,7 @@ import ome.conditions.SecurityViolation;
 import ome.security.MethodSecurity;
 import ome.security.PasswordUtil;
 import ome.security.SecuritySystem;
+import ome.services.sessions.SessionManager;
 import ome.system.Principal;
 
 import org.springframework.aop.framework.Advised;
@@ -37,7 +38,7 @@ public class BasicMethodSecurity implements MethodSecurity {
 
     private final boolean active;
 
-    private SimpleJdbcOperations jdbc;
+    private SessionManager sessionManager;
 
     public BasicMethodSecurity() {
         active = true;
@@ -47,8 +48,8 @@ public class BasicMethodSecurity implements MethodSecurity {
         this.active = active;
     }
 
-    public void setSimpleJdbcOperations(SimpleJdbcOperations jdbcOps) {
-        this.jdbc = jdbcOps;
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
     }
 
     /**
@@ -90,8 +91,8 @@ public class BasicMethodSecurity implements MethodSecurity {
             throw new SecurityViolation("This method allows no remote access.");
         }
 
-        // TODO need to catch PermitAll, etc.
-        List<String> actualRoles = PasswordUtil.userGroups(jdbc, p.getName());
+        // see ticket:665
+        List<String> actualRoles = sessionManager.getUserRoles(p.getName());
         for (String allowed : allowedRoles) {
             if (actualRoles.contains(allowed)) {
                 // Only need to find one match.
