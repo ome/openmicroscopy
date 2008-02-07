@@ -62,8 +62,8 @@
   <!-- properly configured principal for login -->
 	<bean id="principal" class="${omero.principal_class}">
 		<constructor-arg index="0" value="${omero.user}"/>
-		<constructor-arg index="1" value="${omero.group}"/>    
-		<constructor-arg index="2" value="${omero.event}"/>        
+		<constructor-arg index="1" value="${omero.group}"/>
+		<constructor-arg index="2" value="${omero.event}"/>
 	</bean>
 
   <!-- hashtable for InitialContext constructor -->

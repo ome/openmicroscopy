@@ -73,7 +73,7 @@
 	<classpathentry kind="lib" path="target/libs/findbugs-ant.jar"/>
 	<classpathentry kind="lib" path="target/libs/freemarker.jar"/>
 	<classpathentry kind="lib" path="target/libs/groovy.jar"/>
-	<classpathentry kind="lib" path="target/libs/hibernate.jar" sourcepath="/Users/josh/code/SOURCES/Hibernate_Branch_3_2/src"/>
+	<classpathentry kind="lib" path="target/libs/hibernate.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate-annotations.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate-commons-annotations.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate-search.jar"/>
@@ -115,5 +115,6 @@
 	<classpathentry kind="lib" path="target/libs/velocity-tools-generic.jar"/>
 	<classpathentry kind="lib" path="target/libs/xerces.jar"/>
 	<classpathentry kind="lib" path="target/libs/xml-apis.jar"/>
+	<classpathentry kind="lib" path="target/libs/c3p0.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
 </classpath>

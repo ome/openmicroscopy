@@ -76,7 +76,7 @@ public class FileParserTest extends AbstractTest {
 
         loginRoot();
         List<Image> imgs = iQuery.findAllByFullText(Image.class, str, null);
-        assertTrue(imgs.size() == 1);
+        assertEquals(1, imgs.size());
         assertTrue(imgs.get(0).getId().equals(i.getId()));
 
     }

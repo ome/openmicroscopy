@@ -8,6 +8,7 @@ package ome.client.itests.sec;
 
 import javax.sql.DataSource;
 
+import junit.framework.TestCase;
 import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IUpdate;
@@ -17,8 +18,6 @@ import ome.system.ServiceFactory;
 
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.Test;
-
-import junit.framework.TestCase;
 
 @Test(groups = { "client", "integration", "security" })
 public class AbstractSecurityTest extends TestCase {

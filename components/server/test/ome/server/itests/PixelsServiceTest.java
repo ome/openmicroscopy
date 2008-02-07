@@ -12,6 +12,7 @@ package ome.server.itests;
 import java.util.Collection;
 
 import ome.api.IPixels;
+import ome.api.RawPixelsStore;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
@@ -143,4 +144,22 @@ public class PixelsServiceTest extends AbstractManagedContextTest {
         }
     }
 
+    @Test
+    public void testPerformance() {
+        Pixels pix = ObjectFactory.createPixelGraph(null);
+        pix.setSizeX(512);
+        pix.setSizeY(512);
+        pix.setSizeZ(1);
+        pix.setSizeT(1);
+        pix.setSizeC(1);
+        pix = iUpdate.saveAndReturnObject(pix);
+        RawPixelsStore raw = this.factory.createRawPixelsStore();
+        raw.setPixelsId(pix.getId());
+        raw.calculateMessageDigest();
+
+        int size = raw.getPlaneSize();
+        byte[] data = new byte[size];
+        raw.setPlane(data, 0, 0, 0);
+        raw.getPlane(0, 0, 0);
+    }
 }

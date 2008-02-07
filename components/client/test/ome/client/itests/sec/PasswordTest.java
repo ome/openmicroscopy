@@ -6,13 +6,13 @@
  */
 package ome.client.itests.sec;
 
-import javax.ejb.EJBException;
-import org.testng.annotations.*;
-
 import ome.api.IAdmin;
+import ome.conditions.SecurityViolation;
 import ome.model.meta.Experimenter;
 import ome.system.Login;
 import ome.system.ServiceFactory;
+
+import org.testng.annotations.Test;
 
 @Test(groups = { "client", "integration", "security", "ticket:181",
         "ticket:199", "password" })
@@ -81,8 +81,7 @@ public class PasswordTest extends AbstractAccountTest {
 
     }
 
-    @Test
-    @ExpectedExceptions(EJBException.class)
+    @Test(expectedExceptions = SecurityViolation.class)
     public void testUserCantChangeOthersPassword() throws Exception {
         Experimenter e = createNewUser(getSudoAdmin("ome"));
         resetPasswordTo_ome(e);

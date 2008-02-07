@@ -6,18 +6,22 @@
  */
 package ome.client.itests;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.testng.annotations.*;
-
 import junit.framework.TestCase;
-
 import ome.api.IUpdate;
 import ome.api.RawPixelsStore;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
 import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
+import ome.testing.Report;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
+
+import com.jamonapi.Monitor;
+import com.jamonapi.MonitorFactory;
 
 @Test(groups = { "client", "integration", "binary" })
 public class RawPixelStoreTest extends TestCase {
@@ -28,7 +32,7 @@ public class RawPixelStoreTest extends TestCase {
     RawPixelsStore raw;
     IUpdate iUpdate;
 
-    @Configuration( beforeTestMethod = true )
+    @Configuration(beforeTestMethod = true)
     public void setup() {
         sf = new ServiceFactory();
         raw = sf.createRawPixelsStore();
@@ -53,6 +57,17 @@ public class RawPixelStoreTest extends TestCase {
 
         raw.setPixelsId(pix.getId());
         raw.calculateMessageDigest();
+
+        int size = raw.getPlaneSize();
+        byte[] data = new byte[size];
+        Monitor m = MonitorFactory.start("setPlane");
+        raw.setPlane(data, 0, 0, 0);
+        m.stop();
+        m = MonitorFactory.start("getPlane");
+        raw.getPlane(0, 0, 0);
+        m.stop();
+
+        System.out.println(new Report());
 
     }
 
