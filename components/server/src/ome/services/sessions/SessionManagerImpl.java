@@ -265,7 +265,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
     public void onApplicationEvent(ApplicationEvent event) {
 
         if (event instanceof UserGroupUpdateEvent) {
-            cache.setNeedsUpdate(true);
+            executor.trigger("update-cache-manual");
         }
 
         // TODO

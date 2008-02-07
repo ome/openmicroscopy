@@ -8,6 +8,7 @@
 package ome.services.fulltext;
 
 import ome.api.IQuery;
+import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
 
@@ -30,13 +31,14 @@ public class Main {
     static Executor executor;
     static SessionFactory factory;
     static IQuery rawQuery;
+    static SessionManager manager;
 
     public static void init() {
         context = OmeroContext.getManagedServerContext();
         executor = (Executor) context.getBean("executor");
         factory = (SessionFactory) context.getBean("sessionFactory");
         rawQuery = (IQuery) context.getBean("internal:ome.api.IQuery");
-
+        manager = (SessionManager) context.getBean("sessionManager");
     }
 
     public static void usage() {
@@ -85,7 +87,8 @@ public class Main {
     protected static FullTextThread createFullTextThread(EventLogLoader loader) {
         final FullTextBridge ftb = new FullTextBridge();
         final FullTextIndexer fti = new FullTextIndexer(loader);
-        final FullTextThread ftt = new FullTextThread(executor, fti, ftb);
+        final FullTextThread ftt = new FullTextThread(manager, executor, fti,
+                ftb);
         return ftt;
     }
 }

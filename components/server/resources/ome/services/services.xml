@@ -163,9 +163,11 @@
 
   <bean id="executor" class="ome.services.util.Executor">
     <constructor-arg ref="securitySystem"/>
+    <constructor-arg ref="serviceHandler"/>
     <constructor-arg ref="transactionTemplate"/>
     <constructor-arg ref="hibernateTemplate"/>
     <constructor-arg ref="statelessInterceptors"/>
+    <property name="scheduler" ref="scheduler"/>
   </bean>
 
   <bean id="queryFactory" class="ome.services.query.QueryFactory">
@@ -181,6 +183,7 @@
     <property name="jobDetails">
       <list>
         <ref bean="process-jobs-manual" />
+        <ref bean="update-cache-manual" />
       </list>
     </property>
     <property name="triggers">

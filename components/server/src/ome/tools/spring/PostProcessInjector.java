@@ -10,6 +10,7 @@ package ome.tools.spring;
 // Java imports
 
 // Third-party imports
+import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.security.basic.BasicSecuritySystem;
@@ -26,14 +27,20 @@ public class PostProcessInjector implements InitializingBean {
     SessionManagerImpl sessionManager;
     BasicSecuritySystem securitySystem;
     ExtendedMetadata extendedMetdata;
+    LocalAdmin adminService;
     LocalQuery queryService;
     LocalUpdate updateService;
 
     public void afterPropertiesSet() throws Exception {
         securitySystem.setExtendedMetadata(extendedMetdata);
         securitySystem.setSessionManager(sessionManager);
+        securitySystem.setAdminService(adminService);
         securitySystem.setQueryService(queryService);
         securitySystem.setUpdateService(updateService);
+    }
+
+    public void setAdminService(LocalAdmin adminService) {
+        this.adminService = adminService;
     }
 
     public void setQueryService(LocalQuery queryService) {

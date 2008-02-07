@@ -9,6 +9,7 @@ package ome.services.util;
 
 import java.sql.SQLException;
 
+import ome.conditions.InternalException;
 import ome.security.SecuritySystem;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -17,13 +18,18 @@ import ome.tools.spring.InternalServiceFactory;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.TransactionStatus;
@@ -45,12 +51,7 @@ import org.springframework.transaction.support.TransactionTemplate;
  */
 public class Executor implements ApplicationContextAware {
 
-    private final ThreadLocal<Integer> count = new ThreadLocal<Integer>() {
-        @Override
-        protected Integer initialValue() {
-            return Integer.valueOf(0);
-        }
-    };
+    private final static Log log = LogFactory.getLog(Executor.class);
 
     /**
      * Work SPI to perform actions within the server as if they were fully
@@ -95,20 +96,23 @@ public class Executor implements ApplicationContextAware {
     }
 
     protected OmeroContext context;
+    protected Scheduler scheduler;
 
     final protected ProxyFactoryBean proxyFactory;
     final protected SecuritySystem secSystem;
+    final protected ServiceHandler handler;
     final protected String[] proxyNames;
     final protected Interceptor interceptor;
     final protected TransactionTemplate txTemplate;
     final protected HibernateTemplate hibTemplate;
 
-    public Executor(SecuritySystem secSystem, TransactionTemplate tt,
-            HibernateTemplate ht, String[] proxyNames) {
+    public Executor(SecuritySystem secSystem, ServiceHandler handler,
+            TransactionTemplate tt, HibernateTemplate ht, String[] proxyNames) {
         this.txTemplate = tt;
         this.hibTemplate = ht;
         this.interceptor = new Interceptor(tt, ht);
         this.secSystem = secSystem;
+        this.handler = handler;
         this.proxyNames = proxyNames;
         this.proxyFactory = new ProxyFactoryBean();
         this.proxyFactory.setInterceptorNames(this.proxyNames);
@@ -124,6 +128,10 @@ public class Executor implements ApplicationContextAware {
             throws BeansException {
         this.context = (OmeroContext) applicationContext;
         this.proxyFactory.setBeanFactory(context);
+    }
+
+    public void setScheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
     }
 
     /**
@@ -146,29 +154,24 @@ public class Executor implements ApplicationContextAware {
         innerFactory.addAdvice(this.interceptor);
         Work inner = (Work) innerFactory.getObject();
 
-        // If we've already entered Executor.execute once, then we don't
-        // want to reapply all the interceptors.
+        // If we've already entered Executor.execute once and applied the
+        // ServiceHandler, then we don't want to re-apply all the interceptors.
         Work outer;
-        int depth = count.get().intValue();
-        if (depth == 0) {
+        if (handler.isActive()) {
+            outer = inner;
+        } else {
             this.proxyFactory.setTarget(inner);
             outer = (Work) this.proxyFactory.getObject();
-        } else {
-            outer = inner;
         }
 
         if (p != null) {
             this.secSystem.login(p);
         }
         try {
-            depth++;
-            count.set(depth);
             // Arguments will be replaced after hibernate is in effect
             return outer.doWork(null, null, new InternalServiceFactory(
                     this.context));
         } finally {
-            depth--;
-            count.set(depth);
             if (p != null) {
                 this.secSystem.logout();
             }
@@ -203,6 +206,32 @@ public class Executor implements ApplicationContextAware {
         });
     }
 
+    /**
+     * Runs an {@link ExecutionThread} via
+     * {@link TaskExecutor#execute(Runnable)}. The {@link ExecutionThread}
+     * performs the necessary {@link Thread} initialization.
+     * 
+     * @param thread
+     *            Not null.
+     */
+    public void trigger(String name) {
+        if (scheduler == null) {
+            throw new InternalException("Executor not configured for trigger.");
+        }
+
+        try {
+            scheduler.triggerJob(name, "DEFAULT");
+        } catch (SchedulerException e) {
+            log.error("Error signaling job: " + name, e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Interceptor class which properly lookups and injects the transaction and
+     * session objects in the
+     * {@link Work#doWork(TransactionStatus, Session, ServiceFactory)} method.
+     */
     static class Interceptor implements MethodInterceptor {
 
         private final TransactionTemplate txTemplate;

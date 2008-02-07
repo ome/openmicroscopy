@@ -33,6 +33,7 @@
   <!-- Trigger for running lucene -->
 
   <bean id="fullTextThread" class="ome.services.fulltext.FullTextThread">
+    <constructor-arg ref="sessionManager"/>
     <constructor-arg ref="executor"/>
     <constructor-arg ref="fullTextIndexer"/>
     <constructor-arg ref="fullTextBridge"/>

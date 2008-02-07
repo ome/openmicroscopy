@@ -57,9 +57,12 @@ public interface SecuritySystem {
     void login(Principal principal);
 
     /**
-     * clears any {@link Principal} instances from the current thread context.
+     * clears the top {@link Principal} instance from the current thread
+     * context.
+     * 
+     * @return the number of remaining instances.
      */
-    void logout();
+    int logout();
 
     void loadEventContext(boolean isReadyOnly);
 

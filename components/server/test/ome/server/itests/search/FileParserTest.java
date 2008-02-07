@@ -71,7 +71,7 @@ public class FileParserTest extends AbstractTest {
         CreationLogLoader logs = new CreationLogLoader(i);
         ftb = new FullTextBridge(getFileService(), parsers);
         fti = new FullTextIndexer(logs);
-        ftt = new FullTextThread(getExecutor(), fti, ftb);
+        ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb);
         ftt.run();
 
         loginRoot();

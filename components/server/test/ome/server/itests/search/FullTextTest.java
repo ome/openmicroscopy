@@ -43,7 +43,7 @@ public class FullTextTest extends AbstractTest {
         ome.services.fulltext.Main.indexFullDb();
     }
 
-    @Test(enabled = false, groups = "manual")
+    @Test(enabled = true, groups = "manual")
     public void testCheckThatProcessStarts() {
 
         long start = System.currentTimeMillis();
@@ -76,7 +76,7 @@ public class FullTextTest extends AbstractTest {
 
         ftb = new FullTextBridge();
         fti = new FullTextIndexer(pell);
-        ftt = new FullTextThread(getExecutor(), fti, ftb);
+        ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb);
         ftt.run(); // Single run to do initialization
 
         // Can't use more() here since it will always return true
@@ -103,7 +103,7 @@ public class FullTextTest extends AbstractTest {
     public void testSimpleCreation() throws Exception {
         ftb = new FullTextBridge();
         fti = new FullTextIndexer(getLogs());
-        ftt = new FullTextThread(getExecutor(), fti, ftb);
+        ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb);
         ftt.run();
     }
 
@@ -215,7 +215,7 @@ public class FullTextTest extends AbstractTest {
                 .getId(), false));
         ftb = new FullTextBridge(getFileService(), parsers);
         fti = new FullTextIndexer(logs);
-        ftt = new FullTextThread(getExecutor(), fti, ftb);
+        ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb);
         ftt.run();
     }
 

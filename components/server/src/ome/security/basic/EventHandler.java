@@ -93,34 +93,7 @@ public class EventHandler implements MethodInterceptor {
         boolean stateful = StatefulServiceInterface.class.isAssignableFrom(arg0
                 .getThis().getClass());
 
-        if (stateful) {
-            EventContext prevCtx = objCtxMap.get(arg0.getThis());
-            boolean needCtx = !objSeen.containsKey(arg0.getThis());
-
-            if (null == prevCtx) {
-                if (!needCtx) {
-                    throw new InternalException(
-                            "Stateful service missing context.");
-                }
-
-                else {
-                    prevCtx = reloadContext(arg0, readOnly);
-                }
-            } else if (isContextUnloaded(prevCtx)) {
-                prevCtx = reloadContext(arg0, readOnly);
-            }
-            // Need to update the read-ability
-            ((BasicEventContext) prevCtx).isReadOnly = readOnly;
-            secSys.setEventContext(prevCtx);
-        }
-
-        else // stateless
-        {
-            // this is usually done manually by stateful services
-            // in their @PostConstruct methods
-            secSys.loadEventContext(readOnly);
-        }
-
+        secSys.loadEventContext(readOnly);
         // now the user can be considered to be logged in.
         EventContext ec = secSys.getEventContext();
         if (log.isInfoEnabled()) {

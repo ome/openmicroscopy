@@ -9,11 +9,13 @@ package ome.server.itests;
 import java.util.UUID;
 
 import org.testng.annotations.*;
+
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.core.Image;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.Session;
 import ome.security.SecuritySystem;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -25,7 +27,8 @@ import junit.framework.TestCase;
 public class LoginTest extends TestCase {
 
     protected void login(String user, String group, String eventType) {
-        sec.login(new Principal(user, group, eventType));
+        Session s = sm.create(new Principal(user, group, eventType));
+        sec.login(new Principal(s.getUuid(), group, eventType));
     }
 
     protected OmeroContext ctx;
@@ -38,6 +41,8 @@ public class LoginTest extends TestCase {
 
     protected SecuritySystem sec;
 
+    protected ome.services.sessions.SessionManager sm;
+
     @Configuration(beforeTestClass = true)
     public void config() {
         ctx = OmeroContext.getManagedServerContext();
@@ -45,11 +50,14 @@ public class LoginTest extends TestCase {
         q = sf.getQueryService();
         u = sf.getUpdateService();
         sec = (SecuritySystem) ctx.getBean("securitySystem");
+        sm = (SessionManager) ctx.getBean("sessionManager");
     }
 
     @Test
     public void testNoLoginThrowsException() throws Exception {
-        sec.logout();
+        while (sec.logout() > 0) {
+            ;
+        }
         try {
             q.find(Experimenter.class, 0l);
             fail("Non-logged-in call allowed!");
@@ -102,7 +110,7 @@ public class LoginTest extends TestCase {
     @Test(groups = "ticket:666")
     public void testLoginToNonMemberGroup() throws Exception {
 
-        login("root","system","Test");
+        login("root", "system", "Test");
 
         String gname = UUID.randomUUID().toString();
         ExperimenterGroup g = new ExperimenterGroup();

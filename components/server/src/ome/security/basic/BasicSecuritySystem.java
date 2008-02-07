@@ -22,6 +22,7 @@ import java.util.Set;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
@@ -93,6 +94,7 @@ public class BasicSecuritySystem implements SecuritySystem {
      */
     private final Token token = new Token();
 
+    private LocalAdmin admin;
     private LocalQuery query;
     private LocalUpdate update;
     private SessionManager sessionManager;
@@ -136,6 +138,10 @@ public class BasicSecuritySystem implements SecuritySystem {
         this.sessionManager = sessionManager;
     }
 
+    public void setAdminService(LocalAdmin admin) {
+        this.admin = admin;
+    }
+
     public void setQueryService(LocalQuery query) {
         this.query = query;
     }
@@ -151,11 +157,12 @@ public class BasicSecuritySystem implements SecuritySystem {
         principalHolder.get().addLast(principal);
     }
 
-    public void logout() {
+    public int logout() {
         LinkedList<Principal> list = principalHolder.get();
         if (list.size() > 0) {
             list.removeLast();
         }
+        return list.size();
     }
 
     // ~ Checks
@@ -950,26 +957,36 @@ public class BasicSecuritySystem implements SecuritySystem {
     // ~ CurrentDetails delegation (ensures proper settings of Tokens)
     // =========================================================================
 
-    public void loadEventContext(boolean isReadyOnly) {
+    public void loadEventContext(boolean isReadOnly) {
 
         // Call to session manager throws an exception on failure
         final Principal p = clearAndCheckPrincipal();
         final EventContext ec = sessionManager.getEventContext(p);
 
         // start refilling current details
-        cd.setReadOnly(isReadyOnly);
+        cd.setReadOnly(isReadOnly);
 
         cd.setMemberOfGroups(ec.getMemberOfGroupsList());
         cd.setLeaderOfGroups(ec.getLeaderOfGroupsList());
 
         // Experimenter
-        final Experimenter exp = new Experimenter(ec.getCurrentUserId(), false);
+        Experimenter exp;
+        if (isReadOnly) {
+            exp = new Experimenter(ec.getCurrentUserId(), false);
+        } else {
+            exp = admin.userProxy(ec.getCurrentUserId());
+        }
         exp.getGraphHolder().setToken(token, token);
         cd.setOwner(exp);
 
         // Active group
-        final ExperimenterGroup grp = new ExperimenterGroup(ec
-                .getCurrentGroupId(), false);
+        ExperimenterGroup grp;
+        if (isReadOnly) {
+            grp = new ExperimenterGroup(ec.getCurrentGroupId(), false);
+        } else {
+            grp = admin.groupProxy(ec.getCurrentGroupId());
+        }
+
         if (!ec.getMemberOfGroupsList().contains(grp.getId())) {
             throw new SecurityViolation(String.format(
                     "User %s is not a member of group %s", p.getName(), p
@@ -993,7 +1010,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 
         // If this event is not read only, then lets save this event to prevent
         // flushing issues later.
-        if (!isReadyOnly) {
+        if (!isReadOnly) {
             setCurrentEvent(update.saveAndReturnObject(event));
         }
     }
@@ -1102,9 +1119,12 @@ public class BasicSecuritySystem implements SecuritySystem {
             if (Experimenter.class.getName().equals(t)
                     || ExperimenterGroup.class.getName().equals(t)
                     || GroupExperimenterMap.class.getName().equals(t)) {
-                this.sessionManager
-                        .onApplicationEvent(new UserGroupUpdateEvent(this));
+                foundAdminType = true;
             }
+        }
+        if (foundAdminType) {
+            this.sessionManager.onApplicationEvent(new UserGroupUpdateEvent(
+                    this));
         }
         cd.clearLogs();
     }

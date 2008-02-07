@@ -42,6 +42,7 @@
     <property name="securitySystem" ref="securitySystem"/>
     <property name="extendedMetadata" ref="extendedMetadata"/>
     <property name="sessionManager" ref="sessionManager"/>
+    <property name="adminService" ref="internal:ome.api.IAdmin"/>
     <property name="queryService" ref="internal:ome.api.IQuery"/>
     <property name="updateService" ref="internal:ome.api.IUpdate"/>
   </bean>

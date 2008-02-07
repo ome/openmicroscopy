@@ -17,6 +17,7 @@ import ome.services.fulltext.EventLogLoader;
 import ome.services.fulltext.FullTextBridge;
 import ome.services.fulltext.FullTextIndexer;
 import ome.services.fulltext.FullTextThread;
+import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 
 import org.testng.annotations.Test;
@@ -77,6 +78,11 @@ public abstract class AbstractTest extends AbstractManagedContextTest {
         return (Executor) this.applicationContext.getBean("executor");
     }
 
+    SessionManager getManager() {
+        return (SessionManager) this.applicationContext
+                .getBean("sessionManager");
+    }
+
     /**
      * Returns a simple {@link EventLogLoader} which only loads the last
      * {@link EventLog}
@@ -106,7 +112,7 @@ public abstract class AbstractTest extends AbstractManagedContextTest {
         CreationLogLoader logs = new CreationLogLoader(o);
         ftb = new FullTextBridge();
         fti = new FullTextIndexer(logs);
-        ftt = new FullTextThread(getExecutor(), fti, ftb);
+        ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb);
         ftt.run();
     }
 

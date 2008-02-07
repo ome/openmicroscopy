@@ -10,6 +10,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -35,6 +37,8 @@ import edu.emory.mathcs.backport.java.util.Collections;
 public class SessionCache extends CacheListener {
 
     private final static Log log = LogFactory.getLog(SessionCache.class);
+
+    private final ReadWriteLock updateLock = new ReentrantReadWriteLock();
 
     private final ThreadLocal<Boolean> throwsOnExpiration = new ThreadLocal<Boolean>() {
         @Override
@@ -142,12 +146,20 @@ public class SessionCache extends CacheListener {
         return lastUpdate;
     }
 
-    public boolean getNeedsUpdate() {
-        return this.needsUpdate;
+    public void setNeedsUpdate(boolean needsUpdate) {
+        boolean wasLocked = this.needsUpdate;
+        this.needsUpdate = needsUpdate;
+        if (this.needsUpdate) {
+            updateLock.writeLock().lock();
+        } else {
+            if (wasLocked) {
+                updateLock.writeLock().unlock();
+            }
+        }
     }
 
-    public void setNeedsUpdate(boolean needsUpdate) {
-        this.needsUpdate = needsUpdate;
+    public boolean getNeedsUpdate() {
+        return this.needsUpdate;
     }
 
     public long getTimeToIdle() {
@@ -164,12 +176,21 @@ public class SessionCache extends CacheListener {
     // are responsible for synchronization and the update mechanism.
 
     public void putSession(String uuid, SessionContext sessionContext) {
-        blockingUpdate();
-        sessions.put(new Element(uuid, sessionContext));
+        updateLock.readLock().lock();
+        try {
+            sessions.put(new Element(uuid, sessionContext));
+        } finally {
+            updateLock.readLock().unlock();
+        }
     }
 
     public SessionContext getSessionContext(String uuid) {
-        return getSessionContextThrows(uuid, false);
+        updateLock.readLock().lock();
+        try {
+            return getSessionContextThrows(uuid, false);
+        } finally {
+            updateLock.readLock().unlock();
+        }
     }
 
     /**
@@ -180,7 +201,7 @@ public class SessionCache extends CacheListener {
      */
     public SessionContext getSessionContextThrows(String uuid,
             boolean throwOnExpiration) {
-        blockingUpdate();
+        updateLock.readLock().lock();
         throwsOnExpiration.set(Boolean.TRUE);
         try {
             Element elt = sessions.get(uuid);
@@ -190,31 +211,35 @@ public class SessionCache extends CacheListener {
             return (SessionContext) elt.getObjectValue();
         } finally {
             throwsOnExpiration.set(Boolean.FALSE);
+            updateLock.readLock().unlock();
         }
     }
 
     public void removeSession(String uuid) {
-        blockingUpdate();
-        sessions.remove(uuid);
-    }
-
-    public List<String> getIds() {
-        blockingUpdate();
-        return sessions.getKeysWithExpiryCheck();
-    }
-
-    protected void blockingUpdate() {
-        synchronized (sessions) {
-            if (needsUpdate) {
-                doUpdate();
-            }
+        updateLock.readLock().lock();
+        try {
+            sessions.remove(uuid);
+        } finally {
+            updateLock.readLock().unlock();
         }
     }
 
+    public List<String> getIds() {
+        updateLock.readLock().lock();
+        try {
+            return sessions.getKeysWithExpiryCheck();
+        } finally {
+            updateLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Called in a separate thread
+     */
     protected void doUpdate() {
+        updateLock.writeLock().lock();
         boolean success = false;
         int tries = 0;
-        needsUpdate = false;
         for (StaleCacheListener listener : staleCacheListeners) {
             tries++;
             try {
@@ -232,6 +257,9 @@ public class SessionCache extends CacheListener {
             needsUpdate = true;
             throw new RuntimeException("Could not update stale cache. "
                     + "Number of failed listeners:" + tries);
+        } else {
+            updateLock.writeLock().unlock();
         }
     }
+
 }

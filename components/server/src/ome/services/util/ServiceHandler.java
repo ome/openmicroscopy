@@ -8,14 +8,20 @@
 package ome.services.util;
 
 // Java imports
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-// Third-party libraries
+import ome.annotations.AnnotationUtils;
+import ome.annotations.ApiConstraintChecker;
+import ome.annotations.Hidden;
+import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
+import ome.conditions.OptimisticLockException;
+import ome.conditions.RootException;
+import ome.conditions.ValidationException;
+import ome.tools.hibernate.SessionHandler;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
@@ -26,26 +32,19 @@ import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.orm.hibernate3.HibernateSystemException;
 
-// import com.caucho.burlap.io.BurlapOutput;
-
-// Application-internal dependencies
-import ome.annotations.AnnotationUtils;
-import ome.annotations.ApiConstraintChecker;
-import ome.annotations.Hidden;
-import ome.conditions.ApiUsageException;
-import ome.conditions.InternalException;
-import ome.conditions.OptimisticLockException;
-import ome.conditions.RootException;
-import ome.conditions.ValidationException;
-import ome.tools.hibernate.SessionHandler;
-import ome.util.Utils;
-
 /**
  * 
  */
 public class ServiceHandler implements MethodInterceptor {
 
     private static Log log = LogFactory.getLog(ServiceHandler.class);
+
+    private final ThreadLocal<Boolean> active = new ThreadLocal<Boolean>() {
+        @Override
+        protected Boolean initialValue() {
+            return Boolean.FALSE;
+        }
+    };
 
     private boolean printXML = false;
 
@@ -57,6 +56,10 @@ public class ServiceHandler implements MethodInterceptor {
 
     public void setPrintXML(boolean value) {
         this.printXML = value;
+    }
+
+    public boolean isActive() {
+        return active.get().booleanValue();
     }
 
     /**
@@ -85,6 +88,7 @@ public class ServiceHandler implements MethodInterceptor {
         String finalOutput = "";
 
         try {
+            active.set(Boolean.TRUE);
             sessions.cleanThread();
             o = arg0.proceed();
             finalOutput = " Rslt:\t" + o;
@@ -97,6 +101,7 @@ public class ServiceHandler implements MethodInterceptor {
             finalOutput = " Excp:\t" + t;
             throw getAndLogException(t);
         } finally {
+            active.set(Boolean.FALSE);
             if (log.isInfoEnabled()) {
                 log.info(finalOutput);
             }
@@ -236,7 +241,7 @@ public class ServiceHandler implements MethodInterceptor {
 
     private void printException(String msg, Throwable ex) {
         if (log.isWarnEnabled()) {
-                log.warn(msg + "\n", ex);
-        } 
+            log.warn(msg + "\n", ex);
+        }
     }
 }

@@ -40,6 +40,7 @@ public class SessionManagerTest extends AbstractManagedContextTest {
         Session s = sm.create(new Principal("root", "user", "Test"));
         long last1 = sc.getLastUpdated();
         sm.onApplicationEvent(event);
+        Thread.sleep(2000L);
         sm.update(s);
         long last2 = sc.getLastUpdated();
         assertTrue(last2 > last1);

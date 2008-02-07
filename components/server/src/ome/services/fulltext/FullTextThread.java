@@ -7,6 +7,9 @@
 
 package ome.services.fulltext;
 
+import ome.model.meta.Session;
+import ome.services.sessions.SessionManager;
+import ome.services.util.ExecutionThread;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.util.DetailsFieldBridge;
@@ -28,39 +31,33 @@ import org.springframework.util.Assert;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class FullTextThread implements Runnable {
+public class FullTextThread extends ExecutionThread {
 
     private final static Log log = LogFactory.getLog(FullTextThread.class);
 
     private final static Principal DEFAULT_PRINCIPAL = new Principal("root",
             "system", "FullText");
 
-    final protected Executor executor;
     final protected FullTextIndexer indexer;
     final protected FullTextBridge bridge;
-    final protected Principal principal;
 
     /**
      * Uses default {@link Principal} for indexing
      */
-    public FullTextThread(Executor executor, FullTextIndexer indexer,
-            FullTextBridge bridge) {
-        this(executor, indexer, bridge, DEFAULT_PRINCIPAL);
+    public FullTextThread(SessionManager manager, Executor executor,
+            FullTextIndexer indexer, FullTextBridge bridge) {
+        this(manager, executor, indexer, bridge, DEFAULT_PRINCIPAL);
     }
 
     /**
      * Main constructor. No arguments can be null.
      */
-    public FullTextThread(Executor executor, FullTextIndexer indexer,
-            FullTextBridge bridge, Principal principal) {
-        Assert.notNull(executor);
-        Assert.notNull(indexer);
+    public FullTextThread(SessionManager manager, Executor executor,
+            FullTextIndexer indexer, FullTextBridge bridge, Principal principal) {
+        super(manager, executor, indexer, DEFAULT_PRINCIPAL);
         Assert.notNull(bridge);
-        Assert.notNull(principal);
-        this.executor = executor;
         this.indexer = indexer;
         this.bridge = bridge;
-        this.principal = principal;
     }
 
     /**
@@ -71,14 +68,14 @@ public class FullTextThread implements Runnable {
      * {@link FieldBridge} can edit the property. Therefore, only one indexer
      * using this idiom can run at a time.
      */
-    public void run() {
+    @Override
+    public void preWork() {
         DetailsFieldBridge.lock();
-        try {
-            DetailsFieldBridge.setFieldBridge(this.bridge);
-            this.executor.execute(this.principal, this.indexer);
-        } finally {
-            DetailsFieldBridge.unlock();
-        }
+        DetailsFieldBridge.setFieldBridge(this.bridge);
     }
 
+    @Override
+    public void postWork() {
+        DetailsFieldBridge.unlock();
+    }
 }
