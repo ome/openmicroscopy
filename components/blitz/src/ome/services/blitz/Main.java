@@ -126,6 +126,17 @@ class Startup extends RouterControl {
      */
     volatile boolean stop = false;
 
+    /**
+     * The {@link OmeroContext} instance.
+     */
+    volatile OmeroContext ctx;
+
+    /**
+     * @param group
+     * @param name
+     * @param log
+     * @param shutdown
+     */
     Startup(ThreadGroup group, String name, Log log, Shutdown shutdown) {
         super(group, name, log);
         this.name = name;
@@ -136,7 +147,7 @@ class Startup extends RouterControl {
     public void run() {
         log.info("Creating " + this.name + ". Please wait...");
         try {
-            OmeroContext ctx = OmeroContext.getInstance(name);
+            ctx = OmeroContext.getInstance(name);
             // If a router has been registered, we start it now. A failure
             // to start the router counts as a failed startup.
             startRouter();
@@ -146,8 +157,9 @@ class Startup extends RouterControl {
             log.info(name + " now accepting connections.");
             started = true;
         } catch (Exception e) {
+            e.printStackTrace();
             log.error("Error during startup. Stopping.", e);
-            stop = true;
+            shutdown.start();
         }
     }
 };
@@ -231,7 +243,18 @@ public class Main implements Runnable {
                 }
                 System.exit(0);
             }
-            main = new Main(args[0]);
+            // Now we find the first non-"--Ice.Config" argument and
+            // pass that to Main(). The last --Ice.Config value will be
+            // seen by the Ice.Communicator.
+            String name = DEFAULT_NAME;
+            for (String string : args) {
+                if (string.startsWith("--Ice.Config")) {
+                    System.setProperty("ICE_CONFIG", string);
+                } else {
+                    name = string;
+                }
+            }
+            main = new Main(name);
         } else {
             main = new Main();
         }
@@ -275,7 +298,7 @@ public class Main implements Runnable {
 
         SignalHandler handler = new SignalHandler() {
             public void handle(Signal sig) {
-                System.out.println("\n"); // Clearning the line
+                System.out.println("\n"); // Clearing the line
                 log.info(sig.getName() + ": Shutdown requested.");
                 try {
                     System.in.close();
@@ -334,21 +357,21 @@ public class Main implements Runnable {
 
         IN_USE.remove(name);
         startup.stop = true;
-        OmeroContext ctx = OmeroContext.getInstance(name);
 
-        try {
-            Ice.Communicator ic = (Ice.Communicator) ctx
-                    .getBean("Ice.Communicator");
+        if (startup.ctx != null) {
+            try {
+                Ice.Communicator ic = (Ice.Communicator) startup.ctx
+                        .getBean("Ice.Communicator");
 
-            // Cannot throw an exception, but just in case
-            log.debug("Calling stop router.");
-            shutdown.stopRouter(ic);
+                // Cannot throw an exception, but just in case
+                log.debug("Calling stop router.");
+                shutdown.stopRouter(ic);
 
-        } finally {
-            log.info("Calling close context on " + name);
-            ctx.close();
-            log.info("Finished shutdown.");
-
+            } finally {
+                log.info("Calling close context on " + name);
+                startup.ctx.close();
+                log.info("Finished shutdown.");
+            }
         }
     }
 
