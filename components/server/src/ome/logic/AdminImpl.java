@@ -257,6 +257,24 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         return groupIds;
     }
 
+    @RolesAllowed("user") // TODO copied from getMemberOfGroupIds
+    public List<String> getUserRoles(final Experimenter e) {
+        Assert.notNull(e);
+        Assert.notNull(e.getId());
+
+        List<String> groupNames = iQuery.execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException, SQLException {
+                org.hibernate.Query q = session
+                        .createQuery("select m.parent.name from GroupExperimenterMap m "
+                                + "where m.child.id = :id");
+                q.setParameter("id", e.getId());
+                return q.list();
+            }
+        });
+        return groupNames;
+    }
+
     // ~ User accessible interface methods
     // =========================================================================
 

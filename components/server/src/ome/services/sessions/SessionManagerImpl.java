@@ -7,23 +7,23 @@
 package ome.services.sessions;
 
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
-import ome.api.local.LocalAdmin;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
-import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
-import ome.parameters.Parameters;
 import ome.system.EventContext;
 import ome.system.Principal;
-import ome.system.Roles;
 
 import org.springframework.context.ApplicationEvent;
 
@@ -42,18 +42,12 @@ import org.springframework.context.ApplicationEvent;
 public class SessionManagerImpl implements SessionManager {
 
     // Injected
-    LocalAdmin admin;
     LocalQuery query;
     LocalUpdate update;
-    SessionCache sessions;
-    Roles roles;
+    Cache sessions;
     
     // ~ Injectors
     // =========================================================================
-
-    public void setAdminService(LocalAdmin adminService) {
-        admin = adminService;
-    }
     
     public void setQueryService(LocalQuery queryService) {
         query = queryService;
@@ -63,71 +57,75 @@ public class SessionManagerImpl implements SessionManager {
         update = updateService;
     }
 
-    public void setSessionCache(SessionCache sessionCache) { 
+    public void setCache(Cache sessionCache) { 
         sessions = sessionCache;
-    }
-
-    public void setRoles(Roles securityRoles) { 
-        roles = securityRoles;
     }
 
     // ~ Session management
     // =========================================================================
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see ome.server.utests.sessions.SessionManager#create(ome.system.Principal)
+	 * Is given trustable values by the {@link SessionBean}
      */
-    public Session create(Principal principal) {
-        
-        principal = checkPrincipal(principal);
-
-        // Do lookups 
-        final Experimenter exp = admin.userProxy(principal.getName());
-        final ExperimenterGroup grp = admin.groupProxy(principal.getGroup());
-        final List<Long> memberOfGroupsIds = admin.getMemberOfGroupIds(exp);
-        final List<Long> leaderOfGroupsIds = admin.getLeaderOfGroupIds(exp);
+    public Session create(Experimenter exp, ExperimenterGroup grp, 
+    		List<Long>leaderOfGroupsIds, List<Long> memberOfGroupsIds, List<String> roles,
+    		String type, Permissions perms) {
 
         // Set values on sessions 
         Session session = new Session();
+        session.setUuid(UUID.randomUUID().toString());
         session.getDetails().setPermissions( new Permissions(Permissions.USER_PRIVATE) );
         session.getDetails().setOwner(exp);
         session.getDetails().setGroup(grp);
         
+        // if defaults are null
+        parseAndSetDefaultType(type, session);
+        parseAndSetDefaultPermissions(perms, session);
+        
         session.setStarted(new Timestamp(System.currentTimeMillis()));
         session = update.saveAndReturnObject(session);
 
-        SessionContext sessionContext = new SessionContextImpl(copy(session), 
-                leaderOfGroupsIds, memberOfGroupsIds);
-        sessions.put(sessionContext);
+        Session copy = new Session();
+        copy(session,copy);
+        SessionContext sessionContext = new SessionContextImpl
+        	(copy,leaderOfGroupsIds, memberOfGroupsIds, roles);
+        putSession(session.getUuid(), sessionContext);
         return session;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ome.server.utests.sessions.SessionManager#copy(Session)
-     */
-    public Session copy(Session session) {
-        if (session == null)
-            return null; // EARLY EXIT.
+    public void copy(Session source, Session target) {
+        if (source == null || target ==null)
+        	throw new ApiUsageException("Source and target may not be null.");
         
-        Session copy = new Session();
-        copy.setId(session.getId());
-        copy.setClosed(session.getClosed());
-        copy.setDefaultEventType(session.getDefaultEventType());
-        copy.setDefaultPermissions(session.getDefaultPermissions());
-        Details d = session.getDetails();
-        copy.setDetails(d == null ? null : d.shallowCopy());
-        copy.setStarted(session.getStarted());
-        copy.setUserAgent(session.getUserAgent());
-        copy.setUuid(session.getUserAgent());
-        return copy;
+        target.setId(source.getId());
+        target.setClosed(source.getClosed());
+        target.setDefaultEventType(source.getDefaultEventType());
+        target.setDefaultPermissions(source.getDefaultPermissions());
+        Details d = source.getDetails();
+        target.setDetails(d == null ? null : d.shallowCopy());
+        target.setStarted(source.getStarted());
+        target.setUserAgent(source.getUserAgent());
+        target.setUuid(source.getUuid());
     }
 
     public Session update(Session session) {
-        throw new UnsupportedOperationException();
+    	if (session == null) return null;
+    	if (session.getUuid() == null) return null;
+    	
+    	SessionContext ctx = getSessionContext(session.getUuid());
+    	Session orig = ctx.getSession();
+    	
+    	// Conditiablly settable
+    	
+    	
+    	// Unconditionally settable
+    	parseAndSetDefaultType(session.getDefaultEventType(), orig);
+    	parseAndSetDefaultPermissions(session.getDefaultPermissions(), orig);
+    	orig.setUserAgent(session.getUserAgent());
+    	// Need to handle notifications
+    	
+    	throw new UnsupportedOperationException();
+    	
     }
     
     /*
@@ -136,27 +134,22 @@ public class SessionManagerImpl implements SessionManager {
      * @see ome.server.utests.sessions.SessionManager#getSession(java.lang.String)
      */
     public Session find(String uuid) {
-        SessionContext sessionContext = sessions.get(uuid);
-        return checkTimeout(sessionContext);
-    }
-    
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ome.server.utests.sessions.SessionManager#getSession(java.lang.String)
-     */
-    public Session find(long id) {
-        SessionContext sessionContext = sessions.get(id);
-        return checkTimeout(sessionContext);
+        SessionContext sessionContext = getSessionContext(uuid);
+        return (sessionContext == null) ? null : sessionContext.getSession();
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see ome.server.utests.sessions.SessionManager#closeSession(java.lang.String)
      */
-    public void close(String sessionId) {
-        throw new UnsupportedOperationException();
+    public void close(String uuid) {
+    	
+    	SessionContext ctx = getSessionContext(uuid);
+    	if (ctx == null) return;
+    	
+    	// TODO this is not safe
+    	Session s = ctx.getSession();
+    	s.setClosed(new Timestamp(System.currentTimeMillis()));
+    	update(s);
+    	sessions.remove(uuid);
     }
 
     /*
@@ -165,10 +158,10 @@ public class SessionManagerImpl implements SessionManager {
      * @see ome.services.sessions.SessionManager#getUserRoles(String)
      */
     public List<String> getUserRoles(String uuid) {
-    	// TODO Auto-generated method stub
-    	return null;
+    	SessionContext ctx = getSessionContext(uuid);
+    	if (ctx == null) return Collections.emptyList();
+    	return ctx.getUserRoles();
     }
-
     
     // ~ Security methods
     // =========================================================================
@@ -204,28 +197,6 @@ throw new UnsupportedOperationException("CHECK FOR NULL; NYI");
         // send to all notifications.
     }
 
-    // ~ Misc
-    // =========================================================================
-
-    /**
-     * If the session is timed out, this method removes the session from the 
-     * collection and returns null.
-     * 
-     * @param session
-     */
-    protected Session checkTimeout(SessionContext ctx) {
-        
-    	if (ctx == null) return null;
-        
-    	Session s = ctx.getSession();
-        assert s != null;
-        
-        long timestamp = 
-        
-        return s;
-    }
-
-
     // ~ Callbacks (Registering session-based components)
     // =========================================================================
 
@@ -237,56 +208,32 @@ throw new UnsupportedOperationException("CHECK FOR NULL; NYI");
         return null;
     }
     
-    // ~ Helpers
+    // ~ Misc
     // =========================================================================
     
-    /**
-     * Checks the validity of the given {@link Principal}, and in the case of 
-     * an error attempts to correct the problem by returning a new Principal.
-     */
-    Principal checkPrincipal(Principal p) {
+	private void putSession(String uuid, SessionContext sessionContext) {
+		sessions.put(new Element(uuid,sessionContext));
+	}
+    
+	private SessionContext getSessionContext(String uuid) {
+		Element elt = sessions.get(uuid);
+		if (elt == null) return null;
+		return (SessionContext) elt.getObjectValue(); 
+	}
 
-        if (p == null || p.getName() == null) {
-            throw new ApiUsageException("Null principal name.");
-        }
-        
-        String type = p.getEventType();
-        if (type == null) {
-            type = "User";
-        }
+	private void parseAndSetDefaultPermissions(Permissions perms, Session session) {
+		Permissions _perm = (perms == null) ? Permissions.DEFAULT : perms;
+        parseAndSetDefaultPermissions(_perm.toString(), session);
+	}
+	
+	private void parseAndSetDefaultPermissions(String perms, Session session) {
+		String _perm = (perms == null) ? Permissions.DEFAULT.toString() : perms.toString();
+        session.setDefaultPermissions(_perm);
+	}
 
-        String group = p.getGroup();
-        if (group == null) {
-            group = "user";
-        }
-
-        // ticket:404 -- preventing users from logging into "user" group
-        else if (roles.getUserGroupName().equals(p.getGroup())) {
-            List<ExperimenterGroup> groups = query.findAllByQuery(
-                            "select g from ExperimenterGroup g "
-                                    + "join g.groupExperimenterMap as m "
-                                    + "join m.child as u "
-                                    + "where g.name  != :userGroup and "
-                                    + "u.omeName = :userName and "
-                                    + "m.defaultGroupLink = true",
-                            new Parameters().addString("userGroup",
-                                    roles.getUserGroupName()).addString(
-                                    "userName", p.getName()));
-
-            if (groups.size() != 1) {
-                throw new SecurityViolation(
-                        String
-                                .format(
-                                        "User %s attempted to login to user group \"%s\". When "
-                                                + "doing so, there must be EXACTLY one default group for "
-                                                + "that user and not %d", p
-                                                .getName(), roles
-                                                .getUserGroupName(), groups
-                                                .size()));
-            }
-            group = groups.get(0).getName();
-        }
-        return new Principal(p.getName(), group, type);
-    }
-
+	private void parseAndSetDefaultType(String type, Session session) {
+		String _type = (type == null) ? "User" : type;
+        session.setDefaultEventType(_type);
+	}
+    
 }

@@ -24,6 +24,11 @@ import ome.system.Principal;
  * possessing it the client has access to all information available to the
  * {@link Session}
  * 
+ * The {@link ISession} implementation is  responsible for all traditional 
+ * security concerns, while the {@link SessionManager} is responsible for
+ * the creation and destruction of {@link Session} instances as well as respondig to 
+ * events within the server.
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */

@@ -25,7 +25,9 @@
     an example of what should be done.
     </description>
     <property name="localAdmin" ref="internal:ome.api.local.LocalAdmin"/>
+    <property name="localQuery" ref="internal:ome.api.local.LocalQuery"/>
     <property name="sessionManager" ref="sessionManager"/>
+    <property name="roles"  ref="roles"/>
   </bean> 
  
   <bean name="managed:ome.api.ISession" parent="managedService">
@@ -38,13 +40,17 @@
   </bean>  
 
   <bean name="sessionManager" class="ome.services.sessions.SessionManagerImpl">
-    <property name="adminService"  ref="internal:ome.api.IAdmin"/>
     <property name="queryService"  ref="internal:ome.api.IQuery"/>
     <property name="updateService" ref="internal:ome.api.IUpdate"/>
-    <property name="sessionCache"><null/></property>
-    <property name="roles"  ref="roles"/>
+    <property name="cache"         ref="sessionCache"/>
   </bean>  
   
-  <bean name="sessionCache" class="java.util.HashMap"/>
+  <bean id="sessionCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+    <property name="cacheManager" ref="CacheManager"/>
+    <property name="overflowToDisk" value="false"/>
+    <property name="maxElementsInMemory" value="0"/>
+    <property name="timeToIdle" value="600"/>
+    <property name="timeToLive" value="0"/>
+  </bean>
   
 </beans>

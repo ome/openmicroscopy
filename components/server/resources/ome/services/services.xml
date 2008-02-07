@@ -208,4 +208,6 @@
   	<property name="securitySystem" ref="securitySystem"/>
   </bean>
 
+  <bean id="CacheManager" class="ome.tools.spring.ShutdownSafeEhcacheManagerFactoryBean"/>
+
 </beans>

@@ -82,6 +82,17 @@ public interface LocalAdmin extends ome.api.IAdmin {
     List<Long> getMemberOfGroupIds(Experimenter e);
 
     /**
+     * Finds the group names for all groups for which the given {@link Experimenter} is
+     * a member.
+     * 
+     * @param e
+     *            Non-null, managed (i.e. with id) {@link Experimenter}
+     * @see ExperimenterGroup#getDetails()
+     * @see Details#getOwner()
+     */
+    List<String> getUserRoles(Experimenter e);
+    
+    /**
      * Checks password for given user.
      */
     boolean checkPassword(String user, String password);

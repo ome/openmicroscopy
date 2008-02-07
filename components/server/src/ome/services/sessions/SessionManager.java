@@ -7,7 +7,12 @@
 
 package ome.services.sessions;
 
+import java.util.List;
+
 import ome.conditions.SecurityViolation;
+import ome.model.internal.Permissions;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.system.EventContext;
 import ome.system.Principal;
@@ -21,22 +26,29 @@ import org.springframework.context.ApplicationListener;
  * Receives notifications as an {@link ApplicationListener}, which should be
  * used to keep the {@link Session} instances up-to-date.
  * 
+ * {@link SessionManager} implementations should strive to be only in-memory
+ * representations of the database used as a performance optimization. When possible,
+ * all changes should be made to the database as quickly and as synchronously as
+ * possible.
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
 public interface SessionManager extends ApplicationListener {
 
-    Session create(Principal principal);
+    Session create(Experimenter u, ExperimenterGroup g,
+    		List<Long> leaderIds, List<Long> memberIds, List<String> roles,
+    		String type, Permissions perms);
 
     /**
-     * Provides a copy of the given {@link Session} which is not attached
-     * to a Hibernate {@link org.hibernate.Session} but still contains the 
+     * Copies the source {@link Session} to the targe instance. This can be useful
+     * to disconnect from a Hibernate {@link org.hibernate.Session} while maintaining
      * critical information needed.
      * 
-     * @param session. Can be null, a null will be returned.
-     * @return
+     * @param source Cannot be null.
+     * @param source Cannot be null.
      */
-    Session copy(Session session);
+    void copy(Session source, Session target);
     
     Session update(Session session);
     
@@ -45,8 +57,6 @@ public interface SessionManager extends ApplicationListener {
      * @return A current session. Null if the session id is not found.
      */
     Session find(String uuid);
-    
-    Session find(long id);
 
     void close(String uuid);
 

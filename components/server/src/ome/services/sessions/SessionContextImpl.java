@@ -17,18 +17,24 @@ public class SessionContextImpl implements SessionContext {
     private final Session session;
     private final List<Long> leaderOfGroups;
     private final List<Long> memberOfGroups;
-
-    public SessionContextImpl(Session session, List<Long> lGroups,
-            List<Long> mGroups) {
+    private final List<String> roles; /* group names for memberOfGroups */
+    
+    public SessionContextImpl(Session session, 
+    		List<Long> lGroups, List<Long> mGroups, List<String> roles) {
         this.session = session;
         this.leaderOfGroups = Collections.unmodifiableList(new ArrayList(lGroups));
         this.memberOfGroups = Collections.unmodifiableList(new ArrayList(mGroups));
+        this.roles = Collections.unmodifiableList(new ArrayList(roles));
     }
 
     public Session getSession() {
         return session;
     }
 
+    public List<String> getUserRoles() {
+    	return roles;
+    }
+    
     public Long getCurrentEventId() {
         throw new UnsupportedOperationException();
     }

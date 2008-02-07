@@ -68,6 +68,4 @@
     <property name="timeToLive" value="0"/>
   </bean>
 
-  <bean id="CacheManager" class="ome.services.blitz.util.ShutdownSafeEhcacheManagerFactoryBean"/>
-
 </beans>

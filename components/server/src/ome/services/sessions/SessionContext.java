@@ -7,6 +7,8 @@
 
 package ome.services.sessions;
 
+import java.util.List;
+
 import ome.model.meta.Session;
 import ome.system.EventContext;
 
@@ -20,5 +22,6 @@ import ome.system.EventContext;
 public interface SessionContext extends EventContext {
 
     Session getSession();
+    List<String> getUserRoles();
 
 }
