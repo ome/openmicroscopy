@@ -76,17 +76,17 @@ alter table event alter column experimentergroup set not null;
 insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_immersion'),-35,0,0,0,'Oil';
 insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_immersion'),-35,0,0,0,'Oel';
-insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_immersion'),-35,0,0,0,'Water';
 insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_immersion'),-35,0,0,0,'Wasser';
+    select nextval('seq_immersion'),-35,0,0,0,'WaterDipping';
 insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_immersion'),-35,0,0,0,'Hl';
+    select nextval('seq_immersion'),-35,0,0,0,'Air';
 insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_immersion'),-35,0,0,0,'Gly';
+    select nextval('seq_immersion'),-35,0,0,0,'Multi';
 insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_immersion'),-35,0,0,0,'Wl';
+    select nextval('seq_immersion'),-35,0,0,0,'Glycerol';
+insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_immersion'),-35,0,0,0,'Other';
 insert into arctype (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_arctype'),-35,0,0,0,'Hg';
 insert into arctype (id,permissions,owner_id,group_id,creation_id,value)
