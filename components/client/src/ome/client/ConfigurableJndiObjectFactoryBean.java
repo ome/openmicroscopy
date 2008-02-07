@@ -7,9 +7,8 @@
 
 package ome.client;
 
-import javax.naming.NamingException;
+import java.util.Properties;
 
-import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.system.SessionInitializer;
 
@@ -19,6 +18,7 @@ import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.jndi.JndiObjectTargetSource;
+import org.springframework.jndi.JndiTemplate;
 
 /**
  * allows prototype-like lookup of stateful session beans. This is achieved by
@@ -40,17 +40,12 @@ public class ConfigurableJndiObjectFactoryBean extends JndiObjectFactoryBean {
 
     protected boolean stateful = false;
 
-    protected SessionInitializer init;
-
     protected MethodInterceptor interceptor;
 
-    /**
-     * changes the behavior of the {@link JndiObjectFactoryBean} by
-     */
-    public void setStateful(boolean isStatless) {
-        this.stateful = isStatless;
-    }
+    protected SessionInitializer init;
 
+    /**
+     */
     public void setInit(SessionInitializer init) {
         this.init = init;
     }
@@ -64,12 +59,10 @@ public class ConfigurableJndiObjectFactoryBean extends JndiObjectFactoryBean {
     }
 
     /**
-     * delegates to {@link JndiObjectFactoryBean#isSingleton()} if not
-     * {@link #stateful}. Else returns false.
      */
     @Override
     public boolean isSingleton() {
-        return stateful ? false : super.isSingleton();
+        return false;
     }
 
     /**
@@ -82,40 +75,37 @@ public class ConfigurableJndiObjectFactoryBean extends JndiObjectFactoryBean {
      */
     @Override
     public Object getObject() {
+        try {
+            JndiTemplate jt = getJndiTemplate();
+            if (init != null) {
+                Properties p = getJndiEnvironment();
+                p.put("java.naming.security.principal", init.createPrincipal());
+                jt = new JndiTemplate(p);
+            }
+            Object object = super.getObject();
+            Advised advised = (Advised) object;
+            advised.addAdvice(0, interceptor);
+            JndiTargetSource redirector = new JndiTargetSource(jt,
+                    (JndiObjectTargetSource) advised.getTargetSource());
+            redirector.setInterfaces(advised.getProxiedInterfaces());
 
-        ome.model.meta.Session sess;
-        if (init == null) {
-            throw new InternalException("Service factory error:"
-                    + this.getJndiName() + " is missing it's initializer");
-        } else {
-            sess = init.getSession();
-        }
-
-        if (stateful) {
-            try {
-                afterPropertiesSet();
-            } catch (NamingException ne) {
-                InternalException ie = new InternalException(ne.getMessage());
-                ie.setStackTrace(ne.getStackTrace());
-                throw ie;
+            ProxyFactory proxyFactory = new ProxyFactory();
+            for (Class klass : advised.getProxiedInterfaces()) {
+                proxyFactory.addInterface(klass);
+            }
+            proxyFactory.setTargetSource(redirector);
+            if (interceptor != null) {
+                proxyFactory.addAdvice(interceptor);
+            }
+            return proxyFactory.getProxy();
+        } catch (Exception e) {
+            if (e instanceof OutOfService) {
+                throw (OutOfService) e;
+            } else {
+                final String msg = "Cannot initialize service proxy";
+                logger.error(msg, e);
+                throw new OutOfService(msg, e);
             }
         }
-
-        Object object = super.getObject();
-        Advised advised = (Advised) object;
-        JBossTargetSource redirector = new JBossTargetSource(
-                (JndiObjectTargetSource) advised.getTargetSource(), init
-                        .createPrincipal(), sess.getUuid());
-
-        ProxyFactory proxyFactory = new ProxyFactory();
-        for (Class klass : advised.getProxiedInterfaces()) {
-            proxyFactory.addInterface(klass);
-        }
-        proxyFactory.setTargetSource(redirector);
-        if (interceptor != null) {
-            proxyFactory.addAdvice(interceptor);
-        }
-        return proxyFactory.getProxy();
     }
-
 }

@@ -34,6 +34,8 @@ import ome.model.internal.Permissions;
 import ome.model.meta.Session;
 import omeis.providers.re.RenderingEngine;
 
+import org.springframework.beans.BeansException;
+
 /**
  * Entry point for all client calls. Provides methods to obtain proxies for all
  * remote facades.
@@ -305,7 +307,15 @@ public class ServiceFactory {
      * the class name of the service type.
      */
     public <T extends ServiceInterface> T getServiceByClass(Class<T> klass) {
-        return klass.cast(this.ctx.getBean(getPrefix() + klass.getName()));
+        try {
+            return klass.cast(this.ctx.getBean(getPrefix() + klass.getName()));
+        } catch (BeansException be) {
+            if (be.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) be.getCause();
+            } else {
+                throw be;
+            }
+        }
     }
 
     /**

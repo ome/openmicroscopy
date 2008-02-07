@@ -136,7 +136,6 @@ public class ConfigTest extends TestCase {
         e.setLastName("Test");
         rootAdmin.createUser(e, g.getName()); // Not an admin or system user
         rootAdmin.changeUserPassword(e.getOmeName(), "bar");
-        rootAdmin.synchronizeLoginCache();
 
         // And use it to login
         Login l = new Login(e.getOmeName(), "bar");

@@ -114,7 +114,6 @@ public class AbstractAccountTest extends AbstractSecurityTest {
             assertTrue(count == 1);
         }
         dataSource.getConnection().commit();
-        rootAdmin.synchronizeLoginCache();
     }
 
     protected int setPasswordtoEmptyString(Experimenter e) throws Exception {
@@ -126,7 +125,6 @@ public class AbstractAccountTest extends AbstractSecurityTest {
                     "");
         }
         dataSource.getConnection().commit();
-        rootAdmin.synchronizeLoginCache();
         return count;
     }
 
@@ -134,7 +132,6 @@ public class AbstractAccountTest extends AbstractSecurityTest {
         int count = jdbc.update(
                 "delete from password where experimenter_id = ?", e.getId());
         dataSource.getConnection().commit();
-        rootAdmin.synchronizeLoginCache();
     }
 
     protected void nullPasswordEntry(Experimenter e) throws Exception {
@@ -146,7 +143,6 @@ public class AbstractAccountTest extends AbstractSecurityTest {
                     .getId());
         }
         dataSource.getConnection().commit();
-        rootAdmin.synchronizeLoginCache();
 
         if (count < 1) {
             throw new RuntimeException("No row inserted during null entry.");
@@ -162,7 +158,6 @@ public class AbstractAccountTest extends AbstractSecurityTest {
     }
 
     protected void assertLogin(String name, String password, boolean works) {
-        rootAdmin.synchronizeLoginCache();
         try {
             new ServiceFactory(new Login(name, password)).getQueryService()
                     .get(Experimenter.class, 0L);

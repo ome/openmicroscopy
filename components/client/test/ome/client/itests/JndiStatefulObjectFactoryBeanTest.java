@@ -6,24 +6,21 @@
  */
 package ome.client.itests;
 
-//Java imports
-import org.testng.annotations.*;
-
+// Java imports
 import java.util.Hashtable;
-import junit.framework.TestCase;
 
-//Third-party libraries
+import junit.framework.TestCase;
+import ome.api.RawPixelsStore;
+import ome.client.ConfigurableJndiObjectFactoryBean;
+import ome.system.ServiceFactory;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.support.StaticApplicationContext;
-//Application-internal dependencies
-import ome.api.RawPixelsStore;
-import ome.client.ConfigurableJndiObjectFactoryBean;
-import ome.system.Principal;
-import ome.system.ServiceFactory;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -46,8 +43,6 @@ public class JndiStatefulObjectFactoryBeanTest extends TestCase {
         mpv.addPropertyValue("lookupOnStartup", Boolean.FALSE);
         mpv.addPropertyValue("jndiName", "omero/remote/ome.api.RawPixelStore");
         mpv.addPropertyValue("proxyInterface", RawPixelsStore.class.getName());
-        mpv.addPropertyValue("principal", new Principal("a", "b", "c"));
-        mpv.addPropertyValue("credentials", "password");
         mpv.addPropertyValue("stateful", "true");
         BeanDefinition def = new RootBeanDefinition(
                 ConfigurableJndiObjectFactoryBean.class, null, mpv);

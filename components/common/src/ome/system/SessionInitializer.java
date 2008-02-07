@@ -42,11 +42,6 @@ public class SessionInitializer {
         this.principal = principal;
     }
 
-    public Principal createPrincipal() {
-        getSession();
-        return sessionPrincipal;
-    }
-
     public void setCredentials(String securityCredentials) {
         this.credentials = securityCredentials;
     }
@@ -69,4 +64,11 @@ public class SessionInitializer {
             this.session = s;
         }
     }
+
+    public Principal createPrincipal() {
+        getSession();
+        sessionPrincipal.setUmask(principal.getUmask());
+        return sessionPrincipal;
+    }
+
 }
