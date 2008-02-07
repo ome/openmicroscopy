@@ -35,30 +35,6 @@ import ome.system.Principal;
  */
 public interface ISession extends ServiceInterface {
 
-    /**
-     * Can be used after repeated {@link AuthenticationException} instances are
-     * thrown, to request that an email with a temporary password be sent. The
-     * given email must match the email for the user listed under the name
-     * argument.
-     * 
-     * Does not require a session to be active.
-     * 
-     * @param name
-     * @param email
-     * @throws AuthenticationException
-     *             when name and email do not match
-     */
-    void reportForgottenPassword(String name, String email)
-            throws AuthenticationException;
-
-    /**
-     * Used after an {@link ExpiredCredentialsException} instance is thrown.
-     * 
-     * Does not require
-     */
-    void changeExpiredCredentials(String name, String oldCred, String newCred)
-            throws AuthenticationException;
-
     /*
      * Not called ServiceFactory because it doesn't return proxies. perhaps
      * ServiceFactoryI should extends SessionhandleI

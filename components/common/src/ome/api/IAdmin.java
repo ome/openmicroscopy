@@ -17,6 +17,7 @@ import java.util.Map;
 
 import ome.annotations.Hidden;
 import ome.annotations.NotNull;
+import ome.conditions.AuthenticationException;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
@@ -38,8 +39,7 @@ import ome.system.Roles;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
- *          </small>
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
  * @since OME3.0
  */
 public interface IAdmin extends ServiceInterface {
@@ -74,29 +74,30 @@ public interface IAdmin extends ServiceInterface {
     String omeName);
 
     /**
-     * Looks up all {@link Experimenter experimenters} present
-     *  and all related {@link ExperimenterGroup groups}.
+     * Looks up all {@link Experimenter experimenters} present and all related
+     * {@link ExperimenterGroup groups}.
      * 
      * @return all Experimenters. Never null.
      */
     List<Experimenter> lookupExperimenters();
 
     /**
-     * Looks up all id of {@link Experimenter experimenters} who
-     * uses LDAP authentication (has set dn on password table).
+     * Looks up all id of {@link Experimenter experimenters} who uses LDAP
+     * authentication (has set dn on password table).
      * 
      * @return list of Experimenters. Never null.
      */
     List<Map<String, Object>> lookupLdapAuthExperimenters();
-    
+
     /**
-     * Looks up {@link Experimenter experimenters} who
-     * uses LDAP authentication (has set dn on password table).
+     * Looks up {@link Experimenter experimenters} who uses LDAP authentication
+     * (has set dn on password table).
      * 
      * @return Experimenter. Never null.
      */
-    String lookupLdapAuthExperimenter(@NotNull Long id);
-    
+    String lookupLdapAuthExperimenter(@NotNull
+    Long id);
+
     /**
      * fetch an {@link ExperimenterGroup} and all contained
      * {@link Experimenter users}.
@@ -124,8 +125,8 @@ public interface IAdmin extends ServiceInterface {
     String groupName);
 
     /**
-     * Looks up all {@link ExperimenterGroups groups} present
-     *  and all related {@link Experimenter experimenters}.
+     * Looks up all {@link ExperimenterGroups groups} present and all related
+     * {@link Experimenter experimenters}.
      * 
      * @return all Groups. Never null.
      */
@@ -172,21 +173,25 @@ public interface IAdmin extends ServiceInterface {
     // =========================================================================
 
     /**
-     * Allows a user to update his/her own information. This is limited to
-     * the fields on Experimenter, all other fields (groups, etc.) are ignored.
-     * The experimenter argument need not have the proper id nor the proper omeName 
-     * (which is immutable).  To change the users default group (which is the only
-     * other customizable option), use {@link #setDefaultGroup(Experimenter, ExperimenterGroup)}
+     * Allows a user to update his/her own information. This is limited to the
+     * fields on Experimenter, all other fields (groups, etc.) are ignored. The
+     * experimenter argument need not have the proper id nor the proper omeName
+     * (which is immutable). To change the users default group (which is the
+     * only other customizable option), use
+     * {@link #setDefaultGroup(Experimenter, ExperimenterGroup)}
      * 
-     * @see #setDefaultGroup(Experimenter, ExperimenterGroup) 
-     * @param experimenter A data transfer object. Only the fields: firstName, middleName,
-     * 		lastName, email, and institution are checked. Not null.
+     * @see #setDefaultGroup(Experimenter, ExperimenterGroup)
+     * @param experimenter
+     *            A data transfer object. Only the fields: firstName,
+     *            middleName, lastName, email, and institution are checked. Not
+     *            null.
      */
-    void updateSelf(@NotNull Experimenter experimenter);
-    
+    void updateSelf(@NotNull
+    Experimenter experimenter);
+
     /**
-     * Updates an experimenter as admin. All aspects of the passed object are taken into account
-     * including omeName, groups, and default group.
+     * Updates an experimenter as admin. All aspects of the passed object are
+     * taken into account including omeName, groups, and default group.
      * 
      * @param experimenter
      *            the Experimenter to update.
@@ -384,6 +389,30 @@ public interface IAdmin extends ServiceInterface {
 
     // ~ Authentication and Authorization
     // =========================================================================
+
+    /**
+     * Can be used after repeated {@link AuthenticationException} instances are
+     * thrown, to request that an email with a temporary password be sent. The
+     * given email must match the email for the user listed under the name
+     * argument.
+     * 
+     * Does not require a session to be active.
+     * 
+     * @param name
+     * @param email
+     * @throws AuthenticationException
+     *             when name and email do not match
+     */
+    void reportForgottenPassword(String name, String email)
+            throws AuthenticationException;
+
+    /**
+     * Used after an {@link ExpiredCredentialsException} instance is thrown.
+     * 
+     * Does not require
+     */
+    void changeExpiredCredentials(String name, String oldCred, String newCred)
+            throws AuthenticationException;
 
     /**
      * change the password for the current user

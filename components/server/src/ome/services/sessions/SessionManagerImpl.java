@@ -142,6 +142,16 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      */
     public Session create(final Principal _principal, final String credentials) {
 
+        // If session exists, then return that
+        try {
+            SessionContext context = cache.getSessionContext(credentials);
+            if (context != null) {
+                return context.getSession(); // EARLY EXIT!
+            }
+        } catch (SessionException se) {
+            // oh well.
+        }
+
         boolean ok = executeCheckPassword(_principal, credentials);
 
         if (!ok) {
@@ -413,6 +423,16 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     // Executor methods
     // =========================================================================
+
+    public boolean executePasswordCheck(final String name,
+            final String credentials) {
+
+        if (cache.getIds().contains(credentials)) {
+            return true;
+        }
+        return executeCheckPassword(new Principal(name), credentials);
+    }
+
     @SuppressWarnings("unchecked")
     private <T extends IObject> T executeUpdate(final T obj) {
         return (T) executor.execute(asroot, new Executor.Work() {

@@ -10,9 +10,6 @@ package ome.system;
 // Java imports
 import java.io.Serializable;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.model.enums.EventType;
 import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
@@ -31,7 +28,7 @@ import ome.model.meta.ExperimenterGroup;
  */
 public class Principal implements java.security.Principal, Serializable {
 
-    private static final long serialVersionUID = 3761954018296933085L;
+    private static final long serialVersionUID = 3761954018296933086L;
 
     protected String name;
 
@@ -40,6 +37,16 @@ public class Principal implements java.security.Principal, Serializable {
     protected String type;
 
     protected Permissions umask;
+
+    /**
+     * Creates a Principal with group name of "user" and event type of
+     * "Default".
+     * 
+     * @param name
+     */
+    public Principal(String name) {
+        this(name, "user", "Default");
+    }
 
     public Principal(String name, String group, String eventType) {
         this.name = name;

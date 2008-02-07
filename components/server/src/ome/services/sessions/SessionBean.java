@@ -7,7 +7,6 @@
 
 package ome.services.sessions;
 
-import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -87,21 +86,6 @@ public class SessionBean implements ISession, SelfConfigurableService {
         getHelper().configure(this);
     }
 
-    // ~ Guest usage
-    // =========================================================================
-
-    @PermitAll
-    public void reportForgottenPassword(String name, String email)
-            throws AuthenticationException {
-        throw new UnsupportedOperationException();
-    }
-
-    @PermitAll
-    public void changeExpiredCredentials(String name, String oldCred,
-            String newCred) throws AuthenticationException {
-        throw new UnsupportedOperationException();
-    }
-
     // ~ Session lifecycle
     // =========================================================================
 
@@ -121,7 +105,7 @@ public class SessionBean implements ISession, SelfConfigurableService {
 
     }
 
-    @RolesAllowed("user")
+    @RolesAllowed( { "user", "guest" })
     public Session createSession(@NotNull
     Principal principal, @Hidden
     String credentials) {
@@ -135,13 +119,13 @@ public class SessionBean implements ISession, SelfConfigurableService {
         return session;
     }
 
-    @RolesAllowed("user")
+    @RolesAllowed( { "user", "guest" })
     public Session updateSession(@NotNull
     Session session) {
         return mgr.update(session);
     }
 
-    @RolesAllowed("user")
+    @RolesAllowed( { "user", "guest" })
     public void closeSession(@NotNull
     Session session) {
         mgr.close(session.getUuid());

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -31,6 +32,7 @@ import ome.api.ServiceInterface;
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
+import ome.conditions.AuthenticationException;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
@@ -879,6 +881,35 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     // ~ Passwords
     // =========================================================================
+
+    @PermitAll
+    public void reportForgottenPassword(final String name, final String email)
+            throws AuthenticationException {
+
+        sec.runAsAdmin(new AdminAction() {
+            public void runAsAdmin() {
+                Experimenter e = iQuery.findByString(Experimenter.class,
+                        "name", name);
+                if (e.getEmail() == null) {
+                    throw new AuthenticationException(
+                            "User has no email address.");
+                } else if (!e.getEmail().equals(email)) {
+                    throw new AuthenticationException(
+                            "Email address does not match.");
+                } else {
+                    throw new UnsupportedOperationException(
+                            "Not yet implemented.");
+                }
+            }
+        });
+
+    }
+
+    @PermitAll
+    public void changeExpiredCredentials(String name, String oldCred,
+            String newCred) throws AuthenticationException {
+        throw new UnsupportedOperationException();
+    }
 
     @RolesAllowed("user")
     public void changePassword(String newPassword) {

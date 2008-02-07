@@ -9,7 +9,7 @@ package ome.services.blitz.fire;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
-import ome.api.local.LocalAdmin;
+import ome.services.sessions.SessionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,23 +29,23 @@ public class PermissionsVerifierI extends _PermissionsVerifierDisp {
     private final static Log log = LogFactory
             .getLog(PermissionsVerifierI.class);
 
-    protected LocalAdmin rawAdmin;
-    
-    public PermissionsVerifierI(LocalAdmin adminService) {
-        this.rawAdmin = adminService;
+    private final SessionManager manager;
+
+    public PermissionsVerifierI(SessionManager manager) {
+        this.manager = manager;
     }
-    
+
     public boolean checkPermissions(String userId, String password,
             StringHolder reason, Current __current) {
-    	boolean value = false;
-    	try {
-    		value = rawAdmin.checkPassword(userId, password);
-    	} catch (Throwable t) {
-    		reason.value = "Internal error. Please contact your administrator.";
-    		log.error("Exception thrown while checking password for:"
-    				+ userId, t);
-    	}
-    	return value;
+        boolean value = false;
+        try {
+            value = manager.executePasswordCheck(userId, password);
+        } catch (Throwable t) {
+            reason.value = "Internal error. Please contact your administrator.";
+            log.error("Exception thrown while checking password for:" + userId,
+                    t);
+        }
+        return value;
     }
 
 }

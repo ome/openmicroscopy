@@ -69,11 +69,11 @@ public class SessionManagerTest extends AbstractManagedContextTest {
         fail("nyi");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testDeleteUserShouldntHang() {
+
         Experimenter e = loginNewUser();
         loginRoot();
-
         iAdmin.deleteExperimenter(e);
 
     }

@@ -64,7 +64,7 @@ insert into groupexperimentermap
         select nextval('seq_groupexperimentermap'),-35,0,0,0,0,0,1,0,1;
 insert into groupexperimentermap
         (id,permissions,version,owner_id,group_id,creation_id,update_id, parent, child, child_index)
-        select nextval('seq_groupexperimentermap'),-35,0,0,0,0,0,2,1,0;
+        select nextval('seq_groupexperimentermap'),-35,0,0,0,0,0,3,1,0;
 
 update event set type = 0;
 update event set experimentergroup = 0;
@@ -90,7 +90,9 @@ create table configuration ( name varchar(255) primary key, value text );
 
 create table password ( experimenter_id bigint unique not null REFERENCES experimenter (id) , hash char(24), dn text );
 insert into password values (0,'@ROOTPASS@'); 
+insert into password values (1,'');
 -- root can now login with omero.rootpass property value
+-- and guest can login with any value
 
 -- Here we have finished initializing this database. 
 update dbpatch set message = 'Database ready.', finished = now() 

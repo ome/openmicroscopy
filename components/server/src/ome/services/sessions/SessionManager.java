@@ -57,6 +57,9 @@ public interface SessionManager extends ApplicationListener {
 
     void close(String uuid);
 
+    // Security methods
+    // =========================================================================
+
     /**
      * Provides a partial {@link EventContext} for the current {@link Session}.
      * 
@@ -73,7 +76,17 @@ public interface SessionManager extends ApplicationListener {
 
     void onApplicationEvent(ApplicationEvent event);
 
+    /**
+     * Executes a password check using the {@link Executor} framework. Also
+     * checks the credentials against current session uuids.
+     * 
+     * @param name
+     * @param credentials
+     */
+    boolean executePasswordCheck(String name, String credentials);
+
     // State
+    // =========================================================================
 
     /**
      * Returns after possibly creating an in-memory {@link Ehcache cache} which

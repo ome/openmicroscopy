@@ -53,7 +53,7 @@
   </bean>
 
   <bean id="Verifier" class="ome.services.blitz.fire.PermissionsVerifierI">
-    <constructor-arg ref="internal:ome.api.IAdmin"/>
+    <constructor-arg ref="sessionManager"/>
   </bean>
 
 </beans>

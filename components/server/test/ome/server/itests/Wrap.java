@@ -17,6 +17,7 @@ import javax.interceptor.InvocationContext;
 import ome.logic.QueryImpl;
 import ome.services.RenderingBean;
 import ome.services.util.OmeroAroundInvoke;
+import ome.system.Principal;
 import ome.system.SelfConfigurableService;
 
 import org.jmock.core.matcher.InvokeAtLeastOnceMatcher;
@@ -56,10 +57,14 @@ public class Wrap extends OmeroAroundInvoke {
             Backdoor {
     }
 
-    final String user;
+    final Principal p;
 
     public Wrap(final String user, final Backdoor backdoor) throws Exception {
-        this.user = user;
+        this(new Principal(user, "user", "Test"), backdoor);
+    }
+
+    public Wrap(final Principal p, final Backdoor backdoor) throws Exception {
+        this.p = p;
         sessionContext();
         InvocationContext ic = new InvocationContext() {
             public Object getTarget() {
@@ -101,8 +106,7 @@ public class Wrap extends OmeroAroundInvoke {
         org.jmock.Mock mockContext = new org.jmock.Mock(SessionContext.class);
         SessionContext sc = (SessionContext) mockContext.proxy();
         mockContext.expects(new InvokeAtLeastOnceMatcher()).method(
-                "getCallerPrincipal").will(
-                new ReturnStub(new ome.system.Principal(user, "user", "Test")));
+                "getCallerPrincipal").will(new ReturnStub(p));
         sessionContext.set(this, sc);
     }
 
