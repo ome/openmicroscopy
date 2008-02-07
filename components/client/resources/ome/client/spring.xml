@@ -84,7 +84,6 @@
     <property name="lookupOnStartup" value="false"/>    
     <property name="jndiName" value="omero/remote/ome.api.ISession"/>
     <property name="proxyInterface" value="ome.api.ISession"/>
-    <property name="interceptor"     ref="interceptor"/>
   </bean>
 
   <bean id="init" class="ome.system.SessionInitializer">
@@ -93,14 +92,11 @@
     <property name="sessionService"  ref="managed:ome.api.ISession"/>
   </bean>
 
-  <bean id="interceptor" class="ome.client.Interceptor"/>
-
   <!-- jndi parent class -->
   <bean id="jndi" abstract="true"
     class="ome.client.ConfigurableJndiObjectFactoryBean">
     <property name="jndiEnvironment" ref="env"/>
     <property name="lookupOnStartup" value="false"/>
-    <property name="interceptor"     ref="interceptor"/>
     <property name="init"            ref="init"/>
   </bean>
 

@@ -10,6 +10,7 @@ package ome.client;
 import javax.security.auth.login.LoginException;
 
 import ome.conditions.RootException;
+import ome.system.Principal;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -28,12 +29,21 @@ public class Interceptor implements MethodInterceptor {
         SecurityAssociation.setServer();
     }
 
+    private final static Principal unknown = new Principal("unknown", "", "");
+
     private static Log log = LogFactory.getLog(Interceptor.class);
+
+    final protected Principal principal;
+
+    public Interceptor(Principal principal) {
+        this.principal = principal;
+    }
 
     public Object invoke(MethodInvocation arg0) throws Throwable {
         Object toReturn = null;
         Throwable toThrow = null;
         try {
+            SecurityAssociation.setPrincipal(principal);
             toReturn = arg0.proceed();
         } catch (final Throwable t) {
             toThrow = t;
@@ -71,6 +81,8 @@ public class Interceptor implements MethodInterceptor {
                         + "Most likely server version does "
                         + "not match client version", t);
             }
+        } finally {
+            SecurityAssociation.setPrincipal(unknown);
         }
         if (toThrow != null) {
             throw toThrow;

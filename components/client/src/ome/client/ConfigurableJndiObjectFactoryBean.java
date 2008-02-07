@@ -10,12 +10,12 @@ package ome.client;
 import java.util.Properties;
 
 import ome.model.IObject;
+import ome.system.Principal;
 import ome.system.SessionInitializer;
 
-import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.aop.TargetSource;
-import org.springframework.aop.framework.Advised;
-import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.jndi.JndiLookupFailureException;
 import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.jndi.JndiObjectTargetSource;
 import org.springframework.jndi.JndiTemplate;
@@ -40,22 +40,12 @@ public class ConfigurableJndiObjectFactoryBean extends JndiObjectFactoryBean {
 
     protected boolean stateful = false;
 
-    protected MethodInterceptor interceptor;
-
     protected SessionInitializer init;
 
     /**
      */
     public void setInit(SessionInitializer init) {
         this.init = init;
-    }
-
-    /**
-     * setter for {@link Interceptor} which will surround all proxies to, e.g.
-     * catch unknown exceptions.
-     */
-    public void setInterceptor(Interceptor interceptor) {
-        this.interceptor = interceptor;
     }
 
     /**
@@ -77,27 +67,35 @@ public class ConfigurableJndiObjectFactoryBean extends JndiObjectFactoryBean {
     public Object getObject() {
         try {
             JndiTemplate jt = getJndiTemplate();
+            Principal principal = null;
+            Properties p = new Properties();
+            p.putAll(getJndiEnvironment());
             if (init != null) {
-                Properties p = getJndiEnvironment();
-                p.put("java.naming.security.principal", init.createPrincipal());
-                jt = new JndiTemplate(p);
+                principal = init.createPrincipal();
+                p.put("java.naming.security.principal", principal);
+                p.put("java.naming.security.credentials", "hidden");
+                setJndiTemplate(new JndiTemplate(p));
+            } else {
+                principal = (Principal) p.get("java.naming.security.principal");
             }
-            Object object = super.getObject();
-            Advised advised = (Advised) object;
-            advised.addAdvice(0, interceptor);
-            JndiTargetSource redirector = new JndiTargetSource(jt,
-                    (JndiObjectTargetSource) advised.getTargetSource());
-            redirector.setInterfaces(advised.getProxiedInterfaces());
 
-            ProxyFactory proxyFactory = new ProxyFactory();
-            for (Class klass : advised.getProxiedInterfaces()) {
-                proxyFactory.addInterface(klass);
+            Object object;
+            try {
+                object = lookup();
+            } catch (JndiLookupFailureException jlfe) {
+                throw new OutOfService(
+                        "Cannot connect to service. Is the server running?",
+                        jlfe);
             }
-            proxyFactory.setTargetSource(redirector);
-            if (interceptor != null) {
-                proxyFactory.addAdvice(interceptor);
-            }
-            return proxyFactory.getProxy();
+
+            Interceptor i = new Interceptor(principal);
+
+            ProxyFactoryBean factory = new ProxyFactoryBean();
+            factory.setTarget(object);
+            factory.addAdvice(i);
+            factory.setInterfaces(new Class[] { getObjectType() });
+            object = factory.getObject();
+            return object;
         } catch (Exception e) {
             if (e instanceof OutOfService) {
                 throw (OutOfService) e;
