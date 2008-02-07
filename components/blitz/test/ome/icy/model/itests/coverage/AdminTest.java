@@ -7,17 +7,9 @@
 package ome.icy.model.itests.coverage;
 
 import ome.icy.model.itests.IceTest;
-import ome.services.blitz.client.IceServiceFactory;
 import omero.JString;
 import omero.ServerError;
 import omero.api.IAdminPrx;
-import omero.api.IConfigPrx;
-import omero.api.IConfigPrxHelper;
-import omero.api.IUpdatePrx;
-import omero.api.IUpdatePrxHelper;
-import omero.api.RenderingEnginePrx;
-import omero.constants.CONFIGSERVICE;
-import omero.constants.UPDATESERVICE;
 import omero.model.Experimenter;
 import omero.model.ExperimenterI;
 
@@ -27,23 +19,23 @@ public class AdminTest extends IceTest {
 
     @Test
     public void testNewUser() throws Exception {
-        IAdminPrx prx = root.getAdminService(null);
+        IAdminPrx prx = root.getServiceFactory().getAdminService();
         assertNotNull(prx);
         newUser(prx);
     }
 
     @Test
     public void testChangeUserPassword() throws Exception {
-        IAdminPrx prx = root.getAdminService(null);
+        IAdminPrx prx = root.getServiceFactory().getAdminService();
         assertNotNull(prx);
         long id = newUser(prx);
         Experimenter e = prx.getExperimenter(id);
         prx.changeUserPassword(e.omeName.val, new JString("foo"));
     }
-    
+
     // ~ Helpers
     // =========================================================================
-    
+
     private long newUser(IAdminPrx prx) throws ServerError {
         Experimenter e = new ExperimenterI();
         e.firstName = new JString("admin");

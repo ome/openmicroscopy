@@ -21,6 +21,7 @@ import ome.api.ServiceInterface;
 import ome.conditions.InternalException;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
+import ome.services.blitz.fire.SessionManagerI;
 import ome.services.blitz.util.ServantDefinition;
 import ome.services.blitz.util.ServantHelper;
 import ome.services.blitz.util.UnregisterServantMessage;
@@ -82,8 +83,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 
 import Ice.Current;
 
@@ -97,14 +96,17 @@ import Ice.Current;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  */
-public final class ServiceFactoryI extends _ServiceFactoryDisp implements
-        ApplicationListener {
+public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     private final static Log log = LogFactory.getLog(ServiceFactoryI.class);
 
     final SessionManager sessionManager;
 
-    final Map<Ice.Identity, Ice.Object> activeServants;
+    /**
+     * Stored by {@link String} since {@link Ice.Identity} does not behave
+     * properly as a key.
+     */
+    final Map<String, Ice.Object> activeServants;
 
     final Principal principal;
 
@@ -131,27 +133,15 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
 
         // Setting up in memory store.
         Ehcache cache = manager.inMemoryCache(p.getName());
-        Map<Ice.Identity, Ice.Object> ids;
+        Map<String, Ice.Object> ids;
         if (!cache.isKeyInCache("activeServants")) {
-            ids = new ConcurrentHashMap<Ice.Identity, Ice.Object>();
+            ids = new ConcurrentHashMap<String, Ice.Object>();
             cache.put(new Element("activeServants", ids));
         } else {
-            ids = (Map<Ice.Identity, Ice.Object>) cache.get("activeServants")
+            ids = (Map<String, Ice.Object>) cache.get("activeServants")
                     .getObjectValue();
         }
         activeServants = ids;
-    }
-
-    /**
-     * @see ServantHelper#getService(String, Ice.Current)
-     */
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof UnregisterServantMessage) {
-            UnregisterServantMessage msg = (UnregisterServantMessage) event;
-            String key = msg.getServiceKey();
-            Ice.Current curr = msg.getCurrent();
-            unregisterServant(Ice.Util.stringToIdentity(key), curr);
-        }
     }
 
     // ~ Stateless
@@ -286,6 +276,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
         }
 
         try {
+            current.adapter.remove(SessionManagerI.sessionId(principal
+                    .getName()));
             sessionManager.close(this.principal.getName());
         } catch (Throwable t) {
             // FIXME
@@ -332,8 +324,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
 
     public List<String> activeServices(Current __current) {
         List<String> active = new ArrayList<String>();
-        for (Ice.Identity id : activeServants.keySet()) {
-            active.add(Ice.Util.identityToString(id));
+        for (String id : activeServants.keySet()) {
+            active.add(id);
         }
         return active;
     }
@@ -363,7 +355,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
         Ice.Identity id = proxy.ice_getIdentity();
         // This will keep the session alive.
         sessionManager.getEventContext(this.principal);
-        return activeServants.containsKey(id);
+        return null != activeServants.get(Ice.Util.identityToString(id));
     }
 
     // ~ Helpers
@@ -455,10 +447,13 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
     protected void registerServant(Current current, Ice.Identity id,
             Ice.Object servant) throws omero.InternalException {
 
-        activeServants.put(id, servant);
+        activeServants.put(Ice.Util.identityToString(id), servant);
         try {
             Ice.Object already = current.adapter.find(id);
             if (null == already) {
+                current.adapter.add(servant, id);
+            } else {
+                current.adapter.remove(id);
                 current.adapter.add(servant, id);
             }
             if (log.isInfoEnabled()) {
@@ -475,8 +470,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
     /**
      * Reverts all the additions made by
      * {@link #registerServant(ServantInterface, Ice.Current, Ice.Identity)}
+     * 
+     * Now called by {@link SessionManagerI} in response to an
+     * {@link UnregisterServantMessage}
      */
-    protected void unregisterServant(Ice.Identity id, Ice.Current current) {
+    public void unregisterServant(Ice.Identity id, Ice.Current current) {
 
         // Here we assume that if the "close()" call is required, that it has
         // already been made, either by a user or by the SF.close() method in

@@ -7,15 +7,8 @@
 package ome.icy.model.itests.coverage;
 
 import ome.icy.model.itests.IceTest;
-import ome.services.blitz.client.IceServiceFactory;
 import omero.JString;
-import omero.api.IConfigPrx;
-import omero.api.IConfigPrxHelper;
 import omero.api.IUpdatePrx;
-import omero.api.IUpdatePrxHelper;
-import omero.api.RenderingEnginePrx;
-import omero.constants.CONFIGSERVICE;
-import omero.constants.UPDATESERVICE;
 
 import org.testng.annotations.Test;
 
@@ -23,12 +16,12 @@ public class UpdateTest extends IceTest {
 
     @Test
     public void testSaveAndReturnObject() throws Exception {
-        IUpdatePrx prx = ice.getUpdateService(null);
+        IUpdatePrx prx = ice.getServiceFactory().getUpdateService();
         assertNotNull(prx);
 
         omero.model.ImageI obj = new omero.model.ImageI();
         obj.name = new JString("foo");
-        
+
         omero.model.CategoryImageLinkI link = new omero.model.CategoryImageLinkI();
         omero.model.CategoryI cat = new omero.model.CategoryI();
         cat.name = new JString("bar");
@@ -39,26 +32,27 @@ public class UpdateTest extends IceTest {
         obj = (omero.model.ImageI) prx.saveAndReturnObject(obj);
         link = (omero.model.CategoryImageLinkI) obj.categoryLinks.get(0);
         cat = (omero.model.CategoryI) link.parent;
-        
+
         assertTrue("foo".equals(obj.name.val));
-        if (cat == null) 
+        if (cat == null) {
             fail("Cat is null");
-        else
+        } else {
             assertTrue("bar".equals(cat.name.val));
+        }
     }
 
     @Test
     public void testDeleteObject() throws Exception {
-        IUpdatePrx prx = ice.getUpdateService(null);
+        IUpdatePrx prx = ice.getServiceFactory().getUpdateService();
         assertNotNull(prx);
 
         String uuid = Ice.Util.generateUUID();
         omero.model.ImageI obj = new omero.model.ImageI();
         obj.name = new JString(uuid);
         obj = (omero.model.ImageI) prx.saveAndReturnObject(obj);
-        
+
         prx.deleteObject(obj);
-        assertTrue(ice.getQueryService(null).findAllByString("Image", "name",
-                uuid, false, null).size() == 0);
+        assertTrue(ice.getServiceFactory().getQueryService().findAllByString(
+                "Image", "name", uuid, false, null).size() == 0);
     }
 }

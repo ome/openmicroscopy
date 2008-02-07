@@ -5,16 +5,22 @@
  */
 package ome.icy.fixtures;
 
+import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.ehcache.Ehcache;
 import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.api.RawPixelsStore;
+import ome.model.meta.Session;
 import ome.services.blitz.Main;
 import ome.services.blitz.Router;
-import ome.services.blitz.client.IceServiceFactory;
+import ome.services.sessions.SessionContext;
+import ome.services.sessions.SessionContextImpl;
+import ome.services.sessions.state.CacheFactory;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.spring.ManagedServiceFactory;
@@ -25,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
+import org.springframework.util.ResourceUtils;
 
 /**
  * Note: Using the {@link Router} wrapper class can cause processes to be
@@ -38,13 +45,18 @@ public class BlitzServerFixture extends MockObjectTestCase {
 
     private final Map<String, Mock> MOCKS = new HashMap<String, Mock>();
 
+    protected Session session;
+    protected SessionContext sc;
+
+    protected Ehcache cache;
+
     // Name used to look up the test context.
     protected static String DEFAULT = "OMERO.blitz.test";
     protected String name;
     protected Thread t;
     protected Main m;
     protected Router r;
-    protected IceServiceFactory ice;
+    protected omero.client ice;
     protected OmeroContext ctx;
 
     int sessionTimeout;
@@ -55,7 +67,8 @@ public class BlitzServerFixture extends MockObjectTestCase {
             qu = "internal:ome.api.IQuery", up = "internal:ome.api.IUpdate",
             ss = "securitySystem",
             re = "managed:omeis.providers.re.RenderingEngine",
-            px = "internal:ome.api.RawPixelsStore", ms = "methodSecurity";
+            px = "internal:ome.api.RawPixelsStore", ms = "methodSecurity",
+            sm = "sessionManager";
 
     public BlitzServerFixture() {
         this(DEFAULT, 30, 10);
@@ -121,6 +134,10 @@ public class BlitzServerFixture extends MockObjectTestCase {
         stub = ctx.getBean("securitySystem");
         addMock(ss, mock, stub);
 
+        mock = (Mock) ctx.getBean("sessionsMock");
+        stub = ctx.getBean("sessionManager");
+        addMock(sm, mock, stub);
+
     }
 
     private void startServer() {
@@ -142,6 +159,18 @@ public class BlitzServerFixture extends MockObjectTestCase {
     }
 
     public void prepareLogin() {
+        session = new Session("uuid", new Long(0), new Long(0), null, "rw----",
+                "Test");
+        sc = new SessionContextImpl(session, Collections.singletonList(1L),
+                Collections.singletonList(1L), Collections
+                        .singletonList("user"));
+        CacheFactory factory = new CacheFactory();
+        factory.setBeanName("blitz.fixture");
+        factory.setOverflowToDisk(false);
+        cache = factory.createCache();
+        getMock(sm).expects(once()).method("create").will(returnValue(session));
+        getMock(sm).expects(once()).method("inMemoryCache").will(
+                returnValue(cache));
         getMock(adm).expects(once()).method("checkPassword").will(
                 returnValue(true));
         getMock(ss).expects(once()).method("getSecurityRoles").will(
@@ -150,22 +179,25 @@ public class BlitzServerFixture extends MockObjectTestCase {
 
     public ServiceFactoryPrx createSession() throws Exception {
         prepareLogin();
-        ice = new IceServiceFactory(null, null, null);
-        ice.createSession();
-        ServiceFactoryPrx session = ice.getProxy();
+        File f1 = ResourceUtils.getFile("classpath:ice.config");
+        File f2 = ResourceUtils.getFile("classpath:local.properties");
+        ice = new omero.client(f1, f2);
+        ServiceFactoryPrx session = ice.createSession(null, null);
         return session;
     }
 
     public void methodCall() throws Exception {
+        getMock(sm).expects(once()).method("getEventContext").will(
+                returnValue(sc));
         getMock(ms).expects(once()).method("isActive").will(returnValue(true));
         getMock(ms).expects(once()).method("checkMethod");
         getMock(ss).expects(once()).method("login");
-        getMock(ss).expects(once()).method("logout");
+        getMock(ss).expects(once()).method("logout").will(returnValue(0));
         getMock(re).expects(once()).method("close");
     }
 
     public void destroySession() throws Exception {
-        ice.destroy();
+        ice.closeSession();
     }
 
     @Override
@@ -231,6 +263,10 @@ public class BlitzServerFixture extends MockObjectTestCase {
 
     public Mock getMethodSecurity() {
         return MOCKS.get(ms);
+    }
+
+    public Mock getSessionManager() {
+        return MOCKS.get(sm);
     }
 }
 

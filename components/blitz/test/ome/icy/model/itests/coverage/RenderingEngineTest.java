@@ -6,30 +6,29 @@
  */
 package ome.icy.model.itests.coverage;
 
-import ome.icy.model.itests.IceTest;
-import ome.services.blitz.client.IceServiceFactory;
-import omero.api.IConfigPrx;
-import omero.api.IConfigPrxHelper;
-import omero.api.IUpdatePrx;
-import omero.api.IUpdatePrxHelper;
-import omero.api.RenderingEnginePrx;
-import omero.constants.CONFIGSERVICE;
-import omero.constants.UPDATESERVICE;
+import java.io.File;
 
+import ome.icy.model.itests.IceTest;
+import omero.api.RenderingEnginePrx;
+
+import org.springframework.util.ResourceUtils;
 import org.testng.annotations.Test;
 
-@Test( groups = { "unfinished", "ignore", "ticket:607" })
+@Test(groups = { "unfinished", "ignore", "ticket:607" })
 public class RenderingEngineTest extends IceTest {
 
-    IceServiceFactory ice;
+    omero.client ice;
 
     @Test
     public void testRenderingEngineInit() throws Exception {
-        ice = new IceServiceFactory(null, null, null);
-        ice.createSession();
-        RenderingEnginePrx prx = ice.createRenderingEngine(null);
-        assertNotNull( prx );
+        File f1 = ResourceUtils.getFile("classpath:ice.config");
+        File f2 = ResourceUtils.getFile("classpath:local.properties");
+        ice = new omero.client(f1, f2);
+        ice.createSession(null, null);
+        RenderingEnginePrx prx = ice.getServiceFactory()
+                .createRenderingEngine();
+        assertNotNull(prx);
         prx.load();
-        ice.destroy();
+        ice.closeSession();
     }
 }

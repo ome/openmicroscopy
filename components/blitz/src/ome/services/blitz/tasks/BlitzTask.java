@@ -11,7 +11,6 @@ import java.util.Properties;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
-import ome.services.blitz.client.IceServiceFactory;
 import ome.system.ServiceFactory;
 import ome.util.tasks.SimpleTask;
 
@@ -28,7 +27,7 @@ import ome.util.tasks.SimpleTask;
 public abstract class BlitzTask extends SimpleTask {
 
     
-    final private IceServiceFactory isf;
+    final private omero.client client;
 
     /** 
      * Defines whether or not this task was initialized for blitz or for
@@ -41,7 +40,7 @@ public abstract class BlitzTask extends SimpleTask {
      */
     public BlitzTask(ServiceFactory serviceFactory, Properties properties) {
         super(serviceFactory, properties);
-        isf = null;
+        client = null;
         useBlitz = false;
     }
     /**
@@ -54,12 +53,12 @@ public abstract class BlitzTask extends SimpleTask {
      * @param properties
      *            Context variables for the task. Optional (can be null).
      */
-    public BlitzTask(IceServiceFactory serviceFactory, Properties properties) {
+    public BlitzTask(omero.client client, Properties properties) {
         super(new ServiceFactory(),properties);
-        if (serviceFactory == null) {
+        if (client == null) {
             throw new IllegalArgumentException("ServiceFactory cannot be null.");
         }
-        this.isf = serviceFactory;
+        this.client = client;
         this.useBlitz = true;
     }
 
@@ -67,8 +66,8 @@ public abstract class BlitzTask extends SimpleTask {
         return useBlitz;
     }
 
-    public IceServiceFactory getBlitzServiceFactory() {
-        return this.isf;
+    public omero.client getBlitzServiceFactory() {
+        return this.client;
     }
 
 }

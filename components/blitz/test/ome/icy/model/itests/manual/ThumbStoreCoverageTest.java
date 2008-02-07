@@ -17,7 +17,7 @@ public class ThumbStoreCoverageTest extends MockedBlitzTest {
     @Test
     public void testSizeMethodsWork() throws Exception {
 
-        fixture = new BlitzServerFixture(3, 3);
+        fixture = new BlitzServerFixture(200, 200);
         ServiceFactoryPrx session = fixture.createSession();
 
         fixture.methodCall();

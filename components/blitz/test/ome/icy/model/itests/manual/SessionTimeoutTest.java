@@ -22,14 +22,19 @@ public class SessionTimeoutTest extends MockedBlitzTest {
 
         RenderingEnginePrx prx = session.createRenderingEngine();
         assertNotNull(prx);
+        fixture.methodCall();
         assertTrue(session.keepAlive(prx));
         Thread.sleep(900L);
+        fixture.methodCall();
         assertTrue(session.keepAlive(prx));
         Thread.sleep(900L);
+        fixture.methodCall();
         assertTrue(session.keepAlive(prx));
         Thread.sleep(900L);
+        fixture.methodCall();
         assertTrue(session.keepAlive(prx));
         Thread.sleep(900L);
+        fixture.methodCall();
         assertTrue(session.keepAlive(prx));
 
     }
@@ -42,6 +47,7 @@ public class SessionTimeoutTest extends MockedBlitzTest {
 
         RenderingEnginePrx prx = session.createRenderingEngine();
         assertNotNull(prx);
+        fixture.methodCall();
         assertTrue(session.keepAlive(prx));
 
         long time = System.currentTimeMillis();
@@ -50,6 +56,7 @@ public class SessionTimeoutTest extends MockedBlitzTest {
         }
 
         try {
+            fixture.methodCall();
             assertFalse(session.keepAlive(prx));
             fail("This shouldn't succeed.");
         } catch (Exception e) {

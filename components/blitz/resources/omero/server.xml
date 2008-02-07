@@ -49,6 +49,7 @@
 
   <bean id="Manager" class="ome.services.blitz.fire.SessionManagerI">
     <constructor-arg ref="securitySystem"/>
+    <constructor-arg ref="sessionManager"/>
   </bean>
 
   <bean id="Verifier" class="ome.services.blitz.fire.PermissionsVerifierI">

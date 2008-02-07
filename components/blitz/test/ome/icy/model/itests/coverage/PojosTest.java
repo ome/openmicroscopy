@@ -29,10 +29,12 @@ public class PojosTest extends IceTest {
         a.setTextValue("an annotation");
         i.linkAnnotation(a);
 
-        i = (ImageI) ice.getUpdateService(null).saveAndReturnObject(i);
+        i = (ImageI) ice.getServiceFactory().getUpdateService()
+                .saveAndReturnObject(i);
         a = (TextAnnotationI) i.iterateAnnotationLinks().next();
 
-        Map<Long, List<IObject>> retVal = ice.getPojosService(null)
-                .findAnnotations("Image", Arrays.asList(i.id.val), null, null);
+        Map<Long, List<IObject>> retVal = ice.getServiceFactory()
+                .getPojosService().findAnnotations("Image",
+                        Arrays.asList(i.id.val), null, null);
     }
 }

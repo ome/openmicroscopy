@@ -28,8 +28,8 @@ public class QueryTest extends IceTest {
     @Test
     public void testGet() throws Exception {
 
-        IUpdatePrx up = ice.getUpdateService(null);
-        IQueryPrx qu = ice.getQueryService(null);
+        IUpdatePrx up = ice.getServiceFactory().getUpdateService();
+        IQueryPrx qu = ice.getServiceFactory().getQueryService();
 
         ImageI i = new ImageI();
         i.name = new RString("foo");
@@ -53,8 +53,8 @@ public class QueryTest extends IceTest {
     @Test
     public void testFind() throws Exception {
 
-        IUpdatePrx up = ice.getUpdateService(null);
-        IQueryPrx qu = ice.getQueryService(null);
+        IUpdatePrx up = ice.getServiceFactory().getUpdateService();
+        IQueryPrx qu = ice.getServiceFactory().getQueryService();
 
         ImageI i = new ImageI();
         i.name = new RString("foo");
@@ -72,26 +72,29 @@ public class QueryTest extends IceTest {
     @Test
     public void testFindAll() throws Exception {
 
-        IQueryPrx qu = ice.getQueryService(null);
+        IQueryPrx qu = ice.getServiceFactory().getQueryService();
         Filter f = new Filter();
         f.limit = new JInt(1);
-        List<ExperimenterI> l = ExperimenterI.cast(qu.findAll("Experimenter", f));
-        assertTrue(l.size()==1);
+        List<ExperimenterI> l = ExperimenterI.cast(qu
+                .findAll("Experimenter", f));
+        assertTrue(l.size() == 1);
         assertNotNull(l.get(0).omeName);
 
     }
+
     @SuppressWarnings("unchecked")
-    <T> List<T>castList(List list) {
+    <T> List<T> castList(List list) {
         return list;
     }
 
     @Test
     public void testFindAllByExample() throws Exception {
 
-        IQueryPrx qu = ice.getQueryService(null);
+        IQueryPrx qu = ice.getServiceFactory().getQueryService();
         ExperimenterI ex = new ExperimenterI();
         ex.omeName = new JString("root");
-        List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByExample(ex, null));
+        List<ExperimenterI> l = ExperimenterI.cast(qu
+                .findAllByExample(ex, null));
         assertTrue(l.size() == 1);
         assertTrue(l.get(0).omeName.val.equals("root"));
         assertTrue(l.get(0).id.val == 0L);
@@ -101,14 +104,14 @@ public class QueryTest extends IceTest {
     @Test
     public void testFindAllByQuery() throws Exception {
 
-        IQueryPrx qu = ice.getQueryService(null);
+        IQueryPrx qu = ice.getServiceFactory().getQueryService();
         String str = "select e from Experimenter e where e.omeName = :name";
         Parameters p = new Parameters();
         p.theFilter = new Filter();
         p.theFilter.limit = new JInt(1);
         p.map = new HashMap();
         p.map.put("name", new JString("root"));
-        List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByQuery(str,p));
+        List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByQuery(str, p));
         assertTrue(l.size() == 1);
         assertTrue(l.get(0).omeName.val.equals("root"));
         assertTrue(l.get(0).id.val == 0L);
@@ -118,8 +121,9 @@ public class QueryTest extends IceTest {
     @Test
     public void testFindAllByString() throws Exception {
 
-        IQueryPrx qu = ice.getQueryService(null);
-        List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByString("Experimenter", "omeName", "root", true, null));
+        IQueryPrx qu = ice.getServiceFactory().getQueryService();
+        List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByString(
+                "Experimenter", "omeName", "root", true, null));
         assertTrue(l.size() == 1);
         assertTrue(l.get(0).omeName.val.equals("root"));
         assertTrue(l.get(0).id.val == 0L);
@@ -129,8 +133,9 @@ public class QueryTest extends IceTest {
     @Test
     public void testFindExample() throws Exception {
 
-        IQueryPrx qu = ice.getQueryService(null);
-        List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByString("Experimenter", "omeName", "root", true, null));
+        IQueryPrx qu = ice.getServiceFactory().getQueryService();
+        List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByString(
+                "Experimenter", "omeName", "root", true, null));
         assertTrue(l.size() == 1);
         assertTrue(l.get(0).omeName.val.equals("root"));
         assertTrue(l.get(0).id.val == 0L);

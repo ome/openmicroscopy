@@ -8,17 +8,20 @@ package ome.icy.model.utests;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import ome.icy.service.utests.Ref;
 import ome.logic.HardWiredInterceptor;
-import ome.services.blitz.fire.SessionPrincipal;
 import ome.services.blitz.impl.ServiceFactoryI;
-import ome.services.blitz.util.UnregisterServantMessage;
+import ome.services.sessions.SessionManager;
 import ome.system.OmeroContext;
+import ome.system.Principal;
 import omero.api.IAdminPrxHelper;
+import omero.api._IAdminTie;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.jmock.Mock;
@@ -33,10 +36,12 @@ public class ServiceFactoryServiceCreationDestructionTest extends
         MockObjectTestCase {
 
     Ice.Current curr;
-    Mock mockCache, mockAdapter;
+    Mock mockCache, mockAdapter, mockManager;
     Ehcache cache;
     Ice.ObjectAdapter adapter;
+    SessionManager manager;
     ServiceFactoryI sf;
+    Map<String, Ice.Object> map;
 
     // FIXME OmeroContext should be an interface!
     // OmeroContext context = new OmeroContext(new String[]{
@@ -45,12 +50,8 @@ public class ServiceFactoryServiceCreationDestructionTest extends
     //    
     OmeroContext context = OmeroContext.getInstance("OMERO.blitz.test");
 
-    Ice.Identity adminServiceId = Ice.Util
-            .stringToIdentity("sessionuuid/ome.api.IAdmin");
-    Element adminElt = new Element(adminServiceId, new Object());
-    Ice.Identity reServiceId = Ice.Util
-            .stringToIdentity("sessionuuid/uuid-omeis.providers.re.RenderingEngine");
-    Element reElt = new Element(reServiceId, new Object());
+    String adminServiceId = "sessionuuid/omero.api.IAdmin";
+    String reServiceId = "sessionuuid/uuid-omero.api.RenderingEngine";
 
     @Override
     @AfterMethod
@@ -64,11 +65,22 @@ public class ServiceFactoryServiceCreationDestructionTest extends
 
         context.refresh(); // Repairing from other methods
 
+        map = new HashMap<String, Ice.Object>();
+
         mockCache = mock(Ehcache.class);
         cache = (Ehcache) mockCache.proxy();
 
         mockAdapter = mock(Ice.ObjectAdapter.class);
         adapter = (Ice.ObjectAdapter) mockAdapter.proxy();
+
+        mockManager = mock(SessionManager.class);
+        manager = (SessionManager) mockManager.proxy();
+        mockManager.expects(once()).method("inMemoryCache").will(
+                returnValue(cache));
+        mockCache.expects(once()).method("isKeyInCache")
+                .will(returnValue(true));
+        mockCache.expects(once()).method("get").will(
+                returnValue(new Element("activeServants", map)));
 
         curr = new Ice.Current();
         curr.adapter = adapter;
@@ -81,12 +93,8 @@ public class ServiceFactoryServiceCreationDestructionTest extends
             }
         });
 
-        sf = new ServiceFactoryI(cache);
-        sf.setApplicationContext(context);
-        sf.setInterceptors(hwi);
-        sf
-                .setPrincipal(new SessionPrincipal("user", "group", "type",
-                        "session"));
+        Principal p = new Principal("session", "group", "type");
+        sf = new ServiceFactoryI(context, manager, p, hwi);
     };
 
     @Test
@@ -96,8 +104,7 @@ public class ServiceFactoryServiceCreationDestructionTest extends
         admin.setup(new Ref());
 
         callsActiveServices(Collections.singletonList(adminServiceId));
-        mockCache.expects(once()).method("get").will(returnValue(adminElt));
-        mockCache.expects(once()).method("put");
+        map.put(adminServiceId, new _IAdminTie());
         mockAdapter.expects(once()).method("add").will(returnValue(null));
         mockAdapter.expects(once()).method("find").will(returnValue(null));
         mockAdapter.expects(once()).method("createProxy").will(
@@ -113,10 +120,10 @@ public class ServiceFactoryServiceCreationDestructionTest extends
             throws Exception {
 
         callsActiveServices(Collections.singletonList(reServiceId));
-        mockCache.expects(once()).method("put");
         mockAdapter.expects(once()).method("add").will(returnValue(null));
         mockAdapter.expects(once()).method("createProxy").will(
                 returnValue(null));
+        mockAdapter.expects(once()).method("find").will(returnValue(null));
         mockAdapter.expects(once()).method("find").will(returnValue(null));
         sf.createRenderingEngine(curr);
         List<String> ids = sf.activeServices(curr);
@@ -132,7 +139,6 @@ public class ServiceFactoryServiceCreationDestructionTest extends
                 .proxy();
         mockAdapter.expects(once()).method("find").will(returnValue(close));
         mockAdapter.expects(once()).method("remove").will(returnValue(close));
-        mockCache.expects(once()).method("remove").will(returnValue(true));
         callsActiveServices(Collections.singletonList(reServiceId));
         Ice.Current curr = new Ice.Current();
         curr.id = Ice.Util.stringToIdentity("username/sessionuuid");
@@ -148,18 +154,17 @@ public class ServiceFactoryServiceCreationDestructionTest extends
         omero.api.RenderingEngine close = (omero.api.RenderingEngine) closeMock
                 .proxy();
         mockAdapter.expects(once()).method("remove").will(returnValue(close));
-        mockCache.expects(once()).method("remove").will(returnValue(true));
         callsActiveServices(Collections.singletonList(reServiceId));
         String id = sf.activeServices(curr).get(0).toString();
         Ice.Current curr = new Ice.Current();
         curr.id = Ice.Util.stringToIdentity("username/sessionid");
         curr.adapter = adapter;
-        sf.onApplicationEvent(new UnregisterServantMessage(this, id, curr));
+        // Events now called by SessionManagerI
+        sf.unregisterServant(Ice.Util.stringToIdentity(id), curr);
     }
 
-    private void callsActiveServices(List<Ice.Identity> idList) {
-        mockCache.expects(once()).method("getKeysWithExpiryCheck").will(
-                returnValue(idList));
+    private void callsActiveServices(List<String> idList) {
+
     }
 
 }

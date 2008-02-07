@@ -6,7 +6,6 @@
  */
 package ome.icy.model.itests;
 
-import ome.services.blitz.client.IceServiceFactory;
 import omero.api.IConfigPrx;
 import omero.api.IConfigPrxHelper;
 import omero.api.IUpdatePrx;
@@ -19,51 +18,52 @@ import org.testng.annotations.Test;
 
 public class ServiceFactoryTest extends IceTest {
 
-    IceServiceFactory ice;
-    
+    omero.client ice;
+
     @Test
     public void testProvidesIConfig() throws Exception {
-        ice = new IceServiceFactory(null, null, null);
-        ice.createSession();
-        Ice.ObjectPrx base = ice.getConfigService(null);
+        ice = new omero.client();
+        ice.createSession(null, null);
+        Ice.ObjectPrx base = ice.getServiceFactory().getConfigService();
         IConfigPrx prx = IConfigPrxHelper.checkedCast(base);
-        assertNotNull( prx );
-        ice.destroy();
+        assertNotNull(prx);
+        ice.closeSession();
     }
-    
+
     @Test
     public void testProvidesIUpdate() throws Exception {
-        ice = new IceServiceFactory(null, null, null);
-        ice.createSession();
-        Ice.ObjectPrx base = ice.getUpdateService(null);
+        ice = new omero.client();
+        ice.createSession(null, null);
+        Ice.ObjectPrx base = ice.getServiceFactory().getUpdateService();
         IUpdatePrx prx = IUpdatePrxHelper.checkedCast(base);
-        assertNotNull( prx );
-        ice.destroy();
+        assertNotNull(prx);
+        ice.closeSession();
     }
-    
+
     @Test
     public void testProvidesRenderingEngine() throws Exception {
-        ice = new IceServiceFactory(null, null, null);
-        ice.createSession();
-        RenderingEnginePrx prx = ice.createRenderingEngine(null);
-        assertNotNull( prx );
-        ice.destroy();
+        ice = new omero.client();
+        ice.createSession(null, null);
+        RenderingEnginePrx prx = ice.getServiceFactory()
+                .createRenderingEngine();
+        assertNotNull(prx);
+        ice.closeSession();
     }
-    
+
     @Test
     public void testKeepAliveAndIsAliveWorkOnNewProxy() throws Exception {
-        ice = new IceServiceFactory(null, null, null);
-        ice.createSession();
-        ServiceFactoryPrx session = ice.getProxy();
-        RenderingEnginePrx prx = ice.createRenderingEngine(null);
-        assertNotNull( prx );
-        assertTrue( session.keepAlive(prx));
-        assertTrue( 0==session.keepAllAlive(new ServiceInterfacePrx[]{prx}));
-        ice.destroy();
+        ice = new omero.client();
+        ice.createSession(null, null);
+        ServiceFactoryPrx session = ice.getServiceFactory();
+        RenderingEnginePrx prx = session.createRenderingEngine();
+        assertNotNull(prx);
+        assertTrue(session.keepAlive(prx));
+        assertTrue(0 == session.keepAllAlive(new ServiceInterfacePrx[] { prx }));
+        ice.closeSession();
     }
-    
+
     @Test
     public void testGetByNameFailsOnStatefulService() throws Exception {
-    	fail("NYI");
+        fail("NYI");
     }
 }

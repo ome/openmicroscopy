@@ -20,7 +20,6 @@ public class RegisteredServicesTest extends MockedBlitzTest {
     public void testkeepAllAliveAndkeepAliveWorkAfterPause() throws Exception {
 
         fixture = new BlitzServerFixture(200 /* not under test */, 2);
-        fixture.methodCall();
 
         ServiceFactoryPrx session = fixture.createSession();
 
@@ -29,12 +28,13 @@ public class RegisteredServicesTest extends MockedBlitzTest {
 
         List<String> idsA = session.activeServices();
 
+        fixture.methodCall();
         prx1.close();
 
         List<String> idsB = session.activeServices();
 
-        assertTrue(idsA.size() == 2);
-        assertTrue(idsB.size() == 1);
+        assertEquals(2, idsA.size());
+        assertEquals(1, idsB.size());
 
     }
 

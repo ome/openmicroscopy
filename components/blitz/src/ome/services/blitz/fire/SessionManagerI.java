@@ -14,6 +14,8 @@ import ome.logic.HardWiredInterceptor;
 import ome.security.SecuritySystem;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.util.ConvertToBlitzExceptionMessage;
+import ome.services.blitz.util.UnregisterServantMessage;
+import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.SessionManager;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -26,6 +28,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 
 import Glacier2.CannotCreateSessionException;
 
@@ -40,7 +44,7 @@ import Glacier2.CannotCreateSessionException;
  * @since 3.0-Beta2
  */
 public final class SessionManagerI extends Glacier2._SessionManagerDisp
-        implements ApplicationContextAware {
+        implements ApplicationContextAware, ApplicationListener {
 
     /**
      * "ome.security.basic.BasicSecurityWiring" <em>may</em> be replaced by
@@ -54,12 +58,13 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
     protected OmeroContext context;
 
-    protected SecuritySystem securitySystem;
+    protected final SecuritySystem securitySystem;
 
-    protected SessionManager sessionManager;
+    protected final SessionManager sessionManager;
 
-    public SessionManagerI(SecuritySystem secSys) {
+    public SessionManagerI(SecuritySystem secSys, SessionManager sessionManager) {
         this.securitySystem = secSys;
+        this.sessionManager = sessionManager;
     }
 
     public void setApplicationContext(ApplicationContext applicationContext)
@@ -91,9 +96,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             ServiceFactoryI session = new ServiceFactoryI(context,
                     sessionManager, sp, CPTORS);
 
-            Ice.Identity id = new Ice.Identity();
-            id.category = userId;
-            id.name = s.getUuid();
+            Ice.Identity id = sessionId(s.getUuid());
             Ice.ObjectPrx _prx = current.adapter.add(session, id);
             Glacier2.SessionPrx prx = Glacier2.SessionPrxHelper
                     .uncheckedCast(_prx);
@@ -123,6 +126,38 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             ie.setStackTrace(t.getStackTrace());
             throw ie;
         }
+    }
+
+    // Listener
+    // =========================================================================
+
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof UnregisterServantMessage) {
+            UnregisterServantMessage msg = (UnregisterServantMessage) event;
+            String key = msg.getServiceKey();
+            Ice.Current curr = msg.getCurrent();
+
+            // And unregister the service if possible
+            Ice.Identity id = sessionId(curr.id.category);
+            Ice.Object obj = curr.adapter.find(id);
+            if (obj instanceof ServiceFactoryI) {
+                ServiceFactoryI sf = (ServiceFactoryI) obj;
+                sf.unregisterServant(Ice.Util.stringToIdentity(key), curr);
+            }
+        } else if (event instanceof DestroySessionMessage) {
+            DestroySessionMessage msg = (DestroySessionMessage) event;
+            log.error("CANNOT REMOVE SESSION WITHOUT ADAPTER");
+        }
+    }
+
+    // Helpers
+    // =========================================================================
+
+    public static Ice.Identity sessionId(String uuid) {
+        Ice.Identity id = new Ice.Identity();
+        id.category = "session";
+        id.name = uuid;
+        return id;
     }
 
     protected String getGroup(Ice.Current current) {

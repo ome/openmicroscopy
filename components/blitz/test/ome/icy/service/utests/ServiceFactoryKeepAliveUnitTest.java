@@ -6,10 +6,16 @@
  */
 package ome.icy.service.utests;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import ome.services.blitz.impl.ServiceFactoryI;
+import ome.services.sessions.SessionManager;
+import ome.system.Principal;
 import omero.api.ServiceInterfacePrx;
+import omero.api._IQueryTie;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
@@ -19,57 +25,80 @@ import org.testng.annotations.Test;
 @Test
 public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
 
-	Element elt = new Element(null,null);
-	Mock cacheMock, proxyMock;
-	Ehcache cache; 
-	ServiceFactoryI sf;
-	ServiceInterfacePrx prx;
-	Ice.Identity id = Ice.Util.stringToIdentity("test");
-	
+    Element elt = new Element(null, null);
+    Mock cacheMock, proxyMock, managerMock;
+    Ehcache cache;
+    ServiceFactoryI sf;
+    ServiceInterfacePrx prx;
+    SessionManager manager;
+    Ice.Identity id = Ice.Util.stringToIdentity("test");
+    Map<String, Ice.Object> map = new HashMap<String, Ice.Object>();
+
     @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
-    	cacheMock = mock(Ehcache.class);
-    	cache = (Ehcache) cacheMock.proxy();
-    	proxyMock = mock(ServiceInterfacePrx.class);
-    	prx = (ServiceInterfacePrx) proxyMock.proxy();
-    	sf = new ServiceFactoryI(cache);
+        managerMock = mock(SessionManager.class);
+        cacheMock = mock(Ehcache.class);
+        cache = (Ehcache) cacheMock.proxy();
+        proxyMock = mock(ServiceInterfacePrx.class);
+        prx = (ServiceInterfacePrx) proxyMock.proxy();
+        manager = (SessionManager) managerMock.proxy();
+        managerMock.expects(once()).method("inMemoryCache").will(
+                returnValue(cache));
+        cacheMock.expects(once()).method("isKeyInCache")
+                .will(returnValue(true));
+        cacheMock.expects(once()).method("get").will(
+                returnValue(new Element("activeServants", map)));
+        sf = new ServiceFactoryI(null, manager, new Principal("a", "b", "c"),
+                null);
     }
 
     @Test
     void testKeepAliveReturnsAllOnesOnNull() {
-    	assertTrue(-1==sf.keepAllAlive(null,null));
-    	assertTrue(-1==sf.keepAllAlive(new ServiceInterfacePrx[]{}));
+        managerMock.expects(atLeastOnce()).method("getEventContext");
+        assertTrue(-1 == sf.keepAllAlive(null, null));
+        assertTrue(-1 == sf.keepAllAlive(new ServiceInterfacePrx[] {}));
     }
-    
+
     @Test
     void testKeepAliveReturnsNonNullIfMissing() {
-    	cacheMock.expects(once()).method("get").will(returnValue(null));
-    	proxyMock.expects(once()).method("ice_getIdentity").will(returnValue(id));
-    	long rv = sf.keepAllAlive(new ServiceInterfacePrx[]{prx});
-    	assertTrue((rv & 1<<0) == 1<<0);
+        map.remove(Ice.Util.identityToString(id));
+        managerMock.expects(atLeastOnce()).method("getEventContext");
+        cacheMock.expects(once()).method("get").will(returnValue(null));
+        proxyMock.expects(once()).method("ice_getIdentity").will(
+                returnValue(id));
+        long rv = sf.keepAllAlive(new ServiceInterfacePrx[] { prx });
+        assertTrue((rv & 1 << 0) == 1 << 0);
     }
-    
+
     @Test
     void testIsAliveReturnsFalseIfMissing() {
-    	cacheMock.expects(once()).method("get").will(returnValue(null));
-    	proxyMock.expects(once()).method("ice_getIdentity").will(returnValue(id));
-    	assertFalse(sf.keepAlive(prx));
+        map.remove(Ice.Util.identityToString(id));
+        managerMock.expects(atLeastOnce()).method("getEventContext");
+        cacheMock.expects(once()).method("get").will(returnValue(null));
+        proxyMock.expects(once()).method("ice_getIdentity").will(
+                returnValue(id));
+        assertFalse(sf.keepAlive(prx));
     }
-    
+
     @Test
     void testKeepAliveReturnsZeroIfPresent() {
-    	cacheMock.expects(once()).method("get").will(returnValue(elt));
-    	proxyMock.expects(once()).method("ice_getIdentity").will(returnValue(id));
-    	long rv = sf.keepAllAlive(new ServiceInterfacePrx[]{prx});
-    	assertTrue(rv == 0);
+        map.put(Ice.Util.identityToString(id), new _IQueryTie());
+        managerMock.expects(atLeastOnce()).method("getEventContext");
+        proxyMock.expects(once()).method("ice_getIdentity").will(
+                returnValue(id));
+        long rv = sf.keepAllAlive(new ServiceInterfacePrx[] { prx });
+        assertEquals(0, rv);
     }
-    
+
     @Test
     void testIsAliveReturnsTrueIfPresent() {
-    	cacheMock.expects(once()).method("get").will(returnValue(elt));
-    	proxyMock.expects(once()).method("ice_getIdentity").will(returnValue(id));
-    	assertTrue(sf.keepAlive(prx));
+        map.put(Ice.Util.identityToString(id), new _IQueryTie());
+        managerMock.expects(atLeastOnce()).method("getEventContext");
+        cacheMock.expects(once()).method("get").will(returnValue(elt));
+        proxyMock.expects(once()).method("ice_getIdentity").will(
+                returnValue(id));
+        assertTrue(sf.keepAlive(prx));
     }
-    
+
 }
