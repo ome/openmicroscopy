@@ -8,8 +8,7 @@ package ome.server.itests;
 
 import java.util.UUID;
 
-import org.testng.annotations.*;
-
+import junit.framework.TestCase;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.core.Image;
@@ -17,11 +16,13 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.security.SecuritySystem;
+import ome.services.sessions.SessionManager;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 
-import junit.framework.TestCase;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 @Test(groups = { "mockable", "security", "integration" })
 public class LoginTest extends TestCase {

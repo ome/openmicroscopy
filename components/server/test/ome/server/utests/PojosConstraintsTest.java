@@ -7,28 +7,25 @@
 package ome.server.utests;
 
 // Java imports
-import org.hibernate.SessionFactory;
-import org.jmock.MockObjectTestCase;
-import org.springframework.aop.framework.ProxyFactory;
-import org.testng.annotations.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.sql.DataSource;
-
-// Application-internal dependencies
 import ome.api.IPojos;
 import ome.conditions.ApiUsageException;
 import ome.logic.PojosImpl;
 import ome.model.containers.Dataset;
-import ome.model.core.Image;
 import ome.model.containers.Project;
+import ome.model.core.Image;
 import ome.services.util.ServiceHandler;
-import ome.tools.hibernate.SessionHandler;
 import ome.util.builders.PojoOptions;
+
+import org.jmock.MockObjectTestCase;
+import org.springframework.aop.framework.ProxyFactory;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -48,9 +45,6 @@ public class PojosConstraintsTest extends MockObjectTestCase {
         impl = new PojosImpl();
         ProxyFactory factory = new ProxyFactory(impl);
         ServiceHandler serviceHandler = new ServiceHandler();
-        serviceHandler.setSessionHandler(new SessionHandler((DataSource) mock(
-                DataSource.class).proxy(), (SessionFactory) mock(
-                SessionFactory.class).proxy()));
         factory.addAdvice(serviceHandler);
         manager = (IPojos) factory.getProxy();
     }
@@ -230,8 +224,8 @@ public class PojosConstraintsTest extends MockObjectTestCase {
                     throw e;
                 }
 
-                if (!exceptionExpected
-                        || t != null && !t.isAssignableFrom(e.getClass())) {
+                if (!exceptionExpected || t != null
+                        && !t.isAssignableFrom(e.getClass())) {
                     throw new RuntimeException("Exception type " + e.getClass()
                             + " not expected. Rethrowing", e);
                 }

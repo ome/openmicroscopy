@@ -100,19 +100,17 @@ public class Executor implements ApplicationContextAware {
 
     final protected ProxyFactoryBean proxyFactory;
     final protected SecuritySystem secSystem;
-    final protected ServiceHandler handler;
     final protected String[] proxyNames;
     final protected Interceptor interceptor;
     final protected TransactionTemplate txTemplate;
     final protected HibernateTemplate hibTemplate;
 
-    public Executor(SecuritySystem secSystem, ServiceHandler handler,
-            TransactionTemplate tt, HibernateTemplate ht, String[] proxyNames) {
+    public Executor(SecuritySystem secSystem, TransactionTemplate tt,
+            HibernateTemplate ht, String[] proxyNames) {
         this.txTemplate = tt;
         this.hibTemplate = ht;
         this.interceptor = new Interceptor(tt, ht);
         this.secSystem = secSystem;
-        this.handler = handler;
         this.proxyNames = proxyNames;
         this.proxyFactory = new ProxyFactoryBean();
         this.proxyFactory.setInterceptorNames(this.proxyNames);
@@ -155,14 +153,11 @@ public class Executor implements ApplicationContextAware {
         Work inner = (Work) innerFactory.getObject();
 
         // If we've already entered Executor.execute once and applied the
-        // ServiceHandler, then we don't want to re-apply all the interceptors.
+        // ServiceHandler, then we might not want to re-apply all the
+        // interceptors.
         Work outer;
-        if (handler.isActive()) {
-            outer = inner;
-        } else {
-            this.proxyFactory.setTarget(inner);
-            outer = (Work) this.proxyFactory.getObject();
-        }
+        this.proxyFactory.setTarget(inner);
+        outer = (Work) this.proxyFactory.getObject();
 
         if (p != null) {
             this.secSystem.login(p);

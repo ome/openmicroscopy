@@ -107,7 +107,6 @@
 		       id="serviceHandler"
 		    class="ome.services.util.ServiceHandler"
 		lazy-init="true">
-		<property name="sessionHandler" ref="sessionHandler"/>
 	</bean>
 
 	<bean id="profile"
@@ -163,7 +162,7 @@
 
   <bean id="executor" class="ome.services.util.Executor">
     <constructor-arg ref="securitySystem"/>
-    <constructor-arg ref="serviceHandler"/>
+    <constructor-arg ref="eventHandler"/>
     <constructor-arg ref="transactionTemplate"/>
     <constructor-arg ref="hibernateTemplate"/>
     <constructor-arg ref="statelessInterceptors"/>

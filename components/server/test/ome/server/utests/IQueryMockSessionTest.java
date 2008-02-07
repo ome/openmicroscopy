@@ -10,9 +10,14 @@ package ome.server.utests;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sql.DataSource;
+import ome.api.IQuery;
+import ome.conditions.ApiUsageException;
+import ome.logic.QueryImpl;
+import ome.model.IObject;
+import ome.model.containers.Project;
+import ome.parameters.Filter;
+import ome.services.util.ServiceHandler;
 
-// Third-party libraries
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -21,17 +26,9 @@ import org.jmock.MockObjectTestCase;
 import org.jmock.core.stub.DefaultResultStub;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.testng.annotations.*;
-
-// Application-internal dependencies
-import ome.api.IQuery;
-import ome.conditions.ApiUsageException;
-import ome.logic.QueryImpl;
-import ome.model.IObject;
-import ome.model.containers.Project;
-import ome.parameters.Filter;
-import ome.services.util.ServiceHandler;
-import ome.tools.hibernate.SessionHandler;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.ExpectedExceptions;
+import org.testng.annotations.Test;
 
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -54,9 +51,6 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
         impl = new QueryImpl();
         ProxyFactory pf = new ProxyFactory(impl);
         ServiceHandler serviceHandler = new ServiceHandler();
-        serviceHandler.setSessionHandler(new SessionHandler((DataSource) mock(
-                DataSource.class).proxy(), (SessionFactory) mock(
-                SessionFactory.class).proxy()));
         pf.addAdvice(serviceHandler);
         iQuery = (IQuery) pf.getProxy();
         createMocks();

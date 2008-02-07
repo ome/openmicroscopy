@@ -20,7 +20,6 @@ import ome.conditions.InternalException;
 import ome.conditions.OptimisticLockException;
 import ome.conditions.RootException;
 import ome.conditions.ValidationException;
-import ome.tools.hibernate.SessionHandler;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -39,27 +38,10 @@ public class ServiceHandler implements MethodInterceptor {
 
     private static Log log = LogFactory.getLog(ServiceHandler.class);
 
-    private final ThreadLocal<Boolean> active = new ThreadLocal<Boolean>() {
-        @Override
-        protected Boolean initialValue() {
-            return Boolean.FALSE;
-        }
-    };
-
     private boolean printXML = false;
-
-    private SessionHandler sessions;
-
-    public void setSessionHandler(SessionHandler handler) {
-        this.sessions = handler;
-    }
 
     public void setPrintXML(boolean value) {
         this.printXML = value;
-    }
-
-    public boolean isActive() {
-        return active.get().booleanValue();
     }
 
     /**
@@ -88,8 +70,6 @@ public class ServiceHandler implements MethodInterceptor {
         String finalOutput = "";
 
         try {
-            active.set(Boolean.TRUE);
-            sessions.cleanThread();
             o = arg0.proceed();
             finalOutput = " Rslt:\t" + o;
 
@@ -101,7 +81,6 @@ public class ServiceHandler implements MethodInterceptor {
             finalOutput = " Excp:\t" + t;
             throw getAndLogException(t);
         } finally {
-            active.set(Boolean.FALSE);
             if (log.isInfoEnabled()) {
                 log.info(finalOutput);
             }

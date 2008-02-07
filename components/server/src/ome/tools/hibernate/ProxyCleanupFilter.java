@@ -141,12 +141,39 @@ public class ProxyCleanupFilter extends ContextFilter {
     /** wraps a filter for each invocation */
     public static class Interceptor implements MethodInterceptor {
 
-        public Object invoke(MethodInvocation arg0) throws Throwable {
-            Object result = arg0.proceed();
+        private SessionHandler sessions;
 
-            if (!StatefulServiceInterface.class.isAssignableFrom(arg0.getThis()
-                    .getClass())) {
-                result = new ProxyCleanupFilter().filter(null, result);
+        public void setSessionHandler(SessionHandler handler) {
+            this.sessions = handler;
+        }
+
+        private final ThreadLocal<Integer> depth = new ThreadLocal<Integer>() {
+            @Override
+            protected Integer initialValue() {
+                return Integer.valueOf(0);
+            }
+        };
+
+        public Object invoke(MethodInvocation arg0) throws Throwable {
+
+            int d = depth.get().intValue();
+            if (d == 0) {
+                sessions.cleanThread();
+            }
+
+            Object result;
+            d++;
+            depth.set(d);
+            try {
+
+                result = arg0.proceed();
+                if (!StatefulServiceInterface.class.isAssignableFrom(arg0
+                        .getThis().getClass())) {
+                    result = new ProxyCleanupFilter().filter(null, result);
+                }
+            } finally {
+                d--;
+                depth.set(d);
             }
 
             return result;
