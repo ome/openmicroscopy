@@ -183,7 +183,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     public Session update(Session session) {
 
-        if (session == null || session.getUuid() == null) {
+        if (session == null || !session.isLoaded() || session.getUuid() == null) {
             throw new RemovedSessionException("Cannot update; No uuid.");
         }
 

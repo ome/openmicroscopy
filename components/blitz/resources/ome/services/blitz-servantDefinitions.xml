@@ -61,6 +61,12 @@
     <property name="tieClass" value="omero.api._IRepositoryInfoTie"/>
   </bean>
 
+  <bean id="omero.api.ISession" class="ome.services.blitz.util.ServantDefinition">
+    <property name="operationsClass" value="omero.api._ISessionOperations"/>
+    <property name="serviceClass" value="ome.api.ISession"/>
+    <property name="tieClass" value="omero.api._ISessionTie"/>
+  </bean>
+
   <bean id="omero.api.ITypes" class="ome.services.blitz.util.ServantDefinition">
     <property name="operationsClass" value="omero.api._ITypesOperations"/>
     <property name="serviceClass" value="ome.api.ITypes"/>

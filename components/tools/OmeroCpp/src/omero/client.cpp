@@ -11,17 +11,26 @@
 using namespace std;
 
 namespace omero {
-  
-  client::client(int& argc, char* argv[],
-		 const Ice::InitializationData& id) {
-    ic = Ice::initialize(argc, argv, id);
+
+  void init(Ice::CommunicatorPtr ic) {
     if (!ic) {
       throw omero::ClientError(__FILE__,__LINE__,"Improper initialization.");
     }
     ObjectFactoryPtr of = new ObjectFactory();
     of->registerObjectFactory(ic);
   }
-  
+
+  client::client(const Ice::InitializationData& id) {
+    ic = Ice::initialize(id);
+    init(ic);
+  }
+
+  client::client(int& argc, char* argv[],
+		 const Ice::InitializationData& id) {
+    ic = Ice::initialize(argc, argv, id);
+    init(ic);
+  }
+
   client::~client(){
     if (ic) {
       try {
@@ -29,14 +38,30 @@ namespace omero {
       } catch (const Ice::Exception& ex) {
 	cerr << "Caught Ice exception while destroying communicator." << endl;
 	cerr << ex << endl;
-      }	
+      }
     }
   }
-  
-  void client::createSession() {
-    
-    string username = getProperty(omero::constants::USERNAME);
-    string password = getProperty(omero::constants::PASSWORD);
+
+  omero::api::ServiceFactoryPrx client::createSession(const std::string& _username, const std::string& _password) {
+
+    std::string username, password;
+    if (_username.empty()) {
+      username = getProperty(omero::constants::USERNAME);
+      if (username.empty()) {
+        throw omero::ClientError(__FILE__,__LINE__,"No username provided");
+      }
+    } else {
+      username = _username;
+    }
+
+    if (_password.empty()) {
+      password = getProperty(omero::constants::PASSWORD);
+      if (password.empty()) {
+        throw omero::ClientError(__FILE__,__LINE__,"No password provided");
+      }
+    } else {
+      password = _password;
+    }
 
     Ice::RouterPrx prx = ic->getDefaultRouter();
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(prx);

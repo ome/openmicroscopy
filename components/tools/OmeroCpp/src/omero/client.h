@@ -67,6 +67,12 @@ namespace omero {
       const Ice::InitializationData& id = Ice::InitializationData());
 
     /*
+     * Default constructor which can only parse the ICE_CONFIG environment
+     * variable in a manner similar to that of the --Ice.Config file.
+     */
+     client(const Ice::InitializationData& id = Ice::InitializationData());
+
+    /*
      * Destroys the communicator instance. To have the session destroyed,
      * call close on the client before destruction. Otherwise, the session
      * will be destroyed by the server on timeout.
@@ -76,7 +82,7 @@ namespace omero {
     // Accessors:
 
     Ice::CommunicatorPtr getCommunicator() { return ic; }
-    omero::api::ServiceFactoryPrx& getSession() { return sf; }
+    omero::api::ServiceFactoryPrx getSession() { return sf; }
     Ice::ImplicitContextPtr getImplicitContext() { return ic->getImplicitContext(); }
     Ice::PropertiesPtr getProperties() { return ic->getProperties(); }
     std::string getProperty(const std::string& key) { return getProperties()->getProperty(key); }
@@ -88,7 +94,7 @@ namespace omero {
      * active will throw an exception. It should only be used again,
      * after a session timeout exception, or similar.
      */
-    void createSession();
+    omero::api::ServiceFactoryPrx createSession(const std::string& username = std::string(), const std::string& password = std::string());
 
     /*
      * The following methods exactly mirror the interfaces defined

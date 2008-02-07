@@ -73,11 +73,11 @@ BOOST_AUTO_TEST_CASE( Sequences )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( img->annotationsLoaded );
-  img->annotations.push_back((ImageAnnotationPtr)0);
+  BOOST_CHECK( img->annotationLinksLoaded );
+  img->annotationLinks.push_back((ImageAnnotationLinkPtr)0);
   img->unload();
-  BOOST_CHECK( !img->annotationsLoaded );
-  img->annotations.push_back((ImageAnnotationPtr)0);
+  BOOST_CHECK( !img->annotationLinksLoaded );
+  img->annotationLinks.push_back((ImageAnnotationLinkPtr)0);
 }
 
 BOOST_AUTO_TEST_CASE( Accessors )

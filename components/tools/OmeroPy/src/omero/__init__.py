@@ -57,13 +57,18 @@ class client(object):
         return self.getProperties().getProperty(key)
 
     def createSession(self, username=None, password=None):
+        import omero
         if not username:
             username = self.getProperty("omero.user")
-        if len(username) == 0:
+        elif isinstance(username,omero.RString):
+            username = username.val
+        if not username or len(username) == 0:
             raise ClientError("No username specified")
         if not password:
             password = self.getProperty("omero.pass")
-        if len(password) == 0:
+        elif isinstance(password,omero.RString):
+            password = password.val
+        if not password or len(password) == 0:
             raise ClientError("No password specified")
 
         prx = self.ic.getDefaultRouter()

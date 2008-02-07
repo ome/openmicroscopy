@@ -32,6 +32,7 @@ module omero {
     const string PIXELSSERVICE    = "omero.api.IPixels";
     const string POJOSSERVICE     = "omero.api.IPojos";
     const string QUERYSERVICE     = "omero.api.IQuery";
+    const string SESSIONSERVICE   = "omero.api.ISession";
     const string TYPESSERVICE     = "omero.api.ITypes";
     const string UPDATESERVICE    = "omero.api.IUpdate";
     const string RAWFILESTORE     = "omero.api.RawFileStore";

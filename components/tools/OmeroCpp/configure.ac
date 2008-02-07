@@ -124,12 +124,6 @@ dnl 					      [TESTLIBS="$TESTLIBS -lboost_unit_test_framework-gcc-d-1_33_1"
 dnl					      AM_CONDITIONAL(BOOST_TEST, true)],
 dnl					      AM_CONDITIONAL(BOOST_TEST, false))
 
-dnl Check for CPPUnit
-ifdef([AM_PATH_CPPUNIT], [
-			 AM_PATH_CPPUNIT(1.9.6)
-			 AM_CONDITIONAL(CPPUNIT, true)], 
-			 [AM_CONDITIONAL(CPPUNIT, false)])
-
 AC_CONFIG_FILES([Makefile
 		 src/Makefile
 		 test/Makefile])

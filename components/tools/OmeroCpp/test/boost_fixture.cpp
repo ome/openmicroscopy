@@ -7,6 +7,7 @@
  *
  */
 
+#include <IceUtil/UUID.h>
 #include <boost_fixture.h>
 
 void stringHandler(std::string str) {
@@ -42,6 +43,7 @@ Fixture::~Fixture()
 }
 
 void Fixture::show_stackframe() {
+#ifdef LINUX
   void *trace[16];
   char **messages = (char **)NULL;
   int i, trace_size = 0;
@@ -51,6 +53,12 @@ void Fixture::show_stackframe() {
   printf("[bt] Execution path:\n");
   for (i=0; i<trace_size; ++i)
 	printf("[bt] %s\n", messages[i]);
+#endif
+}
+
+const std::string& Fixture::uuid()
+{
+  return IceUtil::generateUUID();
 }
 
 void Fixture::printUnexpected() 

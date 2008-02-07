@@ -18,8 +18,10 @@
 #include <boost/test/results_collector.hpp>
 #include <boost/test/results_reporter.hpp>
 #include <boost/test/unit_test_monitor.hpp>
+#ifdef LINUX
 // stackframe
 #include <execinfo.h>
+#endif
 // std
 #include <exception>
 #include <cstdlib>
@@ -29,7 +31,7 @@
 
 namespace b_ut = boost::unit_test;
 
-struct Fixture 
+struct Fixture
 {
   Fixture();
   ~Fixture();
@@ -39,11 +41,12 @@ struct Fixture
   b_ut::unit_test_monitor_t& monitor();
   b_ut::unit_test_log_t& log();
   bool passed();
+  const std::string& uuid();
 };
 
 //
 // Not functional
-// 
+//
 
 #define WITH_FIXTURE_TEST( name )             \
 BOOST_AUTO_TEST_CASE( name )                  \

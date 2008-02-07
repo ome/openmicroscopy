@@ -14,7 +14,7 @@ BOOST_AUTO_TEST_CASE( UnconfiguredClient )
   Fixture f;
   int argc = 0;
   char** argv = new char*[0];
-  OMERO::client(argc,argv);
+  omero::client(argc,argv);
 }
 
 BOOST_AUTO_TEST_CASE( ClientWithInitializationData )
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE( ClientWithInitializationData )
   id.properties = Ice::createProperties();
   id.properties->setProperty("foo","bar");
   BOOST_CHECK( id.properties->getProperty("foo") == "bar" );
-  OMERO::client(argc,argv,id);
+  omero::client(argc,argv,id);
 }
 
 BOOST_AUTO_TEST_CASE( ClientWithInitializationData2 )
@@ -39,6 +39,6 @@ BOOST_AUTO_TEST_CASE( ClientWithInitializationData2 )
   std::string s = id.properties->getProperty("foo");
   // BOOST_CHECK_MESSAGE( s == "bar", s + " should be bar" );
   // This doesn't work. Ice currently only filters --Ice properties.
-  OMERO::client(argc,argv,id);
+  omero::client(argc,argv,id);
 }
 

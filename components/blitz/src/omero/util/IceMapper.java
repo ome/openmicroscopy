@@ -244,6 +244,9 @@ public class IceMapper extends ome.util.ModelMapper implements
     }
 
     public static Principal convert(omero.sys.Principal old) {
+        if (old == null) {
+            return null;
+        }
         return new Principal(old.name, old.group, old.eventType);
     }
 
