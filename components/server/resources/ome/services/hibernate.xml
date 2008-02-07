@@ -50,6 +50,12 @@
         <prop key="cache.use_query_cache">false</prop>
         <prop key="cache.use_minimal_puts">false</prop>
         <prop key="hibernate.search.default.indexBase">${omero.data.dir}</prop>
+        <prop key="hibernate.c3p0.acquire_increment">${c3p0.acquire_increment}</prop> 
+        <prop key="hibernate.c3p0.max_size">${c3p0.max_size}</prop> 
+        <prop key="hibernate.c3p0.max_statements">${c3p0.max_statements}</prop> 
+        <prop key="hibernate.c3p0.min_size">${c3p0.min_size}</prop> 
+        <prop key="hibernate.c3p0.timeout">${c3p0.timeout}</prop><!-- seconds -->
+        <prop key="hibernate.c3p0.idle_test_period">${c3p0.idle_test_period}</prop> <!-- seconds --> 
       </props>
     </property>
   </bean>

@@ -30,7 +30,7 @@ import ome.system.ServiceFactory;
 import ome.testing.OMEData;
 
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
@@ -75,7 +75,7 @@ public class AbstractManagedContextTest extends
 
     protected OMEData data;
 
-    protected JdbcTemplate jdbcTemplate;
+    protected SimpleJdbcTemplate jdbcTemplate;
 
     protected LdapTemplate ldapTemplate;
 
@@ -105,8 +105,8 @@ public class AbstractManagedContextTest extends
 
         DataSource dataSource = (DataSource) applicationContext
                 .getBean("dataSource");
-        jdbcTemplate = (JdbcTemplate) applicationContext
-                .getBean("jdbcTemplate");
+        jdbcTemplate = (SimpleJdbcTemplate) applicationContext
+                .getBean("simpleJdbcTemplate");
 
         ldapTemplate = (LdapTemplate) applicationContext
                 .getBean("ldapTemplate");

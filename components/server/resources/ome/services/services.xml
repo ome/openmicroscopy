@@ -34,7 +34,7 @@
   <bean id="dbPatchCheck"
      class="ome.services.util.DBPatchCheck"
      init-method="start" lazy-init="false">
-     <property name="simpleJdbcTemplate" ref="simpleJdbcTemplate"/>
+     <property name="simpleJdbcTemplate" ref="unsafeJdbcTemplate"/>
   </bean>
 
   <bean id="serverVersionCheck"
