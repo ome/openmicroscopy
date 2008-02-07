@@ -8,6 +8,7 @@
 package ome.services.licenses;
 
 import ome.security.SecuritySystem;
+import ome.system.Principal;
 
 // Java imports
 
@@ -30,14 +31,14 @@ public interface LicenseStore extends ILicense {
      * call {@link #hasLicense(byte[])} within its synchronization boundaries,
      * also responsible for timeouts.
      */
-    void enterMethod(byte[] token, LicensedPrincipal p)
-            throws InvalidLicenseException, LicenseTimeout;
+    void enterMethod(byte[] token, Principal p) throws InvalidLicenseException,
+            LicenseTimeout;
 
     /**
      * Decrements the number of active methods associated with a single license
      * and timestamps the last use of the license.
      */
-    void exitMethod(byte[] token, LicensedPrincipal p);
+    void exitMethod(byte[] token, Principal p);
 
     /**
      * Checks for the validity of a token and that the Not responsible for

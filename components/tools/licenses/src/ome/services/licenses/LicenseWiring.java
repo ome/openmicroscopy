@@ -7,40 +7,36 @@
 
 package ome.services.licenses;
 
-// Java imports
-
 import java.lang.reflect.Method;
-import java.security.Principal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.aopalliance.intercept.MethodInvocation;
-
-// Application-internal dependencies
+import ome.api.ISession;
 import ome.logic.HardWiredInterceptor;
-import ome.services.blitz.fire.SessionPrincipal;
-import ome.services.blitz.util.CreateSessionMessage;
-import ome.services.blitz.util.DestroySessionMessage;
+import ome.system.Principal;
+
+import org.aopalliance.intercept.MethodInvocation;
 
 /**
  * Responsible for enforcing a generic licensing policy:
  * <ul>
  * <li>All methods to {@link ILicense} are allowed.</li>
  * <li>In an application server:</li>
- *  <ul>
- *   <li>For other methods, a non-null {@link LicensedPrincipal} is required.</li>
- *   <li>The {@link LicensedPrincipal#getLicenseToken() token} must be valid, as
+ * <ul>
+ * <li>For other methods, a non-null {@link LicensedPrincipal} is required.</li>
+ * <li>The {@link LicensedPrincipal#getLicenseToken() token} must be valid, as
  * defined by {@link LicenseStore#hasLicense(byte[])}.</li>
- *  </ul>
- * <li>In OMERO.blitz:</li>
- *  <ul>
- *   <li>All licensing is handled transparently.</li>
- *  </ul>
  * </ul>
- *
- * This {@link HardWiredInterceptor} subclass gets compiled in via the build system.
- *
+ * <li>In OMERO.blitz:</li>
+ * <ul>
+ * <li>All licensing is handled transparently.</li>
+ * </ul>
+ * </ul>
+ * 
+ * This {@link HardWiredInterceptor} subclass gets compiled in via the build
+ * system.
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  * @see HardWiredInterceptor
@@ -79,43 +75,34 @@ public class LicenseWiring extends HardWiredInterceptor {
     static {
         try {
             acquire = ILicense.class.getMethod("acquireLicense");
-            release = ILicense.class.getMethod("releaseLicense",byte[].class);
+            release = ILicense.class.getMethod("releaseLicense", byte[].class);
         } catch (Exception e) {
-            throw new RuntimeException("Error configuring LicenseWiring:",e);
+            throw new RuntimeException("Error configuring LicenseWiring:", e);
         }
     }
 
     /**
-     * This method implements special handling for calls to ILicense via
-     * blitz.
-     * @param mi
-     * @return
-     * @throws Throwable
-     * @DEV.TODO This should most likely be handled by having a separate
-     *          interface for blitz, e.g. "BlitzLicense" but for the moment
-     *          we'll use this. Note: this is also complicated by recursion,
-     *          one has to be careful not to let LicenseWiring be called twice.
+     * This method implements special handling for calls to ILicense.
+     * Originally, it was required to use ILicense directly. That is now largely
+     * deprecated in favor of letting the session code handle it.
+     * 
+     * Calls may however, still be made to ILicense, and we should handle those
+     * properly.
      */
-    public Object handleILicense(MethodInvocation mi) throws Throwable {
+    public Object handleILicense(MethodInvocation mi, Principal p)
+            throws Throwable {
 
-        Principal p = getPrincipal(mi);
-        boolean blitz = SessionPrincipal.class.isAssignableFrom(p.getClass());
         String mthd = mi.getMethod().getName();
 
-        if (!blitz) {
-            return mi.proceed();
-        }
-
-        SessionPrincipal sp = (SessionPrincipal) p;
         if (acquire.getName().equals(mthd)) {
             byte[] token = (byte[]) mi.proceed();
-            tokensBySession.put(sp.getSession(), token);
+            tokensBySession.put(p.getName(), token);
             return token;
         } else if (release.getName().equals(mthd)) {
-            byte[] token = tokensBySession.get(sp.getSession());
+            byte[] token = tokensBySession.get(p.getName());
             mi.getArguments()[0] = token;
             Object retVal = mi.proceed();
-            tokensBySession.put(sp.getSession(), null);
+            tokensBySession.put(p.getName(), null);
             return retVal;
         } else {
             return mi.proceed();
@@ -128,51 +115,37 @@ public class LicenseWiring extends HardWiredInterceptor {
     public Object invoke(MethodInvocation mi) throws Throwable {
 
         Object t = mi.getThis();
+        Principal p = getPrincipal(mi);
+
+        // ISession cannot be licensed otherwise things won't work
+        if (t instanceof ISession) {
+            return mi.proceed();
+        }
 
         // If this is a call to our license service, then give 'em a break.
         if (t instanceof ILicense) {
-            return handleILicense(mi); // EARLY EXIT!!
+            return handleILicense(mi, p); // EARLY EXIT!!
         }
 
-        // Since this isn't the license service, they have to use the proper
-        // principal
-        Principal p = getPrincipal(mi);
-        LicensedPrincipal lp;
+        // Since this isn't a privileged service, then a token must exist
         byte[] token;
-        if (LicensedPrincipal.class.isAssignableFrom(p.getClass())) {
 
-            // It is a LicensedPrincipal, but does it have a license?
-            lp = (LicensedPrincipal) p;
-            token = lp.getLicenseToken();
-
-        } else if (SessionPrincipal.class.isAssignableFrom(p.getClass())) {
-
-            // It is a SessionPrincipal from blitz, let's see if there's a
-            // current session.
-            SessionPrincipal sp = (SessionPrincipal) p;
-            String session = sp.getSession();
-            token = tokensBySession.get(session);
-            lp = new LicensedPrincipal(sp.getName(),sp.getGroup(),sp.getEventType());
-            lp.setLicenseToken(token);
-        } else {
-
-            throw new LicenseException("No valid principal found:"+p);
-
-        }
+        String session = p.getName();
+        token = tokensBySession.get(session);
 
         // Was there really a token?
         if (token == null) {
             throw new LicenseException("Method requires a license. Please use "
-                    + "ILicense.acquireLicense().");
+                    + "ILicense.acquireLicense() or create a new session.");
         }
 
         // Yes, then allow them to continue, but mark their method boundaries.
         // Within enterMethod() the license validity will be checked.
         try {
-            store.enterMethod(token, lp);
+            store.enterMethod(token, p);
             return mi.proceed();
         } finally {
-            store.exitMethod(token, lp);
+            store.exitMethod(token, p);
         }
     }
 

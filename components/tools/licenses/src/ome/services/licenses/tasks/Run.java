@@ -9,13 +9,9 @@ package ome.services.licenses.tasks;
 
 import java.util.Properties;
 
-import Glacier2.CannotCreateSessionException;
-import Glacier2.PermissionDeniedException;
-
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.services.blitz.tasks.BlitzTask;
-import ome.services.licenses.LicensedServiceFactory;
 import ome.system.ServiceFactory;
 import ome.util.tasks.Configuration;
 import ome.util.tasks.Task;
@@ -56,15 +52,16 @@ public class Run extends ome.util.tasks.Run {
         run.run();
     }
 
-    /** 
-     * Passes the {@link Configuration}-subclass instance (see {@link Config}) 
+    /**
+     * Passes the {@link Configuration}-subclass instance (see {@link Config})
      * to the {@link ome.util.tasks.Run#Run(Configuration)} constructor.
+     * 
      * @param config
      */
     public Run(Config config) {
         super(config);
     }
-    
+
     /**
      * Acquires a license during {@link ome.util.tasks.Run#setup()}
      */
@@ -73,7 +70,7 @@ public class Run extends ome.util.tasks.Run {
         acquireLicense();
         super.setup();
     }
-    
+
     /**
      * Releases a license during {@link ome.util.tasks.Run#cleanup()}
      */
@@ -84,35 +81,36 @@ public class Run extends ome.util.tasks.Run {
     }
 
     protected void acquireLicense() {
-        if (BlitzTask.class.isAssignableFrom(this.task.getClass()) && 
-            ((BlitzTask)this.task).isBlitz()) {
-            BlitzTask bt = (BlitzTask)this.task;
+        if (BlitzTask.class.isAssignableFrom(this.task.getClass())
+                && ((BlitzTask) this.task).isBlitz()) {
+            BlitzTask bt = (BlitzTask) this.task;
             try {
                 bt.getBlitzServiceFactory().createSession();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         } else {
-            getServiceFactory().acquireLicense();
+            final ServiceFactory sf = getServiceFactory();
+            sf.closeSession();
         }
     }
-    
+
     protected void releaseLicense() {
-        if (BlitzTask.class.isAssignableFrom(this.task.getClass()) && 
-            ((BlitzTask)this.task).isBlitz()) {
-            BlitzTask bt = (BlitzTask)this.task;
+        if (BlitzTask.class.isAssignableFrom(this.task.getClass())
+                && ((BlitzTask) this.task).isBlitz()) {
+            BlitzTask bt = (BlitzTask) this.task;
             try {
-                bt.getBlitzServiceFactory().destroy();
+                bt.getBlitzServiceFactory().closeSession();
             } catch (Exception e) {
                 // ignore. will timeout eventually
             }
         } else {
-            getServiceFactory().releaseLicense();
+            final ServiceFactory sf = getServiceFactory();
+            sf.getSessionService().closeSession(sf.getSession());
         }
     }
-    
-    protected LicensedServiceFactory getServiceFactory() {
-        return (LicensedServiceFactory) this.task.getServiceFactory();
+
+    protected ServiceFactory getServiceFactory() {
+        return this.task.getServiceFactory();
     }
 }
-

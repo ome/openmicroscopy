@@ -7,6 +7,7 @@
 package omero;
 
 import java.io.File;
+import java.util.Properties;
 
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceFactoryPrxHelper;
@@ -44,6 +45,15 @@ public class client {
 
     public client(File... files) {
         this(filesToString(files));
+    }
+
+    public client(Properties p) {
+        Ice.InitializationData id = new Ice.InitializationData();
+        for (Object key : p.keySet()) {
+            id.properties.setProperty(key.toString(), p.get(key).toString());
+        }
+        ic = Ice.Util.initialize(id);
+        init();
     }
 
     protected static String filesToString(File... files) {
@@ -86,6 +96,11 @@ public class client {
 
     public String getProperty(String key) {
         return getProperties().getProperty(key);
+    }
+
+    public ServiceFactoryPrx createSession()
+            throws CannotCreateSessionException, PermissionDeniedException {
+        return createSession(null, null);
     }
 
     public ServiceFactoryPrx createSession(String username, String password)

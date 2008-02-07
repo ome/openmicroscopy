@@ -8,27 +8,23 @@
 package ome.services.licenses.test;
 
 import junit.framework.TestCase;
-import ome.services.blitz.client.IceServiceFactory;
-import ome.services.licenses.LicensedServiceFactory;
 import ome.system.Login;
 import ome.system.OmeroContext;
 import omero.ServerError;
 import omero.api.ServiceInterfacePrx;
-import omero.licenses.ILicense;
 import omero.licenses.ILicensePrx;
 import omero.licenses.ILicensePrxHelper;
 
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-@Test( groups = {"client","integration","blitz"} )
+@Test(groups = { "client", "integration", "blitz" })
 public class BlitzLicenseTest extends TestCase {
 
     OmeroContext context;
     Login rootLogin;
-    IceServiceFactory ice, root;
+    omero.client ice, root;
     ILicensePrx licenseService;
     byte[] token;
 
@@ -39,10 +35,10 @@ public class BlitzLicenseTest extends TestCase {
 
         context = OmeroContext.getInstance("ome.client.test");
         rootLogin = (Login) context.getBean("rootLogin");
-        ice = new IceServiceFactory(null,null,null);
+        ice = new omero.client();
         ice.createSession();
-        root = new IceServiceFactory(null, null, rootLogin);
-        root.createSession();
+        root = new omero.client();
+        root.createSession(rootLogin.getName(), rootLogin.getPassword());
 
         licenseService = licensePrx(ice);
 
@@ -64,7 +60,7 @@ public class BlitzLicenseTest extends TestCase {
     @Test
     public void testAcquireLicenseManually() throws Exception {
         passes(true);
-        assertTrue( licenseService.releaseLicense(token) );
+        assertTrue(licenseService.releaseLicense(token));
         passes(false);
         token = licenseService.acquireLicense();
         passes(true);
@@ -74,7 +70,7 @@ public class BlitzLicenseTest extends TestCase {
     public void testReset() throws Exception {
 
         long totalA = licenseService.getTotalLicenseCount();
-        long availA  = licenseService.getAvailableLicenseCount();
+        long availA = licenseService.getAvailableLicenseCount();
 
         token = licenseService.acquireLicense();
 
@@ -92,7 +88,7 @@ public class BlitzLicenseTest extends TestCase {
 
     }
 
-    @Test(groups = {"ignore","NYI"})
+    @Test(groups = { "ignore", "NYI" })
     public void testTimeouts() {
         fail("Not implemented.");
     }
@@ -102,7 +98,7 @@ public class BlitzLicenseTest extends TestCase {
 
     protected void passes(boolean shouldpass) throws Exception {
         try {
-            ice.getConfigService(null).getServerTime();
+            ice.getServiceFactory().getConfigService().getServerTime();
             if (!shouldpass) {
                 fail("Shoudn't have passed.");
             }
@@ -114,8 +110,9 @@ public class BlitzLicenseTest extends TestCase {
 
     }
 
-    private ILicensePrx licensePrx(IceServiceFactory sf) throws ServerError {
-        ServiceInterfacePrx prx = sf.getProxy().getByName("omero.licenses.ILicense");
+    private ILicensePrx licensePrx(omero.client sf) throws ServerError {
+        ServiceInterfacePrx prx = sf.getServiceFactory().getByName(
+                "omero.licenses.ILicense");
         ILicensePrx licenses = ILicensePrxHelper.uncheckedCast(prx);
         return licenses;
     }

@@ -13,9 +13,9 @@ import java.lang.reflect.Method;
 import junit.framework.TestCase;
 import ome.services.licenses.LicenseException;
 import ome.services.licenses.LicenseStore;
-import ome.services.licenses.LicensedPrincipal;
 import ome.services.licenses.Store;
 import ome.services.licenses.TokenInfo;
+import ome.system.Principal;
 
 import org.testng.annotations.Test;
 
@@ -23,24 +23,24 @@ import org.testng.annotations.Test;
 public class LicenseStoreTest extends TestCase {
 
     LicenseStore store;
-    LicensedPrincipal p;
-    byte[] dummy = new byte[]{ (byte)1 };
-    
+    Principal p;
+    byte[] dummy = new byte[] { (byte) 1 };
+
     @Test
     public void testInitialValues() throws Exception {
 
         store = new Store();
-        ((Store)store).setLicenseCount(0);
-        
+        ((Store) store).setLicenseCount(0);
+
         assertTrue("Should be 0", store.getAvailableLicenseCount() == 0);
         assertTrue("Should be 0", store.getTotalLicenseCount() == 0);
         expectLicenseException(store, LicenseStore.class
                 .getMethod("acquireLicense"));
         assertFalse(store.releaseLicense(null));
         expectLicenseException(store, LicenseStore.class.getMethod(
-                "enterMethod", byte[].class, LicensedPrincipal.class), dummy, null);
+                "enterMethod", byte[].class, Principal.class), dummy, null);
         expectLicenseException(store, LicenseStore.class.getMethod(
-                "exitMethod", byte[].class, LicensedPrincipal.class), dummy, null);
+                "exitMethod", byte[].class, Principal.class), dummy, null);
 
     }
 
@@ -129,17 +129,17 @@ public class LicenseStoreTest extends TestCase {
         expectLicenseException(store, LicenseStore.class
                 .getMethod("acquireLicense"));
     }
-    
+
     @Test
     public void testResetLicenses() throws Exception {
-        
+
         store = new Store(10);
-        
+
         byte[] token = store.acquireLicense();
-        
+
         assertTrue(store.hasLicense(token));
         assertTrue(store.getAvailableLicenseCount() == 9);
-        
+
         store.resetLicenses();
 
         assertTrue(store.getAvailableLicenseCount() == 10);

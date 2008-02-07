@@ -1,4 +1,5 @@
 package ome.services.licenses.tasks;
+
 /*
  *   $Id$
  *
@@ -11,10 +12,8 @@ import java.util.Properties;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.model.meta.Experimenter;
-import ome.services.blitz.client.IceServiceFactory;
 import ome.services.blitz.tasks.BlitzTask;
 import ome.services.licenses.ILicense;
-import ome.services.licenses.LicensedServiceFactory;
 import ome.system.ServiceFactory;
 import ome.util.tasks.Configuration;
 import ome.util.tasks.SimpleTask;
@@ -24,8 +23,8 @@ import omero.licenses.ILicensePrxHelper;
 
 /**
  * {@link BlitzTask} which provides access to the
- * {@link ILicense license service}, and can be used to reset the licenses 
- * in the application server or in blitz.
+ * {@link ILicense license service}, and can be used to reset the licenses in
+ * the application server or in blitz.
  * 
  * name, first name, and last name, and optionally with the given email, middle
  * name, institution, and email.
@@ -55,9 +54,9 @@ public class ResetLicensesTask extends BlitzTask {
     public ResetLicensesTask(ServiceFactory sf, Properties p) {
         super(sf, p);
     }
-    
+
     /** Delegates to super */
-    public ResetLicensesTask(IceServiceFactory sf, Properties p) {
+    public ResetLicensesTask(omero.client sf, Properties p) {
         super(sf, p);
     }
 
@@ -70,16 +69,18 @@ public class ResetLicensesTask extends BlitzTask {
 
         if (useBlitz) {
             try {
-                final IceServiceFactory isf = getBlitzServiceFactory();
-                final Ice.ObjectPrx prx = isf.getByName(LICENSESERVICE.value,null);
-                final ILicensePrx lic = ILicensePrxHelper.uncheckedCast(prx); 
+                final omero.client isf = getBlitzServiceFactory();
+                final Ice.ObjectPrx prx = isf.getServiceFactory().getByName(
+                        LICENSESERVICE.value);
+                final ILicensePrx lic = ILicensePrxHelper.uncheckedCast(prx);
                 lic.resetLicenses();
             } catch (omero.ServerError se) {
                 throw new RuntimeException(se);
             }
         } else {
-            final LicensedServiceFactory lsf = (LicensedServiceFactory) getServiceFactory();
-            final ILicense licenseService = lsf.getLicenseService();
+            final ServiceFactory sf = getServiceFactory();
+            final ILicense licenseService = sf
+                    .getServiceByClass(ILicense.class);
             licenseService.resetLicenses();
         }
         getLogger().info("Reset all licenses.");

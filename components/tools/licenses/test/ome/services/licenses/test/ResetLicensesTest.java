@@ -10,7 +10,6 @@ package ome.services.licenses.test;
 import java.util.Properties;
 
 import junit.framework.TestCase;
-import ome.services.blitz.client.IceServiceFactory;
 import ome.services.blitz.tasks.BlitzTask;
 import ome.services.licenses.tasks.Run;
 import ome.system.ServiceFactory;
@@ -32,7 +31,7 @@ public class ResetLicensesTest extends TestCase {
             super(serviceFactory, properties);
         }
 
-        public TaskTest(IceServiceFactory serviceFactory, Properties properties) {
+        public TaskTest(omero.client serviceFactory, Properties properties) {
             super(serviceFactory, properties);
             // TODO Auto-generated constructor stub
         }

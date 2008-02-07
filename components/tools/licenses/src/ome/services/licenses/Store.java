@@ -13,14 +13,14 @@ import java.util.Map;
 import java.util.Random;
 
 import ome.security.SecuritySystem;
+import ome.system.Principal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Example {@link LicenseStore} implementation. NOT INTENDED FOR
- * PRODUCTION USE.
- *
+ * Example {@link LicenseStore} implementation. NOT INTENDED FOR PRODUCTION USE.
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta1
  */
@@ -60,7 +60,6 @@ public class Store implements LicenseStore {
         this.usedLicenses = used;
     }
 
-
     /** See {@link LicenseStore#setStaticSecuritySystem(SecuritySystem)} */
     public void setStaticSecuritySystem(SecuritySystem securitySystem) {
         // does nothing in this simple example
@@ -84,7 +83,7 @@ public class Store implements LicenseStore {
     // ~ Interface methods
     // =========================================================================
 
-    public void enterMethod(byte[] token, LicensedPrincipal p) {
+    public void enterMethod(byte[] token, Principal p) {
         TokenInfo tokenInfo = tokenInfos.get(new Bytes(token));
         if (tokenInfo == null) {
             throw new InvalidLicenseException("Can't enter method.");
@@ -93,7 +92,7 @@ public class Store implements LicenseStore {
         tokenInfo.time = -1;
     }
 
-    public void exitMethod(byte[] token, LicensedPrincipal p) {
+    public void exitMethod(byte[] token, Principal p) {
         TokenInfo tokenInfo = tokenInfos.get(new Bytes(token));
         if (tokenInfo == null) {
             throw new InvalidLicenseException("Can't exit method.");
@@ -157,10 +156,12 @@ public class Store implements LicenseStore {
     private static class Bytes {
 
         private final byte[] b;
+
         public Bytes(byte[] bytes) {
             assert bytes != null;
             b = bytes;
         }
+
         @Override
         public boolean equals(Object obj) {
             if (!(obj instanceof Bytes)) {
@@ -178,6 +179,7 @@ public class Store implements LicenseStore {
 
             return true;
         }
+
         @Override
         public int hashCode() {
             int hash = 13;
@@ -186,6 +188,7 @@ public class Store implements LicenseStore {
             }
             return hash;
         }
+
         @Override
         public String toString() {
             return Arrays.toString(b);

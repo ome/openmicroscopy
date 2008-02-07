@@ -7,14 +7,11 @@
 
 package ome.services.licenses;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import ome.security.SecuritySystem;
-import ome.services.blitz.util.AbstractSessionMessage;
-import ome.services.blitz.util.CreateSessionMessage;
-import ome.services.blitz.util.DestroySessionMessage;
+import ome.services.messages.AbstractSessionMessage;
+import ome.services.messages.CreateSessionMessage;
+import ome.services.messages.DestroySessionMessage;
+import ome.system.Principal;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -22,14 +19,13 @@ import org.springframework.context.ApplicationListener;
 /**
  * Listens for {@link AbstractSessionMessages} sent by
  * {@link ome.services.blitz.fire.SesssionManagerI} and
- * {@link ome.services.blitz.impl.ServiceFactoryI} and creates licenses
- * when necessary for the user. The listener decouples the session
- * creation from the licensing logic.
- *
- * This is notably different from the process needed to acquire a
- * license in the application server case, since there is no
- * central session.
- *
+ * {@link ome.services.blitz.impl.ServiceFactoryI} and creates licenses when
+ * necessary for the user. The listener decouples the session creation from the
+ * licensing logic.
+ * 
+ * This is notably different from the process needed to acquire a license in the
+ * application server case, since there is no central session.
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  */
@@ -54,29 +50,29 @@ public class LicenseSessionListener implements ApplicationListener {
     }
 
     public void onApplicationEvent(ApplicationEvent event) {
-            if (event instanceof CreateSessionMessage) {
-                CreateSessionMessage create = (CreateSessionMessage) event;
-                login(create);
-                try {
-                    byte[] token = lic.acquireLicense();
-                    wiring.setToken(create.getSessionId(),token);
-                } finally {
-                    logout();
-                }
-            } else if (event instanceof DestroySessionMessage) {
-                DestroySessionMessage destroy = (DestroySessionMessage) event;
-                try {
-                    login(destroy);
-                    byte[] token = wiring.getToken(destroy.getSessionId());
-                    lic.releaseLicense(token);
-                } finally {
-                    logout();
+        if (event instanceof CreateSessionMessage) {
+            CreateSessionMessage create = (CreateSessionMessage) event;
+            login(create);
+            try {
+                byte[] token = lic.acquireLicense();
+                wiring.setToken(create.getSessionId(), token);
+            } finally {
+                logout();
+            }
+        } else if (event instanceof DestroySessionMessage) {
+            DestroySessionMessage destroy = (DestroySessionMessage) event;
+            try {
+                login(destroy);
+                byte[] token = wiring.getToken(destroy.getSessionId());
+                lic.releaseLicense(token);
+            } finally {
+                logout();
             }
         }
     }
 
     protected void login(AbstractSessionMessage event) {
-        this.sec.login(event.getPrincipal());
+        this.sec.login(new Principal(event.getSessionId(), "user", "Licenses"));
     }
 
     protected void logout() {

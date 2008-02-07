@@ -23,22 +23,20 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
-// Third-party libraries
+import ome.annotations.RevisionDate;
+import ome.annotations.RevisionNumber;
+import ome.api.ServiceInterface;
+import ome.logic.AbstractLevel2Service;
+import ome.logic.SimpleLifecycle;
+import ome.security.SecuritySystem;
+import ome.services.util.OmeroAroundInvoke;
+import ome.system.Principal;
+
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
 import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
-
-// Application-internal dependencies
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
-import ome.api.ServiceInterface;
-import ome.conditions.InternalException;
-import ome.logic.AbstractLevel2Service;
-import ome.logic.SimpleLifecycle;
-import ome.security.SecuritySystem;
-import ome.services.util.OmeroAroundInvoke;
 
 /**
  * Implementation of the {@link ILicense} service interface. {@link LicenseBean}
@@ -56,11 +54,9 @@ import ome.services.util.OmeroAroundInvoke;
 @Transactional
 @Stateless
 @Remote(ILicense.class)
-@RemoteBindings({
-    @RemoteBinding(jndiBinding = "omero/remote/ome.services.licenses.ILicense"),
-    @RemoteBinding(jndiBinding = "omero/secure/ome.services.licenses.ILicense",
-        clientBindUrl = "sslsocket://0.0.0.0:3843")
-})
+@RemoteBindings( {
+        @RemoteBinding(jndiBinding = "omero/remote/ome.services.licenses.ILicense"),
+        @RemoteBinding(jndiBinding = "omero/secure/ome.services.licenses.ILicense", clientBindUrl = "sslsocket://0.0.0.0:3843") })
 @Local(ILicense.class)
 @LocalBinding(jndiBinding = "omero/local/ome.services.licenses.ILicense")
 @SecurityDomain("OmeroSecurity")
@@ -80,27 +76,27 @@ public class LicenseBean extends AbstractLevel2Service implements LicenseStore {
     private final static LicenseStore STORE;
 
     // Now we'll try to create an instance of STORE_CLASS and assign it to the
-    // STORE constant. 
+    // STORE constant.
     static {
         try {
             Class storeClass = Class.forName(STORE_CLASS);
             STORE = (LicenseStore) storeClass.newInstance();
         } catch (Exception e) {
             throw new RuntimeException("Failed to create license store:"
-				       + STORE_CLASS,e);
+                    + STORE_CLASS, e);
         }
     }
 
-    /** 
-     * This injector does not synchronize or check for null as specified in
-     * the {@link LicenseStore#setStaticSecuritySystem(SecuritySystem)} method, but
-     * delegates to the {@link #STORE} instance which should implement that 
+    /**
+     * This injector does not synchronize or check for null as specified in the
+     * {@link LicenseStore#setStaticSecuritySystem(SecuritySystem)} method, but
+     * delegates to the {@link #STORE} instance which should implement that
      * logic.
      */
     public void setStaticSecuritySystem(SecuritySystem security) {
         STORE.setStaticSecuritySystem(security);
     }
-    
+
     // ~ Service methods
     // =========================================================================
     // All methods delegate to the global static STORE instance.
@@ -149,12 +145,12 @@ public class LicenseBean extends AbstractLevel2Service implements LicenseStore {
     }
 
     /** See {@link LicenseStore#enterValid(byte[])} */
-    public void enterMethod(byte[] token, LicensedPrincipal p) {
+    public void enterMethod(byte[] token, Principal p) {
         STORE.enterMethod(token, p);
     }
 
     /** See {@link LicenseStore#exitMethod(byte[])} */
-    public void exitMethod(byte[] token, LicensedPrincipal p) {
+    public void exitMethod(byte[] token, Principal p) {
         STORE.exitMethod(token, p);
     }
 }

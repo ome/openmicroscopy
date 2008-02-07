@@ -12,9 +12,7 @@ import java.util.Properties;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
-import ome.services.blitz.client.IceServiceFactory;
 import ome.services.blitz.tasks.BlitzTask;
-import ome.services.licenses.LicensedServiceFactory;
 import ome.system.ServiceFactory;
 import ome.util.tasks.Configuration;
 import ome.util.tasks.Task;
@@ -38,20 +36,20 @@ public class Config extends Configuration {
 
     @Override
     public ServiceFactory createServiceFactory() {
-        return new LicensedServiceFactory(getProperties(), null, null);
+        return new ServiceFactory(getProperties());
     }
 
-    public IceServiceFactory createIceServiceFactory() {
-        return new IceServiceFactory(getProperties(), null, null);
+    public omero.client createIceServiceFactory() {
+        return new omero.client(getProperties());
     }
 
     @Override
     public Task createTask() {
-        if (Boolean.valueOf(getProperties().getProperty("blitz","false"))) {
+        if (Boolean.valueOf(getProperties().getProperty("blitz", "false"))) {
             Class taskClass = getTaskClass();
             Constructor ctor;
             try {
-                ctor = taskClass.getConstructor(IceServiceFactory.class,
+                ctor = taskClass.getConstructor(omero.client.class,
                         Properties.class);
                 return (BlitzTask) ctor.newInstance(createIceServiceFactory(),
                         getProperties());
@@ -62,9 +60,9 @@ public class Config extends Configuration {
                 throw new RuntimeException(e);
             }
         } else {
-            return (Task) super.createTask();
+            return super.createTask();
         }
-        
+
     }
 
 }
