@@ -25,9 +25,6 @@ public class SessionInitializer {
     /** Principal given by the user */
     protected Principal principal;
 
-    /** Principal generated from session */
-    protected Principal sessionPrincipal;
-
     protected String credentials;
 
     protected ome.model.meta.Session session;
@@ -46,14 +43,16 @@ public class SessionInitializer {
         this.credentials = securityCredentials;
     }
 
+    public boolean hasSession() {
+        synchronized (mutex) {
+            return session != null;
+        }
+    }
+
     public ome.model.meta.Session getSession() {
         synchronized (mutex) {
             if (session == null) {
                 session = sessions.createSession(principal, credentials);
-                sessionPrincipal = new Principal(this.session.getUuid(),
-                        this.principal.getGroup(), this.principal
-                                .getEventType());
-
             }
         }
         return this.session;
@@ -67,6 +66,8 @@ public class SessionInitializer {
 
     public Principal createPrincipal() {
         getSession();
+        Principal sessionPrincipal = new Principal(this.session.getUuid(),
+                this.principal.getGroup(), this.principal.getEventType());
         sessionPrincipal.setUmask(principal.getUmask());
         return sessionPrincipal;
     }

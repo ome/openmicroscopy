@@ -288,6 +288,19 @@ public class ServiceFactory {
         si.setSession(session);
     }
 
+    public void closeSession() throws ApiUsageException {
+        ISession is = getSessionService();
+        SessionInitializer si = getSessionInitializer();
+        if (si.hasSession()) {
+            Session s = si.getSession();
+            try {
+                is.closeSession(s);
+            } finally {
+                si.setSession(null);
+            }
+        }
+    }
+
     protected SessionInitializer getSessionInitializer() {
         SessionInitializer si;
         try {

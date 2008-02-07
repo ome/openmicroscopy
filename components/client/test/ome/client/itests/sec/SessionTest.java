@@ -7,9 +7,12 @@
 package ome.client.itests.sec;
 
 import junit.framework.TestCase;
+import ome.api.IConfig;
 import ome.api.ISession;
+import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 import ome.system.Login;
+import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 
@@ -21,23 +24,53 @@ import org.testng.annotations.Test;
  */
 public class SessionTest extends TestCase {
 
+    Login rootLogin = (Login) OmeroContext.getInstance("ome.client.test")
+            .getBean("rootLogin");
+    Principal rootPrincipal = new Principal(rootLogin.getName(), "system",
+            "Test");
+
     @Test
     public void testServiceFactoryWithNormalUsageAcquiresSession() {
-        ServiceFactory sf = new ServiceFactory();
+        ServiceFactory sf = new ServiceFactory(rootLogin);
+        sf.getQueryService().get(Experimenter.class, 0L);
     }
 
     @Test
     public void AndIfSessionIsLostReacquires() {
         ServiceFactory sf = new ServiceFactory();
+        IConfig c1 = sf.getConfigService(), c2;
+        sf.closeSession();
+        try {
+            c1.getServerTime();
+            fail("should fail since session closed");
+        } catch (Exception e) {
+            // ok
+        }
+        // A new proxy should work
+        c2 = sf.getConfigService();
+        c2.getServerTime();
 
-        fail("Is this the right thing to do?");
+        // Just calling close session
+        sf.getSessionService().closeSession(sf.getSession());
+        try {
+            sf.getQueryService().get(Experimenter.class, 0L);
+            fail("Shouldn't be logged in");
+        } catch (Exception e) {
+            // ok
+        }
+
     }
 
     @Test
     public void testSimpleCreate() throws Exception {
         ServiceFactory sf = new ServiceFactory();
         ISession service = sf.getServiceByClass(ISession.class);
-        Session s = sf.getSession();
+
+        Session s = service.createSession(rootPrincipal, rootLogin
+                .getPassword());
+        sf.setSession(s);
+        Session s2 = sf.getSession();
+        assertEquals(s, s2);
         service.closeSession(s);
     }
 
@@ -46,14 +79,29 @@ public class SessionTest extends TestCase {
         ServiceFactory sf = new ServiceFactory("ome.client.test");
         String name = sf.getAdminService().getEventContext()
                 .getCurrentUserName();
-        Login rootLogin = (Login) sf.getContext().getBean("rootLogin");
         ServiceFactory root = new ServiceFactory(rootLogin);
         ISession sessions = root.getServiceByClass(ISession.class);
         Principal p = new Principal(name, "user", "Test");
-        Session s = sessions.createSessionWithTimeout(p, 10L);
+        Session s = sessions.createSessionWithTimeout(p, 10 * 1000L);
         ServiceFactory sessionedSf = new ServiceFactory();
         sessionedSf.setSession(s);
         sessionedSf.getConfigService().getServerTime();
+    }
+
+    @Test
+    public void testOthersCantKillASession() {
+        ServiceFactory sf1 = new ServiceFactory(rootLogin), sf2 = new ServiceFactory(
+                rootLogin);
+
+        Session session = sf1.getSession();
+        sf2.getSessionService().closeSession(session);
+        sf1.getConfigService().getServerTime();
+        fail("good or bad if this is reached?");
+    }
+
+    @Test
+    public void testCanEveryoneUseTheSameISession() {
+        fail("even guests?");
     }
 
 }
