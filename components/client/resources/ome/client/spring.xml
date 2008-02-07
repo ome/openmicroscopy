@@ -171,32 +171,32 @@
       STATEFUL SERVICES
   -->
 
-  <bean id="managed:ome.api.RawFileStore" parent="jndi">
+  <bean id="managed:ome.api.RawFileStore" parent="jndi" singleton="false">
     <property name="jndiName" value="omero/${server.transport}/ome.api.RawFileStore"/>
     <property name="proxyInterface" value="ome.api.RawFileStore"/>
   </bean>
   
-  <bean id="managed:ome.api.RawPixelsStore" parent="jndi">
+  <bean id="managed:ome.api.RawPixelsStore" parent="jndi" singleton="false">
     <property name="jndiName" value="omero/${server.transport}/ome.api.RawPixelsStore"/>
     <property name="proxyInterface" value="ome.api.RawPixelsStore"/>
   </bean>
     
-  <bean id="managed:omeis.providers.re.RenderingEngine" parent="jndi">
+  <bean id="managed:omeis.providers.re.RenderingEngine" parent="jndi" singleton="false">
     <property name="jndiName" value="omero/${server.transport}/omeis.providers.re.RenderingEngine"/>
     <property name="proxyInterface" value="omeis.providers.re.RenderingEngine"/>
   </bean>
 
-  <bean id="managed:ome.api.Search" parent="jndi">
+  <bean id="managed:ome.api.Search" parent="jndi" singleton="false">
     <property name="jndiName" value="omero/${server.transport}/ome.api.Search"/>
     <property name="proxyInterface" value="ome.api.Search"/>
   </bean>
 
-  <bean id="managed:ome.api.ThumbnailStore" parent="jndi">
+  <bean id="managed:ome.api.ThumbnailStore" parent="jndi" singleton="false">
     <property name="jndiName" value="omero/${server.transport}/ome.api.ThumbnailStore"/>
     <property name="proxyInterface" value="ome.api.ThumbnailStore"/>
   </bean>
 
-  <bean id="managed:ome.api.JobHandle" parent="jndi">
+  <bean id="managed:ome.api.JobHandle" parent="jndi" singleton="false">
     <property name="jndiName" value="omero/${server.transport}/ome.api.JobHandle"/>
     <property name="proxyInterface" value="ome.api.JobHandle"/>
   </bean>
