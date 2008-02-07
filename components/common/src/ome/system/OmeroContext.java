@@ -12,7 +12,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
-// Third-party libraries
+import ome.api.ServiceInterface;
+import ome.conditions.ApiUsageException;
+import ome.util.messages.InternalMessage;
+import ome.util.messages.MessageException;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -23,12 +27,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
-
-// Application-internal dependencies
-import ome.api.ServiceInterface;
-import ome.conditions.ApiUsageException;
-import ome.util.messages.InternalMessage;
-import ome.util.messages.MessageException;
 
 /**
  * Provides static access for the creation of singleton and non-singleton
@@ -267,6 +265,29 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
 
         for (int i = list.size() - 1; i >= 0; i--) {
             list.get(i).refresh();
+        }
+
+    }
+
+    /**
+     * closes all the nested OmeroContexts within this instance.
+     * 
+     * If this is a server-side instance ({@link OmeroContext#MANAGED_CONTEXT}
+     * or {@link OmeroContext#INTERNAL_CONTEXT}), this may take a significant
+     * amount of time.
+     * 
+     * @see org.springframework.context.ConfigurableApplicationContext#close()
+     */
+    public void closeAll() {
+        ApplicationContext ac = this;
+        List<ConfigurableApplicationContext> list = new LinkedList<ConfigurableApplicationContext>();
+        while (ac instanceof ConfigurableApplicationContext) {
+            list.add((ConfigurableApplicationContext) ac);
+            ac = ac.getParent();
+        }
+
+        for (int i = list.size() - 1; i >= 0; i--) {
+            list.get(i).close();
         }
 
     }

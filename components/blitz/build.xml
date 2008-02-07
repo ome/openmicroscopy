@@ -7,7 +7,7 @@
     <import file="${import.dir}/lifecycle.xml"/>
 
     <!-- Class that will be called via "java -jar" on this artifact -->
-    <property name="main.class" value="ome.services.blitz.Main"/>
+    <property name="main.class" value="ome.services.blitz.Entry"/>
 
     <!-- Local properties -->
     <property name="uses.ice" value="true"/>
