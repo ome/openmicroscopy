@@ -70,9 +70,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
         mockMgr.expects(atLeastOnce()).method("getEventContext")
         	.will(returnValue(null));
         sec = new BasicSecuritySystem(
-        		(LocalQuery)sf.getQueryService(),
-        		(LocalUpdate)sf.getUpdateService(),
-        		mgr, new Roles());
+        		sf, mgr, new Roles());
     }
 
     protected void prepareMocksWithUserDetails(boolean readOnly) {

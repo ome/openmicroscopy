@@ -51,55 +51,55 @@ public class MockServiceFactory extends ServiceFactory {
         return null;
     }
 
-    public Mock mockAdmin;
+    public Mock mockAdmin = new Mock(IAdmin.class);
 
     @Override
     public IAdmin getAdminService() {
         return (IAdmin) mockAdmin.proxy();
     }
 
-    public Mock mockAnalysis;
+    public Mock mockAnalysis = new Mock(IAnalysis.class);
 
     @Override
     public IAnalysis getAnalysisService() {
         return (IAnalysis) mockAnalysis.proxy();
     }
 
-    public Mock mockPixels;
+    public Mock mockPixels = new Mock(IPixels.class);
 
     @Override
     public IPixels getPixelsService() {
         return (IPixels) mockPixels.proxy();
     }
 
-    public Mock mockPojos;
+    public Mock mockPojos = new Mock(IPojos.class);
 
     @Override
     public IPojos getPojosService() {
         return (IPojos) mockPojos.proxy();
     }
 
-    public Mock mockQuery;
+    public Mock mockQuery = new Mock(IQuery.class);
 
     @Override
     public IQuery getQueryService() {
         return (IQuery) mockQuery.proxy();
     }
 
-    public Mock mockRendering;
+    public Mock mockRendering = new Mock(RenderingEngine.class);
 
     public RenderingEngine getRenderingService() {
         return (RenderingEngine) mockRendering.proxy();
     }
 
-    public Mock mockUpdate;
+    public Mock mockUpdate = new Mock(IUpdate.class);
 
     @Override
     public IUpdate getUpdateService() {
         return (IUpdate) mockUpdate.proxy();
     }
 
-    public Mock mockTypes;
+    public Mock mockTypes = new Mock(ITypes.class);
 
     @Override
     public ITypes getTypesService() {
