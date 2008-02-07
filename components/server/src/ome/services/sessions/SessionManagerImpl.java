@@ -41,15 +41,6 @@ import org.springframework.context.ApplicationEvent;
  */
 public class SessionManagerImpl implements SessionManager {
 
-    
-
-    public final static Permissions INVISIBLE_MASK;
-    static {
-        Permissions p = new Permissions(Permissions.PUBLIC);
-        p.revoke(Permissions.Role.USER, Permissions.Right.READ);
-        INVISIBLE_MASK = Permissions.immutable(p);
-    }
-
     // Injected
     LocalAdmin admin;
     LocalQuery query;
@@ -100,7 +91,7 @@ public class SessionManagerImpl implements SessionManager {
 
         // Set values on sessions 
         Session session = new Session();
-        session.getDetails().getPermissions().revokeAll(INVISIBLE_MASK);
+        session.getDetails().setPermissions( new Permissions(Permissions.USER_PRIVATE) );
         session.getDetails().setOwner(exp);
         session.getDetails().setGroup(grp);
         
@@ -146,7 +137,7 @@ public class SessionManagerImpl implements SessionManager {
      */
     public Session find(String uuid) {
         SessionContext sessionContext = sessions.get(uuid);
-        return checkTimeout(sessionContext.getSession());
+        return checkTimeout(sessionContext);
     }
     
     /*
@@ -156,7 +147,7 @@ public class SessionManagerImpl implements SessionManager {
      */
     public Session find(long id) {
         SessionContext sessionContext = sessions.get(id);
-        return checkTimeout(sessionContext.getSession());
+        return checkTimeout(sessionContext);
     }
 
     /*
@@ -216,22 +207,22 @@ throw new UnsupportedOperationException("CHECK FOR NULL; NYI");
     // ~ Misc
     // =========================================================================
 
-    protected long lastAccess(String sessionId) {
-        return 0L;
-    }
-
     /**
      * If the session is timed out, this method removes the session from the 
      * collection and returns null.
      * 
      * @param session
      */
-    protected Session checkTimeout(Session session) {
-        return null;
-    }
-
-    protected String lookup(long id) {
-        return null; // TODO
+    protected Session checkTimeout(SessionContext ctx) {
+        
+    	if (ctx == null) return null;
+        
+    	Session s = ctx.getSession();
+        assert s != null;
+        
+        long timestamp = 
+        
+        return s;
     }
 
 

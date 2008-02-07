@@ -17,7 +17,7 @@ import ome.system.EventContext;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-interface SessionContext extends EventContext {
+public interface SessionContext extends EventContext {
 
     Session getSession();
 

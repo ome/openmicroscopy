@@ -27,9 +27,9 @@ public interface SessionCache {
     void put(SessionContext session);
     SessionContext get(String uuid);
     SessionContext get(long id);
-    void remove(String uuid);
-    void remove(long id);
-    void clear();
+    SessionContext remove(String uuid);
+    SessionContext remove(long id);
+    int clear();
     int size();
     
     void readLock();
@@ -38,5 +38,10 @@ public interface SessionCache {
     void writeUnlock();
     
     void each(Visitor visitor);
+    
+    void touch(String uuid);
+    void touch(long id);
+    long timestamp(String uuid);
+    long timestamp(long id);
     
 }
