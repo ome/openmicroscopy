@@ -11,19 +11,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
+import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
+import ome.conditions.SessionException;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
+import ome.parameters.Parameters;
 import ome.system.EventContext;
 import ome.system.Principal;
+import ome.system.Roles;
+import ome.tools.spring.ReadWriteCache;
 
 import org.springframework.context.ApplicationEvent;
 
@@ -42,12 +46,18 @@ import org.springframework.context.ApplicationEvent;
 public class SessionManagerImpl implements SessionManager {
 
     // Injected
+    Roles roles;
+    LocalAdmin admin;
     LocalQuery query;
     LocalUpdate update;
-    Cache sessions;
+    ReadWriteCache sessions;
     
     // ~ Injectors
     // =========================================================================
+    
+    public void setAdminService(LocalAdmin adminService) {
+    	admin = adminService;
+    }
     
     public void setQueryService(LocalQuery queryService) {
         query = queryService;
@@ -57,75 +67,106 @@ public class SessionManagerImpl implements SessionManager {
         update = updateService;
     }
 
-    public void setCache(Cache sessionCache) { 
+    public void setCache(ReadWriteCache sessionCache) { 
         sessions = sessionCache;
     }
 
+    public void setRoles(Roles securityRoles) { 
+        roles = securityRoles;
+    }
+    
     // ~ Session management
     // =========================================================================
 
     /*
 	 * Is given trustable values by the {@link SessionBean}
      */
-    public Session create(Experimenter exp, ExperimenterGroup grp, 
-    		List<Long>leaderOfGroupsIds, List<Long> memberOfGroupsIds, List<String> roles,
-    		String type, Permissions perms) {
+    public Session create(Principal _principal, String credentials) {
 
-        // Set values on sessions 
+        if (_principal == null || _principal.getName() == null) {
+            throw new ApiUsageException("Principal and user name cannot be null");
+        }
+
+        if (!admin.checkPassword(_principal.getName(), credentials)) {
+            throw new SecurityViolation("Authentication exception.");
+        }
+        
+
+        Principal principal = checkPrincipalNameAndDefaultGroup(_principal);
+        
         Session session = new Session();
-        session.setUuid(UUID.randomUUID().toString());
-        session.getDetails().setPermissions( new Permissions(Permissions.USER_PRIVATE) );
-        session.getDetails().setOwner(exp);
-        session.getDetails().setGroup(grp);
-        
-        // if defaults are null
-        parseAndSetDefaultType(type, session);
-        parseAndSetDefaultPermissions(perms, session);
-        
+    	SessionContext ctx = currentDatabaseShapshot(principal, session);
+    	session.setUuid(UUID.randomUUID().toString());
         session.setStarted(new Timestamp(System.currentTimeMillis()));
-        session = update.saveAndReturnObject(session);
-
-        Session copy = new Session();
-        copy(session,copy);
-        SessionContext sessionContext = new SessionContextImpl
-        	(copy,leaderOfGroupsIds, memberOfGroupsIds, roles);
-        putSession(session.getUuid(), sessionContext);
-        return session;
-    }
-
-    public void copy(Session source, Session target) {
-        if (source == null || target ==null)
-        	throw new ApiUsageException("Source and target may not be null.");
+        update.saveObject(session);        
+        putSession(session.getUuid(), ctx);
         
-        target.setId(source.getId());
-        target.setClosed(source.getClosed());
-        target.setDefaultEventType(source.getDefaultEventType());
-        target.setDefaultPermissions(source.getDefaultPermissions());
-        Details d = source.getDetails();
-        target.setDetails(d == null ? null : d.shallowCopy());
-        target.setStarted(source.getStarted());
-        target.setUserAgent(source.getUserAgent());
-        target.setUuid(source.getUuid());
+    	return session;
     }
 
     public Session update(Session session) {
-    	if (session == null) return null;
-    	if (session.getUuid() == null) return null;
+
+    	if (session == null || session.getUuid() == null) {
+    		throw new SessionException("Cannot update; No uuid.");
+    	}
     	
     	SessionContext ctx = getSessionContext(session.getUuid());
+    	if (ctx == null){
+    		throw new SessionException("Can't update; No session with uuid:" + session.getUuid());
+    	}
     	Session orig = ctx.getSession();
     	
-    	// Conditiablly settable
     	
-    	
-    	// Unconditionally settable
+    	// Conditiablly settable; 
+    	// will be checked by checkPrincipalNameAndDefaultGroup
+    	Details proposed = session.getDetails();
+    	if (proposed == null) {
+    		proposed = orig.getDetails();
+    	}
+    	long uid = proposed.getOwner().getId();
+    	long gid = proposed.getGroup().getId();
+    	Principal principal = checkPrincipalNameAndDefaultGroup(
+    			new Principal(
+    					admin.userProxy(uid).getOmeName(), 
+    					admin.groupProxy(gid).getName(), null));
+    	if (session.getDetails() != null) {
+    		Details proposedDetails = session.getDetails();
+    		ExperimenterGroup proposedGroup = proposedDetails.getGroup();
+    	}
+    	    	
+    	// Unconditionally settable; these are open to the user for change
     	parseAndSetDefaultType(session.getDefaultEventType(), orig);
     	parseAndSetDefaultPermissions(session.getDefaultPermissions(), orig);
     	orig.setUserAgent(session.getUserAgent());
+    	
     	// Need to handle notifications
     	
-    	throw new UnsupportedOperationException();
+    	ctx = currentDatabaseShapshot(principal, orig);
+    	update.saveObject(orig);
+    	putSession(orig.getUuid(), ctx);
     	
+    	return session;
+
+    }
+    
+    protected SessionContext currentDatabaseShapshot(Principal principal, Session session) {
+        // Do lookups 
+        final Experimenter exp = admin.userProxy(principal.getName());
+        final ExperimenterGroup grp = admin.groupProxy(principal.getGroup());
+        final List<Long> memberOfGroupsIds = admin.getMemberOfGroupIds(exp);
+        final List<Long> leaderOfGroupsIds = admin.getLeaderOfGroupIds(exp);
+        final List<String> userRoles = admin.getUserRoles(exp);
+
+        parseAndSetDefaultType(principal.getEventType(), session);
+        parseAndSetDefaultPermissions(principal.getUmask(), session);
+        
+        session.getDetails().setOwner(exp);
+        session.getDetails().setGroup(grp);        
+        
+        SessionContext sessionContext = new SessionContextImpl
+        	(session,leaderOfGroupsIds, memberOfGroupsIds, userRoles);
+        return sessionContext;
+        
     }
     
     /*
@@ -175,7 +216,7 @@ public class SessionManagerImpl implements SessionManager {
     public EventContext getEventContext(Principal principal) {
         final Session session = find(principal.getName());
         if (session == null) return null; // EARLY EXIT.
-throw new UnsupportedOperationException("CHECK FOR NULL; NYI");
+        	throw new UnsupportedOperationException("CHECK FOR NULL; NYI");
         //return sessions.get(uuid);
         //null // we must check here if the Principal matches and update the group/event
     }
@@ -211,6 +252,53 @@ throw new UnsupportedOperationException("CHECK FOR NULL; NYI");
     // ~ Misc
     // =========================================================================
     
+    /**
+     * Checks the validity of the given {@link Principal}, and in the case of 
+     * an error attempts to correct the problem by returning a new Principal.
+     */
+    private Principal checkPrincipalNameAndDefaultGroup(Principal p) {
+
+        if (p == null || p.getName() == null) {
+            throw new ApiUsageException("Null principal name.");
+        }
+        
+        // Null or bad event type values as well as umasks are handled
+        // within the SessionManager and EventHandler. It is necessary
+        String group = p.getGroup();
+        if (group == null) {
+            group = "user";
+        }
+        
+
+        // ticket:404 -- preventing users from logging into "user" group
+        else if (roles.getUserGroupName().equals(p.getGroup())) {
+            List<ExperimenterGroup> groups = query.findAllByQuery(
+                            "select g from ExperimenterGroup g "
+                                    + "join g.groupExperimenterMap as m "
+                                    + "join m.child as u "
+                                    + "where g.name  != :userGroup and "
+                                    + "u.omeName = :userName and "
+                                    + "m.defaultGroupLink = true",
+                            new Parameters().addString("userGroup",
+                                    roles.getUserGroupName()).addString(
+                                    "userName", p.getName()));
+
+            if (groups.size() != 1) {
+                throw new SecurityViolation(
+                        String
+                                .format(
+                                        "User %s attempted to login to user group \"%s\". When "
+                                                + "doing so, there must be EXACTLY one default group for "
+                                                + "that user and not %d", p
+                                                .getName(), roles
+                                                .getUserGroupName(), groups
+                                                .size()));
+            }
+            group = groups.get(0).getName();
+        }
+        return new Principal(p.getName(), group, p.getEventType());
+    }
+    
 	private void putSession(String uuid, SessionContext sessionContext) {
 		sessions.put(new Element(uuid,sessionContext));
 	}
@@ -235,5 +323,20 @@ throw new UnsupportedOperationException("CHECK FOR NULL; NYI");
 		String _type = (type == null) ? "User" : type;
         session.setDefaultEventType(_type);
 	}
+	
+    private void copy(Session source, Session target) {
+        if (source == null || target ==null)
+        	throw new ApiUsageException("Source and target may not be null.");
+        
+        target.setId(source.getId());
+        target.setClosed(source.getClosed());
+        target.setDefaultEventType(source.getDefaultEventType());
+        target.setDefaultPermissions(source.getDefaultPermissions());
+        Details d = source.getDetails();
+        target.setDetails(d == null ? null : d.shallowCopy());
+        target.setStarted(source.getStarted());
+        target.setUserAgent(source.getUserAgent());
+        target.setUuid(source.getUuid());
+    }
     
 }

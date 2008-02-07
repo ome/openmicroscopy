@@ -37,8 +37,6 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public abstract class AbstractLevel1Service implements SelfConfigurableService {
 
     protected transient QueryFactory queryFactory;
-    
-    protected transient SecuritySystem securitySystem;
 
     /**
      * Performs the necessary {@link OmeroContext} lookup and calls
@@ -54,15 +52,6 @@ public abstract class AbstractLevel1Service implements SelfConfigurableService {
     
     public QueryFactory getQueryFactory() {
         return this.queryFactory;
-    }
-
-    public final void setSecuritySystem(SecuritySystem security) {
-        getBeanHelper().throwIfAlreadySet(this.securitySystem, security);
-        this.securitySystem = security;
-    }
-    
-    public SecuritySystem getSecuritySystem() {
-        return this.securitySystem;
     }
     
     /**

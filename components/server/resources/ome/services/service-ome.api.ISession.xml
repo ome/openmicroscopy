@@ -24,10 +24,8 @@
     Privileged bean which has several "private" references injected. This is not
     an example of what should be done.
     </description>
-    <property name="localAdmin" ref="internal:ome.api.local.LocalAdmin"/>
-    <property name="localQuery" ref="internal:ome.api.local.LocalQuery"/>
+    <property name="localAdmin" ref="internal:ome.api.LocalAdmin"/>
     <property name="sessionManager" ref="sessionManager"/>
-    <property name="roles"  ref="roles"/>
   </bean> 
  
   <bean name="managed:ome.api.ISession" parent="managedService">
@@ -40,10 +38,16 @@
   </bean>  
 
   <bean name="sessionManager" class="ome.services.sessions.SessionManagerImpl">
-    <property name="queryService"  ref="internal:ome.api.IQuery"/>
-    <property name="updateService" ref="internal:ome.api.IUpdate"/>
+    <property name="adminService"  ref="internal:ome.api.LocalAdmin"/>
+    <property name="queryService"  ref="internal:ome.api.LocalQuery"/>
+    <property name="updateService" ref="internal:ome.api.LocalUpdate"/>
     <property name="cache"         ref="sessionCache"/>
+    <property name="roles"         ref="roles"/>
   </bean>  
+  
+  <bean id="readWriteCache" class="ome.tools.spring.ReadWriteCache">
+     <constructor-arg ref="sessionCache"/>
+  </bean>
   
   <bean id="sessionCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
     <property name="cacheManager" ref="CacheManager"/>

@@ -9,8 +9,12 @@ package ome.server.utests.sessions;
 import java.util.Collections;
 import java.util.List;
 
+import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
+import ome.conditions.ApiUsageException;
+import ome.conditions.SecurityViolation;
+import ome.conditions.SessionException;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
@@ -19,6 +23,8 @@ import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.services.sessions.SessionManagerImpl;
 import ome.system.Principal;
+import ome.system.Roles;
+import ome.tools.spring.ReadWriteCache;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
@@ -32,47 +38,57 @@ import org.testng.annotations.Test;
  */
 public class SessMgrUnitTest extends MockObjectTestCase {
 
-    private Mock updateMock;
-    
-    private Mock queryMock;
-
+	private Mock adminMock,updateMock,queryMock;
     private SessionManagerImpl mgr;
+    private LocalAdmin admin;
     private LocalUpdate update;
-
     private LocalQuery query;
-
     private Session session;
 
     @BeforeTest
     public void config() {
+    	adminMock = mock(LocalAdmin.class);
+    	admin = (LocalAdmin) adminMock.proxy();
         updateMock = mock(LocalUpdate.class);
         update = (LocalUpdate) updateMock.proxy();
         queryMock = mock(LocalQuery.class);
         query = (LocalQuery) queryMock.proxy();
         
         mgr = new SessionManagerImpl();
+        mgr.setAdminService(admin);
         mgr.setUpdateService(update);
         mgr.setQueryService(query);
+        mgr.setRoles(new Roles());
         
         TestCache cache = new TestCache();
-        mgr.setCache(cache);
+        ReadWriteCache rwc = new ReadWriteCache(cache);
+        mgr.setCache(rwc);
 
         session = new Session();
         session.setUuid("uuid");
         session.setId(1L);
     }
 
-
+    Principal principal = new Principal("u","g","Test");
+    String credentials = "password";
 	Experimenter user = new Experimenter(1L,true);
 	ExperimenterGroup group = new ExperimenterGroup(1L, true);
 	List<Long> m_ids = Collections.singletonList(1L);
 	List<Long> l_ids = Collections.singletonList(1L);
-	List<String> roles = Collections.singletonList("single");
+	List<String> userRoles = Collections.singletonList("single");
 
     void prepareSessionCreation() {
+    	adminMock.expects(once()).method("checkPassword").will(returnValue(true));
+		adminMock.expects(once()).method("userProxy").will(returnValue(user));
+		adminMock.expects(once()).method("groupProxy").will(returnValue(group));
+		adminMock.expects(once()).method("getMemberOfGroupIds").will(returnValue(m_ids));
+		adminMock.expects(once()).method("getLeaderOfGroupIds").will(returnValue(l_ids));
+		adminMock.expects(once()).method("getUserRoles").will(returnValue(userRoles));
+    	adminMock.expects(once()).method("checkPassword").will(
+                returnValue(true));
     	queryMock.expects(once()).method("findAllByQuery")
 		.will(returnValue(Collections.singletonList(new ExperimenterGroup())));
-    	updateMock.expects(once()).method("saveAndReturnObject").will(new SetIdStub(1L));
+    	updateMock.expects(once()).method("saveObject");
     }
     
     @Test
@@ -84,7 +100,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
          */
 
     	prepareSessionCreation();
-    	session = mgr.create(user,group,m_ids,l_ids,roles,"Test",null);
+    	session = mgr.create(principal,credentials);
     	assertNotNull(session);
     	assertNotNull(session.getUuid());
 
@@ -139,6 +155,12 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         assertTrue(test == rv); // insists that a copy is performed
     }
 
+    @Test( expectedExceptions = SessionException.class)
+    public void testThatNonexteantSessionIsNOTUpdateable() throws Exception{
+        session.setUuid("DoesNotExist");
+    	Session test = mgr.update(session);
+    }
+
     @Test
     public void testThatCopiesHaveAllTheRightFields() throws Exception{
         testCreateNewSession();
@@ -171,10 +193,10 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     	mgr.setCache( new TestCache("quick",1,0,0,null));
 
     	prepareSessionCreation();
-    	Session s1 = mgr.create(user,group,m_ids,l_ids,roles,"Test",null);
+    	Session s1 = mgr.create(principal, credentials);
     	
     	prepareSessionCreation();
-    	Session s2 = mgr.create(user,group,m_ids,l_ids,roles,"Test",null);
+    	Session s2 = mgr.create(principal, credentials);
     	assertTrue(
     			mgr.find(s1.getUuid()) == null 
     			|| mgr.find(s2.getUuid()) == null);
@@ -235,12 +257,74 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     	List<String> preUserRoles = mgr.getUserRoles(session.getUuid());
     	mgr.onApplicationEvent(null);
     	List<String> postUserRoles = mgr.getUserRoles(session.getUuid());
-    	fail("Should here remove user from group and have roles updated.");
+    	fail("Should here remove user from group and have roles updated." +
+    			"--depends on whether or not we need to catch the hiberate events" +
+    			"--or just events from AdminImpl");
     }
 
+    @Test
     public void testReplacesNullGroupAndType() throws Exception {
-        mgr.create(new Principal("fake",null,null));
+    	prepareForCreateSession();
+        Session session = mgr.create(new Principal("fake",null,null), credentials);
+        assertNotNull(session.getDefaultEventType());
+        assertNotNull(session.getDetails().getGroup());
     }
     
+	void prepareForCreateSession() {
+		adminMock.expects(once()).method("userProxy").will(returnValue(user));
+		adminMock.expects(once()).method("groupProxy").will(returnValue(group));
+		adminMock.expects(once()).method("getMemberOfGroupIds").will(returnValue(m_ids));
+		adminMock.expects(once()).method("getLeaderOfGroupIds").will(returnValue(l_ids));
+		adminMock.expects(once()).method("getUserRoles").will(returnValue(userRoles));
+    	adminMock.expects(once()).method("checkPassword").will(
+                returnValue(true));
+	}
     
+    @Test(expectedExceptions = ApiUsageException.class)
+    public void testCreateSessionFailsAUEOnNullPrincipal() throws Exception {
+        adminMock.expects(once()).method("checkPassword").will(
+                returnValue(false));
+        mgr.create(null, "password");
+    }
+    
+    @Test(expectedExceptions = ApiUsageException.class)
+    public void testCreateSessionFailsAUEOnNullOmeName() throws Exception {
+        adminMock.expects(once()).method("checkPassword").will(
+                returnValue(false));
+        mgr.create(new Principal(null,null,null), "password");
+    }
+
+    @Test(expectedExceptions = SecurityViolation.class)
+    public void testCreateSessionFailsSV() throws Exception {
+        adminMock.expects(once()).method("checkPassword").will(
+                returnValue(false));
+    	mgr.create(principal, "password");
+    }
+    
+    @Test( expectedExceptions = SecurityViolation.class)
+    public void testChecksForDefaultGroupsOnCreation() throws Exception {
+    	prepareForCreateSession();
+    	queryMock.expects(once()).method("findAllByQuery").will(returnValue(Collections.EMPTY_LIST));
+    	mgr.create(new Principal("user","user","User"),"user");
+    }
+
+    @Test
+    public void testShouldManagerDisallowMultipleSessions() throws Exception {
+    	fail("DECIDE");
+    }
+    
+    @Test
+    public void testWhatHappensIfAnEventOccursDuringUpdateEtc() throws Exception {
+    	fail("NYI");
+    }
+    
+    @Test
+    public void testcreationChecksIfUserIsMemberOfGroup() throws Exception {
+    	fail("NYI");
+    }
+    
+    @Test
+    public void testUpdateChecksIfUserIsMemberOfGroup() throws Exception {
+    	fail("NYI");
+    }
 }

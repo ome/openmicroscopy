@@ -7,12 +7,7 @@
 
 package ome.services.sessions;
 
-import java.util.List;
-
 import ome.conditions.SecurityViolation;
-import ome.model.internal.Permissions;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.system.EventContext;
 import ome.system.Principal;
@@ -36,19 +31,7 @@ import org.springframework.context.ApplicationListener;
  */
 public interface SessionManager extends ApplicationListener {
 
-    Session create(Experimenter u, ExperimenterGroup g,
-    		List<Long> leaderIds, List<Long> memberIds, List<String> roles,
-    		String type, Permissions perms);
-
-    /**
-     * Copies the source {@link Session} to the targe instance. This can be useful
-     * to disconnect from a Hibernate {@link org.hibernate.Session} while maintaining
-     * critical information needed.
-     * 
-     * @param source Cannot be null.
-     * @param source Cannot be null.
-     */
-    void copy(Session source, Session target);
+    Session create(Principal principal, String credentials);
     
     Session update(Session session);
     
@@ -61,7 +44,7 @@ public interface SessionManager extends ApplicationListener {
     void close(String uuid);
 
     /**
-     * Requires that a
+     * Requires that a valid {@link Session} exist for the given uuid.
      * @param uuid
      */
     void assertSession(String uuid) throws SecurityViolation;

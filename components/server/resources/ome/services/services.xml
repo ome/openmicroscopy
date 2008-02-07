@@ -123,22 +123,21 @@
   are (A) filled by the abstract Spring definition and (B) available on the
   Java class.
 -->
-  <bean id="bean" abstract="true">
-    <property name="queryFactory"      ref="queryFactory"/>
-    <property name="securitySystem"    ref="securitySystem"/>
-  </bean>
 
-  <bean id="level1" parent="bean" abstract="true">
+  <bean id="level1" abstract="true">
+    <property name="queryFactory"      ref="queryFactory"/>
     <property name="hibernateTemplate" ref="hibernateTemplate"/>
   </bean>
 
-  <bean id="level2" parent="bean"  abstract="true">
-    <property name="updateService"    ref="internal:ome.api.IUpdate"/>
-    <property name="queryService"     ref="internal:ome.api.IQuery"/>
+  <bean id="level2" abstract="true">
+    <property name="queryFactory"   ref="queryFactory"/>
+    <property name="updateService" 	ref="internal:ome.api.IUpdate"/>
+    <property name="queryService"	ref="internal:ome.api.IQuery"/>
     <property name="extendedMetadata" ref="extendedMetadata"/>
   </bean>
 
-  <bean id="level3" parent="bean" abstract="true">
+  <bean id="level3" abstract="true">
+    <property name="queryFactory"   ref="queryFactory"/>
     <property name="pixelsService"  ref="internal:ome.api.IPixels"/>
     <property name="pojosService" 	ref="internal:ome.api.IPojos"/>
   </bean>

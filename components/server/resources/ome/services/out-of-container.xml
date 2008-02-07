@@ -29,7 +29,7 @@
   <!--  Scope: private -->
 
   <bean id="methodSecurity" class="ome.security.basic.BasicMethodSecurity">
-	<property name="simpleJdbcOperations" ref="simpleJdbcTemplate"/>
+	<property name="sessionManager" ref="sessionManager"/>
   </bean>
 
   <bean id="hibernateProperties" parent="hibernateProperties-defaults">
