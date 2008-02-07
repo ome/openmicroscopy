@@ -14,6 +14,8 @@ import java.util.UUID;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import ome.conditions.InternalException;
 import ome.conditions.SessionException;
 import ome.model.meta.Session;
@@ -234,6 +236,35 @@ public class SessionCacheTest extends TestCase {
         assertTrue(done[0]);
         assertTrue(done[1]);
         assertEquals(1, count[0]);
+
+    }
+
+    @Test
+    public void testInMemoryAndOnDiskAreProperlyDisposed() {
+        initCache(10000);
+        Ehcache inmemory, ondisk;
+        try {
+            inmemory = cache.inMemoryCache("doesnotexist");
+            fail("should fail");
+        } catch (SessionException se) {
+            // ok
+        }
+
+        // Create a session and attach in-memory info to it
+        final Session s = sess();
+        cache.putSession(s.getUuid(), sc(s));
+        inmemory = cache.inMemoryCache(s.getUuid());
+        ondisk = cache.onDiskCache(s.getUuid());
+        inmemory.put(new Element("a", "b"));
+        ondisk.put(new Element("c", "d"));
+        cache.removeSession(s.getUuid());
+
+        // Now recreate the same session and cache should be gone.
+        cache.putSession(s.getUuid(), sc(s));
+        inmemory = cache.inMemoryCache(s.getUuid());
+        assertFalse(inmemory.isKeyInCache("a"));
+        ondisk = cache.onDiskCache(s.getUuid());
+        assertFalse(ondisk.isKeyInCache("c"));
 
     }
 

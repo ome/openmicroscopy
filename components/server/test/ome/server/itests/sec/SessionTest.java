@@ -50,7 +50,7 @@ public class SessionTest extends AbstractManagedContextTest {
 
         ISession service = this.factory.getSessionService();
         Principal p = new Principal(e.getOmeName(), "user", "Test");
-        Session s = service.createSessionWithTimeout(p, 10L);
+        Session s = service.createSessionWithTimeout(p, 10 * 1000L);
 
     }
 

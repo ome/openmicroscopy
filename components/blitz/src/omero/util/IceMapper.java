@@ -25,9 +25,9 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.api.IPojos;
-import ome.model.ModelBased;
 import ome.conditions.InternalException;
 import ome.model.IObject;
+import ome.model.ModelBased;
 import ome.system.Roles;
 import ome.util.Filterable;
 import ome.util.ModelMapper;
@@ -35,7 +35,6 @@ import ome.util.ReverseModelMapper;
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.data.PlaneDef;
 import omero.ApiUsageException;
-import omero.JArray;
 import omero.JBool;
 import omero.JClass;
 import omero.JDouble;
@@ -79,7 +78,8 @@ import org.apache.commons.logging.LogFactory;
  * Not all types are bidirectional, rather only those mappings are needed that
  * actually appear in the blitz API.
  */
-public class IceMapper extends ome.util.ModelMapper implements ReverseModelMapper {
+public class IceMapper extends ome.util.ModelMapper implements
+        ReverseModelMapper {
 
     private static Log log = LogFactory.getLog(IceMapper.class);
 
@@ -97,7 +97,7 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         PrintWriter pw = new PrintWriter(sw);
         t.printStackTrace(pw);
         Throwable cause = t.getCause();
-        while (cause != null && cause != t ) {
+        while (cause != null && cause != t) {
             cause.printStackTrace(pw);
             t = cause;
             cause = t.getCause();
@@ -141,7 +141,7 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         }
 
         if (k == null && strict) {
-            ApiUsageException aue =  new ApiUsageException();
+            ApiUsageException aue = new ApiUsageException();
             aue.message = className + " does not specify a valid class.";
             throw aue;
         }
@@ -170,17 +170,17 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
 
         // Next round of conversions on the value itself.
         if (RTime.class.isAssignableFrom(rt.getClass())) {
-            rv = new Timestamp((Long)rv);
+            rv = new Timestamp((Long) rv);
         } else if (RClass.class.isAssignableFrom(rt.getClass())) {
             rv = omeroClass((String) rv, true);
-        } else if (RArray.class.isAssignableFrom(rt.getClass())){
+        } else if (RArray.class.isAssignableFrom(rt.getClass())) {
             RArray arr = (RArray) rt;
             Collection reversed = reverse(arr.val);
             // Assuming all the same
             Class k = rtypeTypes.get(arr.val.get(0).getClass());
             rv = Array.newInstance(k, arr.val.size());
-            rv = reversed.toArray((Object[])rv);
-        } else if (RSet.class.isAssignableFrom(rt.getClass())){
+            rv = reversed.toArray((Object[]) rv);
+        } else if (RSet.class.isAssignableFrom(rt.getClass())) {
             RSet set = (RSet) rt;
             rv = reverse(set.val, Set.class);
         } else if (RList.class.isAssignableFrom(rt.getClass())) {
@@ -194,6 +194,8 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
 
     public static EventContext convert(ome.system.EventContext ctx) {
         EventContext ec = new EventContext();
+        ec.sessionId = ctx.getCurrentSessionId();
+        ec.sessionUuid = ctx.getCurrentSessionUuid();
         ec.eventId = ctx.getCurrentEventId();
         ec.eventType = ctx.getCurrentEventType();
         ec.groupId = ctx.getCurrentGroupId();
@@ -218,22 +220,23 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         return b;
     }
 
-    public static PlaneDef convert(omero.romio.PlaneDef def) throws omero.ApiUsageException{
+    public static PlaneDef convert(omero.romio.PlaneDef def)
+            throws omero.ApiUsageException {
         PlaneDef pd = new PlaneDef(def.slice, def.t);
         switch (def.slice) {
-            case XY.value:
-                pd.setZ(def.z);
-                break;
-            case ZY.value:
-                pd.setX(def.x);
-                break;
-            case XZ.value:
-                pd.setY(def.y);
-                break;
-            default:
-                omero.ApiUsageException aue = new omero.ApiUsageException();
-                aue.message = "Unknown slice for "+def;
-                throw aue;
+        case XY.value:
+            pd.setZ(def.z);
+            break;
+        case ZY.value:
+            pd.setX(def.x);
+            break;
+        case XZ.value:
+            pd.setY(def.y);
+            break;
+        default:
+            omero.ApiUsageException aue = new omero.ApiUsageException();
+            aue.message = "Unknown slice for " + def;
+            throw aue;
         }
 
         return pd;
@@ -255,14 +258,18 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
     }
 
     public static Timestamp convert(RTime time) {
-        if (time == null) return null;
+        if (time == null) {
+            return null;
+        }
         return new Timestamp(time.val);
     }
 
     public ome.parameters.Parameters convert(Parameters params)
-    throws ApiUsageException {
+            throws ApiUsageException {
 
-        if (params == null) return null;
+        if (params == null) {
+            return null;
+        }
 
         ome.parameters.Parameters p = new ome.parameters.Parameters();
         if (params.map != null) {
@@ -277,50 +284,52 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         return p;
     }
 
-    static final Map<Class,Class> rtypeTypes;
+    static final Map<Class, Class> rtypeTypes;
     static {
-        Map<Class,Class> tmp = new HashMap<Class,Class>();
-        tmp.put(RBool.class,Boolean.class);
-        tmp.put(JBool.class,Boolean.class);
-        tmp.put(RFloat.class,Float.class);
-        tmp.put(JFloat.class,Float.class);
-        tmp.put(RInt.class,Integer.class);
-        tmp.put(JInt.class,Integer.class);
-        tmp.put(RDouble.class,Double.class);
-        tmp.put(JDouble.class,Double.class);
-        tmp.put(RLong.class,Long.class);
-        tmp.put(JLong.class,Long.class);
-        tmp.put(RString.class,String.class);
-        tmp.put(JString.class,String.class);
+        Map<Class, Class> tmp = new HashMap<Class, Class>();
+        tmp.put(RBool.class, Boolean.class);
+        tmp.put(JBool.class, Boolean.class);
+        tmp.put(RFloat.class, Float.class);
+        tmp.put(JFloat.class, Float.class);
+        tmp.put(RInt.class, Integer.class);
+        tmp.put(JInt.class, Integer.class);
+        tmp.put(RDouble.class, Double.class);
+        tmp.put(JDouble.class, Double.class);
+        tmp.put(RLong.class, Long.class);
+        tmp.put(JLong.class, Long.class);
+        tmp.put(RString.class, String.class);
+        tmp.put(JString.class, String.class);
         tmp.put(RClass.class, Class.class);
         tmp.put(JClass.class, Class.class);
-        tmp.put(RObject.class,IObject.class);
-        tmp.put(JObject.class,IObject.class);
-        tmp.put(RList.class,Collection.class);
-        tmp.put(JList.class,Collection.class);
-//        tmp.put(RArray.class,Collection.class);
-//        tmp.put(JArray.class,Collection.class);
-        tmp.put(RSet.class,Collection.class);
-        tmp.put(JSet.class,Collection.class);
-        tmp.put(RTime.class,Timestamp.class);
-        tmp.put(JTime.class,Timestamp.class);
+        tmp.put(RObject.class, IObject.class);
+        tmp.put(JObject.class, IObject.class);
+        tmp.put(RList.class, Collection.class);
+        tmp.put(JList.class, Collection.class);
+        // tmp.put(RArray.class,Collection.class);
+        // tmp.put(JArray.class,Collection.class);
+        tmp.put(RSet.class, Collection.class);
+        tmp.put(JSet.class, Collection.class);
+        tmp.put(RTime.class, Timestamp.class);
+        tmp.put(JTime.class, Timestamp.class);
         rtypeTypes = tmp;
     }
 
     public ome.parameters.QueryParameter convert(String key, Object o)
-    throws ApiUsageException {
+            throws ApiUsageException {
 
-        if (o == null) return null;
+        if (o == null) {
+            return null;
+        }
 
         String name = key;
         Class klass = o.getClass();
         Object value = null;
         if (RType.class.isAssignableFrom(klass)) {
-            value = convert((RType)o);
+            value = convert((RType) o);
             klass = rtypeTypes.get(klass);
         } else {
             omero.ApiUsageException aue = new omero.ApiUsageException();
-            aue.message = "Query parameter must be a subclass of RType "+o;
+            aue.message = "Query parameter must be a subclass of RType " + o;
             throw aue;
         }
 
@@ -331,7 +340,9 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
 
     public static ome.parameters.Filter convert(Filter f) {
 
-        if (f==null) return null;
+        if (f == null) {
+            return null;
+        }
 
         ome.parameters.Filter filter = new ome.parameters.Filter();
 
@@ -359,12 +370,14 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         return filter;
     }
 
-    /** Overrides the findCollection logic of {@link ModelMapper}, since all
+    /**
+     * Overrides the findCollection logic of {@link ModelMapper}, since all
      * {@link Collection}s should be {@link List}s in Ice.
-     *
+     * 
      * Originally necessitated by the Map<Long, Set<IObject>> return value of
      * {@link IPojos#findAnnotations(Class, Set, Set, Map)}
      */
+    @Override
     public Collection findCollection(Collection source) {
         if (source == null) {
             return null;
@@ -378,21 +391,20 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         return target;
     }
 
-    
     public List map(Filterable[] array) {
-    	if (array == null) {
-    		return null;
-    	} else if (array.length == 0) {
-    		return new ArrayList();
-    	} else {
-    		List l = new ArrayList(array.length);
-    		for (int i = 0; i < array.length; i++) {
-				l.add(map((Filterable)array[i]));
-			}
-    		return l;
-    	}
+        if (array == null) {
+            return null;
+        } else if (array.length == 0) {
+            return new ArrayList();
+        } else {
+            List l = new ArrayList(array.length);
+            for (int i = 0; i < array.length; i++) {
+                l.add(map(array[i]));
+            }
+            return l;
+        }
     }
-    
+
     // ~ For Reversing (omero->ome). Copied from ReverseModelMapper.
     // =========================================================================
 
@@ -421,7 +433,7 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
             return convert((RType) source);
         } else {
             omero.ApiUsageException aue = new omero.ApiUsageException();
-            aue.message = "Don't know how to reverse "+source;
+            aue.message = "Don't know how to reverse " + source;
             throw aue;
         }
 
@@ -433,12 +445,13 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
      * {@link ModelMapper} calling findCollection(source,model2target) and
      * {@link #reverseCollection(Collection)} calling
      * findCollection(source,target2model).
-     *
+     * 
      * @param collection
      * @return
      */
-    public Collection reverse(Collection source) { // FIXME throws omero.ApiUsageException {
-    	return reverse(source, source == null ? null : source.getClass());
+    public Collection reverse(Collection source) { // FIXME throws
+                                                    // omero.ApiUsageException {
+        return reverse(source, source == null ? null : source.getClass());
     }
 
     /**
@@ -446,13 +459,16 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
      * {@link Set} and {@link List} are supported, and {@link HashSet}s and
      * {@link ArrayList}s will be returned. The need for this arose from the
      * decision to have no {@link Set}s in the Ice Java mapping.
-     *
+     * 
      * @param source
      * @param targetType
      * @return
      * @see ticket:684
      */
-    public Collection reverse(Collection source, Class targetType) { // FIXME throws omero.ApiUsageException {
+    public Collection reverse(Collection source, Class targetType) { // FIXME
+                                                                        // throws
+                                                                        // omero.ApiUsageException
+                                                                        // {
 
         if (source == null) {
             return null;
@@ -465,17 +481,19 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
             } else if (List.class.isAssignableFrom(targetType)) {
                 target = new ArrayList();
             } else {
-                //omero.ApiUsageException aue = new omero.ApiUsageException();
-                //aue.message = "Unknown collection type "+targetType;
-                //throw aue;
-		throw new InternalException("Unknown collection type "+targetType);
+                // omero.ApiUsageException aue = new omero.ApiUsageException();
+                // aue.message = "Unknown collection type "+targetType;
+                // throw aue;
+                throw new InternalException("Unknown collection type "
+                        + targetType);
             }
             target2model.put(source, target);
             try {
                 for (Object object : source) {
                     target.add(reverse(object));
                 }
-            } catch (ApiUsageException aue) { // FIXME reverse can't throw ServerErrors!
+            } catch (ApiUsageException aue) { // FIXME reverse can't throw
+                                                // ServerErrors!
                 convertAndThrow(aue);
             }
         }
@@ -491,37 +509,39 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
      * @return
      * @throws omero.ServerError
      */
-    public Filterable[] reverseArray(List list, Class type) throws omero.ServerError {
-    	
-    	if (list == null) { 
-    		return null;
-    	}
-    	
-    	Class component = type.getComponentType();
-    	Filterable[] array = null;
-    	try {
-    		
-    		array = (Filterable[])
-    			Array.newInstance(component, list.size());
-        	for (int i = 0; i < array.length; i++) {
-    			array[i] = (Filterable) reverse((Object)list.get(i));
-    		}
-    	} catch (Exception e) {
-    		String msg = "Cannot create filterable array from type "+type;
-    		if (log.isErrorEnabled()) {
-    			log.error(msg,e);
-    		}
-    		omero.ApiUsageException aue = new omero.ApiUsageException();
-    		aue.message = msg;
-    		aue.serverExceptionClass = e.getClass().getName();
-    		throw aue;
-    	}
+    public Filterable[] reverseArray(List list, Class type)
+            throws omero.ServerError {
 
-    	return array;
+        if (list == null) {
+            return null;
+        }
+
+        Class component = type.getComponentType();
+        Filterable[] array = null;
+        try {
+
+            array = (Filterable[]) Array.newInstance(component, list.size());
+            for (int i = 0; i < array.length; i++) {
+                array[i] = (Filterable) reverse(list.get(i));
+            }
+        } catch (Exception e) {
+            String msg = "Cannot create filterable array from type " + type;
+            if (log.isErrorEnabled()) {
+                log.error(msg, e);
+            }
+            omero.ApiUsageException aue = new omero.ApiUsageException();
+            aue.message = msg;
+            aue.serverExceptionClass = e.getClass().getName();
+            throw aue;
+        }
+
+        return array;
     }
-    
+
     public Map reverse(Map map) {
-        if (map == null) return null;
+        if (map == null) {
+            return null;
+        }
         Map<Object, Object> target = new HashMap<Object, Object>();
         try {
             for (Object key : map.keySet()) {
@@ -538,7 +558,7 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
 
     /**
      * Copied from {@link ReverseModelMapper#map(ModelBased)}
-     *
+     * 
      * @param source
      * @return
      */
@@ -567,6 +587,7 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
 
     // ~ For ome->omero parsing
     // =========================================================================
+    @Override
     protected Map c2c() {
         return IceMap.OMEtoOMERO;
     }
@@ -577,6 +598,7 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         }
     }
 
+    @Override
     public Filterable filter(String fieldId, Filterable source) {
         // Filterable o = super.filter(fieldId,source);
         // Can't call super here!!

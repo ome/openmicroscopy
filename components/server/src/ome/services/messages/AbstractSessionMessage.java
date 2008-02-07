@@ -1,27 +1,41 @@
-package ome.services.blitz.util;
+/*
+ *   $Id$
+ *
+ *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
 
-import ome.services.blitz.fire.SessionPrincipal;
+package ome.services.messages;
+
+import org.springframework.context.ApplicationListener;
+
 import ome.util.messages.InternalMessage;
 
+/**
+ * {@link InternalMessage} implementations which carry relate to some
+ * {@link Session} bound event. These messages are <em>not</em> thread-safe
+ * and so will be called within the same {@link Thread} as the publisher. This
+ * means {@link ApplicationListener listeners} have a chance to throw an
+ * exception and cancel the related event.
+ * 
+ * @see ome.services.sessions.SessionManager
+ */
 public abstract class AbstractSessionMessage extends InternalMessage {
 
     String id;
-    
-    SessionPrincipal p;
-    
-    public AbstractSessionMessage(Object source, String sessionId, SessionPrincipal principal) {
+
+    public AbstractSessionMessage(Object source, String sessionId) {
         super(source);
         this.id = sessionId;
-        this.p = principal;
     }
-    
+
     public String getSessionId() {
         return this.id;
     }
 
-    public SessionPrincipal getPrincipal() {
-        return p;
+    @Override
+    public final boolean isThreadSafe() {
+        return false;
     }
-
 
 }

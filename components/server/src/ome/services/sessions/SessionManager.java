@@ -7,6 +7,7 @@
 
 package ome.services.sessions;
 
+import net.sf.ehcache.Ehcache;
 import ome.conditions.RemovedSessionException;
 import ome.model.meta.Session;
 import ome.system.EventContext;
@@ -71,5 +72,19 @@ public interface SessionManager extends ApplicationListener {
     java.util.List<String> getUserRoles(String uuid);
 
     void onApplicationEvent(ApplicationEvent event);
+
+    // State
+
+    /**
+     * Returns after possibly creating an in-memory {@link Ehcache cache} which
+     * can be used throughout the session. On close, the cache will be disposed.
+     */
+    Ehcache inMemoryCache(String uuid);
+
+    /**
+     * Returns after possibly creating an on-disk {@link Ehcache cache} which
+     * can be used throughout the session. On close, the cache will be disposed.
+     */
+    Ehcache onDiskCache(String uuid);
 
 }

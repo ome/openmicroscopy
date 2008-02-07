@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import net.sf.ehcache.Ehcache;
 import ome.api.local.LocalAdmin;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
@@ -23,11 +24,14 @@ import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
+import ome.services.messages.CreateSessionMessage;
+import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.state.SessionCache.StaleCacheListener;
 import ome.services.util.Executor;
 import ome.system.EventContext;
+import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
@@ -35,6 +39,9 @@ import ome.system.ServiceFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.StatelessSession;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.transaction.TransactionStatus;
 
@@ -50,7 +57,8 @@ import org.springframework.transaction.TransactionStatus;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class SessionManagerImpl implements SessionManager, StaleCacheListener {
+public class SessionManagerImpl implements SessionManager, StaleCacheListener,
+        ApplicationContextAware {
 
     private final static Log log = LogFactory.getLog(SessionManagerImpl.class);
 
@@ -60,6 +68,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
     private final String internal_uuid = UUID.randomUUID().toString();
 
     // Injected
+    OmeroContext context;
     Roles roles;
     SessionCache cache;
     Executor executor;
@@ -75,6 +84,11 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
 
     // ~ Injectors
     // =========================================================================
+
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
+        this.context = (OmeroContext) applicationContext;
+    }
 
     public void setSessionCache(SessionCache sessionCache) {
         cache = sessionCache;
@@ -131,7 +145,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
         boolean ok = executeCheckPassword(_principal, credentials);
 
         if (!ok) {
-            log.warn("Failed to authenticate: + " + _principal);
+            log.warn("Failed to authenticate: " + _principal);
             throw new AuthenticationException("Authentication exception.");
         }
 
@@ -149,6 +163,10 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
                 principal.getUmask().toString());
         session = executeUpdate(session);
         SessionContext ctx = currentDatabaseShapshot(principal, session);
+
+        context.publishEvent(new CreateSessionMessage(this, session.getUuid()));
+        // This the publishEvent returns successfully, then we add to our cache
+        // since ehcache is not tx-friendly.
         cache.putSession(session.getUuid(), ctx);
         return session;
     }
@@ -236,6 +254,10 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
         Session s = ctx.getSession();
         s.setClosed(new Timestamp(System.currentTimeMillis()));
         update(s);
+
+        context.publishEvent(new DestroySessionMessage(this, s.getUuid()));
+        // This the publishEvent returns successfully, then we update our cache
+        // since ehcache is not tx-friendly.
         cache.removeSession(uuid);
     }
 
@@ -245,6 +267,17 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
             throw new RemovedSessionException("No session with uuid: " + uuid);
         }
         return ctx.getUserRoles();
+    }
+
+    // ~ State attached to session
+    // =========================================================================
+
+    public Ehcache inMemoryCache(String uuid) {
+        return cache.inMemoryCache(uuid);
+    }
+
+    public Ehcache onDiskCache(String uuid) {
+        return cache.onDiskCache(uuid);
     }
 
     // ~ Security methods

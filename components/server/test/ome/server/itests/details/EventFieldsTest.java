@@ -9,16 +9,15 @@ package ome.server.itests.details;
 // Java imports
 import java.sql.Timestamp;
 
-// Third-party libraries
-import org.testng.annotations.Test;
-
-// Application-internal dependencies
 import ome.model.core.Image;
 import ome.model.enums.EventType;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.Session;
 import ome.server.itests.AbstractManagedContextTest;
+
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -74,6 +73,7 @@ public class EventFieldsTest extends AbstractManagedContextTest {
         e.setTime(new Timestamp(System.currentTimeMillis()));
         e.setExperimenter(new Experimenter(0L, false));
         e.setExperimenterGroup(new ExperimenterGroup(0L, false));
+        e.setSession(new Session(1L, false));
         return e;
     }
 

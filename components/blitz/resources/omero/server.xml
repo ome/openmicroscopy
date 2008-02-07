@@ -55,17 +55,4 @@
     <constructor-arg ref="internal:ome.api.IAdmin"/>
   </bean>
 
-  <bean id="Session" class="ome.services.blitz.impl.ServiceFactoryI" singleton="false">
-    <description>Prototype for sessions. Used by Manager</description>
-    <constructor-arg ref="ServantCache"/>
-  </bean>
-
-  <bean id="ServantCache" class="ome.services.blitz.util.CacheWithListenersFactoryBean">
-    <property name="cacheManager" ref="cacheManager"/>
-    <property name="overflowToDisk" value="false"/>
-    <property name="maxElementsInMemory" value="${omero.blitz.cache.maxElements}"/>
-    <property name="timeToIdle" value="${omero.blitz.cache.timeToIdle}"/>
-    <property name="timeToLive" value="0"/>
-  </bean>
-
 </beans>

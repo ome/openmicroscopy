@@ -17,11 +17,11 @@
  * packages from OMERO.server, and represent API arguments which are
  * neither model objects (omero/model/*.ice) nor RTypes (RTypes.ice).
  */
-module omero { 
-  module sys {     
+module omero {
+  module sys {
 
     // Defined in order to control the mapping.
-    ["java:type:java.util.ArrayList<Long>:java.util.List<Long>"] 
+    ["java:type:java.util.ArrayList<Long>:java.util.List<Long>"]
     sequence<long> LongList;
 
     /*
@@ -31,6 +31,8 @@ module omero {
      */
     class EventContext
     {
+      long   sessionId;
+      string sessionUuid;
       long   userId;
       string userName;
       long   groupId;

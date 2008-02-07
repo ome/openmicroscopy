@@ -9,6 +9,7 @@ package ome.server.itests.search;
 import ome.model.meta.EventLog;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.fulltext.PersistentEventLogLoader;
+import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -22,17 +23,21 @@ import org.testng.annotations.Test;
 public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
 
     Executor ex;
+    SessionManager sm;
     PersistentEventLogLoader ll;
 
     @BeforeMethod
     public void setup() {
         ex = (Executor) this.applicationContext.getBean("executor");
+        sm = (SessionManager) this.applicationContext.getBean("sessionManager");
         ll = (PersistentEventLogLoader) this.applicationContext
                 .getBean("eventLogLoader");
     }
 
     public void testInitialUseWithNoDbEntry() throws Exception {
-        ex.execute(new Principal("root", "system", "FullText"),
+        ome.model.meta.Session s = sm.create(new Principal("root", "system",
+                "FullText"));
+        ex.execute(new Principal(s.getUuid(), "system", "FullText"),
                 new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
@@ -50,5 +55,4 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
                     }
                 });
     }
-
 }

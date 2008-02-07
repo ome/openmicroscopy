@@ -37,7 +37,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class SessionCache extends CacheListener {
+public class SessionCache {
 
     private final static Log log = LogFactory.getLog(SessionCache.class);
 
@@ -64,47 +64,13 @@ public class SessionCache extends CacheListener {
     private long lastUpdate = System.currentTimeMillis();
     private CacheManager ehmanager;
     private Ehcache sessions;
-    private final ConcurrentHashMap<String, Ehcache> diskCacheMap = new ConcurrentHashMap<String, Ehcache>(
-            64);
     private final ConcurrentHashMap<String, Set<SessionCallback>> sessionCallbackMap = new ConcurrentHashMap<String, Set<SessionCallback>>(
             64);
     private StaleCacheListener staleCacheListener = null;
 
     public void setCacheManager(CacheManager manager) {
         this.ehmanager = manager;
-        CacheFactory inmemory = new CacheFactory();
-        inmemory.setBeanName("SessionCache");
-        inmemory.setCacheManager(ehmanager);
-        inmemory.setOverflowToDisk(false);
-        inmemory.setMaxElementsInMemory(Integer.MAX_VALUE);
-        inmemory.setTimeToIdle(0);
-        inmemory.setTimeToLive(0);
-        sessions = inmemory.createCache();
-    }
-
-    // Callbacks from main sessions
-    // ========================================================================
-
-    @Override
-    public void notifyElementExpired(Ehcache c, Element elt) {
-        String key = (String) elt.getKey();
-        Ehcache c2 = diskCacheMap.get(key);
-        if (c2 != null) {
-            c2.getCacheManager().removeCache(c2.getName());
-            diskCacheMap.remove(key);
-        }
-        Set<SessionCallback> set = sessionCallbackMap.get(key);
-        if (set != null) {
-            for (SessionCallback cb : set) {
-                try {
-                    // TODO possibly pass in the state that we're about to kill
-                    // here.
-                    cb.close();
-                } catch (Exception e) {
-                    log.error("Session callback threw exception:" + cb, e);
-                }
-            }
-        }
+        sessions = createCache("SessionCache", true, Integer.MAX_VALUE);
     }
 
     // Accessors
@@ -232,6 +198,8 @@ public class SessionCache extends CacheListener {
 
     private void internalRemove(String uuid) {
         sessions.remove(uuid);
+        ehmanager.removeCache("memory:" + uuid);
+        ehmanager.removeCache("ondisk:" + uuid);
         Set<SessionCallback> cbs = sessionCallbackMap.get(uuid);
         if (cbs != null) {
             for (SessionCallback cb : cbs) {
@@ -250,9 +218,49 @@ public class SessionCache extends CacheListener {
         return sessions.getKeys();
     }
 
-    /**
-     * 
-     */
+    // State
+    // =========================================================================
+
+    public Ehcache inMemoryCache(String uuid) {
+        // Check to make sure exists
+        getSessionContext(uuid);
+        String key = "memory:" + uuid;
+        return createCache(key, true, Integer.MAX_VALUE);
+    }
+
+    public Ehcache onDiskCache(String uuid) {
+        // Check to make sure exists
+        getSessionContext(uuid);
+        String key = "ondisk:" + uuid;
+        return createCache(key, false, 100);
+    }
+
+    protected Ehcache createCache(String key, boolean inMemory, int maxInMemory) {
+        Ehcache cache = null;
+        try {
+            cache = ehmanager.getEhcache(key);
+        } catch (Exception e) {
+            // ok
+        }
+
+        if (cache == null) {
+            CacheFactory factory = new CacheFactory();
+            factory.setBeanName(key);
+            factory.setCacheManager(ehmanager);
+            factory.setOverflowToDisk(!inMemory);
+            factory.setMaxElementsInMemory(maxInMemory);
+            factory.setMaxElementsOnDisk(0);
+            factory.setDiskPersistent(false);
+            factory.setTimeToIdle(0);
+            factory.setTimeToLive(0);
+            cache = factory.createCache();
+        }
+        return cache;
+    }
+
+    // Update
+    // =========================================================================
+
     protected void blockingUpdate() {
         updateLock.readLock().lock();
         if (needsUpdate) {
@@ -263,9 +271,6 @@ public class SessionCache extends CacheListener {
         }
     }
 
-    /**
-     * 
-     */
     protected void doUpdate() {
         updateLock.writeLock().lock();
         try {
