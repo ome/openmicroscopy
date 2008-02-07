@@ -497,9 +497,13 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
         get${prop.nameCapped}().add( target );
         // If this relationship is not ordered, then we will 
         // "attempt" the setting even if it is loaded.
-        if (target.isLoaded() || !${prop.ordered} ) {
+#if(${prop.ordered})
+        if (target.isLoaded()) {
+#end
             target.set${prop.inverseCapped} ( this );
+#if(${prop.ordered})
        }
+#end
     }
 
     /**
@@ -516,9 +520,13 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
             ${prop.type} target = it.next();
             // If this relationship is not ordered, then we will 
             // "attempt" the setting even if it is loaded.
-            if (target.isLoaded() || !${prop.ordered} ) {
+#if(${prop.ordered})
+            if (target.isLoaded()) {
+#end
                 target.set${prop.inverseCapped} ( this );
+#if(${prop.ordered})
             }
+#end
         }
     }
 
@@ -531,9 +539,13 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
             throwNullCollectionException("${prop.nameCapped}");
         }
         get${prop.nameCapped}().remove( target );
-        if (target.isLoaded() || !${prop.ordered} ) {
+#if(${prop.ordered})
+        if (target.isLoaded()) {
+#end
             target.set${prop.inverseCapped} ( null );
+#if(${prop.ordered})
         }
+#end
     }
 
     /**
@@ -548,9 +560,13 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
         java.util.Iterator<${prop.type}> it = targets.iterator();
         while ( it.hasNext() ) {
             ${prop.type} target = it.next();
-            if (target.isLoaded() || !${prop.ordered} ) {
+#if(${prop.ordered})
+            if (target.isLoaded()) {
+#end
                 target.set${prop.inverseCapped} ( null );
+#if(${prop.ordered})
             }
+#end
         }
     }
 
