@@ -14,11 +14,11 @@ ALTER TABLE joboriginalfilelink DROP CONSTRAINT fkjoboriginalfilelink_parent_scr
 
 BEGIN;
 
-CREATE OR REPLACE FUNCTION OMERO3B__1__upgrade() RETURNS varchar(255) AS $$
+CREATE OR REPLACE FUNCTION OMERO3A__1__upgrade() RETURNS varchar(255) AS $$
 DECLARE
     mviews RECORD;
     indexed RECORD;
-    count INT8;
+    cnt INT8;
     ann INT8;
     link INT8;
     new_annotated INT8;
@@ -408,11 +408,11 @@ BEGIN
   -- Convert all groupexperimentermaps to indexed arrays
   --
   FOR indexed IN SELECT child as id FROM groupexperimentermap GROUP BY child LOOP
-    count := 0;
+    cnt := 0;
     FOR mviews IN SELECT id FROM groupexperimentermap WHERE child = indexed.id ORDER BY defaultGroupLink DESC LOOP
 
-        UPDATE groupexperimentermap SET child_index = count where id = mviews.id;
-        count := count + 1;
+        UPDATE groupexperimentermap SET child_index = cnt where id = mviews.id;
+        cnt := cnt + 1;
 
     END LOOP;
   END LOOP;
@@ -422,11 +422,11 @@ BEGIN
   --
   -- Convert all pixels to indexed arrays
   FOR indexed IN SELECT image as id FROM pixels GROUP BY image LOOP
-    count := 0;
+    cnt := 0;
     FOR mviews IN SELECT id FROM pixels WHERE image = indexed.id ORDER BY defaultPixels DESC LOOP
 
-        UPDATE pixels SET image_index = count where id = mviews.id;
-        count := count + 1;
+        UPDATE pixels SET image_index = cnt where id = mviews.id;
+        cnt := cnt + 1;
 
     END LOOP;
   END LOOP;
@@ -497,8 +497,8 @@ BEGIN
   --
   -- Convert all categories and category groups
   --
-  CREATE TABLE OMERO3B_1__cg_to_ann (cg INT8 primary key, ann_id INT8);
-  CREATE TABLE OMERO3B_1__c_to_ann (c INT8 primary key, ann_id INT8);
+  CREATE TABLE OMERO3A_1__cg_to_ann (cg INT8 primary key, ann_id INT8);
+  CREATE TABLE OMERO3A_1__c_to_ann (c INT8 primary key, ann_id INT8);
 
   FOR mviews IN SELECT
   id, owner_id, group_id, creation_id, permissions, external_id, version, name, description FROM categorygroup cg LOOP
@@ -509,7 +509,7 @@ BEGIN
       VALUES
       ('/text/tag', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
       mviews.permissions, mviews.external_id, mviews.description, mviews.name);
-    INSERT INTO OMERO3B_1__cg_to_ann VALUES (mviews.id, ann);
+    INSERT INTO OMERO3A_1__cg_to_ann VALUES (mviews.id, ann);
 
   END LOOP;
 
@@ -522,15 +522,15 @@ BEGIN
       VALUES
       ('/text/tag', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
       mviews.permissions, mviews.external_id, mviews.description, mviews.name);
-    INSERT INTO OMERO3B_1__c_to_ann VALUES (mviews.id, ann);
+    INSERT INTO OMERO3A_1__c_to_ann VALUES (mviews.id, ann);
 
   END LOOP;
 
   FOR mviews IN SELECT id, owner_id, group_id, creation_id, update_id, permissions, external_id, version, parent, child FROM categorygroupcategorylink LOOP
 
     SELECT INTO link nextval('seq_annotationannotationlink');
-    SELECT INTO new_annotated ann_id FROM OMERO3B_1__c_to_ann where c = mviews.child;
-    SELECT INTO new_annotation ann_id FROM OMERO3B_1__cg_to_ann where cg = mviews.parent;
+    SELECT INTO new_annotated ann_id FROM OMERO3A_1__c_to_ann where c = mviews.child;
+    SELECT INTO new_annotation ann_id FROM OMERO3A_1__cg_to_ann where cg = mviews.parent;
     INSERT INTO annotationannotationlink
       (id, owner_id, group_id, creation_id, update_id, permissions, external_id, version, parent, child)
       VALUES
@@ -541,7 +541,7 @@ BEGIN
   FOR mviews IN SELECT id, owner_id, group_id, creation_id, update_id, permissions, external_id, version, parent, child FROM categoryimagelink LOOP
 
     SELECT INTO link nextval('seq_imageannotationlink');
-    SELECT INTO new_annotation ann_id FROM OMERO3B_1__c_to_ann where c = mviews.parent;
+    SELECT INTO new_annotation ann_id FROM OMERO3A_1__c_to_ann where c = mviews.parent;
     INSERT INTO imageannotationlink
       (id, owner_id, group_id, creation_id, update_id, permissions, external_id, version, parent, child)
       VALUES
@@ -594,10 +594,10 @@ BEGIN
   DROP TABLE xyzttoxytlink CASCADE;
   DROP TABLE xyzttoxyzlink CASCADE;
 
-  DELETE FROM OMERO3B_1__cg_to_ann;
-  DROP TABLE OMERO3B_1__cg_to_ann;
-  DELETE FROM OMERO3B_1__c_to_ann;
-  DROP TABLE OMERO3B_1__c_to_ann;
+  DELETE FROM OMERO3A_1__cg_to_ann;
+  DROP TABLE OMERO3A_1__cg_to_ann;
+  DELETE FROM OMERO3A_1__c_to_ann;
+  DROP TABLE OMERO3A_1__c_to_ann;
 
   --
   -- Adding count tables
@@ -884,8 +884,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch) values ('OMERO3A', 1, 'OMERO3', 7);
-SELECT OMERO3B__1__upgrade();
-DROP FUNCTION OMERO3B__1__upgrade();
+SELECT OMERO3A__1__upgrade();
+DROP FUNCTION OMERO3A__1__upgrade();
 UPDATE dbpatch SET message = 'Database updated.', finished = now()
     WHERE currentVersion  = 'OMERO3A'   AND
           currentPatch    = 1           AND
