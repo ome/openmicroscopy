@@ -24,11 +24,10 @@
     Privileged bean which has several "private" references injected. This is not
     an example of what should be done.
     </description>
-    <property name="localAdmin" ref="internal:ome.api.LocalAdmin"/>
     <property name="sessionManager" ref="sessionManager"/>
   </bean> 
  
-  <bean name="managed:ome.api.ISession" parent="managedService">
+  <bean name="managed:ome.api.ISession" parent="selfManagingdService">
     <property name="proxyInterfaces">
       <list>
         <value>ome.api.ISession</value>
@@ -41,15 +40,26 @@
     <property name="adminService"  ref="internal:ome.api.LocalAdmin"/>
     <property name="queryService"  ref="internal:ome.api.LocalQuery"/>
     <property name="updateService" ref="internal:ome.api.LocalUpdate"/>
-    <property name="cache"         ref="sessionCache"/>
+    <property name="sessionCache"  ref="sessionCache"/>
     <property name="roles"         ref="roles"/>
+    <property name="executor"      ref="executor"/>
+    <property name="principal">
+        <bean class="ome.system.Principal">
+          <constructor-arg value="root"/>
+          <constructor-arg value="system"/>
+          <constructor-arg value="Sessions"/>
+        </bean>
+    </property>
   </bean>  
-  
-  <bean id="readWriteCache" class="ome.tools.spring.ReadWriteCache">
-     <constructor-arg ref="sessionCache"/>
+
+  <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">  
+    <property name="cacheFactory"  ref="&amp;ehCache"/>
   </bean>
-  
-  <bean id="sessionCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+
+  <!--  sessionCache alters the instance given to it, and therefore this 
+        is not a singleton. -->
+  <bean id="ehCache" class="ome.services.sessions.state.CacheFactory" 
+    singleton="false">
     <property name="cacheManager" ref="CacheManager"/>
     <property name="overflowToDisk" value="false"/>
     <property name="maxElementsInMemory" value="0"/>

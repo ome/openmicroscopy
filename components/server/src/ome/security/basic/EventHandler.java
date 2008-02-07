@@ -134,6 +134,10 @@ public class EventHandler implements MethodInterceptor {
             ht.execute(new EnableFilterAction(secSys));
             retVal = arg0.proceed();
             saveLogs();
+            // Calling clearLogs posits that these EventLogs were successfully
+            // saved, and so this method may raise an event signalling such.
+            // This could eventually be reworked to be fully within the 
+            // security system.
             secSys.clearLogs();
             return retVal;
         } catch (Throwable ex) {

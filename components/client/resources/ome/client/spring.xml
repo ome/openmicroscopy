@@ -40,7 +40,7 @@
   
 -->
 
-<beans>	
+<beans>
 
   <!-- property placeholder post-processor -->
 	<bean id="placeholderConfig"
@@ -79,14 +79,27 @@
     </constructor-arg>
   </bean>
 
+  <bean id="managed:ome.api.ISession" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiEnvironment" ref="env"/>
+        <property name="lookupOnStartup" value="false"/>    
+        <property name="jndiName" value="omero/remote/ome.api.ISession"/>
+        <property name="proxyInterface" value="ome.api.ISession"/>
+  </bean>
+
+  <bean id="init" class="ome.system.SessionInitializer">
+    <property name="principal"       ref="principal"/>
+    <property name="credentials"     value="${omero.pass}"/>
+    <property name="sessionService"  ref="managed:ome.api.ISession"/>
+  </bean>
+
   <!-- jndi parent class -->
   <bean id="statelessJndi" abstract="true"
     class="ome.client.ConfigurableJndiObjectFactoryBean">
     <property name="jndiEnvironment" ref="env"/>
     <property name="lookupOnStartup" value="false"/>    
     <property name="principal"       ref="principal"/>
-    <property name="credentials"     value="${omero.pass}"/>
     <property name="interceptor"><bean class="ome.client.Interceptor"/></property>
+    <property name="init"            ref="init"/>
   </bean>
   <bean id="statefulJndi" abstract="true" parent="statelessJndi"
     class="ome.client.ConfigurableJndiObjectFactoryBean">

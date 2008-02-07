@@ -20,6 +20,7 @@ import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IRenderingSettings;
 import ome.api.IRepositoryInfo;
+import ome.api.ISession;
 import ome.api.ITypes;
 import ome.api.IUpdate;
 import ome.api.JobHandle;
@@ -28,7 +29,9 @@ import ome.api.RawPixelsStore;
 import ome.api.Search;
 import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
+import ome.conditions.ApiUsageException;
 import ome.model.internal.Permissions;
+import ome.model.meta.Session;
 import omeis.providers.re.RenderingEngine;
 
 /**
@@ -36,7 +39,6 @@ import omeis.providers.re.RenderingEngine;
  * remote facades.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @see OmeroContext
  * @since 3.0
  */
@@ -266,6 +268,33 @@ public class ServiceFactory {
      */
     public ThumbnailStore createThumbnailService() {
         return getServiceByClass(ThumbnailStore.class);
+    }
+
+    // ~ Sessions
+    // =========================================================================
+
+    public ISession getSessionService() {
+        return getServiceByClass(ISession.class);
+    }
+
+    public Session getSession() throws ApiUsageException {
+        return getSessionInitializer().getSession();
+    }
+
+    public void setSession(Session session) throws ApiUsageException {
+        SessionInitializer si = getSessionInitializer();
+        si.setSession(session);
+    }
+
+    protected SessionInitializer getSessionInitializer() {
+        SessionInitializer si;
+        try {
+            si = (SessionInitializer) this.ctx.getBean("sessionInitializer");
+        } catch (Exception e) {
+            throw new ApiUsageException("This ServiceFactory is not configured"
+                    + "for sessions");
+        }
+        return si;
     }
 
     // ~ Helpers

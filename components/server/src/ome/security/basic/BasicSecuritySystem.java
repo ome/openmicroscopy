@@ -50,6 +50,7 @@ import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -72,7 +73,8 @@ import org.springframework.util.Assert;
  * {@link CurrentDetails} to provide the security infrastructure.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision: 1581 $, $Date: 2007-06-02 12:31:30 +0200 (Sat, 02 Jun 2007) $
+ * @version $Revision: 1581 $, $Date: 2007-06-02 12:31:30 +0200 (Sat, 02 Jun
+ *          2007) $
  * @see Token
  * @see SecuritySystem
  * @see Details
@@ -95,9 +97,9 @@ public class BasicSecuritySystem implements SecuritySystem {
     // Constructor arguments
     private final LocalQuery query;
     private final LocalUpdate update;
-    private final SessionManager sessionManager; 
+    private final SessionManager sessionManager;
     private final Roles roles;
-    
+
     /** metadata for calculating certain walks */
     protected ExtendedMetadata em;
 
@@ -108,7 +110,6 @@ public class BasicSecuritySystem implements SecuritySystem {
 
     protected CurrentDetails cd = new CurrentDetails();
 
-
     protected ACLVoter acl = new BasicACLVoter(this); // FIXME dangerous
 
     /**
@@ -117,7 +118,8 @@ public class BasicSecuritySystem implements SecuritySystem {
      * @param factory
      *            Not null.
      */
-    public BasicSecuritySystem(ServiceFactory sf, SessionManager sessionManager, Roles roles) {
+    public BasicSecuritySystem(ServiceFactory sf,
+            SessionManager sessionManager, Roles roles) {
         Assert.notNull(sf);
         this.query = (LocalQuery) sf.getQueryService();
         this.update = (LocalUpdate) sf.getUpdateService();
@@ -951,7 +953,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 
         final Principal p = clearAndCheckPrincipal();
         final EventContext ec = sessionManager.getEventContext(p);
-        
+
         // start refilling current details
         cd.setReadOnly(isReadyOnly);
 
@@ -959,12 +961,13 @@ public class BasicSecuritySystem implements SecuritySystem {
         cd.setLeaderOfGroups(ec.getLeaderOfGroupsList());
 
         // Experimenter
-        final Experimenter exp = new Experimenter(ec.getCurrentUserId(),false);
+        final Experimenter exp = new Experimenter(ec.getCurrentUserId(), false);
         exp.getGraphHolder().setToken(token, token);
         cd.setOwner(exp);
 
         // Active group
-        final ExperimenterGroup grp = new ExperimenterGroup(ec.getCurrentGroupId(),false);
+        final ExperimenterGroup grp = new ExperimenterGroup(ec
+                .getCurrentGroupId(), false);
         if (!ec.getMemberOfGroupsList().contains(grp.getId())) {
             throw new SecurityViolation(String.format(
                     "User %s is not a member of group %s", p.getName(), p
@@ -990,6 +993,7 @@ public class BasicSecuritySystem implements SecuritySystem {
         // flushing issues later.
         if (!isReadyOnly) {
             setCurrentEvent(update.saveAndReturnObject(event));
+        }
     }
 
     /**
@@ -1087,6 +1091,16 @@ public class BasicSecuritySystem implements SecuritySystem {
             log.debug("Clearing EventLogs.");
         }
 
+        boolean foundAdminType = false;
+        for (EventLog log : getLogs()) {
+            String t = log.getEntityType();
+            if (Experimenter.class.getName().equals(t)
+                    || ExperimenterGroup.class.getName().equals(t)
+                    || GroupExperimenterMap.class.getName().equals(t)) {
+                this.sessionManager
+                        .onApplicationEvent(new UserGroupUpdateEvent(this));
+            }
+        }
         cd.clearLogs();
     }
 
@@ -1184,8 +1198,7 @@ public class BasicSecuritySystem implements SecuritySystem {
         for (T obj : objs) {
 
             // TODO inject
-            if (obj.getId() != null
-                    && !((LocalQuery) sf.getQueryService()).contains(obj)) {
+            if (obj.getId() != null && !query.contains(obj)) {
                 throw new SecurityViolation("Services are not allowed to call "
                         + "doAction() on non-Session-managed entities.");
             }
@@ -1222,8 +1235,7 @@ public class BasicSecuritySystem implements SecuritySystem {
     public void runAsAdmin(final AdminAction action) {
         Assert.notNull(action);
 
-        LocalQuery q = (LocalQuery) sf.getQueryService();
-        q.execute(new HibernateCallback() {
+        query.execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException, SQLException {
 

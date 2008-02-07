@@ -10,7 +10,6 @@ package ome.server.utests;
 
 // Third-party libraries
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import ome.api.ITypes;
@@ -77,12 +76,14 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
 
     public List<Long> MEMBER_OF_GROUPS;
 
+    public List<String> USER_ROLES;
+
     protected UpdateFilter filter;
 
     protected Mock mockMgr;
-    
+
     protected SessionManager mgr;
-    
+
     protected SecuritySystem sec;
 
     protected MockServiceFactory sf;
@@ -96,13 +97,13 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
         sf.mockAdmin = mock(LocalAdmin.class);
         sf.mockQuery = mock(LocalQuery.class);
         sf.mockUpdate = mock(LocalUpdate.class);
-        sf.mockTypes = mock(ITypes.class);        
-        
+        sf.mockTypes = mock(ITypes.class);
+
         mockMgr = mock(SessionManager.class);
         mgr = (SessionManager) mockMgr.proxy();
-        
+
         sec = new BasicSecuritySystem(sf, mgr, new Roles());
-        
+
         filter = new UpdateFilter();
 
         ROOT = new Experimenter(ROOT_OWNER_ID, true);
@@ -124,16 +125,18 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
     protected void rootLogin() {
         LEADER_OF_GROUPS = Arrays.asList(0L);
         MEMBER_OF_GROUPS = Arrays.asList(0L, 1L);
-        
+        USER_ROLES = Arrays.asList("user", "default");
         // Setup session
         mockMgr.expects(once()).method("assertSession");
         Session s = new Session();
-        Details d = new Details();
-        d.setOwner(new Experimenter(0L,false));
-        d.setGroup(new ExperimenterGroup(0L,false));
-        s.setDetails(d);
-        SessionContextImpl sci = new SessionContextImpl(s,LEADER_OF_GROUPS, MEMBER_OF_GROUPS);
-        mockMgr.expects(once()).method("getEventContext").will(returnValue(sci));
+        Details d = Details.create();
+        d.setOwner(new Experimenter(0L, false));
+        d.setGroup(new ExperimenterGroup(0L, false));
+        s.getDetails().copy(d);
+        SessionContextImpl sci = new SessionContextImpl(s, LEADER_OF_GROUPS,
+                MEMBER_OF_GROUPS, USER_ROLES);
+        mockMgr.expects(once()).method("getEventContext")
+                .will(returnValue(sci));
         INITIAL_EVENT.setType(BOOTSTRAP);
         sf.mockUpdate.expects(atLeastOnce()).method("saveAndReturnObject")
                 .with(new Type(Event.class)).will(returnValue(INITIAL_EVENT));

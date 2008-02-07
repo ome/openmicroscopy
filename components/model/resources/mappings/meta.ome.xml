@@ -52,8 +52,11 @@
             <!-- Type & Group are not really optional. Needed to bootstrap.
                  Constraints are added later -->
                    <required name="uuid"               type="string"/>
+                   <required name="timeToIdle"         type="long"/>
+                   <required name="timeToLive"         type="long"/>
                    <required name="started"            type="timestamp"/>
                    <optional name="closed"             type="timestamp"/>
+                   <optional name="message"            type="string"/>
                    <required name="defaultPermissions" type="string"/>
                    <required name="defaultEventType"   type="string"/>
                    <optional name="userAgent"          type="string"/>
@@ -77,6 +80,7 @@
 		<entry name="Test"/>
 		<entry name="Processing"/>
 		<entry name="FullText"/>
+		<entry name="Sessions"/>
 	</enum>
 
 	<type id="ome.model.meta.Event" immutable="true" global="true">
@@ -90,6 +94,7 @@
 			<optional name="type" type="ome.model.enums.EventType"/>
 			<optional name="containingEvent" type="ome.model.meta.Event"/>
 			<onemany  name="logs" type="ome.model.meta.EventLog" inverse="event"/>
+			<manyone  name="session" type="ome.model.meta.Session"/>
 		</properties>
 	</type>
 
@@ -99,7 +104,6 @@
 			<required name="entityType" type="string"/>
 			<required name="action" type="string"/>
 			<manyone  name="event" type="ome.model.meta.Event"/>
-			<manyone  name="session" type="ome.model.meta.Session"/>
 		</properties>
 	</type>
 

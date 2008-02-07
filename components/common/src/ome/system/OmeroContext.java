@@ -36,11 +36,11 @@ import ome.util.messages.MessageException;
  * can be used for the lookup of particular contexts, through either
  * {@link #getInstance(String)} or
  * {@link ome.system.ServiceFactory#ServiceFactory(String)}.
- *
+ * 
  * By passing a {@link java.util.Properties} instance into the
  * {@link #getClientContext(Properties)} method, a non-static version is
  * created. Currently this is only supported for the client context.
- *
+ * 
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
@@ -98,7 +98,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
     /**
      * create (if necessary) and return the single default client OmeroContext.
      * Any two calls to this method will return the same (==) context instance.
-     *
+     * 
      * @see #CLIENT_CONTEXT
      */
     public static OmeroContext getClientContext() {
@@ -114,7 +114,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
     /**
      * initialize a new client OmeroContext (named {@link #CLIENT_CONTEXT}),
      * using the {@link #getContext(Properties, String)} method.
-     *
+     * 
      * @see #getContext(Properties, String)
      * @see #CLIENT_CONTEXT
      * @see ServiceFactory#ServiceFactory(Login)
@@ -130,12 +130,12 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
      * provided as values for property (e.g. ${name}) replacement in Spring. Two
      * calls to this method with the same argument will return different ( =! )
      * contexts.
-     *
+     * 
      * @param props
      *            Non-null properties for replacement.
      * @param context
      *            Non-null name of context to find in beanRefContext.xml
-     *
+     * 
      * @see ServiceFactory#ServiceFactory(Login)
      * @see ServiceFactory#ServiceFactory(Server)
      * @see ServiceFactory#ServiceFactory(Properties)
@@ -165,7 +165,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
      * Any two calls to this method will return the same (==) context instance.
      * Managed means that the services are fully wrapped by interceptors, and
      * are essentially the services made available remotely.
-     *
+     * 
      * @see #INTERNAL_CONTEXT
      */
     public static OmeroContext getManagedServerContext() {
@@ -183,7 +183,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
      * create (if necessary) and return the single default OmeroContext named by
      * the beanFactoryName parameter. Any two calls to this method with the same
      * parameter will return the same (==) context instance.
-     *
+     * 
      * @see #getClientContext()
      * @see #getInternalServerContext()
      * @see #getManagedServerContext()
@@ -199,10 +199,15 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
             // wrong, we need to rollback.
             try {
                 ctx.refresh();
-            } catch (Throwable t) {
+            } catch (RuntimeException re) {
                 if (ctx != null) {
-                    ctx.close();
+                    try {
+                        ctx.close();
+                    } catch (Exception e) {
+                        // OK ignoring to rethrow the original exception
+                    }
                 }
+                throw re;
             }
         }
         return ctx;
@@ -214,7 +219,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
     /**
      * Uses the methods of this context's {@link BeanFactory} to autowire any
      * Object based on the given beanName.
-     *
+     * 
      * @see org.springframework.beans.factory.config.AutowireCapableBeanFactory#applyBeanPropertyValues(java.lang.Object,
      *      java.lang.String)
      */
@@ -227,7 +232,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
      * Uses the methods of this context's {@link BeanFactory} to autowire any
      * Object based on the service class. This is used by
      * {@link SelfConfigurableService} instances to acquire dependencies.
-     *
+     * 
      * @see SelfConfigurableService
      * @see org.springframework.beans.factory.config.AutowireCapableBeanFactory#applyBeanPropertyValues(java.lang.Object,
      *      java.lang.String)
@@ -245,11 +250,11 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
      * refreshes all the nested OmeroContexts within this instance. This is
      * useful when using a static context, and {@link Properties} which were
      * pulled from {@link System#getProperties()} have been changed.
-     *
+     * 
      * If this is a server-side instance ({@link OmeroContext#MANAGED_CONTEXT}
      * or {@link OmeroContext#INTERNAL_CONTEXT}), this may take a significant
      * amount of time.
-     *
+     * 
      * @see org.springframework.context.ConfigurableApplicationContext#refresh()
      */
     public void refreshAll() {
@@ -272,10 +277,10 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
 
     /**
      * Convenience method around
-     * {@link #publishEvent(org.springframework.context.ApplicationEvent)}
-     * which catches all {@link MessageException} and unwraps the contained
+     * {@link #publishEvent(org.springframework.context.ApplicationEvent)} which
+     * catches all {@link MessageException} and unwraps the contained
      * {@link Throwable} instance and rethrows.
-     *
+     * 
      * @param msg
      * @throws Throwable
      */

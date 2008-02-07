@@ -6,6 +6,7 @@
  */
 package ome.server.utests.sessions;
 
+import ome.conditions.AuthenticationException;
 import ome.conditions.SessionException;
 import ome.model.meta.Session;
 import ome.services.sessions.SessionBean;
@@ -40,20 +41,21 @@ public class SessionBeanUnitTest extends MockObjectTestCase {
         session.setUuid("uuid");
         principal = new Principal("name", "group", "type");
     }
-    
+
     @Test(expectedExceptions = SessionException.class)
-    public void testCreateWithNullSessionFailsWithSessionException() throws Exception {
+    public void testCreateWithNullSessionFailsWithSessionException()
+            throws Exception {
         smMock.expects(once()).method("create").will(
-                returnValue(null));
+                throwException(new AuthenticationException("")));
         bean.createSession(principal, "password");
     }
-    
+
     @Test
     public void testCreateSessionPasses() throws Exception {
         smMock.expects(once()).method("create").will(returnValue(session));
         assertEquals(session, bean.createSession(principal, "password"));
     }
-    
+
     @Test
     public void testUpdate() throws Exception {
         testCreateSessionPasses();
@@ -67,6 +69,5 @@ public class SessionBeanUnitTest extends MockObjectTestCase {
         smMock.expects(once()).method("close");
         bean.closeSession(session);
     }
-
 
 }

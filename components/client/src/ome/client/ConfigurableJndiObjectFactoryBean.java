@@ -7,12 +7,7 @@
 
 package ome.client;
 
-// Java imports
 import javax.naming.NamingException;
-
-import ome.conditions.InternalException;
-import ome.model.IObject;
-import ome.system.Principal;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.aop.TargetSource;
@@ -21,7 +16,11 @@ import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.jndi.JndiObjectTargetSource;
 
-// Application-internal dependencies
+import ome.api.ISession;
+import ome.conditions.InternalException;
+import ome.model.IObject;
+import ome.system.Principal;
+import ome.system.SessionInitializer;
 
 /**
  * allows prototype-like lookup of stateful session beans. This is achieved by
@@ -40,11 +39,12 @@ import org.springframework.jndi.JndiObjectTargetSource;
  * @see ome.client.Session#register(IObject)
  */
 public class ConfigurableJndiObjectFactoryBean extends JndiObjectFactoryBean {
+
     protected boolean stateful = false;
 
-    protected Principal principal;
+    protected SessionInitializer init;
 
-    protected String credentials;
+    protected Principal principal;
 
     protected MethodInterceptor interceptor;
 
@@ -55,27 +55,16 @@ public class ConfigurableJndiObjectFactoryBean extends JndiObjectFactoryBean {
         this.stateful = isStatless;
     }
 
+    public void setInit(SessionInitializer init) {
+        this.init = init;
+    }
+
     /**
      * setter for the {@link Principal} which will be passed to
      * {@link JBossTargetSource#JBossTargetSource(JndiObjectTargetSource, java.security.Principal, String)}
      */
     public void setPrincipal(Principal securityPrincipal) {
         this.principal = securityPrincipal;
-    }
-
-    /**
-     * setter for the credentials which will be passed to
-     * {@link JBossTargetSource#JBossTargetSource(JndiObjectTargetSource, java.security.Principal, String)}
-     */
-    public void setCredentials(String securityCredentials) {
-        this.credentials = securityCredentials;
-    }
-
-    /**
-     * setter for the interceptor, which will be used to wrap all proxies.
-     */
-    public void setInterceptor(MethodInterceptor interceptor) {
-        this.interceptor = interceptor;
     }
 
     /**
@@ -97,6 +86,15 @@ public class ConfigurableJndiObjectFactoryBean extends JndiObjectFactoryBean {
      */
     @Override
     public Object getObject() {
+
+        ome.model.meta.Session sess;
+        if (init == null) {
+            throw new InternalException("Service factory error:"
+                    + this.getJndiName() + " is missing it's initializer");
+        } else {
+            sess = init.getSession();
+        }
+
         if (stateful) {
             try {
                 afterPropertiesSet();
@@ -111,7 +109,7 @@ public class ConfigurableJndiObjectFactoryBean extends JndiObjectFactoryBean {
         Advised advised = (Advised) object;
         JBossTargetSource redirector = new JBossTargetSource(
                 (JndiObjectTargetSource) advised.getTargetSource(),
-                this.principal, this.credentials);
+                this.principal, sess.getUuid());
 
         ProxyFactory proxyFactory = new ProxyFactory();
         for (Class klass : advised.getProxiedInterfaces()) {

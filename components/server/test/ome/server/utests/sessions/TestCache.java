@@ -6,42 +6,46 @@
  */
 package ome.server.utests.sessions;
 
-import java.util.UUID;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import ome.tools.spring.ReadWriteCache;
 
 /**
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  */
-public class TestCache extends Cache {
+public class TestCache extends ReadWriteCache {
 
-	static CacheManager ehMgr = new CacheManager();
-	static volatile int count = 1;
-	
-//	super("test", 10 /* elts */, MemoryStoreEvictionPolicy.LFU,
-//			false /* disk */, null /* path */, true /* eternal */,
-//			10 /* time to live */, 10 /* time to idle */,
-//			false /* disk persistent */, 10 /* disk thread interval */,
-//			null /* listeners */);
-	
-	public TestCache() {
-		this("testcache"+count++, 
-				10 /* elts */, 10 /* time to live */, 
-				10 /* time to idle */, null /* listeners */);
-	}
+    static CacheManager ehMgr = new CacheManager();
+    static volatile int count = 1;
 
-	public TestCache(String name, int elements, int timeToLive, int timeToIdle, 
-			RegisteredEventListeners listeners) {
-		super(name, elements, MemoryStoreEvictionPolicy.LFU,
-				false /* disk */, null /* path */, true /* eternal */,
-				timeToLive, timeToIdle,
-				false /* disk persistent */, 10 /* disk thread interval */,
-				listeners);
-		ehMgr.addCache(this);
-	}
+    Cache delegate;
 
+    // super("test", 10 /* elts */, MemoryStoreEvictionPolicy.LFU,
+    // false /* disk */, null /* path */, true /* eternal */,
+    // 10 /* time to live */, 10 /* time to idle */,
+    // false /* disk persistent */, 10 /* disk thread interval */,
+    // null /* listeners */);
+
+    public TestCache() {
+        this("testcache" + count++, 10 /* elts */, 10 /* time to live */,
+                10 /* time to idle */, null /* listeners */);
+    }
+
+    public TestCache(String name, int elements, int timeToLive, int timeToIdle,
+            RegisteredEventListeners listeners) {
+        super(cache(name, elements, timeToLive, timeToIdle, listeners));
+        ehMgr.addCache(this);
+    }
+
+    static Ehcache cache(String name, int elements, int timeToLive,
+            int timeToIdle, RegisteredEventListeners listeners) {
+        return new Cache(name, elements, MemoryStoreEvictionPolicy.LFU,
+                false /* disk */, null /* path */, true /* eternal */,
+                timeToLive, timeToIdle, false /* disk persistent */,
+                10 /* disk thread interval */, listeners);
+    }
 }

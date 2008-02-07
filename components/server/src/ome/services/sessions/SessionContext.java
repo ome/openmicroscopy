@@ -10,6 +10,7 @@ package ome.services.sessions;
 import java.util.List;
 
 import ome.model.meta.Session;
+import ome.services.sessions.state.SessionCache;
 import ome.system.EventContext;
 
 /**
