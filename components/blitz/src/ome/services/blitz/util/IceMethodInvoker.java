@@ -26,6 +26,7 @@ import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
+import ome.system.Principal;
 import ome.system.Roles;
 import ome.util.Filterable;
 import omeis.providers.re.RGBBuffer;
@@ -251,6 +252,8 @@ public class IceMethodInvoker {
             return mapper.reverse((ModelBased) arg);
         } else if (p.equals(Filter.class)) {
             return mapper.convert((omero.sys.Filter) arg);
+        } else if (p.equals(Principal.class)) {
+            return mapper.convert((omero.sys.Principal) arg);
         } else if (p.equals(Parameters.class)) {
             return mapper.convert((omero.sys.Parameters) arg);
         } else if (List.class.isAssignableFrom(p)) {
@@ -350,10 +353,11 @@ public class IceMethodInvoker {
             return IceMapper.fillServerError(re, t);
         } else if (ome.conditions.RootException.class.isAssignableFrom(c)) {
             // Not returning but logging error message.
-            log.error("RootException thrown which is an unknown subclasss.\n"+
-                "This most likely means that an exception was added to the\n"+
-                "ome.conditions hierarchy, without being accountd for in blitz:\n"+
-                c.getName());
+            log
+                    .error("RootException thrown which is an unknown subclasss.\n"
+                            + "This most likely means that an exception was added to the\n"
+                            + "ome.conditions hierarchy, without being accountd for in blitz:\n"
+                            + c.getName());
         }
 
         // Catch all in case above did not return

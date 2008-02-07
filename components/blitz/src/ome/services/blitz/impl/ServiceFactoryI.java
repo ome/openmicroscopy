@@ -21,7 +21,6 @@ import ome.api.ServiceInterface;
 import ome.conditions.InternalException;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
-import ome.services.blitz.fire.SessionManagerI;
 import ome.services.blitz.util.ServantDefinition;
 import ome.services.blitz.util.ServantHelper;
 import ome.services.blitz.util.UnregisterServantMessage;
@@ -276,7 +275,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         }
 
         try {
-            current.adapter.remove(SessionManagerI.sessionId(principal
+            current.adapter.remove(ServiceFactoryI.sessionId(principal
                     .getName()));
             sessionManager.close(this.principal.getName());
         } catch (Throwable t) {
@@ -471,8 +470,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * Reverts all the additions made by
      * {@link #registerServant(ServantInterface, Ice.Current, Ice.Identity)}
      * 
-     * Now called by {@link SessionManagerI} in response to an
-     * {@link UnregisterServantMessage}
+     * Now called by {@link ome.services.blitz.fire.SessionManagerI} in response
+     * to an {@link UnregisterServantMessage}
      */
     public void unregisterServant(Ice.Identity id, Ice.Current current) {
 
@@ -494,6 +493,13 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         sb.append(obj);
         sb.append(")");
         return sb.toString();
+    }
+
+    public static Ice.Identity sessionId(String uuid) {
+        Ice.Identity id = new Ice.Identity();
+        id.category = "session";
+        id.name = uuid;
+        return id;
     }
 
 }

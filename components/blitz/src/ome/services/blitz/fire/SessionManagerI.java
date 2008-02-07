@@ -96,7 +96,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             ServiceFactoryI session = new ServiceFactoryI(context,
                     sessionManager, sp, CPTORS);
 
-            Ice.Identity id = sessionId(s.getUuid());
+            Ice.Identity id = ServiceFactoryI.sessionId(s.getUuid());
             Ice.ObjectPrx _prx = current.adapter.add(session, id);
             Glacier2.SessionPrx prx = Glacier2.SessionPrxHelper
                     .uncheckedCast(_prx);
@@ -138,7 +138,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             Ice.Current curr = msg.getCurrent();
 
             // And unregister the service if possible
-            Ice.Identity id = sessionId(curr.id.category);
+            Ice.Identity id = ServiceFactoryI.sessionId(curr.id.category);
             Ice.Object obj = curr.adapter.find(id);
             if (obj instanceof ServiceFactoryI) {
                 ServiceFactoryI sf = (ServiceFactoryI) obj;
@@ -152,13 +152,6 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
     // Helpers
     // =========================================================================
-
-    public static Ice.Identity sessionId(String uuid) {
-        Ice.Identity id = new Ice.Identity();
-        id.category = "session";
-        id.name = uuid;
-        return id;
-    }
 
     protected String getGroup(Ice.Current current) {
         if (current.ctx == null) {

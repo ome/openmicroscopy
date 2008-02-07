@@ -28,6 +28,7 @@ import ome.api.IPojos;
 import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.ModelBased;
+import ome.system.Principal;
 import ome.system.Roles;
 import ome.util.Filterable;
 import ome.util.ModelMapper;
@@ -242,6 +243,10 @@ public class IceMapper extends ome.util.ModelMapper implements
         return pd;
     }
 
+    public static Principal convert(omero.sys.Principal old) {
+        return new Principal(old.name, old.group, old.eventType);
+    }
+
     public static omero.sys.Roles convert(Roles roles) {
         omero.sys.Roles r = new omero.sys.Roles();
         r.rootId = roles.getRootId();
@@ -250,6 +255,7 @@ public class IceMapper extends ome.util.ModelMapper implements
         r.systemGroupName = roles.getSystemGroupName();
         r.userGroupId = roles.getUserGroupId();
         r.userGroupName = roles.getUserGroupName();
+        r.guestGroupName = roles.getGuestGroupName();
         return r;
     }
 
@@ -450,7 +456,7 @@ public class IceMapper extends ome.util.ModelMapper implements
      * @return
      */
     public Collection reverse(Collection source) { // FIXME throws
-                                                    // omero.ApiUsageException {
+        // omero.ApiUsageException {
         return reverse(source, source == null ? null : source.getClass());
     }
 
@@ -466,9 +472,9 @@ public class IceMapper extends ome.util.ModelMapper implements
      * @see ticket:684
      */
     public Collection reverse(Collection source, Class targetType) { // FIXME
-                                                                        // throws
-                                                                        // omero.ApiUsageException
-                                                                        // {
+        // throws
+        // omero.ApiUsageException
+        // {
 
         if (source == null) {
             return null;
@@ -493,7 +499,7 @@ public class IceMapper extends ome.util.ModelMapper implements
                     target.add(reverse(object));
                 }
             } catch (ApiUsageException aue) { // FIXME reverse can't throw
-                                                // ServerErrors!
+                // ServerErrors!
                 convertAndThrow(aue);
             }
         }

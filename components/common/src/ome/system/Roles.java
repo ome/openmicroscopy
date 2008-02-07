@@ -10,9 +10,6 @@ package ome.system;
 // Java imports
 import java.io.Serializable;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.model.meta.Experimenter;
@@ -33,7 +30,7 @@ import ome.model.meta.ExperimenterGroup;
 @RevisionNumber("$Revision$")
 public final class Roles implements Serializable {
 
-    private static final long serialVersionUID = -7130017567693194758L;
+    private static final long serialVersionUID = -7130017567693194759L;
 
     private final long rId;
 
@@ -47,6 +44,8 @@ public final class Roles implements Serializable {
 
     private final String ugName;
 
+    private final String guestName;
+
     /** default constructor which assigns hard-coded values to all roles */
     public Roles() {
         this.rId = 0L;
@@ -55,6 +54,7 @@ public final class Roles implements Serializable {
         this.sgName = "system";
         this.ugId = 1L;
         this.ugName = "user";
+        this.guestName = "guest";
     }
 
     /** constructor which allows full specification of all roles */
@@ -66,6 +66,7 @@ public final class Roles implements Serializable {
         this.sgName = systemGroupName;
         this.ugId = userGroupId;
         this.ugName = userGroupName;
+        this.guestName = "guest";
     }
 
     // ~ Checks
@@ -129,6 +130,10 @@ public final class Roles implements Serializable {
      */
     public String getUserGroupName() {
         return ugName;
+    }
+
+    public String getGuestGroupName() {
+        return guestName;
     }
 
 }

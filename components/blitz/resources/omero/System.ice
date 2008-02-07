@@ -58,19 +58,30 @@ module omero {
     };
 
     /*
-     * ParamMap replaces the ome.parameters.QueryParam 
-     * type, since the use of varargs is not possible. 
+     * ParamMap replaces the ome.parameters.QueryParam
+     * type, since the use of varargs is not possible.
      */
-    ["java:type:java.util.HashMap"] 
+    ["java:type:java.util.HashMap"]
     dictionary<string,omero::RType> ParamMap;
 
     /*
      * Holder for all the parameters which can be taken to a query.
      */
-    class Parameters 
+    class Parameters
     {
       Filter theFilter;
       ParamMap map;
+    };
+
+    /*
+     * Principal used for login, etc.
+     */
+    class Principal
+    {
+      string name;
+      string group;
+      string eventType;
+      omero::model::Permissions umask;
     };
 
     /*
@@ -86,11 +97,14 @@ module omero {
       // System group (defines who is an "admin")
       long   systemGroupId;
       string systemGroupName;
-      
+
       // The group which defines a "user". Any user not in the user
       // group is considered inactive.
       long   userGroupId;
       string userGroupName;
+
+      // "guest" group. Can log in and use some methods.
+      string guestGroupName;
     };
 
   };

@@ -205,6 +205,15 @@ module omero {
 	idempotent omero::model::IObject refresh(omero::model::IObject iObject) throws ServerError;
       };
 
+    interface ISession extends ServiceInterface
+      {
+	omero::model::Session createSession(omero::sys::Principal p, string credentials) throws ServerError;
+        omero::model::Session updateSession(omero::model::Session sess) throws ServerError;
+        void closeSession(omero::model::Session sess);
+        // System users
+        omero::model::Session createSessionWithTimeout(omero::sys::Principal p, long seconds) throws ServerError;
+      };
+
     interface ITypes extends ServiceInterface
       {
 	omero::model::IObject createEnumeration(omero::model::IObject newEnum) throws ServerError;
@@ -213,14 +222,14 @@ module omero {
       };
 
     interface IUpdate extends ServiceInterface
-      { 
+      {
 	void saveObject(omero::model::IObject obj) throws ServerError;
-	void saveCollection(IObjectList objs) throws ServerError;     
+	void saveCollection(IObjectList objs) throws ServerError;
 	omero::model::IObject saveAndReturnObject(omero::model::IObject obj) throws ServerError;
 	IObjectList saveAndReturnArray(IObjectList graph) throws ServerError;
 	void deleteObject(omero::model::IObject row) throws ServerError;
       };
-	
+
     interface IRepositoryInfo extends ServiceInterface
       {
 	idempotent long getUsedSpaceInKilobytes() throws ServerError;
@@ -229,7 +238,7 @@ module omero {
 	void sanityCheckRepository() throws ServerError;
 	void removeUnusedFiles() throws ServerError;
       };
-	
+
     interface RawFileStore extends StatefulServiceInterface
       {
 	void setFileId(long fileId) throws ServerError;
@@ -355,6 +364,7 @@ module omero {
 	IPojos*    getPojosService() throws ServerError;
 	IQuery*    getQueryService() throws ServerError;
 	IRepositoryInfo* getRepositoryInfoService() throws ServerError;
+	ISession*  getSessionService() throws ServerError;
 	ITypes*    getTypesService() throws ServerError;
 	IUpdate*   getUpdateService() throws ServerError;
 
@@ -367,15 +377,15 @@ module omero {
 
 	/*
 	 * Allows looking up any service by name. See Constants.ice
-	 * for examples of services. If a service has been added 
-	 * by third-parties, getByName can be used even though 
+	 * for examples of services. If a service has been added
+	 * by third-parties, getByName can be used even though
 	 * no concrete method is available.
 	 */
-	   
+
 	ServiceInterface* getByName(string name) throws ServerError;
-	
+
 	StatefulServiceInterface* createByName(string name) throws ServerError;
-	
+
 	/*
 	 * Example for what a server callback would look like.
 	 * Unsupported.
