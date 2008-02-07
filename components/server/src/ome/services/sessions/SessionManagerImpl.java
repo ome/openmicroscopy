@@ -8,7 +8,6 @@ package ome.services.sessions;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,6 +16,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
 import ome.conditions.RemovedSessionException;
 import ome.conditions.SecurityViolation;
+import ome.conditions.SessionException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
@@ -63,6 +63,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
     Roles roles;
     SessionCache cache;
     Executor executor;
+    long defaultTimeToIdle;
+    long defaultTimeToLive;
 
     /**
      * A private session for use only by this instance for running methods via
@@ -76,7 +78,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
 
     public void setSessionCache(SessionCache sessionCache) {
         cache = sessionCache;
-        this.cache.addStaleCacheListener(this);
+        this.cache.setStaleCacheListener(this);
     }
 
     public void setRoles(Roles securityRoles) {
@@ -85,6 +87,14 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
 
     public void setExecutor(Executor executor) {
         this.executor = executor;
+    }
+
+    public void setDefaultTimeToIdle(long defaultTimeToIdle) {
+        this.defaultTimeToIdle = defaultTimeToIdle;
+    }
+
+    public void setDefaultTimeToLive(long defaultTimeToLive) {
+        this.defaultTimeToLive = defaultTimeToLive;
     }
 
     public void init() {
@@ -134,9 +144,9 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
         principal = checkPrincipalNameAndDefaultGroup(principal);
 
         Session session = define(UUID.randomUUID().toString(),
-                "Initial message.", System.currentTimeMillis(), cache
-                        .getTimeToIdle(), cache.getTimeToLive(), principal
-                        .getEventType(), principal.getUmask().toString());
+                "Initial message.", System.currentTimeMillis(),
+                defaultTimeToIdle, defaultTimeToLive, principal.getEventType(),
+                principal.getUmask().toString());
         session = executeUpdate(session);
         SessionContext ctx = currentDatabaseShapshot(principal, session);
         cache.putSession(session.getUuid(), ctx);
@@ -203,11 +213,6 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ome.server.utests.sessions.SessionManager#getSession(java.lang.String)
-     */
     public Session find(String uuid) {
         SessionContext sessionContext = cache.getSessionContext(uuid);
         return (sessionContext == null) ? null : sessionContext.getSession();
@@ -217,27 +222,27 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
      */
     public void close(String uuid) {
 
-        SessionContext ctx = cache.getSessionContext(uuid);
+        SessionContext ctx;
+        try {
+            ctx = cache.getSessionContext(uuid);
+        } catch (SessionException se) {
+            ctx = null;
+        }
+
         if (ctx == null) {
             return;
         }
 
-        // TODO this is not safe
         Session s = ctx.getSession();
         s.setClosed(new Timestamp(System.currentTimeMillis()));
         update(s);
         cache.removeSession(uuid);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ome.services.sessions.SessionManager#getUserRoles(String)
-     */
     public List<String> getUserRoles(String uuid) {
         SessionContext ctx = cache.getSessionContext(uuid);
         if (ctx == null) {
-            return Collections.emptyList();
+            throw new RemovedSessionException("No session with uuid: " + uuid);
         }
         return ctx.getUserRoles();
     }
@@ -246,8 +251,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
     // =========================================================================
 
     public EventContext getEventContext(Principal principal) {
-        final SessionContext ctx = cache.getSessionContextThrows(principal
-                .getName(), true);
+        final SessionContext ctx = cache.getSessionContext(principal.getName());
         if (ctx == null) {
             throw new RemovedSessionException("No session with uuid:"
                     + principal.getName());
@@ -269,7 +273,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
      */
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof UserGroupUpdateEvent) {
-            cache.setNeedsUpdate(true);
+            cache.updateEvent((UserGroupUpdateEvent) event);
         }
 
         // TODO
@@ -366,15 +370,12 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
      * Will be called in a synchronized block by {@link SessionCache} in order
      * to allow for an update.
      */
-    public boolean attemptCacheUpdate() {
-        for (String key : cache.getIds()) {
-            SessionContext ctx = cache.getSessionContext(key);
-            if (ctx == null) {
-                cache.removeSession(key);
-            }
-            this.update(copy(ctx.getSession()));
-        }
-        return true;
+    public SessionContext reload(SessionContext ctx) {
+        Principal p = new Principal(ctx.getCurrentUserName(), ctx
+                .getCurrentGroupName(), ctx.getCurrentEventType());
+        SessionContext replacement = currentDatabaseShapshot(p, ctx
+                .getSession());
+        return replacement;
     }
 
     // Executor methods

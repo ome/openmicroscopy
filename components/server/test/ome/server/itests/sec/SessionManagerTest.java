@@ -6,6 +6,7 @@
  */
 package ome.server.itests.sec;
 
+import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.sessions.SessionManagerImpl;
@@ -16,6 +17,7 @@ import ome.system.Principal;
 
 import org.springframework.context.ApplicationEvent;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
  * @author Josh Moore, josh at glencoesoftware.com
@@ -34,6 +36,7 @@ public class SessionManagerTest extends AbstractManagedContextTest {
         sc = (SessionCache) this.applicationContext.getBean("sessionCache");
     }
 
+    @Test
     public void testGetsEventAndBlocksOnNextCall() throws Exception {
         login("root", "user", "User");
         ApplicationEvent event = new UserGroupUpdateEvent(this);
@@ -46,20 +49,33 @@ public class SessionManagerTest extends AbstractManagedContextTest {
         assertTrue(last2 > last1);
     }
 
+    @Test
     public void testProvidesCallbacksOnObjectExpiration() throws Exception {
 
     }
 
+    @Test
     public void testThrowsRemovedSession() {
         fail("nyi");
     }
 
+    @Test
     public void testThrowsExpiredSession() {
         fail("nyi");
     }
 
+    @Test
     public void testFakingAnotherUserDoesntWork() {
         fail("nyi");
+    }
+
+    @Test(enabled = false)
+    public void testDeleteUserShouldntHang() {
+        Experimenter e = loginNewUser();
+        loginRoot();
+
+        iAdmin.deleteExperimenter(e);
+
     }
 
 }

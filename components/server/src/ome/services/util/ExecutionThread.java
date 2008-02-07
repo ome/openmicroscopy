@@ -7,14 +7,16 @@
 
 package ome.services.util;
 
+import ome.conditions.SessionException;
 import ome.model.meta.Session;
+import ome.services.fulltext.FullTextIndexer;
 import ome.services.sessions.SessionManager;
-import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.util.DetailsFieldBridge;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.search.bridge.FieldBridge;
 import org.springframework.util.Assert;
 
 /**
@@ -32,6 +34,8 @@ public abstract class ExecutionThread implements Runnable {
     final protected Executor executor;
     final protected Executor.Work work;
     final protected Principal principal;
+    protected Principal sessionPrincipal = null;
+    protected Session session = null;
 
     /**
      * Main constructor. No arguments can be null.
@@ -57,18 +61,36 @@ public abstract class ExecutionThread implements Runnable {
      * using this idiom can run at a time.
      */
     public final void run() {
-        Session s = this.manager.create(principal);
-        Principal p = new Principal(s.getUuid(), principal.getGroup(),
-                principal.getEventType());
+        sessionInit();
         try {
             preWork();
             try {
-                this.executor.execute(p, work);
+                this.executor.execute(sessionPrincipal, work);
             } finally {
                 postWork();
             }
         } finally {
-            this.manager.close(s.getUuid());
+            // sessionInit() is now trying to create
+            // a single session and keep it alive for
+            // this thread.
+            // this.manager.close(session.getUuid());
+        }
+    }
+
+    protected final void sessionInit() {
+
+        if (sessionPrincipal != null) {
+            try {
+                this.manager.getEventContext(sessionPrincipal);
+            } catch (SessionException e) {
+                sessionPrincipal = null;
+            }
+        }
+
+        if (sessionPrincipal == null) {
+            session = this.manager.create(principal);
+            sessionPrincipal = new Principal(session.getUuid(), principal
+                    .getGroup(), principal.getEventType());
         }
     }
 

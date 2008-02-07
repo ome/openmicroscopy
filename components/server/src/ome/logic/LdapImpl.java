@@ -15,7 +15,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 
-// Third-party libraries
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -23,9 +22,6 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
 import javax.naming.InvalidNameException;
@@ -35,11 +31,25 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 
+import ome.annotations.RevisionDate;
+import ome.annotations.RevisionNumber;
+import ome.api.IAdmin;
+import ome.api.ILdap;
+import ome.api.ServiceInterface;
+import ome.api.local.LocalLdap;
+import ome.conditions.ApiUsageException;
+import ome.model.internal.Permissions;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
+import ome.security.LdapUtil;
+import ome.security.SecuritySystem;
+import ome.services.util.OmeroAroundInvoke;
+import ome.system.OmeroContext;
+
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.jmx.support.JmxUtils;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -49,23 +59,6 @@ import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.transaction.annotation.Transactional;
-
-// Application-internal dependencies
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
-import ome.api.IAdmin;
-import ome.api.ILdap;
-import ome.api.ServiceInterface;
-import ome.api.local.LocalLdap;
-import ome.conditions.ApiUsageException;
-import ome.conditions.InternalException;
-import ome.model.internal.Permissions;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
-import ome.security.LdapUtil;
-import ome.security.SecuritySystem;
-import ome.services.util.OmeroAroundInvoke;
-import ome.system.OmeroContext;
 
 /**
  * Provides methods for administering user accounts, passwords, as well as
@@ -165,10 +158,11 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
     public List<Experimenter> searchByAttribute(String dns, String attr,
             String value) {
         DistinguishedName dn;
-        if (dns == null)
+        if (dns == null) {
             dn = DistinguishedName.EMPTY_PATH;
-        else
+        } else {
             dn = new DistinguishedName(dns);
+        }
 
         if (attr != null && !attr.equals("") && value != null
                 && !value.equals("")) {
@@ -178,8 +172,9 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
             return ldapTemplate.search(dn, filter.encode(),
                     new PersonContextMapper());
-        } else
+        } else {
             return Collections.EMPTY_LIST;
+        }
     }
 
     @RolesAllowed("system")
@@ -198,11 +193,12 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
         List<Experimenter> p = ldapTemplate.search("", filter.encode(),
                 new PersonContextMapper());
         if (p.size() == 1) {
-            Experimenter exp = (Experimenter) p.get(0);
+            Experimenter exp = p.get(0);
             dn = new DistinguishedName(exp.retrieve("LDAP_DN").toString());
-        } else
+        } else {
             throw new ApiUsageException(
                     "Cannot find DistinguishedName or more then one 'cn' under the specified base");
+        }
         return dn.toString();
     }
 
@@ -215,10 +211,11 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
                 new PersonContextMapper());
         Experimenter exp = null;
         if (p.size() == 1) {
-            exp = (Experimenter) p.get(0);
-        } else
+            exp = p.get(0);
+        } else {
             throw new ApiUsageException(
                     "Cannot find DistinguishedName. More then one 'cn' under the specified base");
+        }
         return exp;
     }
 
@@ -237,18 +234,21 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
             filter.and(new EqualsFilter(attr, value));
             return ldapTemplate.search("", filter.encode(),
                     new GroupAttributMapper());
-        } else
+        } else {
             return Collections.EMPTY_LIST;
+        }
     }
 
     @RolesAllowed("system")
     public List<Experimenter> searchByAttributes(String dn,
             String[] attributes, String[] values) {
-        if (attributes.length != values.length)
+        if (attributes.length != values.length) {
             return Collections.EMPTY_LIST;
+        }
         AndFilter filter = new AndFilter();
-        for (int i = 0; i < attributes.length; i++)
+        for (int i = 0; i < attributes.length; i++) {
             filter.and(new EqualsFilter(attributes[i], values[i]));
+        }
         return ldapTemplate.search(new DistinguishedName(dn), filter.encode(),
                 new PersonContextMapper());
     }
@@ -263,7 +263,6 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
     @Transactional(readOnly = false)
     public void setDN(Long experimenterID, String dn) {
         LdapUtil.setDNById(jdbc, experimenterID, dn);
-        synchronizeLoginCache();
     }
 
     // Getters and Setters for requiroments
@@ -276,22 +275,25 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
     @RolesAllowed("system")
     public List<String> getReqGroups() {
-        if (this.groups.equals(""))
+        if (this.groups.equals("")) {
             return Collections.EMPTY_LIST;
+        }
         return Arrays.asList(this.groups.split(","));
     }
 
     @RolesAllowed("system")
     public String[] getReqAttributes() {
-        if (this.attributes.equals(""))
+        if (this.attributes.equals("")) {
             return new String[] {};
+        }
         return this.attributes.split(",");
     }
 
     @RolesAllowed("system")
     public String[] getReqValues() {
-        if (this.values.equals(""))
+        if (this.values.equals("")) {
             return new String[] {};
+        }
         return this.values.split(",");
     }
 
@@ -314,30 +316,7 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
     }
 
     // ~ LOCAL PUBLIC METHODS
-    // =========================================================================
-
-    @RolesAllowed("system")
-    public void synchronizeLoginCache() {
-        String string = "omero:service=LoginConfig";
-        // using Spring utilities to get MBeanServer
-        MBeanServer mbeanServer = JmxUtils.locateMBeanServer();
-        getBeanHelper().getLogger().debug("Acquired MBeanServer.");
-        ObjectName name;
-        try {
-            // defined in app/resources/jboss-service.xml
-            name = new ObjectName(string);
-            mbeanServer.invoke(name, "flushAuthenticationCaches",
-                    new Object[] {}, new String[] {});
-            getBeanHelper().getLogger().debug("Flushed authentication caches.");
-        } catch (InstanceNotFoundException infe) {
-            getBeanHelper().getLogger().warn(
-                    string + " not found. Won't synchronize login cache.");
-        } catch (Exception e) {
-            InternalException ie = new InternalException(e.getMessage());
-            ie.setStackTrace(e.getStackTrace());
-            throw ie;
-        }
-    }
+    // ========================================================================
 
     // ~ AttributesMapper
     // =========================================================================
@@ -355,8 +334,9 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
                 for (Enumeration vals = attr.getAll(); vals.hasMoreElements();) {
                     DistinguishedName dn = new DistinguishedName((String) vals
                             .nextElement());
-                    if (attrId.equals("memberUid"))
+                    if (attrId.equals("memberUid")) {
                         l.add(dn);
+                    }
                 }
             }
             return l;
@@ -370,8 +350,9 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
         public Object mapFromAttributes(Attributes attributes)
                 throws NamingException {
             String groupName = null;
-            if (attributes.get("cn") != null)
+            if (attributes.get("cn") != null) {
                 groupName = (String) attributes.get("cn").get();
+            }
             return groupName;
         }
 
@@ -404,14 +385,18 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
             setDn(dn);
 
             Experimenter person = new Experimenter();
-            if (context.getStringAttribute("cn") != null)
+            if (context.getStringAttribute("cn") != null) {
                 person.setOmeName(context.getStringAttribute("cn"));
-            if (context.getStringAttribute("sn") != null)
+            }
+            if (context.getStringAttribute("sn") != null) {
                 person.setLastName(context.getStringAttribute("sn"));
-            if (context.getStringAttribute("givenName") != null)
+            }
+            if (context.getStringAttribute("givenName") != null) {
                 person.setFirstName(context.getStringAttribute("givenName"));
-            if (context.getStringAttribute("mail") != null)
+            }
+            if (context.getStringAttribute("mail") != null) {
                 person.setEmail(context.getStringAttribute("mail"));
+            }
             person.putAt("LDAP_DN", dn.toString());
             return person;
         }
@@ -461,8 +446,9 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
             if (username != null && !username.equals("")) {
                 env.put(Context.SECURITY_PRINCIPAL, username);
-                if (password != null)
+                if (password != null) {
                     env.put(Context.SECURITY_CREDENTIALS, password);
+                }
             }
             new InitialLdapContext(env, null);
             return true;
@@ -504,8 +490,9 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
                 .toString());
 
         // DistinguishedName converted toString includes spaces
-        if (!validateRequiroments(dn.toString()))
+        if (!validateRequiroments(dn.toString())) {
             return false;
+        }
 
         // Valid user's password
         boolean access = validatePassword(dn.toString(), password);
@@ -547,8 +534,9 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
         if (groups.size() > 0) {
             List usergroups = searchDnInGroups("member", base);
             result = isInGroups(groups, usergroups);
-        } else
+        } else {
             result = true;
+        }
 
         // if attributes
         if (result) {
@@ -563,10 +551,11 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
                 List<Experimenter> l = searchByAttributes(dn.toString(), attrs,
                         vals);
-                if (l.size() <= 0)
+                if (l.size() <= 0) {
                     result = false;
-                else
+                } else {
                     result = true;
+                }
             }
         }
         return result;
@@ -581,13 +570,15 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
     @RolesAllowed("system")
     public boolean isInGroups(List groups, List usergroups) {
         // user is not in groups
-        if (usergroups.size() <= 0)
+        if (usergroups.size() <= 0) {
             return false;
+        }
         boolean flag = false;
         // checks containing
         for (int i = 0; i < usergroups.size(); i++) {
-            if (groups.contains(usergroups.get(i)))
+            if (groups.contains(usergroups.get(i))) {
                 flag = true;
+            }
         }
         return flag;
     }

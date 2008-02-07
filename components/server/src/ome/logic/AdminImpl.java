@@ -894,7 +894,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     private void changePasswordById(long id, String newPassword) {
         PasswordUtil.changeUserPasswordById(jdbc, id, newPassword);
-        synchronizeLoginCache();
         getBeanHelper().getLogger().info("Changed password for user: " + id);
     }
 

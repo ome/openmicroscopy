@@ -6,6 +6,7 @@
  */
 package ome.services.sessions.state;
 
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,19 +14,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import ome.conditions.InternalException;
+import ome.conditions.RemovedSessionException;
 import ome.conditions.SessionTimeoutException;
 import ome.model.meta.Session;
 import ome.services.sessions.SessionCallback;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.events.UserGroupUpdateEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Synchronized and lockable state for the {@link SessionManager}. Maps from
@@ -41,42 +43,43 @@ public class SessionCache extends CacheListener {
 
     private final ReadWriteLock updateLock = new ReentrantReadWriteLock();
 
-    private final ThreadLocal<Boolean> throwsOnExpiration = new ThreadLocal<Boolean>() {
-        @Override
-        protected Boolean initialValue() {
-            return Boolean.FALSE;
-        }
-    };
-
     /**
      * Observer pattern used to clear the blocked
      * {@link SessionCache#needsUpdate} state, which prevents all further calls
      * from happening.
      */
     public interface StaleCacheListener {
-        boolean attemptCacheUpdate();
+
+        /**
+         * Method called for every active session in the cache. The returned
+         * {@link SessionContext} will be used to replace the current one.
+         * 
+         * Any runtime exception can be thrown to show that an update is not
+         * possible.
+         */
+        SessionContext reload(SessionContext context);
     }
 
     private boolean needsUpdate = false;
     private long lastUpdate = System.currentTimeMillis();
-    private CacheFactory factory;
+    private CacheManager ehmanager;
     private Ehcache sessions;
     private final ConcurrentHashMap<String, Ehcache> diskCacheMap = new ConcurrentHashMap<String, Ehcache>(
             64);
     private final ConcurrentHashMap<String, Set<SessionCallback>> sessionCallbackMap = new ConcurrentHashMap<String, Set<SessionCallback>>(
             64);
-    private final Set<StaleCacheListener> staleCacheListeners = Collections
-            .synchronizedSet(new HashSet<StaleCacheListener>());
+    private StaleCacheListener staleCacheListener = null;
 
-    public void setCacheFactory(CacheFactory factory) {
-        this.factory = factory;
-        // Setup for in memory in spring
-        this.sessions = this.factory.createCache();
-        this.sessions.getCacheEventNotificationService().registerListener(this);
-
-        // Setup for disk storage
-        this.factory.setOverflowToDisk(true);
-        //
+    public void setCacheManager(CacheManager manager) {
+        this.ehmanager = manager;
+        CacheFactory inmemory = new CacheFactory();
+        inmemory.setBeanName("SessionCache");
+        inmemory.setCacheManager(ehmanager);
+        inmemory.setOverflowToDisk(false);
+        inmemory.setMaxElementsInMemory(Integer.MAX_VALUE);
+        inmemory.setTimeToIdle(0);
+        inmemory.setTimeToLive(0);
+        sessions = inmemory.createCache();
     }
 
     // Callbacks from main sessions
@@ -102,24 +105,13 @@ public class SessionCache extends CacheListener {
                 }
             }
         }
-        if (throwsOnExpiration.get().booleanValue()) {
-            throw new SessionTimeoutException(String.format(
-                    "Session %s started at %s, hit %s times, "
-                            + "last used at %s, has expired.", elt.getKey(),
-                    elt.getCreationTime(), elt.getExpirationTime(), elt
-                            .getHitCount()));
-        }
     }
 
     // Accessors
     // ========================================================================
 
-    public boolean addStaleCacheListener(StaleCacheListener listener) {
-        return staleCacheListeners.add(listener);
-    }
-
-    public boolean removeStaleCacheListener(StaleCacheListener listener) {
-        return staleCacheListeners.remove(listener);
+    public void setStaleCacheListener(StaleCacheListener staleCacheListener) {
+        this.staleCacheListener = staleCacheListener;
     }
 
     public boolean addSessionCallback(String session, SessionCallback cb) {
@@ -147,6 +139,17 @@ public class SessionCache extends CacheListener {
         return lastUpdate;
     }
 
+    public void updateEvent(UserGroupUpdateEvent ugue) {
+        updateLock.writeLock().lock();
+        try {
+            if (lastUpdate < ugue.getTimestamp()) {
+                doUpdate();
+            }
+        } finally {
+            updateLock.writeLock().unlock();
+        }
+    }
+
     public void setNeedsUpdate(boolean needsUpdate) {
         this.needsUpdate = needsUpdate;
         doUpdate();
@@ -154,14 +157,6 @@ public class SessionCache extends CacheListener {
 
     public boolean getNeedsUpdate() {
         return this.needsUpdate;
-    }
-
-    public long getTimeToIdle() {
-        return sessions.getTimeToIdleSeconds();
-    }
-
-    public long getTimeToLive() {
-        return sessions.getTimeToLiveSeconds();
     }
 
     // State management
@@ -177,38 +172,82 @@ public class SessionCache extends CacheListener {
 
     public SessionContext getSessionContext(String uuid) {
         blockingUpdate();
-        return getSessionContextThrows(uuid, false);
+
+        //
+        // All times are in milliseconds
+        //
+
+        // Getting quiet so that we have the previous access and hit info
+        Element elt = sessions.getQuiet(uuid);
+        if (elt == null) {
+            internalRemove(uuid);
+            throw new RemovedSessionException("No context for " + uuid);
+        }
+        long lastAccess = elt.getLastAccessTime();
+        long hits = elt.getHitCount();
+        // Up'ing access time
+        sessions.get(uuid);
+
+        // Get session info
+        SessionContext ctx = (SessionContext) elt.getObjectValue();
+        long now = System.currentTimeMillis();
+        long start = ctx.getSession().getStarted().getTime();
+        long timeToIdle = ctx.getSession().getTimeToIdle();
+        long timeToLive = ctx.getSession().getTimeToLive();
+
+        // If never accessed, used creation time
+        if (lastAccess == 0) {
+            lastAccess = start;
+        }
+
+        // Calculated
+        long alive = now - start;
+        long idle = now - lastAccess;
+
+        // Do comparisons if timeTo{} is non-0
+        if (0 < timeToLive && timeToLive < alive) {
+            internalRemove(uuid);
+            throwExpiredException("timeToLive", lastAccess, hits, start,
+                    timeToLive, (alive - timeToLive));
+        } else if (0 < timeToIdle && timeToIdle < idle) {
+            internalRemove(uuid);
+            throwExpiredException("timeToLive", lastAccess, hits, start,
+                    timeToIdle, (idle - timeToIdle));
+        }
+        return ctx;
     }
 
-    /**
-     * 
-     * @param uuid
-     * @param throwOnExpiration
-     * @return
-     */
-    public SessionContext getSessionContextThrows(String uuid,
-            boolean throwOnExpiration) {
-        blockingUpdate();
-        throwsOnExpiration.set(Boolean.TRUE);
-        try {
-            Element elt = sessions.get(uuid);
-            if (elt == null) {
-                return null;
-            }
-            return (SessionContext) elt.getObjectValue();
-        } finally {
-            throwsOnExpiration.set(Boolean.FALSE);
-        }
+    private void throwExpiredException(String why, long lastAccess, long hits,
+            long start, long setting, long exceeded) {
+        throw new SessionTimeoutException(String.format(
+                "Session (started=%s, hits=%s, last access=%s) "
+                        + "exceeded %s (%s) by %s ms", new Timestamp(start),
+                hits, new Timestamp(lastAccess), why, setting, exceeded));
     }
 
     public void removeSession(String uuid) {
         blockingUpdate();
+        internalRemove(uuid);
+    }
+
+    private void internalRemove(String uuid) {
         sessions.remove(uuid);
+        Set<SessionCallback> cbs = sessionCallbackMap.get(uuid);
+        if (cbs != null) {
+            for (SessionCallback cb : cbs) {
+                try {
+                    cb.close();
+                } catch (Exception e) {
+                    log.warn(String.format(
+                            "SessionCallback %s throw exception.", cb), e);
+                }
+            }
+        }
     }
 
     public List<String> getIds() {
         blockingUpdate();
-        return sessions.getKeysWithExpiryCheck();
+        return sessions.getKeys();
     }
 
     /**
@@ -235,30 +274,33 @@ public class SessionCache extends CacheListener {
                 // Prevent recursion!
                 needsUpdate = false;
                 boolean success = false;
-                int tries = 0;
+
                 try {
-                    for (StaleCacheListener listener : staleCacheListeners) {
-                        tries++;
-                        try {
-                            success |= listener.attemptCacheUpdate();
-                        } catch (Throwable t) {
-                            log.error(
-                                    "Error while attempting to update cache with "
-                                            + listener, t);
+                    if (staleCacheListener != null) {
+                        List<String> ids = sessions.getKeysWithExpiryCheck();
+                        for (String id : ids) {
+                            Element elt = sessions.getQuiet(id);
+                            SessionContext ctx = (SessionContext) elt
+                                    .getObjectValue();
+                            // May throw an exception
+                            SessionContext replacement = staleCacheListener
+                                    .reload(ctx);
+                            if (replacement == null) {
+                                internalRemove(id);
+                            } else {
+                                sessions.putQuiet(new Element(id, replacement));
+                            }
                         }
-                        if (success) {
-                            needsUpdate = false;
-                            lastUpdate = System.currentTimeMillis();
-                        }
+                        success = true;
                     }
                 } finally {
-                    if (!success) {
+                    if (success) {
+                        needsUpdate = false;
+                        lastUpdate = System.currentTimeMillis();
+                    } else {
                         needsUpdate = true;
                         throw new InternalException(
                                 "Could not update session cache."
-                                        + "\nNumber of failed listeners:"
-                                        + tries
-                                        + "\n"
                                         + "\nAll further attempts to access the server may fail."
                                         + "\nPlease contact your server administrator.");
                     }
@@ -268,5 +310,4 @@ public class SessionCache extends CacheListener {
             updateLock.writeLock().unlock();
         }
     }
-
 }

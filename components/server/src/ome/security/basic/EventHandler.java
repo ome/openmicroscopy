@@ -14,6 +14,7 @@ import java.util.WeakHashMap;
 
 import ome.api.StatefulServiceInterface;
 import ome.conditions.InternalException;
+import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.security.SecuritySystem;
 import ome.system.EventContext;
@@ -203,6 +204,11 @@ public class EventHandler implements MethodInterceptor {
     }
 
     void saveLogs() {
+        final List<EventLog> logs = secSys.getLogs();
+        if (logs == null || logs.size() == 0) {
+            return; // EARLY EXIT
+        }
+
         final SessionFactory sf = this.ht.getSessionFactory();
         this.ht.execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
@@ -210,7 +216,6 @@ public class EventHandler implements MethodInterceptor {
                 StatelessSession s = sf.openStatelessSession(session
                         .connection());
 
-                List<EventLog> logs = secSys.getLogs();
                 for (EventLog l : logs) {
                     s.insert(l);
                 }
