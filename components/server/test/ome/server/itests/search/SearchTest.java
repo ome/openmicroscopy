@@ -1284,7 +1284,6 @@ public class SearchTest extends AbstractTest {
         t = (Image) search.next();
         FileAnnotation f = new FileAnnotation();
         t.linkAnnotation(f);
-        t.getDetails().filteredSet().add(Image.ANNOTATIONLINKS);
         iUpdate.saveObject(t);
         t = iQuery
                 .findByQuery(

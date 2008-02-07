@@ -61,10 +61,7 @@ public class GroupForTags extends SearchAction {
             qb.param("groupStr", groupStr);
         }
 
-        OwnerOrGroup oog = new OwnerOrGroup(values.ownedBy, "taggroup.");
-        if (oog.needed()) {
-            oog.on(qb);
-        }
+        ownerOrGroup(TagAnnotation.class, qb, "taggroup.");
 
         // criteria.createAlias("details.creationEvent", "create");
         // criteria.createAlias("details.updateEvent", "update");
