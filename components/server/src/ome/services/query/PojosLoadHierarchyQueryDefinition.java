@@ -47,14 +47,18 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
             sb.append("select this from Project this ");
             sb.append("left outer join fetch this.datasetLinks pdl ");
             sb.append("left outer join fetch pdl.child ds ");
-            sb.append("left outer join fetch ds.imageLinks dil ");
-            sb.append("left outer join fetch dil.child img ");
+            if (po.isLeaves()) {
+                sb.append("left outer join fetch ds.imageLinks dil ");
+                sb.append("left outer join fetch dil.child img ");
+            }
             sb.append("left outer join fetch "
                     + "this.annotationLinksCountPerOwner this_a_c ");
         } else if (Dataset.class.isAssignableFrom(klass)) {
             sb.append("select this from Dataset this ");
-            sb.append("left outer join fetch this.imageLinks dil ");
-            sb.append("left outer join fetch dil.child img ");
+            if (po.isLeaves()) {
+                sb.append("left outer join fetch this.imageLinks dil ");
+                sb.append("left outer join fetch dil.child img ");
+            }
             sb.append("left outer join fetch "
                     + "this.annotationLinksCountPerOwner this_a_c ");
             sb.append("left outer join fetch "
@@ -63,17 +67,23 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
             sb.append("select this from CategoryGroup this ");
             sb.append("left outer join fetch this.categoryLinks cgcl ");
             sb.append("left outer join fetch cgcl.child cat ");
-            sb.append("left outer join fetch cat.imageLinks cil ");
-            sb.append("left outer join fetch cil.child img ");
+            if (po.isLeaves()) {
+                sb.append("left outer join fetch cat.imageLinks cil ");
+                sb.append("left outer join fetch cil.child img ");
+            }
         } else if (Category.class.isAssignableFrom(klass)) {
-            sb.append("select this from Dataset this ");
-            sb.append("left outer join fetch this.imageLinks img ");
+            sb.append("select this from Category this ");
+            if (po.isLeaves()) {
+                sb.append("left outer join fetch this.imageLinks cil ");
+                sb.append("left outer join fetch cil.child img ");
+            }
         } else {
             throw new ApiUsageException("Unknown container class: "
                     + klass.getName());
         }
 
         if (po.isLeaves()) {
+
             sb.append("left outer join fetch img.pixels as pix ");
             sb.append("left outer join fetch pix.pixelsType as pt ");
             sb.append("left outer join fetch pix.pixelsDimensions as pd ");
