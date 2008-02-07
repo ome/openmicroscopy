@@ -950,7 +950,7 @@ public class BasicSecuritySystem implements SecuritySystem {
     public void loadEventContext(boolean isReadyOnly) {
 
         final Principal p = clearAndCheckPrincipal();
-        final EventContext ec = sessionManager.getEventContext(p.getName());
+        final EventContext ec = sessionManager.getEventContext(p);
         
         // start refilling current details
         cd.setReadOnly(isReadyOnly);

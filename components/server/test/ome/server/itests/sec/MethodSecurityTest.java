@@ -6,29 +6,15 @@
  */
 package ome.server.itests.sec;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.ExpectedExceptions;
-import org.testng.annotations.Test;
-
-import ome.conditions.ApiUsageException;
-import ome.conditions.SecurityViolation;
-import ome.model.IObject;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
-import ome.model.core.Image;
-import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Flag;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
 import ome.security.PasswordUtil;
 import ome.security.basic.BasicMethodSecurity;
 import ome.server.itests.AbstractManagedContextTest;
-import ome.system.Roles;
-import ome.util.IdBlock;
+import ome.services.sessions.SessionManager;
+
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.testng.annotations.Test;
 
 @Test( groups = "integration")
 public class MethodSecurityTest extends AbstractManagedContextTest {
@@ -41,8 +27,11 @@ public class MethodSecurityTest extends AbstractManagedContextTest {
         SimpleJdbcTemplate jdbc =         (SimpleJdbcTemplate)
         this.applicationContext.getBean("simpleJdbcTemplate");
 
+        SessionManager mgr = (SessionManager)
+        this.applicationContext.getBean("sessionManager");
+
         msec = new BasicMethodSecurity();
-        msec.setSimpleJdbcOperations(jdbc);
+        msec.setSessionManager(mgr);
         List<String> roles = PasswordUtil.userGroups(jdbc,"root");
         assertTrue(roles.size() >= 2);
         boolean found = false;

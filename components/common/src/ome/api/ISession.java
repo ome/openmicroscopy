@@ -5,7 +5,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.server.utests.sessions;
+package ome.api;
 
 import ome.annotations.Hidden;
 import ome.annotations.NotNull;
@@ -27,7 +27,7 @@ import ome.system.Principal;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-interface ISession extends ServiceInterface {
+public interface ISession extends ServiceInterface {
     /*
      * Not called ServiceFactory because it doesn't return proxies. perhaps
      * ServiceFactoryI should extends SessionhandleI

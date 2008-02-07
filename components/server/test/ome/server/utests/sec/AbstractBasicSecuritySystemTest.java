@@ -19,9 +19,12 @@ import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.basic.BasicSecuritySystem;
+import ome.services.sessions.SessionManager;
 import ome.system.Principal;
+import ome.system.Roles;
 import ome.testing.MockServiceFactory;
 
+import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.testng.annotations.Configuration;
 
@@ -29,6 +32,10 @@ public abstract class AbstractBasicSecuritySystemTest extends
         MockObjectTestCase {
 
     MockServiceFactory sf;
+    
+    Mock mockMgr;
+    
+    SessionManager mgr;
 
     BasicSecuritySystem sec;
 
@@ -52,8 +59,20 @@ public abstract class AbstractBasicSecuritySystemTest extends
         super.setUp();
 
         sf = new MockServiceFactory();
-        sec = new BasicSecuritySystem(sf);
-
+        sf.mockAdmin = mock(LocalAdmin.class);
+        sf.mockTypes = mock(ITypes.class);
+        sf.mockQuery = mock(LocalQuery.class);
+        sf.mockUpdate = mock(LocalUpdate.class);
+        
+        mockMgr = mock(SessionManager.class);
+        mgr = (SessionManager) mockMgr.proxy();
+        mockMgr.expects(atLeastOnce()).method("assertSession");
+        mockMgr.expects(atLeastOnce()).method("getEventContext")
+        	.will(returnValue(null));
+        sec = new BasicSecuritySystem(
+        		(LocalQuery)sf.getQueryService(),
+        		(LocalUpdate)sf.getUpdateService(),
+        		mgr, new Roles());
     }
 
     protected void prepareMocksWithUserDetails(boolean readOnly) {
@@ -71,7 +90,6 @@ public abstract class AbstractBasicSecuritySystemTest extends
         leaderOfGroups = Collections.singletonList(1L);
         memberOfGroups = Collections.singletonList(1L);
 
-        prepareMocks(readOnly);
     }
 
     protected void prepareMocksWithRootDetails(boolean readOnly) {
@@ -88,30 +106,6 @@ public abstract class AbstractBasicSecuritySystemTest extends
         user.linkExperimenterGroup(group);
         leaderOfGroups = Collections.singletonList(0L);
         memberOfGroups = Arrays.asList(0L, 1L);
-        prepareMocks(readOnly);
-    }
-
-    protected void prepareMocks(boolean readOnly) {
-        // prepare mocks
-        sf.mockAdmin = mock(LocalAdmin.class);
-        sf.mockTypes = mock(ITypes.class);
-        sf.mockQuery = mock(LocalQuery.class);
-        sf.mockUpdate = mock(LocalUpdate.class);
-
-        sf.mockAdmin.expects(atLeastOnce()).method("userProxy").will(
-                returnValue(user));
-        sf.mockAdmin.expects(atLeastOnce()).method("groupProxy").will(
-                returnValue(group));
-        sf.mockAdmin.expects(atLeastOnce()).method("getMemberOfGroupIds").will(
-                returnValue(memberOfGroups));
-        sf.mockAdmin.expects(atLeastOnce()).method("getLeaderOfGroupIds").will(
-                returnValue(leaderOfGroups));
-        sf.mockTypes.expects(atLeastOnce()).method("getEnumeration").will(
-                returnValue(type));
-        if (!readOnly) {
-            sf.mockUpdate.expects(atLeastOnce()).method("saveAndReturnObject")
-                    .will(returnValue(event));
-        }
     }
 
     @Override

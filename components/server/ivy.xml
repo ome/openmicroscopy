@@ -31,7 +31,6 @@
     <dependency org="drools" name="drools-all-jdk5" rev="2.5-beta-2" conf="build->default"/>
     <dependency org="eclipse" name="jdtcore" rev="3.1.0" conf="build->default"/>
     <dependency org="jamon" name="jamon" rev="1.0" conf="build->default"/>
-    <dependency org="jmock" name="jmock" rev="1.0.1" conf="build->default"/>
     <dependency org="omero" name="jbosssx" rev="${versions.jboss}" conf="build->default"/>
     <dependency org="omero" name="jboss-ejb3x" rev="${versions.jboss}" conf="build->default"/>
     <dependency org="omero" name="jboss-annotations-ejb3" rev="${versions.jboss}" conf="build->default"/>
@@ -46,7 +45,11 @@
     <dependency org="omero" name="jboss-ejb3" rev="${versions.jboss}" conf="build->default"/>
     <dependency org="spring" name="spring-ldap" rev="1.2.1" conf="build->default"/>
     <dependency org="spring" name="spring-ldap-tiger" rev="1.2.1" conf="build->default"/>
-    
+    <!-- Mule additions -->
+    <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="3.0" conf="build->default"/>
+    <dependency org="commons-discovery" name="commons-discovery" rev="0.2" conf="build->default"/>
+    <dependency org="jivesoftware" name="smack" rev="2.2.1" conf="build->default"/>
+    <dependency org="org/mule" name="mule" rev="1.4.1-embedded" conf="build->default"/>
+    <dependency org="org/safehaus/jug" name="jug" rev="2.0.0" conf="build->default"/>
   </dependencies>
 </ivy-module>
-

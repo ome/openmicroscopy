@@ -10,6 +10,7 @@ package ome.server.utests;
 
 // Third-party libraries
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import ome.api.ITypes;
@@ -23,12 +24,17 @@ import ome.model.internal.Details;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.Session;
 import ome.security.SecuritySystem;
 import ome.security.basic.BasicSecuritySystem;
+import ome.services.sessions.SessionContextImpl;
+import ome.services.sessions.SessionManager;
 import ome.system.Principal;
+import ome.system.Roles;
 import ome.testing.MockServiceFactory;
 import ome.tools.hibernate.UpdateFilter;
 
+import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.core.Constraint;
 import org.testng.annotations.Configuration;
@@ -73,6 +79,10 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
 
     protected UpdateFilter filter;
 
+    protected Mock mockMgr;
+    
+    protected SessionManager mgr;
+    
     protected SecuritySystem sec;
 
     protected MockServiceFactory sf;
@@ -83,13 +93,17 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
         super.setUp();
 
         sf = new MockServiceFactory();
-        sec = new BasicSecuritySystem(sf);
-
         sf.mockAdmin = mock(LocalAdmin.class);
         sf.mockQuery = mock(LocalQuery.class);
         sf.mockUpdate = mock(LocalUpdate.class);
-        sf.mockTypes = mock(ITypes.class);
-
+        sf.mockTypes = mock(ITypes.class);        
+        
+        mockMgr = mock(SessionManager.class);
+        mgr = (SessionManager) mockMgr.proxy();
+        
+        sec = new BasicSecuritySystem((LocalQuery) sf.getQueryService(), 
+        		(LocalUpdate) sf.getUpdateService(), mgr, new Roles());
+        
         filter = new UpdateFilter();
 
         ROOT = new Experimenter(ROOT_OWNER_ID, true);
@@ -111,17 +125,16 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
     protected void rootLogin() {
         LEADER_OF_GROUPS = Arrays.asList(0L);
         MEMBER_OF_GROUPS = Arrays.asList(0L, 1L);
-        sf.mockAdmin.expects(atLeastOnce()).method("userProxy")
-                .with(eq("root")).will(returnValue(ROOT));
-        sf.mockAdmin.expects(atLeastOnce()).method("groupProxy").with(
-                eq("system")).will(returnValue(ROOT_GROUP));
-        sf.mockAdmin.expects(atLeastOnce()).method("getLeaderOfGroupIds").with(
-                eq(ROOT)).will(returnValue(LEADER_OF_GROUPS));
-        sf.mockAdmin.expects(atLeastOnce()).method("getMemberOfGroupIds").with(
-                eq(ROOT)).will(returnValue(MEMBER_OF_GROUPS));
-        sf.mockTypes.expects(atLeastOnce()).method("getEnumeration").with(
-                eq(EventType.class), eq("Bootstrap")).will(
-                returnValue(BOOTSTRAP));
+        
+        // Setup session
+        mockMgr.expects(once()).method("assertSession");
+        Session s = new Session();
+        Details d = new Details();
+        d.setOwner(new Experimenter(0L,false));
+        d.setGroup(new ExperimenterGroup(0L,false));
+        s.setDetails(d);
+        SessionContextImpl sci = new SessionContextImpl(s,LEADER_OF_GROUPS, MEMBER_OF_GROUPS);
+        mockMgr.expects(once()).method("getEventContext").will(returnValue(sci));
         INITIAL_EVENT.setType(BOOTSTRAP);
         sf.mockUpdate.expects(atLeastOnce()).method("saveAndReturnObject")
                 .with(new Type(Event.class)).will(returnValue(INITIAL_EVENT));

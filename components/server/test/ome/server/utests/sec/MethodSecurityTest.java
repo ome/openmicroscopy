@@ -16,6 +16,7 @@ import ome.logic.AdminImpl;
 import ome.security.MethodSecurity;
 import ome.security.basic.BasicMethodSecurity;
 import ome.security.basic.BasicSecurityWiring;
+import ome.services.sessions.SessionManager;
 import ome.system.Principal;
 
 import org.jmock.Mock;
@@ -31,9 +32,9 @@ import org.testng.annotations.Test;
 @Test(groups = "mock")
 public class MethodSecurityTest extends MockObjectTestCase {
 
-    Mock mockJdbc;
+    Mock mockMgr;
 
-    SimpleJdbcOperations jdbc;
+    SessionManager mgr;
 
     MethodSecurity msec;
 
@@ -42,7 +43,7 @@ public class MethodSecurityTest extends MockObjectTestCase {
             super.verify();
             verify();
         } finally {
-            mockJdbc = null;
+            mockMgr = null;
             super.tearDown();
         }
     }
@@ -51,10 +52,10 @@ public class MethodSecurityTest extends MockObjectTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mockJdbc = mock(SimpleJdbcOperations.class);
-        jdbc = (SimpleJdbcOperations) mockJdbc.proxy();
+        mockMgr = mock(SessionManager.class);
+        mgr = (SessionManager) mockMgr.proxy();
         BasicMethodSecurity bmsec = new BasicMethodSecurity();
-        bmsec.setSimpleJdbcOperations(jdbc);
+        bmsec.setSessionManager(mgr);
         msec = bmsec;
     }
 
@@ -73,7 +74,7 @@ public class MethodSecurityTest extends MockObjectTestCase {
         Principal p = new Principal("foo", "bar", "baz");
 
         List<String> roles = Arrays.asList("user", "demo");
-        mockJdbc.expects(once()).method("query").will(returnValue(roles));
+        mockMgr.expects(once()).method("getUserRoles").will(returnValue(roles));
 
         try {
             msec.checkMethod(new AdminImpl(), sync, p);
@@ -89,7 +90,7 @@ public class MethodSecurityTest extends MockObjectTestCase {
         Principal p = new Principal("foo", "bar", "baz");
 
         List<String> roles = Arrays.asList("user", "demo");
-        mockJdbc.expects(once()).method("query").will(returnValue(roles));
+        mockMgr.expects(once()).method("getUserRoles").will(returnValue(roles));
 
         try {
             msec.checkMethod(new AdminImpl(), ec, p);
@@ -106,7 +107,7 @@ public class MethodSecurityTest extends MockObjectTestCase {
         Principal p = new Principal("foo", "bar", "baz");
 
         List<String> roles = Arrays.asList("user", "demo");
-        mockJdbc.expects(once()).method("query").will(returnValue(roles));
+        mockMgr.expects(once()).method("getUserRoles").will(returnValue(roles));
 
         ProxyFactory factory = new ProxyFactory();
         factory.setInterfaces(new Class[] { IAdmin.class });

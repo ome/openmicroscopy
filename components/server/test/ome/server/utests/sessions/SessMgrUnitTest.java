@@ -6,14 +6,19 @@
  */
 package ome.server.utests.sessions;
 
+import java.util.Collections;
+
 import ome.api.local.LocalAdmin;
+import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
+import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.services.sessions.SessionBean;
 import ome.services.sessions.SessionManagerImpl;
 import ome.system.Principal;
+import ome.system.Roles;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
@@ -29,6 +34,8 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     private Mock adminMock;
 
     private Mock updateMock;
+    
+    private Mock queryMock;
 
     private SessionManagerImpl mgr;
 
@@ -36,6 +43,8 @@ public class SessMgrUnitTest extends MockObjectTestCase {
 
     private LocalUpdate update;
 
+    private LocalQuery query;
+    
     private SessionBean bean;
 
     private Session session;
@@ -46,8 +55,14 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         admin = (LocalAdmin) adminMock.proxy();
         updateMock = mock(LocalUpdate.class);
         update = (LocalUpdate) updateMock.proxy();
+        queryMock = mock(LocalQuery.class);
+        query = (LocalQuery) queryMock.proxy();
+        
         mgr = new SessionManagerImpl();
+        mgr.setAdminService(admin);
         mgr.setUpdateService(update);
+        mgr.setQueryService(query);
+        mgr.setRoles(new Roles());
 
         bean = new SessionBean();
         bean.setLocalAdmin(admin);
@@ -74,6 +89,8 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     
     @Test( expectedExceptions = SecurityViolation.class)
     public void testChecksForDefaultGroups() throws Exception {
+    	queryMock.expects(once()).method("findAllByQuery")
+    		.will(returnValue(Collections.singletonList(new ExperimenterGroup())));
         mgr.create(new Principal("fake","user","Test"));
     }
 

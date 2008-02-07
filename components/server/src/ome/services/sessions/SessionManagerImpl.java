@@ -167,6 +167,17 @@ public class SessionManagerImpl implements SessionManager {
     public void close(String sessionId) {
         throw new UnsupportedOperationException();
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see ome.services.sessions.SessionManager#getUserRoles(String)
+     */
+    public List<String> getUserRoles(String uuid) {
+    	// TODO Auto-generated method stub
+    	return null;
+    }
+
     
     // ~ Security methods
     // =========================================================================
@@ -286,4 +297,5 @@ throw new UnsupportedOperationException("CHECK FOR NULL; NYI");
         }
         return new Principal(p.getName(), group, type);
     }
+
 }

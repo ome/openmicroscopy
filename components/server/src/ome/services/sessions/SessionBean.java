@@ -14,17 +14,18 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
+import ome.annotations.Hidden;
 import ome.annotations.NotNull;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.api.ISession;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalAdmin;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
+import ome.conditions.SessionException;
 import ome.logic.SimpleLifecycle;
 import ome.model.meta.Session;
-import ome.server.utests.sessions.ISession;
-import ome.server.utests.sessions.SessionException;
 import ome.services.util.BeanHelper;
 import ome.services.util.OmeroAroundInvoke;
 import ome.system.Principal;
@@ -94,7 +95,7 @@ public class SessionBean implements ISession, SelfConfigurableService {
     // =========================================================================
 
     public Session createSession(@NotNull
-    Principal principal, String credentials) {
+    Principal principal, @Hidden String credentials) {
 
         if (principal == null) {
             throw new ApiUsageException("Principal cannot be null");
@@ -104,7 +105,6 @@ public class SessionBean implements ISession, SelfConfigurableService {
             throw new SecurityViolation("Authentication exception.");
         }
 
-        String sessionName = principal.getName();
         Session session = null;
         session = mgr.create(principal);
         if (session == null) {
