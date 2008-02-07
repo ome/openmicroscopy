@@ -54,11 +54,9 @@ import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
-import ome.system.ServiceFactory;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.HibernateUtils;
 import ome.tools.hibernate.SecurityFilter;
-import ome.tools.spring.PostProcessInjector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -94,10 +92,9 @@ public class BasicSecuritySystem implements SecuritySystem {
      */
     private final Token token = new Token();
 
-    // Constructor arguments
-    private final LocalQuery query;
-    private final LocalUpdate update;
-    private final SessionManager sessionManager;
+    private LocalQuery query;
+    private LocalUpdate update;
+    private SessionManager sessionManager;
     private final Roles roles;
 
     /** metadata for calculating certain walks */
@@ -114,30 +111,31 @@ public class BasicSecuritySystem implements SecuritySystem {
 
     /**
      * only public constructor for this {@link SecuritySystem} implementation.
+     * This instance will need to be further configured via injectors in order
+     * to function properly.
      * 
      * @param factory
      *            Not null.
      */
-    public BasicSecuritySystem(ServiceFactory sf,
-            SessionManager sessionManager, Roles roles) {
-        Assert.notNull(sf);
-        this.query = (LocalQuery) sf.getQueryService();
-        this.update = (LocalUpdate) sf.getUpdateService();
-        this.sessionManager = sessionManager;
+    public BasicSecuritySystem(Roles roles) {
+        Assert.notNull(roles);
         this.roles = roles;
     }
 
-    /**
-     * injector for {@link ExtendedMetadata}. Needed to overcome a cyclical
-     * dependency in the Hibernate beans. Used by {@link PostProcessInjector} to
-     * fulfill this requirement.
-     */
-    public final void setExtendedMetadata(ExtendedMetadata metadata) {
-        if (this.em != null) {
-            throw new InternalException("Cannot reset metadata.");
-        }
+    public void setExtendedMetadata(ExtendedMetadata extendedMetadata) {
+        this.em = extendedMetadata;
+    }
 
-        this.em = metadata;
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
+
+    public void setQueryService(LocalQuery query) {
+        this.query = query;
+    }
+
+    public void setUpdateService(LocalUpdate update) {
+        this.update = update;
     }
 
     // ~ Login/logout
@@ -175,29 +173,23 @@ public class BasicSecuritySystem implements SecuritySystem {
     public boolean isSystemType(Class<? extends IObject> klass) {
         if (klass == null) {
             return false;
-        }
-        if (Experimenter.class.isAssignableFrom(klass)) {
+        } else if (ome.model.meta.Session.class.isAssignableFrom(klass)) {
             return true;
-        }
-        if (ExperimenterGroup.class.isAssignableFrom(klass)) {
+        } else if (Experimenter.class.isAssignableFrom(klass)) {
             return true;
-        }
-        if (GroupExperimenterMap.class.isAssignableFrom(klass)) {
+        } else if (ExperimenterGroup.class.isAssignableFrom(klass)) {
             return true;
-        }
-        if (Event.class.isAssignableFrom(klass)) {
+        } else if (GroupExperimenterMap.class.isAssignableFrom(klass)) {
             return true;
-        }
-        if (EventLog.class.isAssignableFrom(klass)) {
+        } else if (Event.class.isAssignableFrom(klass)) {
             return true;
-        }
-        if (IEnum.class.isAssignableFrom(klass)) {
+        } else if (EventLog.class.isAssignableFrom(klass)) {
             return true;
-        }
-        if (Job.class.isAssignableFrom(klass)) {
+        } else if (IEnum.class.isAssignableFrom(klass)) {
             return true;
-        }
-        if (DBPatch.class.isAssignableFrom(klass)) {
+        } else if (Job.class.isAssignableFrom(klass)) {
+            return true;
+        } else if (DBPatch.class.isAssignableFrom(klass)) {
             return true;
         }
         return false;
@@ -951,6 +943,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 
     public void loadEventContext(boolean isReadyOnly) {
 
+        // Call to session manager throws an exception on failure
         final Principal p = clearAndCheckPrincipal();
         final EventContext ec = sessionManager.getEventContext(p);
 
@@ -984,7 +977,7 @@ public class BasicSecuritySystem implements SecuritySystem {
         // Event
         EventType type = new EventType(p.getEventType());
         type.getGraphHolder().setToken(token, token);
-        cd.newEvent(type, token);
+        cd.newEvent(ec.getCurrentSessionId().longValue(), type, token);
 
         Event event = getCurrentEvent();
         event.getGraphHolder().setToken(token, token);
@@ -997,6 +990,10 @@ public class BasicSecuritySystem implements SecuritySystem {
     }
 
     /**
+     * Used by {@link EventHandler} to set the current {@link EventContext} so
+     * it is not necessarily to have a valid context here like in
+     * {@link #loadEventContext(boolean)}
+     * 
      * @see SecuritySystem#setEventContext(EventContext)
      */
     public void setEventContext(EventContext context) {
@@ -1041,9 +1038,6 @@ public class BasicSecuritySystem implements SecuritySystem {
                     "Principal.name is null. Security system failure.");
         }
 
-        // the rest of the checkPrincipal logic all moved to SessionManager
-        sessionManager.assertSession(p.getName());
-
         return p;
     }
 
@@ -1053,8 +1047,8 @@ public class BasicSecuritySystem implements SecuritySystem {
         return cd.createDetails();
     }
 
-    public void newEvent(EventType type) {
-        cd.newEvent(type, token);
+    public void newEvent(long sessionId, EventType type) {
+        cd.newEvent(sessionId, type, token);
     }
 
     public void setCurrentEvent(Event event) {

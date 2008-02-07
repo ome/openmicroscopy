@@ -27,7 +27,7 @@
     an example of what should be done.
     </description>
     <property name="jdbcTemplate" ref="simpleJdbcTemplate"/>
-    <property name="extendedMetadata" ref="extendedMetadata"/>
+    <property name="securitySystem" ref="securitySystem"/>
     <property name="sessionFactory" ref="sessionFactory"/>
   </bean> 
  

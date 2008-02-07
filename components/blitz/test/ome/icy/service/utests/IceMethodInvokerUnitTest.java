@@ -330,6 +330,14 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         init(IAdmin.class, "getEventContext");
         method().will(returnValue(new EventContext() {
 
+            public Long getCurrentSessionId() {
+                return 1L;
+            }
+
+            public String getCurrentSessionUuid() {
+                return "uuid";
+            }
+
             public Long getCurrentEventId() {
                 return 1L;
             }

@@ -10,9 +10,6 @@ package ome.system;
 // Java imports
 import java.util.List;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 
@@ -30,6 +27,10 @@ import ome.annotations.RevisionNumber;
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
 public interface EventContext {
+
+    Long getCurrentSessionId();
+
+    String getCurrentSessionUuid();
 
     Long getCurrentUserId();
 

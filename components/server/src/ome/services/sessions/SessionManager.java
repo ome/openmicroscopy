@@ -7,7 +7,7 @@
 
 package ome.services.sessions;
 
-import ome.conditions.SecurityViolation;
+import ome.conditions.RemovedSessionException;
 import ome.model.meta.Session;
 import ome.system.EventContext;
 import ome.system.Principal;
@@ -57,19 +57,16 @@ public interface SessionManager extends ApplicationListener {
     void close(String uuid);
 
     /**
-     * Requires that a valid {@link Session} exist for the given uuid.
-     * 
-     * @param uuid
-     */
-    void assertSession(String uuid) throws SecurityViolation;
-
-    /**
      * Provides a partial {@link EventContext} for the current {@link Session}.
      * 
      * @param uuid
-     * @return
+     *            Non null.
+     * @return Never null.
+     * @throws RemovedSessionException
+     *             if no session with the given {@link Principal#getName()}
      */
-    EventContext getEventContext(Principal principal);
+    EventContext getEventContext(Principal principal)
+            throws RemovedSessionException;
 
     java.util.List<String> getUserRoles(String uuid);
 

@@ -56,9 +56,6 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         sec.isReady();
         sec.isSystemType(null);
         sec.getACLVoter().allowLoad(user.getClass(), Details.create());
-        sec.getACLVoter().allowCreation(user);
-        sec.getACLVoter().allowUpdate(user, Details.create());
-        sec.getACLVoter().allowDelete(user, Details.create());
         sec.getSecurityRoles();
         sf.mockQuery.expects(atLeastOnce()).method("contains").will(
                 returnValue(true));
@@ -68,9 +65,8 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
             };
         }, user);
         sec.copyToken(user, user);
-        sec.loadEventContext(false);
         sec.clearEventContext();
-        sec.newEvent(type);
+        sec.newEvent(1L, type);
         sec.setCurrentEvent(event);
         sec.isEmptyEventContext();
         sec.disable("foo");
@@ -157,6 +153,24 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         }
         ;
 
+        try {
+            sec.getACLVoter().allowCreation(user);
+            fail("Should throw ApiUsage");
+        } catch (ApiUsageException api) {
+        }
+        ;
+        try {
+            sec.getACLVoter().allowUpdate(user, Details.create());
+            fail("Should throw ApiUsage");
+        } catch (ApiUsageException api) {
+        }
+        ;
+        try {
+            sec.getACLVoter().allowDelete(user, Details.create());
+            fail("Should throw ApiUsage");
+        } catch (ApiUsageException api) {
+        }
+        ;
         // throw no matter what
         try {
             sec.getACLVoter().throwLoadViolation(user);
@@ -251,7 +265,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
     public void testCurrentUser() {
         prepareMocksWithUserDetails(false);
         sec.loadEventContext(false);
-        assertEquals(sec.currentUser(), user);
+        assertEquals(sec.currentUser().getId(), user.getId());
         sec.clearEventContext();
     }
 
@@ -261,7 +275,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
     public void testCurrentGroup() {
         prepareMocksWithUserDetails(false);
         sec.loadEventContext(false);
-        assertEquals(sec.currentGroup(), group);
+        assertEquals(sec.currentGroup().getId(), group.getId());
         sec.clearEventContext();
     }
 
@@ -315,7 +329,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         prepareMocksWithUserDetails(false);
         sec.loadEventContext(false);
         assertEquals(sec.currentEvent(), event);
-        sec.newEvent(type);
+        sec.newEvent(1L, type);
         assertNotSame(event, sec.currentEvent());
         sec.clearEventContext();
     }
@@ -363,9 +377,9 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         prepareMocksWithUserDetails(false);
 
         sec.loadEventContext(false);
-        assertSame(user, sec.currentUser());
-        assertSame(event, sec.currentEvent());
-        assertSame(group, sec.currentGroup());
+        assertEquals(user.getId(), sec.currentUser().getId());
+        assertEquals(event.getId(), sec.currentEvent().getId());
+        assertEquals(group.getId(), sec.currentGroup().getId());
         assertTrue(sec.isReady());
         sec.clearEventContext();
     }
@@ -378,7 +392,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         // can handle nulls
         sec.isSystemType(null);
         sec.copyToken(null, null);
-        sec.newEvent(null);
+        sec.newEvent(1l, null);
         sec.setCurrentEvent(null);
         sec.enable(null);
 

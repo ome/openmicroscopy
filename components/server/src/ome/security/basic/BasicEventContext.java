@@ -51,6 +51,22 @@ class BasicEventContext implements EventContext {
     // ~ EventContext interface
     // =========================================================================
 
+    public Long getCurrentSessionId() {
+        Event e = getDetails().getCreationEvent();
+        if (e != null && e.getSession() != null) {
+            return e.getSession().getId();
+        }
+        return null;
+    }
+
+    public String getCurrentSessionUuid() {
+        Event e = getDetails().getCreationEvent();
+        if (e != null && e.getSession() != null) {
+            return e.getSession().getUuid();
+        }
+        return null;
+    }
+
     public Long getCurrentEventId() {
         Event e = this.details.getCreationEvent();
         return e == null ? null : e.getId();

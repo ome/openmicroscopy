@@ -20,6 +20,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.basic.BasicSecuritySystem;
 import ome.services.sessions.SessionManager;
+import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.testing.MockServiceFactory;
@@ -32,9 +33,11 @@ public abstract class AbstractBasicSecuritySystemTest extends
         MockObjectTestCase {
 
     MockServiceFactory sf;
-    
-    Mock mockMgr;
-    
+
+    Mock mockMgr, mockEc;
+
+    EventContext ec;
+
     SessionManager mgr;
 
     BasicSecuritySystem sec;
@@ -63,14 +66,14 @@ public abstract class AbstractBasicSecuritySystemTest extends
         sf.mockTypes = mock(ITypes.class);
         sf.mockQuery = mock(LocalQuery.class);
         sf.mockUpdate = mock(LocalUpdate.class);
-        
+
+        mockEc = mock(EventContext.class);
         mockMgr = mock(SessionManager.class);
         mgr = (SessionManager) mockMgr.proxy();
-        mockMgr.expects(atLeastOnce()).method("assertSession");
-        mockMgr.expects(atLeastOnce()).method("getEventContext")
-        	.will(returnValue(null));
-        sec = new BasicSecuritySystem(
-        		sf, mgr, new Roles());
+        sec = new BasicSecuritySystem(new Roles());
+        sec.setSessionManager(mgr);
+        sec.setUpdateService((LocalUpdate) sf.getUpdateService());
+        sec.setQueryService((LocalQuery) sf.getQueryService());
     }
 
     protected void prepareMocksWithUserDetails(boolean readOnly) {
@@ -88,6 +91,25 @@ public abstract class AbstractBasicSecuritySystemTest extends
         leaderOfGroups = Collections.singletonList(1L);
         memberOfGroups = Collections.singletonList(1L);
 
+        mockEc.expects(atLeastOnce()).method("getCurrentSessionId").will(
+                returnValue(1L));
+        mockEc.expects(atLeastOnce()).method("getCurrentUserId").will(
+                returnValue(1L));
+        mockEc.expects(atLeastOnce()).method("getCurrentGroupId").will(
+                returnValue(1L));
+        mockEc.expects(atLeastOnce()).method("getMemberOfGroupsList").will(
+                returnValue(memberOfGroups));
+        mockEc.expects(atLeastOnce()).method("getLeaderOfGroupsList").will(
+                returnValue(leaderOfGroups));
+        ec = (EventContext) mockEc.proxy();
+        mockMgr.expects(atLeastOnce()).method("getEventContext").will(
+                returnValue(ec));
+
+        if (!readOnly) {
+            sf.mockUpdate.expects(once()).method("saveAndReturnObject").will(
+                    returnValue(event));
+        }
+
     }
 
     protected void prepareMocksWithRootDetails(boolean readOnly) {
@@ -104,6 +126,25 @@ public abstract class AbstractBasicSecuritySystemTest extends
         user.linkExperimenterGroup(group);
         leaderOfGroups = Collections.singletonList(0L);
         memberOfGroups = Arrays.asList(0L, 1L);
+
+        mockEc.expects(atLeastOnce()).method("getCurrentSessionId").will(
+                returnValue(1L));
+        mockEc.expects(atLeastOnce()).method("getCurrentUserId").will(
+                returnValue(0L));
+        mockEc.expects(atLeastOnce()).method("getCurrentGroupId").will(
+                returnValue(0L));
+        mockEc.expects(atLeastOnce()).method("getMemberOfGroupsList").will(
+                returnValue(memberOfGroups));
+        mockEc.expects(atLeastOnce()).method("getLeaderOfGroupsList").will(
+                returnValue(leaderOfGroups));
+        ec = (EventContext) mockEc.proxy();
+        mockMgr.expects(atLeastOnce()).method("getEventContext").will(
+                returnValue(ec));
+
+        if (!readOnly) {
+            sf.mockUpdate.expects(once()).method("saveAndReturnObject").will(
+                    returnValue(event));
+        }
     }
 
     @Override

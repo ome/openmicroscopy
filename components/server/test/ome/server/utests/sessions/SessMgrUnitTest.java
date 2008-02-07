@@ -9,9 +9,6 @@ package ome.server.utests.sessions;
 import java.util.Collections;
 import java.util.List;
 
-import ome.api.local.LocalAdmin;
-import ome.api.local.LocalQuery;
-import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.SessionException;
@@ -25,7 +22,6 @@ import ome.model.meta.Session;
 import ome.services.sessions.SessionManagerImpl;
 import ome.system.Principal;
 import ome.system.Roles;
-import ome.tools.spring.ReadWriteCache;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
@@ -47,29 +43,12 @@ public class SessMgrUnitTest extends MockObjectTestCase {
 
     private Mock adminMock, updateMock, queryMock;
     private TestSessionManager mgr;
-    private LocalAdmin admin;
-    private LocalUpdate update;
-    private LocalQuery query;
     private Session session;
 
     @BeforeTest
     public void config() {
-        adminMock = mock(LocalAdmin.class);
-        admin = (LocalAdmin) adminMock.proxy();
-        updateMock = mock(LocalUpdate.class);
-        update = (LocalUpdate) updateMock.proxy();
-        queryMock = mock(LocalQuery.class);
-        query = (LocalQuery) queryMock.proxy();
-
         mgr = new TestSessionManager();
-        mgr.setAdminService(admin);
-        mgr.setUpdateService(update);
-        mgr.setQueryService(query);
         mgr.setRoles(new Roles());
-
-        TestCache cache = new TestCache();
-        ReadWriteCache rwc = new ReadWriteCache(cache);
-        mgr.setCache(rwc);
 
         session = new Session();
         session.setUuid("uuid");
@@ -202,7 +181,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     @Test
     public void testThatTimedOutSessionsAreMarkedAsSuch() throws Exception {
         // With a restricted cache something should get push out.
-        mgr.setCache(new TestCache("quick", 1, 0, 0, null));
+        // mgr.setCache(new TestCache("quick", 1, 0, 0, null));
 
         prepareSessionCreation();
         Session s1 = mgr.create(principal, credentials);

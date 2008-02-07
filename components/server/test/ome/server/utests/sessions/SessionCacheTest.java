@@ -37,13 +37,17 @@ public class SessionCacheTest extends TestCase {
 
     @BeforeMethod
     public void setup() throws Exception {
+        initCache(1);
+        called[0] = called[0] = false;
+    }
+
+    private void initCache(int timeToIdle) {
         cache = new SessionCache();
         cf = new CacheFactory();
         cf.setOverflowToDisk(false);
-        cf.setCacheName("test");
-        cf.setTimeToIdle(1);
+        cf.setCacheName("time-to-idle-" + timeToIdle);
+        cf.setTimeToIdle(timeToIdle);
         cache.setCacheFactory(cf);
-        called[0] = called[0] = false;
     }
 
     public void testUnderstandingListeners() throws Exception {
@@ -127,6 +131,16 @@ public class SessionCacheTest extends TestCase {
         cache.putSession(s.getUuid(), sc);
         Thread.sleep(2L);
         assertTrue(called[0]);
+    }
+
+    public void testPutNonSerializable() {
+        initCache(10000);
+        final Session s = sess();
+        cache.putSession(sess().getUuid(), new SessionContextImpl(s, ids, ids,
+                roles) {
+
+        });
+        assertTrue(cache.getIds().size() == 1);
     }
 
     // Helpers

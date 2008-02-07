@@ -20,7 +20,9 @@ import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.Session;
 import ome.security.SecuritySystem;
+import ome.services.sessions.SessionManager;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -83,6 +85,8 @@ public class AbstractManagedContextTest extends
 
     protected Roles roles;
 
+    protected SessionManager sessionManager;
+
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
@@ -116,6 +120,8 @@ public class AbstractManagedContextTest extends
         securitySystem = (SecuritySystem) applicationContext
                 .getBean("securitySystem");
         roles = securitySystem.getSecurityRoles();
+        sessionManager = (SessionManager) applicationContext
+                .getBean("sessionManager");
         loginRoot();
 
     }
@@ -123,6 +129,7 @@ public class AbstractManagedContextTest extends
     protected void loginRoot() {
 
         login(roles.getRootName(), roles.getSystemGroupName(), "Test");
+
     }
 
     public Experimenter loginNewUser() {
@@ -155,7 +162,10 @@ public class AbstractManagedContextTest extends
     }
 
     protected void login(String userName, String groupName, String eventType) {
-        securitySystem.login(new Principal(userName, groupName, eventType));
+        Principal p = new Principal(userName, groupName, eventType);
+        Session s = sessionManager.create(p);
+        p = new Principal(s.getUuid(), groupName, eventType);
+        securitySystem.login(p);
     }
 
     protected String uuid() {

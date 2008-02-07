@@ -24,7 +24,8 @@ import ome.annotations.RevisionNumber;
  * simple, non-thread-safe, serializable {@link ome.system.EventContext}
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision: 1167 $, $Date: 2006-12-15 11:39:34 +0100 (Fri, 15 Dec 2006) $
+ * @version $Revision: 1167 $, $Date: 2006-12-15 11:39:34 +0100 (Fri, 15 Dec
+ *          2006) $
  * @see EventContext
  * @since 3.0
  */
@@ -34,11 +35,15 @@ public class SimpleEventContext implements EventContext, Serializable {
 
     private static final long serialVersionUID = -3918201598642847439L;
 
+    protected Long csId;
+
     protected Long cgId;
 
     protected Long cuId;
 
     protected Long ceId;
+
+    protected String csName;
 
     protected String cgName;
 
@@ -55,17 +60,20 @@ public class SimpleEventContext implements EventContext, Serializable {
     protected List<Long> leaderOfGroups;
 
     /** Constructor for subclasses */
-    protected SimpleEventContext() {}
-    
+    protected SimpleEventContext() {
+    }
+
     /** copy constructor. Makes defensive copies where necessary */
     public SimpleEventContext(EventContext ec) {
         if (ec == null) {
             throw new IllegalArgumentException("Argument cannot be null.");
         }
 
+        csId = ec.getCurrentSessionId();
         cgId = ec.getCurrentGroupId();
         cuId = ec.getCurrentUserId();
         ceId = ec.getCurrentEventId();
+        csName = ec.getCurrentSessionUuid();
         cgName = ec.getCurrentGroupName();
         cuName = ec.getCurrentUserName();
         ceType = ec.getCurrentEventType();
@@ -73,6 +81,14 @@ public class SimpleEventContext implements EventContext, Serializable {
         isReadOnly = ec.isReadOnly();
         memberOfGroups = new ArrayList<Long>(ec.getMemberOfGroupsList());
         leaderOfGroups = new ArrayList<Long>(ec.getLeaderOfGroupsList());
+    }
+
+    public Long getCurrentSessionId() {
+        return csId;
+    }
+
+    public String getCurrentSessionUuid() {
+        return csName;
     }
 
     public Long getCurrentGroupId() {

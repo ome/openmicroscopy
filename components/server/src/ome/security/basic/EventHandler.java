@@ -15,6 +15,7 @@ import java.util.WeakHashMap;
 import ome.api.StatefulServiceInterface;
 import ome.conditions.InternalException;
 import ome.model.meta.EventLog;
+import ome.security.SecuritySystem;
 import ome.system.EventContext;
 
 import org.aopalliance.intercept.MethodInterceptor;
@@ -105,7 +106,7 @@ public class EventHandler implements MethodInterceptor {
                 else {
                     prevCtx = reloadContext(arg0, readOnly);
                 }
-            } else if (isContextUnloaded(prevCtx)){
+            } else if (isContextUnloaded(prevCtx)) {
                 prevCtx = reloadContext(arg0, readOnly);
             }
             // Need to update the read-ability
@@ -136,7 +137,7 @@ public class EventHandler implements MethodInterceptor {
             saveLogs();
             // Calling clearLogs posits that these EventLogs were successfully
             // saved, and so this method may raise an event signalling such.
-            // This could eventually be reworked to be fully within the 
+            // This could eventually be reworked to be fully within the
             // security system.
             secSys.clearLogs();
             return retVal;
@@ -198,8 +199,8 @@ public class EventHandler implements MethodInterceptor {
     }
 
     /**
-     * Loads a new {@link EventContext} into the {@link SecuritySystem}
-     * and replaces the proper values in {@link #objCtxMap} and {@link #objSeen}.
+     * Loads a new {@link EventContext} into the {@link SecuritySystem} and
+     * replaces the proper values in {@link #objCtxMap} and {@link #objSeen}.
      */
     protected EventContext reloadContext(MethodInvocation arg0, boolean readOnly) {
         EventContext ctx = null;
@@ -209,11 +210,11 @@ public class EventHandler implements MethodInterceptor {
         objSeen.put(arg0.getThis(), objSeen); // Actualy a HashSet
         return ctx;
     }
-    
+
     /**
-     * Attempts to access non-id state in each of the members of the 
-     * {@link EventContext}. Any {@link IllegalStateException} thrown
-     * will indicate an unloaded status.
+     * Attempts to access non-id state in each of the members of the
+     * {@link EventContext}. Any {@link IllegalStateException} thrown will
+     * indicate an unloaded status.
      */
     protected boolean isContextUnloaded(EventContext ec) {
         try {
@@ -224,10 +225,10 @@ public class EventHandler implements MethodInterceptor {
             // Then this can't be loaded.
             return true;
         }
-        
+
         return false;
     }
-    
+
     void saveLogs() {
         final SessionFactory sf = this.ht.getSessionFactory();
         this.ht.execute(new HibernateCallback() {

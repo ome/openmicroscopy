@@ -7,25 +7,22 @@
 package ome.services.sessions;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import ome.api.local.LocalAdmin;
-import ome.api.local.LocalQuery;
-import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
 import ome.conditions.RemovedSessionException;
 import ome.conditions.SecurityViolation;
-import ome.model.internal.Details;
+import ome.conditions.ValidationException;
+import ome.model.IObject;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
-import ome.parameters.Parameters;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.state.SessionCache.StaleCacheListener;
@@ -33,8 +30,11 @@ import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
+import ome.system.ServiceFactory;
 
+import org.hibernate.StatelessSession;
 import org.springframework.context.ApplicationEvent;
+import org.springframework.transaction.TransactionStatus;
 
 /**
  * Is for ISession a cache and will be kept there in sync? OR Factors out the
@@ -50,31 +50,25 @@ import org.springframework.context.ApplicationEvent;
  */
 public class SessionManagerImpl implements SessionManager, StaleCacheListener {
 
-    private final Set<String> ids = new HashSet<String>();
+    /**
+     * The id of this session manager, used to identify its own actions.
+     */
+    private final String internal_uuid = UUID.randomUUID().toString();
 
     // Injected
     Roles roles;
-    LocalAdmin admin;
-    LocalQuery query;
-    LocalUpdate update;
     SessionCache cache;
     Executor executor;
+
+    /**
+     * A private session for use only by this instance for running methods via
+     * {@link Executor}
+     */
     Principal asroot;
+    SessionContext sc;
 
     // ~ Injectors
     // =========================================================================
-
-    public void setAdminService(LocalAdmin adminService) {
-        admin = adminService;
-    }
-
-    public void setQueryService(LocalQuery queryService) {
-        query = queryService;
-    }
-
-    public void setUpdateService(LocalUpdate updateService) {
-        update = updateService;
-    }
 
     public void setSessionCache(SessionCache sessionCache) {
         cache = sessionCache;
@@ -89,8 +83,27 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
         this.executor = executor;
     }
 
-    public void setPrincipal(Principal principal) {
-        this.asroot = principal;
+    public void init() {
+        asroot = new Principal(internal_uuid, "system", "Sessions");
+        sc = new InternalSessionContext(executeInternalSession(), roles);
+        cache.putSession(internal_uuid, sc);
+    }
+
+    // ~ Session definition
+    // =========================================================================
+
+    protected Session define(String uuid, String message, long started,
+            long idle, long live, String eventType, String defaultPermissions) {
+        final Session s = new Session();
+        s.setUuid(uuid);
+        s.setMessage(message);
+        s.setStarted(new Timestamp(started));
+        s.setTimeToIdle(idle);
+        s.setTimeToLive(live);
+        s.setDefaultEventType(eventType);
+        s.setDefaultPermissions(defaultPermissions);
+        s.getDetails().setPermissions(Permissions.USER_PRIVATE);
+        return s;
     }
 
     // ~ Session management
@@ -101,7 +114,9 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
      */
     public Session create(final Principal _principal, final String credentials) {
 
-        if (!admin.checkPassword(_principal.getName(), credentials)) {
+        boolean ok = executeCheckPassword(_principal, credentials);
+
+        if (!ok) {
             throw new AuthenticationException("Authentication exception.");
         }
 
@@ -109,22 +124,17 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
         return create(_principal);
     }
 
-    public Session create(Principal _principal) {
+    public Session create(Principal principal) {
 
-        if (_principal == null || _principal.getName() == null) {
-            throw new ApiUsageException(
-                    "Principal and user name cannot be null");
-        }
+        principal = checkPrincipalNameAndDefaultGroup(principal);
 
-        Principal principal = checkPrincipalNameAndDefaultGroup(_principal);
-
-        Session session = new Session();
+        Session session = define(UUID.randomUUID().toString(),
+                "Initial message.", System.currentTimeMillis(), cache
+                        .getTimeToIdle(), cache.getTimeToLive(), principal
+                        .getEventType(), principal.getUmask().toString());
+        session = executeUpdate(session);
         SessionContext ctx = currentDatabaseShapshot(principal, session);
-        session.setUuid(UUID.randomUUID().toString());
-        session.setStarted(new Timestamp(System.currentTimeMillis()));
-        update.saveObject(session);
         cache.putSession(session.getUuid(), ctx);
-
         return session;
     }
 
@@ -141,21 +151,13 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
         }
         Session orig = ctx.getSession();
 
-        // Conditiablly settable;
-        // will be checked by checkPrincipalNameAndDefaultGroup
-        Details proposed = session.getDetails();
-        if (proposed == null) {
-            proposed = orig.getDetails();
-        }
-        long uid = proposed.getOwner().getId();
-        long gid = proposed.getGroup().getId();
-        Principal principal = checkPrincipalNameAndDefaultGroup(new Principal(
-                admin.userProxy(uid).getOmeName(), admin.groupProxy(gid)
-                        .getName(), null));
-        if (session.getDetails() != null) {
-            Details proposedDetails = session.getDetails();
-            ExperimenterGroup proposedGroup = proposedDetails.getGroup();
-        }
+        // TODO // FIXME
+        // =====================================================
+        // This needs to get smarter
+        //
+        Principal principal = new Principal(ctx.getCurrentUserName(), ctx
+                .getCurrentGroupName(), ctx.getCurrentEventType());
+        principal = checkPrincipalNameAndDefaultGroup(principal);
 
         // Unconditionally settable; these are open to the user for change
         parseAndSetDefaultType(session.getDefaultEventType(), orig);
@@ -165,21 +167,24 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
         // Need to handle notifications
 
         ctx = currentDatabaseShapshot(principal, orig);
-        update.saveObject(orig);
+        Session copy = copy(orig);
+        executeUpdate(copy);
         cache.putSession(orig.getUuid(), ctx);
 
         return session;
 
     }
 
+    @SuppressWarnings("unchecked")
     protected SessionContext currentDatabaseShapshot(Principal principal,
             Session session) {
         // Do lookups
-        final Experimenter exp = admin.userProxy(principal.getName());
-        final ExperimenterGroup grp = admin.groupProxy(principal.getGroup());
-        final List<Long> memberOfGroupsIds = admin.getMemberOfGroupIds(exp);
-        final List<Long> leaderOfGroupsIds = admin.getLeaderOfGroupIds(exp);
-        final List<String> userRoles = admin.getUserRoles(exp);
+        List<?> list = executeSessionContextLookup(principal);
+        final Experimenter exp = (Experimenter) list.get(0);
+        final ExperimenterGroup grp = (ExperimenterGroup) list.get(1);
+        final List<Long> memberOfGroupsIds = (List<Long>) list.get(2);
+        final List<Long> leaderOfGroupsIds = (List<Long>) list.get(3);
+        final List<String> userRoles = (List<String>) list.get(4);
 
         parseAndSetDefaultType(principal.getEventType(), session);
         parseAndSetDefaultPermissions(principal.getUmask(), session);
@@ -235,21 +240,14 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
     // ~ Security methods
     // =========================================================================
 
-    public void assertSession(String uuid) throws SecurityViolation {
-        if (find(uuid) == null) {
-            throw new SecurityViolation("No session with uuid: " + uuid);
-        }
-    }
-
     public EventContext getEventContext(Principal principal) {
-        final Session session = find(principal.getName());
-        if (session == null) {
-            return null; // EARLY EXIT.
+        final SessionContext ctx = cache.getSessionContextThrows(principal
+                .getName(), true);
+        if (ctx == null) {
+            throw new RemovedSessionException("No session with uuid:"
+                    + principal.getName());
         }
-        throw new UnsupportedOperationException("CHECK FOR NULL; NYI");
-        // return sessions.get(uuid);
-        // null // we must check here if the Principal matches and update the
-        // group/event
+        return ctx;
     }
 
     // ~ Notifications
@@ -308,30 +306,16 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
 
         // ticket:404 -- preventing users from logging into "user" group
         else if (roles.getUserGroupName().equals(p.getGroup())) {
-            List<ExperimenterGroup> groups = query.findAllByQuery(
-                    "select g from ExperimenterGroup g "
-                            + "join g.groupExperimenterMap as m "
-                            + "join m.child as u "
-                            + "where g.name  != :userGroup and "
-                            + "u.omeName = :userName and "
-                            + "m.defaultGroupLink = true", new Parameters()
-                            .addString("userGroup", roles.getUserGroupName())
-                            .addString("userName", p.getName()));
-
-            if (groups.size() != 1) {
-                throw new SecurityViolation(
-                        String
-                                .format(
-                                        "User %s attempted to login to user group \"%s\". When "
-                                                + "doing so, there must be EXACTLY one default group for "
-                                                + "that user and not %d", p
-                                                .getName(), roles
-                                                .getUserGroupName(), groups
-                                                .size()));
-            }
-            group = groups.get(0).getName();
+            // Throws an exception if no properly defined default group
+            group = executeDefaultGroup(p.getName()).getName();
         }
-        return new Principal(p.getName(), group, p.getEventType());
+        Principal copy = new Principal(p.getName(), group, p.getEventType());
+        Permissions umask = p.getUmask();
+        if (umask == null) {
+            umask = Permissions.DEFAULT;
+        }
+        copy.setUmask(umask);
+        return copy;
     }
 
     private void parseAndSetDefaultPermissions(Permissions perms,
@@ -351,19 +335,24 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
         session.setDefaultEventType(_type);
     }
 
-    protected void copy(Session source, Session target) {
-        if (source == null || target == null) {
-            throw new ApiUsageException("Source and target may not be null.");
+    protected Session copy(Session source) {
+        if (source == null) {
+            throw new ApiUsageException("Source may not be null.");
         }
 
+        final Session target = new Session();
         target.setId(source.getId());
         target.setClosed(source.getClosed());
         target.setDefaultEventType(source.getDefaultEventType());
         target.setDefaultPermissions(source.getDefaultPermissions());
         target.getDetails().shallowCopy(source.getDetails());
+        target.setMessage(source.getMessage());
         target.setStarted(source.getStarted());
+        target.setTimeToIdle(source.getTimeToIdle());
+        target.setTimeToLive(source.getTimeToLive());
         target.setUserAgent(source.getUserAgent());
         target.setUuid(source.getUuid());
+        return target;
     }
 
     // StaleCacheListener
@@ -376,14 +365,125 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener {
     public boolean attemptCacheUpdate() {
         for (String key : cache.getIds()) {
             SessionContext ctx = cache.getSessionContext(key);
-            if (ctx != null) {
+            if (ctx == null) {
                 cache.removeSession(key);
             }
-            Session s = new Session();
-            s.setUuid(ctx.getSession().getUuid());
-            this.update(s);
+            this.update(copy(ctx.getSession()));
         }
         return true;
     }
 
+    // Executor methods
+    // =========================================================================
+    @SuppressWarnings("unchecked")
+    private <T extends IObject> T executeUpdate(final T obj) {
+        return (T) executor.execute(asroot, new Executor.Work() {
+            public Object doWork(TransactionStatus status,
+                    org.hibernate.Session s, ServiceFactory sf) {
+                return sf.getUpdateService().saveAndReturnObject(obj);
+            }
+        });
+    }
+
+    private boolean executeCheckPassword(final Principal _principal,
+            final String credentials) {
+        boolean ok = (Boolean) executor.execute(asroot, new Executor.Work() {
+            public Object doWork(TransactionStatus status,
+                    org.hibernate.Session session, ServiceFactory sf) {
+                return ((LocalAdmin) sf.getAdminService()).checkPassword(
+                        _principal.getName(), credentials);
+            }
+        });
+        return ok;
+    }
+
+    private Experimenter executeUserProxy(final long uid) {
+        return (Experimenter) executor.execute(asroot, new Executor.Work() {
+            public Object doWork(TransactionStatus status,
+                    org.hibernate.Session session, ServiceFactory sf) {
+                return ((LocalAdmin) sf.getAdminService()).userProxy(uid);
+            }
+        });
+    }
+
+    private ExperimenterGroup executeGroupProxy(final long gid) {
+        return (ExperimenterGroup) executor.execute(asroot,
+                new Executor.Work() {
+                    public Object doWork(TransactionStatus status,
+                            org.hibernate.Session session, ServiceFactory sf) {
+                        return ((LocalAdmin) sf.getAdminService())
+                                .groupProxy(gid);
+                    }
+                });
+    }
+
+    @SuppressWarnings("unchecked")
+    private ExperimenterGroup executeDefaultGroup(final String name) {
+        return (ExperimenterGroup) executor.execute(asroot,
+                new Executor.Work() {
+                    public Object doWork(TransactionStatus status,
+                            org.hibernate.Session session, ServiceFactory sf) {
+                        LocalAdmin admin = (LocalAdmin) sf.getAdminService();
+                        long id;
+                        try {
+                            id = admin.userProxy(name).getId();
+                        } catch (ApiUsageException api) {
+                            throw new SecurityViolation("No known user:" + name);
+                        }
+                        try {
+                            return sf.getAdminService().getDefaultGroup(id);
+                        } catch (ValidationException ve) {
+                            throw new SecurityViolation(
+                                    "User has no default group.");
+                        }
+                    }
+                });
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Object> executeSessionContextLookup(final Principal principal) {
+        return (List<Object>) executor.execute(asroot, new Executor.Work() {
+
+            public Object doWork(TransactionStatus status,
+                    org.hibernate.Session session, ServiceFactory sf) {
+                List<Object> list = new ArrayList<Object>();
+                LocalAdmin admin = (LocalAdmin) sf.getAdminService();
+                final Experimenter exp = admin.userProxy(principal.getName());
+                final ExperimenterGroup grp = admin.groupProxy(principal
+                        .getGroup());
+                final List<Long> memberOfGroupsIds = admin
+                        .getMemberOfGroupIds(exp);
+                final List<Long> leaderOfGroupsIds = admin
+                        .getLeaderOfGroupIds(exp);
+                final List<String> userRoles = admin.getUserRoles(exp);
+                list.add(exp);
+                list.add(grp);
+                list.add(memberOfGroupsIds);
+                list.add(leaderOfGroupsIds);
+                list.add(userRoles);
+                return list;
+            }
+        });
+
+    }
+
+    private Session executeInternalSession() {
+        return (Session) executor
+                .executeStateless(new Executor.StatelessWork() {
+                    public Object doWork(StatelessSession sSession) {
+                        final Permissions p = Permissions.USER_PRIVATE;
+                        final Session s = define(internal_uuid,
+                                "Session Manager internal", System
+                                        .currentTimeMillis(), Long.MAX_VALUE,
+                                0L, "Sessions", p.toString());
+
+                        // Have to copy values over due to unloaded
+                        final Session s2 = copy(s);
+                        Long id = (Long) sSession.insert(s2);
+
+                        s.setId(id);
+                        return s;
+                    }
+                });
+    }
 }

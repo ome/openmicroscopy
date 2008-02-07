@@ -27,7 +27,7 @@
     <property name="sessionManager" ref="sessionManager"/>
   </bean> 
  
-  <bean name="managed:ome.api.ISession" parent="selfManagingdService">
+  <bean name="managed:ome.api.ISession" parent="selfManagingService">
     <property name="proxyInterfaces">
       <list>
         <value>ome.api.ISession</value>
@@ -36,20 +36,11 @@
     <property name="target" ref="internal:ome.api.ISession"/>
   </bean>  
 
-  <bean name="sessionManager" class="ome.services.sessions.SessionManagerImpl">
-    <property name="adminService"  ref="internal:ome.api.LocalAdmin"/>
-    <property name="queryService"  ref="internal:ome.api.LocalQuery"/>
-    <property name="updateService" ref="internal:ome.api.LocalUpdate"/>
+  <bean name="sessionManager" class="ome.services.sessions.SessionManagerImpl"
+    init-method="init"><!-- Init called to add root login method. -->
     <property name="sessionCache"  ref="sessionCache"/>
     <property name="roles"         ref="roles"/>
     <property name="executor"      ref="executor"/>
-    <property name="principal">
-        <bean class="ome.system.Principal">
-          <constructor-arg value="root"/>
-          <constructor-arg value="system"/>
-          <constructor-arg value="Sessions"/>
-        </bean>
-    </property>
   </bean>  
 
   <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">  
@@ -62,9 +53,10 @@
     singleton="false">
     <property name="cacheManager" ref="CacheManager"/>
     <property name="overflowToDisk" value="false"/>
-    <property name="maxElementsInMemory" value="0"/>
-    <property name="timeToIdle" value="600"/>
+    <property name="maxElementsInMemory" value="2000000"/>
+    <property name="maxElementsOnDisk" value="0"/>
     <property name="timeToLive" value="0"/>
+    <property name="timeToIdle" value="${omero.sessions.timeout}"/>
   </bean>
   
 </beans>

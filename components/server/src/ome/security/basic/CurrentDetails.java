@@ -25,6 +25,7 @@ import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.Session;
 import ome.system.EventContext;
 
 import org.apache.commons.logging.Log;
@@ -78,9 +79,8 @@ class CurrentDetails {
 
     // ~ Events and Details
     // =================================================================
-    public void newEvent(EventType type, Token token) // TODO keep up with
-    // stack here?
-    {
+    // TODO keep up with stach here?
+    public void newEvent(long sessionId, EventType type, Token token) {
         Event e = new Event();
         e.setType(type);
         e.setTime(new Timestamp(System.currentTimeMillis()));
@@ -88,6 +88,7 @@ class CurrentDetails {
         e.setExperimenterGroup(getGroup());
         e.getGraphHolder().setToken(token, token);
         e.getDetails().setPermissions(Permissions.READ_ONLY);
+        e.setSession(new Session(sessionId, false));
         setCreationEvent(e);
     }
 
@@ -155,7 +156,7 @@ class CurrentDetails {
     // =========================================================================
 
     public Event getCreationEvent() {
-        return data.get().getDetails().getCreationEvent();
+        return getDetails().getCreationEvent();
     }
 
     public Experimenter getOwner() {

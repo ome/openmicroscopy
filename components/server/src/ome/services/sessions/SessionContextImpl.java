@@ -37,6 +37,14 @@ public class SessionContextImpl implements SessionContext {
         return roles;
     }
 
+    public Long getCurrentSessionId() {
+        return getSession().getId();
+    }
+
+    public String getCurrentSessionUuid() {
+        return getSession().getUuid();
+    }
+
     public Long getCurrentEventId() {
         throw new UnsupportedOperationException();
     }

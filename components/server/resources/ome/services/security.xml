@@ -31,9 +31,19 @@
 <beans>
 
   <bean id="securitySystem" class="ome.security.basic.BasicSecuritySystem">
-    <constructor-arg><bean class="ome.tools.spring.InternalServiceFactory"/></constructor-arg>
-    <constructor-arg ref="sessionManager"/>
     <constructor-arg ref="roles"/>    
+  </bean>
+  <!-- Due to several circular dependencies, the security system which is used
+  frequently, has several of its dependencies loaded by a post processor -->
+  <bean class="ome.tools.spring.PostProcessInjector">
+    <description>
+    Scope: private
+    </description>
+    <property name="securitySystem" ref="securitySystem"/>
+    <property name="extendedMetadata" ref="extendedMetadata"/>
+    <property name="sessionManager" ref="sessionManager"/>
+    <property name="queryService" ref="internal:ome.api.IQuery"/>
+    <property name="updateService" ref="internal:ome.api.IUpdate"/>
   </bean>
 
   <bean id="roles" class="ome.system.Roles"/>
@@ -73,14 +83,6 @@
     <description>
     Scope: private
     </description>
-  </bean>
-
-  <bean class="ome.tools.spring.PostProcessInjector">
-    <description>
-    Scope: private
-    </description>
-    <constructor-arg ref="securitySystem"/>
-    <constructor-arg ref="extendedMetadata"/>
   </bean>
 
 </beans>
