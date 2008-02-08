@@ -34,17 +34,17 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-import loci.formats.FormatTools;
 import loci.formats.meta.MetadataStore;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
 import ome.model.IObject;
-import ome.model.acquisition.StageLabel;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
@@ -75,16 +75,18 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * An OMERO metadata store. This particular metadata store requires the user to
- * be logged into OMERO prior to use with the {@link #login()} method. NOTE: All
- * indexes are ignored by this metadata store as they don't make much real
- * sense.
+ * be logged into OMERO prior to use with the {@link #login()} method. While
+ * attempts have been made to allow the caller to switch back and forth between 
+ * Images and Pixels during metadata population it is <b>strongly</b> 
+ * encouraged that at least Images and Pixels are populated in ascending order. 
+ * For example: Image_1 --> Pixels_1, Pixels_2 followed by Image_2 --> Pixels_1,
+ * Pixels2, Pixels_3.
  * 
  * @author Brian W. Loranger brain at lifesci.dundee.ac.uk
  * @author Chris Allan callan at blackcat.ca
  */
 public class OMEROMetadataStore implements MetadataStore
 {
-
     /** Logger for this class. */
     private static Log     log    = LogFactory.getLog(OMEROMetadataStore.class);
 
@@ -109,22 +111,14 @@ public class OMEROMetadataStore implements MetadataStore
     private List<Pixels> pixelsList = new ArrayList<Pixels>();
     
     /** 
-     * PlaneInfo ordered cache (compensates for pixels.planeInfo being a
-     * HashMap. Should be invalidated when currentPixels has changed.
+     * PlaneInfo ordered cache which compensates for pixels.planeInfo being a
+     * HashMap.
      */
-    private List<PlaneInfo> planeInfoCache = null;
-    
-    /** 
-     * The current pixels set, when this changes we invalidate 
-     * <code>planeInfoCache</code>.
-     */
-    private Integer currentPixelsIndex = null;
+    private Map<Pixels, List<PlaneInfo>> planeInfoCache = null;
     
     private Experimenter    exp;
     
     private RawFileStore    rawFileStore;
-
-    //private List<Boolean> minMaxSet = new ArrayList<Boolean>();
     
     /**
      * Creates a new instance.
@@ -217,6 +211,7 @@ public class OMEROMetadataStore implements MetadataStore
 	{
 	    imageList = new ArrayList<Image>();
 	    pixelsList = new ArrayList<Pixels>();
+	    planeInfoCache = new HashMap<Pixels, List<PlaneInfo>>();
 	}
 
 	/*
@@ -224,7 +219,8 @@ public class OMEROMetadataStore implements MetadataStore
      * 
      * @see loci.formats.MetadataStore#setRoot(java.lang.Object)
      */
-    public void setRoot(Object root) throws IllegalArgumentException
+    @SuppressWarnings("unchecked")
+	public void setRoot(Object root) throws IllegalArgumentException
     {
         if (!(root instanceof List))
             throw new IllegalArgumentException("'root' object of type '"
@@ -254,26 +250,6 @@ public class OMEROMetadataStore implements MetadataStore
         return enumeration;
     }
     
-    /*
-     * (non-Javadoc)
-     * 
-     * @see loci.formats.MetadataStore#setImage(java.lang.String,
-     *      java.lang.String, java.lang.String, java.lang.Integer)
-     */
-    public void setImage(String name, String creationDate, String description,
-            Integer series)
-    {
-        
-        log.debug(String.format("Setting Image: name (%s), creationDate (%s), "
-                + "description (%s)", name, creationDate, description));
-        // FIXME: Image really needs to handle creation date somehow.
-        Image image = new Image();
-        image.setName(name);
-        image.setDescription(description);
-
-        getPixels(series).setImage(image);
-    }
-
     public long getExperimenterID()
     {
         return exp.getId();
@@ -282,304 +258,15 @@ public class OMEROMetadataStore implements MetadataStore
     /*
      * (non-Javadoc)
      * 
-     * @see loci.formats.MetadataStore#setExperimenter(java.lang.String,
-     *      java.lang.String, java.lang.String, java.lang.String,
-     *      java.lang.String, java.lang.Object, java.lang.Integer)
-     */
-    public void setExperimenter(String firstName, String lastName,
-            String email, String institution, String dataDirectory,
-            Object group, Integer i)
-    {
-    // FIXME: To implement.
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see loci.formats.MetadataStore#setGroup(java.lang.String,
-     *      java.lang.Object, java.lang.Object, java.lang.Integer)
-     */
-    public void setGroup(String name, Object leader, Object contact, Integer i)
-    {
-    // FIXME: To implement.
-    }
-
-    public void setInstrument(String manufacturer, String model,
-            String serialNumber, String type, Integer i)
-    {
-    // FIXME: To implement.
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see loci.formats.MetadataStore#setDimensions(java.lang.Float,
-     *      java.lang.Float, java.lang.Float, java.lang.Float, java.lang.Float,
-     *      java.lang.Integer)
-     */
-    public void setDimensions(Float pixelSizeX, Float pixelSizeY,
-            Float pixelSizeZ, Float pixelSizeC, Float pixelSizeT, Integer i)
-    {
-        log.debug(String.format(
-                "Setting Dimensions: pixelSizeX (%f), pixelSizeY (%f), "
-                        + "pixelSizeZ (%f), pixelSizeC (%f), pixelSizeT (%f)",
-                pixelSizeX, pixelSizeY, pixelSizeZ, pixelSizeC, pixelSizeT));
-        PixelsDimensions dimensions = new PixelsDimensions();
-        
-        if (pixelSizeX == null || pixelSizeX <= 0.000001)
-        {
-            log.warn("pixelSizeX is <= 0.000001f, setting to 1.0f");
-            pixelSizeX = 1.0f;
-        } else {
-            log.warn("pixelSizeX is " + pixelSizeX);
-        }
-
-        if (pixelSizeY == null || pixelSizeY <= 0.000001)
-        {
-            log.warn("pixelSizeY is <= 0.000001f, setting to 1.0f");
-            pixelSizeY = 1.0f;
-        } else {
-            log.warn("pixelSizeY is " + pixelSizeY);
-        }
-        
-        if (pixelSizeZ == null || pixelSizeZ <= 0.000001)
-        {
-            log.warn("pixelSizeZ is <= 0.000001f, setting to 1.0f");
-            pixelSizeZ = 1.0f;
-        } else {
-            log.warn("pixelSizeZ is " + pixelSizeZ);
-        }
-
-        dimensions.setSizeX(pixelSizeX);
-        dimensions.setSizeY(pixelSizeY);
-        dimensions.setSizeZ(pixelSizeZ);
-
-        getPixels(i).setPixelsDimensions(dimensions);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see loci.formats.MetadataStore#setDisplayROI(java.lang.Integer,
-     *      java.lang.Integer, java.lang.Integer, java.lang.Integer,
-     *      java.lang.Integer, java.lang.Integer, java.lang.Integer,
-     *      java.lang.Integer, java.lang.Object, java.lang.Integer)
-     */
-    public void setDisplayROI(Integer x0, Integer y0, Integer z0, Integer x1,
-            Integer y1, Integer z1, Integer t0, Integer t1,
-            Object displayOptions, Integer i)
-    {
-    // FIXME: We have no real type for this.
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see loci.formats.MetadataStore#setPixels(java.lang.Integer,
-     *      java.lang.Integer, java.lang.Integer, java.lang.Integer,
-     *      java.lang.Integer, java.lang.String, java.lang.Boolean,
-     *      java.lang.String, java.lang.Integer)
-     */
-    public void setPixels(Integer sizeX, Integer sizeY, Integer sizeZ,
-            Integer sizeC, Integer sizeT, Integer pixelType, Boolean bigEndian,
-            String dimensionOrder, Integer imageIndex, Integer pixelsIndex)
-    {
-        // Retrieve enumerations from the server               
-        PixelsType type = null;
-        String pixTypeString = "";
-        switch(pixelType)
-        {
-            case FormatTools.INT8:
-                type = (PixelsType) getEnumeration(PixelsType.class, "int8");
-                pixTypeString = "int8";
-                break;
-            case FormatTools.UINT8:
-                type = (PixelsType) getEnumeration(PixelsType.class, "uint8");
-                pixTypeString = "uint8";
-                break;
-            case FormatTools.INT16:
-                type = (PixelsType) getEnumeration(PixelsType.class, "int16");
-                pixTypeString = "int16";
-                break;
-            case FormatTools.UINT16:
-                type = (PixelsType) getEnumeration(PixelsType.class, "uint16");
-                pixTypeString = "uint16";
-                break;
-            case FormatTools.INT32:
-                type = (PixelsType) getEnumeration(PixelsType.class, "int32");
-                pixTypeString = "int32";
-                break;
-            case FormatTools.UINT32:
-                type = (PixelsType) getEnumeration(PixelsType.class, "uint32");
-                pixTypeString = "uint32";
-                break;
-            case FormatTools.FLOAT:
-                type = (PixelsType) getEnumeration(PixelsType.class, "float");
-                pixTypeString = "float";
-                break;
-            case FormatTools.DOUBLE:
-                type = (PixelsType) getEnumeration(PixelsType.class, "double");
-                pixTypeString = "double";
-                break;
-            default: new RuntimeException("Unknown pixelType enumeration: " 
-                    + pixelType);
-        }
-        
-        log
-        .debug(String
-                .format(
-                        "Setting Pixels: x (%d), y (%d), z (%d), c (%d), t (%d), "
-                                + "PixelType (%s), BigEndian? (%b), dimemsionOrder (%s)",
-                        sizeX, sizeY, sizeZ, sizeC, sizeT, pixTypeString,
-                        bigEndian, dimensionOrder));
-        
-        
-        DimensionOrder order = (DimensionOrder) getEnumeration(
-                DimensionOrder.class, dimensionOrder);
-
-        Pixels pixels = getPixels(imageIndex);
-        
-        pixels.setSha1("foo"); // FIXME: needs to be fixed!
-        pixels.setSizeX(sizeX);
-        pixels.setSizeY(sizeY);
-        pixels.setSizeZ(sizeZ);
-        pixels.setSizeC(sizeC);
-        pixels.setSizeT(sizeT);
-        pixels.setPixelsType(type);
-        pixels.setDimensionOrder(order);
-        pixels.setDefaultPixels(Boolean.TRUE); // *Very* important
-    }
-    
-    /*
-     * (non-Javadoc)
-     * 
-     * @see loci.formats.MetadataStore#setStageLabel(java.lang.String,
-     *      java.lang.Float, java.lang.Float, java.lang.Float,
-     *      java.lang.Integer)
-     */
-    public void setStageLabel(String name, Float x, Float y, Float z, Integer i)
-    {
-        log.debug(String.format(
-                "Setting StageLabel: name (%s), x (%f), y (%f), z (%f)", name,
-                x, y, z));
-
-        // Checks to make sure we have no null values and returns with a warning
-        // if we do.
-        if (name == null || x == null || y == null || z == null)
-        {
-            log
-                    .warn(String
-                            .format(
-                                    "StageLabel has null value(s): name (%s), x (%f), y (%f), z (%f)",
-                                    name, x, y, z));
-            return;
-        }
-
-        StageLabel stageLabel = new StageLabel();
-        stageLabel.setName(name);
-        stageLabel.setPositionX(x);
-        stageLabel.setPositionY(y);
-        stageLabel.setPositionZ(z);
-
-        getPixels(i).getImage().setPosition(stageLabel);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see loci.formats.MetadataStore#setLogicalChannel(int, java.lang.String,
-     *      float, int, int, java.lang.String, java.lang.String,
-     *      java.lang.Integer)
-     */
-    public void setLogicalChannel(int channelIdx, String name, Integer samplesPerPixel,
-    	    Integer filter, Integer lightSource, Float lightAttenuation,
-    	    Integer lightWavelength, Integer otf, Integer detector, 
-    	    Float detectorOffset, Float detectorGain, String illuminationType, 
-    	    Integer pinholeSize, String photometricInterpretation, String mode, 
-    	    String contrastMethod, Integer auxLightSource, Float auxLightAttenuation, 
-    	    String auxTechnique, Integer auxLightWavelength, Integer emWave, 
-    	    Integer exWave, String fluor, Float ndFilter, Integer series)
-    {
-        log
-                .debug(String
-                        .format(
-                                "Setting LogicalChannel: channelIdx (%d), name (%s), ndFilter (%f), "
-                                        + "emWave (%d), exWave (%d), photometicInterpretation (%s), mode (%s)",
-                                channelIdx, name, ndFilter, emWave, exWave,
-                                photometricInterpretation, mode));
-        // Retrieve enumerations from the server
-        PhotometricInterpretation pi = (PhotometricInterpretation) getEnumeration(
-                PhotometricInterpretation.class, photometricInterpretation);
-        AcquisitionMode acquisitionMode = (AcquisitionMode) getEnumeration(
-                AcquisitionMode.class, mode);
-
-        
-        Pixels pixels = getPixels(series);
-        
-        List<Channel> channels = pixels.getChannels();
-        Channel channel = new Channel();
-
-        if (channels.size() == 0)
-        {
-            channels = initChannels(series);
-        } 
-        else if (channels.size() != pixels.getSizeC())
-        {
-            log.warn(String.format("channels.size() (%d) is not equal to " +
-                    "pixels.getChannels().size() (%d) Resetting channel array.", 
-                    channels.size(), pixels.getSizeC()));
-            channels = initChannels(series);
-        }
-        
-//        try {
-//            channels.set(channelIdx, channel);
-//        } catch (IndexOutOfBoundsException e) {
-//            channels.add(channelIdx, channel);
-//        }
-
-        channels.set(channelIdx, channel);
-        
-        LogicalChannel lchannel = new LogicalChannel();
-        lchannel.setEmissionWave(emWave);
-        lchannel.setExcitationWave(exWave);
-        lchannel.setName(name);
-        lchannel.setNdFilter(ndFilter);
-        lchannel.setPhotometricInterpretation(pi);
-        lchannel.setMode(acquisitionMode);
-
-        channel.setLogicalChannel(lchannel);
-        pixels.setChannels(channels);
-    }
-
-    private List<Channel> initChannels(Integer i)
-    {
-        Pixels pixels = getPixels(i);
-        
-        List<Channel> channels = new ArrayList<Channel>(pixels.getSizeC());
-        for (int j = 0; j < pixels.getSizeC(); j++)
-        {
-            channels.add(null);
-        }
-        return channels;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see loci.formats.MetadataStore#setChannelGlobalMinMax(int,
      *      java.lang.Double, java.lang.Double, java.lang.Integer)
      */
-    public void setChannelGlobalMinMax(int channelIdx, Double globalMin,
-            Double globalMax, Integer i)
+    @SuppressWarnings("unchecked")
+	public void setChannelGlobalMinMax(int channelIdx, Double globalMin,
+            Double globalMax, Integer pixelsIndex)
     {
-//       try { minMaxSet.get(channelIdx); }
-//        catch (IndexOutOfBoundsException e) 
-//        { minMaxSet.add(channelIdx, false); }
-//
-//        if (minMaxSet.get(channelIdx) == true)
-//            return;
         log.debug(String.format(
-                "Setting GlobalMin: '%f' GlobalMax: '%f' for channel: '%d'",
+                "Setting Pixels[%d] Channel[%d] globalMin: '%f' globalMax: '%f'",
                 globalMin, globalMax, channelIdx));
         if (globalMin != null)
         {
@@ -590,37 +277,12 @@ public class OMEROMetadataStore implements MetadataStore
         	globalMax = new Double(Math.ceil(globalMax.doubleValue()));
         }
 
-        Channel channel = getChannel(getPixels(i), channelIdx);
+        List<Channel> channels = getPixels(pixelsIndex).getChannels();
         StatsInfo statsInfo = new StatsInfo();
         statsInfo.setGlobalMin(globalMin);
         statsInfo.setGlobalMax(globalMax);
-        channel.setStatsInfo(statsInfo);
+        channels.get(channelIdx).setStatsInfo(statsInfo);
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see loci.formats.MetadataStore#setPlaneInfo(int, int, int,
-     *      java.lang.Float, java.lang.Float, java.lang.Integer)
-     */
-    public void setPlaneInfo(int z, int c, int t, Float timestamp,
-            Float exposureTime, Integer i)
-    {
-        PlaneInfo pi = new PlaneInfo();
-        pi.setTheZ(z);
-        pi.setTheC(c);
-        pi.setTheT(t);
-        pi.setTimestamp(timestamp);
-        pi.setExposureTime(exposureTime);
-        getPixels(i).addPlaneInfo(pi);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see loci.formats.MetadataStore#setDefaultDisplaySettings(java.lang.Integer)
-     */
-    public void setDefaultDisplaySettings(Integer i) {}
 
     /**
      * Writes a set of bytes as a plane in the OMERO image repository.
@@ -656,7 +318,7 @@ public class OMEROMetadataStore implements MetadataStore
     }
 
     /**
-     * Adds an image) to a dataset.
+     * Adds an image to a dataset.
      * 
      * @param image The image to link to <code>dataset</code>.
      * @param dataset The dataset to link to <code>image</code>.
@@ -720,8 +382,7 @@ public class OMEROMetadataStore implements MetadataStore
                 new Parameters().addId(exp.getId()));
         return (List<Project>) l;
     }
-    
-    
+
     /**
      * Saves the current <i>root</i> pixelsList to the database.
      */
@@ -800,7 +461,6 @@ public class OMEROMetadataStore implements MetadataStore
                 byte[] buf = new byte[262144];            
                 FileInputStream stream = new FileInputStream(file);
 
-                long time = System.currentTimeMillis();
                 long pos = 0;
                 int rlen;
                 while((rlen = stream.read(buf)) > 0)
@@ -819,153 +479,6 @@ public class OMEROMetadataStore implements MetadataStore
            
     }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setArc(java.lang.String, java.lang.Float, java.lang.Integer, java.lang.Integer)
-	 */
-	public void setArc(String type, Float power, Integer lightNdx,
-	                   Integer arcNdx)
-	{
-		// TODO: Unsupported.
-	}
-
-
-
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setDetector(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Float, java.lang.Float, java.lang.Float, java.lang.Integer, java.lang.Integer)
-	 */
-	public void setDetector(String manufacturer, String model,
-	                        String serialNumber, String type, Float gain,
-	                        Float voltage, Float offset, Integer instrumentNdx,
-	                        Integer detectorNdx)
-	{
-		// TODO: Unsupported.
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setDichroic(java.lang.String, java.lang.String, java.lang.String, java.lang.Integer)
-	 */
-	public void setDichroic(String manufacturer, String model, String lotNumber,
-	                        Integer dichroicNdx)
-	{
-		// TODO: Unsupported.
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setDisplayChannel(java.lang.Integer, java.lang.Double, java.lang.Double, java.lang.Float, java.lang.Integer)
-	 */
-	public void setDisplayChannel(Integer channelNumber, Double blackLevel,
-			                      Double whiteLevel, Float gamma, Integer i)
-	{
-		// TODO: Unsupported.
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setDisplayOptions(java.lang.Float, java.lang.Boolean, java.lang.Boolean, java.lang.Boolean, java.lang.Boolean, java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
-	 */
-	public void setDisplayOptions(Float zoom, Boolean redChannelOn,
-	                              Boolean greenChannelOn, Boolean blueChannelOn,
-	                              Boolean displayRGB, String colorMap,
-	                              Integer zstart, Integer zstop, Integer tstart,
-	                              Integer tstop, Integer imageNdx,
-	                              Integer pixelsNdx, Integer redChannel,
-	                              Integer greenChannel, Integer blueChannel,
-	                              Integer grayChannel)
-	{
-		// TODO: Unsupported.
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setEmissionFilter(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Integer)
-	 */
-	public void setEmissionFilter(String manufacturer, String model,
-			                      String lotNumber, String type,
-			                      Integer filterNdx)
-	{
-		// TODO: Unsupported.
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setExcitationFilter(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Integer)
-	 */
-	public void setExcitationFilter(String manufacturer, String model,
-			                        String lotNumber, String type,
-			                        Integer filterNdx)
-	{
-		// TODO: Unsupported.
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setFilament(java.lang.String, java.lang.Float, java.lang.Integer, java.lang.Integer)
-	 */
-	public void setFilament(String type, Float power, Integer lightNdx,
-			                Integer filamentNdx)
-	{
-		// TODO: Unsupported.
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setFilterSet(java.lang.String, java.lang.String, java.lang.String, java.lang.Integer, java.lang.Integer)
-	 */
-	public void setFilterSet(String manufacturer, String model,
-			                 String lotNumber, Integer filterSetNdx,
-			                 Integer filterNdx)
-	{
-		// TODO: Unsupported.
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setImagingEnvironment(java.lang.Float, java.lang.Float, java.lang.Float, java.lang.Float, java.lang.Integer)
-	 */
-	public void setImagingEnvironment(Float temperature, Float airPressure,
-			                          Float humidity, Float co2Percent,
-			                          Integer i)
-	{
-		// TODO: Unsupported.
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setLaser(java.lang.String, java.lang.String, java.lang.Integer, java.lang.Boolean, java.lang.Boolean, java.lang.String, java.lang.Float, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
-	 */
-	public void setLaser(String type, String medium, Integer wavelength,
-			             Boolean frequencyDoubled, Boolean tunable,
-			             String pulse, Float power, Integer instrumentNdx,
-			             Integer lightNdx, Integer pumpNdx, Integer laserNdx)
-	{
-		// TODO: Unsupported.
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setLightSource(java.lang.String, java.lang.String, java.lang.String, java.lang.Integer, java.lang.Integer)
-	 */
-	public void setLightSource(String manufacturer, String model,
-			                   String serialNumber, Integer instrumentIndex,
-			                   Integer lightIndex)
-	{
-		// TODO: Unsupported.
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setOTF(java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String, java.lang.Boolean, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
-	 */
-	public void setOTF(Integer sizeX, Integer sizeY, String pixelType,
-			           String path, Boolean opticalAxisAverage,
-			           Integer instrumentNdx, Integer otfNdx, Integer filterNdx,
-			           Integer objectiveNdx)
-	{
-		// TODO: Unsupported.
-	}
-
-	/* (non-Javadoc)
-	 * @see loci.formats.MetadataStore#setObjective(java.lang.String, java.lang.String, java.lang.String, java.lang.Float, java.lang.Float, java.lang.Integer, java.lang.Integer)
-	 */
-	public void setObjective(String manufacturer, String model,
-			                 String serialNumber, Float lensNA,
-			                 Float magnification, Integer instrumentNdx,
-			                 Integer objectiveNdx)
-	{
-		// TODO: Unsupported.
-	}
-
 	/**
      * Check the MinMax values stored in the DB and sync them with the new values
      * we generate in the channelMinMax reader, then save them to the DB. 
@@ -979,21 +492,11 @@ public class OMEROMetadataStore implements MetadataStore
                 "where p.id = :id", new Parameters().addId(id));
         List<Channel> channels = p.getChannels();
         List<Channel> readerChannels = getPixels(i).getChannels();
-        
         for (int j=0; j < p.getSizeC(); j++)
         {
-            Channel channel;
-            if (j > channels.size() - 1)
-            {
-                channel = new Channel();
-                channel.setLogicalChannel(new LogicalChannel());
-                channels.add(channel);
-            }
-            else
-            {
-                channel = channels.get(j);
-            }
-            channel.setStatsInfo(readerChannels.get(j).getStatsInfo());
+            Channel channel = channels.get(j);
+            Channel readerChannel = readerChannels.get(j);
+            channel.setStatsInfo(readerChannel.getStatsInfo());
         }
         iUpdate.saveObject(p);
     }
@@ -1092,13 +595,6 @@ public class OMEROMetadataStore implements MetadataStore
     			{
     				pixelsList.add(p);
     			}
-    			// Invalidate the planeInfoCache if necessary.
-    			if (currentPixelsIndex == null
-    			    || pixelsIndex != currentPixelsIndex)
-    			{
-    				planeInfoCache = new ArrayList<PlaneInfo>();
-    				currentPixelsIndex = pixelsIndex;
-    			}
     			return p;
     		}
     		j++;
@@ -1134,6 +630,7 @@ public class OMEROMetadataStore implements MetadataStore
 	public PlaneInfo getPlaneInfo(int imageIndex, int pixelsIndex,
 			int planeIndex)
 	{
+		Pixels p = getPixels(imageIndex, pixelsIndex);
     	if (planeInfoCache.size() < (planeIndex + 1))
     	{
     		for (int i = planeInfoCache.size(); i <= planeIndex; i++)
@@ -1146,55 +643,17 @@ public class OMEROMetadataStore implements MetadataStore
     			PlaneInfo info = new PlaneInfo();
                 // FIXME: Time stamp needs fixing.
     			info.setTimestamp(0.0f);
-    			planeInfoCache.add(info);
+    			if (!planeInfoCache.containsKey(p))
+    			{
+    				planeInfoCache.put(p, new ArrayList<PlaneInfo>());
+    			}
+    			planeInfoCache.get(p).add(info);
     			getPixels(imageIndex, pixelsIndex).addPlaneInfo(info);
     		}
     	}
-    	return planeInfoCache.get(planeIndex);
+    	return planeInfoCache.get(p).get(planeIndex);
 	}
 	
-	/**
-	 * Returns a Channel from a given Pixels' indexed channel list. The OMERO
-	 * Channel is analogous to the OME-XML Schema ChannelComponent.
-	 * 
-	 * @param pixels The pixels object to retrieve from.
-	 * @param channelIndex The logical channel index within 
-	 * <code>pixels</code>.
-	 * @return See above.
-	 */
-	@SuppressWarnings("unchecked")
-	public Channel getChannel(Pixels pixels, int channelIndex)
-	{
-		List<Channel> channels = pixels.getChannels();
-    	if (channels.size() < (channelIndex + 1))
-    	{
-    		for (int i = channels.size(); i <= channelIndex; i++)
-    		{
-    			// Since OMERO model objects prevent us from inserting nulls
-    			// here we must insert a Channel object.
-    			channels.add(new Channel());
-    		}
-    	}
-    	return channels.get(channelIndex);
-	}
-	
-	/**
-	 * Returns a given Channel's LogicalChannel creating it if it does not
-	 * exist.
-	 * 
-	 * @param channel The channel object to retrieve from.
-	 * @return See above.
-	 */
-	public LogicalChannel getLogicalChannel(Channel channel)
-	{
-		LogicalChannel lc = channel.getLogicalChannel();
-		if (lc == null)
-		{
-			lc = new LogicalChannel();
-			channel.setLogicalChannel(lc);
-		}
-		return lc;
-	}
 
 	/* (non-Javadoc)
 	 * @see loci.formats.meta.MetadataStore#setImageName(java.lang.String, int)
@@ -1267,6 +726,7 @@ public class OMEROMetadataStore implements MetadataStore
 	/* (non-Javadoc)
 	 * @see loci.formats.meta.MetadataStore#setPixelsSizeC(java.lang.Integer, int, int)
 	 */
+	@SuppressWarnings("unchecked")
 	public void setPixelsSizeC(Integer sizeC, int imageIndex, int pixelsIndex)
 	{
         log.debug(String.format(
@@ -1274,6 +734,13 @@ public class OMEROMetadataStore implements MetadataStore
         		imageIndex, pixelsIndex, sizeC));
 		Pixels p = getPixels(imageIndex, pixelsIndex);
 		p.setSizeC(sizeC);
+		List<Channel> channels = p.getChannels();
+		for (int i = 0; i < sizeC; i++)
+		{
+			Channel c = new Channel();
+			c.setLogicalChannel(new LogicalChannel());
+			channels.add(c);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -1576,11 +1043,12 @@ public class OMEROMetadataStore implements MetadataStore
         while (i.hasNext())
         {
         	Pixels p = i.next();
-        	Channel c = getChannel(p, logicalChannelIndex);
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] name: '%s'",
-            		imageIndex, p, c, logicalChannelIndex, name));
-            LogicalChannel lc = getLogicalChannel(c);
+            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] name: '%s'",
+            		imageIndex, p, logicalChannelIndex, name));
+            List<Channel> channels = p.getChannels();
+            LogicalChannel lc = 
+            	channels.get(logicalChannelIndex).getLogicalChannel();
             lc.setName(name);
         }
 	}
@@ -1597,10 +1065,9 @@ public class OMEROMetadataStore implements MetadataStore
         while (i.hasNext())
         {
         	Pixels p = i.next();
-        	Channel c = getChannel(p, logicalChannelIndex);
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] samples per pixel: '%d'",
-            		imageIndex, p, c, logicalChannelIndex, samplesPerPixel));
+            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] samples per pixel: '%d'",
+            		imageIndex, p, logicalChannelIndex, samplesPerPixel));
             log.debug("NOTE: This field is unsupported/unused.");
         }
 	}
@@ -1617,11 +1084,12 @@ public class OMEROMetadataStore implements MetadataStore
         while (i.hasNext())
         {
         	Pixels p = i.next();
-        	Channel c = getChannel(p, logicalChannelIndex);
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] illumination type: '%s'",
-            		imageIndex, p, c, logicalChannelIndex, illuminationType));
-            LogicalChannel lc = getLogicalChannel(c);
+            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] illumination type: '%s'",
+            		imageIndex, p, logicalChannelIndex, illuminationType));
+            List<Channel> channels = p.getChannels();
+            LogicalChannel lc = 
+            	channels.get(logicalChannelIndex).getLogicalChannel();
             Illumination iType = (Illumination) getEnumeration(
                     AcquisitionMode.class, illuminationType);
             lc.setIllumination(iType);
@@ -1640,11 +1108,12 @@ public class OMEROMetadataStore implements MetadataStore
         while (i.hasNext())
         {
         	Pixels p = i.next();
-        	Channel c = getChannel(p, logicalChannelIndex);
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] pinhole size: '%d'",
-            		imageIndex, p, c, logicalChannelIndex, pinholeSize));
-            LogicalChannel lc = getLogicalChannel(c);
+            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] pinhole size: '%d'",
+            		imageIndex, p, logicalChannelIndex, pinholeSize));
+            List<Channel> channels = p.getChannels();
+            LogicalChannel lc = 
+            	channels.get(logicalChannelIndex).getLogicalChannel();
             lc.setPinHoleSize(pinholeSize);
         }
 	}
@@ -1662,12 +1131,13 @@ public class OMEROMetadataStore implements MetadataStore
         while (i.hasNext())
         {
         	Pixels p = i.next();
-        	Channel c = getChannel(p, logicalChannelIndex);
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] " +
+            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
             		"photometric interpretation: '%s'",
-            		imageIndex, p, c, logicalChannelIndex, photometricInterpretation));
-            LogicalChannel lc = getLogicalChannel(c);
+            		imageIndex, p, logicalChannelIndex, photometricInterpretation));
+            List<Channel> channels = p.getChannels();
+            LogicalChannel lc = 
+            	channels.get(logicalChannelIndex).getLogicalChannel();
             PhotometricInterpretation pi = 
             	(PhotometricInterpretation) getEnumeration(
                     PhotometricInterpretation.class, photometricInterpretation);
@@ -1687,12 +1157,13 @@ public class OMEROMetadataStore implements MetadataStore
         while (i.hasNext())
         {
         	Pixels p = i.next();
-        	Channel c = getChannel(p, logicalChannelIndex);
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] " +
+            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
             		"channel mode: '%s'",
-            		imageIndex, p, c, logicalChannelIndex, mode));
-            LogicalChannel lc = getLogicalChannel(c);
+            		imageIndex, p, logicalChannelIndex, mode));
+            List<Channel> channels = p.getChannels();
+            LogicalChannel lc = 
+            	channels.get(logicalChannelIndex).getLogicalChannel();
             AcquisitionMode m = 
             	(AcquisitionMode) getEnumeration(AcquisitionMode.class, mode);
             lc.setMode(m);
@@ -1711,12 +1182,13 @@ public class OMEROMetadataStore implements MetadataStore
         while (i.hasNext())
         {
         	Pixels p = i.next();
-        	Channel c = getChannel(p, logicalChannelIndex);
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] " +
+            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
             		"contrast method: '%s'",
-            		imageIndex, p, c, logicalChannelIndex, contrastMethod));
-            LogicalChannel lc = getLogicalChannel(c);
+            		imageIndex, p, logicalChannelIndex, contrastMethod));
+            List<Channel> channels = p.getChannels();
+            LogicalChannel lc = 
+            	channels.get(logicalChannelIndex).getLogicalChannel();
             ContrastMethod m = (ContrastMethod) 
             	getEnumeration(ContrastMethod.class, contrastMethod);
             lc.setContrastMethod(m);
@@ -1735,12 +1207,13 @@ public class OMEROMetadataStore implements MetadataStore
         while (i.hasNext())
         {
         	Pixels p = i.next();
-        	Channel c = getChannel(p, logicalChannelIndex);
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] " +
+            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
             		"excitation wavelength: '%d'",
-            		imageIndex, p, c, logicalChannelIndex, exWave));
-            LogicalChannel lc = getLogicalChannel(c);
+            		imageIndex, p, logicalChannelIndex, exWave));
+            List<Channel> channels = p.getChannels();
+            LogicalChannel lc = 
+            	channels.get(logicalChannelIndex).getLogicalChannel();
             lc.setExcitationWave(exWave);
         }
 	}
@@ -1757,12 +1230,13 @@ public class OMEROMetadataStore implements MetadataStore
         while (i.hasNext())
         {
         	Pixels p = i.next();
-        	Channel c = getChannel(p, logicalChannelIndex);
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] " +
+            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
             		"emission wavelength: '%d'",
-            		imageIndex, p, c, logicalChannelIndex, emWave));
-            LogicalChannel lc = getLogicalChannel(c);
+            		imageIndex, p, logicalChannelIndex, emWave));
+            List<Channel> channels = p.getChannels();
+            LogicalChannel lc = 
+            	channels.get(logicalChannelIndex).getLogicalChannel();
             lc.setEmissionWave(emWave);
         }
 	}
@@ -1779,12 +1253,13 @@ public class OMEROMetadataStore implements MetadataStore
         while (i.hasNext())
         {
         	Pixels p = i.next();
-        	Channel c = getChannel(p, logicalChannelIndex);
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] " +
+            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
             		"fluor: '%s'",
-            		imageIndex, p, c, logicalChannelIndex, fluor));
-            LogicalChannel lc = getLogicalChannel(c);
+            		imageIndex, p, logicalChannelIndex, fluor));
+            List<Channel> channels = p.getChannels();
+            LogicalChannel lc = 
+            	channels.get(logicalChannelIndex).getLogicalChannel();
             lc.setFluor(fluor);
         }
 	}
@@ -1801,12 +1276,13 @@ public class OMEROMetadataStore implements MetadataStore
         while (i.hasNext())
         {
         	Pixels p = i.next();
-        	Channel c = getChannel(p, logicalChannelIndex);
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] " +
+            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
             		"ndFilter: '%f'",
-            		imageIndex, p, c, logicalChannelIndex, ndFilter));
-            LogicalChannel lc = getLogicalChannel(c);
+            		imageIndex, p, logicalChannelIndex, ndFilter));
+            List<Channel> channels = p.getChannels();
+            LogicalChannel lc = 
+            	channels.get(logicalChannelIndex).getLogicalChannel();
             lc.setNdFilter(ndFilter);
         }
 	}
@@ -1823,12 +1299,13 @@ public class OMEROMetadataStore implements MetadataStore
         while (i.hasNext())
         {
         	Pixels p = i.next();
-        	Channel c = getChannel(p, logicalChannelIndex);
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] Channel[%s] LogicalChannel[%d] " +
+            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
             		"pockel cell setting: '%d'",
-            		imageIndex, p, c, logicalChannelIndex, pockelCellSetting));
-            LogicalChannel lc = getLogicalChannel(c);
+            		imageIndex, p, logicalChannelIndex, pockelCellSetting));
+            List<Channel> channels = p.getChannels();
+            LogicalChannel lc = 
+            	channels.get(logicalChannelIndex).getLogicalChannel();
             lc.setPockelCellSetting(pockelCellSetting.toString());
             // FIXME: Should pockel cell be String or Integer?
         }
@@ -1977,7 +1454,7 @@ public class OMEROMetadataStore implements MetadataStore
         log.debug(String.format(
                 "FIXME: Ignoring type[%s] instrumentIndex[%d] lightsourceMedium[%d] ",
         type, instrumentIndex, lightSourceIndex));
-// FIXME: Needs to be implemented when the model is relaxed.
+        // FIXME: Needs to be implemented when the model is relaxed.
 	}
 
 	public void setLaserWavelength(Integer wavelength, int instrumentIndex,
