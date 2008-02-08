@@ -267,7 +267,7 @@ public class OMEROMetadataStore implements MetadataStore
     {
         log.debug(String.format(
                 "Setting Pixels[%d] Channel[%d] globalMin: '%f' globalMax: '%f'",
-                globalMin, globalMax, channelIdx));
+                pixelsIndex, channelIdx, globalMin, globalMax));
         if (globalMin != null)
         {
         	globalMin = new Double(Math.floor(globalMin.doubleValue()));
