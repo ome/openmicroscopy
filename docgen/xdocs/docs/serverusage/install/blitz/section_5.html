@@ -9,7 +9,7 @@
 </div>
 
 <p><b>To Rebuild the Database</b></p>
-<lo>
+<ol>
 <li>
 	<code>dropdb omero3</code>
 </li>
@@ -18,13 +18,13 @@
 </li>
 <li>
 	<code>java omero reload-db</code> or <code>dist/setup-db</code>
-<li>
-
+</li>
+</ol>
 <p><b>Find the Password in Database</b></p>
 <code>psql omero3 -c "select * from password"</code>
 
 <p><b>Ports Required by OMERO.Blitz</b></p>
-<lo>
+<ol>
 <li>
 	4444
 </li>
@@ -34,7 +34,7 @@
 <li>
 	1099
 </li>
-</lo>
+</ol>
 
 <p>To Check that the Ports are Open</p>
 <code>netstat -nav | grep PORTNO</code>
