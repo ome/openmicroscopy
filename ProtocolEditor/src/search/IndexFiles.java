@@ -49,12 +49,16 @@ import org.apache.lucene.document.Field;
 
 import org.apache.lucene.index.IndexWriter;
 
+import util.PreferencesManager;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
+
+import javax.swing.JFileChooser;
 
 // almost all Lucene demo code for indexing files. 
 
@@ -69,7 +73,7 @@ public class IndexFiles {
   static DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
   
   /** Index all text files under a directory. */
-  public static void main(String[] args) {
+  public static void indexFiles(String[] args) {
     String usage = "java org.apache.lucene.demo.IndexFiles <root_directory>";
     if (args.length == 0) {
       System.err.println("Usage: " + usage);
@@ -186,5 +190,29 @@ public class IndexFiles {
       }
     }
   }
+  
+  public static void indexFolderContents() {
+		 //Create a file chooser
+		final JFileChooser fc = new JFileChooser();
+			
+		File rootFolderLocation = null;
+		if (PreferencesManager.getPreference(PreferencesManager.ROOT_FILES_FOLDER) != null) {
+			rootFolderLocation = new File(PreferencesManager.getPreference(PreferencesManager.ROOT_FILES_FOLDER));
+		} else if (PreferencesManager.getPreference(PreferencesManager.CURRENT_FILES_FOLDER) != null) {
+			rootFolderLocation = new File(PreferencesManager.getPreference(PreferencesManager.CURRENT_FILES_FOLDER));
+		}
+		fc.setCurrentDirectory(rootFolderLocation);
+		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			
+		int returnVal = fc.showOpenDialog(null);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File folderToIndex = fc.getSelectedFile();
+			String[] path = {folderToIndex.getAbsolutePath()};
+			// remember this location
+			PreferencesManager.setPreference(PreferencesManager.ROOT_FILES_FOLDER, folderToIndex.getAbsolutePath());
+	            
+			indexFiles(path);
+		}
+	}
   
 }

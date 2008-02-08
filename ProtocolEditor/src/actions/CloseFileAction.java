@@ -25,48 +25,67 @@ package actions;
 import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.JOptionPane;
 import javax.swing.event.ChangeEvent;
 
 import ui.IModel;
 import util.ImageFactory;
 
-public class SaveFileAction
+public class CloseFileAction 
 	extends ProtocolEditorAction {
 	
-	public SaveFileAction(IModel model) {
-		super(model);
+	Icon closeIcon = ImageFactory.getInstance().getIcon(ImageFactory.N0);
+	Icon redBallIcon = ImageFactory.getInstance().getIcon(ImageFactory.RED_BALL_ICON);
 	
-		putValue(Action.NAME, "Save File");
-		putValue(Action.SHORT_DESCRIPTION, "Save the current file");
-		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.SAVE_ICON)); 
-	}
-
-	
-	
-	public void actionPerformed(ActionEvent event) {
-		// if the current file is not saved (still called "untitled")
-		if (model.getCurrentFile() == null) return;
+	public CloseFileAction(IModel model) {
 		
-		if (model.getCurrentFile().getName().equals("untitled")) {
-			Action action = new SaveFileAsAction(model);
-			action.actionPerformed(event);
-		}
-		else {
-			int option = JOptionPane.showConfirmDialog(null, "Save changes? " + 
-					"\n This will over-write the original file",
-					"Save Changes?", JOptionPane.OK_CANCEL_OPTION);
-			if (option == JOptionPane.OK_OPTION) {
-				model.saveTreeToXmlFile(model.getCurrentFile());
-				JOptionPane.showMessageDialog(frame, "Experiment saved.");
+		super(model);
+		
+		putValue(Action.NAME, "Close current file");
+		putValue(Action.SHORT_DESCRIPTION, "Close the currently opened file");
+		putValue(Action.SMALL_ICON, closeIcon); 
+	}
+	
+	public void actionPerformed(ActionEvent e) {
+		
+		closeCurrentFile();
+	}
+	
+	public void closeCurrentFile() {
+		
+//		 check whether you want to save edited file 
+		if (model.isCurrentFileEdited()) {
+			int result = JOptionPane.showConfirmDialog
+				(frame, "Save the current file before closing?");
+			if (result == JOptionPane.YES_OPTION) {
+				// save Protocol (no exp details)	Experiment must be saved by user manually
+			//	saveFileAs();
+			} else if (result == JOptionPane.CANCEL_OPTION) {
+				return;
 			}
 		}
+		
+		model.closeCurrentFile();
 	}
 	
 	public void stateChanged(ChangeEvent e) {
-		
+		// if file is edited, show a different close icon
+		refreshFileEdited();
+
+		// if no files open, disable action
 		String[] fileList = model.getOpenFileList();
+		setEnabled(!(fileList.length == 0));
+	}
+	
+	public void refreshFileEdited() {
 		
-		this.setEnabled(!(fileList.length == 0));
+		boolean protocolEdited = model.isCurrentFileEdited();
+			
+		// if file edited, the close button looks different
+		putValue(Action.SMALL_ICON,protocolEdited ? redBallIcon : closeIcon);
 	}
 }
+
+
+

@@ -1,5 +1,27 @@
 package ui;
 
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *
+ *
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ *	author Will Moore will@lifesci.dundee.ac.uk
+ */
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +34,7 @@ import javax.swing.event.ChangeListener;
 
 import actions.ClearFieldsAllAction;
 import actions.ClearFieldsHighltdAction;
+import actions.CloseFileAction;
 import actions.LoadDefaultsAllAction;
 import actions.LoadDefaultsHighltdAction;
 import actions.MultiplyValuesAction;
@@ -33,7 +56,7 @@ import xmlMVC.XMLModel;
 
 public class Controller 
 	extends AbstractComponent
-	implements IModel, SelectionObserver, XMLUpdateObserver {
+	implements SelectionObserver, XMLUpdateObserver {
 
 	protected XMLModel model;
 	protected XMLView view;
@@ -85,6 +108,9 @@ public class Controller
     /** Identifies the <code>Redo action</code>. - Name is not shown (use for button) */
     static final Integer     REDO_NO_NAME = new Integer(15);
     
+    /** Identifies the <code>CloseFile action</code>. */
+    static final Integer     CLOSE_FILE = new Integer(16);
+    
     
     /** Maps actions ids onto actual <code>Action</code> object. */
     private Map<Integer, Action>	actionsMap;
@@ -104,22 +130,23 @@ public class Controller
 	/** Helper method to create all the UI actions. */
     private void createActions()
     {
-        actionsMap.put(NEW_FILE, new NewFileAction(this));
-        actionsMap.put(OPEN_FILE, new OpenFileAction(this));
-        actionsMap.put(OPEN_WWW_FILE, new OpenWwwFileAction(this));
-        actionsMap.put(SAVE_FILE, new SaveFileAction(this));
-        actionsMap.put(SAVE_FILE_AS, new SaveFileAsAction(this));
-        actionsMap.put(PRINT_EXPORT_ALL, new PrintExportAllAction(this));
-        actionsMap.put(PRINT_EXPORT_HIGHLT, new PrintExportHighltd(this));
-        actionsMap.put(LOAD_DEFAULTS_ALL, new LoadDefaultsAllAction(this));
-        actionsMap.put(LOAD_DEFAULTS_HIGHLT, new LoadDefaultsHighltdAction(this));
-        actionsMap.put(CLEAR_FIELDS_ALL, new ClearFieldsAllAction(this));
-        actionsMap.put(CLEAR_FIELDS_HIGHLT, new ClearFieldsHighltdAction(this));
-        actionsMap.put(MULTIPLY_VALUES, new MultiplyValuesAction(this));
-        actionsMap.put(UNDO, new UndoAction(this));
-        actionsMap.put(UNDO_NO_NAME, new UndoActionNoNameRefresh(this));
-        actionsMap.put(REDO, new RedoAction(this));
-        actionsMap.put(REDO_NO_NAME, new RedoActionNoNameRefresh(this));
+        actionsMap.put(NEW_FILE, new NewFileAction(model));
+        actionsMap.put(OPEN_FILE, new OpenFileAction(model));
+        actionsMap.put(OPEN_WWW_FILE, new OpenWwwFileAction(model));
+        actionsMap.put(SAVE_FILE, new SaveFileAction(model));
+        actionsMap.put(SAVE_FILE_AS, new SaveFileAsAction(model));
+        actionsMap.put(PRINT_EXPORT_ALL, new PrintExportAllAction(model));
+        actionsMap.put(PRINT_EXPORT_HIGHLT, new PrintExportHighltd(model));
+        actionsMap.put(LOAD_DEFAULTS_ALL, new LoadDefaultsAllAction(model));
+        actionsMap.put(LOAD_DEFAULTS_HIGHLT, new LoadDefaultsHighltdAction(model));
+        actionsMap.put(CLEAR_FIELDS_ALL, new ClearFieldsAllAction(model));
+        actionsMap.put(CLEAR_FIELDS_HIGHLT, new ClearFieldsHighltdAction(model));
+        actionsMap.put(MULTIPLY_VALUES, new MultiplyValuesAction(model));
+        actionsMap.put(UNDO, new UndoAction(model));
+        actionsMap.put(UNDO_NO_NAME, new UndoActionNoNameRefresh(model));
+        actionsMap.put(REDO, new RedoAction(model));
+        actionsMap.put(REDO_NO_NAME, new RedoActionNoNameRefresh(model));
+        actionsMap.put(CLOSE_FILE, new CloseFileAction(model));
         
     }
     
@@ -137,90 +164,11 @@ public class Controller
 	 * Notifies all observers of a change.
 	 */
 	public void selectionChanged() {
-		System.out.println("Controller selectionChanged()");
 		this.fireStateChange();
 	}
 
 	public void xmlUpdated() {
 		selectionChanged();
 	}
-	
-	
-    
-    public void openBlankProtocolFile() {
-    	model.openBlankProtocolFile();
-    }
-  
-	
-	public void openThisFile(File file) {
-		 boolean openOK = model.openXMLFile(file);
-		 
-		 if (!openOK) {
-//			custom title, error icon
-			 JOptionPane.showMessageDialog(view.getFrame(),
-			     "Problem reading file.",
-			     "XML error",
-			     JOptionPane.ERROR_MESSAGE);
-			 return;
-		 }
-	}
-	
-
-
-	// delegate to model
-	public File getCurrentFile() {
-		return	model.getCurrentFile();
-	}
-
-	// delegate to model
-	public void saveTreeToXmlFile(File file) {
-		model.saveTreeToXmlFile(file);
-	}
-	
-	// delegate to model
-	public String[] getOpenFileList() {
-		return model.getOpenFileList();
-	}
-	
-	// delegate to model
-	public DataFieldNode getRootNode() {
-		return model.getRootNode();
-	}
-	
-	// delegate to model
-	public List<DataFieldNode> getHighlightedNodes() {
-		return model.getHighlightedFields();
-	}
-
-	// delegate to model
-	public void editCurrentTree(Actions newAction) {
-		model.editCurrentTree(newAction);
-	}
-	
-	// delegate to model
-	public void multiplyValueOfSelectedFields(float factor) {
-		model.multiplyValueOfSelectedFields(factor);
-	}
-
-	// delegate to model
-	public boolean canRedo() {
-		return model.canRedo();
-	}
-
-	// delegate to model
-	public boolean canUndo() {
-		return model.canUndo();
-	}
-
-	// delegate to model
-	public String getRedoCommand() {
-		return model.getRedoCommand();
-	}
-
-	// delegate to model
-	public String getUndoCommand() {
-		return model.getUndoCommand();
-	}
-
 	
 }

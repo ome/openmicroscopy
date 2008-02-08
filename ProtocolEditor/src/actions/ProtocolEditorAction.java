@@ -46,8 +46,8 @@ public class ProtocolEditorAction
 	
 	public ProtocolEditorAction(IModel model) {
 		this.model = model;
-		if (model instanceof Controller) {
-			((Controller)model).addChangeListener(this);
+		if (model instanceof AbstractComponent) {
+			((AbstractComponent)model).addChangeListener(this);
 		}
 	}
 	

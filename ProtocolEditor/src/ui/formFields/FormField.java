@@ -404,7 +404,13 @@ public class FormField extends JPanel implements DataFieldObserver{
 	public Container getChildContainer() {
 		return childContainer;
 	}
+	
+	// Lazy loading of child panels:
+	// only load children when they need to be displayed.
 	public void showChildren(boolean visible) {
+		if (!hasChildren()) 
+			return;
+		// check visible and that children have not already been loaded
 		if (visible && childContainer.getComponentCount() == 0) {
 			ArrayList<DataFieldNode> children = ((DataField)dataField).getNode().getChildren();
 			FormDisplay.showChildren(children, (Box)childContainer);

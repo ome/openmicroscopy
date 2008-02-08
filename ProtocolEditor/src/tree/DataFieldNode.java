@@ -164,10 +164,16 @@ public class DataFieldNode {
 	
 	// expandAllAncestors() 	used to show a field that may be hidden
 	public void expandAllAncestors() {
-		dataField.collapseChildren(false);
+		// recursively call expandAllAncestors up the tree.
 		if (parent != null) {
 			parent.expandAllAncestors();
 		}
+		// Then call collpaseChildren.
+		// This will be called for root first, then children, and the tree is build via
+		// lazy loading, down to the child that originated this call. 
+		// Lazy loading: A parent builds a childBox for each child. 
+		// Child cannot showChildren() and populate its childBox before it's parent does!
+		dataField.collapseChildren(false);
 	}
 	
 	public Tree getTree() {

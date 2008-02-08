@@ -39,6 +39,7 @@ import javax.swing.JScrollPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
+import ui.IModel;
 import ui.XMLView;
 import util.BareBonesBrowserLaunch;
 import util.ExceptionHandler;
@@ -49,24 +50,26 @@ import util.ImageFactory;
 public class SearchPanel extends JPanel {
 
 	boolean raw = false;
-	XMLView xmlView;
+
+	// for opening files
+	IModel model; 
 	
 	String resultsText;
 	
 	ArrayList<SearchResultHtml> results = new ArrayList<SearchResultHtml>();
 	
-	public SearchPanel(File file, XMLView xmlView) {
+	public SearchPanel(File file, IModel model) {
 	
-		this.xmlView = xmlView;
+		this.model = model;
 		
 		search(file);
 		
 		buildResultsPanel(file.getName());
 	}
 	
-	public SearchPanel(String searchString, XMLView xmlView) {
+	public SearchPanel(String searchString, IModel model) {
 		
-		this.xmlView = xmlView;
+		this.model = model;
 		
 		search(searchString);
 		
@@ -106,14 +109,10 @@ public class SearchPanel extends JPanel {
 
 		JScrollPane resultsScrollPane = new JScrollPane(resultsPane, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		
-		Icon noIcon = ImageFactory.getInstance().getIcon(ImageFactory.N0);
-		JButton closeButton = new JButton("Close this window", noIcon);
-		closeButton.addActionListener(new ClosePanelListener());
 		
 		this.setLayout(new BorderLayout());
 		this.setPreferredSize(new Dimension(300, 500));
 		this.add(resultsScrollPane, BorderLayout.CENTER);
-		this.add(closeButton, BorderLayout.NORTH);
 		
 		this.setMinimumSize(new Dimension(300, 1000));
 	}
@@ -130,7 +129,7 @@ public class SearchPanel extends JPanel {
 					"You need to create an index of all the files you want to search.\n"+
 					"Please choose the root directory containing all your files","Index not found" ,JOptionPane.YES_NO_OPTION);
     		if (result == JOptionPane.YES_OPTION) {
-    			xmlView.indexFiles();
+    			IndexFiles.indexFolderContents();
     			
     			// assuming indexing went OK. Try searching again. 
     			try {
@@ -160,7 +159,7 @@ public class SearchPanel extends JPanel {
 					"You need to create an index of all the files you want to search.\n"+
 					"Please choose the root directory containing all your files","Index not found" ,JOptionPane.YES_NO_OPTION);
     		if (result == JOptionPane.YES_OPTION) {
-    			xmlView.indexFiles();
+    			IndexFiles.indexFolderContents();
     			
     			// assuming indexing went OK. Try searching again. 
     			try {
@@ -179,7 +178,7 @@ public class SearchPanel extends JPanel {
 	}
 	
 	public void openSearchResultFile(File file) {
-		xmlView.openThisFile(file);
+		model.openThisFile(file);
 	}
 	
 	public class ResultHyperLinkListener implements HyperlinkListener {
@@ -204,12 +203,6 @@ public class SearchPanel extends JPanel {
 					openSearchResultFile(file);
 				}
 			}
-		}
-	}
-	
-	public class ClosePanelListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			xmlView.updateSearchPanel(null);
 		}
 	}
 	

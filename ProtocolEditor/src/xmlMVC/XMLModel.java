@@ -49,6 +49,8 @@ import tree.DataFieldNode;
 import tree.IAttributeSaver;
 import tree.Tree;
 import tree.Tree.Actions;
+import ui.AbstractComponent;
+import ui.IModel;
 import ui.SelectionObserver;
 import ui.XMLUpdateObserver;
 import ui.XMLView;
@@ -68,7 +70,12 @@ import validation.SAXValidator;
  *
  */
 
-public class XMLModel implements XMLUpdateObserver, SelectionObserver{
+public class XMLModel 
+	extends AbstractComponent
+	implements 
+	XMLUpdateObserver, 
+	SelectionObserver,
+	IModel {
 	
 	/**
 	 * These strings are used to add a "version" attribute to the XML documents saved by this application.
@@ -146,14 +153,14 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 	}	
 	
 	// return true if all OK - even if file is open already. (false if failed to open)
-	public boolean openXMLFile(File xmlFile) {
+	public void openThisFile(File xmlFile) {
 		
 		// need to check if the file is already open 
 		for (Tree tree: openFiles) {
 			if (tree.getFile().getAbsolutePath().equals(xmlFile.getAbsolutePath())) {
 				currentTree = tree;
 				notifyXMLObservers();
-				return true;
+				return;
 			}
 		}
 		
@@ -166,7 +173,7 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 					"XML was not read correctly. XML may be 'badly-formed'", e);
 			
 			e.printStackTrace();
-			return false;
+			return;
 		}	
 		
 		currentTree = new Tree(document, this, this);
@@ -181,7 +188,7 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		notifyXMLObservers();
 		//selectionChanged();
 		
-		return true;
+		return;
 	}
 	
 	// any change in xml that needs the display of xml to be re-drawn
@@ -190,7 +197,11 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		for (XMLUpdateObserver xmlObserver: xmlObservers) {
 			xmlObserver.xmlUpdated();
 		}
+		fireStateChange();
 	}
+	
+	// fireStateChanged() notifies ChangeObservers eg Controller
+	// Need to replace xmlUpdated() and selectionChanged() with a single StateChanged()
 	public void xmlUpdated() {
 		notifyXMLObservers();
 	}
@@ -202,6 +213,7 @@ public class XMLModel implements XMLUpdateObserver, SelectionObserver{
 		for (SelectionObserver selectionObserver: selectionObservers) {
 			selectionObserver.selectionChanged();
 		}
+		fireStateChange();
 	}
 	
 	public void addXMLObserver(XMLUpdateObserver newXMLObserver) {
