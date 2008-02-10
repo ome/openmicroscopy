@@ -120,6 +120,9 @@
         </properties>
     </type>
     
+    <type id="ome.model.annotations.Example" annotated="true"/>
+    <type id="ome.model.annotations.Annotation" annotated="true"/>
+    
     <enum id="ome.model.enums.FrequencyMultiplication">
         <entry name="x1"/>
         <entry name="x2"/>

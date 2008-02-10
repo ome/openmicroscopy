@@ -72,6 +72,14 @@ public class ObjectsVmTest extends TestCase {
         assertTrue(item.getProperties().get(0).getInverse() != null);
     }
 
+    @Test
+    public void testAnnotations() {
+        sr.parse();
+        List<SemanticType> list = sr.process();
+        Map<String, SemanticType> map = toMap(list);
+        SemanticType ann = map.get("ome.model.annotations.Annotation");
+    }
+
     // ~ Helpers
     // =========================================================================
     private Map<String, SemanticType> toMap(Collection<SemanticType> coll) {

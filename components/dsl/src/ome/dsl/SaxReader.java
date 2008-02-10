@@ -286,18 +286,23 @@ class DSLHandler extends DefaultHandler {
          * 
          * We want Thumbail.pixels to be given the inverse "thumbnails"
          * 
+         * This only holds so long as there is only one link from a given type
+         * to another given type, which does *not* hold true for
+         * AnnotationAnnotationLinks. Therefore here we have a WORKAROUND.
          */
         for (String id : types.keySet()) { // "ome...Pixels"
             SemanticType t = types.get(id); // Pixels
             for (Property p : t.getProperties()) { // thumbnails
-                String rev = p.getType(); // "ome...Thumbnail"
-                String inv = p.getInverse(); // "pixels"
-                if (inv != null) {
-                    if (types.containsKey(rev)) {
-                        SemanticType reverse = types.get(rev); // Thumbail
-                        for (Property inverse : reverse.getProperties()) {
-                            if (inverse.getType().equals(id)) { // "ome...Pixels"
-                                inverse.setInverse(p.getName());
+                if (!handleLink(p)) { // WORKAROUND
+                    String rev = p.getType(); // "ome...Thumbnail"
+                    String inv = p.getInverse(); // "pixels"
+                    if (inv != null) {
+                        if (types.containsKey(rev)) {
+                            SemanticType reverse = types.get(rev); // Thumbail
+                            for (Property inverse : reverse.getProperties()) {
+                                if (inverse.getType().equals(id)) { // "ome...Pixels"
+                                    inverse.setInverse(p.getName());
+                                }
                             }
                         }
                     }
@@ -381,6 +386,20 @@ class DSLHandler extends DefaultHandler {
         }
 
         return new ArrayList<SemanticType>(types.values());
+    }
+
+    private boolean handleLink(Property p) {
+        if (!p.getIsLink()) {
+            return false;
+        }
+        String name = p.getName();
+        if (!name.equals("child") && name.equals("parent")) {
+            return false;
+        }
+
+        // For links, the inverse was already set by the constructor
+
+        return true;
     }
 
     /** simple outputting routine with indention */
