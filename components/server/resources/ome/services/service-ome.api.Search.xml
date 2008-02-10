@@ -77,7 +77,10 @@
   <bean id="fullTextThreadRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
     <property name="targetObject" ref="fullTextThread" />
     <property name="targetMethod" value="run" />
-    <property name="concurrent" value="false" />
+    <!-- FullTextThread now handles locking properly itself, so we will allow
+    concurrent execution. Quartz will now let multiple jobs through and each 
+    FullTextThread can discard itself as it sees fit (via construction) -->
+    <property name="concurrent" value="true" />
   </bean>
 
   <bean id="fullTextIndexerTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">

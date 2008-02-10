@@ -8,10 +8,14 @@
 package ome.services.fulltext;
 
 import ome.conditions.InternalException;
+import ome.model.IAnnotated;
+import ome.model.IGlobal;
+import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.meta.EventLog;
 import ome.services.util.Executor.Work;
 import ome.system.ServiceFactory;
+import ome.tools.hibernate.QueryBuilder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -113,7 +117,7 @@ public class FullTextIndexer implements Work {
                     if ("DELETE".equals(act)) {
                         action = new Purge(type, id);
                     } else if ("UPDATE".equals(act) || "INSERT".equals(act)) {
-                        action = new Index((IObject) session.get(type, id));
+                        action = new Index(get(session, type, id));
                     } else {
                         throw new InternalException("Unknown action type: "
                                 + act);
@@ -147,4 +151,26 @@ public class FullTextIndexer implements Work {
         }
     }
 
+    protected IObject get(Session session, Class type, long id) {
+        QueryBuilder qb = new QueryBuilder();
+        qb.select("this").from(type.getName(), "this");
+        if (IAnnotated.class.isAssignableFrom(type)) {
+            qb.join("this.annotationLinks", "l1", true, true);
+            qb.join("l1.child", "a1", true, true);
+            qb.join("a1.annotationLinks", "l2", true, true);
+            qb.join("l2.child", "a2", true, true);
+        }
+        if (!IGlobal.class.isAssignableFrom(type)) {
+            if (IMutable.class.isAssignableFrom(type)) {
+                qb.join("this.details.updateEvent", "update", false, true);
+            }
+            qb.join("this.details.creationEvent", "create", false, true);
+            qb.join("this.details.owner", "owner", false, true);
+            qb.join("this.details.group", "group", false, true);
+        }
+        qb.where().and("this.id = :id");
+        qb.param("id", id);
+
+        return (IObject) qb.query(session).uniqueResult();
+    }
 }

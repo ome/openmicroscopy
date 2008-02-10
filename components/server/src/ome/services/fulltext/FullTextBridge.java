@@ -8,6 +8,7 @@
 package ome.services.fulltext;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 import ome.io.nio.OriginalFilesService;
@@ -15,6 +16,7 @@ import ome.model.IAnnotated;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.FileAnnotation;
+import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
@@ -22,7 +24,6 @@ import ome.model.internal.Permissions;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.util.CBlock;
 import ome.util.DetailsFieldBridge;
 import ome.util.Utils;
 
@@ -93,32 +94,45 @@ public class FullTextBridge implements FieldBridge {
 
             if (object instanceof IAnnotated) {
                 IAnnotated annotated = (IAnnotated) object;
-
-                annotated.eachLinkedAnnotation(new CBlock<Annotation>() {
-
-                    public Annotation call(IObject object) {
-                        Annotation annotation = (Annotation) object;
-                        try {
-                            if (annotation instanceof TextAnnotation) {
-                                TextAnnotation text = (TextAnnotation) annotation;
-                                String textValue = text.getTextValue();
-                                textValue = textValue == null ? "" : textValue;
-                                add(document, "annotation", textValue, store,
-                                        index, boost);
-                            } else if (annotation instanceof FileAnnotation) {
-                                FileAnnotation fileAnnotation = (FileAnnotation) annotation;
-                                OriginalFile file = fileAnnotation.getFile();
-                                for (String parsed : parse(file)) {
-                                    add(document, "annotation", parsed, store,
-                                            index, boost);
+                List<Annotation> list = annotated.linkedAnnotationList();
+                for (Annotation annotation : list) {
+                    try {
+                        if (annotation instanceof TextAnnotation) {
+                            TextAnnotation text = (TextAnnotation) annotation;
+                            String textValue = text.getTextValue();
+                            textValue = textValue == null ? "" : textValue;
+                            add(document, "annotation", textValue, store,
+                                    index, boost);
+                            if (annotation instanceof TagAnnotation) {
+                                add(document, "tag", textValue, store, index,
+                                        boost);
+                                List<Annotation> list2 = annotation
+                                        .linkedAnnotationList();
+                                for (Annotation annotation2 : list2) {
+                                    if (annotation2 instanceof TextAnnotation) {
+                                        TextAnnotation text2 = (TextAnnotation) annotation2;
+                                        String textValue2 = text2
+                                                .getTextValue();
+                                        textValue2 = textValue2 == null ? ""
+                                                : textValue2;
+                                        add(document, "annotation", textValue2,
+                                                store, index, boost);
+                                    }
                                 }
                             }
-                        } catch (NullValueException nve) {
-                            throw nve.convert(object);
+                        } else if (annotation instanceof FileAnnotation) {
+                            FileAnnotation fileAnnotation = (FileAnnotation) annotation;
+                            OriginalFile file = fileAnnotation.getFile();
+                            for (String parsed : parse(file)) {
+                                add(document, "annotation", parsed, store,
+                                        index, boost);
+                            }
                         }
-                        return annotation;
+                    } catch (NullValueException nve) {
+                        throw nve.convert(object);
                     }
-                });
+
+                }
             }
 
             Details details = object.getDetails();

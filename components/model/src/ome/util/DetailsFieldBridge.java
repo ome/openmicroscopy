@@ -32,6 +32,10 @@ public class DetailsFieldBridge implements FieldBridge {
         lock.writeLock().lock();
     }
 
+    public static boolean tryLock() {
+        return lock.writeLock().tryLock();
+    }
+
     public static void unlock() {
         lock.writeLock().unlock();
     }

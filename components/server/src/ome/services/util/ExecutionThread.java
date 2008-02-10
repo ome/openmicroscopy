@@ -63,9 +63,11 @@ public abstract class ExecutionThread implements Runnable {
     public final void run() {
         sessionInit();
         try {
-            preWork();
+            boolean cont = preWork();
             try {
-                this.executor.execute(sessionPrincipal, work);
+                if (cont) {
+                    this.executor.execute(sessionPrincipal, work);
+                }
             } finally {
                 postWork();
             }
@@ -94,7 +96,12 @@ public abstract class ExecutionThread implements Runnable {
         }
     }
 
-    public abstract void preWork();
+    /**
+     * Can return a veto to prevent execution.
+     * 
+     * @return true of the execution should continue.
+     */
+    public abstract boolean preWork();
 
     public abstract void postWork();
 }

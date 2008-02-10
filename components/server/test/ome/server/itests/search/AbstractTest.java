@@ -112,7 +112,7 @@ public abstract class AbstractTest extends AbstractManagedContextTest {
         CreationLogLoader logs = new CreationLogLoader(o);
         ftb = new FullTextBridge();
         fti = new FullTextIndexer(logs);
-        ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb);
+        ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb, true);
         ftt.run();
     }
 

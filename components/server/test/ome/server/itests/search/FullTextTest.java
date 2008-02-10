@@ -14,6 +14,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
+import ome.model.annotations.Annotation;
+import ome.model.annotations.TagAnnotation;
+import ome.model.annotations.TextAnnotation;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Permissions;
@@ -76,7 +79,7 @@ public class FullTextTest extends AbstractTest {
 
         ftb = new FullTextBridge();
         fti = new FullTextIndexer(pell);
-        ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb);
+        ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb, true);
         ftt.run(); // Single run to do initialization
 
         // Can't use more() here since it will always return true
@@ -103,8 +106,35 @@ public class FullTextTest extends AbstractTest {
     public void testSimpleCreation() throws Exception {
         ftb = new FullTextBridge();
         fti = new FullTextIndexer(getLogs());
-        ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb);
+        ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb, true);
         ftt.run();
+    }
+
+    public void testTagDescription() throws Exception {
+        String uuid = UUID.randomUUID().toString();
+        TextAnnotation description = new TextAnnotation();
+        description.setTextValue(uuid);
+        TagAnnotation tag = new TagAnnotation();
+        tag.linkAnnotation(description);
+        i = new Image();
+        i.setName("tag+described");
+        i.linkAnnotation(tag);
+        i = iUpdate.saveAndReturnObject(i);
+        Image i2 = iQuery.findByQuery("select i from Image i "
+                + "left outer join fetch i.annotationLinks l1 "
+                + "left outer join fetch l1.child a1 "
+                + "left outer join fetch a1.annotationLinks l2 "
+                + "left outer join fetch l2.child a2 where i.id = :id",
+                new Parameters().addId(i.getId()));
+        indexObject(i);
+
+        Annotation a = i.linkedAnnotationList().get(0);
+        assertEquals(1, a.sizeOfAnnotationLinks());
+
+        this.loginRoot();
+        List<Image> list = iQuery.findAllByFullText(Image.class, uuid, null);
+        assertEquals(1, list.size());
+        assertTrue(list.get(0).getId().equals(i.getId()));
     }
 
     public void testUniqueImage() throws Exception {
@@ -215,7 +245,7 @@ public class FullTextTest extends AbstractTest {
                 .getId(), false));
         ftb = new FullTextBridge(getFileService(), parsers);
         fti = new FullTextIndexer(logs);
-        ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb);
+        ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb, true);
         ftt.run();
     }
 

@@ -65,7 +65,8 @@ public class UpdateCacheThread extends ExecutionThread {
     /**
      */
     @Override
-    public void preWork() {
+    public boolean preWork() {
+        return true;
     }
 
     @Override

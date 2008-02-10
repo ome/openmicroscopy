@@ -7,7 +7,6 @@
 
 package ome.services.fulltext;
 
-import ome.model.meta.Session;
 import ome.services.sessions.SessionManager;
 import ome.services.util.ExecutionThread;
 import ome.services.util.Executor;
@@ -38,6 +37,8 @@ public class FullTextThread extends ExecutionThread {
     private final static Principal DEFAULT_PRINCIPAL = new Principal("root",
             "system", "FullText");
 
+    boolean hasLock;
+    final protected boolean waitForLock;
     final protected FullTextIndexer indexer;
     final protected FullTextBridge bridge;
 
@@ -50,6 +51,14 @@ public class FullTextThread extends ExecutionThread {
     }
 
     /**
+     * Uses default {@link Principal} for indexing
+     */
+    public FullTextThread(SessionManager manager, Executor executor,
+            FullTextIndexer indexer, FullTextBridge bridge, boolean waitForLock) {
+        this(manager, executor, indexer, bridge, DEFAULT_PRINCIPAL, waitForLock);
+    }
+
+    /**
      * Main constructor. No arguments can be null.
      */
     public FullTextThread(SessionManager manager, Executor executor,
@@ -58,6 +67,20 @@ public class FullTextThread extends ExecutionThread {
         Assert.notNull(bridge);
         this.indexer = indexer;
         this.bridge = bridge;
+        this.waitForLock = false;
+    }
+
+    /**
+     * Main constructor. No arguments can be null.
+     */
+    public FullTextThread(SessionManager manager, Executor executor,
+            FullTextIndexer indexer, FullTextBridge bridge,
+            Principal principal, boolean waitForLock) {
+        super(manager, executor, indexer, DEFAULT_PRINCIPAL);
+        Assert.notNull(bridge);
+        this.indexer = indexer;
+        this.bridge = bridge;
+        this.waitForLock = waitForLock;
     }
 
     /**
@@ -65,17 +88,32 @@ public class FullTextThread extends ExecutionThread {
      * {@link Executor.Work#doWork(org.springframework.transaction.TransactionStatus, org.hibernate.Session, ome.system.ServiceFactory)}
      * between calls to {@link DetailsFieldBridge#lock()} and
      * {@link DetailsFieldBridge#unlock()} in order to guarantee that no other
-     * {@link FieldBridge} can edit the property. Therefore, only one indexer
-     * using this idiom can run at a time.
+     * {@link org.hibernate.search.bridge.FieldBridge} can edit the property.
+     * Therefore, only one indexer using this idiom can run at a time.
      */
     @Override
-    public void preWork() {
-        DetailsFieldBridge.lock();
-        DetailsFieldBridge.setFieldBridge(this.bridge);
+    public boolean preWork() {
+        if (waitForLock) {
+            DetailsFieldBridge.lock();
+            hasLock = true;
+            DetailsFieldBridge.setFieldBridge(this.bridge);
+            return true;
+        } else {
+            if (DetailsFieldBridge.tryLock()) {
+                hasLock = true;
+                DetailsFieldBridge.setFieldBridge(this.bridge);
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     @Override
     public void postWork() {
-        DetailsFieldBridge.unlock();
+        if (hasLock) {
+            DetailsFieldBridge.unlock();
+            hasLock = false;
+        }
     }
 }
