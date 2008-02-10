@@ -11,7 +11,7 @@
 -->
 <types>
   <!-- Structured Annotations -->
-  <abstract id="ome.model.annotations.Annotation" discriminator="/" annotated="true" described="true" immutable="true">
+  <abstract id="ome.model.annotations.Annotation" discriminator="/" annotated="true" immutable="true">
     <properties>
         <optional name="name" type="string"/>
     </properties>

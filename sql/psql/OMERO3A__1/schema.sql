@@ -30,7 +30,6 @@ BEGIN;
     create table annotation (
         discriminator varchar(31) not null,
         id int8 not null,
-        description text,
         permissions int8 not null,
         name varchar(255),
         textValue text,
