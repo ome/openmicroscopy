@@ -442,8 +442,11 @@ public interface Search extends ome.api.StatefulServiceInterface,
      *            May be null. Defaults are then in effect.
      * @see IQuery#findAllByQuery(String, Parameters)
      */
-    void byHqlQuery(String query, Parameters p);
-
+    // Disabling. This needs to be more intelligent before it can
+    // be provided here. Something of the form byHql(String[] join, String[]
+    // where) etc.
+    // Quite possibly note worth it.
+    // void byHqlQuery(String query, Parameters p);
     /**
      * Finds entities annotated with an {@link Annotation} similar to the
      * example. This does not use Hibernate's
@@ -464,8 +467,9 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * 
      * @param uuids
      */
-    void byUUID(String[] uuids);
-
+    // These are currently not used often enough to be worth implementing
+    // the query.
+    // void byUUID(String[] uuids);
     /**
      * Removes all active queries (leaving {@link #resetDefaults() settings}
      * alone), such that {@link #activeQueries()} will return 0.

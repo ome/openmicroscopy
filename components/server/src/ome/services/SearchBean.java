@@ -37,11 +37,11 @@ import ome.model.internal.Details;
 import ome.parameters.Parameters;
 import ome.services.search.AnnotatedWith;
 import ome.services.search.FullText;
-import ome.services.search.GroupForTags;
 import ome.services.search.HqlQuery;
 import ome.services.search.SearchAction;
 import ome.services.search.SearchValues;
 import ome.services.search.SomeMustNone;
+import ome.services.search.TagsAndGroups;
 import ome.services.util.Executor;
 import ome.services.util.OmeroAroundInvoke;
 import ome.system.SelfConfigurableService;
@@ -192,7 +192,7 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     public void byGroupForTags(String group) {
         SearchAction byTags;
         synchronized (values) {
-            byTags = new GroupForTags(values, group);
+            byTags = new TagsAndGroups(values, group, false);
         }
         actions.add(byTags);
     }
@@ -202,9 +202,9 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     public void byTagForGroups(String tag) {
         SearchAction byTags;
         synchronized (values) {
-            throw new UnsupportedOperationException();
+            byTags = new TagsAndGroups(values, tag, true);
         }
-        // actions.add(null);
+        actions.add(byTags);
     }
 
     @Transactional

@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests.search;
@@ -90,7 +90,7 @@ public class SearchTest extends AbstractTest {
         search.setBatchSize(2);
         assertEquals(2, search.results().size());
         while (search.hasNext()) {
-            search.next(); // Clear search
+            search.results(); // Clear search
         }
 
         // Let's now add the tag to another tag group as another user
@@ -154,6 +154,41 @@ public class SearchTest extends AbstractTest {
         search.byTagForGroups(null);
         search.setBatchSize(2);
         assertEquals(2, search.results().size());
+        while (search.hasNext()) {
+            search.results(); // Clear search
+        }
+
+        // Let's now add another tag to the tag group as another user
+        // and try to filter out those results
+
+        long oldUser = iAdmin.getEventContext().getCurrentUserId();
+        Details d = Details.create();
+        d.setOwner(new Experimenter(oldUser, false));
+
+        Experimenter e = loginNewUser();
+        tag = new TagAnnotation();
+        tagStr = uuid();
+        tag.setTextValue(tagStr);
+        tag.linkAnnotation(grp.proxy());
+        tag = iUpdate.saveAndReturnObject(tag);
+
+        // All queries finished?
+        assertEquals(0, search.activeQueries());
+        assertFalse(search.hasNext());
+
+        search.onlyOwnedBy(d);
+        search.byTagForGroups(tagStr);
+        assertFalse(search.hasNext());
+
+        d.setOwner(e);
+        search.onlyOwnedBy(d);
+        search.byTagForGroups(tagStr);
+        assertEquals(1, search.results().size());
+
+        search.onlyOwnedBy(null);
+        search.byTagForGroups(tagStr);
+        assertEquals(1, search.results().size());
+
     }
 
     @Test
@@ -418,6 +453,10 @@ public class SearchTest extends AbstractTest {
 
     @Test
     public void testOnlyIds() {
+
+        // ignored by
+        // byTagForGroups, byGroupForTags
+
         String uuid = uuid();
         Image i1 = new Image(uuid);
         Image i2 = new Image(uuid);
@@ -490,13 +529,16 @@ public class SearchTest extends AbstractTest {
 
         String name = uuid();
         Image i = new Image(name);
-        TagAnnotation ta = new TagAnnotation();
-        ta.setTextValue(name);
-        i.linkAnnotation(ta);
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue(name);
+        i.linkAnnotation(tag);
+        TagAnnotation grp = new TagAnnotation();
+        grp.setTextValue(name);
+        tag.linkAnnotation(grp);
         i = iUpdate.saveAndReturnObject(i);
         // Recreating instance as example
-        ta = new TagAnnotation();
-        ta.setTextValue(name);
+        tag = new TagAnnotation();
+        tag.setTextValue(name);
         indexObject(i);
 
         loginRoot();
@@ -513,7 +555,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertEquals(1, search.results().size());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 1);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 1);
+        // group for tag
+        search.byGroupForTags(name);
         assertResults(search, 1);
 
         // Restrict only to root, and then shouldn't be found
@@ -523,7 +571,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertFalse(search.hasNext());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 0);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 0);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 0);
 
         // Restrict to not root, and then should be found again.
@@ -533,7 +587,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertResults(search, 1);
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 1);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 1);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 1);
 
         // Now restrict to the user, and again one
@@ -543,7 +603,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertEquals(1, search.results().size());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 1);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 1);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 1);
 
         // But not-user should return nothing
@@ -553,7 +619,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertResults(search, 0);
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 0);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 0);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 0);
     }
 
@@ -568,13 +640,16 @@ public class SearchTest extends AbstractTest {
 
         String name = uuid();
         Image i = new Image(name);
-        TagAnnotation ta = new TagAnnotation();
-        ta.setTextValue(name);
-        i.linkAnnotation(ta);
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue(name);
+        i.linkAnnotation(tag);
+        TagAnnotation grp = new TagAnnotation();
+        grp.setTextValue(name);
+        tag.linkAnnotation(grp);
         i = iUpdate.saveAndReturnObject(i);
         // Recreating instance as example
-        ta = new TagAnnotation();
-        ta.setTextValue(name);
+        tag = new TagAnnotation();
+        tag.setTextValue(name);
         indexObject(i);
 
         loginRoot();
@@ -591,7 +666,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertEquals(1, search.results().size());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 1);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 1);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 1);
 
         // Restrict only to root, and then shouldn't be found
@@ -601,7 +682,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertFalse(search.hasNext());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 0);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 0);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 0);
 
         // Restrict to not root, and then should be found again.
@@ -611,7 +698,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertResults(search, 1);
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 1);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 1);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 1);
 
         // Now restrict to the user, and again one
@@ -621,7 +714,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertEquals(1, search.results().size());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 1);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 1);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 1);
 
         // But not-user should return nothing
@@ -631,7 +730,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertResults(search, 0);
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 0);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 0);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 0);
     }
 
@@ -652,12 +757,15 @@ public class SearchTest extends AbstractTest {
         String name = uuid();
         Image i = new Image();
         i.setName(name);
-        TagAnnotation ta = new TagAnnotation();
-        ta.setTextValue(name);
-        i.linkAnnotation(ta);
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue(name);
+        i.linkAnnotation(tag);
+        TagAnnotation grp = new TagAnnotation();
+        grp.setTextValue(name);
+        tag.linkAnnotation(grp);
         i = iUpdate.saveAndReturnObject(i);
-        ta = new TagAnnotation();
-        ta.setTextValue(name);
+        tag = new TagAnnotation();
+        tag.setTextValue(name);
         indexObject(i);
         loginRoot();
 
@@ -669,7 +777,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertEquals(1, search.results().size());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 1);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 1);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 1);
 
         // Now restrict the search to past
@@ -678,7 +792,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertFalse(search.hasNext());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 0);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 0);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 0);
 
         // Future
@@ -687,7 +807,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertFalse(search.hasNext());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 0);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 0);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 0);
 
         // 2 hour period around now
@@ -696,7 +822,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertEquals(1, search.results().size());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 1);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 1);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 1);
 
         // Starting at now old 'now'
@@ -705,7 +837,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertFalse(search.hasNext());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 0);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 0);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 0);
 
         // Open them up again and should be found
@@ -714,23 +852,34 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertEquals(1, search.results().size());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
         assertResults(search, 1);
-
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 1);
+        // group for tags
+        search.byGroupForTags(name);
+        assertResults(search, 1);
     }
 
     @Test
     public void testOnlyModifiedBetween() {
 
+        // Ignored by
+        // byTagForGroups, byGroupForTags (tags are immutable) results always 1
+
         String name = uuid();
         Image i = new Image();
         i.setName(name);
-        TagAnnotation ta = new TagAnnotation();
-        ta.setTextValue(name);
-        i.linkAnnotation(ta);
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue(name);
+        i.linkAnnotation(tag);
+        TagAnnotation grp = new TagAnnotation();
+        grp.setTextValue(name);
+        tag.linkAnnotation(grp);
         i = iUpdate.saveAndReturnObject(i);
-        ta = new TagAnnotation();
-        ta.setTextValue(name);
+        tag = new TagAnnotation();
+        tag.setTextValue(name);
         indexObject(i);
         loginRoot();
 
@@ -742,7 +891,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertEquals(1, search.results().size());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 1);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 1);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 1);
 
         // Now restrict the search to past
@@ -751,8 +906,14 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertFalse(search.hasNext());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
         assertResults(search, 0);
+        // group for tags
+        search.byGroupForTags(name);
+        assertResults(search, 1);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 1);
 
         // Future
         search.onlyModifiedBetween(inOneHour, null);
@@ -760,8 +921,14 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertFalse(search.hasNext());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
         assertResults(search, 0);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 1);
+        // group for tags
+        search.byGroupForTags(name);
+        assertResults(search, 1);
 
         // 2 hour period around now
         search.onlyModifiedBetween(oneHourAgo, inOneHour);
@@ -769,7 +936,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertEquals(1, search.results().size());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 1);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 1);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 1);
 
         // Starting at now old 'now'
@@ -778,8 +951,14 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertFalse(search.hasNext());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
         assertResults(search, 0);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 1);
+        // group for tags
+        search.byGroupForTags(name);
+        assertResults(search, 1);
 
         // Open them up again and should be found
         search.onlyModifiedBetween(null, null);
@@ -787,9 +966,14 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertEquals(1, search.results().size());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
         assertResults(search, 1);
-
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 1);
+        // group for tags
+        search.byGroupForTags(name);
+        assertResults(search, 1);
     }
 
     @Test
@@ -798,12 +982,15 @@ public class SearchTest extends AbstractTest {
         String name = uuid();
         Image i = new Image();
         i.setName(name);
-        TagAnnotation ta = new TagAnnotation();
-        ta.setTextValue(name);
-        i.linkAnnotation(ta);
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue(name);
+        i.linkAnnotation(tag);
+        TagAnnotation grp = new TagAnnotation();
+        grp.setTextValue(name);
+        tag.linkAnnotation(grp);
         i = iUpdate.saveAndReturnObject(i);
-        ta = new TagAnnotation();
-        ta.setTextValue(name);
+        tag = new TagAnnotation();
+        tag.setTextValue(name);
         indexObject(i);
         loginRoot();
 
@@ -815,7 +1002,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertEquals(1, search.results().size());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 1);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 1);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 1);
 
         // Now restrict the search to past
@@ -824,7 +1017,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertFalse(search.hasNext());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 0);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 0);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 0);
 
         // Future
@@ -833,7 +1032,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertFalse(search.hasNext());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 0);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 0);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 0);
 
         // 2 hour period around now
@@ -842,7 +1047,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertEquals(1, search.results().size());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 1);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 1);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 1);
 
         // Starting at now old 'now'
@@ -851,7 +1062,13 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertFalse(search.hasNext());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
+        assertResults(search, 0);
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 0);
+        // group for tags
+        search.byGroupForTags(name);
         assertResults(search, 0);
 
         // Open them up again and should be found
@@ -860,9 +1077,14 @@ public class SearchTest extends AbstractTest {
         search.byFullText(name);
         assertEquals(1, search.results().size());
         // annotated with
-        search.byAnnotatedWith(ta);
+        search.byAnnotatedWith(tag);
         assertResults(search, 1);
-
+        // tag for group
+        search.byTagForGroups(name);
+        assertResults(search, 1);
+        // group for tags
+        search.byGroupForTags(name);
+        assertResults(search, 1);
     }
 
     @Test
@@ -874,6 +1096,9 @@ public class SearchTest extends AbstractTest {
         TagAnnotation t = new TagAnnotation();
         t.setTextValue(tag);
         i.linkAnnotation(t);
+        TagAnnotation grp = new TagAnnotation();
+        grp.setTextValue(tag);
+        t.linkAnnotation(grp);
         i = iUpdate.saveAndReturnObject(i);
         t = new TagAnnotation();
         t.setTextValue(tag);
@@ -890,6 +1115,12 @@ public class SearchTest extends AbstractTest {
         // annotated with
         search.byAnnotatedWith(t);
         assertResults(search, 1);
+        // tag for group
+        search.byTagForGroups(tag);
+        assertResults(search, 1);
+        // group for tags
+        search.byGroupForTags(tag);
+        assertResults(search, 1);
 
         // But if we restrict it to another user, there should be none
         Experimenter e = loginNewUser();
@@ -903,6 +1134,12 @@ public class SearchTest extends AbstractTest {
         // annotated with
         search.byAnnotatedWith(t);
         assertResults(search, 0);
+        // tag for group
+        search.byTagForGroups(tag);
+        assertResults(search, 0);
+        // group for tags
+        search.byGroupForTags(tag);
+        assertResults(search, 0);
 
         // Reversing the ownership should give results
         search.onlyAnnotatedBy(null);
@@ -913,12 +1150,19 @@ public class SearchTest extends AbstractTest {
         // annotated with
         search.byAnnotatedWith(t);
         assertResults(search, 1);
+        // tag for group
+        search.byTagForGroups(tag);
+        assertResults(search, 1);
+        // group for tags
+        search.byGroupForTags(tag);
+        assertResults(search, 1);
     }
 
     @Test
     public void testOnlyAnnotatedWith() {
 
         // ignored by byAnnotatedWith
+        // ignored by byTagForGroups, byGroupForTags
 
         String name = uuid();
         Image i = new Image();
@@ -1322,6 +1566,12 @@ public class SearchTest extends AbstractTest {
     public void testLookingForExperimenterWithOwner() {
         Search search = this.factory.createSearchService();
         search.onlyType(Experimenter.class);
+
+        // Just root should work
+        search.byFullText("root");
+        search.next();
+
+        // And filtered on "owner" (experimenter has none) should work, too.
         Details d = Details.create();
         d.setOwner(new Experimenter(0L, false));
         search.onlyOwnedBy(d);
