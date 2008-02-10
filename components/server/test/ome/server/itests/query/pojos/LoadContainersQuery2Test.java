@@ -12,6 +12,7 @@ import java.util.Set;
 
 import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Dataset;
+import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
@@ -66,5 +67,33 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
         d = ds.iterator().next();
         assertNotNull(d.getAnnotationLinksCountPerOwner());
         assertTrue(d.getAnnotationLinksCountPerOwner().get(self).longValue() == 1L);
+    }
+
+    public void testQueryReturnsCountsForTwoLevels() throws Exception {
+        Project p = new Project("name");
+        Dataset d = new Dataset("name");
+        Image i = new Image("name");
+        TextAnnotation t = new TextAnnotation();
+        t.setName("");
+        t.setTextValue("t");
+        p.linkDataset(d);
+        p.linkAnnotation(t);
+        d.linkImage(i);
+        d.linkAnnotation(t);
+        p = iUpdate.saveAndReturnObject(p);
+
+        long self = iAdmin.getEventContext().getCurrentUserId();
+
+        Set<Project> ps = iPojos.loadContainerHierarchy(Project.class,
+                Collections.singleton(p.getId()), null);
+        p = ps.iterator().next();
+        d = p.linkedDatasetList().get(0);
+        assertNotNull(p.getAnnotationLinksCountPerOwner());
+        assertTrue(p.getAnnotationLinksCountPerOwner().get(self).longValue() == 1L);
+        assertNotNull(d.getAnnotationLinksCountPerOwner());
+        assertTrue(d.getAnnotationLinksCountPerOwner().get(self).longValue() == 1L);
+        assertNotNull(d.getImageLinksCountPerOwner());
+        assertTrue(d.getImageLinksCountPerOwner().get(self).longValue() == 1L);
+
     }
 }
