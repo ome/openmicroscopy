@@ -18,9 +18,9 @@
   </abstract>
 
   <!-- top-level types -->
-  <type id="ome.model.annotations.ListAnnotation" discriminator="/list" superclass="ome.model.annotations.Annotation" immutable="true"/>
-  <abstract id="ome.model.annotations.BasicAnnotation" discriminator="/basic" superclass="ome.model.annotations.Annotation" immutable="true"/>
-  <abstract id="ome.model.annotations.TypeAnnotation" discriminator="/type" superclass="ome.model.annotations.Annotation" immutable="true"/>
+  <type id="ome.model.annotations.ListAnnotation" discriminator="/list/" superclass="ome.model.annotations.Annotation" immutable="true"/>
+  <abstract id="ome.model.annotations.BasicAnnotation" discriminator="/basic/" superclass="ome.model.annotations.Annotation" immutable="true"/>
+  <abstract id="ome.model.annotations.TypeAnnotation" discriminator="/type/" superclass="ome.model.annotations.Annotation" immutable="true"/>
 
   <!-- /basic/text -->
   <type id="ome.model.annotations.TextAnnotation" discriminator="/basic/text/" superclass="ome.model.annotations.Annotation" immutable="true">
@@ -31,10 +31,10 @@
   <type id="ome.model.annotations.TagAnnotation" discriminator="/basic/text/tag/" superclass="ome.model.annotations.TextAnnotation" immutable="true"/>
   <type id="ome.model.annotations.XmlAnnotation" discriminator="/basic/text/xml/" superclass="ome.model.annotations.TextAnnotation" immutable="true"/>
   <type id="ome.model.annotations.UrlAnnotation" discriminator="/basic/text/url/" superclass="ome.model.annotations.TextAnnotation" immutable="true"/>
-  <type id="ome.model.annotations.QueryAnnotation" discriminator="/text/query/" superclass="ome.model.annotations.TextAnnotation" immutable="true"/>
+  <type id="ome.model.annotations.QueryAnnotation" discriminator="/basic/text/query/" superclass="ome.model.annotations.TextAnnotation" immutable="true"/>
 
   <!--  /basic/num -->
-  <abstract id="ome.model.annotations.NumericAnnotation" discriminator="/basic/num" superclass="ome.model.annotations.BasicAnnotation" immutable="true"/>
+  <abstract id="ome.model.annotations.NumericAnnotation" discriminator="/basic/num/" superclass="ome.model.annotations.BasicAnnotation" immutable="true"/>
 
   <type id="ome.model.annotations.LongAnnotation" discriminator="/basic/num/long/" superclass="ome.model.annotations.NumericAnnotation" immutable="true">
     <properties>
@@ -60,12 +60,12 @@
   </type>
 
   <!--  /type -->
-  <type id="ome.model.annotations.ThumbnailAnnotation" discriminator="/type/Thumbnail" superclass="ome.model.annotations.TypeAnnotation" immutable="true">
+  <type id="ome.model.annotations.ThumbnailAnnotation" discriminator="/type/Thumbnail/" superclass="ome.model.annotations.TypeAnnotation" immutable="true">
     <properties>
       <optional name="thumbnail" type="ome.model.display.Thumbnail" mutable="false"/>
     </properties>
   </type>
-  <type id="ome.model.annotations.FileAnnotation" discriminator="/type/OriginalFile" superclass="ome.model.annotations.TypeAnnotation" immutable="true">
+  <type id="ome.model.annotations.FileAnnotation" discriminator="/type/OriginalFile/" superclass="ome.model.annotations.TypeAnnotation" immutable="true">
     <properties>
       <optional name="file" type="ome.model.core.OriginalFile" mutable="false"/>
     </properties>

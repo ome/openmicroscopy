@@ -503,7 +503,7 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * and boost values) for a single call to {@link #next()}. This method may
      * only be called once for any given call to {@link #next()}.
      */
-    List<Annotation> currentMetadata();
+    Map<String, Annotation> currentMetadata();
 
     /**
      * Unsupported operation.
@@ -519,7 +519,13 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * @throws ApiUsageException
      *             if {@link #hasNext()} returns false.
      */
-    <T extends IObject> Map<T, List<Annotation>> results()
-            throws ApiUsageException;
+    <T extends IObject> List<T> results() throws ApiUsageException;
+
+    /**
+     * Provides access to the extra query information (for example Lucene score
+     * and boost values) for a single call to {@link #results()}. This method
+     * may only be called once for any given call to {@link #results()}.
+     */
+    List<Map<String, Annotation>> currentMetadataList();
 
 }

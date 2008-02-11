@@ -11,7 +11,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,11 +52,10 @@ import org.jboss.annotation.ejb.RemoteBinding;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Provides methods for submitting asynchronous tasks.
+ * Implements the {@link Search} interface.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
- * 
  */
 @TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly = true)
@@ -254,24 +252,30 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     @Transactional
     @RolesAllowed("user")
-    public List<Annotation> currentMetadata() {
+    public Map<String, Annotation> currentMetadata() {
         throw new UnsupportedOperationException();
     }
 
     @Transactional
     @RolesAllowed("user")
-    public <T extends IObject> Map<T, List<Annotation>> results() {
+    public List<Map<String, Annotation>> currentMetadataList() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public <T extends IObject> List<T> results() {
 
         if (!hasNext()) {
             throw new ApiUsageException("No elements. Please use hasNext().");
         }
 
         // Now we're guaranteed to have an element
-        Map<T, List<Annotation>> map = new HashMap<T, List<Annotation>>();
-        while (hasNext() && map.size() < values.batchSize) {
+        List<T> rv = new ArrayList<T>();
+        while (hasNext() && rv.size() < values.batchSize) {
             List<IObject> current = results.get(0);
             if (current.size() > 0) {
-                map.put((T) pop(current), new ArrayList<Annotation>());
+                rv.add((T) pop(current));
             } else {
                 // If batches aren't merged, we can exist now.
                 if (!values.mergedBatches) {
@@ -279,7 +283,7 @@ public class SearchBean extends AbstractStatefulBean implements Search {
                 }
             }
         }
-        return map;
+        return rv;
     }
 
     /**
