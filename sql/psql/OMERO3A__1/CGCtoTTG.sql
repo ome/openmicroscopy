@@ -29,7 +29,7 @@ BEGIN
     INSERT INTO annotation
       (discriminator, id, owner_id, group_id, creation_id, permissions, external_id, textValue, name)
       VALUES
-      ('/text/tag', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
+      ('/basic/text/tag/', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
       mviews.permissions, mviews.external_id, mviews.description, mviews.name);
     INSERT INTO OMERO3A_1__cg_to_ann VALUES (mviews.id, ann);
 
@@ -42,7 +42,7 @@ BEGIN
     INSERT INTO annotation
       (discriminator, id, owner_id, group_id, creation_id, permissions, external_id, textValue, name)
       VALUES
-      ('/text/tag', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
+      ('/basic/text/tag/', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
       mviews.permissions, mviews.external_id, mviews.description, mviews.name);
     INSERT INTO OMERO3A_1__c_to_ann VALUES (mviews.id, ann);
 
@@ -81,8 +81,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 SELECT OMERO3A__1__CGtoTTG();
-DROP FUNCTION OMERO3A__1__CGtoTTG);
-INSERT INTO dbpatch (message, finished, currentVersion, currentPath, previousVersion, previousPatch)
+DROP FUNCTION OMERO3A__1__CGtoTTG();
+INSERT INTO dbpatch (message, finished, currentVersion, currentPatch, previousVersion, previousPatch)
       VALUES ('Converted CGC to tag/taggroup', now(),
-              'OMERO3A',1, 'OMERO3A__pre__CGCtoTTG', 1;
+              'OMERO3A',1, 'OMERO3A__pre__CGCtoTTG', 1);
 COMMIT;
