@@ -18,9 +18,11 @@
 <p><code>NOMAKE=1 java omero quick build dist withtools</code></p>
 
 <p><b>Running OMERO.Blitz</b></p>
-<p><code>cd YOUR_OMERO_DIR/dist/blitz</code></p>
-<p>The first time you want to run the server type <code>chmod +x ./blitz</code></p>
-<p><code>JAVA_OPTS=-Xmx256M ./blitz start</code></p>
+<pre>
+<code>cd YOUR_OMERO_DIR/dist/blitz</code>
+The first time you want to run the server type <code>chmod +x ./blitz</code>
+<code>JAVA_OPTS=-Xmx256M ./blitz start</code>
+</pre>
 <div class="noteFrame">
 	<div class="noteLabel">Warning</div>
   	<div class="noteContent">
@@ -31,8 +33,10 @@
 </div> 
 
 <p><b>Testing your OMERO.Blitz Server</b></p>
-<p><code>./setup.py test -s test.scripts.harness</code></p>
-<p>in YOUR_OMERO_DIR/dist/etc/ice.config <code>omero.user=root</code></p>
+<pre>
+<code>./setup.py test -s test.scripts.harness</code>
+in YOUR_OMERO_DIR/dist/etc/ice.config <code>omero.user=root</code>
+</pre>
 
 </body>
 </html>
