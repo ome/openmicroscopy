@@ -12,7 +12,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 
 import ome.api.Search;
 import ome.conditions.ApiUsageException;
@@ -215,8 +214,7 @@ public class SearchTest extends AbstractTest {
 
         search.onlyType(Image.class);
         search.byFullText(i.getName());
-        Map<IObject, List<Annotation>> map = search.results();
-        assertTrue(map.size() == 1);
+        assertResults(search, 1);
 
         search.close();
     }
@@ -1470,44 +1468,44 @@ public class SearchTest extends AbstractTest {
         // No fetch returns empty annotations
         // full text
         search.byFullText(uuid);
-        Image t = (Image) search.results().keySet().iterator().next();
+        Image t = (Image) search.results().get(0);
         assertEquals(-1, t.sizeOfAnnotationLinks());
         // annotated with
         search.byAnnotatedWith(tag);
-        t = (Image) search.results().keySet().iterator().next();
+        t = (Image) search.results().get(0);
         assertEquals(-1, t.sizeOfAnnotationLinks());
 
         // Fetch only a given type
         search.fetchAnnotations(TagAnnotation.class);
         // annotated with
         search.byAnnotatedWith(tag);
-        t = (Image) search.results().keySet().iterator().next();
+        t = (Image) search.results().get(0);
         assertEquals(1, t.sizeOfAnnotationLinks());
         // full text
         search.byFullText(uuid);
-        t = (Image) search.results().keySet().iterator().next();
+        t = (Image) search.results().get(0);
         assertEquals(3, t.sizeOfAnnotationLinks());
 
         // fetch only a given type different from annotated-with type
         search.fetchAnnotations(DoubleAnnotation.class);
         // annotated with
         search.byAnnotatedWith(tag);
-        t = (Image) search.results().keySet().iterator().next();
+        t = (Image) search.results().get(0);
         assertEquals(1, t.sizeOfAnnotationLinks());
         // full text
         search.byFullText(uuid);
-        t = (Image) search.results().keySet().iterator().next();
+        t = (Image) search.results().get(0);
         assertEquals(3, t.sizeOfAnnotationLinks());
 
         // fetch two types
         search.fetchAnnotations(TagAnnotation.class, DoubleAnnotation.class);
         // annotated with
         search.byAnnotatedWith(tag);
-        t = (Image) search.results().keySet().iterator().next();
+        t = (Image) search.results().get(0);
         assertEquals(2, t.sizeOfAnnotationLinks());
         // full text
         search.byFullText(uuid);
-        t = (Image) search.results().keySet().iterator().next();
+        t = (Image) search.results().get(0);
         assertEquals(3, t.sizeOfAnnotationLinks());
 
         // Fetch all
@@ -1515,11 +1513,11 @@ public class SearchTest extends AbstractTest {
         // annotated with
         search.byAnnotatedWith(tag);
         assertResults(search, 0);
-        // TODO t = (Image) search.results().keySet().iterator().next();
+        // TODO t = (Image) search.results().get(0);
         // TODO assertEquals(3, t.sizeOfAnnotationLinks());
         // full text
         search.byFullText(uuid);
-        t = (Image) search.results().keySet().iterator().next();
+        t = (Image) search.results().get(0);
         assertEquals(3, t.sizeOfAnnotationLinks());
 
         // resave and see if there is data loss
