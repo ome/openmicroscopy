@@ -20,5 +20,10 @@ public class Actions
     public static final String CLEARFAILED = "clear_failed";
     public static final String HISTORYSEARCH = "history_search";
     public static final String CLEARHISTORY = "history_clear";
-    public static final String LOADINGIMAGE = "loading_image";
+    public static final String LOADING_IMAGE = "loading_image";
+    public static final Object LOADED_IMAGE = "loaded_image";
+    public static final Object DATASET_STORED = "dataset_stored";
+    public static final Object IMPORT_STEP = "import_step";
+    public static final Object DATA_STORED = "data_stored";
+    public static final Object IMPORT_DONE = "import_done";
 }

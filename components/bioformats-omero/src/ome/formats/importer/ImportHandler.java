@@ -14,16 +14,14 @@
 
 package ome.formats.importer;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
+
+import javax.swing.JOptionPane;
 
 import loci.formats.FormatException;
 import ome.formats.OMEROMetadataStore;
-import ome.model.core.Pixels;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,7 +37,6 @@ public class ImportHandler
 {
 
     private ImportLibrary   library;
-    private OMEROWrapper    reader;
 
     private Main      viewer;
     private static boolean   runState = false;
@@ -75,9 +72,9 @@ public class ImportHandler
             this.viewer = viewer;
             this.store = store;
             this.qTable = qTable;
-            this.reader = reader;
             this.library = new ImportLibrary(store, reader, fads);
             library.addObserver(qTable);
+            library.addObserver(viewer);
                        
             runThread = new Thread()
             {
@@ -152,7 +149,7 @@ public class ImportHandler
            	}
         }
         
-        db.notifyObservers("QUICKBAR_UPDATE");
+        db.notifyObservers("QUICKBAR_UPDATE", null);
         viewer.statusBar.setProgressMaximum(numOfPendings);
         
         numOfDone = 0;
@@ -171,8 +168,8 @@ public class ImportHandler
                 
                 try
                 {
-                	importImage(fads[j].file, j,
-                			    numOfPendings,
+                	library.importImage(fads[j].file, j,
+                			    numOfDone, numOfPendings,
                 			    fads[j].imageName,
                 			    fads[j].archive);
                 	store.createRoot();
@@ -188,9 +185,25 @@ public class ImportHandler
                 catch (FormatException fe)
                 {
                     qTable.setProgressUnknown(j);
-                    viewer.appendToOutputLn("> [" + j + "] Unknown format.");
+                    viewer.appendToOutputLn("> [" + j + "] Lossless JPEG not supported. See " +
+                    		"http://trac.openmicroscopy.org.uk/omero/wiki/LosslessJPEG for " +
+                    		"details on this error.");
                     if (importStatus < 0)   importStatus = -3;
                     else                    importStatus = -1;
+                    
+                    if (fe.getMessage() == "Cannot locate JPEG decoder")
+                    {
+                        qTable.setProgressFailed(j);
+                        viewer.appendToOutputLn("> [" + j + "] Failure importing.");
+                        JOptionPane
+                        .showMessageDialog(
+                                viewer,
+                                "\nThe importer cannot import the lossless JPEG images used by the file" +
+                                "\n" + fads[j].imageName +
+                                "\n\nThere maybe be a native library available for your operating system" +
+                                "\nthat will support this format. For details on this error, check:" +
+                                "\nhttp://trac.openmicroscopy.org.uk/omero/wiki/LosslessJPEG");
+                    }
                     
                     try
                     {
@@ -232,9 +245,7 @@ public class ImportHandler
         qTable.cancel = false;
         
         viewer.statusBar.setProgress(false, 0, "");
-        //monitor.close();
         viewer.statusBar.setStatusIcon("gfx/import_done_16.png", "Import complete.");
-        //System.err.println("import status: " + importStatus);
         if (importStatus >= 0) try
         {
             db.updateImportStatus(importKey, "complete");
@@ -243,7 +254,6 @@ public class ImportHandler
             e.printStackTrace();
         }
 
-        
         timestampOut = System.currentTimeMillis();
         timestampDiff = timestampOut - timestampIn;
 
@@ -259,111 +269,5 @@ public class ImportHandler
                 + minutes + " minute(s), " + seconds + " second(s).");
 
         viewer.appendToOutputLn("> Image import completed!");
-    }
-
-    /**
-     * @param file
-     * @param index
-     * @param total Import the actual image planes
-     * @param b 
-	 * @throws FormatException if there is an error parsing metadata.
-	 * @throws IOException if there is an error reading the file.
-     */
-    private List<Pixels> importImage(File file, int index, int total, String imageName, 
-            boolean archive)
-    	throws FormatException, IOException
-    {        
-        String fileName = file.getAbsolutePath();
-        String shortName = file.getName();
-        
-        viewer.appendToOutput("> [" + index + "] Loading image \"" + shortName
-                + "\"...");
-
-        qTable.setProgressPrepping(index);
-        viewer.statusBar.setStatusIcon("gfx/import_icon_16.png", "Prepping file \"" + shortName + "\"");
-
-        library.open(file.getAbsolutePath());
-        
-        viewer.appendToOutput(" Succesfully loaded.\n");
-
-        viewer.statusBar.setProgress(true, 0, "Importing file " + 
-                numOfDone + " of " + total);
-        viewer.statusBar.setProgressValue(numOfDone - 1);
-
-        viewer.appendToOutput("> [" + index + "] Importing metadata for "
-                + "image \"" + shortName + "\"... ");
-
-        qTable.setProgressAnalyzing(index);
-        //System.err.println("index:" + index);
-        viewer.statusBar.setStatusIcon("gfx/import_icon_16.png", 
-                "Analyzing the metadata for file \"" + shortName + "\"");
-        
-        String[] fileNameList = reader.getUsedFiles();
-        File[] files = new File[fileNameList.length];
-        for (int i = 0; i < fileNameList.length; i++) 
-        {
-            files[i] = new File(fileNameList[i]); 
-        }
-        store.setOriginalFiles(files); 
-        reader.getUsedFiles();
-        
-        List<Pixels> pixList = library.importMetadata(imageName);
-
-        int seriesCount = reader.getSeriesCount();
-        
-//        if (seriesCount > 1)
-//        {
-//            System.err.println("Series Count: " + reader.getSeriesCount());
-//            throw new RuntimeException("More then one image in series");
-//        }
-        
-        for (int series = 0; series < seriesCount; series++)
-        {
-            int count = library.calculateImageCount(fileName, series);
-            Long pixId = pixList.get(series).getId(); 
-
-            viewer.appendToOutputLn("Successfully stored to dataset \""
-                    + library.getDataset() + "\" with id \"" + pixId + "\".");
-            viewer.appendToOutputLn("> [" + index + "] Importing pixel data for "
-                    + "image \"" + shortName + "\"... ");
-
-            viewer.statusBar.setStatusIcon("gfx/import_icon_16.png", "Importing the plane data for file \"" + shortName + "\"");
-            
-            qTable.setProgressInfo(index, count);
-            
-            //viewer.appendToOutput("> Importing plane: ");
-            library.importData(pixId, fileName, series, new ImportLibrary.Step()
-            {
-                @Override
-                public void step(int series, int step)
-                {
-                    if (step <= qTable.getMaximum()) 
-                    {   
-                        qTable.setImportProgress(reader.getSeriesCount(), series, step);
-                    }
-                }
-            });
-            
-            viewer.appendToOutputLn("> Successfully stored with pixels id \""
-                    + pixId + "\".");
-            viewer.appendToOutputLn("> [" + index
-                    + "] Image imported successfully!");
-
-            if (archive == true)
-            {
-                qTable.setProgressArchiving(index);
-                for (int i = 0; i < fileNameList.length; i++) 
-                {
-                    files[i] = new File(fileNameList[i]);
-                    store.writeFilesToFileStore(files, pixId);   
-                }
-            }
-        }
-        qTable.setProgressDone(index);
-
-        //System.err.println(iInfo.getFreeSpaceInKilobytes());
-        
-        return pixList;
-        
     }
 }

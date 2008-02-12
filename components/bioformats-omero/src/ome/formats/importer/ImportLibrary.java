@@ -40,6 +40,8 @@ import ome.model.display.Color;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ome.formats.importer.util.Actions;
+
 /**
  * support class for the proper usage of {@link OMEROMetadataStore} and
  * {@link FormatReader} instances. This library was factored out of
@@ -64,8 +66,6 @@ import org.apache.commons.logging.LogFactory;
  * @see ImportFixture
  * @since 3.0-M3
  */
-// @RevisionDate("$Date: 2006-12-15 10:39:34 +0000 (Fri, 15 Dec 2006) $")
-// @RevisionNumber("$Revision: 1167 $")
 public class ImportLibrary implements IObservable
 {
 
@@ -309,6 +309,88 @@ public class ImportLibrary implements IObservable
       throw new RuntimeException("Unknown type with id: '" + type + "'");
     }
 
+    /**
+     * @param file
+     * @param index
+     * @param total Import the actual image planes
+     * @param b 
+     * @throws FormatException if there is an error parsing metadata.
+     * @throws IOException if there is an error reading the file.
+     */
+    // TODO: Add observer messaging for any agnostic viewer class to use
+    @SuppressWarnings("unused")
+    public List<Pixels> importImage(File file, int index, int numDone, int total, String imageName, boolean archive)
+    throws FormatException, IOException
+    {        
+        String fileName = file.getAbsolutePath();
+        String shortName = file.getName();
+        Object[] args;
+        
+        args = new Object[9];
+        args[0] = shortName;
+        args[1] = index;
+        args[2] = numDone;
+        args[3] = total;
+
+        notifyObservers(Actions.LOADING_IMAGE, args);
+
+        open(file.getAbsolutePath());
+        
+        notifyObservers(Actions.LOADED_IMAGE, args);
+        
+        String[] fileNameList = reader.getUsedFiles();
+        File[] files = new File[fileNameList.length];
+        for (int i = 0; i < fileNameList.length; i++) 
+        {
+            files[i] = new File(fileNameList[i]); 
+        }
+        store.setOriginalFiles(files); 
+        reader.getUsedFiles();
+        
+        List<Pixels> pixList = importMetadata(imageName);
+
+        int seriesCount = reader.getSeriesCount();
+        
+        for (int series = 0; series < seriesCount; series++)
+        {
+            int count = calculateImageCount(fileName, series);
+            Long pixId = pixList.get(series).getId(); 
+            
+            args[4] = getDataset();
+            args[5] = pixId;
+            args[6] = count;
+            args[7] = series;
+            
+            notifyObservers(Actions.DATASET_STORED, args);
+
+            importData(pixId, fileName, series, new ImportLibrary.Step()
+            {
+                @Override
+                public void step(int series, int step)
+                {
+                    Object args2[] = {series, step, reader.getSeriesCount()};
+                    notifyObservers(Actions.IMPORT_STEP, args2);
+                }
+            });
+            
+            notifyObservers(Actions.DATA_STORED, args);
+
+            if (archive == true)
+            {
+                //qTable.setProgressArchiving(index);
+                for (int i = 0; i < fileNameList.length; i++) 
+                {
+                    files[i] = new File(fileNameList[i]);
+                    store.writeFilesToFileStore(files, pixId);   
+                }
+            }
+        }
+        
+        notifyObservers(Actions.IMPORT_DONE, args);
+        
+        return pixList;
+        
+    }
     
     /**
      * saves the binary data to the server. After each successful save,
@@ -317,48 +399,32 @@ public class ImportLibrary implements IObservable
      * @param series 
      */
     public void importData(Long pixId, String fileName, int series, Step step)
+    throws FormatException, IOException
     {
         int i = 1;
-        try {
-            int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
-            byte[] arrayBuf = new byte[sizeX * sizeY * bytesPerPixel];
-            
-            reader.setSeries(series);
-            
-            for (int t = 0; t < sizeT; t++)
+        int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
+        byte[] arrayBuf = new byte[sizeX * sizeY * bytesPerPixel];
+
+        reader.setSeries(series);
+
+        for (int t = 0; t < sizeT; t++)
+        {
+            for (int c = 0; c < sizeC; c++)
             {
-                for (int c = 0; c < sizeC; c++)
+                for (int z = 0; z < sizeZ; z++)
                 {
-                    for (int z = 0; z < sizeZ; z++)
-                    {
-                        int planeNumber = reader.getIndex(z, c, t);
-                        //int planeNumber = getTotalOffset(z, c, t);
-                        ByteBuffer buf =
-                        	reader.openPlane2D(fileName, planeNumber,
-                        			           arrayBuf).getData();
-                        arrayBuf = swapIfRequired(buf, fileName);
-                        step.step(series, i);
-                        store.setPlane(pixId, arrayBuf, z, c, t);
-                        i++;
-                    }
+                    int planeNumber = reader.getIndex(z, c, t);
+                    //int planeNumber = getTotalOffset(z, c, t);
+                    ByteBuffer buf =
+                        reader.openPlane2D(fileName, planeNumber, arrayBuf).getData();
+                    arrayBuf = swapIfRequired(buf, fileName);
+                    step.step(series, i);
+                    store.setPlane(pixId, arrayBuf, z, c, t);
+                    i++;
                 }
             }
-            reader.populateMinMax(pixId, series);
-        } catch (FormatException e)
-        {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            log.info(sw);
-            return;
-        } catch (IOException e)
-        {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            log.info(sw);
-            return;
         }
+        reader.populateMinMax(pixId, series);
     }
     
     // ~ Helpers
@@ -483,12 +549,7 @@ public class ImportLibrary implements IObservable
         if (bytesPerPixel == 2) { // short
           ShortBuffer buf = buffer.asShortBuffer();
           for (int i = 0; i < (buffer.capacity() / 2); i++) {
-          //short tmp = buf.get(i);
             buf.put(i, DataTools.swap(buf.get(i)));
-          //if (tmp == 21253 || buf.get(i) == 21253) 
-          //  {
-                //System.err.println(tmp + " -> " + buf.get(i));
-          //}
           }
         } else if (bytesPerPixel == 4) { // int/uint
             IntBuffer buf = buffer.asIntBuffer();
@@ -504,125 +565,6 @@ public class ImportLibrary implements IObservable
       return buffer.array();
     }
     
-    /**
-     * @param file
-     * @param index
-     * @param total Import the actual image planes
-     * @param b 
-     * @throws FormatException if there is an error parsing metadata.
-     * @throws IOException if there is an error reading the file.
-     */
-    // TODO: Add observer messaging for any agnostic viewer class to use
-    @SuppressWarnings("unused")
-    private List<Pixels> importImage(File file, int index, int total, String imageName, boolean archive)
-    throws FormatException, IOException
-    {        
-        String fileName = file.getAbsolutePath();
-        String shortName = file.getName();
-        
-        /*
-        viewer.appendToOutput("> [" + index + "] Loading image \"" + shortName
-                + "\"...");
-
-        qTable.setProgressPrepping(index);
-        viewer.statusBar.setStatusIcon("gfx/import_icon_16.png", "Prepping file \"" + shortName + "\"");
-        */
-        
-        
-
-        open(file.getAbsolutePath());
-        
-        /*
-        viewer.appendToOutput(" Succesfully loaded.\n");
-
-        viewer.statusBar.setProgress(true, 0, "Importing file " + 
-                numOfDone + " of " + total);
-        viewer.statusBar.setProgressValue(numOfDone - 1);
-
-        viewer.appendToOutput("> [" + index + "] Importing metadata for "
-                + "image \"" + shortName + "\"... ");
-
-        qTable.setProgressAnalyzing(index);
-        //System.err.println("index:" + index);
-        viewer.statusBar.setStatusIcon("gfx/import_icon_16.png", 
-                "Analyzing the metadata for file \"" + shortName + "\"");
-        */
-        
-        String[] fileNameList = reader.getUsedFiles();
-        File[] files = new File[fileNameList.length];
-        for (int i = 0; i < fileNameList.length; i++) 
-        {
-            files[i] = new File(fileNameList[i]); 
-        }
-        store.setOriginalFiles(files); 
-        reader.getUsedFiles();
-        
-        List<Pixels> pixList = importMetadata(imageName);
-
-        int seriesCount = reader.getSeriesCount();
-        
-//        if (seriesCount > 1)
-//        {
-//            System.err.println("Series Count: " + reader.getSeriesCount());
-//            throw new RuntimeException("More then one image in series");
-//        }
-        
-        for (int series = 0; series < seriesCount; series++)
-        {
-            int count = calculateImageCount(fileName, series);
-            Long pixId = pixList.get(series).getId(); 
-
-            /*
-            viewer.appendToOutputLn("Successfully stored to dataset \""
-                    + library.getDataset() + "\" with id \"" + pixId + "\".");
-            viewer.appendToOutputLn("> [" + index + "] Importing pixel data for "
-                    + "image \"" + shortName + "\"... ");
-
-            viewer.statusBar.setStatusIcon("gfx/import_icon_16.png", "Importing the plane data for file \"" + shortName + "\"");
-            
-            qTable.setProgressInfo(index, count);
-            */
-            
-            //viewer.appendToOutput("> Importing plane: ");
-            importData(pixId, fileName, series, new ImportLibrary.Step()
-            {
-                @Override
-                public void step(int series, int step)
-                {
-                    /*
-                    if (step <= qTable.getMaximum()) 
-                    {   
-                        qTable.setImportProgress(reader.getSeriesCount(), series, step);
-                    }
-                    */
-                }
-            });
-            
-            /*
-            viewer.appendToOutputLn("> Successfully stored with pixels id \""
-                    + pixId + "\".");
-            viewer.appendToOutputLn("> [" + index
-                    + "] Image imported successfully!");
-            */
-
-            if (archive == true)
-            {
-                //qTable.setProgressArchiving(index);
-                for (int i = 0; i < fileNameList.length; i++) 
-                {
-                    files[i] = new File(fileNameList[i]);
-                    store.writeFilesToFileStore(files, pixId);   
-                }
-            }
-        }
-        
-        //qTable.setProgressDone(index);
-        //System.err.println(iInfo.getFreeSpaceInKilobytes());
-        
-        return pixList;
-        
-    }
-
     // Observable methods
     
     public boolean addObserver(IObserver object)
@@ -636,12 +578,11 @@ public class ImportLibrary implements IObservable
         
     }
 
-    public void notifyObservers(Object message)
+    public void notifyObservers(Object message, Object[] args)
     {
         for (IObserver observer:observers)
         {
-            observer.update(this, message);
+            observer.update(this, message, args);
         }
     }
-
 }

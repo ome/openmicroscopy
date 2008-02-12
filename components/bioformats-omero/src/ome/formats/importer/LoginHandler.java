@@ -178,7 +178,7 @@ public class LoginHandler implements IObservable, PropertyChangeListener
                 viewer.enableMenus(true);
                 viewer.setImportEnabled(true);
                 viewer.loggedIn = true;
-                notifyObservers("LOGGED_IN");
+                notifyObservers("LOGGED_IN", null);
                 // if this fails, using the old server without repositorySpace
                 try {
                     long freeSpace = store.getRepositorySpace();
@@ -266,11 +266,11 @@ public class LoginHandler implements IObservable, PropertyChangeListener
         
     }
 
-    public void notifyObservers(Object message)
+    public void notifyObservers(Object message, Object[] args)
     {
         for (IObserver observer:observers)
         {
-            observer.update(this, message);
+            observer.update(this, message, args);
         }
     }
 }

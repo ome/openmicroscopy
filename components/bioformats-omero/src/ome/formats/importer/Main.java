@@ -41,6 +41,7 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.GuiCommonElements;
 
 import org.apache.commons.logging.Log;
@@ -50,7 +51,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Brian W. Loranger
  */
 
-public class Main extends JFrame implements ActionListener, WindowListener
+public class Main extends JFrame implements ActionListener, WindowListener, IObserver
 {
     private static final long   serialVersionUID = 1228000122345370913L;
 
@@ -518,5 +519,36 @@ public class Main extends JFrame implements ActionListener, WindowListener
     public static Point getSplashLocation()
     {
         return splashLocation;
+    }
+
+    public void update(IObservable importLibrary, Object message, Object[] args)
+    {
+        if (message == Actions.LOADING_IMAGE)
+        {
+            appendToOutput("> [" + args[1] + "] Loading image \"" + args[0] + "\"...");
+            statusBar.setStatusIcon("gfx/import_icon_16.png", "Prepping file \"" + args[0] + "\"");
+        }
+        if (message == Actions.LOADED_IMAGE)
+        {
+            appendToOutput(" Succesfully loaded.\n");
+            statusBar.setProgress(true, 0, "Importing file " + args[2] + " of " + args[3]);
+            statusBar.setProgressValue((Integer)args[2] - 1);
+            appendToOutput("> [" + args[1] + "] Importing metadata for " + "image \"" + args[0] + "\"... ");
+            statusBar.setStatusIcon("gfx/import_icon_16.png", "Analyzing the metadata for file \"" + args[0] + "\"");
+        }
+        
+        if (message == Actions.DATASET_STORED)
+        {
+            appendToOutputLn("Successfully stored to dataset \"" + args[4] + "\" with id \"" + args[5] + "\".");
+            appendToOutputLn("> [" + args[1] + "] Importing pixel data for " + "image \"" + args[0] + "\"... ");
+            statusBar.setStatusIcon("gfx/import_icon_16.png", "Importing the plane data for file \"" + args[0] + "\"");
+            appendToOutput("> Importing plane: ");
+        }
+        
+        if (message == Actions.DATA_STORED)
+        {
+            appendToOutputLn("> Successfully stored with pixels id \"" + args[5] + "\".");
+            appendToOutputLn("> [" + args[1] + "] Image imported successfully!");
+        }
     }
 }

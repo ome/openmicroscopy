@@ -600,18 +600,19 @@ public class HistoryTable
             
     }
 
-    public void update(IObservable observable, Object message)
+    private void getQuickHistory(Integer importKey)
+    {
+       getFileQuery(importKey, experimenterID, null, null, null);
+    }
+
+    public void update(IObservable importLibrary, Object message, Object[] args)
     {
         //System.err.print("Update: " + message + "\n");
         getExperimenterID();
         if (experimenterID != -1 && message == "LOGGED_IN" || message == "QUICKBAR_UPDATE")
             {
                 updateOutlookBar();
-            }            
-    }
+            }
+    }   
     
-    private void getQuickHistory(Integer importKey)
-    {
-       getFileQuery(importKey, experimenterID, null, null, null);
-    }      
 }

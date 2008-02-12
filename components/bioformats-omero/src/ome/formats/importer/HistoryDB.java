@@ -326,7 +326,7 @@ public class HistoryDB implements IObservable
     {
         int result = update("UPDATE import_table SET status = '" + status + "' WHERE uID = " + id);
         //System.err.println("observers" + observers.size());
-        notifyObservers("QUICKBAR_UPDATE");
+        notifyObservers("QUICKBAR_UPDATE", null);
         return result;
     } // updateHistoryStatus()
 
@@ -439,11 +439,11 @@ public class HistoryDB implements IObservable
         
     }
 
-    public void notifyObservers(Object message)
+    public void notifyObservers(Object message, Object[] args)
     {
         for (IObserver observer:observers)
         {
-            observer.update(this, message);
+            observer.update(this, message, args);
         }
     }
 }

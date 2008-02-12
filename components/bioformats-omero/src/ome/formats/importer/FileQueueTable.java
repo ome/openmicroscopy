@@ -540,8 +540,33 @@ public class FileQueueTable
         f.pack();
     }
 
-    public void update(IObservable observable, Object message)
+    public void update(IObservable importLibrary, Object message, Object[] args)
     {
-        // TODO: add handlers for updating qTable
+        if (message == Actions.LOADING_IMAGE)
+        {
+            setProgressPrepping((Integer) args[1]);
+        }
+        if (message == Actions.LOADED_IMAGE)
+        {
+            setProgressAnalyzing((Integer) args[1]);
+        }
+        
+        if (message == Actions.DATASET_STORED)
+        {
+            setProgressInfo((Integer)args[1], (Integer)args[6]);
+        }
+        
+        if (message == Actions.IMPORT_STEP)
+        {
+            if ((Integer)args[1] <= getMaximum()) 
+            {   
+                setImportProgress((Integer)args[2], (Integer)args[0], (Integer)args[1]);
+            }
+        }
+        
+        if (message == Actions.IMPORT_DONE)
+        {
+            setProgressDone((Integer)args[1]);
+        }
     }
 }

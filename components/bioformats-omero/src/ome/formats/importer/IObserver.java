@@ -3,5 +3,5 @@ package ome.formats.importer;
 
 public interface IObserver
 {
-    void update(IObservable observable, Object message);
+    void update(IObservable importLibrary, Object message, Object[] args);
 }

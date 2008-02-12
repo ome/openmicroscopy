@@ -630,28 +630,30 @@ public class OMEROMetadataStore implements MetadataStore
 	public PlaneInfo getPlaneInfo(int imageIndex, int pixelsIndex,
 			int planeIndex)
 	{
-		Pixels p = getPixels(imageIndex, pixelsIndex);
-    	if (planeInfoCache.size() < (planeIndex + 1))
+		Pixels pixels = getPixels(imageIndex, pixelsIndex);
+        if (!planeInfoCache.containsKey(pixels))
+        {
+            planeInfoCache.put(pixels, new ArrayList<PlaneInfo>());
+        }
+        
+        List<PlaneInfo> cache = planeInfoCache.get(pixels);
+    	if (cache.size() < (planeIndex + 1))
     	{
-    		for (int i = planeInfoCache.size(); i <= planeIndex; i++)
+    		for (int i = cache.size(); i <= planeIndex; i++)
     		{
     			// Since OMERO model objects prevent us from inserting nulls
     			// here we must insert a PlaneInfo object. Also, we need an
     			// ordered list of PlaneInfo objects for later reference so
     			// we're populating the cache here which will be invalidated
-    			// upon the switch of Pixels sets.
+    			// upon a call to createRoot().
     			PlaneInfo info = new PlaneInfo();
                 // FIXME: Time stamp needs fixing.
     			info.setTimestamp(0.0f);
-    			if (!planeInfoCache.containsKey(p))
-    			{
-    				planeInfoCache.put(p, new ArrayList<PlaneInfo>());
-    			}
-    			planeInfoCache.get(p).add(info);
-    			getPixels(imageIndex, pixelsIndex).addPlaneInfo(info);
+    			cache.add(info);
+    			pixels.addPlaneInfo(info);
     		}
     	}
-    	return planeInfoCache.get(p).get(planeIndex);
+    	return cache.get(planeIndex);
 	}
 	
 
@@ -888,7 +890,7 @@ public class OMEROMetadataStore implements MetadataStore
 			int imageIndex, int pixelsIndex)
 	{
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] wave increment: '%f'",
+        		"Setting Image[%d] Pixels[%d] wave increment: '%d'",
         		imageIndex, pixelsIndex, waveIncrement));
         log.debug("NOTE: This field is unsupported/unused.");
 	}
@@ -900,7 +902,7 @@ public class OMEROMetadataStore implements MetadataStore
 			int pixelsIndex)
 	{
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] wave start: '%f'",
+        		"Setting Image[%d] Pixels[%d] wave start: '%d'",
         		imageIndex, pixelsIndex, waveStart));
         log.debug("NOTE: This field is unsupported/unused.");
 	}
@@ -1379,29 +1381,34 @@ public class OMEROMetadataStore implements MetadataStore
 
 	public void setExperimenterDataDirectory(String dataDirectory,
 			int experimenterIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
+        log.debug(String.format(
+                "Admin only function: Ignoring dataDirectory[%s] experimenterIndex[%d] ",
+                dataDirectory, experimenterIndex)); 
 	}
 
 	public void setExperimenterEmail(String email, int experimenterIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
+        log.debug(String.format(
+                "Admin only function: Ignoring email[%s] experimenterIndex[%d] ",
+                email, experimenterIndex)); 
 	}
 
 	public void setExperimenterFirstName(String firstName, int experimenterIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
+        log.debug(String.format(
+                "Admin only function: Ignoring firstName[%s] experimenterIndex[%d] ",
+                firstName, experimenterIndex));	
 	}
 
 	public void setExperimenterInstitution(String institution,
 			int experimenterIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
+	    log.debug(String.format(
+                "Admin only function: Ignoring institution[%s] experimenterIndex[%d] ",
+                institution, experimenterIndex));
 	}
 
 	public void setExperimenterLastName(String lastName, int experimenterIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
+        log.debug(String.format(
+                "Admin only function: Ignoring lastName[%s] experimenterIndex[%d] ",
+                lastName, experimenterIndex)); 
 	}
 
 	public void setFilamentPower(Float power, int instrumentIndex,

@@ -47,7 +47,8 @@ public class OMEROWrapper extends MinMaxCalculator
         //reader = separator = new ChannelSeparator(iReader);
         
         // Force unreadable characters to be removed from metadata key/value pairs 
-        reader.setMetadataFiltered(true);
+        iReader.setMetadataFiltered(true);
+        filler.setMetadataFiltered(true);
         separator.setMetadataFiltered(true);
     };
 	/**
@@ -160,7 +161,7 @@ public class OMEROWrapper extends MinMaxCalculator
                 (OMEROMetadataStore) reader.getMetadataStore();
             int series = reader.getSeries();
             Pixels p = store.getPixels(series);
-            Channel c = (Channel) p.getChannels().get(getSizeC() - 1);
+            Channel c = (Channel) p.getChannels().get(p.getSizeC() - 1);
             if (c.getStatsInfo() == null)
             {
                 minMaxSet = false;
