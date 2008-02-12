@@ -27,10 +27,11 @@
 			<section href="section_4_2_5.html" name="Query Service"/>
 			<section href="section_4_2_6.html" name="Repository Info Service"/>
 			<section href="section_4_2_7.html" name="Types Service"/>
-			<section href="section_4_2_8.html" name="Raw File Store"/>
-			<section href="section_4_2_9.html" name="Raw Pixels Store"/>
-			<section href="section_4_2_10.html" name="Rednering Engine"/>
-			<section href="section_4_2_11.html" name="Thumbnail Store"/>
+			<section href="section_4_2_8.html" name="Update Service"/>
+			<section href="section_4_2_9.html" name="Raw File Store"/>
+			<section href="section_4_2_10.html" name="Raw Pixels Store"/>
+			<section href="section_4_2_11.html" name="Rendering Engine"/>
+			<section href="section_4_2_12.html" name="Thumbnail Store"/>
 		</section>
 	</section>
 </toc>
