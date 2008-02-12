@@ -12,6 +12,7 @@ package omeis.providers.re.metadata;
 // Third-party libraries
 
 // Application-internal dependencies
+import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
@@ -213,6 +214,12 @@ public class StatsFactory {
         int sizeY = metadata.getSizeY().intValue();
         Channel channel = metadata.getChannel(index);
         StatsInfo stats = channel.getStatsInfo();
+        if (stats == null)
+        {
+        	throw new ResourceError("Pixels set is missing statistics for " +
+        			"channel '" + index + "'. This suggests an image import " +
+        			"error or failed image import.");
+        }
         double gMin = stats.getGlobalMin().doubleValue();
         double gMax = stats.getGlobalMax().doubleValue();
         Plane2D plane2D = PlaneFactory.createPlane(pd, index, metadata,
