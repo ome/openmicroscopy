@@ -133,6 +133,7 @@
     <property name="updateService" 	ref="internal:ome.api.IUpdate"/>
     <property name="queryService"	ref="internal:ome.api.IQuery"/>
     <property name="extendedMetadata" ref="extendedMetadata"/>
+    <property name="securitySystem" ref="securitySystem"/>
   </bean>
 
   <bean id="level3" abstract="true">
@@ -142,8 +143,8 @@
   </bean>
 
   <bean id="stateful" abstract="true" class="ome.services.AbstractStatefulBean">
-  	<property name="queryService" ref="internal:ome.api.IQuery"/>
-  	<property name="securitySystem" ref="securitySystem"/>
+    <property name="queryService" ref="internal:ome.api.IQuery"/>
+    <property name="securitySystem" ref="securitySystem"/>
   </bean>
 
   <bean name="binary" abstract="true">
