@@ -1248,7 +1248,7 @@ public class RenderingBean extends AbstractLevel2Service implements
     private void copyChannels(Pixels from, Pixels to) {
         java.util.Iterator<Channel> it = from.iterateChannels();
         while (it.hasNext()) {
-            to.addChannel(it.next());
+            to.addChannel(copyChannel(it.next()));
         }
     }
 
