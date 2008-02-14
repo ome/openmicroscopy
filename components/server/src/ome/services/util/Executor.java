@@ -25,6 +25,7 @@ import org.hibernate.Session;
 import org.hibernate.StatelessSession;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.springframework.aop.ProxyMethodInvocation;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -76,6 +77,7 @@ public class Executor implements ApplicationContextAware {
         @Transactional(readOnly = false)
         Object doWork(TransactionStatus status, Session session,
                 ServiceFactory sf);
+
     }
 
     /**
@@ -101,7 +103,6 @@ public class Executor implements ApplicationContextAware {
     final protected ProxyFactoryBean proxyFactory;
     final protected SecuritySystem secSystem;
     final protected String[] proxyNames;
-    final protected Interceptor interceptor;
     final protected TransactionTemplate txTemplate;
     final protected HibernateTemplate hibTemplate;
 
@@ -109,7 +110,6 @@ public class Executor implements ApplicationContextAware {
             HibernateTemplate ht, String[] proxyNames) {
         this.txTemplate = tt;
         this.hibTemplate = ht;
-        this.interceptor = new Interceptor(tt, ht);
         this.secSystem = secSystem;
         this.proxyNames = proxyNames;
         this.proxyFactory = new ProxyFactoryBean();
@@ -133,6 +133,15 @@ public class Executor implements ApplicationContextAware {
     }
 
     /**
+     * Calls
+     * {@link #execute(Principal, ome.services.util.Executor.Work, boolean) with
+     * readOnly set to false.
+     */
+    public Object execute(final Principal p, final Work work) {
+        return execute(p, work, false);
+    }
+
+    /**
      * Executes a {@link Work} instance wrapped in two layers of AOP. The first
      * is intended to acquire the proper arguments for
      * {@link Work#doWork(TransactionStatus, Session, ServiceFactory)} for the
@@ -145,16 +154,18 @@ public class Executor implements ApplicationContextAware {
      * @param p
      * @param work
      */
-    public Object execute(final Principal p, final Work work) {
+    public Object execute(final Principal p, final Work work, boolean readOnly) {
         ProxyFactoryBean innerFactory = new ProxyFactoryBean();
         innerFactory.copyFrom(this.proxyFactory);
         innerFactory.setTarget(work);
-        innerFactory.addAdvice(this.interceptor);
+        innerFactory.addAdvice(new Interceptor(txTemplate, hibTemplate,
+                readOnly));
         Work inner = (Work) innerFactory.getObject();
 
         // If we've already entered Executor.execute once and applied the
         // ServiceHandler, then we might not want to re-apply all the
         // interceptors.
+        // -----------------
         Work outer;
         this.proxyFactory.setTarget(inner);
         outer = (Work) this.proxyFactory.getObject();
@@ -229,15 +240,26 @@ public class Executor implements ApplicationContextAware {
      */
     static class Interceptor implements MethodInterceptor {
 
+        private final boolean readOnly;
         private final TransactionTemplate txTemplate;
         private final HibernateTemplate hibTemplate;
 
-        public Interceptor(TransactionTemplate tt, HibernateTemplate ht) {
+        public Interceptor(TransactionTemplate tt, HibernateTemplate ht,
+                boolean readOnly) {
+            this.readOnly = readOnly;
             this.txTemplate = tt;
             this.hibTemplate = ht;
         }
 
         public Object invoke(MethodInvocation arg0) throws Throwable {
+
+            // Used by EventHandler to set the readOnly status of this
+            // Event. Determines whether changes can be made to the database.
+            if (arg0 instanceof ProxyMethodInvocation) {
+                ProxyMethodInvocation pmi = (ProxyMethodInvocation) arg0;
+                pmi.setUserAttribute("readOnly", readOnly);
+            }
+
             final Work work = (Work) arg0.getThis();
             final ServiceFactory sf = (ServiceFactory) arg0.getArguments()[2];
 

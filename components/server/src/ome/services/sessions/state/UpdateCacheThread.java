@@ -62,14 +62,9 @@ public class UpdateCacheThread extends ExecutionThread {
         this.cache = cache;
     }
 
-    /**
-     */
     @Override
-    public boolean preWork() {
-        return true;
+    public void doRun() {
+        this.executor.execute(getPrincipal(), this.work, false);
     }
 
-    @Override
-    public void postWork() {
-    }
 }

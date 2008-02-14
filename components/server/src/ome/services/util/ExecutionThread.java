@@ -9,19 +9,16 @@ package ome.services.util;
 
 import ome.conditions.SessionException;
 import ome.model.meta.Session;
-import ome.services.fulltext.FullTextIndexer;
 import ome.services.sessions.SessionManager;
 import ome.system.Principal;
-import ome.util.DetailsFieldBridge;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.search.bridge.FieldBridge;
 import org.springframework.util.Assert;
 
 /**
- * Thread which can be started and will appropriately login itself, complete its
- * work, commit its transaction, and log itself out.
+ * Thread which can be started and will appropriately acquire a session, then
+ * use the {@link Executor} to complete its work.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
@@ -34,8 +31,8 @@ public abstract class ExecutionThread implements Runnable {
     final protected Executor executor;
     final protected Executor.Work work;
     final protected Principal principal;
-    protected Principal sessionPrincipal = null;
-    protected Session session = null;
+    private Principal sessionPrincipal = null;
+    private Session session = null;
 
     /**
      * Main constructor. No arguments can be null.
@@ -53,31 +50,21 @@ public abstract class ExecutionThread implements Runnable {
     }
 
     /**
-     * Passes the {@link FullTextIndexer} instance to
-     * {@link Executor.Work#doWork(org.springframework.transaction.TransactionStatus, org.hibernate.Session, ome.system.ServiceFactory)}
-     * between calls to {@link DetailsFieldBridge#lock()} and
-     * {@link DetailsFieldBridge#unlock()} in order to guarantee that no other
-     * {@link FieldBridge} can edit the property. Therefore, only one indexer
-     * using this idiom can run at a time.
+     * Initializes the {@link Session} for this {@link Thread} if necessary,
+     * then calls {@link #doRun()}.
      */
     public final void run() {
         sessionInit();
-        try {
-            boolean cont = preWork();
-            try {
-                if (cont) {
-                    this.executor.execute(sessionPrincipal, work);
-                }
-            } finally {
-                postWork();
-            }
-        } finally {
-            // sessionInit() is now trying to create
-            // a single session and keep it alive for
-            // this thread.
-            // this.manager.close(session.getUuid());
-        }
+        doRun();
     }
+
+    public final Principal getPrincipal() {
+        return sessionPrincipal;
+    }
+
+    /**
+     */
+    public abstract void doRun();
 
     protected final void sessionInit() {
 
@@ -96,12 +83,4 @@ public abstract class ExecutionThread implements Runnable {
         }
     }
 
-    /**
-     * Can return a veto to prevent execution.
-     * 
-     * @return true of the execution should continue.
-     */
-    public abstract boolean preWork();
-
-    public abstract void postWork();
 }

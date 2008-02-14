@@ -37,7 +37,6 @@ public class FullTextThread extends ExecutionThread {
     private final static Principal DEFAULT_PRINCIPAL = new Principal("root",
             "system", "FullText");
 
-    boolean hasLock;
     final protected boolean waitForLock;
     final protected FullTextIndexer indexer;
     final protected FullTextBridge bridge;
@@ -92,34 +91,24 @@ public class FullTextThread extends ExecutionThread {
      * Therefore, only one indexer using this idiom can run at a time.
      */
     @Override
-    public boolean preWork() {
+    public void doRun() {
         if (waitForLock) {
             DetailsFieldBridge.lock();
-            hasLock = true;
-            DetailsFieldBridge.setFieldBridge(this.bridge);
-            return true;
+            try {
+                DetailsFieldBridge.setFieldBridge(this.bridge);
+                this.executor.execute(getPrincipal(), work, true);
+            } finally {
+                DetailsFieldBridge.unlock();
+            }
         } else {
             if (DetailsFieldBridge.tryLock()) {
-                hasLock = true;
-                DetailsFieldBridge.setFieldBridge(this.bridge);
-                return true;
-            } else {
-                return false;
+                try {
+                    DetailsFieldBridge.setFieldBridge(this.bridge);
+                    this.executor.execute(getPrincipal(), work, true);
+                } finally {
+                    DetailsFieldBridge.unlock();
+                }
             }
-        }
-    }
-
-    @Override
-    public void postWork() {
-        if (hasLock) {
-            try {
-                DetailsFieldBridge.unlock();
-            } catch (IllegalMonitorStateException imse) {
-                log.error("Failed to release lock while waitForLock was "
-                        + waitForLock);
-                throw imse;
-            }
-            hasLock = false;
         }
     }
 }

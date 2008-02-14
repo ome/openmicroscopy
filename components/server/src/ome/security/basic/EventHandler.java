@@ -14,7 +14,6 @@ import java.util.WeakHashMap;
 
 import ome.api.StatefulServiceInterface;
 import ome.conditions.InternalException;
-import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.security.SecuritySystem;
 import ome.system.EventContext;
@@ -27,6 +26,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
+import org.springframework.aop.ProxyMethodInvocation;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.annotation.AnnotationTransactionAttributeSource;
@@ -54,6 +54,8 @@ import org.springframework.util.Assert;
 public class EventHandler implements MethodInterceptor {
 
     private static Log log = LogFactory.getLog(EventHandler.class);
+
+    protected final AnnotationTransactionAttributeSource txSource = new AnnotationTransactionAttributeSource();
 
     protected final BasicSecuritySystem secSys;
 
@@ -163,11 +165,19 @@ public class EventHandler implements MethodInterceptor {
      *         read-only, or if no annotation is found.
      */
     boolean checkReadOnly(MethodInvocation mi) {
-        AnnotationTransactionAttributeSource txSource = new AnnotationTransactionAttributeSource();
 
+        // This user attribute can be set by an interceptor somewhere along the
+        // stack up, to prevent this invocation from writing to the database.
+        if (mi instanceof ProxyMethodInvocation) {
+            ProxyMethodInvocation pmi = (ProxyMethodInvocation) mi;
+            Object o = pmi.getUserAttribute("readOnly");
+            if (o instanceof Boolean) {
+                Boolean b = (Boolean) o;
+                return b.booleanValue();
+            }
+        }
         TransactionAttribute ta = txSource.getTransactionAttribute(mi
                 .getMethod(), mi.getThis().getClass());
-
         return ta == null ? true : ta.isReadOnly();
 
     }
