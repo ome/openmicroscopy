@@ -112,7 +112,13 @@ public class FullTextThread extends ExecutionThread {
     @Override
     public void postWork() {
         if (hasLock) {
-            DetailsFieldBridge.unlock();
+            try {
+                DetailsFieldBridge.unlock();
+            } catch (IllegalMonitorStateException imse) {
+                log.error("Failed to release lock while waitForLock was "
+                        + waitForLock);
+                throw imse;
+            }
             hasLock = false;
         }
     }
