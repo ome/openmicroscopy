@@ -7,13 +7,16 @@
       <run>
         <exclude name="broken"/>
         <exclude name="ignore"/>
+        <exclude name="client"/>
+        <exclude name="blitz"/>
         <exclude name="manual"/>
-      </run>
+      </run>        
     </groups>
     <packages>
+      <package name="ome.io.*"/>
       <package name="ome.server.*"/>
       <package name="ome.services.*"/>
-      <package name="ome.io.*"/>
+      <package name="omeis.*"/>
     </packages>
   </test>
 
