@@ -20,35 +20,35 @@ using namespace omero::sys;
 BOOST_AUTO_TEST_CASE( tagAnnotation )
 {
     try {
+	
+	Fixture f;
+	const omero::client* client = f.login();
+	ServiceFactoryPrx sf = (*client).getSession();
+	IQueryPrx q = sf->getQueryService();
+	IUpdatePrx u = sf->getUpdateService();
 
-        Fixture f;
-        const omero::client* client = f.login();
-        ServiceFactoryPrx sf = (*client).getSession();
-        IQueryPrx q = sf->getQueryService();
-        IUpdatePrx u = sf->getUpdateService();
+	TagAnnotationIPtr tag = new TagAnnotationI();
+	tag->setTextValue(new omero::RString("my-first-tag"));
 
-        TagAnnotationIPtr tag = new TagAnnotationI();
-        tag->setTextValue(new omero::RString("my-first-tag"));
+	string uuid = IceUtil::generateUUID();
+	ImageIPtr i = new ImageI();
+	i->setName(new omero::RString(uuid));
+	i->linkAnnotation(tag);
+	u->saveObject(i);
 
-        string uuid = IceUtil::generateUUID();
-        ImageIPtr i = new ImageI();
-        i->setName(new omero::RString(uuid));
-        i->linkAnnotation(tag);
-        u->saveObject(i);
-
-        i = ImageIPtr::dynamicCast(
-                q->findByQuery(
-                    "select i from Image i "
-                    "join fetch i.annotationLinks l "
-                    "join fetch l.child where i.name = '" + uuid +"'", 0));
-        ImageAnnotationLinkIPtr link = ImageAnnotationLinkIPtr::dynamicCast(i->beginAnnotationLinks()[0]);
-        AnnotationPtr a = link->getChild();
-        tag = TagAnnotationIPtr::dynamicCast(a);
-        BOOST_CHECK_EQUAL( "my-first-tag", tag->textValue->val );
+	i = ImageIPtr::dynamicCast(
+				   q->findByQuery(
+						  "select i from Image i "
+						  "join fetch i.annotationLinks l "
+						  "join fetch l.child where i.name = '" + uuid +"'", 0));
+	ImageAnnotationLinkIPtr link = ImageAnnotationLinkIPtr::dynamicCast(i->beginAnnotationLinks()[0]);
+	AnnotationPtr a = link->getChild();
+	tag = TagAnnotationIPtr::dynamicCast(a);
+	BOOST_CHECK_EQUAL( "my-first-tag", tag->textValue->val );
 
     } catch (omero::ApiUsageException& aue) {
-        cout << aue.message <<endl;
-        throw;
+	cout << aue.message <<endl;
+	throw;
     }
 }
 
@@ -56,88 +56,81 @@ BOOST_AUTO_TEST_CASE( fileAnnotation )
 {
     try {
 
-        Fixture f;
-        const omero::client* client = f.login();
-        ServiceFactoryPrx sf = (*client).getSession();
-        IQueryPrx q = sf->getQueryService();
-        IUpdatePrx u = sf->getUpdateService();
+	Fixture f;
+	const omero::client* client = f.login();
+	ServiceFactoryPrx sf = (*client).getSession();
+	IQueryPrx q = sf->getQueryService();
+	IUpdatePrx u = sf->getUpdateService();
 
-        string unique_content = IceUtil::generateUUID();
-        long size;
-        Ice::ByteSeq buf;
+	// Create temp file
+	string unique_content = IceUtil::generateUUID();
+	char * pointer;
+	pointer = tmpnam(NULL);
 
-        // Create temp file
-        {
-            char * pointer;
-            pointer = tmpnam(NULL);
+	{
+	    ofstream out(pointer);
+	    out << "<xml>" << endl;
+	    out << "  " << unique_content << endl;
+	    out << "</xml>" << endl;
+	}
 
-            {
-                ofstream out(pointer);
-                out << "<xml>" << endl;
-                out << "  " << unique_content << endl;
-                out << "</xml>" << endl;
 
-            }
-            {
+	long size;
+	Ice::ByteSeq buf;
+	ifstream in(pointer, ios::binary);
+	if (!in.good() || in.eof() || !in.is_open()) {
+	    size = 0;
+	} else {
+	    ifstream::pos_type beg = in.tellg();
+	    in.seekg(0, ios_base::end);
+	    ifstream::pos_type end = in.tellg();
+	    size = static_cast<long>(end - beg);
+	  
+	    in.seekg(0, ios_base::beg);
+	    istream_iterator<Ice::Byte> b(in), e;
+	    vector<Ice::Byte> v (b, e);
+	    buf = v;
+	}
 
-                ifstream in(pointer);
-                if (!in.good() || in.eof() || !in.is_open()) {
-                    size = 0;
-                    buf = Ice::ByteSeq(size);
-                }
-                ifstream::pos_type beg = in.tellg();
-                in.seekg(0, ios_base::end);
-                ifstream::pos_type end = in.tellg();
-                size = static_cast<long>(end - beg);
-                in.seekg(0, ios_base::beg);
+	// Create file object
+	FormatIPtr format = new FormatI();
+	format->setValue(new omero::RString("text/xml"));
+	OriginalFileIPtr file = new OriginalFileI();
+	file->setFormat(format);
+	file->setName(new omero::RString("my-file.xml"));
+	file->setPath(new omero::RString("/tmp"));
+	file->setSha1(new omero::RString("foo"));
+	file->setSize(new omero::RLong(size));
+	file = OriginalFileIPtr::dynamicCast(u->saveAndReturnObject(file));
 
-                char b;
-                for (long i = 0; i < size; i++) {
-                    in.read(&b, sizeof(int));
-                    buf.push_back(b);
-                }
+	// Upload file
+	RawFileStorePrx rfs = sf->createRawFileStore();
+	rfs->setFileId(file->getId()->val);
+	rfs->write(buf, 0, buf.size());
+	rfs->close();
 
-            }
-        }
+	FileAnnotationIPtr attachment = new FileAnnotationI();
+	attachment->setFile(file);
 
-        // Create file object
-        FormatIPtr format = new FormatI();
-        format->setValue(new omero::RString("text/xml"));
-        OriginalFileIPtr file = new OriginalFileI();
-        file->setFormat(format);
-        file->setName(new omero::RString("my-file.xml"));
-        file->setPath(new omero::RString("/tmp"));
-        file->setSha1(new omero::RString("foo"));
-        file->setSize(new omero::RLong(size));
-        file = OriginalFileIPtr::dynamicCast(u->saveAndReturnObject(file));
+	string uuid = IceUtil::generateUUID();
+	ImageIPtr i = new ImageI();
+	i->setName(new omero::RString(uuid));
+	i->linkAnnotation(attachment);
+	u->saveObject(i);
 
-        // Upload file
-        RawFileStorePrx rfs = sf->createRawFileStore();
-        rfs->setFileId(file->getId()->val);
-        rfs->write(buf, 0, size);
-        rfs->close();
-
-        FileAnnotationIPtr attachment = new FileAnnotationI();
-        attachment->setFile(file);
-
-        string uuid = IceUtil::generateUUID();
-        ImageIPtr i = new ImageI();
-        i->setName(new omero::RString(uuid));
-        i->linkAnnotation(attachment);
-        u->saveObject(i);
-
-        i = ImageIPtr::dynamicCast(
-                q->findByQuery(
-                    "select i from Image i "
-                    "join fetch i.annotationLinks l "
-                    "join fetch l.child where i.name = '" + uuid +"'", 0));
-        ImageAnnotationLinkIPtr link = ImageAnnotationLinkIPtr::dynamicCast(i->beginAnnotationLinks()[0]);
-        AnnotationPtr a = link->getChild();
-        attachment = FileAnnotationIPtr::dynamicCast(a);
+	i = ImageIPtr::dynamicCast(
+				   q->findByQuery(
+						  "select i from Image i "
+						  "join fetch i.annotationLinks l "
+						  "join fetch l.child where i.name = '" + uuid +"'", 0));
+	ImageAnnotationLinkIPtr link = ImageAnnotationLinkIPtr::dynamicCast(i->beginAnnotationLinks()[0]);
+	AnnotationPtr a = link->getChild();
+	attachment = FileAnnotationIPtr::dynamicCast(a);
 
     } catch (omero::ApiUsageException& aue) {
-        cout << aue.message <<endl;
-        throw;
+	cout << aue.message << endl;
+	cout << aue.serverStackTrace << endl;
+	BOOST_ERROR( "api usage exception");
     }
 }
 
