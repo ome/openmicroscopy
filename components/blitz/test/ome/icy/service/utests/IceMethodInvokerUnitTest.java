@@ -22,6 +22,7 @@ import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
+import ome.api.Search;
 import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
 import ome.conditions.SecurityViolation;
@@ -786,6 +787,23 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
     // input values:
     // long, int, double, Long, Integer, String, RString,
     // arrags
+
+    // Search
+
+    @Test
+    public void testSearchWorks() throws Exception {
+
+        Search s;
+
+        init(Search.class, "next");
+        method().will(returnValue(new ome.model.core.Image()));
+        Object rv = invoke();
+        ServantHelper.throwIfNecessary(rv);
+        Image img = (Image) rv;
+
+        assertNotNull(img);
+
+    }
 
     // ~ Exceptions
     // =========================================================================

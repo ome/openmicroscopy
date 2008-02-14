@@ -213,6 +213,11 @@ public class IceMethodInvoker {
             return handleException(t);
         }
 
+        // Handling case of generics (.e.g Search.next())
+        // in which case we cannot properly handle the mapping.
+        if (retType == Object.class && retVal != null) {
+            retType = retVal.getClass();
+        }
         return handleOutput(mapper, retType, retVal);
     }
 
