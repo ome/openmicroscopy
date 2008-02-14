@@ -138,12 +138,13 @@ class client(object):
                     # Or determine type from file ending
                     raise ClientError("no format given")
                 else:
-                    ofile.format = FormatI(type)
+                    ofile.format = FormatI()
+                    ofile.format.value = omero.RString(type)
 
             up = self.sf.getUpdateService()
             ofile = up.saveAndReturnObject(ofile)
 
-            prx = self.sf.createRawFileServie()
+            prx = self.sf.createRawFileStore()
             prx.setFileId(ofile.id.val)
             offset = 0
             while True:
@@ -191,6 +192,8 @@ class client(object):
         return rv
 
     def setInput(self, key, value):
+        s = self.getSession().getSessionService()
+        
         if not hasattr(self, "inputs"):
             self.inputs = {}
         self.inputs[key] = value
