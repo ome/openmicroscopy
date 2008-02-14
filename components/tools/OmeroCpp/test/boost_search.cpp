@@ -6,10 +6,6 @@
  *
  */
 #include <IceUtil/UUID.h>
-#include <Ice/Initialize.h>
-#include <omero/API.h>
-#include <omero/client.h>
-#include <omero/model/ExperimenterI.h>
 #include <boost_fixture.h>
 
 using namespace std;
@@ -43,10 +39,12 @@ BOOST_AUTO_TEST_CASE( SimpleSearch )
         list = sf->getQueryService()->findAllByFullText("Image",uuid,0);
         cout << list.size() << endl;
 
-    } catch (omero::ApiUsageException& aue) {
+    } catch (const omero::ApiUsageException& aue) {
         cout << aue.message <<endl;
-        throw;
+	BOOST_ERROR ( "api usage exception thrown" );
+    } catch (const Ice::UnknownException& ue) {
+        cout << ue << endl;
+	BOOST_ERROR( "unknown exception thrown" );
     }
-
 }
 

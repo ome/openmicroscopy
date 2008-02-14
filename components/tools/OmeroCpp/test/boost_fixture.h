@@ -11,6 +11,7 @@
 
 // domain
 #include <omero/client.h>
+#include <omero/model/ExperimenterI.h>
 // boost
 #include <boost/test/unit_test.hpp>
 #include <boost/test/unit_test_log.hpp>
