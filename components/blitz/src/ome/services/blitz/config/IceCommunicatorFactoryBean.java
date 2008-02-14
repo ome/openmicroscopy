@@ -85,12 +85,18 @@ public class IceCommunicatorFactoryBean extends IceLocalObjectFactoryBean {
 
         Ice.Communicator ic;
         Ice.InitializationData id = new Ice.InitializationData();
+        if (this.iceLogger != null) {
+            id.logger = this.iceLogger;
+        }
+
         String ICE_CONFIG = System.getProperty("ICE_CONFIG");
         if (ICE_CONFIG != null) {
             // HORRIBLE HACK. Here we are short cutting the logic below since
             // it is complicated and needs to be reduced. This works in tandem
             // with the code in Main.main() which takes command line arguments.
-            ic = Ice.Util.initialize(new String[] { ICE_CONFIG });
+
+            ic = Ice.Util.initialize(new String[] { ICE_CONFIG }, id);
+
         } else {
 
             if (this.configFile == null && this.defaultConfig) {
@@ -167,10 +173,6 @@ public class IceCommunicatorFactoryBean extends IceLocalObjectFactoryBean {
                     }
                     id.properties.setProperty(key, val);
                 }
-            }
-
-            if (this.iceLogger != null) {
-                id.logger = this.iceLogger;
             }
 
             ic = Util.initialize(id);

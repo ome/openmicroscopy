@@ -118,8 +118,7 @@ public class Entry {
             ic = (Ice.Communicator) ctx.getBean("Ice.Communicator");
             log.info(name + " now accepting connections.");
             ic.waitForShutdown();
-            lock.lock();
-            shutdown();
+            status = 0;
         } catch (Ice.LocalException e) {
             log.error("Error on startup.", e);
             status = 1;
@@ -127,6 +126,10 @@ public class Entry {
             log.error("Error on startup.", e);
             status = 2;
         }
+        System.out.flush();
+        System.err.flush();
+        lock.lock();
+        shutdown();
     }
 
     /**
