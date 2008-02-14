@@ -18,6 +18,7 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
+from omero_model_ScriptJobI import ScriptJobI
 
 class TestModel(unittest.TestCase):
 
@@ -164,19 +165,19 @@ class TestModel(unittest.TestCase):
     def testLinkingAndUnlinking(self):
         d = DatasetI()
         i = ImageI()
-        
+
         d.linkImage(i)
         self.assert_( d.sizeOfImageLinks() == 1 )
         d.unlinkImage(i)
         self.assert_( d.sizeOfImageLinks() == 0 )
-        
+
         d = DatasetI()
         i = ImageI()
         d.linkImage(i)
         self.assert_( i.sizeOfDatasetLinks() == 1 )
         i.unlinkDataset(d)
         self.assert_( d.sizeOfImageLinks() == 0 )
-        
+
         d = DatasetI()
         i = ImageI()
         dil = DatasetImageLinkI()
@@ -184,6 +185,10 @@ class TestModel(unittest.TestCase):
         d.addDatasetImageLink(dil, False)
         self.assert_( d.sizeOfImageLinks() == 1 )
         self.assert_( i.sizeOfDatasetLinks() == 0 )
+
+    def testScriptJobHasLoadedCollections(self):
+        s = ScriptJobI()
+        self.assert_( s.originalFileLinksLoaded )
 
 if __name__ == '__main__':
     unittest.main()
