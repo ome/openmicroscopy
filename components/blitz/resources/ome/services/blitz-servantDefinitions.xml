@@ -48,7 +48,7 @@
     <property name="serviceClass" value="ome.api.IPojos"/>
     <property name="tieClass" value="omero.api._IPojosTie"/>
   </bean>
-  
+
   <bean id="omero.api.IQuery" class="ome.services.blitz.util.ServantDefinition">
     <property name="operationsClass" value="omero.api._IQueryOperations"/>
     <property name="serviceClass" value="ome.api.IQuery"/>
@@ -79,22 +79,34 @@
     <property name="tieClass" value="omero.api._IUpdateTie"/>
   </bean>
 
+  <bean id="omero.api.JobHandle" class="ome.services.blitz.util.ServantDefinition">
+    <property name="operationsClass" value="omero.api._JobHandleOperations"/>
+    <property name="serviceClass" value="ome.api.JobHandle"/>
+    <property name="tieClass" value="omero.api._JobHandleTie"/>
+  </bean>
+
   <bean id="omero.api.RawFileStore" class="ome.services.blitz.util.ServantDefinition">
     <property name="operationsClass" value="omero.api._RawFileStoreOperations"/>
     <property name="serviceClass" value="ome.api.RawFileStore"/>
     <property name="tieClass" value="omero.api._RawFileStoreTie"/>
   </bean>
-  
+
   <bean id="omero.api.RawPixelsStore" class="ome.services.blitz.util.ServantDefinition">
     <property name="operationsClass" value="omero.api._RawPixelsStoreOperations"/>
     <property name="serviceClass" value="ome.api.RawPixelsStore"/>
     <property name="tieClass" value="omero.api._RawPixelsStoreTie"/>
   </bean>
-  
+
   <bean id="omero.api.RenderingEngine" class="ome.services.blitz.util.ServantDefinition">
     <property name="operationsClass" value="omero.api._RenderingEngineOperations"/>
     <property name="serviceClass" value="omeis.providers.re.RenderingEngine"/>
     <property name="tieClass" value="omero.api._RenderingEngineTie"/>
+  </bean>
+
+  <bean id="omero.api.Search" class="ome.services.blitz.util.ServantDefinition">
+    <property name="operationsClass" value="omero.api._SearchOperations"/>
+    <property name="serviceClass" value="ome.api.Search"/>
+    <property name="tieClass" value="omero.api._SearchTie"/>
   </bean>
 
   <bean id="omero.api.ThumbnailStore" class="ome.services.blitz.util.ServantDefinition">
@@ -102,5 +114,5 @@
     <property name="serviceClass" value="ome.api.ThumbnailStore"/>
     <property name="tieClass" value="omero.api._ThumbnailStoreTie"/>
   </bean>
-  
+
 </beans>

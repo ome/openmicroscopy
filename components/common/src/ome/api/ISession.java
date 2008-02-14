@@ -101,4 +101,11 @@ public interface ISession extends ServiceInterface {
     // void disconnectSession(@NotNull Session session);
     // void pingSession(@NotNull Session session); // Add to ServiceFactoryI
 
+    // Environment contents
+    // =========================================================================
+
+    Object getInput(String key);
+
+    Object getOutput(String key);
+
 }

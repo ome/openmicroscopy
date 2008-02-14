@@ -246,8 +246,54 @@ BOOST_AUTO_TEST_CASE( UnloadedEntityTermination ) {
   d->unload();
   omero::model::IObjectPtr             theChild =
   omero::model::IObjectPtr::dynamicCast(pDL->getChild());
-  cout << "theChild is: " << theChild << "... pDS" << endl;
+  //cout << "theChild is: " << theChild << "... pDS" << endl;
   omero::model::DatasetIPtr            pDS =
   omero::model::DatasetIPtr::dynamicCast(theChild);
+
+}
+
+BOOST_AUTO_TEST_CASE( PrimaryPixels ) {
+
+    Fixture f;
+
+    ImageIPtr i = new ImageI();
+
+    BOOST_CHECK_EQUAL( true, i->isPixelsLoaded() );
+    BOOST_CHECK_EQUAL( 0, i->sizeOfPixels() );
+    bool called = false;
+    ImagePixelsSeq::iterator beg = i->beginPixels();
+    ImagePixelsSeq::iterator end = i->endPixels();
+    while (beg != end) {
+        called = true;
+        beg++;
+    }
+    BOOST_CHECK_EQUAL( false, called );
+
+
+    PixelsIPtr p = new PixelsI();
+    i->addPixels( p );
+
+    BOOST_CHECK_EQUAL( true, i->isPixelsLoaded() );
+    BOOST_CHECK_EQUAL( 1, i->sizeOfPixels() );
+    BOOST_CHECK_EQUAL( p, i->beginPixels()[0] );
+    beg = i->beginPixels();
+    end = i->endPixels();
+    while (beg != end) {
+        called = true;
+        beg++;
+    }
+    BOOST_CHECK_EQUAL( true, called );
+
+
+    i->unloadPixels();
+
+    BOOST_CHECK_EQUAL( false, i->isPixelsLoaded() );
+    BOOST_CHECK_EQUAL( -1, i->sizeOfPixels() );
+    try {
+        i->beginPixels();
+        BOOST_FAIL( "Should have thrown an exception ");
+    } catch (const std::exception& ex) {
+        // ok
+    }
 
 }

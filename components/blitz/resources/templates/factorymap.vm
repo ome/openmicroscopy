@@ -38,8 +38,9 @@ Copyright notice added to all files:
 
 [pyc] def map():
 [pyc]         import omero.model, omero_model_PermissionsI, omero_model_DetailsI
-[pyc]         __m = {"$p":omero.model.PermissionsI.generator()}
-[pyc]         __m = {"$d":omero.model.DetailsI.generator()}
+[pyc]         __m = {}
+[pyc]         __m["$p"] = omero.model.PermissionsI.generator()
+[pyc]         __m["$d"] = omero.model.DetailsI.generator()
 
 [cpp] map<string,Ice::Object> map() {
 [cpp]         map<string,Ice::Object> __m;

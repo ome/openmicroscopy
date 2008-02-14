@@ -131,6 +131,17 @@ public class SessionBean implements ISession, SelfConfigurableService {
         mgr.close(session.getUuid());
     }
 
+    // ~ Environment
+    // =========================================================================
+
+    public Object getInput(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    public Object getOutput(String key) {
+        throw new UnsupportedOperationException();
+    }
+
     // ~ Helpers
     // =========================================================================
 

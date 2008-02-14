@@ -52,10 +52,13 @@
 
     <target name="make-build" unless="make.NOMAKE">
         <autogen/>
-        
         <make dir="src"> <arg value="slice"/> </make>
         <make dir="src"> <arg value="-j${make.J}"/> </make>
         <make dir="src"> <arg value="install"/> </make>
+    </target>
+
+    <target name="make-test" unless="make.NOMAKE">
+        <make dir="test"> <arg value="all"/> </make>
     </target>
 
     <target name="make-install" unless="make.NOMAKE">

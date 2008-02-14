@@ -12,7 +12,7 @@
 // domain
 #include <omero/client.h>
 // boost
-#include <boost/test/auto_unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/test/unit_test_log.hpp>
 #include <boost/test/framework.hpp>
 #include <boost/test/results_collector.hpp>
@@ -26,6 +26,7 @@
 #include <exception>
 #include <cstdlib>
 #include <string>
+#include <vector>
 
 // see first_failed_assertion dbg hook
 
@@ -33,15 +34,21 @@ namespace b_ut = boost::unit_test;
 
 struct Fixture
 {
-  Fixture();
-  ~Fixture();
-  void show_stackframe();
-  void printUnexpected();
-  b_ut::test_case const & current();
-  b_ut::unit_test_monitor_t& monitor();
-  b_ut::unit_test_log_t& log();
-  bool passed();
-  const std::string& uuid();
+    protected:
+        std::vector<omero::client*> clients;
+    public:
+        Fixture();
+        ~Fixture();
+        void show_stackframe();
+        void printUnexpected();
+        b_ut::test_case const & current();
+        b_ut::unit_test_monitor_t& monitor();
+        b_ut::unit_test_log_t& log();
+        bool passed();
+        std::string uuid();
+        const omero::client* login(
+                const std::string& username = std::string(),
+                const std::string& password = std::string());
 };
 
 //

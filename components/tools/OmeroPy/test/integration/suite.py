@@ -24,4 +24,5 @@ def additional_tests():
     suite.addTest(load("test.integration.simple"))
     suite.addTest(load("test.integration.ipojos"))
     suite.addTest(load("test.integration.isession"))
+    suite.addTest(load("test.integration.scripts"))
     return suite

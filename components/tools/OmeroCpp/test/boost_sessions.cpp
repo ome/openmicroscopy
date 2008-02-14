@@ -5,7 +5,6 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
-
 #include <Ice/Initialize.h>
 #include <omero/client.h>
 #include <omero/model/ExperimenterI.h>
@@ -20,7 +19,6 @@ BOOST_AUTO_TEST_CASE( RootCanCreateSessionForUser )
   omero::client root(argc, argv);
   omero::api::ServiceFactoryPrx sf = root.createSession("root","ome");
   omero::api::ISessionPrx sess = sf->getSessionService();
-
 
   omero::model::ExperimenterIPtr e = new omero::model::ExperimenterI();
   e->setOmeName(new omero::RString(f.uuid()));

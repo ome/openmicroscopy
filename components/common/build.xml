@@ -10,4 +10,10 @@
     <!-- Class that will be called via "java -jar" on this artifact -->
     <property name="main.class" value="ome.util.tasks.Run"/>
 
+    <target name="dist" depends="lifecycle.dist">
+        <copy todir="${dist.dir}">
+            <fileset dir="${classes.dir}" includes="prefs.class"/>
+        </copy>
+    </target>
+
 </project>

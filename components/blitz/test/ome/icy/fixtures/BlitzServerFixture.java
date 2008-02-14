@@ -168,6 +168,8 @@ public class BlitzServerFixture extends MockObjectTestCase {
         factory.setBeanName("blitz.fixture");
         factory.setOverflowToDisk(false);
         cache = factory.createCache();
+        getMock(sm).expects(once()).method("executePasswordCheck").will(
+                returnValue(true));
         getMock(sm).expects(once()).method("create").will(returnValue(session));
         getMock(sm).expects(once()).method("inMemoryCache").will(
                 returnValue(cache));

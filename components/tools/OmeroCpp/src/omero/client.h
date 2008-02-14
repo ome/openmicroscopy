@@ -81,11 +81,11 @@ namespace omero {
 
     // Accessors:
 
-    Ice::CommunicatorPtr getCommunicator() { return ic; }
-    omero::api::ServiceFactoryPrx getSession() { return sf; }
-    Ice::ImplicitContextPtr getImplicitContext() { return ic->getImplicitContext(); }
-    Ice::PropertiesPtr getProperties() { return ic->getProperties(); }
-    std::string getProperty(const std::string& key) { return getProperties()->getProperty(key); }
+    Ice::CommunicatorPtr getCommunicator() const { return ic; }
+    omero::api::ServiceFactoryPrx getSession() const { return sf; }
+    Ice::ImplicitContextPtr getImplicitContext() const { return ic->getImplicitContext(); }
+    Ice::PropertiesPtr getProperties() const { return ic->getProperties(); }
+    std::string getProperty(const std::string& key) const { return getProperties()->getProperty(key); }
 
     // Session management
 

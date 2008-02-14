@@ -10,17 +10,17 @@ our_libs = -lOMERO_common -lOMERO_client -lstdc++ -lIce -lIceUtil -lSlice -lGlac
 our_incl = -I../src -I../src/slice_generated -I../target/temp
 
 if BOOST_TEST
-unit_SOURCES = boost_example.cpp boost_fixture.cpp boost_model.cpp boost_perms.cpp boost_client.cpp boost_operators.cpp boost_api.cpp
+unit_SOURCES = boost_main.cpp boost_fixture.cpp boost_model.cpp boost_perms.cpp boost_client.cpp boost_operators.cpp boost_api.cpp
 unit_CXXFLAGS = -g -O0 $(our_incl)
-unit_LDFLAGS = $(our_libp) -dl -lboost_unit_test_framework $(our_libs)
+unit_LDFLAGS = $(our_libp) -dl -lboost_unit_test_framework-mt-d $(our_libs)
 else
 unit_SOURCES = no_op.cpp
 endif
 
 if BOOST_TEST
-integration_SOURCES = boost_example.cpp boost_fixture.cpp boost_sessions.cpp
+integration_SOURCES = boost_main.cpp boost_fixture.cpp boost_search.cpp boost_sessions.cpp boost_annotations.cpp
 integration_CXXFLAGS = -g -O0 $(our_incl)
-integration_LDFLAGS = $(our_libp) -dl -lboost_unit_test_framework $(our_libs)
+integration_LDFLAGS = $(our_libp) -dl -lboost_unit_test_framework-mt-d $(our_libs)
 else
 integration_SOURCES = no_op.cpp
 endif
@@ -29,4 +29,4 @@ endif
 all: unit integration run
 
 run:
-	./unit && ./integration
+	./unit && ICE_CONFIG=$(ICE_CONFIG) ./integration

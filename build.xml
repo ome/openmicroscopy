@@ -119,6 +119,10 @@
 
 	<target name="dist" depends="multiproject,_dist">
 		<iterate target="dist"/>
+                <chmod perm="ug+x">
+                        <fileset dir="${dist.dir}/bin" includes="**/*"/>
+                        <fileset dir="${dist.dir}/lib" includes="**/*.py"/>
+                </chmod>
 	</target>
 
 	<target name="_dist" depends="deps-configure">

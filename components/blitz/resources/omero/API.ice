@@ -12,6 +12,7 @@
 #include <omero/fwd.ice>
 #include <omero/ROMIO.ice>
 #include <omero/RTypes.ice>
+#include <omero/Scripts.ice>
 #include <omero/System.ice>
 #include <Glacier2/Session.ice>
 #include <Ice/BuiltinSequences.ice>
@@ -29,7 +30,7 @@
  * package. Where not further noted below, the follow mappings between
  * ome.api argument types and omero::api argument types hold:
  *
- *     +-----------------------+------------------------+ 
+ *     +-----------------------+------------------------+
  *     |        ome.api        |      omero::api        |
  *     +-----------------------+------------------------+
  *     |java.lang.Class        |string                  |
@@ -43,25 +44,33 @@
  *     |...                    |...                     |
  *     +-----------------------+------------------------+
  */
-module omero { 
-   
-  module api {     
-   
-    ["java:type:java.util.ArrayList"] 
+module omero {
+
+  module api {
+
+    ["java:type:java.util.ArrayList"]
       sequence<omero::model::Experimenter> ExperimenterList;
-   
-    ["java:type:java.util.ArrayList"] 
+
+    ["java:type:java.util.ArrayList"]
       sequence<omero::model::ExperimenterGroup> ExperimenterGroupList;
-   
-    ["java:type:java.util.ArrayList<omero.model.IObject>:java.util.List<omero.model.IObject>"] 
+
+    ["java:type:java.util.ArrayList"]
+      sequence<omero::model::Annotation> AnnotationList;
+
+      dictionary<string, omero::model::Annotation> SearchMetadata;
+
+    ["java:type:java.util.ArrayList"]
+      sequence<SearchMetadata> SearchMetadataList;
+
+    ["java:type:java.util.ArrayList<omero.model.IObject>:java.util.List<omero.model.IObject>"]
       sequence<omero::model::IObject> IObjectList;
-   
-    ["java:type:java.util.ArrayList"] 
+
+    ["java:type:java.util.ArrayList"]
       sequence<omero::model::Image> ImageList;
 
-    ["java:type:java.util.ArrayList<String>:java.util.List<String>"] 
+    ["java:type:java.util.ArrayList<String>:java.util.List<String>"]
       sequence<string> StringSet;
-      
+
     /*
      * Service marker similar to ome.api.ServiceInterface
      */
@@ -83,7 +92,7 @@ module omero {
 
     interface IAdmin extends ServiceInterface
       {
-    
+
 	// Getters
 	idempotent omero::model::Experimenter getExperimenter(long id) throws ServerError;
 	idempotent omero::model::Experimenter lookupExperimenter(string name) throws ServerError;
@@ -201,7 +210,7 @@ module omero {
 	idempotent IObjectList           findAllByString(string klass, string field, string value, bool caseSensitive, omero::sys::Filter filter) throws ServerError;
 	idempotent omero::model::IObject findByQuery(string query, omero::sys::Parameters params) throws ServerError;
 	idempotent IObjectList           findAllByQuery(string query, omero::sys::Parameters params) throws ServerError;
-	idempotent IObjectList           findAllByFullTet(string klass, string query, omero::sys::Parameters params) throws ServerError;
+	idempotent IObjectList           findAllByFullText(string klass, string query, omero::sys::Parameters params) throws ServerError;
 	idempotent omero::model::IObject refresh(omero::model::IObject iObject) throws ServerError;
       };
 
@@ -237,6 +246,19 @@ module omero {
 	idempotent double getUsageFraction() throws ServerError;
 	void sanityCheckRepository() throws ServerError;
 	void removeUnusedFiles() throws ServerError;
+      };
+
+    interface JobHandle extends StatefulServiceInterface
+      {
+        long submit(omero::model::Job j);
+        omero::model::JobStatus attach(long jobId) throws ServerError;
+        omero::model::Job getJob();
+        omero::model::JobStatus jobStatus();
+        omero::RTime jobFinished();
+        string jobMessage();
+        bool jobRunning();
+        bool jobError();
+        void cancelJob();
       };
 
     interface RawFileStore extends StatefulServiceInterface
@@ -311,16 +333,70 @@ module omero {
 	void updateCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
 	void removeCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
 	void saveCurrentSettings() throws ServerError;
-	void resetDefaults() throws ServerError;      
-	void resetDefaultsNoSave() throws ServerError;      
+	void resetDefaults() throws ServerError;
+	void resetDefaultsNoSave() throws ServerError;
 	void setCompressionLevel(float percentage) throws ServerError;
 	float getCompressionLevel() throws ServerError;
       };
 
-    //interface Search extends StatefulServiceInterface
-    //  {
-    //  
-    //  };
+    interface Search extends StatefulServiceInterface
+      {
+
+        // Non-query state ~~~~~~~~~~~~~~~~~~~~~~
+
+        int activeQueries() throws ServerError;
+        void setBatchSize(int size) throws ServerError;
+        int getBatchSize() throws ServerError;
+        void setMergedBatches(bool merge) throws ServerError;
+        bool isMergedBatches() throws ServerError;
+        void setCaseSentivice(bool caseSensitive) throws ServerError;
+        bool isCaseSensitive() throws ServerError;
+        void setUseProjections(bool useProjections) throws ServerError;
+        bool isUseProjections() throws ServerError;
+        void setReturnUnloaded(bool returnUnloaded) throws ServerError;
+        bool isReturnUnloaded() throws ServerError;
+
+        // Filters ~~~~~~~~~~~~~~~~~~~~~~
+
+        void onlyType(string klass) throws ServerError;
+        void onlyTypes(StringSet classes) throws ServerError;
+        void allTypes() throws ServerError;
+        void onlyIds(omero::sys::LongList ids) throws ServerError;
+        void onlyOwnedBy(omero::model::Details d) throws ServerError;
+        void notOwnedBy(omero::model::Details d) throws ServerError;
+        void onlyCreatedBetween(omero::RTime start, omero::RTime  stop) throws ServerError;
+        void onlyModifiedBetween(omero::RTime start, omero::RTime stop) throws ServerError;
+        void onlyAnnotatedBetween(omero::RTime start, omero::RTime stop) throws ServerError;
+        void onlyAnnotatedBy(omero::model::Details d) throws ServerError;
+        void notAnnotatedBy(omero::model::Details d) throws ServerError;
+        void onlyAnnotatedWith(StringSet classes) throws ServerError;
+
+        // Fetches, order, counts, etc ~~~~~~~~~~~~~~~~~~~~~~
+
+        void addOrderByAsc(string path) throws ServerError;
+        void addOrderByDesc(string path) throws ServerError;
+        void unordered() throws ServerError;
+        void fetchAnnotations(StringSet classes) throws ServerError;
+        void fetchAlso(StringSet fetches) throws ServerError;
+
+        // Reset ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        void resetDefaults() throws ServerError;
+
+        // Query state  ~~~~~~~~~~~~~~~~~~~~~~~~~
+        void byGroupForTags(string group) throws ServerError;
+        void byTagForGroups(string tag) throws ServerError;
+        void byFullText(string query) throws ServerError;
+        void bySomeMustNone(StringSet some, StringSet must, StringSet none) throws ServerError;
+        void byAnnotatedWith(AnnotationList examples) throws ServerError;
+        void clearQueries() throws ServerError;
+
+        // Retrieval  ~~~~~~~~~~~~~~~~~~~~~~~~~
+        bool hasNext() throws ServerError;
+        omero::model::IObject next() throws ServerError;
+        SearchMetadata currentMetadata();
+        SearchMetadataList results() throws ServerError;
+      };
 
     interface ThumbnailStore extends StatefulServiceInterface
       {
@@ -341,7 +417,7 @@ module omero {
      * Unused, and unsupported. Similar callbacks can be added
      * as specific needs arise.
      */
-    interface SimpleCallback 
+    interface SimpleCallback
       {
 	void call();
       };
@@ -369,10 +445,11 @@ module omero {
 	IUpdate*   getUpdateService() throws ServerError;
 
 	// Central OMERO.blitz stateful services.
+	JobHandle* createJobHandle() throws ServerError;
 	RawFileStore* createRawFileStore() throws ServerError;
 	RawPixelsStore* createRawPixelsStore() throws ServerError;
 	RenderingEngine* createRenderingEngine() throws ServerError;
-	// Search* createSearchService() throws ServerError;
+	Search* createSearchService() throws ServerError;
 	ThumbnailStore* createThumbnailStore() throws ServerError;
 
 	/*
@@ -385,6 +462,13 @@ module omero {
 	ServiceInterface* getByName(string name) throws ServerError;
 
 	StatefulServiceInterface* createByName(string name) throws ServerError;
+
+        // Shared resources. Here an acquisition framework is^M
+        // in place such that it is not guaranteed that^M
+
+        omero::grid::InteractiveProcess*
+        acquireInteractiveProcess(omero::model::ScriptJob job, int seconds)
+        throws ServerError;
 
 	/*
 	 * Example for what a server callback would look like.

@@ -71,6 +71,7 @@ namespace omero {
     if (!sf) {
       throw omero::ClientError(__FILE__,__LINE__,"No session obtained.");
     }
+    return sf;
   }
   
   omero::api::IAdminPrx client::getAdminService() {return sf->getAdminService();}

@@ -35,9 +35,11 @@ module omero {
     const string SESSIONSERVICE   = "omero.api.ISession";
     const string TYPESSERVICE     = "omero.api.ITypes";
     const string UPDATESERVICE    = "omero.api.IUpdate";
+    const string JOBHANDLE        = "omero.api.JobHandle";
     const string RAWFILESTORE     = "omero.api.RawFileStore";
     const string RAWPIXELSSTORE   = "omero.api.RawPixelsStore";
     const string RENDERINGENGINE  = "omero.api.RenderingEngine";
+    const string SEARCH           = "omero.api.Search";
     const string THUMBNAILSTORE   = "omero.api.ThumbnailStore";
     const string REPOSITORYINFO   = "omero.api.IRepositoryInfo";
 
@@ -66,6 +68,22 @@ module omero {
     const string CLASSIFICATIONNME = "CLASSIFICATION_NME";
     const string DECLASSIFICATION  = "DECLASSIFICATION";
 
+    module jobs {
+
+      /*
+       * Used by JobHandle as the status of jobs
+       */
+      const string SUBMITTED = "Submitted";
+      const string RESUBMITTED = "Resubmitted";
+      const string QUEUED = "Queued";
+      const string REQUEUED = "Requeued";
+      const string RUNNING = "Running";
+      const string ERROR = "Error";
+      const string WAITING = "Waiting";
+      const string FINISHED = "Finished";
+      const string CANCELLED = "Cancelled";
+
+    };
   };
 };
 

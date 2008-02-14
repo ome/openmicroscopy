@@ -50,10 +50,14 @@ import omero.api.ITypesPrx;
 import omero.api.ITypesPrxHelper;
 import omero.api.IUpdatePrx;
 import omero.api.IUpdatePrxHelper;
+import omero.api.JobHandlePrx;
+import omero.api.JobHandlePrxHelper;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RawPixelsStorePrxHelper;
 import omero.api.RenderingEnginePrx;
 import omero.api.RenderingEnginePrxHelper;
+import omero.api.SearchPrx;
+import omero.api.SearchPrxHelper;
 import omero.api.ServiceInterfacePrx;
 import omero.api.ServiceInterfacePrxHelper;
 import omero.api.SimpleCallbackPrx;
@@ -65,6 +69,7 @@ import omero.api.ThumbnailStorePrxHelper;
 import omero.api._ServiceFactoryDisp;
 import omero.constants.ADMINSERVICE;
 import omero.constants.CONFIGSERVICE;
+import omero.constants.JOBHANDLE;
 import omero.constants.LDAPSERVICE;
 import omero.constants.PIXELSSERVICE;
 import omero.constants.POJOSSERVICE;
@@ -73,10 +78,15 @@ import omero.constants.RAWFILESTORE;
 import omero.constants.RAWPIXELSSTORE;
 import omero.constants.RENDERINGENGINE;
 import omero.constants.REPOSITORYINFO;
+import omero.constants.SEARCH;
 import omero.constants.SESSIONSERVICE;
 import omero.constants.THUMBNAILSTORE;
 import omero.constants.TYPESSERVICE;
 import omero.constants.UPDATESERVICE;
+import omero.grid.InteractiveProcessPrx;
+import omero.grid.ScriptProcessorPrx;
+import omero.grid.ScriptProcessorPrxHelper;
+import omero.model.ScriptJob;
 
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -109,6 +119,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * properly as a key.
      */
     final Map<String, Ice.Object> activeServants;
+
+    final List<ScriptProcessorPrx> interactiveSlots;
 
     final Principal principal;
 
@@ -144,6 +156,17 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                     .getObjectValue();
         }
         activeServants = ids;
+        List<ScriptProcessorPrx> slots;
+        if (!cache.isKeyInCache("interactiveSlots")) {
+            slots = Collections
+                    .synchronizedList(new ArrayList<ScriptProcessorPrx>());
+            cache.put(new Element("interactiveSlots", slots));
+        } else {
+            slots = (List<ScriptProcessorPrx>) cache.get("interactiveSlots")
+                    .getObjectValue();
+        }
+        interactiveSlots = slots;
+
     }
 
     // ~ Stateless
@@ -203,6 +226,12 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     // ~ Stateful
     // =========================================================================
 
+    public JobHandlePrx createJobHandle(Ice.Current current)
+            throws ServerError {
+        return JobHandlePrxHelper.uncheckedCast(createByName(
+                JOBHANDLE.value, current));
+    }
+
     public RenderingEnginePrx createRenderingEngine(Ice.Current current)
             throws ServerError {
         return RenderingEnginePrxHelper.uncheckedCast(createByName(
@@ -221,6 +250,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 RAWPIXELSSTORE.value, current));
     }
 
+    public SearchPrx createSearchService(Ice.Current current)
+            throws ServerError {
+        return SearchPrxHelper.uncheckedCast(createByName(
+                SEARCH.value, current));
+    }
     public ThumbnailStorePrx createThumbnailStore(Ice.Current current)
             throws ServerError {
         return ThumbnailStorePrxHelper.uncheckedCast(createByName(
@@ -271,6 +305,41 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         registerServant(current, id, servant);
         Ice.ObjectPrx prx = current.adapter.createProxy(id);
         return StatefulServiceInterfacePrxHelper.uncheckedCast(prx);
+    }
+
+    public InteractiveProcessPrx acquireInteractiveProcess(ScriptJob job,
+            int seconds, Current current) throws ServerError {
+
+        if (seconds > (3 * 60)) {
+            ApiUsageException aue = new ApiUsageException();
+            aue.message = "Delay is too long. Maximum = 3 minutes.";
+        }
+
+        long start = System.currentTimeMillis();
+        long stop = seconds < 0 ? start : (start + (seconds * 1000));
+        do {
+            Ice.ObjectPrx prx = current.adapter.getCommunicator()
+                    .stringToProxy("ScriptProcessor");
+            if (prx != null) {
+                ScriptProcessorPrx processor;
+                try {
+                    processor = ScriptProcessorPrxHelper.checkedCast(prx);
+                    InteractiveProcessPrx ip = processor.processInteractiveJob(
+                            job, seconds);
+                    if (ip != null) {
+                        return ip;
+                    }
+                } catch (Ice.NoEndpointException nee) {
+                    // This means that there probably is none. Wait a little
+                    try {
+                        Thread.sleep((stop - start) / 10);
+                    } catch (InterruptedException ie) {
+                        // ok.
+                    }
+                }
+            }
+        } while (stop < System.currentTimeMillis());
+        return null;
     }
 
     public void setCallback(SimpleCallbackPrx callback, Ice.Current current) {

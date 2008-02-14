@@ -588,18 +588,18 @@ One-to-many extras:
 [$pyc]
 [$jav]       public long sizeOf${PropertyName}() throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
-[$jav]           if (!${propLoaded}) throwNullCollectionException("${property.name}");
+[$jav]           if (!${propLoaded}) return -1l;
 [$jav]           return ${property.name}.size();
 [$jav]       }
 [$hdr]       virtual Ice::Long sizeOf${PropertyName}();
 [$cpp]       Ice::Long ${PojoI}::sizeOf${PropertyName}( ) {
 [$cpp]           errorIfUnloaded();
-[$cpp]           if (!${propLoaded}) throwNullCollectionException("${property.name}");
+[$cpp]           if (!${propLoaded}) return -1l;
 [$cpp]           return ${property.name}.size();
 [$cpp]       }
 [$pyc]       def sizeOf${PropertyName}(self):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${property.name}")
+[$pyc]           if not self.${propLoaded}: return -1
 [$pyc]           return len(self.${property.name})
 [$pyc]
 [$jav]       public Iterator iterate${PropertyName}() throws omero.UnloadedEntityException {
@@ -1181,7 +1181,10 @@ FILLOBJECT BLOCK:
 #set( $propLoaded = "${property.Name}Loaded" )
 
 #if( $property.name.equals("details"))
-[$jav]             target.getDetails().copy( (${property.type}) mapper.reverse( (ome.model.ModelBased) this.get${PropertyName}() ) );
+[$jav]             ${property.type} details = (${property.type}) mapper.reverse( (ome.model.ModelBased) this.get${PropertyName}() );
+[$jav]             if (details != null) {
+[$jav]               target.getDetails().copy( details );
+[$jav]             }
 #elseif( $type.id.equals("ome.model.internal.Permissions") )
 [$jav]             target = ome.util.Utils.toPermissions((Long)this.getPerm1());
 

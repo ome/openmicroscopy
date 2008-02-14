@@ -178,7 +178,8 @@
     </constructor-arg>
   </bean>
   
-  <bean id="scheduler" class="ome.services.scheduler.SchedulerFactoryBean">
+  <bean id="scheduler" class="ome.services.scheduler.SchedulerFactoryBean"
+    depends-on="sessionManager"><!-- Have to slow down scheduler creation. -->
     <property name="jobDetails">
       <list>
         <ref bean="process-jobs-manual" />

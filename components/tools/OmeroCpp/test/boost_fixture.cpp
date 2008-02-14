@@ -56,12 +56,12 @@ void Fixture::show_stackframe() {
 #endif
 }
 
-const std::string& Fixture::uuid()
+std::string Fixture::uuid()
 {
   return IceUtil::generateUUID();
 }
 
-void Fixture::printUnexpected() 
+void Fixture::printUnexpected()
 {
   /* Need printStackTrace.h for this
   char* buf = new char[1024];
@@ -84,13 +84,12 @@ b_ut::unit_test_log_t& Fixture::log() {
   return b_ut::unit_test_log;
 }
 
-// from : collector
-bool Fixture::passed() {
-  if ( b_ut::results_collector.
-       results(current().p_id ).
-       passed() )
-    {
-      return true;
-    }
-  return false;
+const omero::client* Fixture::login(const std::string& username, const std::string& password) {
+    int argc = 0;
+    char** argv = new char*[0];
+    omero::client* client = new omero::client(argc, argv);
+    client->createSession(username, password);
+    clients.push_back(client);
+    return client;
 }
+

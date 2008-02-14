@@ -39,7 +39,8 @@ class TestISession(lib.ITest):
     def testManuallyClosingOwnSession(self):
         session = self.testGettingACopyOfSessionForUpdate()
 
-        s = self.client.sf.getSessionService().updateSession(session)
+        isess = self.client.sf.getSessionService()
+        s = isess.updateSession(session)
         isess.closeSession(s)
 
     def testCreateSessionForGuest(self):
