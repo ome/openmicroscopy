@@ -35,7 +35,6 @@ import ome.system.Principal;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
-import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -59,7 +58,6 @@ import org.springframework.transaction.annotation.Transactional;
         @RemoteBinding(jndiBinding = "omero/secure/ome.services.licenses.ILicense", clientBindUrl = "sslsocket://0.0.0.0:3843") })
 @Local(ILicense.class)
 @LocalBinding(jndiBinding = "omero/local/ome.services.licenses.ILicense")
-@SecurityDomain("OmeroSecurity")
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class LicenseBean extends AbstractLevel2Service implements LicenseStore {
 
