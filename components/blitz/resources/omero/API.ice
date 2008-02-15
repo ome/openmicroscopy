@@ -216,11 +216,17 @@ module omero {
 
     interface ISession extends ServiceInterface
       {
-	omero::model::Session createSession(omero::sys::Principal p, string credentials) throws ServerError;
+        omero::model::Session createSession(omero::sys::Principal p, string credentials) throws ServerError;
         omero::model::Session updateSession(omero::model::Session sess) throws ServerError;
         void closeSession(omero::model::Session sess);
         // System users
         omero::model::Session createSessionWithTimeout(omero::sys::Principal p, long seconds) throws ServerError;
+        
+        // Environment
+        omero::RType getInput(string sess, string key);
+        omero::RType getOutput(string sess, string key);
+        void setInput(string sess, string key, omero::RType value); 
+        void setOutput(string sess, string key, omero::RType value); 
       };
 
     interface ITypes extends ServiceInterface
@@ -466,8 +472,8 @@ module omero {
         // Shared resources. Here an acquisition framework is^M
         // in place such that it is not guaranteed that^M
 
-        omero::grid::InteractiveProcess*
-        acquireInteractiveProcess(omero::model::ScriptJob job, int seconds)
+        omero::grid::InteractiveProcessor*
+        acquireProcessor(omero::model::Job job, int seconds)
         throws ServerError;
 
 	/*

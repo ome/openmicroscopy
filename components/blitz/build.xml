@@ -12,23 +12,8 @@
     <!-- Local properties -->
     <property name="uses.ice" value="true"/>
 
-
-<target name="grv" depends="prepare,load-groovy">
-
-  <taskdef classname="ome.dsl.GroovyTask" classpathref="omero.classpath" name="grv"/>
-
-  <grv destdir="${resrc.dest}/">
-    <fileset dir="${common.comp}/resources/">
-      <include name="${dsl.pat}"/>
-    </fileset>
-  </grv>
-
-  <groovy src="${resrc.dir}/boo.groovy"/>
-
-</target>
-
     <!-- TODO Be sure to remove the warning messages and macros -->
-	      		
+
 	<target name="generate" depends="prepare,icegen,lifecycle.generate"/>
 
 	<target name="compile" depends="generate" unless="skip.compile">
@@ -169,7 +154,11 @@
 	</target>
 
 	<target name="dist" depends="package,install" unless="skip.compile"><!-- install for standalone -->
+	  <copy todir="${dist.dir}/bin">
+            <fileset dir="${basedir}/bin" includes="**/*"/>
+          </copy>
 	  <copy todir="${dist.dir}/etc">
+            <fileset dir="${basedir}/etc" includes="**/*"/>
 	    <fileset dir="${resrc.dir}" includes="*.config"/>
 	    <flattenmapper/>
 	  </copy>

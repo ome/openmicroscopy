@@ -134,12 +134,20 @@ public class SessionBean implements ISession, SelfConfigurableService {
     // ~ Environment
     // =========================================================================
 
-    public Object getInput(String key) {
-        throw new UnsupportedOperationException();
+    public Object getInput(String session, String key) {
+        return mgr.getInput(session, key);
     }
 
-    public Object getOutput(String key) {
-        throw new UnsupportedOperationException();
+    public Object getOutput(String session, String key) {
+        return mgr.getOutput(session, key);
+    }
+
+    public void setInput(String session, String key, Object object) {
+        mgr.setInput(session, key, object);
+    }
+
+    public void setOutput(String session, String key, Object object) {
+        mgr.setOutput(session, key, object);
     }
 
     // ~ Helpers

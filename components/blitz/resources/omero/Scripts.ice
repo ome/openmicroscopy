@@ -9,8 +9,9 @@
 #ifndef OMERO_SCRIPTS_ICE
 #define OMERO_SCRIPTS_ICE
 
-#include <omero/model/OriginalFile.ice>
-#include <omero/model/ScriptJob.ice>
+#include <omero/RTypes.ice>
+#include <omero/ServerErrors.ice>
+#include <omero/model/Job.ice>
 
 /*
  * The Processor API is intended to provide an Ice-implementation
@@ -19,50 +20,131 @@
 module omero {
     module grid {
 
-        interface ScriptProcessor;
-        interface ScriptProcessCallback;
-        interface InteractiveProcess;
+	/*
+	 * Callback which can be attached to a Process
+	 * with notification of any of the possible
+	 * ends-of-life that a Process might experience
+	 */
+        interface ProcessCallback {
 
-        interface ScriptProcess {
-            ScriptProcessor* getProcessor();
-            bool isActive();
-            void finish();
-            void cancel();
-            void registerCallback(ScriptProcessCallback* cb);
-            void unregisterCallback(ScriptProcessCallback* cb);
+	    /*
+	     * Process terminated normally. Return code provided.
+	     * In the case that a non-Blitz process sent a signal
+	     * (KILL, TERM, ... ), that will represented in the
+	     * return code.
+	     */
+            void processFinished(int returncode);
+
+	    /*
+	     * cancel() was called on this Process. If the Process
+	     * failed to terminate, argument is false, in which calling
+	     * kill() is the last resort.
+	     */
+            void processCancelled(bool success);
+
+	    /*
+	     * kill() was called on this Process. If this does not
+	     * succeed, there is nothing else that Blitz can do to
+	     * stop its execution.
+	     */
+            void processKilled(bool success);
         };
 
-        interface ScriptProcessCallback {
-            void processFinished();
-            void processCancelled();
+	/*
+	 * Thin wrapper around a system-level process. Most closely
+	 * resembles Python's subprocess.Popen class.
+	 */
+        interface Process {
+
+	    /*
+	     * Returns the return code of the process, or null
+	     * if unfinished.
+	     */
+            omero::RInt poll();
+
+	    /*
+	     * Blocks until poll() would return a non-null return code.
+	     */
+            int wait();
+
+	    /*
+	     * Signal to the Process that it should terminate. This may
+	     * be done "softly" for a given time period.
+	     */
+            bool cancel();
+
+	    /*
+	     * Terminate the Process immediately.
+	     */
+            bool kill();
+
+	    /*
+	     * Add a callback for end-of-life events
+	     */
+            void registerCallback(ProcessCallback* cb);
+
+	    /*
+	     * Remove a callback for end-of-life events
+	     */
+            void unregisterCallback(ProcessCallback* cb);
         };
 
-        interface ScriptProcessor {
+	/*
+	 * Simple controller for Processes. Uses the session
+	 * id given to create an Ice.Config file which is used
+	 * as the sole argument to an execution of the given job.
+	 *
+	 * Jobs are responsible for loading arguments from the
+	 * environment via the session id.
+	 */
+        interface Processor {
 
             /*
-             * Starts a process based on the given job id. If
+             * Starts a process based on the given job. If
              * this processor cannot handle the given job, a
              * null process will be returned.
              */
-            ScriptProcess* processScriptJob(omero::model::ScriptJob job);
-
-            /*
-             * Tries to acquire an interactive process on
-             * this processor. Waits given number of seconds
-             * before giving up.
-             */
-             InteractiveProcess* processInteractiveJob(omero::model::ScriptJob job, int seconds);
+            ["ami"] Process* processJob(string session, omero::model::Job j) throws ServerError;
 
         };
 
-        interface InteractiveProcess extends ScriptProcess {
 
+        /*
+         * Client facing interface to the background processing
+         * framework. If a user needs interactivity, one of these
+         * processors should be acquired from the ServiceFactory.
+         * Otherwise, a Job can be submitted via JobHandle.
+         */
+        interface InteractiveProcessor {
+
+	    /*
+	     * Returns the system clock time in milliseconds since the epoch
+	     * at which this processor will be reaped.
+	     */
             long expires();
-            omero::model::OriginalFile getScript();
-            omero::model::ScriptJob getJob();
-            ["ami"] omero::RMap execute(omero::RMap inputs);
+
+	    /*
+	     * Returns the job which defines this processor. This may be
+	     * only the last job associated with the processor if execute
+	     * is called multiple times.
+	     */
+            omero::model::Job getJob();
+
+	    /*
+	     * Executes an instance of the job returned by getJob() using
+	     * the given map as inputs.
+	     */
+	    ["ami"] Process* execute(omero::RMap inputs) throws ServerError;
+
+	    /*
+	     * Retrieve the results for the given process. This will throw
+	     * an ApiUsageException if called before the process has returned.
+	     * Use either process.poll() or process.wait() to 
+	     */
+            ["ami"] omero::RMap getResults(Process* proc) throws ServerError;
 
         };
+
     };
 };
 

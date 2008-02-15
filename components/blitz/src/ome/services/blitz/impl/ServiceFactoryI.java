@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.sf.ehcache.Ehcache;
@@ -83,10 +84,12 @@ import omero.constants.SESSIONSERVICE;
 import omero.constants.THUMBNAILSTORE;
 import omero.constants.TYPESSERVICE;
 import omero.constants.UPDATESERVICE;
-import omero.grid.InteractiveProcessPrx;
-import omero.grid.ScriptProcessorPrx;
-import omero.grid.ScriptProcessorPrxHelper;
-import omero.model.ScriptJob;
+import omero.grid.InteractiveProcessorI;
+import omero.grid.InteractiveProcessorPrx;
+import omero.grid.InteractiveProcessorPrxHelper;
+import omero.grid.ProcessorPrx;
+import omero.grid.ProcessorPrxHelper;
+import omero.model.Job;
 
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -120,7 +123,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      */
     final Map<String, Ice.Object> activeServants;
 
-    final List<ScriptProcessorPrx> interactiveSlots;
+    final Map<String, Ice.Object> interactiveSlots;
 
     final Principal principal;
 
@@ -147,26 +150,22 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
         // Setting up in memory store.
         Ehcache cache = manager.inMemoryCache(p.getName());
-        Map<String, Ice.Object> ids;
-        if (!cache.isKeyInCache("activeServants")) {
-            ids = new ConcurrentHashMap<String, Ice.Object>();
-            cache.put(new Element("activeServants", ids));
-        } else {
-            ids = (Map<String, Ice.Object>) cache.get("activeServants")
-                    .getObjectValue();
-        }
-        activeServants = ids;
-        List<ScriptProcessorPrx> slots;
-        if (!cache.isKeyInCache("interactiveSlots")) {
-            slots = Collections
-                    .synchronizedList(new ArrayList<ScriptProcessorPrx>());
-            cache.put(new Element("interactiveSlots", slots));
-        } else {
-            slots = (List<ScriptProcessorPrx>) cache.get("interactiveSlots")
-                    .getObjectValue();
-        }
-        interactiveSlots = slots;
+        activeServants = getServantMap(ACTIVE_SERVANTS, cache);
+        interactiveSlots = getServantMap(INTERACTIVE_SLOTS, cache);
+    }
 
+    static String ACTIVE_SERVANTS = "activeServants";
+    static String INTERACTIVE_SLOTS = "interactiveSlots";
+
+    private Map<String, Ice.Object> getServantMap(String key, Ehcache cache) {
+        Map<String, Ice.Object> ids;
+        if (!cache.isKeyInCache(key)) {
+            ids = new ConcurrentHashMap<String, Ice.Object>();
+            cache.put(new Element(key, ids));
+        } else {
+            ids = (Map<String, Ice.Object>) cache.get(key).getObjectValue();
+        }
+        return ids;
     }
 
     // ~ Stateless
@@ -226,10 +225,9 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     // ~ Stateful
     // =========================================================================
 
-    public JobHandlePrx createJobHandle(Ice.Current current)
-            throws ServerError {
-        return JobHandlePrxHelper.uncheckedCast(createByName(
-                JOBHANDLE.value, current));
+    public JobHandlePrx createJobHandle(Ice.Current current) throws ServerError {
+        return JobHandlePrxHelper.uncheckedCast(createByName(JOBHANDLE.value,
+                current));
     }
 
     public RenderingEnginePrx createRenderingEngine(Ice.Current current)
@@ -252,9 +250,10 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     public SearchPrx createSearchService(Ice.Current current)
             throws ServerError {
-        return SearchPrxHelper.uncheckedCast(createByName(
-                SEARCH.value, current));
+        return SearchPrxHelper
+                .uncheckedCast(createByName(SEARCH.value, current));
     }
+
     public ThumbnailStorePrx createThumbnailStore(Ice.Current current)
             throws ServerError {
         return ThumbnailStorePrxHelper.uncheckedCast(createByName(
@@ -307,32 +306,57 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         return StatefulServiceInterfacePrxHelper.uncheckedCast(prx);
     }
 
-    public InteractiveProcessPrx acquireInteractiveProcess(ScriptJob job,
-            int seconds, Current current) throws ServerError {
+    public InteractiveProcessorPrx acquireProcessor(Job job, int seconds,
+            Current current) throws ServerError {
 
         if (seconds > (3 * 60)) {
             ApiUsageException aue = new ApiUsageException();
             aue.message = "Delay is too long. Maximum = 3 minutes.";
         }
 
+        // First create the job
+        // This section is being temporarily omitted. It is necessary to be
+        // able to add jobs which are delayed until actively consumed. This
+        // could be done via setting the scheduledFor time
+        // JobHandlePrx handle = createJobHandle(current);
+
+        // Lookup processor
+        // Create wrapper (InteractiveProcessor)
+        // Create session (with session)
+        // Setup environment
+        // Send off to processor
+
         long start = System.currentTimeMillis();
         long stop = seconds < 0 ? start : (start + (seconds * 1000));
         do {
             Ice.ObjectPrx prx = current.adapter.getCommunicator()
-                    .stringToProxy("ScriptProcessor");
+                    .stringToProxy("Processor");
             if (prx != null) {
-                ScriptProcessorPrx processor;
+                ProcessorPrx processor;
                 try {
-                    processor = ScriptProcessorPrxHelper.checkedCast(prx);
-                    InteractiveProcessPrx ip = processor.processInteractiveJob(
-                            job, seconds);
-                    if (ip != null) {
-                        return ip;
+                    processor = ProcessorPrxHelper.checkedCast(prx);
+                    if (processor != null) {
+                        long timeout = System.currentTimeMillis() + 60 * 60 * 1000L;
+                        InteractiveProcessorI ip = new InteractiveProcessorI(
+                                this.principal, this.sessionManager, processor,
+                                job, timeout);
+                        Ice.Identity id = new Ice.Identity();
+                        id.category = current.id.name;
+                        id.name = Ice.Util.generateUUID();
+                        Ice.ObjectPrx rv = current.adapter.add(ip, id);
+                        interactiveSlots.put(Ice.Util.identityToString(id), ip);
+                        return InteractiveProcessorPrxHelper.uncheckedCast(rv);
                     }
-                } catch (Ice.NoEndpointException nee) {
-                    // This means that there probably is none. Wait a little
                     try {
                         Thread.sleep((stop - start) / 10);
+                    } catch (InterruptedException ie) {
+                        // ok.
+                    }
+                } catch (Ice.NoEndpointException nee) {
+                    // This means that there probably is none.
+                    // Wait a little longer
+                    try {
+                        Thread.sleep((stop - start) / 3);
                     } catch (InterruptedException ie) {
                         // ok.
                     }
@@ -359,6 +383,15 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             // FIXME
             InternalException ie = new InternalException(t.getMessage());
             ie.setStackTrace(t.getStackTrace());
+        }
+
+        Set<String> ipIds = interactiveSlots.keySet();
+        for (String id : ipIds) {
+            InteractiveProcessorI ip = (InteractiveProcessorI) interactiveSlots
+                    .get(id);
+            ip.stop();
+            current.adapter.remove(Ice.Util.stringToIdentity(id));
+            interactiveSlots.remove(id);
         }
 
         List<String> ids = activeServices(current);

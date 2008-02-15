@@ -248,7 +248,7 @@ public class IceMethodInvoker {
             throws ServerError {
         if (arg instanceof RType) {
             RType rt = (RType) arg;
-            return mapper.convert(rt);
+            return mapper.fromRType(rt);
         } else if (isPrimitive(p)) { // FIXME use findTarget for Immutable.
             return arg;
         } else if (p.equals(Class.class)) {

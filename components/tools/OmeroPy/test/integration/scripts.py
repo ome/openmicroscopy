@@ -17,7 +17,7 @@ class TestScripts(lib.ITest):
     def testBasicUsage(self):
         job = ScriptJobI()
         proc = self.client.sf.acquireInteractiveProcess(job, 20)
-        print proc
+        proc.
 
 if __name__ == '__main__':
     unittest.main()

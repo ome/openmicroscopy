@@ -78,4 +78,22 @@ public class SessionManagerTest extends AbstractManagedContextTest {
 
     }
 
+    @Test
+    public void testInputOutputEnvironments() throws Exception {
+        login("root", "user", "User");
+        Session s = sm.create(new Principal("root", "user", "Test"));
+        String uuid = s.getUuid();
+
+        assertNull(sessionManager.getInput(uuid, "a"));
+        sessionManager.setInput(uuid, "a", 1L);
+        assertEquals(1L, sessionManager.getInput(uuid, "a"));
+        sessionManager.setInput(uuid, "a", null);
+        assertNull(sessionManager.getInput(uuid, "a"));
+
+        assertNull(sessionManager.getOutput(uuid, "a"));
+        sessionManager.setOutput(uuid, "a", 2L);
+        assertEquals(2L, sessionManager.getOutput(uuid, "a"));
+        sessionManager.setOutput(uuid, "a", null);
+        assertNull(sessionManager.getOutput(uuid, "a"));
+    }
 }

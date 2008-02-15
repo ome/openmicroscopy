@@ -8,10 +8,14 @@ package ome.services.sessions;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import ome.api.local.LocalAdmin;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
@@ -288,6 +292,78 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     public Ehcache onDiskCache(String uuid) {
         return cache.onDiskCache(uuid);
+    }
+
+    static String INPUT_ENVIRONMENT = "InputEnvironment";
+    static String OUTPUT_ENVIRONMENT = "OutputEnvironment";
+
+    public Object getInput(String session, String key)
+            throws RemovedSessionException {
+        return getEnvironmentVariable(session, key, INPUT_ENVIRONMENT);
+    }
+
+    public Object getOutput(String session, String key)
+            throws RemovedSessionException {
+        return getEnvironmentVariable(session, key, OUTPUT_ENVIRONMENT);
+    }
+
+    public Map<String, Object> outputEnvironment(String session) {
+        Map<String, Object> rv = new HashMap<String, Object>();
+        Element elt = inMemoryCache(session).get(OUTPUT_ENVIRONMENT);
+        if (elt == null) {
+            return rv;
+        }
+        Map<String, Object> cv = (Map<String, Object>) elt.getObjectValue();
+        if (cv == null) {
+            return rv;
+        }
+
+        rv.putAll(cv);
+        return rv;
+    }
+
+    public void setInput(String session, String key, Object object)
+            throws RemovedSessionException {
+        setEnvironmentVariable(session, key, object, INPUT_ENVIRONMENT);
+    }
+
+    public void setOutput(String session, String key, Object object)
+            throws RemovedSessionException {
+        setEnvironmentVariable(session, key, object, OUTPUT_ENVIRONMENT);
+    }
+
+    private Object getEnvironmentVariable(String session, String key, String env) {
+        Ehcache cache = inMemoryCache(session);
+        Element elt = cache.get(env);
+        if (elt == null) {
+            return null;
+        }
+
+        Map<String, Object> map = (Map<String, Object>) elt.getObjectValue();
+        if (map == null) {
+            return null;
+        } else {
+            return map.get(key);
+        }
+    }
+
+    private void setEnvironmentVariable(String session, String key,
+            Object object, String env) {
+        Ehcache cache = inMemoryCache(session);
+        Element elt = cache.get(env);
+        Map<String, Object> map;
+        if (elt == null) {
+            map = new ConcurrentHashMap<String, Object>();
+            elt = new Element(env, map);
+            cache.put(elt);
+        } else {
+            map = (Map<String, Object>) elt.getObjectValue();
+        }
+        if (object == null) {
+            map.remove(key);
+        } else {
+            map.put(key, object);
+        }
     }
 
     // ~ Security methods

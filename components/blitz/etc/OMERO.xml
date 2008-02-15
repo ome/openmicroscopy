@@ -1,0 +1,144 @@
+<icegrid>
+
+<!--
+    OMERO Grid Application Descriptor
+    Copyright 2008 Glencoe Software, Inc.  All Rights Reserved.
+    Use is subject to license terms supplied in LICENSE.txt
+-->
+
+  <application name="OMERO">
+
+    <replica-group id="BlitzAdapters">
+      <load-balancing type="adaptive" load-sample="5" n-replicas="2"/>
+      <object identity="BlitzVerifier" type="::Glacier2::PermissionVerifier"/>
+      <object identity="BlitzManager" type="::Glacier2::SessionManager"/>
+    </replica-group>
+
+    <replica-group id="ProcessorAdapters">
+      <!--load-balancing type="adaptive" load-sample="5" n-replicas="2"/-->
+      <load-balancing type="round-robin"/>
+      <object identity="Processor" type="::omero::grid::Processor"/>
+    </replica-group>
+
+    <distrib/>
+
+     <!-- Templates from Ice-3.2.1/config/templates.xml -->
+    <server-template id="IcePatch2Template">
+       <parameter name="instance-name" default="${application}.IcePatch2"/>
+       <parameter name="endpoints" default="default"/>
+       <parameter name="directory"/>
+       <server id="${instance-name}" exe="icepatch2server" application-distrib="false" activation="always">
+         <adapter name="IcePatch2" endpoints="${endpoints}">
+           <object identity="${instance-name}/server" type="::IcePatch2::FileServer"/>
+         </adapter>
+         <properties>
+            <property name="IcePatch2.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
+            <property name="IcePatch2.Admin.RegisterProcess" value="1"/>
+            <property name="IcePatch2.InstanceName" value="${instance-name}"/>
+            <property name="IcePatch2.Directory" value="${directory}"/>
+         </properties>
+       </server>
+    </server-template>
+     <server-template id="Glacier2Template">
+       <parameter name="instance-name" default="${application}.Glacier2"/>
+       <parameter name="client-endpoints"/>
+       <parameter name="server-endpoints"/>
+       <parameter name="session-timeout" default="0"/>
+       <server id="${instance-name}" exe="glacier2router" activation="always">
+         <properties>
+           <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
+           <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
+           <property name="Glacier2.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
+           <property name="Glacier2.Admin.RegisterProcess" value="1"/>
+           <property name="Glacier2.InstanceName" value="${instance-name}"/>
+           <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
+           <property name="Glacier2.PermissionsVerifier" value="BlitzVerifier@BlitzAdapters"/>
+           <property name="Glacier2.SessionManager" value="BlitzManager@BlitzAdapters"/>
+         </properties>
+       </server>
+     </server-template>
+
+    <server-template id="BlitzTemplate">
+      <parameter name="index"/>
+      <parameter name="exe"  default="java"/>
+      <parameter name="mx"   default="256"/>
+      <parameter name="port" default="8787"/>
+      <server id="Blitz-${index}" exe="${exe}" activation="always">
+        <target name="debug">
+          <option>-Xdebug</option>
+          <option>-Xrunjdwp:server=y,transport=dt_socket,address=${port},suspend=n</option>
+        </target>
+        <option>-Xmx${mx}m</option>
+        <option>-jar</option>
+        <option>blitz/blitz.jar</option>
+        <adapter name="BlitzAdapter" replica-group="BlitzAdapters" register-process="true" endpoints="tcp"/>
+        <properties>
+          <property name="Ice.ThreadPool.Client.Size" value="2"/>
+          <property name="Ice.ThreadPool.Client.SizeMax" value="50"/>
+          <property name="Ice.ThreadPool.Server.Size" value="10"/>
+          <property name="Ice.ThreadPool.Server.SizeMax" value="100"/>
+        </properties>
+      </server>
+    </server-template>
+
+    <server-template id="ProcessorTemplate">
+      <parameter name="index"/>
+      <parameter name="exe" default="python"/>
+      <server id="Processor${index}" exe="${exe}" activation="always">
+        <option>lib/omero/processor.py</option>
+        <env>PYTHONPATH=lib</env>
+        <adapter name="ProcessorAdapter" replica-group="ProcessorAdapters" register-process="true" endpoints="tcp"/>
+        <distrib/>
+        <properties>
+          <property name="Ice.ThreadPool.Client.Size" value="2"/>
+          <property name="Ice.ThreadPool.Client.SizeMax" value="10"/>
+          <property name="Ice.ThreadPool.Server.Size" value="2"/>
+          <property name="Ice.ThreadPool.Server.SizeMax" value="10"/>
+        </properties>
+      </server>
+    </server-template>
+
+    <server-template id="ShellTemplate">
+      <parameter name="id"/>
+      <parameter name="exe" default="lib/shell.py"/>
+      <parameter name="act" default="always"/>
+      <server id="${id}" exe="${exe}" activation="${act}">
+        <option>${id}</option>
+        <adapter name="${id}Adapter" register-process="true" endpoints="tcp"/>
+        <distrib/>
+      </server>
+    </server-template>
+
+    <node name="master">
+      <server-instance template="Glacier2Template"
+        client-endpoints="tcp -h 127.0.0.1 -p 8000"
+        session-timeout="300"
+        server-endpoints="tcp -h 127.0.0.1"/>
+      <server-instance template="BlitzTemplate" index="0"/>
+      <server-instance template="ProcessorTemplate" index="0"/>
+      <target name="patch">
+        <server-instance template="IcePatch2Template" directory="data"/>
+      </target>
+      <target name="postgres">
+        <server-instance template="ShellTemplate" id="postgres"/>
+      </target>
+      <target name="jboss">
+        <server-instance template="ShellTemplate" id="JBoss" exe="lib/jboss.py">
+          <properties>
+            <property name="jboss.home" value="jboss"/>
+          </properties>
+        </server-instance>
+      </target>
+    </node>
+
+    <node name="node1">
+      <server-instance template="ProcessorTemplate" index="1"/>
+    </node>
+
+    <node name="node2">
+      <server-instance template="ProcessorTemplate" index="2"/>
+    </node>
+
+  </application>
+
+</icegrid>

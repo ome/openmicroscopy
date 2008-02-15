@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+# OMERO Grid Start Script
+# Copyright 2008 Glencoe Software, Inc.  All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+
+OMERO_HOME=${OMERO_HOME:-"."}
+mkdir -p $OMERO_HOME/var/log
+mkdir -p $OMERO_HOME/var/master
+mkdir -p $OMERO_HOME/var/registry
+
+icegridnode \
+    --Ice.Config=$OMERO_HOME/etc/master.cfg \
+    --pidfile $OMERO_HOME/var/master.pid \
+    --daemon \
+    --nochdir $*

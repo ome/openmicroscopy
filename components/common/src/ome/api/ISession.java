@@ -104,8 +104,11 @@ public interface ISession extends ServiceInterface {
     // Environment contents
     // =========================================================================
 
-    Object getInput(String key);
+    Object getInput(String session, String key);
 
-    Object getOutput(String key);
+    void setInput(String session, String key, Object objection);
 
+    Object getOutput(String session, String key);
+
+    void setOutput(String session, String key, Object objection);
 }

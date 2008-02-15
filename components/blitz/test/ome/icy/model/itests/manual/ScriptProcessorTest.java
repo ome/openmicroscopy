@@ -7,8 +7,10 @@
 package ome.icy.model.itests.manual;
 
 import ome.icy.fixtures.BlitzServerFixture;
+import omero.RInt;
 import omero.api.ServiceFactoryPrx;
-import omero.grid.InteractiveProcessPrx;
+import omero.grid.InteractiveProcessorPrx;
+import omero.grid.ProcessPrx;
 import omero.model.ScriptJobI;
 
 import org.testng.annotations.Test;
@@ -22,7 +24,10 @@ public class ScriptProcessorTest extends MockedBlitzTest {
         ServiceFactoryPrx session = fixture.createSession();
 
         ScriptJobI job = new ScriptJobI();
-        InteractiveProcessPrx prx = session.acquireInteractiveProcess(job, 1);
+        InteractiveProcessorPrx prx = session.acquireProcessor(job, 10);
+        ProcessPrx process = prx.execute(null);
+        RInt rc = process.poll();
+        assertNull(rc);
 
     }
 

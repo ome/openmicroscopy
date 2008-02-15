@@ -100,7 +100,8 @@ class client(object):
             file.close()
         return digest.hexdigest()
 
-    def upload(self, filename, name = None, path = None, type = None, ofile = None):
+    def upload(self, filename, name = None, path = None,
+               type = None, ofile = None, block_size = 1024):
         """
         Utility method to upload a file to the server.
         """
@@ -116,6 +117,11 @@ class client(object):
 
         file = open(filename, 'rb')
         try:
+
+            size = os.path.getsize(file.name)
+            if block_size > size:
+                block_size = size
+
             from omero_model_OriginalFileI import OriginalFileI
             from omero_model_FormatI import FormatI
             import omero
@@ -123,7 +129,7 @@ class client(object):
             if not ofile:
                 ofile = OriginalFileI()
 
-            ofile.size = omero.RLong(os.path.getsize(file.name))
+            ofile.size = omero.RLong(size)
             ofile.sha1 = omero.RString(self.sha1(file.name))
 
             if not ofile.name:
@@ -148,16 +154,41 @@ class client(object):
             prx.setFileId(ofile.id.val)
             offset = 0
             while True:
-                block = file.read(1024)
+                block = file.read(block_size)
                 if not block:
                     break
-                prx.write(offset, block)
+                prx.write(block, offset, len(block))
                 offset += len(block)
             prx.close()
         finally:
             file.close()
 
         return ofile
+
+    def download(self, ofile, filename, block_size = 1024):
+        file = open(filename, 'wb')
+        try:
+            prx = self.sf.createRawFileStore()
+            try:
+                if not ofile or not ofile.id:
+                    raise ClientError("No file to download")
+                ofile = self.sf.getQueryService().get("OriginalFile", ofile.id.val)
+
+                if block_size > ofile.size.val:
+                    block_size = ofile.size.val
+
+                prx.setFileId(ofile.id.val)
+                offset = 0
+                while offset < ofile.size.val:
+                    block = prx.read(offset, block_size)
+                    if not block:
+                        break
+                    file.write(block)
+                    offset += len(block)
+            finally:
+                prx.close()
+        finally:
+            file.close()
 
     def closeSession(self):
         # If 'sf' does not exist we don't have a session at all

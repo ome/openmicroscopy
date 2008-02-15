@@ -21,6 +21,7 @@
 
   <bean id="Ice.Communicator" class="ome.services.blitz.config.IceCommunicatorFactoryBean">
     <property name="adapters" value="BlitzAdapter"/>
+    <!-- Disabling logger since it seems not to work in IceGrid
     <property name="logger">
       <bean class="ome.services.blitz.util.CommonsLoggingAdapter">
         <constructor-arg>
@@ -29,7 +30,8 @@
           </bean>
         </constructor-arg>
       </bean>
-    </property>
+    </property--.
+    >
   </bean>
 
   <bean id="BlitzAdapter" class="ome.services.blitz.config.IceObjectAdapterFactoryBean">

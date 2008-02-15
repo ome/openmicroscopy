@@ -20,4 +20,5 @@ def additional_tests():
     suite.addTest(load("test.t_model"))
     suite.addTest(load("test.t_permissions"))
     suite.addTest(load("test.scripts.harness"))
+    suite.addTest(load("test.processor"))
     return suite

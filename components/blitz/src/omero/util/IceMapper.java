@@ -151,7 +151,37 @@ public class IceMapper extends ome.util.ModelMapper implements
         return k;
     }
 
-    public Object convert(RType rt) throws omero.ApiUsageException {
+    public RType toRType(Object o) throws omero.ApiUsageException {
+        if (o == null) {
+            return null;
+        } else if (o instanceof RType) {
+            return (RType) o;
+        } else if (o instanceof Date) {
+            Date date = (Date) o;
+            omero.RTime time = new omero.JTime(date.getTime());
+            return time;
+        } else if (o instanceof Long) {
+            Long lng = (Long) o;
+            omero.RLong rlng = new omero.JLong(lng.longValue());
+            return rlng;
+        } else if (o instanceof Double) {
+            Double dbl = (Double) o;
+            omero.RDouble rdbl = new omero.JDouble(dbl.doubleValue());
+            return rdbl;
+        } else if (o instanceof String) {
+            String str = (String) o;
+            omero.RString rstr = new omero.JString(str);
+            return rstr;
+        } else if (o instanceof Map) {
+            Map map = (Map) o;
+            omero.RMap rmap = new omero.RMap();
+            throw new ApiUsageException(null, null, "NYI");
+        } else {
+            throw new ApiUsageException(null, null, "NYI");
+        }
+    }
+
+    public Object fromRType(RType rt) throws omero.ApiUsageException {
 
         if (rt == null) {
             return null;
@@ -334,7 +364,7 @@ public class IceMapper extends ome.util.ModelMapper implements
         Class klass = o.getClass();
         Object value = null;
         if (RType.class.isAssignableFrom(klass)) {
-            value = convert((RType) o);
+            value = fromRType((RType) o);
             klass = rtypeTypes.get(klass);
         } else {
             omero.ApiUsageException aue = new omero.ApiUsageException();
@@ -439,7 +469,7 @@ public class IceMapper extends ome.util.ModelMapper implements
         } else if (isImmutable(source)) {
             return source;
         } else if (RType.class.isAssignableFrom(source.getClass())) {
-            return convert((RType) source);
+            return fromRType((RType) source);
         } else {
             omero.ApiUsageException aue = new omero.ApiUsageException();
             aue.message = "Don't know how to reverse " + source;

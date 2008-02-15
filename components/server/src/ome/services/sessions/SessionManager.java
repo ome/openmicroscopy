@@ -7,9 +7,12 @@
 
 package ome.services.sessions;
 
+import java.util.Map;
+
 import net.sf.ehcache.Ehcache;
 import ome.conditions.RemovedSessionException;
 import ome.model.meta.Session;
+import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
 
@@ -99,5 +102,70 @@ public interface SessionManager extends ApplicationListener {
      * can be used throughout the session. On close, the cache will be disposed.
      */
     Ehcache onDiskCache(String uuid);
+
+    /**
+     * Returns the input environment {@link Object} stored under the given key
+     * or null if none present. Throws an exception if there is no
+     * {@link Session} with the given identifier.
+     * 
+     * @param session
+     *            Not null.
+     * @param key
+     *            Not null.
+     * @return Possibly null.
+     */
+    public Object getInput(String session, String key)
+            throws RemovedSessionException;
+
+    /**
+     * Returns the output environment {@link Object} stored under the given key
+     * or null if none present. Throws an exception if there is no
+     * {@link Session} with the given identifier.
+     * 
+     * @param session
+     *            Not null.
+     * @param key
+     *            Not null.
+     * @return Possibly null.
+     */
+    public Object getOutput(String session, String key)
+            throws RemovedSessionException;
+
+    /**
+     * Places the {@link Object argument} in the input environment under the
+     * given key, possibly initializing the {@link Map} Throws an exception if
+     * there is no {@link Session} with the given identifier.
+     * 
+     * @param session
+     *            Not null.
+     * @param key
+     *            Not null.
+     * @param object
+     *            If null, key will be removed.
+     */
+    public void setInput(String session, String key, Object object)
+            throws RemovedSessionException;
+
+    /**
+     * Places the {@link Object argument} in the output environment under the
+     * given key, possibly initializing the {@link Map} Throws an exception if
+     * there is no {@link Session} with the given identifier.
+     * 
+     * @param session
+     *            Not null.
+     * @param key
+     *            Not null.
+     * @param object
+     *            If null, key will be removed.
+     */
+    public void setOutput(String session, String key, Object object)
+            throws RemovedSessionException;
+
+    /**
+     * Returns a copy of the output environment.
+     * 
+     * @return Not null.
+     */
+    public Map<String, Object> outputEnvironment(String session);
 
 }
