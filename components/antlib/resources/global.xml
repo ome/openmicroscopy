@@ -103,11 +103,11 @@
 		<!-- http://groovy.codehaus.org/Ant+Task+Troubleshooting -->
 		<taskdef name="rootLoaderRef" classname="org.codehaus.groovy.ant.RootLoaderRef" classpathref="omero.classpath"/>
 		<rootLoaderRef ref="groovy.classpath">
-  			<classpath refid="omero.classpath"/>
+			<classpath refid="omero.classpath"/>
 		</rootLoaderRef>
 		<taskdef classname="org.codehaus.groovy.ant.Groovy" loaderref="groovy.classpath" name="groovy"/>
 	</target>
-	
+
 	<target name="setup-db" depends="prepare">
 		<java classname="ome.security.PasswordUtil" outputproperty="ROOTPASS" classpathref="omero.classpath">
 			<arg value="${omero.rootpass}"/>
@@ -120,7 +120,8 @@
 		<sql_run>
 			<transaction src="${target.dir}/ddl.sql"/>
 			<transaction src="${target.dir}/data.sql"/>
+			<transaction src="${target.dir}/views.sql"/>
 		</sql_run>
 	</target>
-	
+
 </project>

@@ -81,6 +81,7 @@
 		<mkdir dir="${sql.dir}"/>
 		<copy file="${resrc.dest}/ddl.sql" tofile="${sql.dir}/schema.sql"/>
 		<copy file="${resrc.dest}/data.sql" tofile="${sql.dir}/data.sql"/>
+		<copy file="${resrc.dest}/views.sql" tofile="${sql.dir}/views.sql"/>
 		<replace file="${sql.dir}/data.sql" token="@DBPATCH@" value="${omero.dbpatch}"/>
 		<replace file="${sql.dir}/data.sql" token="@DBVERSION@" value="${omero.dbversion}"/>
 	</target>
