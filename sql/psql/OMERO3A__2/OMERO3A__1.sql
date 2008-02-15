@@ -51,9 +51,6 @@ INSERT INTO groupexperimentermap
 
 INSERT INTO password SELECT id AS experimenter_id, '' AS hash FROM experimenter WHERE omename = 'guest';
 
-INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-        VALUES ('OMERO3A',  2, 'OMERO3A', 1, 'Upgraded');
-
 ALTER TABLE event
         ALTER COLUMN session SET NOT NULL;
 
@@ -68,6 +65,9 @@ ALTER TABLE session
 
 ALTER TABLE session
 	ADD CONSTRAINT fksession_external_id_externalinfo FOREIGN KEY (external_id) REFERENCES externalinfo(id);
+
+INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
+        VALUES ('OMERO3A',  2, 'OMERO3A', 1, 'Database updated.');
 
 COMMIT;
 
