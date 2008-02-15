@@ -60,7 +60,7 @@ env = ['env']
 PATH = makeVar("PATH")
 LIBS = makeVar("LIBS")
 LIBM = makeVar("LIBM")
-blitz  = env+PATH+LIBS+LIBM+java+['-jar','blitz.jar']
+blitz  = env+PATH+LIBS+LIBM+java+['-jar','blitz.jar','--Ice.Config=../etc/ice.config']
 router = env+PATH+LIBS+LIBM+['glacier2router','--Ice.Config=../etc/glacier2.config']
 
 print """
