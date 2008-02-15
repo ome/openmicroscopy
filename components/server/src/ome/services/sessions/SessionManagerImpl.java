@@ -146,7 +146,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      */
     public Session create(final Principal _principal, final String credentials) {
 
-        // If session exists, then return that
+        // If credentials exist as session, then return that
         try {
             SessionContext context = cache.getSessionContext(credentials);
             if (context != null) {
@@ -168,6 +168,17 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     }
 
     public Session create(Principal principal) {
+
+        // If username exists as session, then return that
+        try {
+            SessionContext context = cache.getSessionContext(principal
+                    .getName());
+            if (context != null) {
+                return context.getSession(); // EARLY EXIT!
+            }
+        } catch (SessionException se) {
+            // oh well
+        }
 
         principal = checkPrincipalNameAndDefaultGroup(principal);
 
