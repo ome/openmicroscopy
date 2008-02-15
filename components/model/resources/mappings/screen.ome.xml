@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# 
+#
 # $Id$
-# 
+#
 # Copyright 2008 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -13,19 +13,19 @@
 
   <!-- Main types -->
 
-  <type id="ome.model.screen.Screen" annotated="true" named="true" description="true">
+  <type id="ome.model.screen.Screen" annotated="true" named="true" described="true">
     <properties>
       <optional name="type" type="string"/>
       <optional name="protocolIdentifier" type="string"/>
       <optional name="protocolDescription" type="string"/>
-      <optional name="reagentSetIdentifier" type="string"/> 
+      <optional name="reagentSetIdentifier" type="string"/>
       <optional name="reagentSetDescription" type="string"/>
-      <child name="screenPlateLinks" type="ome.model.screen.ScreenPlateLink" 
+      <child name="plateLinks" type="ome.model.screen.ScreenPlateLink"
         target="ome.model.screen.Plate"/>
-      <child name="screenReagentLinks"
+      <child name="reagentLinks"
         type="ome.model.screen.ScreenReagentLink"
         target="ome.model.screen.Reagent"/>
-      <onemany name="screenAcquisition" 
+      <onemany name="screenAcquisition"
         type="ome.model.screen.ScreenAcquisition" inverse="screen"/>
     </properties>
   </type>
@@ -41,12 +41,13 @@
     </properties>
   </type>
 
-  <type id="ome.model.screen.Plate" annotated="true" named="true" description="true">
+  <type id="ome.model.screen.Plate" annotated="true" named="true" described="true">
     <properties>
       <optional name="status" type="string"/>
       <optional name="externalIdentifier" type="string"/>
-      <parent name="screenPlateLinks" type="ome.model.screen.ScreenPlateLink"
+      <parent name="screenLinks" type="ome.model.screen.ScreenPlateLink"
         target="ome.model.screen.Screen"/>
+      <zeromany name="wells" type="ome.model.screen.Well" inverse="plate"/>
     </properties>
   </type>
 
@@ -58,7 +59,7 @@
       <optional name="externalDescription" type="string"/>
       <optional name="externalIdentifier" type="string"/>
       <optional name="type" type="string"/>
-      <onemany name="wellSample" type="ome.model.screen.WellSample"
+      <onemany name="wellSamples" type="ome.model.screen.WellSample"
         inverse="well" ordered="true"/>
       <manyone name="plate" type="ome.model.screen.Plate" inverse="well"/>
     </properties>
@@ -69,7 +70,7 @@
       <optional name="posX" type="float"/>
       <optional name="posY" type="float"/>
       <optional name="timepoint" type="int"/>
-      <child name="imageLinks" type="ome.model.screen.WellSampleImageLink" 
+      <child name="imageLinks" type="ome.model.screen.WellSampleImageLink"
         target="ome.model.core.Image"/>
       <manyone name="well" type="ome.model.screen.Well" inverse="wellSample"/>
       <manyone name="screenAcquisition"
@@ -77,17 +78,18 @@
     </properties>
   </type>
 
-  <type id="ome.model.screen.Reagent" annotated="true" named="true" description="true">
+  <type id="ome.model.screen.Reagent" annotated="true" named="true" described="true">
     <properties>
       <optional name="reagentIdentifier" type="string"/>
-      <parent name="screenReagentLinks"
+      <parent name="screenLinks"
         type="ome.model.screen.ScreenReagentLink"
         target="ome.model.screen.Screen"/>
+      <zeromany name="wells" type="ome.model.screen.Well" inverse="reagent"/>
     </properties>
   </type>
 
   <!-- Links -->
-  
+
   <link id="ome.model.screen.ScreenPlateLink">
     <properties>
       <from_parent type="ome.model.screen.Screen"/>
@@ -108,5 +110,5 @@
       <to_child type="ome.model.core.Image"/>
     </properties>
   </link>
-  
+
 </types>

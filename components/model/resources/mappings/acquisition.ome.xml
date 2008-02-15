@@ -12,12 +12,12 @@
 <types>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    		Acquisition Context 1 
+		Acquisition Context 1
        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
 	<type id="ome.model.core.Image" named="true" described="true" annotated="true"><!--TODO named/desc-->
 		<properties>
-			<!-- Acquisition Context 1 -->      
+			<!-- Acquisition Context 1 -->
 			<optional name="condition" type="ome.model.acquisition.ImagingEnvironment"/>
 			<optional name="objectiveSettings" type="ome.model.acquisition.ObjectiveSettings">
 				<rule id="INS_OBJ_SYNCH" description="only if instrument defined"/>
@@ -25,17 +25,19 @@
 			<optional name="setup" type="ome.model.acquisition.Instrument"/>
 			<optional name="position" type="ome.model.acquisition.StageLabel"/>
 			<optional name="context" type="ome.model.experiment.Experiment"/>
-      <!-- TODO: name switch and active Pixels isn't really optional! -->      
+
 			<zeromany name="pixels" type="ome.model.core.Pixels" inverse="image" ordered="true"/>
 
 			<!-- Containers -->
 			<parent name="categoryLinks" type="ome.model.containers.CategoryImageLink"
 				target="ome.model.containers.Category"/>
 			<parent name="datasetLinks" type="ome.model.containers.DatasetImageLink"
-				target="ome.model.containers.Dataset"/>			
+				target="ome.model.containers.Dataset"/>
+			<parent name="sampleLinks" type="ome.model.screen.WellSampleImageLink"
+				target="ome.model.screen.WellSample"/>
 		</properties>
 	</type>
-	
+
 	<type id="ome.model.acquisition.ObjectiveSettings">
 		<properties>
 			<optional name="correctionCollar" type="float"/>
