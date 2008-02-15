@@ -116,7 +116,7 @@
 			<required name="theZ" type="int"/>
 			<required name="theC" type="int"/>
 			<required name="theT" type="int"/>
-			<required name="timestamp" type="float"/>
+			<optional name="timestamp" type="float"/>
 			<optional name="positionX" type="float"/>
 			<optional name="positionY" type="float"/>
 			<optional name="positionZ" type="float"/>
@@ -190,7 +190,7 @@
 			<optional name="auxLightSource" type="ome.model.acquisition.LightSettings"/>  
 			<optional name="photometricInterpretation" type="ome.model.enums.PhotometricInterpretation"/>
 			<optional name="mode" type="ome.model.enums.AcquisitionMode"/>
-			<optional name="pockelCellSetting" type="string"/>
+			<optional name="pockelCellSetting" type="int"/>
 		</properties>
 	</type>
 	
@@ -405,7 +405,7 @@
 		<entry name="Colocalization"/>
 		<entry name="PGI/Documentation"/>
 		<entry name="FRAP"/>
-		<entry name="Photablation"/>
+		<entry name="Photoablation"/>
 		<entry name="Photoactivation"/>
 		<entry name="Uncaging"/>
 		<entry name="Optical-Trapping"/>
