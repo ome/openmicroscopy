@@ -24,7 +24,6 @@ package ui.formFields;
 
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -51,8 +50,6 @@ import javax.swing.JToolBar;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -61,7 +58,6 @@ import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.components.CustomPopupMenu;
 import util.ImageFactory;
-import util.PropertiesManager;
 
 public class FormFieldImage extends FormField {
 	
