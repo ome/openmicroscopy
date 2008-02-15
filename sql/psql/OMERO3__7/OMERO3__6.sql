@@ -45,6 +45,6 @@ BEGIN;
     insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_jobstatus'),-35,0,0,0,'Cancelled';
     insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select nextval('seq_format'),-35,0,0,0,'Processing';
+    select nextval('seq_eventtype'),-35,0,0,0,'Processing';
 
 COMMIT;
