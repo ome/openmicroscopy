@@ -114,6 +114,7 @@
 		</java>
 		<copy file="${sql.dir}/schema.sql" tofile="${target.dir}/ddl.sql"  overwrite="true"/>
 		<copy file="${sql.dir}/data.sql"   tofile="${target.dir}/data.sql"  overwrite="true"/>
+		<copy file="${sql.dir}/views.sql"   tofile="${target.dir}/views.sql"  overwrite="true"/>
 		<replace file="${target.dir}/data.sql" token="@ROOTPASS@" value="${ROOTPASS}"/>
 		<replace file="${target.dir}/data.sql" token="@DBPATCH@" value="${omero.dbpatch}"/>
 		<replace file="${target.dir}/data.sql" token="@DBVERSION@" value="${omero.dbversion}"/>
