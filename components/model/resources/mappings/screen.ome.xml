@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# 
+# $Id$
+# 
+# Copyright 2008 University of Dundee. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+<types>
+
+  <!-- Main types -->
+
+  <type id="ome.model.screen.Screen" annotated="true" named="true" description="true">
+    <properties>
+      <optional name="type" type="string"/>
+      <optional name="protocolIdentifier" type="string"/>
+      <optional name="protocolDescription" type="string"/>
+      <optional name="reagentSetIdentifier" type="string"/> 
+      <optional name="reagentSetDescription" type="string"/>
+      <child name="screenPlateLinks" type="ome.model.screen.ScreenPlateLink" 
+        target="ome.model.screen.Plate"/>
+      <child name="screenReagentLinks"
+        type="ome.model.screen.ScreenReagentLink"
+        target="ome.model.screen.Reagent"/>
+      <onemany name="screenAcquisition" 
+        type="ome.model.screen.ScreenAcquisition" inverse="screen"/>
+    </properties>
+  </type>
+
+  <type id="ome.model.screen.ScreenAcquisition" annotated="true">
+    <properties>
+      <optional name="startTime" type="timestamp"/>
+      <optional name="endTime" type="timestamp"/>
+      <manyone name="screen" type="ome.model.screen.Screen"
+        inverse="screenAcquisition"/>
+      <onemany name="wellSample" type="ome.model.screen.WellSample"
+        inverse="screenAcquisition"/>
+    </properties>
+  </type>
+
+  <type id="ome.model.screen.Plate" annotated="true" named="true" description="true">
+    <properties>
+      <optional name="status" type="string"/>
+      <optional name="externalIdentifier" type="string"/>
+      <parent name="screenPlateLinks" type="ome.model.screen.ScreenPlateLink"
+        target="ome.model.screen.Screen"/>
+    </properties>
+  </type>
+
+  <type id="ome.model.screen.Well" annotated="true">
+    <properties>
+      <optional name="column" type="int"/>
+      <optional name="row" type="int"/>
+      <optional name="reagent" type="ome.model.screen.Reagent"/>
+      <optional name="externalDescription" type="string"/>
+      <optional name="externalIdentifier" type="string"/>
+      <optional name="type" type="string"/>
+      <onemany name="wellSample" type="ome.model.screen.WellSample"
+        inverse="well" ordered="true"/>
+      <manyone name="plate" type="ome.model.screen.Plate" inverse="well"/>
+    </properties>
+  </type>
+
+  <type id="ome.model.screen.WellSample" annotated="true">
+    <properties>
+      <optional name="posX" type="float"/>
+      <optional name="posY" type="float"/>
+      <optional name="timepoint" type="int"/>
+      <child name="imageLinks" type="ome.model.screen.WellSampleImageLink" 
+        target="ome.model.core.Image"/>
+      <manyone name="well" type="ome.model.screen.Well" inverse="wellSample"/>
+      <manyone name="screenAcquisition"
+        type="ome.model.screen.ScreenAcquisition" inverse="wellSample" />
+    </properties>
+  </type>
+
+  <type id="ome.model.screen.Reagent" annotated="true" named="true" description="true">
+    <properties>
+      <optional name="reagentIdentifier" type="string"/>
+      <parent name="screenReagentLinks"
+        type="ome.model.screen.ScreenReagentLink"
+        target="ome.model.screen.Screen"/>
+    </properties>
+  </type>
+
+  <!-- Links -->
+  
+  <link id="ome.model.screen.ScreenPlateLink">
+    <properties>
+      <from_parent type="ome.model.screen.Screen"/>
+      <to_child type="ome.model.screen.Plate"/>
+    </properties>
+  </link>
+
+  <link id="ome.model.screen.ScreenReagentLink">
+    <properties>
+      <from_parent type="ome.model.screen.Screen"/>
+      <to_child type="ome.model.screen.Reagent"/>
+    </properties>
+  </link>
+
+  <link id="ome.model.screen.WellSampleImageLink">
+    <properties>
+      <from_parent type="ome.model.screen.WellSample"/>
+      <to_child type="ome.model.core.Image"/>
+    </properties>
+  </link>
+  
+</types>
