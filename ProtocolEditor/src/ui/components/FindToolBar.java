@@ -1,10 +1,34 @@
 package ui.components;
 
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *
+ *
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ *	author Will Moore will@lifesci.dundee.ac.uk
+ */
+
+
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -15,15 +39,36 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 
 import tree.DataField;
+import ui.AbstractComponent;
+import ui.IModel;
 import ui.XMLView;
 import util.ImageFactory;
 
-public class FindToolBar extends JPanel {
+/**
+ * This class defines a small tool-bar containing a "find" UI.
+ * Initially it displays only a single "find" button.
+ * When this is clicked, a text-field is revealed (and a hide button), as well as a hit-counter and
+ * 2 buttons for moving up and down through the search results. 
+ * 
+ * 
+ * 
+ * @author will
+ *
+ */
+public class FindToolBar 
+	extends JPanel 
+	implements 
+	ChangeListener, 
+	ActionListener
+	{
 	
 	XMLView view;
+	IModel model;
 	
 	// always visible
 	JButton findButton;
@@ -40,14 +85,20 @@ public class FindToolBar extends JPanel {
 	Icon previousUpIcon;
 	Icon nextDownIcon;
 	
-	ArrayList<DataField> findTextSearchHits = new ArrayList<DataField>();
+	List<DataField> findTextSearchHits = new ArrayList<DataField>();
 	int findTextHitIndex; 	// the current hit
 	
 	public static final String HIDE_FIND_BOX = "HideFindBox";
 	public static final String NEXT_FIND_HIT = "NextFindHit";
 	public static final String PREV_FIND_HIT = "PrevFindHit";
 	
-	public FindToolBar(XMLView view) {
+	public FindToolBar(XMLView view, IModel model) {
+		
+		this.model = model;
+		
+		if (model instanceof AbstractComponent) {
+			((AbstractComponent)model).addChangeListener(this);
+		}
 		
 		this.view = view;
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -66,11 +117,10 @@ public class FindToolBar extends JPanel {
 		nextDownIcon = ImageFactory.getInstance().getIcon(ImageFactory.NEXT_DOWN_ICON);
 		
 		
-		ActionListener findTextListener = new FindTextListener();
 		findButton = new JButton(findIcon);
 		findButton.setToolTipText("Find a word in the current file");
 		findButton.setBorder(fileManagerToolBarBorder);
-		findButton.addActionListener(findTextListener);
+		findButton.addActionListener(this);
 		
 		findTextField = new JTextField();
 		findTextField.setColumns(10);
@@ -78,25 +128,25 @@ public class FindToolBar extends JPanel {
 		findTextField.setMinimumSize(findTextFieldDim);
 		findTextField.setMaximumSize(findTextFieldDim);
 		findTextField.setPreferredSize(findTextFieldDim);
-		findTextField.addActionListener(findTextListener);
+		findTextField.addActionListener(this);
 		
 		JButton hideFindBoxButton = new JButton(fileCloseIcon);
 		hideFindBoxButton.setToolTipText("Hide the 'Find' text field");
 		hideFindBoxButton.setActionCommand(HIDE_FIND_BOX);
-		hideFindBoxButton.addActionListener(findTextListener);
+		hideFindBoxButton.addActionListener(this);
 		hideFindBoxButton.setBorder(new EmptyBorder(1,1,1,1));
 		
 		findNextButton = new JButton(nextDownIcon);
 		findNextButton.setToolTipText("Find next occurrence of search word");
 		findNextButton.setActionCommand(NEXT_FIND_HIT);
-		findNextButton.addActionListener(findTextListener);
+		findNextButton.addActionListener(this);
 		findNextButton.setBorder(new EmptyBorder(1,1,1,1));
 		findNextButton.setBackground(null);
 		
 		findPrevButton = new JButton(previousUpIcon);
 		findPrevButton.setToolTipText("Find previous occurrence of search word");
 		findPrevButton.setActionCommand(PREV_FIND_HIT);
-		findPrevButton.addActionListener(findTextListener);
+		findPrevButton.addActionListener(this);
 		findPrevButton.setBackground(null);
 		findPrevButton.setBorder(new EmptyBorder(1,1,1,1));
 		
@@ -117,34 +167,33 @@ public class FindToolBar extends JPanel {
 		
 	}
 	
-	/* takes all events from the find text functionality */
-	public class FindTextListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
+
+	public void actionPerformed(ActionEvent event) {
 		
-			// first use of this function is to display textField if hidden - 
-			// search is also performed (see below) in case the file was edited 
-			if (!horizontalBox.isVisible()) {
-				showFindTextControls();
-			}
-			String actionCommand = event.getActionCommand();
-			// actionEvent from hide button, hide 
-			if (actionCommand.equals(HIDE_FIND_BOX)) {
-				hideFindTextControls();
-			} else if (actionCommand.equals(NEXT_FIND_HIT)) {
-				findTextHitIndex++;
-				DataField field = findTextSearchHits.get(findTextHitIndex);
-				displayThisDataField(field);
-				updateFindNextPrev();
-			} else if (actionCommand.equals(PREV_FIND_HIT)) {
-				findTextHitIndex--;
-				DataField field = findTextSearchHits.get(findTextHitIndex);
-				displayThisDataField(field);
-				updateFindNextPrev();
-			}
-			// otherwise, do search
-			else findTextInOpenFile();
+		// first use of this function is to display textField if hidden - 
+		// search is also performed (see below) in case the file was edited 
+		if (!horizontalBox.isVisible()) {
+			showFindTextControls();
 		}
+		String actionCommand = event.getActionCommand();
+		// actionEvent from hide button, hide 
+		if (actionCommand.equals(HIDE_FIND_BOX)) {
+			hideFindTextControls();
+		} else if (actionCommand.equals(NEXT_FIND_HIT)) {
+			findTextHitIndex++;
+			DataField field = findTextSearchHits.get(findTextHitIndex);
+			displayThisDataField(field);
+			updateFindNextPrev();
+		} else if (actionCommand.equals(PREV_FIND_HIT)) {
+			findTextHitIndex--;
+			DataField field = findTextSearchHits.get(findTextHitIndex);
+			displayThisDataField(field);
+			updateFindNextPrev();
+		}
+		// otherwise, do search
+		else findTextInOpenFile();
 	}
+	
 	
 	public void displayThisDataField(DataField field) {
 		view.displayThisDataField(field);
@@ -164,7 +213,7 @@ public class FindToolBar extends JPanel {
 		}
 		
 		
-		findTextSearchHits = view.getSearchResults(searchWord);
+		findTextSearchHits = model.getSearchResults(searchWord);
 			
 		findTextHitIndex = 0;
 		
@@ -206,6 +255,19 @@ public class FindToolBar extends JPanel {
 	public void clearFindTextHits() {
 		findTextSearchHits.clear();
 		updateFindNextPrev();
+	}
+
+	// if the xml has been edited (treeNeedsRefreshing) clear search results
+	public void stateChanged(ChangeEvent e) {
+		if (model.treeNeedsRefreshing()) {
+			clearFindTextHits();
+		}
+		
+		String[] fileList = model.getOpenFileList();
+		
+		findButton.setEnabled(!(fileList.length == 0));
+		findTextField.setEnabled(!(fileList.length == 0));
+		
 	}
 
 }

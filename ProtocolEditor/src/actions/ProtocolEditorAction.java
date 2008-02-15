@@ -34,6 +34,17 @@ import ui.AbstractComponent;
 import ui.Controller;
 import ui.IModel;
 
+/**
+ * This is the superclass of all OMERO.editor Actions. 
+ * It has a reference to an implementation of IModel, to which subclasses delegate most actions.
+ * If the model is also an instance of the Observable <code>AbstractComponent</code>, 
+ * then this Action class registers itself as a changeListener.
+ * Action subclasses then override stateChanged() to disable themselves, change their text etc, 
+ * depending on the state of model. 
+ * 
+ * @author will
+ *
+ */
 public class ProtocolEditorAction 
 	extends AbstractAction 
 	implements ChangeListener{
@@ -52,7 +63,7 @@ public class ProtocolEditorAction
 	}
 	
 	/**
-	 * Reacts to changes in the view
+	 * Reacts to changes in the model
 	 * subclasses override this method
 	 */
 	public void stateChanged(ChangeEvent e) {}

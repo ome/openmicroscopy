@@ -39,11 +39,12 @@ import util.ImageFactory;
 
 public class ImportElementChooser extends JPanel{
 	
-	XMLView xmlView;
+	IModel model;
 	
-	ImportElementChooser(DataFieldNode rootNode, XMLView view) {
+	ImportElementChooser(IModel model) {
 		
-		xmlView = view;
+		this.model = model;
+		
 		this.setLayout(new BorderLayout());
 		
 		Box buttonBox = Box.createVerticalBox();
@@ -58,6 +59,7 @@ public class ImportElementChooser extends JPanel{
 		doneButton.addActionListener(new DoneButtonListener());
 		buttonBox.add(doneButton);
 		
+		DataFieldNode rootNode = model.getImportTreeRoot();
 		JScrollPane importScrollPane = new JScrollPane(new FormDisplay(rootNode), JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
 		this.add(buttonBox, BorderLayout.WEST);
@@ -66,14 +68,13 @@ public class ImportElementChooser extends JPanel{
 
 	public class InsertFieldsListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			xmlView.importFieldsFromImportTree();
+			model.importFieldsFromImportTree();
 		}
 	}
 	
 	public class DoneButtonListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			xmlView.setEditingState(XMLView.EDITING_FIELDS);
-			xmlView.updateFieldEditor();
+			model.setImportFile(null);
 		}
 	}
 }

@@ -151,6 +151,24 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 		nameFieldEditor.addToToolBar(colourSelectButton);
 		
 		
+		/*
+		 * Child Display Orientation button
+		 */
+		Icon rotateIcon = ImageFactory.getInstance().getIcon(ImageFactory.ROTATE_ICON);
+		JButton toggleChildLayoutButton = new JButton(rotateIcon);
+		toggleChildLayoutButton.setToolTipText("Display this field's children horizontally");
+		toggleChildLayoutButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Boolean childHorizontal = dataField.isAttributeTrue(DataFieldConstants.DISPLAY_CHILDREN_HORIZONTALLY);
+				// toggle
+				childHorizontal = !childHorizontal;
+				dataField.setAttribute
+					(DataFieldConstants.DISPLAY_CHILDREN_HORIZONTALLY, childHorizontal.toString(), true);
+			}
+		});
+		nameFieldEditor.addToToolBar(toggleChildLayoutButton);
+		
+		
 			
 		this.setLayout(new BorderLayout());
 		this.add(attributeFieldsPanel, BorderLayout.NORTH);

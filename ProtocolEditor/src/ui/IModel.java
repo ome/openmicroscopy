@@ -25,6 +25,7 @@ package ui;
 import java.io.File;
 import java.util.List;
 
+import tree.DataField;
 import tree.DataFieldNode;
 import tree.Tree.Actions;
 
@@ -60,7 +61,30 @@ public interface IModel {
 	public String getUndoCommand();
 	public String getRedoCommand();
 	
+	// file selection
+	public int getCurrentFileIndex();
+	
+	public void changeCurrentFile(int index);
+	
 	public void closeCurrentFile();
+	
+	// flag for updating 
+	public boolean treeNeedsRefreshing();
+	
+	// find
+	public List<DataField> getSearchResults(String searchWord);
+	
+	// copy - paste
+	public void copyHighlightedFieldsToClipboard();
+	
+	public void pasteHighlightedFieldsFromClipboard();
+	
+	// import file
+	public void setImportFile(File xmlFile);
+	
+	public DataFieldNode getImportTreeRoot();
+	
+	public void importFieldsFromImportTree();
 	
 	public boolean isCurrentFileEdited();
 }

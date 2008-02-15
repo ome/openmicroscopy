@@ -45,6 +45,8 @@ import util.ImageFactory;
  * This class controls the search process.
  * It has a searchTerm source (a JTextComponent to provide a search term String) 
  * and it listens to a number of ActionEvent sources which can start the search process.
+ * This includes a searchTerm search and a "more-like-this" search, using a <code>File</code>
+ * from the model (uses the currently-opened file).
  * Once a search is complete, a changeEvent is fired, and listeners 
  * can get the searchPanel (displaying results).
  */

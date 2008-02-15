@@ -169,9 +169,7 @@ public class HtmlOutputter {
         }
         
         outputFilePath = outputFilePath.replaceAll(" ", "%20");
-        
-        JOptionPane.showMessageDialog(null, outputFilePath);
-        System.out.println("HtmlOutputter outputFilePath = " + outputFilePath);
+
         
         BareBonesBrowserLaunch.openURL(outputFilePath);
 		

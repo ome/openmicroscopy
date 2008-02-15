@@ -31,6 +31,7 @@ import javax.swing.event.ChangeEvent;
 import ui.IModel;
 import util.ImageFactory;
 
+
 public class MultiplyValuesAction extends ProtocolEditorAction {
 	
 	public MultiplyValuesAction(IModel model) {

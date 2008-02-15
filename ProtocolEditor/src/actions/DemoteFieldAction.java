@@ -1,8 +1,17 @@
 package actions;
 
+import java.awt.event.ActionEvent;
+
+import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
+
+import tree.Tree.Actions;
+import ui.IModel;
+import util.ImageFactory;
+
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,37 +31,20 @@ package actions;
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.event.ChangeEvent;
-
-import tree.Tree.Actions;
-import ui.IModel;
-
-/**
- * This Action class uses the editCurrentTree() method to pass an Enumerated instance of 
- * Tree.Actions to the Tree, via the model. 
- * The Tree will perform the stated action on the currently highlighted fields, or on all fields,
- * depending on the Action. 
- * 
- * @author will
- *
- */
-public class LoadDefaultsAllAction 
+public class DemoteFieldAction 
 	extends ProtocolEditorAction {
 	
-	public LoadDefaultsAllAction(IModel model) {
+	public DemoteFieldAction(IModel model) {
 
 		super(model);
 	
-		putValue(Action.NAME, "Load Default Values for All fields");
-		putValue(Action.SHORT_DESCRIPTION, null);
-		//putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.LOAD_DEFAULTS_ICON)); 
+		putValue(Action.NAME, "Demote Step (indent to right)");
+		putValue(Action.SHORT_DESCRIPTION, "Right indent fields, (shift to right)");
+		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.DEMOTE_ICON)); 
 	}
 	
 	public void actionPerformed(ActionEvent e) {
-		model.editCurrentTree(Actions.LOAD_DEFAULTS);
+		model.editCurrentTree(Actions.DEMOTE_FIELDS);
 	}
 	
 	

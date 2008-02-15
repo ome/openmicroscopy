@@ -52,6 +52,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import cmd.ActionCmd;
+import cmd.OpenFileCmd;
+
+import actions.NewFileAction;
+
 import ols.ObservationCreator;
 
 import java.awt.BorderLayout;
@@ -69,6 +74,7 @@ import tree.DataField;
 import tree.DataFieldNode;
 import tree.Tree;
 import tree.Tree.Actions;
+import ui.components.FileListSelector;
 import ui.components.FindToolBar;
 import ui.components.PopupMenuButton;
 import ui.components.ProtocolFileFilter;
@@ -84,13 +90,12 @@ import xmlMVC.XMLModel;
 // processes all user commands from buttons etc..
 
 public class XMLView 
-	implements XMLUpdateObserver, SelectionObserver, ActionListener 
+	extends 
+	DefaultChangeListener
 	{
 	
 	XMLModel xmlModel;
 	Controller controller;
-
-	DataFieldNode protocolRootNode;
 	
 	DataFieldNode rootOfImportTree;
 
@@ -103,20 +108,9 @@ public class XMLView
 	private boolean fieldEditorAndToolbarVisible = true;
 	
 	// commands 
-	public static final String COPY = "copy";
-	public static final String PASTE = "paste";
-	public static final String FIND = "find";
 	public static final String WINDOW = "window";
-	public static final String LOAD_DEFAULTS = "LoadDefaults";
-	public static final String LOAD_DEFAULTS_HIGHLIGHTED_FIELDS = "LoadDefaultsHighlightedFields";
-	public static final String CLEAR_FIELDS = "ClearFields";
-	public static final String CLEAR_FIELDS_HIGHLIGHTED_FIELDS = "ClearFieldsHighlightedFields";
 	
-	// tab positions 
-	public static final int EXPERIMENT_TAB = 0;
-	public static final int PROTOCOL_TAB = 1;
 	
-	public static final int CONTROL_CLICK = 18;
 	public static final int SHIFT_CLICK = 17;
 	public static final Font FONT_H1 = new Font("SansSerif", Font.PLAIN, 16);
 	public static final Font FONT_SMALL = new Font("SansSerif", Font.PLAIN, 12);
@@ -130,7 +124,6 @@ public class XMLView
 	JPanel mainContentPane;		// this holds toolbar (North) and XMLUIPanel (Centre)
 	JSplitPane splitPane;
 	JScrollPane XMLScrollPane;	// contains the UI
-	FormDisplay xmlFormDisplay;			// this is the UI-form
 	JSplitPane XMLUIPanel;		// the top-level panel of the frame - right used for search results
 	JPanel searchResultsPanel;
 	
@@ -138,70 +131,38 @@ public class XMLView
 	JPanel fieldEditorContainer;	// holds show/hide button above FieldEditor
 	JButton showHideFieldEditorButton;
 	
-	Color backgroundColor;
-	
 	JPanel fileManagerPanel; 	// tool bar for open/close/print etc. 
 	
 	SearchController searchController;
+
+	JPanel importElementChooser;
 	
-	JButton saveFileButton;
-	JButton saveFileAsButton;
-	
-	JButton addAnInput;
-	JButton deleteAnInput;
-	JButton promoteField;
-	JButton demoteField;
-	JButton duplicateField;
 	JTextField searchField;
 	
-	JMenuItem saveFileMenuItem;
-	JMenuItem saveFileAsMenuItem;
 	
 	FindToolBar findToolBar;
 	
 	JCheckBoxMenuItem showEditToolbarMenuItem;
-	JMenuItem addFieldMenuItem;
-	JMenuItem deleteFieldMenuItem;
-	JMenuItem moveStepUpMenuItem;
-	JMenuItem moveStepDownMenuItem;
-	JMenuItem promoteStepMenuItem;
-	JMenuItem demoteStepMenuItem;
-	JMenuItem duplicateFieldMenuItem;
-	JMenuItem importFieldsMenuItem;
-	JMenuItem copyFieldsMenuItem;
-	JMenuItem pasteFieldsMenuItem;
 	
-	JButton xmlValidationButton;
-	JCheckBox xmlValidationCheckbox;
-	JPanel xmlValidationPanel;
+	//JButton xmlValidationButton;
+	//JCheckBox xmlValidationCheckbox;
+	// JPanel xmlValidationPanel;
 	Icon closeIcon;
 	Icon redBallIcon;
 
 	JToolBar protocolEditToolBar;
-	
-	JComboBox currentlyOpenedFiles;
-	JButton closeFileButton;
-	FileListSelectionListener fileListSelectionListener;
 	
 	JPanel protocolTab;
 	
 	static final int windowHeight = 460;
     static final int panelWidth = 950;
 
-	private Icon validationIcon;
+
 	private Icon printIcon;
-	private Icon loadDefaultsIcon;
+
 	private Icon clearFieldsIcon;
-	private Icon addIcon;
-	private Icon deleteIcon;
-	private Icon moveUpIcon;
-	private Icon moveDownIcon;
-	private Icon promoteIcon;
-	private Icon demoteIcon;
-	private Icon duplicateIcon;
-	private Icon copyIcon;
-	private Icon pasteIcon;
-	private Icon importElementsIcon;
+
+	private Icon loadDefaultsIcon;
 
 	private Icon fileCloseIcon;
 	private Icon moreLikeThisIcon;
@@ -213,13 +174,11 @@ public class XMLView
 	
     public XMLView(XMLModel xmlModel) {
     	
+    	// adds this as a changeListener of model
+    	super(xmlModel);
+    	
     	this.xmlModel = xmlModel;
     	controller = new Controller(xmlModel, this);
-    	
-    	xmlModel.addXMLObserver(this);
-    	xmlModel.addSelectionObserver(this);
-    	
-    	protocolRootNode = xmlModel.getRootNode();
     	
     	// buildXMLForm();
     	
@@ -231,20 +190,10 @@ public class XMLView
 		
 		searchIcon = ImageFactory.getInstance().getIcon(ImageFactory.SEARCH_ICON);
 		moreLikeThisIcon = ImageFactory.getInstance().getIcon(ImageFactory.MORE_LIKE_THIS_ICON);
-		validationIcon = ImageFactory.getInstance().getIcon(ImageFactory.VALIDATION_ICON);
+		//validationIcon = ImageFactory.getInstance().getIcon(ImageFactory.VALIDATION_ICON);
 		printIcon = ImageFactory.getInstance().getIcon(ImageFactory.PRINT_ICON);
 		loadDefaultsIcon = ImageFactory.getInstance().getIcon(ImageFactory.LOAD_DEFAULTS_ICON);
 		clearFieldsIcon = ImageFactory.getInstance().getIcon(ImageFactory.CLEAR_FIELDS_ICON);
-		addIcon = ImageFactory.getInstance().getIcon(ImageFactory.ADD_ICON);
-		deleteIcon = ImageFactory.getInstance().getIcon(ImageFactory.DELETE_ICON);
-		moveUpIcon = ImageFactory.getInstance().getIcon(ImageFactory.MOVE_UP_ICON);
-		moveDownIcon = ImageFactory.getInstance().getIcon(ImageFactory.MOVE_DOWN_ICON);
-		promoteIcon = ImageFactory.getInstance().getIcon(ImageFactory.PROMOTE_ICON);
-		demoteIcon = ImageFactory.getInstance().getIcon(ImageFactory.DEMOTE_ICON);
-		duplicateIcon = ImageFactory.getInstance().getIcon(ImageFactory.DUPLICATE_ICON);
-		copyIcon = ImageFactory.getInstance().getIcon(ImageFactory.COPY_ICON);
-		pasteIcon = ImageFactory.getInstance().getIcon(ImageFactory.PASTE_ICON);
-		importElementsIcon = ImageFactory.getInstance().getIcon(ImageFactory.IMPORT_ICON);
 		closeIcon = ImageFactory.getInstance().getIcon(ImageFactory.N0);
 		
 		fileCloseIcon = ImageFactory.getInstance().getIcon(ImageFactory.FILE_CLOSE_ICON);
@@ -309,7 +258,7 @@ public class XMLView
 		
 		// find controls
 		
-		findToolBar = new FindToolBar(this);
+		findToolBar = new FindToolBar(this, xmlModel);
 		fileManagerWestToolBar.add(findToolBar);
 	
 		// Add the toolBar to the left of the full tool bar
@@ -320,12 +269,7 @@ public class XMLView
 		// comboBox for switching between opened files 
 		
 		fileManagerEastToolBar.add(new JLabel("Current file:"));
-	
-		String[] openFiles = xmlModel.getOpenFileList();
-		currentlyOpenedFiles = new JComboBox(openFiles);
-		fileListSelectionListener = new FileListSelectionListener();
-		currentlyOpenedFiles.addActionListener(fileListSelectionListener);
-		fileManagerEastToolBar.add(currentlyOpenedFiles);
+		fileManagerEastToolBar.add(new FileListSelector(xmlModel));
 		
 
 		// more-like this button
@@ -340,6 +284,7 @@ public class XMLView
 		
 		fileManagerEastToolBar.add(moreLikeThisButton);
 		
+		// close-file button
 		addButton(Controller.CLOSE_FILE, "", fileManagerToolBarBorder, fileManagerEastToolBar);
 		
 		fileManagerPanel.add(fileManagerEastToolBar, BorderLayout.EAST);
@@ -347,11 +292,7 @@ public class XMLView
 		
 		// Build left side with form UI
 
-		
-		xmlFormDisplay = new FormDisplay(this);
-		backgroundColor = xmlFormDisplay.getBackground();
-		
-		XMLScrollPane = new JScrollPane(xmlFormDisplay, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		XMLScrollPane = new JScrollPane(new FormDisplay(xmlModel), JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		XMLScrollPane.setFocusable(true);
 		XMLScrollPane.setMinimumSize(new Dimension(200, 200));
 		XMLScrollPane.addMouseListener(new ScrollPaneMouseListener());
@@ -363,67 +304,26 @@ public class XMLView
 		// compareFilesButton.setToolTipText("Compare the first two files in the list");
 		// compareFilesButton.addActionListener(new CompareFileListener());
 		
-//		 Make a nice border
-		EmptyBorder eb = new EmptyBorder(BUTTON_SPACING,BUTTON_SPACING,BUTTON_SPACING,BUTTON_SPACING);
-		EmptyBorder noLeftPadding = new EmptyBorder (BUTTON_SPACING, 2, BUTTON_SPACING, BUTTON_SPACING);
-		EmptyBorder noRightPadding = new EmptyBorder (BUTTON_SPACING, BUTTON_SPACING, BUTTON_SPACING, 1);
-		EmptyBorder thinLeftRightPadding = new EmptyBorder (BUTTON_SPACING, 4, BUTTON_SPACING, 3);
-	
+		// toolBar Border
+		EmptyBorder tb = new EmptyBorder(BUTTON_SPACING,BUTTON_SPACING,BUTTON_SPACING,BUTTON_SPACING);
 		
 		// Protocol edit buttons
 		
-		addAnInput = new JButton(addIcon);
-		addAnInput.setToolTipText("Add a field to the template");
-		addAnInput.addActionListener(new AddDataFieldListener());
-		addAnInput.setBorder(noRightPadding);
+		protocolEditToolBar = new JToolBar("Close toolbar to re-Dock");
 		
-		duplicateField = new JButton(duplicateIcon);
-		duplicateField.setToolTipText("Duplicate the selected field. To select multiple fields use Shift-Click");
-		duplicateField.addActionListener(new DuplicateFieldListener());
-		duplicateField.setBorder(thinLeftRightPadding);
+		addButton(Controller.ADD_FIELD, "", tb, protocolEditToolBar);
+		addButton(Controller.DUPLICATE_FIELD, "", tb, protocolEditToolBar);
+		addButton(Controller.DELETE_FIELD, "", tb, protocolEditToolBar);
+		addButton(Controller.MOVE_FIELD_UP, "", tb, protocolEditToolBar);
+		addButton(Controller.MOVE_FIELD_DOWN, "", tb, protocolEditToolBar);
+		addButton(Controller.PROMOTE_FIELD, "", tb, protocolEditToolBar);
+		addButton(Controller.DEMOTE_FIELD, "", tb, protocolEditToolBar);
+		addButton(Controller.COPY_FIELD, "", tb, protocolEditToolBar);
+		addButton(Controller.PASTE_FIELD, "", tb, protocolEditToolBar);
+		addButton(Controller.IMPORT_FIELD, "", tb, protocolEditToolBar);
+
 		
-		deleteAnInput = new JButton(deleteIcon);
-		deleteAnInput.setToolTipText("Delete the highlighted fields from the protocol");
-		deleteAnInput.addActionListener(new deleteDataFieldListener());
-		deleteAnInput.setBorder(noLeftPadding);
-		
-		JButton moveUpButton = new JButton(moveUpIcon);
-		moveUpButton.setToolTipText("Move the field up");
-		moveUpButton.addActionListener(new MoveFieldUpListener());
-		moveUpButton.setBorder(noRightPadding);
-		
-		JButton moveDownButton = new JButton(moveDownIcon);
-		moveDownButton.setToolTipText("Move the field down");
-		moveDownButton.addActionListener(new MoveFieldDownListener());
-		moveDownButton.setBorder(noLeftPadding);
-		
-		promoteField = new JButton(promoteIcon);
-		promoteField.setToolTipText("Indent fields to left.  To select multiple steps use Shift-Click");
-		promoteField.addActionListener(new PromoteFieldListener());
-		promoteField.setBorder(noRightPadding);
-		
-		demoteField = new JButton(demoteIcon);
-		demoteField.setToolTipText("Indent fields to right");
-		demoteField.addActionListener(new DemoteFieldListener());
-		demoteField.setBorder(noLeftPadding);
-		
-		JButton importElemetsButton = new JButton(importElementsIcon);
-		importElemetsButton.setToolTipText("Import fields from another document or XML file");
-		importElemetsButton.addActionListener(new InsertElementsFromFileListener());
-		importElemetsButton.setBorder(eb);
-		
-		JButton copyButton = new JButton(copyIcon);
-		copyButton.setToolTipText("Copy fields to clipboard");
-		copyButton.setActionCommand(COPY);
-		copyButton.addActionListener(this);
-		copyButton.setBorder(noRightPadding);
-		
-		JButton pasteButton = new JButton(pasteIcon);
-		pasteButton.setToolTipText("Paste fields from clipboard");
-		pasteButton.setActionCommand(PASTE);
-		pasteButton.addActionListener(this);
-		pasteButton.setBorder(noLeftPadding);
-		
+		/*
 		// XML validation - currently not displayed. Demand for this functionality??
 		Dimension xmlValidDim = new Dimension(150, 22);
 		xmlValidationPanel = new JPanel(new BorderLayout());
@@ -437,28 +337,22 @@ public class XMLView
 		xmlValidationButton.setToolTipText("Turn XML validation On / Off");
 		xmlValidationButton.addActionListener(xmlValidationListener);
 		
+		
 		xmlValidationCheckbox = new JCheckBox();
 		xmlValidationCheckbox.setBorder(new EmptyBorder(2,0,2,0));
 		xmlValidationCheckbox.setToolTipText("Turn XML validation On /Off");
 		xmlValidationCheckbox.addActionListener(xmlValidationListener);
+		// do this each time model changes
+		xmlValidationCheckbox.setSelected(xmlModel.getXmlValidation());
+		
 		
 		xmlValidationBox.add(xmlValidationButton);
 		xmlValidationBox.add(xmlValidationCheckbox);
 		xmlValidationPanel.add(xmlValidationBox, BorderLayout.EAST);
 		//xmlValidationPanel.setMaximumSize(new Dimension(100, 22));
+		 */
+
 		
-		
-		protocolEditToolBar = new JToolBar("Close toolbar to re-Dock");
-		protocolEditToolBar.add(addAnInput);
-		protocolEditToolBar.add(duplicateField);
-		protocolEditToolBar.add(deleteAnInput);
-		protocolEditToolBar.add(moveUpButton);
-		protocolEditToolBar.add(moveDownButton);
-		protocolEditToolBar.add(promoteField);
-		protocolEditToolBar.add(demoteField);
-		protocolEditToolBar.add(copyButton);
-		protocolEditToolBar.add(pasteButton);
-		protocolEditToolBar.add(importElemetsButton);
 		protocolEditToolBar.add(Box.createHorizontalGlue());
 		
 		// Field Editor
@@ -524,38 +418,34 @@ public class XMLView
 			
 			JMenuItem openFile = new JMenuItem(controller.getAction(Controller.OPEN_FILE));
 			setMenuItemAccelerator(openFile, KeyEvent.VK_O);
+			fileMenu.add(openFile);
 			
 			JMenuItem newBlankProtocolMenuItem = new JMenuItem(controller.getAction(Controller.NEW_FILE));
 			setMenuItemAccelerator(newBlankProtocolMenuItem, KeyEvent.VK_N);
+			fileMenu.add(newBlankProtocolMenuItem);
 			
 			JMenuItem closeFileMenuItem = new JMenuItem(controller.getAction(Controller.CLOSE_FILE));
 			setMenuItemAccelerator(closeFileMenuItem, KeyEvent.VK_W);
+			fileMenu.add(closeFileMenuItem);
 			
-			saveFileMenuItem = new JMenuItem(controller.getAction(Controller.SAVE_FILE));
+			JMenuItem saveFileMenuItem = new JMenuItem(controller.getAction(Controller.SAVE_FILE));
 			setMenuItemAccelerator(saveFileMenuItem, KeyEvent.VK_S);
+			fileMenu.add(saveFileMenuItem);
 			
-			saveFileAsMenuItem = new JMenuItem(controller.getAction(Controller.SAVE_FILE_AS));
+			fileMenu.add(new JMenuItem(controller.getAction(Controller.SAVE_FILE_AS)));
 			
 			JMenu printsubMenu = new JMenu("Export for printing...");
 			printsubMenu.setIcon(printIcon);
+			fileMenu.add(printsubMenu);
+			
 			JMenuItem printWholeFileMenuItem = new JMenuItem(controller.getAction(Controller.PRINT_EXPORT_ALL));
 			setMenuItemAccelerator(printWholeFileMenuItem, KeyEvent.VK_P);
 			printsubMenu.add(printWholeFileMenuItem);
 			
-			JMenuItem printSelectedFieldsMenuItem = new JMenuItem(controller.getAction(Controller.PRINT_EXPORT_HIGHLT));
-			printsubMenu.add(printSelectedFieldsMenuItem);
+			printsubMenu.add(new JMenuItem(controller.getAction(Controller.PRINT_EXPORT_HIGHLT)));
 			
-			JMenuItem indexFilesMenuItem = new JMenuItem("Index files for searching");
-			indexFilesMenuItem.addActionListener(new IndexFilesListener());
+			fileMenu.add(new JMenuItem(controller.getAction(Controller.INDEX_FILES)));
 			
-			
-			fileMenu.add(openFile);
-			fileMenu.add(newBlankProtocolMenuItem);
-			fileMenu.add(closeFileMenuItem);
-			fileMenu.add(saveFileMenuItem);
-			fileMenu.add(saveFileAsMenuItem);
-			fileMenu.add(printsubMenu);
-			fileMenu.add(indexFilesMenuItem);
 			menuBar.add(fileMenu);
 			
 			
@@ -588,11 +478,7 @@ public class XMLView
 			
 			Icon findIcon = ImageFactory.getInstance().getIcon(ImageFactory.FIND_ICON);
 			JMenuItem findMenuItem = new JMenuItem("Find", findIcon);
-			findMenuItem.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					findToolBar.showFindTextControls();
-				}
-			});
+			findMenuItem.addActionListener(findToolBar);
 			setMenuItemAccelerator(findMenuItem, KeyEvent.VK_F);
 			
 			editMenu.add(loadDefaultsSubMenu);
@@ -612,44 +498,23 @@ public class XMLView
 			
 			showEditToolbarMenuItem= new JCheckBoxMenuItem("Show Edit-Template toolbar");
 			showEditToolbarMenuItem.setSelected(true);		// start off visible
-			addFieldMenuItem = new JMenuItem("Add Step", addIcon);
-			deleteFieldMenuItem = new JMenuItem("Delete Step", deleteIcon);
-			moveStepUpMenuItem = new JMenuItem("Move Step Up", moveUpIcon);
-			moveStepDownMenuItem = new JMenuItem("Move Step Down", moveDownIcon);
-			promoteStepMenuItem = new JMenuItem("Promote Step (indent to left)", promoteIcon);
-			demoteStepMenuItem = new JMenuItem("Demote Step (indent to right)", demoteIcon);
-			duplicateFieldMenuItem = new JMenuItem("Duplicate Step", duplicateIcon);
-			importFieldsMenuItem = new JMenuItem("Import Steps", importElementsIcon);
-			copyFieldsMenuItem = new JMenuItem("Copy Steps", copyIcon);
-			copyFieldsMenuItem.setActionCommand(COPY);
-			setMenuItemAccelerator(copyFieldsMenuItem, KeyEvent.VK_C);
-			pasteFieldsMenuItem = new JMenuItem("Paste Steps", pasteIcon);
-			pasteFieldsMenuItem.setActionCommand(PASTE);
-			setMenuItemAccelerator(pasteFieldsMenuItem, KeyEvent.VK_V);
-			
 			showEditToolbarMenuItem.addActionListener(new ToggleEditTemplateControlsListener());
-			addFieldMenuItem.addActionListener(new AddDataFieldListener());
-			deleteFieldMenuItem.addActionListener(new deleteDataFieldListener());
-			moveStepUpMenuItem.addActionListener(new MoveFieldUpListener());
-			moveStepDownMenuItem.addActionListener(new MoveFieldDownListener());
-			promoteStepMenuItem.addActionListener(new PromoteFieldListener());
-			demoteStepMenuItem.addActionListener(new DemoteFieldListener());
-			duplicateFieldMenuItem.addActionListener(new DuplicateFieldListener());
-			importFieldsMenuItem.addActionListener(new InsertElementsFromFileListener());
-			copyFieldsMenuItem.addActionListener(this);
-			pasteFieldsMenuItem.addActionListener(this);
 			
 			protocolMenu.add(showEditToolbarMenuItem);
-			protocolMenu.add(addFieldMenuItem);
-			protocolMenu.add(deleteFieldMenuItem);
-			protocolMenu.add(moveStepUpMenuItem);
-			protocolMenu.add(moveStepDownMenuItem);
-			protocolMenu.add(promoteStepMenuItem);
-			protocolMenu.add(demoteStepMenuItem);
-			protocolMenu.add(duplicateFieldMenuItem);
-			protocolMenu.add(importFieldsMenuItem);
+			protocolMenu.add(new JMenuItem(controller.getAction(Controller.ADD_FIELD)));
+			protocolMenu.add(new JMenuItem(controller.getAction(Controller.DUPLICATE_FIELD)));
+			protocolMenu.add(new JMenuItem(controller.getAction(Controller.DELETE_FIELD)));
+			protocolMenu.add(new JMenuItem(controller.getAction(Controller.MOVE_FIELD_UP)));
+			protocolMenu.add(new JMenuItem(controller.getAction(Controller.MOVE_FIELD_DOWN)));
+			protocolMenu.add(new JMenuItem(controller.getAction(Controller.PROMOTE_FIELD)));
+			protocolMenu.add(new JMenuItem(controller.getAction(Controller.DEMOTE_FIELD)));
+			JMenuItem copyFieldsMenuItem = new JMenuItem(controller.getAction(Controller.COPY_FIELD));
+			setMenuItemAccelerator(copyFieldsMenuItem, KeyEvent.VK_C);
 			protocolMenu.add(copyFieldsMenuItem);
+			JMenuItem pasteFieldsMenuItem = new JMenuItem(controller.getAction(Controller.PASTE_FIELD));
+			setMenuItemAccelerator(copyFieldsMenuItem, KeyEvent.VK_V);
 			protocolMenu.add(pasteFieldsMenuItem);
+			protocolMenu.add(new JMenuItem(controller.getAction(Controller.IMPORT_FIELD)));
 			menuBar.add(protocolMenu);
 			
 			
@@ -729,198 +594,30 @@ public class XMLView
 				    options,
 				    options[0]);
 				
-				if (n == 0) newProtocolFile();
-				else if (n == 1) openFile();
-	}
-	
-	// turn on/off the controls for editing
-	// these are turned off when no files open
-	public void enableEditingControls(boolean enabled){
-		
-		// only modify menu items if the Frame has been built
-		if (XMLFrame != null) {
-			addFieldMenuItem.setEnabled(enabled);
-			deleteFieldMenuItem.setEnabled(enabled);
-			moveStepUpMenuItem.setEnabled(enabled);
-			moveStepDownMenuItem.setEnabled(enabled);
-			promoteStepMenuItem.setEnabled(enabled);
-			demoteStepMenuItem.setEnabled(enabled);
-			duplicateFieldMenuItem.setEnabled(enabled);
-			importFieldsMenuItem.setEnabled(enabled);
-
-		}
-	}
-
-	
-	// called by NotifyXMLObservers in XMLModel. 
-	public void xmlUpdated() {
-		protocolRootNode = xmlModel.getRootNode();
-		xmlFormDisplay.refreshForm();		// refresh the form
-		
-		xmlValidationCheckbox.setSelected(xmlModel.getXmlValidation());
-		// clear the Find-Text search hits: don't want to keep ref to deleted fields etc
-		clearFindTextHits();
-		
-		selectionChanged();	// to take account of any other changes
-	}
-	
-	// selection observer method, fired when tree changes selection
-	// this method called when UI needs updating, but xml not changed.
-	public void selectionChanged() {
-		System.out.println("XMLView.selectionChanged");
-		if (editingState == EDITING_FIELDS) {
-			updateFieldEditor();
-		}
-
-		updateFileList();
-		updateXmlValidationPanel();
+				if (n == 0) {
+					xmlModel.openBlankProtocolFile();
+				}
+				else if (n == 1) {
+					ActionCmd action = new OpenFileCmd(xmlModel);
+					action.execute();
+				}
 	}
 	
 
-	public void updateFileList() {
-		currentlyOpenedFiles.removeActionListener(fileListSelectionListener);
-		
-		currentlyOpenedFiles.removeAllItems();
-		
-		String[] fileList = xmlModel.getOpenFileList();
-		
-		if (fileList.length > 0){
-		
-			for (int i=0; i<fileList.length; i++) {
-				currentlyOpenedFiles.addItem(fileList[i]);
-			}
-			currentlyOpenedFiles.setSelectedIndex(xmlModel.getCurrentFileIndex());
-		}
-		
+	// change in the model
+	public void stateChanged(ChangeEvent e) {
+		updateFieldEditor();
+
 		refreshAnyFilesOpen();
-		
-		currentlyOpenedFiles.addActionListener(fileListSelectionListener);
 	}
+	
 	
 	// if no files open, hide the tabbed pane
 	public void refreshAnyFilesOpen() {
 		
 		boolean noFiles = (xmlModel.getOpenFileList().length == 0);
-		
-		enableEditingControls(!noFiles); // disables menu items
-		
-		//saveFileButton.setEnabled(!noFiles);
-		//saveFileAsButton.setEnabled(!noFiles);
-		
-		// only modify menus if Frame has been built
-		/*
-		 if (XMLFrame != null) {
-			saveFileMenuItem.setEnabled(!noFiles);
-			saveFileAsMenuItem.setEnabled(!noFiles);
-		}
-		*/
+
 		protocolTab.setVisible(!noFiles);
-	}
-	
-	public void deleteDataFields() {
-		
-		int result = JOptionPane.showConfirmDialog(XMLFrame, 
-				"Delete highlighted fields?", "Delete?",
-		JOptionPane.YES_NO_OPTION,
- 	    JOptionPane.QUESTION_MESSAGE);
-
-		if (result == 0) {	// delete all
-			xmlModel.editCurrentTree(Actions.DELTE_FIELDS);
-		}
-	}
-	
-	public void promoteDataFields() {
-		xmlModel.editCurrentTree(Actions.PROMOTE_FIELDS);
-	}
-	
-	public void demoteDataFields() {
-		xmlModel.editCurrentTree(Actions.DEMOTE_FIELDS);
-	}
-	
-	public void moveFieldsUp() {
-		// if the highlighted fields have a preceding sister, move it below the highlighted fields
-		xmlModel.editCurrentTree(Actions.MOVE_FIELDS_UP);
-		}
-	public void moveFieldsDown() {
-		xmlModel.editCurrentTree(Actions.MOVE_FIELDS_DOWN);
-	}
-	
-	public void addDataField() {
-		// add dataField after last selected one
-		xmlModel.editCurrentTree(Actions.ADD_NEW_FIELD);
-	}
-	
-	
-	
-	// open a blank protocol 
-	public void newProtocolFile() {
-		xmlModel.openBlankProtocolFile();
-	}
-	
-	
-	//open a file
-	public void openFile() {
-		
-		// Create a file chooser
-		final JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new ProtocolFileFilter());
-		
-		File currentLocation = null;
-		if (PreferencesManager.getPreference(PreferencesManager.CURRENT_FILES_FOLDER) != null) {
-			currentLocation = new File(PreferencesManager.getPreference(PreferencesManager.CURRENT_FILES_FOLDER));
-		} 
-		fc.setCurrentDirectory(currentLocation);
-
-		int returnVal = fc.showOpenDialog(XMLFrame);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File xmlFile = fc.getSelectedFile();
-         // remember where the user last saved a file
-            PreferencesManager.setPreference(PreferencesManager.CURRENT_FILES_FOLDER, xmlFile.getParent());
-            openThisFile(xmlFile);
-		}
-	}
-	
-	
-	public void openThisFile(File file) {
-		 xmlModel.openThisFile(file);
-	}
-	
-	
-	public void actionPerformed(ActionEvent event) {
-		String command = event.getActionCommand();
-		if (command.equals(COPY)) xmlModel.copyHighlightedFieldsToClipboard();
-		else if (command.equals(PASTE)) xmlModel.pasteHighlightedFieldsFromClipboard();
-	}
-	
-	public void mainWindowClosing() {
-		
-		if (xmlModel.tryClosingAllFiles()) {
-			System.exit(0);
-		}
-		
-		Object[] options = {"Yes",
-        "No"};
-    	int n = JOptionPane.showOptionDialog(XMLFrame,
-    		    "Some files failed to close because they are unsaved.\nWould you like to quit anyway?",
-    		    "Files unsaved!",
-    		    JOptionPane.YES_NO_OPTION,
-    		    JOptionPane.QUESTION_MESSAGE,
-    		    null,     //don't use a custom Icon
-    		    options,  //the titles of buttons
-    		    options[0]); //default button title
-    	if (n == 0) {
-    		System.exit(0);
-    	} else {
-    		xmlUpdated();	// refresh since some files may have been closed
-    	}
-	}
-	
-
-	
-	// turn on and off the validation of the current xml tree. 
-	public void enableXmlValidation(boolean validationOn) {
-		xmlModel.setXmlValidation(validationOn);
-		updateXmlValidationPanel();	
 	}
 	
 	
@@ -965,18 +662,8 @@ public class XMLView
 		showHideFieldEditorButton.setIcon(visible ? fileCloseIcon : configureIcon);
 		showHideFieldEditorButton.setText(visible ? ">>" : "<<");
 	}
-
-	/* clear the search results - eg when user edits file */
-	public void clearFindTextHits() {
-		findToolBar.clearFindTextHits();
-	}
 	
-	/* find toolBar uses this to find text
-	 * Delegate to model
-	 */
-	public ArrayList<DataField> getSearchResults(String searchWord) {
-		return xmlModel.getSearchResults(searchWord);
-	}
+	
 	
 	public class ToggleEditTemplateControlsListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
@@ -986,7 +673,7 @@ public class XMLView
 		}
 	}
 	
-	
+	/*
 	public class XmlValidationListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent event) {
@@ -1002,7 +689,13 @@ public class XMLView
 		}
 		
 	}
-
+	
+		// turn on and off the validation of the current xml tree. 
+	public void enableXmlValidation(boolean validationOn) {
+		xmlModel.setXmlValidation(validationOn);
+		updateXmlValidationPanel();	
+	}
+	*/
 	
 	public class CompareFileListener implements ActionListener {
 
@@ -1010,22 +703,7 @@ public class XMLView
 			xmlModel.compareCurrentFiles();
 		}	
 	}
-	
-	public class FileListSelectionListener implements ActionListener {
-			
-		public void actionPerformed (ActionEvent event) {
-			JComboBox source = (JComboBox)event.getSource();
-			int selectedIndex = source.getSelectedIndex();
-			xmlModel.changeCurrentFile(selectedIndex);
-		}
-	}	
 
-	
-	public class IndexFilesListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-				IndexFiles.indexFolderContents();
-		}
-	}
 	
 	public class SearchDisplayListener implements ChangeListener {
 		public void stateChanged(ChangeEvent e) {
@@ -1034,6 +712,15 @@ public class XMLView
 		}
 	}
 	
+	/**
+	 * This does the job of displaying an additional panel (eg search-results), by placing
+	 * it in a SplitPane, <code>XMLUIPanel</code> to the right of the main window contents. 
+	 * The main window contents are already in the left side of <code>XMLUIPanel</code>.
+	 * When there is nothing to display (newPanel == null), the existence of the SplitPane
+	 * is hidden, by setting the divider to 0 pixels.
+	 * 
+	 * @param newPanel		The JPanel that should be displayed.
+	 */
 	public void updateSearchPanel(JPanel newPanel) {
 		XMLUIPanel.setRightComponent(newPanel);
 
@@ -1045,56 +732,8 @@ public class XMLView
 		XMLUIPanel.validate();
 		XMLUIPanel.resetToPreferredSizes();
 	}
-	
-	
-	
-	public class AddDataFieldListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			addDataField();
-		}
-	}
-	
-	public class DuplicateFieldListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			duplicateFields();
-		}
-	}
-	
-	public class MoveFieldUpListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			moveFieldsUp();
-		}
-	}	
-	public class MoveFieldDownListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			moveFieldsDown();
-		}
-	}
-	public class PromoteFieldListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			promoteDataFields();
-		}
-	}
-	public class DemoteFieldListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			demoteDataFields();
-		}
-	}
-	
-	public class deleteDataFieldListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			deleteDataFields();
-		}
-	}
-	
-	
-	public class InsertElementsFromFileListener implements ActionListener {
-		public void actionPerformed(ActionEvent event){
-			insertFieldsFromFile();
-		}
-	}
 
-	
+	/*
 	// this is called (via selectionChanged) xmlModel after validating xml
 	public void updateXmlValidationPanel() {
 		// if validation is turned on
@@ -1124,13 +763,36 @@ public class XMLView
 			xmlValidationButton.setToolTipText(null);
 		}
 	}
+	*/
 	
-//	 refresh the right panel with details of a new dataField.
+	/**
+	 * This is called when the model changes.
+	 * It refreshes the FieldEditor panel...
+	 * If the model has an ImportTree (ie if the user has chosen a file, to import elements from)
+	 *  then this Tree is displayed by an <code>ImportElementChooser</code>.
+	 * Otherwise, the current FieldEditor to display is retrieved from the model. 
+	 * 
+	 */
 	public void updateFieldEditor() {
 		
-		JPanel newDisplay = xmlModel.getFieldEditorToDisplay();
+		JPanel newDisplay = null;
+		if ((xmlModel.getImportTreeRoot() != null)) {
+			if (importElementChooser == null) {
+				importElementChooser = new ImportElementChooser(xmlModel);
+			}
+			newDisplay = importElementChooser;
+		} else {
+			importElementChooser = null;
+			newDisplay = xmlModel.getFieldEditorToDisplay();
+		}
+		
 		updateFieldEditor(newDisplay);
 	}
+	
+	/**
+	 * This does the job of replacing the current panel in the FieldEditor with a new Panel.
+	 * @param newDisplay	The new JPanel to be displayed.
+	 */
 	
 	public void updateFieldEditor(JPanel newDisplay) {
 		fieldEditor.setVisible(false);
@@ -1145,68 +807,9 @@ public class XMLView
 		//fieldEditor.validate();
 		fieldEditor.setVisible(fieldEditorAndToolbarVisible);	// need to hide, then show to get refresh to work
 	}
-	
-	public void insertFieldsFromFile() {
-//		 Create a file chooser
-		final JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new ProtocolFileFilter());
-		
-		File currentLocation = null;
-		if (PreferencesManager.getPreference(PreferencesManager.CURRENT_FILES_FOLDER) != null) {
-			currentLocation = new File(PreferencesManager.getPreference(PreferencesManager.CURRENT_FILES_FOLDER));
-		} 
-		fc.setCurrentDirectory(currentLocation);
-		int returnVal = fc.showOpenDialog(XMLFrame);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-           File xmlFile = fc.getSelectedFile();	
-           
-        // remember where the user last saved a file
-           PreferencesManager.setPreference(PreferencesManager.CURRENT_FILES_FOLDER, xmlFile.getParent());
-           
-           Tree importTree = xmlModel.getTreeFromNewFile(xmlFile); 
-           
-           if (importTree == null) { // problem parsing XML
-       			 JOptionPane.showMessageDialog(XMLFrame,
-       			     "Problem reading file.",
-       			     "XML error",
-       			     JOptionPane.ERROR_MESSAGE);
-       			 return;
-           }
-           
-           xmlModel.setImportTree(importTree);
-           
-           rootOfImportTree = importTree.getRootNode();
-           
-           JPanel importTreeView = new ImportElementChooser(rootOfImportTree, this);
-           
-           updateFieldEditor(importTreeView);
-           
-           editingState = IMPORTING_FIELDS;
-		}
-	}
-	
-	public void setEditingState(int newState) {
-		editingState = newState;
-		
-		// if finished importing, kill the reference to imported data
-		if (editingState != IMPORTING_FIELDS) 
-			xmlModel.setImportTree(null);
-	}
-	
-	public void importFieldsFromImportTree() {
-		xmlModel.importFieldsFromImportTree();
-	}
-	
-	public void duplicateFields() {
-		// get selected Fields, duplicate and add after last selected one
-		xmlModel.editCurrentTree(Actions.DUPLICATE_FIELDS);
-	}
 
 	
-	public DataFieldNode getRootNode() {
-		return protocolRootNode;
-	}
-	
+
 	// used to draw focus away from fieldEditor panel, so that updateDataField() is called
 	public class ScrollPaneMouseListener implements MouseListener {
 		public void mouseEntered(MouseEvent event) {}

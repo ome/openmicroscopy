@@ -30,6 +30,15 @@ import javax.swing.event.ChangeEvent;
 import tree.Tree.Actions;
 import ui.IModel;
 
+/**
+ * This Action class uses the editCurrentTree() method to pass an Enumerated instance of 
+ * Tree.Actions to the Tree, via the model. 
+ * The Tree will perform the stated action on the currently highlighted fields, or on all fields,
+ * depending on the Action. 
+ * 
+ * @author will
+ *
+ */
 public class ClearFieldsHighltdAction extends ProtocolEditorAction {
 	
 	public ClearFieldsHighltdAction(IModel model) {

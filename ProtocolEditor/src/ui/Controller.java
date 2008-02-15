@@ -30,19 +30,31 @@ import java.util.Map;
 import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import actions.AddFieldAction;
 import actions.ClearFieldsAllAction;
 import actions.ClearFieldsHighltdAction;
 import actions.CloseFileAction;
+import actions.CopyFieldAction;
+import actions.DeleteFieldAction;
+import actions.DemoteFieldAction;
+import actions.DuplicateFieldsAction;
+import actions.ImportFieldsAction;
+import actions.IndexFilesAction;
 import actions.LoadDefaultsAllAction;
 import actions.LoadDefaultsHighltdAction;
+import actions.MoveFieldDownAction;
+import actions.MoveFieldUpAction;
 import actions.MultiplyValuesAction;
 import actions.NewFileAction;
 import actions.OpenFileAction;
 import actions.OpenWwwFileAction;
+import actions.PasteFieldAction;
 import actions.PrintExportAllAction;
 import actions.PrintExportHighltd;
+import actions.PromoteFieldAction;
 import actions.RedoAction;
 import actions.RedoActionNoNameRefresh;
 import actions.SaveFileAction;
@@ -56,7 +68,7 @@ import xmlMVC.XMLModel;
 
 public class Controller 
 	extends AbstractComponent
-	implements SelectionObserver, XMLUpdateObserver {
+	implements ChangeListener {
 
 	protected XMLModel model;
 	protected XMLView view;
@@ -111,6 +123,39 @@ public class Controller
     /** Identifies the <code>CloseFile action</code>. */
     static final Integer     CLOSE_FILE = new Integer(16);
     
+    /** Identifies the <code>AddFieldAction</code>. */
+    static final Integer     ADD_FIELD = new Integer(17);
+    
+    /** Identifies the <code>DuplicateFieldsAction</code>. */
+    static final Integer     DUPLICATE_FIELD = new Integer(18);
+    
+    /** Identifies the <code>DeleteFieldAction</code>. */
+    static final Integer     DELETE_FIELD = new Integer(19);
+    
+    /** Identifies the <code>MoveFieldUpAction</code>. */
+    static final Integer     MOVE_FIELD_UP = new Integer(20);
+    
+    /** Identifies the <code>MoveFieldDownAction</code>. */
+    static final Integer     MOVE_FIELD_DOWN = new Integer(21);
+    
+    /** Identifies the <code>PromoteFieldAction</code>. */
+    static final Integer     PROMOTE_FIELD = new Integer(22);
+    
+    /** Identifies the <code>DemoteFieldAction</code>. */
+    static final Integer    DEMOTE_FIELD = new Integer(23);
+    
+    /** Identifies the <code>CopyFieldAction</code>. */
+    static final Integer    COPY_FIELD = new Integer(24);
+    
+    /** Identifies the <code>PasteFieldAction</code>. */
+    static final Integer    PASTE_FIELD = new Integer(25);
+    
+    /** Identifies the <code>ImportFieldsAction</code>. */
+    static final Integer    IMPORT_FIELD = new Integer(26);
+    
+    /** Identifies the <code>IndexFilesAction</code>. */
+    static final Integer    INDEX_FILES = new Integer(27);
+    
     
     /** Maps actions ids onto actual <code>Action</code> object. */
     private Map<Integer, Action>	actionsMap;
@@ -119,8 +164,10 @@ public class Controller
 	
 		this.model = model;
 		// listen for changes in selection AND changes in XML (should only be observing one really!)
-		model.addSelectionObserver(this);
-		model.addXMLObserver(this);
+	
+		if (model instanceof ObservableComponent) {
+			((ObservableComponent)model).addChangeListener(this);
+		}
 		this.view = view;
 		actionsMap = new HashMap<Integer, Action>();
 		createActions();
@@ -147,7 +194,17 @@ public class Controller
         actionsMap.put(REDO, new RedoAction(model));
         actionsMap.put(REDO_NO_NAME, new RedoActionNoNameRefresh(model));
         actionsMap.put(CLOSE_FILE, new CloseFileAction(model));
-        
+        actionsMap.put(ADD_FIELD, new AddFieldAction(model));
+        actionsMap.put(DUPLICATE_FIELD, new DuplicateFieldsAction(model));
+        actionsMap.put(DELETE_FIELD, new DeleteFieldAction(model));
+        actionsMap.put(MOVE_FIELD_UP, new MoveFieldUpAction(model));
+        actionsMap.put(MOVE_FIELD_DOWN, new MoveFieldDownAction(model));
+        actionsMap.put(PROMOTE_FIELD, new PromoteFieldAction(model));
+        actionsMap.put(DEMOTE_FIELD, new DemoteFieldAction(model));
+        actionsMap.put(COPY_FIELD, new CopyFieldAction(model));
+        actionsMap.put(PASTE_FIELD, new PasteFieldAction(model));
+        actionsMap.put(IMPORT_FIELD, new ImportFieldsAction(model));
+        actionsMap.put(INDEX_FILES, new IndexFilesAction(model));
     }
     
     /**
@@ -160,15 +217,11 @@ public class Controller
 
     
     /**
-	 * called by the model when selection is changed.
+	 * called by the model when it changes.
 	 * Notifies all observers of a change.
 	 */
-	public void selectionChanged() {
+	public void stateChanged(ChangeEvent e) {
 		this.fireStateChange();
-	}
-
-	public void xmlUpdated() {
-		selectionChanged();
 	}
 	
 }

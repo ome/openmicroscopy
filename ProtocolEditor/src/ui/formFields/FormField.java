@@ -99,9 +99,7 @@ public class FormField extends JPanel implements DataFieldObserver{
 	
 	// used in Diff (comparing two trees), to get a ref to all components, to colour red if different!
 	ArrayList<JComponent> visibleAttributes = new ArrayList<JComponent>();
-	
-	public static final Dimension MINSIZE = new Dimension(30, 25);
-	
+		
 	boolean showDescription = false;	// not saved, just used to toggle
 	
 	public FormField(IDataFieldObservable dataFieldObs) {
@@ -215,8 +213,17 @@ public class FormField extends JPanel implements DataFieldObserver{
 		setDescriptionText(dataField.getAttribute(DataFieldConstants.DESCRIPTION));
 		setURL(dataField.getAttribute(DataFieldConstants.URL));
 		
-		//setHighlighted(dataField.isAttributeTrue(DataField.FIELD_SELECTED));
+		refreshChildDisplayOrientation();
+		
 		refreshBackgroundColour();
+	}
+	
+	public void refreshChildDisplayOrientation() {
+		boolean childrenHorizontal = dataField.isAttributeTrue(DataFieldConstants.DISPLAY_CHILDREN_HORIZONTALLY);
+		
+		if (childContainer instanceof JToolBar) {
+			((JToolBar)childContainer).setOrientation(childrenHorizontal ? JToolBar.HORIZONTAL : JToolBar.VERTICAL);
+		}
 	}
 	
 	// these methods called when user updates the fieldEditor panel
@@ -374,6 +381,8 @@ public class FormField extends JPanel implements DataFieldObserver{
 		
 		showChildren(!collapsed);
 		
+		refreshChildDisplayOrientation();
+		
 		// this is only needed when building UI (superfluous when simply collapsing)
 		refreshHasChildren(hasChildren());
 	}
@@ -411,9 +420,11 @@ public class FormField extends JPanel implements DataFieldObserver{
 		if (!hasChildren()) 
 			return;
 		// check visible and that children have not already been loaded
+		if (childContainer == null) 
+			return;
 		if (visible && childContainer.getComponentCount() == 0) {
 			ArrayList<DataFieldNode> children = ((DataField)dataField).getNode().getChildren();
-			FormDisplay.showChildren(children, (Box)childContainer);
+			FormDisplay.showChildren(children, childContainer);
 		}
 		childContainer.setVisible(visible);
 	}
@@ -471,6 +482,7 @@ public class FormField extends JPanel implements DataFieldObserver{
 	 */ 
 	public int getHeightOfPanelBottom() {
 		if (isThisRootField()) {
+			System.out.println("FormField getHeightOfPanelBottom ROOT = " + getHeight());
 			return this.getHeight();
 		// if panel has a parent, this panel will be within a box, below the parent
 		} else {
@@ -478,6 +490,7 @@ public class FormField extends JPanel implements DataFieldObserver{
 			// then add parent's position - will call recursively 'till root.
 			//y = y + ((FormField)df.getNode().getParentNode().getDataField().getFormField()).getHeightOfPanelBottom();
 			y = y + ((FormFieldContainer)this.getParent()).getYPositionWithinRootContainer();
+			System.out.println("   FormField getHeightOfPanelBottom = " + y);
 			return y;
 		}
 	}
@@ -525,6 +538,12 @@ public class FormField extends JPanel implements DataFieldObserver{
 	// called to update dataField with attribute
 	protected void setDataFieldAttribute(String attributeName, String value, boolean notifyUndoRedo) {
 		dataField.setAttribute(attributeName, value, notifyUndoRedo);
+	}
+	
+	public Dimension getMaximumSize() {
+		int h = getPreferredSize().height;
+		int w = 10000;
+		return new Dimension(w, h);
 	}
 	
 

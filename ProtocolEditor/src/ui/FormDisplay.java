@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -24,51 +24,51 @@ package ui;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
+import tree.DataFieldConstants;
 import tree.DataFieldNode;
 import ui.formFields.FormField;
 import ui.formFields.FormFieldContainer;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.util.ArrayList;
 
 // this panel displays the hierarchical tree, made from (FormField) JPanels
 // uses recursive buildFormTree() method, indenting children each time
 
-public class FormDisplay extends JPanel {
+public class FormDisplay 
+	extends JPanel 
+	implements ChangeListener {
 	
-	private XMLView parentXMLView;
-	
-	protected static int childLeftIndent = 40;
+	private IModel model;
 	
 	FormFieldContainer verticalFormBox;
 	
 	DataFieldNode rootNode;
 	
-	FormDisplay(XMLView parent) {
+	FormDisplay(IModel model) {
 		
-		parentXMLView = parent;
-		rootNode = parentXMLView.getRootNode();
+		this.model = model;
+		rootNode = model.getRootNode();
+		
+		if (model instanceof AbstractComponent) {
+			((AbstractComponent)model).addChangeListener(this);
+		}
 		
 		this.setLayout(new BorderLayout());
 		this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		verticalFormBox = new FormFieldContainer();
-		this.add(verticalFormBox, BorderLayout.NORTH);
-				
-		// get the formField JPanel from the dataField
-		if (rootNode != null) {
-			
-			JPanel newFormField = parentXMLView.getRootNode().getFormField();
-			FormField formField = (FormField)newFormField;
-			formField.refreshRootField(true);	// displays the correct buttons etc. 
-			verticalFormBox.add(newFormField);
-			
-			// pass the node and the Box that already contains it to buildFormTree()
-			// this will get the nodes children and add them to the Box (within a new Box)
-			buildFormTree(parentXMLView.getRootNode(), formField, verticalFormBox);
-		}
+		
+		initTreeBuild();
 	}
+	
+	
 	
 	FormDisplay(DataFieldNode rootNode) {
 		
@@ -76,68 +76,73 @@ public class FormDisplay extends JPanel {
 		
 		this.setLayout(new BorderLayout());
 		this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		verticalFormBox = new FormFieldContainer();
-		this.add(verticalFormBox, BorderLayout.NORTH);
+		
 				
+		initTreeBuild();
+	}
+	
+	public void initTreeBuild() {
 		// get the formField JPanel from the dataField
 		if (rootNode != null) {
+			
+			verticalFormBox = new FormFieldContainer(rootNode);
+			this.add(verticalFormBox, BorderLayout.NORTH);
+			
+			/*
 			JPanel newFormField = rootNode.getFormField();
 			FormField formField = (FormField)newFormField;
 			formField.refreshRootField(true);	// displays the correct buttons etc. 
-			verticalFormBox.add(newFormField);
+			*/
 			
 			// pass the node and the Box that already contains it to buildFormTree()
 			// this will get the nodes children and add them to the Box (within a new Box)
-			buildFormTree(rootNode, formField, verticalFormBox);
+			buildFormTree(rootNode, verticalFormBox);
 		}
 	}
 	
 //	 this will get the node's children and add them to the Box (within a new Box)
 	// the Panel of dfNode has already been added at the top of verticalBox
-	public static void buildFormTree(DataFieldNode dfNode, FormField formField, Box verticalBox) {
+	public static void buildFormTree(DataFieldNode dfNode, FormFieldContainer verticalBox) {
 		
 		ArrayList<DataFieldNode> children = dfNode.getChildren();
 		
-		// every field gets a childBox, even though it may not have any children
-		FormFieldContainer childBox = new FormFieldContainer();
-		childBox.setBorder(BorderFactory.createEmptyBorder(0, childLeftIndent, 0, 0));
-		// the node gets a ref to the Box (used for collapsing. Box becomes hidden)
-		formField.setChildContainer(childBox);
-		
 		//System.out.println("FormDisplay: buildFormTree() " + dfNode.getDataField().getName());
 		
-		boolean subStepsCollapsed = formField.subStepsCollapsed();
+		boolean subStepsCollapsed = ((FormField)dfNode.getFormField()).subStepsCollapsed();
 		
 		if (!subStepsCollapsed) {
 			// add the children to the childBox - this will recursively build tree for each
-			showChildren(children, childBox);
+			showChildren(children, verticalBox.getChildContainer());
 		}
-		// add the new childBox to it's parent
-		verticalBox.add(childBox);
 		
-//		set visibility of the childBox wrt collapsed boolean of dataField
+		//		set visibility of the childBox wrt collapsed boolean of dataField
 		//	 & sets collapse button visible if dataFieldNode has children
-		formField.refreshTitleCollapsed();
+		((FormField)dfNode.getFormField()).refreshTitleCollapsed();
 		
 	}
 	
-	public static void showChildren(ArrayList<DataFieldNode> children, Box childBox) {
+	public static void showChildren(ArrayList<DataFieldNode> children, Container childBox) {
 		
 		//System.out.println("	showChildren()");
 		
 		// for each child, get their JPanel, add it to the childBox
 		for (DataFieldNode child: children){
-			JPanel newFormField = child.getFormField();
-			FormField fField = (FormField)newFormField;
-			childBox.add(newFormField);
+			
+			FormFieldContainer childContainer = new FormFieldContainer(child);
+			
+			childBox.add(childContainer);
 			// recursively build the tree below each child
-			buildFormTree(child, fField, childBox);
+			buildFormTree(child, childContainer);
 		}
+		//childBox.add(Box.createVerticalGlue());
+		JPanel filler = new JPanel();
+		filler.setBorder(BorderFactory.createLineBorder(Color.red));
+		childBox.add(filler);
 	}
 	
-	public void refreshForm() {
+	public void refreshTree() {
 		// update reference to the root
-		rootNode = parentXMLView.getRootNode();
+		rootNode = model.getRootNode();
 		
 		refreshUI();
 		
@@ -155,23 +160,23 @@ public class FormDisplay extends JPanel {
 		
 		if (rootNode == null) return;
 		
-		verticalFormBox.setVisible(false);	// otherwise if the new form is smaller, old one still visible
+		if (verticalFormBox != null) {
+			verticalFormBox.setVisible(false);	// otherwise if the new form is smaller, old one still visible
 		
-		this.remove(verticalFormBox);
+			this.remove(verticalFormBox);
+		}
 		
-		verticalFormBox = new FormFieldContainer();
+		initTreeBuild();
 		
-		JPanel newFormField = rootNode.getDataField().getFormField();
-		FormField formField = (FormField)newFormField;
-		formField.refreshRootField(true);	// displays the correct buttons etc. 
-		verticalFormBox.add(newFormField);
-		
-		buildFormTree(rootNode, formField, verticalFormBox);
-		
-		this.add(verticalFormBox, BorderLayout.NORTH);
 		this.getParent().getParent().validate();
 		this.invalidate();
 		this.repaint();		
+	}
+
+	public void stateChanged(ChangeEvent e) {
+		if (model.treeNeedsRefreshing()) {
+			refreshTree();
+		}
 	}
 	
 }

@@ -112,6 +112,17 @@ public class XMLModel
 	/* clipboard of fields, for copy and paste functionality (between files) */
 	private ArrayList<DataFieldNode> copiedToClipboardFields = new ArrayList<DataFieldNode>();
 	
+	private boolean treeNeedsRefreshing = false;
+	
+	/**
+	 * Used to increment new file names: eg untitled, untitled 1, untitled 2, etc
+	 */
+	private int newFileNamingIndex = 1;
+	
+	/**
+	 * 
+	 * @param args
+	 */
 	
 	public static void main(String args[]) {
 		try {
@@ -197,7 +208,17 @@ public class XMLModel
 		for (XMLUpdateObserver xmlObserver: xmlObservers) {
 			xmlObserver.xmlUpdated();
 		}
+		treeNeedsRefreshing = true;
 		fireStateChange();
+		treeNeedsRefreshing = false;
+	}
+	
+	/**
+	 * a flag to tell whether observers need to re-layout any representation of the tree.
+	 * @return
+	 */
+	public boolean treeNeedsRefreshing() {
+		return treeNeedsRefreshing;
 	}
 	
 	// fireStateChanged() notifies ChangeObservers eg Controller
@@ -216,12 +237,14 @@ public class XMLModel
 		fireStateChange();
 	}
 	
+	/*
 	public void addXMLObserver(XMLUpdateObserver newXMLObserver) {
 		xmlObservers.add(newXMLObserver);
 	}
 	public void addSelectionObserver(SelectionObserver newSelectionObserver) {
 		selectionObservers.add(newSelectionObserver);
 	}
+	*/
 	
 	/* convert from an XML file into a DOM document */
 	public void readXMLtoDOM(File xmlFile) throws SAXException{
@@ -249,10 +272,27 @@ public class XMLModel
 		return tree;
 	}
 	
+	// The first step in importing fields from a file.
+	public void setImportFile(File xmlFile) {
+		if (xmlFile != null) {
+			setImportTree(getTreeFromNewFile(xmlFile));
+		} else {
+			setImportTree(null);
+		}
+		// update changeListeners
+		fireStateChange();
+	}
+	
 	public void setImportTree(Tree tree) {
-		
 		importTree = tree;
-		
+	}
+	
+	// get a reference to the root of the import tree. 
+	public DataFieldNode getImportTreeRoot() {
+		if (importTree != null) {
+			return importTree.getRootNode();
+		} else
+			return null;
 	}
 	
 	// import the selected nodes of the tree, or if none selected, import it all!
@@ -409,8 +449,11 @@ public class XMLModel
 	public void openBlankProtocolFile() {
 		currentTree = new Tree(this, this);
 		openFiles.add(currentTree);
-		setCurrentFile(new File("untitled"));	// no current file
-		notifyXMLObservers();
+		// create new file(name)
+		setCurrentFile(new File("untitled" + (newFileNamingIndex < 2 ? "" : newFileNamingIndex)));
+		newFileNamingIndex++;
+		
+		xmlUpdated();
 	}
 	
 
@@ -515,7 +558,8 @@ public class XMLModel
 			String name = null;
 			File file = openFiles.get(i).getFile();
 			if (file != null) name = file.getName();
-			if (name == null) name = "untitled" + i;
+			// this shouldn't happen, but just in case...
+			if (name == null) name = "untitled" + " " + i;
 			openFileNames[i] = name;
 		}
 		return openFileNames;

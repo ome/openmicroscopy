@@ -22,6 +22,7 @@ public class DataFieldConstants {
 	public static final String IMAGE_ZOOM = "imageZoom";
 	public static final String KEYWORDS = "keywords";
 	public static final String SUBSTEPS_COLLAPSED ="substepsCollapsed"; // "true" or "false"
+	public static final String DISPLAY_CHILDREN_HORIZONTALLY = "displayChildrenHorizontally";
 	public static final String BACKGROUND_COLOUR = "backgroundColour";
 	public static final String URL = "url";
 	

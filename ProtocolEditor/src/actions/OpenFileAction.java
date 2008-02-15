@@ -29,6 +29,9 @@ import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
+import cmd.ActionCmd;
+import cmd.OpenFileCmd;
+
 import ui.IModel;
 import util.ImageFactory;
 import util.PreferencesManager;
@@ -48,42 +51,8 @@ public class OpenFileAction
 	
 	public void actionPerformed(ActionEvent e) {
 		
-		openFile();
+		ActionCmd action = new OpenFileCmd(model);
+		action.execute();
 	}
-	
-	//open a file
-	public void openFile() {
-		
-		// Create a file chooser
-		final JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new OpenProExpXmlFileFilter());
-		
-		File currentLocation = null;
-		if (PreferencesManager.getPreference(PreferencesManager.CURRENT_FILES_FOLDER) != null) {
-			currentLocation = new File(PreferencesManager.getPreference(PreferencesManager.CURRENT_FILES_FOLDER));
-		} 
-		fc.setCurrentDirectory(currentLocation);
 
-		int returnVal = fc.showOpenDialog(frame);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File xmlFile = fc.getSelectedFile();
-         // remember where the user last saved a file
-            PreferencesManager.setPreference(PreferencesManager.CURRENT_FILES_FOLDER, xmlFile.getParent());
-           
-            model.openThisFile(xmlFile);
-		}
-	}
-	
-	public class OpenProExpXmlFileFilter extends FileFilter {
-		public boolean accept(File file) {
-			boolean recognisedFileType = 
-				//	allows "MS Windows" to see directories
-				((file.getName().endsWith("pro")) || (file.getName().endsWith("exp")) || 
-						(file.getName().endsWith("xml")) || (file.isDirectory()));
-			return recognisedFileType;
-		}
-		public String getDescription() {
-			return " .pro .exp .xml files";
-		}
-	}
 }
