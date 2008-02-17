@@ -72,7 +72,7 @@
       <optional name="timepoint" type="int"/>
       <child name="imageLinks" type="ome.model.screen.WellSampleImageLink"
         target="ome.model.core.Image"/>
-      <manyone name="well" type="ome.model.screen.Well" inverse="wellSample"/>
+      <manyone name="well" type="ome.model.screen.Well" inverse="wellSample" ordered="true"/>
       <manyone name="screenAcquisition"
         type="ome.model.screen.ScreenAcquisition" inverse="wellSample" />
     </properties>
