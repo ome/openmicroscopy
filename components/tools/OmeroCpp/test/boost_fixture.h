@@ -50,6 +50,7 @@ struct Fixture
         const omero::client* login(
                 const std::string& username = std::string(),
                 const std::string& password = std::string());
+        const omero::client* root_login();
 };
 
 //

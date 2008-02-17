@@ -93,3 +93,13 @@ const omero::client* Fixture::login(const std::string& username, const std::stri
     return client;
 }
 
+const omero::client* Fixture::root_login() {
+    int argc = 0;
+    char** argv = new char*[0];
+    omero::client* root = new omero::client(argc, argv);
+    std::string rootpass = (*root).getProperty("omero.rootpass");
+    root->createSession("root", rootpass);
+    clients.push_back(root);
+    return root;
+}
+

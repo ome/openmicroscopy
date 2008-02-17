@@ -12,6 +12,8 @@
 #include <omero/API.h>
 #include <omero/System.h>
 
+// DISABLED
+
 BOOST_AUTO_TEST_CASE( VectorArgs )
 {
   Ice::Long ids[] = {1L, 2L, 3L};

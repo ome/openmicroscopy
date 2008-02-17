@@ -40,151 +40,16 @@ $(CPP_GEN): $(COPY)/omero/model/*.h
 	perl -i -pe 's/^slice_generated\//#include </' $(CPP_MODEL) &&\
 	perl -i -pe 's/.h$$/.h>/' $(CPP_MODEL)
 
-lib_LTLIBRARIES            = libOMERO_common.la libOMERO_client.la 
-libOMERO_common_la_SOURCES = ./omero/ClientErrors.cpp 
+lib_LTLIBRARIES            = libOMERO_common.la libOMERO_client.la
+libOMERO_common_la_SOURCES = ./omero/ClientErrors.cpp
 
 #libOMERO_common_a_LDFLAGS = -no-undefined -version-info 0:0:0
 
 #libOMERO_client_a_LDFLAGS = -no-undefined -version-info 0:0:0
-libOMERO_client_la_LIBADD  = libOMERO_common.la 
+libOMERO_client_la_LIBADD  = libOMERO_common.la
 libOMERO_client_la_SOURCES = ./omero/client.cpp ./omero/CTypes.cpp \
 	./omero/model/DetailsI.cpp\
 	./omero/model/PermissionsI.cpp\
-	../target//temp/omero/model/AberrationCorrectionI.cpp\
-	../target//temp/omero/model/AcquisitionModeI.cpp\
-	../target//temp/omero/model/AnnotationAnnotationLinkI.cpp\
-	../target//temp/omero/model/AnnotationI.cpp\
-	../target//temp/omero/model/ArcI.cpp\
-	../target//temp/omero/model/ArcTypeI.cpp\
-	../target//temp/omero/model/BasicAnnotationI.cpp\
-	../target//temp/omero/model/BinningI.cpp\
-	../target//temp/omero/model/BooleanAnnotationI.cpp\
-	../target//temp/omero/model/CategoryGroupCategoryLinkI.cpp\
-	../target//temp/omero/model/CategoryGroupI.cpp\
-	../target//temp/omero/model/CategoryI.cpp\
-	../target//temp/omero/model/CategoryImageLinkI.cpp\
-	../target//temp/omero/model/CellAreaI.cpp\
-	../target//temp/omero/model/CellEccentricityI.cpp\
-	../target//temp/omero/model/CellExtentI.cpp\
-	../target//temp/omero/model/CellMajorAxisLengthI.cpp\
-	../target//temp/omero/model/CellMinorAxisLengthI.cpp\
-	../target//temp/omero/model/CellPerimeterI.cpp\
-	../target//temp/omero/model/CellPositionI.cpp\
-	../target//temp/omero/model/CellSolidityI.cpp\
-	../target//temp/omero/model/ChannelAnnotationLinkI.cpp\
-	../target//temp/omero/model/ChannelBindingI.cpp\
-	../target//temp/omero/model/ChannelI.cpp\
-	../target//temp/omero/model/CoatingI.cpp\
-	../target//temp/omero/model/CodomainMapContextI.cpp\
-	../target//temp/omero/model/ColorI.cpp\
-	../target//temp/omero/model/ContrastMethodI.cpp\
-	../target//temp/omero/model/ContrastStretchingContextI.cpp\
-	../target//temp/omero/model/CustomizedFilterSetI.cpp\
-	../target//temp/omero/model/DatasetAnnotationLinkI.cpp\
-	../target//temp/omero/model/DatasetI.cpp\
-	../target//temp/omero/model/DatasetImageLinkI.cpp\
-	../target//temp/omero/model/DBPatchI.cpp\
-	../target//temp/omero/model/DetectorI.cpp\
-	../target//temp/omero/model/DetectorSettingsI.cpp\
-	../target//temp/omero/model/DetectorTypeI.cpp\
-	../target//temp/omero/model/DichroicI.cpp\
-	../target//temp/omero/model/DimensionOrderI.cpp\
-	../target//temp/omero/model/DoubleAnnotationI.cpp\
-	../target//temp/omero/model/EmissionFilterI.cpp\
-	../target//temp/omero/model/EventI.cpp\
-	../target//temp/omero/model/EventLogI.cpp\
-	../target//temp/omero/model/EventTypeI.cpp\
-	../target//temp/omero/model/ExcitationFilterI.cpp\
-	../target//temp/omero/model/ExperimenterAnnotationLinkI.cpp\
-	../target//temp/omero/model/ExperimenterGroupI.cpp\
-	../target//temp/omero/model/ExperimenterI.cpp\
-	../target//temp/omero/model/ExperimentI.cpp\
-	../target//temp/omero/model/ExperimentTypeI.cpp\
-	../target//temp/omero/model/ExternalInfoI.cpp\
-	../target//temp/omero/model/FamilyI.cpp\
-	../target//temp/omero/model/FilamentI.cpp\
-	../target//temp/omero/model/FilamentTypeI.cpp\
-	../target//temp/omero/model/FileAnnotationI.cpp\
-	../target//temp/omero/model/FilterI.cpp\
-	../target//temp/omero/model/FilterSetI.cpp\
-	../target//temp/omero/model/FilterTypeI.cpp\
-	../target//temp/omero/model/FormatI.cpp\
-	../target//temp/omero/model/FrequencyMultiplicationI.cpp\
-	../target//temp/omero/model/GroupExperimenterMapI.cpp\
-	../target//temp/omero/model/IlluminationI.cpp\
-	../target//temp/omero/model/ImageAnnotationLinkI.cpp\
-	../target//temp/omero/model/ImageCellCountI.cpp\
-	../target//temp/omero/model/ImageI.cpp\
-	../target//temp/omero/model/ImageNucleasCountI.cpp\
-	../target//temp/omero/model/ImagingEnvironmentI.cpp\
-	../target//temp/omero/model/ImmersionI.cpp\
-	../target//temp/omero/model/ImportJobI.cpp\
-	../target//temp/omero/model/InstrumentI.cpp\
-	../target//temp/omero/model/IrisDiaphragmI.cpp\
-	../target//temp/omero/model/JobI.cpp\
-	../target//temp/omero/model/JobOriginalFileLinkI.cpp\
-	../target//temp/omero/model/JobStatusI.cpp\
-	../target//temp/omero/model/LaserI.cpp\
-	../target//temp/omero/model/LaserMediumI.cpp\
-	../target//temp/omero/model/LaserTypeI.cpp\
-	../target//temp/omero/model/LightSettingsI.cpp\
-	../target//temp/omero/model/LightSourceI.cpp\
-	../target//temp/omero/model/LinkI.cpp\
-	../target//temp/omero/model/ListAnnotationI.cpp\
-	../target//temp/omero/model/LogicalChannelI.cpp\
-	../target//temp/omero/model/LongAnnotationI.cpp\
-	../target//temp/omero/model/MediumI.cpp\
-	../target//temp/omero/model/MicroscopeI.cpp\
-	../target//temp/omero/model/MicroscopeTypeI.cpp\
-	../target//temp/omero/model/NucleusAreaI.cpp\
-	../target//temp/omero/model/NucleusEccentricityI.cpp\
-	../target//temp/omero/model/NucleusExtentI.cpp\
-	../target//temp/omero/model/NucleusMajorAxisLengthI.cpp\
-	../target//temp/omero/model/NucleusMinorAxisLengthI.cpp\
-	../target//temp/omero/model/NucleusPerimeterI.cpp\
-	../target//temp/omero/model/NucleusPositionI.cpp\
-	../target//temp/omero/model/NucleusSolidityI.cpp\
-	../target//temp/omero/model/NumericAnnotationI.cpp\
-	../target//temp/omero/model/ObjectiveI.cpp\
-	../target//temp/omero/model/ObjectiveSettingsI.cpp\
-	../target//temp/omero/model/OriginalFileAnnotationLinkI.cpp\
-	../target//temp/omero/model/OriginalFileI.cpp\
-	../target//temp/omero/model/OTFI.cpp\
-	../target//temp/omero/model/PhotometricInterpretationI.cpp\
-	../target//temp/omero/model/PixelsAnnotationLinkI.cpp\
-	../target//temp/omero/model/PixelsDimensionsI.cpp\
-	../target//temp/omero/model/PixelsI.cpp\
-	../target//temp/omero/model/PixelsOriginalFileMapI.cpp\
-	../target//temp/omero/model/PixelsTypeI.cpp\
-	../target//temp/omero/model/PlaneInfoAnnotationLinkI.cpp\
-	../target//temp/omero/model/PlaneInfoI.cpp\
-	../target//temp/omero/model/PlaneSlicingContextI.cpp\
-	../target//temp/omero/model/ProjectAnnotationLinkI.cpp\
-	../target//temp/omero/model/ProjectDatasetLinkI.cpp\
-	../target//temp/omero/model/ProjectI.cpp\
-	../target//temp/omero/model/PulseI.cpp\
-	../target//temp/omero/model/QuantumDefI.cpp\
-	../target//temp/omero/model/QueryAnnotationI.cpp\
-	../target//temp/omero/model/RenderingDefI.cpp\
-	../target//temp/omero/model/RenderingModelI.cpp\
-	../target//temp/omero/model/ReverseIntensityContextI.cpp\
-	../target//temp/omero/model/RoiI.cpp\
-	../target//temp/omero/model/RoiLinkAnnotationLinkI.cpp\
-	../target//temp/omero/model/RoiLinkI.cpp\
-	../target//temp/omero/model/ScriptJobI.cpp\
-	../target//temp/omero/model/SessionI.cpp\
-	../target//temp/omero/model/StageLabelI.cpp\
-	../target//temp/omero/model/StatsInfoI.cpp\
-	../target//temp/omero/model/TagAnnotationI.cpp\
-	../target//temp/omero/model/TextAnnotationI.cpp\
-	../target//temp/omero/model/ThumbnailAnnotationI.cpp\
-	../target//temp/omero/model/ThumbnailI.cpp\
-	../target//temp/omero/model/TimestampAnnotationI.cpp\
-	../target//temp/omero/model/TransmittanceRangeI.cpp\
-	../target//temp/omero/model/TypeAnnotationI.cpp\
-	../target//temp/omero/model/UrlAnnotationI.cpp\
-	../target//temp/omero/model/XmlAnnotationI.cpp\
-	../target//temp/omero/ObjectFactoryRegistrar.cpp\
 	slice_generated//omero/API.cpp\
 	slice_generated//omero/Constants.cpp\
 	slice_generated//omero/fwd.cpp\
@@ -300,18 +165,28 @@ libOMERO_client_la_SOURCES = ./omero/client.cpp ./omero/CTypes.cpp \
 	slice_generated//omero/model/PlaneInfo.cpp\
 	slice_generated//omero/model/PlaneInfoAnnotationLink.cpp\
 	slice_generated//omero/model/PlaneSlicingContext.cpp\
+	slice_generated//omero/model/Plate.cpp\
+	slice_generated//omero/model/PlateAnnotationLink.cpp\
 	slice_generated//omero/model/Project.cpp\
 	slice_generated//omero/model/ProjectAnnotationLink.cpp\
 	slice_generated//omero/model/ProjectDatasetLink.cpp\
 	slice_generated//omero/model/Pulse.cpp\
 	slice_generated//omero/model/QuantumDef.cpp\
 	slice_generated//omero/model/QueryAnnotation.cpp\
+	slice_generated//omero/model/Reagent.cpp\
+	slice_generated//omero/model/ReagentAnnotationLink.cpp\
 	slice_generated//omero/model/RenderingDef.cpp\
 	slice_generated//omero/model/RenderingModel.cpp\
 	slice_generated//omero/model/ReverseIntensityContext.cpp\
 	slice_generated//omero/model/Roi.cpp\
 	slice_generated//omero/model/RoiLink.cpp\
 	slice_generated//omero/model/RoiLinkAnnotationLink.cpp\
+	slice_generated//omero/model/Screen.cpp\
+	slice_generated//omero/model/ScreenAcquisition.cpp\
+	slice_generated//omero/model/ScreenAcquisitionAnnotationLink.cpp\
+	slice_generated//omero/model/ScreenAnnotationLink.cpp\
+	slice_generated//omero/model/ScreenPlateLink.cpp\
+	slice_generated//omero/model/ScreenReagentLink.cpp\
 	slice_generated//omero/model/ScriptJob.cpp\
 	slice_generated//omero/model/Session.cpp\
 	slice_generated//omero/model/StageLabel.cpp\
@@ -324,8 +199,164 @@ libOMERO_client_la_SOURCES = ./omero/client.cpp ./omero/CTypes.cpp \
 	slice_generated//omero/model/TransmittanceRange.cpp\
 	slice_generated//omero/model/TypeAnnotation.cpp\
 	slice_generated//omero/model/UrlAnnotation.cpp\
+	slice_generated//omero/model/Well.cpp\
+	slice_generated//omero/model/WellAnnotationLink.cpp\
+	slice_generated//omero/model/WellSample.cpp\
+	slice_generated//omero/model/WellSampleAnnotationLink.cpp\
+	slice_generated//omero/model/WellSampleImageLink.cpp\
 	slice_generated//omero/model/XmlAnnotation.cpp\
 	slice_generated//omero/ROMIO.cpp\
 	slice_generated//omero/RTypes.cpp\
+	slice_generated//omero/Scripts.cpp\
 	slice_generated//omero/ServerErrors.cpp\
-	slice_generated//omero/System.cpp
+	slice_generated//omero/System.cpp\
+	../target/temp//omero/model/AberrationCorrectionI.cpp\
+	../target/temp//omero/model/AcquisitionModeI.cpp\
+	../target/temp//omero/model/AnnotationAnnotationLinkI.cpp\
+	../target/temp//omero/model/AnnotationI.cpp\
+	../target/temp//omero/model/ArcI.cpp\
+	../target/temp//omero/model/ArcTypeI.cpp\
+	../target/temp//omero/model/BasicAnnotationI.cpp\
+	../target/temp//omero/model/BinningI.cpp\
+	../target/temp//omero/model/BooleanAnnotationI.cpp\
+	../target/temp//omero/model/CategoryGroupCategoryLinkI.cpp\
+	../target/temp//omero/model/CategoryGroupI.cpp\
+	../target/temp//omero/model/CategoryI.cpp\
+	../target/temp//omero/model/CategoryImageLinkI.cpp\
+	../target/temp//omero/model/CellAreaI.cpp\
+	../target/temp//omero/model/CellEccentricityI.cpp\
+	../target/temp//omero/model/CellExtentI.cpp\
+	../target/temp//omero/model/CellMajorAxisLengthI.cpp\
+	../target/temp//omero/model/CellMinorAxisLengthI.cpp\
+	../target/temp//omero/model/CellPerimeterI.cpp\
+	../target/temp//omero/model/CellPositionI.cpp\
+	../target/temp//omero/model/CellSolidityI.cpp\
+	../target/temp//omero/model/ChannelAnnotationLinkI.cpp\
+	../target/temp//omero/model/ChannelBindingI.cpp\
+	../target/temp//omero/model/ChannelI.cpp\
+	../target/temp//omero/model/CoatingI.cpp\
+	../target/temp//omero/model/CodomainMapContextI.cpp\
+	../target/temp//omero/model/ColorI.cpp\
+	../target/temp//omero/model/ContrastMethodI.cpp\
+	../target/temp//omero/model/ContrastStretchingContextI.cpp\
+	../target/temp//omero/model/CustomizedFilterSetI.cpp\
+	../target/temp//omero/model/DatasetAnnotationLinkI.cpp\
+	../target/temp//omero/model/DatasetI.cpp\
+	../target/temp//omero/model/DatasetImageLinkI.cpp\
+	../target/temp//omero/model/DBPatchI.cpp\
+	../target/temp//omero/model/DetectorI.cpp\
+	../target/temp//omero/model/DetectorSettingsI.cpp\
+	../target/temp//omero/model/DetectorTypeI.cpp\
+	../target/temp//omero/model/DichroicI.cpp\
+	../target/temp//omero/model/DimensionOrderI.cpp\
+	../target/temp//omero/model/DoubleAnnotationI.cpp\
+	../target/temp//omero/model/EmissionFilterI.cpp\
+	../target/temp//omero/model/EventI.cpp\
+	../target/temp//omero/model/EventLogI.cpp\
+	../target/temp//omero/model/EventTypeI.cpp\
+	../target/temp//omero/model/ExcitationFilterI.cpp\
+	../target/temp//omero/model/ExperimenterAnnotationLinkI.cpp\
+	../target/temp//omero/model/ExperimenterGroupI.cpp\
+	../target/temp//omero/model/ExperimenterI.cpp\
+	../target/temp//omero/model/ExperimentI.cpp\
+	../target/temp//omero/model/ExperimentTypeI.cpp\
+	../target/temp//omero/model/ExternalInfoI.cpp\
+	../target/temp//omero/model/FamilyI.cpp\
+	../target/temp//omero/model/FilamentI.cpp\
+	../target/temp//omero/model/FilamentTypeI.cpp\
+	../target/temp//omero/model/FileAnnotationI.cpp\
+	../target/temp//omero/model/FilterI.cpp\
+	../target/temp//omero/model/FilterSetI.cpp\
+	../target/temp//omero/model/FilterTypeI.cpp\
+	../target/temp//omero/model/FormatI.cpp\
+	../target/temp//omero/model/FrequencyMultiplicationI.cpp\
+	../target/temp//omero/model/GroupExperimenterMapI.cpp\
+	../target/temp//omero/model/IlluminationI.cpp\
+	../target/temp//omero/model/ImageAnnotationLinkI.cpp\
+	../target/temp//omero/model/ImageCellCountI.cpp\
+	../target/temp//omero/model/ImageI.cpp\
+	../target/temp//omero/model/ImageNucleasCountI.cpp\
+	../target/temp//omero/model/ImagingEnvironmentI.cpp\
+	../target/temp//omero/model/ImmersionI.cpp\
+	../target/temp//omero/model/ImportJobI.cpp\
+	../target/temp//omero/model/InstrumentI.cpp\
+	../target/temp//omero/model/IrisDiaphragmI.cpp\
+	../target/temp//omero/model/JobI.cpp\
+	../target/temp//omero/model/JobOriginalFileLinkI.cpp\
+	../target/temp//omero/model/JobStatusI.cpp\
+	../target/temp//omero/model/LaserI.cpp\
+	../target/temp//omero/model/LaserMediumI.cpp\
+	../target/temp//omero/model/LaserTypeI.cpp\
+	../target/temp//omero/model/LightSettingsI.cpp\
+	../target/temp//omero/model/LightSourceI.cpp\
+	../target/temp//omero/model/LinkI.cpp\
+	../target/temp//omero/model/ListAnnotationI.cpp\
+	../target/temp//omero/model/LogicalChannelI.cpp\
+	../target/temp//omero/model/LongAnnotationI.cpp\
+	../target/temp//omero/model/MediumI.cpp\
+	../target/temp//omero/model/MicroscopeI.cpp\
+	../target/temp//omero/model/MicroscopeTypeI.cpp\
+	../target/temp//omero/model/NucleusAreaI.cpp\
+	../target/temp//omero/model/NucleusEccentricityI.cpp\
+	../target/temp//omero/model/NucleusExtentI.cpp\
+	../target/temp//omero/model/NucleusMajorAxisLengthI.cpp\
+	../target/temp//omero/model/NucleusMinorAxisLengthI.cpp\
+	../target/temp//omero/model/NucleusPerimeterI.cpp\
+	../target/temp//omero/model/NucleusPositionI.cpp\
+	../target/temp//omero/model/NucleusSolidityI.cpp\
+	../target/temp//omero/model/NumericAnnotationI.cpp\
+	../target/temp//omero/model/ObjectiveI.cpp\
+	../target/temp//omero/model/ObjectiveSettingsI.cpp\
+	../target/temp//omero/model/OriginalFileAnnotationLinkI.cpp\
+	../target/temp//omero/model/OriginalFileI.cpp\
+	../target/temp//omero/model/OTFI.cpp\
+	../target/temp//omero/model/PhotometricInterpretationI.cpp\
+	../target/temp//omero/model/PixelsAnnotationLinkI.cpp\
+	../target/temp//omero/model/PixelsDimensionsI.cpp\
+	../target/temp//omero/model/PixelsI.cpp\
+	../target/temp//omero/model/PixelsOriginalFileMapI.cpp\
+	../target/temp//omero/model/PixelsTypeI.cpp\
+	../target/temp//omero/model/PlaneInfoAnnotationLinkI.cpp\
+	../target/temp//omero/model/PlaneInfoI.cpp\
+	../target/temp//omero/model/PlaneSlicingContextI.cpp\
+	../target/temp//omero/model/PlateAnnotationLinkI.cpp\
+	../target/temp//omero/model/PlateI.cpp\
+	../target/temp//omero/model/ProjectAnnotationLinkI.cpp\
+	../target/temp//omero/model/ProjectDatasetLinkI.cpp\
+	../target/temp//omero/model/ProjectI.cpp\
+	../target/temp//omero/model/PulseI.cpp\
+	../target/temp//omero/model/QuantumDefI.cpp\
+	../target/temp//omero/model/QueryAnnotationI.cpp\
+	../target/temp//omero/model/ReagentAnnotationLinkI.cpp\
+	../target/temp//omero/model/ReagentI.cpp\
+	../target/temp//omero/model/RenderingDefI.cpp\
+	../target/temp//omero/model/RenderingModelI.cpp\
+	../target/temp//omero/model/ReverseIntensityContextI.cpp\
+	../target/temp//omero/model/RoiI.cpp\
+	../target/temp//omero/model/RoiLinkAnnotationLinkI.cpp\
+	../target/temp//omero/model/RoiLinkI.cpp\
+	../target/temp//omero/model/ScreenAcquisitionAnnotationLinkI.cpp\
+	../target/temp//omero/model/ScreenAcquisitionI.cpp\
+	../target/temp//omero/model/ScreenAnnotationLinkI.cpp\
+	../target/temp//omero/model/ScreenI.cpp\
+	../target/temp//omero/model/ScreenPlateLinkI.cpp\
+	../target/temp//omero/model/ScreenReagentLinkI.cpp\
+	../target/temp//omero/model/ScriptJobI.cpp\
+	../target/temp//omero/model/SessionI.cpp\
+	../target/temp//omero/model/StageLabelI.cpp\
+	../target/temp//omero/model/StatsInfoI.cpp\
+	../target/temp//omero/model/TagAnnotationI.cpp\
+	../target/temp//omero/model/TextAnnotationI.cpp\
+	../target/temp//omero/model/ThumbnailAnnotationI.cpp\
+	../target/temp//omero/model/ThumbnailI.cpp\
+	../target/temp//omero/model/TimestampAnnotationI.cpp\
+	../target/temp//omero/model/TransmittanceRangeI.cpp\
+	../target/temp//omero/model/TypeAnnotationI.cpp\
+	../target/temp//omero/model/UrlAnnotationI.cpp\
+	../target/temp//omero/model/WellAnnotationLinkI.cpp\
+	../target/temp//omero/model/WellI.cpp\
+	../target/temp//omero/model/WellSampleAnnotationLinkI.cpp\
+	../target/temp//omero/model/WellSampleI.cpp\
+	../target/temp//omero/model/WellSampleImageLinkI.cpp\
+	../target/temp//omero/model/XmlAnnotationI.cpp\
+	../target/temp//omero/ObjectFactoryRegistrar.cpp
