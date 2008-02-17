@@ -30,8 +30,7 @@
           </bean>
         </constructor-arg>
       </bean>
-    </property--.
-    >
+    </property-->
   </bean>
 
   <bean id="BlitzAdapter" class="ome.services.blitz.config.IceObjectAdapterFactoryBean">
