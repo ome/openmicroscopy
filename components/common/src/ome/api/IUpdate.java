@@ -11,9 +11,6 @@ package ome.api;
 import java.util.Collection;
 import java.util.Map;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.annotations.Validate;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
@@ -41,8 +38,7 @@ import ome.model.IObject;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
- *          </small>
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
  * @since OMERO3.0
  * @see ome.util.Validation
  * @see ome.logic.UpdateImpl
@@ -78,16 +74,28 @@ public interface IUpdate extends ServiceInterface {
     IObject[] saveAndReturnArray(IObject[] graph);
 
     /**
-     * deletes a signle entity. Unlike the other IUpdate methods, deleteObject
-     * does not propagate to related entites (e.g. foreign key relationships)
+     * Deletes a single entity. Unlike the other IUpdate methods, deleteObject
+     * does not propagate to related entities (e.g. foreign key relationships)
      * and so calls to deleteObject must be properly ordered.
      * 
      * @param row
-     *            an IObject to be deleted.
+     *            a persistent {@link IObject{ to be deleted.
      * @throws ValidationException
      *             if the row is locked, has foreign key constraints, or is
      *             otherwise marked un-deletable.
      */
     void deleteObject(IObject row) throws ValidationException;
 
+    /**
+     * Initiates full-text indexing for the given object. This may have to wait
+     * for the current {@link ome.services.fulltext.FullTextThread} to finish.
+     * Can only be executed by an admin. Other users must wait for the
+     * background {@link Thread} to complete.
+     * 
+     * @param row
+     *            a persistent {@link IObject} to be deleted
+     * @throws ValidationException
+     *             if the object does not exist or is nul
+     */
+    void indexObject(IObject row) throws ValidationException;
 }

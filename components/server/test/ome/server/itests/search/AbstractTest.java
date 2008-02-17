@@ -8,10 +8,8 @@ package ome.server.itests.search;
 
 import ome.api.IQuery;
 import ome.io.nio.OriginalFilesService;
-import ome.model.IObject;
 import ome.model.core.Image;
 import ome.model.meta.EventLog;
-import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.fulltext.EventLogLoader;
 import ome.services.fulltext.FullTextBridge;
@@ -32,37 +30,6 @@ public abstract class AbstractTest extends AbstractManagedContextTest {
 
     // Helpers
     // =========================================================================
-
-    class CreationLogLoader extends EventLogLoader {
-        IObject obj;
-
-        public CreationLogLoader(IObject obj) {
-            this.obj = obj;
-        }
-
-        @Override
-        public EventLog query() {
-            if (obj == null) {
-                return null;
-            } else {
-                EventLog el = rawQuery().findByQuery(
-                        "select el from EventLog el "
-                                + "where el.action = 'INSERT' and "
-                                + "el.entityType = :type and "
-                                + "el.entityId = :id",
-                        new Parameters().addString("type",
-                                obj.getClass().getName()).addId(obj.getId()));
-                obj = null;
-                return el;
-            }
-        }
-
-        @Override
-        public boolean more() {
-            return false;
-        }
-
-    }
 
     IQuery rawQuery() {
         return (IQuery) this.applicationContext
@@ -105,15 +72,6 @@ public abstract class AbstractTest extends AbstractManagedContextTest {
         };
         ell.setQueryService(this.rawQuery());
         return ell;
-    }
-
-    /** Warning: reset the login */
-    void indexObject(IObject o) {
-        CreationLogLoader logs = new CreationLogLoader(o);
-        ftb = new FullTextBridge();
-        fti = new FullTextIndexer(logs);
-        ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb, true);
-        ftt.run();
     }
 
 }

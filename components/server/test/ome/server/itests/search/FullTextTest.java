@@ -126,7 +126,7 @@ public class FullTextTest extends AbstractTest {
                 + "left outer join fetch a1.annotationLinks l2 "
                 + "left outer join fetch l2.child a2 where i.id = :id",
                 new Parameters().addId(i.getId()));
-        indexObject(i);
+        iUpdate.indexObject(i);
 
         Annotation a = i.linkedAnnotationList().get(0);
         assertEquals(1, a.sizeOfAnnotationLinks());
@@ -141,7 +141,7 @@ public class FullTextTest extends AbstractTest {
         i = new Image();
         i.setName(UUID.randomUUID().toString());
         i = iUpdate.saveAndReturnObject(i);
-        indexObject(i);
+        iUpdate.indexObject(i);
 
         this.loginRoot();
         List<Image> list = iQuery.findAllByFullText(Image.class, i.getName(),
@@ -169,7 +169,7 @@ public class FullTextTest extends AbstractTest {
         i2.setName(i.getName());
         i2 = iUpdate.saveAndReturnObject(i2);
 
-        indexObject(i2);
+        iUpdate.indexObject(i2);
         loginUser(e.getOmeName()); // After indexing, must relogin
         long id = iAdmin.getEventContext().getCurrentUserId();
 
@@ -240,13 +240,8 @@ public class FullTextTest extends AbstractTest {
             // when run in the server
         }
 
-        // Index
-        CreationLogLoader logs = new CreationLogLoader(new OriginalFile(upload
-                .getId(), false));
-        ftb = new FullTextBridge(getFileService(), parsers);
-        fti = new FullTextIndexer(logs);
-        ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb, true);
-        ftt.run();
+        iUpdate.indexObject(new OriginalFile(upload.getId(), false));
+
     }
 
 }

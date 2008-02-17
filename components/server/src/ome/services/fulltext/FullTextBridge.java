@@ -36,15 +36,13 @@ import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.builtin.DateBridge;
 
 /**
- * Simple action which can be done in an asynchronous thread in order to index
- * all full text items. This class also acts as a delegate for the
+ * Primary definition of what will be indexed via Hibernate
+ * Search. This class is delegated to by the 
  * {@link DetailsFieldBridge}.
- * 
- * 
- * insert/update OR delete regular type OR annotated type OR originalfile
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
+ * @DEV.TODO insert/update OR delete regular type OR annotated type OR originalfile
  */
 public class FullTextBridge implements FieldBridge {
 

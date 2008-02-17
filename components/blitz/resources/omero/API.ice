@@ -243,6 +243,7 @@ module omero {
 	omero::model::IObject saveAndReturnObject(omero::model::IObject obj) throws ServerError;
 	IObjectList saveAndReturnArray(IObjectList graph) throws ServerError;
 	void deleteObject(omero::model::IObject row) throws ServerError;
+	void indexObject(omero::model::IObject row) throws ServerError;
       };
 
     interface IRepositoryInfo extends ServiceInterface

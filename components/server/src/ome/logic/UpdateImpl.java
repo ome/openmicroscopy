@@ -27,7 +27,25 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
-// Third-party libraries
+import ome.api.IUpdate;
+import ome.api.ServiceInterface;
+import ome.api.local.LocalQuery;
+import ome.api.local.LocalUpdate;
+import ome.conditions.ApiUsageException;
+import ome.conditions.ValidationException;
+import ome.model.IObject;
+import ome.model.meta.EventLog;
+import ome.parameters.Parameters;
+import ome.services.fulltext.EventLogLoader;
+import ome.services.fulltext.FullTextBridge;
+import ome.services.fulltext.FullTextIndexer;
+import ome.services.fulltext.FullTextThread;
+import ome.services.sessions.SessionManager;
+import ome.services.util.Executor;
+import ome.services.util.OmeroAroundInvoke;
+import ome.tools.hibernate.UpdateFilter;
+import ome.util.Utils;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.jboss.annotation.ejb.LocalBinding;
@@ -35,17 +53,6 @@ import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
-
-// Application-internal dependencies
-import ome.api.IUpdate;
-import ome.api.ServiceInterface;
-import ome.api.local.LocalQuery;
-import ome.api.local.LocalUpdate;
-import ome.conditions.ApiUsageException;
-import ome.model.IObject;
-import ome.services.util.OmeroAroundInvoke;
-import ome.tools.hibernate.UpdateFilter;
-import ome.util.Utils;
 
 /**
  * implementation of the IUpdate service interface
@@ -58,20 +65,40 @@ import ome.util.Utils;
 @Transactional(readOnly = false)
 @Stateless
 @Remote(IUpdate.class)
-@RemoteBindings({
-    @RemoteBinding(jndiBinding = "omero/remote/ome.api.IUpdate"),
-    @RemoteBinding(jndiBinding = "omero/secure/ome.api.IUpdate",
-		   clientBindUrl="sslsocket://0.0.0.0:3843")
-})
+@RemoteBindings( {
+        @RemoteBinding(jndiBinding = "omero/remote/ome.api.IUpdate"),
+        @RemoteBinding(jndiBinding = "omero/secure/ome.api.IUpdate", clientBindUrl = "sslsocket://0.0.0.0:3843") })
 @Local(LocalUpdate.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.local.LocalUpdate")
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
+
     protected transient LocalQuery localQuery;
+
+    protected transient Executor executor;
+
+    protected transient SessionManager sessionManager;
+
+    protected transient FullTextBridge fullTextBridge;
 
     public final void setQueryService(LocalQuery query) {
         getBeanHelper().throwIfAlreadySet(this.localQuery, query);
         this.localQuery = query;
+    }
+
+    public void setExecutor(Executor executor) {
+        getBeanHelper().throwIfAlreadySet(this.executor, executor);
+        this.executor = executor;
+    }
+
+    public void setSessionManager(SessionManager sessionManager) {
+        getBeanHelper().throwIfAlreadySet(this.sessionManager, sessionManager);
+        this.sessionManager = sessionManager;
+    }
+
+    public void setFullTextBridge(FullTextBridge fullTextBridge) {
+        getBeanHelper().throwIfAlreadySet(this.fullTextBridge, fullTextBridge);
+        this.fullTextBridge = fullTextBridge;
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
@@ -214,6 +241,20 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
         });
     }
 
+    @RolesAllowed("system")
+    public void indexObject(IObject row) {
+        if (row == null || row.getId() == null) {
+            throw new ValidationException(
+                    "Non-managed object canoot be indexed.");
+        }
+
+        CreationLogLoader logs = new CreationLogLoader(localQuery, row);
+        FullTextIndexer fti = new FullTextIndexer(logs);
+        FullTextThread ftt = new FullTextThread(sessionManager, executor, fti,
+                this.fullTextBridge, true);
+        ftt.run();
+    }
+
     // ~ Internals
     // =========================================================
     private void beforeUpdate(Object argument, UpdateFilter filter) {
@@ -281,6 +322,43 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
 
     private abstract class UpdateAction<T> {
         public abstract T run(T value, UpdateFilter filter);
+    }
+
+}
+
+/**
+ * {@link EventLogLoader} which loads a single instance.
+ */
+class CreationLogLoader extends EventLogLoader {
+
+    final private LocalQuery query;
+
+    private IObject obj;
+
+    public CreationLogLoader(LocalQuery query, IObject obj) {
+        this.query = query;
+        this.obj = obj;
+    }
+
+    @Override
+    public EventLog query() {
+        if (obj == null) {
+            return null;
+        } else {
+            EventLog el = query.findByQuery("select el from EventLog el "
+                    + "where el.action = 'INSERT' and "
+                    + "el.entityType = :type and " + "el.entityId = :id",
+                    new Parameters()
+                            .addString("type", obj.getClass().getName()).addId(
+                                    obj.getId()));
+            obj = null;
+            return el;
+        }
+    }
+
+    @Override
+    public boolean more() {
+        return false;
     }
 
 }

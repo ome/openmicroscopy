@@ -197,7 +197,7 @@ public class SearchTest extends AbstractTest {
         i.setName(uuid());
         i = iUpdate.saveAndReturnObject(i);
 
-        indexObject(i);
+        iUpdate.indexObject(i);
         loginRoot();
 
         Search search = this.factory.createSearchService();
@@ -231,7 +231,7 @@ public class SearchTest extends AbstractTest {
         Image i = new Image();
         i.setName("abc def ghi");
         i = iUpdate.saveAndReturnObject(i);
-        indexObject(i);
+        iUpdate.indexObject(i);
         loginRoot();
 
         final Search search = this.factory.createSearchService();
@@ -361,7 +361,7 @@ public class SearchTest extends AbstractTest {
         tag.setTextValue(uuid);
         i.linkAnnotation(tag);
         i = iUpdate.saveAndReturnObject(i);
-        indexObject(i);
+        iUpdate.indexObject(i);
         loginRoot();
 
         Search search = this.factory.createSearchService();
@@ -383,7 +383,7 @@ public class SearchTest extends AbstractTest {
         fa2.setFile(file2);
         i.linkAnnotation(fa2);
         i = iUpdate.saveAndReturnObject(i);
-        indexObject(i);
+        iUpdate.indexObject(i);
         loginRoot();
 
         // Properly uses the id
@@ -466,8 +466,8 @@ public class SearchTest extends AbstractTest {
         i2 = iUpdate.saveAndReturnObject(i2);
         tag = new TagAnnotation();
         tag.setTextValue(uuid);
-        indexObject(i1);
-        indexObject(i2);
+        iUpdate.indexObject(i1);
+        iUpdate.indexObject(i2);
         loginRoot();
 
         Search search = this.factory.createSearchService();
@@ -537,7 +537,7 @@ public class SearchTest extends AbstractTest {
         // Recreating instance as example
         tag = new TagAnnotation();
         tag.setTextValue(name);
-        indexObject(i);
+        iUpdate.indexObject(i);
 
         loginRoot();
         long id = iAdmin.getEventContext().getCurrentUserId();
@@ -648,7 +648,7 @@ public class SearchTest extends AbstractTest {
         // Recreating instance as example
         tag = new TagAnnotation();
         tag.setTextValue(name);
-        indexObject(i);
+        iUpdate.indexObject(i);
 
         loginRoot();
         long id = iAdmin.getEventContext().getCurrentGroupId();
@@ -764,7 +764,7 @@ public class SearchTest extends AbstractTest {
         i = iUpdate.saveAndReturnObject(i);
         tag = new TagAnnotation();
         tag.setTextValue(name);
-        indexObject(i);
+        iUpdate.indexObject(i);
         loginRoot();
 
         Search search = this.factory.createSearchService();
@@ -878,7 +878,7 @@ public class SearchTest extends AbstractTest {
         i = iUpdate.saveAndReturnObject(i);
         tag = new TagAnnotation();
         tag.setTextValue(name);
-        indexObject(i);
+        iUpdate.indexObject(i);
         loginRoot();
 
         Search search = this.factory.createSearchService();
@@ -989,7 +989,7 @@ public class SearchTest extends AbstractTest {
         i = iUpdate.saveAndReturnObject(i);
         tag = new TagAnnotation();
         tag.setTextValue(name);
-        indexObject(i);
+        iUpdate.indexObject(i);
         loginRoot();
 
         Search search = this.factory.createSearchService();
@@ -1100,7 +1100,7 @@ public class SearchTest extends AbstractTest {
         i = iUpdate.saveAndReturnObject(i);
         t = new TagAnnotation();
         t.setTextValue(tag);
-        indexObject(i);
+        iUpdate.indexObject(i);
         loginRoot();
 
         Search search = this.factory.createSearchService();
@@ -1167,7 +1167,7 @@ public class SearchTest extends AbstractTest {
         i.setName(name);
         i = iUpdate.saveAndReturnObject(i);
 
-        indexObject(i);
+        iUpdate.indexObject(i);
         loginRoot();
 
         Search search = this.factory.createSearchService();
@@ -1192,7 +1192,7 @@ public class SearchTest extends AbstractTest {
         ImageAnnotationLink link = new ImageAnnotationLink(i, t);
         iUpdate.saveObject(link);
 
-        indexObject(i);
+        iUpdate.indexObject(i);
         loginRoot();
 
         // Since we're looking for "no annotations" there should be no results
@@ -1225,7 +1225,7 @@ public class SearchTest extends AbstractTest {
         IObject[] arr = iUpdate.saveAndReturnArray(new IObject[] { onlyTag,
                 onlyBool, both });
         for (IObject object : arr) {
-            indexObject(object);
+            iUpdate.indexObject(object);
         }
         loginRoot();
 
@@ -1256,8 +1256,8 @@ public class SearchTest extends AbstractTest {
         Image i2 = new Image(uuid2);
         i1 = iUpdate.saveAndReturnObject(i1);
         i2 = iUpdate.saveAndReturnObject(i2);
-        indexObject(i1);
-        indexObject(i2);
+        iUpdate.indexObject(i1);
+        iUpdate.indexObject(i2);
         loginRoot();
 
         Search search = this.factory.createSearchService();
@@ -1292,8 +1292,8 @@ public class SearchTest extends AbstractTest {
         i1 = iUpdate.saveAndReturnObject(i1);
         Thread.sleep(2000L); // Waiting to test creation time ordering better
         i2 = iUpdate.saveAndReturnObject(i2);
-        indexObject(i1);
-        indexObject(i2);
+        iUpdate.indexObject(i1);
+        iUpdate.indexObject(i2);
         loginRoot();
         tag = new TagAnnotation();
         tag.setTextValue(uuid);
@@ -1413,7 +1413,7 @@ public class SearchTest extends AbstractTest {
         i3.setDescription("a");
         i3.linkAnnotation(tag);
         i3 = iUpdate.saveAndReturnObject(i3);
-        indexObject(i3);
+        iUpdate.indexObject(i3);
         loginRoot();
         tag = new TagAnnotation();
         tag.setTextValue(uuid);
@@ -1459,7 +1459,7 @@ public class SearchTest extends AbstractTest {
         i = iUpdate.saveAndReturnObject(i);
         tag = new TagAnnotation();
         tag.setTextValue(uuid);
-        indexObject(i);
+        iUpdate.indexObject(i);
         loginRoot();
 
         Search search = this.factory.createSearchService();
@@ -1543,7 +1543,7 @@ public class SearchTest extends AbstractTest {
         TextAnnotation ta = new TextAnnotation();
         ta.setTextValue(uuid);
         ta = iUpdate.saveAndReturnObject(ta);
-        indexObject(ta);
+        iUpdate.indexObject(ta);
         loginRoot();
 
         Search search = this.factory.createSearchService();
