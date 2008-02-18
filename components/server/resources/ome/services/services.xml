@@ -42,11 +42,11 @@
      init-method="start" destroy-method="stop" lazy-init="false"/>
 
   <bean id="upgradeCheck"
-     class="ome.services.util.UpgradeCheck"
-     init-method="start" lazy-init="false">
-     <property name="url" value="${omero.upgrades.url}"/>
-     <property name="poll" value="${omero.upgrades.poll}"/>
-     <property name="version" value="${omero.version}"/>
+     class="ome.system.UpgradeCheck"
+     init-method="run" lazy-init="false">
+     <constructor-arg index="0" value="${omero.upgrades.url}"/>
+     <constructor-arg index="1" value="${omero.version}"/>
+     <constructor-arg index="2" value="server"/>
   </bean>
 
 <!--

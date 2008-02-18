@@ -5,7 +5,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.services.util;
+package ome.system;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -26,29 +26,76 @@ import org.apache.commons.logging.LogFactory;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2.3
  */
-public class UpgradeCheck {
+public class UpgradeCheck implements Runnable {
 
     private final static Log log = LogFactory.getLog(UpgradeCheck.class);
 
-    int poll;
-    String url;
-    String version;
-    int timeout = 10 * 1000;
+    /**
+     * Default timeout is 10 seconds.
+     */
+    public final static int DEFAULT_TIMEOUT = 10 * 1000;
 
-    public void setPoll(int poll) {
-        this.poll = poll;
+    final String url;
+    final String version;
+    final int timeout;
+    final String agent;
+
+    String upgradeUrl = null;
+    int status = 0;
+    Exception exc = null;
+
+    /**
+     * Calls {@link UpgradeCheck#UpgradeCheck(String, String, String, int)}
+     * using {@link #DEFAULT_TIMEOUT}
+     */
+    public UpgradeCheck(String url, String version, String agent) {
+        this(url, version, agent, DEFAULT_TIMEOUT);
     }
 
-    public void setUrl(String url) {
+    /**
+     * Main constructor.
+     * 
+     * @param url
+     *            Null or empty value disables check.
+     * @param version
+     *            Current version as specified in the omero.properties file
+     *            under the "omero.version" property. This can be accessed via
+     *            <code>
+     *            ResourceBundle.getBundle("omero").getString("omero.version");
+     *            </code>
+     * @param agent
+     *            Name of the agent which is accessing the registry. This will
+     *            be appended to "OMERO." in order to adhere to the registry
+     *            API.
+     * @param timeout
+     *            How long to wait for a
+     */
+    public UpgradeCheck(String url, String version, String agent, int timeout) {
         this.url = url;
-    }
-
-    public void setVersion(String version) {
         this.version = version;
+        this.agent = "OMERO." + agent;
+        this.timeout = timeout;
     }
 
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
+    public boolean isUpgradeNeeded() {
+        return upgradeUrl != null;
+    }
+
+    public String getUpgradeUrl() {
+        return upgradeUrl;
+    }
+
+    public boolean isExceptionThrown() {
+        return exc != null;
+    }
+
+    public Exception getExceptionThrown() {
+        return exc;
+    }
+
+    private void set(String results, Exception e) {
+        this.upgradeUrl = results;
+        this.exc = e;
     }
 
     /**
@@ -58,7 +105,7 @@ public class UpgradeCheck {
      * 
      * This method should <em>never</em> throw an exception.
      */
-    public void start() {
+    public void run() {
 
         // If null or empty, the upgrade check is disabled.
         if (url == null || url.length() == 0) {
@@ -70,8 +117,6 @@ public class UpgradeCheck {
             query.append(url);
             query.append("?version=");
             query.append(URLEncoder.encode(version, "UTF-8"));
-            query.append(";poll=");
-            query.append(poll);
             query.append(";os.name=");
             query.append(URLEncoder.encode(System.getProperty("os.name"),
                     "UTF-8"));
@@ -89,6 +134,7 @@ public class UpgradeCheck {
                     System.getProperty("java.vm.vendor"), "UTF-8"));
         } catch (UnsupportedEncodingException uee) {
             // Internal issue
+            set(null, uee);
             return;
         }
 
@@ -96,6 +142,7 @@ public class UpgradeCheck {
         try {
             _url = new URL(query.toString());
         } catch (Exception e) {
+            set(null, e);
             log.error("Invalid URL: " + query.toString());
             return;
         }
@@ -103,7 +150,7 @@ public class UpgradeCheck {
         try {
             URLConnection conn = _url.openConnection();
             conn.setUseCaches(false);
-            conn.addRequestProperty("User-Agent", "OMERO.upgrade_check");
+            conn.addRequestProperty("User-Agent", agent);
             conn.setConnectTimeout(timeout);
             conn.setReadTimeout(timeout);
             conn.connect();
@@ -125,16 +172,21 @@ public class UpgradeCheck {
             String result = sb.toString();
             if (result.length() == 0) {
                 log.info("no update needed");
+                set(null, null);
             } else {
                 log.warn("UPGRADE AVAILABLE:" + result);
+                set(result, null);
             }
         } catch (UnknownHostException uhe) {
             log.error("Unknown host:" + url);
+            set(null, uhe);
         } catch (IOException ioe) {
             log.error(String.format("Error reading from url: %s \"%s\"", query,
                     ioe.getMessage()));
+            set(null, ioe);
         } catch (Exception ex) {
             log.error("Unknown exception thrown on UpgradeCheck", ex);
+            set(null, ex);
         }
     }
 }
