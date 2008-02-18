@@ -7,10 +7,11 @@
 
 package ome.services.util;
 
-// Java imports
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import ome.annotations.AnnotationUtils;
 import ome.annotations.ApiConstraintChecker;
@@ -20,12 +21,15 @@ import ome.conditions.InternalException;
 import ome.conditions.OptimisticLockException;
 import ome.conditions.RootException;
 import ome.conditions.ValidationException;
+import ome.services.messages.RegisterServiceCleanupMessage;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.PropertyValueException;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -34,11 +38,25 @@ import org.springframework.orm.hibernate3.HibernateSystemException;
 /**
  * 
  */
-public class ServiceHandler implements MethodInterceptor {
+public class ServiceHandler implements MethodInterceptor, ApplicationListener {
 
     private static Log log = LogFactory.getLog(ServiceHandler.class);
 
     private boolean printXML = false;
+
+    private final ThreadLocal<List<RegisterServiceCleanupMessage>> cleanups = new ThreadLocal<List<RegisterServiceCleanupMessage>>();
+
+    public void onApplicationEvent(ApplicationEvent arg0) {
+        if (arg0 instanceof RegisterServiceCleanupMessage) {
+            RegisterServiceCleanupMessage cleanup = (RegisterServiceCleanupMessage) arg0;
+            List<RegisterServiceCleanupMessage> list = cleanups.get();
+            if (list == null) {
+                list = new ArrayList<RegisterServiceCleanupMessage>();
+                cleanups.set(list);
+            }
+            list.add(cleanup);
+        }
+    }
 
     public void setPrintXML(boolean value) {
         this.printXML = value;
@@ -83,6 +101,19 @@ public class ServiceHandler implements MethodInterceptor {
         } finally {
             if (log.isInfoEnabled()) {
                 log.info(finalOutput);
+            }
+            List<RegisterServiceCleanupMessage> list = cleanups.get();
+            cleanups.remove();
+            if (list != null) {
+                for (RegisterServiceCleanupMessage registerServiceCleanupMessage : list) {
+                    try {
+                        log.info("Cleanup:"
+                                + registerServiceCleanupMessage.resource);
+                        registerServiceCleanupMessage.close();
+                    } catch (Exception e) {
+                        log.warn("Error while cleaning up", e);
+                    }
+                }
             }
         }
 

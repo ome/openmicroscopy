@@ -7,6 +7,8 @@
 package ome.server.itests.search;
 
 import java.io.File;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -207,16 +209,16 @@ public class FullTextTest extends AbstractTest {
         // Parser setup
         FileParser parser = new FileParser() {
             @Override
-            public Iterable<String> doParse(File file) {
-                return wrap(new Iterator<String>() {
-                    String next = str;
+            public Iterable<Reader> doParse(File file) {
+                return wrap(new Iterator<Reader>() {
+                    StringReader next = new StringReader(str);
 
                     public boolean hasNext() {
                         return next != null;
                     }
 
-                    public String next() {
-                        String rv = next;
+                    public Reader next() {
+                        StringReader rv = next;
                         next = null;
                         return rv;
                     }

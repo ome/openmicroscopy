@@ -8,6 +8,7 @@
 package ome.services.fulltext;
 
 import java.io.File;
+import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 
@@ -36,13 +37,13 @@ import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.builtin.DateBridge;
 
 /**
- * Primary definition of what will be indexed via Hibernate
- * Search. This class is delegated to by the 
- * {@link DetailsFieldBridge}.
+ * Primary definition of what will be indexed via Hibernate Search. This class
+ * is delegated to by the {@link DetailsFieldBridge}.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
- * @DEV.TODO insert/update OR delete regular type OR annotated type OR originalfile
+ * @DEV.TODO insert/update OR delete regular type OR annotated type OR
+ *           originalfile
  */
 public class FullTextBridge implements FieldBridge {
 
@@ -85,8 +86,8 @@ public class FullTextBridge implements FieldBridge {
 
             if (object instanceof OriginalFile) {
                 OriginalFile file = (OriginalFile) object;
-                for (String parsed : parse(file)) {
-                    add(document, "file", parsed, store, index, boost);
+                for (Reader parsed : parse(file)) {
+                    add(document, "file", parsed, boost);
                 }
             }
 
@@ -121,9 +122,8 @@ public class FullTextBridge implements FieldBridge {
                         } else if (annotation instanceof FileAnnotation) {
                             FileAnnotation fileAnnotation = (FileAnnotation) annotation;
                             OriginalFile file = fileAnnotation.getFile();
-                            for (String parsed : parse(file)) {
-                                add(document, "annotation", parsed, store,
-                                        index, boost);
+                            for (Reader parsed : parse(file)) {
+                                add(document, "annotation", parsed, boost);
                             }
                         }
                     } catch (NullValueException nve) {
@@ -221,6 +221,33 @@ public class FullTextBridge implements FieldBridge {
         d.add(f);
     }
 
+    protected void add(Document d, String field, Reader reader, Float boost)
+            throws NullValueException {
+
+        Field f;
+
+        if (reader == null) {
+            throw new NullValueException(field);
+        }
+
+        // If the field == null, then we ignore it, to allow easy addition
+        // of Fields as COMBINED
+        if (field != null) {
+            f = new Field(field, reader);
+            if (boost != null) {
+                f.setBoost(boost);
+            }
+            d.add(f);
+        }
+
+        // Never storing in combined fields, since it's duplicated
+        f = new Field(COMBINED, reader);
+        if (boost != null) {
+            f.setBoost(boost);
+        }
+        d.add(f);
+    }
+
     /**
      * Attempts to parse the given {@link OriginalFile}. If any of the
      * necessary components is null, then it will return an empty, but not null
@@ -230,7 +257,7 @@ public class FullTextBridge implements FieldBridge {
      *            Can be null.
      * @return will not be null.
      */
-    protected Iterable<String> parse(OriginalFile file) {
+    protected Iterable<Reader> parse(OriginalFile file) {
         if (files != null && parsers != null) {
             if (file != null && file.getFormat() != null) {
                 String path = files.getFilesPath(file.getId());

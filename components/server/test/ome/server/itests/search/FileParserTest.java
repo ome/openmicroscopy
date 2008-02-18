@@ -7,6 +7,8 @@
 package ome.server.itests.search;
 
 import java.io.File;
+import java.io.Reader;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +35,13 @@ public class FileParserTest extends AbstractTest {
         String path = getFileService().getFilesPath(upload.getId());
         File file = new File(path);
         FileParser fp = new FileParser();
-        for (String test : fp.parse(file)) {
-            assertEquals(test, str);
+        StringWriter sw = new StringWriter();
+        for (Reader test : fp.parse(file)) {
+            while (test.ready()) {
+                sw.write(test.read());
+            }
         }
+        assertEquals(sw.toString(), str);
     }
 
     @Test()

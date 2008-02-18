@@ -10,11 +10,18 @@ package ome.services.fulltext;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.Reader;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import ome.services.messages.RegisterServiceCleanupMessage;
+import ome.system.OmeroContext;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 /**
  * Object which attempts to parse any file given to it. On an exception or
@@ -26,22 +33,29 @@ import org.apache.commons.logging.LogFactory;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class FileParser {
+public class FileParser implements ApplicationContextAware {
 
     private final static Log log = LogFactory.getLog(FileParser.class);
+
+    private OmeroContext context;
+
+    public void setApplicationContext(ApplicationContext arg0)
+            throws BeansException {
+        context = (OmeroContext) arg0;
+    }
 
     /**
      * {@link Iterable} which returns an empty {@link Iterator}. This will be
      * used in case
      */
-    public final static Iterable<String> EMPTY = new Iterable<String>() {
-        public Iterator<String> iterator() {
-            return new Iterator<String>() {
+    public final static Iterable<Reader> EMPTY = new Iterable<Reader>() {
+        public Iterator<Reader> iterator() {
+            return new Iterator<Reader>() {
                 public boolean hasNext() {
                     return false;
                 }
 
-                public String next() {
+                public Reader next() {
                     throw new NoSuchElementException();
                 }
 
@@ -70,7 +84,7 @@ public class FileParser {
      *            Can be null.
      * @return An {@link Iterable} which is never null.
      */
-    final public Iterable<String> parse(File file) {
+    final public Iterable<Reader> parse(File file) {
 
         if (file == null) {
             log.warn("Argument null. Returning EMPTY:" + file);
@@ -78,7 +92,7 @@ public class FileParser {
         }
 
         try {
-            Iterable<String> it = doParse(file);
+            Iterable<Reader> it = doParse(file);
             if (it == null) {
                 log.debug("Implementation returned null.");
                 return EMPTY;
@@ -108,8 +122,21 @@ public class FileParser {
      * In any of the non-successful cases, the {@link #EMPTY} {@link Iterable}
      * will be returned to the consumer.
      */
-    public Iterable<String> doParse(File file) throws Exception {
-        OverlappingChunkFileIterator it = new OverlappingChunkFileIterator(file);
+    public Iterable<Reader> doParse(File file) throws Exception {
+        FileReader reader = new FileReader(file);
+        BufferedReader buffered = new BufferedReader(reader);
+        context.publishEvent(new RegisterServiceCleanupMessage(this, buffered) {
+            @Override
+            public void close() {
+                try {
+                    Reader r = (Reader) resource;
+                    r.close();
+                } catch (Exception e) {
+                    // May not throw exception
+                }
+            }
+        });
+        Iterator<Reader> it = new SingleIterator(buffered);
         return wrap(it);
     }
 
@@ -122,22 +149,46 @@ public class FileParser {
      *            Can be null.
      * @return Will never be null
      */
-    public Iterable<String> wrap(Iterator<String> it) {
+    public Iterable<Reader> wrap(Iterator<Reader> it) {
         if (it == null) {
             return EMPTY;
         }
         return new IteratorWrapper(it);
     }
 
-    private static class IteratorWrapper implements Iterable<String> {
+    private static class SingleIterator implements Iterator<Reader> {
 
-        private final Iterator<String> it;
+        Reader r;
 
-        public IteratorWrapper(Iterator<String> it) {
+        SingleIterator(Reader r) {
+            this.r = r;
+        }
+
+        public boolean hasNext() {
+            return r != null;
+        }
+
+        public Reader next() {
+            Reader rv = r;
+            r = null;
+            return rv;
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+    }
+
+    private static class IteratorWrapper implements Iterable<Reader> {
+
+        private final Iterator<Reader> it;
+
+        public IteratorWrapper(Iterator<Reader> it) {
             this.it = it;
         }
 
-        public Iterator<String> iterator() {
+        public Iterator<Reader> iterator() {
             return it;
         }
     }
