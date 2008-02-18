@@ -33,6 +33,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 import org.springframework.orm.hibernate3.HibernateSystemException;
 
 /**
@@ -172,6 +173,15 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
                 ValidationException ve = new ValidationException(t.getMessage());
                 ve.setStackTrace(t.getStackTrace());
                 printException("DataIntegrityViolationException thrown.", t);
+                return ve;
+            }
+
+            else if (HibernateObjectRetrievalFailureException.class
+                    .isAssignableFrom(t.getClass())) {
+                ValidationException ve = new ValidationException(t.getMessage());
+                ve.setStackTrace(t.getStackTrace());
+                printException(
+                        "HibernateObjectRetrievealFailureException thrown.", t);
                 return ve;
             }
 

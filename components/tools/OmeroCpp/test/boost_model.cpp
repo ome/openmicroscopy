@@ -78,6 +78,7 @@ BOOST_AUTO_TEST_CASE( Sequences )
   img->unload();
   BOOST_CHECK( !img->annotationLinksLoaded );
   img->annotationLinks.push_back((ImageAnnotationLinkPtr)0);
+  BOOST_ERROR("should not reach this point");
 }
 
 BOOST_AUTO_TEST_CASE( Accessors )
