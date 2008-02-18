@@ -101,11 +101,11 @@ public class Enumeration {
         this.className = className;
     }
 
-    public boolean isOryginalVales() {
+    public boolean isOriginalVales() {
         return oryginalVales;
     }
 
-    public void setOryginalVales(boolean oryginalVales) {
+    public void setOriginalVales(boolean oryginalVales) {
         this.oryginalVales = oryginalVales;
     }
 

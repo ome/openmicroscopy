@@ -174,9 +174,9 @@ public class ConnectionDB {
         return typesService.getEnumerationsWithEntries();
     }
     
-    public List<IEnum> getOryginalEnumerations() {
-        logger.info("getOryginalEnumerations by user ID: '" + userid + "'");
-        return typesService.getOryginalEnumerations();
+    public List<IEnum> getOriginalEnumerations() {
+        logger.info("getOriginalEnumerations by user ID: '" + userid + "'");
+        return typesService.getOriginalEnumerations();
     }
 
     /**

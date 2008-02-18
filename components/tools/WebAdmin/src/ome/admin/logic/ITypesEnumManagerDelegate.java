@@ -132,7 +132,7 @@ public class ITypesEnumManagerDelegate implements java.io.Serializable {
     public List<Enumeration> getEnumerationsWithEntries() {
         List<Enumeration> list = new ArrayList<Enumeration>();
         Map map = db.getEnumerationsWithEntries();
-        List<IEnum> oryginList = db.getOryginalEnumerations();
+        List<IEnum> oryginList = db.getOriginalEnumerations();
         for (Iterator iter = map.keySet().iterator(); iter.hasNext();) {
             Class klass = (Class) iter.next();
             List<? extends IEnum> entries = (List<? extends IEnum>) map
@@ -154,9 +154,9 @@ public class ITypesEnumManagerDelegate implements java.io.Serializable {
                     }
                 }
                 if(c!=entries.size()) {
-                    en.setOryginalVales(false);
+                    en.setOriginalVales(false);
                 } else {
-                    en.setOryginalVales(flag);
+                    en.setOriginalVales(flag);
                 }                    
             }  
             list.add(en);
