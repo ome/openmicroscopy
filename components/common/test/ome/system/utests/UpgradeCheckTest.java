@@ -28,66 +28,97 @@ public class UpgradeCheckTest extends TestCase {
     public void testNoActionOnNull() throws Exception {
         check = new UpgradeCheck(null, version, "test");
         check.run();
+        assertFalse(check.isUpgradeNeeded());
+        assertFalse(check.isExceptionThrown());
     }
 
     @Test
     public void testNoActionOnEmpty() throws Exception {
         check = new UpgradeCheck("", version, "test");
         check.run();
+        assertFalse(check.isUpgradeNeeded());
+        assertFalse(check.isExceptionThrown());
+
     }
 
     @Test
     public void testNoResponse() throws Exception {
         check = new UpgradeCheck(url, version, "test");
         check.run();
+        assertTrue(check.isUpgradeNeeded());
+        assertFalse(check.isExceptionThrown());
+
     }
 
     @Test
     public void testSlowResponse() throws Exception {
         check = new UpgradeCheck("http://127.0.0.1:8000", version, "test");
         check.run();
+        assertFalse(check.isUpgradeNeeded());
+        assertTrue(check.isExceptionThrown());
+
     }
 
     @Test
     public void testSlowResponse2() throws Exception {
         check = new UpgradeCheck("http://127.0.0.1:9998", version, "test");
         check.run();
+        assertFalse(check.isUpgradeNeeded());
+        assertTrue(check.isExceptionThrown());
     }
 
     @Test
     public void testBadIp() throws Exception {
         check = new UpgradeCheck("200.200.200.200", version, "test");
         check.run();
+        assertFalse(check.isUpgradeNeeded());
+        assertTrue(check.isExceptionThrown());
+
     }
 
     @Test
     public void testWrongVersion() throws Exception {
         check = new UpgradeCheck("200.200.200.200", "XXX" + version, "test");
         check.run();
+        assertFalse(check.isUpgradeNeeded());
+        assertTrue(check.isExceptionThrown());
+
     }
 
     @Test
     public void tesBadUrl1() throws Exception {
         check = new UpgradeCheck("http://foo", "XXX" + version, "test");
         check.run();
+        assertFalse(check.isUpgradeNeeded());
+        assertTrue(check.isExceptionThrown());
+
     }
 
     @Test
     public void tesBadUrl2() throws Exception {
         check = new UpgradeCheck("file://dev/null", "XXX" + version, "test");
         check.run();
+        assertFalse(check.isUpgradeNeeded());
+        assertTrue(check.isExceptionThrown());
+
     }
 
     @Test
     public void tesBadUrl3() throws Exception {
         check = new UpgradeCheck("abcp", "XXX" + version, "test");
         check.run();
+        assertFalse(check.isUpgradeNeeded());
+        assertTrue(check.isExceptionThrown());
+
     }
 
     @Test
     public void tesBadUrl4() throws Exception {
         check = new UpgradeCheck("abc://bar", "XXX" + version, "test");
         check.run();
+        assertFalse(check.isUpgradeNeeded());
+        assertTrue(check.isExceptionThrown());
+
     }
 
 }
