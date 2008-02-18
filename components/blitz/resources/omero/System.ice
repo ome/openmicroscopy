@@ -24,6 +24,9 @@ module omero {
     ["java:type:java.util.ArrayList<Long>:java.util.List<Long>"]
     sequence<long> LongList;
 
+    ["java:type:java.util.HashMap<Long,Long>:java.util.Map<Long,Long>"]
+    dictionary<long, long> CountMap;
+
     /*
      * Maps the ome.system.EventContext interface. Represents the
      * information known by the server security system about the

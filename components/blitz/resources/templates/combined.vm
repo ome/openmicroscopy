@@ -64,6 +64,7 @@ DECLARATION BLOCK:
 [$ice] \#include <omero/fwd.ice>
 [$ice] \#include <omero/IObject.ice>
 [$ice] \#include <omero/RTypes.ice>
+[$ice] \#include <omero/System.ice>
 #if( $type.superclass )
 #set( $parent = $type.superclass.replaceFirst(".*ome.model..+?[.]","") )
 [$ice] \#include <omero/model/${parent}.ice>
@@ -483,6 +484,9 @@ ICE BLOCK:
 #elseif( $property.one2Many )
 [$Ice]       $seqName ${property.name};
 [$Ice]       bool ${property.name}Loaded;
+#if( $property.isLink )
+[$Ice]       omero::sys::CountMap ${property.name}CountPerOwner;
+#end
 #elseif ($javaType.startsWith("ome") )## Had to be moved before "*Map" rule
 [$Ice]       omero::model::${shortType} ${property.name};
 #elseif ($javaType.equals("IObject"))## Special case of the previous
@@ -840,6 +844,8 @@ have linked elements.
 #set( $bidir = $property.bidirectional )
 #set( $pyorder = $order.replaceAll("this","self"))
 
+COUNTS
+
 ADD
 
 [$jav]       public void link${property.shortTarget}(${property.shortTarget} addition) throws omero.UnloadedEntityException {
@@ -1101,6 +1107,10 @@ CLASS-LEVEL EXTRA METHODS:
 
 COPYOBJECT BLOCK:
 
+[$jav]       /**
+[$jav]        * Used by {@link omero.util.IceMapper} to inject an "ome.model" object into this
+[$jav]        * "omero.model" object.
+[$jav]        */
 [$jav]       public void copyObject(ome.util.Filterable model, ome.util.ModelMapper _mapper) {
 [$jav]            omero.util.IceMapper mapper = (omero.util.IceMapper) _mapper;
 [$jav]            if (model instanceof ${type.id}) {
@@ -1149,7 +1159,9 @@ COPYOBJECT BLOCK:
 #end
 
 [$jav]              $guard this.set${PropertyName}(($javaType) mapper.find${findMethod}($method));
-
+#if ($property.one2Many && $property.isLink)
+[$jav]              this.${property.name}CountPerOwner = source.get${property.nameCapped}CountPerOwner();
+#end
 #end##FOREACH
 
 [$jav]       } else {
@@ -1161,6 +1173,10 @@ COPYOBJECT BLOCK:
 
 FILLOBJECT BLOCK:
 
+[$jav]       /**
+[$jav]        * Used by {@link omero.util.IceMapper} produce an "ome.model" object from this
+[$jav]        * "omero.model" object.
+[$jav]        */
 [$jav]       public ome.util.Filterable fillObject(ome.util.ReverseModelMapper _mapper) {
 [$jav]           omero.util.IceMapper mapper = (omero.util.IceMapper) _mapper;
 [$jav]           $type.id target = new ${type.id}();
