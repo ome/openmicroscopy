@@ -28,6 +28,9 @@ BEGIN
   -- Adding configuration table for ticket:800
   CREATE TABLE configuration ( name VARCHAR(255) PRIMARY KEY, value TEXT );
 
+  -- RenderingDef.name
+  ALTER TABLE renderingdef ADD COLUMN name VARCHAR(255);
+
   -- For the ordering in the following scripts to work
   -- properly, it is important that NULLs be set to
   -- FALSE.
