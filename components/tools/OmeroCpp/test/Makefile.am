@@ -18,7 +18,7 @@ unit_SOURCES = no_op.cpp
 endif
 
 if BOOST_TEST
-integration_SOURCES = boost_main.cpp boost_fixture.cpp boost_search.cpp boost_sessions.cpp boost_annotations.cpp
+integration_SOURCES = boost_main.cpp boost_fixture.cpp boost_search.cpp boost_sessions.cpp boost_annotations.cpp boost_counts.cpp
 integration_CXXFLAGS = -g -O0 $(our_incl)
 integration_LDFLAGS = $(our_libp) -dl -lboost_unit_test_framework-mt-d $(our_libs)
 else
@@ -29,4 +29,4 @@ endif
 all: unit integration run
 
 run:
-	./unit && ICE_CONFIG=$(ICE_CONFIG) ./integration
+	./unit ; ICE_CONFIG=$(ICE_CONFIG) ./integration

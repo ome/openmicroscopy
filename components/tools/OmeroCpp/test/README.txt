@@ -16,6 +16,6 @@ See http://beta.boost.org/doc/libs/1_34_1/libs/test/doc/components/utf/parameter
     * output_format
     * random
     * report_format
-    * report_level
+    * report_level = "no", "confirm", "short", "detailed"
     * show_progress
 
