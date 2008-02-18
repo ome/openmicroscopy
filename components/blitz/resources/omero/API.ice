@@ -65,6 +65,8 @@ module omero {
     ["java:type:java.util.ArrayList<omero.model.IObject>:java.util.List<omero.model.IObject>"]
       sequence<omero::model::IObject> IObjectList;
 
+      dictionary<string, IObjectList> IObjectListMap;
+
     ["java:type:java.util.ArrayList"]
       sequence<omero::model::Image> ImageList;
 
@@ -103,9 +105,11 @@ module omero {
 	idempotent ExperimenterList containedExperimenters(long groupId) throws ServerError;
 	idempotent ExperimenterGroupList containedGroups(long experimenterId) throws ServerError;
 	idempotent omero::model::ExperimenterGroup getDefaultGroup(long experimenterId) throws ServerError;
+	idempotent string lookupLdapAuthExperimenter(long id);
     
 	// Mutators
     
+    void updateSelf(omero::model::Experimenter experimenter) throws ServerError;
 	void updateExperimenter(omero::model::Experimenter experimenter) throws ServerError;
 	void updateGroup(omero::model::ExperimenterGroup group) throws ServerError;
 	long createUser(omero::model::Experimenter experimenter, string group) throws ServerError;
@@ -128,6 +132,8 @@ module omero {
 	idempotent void changePassword(omero::RString newPassword) throws ServerError;
 	idempotent void changeUserPassword(string omeName, omero::RString newPassword) throws ServerError;
 	idempotent void synchronizeLoginCache() throws ServerError;
+	void changeExpiredCredentials(string name, string oldCred, string newCred) throws ServerError;
+	void reportForgottenPassword(string name, string email);
 
 	// Security Context
 	idempotent omero::sys::Roles getSecurityRoles() throws ServerError;
@@ -169,7 +175,7 @@ module omero {
 	idempotent omero::model::Pixels retrievePixDescription(long pixId) throws ServerError;
 	idempotent omero::model::RenderingDef retrieveRndSettings(long pixId) throws ServerError;
 	void saveRndSettings(omero::model::RenderingDef rndSettings) throws ServerError;
-	idempotent int getBitDeptch(omero::model::PixelsType type) throws ServerError;
+	idempotent int getBitDepth(omero::model::PixelsType type) throws ServerError;
 	idempotent omero::RObject getEnumeration(string enumClass, string value) throws ServerError;
 	idempotent IObjectList getAllEnumerations(string enumClass) throws ServerError;
       };
@@ -186,6 +192,7 @@ module omero {
 	idempotent IObjectList findCGCPaths(omero::sys::LongList imageIds, string algo, omero::sys::ParamMap options) throws ServerError;
 	idempotent ImageList getImages(string rootType, omero::sys::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
 	idempotent ImageList getUserImages(omero::sys::ParamMap options) throws ServerError;
+	idempotent ImageList getImagesByOptions(omero::sys::ParamMap options) throws ServerError;
 	idempotent UserMap getUserDetails(StringSet names, omero::sys::ParamMap options) throws ServerError;
 	idempotent CountMap getCollectionCount(string type, string property, omero::sys::LongList ids, omero::sys::ParamMap options) throws ServerError;
 	idempotent IObjectList retrieveCollection(omero::model::IObject obj, string collectionName, omero::sys::ParamMap options) throws ServerError;
@@ -231,9 +238,17 @@ module omero {
 
     interface ITypes extends ServiceInterface
       {
-	omero::model::IObject createEnumeration(omero::model::IObject newEnum) throws ServerError;
-	idempotent omero::model::IObject getEnumeration(string type, string value) throws ServerError;
-	idempotent IObjectList allEnumerations(string type) throws ServerError;
+        omero::model::IObject createEnumeration(omero::model::IObject newEnum) throws ServerError;
+        idempotent omero::model::IObject getEnumeration(string type, string value) throws ServerError;
+        idempotent IObjectList allEnumerations(string type) throws ServerError;
+        omero::model::IObject updateEnumeration(omero::model::IObject oldEnum) throws ServerError;
+        void updateEnumerations(IObjectList oldEnums) throws ServerError;
+        void deleteEnumeration(omero::model::IObject oldEnum) throws ServerError;
+        idempotent StringSet getEnumerationTypes() throws ServerError; 
+        idempotent StringSet getAnnotationTypes() throws ServerError;
+        idempotent IObjectListMap getEnumerationsWithEntries() throws ServerError;
+        IObjectList getOriginalEnumerations() throws ServerError;
+        void resetEnumerations(string enumClass) throws ServerError;
       };
 
     interface IUpdate extends ServiceInterface
@@ -241,6 +256,7 @@ module omero {
 	void saveObject(omero::model::IObject obj) throws ServerError;
 	void saveCollection(IObjectList objs) throws ServerError;
 	omero::model::IObject saveAndReturnObject(omero::model::IObject obj) throws ServerError;
+	void saveArray(IObjectList graph) throws ServerError;
 	IObjectList saveAndReturnArray(IObjectList graph) throws ServerError;
 	void deleteObject(omero::model::IObject row) throws ServerError;
 	void indexObject(omero::model::IObject row) throws ServerError;
@@ -273,6 +289,7 @@ module omero {
 	void setFileId(long fileId) throws ServerError;
 	idempotent Ice::ByteSeq read(long position, int length) throws ServerError;
 	idempotent void write(Ice::ByteSeq buf, long position, int length) throws ServerError;
+	idempotent bool exists() throws ServerError;
       };
 
     interface RawPixelsStore extends StatefulServiceInterface
@@ -326,7 +343,7 @@ module omero {
 	omero::model::QuantumDef getQuantumDef() throws ServerError;
 	void setQuantizationMap(int w, omero::model::Family fam, double coefficient, bool noiseReduction) throws ServerError;
 	omero::model::Family getChannelFamily(int w) throws ServerError;
-	bool getchannelNoiseReduction(int w) throws ServerError;
+	bool getChannelNoiseReduction(int w) throws ServerError;
 	Ice::DoubleSeq getChannelStats(int w) throws ServerError;
 	double getChannelCurveCoefficient(int w) throws ServerError;
 	void setChannelWindow(int w, double start, double end) throws ServerError;
@@ -344,6 +361,9 @@ module omero {
 	void resetDefaultsNoSave() throws ServerError;
 	void setCompressionLevel(float percentage) throws ServerError;
 	float getCompressionLevel() throws ServerError;
+	bool isPixelsTypeSigned() throws ServerError;
+	double getPixelsTypeUpperBound(int w) throws ServerError;
+	double getPixelsTypeLowerBound(int w) throws ServerError;
       };
 
     interface Search extends StatefulServiceInterface
@@ -401,8 +421,14 @@ module omero {
         // Retrieval  ~~~~~~~~~~~~~~~~~~~~~~~~~
         bool hasNext() throws ServerError;
         omero::model::IObject next() throws ServerError;
+        IObjectList results() throws ServerError;
+        
+        // Currently unused
         SearchMetadata currentMetadata();
-        SearchMetadataList results() throws ServerError;
+        SearchMetadataList currentMetadataList() throws ServerError;
+        
+        // Unused; Part of Java Iterator interface
+        void remove() throws ServerError;
       };
 
     interface ThumbnailStore extends StatefulServiceInterface
@@ -412,11 +438,13 @@ module omero {
 	Ice::ByteSeq getThumbnail(int sizeX, int sizeY) throws ServerError;
 	omero::sys::ParamMap getThumbnailSet(int sizeX, int sizeY, omero::sys::LongList pixelsIds) throws ServerError;
 	Ice::ByteSeq getThumbnailByLongestSide(int size) throws ServerError;
+	Ice::ByteSeq getThumbnailByLongestSideDirect(int size) throws ServerError;
 	Ice::ByteSeq getThumbnailDirect(int sizeX, int sizeY) throws ServerError;
 	Ice::ByteSeq getThumbnailForSectionDirect(int theZ, int theT, int sizeX, int sizeY) throws ServerError;
 	Ice::ByteSeq getThumbnailForSectionByLongestSideDirect(int theZ, int theT, int size) throws ServerError;
 	void createThumbnails() throws ServerError;
-	bool thumbnailExist(int sizeX, int sizeY) throws ServerError;
+	void createThumbnail(int sizeX, int sizeY) throws ServerError;
+	bool thumbnailExists(int sizeX, int sizeY) throws ServerError;
 	void resetDefaults() throws ServerError;
       };
 

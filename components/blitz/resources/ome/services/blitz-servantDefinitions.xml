@@ -19,6 +19,8 @@
 
 <beans>
 
+  <bean class="ome.services.blitz.util.ApiConsistencyCheck"/>
+
   <bean id="omero.api.IAdmin" class="ome.services.blitz.util.ServantDefinition">
     <property name="operationsClass" value="omero.api._IAdminOperations"/>
     <property name="serviceClass" value="ome.api.IAdmin"/>

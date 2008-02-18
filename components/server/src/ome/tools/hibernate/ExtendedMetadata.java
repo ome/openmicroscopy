@@ -8,14 +8,18 @@ package ome.tools.hibernate;
 
 // Java imports
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
+import ome.model.IAnnotated;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
 
@@ -50,6 +54,8 @@ public class ExtendedMetadata {
 
     private final Map<String, Class<IObject>> targetHolder = new HashMap<String, Class<IObject>>();
 
+    private final Set<Class<IAnnotated>> annotationTypes;
+    
     // NOTES:
     // TODO we could just delegate to sf and implement the same interface.
     // TOTEST
@@ -89,15 +95,30 @@ public class ExtendedMetadata {
             immutablesHolder.put(key, new Immutables(cm));
         }
 
+        Set<Class<IAnnotated>> anns = new HashSet<Class<IAnnotated>>();
         for (String key : m.keySet()) {
             ClassMetadata cm = m.get(key);
             Map<String, String> queries = countQueriesAndEditTargets(key,
                     lockedByHolder.get(key));
             collectionCountHolder.putAll(queries);
+            
+            // Checking classes, specifically for ITypes
+            Class c = cm.getMappedClass(EntityMode.POJO);
+            if (IAnnotated.class.isAssignableFrom(c)) {
+                anns.add(c);
+            }
         }
+        annotationTypes = Collections.unmodifiableSet(anns);
 
     }
 
+    /**
+     * Returns all the classes which implement {@link IAnnotated}
+     */
+    public Set<Class<IAnnotated>> getAnnotationTypes() {
+        return annotationTypes;
+    }
+    
     /**
      * walks the {@link IObject} argument <em>non-</em>recursively and
      * gathers all attached {@link IObject} instances which may need to be

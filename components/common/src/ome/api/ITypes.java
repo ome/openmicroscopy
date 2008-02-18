@@ -14,9 +14,8 @@ import java.util.Map;
 import ome.annotations.NotNull;
 import ome.annotations.Validate;
 import ome.conditions.ApiUsageException;
+import ome.model.IAnnotated;
 import ome.model.IEnum;
-import ome.model.IObject;
-import ome.model.internal.Permissions;
 
 /**
  * Access to reflective type information. Also provides simplified access to
@@ -30,15 +29,13 @@ import ome.model.internal.Permissions;
 
 public interface ITypes extends ServiceInterface {
 
-    <T extends IObject> List<Class<T>> getResultTypes();
-
-    <T extends IObject> List<Class<T>> getAnnotationTypes();
-
-    <T extends IObject> List<Class<T>> getContainerTypes();
-
-    <T extends IObject> List<Class<T>> getPojoTypes();
-
-    <T extends IObject> List<Class<T>> getImportTypes();
+    /**
+     * Returns a list of classes which implement {@link IAnnotated}. These can
+     * be used in combination with {@link ome.api.Search}.
+     * 
+     * @return
+     */
+    List<Class<IAnnotated>> getAnnotationTypes();
 
     <T extends IEnum> T createEnumeration(T newEnum);
 
@@ -59,68 +56,76 @@ public interface ITypes extends ServiceInterface {
      *             if {@link IEnum} is not found.
      */
     <T extends IEnum> T getEnumeration(Class<T> k, String string);
-    
-    /**
-     * updates enumeration value specified by object
-     * @param <T> 
-     *            The type of the enumeration. Must extend {@link IEnum}
-     * @param 
-     *            oEnum An enumeration object which should be searched.
-     * @return A managed enumeration. Never null.
-     */
-    <T extends IEnum> T updateEnumeration(@NotNull T oEnum);
 
     /**
      * updates enumeration value specified by object
-     * @param <T> 
+     * 
+     * @param <T>
      *            The type of the enumeration. Must extend {@link IEnum}
-     * @param listEnum 
+     * @param oEnum
+     *            An enumeration object which should be searched.
+     * @return A managed enumeration. Never null.
+     */
+    <T extends IEnum> T updateEnumeration(@NotNull
+    T oEnum);
+
+    /**
+     * updates enumeration value specified by object
+     * 
+     * @param <T>
+     *            The type of the enumeration. Must extend {@link IEnum}
+     * @param listEnum
      *            An enumeration collection of objects which should be searched.
      * @return A managed enumeration. Never null.
      */
-    <T extends IEnum> void updateEnumerations(@NotNull @Validate(IEnum.class) List<T> listEnum);
-    
+    <T extends IEnum> void updateEnumerations(@NotNull
+    @Validate(IEnum.class)
+    List<T> listEnum);
+
     /**
      * deletes enumeration value specified by object
-     * @param <T> 
+     * 
+     * @param <T>
      *            The type of the enumeration. Must extend {@link IEnum}
-     * @param oEnum 
+     * @param oEnum
      *            An enumeration object which should be searched.
      */
-    <T extends IEnum> void deleteEnumeration(@NotNull T oEnum);
-    
+    <T extends IEnum> void deleteEnumeration(@NotNull
+    T oEnum);
+
     /**
-     * Gets all oryginal values of specified class. 
-     * @param <T> 
+     * Gets all original values of specified class.
+     * 
+     * @param <T>
      *            The type of the enumeration. Must extend {@link IEnum}
      * @return A list of managed enumerations.
      * @throws RuntimeException
      *             if xml parsing failure.
      */
-    <T extends IEnum> List<T> getOryginalEnumerations();
-    
+    <T extends IEnum> List<T> getOriginalEnumerations();
+
     <T extends IEnum> void resetEnumerations(Class<T> klass);
-    
+
     /**
-     * Gets all metadata classes which are IEnum type. 
-     * @param <T> 
+     * Gets all metadata classes which are IEnum type.
+     * 
+     * @param <T>
      *            The type of the enumeration. Must extend {@link IEnum}
      * @return list of Class of T extends IEnum
      * @throws RuntimeException
      *             if Class not found.
      */
     <T extends IEnum> List<Class<T>> getEnumerationTypes();
-    
+
     /**
-     * Gets all metadata classes which are IEnum type with contained objects.  
-     * @param <T> 
+     * Gets all metadata classes which are IEnum type with contained objects.
+     * 
+     * @param <T>
      *            The type of the enumeration. Must extend {@link IEnum}
      * @return list of Class of T extends IEnum
      * @throws RuntimeException
      *             if xml parsing failure.
      */
     <T extends IEnum> Map<Class<T>, List<T>> getEnumerationsWithEntries();
-
-    <T extends IObject> Permissions permissions(Class<T> k);
 
 }

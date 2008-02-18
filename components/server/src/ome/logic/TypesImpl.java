@@ -43,6 +43,7 @@ import ome.api.ITypes;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
+import ome.model.IAnnotated;
 import ome.model.IEnum;
 import ome.model.IObject;
 import ome.model.internal.Details;
@@ -62,8 +63,8 @@ import org.springframework.util.ResourceUtils;
  * implementation of the ITypes service interface.
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date:
- *          2008-01-04 14:17:02 +0000 (Fri, 04 Jan 2008) $) </small>
+ * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date: 2008-01-04
+ *          14:17:02 +0000 (Fri, 04 Jan 2008) $) </small>
  * @since OMERO 3.0
  */
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -179,7 +180,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
     }
 
     @RolesAllowed("system")
-    public <T extends IEnum> List<T> getOryginalEnumerations() {
+    public <T extends IEnum> List<T> getOriginalEnumerations() {
         List<IEnum> orygin = new ArrayList<IEnum>();
         InputStream in = null;
         try {
@@ -195,8 +196,9 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
                 String key = (String) it.next();
                 String[] keySplit = key.split("\\.");
                 String className = "";
-                for (int i = 0; i < keySplit.length - 1; i++)
+                for (int i = 0; i < keySplit.length - 1; i++) {
                     className = className + keySplit[i] + ".";
+                }
                 className = className.substring(0, (className.length() - 1));
                 String val = property.getProperty(key);
                 Class klass = Class.forName(className);
@@ -277,24 +279,26 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
                     }
 
                     if (!flag) {
-                        IEnum newEntry = (IEnum) klass.getConstructor(
-                                String.class).newInstance(val);
+                        IEnum newEntry = klass.getConstructor(String.class)
+                                .newInstance(val);
                         newList.add(i.intValue() - 1, newEntry);
                     }
 
                 } else {
-                    IEnum newEntry = (IEnum) klass.getConstructor(String.class)
+                    IEnum newEntry = klass.getConstructor(String.class)
                             .newInstance(val);
                     newList.add(i.intValue() - 1, newEntry);
                 }
             }
 
             listOnDB.removeAll(listToDel);
-            for (IEnum en : listOnDB)
+            for (IEnum en : listOnDB) {
                 deleteEnumeration(en);
+            }
 
-            if (newList.size() > 0)
+            if (newList.size() > 0) {
                 updateEnumerations(newList);
+            }
 
         } catch (FileNotFoundException e) {
             throw new RuntimeException("File not found. " + e.getMessage());
@@ -324,14 +328,16 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes {
     }
 
     @RolesAllowed("user")
-    public <T extends IObject> List<Class<T>> getResultTypes() {
-        // TODO Auto-generated method stub
-        return null;
-
+    public List<Class<IAnnotated>> getAnnotationTypes() {
+        return new ArrayList<Class<IAnnotated>>(this.metadata
+                .getAnnotationTypes());
     }
 
+    // Removed from interface
+    // =======================================
+
     @RolesAllowed("user")
-    public <T extends IObject> List<Class<T>> getAnnotationTypes() {
+    public <T extends IObject> List<Class<T>> getResultTypes() {
         // TODO Auto-generated method stub
         return null;
 

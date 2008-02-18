@@ -22,6 +22,8 @@ import ome.model.jobs.JobStatus;
  * <li>close()</li>
  * </ol>
  * </p>
+ * Calling <code>close()</code> does not cancel or otherwise change the Job
+ * state. See {@link #cancelJob()}.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
@@ -85,11 +87,5 @@ public interface JobHandle extends StatefulServiceInterface {
      * has been cancelled.
      */
     void cancelJob();
-
-    /**
-     * Free the resources for this {@link JobHandle handle}. This
-     * <em>does not</em> cancel or otherwise alter the {@link Job}.
-     */
-    void close();
 
 }

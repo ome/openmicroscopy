@@ -9,7 +9,6 @@ package ome.api;
 
 // Java imports
 import java.util.Collection;
-import java.util.Map;
 
 import ome.annotations.Validate;
 import ome.conditions.ValidationException;
@@ -54,18 +53,7 @@ public interface IUpdate extends ServiceInterface {
     void saveObject(IObject graph);
 
     /** @see ome.api.IUpdate */
-    void saveMap(Map graph);
-
-    /** @see ome.api.IUpdate */
     void saveArray(IObject[] graph);
-
-    /** @see ome.api.IUpdate */
-    <T extends IObject> Collection<T> saveAndReturnCollection(
-            @Validate(IObject.class)
-            Collection<T> graph);
-
-    /** @see ome.api.IUpdate */
-    Map saveAndReturnMap(Map map);
 
     /** @see ome.api.IUpdate */
     <T extends IObject> T saveAndReturnObject(T graph);

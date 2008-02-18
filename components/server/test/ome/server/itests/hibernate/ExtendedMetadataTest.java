@@ -7,7 +7,9 @@
 package ome.server.itests.hibernate;
 
 import java.util.Arrays;
+import java.util.Set;
 
+import ome.model.IAnnotated;
 import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.containers.CategoryImageLink;
@@ -34,6 +36,14 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
         setUp();
         metadata = new ExtendedMetadata(hibernateTemplate.getSessionFactory());
         tearDown();
+    }
+
+    @Test
+    public void testAnnotatedAreFound() throws Exception {
+        Set<Class<IAnnotated>> anns = metadata.getAnnotationTypes();
+        assertTrue(anns.contains(Image.class));
+        assertTrue(anns.contains(Project.class));
+        // And several others
     }
 
     // ~ Locking

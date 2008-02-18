@@ -17,7 +17,6 @@ package ome.logic;
 // Java imports
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Map;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
@@ -179,16 +178,6 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     }
 
     @RolesAllowed("user")
-    public Collection saveAndReturnCollection(Collection graph) {
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    @RolesAllowed("user")
-    public void saveMap(Map graph) {
-        throw new RuntimeException("Not implemented yet.");
-    }
-
-    @RolesAllowed("user")
     public IObject[] saveAndReturnArray(IObject[] graph) {
         return doAction(graph, new UpdateAction<IObject[]>() {
             @Override
@@ -214,13 +203,6 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
                 return copy;
             }
         });
-    }
-
-    @RolesAllowed("user")
-    public Map saveAndReturnMap(Map map) {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new RuntimeException("Not implemented yet.");
     }
 
     @RolesAllowed("user")
