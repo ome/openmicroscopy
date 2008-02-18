@@ -1,7 +1,9 @@
 package ome.services.blitz.util;
 
 import java.lang.reflect.Method;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +19,7 @@ import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
 import omero.RString;
 import omero.RType;
+import omero.ServerError;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -53,14 +56,20 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
 
             for (String name : opsMap.keySet()) {
                 if (!apiMap.containsKey(name)) {
-                    differences.add("Extra method " + name);
+                    differences.add("Extra method: " + name);
+                }
+                Method opsMethod = opsMap.get(name);
+                List<Class<?>> excs = Arrays.asList(opsMethod
+                        .getExceptionTypes());
+                if (!excs.contains(ServerError.class)) {
+                    differences.add("Missing ServerError: " + name);
                 }
             }
 
             for (String name : apiMap.keySet()) {
                 Method opsMethod = opsMap.get(name);
                 if (opsMethod == null) {
-                    differences.add(name + " missing.");
+                    differences.add("Missing method: " + name);
                     continue;
                 }
 
@@ -195,9 +204,11 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
             return true;
         }
 
-        if (Object.class.isAssignableFrom(apiType)
-                && RType.class.isAssignableFrom(opsType)) {
-            return true;
+        if (RType.class.isAssignableFrom(opsType)) {
+            if (Object.class.equals(apiType)
+                    || Timestamp.class.isAssignableFrom(apiType)) {
+                return true;
+            }
         }
 
         return false;

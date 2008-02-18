@@ -1,6 +1,6 @@
 /*
  *   $Id$
- * 
+ *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
@@ -26,11 +26,11 @@ module omero {
 
     interface ILicense
     {
-      Ice::ByteSeq acquireLicense() throws NoAvailableLicenseException;
-      long getAvailableLicenseCount();
-      long getLicenseTimeout();
-      long getTotalLicenseCount();
-      bool releaseLicense(Ice::ByteSeq token);
+      Ice::ByteSeq acquireLicense() throws NoAvailableLicenseException, ServerError;
+      long getAvailableLicenseCount() throws ServerError;
+      long getLicenseTimeout() throws ServerError;
+      long getTotalLicenseCount() throws ServerError;
+      bool releaseLicense(Ice::ByteSeq token) throws ServerError;
       void resetLicenses() throws ServerError;
     };
 

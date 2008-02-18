@@ -105,7 +105,8 @@ module omero {
 	idempotent ExperimenterList containedExperimenters(long groupId) throws ServerError;
 	idempotent ExperimenterGroupList containedGroups(long experimenterId) throws ServerError;
 	idempotent omero::model::ExperimenterGroup getDefaultGroup(long experimenterId) throws ServerError;
-	idempotent string lookupLdapAuthExperimenter(long id);
+	idempotent string lookupLdapAuthExperimenter(long id) throws ServerError;
+	idempotent RList lookupLdapAuthExperimenters() throws ServerError;
     
 	// Mutators
     
@@ -133,7 +134,7 @@ module omero {
 	idempotent void changeUserPassword(string omeName, omero::RString newPassword) throws ServerError;
 	idempotent void synchronizeLoginCache() throws ServerError;
 	void changeExpiredCredentials(string name, string oldCred, string newCred) throws ServerError;
-	void reportForgottenPassword(string name, string email);
+	void reportForgottenPassword(string name, string email) throws ServerError;
 
 	// Security Context
 	idempotent omero::sys::Roles getSecurityRoles() throws ServerError;
@@ -225,15 +226,15 @@ module omero {
       {
         omero::model::Session createSession(omero::sys::Principal p, string credentials) throws ServerError;
         omero::model::Session updateSession(omero::model::Session sess) throws ServerError;
-        void closeSession(omero::model::Session sess);
+        void closeSession(omero::model::Session sess) throws ServerError;
         // System users
         omero::model::Session createSessionWithTimeout(omero::sys::Principal p, long seconds) throws ServerError;
         
         // Environment
-        omero::RType getInput(string sess, string key);
-        omero::RType getOutput(string sess, string key);
-        void setInput(string sess, string key, omero::RType value); 
-        void setOutput(string sess, string key, omero::RType value); 
+        omero::RType getInput(string sess, string key) throws ServerError;
+        omero::RType getOutput(string sess, string key) throws ServerError;
+        void setInput(string sess, string key, omero::RType value) throws ServerError; 
+        void setOutput(string sess, string key, omero::RType value) throws ServerError; 
       };
 
     interface ITypes extends ServiceInterface
@@ -273,15 +274,15 @@ module omero {
 
     interface JobHandle extends StatefulServiceInterface
       {
-        long submit(omero::model::Job j);
+        long submit(omero::model::Job j) throws ServerError;
         omero::model::JobStatus attach(long jobId) throws ServerError;
-        omero::model::Job getJob();
-        omero::model::JobStatus jobStatus();
-        omero::RTime jobFinished();
-        string jobMessage();
-        bool jobRunning();
-        bool jobError();
-        void cancelJob();
+        omero::model::Job getJob()  throws ServerError;
+        omero::model::JobStatus jobStatus()  throws ServerError;
+        omero::RTime jobFinished()  throws ServerError;
+        string jobMessage()  throws ServerError;
+        bool jobRunning()  throws ServerError;
+        bool jobError()  throws ServerError;
+        void cancelJob()  throws ServerError;
       };
 
     interface RawFileStore extends StatefulServiceInterface
@@ -424,7 +425,7 @@ module omero {
         IObjectList results() throws ServerError;
         
         // Currently unused
-        SearchMetadata currentMetadata();
+        SearchMetadata currentMetadata() throws ServerError;
         SearchMetadataList currentMetadataList() throws ServerError;
         
         // Unused; Part of Java Iterator interface
