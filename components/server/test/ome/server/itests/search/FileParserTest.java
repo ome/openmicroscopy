@@ -16,9 +16,6 @@ import ome.model.annotations.FileAnnotation;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.services.fulltext.FileParser;
-import ome.services.fulltext.FullTextBridge;
-import ome.services.fulltext.FullTextIndexer;
-import ome.services.fulltext.FullTextThread;
 import ome.testing.FileUploader;
 
 import org.testng.annotations.Test;
@@ -67,12 +64,7 @@ public class FileParserTest extends AbstractTest {
         fa.setFile(new OriginalFile(upload.getId(), false));
         i.linkAnnotation(fa);
         i = iUpdate.saveAndReturnObject(i);
-
-        CreationLogLoader logs = new CreationLogLoader(i);
-        ftb = new FullTextBridge(getFileService(), parsers);
-        fti = new FullTextIndexer(logs);
-        ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb);
-        ftt.run();
+        iUpdate.indexObject(i);
 
         loginRoot();
         List<Image> imgs = iQuery.findAllByFullText(Image.class, str, null);
@@ -80,5 +72,4 @@ public class FileParserTest extends AbstractTest {
         assertTrue(imgs.get(0).getId().equals(i.getId()));
 
     }
-
 }
