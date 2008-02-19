@@ -30,11 +30,14 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+
+import pojos.ExperimenterData;
 
 /** 
  * Parent of all classes that load data asynchronously for a {@link HiViewer}.
@@ -73,6 +76,17 @@ public abstract class DataLoader
     
     /** Convenience reference for subclasses. */
     protected final DataHandlerView 		dhView;
+    
+    /**
+     * Helper method to return the ID of the currently logged in user.
+     * 
+     * @return See above.
+     */
+    protected long getCurrentUserID()
+    {
+    	return ((ExperimenterData) registry.lookup(
+		        LookupNames.CURRENT_USER_DETAILS)).getId();
+    }
     
     /**
      * Creates a new instance.

@@ -41,6 +41,8 @@ import javax.swing.ImageIcon;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
+
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -66,10 +68,10 @@ public class ThumbnailProvider
 {
     
     /** The maximum width of the thumbnail. */
-    static final int            THUMB_MAX_WIDTH = 96; 
+    static final int            THUMB_MAX_WIDTH = Factory.THUMB_DEFAULT_WIDTH; 
     
     /** The maximum height of the thumbnail. */
-    static final int            THUMB_MAX_HEIGHT = 96;
+    static final int            THUMB_MAX_HEIGHT = Factory.THUMB_DEFAULT_HEIGHT;
     
     /** The thickness of the border added to the icon. */
     private static final int    BORDER = 1;

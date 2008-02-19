@@ -80,6 +80,7 @@ public class ThumbnailLoader
             throw new IllegalArgumentException("Collection shouldn't be null.");
         this.images = images;
     }
+    
     /**
      * Retrieves the thumbnails.
      * @see DataLoader#load()
@@ -88,7 +89,8 @@ public class ThumbnailLoader
     {
         handle = hiBrwView.loadThumbnails(images, 
                                 ThumbnailProvider.THUMB_MAX_WIDTH,
-                                ThumbnailProvider.THUMB_MAX_HEIGHT, this);
+                                ThumbnailProvider.THUMB_MAX_HEIGHT,
+                                getCurrentUserID(), this);
     }
     
     /** 
