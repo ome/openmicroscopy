@@ -43,20 +43,20 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
  * </small>
  * @since OME3.0
  */
-class ZoomCmd
+public class ZoomCmd
 {
 
-	/** The value by the magnification factor is incremented. */
-    static final double INCREMENT = 0.25;
-    
     /** Identifies the <i>Zoom in</i> action. */
-    static final int     ZOOM_IN = 0;
+    public static final int     ZOOM_IN = 0;
     
     /** Identifies the <i>Zoom out</i> action. */
-    static final int     ZOOM_OUT = 1;
+    public static final int     ZOOM_OUT = 1;
     
-    /** Identifies the <i>Zoom fit</i> action. */
-    static final int     ZOOM_FIT = 2;
+	/** The value by which the magnification factor is incremented. */
+    static final double 		INCREMENT = 0.25;
+    
+    /** The value by which the magnification factor is incremented. */
+    private static final double	MOUSE_INCREMENT = 0.10;
     
     /** One of the constants defined by this class. */
     private int  index;
@@ -74,9 +74,7 @@ class ZoomCmd
     	switch (i) {
 			case ZOOM_IN:
 			case ZOOM_OUT:
-			case ZOOM_FIT:
 				return;
-	
 			default:
 				throw new IllegalArgumentException("Index not valid.");
 		}
@@ -88,7 +86,7 @@ class ZoomCmd
      * @param model Reference to the model. Mustn't be <code>null</code>.
      * @param index One of the constants defined by this class.
      */
-    ZoomCmd(ImViewer model, int index)
+    public ZoomCmd(ImViewer model, int index)
     {
     	if (model == null) 
     		throw new IllegalArgumentException("No model.");
@@ -98,7 +96,7 @@ class ZoomCmd
     }
     
     /** Executes the command. */
-    void execute()
+    public void execute()
     {
     	double f = model.getZoomFactor();
     	if (f < 0) return;
@@ -107,17 +105,21 @@ class ZoomCmd
 			case ZOOM_IN:
 				if (f >= ZoomAction.MAX_ZOOM_FACTOR)
 					zoomFactor = ZoomAction.MAX_ZOOM_FACTOR;
-				else zoomFactor = f+INCREMENT;
+				else zoomFactor = f+MOUSE_INCREMENT;
 				break;
 			case ZOOM_OUT:
 				if (f <= ZoomAction.MIN_ZOOM_FACTOR)
 					zoomFactor = ZoomAction.MIN_ZOOM_FACTOR;
-				else zoomFactor = f-INCREMENT;
-				break;
-			case ZOOM_FIT:
-				zoomFactor = ZoomAction.DEFAULT_ZOOM_FACTOR;
+				else zoomFactor = f-MOUSE_INCREMENT;
 		}
-    	model.setZoomFactor(zoomFactor, ZoomAction.getIndex(zoomFactor));
+    	f = Math.round(zoomFactor*100)/100.0;
+    	
+    	if (f < ZoomAction.MIN_ZOOM_FACTOR)
+    		f = ZoomAction.MIN_ZOOM_FACTOR;
+    	if (f > ZoomAction.MAX_ZOOM_FACTOR)
+    		f = ZoomAction.MAX_ZOOM_FACTOR;
+    	
+    	model.setZoomFactor(f, ZoomAction.getIndex(f));
     }
     
 }

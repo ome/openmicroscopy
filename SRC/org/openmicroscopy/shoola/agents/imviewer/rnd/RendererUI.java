@@ -206,14 +206,19 @@ class RendererUI
 		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP,
 				JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
-		ControlPane pane = controlPanes.get(DOMAIN);
+		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
 		tabs.insertTab(pane.getPaneName(), pane.getPaneIcon(), 
 				new JScrollPane(pane), pane.getPaneDescription(), 
 				pane.getPaneIndex());
-		pane = controlPanes.get(CODOMAIN);
+		ControlPane cp = controlPanes.get(CODOMAIN);
+		/*
 		tabs.insertTab(pane.getPaneName(), pane.getPaneIcon(), 
 				new JScrollPane(pane), pane.getPaneDescription(), 
 				pane.getPaneIndex());
+				*/
+		JPanel p = UIUtilities.buildCollapsePanel(cp.getPaneName());
+		p.add(cp);
+		pane.addToTree(p, UIUtilities.buildCollapsePanel(cp.getPaneName()));
 		setLayout(new BorderLayout());
 		add(tabs, BorderLayout.CENTER);
 		add(createButtonsPanel(), BorderLayout.SOUTH);

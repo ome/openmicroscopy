@@ -109,20 +109,6 @@ class ImViewerModel
 	 */
 	static final int 			LOW = RenderingControl.LOW;
 	
-	/** Indicates the displayed image has one star. */
-	static final int     		RATING_ONE = 3;
-
-	/** Indicates the displayed image has two star. */
-	static final int     		RATING_TWO = 4;
-
-	/** Indicates the displayed image has three star. */
-	static final int     		RATING_THREE = 5;
-
-	/** Indicates the displayed image has four star. */
-	static final int     		RATING_FOUR = 6;
-
-	/** Indicates the displayed image has five star. */
-	static final int     		RATING_FIVE = 7;
 
 	/** The maximum width of the thumbnail. */
 	private static final int    THUMB_MAX_WIDTH = 48; 
@@ -232,11 +218,14 @@ class ImViewerModel
 	/** The id of the owner of the image. */
 	private long						ownerID;
 	
+	/** Flag indicating that the image has been rated. */
+	private boolean						rated;
+	
 	/** 
 	 * The list hosting the various rendering controls.
 	 */
 	private List<RenderingControlDef>	renderingControls;
-	
+
 	/** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
 	private void computeSizes()
 	{
@@ -351,7 +340,6 @@ class ImViewerModel
 		if (player == null) return;
 		player.setPlayerState(Player.STOP);
 		player = null;
-
 	}
 
 	/**
@@ -410,9 +398,30 @@ class ImViewerModel
 	 */
 	int getRatingLevel()
 	{
-		return RATING_TWO;
+		return 0; //TODO retrieve from DB.
 	}
 
+	/**
+	 * Sets the rating level.
+	 * 
+	 * @param value The value to set.
+	 */
+	void setRatingLevel(int value)
+	{
+		rated = true;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the image has been rated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasBeenRated()
+	{
+		return rated; // Need to check if the value has actually changed.
+	}
+	
 	/**
 	 * Returns an array of <code>ChannelData</code> object.
 	 * 

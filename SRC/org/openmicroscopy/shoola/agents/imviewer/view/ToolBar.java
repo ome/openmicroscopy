@@ -44,7 +44,9 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ClassifyAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.agents.util.finder.QuickFinder;
+import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 
 /** 
  * Presents the variable drawing controls.
@@ -117,6 +119,9 @@ class ToolBar
     /** Reference to the finder. */
     private QuickFinder		finder;
     
+    /** The rating component. */
+    private RatingComponent	rating;
+    
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
     {
@@ -137,16 +142,6 @@ class ToolBar
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);  
         bar.add(new JSeparator(JSeparator.VERTICAL));
-        button =  new JButton(controller.getAction(ImViewerControl.ZOOM_IN));
-        UIUtilities.unifiedButtonLookAndFeel(button);
-        //bar.add(button);    
-        button =  new JButton(controller.getAction(ImViewerControl.ZOOM_OUT));
-        UIUtilities.unifiedButtonLookAndFeel(button);
-        //bar.add(button);  
-        button =  new JButton(controller.getAction(ImViewerControl.ZOOM_FIT));
-        UIUtilities.unifiedButtonLookAndFeel(button);
-        //bar.add(button);  
-        //bar.add(new JSeparator(JSeparator.VERTICAL));
         button = new JButton(
         		controller.getAction(ImViewerControl.MEASUREMENT_TOOL));
         UIUtilities.unifiedButtonLookAndFeel(button);
@@ -166,13 +161,14 @@ class ToolBar
         button = new JButton(a);
         button.addMouseListener(a);
         UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);  
+        bar.add(button);
         
     }
     
     /** Initializes the components composing this tool bar. */
     private void initComponents()
     {
+    	rating = new RatingComponent(view.getRatingLevel());
     	compressionBox = new JComboBox(compression);
     	compressionBox.setToolTipText(COMPRESSED_DESCRIPTION);
         //compressedBoxsaveOnClose.setSelected(true);
@@ -202,7 +198,8 @@ class ToolBar
         add(UIUtilities.buildComponentPanel(bar));
         JPanel right = new JPanel();
         right.setLayout(new BoxLayout(right, BoxLayout.X_AXIS));
-        JButton button = new JButton(controller.getAction(ImViewerControl.SEARCH));
+        JButton button = new JButton(
+        			controller.getAction(ImViewerControl.SEARCH));
         UIUtilities.unifiedButtonLookAndFeel(button);
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
@@ -259,6 +256,8 @@ class ToolBar
 		bar.add(compressionBox);
 		compressionBox.setSelectedIndex(view.getCompressionLevel());
 		compressionBox.addActionListener(this);
+		  
+        bar.add(rating);
     	//}
     	buildGUI(); 
     }

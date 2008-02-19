@@ -42,6 +42,8 @@ import java.awt.event.HierarchyBoundsListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -49,12 +51,14 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
@@ -83,6 +87,7 @@ import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
+import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 
@@ -189,10 +194,7 @@ class ImViewerUI
 
 	/** The control pane. */
 	private ControlPane     		controlPane;
-
-	/** Group hosting the items of the <code>Rate</code> menu. */
-	private ButtonGroup     		ratingGroup;
-
+	
 	/** Group hosting the items of the <code>Zoom</code> menu. */
 	private ButtonGroup     		zoomingGroup;
 
@@ -212,8 +214,10 @@ class ImViewerUI
 	 * Split component used to display the image in the top section and the
 	 * history component in the bottom one.
 	 */
-	private SplitPanel				historySplit;
+	//private SplitPanel				historySplit;
 
+	private SplitPanel			historySplit;
+	
 	/**
 	 * Split component used to display the renderer component on the left hand
 	 * side of the pane.
@@ -284,7 +288,6 @@ class ImViewerUI
 	/** The panel hosting the view. */
 	private ClosableTabbedPaneComponent	annotatorPanel;
 	
-	
 	/**
 	 * Initializes and returns a split pane, either verical or horizontal 
 	 * depending on the passed parameter.
@@ -317,6 +320,7 @@ class ImViewerUI
 		if (historyUI == null) historyUI = new HistoryUI(this, model);
 		historySplit = new SplitPanel(SplitPanel.HORIZONTAL);
 		rendererSplit = initSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+	
 	}
     
 	/** 
@@ -332,7 +336,6 @@ class ImViewerUI
 		menuBar.add(createViewMenu(pref));
 		menuBar.add(createZoomMenu(pref));
 		menuBar.add(createShowViewMenu());
-		createRatingMenu();
 		TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
 		menuBar.add(tb.getWindowsMenu());
 		menuBar.add(createHelpMenu());
@@ -508,29 +511,6 @@ class ImViewerUI
 		menu.add(new JSeparator(JSeparator.HORIZONTAL));
 		menu.add(createBackgroundColorSubMenu(pref));
 		menu.add(new JSeparator(JSeparator.HORIZONTAL));
-		/*
-		JMenuItem historyItem = new JMenuItem();
-		if (isHistoryShown()) historyItem.setText(HIDE_HISTORY);
-		else historyItem.setText(SHOW_HISTORY);
-		historyItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				boolean b = !isHistoryShown();
-				JMenuItem item = (JMenuItem) e.getSource();
-				if (b) item.setText(HIDE_HISTORY);
-				else item.setText(SHOW_HISTORY);
-				boolean rnd = isRendererShown();
-				if (b) {
-					if (rnd) displayMode = HISTORY_AND_RENDERER;
-					else displayMode = HISTORY;
-				} else {
-					if (rnd) displayMode = RENDERER;
-					else displayMode = NEUTRAL;
-				}
-				layoutComponents();
-			}
-		});
-		menu.add(historyItem);
-		*/
 		return menu;
 	}
 
@@ -596,8 +576,7 @@ class ImViewerUI
 				cm.equals(ImViewer.HSB_MODEL));
 		colorModelGroup.add(item);
 		menu.add(item);
-
-		//menu.add(createColorModelMenu());
+		
 		menu.add(new JSeparator());
 		action = controller.getAction(ImViewerControl.SAVE);
 		item = new JMenuItem(action);
@@ -606,7 +585,6 @@ class ImViewerUI
 		action = controller.getAction(ImViewerControl.DOWNLOAD);
 		item = new JMenuItem(action);
 		item.setText(action.getName());
-		//menu.add(item);
 		
 		action = controller.getAction(ImViewerControl.PREFERENCES);
 		item = new JMenuItem(action);
@@ -714,54 +692,6 @@ class ImViewerUI
 	}
 
 	/**
-	 * Helper method to create the Rating menu. 
-	 * 
-	 * @return The rating submenu;
-	 */
-	private JMenu createRatingMenu()
-	{
-		JMenu menu = new JMenu("Rating");
-		menu.setMnemonic(KeyEvent.VK_R);
-		ratingGroup = new ButtonGroup();
-		ViewerAction action = controller.getAction(ImViewerControl.RATING_ONE);
-		JCheckBoxMenuItem item = new JCheckBoxMenuItem();
-		item.setSelected(model.getRatingLevel() == ImViewerModel.RATING_ONE);
-		item.setText(action.getName());
-		item.setAction(action);
-		menu.add(item);
-		ratingGroup.add(item);
-		action = controller.getAction(ImViewerControl.RATING_TWO);
-		item = new JCheckBoxMenuItem();
-		item.setSelected(model.getRatingLevel() == ImViewerModel.RATING_TWO);
-		item.setAction(action);
-		item.setText(action.getName());
-		menu.add(item);
-		ratingGroup.add(item);
-		action = controller.getAction(ImViewerControl.RATING_THREE);
-		item = new JCheckBoxMenuItem();
-		item.setSelected(model.getRatingLevel() == ImViewerModel.RATING_THREE);
-		item.setAction(action);
-		item.setText(action.getName());
-		menu.add(item);
-		ratingGroup.add(item);
-		action = controller.getAction(ImViewerControl.RATING_FOUR);
-		item = new JCheckBoxMenuItem();
-		item.setSelected(model.getRatingLevel() == ImViewerModel.RATING_FOUR);
-		item.setAction(action);
-		item.setText(action.getName());
-		menu.add(item);
-		ratingGroup.add(item);
-		action = controller.getAction(ImViewerControl.RATING_FIVE);
-		item = new JCheckBoxMenuItem();
-		item.setSelected(model.getRatingLevel() == ImViewerModel.RATING_FIVE);
-		item.setAction(action);
-		item.setText(action.getName());
-		menu.add(item);
-		ratingGroup.add(item);
-		return menu;
-	}
-	
-	/**
 	 * Helper method to create the show View menu. 
 	 * 
 	 * @return The rating submenu;
@@ -781,6 +711,7 @@ class ImViewerUI
 		menu.add(item);
 		return menu;
 	}
+
 
 	/** Builds and lays out the GUI. */
 	private void buildGUI()
@@ -828,11 +759,17 @@ class ImViewerUI
 
 		tabs.insertTab(browser.getGridViewTitle(), browser.getGridViewIcon(), 
 						gridViewPanel, "", ImViewer.GRID_INDEX);
+	
+		
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout(0, 0));
 		container.add(toolBar, BorderLayout.NORTH);
 		container.add(tabs, BorderLayout.CENTER);
 		container.add(statusBar, BorderLayout.SOUTH);
+		
+		
+		
+		
 		tabs.addChangeListener(controller);
 		//attach listener to the frame border
 		boundsAdapter = new HierarchyBoundsAdapter() {
@@ -913,6 +850,7 @@ class ImViewerUI
 		//int divider = 0;
 		switch (displayMode) {
 			case HISTORY:
+
 				historyUI.doGridLayout();
 				historySplit.removeAll();
 				historySplit.setLeftComponent(tabs);
@@ -928,6 +866,7 @@ class ImViewerUI
 							2*(refInsets.top+refInsets.bottom);
 				historyUI.setPreferredSize(new Dimension(width, d.height));
 				container.add(historySplit, BorderLayout.CENTER);
+				
 				break;
 			case RENDERER:
 				rightComponent = model.getRenderer().getUI();
@@ -936,17 +875,21 @@ class ImViewerUI
 				diff = d.height-restoreSize.height;
 				if (diff > 0) height += diff;
 				height += 2*heightAdded;
-				heightAdded += historySplit.getDividerSize();
-				height += historySplit.getDividerSize()+
-							(refInsets.top+refInsets.bottom);
+				//heightAdded += historySplit.getDividerSize();
+				//height += historySplit.getDividerSize()+
+				//			(refInsets.top+refInsets.bottom);
 				width = restoreSize.width+d.width;
+				
 				widthAdded = rendererSplit.getDividerSize();
 				width += rendererSplit.getDividerSize()+
 							2*(refInsets.left+refInsets.right);
 				addComponents(rendererSplit, tabs, rightComponent);
+				
+				
 				container.add(rendererSplit, BorderLayout.CENTER);
 				break;
 			case HISTORY_AND_RENDERER:
+		
 				historyUI.doGridLayout();
 				rightComponent = model.getRenderer().getUI();
 				addComponents(rendererSplit, tabs, rightComponent);
@@ -974,20 +917,9 @@ class ImViewerUI
 				//divider += historySplit.getDividerSize()
 				//				+(refInsets.top+refInsets.bottom);
 				historyUI.setPreferredSize(new Dimension(width, d.height));
-				//if (historyMove == -1 || historyMove < height) 
-				//historyMove = (height-divider);
-				//historySplit.setDividerLocation(historyMove);
-				//historySplit.setResizeWeight(1.0);
-				/*
-				if (rendererMove != -1 && rendererMove < width)
-					rendererSplit.setDividerLocation(rendererMove);
-				else {
-					rendererMove = -1;
-					rendererSplit.setDividerLocation(-1);
-				}
-				*/
 				container.add(historySplit, BorderLayout.CENTER);
 				break;
+				
 			case NEUTRAL:
 			default:
 				container.add(tabs, BorderLayout.CENTER);
@@ -1119,27 +1051,6 @@ class ImViewerUI
 				return ((ZoomAction) a).getIndex();
 		}
 		return -2;
-	}
-	
-	/**
-	 * Updates UI components when a rating factor is selected.
-	 * 
-	 * @param action    The selected action embedding the rating factor
-	 *                  information.
-	 */
-	void setRatingFactor(ViewerAction action)
-	{
-		controlPane.setRatingFactor(action);
-		AbstractButton b;
-		Enumeration e;
-		for (e = ratingGroup.getElements(); e.hasMoreElements();) {
-			b = (AbstractButton) e.nextElement();
-			if ((b.getAction()).equals(action)) {
-				b.removeActionListener(action);
-				//b.setSelected(true);
-				b.setAction(action);
-			}
-		}
 	}
 
 	/**
@@ -1917,6 +1828,13 @@ class ImViewerUI
 		}
 	}
     
+    /**
+	 * Returns the rate image level. One of the constants defined by this class.
+	 * 
+	 * @return See above.
+	 */
+    int getRatingLevel() { return model.getRatingLevel(); }
+    
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 
@@ -1951,5 +1869,4 @@ class ImViewerUI
 			UIUtilities.incrementRelativeToAndShow(null, this);
 		}
 	}
-
 }

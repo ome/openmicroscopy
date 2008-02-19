@@ -85,8 +85,12 @@ class AnnotatorUI
     /** The listener listening to the canvas. */
     private ImageCanvasListener	canvasListener;
     
-    /** Initializes the components composing the display. */
-    private void initComponents()
+    /** 
+     * Initializes the components composing the display. 
+     * 
+     * @param view	Reference to the View.
+     */
+    private void initComponents(BrowserUI view)
     {
         layeredPane = new JLayeredPane();
         canvas = new AnnotatorCanvas(model);
@@ -94,7 +98,7 @@ class AnnotatorUI
 									model.getImageData(), 
 									AnnotatorEditor.HORIZONTAL_LAYOUT);
 		infoPane = new InfoPane(model);
-		canvasListener = new ImageCanvasListener(model, canvas);
+		canvasListener = new ImageCanvasListener(view, model, canvas);
 		editor.addPropertyChangeListener(controller);
         //The image canvas is always at the bottom of the pile.
         //layeredPane.setLayout(new BorderLayout(0, 0));
@@ -107,19 +111,22 @@ class AnnotatorUI
 	/**
 	 * Links the components.
 	 * 
+	 * @param view			Reference to the View.
+     *                      Mustn't be <code>null</code>.
 	 * @param controller    Reference to the Control.
      *                      Mustn't be <code>null</code>.
 	 * @param model 		Reference to the model. 
 	 * 						Mustn't be <code>null</code>.
 	 */
-	void initialize(BrowserControl controller, BrowserModel model)
+	void initialize(BrowserUI view, BrowserControl controller, 
+					BrowserModel model)
 	{
 		if (model == null) throw new NullPointerException("No model.");
 		if (controller == null) throw new NullPointerException("No control.");
+		if (view == null) throw new NullPointerException("No View.");
 		this.controller = controller;
 		this.model = model;
-		initComponents();
-		//buildGUI();
+		initComponents(view);
 	}
 
 	/**

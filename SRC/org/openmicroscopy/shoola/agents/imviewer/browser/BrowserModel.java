@@ -41,6 +41,7 @@ import javax.swing.Icon;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomCmd;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
@@ -705,8 +706,6 @@ class BrowserModel
      */
     void setSelectedXYPlane(int z, int t)
     {
-    	//if (z < 0) z = parent.getDefaultZ();
-    	//if (t < 0) t = parent.getDefaultT();
     	parent.setSelectedXYPlane(z, t);
     }
     
@@ -926,5 +925,19 @@ class BrowserModel
 	 * @return See above.
 	 */
 	int getMaxC() { return parent.getMaxC(); }
+
+	/**
+	 * Zooms in and out the image depending on the passed parameter.
+	 * 
+	 * @param increase 	Pass <code>true</code> to zoom in, <code>false</code>
+	 * 					to zoom out.
+	 */
+	void zoom(boolean increase)
+	{
+		int index = ZoomCmd.ZOOM_IN;
+		if (!increase) index = ZoomCmd.ZOOM_OUT;
+		ZoomCmd cmd = new ZoomCmd(parent, index);
+		cmd.execute();
+	}
 
 }

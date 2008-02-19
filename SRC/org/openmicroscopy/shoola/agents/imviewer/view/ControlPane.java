@@ -122,9 +122,6 @@ class ControlPane
     /** Reference to the View. */
     private ImViewerUI      		view;
     
-    /** The box displaying the supported rating level. */
-    private JComboBox       		ratingBox;
-    
     /** Slider to select the z-section. */
     private OneKnobSlider			zSlider;
     
@@ -272,14 +269,6 @@ class ControlPane
     {
     	channelButtons = new HashSet<ChannelButton>();
     	channelButtonsGrid = new HashSet<ChannelButton>();
-        ViewerAction[] ratingActions = new ViewerAction[5];
-        ratingActions[0] = controller.getAction(ImViewerControl.RATING_ONE);
-        ratingActions[1] = controller.getAction(ImViewerControl.RATING_TWO);
-        ratingActions[2] = controller.getAction(ImViewerControl.RATING_THREE);
-        ratingActions[3] = controller.getAction(ImViewerControl.RATING_FOUR);
-        ratingActions[4] = controller.getAction(ImViewerControl.RATING_FIVE);
-        ratingBox =  new JComboBox(ratingActions);
-        ratingBox.setEnabled(false);
 
         zSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 0, 1, 0);
         zSlider.setEnabled(false);
@@ -378,25 +367,9 @@ class ControlPane
      */
     private void initializeValues()
     {
-        switch (model.getRatingLevel()) {
-            case ImViewerModel.RATING_ONE:
-                ratingBox.setSelectedIndex(0);
-                break;
-            case ImViewerModel.RATING_TWO:
-                ratingBox.setSelectedIndex(1);
-                break;
-            case ImViewerModel.RATING_THREE:
-                ratingBox.setSelectedIndex(2);
-                break;
-            case ImViewerModel.RATING_FOUR:
-                ratingBox.setSelectedIndex(3);
-                break;
-            case ImViewerModel.RATING_FIVE:
-                ratingBox.setSelectedIndex(4);
-        }
+
         int maxZ = model.getMaxZ();
         int maxT = model.getMaxT();
-        ratingBox.addActionListener(this);
         initSlider(zSlider, maxZ, model.getDefaultZ(), 
         			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
         initSlider(zSliderGrid, maxZ, model.getDefaultZ(), 
@@ -684,19 +657,6 @@ class ControlPane
     	updateSlider(zSliderAnnotator, z);
     }
     
-    /**
-     * Updates UI components when a rating factor is selected.
-     * 
-     * @param action    The selected action embedding the rating factor
-     *                  information.
-     */
-    void setRatingFactor(ViewerAction action)
-    {
-        ratingBox.removeActionListener(this);
-        ratingBox.setSelectedItem(action);
-        ratingBox.addActionListener(this);
-    }
-    
     /** Updates UI components when a new color model is selected. */
     void setColorModel()
     {
@@ -867,7 +827,6 @@ class ControlPane
     {
         //if (model.isPlayingMovie()) enableSliders(!b);
         //else enableSliders(b);
-        ratingBox.setEnabled(b);
         Iterator i = channelButtons.iterator();
         while (i.hasNext())
             ((ChannelButton) i.next()).setEnabled(b);

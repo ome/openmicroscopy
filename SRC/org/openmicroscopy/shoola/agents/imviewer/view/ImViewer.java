@@ -38,33 +38,32 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.util.tagging.CategorySaverDef;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.ExperimenterData;
 
 /** 
-* Defines the interface provided by the viewer component. 
-* The Viewer provides a top-level window hosting the rendered image.
-*
-* When the user quits the window, the {@link #discard() discard} method is
-* invoked and the object transitions to the {@link #DISCARDED} state.
-* At which point, all clients should de-reference the component to allow for
-* garbage collection.
-* 
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
-* @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-* @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $ $Date: $)
-* </small>
-* @since OME2.2
-*/
+ * Defines the interface provided by the viewer component. 
+ * The Viewer provides a top-level window hosting the rendered image.
+ *
+ * When the user quits the window, the {@link #discard() discard} method is
+ * invoked and the object transitions to the {@link #DISCARDED} state.
+ * At which point, all clients should de-reference the component to allow for
+ * garbage collection.
+ * 
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * </small>
+ * @since OME2.2
+ */
 public interface ImViewer
 	extends ObservableComponent
 {

@@ -95,7 +95,8 @@ class BrowserUI
         browserCanvas = new BrowserCanvas(model, this);
         //The image canvas is always at the bottom of the pile.
         layeredPane.add(browserCanvas, new Integer(0));
-        canvasListener = new ImageCanvasListener(model, browserCanvas);
+        canvasListener = new ImageCanvasListener(this, model, browserCanvas);
+        canvasListener.setHandleKeyDown(true);
         getVerticalScrollBar().addMouseMotionListener(this);
         getHorizontalScrollBar().addMouseMotionListener(this);
     }
@@ -186,18 +187,6 @@ class BrowserUI
         if (img == null) return;
         setComponentsSize(img.getWidth(), img.getHeight());
         canvasListener.setAreaSize(img.getWidth(), img.getHeight());
-        /*
-        JViewport currentView = getViewport();
-        int h = img.getHeight();
-        int w = img.getWidth();
-        int viewportW = currentView.getWidth();
-        int viewportH = currentView.getHeight();
-        int x = w/2-viewportW/2;
-        if (x < 0) x = 0;
-        int y = h/2-viewportH/2;
-        if (y < 0) y = 0;
-        //currentView.setViewPosition(new Point(x, y));
-         * */
         getViewport().setViewPosition(new Point(-1, -1));
         browserCanvas.repaint();
         setBounds(getBounds());
@@ -271,6 +260,21 @@ class BrowserUI
         }
 		vBar.setValue(y);
 		hBar.setValue(x);
+	}
+	
+	/**
+	 * Sets the value of the horizontal and vertical scrollBars.
+	 * 
+	 * @param vValue	The value to set for the vertical scrollBar.
+	 * @param hValue	The value to set for the horizontal scrollBar.
+	 */
+	void scrollTo(int vValue, int hValue)
+	{
+		//Rectangle viewRect = getViewport().getViewRect();
+		JScrollBar vBar = getVerticalScrollBar();
+		JScrollBar hBar = getHorizontalScrollBar();
+		hBar.setValue(hBar.getValue()+hValue);
+		vBar.setValue(vBar.getValue()+vValue);
 	}
 	
 	/**

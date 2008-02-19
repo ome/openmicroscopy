@@ -39,6 +39,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -58,6 +59,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 
@@ -116,13 +118,8 @@ class DomainPane
     /** Identifies the <code>Family</code> selection. */
     private static final int    	FAMILY = 0;
     
-    /** Text displayed when the advanced options are hidden. */
-    private static final String		SHOW_ADVANCED_OPTIONS = 
-    									"Show Advanced Options"; 
-    
-    /** Text displayed when the advanced options are shown. */
-    private static final String		HIDE_ADVANCED_OPTIONS = 
-    									"Hide Advanced Options"; 
+    /** Title of the advanced options. */
+    private static final String		ADVANCED_OPTIONS = "Advanced"; 
     
     /** Dimension of the box between the channel buttons. */
     private static final Dimension 	VBOX = new Dimension(1, 10);
@@ -138,9 +135,6 @@ class DomainPane
     
     /** A panel containing the channel buttons. */
     private JPanel						channelButtonPanel;
-    
-    /** A panel displaying the advanced features. */
-    private JPanel						advancedPanel;
     
     /** Slider to select a curve in the family. */
     private OneKnobSlider         		gammaSlider;
@@ -162,16 +156,14 @@ class DomainPane
     
     /** The UI component hosting the interval selections. */
     private GraphicsPane    			graphicsPane;
-    
-    /** The button will display the advanced mapping options when clicked. */
-    //private JButton						advancedOptionsButton;
-    
-    /** A flag denoting whether the advanced options are showing. */
-    private boolean 					isAdvancedSettingsShowing;
+      
+    /** the tree hosting the various options. */
+    private TreeComponent				tree;
     
     /** Initializes the components composing the display. */
     private void initComponents()
     {
+    	tree = new TreeComponent();
         graphicsPane = new GraphicsPane(model, controller);
         familyBox = new JComboBox(model.getFamilies().toArray());
         String family = model.getFamily();
@@ -228,13 +220,6 @@ class DomainPane
         
         channelList = new ArrayList<ChannelToggleButton>();
         channelButtonPanel = createChannelButtons();
-        isAdvancedSettingsShowing = false;
-        /**
-        advancedOptionsButton = new JButton(SHOW_ADVANCED_OPTIONS);
-        advancedOptionsButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { handleClick(); }
-		});
-		*/
     }
     
     /** Resets the value of the bit resolution. */
@@ -247,28 +232,6 @@ class DomainPane
         bitDepthLabel.setText(""+v);
         bitDepthLabel.repaint();
     }
-    
-	/**
-	 * Handles mouse clicks on the {@link #advancedOptionsButton}.
-	 * The {@link #advancedPanel} is shown/hidden depending on the current 
-	 * value of {@link #isAdvancedSettingsShowing}, which is then modified to
-	 * reflect the new state.  Also the {@link #advancedOptionsButton} text 
-	 * is changed accordingly.
-	 */
-	private void handleClick()
-	{
-		/*
-		if (isAdvancedSettingsShowing) {
-			advancedOptionsButton.setText(SHOW_ADVANCED_OPTIONS);
-			remove(advancedPanel);
-		} else {
-			advancedOptionsButton.setText(HIDE_ADVANCED_OPTIONS);
-			add(advancedPanel);
-		}
-		*/
-		controller.resizeRenderUI();
-		isAdvancedSettingsShowing = !isAdvancedSettingsShowing;
-	}
     
     /**
      * Creates the channel buttons on the left hand side of the histogram.
@@ -302,7 +265,7 @@ class DomainPane
     }
     
     /**
-     * Create a panel showing the channel buttons and histogram.
+     * Creates a panel showing the channel buttons and histogram.
      *  
      * @return See above.
      */
@@ -312,7 +275,7 @@ class DomainPane
     	p.setLayout(new BorderLayout());
     	p.add(channelButtonPanel, BorderLayout.WEST);
     	p.add(graphicsPane, BorderLayout.CENTER);
-    	return p;
+    	return UIUtilities.buildComponentPanel(p);
     }
     
     /**
@@ -338,8 +301,9 @@ class DomainPane
     private JPanel buildControlsPane()
     {
         JPanel p = new JPanel();
+        
         double size[][] =
-        {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED},  // Columns
+        {{TableLayout.PREFERRED, 0, TableLayout.PREFERRED},  // Columns
          {TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED}}; // Rows
         p.setLayout(new TableLayout(size));
         JLabel label = new JLabel("Map");
@@ -357,29 +321,26 @@ class DomainPane
         c.weightx = 0.5;
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.HORIZONTAL;
-        JLabel label;
-        c.gridx = 1;
-        label = new JLabel("Map");
+        c.gridy = 0;
+        JLabel label = new JLabel("Map");
         c.gridx = 0;
-        c.gridy = 1;
         p.add(label, c);
         c.gridx = 1;
         p.add(UIUtilities.buildComponentPanel(familyBox), c);
         label = new JLabel("Gamma");
         c.gridx = 0;
-        c.gridy = 2;
+        c.gridy++;
         p.add(label, c);
         c.gridx = 1;
         p.add(buildSliderPane(gammaSlider, gammaLabel), c);
         label = new JLabel("Bit Depth");
         c.gridx = 0;
-        c.gridy = 3;
+        c.gridy++;
         p.add(label, c);
         c.gridx = 1;
         p.add(buildSliderPane(bitDepthSlider, bitDepthLabel), c);
         */
-        
-        return p;
+        return p;//UIUtilities.buildComponentPanel(p);
     }
     
     /**
@@ -411,6 +372,7 @@ class DomainPane
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
+    	/*
     	double size[][] =
         {{TableLayout.FILL},  // Columns
          {TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
@@ -421,6 +383,18 @@ class DomainPane
     	add(buildControlsPane(), "0, 2");
     	add(new JSeparator(), "0, 3");
     	add(buildPane(), "0, 4");
+    	*/
+    	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        add(buildChannelGraphicsPanel());
+        
+       
+        JPanel p = UIUtilities.buildCollapsePanel(ADVANCED_OPTIONS);
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.add(buildControlsPane());
+    	p.add(new JSeparator());
+    	p.add(buildPane());
+    	addToTree(p, UIUtilities.buildCollapsePanel(ADVANCED_OPTIONS));
+    	add(tree);
     	/*
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(buildChannelGraphicsPanel());
@@ -646,6 +620,11 @@ class DomainPane
         graphicsPane.onCurveChange(); 
     }
 	
+    void addToTree(JComponent elapse, JComponent collapse)
+    {
+    	tree.insertNode(elapse, collapse, false);
+    }
+    
     /**
      * Depending on the source of the event. Sets the gamma value or
      * the bit resolution.

@@ -69,7 +69,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.MovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PreferencesAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.RateImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SearchAction;
@@ -80,10 +79,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomFitAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomInAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomOutAction;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
@@ -95,7 +91,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -106,20 +101,20 @@ import pojos.ExperimenterData;
 
 
 /** 
-* The ImViewer's Controller.
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
-* @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-* @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $ $Date: $)
-* </small>
-* @since OME2.2
-*/
+ * The ImViewer's Controller.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * </small>
+ * @since OME2.2
+ */
 class ImViewerControl
   	implements ActionListener, ChangeListener, ComponentListener,
   		PropertyChangeListener, WindowFocusListener
@@ -187,37 +182,7 @@ class ImViewerControl
 
 	/** Identifies the <code>HSB</code> action in the menu. */
 	static final Integer     HSB_MODEL = new Integer(20);
-
-	/** 
-	 * Identifies the <code>First</code> level of the rating action in the 
-	 * menu. 
-	 */
-	static final Integer     RATING_ONE = new Integer(21);
-
-	/** 
-	 * Identifies the <code>Second</code> level of the rating action in the 
-	 * menu. 
-	 */
-	static final Integer     RATING_TWO = new Integer(22);
-
-	/** 
-	 * Identifies the <code>Third</code> level of the rating action in the 
-	 * menu. 
-	 */
-	static final Integer     RATING_THREE = new Integer(23);
-
-	/** 
-	 * Identifies the <code>Fourth</code> level of the rating action in the 
-	 * menu. 
-	 */
-	static final Integer     RATING_FOUR = new Integer(24);
-
-	/** 
-	 * Identifies the <code>Fifth</code> level of the rating action in the 
-	 * menu. 
-	 */
-	static final Integer     RATING_FIVE = new Integer(25);
-
+	
 	/** 
 	 * Identifies the <code>Channel movie</code> action in the 
 	 * menu. 
@@ -265,15 +230,6 @@ class ImViewerControl
 
 	/** Identifies the <code>Image details</code> action in the menu. */
 	static final Integer     IMAGE_DETAILS = new Integer(40);
-
-	/** Identifies the <code>Zooming in</code> action. */
-	static final Integer     ZOOM_IN = new Integer(41);
-
-	/** Identifies the <code>Zooming out</code> action. */
-	static final Integer     ZOOM_OUT = new Integer(42);
-
-	/** Identifies the <code>Zooming fit</code> action. */
-	static final Integer     ZOOM_FIT = new Integer(43);
 
 	/** Identifies the <code>Play movie across T</code> action. */
 	static final Integer     PLAY_MOVIE_T = new Integer(44);
@@ -374,16 +330,6 @@ class ImViewerControl
 				new ColorModelAction(model, ColorModelAction.RGB_MODEL));
 		actionsMap.put(HSB_MODEL, 
 				new ColorModelAction(model, ColorModelAction.HSB_MODEL));
-		actionsMap.put(RATING_ONE, 
-				new RateImageAction(model, RateImageAction.RATE_ONE));
-		actionsMap.put(RATING_TWO, 
-				new RateImageAction(model, RateImageAction.RATE_TWO));
-		actionsMap.put(RATING_THREE, 
-				new RateImageAction(model, RateImageAction.RATE_THREE));
-		actionsMap.put(RATING_FOUR, 
-				new RateImageAction(model, RateImageAction.RATE_FOUR));
-		actionsMap.put(RATING_FIVE, 
-				new RateImageAction(model, RateImageAction.RATE_FIVE));
 		actionsMap.put(CHANNEL_MOVIE, new ChannelMovieAction(model));
 		actionsMap.put(UNIT_BAR, new UnitBarAction(model));
 		actionsMap.put(UNIT_BAR_ONE, new UnitBarSizeAction(model, 
@@ -407,9 +353,6 @@ class ImViewerControl
 		actionsMap.put(TEXT_VISIBLE, new TextVisibleAction(model));
 		actionsMap.put(MEASUREMENT_TOOL, new ROIToolAction(model));
 		actionsMap.put(IMAGE_DETAILS, new InfoAction(model));
-		actionsMap.put(ZOOM_IN, new ZoomInAction(model));
-		actionsMap.put(ZOOM_OUT, new ZoomOutAction(model));
-		actionsMap.put(ZOOM_FIT, new ZoomFitAction(model));
 		actionsMap.put(PLAY_MOVIE_T, 
 				new PlayMovieAction(model, PlayMovieAction.ACROSS_T));
 		actionsMap.put(PLAY_MOVIE_Z, 
@@ -775,8 +718,6 @@ class ImViewerControl
 				model.setChannelSelection(index.intValue(), 
 						((Boolean) map.get(index)).booleanValue());
 			}
-			//} else if (RateImageAction.RATE_IMAGE_PROPERTY.equals(propName)) {
-				//  view.setRatingFactor((ViewerAction) pce.getNewValue());
 		} else if (LoadingWindow.CLOSED_PROPERTY.equals(propName)) {
 			model.discard();
 		} else if (Renderer.RENDER_PLANE_PROPERTY.equals(propName)) {

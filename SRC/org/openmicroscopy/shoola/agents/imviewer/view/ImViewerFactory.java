@@ -348,6 +348,4 @@ public class ImViewerFactory
 			isAttached = false;
 		}
 	}
-
-
 }

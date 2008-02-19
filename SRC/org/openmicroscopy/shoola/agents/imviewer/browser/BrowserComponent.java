@@ -110,7 +110,7 @@ class BrowserComponent
         model.initialize(this);
         controller.initialize(this, view);
         view.initialize(controller, model);
-        annotator.initialize(controller, model);
+        annotator.initialize(view, controller, model);
         gridView.initialize(model);
     }
     
