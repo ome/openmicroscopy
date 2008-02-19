@@ -324,8 +324,8 @@ public interface TreeViewer
 	/**
 	 * Sets the thumbnail associated to the currently edited Image.
 	 * 
-	 * @param thumbnail The thumbnail to set.
-	 * @param id		The id of the image.
+	 * @param thumbnail	The thumbnail to set.
+	 * @param imageID	The id of the image.
 	 */
 	public void setThumbnail(BufferedImage thumbnail, long imageID); 
 
@@ -435,11 +435,11 @@ public interface TreeViewer
 	 * 
 	 * @param menuID    The id of the menu. One out of the following constants:
 	 *                  {@link #MANAGER_MENU}, {@link #CLASSIFIER_MENU}.
-	 * @param c         The component that requested the popup menu.
-	 * @param p         The point at which to display the menu, relative to the
+	 * @param invoker   The component that requested the popup menu.
+	 * @param loc       The point at which to display the menu, relative to the
 	 *                  <code>component</code>'s coordinates.
 	 */
-	public void showMenu(int menuID, Component c, Point p);
+	public void showMenu(int menuID, Component invoker, Point loc);
 
 	/**
 	 * Sets the text in the status bar and modifies display.

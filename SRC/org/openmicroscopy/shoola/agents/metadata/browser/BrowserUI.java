@@ -1,0 +1,369 @@
+/*
+ * org.openmicroscopy.shoola.agents.metadata.browser.BrowserUI 
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *
+ *
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+package org.openmicroscopy.shoola.agents.metadata.browser;
+
+
+//Java imports
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JToolBar;
+import javax.swing.JTree;
+import javax.swing.ToolTipManager;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+
+
+//Third-party libraries
+
+//Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.util.TreeCellRenderer;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+
+/** 
+ * 
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since OME3.0
+ */
+class BrowserUI 
+	extends JPanel
+{
+
+	/** The text of the dummy default node. */
+	static final String     LOADING_MSG = "Loading...";
+	
+	/** The text of the default node when no tags linked to a given node. */
+	static final String     NO_TAGS_MSG = "No tags";
+	
+	/** The text of the default node when the image has not been viewed. */
+	static final String     NOT_VIEWED_MSG = "Not viewed it";
+
+	/** The text of the default node when no attachments to a given node. */
+	static final String     NO_ATTACHMENTS_MSG = "No attachments";
+	
+	/** The text of the default node when the object has not parents */
+	static final String     NO_PARENTS_MSG = "Wild and Free";
+	
+	/** The text of the default node when no urls linked. */
+	static final String     NO_URLS_MSG = "No urls";
+	
+    /** 
+     * The text of the node added to a {@link TreeBrowserSet} node
+     * containing no element.
+     */
+    private static final String     EMPTY_MSG = "";
+
+	/** Reference to the controller. */
+	private BrowserControl			controller;
+	
+	/** Reference to the Model. */
+	private BrowserModel 			model;
+	
+	 /** The tree hosting the display. */
+    private JTree					treeDisplay;
+    
+    /** The tool bar hosting the controls. */
+    private JToolBar				menuBar;
+    
+    /** Reference to the listener. */
+    private TreeExpansionListener	listener;
+    
+    /** Reference to the selection listener. */
+    private TreeSelectionListener	selectionListener;
+    
+    /** 
+     * A {@link ViewerSorter sorter} to order nodes in ascending 
+     * alphabetical order.
+     */
+    private ViewerSorter    		sorter;
+    
+    /**
+     * Handles the mouse pressed and released.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleMouseClick(MouseEvent evt)
+    {
+    	Point loc = evt.getPoint();
+    	//if (treeDisplay.getRowForLocation(loc.x, loc.y) == -1 
+    	if (evt.isPopupTrigger()) {
+    		model.showPopupMenu((Component) evt.getSource(), loc);
+		}
+    }
+    
+    /** Helper method to create the menu bar. */
+    private void createMenuBar()
+    {
+    	menuBar = new JToolBar();
+        menuBar.setBorder(null);
+        menuBar.setRollover(true);
+        menuBar.setFloatable(false);
+    }
+    
+    /**
+     * Adds a dummy node to the specified node.
+     * 
+     * @param node The parent node.
+     */
+    private void buildEmptyNode(DefaultMutableTreeNode node)
+    {
+        DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+        tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), node,
+                            node.getChildCount());
+    }
+    
+    /** 
+     * Adds a tree menu to the passed node.
+     * 
+     * @param parent The node the menus is attached to.
+     */
+    private void addMenuToNode(TreeBrowserDisplay parent)
+    {
+    	List<TreeBrowserDisplay> nodes = controller.createMenuNodes(
+    										parent.getUserObject());
+    	Iterator<TreeBrowserDisplay> i = nodes.iterator();
+    	TreeBrowserDisplay node;
+    	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+    	while (i.hasNext()) {
+    		node = i.next();
+			if (node instanceof TreeBrowserSet) 
+				buildEmptyNode(node);
+			parent.addChildDisplay(node);
+			tm.insertNodeInto(node, parent, parent.getChildCount());
+		}
+    }
+
+    /** Creates  the tree. */
+    private void createTree()
+    {
+    	treeDisplay = new JTree();
+        treeDisplay.setVisible(true);
+        treeDisplay.setRootVisible(false);
+        treeDisplay.setCellRenderer(new TreeCellRenderer());
+        treeDisplay.setShowsRootHandles(true);
+        ToolTipManager.sharedInstance().registerComponent(treeDisplay);
+        TreeBrowserDisplay root = model.getLastSelectedNode();
+        
+        treeDisplay.setModel(new DefaultTreeModel(root));
+        addMenuToNode(root);
+        treeDisplay.expandPath(new TreePath(root.getPath()));
+    	treeDisplay.addMouseListener(new MouseAdapter() {
+    		
+        	/**
+        	 * Pops up a menu if the mouse click occurs on the tree
+        	 * but not on the a node composing the tree
+        	 * @see MouseAdapter#mousePressed(MouseEvent)
+        	 */
+			public void mousePressed(MouseEvent e) { handleMouseClick(e); }
+		
+			/**
+        	 * Pops up a menu if the mouse click occurs on the tree
+        	 * but not on the a node composing the tree
+        	 * @see MouseAdapter#mouseReleased(MouseEvent)
+        	 */
+			public void mouseReleased(MouseEvent e) { handleMouseClick(e); }
+		});
+    	selectionListener = new TreeSelectionListener() {
+            
+            public void valueChanged(TreeSelectionEvent e)
+            {
+                controller.onClick();
+            }
+        };
+        treeDisplay.addTreeSelectionListener(selectionListener);
+        listener = new TreeExpansionListener() {
+            public void treeCollapsed(TreeExpansionEvent e) {
+                onNodeNavigation(e, false);
+            }
+            public void treeExpanded(TreeExpansionEvent e) {
+                onNodeNavigation(e, true);  
+            }   
+        };
+        treeDisplay.addTreeExpansionListener(listener);
+    }
+    
+    /** 
+     * Reacts to node expansion event.
+     * 
+     * @param tee       The event to handle.
+     * @param expanded 	Pass <code>true</code> is the node is expanded,
+     * 					<code>false</code> otherwise.
+     */
+    private void onNodeNavigation(TreeExpansionEvent tee, boolean expanded)
+    {
+        TreeBrowserDisplay node = (TreeBrowserDisplay) 
+        							tee.getPath().getLastPathComponent();
+        node.setExpanded(expanded);
+        controller.onNodeNavigation(node, expanded);
+    }
+    
+    /** Builds and lays out the UI. */
+    private void buildGUI()
+    {
+    	setLayout(new BorderLayout(0, 0));
+        JPanel p = new JPanel();
+        p.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        p.setBorder(null);
+        p.add(menuBar);
+        p.setPreferredSize(menuBar.getPreferredSize());
+        add(p, BorderLayout.NORTH);
+        add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
+    }
+    
+    /** Creates a new instance. */
+    BrowserUI() {}
+    
+    /**
+     * Links this View to its Controller and its Model.
+     * 
+     * @param model         Reference to the Model. 
+     * 						Mustn't be <code>null</code>.
+     * @param controller	Reference to the Controller.
+     * 						Mustn't be <code>null</code>.
+     */
+    void initialize(BrowserModel model, BrowserControl controller)
+    {
+    	if (controller == null)
+    		throw new IllegalArgumentException("Controller cannot be null");
+    	if (model == null)
+    		throw new IllegalArgumentException("Model cannot be null");
+        this.controller = controller;
+        this.model = model;
+        sorter = new ViewerSorter();
+        createMenuBar();
+        createTree();
+        buildGUI();
+    }
+
+    /** 
+     * Returns the selected tree.
+     * 
+     * @return See above.
+     */
+	JTree getTreeDisplay() { return treeDisplay; }
+    
+	/** Sets the root of the tree. */
+	void setRootNode()
+	{
+		treeDisplay.removeAll();
+		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+		TreeBrowserSet oldRoot = (TreeBrowserSet) tm.getRoot();
+		Set children = oldRoot.getChildrenDisplay();
+		TreeBrowserDisplay root = model.getLastSelectedNode();
+        
+        treeDisplay.setModel(new DefaultTreeModel(root));
+        addMenuToNode(root);
+        tm = (DefaultTreeModel) treeDisplay.getModel();
+        if (children == null || children.size() == 0) {
+        	treeDisplay.expandPath(new TreePath(root.getPath()));
+        	
+        } else {
+        	Iterator i = root.getChildrenDisplay().iterator();
+        	TreeBrowserDisplay node, newNode;
+        	Map<String, TreeBrowserDisplay> 
+        		map = new HashMap<String, TreeBrowserDisplay>();
+        	while (i.hasNext()) {
+				node = (TreeBrowserDisplay) i.next();
+				map.put(node.toString(), node);
+			}
+        	i = children.iterator();
+        	
+        	while (i.hasNext()) {
+				node = (TreeBrowserDisplay) i.next();
+				if (node.isExpanded()) {
+					newNode = map.get(node.toString());
+					if (newNode != null) {
+						treeDisplay.expandPath(new TreePath(newNode.getPath()));
+					}
+				}
+			}
+        	tm.reload(root);
+        }
+       
+	}
+	
+    /**
+     * Creates a dummy loading node whose parent is the specified node.
+     * 
+     * @param node 		The parent of the default node.
+     * @param message	The value of the default node.
+     */
+    void addDefaultNode(TreeBrowserDisplay node, String message)
+    {
+        DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+        node.removeAllChildren();
+        tm.insertNodeInto(new TreeBrowserNode(message), node,
+                			node.getChildCount());
+        tm.reload(node);
+    }
+
+    /**
+     * Adds the nodes to the specified parent node.
+     * 
+     * @param parent	The parent node.
+     * @param nodes		The nodes to add.
+     */
+	void setNodes(TreeBrowserDisplay parent, Collection nodes)
+	{
+		List sortedNodes = sorter.sort(nodes);
+		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+		parent.removeAllChildren();
+		parent.removeAllChildrenDisplay();
+		Iterator i = sortedNodes.iterator();
+		TreeBrowserDisplay child;
+		while (i.hasNext()) {
+			child = (TreeBrowserDisplay) i.next();
+			if (!(child instanceof TreeBrowserNode))
+				addMenuToNode(child);
+			parent.addChildDisplay(child);
+			tm.insertNodeInto(child, parent, parent.getChildCount());
+		}
+		tm.reload(parent);
+	}
+    
+}

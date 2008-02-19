@@ -36,6 +36,7 @@ import javax.swing.JTree;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.metadata.ViewMetadata;
 import org.openmicroscopy.shoola.agents.treeviewer.ContainerCounterLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterDataLoader;
@@ -47,6 +48,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.event.EventBus;
 
 import pojos.CategoryData;
 import pojos.CategoryGroupData;

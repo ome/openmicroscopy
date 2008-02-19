@@ -138,7 +138,7 @@ public abstract class TreeImageDisplay
     /** The font style used for the node. */
     private int                 	fontStyle;
     
-    /** Indicates if the nodes is expanded or not. */
+    /** Indicates if the node is expanded or not. */
     private boolean             	expanded;
     
     /** Indicates to display a truncated name. */
@@ -247,7 +247,7 @@ public abstract class TreeImageDisplay
     /**
      * Returns the parent node to this node in the visualization tree.
      * 
-     * @return The parent node or <code>null</code> if this node has no parent.
+     * @return 	The parent node or <code>null</code> if this node has no parent.
      *          This can happen if this node hasn't been linked yet or if it's
      *          the root node.
      */
@@ -570,8 +570,8 @@ public abstract class TreeImageDisplay
     /**
      * Tells if the children of this node are {@link TreeImageNode}s.
      * 
-     * @return <code>true</code> if there's at least one {@link TreeImageNode} 
-     *          child, <code>false</code> otherwise.
+     * @return 	Returns <code>true</code> if there's at least one 
+     * 			{@link TreeImageNode} child, <code>false</code> otherwise.
      */
     public abstract boolean containsImages();
     

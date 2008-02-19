@@ -29,7 +29,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.List;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.text.SimpleDateFormat;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -50,11 +52,12 @@ import javax.swing.event.DocumentListener;
 import layout.TableLayout;
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXDatePicker;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.archived.view.Downloader;
 import org.openmicroscopy.shoola.agents.util.archived.view.DownloaderFactory;
-import org.openmicroscopy.shoola.agents.util.ui.SingleTagEditor;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
+import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -73,19 +76,26 @@ import pojos.ImageData;
  */
 class DOBasic
     extends JPanel
+    implements PropertyChangeListener
 {
     
     /** Title of the annotation pane. */
-    static final String     ANNOTATION = "Annotation";
+    static final String     	ANNOTATION = "Annotation";
     
     /** Title of the classification pane. */
-    static final String     CLASSIFICATION = "Tag";   
+    static final String     	CLASSIFICATION = "Tag";   
+    
+    /** Title of the UI component displaying the details. */
+    private static final String DETAILS = "Details";
+    
+    /** Title of the UI component displaying the image Info. */
+    private static final String INFO = "Info";
     
     /** Text of the {@link #download} button. */
-    private final String	DOWNLOAD = "Download";
+    private static final String	DOWNLOAD = "Download";
     
     /** Description of the {@link #download} button. */
-    private final String	DOWNLOAD_DESCRIPTION = "Download the " +
+    private static final String	DOWNLOAD_DESCRIPTION = "Download the " +
     												"archived files";
     
     /** Area where to enter the name of the <code>DataObject</code>. */
@@ -117,7 +127,9 @@ class DOBasic
 
     /** Panel hosting the main display. */
     private JComponent			contentPanel;
-    
+
+    /** Panel hosting the information about the image. */
+    private JComponent			imageInfoPanel;
     
     /** A {@link DocumentListener} for the {@link #nameArea}. */
     private DocumentListener    nameAreaListener;
@@ -182,7 +194,9 @@ class DOBasic
                 public void changedUpdate(DocumentEvent de) {}
                 
             });
-            if (model.getHierarchyObject() instanceof ImageData) {
+            Map details;
+            Object ho = model.getHierarchyObject();
+            if (ho instanceof ImageData) {
             	download = new JButton(DOWNLOAD);
             	download.setToolTipText(DOWNLOAD_DESCRIPTION);
             	download.setEnabled(model.isReadable());
@@ -192,36 +206,12 @@ class DOBasic
             			download(); 
             		}
 				});
+            	details = EditorUtil.transformImageData((ImageData) ho);
+            	imageInfoPanel = new DOInfo(view, model, details, false, 
+            								DOInfo.INFO_TYPE);
             }
-            /*
-            IconManager im = IconManager.getInstance();
-            if (model.isAnnotatable()) {	
-                //annotator = new DOAnnotation(view, model);
-            	annotator = model.createAnnotator();
-            	annotator.addPropertyChangeListener(controller);
-                tabbedPane.addTab(ANNOTATION, 
-                            im.getIcon(IconManager.ANNOTATION), 
-                            annotator.getUI());
-            }
-            if (model.getHierarchyObject() instanceof ImageData) {
-            	download = new JButton(DOWNLOAD);
-            	download.setToolTipText(DOWNLOAD_DESCRIPTION);
-            	download.setEnabled(model.isWritable());
-            	download.addActionListener(new ActionListener() {
-            		public void actionPerformed(ActionEvent e)
-            		{ 
-            			download(); 
-            		}
-				});
-                classifier = new DOClassification(model, controller);
-                tabbedPane.addTab(CLASSIFICATION, 
-                			im.getIcon(IconManager.CATEGORY), classifier);
-                tabbedPane.setSelectedIndex(EditorFactory.getSubSelectedPane());
-            }
-            */
             ExperimenterData exp = model.getDataObjectOwner();
-        	
-            Map details = EditorUtil.transformExperimenterData(exp);
+            details = EditorUtil.transformExperimenterData(exp);
             informationPanel = new DOInfo(view, model, details, true, 
                                 DOInfo.OWNER_TYPE);
             
@@ -346,15 +336,29 @@ class DOBasic
     private void buildGUI()
     {
         setLayout(new BorderLayout());
-        //contentPanel = buildContentPanel();
-        //toolBar = view.buildBasicToolBar(download);
         if (informationPanel != null) {
+        	UIUtilities.setBoldTitledBorder(DETAILS, informationPanel);
+        	TreeComponent tree = new TreeComponent();
+        	tree.insertNode(informationPanel, 
+        				UIUtilities.buildCollapsePanel(DETAILS), false);
+        	/*
+        	TreeComponentNode c = new TreeComponentNode(informationPanel, 
+        			UIUtilities.buildCollapsePanel(DETAILS), false);
+        	c.addPropertyChangeListener(this);
+        	*/
         	contentPanel = new JPanel();
         	contentPanel.setLayout(new BoxLayout(contentPanel, 
         								BoxLayout.Y_AXIS));
         	contentPanel.add(buildContentPanel());
-        	contentPanel.add(informationPanel);
+        	/*
+        	if (imageInfoPanel != null) {
+        		UIUtilities.setBoldTitledBorder(INFO, imageInfoPanel);
+        		tree.insertNode(imageInfoPanel, 
+        				UIUtilities.buildCollapsePanel(INFO));
+        	}
+        	contentPanel.add(tree);
             contentPanel.add(new JPanel());
+            */
             add(contentPanel, BorderLayout.NORTH);
         } else add(buildContentPanel(), BorderLayout.NORTH);
         add(view.buildBasicToolBar(download), BorderLayout.SOUTH);
@@ -413,6 +417,7 @@ class DOBasic
     /** Shows the tags. */
     void showTags()
     {
+    	/*
     	if (!model.isImage()) return;
     	contentPanel.remove(contentPanel.getComponentCount()-1);
     	SingleTagEditor editor = new SingleTagEditor(model.getTags(), 
@@ -421,6 +426,7 @@ class DOBasic
     	contentPanel.add(UIUtilities.buildComponentPanel(editor));
     	validate();
     	repaint();
+    	*/
     }
 
     /** 
@@ -457,5 +463,17 @@ class DOBasic
 
     /** Sets the focus on the name area. */
 	void setFocusOnName() { nameArea.requestFocus(); }
+
+	/**
+	 * Validates the UI when a {@link TreeLikeComponent} is expanded
+	 * or collapsed.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		//if (TreeComponentNode.EXPANDED_PROPERTY.equals(name)) 
+		//	validate();
+	}
    
 }

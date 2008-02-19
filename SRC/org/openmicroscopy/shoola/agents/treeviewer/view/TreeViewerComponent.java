@@ -266,15 +266,15 @@ class TreeViewerComponent
 	public void activate()
 	{
 		switch (model.getState()) {
-		case NEW:
-			model.getSelectedBrowser().activate(); 
-			view.setOnScreen();
-			//view.toFront();
-			model.setState(READY);
-			break;
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED state.");
+			case NEW:
+				model.getSelectedBrowser().activate(); 
+				view.setOnScreen();
+				//view.toFront();
+				model.setState(READY);
+				break;
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED state.");
 		} 
 	}
 
@@ -623,12 +623,17 @@ class TreeViewerComponent
 				throw new IllegalStateException("This method cannot be " +
 				"invoked in the DISCARDED, SAVE state.");
 		}
+		
 		int editor = model.getEditorType();
 		removeEditor();
 		if (editor != TreeViewer.CREATE_EDITOR) {
 			PropertiesCmd cmd = new PropertiesCmd(this);
 			cmd.execute();
 		}
+		Browser browser = model.getSelectedBrowser();
+        if (browser == null) return;
+        TreeImageDisplay display = browser.getLastSelectedDisplay();
+        model.getMetadataViewer().setRootObject(display.getUserObject());
 	}
 
 	/**
@@ -917,11 +922,11 @@ class TreeViewerComponent
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		switch (menuID) {
-		case MANAGER_MENU:
-		case CLASSIFIER_MENU:  
-			break;
-		default:
-			throw new IllegalArgumentException("Menu not supported.");
+			case MANAGER_MENU:
+			case CLASSIFIER_MENU:  
+				break;
+			default:
+				throw new IllegalArgumentException("Menu not supported.");
 		}
 		view.showMenu(menuID, c, p);
 	}

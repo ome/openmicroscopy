@@ -271,6 +271,7 @@ class SearchPanel
 		picker.setToolTipText(DATE_TOOLTIP);
 		picker.getEditor().setEditable(false);
 		picker.setEditable(false);
+		picker.setFormats(dateFormats);
 		return picker;
 	}
 	

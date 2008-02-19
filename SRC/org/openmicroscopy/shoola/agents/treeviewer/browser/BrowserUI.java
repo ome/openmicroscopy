@@ -127,6 +127,22 @@ class BrowserUI
     /** Button indicating if the partial name is displayed or not. */
     private JToggleButton			partialButton;
     
+    /**
+     * Handles the mouse pressed and released.
+     * 
+     * @param loc			The location of the mouse click.
+     * @param popupTrigger	Pass <code>true</code> if the mouse event is the 
+     * 						popup menu trigger event for the platform,
+     * 						<code>false</code> otherwise.
+     */
+    private void handleMouseClick(Point loc, boolean popupTrigger)
+    {
+    	if (treeDisplay.getRowForLocation(loc.x, loc.y) == -1 && popupTrigger) {
+    		model.setClickPoint(loc);
+    		controller.showPopupMenu(TreeViewer.PARTIAL_POP_UP_MENU);
+		}
+    }
+    
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
@@ -148,12 +164,7 @@ class BrowserUI
         	 */
 			public void mousePressed(MouseEvent e)
 			{
-				Point p = e.getPoint();
-				if (treeDisplay.getRowForLocation(p.x, p.y) == -1 &&
-					e.isPopupTrigger()) {
-					model.setClickPoint(p);
-					controller.showPopupMenu(TreeViewer.PARTIAL_POP_UP_MENU);
-				}
+				handleMouseClick(e.getPoint(), e.isPopupTrigger());
 			}
 		
 			/**
@@ -163,12 +174,7 @@ class BrowserUI
         	 */
 			public void mouseReleased(MouseEvent e)
 			{
-				Point p = e.getPoint();
-				if (treeDisplay.getRowForLocation(p.x, p.y) == -1 &&
-					e.isPopupTrigger()) {
-					model.setClickPoint(p);
-					controller.showPopupMenu(TreeViewer.PARTIAL_POP_UP_MENU);
-				}
+				handleMouseClick(e.getPoint(), e.isPopupTrigger());
 			}
 		});
     }
@@ -605,6 +611,10 @@ class BrowserUI
     void initialize(BrowserControl controller, BrowserModel model, 
     						ExperimenterData exp)
     {
+    	if (controller == null)
+    		throw new IllegalArgumentException("Controller cannot be null");
+    	if (model == null)
+    		throw new IllegalArgumentException("Model cannot be null");
         this.controller = controller;
         this.model = model;
         createMenuBar();

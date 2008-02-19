@@ -39,6 +39,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
@@ -302,9 +303,11 @@ class DOInfo
             add(contentPanel, "0, 0, f, t");
             add(p, "0, 1, f, t");
         } else {
-        	double[][] tl = {{TableLayout.FILL}, {TableLayout.PREFERRED}}; 
+        	double[][] tl = {{TableLayout.FILL}, {200}}; 
         	setLayout(new TableLayout(tl));
-        	add(contentPanel, "0, 0, f, t");
+        	JScrollPane pane = new JScrollPane(contentPanel); 
+        	
+        	add(pane, "0, 0, f, t");
         }
     }
     

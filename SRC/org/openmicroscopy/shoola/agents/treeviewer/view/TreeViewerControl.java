@@ -270,9 +270,9 @@ class TreeViewerControl
 				ClassifyAction.CLASSIFY));
 		actionsMap.put(DECLASSIFY, new ClassifyAction(model, 
 				ClassifyAction.DECLASSIFY));
-		actionsMap.put(ANNOTATE,  new AnnotateAction(model));
-		actionsMap.put(CLEAR,  new ClearAction(model));
-		actionsMap.put(EXIT,  new ExitApplicationAction(model));
+		actionsMap.put(ANNOTATE, new AnnotateAction(model));
+		actionsMap.put(CLEAR, new ClearAction(model));
+		actionsMap.put(EXIT, new ExitApplicationAction(model));
 		actionsMap.put(ADD_OBJECT,  new AddAction(model));
 		actionsMap.put(CREATE_TOP_CONTAINER,  
 				new CreateTopContainerAction(model));
@@ -394,7 +394,7 @@ class TreeViewerControl
 	{
 		Browser b = model.getSelectedBrowser();
 		if (b != null) {
-			b.setSelectedDisplay(null);
+			//b.setSelectedDisplay(null);
 			b.setSelectedDisplay(d);
 		}
 	}

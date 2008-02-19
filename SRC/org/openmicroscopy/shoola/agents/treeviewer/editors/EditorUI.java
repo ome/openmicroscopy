@@ -69,7 +69,6 @@ import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
-import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -381,28 +380,18 @@ class EditorUI
                             im.getIcon(IconManager.ANNOTATION), 
                             annotator.getUI());
                 }
-                /*
-                ExperimenterData exp = model.getDataObjectOwner();
-            	
-                Map details = EditorUtil.transformExperimenterData(exp);
-                DOInfo info = new DOInfo(this, model, details, true, 
-                                    DOInfo.OWNER_TYPE);
-                
-                tabs.addTab(OWNER_TITLE,  im.getIcon(IconManager.OWNER), 
-                			info);
-                */			
+	
                 DataObject hierarchyObject = model.getHierarchyObject();
+                /*
                 if (hierarchyObject instanceof ImageData) {
-                	ExperimenterData exp = model.getDataObjectOwner();
-                	
-                    Map details = EditorUtil.transformExperimenterData(exp);
-                    details = EditorUtil.transformImageData(
+                    Map details = EditorUtil.transformImageData(
                     						(ImageData) hierarchyObject);
                     DOInfo info = new DOInfo(this, model, details, false, 
                             DOInfo.INFO_TYPE);
                     tabs.addTab(INFO_TITLE, im.getIcon(IconManager.IMAGE), 
                     			info);  
                 }
+                */
                 //Add a tab listeners to the info
                 tabs.addChangeListener(controller);
                 int index = model.getSelectedTabbedIndex();

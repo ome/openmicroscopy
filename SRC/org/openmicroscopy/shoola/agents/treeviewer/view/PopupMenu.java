@@ -43,16 +43,16 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 
 
 /** 
-* Pop-up menu for nodes in the browser display.
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @version 2.2
-* <small>
-* (<b>Internal version:</b> $Revision$ $Date$)
-* </small>
-* @since OME2.2
-*/
+ * Pop-up menu for nodes in the browser display.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @version 2.2
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
+ * @since OME2.2
+ */
 class PopupMenu
   	extends JPopupMenu
 {
@@ -262,33 +262,33 @@ class PopupMenu
 	{
 		setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		switch (index) {
-		case TreeViewer.FULL_POP_UP_MENU:
-			add(view);
-			add(createManagementMenu());
-			add(new JSeparator(JSeparator.HORIZONTAL));
-			add(browseClassificationElement);
-			add(classifyElement);
-			add(declassifyElement);
-			add(classifyChildrenElement);
-			add(new JSeparator(JSeparator.HORIZONTAL));
-			add(annotate);
-			add(annotateChildrenElement);
-			add(new JSeparator(JSeparator.HORIZONTAL));
-			add(copyRndElement);
-			add(pasteRndElement);
-			add(resetRndElement);
-			add(new JSeparator(JSeparator.HORIZONTAL));
-			add(properties);
-			add(new JSeparator(JSeparator.HORIZONTAL));
-			add(refreshExperimenterElement);
-			add(removeExperimenterElement);
-			break;
-		case TreeViewer.PARTIAL_POP_UP_MENU:
-			add(refreshTreeElement);
-			add(createTopElement);
-			add(switchUserElement);
-			add(quitElement);
-			break;
+			case TreeViewer.FULL_POP_UP_MENU:
+				add(view);
+				add(createManagementMenu());
+				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(browseClassificationElement);
+				add(classifyElement);
+				add(declassifyElement);
+				add(classifyChildrenElement);
+				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(annotate);
+				add(annotateChildrenElement);
+				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(copyRndElement);
+				add(pasteRndElement);
+				add(resetRndElement);
+				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(properties);
+				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(refreshExperimenterElement);
+				add(removeExperimenterElement);
+				break;
+			case TreeViewer.PARTIAL_POP_UP_MENU:
+				add(refreshTreeElement);
+				add(createTopElement);
+				add(switchUserElement);
+				add(quitElement);
+				break;
 		}
 	}
 

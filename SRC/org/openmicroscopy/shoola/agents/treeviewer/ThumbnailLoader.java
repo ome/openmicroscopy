@@ -33,6 +33,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
+
 import pojos.ImageData;
 
 /** 
@@ -51,12 +53,6 @@ import pojos.ImageData;
 public class ThumbnailLoader
     extends DataTreeViewerLoader
 {
-
-    /** The maximum width of the thumbnail. */
-    private static final int            THUMB_MAX_WIDTH = 96; 
-    
-    /** The maximum height of the thumbnail. */
-    private static final int            THUMB_MAX_HEIGHT = 96;
     
     /** The parent of the thumbnail. */
     private ImageData   image;
@@ -84,8 +80,9 @@ public class ThumbnailLoader
      */
     public void load()
     {
-        handle = dmView.loadThumbnail(image, THUMB_MAX_WIDTH,
-                                        THUMB_MAX_HEIGHT, this);
+        handle = dmView.loadThumbnail(image, Factory.THUMB_DEFAULT_WIDTH,
+        					Factory.THUMB_DEFAULT_HEIGHT, getCurrentUserID(),
+                                        this);
     }
     
     /** 

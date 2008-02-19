@@ -34,10 +34,8 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -195,6 +193,7 @@ class EditorUtil
             			TreeViewerTranslator.DATE_NOT_AVAILABLE);
         }
         PixelsData data = image.getDefaultPixels();
+	
         if (data == null) {
             details.put(SIZE_X, "");
             details.put(SIZE_Y, "");

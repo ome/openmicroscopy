@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
@@ -82,6 +83,17 @@ public abstract class DataTreeViewerLoader
 	 */
 	protected Class convertRootLevel() { return ExperimenterData.class; }
 
+	/**
+     * Helper method to return the ID of the currently logged in user.
+     * 
+     * @return See above.
+     */
+    protected long getCurrentUserID()
+    {
+    	return ((ExperimenterData) registry.lookup(
+		        LookupNames.CURRENT_USER_DETAILS)).getId();
+    }
+    
 	/**
 	 * Creates a new instance.
 	 * 

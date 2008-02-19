@@ -226,7 +226,6 @@ public class TreeViewerTranslator
                 	 if (isReadable(child, userID, groupID))
                          dataset.addChildDisplay(transformImage(child));
                 }
-               
             }
         }
         

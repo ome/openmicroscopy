@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import java.awt.Component;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,6 +37,8 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectRemover;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectUpdater;
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
@@ -802,6 +805,15 @@ class TreeViewerModel
 		//TODO: add state change.
 		currentLoader = new RndSettingsSaver(component, ref);
 		currentLoader.load();
+	}
+
+	MetadataViewer metadataViewer;
+	
+	MetadataViewer getMetadataViewer()
+	{
+		if (metadataViewer == null)
+			metadataViewer = MetadataViewerFactory.getViewer("");
+		return metadataViewer;
 	}
 
 }

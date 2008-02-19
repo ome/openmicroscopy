@@ -97,6 +97,9 @@ class TreeViewerWin
     /** The component hosting the working pane. */
     private JScrollPane 		workingPane;
 
+    /** The component hosting the working pane. */
+    private JSplitPane 			rightPane;
+    
     /** The tabbed pane hosting the {@link Browser}s. */
     private JTabbedPane 		tabs;
 
@@ -307,13 +310,23 @@ class TreeViewerWin
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
-        splitPane = new JSplitPane();
+    	rightPane = new JSplitPane();
+        //splitPane.setResizeWeight(1);
+    	rightPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+    	rightPane.setOneTouchExpandable(true);
+    	rightPane.setContinuousLayout(true);
+    	rightPane.setLeftComponent(workingPane);
+    	rightPane.setRightComponent(model.getMetadataViewer().getSelectionUI());
+    	//rightPane.setDividerLocation(DIVIDER_LOCATION);
+    	rightPane.setResizeWeight(1.0);
+    	splitPane = new JSplitPane();
         //splitPane.setResizeWeight(1);
         splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setOneTouchExpandable(true);
         splitPane.setContinuousLayout(true);
         splitPane.setLeftComponent(tabs);
-        splitPane.setRightComponent(workingPane);
+        //splitPane.setRightComponent(workingPane);
+        splitPane.setRightComponent(rightPane);
         splitPane.setDividerLocation(DIVIDER_LOCATION);
         Container c = getContentPane();
         c.setLayout(new BorderLayout(0, 0));
