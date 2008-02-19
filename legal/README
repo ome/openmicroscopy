@@ -219,9 +219,3 @@
   License: Lesser General Public License (LGPL)
   License File: lgpl.txt
   
-  Project: The JCalendar project. 
-  JCalendar is a Java date chooser bean for graphically picking a date.
-  Web Site: http://www.toedter.com/en/jcalendar/
-  Artifacts: The jcalendar-* file under LIB/
-  License: Lesser General Public License (LGPL)
-  License File: lgpl.txt

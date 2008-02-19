@@ -153,6 +153,11 @@
         <class>org.openmicroscopy.shoola.agents.measurement.MeasurementAgent</class>
         <config>measurement.xml</config>
     </agent>
+    <agent>
+        <name>Metadata Browser</name>
+        <class>org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent</class>
+        <config>metadataViewer.xml</config>
+    </agent>
     </structuredEntry>
   </agents>
   
