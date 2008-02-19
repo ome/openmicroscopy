@@ -80,15 +80,15 @@ class HierarchyBrowsingViewImpl
     
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadThumbnails(Set, int, int, 
+     * @see HierarchyBrowsingView#loadThumbnails(Set, int, int, long,
      *                                           AgentEventListener)
      */
-    public CallHandle loadThumbnails(Set imgSummaries, 
-                                     int maxWidth, int maxHeight,
+    public CallHandle loadThumbnails(Set<ImageData> imgSummaries, int maxWidth, 
+    								int maxHeight, long userID,
                                      AgentEventListener observer)
     {
-        BatchCallTree cmd = 
-                        new ThumbnailLoader(imgSummaries, maxWidth, maxHeight);
+        BatchCallTree cmd = new ThumbnailLoader(imgSummaries, maxWidth, 
+        							maxHeight, userID);
         return cmd.exec(observer);
     }
 

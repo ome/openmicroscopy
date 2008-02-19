@@ -109,18 +109,6 @@ class ImageDataViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#loadIconImage(long, int, int, AgentEventListener)
-     */
-    public CallHandle loadIconImage(long pixelsID, int iconWidth, 
-                        int iconHeight, AgentEventListener observer)
-    {
-        BatchCallTree cmd = new ThumbnailLoader(pixelsID, iconWidth, 
-                                                iconHeight);
-        return cmd.exec(observer);
-    }
-
-    /**
-     * Implemented as specified by the view interface.
      * @see ImageDataView#loadPixelsDimension(long, AgentEventListener)
      */
 	public CallHandle loadPixelsDimension(long pixelsID, 

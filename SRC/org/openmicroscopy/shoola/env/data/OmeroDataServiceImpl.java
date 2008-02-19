@@ -40,6 +40,8 @@ import java.util.Set;
 import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.containers.Category;
+import ome.model.containers.Dataset;
+import ome.model.containers.Project;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.meta.Event;
@@ -241,7 +243,6 @@ class OmeroDataServiceImpl
 			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-
 		try {
 			PojoOptions po = new PojoOptions();
 			po.leaves();
@@ -1335,5 +1336,81 @@ class OmeroDataServiceImpl
 		gateway.performSearch(context); 
 		return null;
 	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#loadAttachments(Class, long, long)
+	 */
+	public Collection loadAttachments(Class type, long id, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return new ArrayList();
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#loadTags(Class, long, long)
+	 */
+	public Collection loadTags(Class type, long id, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return new ArrayList();
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#loadRatings(Class, long, long)
+	 */
+	public Collection loadRatings(Class type, long id, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+	// TODO Auto-generated method stub
+		return new ArrayList();
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#loadUrls(Class, long, long)
+	 */
+	public Collection loadUrls(Class type, long id, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return new ArrayList();
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#findContainerPaths(Class, long, long)
+	 */
+	public Collection findContainerPaths(Class type, long id, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			Class parentClass = null;
+			if (DatasetData.class.equals(type))
+				parentClass = Dataset.class;
+			else if (ProjectData.class.equals(type))
+				parentClass = Project.class;
+			if (parentClass == null) return new HashSet();
+			List links = gateway.findLinks(parentClass, id, userID);
+			if (links == null) return new HashSet();
+			Iterator i = links.iterator();
+			Set<DataObject> nodes = new HashSet<DataObject>();
+			ILink link;
+			IObject object, parent;
+			while (i.hasNext()) {
+				link = (ILink) i.next();
+				parent = link.getParent();
+				object = gateway.findIObject(parent.getClass(), parent.getId());
+				nodes.add(PojoMapper.asDataObject(object));
+			}
+			return nodes;
+		} catch (Exception e) {
+			throw new DSAccessException(e.getMessage());
+		}
+		//return new ArrayList();
+	}
+
+
 
 }

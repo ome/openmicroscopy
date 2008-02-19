@@ -85,8 +85,8 @@ public class DMLoader
             {
                 OmeroDataService os = context.getDataService();
                 try {
-                	results = os.loadContainerHierarchy(rootNodeType, rootNodeIDs, 
-                    		withLeaves, userID);
+                	results = os.loadContainerHierarchy(rootNodeType, 
+                					rootNodeIDs, withLeaves, userID);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -138,7 +138,6 @@ public class DMLoader
         else 
             throw new IllegalArgumentException("Unsupported type: "+
                                                 rootNodeType);
-        
     }
 
 }

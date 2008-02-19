@@ -94,18 +94,6 @@ public interface ImageDataView
      */
     public CallHandle render(long pixelsID, PlaneDef pd, 
                             AgentEventListener observer);
-
-    /**
-     * Retrieves an iconified version of the currently displayed image.
-     * 
-     * @param pixelsID      The id of the pixels set.
-     * @param iconWidth     The width of the icon.
-     * @param iconHeight    The height of the icon.
-     * @param observer      Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle loadIconImage(long pixelsID, int iconWidth, 
-                            int iconHeight, AgentEventListener observer);
     
     /**
      * Retrieves the dimensions in microns of the pixels set.

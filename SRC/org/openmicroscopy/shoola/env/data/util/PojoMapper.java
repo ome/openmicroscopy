@@ -101,7 +101,6 @@ public class PojoMapper
     {
         if (object == null) 
             throw new IllegalArgumentException("IObject cannot be null.");
-        
         if (object instanceof Project) 
             return new ProjectData((Project) object);
         else if (object instanceof Dataset) 
@@ -110,8 +109,11 @@ public class PojoMapper
             return new CategoryGroupData((CategoryGroup) object);
         else if (object instanceof Category) 
             return new CategoryData((Category) object);
-        else if (object instanceof Image) 
-            return new ImageData((Image) object);
+        else if (object instanceof Image) {
+        	Image img = (Image) object;
+        	System.err.println(img.getPrimaryPixels());
+        	return new ImageData((Image) object);
+        }
         else if (object instanceof TextAnnotation)
         	return new AnnotationData((Annotation) object);
         	//return new AnnotationData(TextAnnotation.class);

@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 //Third-party libraries
@@ -68,7 +70,7 @@ public class ThumbnailLoader
 {
 
     /** The images for which we need thumbnails. */
-    private ImageData[]     	images;
+    private Set<ImageData>		images;
     
     /** The maximum acceptable width of the thumbnails. */
     private int             	maxWidth;
@@ -85,33 +87,35 @@ public class ThumbnailLoader
     /** The id of the pixels set this loader is for. */
     private long            	pixelsID;
     
+    /** Collection of user IDs. */
+    private Set<Long>			userIDs;
+    
     /** Helper reference to the image service. */
     private OmeroImageService	service;
     
     /**
      * Loads the thumbnail for {@link #images}<code>[index]</code>.
      * 
-     * @param index The index of the image in the {@link #images} array.
+     * @param image		The image the thumbnail for.
+     * @param userID	The id of the user the thumbnail is for.
      */
-    private void loadThumbail(int index) 
+    private void loadThumbail(ImageData image, long userID) 
     {
-        PixelsData pxd = images[index].getDefaultPixels();
+        PixelsData pxd = image.getDefaultPixels();
         BufferedImage thumbPix = null;
         if (pxd == null) {
-        	thumbPix = Factory.createDefaultThumbnail(maxWidth, maxHeight);
+        	thumbPix = Factory.createDefaultImageThumbnail();
+        	//Factory.createDefaultThumbnail(maxWidth, maxHeight);
         } else {
         	int sizeX = maxWidth, sizeY = maxHeight;
         	double pixSizeX = pxd.getSizeX();
         	double pixSizeY = pxd.getSizeY();
-        	//if (pixSizeX < maxWidth) sizeX = (int) pixSizeX;
-        	//if (pixSizeY < maxHeight) sizeY = (int) pixSizeY;
             double ratio = pixSizeX/pixSizeY;
             if (ratio < 1) sizeX *= ratio;
             else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
             try {
-            	thumbPix = service.getThumbnail(pxd.getId(), sizeX, sizeY);
-            	//thumbPix = service.getThumbnailByLongestSide(pxd.getId(), 
-            	//		 										maxWidth);  
+            	thumbPix = service.getThumbnail(pxd.getId(), sizeX, sizeY, 
+            									userID);
             } catch (RenderingServiceException e) {
             	context.getLogger().error(this, 
             			"Cannot retrieve thumbnail: "+e.getExtendedMessage());
@@ -120,7 +124,7 @@ public class ThumbnailLoader
             	thumbPix = Factory.createDefaultThumbnail(sizeX, sizeY);
             }  
         }
-        currentThumbnail = new ThumbnailData(images[index].getId(), thumbPix);
+        currentThumbnail = new ThumbnailData(image.getId(), thumbPix, userID);
     }
     
     /**
@@ -136,7 +140,7 @@ public class ThumbnailLoader
                 BufferedImage thumbPix = null;
                 try {
                     thumbPix = service.getThumbnail(pixelsID, maxWidth, 
-                    								maxHeight);
+                    								maxHeight, -1);
                     
                 } catch (RenderingServiceException e) {
                     context.getLogger().error(this, 
@@ -163,13 +167,23 @@ public class ThumbnailLoader
             return;
         }
         String description;
-        for (int i = 0;  i < images.length; ++i) {
-        	description = "Loading thumbnail: "+images[i].getName();
-        	final int index = i;
-        	add(new BatchCall(description) {
-        		public void doCall() { loadThumbail(index); }
-        	});    
-        }
+        Iterator j = userIDs.iterator();
+    	Long id;
+    	Iterator i;
+    	ImageData image;
+    	while (j.hasNext()) {
+			id = (Long) j.next();
+			final long userID = id;
+			i = images.iterator();
+			while (i.hasNext()) {
+				image = (ImageData) i.next();
+				description = "Loading thumbnail: "+image.getName();
+            	final ImageData index = image;
+            	add(new BatchCall(description) {
+            		public void doCall() { loadThumbail(index, userID); }
+            	});  
+			}
+		}
     }
 
     /**
@@ -198,8 +212,10 @@ public class ThumbnailLoader
      * 					for each thumbnail to retrieve.
      * @param maxWidth  The maximum acceptable width of the thumbnails.
      * @param maxHeight The maximum acceptable height of the thumbnails.
+     * @param userIDs	The users the thumbnail are for.
      */
-    public ThumbnailLoader(Set imgs, int maxWidth, int maxHeight)
+    public ThumbnailLoader(Set<ImageData> imgs, int maxWidth, int maxHeight, 
+    					Set<Long> userIDs)
     {
         if (imgs == null) throw new NullPointerException("No images.");
         if (maxWidth <= 0)
@@ -208,9 +224,10 @@ public class ThumbnailLoader
         if (maxHeight <= 0)
             throw new IllegalArgumentException(
                     "Non-positive height: "+maxHeight+".");
-        images = (ImageData[]) imgs.toArray(new ImageData[] {});
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
+        images = imgs;
+        this.userIDs = userIDs;
         service = context.getImageService();
     }
 
@@ -219,11 +236,42 @@ public class ThumbnailLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
+     * @param imgs 		Contains {@link ImageData}s, one
+     * 					for each thumbnail to retrieve.
+     * @param maxWidth  The maximum acceptable width of the thumbnails.
+     * @param maxHeight The maximum acceptable height of the thumbnails.
+     * @param userID	The user the thumbnail are for.
+     */
+    public ThumbnailLoader(Set<ImageData> imgs, int maxWidth, int maxHeight, 
+    					long userID)
+    {
+        if (imgs == null) throw new NullPointerException("No images.");
+        if (maxWidth <= 0)
+            throw new IllegalArgumentException(
+                    "Non-positive width: "+maxWidth+".");
+        if (maxHeight <= 0)
+            throw new IllegalArgumentException(
+                    "Non-positive height: "+maxHeight+".");
+        this.maxWidth = maxWidth;
+        this.maxHeight = maxHeight;
+        images = imgs;
+        userIDs = new HashSet<Long>(1);
+        userIDs.add(userID);
+        service = context.getImageService();
+    }
+    
+    /**
+     * Creates a new instance.
+     * If bad arguments are passed, we throw a runtime exception so to fail
+     * early and in the caller's thread.
+     * 
      * @param image 	The {@link ImageData}, the thumbnail
      * @param maxWidth  The maximum acceptable width of the thumbnails.
      * @param maxHeight The maximum acceptable height of the thumbnails.
+     * @param userID	The user the thumbnails are for.
      */
-    public ThumbnailLoader(ImageData image, int maxWidth, int maxHeight)
+    public ThumbnailLoader(ImageData image, int maxWidth, int maxHeight,
+    						long userID)
     {
         if (image == null) throw new IllegalArgumentException("No image.");
         if (maxWidth <= 0)
@@ -232,11 +280,14 @@ public class ThumbnailLoader
         if (maxHeight <= 0)
             throw new IllegalArgumentException(
                     "Non-positive height: "+maxHeight+".");
-        images = new ImageData[1];
-        images[0] = image;
+        userIDs = new HashSet<Long>(1);
+        userIDs.add(userID);
+        images = new HashSet<ImageData>(1);
+        images.add(image);
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
         service = context.getImageService();
+       
     }
     
     /**
@@ -247,8 +298,10 @@ public class ThumbnailLoader
      * @param pixelsID  The id of the pixel set.
      * @param maxWidth  The maximum acceptable width of the thumbnails.
      * @param maxHeight The maximum acceptable height of the thumbnails.
+     * @param userID	The user the thumbnail are for.
      */
-    public ThumbnailLoader(long pixelsID, int maxWidth, int maxHeight)
+    public ThumbnailLoader(long pixelsID, int maxWidth, int maxHeight, 
+    						long userID)
     {
         if (maxWidth <= 0)
             throw new IllegalArgumentException(
@@ -263,6 +316,36 @@ public class ThumbnailLoader
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
         this.pixelsID = pixelsID;
+        userIDs = new HashSet<Long>(1);
+        userIDs.add(userID);
+        service = context.getImageService();
+    }
+    
+    /**
+     * Creates a new instance.
+     * If bad arguments are passed, we throw a runtime exception so to fail
+     * early and in the caller's thread.
+     * 
+     * @param image 	The {@link ImageData}, the thumbnail
+     * @param maxWidth  The maximum acceptable width of the thumbnails.
+     * @param maxHeight The maximum acceptable height of the thumbnails.
+     * @param userIDs	The users the thumbnail are for.
+     */
+    public ThumbnailLoader(ImageData image, int maxWidth, int maxHeight, 
+    						Set<Long> userIDs)
+    {
+        if (image == null) throw new IllegalArgumentException("No image.");
+        if (maxWidth <= 0)
+            throw new IllegalArgumentException(
+                    "Non-positive width: "+maxWidth+".");
+        if (maxHeight <= 0)
+            throw new IllegalArgumentException(
+                    "Non-positive height: "+maxHeight+".");
+        images = new HashSet<ImageData>(1);
+        images.add(image);
+        this.maxWidth = maxWidth;
+        this.maxHeight = maxHeight;
+        this.userIDs = userIDs;
         service = context.getImageService();
     }
     

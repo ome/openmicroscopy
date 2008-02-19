@@ -388,27 +388,27 @@ class RenderingControlProxy
      * 
      * @param re   			The service to render a pixels set.
      *                  	Mustn't be <code>null</code>.
-     * @param pixDims   	The dimensions in microns of the pixels set.
+     * @param pixels   		The pixels set.
      *                  	Mustn't be <code>null</code>.
      * @param m         	The channel metadata. 
-     * @param pixelsID		The pixels ID, this proxy is for.
      * @param compression  	Pass <code>0</code> if no compression otherwise 
 	 * 						pass the compression used.
 	 * @param rndDef		Local copy of the rendering settings used to 
 	 * 						speed-up the client.
      */
-    RenderingControlProxy(RenderingEngine re, PixelsDimensions pixDims, List m,
+    RenderingControlProxy(RenderingEngine re, Pixels pixels, List m,
     					int compression, RndProxyDef rndDef)
     {
         if (re == null)
             throw new NullPointerException("No rendering engine.");
-        if (pixDims == null)
-            throw new NullPointerException("No pixels dimensions.");
+        if (pixels == null)
+            throw new NullPointerException("No pixels set.");
         servant = re;
-        this.pixDims = pixDims;
-        pixs = servant.getPixels();
+        pixs = pixels;//servant.getPixels();
+        this.pixDims = pixels.getPixelsDimensions();
         families = servant.getAvailableFamilies(); 
         models = servant.getAvailableModels();
+       
         
         this.compression = compression;
         if (rndDef == null) {

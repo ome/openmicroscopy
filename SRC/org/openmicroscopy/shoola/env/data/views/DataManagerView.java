@@ -189,11 +189,12 @@ public interface DataManagerView
 	 * @param image     The <code>ImageData</code> object the thumbnail is for.
 	 * @param maxWidth  The maximum acceptable width of the thumbnails.
 	 * @param maxHeight The maximum acceptable height of the thumbnails.
+	 * @param userID	The id of the user the thumbnails are for.
 	 * @param observer  Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadThumbnail(ImageData image, int maxWidth, 
-			int maxHeight, AgentEventListener observer);
+			int maxHeight, long userID, AgentEventListener observer);
 
 	/**
 	 * Loads all Category Group/Category paths that end or don't end with the 

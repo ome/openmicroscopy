@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -105,7 +106,7 @@ public interface OmeroDataService
 	 */
 	public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs,
 			boolean withLeaves, long userID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Retrieves hierarchy trees rooted by a given node.
@@ -122,7 +123,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public Set loadTopContainerHierarchy(Class rootNodeType, long userID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Retrieves hierarchy trees in various hierarchies that
@@ -186,7 +187,7 @@ public interface OmeroDataService
 	 */
 	public Set findContainerHierarchy(Class rootNodeType, Set leavesIDs,
 			long userID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Finds all the annotations that have been attached to the specified
@@ -217,7 +218,7 @@ public interface OmeroDataService
 	 */
 	public Map findAnnotations(Class nodeType, Set nodeIDs, Set annotatorIDs, 
 			boolean forUser)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Retrieves paths in the Category Group/Category/Image (CG/C/I) hierarchy.
@@ -253,7 +254,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public Set findCGCPaths(Set imgIDs, int algorithm, long userID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Retrieves the images contained in containers specified by the 
@@ -269,7 +270,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public Set getImages(Class nodeType, Set nodeIDs, long userID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Retrieves the images imported by the specified user.
@@ -281,7 +282,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public Set getExperimenterImages(long userID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Counts the number of items in a collection for a given object.
@@ -299,7 +300,7 @@ public interface OmeroDataService
 	 */
 	public Map getCollectionCount(Class rootNodeType, String property,
 			Set rootNodeIDs)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Creates the specified annotation for the specified
@@ -335,7 +336,7 @@ public interface OmeroDataService
 	 */
 	public DataObject removeAnnotationFrom(DataObject annotatedObject, 
 			List data)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Updates the specified annotation. The updated <code>DataObject</code> is
@@ -352,7 +353,7 @@ public interface OmeroDataService
 	 */
 	public DataObject updateAnnotationFor(DataObject annotatedObject, 
 			AnnotationData data)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Creates a new <code>DataObject</code> and links it to the specified 
@@ -372,7 +373,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public DataObject createDataObject(DataObject newObject, DataObject parent)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Unlinks the specified <code>DataObject</code> and the parent object.
@@ -387,7 +388,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public Set removeDataObjects(Set children, DataObject parent)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Updates the specified <code>DataObject</code>.
@@ -399,7 +400,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public DataObject updateDataObject(DataObject object)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Adds the images to the specified categories.
@@ -425,7 +426,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public Set declassify(Set<ImageData> images, Set<CategoryData> categories)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Loads the objects that be added to the node.
@@ -443,7 +444,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public Set loadExistingObjects(Class nodeType, Set nodeIDs, long userID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Adds the given objects to the specified node.
@@ -456,7 +457,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public void addExistingObjects(DataObject parent, Set children)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Cuts and paste the specified nodes.
@@ -468,7 +469,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public void cutAndPaste(Map toPaste, Map toCut)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Retrieves the channel metadata for the specified pixels sets.
@@ -480,7 +481,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public List getChannelsMetadata(long pixelsID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Creates the specified annotation for the specified
@@ -496,7 +497,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public List createAnnotationFor(Set toAnnotate, AnnotationData data)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Updates the specified annotation. The updated <code>DataObject</code>s 
@@ -510,7 +511,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public List updateAnnotationFor(Map toUpdate)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Returns a map whose keys are the <code>GroupData</code> objetcs
@@ -523,7 +524,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public Map<GroupData, Set> getAvailableGroups()
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Retrieves the oprhans datasets or categories.
@@ -540,7 +541,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public Set getOrphanContainers(Class nodeType, boolean b, long userID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Retrieves and saves the archived files.
@@ -555,7 +556,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public Map getArchivedFiles(String location, long pixelsID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Classifies the images contained in the specified folders.
@@ -569,7 +570,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public Set classifyChildren(Set containers, Set categories)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * 
@@ -581,7 +582,7 @@ public interface OmeroDataService
 	 */
 	public Set tagImagesIncontainers(Set<Long> ids, Class rootType, 
 			Set<CategoryData> tags)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Annotates the images contained in the passed folders i.e. 
@@ -596,7 +597,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public List annotateChildren(Set folders, AnnotationData data)
-	throws DSOutOfServiceException, DSAccessException;		
+		throws DSOutOfServiceException, DSAccessException;		
 
 	/**
 	 * Changes the password of the user currently logged in.
@@ -610,7 +611,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public Boolean changePassword(String oldPassword, String newPassword)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Updates the specified experimenter.
@@ -622,7 +623,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public ExperimenterData updateExperimenter(ExperimenterData exp)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Returns the address of the server the user is currently connected to.
@@ -774,4 +775,20 @@ public interface OmeroDataService
 	 */
 	public SearchResult advancedSearchFor(SearchDataContext context)
 		throws DSOutOfServiceException, DSAccessException;
+	
+	public Collection loadTags(Class type, long id, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	public Collection loadAttachments(Class type, long id, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	public Collection loadUrls(Class type, long id, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	public Collection loadRatings(Class type, long id, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	public Collection findContainerPaths(Class type, long id, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
 }

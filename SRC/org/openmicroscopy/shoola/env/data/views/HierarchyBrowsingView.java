@@ -34,6 +34,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * Provides methods to support browsing of image hierarchies.
@@ -175,15 +176,17 @@ public interface HierarchyBrowsingView
      * original image and so that their area doesn't exceed <code>maxWidth*
      * maxHeight</code>.
      * 
-     * @param imgs Contains <code>ImageData</code> objects, one
-     *                      for each thumbnail to retrieve.
+     * @param imgs 		Contains <code>ImageData</code> objects, one
+     *                  for each thumbnail to retrieve.
      * @param maxWidth  The maximum acceptable width of the thumbnails.
      * @param maxHeight The maximum acceptable height of the thumbnails.
+     * @param userID	The id of the user the thumbnails are for.
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadThumbnails(Set imgs, int maxWidth, int maxHeight,
-                                     AgentEventListener observer);
+    public CallHandle loadThumbnails(Set<ImageData> imgs, int maxWidth, 
+    								int maxHeight, long userID, 
+    								AgentEventListener observer);
     
     /**
      * Loads all Category Group/Category paths that end or don't end with the 

@@ -62,13 +62,11 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.model.ILink;
 import ome.model.IObject;
-import ome.model.annotations.Annotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
-import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
@@ -780,7 +778,7 @@ class OMEROGateway
 	 * @see IPojos#findContainerHierarchies(Class, Set, Map)
 	 */
 	Set findContainerHierarchy(Class rootNodeType, Set leavesIDs, Map options)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			IPojos service = getPojosService();
@@ -1122,13 +1120,17 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			Pixels pixs = getPixels(pixelsID);
+			return pixs.getPixelsDimensions();
+			/*
 			IQuery service = getQueryService();
 			Pixels pixs = service.get(Pixels.class, pixelsID);
 			return service.get(PixelsDimensions.class,
 					pixs.getPixelsDimensions().getId().longValue());
+					*/
 		} catch (Throwable t) {
-			handleException(t, "Cannot retrieve the dimension of "+
-			"the pixels set.");
+			handleException(t, "Cannot retrieve the dimension of " +
+								"the pixels set.");
 		}
 		return null;
 	}
@@ -1198,12 +1200,14 @@ class OMEROGateway
 	 * @param pixelsID  The id of the pixels set the thumbnail is for.
 	 * @param sizeX     The size of the thumbnail along the X-axis.
 	 * @param sizeY     The size of the thumbnail along the Y-axis.
+	 * @param userID	The id of the user the thumbnail is for.
 	 * @return See above.
 	 * @throws RenderingServiceException If an error occured while trying to 
 	 *              retrieve data from the service. 
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	synchronized byte[] getThumbnail(long pixelsID, int sizeX, int sizeY)
+	synchronized byte[] getThumbnail(long pixelsID, int sizeX, int sizeY, 
+									long userID)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		try {
@@ -1414,18 +1418,18 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 */
 	List findLinks(Class parentClass, long childID, long userID)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			String table = getTableForLink(parentClass);
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link where " +
-			"link.child.id = :childID and " +
-			"link.details.owner.id = :userID";
+			"link.child.id = :childID";
+			if (userID != -1) sql += "and link.details.owner.id = :userID";
 			IQuery service = getQueryService();
 			Parameters param = new Parameters();
 			param.addLong("childID", childID);
-			param.addLong("userID", userID);
+			if (userID != -1) param.addLong("userID", userID);
 			return service.findAllByQuery(sql, param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
@@ -1467,7 +1471,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 */
 	IObject findIObject(Class klass, long id)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			IQuery service = getQueryService();
@@ -2398,12 +2402,6 @@ class OMEROGateway
 		service.onlyType(Project.class);
 		//service.byTags(tags);
 		if (service.hasNext()) {
-			Map results = service.results();
-			Iterator j = results.keySet().iterator();
-			while (j.hasNext()) {
-				System.err.println(j.next());
-				
-			}
 		}
 		//Map results = service.results();
 		return null;
@@ -2433,36 +2431,45 @@ class OMEROGateway
 			}
 		
 		}
-		List<ExperimenterData> users = context.getUsers();
+		List<ExperimenterData> users = context.getOwners();
 		Iterator i;
+		ExperimenterData exp;
+		
+		//Limit to owner if any.
 		if (users != null && users.size() > 0) {
 			i = users.iterator();
-			ExperimenterData exp;
-			switch (context.getOwnershipIndex()) {
-				case SearchDataContext.OWNER:
-					while (i.hasNext()) {
-						exp = (ExperimenterData) i.next();
-						service.onlyOwnedBy(exp.asExperimenter().getDetails());
-					}
-					break;
-				case SearchDataContext.ANNOTATOR:
-					while (i.hasNext()) {
-						exp = (ExperimenterData) i.next();
-						service.onlyAnnotatedBy(
-									exp.asExperimenter().getDetails());
-					}
-					break;
-				case SearchDataContext.EXCLUDE_OWNER:
-					//TODO:
-					break;
-				case SearchDataContext.EXCLUDE_ANNOTATOR:
-					//TODO
-					break;
-				default:
-					break;
+			while (i.hasNext()) {
+				exp = (ExperimenterData) i.next();
+				service.onlyOwnedBy(exp.asExperimenter().getDetails());
 			}
-			
 		}
+		
+		users = context.getAnnotators();
+		if (users != null && users.size() > 0) {
+			i = users.iterator();
+			while (i.hasNext()) {
+				exp = (ExperimenterData) i.next();
+				service.onlyAnnotatedBy(exp.asExperimenter().getDetails());
+			}
+		}
+		users = context.getExcludedOwners();
+		if (users != null && users.size() > 0) {
+			i = users.iterator();
+			while (i.hasNext()) {
+				exp = (ExperimenterData) i.next();
+				service.notOwnedBy(exp.asExperimenter().getDetails());
+			}
+		}
+		
+		users = context.getExcludedAnnotators();
+		if (users != null && users.size() > 0) {
+			i = users.iterator();
+			while (i.hasNext()) {
+				exp = (ExperimenterData) i.next();
+				service.notAnnotatedBy(exp.asExperimenter().getDetails());
+			}
+		}
+		
 		List<Class> types = context.getTypes();
 		List<Class> scopes = context.getScope();
 		if (scopes != null) {
@@ -2500,9 +2507,10 @@ class OMEROGateway
 		
 		
 		if (service.hasNext()) {
-			Map results = service.results();
+			//Map results = service.results();
 			service.close();
-			return results;
+			//return results;
+			return new HashMap();
 		}
 		service.close();
 		return new HashMap();

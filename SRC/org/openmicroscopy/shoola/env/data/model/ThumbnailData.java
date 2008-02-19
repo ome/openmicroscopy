@@ -51,12 +51,36 @@ public class ThumbnailData
     implements DataObject
 {
 
+	 /** The id of the image to which the thumbnail belong. */
+    private long            userID;
+    
     /** The id of the image to which the thumbnail belong. */
     private long            imageID;
     
     /** The thumbnail pixels. */
     private BufferedImage   thumbnail;
 
+    /**
+     * Creates a new instance.
+     * 
+     * @param imageID   The id of the image to which the thumbnail belong.
+     *                  Must be positive.
+     * @param thumbnail The thumbnail pixels.  Mustn't be <code>null</code>.
+     * @param userID   	The id of the user the thumbnail is for.
+     *                  Must be positive.
+     */
+    public ThumbnailData(long imageID, BufferedImage thumbnail, long userID)
+    {
+        if (imageID <= 0) 
+            throw new IllegalArgumentException("Non-positive image id: "+
+                                               imageID+".");
+        if (thumbnail == null)
+            throw new NullPointerException("No thumbnail.");
+        this.imageID = imageID;
+        this.thumbnail = thumbnail;
+        this.userID = userID;
+    }
+    
     /**
      * Creates a new instance.
      * 
@@ -92,6 +116,13 @@ public class ThumbnailData
         return new ThumbnailData(imageID, pixClone);
     }
 
+    /**
+     * Returns the id of the user.
+     * 
+     * @return See above.
+     */
+    public long getUserID() { return userID; }
+    
     /**
      * Returns the id of the image to which the thumbnail belong.
      * 

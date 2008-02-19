@@ -168,13 +168,14 @@ class DataManagerViewImpl
 
   /**
    * Implemented as specified by the view interface.
-   * @see DataManagerView#loadThumbnail(ImageData, int, int,
+   * @see DataManagerView#loadThumbnail(ImageData, int, int, long,
    *                                          AgentEventListener)
    */
   public CallHandle loadThumbnail(ImageData image, int maxWidth, 
-          int maxHeight, AgentEventListener observer)
+          int maxHeight, long userID, AgentEventListener observer)
   {
-      BatchCallTree cmd = new ThumbnailLoader(image, maxWidth, maxHeight);
+      BatchCallTree cmd = new ThumbnailLoader(image, maxWidth, maxHeight, 
+    		  								userID);
       return cmd.exec(observer);
   }
   

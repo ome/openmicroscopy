@@ -96,25 +96,13 @@ public interface OmeroImageService
 	 * @param pixelsID  The id of the pixels set.
 	 * @param sizeX     The width of the thumbnail.
 	 * @param sizeY     The height of the thumnail.
+	 * @param userID	The id of the user the thumbnail is for.
 	 * @return See above.
 	 * @throws RenderingServiceException    If the server cannot retrieve the 
 	 *                                      thumbnail.
 	 */
-	public BufferedImage getThumbnail(long pixelsID, int sizeX, int sizeY)
-		throws RenderingServiceException;
-
-	/**
-	 * Returns a thumbnail of the currently selected 2D-plane for the
-	 * passed pixels set.
-	 * 
-	 * @param pixelsID	The id of the pixels set.
-	 * @param maxLength	The maximum length of the thumbnail width or heigth
-	 * 					depending on the pixel size.
-	 * @return See above.
-	 * @throws RenderingServiceException    If the server cannot retrieve the 
-	 *                                      thumbnail.
-	 */
-	public BufferedImage getThumbnailByLongestSide(long pixelsID, int maxLength)
+	public BufferedImage getThumbnail(long pixelsID, int sizeX, int sizeY, long
+										userID)
 		throws RenderingServiceException;
 
 	/**

@@ -32,6 +32,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.DataObject;
 import pojos.ExperimenterData;
 
 /** 
@@ -59,12 +60,6 @@ public class SearchDataContext
 	/** Indicates to set the time of annotation. */
 	public static final int			ANNOTATION_TIME = 2;
 	
-	/** Indicates that the collection of users are owners. */
-	public static final int			OWNER = 100;
-	
-	/** Indicates that the collection of users who annotated entities. */
-	public static final int			ANNOTATOR = 101;
-	
 	/** 
 	 * Indicates to exclude the collection of users who owned entities.
 	 */
@@ -80,9 +75,6 @@ public class SearchDataContext
 	
 	/** One the time constants defined by this class. */
 	private int						timeIndex;
-	
-	/** One the ownership constants defined by this class. */
-	private int						ownershipIndex;
 	
 	/** 
 	 * Set to <code>true</code> if the case is taken into account, 
@@ -121,10 +113,22 @@ public class SearchDataContext
 	private String[]				none;
 	
 	/** Collection of experimenters to restrict the search on.*/ 
-	private List<ExperimenterData>	users;
+	private List<ExperimenterData>	owners;
 
+	/** Collection of experimenters to restrict the search on.*/ 
+	private List<ExperimenterData>	annotators;
+	
+	/** Collection of experimenters to restrict the search on.*/ 
+	private List<ExperimenterData>	excludedOwners;
+
+	/** Collection of experimenters to restrict the search on.*/ 
+	private List<ExperimenterData>	excludedAnnotators;
+	
 	/** The number of results returned. */
 	private int						numberOfResults;
+	
+	/** 
+	private DataObject				refObject;
 	
 	/**
 	 * Creates a new instance.
@@ -274,11 +278,12 @@ public class SearchDataContext
 	public int getTimeIndex() { return timeIndex; }
 	
 	/**
-	 * Returns the ownership index. 
+	 * Returns the collection of users or <code>null</code>
+	 * if none specified.
 	 * 
 	 * @return See above.
 	 */
-	public int getOwnershipIndex() { return ownershipIndex; }
+	public List<ExperimenterData> getOwners() { return owners; }
 	
 	/**
 	 * Returns the collection of users or <code>null</code>
@@ -286,14 +291,63 @@ public class SearchDataContext
 	 * 
 	 * @return See above.
 	 */
-	public List<ExperimenterData> getUsers() { return users; }
+	public List<ExperimenterData> getAnnotators() { return annotators; }
 
 	/**
-	 * Sets the collection of users to narrow the search
+	 * Returns the collection of users or <code>null</code>
+	 * if none specified.
+	 * 
+	 * @return See above.
+	 */
+	public List<ExperimenterData> getExcludedOwners() { return excludedOwners; }
+	
+	/**
+	 * Returns the collection of users or <code>null</code>
+	 * if none specified.
+	 * 
+	 * @return See above.
+	 */
+	public List<ExperimenterData> getExcludedAnnotators()
+	{ 
+		return excludedAnnotators;
+	}
+	
+	/**
+	 * Sets the collection of users who owns the data.
 	 * 
 	 * @param users The collection to set.
 	 */
-	public void setUsers(List<ExperimenterData> users) { this.users = users; }
+	public void setOwners(List<ExperimenterData> users) { owners = users; }
+	
+	/**
+	 * Sets the collection of users who owns the data.
+	 * 
+	 * @param users The collection to set.
+	 */
+	public void setExcludedOwners(List<ExperimenterData> users)
+	{ 
+		excludedOwners = users; 
+	}
+	
+	/**
+	 * Sets the collection of users who owns the data.
+	 * 
+	 * @param users The collection to set.
+	 */
+	public void setAnnotators(List<ExperimenterData> users)
+	{ 
+		annotators = users; 
+	}
+	
+	/**
+	 * Sets the collection of users who owns the data.
+	 * 
+	 * @param users The collection to set.
+	 */
+	public void setExcludedAnnotators(List<ExperimenterData> users)
+	{ 
+		excludedAnnotators = users; 
+	}
 	
 	/**
 	 * Sets the number of results returned.

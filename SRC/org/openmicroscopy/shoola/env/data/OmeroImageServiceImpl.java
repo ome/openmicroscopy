@@ -144,11 +144,11 @@ class OmeroImageServiceImpl
 			ExperimenterData exp = (ExperimenterData) context.lookup(
 					LookupNames.CURRENT_USER_DETAILS);
 			RenderingEngine re = gateway.createRenderingEngine(pixelsID);
-			PixelsDimensions pixDims = gateway.getPixelsDimensions(pixelsID);
+			Pixels pix = gateway.getPixels(pixelsID);
 			RenderingDef def = gateway.getRenderingDef(pixelsID, exp.getId());
 			List l = context.getDataService().getChannelsMetadata(pixelsID);
 			proxy = PixelsServicesFactory.createRenderingControl(context, re,
-					pixDims, l, compressionLevel, def);
+					pix, l, compressionLevel, def);
 		}
 		return proxy;
 	}
@@ -179,17 +179,19 @@ class OmeroImageServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#getThumbnail(long, int, int)
+	 * @see OmeroImageService#getThumbnail(long, int, int, long)
 	 */
-	public BufferedImage getThumbnail(long pixID, int sizeX, int sizeY)
+	public BufferedImage getThumbnail(long pixID, int sizeX, int sizeY, 
+									long userID)
 		throws RenderingServiceException
 	{
 		try {
-			return createImage(gateway.getThumbnail(pixID, sizeX, sizeY));
+			return createImage(gateway.getThumbnail(pixID, sizeX, sizeY, 
+								userID));
 		} catch (Exception e) {
 			if (e instanceof DSOutOfServiceException) {
 				context.getLogger().error(this, e.getMessage());
-				return getThumbnail(pixID, sizeX, sizeY);
+				return getThumbnail(pixID, sizeX, sizeY, userID);
 			}
 			throw new RenderingServiceException("Get Thumbnail", e);
 		}
@@ -259,25 +261,6 @@ class OmeroImageServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return gateway.getPixels(pixelsID);
-	}
-
-	/** 
-	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#getThumbnailByLongestSide(long, int)
-	 */
-	public BufferedImage getThumbnailByLongestSide(long pixelsID, int maxLength) 
-		throws RenderingServiceException 
-	{
-		try {
-			return createImage(gateway.getThumbnailByLongestSide(pixelsID, 
-					maxLength));
-		} catch (Exception e) {
-			if (e instanceof DSOutOfServiceException) {
-				context.getLogger().error(this, e.getMessage());
-				return getThumbnailByLongestSide(pixelsID, maxLength);
-			}
-			throw new RenderingServiceException("Get Thumbnail", e);
-		}
 	}
 
 	/** 
