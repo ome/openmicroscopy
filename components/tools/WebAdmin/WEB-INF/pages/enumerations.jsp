@@ -49,13 +49,13 @@
 					
 					<h:commandLink action="#{ITEManagerBean.resetEnumeration}"
 						onclick="if (!confirm('#{msg.enumsResetConfirmation}')) return false"
-						title="#{msg.enumsResetEnum}" rendered="#{not enumeration.oryginalVales}"  >
+						title="#{msg.enumsResetEnum}" rendered="#{not enumeration.originalVales}"  >
 						<h:graphicImage url="/images/reset.png" alt="#{msg.enumsResetEnum}"
 							styleClass="action" />						
 					</h:commandLink>
 
 					<h:graphicImage url="/images/reset-grey.png" alt="#{msg.enumsResetEnum}"
-						styleClass="action" rendered="#{enumeration.oryginalVales}" />	
+						styleClass="action" rendered="#{enumeration.originalVales}" />	
 				</h:column>
 
 				<h:column>

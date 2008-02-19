@@ -94,7 +94,7 @@ public interface ITypes extends ServiceInterface {
     T oEnum);
 
     /**
-     * Gets all original values of specified class.
+     * Gets all original values.
      * 
      * @param <T>
      *            The type of the enumeration. Must extend {@link IEnum}
