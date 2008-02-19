@@ -48,6 +48,7 @@ import omero.RString;
 import omero.RType;
 import omero.constants.POJOEXPERIMENTER;
 import omero.constants.POJOLEAVES;
+import omero.model.DetailsI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterI;
 import omero.model.Image;
@@ -96,6 +97,26 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         current = new Ice.Current();
         current.operation = "close";
         current.id = Ice.Util.stringToIdentity("test");
+    }
+
+    @Test(groups = "ticket:880")
+    void testDetailsAreMappedToOmero() throws Exception {
+        ome.model.core.Image i = new ome.model.core.Image();
+        assertNotNull(i.getDetails());
+        Object o = invoker.handleOutput(mapper, ome.model.core.Image.class, i);
+        ServantHelper.throwIfNecessary(o);
+        Image rv = (Image) o;
+        assertNotNull(rv.details);
+    }
+
+    @Test(groups = "ticket:880")
+    void testDetailsAreMappedFromOmero() throws Exception {
+        Image i = new ImageI();
+        i.details = new DetailsI();
+        Object o = invoker.handleInput(mapper, ome.model.core.Image.class, i);
+        ServantHelper.throwIfNecessary(o);
+        ome.model.core.Image rv = (ome.model.core.Image) o;
+        assertNotNull(rv.getDetails());
     }
 
     @Test

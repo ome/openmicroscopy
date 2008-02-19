@@ -26,5 +26,11 @@ class TestTicket1000(lib.ITest):
         except omero.ValidationException, ve:
             pass
 
+    def test880(self):
+        i = self.client.sf.getQueryService().findAll("Image",None)[0]
+        self.assert_(i != None)
+        self.assert_(i.id != None)
+        self.assert_(i.details != None)
+
 if __name__ == '__main__':
     unittest.main()
