@@ -29,6 +29,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
 
 import pojos.AnnotationData;
 import pojos.CategoryData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -75,13 +77,16 @@ public class AdvancedFinder
 	private static final String 	TITLE = "Search";
 	
 	/** Reference to the component handling data. */ 
-	private List<FinderLoader>		finderHandlers;
+	private List<FinderLoader>				finderHandlers;
 	
 	/** One of the constants defined by this class. */
-	private int						state;
+	private int								state;
 	
 	/** Collection of selected users. */
-	private List<ExperimenterData>	users;
+	private Map<String, ExperimenterData>	users;
+	
+	/** Object of reference to limit the context of the search. */
+	private DataObject						refObject;
 	
 	/**
 	 * Determines the scope of the search.
@@ -108,6 +113,66 @@ public class AdvancedFinder
 	}
 	
 	/**
+	 * Creates and returns the list of users corresponding to the collection
+	 * of names.
+	 * 
+	 * @param names Collection of names to handle.
+	 * @return See above.
+	 */
+	private List<ExperimenterData> fillUsersList(List<String> names)
+	{
+		List<ExperimenterData> l = new ArrayList<ExperimenterData>();
+		if (names == null) return l;
+		Iterator i = names.iterator();
+		String name;
+		ExperimenterData user;
+		while (i.hasNext()) {
+			name = (String) i.next();
+			user = users.get(name);
+			if (user != null && !l.contains(user))
+				l.add(user);
+		}
+		return l;
+	}
+	
+	/**
+	 * Fills the passed lists depending on the specified context.
+	 * 
+	 * @param usersContext	The context.
+	 * @param toKeep		The users to consider.
+	 * @param toExclude		The users to exclude.
+	 */
+	private void fillUsersList(List<Integer> usersContext, 
+							List<ExperimenterData> toKeep, 
+								List<ExperimenterData> toExclude)
+	{
+		if (usersContext == null) {
+			toKeep.clear();
+			toExclude.clear();
+			return;
+		}
+		switch (usersContext.size()) {
+			case 2:
+				if (toKeep.size() > 0)
+					toKeep.add(getUserDetails());
+				else {
+					toKeep.clear();
+					toExclude.clear();
+				}
+				break;
+			case 1:
+				if (usersContext.contains(SearchContext.CURRENT_USER)) {
+					toKeep.clear();
+					toExclude.clear();
+					toKeep.add(getUserDetails());
+				} else {
+					if (toKeep.size() == 0)
+						toExclude.add(getUserDetails());
+				}
+		}
+	}
+	
+	/**
 	 * Converts the UI context into a searchable context.
 	 * 
 	 * @param ctx The value to convert.
@@ -129,8 +194,9 @@ public class AdvancedFinder
 		}
 		Timestamp start = ctx.getStartTime();
 		Timestamp end = ctx.getEndTime();
+		
 		if (start != null && end != null && start.after(end)) {
-			un.notifyInfo(TITLE, "The time interval selected is not valid.");
+			un.notifyInfo(TITLE, "The selected time interval is not valid.");
 			return;
 		}
 		List<Class> scope = new ArrayList<Class>(context.size());
@@ -140,8 +206,6 @@ public class AdvancedFinder
 			k = convertScope((Integer) i.next());
 			if (k != null) scope.add(k);
 		}
-			
-		
 		List<Class> types = new ArrayList<Class>();
 		i = ctx.getType().iterator();
 		
@@ -150,15 +214,25 @@ public class AdvancedFinder
 			if (k != null) types.add(k);
 		}
 		
-		switch (ctx.getUserSearchContext()) {
-			case SearchContext.JUST_CURRENT_USER:
-			case SearchContext.CURRENT_USER_AND_OTHERS:
-				users.add(getUserDetails());
-		}
+		List<ExperimenterData> owners = fillUsersList(ctx.getSelectedOwners());
+		List<ExperimenterData> annotators = fillUsersList(
+										ctx.getSelectedAnnotators());
+		List<ExperimenterData> excludedOwners = fillUsersList(
+													ctx.getExcludedOwners());
+		List<ExperimenterData> excludedAnnotators = fillUsersList(
+											ctx.getExcludedAnnotators());
+		
+		fillUsersList(ctx.getOwnerSearchContext(), owners, excludedOwners);
+		fillUsersList(ctx.getAnnotatorSearchContext(), annotators, 
+						excludedAnnotators);
+		
 		SearchDataContext searchContext = new SearchDataContext(scope, types, 
 										some, must, none);
 		searchContext.setTimeInterval(start, end);
-		searchContext.setUsers(users);
+		searchContext.setOwners(owners);
+		searchContext.setAnnotators(annotators);
+		searchContext.setExcludedOwners(excludedOwners);
+		searchContext.setExcludedAnnotators(excludedAnnotators);
 		searchContext.setCaseSensitive(ctx.isCaseSensitive());
 		searchContext.setNumberOfResults(ctx.getNumberOfResults());
 		AdvancedFinderLoader loader = new AdvancedFinderLoader(this, 
@@ -207,18 +281,18 @@ public class AdvancedFinder
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param registry 	Helper reference to the registry. Mustn't be 
-	 * 					<code>null</code>.
+	 * @param refObject Object of reference. The search is limited to that 
+	 * 					object.
 	 */
-	public AdvancedFinder()
+	public AdvancedFinder(DataObject refObject)
 	{
 		super(FinderFactory.getRefFrame());
 		finderHandlers = new ArrayList<FinderLoader>();
 		addPropertyChangeListener(SEARCH_PROPERTY, this);
 		addPropertyChangeListener(CANCEL_SEARCH_PROPERTY, this);
 		addPropertyChangeListener(OWNER_PROPERTY, this);
-		//setModal(true);
-		users = new ArrayList<ExperimenterData>();
+		users = new HashMap<String, ExperimenterData>();
+		this.refObject = refObject;
 	}
 
 	/** 
@@ -280,13 +354,12 @@ public class AdvancedFinder
 			if (m == null) return;
 			Iterator i = m.keySet().iterator();
 			ExperimenterData exp;
+			String value;
 			while (i.hasNext()) {
 				exp = (ExperimenterData) m.get(i.next());
-				if (!users.contains(exp)) {
-					users.add(exp);
-					setUserString(exp.getFirstName()+SearchUtil.SPACE_SEPARATOR+
-								exp.getLastName());
-				}
+				value = exp.getFirstName()+SearchUtil.SPACE_SEPARATOR+
+						exp.getLastName();
+				users.put(value, exp);
 			}
 		}
 	}

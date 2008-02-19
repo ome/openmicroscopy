@@ -31,6 +31,8 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 
+import pojos.DataObject;
+
 /** 
  * Factory to create {@link Finder}.
  *
@@ -58,8 +60,22 @@ public class FinderFactory
 	 */
 	public static AdvancedFinder getAdvancedFinder(Registry ctx)
 	{
+		return FinderFactory.getAdvancedFinder(ctx, null);
+	}
+	
+	/**
+	 * Creates or recycles an advanced search.
+	 * 
+	 * @param ctx		Reference to the registry. Mustn't be <code>null</code>.
+	 * @param refObject	Object of reference. The search is limited to that 
+	 * 					object.
+	 * @return See above.
+	 */
+	public static AdvancedFinder getAdvancedFinder(Registry ctx, 
+											DataObject refObject)
+	{
 		if (singleton.registry == null) singleton.registry = ctx;
-		return (AdvancedFinder) singleton.createFinder();
+		return (AdvancedFinder) singleton.createFinder(refObject);
 	}
 	
 	/**
@@ -70,9 +86,23 @@ public class FinderFactory
 	 */
 	public static QuickFinder getQuickFinder(Registry ctx)
 	{
-		if (singleton.registry == null) singleton.registry = ctx;
-		return (QuickFinder) singleton.createQuickFinder();
+		return FinderFactory.getQuickFinder(ctx, null);
 	}
+	
+	/**
+	 * Creates or recycles an advanced search.
+	 * 
+	 * @param ctx		Reference to the registry. Mustn't be <code>null</code>.
+	 * @param refObject	Object of reference. The search is limited to that 
+	 * 					object.
+	 * @return See above.
+	 */
+	public static QuickFinder getQuickFinder(Registry ctx, DataObject refObject)
+	{
+		if (singleton.registry == null) singleton.registry = ctx;
+		return (QuickFinder) singleton.createQuickFinder(refObject);
+	}
+	
 	 /**
      * Helper method. 
      * 
@@ -94,7 +124,7 @@ public class FinderFactory
     private Registry	registry;
     
     /** The tracked component. */
-    //private Finder		finder;
+    private Finder		finder;
     
     /** Creates a new instance. */
 	private FinderFactory()
@@ -105,25 +135,26 @@ public class FinderFactory
 	/**
 	 * Creates the finder.
 	 * 
+	 * @param refObject	Object of reference. The search is limited to that 
+	 * 					object.
 	 * @return See above.
 	 */
-	private Finder createFinder()
+	private Finder createFinder(DataObject refObject)
 	{
-		//if (advancedFinder != null) {
-			//advancedFinder.setFocusOnSearch();
-			//advancedFinder.set
-		//	return advancedFinder;
-		//}
-		//finder = new AdvancedFinder();
-		return new AdvancedFinder();
+		if (finder != null)
+			return finder;
+		finder = new AdvancedFinder(refObject);
+		return finder;
 	}
 	
 	/**
 	 * Creates the finder.
 	 * 
+	 * @param refObject	Object of reference. The search is limited to that 
+	 * 					object.
 	 * @return See above.
 	 */
-	private Finder createQuickFinder()
+	private Finder createQuickFinder(DataObject refObject)
 	{
 		//if (advancedFinder != null) {
 			//advancedFinder.setFocusOnSearch();
