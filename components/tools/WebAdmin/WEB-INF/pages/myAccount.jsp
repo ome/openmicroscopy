@@ -7,6 +7,14 @@
 
 <c:if test="${sessionScope.LoginBean.mode}">
 	<f:view>
+		<div id="hello"><h:form id="log">
+			<h1><h:outputText value="#{msg.headerHello} #{sessionScope.LoginBean.username}" />!
+			<h:commandLink action="#{LoginBean.logout}"
+				title="#{msg.headerLogout}">
+				<h:outputText value=" #{msg.headerLogout}" />
+			</h:commandLink></h1>		
+		</h:form></div>
+		
 		<div id="addform"><h:form id="experimenterForm">
 
 			<h2><h:outputText value="#{msg.myaccountEdit}" /></h2>

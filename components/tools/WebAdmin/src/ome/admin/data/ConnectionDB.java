@@ -523,7 +523,7 @@ public class ConnectionDB {
      */
     public List<Experimenter> lookupExperimenters() {
         logger.info("lookupExperimenters by user ID: " + userid + "'");
-        List<Experimenter> exps = adminService.lookupExperimenters();
+        List<Experimenter> exps = filterExp(adminService.lookupExperimenters());
         for (Experimenter exp : exps) {
             logger.info("Experimenter details [id: '" + exp.getId()
                     + "', Ome name: '" + exp.getOmeName() + "', email: '"
@@ -855,27 +855,6 @@ public class ConnectionDB {
     }
 
     /**
-     * Gets {@link ome.model.meta.ExperimenterGroup} [] for all of the
-     * {@link ome.model.meta.Experimenter#getId()} without "system", default"
-     * and "user" groups.
-     * 
-     * @param experimenterId
-     *            {@link ome.model.meta.Experimenter#getId()}
-     * @return {@link ome.model.meta.ExperimenterGroup} []
-     */
-    public ExperimenterGroup[] containedGroups(Long experimenterId) {
-        logger.info("containedGroups by ID: '" + experimenterId
-                + "' by user ID: '" + userid + "'");
-        ExperimenterGroup[] exgs = filter(adminService
-                .containedGroups(experimenterId));
-        for (int i = 0; i < exgs.length; i++) {
-            logger.info("Group details [id: '" + exgs[i].getId() + "', name: '"
-                    + exgs[i].getName() + "'");
-        }
-        return exgs;
-    }
-
-    /**
      * Gets {@link ome.model.meta.Experimenter} [] for all of the
      * {@link ome.model.meta.ExperimenterGroup#getId()}
      * 
@@ -1076,23 +1055,19 @@ public class ConnectionDB {
 
     /**
      * 
-     * @param groups
+     * @param experimenters
      * @return
      */
-    private ExperimenterGroup[] filter(ExperimenterGroup[] groups) {
-        List<ExperimenterGroup> filteredGroups = new ArrayList<ExperimenterGroup>();
-        for (int i = 0; i < groups.length; i++) {
-            if (// !groups[i].getName().equals("default") &&
-            !groups[i].getName().equals("user")
-            // && !groups[i].getName().equals("system")
-            ) {
-                filteredGroups.add(groups[i]);
+    private List<Experimenter> filterExp(List<Experimenter> experimenters) {
+        List<Experimenter> filteredExps = new ArrayList<Experimenter>();
+        for (int i = 0; i < experimenters.size(); i++) {
+            if (!experimenters.get(i).getOmeName().equals("guest")) {
+                filteredExps.add(experimenters.get(i));
             }
         }
-        return filteredGroups.toArray(new ExperimenterGroup[filteredGroups
-                .size()]);
+        return filteredExps;
     }
-
+    
     /**
      * 
      * @param groups
@@ -1119,7 +1094,8 @@ public class ConnectionDB {
     private List<ExperimenterGroup> filter(List<ExperimenterGroup> groups) {
         List<ExperimenterGroup> filteredGroups = new ArrayList<ExperimenterGroup>();
         for (int i = 0; i < groups.size(); i++) {
-            if (!groups.get(i).getName().equals("user") // &&
+            if (!groups.get(i).getName().equals("user")
+                    && !groups.get(i).getName().equals("guest")// &&
             // !groups.get(i).getName().equals("system")
             // && !groups.get(i).getName().equals("default")
             ) {
@@ -1137,7 +1113,8 @@ public class ConnectionDB {
     private List<ExperimenterGroup> filterAdd(List<ExperimenterGroup> groups) {
         List<ExperimenterGroup> filteredGroups = new ArrayList<ExperimenterGroup>();
         for (int i = 0; i < groups.size(); i++) {
-            if (!groups.get(i).getName().equals("user") // &&
+            if (!groups.get(i).getName().equals("user")
+                    && !groups.get(i).getName().equals("guest")// &&
             // !groups.get(i).getName().equals("system")
             ) {
                 filteredGroups.add(groups.get(i));

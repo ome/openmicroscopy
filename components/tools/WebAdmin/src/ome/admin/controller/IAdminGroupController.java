@@ -281,6 +281,8 @@ public class IAdminGroupController implements java.io.Serializable {
             return true;
         if (name.equals("default"))
             return true;
+        if (name.equals("guest"))
+            return true;
         return false;
     }
 

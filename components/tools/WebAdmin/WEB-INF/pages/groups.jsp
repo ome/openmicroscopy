@@ -8,8 +8,16 @@
 <c:if
 	test="${sessionScope.LoginBean.mode && sessionScope.LoginBean.role}">
 	<f:view>
+		<div id="hello"><h:form id="log">
+			<h1><h:outputText value="#{msg.headerHello} #{sessionScope.LoginBean.username}" />!
+			<h:commandLink action="#{LoginBean.logout}"
+				title="#{msg.headerLogout}">
+				<h:outputText value=" #{msg.headerLogout}" />
+			</h:commandLink></h1>		
+		</h:form></div>
+		
 		<h:form id="groups">
-
+			
 			<h:commandLink action="#{IAGManagerBean.addNewGroup}"
 				title="#{msg.groupsAddNewGroup}">
 				<h:graphicImage url="/images/add.png" />

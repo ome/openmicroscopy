@@ -246,12 +246,6 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
-	<!-- Logout Servlet -->
-	<servlet>
-		<servlet-name>Logout</servlet-name>
-		<servlet-class>ome.admin.controller.Logout</servlet-class>
-	</servlet>
-
 	<!-- Chartlet Servlet -->
 	<servlet>
 		<servlet-name>Chartlet</servlet-name>
@@ -290,12 +284,6 @@
 	<servlet-mapping>
 		<servlet-name>SourceCodeServlet</servlet-name>
 		<url-pattern>*.source</url-pattern>
-	</servlet-mapping>
-
-	<!-- Logout Mapping -->
-	<servlet-mapping>
-		<servlet-name>Logout</servlet-name>
-		<url-pattern>/logout</url-pattern>
 	</servlet-mapping>
 
 	<!-- Chartlet Mapping -->

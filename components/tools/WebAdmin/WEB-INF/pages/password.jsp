@@ -7,14 +7,21 @@
 <c:if
 	test="${sessionScope.LoginBean.mode && sessionScope.LoginBean.role}">
 	<f:view>
-		<div id="addform">
+		<div id="hello"><h:form id="log">
+			<h1><h:outputText value="#{msg.headerHello} #{sessionScope.LoginBean.username}" />!
+			<h:commandLink action="#{LoginBean.logout}"
+				title="#{msg.headerLogout}">
+				<h:outputText value=" #{msg.headerLogout}" />
+			</h:commandLink></h1>		
+		</h:form></div>
+		
+		<div id="addform"><h:form id="changePassword">
+		
 		<h2><h:outputText
 				value="#{msg.experimentersChangePassword}" /></h2>
 		
 		<p><h:outputText value="#{msg.generalMandatoryFields}"/></p>
 		
-		<h:form id="changePassword">
-
 			<h:message styleClass="errorText" id="changePasswordError"
 				for="changePassword" />
 			<br />

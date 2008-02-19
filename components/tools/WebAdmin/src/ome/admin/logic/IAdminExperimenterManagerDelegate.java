@@ -126,19 +126,6 @@ public class IAdminExperimenterManagerDelegate implements java.io.Serializable {
 
     /**
      * Gets {@link ome.model.meta.ExperimenterGroup} [] for all of the
-     * {@link ome.model.meta.Experimenter#getId()} without "system", default"
-     * and "user" groups.
-     * 
-     * @param experimenterId
-     *            {@link ome.model.meta.Experimenter#getId()}
-     * @return {@link ome.model.meta.ExperimenterGroup} []
-     */
-    public ExperimenterGroup[] containedGroups(Long experimenterId) {
-        return db.containedGroups(experimenterId);
-    }
-
-    /**
-     * Gets {@link ome.model.meta.ExperimenterGroup} [] for all of the
      * {@link ome.model.meta.Experimenter#getId()} without "system" and "user"
      * groups.
      * 

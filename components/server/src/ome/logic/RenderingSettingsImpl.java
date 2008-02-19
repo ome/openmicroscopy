@@ -93,10 +93,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     private static final long serialVersionUID = -4383698215540637039L;
 
     /** Reference to the service used to retrieve the pixels data. */
-    private PixelsService pixelsData;
+    protected transient PixelsService pixelsData;
 
     /** Reference to the service used to retrieve the pixels metadata. */
-    private IPixels pixelsMetadata;
+    protected transient IPixels pixelsMetadata;
 
     /**
      * Checks if the specified sets of pixels are compatible. Returns

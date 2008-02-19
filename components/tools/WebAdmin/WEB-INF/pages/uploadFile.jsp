@@ -8,6 +8,14 @@
 <c:if
 	test="${sessionScope.LoginBean.mode && sessionScope.LoginBean.role}">
 	<f:view>
+		<div id="hello"><h:form id="log">
+			<h1><h:outputText value="#{msg.headerHello} #{sessionScope.LoginBean.username}" />!
+			<h:commandLink action="#{LoginBean.logout}"
+				title="#{msg.headerLogout}">
+				<h:outputText value=" #{msg.headerLogout}" />
+			</h:commandLink></h1>		
+		</h:form></div>
+		
 		<h2><h:outputText value="#{msg.uploadFile}" /></h2>
 
 		<c:if test="${not empty requestScope.UploadBean.uploadedNewFile.name}"><p><h:outputText value="#{msg.uploadFileName} " /><h:outputText

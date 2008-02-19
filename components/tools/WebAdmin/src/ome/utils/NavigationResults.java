@@ -31,5 +31,10 @@ public interface NavigationResults {
      * Account
      */
     public static final String ACCOUNT = "account";
+    
+    /**
+     * Logout
+     */
+    public static final String LOGOUT = "logout";
 
 }

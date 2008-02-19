@@ -253,6 +253,16 @@
 			<to-view-id>/myAccount.jsp</to-view-id>
 		</navigation-case>
 	</navigation-rule>
+	
+	<!-- login.jsp navigation -->
+	<navigation-rule>
+		<from-view-id>*</from-view-id>
+		<navigation-case>
+		    <from-action>#{LoginBean.logout}</from-action>
+			<from-outcome>logout</from-outcome>
+			<to-view-id>/login.jsp</to-view-id>
+		</navigation-case>
+	</navigation-rule>
 
 	<!-- myAccount.jsp navigation -->
 	<navigation-rule>

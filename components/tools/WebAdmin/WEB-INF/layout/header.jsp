@@ -30,7 +30,6 @@
 	<c:if test="${sessionScope.LoginBean.mode}">
 		<li><a href="./myAccount.jsf"
 			<c:if test="${sessionScope.LoginBean.page == 'myAccount.jsf'}" >class="menu"</c:if>>${msg.headerMyAccount}</a></li>
-		<li><a href="./logout">${msg.headerLogout}</a></li>
 	</c:if>
 	<c:if
 		test="${sessionScope.LoginBean.mode}">
@@ -40,10 +39,4 @@
 </ul>
 
 </div>
-
-<c:if test="${sessionScope.LoginBean.mode}">
-	<div id="hello">
-	<h1>${msg.headerHello} <c:out
-		value="${sessionScope.LoginBean.username}" />!</h1>
-	</div>
-</c:if></div>
+</div>

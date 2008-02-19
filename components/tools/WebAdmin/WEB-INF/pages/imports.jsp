@@ -8,6 +8,13 @@
 <c:if
 	test="${sessionScope.LoginBean.mode && sessionScope.LoginBean.role}">
 	<f:view>
+		<div id="hello"><h:form id="log">
+			<h1><h:outputText value="#{msg.headerHello} #{sessionScope.LoginBean.username}" />!
+			<h:commandLink action="#{LoginBean.logout}"
+				title="#{msg.headerLogout}">
+				<h:outputText value=" #{msg.headerLogout}" />
+			</h:commandLink></h1>		
+		</h:form></div>
 
 		<h:outputLink value="./uploadFile.jsf">
 			<h:graphicImage url="/images/add.png" />
@@ -16,9 +23,9 @@
 		
 		<br />
 
-		<h2>List of Files:</h2>
-
 		<h:form id="clientTree">
+
+		<h2>List of Files:</h2>
 
 			<h:message styleClass="errorText" id="clientTreeError"
 				for="clientTree" />

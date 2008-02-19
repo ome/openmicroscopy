@@ -9,6 +9,5 @@
 
 <h1>${msg.errorAccessDenied}</h1>
 
-<p>${msg.errorAccessDeniedMsg} <a href="./myAccount.jsf">${msg.myaccountEdit}</a>,
-<a href="./logout">${msg.headerLogout}</a>, <a href="javascript:openHelp()">${msg.headerHelp}</a></p>
+<p>${msg.errorAccessDeniedMsg} <a href="./myAccount.jsf">${msg.myaccountEdit}</a>, <a href="javascript:openHelp()">${msg.headerHelp}</a></p>
 

@@ -9,6 +9,14 @@
 <c:if
 	test="${sessionScope.LoginBean.mode && sessionScope.LoginBean.role}">
 	<f:view>
+		<div id="hello"><h:form id="log">
+			<h1><h:outputText value="#{msg.headerHello} #{sessionScope.LoginBean.username}" />!
+			<h:commandLink action="#{LoginBean.logout}"
+				title="#{msg.headerLogout}">
+				<h:outputText value=" #{msg.headerLogout}" />
+			</h:commandLink></h1>		
+		</h:form></div>
+		
 		<div id="chart"><h:form id="form1">
 			<ch:chart id="chart1" antialias="true"
 				datasource="#{IRIPieChartBean.pieDataSet}" legend="false"
