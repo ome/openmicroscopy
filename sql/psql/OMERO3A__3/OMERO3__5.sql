@@ -1886,7 +1886,7 @@ ALTER TABLE wellsampleimagelink
 ALTER TABLE wellsampleimagelink
 	ADD CONSTRAINT fkwellsampleimagelink_update_id_event FOREIGN KEY (update_id) REFERENCES event(id);
 
-INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-        VALUES ('OMERO3A',  3, 'OMERO3', 5, 'Database updated.');
+INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message, finished)
+        VALUES ('OMERO3A',  3, 'OMERO3', 5, 'Database updated.', now());
 
 COMMIT;
