@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.util.ui.treetable.renderers;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
-
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
@@ -36,7 +35,7 @@ import javax.swing.table.TableCellRenderer;
 import org.openmicroscopy.shoola.util.ui.PaintPot;
 
 /** 
- * 
+ * Uses a {@link PaintPot} as renderer.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,6 +51,7 @@ public class ColourCellRenderer
 	extends JComponent 
 	implements TableCellRenderer
 {
+	
 	/**
 	 * Creates a new instance. Sets the opacity of the label to
 	 * <code>true</code>.
@@ -62,13 +62,14 @@ public class ColourCellRenderer
 	}
 	
 	/**
+	 * Overridden to set the correct renderer.
 	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object,
 	 *      boolean, boolean, int, int)
 	 */
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		PaintPot paintPot=new PaintPot((Color) value);
+		PaintPot paintPot = new PaintPot((Color) value);
 		return paintPot;
 	}
 }

@@ -64,7 +64,7 @@ class ColouredButtonUI
 
 	//Set a gradient mask of V=.5 to V = 0.3; this has an alpha
     // value to show the colours of the button underlying the mask.
-   /** Gradient start color. */ 
+	/** Gradient start color. */ 
 	private static final  Color GRADIENT_START = new Color(0.8f, 0.8f, 0.8f, 
 															1.0f);
 	
@@ -346,7 +346,7 @@ class ColouredButtonUI
         
         // Draw the bevel, it is drawn as four line from: topleft to 
         // topright, and topleft to bottom left. 
-        int height =(int) buttonRect.getHeight();
+        int height = (int) buttonRect.getHeight();
         int width = (int) buttonRect.getWidth();
         g.drawLine(0, 0, 0, height);
         g.drawLine(0, 0, width, 0);
@@ -384,7 +384,7 @@ class ColouredButtonUI
         
         // Draw the bevel, it is drawn as four line from: topleft to 
         // topright, and topleft to bottom left.
-        int height =(int) buttonRect.getHeight();
+        int height = (int) buttonRect.getHeight();
         int width = (int) buttonRect.getWidth();
         g.drawLine(0, 0, 0, height);
         g.drawLine(0, 0, width, 0);
@@ -445,17 +445,15 @@ class ColouredButtonUI
     }
     
     /**
-     * Constructor for ButtonUI component.
+     * Creates a new intance.
      * 
      * @param b Reference to parent Button. Mustn't be <code>null</code>.
      * @param c Colour of the button. Mustn't be <code>null</code>.
      */
     ColouredButtonUI(ColouredButton b, Color c)
     {
-        if (b == null)
-            throw new IllegalArgumentException("No button.");
-        if (c == null) 
-            throw new IllegalArgumentException("No color.");
+        if (b == null) throw new IllegalArgumentException("No button.");
+        if (c == null) throw new IllegalArgumentException("No color.");
         setColor(c);
         button = b;
         greyedOut = false;
@@ -481,8 +479,7 @@ class ColouredButtonUI
      */
     void setColor(Color c) 
     { 
-    	if (c == null) 
-            throw new IllegalArgumentException("No color.");
+    	if (c == null) throw new IllegalArgumentException("No color.");
     	this.colour = c; 
     }
        
@@ -494,7 +491,7 @@ class ColouredButtonUI
     void setDeriveFont(int fontIndex) { this.fontIndex = fontIndex; }
     
     /**
-     * Overridden to paints the button and to rendersthe text in the centre of
+     * Overridden to paint the button and to renders the text in the centre of
      * the button.
      * @see BasicButtonUI#paint(Graphics, JComponent)
      */

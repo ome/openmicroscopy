@@ -287,11 +287,29 @@ public class IconManager
     /** The <code>Help</code> icon. */
     public static final int	HELP_48 = 77;
     
+    /** The <code>Annotation</code> icon. */
+    public static final int	ANNOTATION = 78;
+    
+    /** The <code>File Annotation</code> icon. */
+    public static final int	FILE_ANNOTATION = 79;
+    
+    /** The <code>URL Annotation</code> icon. */
+    public static final int	URL_ANNOTATION = 80;
+    
+    /** The <code>Start selected</code> icon. */
+    public static final int START_SELECTED = 81;
+    
+    /** The <code>Start unselected</code> icon. */
+    public static final int	START_UNSELECTED = 82;
+    
+    /** The <code>Start unselected</code> icon. */
+    public static final int	BROKEN_FILE96 = 83;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 77;
+    private static int      MAX_ID = 83;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -373,11 +391,16 @@ public class IconManager
         relPaths[SEARCH_TAG_SET] ="search_tag_folder16.png";
         relPaths[EDIT_REMOVE] = "remove12.png";
         relPaths[ADD_12] = "add12.png";
-        relPaths[CLOSE] = "nuvola_fileclose16.png";//"eclipse_remove_att12.png";
-        relPaths[CLOSE_OVER] = "nuvola_fileclose16.png";//"nuvola_messagebox_critical12.png";
+        relPaths[CLOSE] = "nuvola_fileclose16.png";
+        relPaths[CLOSE_OVER] = "fileCloseRed16.png";
         relPaths[HELP] = "nuvola_help16.png";
         relPaths[HELP_48] ="nuvola_kdmconfig48.png";
-        
+        relPaths[ANNOTATION] ="nuvola_kwrite16.png";
+        relPaths[FILE_ANNOTATION] ="nuvola_attach16.png";
+        relPaths[URL_ANNOTATION] ="nuvola_browser16.png";
+        relPaths[START_SELECTED] = "nuvola_mozilla16.png";
+        relPaths[START_UNSELECTED] = "mozilla_grey16.png";
+        relPaths[BROKEN_FILE96] = "nuvola_file_broken96.png";
     }
     
     /** 

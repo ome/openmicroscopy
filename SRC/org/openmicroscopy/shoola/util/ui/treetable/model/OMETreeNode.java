@@ -51,20 +51,20 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 public class OMETreeNode
 	extends DefaultMutableTreeTableNode
 {	
-	 /** is the node expanded in the view.*/
+	
+	 /** Flag used to control if the node is expanded in the view.*/
 	private boolean expanded;
 
-    /**
-     * Create instance.
-     */
+    /** Creates a new instance. */
 	public OMETreeNode()
 	{
 		this(null);
 	}
 	
 	/**
-	 * Create instance with userobject-- object.
-	 * @param object see above.
+	 * Creates a new instance with userobject.
+	 * 
+	 * @param object The user object.
 	 */
 	public OMETreeNode(Object object)
 	{
@@ -72,9 +72,11 @@ public class OMETreeNode
 	}
 
 	/**
-	 * Create instance with userObject object and option to allow children.
-	 * @param object see above.
-	 * @param allowChildren true if object can allowChildren.
+	 * Creates instance with userObject object and option to allow children.
+	 * 
+	 * @param object 		The user object.
+	 * @param allowChildren Pass <code>true</code> to allow children,
+	 * 						<code>false</code> otherwise.
 	 */
 	public OMETreeNode(Object object, boolean allowChildren)
 	{
@@ -83,69 +85,69 @@ public class OMETreeNode
 	}
 	
 	/**
-	 * Is the node expanded in the view.
-	 * @return see above.
+	 * Returns <code>true</code> if the node is expanded, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
 	 */
-	public boolean isExpanded()
-	{
-		return expanded;
-	}
+	public boolean isExpanded() { return expanded; }
 	
 	/**
-	 * Set the current node to expanded.
-	 * @param expanded true if the node is expanded.
+	 * Sets the current node to expanded.
+	 * 
+	 * @param expanded 	Pass <code>true</code> if the node is expanded, 
+	 * 					<code>false</code> otherwise.
 	 */
-	public void setExpanded(boolean expanded)
-	{
-		this.expanded = expanded;
-	}
+	public void setExpanded(boolean expanded) { this.expanded = expanded; }
 	
 	/**
-	 * Get the parent of the current Node.
-	 * @return see above.
+	 * Returns the parent of the current Node.
+	 * 
+	 * @return See above.
 	 */
 	public OMETreeNode getParent()
 	{
-		return (OMETreeNode)super.getParent();
+		return (OMETreeNode) super.getParent();
 	}
 	
 	/**
-	 * Get the path of the node in the model.
-	 * @return see above.
+	 * Returns the path of the node in the model.
+	 * 
+	 * @return See above.
 	 */
 	public TreePath getPath()
 	{
 		OMETreeNode node = this;
 		Stack<OMETreeNode> stack = new Stack<OMETreeNode>();
-		while(node != null)
+		while (node != null)
 		{
 			stack.push(node);
 			node = node.getParent();
 		}
 		Object[] pathList = new Object[stack.size()];
 		int count = 0;
-		while(!stack.empty())
+		while (!stack.empty())
 			pathList[count++] = stack.pop();
 		return new TreePath(pathList);
 	}
-	
 
-	/**
-	 * Overrides {@link DefaultMutableTreeTableNode#isEditable(int)}
-	 */
-	public boolean isEditable(int column)
-	{
-		return false;
-	}
-	
 	/** 
-	 * Get the child list of the node. Used to allow for(iterator)
-	 * @return see above.
+	 * Returns the child list of the node. Used to allow for(iterator)
+	 * 
+	 * @return See above.
 	 */
 	public Vector<MutableTreeTableNode> getChildList()
 	{
 		return children;
 	}
+	
+	/**
+	 * Overridden so that the node is not editable.
+	 * @see DefaultMutableTreeTableNode#isEditable(int)
+	 */
+	public boolean isEditable(int column) { return false;}
+	
+
 }
 
 

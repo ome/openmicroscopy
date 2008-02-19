@@ -32,6 +32,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.Box;
@@ -92,8 +93,17 @@ public class SearchComponent
 	/** Action command ID indicating to set the date. */
 	static final int 				DATE = 3;
 	
-	/** Action command ID indicating to search. */
+	/** Action command ID indicating to select the user who owns the object. */
 	static final int 				OWNER = 4;
+	
+	/** Action command ID indicating to search. */
+	static final int 				HELP = 5;
+	
+	/** 
+	 * Action command ID indicating to select the user who annotated the 
+	 * object. 
+	 */
+	static final int 				ANNOTATOR = 6;
 	
 	/** 
 	 * The size of the invisible components used to separate buttons
@@ -121,6 +131,12 @@ public class SearchComponent
 	
 	/** The possible types. */
 	private List<SearchObject>	types;
+	
+	/** Either {@link #ANNOTATOR} or {@link #OWNER}. */
+	private int					userIndex;
+	
+	/** The default search context. */
+	private SearchContext 		searchContext;
 	
 	/** Sets the window properties. */
 	private void setProperties()
@@ -190,12 +206,15 @@ public class SearchComponent
         return UIUtilities.buildComponentPanel(progressPanel);
 	}
 	
-	/** Builds and lays out the UI. */
-	private void buildGUI()
+	/** Builds and lays out the UI. 
+	 * 
+	 * @param text The subtitle.
+	 */
+	private void buildGUI(String text)
 	{
 		Container c = getContentPane();
 		IconManager icons = IconManager.getInstance();
-		TitlePanel titlePanel = new TitlePanel(TITLE, TEXT, 
+		TitlePanel titlePanel = new TitlePanel(TITLE, text, 
 				icons.getIcon(IconManager.SEARCH_48));
 		c.add(titlePanel, BorderLayout.NORTH);
 		JPanel controls = new JPanel();
@@ -215,6 +234,13 @@ public class SearchComponent
 		//dispose();
 	}
 	
+	/** Brings up the Help dialog. */
+	private void showHelp()
+	{
+		SearchHelp helpDialog = new SearchHelp((JFrame) getOwner());
+		UIUtilities.centerAndShow(helpDialog);
+	}
+	
 	/** Fires a property change to search. */
 	private void search()
 	{
@@ -224,20 +250,32 @@ public class SearchComponent
 		String[] none = uiDelegate.getNone();
 	
 		//Determine the time
-		SearchContext ctx = new SearchContext(some, must, none, 
-								uiDelegate.getScope());
+		List<Integer> scope = uiDelegate.getScope();
+		SearchContext ctx = new SearchContext(some, must, none, scope);
 		int index = uiDelegate.getSelectedDate();
+		Timestamp start, end;
+		
 		switch (index) {
 			case SearchContext.RANGE:
-				ctx.setTime(uiDelegate.getFromDate(), uiDelegate.getToDate());
+				start = uiDelegate.getFromDate();
+				end = uiDelegate.getToDate();
+				if (start != null && end != null && start.after(end)) 
+					ctx.setTime(end, start);
+				else ctx.setTime(start, end);
 				break;
 			default:
 				ctx.setTime(index);
 		}
-		ctx.setUserSearchContext(uiDelegate.getUserSearchContext());
-		ctx.setUsers(uiDelegate.getUsers());
+		ctx.setOwnerSearchContext(uiDelegate.getOwnerSearchContext());
+		ctx.setAnnotatorSearchContext(uiDelegate.getAnnotatorSearchContext());
+		ctx.setOwners(uiDelegate.getOwners());
+		ctx.setAnnotators(uiDelegate.getAnnotators());
 		ctx.setCaseSensitive(uiDelegate.isCaseSensitive());
-		ctx.setType( uiDelegate.getType());
+		ctx.setType(uiDelegate.getType());
+		ctx.setAttachmentType(uiDelegate.getAttachment());
+		ctx.setTimeType(uiDelegate.getTimeIndex());
+		ctx.setExcludedOwners(uiDelegate.getExcludedOwners());
+		ctx.setExcludedAnnotators(uiDelegate.getExcludedAnnotators());
 		firePropertyChange(SEARCH_PROPERTY, null, ctx);
 	}
 	
@@ -252,6 +290,8 @@ public class SearchComponent
 					"Textual Annotation");
     	nodes.add(node);
     	node = new SearchObject(SearchContext.TAGS, null, "Tags");
+    	nodes.add(node);
+    	node = new SearchObject(SearchContext.URL_ANNOTATION, null, "URLs");
     	nodes.add(node);
     	node = new SearchObject(SearchContext.FILE_ANNOTATION, null, 
 					"Attachments");
@@ -269,19 +309,63 @@ public class SearchComponent
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param owner 	The owner of this dialog.
+	 * @param context	The context of the search.
+	 * @param subtitle	The subtitle of this component.
+	 */
+	public SearchComponent(JFrame owner, SearchContext context, 
+							String subtitle)
+	{
+		super(owner);
+		searchContext = context;
+		setDefaultContext();
+		setProperties();
+		initComponents();
+		if (subtitle == null || subtitle.trim().length() == 0)
+			subtitle = TEXT;
+		buildGUI(subtitle);
+		pack();
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param owner 	The owner of this dialog.
+	 * @param context	The context of the search.
+	 */
+	public SearchComponent(JFrame owner, SearchContext context)
+	{
+		this(owner, context, null);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
 	 * @param owner The owner of this dialog.
 	 */
 	public SearchComponent(JFrame owner)
 	{
-		super(owner);
-		setDefaultContext();
-		setProperties();
-		initComponents();
-		buildGUI();
-		//setSize(WIN_SIZE);
-		pack();
+		this(owner, null, null);
 	}
 
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param owner 	The owner of this dialog.
+	 * @param subtitle	The subtitle of this component.
+	 */
+	public SearchComponent(JFrame owner, String subtitle)
+	{
+		this(owner, null, subtitle);
+	}
+	
+	/**
+	 * Returns the initial search context.
+	 * 
+	 * @return See above.
+	 */
+	SearchContext getSearchContext() { return searchContext; }
+	
 	/**
 	 * Returns the collection of possible context.
 	 * 
@@ -334,7 +418,13 @@ public class SearchComponent
 		if (name == null) return;
 		name = name.trim();
 		if (name.length() == 0) return;
-		uiDelegate.setUserString(name);
+		switch (userIndex) {
+			case OWNER:
+				uiDelegate.setOwnerString(name);
+				break;
+			case ANNOTATOR:
+				uiDelegate.setAnnotatorString(name);
+		}
 	}
 	
 	/**
@@ -355,7 +445,15 @@ public class SearchComponent
 				uiDelegate.setDateIndex();
 				break;
 			case OWNER:
+				userIndex = OWNER;
 				firePropertyChange(OWNER_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+				break;
+			case ANNOTATOR:
+				userIndex = ANNOTATOR;
+				firePropertyChange(OWNER_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+				break;
+			case HELP:
+				showHelp();
 		}
 	}
 	

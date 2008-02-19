@@ -24,8 +24,11 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -34,8 +37,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.HashMap;
+import java.util.Map;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
+
+import com.sun.java.swing.SwingUtilities2;
 
 
 //Third-party libraries
@@ -61,29 +69,27 @@ class ClosableTabbedPaneUI
 	implements MouseMotionListener
 {
 
-	/** The image representing a close button. */
-	private Image			closeImage;
+	/** The start color the gradient used to select a tab. */
+	private static final Color		COLOR_START = 
+									UIUtilities.SELECTED_BACKGROUND_COLOUR;
+	
+	/** The end color the gradient used to select a tab. */
+	private static final Color		COLOR_END = new Color(200, 200, 255);
 	
 	/** The image representing a close button. */
-	private Image			closeOverImage;
+	private Image					closeImage;
 	
-	/** The image displayed on the selected component. */
-	private Image			selectedIndexImage;
+	/** The image representing a close button. */
+	private Image					closeOverImage;
+
+	/** Stored the close icon associated to a tab. */
+	private Map<Integer, Image>		images;
 	
-	/** The image displayed on the selected component. */
-	private Image			tabMouseImage;
-	
-	/** The index of the component, the mouse is over. */
-	private int				tabMouseIndex;
-	
-	/** The bounds to the {@link #selectedIndexImage}. */
-	private Rectangle		selectedRectangle;
-	
-	/** The bounds to the {@link #tabMouseImage}. */
-	private Rectangle		mouseOverRectangle;
+	/** Stored the bound of the close icon for a given tab. */
+	private Map<Integer, Rectangle>	rectangles;
 	
 	/** The mouse listener. */
-	private MouseAdapter	handler;
+	private MouseAdapter			handler;
 	
 	/**
 	 * Shows the menu at the specified location.
@@ -105,16 +111,13 @@ class ClosableTabbedPaneUI
 	/** Initializes the various component. */
 	private void initialize()
 	{
-		tabMouseIndex = -1;
 		IconManager icons = IconManager.getInstance();
 		ImageIcon icon = icons.getImageIcon(IconManager.CLOSE);
 		closeImage = icon.getImage();
 		icon = icons.getImageIcon(IconManager.CLOSE_OVER);
 		closeOverImage = icon.getImage();
-		mouseOverRectangle = new Rectangle();
-		selectedRectangle = new Rectangle();
-		selectedIndexImage = closeImage;
-		tabMouseImage = closeImage;
+		images = new HashMap<Integer, Image>();
+		rectangles = new HashMap<Integer, Rectangle>();
 		handler = new MouseHandler() {
 		
 			/**
@@ -138,9 +141,9 @@ class ClosableTabbedPaneUI
 			    		if (source instanceof Component)
 			    			showMenu((Component) source, x, y);
 			    	} else {
-			    		if (selectedRectangle.contains(x, y) ||
-				    			mouseOverRectangle.contains(x, y))
-				    		((ClosableTabbedPane) tabPane).remove(tabIndex);
+			    		Rectangle r = rectangles.get(tabIndex);
+			    		if (r != null && r.contains(x, y)) 
+			    			((ClosableTabbedPane) tabPane).remove(tabIndex);
 			    	}
 			    }
 			}
@@ -163,13 +166,18 @@ class ClosableTabbedPaneUI
 		initialize();
 	}
 	
+	/** Clears the maps. */
+	void resetDefault()
+	{
+		rectangles.clear();
+		images.clear();
+	}
+	
 	/**
+	 * Returns the customized handler.
 	 * @see BasicTabbedPaneUI#createMouseListener()
 	 */
-	protected MouseListener createMouseListener()
-	{ 
-		return handler;
-	}
+	protected MouseListener createMouseListener() { return handler; }
 	
 	/**
 	 * Overridden to paint the close image.
@@ -180,29 +188,51 @@ class ClosableTabbedPaneUI
 	        				int tabIndex, Rectangle iconRect, 
 	        				Rectangle textRect)
 	{
-		 super.paintTab(g, tabPlacement, rects, tabIndex, iconRect, textRect);
 		 Graphics2D g2D = (Graphics2D) g;
 		 Rectangle rect = rects[tabIndex];
+		 boolean selected = tabPane.getSelectedIndex() == tabIndex;
+		 if (selected) {
+			 GradientPaint gradient = new GradientPaint(rect.x, rect.y, 
+					 				COLOR_START,
+					 rect.x+rect.width, rect.y+rect.height, COLOR_END, false);
+			 g2D.setPaint(gradient);
+			 g2D.fill(rect);
+		 } else g2D.setColor(tabPane.getBackgroundAt(tabIndex));
+		 
+		paintTabBorder(g, tabPlacement, tabIndex, rect.x, rect.y, 
+							rect.width, rect.height, selected);
+
+		String title = tabPane.getTitleAt(tabIndex);
+		Font font = tabPane.getFont();
+		FontMetrics metrics = SwingUtilities2.getFontMetrics(tabPane, g, font);
+		Icon icon = getIconForTab(tabIndex);
+
+		layoutLabel(tabPlacement, metrics, tabIndex, title, icon, 
+				rect, iconRect, textRect, selected);
+
+		paintText(g, tabPlacement, font, metrics, 
+				tabIndex, title, textRect, selected);
+
+		paintIcon(g, tabPlacement, tabIndex, icon, iconRect, selected);
+
+		paintFocusIndicator(g, tabPlacement, rects, tabIndex, 
+				iconRect, textRect, selected);	
+		
+		 if (!(images.containsKey(tabIndex)))
+			 images.put(tabIndex, closeImage);
 		 int x = rect.x+rect.width-19;
 		 int y = rect.y+2;
 		 int w = 0, h = 0;
-		 w = selectedIndexImage.getWidth(null);
-		 h = selectedIndexImage.getHeight(null);
-		 selectedRectangle.setBounds(x, y, w, h);
-		 g2D.drawImage(selectedIndexImage, x, y, w, h, null); 
-		 /*
-		 if (tabIndex == tabPane.getSelectedIndex()) {
-			 w = selectedIndexImage.getWidth(null);
-			 h = selectedIndexImage.getHeight(null);
-			 selectedRectangle.setBounds(x, y, w, h);
-			 g2D.drawImage(selectedIndexImage, x, y, w, h, null); 
-		 } else if (tabIndex == tabMouseIndex) {
-			 w = tabMouseImage.getWidth(null);
-			 h = tabMouseImage.getHeight(null);
-			 mouseOverRectangle.setBounds(x, y, w, h);
-			 g2D.drawImage(tabMouseImage, x, y, w, h, null); 
+		 Image img = images.get(tabIndex);
+		 if (img != null) {
+			 w = img.getWidth(null);
+			 h = img.getHeight(null);
+			 g2D.drawImage(img, x, y, w, h, null); 
+			 Rectangle r = rectangles.get(tabIndex);
+			 if (r == null) r =  new Rectangle(x, y, w, h);
+			 else r.setBounds(x, y, w, h);
+			 rectangles.put(tabIndex, r);
 		 }
-		 */
 	}
 	
 	/**
@@ -210,35 +240,27 @@ class ClosableTabbedPaneUI
 	 * @see BasicTabbedPaneUI#calculateTabWidth(int, int, FontMetrics)
 	 */
 	protected int calculateTabWidth(int tabPlacement,int tabIndex,
-	        			FontMetrics metrics) {
+	        			FontMetrics metrics)
+	{
 		return super.calculateTabWidth(tabPlacement, tabIndex, metrics)+24;
 	}
 	
 	/**
-	 * Displays or hides the close icons.
+	 * Modifies the close icon when the mouse is over the it.
 	 * @see MouseMotionListener#mouseMoved(MouseEvent)
 	 */
 	public void mouseMoved(MouseEvent e)
 	{
 		int x = e.getX();
-        int y = e.getY();
-        for (int i = 0; i < tabPane.getTabCount(); i++) {
-            if (rects[i].contains(x, y)) {
-           	 tabMouseIndex = i;
-               break;
-            }
-            tabMouseIndex = -1;
-        }
-        if (tabMouseIndex == tabPane.getSelectedIndex()) {
-        	if (selectedRectangle.contains(x, y)) {
-        		selectedIndexImage = closeOverImage;
-        	} else selectedIndexImage = closeImage;
-         } else if (tabMouseIndex != -1) {
-        	 if (mouseOverRectangle.contains(x, y)) {
-        		 tabMouseImage = closeOverImage;
-         	} else tabMouseImage = closeImage;
-         }
-         tabPane.repaint();
+		int y = e.getY();
+		Rectangle r;
+		if (rectangles == null || images == null) return;
+		for (int i = 0; i < tabPane.getTabCount(); i++) {
+			r = rectangles.get(i);
+			if (r != null && r.contains(x, y)) images.put(i, closeOverImage);
+			else images.put(i, closeImage);
+		}
+		tabPane.repaint();
 	}
 
 	/**

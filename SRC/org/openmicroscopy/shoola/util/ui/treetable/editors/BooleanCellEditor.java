@@ -29,13 +29,14 @@ import java.awt.event.ItemListener;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
 import javax.swing.JTable;
+
 //Third-party libraries
 
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Edits boolean values.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,8 +57,9 @@ public class BooleanCellEditor
 	private JCheckBox	checkBox;
 	
 	/**
-	 * Create a new instance.
-	 * @param box the checkbox to use.
+	 * Creates a new instance.
+	 * 
+	 * @param box The checkbox to use.
 	 */
 	public BooleanCellEditor(JCheckBox box)
 	{
@@ -66,16 +68,12 @@ public class BooleanCellEditor
 	}
 	
 	/**
-	 * Get the component used to edit boolean cells
-	 * @param table  the table this object edits.
-	 * @param value  the value to be edited
-	 * @param isSelected  indicates whether or not the cell is selected
-	 * @param row  number of the row being edited
-	 * @param column number of the column being edited
-	 * @return  editor component to use
+	 * Overridden to return the component used to edit boolean cells.
+	 * @see DefaultCellEditor#getTableCellEditorComponent(JTable, Object, 
+	 * 												boolean, int, int)
 	 */
-	public Component getTableCellEditorComponent(
-	JTable table, Object value, boolean isSelected, int row, int column)
+	public Component getTableCellEditorComponent(JTable table, Object value,
+									boolean isSelected, int row, int column)
 	{
 		if (value == null || !(value instanceof Boolean))
 				return checkBox;
@@ -86,8 +84,9 @@ public class BooleanCellEditor
 	}
 
 	/**
-	 * Get the value of the editor item.
-	 * @return the value.
+	 * Returns the value of the editor item.
+	 * 
+	 * @return See above.
 	 */
 	public Object getCellEditorValue()
     {
@@ -96,9 +95,9 @@ public class BooleanCellEditor
     }
     
 	/**
-	 * listener method called when the object in the cell changes. Posts message
-	 * to the table.
-	 * @param e the item event.
+	 * The listener method called when the object in the cell changes. 
+	 * Posts message to the table.
+	 * @param e The item event.
 	 */
     public void itemStateChanged(ItemEvent e)
     {

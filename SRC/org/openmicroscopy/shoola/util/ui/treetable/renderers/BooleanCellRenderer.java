@@ -26,15 +26,16 @@ package org.openmicroscopy.shoola.util.ui.treetable.renderers;
 
 //Java imports
 import java.awt.Component;
-
 import javax.swing.JCheckBox;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
+
 //Third-party libraries
 
 //Application-internal dependencies
+
 /** 
- * 
+ * Renders boolean values.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -61,6 +62,7 @@ public class BooleanCellRenderer
 	}
 	
 	/**
+	 * Overridden to set the correct renderer.
 	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object,
 	 *      boolean, boolean, int, int)
 	 */
@@ -70,4 +72,5 @@ public class BooleanCellRenderer
 		setSelected((Boolean) value);
 		return this;
 	}
+	
 }

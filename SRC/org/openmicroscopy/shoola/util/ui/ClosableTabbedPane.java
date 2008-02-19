@@ -98,7 +98,7 @@ public class ClosableTabbedPane
     	ClosableTabbedPaneUI ui = new ClosableTabbedPaneUI();
     	setUI(ui);
     	setFocusable(false);
-    	//addMouseMotionListener(ui);
+    	addMouseMotionListener(ui);
     	addChangeListener(this);
     }
     
@@ -161,6 +161,11 @@ public class ClosableTabbedPane
 			firePropertyChange(CLOSE_TAB_PROPERTY, -1, v);
 		}
 		super.removeTabAt(index);
+		((ClosableTabbedPaneUI) ui).resetDefault();
+		int n = getTabCount();
+		if (n == 0) return;
+
+		if (index > n) setSelectedComponent(getComponentAt(n-1));
 	}
 
 	/**
@@ -187,6 +192,7 @@ public class ClosableTabbedPane
 			return;
 		}
 		super.insertTab(title, icon, component, tip, getTabCount());
+		((ClosableTabbedPaneUI) ui).resetDefault();
 	}
 	
 	/**
@@ -205,10 +211,10 @@ public class ClosableTabbedPane
 	 */
 	public void stateChanged(ChangeEvent e)
 	{
+		setOpaque(true);
 		for (int i = 0; i < getTabCount(); i++) {
-			if (getSelectedIndex() == i)
-				setBackgroundAt(i, UIUtilities.SELECTED_BLUE);
-			else setBackgroundAt(i, getBackground());
+			if (getSelectedIndex() != i)
+				setBackgroundAt(i, getBackground());
 		}
 	}
 	

@@ -49,40 +49,44 @@ public class ListCellRenderer
 	extends JComboBox 
 	implements TableCellRenderer
 {
-		/** Default font size. */
-		private static final int 	FONTSIZE = 10;
-	
-		/**
-		 * Creates a new instance. Sets the opacity of the label to
-		 * <code>true</code>.
-		 */
-		public ListCellRenderer(String[] items)
-		{
-			super(items);
-			setOpaque(true);
-		}
-		
-		/** Set the Items in the combobox to new Items. 
-		 * 
-		 * @param items see above.
-		 */
-		public void setItems(String[] items)
-		{
-			this.removeAllItems();
-			for(int i = 0 ; i < items.length ; i++)
-				addItem(items[i]);
-		}
-		
-		/**
-		 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object,
-		 *      boolean, boolean, int, int)
-		 */
-		public Component getTableCellRendererComponent(JTable table, Object value,
-				boolean isSelected, boolean hasFocus, int row, int column)
-		{
-			setSelectedItem(value);
-			return this;
-		}
+
+	/**
+	 * Creates a new instance. Sets the opacity of the label to
+	 * <code>true</code>.
+	 * 
+	 * @param items The items to display.
+	 */
+	public ListCellRenderer(String[] items)
+	{
+		super(items);
+		setOpaque(true);
+	}
+
+	/** 
+	 * Sets the items in the combobox to new Items. 
+	 * 
+	 * @param items The items to display.
+	 */
+	public void setItems(String[] items)
+	{
+		if (items == null)
+			throw new IllegalArgumentException("Items cannot be null.");
+		this.removeAllItems();
+		for (int i = 0 ; i < items.length ; i++)
+			addItem(items[i]);
+	}
+
+	/**
+	 * Overridden to set the correct renderer.
+	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object,
+	 *      boolean, boolean, int, int)
+	 */
+	public Component getTableCellRendererComponent(JTable table, Object value,
+			boolean isSelected, boolean hasFocus, int row, int column)
+	{
+		setSelectedItem(value);
+		return this;
+	}
 		
 }
 

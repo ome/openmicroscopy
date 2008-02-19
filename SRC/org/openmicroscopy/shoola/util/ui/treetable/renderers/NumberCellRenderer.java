@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.util.ui.treetable.renderers;
 
 //Java imports
 import java.awt.Component;
-
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
@@ -34,7 +33,7 @@ import javax.swing.table.TableCellRenderer;
 //Application-internal dependencies
 
 /** 
- * 
+ * Renders numerical values.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -50,6 +49,7 @@ public class NumberCellRenderer
 	extends JLabel 
 	implements TableCellRenderer
 {
+	
 	/**
 	 * Creates a new instance. Sets the opacity of the label to
 	 * <code>true</code>.
@@ -63,16 +63,14 @@ public class NumberCellRenderer
 		setBorder(null);
 	}
 	
-	/**
-	 * Creates a new instance. Sets the opacity of the label to
-	 * <code>true</code>.
-	 */
+	/** Creates a new instance. */
 	public NumberCellRenderer()
 	{
 		this(JLabel.CENTER);
 	}
 
 	/**
+	 * Overridden to set the correct renderer.
 	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object,
 	 *      boolean, boolean, int, int)
 	 */
@@ -83,6 +81,7 @@ public class NumberCellRenderer
 		setText(value.toString());
 		return this;
 	}
+	
 }
 
 

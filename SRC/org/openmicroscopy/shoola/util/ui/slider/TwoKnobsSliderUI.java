@@ -45,6 +45,7 @@ import javax.swing.UIManager;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
 * The UI delegate for the {@link TwoKnobsSlider}.
@@ -70,19 +71,8 @@ class TwoKnobsSliderUI
 	/** Space added to paint the label. */
 	static final int            	BUFFER = 1;
 
-	/** The starting color of the gradient used in the track. */
-	private static final Color 		TRACK_GRADIENT_START = 
-		new Color(76, 76, 76, 255);
-
-	/** The final color of the gradient used in the track. */
-	private static final Color 		TRACK_GRADIENT_END = 
-		new Color(176, 176, 176, 255);
-
 	/** The default color of the track. */
 	private static final Color  	TRACK_COLOR = Color.LIGHT_GRAY;
-
-	/** The color of the line drawn on the knobs. */
-	private static final Color  	LINE_COLOR = Color.BLACK;
 
 	/** Default size of a thumbnail i.e. 16x16. */
 	private static final Dimension	DEFAULT_THUMB_SIZE = new Dimension(16, 16);
@@ -121,7 +111,7 @@ class TwoKnobsSliderUI
 		tickRect = new Rectangle();
 		labelRect = new Rectangle();
 		shadowColor = UIManager.getColor("Slider.shadow");
-		fontColor = LINE_COLOR;
+		fontColor = UIUtilities.LINE_COLOR;
 	}
 
 	/** Loads the thumb for the two knob slider.  */
@@ -325,7 +315,7 @@ class TwoKnobsSliderUI
 	 * @param x         The x-position.
 	 */
 	private void paintMajorTickForHorizSlider(Graphics2D g, Rectangle bounds,
-			int x)
+											int x)
 	{
 		g.drawLine(x, 0, x, bounds.height-2);
 	}
@@ -338,7 +328,7 @@ class TwoKnobsSliderUI
 	 * @param y         The y-position.
 	 */
 	private void paintMinorTickForVertSlider(Graphics2D g, Rectangle bounds,
-			int y)
+												int y)
 	{
 		g.drawLine(0, y, bounds.width/2-1, y);
 	}
@@ -365,11 +355,10 @@ class TwoKnobsSliderUI
 	{
 		int l = xPositionForValue(model.getStartValue());
 		int r = xPositionForValue(model.getEndValue());
-		Color gradientStart = TRACK_GRADIENT_START;
-		Color gradientEnd = TRACK_GRADIENT_END;
 		Paint paint = new GradientPaint(0, trackRect.y, 
-				gradientStart, 0, trackRect.y+trackRect.height-10, 
-				gradientEnd, false);
+				UIUtilities.TRACK_GRADIENT_START, 0, 
+				trackRect.y+trackRect.height-10, 
+				UIUtilities.TRACK_GRADIENT_END, false);
 		g2D.setPaint(paint);
 
 		g2D.fillRoundRect(trackRect.x, trackRect.y+3, trackRect.width,
@@ -402,12 +391,10 @@ class TwoKnobsSliderUI
 		int h = component.getKnobHeight();
 		int x = trackRect.x-w/2+(trackRect.width-w)/2;
 
-		Color gradientStart = TRACK_GRADIENT_START;
-		Color gradientEnd = TRACK_GRADIENT_END;
 		Paint paint = new GradientPaint(trackRect.x+1, trackRect.y+h/2, 
-				gradientStart, 
-				trackRect.x+1+trackRect.width-w-2, trackRect.y+h/2, gradientEnd,
-				false);
+				UIUtilities.TRACK_GRADIENT_START, 
+				trackRect.x+1+trackRect.width-w-2, 
+				trackRect.y+h/2, UIUtilities.TRACK_GRADIENT_END, false);
 
 		g2D.setPaint(paint);
 		g2D.fillRoundRect(trackRect.x+1, trackRect.y+h/2, trackRect.width-w-2,
@@ -535,8 +522,6 @@ class TwoKnobsSliderUI
 	 */
 	int xPositionForValue(int value)
 	{
-		//int min = model.getMinimum();
-		//int max = model.getMaximum();
 		int min = model.getPartialMinimum();
 		int max = model.getPartialMaximum();
 		int trackLength = trackRect.width;
@@ -560,8 +545,6 @@ class TwoKnobsSliderUI
 	 */
 	int yPositionForValue(int value)
 	{
-		//int min = model.getMinimum();
-		//int max = model.getMaximum();
 		int min = model.getPartialMinimum();
 		int max = model.getPartialMaximum();
 		int trackLength = trackRect.height; 
@@ -585,8 +568,6 @@ class TwoKnobsSliderUI
 	int xValueForPosition(int xPosition)
 	{
 		int value;
-		//int minValue = model.getMinimum();
-		//int maxValue = model.getMaximum();
 		int minValue = model.getPartialMinimum();
 		int maxValue = model.getPartialMaximum();
 		int trackLength = trackRect.width;
@@ -615,8 +596,6 @@ class TwoKnobsSliderUI
 	int yValueForPosition(int yPosition)
 	{
 		int value;
-		//int minValue = model.getMinimum();
-		//int maxValue = model.getMaximum();
 		int minValue = model.getPartialMinimum();
 		int maxValue = model.getPartialMaximum();
 		int trackLength = trackRect.height;

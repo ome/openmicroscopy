@@ -52,15 +52,12 @@ public class SearchContext
 {
 
 	/** Retrieves the data for the logged in user. */
-	public static final int			JUST_CURRENT_USER = 0;
-	
-	/** Retrieves the data for the logged in user and the selected users. */
-	public static final int			CURRENT_USER_AND_OTHERS = 1;
+	public static final int			CURRENT_USER = 0;
 	
 	/** 
 	 * Retrieves the data for the selected users excluding the logged in users.
 	 */
-	public static final int			JUST_OTHERS = 2;
+	public static final int			OTHERS = 1;
 	
 	/** Identifying the <code>Image</code> context. */
 	public static final int			IMAGES = 0;
@@ -85,6 +82,9 @@ public class SearchContext
 	
 	/** Identifying the <code>File annotation</code> context. */
 	public static final int			FILE_ANNOTATION = 7;
+	
+	/** Identifying the <code>URL annotation</code> context. */
+	public static final int			URL_ANNOTATION = 8;
 	
 	/** Indicates not to take into account the time criteria. */
 	static final int				ANY_DATE = 0;
@@ -137,6 +137,38 @@ public class SearchContext
 	/** The number of results returned. */
 	static final int				LEVEL_FOUR_VALUE = 500;
 	
+	/** Identifies all the formats to search for. */
+	static final int				ALL_FORMATS = 0;
+	
+	/** Indicates to search for <code>HTML</code> files only. */
+	static final int				HTML = 1;
+	
+	/** Indicates to search for <code>HTML</code> files only. */
+	static final int				PDF = 2;
+	
+	/** Indicates to search for <code>HTML</code> files only. */
+	static final int				EXCEL = 3;
+	
+	/** Indicates to search for <code>HTML</code> files only. */
+	static final int				POWER_POINT = 4;
+	
+	/** Indicates to search for <code>HTML</code> files only. */
+	static final int				WORD = 5;
+	
+	/** Indicates to search for <code>HTML</code> files only. */
+	static final int				XML = 6;
+	
+	/** Indicates to search for <code>HTML</code> files only. */
+	static final int				TEXT = 7;
+	
+	/** The max number of supported formats. */
+	static final int				MAX_FORMAT = 8;
+	
+	/** Indicate that the time selected is the creation time. */
+	static final int				CREATION_TIME = 100;
+	
+	/** Indicate that the time selected is the creation time. */
+	static final int				UPDATED_TIME = 101;
 	
 	/** Collection of terms to search for. */
 	private String[]		some;
@@ -153,8 +185,17 @@ public class SearchContext
 	/** Collection of context. */
 	private List<Integer>	type;
 	
-	/** Collection of context. */
-	private List<String>	users;
+	/** Collection of selected users. */
+	private List<String>	selectedOwners;
+	
+	/** Collection of users to exclude. */
+	private List<String>	excludedOwners;
+	
+	/** Collection of selected users. */
+	private List<String>	selectedAnnotators;
+	
+	/** Collection of users to exclude. */
+	private List<String>	excludedAnnotators;
 	
 	/** The start time of the interval. */
 	private Timestamp		startTime;
@@ -163,17 +204,36 @@ public class SearchContext
 	private Timestamp		endTime;
 	
 	/** 
-	 * One out of the following indexes: 
-	 * {@link #JUST_CURRENT_USER}, {@link #JUST_OTHERS} or 
-	 * {@link #CURRENT_USER_AND_OTHERS}.
+	 * One out of the following indexes: {@link #CURRENT_USER}, {@link #OTHERS}.
 	 */
-	private int				userSearchContext;
+	private List<Integer>	ownerSearchContext;
+	
+	/** 
+	 * One out of the following indexes: {@link #CURRENT_USER}, {@link #OTHERS}.
+	 */
+	private List<Integer>	annotatorSearchContext;
 	
 	/** Flag indicating if the search is case sensitive or not. */
 	private boolean			caseSensitive;
 	
 	/** The number of results. */
 	private int				numberOfResults;
+	
+	/** 
+	 * One of following constants: {@link #CREATION_TIME}, 
+	 * {@link #UPDATED_TIME}.
+	 */
+	private int				timeType;
+	
+	/** 
+	 * One of following constants: {@link #ANY_DATE}, {@link #LAST_TWO_WEEKS},
+	 * {@link #LAST_MONTH}, {@link #LAST_TWO_MONTHS}, {@link #ONE_YEAR} or
+	 * {@link #RANGE}.
+	 */
+	private int				dateIndex;
+
+	/** The type of attachments to retrieve. */
+	private int				attachmentType;
 	
 	/**
 	 * Creates a new instance.
@@ -190,6 +250,8 @@ public class SearchContext
 		this.must = must;
 		this.none = none;
 		this.context = context;
+		timeType = -1;
+		attachmentType = ALL_FORMATS;
 	}
 	
 	/**
@@ -205,11 +267,21 @@ public class SearchContext
 	/**
 	 * Sets the context of the search for users.
 	 * 
-	 * @param index The value to set.
+	 * @param context The value to set.
 	 */
-	void setUserSearchContext(int index)
+	void setOwnerSearchContext(List<Integer> context)
 	{
-		userSearchContext = index;
+		ownerSearchContext = context;
+	}
+	
+	/**
+	 * Sets the context of the search for users.
+	 * 
+	 * @param context The value to set.
+	 */
+	void setAnnotatorSearchContext(List<Integer> context)
+	{
+		annotatorSearchContext = context;
 	}
 	
 	/**
@@ -222,14 +294,22 @@ public class SearchContext
 	{
 		this.startTime = startTime;
 		this.endTime = endTime;
+		if (startTime != null && endTime != null) dateIndex = RANGE;
 	}
 
 	/**
-	 * Returns the collection of selected users if any.
+	 * Sets the collection of selected users if any.
 	 * 
 	 * @param users The value to set.
 	 */
-	void setUsers(List<String> users) { this.users = users; }
+	void setOwners(List<String> users) { this.selectedOwners = users; }
+	
+	/**
+	 * Sets the collection of selected users if any.
+	 * 
+	 * @param users The value to set.
+	 */
+	void setAnnotators(List<String> users) { this.selectedAnnotators = users; }
 	
 	/**
 	 * Sets the {@link #startTime} and {@link #endTime} depending on the
@@ -271,7 +351,89 @@ public class SearchContext
 											0, 1, 0, 0, 0);
 				startTime = new Timestamp(gc.getTime().getTime());
 		}
+		dateIndex = index;
 	}
+	
+	/** 
+	 * Sets the collection of users to exclude.
+	 * 
+	 * @param users The value to set.
+	 */
+	void setExcludedOwners(List<String> users) { excludedOwners = users; }
+
+	/** 
+	 * Sets the collection of users to exclude.
+	 * 
+	 * @param users The value to set.
+	 */
+	void setExcludedAnnotators(List<String> users)
+	{ 
+		excludedAnnotators = users;
+	}
+	
+	/**
+	 * Sets the time index. One of the following constants:
+	 * {@link #CREATION_TIME}, {@link #UPDATED_TIME}.
+	 * 
+	 * @param index The value to set.
+	 */
+	void setTimeType(int index)
+	{
+		switch (index) {
+			case CREATION_TIME:
+			case UPDATED_TIME:
+				timeType = index;
+			default:
+				timeType = -1;
+		}
+	}
+	
+	/**
+	 * Sets the attachments to search for.
+	 * 
+	 * @param type The value to set.
+	 */
+	void setAttachmentType(int type)
+	{
+		switch (type) {
+			case ALL_FORMATS:
+			case HTML:
+			case PDF:
+			case EXCEL:
+			case POWER_POINT:
+			case WORD:
+			case XML:
+			case TEXT:
+				attachmentType = type;
+			default:
+				attachmentType = ALL_FORMATS;
+		}
+	}
+	
+	/**
+	 * Returns the attachments to search for.
+	 * 
+	 * @return See above.
+	 */
+	int getAttachmentType() { return attachmentType; }
+	
+	/** 
+	 * Returns one of following constants: 
+	 * {@link #ANY_DATE}, {@link #LAST_TWO_WEEKS},
+	 * {@link #LAST_MONTH}, {@link #LAST_TWO_MONTHS}, {@link #ONE_YEAR} or
+	 * {@link #RANGE}.
+	 * 
+	 * @return See above.
+	 */
+	int getDateIndex() { return dateIndex; }
+	
+	/**
+	 * Returns the time index. One of the following constants:
+	 * {@link #CREATION_TIME}, {@link #UPDATED_TIME}.
+	 * 
+	 * @return See above.
+	 */
+	public int getTimeType() { return timeType; }
 	
 	/**
 	 * Returns the collection of terms to search for. 
@@ -293,6 +455,7 @@ public class SearchContext
 	 * @return See above.
 	 */
 	public String[] getNone() { return none; }
+	
 	/**
 	 * Returns the collection of context.
 	 * 
@@ -301,11 +464,32 @@ public class SearchContext
 	public List<Integer> getContext() { return context; }
 
 	/** 
-	 * Returns the collection of users' details.
+	 * Returns the collection of selected users.
 	 * 
 	 * @return See above.
 	 */
-	public List<String> getUsers() { return users; }
+	public List<String> getSelectedOwners() { return selectedOwners; }
+	
+	/** 
+	 * Returns the collection of selected users.
+	 * 
+	 * @return See above.
+	 */
+	public List<String> getSelectedAnnotators() { return selectedAnnotators; }
+	
+	/** 
+	 * Returns the collection of users to exclude.
+	 * 
+	 * @return See above.
+	 */
+	public List<String> getExcludedOwners() { return excludedOwners; }
+	
+	/** 
+	 * Returns the collection of users to exclude.
+	 * 
+	 * @return See above.
+	 */
+	public List<String> getExcludedAnnotators() { return excludedAnnotators; }
 	
 	/**
 	 * Returns the start of time interval.
@@ -326,7 +510,17 @@ public class SearchContext
 	 * 
 	 * @return See above.
 	 */
-	public int getUserSearchContext() { return userSearchContext; }
+	public List<Integer> getOwnerSearchContext() { return ownerSearchContext; }
+	
+	/**
+	 * Returns the context of the search for users.
+	 * 
+	 * @return See above.
+	 */
+	public List<Integer> getAnnotatorSearchContext()
+	{ 
+		return annotatorSearchContext; 
+	}
 	
 	/**
 	 * Returns <code>true</code> if the search is case sensitive, 

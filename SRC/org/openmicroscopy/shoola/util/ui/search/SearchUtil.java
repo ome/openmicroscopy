@@ -47,6 +47,9 @@ import java.util.List;
 public class SearchUtil
 {
 
+	/** Separator used to remove users. */
+	public static final String		MINUS_SEPARATOR ="-";
+	
 	/** Separator between words. */
 	public static final String		COMMA_SEPARATOR =",";
 	
@@ -55,6 +58,9 @@ public class SearchUtil
 	
 	/** The separator between the first name and the last name. */
 	public static final String		QUOTE_SEPARATOR = "\"";
+	
+	/** The default text value. */
+	static final String				ALL = "All";
 	
 	/**
 	 * Splits the passed string around matches of the given pattern.
@@ -75,7 +81,7 @@ public class SearchUtil
 			value = r[i];
 			if (value != null) {
 				value = value.trim();
-				if (value.length() != 0) l.add(value);
+				if (value.length() != 0 && !value.equals(ALL)) l.add(value);
 			}
 		}
 		return l;

@@ -26,17 +26,18 @@ package org.openmicroscopy.shoola.util.ui.treetable.renderers;
 //Java imports
 import java.awt.Component;
 
+
+//Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
-//Third-party libraries
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Renderer used to highlight selection. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -51,32 +52,46 @@ import org.openmicroscopy.shoola.util.ui.treetable.util.OMETreeTableRenderUtils;
 public class SelectionHighLighter
 	extends ColorHighlighter
 {	
+	
+	/** The table of reference. */
 	private JXTreeTable table;
-	public SelectionHighLighter(JXTreeTable table)
+	
+	/**
+	 * Returns <code>true</code> if the row is in the selected rows field.
+	 * 
+	 * @param row 	The row to handle.
+	 * @param rows 	The selected rows.
+	 * @return S ee above.
+	 */
+	private boolean isSelected(int row, int [] rows)
 	{
-		this.table = table;
+		for (int i = 0 ; i < rows.length ; i++)
+			if (row == rows[i]) return true;
+		return false;
 	}
 	
-	   @Override
-       protected void applyBackground(Component renderer, ComponentAdapter adapter) 
-	   {
-           if (isSelected(adapter.row, table.getSelectedRows()))
-                renderer.setBackground(OMETreeTableRenderUtils.SELECTED_BACKGROUND_COLOUR);
-       }
-	   
-	   /**
-	    * Is the row in the selected rows field.
-	    * @param row see above.
-	    * @param rows see above.
-	    * @return see above.
-	    */
-	   private boolean isSelected(int row, int [] rows)
-	   {
-		   for(int i = 0 ; i < rows.length ; i++)
-			   if(row==rows[i])
-				   return true;
-		   return false;
-	   }
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param table Reference to the table. Mustn't be <code>null</code>.
+	 */
+	public SelectionHighLighter(JXTreeTable table)
+	{
+		if (table == null)
+			throw new IllegalArgumentException("No table specified.");
+		this.table = table;
+	}
+
+	/**
+	 * Overridden to set the correct background
+	 * @see ColorHighlighter#applyBackground(Component, ComponentAdapter)
+	 */
+	protected void applyBackground(Component renderer, ComponentAdapter adapter) 
+	{
+		if (isSelected(adapter.row, table.getSelectedRows()))
+			renderer.setBackground(UIUtilities.SELECTED_BACKGROUND_COLOUR);
+	}
+
 }
 
 

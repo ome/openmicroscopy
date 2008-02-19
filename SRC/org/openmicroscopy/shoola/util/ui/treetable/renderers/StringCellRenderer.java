@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.util.ui.treetable.renderers;
 
 //Java imports
 import java.awt.Component;
-
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
@@ -34,7 +33,7 @@ import javax.swing.table.TableCellRenderer;
 //Application-internal dependencies
 
 /** 
- * 
+ * Renders string.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -50,6 +49,7 @@ public class StringCellRenderer
 	extends JLabel 
 	implements TableCellRenderer
 {
+	
 	/**
 	 * Creates a new instance. Sets the opacity of the label to
 	 * <code>true</code>.
@@ -61,15 +61,15 @@ public class StringCellRenderer
 	}
 	
 	/**
+	 * Overridden to set the correct renderer.
 	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object,
 	 *      boolean, boolean, int, int)
 	 */
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		//setAlignmentX(JLabel.CENTER_ALIGNMENT);
-		//setHorizontalTextPosition(JLabel.CENTER);
 		setText(value.toString());
 		return this;
 	}
+	
 }

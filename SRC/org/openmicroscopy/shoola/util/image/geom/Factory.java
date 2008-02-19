@@ -50,6 +50,10 @@ import java.awt.image.RescaleOp;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
 
+import javax.swing.ImageIcon;
+
+import org.openmicroscopy.shoola.util.ui.IconManager;
+
 //Third-party libraries
 import sun.awt.image.IntegerInterleavedRaster;
 
@@ -73,6 +77,11 @@ import sun.awt.image.IntegerInterleavedRaster;
 public class Factory
 {
     
+	/** The default width of a thumbnail. */
+    public static final int   	THUMB_DEFAULT_WIDTH = 96; 
+    
+    /** The default width of a thumbnail. */
+    public static final int     THUMB_DEFAULT_HEIGHT = 96;
 	/** The red mask. */
 	public static final int		RED_MASK = 0x00ff0000;
 	
@@ -125,6 +134,24 @@ public class Factory
             0.1f, 0.1f, 0.1f
             };
 
+    /**
+     * Creates a default thumbnail image.
+     * 
+     * @return See above.
+     */
+    public static BufferedImage createDefaultImageThumbnail()
+    {
+    	IconManager icons = IconManager.getInstance();
+    	ImageIcon img = icons.getImageIcon(IconManager.BROKEN_FILE96);
+    	int h = img.getIconHeight();
+    	int w = img.getIconWidth();
+        BufferedImage thumbPix = new BufferedImage(w, h, 
+                                BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = (Graphics2D) thumbPix.getGraphics();
+        g.drawImage(img.getImage(), 0, 0, null);
+        return thumbPix;
+    }
+    
     /**
      * Creates a default thumbnail image.
      * 

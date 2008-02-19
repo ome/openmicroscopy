@@ -41,6 +41,7 @@ import javax.swing.plaf.basic.BasicSliderUI;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 /** 
@@ -65,13 +66,7 @@ public class OneKnobSliderUI
 
 	/** Spacing between the arrow and the end label. */
 	private static final int 	TEXT_SPACE = 2;
-
-	/** The starting color of the gradient used in the track. */
-	private static final Color 	TRACK_GRADIENT_START = new Color(76, 76, 76);
-
-	/** The final color of the gradient used in the track. */
-	private static final Color 	TRACK_GRADIENT_END = new Color(176, 176, 176);
-
+	
 	/** Offset to the left of the mouse used for placing tooltip. */
 	//private static final int 	TOOLTIP_OFFSET = 25;
 
@@ -199,8 +194,6 @@ public class OneKnobSliderUI
 	{
 		if (slider.getOrientation() == JSlider.HORIZONTAL) {
 			int offsetY = (trackRect.height-minArrowHeight)/2-1;
-			//minArrowRect = new Rectangle(trackRect.x-(arrowWidth+thumbWidth/2+
-			//		ARROW_SPACE),trackRect.y+offsetY, arrowWidth, arrowHeight);
 			minArrowRect = new Rectangle(trackRect.x-
 					(minArrowWidth+thumbWidth/2+ARROW_SPACE), 
 					trackRect.y+offsetY, minArrowWidth, 
@@ -220,9 +213,6 @@ public class OneKnobSliderUI
 			minArrowRect = new Rectangle(trackRect.x+offsetX, trackRect.y+
 					trackRect.height+ARROW_SPACE+thumbHeight/2, minArrowWidth, 
 					minArrowHeight);
-			//minArrowRect = new Rectangle(trackRect.x+offsetX, trackRect.y+
-			//		trackRect.height+ARROW_SPACE+thumbHeight/2, arrowWidth, 
-			//		arrowHeight);
 		}
 	}
 
@@ -234,9 +224,6 @@ public class OneKnobSliderUI
 	{
 		if (slider.getOrientation() == JSlider.HORIZONTAL) {
 			int offsetY = trackRect.height+labelHeight/2+1;
-			//trackRect.height/2-labelHeight/2-1;
-			//endLabelRect = new Rectangle(trackRect.x-(minArrowRect.width+
-			//		TEXT_SPACE+labelWidth), offsetY, labelWidth, labelHeight);
 			endLabelRect = new Rectangle(0, offsetY, labelWidth, labelHeight);
 		} else {
 			int offsetX = trackRect.width/2-labelWidth/2+1;
@@ -254,17 +241,14 @@ public class OneKnobSliderUI
 	 */
 	private void paintVerticalTrack(Graphics2D g)
 	{
-		Color gradientStart = TRACK_GRADIENT_START;
-		Color gradientEnd = TRACK_GRADIENT_END;
-
 		Paint paint = new GradientPaint(trackRect.x+trackRect.width/2-2, 
-				trackRect.y, gradientStart, 
+				trackRect.y, UIUtilities.TRACK_GRADIENT_START, 
 				trackRect.x+trackRect.width/2+2,
-				trackRect.y, gradientEnd, false);
+				trackRect.y, UIUtilities.TRACK_GRADIENT_END, false);
 		g.setPaint(paint);
 		g.fillRoundRect(trackRect.x+trackRect.width/2-2, trackRect.y, 4, 
 				trackRect.height, 4, 4);
-		g.setPaint(Color.black);
+		g.setPaint(UIUtilities.LINE_COLOR);
 		if (showArrows) {
 			if (slider.isEnabled()) {
 				g.drawImage(downArrowImage, minArrowRect.x, minArrowRect.y, 
@@ -292,18 +276,14 @@ public class OneKnobSliderUI
 	 */
 	private void paintHorizontalTrack(Graphics2D g)
 	{
-		Color gradientStart = TRACK_GRADIENT_START;
-		Color gradientEnd = TRACK_GRADIENT_END;
-		g.setPaint(Color.black);
-
 		Paint paint = new GradientPaint(0, trackRect.y+thumbRect.height/2-3, 
-				gradientStart, 0, 
+				UIUtilities.TRACK_GRADIENT_START, 0, 
 				trackRect.y+thumbRect.height/2+2, 
-				gradientEnd, false);
+				UIUtilities.TRACK_GRADIENT_END, false);
 		g.setPaint(paint);
 		g.fillRoundRect(trackRect.x, trackRect.y+thumbRect.height/2-3, 
 				trackRect.width, 4, 4, 4);
-		g.setPaint(Color.black);
+		g.setPaint(UIUtilities.LINE_COLOR);
 		if (showArrows) {
 			if (slider.isEnabled()) {
 				g.drawImage(leftArrowImage, minArrowRect.x, minArrowRect.y, 
@@ -527,7 +507,6 @@ public class OneKnobSliderUI
 		if (slider.getPaintTicks() && clip.intersects(tickRect)) 
 			paintTicks(g);
 
-		//if (slider.getP)
 		if (slider.getPaintLabels() && clip.intersects(labelRect)) 
 			paintLabels(g);
 
@@ -555,7 +534,7 @@ public class OneKnobSliderUI
 	 * of the on track click events.  
 	 */
 	public class TrackListener2 
-	extends TrackListener 
+		extends TrackListener 
 	{
 
 		/**
@@ -630,14 +609,13 @@ public class OneKnobSliderUI
 				// Depending on the slider orientation lets move the thumb to the 
 				// position clicked by the user. 
 				switch (slider.getOrientation()) {
-				case JSlider.HORIZONTAL:
-					value = valueForXPosition(currentMouseX);
-					slider.setValue(value);
-					break;
-				case JSlider.VERTICAL:
-					value = valueForYPosition(currentMouseY);
-					slider.setValue(value);
-					break;
+					case JSlider.HORIZONTAL:
+						value = valueForXPosition(currentMouseX);
+						slider.setValue(value);
+						break;
+					case JSlider.VERTICAL:
+						value = valueForYPosition(currentMouseY);
+						slider.setValue(value);
 				}
 			}
 		}

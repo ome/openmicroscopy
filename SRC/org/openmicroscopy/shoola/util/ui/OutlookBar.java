@@ -60,19 +60,19 @@ public class OutlookBar
 {
 
 	/** Contains the buttons displayed at the top of the bar */
-    private JPanel 							topPanel;
+    private JPanel 								topPanel;
 
     /** Contains the buttons displayed at the bottom of the bar */
-    private JPanel							bottomPanel;
+    private JPanel								bottomPanel;
 
     /** Map used to preserve the order of the bar. */
     private Map<Integer, OutlookBarComponent>	bars;
     
     /** The currently visible bar. */
-    private int 							visibleBar;
+    private int 								visibleBar;
     
     /** The currently visible component. */
-    private JComponent						visibleComponent;
+    private JComponent							visibleComponent;
    
     /** Initializes the components. */
     private void initComponents()

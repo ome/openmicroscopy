@@ -33,7 +33,7 @@ import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 //Application-internal dependencies
 
 /** 
- * 
+ * The model of an <code>OMETree</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,10 +48,12 @@ import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 public class OMETreeTableModel
 	extends DefaultTreeTableModel
 {	
+	
 	/**
-	 * Set the model to use OMETreeNodes and columns as a vector.
-	 * @param node root node for model.
-	 * @param columns column names.
+	 * Sets the model to use OMETreeNodes and columns as a vector.
+	 * 
+	 * @param node 		The root node for model.
+	 * @param columns 	The column names.
 	 */
 	public OMETreeTableModel(OMETreeNode node, Vector columns)
 	{
@@ -59,10 +61,12 @@ public class OMETreeTableModel
 	}
 
 	/**
-	 * Is the cell editable for this node and column.
-	 * @param node the node of the tree.
-	 * @param column the field to edit.
-	 * @return see above.
+	 * Returns <code>true</code> if the cell is 
+	 * editable for this node and column.
+	 * 
+	 * @param node 		The node of the tree.
+	 * @param column 	The field to edit.
+	 * @return See above.
 	 */
 	public boolean isCellEditable(DefaultMutableTreeTableNode node, int column) 
 	{

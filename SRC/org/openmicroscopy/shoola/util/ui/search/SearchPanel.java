@@ -24,13 +24,13 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 
 //Java imports
-import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,27 +40,26 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
-import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 //Third-party libraries
-import com.toedter.calendar.JDateChooser;
+import org.jdesktop.swingx.JXDatePicker;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 
 
 /** 
@@ -79,11 +78,41 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class SearchPanel
 	extends JPanel
+	implements PropertyChangeListener
 {
 
+	/** The title of the search UI component. */
+	private static final String		SEARCH_TITLE = "Search For";
+	
+	/** The title of the user UI component. */
+	private static final String		USER_TITLE = "Users";
+	
+	/** The title of the date UI component. */
+	private static final String		DATE_TITLE = "Date";
+	
+	/** The title of the scope UI component. */
+	private static final String		SCOPE_TITLE = "Scope";
+	
+	/** The title of the type UI component. */
+	private static final String		TYPE_TITLE = "Type";
+	
 	/** Wild card used. */
 	private static final String		WILD_CARD = 
 									"(* = any string, ? = any character)";
+	
+	/** Search Tip. */
+	private static final String		SEARCH_TIP = "Tip: Use these options to " +
+			"look for an exact phrase or to exclude certain words.";
+	
+	/** Users Tip. */
+	private static final String		USERS_TIP = "Tip: Add a minus in front " +
+			"of a name to exclude the user.";
+	
+	/** The type of font used for the tips. */
+	private static final int		TIP_FONT_TYPE = Font.ITALIC;
+	
+	/** The size of font used for the tips. */
+	private static final int		TIP_FONT_SIZE = 10;
 	
 	/** Description of the {@link #allTermsArea}. */
 	private static final String		ALL_WORDS = 
@@ -101,20 +130,26 @@ class SearchPanel
 	private static final String		WITHOUT_WORDS = 
 										"<html><b>Without</b> the words</html>";
 	
-	/** The preferred size of the calendar popup. */
-	private static final Dimension	CALENDAR_SIZE = new Dimension(250, 200);
-	
 	/** The selected date format. */
-	private static final String		DATE_FORMAT = "YYYY/MM/DD";//"MM/dd/yy";
+	private static final String		DATE_FORMAT = "yy/MM/dd";//"MM/dd/yy";
 	
 	/** The tooltip of the calendar button. */
 	private static final String		DATE_TOOLTIP = "Bring up a calendar.";
+	
+	/** 
+	 * Bound property indicating that the date has changed.
+	 * JCalendar should have a static field.
+	 */
+	private static final String		DATE_CALENDAR_PROPERTY = "date";
 	
 	/** Possible time options. */
 	private static String[]		dateOptions;
 	
 	/** The maximum number of results returned. */
 	private static String[]		numberOfResults;
+	
+	/** The maximum number of results returned. */
+	private static String[]		fileFormats;
 	
 	static {
 		dateOptions = new String[SearchContext.MAX+1];
@@ -124,7 +159,7 @@ class SearchPanel
 		dateOptions[SearchContext.LAST_TWO_MONTHS] = "Last 60 days";
 		dateOptions[SearchContext.ONE_YEAR] = "1 year";
 		dateOptions[SearchContext.RANGE] = "Specify date range " +
-											"("+DATE_FORMAT+")";
+											"("+DATE_FORMAT.toUpperCase()+")";
 		numberOfResults = new String[SearchContext.MAX_RESULTS+1];
 		numberOfResults[SearchContext.LEVEL_ONE] = 
 									SearchContext.LEVEL_ONE_VALUE+" results";
@@ -134,22 +169,38 @@ class SearchPanel
 			SearchContext.LEVEL_THREE_VALUE+" results";
 		numberOfResults[SearchContext.LEVEL_FOUR] = 
 			SearchContext.LEVEL_FOUR_VALUE+" results";
+		
+		fileFormats = new String[SearchContext.MAX_FORMAT+1];
+		fileFormats[SearchContext.ALL_FORMATS] = "All formats";
+		fileFormats[SearchContext.HTML] = "HTML (.htm, .html)";
+		fileFormats[SearchContext.PDF] = "Adobe PDF (.pdf)";
+		fileFormats[SearchContext.EXCEL] = "Microsoft Excel (.xls)";
+		fileFormats[SearchContext.POWER_POINT] = "Microsoft PowerPoint (.ppt)";
+		fileFormats[SearchContext.WORD] = "Microsoft Word (.doc)";
+		fileFormats[SearchContext.XML] = "RSS/XML (.xml)";
+		fileFormats[SearchContext.TEXT] = "Text Format (.txt)";
 	}
 
 	/** If checked the case is taken into account. */ 
 	private JCheckBox				caseSensitive;
 	
-	/** The button used to display the available users. */
-	private JButton					userButton;
+	/** The button used to display the available owners. */
+	private JButton					ownerButton;
+	
+	/** The button used to display the available annotators. */
+	private JButton					annotatorButton;
 	
 	/** Fields with the possible users. */
-	private JTextField 				authors;
+	private JTextField 				usersAsOwner;
+	
+	/** Fields with the possible users. */
+	private JTextField 				usersAsAnnotator;
 	
 	/** Possible dates. */
 	private JComboBox				dates;
 	
 	/** Possible results. */
-	private JComboBox				results;
+	//private JComboBox				results;
 	
 	/** The terms to search for. */
 	private JTextField				allTermsArea;
@@ -164,10 +215,12 @@ class SearchPanel
 	private JTextField				withoutTermsArea;
 	
 	/** Date used to specify the beginning of the time interval. */
-	private JDateChooser			fromDate;
+	//private JDateChooser			fromDate;
+	private JXDatePicker			fromDate;
 	
 	/** Date used to specify the ending of the time interval. */
-	private JDateChooser			toDate;
+	//private JDateChooser			toDate;
+	private JXDatePicker			toDate;
 	
 	/** Reference to the model .*/
 	private SearchComponent 		model;
@@ -179,19 +232,16 @@ class SearchPanel
 	private Map<Integer, JCheckBox>	types;
 	
 	/** Button to only retrieve the current user's data. */
-	private JRadioButton			currentUser;
+	private JCheckBox				currentUserAsOwner;
 	
 	/** Button to only retrieve the current user and selected users' data. */
-	private JRadioButton			currentUserAndOthers;
+	private JCheckBox				othersAsOwner;
+
+	/** Button to only retrieve the current user's data. */
+	private JCheckBox				currentUserAsAnnotator;
 	
 	/** Button to only retrieve the current user and selected users' data. */
-	private JRadioButton			others;
-	
-	/** Button to put <code>AND</code> between terms. */
-	private JRadioButton			andBox;
-	
-	/** Button to put <code>OR</code> between terms. */
-	private JRadioButton			orBox;
+	private JCheckBox				othersAsAnnotator;
 	
 	/** The possible textual areas. */
 	private Map<JTextField, JLabel>	areas;
@@ -199,98 +249,276 @@ class SearchPanel
 	/** Button to bring up the tooltips for help. */
 	private JButton					helpButton;
 	
-	/** Initializes the components composing the display. */
+	/** Button indicating that the time entered is the creation time. */
+	private JRadioButton			creationTime;
+	
+	/** Button indicating that the time entered is the time of update. */
+	private JRadioButton			updatedTime;
+	
+	/** The possible file formats. */
+	private JComboBox				formats;
+	
+	/**
+	 * Creates a date picker.
+	 * 
+	 * @return See above.
+	 */
+	private JXDatePicker createDatePicker()
+	{
+		String[] dateFormats = new String[1];
+		dateFormats[0] = DATE_FORMAT;
+		JXDatePicker picker = new JXDatePicker();
+		picker.setToolTipText(DATE_TOOLTIP);
+		picker.getEditor().setEditable(false);
+		picker.setEditable(false);
+		return picker;
+	}
+	
+	/** Initializes the components composing the display.  */
 	private void initComponents()
 	{
 		scopes = new HashMap<Integer, JCheckBox>(model.getNodes().size());
 		types = new HashMap<Integer, JCheckBox>(model.getTypes().size());
 		IconManager icons = IconManager.getInstance();
-		fromDate = new JDateChooser();
-		JButton b = fromDate.getCalendarButton();
-		b.setToolTipText(DATE_TOOLTIP);
-		b.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		fromDate.setIcon(icons.getImageIcon(IconManager.CALENDAR));
-		fromDate.setDateFormatString(DATE_FORMAT);
-		fromDate.getJCalendar().setPreferredSize(CALENDAR_SIZE);
-		toDate = new JDateChooser();
-		toDate.getCalendarButton().setToolTipText(DATE_TOOLTIP);
-		toDate.setDateFormatString(DATE_FORMAT);
-		b = toDate.getCalendarButton();
-		b.setToolTipText(DATE_TOOLTIP);
-		b.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		toDate.setIcon(icons.getImageIcon(IconManager.CALENDAR));
-		toDate.getJCalendar().setPreferredSize(CALENDAR_SIZE);
-		fromDate.setEnabled(false);
-		toDate.setEnabled(false);
+ 		fromDate = createDatePicker();
+		toDate = createDatePicker();
+
 		allTermsArea = new JTextField(20);
 		exactPhraseArea = new JTextField(20);
 		atLeastTermsArea = new JTextField(20);
 		withoutTermsArea = new JTextField(20);
 	
-		authors = new JTextField(20);
-		authors.setEditable(false);
+		usersAsOwner = new JTextField(20);
+		usersAsAnnotator = new JTextField(20);
+		usersAsAnnotator.setEditable(false);
+		usersAsOwner.setEditable(false);
+		
 		dates = new JComboBox(dateOptions);
 		dates.addActionListener(model);
 		dates.setActionCommand(""+SearchComponent.DATE);
-		userButton = new JButton(icons.getIcon(IconManager.OWNER));
-		userButton.setToolTipText("Select users");
-		UIUtilities.unifiedButtonLookAndFeel(userButton);
-		userButton.addActionListener(model);
-		userButton.setActionCommand(""+SearchComponent.OWNER);
+		ownerButton = new JButton(icons.getIcon(IconManager.OWNER));
+		ownerButton.setToolTipText("Select the owner of the objects.");
+		UIUtilities.unifiedButtonLookAndFeel(ownerButton);
+		ownerButton.addActionListener(model);
+		ownerButton.setActionCommand(""+SearchComponent.OWNER);
+		ownerButton.setEnabled(false);
+		usersAsOwner.setEnabled(false);
+		annotatorButton = new JButton(icons.getIcon(IconManager.OWNER));
+		annotatorButton.setToolTipText("Select the users who annotated the " +
+										"objects.");
+		annotatorButton.setEnabled(false);
+		usersAsAnnotator.setEnabled(false);
+		UIUtilities.unifiedButtonLookAndFeel(annotatorButton);
+		annotatorButton.addActionListener(model);
+		annotatorButton.setActionCommand(""+SearchComponent.ANNOTATOR);
 		
-		currentUser = new JRadioButton("just me");
-		currentUser.setSelected(true);
-		currentUserAndOthers = new JRadioButton("me and others");
-		others = new JRadioButton("just others");
-		ButtonGroup group = new ButtonGroup();
-		group.add(currentUser);
-		group.add(currentUserAndOthers);
-		group.add(others);
-		group = new ButtonGroup();
-		andBox = new JRadioButton("And");
-		orBox = new JRadioButton("Or");
-		orBox.setSelected(true);
-		group.add(andBox);
-		group.add(orBox);
+		currentUserAsOwner = new JCheckBox("Me");
+		currentUserAsOwner.setSelected(true);
+		currentUserAsAnnotator = new JCheckBox("Me");
+		currentUserAsAnnotator.setSelected(true);
+		othersAsOwner = new JCheckBox("Others");
+		othersAsAnnotator = new JCheckBox("Others");
+		othersAsOwner.addChangeListener(new ChangeListener() {
+		
+			public void stateChanged(ChangeEvent e) {
+				ownerButton.setEnabled(othersAsOwner.isSelected());
+				usersAsOwner.setEnabled(othersAsOwner.isSelected());
+			}
+		});
+		
+		othersAsAnnotator.addChangeListener(new ChangeListener() {
+			
+			public void stateChanged(ChangeEvent e) {
+				annotatorButton.setEnabled(othersAsAnnotator.isSelected());
+				usersAsAnnotator.setEnabled(othersAsAnnotator.isSelected());
+			}
+		});
+		
 		caseSensitive = new JCheckBox("Case sensitive");
 		areas = new LinkedHashMap<JTextField, JLabel>();
 		areas.put(atLeastTermsArea, new JLabel(AT_LEAST_WORDS));
 		areas.put(allTermsArea, new JLabel(ALL_WORDS));
 		areas.put(exactPhraseArea, new JLabel(EXACT_WORDS));
 		areas.put(withoutTermsArea, new JLabel(WITHOUT_WORDS));
-		results = new JComboBox(numberOfResults);
+		//results = new JComboBox(numberOfResults);
 		helpButton = new JButton(icons.getIcon(IconManager.HELP));
-		helpButton.setToolTipText("Advanced search Tips.s");
+		helpButton.setToolTipText("Advanced search Tips.");
 		UIUtilities.unifiedButtonLookAndFeel(helpButton);
-		helpButton.addActionListener(new ActionListener() {
+		helpButton.addActionListener(model);
+		helpButton.setActionCommand(""+SearchComponent.HELP);
+		formats = new JComboBox(fileFormats);
+		formats.setEnabled(false);
+		ButtonGroup group = new ButtonGroup();
+		creationTime = new JRadioButton("Created");
+		creationTime.setSelected(true);
+		updatedTime = new JRadioButton("Updated");
+		group.add(creationTime);
+		group.add(updatedTime);
 		
-			public void actionPerformed(ActionEvent e) {
-				showHelp();
-			}
+		SearchContext ctx = model.getSearchContext();
+		if (ctx == null) return;
+		if (ctx.getTimeType() == SearchContext.UPDATED_TIME)
+			updatedTime.setSelected(true);
+		List<Integer> l = ctx.getOwnerSearchContext();
+		if (l != null) {
+			othersAsOwner.setSelected(l.contains(SearchContext.OTHERS));
+			currentUserAsOwner.setSelected(
+					l.contains(SearchContext.CURRENT_USER));
+		}
 		
-		});
+		l = ctx.getAnnotatorSearchContext();
+		if (l != null) {
+			othersAsAnnotator.setSelected(l.contains(SearchContext.OTHERS));
+			currentUserAsAnnotator.setSelected(
+					l.contains(SearchContext.CURRENT_USER));
+		}
+		int dateIndex = ctx.getDateIndex();
+		if (dateIndex != -1) dates.setSelectedIndex(dateIndex);
+		String[] none = ctx.getNone();
+		String v = "";
+		for (int i = 0; i < none.length; i++) {
+			v += SearchUtil.QUOTE_SEPARATOR+none[i]+SearchUtil.QUOTE_SEPARATOR;
+			if (i != (none.length-1))
+				v += SearchUtil.SPACE_SEPARATOR;
+		}
+		withoutTermsArea.setText(v);
+		String[] must = ctx.getMust();
+		v = "";
+		for (int i = 0; i < must.length; i++) {
+			v += SearchUtil.QUOTE_SEPARATOR+must[i]+SearchUtil.QUOTE_SEPARATOR;
+			if (i != (none.length-1))
+				v += SearchUtil.SPACE_SEPARATOR;
+		}
+		allTermsArea.setText(v);
+		String[] some = ctx.getSome();
+		v = "";
+		for (int i = 0; i < some.length; i++) {
+			v += SearchUtil.QUOTE_SEPARATOR+some[i]+SearchUtil.QUOTE_SEPARATOR;
+			if (i != (none.length-1))
+				v += SearchUtil.SPACE_SEPARATOR;
+		}
+		atLeastTermsArea.setText(v);
+		
+		//initialize
+		setDateIndex();
 	}
 	
-	/** Brings up the Help dialog. */
-	private void showHelp()
-	{
-		SearchHelp helpDialog = new SearchHelp((JFrame) model.getOwner());
-		UIUtilities.centerAndShow(helpDialog);
-	}
-	
-	/** 
-	 * Displaying the term separator options.
+	/**
+	 * Sets the name of the passed user in the specified <code>TextField</code>.
 	 * 
+	 * @param name	The value to set.
+	 * @param field	The UI component to handle.
+	 */
+	private void setUserString (String name, JTextField field)
+	{
+		/*
+		String text = field.getText();
+		String[] values = text.split(SearchUtil.COMMA_SEPARATOR);
+		String n;
+		String v = "";
+		boolean exist = false;
+		int l = values.length;
+		for (int i = 0; i < l; i++) {
+			n = values[i].trim();
+			if (n.length() > 0) {
+				v += n;
+				if (name.equals(n)) {
+					if (i != (l-1))
+						v += SearchUtil.COMMA_SEPARATOR
+								+SearchUtil.SPACE_SEPARATOR;
+					exist = true;
+				} else v += SearchUtil.COMMA_SEPARATOR
+							+SearchUtil.SPACE_SEPARATOR;
+			}
+		}
+		if (!exist) v += name;
+		else v = v.substring(0, text.length()-1);
+		field.setText(v);
+		*/
+		List<String> values = SearchUtil.splitTerms(field.getText(), 
+											SearchUtil.QUOTE_SEPARATOR);
+		String v = "";
+		int n = values.size();
+		if (n == 0)
+			v = SearchUtil.QUOTE_SEPARATOR+name+SearchUtil.QUOTE_SEPARATOR;
+		else {
+			Iterator i = values.iterator();
+			String value;
+			boolean exist = false;
+			int index = 0;
+			while (i.hasNext()) {
+				value = (String) i.next();
+				if (!value.equals(name)) {
+					v += SearchUtil.QUOTE_SEPARATOR+value
+					+SearchUtil.QUOTE_SEPARATOR;
+					if (index < n)
+						v += SearchUtil.SPACE_SEPARATOR;
+				}
+				index++;
+			}
+			if (!exist) 
+				v += SearchUtil.QUOTE_SEPARATOR+name+SearchUtil.QUOTE_SEPARATOR;
+		}
+		field.setText(v);
+	}
+	
+	/**
+	 * Retrieves the users to exclude.
+	 * 
+	 * @param field The text field to handle.
 	 * @return See above.
 	 */
-	private JPanel buildAndOrPanel()
+	private List<String> getExcludedUsers(JTextField field)
 	{
-		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(andBox);
-		p.add(Box.createRigidArea(SearchComponent.H_SPACER_SIZE));
-		p.add(orBox);
-		return UIUtilities.buildComponentPanel(p);
+		String text = field.getText();
+		if (text == null || text.length() == 0) return null;
+		if (!text.contains(SearchUtil.MINUS_SEPARATOR)) return null;
+		List<String> l = SearchUtil.splitTerms(text, 
+											SearchUtil.QUOTE_SEPARATOR);
+		int index = 0;
+		Iterator i;
+		List<String> excluded = new ArrayList<String>();
+		if (l != null) {
+			i = l.iterator();
+			String value;
+			String nextItem;
+			while (i.hasNext()) {
+				value = (String) i.next();
+				if (SearchUtil.MINUS_SEPARATOR.equals(value)) {
+					nextItem = l.get(index+1);
+					if (nextItem != null)
+						excluded.add(nextItem);
+				}
+				index++;
+			}
+		}
+		return excluded;
+	}
+	
+	/**
+	 * Retrieves the users to exclude.
+	 * 
+	 * @param field The text field to handle.
+	 * @return See above.
+	 */
+	private List<String> getUsers(JTextField field)
+	{
+		String text = field.getText();
+		if (text == null || text.length() == 0) return null;
+		List<String> l = SearchUtil.splitTerms(text, 
+										SearchUtil.QUOTE_SEPARATOR);
+		Iterator i;
+		List<String> terms = new ArrayList<String>();
+		if (l != null) {
+			i = l.iterator();
+			String value;
+			while (i.hasNext()) {
+				value = (String) i.next();
+				if (!SearchUtil.MINUS_SEPARATOR.equals(value))
+					terms.add(value);
+			}
+		}
+		return terms;
 	}
 	
 	/** 
@@ -298,28 +526,31 @@ class SearchPanel
 	 * 
 	 * @return See above;
 	 */
-	private JPanel buildTimeRangePanel()
+	private JPanel buildTimeRange()
 	{
 		JPanel p = new JPanel();
-		p.add(UIUtilities.setTextFont("From"));
+		p.add(UIUtilities.setTextFont("From: "));
 		p.add(fromDate);
-		p.add(UIUtilities.setTextFont("To"));
+		p.add(UIUtilities.setTextFont("To: "));
 		p.add(toDate);
-		return  UIUtilities.buildComponentPanel(p);
+		return p;
 	}
 	
 	/** 
 	 * Builds the panel hosting the user selection.
 	 * 
+	 * @param user The user checkbox to lay out.
+	 * @param others The others checkbox to lay out.
 	 * @return See above.
 	 */
-	public JPanel buildUserSelectionPanel()
+	public JPanel buildUserSelection(JCheckBox user, JCheckBox others)
 	{
 		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(currentUser);
-		p.add(currentUserAndOthers);
-		p.add(others);
+		p.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.WEST;
+        p.add(user, c);
+		p.add(others, c);
 		return UIUtilities.buildComponentPanel(p);
 	}
 	
@@ -328,31 +559,45 @@ class SearchPanel
 	 * 
 	 * @return See above.
 	 */
-	private JPanel buildScopePanel()
+	private JPanel buildScope()
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new GridBagLayout());
-        p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        //p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
-        c.insets = new Insets(3, 3, 3, 3);
+        //c.insets = new Insets(3, 3, 3, 3);
         List<SearchObject> nodes = model.getNodes();
 		SearchObject n;
 		int m = nodes.size();
 		JCheckBox box;
 		c.weightx = 1.0;
-		for (int i = 0; i < m; i++) {
-			n = nodes.get(i);
-			box = new JCheckBox(n.getDescription());
-			if (i == 0) box.setSelected(true);
-			if (i%2 == 0) c.gridy++;
-			
-			p.add(box, c);
-			scopes.put(n.getIndex(), box);
+		List<Integer> ctxNodes = null;
+		SearchContext ctx = model.getSearchContext();
+		if (ctx != null) ctxNodes = ctx.getContext();
+		if (ctxNodes == null) {
+			for (int i = 0; i < m; i++) {
+				n = nodes.get(i);
+				box = new JCheckBox(n.getDescription());
+				if (i == 0) box.setSelected(true);
+				if (i%2 == 0) c.gridy++;
+				
+				p.add(box, c);
+				scopes.put(n.getIndex(), box);
+			}
+		} else {
+			for (int i = 0; i < m; i++) {
+				n = nodes.get(i);
+				box = new JCheckBox(n.getDescription());
+				box.setSelected(ctxNodes.contains(n.getIndex()));
+				if (i%2 == 0) c.gridy++;
+				
+				p.add(box, c);
+				scopes.put(n.getIndex(), box);
+			}
 		}
-		TitledBorder border = new TitledBorder("Scope");
-		border.setTitleFont(p.getFont().deriveFont(Font.BOLD));
-		p.setBorder(border);
+		
+		UIUtilities.setBoldTitledBorder(SCOPE_TITLE, p);
 		return p;
 	}
 	
@@ -361,30 +606,46 @@ class SearchPanel
 	 * 
 	 * @return See above.
 	 */
-	private JPanel buildTypePanel()
+	private JPanel buildType()
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new GridBagLayout());
-        p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        //p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
         c.insets = new Insets(3, 3, 3, 3);
         List<SearchObject> nodes = model.getTypes();
+        List<Integer> ctxNodes = null;
+		SearchContext ctx = model.getSearchContext();
+		if (ctx != null) ctxNodes = ctx.getType();
+        
 		SearchObject n;
 		int m = nodes.size();
 		JCheckBox box;
 		c.weightx = 1.0;
-		for (int i = 0; i < m; i++) {
-			n = nodes.get(i);
-			box = new JCheckBox(n.getDescription());
-			if (i == 0) box.setSelected(true);
-			
-			p.add(box, c);
-			types.put(n.getIndex(), box);
+		
+		
+		if (ctxNodes == null) {
+			for (int i = 0; i < m; i++) {
+				n = nodes.get(i);
+				box = new JCheckBox(n.getDescription());
+				if (i == 0) box.setSelected(true);
+				
+				p.add(box, c);
+				types.put(n.getIndex(), box);
+			}
+		} else {
+			for (int i = 0; i < m; i++) {
+				n = nodes.get(i);
+				box = new JCheckBox(n.getDescription());
+				box.setSelected(ctxNodes.contains(n.getIndex()));
+				
+				p.add(box, c);
+				types.put(n.getIndex(), box);
+			}
 		}
-		TitledBorder border = new TitledBorder("Type");
-		border.setTitleFont(p.getFont().deriveFont(Font.BOLD));
-		p.setBorder(border);
+		
+		UIUtilities.setBoldTitledBorder(TYPE_TITLE, p);
 		return p;
 	}
 	
@@ -397,16 +658,8 @@ class SearchPanel
 	{
 		JPanel searchFor = new JPanel();
 		searchFor.setLayout(new BoxLayout(searchFor, BoxLayout.Y_AXIS));
-		//initBorder("Search For", searchFor);
+		UIUtilities.setBoldTitledBorder(SEARCH_TITLE, searchFor);
 		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		//p.add(UIUtilities.setTextFont(WILD_CARD, Font.ITALIC, 10));
-		p.add(results);
-		p.add(helpButton);
-		searchFor.add(UIUtilities.buildComponentPanelRight(p));
-		
-		//searchFor.add(UIUtilities.buildComponentPanel(p));
-		p = new JPanel();
 		p.setLayout(new GridBagLayout());
         p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         GridBagConstraints c = new GridBagConstraints();
@@ -431,8 +684,35 @@ class SearchPanel
             c.weightx = 1.0;
             p.add(area, c);  
         }
+        ++c.gridy;
+        c.gridx = 0;
+        c.weightx = 0.0; 
+        p.add(UIUtilities.setTextFont(SEARCH_TIP, TIP_FONT_TYPE, 
+        							TIP_FONT_SIZE), c); 
         searchFor.add(UIUtilities.buildComponentPanel(p));
 		return searchFor;
+	}
+	
+	/**
+	 * Lays out the specified text field and button.
+	 * 
+	 * @param box		The box to lay out.
+	 * @param field		The field to lay out.
+	 * @param button	The button to lay out.
+	 * @return See above.
+	 */
+	private JPanel buildUserSelection(JCheckBox box, JTextField field, 
+										JButton button)
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.WEST;
+        c.gridy = 1;
+        p.add(box, c);
+        p.add(field, c);
+		p.add(button, c);
+		return p;
 	}
 	
 	/**
@@ -441,17 +721,40 @@ class SearchPanel
 	 * @return See above.
 	 */
 	private JPanel buildUsers()
-	{
-		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		
-		p.add(authors);
-		p.add(userButton);
+	{	
 		JPanel usersPanel= new JPanel();
-		initBorder("Users", usersPanel);
+		UIUtilities.setBoldTitledBorder(USER_TITLE, usersPanel);
 		usersPanel.setLayout(new BoxLayout(usersPanel, BoxLayout.Y_AXIS));
-		usersPanel.add(UIUtilities.buildComponentPanel(p));
-		usersPanel.add(buildUserSelectionPanel());
+		JPanel content = new JPanel();
+		content.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.WEST;
+        c.gridy = 0;
+        content.add(UIUtilities.setTextFont("Owned by "), c);
+        c.gridx = 1;
+        content.add(currentUserAsOwner, c);
+		c.gridy++;
+		c.ipady = 10;
+		content.add(buildUserSelection(othersAsOwner, usersAsOwner, 
+										ownerButton), c);
+		
+		c.gridx = 0;
+		c.gridy++;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridwidth = 2;
+		c.ipady = 5;
+		content.add(new JSeparator(), c);
+		c.ipady = 0;
+		c.gridwidth = 1;
+		c.gridy++;
+		content.add(UIUtilities.setTextFont("Annotated by "), c);
+        c.gridx = 1;
+        content.add(currentUserAsAnnotator, c);
+		c.gridy++;
+		content.add(buildUserSelection(othersAsAnnotator, usersAsAnnotator, 
+				annotatorButton), c);
+
+		usersPanel.add(UIUtilities.buildComponentPanel(content));
 		return usersPanel;
 	}
 	
@@ -462,60 +765,54 @@ class SearchPanel
 	 */
 	private JPanel buildDate()
 	{
-		JPanel p = new JPanel();
-		p.add(UIUtilities.buildComponentPanel(dates));
-		JPanel datesPanel= new JPanel();
-		datesPanel.setLayout(new BoxLayout(datesPanel, BoxLayout.Y_AXIS));
-		initBorder("Date", datesPanel);
-		datesPanel.add(UIUtilities.buildComponentPanel(p));
-		//From
-		datesPanel.add(buildTimeRangePanel());
-		return datesPanel;
-	}
-	
-	/**
-	 * Formats and sets the title border of the passed component.
-	 * 
-	 * @param title The title.
-	 * @param p		The component to handle.
-	 */
-	private void initBorder(String title, JComponent p)
-	{
-		TitledBorder border = new TitledBorder(title);
-		border.setTitleFont(p.getFont().deriveFont(Font.BOLD));
-		p.setBorder(border);
-	}
-	
-	/** 
-	 * Builds the panel hosting the authors.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel buildSearchPanel()
-	{
-		JPanel searchPanel= new JPanel();
-		searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.Y_AXIS));
-		searchPanel.add(buildSearchFor());
-		searchPanel.add(buildUsers());
-		//From
-		searchPanel.add(buildDate());
-		//Context
+		JPanel content = new JPanel();
+		content.setLayout(new BoxLayout(content, BoxLayout.X_AXIS));
+		content.add(creationTime);
+		content.add(updatedTime);
 		
-		searchPanel.add(buildScopePanel());
-		searchPanel.add(buildTypePanel());
-		return UIUtilities.buildComponentPanel(searchPanel);
+		JPanel p = new JPanel();
+		p.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.WEST;
+        c.gridy = 0;
+        c.ipady = 10;
+        p.add(content, c);
+        c.ipady = 0;
+        c.gridy++;
+        p.add(dates, c);
+        c.gridy++;
+		p.add(buildTimeRange(), c);
+		JPanel panel = UIUtilities.buildComponentPanel(p);
+		UIUtilities.setBoldTitledBorder(DATE_TITLE, panel);
+		return panel;
 	}
-	
+
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		add(buildSearchPanel());
+		JPanel content = new JPanel();
+		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+		TreeComponent tree = new TreeComponent();
+		tree.insertNode(buildSearchFor(), 
+							UIUtilities.buildCollapsePanel(SEARCH_TITLE));
+		tree.insertNode(buildType(), 
+						UIUtilities.buildCollapsePanel(TYPE_TITLE));
+		tree.insertNode(buildScope(), 
+				UIUtilities.buildCollapsePanel(SCOPE_TITLE));
+		tree.insertNode(buildUsers(), 
+							UIUtilities.buildCollapsePanel(USER_TITLE));
+		tree.insertNode(buildDate(), 
+									UIUtilities.buildCollapsePanel(DATE_TITLE));
+		tree.addPropertyChangeListener(this);
+		content.add(tree);
+		setLayout(new FlowLayout(FlowLayout.LEFT));
+		add(content);
 	}
 	
 	/** 
 	 * Creates a new instance.
 	 * 
-	 *  @param model Reference to the model. Mustn't be <code>null</code>.
+	 * @param model Reference to the model. Mustn't be <code>null</code>.
 	 */
 	SearchPanel(SearchComponent model)
 	{
@@ -531,11 +828,11 @@ class SearchPanel
 	{
 		int index = dates.getSelectedIndex();
 		fromDate.setEnabled(index == SearchContext.RANGE);
-		if (fromDate.getDateEditor() != null);
-			fromDate.getDateEditor().setEnabled(false);
+		if (fromDate.getEditor() != null);
+			fromDate.getEditor().setEnabled(false);
 		toDate.setEnabled(index == SearchContext.RANGE);
-		if (toDate.getDateEditor() != null);
-			toDate.getDateEditor().setEnabled(false);
+		if (toDate.getEditor() != null);
+			toDate.getEditor().setEnabled(false);
 	}
 	
 	/**
@@ -543,10 +840,7 @@ class SearchPanel
 	 * 
 	 * @return See above.
 	 */
-	int getSelectedDate()
-	{
-		return dates.getSelectedIndex();
-	}
+	int getSelectedDate() { return dates.getSelectedIndex(); }
 	
 	/**
 	 * Returns <code>true</code> if the search is case sensitive,
@@ -620,7 +914,6 @@ class SearchPanel
 		return list;
 	}
 	
-	
 	/**
 	 * Returns the terms that may be in the document.
 	 * 
@@ -681,7 +974,6 @@ class SearchPanel
 		String[] terms = null;
 		if (l.size() > 0) {
 			terms = (String[]) l.toArray(new String[] {});
-			
 		} else {
 			l = SearchUtil.splitTerms(text, SearchUtil.SPACE_SEPARATOR);
 			if (l.size() > 0)
@@ -695,37 +987,44 @@ class SearchPanel
 	 * 
 	 * @return See above.
 	 */
-	int getUserSearchContext()
+	List<Integer> getOwnerSearchContext()
 	{
-		if (currentUser.isSelected()) return SearchContext.JUST_CURRENT_USER;
-		if (currentUserAndOthers.isSelected()) 
-			return SearchContext.CURRENT_USER_AND_OTHERS;
-		return SearchContext.JUST_OTHERS;
+		List<Integer> context = new ArrayList<Integer>();
+		if (currentUserAsOwner.isSelected())
+			context.add(SearchContext.CURRENT_USER);
+		if (othersAsOwner.isSelected())
+			context.add(SearchContext.OTHERS);
+		return context;
 	}
 	
 	/**
-	 * Returns the collection of the possible users.
+	 * Returns the context of the search for users.
 	 * 
 	 * @return See above.
 	 */
-	List<String> getUsers()
+	List<Integer> getAnnotatorSearchContext()
 	{
-		if (getUserSearchContext() == SearchContext.JUST_CURRENT_USER)
-			return new ArrayList<String>();
-		return SearchUtil.splitTerms(authors.getText(), 
-									SearchUtil.COMMA_SEPARATOR);
+		List<Integer> context = new ArrayList<Integer>();
+		if (currentUserAsAnnotator.isSelected())
+			context.add(SearchContext.CURRENT_USER);
+		if (othersAsAnnotator.isSelected())
+			context.add(SearchContext.OTHERS);
+		return context;
 	}
 	
 	/**
-	 * Returns either <code>and</code> or <code>or</code>.
+	 * Returns the collection of the users who own the objects.
 	 * 
 	 * @return See above.
 	 */
-	String getSeparator()
-	{
-		if (orBox.isSelected()) return "or";
-		return "and";
-	}
+	List<String> getOwners() { return getUsers(usersAsOwner); }
+	
+	/**
+	 * Returns the collection of the users who annotated the objects.
+	 * 
+	 * @return See above.
+	 */
+	List<String> getAnnotators() { return getUsers(usersAsAnnotator); }
 	
 	/** Indicates to set the focus on the search area. */
 	void setFocusOnSearch()
@@ -744,30 +1043,73 @@ class SearchPanel
 	 * 
 	 * @param name The string to set.
 	 */
-	void setUserString(String name)
+	void setOwnerString(String name)
 	{
-		String text = authors.getText();
-		String[] values = text.split(SearchUtil.COMMA_SEPARATOR);
-		String n;
-		String v = "";
-		boolean exist = false;
-		int l = values.length;
-		for (int i = 0; i < l; i++) {
-			n = values[i].trim();
-			if (n.length() >0) {
-				v += n;
-				if (name.equals(n)) {
-					if (i != (l-1))
-						v += SearchUtil.COMMA_SEPARATOR
-								+SearchUtil.SPACE_SEPARATOR;
-					exist = true;
-				} else v += SearchUtil.COMMA_SEPARATOR
-							+SearchUtil.SPACE_SEPARATOR;
-			}
+		setUserString(name, usersAsOwner);
+	}
+	
+	/**
+	 * Sets the name of the selected user.
+	 * 
+	 * @param name The string to set.
+	 */
+	void setAnnotatorString(String name)
+	{
+		setUserString(name, usersAsAnnotator);
+	}
+	
+	/**
+	 * Returns the type of files to search for.
+	 * 
+	 * @return See above.
+	 */
+	int getAttachment() { return formats.getSelectedIndex(); }
+	
+	/**
+	 * Returns the index of the time.
+	 * 
+	 * @return See above.
+	 */
+	int getTimeIndex()
+	{
+		if (creationTime.isSelected()) return SearchContext.CREATION_TIME;
+		if (updatedTime.isSelected()) return SearchContext.UPDATED_TIME;
+		return -1;
+	}
+
+	/**
+	 * Returns the collection of excluded users.
+	 * 
+	 * @return See above.
+	 */
+	List<String> getExcludedAnnotators()
+	{
+		return getExcludedUsers(usersAsAnnotator);
+	}
+	
+	/**
+	 * Returns the collection of excluded users.
+	 * 
+	 * @return See above.
+	 */
+	List<String> getExcludedOwners()
+	{
+		return getExcludedUsers(usersAsOwner);
+	}
+
+	/**
+	 * Reacts to property fired by a {@link TreeComponentNode}.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (TreeComponent.EXPANDED_PROPERTY.equals(name)) {
+			model.pack();
+		} else if (DATE_CALENDAR_PROPERTY.equals(name)) {
+			//if (evt.getNewValue() != null) 
+				//toDate.setDate(new Date());
 		}
-		if (!exist) v += name;
-		else v = v.substring(0, text.length()-1);
-		authors.setText(v);
 	}
 	
 }

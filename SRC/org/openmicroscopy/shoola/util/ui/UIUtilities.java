@@ -61,6 +61,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.JTextComponent;
@@ -68,6 +69,8 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
+
+import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 
 //Third-party libraries
 
@@ -90,6 +93,32 @@ import javax.swing.text.StyledDocument;
 public class UIUtilities
 {
 	
+	/** Background color of an even row. */
+	public final static Color 				BACKGROUND_COLOUR_EVEN = 
+												new Color(232, 242, 254);
+	
+	/** Background color of an odd row. */
+	public final static Color 				BACKGROUND_COLOUR_ODD = 
+												new Color(255, 255, 255);
+	
+	/** Background color of the selected row */
+	public final static Color 				SELECTED_BACKGROUND_COLOUR = new Color(180, 213, 255);
+	
+	/** Foreground color of a cell.*/
+	public final static Color 				FOREGROUND_COLOUR = new Color(0, 0, 
+																			0);
+	
+	/** The starting color of the gradient used in the track. */
+	public static final Color 				TRACK_GRADIENT_START = 
+													new Color(76, 76, 76);
+
+	/** The final color of the gradient used in the track. */
+	public static final Color 				TRACK_GRADIENT_END = 
+												new Color(176, 176, 176);
+	
+	/** The color of the line drawn on the knobs. */
+	public static final Color  				LINE_COLOR = Color.BLACK;
+
 	/** A day in milliseconds. */
 	public static final long				DAY = 86400000;
 	
@@ -129,9 +158,6 @@ public class UIUtilities
      * truncated.
      */
     public static final String              DOTS = "...";
-    
-    /** The blue color used when an item is selected. */
-    public static final	Color				SELECTED_BLUE = new Color(100, 100, 240);
     
     /** The Steelblue color. */
     public static final Color               STEELBLUE = new Color(0x4682B4);
@@ -849,10 +875,10 @@ public class UIUtilities
     }
     
     /**
-     * Format the string to be 2 decimal places. 
+     * Formats the string to be two decimal places. 
      * 
-	 * @param value the vale to be formatted. 
-     * @return Returns the stringified version of the passed v.
+	 * @param value The value to be formatted. 
+     * @return See above.
      */
     public static String FormatToDecimal(double value) 
     {
@@ -879,4 +905,30 @@ public class UIUtilities
         return l;
     }
     
+	/** 
+	 * Builds the collapse component.
+	 * 
+	 * @param title The title displayed in the border.
+	 * @return See above.
+	 */
+	public static JPanel buildCollapsePanel(String title)
+	{
+		JPanel p = new JPanel();
+		p.setBorder(new TitledLineBorder(title));
+		return p;
+	}
+	
+	/**
+	 * Formats and sets the title border of the passed component.
+	 * 
+	 * @param title The title.
+	 * @param p		The component to handle.
+	 */
+	public static void setBoldTitledBorder(String title, JComponent p)
+	{
+		TitledBorder border = new TitledBorder(title);
+		border.setTitleFont(p.getFont().deriveFont(Font.BOLD));
+		p.setBorder(border);
+	}
+	
 }

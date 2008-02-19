@@ -24,12 +24,13 @@ package org.openmicroscopy.shoola.util.ui.treetable.util;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Collection of constants used by the various cell renderer.
@@ -47,18 +48,6 @@ import java.awt.Component;
  */
 public class OMETreeTableRenderUtils
 {
-
-	/** Background color of an even row. */
-	public final static Color BACKGROUND_COLOUR_EVEN = new Color(232, 242, 254);
-	
-	/** Background color of an odd row. */
-	public final static Color BACKGROUND_COLOUR_ODD = new Color(255, 255, 255);
-	
-	/** Background color of the selected row */
-	public final static Color SELECTED_BACKGROUND_COLOUR = new Color(180, 213, 255);
-	
-	/** Foreground color of a cell.*/
-	public final static Color FOREGROUND_COLOUR = new Color(0, 0, 0);
 	
 	/**
 	 * Sets the color of the component depending on the value of the
@@ -72,15 +61,14 @@ public class OMETreeTableRenderUtils
 	{
 		if (c == null) return;
 		if (selectedRow == row) {
-			c.setBackground(
-							OMETreeTableRenderUtils.SELECTED_BACKGROUND_COLOUR);
-			c.setForeground(OMETreeTableRenderUtils.FOREGROUND_COLOUR);
+			c.setBackground(UIUtilities.SELECTED_BACKGROUND_COLOUR);
+			c.setForeground(UIUtilities.FOREGROUND_COLOUR);
 		} else {
 			if (row % 2 == 0)
-				c.setBackground(OMETreeTableRenderUtils.BACKGROUND_COLOUR_EVEN);
+				c.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
 			else
-				c.setBackground(OMETreeTableRenderUtils.BACKGROUND_COLOUR_ODD);
-			c.setForeground(OMETreeTableRenderUtils.FOREGROUND_COLOUR);
+				c.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
+			c.setForeground(UIUtilities.FOREGROUND_COLOUR);
 		}
 	}
 	
@@ -97,17 +85,16 @@ public class OMETreeTableRenderUtils
 		if (c == null) return;
 		if (selected) 
 		{
-			c.setBackground(
-				OMETreeTableRenderUtils.SELECTED_BACKGROUND_COLOUR);
-			c.setForeground(OMETreeTableRenderUtils.FOREGROUND_COLOUR);
+			c.setBackground(UIUtilities.SELECTED_BACKGROUND_COLOUR);
+			c.setForeground(UIUtilities.FOREGROUND_COLOUR);
 		} 
 		else 
 		{
 			if (row % 2 == 0)
-				c.setBackground(OMETreeTableRenderUtils.BACKGROUND_COLOUR_EVEN);
+				c.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
 			else
-				c.setBackground(OMETreeTableRenderUtils.BACKGROUND_COLOUR_ODD);
-			c.setForeground(OMETreeTableRenderUtils.FOREGROUND_COLOUR);
+				c.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
+			c.setForeground(UIUtilities.FOREGROUND_COLOUR);
 		}
 	}
 	
