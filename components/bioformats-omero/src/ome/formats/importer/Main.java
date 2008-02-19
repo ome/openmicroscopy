@@ -525,7 +525,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
     {
         if (message == Actions.LOADING_IMAGE)
         {
-            appendToOutput("> [" + args[1] + "] Loading image \"" + args[0] + "\"...");
+            appendToOutput("> [" + args[1] + "] Loading image \"" + args[0] + "\"...\n");
             statusBar.setStatusIcon("gfx/import_icon_16.png", "Prepping file \"" + args[0] + "\"");
         }
         if (message == Actions.LOADED_IMAGE)

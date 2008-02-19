@@ -132,7 +132,7 @@ public class FileQueueHandler
             Boolean fileSelected = false;
             for (File f : files)
             {
-                if (f.isFile() && reader.isThisType(f.getName())) 
+                if (f.isFile() && reader.isThisType(f.getAbsolutePath(), true)) 
                     fileSelected = true;
             }
 
@@ -154,7 +154,7 @@ public class FileQueueHandler
                     return;                    
                 for (File f : files)
                 {
-                    if (f.isFile() && reader.isThisType(f.getName())) 
+                    if (f.isFile() && reader.isThisType(f.getAbsolutePath(), true)) 
                         addFileToQueue(f, dialog.dataset, 
                                 dialog.dataset.getName(), 
                                 dialog.project.getName(),

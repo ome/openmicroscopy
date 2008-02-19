@@ -227,15 +227,11 @@ public class FileQueueChooser
         FileFilter[] comboFF = new FileFilter[readerFFSize];
         System.arraycopy(ComboFileFilter.sortFilters(
                 loci.formats.gui.GUITools.buildFileFilters(reader)), 0, comboFF, 0, readerFFSize);
-        FileFilter combo = null;
-        if (comboFF.length > 1)
-        {
-            combo = new ComboFileFilter(comboFF, "All supported file types");
-            addChoosableFileFilter(combo);
-        }
+        //FileFilter combo = null;
         for (int i = 0; i < ff.length; i++)
             this.addChoosableFileFilter(ff[i]);
-        if (combo != null) this.setFileFilter(combo);
+        this.setFileFilter(ff[0]);
+        //if (combo != null) this.setFileFilter(combo);
         
          //Retrieve all JLists and JTables from the fileChooser
         fileListObjects = getFileListObjects(this);

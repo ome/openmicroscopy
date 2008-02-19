@@ -734,15 +734,19 @@ public class OMEROMetadataStore implements MetadataStore
         log.debug(String.format(
         		"Setting Image[%d] Pixels[%d] sizeC: '%d'",
         		imageIndex, pixelsIndex, sizeC));
-		Pixels p = getPixels(imageIndex, pixelsIndex);
-		p.setSizeC(sizeC);
-		List<Channel> channels = p.getChannels();
-		for (int i = 0; i < sizeC; i++)
-		{
-			Channel c = new Channel();
-			c.setLogicalChannel(new LogicalChannel());
-			channels.add(c);
-		}
+        Pixels p = getPixels(imageIndex, pixelsIndex);
+        p.setSizeC(sizeC);
+        List<Channel> channels = p.getChannels();
+        if (channels.size() != 0)
+        {
+            channels.clear();
+        }
+        for (int i = 0; i < sizeC; i++)
+        {
+            Channel c = new Channel();
+            c.setLogicalChannel(new LogicalChannel());
+            channels.add(c);
+        }
 	}
 
 	/* (non-Javadoc)

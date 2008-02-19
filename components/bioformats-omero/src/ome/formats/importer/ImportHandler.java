@@ -184,17 +184,19 @@ public class ImportHandler
                 }
                 catch (FormatException fe)
                 {
+                    fe.printStackTrace();
                     qTable.setProgressUnknown(j);
-                    viewer.appendToOutputLn("> [" + j + "] Lossless JPEG not supported. See " +
-                    		"http://trac.openmicroscopy.org.uk/omero/wiki/LosslessJPEG for " +
-                    		"details on this error.");
+                    viewer.appendToOutputLn("> [" + j + "] Failure importing.");
                     if (importStatus < 0)   importStatus = -3;
                     else                    importStatus = -1;
                     
                     if (fe.getMessage() == "Cannot locate JPEG decoder")
                     {
                         qTable.setProgressFailed(j);
-                        viewer.appendToOutputLn("> [" + j + "] Failure importing.");
+
+                        viewer.appendToOutputLn("> [" + j + "] Lossless JPEG not supported. See " +
+                                "http://trac.openmicroscopy.org.uk/omero/wiki/LosslessJPEG for " +
+                                "details on this error.");
                         JOptionPane
                         .showMessageDialog(
                                 viewer,
