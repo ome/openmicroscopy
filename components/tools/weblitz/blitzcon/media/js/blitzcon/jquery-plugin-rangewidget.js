@@ -42,9 +42,6 @@
       self.find('table').append('<tr></tr>').find('tr:last')
 	.append('<td><input type="text" id="'+this.id+'-start" /></td>')
 	.append('<td><input type="text" id="'+this.id+'-end" /></td>');
-      self.find('table').append('<tr></tr>').find('tr:last')
-	.append('<td colspan="2"><div>Slider here</div></td>');
-
       self.find('input').SpinButton();
 
       //var boundary_check = function () {

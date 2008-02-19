@@ -64,7 +64,9 @@ $.fn.slider = function(cfg) {
       var handle_rel = 100.0 / this.sliderCfg.range;
       handle.css(this.sliderCfg.orientation, handle_rel + '%');
       if (handle_rel == 100) {
-        handle.css('background', '#ccc');
+        handle.addClass('disabled');
+      } else {
+	handle.removeClass('disabled');
       }
       var slider = jQuery("#"+lineId);
 
@@ -123,19 +125,35 @@ $.fn.slider = function(cfg) {
         //handle.attr('title', this.pos + self.sliderCfg.min);
       };
 
+      this.setSliderRange = function (min, max, current) {
+	this.sliderCfg.max = max;
+	this.sliderCfg.min = min;
+	this.sliderCfg.range = max - min + 1;
+	handle_rel = 100.0 / this.sliderCfg.range;
+	handle.css(this.sliderCfg.orientation, handle_rel + '%');
+	if (handle_rel == 100) {
+	  handle.addClass('disabled');
+	} else {
+	  handle.removeClass('disabled');
+	}
+	if (current != null) {
+          this.setSliderPos(current);
+	}
+      };
+
       /************************/
       /* Event handling below */
 
-      slider.click(function (e) {
+      var handlesliderpos = function (e) {
         var rpos = posFromEvent(e);
         self.setSliderPos(rpos+self.sliderCfg.min);
-      });
+      }
+
+      slider.click(handlesliderpos);
 
       var onrepeat = false;
       var repeat_timer;
       var ondrag = false;
-
-
 
       var startrepeat = function (additive) {
         onrepeat = true;
@@ -159,45 +177,43 @@ $.fn.slider = function(cfg) {
       var stoprepeat = function () {
         onrepeat = false;
         clearTimeout(repeat_timer);
+        $(this).unbind('mouseout', stoprepeat);
+        $(this).unbind('mouseup', stoprepeat);
       }
 
       btnup.mousedown(function () {
+	btnup.mouseup(stoprepeat);
+	btnup.mouseout(stoprepeat);
         startrepeat(-self.sliderCfg.direction);
       });
 
-      btnup.mouseup(stoprepeat);
-      btnup.mouseout(stoprepeat);
 
       btndown.mousedown(function () {
+        btndown.mouseup(stoprepeat);
+        btndown.mouseout(stoprepeat);
         startrepeat(self.sliderCfg.direction);
       });
 
-      btndown.mouseup(stoprepeat);
-      btndown.mouseout(stoprepeat);
 
       handle.mousedown(function (e) {
         /* Start handle drag */
+        jQuery(document).mousemove(domove);
+        jQuery(document).mouseup(stopdrag);
         ondrag = true;
         handle.addClass('ondrag');
         handle.removeClass('draggable');
-        
       });
 
-      jQuery(document).mouseup(function (e) {
+      var stopdrag = function (e) {
         /* Stop handle drag */
         clearTimeout(repeat_timer);
-        if (ondrag) {
-          ondrag = false;
-          handle.addClass('draggable');
-          handle.removeClass('ondrag');
-          self.setSliderPos(posFromEvent(e));
-        }
-      });
-
-      jQuery(document).mouseout(function (e) {
-        /* Stop handle drag */
-        //ondrag = false;
-      });
+        jQuery(document).unbind('mousemove', domove);
+        jQuery(document).unbind('mouseup', stopdrag);
+        ondrag = false;
+        handle.addClass('draggable');
+        handle.removeClass('ondrag');
+	handlesliderpos(e);
+      }
 
       var domove = function (e) {
         if (ondrag) {
@@ -215,7 +231,7 @@ $.fn.slider = function(cfg) {
         }
       };
 
-      jQuery(document).mousemove(domove);
+      //jQuery(document).mousemove(domove);
 
       function follow_pos (e) {
         var pos = posFromEvent(e);
@@ -239,7 +255,5 @@ $.fn.slider = function(cfg) {
       }
 
       slider.hover(ttshow, tthide);
-
-
   });
 }

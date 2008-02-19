@@ -21,6 +21,7 @@ from types import ListType, TupleType
 
 import omero
 import Ice
+import Glacier2
 
 import traceback
 import threading
@@ -30,10 +31,6 @@ logger = logging.getLogger('blitz_connector')
 
 TIMEOUT = 30
 
-# TODO: Dynamically find if the connector is connected i.e. has a session created.
-
-# TODO: pings go out, keepallalive in thread now
-
 class BlitzConnector (threading.Thread):
     ICE_CONFIG = 'blitzcon/etc/ice.config'
     def __init__ (self, username, passwd, server, port, client_obj=None):
@@ -41,16 +38,37 @@ class BlitzConnector (threading.Thread):
         self.setDaemon(True)
         self.client = client_obj
         self.server = server
-        iid = Ice.InitializationData()
-        props = Ice.createProperties(sys.argv)
-        props.setProperty("Ice.Default.Router","OMEROGlacier2/router:tcp -p %s -h %s" % (port, server))
-        iid.properties = props
-        self.c = omero.client(['--Ice.Config='+self.ICE_CONFIG], iid)
+        #props = Ice.createProperties(sys.argv)
+        #props.setProperty("Ice.Default.Router","OMERO.Glacier2/router:tcp -p %s -h %s" % (port, server))
+        #iid.properties = props
+        self.c = omero.client(['--Ice.Config='+self.ICE_CONFIG])#, iid)
+
+        # Calculate some defaults
+        if server or port:
+            iid = Ice.InitializationData()
+            iid.properties = self.c.ic.getProperties()
+            def_router = str(self.c.ic.getDefaultRouter()).split(' ')
+            def_router_host = '-h' in def_router and def_router[def_router.index('-h')+1] or None
+            def_router_port = '-p' in def_router and def_router[def_router.index('-p')+1] or None
+            for t in ('-h', '-p'):
+                if t in def_router:
+                    p = def_router.index(t)
+                    def_router.pop(p)
+                    def_router.pop(p)
+            new_router = ' '.join(def_router)
+            if server or def_router_host:
+                new_router += ' -h %s' % (server or def_router_host)
+            if port or def_router_port:
+                new_router += ' -p %s' % (port or def_router_port)
+            logger.debug(new_router)
+            iid.properties.setProperty('Ice.Default.Router', new_router)
+            self.c = omero.client(id=iid)
+
         # The properties we are setting through the interface
-        setprop = self.c.getProperties().setProperty
+        setprop = self.c.ic.getProperties().setProperty
         setprop(omero.constants.USERNAME, username)
         setprop(omero.constants.PASSWORD, passwd)
-        #setprop('Ice.Default.Router', self.c.getProperties().getProperty('Ice.Default.Router_base') + str(host))
+
         self._connected = False
         self._user = None
         self._userid = None
@@ -462,6 +480,15 @@ def assert_re (func):
         return func(self, *args, **kwargs)
     return wrapped
 
+def assert_pixels (func):
+    def wrapped (self, *args, **kwargs):
+        self._loadPixels()
+        if not len(self._obj.pixels):
+            print "No pixels!"
+            return None
+        return func(self, *args, **kwargs)
+    return wrapped
+
 class ImageWrapper (BlitzObjectWrapper):
     LINK_CLASS = None
     CHILD_WRAPPER_CLASS = None
@@ -493,7 +520,9 @@ class ImageWrapper (BlitzObjectWrapper):
             if self._re is None:
                 self._re = self._conn.createRenderingEngine()
                 self._re.lookupPixels(pixels_id)
-                self._re.lookupRenderingDef(pixels_id)
+                if self._re.lookupRenderingDef(pixels_id) == False:
+                    self._re.resetDefaults()
+                    self._re.lookupRenderingDef(pixels_id)
                 self._re.load()
         return True
 
@@ -559,7 +588,7 @@ class ImageWrapper (BlitzObjectWrapper):
         if not tb.setPixelsId(pixels_id):
             tb.resetDefaults()
             tb.setPixelsId(pixels_id)
-        return tb.getThumbnail(*size)
+        return tb.getThumbnailDirect(*size)
 
     @assert_re
     def getChannels (self):
@@ -638,41 +667,37 @@ class ImageWrapper (BlitzObjectWrapper):
     def getT (self):
         return self._pd.t
 
+    @assert_pixels
     def getPixelSizeX (self):
-        self._loadPixels()
-        if not len(self._obj.pixels):
-            print "No pixels!"
-            return None
         return self._obj.pixels[0].pixelsDimensions.sizeX.val
 
+    @assert_pixels
     def getPixelSizeY (self):
-        self._loadPixels()
-        if not len(self._obj.pixels):
-            print "No pixels!"
-            return None
         return self._obj.pixels[0].pixelsDimensions.sizeY.val
 
+    @assert_pixels
     def getPixelSizeZ (self):
-        self._loadPixels()
-        if not len(self._obj.pixels):
-            print "No pixels!"
-            return None
         return self._obj.pixels[0].pixelsDimensions.sizeZ.val
 
+    @assert_pixels
     def getWidth (self):
-        return self._obj.defaultPixels.getSizeX().val
+        return self._obj.pixels[0].getSizeX().val
 
+    @assert_pixels
     def getHeight (self):
-        return self._obj.defaultPixels.getSizeY().val
+        return self._obj.pixels[0].getSizeY().val
 
+    @assert_pixels
     def z_count (self):
-        return self._obj.defaultPixels.getSizeZ().val
+        return self._obj.pixels[0].getSizeZ().val
 
+    @assert_pixels
     def t_count (self):
-        return self._obj.defaultPixels.getSizeT().val
+        return self._obj.pixels[0].getSizeT().val
 
+    @assert_pixels
     def c_count (self):
-        return self._obj.defaultPixels.getSizeC().val
+        return self._obj.pixels[0].getSizeC().val
             
 
 class DatasetWrapper (BlitzObjectWrapper):

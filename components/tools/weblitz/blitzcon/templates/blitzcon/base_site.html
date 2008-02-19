@@ -20,7 +20,8 @@
 
     <title>{% block title %}{% endblock %}</title>
     {% block js %}
-	<script type="text/javascript" src="/media/js/blitzcon/jquery-1.2.1.js"></script>
+	<!-- script type="text/javascript" src="/media/js/blitzcon/jquery-1.2.1.js"></script -->
+	<script type="text/javascript" src="/media/js/blitzcon/weblitz.js"></script>
     {% endblock %}
     {% for src in extra_js %}
     <script type="text/javascript" src="{{ src }}"></script>
@@ -37,84 +38,17 @@
   </head>
 
   <body>
-    <div id="header">
-      {% block header_content %}
-      {% endblock %}
-    </div>
+    {% block header_content %}
+      <div id="header"></div>
+    {% endblock %}
     <div id="body">
       {% block body %}
-      
-      <script type="text/javascript">
-        function getDS(e,pid) {
-          /* Fetches the datasets for a particular project if not already loaded */
-          if ($(e).siblings().length == 0) {
-            r = $('<ul style="display: none;">');
-            r.appendTo($(e).parent());
-            $('<b>Fetching...</b>').appendTo(r);
-            r.show('fast');
-            $.getJSON('/{{ blitzcon.client_base }}/proj/'+pid+'/children/', function(data) {
-              r.empty();
-              for (i in data) {
-                var e = $('<li class="ome-dataset">'+
-                          '<a href="/{{ blitzcon.client_base }}/'+data[i]['id']+'/'+pid +'/">'+
-                          data[i]['name']+'</a></li>').appendTo(r);
-                if (('' + data[i]['id']) == '{{ dataset.id }}') {
-                  e.addClass('selected');
-                }
-              }
-            });
-          } else {
-            c = $(e).siblings();
-            if (c.css('display') == 'none') {
-              c.show('slow');
-            } else {
-              c.hide('slow');
-            }
-          }
-        }
-      </script>
-      
-      {% if not blitzcon.isConnected %}
-        {% include "blitzcon/connect_form.thtml" %}
-        {% if message %}<span class="warning">{{ message }}</span>{% endif %}
-      {% else %}
-      
-        {% if message %}<span class="warning">{{ message }}</span>{% endif %}
-      
-      <ul id="menu">
-        <li class="menu-root">
-          Available projects
-          <ul>
-            <!-- Each Project -->
-            {% for p in blitzcon.listProjects %}
-            <li class="ome-project">
-              <span id="project-{{ p.id }}" onclick="getDS(this, {{ p.id }});">{{ p.name }} ({{ p.id }})</span>
-            </li>
-            {% endfor %}
-          </ul>
-        </li>
-      </ul>
-      
-      <script type="text/javascript">
-        $(document).ready(function () {
-          {% if project %}
-            $("#project-{{ project.id }}").click();
-          {% endif %}
-        });
-      </script>
       
       <div class="content">
         {% block content %}{% endblock %}
       </div>
       
-      {% endif %}
-      
       {% endblock body %}
     </div>
   </body>
 </html>
-
-
-
-
-

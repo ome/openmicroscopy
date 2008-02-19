@@ -106,3 +106,7 @@
   height: 100%;
   font-size: 1px;
 }
+
+.slider-handle.disabled { 
+  background: #CCC;
+}

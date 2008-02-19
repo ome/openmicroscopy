@@ -20,12 +20,13 @@ import blitz_connector
 
 if os.path.exists('etc/ice.config'):
     blitz_connector.BlitzConnector.ICE_CONFIG='etc/ice.config'
-c = blitz_connector.BlitzConnector('demo1','1omed','localhost',9998)
+c = blitz_connector.BlitzConnector('demo1','1omed','127.0.0.1',4063)
 c.allow_thread_timeout = False
 if not c.connect():
-    import sys
-    sys.exit('can not connect')
-
-query = c.getQueryService()
-image = c.listProjects().next().listChildren().next().listChildren().next()
-channels = image.getChannels()
+    print "Can not connect"
+    #import sys
+    #sys.exit('can not connect')
+else:
+    query = c.getQueryService()
+    image = c.listProjects().next().listChildren().next().listChildren().next()
+    channels = image.getChannels()

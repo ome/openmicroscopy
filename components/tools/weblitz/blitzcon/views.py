@@ -61,7 +61,7 @@ def timeit (func):
 
 
 @timeit
-def getBlitzConnection (request, client_base, with_session=False):
+def getBlitzConnection (request, client_base, with_session=False, skip_connect=False):
     for k,v in connectors.items():
         if v is None:
             del connectors[k]
@@ -74,7 +74,7 @@ def getBlitzConnection (request, client_base, with_session=False):
         for k,v in connectors.items()[50:]:
             v.seppuku()
             del connectors[k]
-    
+
     r = request.REQUEST
     if with_session and request.session.session_key is not None:
         ckey = 'S:' + str(request.session.session_key) + '#' + str(client_base)
@@ -151,6 +151,27 @@ def index (request, client_base, dsid=None, prid=None):
         logger.debug("cache hit %s" % ckey)
     return HttpResponse(rsp)
 
+@timeit
+def page (request, client_base, page):
+    """ View for mostly static pages, that need template parsing (for inheritance basicaly) nonetheless.
+        Put your templates in templates/pages/{{page}}.html """
+    ckey = ":page:%s#%s" % (client_base, page)
+    rsp = cache.get(ckey)
+    blitzcon = {'template_base': 'blitzcon', 'client_base': client_base }
+    conns = StoredConnection.objects.filter(base_path__iexact=client_base, enabled__exact=True).order_by('failcount')
+    for n, c in enumerate(conns):
+        if c.has_template:
+            blitzcon['template_base'] = 'blitzcon_%s' % c.base_path
+    if rsp is None:
+        t = loader.get_template('%s/pages/%s.html' % (blitzcon['template_base'], page))
+        d = {'blitzcon': blitzcon,}
+        c = Context(d)
+        rsp = t.render(c)
+        cache.set(ckey, rsp, BASE_CACHE_TIME)
+        logger.debug("cache miss %s" % ckey)
+    else:
+        logger.debug("cache hit %s" % ckey)
+    return HttpResponse(rsp)
 
 @timeit
 def disconnect (request):
@@ -192,6 +213,34 @@ def dataset_viewer (request, client_base, dsid, prid=None):
     return HttpResponse(rsp)
     #return render_to_response('blitzcon/omero_dataset.html', )
 
+@timeit
+def project_viewer (request, client_base, prid, dsid=None):
+    """ Project level view """
+    ckey = ":prviewer:%s#%s:%s" % (client_base, str(prid), str(dsid))
+    rsp = cache.get(ckey)
+    if rsp is None:
+        blitzcon = getBlitzConnection(request, client_base)
+        if blitzcon is None or not blitzcon.isConnected():
+            return HttpResponseRedirect('/')
+
+        pr = blitzcon.getProject(prid)
+        if dsid:
+            ds = blitzcon.getDataset(dsid)
+        else:
+            ds = None
+        d = {'blitzcon': blitzcon,
+             'dataset': ds,
+             'project': pr,
+             'object': 'project:%i' % int(prid),
+             }
+        t = loader.get_template('%s/omero_project.html' % blitzcon.template_base)
+        c = Context(d)
+        rsp = t.render(c)
+        cache.set(ckey, rsp, BASE_CACHE_TIME)
+        logger.debug("cache miss %s" % ckey)
+    else:
+        logger.debug("cache hit %s" % ckey)
+    return HttpResponse(rsp)
 
 def _split_channel_info (rchannels):
     channels = []
@@ -322,18 +371,19 @@ def _get_prepared_image (request, client_base, iid):
         channels, windows, colors =  _split_channel_info(r['c'])
         if not img.setActiveChannels(channels, windows, colors):
             logger.debug("Something bad happened while setting the active channels...")
-    if r.get('m', 'c') == 'g':
+    if r.get('m', None) == 'g':
         img.setGreyscaleRenderingModel()
-    else:
+    elif r.get('m', None) == 'c':
         img.setColorRenderingModel()
     compress_quality = r.get('q', None)
     return (img, compress_quality)
 
 @timeit
 def render_image (request, client_base, iid, z, t):
-    """ I am assuming a single Pixels object on image with id='iid'. May be wrong """
+    """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
+        Many options are available from the request dict.
+    I am assuming a single Pixels object on image with id='iid'. May be wrong """
     r = request.REQUEST
-    logger.debug(r['c'])
     base_ckey = ":img:%s+%s#%s@%%sx%%s?c=%s&g=%s&q=%s" % (str(request.session.session_key), client_base, str(iid),
                                                           r.get('c', ''), r.get('m', 'c'), r.get('q', ''))
     ckey = base_ckey % (str(z), str(t))
@@ -353,6 +403,58 @@ def render_image (request, client_base, iid, z, t):
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp
 
+def imageData_json (request, client_base, iid):
+    """ Get a dict with image information """
+    r = request.REQUEST
+    ckey = ":imgdata:%s#%s" % (client_base, str(iid))
+
+    json_data = cache.get(ckey)
+    if json_data is None:
+        blitzcon = getBlitzConnection(request, client_base)
+        if blitzcon is None or not blitzcon.isConnected():
+            return HttpResponseRedirect('/')
+        image = blitzcon.getImage(iid)
+        if image is None:
+            return HttpResponseRedirect('/')
+        rv = {
+            'id': iid,
+            'width': image.getWidth(),
+            'height': image.getHeight(),
+            'z_count': image.z_count(),
+            't_count': image.t_count(),
+            'c_count': image.c_count(),
+            }
+        json_data = simplejson.dumps(rv)
+        cache.set(ckey, json_data, BASE_CACHE_TIME)
+        logger.debug("cache miss %s" % ckey)
+    else:
+        logger.debug("cache hit %s" % ckey)
+    return HttpResponse(json_data, mimetype='application/javascript')
+
+@timeit
+def listImages_json (request, client_base, did):
+    """ lists all Images in a Dataset, as json """
+    r = request.REQUEST
+    ckey = ":listis:%s#%s" % (client_base, str(did))
+
+    json_data = cache.get(ckey)
+    if json_data is None:
+        blitzcon = getBlitzConnection(request, client_base)
+        if blitzcon is None or not blitzcon.isConnected():
+            return HttpResponseRedirect('/')
+        dataset = blitzcon.getDataset(did)
+        if dataset is None:
+            return HttpResponseRedirect('/')
+        rv = []
+        for im in dataset.listChildren():
+            rv.append( {'id': im.id, 'shortname': im.shortname(), 'author': im.getAuthor(), 'date': im.getDate()} )
+        json_data = simplejson.dumps(rv)
+        cache.set(ckey, json_data, BASE_CACHE_TIME)
+        logger.debug("cache miss %s" % ckey)
+    else:
+        logger.debug("cache hit %s" % ckey)
+    return HttpResponse(json_data, mimetype='application/javascript')
+
 @timeit
 def listDatasets_json (request, client_base, pid):
     """ lists all Datasets in a Project, as json """
@@ -369,7 +471,28 @@ def listDatasets_json (request, client_base, pid):
             return HttpResponseRedirect('/')
         rv = []
         for ds in project.listChildren():
-            rv.append( {'id': ds.id, 'name': ds.name} )
+            rv.append( {'id': ds.id, 'name': ds.name, 'description': ds.description or ''} )
+        json_data = simplejson.dumps(rv)
+        cache.set(ckey, json_data, BASE_CACHE_TIME)
+        logger.debug("cache miss %s" % ckey)
+    else:
+        logger.debug("cache hit %s" % ckey)
+    return HttpResponse(json_data, mimetype='application/javascript')
+
+@timeit
+def listProjects_json (request, client_base):
+    """ lists all Projects, as json """
+    r = request.REQUEST
+    ckey = ":listpr:%s" % (client_base)
+
+    json_data = cache.get(ckey)
+    if json_data is None:
+        blitzcon = getBlitzConnection(request, client_base)
+        if blitzcon is None or not blitzcon.isConnected():
+            return HttpResponseRedirect('/')
+        rv = []
+        for pr in blitzcon.listProjects():
+            rv.append( {'id': pr.id, 'name': pr.name, 'description': pr.description or ''} )
         json_data = simplejson.dumps(rv)
         cache.set(ckey, json_data, BASE_CACHE_TIME)
         logger.debug("cache miss %s" % ckey)

@@ -223,7 +223,7 @@ $.fn.viewportImage = function() {
       }
     }
 
-    var cur_zoom = 0;
+    var cur_zoom = 100;
     var orig_width;
     var orig_height;
 
@@ -245,10 +245,15 @@ $.fn.viewportImage = function() {
       image.attr({width: width, height: height});
     }
 
-    this.setZoomToFit = function (only_shrink) {
+    this.setZoomToFit = function (only_shrink, width, height) {
+      if (width != null && height != null) {
+        orig_width = width;
+        orig_height = height;
+	cur_zoom = 100;
+      }
       var ztf = Math.min(wrapwidth * 100.0 / orig_width, wrapheight * 100.0 / orig_height);
       if (only_shrink && ztf >= 100.0) {
-        return;
+	ztf = 100.0;
       }
       this.setZoom(parseInt(ztf));
     }

@@ -1,8 +1,5 @@
-{% extends "blitzcon/index.html" %}
-
-{% comment %}
 /**
- * index - django html template
+ * base.css - Basic style for the weblitz viewer
  * 
  * Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
  * 
@@ -12,14 +9,4 @@
  * If the file is missing please request a copy by contacting
  * jason@glencoesoftware.com.
  */
-{% endcomment %}
-
-{% block title %}
-Weblitz - Glencoe template
-{% endblock %}
-
-{% block extra_css %}
-  {{ block.super }}
-  <link rel="stylesheet" type="text/css" href="/media/css/blitzcon_glencoe/snippet_header_logo.css" media="all">
-{% endblock %}
 

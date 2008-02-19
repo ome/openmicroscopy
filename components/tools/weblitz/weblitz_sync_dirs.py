@@ -16,6 +16,7 @@ PATHS = (#'templates',
          'media/css',
          'media/img',
          'media/js',
+         'media/html',
          )
 
 if os.path.exists('server'):

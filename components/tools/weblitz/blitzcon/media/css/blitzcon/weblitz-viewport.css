@@ -10,6 +10,77 @@
  * jason@glencoesoftware.com.
  */
 
+.weblitz-viewport-vp {
+  position: absolute;
+  display: block;
+  border: 1px solid;
+  margin: 0px;
+  padding: 0px;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: #ddd;
+  top: 0px;
+  left: 15px;
+}
+
+.weblitz-viewport-top { 
+  position: relative;
+  height: 100%;
+}
+
+.weblitz-viewport-bot { 
+  position: relative;
+  left: 15px;
+  height: 15px;
+  bottom: 0px;
+}
+
+.weblitz-viewport-msg {
+  display: none;
+  color: #F30;
+  font-weight: bold;
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
+  z-index: 1000;
+}
+
+/* Customizing the jquery-plugin-viewportImage classes */
+
+.image-viewer { 
+  position: relative;
+}
+
+.vslider { 
+  position: relative;
+  width: 10px;
+  height: 100%;
+  display: block;
+  top: 0px;
+  left: 0px;
+}
+
+.hslider { 
+  position: relative;
+  height: 10px;
+  bottom: -3px;
+  display: block;
+  font-size: 0.1em;
+}
+
+.slider-line { 
+  width: 100%;
+  background: #F30;
+  font-size: 0.1em;
+}
+
+.slider-handle { 
+  background: #184A89;
+  font-size: 0.1em;
+}
+
+/*
 #wblitz-imgarea { 
   position: absolute;
   clear: both;
@@ -37,13 +108,6 @@
   cursor: -moz-grab;
   cursor: url('/media/img/blitzcon/openhand.cur'), pointer, auto;
 }
-
-/*
-#wblitz-image-vpi.ondrag { 
-  cursor: -moz-grabbing;
-  cursor: url('/media/img/blitzcon/closedhand.cur'), hand, auto;
-}
-*/
 
 #wblitz-message { 
   color: #F30;
@@ -85,7 +149,6 @@
 }
 
 #t-slider *.slider-line { 
-  width: expression(document.getElementById('t-slider').clientWidth - 30);
   margin: 2px 0px;
   height: 10px;
   _height: 13px;
@@ -102,7 +165,5 @@
   cursor: url('/media/img/blitzcon/closedhand.cur'), hand, auto;
 }
 
-.slider-handle { 
-  background: #184A89;
-}
 
+*/

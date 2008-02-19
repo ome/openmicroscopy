@@ -14,42 +14,197 @@
  */
 {% endcomment %}
 
+{% block title %}
+Weblitz - Glencoe template
+{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" type="text/css" href="/media/css/blitzcon/snippet_header_logo.css" media="all">
+{% endblock %}
 
 {% block content %}
+  <script type="text/javascript">
+    /**
+     * global objects holder.
+     */
+     var global = {cache: {}};
 
-{% if not dataset %}
-  <h1>Projects</h1>
-  <p style="width: 70%;">
-    Click on a project name to the left for a list of figures available. Choosing any figure will display a thumbnail for each contained image.
-  </p>
+    /**
+     * Open a Dataset, showing a thumbnail for each image inside it.
+     */
+    function launchDataset (e, pid, did) {
+      /* The context part is interface dependent, whereas the figure box thing is generic and should be put in a lib */
+      var elm = $('#context');
+      elm.html('<h1>'+global.cache['p'+pid].name+'</h1>'+
+               '<div class="pdescription">'+global.cache['p'+pid].description.replace('\n', '<br />')+'</div>'+
+               '<h2>'+global.cache['d'+did].name+'</h2>'+
+               '<div class="ddescription">'+global.cache['d'+did].description.replace('\n', '<br />')+'</div>');
 
-{% else %}
+      var elm = $('.figure-box');
+      elm.hide('fast');
+      elm.html('<table class="table-vp" id="tvp'+did+'"><tr>');
+      var tr = $('tr',elm);
+      var it = $('<table class="image-thumbs">').appendTo($('<td>').appendTo(tr));
+      var iv = $('<div class="image-viewport" id="vp'+did+'">').appendTo($('<td>').appendTo(tr));
+      var tb = $('<div class="toolbox">').appendTo(iv);
+      tb.append('<a href="#" onclick="popup('+did+",'_blank'"+'); close_viewer(this,'+did+'); return false;">\
+                 Open Full Viewer</a>');
+      tb.append('|');
+      tb.append('<a href="#" onclick="close_viewer(this,'+did+'); return false;">\
+                 <img src="/media/img/blitzcon/close.gif" alt="close" /></a>');
+      iv.append('<div class="image-viewer" id="iv'+did+'">');
 
-<script type="text/javascript">
+      //it.append('<img src="/media/img/blitzcon/ajax-loader.gif" alt="loading..." />');
+      $('#selection').addClass('filled');
+      elm.show('slow');
+      $.getJSON('/{{ blitzcon.client_base }}/dataset/'+did+'/children/', function(data) {
+        for (i in data) {
+          it.append('<tr class="image-thumb'+(i%2==0?' odd':'')+'"><td>'+
+                        '<img src="/{{ blitzcon.client_base }}/render_thumbnail/'+data[i].id+'/"'+
+                        ' onclick="launch_viewer(this, '+did+','+data[i].id+')\" /></td><td>'+
+                        '<div class="thumb-detail" onclick="popup('+did+",'_blank'"+','+data[i].id+');'+
+                                                          ' close_viewer(this,'+did+'); return false;">'+
+                        '<p>'+data[i].shortname+'</p><p>'+data[i].author+'</p><p>'+data[i].date+'</p>'+
+                        '</div></td></tr>');
+        }
+      });
+    }
 
-function popup (url, wname) {
-  window.open(url, wname, "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=800,height=800");
-}
+    /**
+     * Grabs the list of Datasets and fills up the project menu page.
+     */
+    function loadDataset (e, pid) {
+      elm = $(e).parent();
+      elm.removeClass('close').addClass('open');
+      elm.append('<ul><li>');
+      $('li', elm).html('<img src="/media/img/blitzcon/ajax-loader.gif" alt="loading..." />');
+      $.getJSON('/{{ blitzcon.client_base }}/proj/'+pid+'/children/', function(data) {
+	$(e).unbind('click');
+        $(e).click(function (ev) {
+          if ($(this).parent().toggleClass('open').is('.open')) {
+            $(this).siblings().show();
+          } else {
+            $(this).siblings().hide();
+          }
+        });
+	var ul = $('ul', elm);
+	ul.html('');
+        for (i in data) {
+          global.cache['d'+data[i].id] = data[i];
+          $('<li class="ome-dataset notree">'+
+            '<a href="#" onclick="launchDataset(this, '+pid+', '+data[i].id+'); return false">'+
+            data[i].name+'</a></li>').appendTo(ul);
+        }
+      });
+    }
 
-</script>
+    /**
+     * Grabs the list of Projects and fills up the menu page.
+     */
+    function loadProjects (elm) {
+      elm.html('<img src="/media/img/blitzcon/ajax-loader.gif" alt="loading..." />');
+      r = $('<ul style="display: none;">');
+      $.getJSON('/{{ blitzcon.client_base }}/proj/list/', function(data) {
+	r.empty();
+        for (i in data) {
+          global.cache['p'+data[i].id] = data[i];
+          var e = $('<li class="tree ome-project">'+
+                    '<a href="#">'+
+                    data[i].name+'</a></li>').appendTo(r);
+	  var cb = function (did) {
+           return function () {loadDataset(this, did); return false;};
+	  };
+	  $('a:last',e).click(cb(data[i].id));
+        }
+        elm.empty();
+        r.appendTo(elm);
+        r.show();
+      });
+    }
 
-  <h1>Project: {{ project.name }}</h1>
-  <p>{% firstof project.description "No description" %}</p>
+    /**
+     * Some design specific calculations are needed to fit everything correctly.
+     */
+    function _refresh_cb (ev, wb) {
+      wb.top.css('height', wb.self.height()-wb.bottom.height()-5);
+      wb.self.parent().parent().css('width', wb.top.width() + wb.zslider.width());
+      var sli = jQuery('.slider-line', wb.tslider);
+      var btn = jQuery('.slider-btn-up', wb.tslider);
+      sli.css('width', wb.tslider.width() - (btn.width()*2) - parseInt(wb.bottom.css('left')));
+      sli = jQuery('.slider-line', wb.zslider);
+      btn = jQuery('.slider-btn-up', wb.zslider);
+      sli.css('height', wb.zslider.height() - (btn.height()*2));
+      var ith = wb.self.parent().parent().find('.image-thumbs');
+    }
 
-  <h2>{{ dataset.name }}</h2>
-  <p>{% firstof dataset.description "No description" %}</p>
+    /**
+     * Open or reuse a minimal viewer (one per Dataset). Also selects the appropriate thumbnail.
+     */
+    function launch_viewer (e, did, iid) {
+      var base = $('#tvp'+did);
+      base.find('.thumb-detail').hide('fast');
+      base.find('.image-thumbs').width('1%');
+      var elm = $('#iv'+did);
+      var vp = $.WeblitzViewport(elm, '/{{ blitzcon.client_base }}', _refresh_cb);
+      vp.setQuality(0.5);
+      elm.parent().show('slow', function () {
+        vp.load(iid);
+      });
+      base.find('.image-thumb img').removeClass('selected');
+      base.find('.image-thumb').addClass('collapsed');
+      $(e).addClass('selected');
+    }
 
-  <!-- Each Image -->
-	  {% for img in dataset.listChildren %}
-      <p>
-      <a href="/{{ blitzcon.client_base }}/img_detail/{{ img.id }}/{{ dataset.id }}/" target="image_{{ img.id }}"
-         onclick="popup('/{{ blitzcon.client_base }}/img_detail/{{ img.id }}/{{ dataset.id }}/','image_{{ img.id }}'); return false;">
-        <img src="/{{ blitzcon.client_base }}/render_thumbnail/{{ img.id }}/" alt="{{ img.name }}"/>
-        {{ img.name }}
-      </a>
-      </p>
-    {% endfor %}
+    /**
+     * Close the minimal viewer for a specific Dataset, and deselect the thumbnail.
+     */
+    function close_viewer (e, did) {
+      $('#tvp'+did).find('.thumb-detail').show('fast');
+      var elm = $('#iv'+did);
+      elm.parent().hide('slow', function () {elm.html(''); });
+      elm.get(0).WeblitzViewport = null;
+      $('#tvp'+did).find('.image-thumb img').removeClass('selected');
+      $('#tvp'+did).find('.image-thumb').removeClass('collapsed');
+    }
 
-{% endif %}
+    /**
+     * Open the full viewer for a specific image.
+     * Passing the dataset is needed to allow showing 'Figure List' on the viewer toolbar.
+     */
+    function popup (did, wname, iid) {
+      if (iid == null) {
+        iid = $.WeblitzViewport($('#iv'+did), '/{{ blitzcon.client_base }}', _refresh_cb).loadedImg.id;
+      }
+      var w = window.open('/{{ blitzcon.client_base }}/img_detail/' + iid + '/' + did, wname,
+                  "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=800,height=800");
+    }
 
-{% endblock content %}
+    window.onload = function () {
+    //$(document).ready(function () {
+      loadProjects($('#project-list'));
+    };
+
+  </script>
+
+  <table>
+    <tr>
+      <td class="menu">
+        <div class="menu">
+          <h1>Projects</h1>
+          <div id="project-list"></div>
+        </div>
+      </td>
+      <td class="body">
+        <div id="selection">
+          <div id="context">
+            Please select a Dataset from a Project using the menu on the left.
+          </div>
+          <div class="figure-box" style="display: none;">
+
+          </div>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+{% endblock %}

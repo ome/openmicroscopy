@@ -125,7 +125,7 @@
   {% if opts.z %}
     $("#z-slider").get(0).setSliderPos({{ opts.z }}, 1);
   {% else %}
-    $("#z-slider").get(0).setSliderPos(parseInt({{ image.z_count }} / 2), 1);
+    $("#z-slider").get(0).setSliderPos(parseInt({{ image.z_count }} / 2 + 1), 1);
   {% endif %}
 
     /* Bind the T slider action */
