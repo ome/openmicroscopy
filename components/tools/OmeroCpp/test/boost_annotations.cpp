@@ -134,3 +134,40 @@ BOOST_AUTO_TEST_CASE( fileAnnotation )
     }
 }
 
+BOOST_AUTO_TEST_CASE( annotationImmutability )
+{
+    try {
+	
+	Fixture f;
+	const omero::client* client = f.login();
+	ServiceFactoryPrx sf = (*client).getSession();
+	IQueryPrx q = sf->getQueryService();
+	IUpdatePrx u = sf->getUpdateService();
+
+	TagAnnotationIPtr tag = new TagAnnotationI();
+	tag->setTextValue(new omero::RString("immutable-tag"));
+
+	ImageIPtr i = new ImageI();
+	i->setName(new omero::RString("tagged-image"));
+	i->linkAnnotation(tag);
+	i = ImageIPtr::dynamicCast( u->saveAndReturnObject(i) );
+	tag = TagAnnotationIPtr::dynamicCast( i->beginAnnotationLinks()[0]->child );
+
+	tag->textValue = new omero::RString("modified-tag");
+	tag = TagAnnotationIPtr::dynamicCast( u->saveAndReturnObject( tag ) );
+	tag = TagAnnotationIPtr::dynamicCast( q->get("TagAnnotation", tag->id->val) );
+
+	BOOST_CHECK_MESSAGE( tag->textValue->val == "immutable-tag", tag->textValue->val );
+
+	// See #878
+	// tag->name = new omero::RString("modified-name");
+	// tag = TagAnnotationIPtr::dynamicCast( u->saveAndReturnObject( tag ) );
+	// tag = TagAnnotationIPtr::dynamicCast( q->get("TagAnnotation", tag->id->val) );
+
+	BOOST_CHECK_MESSAGE( ! tag->name, tag->name->val );
+
+    } catch (omero::ApiUsageException& aue) {
+	cout << aue.message <<endl;
+	throw;
+    }
+}
