@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -463,9 +464,63 @@ public class NullOmeroPojoService
 		return null;
 	}
 
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#advancedSearchFor(SearchDataContext)
+	 */
 	public SearchResult advancedSearchFor(SearchDataContext context) 
-		throws DSOutOfServiceException, DSAccessException {
-		// TODO Auto-generated method stub
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#loadAttachments(Class, long, long)
+	 */
+	public Collection loadAttachments(Class type, long id, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#loadTags(Class, long, long)
+	 */
+	public Collection loadTags(Class type, long id, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#loadUrls(Class, long, long)
+	 */
+	public Collection loadUrls(Class type, long id, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#findContainerPaths(Class, long, long)
+	 */
+	public Collection findContainerPaths(Class type, long id, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#loadRatings(Class, long, long)
+	 */
+	public Collection loadRatings(Class type, long id, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
 		return null;
 	}
 

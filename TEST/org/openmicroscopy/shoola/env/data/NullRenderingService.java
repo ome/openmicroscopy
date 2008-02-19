@@ -86,16 +86,6 @@ public class NullRenderingService
      */
     public void shutDown(long pixelsID) {}
 
-    /**
-     * No-op implementation
-     * @see OmeroImageService#getThumbnail(long, int, int)
-     */
-    public BufferedImage getThumbnail(long pixelsID, int sizeX, int sizeY)
-            throws RenderingServiceException
-    {
-        return null;
-    }
-
 	/**
      * No-op implementation
      * @see OmeroImageService#loadPixelsDimensions(long)
@@ -112,16 +102,6 @@ public class NullRenderingService
      */
 	public Pixels loadPixels(long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException 
-	{
-		return null;
-	}
-
-	/**
-     * No-op implementation
-     * @see OmeroImageService#getThumbnailByLongestSide(long, int)
-     */
-	public BufferedImage getThumbnailByLongestSide(long pixelsID, int maxLength) 
-		throws RenderingServiceException 
 	{
 		return null;
 	}
@@ -183,6 +163,17 @@ public class NullRenderingService
      */
 	public RenderingControl resetRenderingService(long pixelsID) 
 		throws DSAccessException, RenderingServiceException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#getThumbnail(long, int, int, long)
+     */
+	public BufferedImage getThumbnail(long pixelsID, int sizeX, int sizeY, 
+									long userID)
+		throws RenderingServiceException
 	{
 		return null;
 	}
