@@ -261,7 +261,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      */
     private void load()
     {
-    	errorIfNullPixels();
+    	errorIfNullMetadata();
     	if (renderer != null)
     	{
     		renderer.close();
@@ -513,7 +513,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     
     protected void errorIfInvalidState()
     {
-    	errorIfNullPixels();
+    	errorIfNullMetadata();
     	if (renderer == null && wasPassivated)
     	{
     		load();
@@ -524,6 +524,12 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     			"Thumbnail service state corruption: Renderer missing.");
     	}
     }
+    
+    protected void errorIfNullMetadata()
+    {
+    	errorIfNullPixels();
+    	errorIfNullRenderingDef();
+    }
 
     protected void errorIfNullPixels()
     {
@@ -532,7 +538,11 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     		throw new ApiUsageException(
     			"Thumbnail service not ready: Pixels not set.");
     	}
-    	else if (settings == null)
+    }
+    
+    protected void errorIfNullRenderingDef()
+    {
+    	if (settings == null)
     	{
     		throw new InternalException(
     			"Thumbnail service state corruption: RenderingDef missing.");
@@ -873,28 +883,27 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     @Transactional(readOnly = false)
     public void resetDefaults()
     {
-        if (settings != null)
+        // Ensure that setPixelsId() has been called at all.
+        errorIfNullPixels();
+        
+        // Ensure that we haven't just been called before setPixelsId() and that
+        // the rendering settings are null.
+        if (settings != null
+            || iPixels.retrieveRndSettings(pixels.getId()) != null)
         {
         	throw new ApiUsageException(
-        		"Thumbnail service only resets **empty** rendering settings. " +
-        		"Resetting of existing settings from outside the rendering " +
-        		"engine should be performed using the the rendering settings " +
-        		"service.");
+        		"The thumbnail service only resets **empty** rendering " +
+        		"settings. Resetting of existing settings should either be " +
+        		"performed using the RenderingEngine or IRenderingSettings.");
         }
-        // Ensure that we haven't just been called before setPixelsId().
-        RenderingDef def = iPixels.retrieveRndSettings(pixels.getId()); 
-        if (def != null)
-        {
-        	errorIfInvalidState();
-        }
-
+        
         // Lookup associated metadata and reset the settings.
         List<Family> families = iPixels.getAllEnumerations(Family.class);
         List<RenderingModel> renderingModels =
         	iPixels.getAllEnumerations(RenderingModel.class);
         QuantumFactory quantumFactory = new QuantumFactory(families);
         PixelBuffer buffer = pixelDataService.getPixelBuffer(pixels);
-        def = Renderer.createNewRenderingDef(pixels);
+        RenderingDef def = Renderer.createNewRenderingDef(pixels);
         Renderer.resetDefaults(def, pixels, quantumFactory,
                                renderingModels, buffer);
 
