@@ -180,6 +180,7 @@
   
   <bean id="scheduler" class="ome.services.scheduler.SchedulerFactoryBean"
     depends-on="securityInitialization"><!-- Have to slow down scheduler creation. -->
+    <property name="schedulerName" value="OMERO.scheduler"/>
     <property name="jobDetails">
       <list>
         <ref bean="process-jobs-manual" />
