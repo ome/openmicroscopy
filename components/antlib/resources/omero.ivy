@@ -32,6 +32,9 @@
     <dependency org="omero" name="jboss-ejb3" rev="${versions.jboss}" conf="client->default"/>
     <dependency org="omero" name="jbosssx" rev="${versions.jboss}" conf="core->default"/>
     <dependency org="omero" name="persistence-api" rev="${versions.persistence-api}" conf="client->default"/>
+    <!-- Hibernate unfortunately -->
+    <dependency org="hibernate" name="hibernate-annotations" rev="${versions.hibernate-annotations}" conf="build->default"/> 
+    <dependency org="hibernate" name="hibernate-search" rev="${versions.hibernate-search}" conf="build->default"/> 
     <!-- Other -->
     <dependency org="org/springframework" name="spring" rev="${versions.spring}" conf="client->default"/>
     <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}" conf="client->default"/>
