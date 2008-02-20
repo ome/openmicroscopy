@@ -55,11 +55,11 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
 {
     private static final long   serialVersionUID = 1228000122345370913L;
 
-    public static String        versionText = "Beta 2.3";
+    public static String        versionText = "Beta 2.3.1";
     
     /** The data of the last release date. */
     public static String        releaseDate      
-         = "2007-06-06 15:18:13 +0100 (Wed, 04 Oct 2007)";
+         = "2008-02-19 12:25:16 +0000 (Tue, 19 Feb 2008)";
 
     /** The repository revision. */
     public static String        revision  = "$LastChangedRevision$";

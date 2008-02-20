@@ -812,10 +812,16 @@ public class OMEROMetadataStore implements MetadataStore
 	public void setDimensionsPhysicalSizeX(Float physicalSizeX, int imageIndex,
 			int pixelsIndex)
 	{
-        log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] physical size X: '%f'",
-        		imageIndex, pixelsIndex, physicalSizeX));
-        if (physicalSizeX == null) return;
+	    if (physicalSizeX == null || physicalSizeX <= 0.000001)
+	    {
+	        log.warn("physicalSizeX is <= 0.000001f, setting to 1.0f");
+	        physicalSizeX = 1.0f;
+	    } else {
+	        log.debug(String.format(
+	                "Setting Image[%d] Pixels[%d] physical size X: '%f'",
+	                imageIndex, pixelsIndex, physicalSizeX));
+	    }
+        //if (physicalSizeX == null) return;
         Pixels p = getPixels(imageIndex, pixelsIndex);
         PixelsDimensions dims = p.getPixelsDimensions();
         if (dims == null)
@@ -835,10 +841,16 @@ public class OMEROMetadataStore implements MetadataStore
 	public void setDimensionsPhysicalSizeY(Float physicalSizeY, int imageIndex,
 			int pixelsIndex)
 	{
-        log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] physical size Y: '%f'",
-        		imageIndex, pixelsIndex, physicalSizeY));
-        if (physicalSizeY == null) return;
+	    if (physicalSizeY == null || physicalSizeY <= 0.000001)
+	    {
+	        log.warn("physicalSizeY is <= 0.000001f, setting to 1.0f");
+	        physicalSizeY = 1.0f;
+	    } else {
+	        log.debug(String.format(
+	                "Setting Image[%d] Pixels[%d] physical size Y: '%f'",
+	                imageIndex, pixelsIndex, physicalSizeY));
+	    }
+	    //if (physicalSizeY == null) return;
         Pixels p = getPixels(imageIndex, pixelsIndex);
         PixelsDimensions dims = p.getPixelsDimensions();
         if (dims == null)
@@ -858,10 +870,16 @@ public class OMEROMetadataStore implements MetadataStore
 	public void setDimensionsPhysicalSizeZ(Float physicalSizeZ, int imageIndex,
 			int pixelsIndex)
 	{
-        log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] physical size Z: '%f'",
-        		imageIndex, pixelsIndex, physicalSizeZ));
-        if (physicalSizeZ == null) return;
+	    if (physicalSizeZ == null || physicalSizeZ <= 0.000001)
+	    {
+	        log.warn("physicalSizeZ is <= 0.000001f, setting to 1.0f");
+	        physicalSizeZ = 1.0f;
+	    } else {
+	        log.debug(String.format(
+	                "Setting Image[%d] Pixels[%d] physical size Z: '%f'",
+	                imageIndex, pixelsIndex, physicalSizeZ));
+	    }
+	    if (physicalSizeZ == null) return;
         Pixels p = getPixels(imageIndex, pixelsIndex);
         PixelsDimensions dims = p.getPixelsDimensions();
         if (dims == null)
