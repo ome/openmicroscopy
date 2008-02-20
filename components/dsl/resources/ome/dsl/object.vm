@@ -922,7 +922,11 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
 #else
     // Not indexed
 #end
-    @javax.persistence.Column(columnDefinition="${prop.def}", nullable=${prop.nullable}, unique=${prop.unique}, name="${prop.name}", updatable=${prop.update})
+#set($columnName="${prop.name}")
+#if($prop.name.equals("column"))
+#set($columnName="\"column\"")
+#end
+    @javax.persistence.Column(columnDefinition="${prop.def}", nullable=${prop.nullable}, unique=${prop.unique}, name="${columnName}", updatable=${prop.update})
     public ${prop.fieldType} get${prop.nameCapped}() {
         preGetter( ${prop.nameUpper} );
         return this.${prop.name};

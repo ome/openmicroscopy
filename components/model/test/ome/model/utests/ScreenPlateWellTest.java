@@ -19,28 +19,35 @@ import org.testng.annotations.Test;
 
 public class ScreenPlateWellTest extends TestCase {
 
-    Screen screen = new Screen();
+    // Public since used by integration test for simple save
 
-    Plate plate1 = new Plate(), plate2 = new Plate();
+    public Screen screen = new Screen("s");
 
-    Well well1_1 = new Well(), well1_2 = new Well(), well2_1 = new Well(),
-            well2_2 = new Well();
+    public Plate plate1 = new Plate("p1"), plate2 = new Plate("p2");
 
-    WellSample ws1_1a = new WellSample(), ws1_1b = new WellSample(),
+    public Well well1_1 = new Well(), well1_2 = new Well(),
+            well2_1 = new Well(), well2_2 = new Well();
+
+    public WellSample ws1_1a = new WellSample(), ws1_1b = new WellSample(),
             ws1_2a = new WellSample(), ws1_2b = new WellSample(),
             ws2_1a = new WellSample(), ws2_1b = new WellSample(),
             ws2_2a = new WellSample(), ws2_2b = new WellSample();
 
-    ScreenAcquisition acq1 = new ScreenAcquisition(),
+    public ScreenAcquisition acq1 = new ScreenAcquisition(),
             acq2 = new ScreenAcquisition(), acq3 = new ScreenAcquisition(),
             acq4 = new ScreenAcquisition();
 
-    Reagent reagentA = new Reagent(), reagentB = new Reagent(),
-            reagentC = new Reagent();
+    public Reagent reagentA = new Reagent("A"), reagentB = new Reagent("B"),
+            reagentC = new Reagent("C");
 
-    Image i1_1a = new Image(), i1_1b = new Image(), i1_2a = new Image(),
-            i1_2b = new Image(), i2_1a = new Image(), i2_1b = new Image(),
-            i2_2a = new Image(), i2_2b = new Image();
+    public Image i1_1a = new Image("i1_1a");
+    public Image i1_1b = new Image("i1_1b");
+    public Image i1_2a = new Image("i1_2a");
+    public Image i1_2b = new Image("i1_2b");
+    public Image i2_1a = new Image("i2_1a");
+    public Image i2_1b = new Image("i2_1b");
+    public Image i2_2a = new Image("i2_2a");
+    public Image i2_2b = new Image("i2_2b");
 
     @Test
     public void testBuildingAScreen() {
