@@ -6,55 +6,56 @@
 
 package ome.services.blitz;
 
-import ome.system.OmeroContext;
-
 /**
- * Status check for OMERO.blitz. Uses the server settings as defined in omero/server.xml
- * to contact a hopefully functioning server.
- *
+ * Status check for OMERO.blitz. Uses the "StatusCheck" proxy as defined in the
+ * Ice properties passed to main method.
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
 public class Status implements Runnable {
 
-	Ice.Communicator ic;
-	
+    Ice.Communicator ic;
+
     /**
      * Uses the passed args to create an {@link Ice.Communicator}.
      */
     public static void main(final String[] args) {
-    	Status status = new Status(args);
-    	try {
-    		status.run();
-    	} catch (StatusException se) {
-    		System.exit(se.exit);
-    	}
-    	System.exit(0);
+        Status status = new Status(args);
+        try {
+            status.run();
+        } catch (StatusException se) {
+            se.printStackTrace();
+            System.exit(se.exit);
+        }
+        System.exit(0);
     }
-    
-    
+
     public Status(String[] args) {
-    	ic = Ice.Util.initialize(args);
+        ic = Ice.Util.initialize(args);
     }
-    
+
     public void run() {
-    	Ice.ObjectPrx base = ic.stringToProxy("Manager:tcp -h 127.0.0.1 -p 9999");
-    	try {
-    		Glacier2.SessionManagerPrx mgr = Glacier2.SessionManagerPrxHelper.checkedCast( base );
-    		if (mgr == null) {
-    			throw new StatusException(1);
-    		}
-    	} catch (Ice.ConnectionRefusedException cre) {
-    		throw new StatusException(2);
-    	}
+        Ice.ObjectPrx base = ic.propertyToProxy("StatusCheck");
+        try {
+            Glacier2.SessionManagerPrx mgr = Glacier2.SessionManagerPrxHelper
+                    .checkedCast(base);
+            if (mgr == null) {
+                throw new StatusException("Null proxy.", 1);
+            }
+        } catch (Ice.ConnectionRefusedException cre) {
+            throw new StatusException("Connection refused.", 2);
+        }
 
     }
-    
+
 }
 
 class StatusException extends RuntimeException {
-	int exit = Integer.MAX_VALUE;
-	StatusException(int code) {
-		exit = code;
-	}
+    int exit = Integer.MAX_VALUE;
+
+    StatusException(String msg, int code) {
+        super(msg);
+        exit = code;
+    }
 }

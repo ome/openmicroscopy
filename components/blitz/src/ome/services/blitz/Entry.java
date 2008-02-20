@@ -64,6 +64,7 @@ public class Entry {
                 try {
                     new Status(args).run();
                 } catch (Throwable t) {
+                    t.printStackTrace();
                     System.exit(1);
                 }
                 System.exit(0);
