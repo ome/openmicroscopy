@@ -19,12 +19,6 @@
 
 <beans>
 
-  <bean id="licenseSessionListener" class="ome.services.licenses.LicenseSessionListener">
-	<property name="service" ref="managed:ome.services.licenses.ILicense"/>
-	<property name="securitySystem" ref="securitySystem"/>
-	<property name="licenseWiring" ref="licenseWiring"/>
-  </bean>
-
   <bean id="licenseExceptionListener" class="ome.services.licenses.LicenseExceptionListener"/>
 
   <bean id="omero.licenses.ILicense" class="ome.services.blitz.util.ServantDefinition">

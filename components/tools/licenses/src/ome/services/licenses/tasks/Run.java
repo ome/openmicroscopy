@@ -91,7 +91,7 @@ public class Run extends ome.util.tasks.Run {
             }
         } else {
             final ServiceFactory sf = getServiceFactory();
-            sf.closeSession();
+            sf.getSession();
         }
     }
 

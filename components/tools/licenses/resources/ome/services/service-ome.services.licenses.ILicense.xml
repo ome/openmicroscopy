@@ -31,4 +31,14 @@
 
   <bean id="licenseWiring" class="ome.services.licenses.LicenseWiring"/>
 
+  <!-- Since the event is now published from an ISession method, it is clear
+       that the login information, etc. is valid (also checked by a call to
+       SessionManager). Therefore, it is okay for the listener to have an
+       internal proxy -->
+  <bean id="licenseSessionListener" class="ome.services.licenses.LicenseSessionListener">
+    <property name="service" ref="internal:ome.services.licenses.ILicense"/>
+    <property name="securitySystem" ref="securitySystem"/>
+    <property name="licenseWiring" ref="licenseWiring"/>
+  </bean>
+
 </beans>
